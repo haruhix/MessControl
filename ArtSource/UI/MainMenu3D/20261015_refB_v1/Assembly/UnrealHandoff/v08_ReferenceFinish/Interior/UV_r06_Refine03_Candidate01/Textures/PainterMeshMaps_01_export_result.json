@@ -1,0 +1,62 @@
+{
+  "status": "Success",
+  "message": "Export successfully finished",
+  "groups": [
+    {
+      "texture_set": "MC_Tongue",
+      "stack": "",
+      "files": [
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterMeshMaps_01/MC_Tongue_normal_base.1001.png",
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterMeshMaps_01/MC_Tongue_world_space_normals.1001.png",
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterMeshMaps_01/MC_Tongue_position.1001.png",
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterMeshMaps_01/MC_Tongue_ambient_occlusion.1001.png",
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterMeshMaps_01/MC_Tongue_curvature.1001.png",
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterMeshMaps_01/MC_Tongue_thickness.1001.png"
+      ]
+    }
+  ],
+  "files": [
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterMeshMaps_01/MC_Tongue_normal_base.1001.png",
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterMeshMaps_01/MC_Tongue_world_space_normals.1001.png",
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterMeshMaps_01/MC_Tongue_position.1001.png",
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterMeshMaps_01/MC_Tongue_ambient_occlusion.1001.png",
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterMeshMaps_01/MC_Tongue_curvature.1001.png",
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterMeshMaps_01/MC_Tongue_thickness.1001.png"
+  ],
+  "preset": {
+    "name": "Mesh Maps",
+    "url": "resource://starter_assets/Mesh Maps?version=966907117468566740.spexp"
+  },
+  "verification": [
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterMeshMaps_01/MC_Tongue_normal_base.1001.png",
+      "exists": true,
+      "bytes": 78565
+    },
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterMeshMaps_01/MC_Tongue_world_space_normals.1001.png",
+      "exists": true,
+      "bytes": 1141597
+    },
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterMeshMaps_01/MC_Tongue_position.1001.png",
+      "exists": true,
+      "bytes": 510440
+    },
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterMeshMaps_01/MC_Tongue_ambient_occlusion.1001.png",
+      "exists": true,
+      "bytes": 1411893
+    },
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterMeshMaps_01/MC_Tongue_curvature.1001.png",
+      "exists": true,
+      "bytes": 597263
+    },
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterMeshMaps_01/MC_Tongue_thickness.1001.png",
+      "exists": true,
+      "bytes": 1106475
+    }
+  ]
+}

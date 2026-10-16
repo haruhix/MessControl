@@ -1,0 +1,99 @@
+{
+  "revision": "v08b_SeamUV",
+  "candidate": "Candidates/Final96_GumMinStretch_LocalFangRepair",
+  "normal_convention": "DirectX",
+  "resolution": 4096,
+  "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Reference_v08b",
+  "fbx_sha256": "41f93635dbf1b44513e0df8f8066f4b9a4f9a724641f112ae1a6132bc8e805f1",
+  "manifest_sha256": "740cc6fd09959eb9dc040dcf74e34e9d5fe680c5776b81600fa13300557efe6f",
+  "texture_sets": {
+    "MC_Enamel": {
+      "maps": {
+        "BaseColorTexture": {
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Enamel_Base_color_1001.png",
+          "sha256": "d624cdae8af926bb7a1b7ddd3c5356e79ce71de7b87eca045dd19554b18b9920",
+          "size": [
+            4096,
+            4096
+          ]
+        },
+        "RoughnessTexture": {
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Enamel_Specular_roughness_1001.png",
+          "sha256": "dc2d75dcc14db2bc7db6e8852d666ba1b6df09fff9779369e6c6972c1ba3667f",
+          "size": [
+            4096,
+            4096
+          ]
+        },
+        "NormalTexture": {
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Enamel_Normal_DirectX_1001.png",
+          "sha256": "eea8119f391bbc93ce761de3f35c4d6d306754c20faa2a03b94dff65929b8db9",
+          "size": [
+            4096,
+            4096
+          ]
+        },
+        "AOTexture": {
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Enamel_Mixed_AO_1001.png",
+          "sha256": "147f53e67cdbaacca3640ed9b944d6b137c8ab54987ac15db42cc4b658e7bff7",
+          "size": [
+            4096,
+            4096
+          ]
+        },
+        "ThicknessTexture": {
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterMeshMaps_01\\MC_Enamel_thickness.1001.png",
+          "sha256": "05d025f6eba1eeb0fd9376b08aa7aca13329bd9bccc8da3860cdd2f1703bb2b5",
+          "size": [
+            4096,
+            4096
+          ]
+        }
+      }
+    },
+    "MC_Gum": {
+      "maps": {
+        "BaseColorTexture": {
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Gum_Base_color_1001.png",
+          "sha256": "411f8b499f14e1c25285abff4f3a4425df85f0c39f96f4dcb5e0f8dbc5f15014",
+          "size": [
+            4096,
+            4096
+          ]
+        },
+        "RoughnessTexture": {
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Gum_Specular_roughness_1001.png",
+          "sha256": "66313a562951e172aa547bda47079b9167f045d90c31fe4605220e42828ef7ca",
+          "size": [
+            4096,
+            4096
+          ]
+        },
+        "NormalTexture": {
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Gum_Normal_DirectX_1001.png",
+          "sha256": "c6b71dc66633ff8cdd5fdcb902198e532afa112111bffd20cf9bb9f0580f4623",
+          "size": [
+            4096,
+            4096
+          ]
+        },
+        "AOTexture": {
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Gum_Mixed_AO_1001.png",
+          "sha256": "a7c34dcb1ce8e8067d3a25534b92870a6a0b162bc3281fedf664c049c85559ad",
+          "size": [
+            4096,
+            4096
+          ]
+        },
+        "ThicknessTexture": {
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterMeshMaps_01\\MC_Gum_thickness.1001.png",
+          "sha256": "4fdbb4656eddacdcfe927ce91f4dfe10f9600b1fe5a15ece5a15a4215c7b95ca",
+          "size": [
+            4096,
+            4096
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "source": "ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\SK_DAY03.fbx",
+  "source_sha256": "41f93635dbf1b44513e0df8f8066f4b9a4f9a724641f112ae1a6132bc8e805f1",
+  "material_names": [
+    "MC_Enamel",
+    "MC_Gum"
+  ],
+  "uv_name": "UV0",
+  "vertices": 251964,
+  "polygons": 334040,
+  "triangles": 503792,
+  "independent": true,
+  "read_only": true
+}

@@ -1,0 +1,13 @@
+{
+  "video": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\Review\\Unreal_FunctionalBlocking_v03_FullRoute\\LowerRow_v09_InteriorSync17_LocalSlowCorners\\NativeMenuBlocking.mp4",
+  "source": "Unaltered live Unreal PIE frames; only window chrome cropped",
+  "frames": 52,
+  "measured_duration": 12.038541078567505,
+  "median_capture_interval": 0.2882978916168213,
+  "max_capture_interval": 0.34142088890075684,
+  "output_dimensions": [
+    1280,
+    720
+  ],
+  "timing": "Measured per-frame durations, no invented intermediate poses"
+}

@@ -9,7 +9,7 @@
   (CallFunction|FindStageActors)
   (CallFunction|ShowPage :Index 0))
 
-(event UserInterface|EventTick (MyGeometry InDeltaTime) (CallFunction|UpdateStage))
+
 
 (event OnClicked(PlayButton)
   (Variables|Default|SetActiveDay 0)
@@ -24,7 +24,13 @@
   (Variables|Default|SetOpen7 0.0)
   (Variables|Default|SetHoverQuiet 0.25)
   (Variables|Default|SetSnapRemaining 0.6)
+  (Variables|Default|SetWheelAccumulator 0.0)
+  (Variables|Default|SetStageScroll 0.0)
+  (Variables|Default|SetStageScrollTarget 0.0)
+  (Widget|SetScrollOffset :self (Variables|WBP_MainMenu3D|GetDayScroll) :NewScrollOffset 0.0)
+  (Widget|SetText(Text) :self (Variables|WBP_MainMenu3D|GetDayCounter) :InText "01 / 07")
   (CallFunction|ShowPage :Index 1)
+  (CallFunction|ResetPointerIntent)
   (CallFunction|CenterSelectedDay)
 )
 
@@ -53,7 +59,7 @@
 )
 
 (event OnClicked(DaysBackButton)
-  (CallFunction|ShowPage :Index 0)
+  (CallFunction|Back)
 )
 
 (event OnClicked(LaunchBackButton)
@@ -97,7 +103,7 @@
 )
 
 (event OnClicked(Day1CollapseButton)
-  (Variables|Default|SetActiveDay 0) (Variables|Default|SetHoverQuiet 1.2) (Variables|Default|SetSnapRemaining 1.0) (Widget|SetKeyboardFocus :self (Variables|WBP_MainMenu3D|GetDaysBackButton))
+  (CallFunction|ResetPointerIntent) (Variables|Default|SetActiveDay 0) (Variables|Default|SetHoverQuiet 1.2) (Variables|Default|SetSnapRemaining 1.0) (Widget|SetKeyboardFocus :self (Variables|WBP_MainMenu3D|GetDaysBackButton))
 )
 
 (event OnClicked(Day2PlayButton)
@@ -105,7 +111,7 @@
 )
 
 (event OnClicked(Day2CollapseButton)
-  (Variables|Default|SetActiveDay 0) (Variables|Default|SetHoverQuiet 1.2) (Variables|Default|SetSnapRemaining 1.0) (Widget|SetKeyboardFocus :self (Variables|WBP_MainMenu3D|GetDaysBackButton))
+  (CallFunction|ResetPointerIntent) (Variables|Default|SetActiveDay 0) (Variables|Default|SetHoverQuiet 1.2) (Variables|Default|SetSnapRemaining 1.0) (Widget|SetKeyboardFocus :self (Variables|WBP_MainMenu3D|GetDaysBackButton))
 )
 
 (event OnClicked(Day3PlayButton)
@@ -113,7 +119,7 @@
 )
 
 (event OnClicked(Day3CollapseButton)
-  (Variables|Default|SetActiveDay 0) (Variables|Default|SetHoverQuiet 1.2) (Variables|Default|SetSnapRemaining 1.0) (Widget|SetKeyboardFocus :self (Variables|WBP_MainMenu3D|GetDaysBackButton))
+  (CallFunction|ResetPointerIntent) (Variables|Default|SetActiveDay 0) (Variables|Default|SetHoverQuiet 1.2) (Variables|Default|SetSnapRemaining 1.0) (Widget|SetKeyboardFocus :self (Variables|WBP_MainMenu3D|GetDaysBackButton))
 )
 
 (event OnClicked(QualityLowButton)

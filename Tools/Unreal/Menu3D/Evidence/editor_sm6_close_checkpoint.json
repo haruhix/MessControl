@@ -1,0 +1,13 @@
+{
+  "status": "TASK_ONLY_PACKAGES_SAVED_REQUESTING_EDITOR_CLOSE",
+  "saved": [
+    "/Game/UI/MainMenu3D/BP_Menu3DPlayerController",
+    "/Game/UI/MainMenu3D/WBP_MainMenu3D",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuTongue_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuInterior_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuEnamel_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuGum_v08"
+  ],
+  "work_map": "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08",
+  "scope": "SM6 art review session only; no production renderer or C++ build"
+}

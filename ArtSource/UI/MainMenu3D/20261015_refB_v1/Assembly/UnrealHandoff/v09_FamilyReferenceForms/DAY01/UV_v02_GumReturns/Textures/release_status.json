@@ -1,0 +1,13 @@
+{
+  "status": "FROZEN_RELEASED_TO_ROOT",
+  "day": "DAY01",
+  "binding": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY01\\UV_v02_GumReturns\\Textures\\shader_binding.json",
+  "binding_sha256": "520d33f991de291684240e85d51a47fbb6b27e31e1f6123aac650ea1359438f5",
+  "editable_project": {
+    "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY01\\UV_v02_GumReturns\\Textures\\MC_DAY01_FamilyReference.spp",
+    "sha256": "84569bd9ef2602614f967b01556fb32e23366dbd3b7a6f2b19e0196d061e3fbe",
+    "bytes": 258987939
+  },
+  "native_visual_approval": "PENDING_ROOT_UNREAL_GATE",
+  "mutations_after_release": "Use an explicit new revision, never silently change selected maps."
+}

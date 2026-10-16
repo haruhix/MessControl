@@ -1,0 +1,11 @@
+(fn OpenConnection ()
+  (if (and (== (Variables|Default|GetPageIndex) 1) (and (>= (Variables|Default|GetSelectedDay) 1) (and (<= (Variables|Default|GetSelectedDay) 3) (and (== (Variables|Default|GetActiveDay) (Variables|Default|GetSelectedDay)) (or (and (== (Variables|Default|GetSelectedDay) 1) (> (Variables|Default|GetOpen1) 0.72)) (or (and (== (Variables|Default|GetSelectedDay) 2) (> (Variables|Default|GetOpen2) 0.72)) (or (and (== (Variables|Default|GetSelectedDay) 3) (> (Variables|Default|GetOpen3) 0.72)) false)))))))
+  (Widget|Panel|ClearChildren :self (Variables|WBP_MainMenu3D|GetLegacyMenuHost))
+  (CallFunction|ShowPage :Index 5)
+  (bind owner (Widget|GetOwningPlayer))
+  (bind menu (UserInterface|CreateWidget :Class "/Script/MessControl.MCMainMenuWidget" :OwningPlayer owner))
+  (Variables|Default|SetLegacyMenu menu)
+  (Widget|AddChildtoOverlay :self (Variables|WBP_MainMenu3D|GetLegacyMenuHost) :Content menu)
+
+  )
+)

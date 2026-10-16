@@ -1,0 +1,9 @@
+{
+  "revision": "v08b_SeamUV",
+  "candidate": "Candidates/Final96_GumMinStretch_LocalFangRepair",
+  "fbx_sha256": "41f93635dbf1b44513e0df8f8066f4b9a4f9a724641f112ae1a6132bc8e805f1",
+  "visual_uv_review": "PASS",
+  "geometry_unchanged": true,
+  "technical_uv_review": "PASS_WITH_BOUNDED_NOTES",
+  "notes": "Root opened actual final checker and both atlases; independent QA verified source/packet UV bitexact, fresh FBX position/UV/material identity, all nine rig/morph/symmetry poses and lower-row source visibility with zero card-mask loss. UV has 96 enamel + 6 gum charts, no overlaps/collapses/flips. Continuous long gum strips intentionally leave unused atlas space; all surfaces remain covered. This is technical UV acceptance; physical texture look, native tongue/UI/readability and timing require actual PIE review."
+}

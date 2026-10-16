@@ -1,0 +1,14 @@
+{
+  "source": "ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\MC_DAY03_UnrealMorphSource.blend",
+  "source_sha256": "e5b14557b090f955065050f8426011e9e66fb07eb33cbcf88738c734148fb3b7",
+  "material_names": [
+    "MC_Enamel",
+    "MC_Gum"
+  ],
+  "uv_name": "UV0",
+  "vertices": 251964,
+  "polygons": 334040,
+  "triangles": 503792,
+  "independent": true,
+  "read_only": true
+}

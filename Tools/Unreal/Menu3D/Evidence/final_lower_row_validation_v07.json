@@ -1,0 +1,100 @@
+{
+  "status": "LOWER_ROW_FIX_SAVED_NATIVE_REVIEW_PASS",
+  "stage": "Functional gray 3D menu blocking; final reference-quality art remains unapproved",
+  "changes": [
+    "Symmetric32-crown DAY03 with8 matched pairs per arch and two upper fangs",
+    "Rounded seated gums expose lower enamel from Closed through Open",
+    "Lower jaw lifted0.8 source units times openness; Closed, upper, XY/UV/rig preserved",
+    "Constant uniformXYZscale0.5376540384; original character and animation retained",
+    "Cavity/tongue fit: childX0.90, verticalmask75%",
+    "DAY03 cavity controls up18designpx, revealOpen3>0.98, Hidden layout while unrevealed"
+  ],
+  "native_mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_LowerReadable_v07.SK_DAY03_LowerReadable_v07",
+  "saved_map": "/Game/UI/MainMenu3D/L_MainMenu3D",
+  "source_independent_qc": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v07_LowerRowReadability\\QA_Independent\\independent_qc_review.md",
+  "functional_native_route": {
+    "folder": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\Review\\Unreal_FunctionalBlocking_v03_FullRoute\\LowerRow_v07_Run04",
+    "checks": 18,
+    "status": "PASS"
+  },
+  "latest_first_reveal_check": {
+    "folder": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\Review\\Unreal_FunctionalBlocking_v03_FullRoute\\LowerRow_v07_Run05",
+    "root_opened": [
+      "frame_0023.png",
+      "frame_0024.png",
+      "frame_0046.png"
+    ],
+    "result": "Text alignment correct at first reveal; Back clears lower enamel; closing hides controls before overlap",
+    "video": {
+      "video": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\Review\\Unreal_FunctionalBlocking_v03_FullRoute\\LowerRow_v07_Run05\\NativeMenuBlocking.mp4",
+      "source": "Unaltered live Unreal PIE frames; only window chrome cropped",
+      "frames": 72,
+      "measured_duration": 6.958861351013184,
+      "median_capture_interval": 0.09741544723510742,
+      "max_capture_interval": 0.1299145221710205,
+      "output_dimensions": [
+        1280,
+        720
+      ],
+      "timing": "Measured per-frame durations, no invented intermediate poses"
+    }
+  },
+  "interactive_runtime": {
+    "status": "NORMAL_INTERACTIVE_RUNTIME_RESTORED",
+    "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_LowerReadable_v07.SK_DAY03_LowerReadable_v07",
+    "global_time_dilation": 1.0,
+    "root_visibility": "<SlateVisibility.SELF_HIT_TEST_INVISIBLE: 4>",
+    "page": 1,
+    "selected": 3,
+    "active": 3,
+    "open3": 1.0,
+    "scale": "<Struct 'Vector' (0x000001D9A6043DF0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+    "children": [
+      {
+        "tag": "Interior",
+        "relative_scale": "<Struct 'Vector' (0x000001DA50FCF1B0) {x: 0.900000, y: 1.000000, z: 1.000000}>"
+      },
+      {
+        "tag": "Tongue",
+        "relative_scale": "<Struct 'Vector' (0x000001DA50FC0BB0) {x: 0.900000, y: 1.000000, z: 1.000000}>"
+      },
+      {
+        "tag": "Character",
+        "relative_scale": "<Struct 'Vector' (0x000001D98F4EA1B0) {x: 2.000000, y: 2.000000, z: 2.000000}>"
+      }
+    ]
+  },
+  "files": [
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v07_LowerRowReadability\\MC_DAY03_UnrealMorphSource.blend",
+      "bytes": 18062017,
+      "sha256": "4144fae22714fee23b4b29c25e41b556d10b055df70519766c077afab3665062"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v07_LowerRowReadability\\SK_DAY03.fbx",
+      "bytes": 31908012,
+      "sha256": "bbbc62e2eb6ec8c325d6ac69edd5e6c25513e7c03742c095c2c6f272c7bf8f08"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\Content\\UI\\MainMenu3D\\Meshes\\SK_DAY03_LowerReadable_v07.uasset",
+      "bytes": 90981772,
+      "sha256": "7f0fc12f72f77c6b8b23e40d868def51dbeeb31a1f38e61a1e661850c40c7780"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\Content\\UI\\MainMenu3D\\L_MainMenu3D.umap",
+      "bytes": 59190,
+      "sha256": "e9b7c5d1ae163cf1e29919c69000f7a20f170459b2e10111b84c0a865958276c"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\Content\\UI\\MainMenu3D\\WBP_MainMenu3D.uasset",
+      "bytes": 4877358,
+      "sha256": "e3ccd0b0d89e51b3e809f04e7f0569cc8d113cb630122b1bfbf7b462bc7f5874"
+    }
+  ],
+  "limits": [
+    "Sampled real screenshots at approximately10fps do not establish every rendered frame or game FPS",
+    "Controlled shared-function route; pointer hit delivery isolated only during capture and restored afterward; no new physical-wheel/keyboard claim",
+    "Run01 raw mixed-phase FAIL and Run02 off-schedule selection retained as diagnostic evidence",
+    "No startup integration, final materials, build/cook/package, multiplayer validation or new Git push performed"
+  ]
+}

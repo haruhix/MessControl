@@ -1,0 +1,58 @@
+{
+  "status": "TICK_ORDER_AND_ZERO_DELTA_HOVER_COMPILED_SAVED_PENDING_ROOT_PIE",
+  "only_authored_graphs": [
+    "BP_Menu3DPlayerController:EventGraph",
+    "WBP_MainMenu3D:OnMouseMove"
+  ],
+  "mouth_tags": [
+    "Menu3D_DAY01",
+    "Menu3D_DAY02",
+    "Menu3D_DAY03",
+    "Menu3D_DAY04",
+    "Menu3D_DAY05",
+    "Menu3D_DAY06",
+    "Menu3D_DAY07"
+  ],
+  "mouth_runtime_policy": {
+    "tick_prerequisite_actor": "owning menu PlayerController",
+    "visibility_based_anim_tick_option": "AlwaysTickPoseAndRefreshBones",
+    "enable_update_rate_optimizations": false
+  },
+  "character_tags_dependency_only": [
+    "Menu3D_DAY01_Character",
+    "Menu3D_DAY02_Character",
+    "Menu3D_DAY03_Character"
+  ],
+  "character_animation_mesh_action_assets_changed": false,
+  "pointer_delta_gate": "OnMouseMove queues only event GetCursorDelta length>0.01 desktop pixel; existing accumulated viewport-motion threshold>2px retained, so slow real movement can accumulate.",
+  "synthetic_zero_delta_events": "Do not queue a new pending hover; ReturnUnhandled retained.",
+  "normal_input_assumption": "A nonzero event cursor delta indicates pointer motion. Actual resize/hover tests remain root-owned.",
+  "source_evidence": [
+    "Engine/Private/Components/SkeletalMeshComponent.cpp:4011 SetMorphTarget changes curve map without immediate refresh",
+    "Engine/Private/Components/SkeletalMeshComponent.cpp:4819 RefreshMorphTargets consumes override curves",
+    "Engine/Private/Components/ActorComponent.cpp:2613 AddTickPrerequisiteActor orders the component after the actor",
+    "Engine/Classes/Components/SkinnedMeshComponent.h:793,932 menu runtime optimization properties"
+  ],
+  "compiled_warnings_as_errors": true,
+  "saved_packages": [
+    {
+      "asset": "/Game/UI/MainMenu3D/BP_Menu3DPlayerController",
+      "bytes": 247820,
+      "sha256": "ef8fbd530360d8272d1e10519f46614be7d3149e4fd27aa4bb84eda4b22685c2"
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/WBP_MainMenu3D",
+      "bytes": 4877311,
+      "sha256": "34bf793f5d22b43464dc07deabdde2fd0546ae2c183a8c04de2fb85abb3cb257"
+    }
+  ],
+  "protected_author_source_hashes_unchanged": {
+    "accordion_UpdateStage.dsl": "19c5f6792922f665402e68cfcc9542700d34c6322b1606cf74f74da19cf7ff38",
+    "accordion_DriveMouthDay.dsl": "6ac8bd5da0fd1242ce434daca5e6c0977d75127d70d71fc2d83ea0884efc1343",
+    "accordion_OnMouseWheel.dsl": "f4225f24aaf83969f032f1aa622704fef5b835c8ea3a46da7d7cc65d09433281",
+    "accordion_UpdatePointerIntent.dsl": "9d6a0ffbb6682ad58fe053e3c6db395a402cd507070a90273310592414443808",
+    "accordion_OpenConnection.dsl": "54ac157830b101a0ab051758367238ecad462c11543e751c77a5ad405e7a6bf0"
+  },
+  "PIE_input_level_Git_operations": false,
+  "validation": "Actual graph authoring, Blueprint compile and package save only. No runtime acceptance claim."
+}

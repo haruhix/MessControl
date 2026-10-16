@@ -1,0 +1,358 @@
+{
+  "status": "PRODUCER_TECHNICAL_PASS",
+  "independent": false,
+  "read_only": true,
+  "source": {
+    "asset": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\MC_DAY02_UnrealMorphSource.blend",
+    "sha256": "e4a483ea11d11bf424b87a28c952f739f83b48094efa7a506eb21ab516ca2339",
+    "vertices": 168644,
+    "triangles": 337152,
+    "materials": [
+      "MC_Enamel",
+      "MC_Gum"
+    ],
+    "UV_layers": [
+      "UV0"
+    ],
+    "morphs": [
+      "Basis",
+      "Pose_000",
+      "Pose_025",
+      "Pose_050",
+      "Pose_075"
+    ],
+    "armatures": [
+      {
+        "name": "MC_MenuMouth_Rig",
+        "bones": [
+          "root"
+        ]
+      }
+    ],
+    "all_root_weights_one": true,
+    "all_polygons_smooth": true,
+    "nonmanifold_edges": 0,
+    "minimum_triangle_area_source_units2": 5.861016790616199e-06,
+    "zero_length_edges": 0,
+    "UV_finite": true,
+    "UV_in_0_1": true,
+    "poses": {
+      "0.0": {
+        "min": [
+          -8.520059585571289,
+          -5.0537190437316895,
+          -2.0403449535369873
+        ],
+        "max": [
+          8.520059585571289,
+          0.7820973992347717,
+          2.0403449535369873
+        ]
+      },
+      "0.125": {
+        "min": [
+          -8.520059585571289,
+          -5.0537190437316895,
+          -2.2528449296951294
+        ],
+        "max": [
+          8.520059585571289,
+          0.7820973992347717,
+          2.2528449296951294
+        ]
+      },
+      "0.25": {
+        "min": [
+          -8.520059585571289,
+          -5.0537190437316895,
+          -2.4653449058532715
+        ],
+        "max": [
+          8.520059585571289,
+          0.7820973992347717,
+          2.4653449058532715
+        ]
+      },
+      "0.375": {
+        "min": [
+          -8.520059585571289,
+          -5.0537190437316895,
+          -2.677845001220703
+        ],
+        "max": [
+          8.520059585571289,
+          0.7820973992347717,
+          2.677845001220703
+        ]
+      },
+      "0.5": {
+        "min": [
+          -8.520059585571289,
+          -5.0537190437316895,
+          -2.8903450965881348
+        ],
+        "max": [
+          8.520059585571289,
+          0.7820973992347717,
+          2.8903450965881348
+        ]
+      },
+      "0.625": {
+        "min": [
+          -8.520059585571289,
+          -5.0537190437316895,
+          -3.1028449535369873
+        ],
+        "max": [
+          8.520059585571289,
+          0.7820973992347717,
+          3.102845072746277
+        ]
+      },
+      "0.75": {
+        "min": [
+          -8.520059585571289,
+          -5.0537190437316895,
+          -3.31534481048584
+        ],
+        "max": [
+          8.520059585571289,
+          0.7820973992347717,
+          3.315345048904419
+        ]
+      },
+      "0.875": {
+        "min": [
+          -8.520059585571289,
+          -5.0537190437316895,
+          -3.5278449058532715
+        ],
+        "max": [
+          8.520059585571289,
+          0.7820973992347717,
+          3.527845025062561
+        ]
+      },
+      "1.0": {
+        "min": [
+          -8.520059585571289,
+          -5.0537190437316895,
+          -3.740345001220703
+        ],
+        "max": [
+          8.520059585571289,
+          0.7820973992347717,
+          3.740345001220703
+        ]
+      }
+    }
+  },
+  "fresh_fbx": {
+    "asset": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\SK_DAY02.fbx",
+    "sha256": "3e4737c0f22ec8ef2c25d4f0ec63fc22c0c7ead9afdee9a1efa9c070f02d330f",
+    "vertices": 168644,
+    "triangles": 337152,
+    "materials": [
+      "MC_Enamel",
+      "MC_Gum"
+    ],
+    "UV_layers": [
+      "UV0"
+    ],
+    "morphs": [
+      "Basis",
+      "Pose_000",
+      "Pose_025",
+      "Pose_050",
+      "Pose_075"
+    ],
+    "armatures": [
+      {
+        "name": "MC_MenuMouth_Rig",
+        "bones": [
+          "root"
+        ]
+      }
+    ],
+    "all_root_weights_one": true,
+    "all_polygons_smooth": true,
+    "nonmanifold_edges": 0,
+    "minimum_triangle_area_source_units2": 5.8610167906156655e-06,
+    "zero_length_edges": 0,
+    "UV_finite": true,
+    "UV_in_0_1": true,
+    "poses": {
+      "0.0": {
+        "min": [
+          -8.52005942957339,
+          -5.053719708266341,
+          -2.0403449535369873
+        ],
+        "max": [
+          8.520059781783658,
+          0.7820974621783083,
+          2.0403449535369873
+        ]
+      },
+      "0.125": {
+        "min": [
+          -8.52005942957339,
+          -5.053719708266341,
+          -2.2528449296951294
+        ],
+        "max": [
+          8.520059781783658,
+          0.7820974621783083,
+          2.2528449296951294
+        ]
+      },
+      "0.25": {
+        "min": [
+          -8.52005942957339,
+          -5.053719708266341,
+          -2.4653449058532715
+        ],
+        "max": [
+          8.520059781783658,
+          0.7820974621783083,
+          2.4653449058532715
+        ]
+      },
+      "0.375": {
+        "min": [
+          -8.52005942957339,
+          -5.053719708266341,
+          -2.677845001220703
+        ],
+        "max": [
+          8.520059781783658,
+          0.7820974621783083,
+          2.677845001220703
+        ]
+      },
+      "0.5": {
+        "min": [
+          -8.52005942957339,
+          -5.053719708266341,
+          -2.8903450965881348
+        ],
+        "max": [
+          8.520059781783658,
+          0.7820974621783083,
+          2.8903450965881348
+        ]
+      },
+      "0.625": {
+        "min": [
+          -8.52005942957339,
+          -5.053719708266341,
+          -3.1028449535369873
+        ],
+        "max": [
+          8.520059781783658,
+          0.7820974621783083,
+          3.102845072746277
+        ]
+      },
+      "0.75": {
+        "min": [
+          -8.52005942957339,
+          -5.053719708266341,
+          -3.31534481048584
+        ],
+        "max": [
+          8.520059781783658,
+          0.7820974621783083,
+          3.315345048904419
+        ]
+      },
+      "0.875": {
+        "min": [
+          -8.52005942957339,
+          -5.053719708266341,
+          -3.5278449058532715
+        ],
+        "max": [
+          8.520059781783658,
+          0.7820974621783083,
+          3.527845025062561
+        ]
+      },
+      "1.0": {
+        "min": [
+          -8.52005942957339,
+          -5.053719708266341,
+          -3.740345001220703
+        ],
+        "max": [
+          8.520059781783658,
+          0.7820974621783083,
+          3.740345001220703
+        ]
+      }
+    }
+  },
+  "poses": {
+    "0.0": {
+      "fresh_vs_source_max_cm": 8.215873278136794e-05,
+      "fresh_reflection_max_cm": 0.00016431746556273588,
+      "source_paired_crown_gum_max_cm": 1.9536017248356075e-05
+    },
+    "0.125": {
+      "fresh_vs_source_max_cm": 8.215873278136794e-05,
+      "fresh_reflection_max_cm": 0.00016442553519982502,
+      "source_paired_crown_gum_max_cm": 1.9547879048786854e-05
+    },
+    "0.25": {
+      "fresh_vs_source_max_cm": 8.215873278136794e-05,
+      "fresh_reflection_max_cm": 0.00016474931877283412,
+      "source_paired_crown_gum_max_cm": 1.9559740849217633e-05
+    },
+    "0.375": {
+      "fresh_vs_source_max_cm": 8.215873278136794e-05,
+      "fresh_reflection_max_cm": 0.00016442553519982502,
+      "source_paired_crown_gum_max_cm": 1.9558723352020024e-05
+    },
+    "0.5": {
+      "fresh_vs_source_max_cm": 8.215873278136794e-05,
+      "fresh_reflection_max_cm": 0.00016431746556273588,
+      "source_paired_crown_gum_max_cm": 2.384185791015625e-05
+    },
+    "0.625": {
+      "fresh_vs_source_max_cm": 8.215873278136794e-05,
+      "fresh_reflection_max_cm": 0.00016431746556273588,
+      "source_paired_crown_gum_max_cm": 1.954391777303499e-05
+    },
+    "0.75": {
+      "fresh_vs_source_max_cm": 8.215873278136794e-05,
+      "fresh_reflection_max_cm": 0.00016431746556273588,
+      "source_paired_crown_gum_max_cm": 2.3842585494815777e-05
+    },
+    "0.875": {
+      "fresh_vs_source_max_cm": 8.215873278136794e-05,
+      "fresh_reflection_max_cm": 0.00016431746556273588,
+      "source_paired_crown_gum_max_cm": 1.952916548475514e-05
+    },
+    "1.0": {
+      "fresh_vs_source_max_cm": 8.215873278136794e-05,
+      "fresh_reflection_max_cm": 0.00016431746556273588,
+      "source_paired_crown_gum_max_cm": 1.9538354933956725e-05
+    }
+  },
+  "gates": {
+    "one_root": true,
+    "shape_key_contract": true,
+    "all_weights_root": true,
+    "positive_surface_area": true,
+    "closed_no_zero_edges": true,
+    "UV_finite_0_1": true,
+    "nine_pose_source_fbx_agreement": true,
+    "nine_pose_reflection": true,
+    "source_pair_reflection": true,
+    "inputs_unchanged": true
+  },
+  "limitations": [
+    "Actual Unreal runtime/material/clip review remains required",
+    "This is producer verification; independent review and actual checker/atlas gates remain separate"
+  ]
+}

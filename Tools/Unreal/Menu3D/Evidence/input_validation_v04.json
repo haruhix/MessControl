@@ -1,0 +1,27 @@
+{
+  "physical_wheel_down": {
+    "passed": true,
+    "delivered_delta": 120,
+    "before_day": 3,
+    "after_day": 4,
+    "receipt": "actual_review_physical_wheel3_to4_v04.json"
+  },
+  "native_slate_keyboard": {
+    "passed": [
+      "Down selects adjacent day",
+      "Enter on focused inner Back collapses mouth",
+      "Escape returns Main"
+    ],
+    "receipts": [
+      "actual_review_native_key_down.json",
+      "actual_review_native_enter_focused_back.json",
+      "actual_review_native_escape_main.json"
+    ]
+  },
+  "not_verified": [
+    "Physical reverse wheel: concurrent user input interrupted the attempt",
+    "Fractional physical wheel packets",
+    "Direct hover input after latest fixes"
+  ],
+  "scope": "Solo native PIE menu only; no game travel, multiplayer or packaged build"
+}

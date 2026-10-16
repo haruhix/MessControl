@@ -1,0 +1,11 @@
+{
+  "geometry_exact": true,
+  "enamel_changed_loop_ids": [
+    248498,
+    248503,
+    303165,
+    303168
+  ],
+  "enamel_max_uv_move_4k": 0.2786591053009033,
+  "gum_bitexact_to_improved_candidate": true
+}

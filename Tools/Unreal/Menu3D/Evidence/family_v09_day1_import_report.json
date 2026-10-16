@@ -1,0 +1,17 @@
+{
+  "status": "STAGED_WITH_INTERIM_PHYSICAL_DEFAULTS_PENDING_NATIVE_FIT_AND_OWN_PAINTER_MAPS",
+  "day": 1,
+  "source_fbx": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY01\\UV_v02_GumReturns\\SK_DAY01.fbx",
+  "source_sha256": "2ce1bd15e5e56301b5d004e186ca855960e48c6fb3991d1f52afc3609ceefcb4",
+  "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Reference_v09",
+  "previous_mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking.SK_DAY01_Blocking",
+  "skeleton": "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking_Skeleton.SK_DAY01_Blocking_Skeleton",
+  "bounds": "<Struct 'BoxSphereBounds' (0x000001DAA4813E40) {origin: {x: 0.000000, y: -222.333656, z: -0.018661}, box_extent: {x: 868.414490, y: 300.276024, z: 374.018448}, sphere_radius: 992.068151}>",
+  "materials": [
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Enamel_v09.MI_DAY01_Enamel_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Gum_v09.MI_DAY01_Gum_v09"
+  ],
+  "validation": "Root inspected actual shape, coherent checker and both UV atlases. Producer source/fresh FBX nine-pose checks passed. Independent family gate, native fit/motion and final Painter appearance remain pending.",
+  "startup_map_changed": false,
+  "character_and_motion_graphs_changed": false
+}

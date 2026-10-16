@@ -1,0 +1,362 @@
+{
+  "status": "SAVED_WORK_LOOK_CANDIDATE_NOT_FINAL_REFERENCE_ACCEPTANCE",
+  "evidence": "PBRCalibration_v08b_06_Interior/D_burgundy_depth_warm_enamel.png",
+  "shadow_policy": "Keep all four source light shadow flags; row isolation review pending",
+  "materials": [
+    {
+      "path": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Enamel_v09.MI_DAY01_Enamel_v09",
+      "before": {
+        "BaseColorTint": "<Struct 'LinearColor' (0x000001DA2F7411E0) {r: 1.000000, g: 1.000000, b: 1.000000, a: 1.000000}>",
+        "SubsurfaceTint": "<Struct 'LinearColor' (0x000001D99FD22BA0) {r: 0.900000, g: 0.700000, b: 0.400000, a: 1.000000}>",
+        "ScatterDensity": 0.7799999713897705,
+        "RoughnessScale": 1.0
+      },
+      "after": {
+        "BaseColorTint": [
+          0.85,
+          0.65,
+          0.7
+        ],
+        "SubsurfaceTint": [
+          0.8,
+          0.4,
+          0.4
+        ],
+        "ScatterDensity": 1.6,
+        "RoughnessScale": 1.0
+      }
+    },
+    {
+      "path": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Gum_v09.MI_DAY01_Gum_v09",
+      "before": {
+        "BaseColorTint": "<Struct 'LinearColor' (0x000001D981FF75E0) {r: 1.000000, g: 1.000000, b: 1.000000, a: 1.000000}>",
+        "SubsurfaceTint": "<Struct 'LinearColor' (0x000001D99FD22BA0) {r: 0.800000, g: 0.070000, b: 0.100000, a: 1.000000}>",
+        "ScatterDensity": 0.550000011920929,
+        "RoughnessScale": 1.0
+      },
+      "after": {
+        "BaseColorTint": [
+          0.85,
+          2.2,
+          1.9
+        ],
+        "SubsurfaceTint": [
+          0.35,
+          0.075,
+          0.09
+        ],
+        "ScatterDensity": 1.5,
+        "RoughnessScale": 1.15
+      }
+    },
+    {
+      "path": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Interior_v09.MI_DAY01_Interior_v09",
+      "before": {
+        "BaseColorTint": "<Struct 'LinearColor' (0x000001D99FE11460) {r: 1.000000, g: 1.000000, b: 1.000000, a: 1.000000}>",
+        "SubsurfaceTint": "<Struct 'LinearColor' (0x000001D99FD22BA0) {r: 0.350000, g: 0.008000, b: 0.025000, a: 1.000000}>",
+        "ScatterDensity": 0.699999988079071,
+        "RoughnessScale": 1.0
+      },
+      "after": {
+        "BaseColorTint": [
+          0.45,
+          0.8,
+          0.85
+        ],
+        "SubsurfaceTint": [
+          0.015,
+          0.002,
+          0.003
+        ],
+        "ScatterDensity": 3.0,
+        "RoughnessScale": 1.0
+      }
+    },
+    {
+      "path": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Tongue_v09.MI_DAY01_Tongue_v09",
+      "before": {
+        "BaseColorTint": "<Struct 'LinearColor' (0x000001D9BA5E09A0) {r: 1.000000, g: 1.000000, b: 1.000000, a: 1.000000}>",
+        "SubsurfaceTint": "<Struct 'LinearColor' (0x000001D99FD22BA0) {r: 0.320000, g: 0.008000, b: 0.018000, a: 1.000000}>",
+        "ScatterDensity": 1.5,
+        "RoughnessScale": 1.0
+      },
+      "after": {
+        "BaseColorTint": [
+          0.7,
+          0.9,
+          0.9
+        ],
+        "SubsurfaceTint": [
+          0.12,
+          0.008,
+          0.015
+        ],
+        "ScatterDensity": 3.0,
+        "RoughnessScale": 1.0
+      }
+    },
+    {
+      "path": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Enamel_v09.MI_DAY02_Enamel_v09",
+      "before": {
+        "BaseColorTint": "<Struct 'LinearColor' (0x000001D9BA5E09E0) {r: 1.000000, g: 1.000000, b: 1.000000, a: 1.000000}>",
+        "SubsurfaceTint": "<Struct 'LinearColor' (0x000001D99FD22BA0) {r: 0.900000, g: 0.700000, b: 0.400000, a: 1.000000}>",
+        "ScatterDensity": 0.7799999713897705,
+        "RoughnessScale": 1.0
+      },
+      "after": {
+        "BaseColorTint": [
+          0.85,
+          0.65,
+          0.7
+        ],
+        "SubsurfaceTint": [
+          0.8,
+          0.4,
+          0.4
+        ],
+        "ScatterDensity": 1.6,
+        "RoughnessScale": 1.0
+      }
+    },
+    {
+      "path": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Gum_v09.MI_DAY02_Gum_v09",
+      "before": {
+        "BaseColorTint": "<Struct 'LinearColor' (0x000001D9BA5E0320) {r: 1.000000, g: 1.000000, b: 1.000000, a: 1.000000}>",
+        "SubsurfaceTint": "<Struct 'LinearColor' (0x000001D99FD22BA0) {r: 0.800000, g: 0.070000, b: 0.100000, a: 1.000000}>",
+        "ScatterDensity": 0.550000011920929,
+        "RoughnessScale": 1.0
+      },
+      "after": {
+        "BaseColorTint": [
+          0.85,
+          2.2,
+          1.9
+        ],
+        "SubsurfaceTint": [
+          0.35,
+          0.075,
+          0.09
+        ],
+        "ScatterDensity": 1.5,
+        "RoughnessScale": 1.15
+      }
+    },
+    {
+      "path": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Interior_v09.MI_DAY02_Interior_v09",
+      "before": {
+        "BaseColorTint": "<Struct 'LinearColor' (0x000001D9BA5C26A0) {r: 1.000000, g: 1.000000, b: 1.000000, a: 1.000000}>",
+        "SubsurfaceTint": "<Struct 'LinearColor' (0x000001D99FD22BA0) {r: 0.350000, g: 0.008000, b: 0.025000, a: 1.000000}>",
+        "ScatterDensity": 0.699999988079071,
+        "RoughnessScale": 1.0
+      },
+      "after": {
+        "BaseColorTint": [
+          0.45,
+          0.8,
+          0.85
+        ],
+        "SubsurfaceTint": [
+          0.015,
+          0.002,
+          0.003
+        ],
+        "ScatterDensity": 3.0,
+        "RoughnessScale": 1.0
+      }
+    },
+    {
+      "path": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Tongue_v09.MI_DAY02_Tongue_v09",
+      "before": {
+        "BaseColorTint": "<Struct 'LinearColor' (0x000001D9BA5C3DA0) {r: 1.000000, g: 1.000000, b: 1.000000, a: 1.000000}>",
+        "SubsurfaceTint": "<Struct 'LinearColor' (0x000001D99FD22BA0) {r: 0.320000, g: 0.008000, b: 0.018000, a: 1.000000}>",
+        "ScatterDensity": 1.5,
+        "RoughnessScale": 1.0
+      },
+      "after": {
+        "BaseColorTint": [
+          0.7,
+          0.9,
+          0.9
+        ],
+        "SubsurfaceTint": [
+          0.12,
+          0.008,
+          0.015
+        ],
+        "ScatterDensity": 3.0,
+        "RoughnessScale": 1.0
+      }
+    },
+    {
+      "path": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Enamel_v08.MI_DAY03_Enamel_v08",
+      "before": {
+        "BaseColorTint": "<Struct 'LinearColor' (0x000001D9BA5C3360) {r: 1.000000, g: 1.000000, b: 1.000000, a: 1.000000}>",
+        "SubsurfaceTint": "<Struct 'LinearColor' (0x000001D99FD22BA0) {r: 0.800000, g: 0.580000, b: 0.400000, a: 1.000000}>",
+        "ScatterDensity": 1.600000023841858,
+        "RoughnessScale": 1.0
+      },
+      "after": {
+        "BaseColorTint": [
+          0.85,
+          0.65,
+          0.7
+        ],
+        "SubsurfaceTint": [
+          0.8,
+          0.4,
+          0.4
+        ],
+        "ScatterDensity": 1.6,
+        "RoughnessScale": 1.0
+      }
+    },
+    {
+      "path": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Gum_v08.MI_DAY03_Gum_v08",
+      "before": {
+        "BaseColorTint": "<Struct 'LinearColor' (0x000001D9BA5C1060) {r: 1.000000, g: 1.000000, b: 1.000000, a: 1.000000}>",
+        "SubsurfaceTint": "<Struct 'LinearColor' (0x000001D99FD22BA0) {r: 0.650000, g: 0.025000, b: 0.040000, a: 1.000000}>",
+        "ScatterDensity": 0.8999999761581421,
+        "RoughnessScale": 1.0
+      },
+      "after": {
+        "BaseColorTint": [
+          0.85,
+          2.2,
+          1.9
+        ],
+        "SubsurfaceTint": [
+          0.35,
+          0.075,
+          0.09
+        ],
+        "ScatterDensity": 1.5,
+        "RoughnessScale": 1.15
+      }
+    },
+    {
+      "path": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Interior_v08.MI_DAY03_Interior_v08",
+      "before": {
+        "BaseColorTint": "<Struct 'LinearColor' (0x000001D90068FE60) {r: 1.000000, g: 1.000000, b: 1.000000, a: 1.000000}>",
+        "SubsurfaceTint": "<Struct 'LinearColor' (0x000001D99FD22BA0) {r: 0.350000, g: 0.008000, b: 0.025000, a: 1.000000}>",
+        "ScatterDensity": 0.699999988079071,
+        "RoughnessScale": 1.0
+      },
+      "after": {
+        "BaseColorTint": [
+          0.45,
+          0.8,
+          0.85
+        ],
+        "SubsurfaceTint": [
+          0.015,
+          0.002,
+          0.003
+        ],
+        "ScatterDensity": 3.0,
+        "RoughnessScale": 1.0
+      }
+    },
+    {
+      "path": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Tongue_v08.MI_DAY03_Tongue_v08",
+      "before": {
+        "BaseColorTint": "<Struct 'LinearColor' (0x000001D90068EA60) {r: 1.000000, g: 1.000000, b: 1.000000, a: 1.000000}>",
+        "SubsurfaceTint": "<Struct 'LinearColor' (0x000001D99FD22BA0) {r: 0.320000, g: 0.008000, b: 0.018000, a: 1.000000}>",
+        "ScatterDensity": 1.5,
+        "RoughnessScale": 1.0
+      },
+      "after": {
+        "BaseColorTint": [
+          0.7,
+          0.9,
+          0.9
+        ],
+        "SubsurfaceTint": [
+          0.12,
+          0.008,
+          0.015
+        ],
+        "ScatterDensity": 3.0,
+        "RoughnessScale": 1.0
+      }
+    }
+  ],
+  "lights": [
+    {
+      "tag": "Menu3D_Key",
+      "before": {
+        "intensity": 420.0,
+        "color": "<Struct 'Color' (0x000001DA10C0E8B8) {b: 215, g: 234, r: 255, a: 255}>",
+        "cast_shadows": true,
+        "source_width": 500.0,
+        "source_height": 700.0
+      },
+      "intensity": 420.0,
+      "color": [
+        1.0,
+        0.72,
+        0.65
+      ],
+      "cast_shadows": true,
+      "source_width": 160.0,
+      "source_height": 850.0
+    },
+    {
+      "tag": "Menu3D_Fill",
+      "before": {
+        "intensity": 95.0,
+        "color": "<Struct 'Color' (0x000001DA10C07FB8) {b: 160, g: 173, r: 255, a: 255}>",
+        "cast_shadows": true,
+        "source_width": 900.0,
+        "source_height": 900.0
+      },
+      "intensity": 110.0,
+      "color": [
+        1.0,
+        0.9,
+        0.88
+      ],
+      "cast_shadows": true,
+      "source_width": 900.0,
+      "source_height": 900.0
+    },
+    {
+      "tag": "Menu3D_BlockingRim",
+      "before": {
+        "intensity": 100.0,
+        "color": "<Struct 'Color' (0x000001DA10C070B8) {b: 255, g: 124, r: 196, a: 255}>",
+        "cast_shadows": true,
+        "source_width": 400.0,
+        "source_height": 800.0
+      },
+      "intensity": 40.0,
+      "color": [
+        0.55,
+        0.2,
+        1.0
+      ],
+      "cast_shadows": true,
+      "source_width": 400.0,
+      "source_height": 800.0
+    },
+    {
+      "tag": "Menu3D_BlockingCavity",
+      "before": {
+        "intensity": 35.0,
+        "color": "<Struct 'Color' (0x000001DA10C0B6B8) {b: 124, g: 111, r: 255, a: 255}>",
+        "cast_shadows": true,
+        "source_width": 1200.0,
+        "source_height": 600.0
+      },
+      "intensity": 22.0,
+      "color": [
+        1.0,
+        0.8,
+        0.8
+      ],
+      "cast_shadows": true,
+      "source_width": 1200.0,
+      "source_height": 600.0
+    }
+  ],
+  "camera_geometry_texture_pixels_changed": false
+}

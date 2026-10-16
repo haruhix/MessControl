@@ -1,0 +1,558 @@
+{
+  "CallFunction|ShowPage": {
+    "output_pins": [
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Output",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_131"
+          }
+        },
+        "type_id": "Exec",
+        "name": "then"
+      }
+    ],
+    "input_pins": [
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_131"
+          }
+        },
+        "type_id": "Exec",
+        "name": "execute"
+      },
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 1,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_131"
+          }
+        },
+        "type_id": "Self Object Reference",
+        "name": "self"
+      },
+      {
+        "value": "0",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 2,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_131"
+          }
+        },
+        "type_id": "Integer",
+        "name": "Index"
+      }
+    ],
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "node": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_131"
+    },
+    "type_id": "|ShowPage"
+  },
+  "CallFunction|SelectDay": {
+    "output_pins": [
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Output",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_132"
+          }
+        },
+        "type_id": "Exec",
+        "name": "then"
+      }
+    ],
+    "input_pins": [
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_132"
+          }
+        },
+        "type_id": "Exec",
+        "name": "execute"
+      },
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 1,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_132"
+          }
+        },
+        "type_id": "Self Object Reference",
+        "name": "self"
+      },
+      {
+        "value": "0",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 2,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_132"
+          }
+        },
+        "type_id": "Integer",
+        "name": "Day"
+      }
+    ],
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "node": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_132"
+    },
+    "type_id": "|SelectDay"
+  },
+  "CallFunction|OpenConnection": {
+    "output_pins": [
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Output",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_133"
+          }
+        },
+        "type_id": "Exec",
+        "name": "then"
+      }
+    ],
+    "input_pins": [
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_133"
+          }
+        },
+        "type_id": "Exec",
+        "name": "execute"
+      },
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 1,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_133"
+          }
+        },
+        "type_id": "Self Object Reference",
+        "name": "self"
+      }
+    ],
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "node": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_133"
+    },
+    "type_id": "|OpenConnection"
+  },
+  "CallFunction|Back": {
+    "output_pins": [
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Output",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_134"
+          }
+        },
+        "type_id": "Exec",
+        "name": "then"
+      }
+    ],
+    "input_pins": [
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_134"
+          }
+        },
+        "type_id": "Exec",
+        "name": "execute"
+      },
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 1,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_134"
+          }
+        },
+        "type_id": "Self Object Reference",
+        "name": "self"
+      }
+    ],
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "node": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_134"
+    },
+    "type_id": "|Back"
+  },
+  "CallFunction|UpdateStage": {
+    "output_pins": [
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Output",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_135"
+          }
+        },
+        "type_id": "Exec",
+        "name": "then"
+      }
+    ],
+    "input_pins": [
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_135"
+          }
+        },
+        "type_id": "Exec",
+        "name": "execute"
+      },
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 1,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_135"
+          }
+        },
+        "type_id": "Self Object Reference",
+        "name": "self"
+      }
+    ],
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "node": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_135"
+    },
+    "type_id": "|UpdateStage"
+  },
+  "CallFunction|FindStageActors": {
+    "output_pins": [
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Output",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_136"
+          }
+        },
+        "type_id": "Exec",
+        "name": "then"
+      }
+    ],
+    "input_pins": [
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_136"
+          }
+        },
+        "type_id": "Exec",
+        "name": "execute"
+      },
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 1,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_136"
+          }
+        },
+        "type_id": "Self Object Reference",
+        "name": "self"
+      }
+    ],
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "node": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_136"
+    },
+    "type_id": "|FindStageActors"
+  },
+  "Widget|Panel|ClearChildren": {
+    "output_pins": [
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Output",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_137"
+          }
+        },
+        "type_id": "Exec",
+        "name": "then"
+      }
+    ],
+    "input_pins": [
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_137"
+          }
+        },
+        "type_id": "Exec",
+        "name": "execute"
+      },
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 1,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_137"
+          }
+        },
+        "type_id": "Panel Widget Object Reference",
+        "name": "self"
+      }
+    ],
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "node": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_137"
+    },
+    "type_id": "Widget|Panel|ClearChildren"
+  },
+  "Utilities|Text|EqualExactly(Text)": {
+    "output_pins": [
+      {
+        "value": "false",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Output",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_138"
+          }
+        },
+        "type_id": "Boolean",
+        "name": "ReturnValue"
+      }
+    ],
+    "input_pins": [
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_138"
+          }
+        },
+        "type_id": "Text (by ref)",
+        "name": "A"
+      },
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 1,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_138"
+          }
+        },
+        "type_id": "Text (by ref)",
+        "name": "B"
+      }
+    ],
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "node": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_138"
+    },
+    "type_id": "Utilities|Text|EqualExactly(Text)"
+  },
+  "Game|GetPlayerController": {
+    "output_pins": [
+      {
+        "value": "",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Output",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_139"
+          }
+        },
+        "type_id": "Player Controller Object Reference",
+        "name": "ReturnValue"
+      }
+    ],
+    "input_pins": [
+      {
+        "value": "0",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_139"
+          }
+        },
+        "type_id": "Integer",
+        "name": "PlayerIndex"
+      }
+    ],
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "node": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_139"
+    },
+    "type_id": "Game|GetPlayerController"
+  },
+  "Math|Vector|MakeVector": {
+    "output_pins": [
+      {
+        "value": "0, 0, 0",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Output",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_140"
+          }
+        },
+        "type_id": "Vector",
+        "name": "ReturnValue"
+      }
+    ],
+    "input_pins": [
+      {
+        "value": "0.0",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_140"
+          }
+        },
+        "type_id": "Float (double-precision)",
+        "name": "X"
+      },
+      {
+        "value": "0.0",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 1,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_140"
+          }
+        },
+        "type_id": "Float (double-precision)",
+        "name": "Y"
+      },
+      {
+        "value": "0.0",
+        "connected_pins": [],
+        "pin_id": {
+          "direction": "EGPD_Input",
+          "index_id": 2,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_140"
+          }
+        },
+        "type_id": "Float (double-precision)",
+        "name": "Z"
+      }
+    ],
+    "position": {
+      "x": 0,
+      "y": 0
+    },
+    "node": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_140"
+    },
+    "type_id": "Math|Vector|MakeVector"
+  }
+}

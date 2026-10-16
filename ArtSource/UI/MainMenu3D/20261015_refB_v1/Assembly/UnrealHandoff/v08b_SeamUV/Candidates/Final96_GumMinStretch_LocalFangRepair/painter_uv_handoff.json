@@ -1,0 +1,381 @@
+{
+  "policy": "Unique0\u20131UV0 per material, NOmirror/repeatstacking; noSmartProject",
+  "texture_sets": [
+    "MC_Enamel",
+    "MC_Gum"
+  ],
+  "resolution": 4096,
+  "padding_target_px": 16,
+  "pack_margin_fraction": 0.00390625,
+  "desired_pair_gap_px": 32,
+  "crown_seams": [
+    {
+      "part": "MC_DAY03_Upper_Central_R",
+      "cervical_cap_faces": 1485,
+      "lingual_panel_faces": 5968,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Upper_Central_L",
+      "cervical_cap_faces": 1485,
+      "lingual_panel_faces": 5968,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Upper_Lateral_R",
+      "cervical_cap_faces": 1433,
+      "lingual_panel_faces": 5907,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Upper_Lateral_L",
+      "cervical_cap_faces": 1433,
+      "lingual_panel_faces": 5907,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Upper_Fang_R",
+      "cervical_cap_faces": 850,
+      "lingual_panel_faces": 5571,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Upper_Fang_L",
+      "cervical_cap_faces": 850,
+      "lingual_panel_faces": 5571,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Upper_Premolar01_R",
+      "cervical_cap_faces": 1324,
+      "lingual_panel_faces": 4766,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Upper_Premolar01_L",
+      "cervical_cap_faces": 1324,
+      "lingual_panel_faces": 4766,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Upper_Premolar02_R",
+      "cervical_cap_faces": 1290,
+      "lingual_panel_faces": 3664,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Upper_Premolar02_L",
+      "cervical_cap_faces": 1290,
+      "lingual_panel_faces": 3664,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Upper_Molar01_R",
+      "cervical_cap_faces": 1100,
+      "lingual_panel_faces": 3369,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Upper_Molar01_L",
+      "cervical_cap_faces": 1100,
+      "lingual_panel_faces": 3369,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Upper_Molar02_R",
+      "cervical_cap_faces": 1040,
+      "lingual_panel_faces": 3664,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Upper_Molar02_L",
+      "cervical_cap_faces": 1040,
+      "lingual_panel_faces": 3664,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Upper_Molar03_R",
+      "cervical_cap_faces": 1040,
+      "lingual_panel_faces": 3614,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Upper_Molar03_L",
+      "cervical_cap_faces": 1040,
+      "lingual_panel_faces": 3614,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Lower_Central_R",
+      "cervical_cap_faces": 1240,
+      "lingual_panel_faces": 5552,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Lower_Central_L",
+      "cervical_cap_faces": 1240,
+      "lingual_panel_faces": 5552,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Lower_Lateral_R",
+      "cervical_cap_faces": 1156,
+      "lingual_panel_faces": 5341,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Lower_Lateral_L",
+      "cervical_cap_faces": 1156,
+      "lingual_panel_faces": 5341,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Lower_Canine_R",
+      "cervical_cap_faces": 1260,
+      "lingual_panel_faces": 5232,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Lower_Canine_L",
+      "cervical_cap_faces": 1260,
+      "lingual_panel_faces": 5232,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Lower_Premolar_R",
+      "cervical_cap_faces": 1454,
+      "lingual_panel_faces": 3627,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Lower_Premolar_L",
+      "cervical_cap_faces": 1454,
+      "lingual_panel_faces": 3627,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Lower_Molar_R",
+      "cervical_cap_faces": 1452,
+      "lingual_panel_faces": 3776,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Lower_Molar_L",
+      "cervical_cap_faces": 1452,
+      "lingual_panel_faces": 3776,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Lower_Posterior_01_R",
+      "cervical_cap_faces": 914,
+      "lingual_panel_faces": 3503,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Lower_Posterior_01_L",
+      "cervical_cap_faces": 914,
+      "lingual_panel_faces": 3503,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Lower_Posterior_02_R",
+      "cervical_cap_faces": 850,
+      "lingual_panel_faces": 2915,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Lower_Posterior_02_L",
+      "cervical_cap_faces": 850,
+      "lingual_panel_faces": 2915,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Lower_Posterior_03_R",
+      "cervical_cap_faces": 824,
+      "lingual_panel_faces": 2551,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    },
+    {
+      "part": "MC_DAY03_Lower_Posterior_03_L",
+      "cervical_cap_faces": 824,
+      "lingual_panel_faces": 2551,
+      "cap_threshold_root_to_tip": 0.115,
+      "lingual_panel_depth_threshold": 0.44,
+      "policy": "Three logicalcharts: cervicalcap,hiddenlingualpanel, continuousfacial/incisal/visiblesidewallbody. Noseam/poleonthefacialhero."
+    }
+  ],
+  "unwrap_report": {
+    "method": "MINIMUM_STRETCH",
+    "islands": 96,
+    "chosen": {
+      "MINIMUM_STRETCH": 96
+    },
+    "unsolved_faces": {
+      "MINIMUM_STRETCH": 0
+    },
+    "folding_islands": [],
+    "folding_faces": [],
+    "per_island": "omitted (>40 islands)"
+  },
+  "gum_charts": [
+    {
+      "part": "MC_DAY03_Upper_Gum",
+      "body": "One continuouslongitudinalchart, lingualseamradial20",
+      "body_physical_length": 19.376262664794922,
+      "uv_scale_per_sourceunit": 0.04907616600394249,
+      "caps": [
+        [
+          0.2,
+          0.82
+        ],
+        [
+          0.4,
+          0.82
+        ]
+      ],
+      "cap_uv_radius": 0.012,
+      "cap_density_policy": "Hiddenverytinyreturncaps have minimum49pxradius at4K forcoverage; intentionallyseparateprioritygroup"
+    },
+    {
+      "part": "MC_DAY03_Lower_Gum",
+      "body": "One continuouslongitudinalchart, lingualseamradial20",
+      "body_physical_length": 19.561429977416992,
+      "uv_scale_per_sourceunit": 0.04907616600394249,
+      "caps": [
+        [
+          0.6000000000000001,
+          0.82
+        ],
+        [
+          0.8,
+          0.82
+        ]
+      ],
+      "cap_uv_radius": 0.012,
+      "cap_density_policy": "Hiddenverytinyreturncaps have minimum49pxradius at4K forcoverage; intentionallyseparateprioritygroup"
+    }
+  ],
+  "root_tip_orientation": "Mainbody root\u2192tip mapsUVdown. Caps areseparatehiddenprioritygroup.",
+  "geometry_morph_positions": "Bitexact f7a613\u2026v08 all5samples; onlyseams/UV/metadatachanged",
+  "gum_charts_solver": "MINIMUM_STRETCH100 iterations on original continuouslingualseamed body +2caps, naturaloutline, uniformdensitypack",
+  "composite_uv_policy": {
+    "policy": "Accepted96chart enamel restored exactly except two local lingual UVvertex repairs. New measured MinimumStretch gum UV reused exactly. No global enamel re-solve/repack.",
+    "enamel_parent": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\MinimumStretch_3Charts",
+    "gum_parent": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\GumMinimumStretch_Boundary08",
+    "enamel_changed_loops": 4,
+    "repairs": [
+      {
+        "triangle": 123531,
+        "vertex": 61854,
+        "uv_chart": 12,
+        "affected_loops": [
+          248498,
+          248503
+        ],
+        "UV_before": [
+          0.03423717990517616,
+          0.015247908420860767
+        ],
+        "UV_after": [
+          0.03425043951519309,
+          0.015206902477648481
+        ],
+        "displacement_4K_px": 0.176523089325078,
+        "incident_triangles": [
+          123528,
+          123529,
+          123531
+        ]
+      },
+      {
+        "triangle": 150702,
+        "vertex": 75443,
+        "uv_chart": 15,
+        "affected_loops": [
+          303165,
+          303168
+        ],
+        "UV_before": [
+          0.16736944019794464,
+          0.01117070484906435
+        ],
+        "UV_after": [
+          0.1674102879022334,
+          0.011116297623890232
+        ],
+        "displacement_4K_px": 0.2786689479584506,
+        "incident_triangles": [
+          150702,
+          150704,
+          150705
+        ]
+      }
+    ],
+    "enamel_triangles_consistent_winding": true,
+    "geometry_arrays_exact": true,
+    "packet_sha256": "bb42a0c3fd91f8e2a180ec179c61188c9aaac085529806c30ec2b38876b13eea"
+  },
+  "gum_uv_policy": "One continuous longitudinal body perarch withlingualseam +2caps; MinimumStretch100, nofrontseams, naturaloutline."
+}

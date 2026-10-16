@@ -1,0 +1,469 @@
+{
+  "status": "EDITOR_GATES_PASS_BEFORE_IMPORT",
+  "geometry_release_sha256": "535bf9e152190f64ab2663851278278c81df5214f79d1db547e418e28bac0ccb",
+  "PBR_manifest_sha256": "b50b31c057f00a0234581b994bc14660c21b06b1f9e8b93d2ce49f2a2f865a64",
+  "rows": [
+    {
+      "day": 1,
+      "part": "Interior",
+      "before": {
+        "actor": "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.StaticMeshActor_4",
+        "actor_transform": {
+          "translation": [
+            0.0,
+            0.0,
+            1300.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "scale": [
+            0.9,
+            1.0,
+            1.0
+          ]
+        },
+        "relative_transform": {
+          "translation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "scale": [
+            0.9,
+            1.0,
+            1.0
+          ]
+        },
+        "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+        "material": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Interior_v09.MI_DAY01_Interior_v09",
+        "cast_shadow": true
+      },
+      "material_before": {
+        "parent": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuInterior_v08.M_MenuInterior_v08",
+        "scalar": {
+          "RoughnessScale": 1.0,
+          "Specular": 0.44999998807907104,
+          "ScatterDensity": 3.0,
+          "CardHalfHeight": 344.0,
+          "OpenAmount": 1.0
+        },
+        "vector": {
+          "BaseColorTint": [
+            0.44999998807907104,
+            0.800000011920929,
+            0.8500000238418579,
+            1.0
+          ],
+          "SubsurfaceTint": [
+            0.014999999664723873,
+            0.0020000000949949026,
+            0.003000000026077032,
+            1.0
+          ]
+        },
+        "texture": {
+          "BaseColorTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_BaseColor_v08.T_DAY03_Interior_BaseColor_v08",
+          "RoughnessTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Roughness_v08.T_DAY03_Interior_Roughness_v08",
+          "NormalTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Normal_v08.T_DAY03_Interior_Normal_v08",
+          "AOTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_AO_v08.T_DAY03_Interior_AO_v08",
+          "ThicknessTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Thickness_v08.T_DAY03_Interior_Thickness_v08"
+        }
+      }
+    },
+    {
+      "day": 1,
+      "part": "Tongue",
+      "before": {
+        "actor": "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.StaticMeshActor_5",
+        "actor_transform": {
+          "translation": [
+            0.0,
+            0.0,
+            1300.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "scale": [
+            0.9,
+            1.0,
+            1.0
+          ]
+        },
+        "relative_transform": {
+          "translation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "scale": [
+            0.9,
+            1.0,
+            1.0
+          ]
+        },
+        "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_v08.SM_DAY03_Tongue_Organic_v08",
+        "material": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Tongue_v09.MI_DAY01_Tongue_v09",
+        "cast_shadow": true
+      },
+      "material_before": {
+        "parent": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuTongue_v08.M_MenuTongue_v08",
+        "scalar": {
+          "RoughnessScale": 1.0,
+          "Specular": 0.5,
+          "ScatterDensity": 3.0,
+          "CardHalfHeight": 344.0,
+          "OpenAmount": 1.0
+        },
+        "vector": {
+          "BaseColorTint": [
+            0.699999988079071,
+            0.8999999761581421,
+            0.8999999761581421,
+            1.0
+          ],
+          "SubsurfaceTint": [
+            0.11999999731779099,
+            0.00800000037997961,
+            0.014999999664723873,
+            1.0
+          ]
+        },
+        "texture": {
+          "BaseColorTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_BaseColor_v08.T_DAY03_Tongue_BaseColor_v08",
+          "RoughnessTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Roughness_v08.T_DAY03_Tongue_Roughness_v08",
+          "NormalTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Normal_v08.T_DAY03_Tongue_Normal_v08",
+          "AOTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_AO_v08.T_DAY03_Tongue_AO_v08",
+          "ThicknessTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Thickness_v08.T_DAY03_Tongue_Thickness_v08"
+        }
+      }
+    },
+    {
+      "day": 2,
+      "part": "Interior",
+      "before": {
+        "actor": "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.StaticMeshActor_6",
+        "actor_transform": {
+          "translation": [
+            0.0,
+            0.0,
+            750.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "scale": [
+            0.88,
+            1.0,
+            1.0
+          ]
+        },
+        "relative_transform": {
+          "translation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "scale": [
+            0.88,
+            1.0,
+            1.0
+          ]
+        },
+        "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+        "material": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Interior_v09.MI_DAY02_Interior_v09",
+        "cast_shadow": true
+      },
+      "material_before": {
+        "parent": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuInterior_v08.M_MenuInterior_v08",
+        "scalar": {
+          "RoughnessScale": 1.0,
+          "Specular": 0.44999998807907104,
+          "ScatterDensity": 3.0,
+          "CardHalfHeight": 344.0,
+          "OpenAmount": 1.0
+        },
+        "vector": {
+          "BaseColorTint": [
+            0.44999998807907104,
+            0.800000011920929,
+            0.8500000238418579,
+            1.0
+          ],
+          "SubsurfaceTint": [
+            0.014999999664723873,
+            0.0020000000949949026,
+            0.003000000026077032,
+            1.0
+          ]
+        },
+        "texture": {
+          "BaseColorTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_BaseColor_v08.T_DAY03_Interior_BaseColor_v08",
+          "RoughnessTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Roughness_v08.T_DAY03_Interior_Roughness_v08",
+          "NormalTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Normal_v08.T_DAY03_Interior_Normal_v08",
+          "AOTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_AO_v08.T_DAY03_Interior_AO_v08",
+          "ThicknessTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Thickness_v08.T_DAY03_Interior_Thickness_v08"
+        }
+      }
+    },
+    {
+      "day": 2,
+      "part": "Tongue",
+      "before": {
+        "actor": "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.StaticMeshActor_7",
+        "actor_transform": {
+          "translation": [
+            0.0,
+            0.0,
+            750.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "scale": [
+            0.9,
+            1.0,
+            1.0
+          ]
+        },
+        "relative_transform": {
+          "translation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "scale": [
+            0.9,
+            1.0,
+            1.0
+          ]
+        },
+        "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_v08.SM_DAY03_Tongue_Organic_v08",
+        "material": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Tongue_v09.MI_DAY02_Tongue_v09",
+        "cast_shadow": true
+      },
+      "material_before": {
+        "parent": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuTongue_v08.M_MenuTongue_v08",
+        "scalar": {
+          "RoughnessScale": 1.0,
+          "Specular": 0.5,
+          "ScatterDensity": 3.0,
+          "CardHalfHeight": 344.0,
+          "OpenAmount": 1.0
+        },
+        "vector": {
+          "BaseColorTint": [
+            0.699999988079071,
+            0.8999999761581421,
+            0.8999999761581421,
+            1.0
+          ],
+          "SubsurfaceTint": [
+            0.11999999731779099,
+            0.00800000037997961,
+            0.014999999664723873,
+            1.0
+          ]
+        },
+        "texture": {
+          "BaseColorTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_BaseColor_v08.T_DAY03_Tongue_BaseColor_v08",
+          "RoughnessTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Roughness_v08.T_DAY03_Tongue_Roughness_v08",
+          "NormalTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Normal_v08.T_DAY03_Tongue_Normal_v08",
+          "AOTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_AO_v08.T_DAY03_Tongue_AO_v08",
+          "ThicknessTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Thickness_v08.T_DAY03_Tongue_Thickness_v08"
+        }
+      }
+    },
+    {
+      "day": 3,
+      "part": "Interior",
+      "before": {
+        "actor": "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.StaticMeshActor_0",
+        "actor_transform": {
+          "translation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "scale": [
+            0.9,
+            1.0,
+            1.0
+          ]
+        },
+        "relative_transform": {
+          "translation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "scale": [
+            0.9,
+            1.0,
+            1.0
+          ]
+        },
+        "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+        "material": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Interior_v08.MI_DAY03_Interior_v08",
+        "cast_shadow": true
+      },
+      "material_before": {
+        "parent": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuInterior_v08.M_MenuInterior_v08",
+        "scalar": {
+          "RoughnessScale": 1.0,
+          "Specular": 0.44999998807907104,
+          "ScatterDensity": 3.0,
+          "CardHalfHeight": 344.0,
+          "OpenAmount": 1.0
+        },
+        "vector": {
+          "BaseColorTint": [
+            0.44999998807907104,
+            0.800000011920929,
+            0.8500000238418579,
+            1.0
+          ],
+          "SubsurfaceTint": [
+            0.014999999664723873,
+            0.0020000000949949026,
+            0.003000000026077032,
+            1.0
+          ]
+        },
+        "texture": {
+          "BaseColorTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_BaseColor_v08.T_DAY03_Interior_BaseColor_v08",
+          "RoughnessTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Roughness_v08.T_DAY03_Interior_Roughness_v08",
+          "NormalTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Normal_v08.T_DAY03_Interior_Normal_v08",
+          "AOTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_AO_v08.T_DAY03_Interior_AO_v08",
+          "ThicknessTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Thickness_v08.T_DAY03_Interior_Thickness_v08"
+        }
+      }
+    },
+    {
+      "day": 3,
+      "part": "Tongue",
+      "before": {
+        "actor": "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.StaticMeshActor_1",
+        "actor_transform": {
+          "translation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "scale": [
+            0.9,
+            1.0,
+            1.0
+          ]
+        },
+        "relative_transform": {
+          "translation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "scale": [
+            0.9,
+            1.0,
+            1.0
+          ]
+        },
+        "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_v08.SM_DAY03_Tongue_Organic_v08",
+        "material": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Tongue_v08.MI_DAY03_Tongue_v08",
+        "cast_shadow": true
+      },
+      "material_before": {
+        "parent": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuTongue_v08.M_MenuTongue_v08",
+        "scalar": {
+          "RoughnessScale": 1.0,
+          "Specular": 0.5,
+          "ScatterDensity": 3.0,
+          "CardHalfHeight": 344.0,
+          "OpenAmount": 1.0
+        },
+        "vector": {
+          "BaseColorTint": [
+            0.699999988079071,
+            0.8999999761581421,
+            0.8999999761581421,
+            1.0
+          ],
+          "SubsurfaceTint": [
+            0.11999999731779099,
+            0.00800000037997961,
+            0.014999999664723873,
+            1.0
+          ]
+        },
+        "texture": {
+          "BaseColorTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_BaseColor_v08.T_DAY03_Tongue_BaseColor_v08",
+          "RoughnessTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Roughness_v08.T_DAY03_Tongue_Roughness_v08",
+          "NormalTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Normal_v08.T_DAY03_Tongue_Normal_v08",
+          "AOTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_AO_v08.T_DAY03_Tongue_AO_v08",
+          "ThicknessTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Thickness_v08.T_DAY03_Tongue_Thickness_v08"
+        }
+      }
+    }
+  ]
+}

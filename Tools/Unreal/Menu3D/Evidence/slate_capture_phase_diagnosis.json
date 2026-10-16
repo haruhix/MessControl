@@ -1,0 +1,29 @@
+{
+  "status": "READ_ONLY_DIAGNOSIS_ENGINE_FRAME_CONTROL_PENDING",
+  "engine": "Local Unreal 5.8.1 source",
+  "review": "ArtSource/UI/MainMenu3D/20261015_refB_v1/Assembly/Review/Unreal_FunctionalBlocking_v03_FullRoute/Run04",
+  "observed": {
+    "mismatched_frames": [183, 319],
+    "following_coherent_frames": [184, 320],
+    "world_roi_pixels": {"x": [800, 975], "y": [105, 690]},
+    "comparison_rgb8": [
+      {"frame": 183, "against_prior": 182, "prior_mae": 0.3582, "prior_p95": 1.0, "against_following": 184, "following_mae": 61.5131},
+      {"frame": 319, "against_prior": 318, "prior_mae": 0.3117, "prior_p95": 1.0, "against_following": 320, "following_mae": 24.1619}
+    ],
+    "interpretation": "The affected captures combine updated UMG layout with an almost unchanged previous 3D pose. Minor differences within the old world ROI are consistent with temporal shading; it is not byte-identical."
+  },
+  "source_evidence": [
+    {"path": "E:/UE/UE_5.8/Engine/Plugins/Experimental/Toolsets/SlateInspectorToolset/Source/SlateInspectorToolset/Private/SlateInspectorToolset.cpp", "line": 254, "finding": "Screenshot delegates to FSlateApplication::TakeScreenshot; it does not request a new game-world render."},
+    {"path": "E:/UE/UE_5.8/Engine/Source/Runtime/Slate/Private/Framework/Application/SlateApplication.cpp", "line": 4429, "finding": "TakeScreenshot prepares a readback and calls PrivateDrawWindows. PrivateDrawWindows also performs DrawPrepass at line1462; this redraw can observe fresh widget state outside the normal scene-render phase."},
+    {"path": "E:/UE/UE_5.8/Engine/Source/Runtime/Slate/Private/Widgets/SViewport.cpp", "line": 111, "finding": "OnPaint emits the viewport draw element from the viewport interface's existing texture, then paints widget children."},
+    {"path": "E:/UE/UE_5.8/Engine/Source/Runtime/Engine/Private/Slate/SceneViewport.cpp", "line": 505, "finding": "FSceneViewport::Paint manages paint scope/size; it does not call the game viewport Draw. GetViewportRenderTargetTexture at line1595 returns the buffered Slate handle/render-thread texture."},
+    {"path": "E:/UE/UE_5.8/Engine/Source/Runtime/Slate/Private/Widgets/Layout/SScrollBox.cpp", "line": 596, "finding": "SetScrollOffset changes DesiredScrollOffset and invalidates layout. Tick at line886 computes PhysicalOffset at line930; OnArrangeChildren at line174 uses it."},
+    {"path": "E:/UE/UE_5.8/Engine/Source/Runtime/Engine/Private/PlayerController.cpp", "line": 203, "finding": "PlayerController tick group defaults to TG_PrePhysics. Current owned BP has one PC EventTick calling UpdateStage; WBP EventTick no longer drives it."},
+    {"path": "E:/UE/UE_5.8/Engine/Source/Runtime/Engine/Private/Components/SceneComponent.cpp", "line": 968, "finding": "Transform propagation updates world bounds/children and marks the render transform dirty at line1009."},
+    {"path": "E:/UE/UE_5.8/Engine/Source/Runtime/Renderer/Private/SceneRendering.cpp", "line": 5359, "finding": "BeginRenderingViewFamilies sends all end-of-frame updates at line5380, explicitly guaranteeing current render proxies before starting the normal scene render."}
+  ],
+  "inference": "A forced Slate-only redraw between game-state update and the next viewport render is the leading explanation. These MCP screenshots alone do not prove the same mismatch reaches a normally presented game frame. Runtime coherence is not yet declared verified.",
+  "bounded_next_check": "Root queues engine Shot SHOWUI for ProcessScreenShots in the normal viewport render path, or records actual OS-presented frames. Compare the same two transitions. Do not delay or double-update Blueprint layout merely to compensate for the screenshot tool.",
+  "fallback_only_if_presented_frame_control_reproduces": "Check skeletal component tick prerequisites relative to PC and actual scene/UI frame stamps before changing tick group; root transforms already have the engine end-of-frame flush guarantee. No broad UpdateStage rewrite is currently justified.",
+  "blueprint_asset_config_input_PIE_Git_mutations": false
+}

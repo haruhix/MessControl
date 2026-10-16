@@ -1,0 +1,76 @@
+{
+  "source": "Saved native preview actor/component bounds; not evaluated-pose vertex silhouettes",
+  "mouths": [
+    {
+      "day": 1,
+      "actor": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_2",
+      "bounds_width_before_actor_scale": 1619.88427734375,
+      "actor_scale": [
+        0.54,
+        0.54,
+        0.54
+      ],
+      "world_bounds_origin": [
+        0.0,
+        -77.93471042633057,
+        277.5
+      ],
+      "world_bounds_extent": [
+        437.36875488281254,
+        108.40975124359132,
+        210.5500506591797
+      ],
+      "visibility_anim_tick": "<VisibilityBasedAnimTickOption.ALWAYS_TICK_POSE_AND_REFRESH_BONES: 0>",
+      "update_rate_optimizations": false
+    },
+    {
+      "day": 2,
+      "actor": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_3",
+      "bounds_width_before_actor_scale": 1619.88427734375,
+      "actor_scale": [
+        0.54,
+        0.54,
+        0.54
+      ],
+      "world_bounds_origin": [
+        0.0,
+        -77.8311996459961,
+        92.5
+      ],
+      "world_bounds_extent": [
+        437.36875488281254,
+        108.51326202392579,
+        207.7727783203125
+      ],
+      "visibility_anim_tick": "<VisibilityBasedAnimTickOption.ALWAYS_TICK_POSE_AND_REFRESH_BONES: 0>",
+      "update_rate_optimizations": false
+    },
+    {
+      "day": 3,
+      "actor": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_0",
+      "bounds_width_before_actor_scale": 1920.0000610351562,
+      "actor_scale": [
+        0.54,
+        0.54,
+        0.54
+      ],
+      "world_bounds_origin": [
+        -1.647949216021516e-05,
+        -93.02495979309083,
+        -182.3
+      ],
+      "world_bounds_extent": [
+        518.4000164794923,
+        129.32287467956544,
+        322.92
+      ],
+      "visibility_anim_tick": "<VisibilityBasedAnimTickOption.ALWAYS_TICK_POSE_AND_REFRESH_BONES: 0>",
+      "update_rate_optimizations": false
+    }
+  ],
+  "camera": {
+    "location": "<Struct 'Vector' (0x000001DA35647260) {x: 0.000000, y: 2200.000000, z: 0.000000}>",
+    "rotation": "<Struct 'Rotator' (0x000001DA35647260) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+    "fov": 39.970001220703125
+  }
+}

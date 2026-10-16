@@ -13,7 +13,11 @@
   "base_actor_scale": 0.54,
   "DAY03_scale": ".54*lerp(1.12676056338,1,Open3)",
   "material_card_half_height": "RowHeight/(2*ActorScale)",
-  "wheel": "Existing one-detent adjacent SelectedDay retained; TopOrLeft snap first visible row",
+  "wheel": "One event at abs(delta)>=.5 advances one day; fractional packets accumulate from stored value, not pure pin reevaluation",
+  "scroll_sync": "PC Tick owns UpdateStage; StageScroll FInterp speed12; identical SetScrollOffset and world centers; no WidgetTick/deferredScrollIntoView",
+  "hover": "Actual OnMouseMove queues screen position; PC consumes motion>2px, cached row geometry with DayScroll clip; deferred intent only if same row; select/wheel/Back clear it",
+  "catalog_reset": "Counter01/07, selected1 active0, zero scroll and wheel accumulator, viewport pointer baseline",
+  "connection": "Known selected1..3, active matching, ownOpen>.72; Page5 preserves entire staged pose/layout/visibility",
   "characters": "Own-day tag cached; visible own Open>.72 and mouth visible",
   "world_actor_days": 7,
   "shared_actor_driver": "DriveMouthDay primitive-input function; one native pose implementation reused for all7",
@@ -21,6 +25,22 @@
   "future_content": "Generic unassigned3D blocking under ComingSoon labels; no inner Play",
   "enter": "Known selected1..3 opens, then activates Play when open; future never launches",
   "level_PIE_material_geometry_mutations": false,
-  "focused_back_enter": "Native Back button keeps its Enter action; selected-day Enter never steals it.",
-  "compact_back_font": 16
+  "assets": [
+    "/Game/UI/MainMenu3D/WBP_MainMenu3D",
+    "/Game/UI/MainMenu3D/BP_Menu3DPlayerController"
+  ],
+  "compiled_warnings_as_errors": true,
+  "saved_packages": [
+    {
+      "path": "E:\\DEVGAME\\MessControl\\Content\\UI\\MainMenu3D\\WBP_MainMenu3D.uasset",
+      "bytes": 4606976,
+      "sha256": "4f97797d12b2b35d68d2a3abe0814400d8b4864ce85a53f0a08ec107afca928c"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\Content\\UI\\MainMenu3D\\BP_Menu3DPlayerController.uasset",
+      "bytes": 66481,
+      "sha256": "44e13a4f7b8308794ddefbb28150c7b774ccfb4ffe244a80c9cbadcbf5d81468"
+    }
+  ],
+  "validation": "Both actual Blueprints compiled with warnings_as_errors=True and save_assets returned success. Updated input/synchronization awaiting root solo PIE."
 }

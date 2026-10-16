@@ -1,0 +1,133 @@
+{
+  "rows": [
+    {
+      "day": 1,
+      "actor_hidden": false,
+      "component_hidden": false,
+      "component_visible": true,
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Reference_v09.SK_DAY01_Reference_v09",
+      "materials": [
+        {
+          "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.SkeletalMeshActor_2.SkeletalMeshComponent0.MID_MI_DAY01_Enamel_v09_0",
+          "half_height": 241.65711975097656
+        },
+        {
+          "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.SkeletalMeshActor_2.SkeletalMeshComponent0.MID_MI_DAY01_Gum_v09_0",
+          "half_height": 241.65711975097656
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "actor_hidden": false,
+      "component_hidden": false,
+      "component_visible": true,
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Reference_v09.SK_DAY02_Reference_v09",
+      "materials": [
+        {
+          "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.SkeletalMeshActor_3.SkeletalMeshComponent0.MID_MI_DAY02_Enamel_v09_0",
+          "half_height": 239.7158660888672
+        },
+        {
+          "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.SkeletalMeshActor_3.SkeletalMeshComponent0.MID_MI_DAY02_Gum_v09_0",
+          "half_height": 239.7158660888672
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "actor_hidden": false,
+      "component_hidden": false,
+      "component_visible": true,
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Reference_v08b.SK_DAY03_Reference_v08b",
+      "materials": [
+        {
+          "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.SkeletalMeshActor_0.SkeletalMeshComponent0.MID_MI_DAY03_Enamel_v08_0",
+          "half_height": 229.39163208007812
+        },
+        {
+          "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.SkeletalMeshActor_0.SkeletalMeshComponent0.MID_MI_DAY03_Gum_v08_0",
+          "half_height": 229.39163208007812
+        }
+      ]
+    },
+    {
+      "day": 4,
+      "actor_hidden": false,
+      "component_hidden": false,
+      "component_visible": true,
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking.SK_DAY01_Blocking",
+      "materials": [
+        {
+          "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.SkeletalMeshActor_6.SkeletalMeshComponent0.MID_M_Blocking_Enamel_0",
+          "half_height": -1.0
+        },
+        {
+          "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.SkeletalMeshActor_6.SkeletalMeshComponent0.MID_M_Blocking_Gum_0",
+          "half_height": -1.0
+        }
+      ]
+    },
+    {
+      "day": 5,
+      "actor_hidden": false,
+      "component_hidden": false,
+      "component_visible": true,
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking.SK_DAY01_Blocking",
+      "materials": [
+        {
+          "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.SkeletalMeshActor_7.SkeletalMeshComponent0.MID_M_Blocking_Enamel_0",
+          "half_height": -1.0
+        },
+        {
+          "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.SkeletalMeshActor_7.SkeletalMeshComponent0.MID_M_Blocking_Gum_0",
+          "half_height": -1.0
+        }
+      ]
+    },
+    {
+      "day": 6,
+      "actor_hidden": false,
+      "component_hidden": false,
+      "component_visible": true,
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking.SK_DAY01_Blocking",
+      "materials": [
+        {
+          "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.SkeletalMeshActor_8.SkeletalMeshComponent0.MID_M_Blocking_Enamel_0",
+          "half_height": -1.0
+        },
+        {
+          "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.SkeletalMeshActor_8.SkeletalMeshComponent0.MID_M_Blocking_Gum_0",
+          "half_height": -1.0
+        }
+      ]
+    },
+    {
+      "day": 7,
+      "actor_hidden": false,
+      "component_hidden": false,
+      "component_visible": true,
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking.SK_DAY01_Blocking",
+      "materials": [
+        {
+          "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.SkeletalMeshActor_9.SkeletalMeshComponent0.MID_M_Blocking_Enamel_0",
+          "half_height": -1.0
+        },
+        {
+          "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.SkeletalMeshActor_9.SkeletalMeshComponent0.MID_M_Blocking_Gum_0",
+          "half_height": -1.0
+        }
+      ]
+    }
+  ],
+  "force_update": 0,
+  "morph_threshold": 9.99999993922529e-09,
+  "vsm_after_capture": 0
+}

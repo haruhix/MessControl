@@ -1,0 +1,488 @@
+[
+  {
+    "tool": "mcp__substance_painter__import_project_resource",
+    "args": {
+      "file_path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/MC_Tongue_SmoothSulcus.png",
+      "usage": "TEXTURE",
+      "name": "MC_Tongue_SmoothSulcus_r06",
+      "confirm": true
+    },
+    "result": {
+      "scope": "project",
+      "source_path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/MC_Tongue_SmoothSulcus.png",
+      "url": "resource://project9/MC_Tongue_SmoothSulcus_r06?version=e5bcaa27f6332c69412109d1266522cc5510978c.image",
+      "name": "MC_Tongue_SmoothSulcus_r06",
+      "context": "project9",
+      "version": "e5bcaa27f6332c69412109d1266522cc5510978c.image",
+      "location": "PROJECT",
+      "type": "IMAGE",
+      "category": "",
+      "usages": [
+        "TEXTURE"
+      ],
+      "verified": true
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__import_project_resource",
+    "args": {
+      "file_path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/MC_Tongue_DorsalTongue.png",
+      "usage": "TEXTURE",
+      "name": "MC_Tongue_DorsalTongue_r06",
+      "confirm": true
+    },
+    "result": {
+      "scope": "project",
+      "source_path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/MC_Tongue_DorsalTongue.png",
+      "url": "resource://project9/MC_Tongue_DorsalTongue_r06?version=c9db10a4f3d3b34aa383d0c8328bc0d408258655.image",
+      "name": "MC_Tongue_DorsalTongue_r06",
+      "context": "project9",
+      "version": "c9db10a4f3d3b34aa383d0c8328bc0d408258655.image",
+      "location": "PROJECT",
+      "type": "IMAGE",
+      "category": "",
+      "usages": [
+        "TEXTURE"
+      ],
+      "verified": true
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__import_project_resource",
+    "args": {
+      "file_path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/MC_Tongue_PapillaeZone.png",
+      "usage": "TEXTURE",
+      "name": "MC_Tongue_PapillaeZone_r06",
+      "confirm": true
+    },
+    "result": {
+      "scope": "project",
+      "source_path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/MC_Tongue_PapillaeZone.png",
+      "url": "resource://project9/MC_Tongue_PapillaeZone_r06?version=83aad643c5b9c0e47eaa2859c82843b3fb34682c.image",
+      "name": "MC_Tongue_PapillaeZone_r06",
+      "context": "project9",
+      "version": "83aad643c5b9c0e47eaa2859c82843b3fb34682c.image",
+      "location": "PROJECT",
+      "type": "IMAGE",
+      "category": "",
+      "usages": [
+        "TEXTURE"
+      ],
+      "verified": true
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__import_project_resource",
+    "args": {
+      "file_path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/MC_Tongue_AnteriorTip.png",
+      "usage": "TEXTURE",
+      "name": "MC_Tongue_AnteriorTip_r06",
+      "confirm": true
+    },
+    "result": {
+      "scope": "project",
+      "source_path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/MC_Tongue_AnteriorTip.png",
+      "url": "resource://project9/MC_Tongue_AnteriorTip_r06?version=9f90ae65e886b8c4eba5f273c4733c56317635fa.image",
+      "name": "MC_Tongue_AnteriorTip_r06",
+      "context": "project9",
+      "version": "9f90ae65e886b8c4eba5f273c4733c56317635fa.image",
+      "location": "PROJECT",
+      "type": "IMAGE",
+      "category": "",
+      "usages": [
+        "TEXTURE"
+      ],
+      "verified": true
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__delete_layer",
+    "args": {
+      "uid": 384
+    },
+    "result": {
+      "uid": 384,
+      "name": "SmoothSulcus",
+      "type": "FillEffectNode"
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__insert_mask_effect",
+    "args": {
+      "uid": 311,
+      "effect_type": "fill",
+      "name": "SmoothSulcus_r06",
+      "resource_url": "resource://project9/MC_Tongue_SmoothSulcus_r06?version=e5bcaa27f6332c69412109d1266522cc5510978c.image"
+    },
+    "result": {
+      "uid": 311,
+      "name": "07 | Smooth median sulcus",
+      "has_mask": true,
+      "effects": [
+        {
+          "uid": 608,
+          "name": "SmoothSulcus_r06",
+          "type": "FillEffectNode"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__set_fill_projection",
+    "args": {
+      "uid": 608,
+      "mode": "UV",
+      "scale": [
+        1,
+        1
+      ]
+    },
+    "result": {
+      "uid": 608,
+      "name": "SmoothSulcus_r06",
+      "mode": "UV",
+      "transform": {
+        "scale_mode": "Factors",
+        "scale": [
+          1,
+          1
+        ],
+        "rotation": 0,
+        "offset": [
+          0,
+          0
+        ]
+      }
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__delete_layer",
+    "args": {
+      "uid": 404
+    },
+    "result": {
+      "uid": 404,
+      "name": "DorsalTongue",
+      "type": "FillEffectNode"
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__insert_mask_effect",
+    "args": {
+      "uid": 299,
+      "effect_type": "fill",
+      "name": "DorsalTongue_r06",
+      "resource_url": "resource://project9/MC_Tongue_DorsalTongue_r06?version=c9db10a4f3d3b34aa383d0c8328bc0d408258655.image"
+    },
+    "result": {
+      "uid": 299,
+      "name": "06 | Moist film variation",
+      "has_mask": true,
+      "effects": [
+        {
+          "uid": 612,
+          "name": "DorsalTongue_r06",
+          "type": "FillEffectNode"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__set_fill_projection",
+    "args": {
+      "uid": 612,
+      "mode": "UV",
+      "scale": [
+        1,
+        1
+      ]
+    },
+    "result": {
+      "uid": 612,
+      "name": "DorsalTongue_r06",
+      "mode": "UV",
+      "transform": {
+        "scale_mode": "Factors",
+        "scale": [
+          1,
+          1
+        ],
+        "rotation": 0,
+        "offset": [
+          0,
+          0
+        ]
+      }
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__set_layer_properties",
+    "args": {
+      "uid": 612,
+      "blending_mode": "Multiply"
+    },
+    "result": {
+      "uid": 612,
+      "name": "DorsalTongue_r06",
+      "visible": true,
+      "opacity": 1,
+      "blending_mode": "Multiply",
+      "channel": "Mask"
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__delete_layer",
+    "args": {
+      "uid": 408
+    },
+    "result": {
+      "uid": 408,
+      "name": "PapillaeZone",
+      "type": "FillEffectNode"
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__insert_mask_effect",
+    "args": {
+      "uid": 267,
+      "effect_type": "fill",
+      "name": "PapillaeZone_r06",
+      "resource_url": "resource://project9/MC_Tongue_PapillaeZone_r06?version=83aad643c5b9c0e47eaa2859c82843b3fb34682c.image"
+    },
+    "result": {
+      "uid": 267,
+      "name": "05 | Dorsal papillae only",
+      "has_mask": true,
+      "effects": [
+        {
+          "uid": 616,
+          "name": "PapillaeZone_r06",
+          "type": "FillEffectNode"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__set_fill_projection",
+    "args": {
+      "uid": 616,
+      "mode": "UV",
+      "scale": [
+        1,
+        1
+      ]
+    },
+    "result": {
+      "uid": 616,
+      "name": "PapillaeZone_r06",
+      "mode": "UV",
+      "transform": {
+        "scale_mode": "Factors",
+        "scale": [
+          1,
+          1
+        ],
+        "rotation": 0,
+        "offset": [
+          0,
+          0
+        ]
+      }
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__delete_layer",
+    "args": {
+      "uid": 448
+    },
+    "result": {
+      "uid": 448,
+      "name": "DorsalTongue",
+      "type": "FillEffectNode"
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__insert_mask_effect",
+    "args": {
+      "uid": 257,
+      "effect_type": "fill",
+      "name": "DorsalTongue_r06",
+      "resource_url": "resource://project9/MC_Tongue_DorsalTongue_r06?version=c9db10a4f3d3b34aa383d0c8328bc0d408258655.image"
+    },
+    "result": {
+      "uid": 257,
+      "name": "04 | Quiet dorsal color variation",
+      "has_mask": true,
+      "effects": [
+        {
+          "uid": 620,
+          "name": "DorsalTongue_r06",
+          "type": "FillEffectNode"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__set_fill_projection",
+    "args": {
+      "uid": 620,
+      "mode": "UV",
+      "scale": [
+        1,
+        1
+      ]
+    },
+    "result": {
+      "uid": 620,
+      "name": "DorsalTongue_r06",
+      "mode": "UV",
+      "transform": {
+        "scale_mode": "Factors",
+        "scale": [
+          1,
+          1
+        ],
+        "rotation": 0,
+        "offset": [
+          0,
+          0
+        ]
+      }
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__set_layer_properties",
+    "args": {
+      "uid": 620,
+      "blending_mode": "Multiply"
+    },
+    "result": {
+      "uid": 620,
+      "name": "DorsalTongue_r06",
+      "visible": true,
+      "opacity": 1,
+      "blending_mode": "Multiply",
+      "channel": "Mask"
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__delete_layer",
+    "args": {
+      "uid": 452
+    },
+    "result": {
+      "uid": 452,
+      "name": "AnteriorTip",
+      "type": "FillEffectNode"
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__insert_mask_effect",
+    "args": {
+      "uid": 242,
+      "effect_type": "fill",
+      "name": "AnteriorTip_r06",
+      "resource_url": "resource://project9/MC_Tongue_AnteriorTip_r06?version=9f90ae65e886b8c4eba5f273c4733c56317635fa.image"
+    },
+    "result": {
+      "uid": 242,
+      "name": "03 | Soft anterior rose",
+      "has_mask": true,
+      "effects": [
+        {
+          "uid": 624,
+          "name": "AnteriorTip_r06",
+          "type": "FillEffectNode"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__set_fill_projection",
+    "args": {
+      "uid": 624,
+      "mode": "UV",
+      "scale": [
+        1,
+        1
+      ]
+    },
+    "result": {
+      "uid": 624,
+      "name": "AnteriorTip_r06",
+      "mode": "UV",
+      "transform": {
+        "scale_mode": "Factors",
+        "scale": [
+          1,
+          1
+        ],
+        "rotation": 0,
+        "offset": [
+          0,
+          0
+        ]
+      }
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__delete_layer",
+    "args": {
+      "uid": 456
+    },
+    "result": {
+      "uid": 456,
+      "name": "DorsalTongue",
+      "type": "FillEffectNode"
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__insert_mask_effect",
+    "args": {
+      "uid": 230,
+      "effect_type": "fill",
+      "name": "DorsalTongue_r06",
+      "resource_url": "resource://project9/MC_Tongue_DorsalTongue_r06?version=c9db10a4f3d3b34aa383d0c8328bc0d408258655.image"
+    },
+    "result": {
+      "uid": 230,
+      "name": "02 | Gentle dorsal warmth",
+      "has_mask": true,
+      "effects": [
+        {
+          "uid": 628,
+          "name": "DorsalTongue_r06",
+          "type": "FillEffectNode"
+        }
+      ]
+    }
+  },
+  {
+    "tool": "mcp__substance_painter__set_fill_projection",
+    "args": {
+      "uid": 628,
+      "mode": "UV",
+      "scale": [
+        1,
+        1
+      ]
+    },
+    "result": {
+      "uid": 628,
+      "name": "DorsalTongue_r06",
+      "mode": "UV",
+      "transform": {
+        "scale_mode": "Factors",
+        "scale": [
+          1,
+          1
+        ],
+        "rotation": 0,
+        "offset": [
+          0,
+          0
+        ]
+      }
+    }
+  }
+]

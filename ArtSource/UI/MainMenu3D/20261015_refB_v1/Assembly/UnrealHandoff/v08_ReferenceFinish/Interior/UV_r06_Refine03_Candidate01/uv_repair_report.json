@@ -1,0 +1,282 @@
+{
+  "status": "UV_CANDIDATE_ONLY: checker/layout inspection before exports",
+  "parent_source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\Organic_r06_LowTongue\\Refine03\\MC_DAY03_InteriorSource.blend",
+  "parent_source_sha256": "fd462541039b0dd6b3f7a96c730cfd9a707e93101c37438f0613fc1d70cdc0f3",
+  "source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\MC_DAY03_InteriorSource.blend",
+  "source_sha256": "59e65b91570d1014deec20c0d3f648dc8244702cc6b7e3b8d68f268634da6349",
+  "geometry_bitexact_to_approved_refine03": true,
+  "cavity_geometry_and_uv_bitexact_r05": true,
+  "ventral_uv_bitexact_r05": true,
+  "logical_charts": [
+    "dorsal",
+    "ventral"
+  ],
+  "method": "MinimumStretch80 only dorsal faces, same equatorial seam; proper rotation and uniform scale into old dorsal reserved rectangle. No extra seams/packing/geometry edits.",
+  "unwrap": {
+    "method": "MINIMUM_STRETCH",
+    "islands": 1,
+    "chosen": {
+      "MINIMUM_STRETCH": 1
+    },
+    "unsolved_faces": {
+      "MINIMUM_STRETCH": 0
+    },
+    "folding_islands": [],
+    "folding_faces": [],
+    "per_island": {
+      "1": {
+        "MINIMUM_STRETCH": {
+          "score": 0.368,
+          "spread": 1.09,
+          "angle_err_deg": 1.2,
+          "self_overlap": 0.0
+        },
+        "chosen": "MINIMUM_STRETCH"
+      }
+    }
+  },
+  "tongue_uv_qa": {
+    "object": "SM_DAY03_Tongue",
+    "uv_map": "UV0",
+    "tex_res": 4096,
+    "faces": 9216,
+    "islands": 2,
+    "td_px_per_m": 217.9,
+    "td_face_spread_p95_p05": 1.99,
+    "td_island_spread_p95_p05": 1.9,
+    "td_island_min_max": [
+      118.1,
+      224.5
+    ],
+    "angle_err_mean_deg": 0.88,
+    "angle_err_p95_deg": 2.77,
+    "area_stretch_p95_log2": 1.35,
+    "flipped_faces": 0,
+    "zero_area_faces": 0,
+    "overlap_px_pct": 0.0,
+    "overlapping_island_pairs": 0,
+    "self_overlapping_islands": [],
+    "tiles": [
+      1001
+    ],
+    "per_tile": {
+      "1001": {
+        "coverage": 0.3502,
+        "overlap_px_pct": 0.0,
+        "min_gap_px": ">74",
+        "border_px": 16.0
+      }
+    },
+    "faces_crossing_tiles": 0,
+    "min_gap_px": null,
+    "gap_required_px": 32.0,
+    "tiny_islands": [],
+    "sharp_edges_not_on_seams": 0,
+    "flat_shaded_share": 0.0,
+    "mirror_stacked_hint": false,
+    "islands_detail": [
+      {
+        "island": 0,
+        "faces": 4608,
+        "td": 118.1,
+        "area_m2": 72.24154,
+        "uv_px": 1008115,
+        "flipped": 0,
+        "bbox": [
+          0.0039,
+          0.4047,
+          0.4775,
+          0.5671
+        ]
+      },
+      {
+        "island": 1,
+        "faces": 4608,
+        "td": 224.5,
+        "area_m2": 96.57424,
+        "uv_px": 4867335,
+        "flipped": 0,
+        "bbox": [
+          0.0342,
+          0.0039,
+          0.9658,
+          0.3969
+        ]
+      }
+    ]
+  },
+  "before": {
+    "SM_DAY03_Interior": {
+      "co": "03355c340b73ce9f26bf27893c4b4bd436670bed5df8a13d526d0592b4db4bad",
+      "topology": "a7435ac6fcc912f2882ab1b98a60c5cb0e6475c08bdfe5c4f3bf8f6ad0855dae",
+      "uv": "b9e13d47ea2ab6f1f092322735ea96799ec2ad3e58168ba66c5edf80eb0cfde2",
+      "matrix": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "SM_DAY03_Tongue": {
+      "co": "b0d53d2f48036c74f0380bd18b966755c88897cf99ca7593d094c3748dbeb767",
+      "topology": "cbe64d12bb29c9250f1be90f290c8a16fb1633d792c9ac1b0e0c08303ecaa297",
+      "uv": "5ffb75db693e892b1a5d9625049faf1076a43dfd0cd07c65c3eeba4a3d296af1",
+      "matrix": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    }
+  },
+  "after": {
+    "SM_DAY03_Interior": {
+      "co": "03355c340b73ce9f26bf27893c4b4bd436670bed5df8a13d526d0592b4db4bad",
+      "topology": "a7435ac6fcc912f2882ab1b98a60c5cb0e6475c08bdfe5c4f3bf8f6ad0855dae",
+      "uv": "b9e13d47ea2ab6f1f092322735ea96799ec2ad3e58168ba66c5edf80eb0cfde2",
+      "matrix": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "SM_DAY03_Tongue": {
+      "co": "b0d53d2f48036c74f0380bd18b966755c88897cf99ca7593d094c3748dbeb767",
+      "topology": "cbe64d12bb29c9250f1be90f290c8a16fb1633d792c9ac1b0e0c08303ecaa297",
+      "uv": "4f7e2234f79ce672f29de1b0ba2fed06d077d01192b3879f8ca3a2a1be42b8f3",
+      "matrix": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    }
+  },
+  "cavity": {
+    "vertices": 16386,
+    "triangles": 32768,
+    "components": 1,
+    "non_manifold_edges": 0,
+    "signed_volume_source": 58.628443593426766,
+    "degenerate_triangles": 0,
+    "bounds_cm": [
+      [
+        -941.5449829101562,
+        -1403.5672607421875,
+        -632.4099731445312
+      ],
+      [
+        941.5449829101562,
+        -319.938720703125,
+        636.4099731445312
+      ]
+    ]
+  },
+  "tongue": {
+    "vertices": 9090,
+    "triangles": 18176,
+    "components": 1,
+    "non_manifold_edges": 0,
+    "signed_volume_source": 138.20740112235106,
+    "degenerate_triangles": 0,
+    "bounds_cm": [
+      [
+        -805.0,
+        -505.0000305175781,
+        -475.0
+      ],
+      [
+        805.0,
+        -65.0,
+        -131.3260955810547
+      ]
+    ]
+  },
+  "character_contact_anchor": [
+    -5.757009,
+    -2.887758,
+    -2.076843
+  ],
+  "texture_reprojection": "dorsal_uv_transfer.npz maps exact same vertex/loop topology. Cavity and ventral UV unchanged. New tongue normal/AO/thickness/curvature bake required; reproject dorsal paint to changed UV."
+}

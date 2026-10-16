@@ -1,0 +1,53 @@
+{
+  "schema": "mesh_anatomy_uv_masks.v1",
+  "packet": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY01\\UV_v02_GumReturns\\texture_mesh_packet.npz",
+  "packet_sha256": "b330346544110cfd1ab55bc44df18884c6acf6c4bfc4ab0ed9dfa61fcefa8a78",
+  "resolution": 4096,
+  "padding_pixels": 16,
+  "lighting_sampled": false,
+  "method": "Rasterize mesh-space anatomical pigment masks into the frozen v08 UV0.\n\nNo beauty/reference pixels or lighting are sampled. High-resolution mesh\ntriangles carry smooth root/tip attributes; per-triangle interpolation is\napproximated by the triangle mean, then softened by 0.7 texel. Padding is a\nnearest-island extension. Separate material atlases may share UV coordinates.\n",
+  "sets": {
+    "MC_Enamel": {
+      "triangles": 393216,
+      "uv_coverage_fraction": 0.6270467042922974,
+      "files": [
+        {
+          "role": "Cervical",
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY01\\UV_v02_GumReturns\\Textures\\AnatomyMasks\\MC_Enamel_Cervical.png",
+          "sha256": "c40372f938c4e6b4b1f1efaebda2dc72c395f4c3e5abe563b179e49b2dc99d74"
+        },
+        {
+          "role": "Incisal",
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY01\\UV_v02_GumReturns\\Textures\\AnatomyMasks\\MC_Enamel_Incisal.png",
+          "sha256": "0617c1df508c6977280f005da8dc4fe813b9f6dc9dbfe64959bddaff333b1a8a"
+        },
+        {
+          "role": "ThinTissueMask",
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY01\\UV_v02_GumReturns\\Textures\\AnatomyMasks\\MC_Enamel_ThinTissueMask.png",
+          "sha256": "e9cfd7df578c759b4af74593ffafed8c9aceee56e5af5ef78b2b748ac2e87296"
+        }
+      ]
+    },
+    "MC_Gum": {
+      "triangles": 87296,
+      "uv_coverage_fraction": 0.4292105436325073,
+      "files": [
+        {
+          "role": "Cervical",
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY01\\UV_v02_GumReturns\\Textures\\AnatomyMasks\\MC_Gum_Cervical.png",
+          "sha256": "39d51313c988f216b0d3f885c80de4d11953f7e8789d64557c115f65250532f5"
+        },
+        {
+          "role": "Incisal",
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY01\\UV_v02_GumReturns\\Textures\\AnatomyMasks\\MC_Gum_Incisal.png",
+          "sha256": "9810bd1bd119e6bb6cb8778473f59ab326ba4dfcb48ab327d9fc9397c51c6482"
+        },
+        {
+          "role": "ThinTissueMask",
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY01\\UV_v02_GumReturns\\Textures\\AnatomyMasks\\MC_Gum_ThinTissueMask.png",
+          "sha256": "acd9d0e3f780d9424cde2cc36d3ab051c8b52ac25f4e0caeda727955fa98889f"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "status": "DRAFT_SHAPE_IMPORTED_UV_REJECTED_PENDING_V08B_REPLACEMENT",
+  "source_fbx": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\SK_DAY03.fbx",
+  "source_sha256": "0ae690f36ee0a43683336f916253ee3ab46b9873bf62a85228772e87eb2a3a1b",
+  "previous_mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_LowerReadable_v07.SK_DAY03_LowerReadable_v07",
+  "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Reference_v08.SK_DAY03_Reference_v08",
+  "morphs": [
+    "Pose_000",
+    "Pose_025",
+    "Pose_050",
+    "Pose_075"
+  ],
+  "skeleton": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04_Skeleton.SK_DAY03_Seated_v04_Skeleton",
+  "bounds": "<Struct 'BoxSphereBounds' (0x000001DA92014C00) {origin: {x: -0.000031, y: -141.644081, z: 3.596863}, box_extent: {x: 846.000031, y: 220.224815, z: 410.384918}, sphere_radius: 965.728120}>",
+  "blocking_overrides": [
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel_DAY03.M_Blocking_Enamel_DAY03",
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum_DAY03.M_Blocking_Gum_DAY03"
+  ],
+  "saved_map": "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08",
+  "startup_map_changed": false,
+  "validation": "Source symmetry and shape proof checked. User rejected the fragmented UV candidate; replacement UV is pending. No PBR binding or final native acceptance."
+}

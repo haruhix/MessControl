@@ -1,0 +1,68 @@
+{
+  "world": "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08",
+  "mouths": [
+    {
+      "day": 1,
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking.SK_DAY01_Blocking",
+      "skeleton": "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking_Skeleton.SK_DAY01_Blocking_Skeleton",
+      "bounds_origin": [
+        0.0,
+        -144.3235378265381,
+        0.0
+      ],
+      "bounds_extent": [
+        809.942138671875,
+        200.75879859924316,
+        389.9075012207031
+      ],
+      "morphs": [
+        "Pose_000",
+        "Pose_025",
+        "Pose_050",
+        "Pose_075"
+      ]
+    },
+    {
+      "day": 2,
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking.SK_DAY02_Blocking",
+      "skeleton": "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking_Skeleton.SK_DAY02_Blocking_Skeleton",
+      "bounds_origin": [
+        0.0,
+        -144.13185119628906,
+        0.0
+      ],
+      "bounds_extent": [
+        809.942138671875,
+        200.9504852294922,
+        384.764404296875
+      ],
+      "morphs": [
+        "Pose_000",
+        "Pose_025",
+        "Pose_050",
+        "Pose_075"
+      ]
+    },
+    {
+      "day": 3,
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Reference_v08b.SK_DAY03_Reference_v08b",
+      "skeleton": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04_Skeleton.SK_DAY03_Seated_v04_Skeleton",
+      "bounds_origin": [
+        -3.0517578125e-05,
+        -141.64408111572266,
+        3.59686279296875
+      ],
+      "bounds_extent": [
+        846.0000305175781,
+        220.22481536865234,
+        410.3849182128906
+      ],
+      "morphs": [
+        "Pose_000",
+        "Pose_025",
+        "Pose_050",
+        "Pose_075"
+      ]
+    }
+  ]
+}

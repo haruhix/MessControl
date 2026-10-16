@@ -1,0 +1,13 @@
+{
+  "pie_running": false,
+  "world": "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08",
+  "dirty_maps": [],
+  "dirty_content": [
+    "/Game/UI/MainMenu3D/BP_Menu3DPlayerController",
+    "/Game/UI/MainMenu3D/WBP_MainMenu3D",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuTongue_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuInterior_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuEnamel_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuGum_v08"
+  ]
+}

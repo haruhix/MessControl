@@ -1,0 +1,200 @@
+{
+  "schema": "messcontrol.menu3d.painter_layers.v1",
+  "status": "PREPARED_FOR_FROZEN_V08_UV",
+  "order": "Children are top to bottom. Anatomy masks are UV-baked from mesh geometry, not screen projection.",
+  "MC_Enamel": [
+    {
+      "type": "group",
+      "name": "DAY03 | Warm ivory enamel",
+      "children": [
+        {
+          "type": "fill",
+          "name": "05 | Restrained gloss variation",
+          "active_channels": [
+            "Roughness"
+          ],
+          "channels": {
+            "Roughness": 0.18
+          },
+          "mask": {
+            "background": "Black"
+          }
+        },
+        {
+          "type": "fill",
+          "name": "04 | Fine enamel microstructure",
+          "active_channels": [
+            "Height"
+          ],
+          "channels": {
+            "Height": 0.006
+          },
+          "mask": {
+            "background": "Black"
+          }
+        },
+        {
+          "type": "fill",
+          "name": "03 | Soft incisal ivory",
+          "active_channels": [
+            "BaseColor",
+            "Roughness"
+          ],
+          "base_color": [
+            0.975,
+            0.94,
+            0.875
+          ],
+          "channels": {
+            "Roughness": 0.205
+          },
+          "mask": {
+            "background": "Black"
+          }
+        },
+        {
+          "type": "fill",
+          "name": "02 | Cervical warm transition",
+          "active_channels": [
+            "BaseColor",
+            "Roughness"
+          ],
+          "base_color": [
+            0.855,
+            0.735,
+            0.585
+          ],
+          "channels": {
+            "Roughness": 0.27
+          },
+          "mask": {
+            "background": "Black"
+          }
+        },
+        {
+          "type": "fill",
+          "name": "01 | Clean ivory base",
+          "active_channels": [
+            "BaseColor",
+            "Roughness",
+            "Metallic",
+            "Height"
+          ],
+          "base_color": [
+            0.95,
+            0.875,
+            0.77
+          ],
+          "channels": {
+            "Roughness": 0.235,
+            "Metallic": 0,
+            "Height": 0
+          }
+        }
+      ]
+    }
+  ],
+  "MC_Gum": [
+    {
+      "type": "group",
+      "name": "DAY03 | Coral wet gingiva",
+      "children": [
+        {
+          "type": "fill",
+          "name": "06 | Moist film breakup",
+          "active_channels": [
+            "Roughness"
+          ],
+          "channels": {
+            "Roughness": 0.135
+          },
+          "mask": {
+            "background": "Black"
+          }
+        },
+        {
+          "type": "fill",
+          "name": "05 | Fine moist microrelief",
+          "active_channels": [
+            "Height"
+          ],
+          "channels": {
+            "Height": 0.025
+          },
+          "mask": {
+            "background": "Black"
+          }
+        },
+        {
+          "type": "fill",
+          "name": "04 | Restrained vascular marbling",
+          "active_channels": [
+            "BaseColor"
+          ],
+          "base_color": [
+            0.64,
+            0.095,
+            0.15
+          ],
+          "mask": {
+            "background": "Black"
+          }
+        },
+        {
+          "type": "fill",
+          "name": "03 | Soft coral variation",
+          "active_channels": [
+            "BaseColor"
+          ],
+          "base_color": [
+            0.94,
+            0.285,
+            0.335
+          ],
+          "mask": {
+            "background": "Black"
+          }
+        },
+        {
+          "type": "fill",
+          "name": "02 | Attached gingiva pink margin",
+          "active_channels": [
+            "BaseColor",
+            "Roughness"
+          ],
+          "base_color": [
+            0.965,
+            0.365,
+            0.39
+          ],
+          "channels": {
+            "Roughness": 0.21
+          },
+          "mask": {
+            "background": "Black"
+          }
+        },
+        {
+          "type": "fill",
+          "name": "01 | Living coral base",
+          "active_channels": [
+            "BaseColor",
+            "Roughness",
+            "Metallic",
+            "Height"
+          ],
+          "base_color": [
+            0.835,
+            0.185,
+            0.235
+          ],
+          "channels": {
+            "Roughness": 0.27,
+            "Metallic": 0,
+            "Height": 0
+          }
+        }
+      ]
+    }
+  ]
+}

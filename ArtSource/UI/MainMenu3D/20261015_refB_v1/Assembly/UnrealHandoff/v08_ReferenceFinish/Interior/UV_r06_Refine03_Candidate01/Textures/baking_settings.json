@@ -1,0 +1,35 @@
+{
+  "texture_sets": [
+    "MC_Tongue"
+  ],
+  "enabled_bakers": [
+    "Normal",
+    "WorldSpaceNormal",
+    "AO",
+    "Curvature",
+    "Position",
+    "Thickness"
+  ],
+  "common": {
+    "OutputSize": [
+      12,
+      12
+    ],
+    "DilationWidth": 32,
+    "SubSampling": "2x2",
+    "LowAsHigh": true
+  },
+  "baker_values": {
+    "AO": {
+      "NbSecondary": 128
+    },
+    "Thickness": {
+      "NbSecondary": 128
+    }
+  },
+  "job_id": "a7cdbdfdd90642678dc409870efe5958",
+  "packet_sha256": "53215b04995cfc46b820b622726cf78d692b36f8619f6a964b12cfe097088bbb",
+  "backend": "Live Substance Painter MCP",
+  "status": "success",
+  "success_evidence": "ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\bake_success.json"
+}

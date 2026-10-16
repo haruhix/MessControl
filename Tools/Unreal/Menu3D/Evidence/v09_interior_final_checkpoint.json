@@ -1,0 +1,24 @@
+{
+  "status": "INTERIOR_CONTINUITY_REPAIR_SAVED_PENDING_FINAL_ART_APPROVAL",
+  "world": "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08",
+  "pie_running": false,
+  "active_review_callbacks": false,
+  "vsm_restored": 0,
+  "session_window_preferences_restored": true,
+  "dirty_maps": [],
+  "dirty_content": [],
+  "normal_speed_numeric_check": {
+    "failures": [],
+    "partial_samples_per_day": {
+      "1": 74,
+      "2": 73,
+      "3": 113
+    },
+    "max_sample_interval": 0.03200000000651926,
+    "status": "PASS"
+  },
+  "render_review": "LowerRow_v09_InteriorEnvelope03_r06 (controlled functions, temporary VSM1, mixed slow/normal time)",
+  "physical_mouse_wheel": "Not exercised; computer-use stopped by physical Escape",
+  "production_startup_unchanged": true,
+  "build_cook_network_tests_run": false
+}

@@ -1,0 +1,151 @@
+{
+  "status": "SINGLE_PC_STAGE_OWNER_COMPILED_SAVED_PENDING_SOLO_PIE",
+  "removed_connected_nodes": [
+    {
+      "output_pins": [
+        {
+          "value": "",
+          "connected_pins": [],
+          "pin_id": {
+            "direction": "EGPD_Output",
+            "index_id": 0,
+            "node": {
+              "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_Event_2"
+            }
+          },
+          "type_id": "Delegate",
+          "name": "OutputDelegate"
+        },
+        {
+          "value": "",
+          "connected_pins": [
+            {
+              "direction": "EGPD_Input",
+              "index_id": 0,
+              "node": {
+                "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_174"
+              }
+            }
+          ],
+          "pin_id": {
+            "direction": "EGPD_Output",
+            "index_id": 1,
+            "node": {
+              "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_Event_2"
+            }
+          },
+          "type_id": "Exec",
+          "name": "then"
+        },
+        {
+          "value": "",
+          "connected_pins": [],
+          "pin_id": {
+            "direction": "EGPD_Output",
+            "index_id": 2,
+            "node": {
+              "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_Event_2"
+            }
+          },
+          "type_id": "Geometry Structure",
+          "name": "MyGeometry"
+        },
+        {
+          "value": "0.0",
+          "connected_pins": [],
+          "pin_id": {
+            "direction": "EGPD_Output",
+            "index_id": 3,
+            "node": {
+              "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_Event_2"
+            }
+          },
+          "type_id": "Float (single-precision)",
+          "name": "InDeltaTime"
+        }
+      ],
+      "input_pins": [],
+      "position": {
+        "x": 0,
+        "y": 416
+      },
+      "node": {
+        "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_Event_2"
+      },
+      "type_id": "AddEvent|UserInterface|EventTick"
+    },
+    {
+      "output_pins": [
+        {
+          "value": "",
+          "connected_pins": [],
+          "pin_id": {
+            "direction": "EGPD_Output",
+            "index_id": 0,
+            "node": {
+              "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_174"
+            }
+          },
+          "type_id": "Exec",
+          "name": "then"
+        }
+      ],
+      "input_pins": [
+        {
+          "value": "",
+          "connected_pins": [
+            {
+              "direction": "EGPD_Output",
+              "index_id": 1,
+              "node": {
+                "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_Event_2"
+              }
+            }
+          ],
+          "pin_id": {
+            "direction": "EGPD_Input",
+            "index_id": 0,
+            "node": {
+              "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_174"
+            }
+          },
+          "type_id": "Exec",
+          "name": "execute"
+        },
+        {
+          "value": "",
+          "connected_pins": [],
+          "pin_id": {
+            "direction": "EGPD_Input",
+            "index_id": 1,
+            "node": {
+              "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_174"
+            }
+          },
+          "type_id": "Self Object Reference",
+          "name": "self"
+        }
+      ],
+      "position": {
+        "x": 280,
+        "y": 416
+      },
+      "node": {
+        "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_174"
+      },
+      "type_id": "|UpdateStage"
+    }
+  ],
+  "protected_graph_hashes": {
+    "UpdateStage": "901888bf18e070f62fa413189b874512faf0b1c4bc614c878131e7132ca77faf",
+    "DriveMouthDay": "9ba649ac8af5d3d3a49423893715f2da32458b1b927e411daccee5ef36dd9834",
+    "SelectDay": "aa46d1e2f297584752ca2b8132df2a2381a3cab1bb5438451368b8068f16d8ed",
+    "StepDay": "144a69055cd870b3e6d9f129d55aed4b8cf53f6956a1fd720768a49b1463b79e",
+    "Back": "5392d10bdfdc735dfbed1919617c57a6008ebea15ee16f1f4284c3a9c31f0175",
+    "OpenConnection": "aeeb4f54df981a9a929d59f924e237fbfe723726dabeb3f6a953e0e4581e52c9",
+    "UpdatePointerIntent": "7b8d6d0b047e8907851d0b1a2d6164bc51feb967362b648c7638b1977da96956"
+  },
+  "controller_graph_unchanged": true,
+  "compiled_warnings_as_errors": true,
+  "runtime_limit": "Original compiled double advancement was not instrumented; two connected source paths were observed. New timing/readability requires native review."
+}

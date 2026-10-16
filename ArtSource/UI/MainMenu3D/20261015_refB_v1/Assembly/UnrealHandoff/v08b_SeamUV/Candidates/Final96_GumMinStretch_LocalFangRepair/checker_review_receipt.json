@@ -1,0 +1,10 @@
+{
+  "source_sha256": "e5b14557b090f955065050f8426011e9e66fb07eb33cbcf88738c734148fb3b7",
+  "camera": "Diagnostic fixedneutralfront/back/oblique/side",
+  "source_unchanged": true,
+  "resolution": [
+    1600,
+    900
+  ],
+  "UVchecker_scale": 32
+}

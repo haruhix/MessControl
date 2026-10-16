@@ -1,0 +1,209 @@
+{
+  "independent": true,
+  "read_only": true,
+  "source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01",
+  "parts": {
+    "SM_DAY03_Interior": {
+      "vertices": 16386,
+      "triangles": 32768,
+      "matrix_world": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "bbox": [
+        [
+          -9.415450096130371,
+          -14.035672187805176,
+          -6.324100017547607
+        ],
+        [
+          9.415450096130371,
+          -3.1993870735168457,
+          6.364099979400635
+        ]
+      ],
+      "closed_manifold_edges": true,
+      "non_two_face_edges": 0,
+      "signed_volume": 58.62841796875,
+      "all_faces_smooth": true,
+      "uv_layers": [
+        "UV0"
+      ],
+      "shape_keys": false,
+      "modifiers": [],
+      "fresh_fbx": {
+        "vertices": 16386,
+        "max_position_error_source_units": 1.3486991292666062e-06,
+        "matrix_world": [
+          [
+            1.0,
+            -8.742277657347586e-08,
+            0.0,
+            0.0
+          ],
+          [
+            8.742277657347586e-08,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "uv_finite": true,
+        "armatures": 0
+      }
+    },
+    "SM_DAY03_Tongue": {
+      "vertices": 9090,
+      "triangles": 18176,
+      "matrix_world": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "bbox": [
+        [
+          -8.050000190734863,
+          -5.050000190734863,
+          -4.75
+        ],
+        [
+          8.050000190734863,
+          -0.6499999761581421,
+          -1.3132609128952026
+        ]
+      ],
+      "closed_manifold_edges": true,
+      "non_two_face_edges": 0,
+      "signed_volume": 138.2073974609375,
+      "all_faces_smooth": true,
+      "uv_layers": [
+        "UV0"
+      ],
+      "shape_keys": false,
+      "modifiers": [],
+      "fresh_fbx": {
+        "vertices": 9090,
+        "max_position_error_source_units": 8.596304041930125e-07,
+        "matrix_world": [
+          [
+            1.0,
+            -8.742277657347586e-08,
+            0.0,
+            0.0
+          ],
+          [
+            8.742277657347586e-08,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "uv_finite": true,
+        "armatures": 0
+      }
+    }
+  },
+  "gates": {
+    "source_packet_positions_bitexact": true,
+    "source_packet_uv_bitexact": true,
+    "source_packet_topology_bitexact": true,
+    "uv_only_parent_geometry_bitexact": true,
+    "fresh_SM_DAY03_Interior_position_1e_minus_3_cm": true,
+    "fresh_SM_DAY03_Tongue_position_1e_minus_3_cm": true,
+    "two_closed_manifold_positive_volume": true,
+    "source_identity_origins_scale": true,
+    "anchor_within_1e_minus_3_source_units": true
+  },
+  "source_sha256": "59e65b91570d1014deec20c0d3f648dc8244702cc6b7e3b8d68f268634da6349",
+  "character_anchor": {
+    "source": [
+      -5.757009,
+      -2.887758,
+      -2.076843
+    ],
+    "tongue_top_hit": [
+      -5.757009029388428,
+      -2.8877580165863037,
+      -2.0768423080444336
+    ],
+    "height_error_source_units": 6.919555666229371e-07
+  },
+  "geometry_export_pass": true
+}

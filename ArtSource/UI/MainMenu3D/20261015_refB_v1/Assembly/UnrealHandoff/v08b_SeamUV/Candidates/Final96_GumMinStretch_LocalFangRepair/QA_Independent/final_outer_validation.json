@@ -1,0 +1,31 @@
+{
+  "independent": true,
+  "technical_import_texturing_gate": "PASS",
+  "native_reference_art_gate": "PENDING_ACTUAL_UNREAL_LOOK_REVIEW",
+  "reports": {
+    "outer_source_geometry.json": {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\QA_Independent\\outer_source_geometry.json",
+      "sha256": "95c4581b537f686dabb887e009908f9af8a5b27438e62d74e33129e36650845c"
+    },
+    "outer_fresh_fbx_geometry.json": {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\QA_Independent\\outer_fresh_fbx_geometry.json",
+      "sha256": "1180d7ba7f5351449a9937a0c2fd2b9bf409ccf28fc2b9b4dde2c27a7dc8cf61"
+    },
+    "uv_export_identity.json": {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\QA_Independent\\uv_export_identity.json",
+      "sha256": "b44aefb0fd913f1263d8dfd62b2d1951910e28edfb5c4bdc621683ddba6a407f"
+    },
+    "uv_validation.json": {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\QA_Independent\\uv_validation.json",
+      "sha256": "b85649343742676ac386af26550039a745e4b580713d12d62149b50d381391d6"
+    },
+    "uv_quality.json": {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\QA_Independent\\uv_quality.json",
+      "sha256": "ca758df2886124b56f5da2fe7b7770d14b9a7ce0e5b74fd14a19824424a25f7c"
+    },
+    "lower_occlusion_9_samples.json": {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\QA_Independent\\lower_occlusion_9_samples.json",
+      "sha256": "38a505290429e4bcc3d8e5ab18e3ea706821fbd788c2a2a0ca53a3307962a40c"
+    }
+  }
+}

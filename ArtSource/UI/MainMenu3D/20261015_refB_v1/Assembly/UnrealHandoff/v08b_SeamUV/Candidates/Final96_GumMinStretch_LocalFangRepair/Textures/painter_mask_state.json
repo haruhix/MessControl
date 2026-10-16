@@ -1,0 +1,1088 @@
+{
+  "MC_Enamel/02": {
+    "layer": {
+      "uid": 131,
+      "name": "02 | Cervical warm transition",
+      "type": "FillLayerNode",
+      "children": []
+    },
+    "effect": {
+      "uid": 389,
+      "name": "Cervical",
+      "type": "FillEffectNode"
+    },
+    "source_url": "resource://project2/MC_Enamel_Cervical?version=8c32aa27cbf129832aa4f9cce2ed1e760920047a.image"
+  },
+  "MC_Enamel/03": {
+    "layer": {
+      "uid": 146,
+      "name": "03 | Soft incisal ivory",
+      "type": "FillLayerNode",
+      "children": []
+    },
+    "effect": {
+      "uid": 393,
+      "name": "Incisal",
+      "type": "FillEffectNode"
+    },
+    "source_url": "resource://project2/MC_Enamel_Incisal?version=6df917c299601af8d1781ac24292819a0fc7bb69.image"
+  },
+  "MC_Enamel/04": {
+    "layer": {
+      "uid": 161,
+      "name": "04 | Fine enamel microstructure",
+      "type": "FillLayerNode",
+      "children": []
+    },
+    "effect": {
+      "uid": 397,
+      "name": "anisotropic_noise",
+      "type": "FillEffectNode"
+    },
+    "source_url": "resource://starter_assets/noise_anisotropic_noise/anisotropic_noise?version=4ff19b5821d029ae69cd12609a7655c5b5fede77.sbsar",
+    "parameters_observed": {
+      "uid": 397,
+      "name": "anisotropic_noise",
+      "source_mode": null,
+      "channel": null,
+      "source_type": "SourceSubstance",
+      "presets": [],
+      "parameters": {
+        "$randomseed": {
+          "label": "Seed",
+          "widget": "RandomSeed",
+          "value": 0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Seed",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "invert": {
+          "label": "Invert",
+          "widget": "Togglebutton",
+          "value": 0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Invert",
+            "labelFalse": "False",
+            "labelTrue": "True",
+            "max": 0,
+            "min": 0,
+            "statustip": "",
+            "step": 0,
+            "visible": true
+          }
+        },
+        "balance": {
+          "label": "Balance",
+          "widget": "Slider",
+          "value": 0.5,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0.5,
+            "description": "",
+            "label": "Balance",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "contrast": {
+          "label": "Contrast",
+          "widget": "Slider",
+          "value": 0.0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "label": "Contrast",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "X_Amount": {
+          "label": "X Amount",
+          "widget": "Slider",
+          "value": 4,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 4,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "X Amount",
+            "max": 512,
+            "min": 1,
+            "statustip": "",
+            "step": 1,
+            "visible": true
+          }
+        },
+        "Y_Amount": {
+          "label": "Y Amount",
+          "widget": "Slider",
+          "value": 256,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 256,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Y Amount",
+            "max": 512,
+            "min": 1,
+            "statustip": "",
+            "step": 1,
+            "visible": true
+          }
+        },
+        "y_amount_by_resolution": {
+          "label": "Y Amount By Resolution",
+          "widget": "Togglebutton",
+          "value": 0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Y Amount By Resolution",
+            "labelFalse": "False",
+            "labelTrue": "True",
+            "max": 0,
+            "min": 0,
+            "statustip": "",
+            "step": 0,
+            "visible": true
+          }
+        },
+        "rotate": {
+          "label": "Rotate",
+          "widget": "Togglebutton",
+          "value": 0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Rotate",
+            "labelFalse": "False",
+            "labelTrue": "True",
+            "max": 0,
+            "min": 0,
+            "statustip": "",
+            "step": 0,
+            "visible": true
+          }
+        },
+        "smoothness": {
+          "label": "Smoothness",
+          "widget": "Slider",
+          "value": 1.0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 1,
+            "description": "",
+            "label": "Smoothness",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "smoothness_interpolation": {
+          "label": "Smoothness Interpolation",
+          "widget": "Slider",
+          "value": 0.5,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0.5,
+            "description": "",
+            "label": "Smoothness Interpolation",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "non_square_expansion": {
+          "label": "Non Square Expansion",
+          "widget": "Togglebutton",
+          "value": 1,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 1,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Non Square Expansion",
+            "labelFalse": "False",
+            "labelTrue": "True",
+            "max": 0,
+            "min": 0,
+            "statustip": "",
+            "step": 0,
+            "visible": true
+          }
+        }
+      }
+    }
+  },
+  "MC_Enamel/05": {
+    "layer": {
+      "uid": 173,
+      "name": "05 | Restrained gloss variation",
+      "type": "FillLayerNode",
+      "children": []
+    },
+    "effect": {
+      "uid": 413,
+      "name": "clouds_2",
+      "type": "FillEffectNode"
+    },
+    "source_url": "resource://starter_assets/noise_clouds_2/clouds_2?version=084554e42f072b76c47b62e1ab15424ee0b7c131.sbsar",
+    "parameters_observed": {
+      "uid": 413,
+      "name": "clouds_2",
+      "source_mode": null,
+      "channel": null,
+      "source_type": "SourceSubstance",
+      "presets": [],
+      "parameters": {
+        "$randomseed": {
+          "label": "Seed",
+          "widget": "RandomSeed",
+          "value": 0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Seed",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "invert": {
+          "label": "Invert",
+          "widget": "Togglebutton",
+          "value": 0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Invert",
+            "labelFalse": "False",
+            "labelTrue": "True",
+            "max": 0,
+            "min": 0,
+            "statustip": "",
+            "step": 0,
+            "visible": true
+          }
+        },
+        "balance": {
+          "label": "Balance",
+          "widget": "Slider",
+          "value": 0.5,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0.5,
+            "description": "",
+            "label": "Balance",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "contrast": {
+          "label": "Contrast",
+          "widget": "Slider",
+          "value": 0.0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "label": "Contrast",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "scale": {
+          "label": "Scale",
+          "widget": "Slider",
+          "value": 1,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 1,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Scale",
+            "max": 8,
+            "min": 1,
+            "statustip": "",
+            "step": 1,
+            "visible": true
+          }
+        },
+        "disorder": {
+          "label": "Disorder",
+          "widget": "Slider",
+          "value": 0.0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "editorMax": 3.4028234663852886e+38,
+            "editorMin": -3.4028234663852886e+38,
+            "label": "Disorder",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "non_square_expansion": {
+          "label": "Non Square Expansion",
+          "widget": "Togglebutton",
+          "value": 1,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 1,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Non Square Expansion",
+            "labelFalse": "False",
+            "labelTrue": "True",
+            "max": 0,
+            "min": 0,
+            "statustip": "",
+            "step": 0,
+            "visible": true
+          }
+        }
+      }
+    }
+  },
+  "MC_Gum/02": {
+    "layer": {
+      "uid": 206,
+      "name": "02 | Attached gingiva pink margin",
+      "type": "FillLayerNode",
+      "children": []
+    },
+    "effect": {
+      "uid": 425,
+      "name": "Cervical",
+      "type": "FillEffectNode"
+    },
+    "source_url": "resource://project2/MC_Gum_Cervical?version=79592a69b8a76290b02408090d8728bfb73c972a.image"
+  },
+  "MC_Gum/03": {
+    "layer": {
+      "uid": 221,
+      "name": "03 | Soft coral variation",
+      "type": "FillLayerNode",
+      "children": []
+    },
+    "effect": {
+      "uid": 429,
+      "name": "clouds_2",
+      "type": "FillEffectNode"
+    },
+    "source_url": "resource://starter_assets/noise_clouds_2/clouds_2?version=084554e42f072b76c47b62e1ab15424ee0b7c131.sbsar",
+    "parameters_observed": {
+      "uid": 429,
+      "name": "clouds_2",
+      "source_mode": null,
+      "channel": null,
+      "source_type": "SourceSubstance",
+      "presets": [],
+      "parameters": {
+        "$randomseed": {
+          "label": "Seed",
+          "widget": "RandomSeed",
+          "value": 0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Seed",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "invert": {
+          "label": "Invert",
+          "widget": "Togglebutton",
+          "value": 0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Invert",
+            "labelFalse": "False",
+            "labelTrue": "True",
+            "max": 0,
+            "min": 0,
+            "statustip": "",
+            "step": 0,
+            "visible": true
+          }
+        },
+        "balance": {
+          "label": "Balance",
+          "widget": "Slider",
+          "value": 0.5,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0.5,
+            "description": "",
+            "label": "Balance",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "contrast": {
+          "label": "Contrast",
+          "widget": "Slider",
+          "value": 0.0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "label": "Contrast",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "scale": {
+          "label": "Scale",
+          "widget": "Slider",
+          "value": 1,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 1,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Scale",
+            "max": 8,
+            "min": 1,
+            "statustip": "",
+            "step": 1,
+            "visible": true
+          }
+        },
+        "disorder": {
+          "label": "Disorder",
+          "widget": "Slider",
+          "value": 0.0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "editorMax": 3.4028234663852886e+38,
+            "editorMin": -3.4028234663852886e+38,
+            "label": "Disorder",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "non_square_expansion": {
+          "label": "Non Square Expansion",
+          "widget": "Togglebutton",
+          "value": 1,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 1,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Non Square Expansion",
+            "labelFalse": "False",
+            "labelTrue": "True",
+            "max": 0,
+            "min": 0,
+            "statustip": "",
+            "step": 0,
+            "visible": true
+          }
+        }
+      }
+    }
+  },
+  "MC_Gum/04": {
+    "layer": {
+      "uid": 233,
+      "name": "04 | Restrained vascular marbling",
+      "type": "FillLayerNode",
+      "children": []
+    },
+    "effect": {
+      "uid": 441,
+      "name": "marble_veins",
+      "type": "FillEffectNode"
+    },
+    "source_url": "resource://starter_assets/marble_veins/marble_veins?version=d9e67ebec2f5df3ad56617a03718444eafbe1376.sbsar",
+    "parameters_observed": {
+      "uid": 441,
+      "name": "marble_veins",
+      "source_mode": null,
+      "channel": null,
+      "source_type": "SourceSubstance",
+      "presets": [],
+      "parameters": {
+        "$randomseed": {
+          "label": "Seed",
+          "widget": "RandomSeed",
+          "value": 0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Seed",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "invert": {
+          "label": "Invert",
+          "widget": "Togglebutton",
+          "value": 0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Invert",
+            "labelFalse": "False",
+            "labelTrue": "True",
+            "max": 0,
+            "min": 0,
+            "statustip": "",
+            "step": 0,
+            "visible": true
+          }
+        },
+        "position": {
+          "label": "Balance",
+          "widget": "Slider",
+          "value": 0.5,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0.5,
+            "description": "",
+            "label": "Balance",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "contrast": {
+          "label": "Contrast",
+          "widget": "Slider",
+          "value": 0.0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "label": "Contrast",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "Disorder": {
+          "label": "Disorder",
+          "widget": "Slider",
+          "value": 18.0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 18,
+            "description": "",
+            "label": "Disorder",
+            "max": 100,
+            "min": 0,
+            "statustip": "",
+            "step": 1,
+            "visible": true
+          }
+        },
+        "Slope_Blur": {
+          "label": "Marbling",
+          "widget": "Slider",
+          "value": 0.0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "label": "Marbling",
+            "max": 2,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        }
+      }
+    }
+  },
+  "MC_Gum/05": {
+    "layer": {
+      "uid": 245,
+      "name": "05 | Fine moist microrelief",
+      "type": "FillLayerNode",
+      "children": []
+    },
+    "effect": {
+      "uid": 452,
+      "name": "bnw_spots_3",
+      "type": "FillEffectNode"
+    },
+    "source_url": "resource://starter_assets/noise_bnw_spots_3/bnw_spots_3?version=e6abf615277e09294a6e028e65119800a3dda994.sbsar",
+    "parameters_observed": {
+      "uid": 452,
+      "name": "bnw_spots_3",
+      "source_mode": null,
+      "channel": null,
+      "source_type": "SourceSubstance",
+      "presets": [],
+      "parameters": {
+        "$randomseed": {
+          "label": "Seed",
+          "widget": "RandomSeed",
+          "value": 0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Seed",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "invert": {
+          "label": "Invert",
+          "widget": "Togglebutton",
+          "value": 0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Invert",
+            "labelFalse": "False",
+            "labelTrue": "True",
+            "max": 0,
+            "min": 0,
+            "statustip": "",
+            "step": 0,
+            "visible": true
+          }
+        },
+        "balance": {
+          "label": "Balance",
+          "widget": "Slider",
+          "value": 0.5,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0.5,
+            "description": "",
+            "label": "Balance",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "contrast": {
+          "label": "Contrast",
+          "widget": "Slider",
+          "value": 0.0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "label": "Contrast",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "scale": {
+          "label": "Scale",
+          "widget": "Slider",
+          "value": 1,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 1,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Scale",
+            "max": 8,
+            "min": 1,
+            "statustip": "",
+            "step": 1,
+            "visible": true
+          }
+        },
+        "disorder": {
+          "label": "Disorder",
+          "widget": "Slider",
+          "value": 0.0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "label": "Disorder",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "non_square_expansion": {
+          "label": "Non Square Expansion",
+          "widget": "Togglebutton",
+          "value": 1,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 1,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Non Square Expansion",
+            "labelFalse": "False",
+            "labelTrue": "True",
+            "max": 0,
+            "min": 0,
+            "statustip": "",
+            "step": 0,
+            "visible": true
+          }
+        }
+      }
+    }
+  },
+  "MC_Gum/06": {
+    "layer": {
+      "uid": 257,
+      "name": "06 | Moist film breakup",
+      "type": "FillLayerNode",
+      "children": []
+    },
+    "effect": {
+      "uid": 464,
+      "name": "moisture_noise",
+      "type": "FillEffectNode"
+    },
+    "source_url": "resource://starter_assets/noise_moisture_noise/moisture_noise?version=1e596d373151445cfeb503657ff8d7ea96b0bc5f.sbsar",
+    "parameters_observed": {
+      "uid": 464,
+      "name": "moisture_noise",
+      "source_mode": null,
+      "channel": null,
+      "source_type": "SourceSubstance",
+      "presets": [],
+      "parameters": {
+        "$randomseed": {
+          "label": "Seed",
+          "widget": "RandomSeed",
+          "value": 0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Seed",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "invert": {
+          "label": "Invert",
+          "widget": "Togglebutton",
+          "value": 0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Invert",
+            "labelFalse": "False",
+            "labelTrue": "True",
+            "max": 0,
+            "min": 0,
+            "statustip": "",
+            "step": 0,
+            "visible": true
+          }
+        },
+        "balance": {
+          "label": "Balance",
+          "widget": "Slider",
+          "value": 0.5,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0.5,
+            "description": "",
+            "label": "Balance",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "contrast": {
+          "label": "Contrast",
+          "widget": "Slider",
+          "value": 0.0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "label": "Contrast",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "scale": {
+          "label": "Scale",
+          "widget": "Slider",
+          "value": 1,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 1,
+            "description": "",
+            "enumValues": {},
+            "label": "Scale",
+            "max": 8,
+            "min": 1,
+            "statustip": "",
+            "step": 1,
+            "visible": true
+          }
+        },
+        "disorder": {
+          "label": "Disorder",
+          "widget": "Slider",
+          "value": 0.0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "editorMax": 3.4028234663852886e+38,
+            "editorMin": -3.4028234663852886e+38,
+            "label": "Disorder",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "pattern_size": {
+          "label": "Pattern Size",
+          "widget": "Slider",
+          "value": [
+            1.0,
+            1.0
+          ],
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": null,
+            "description": "",
+            "editorMax": null,
+            "editorMin": null,
+            "label": "Pattern Size",
+            "max": null,
+            "min": null,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "subLabels": [
+              "X",
+              "Y"
+            ],
+            "visible": true
+          }
+        },
+        "pattern_angle": {
+          "label": "Pattern Angle",
+          "widget": "Angle",
+          "value": 0.0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "label": "Pattern Angle",
+            "max": 360,
+            "min": 0,
+            "statustip": "",
+            "step": 0,
+            "visible": true
+          }
+        },
+        "pattern_angle_random": {
+          "label": "Pattern Angle Random",
+          "widget": "Slider",
+          "value": 0.0,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 0,
+            "description": "",
+            "label": "Pattern Angle Random",
+            "max": 1,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "global_opacity": {
+          "label": "Global Opacity",
+          "widget": "Slider",
+          "value": 1.600000023841858,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 1.600000023841858,
+            "description": "",
+            "editorMax": 3.4028234663852886e+38,
+            "editorMin": -3.4028234663852886e+38,
+            "label": "Global Opacity",
+            "max": 2,
+            "min": 0,
+            "statustip": "",
+            "step": 0.009999999776482582,
+            "visible": true
+          }
+        },
+        "non_square_expansion": {
+          "label": "Non Square Expansion",
+          "widget": "Togglebutton",
+          "value": 1,
+          "enum_values": {},
+          "metadata": {
+            "defaultValue": 1,
+            "description": "",
+            "editorMax": 2147483647,
+            "editorMin": -2147483648,
+            "enumValues": {},
+            "label": "Non Square Expansion",
+            "labelFalse": "False",
+            "labelTrue": "True",
+            "max": 0,
+            "min": 0,
+            "statustip": "",
+            "step": 0,
+            "visible": true
+          }
+        }
+      }
+    }
+  }
+}

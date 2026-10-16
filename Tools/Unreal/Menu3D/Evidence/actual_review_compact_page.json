@@ -1,0 +1,43 @@
+{
+  "action": "page",
+  "page": 1,
+  "active_day": 2,
+  "selected_day": 2,
+  "openness": [
+    0.0,
+    0.0,
+    1.0
+  ],
+  "mouths": [
+    {
+      "day": 1,
+      "location": "<Struct 'Vector' (0x000001D9742727C0) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+      "pose_weights": {
+        "Pose_000": 1.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      }
+    },
+    {
+      "day": 2,
+      "location": "<Struct 'Vector' (0x000001D9742727C0) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+      "pose_weights": {
+        "Pose_000": 1.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      }
+    },
+    {
+      "day": 3,
+      "location": "<Struct 'Vector' (0x000001D9742727C0) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      }
+    }
+  ]
+}

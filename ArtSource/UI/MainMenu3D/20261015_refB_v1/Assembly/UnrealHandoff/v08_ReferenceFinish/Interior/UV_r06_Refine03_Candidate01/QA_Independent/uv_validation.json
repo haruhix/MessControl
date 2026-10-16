@@ -1,0 +1,159 @@
+{
+  "independent": true,
+  "read_only": true,
+  "source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01",
+  "material_names": [
+    "MC_Interior",
+    "MC_Tongue"
+  ],
+  "source_sha256": "59e65b91570d1014deec20c0d3f648dc8244702cc6b7e3b8d68f268634da6349",
+  "resolution": 4096,
+  "islands": 5,
+  "materials": {
+    "0": {
+      "name": "MC_Interior",
+      "island_count": 3,
+      "occupied_pixels": 10511084,
+      "coverage_fraction": 0.626509428024292,
+      "inter_island_overlap_pixels": 0,
+      "collapsed_uv_nonzero_surface_triangles": 0,
+      "mixed_winding_triangles": 0,
+      "islands": [
+        {
+          "island": 0,
+          "polygons": 8192,
+          "uv_bbox": [
+            [
+              0.00513180997222662,
+              0.004858026280999184
+            ],
+            [
+              0.9124638438224792,
+              0.8034460544586182
+            ]
+          ],
+          "raster_pixels": 9295561,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 0,
+          "negative_uv_triangles": 16256,
+          "edge_padding_px": 19.898475646972656,
+          "part": "SM_DAY03_Interior",
+          "nearest_other_island_px": 55.52558898925781
+        },
+        {
+          "island": 1,
+          "polygons": 8192,
+          "uv_bbox": [
+            [
+              0.6604982614517212,
+              0.7005450129508972
+            ],
+            [
+              0.9796664714813232,
+              0.9811598658561707
+            ]
+          ],
+          "raster_pixels": 1150146,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 16256,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 77.169189453125,
+          "part": "SM_DAY03_Interior",
+          "nearest_other_island_px": 55.52558898925781
+        },
+        {
+          "island": 2,
+          "polygons": 128,
+          "uv_bbox": [
+            [
+              0.9858308434486389,
+              0.011511017568409443
+            ],
+            [
+              0.9960938692092896,
+              0.8601950407028198
+            ]
+          ],
+          "raster_pixels": 65377,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 256,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 15.99951171875,
+          "part": "SM_DAY03_Interior",
+          "nearest_other_island_px": 47.0
+        }
+      ]
+    },
+    "1": {
+      "name": "MC_Tongue",
+      "island_count": 2,
+      "occupied_pixels": 5878160,
+      "coverage_fraction": 0.35036563873291016,
+      "inter_island_overlap_pixels": 0,
+      "collapsed_uv_nonzero_surface_triangles": 0,
+      "mixed_winding_triangles": 0,
+      "islands": [
+        {
+          "island": 3,
+          "polygons": 4608,
+          "uv_bbox": [
+            [
+              0.003906234400346875,
+              0.404723197221756
+            ],
+            [
+              0.4774570167064667,
+              0.5670913457870483
+            ]
+          ],
+          "raster_pixels": 1009508,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 9088,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 15.9999361038208,
+          "part": "SM_DAY03_Tongue",
+          "nearest_other_island_px": 198.720947265625
+        },
+        {
+          "island": 4,
+          "polygons": 4608,
+          "uv_bbox": [
+            [
+              0.034226492047309875,
+              0.00390625
+            ],
+            [
+              0.9657735228538513,
+              0.396910697221756
+            ]
+          ],
+          "raster_pixels": 4868652,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 9088,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 16.0,
+          "part": "SM_DAY03_Tongue",
+          "nearest_other_island_px": 125.22327423095703
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "Raster overlap/padding accuracy approximately2pixels",
+    "Intra-island same-winding self-overlap not exhaustively proven absent; checker/render review still required"
+  ],
+  "minority_winding_face_locations": [],
+  "uv_finite": true,
+  "uv_outside_0_1_loops": 0,
+  "charts_per_part": {
+    "SM_DAY03_Interior": 3,
+    "SM_DAY03_Tongue": 2
+  },
+  "gates": {
+    "finite_uv": true,
+    "all_uv_in_0_1": true,
+    "no_inter_island_overlap_at_4k": true,
+    "no_collapsed_uv_visible_surface": true,
+    "no_intra_island_winding_folds": true
+  }
+}

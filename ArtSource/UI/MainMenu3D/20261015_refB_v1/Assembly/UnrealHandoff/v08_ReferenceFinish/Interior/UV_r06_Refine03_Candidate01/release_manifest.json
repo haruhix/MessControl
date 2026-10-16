@@ -1,0 +1,113 @@
+{
+  "status": "FROZEN_NEXT_NATIVE_CANDIDATE_TONGUE_PBR_REBAKE_REQUIRED",
+  "approval_scope": "Root selected Refine03 form for UV/export/native candidate. This release is not final 1:1/look approval.",
+  "packet_root": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01",
+  "files": {
+    "MC_DAY03_InteriorSource.blend": "59e65b91570d1014deec20c0d3f648dc8244702cc6b7e3b8d68f268634da6349",
+    "SM_DAY03_Interior.fbx": "1dcb142957e0efe25aba29204593c7d401347b3b7d693e53b7cf0a0fe1b1d8ce",
+    "SM_DAY03_Tongue.fbx": "6c98123d3b26b70fdae0924dcc7a6f1992962c83bdc05b57833a8c2c10e47456",
+    "MC_DAY03_Interior_Painter_Open.obj": "3fd2e321bcbddcedfd56b0dbd9658bdae73940a8ca3eee7f7eb2e551ac050776",
+    "MC_DAY03_Interior_Painter_Open.mtl": "1efc0a74479fd3cc949f90d4b9e10e0749d56ed15ca715f6b824eec1e1eaad7b",
+    "texture_mesh_packet.npz": "53215b04995cfc46b820b622726cf78d692b36f8619f6a964b12cfe097088bbb",
+    "dorsal_uv_transfer.npz": "2198b788447586891bcb4d963363c85262b29728ec279494c0c16e52eee87ecc",
+    "interior_handoff.json": "334ae977ca4bc95da3171f08dd084ccf771ef54f2069bf8708f2886f673a4dae"
+  },
+  "producer_receipt_sha256": "ba251b88f23c28384cd697e1de270157d50b12a383abfdd96fd80fa52040525a",
+  "packet_content_sha256": "76d1439cf7d2ada089b10d6dd46e108b9c8df82f6045a70672e7ae4313b260c4",
+  "parent_approved_shape_source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\Organic_r06_LowTongue\\Refine03\\MC_DAY03_InteriorSource.blend",
+  "parent_approved_shape_sha256": "fd462541039b0dd6b3f7a96c730cfd9a707e93101c37438f0613fc1d70cdc0f3",
+  "cavity_unchanged": {
+    "parent": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_Organic_r05_Candidate01",
+    "geometry_uv_byteexact": true,
+    "fbx_byteexact": true,
+    "fbx_sha256": "1dcb142957e0efe25aba29204593c7d401347b3b7d693e53b7cf0a0fe1b1d8ce",
+    "PBR_maps_can_reuse": "Cavity unchanged; preserve existing cavity UV and maps. Only tongue authoring/reprojection/rebake required."
+  },
+  "texture_sets": [
+    {
+      "index": 0,
+      "material": "MC_Interior",
+      "object": "SM_DAY03_Interior",
+      "vertex_count": 16386,
+      "triangles": 32768,
+      "UV_charts": 3
+    },
+    {
+      "index": 1,
+      "material": "MC_Tongue",
+      "object": "SM_DAY03_Tongue",
+      "vertex_count": 9090,
+      "triangles": 18176,
+      "UV_charts": 2
+    }
+  ],
+  "tongue_uv": {
+    "chart": 4,
+    "material": 1,
+    "surface": "dorsal",
+    "anatomy_weight_means": {
+      "hidden_return_weight": 0.0,
+      "tongue_dorsal_weight": 0.9717071407815012
+    },
+    "area_source_units2": 96.59403941634531,
+    "UV_area": 0.2901157523740168,
+    "uv_bbox": [
+      [
+        0.034226492047309875,
+        0.00390625
+      ],
+      [
+        0.9657735228538513,
+        0.396910697221756
+      ]
+    ],
+    "density_p05_median_p95": [
+      214.81995402365422,
+      223.48294240878812,
+      235.36180594487868
+    ],
+    "density_intrachart_spread": 1.0956235747027605,
+    "kappa_p95": 1.1240020752975937,
+    "kappa_p99": 1.2478091389596113,
+    "angle_error_degrees_p95": 4.389766562488916,
+    "minimum_texels_per_design_screen_pixel_bound": 3.9959166817737533
+  },
+  "uv_axes": {
+    "dorsal_U_vs_source_X_correlation": 0.9996258200830398,
+    "dorsal_V_vs_source_minusY_correlation": -0.9883421989183107,
+    "policy": "Orientation matched to r05 by proper rigid UV rotation; no reflection or nonuniform UV squeeze. Ventral/cavity UV exact."
+  },
+  "checks": {
+    "fresh_import_geometry": true,
+    "geometry_same_as_approved_shape": true,
+    "UV_raster_gates": {
+      "finite_uv": true,
+      "all_uv_in_0_1": true,
+      "no_inter_island_overlap_at_4k": true,
+      "no_collapsed_uv_visible_surface": true,
+      "no_intra_island_winding_folds": true
+    },
+    "OBJ_FBX_corner_UV_material_normal_identity": true,
+    "raw_FBX_unit_node_parse": true,
+    "actual_checker_layout_review": true
+  },
+  "units": "Source identity objects in metres; FBX raw vertices retain metre-sized values, cm metadata UnitScaleFactor1 and ModelLclScaling100. Use existing native TransformVertexToAbsoluteTrue once; importuniformscale1, no extra100.",
+  "character_anchor_source": [
+    -5.757009,
+    -2.887758,
+    -2.076843
+  ],
+  "fresh_anchor_error_cm": 6.919555666229371e-05,
+  "backend": {
+    "preferred": "Blender MCP",
+    "read_only_connection_check_tool": "mcp__blender__get_blendfile_summary_datablocks",
+    "live_result": "Cannot connect to Blender at127.0.0.1:9876; MCP add-on server unavailable",
+    "fallback": "Explicitly reported to root; isolated D:/BLENDER_TEST/blender.exe5.1.0 --background --factory-startup --python-exit-code1. Unrelated GUI and Painter/Unreal were not touched."
+  },
+  "validation_provenance": "Producer used a separate fresh Blender process for import and independent corner/UV/unit methods. Directory QA_Independent follows existing project helper naming; this does not claim a different human/agent reviewed it.",
+  "deferred": [
+    "Painter MCP tongue paint reprojection and normal/AO/thickness/curvature rebake",
+    "Root actual Unreal import/camera/9pose/character motion review",
+    "Final reference look approval"
+  ]
+}

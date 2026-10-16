@@ -1,0 +1,20 @@
+{
+  "WBP_MainMenu3D": {
+    "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D"
+  },
+  "WBP_MainMenu3D_graph": {
+    "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph"
+  },
+  "BP_Menu3DPlayerController": {
+    "refPath": "/Game/UI/MainMenu3D/BP_Menu3DPlayerController.BP_Menu3DPlayerController"
+  },
+  "BP_Menu3DPlayerController_graph": {
+    "refPath": "/Game/UI/MainMenu3D/BP_Menu3DPlayerController.BP_Menu3DPlayerController:EventGraph"
+  },
+  "BP_Menu3DGameMode": {
+    "refPath": "/Game/UI/MainMenu3D/BP_Menu3DGameMode.BP_Menu3DGameMode"
+  },
+  "BP_Menu3DGameMode_graph": {
+    "refPath": "/Game/UI/MainMenu3D/BP_Menu3DGameMode.BP_Menu3DGameMode:EventGraph"
+  }
+}

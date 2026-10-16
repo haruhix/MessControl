@@ -1,0 +1,130 @@
+{
+  "status": "PASS_narrow_sampled_geometry_continuity_scope_only",
+  "actual_frames": 52,
+  "capture_error": null,
+  "route_error": null,
+  "actual_actions": [
+    {
+      "elapsed": 0.015000000013969839,
+      "action": "ShowPage",
+      "value": 0
+    },
+    {
+      "elapsed": 0.5310000000754371,
+      "action": "catalog",
+      "value": null
+    },
+    {
+      "elapsed": 1.0940000000409782,
+      "action": "dilation",
+      "value": 0.15
+    },
+    {
+      "elapsed": 1.4060000000754371,
+      "action": "SelectDay",
+      "value": 3
+    },
+    {
+      "elapsed": 4.078000000095926,
+      "action": "SelectDay",
+      "value": 2
+    },
+    {
+      "elapsed": 7.14000000001397,
+      "action": "Back",
+      "value": null
+    },
+    {
+      "elapsed": 10.01500000001397,
+      "action": "dilation",
+      "value": 1
+    }
+  ],
+  "first_post_command_captures": [
+    {
+      "elapsed": 0.5310000000754371,
+      "actions": [
+        "catalog"
+      ],
+      "first_captures": [
+        {
+          "file": "frame_0002.png",
+          "request_time": 0.5310000000754371,
+          "time": 0.6625618934631348
+        },
+        {
+          "file": "frame_0003.png",
+          "request_time": 0.6720000000204891,
+          "time": 0.9708991050720215
+        }
+      ]
+    },
+    {
+      "elapsed": 1.4060000000754371,
+      "actions": [
+        "SelectDay3"
+      ],
+      "first_captures": [
+        {
+          "file": "frame_0006.png",
+          "request_time": 1.4060000000754371,
+          "time": 1.5158543586730957
+        },
+        {
+          "file": "frame_0007.png",
+          "request_time": 1.5150000000139698,
+          "time": 1.819871425628662
+        }
+      ]
+    },
+    {
+      "elapsed": 4.078000000095926,
+      "actions": [
+        "SelectDay2"
+      ],
+      "first_captures": [
+        {
+          "file": "frame_0019.png",
+          "request_time": 4.078000000095926,
+          "time": 4.394999265670776
+        },
+        {
+          "file": "frame_0020.png",
+          "request_time": 4.406000000075437,
+          "time": 4.5214362144470215
+        }
+      ]
+    },
+    {
+      "elapsed": 7.14000000001397,
+      "actions": [
+        "Back"
+      ],
+      "first_captures": [
+        {
+          "file": "frame_0032.png",
+          "request_time": 7.14000000001397,
+          "time": 7.337425470352173
+        },
+        {
+          "file": "frame_0033.png",
+          "request_time": 7.344000000040978,
+          "time": 7.659250497817993
+        }
+      ]
+    }
+  ],
+  "morph_force_update_recorded": [
+    0
+  ],
+  "CPU_Pose000_nearest_allowed_error_max": 2.962522693827907e-08,
+  "CPU_other3_pose_error_max": 2.8755726688700634e-08,
+  "own_jaw_Z_driver_error_max": 0.0,
+  "after_tick_observations": 46,
+  "unexpected_interior_actor_hidden_states": [],
+  "capture_interval_median_max_s": [
+    0.2882978916168213,
+    0.34142088890075684
+  ],
+  "limits": "First/next and selected slow-pose actual PNG review, not every rendered frame. Physical wheel not tested; StepDay function used. No final1:1, flicker, performance or shipping-renderer acceptance. No UE changes by reviewer."
+}

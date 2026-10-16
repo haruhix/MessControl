@@ -1,0 +1,8 @@
+(fn OnMouseMove (MyGeometry MouseEvent)
+  (bind delta (Input|PointerEvent|GetCursorDelta :Input MouseEvent))
+  (bind (dx dy) (Math|Vector2D|BreakVector2D :InVec delta))
+  (if (> (+ (* dx dx) (* dy dy)) 0.0001)
+    (Variables|Default|SetQueuedPointerScreen (Input|PointerEvent|GetScreenSpacePosition :Input MouseEvent))
+    (Variables|Default|SetHasPointerMotion true))
+  (return (Widget|EventReply|Unhandled))
+)

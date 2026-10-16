@@ -1,0 +1,13 @@
+{
+  "status": "UNBOUND_NATIVE_BASECOLOR_ONLY_CANDIDATE_AB_PENDING",
+  "manifest_sha256": "3ccbba9ec4c90bf391f6946b34b24d2fb6648650161e09666683e36c04376cc3",
+  "texture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_BaseColor_WarmBody01.T_DAY03_Enamel_BaseColor_WarmBody01",
+  "material": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Enamel_WarmBody01.MI_DAY03_Enamel_WarmBody01",
+  "unchanged_data_maps": {
+    "RoughnessTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_Roughness_v08.T_DAY03_Enamel_Roughness_v08",
+    "NormalTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_Normal_v08.T_DAY03_Enamel_Normal_v08",
+    "AOTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_AO_v08.T_DAY03_Enamel_AO_v08",
+    "ThicknessTexture": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_Thickness_v08.T_DAY03_Enamel_Thickness_v08"
+  },
+  "work_map_assignment_changed": false
+}

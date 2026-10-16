@@ -1,0 +1,55 @@
+{
+  "schema": "painter_basecolor_semantics.v1",
+  "api_documentation": "Installed substance_painter/colormanagement.py Color: unspecified space is sRGB for managed channels and Raw otherwise.",
+  "extra_gamma_conversion_applied": false,
+  "sets": {
+    "MC_Enamel": {
+      "intended_srgb": [
+        0.95,
+        0.875,
+        0.77
+      ],
+      "expected_linear": [
+        0.8900054069935289,
+        0.7388447188680396,
+        0.5542217602988447
+      ],
+      "expected_rgb8": [
+        242,
+        223,
+        196
+      ],
+      "observed_mean_rgb8": [
+        242.0,
+        223.0,
+        196.0
+      ],
+      "maximum_rgb8_error": 0,
+      "probe_sha256": "6d0711308c2e36c1449479e638cd16a7fb25069136674ca82fc6c1b23b3c1dd5"
+    },
+    "MC_Gum": {
+      "intended_srgb": [
+        0.835,
+        0.185,
+        0.235
+      ],
+      "expected_linear": [
+        0.6648598584940668,
+        0.028622072468987392,
+        0.045076407031846795
+      ],
+      "expected_rgb8": [
+        213,
+        47,
+        60
+      ],
+      "observed_mean_rgb8": [
+        213.0,
+        47.0,
+        60.0
+      ],
+      "maximum_rgb8_error": 0,
+      "probe_sha256": "95c8f567a65e6d43954fc3f5a9f3d86add70026ae1d3553ee316e99ebed5d2d1"
+    }
+  }
+}

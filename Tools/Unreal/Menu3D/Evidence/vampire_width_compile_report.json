@@ -1,0 +1,11 @@
+{
+  "status": "UNIFORM_WIDTH_FIT_COMPILED_SAVED_PENDING_NATIVE_SCREENSHOTS",
+  "only_authored_graph": "UpdateStage",
+  "compiled_warnings_as_errors": true,
+  "scale_xyz": ".54*lerp(.896074673,.939860140,Open3)",
+  "basis": "Run04 measured crown arc widths: DAY01 672px, DAY03 Closed845px/Open715px; remove prior1.12676056338 Closed enlargement",
+  "teeth_geometry_stretched_or_modified": false,
+  "pending": "Native projected-width check and separate lateral gum geometry repair",
+  "unchanged_pc_sha256": "ef8fbd530360d8272d1e10519f46614be7d3149e4fd27aa4bb84eda4b22685c2",
+  "saved_widget_sha256": "f8c671c1caffb88cfe1b73a78b3f4801709bb1b5b7105dd2c35f1e67ad3f945f"
+}

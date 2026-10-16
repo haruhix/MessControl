@@ -1,0 +1,10 @@
+{
+  "source_sha256": "59e65b91570d1014deec20c0d3f648dc8244702cc6b7e3b8d68f268634da6349",
+  "source_unchanged": true,
+  "resolution": [
+    1600,
+    900
+  ],
+  "checker_scale": 32,
+  "camera": "Fixed +Yfront, oblique, -Yback and side; full closedcoverage, no clipping"
+}

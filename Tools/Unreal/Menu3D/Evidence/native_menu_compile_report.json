@@ -1,0 +1,32 @@
+{
+  "status": "TASK_NATIVE_MENU_BLUEPRINTS_COMPILED_SAVED_PENDING_ROOT_PIE",
+  "assets": [
+    "/Game/UI/MainMenu3D/WBP_MainMenu3D",
+    "/Game/UI/MainMenu3D/BP_Menu3DPlayerController",
+    "/Game/UI/MainMenu3D/BP_Menu3DGameMode"
+  ],
+  "level_or_PIE_mutation": false,
+  "native_cpp_modified": false,
+  "full_graphs_folder": "E:\\DEVGAME\\MessControl\\Tools\\Unreal\\Menu3D\\Evidence",
+  "actor_contract": "Menu3D_DAY01/02/03 +DAY03_Interior/Tongue/Character attached; Menu3D_Camera",
+  "frame": [
+    1600,
+    900
+  ],
+  "body_y": [
+    80,
+    820
+  ],
+  "closed_open_row_heights": [
+    427,
+    681
+  ],
+  "morph_targets": [
+    "Pose_000",
+    "Pose_025",
+    "Pose_050",
+    "Pose_075"
+  ],
+  "material_parameter": "OpenAmount",
+  "gameplay_limit": "Existing connection/lobby travel is reused. This UI adds no selected-day game-rule backend."
+}

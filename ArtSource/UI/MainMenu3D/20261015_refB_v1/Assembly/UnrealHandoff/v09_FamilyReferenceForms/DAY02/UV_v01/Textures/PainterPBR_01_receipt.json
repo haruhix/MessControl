@@ -1,0 +1,199 @@
+{
+  "preset": "Document channels + Normal + AO (No Alpha)",
+  "files": [
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterPBR_01\\MC_Enamel_Base_color_1001.png",
+      "bytes": 1443488,
+      "sha256": "1665b8179f4b92c19217f6e5740c9fc435567cc3f5b7371cbc9c3611c220e48c"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterPBR_01\\MC_Enamel_Base_metalness_1001.png",
+      "bytes": 16411,
+      "sha256": "f790625c24510389aba626a3b4ea80806ad5012b1f838bfbee3b69dd87e3a70e"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterPBR_01\\MC_Enamel_Specular_roughness_1001.png",
+      "bytes": 618204,
+      "sha256": "a8377cbd3a983a8540014618c8ef1dbb164ce6c4a2ad30c35cc5b348e7272c92"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterPBR_01\\MC_Enamel_Normal_1001.png",
+      "bytes": 58788,
+      "sha256": "2cbc0ee77ec4e254e8c7192e3fdb47d0922ed73fadfe1ac4ea3a4b75f4aaf6ee"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterPBR_01\\MC_Enamel_Height_1001.png",
+      "bytes": 3954251,
+      "sha256": "0b0f48cc7e4685a3317f9523c1ac6c67ca09c0d1df4143b4dea35ded5910f698"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterPBR_01\\MC_Enamel_Normal_DirectX_1001.png",
+      "bytes": 11654830,
+      "sha256": "45fb9f536781c5acbfaec49e44757f2ace304465e3177f70483464ba037cfa34"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterPBR_01\\MC_Enamel_Mixed_AO_1001.png",
+      "bytes": 3208954,
+      "sha256": "c44b1f6ae68af9952e232a65a9e8b26e18291e678b07907dd906820580c3ac21"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterPBR_01\\MC_Gum_Base_color_1001.png",
+      "bytes": 3899665,
+      "sha256": "c47b4e65509caf662eb4fab1f217523e07a12800a7be55ef3383ecb14e62369a"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterPBR_01\\MC_Gum_Base_metalness_1001.png",
+      "bytes": 16411,
+      "sha256": "f790625c24510389aba626a3b4ea80806ad5012b1f838bfbee3b69dd87e3a70e"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterPBR_01\\MC_Gum_Specular_roughness_1001.png",
+      "bytes": 1485061,
+      "sha256": "ebb3f199497b1389f5ee951befc8d690eca1eb378bbd24f64a13f8651c67b337"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterPBR_01\\MC_Gum_Normal_1001.png",
+      "bytes": 58788,
+      "sha256": "2cbc0ee77ec4e254e8c7192e3fdb47d0922ed73fadfe1ac4ea3a4b75f4aaf6ee"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterPBR_01\\MC_Gum_Height_1001.png",
+      "bytes": 2821753,
+      "sha256": "191da2608e08058ff7d23391c58ad68994b6f0d4b3d30f86ce0353c8bb356727"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterPBR_01\\MC_Gum_Normal_DirectX_1001.png",
+      "bytes": 13472986,
+      "sha256": "fb8bbf0b08939709655d24d4ce81f1943bb4b1436b77146137139fb79976aba5"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterPBR_01\\MC_Gum_Mixed_AO_1001.png",
+      "bytes": 1960643,
+      "sha256": "54d1746ba17ad824da24c6d401dad8edc55ddf082dbe4d2e17ecbba969b1487d"
+    }
+  ],
+  "result": {
+    "status": "Success",
+    "message": "Export successfully finished",
+    "groups": [
+      {
+        "texture_set": "MC_Enamel",
+        "stack": "",
+        "files": [
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Base_color_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Base_metalness_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Specular_roughness_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Normal_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Height_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Normal_DirectX_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Mixed_AO_1001.png"
+        ]
+      },
+      {
+        "texture_set": "MC_Gum",
+        "stack": "",
+        "files": [
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Base_color_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Base_metalness_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Specular_roughness_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Normal_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Height_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Normal_DirectX_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Mixed_AO_1001.png"
+        ]
+      }
+    ],
+    "files": [
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Base_color_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Base_metalness_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Specular_roughness_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Normal_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Height_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Normal_DirectX_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Mixed_AO_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Base_color_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Base_metalness_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Specular_roughness_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Normal_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Height_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Normal_DirectX_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Mixed_AO_1001.png"
+    ],
+    "preset": {
+      "name": "Document channels + Normal + AO (No Alpha)",
+      "url": "export-preset-generator://doc-channel-normal-no-alpha"
+    },
+    "verification": [
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Base_color_1001.png",
+        "exists": true,
+        "bytes": 1443488
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Base_metalness_1001.png",
+        "exists": true,
+        "bytes": 16411
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Specular_roughness_1001.png",
+        "exists": true,
+        "bytes": 618204
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Normal_1001.png",
+        "exists": true,
+        "bytes": 58788
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Height_1001.png",
+        "exists": true,
+        "bytes": 3954251
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Normal_DirectX_1001.png",
+        "exists": true,
+        "bytes": 11654830
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Enamel_Mixed_AO_1001.png",
+        "exists": true,
+        "bytes": 3208954
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Base_color_1001.png",
+        "exists": true,
+        "bytes": 3899665
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Base_metalness_1001.png",
+        "exists": true,
+        "bytes": 16411
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Specular_roughness_1001.png",
+        "exists": true,
+        "bytes": 1485061
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Normal_1001.png",
+        "exists": true,
+        "bytes": 58788
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Height_1001.png",
+        "exists": true,
+        "bytes": 2821753
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Normal_DirectX_1001.png",
+        "exists": true,
+        "bytes": 13472986
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterPBR_01/MC_Gum_Mixed_AO_1001.png",
+        "exists": true,
+        "bytes": 1960643
+      }
+    ]
+  }
+}

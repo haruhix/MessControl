@@ -1,0 +1,67 @@
+{
+  "job_id": "d7b3a40cb28e4cc8af22b297707173cc",
+  "operation": "mesh_reload",
+  "status": "running",
+  "mesh_file_path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/MC_DAY03_Interior_Painter_Open.obj",
+  "previous_mesh": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Interior_Organic_r05/MC_DAY03_Interior_Painter_Open.obj",
+  "preserve_strokes": false,
+  "import_cameras": false,
+  "auto_unwrap_settings": null,
+  "mesh_settings": null,
+  "started_at": 1792135119.7084,
+  "finished_at": null,
+  "texture_sets_before": [
+    "MC_Interior",
+    "MC_Tongue"
+  ],
+  "texture_sets_after": null,
+  "added_texture_sets": [],
+  "removed_texture_sets": [],
+  "error": null,
+  "backup": {
+    "original_project": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/MC_DAY03_Interior_r06_Refine03.spp",
+    "current_project": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/MC_DAY03_Interior_r06_Refine03.spp",
+    "path": "C:\\Users\\user\\Documents\\Adobe\\Adobe Substance 3D Painter\\MessControlMenu3D\\DAY03_Interior_r06_Refine03\\BeforeMeshReload_r05.spp",
+    "exists": true,
+    "bytes": 218733749,
+    "original_unchanged": true
+  },
+  "plan": {
+    "mesh_file_path": "C:\\Users\\user\\Documents\\Adobe\\Adobe Substance 3D Painter\\MessControlMenu3D\\DAY03_Interior_r06_Refine03\\MC_DAY03_Interior_Painter_Open.obj",
+    "bytes": 9185394,
+    "preserve_strokes": false,
+    "import_cameras": false,
+    "auto_unwrap_settings": null,
+    "mesh_settings": null,
+    "backup": {
+      "path": "C:\\Users\\user\\Documents\\Adobe\\Adobe Substance 3D Painter\\MessControlMenu3D\\DAY03_Interior_r06_Refine03\\BeforeMeshReload_r05.spp",
+      "mode": "Incremental",
+      "overwrite": false
+    },
+    "current": {
+      "busy": false,
+      "current_mesh": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Interior_Organic_r05/MC_DAY03_Interior_Painter_Open.obj",
+      "texture_sets": [
+        {
+          "name": "MC_Interior",
+          "uv_tiles": [
+            "UVTile(u=0, v=0, _material_id=15)"
+          ],
+          "stacks": [
+            ""
+          ]
+        },
+        {
+          "name": "MC_Tongue",
+          "uv_tiles": [
+            "UVTile(u=0, v=0, _material_id=28)"
+          ],
+          "stacks": [
+            ""
+          ]
+        }
+      ]
+    },
+    "requires_confirmation": true
+  }
+}

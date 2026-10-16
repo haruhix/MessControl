@@ -1,0 +1,38 @@
+{
+  "files": {
+    "MC_DAY03_UnrealMorphSource.blend": {
+      "bytes": 18861152,
+      "sha256": "e5b14557b090f955065050f8426011e9e66fb07eb33cbcf88738c734148fb3b7"
+    },
+    "SK_DAY03.fbx": {
+      "bytes": 33496220,
+      "sha256": "41f93635dbf1b44513e0df8f8066f4b9a4f9a724641f112ae1a6132bc8e805f1"
+    },
+    "MC_DAY03_Painter_Open.obj": {
+      "bytes": 107426611,
+      "sha256": "c595246d50b717c0854fccb03b5bc3d95f86ffb24722fd6935f43644e0d93bb4"
+    },
+    "texture_mesh_packet.npz": {
+      "bytes": 10480041,
+      "sha256": "bb42a0c3fd91f8e2a180ec179c61188c9aaac085529806c30ec2b38876b13eea"
+    },
+    "source_world_poses_cm.npz": {
+      "bytes": 12676758,
+      "sha256": "ff0f161dcba7885b0e30f327bc58baad765cc0b2712d08555d4dd96b477a087a"
+    },
+    "painter_uv_handoff.json": {
+      "bytes": 15681,
+      "sha256": "574c971503b2a5c1f4bf8b0da51456e847ed48d839bff775c9c2026d82971137"
+    },
+    "unreal_mouth_handoff.json": {
+      "bytes": 46369,
+      "sha256": "f733ace09c9c6b67397a97ea45fcc0109406d9a7aef167099a13bdc1d137074a"
+    },
+    "local_uv_repair.json": {
+      "bytes": 1704,
+      "sha256": "7db9afaf6ff71f0d56855ad11f1d61716fb2caf9df5292db12b2f53f7a91a869"
+    }
+  },
+  "geometry_morph_exact": true,
+  "status": "Awaiting final independent directsource/freshFBX and actualvisual gate"
+}

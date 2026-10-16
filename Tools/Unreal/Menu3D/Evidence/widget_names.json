@@ -1,0 +1,366 @@
+{
+  "widgets": {
+    "RootCanvas": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.RootCanvas"
+    },
+    "ViewportScale": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.ViewportScale"
+    },
+    "DesignFrame": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.DesignFrame"
+    },
+    "Pages": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Pages"
+    },
+    "MainPage": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.MainPage"
+    },
+    "DaysPage": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.DaysPage"
+    },
+    "SettingsPage": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.SettingsPage"
+    },
+    "CreditsPage": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.CreditsPage"
+    },
+    "ExitPage": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.ExitPage"
+    },
+    "LaunchPage": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.LaunchPage"
+    },
+    "MainShade": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.MainShade"
+    },
+    "SettingsShade": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.SettingsShade"
+    },
+    "CreditsShade": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.CreditsShade"
+    },
+    "ExitShade": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.ExitShade"
+    },
+    "LaunchShade": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.LaunchShade"
+    },
+    "MainBrand": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.MainBrand"
+    },
+    "MainTagline": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.MainTagline"
+    },
+    "PlayButton": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.PlayButton"
+    },
+    "PlayButton_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.PlayButton_Text"
+    },
+    "SettingsButton": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.SettingsButton"
+    },
+    "SettingsButton_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.SettingsButton_Text"
+    },
+    "CreditsButton": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.CreditsButton"
+    },
+    "CreditsButton_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.CreditsButton_Text"
+    },
+    "ExitButton": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.ExitButton"
+    },
+    "ExitButton_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.ExitButton_Text"
+    },
+    "MainFooter": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.MainFooter"
+    },
+    "DaysHeader": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.DaysHeader"
+    },
+    "DaysFooter": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.DaysFooter"
+    },
+    "DaysBrand": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.DaysBrand"
+    },
+    "DaysHint": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.DaysHint"
+    },
+    "DayScroll": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.DayScroll"
+    },
+    "DayRows": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.DayRows"
+    },
+    "Day1Size": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day1Size"
+    },
+    "Day1Canvas": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day1Canvas"
+    },
+    "Day1Button": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day1Button"
+    },
+    "Day1Button_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day1Button_Text"
+    },
+    "Day1Tag": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day1Tag"
+    },
+    "Day1Label": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day1Label"
+    },
+    "Day2Size": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day2Size"
+    },
+    "Day2Canvas": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day2Canvas"
+    },
+    "Day2Button": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day2Button"
+    },
+    "Day2Button_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day2Button_Text"
+    },
+    "Day2Tag": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day2Tag"
+    },
+    "Day2Label": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day2Label"
+    },
+    "Day3Size": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day3Size"
+    },
+    "Day3Canvas": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day3Canvas"
+    },
+    "Day3Button": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day3Button"
+    },
+    "Day3Button_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day3Button_Text"
+    },
+    "Day3Tag": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day3Tag"
+    },
+    "Day3Label": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day3Label"
+    },
+    "Day4Size": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day4Size"
+    },
+    "Day4Canvas": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day4Canvas"
+    },
+    "Day4FutureBackdrop": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day4FutureBackdrop"
+    },
+    "Day4Button": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day4Button"
+    },
+    "Day4Button_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day4Button_Text"
+    },
+    "Day4Tag": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day4Tag"
+    },
+    "Day4Label": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day4Label"
+    },
+    "Day4ComingSoon": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day4ComingSoon"
+    },
+    "Day5Size": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day5Size"
+    },
+    "Day5Canvas": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day5Canvas"
+    },
+    "Day5FutureBackdrop": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day5FutureBackdrop"
+    },
+    "Day5Button": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day5Button"
+    },
+    "Day5Button_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day5Button_Text"
+    },
+    "Day5Tag": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day5Tag"
+    },
+    "Day5Label": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day5Label"
+    },
+    "Day5ComingSoon": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day5ComingSoon"
+    },
+    "Day6Size": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day6Size"
+    },
+    "Day6Canvas": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day6Canvas"
+    },
+    "Day6FutureBackdrop": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day6FutureBackdrop"
+    },
+    "Day6Button": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day6Button"
+    },
+    "Day6Button_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day6Button_Text"
+    },
+    "Day6Tag": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day6Tag"
+    },
+    "Day6Label": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day6Label"
+    },
+    "Day6ComingSoon": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day6ComingSoon"
+    },
+    "Day7Size": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day7Size"
+    },
+    "Day7Canvas": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day7Canvas"
+    },
+    "Day7FutureBackdrop": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day7FutureBackdrop"
+    },
+    "Day7Button": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day7Button"
+    },
+    "Day7Button_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day7Button_Text"
+    },
+    "Day7Tag": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day7Tag"
+    },
+    "Day7Label": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day7Label"
+    },
+    "Day7ComingSoon": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.Day7ComingSoon"
+    },
+    "DaysBackButton": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.DaysBackButton"
+    },
+    "DaysBackButton_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.DaysBackButton_Text"
+    },
+    "DaysScrollHint": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.DaysScrollHint"
+    },
+    "DayCounter": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.DayCounter"
+    },
+    "SettingsTitle": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.SettingsTitle"
+    },
+    "SettingsDescription": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.SettingsDescription"
+    },
+    "QualityLowButton": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.QualityLowButton"
+    },
+    "QualityLowButton_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.QualityLowButton_Text"
+    },
+    "QualityHighButton": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.QualityHighButton"
+    },
+    "QualityHighButton_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.QualityHighButton_Text"
+    },
+    "QualityEpicButton": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.QualityEpicButton"
+    },
+    "QualityEpicButton_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.QualityEpicButton_Text"
+    },
+    "FullscreenButton": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.FullscreenButton"
+    },
+    "FullscreenButton_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.FullscreenButton_Text"
+    },
+    "SettingsBackButton": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.SettingsBackButton"
+    },
+    "SettingsBackButton_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.SettingsBackButton_Text"
+    },
+    "SettingsStatus": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.SettingsStatus"
+    },
+    "CreditsTitle": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.CreditsTitle"
+    },
+    "CreditsBody": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.CreditsBody"
+    },
+    "CreditsBackButton": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.CreditsBackButton"
+    },
+    "CreditsBackButton_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.CreditsBackButton_Text"
+    },
+    "ExitTitle": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.ExitTitle"
+    },
+    "ExitCancelButton": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.ExitCancelButton"
+    },
+    "ExitCancelButton_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.ExitCancelButton_Text"
+    },
+    "ExitConfirmButton": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.ExitConfirmButton"
+    },
+    "ExitConfirmButton_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.ExitConfirmButton_Text"
+    },
+    "LaunchTitle": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.LaunchTitle"
+    },
+    "LaunchBackButton": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.LaunchBackButton"
+    },
+    "LaunchBackButton_Text": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.LaunchBackButton_Text"
+    },
+    "LaunchInfo": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.LaunchInfo"
+    },
+    "LegacyMenuHost": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:WidgetTree.LegacyMenuHost"
+    }
+  },
+  "buttons": [
+    "PlayButton",
+    "SettingsButton",
+    "CreditsButton",
+    "ExitButton",
+    "Day1Button",
+    "Day2Button",
+    "Day3Button",
+    "Day4Button",
+    "Day5Button",
+    "Day6Button",
+    "Day7Button",
+    "DaysBackButton",
+    "QualityLowButton",
+    "QualityHighButton",
+    "QualityEpicButton",
+    "FullscreenButton",
+    "SettingsBackButton",
+    "CreditsBackButton",
+    "ExitCancelButton",
+    "ExitConfirmButton",
+    "LaunchBackButton"
+  ]
+}

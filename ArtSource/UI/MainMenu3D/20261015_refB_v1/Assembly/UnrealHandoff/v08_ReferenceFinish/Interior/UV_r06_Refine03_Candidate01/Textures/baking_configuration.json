@@ -1,0 +1,37 @@
+{
+  "texture_set": "MC_Tongue",
+  "enabled": true,
+  "enabled_bakers": [
+    "Normal",
+    "WorldSpaceNormal",
+    "AO",
+    "Curvature",
+    "Position",
+    "Thickness"
+  ],
+  "enabled_uv_tiles": [
+    1001
+  ],
+  "curvature_method": "FromMesh",
+  "common_values": {
+    "OutputSize": [
+      12,
+      12
+    ],
+    "DilationWidth": 32,
+    "SubSampling": 1,
+    "LowAsHigh": true
+  },
+  "baker_values": {
+    "AO": {
+      "NbSecondary": 128
+    },
+    "Thickness": {
+      "NbSecondary": 128
+    }
+  },
+  "impacted_texture_sets": [
+    "MC_Interior",
+    "MC_Tongue"
+  ]
+}

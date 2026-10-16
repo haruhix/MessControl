@@ -1,0 +1,316 @@
+{
+  "status": "PASS_narrow_sampled_geometry_continuity_scope_only",
+  "actual_frames": 214,
+  "capture_error": null,
+  "route_error": null,
+  "actual_actions": [
+    {
+      "elapsed": 0.015999999945051968,
+      "action": "ShowPage",
+      "value": 0
+    },
+    {
+      "elapsed": 0.8599999999860302,
+      "action": "catalog",
+      "value": null
+    },
+    {
+      "elapsed": 0.8599999999860302,
+      "action": "SelectDay",
+      "value": 1
+    },
+    {
+      "elapsed": 3.062999999965541,
+      "action": "SelectDay",
+      "value": 2
+    },
+    {
+      "elapsed": 5.0,
+      "action": "SelectDay",
+      "value": 3
+    },
+    {
+      "elapsed": 7.047000000020489,
+      "action": "SelectDay",
+      "value": 7
+    },
+    {
+      "elapsed": 9.015999999945052,
+      "action": "SelectDay",
+      "value": 3
+    },
+    {
+      "elapsed": 11.062999999965541,
+      "action": "Back",
+      "value": null
+    },
+    {
+      "elapsed": 12.062999999965541,
+      "action": "Back",
+      "value": null
+    },
+    {
+      "elapsed": 13.0,
+      "action": "catalog",
+      "value": null
+    },
+    {
+      "elapsed": 13.0,
+      "action": "SelectDay",
+      "value": 1
+    },
+    {
+      "elapsed": 15.077999999979511,
+      "action": "StepDay",
+      "value": 1
+    },
+    {
+      "elapsed": 17.06299999996554,
+      "action": "StepDay",
+      "value": 1
+    },
+    {
+      "elapsed": 19.030999999959022,
+      "action": "Back",
+      "value": null
+    },
+    {
+      "elapsed": 20.594000000040978,
+      "action": "Back",
+      "value": null
+    }
+  ],
+  "first_post_command_captures": [
+    {
+      "elapsed": 0.8599999999860302,
+      "actions": [
+        "catalog",
+        "SelectDay1"
+      ],
+      "first_captures": [
+        {
+          "file": "frame_0005.png",
+          "request_time": 0.890999999945052,
+          "time": 0.9695653915405273
+        },
+        {
+          "file": "frame_0006.png",
+          "request_time": 0.9849999999860302,
+          "time": 1.0583600997924805
+        }
+      ]
+    },
+    {
+      "elapsed": 3.062999999965541,
+      "actions": [
+        "SelectDay2"
+      ],
+      "first_captures": [
+        {
+          "file": "frame_0027.png",
+          "request_time": 3.062999999965541,
+          "time": 3.148881435394287
+        },
+        {
+          "file": "frame_0028.png",
+          "request_time": 3.155999999959022,
+          "time": 3.244239091873169
+        }
+      ]
+    },
+    {
+      "elapsed": 5.0,
+      "actions": [
+        "SelectDay3"
+      ],
+      "first_captures": [
+        {
+          "file": "frame_0046.png",
+          "request_time": 5.0,
+          "time": 5.0786004066467285
+        },
+        {
+          "file": "frame_0047.png",
+          "request_time": 5.094000000040978,
+          "time": 5.1790173053741455
+        }
+      ]
+    },
+    {
+      "elapsed": 7.047000000020489,
+      "actions": [
+        "SelectDay7"
+      ],
+      "first_captures": [
+        {
+          "file": "frame_0066.png",
+          "request_time": 7.047000000020489,
+          "time": 7.139655590057373
+        },
+        {
+          "file": "frame_0067.png",
+          "request_time": 7.155999999959022,
+          "time": 7.238049745559692
+        }
+      ]
+    },
+    {
+      "elapsed": 9.015999999945052,
+      "actions": [
+        "SelectDay3"
+      ],
+      "first_captures": [
+        {
+          "file": "frame_0085.png",
+          "request_time": 9.015999999945052,
+          "time": 9.10200548171997
+        },
+        {
+          "file": "frame_0086.png",
+          "request_time": 9.125,
+          "time": 9.208181381225586
+        }
+      ]
+    },
+    {
+      "elapsed": 11.062999999965541,
+      "actions": [
+        "Back"
+      ],
+      "first_captures": [
+        {
+          "file": "frame_0105.png",
+          "request_time": 11.062999999965541,
+          "time": 11.145382165908813
+        },
+        {
+          "file": "frame_0106.png",
+          "request_time": 11.155999999959022,
+          "time": 11.243618249893188
+        }
+      ]
+    },
+    {
+      "elapsed": 12.062999999965541,
+      "actions": [
+        "Back"
+      ],
+      "first_captures": [
+        {
+          "file": "frame_0115.png",
+          "request_time": 12.062999999965541,
+          "time": 12.125136137008667
+        },
+        {
+          "file": "frame_0116.png",
+          "request_time": 12.155999999959022,
+          "time": 12.249265432357788
+        }
+      ]
+    },
+    {
+      "elapsed": 13.0,
+      "actions": [
+        "catalog",
+        "SelectDay1"
+      ],
+      "first_captures": [
+        {
+          "file": "frame_0125.png",
+          "request_time": 13.015999999945052,
+          "time": 13.106300115585327
+        },
+        {
+          "file": "frame_0126.png",
+          "request_time": 13.125,
+          "time": 13.20766305923462
+        }
+      ]
+    },
+    {
+      "elapsed": 15.077999999979511,
+      "actions": [
+        "StepDay1"
+      ],
+      "first_captures": [
+        {
+          "file": "frame_0146.png",
+          "request_time": 15.077999999979511,
+          "time": 15.16506290435791
+        },
+        {
+          "file": "frame_0147.png",
+          "request_time": 15.172000000020489,
+          "time": 15.261555671691895
+        }
+      ]
+    },
+    {
+      "elapsed": 17.06299999996554,
+      "actions": [
+        "StepDay1"
+      ],
+      "first_captures": [
+        {
+          "file": "frame_0166.png",
+          "request_time": 17.06299999996554,
+          "time": 17.14712405204773
+        },
+        {
+          "file": "frame_0167.png",
+          "request_time": 17.155999999959022,
+          "time": 17.251927614212036
+        }
+      ]
+    },
+    {
+      "elapsed": 19.030999999959022,
+      "actions": [
+        "Back"
+      ],
+      "first_captures": [
+        {
+          "file": "frame_0184.png",
+          "request_time": 19.030999999959022,
+          "time": 19.123276233673096
+        },
+        {
+          "file": "frame_0185.png",
+          "request_time": 19.140999999945052,
+          "time": 19.228917598724365
+        }
+      ]
+    },
+    {
+      "elapsed": 20.594000000040978,
+      "actions": [
+        "Back"
+      ],
+      "first_captures": [
+        {
+          "file": "frame_0199.png",
+          "request_time": 20.594000000040978,
+          "time": 20.660694122314453
+        },
+        {
+          "file": "frame_0200.png",
+          "request_time": 20.68799999996554,
+          "time": 20.768523931503296
+        }
+      ]
+    }
+  ],
+  "morph_force_update_recorded": [
+    0
+  ],
+  "CPU_Pose000_nearest_allowed_error_max": 2.9363664388881716e-08,
+  "CPU_other3_pose_error_max": 2.9802322387695312e-08,
+  "own_jaw_Z_driver_error_max": 0.0,
+  "after_tick_observations": 203,
+  "unexpected_interior_actor_hidden_states": [],
+  "capture_interval_median_max_s": [
+    0.09935116767883301,
+    0.1726536750793457
+  ],
+  "limits": "First/next and selected slow-pose actual PNG review, not every rendered frame. Physical wheel not tested; StepDay function used. No final1:1, flicker, performance or shipping-renderer acceptance. No UE changes by reviewer."
+}

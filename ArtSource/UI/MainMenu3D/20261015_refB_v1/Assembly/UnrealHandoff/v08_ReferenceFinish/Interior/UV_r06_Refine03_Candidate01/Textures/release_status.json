@@ -1,0 +1,17 @@
+{
+  "status": "FROZEN_RELEASED_TO_ROOT_FOR_NATIVE_UNREAL",
+  "binding": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\shader_binding.json",
+  "binding_sha256": "b50b31c057f00a0234581b994bc14660c21b06b1f9e8b93d2ce49f2a2f865a64",
+  "editable_project": {
+    "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\MC_DAY03_Interior_r06_Refine03.spp",
+    "sha256": "2d1744ba6844977b17d45cbaded68571bc587d39b3a2eb9a3948709f5f3e6625",
+    "bytes": 249259959
+  },
+  "new_maps": "MC_Tongue five physical maps, 4096x4096; fresh normals/AO/curvature/position/thickness mesh maps.",
+  "reused_maps": "MC_Interior five direct frozen r05 links.",
+  "native_visual_approval": "PENDING_ROOT_UNREAL_GATE",
+  "mutations_after_release": "New explicit revision required; do not alter selected files.",
+  "metadata_revision": 2,
+  "prior_metadata_sha256": "f9938b0b5d3eede9796341e98c6e04f0e6043f0b89afee13f6383e8abe06b35d",
+  "metadata_revision_reason": "Correct inherited baking/MTL recipe paths to the actual r06 bake and strict staged MTL. Selected texture/SPP/source bytes are unchanged."
+}

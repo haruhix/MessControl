@@ -1,0 +1,1079 @@
+{
+  "started_monotonic": 593231.39,
+  "requested_fps": 12.0,
+  "frames": [
+    {
+      "file": "frame_0000.png",
+      "request_time": 0.015999999945051968,
+      "time": 0.49367189407348633
+    },
+    {
+      "file": "frame_0001.png",
+      "request_time": 0.515999999945052,
+      "time": 0.570065975189209
+    },
+    {
+      "file": "frame_0002.png",
+      "request_time": 0.6099999999860302,
+      "time": 0.6693575382232666
+    },
+    {
+      "file": "frame_0003.png",
+      "request_time": 0.7029999999795109,
+      "time": 0.7491648197174072
+    },
+    {
+      "file": "frame_0004.png",
+      "request_time": 0.7970000000204891,
+      "time": 0.8477504253387451
+    },
+    {
+      "file": "frame_0005.png",
+      "request_time": 0.890999999945052,
+      "time": 0.9695653915405273
+    },
+    {
+      "file": "frame_0006.png",
+      "request_time": 0.9849999999860302,
+      "time": 1.0583600997924805
+    },
+    {
+      "file": "frame_0007.png",
+      "request_time": 1.077999999979511,
+      "time": 1.1539239883422852
+    },
+    {
+      "file": "frame_0008.png",
+      "request_time": 1.172000000020489,
+      "time": 1.271064043045044
+    },
+    {
+      "file": "frame_0009.png",
+      "request_time": 1.2809999999590218,
+      "time": 1.3703603744506836
+    },
+    {
+      "file": "frame_0010.png",
+      "request_time": 1.390999999945052,
+      "time": 1.4583756923675537
+    },
+    {
+      "file": "frame_0011.png",
+      "request_time": 1.4849999999860302,
+      "time": 1.564455270767212
+    },
+    {
+      "file": "frame_0012.png",
+      "request_time": 1.577999999979511,
+      "time": 1.650984764099121
+    },
+    {
+      "file": "frame_0013.png",
+      "request_time": 1.672000000020489,
+      "time": 1.7422850131988525
+    },
+    {
+      "file": "frame_0014.png",
+      "request_time": 1.765999999945052,
+      "time": 1.8400132656097412
+    },
+    {
+      "file": "frame_0015.png",
+      "request_time": 1.8599999999860302,
+      "time": 1.935945987701416
+    },
+    {
+      "file": "frame_0016.png",
+      "request_time": 1.952999999979511,
+      "time": 2.033541440963745
+    },
+    {
+      "file": "frame_0017.png",
+      "request_time": 2.047000000020489,
+      "time": 2.1421408653259277
+    },
+    {
+      "file": "frame_0018.png",
+      "request_time": 2.155999999959022,
+      "time": 2.2477595806121826
+    },
+    {
+      "file": "frame_0019.png",
+      "request_time": 2.265999999945052,
+      "time": 2.3461036682128906
+    },
+    {
+      "file": "frame_0020.png",
+      "request_time": 2.35999999998603,
+      "time": 2.4456145763397217
+    },
+    {
+      "file": "frame_0021.png",
+      "request_time": 2.469000000040978,
+      "time": 2.5500330924987793
+    },
+    {
+      "file": "frame_0022.png",
+      "request_time": 2.562999999965541,
+      "time": 2.6493842601776123
+    },
+    {
+      "file": "frame_0023.png",
+      "request_time": 2.672000000020489,
+      "time": 2.747166633605957
+    },
+    {
+      "file": "frame_0024.png",
+      "request_time": 2.765999999945052,
+      "time": 2.848989725112915
+    },
+    {
+      "file": "frame_0025.png",
+      "request_time": 2.85999999998603,
+      "time": 2.9503588676452637
+    },
+    {
+      "file": "frame_0026.png",
+      "request_time": 2.969000000040978,
+      "time": 3.0473313331604004
+    },
+    {
+      "file": "frame_0027.png",
+      "request_time": 3.062999999965541,
+      "time": 3.148881435394287
+    },
+    {
+      "file": "frame_0028.png",
+      "request_time": 3.155999999959022,
+      "time": 3.244239091873169
+    },
+    {
+      "file": "frame_0029.png",
+      "request_time": 3.265999999945052,
+      "time": 3.3417322635650635
+    },
+    {
+      "file": "frame_0030.png",
+      "request_time": 3.35999999998603,
+      "time": 3.4388115406036377
+    },
+    {
+      "file": "frame_0031.png",
+      "request_time": 3.452999999979511,
+      "time": 3.542219400405884
+    },
+    {
+      "file": "frame_0032.png",
+      "request_time": 3.562999999965541,
+      "time": 3.6480722427368164
+    },
+    {
+      "file": "frame_0033.png",
+      "request_time": 3.672000000020489,
+      "time": 3.754702568054199
+    },
+    {
+      "file": "frame_0034.png",
+      "request_time": 3.765999999945052,
+      "time": 3.860244035720825
+    },
+    {
+      "file": "frame_0035.png",
+      "request_time": 3.875,
+      "time": 3.9734463691711426
+    },
+    {
+      "file": "frame_0036.png",
+      "request_time": 3.98499999998603,
+      "time": 4.103840589523315
+    },
+    {
+      "file": "frame_0037.png",
+      "request_time": 4.125,
+      "time": 4.2018842697143555
+    },
+    {
+      "file": "frame_0038.png",
+      "request_time": 4.219000000040978,
+      "time": 4.298476934432983
+    },
+    {
+      "file": "frame_0039.png",
+      "request_time": 4.312999999965541,
+      "time": 4.395096302032471
+    },
+    {
+      "file": "frame_0040.png",
+      "request_time": 4.405999999959022,
+      "time": 4.490465879440308
+    },
+    {
+      "file": "frame_0041.png",
+      "request_time": 4.5,
+      "time": 4.585206747055054
+    },
+    {
+      "file": "frame_0042.png",
+      "request_time": 4.594000000040978,
+      "time": 4.677009105682373
+    },
+    {
+      "file": "frame_0043.png",
+      "request_time": 4.687999999965541,
+      "time": 4.780272483825684
+    },
+    {
+      "file": "frame_0044.png",
+      "request_time": 4.797000000020489,
+      "time": 4.879148721694946
+    },
+    {
+      "file": "frame_0045.png",
+      "request_time": 4.890999999945052,
+      "time": 4.978225946426392
+    },
+    {
+      "file": "frame_0046.png",
+      "request_time": 5.0,
+      "time": 5.0786004066467285
+    },
+    {
+      "file": "frame_0047.png",
+      "request_time": 5.094000000040978,
+      "time": 5.1790173053741455
+    },
+    {
+      "file": "frame_0048.png",
+      "request_time": 5.187999999965541,
+      "time": 5.275707244873047
+    },
+    {
+      "file": "frame_0049.png",
+      "request_time": 5.297000000020489,
+      "time": 5.374115228652954
+    },
+    {
+      "file": "frame_0050.png",
+      "request_time": 5.390999999945052,
+      "time": 5.483454465866089
+    },
+    {
+      "file": "frame_0051.png",
+      "request_time": 5.5,
+      "time": 5.58042311668396
+    },
+    {
+      "file": "frame_0052.png",
+      "request_time": 5.594000000040978,
+      "time": 5.674252271652222
+    },
+    {
+      "file": "frame_0053.png",
+      "request_time": 5.687999999965541,
+      "time": 5.775251388549805
+    },
+    {
+      "file": "frame_0054.png",
+      "request_time": 5.780999999959022,
+      "time": 5.87368106842041
+    },
+    {
+      "file": "frame_0055.png",
+      "request_time": 5.890999999945052,
+      "time": 5.972031593322754
+    },
+    {
+      "file": "frame_0056.png",
+      "request_time": 5.98499999998603,
+      "time": 6.075503826141357
+    },
+    {
+      "file": "frame_0057.png",
+      "request_time": 6.094000000040978,
+      "time": 6.173980951309204
+    },
+    {
+      "file": "frame_0058.png",
+      "request_time": 6.187999999965541,
+      "time": 6.275860071182251
+    },
+    {
+      "file": "frame_0059.png",
+      "request_time": 6.297000000020489,
+      "time": 6.379196882247925
+    },
+    {
+      "file": "frame_0060.png",
+      "request_time": 6.390999999945052,
+      "time": 6.476374626159668
+    },
+    {
+      "file": "frame_0061.png",
+      "request_time": 6.5,
+      "time": 6.580063343048096
+    },
+    {
+      "file": "frame_0062.png",
+      "request_time": 6.594000000040978,
+      "time": 6.6780688762664795
+    },
+    {
+      "file": "frame_0063.png",
+      "request_time": 6.702999999979511,
+      "time": 6.815215587615967
+    },
+    {
+      "file": "frame_0064.png",
+      "request_time": 6.827999999979511,
+      "time": 6.919237375259399
+    },
+    {
+      "file": "frame_0065.png",
+      "request_time": 6.937999999965541,
+      "time": 7.033493757247925
+    },
+    {
+      "file": "frame_0066.png",
+      "request_time": 7.047000000020489,
+      "time": 7.139655590057373
+    },
+    {
+      "file": "frame_0067.png",
+      "request_time": 7.155999999959022,
+      "time": 7.238049745559692
+    },
+    {
+      "file": "frame_0068.png",
+      "request_time": 7.25,
+      "time": 7.338744640350342
+    },
+    {
+      "file": "frame_0069.png",
+      "request_time": 7.35999999998603,
+      "time": 7.4341139793396
+    },
+    {
+      "file": "frame_0070.png",
+      "request_time": 7.452999999979511,
+      "time": 7.527726650238037
+    },
+    {
+      "file": "frame_0071.png",
+      "request_time": 7.547000000020489,
+      "time": 7.624586582183838
+    },
+    {
+      "file": "frame_0072.png",
+      "request_time": 7.640999999945052,
+      "time": 7.720821857452393
+    },
+    {
+      "file": "frame_0073.png",
+      "request_time": 7.73499999998603,
+      "time": 7.812898874282837
+    },
+    {
+      "file": "frame_0074.png",
+      "request_time": 7.827999999979511,
+      "time": 7.902400732040405
+    },
+    {
+      "file": "frame_0075.png",
+      "request_time": 7.922000000020489,
+      "time": 7.992095232009888
+    },
+    {
+      "file": "frame_0076.png",
+      "request_time": 8.015999999945052,
+      "time": 8.164748907089233
+    },
+    {
+      "file": "frame_0077.png",
+      "request_time": 8.172000000020489,
+      "time": 8.253854990005493
+    },
+    {
+      "file": "frame_0078.png",
+      "request_time": 8.265999999945052,
+      "time": 8.343985795974731
+    },
+    {
+      "file": "frame_0079.png",
+      "request_time": 8.35999999998603,
+      "time": 8.437256574630737
+    },
+    {
+      "file": "frame_0080.png",
+      "request_time": 8.452999999979511,
+      "time": 8.532591581344604
+    },
+    {
+      "file": "frame_0081.png",
+      "request_time": 8.547000000020489,
+      "time": 8.63937520980835
+    },
+    {
+      "file": "frame_0082.png",
+      "request_time": 8.655999999959022,
+      "time": 8.738883018493652
+    },
+    {
+      "file": "frame_0083.png",
+      "request_time": 8.75,
+      "time": 8.879921674728394
+    },
+    {
+      "file": "frame_0084.png",
+      "request_time": 8.890999999945052,
+      "time": 8.993049621582031
+    },
+    {
+      "file": "frame_0085.png",
+      "request_time": 9.015999999945052,
+      "time": 9.10200548171997
+    },
+    {
+      "file": "frame_0086.png",
+      "request_time": 9.125,
+      "time": 9.208181381225586
+    },
+    {
+      "file": "frame_0087.png",
+      "request_time": 9.219000000040978,
+      "time": 9.305673837661743
+    },
+    {
+      "file": "frame_0088.png",
+      "request_time": 9.327999999979511,
+      "time": 9.406673192977905
+    },
+    {
+      "file": "frame_0089.png",
+      "request_time": 9.422000000020489,
+      "time": 9.504739999771118
+    },
+    {
+      "file": "frame_0090.png",
+      "request_time": 9.515999999945052,
+      "time": 9.60329532623291
+    },
+    {
+      "file": "frame_0091.png",
+      "request_time": 9.625,
+      "time": 9.703265190124512
+    },
+    {
+      "file": "frame_0092.png",
+      "request_time": 9.719000000040978,
+      "time": 9.807286262512207
+    },
+    {
+      "file": "frame_0093.png",
+      "request_time": 9.827999999979511,
+      "time": 9.917604207992554
+    },
+    {
+      "file": "frame_0094.png",
+      "request_time": 9.937999999965541,
+      "time": 10.01832628250122
+    },
+    {
+      "file": "frame_0095.png",
+      "request_time": 10.030999999959022,
+      "time": 10.121457576751709
+    },
+    {
+      "file": "frame_0096.png",
+      "request_time": 10.140999999945052,
+      "time": 10.233745098114014
+    },
+    {
+      "file": "frame_0097.png",
+      "request_time": 10.25,
+      "time": 10.344648599624634
+    },
+    {
+      "file": "frame_0098.png",
+      "request_time": 10.35999999998603,
+      "time": 10.448076486587524
+    },
+    {
+      "file": "frame_0099.png",
+      "request_time": 10.469000000040978,
+      "time": 10.546547889709473
+    },
+    {
+      "file": "frame_0100.png",
+      "request_time": 10.562999999965541,
+      "time": 10.646905183792114
+    },
+    {
+      "file": "frame_0101.png",
+      "request_time": 10.655999999959022,
+      "time": 10.752090692520142
+    },
+    {
+      "file": "frame_0102.png",
+      "request_time": 10.765999999945052,
+      "time": 10.848996639251709
+    },
+    {
+      "file": "frame_0103.png",
+      "request_time": 10.85999999998603,
+      "time": 10.951627969741821
+    },
+    {
+      "file": "frame_0104.png",
+      "request_time": 10.969000000040978,
+      "time": 11.047324180603027
+    },
+    {
+      "file": "frame_0105.png",
+      "request_time": 11.062999999965541,
+      "time": 11.145382165908813
+    },
+    {
+      "file": "frame_0106.png",
+      "request_time": 11.155999999959022,
+      "time": 11.243618249893188
+    },
+    {
+      "file": "frame_0107.png",
+      "request_time": 11.265999999945052,
+      "time": 11.344626188278198
+    },
+    {
+      "file": "frame_0108.png",
+      "request_time": 11.35999999998603,
+      "time": 11.448513746261597
+    },
+    {
+      "file": "frame_0109.png",
+      "request_time": 11.469000000040978,
+      "time": 11.547069787979126
+    },
+    {
+      "file": "frame_0110.png",
+      "request_time": 11.562999999965541,
+      "time": 11.64744758605957
+    },
+    {
+      "file": "frame_0111.png",
+      "request_time": 11.655999999959022,
+      "time": 11.745027542114258
+    },
+    {
+      "file": "frame_0112.png",
+      "request_time": 11.765999999945052,
+      "time": 11.848548889160156
+    },
+    {
+      "file": "frame_0113.png",
+      "request_time": 11.85999999998603,
+      "time": 11.953417301177979
+    },
+    {
+      "file": "frame_0114.png",
+      "request_time": 11.969000000040978,
+      "time": 12.047847747802734
+    },
+    {
+      "file": "frame_0115.png",
+      "request_time": 12.062999999965541,
+      "time": 12.125136137008667
+    },
+    {
+      "file": "frame_0116.png",
+      "request_time": 12.155999999959022,
+      "time": 12.249265432357788
+    },
+    {
+      "file": "frame_0117.png",
+      "request_time": 12.265999999945052,
+      "time": 12.332224130630493
+    },
+    {
+      "file": "frame_0118.png",
+      "request_time": 12.35999999998603,
+      "time": 12.429183721542358
+    },
+    {
+      "file": "frame_0119.png",
+      "request_time": 12.452999999979511,
+      "time": 12.529528141021729
+    },
+    {
+      "file": "frame_0120.png",
+      "request_time": 12.547000000020489,
+      "time": 12.61371898651123
+    },
+    {
+      "file": "frame_0121.png",
+      "request_time": 12.640999999945052,
+      "time": 12.706897974014282
+    },
+    {
+      "file": "frame_0122.png",
+      "request_time": 12.73499999998603,
+      "time": 12.80352258682251
+    },
+    {
+      "file": "frame_0123.png",
+      "request_time": 12.827999999979511,
+      "time": 12.898293495178223
+    },
+    {
+      "file": "frame_0124.png",
+      "request_time": 12.922000000020489,
+      "time": 12.971966981887817
+    },
+    {
+      "file": "frame_0125.png",
+      "request_time": 13.015999999945052,
+      "time": 13.106300115585327
+    },
+    {
+      "file": "frame_0126.png",
+      "request_time": 13.125,
+      "time": 13.20766305923462
+    },
+    {
+      "file": "frame_0127.png",
+      "request_time": 13.219000000040978,
+      "time": 13.305750608444214
+    },
+    {
+      "file": "frame_0128.png",
+      "request_time": 13.327999999979511,
+      "time": 13.398373365402222
+    },
+    {
+      "file": "frame_0129.png",
+      "request_time": 13.422000000020489,
+      "time": 13.504708766937256
+    },
+    {
+      "file": "frame_0130.png",
+      "request_time": 13.515999999945052,
+      "time": 13.598785638809204
+    },
+    {
+      "file": "frame_0131.png",
+      "request_time": 13.60999999998603,
+      "time": 13.694416522979736
+    },
+    {
+      "file": "frame_0132.png",
+      "request_time": 13.719000000040978,
+      "time": 13.791442394256592
+    },
+    {
+      "file": "frame_0133.png",
+      "request_time": 13.812999999965541,
+      "time": 13.886711597442627
+    },
+    {
+      "file": "frame_0134.png",
+      "request_time": 13.905999999959022,
+      "time": 13.980920553207397
+    },
+    {
+      "file": "frame_0135.png",
+      "request_time": 14.0,
+      "time": 14.07239031791687
+    },
+    {
+      "file": "frame_0136.png",
+      "request_time": 14.094000000040978,
+      "time": 14.167890548706055
+    },
+    {
+      "file": "frame_0137.png",
+      "request_time": 14.187999999965541,
+      "time": 14.260143995285034
+    },
+    {
+      "file": "frame_0138.png",
+      "request_time": 14.280999999959022,
+      "time": 14.363728761672974
+    },
+    {
+      "file": "frame_0139.png",
+      "request_time": 14.390999999945052,
+      "time": 14.472328186035156
+    },
+    {
+      "file": "frame_0140.png",
+      "request_time": 14.48499999998603,
+      "time": 14.575965166091919
+    },
+    {
+      "file": "frame_0141.png",
+      "request_time": 14.594000000040978,
+      "time": 14.668099164962769
+    },
+    {
+      "file": "frame_0142.png",
+      "request_time": 14.687999999965541,
+      "time": 14.764662981033325
+    },
+    {
+      "file": "frame_0143.png",
+      "request_time": 14.780999999959022,
+      "time": 14.860931158065796
+    },
+    {
+      "file": "frame_0144.png",
+      "request_time": 14.875,
+      "time": 14.962713479995728
+    },
+    {
+      "file": "frame_0145.png",
+      "request_time": 14.969000000040978,
+      "time": 15.066331386566162
+    },
+    {
+      "file": "frame_0146.png",
+      "request_time": 15.077999999979511,
+      "time": 15.16506290435791
+    },
+    {
+      "file": "frame_0147.png",
+      "request_time": 15.172000000020489,
+      "time": 15.261555671691895
+    },
+    {
+      "file": "frame_0148.png",
+      "request_time": 15.280999999959022,
+      "time": 15.361462831497192
+    },
+    {
+      "file": "frame_0149.png",
+      "request_time": 15.375,
+      "time": 15.453609943389893
+    },
+    {
+      "file": "frame_0150.png",
+      "request_time": 15.469000000040978,
+      "time": 15.546323776245117
+    },
+    {
+      "file": "frame_0151.png",
+      "request_time": 15.562999999965541,
+      "time": 15.64486575126648
+    },
+    {
+      "file": "frame_0152.png",
+      "request_time": 15.655999999959022,
+      "time": 15.74015188217163
+    },
+    {
+      "file": "frame_0153.png",
+      "request_time": 15.75,
+      "time": 15.833436489105225
+    },
+    {
+      "file": "frame_0154.png",
+      "request_time": 15.844000000040978,
+      "time": 15.931980848312378
+    },
+    {
+      "file": "frame_0155.png",
+      "request_time": 15.952999999979511,
+      "time": 16.033430099487305
+    },
+    {
+      "file": "frame_0156.png",
+      "request_time": 16.04700000002049,
+      "time": 16.133021593093872
+    },
+    {
+      "file": "frame_0157.png",
+      "request_time": 16.155999999959022,
+      "time": 16.234326601028442
+    },
+    {
+      "file": "frame_0158.png",
+      "request_time": 16.25,
+      "time": 16.346067190170288
+    },
+    {
+      "file": "frame_0159.png",
+      "request_time": 16.35999999998603,
+      "time": 16.449976682662964
+    },
+    {
+      "file": "frame_0160.png",
+      "request_time": 16.469000000040978,
+      "time": 16.54598569869995
+    },
+    {
+      "file": "frame_0161.png",
+      "request_time": 16.56299999996554,
+      "time": 16.641478061676025
+    },
+    {
+      "file": "frame_0162.png",
+      "request_time": 16.655999999959022,
+      "time": 16.734997987747192
+    },
+    {
+      "file": "frame_0163.png",
+      "request_time": 16.75,
+      "time": 16.829970598220825
+    },
+    {
+      "file": "frame_0164.png",
+      "request_time": 16.844000000040978,
+      "time": 16.93772315979004
+    },
+    {
+      "file": "frame_0165.png",
+      "request_time": 16.95299999997951,
+      "time": 17.042207717895508
+    },
+    {
+      "file": "frame_0166.png",
+      "request_time": 17.06299999996554,
+      "time": 17.14712405204773
+    },
+    {
+      "file": "frame_0167.png",
+      "request_time": 17.155999999959022,
+      "time": 17.251927614212036
+    },
+    {
+      "file": "frame_0168.png",
+      "request_time": 17.265999999945052,
+      "time": 17.367475986480713
+    },
+    {
+      "file": "frame_0169.png",
+      "request_time": 17.390999999945052,
+      "time": 17.481863498687744
+    },
+    {
+      "file": "frame_0170.png",
+      "request_time": 17.5,
+      "time": 17.583675384521484
+    },
+    {
+      "file": "frame_0171.png",
+      "request_time": 17.594000000040978,
+      "time": 17.68357539176941
+    },
+    {
+      "file": "frame_0172.png",
+      "request_time": 17.70299999997951,
+      "time": 17.832672595977783
+    },
+    {
+      "file": "frame_0173.png",
+      "request_time": 17.844000000040978,
+      "time": 17.94421100616455
+    },
+    {
+      "file": "frame_0174.png",
+      "request_time": 17.969000000040978,
+      "time": 18.064152717590332
+    },
+    {
+      "file": "frame_0175.png",
+      "request_time": 18.07799999997951,
+      "time": 18.17822527885437
+    },
+    {
+      "file": "frame_0176.png",
+      "request_time": 18.18799999996554,
+      "time": 18.282461166381836
+    },
+    {
+      "file": "frame_0177.png",
+      "request_time": 18.29700000002049,
+      "time": 18.38223671913147
+    },
+    {
+      "file": "frame_0178.png",
+      "request_time": 18.390999999945052,
+      "time": 18.476325511932373
+    },
+    {
+      "file": "frame_0179.png",
+      "request_time": 18.48499999998603,
+      "time": 18.580195665359497
+    },
+    {
+      "file": "frame_0180.png",
+      "request_time": 18.594000000040978,
+      "time": 18.68234658241272
+    },
+    {
+      "file": "frame_0181.png",
+      "request_time": 18.70299999997951,
+      "time": 18.789345026016235
+    },
+    {
+      "file": "frame_0182.png",
+      "request_time": 18.79700000002049,
+      "time": 18.8918616771698
+    },
+    {
+      "file": "frame_0183.png",
+      "request_time": 18.905999999959022,
+      "time": 19.014439821243286
+    },
+    {
+      "file": "frame_0184.png",
+      "request_time": 19.030999999959022,
+      "time": 19.123276233673096
+    },
+    {
+      "file": "frame_0185.png",
+      "request_time": 19.140999999945052,
+      "time": 19.228917598724365
+    },
+    {
+      "file": "frame_0186.png",
+      "request_time": 19.25,
+      "time": 19.329976081848145
+    },
+    {
+      "file": "frame_0187.png",
+      "request_time": 19.344000000040978,
+      "time": 19.431169509887695
+    },
+    {
+      "file": "frame_0188.png",
+      "request_time": 19.43799999996554,
+      "time": 19.53701901435852
+    },
+    {
+      "file": "frame_0189.png",
+      "request_time": 19.54700000002049,
+      "time": 19.64176368713379
+    },
+    {
+      "file": "frame_0190.png",
+      "request_time": 19.655999999959022,
+      "time": 19.745002269744873
+    },
+    {
+      "file": "frame_0191.png",
+      "request_time": 19.765999999945052,
+      "time": 19.847296953201294
+    },
+    {
+      "file": "frame_0192.png",
+      "request_time": 19.85999999998603,
+      "time": 19.950321912765503
+    },
+    {
+      "file": "frame_0193.png",
+      "request_time": 19.969000000040978,
+      "time": 20.0489718914032
+    },
+    {
+      "file": "frame_0194.png",
+      "request_time": 20.06299999996554,
+      "time": 20.15551781654358
+    },
+    {
+      "file": "frame_0195.png",
+      "request_time": 20.17200000002049,
+      "time": 20.261176824569702
+    },
+    {
+      "file": "frame_0196.png",
+      "request_time": 20.280999999959022,
+      "time": 20.371381282806396
+    },
+    {
+      "file": "frame_0197.png",
+      "request_time": 20.390999999945052,
+      "time": 20.470812797546387
+    },
+    {
+      "file": "frame_0198.png",
+      "request_time": 20.48499999998603,
+      "time": 20.573309183120728
+    },
+    {
+      "file": "frame_0199.png",
+      "request_time": 20.594000000040978,
+      "time": 20.660694122314453
+    },
+    {
+      "file": "frame_0200.png",
+      "request_time": 20.68799999996554,
+      "time": 20.768523931503296
+    },
+    {
+      "file": "frame_0201.png",
+      "request_time": 20.780999999959022,
+      "time": 20.8476505279541
+    },
+    {
+      "file": "frame_0202.png",
+      "request_time": 20.875,
+      "time": 20.950657606124878
+    },
+    {
+      "file": "frame_0203.png",
+      "request_time": 20.969000000040978,
+      "time": 21.02681827545166
+    },
+    {
+      "file": "frame_0204.png",
+      "request_time": 21.06299999996554,
+      "time": 21.144578456878662
+    },
+    {
+      "file": "frame_0205.png",
+      "request_time": 21.155999999959022,
+      "time": 21.22149348258972
+    },
+    {
+      "file": "frame_0206.png",
+      "request_time": 21.25,
+      "time": 21.309195280075073
+    },
+    {
+      "file": "frame_0207.png",
+      "request_time": 21.344000000040978,
+      "time": 21.399718046188354
+    },
+    {
+      "file": "frame_0208.png",
+      "request_time": 21.43799999996554,
+      "time": 21.498579740524292
+    },
+    {
+      "file": "frame_0209.png",
+      "request_time": 21.530999999959022,
+      "time": 21.58358597755432
+    },
+    {
+      "file": "frame_0210.png",
+      "request_time": 21.625,
+      "time": 21.679044485092163
+    },
+    {
+      "file": "frame_0211.png",
+      "request_time": 21.719000000040978,
+      "time": 21.7734158039093
+    },
+    {
+      "file": "frame_0212.png",
+      "request_time": 21.81299999996554,
+      "time": 21.858776330947876
+    },
+    {
+      "file": "frame_0213.png",
+      "request_time": 21.905999999959022,
+      "time": 21.95249342918396
+    }
+  ],
+  "source": "Engine Shot SHOWUI after real scene draw. Actual file completion timestamps; no generated motion.",
+  "show_ui": true,
+  "error": null
+}

@@ -1,0 +1,13 @@
+{
+  "pass": true,
+  "reviewer": "organic_form_refinement producer, actual images opened",
+  "scope": "Layout/checker technical gate only; not final reference/look/native-runtime approval",
+  "looked_at": ["uv_layout_SM_DAY03_Tongue.png", "checker_interior_front.png", "checker_interior_oblique.png", "checker_interior_back.png"],
+  "findings": [
+    "Two continuous tongue charts: one complete dorsal and unchanged ventral; no confetti islands or extra dorsal cuts.",
+    "Dorsal checker squares retain even scale and no local folds; equatorial seam stays behind front lower crowns in approved composite shape.",
+    "Cavity checker/layout remain unchanged from frozen r05.",
+    "Tongue atlas coverage 35.02% is intentional under the bounded edit: fixed ventral UV and old dorsal reserved footprint are preserved to limit paint-transfer scope. Dorsal bbox uses 93.16% tile width and its fixed height is the limiting dimension; density 214.8–235.4px/sourceunit remains adequate for the menu camera. No squeeze/nonuniform scaling was used."
+  ],
+  "deferred": ["Tongue paint reprojection and mesh-map rebake", "Actual Unreal import/animation/camera integration by root"]
+}

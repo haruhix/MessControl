@@ -1,0 +1,1146 @@
+{
+  "source": "ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\MC_DAY03_UnrealMorphSource.blend",
+  "source_sha256": "e5b14557b090f955065050f8426011e9e66fb07eb33cbcf88738c734148fb3b7",
+  "independent": true,
+  "method": "CPU BVH nearest visible surface rays at projected lower crown pixel grid",
+  "pixel_step": 2,
+  "design_resolution": [
+    1600,
+    900
+  ],
+  "camera_cm": [
+    0.0,
+    2200.0,
+    0.0
+  ],
+  "horizontal_fov_degrees": 39.97,
+  "source_units_to_native_cm_after_actor_scale": 53.7654,
+  "arrangement": "DAY03 selected at bottom of three mouth rows; row heights interpolate 246.667 to370, neighbors compress equally",
+  "limitations": [
+    "Native static interior and tongue not loaded",
+    "UI labels/buttons not included",
+    "Fixed actor scale for comparison; final runtime may refit width/height",
+    "Sampling measures projected enamel surface visibility, not art finish or biological anatomy"
+  ],
+  "samples": [
+    {
+      "openness": 0.0,
+      "card_height_cm": 246.666667,
+      "center_z_cm": -246.66666650000002,
+      "crowns": [
+        {
+          "part": "MC_DAY03_Lower_Central_R",
+          "projected_bbox_px": [
+            800,
+            690,
+            883,
+            756
+          ],
+          "potential_surface_samples": 1180,
+          "visible_surface_samples": 916,
+          "visible_after_card_mask_samples": 916,
+          "visible_fraction_of_isolated_crown": 0.7762711864406779,
+          "visible_masked_fraction_of_isolated_crown": 0.7762711864406779,
+          "visible_enamel_height_px": 54,
+          "masked_visible_enamel_height_px": 54,
+          "occluder_samples": {
+            "MC_DAY03_Upper_Central_R": 137,
+            "MC_DAY03_Lower_Gum": 127
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Central_L",
+          "projected_bbox_px": [
+            717,
+            690,
+            800,
+            756
+          ],
+          "potential_surface_samples": 1180,
+          "visible_surface_samples": 916,
+          "visible_after_card_mask_samples": 916,
+          "visible_fraction_of_isolated_crown": 0.7762711864406779,
+          "visible_masked_fraction_of_isolated_crown": 0.7762711864406779,
+          "visible_enamel_height_px": 54,
+          "masked_visible_enamel_height_px": 54,
+          "occluder_samples": {
+            "MC_DAY03_Upper_Central_L": 137,
+            "MC_DAY03_Lower_Gum": 127
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Lateral_R",
+          "projected_bbox_px": [
+            883,
+            689,
+            960,
+            756
+          ],
+          "potential_surface_samples": 1102,
+          "visible_surface_samples": 930,
+          "visible_after_card_mask_samples": 930,
+          "visible_fraction_of_isolated_crown": 0.8439201451905626,
+          "visible_masked_fraction_of_isolated_crown": 0.8439201451905626,
+          "visible_enamel_height_px": 58,
+          "masked_visible_enamel_height_px": 58,
+          "occluder_samples": {
+            "MC_DAY03_Upper_Lateral_R": 60,
+            "MC_DAY03_Lower_Gum": 112
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Lateral_L",
+          "projected_bbox_px": [
+            640,
+            689,
+            717,
+            756
+          ],
+          "potential_surface_samples": 1102,
+          "visible_surface_samples": 930,
+          "visible_after_card_mask_samples": 930,
+          "visible_fraction_of_isolated_crown": 0.8439201451905626,
+          "visible_masked_fraction_of_isolated_crown": 0.8439201451905626,
+          "visible_enamel_height_px": 58,
+          "masked_visible_enamel_height_px": 58,
+          "occluder_samples": {
+            "MC_DAY03_Upper_Lateral_L": 60,
+            "MC_DAY03_Lower_Gum": 112
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Canine_R",
+          "projected_bbox_px": [
+            956,
+            685,
+            1036,
+            767
+          ],
+          "potential_surface_samples": 1435,
+          "visible_surface_samples": 475,
+          "visible_after_card_mask_samples": 475,
+          "visible_fraction_of_isolated_crown": 0.3310104529616725,
+          "visible_masked_fraction_of_isolated_crown": 0.3310104529616725,
+          "visible_enamel_height_px": 76,
+          "masked_visible_enamel_height_px": 76,
+          "occluder_samples": {
+            "MC_DAY03_Upper_Fang_R": 766,
+            "MC_DAY03_Lower_Lateral_R": 14,
+            "MC_DAY03_Lower_Gum": 180
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Canine_L",
+          "projected_bbox_px": [
+            564,
+            685,
+            644,
+            767
+          ],
+          "potential_surface_samples": 1432,
+          "visible_surface_samples": 470,
+          "visible_after_card_mask_samples": 470,
+          "visible_fraction_of_isolated_crown": 0.32821229050279327,
+          "visible_masked_fraction_of_isolated_crown": 0.32821229050279327,
+          "visible_enamel_height_px": 76,
+          "masked_visible_enamel_height_px": 76,
+          "occluder_samples": {
+            "MC_DAY03_Upper_Fang_L": 766,
+            "MC_DAY03_Lower_Lateral_L": 20,
+            "MC_DAY03_Lower_Gum": 176
+          }
+        }
+      ]
+    },
+    {
+      "openness": 0.125,
+      "card_height_cm": 262.08333362499997,
+      "center_z_cm": -238.95833318750002,
+      "crowns": [
+        {
+          "part": "MC_DAY03_Lower_Central_R",
+          "projected_bbox_px": [
+            800,
+            694,
+            883,
+            760
+          ],
+          "potential_surface_samples": 1183,
+          "visible_surface_samples": 1065,
+          "visible_after_card_mask_samples": 1065,
+          "visible_fraction_of_isolated_crown": 0.9002535925612849,
+          "visible_masked_fraction_of_isolated_crown": 0.9002535925612849,
+          "visible_enamel_height_px": 60,
+          "masked_visible_enamel_height_px": 60,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 118
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Central_L",
+          "projected_bbox_px": [
+            717,
+            694,
+            800,
+            760
+          ],
+          "potential_surface_samples": 1183,
+          "visible_surface_samples": 1066,
+          "visible_after_card_mask_samples": 1066,
+          "visible_fraction_of_isolated_crown": 0.9010989010989011,
+          "visible_masked_fraction_of_isolated_crown": 0.9010989010989011,
+          "visible_enamel_height_px": 60,
+          "masked_visible_enamel_height_px": 60,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 117
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Lateral_R",
+          "projected_bbox_px": [
+            883,
+            693,
+            960,
+            760
+          ],
+          "potential_surface_samples": 1112,
+          "visible_surface_samples": 1000,
+          "visible_after_card_mask_samples": 1000,
+          "visible_fraction_of_isolated_crown": 0.8992805755395683,
+          "visible_masked_fraction_of_isolated_crown": 0.8992805755395683,
+          "visible_enamel_height_px": 60,
+          "masked_visible_enamel_height_px": 60,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 112
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Lateral_L",
+          "projected_bbox_px": [
+            640,
+            693,
+            717,
+            760
+          ],
+          "potential_surface_samples": 1112,
+          "visible_surface_samples": 1000,
+          "visible_after_card_mask_samples": 1000,
+          "visible_fraction_of_isolated_crown": 0.8992805755395683,
+          "visible_masked_fraction_of_isolated_crown": 0.8992805755395683,
+          "visible_enamel_height_px": 60,
+          "masked_visible_enamel_height_px": 60,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 112
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Canine_R",
+          "projected_bbox_px": [
+            957,
+            688,
+            1036,
+            771
+          ],
+          "potential_surface_samples": 1442,
+          "visible_surface_samples": 777,
+          "visible_after_card_mask_samples": 777,
+          "visible_fraction_of_isolated_crown": 0.5388349514563107,
+          "visible_masked_fraction_of_isolated_crown": 0.5388349514563107,
+          "visible_enamel_height_px": 76,
+          "masked_visible_enamel_height_px": 76,
+          "occluder_samples": {
+            "MC_DAY03_Upper_Fang_R": 445,
+            "MC_DAY03_Lower_Lateral_R": 21,
+            "MC_DAY03_Lower_Gum": 199
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Canine_L",
+          "projected_bbox_px": [
+            564,
+            688,
+            643,
+            771
+          ],
+          "potential_surface_samples": 1442,
+          "visible_surface_samples": 778,
+          "visible_after_card_mask_samples": 778,
+          "visible_fraction_of_isolated_crown": 0.5395284327323162,
+          "visible_masked_fraction_of_isolated_crown": 0.5395284327323162,
+          "visible_enamel_height_px": 76,
+          "masked_visible_enamel_height_px": 76,
+          "occluder_samples": {
+            "MC_DAY03_Upper_Fang_L": 445,
+            "MC_DAY03_Lower_Lateral_L": 21,
+            "MC_DAY03_Lower_Gum": 198
+          }
+        }
+      ]
+    },
+    {
+      "openness": 0.25,
+      "card_height_cm": 277.50000024999997,
+      "center_z_cm": -231.24999987500001,
+      "crowns": [
+        {
+          "part": "MC_DAY03_Lower_Central_R",
+          "projected_bbox_px": [
+            800,
+            698,
+            884,
+            765
+          ],
+          "potential_surface_samples": 1186,
+          "visible_surface_samples": 1076,
+          "visible_after_card_mask_samples": 1076,
+          "visible_fraction_of_isolated_crown": 0.9072512647554806,
+          "visible_masked_fraction_of_isolated_crown": 0.9072512647554806,
+          "visible_enamel_height_px": 60,
+          "masked_visible_enamel_height_px": 60,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 110
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Central_L",
+          "projected_bbox_px": [
+            716,
+            698,
+            800,
+            765
+          ],
+          "potential_surface_samples": 1191,
+          "visible_surface_samples": 1081,
+          "visible_after_card_mask_samples": 1081,
+          "visible_fraction_of_isolated_crown": 0.9076406381192276,
+          "visible_masked_fraction_of_isolated_crown": 0.9076406381192276,
+          "visible_enamel_height_px": 60,
+          "masked_visible_enamel_height_px": 60,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 110
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Lateral_R",
+          "projected_bbox_px": [
+            883,
+            697,
+            961,
+            764
+          ],
+          "potential_surface_samples": 1120,
+          "visible_surface_samples": 1011,
+          "visible_after_card_mask_samples": 1011,
+          "visible_fraction_of_isolated_crown": 0.9026785714285714,
+          "visible_masked_fraction_of_isolated_crown": 0.9026785714285714,
+          "visible_enamel_height_px": 62,
+          "masked_visible_enamel_height_px": 62,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 109
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Lateral_L",
+          "projected_bbox_px": [
+            639,
+            697,
+            717,
+            764
+          ],
+          "potential_surface_samples": 1120,
+          "visible_surface_samples": 1012,
+          "visible_after_card_mask_samples": 1012,
+          "visible_fraction_of_isolated_crown": 0.9035714285714286,
+          "visible_masked_fraction_of_isolated_crown": 0.9035714285714286,
+          "visible_enamel_height_px": 62,
+          "masked_visible_enamel_height_px": 62,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 108
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Canine_R",
+          "projected_bbox_px": [
+            957,
+            692,
+            1037,
+            775
+          ],
+          "potential_surface_samples": 1438,
+          "visible_surface_samples": 1047,
+          "visible_after_card_mask_samples": 1047,
+          "visible_fraction_of_isolated_crown": 0.7280945757997218,
+          "visible_masked_fraction_of_isolated_crown": 0.7280945757997218,
+          "visible_enamel_height_px": 78,
+          "masked_visible_enamel_height_px": 78,
+          "occluder_samples": {
+            "MC_DAY03_Upper_Fang_R": 190,
+            "MC_DAY03_Lower_Lateral_R": 13,
+            "MC_DAY03_Lower_Gum": 188
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Canine_L",
+          "projected_bbox_px": [
+            563,
+            692,
+            643,
+            775
+          ],
+          "potential_surface_samples": 1436,
+          "visible_surface_samples": 1040,
+          "visible_after_card_mask_samples": 1040,
+          "visible_fraction_of_isolated_crown": 0.724233983286908,
+          "visible_masked_fraction_of_isolated_crown": 0.724233983286908,
+          "visible_enamel_height_px": 78,
+          "masked_visible_enamel_height_px": 78,
+          "occluder_samples": {
+            "MC_DAY03_Upper_Fang_L": 189,
+            "MC_DAY03_Lower_Lateral_L": 16,
+            "MC_DAY03_Lower_Gum": 191
+          }
+        }
+      ]
+    },
+    {
+      "openness": 0.375,
+      "card_height_cm": 292.916666875,
+      "center_z_cm": -223.5416665625,
+      "crowns": [
+        {
+          "part": "MC_DAY03_Lower_Central_R",
+          "projected_bbox_px": [
+            800,
+            702,
+            884,
+            769
+          ],
+          "potential_surface_samples": 1194,
+          "visible_surface_samples": 1094,
+          "visible_after_card_mask_samples": 1094,
+          "visible_fraction_of_isolated_crown": 0.916247906197655,
+          "visible_masked_fraction_of_isolated_crown": 0.916247906197655,
+          "visible_enamel_height_px": 62,
+          "masked_visible_enamel_height_px": 62,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 100
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Central_L",
+          "projected_bbox_px": [
+            716,
+            702,
+            800,
+            769
+          ],
+          "potential_surface_samples": 1198,
+          "visible_surface_samples": 1095,
+          "visible_after_card_mask_samples": 1095,
+          "visible_fraction_of_isolated_crown": 0.9140233722871453,
+          "visible_masked_fraction_of_isolated_crown": 0.9140233722871453,
+          "visible_enamel_height_px": 62,
+          "masked_visible_enamel_height_px": 62,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 103
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Lateral_R",
+          "projected_bbox_px": [
+            883,
+            701,
+            961,
+            769
+          ],
+          "potential_surface_samples": 1127,
+          "visible_surface_samples": 1024,
+          "visible_after_card_mask_samples": 1024,
+          "visible_fraction_of_isolated_crown": 0.9086069210292813,
+          "visible_masked_fraction_of_isolated_crown": 0.9086069210292813,
+          "visible_enamel_height_px": 62,
+          "masked_visible_enamel_height_px": 62,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 103
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Lateral_L",
+          "projected_bbox_px": [
+            639,
+            701,
+            717,
+            769
+          ],
+          "potential_surface_samples": 1127,
+          "visible_surface_samples": 1022,
+          "visible_after_card_mask_samples": 1022,
+          "visible_fraction_of_isolated_crown": 0.906832298136646,
+          "visible_masked_fraction_of_isolated_crown": 0.906832298136646,
+          "visible_enamel_height_px": 62,
+          "masked_visible_enamel_height_px": 62,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 105
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Canine_R",
+          "projected_bbox_px": [
+            957,
+            696,
+            1037,
+            779
+          ],
+          "potential_surface_samples": 1452,
+          "visible_surface_samples": 1219,
+          "visible_after_card_mask_samples": 1219,
+          "visible_fraction_of_isolated_crown": 0.8395316804407713,
+          "visible_masked_fraction_of_isolated_crown": 0.8395316804407713,
+          "visible_enamel_height_px": 80,
+          "masked_visible_enamel_height_px": 80,
+          "occluder_samples": {
+            "MC_DAY03_Upper_Fang_R": 34,
+            "MC_DAY03_Lower_Lateral_R": 14,
+            "MC_DAY03_Lower_Gum": 185
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Canine_L",
+          "projected_bbox_px": [
+            563,
+            696,
+            643,
+            779
+          ],
+          "potential_surface_samples": 1461,
+          "visible_surface_samples": 1230,
+          "visible_after_card_mask_samples": 1230,
+          "visible_fraction_of_isolated_crown": 0.8418891170431212,
+          "visible_masked_fraction_of_isolated_crown": 0.8418891170431212,
+          "visible_enamel_height_px": 80,
+          "masked_visible_enamel_height_px": 80,
+          "occluder_samples": {
+            "MC_DAY03_Upper_Fang_L": 35,
+            "MC_DAY03_Lower_Lateral_L": 16,
+            "MC_DAY03_Lower_Gum": 180
+          }
+        }
+      ]
+    },
+    {
+      "openness": 0.5,
+      "card_height_cm": 308.3333335,
+      "center_z_cm": -215.83333325,
+      "crowns": [
+        {
+          "part": "MC_DAY03_Lower_Central_R",
+          "projected_bbox_px": [
+            800,
+            706,
+            884,
+            773
+          ],
+          "potential_surface_samples": 1214,
+          "visible_surface_samples": 1109,
+          "visible_after_card_mask_samples": 1109,
+          "visible_fraction_of_isolated_crown": 0.913509060955519,
+          "visible_masked_fraction_of_isolated_crown": 0.913509060955519,
+          "visible_enamel_height_px": 62,
+          "masked_visible_enamel_height_px": 62,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 105
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Central_L",
+          "projected_bbox_px": [
+            716,
+            706,
+            800,
+            773
+          ],
+          "potential_surface_samples": 1218,
+          "visible_surface_samples": 1111,
+          "visible_after_card_mask_samples": 1111,
+          "visible_fraction_of_isolated_crown": 0.9121510673234812,
+          "visible_masked_fraction_of_isolated_crown": 0.9121510673234812,
+          "visible_enamel_height_px": 62,
+          "masked_visible_enamel_height_px": 62,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 107
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Lateral_R",
+          "projected_bbox_px": [
+            883,
+            705,
+            961,
+            773
+          ],
+          "potential_surface_samples": 1134,
+          "visible_surface_samples": 1033,
+          "visible_after_card_mask_samples": 1033,
+          "visible_fraction_of_isolated_crown": 0.9109347442680776,
+          "visible_masked_fraction_of_isolated_crown": 0.9109347442680776,
+          "visible_enamel_height_px": 62,
+          "masked_visible_enamel_height_px": 62,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 101
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Lateral_L",
+          "projected_bbox_px": [
+            639,
+            705,
+            717,
+            773
+          ],
+          "potential_surface_samples": 1142,
+          "visible_surface_samples": 1045,
+          "visible_after_card_mask_samples": 1045,
+          "visible_fraction_of_isolated_crown": 0.9150612959719789,
+          "visible_masked_fraction_of_isolated_crown": 0.9150612959719789,
+          "visible_enamel_height_px": 62,
+          "masked_visible_enamel_height_px": 62,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 97
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Canine_R",
+          "projected_bbox_px": [
+            958,
+            700,
+            1038,
+            783
+          ],
+          "potential_surface_samples": 1471,
+          "visible_surface_samples": 1274,
+          "visible_after_card_mask_samples": 1274,
+          "visible_fraction_of_isolated_crown": 0.8660774983004759,
+          "visible_masked_fraction_of_isolated_crown": 0.8660774983004759,
+          "visible_enamel_height_px": 80,
+          "masked_visible_enamel_height_px": 80,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Lateral_R": 22,
+            "MC_DAY03_Lower_Gum": 175
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Canine_L",
+          "projected_bbox_px": [
+            562,
+            700,
+            642,
+            783
+          ],
+          "potential_surface_samples": 1459,
+          "visible_surface_samples": 1267,
+          "visible_after_card_mask_samples": 1267,
+          "visible_fraction_of_isolated_crown": 0.8684030157642221,
+          "visible_masked_fraction_of_isolated_crown": 0.8684030157642221,
+          "visible_enamel_height_px": 80,
+          "masked_visible_enamel_height_px": 80,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Lateral_L": 16,
+            "MC_DAY03_Lower_Gum": 176
+          }
+        }
+      ]
+    },
+    {
+      "openness": 0.625,
+      "card_height_cm": 323.750000125,
+      "center_z_cm": -208.1249999375,
+      "crowns": [
+        {
+          "part": "MC_DAY03_Lower_Central_R",
+          "projected_bbox_px": [
+            800,
+            710,
+            884,
+            778
+          ],
+          "potential_surface_samples": 1224,
+          "visible_surface_samples": 1122,
+          "visible_after_card_mask_samples": 1122,
+          "visible_fraction_of_isolated_crown": 0.9166666666666666,
+          "visible_masked_fraction_of_isolated_crown": 0.9166666666666666,
+          "visible_enamel_height_px": 62,
+          "masked_visible_enamel_height_px": 62,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 102
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Central_L",
+          "projected_bbox_px": [
+            716,
+            710,
+            800,
+            778
+          ],
+          "potential_surface_samples": 1232,
+          "visible_surface_samples": 1129,
+          "visible_after_card_mask_samples": 1129,
+          "visible_fraction_of_isolated_crown": 0.9163961038961039,
+          "visible_masked_fraction_of_isolated_crown": 0.9163961038961039,
+          "visible_enamel_height_px": 62,
+          "masked_visible_enamel_height_px": 62,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 103
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Lateral_R",
+          "projected_bbox_px": [
+            884,
+            709,
+            962,
+            777
+          ],
+          "potential_surface_samples": 1148,
+          "visible_surface_samples": 1056,
+          "visible_after_card_mask_samples": 1056,
+          "visible_fraction_of_isolated_crown": 0.9198606271777003,
+          "visible_masked_fraction_of_isolated_crown": 0.9198606271777003,
+          "visible_enamel_height_px": 64,
+          "masked_visible_enamel_height_px": 64,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 92
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Lateral_L",
+          "projected_bbox_px": [
+            638,
+            709,
+            716,
+            777
+          ],
+          "potential_surface_samples": 1139,
+          "visible_surface_samples": 1047,
+          "visible_after_card_mask_samples": 1047,
+          "visible_fraction_of_isolated_crown": 0.9192273924495171,
+          "visible_masked_fraction_of_isolated_crown": 0.9192273924495171,
+          "visible_enamel_height_px": 64,
+          "masked_visible_enamel_height_px": 64,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 92
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Canine_R",
+          "projected_bbox_px": [
+            958,
+            703,
+            1038,
+            788
+          ],
+          "potential_surface_samples": 1459,
+          "visible_surface_samples": 1273,
+          "visible_after_card_mask_samples": 1273,
+          "visible_fraction_of_isolated_crown": 0.8725154215215901,
+          "visible_masked_fraction_of_isolated_crown": 0.8725154215215901,
+          "visible_enamel_height_px": 80,
+          "masked_visible_enamel_height_px": 80,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Lateral_R": 19,
+            "MC_DAY03_Lower_Gum": 167
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Canine_L",
+          "projected_bbox_px": [
+            562,
+            703,
+            642,
+            788
+          ],
+          "potential_surface_samples": 1467,
+          "visible_surface_samples": 1282,
+          "visible_after_card_mask_samples": 1282,
+          "visible_fraction_of_isolated_crown": 0.8738922972051807,
+          "visible_masked_fraction_of_isolated_crown": 0.8738922972051807,
+          "visible_enamel_height_px": 80,
+          "masked_visible_enamel_height_px": 80,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Lateral_L": 17,
+            "MC_DAY03_Lower_Gum": 168
+          }
+        }
+      ]
+    },
+    {
+      "openness": 0.75,
+      "card_height_cm": 339.16666675,
+      "center_z_cm": -200.416666625,
+      "crowns": [
+        {
+          "part": "MC_DAY03_Lower_Central_R",
+          "projected_bbox_px": [
+            800,
+            715,
+            884,
+            782
+          ],
+          "potential_surface_samples": 1240,
+          "visible_surface_samples": 1145,
+          "visible_after_card_mask_samples": 1145,
+          "visible_fraction_of_isolated_crown": 0.9233870967741935,
+          "visible_masked_fraction_of_isolated_crown": 0.9233870967741935,
+          "visible_enamel_height_px": 64,
+          "masked_visible_enamel_height_px": 64,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 95
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Central_L",
+          "projected_bbox_px": [
+            716,
+            715,
+            800,
+            782
+          ],
+          "potential_surface_samples": 1248,
+          "visible_surface_samples": 1149,
+          "visible_after_card_mask_samples": 1149,
+          "visible_fraction_of_isolated_crown": 0.9206730769230769,
+          "visible_masked_fraction_of_isolated_crown": 0.9206730769230769,
+          "visible_enamel_height_px": 64,
+          "masked_visible_enamel_height_px": 64,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 99
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Lateral_R",
+          "projected_bbox_px": [
+            884,
+            713,
+            962,
+            782
+          ],
+          "potential_surface_samples": 1151,
+          "visible_surface_samples": 1064,
+          "visible_after_card_mask_samples": 1064,
+          "visible_fraction_of_isolated_crown": 0.9244135534317984,
+          "visible_masked_fraction_of_isolated_crown": 0.9244135534317984,
+          "visible_enamel_height_px": 64,
+          "masked_visible_enamel_height_px": 64,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 87
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Lateral_L",
+          "projected_bbox_px": [
+            638,
+            713,
+            716,
+            782
+          ],
+          "potential_surface_samples": 1142,
+          "visible_surface_samples": 1059,
+          "visible_after_card_mask_samples": 1059,
+          "visible_fraction_of_isolated_crown": 0.9273204903677759,
+          "visible_masked_fraction_of_isolated_crown": 0.9273204903677759,
+          "visible_enamel_height_px": 64,
+          "masked_visible_enamel_height_px": 64,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 83
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Canine_R",
+          "projected_bbox_px": [
+            958,
+            707,
+            1039,
+            792
+          ],
+          "potential_surface_samples": 1459,
+          "visible_surface_samples": 1287,
+          "visible_after_card_mask_samples": 1287,
+          "visible_fraction_of_isolated_crown": 0.882111034955449,
+          "visible_masked_fraction_of_isolated_crown": 0.882111034955449,
+          "visible_enamel_height_px": 80,
+          "masked_visible_enamel_height_px": 80,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Lateral_R": 14,
+            "MC_DAY03_Lower_Gum": 158
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Canine_L",
+          "projected_bbox_px": [
+            561,
+            707,
+            642,
+            792
+          ],
+          "potential_surface_samples": 1459,
+          "visible_surface_samples": 1287,
+          "visible_after_card_mask_samples": 1287,
+          "visible_fraction_of_isolated_crown": 0.882111034955449,
+          "visible_masked_fraction_of_isolated_crown": 0.882111034955449,
+          "visible_enamel_height_px": 80,
+          "masked_visible_enamel_height_px": 80,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Lateral_L": 14,
+            "MC_DAY03_Lower_Gum": 158
+          }
+        }
+      ]
+    },
+    {
+      "openness": 0.875,
+      "card_height_cm": 354.583333375,
+      "center_z_cm": -192.7083333125,
+      "crowns": [
+        {
+          "part": "MC_DAY03_Lower_Central_R",
+          "projected_bbox_px": [
+            800,
+            719,
+            884,
+            787
+          ],
+          "potential_surface_samples": 1247,
+          "visible_surface_samples": 1156,
+          "visible_after_card_mask_samples": 1156,
+          "visible_fraction_of_isolated_crown": 0.9270248596631917,
+          "visible_masked_fraction_of_isolated_crown": 0.9270248596631917,
+          "visible_enamel_height_px": 66,
+          "masked_visible_enamel_height_px": 66,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 91
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Central_L",
+          "projected_bbox_px": [
+            716,
+            719,
+            800,
+            787
+          ],
+          "potential_surface_samples": 1256,
+          "visible_surface_samples": 1165,
+          "visible_after_card_mask_samples": 1165,
+          "visible_fraction_of_isolated_crown": 0.927547770700637,
+          "visible_masked_fraction_of_isolated_crown": 0.927547770700637,
+          "visible_enamel_height_px": 66,
+          "masked_visible_enamel_height_px": 66,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 91
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Lateral_R",
+          "projected_bbox_px": [
+            884,
+            718,
+            962,
+            786
+          ],
+          "potential_surface_samples": 1167,
+          "visible_surface_samples": 1081,
+          "visible_after_card_mask_samples": 1081,
+          "visible_fraction_of_isolated_crown": 0.9263067694944301,
+          "visible_masked_fraction_of_isolated_crown": 0.9263067694944301,
+          "visible_enamel_height_px": 66,
+          "masked_visible_enamel_height_px": 66,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 86
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Lateral_L",
+          "projected_bbox_px": [
+            638,
+            718,
+            716,
+            786
+          ],
+          "potential_surface_samples": 1167,
+          "visible_surface_samples": 1081,
+          "visible_after_card_mask_samples": 1081,
+          "visible_fraction_of_isolated_crown": 0.9263067694944301,
+          "visible_masked_fraction_of_isolated_crown": 0.9263067694944301,
+          "visible_enamel_height_px": 66,
+          "masked_visible_enamel_height_px": 66,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 86
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Canine_R",
+          "projected_bbox_px": [
+            959,
+            711,
+            1039,
+            796
+          ],
+          "potential_surface_samples": 1475,
+          "visible_surface_samples": 1301,
+          "visible_after_card_mask_samples": 1301,
+          "visible_fraction_of_isolated_crown": 0.8820338983050847,
+          "visible_masked_fraction_of_isolated_crown": 0.8820338983050847,
+          "visible_enamel_height_px": 80,
+          "masked_visible_enamel_height_px": 80,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Lateral_R": 23,
+            "MC_DAY03_Lower_Gum": 151
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Canine_L",
+          "projected_bbox_px": [
+            561,
+            711,
+            641,
+            796
+          ],
+          "potential_surface_samples": 1471,
+          "visible_surface_samples": 1301,
+          "visible_after_card_mask_samples": 1301,
+          "visible_fraction_of_isolated_crown": 0.8844323589394969,
+          "visible_masked_fraction_of_isolated_crown": 0.8844323589394969,
+          "visible_enamel_height_px": 80,
+          "masked_visible_enamel_height_px": 80,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Lateral_L": 16,
+            "MC_DAY03_Lower_Gum": 154
+          }
+        }
+      ]
+    },
+    {
+      "openness": 1.0,
+      "card_height_cm": 370.0,
+      "center_z_cm": -185.0,
+      "crowns": [
+        {
+          "part": "MC_DAY03_Lower_Central_R",
+          "projected_bbox_px": [
+            800,
+            723,
+            885,
+            791
+          ],
+          "potential_surface_samples": 1255,
+          "visible_surface_samples": 1170,
+          "visible_after_card_mask_samples": 1170,
+          "visible_fraction_of_isolated_crown": 0.9322709163346613,
+          "visible_masked_fraction_of_isolated_crown": 0.9322709163346613,
+          "visible_enamel_height_px": 66,
+          "masked_visible_enamel_height_px": 66,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 85
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Central_L",
+          "projected_bbox_px": [
+            715,
+            723,
+            800,
+            791
+          ],
+          "potential_surface_samples": 1255,
+          "visible_surface_samples": 1170,
+          "visible_after_card_mask_samples": 1170,
+          "visible_fraction_of_isolated_crown": 0.9322709163346613,
+          "visible_masked_fraction_of_isolated_crown": 0.9322709163346613,
+          "visible_enamel_height_px": 66,
+          "masked_visible_enamel_height_px": 66,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 85
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Lateral_R",
+          "projected_bbox_px": [
+            884,
+            722,
+            963,
+            790
+          ],
+          "potential_surface_samples": 1167,
+          "visible_surface_samples": 1089,
+          "visible_after_card_mask_samples": 1089,
+          "visible_fraction_of_isolated_crown": 0.9331619537275064,
+          "visible_masked_fraction_of_isolated_crown": 0.9331619537275064,
+          "visible_enamel_height_px": 66,
+          "masked_visible_enamel_height_px": 66,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 78
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Lateral_L",
+          "projected_bbox_px": [
+            637,
+            722,
+            716,
+            790
+          ],
+          "potential_surface_samples": 1167,
+          "visible_surface_samples": 1089,
+          "visible_after_card_mask_samples": 1089,
+          "visible_fraction_of_isolated_crown": 0.9331619537275064,
+          "visible_masked_fraction_of_isolated_crown": 0.9331619537275064,
+          "visible_enamel_height_px": 66,
+          "masked_visible_enamel_height_px": 66,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Gum": 78
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Canine_R",
+          "projected_bbox_px": [
+            959,
+            715,
+            1040,
+            800
+          ],
+          "potential_surface_samples": 1497,
+          "visible_surface_samples": 1320,
+          "visible_after_card_mask_samples": 1320,
+          "visible_fraction_of_isolated_crown": 0.8817635270541082,
+          "visible_masked_fraction_of_isolated_crown": 0.8817635270541082,
+          "visible_enamel_height_px": 82,
+          "masked_visible_enamel_height_px": 82,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Lateral_R": 22,
+            "MC_DAY03_Lower_Gum": 155
+          }
+        },
+        {
+          "part": "MC_DAY03_Lower_Canine_L",
+          "projected_bbox_px": [
+            560,
+            715,
+            641,
+            800
+          ],
+          "potential_surface_samples": 1497,
+          "visible_surface_samples": 1320,
+          "visible_after_card_mask_samples": 1320,
+          "visible_fraction_of_isolated_crown": 0.8817635270541082,
+          "visible_masked_fraction_of_isolated_crown": 0.8817635270541082,
+          "visible_enamel_height_px": 82,
+          "masked_visible_enamel_height_px": 82,
+          "occluder_samples": {
+            "MC_DAY03_Lower_Lateral_L": 22,
+            "MC_DAY03_Lower_Gum": 155
+          }
+        }
+      ]
+    }
+  ]
+}

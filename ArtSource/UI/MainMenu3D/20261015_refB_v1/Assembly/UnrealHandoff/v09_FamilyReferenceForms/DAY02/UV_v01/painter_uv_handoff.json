@@ -1,0 +1,246 @@
+{
+  "status": "FROZEN_FOR_NATIVE_AND_PAINTER_HANDOFF_FINAL_UNREAL_ART_PENDING",
+  "resolution": 4096,
+  "texture_sets": [
+    "MC_Enamel",
+    "MC_Gum"
+  ],
+  "policy": "Unique UV0 per material, three logical crown charts; three body charts +two caps per gum; no SmartProject, repeated stacking or crown fan charts",
+  "chart_policy": [
+    {
+      "part": "MC_DAY02_Upper_Pointed_01_R",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Upper_Pointed_01_L",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Upper_Pointed_02_R",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Upper_Pointed_02_L",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Upper_Pointed_03_R",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Upper_Pointed_03_L",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Upper_Pointed_04_R",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Upper_Pointed_04_L",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Upper_Pointed_05_R",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Upper_Pointed_05_L",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Upper_Pointed_06_R",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Upper_Pointed_06_L",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Upper_Pointed_07_R",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Upper_Pointed_07_L",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Upper_Pointed_08_R",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Upper_Pointed_08_L",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Lower_Pointed_01_R",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Lower_Pointed_01_L",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Lower_Pointed_02_R",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Lower_Pointed_02_L",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Lower_Pointed_03_R",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Lower_Pointed_03_L",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Lower_Pointed_04_R",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Lower_Pointed_04_L",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Lower_Pointed_05_R",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Lower_Pointed_05_L",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Lower_Pointed_06_R",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Lower_Pointed_06_L",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Lower_Pointed_07_R",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Lower_Pointed_07_L",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Lower_Pointed_08_R",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Lower_Pointed_08_L",
+      "cervical_cap_faces": 256,
+      "cap_root_to_tip_threshold": 0.055,
+      "policy": "coherent labial/incisal body + hidden lingual panel + cervical cap; no front poles/fan charts"
+    },
+    {
+      "part": "MC_DAY02_Upper_Gum",
+      "policy": "one continuous hero labial body, hidden lingual seam, optional two posterior-return cuts +two closed return caps",
+      "lingual_seam_radial_index": 47,
+      "posterior_cut_rings": [
+        35,
+        305
+      ]
+    },
+    {
+      "part": "MC_DAY02_Lower_Gum",
+      "policy": "one continuous hero labial body, hidden lingual seam, optional two posterior-return cuts +two closed return caps",
+      "lingual_seam_radial_index": 47,
+      "posterior_cut_rings": [
+        35,
+        305
+      ]
+    }
+  ],
+  "solver": [
+    {
+      "material": 0,
+      "initialization": "ANGLE_BASED",
+      "final_method": "MINIMUM_STRETCH",
+      "iterations": 60,
+      "no_flip": true,
+      "pack_pair_gap_px": 32,
+      "pack_border_px": 16
+    },
+    {
+      "material": 1,
+      "initialization": "ANGLE_BASED",
+      "final_method": "MINIMUM_STRETCH",
+      "iterations": 100,
+      "no_flip": true,
+      "pack_pair_gap_px": 32,
+      "pack_border_px": 16
+    }
+  ],
+  "geometry_morphs": "bit-exact accepted shape source five samples",
+  "enamel_UV_bit_exact_parent": false,
+  "gum_cap_min_px": 64,
+  "gum_coverage_policy": "Surface stretch, coherent hero face and native texel density take priority over an arbitrary occupancy number",
+  "approval_scope": "Lead accepted shape candidate and actual UV front/oblique checkers plus both atlases. Source/fresh nine-pose producer technical gates pass; independent family gate and actual native material/motion remain pending."
+}

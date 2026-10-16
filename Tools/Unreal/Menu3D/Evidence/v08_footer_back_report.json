@@ -1,0 +1,238 @@
+{
+  "status": "FOOTER_BACK_USES_EXISTING_BACK_COMPILED_SAVED_PENDING_SOLO_PIE",
+  "before": [
+    {
+      "output_pins": [
+        {
+          "value": "",
+          "connected_pins": [],
+          "pin_id": {
+            "direction": "EGPD_Output",
+            "index_id": 0,
+            "node": {
+              "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_ComponentBoundEvent_11"
+            }
+          },
+          "type_id": "Delegate",
+          "name": "OutputDelegate"
+        },
+        {
+          "value": "",
+          "connected_pins": [
+            {
+              "direction": "EGPD_Input",
+              "index_id": 0,
+              "node": {
+                "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_233"
+              }
+            }
+          ],
+          "pin_id": {
+            "direction": "EGPD_Output",
+            "index_id": 1,
+            "node": {
+              "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_ComponentBoundEvent_11"
+            }
+          },
+          "type_id": "Exec",
+          "name": "then"
+        }
+      ],
+      "input_pins": [],
+      "position": {
+        "x": 0,
+        "y": 3488
+      },
+      "node": {
+        "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_ComponentBoundEvent_11"
+      },
+      "type_id": "AddEvent|OnClicked(DaysBackButton)"
+    },
+    {
+      "output_pins": [
+        {
+          "value": "",
+          "connected_pins": [],
+          "pin_id": {
+            "direction": "EGPD_Output",
+            "index_id": 0,
+            "node": {
+              "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_233"
+            }
+          },
+          "type_id": "Exec",
+          "name": "then"
+        }
+      ],
+      "input_pins": [
+        {
+          "value": "",
+          "connected_pins": [
+            {
+              "direction": "EGPD_Output",
+              "index_id": 1,
+              "node": {
+                "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_ComponentBoundEvent_11"
+              }
+            }
+          ],
+          "pin_id": {
+            "direction": "EGPD_Input",
+            "index_id": 0,
+            "node": {
+              "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_233"
+            }
+          },
+          "type_id": "Exec",
+          "name": "execute"
+        },
+        {
+          "value": "",
+          "connected_pins": [],
+          "pin_id": {
+            "direction": "EGPD_Input",
+            "index_id": 1,
+            "node": {
+              "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_233"
+            }
+          },
+          "type_id": "Self Object Reference",
+          "name": "self"
+        },
+        {
+          "value": "0",
+          "connected_pins": [],
+          "pin_id": {
+            "direction": "EGPD_Input",
+            "index_id": 2,
+            "node": {
+              "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_233"
+            }
+          },
+          "type_id": "Integer",
+          "name": "Index"
+        }
+      ],
+      "position": {
+        "x": 280,
+        "y": 3488
+      },
+      "node": {
+        "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_233"
+      },
+      "type_id": "|ShowPage"
+    }
+  ],
+  "after": [
+    {
+      "output_pins": [
+        {
+          "value": "",
+          "connected_pins": [],
+          "pin_id": {
+            "direction": "EGPD_Output",
+            "index_id": 0,
+            "node": {
+              "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_ComponentBoundEvent_11"
+            }
+          },
+          "type_id": "Delegate",
+          "name": "OutputDelegate"
+        },
+        {
+          "value": "",
+          "connected_pins": [
+            {
+              "direction": "EGPD_Input",
+              "index_id": 0,
+              "node": {
+                "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_364"
+              }
+            }
+          ],
+          "pin_id": {
+            "direction": "EGPD_Output",
+            "index_id": 1,
+            "node": {
+              "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_ComponentBoundEvent_11"
+            }
+          },
+          "type_id": "Exec",
+          "name": "then"
+        }
+      ],
+      "input_pins": [],
+      "position": {
+        "x": 0,
+        "y": 3488
+      },
+      "node": {
+        "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_ComponentBoundEvent_11"
+      },
+      "type_id": "AddEvent|OnClicked(DaysBackButton)"
+    },
+    {
+      "output_pins": [
+        {
+          "value": "",
+          "connected_pins": [],
+          "pin_id": {
+            "direction": "EGPD_Output",
+            "index_id": 0,
+            "node": {
+              "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_364"
+            }
+          },
+          "type_id": "Exec",
+          "name": "then"
+        }
+      ],
+      "input_pins": [
+        {
+          "value": "",
+          "connected_pins": [
+            {
+              "direction": "EGPD_Output",
+              "index_id": 1,
+              "node": {
+                "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_ComponentBoundEvent_11"
+              }
+            }
+          ],
+          "pin_id": {
+            "direction": "EGPD_Input",
+            "index_id": 0,
+            "node": {
+              "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_364"
+            }
+          },
+          "type_id": "Exec",
+          "name": "execute"
+        },
+        {
+          "value": "",
+          "connected_pins": [],
+          "pin_id": {
+            "direction": "EGPD_Input",
+            "index_id": 1,
+            "node": {
+              "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_364"
+            }
+          },
+          "type_id": "Self Object Reference",
+          "name": "self"
+        }
+      ],
+      "position": {
+        "x": 280,
+        "y": 3488
+      },
+      "node": {
+        "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:EventGraph.K2Node_CallFunction_364"
+      },
+      "type_id": "|Back"
+    }
+  ],
+  "compiled_warnings_as_errors": true,
+  "behavior": "On day screen, first Back collapses active mouth; next Back returns Main. Existing focus/pointer quiet logic is reused."
+}

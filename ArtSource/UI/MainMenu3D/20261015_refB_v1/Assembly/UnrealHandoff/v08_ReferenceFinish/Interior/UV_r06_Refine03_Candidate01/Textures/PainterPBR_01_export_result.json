@@ -1,0 +1,124 @@
+{
+  "status": "Success",
+  "message": "Export successfully finished",
+  "groups": [
+    {
+      "texture_set": "MC_Interior",
+      "stack": "",
+      "files": [
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Base_color_1001.png",
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Base_metalness_1001.png",
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Specular_roughness_1001.png",
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Normal_1001.png",
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Height_1001.png",
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Normal_DirectX_1001.png",
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Mixed_AO_1001.png"
+      ]
+    },
+    {
+      "texture_set": "MC_Tongue",
+      "stack": "",
+      "files": [
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Base_color_1001.png",
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Base_metalness_1001.png",
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Specular_roughness_1001.png",
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Normal_1001.png",
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Height_1001.png",
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Normal_DirectX_1001.png",
+        "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Mixed_AO_1001.png"
+      ]
+    }
+  ],
+  "files": [
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Base_color_1001.png",
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Base_metalness_1001.png",
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Specular_roughness_1001.png",
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Normal_1001.png",
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Height_1001.png",
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Normal_DirectX_1001.png",
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Mixed_AO_1001.png",
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Base_color_1001.png",
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Base_metalness_1001.png",
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Specular_roughness_1001.png",
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Normal_1001.png",
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Height_1001.png",
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Normal_DirectX_1001.png",
+    "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Mixed_AO_1001.png"
+  ],
+  "preset": {
+    "name": "Document channels + Normal + AO (No Alpha)",
+    "url": "export-preset-generator://doc-channel-normal-no-alpha"
+  },
+  "verification": [
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Base_color_1001.png",
+      "exists": true,
+      "bytes": 2061207
+    },
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Base_metalness_1001.png",
+      "exists": true,
+      "bytes": 16411
+    },
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Specular_roughness_1001.png",
+      "exists": true,
+      "bytes": 1585068
+    },
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Normal_1001.png",
+      "exists": true,
+      "bytes": 58788
+    },
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Height_1001.png",
+      "exists": true,
+      "bytes": 3150674
+    },
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Normal_DirectX_1001.png",
+      "exists": true,
+      "bytes": 13714218
+    },
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Interior_Mixed_AO_1001.png",
+      "exists": true,
+      "bytes": 3872271
+    },
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Base_color_1001.png",
+      "exists": true,
+      "bytes": 316597
+    },
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Base_metalness_1001.png",
+      "exists": true,
+      "bytes": 16411
+    },
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Specular_roughness_1001.png",
+      "exists": true,
+      "bytes": 773673
+    },
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Normal_1001.png",
+      "exists": true,
+      "bytes": 58788
+    },
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Height_1001.png",
+      "exists": true,
+      "bytes": 3809602
+    },
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Normal_DirectX_1001.png",
+      "exists": true,
+      "bytes": 13273310
+    },
+    {
+      "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/PainterPBR_01/MC_Tongue_Mixed_AO_1001.png",
+      "exists": true,
+      "bytes": 1350700
+    }
+  ]
+}

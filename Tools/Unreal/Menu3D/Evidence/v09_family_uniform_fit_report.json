@@ -1,0 +1,44 @@
+{
+  "status": "TWO_UNIFORM_SCALE_LITERALS_COMPILED_SAVED_NATIVE_PROJECTION_PENDING",
+  "changes": [
+    {
+      "day": 1,
+      "previous": 0.54,
+      "uniform_xyz": 0.510365,
+      "literal": {
+        "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:UpdateStage.K2Node_CallFunction_1566"
+      }
+    },
+    {
+      "day": 2,
+      "previous": 0.54,
+      "uniform_xyz": 0.514498,
+      "literal": {
+        "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:UpdateStage.K2Node_CallFunction_1577"
+      }
+    }
+  ],
+  "validation": "Independent nine-pose design projection equal-width candidate. No X stretch, camera, motion or input changes.",
+  "graph_diff": [
+    "--- ",
+    "+++ ",
+    "@@ -70,7 +70,7 @@",
+    "   (bind _returnvalue_67 820.0)",
+    "   (bind _returnvalue_68 true)",
+    "   (bind _returnvalue_69 1.0)",
+    "-  (bind _returnvalue_70 0.54)",
+    "+  (bind _returnvalue_70 0.510365)",
+    "   (bind _returnvalue_71 0.0)",
+    "   (bind _returnvalue_72 0.5)",
+    "   (bind _returnvalue_73 80.0)",
+    "@@ -80,7 +80,7 @@",
+    "   (bind _returnvalue_77 820.0)",
+    "   (bind _returnvalue_78 true)",
+    "   (bind _returnvalue_79 1.0)",
+    "-  (bind _returnvalue_80 0.54)",
+    "+  (bind _returnvalue_80 0.514498)",
+    "   (bind _returnvalue_81 0.0)",
+    "   (bind _returnvalue_82 0.5)",
+    "   (bind _returnvalue_83 80.0)"
+  ]
+}

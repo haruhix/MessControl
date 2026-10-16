@@ -38,5 +38,6 @@ while True:
     if now>=opt.seconds:break
     remaining=len(frames)/opt.fps-(time.monotonic()-started)
     if remaining>0:time.sleep(min(remaining,1.))
-(out/'capture_receipt.json').write_text(json.dumps({'source':'Actual Unreal Slate Screenshot tool, real running game viewport','frames':frames},indent=2),encoding='utf8')
+(out/'capture_receipt.json').write_text(json.dumps({'source':'Actual Unreal Slate Screenshot tool, real running game viewport',
+    'started_monotonic':started,'requested_fps':opt.fps,'frames':frames},indent=2),encoding='utf8')
 print(json.dumps({'frames':len(frames),'elapsed':round(time.monotonic()-started,2),'out':str(out)}))

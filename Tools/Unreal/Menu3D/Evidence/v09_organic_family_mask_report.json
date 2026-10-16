@@ -1,0 +1,74 @@
+{
+  "status": "FOUR_ORGANIC_MASK_LITERALS_COMPILED_SAVED_NATIVE_FIT_PENDING",
+  "changes": [
+    {
+      "setter": {
+        "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:UpdateStage.K2Node_CallFunction_1649"
+      },
+      "literal": {
+        "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:UpdateStage.K2Node_CallFunction_1648"
+      },
+      "previous": 2.0,
+      "new": 2.6666666666666665
+    },
+    {
+      "setter": {
+        "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:UpdateStage.K2Node_CallFunction_1654"
+      },
+      "literal": {
+        "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:UpdateStage.K2Node_CallFunction_1653"
+      },
+      "previous": 2.0,
+      "new": 2.6666666666666665
+    },
+    {
+      "setter": {
+        "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:UpdateStage.K2Node_CallFunction_1659"
+      },
+      "literal": {
+        "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:UpdateStage.K2Node_CallFunction_1658"
+      },
+      "previous": 2.0,
+      "new": 2.6666666666666665
+    },
+    {
+      "setter": {
+        "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:UpdateStage.K2Node_CallFunction_1664"
+      },
+      "literal": {
+        "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:UpdateStage.K2Node_CallFunction_1663"
+      },
+      "previous": 2.0,
+      "new": 2.6666666666666665
+    }
+  ],
+  "formula": "height/(2.6666666666666665*dayScale)",
+  "graph_diff": [
+    "--- ",
+    "+++ ",
+    "@@ -291,19 +291,19 @@",
+    "   (for _array_element_2 (Variables|Default|GetInterior1Actors)",
+    "     (Rendering|SetActorHiddenInGame _array_element_2 (or _returnvalue_213 (< _open1 0.05)))",
+    "     (bind _asstatic_mesh_actor (Utilities|Casting|CastToStaticMeshActor _array_element_2))",
+    "-    (Rendering|Material|SetScalarParameterValueOnMaterials (Class|StaticMeshActor|GetStaticMeshComponent _asstatic_mesh_actor) \"CardHalfHeight\" (/ (select _returnvalue_94 _returnvalue_141 370.0) (* 2.0 _returnvalue_207))))",
+    "+    (Rendering|Material|SetScalarParameterValueOnMaterials (Class|StaticMeshActor|GetStaticMeshComponent _asstatic_mesh_actor) \"CardHalfHeight\" (/ (select _returnvalue_94 _returnvalue_141 370.0) (* 2.6666666666666665 _returnvalue_207))))",
+    "   (for _array_element_3 (Variables|Default|GetInterior2Actors)",
+    "     (Rendering|SetActorHiddenInGame _array_element_3 (or _returnvalue_214 (< _open2 0.05)))",
+    "     (bind _asstatic_mesh_actor (Utilities|Casting|CastToStaticMeshActor _array_element_3))",
+    "-    (Rendering|Material|SetScalarParameterValueOnMaterials (Class|StaticMeshActor|GetStaticMeshComponent _asstatic_mesh_actor) \"CardHalfHeight\" (/ (select _returnvalue_94 _returnvalue_157 370.0) (* 2.0 _returnvalue_208))))",
+    "+    (Rendering|Material|SetScalarParameterValueOnMaterials (Class|StaticMeshActor|GetStaticMeshComponent _asstatic_mesh_actor) \"CardHalfHeight\" (/ (select _returnvalue_94 _returnvalue_157 370.0) (* 2.6666666666666665 _returnvalue_208))))",
+    "   (for _array_element_4 (Variables|Default|GetTongue1Actors)",
+    "     (Rendering|SetActorHiddenInGame _array_element_4 (or _returnvalue_213 (< _open1 0.05)))",
+    "     (bind _asstatic_mesh_actor (Utilities|Casting|CastToStaticMeshActor _array_element_4))",
+    "-    (Rendering|Material|SetScalarParameterValueOnMaterials (Class|StaticMeshActor|GetStaticMeshComponent _asstatic_mesh_actor) \"CardHalfHeight\" (/ (select _returnvalue_94 _returnvalue_141 370.0) (* 2.0 _returnvalue_207))))",
+    "+    (Rendering|Material|SetScalarParameterValueOnMaterials (Class|StaticMeshActor|GetStaticMeshComponent _asstatic_mesh_actor) \"CardHalfHeight\" (/ (select _returnvalue_94 _returnvalue_141 370.0) (* 2.6666666666666665 _returnvalue_207))))",
+    "   (for _array_element_5 (Variables|Default|GetTongue2Actors)",
+    "     (Rendering|SetActorHiddenInGame _array_element_5 (or _returnvalue_214 (< _open2 0.05)))",
+    "     (bind _asstatic_mesh_actor (Utilities|Casting|CastToStaticMeshActor _array_element_5))",
+    "-    (Rendering|Material|SetScalarParameterValueOnMaterials (Class|StaticMeshActor|GetStaticMeshComponent _asstatic_mesh_actor) \"CardHalfHeight\" (/ (select _returnvalue_94 _returnvalue_157 370.0) (* 2.0 _returnvalue_208))))",
+    "+    (Rendering|Material|SetScalarParameterValueOnMaterials (Class|StaticMeshActor|GetStaticMeshComponent _asstatic_mesh_actor) \"CardHalfHeight\" (/ (select _returnvalue_94 _returnvalue_157 370.0) (* 2.6666666666666665 _returnvalue_208))))",
+    "   (for _array_element_6 (Variables|Default|GetCharacterActors)",
+    "     (Rendering|SetActorHiddenInGame _array_element_6 (or _returnvalue_215 (< _open3 0.72))))",
+    "   (for _array_element_7 (Variables|Default|GetCharacter1Actors)"
+  ]
+}

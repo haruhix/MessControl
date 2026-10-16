@@ -1,0 +1,33 @@
+{
+  "status": "BOUNDARY_CULL_COMPILED_SAVED_PENDING_ROOT_PIE",
+  "asset": "/Game/UI/MainMenu3D/WBP_MainMenu3D",
+  "only_authored_graph": "DriveMouthDay",
+  "viewport_design_y": [
+    80,
+    820
+  ],
+  "epsilon_design_pixels": 0.5,
+  "cull": "Page1 OR5: rowBottom<=80.5 OR rowTop>=819.5, OR existing Hidden",
+  "attached_components": "Mesh hidden-in-game propagates to attached roots on state change only; existing later ActorHidden threshold gates retained.",
+  "avoids_per_frame_render_state_dirty": "Propagation only when root component hidden flag differs.",
+  "protected_graph_hashes_unchanged": {
+    "UpdateStage": "4eb6936be337aaff6b98854ed10b73808bb11145147baa95c9430b4e3958f771",
+    "EventGraph": "070b6f211dce2010f2826ffcc3fd467b6f34d25164abd3fd905c3ce7aaeabdde",
+    "CenterSelectedDay": "96737e1a8dd5fa04ce2721383ccfec8ffd0c6abc43c9f20441e9e3d59353daab",
+    "SelectDay": "aa46d1e2f297584752ca2b8132df2a2381a3cab1bb5438451368b8068f16d8ed",
+    "StepDay": "144a69055cd870b3e6d9f129d55aed4b8cf53f6956a1fd720768a49b1463b79e",
+    "OnMouseWheel": "7a9f6ed4952e2328125df47b02eb6b7079be1f465cfcafa2e28d07a85694123d",
+    "OnPreviewKeyDown": "862cda2c25aa3020ddeff15507156b91f0f780440cad5b7078a3c42723b227e9",
+    "OnMouseMove": "4e4a9533c7b3fa9218ff4f14938834d86ea18856b475c2e1087271574ba54209",
+    "UpdatePointerIntent": "7b8d6d0b047e8907851d0b1a2d6164bc51feb967362b648c7638b1977da96956",
+    "ResetPointerIntent": "601590a5ccc1a0dc3c3bdf7cd782ca99302a004063e5a510c8c266b068c8e89d",
+    "OpenConnection": "aeeb4f54df981a9a929d59f924e237fbfe723726dabeb3f6a953e0e4581e52c9",
+    "Back": "5392d10bdfdc735dfbed1919617c57a6008ebea15ee16f1f4284c3a9c31f0175"
+  },
+  "pc_asset_sha256_unchanged": "44e13a4f7b8308794ddefbb28150c7b774ccfb4ffe244a80c9cbadcbf5d81468",
+  "compiled_warnings_as_errors": true,
+  "saved_asset_sha256": "c419fc1da2edc73e2a72c1897b954891a2d06e36251e277b138640b4a65d42ec",
+  "saved_asset_bytes": 4850663,
+  "PIE_input_level_Git_operations": false,
+  "validation": "Actual Blueprint compile and save only; root owns next actual runtime check."
+}

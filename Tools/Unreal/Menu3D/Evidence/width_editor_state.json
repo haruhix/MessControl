@@ -1,0 +1,248 @@
+[
+  {
+    "label": "WorldSettings",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.WorldSettings",
+    "tags": []
+  },
+  {
+    "label": "Brush0",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.Brush_0",
+    "tags": []
+  },
+  {
+    "label": "Menu3D_Camera",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.CameraActor_0",
+    "tags": [
+      "Menu3D_Camera"
+    ]
+  },
+  {
+    "label": "Menu3D_DAY03",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_0",
+    "tags": [
+      "Menu3D_DAY03"
+    ]
+  },
+  {
+    "label": "Menu3D_Key",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.RectLight_0",
+    "tags": [
+      "Menu3D_Key"
+    ]
+  },
+  {
+    "label": "Menu3D_Fill",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.RectLight_1",
+    "tags": [
+      "Menu3D_Fill"
+    ]
+  },
+  {
+    "label": "Menu3D_Mask_Header",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.StaticMeshActor_2",
+    "tags": [
+      "Menu3D_Mask_Header"
+    ]
+  },
+  {
+    "label": "Menu3D_Mask_Footer",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.StaticMeshActor_3",
+    "tags": [
+      "Menu3D_Mask_Footer"
+    ]
+  },
+  {
+    "label": "Menu3D_DAY01",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_2",
+    "tags": [
+      "Menu3D_DAY01"
+    ]
+  },
+  {
+    "label": "Menu3D_DAY02",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_3",
+    "tags": [
+      "Menu3D_DAY02"
+    ]
+  },
+  {
+    "label": "Menu3D_BlockingRim",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.RectLight_2",
+    "tags": [
+      "Menu3D_BlockingRim"
+    ]
+  },
+  {
+    "label": "Menu3D_BlockingCavity",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.RectLight_3",
+    "tags": [
+      "Menu3D_BlockingCavity"
+    ]
+  },
+  {
+    "label": "Menu3D_DAY04",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_6",
+    "tags": [
+      "Menu3D_DAY04"
+    ]
+  },
+  {
+    "label": "Menu3D_DAY05",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_7",
+    "tags": [
+      "Menu3D_DAY05"
+    ]
+  },
+  {
+    "label": "Menu3D_DAY06",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_8",
+    "tags": [
+      "Menu3D_DAY06"
+    ]
+  },
+  {
+    "label": "Menu3D_DAY07",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_9",
+    "tags": [
+      "Menu3D_DAY07"
+    ]
+  },
+  {
+    "label": "BuoyancyManager0",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.BuoyancyManager_0",
+    "tags": []
+  },
+  {
+    "label": "DefaultPhysicsVolume0",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.DefaultPhysicsVolume_0",
+    "tags": []
+  },
+  {
+    "label": "GameplayDebuggerPlayerManager0",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.GameplayDebuggerPlayerManager_0",
+    "tags": []
+  },
+  {
+    "label": "Actor",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.ChaosDebugDrawActor",
+    "tags": []
+  },
+  {
+    "label": "PlayerStartPIE0",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.PlayerStartPIE_0",
+    "tags": []
+  },
+  {
+    "label": "BP_Menu3DGameMode0",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.BP_Menu3DGameMode_C_0",
+    "tags": []
+  },
+  {
+    "label": "Menu3D_DAY03_Interior",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.StaticMeshActor_0",
+    "tags": [
+      "Menu3D_DAY03_Interior"
+    ]
+  },
+  {
+    "label": "Menu3D_DAY03_Tongue",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.StaticMeshActor_1",
+    "tags": [
+      "Menu3D_DAY03_Tongue"
+    ]
+  },
+  {
+    "label": "Menu3D_DAY03_Character",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_1",
+    "tags": [
+      "Menu3D_DAY03_Character"
+    ]
+  },
+  {
+    "label": "Menu3D_DAY01_Character",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_4",
+    "tags": [
+      "Menu3D_DAY01_Character"
+    ]
+  },
+  {
+    "label": "Menu3D_DAY02_Character",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_5",
+    "tags": [
+      "Menu3D_DAY02_Character"
+    ]
+  },
+  {
+    "label": "Menu3D_DAY01_Interior",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.StaticMeshActor_4",
+    "tags": [
+      "Menu3D_DAY01_Interior"
+    ]
+  },
+  {
+    "label": "Menu3D_DAY01_Tongue",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.StaticMeshActor_5",
+    "tags": [
+      "Menu3D_DAY01_Tongue"
+    ]
+  },
+  {
+    "label": "Menu3D_DAY02_Interior",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.StaticMeshActor_6",
+    "tags": [
+      "Menu3D_DAY02_Interior"
+    ]
+  },
+  {
+    "label": "Menu3D_DAY02_Tongue",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.StaticMeshActor_7",
+    "tags": [
+      "Menu3D_DAY02_Tongue"
+    ]
+  },
+  {
+    "label": "GameSession0",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.GameSession_0",
+    "tags": []
+  },
+  {
+    "label": "ParticleEventManager0",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.ParticleEventManager_0",
+    "tags": []
+  },
+  {
+    "label": "GameNetworkManager0",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.GameNetworkManager_0",
+    "tags": []
+  },
+  {
+    "label": "GameStateBase0",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.GameStateBase_0",
+    "tags": []
+  },
+  {
+    "label": "AbstractNavData",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.AbstractNavData-Default",
+    "tags": []
+  },
+  {
+    "label": "BP_Menu3DPlayerController0",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.BP_Menu3DPlayerController_C_0",
+    "tags": []
+  },
+  {
+    "label": "PlayerState0",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.PlayerState_0",
+    "tags": []
+  },
+  {
+    "label": "PlayerCameraManager0",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.PlayerCameraManager_0",
+    "tags": []
+  },
+  {
+    "label": "GameplayDebuggerCategoryReplicator0",
+    "path": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D:PersistentLevel.GameplayDebuggerCategoryReplicator_0",
+    "tags": []
+  }
+]

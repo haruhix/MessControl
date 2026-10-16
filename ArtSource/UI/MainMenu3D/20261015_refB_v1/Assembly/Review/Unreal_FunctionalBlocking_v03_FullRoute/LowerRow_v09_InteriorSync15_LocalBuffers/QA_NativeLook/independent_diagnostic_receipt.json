@@ -1,0 +1,185 @@
+{
+  "status": "PASS_sampled_first_next_world_geometry_and_main_clipping_only",
+  "route_error": null,
+  "capture_error": null,
+  "actual_frames": 100,
+  "render_overrides": {
+    "r.Shadow.Virtual.Enable": 1
+  },
+  "recorded_morph_force_update_values": [
+    0
+  ],
+  "first_post_command_captures": [
+    {
+      "action": {
+        "elapsed": 1.827999999979511,
+        "action": "SelectDay",
+        "value": 1
+      },
+      "first_captures": [
+        {
+          "file": "frame_0017.png",
+          "request_time": 1.827999999979511,
+          "time": 1.9048967361450195
+        },
+        {
+          "file": "frame_0018.png",
+          "request_time": 1.9209999999729916,
+          "time": 1.998673439025879
+        },
+        {
+          "file": "frame_0019.png",
+          "request_time": 2.01500000001397,
+          "time": 2.101386547088623
+        }
+      ]
+    },
+    {
+      "action": {
+        "elapsed": 3.812000000034459,
+        "action": "SelectDay",
+        "value": 2
+      },
+      "first_captures": [
+        {
+          "file": "frame_0038.png",
+          "request_time": 3.812000000034459,
+          "time": 3.904654026031494
+        },
+        {
+          "file": "frame_0039.png",
+          "request_time": 3.905999999959022,
+          "time": 4.00230860710144
+        },
+        {
+          "file": "frame_0040.png",
+          "request_time": 4.01500000001397,
+          "time": 4.092717885971069
+        }
+      ]
+    },
+    {
+      "action": {
+        "elapsed": 5.827999999979511,
+        "action": "SelectDay",
+        "value": 3
+      },
+      "first_captures": [
+        {
+          "file": "frame_0058.png",
+          "request_time": 5.827999999979511,
+          "time": 5.925622463226318
+        },
+        {
+          "file": "frame_0059.png",
+          "request_time": 5.937000000034459,
+          "time": 6.025627374649048
+        },
+        {
+          "file": "frame_0060.png",
+          "request_time": 6.030999999959022,
+          "time": 6.1248931884765625
+        }
+      ]
+    },
+    {
+      "action": {
+        "elapsed": 8.062000000034459,
+        "action": "Back",
+        "value": null
+      },
+      "first_captures": [
+        {
+          "file": "frame_0080.png",
+          "request_time": 8.062000000034459,
+          "time": 8.160176753997803
+        },
+        {
+          "file": "frame_0081.png",
+          "request_time": 8.170999999972992,
+          "time": 8.259902238845825
+        },
+        {
+          "file": "frame_0082.png",
+          "request_time": 8.26500000001397,
+          "time": 8.355759143829346
+        }
+      ]
+    }
+  ],
+  "CPU_pose_basis_comparison": {
+    "1": {
+      "jittered_samples": 34,
+      "samples": 88,
+      "Pose000_delta_max": 1.0013580322265625e-05,
+      "Pose000_nearest_allowed_error_max": 2.4842179091599803e-08,
+      "other_pose_error_max": 2.9802322387695312e-08
+    },
+    "2": {
+      "jittered_samples": 33,
+      "samples": 88,
+      "Pose000_delta_max": 1.0013580322265625e-05,
+      "Pose000_nearest_allowed_error_max": 2.679130517435624e-08,
+      "other_pose_error_max": 7.142730851228407e-10
+    },
+    "3": {
+      "jittered_samples": 33,
+      "samples": 88,
+      "Pose000_delta_max": 1.0013580322265625e-05,
+      "Pose000_nearest_allowed_error_max": 1.618233302913552e-08,
+      "other_pose_error_max": 7.142730851228407e-10
+    }
+  },
+  "main_world_captures": [
+    {
+      "file": "frame_0000.png",
+      "request_time": 0.015000000013969839,
+      "time": 0.31259799003601074
+    },
+    {
+      "file": "frame_0001.png",
+      "request_time": 0.3279999999795109,
+      "time": 0.3785405158996582
+    },
+    {
+      "file": "frame_0002.png",
+      "request_time": 0.42099999997299165,
+      "time": 0.4780716896057129
+    },
+    {
+      "file": "frame_0003.png",
+      "request_time": 0.5150000000139698,
+      "time": 0.5688819885253906
+    },
+    {
+      "file": "frame_0004.png",
+      "request_time": 0.609000000054948,
+      "time": 0.6665806770324707
+    },
+    {
+      "file": "frame_0005.png",
+      "request_time": 0.7029999999795109,
+      "time": 0.7583427429199219
+    },
+    {
+      "file": "frame_0006.png",
+      "request_time": 0.7959999999729916,
+      "time": 0.853909969329834
+    },
+    {
+      "file": "frame_0007.png",
+      "request_time": 0.8900000000139698,
+      "time": 0.9427530765533447
+    },
+    {
+      "file": "frame_0008.png",
+      "request_time": 0.984000000054948,
+      "time": 1.043919563293457
+    }
+  ],
+  "capture_interval_median_max_s": [
+    0.09845495223999023,
+    0.18058085441589355
+  ],
+  "limits": "World-only actual1280x722 PNGs. Pose000 is allowed exactly basis weight or basis*.99999; all other pose targets checked against unchanged basis. UI/physicalinput/offscreen reentry/flicker/performance/1:1 are not accepted by this evidence. No UE state changes by reviewer."
+}

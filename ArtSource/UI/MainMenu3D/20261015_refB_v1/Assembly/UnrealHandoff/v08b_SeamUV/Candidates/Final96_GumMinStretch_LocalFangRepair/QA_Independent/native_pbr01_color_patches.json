@@ -1,0 +1,251 @@
+{
+  "method": "Manually selected analogous anatomical patches; actual screenshot radiance, not albedo or a texture prescription",
+  "native_frame": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\Review\\Unreal_FunctionalBlocking_v03_FullRoute\\LowerRow_v08b_PBR01\\frame_0025.png",
+  "patches": {
+    "enamel_upper_central_body": {
+      "actual_frame": 25,
+      "actual_box_xyxy": [
+        654,
+        436,
+        684,
+        455
+      ],
+      "native_median_rgb": [
+        231.0,
+        206.0,
+        184.0
+      ],
+      "reference_box_xyxy": [
+        1467,
+        375,
+        1500,
+        405
+      ],
+      "reference_median_rgb": [
+        218.0,
+        170.0,
+        154.0
+      ],
+      "native_hsv_median": [
+        14.0,
+        51.0,
+        231.0
+      ],
+      "native_minus_reference_rgb": [
+        13.0,
+        36.0,
+        30.0
+      ],
+      "screen_linear_reference_div_native": [
+        0.8773613936989554,
+        0.6512856542813021,
+        0.6741698357504307
+      ]
+    },
+    "enamel_upper_lateral_body": {
+      "actual_frame": 25,
+      "actual_box_xyxy": [
+        722,
+        438,
+        749,
+        455
+      ],
+      "native_median_rgb": [
+        229.0,
+        202.0,
+        178.0
+      ],
+      "reference_box_xyxy": [
+        1322,
+        374,
+        1350,
+        407
+      ],
+      "reference_median_rgb": [
+        219.0,
+        170.0,
+        155.0
+      ],
+      "native_hsv_median": [
+        14.0,
+        57.0,
+        229.0
+      ],
+      "native_minus_reference_rgb": [
+        10.0,
+        32.0,
+        23.0
+      ],
+      "screen_linear_reference_div_native": [
+        0.9040735335967593,
+        0.6806043965791728,
+        0.7362471217372137
+      ]
+    },
+    "enamel_fang_body": {
+      "actual_frame": 25,
+      "actual_box_xyxy": [
+        488,
+        445,
+        501,
+        478
+      ],
+      "native_median_rgb": [
+        233.0,
+        212.0,
+        191.0
+      ],
+      "reference_box_xyxy": [
+        1236,
+        396,
+        1251,
+        437
+      ],
+      "reference_median_rgb": [
+        231.0,
+        200.0,
+        182.0
+      ],
+      "native_hsv_median": [
+        15.0,
+        45.0,
+        233.0
+      ],
+      "native_minus_reference_rgb": [
+        2.0,
+        12.0,
+        9.0
+      ],
+      "screen_linear_reference_div_native": [
+        0.9806787747061703,
+        0.8772820971742841,
+        0.8978652030286568
+      ]
+    },
+    "enamel_lower_central_body": {
+      "actual_frame": 25,
+      "actual_box_xyxy": [
+        654,
+        632,
+        682,
+        651
+      ],
+      "native_median_rgb": [
+        225.0,
+        197.0,
+        172.0
+      ],
+      "reference_box_xyxy": [
+        1401,
+        701,
+        1435,
+        727
+      ],
+      "reference_median_rgb": [
+        208.0,
+        151.0,
+        136.0
+      ],
+      "native_hsv_median": [
+        14.0,
+        61.0,
+        225.0
+      ],
+      "native_minus_reference_rgb": [
+        17.0,
+        46.0,
+        36.0
+      ],
+      "screen_linear_reference_div_native": [
+        0.8377231642647175,
+        0.5542656926901192,
+        0.5967900494658633
+      ]
+    },
+    "gingiva_open_upper_rim": {
+      "actual_frame": 25,
+      "actual_box_xyxy": [
+        654,
+        400,
+        681,
+        410
+      ],
+      "native_median_rgb": [
+        214.0,
+        32.0,
+        37.0
+      ],
+      "reference_box_xyxy": [
+        1430,
+        338,
+        1460,
+        349
+      ],
+      "reference_median_rgb": [
+        197.5,
+        58.0,
+        67.5
+      ],
+      "native_hsv_median": [
+        177.0,
+        217.0,
+        214.0
+      ],
+      "native_minus_reference_rgb": [
+        16.5,
+        -26.0,
+        -30.5
+      ],
+      "screen_linear_reference_div_native": [
+        0.8350455661225135,
+        2.9293733582282813,
+        3.0790639275032214
+      ]
+    },
+    "gingiva_closed_front_body": {
+      "actual_frame": 40,
+      "actual_box_xyxy": [
+        655,
+        663,
+        682,
+        678
+      ],
+      "native_median_rgb": [
+        204.0,
+        24.0,
+        33.0
+      ],
+      "reference_box_xyxy": [
+        451,
+        663,
+        487,
+        688
+      ],
+      "reference_median_rgb": [
+        216.0,
+        72.0,
+        85.0
+      ],
+      "native_hsv_median": [
+        178.0,
+        225.0,
+        204.0
+      ],
+      "native_minus_reference_rgb": [
+        -12.0,
+        -48.0,
+        -52.0
+      ],
+      "screen_linear_reference_div_native": [
+        1.1372213019321844,
+        7.094684718541385,
+        5.973082489013403
+      ]
+    }
+  },
+  "limitations": [
+    "Reference is AI concept with uncalibrated lighting; patches are directional diagnostics, not a sufficient 1:1 metric",
+    "Closed gum sample compares another pose and position; do not infer one universal material multiplier",
+    "Unfinished interior excluded"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "status": "GUM_ONLY_MESH_IMPORTED_SAVED_PENDING_NATIVE_REVIEW",
+  "source_fbx": "..\\..\\..\\..\\..\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v05_GumWidthRepair\\SK_DAY03.fbx",
+  "source_sha256": "d3f2aa7e1fdad4d138d4e0ab2ee0d4b6d4dbd0edb6bed820ba1f64f4ad230ea8",
+  "previous_mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04.SK_DAY03_Seated_v04",
+  "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_GumWidth_v05.SK_DAY03_GumWidth_v05",
+  "morphs": [
+    "Pose_000",
+    "Pose_025",
+    "Pose_050",
+    "Pose_075"
+  ],
+  "skeleton": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04_Skeleton.SK_DAY03_Seated_v04_Skeleton",
+  "bounds": "<Struct 'BoxSphereBounds' (0x000001DA39182100) {origin: {x: -0.000031, y: -172.268444, z: 4.493591}, box_extent: {x: 869.999969, y: 239.486805, z: 596.563477}, sphere_radius: 1081.730955}>",
+  "blocking_overrides": [
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel_DAY03.M_Blocking_Enamel_DAY03",
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum_DAY03.M_Blocking_Gum_DAY03"
+  ],
+  "saved_map": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D",
+  "startup_map_changed": false,
+  "validation": "Import, skeleton/morph checks and package save only; solo PIE remains required."
+}

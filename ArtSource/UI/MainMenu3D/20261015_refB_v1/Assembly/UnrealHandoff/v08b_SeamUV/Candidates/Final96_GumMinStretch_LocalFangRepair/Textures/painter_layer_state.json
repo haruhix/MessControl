@@ -1,0 +1,144 @@
+{
+  "MC_Enamel": {
+    "created_count": 6,
+    "nodes": [
+      {
+        "uid": 108,
+        "name": "DAY03 | Warm ivory enamel",
+        "type": "GroupLayerNode",
+        "children": [
+          {
+            "uid": 173,
+            "name": "05 | Restrained gloss variation",
+            "type": "FillLayerNode",
+            "children": []
+          },
+          {
+            "uid": 161,
+            "name": "04 | Fine enamel microstructure",
+            "type": "FillLayerNode",
+            "children": []
+          },
+          {
+            "uid": 146,
+            "name": "03 | Soft incisal ivory",
+            "type": "FillLayerNode",
+            "children": []
+          },
+          {
+            "uid": 131,
+            "name": "02 | Cervical warm transition",
+            "type": "FillLayerNode",
+            "children": []
+          },
+          {
+            "uid": 113,
+            "name": "01 | Clean ivory base",
+            "type": "FillLayerNode",
+            "children": []
+          }
+        ]
+      }
+    ],
+    "rolled_back": false,
+    "plan": {
+      "valid": true,
+      "texture_set": "MC_Enamel",
+      "stack": "",
+      "node_count": 6,
+      "node_types": {
+        "fill": 5,
+        "group": 1
+      },
+      "resolved_channels": {
+        "BaseColor": "BaseColor",
+        "Height": "Height",
+        "Metallic": "Metallic",
+        "Roughness": "Roughness"
+      },
+      "backup": {
+        "requested": false,
+        "path": null,
+        "mode": null,
+        "overwrite": false
+      },
+      "before_sha256": "70b07b37bf45109151d0f7b08ae18f46ed984706c3216bc8902a0dda1b0dafe1"
+    },
+    "backup": null,
+    "after_sha256": "5fef9ad13bcdcc57de27faf70a9848962dee725ab0e024267ed153d2d879c3f6"
+  },
+  "MC_Gum": {
+    "created_count": 7,
+    "nodes": [
+      {
+        "uid": 183,
+        "name": "DAY03 | Coral wet gingiva",
+        "type": "GroupLayerNode",
+        "children": [
+          {
+            "uid": 257,
+            "name": "06 | Moist film breakup",
+            "type": "FillLayerNode",
+            "children": []
+          },
+          {
+            "uid": 245,
+            "name": "05 | Fine moist microrelief",
+            "type": "FillLayerNode",
+            "children": []
+          },
+          {
+            "uid": 233,
+            "name": "04 | Restrained vascular marbling",
+            "type": "FillLayerNode",
+            "children": []
+          },
+          {
+            "uid": 221,
+            "name": "03 | Soft coral variation",
+            "type": "FillLayerNode",
+            "children": []
+          },
+          {
+            "uid": 206,
+            "name": "02 | Attached gingiva pink margin",
+            "type": "FillLayerNode",
+            "children": []
+          },
+          {
+            "uid": 188,
+            "name": "01 | Living coral base",
+            "type": "FillLayerNode",
+            "children": []
+          }
+        ]
+      }
+    ],
+    "rolled_back": false,
+    "plan": {
+      "valid": true,
+      "texture_set": "MC_Gum",
+      "stack": "",
+      "node_count": 7,
+      "node_types": {
+        "fill": 6,
+        "group": 1
+      },
+      "resolved_channels": {
+        "BaseColor": "BaseColor",
+        "Height": "Height",
+        "Metallic": "Metallic",
+        "Roughness": "Roughness"
+      },
+      "backup": {
+        "requested": false,
+        "path": null,
+        "mode": null,
+        "overwrite": false
+      },
+      "before_sha256": "715d4daa24725850f0f01fdf326663fb8c8a65e817c27f3a9bb279e5326ae707"
+    },
+    "backup": null,
+    "after_sha256": "81abfb21a5f0a3cc4862963da09cd3dabe36f14bec84c3cc0193b36da306a645"
+  }
+}

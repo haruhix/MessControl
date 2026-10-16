@@ -1,0 +1,655 @@
+{
+  "status": "FROZEN_FOR_NATIVE_AND_PAINTER_HANDOFF_FINAL_UNREAL_ART_PENDING",
+  "day": "DAY01",
+  "script": "E:\\DEVGAME\\MessControl\\Tools\\Blender\\Menu3D_20261015\\family_finish_reference_forms.py",
+  "source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY01\\UV_v02_GumReturns\\MC_DAY01_UnrealMorphSource.blend",
+  "reference": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\References\\B_FullWidth_Approved.png",
+  "vertices": 240324,
+  "triangles": 480512,
+  "parts": [
+    {
+      "mesh": "MC_DAY01_Upper_Central_R",
+      "vertex_start": 0,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 1.028,
+      "root_z": 3.11933951,
+      "ordinal": 1,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Upper_Central_L",
+      "vertex_start": 6146,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 1.028,
+      "root_z": 3.11933951,
+      "ordinal": 1,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Upper_Lateral_R",
+      "vertex_start": 12292,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 2.99,
+      "root_z": 3.1144124375,
+      "ordinal": 2,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Upper_Lateral_L",
+      "vertex_start": 18438,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 2.99,
+      "root_z": 3.1144124375,
+      "ordinal": 2,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Upper_Canine_R",
+      "vertex_start": 24584,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 4.767,
+      "root_z": 3.105797319375,
+      "ordinal": 3,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Upper_Canine_L",
+      "vertex_start": 30730,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 4.767,
+      "root_z": 3.105797319375,
+      "ordinal": 3,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Upper_Premolar01_R",
+      "vertex_start": 36876,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 6.354000000000001,
+      "root_z": 3.0947666775,
+      "ordinal": 4,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Upper_Premolar01_L",
+      "vertex_start": 43022,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 6.354000000000001,
+      "root_z": 3.0947666775,
+      "ordinal": 4,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Upper_Premolar02_R",
+      "vertex_start": 49168,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 7.741000000000001,
+      "root_z": 3.082548074375,
+      "ordinal": 5,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Upper_Premolar02_L",
+      "vertex_start": 55314,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 7.741000000000001,
+      "root_z": 3.082548074375,
+      "ordinal": 5,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Upper_Molar01_R",
+      "vertex_start": 61460,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 8.968000000000002,
+      "root_z": 3.06973436,
+      "ordinal": 6,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY01_Upper_Molar01_L",
+      "vertex_start": 67606,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 8.968000000000002,
+      "root_z": 3.06973436,
+      "ordinal": 6,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY01_Upper_Molar02_R",
+      "vertex_start": 73752,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 10.120000000000003,
+      "root_z": 3.055991,
+      "ordinal": 7,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY01_Upper_Molar02_L",
+      "vertex_start": 79898,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 10.120000000000003,
+      "root_z": 3.055991,
+      "ordinal": 7,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY01_Upper_Molar03_R",
+      "vertex_start": 86044,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 11.192000000000004,
+      "root_z": 3.04171196,
+      "ordinal": 8,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY01_Upper_Molar03_L",
+      "vertex_start": 92190,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 11.192000000000004,
+      "root_z": 3.04171196,
+      "ordinal": 8,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY01_Lower_Central_R",
+      "vertex_start": 98336,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 0.678,
+      "root_z": -3.1197126975000002,
+      "ordinal": 1,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Lower_Central_L",
+      "vertex_start": 104482,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 0.678,
+      "root_z": -3.1197126975000002,
+      "ordinal": 1,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Lower_Lateral_R",
+      "vertex_start": 110628,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 2.0100000000000002,
+      "root_z": -3.1174749375,
+      "ordinal": 2,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Lower_Lateral_L",
+      "vertex_start": 116774,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 2.0100000000000002,
+      "root_z": -3.1174749375,
+      "ordinal": 2,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Lower_Canine_R",
+      "vertex_start": 122920,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 3.357,
+      "root_z": -3.112956594375,
+      "ordinal": 3,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Lower_Canine_L",
+      "vertex_start": 129066,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 3.357,
+      "root_z": -3.112956594375,
+      "ordinal": 3,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Lower_Premolar01_R",
+      "vertex_start": 135212,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 4.679,
+      "root_z": -3.106316849375,
+      "ordinal": 4,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Lower_Premolar01_L",
+      "vertex_start": 141358,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 4.679,
+      "root_z": -3.106316849375,
+      "ordinal": 4,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Lower_Premolar02_R",
+      "vertex_start": 147504,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 5.926,
+      "root_z": -3.0980515775,
+      "ordinal": 5,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Lower_Premolar02_L",
+      "vertex_start": 153650,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 5.926,
+      "root_z": -3.0980515775,
+      "ordinal": 5,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY01_Lower_Molar01_R",
+      "vertex_start": 159796,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 7.123,
+      "root_z": -3.088289294375,
+      "ordinal": 6,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY01_Lower_Molar01_L",
+      "vertex_start": 165942,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 7.123,
+      "root_z": -3.088289294375,
+      "ordinal": 6,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY01_Lower_Molar02_R",
+      "vertex_start": 172088,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 8.270000000000001,
+      "root_z": -3.0772544375,
+      "ordinal": 7,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY01_Lower_Molar02_L",
+      "vertex_start": 178234,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 8.270000000000001,
+      "root_z": -3.0772544375,
+      "ordinal": 7,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY01_Lower_Molar03_R",
+      "vertex_start": 184380,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 9.342000000000002,
+      "root_z": -3.0654543975,
+      "ordinal": 8,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY01_Lower_Molar03_L",
+      "vertex_start": 190526,
+      "vertex_count": 6146,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 9.342000000000002,
+      "root_z": -3.0654543975,
+      "ordinal": 8,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY01_Upper_Gum",
+      "vertex_start": 196672,
+      "vertex_count": 21826,
+      "material_slot": 1,
+      "row": "Upper",
+      "source": "Closed scalloped root-seat loft, real U-arch"
+    },
+    {
+      "mesh": "MC_DAY01_Lower_Gum",
+      "vertex_start": 218498,
+      "vertex_count": 21826,
+      "material_slot": 1,
+      "row": "Lower",
+      "source": "Closed scalloped root-seat loft, real U-arch"
+    }
+  ],
+  "mirror_pairs": [
+    {
+      "right_part": 0,
+      "left_part": 1,
+      "row": "Upper",
+      "kind": "Central"
+    },
+    {
+      "right_part": 2,
+      "left_part": 3,
+      "row": "Upper",
+      "kind": "Lateral"
+    },
+    {
+      "right_part": 4,
+      "left_part": 5,
+      "row": "Upper",
+      "kind": "Canine"
+    },
+    {
+      "right_part": 6,
+      "left_part": 7,
+      "row": "Upper",
+      "kind": "Premolar01"
+    },
+    {
+      "right_part": 8,
+      "left_part": 9,
+      "row": "Upper",
+      "kind": "Premolar02"
+    },
+    {
+      "right_part": 10,
+      "left_part": 11,
+      "row": "Upper",
+      "kind": "Molar01"
+    },
+    {
+      "right_part": 12,
+      "left_part": 13,
+      "row": "Upper",
+      "kind": "Molar02"
+    },
+    {
+      "right_part": 14,
+      "left_part": 15,
+      "row": "Upper",
+      "kind": "Molar03"
+    },
+    {
+      "right_part": 16,
+      "left_part": 17,
+      "row": "Lower",
+      "kind": "Central"
+    },
+    {
+      "right_part": 18,
+      "left_part": 19,
+      "row": "Lower",
+      "kind": "Lateral"
+    },
+    {
+      "right_part": 20,
+      "left_part": 21,
+      "row": "Lower",
+      "kind": "Canine"
+    },
+    {
+      "right_part": 22,
+      "left_part": 23,
+      "row": "Lower",
+      "kind": "Premolar01"
+    },
+    {
+      "right_part": 24,
+      "left_part": 25,
+      "row": "Lower",
+      "kind": "Premolar02"
+    },
+    {
+      "right_part": 26,
+      "left_part": 27,
+      "row": "Lower",
+      "kind": "Molar01"
+    },
+    {
+      "right_part": 28,
+      "left_part": 29,
+      "row": "Lower",
+      "kind": "Molar02"
+    },
+    {
+      "right_part": 30,
+      "left_part": 31,
+      "row": "Lower",
+      "kind": "Molar03"
+    }
+  ],
+  "materials": [
+    "MC_Enamel",
+    "MC_Gum"
+  ],
+  "primary_uv": "UV0",
+  "UV_status": "WITHHELD until root shape review",
+  "morphs": [
+    "Pose_000",
+    "Pose_025",
+    "Pose_050",
+    "Pose_075"
+  ],
+  "root_bone": "root",
+  "final_export": false,
+  "source_to_native_cm": 100.0,
+  "no_nonuniform_scale": true,
+  "baseline_trajectory": "Exact least-squares rigid row transforms from saved functional blocking, max deviation <3e-5 source units",
+  "pose_bounds": {
+    "1.0": [
+      [
+        -8.684144973754883,
+        -5.226096153259277,
+        -3.740370988845825
+      ],
+      [
+        8.684144973754883,
+        0.7794235944747925,
+        3.7399978637695312
+      ]
+    ],
+    "0.0": [
+      [
+        -8.684144973754883,
+        -5.226096153259277,
+        -2.0403709411621094
+      ],
+      [
+        8.684144973754883,
+        0.7794235944747925,
+        2.0399978160858154
+      ]
+    ],
+    "0.25": [
+      [
+        -8.684144973754883,
+        -5.226096153259277,
+        -2.4653708934783936
+      ],
+      [
+        8.684144973754883,
+        0.7794235944747925,
+        2.4649977684020996
+      ]
+    ],
+    "0.5": [
+      [
+        -8.684144973754883,
+        -5.226096153259277,
+        -2.890371084213257
+      ],
+      [
+        8.684144973754883,
+        0.7794235944747925,
+        2.889997720718384
+      ]
+    ],
+    "0.75": [
+      [
+        -8.684144973754883,
+        -5.226096153259277,
+        -3.315371036529541
+      ],
+      [
+        8.684144973754883,
+        0.7794235944747925,
+        3.314997673034668
+      ]
+    ]
+  },
+  "symmetry": {
+    "1.0": {
+      "max_paired_crown_error": 0.0
+    },
+    "0.0": {
+      "max_paired_crown_error": 1.1920928955078125e-07
+    },
+    "0.25": {
+      "max_paired_crown_error": 1.1920928955078125e-07
+    },
+    "0.5": {
+      "max_paired_crown_error": 2.384185791015625e-07
+    },
+    "0.75": {
+      "max_paired_crown_error": 2.384190338489134e-07
+    }
+  },
+  "paired_center_seams": true,
+  "source_sha256": "e18dd3fa1981a965436d586948c4817c3dcd6b9c42c73ff9a7bff98f90d1969b",
+  "parent_source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY01\\UV_v01\\MC_DAY01_UnrealMorphSource.blend",
+  "parent_source_sha256": "0ab88497f957cc6d8209102a64abcaab0c313588651fe53ec53d362cf4572375",
+  "painter_uv_handoff": "painter_uv_handoff.json",
+  "source_unit_to_cm": 100.0,
+  "fbx_geometry_scale": 1.0,
+  "bounds_open_cm": [
+    [
+      -868.4144897460938,
+      -522.609619140625,
+      -374.037109375
+    ],
+    [
+      868.4144897460938,
+      77.9423599243164,
+      373.9997863769531
+    ]
+  ],
+  "bounds_each_pose_cm": {
+    "Basis": {
+      "min": [
+        -868.4144897460938,
+        -522.609619140625,
+        -374.037109375
+      ],
+      "max": [
+        868.4144897460938,
+        77.9423599243164,
+        373.9997863769531
+      ]
+    },
+    "Pose_000": {
+      "min": [
+        -868.4144897460938,
+        -522.609619140625,
+        -204.03709411621094
+      ],
+      "max": [
+        868.4144897460938,
+        77.9423599243164,
+        203.99978637695312
+      ]
+    },
+    "Pose_025": {
+      "min": [
+        -868.4144897460938,
+        -522.609619140625,
+        -246.53709411621094
+      ],
+      "max": [
+        868.4144897460938,
+        77.9423599243164,
+        246.49977111816406
+      ]
+    },
+    "Pose_050": {
+      "min": [
+        -868.4144897460938,
+        -522.609619140625,
+        -289.037109375
+      ],
+      "max": [
+        868.4144897460938,
+        77.9423599243164,
+        288.9997863769531
+      ]
+    },
+    "Pose_075": {
+      "min": [
+        -868.4144897460938,
+        -522.609619140625,
+        -331.537109375
+      ],
+      "max": [
+        868.4144897460938,
+        77.9423599243164,
+        331.499755859375
+      ]
+    }
+  },
+  "approval_scope": "Lead accepted shape candidate and actual UV front/oblique+bothatlases. Source/freshninepose producer technical gates pass; independent family gate and actual native material/motion remain pending."
+}

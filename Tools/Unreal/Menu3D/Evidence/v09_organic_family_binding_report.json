@@ -1,0 +1,96 @@
+{
+  "status": "DETAILED_FAMILY_INTERIORS_BOUND_NATIVE_FIT_MOTION_PENDING",
+  "bindings": [
+    {
+      "day": 1,
+      "part": "Interior",
+      "previous": {
+        "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Seated_v04.SM_DAY03_Interior_Seated_v04",
+        "material": "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Interior.M_Blocking_Interior",
+        "relative_location": "<Struct 'Vector' (0x000001D96336A180) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+        "relative_scale": "<Struct 'Vector' (0x000001D96336A1B0) {x: 0.843690, y: 1.000000, z: 1.000000}>"
+      },
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+      "material": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Interior_v09.MI_DAY01_Interior_v09",
+      "relative_scale": [
+        0.9,
+        1.0,
+        1.0
+      ],
+      "relative_location": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "day": 1,
+      "part": "Tongue",
+      "previous": {
+        "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Seated_v04.SM_DAY03_Tongue_Seated_v04",
+        "material": "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Tongue.M_Blocking_Tongue",
+        "relative_location": "<Struct 'Vector' (0x000001D963361F80) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+        "relative_scale": "<Struct 'Vector' (0x000001D963361FB0) {x: 0.843690, y: 1.000000, z: 1.000000}>"
+      },
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_v08.SM_DAY03_Tongue_Organic_v08",
+      "material": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Tongue_v09.MI_DAY01_Tongue_v09",
+      "relative_scale": [
+        0.9,
+        1.0,
+        1.0
+      ],
+      "relative_location": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "day": 2,
+      "part": "Interior",
+      "previous": {
+        "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Seated_v04.SM_DAY03_Interior_Seated_v04",
+        "material": "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Interior.M_Blocking_Interior",
+        "relative_location": "<Struct 'Vector' (0x000001D963369780) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+        "relative_scale": "<Struct 'Vector' (0x000001D9633697B0) {x: 0.843690, y: 1.000000, z: 1.000000}>"
+      },
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+      "material": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Interior_v09.MI_DAY02_Interior_v09",
+      "relative_scale": [
+        0.88,
+        1.0,
+        1.0
+      ],
+      "relative_location": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "day": 2,
+      "part": "Tongue",
+      "previous": {
+        "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Seated_v04.SM_DAY03_Tongue_Seated_v04",
+        "material": "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Tongue.M_Blocking_Tongue",
+        "relative_location": "<Struct 'Vector' (0x000001D997D92980) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+        "relative_scale": "<Struct 'Vector' (0x000001D997D929B0) {x: 0.843690, y: 1.000000, z: 1.000000}>"
+      },
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_v08.SM_DAY03_Tongue_Organic_v08",
+      "material": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Tongue_v09.MI_DAY02_Tongue_v09",
+      "relative_scale": [
+        0.9,
+        1.0,
+        1.0
+      ],
+      "relative_location": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "shared_source": "Organic_r05/UV_Organic_r05_Candidate01",
+  "source_uv_pbr_unchanged": true,
+  "jaw_camera_character_animation_changed": false
+}

@@ -1,0 +1,538 @@
+{
+  "source": "Live Unreal AssetTools saved package dependencies; no save/build/refresh",
+  "roots": [
+    "/Game/UI/MainMenu3D/L_MainMenu3D",
+    "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08",
+    "/Game/UI/MainMenu3D/WBP_MainMenu3D",
+    "/Game/UI/MainMenu3D/BP_Menu3DPlayerController",
+    "/Game/UI/MainMenu3D/BP_Menu3DGameMode"
+  ],
+  "task_assets": [
+    "/Game/UI/MainMenu3D/BP_Menu3DGameMode",
+    "/Game/UI/MainMenu3D/BP_Menu3DPlayerController",
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel",
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel_DAY03",
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum",
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum_DAY03",
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Interior",
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Tongue",
+    "/Game/UI/MainMenu3D/L_MainMenu3D",
+    "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08",
+    "/Game/UI/MainMenu3D/Materials/M_MC_Enamel_Radiance",
+    "/Game/UI/MainMenu3D/Materials/M_MC_Gum_Radiance",
+    "/Game/UI/MainMenu3D/Materials/M_MC_Interior_Radiance",
+    "/Game/UI/MainMenu3D/Materials/M_MC_Tongue_Radiance",
+    "/Game/UI/MainMenu3D/Materials/M_Menu3D_Background",
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking",
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking_Skeleton",
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Reference_v09",
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking",
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking_Skeleton",
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Reference_v09",
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY03_LowerReadable_v07",
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Reference_v08b",
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04",
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04_Skeleton",
+    "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08",
+    "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Seated_v04",
+    "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06",
+    "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Seated_v04",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Enamel_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Gum_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Interior_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Tongue_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Enamel_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Gum_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Interior_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Tongue_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Enamel_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Gum_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Interior_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Tongue_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuEnamel_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuGum_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuInterior_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuTongue_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Enamel_AO_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Enamel_BaseColor_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Enamel_Normal_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Enamel_Roughness_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Enamel_Thickness_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Gum_AO_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Gum_BaseColor_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Gum_Normal_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Gum_Roughness_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Gum_Thickness_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_AO_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_BaseColor_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_Normal_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_Roughness_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_Thickness_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_AO_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_BaseColor_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_Normal_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_Roughness_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_Thickness_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_AO_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_BaseColor_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Normal_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Roughness_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Thickness_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_AO_r06",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_BaseColor_r06",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Normal_r06",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Roughness_r06",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Thickness_r06",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_AO_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_BaseColor_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_Normal_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_Roughness_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_Thickness_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Gum_AO_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Gum_BaseColor_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Gum_Normal_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Gum_Roughness_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Gum_Thickness_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_Gray",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_Normal",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_White",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_WhiteMask",
+    "/Game/UI/MainMenu3D/Textures/T_MC_Enamel_ClosedRadiance",
+    "/Game/UI/MainMenu3D/Textures/T_MC_Enamel_OpenRadiance",
+    "/Game/UI/MainMenu3D/Textures/T_MC_Gum_ClosedRadiance",
+    "/Game/UI/MainMenu3D/Textures/T_MC_Gum_OpenRadiance",
+    "/Game/UI/MainMenu3D/Textures/T_MC_Interior_ClosedRadiance",
+    "/Game/UI/MainMenu3D/Textures/T_MC_Interior_OpenRadiance",
+    "/Game/UI/MainMenu3D/Textures/T_MC_Tongue_ClosedRadiance",
+    "/Game/UI/MainMenu3D/Textures/T_MC_Tongue_OpenRadiance",
+    "/Game/UI/MainMenu3D/WBP_MainMenu3D"
+  ],
+  "external_game_dependencies": [
+    "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Hello1",
+    "/Game/Gameplay/CharacterCurrent/SK_CharacterGameplay"
+  ],
+  "edges": {
+    "/Game/UI/MainMenu3D/L_MainMenu3D": [
+      "/Script/NavigationSystem",
+      "/Engine/BasicShapes/Cube",
+      "/Engine/EngineMaterials/WorldGridMaterial",
+      "/Engine/EditorResources/LightIcons/S_LightError",
+      "/Game/Gameplay/CharacterCurrent/SK_CharacterGameplay",
+      "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Hello1",
+      "/Game/UI/MainMenu3D/BP_Menu3DGameMode",
+      "/Game/UI/MainMenu3D/Materials/M_Menu3D_Background",
+      "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Seated_v04",
+      "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Seated_v04",
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking",
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking",
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY03_LowerReadable_v07",
+      "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel",
+      "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel_DAY03",
+      "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum",
+      "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum_DAY03",
+      "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Interior",
+      "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Tongue"
+    ],
+    "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08": [
+      "/Script/NavigationSystem",
+      "/Engine/BasicShapes/Cube",
+      "/Engine/EngineMaterials/WorldGridMaterial",
+      "/Engine/EditorResources/LightIcons/S_LightError",
+      "/Game/Gameplay/CharacterCurrent/SK_CharacterGameplay",
+      "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Hello1",
+      "/Game/UI/MainMenu3D/BP_Menu3DGameMode",
+      "/Game/UI/MainMenu3D/Materials/M_Menu3D_Background",
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking",
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Reference_v09",
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Reference_v09",
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Reference_v08b",
+      "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08",
+      "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel",
+      "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Enamel_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Gum_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Interior_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Tongue_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Enamel_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Gum_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Interior_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Tongue_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Enamel_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Gum_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Interior_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Tongue_v08",
+      "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06"
+    ],
+    "/Game/UI/MainMenu3D/WBP_MainMenu3D": [
+      "/Script/InputCore",
+      "/Script/SlateCore",
+      "/Script/Slate",
+      "/Script/UMG",
+      "/Script/UMGEditor",
+      "/Engine/EditorBlueprintResources/StandardMacros",
+      "/Script/MessControl"
+    ],
+    "/Game/UI/MainMenu3D/BP_Menu3DPlayerController": [
+      "/Script/UMG",
+      "/Script/UMGEditor",
+      "/Engine/EditorBlueprintResources/StandardMacros",
+      "/Game/UI/MainMenu3D/WBP_MainMenu3D"
+    ],
+    "/Game/UI/MainMenu3D/BP_Menu3DGameMode": [
+      "/Game/UI/MainMenu3D/BP_Menu3DPlayerController"
+    ],
+    "/Game/UI/MainMenu3D/Materials/M_Menu3D_Background": [],
+    "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Seated_v04": [
+      "/Script/NavigationSystem",
+      "/Game/UI/MainMenu3D/Materials/M_MC_Interior_Radiance"
+    ],
+    "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Seated_v04": [
+      "/Script/NavigationSystem",
+      "/Game/UI/MainMenu3D/Materials/M_MC_Tongue_Radiance"
+    ],
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking": [
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking_Skeleton"
+    ],
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking": [
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking_Skeleton"
+    ],
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY03_LowerReadable_v07": [
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04_Skeleton"
+    ],
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel": [],
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel_DAY03": [],
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum": [],
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum_DAY03": [],
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Interior": [],
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Tongue": [],
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Reference_v09": [
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking_Skeleton",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Enamel_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Gum_v09"
+    ],
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Reference_v09": [
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking_Skeleton",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Enamel_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Gum_v09"
+    ],
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Reference_v08b": [
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04_Skeleton",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Enamel_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Gum_v08"
+    ],
+    "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08": [
+      "/Script/NavigationSystem",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Interior_v08"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Enamel_v09": [
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuEnamel_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Enamel_AO_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Enamel_BaseColor_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Enamel_Normal_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Enamel_Roughness_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Enamel_Thickness_v09"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Gum_v09": [
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuGum_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Gum_AO_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Gum_BaseColor_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Gum_Normal_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Gum_Roughness_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Gum_Thickness_v09"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Interior_v09": [
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuInterior_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_AO_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_BaseColor_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Normal_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Roughness_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Thickness_v08"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Tongue_v09": [
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuTongue_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_BaseColor_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Roughness_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Normal_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_AO_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Thickness_r06"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Enamel_v09": [
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuEnamel_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_AO_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_BaseColor_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_Normal_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_Roughness_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_Thickness_v09"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Gum_v09": [
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuGum_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_AO_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_BaseColor_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_Normal_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_Roughness_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_Thickness_v09"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Interior_v09": [
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuInterior_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_AO_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_BaseColor_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Normal_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Roughness_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Thickness_v08"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Tongue_v09": [
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuTongue_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_BaseColor_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Roughness_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Normal_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_AO_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Thickness_r06"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Enamel_v08": [
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuEnamel_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_AO_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_BaseColor_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_Normal_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_Roughness_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_Thickness_v08"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Gum_v08": [
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuGum_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Gum_AO_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Gum_BaseColor_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Gum_Normal_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Gum_Roughness_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Gum_Thickness_v08"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Interior_v08": [
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuInterior_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_AO_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_BaseColor_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Normal_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Roughness_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Thickness_v08"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Tongue_v08": [
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuTongue_v08",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_BaseColor_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Roughness_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Normal_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_AO_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Thickness_r06"
+    ],
+    "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06": [
+      "/Script/NavigationSystem",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Tongue_v08"
+    ],
+    "/Game/UI/MainMenu3D/Materials/M_MC_Interior_Radiance": [
+      "/Game/UI/MainMenu3D/Textures/T_MC_Interior_ClosedRadiance",
+      "/Game/UI/MainMenu3D/Textures/T_MC_Interior_OpenRadiance"
+    ],
+    "/Game/UI/MainMenu3D/Materials/M_MC_Tongue_Radiance": [
+      "/Game/UI/MainMenu3D/Textures/T_MC_Tongue_ClosedRadiance",
+      "/Game/UI/MainMenu3D/Textures/T_MC_Tongue_OpenRadiance"
+    ],
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking_Skeleton": [
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking"
+    ],
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking_Skeleton": [
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking"
+    ],
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04_Skeleton": [
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuEnamel_v08": [
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_Gray",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_Normal",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_White",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_WhiteMask"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Enamel_AO_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Enamel_BaseColor_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Enamel_Normal_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Enamel_Roughness_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Enamel_Thickness_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuGum_v08": [
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_Gray",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_Normal",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_White",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_WhiteMask"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Gum_AO_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Gum_BaseColor_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Gum_Normal_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Gum_Roughness_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY01/T_DAY01_Gum_Thickness_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuInterior_v08": [
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_Gray",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_Normal",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_White",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_WhiteMask"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_AO_v08": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_BaseColor_v08": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Normal_v08": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Roughness_v08": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Thickness_v08": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuTongue_v08": [
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_Gray",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_Normal",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_White",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_WhiteMask"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_BaseColor_r06": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Roughness_r06": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Normal_r06": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_AO_r06": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Thickness_r06": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_AO_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_BaseColor_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_Normal_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_Roughness_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_Thickness_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_AO_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_BaseColor_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_Normal_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_Roughness_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_Thickness_v09": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_AO_v08": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_BaseColor_v08": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_Normal_v08": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_Roughness_v08": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Enamel_Thickness_v08": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Gum_AO_v08": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Gum_BaseColor_v08": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Gum_Normal_v08": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Gum_Roughness_v08": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/T_DAY03_Gum_Thickness_v08": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/Textures/T_MC_Interior_ClosedRadiance": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/Textures/T_MC_Interior_OpenRadiance": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/Textures/T_MC_Tongue_ClosedRadiance": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/Textures/T_MC_Tongue_OpenRadiance": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04": [
+      "/Game/UI/MainMenu3D/Materials/M_MC_Enamel_Radiance",
+      "/Game/UI/MainMenu3D/Materials/M_MC_Gum_Radiance",
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04_Skeleton"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_Gray": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_Normal": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_White": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/ReferenceFinish/Textures/T_Default_WhiteMask": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/Materials/M_MC_Enamel_Radiance": [
+      "/Game/UI/MainMenu3D/Textures/T_MC_Enamel_ClosedRadiance",
+      "/Game/UI/MainMenu3D/Textures/T_MC_Enamel_OpenRadiance"
+    ],
+    "/Game/UI/MainMenu3D/Materials/M_MC_Gum_Radiance": [
+      "/Game/UI/MainMenu3D/Textures/T_MC_Gum_ClosedRadiance",
+      "/Game/UI/MainMenu3D/Textures/T_MC_Gum_OpenRadiance"
+    ],
+    "/Game/UI/MainMenu3D/Textures/T_MC_Enamel_ClosedRadiance": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/Textures/T_MC_Enamel_OpenRadiance": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/Textures/T_MC_Gum_ClosedRadiance": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/Textures/T_MC_Gum_OpenRadiance": [
+      "/Script/InterchangeEngine"
+    ]
+  }
+}

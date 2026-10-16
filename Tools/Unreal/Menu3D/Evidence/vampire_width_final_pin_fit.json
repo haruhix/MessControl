@@ -1,0 +1,10 @@
+{
+  "status": "COMPILED_SAVED_PENDING_FRESH_NATIVE_WIDTH_CHECK",
+  "only_two_literal_values_changed": true,
+  "closed_scale_factor": 0.881020618494,
+  "open_scale_factor": 0.93986014,
+  "base_uniform_xyz_scale": 0.54,
+  "reason": "Balance v05 closed outergum701px and crowns668px againstDAY01 673px; preserve crown geometry and uniform proportions",
+  "widget_sha256": "f8c671c1caffb88cfe1b73a78b3f4801709bb1b5b7105dd2c35f1e67ad3f945f",
+  "validation": "Warnings-as-errors Blueprint compile and save"
+}

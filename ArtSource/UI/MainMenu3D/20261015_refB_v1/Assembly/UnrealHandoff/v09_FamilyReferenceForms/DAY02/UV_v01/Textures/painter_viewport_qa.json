@@ -1,0 +1,63 @@
+{
+  "application": "Adobe Substance 3D Painter 12.1.5",
+  "actual_visual_review_performed": true,
+  "source_packet_sha256": "ee735723f4ba067aef9d402e5d599ef34c153a7c291a6ee85b6b4b6146ab3657",
+  "method": "Typed MCP camera/environment plus actual native window inspection with computer-use",
+  "views": [
+    {
+      "name": "front_soft",
+      "position": [
+        0,
+        32,
+        0
+      ],
+      "rotation": [
+        90,
+        180,
+        0
+      ],
+      "fov": 42,
+      "environment": "Soft 1Front 2Backs"
+    },
+    {
+      "name": "close_grazing",
+      "position": [
+        4,
+        16,
+        0
+      ],
+      "rotation": [
+        90,
+        166,
+        0
+      ],
+      "fov": 42,
+      "environment": "Soft 4TubeBank 2BlackFlags"
+    },
+    {
+      "name": "oblique_grazing",
+      "position": [
+        10,
+        26,
+        1
+      ],
+      "rotation": [
+        88,
+        159,
+        0
+      ],
+      "fov": 42,
+      "environment": "Soft 4TubeBank 2BlackFlags"
+    }
+  ],
+  "observations": [
+    "Warm cervical-to-tip enamel transition remains continuous over the paired predator crowns.",
+    "Tip highlights remain soft and move with the grazing-light view rather than appearing as painted marks.",
+    "Coral gingiva retains coherent fine relief and wet roughness variation; no visible hero UV seam in the inspected front/close/oblique views."
+  ],
+  "limits": [
+    "Painter is a material inspection environment, not native Unreal art approval.",
+    "Native SSS, bounced pink light, dynamic clipping, animation and final reference comparison are pending the lead.",
+    "Coverage of all closed surfaces is supported by UV/source QA and texture maps; current visual views inspect the front and oblique hero surfaces."
+  ]
+}

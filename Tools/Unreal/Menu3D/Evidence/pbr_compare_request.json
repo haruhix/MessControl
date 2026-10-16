@@ -1,0 +1,232 @@
+{
+  "run_name": "PBRCalibration_v08b_06_Interior",
+  "candidates": [
+    {
+      "name": "A_unshadowed_prior",
+      "density": 1.5,
+      "scatter": [
+        0.35,
+        0.075,
+        0.09
+      ],
+      "tint": [
+        0.85,
+        2.2,
+        1.9
+      ],
+      "rough": 1.15,
+      "fill": [
+        1,
+        0.9,
+        0.88
+      ],
+      "fill_intensity": 110,
+      "rim_intensity": 40,
+      "key_width": 160,
+      "key_height": 850,
+      "key_color": [
+        1,
+        0.72,
+        0.65
+      ],
+      "cavity_color": [
+        1,
+        0.8,
+        0.8
+      ],
+      "cavity_intensity": 22,
+      "enamel_tint": [
+        0.95,
+        0.85,
+        0.9
+      ],
+      "enamel_scatter": [
+        0.8,
+        0.4,
+        0.4
+      ],
+      "key_shadows": false,
+      "fill_shadows": false,
+      "rim_shadows": false,
+      "cavity_shadows": false
+    },
+    {
+      "name": "B_no_key_shadow",
+      "density": 1.5,
+      "scatter": [
+        0.35,
+        0.075,
+        0.09
+      ],
+      "tint": [
+        0.85,
+        2.2,
+        1.9
+      ],
+      "rough": 1.15,
+      "fill": [
+        1,
+        0.9,
+        0.88
+      ],
+      "fill_intensity": 110,
+      "rim_intensity": 40,
+      "key_width": 160,
+      "key_height": 850,
+      "key_color": [
+        1,
+        0.72,
+        0.65
+      ],
+      "cavity_color": [
+        1,
+        0.8,
+        0.8
+      ],
+      "cavity_intensity": 22,
+      "enamel_tint": [
+        0.95,
+        0.85,
+        0.9
+      ],
+      "enamel_scatter": [
+        0.8,
+        0.4,
+        0.4
+      ],
+      "key_shadows": false
+    },
+    {
+      "name": "C_restrained_tissue_scatter",
+      "density": 1.5,
+      "scatter": [
+        0.35,
+        0.075,
+        0.09
+      ],
+      "tint": [
+        0.85,
+        2.2,
+        1.9
+      ],
+      "rough": 1.15,
+      "fill": [
+        1,
+        0.9,
+        0.88
+      ],
+      "fill_intensity": 110,
+      "rim_intensity": 40,
+      "key_width": 160,
+      "key_height": 850,
+      "key_color": [
+        1,
+        0.72,
+        0.65
+      ],
+      "cavity_color": [
+        1,
+        0.8,
+        0.8
+      ],
+      "cavity_intensity": 22,
+      "enamel_tint": [
+        0.95,
+        0.85,
+        0.9
+      ],
+      "enamel_scatter": [
+        0.8,
+        0.4,
+        0.4
+      ],
+      "key_shadows": false,
+      "fill_shadows": false,
+      "rim_shadows": false,
+      "cavity_shadows": false,
+      "interior_scatter": [
+        0.015,
+        0.002,
+        0.003
+      ],
+      "interior_density": 3.0,
+      "tongue_scatter": [
+        0.12,
+        0.008,
+        0.015
+      ],
+      "tongue_density": 3.0
+    },
+    {
+      "name": "D_burgundy_depth_warm_enamel",
+      "density": 1.5,
+      "scatter": [
+        0.35,
+        0.075,
+        0.09
+      ],
+      "tint": [
+        0.85,
+        2.2,
+        1.9
+      ],
+      "rough": 1.15,
+      "fill": [
+        1,
+        0.9,
+        0.88
+      ],
+      "fill_intensity": 110,
+      "rim_intensity": 40,
+      "key_width": 160,
+      "key_height": 850,
+      "key_color": [
+        1,
+        0.72,
+        0.65
+      ],
+      "cavity_color": [
+        1,
+        0.8,
+        0.8
+      ],
+      "cavity_intensity": 22,
+      "enamel_tint": [
+        0.85,
+        0.65,
+        0.7
+      ],
+      "enamel_scatter": [
+        0.8,
+        0.4,
+        0.4
+      ],
+      "key_shadows": false,
+      "fill_shadows": false,
+      "rim_shadows": false,
+      "cavity_shadows": false,
+      "interior_scatter": [
+        0.015,
+        0.002,
+        0.003
+      ],
+      "interior_density": 3.0,
+      "tongue_scatter": [
+        0.12,
+        0.008,
+        0.015
+      ],
+      "tongue_density": 3.0,
+      "interior_tint": [
+        0.45,
+        0.8,
+        0.85
+      ],
+      "tongue_tint": [
+        0.7,
+        0.9,
+        0.9
+      ]
+    }
+  ]
+}

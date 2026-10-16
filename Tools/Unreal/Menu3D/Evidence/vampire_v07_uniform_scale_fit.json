@@ -1,0 +1,18 @@
+{
+  "status": "COMPILED_SAVED_NATIVE_V07_MOTION_REVIEW_PASS",
+  "followup_validation": "final_lower_row_validation_v07.json",
+  "graph": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:UpdateStage",
+  "only_pin_values_changed": [
+    {"observed_node":"K2Node_CallFunction_1588","old":0.881020618494,"new":0.9956556266900379},
+    {"observed_node":"K2Node_CallFunction_1587","old":0.058839521506,"new":0.0}
+  ],
+  "actor_scale_xyz": 0.5376540384126205,
+  "constant_across_openness": true,
+  "basis": "Frozen v06 native-cm vertices projected at cameraY2200cm/FOV39.97 onto1280x720; target674px. v07 changes only lowerZ, retainingXY and projected width.",
+  "predicted_full_width_px": {"closed":675.39,"open":674.0},
+  "compiled_warnings_as_errors": true,
+  "source_dsl_and_author_helper_updated": true,
+  "crown_geometry_nonuniformly_scaled": false,
+  "native_candidate_screenshots": "Assembly/Review/Unreal_FunctionalBlocking_v03_FullRoute/WidthFit_v06_01",
+  "final_art_approval": false
+}

@@ -1,0 +1,10 @@
+{
+  "status": "COMPILED_SAVED_PENDING_ROOT_SOLO_PIE",
+  "asset": "/Game/UI/MainMenu3D/WBP_MainMenu3D",
+  "free_scroll": false,
+  "wheel_contract": "One normal detent/event -> exactly one adjacent day; SelectedDay clamped1..7 immediately. Fractional trackpad packets accumulate to0.5.",
+  "centering": "Native ScrollWidgetIntoView Center+AnimateScroll during natural-height transition;370px content padding at both ends.",
+  "selection_lock": "No focus-driven selection; hover quiet1.2sec and edge state updated while snapping.",
+  "focusable": true,
+  "level_PIE_material_geometry_mutations": false
+}

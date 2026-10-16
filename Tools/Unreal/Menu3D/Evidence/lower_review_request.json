@@ -1,0 +1,1 @@
+{"run_name":"LowerRow_v09_InteriorSync17_LocalSlowCorners","duration":12,"show_ui":true,"render_overrides":{"r.Shadow.Virtual.Enable":1},"schedule":[[0,"ShowPage",0],[0.5,"catalog",null],[1,"dilation",0.15],[1.2,"SelectDay",3],[4,"SelectDay",2],[7,"Back",null],[10,"dilation",1]]}

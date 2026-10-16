@@ -1,5 +1,7 @@
 (fn SelectDay (Day)
   (bind selected (Math|Integer|Clamp(Integer) :Value Day :Min 1 :Max 7))
+  (CallFunction|ResetPointerIntent)
+  (Variables|Default|SetWheelAccumulator 0.0)
   (Variables|Default|SetSelectedDay selected)
   (Variables|Default|SetActiveDay selected)
   (Variables|Default|SetWindowFirstDay (Math|Integer|Clamp(Integer) :Value (- selected 2) :Min 1 :Max 5))

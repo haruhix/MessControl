@@ -1,0 +1,82 @@
+{
+  "schema": "messcontrol.inner_semantic_uv_masks.v1",
+  "packet_sha256": "53215b04995cfc46b820b622726cf78d692b36f8619f6a964b12cfe097088bbb",
+  "resolution": 4096,
+  "padding_pixels": 16,
+  "projection": "Geometry semantic attributes only",
+  "lighting_baked": false,
+  "sets": {
+    "MC_Interior": {
+      "triangles": 32768,
+      "uv_coverage_fraction": 0.6258902549743652,
+      "files": [
+        {
+          "role": "DeepRecess",
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\AnatomyMasks\\MC_Interior_DeepRecess.png",
+          "sha256": "00b2572afa3ef0aa4b992307de1e25c65cb3ccab46804e6978239af97685d097"
+        },
+        {
+          "role": "CrestPink",
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\AnatomyMasks\\MC_Interior_CrestPink.png",
+          "sha256": "0af1db66fb5e0547356340c27dce66a214d49fd5d53d887ea4d05abea7fa5db5"
+        },
+        {
+          "role": "InteriorWetZone",
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\AnatomyMasks\\MC_Interior_InteriorWetZone.png",
+          "sha256": "ed19bca3a4f2c9cbd56059878d041f970034ed57a47395ead4f70c0a06f15af7"
+        },
+        {
+          "role": "FineMucosaZone",
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\AnatomyMasks\\MC_Interior_FineMucosaZone.png",
+          "sha256": "e879faeea9462dfbaec49c8f9c604c532268bcaee6fb6b46bf25950a78070d56"
+        },
+        {
+          "role": "ThinTissueMask",
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\AnatomyMasks\\MC_Interior_ThinTissueMask.png",
+          "sha256": "4bf19293f12a3f04fb28891eabc2e5bbbc80fb5d26c7e6cca1229e677d269a04"
+        },
+        {
+          "role": "ArtistDensityMask",
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\AnatomyMasks\\MC_Interior_ArtistDensityMask.png",
+          "sha256": "e38c99dc3f0bdf606dca019ed5759349cc2f658e9439e60e353a2282c512ddc0"
+        }
+      ]
+    },
+    "MC_Tongue": {
+      "triangles": 18176,
+      "uv_coverage_fraction": 0.35003042221069336,
+      "files": [
+        {
+          "role": "DorsalTongue",
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\AnatomyMasks\\MC_Tongue_DorsalTongue.png",
+          "sha256": "7d76aaed3b2297dfa474206a5a625aa150a62cff6195a52cc9e35a2f54dba9fd"
+        },
+        {
+          "role": "PapillaeZone",
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\AnatomyMasks\\MC_Tongue_PapillaeZone.png",
+          "sha256": "f853807645d3eaf930b19e46ffe10c670cf0c3e1de3cba67aa14cc5247190ebe"
+        },
+        {
+          "role": "SmoothSulcus",
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\AnatomyMasks\\MC_Tongue_SmoothSulcus.png",
+          "sha256": "781b2fc29ef1a5657fe8770601e98bf4383bcac1886032eb58415f77a1dbe2ae"
+        },
+        {
+          "role": "AnteriorTip",
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\AnatomyMasks\\MC_Tongue_AnteriorTip.png",
+          "sha256": "c2ec0f6d8f704ffff258c4174d9731b2fe02a55a58e8dec40c86c328189d9a60"
+        },
+        {
+          "role": "ThinTissueMask",
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\AnatomyMasks\\MC_Tongue_ThinTissueMask.png",
+          "sha256": "38a3f387bfc63bbfd27104f785525d8917ab15c53e7f63e13e5e153692699734"
+        },
+        {
+          "role": "ArtistDensityMask",
+          "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\AnatomyMasks\\MC_Tongue_ArtistDensityMask.png",
+          "sha256": "efd6dc7d69d8bd13883e1b685a32288516abe2bf92df110dcf3ddaf109fb30bd"
+        }
+      ]
+    }
+  }
+}

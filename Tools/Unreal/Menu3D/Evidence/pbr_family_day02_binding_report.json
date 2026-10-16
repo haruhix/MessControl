@@ -1,0 +1,71 @@
+{
+  "status": "RELEASED_PBR_BOUND_PENDING_NATIVE_APPEARANCE_MOTION_REVIEW",
+  "kind": "FAMILY_DAY02",
+  "manifest_sha256": "9ba98d3a171727d2c48ef23ff1075b387e5e349c5ba9a2fe2ea7299ac948fb74",
+  "textures": [
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_BaseColor_v09",
+      "source_sha256": "1665b8179f4b92c19217f6e5740c9fc435567cc3f5b7371cbc9c3611c220e48c",
+      "srgb": true
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_Roughness_v09",
+      "source_sha256": "a8377cbd3a983a8540014618c8ef1dbb164ce6c4a2ad30c35cc5b348e7272c92",
+      "srgb": false
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_Normal_v09",
+      "source_sha256": "45fb9f536781c5acbfaec49e44757f2ace304465e3177f70483464ba037cfa34",
+      "srgb": false
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_AO_v09",
+      "source_sha256": "c44b1f6ae68af9952e232a65a9e8b26e18291e678b07907dd906820580c3ac21",
+      "srgb": false
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Enamel_Thickness_v09",
+      "source_sha256": "1faa7e32d0a14c036ad8b515cc2d82bab5bb219bbca59e0f0de585758060e8d6",
+      "srgb": false
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_BaseColor_v09",
+      "source_sha256": "c47b4e65509caf662eb4fab1f217523e07a12800a7be55ef3383ecb14e62369a",
+      "srgb": true
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_Roughness_v09",
+      "source_sha256": "ebb3f199497b1389f5ee951befc8d690eca1eb378bbd24f64a13f8651c67b337",
+      "srgb": false
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_Normal_v09",
+      "source_sha256": "fb8bbf0b08939709655d24d4ce81f1943bb4b1436b77146137139fb79976aba5",
+      "srgb": false
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_AO_v09",
+      "source_sha256": "54d1746ba17ad824da24c6d401dad8edc55ddf082dbe4d2e17ecbba969b1487d",
+      "srgb": false
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY02/T_DAY02_Gum_Thickness_v09",
+      "source_sha256": "7454ff475e8301b2fdd5d4cecfce6c4aaf5afdba27324c0ca5ac208606e43587",
+      "srgb": false
+    }
+  ],
+  "bindings": [
+    {
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Reference_v09.SK_DAY02_Reference_v09",
+      "slot": 0,
+      "material": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Enamel_v09"
+    },
+    {
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Reference_v09.SK_DAY02_Reference_v09",
+      "slot": 1,
+      "material": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Gum_v09"
+    }
+  ],
+  "source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\shader_binding.json",
+  "camera_motion_character_startup_changed": false
+}

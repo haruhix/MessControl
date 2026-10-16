@@ -1,0 +1,12 @@
+{
+  "status": "FINAL_FUNCTIONAL_BLOCKING_AND_WIDTH_REVIEW_PASSED",
+  "native_route_passed": true,
+  "settled_state_cases": 19,
+  "visual_receipt": "ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\Review\\Unreal_FunctionalBlocking_v03_FullRoute\\Run08\\QA_final_width_motion_review.json",
+  "mesh": "Content\\UI\\MainMenu3D\\Meshes\\SK_DAY03_GumWidth_v05.uasset",
+  "mesh_sha256": "7dab76ac351836a8df4d312a5e255c9aa6033b118cd5c25d275f7a5402e059aa",
+  "saved_preview_map": "/Game/UI/MainMenu3D/L_MainMenu3D",
+  "reference_art_approved": false,
+  "scope": "Native solo PIE functional blocking, not startup/gameplay travel/build/network validation",
+  "latest_changes_pushed": false
+}

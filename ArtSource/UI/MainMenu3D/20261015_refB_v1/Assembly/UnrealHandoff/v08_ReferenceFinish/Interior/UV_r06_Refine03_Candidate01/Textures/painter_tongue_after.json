@@ -1,0 +1,307 @@
+{
+  "texture_set": "MC_Tongue",
+  "stack": "",
+  "layers": [
+    {
+      "uid": 207,
+      "name": "DAY03 | Moist tongue tissue",
+      "type": "GroupLayerNode",
+      "visible": true,
+      "mask": {
+        "present": false,
+        "enabled": false,
+        "background": null,
+        "effects": []
+      },
+      "content_effects": [],
+      "geometry_mask": {
+        "type": "UVTile",
+        "inclusion_list": false,
+        "elements": []
+      },
+      "collapsed": true,
+      "children": [
+        {
+          "uid": 311,
+          "name": "07 | Smooth median sulcus",
+          "type": "FillLayerNode",
+          "visible": true,
+          "mask": {
+            "present": true,
+            "enabled": true,
+            "background": "Black",
+            "effects": [
+              {
+                "uid": 608,
+                "name": "SmoothSulcus_r06",
+                "type": "FillEffectNode",
+                "visible": true
+              }
+            ]
+          },
+          "content_effects": [],
+          "geometry_mask": {
+            "type": "UVTile",
+            "inclusion_list": false,
+            "elements": []
+          },
+          "active_channels": [
+            "SpecularRoughness"
+          ]
+        },
+        {
+          "uid": 299,
+          "name": "06 | Moist film variation",
+          "type": "FillLayerNode",
+          "visible": true,
+          "mask": {
+            "present": true,
+            "enabled": true,
+            "background": "Black",
+            "effects": [
+              {
+                "uid": 612,
+                "name": "DorsalTongue_r06",
+                "type": "FillEffectNode",
+                "visible": true
+              },
+              {
+                "uid": 388,
+                "name": "moisture_noise",
+                "type": "FillEffectNode",
+                "visible": true
+              }
+            ]
+          },
+          "content_effects": [],
+          "geometry_mask": {
+            "type": "UVTile",
+            "inclusion_list": false,
+            "elements": []
+          },
+          "active_channels": [
+            "SpecularRoughness"
+          ]
+        },
+        {
+          "uid": 267,
+          "name": "05 | Dorsal papillae only",
+          "type": "GroupLayerNode",
+          "visible": true,
+          "mask": {
+            "present": true,
+            "enabled": true,
+            "background": "Black",
+            "effects": [
+              {
+                "uid": 616,
+                "name": "PapillaeZone_r06",
+                "type": "FillEffectNode",
+                "visible": true
+              }
+            ]
+          },
+          "content_effects": [],
+          "geometry_mask": {
+            "type": "UVTile",
+            "inclusion_list": false,
+            "elements": []
+          },
+          "collapsed": true,
+          "children": [
+            {
+              "uid": 287,
+              "name": "05b | Fine papillary breakup",
+              "type": "FillLayerNode",
+              "visible": true,
+              "mask": {
+                "present": true,
+                "enabled": true,
+                "background": "Black",
+                "effects": [
+                  {
+                    "uid": 412,
+                    "name": "clouds_2",
+                    "type": "FillEffectNode",
+                    "visible": true
+                  }
+                ]
+              },
+              "content_effects": [],
+              "geometry_mask": {
+                "type": "UVTile",
+                "inclusion_list": false,
+                "elements": []
+              },
+              "active_channels": [
+                "Height"
+              ]
+            },
+            {
+              "uid": 275,
+              "name": "05a | Rounded micro papillae",
+              "type": "FillLayerNode",
+              "visible": true,
+              "mask": {
+                "present": true,
+                "enabled": true,
+                "background": "Black",
+                "effects": [
+                  {
+                    "uid": 424,
+                    "name": "bnw_spots_3",
+                    "type": "FillEffectNode",
+                    "visible": true
+                  }
+                ]
+              },
+              "content_effects": [],
+              "geometry_mask": {
+                "type": "UVTile",
+                "inclusion_list": false,
+                "elements": []
+              },
+              "active_channels": [
+                "Height"
+              ]
+            }
+          ]
+        },
+        {
+          "uid": 257,
+          "name": "04 | Quiet dorsal color variation",
+          "type": "FillLayerNode",
+          "visible": true,
+          "mask": {
+            "present": true,
+            "enabled": true,
+            "background": "Black",
+            "effects": [
+              {
+                "uid": 620,
+                "name": "DorsalTongue_r06",
+                "type": "FillEffectNode",
+                "visible": true
+              },
+              {
+                "uid": 436,
+                "name": "clouds_2",
+                "type": "FillEffectNode",
+                "visible": true
+              }
+            ]
+          },
+          "content_effects": [],
+          "geometry_mask": {
+            "type": "UVTile",
+            "inclusion_list": false,
+            "elements": []
+          },
+          "active_channels": [
+            "BaseColor"
+          ]
+        },
+        {
+          "uid": 242,
+          "name": "03 | Soft anterior rose",
+          "type": "FillLayerNode",
+          "visible": true,
+          "mask": {
+            "present": true,
+            "enabled": true,
+            "background": "Black",
+            "effects": [
+              {
+                "uid": 624,
+                "name": "AnteriorTip_r06",
+                "type": "FillEffectNode",
+                "visible": true
+              }
+            ]
+          },
+          "content_effects": [],
+          "geometry_mask": {
+            "type": "UVTile",
+            "inclusion_list": false,
+            "elements": []
+          },
+          "active_channels": [
+            "BaseColor",
+            "SpecularRoughness"
+          ]
+        },
+        {
+          "uid": 230,
+          "name": "02 | Gentle dorsal warmth",
+          "type": "FillLayerNode",
+          "visible": true,
+          "mask": {
+            "present": true,
+            "enabled": true,
+            "background": "Black",
+            "effects": [
+              {
+                "uid": 628,
+                "name": "DorsalTongue_r06",
+                "type": "FillEffectNode",
+                "visible": true
+              }
+            ]
+          },
+          "content_effects": [],
+          "geometry_mask": {
+            "type": "UVTile",
+            "inclusion_list": false,
+            "elements": []
+          },
+          "active_channels": [
+            "BaseColor"
+          ]
+        },
+        {
+          "uid": 212,
+          "name": "01 | Pink red tongue base",
+          "type": "FillLayerNode",
+          "visible": true,
+          "mask": {
+            "present": false,
+            "enabled": false,
+            "background": null,
+            "effects": []
+          },
+          "content_effects": [],
+          "geometry_mask": {
+            "type": "UVTile",
+            "inclusion_list": false,
+            "elements": []
+          },
+          "active_channels": [
+            "BaseColor",
+            "BaseMetalness",
+            "Height",
+            "SpecularRoughness"
+          ]
+        }
+      ]
+    },
+    {
+      "uid": 37,
+      "name": "Layer 1",
+      "type": "PaintLayerNode",
+      "visible": true,
+      "mask": {
+        "present": false,
+        "enabled": false,
+        "background": null,
+        "effects": []
+      },
+      "content_effects": [],
+      "geometry_mask": {
+        "type": "UVTile",
+        "inclusion_list": false,
+        "elements": []
+      }
+    }
+  ],
+  "sha256": "19013bc5dad8f8b8e0cc0d6170905eca92c96afc5e5b8ad9ef14b48d7fab88a0"
+}

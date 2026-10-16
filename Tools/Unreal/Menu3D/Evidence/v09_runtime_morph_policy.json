@@ -1,0 +1,36 @@
+{
+  "pc": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.BP_Menu3DPlayerController_C_0",
+  "pc_tick_group": "<TickingGroup.TG_PRE_PHYSICS: 0>",
+  "rows": [
+    {
+      "day": 1,
+      "tick_group": "<TickingGroup.TG_PRE_PHYSICS: 0>",
+      "end_tick_group": "<TickingGroup.TG_POST_PHYSICS: 4>",
+      "visibility_based_anim_tick_option": "<VisibilityBasedAnimTickOption.ALWAYS_TICK_POSE_AND_REFRESH_BONES: 0>",
+      "URO": false,
+      "tick_enabled": true,
+      "anim_instance": "None",
+      "animation_mode": "<AnimationMode.ANIMATION_BLUEPRINT: 0>"
+    },
+    {
+      "day": 2,
+      "tick_group": "<TickingGroup.TG_PRE_PHYSICS: 0>",
+      "end_tick_group": "<TickingGroup.TG_POST_PHYSICS: 4>",
+      "visibility_based_anim_tick_option": "<VisibilityBasedAnimTickOption.ALWAYS_TICK_POSE_AND_REFRESH_BONES: 0>",
+      "URO": false,
+      "tick_enabled": true,
+      "anim_instance": "None",
+      "animation_mode": "<AnimationMode.ANIMATION_BLUEPRINT: 0>"
+    },
+    {
+      "day": 3,
+      "tick_group": "<TickingGroup.TG_PRE_PHYSICS: 0>",
+      "end_tick_group": "<TickingGroup.TG_POST_PHYSICS: 4>",
+      "visibility_based_anim_tick_option": "<VisibilityBasedAnimTickOption.ALWAYS_TICK_POSE_AND_REFRESH_BONES: 0>",
+      "URO": false,
+      "tick_enabled": true,
+      "anim_instance": "None",
+      "animation_mode": "<AnimationMode.ANIMATION_BLUEPRINT: 0>"
+    }
+  ]
+}

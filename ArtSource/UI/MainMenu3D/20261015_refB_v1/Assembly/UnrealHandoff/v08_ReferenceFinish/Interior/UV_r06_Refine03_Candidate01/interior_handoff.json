@@ -1,0 +1,181 @@
+{
+  "parent_source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\Organic_r06_LowTongue\\Refine03\\MC_DAY03_InteriorSource.blend",
+  "parent_source_sha256": "fd462541039b0dd6b3f7a96c730cfd9a707e93101c37438f0613fc1d70cdc0f3",
+  "source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\MC_DAY03_InteriorSource.blend",
+  "source_sha256": "59e65b91570d1014deec20c0d3f648dc8244702cc6b7e3b8d68f268634da6349",
+  "status": "FROZEN_NEXT_NATIVE_CANDIDATE: geometry/UV/export gates PASS; tongue Painter rebake and actual native review pending",
+  "approval_scope": "Root visual choice Refine03 for next native candidate; NOT final 1:1/look approval",
+  "materials": [
+    "MC_Interior",
+    "MC_Tongue"
+  ],
+  "parts": [
+    {
+      "mesh": "SM_DAY03_Interior",
+      "vertex_start": 0,
+      "vertex_count": 16386,
+      "material_slot": 0
+    },
+    {
+      "mesh": "SM_DAY03_Tongue",
+      "vertex_start": 16386,
+      "vertex_count": 9090,
+      "material_slot": 1
+    }
+  ],
+  "geometry_bitexact": true,
+  "geometry_bitexact_to_approved_refine03": true,
+  "cavity_geometry_uv_bitexact_r05": true,
+  "cavity_fbx_sha256_unchanged": "1dcb142957e0efe25aba29204593c7d401347b3b7d693e53b7cf0a0fe1b1d8ce",
+  "UV_records": [
+    {
+      "mesh": "SM_DAY03_Interior",
+      "unwrap": {
+        "method": "MINIMUM_STRETCH",
+        "islands": 3,
+        "chosen": {
+          "MINIMUM_STRETCH": 3
+        },
+        "unsolved_faces": {
+          "MINIMUM_STRETCH": 0
+        },
+        "folding_islands": [],
+        "folding_faces": [],
+        "per_island": {
+          "0": {
+            "MINIMUM_STRETCH": {
+              "score": 1.173,
+              "spread": 1.49,
+              "angle_err_deg": 2.99,
+              "self_overlap": 0.0
+            },
+            "chosen": "MINIMUM_STRETCH"
+          },
+          "1": {
+            "MINIMUM_STRETCH": {
+              "score": 1.164,
+              "spread": 1.49,
+              "angle_err_deg": 2.96,
+              "self_overlap": 0.0
+            },
+            "chosen": "MINIMUM_STRETCH"
+          },
+          "2": {
+            "MINIMUM_STRETCH": {
+              "score": 0.057,
+              "spread": 1.0,
+              "angle_err_deg": 0.28,
+              "self_overlap": 0.0
+            },
+            "chosen": "MINIMUM_STRETCH"
+          }
+        }
+      },
+      "charts": [
+        {
+          "island": 0,
+          "surface": "inner_cavity",
+          "relative_density": 1.0
+        },
+        {
+          "island": 1,
+          "surface": "hidden_back_return",
+          "relative_density": 0.35
+        },
+        {
+          "island": 2,
+          "surface": "hidden_rim",
+          "relative_density": 0.45
+        }
+      ],
+      "geometry_bitexact": true
+    },
+    {
+      "mesh": "SM_DAY03_Tongue",
+      "logical_charts": [
+        "ventral",
+        "dorsal"
+      ],
+      "ventral_uv_unchanged": true,
+      "dorsal_repair": "MinimumStretch80 only dorsal faces, same equatorial seam; proper rotation and uniform scale into old dorsal reserved rectangle. No extra seams/packing/geometry edits.",
+      "technical_metrics": {
+        "surface": "dorsal",
+        "triangle_count": 9088,
+        "area_source_units2": 96.59403941634531,
+        "density_p05_median_p95_px_per_source_unit": [
+          214.81995402365422,
+          223.48294240878812,
+          235.36180594487868
+        ],
+        "density_intrachart_spread": 1.0956235747027605,
+        "kappa_p95": 1.1240020752975937,
+        "kappa_p99": 1.2478091389596113,
+        "angle_error_degrees_p95": 4.389766562488916
+      }
+    }
+  ],
+  "anatomy_weights": [
+    "cavity_depth_weight",
+    "buccal_arch_weight",
+    "palate_weight",
+    "palatal_rugae_weight",
+    "floor_weight",
+    "tongue_dorsal_weight",
+    "median_sulcus_weight",
+    "anterior_tip_weight",
+    "rugae_crest_weight",
+    "tongue_sulcus_weight",
+    "tongue_tip_weight",
+    "hidden_return_weight"
+  ],
+  "anatomy_weight_semantics": {
+    "cavity_depth_weight": "0atnearopening,1deepestrecess; clippedlinear native\u2212Y depth",
+    "buccal_arch_weight": "Smoothgeometriclateralarchfield fromX/Z, no cameramask",
+    "palate_weight": "UpperpalateZgate with lateral falloff",
+    "palatal_rugae_weight": "alias rugae_crest_weight; four truegeometricpalatalbands",
+    "rugae_crest_weight": "Foursoftgeometryfoldcrest fields atZ1.85/2.25/2.65/3.05 with curvedtransversepath",
+    "floor_weight": "Broadfloorfield fromsourceX/Z",
+    "tongue_dorsal_weight": "1aboveequatorialZ\u22123.43,0ventral; UVseamallowsdorsal/ventralpaint separation",
+    "median_sulcus_weight": "alias tongue_sulcus_weight; shallowcentralgroovefield",
+    "tongue_sulcus_weight": "Dorsalcentralexp(\u2212(X/.66)^2)",
+    "anterior_tip_weight": "alias tongue_tip_weight; native+Yfrontdepthnormalized on dorsum",
+    "tongue_tip_weight": "DorsalfrontnativeYgradient fromrear\u22125.05 tofront\u2212.65",
+    "hidden_return_weight": "1cavityclosedbackreturnvertices8193..16385;0innercavity/tongue. Rim interpolatesbetweenreturn/inner."
+  },
+  "texture_resolution": 4096,
+  "pixel_gap_target": 32,
+  "origins": "Identity +Yfacing; metadataCM pipeline; noextra100",
+  "character_contact_anchor": [
+    -5.757009,
+    -2.887758,
+    -2.076843
+  ],
+  "assembly_contract": {
+    "native_actor_uniform_scale": 0.5376540384,
+    "child_relative_scale": [
+      0.9,
+      1,
+      1
+    ],
+    "open_full_height_world_cm": 370,
+    "closed_full_height_world_cm": 246.666667,
+    "interior_local_mask_half_source_open": 2.580655776582743,
+    "mask_center_local_z": 0,
+    "mask_formula": "abs(TransformPosition(WorldPosition to Local).Z), threshold CardHalfHeight; geometry source units divided by100 from UE-local cm",
+    "runtime_character_lower_readability": "Root owns native nine-pose/character verification. Geometry exact to approved Refine03; r05 cavity unchanged."
+  },
+  "texture_transfer": "Same vertex/loop order; see dorsal_uv_transfer.npz for authored paint reprojection. Re-bake tongue mesh maps; cavity geometry/UV/maps unchanged.",
+  "unchanged_cavity_parent": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_Organic_r05_Candidate01",
+  "frozen_r05_hashes": {
+    "MC_DAY03_InteriorSource.blend": "0d2d1bb0e8d53a06a32b47e862994bfcee9ff66b76189c59fbcf505f4efa6c2b",
+    "SM_DAY03_Interior.fbx": "1dcb142957e0efe25aba29204593c7d401347b3b7d693e53b7cf0a0fe1b1d8ce",
+    "SM_DAY03_Tongue.fbx": "2fedc350f4ac98a4d446ab227c8d6b5ffa27118710b3d25a202fd4de8a8090f8",
+    "MC_DAY03_Interior_Painter_Open.obj": "5043b4fa5d56c180e2ee1d4ce7e5f1977a2d5b2bd561f488f652ee1d261c9ad8",
+    "texture_mesh_packet.npz": "5b3e50d1720c3f05189368291c77bfbe76e8f8b7c7bd88a367076a0a88e3a2eb"
+  },
+  "fresh_import_validation": {
+    "geometry": "QA_Independent/source_fresh_static_geometry.json",
+    "UV_normal_corner_identity": "QA_Independent/export_identity_and_priority.json",
+    "raw_units": "QA_Independent/raw_fbx_units.json"
+  }
+}

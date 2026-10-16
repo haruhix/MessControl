@@ -1,0 +1,58 @@
+{
+  "status": "PREPARED_STATIC_AND_FILES_ONLY_PASS_NOT_EXECUTED_IN_UNREAL",
+  "script": "E:\\DEVGAME\\MessControl\\Tools\\Unreal\\Menu3D\\import_refine03_tongue_r06.py",
+  "script_sha256": "6c770e272844c192bd4b396187c2ae15966cbd7b3fc365bd79d4194f017f1344",
+  "filesystem_validation": {
+    "status": "FILES_ONLY_PASS_NO_UNREAL_CALLS",
+    "manifest_sha256": "b50b31c057f00a0234581b994bc14660c21b06b1f9e8b93d2ce49f2a2f865a64",
+    "geometry_release_sha256": "535bf9e152190f64ab2663851278278c81df5214f79d1db547e418e28bac0ccb",
+    "verified_maps": 10,
+    "expected_created_assets": [
+      "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_BaseColor_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Roughness_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Normal_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_AO_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Thickness_r06"
+    ],
+    "expected_existing_MI_texture_updates": [
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Tongue_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Tongue_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Tongue_v08"
+    ],
+    "rows_in_scope": 6,
+    "interior_rows_validation_only": 3
+  },
+  "static_guardrail_checks": {
+    "AST_parse": true,
+    "no_module_scope_Unreal_import": true,
+    "no_graph_camera_transform_scalar_vector_parent_setters": true,
+    "no_editor_or_remote_python_invocation": true
+  },
+  "expected_saved_package_diff": {
+    "new_assets": [
+      "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_BaseColor_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Roughness_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Normal_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_AO_r06",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Thickness_r06"
+    ],
+    "modified_existing_MIs": [
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY01_Tongue_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Tongue_v09",
+      "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Tongue_v08"
+    ],
+    "modified_map": "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08 (three tongue mesh references only)",
+    "cavity_rows": "all three validate only; no mesh/material/map writes",
+    "new_reports": [
+      "Tools/Unreal/Menu3D/Evidence/r06_refine03_binding_preflight.json",
+      "Tools/Unreal/Menu3D/Evidence/r06_refine03_native_binding_report.json"
+    ]
+  },
+  "deferred": [
+    "Live row/MI/dirty-map checks",
+    "Actual import/bounds/material binding/save",
+    "Native motion/appearance verification"
+  ]
+}

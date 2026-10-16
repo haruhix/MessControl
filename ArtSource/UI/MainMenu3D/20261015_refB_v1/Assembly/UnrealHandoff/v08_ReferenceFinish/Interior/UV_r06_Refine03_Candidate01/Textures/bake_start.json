@@ -1,0 +1,19 @@
+{
+  "job_id": "a7cdbdfdd90642678dc409870efe5958",
+  "operation": "bake",
+  "texture_set": "MC_Tongue",
+  "status": "running",
+  "progress": 0,
+  "cancel_requested": false,
+  "started_at": 1792135268.3066814,
+  "finished_at": null,
+  "error": null,
+  "backup": {
+    "original_project": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/MC_DAY03_Interior_r06_Refine03.spp",
+    "current_project": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY03_Interior_r06_Refine03/MC_DAY03_Interior_r06_Refine03.spp",
+    "path": "C:\\Users\\user\\Documents\\Adobe\\Adobe Substance 3D Painter\\MessControlMenu3D\\DAY03_Interior_r06_Refine03\\BeforeTongueBake.spp",
+    "exists": true,
+    "bytes": 220716903,
+    "original_unchanged": true
+  }
+}

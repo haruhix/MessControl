@@ -1,0 +1,4 @@
+newmtl MC_Interior
+Kd 0.3 0.1 0.07
+newmtl MC_Tongue
+Kd 0.4 0.15 0.1

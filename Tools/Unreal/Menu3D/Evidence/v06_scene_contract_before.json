@@ -1,0 +1,216 @@
+{
+  "world": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D",
+  "mouths": [
+    {
+      "day": 1,
+      "actor": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_2",
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking.SK_DAY01_Blocking",
+      "location": [
+        0.0,
+        0.0,
+        1300.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "bounds_origin": [
+        0.0,
+        -144.3235378265381,
+        0.0
+      ],
+      "bounds_extent": [
+        809.942138671875,
+        200.75879859924316,
+        389.9075012207031
+      ],
+      "children": [
+        {
+          "name": "Menu3D_DAY01_Tongue",
+          "relative_location": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "relative_scale": [
+            0.8436897009630299,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "name": "Menu3D_DAY01_Interior",
+          "relative_location": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "relative_scale": [
+            0.8436897009630299,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "name": "Menu3D_DAY01_Character",
+          "relative_location": [
+            -575.7,
+            -288.9,
+            -217.77999999999997
+          ],
+          "relative_scale": [
+            2.0,
+            2.0,
+            2.0
+          ]
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "actor": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_3",
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking.SK_DAY02_Blocking",
+      "location": [
+        0.0,
+        0.0,
+        750.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "bounds_origin": [
+        0.0,
+        -144.13185119628906,
+        0.0
+      ],
+      "bounds_extent": [
+        809.942138671875,
+        200.9504852294922,
+        384.764404296875
+      ],
+      "children": [
+        {
+          "name": "Menu3D_DAY02_Tongue",
+          "relative_location": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "relative_scale": [
+            0.8436897009630299,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "name": "Menu3D_DAY02_Interior",
+          "relative_location": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "relative_scale": [
+            0.8436897009630299,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "name": "Menu3D_DAY02_Character",
+          "relative_location": [
+            -575.7,
+            -288.9,
+            -217.77999999999997
+          ],
+          "relative_scale": [
+            2.0,
+            2.0,
+            2.0
+          ]
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "actor": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_0",
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_GumWidth_v05.SK_DAY03_GumWidth_v05",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "bounds_origin": [
+        -3.0517578125e-05,
+        -172.2684440612793,
+        4.49359130859375
+      ],
+      "bounds_extent": [
+        869.9999694824219,
+        239.4868049621582,
+        596.5634765625
+      ],
+      "children": [
+        {
+          "name": "Menu3D_DAY03_Character",
+          "relative_location": [
+            -575.7,
+            -288.9,
+            -217.78
+          ],
+          "relative_scale": [
+            2.0,
+            2.0,
+            2.0
+          ]
+        },
+        {
+          "name": "Menu3D_DAY03_Tongue",
+          "relative_location": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "relative_scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "name": "Menu3D_DAY03_Interior",
+          "relative_location": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "relative_scale": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ]
+    }
+  ],
+  "cameras": [
+    {
+      "actor": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.CameraActor_0",
+      "location": [
+        0.0,
+        2200.0,
+        0.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000001DA3566C650) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "fov": 39.970001220703125,
+      "aspect": 1.7777777910232544
+    }
+  ]
+}

@@ -1,0 +1,175 @@
+{
+  "preset": "Mesh Maps",
+  "files": [
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterMeshMaps_01\\MC_Enamel_normal_base.1001.png",
+      "bytes": 719253,
+      "sha256": "e41da2274560e7717674aea3a070c8477746fcb85a7ca8010cc15a23ba12cdb4"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterMeshMaps_01\\MC_Enamel_world_space_normals.1001.png",
+      "bytes": 5228399,
+      "sha256": "49bbbd0a2b6a7ceeb745f4d374e92b8e16f32fd9b65c9b4d579ac5f28929260b"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterMeshMaps_01\\MC_Enamel_position.1001.png",
+      "bytes": 1219876,
+      "sha256": "82a602fb217b23d5148edf9dc23285c37eeeb50c3a57cc729074e39e40b4ed4d"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterMeshMaps_01\\MC_Enamel_ambient_occlusion.1001.png",
+      "bytes": 3209102,
+      "sha256": "93c770856b1be18dbf1f3d5c7a0d5b570401087ba72eab01df8a743db9d02702"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterMeshMaps_01\\MC_Enamel_curvature.1001.png",
+      "bytes": 1961525,
+      "sha256": "e2a6b2e57216b3f4c3b0f155d14edf6cca023297cdc9f6cb4fc4dfa711fe68c8"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterMeshMaps_01\\MC_Enamel_thickness.1001.png",
+      "bytes": 2670978,
+      "sha256": "1faa7e32d0a14c036ad8b515cc2d82bab5bb219bbca59e0f0de585758060e8d6"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterMeshMaps_01\\MC_Gum_normal_base.1001.png",
+      "bytes": 193198,
+      "sha256": "fa33360dcbae8061f8960c80ac495ab33730034ce4616461947fd68520e059c0"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterMeshMaps_01\\MC_Gum_world_space_normals.1001.png",
+      "bytes": 2886741,
+      "sha256": "e3c8c4f763f698ea2b7ae43247fc150e126a8b7dd6195d69e982e97fc311cabd"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterMeshMaps_01\\MC_Gum_position.1001.png",
+      "bytes": 810940,
+      "sha256": "936bf9e1ae63b12ed7c5e514c372b7f79799ca59e5ff7169320e6150c2cc2b24"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterMeshMaps_01\\MC_Gum_ambient_occlusion.1001.png",
+      "bytes": 2114292,
+      "sha256": "351fb6464ca88a0035b79f8e2d82bee2c0d19daf9b37cc53a3efee8f3fefae66"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterMeshMaps_01\\MC_Gum_curvature.1001.png",
+      "bytes": 888308,
+      "sha256": "d7a1808ec97d35a299d7bae7d740bf1e59fd58171f89629110efd55798bd085a"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\Textures\\PainterMeshMaps_01\\MC_Gum_thickness.1001.png",
+      "bytes": 2605581,
+      "sha256": "7454ff475e8301b2fdd5d4cecfce6c4aaf5afdba27324c0ca5ac208606e43587"
+    }
+  ],
+  "result": {
+    "status": "Success",
+    "message": "Export successfully finished",
+    "groups": [
+      {
+        "texture_set": "MC_Enamel",
+        "stack": "",
+        "files": [
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Enamel_normal_base.1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Enamel_world_space_normals.1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Enamel_position.1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Enamel_ambient_occlusion.1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Enamel_curvature.1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Enamel_thickness.1001.png"
+        ]
+      },
+      {
+        "texture_set": "MC_Gum",
+        "stack": "",
+        "files": [
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Gum_normal_base.1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Gum_world_space_normals.1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Gum_position.1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Gum_ambient_occlusion.1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Gum_curvature.1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Gum_thickness.1001.png"
+        ]
+      }
+    ],
+    "files": [
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Enamel_normal_base.1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Enamel_world_space_normals.1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Enamel_position.1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Enamel_ambient_occlusion.1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Enamel_curvature.1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Enamel_thickness.1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Gum_normal_base.1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Gum_world_space_normals.1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Gum_position.1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Gum_ambient_occlusion.1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Gum_curvature.1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Gum_thickness.1001.png"
+    ],
+    "preset": {
+      "name": "Mesh Maps",
+      "url": "resource://starter_assets/Mesh Maps?version=966907117468566740.spexp"
+    },
+    "verification": [
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Enamel_normal_base.1001.png",
+        "exists": true,
+        "bytes": 719253
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Enamel_world_space_normals.1001.png",
+        "exists": true,
+        "bytes": 5228399
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Enamel_position.1001.png",
+        "exists": true,
+        "bytes": 1219876
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Enamel_ambient_occlusion.1001.png",
+        "exists": true,
+        "bytes": 3209102
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Enamel_curvature.1001.png",
+        "exists": true,
+        "bytes": 1961525
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Enamel_thickness.1001.png",
+        "exists": true,
+        "bytes": 2670978
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Gum_normal_base.1001.png",
+        "exists": true,
+        "bytes": 193198
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Gum_world_space_normals.1001.png",
+        "exists": true,
+        "bytes": 2886741
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Gum_position.1001.png",
+        "exists": true,
+        "bytes": 810940
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Gum_ambient_occlusion.1001.png",
+        "exists": true,
+        "bytes": 2114292
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Gum_curvature.1001.png",
+        "exists": true,
+        "bytes": 888308
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/DAY02_FamilyReference/PainterMeshMaps_01/MC_Gum_thickness.1001.png",
+        "exists": true,
+        "bytes": 2605581
+      }
+    ]
+  }
+}

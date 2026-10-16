@@ -1,0 +1,6 @@
+{
+  "BaseColorTexture": false,
+  "RoughnessTexture": false,
+  "NormalTexture": false,
+  "AOTexture": true
+}

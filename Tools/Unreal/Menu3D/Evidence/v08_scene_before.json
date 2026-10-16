@@ -1,0 +1,456 @@
+{
+  "world": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D",
+  "dirty_maps": [],
+  "actors": [
+    {
+      "name": "Menu3D_Camera",
+      "class": "CameraActor",
+      "tags": [
+        "Menu3D_Camera"
+      ],
+      "location": "<Struct 'Vector' (0x000001D99FF42900) {x: 0.000000, y: 2200.000000, z: 0.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001D99FF42900) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001D99FF42900) {x: 1.000000, y: 1.000000, z: 1.000000}>",
+      "materials": [
+        "/Engine/EditorMaterials/MatineeCam_mat.MatineeCam_mat"
+      ],
+      "cast_shadow": false,
+      "fov": 39.970001220703125,
+      "aspect": 1.7777777910232544,
+      "post_process": {
+        "auto_exposure_method": "<AutoExposureMethod.AEM_MANUAL: 2>",
+        "auto_exposure_bias": "-0.699999988079071",
+        "tone_curve_amount": "1.0",
+        "ambient_occlusion_intensity": "0.6000000238418579",
+        "bloom_intensity": "0.0",
+        "motion_blur_amount": "0.0"
+      }
+    },
+    {
+      "name": "Menu3D_DAY03",
+      "class": "SkeletalMeshActor",
+      "tags": [
+        "Menu3D_DAY03"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA35647120) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA35647120) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA35647120) {x: 1.000000, y: 1.000000, z: 1.000000}>",
+      "materials": [
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel_DAY03.M_Blocking_Enamel_DAY03",
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum_DAY03.M_Blocking_Gum_DAY03"
+      ],
+      "cast_shadow": true
+    },
+    {
+      "name": "Menu3D_Key",
+      "class": "RectLight",
+      "tags": [
+        "Menu3D_Key"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA35647120) {x: -650.000000, y: 900.000000, z: 650.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA35647120) {pitch: -30.348570, yaw: -54.162347, roll: -0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA35647120) {x: 1.000000, y: 1.000000, z: 1.000000}>",
+      "intensity": 600.0,
+      "color": "<Struct 'Color' (0x000001D9AD310CB8) {b: 231, g: 245, r: 255, a: 255}>",
+      "cast_shadows": true,
+      "intensity_units": "<LightUnits.CANDELAS: 1>",
+      "source_width": "500.0",
+      "source_height": "700.0",
+      "attenuation_radius": "6000.0"
+    },
+    {
+      "name": "Menu3D_Fill",
+      "class": "RectLight",
+      "tags": [
+        "Menu3D_Fill"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA356464F0) {x: 700.000000, y: 1100.000000, z: 100.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA356464F0) {pitch: -4.385800, yaw: -122.471192, roll: -0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA356464F0) {x: 1.000000, y: 1.000000, z: 1.000000}>",
+      "intensity": 170.0,
+      "color": "<Struct 'Color' (0x000001D9E97D20B8) {b: 255, g: 239, r: 223, a: 255}>",
+      "cast_shadows": true,
+      "intensity_units": "<LightUnits.CANDELAS: 1>",
+      "source_width": "900.0",
+      "source_height": "900.0",
+      "attenuation_radius": "6000.0"
+    },
+    {
+      "name": "Menu3D_Mask_Header",
+      "class": "StaticMeshActor",
+      "tags": [
+        "Menu3D_Mask_Header"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566C880) {x: 0.000000, y: 1500.000000, z: 254.545455}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566C880) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566C880) {x: 40.000000, y: 0.100000, z: 2.736364}>",
+      "materials": [
+        "/Game/UI/MainMenu3D/Materials/M_Menu3D_Background.M_Menu3D_Background"
+      ],
+      "cast_shadow": false
+    },
+    {
+      "name": "Menu3D_Mask_Footer",
+      "class": "StaticMeshActor",
+      "tags": [
+        "Menu3D_Mask_Footer"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566F030) {x: 0.000000, y: 1500.000000, z: -254.545455}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566F030) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566F030) {x: 40.000000, y: 0.100000, z: 2.736364}>",
+      "materials": [
+        "/Game/UI/MainMenu3D/Materials/M_Menu3D_Background.M_Menu3D_Background"
+      ],
+      "cast_shadow": false
+    },
+    {
+      "name": "Menu3D_DAY01",
+      "class": "SkeletalMeshActor",
+      "tags": [
+        "Menu3D_DAY01"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566F2B0) {x: 0.000000, y: 0.000000, z: 1300.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566F2B0) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566F2B0) {x: 1.000000, y: 1.000000, z: 1.000000}>",
+      "materials": [
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel.M_Blocking_Enamel",
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum.M_Blocking_Gum"
+      ],
+      "cast_shadow": true
+    },
+    {
+      "name": "Menu3D_DAY02",
+      "class": "SkeletalMeshActor",
+      "tags": [
+        "Menu3D_DAY02"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566EF90) {x: 0.000000, y: 0.000000, z: 750.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566EF90) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566EF90) {x: 1.000000, y: 1.000000, z: 1.000000}>",
+      "materials": [
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel.M_Blocking_Enamel",
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum.M_Blocking_Gum"
+      ],
+      "cast_shadow": true
+    },
+    {
+      "name": "Menu3D_BlockingRim",
+      "class": "RectLight",
+      "tags": [
+        "Menu3D_BlockingRim"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566E130) {x: 600.000000, y: -450.000000, z: 550.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566E130) {pitch: -36.253838, yaw: 143.130102, roll: 0.000001}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566E130) {x: 1.000000, y: 1.000000, z: 1.000000}>",
+      "intensity": 450.0,
+      "color": "<Struct 'Color' (0x000001D9ECEED9B8) {b: 255, g: 225, r: 196, a: 255}>",
+      "cast_shadows": true,
+      "intensity_units": "<LightUnits.CANDELAS: 1>",
+      "source_width": "400.0",
+      "source_height": "800.0",
+      "attenuation_radius": "6000.0"
+    },
+    {
+      "name": "Menu3D_BlockingCavity",
+      "class": "RectLight",
+      "tags": [
+        "Menu3D_BlockingCavity"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566E900) {x: 0.000000, y: 800.000000, z: -100.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566E900) {pitch: 7.125016, yaw: -90.000000, roll: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566E900) {x: 1.000000, y: 1.000000, z: 1.000000}>",
+      "intensity": 70.0,
+      "color": "<Struct 'Color' (0x000001D96AA60CB8) {b: 255, g: 243, r: 237, a: 255}>",
+      "cast_shadows": true,
+      "intensity_units": "<LightUnits.CANDELAS: 1>",
+      "source_width": "1200.0",
+      "source_height": "600.0",
+      "attenuation_radius": "6000.0"
+    },
+    {
+      "name": "Menu3D_DAY04",
+      "class": "SkeletalMeshActor",
+      "tags": [
+        "Menu3D_DAY04"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566DEB0) {x: 0.000000, y: 0.000000, z: -1000.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566DEB0) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566DEB0) {x: 1.000000, y: 1.000000, z: 1.000000}>",
+      "materials": [
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel.M_Blocking_Enamel",
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum.M_Blocking_Gum"
+      ],
+      "cast_shadow": true
+    },
+    {
+      "name": "Menu3D_DAY05",
+      "class": "SkeletalMeshActor",
+      "tags": [
+        "Menu3D_DAY05"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566E090) {x: 0.000000, y: 0.000000, z: -1750.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566E090) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566E090) {x: 1.000000, y: 1.000000, z: 1.000000}>",
+      "materials": [
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel.M_Blocking_Enamel",
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum.M_Blocking_Gum"
+      ],
+      "cast_shadow": true
+    },
+    {
+      "name": "Menu3D_DAY06",
+      "class": "SkeletalMeshActor",
+      "tags": [
+        "Menu3D_DAY06"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566E1D0) {x: 0.000000, y: 0.000000, z: -2500.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566E1D0) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566E1D0) {x: 1.000000, y: 1.000000, z: 1.000000}>",
+      "materials": [
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel.M_Blocking_Enamel",
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum.M_Blocking_Gum"
+      ],
+      "cast_shadow": true
+    },
+    {
+      "name": "Menu3D_DAY07",
+      "class": "SkeletalMeshActor",
+      "tags": [
+        "Menu3D_DAY07"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566E680) {x: 0.000000, y: 0.000000, z: -3250.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566E680) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566E680) {x: 1.000000, y: 1.000000, z: 1.000000}>",
+      "materials": [
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel.M_Blocking_Enamel",
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum.M_Blocking_Gum"
+      ],
+      "cast_shadow": true
+    },
+    {
+      "name": "Menu3D_DAY03_Interior",
+      "class": "StaticMeshActor",
+      "tags": [
+        "Menu3D_DAY03_Interior"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566E360) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566E360) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566E360) {x: 0.900000, y: 1.000000, z: 1.000000}>",
+      "materials": [
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Interior.M_Blocking_Interior"
+      ],
+      "cast_shadow": true
+    },
+    {
+      "name": "Menu3D_DAY03_Tongue",
+      "class": "StaticMeshActor",
+      "tags": [
+        "Menu3D_DAY03_Tongue"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566E810) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566E810) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566E810) {x: 0.900000, y: 1.000000, z: 1.000000}>",
+      "materials": [
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Tongue.M_Blocking_Tongue"
+      ],
+      "cast_shadow": true
+    },
+    {
+      "name": "Menu3D_DAY03_Character",
+      "class": "SkeletalMeshActor",
+      "tags": [
+        "Menu3D_DAY03_Character"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566F3F0) {x: -575.700000, y: -288.900000, z: -217.780000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566F3F0) {pitch: -0.000000, yaw: -165.000000, roll: -0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566F3F0) {x: 2.000000, y: 2.000000, z: 2.000000}>",
+      "materials": [
+        "/Game/Gameplay/CharacterCurrent/Materials/MI_Character.MI_Character",
+        "/Game/Gameplay/CharacterCurrent/Materials/MI_Bag.MI_Bag"
+      ],
+      "cast_shadow": true
+    },
+    {
+      "name": "Menu3D_DAY01_Character",
+      "class": "SkeletalMeshActor",
+      "tags": [
+        "Menu3D_DAY01_Character"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566F350) {x: -575.700000, y: -288.900000, z: 1082.220000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566F350) {pitch: -0.000000, yaw: -165.000000, roll: -0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566F350) {x: 2.000000, y: 2.000000, z: 2.000000}>",
+      "materials": [
+        "/Game/Gameplay/CharacterCurrent/Materials/MI_Character.MI_Character",
+        "/Game/Gameplay/CharacterCurrent/Materials/MI_Bag.MI_Bag"
+      ],
+      "cast_shadow": true
+    },
+    {
+      "name": "Menu3D_DAY02_Character",
+      "class": "SkeletalMeshActor",
+      "tags": [
+        "Menu3D_DAY02_Character"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566F530) {x: -575.700000, y: -288.900000, z: 532.220000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566F530) {pitch: -0.000000, yaw: -165.000000, roll: -0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566F530) {x: 2.000000, y: 2.000000, z: 2.000000}>",
+      "materials": [
+        "/Game/Gameplay/CharacterCurrent/Materials/MI_Character.MI_Character",
+        "/Game/Gameplay/CharacterCurrent/Materials/MI_Bag.MI_Bag"
+      ],
+      "cast_shadow": true
+    },
+    {
+      "name": "Menu3D_DAY01_Interior",
+      "class": "StaticMeshActor",
+      "tags": [
+        "Menu3D_DAY01_Interior"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566F300) {x: 0.000000, y: 0.000000, z: 1300.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566F300) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566F300) {x: 0.843690, y: 1.000000, z: 1.000000}>",
+      "materials": [
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Interior.M_Blocking_Interior"
+      ],
+      "cast_shadow": true
+    },
+    {
+      "name": "Menu3D_DAY01_Tongue",
+      "class": "StaticMeshActor",
+      "tags": [
+        "Menu3D_DAY01_Tongue"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566F800) {x: 0.000000, y: 0.000000, z: 1300.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566F800) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566F800) {x: 0.843690, y: 1.000000, z: 1.000000}>",
+      "materials": [
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Tongue.M_Blocking_Tongue"
+      ],
+      "cast_shadow": true
+    },
+    {
+      "name": "Menu3D_DAY02_Interior",
+      "class": "StaticMeshActor",
+      "tags": [
+        "Menu3D_DAY02_Interior"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566F760) {x: 0.000000, y: 0.000000, z: 750.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566F760) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566F760) {x: 0.843690, y: 1.000000, z: 1.000000}>",
+      "materials": [
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Interior.M_Blocking_Interior"
+      ],
+      "cast_shadow": true
+    },
+    {
+      "name": "Menu3D_DAY02_Tongue",
+      "class": "StaticMeshActor",
+      "tags": [
+        "Menu3D_DAY02_Tongue"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566F670) {x: 0.000000, y: 0.000000, z: 750.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566F670) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566F670) {x: 0.843690, y: 1.000000, z: 1.000000}>",
+      "materials": [
+        "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Tongue.M_Blocking_Tongue"
+      ],
+      "cast_shadow": true
+    }
+  ],
+  "lights": [
+    {
+      "name": "Menu3D_Key",
+      "class": "RectLight",
+      "tags": [
+        "Menu3D_Key"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA35647120) {x: -650.000000, y: 900.000000, z: 650.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA35647120) {pitch: -30.348570, yaw: -54.162347, roll: -0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA35647120) {x: 1.000000, y: 1.000000, z: 1.000000}>",
+      "intensity": 600.0,
+      "color": "<Struct 'Color' (0x000001D9AD310CB8) {b: 231, g: 245, r: 255, a: 255}>",
+      "cast_shadows": true,
+      "intensity_units": "<LightUnits.CANDELAS: 1>",
+      "source_width": "500.0",
+      "source_height": "700.0",
+      "attenuation_radius": "6000.0"
+    },
+    {
+      "name": "Menu3D_Fill",
+      "class": "RectLight",
+      "tags": [
+        "Menu3D_Fill"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA356464F0) {x: 700.000000, y: 1100.000000, z: 100.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA356464F0) {pitch: -4.385800, yaw: -122.471192, roll: -0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA356464F0) {x: 1.000000, y: 1.000000, z: 1.000000}>",
+      "intensity": 170.0,
+      "color": "<Struct 'Color' (0x000001D9E97D20B8) {b: 255, g: 239, r: 223, a: 255}>",
+      "cast_shadows": true,
+      "intensity_units": "<LightUnits.CANDELAS: 1>",
+      "source_width": "900.0",
+      "source_height": "900.0",
+      "attenuation_radius": "6000.0"
+    },
+    {
+      "name": "Menu3D_BlockingRim",
+      "class": "RectLight",
+      "tags": [
+        "Menu3D_BlockingRim"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566E130) {x: 600.000000, y: -450.000000, z: 550.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566E130) {pitch: -36.253838, yaw: 143.130102, roll: 0.000001}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566E130) {x: 1.000000, y: 1.000000, z: 1.000000}>",
+      "intensity": 450.0,
+      "color": "<Struct 'Color' (0x000001D9ECEED9B8) {b: 255, g: 225, r: 196, a: 255}>",
+      "cast_shadows": true,
+      "intensity_units": "<LightUnits.CANDELAS: 1>",
+      "source_width": "400.0",
+      "source_height": "800.0",
+      "attenuation_radius": "6000.0"
+    },
+    {
+      "name": "Menu3D_BlockingCavity",
+      "class": "RectLight",
+      "tags": [
+        "Menu3D_BlockingCavity"
+      ],
+      "location": "<Struct 'Vector' (0x000001DA3566E900) {x: 0.000000, y: 800.000000, z: -100.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001DA3566E900) {pitch: 7.125016, yaw: -90.000000, roll: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001DA3566E900) {x: 1.000000, y: 1.000000, z: 1.000000}>",
+      "intensity": 70.0,
+      "color": "<Struct 'Color' (0x000001D96AA60CB8) {b: 255, g: 243, r: 237, a: 255}>",
+      "cast_shadows": true,
+      "intensity_units": "<LightUnits.CANDELAS: 1>",
+      "source_width": "1200.0",
+      "source_height": "600.0",
+      "attenuation_radius": "6000.0"
+    }
+  ],
+  "cameras": [
+    {
+      "name": "Menu3D_Camera",
+      "class": "CameraActor",
+      "tags": [
+        "Menu3D_Camera"
+      ],
+      "location": "<Struct 'Vector' (0x000001D99FF42900) {x: 0.000000, y: 2200.000000, z: 0.000000}>",
+      "rotation": "<Struct 'Rotator' (0x000001D99FF42900) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001D99FF42900) {x: 1.000000, y: 1.000000, z: 1.000000}>",
+      "materials": [
+        "/Engine/EditorMaterials/MatineeCam_mat.MatineeCam_mat"
+      ],
+      "cast_shadow": false,
+      "fov": 39.970001220703125,
+      "aspect": 1.7777777910232544,
+      "post_process": {
+        "auto_exposure_method": "<AutoExposureMethod.AEM_MANUAL: 2>",
+        "auto_exposure_bias": "-0.699999988079071",
+        "tone_curve_amount": "1.0",
+        "ambient_occlusion_intensity": "0.6000000238418579",
+        "bloom_intensity": "0.0",
+        "motion_blur_amount": "0.0"
+      }
+    }
+  ]
+}

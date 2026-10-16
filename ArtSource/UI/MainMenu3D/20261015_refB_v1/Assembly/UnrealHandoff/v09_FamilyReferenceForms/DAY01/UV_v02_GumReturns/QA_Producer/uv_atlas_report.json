@@ -1,0 +1,2312 @@
+{
+  "source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY01\\UV_v02_GumReturns\\MC_DAY01_UnrealMorphSource.blend",
+  "material_names": [
+    "MC_Enamel",
+    "MC_Gum"
+  ],
+  "producer_extraction": true,
+  "independent": false,
+  "read_only": false,
+  "resolution": 4096,
+  "islands": 106,
+  "materials": {
+    "0": {
+      "name": "MC_Enamel",
+      "island_count": 96,
+      "occupied_pixels": 10518772,
+      "coverage_fraction": 0.6269676685333252,
+      "inter_island_overlap_pixels": 0,
+      "collapsed_uv_nonzero_surface_triangles": 0,
+      "mixed_winding_triangles": 0,
+      "islands": [
+        {
+          "island": 0,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.14467352628707886,
+              0.14707593619823456
+            ],
+            [
+              0.2776280641555786,
+              0.2822832763195038
+            ]
+          ],
+          "raster_pixels": 264677,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 592.582763671875,
+          "part": "MC_DAY01_Upper_Central_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 1,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.003906252793967724,
+              0.0039062420837581158
+            ],
+            [
+              0.13767202198505402,
+              0.13926342129707336
+            ]
+          ],
+          "raster_pixels": 266018,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 15.999967575073242,
+          "part": "MC_DAY01_Upper_Central_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 2,
+          "polygons": 620,
+          "uv_bbox": [
+            [
+              0.871809720993042,
+              0.786471426486969
+            ],
+            [
+              0.9106903076171875,
+              0.8612610697746277
+            ]
+          ],
+          "raster_pixels": 44404,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1240,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 365.8125,
+          "part": "MC_DAY01_Upper_Central_R",
+          "nearest_other_island_px": 43.16279220581055
+        },
+        {
+          "island": 3,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.003906251396983862,
+              0.14707593619823456
+            ],
+            [
+              0.13686102628707886,
+              0.2822834849357605
+            ]
+          ],
+          "raster_pixels": 264664,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 16.0000057220459,
+          "part": "MC_DAY01_Upper_Central_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 4,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.1454845368862152,
+              0.003906254656612873
+            ],
+            [
+              0.27925005555152893,
+              0.13926316797733307
+            ]
+          ],
+          "raster_pixels": 265911,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 16.000019073486328,
+          "part": "MC_DAY01_Upper_Central_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 5,
+          "polygons": 620,
+          "uv_bbox": [
+            [
+              0.00390624743886292,
+              0.8753204345703125
+            ],
+            [
+              0.04278688132762909,
+              0.9501099586486816
+            ]
+          ],
+          "raster_pixels": 44435,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1240,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 15.99998950958252,
+          "part": "MC_DAY01_Upper_Central_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 6,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.003906275145709515,
+              0.2900959849357605
+            ],
+            [
+              0.1295330822467804,
+              0.42024481296539307
+            ]
+          ],
+          "raster_pixels": 240189,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 16.000102996826172,
+          "part": "MC_DAY01_Upper_Lateral_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 7,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.28706255555152893,
+              0.14200544357299805
+            ],
+            [
+              0.413434773683548,
+              0.2722921371459961
+            ]
+          ],
+          "raster_pixels": 241537,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 581.654296875,
+          "part": "MC_DAY01_Upper_Lateral_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 8,
+          "polygons": 620,
+          "uv_bbox": [
+            [
+              0.050599388778209686,
+              0.8753204941749573
+            ],
+            [
+              0.08922423422336578,
+              0.9443914294242859
+            ]
+          ],
+          "raster_pixels": 40756,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1240,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 207.25509643554688,
+          "part": "MC_DAY01_Upper_Lateral_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 9,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.1373455673456192,
+              0.2900959849357605
+            ],
+            [
+              0.26297223567962646,
+              0.42024463415145874
+            ]
+          ],
+          "raster_pixels": 240173,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 562.5674438476562,
+          "part": "MC_DAY01_Upper_Lateral_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 10,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.28706255555152893,
+              0.003906250465661287
+            ],
+            [
+              0.41343480348587036,
+              0.13419294357299805
+            ]
+          ],
+          "raster_pixels": 241452,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 16.000001907348633,
+          "part": "MC_DAY01_Upper_Lateral_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 11,
+          "polygons": 620,
+          "uv_bbox": [
+            [
+              0.09703672677278519,
+              0.8753204941749573
+            ],
+            [
+              0.1356615424156189,
+              0.9443914294242859
+            ]
+          ],
+          "raster_pixels": 40740,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1240,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 227.772705078125,
+          "part": "MC_DAY01_Upper_Lateral_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 12,
+          "polygons": 2750,
+          "uv_bbox": [
+            [
+              0.421247273683548,
+              0.14005498588085175
+            ],
+            [
+              0.5375310778617859,
+              0.2682768702507019
+            ]
+          ],
+          "raster_pixels": 217131,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5500,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 573.6652221679688,
+          "part": "MC_DAY01_Upper_Canine_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 13,
+          "polygons": 2750,
+          "uv_bbox": [
+            [
+              0.2707847058773041,
+              0.2900959849357605
+            ],
+            [
+              0.38774070143699646,
+              0.418432354927063
+            ]
+          ],
+          "raster_pixels": 218168,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5500,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 1109.1341552734375,
+          "part": "MC_DAY01_Upper_Canine_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 14,
+          "polygons": 644,
+          "uv_bbox": [
+            [
+              0.1928577721118927,
+              0.8753204941749573
+            ],
+            [
+              0.23442897200584412,
+              0.9370163679122925
+            ]
+          ],
+          "raster_pixels": 37549,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1288,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 257.98095703125,
+          "part": "MC_DAY01_Upper_Canine_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 15,
+          "polygons": 2750,
+          "uv_bbox": [
+            [
+              0.4212472438812256,
+              0.2760893702507019
+            ],
+            [
+              0.5375308990478516,
+              0.4043111205101013
+            ]
+          ],
+          "raster_pixels": 217139,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5500,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 1130.862060546875,
+          "part": "MC_DAY01_Upper_Canine_L",
+          "nearest_other_island_px": 38.1968994140625
+        },
+        {
+          "island": 16,
+          "polygons": 2750,
+          "uv_bbox": [
+            [
+              0.42124730348587036,
+              0.00390624743886292
+            ],
+            [
+              0.5382032990455627,
+              0.13224248588085175
+            ]
+          ],
+          "raster_pixels": 218163,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5500,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 15.99998950958252,
+          "part": "MC_DAY01_Upper_Canine_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 17,
+          "polygons": 644,
+          "uv_bbox": [
+            [
+              0.1434740424156189,
+              0.8753204941749573
+            ],
+            [
+              0.1850452721118927,
+              0.9370163679122925
+            ]
+          ],
+          "raster_pixels": 37564,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1288,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 257.98095703125,
+          "part": "MC_DAY01_Upper_Canine_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 18,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.24285267293453217,
+              0.42805731296539307
+            ],
+            [
+              0.3539258539676666,
+              0.5521407723426819
+            ]
+          ],
+          "raster_pixels": 201270,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 994.7245483398438,
+          "part": "MC_DAY01_Upper_Premolar01_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 19,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.00390624743886292,
+              0.42805731296539307
+            ],
+            [
+              0.11556697636842728,
+              0.5522496700286865
+            ]
+          ],
+          "raster_pixels": 202247,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 15.99998950958252,
+          "part": "MC_DAY01_Upper_Premolar01_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 20,
+          "polygons": 620,
+          "uv_bbox": [
+            [
+              0.29023781418800354,
+              0.8753204941749573
+            ],
+            [
+              0.3304216265678406,
+              0.9311200976371765
+            ]
+          ],
+          "raster_pixels": 34237,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1240,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 282.132080078125,
+          "part": "MC_DAY01_Upper_Premolar01_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 21,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.36173832416534424,
+              0.4280572831630707
+            ],
+            [
+              0.47281134128570557,
+              0.5521407127380371
+            ]
+          ],
+          "raster_pixels": 201378,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 1481.68017578125,
+          "part": "MC_DAY01_Upper_Premolar01_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 22,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.12337946891784668,
+              0.42805731296539307
+            ],
+            [
+              0.23504017293453217,
+              0.5522497296333313
+            ]
+          ],
+          "raster_pixels": 202259,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 505.3623046875,
+          "part": "MC_DAY01_Upper_Premolar01_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 23,
+          "polygons": 620,
+          "uv_bbox": [
+            [
+              0.2422414869070053,
+              0.8753204941749573
+            ],
+            [
+              0.28242531418800354,
+              0.9311201572418213
+            ]
+          ],
+          "raster_pixels": 34261,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1240,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 282.1318359375,
+          "part": "MC_DAY01_Upper_Premolar01_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 24,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.5460157990455627,
+              0.2544352412223816
+            ],
+            [
+              0.6470898985862732,
+              0.3717953860759735
+            ]
+          ],
+          "raster_pixels": 172707,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 1042.166748046875,
+          "part": "MC_DAY01_Upper_Premolar02_R",
+          "nearest_other_island_px": 38.78759765625
+        },
+        {
+          "island": 25,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.5460157990455627,
+              0.00390624743886292
+            ],
+            [
+              0.6475782990455627,
+              0.12135820090770721
+            ]
+          ],
+          "raster_pixels": 173447,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 15.99998950958252,
+          "part": "MC_DAY01_Upper_Premolar02_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 26,
+          "polygons": 620,
+          "uv_bbox": [
+            [
+              0.4797523021697998,
+              0.8753204941749573
+            ],
+            [
+              0.519591212272644,
+              0.9230482578277588
+            ]
+          ],
+          "raster_pixels": 29055,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1240,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 315.1943359375,
+          "part": "MC_DAY01_Upper_Premolar02_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 27,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.5460157990455627,
+              0.3796079158782959
+            ],
+            [
+              0.6470898985862732,
+              0.4969680607318878
+            ]
+          ],
+          "raster_pixels": 172669,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 1445.519775390625,
+          "part": "MC_DAY01_Upper_Premolar02_L",
+          "nearest_other_island_px": 36.393798828125
+        },
+        {
+          "island": 28,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.5460157990455627,
+              0.1291707456111908
+            ],
+            [
+              0.6475782990455627,
+              0.24662275612354279
+            ]
+          ],
+          "raster_pixels": 173423,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 529.0833740234375,
+          "part": "MC_DAY01_Upper_Premolar02_L",
+          "nearest_other_island_px": 33.0
+        },
+        {
+          "island": 29,
+          "polygons": 620,
+          "uv_bbox": [
+            [
+              0.4321008324623108,
+              0.8753204941749573
+            ],
+            [
+              0.4719398021697998,
+              0.9230482578277588
+            ]
+          ],
+          "raster_pixels": 29053,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1240,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 315.1943359375,
+          "part": "MC_DAY01_Upper_Premolar02_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 30,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.20909595489501953,
+              0.5600621700286865
+            ],
+            [
+              0.30348682403564453,
+              0.6707615256309509
+            ]
+          ],
+          "raster_pixels": 147887,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 856.45703125,
+          "part": "MC_DAY01_Upper_Molar01_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 31,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.10650108754634857,
+              0.5600621104240417
+            ],
+            [
+              0.20128345489501953,
+              0.670851469039917
+            ]
+          ],
+          "raster_pixels": 148457,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 436.22845458984375,
+          "part": "MC_DAY01_Upper_Molar01_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 32,
+          "polygons": 480,
+          "uv_bbox": [
+            [
+              0.8895912766456604,
+              0.8753204345703125
+            ],
+            [
+              0.9259595274925232,
+              0.9134917259216309
+            ]
+          ],
+          "raster_pixels": 20985,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 960,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 303.269775390625,
+          "part": "MC_DAY01_Upper_Molar01_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 33,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.31129932403564453,
+              0.5600621104240417
+            ],
+            [
+              0.40569013357162476,
+              0.6707613468170166
+            ]
+          ],
+          "raster_pixels": 147903,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 1275.08203125,
+          "part": "MC_DAY01_Upper_Molar01_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 34,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.00390624743886292,
+              0.5600622296333313
+            ],
+            [
+              0.09868858754634857,
+              0.6708516478538513
+            ]
+          ],
+          "raster_pixels": 148430,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 15.99998950958252,
+          "part": "MC_DAY01_Upper_Molar01_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 35,
+          "polygons": 480,
+          "uv_bbox": [
+            [
+              0.0039062199648469687,
+              0.9579225778579712
+            ],
+            [
+              0.0402744822204113,
+              0.9960938096046448
+            ]
+          ],
+          "raster_pixels": 20994,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 960,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 15.999755859375,
+          "part": "MC_DAY01_Upper_Molar01_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 36,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.6553908586502075,
+              0.00390624743886292
+            ],
+            [
+              0.7469577193260193,
+              0.10877319425344467
+            ]
+          ],
+          "raster_pixels": 135919,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 15.99998950958252,
+          "part": "MC_DAY01_Upper_Molar02_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 37,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.513241708278656,
+              0.5600621104240417
+            ],
+            [
+              0.6051680445671082,
+              0.665015697479248
+            ]
+          ],
+          "raster_pixels": 136386,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 1372.095703125,
+          "part": "MC_DAY01_Upper_Molar02_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 38,
+          "polygons": 480,
+          "uv_bbox": [
+            [
+              0.04808700457215309,
+              0.9579225182533264
+            ],
+            [
+              0.08419306576251984,
+              0.9941242337226868
+            ]
+          ],
+          "raster_pixels": 19767,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 960,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 24.067138671875,
+          "part": "MC_DAY01_Upper_Molar02_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 39,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.6553909182548523,
+              0.11658573150634766
+            ],
+            [
+              0.7469576001167297,
+              0.22145241498947144
+            ]
+          ],
+          "raster_pixels": 135877,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 477.53515625,
+          "part": "MC_DAY01_Upper_Molar02_L",
+          "nearest_other_island_px": 32.78759765625
+        },
+        {
+          "island": 40,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.41350260376930237,
+              0.5600621700286865
+            ],
+            [
+              0.505429208278656,
+              0.6650158166885376
+            ]
+          ],
+          "raster_pixels": 136351,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 1372.09521484375,
+          "part": "MC_DAY01_Upper_Molar02_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 41,
+          "polygons": 480,
+          "uv_bbox": [
+            [
+              0.09200555086135864,
+              0.9579225778579712
+            ],
+            [
+              0.12811163067817688,
+              0.9941242933273315
+            ]
+          ],
+          "raster_pixels": 19776,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 960,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 24.06689453125,
+          "part": "MC_DAY01_Upper_Molar02_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 42,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.19455328583717346,
+              0.6786640882492065
+            ],
+            [
+              0.2817433476448059,
+              0.7777630090713501
+            ]
+          ],
+          "raster_pixels": 122286,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 796.8902587890625,
+          "part": "MC_DAY01_Upper_Molar03_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 43,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.00390624743886292,
+              0.6786641478538513
+            ],
+            [
+              0.09141728281974792,
+              0.7778422832489014
+            ]
+          ],
+          "raster_pixels": 122709,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 15.99998950958252,
+          "part": "MC_DAY01_Upper_Molar03_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 44,
+          "polygons": 480,
+          "uv_bbox": [
+            [
+              0.3490326702594757,
+              0.9579225778579712
+            ],
+            [
+              0.3821313977241516,
+              0.9937708377838135
+            ]
+          ],
+          "raster_pixels": 17954,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 960,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 25.5146484375,
+          "part": "MC_DAY01_Upper_Molar03_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 45,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.2895558774471283,
+              0.6786640882492065
+            ],
+            [
+              0.37674587965011597,
+              0.7777628898620605
+            ]
+          ],
+          "raster_pixels": 122308,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 910.283203125,
+          "part": "MC_DAY01_Upper_Molar03_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 46,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.09922979772090912,
+              0.6786640882492065
+            ],
+            [
+              0.18674078583717346,
+              0.7778421640396118
+            ]
+          ],
+          "raster_pixels": 122677,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 406.44525146484375,
+          "part": "MC_DAY01_Upper_Molar03_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 47,
+          "polygons": 480,
+          "uv_bbox": [
+            [
+              0.3081214427947998,
+              0.9579225182533264
+            ],
+            [
+              0.3412201702594757,
+              0.9937708377838135
+            ]
+          ],
+          "raster_pixels": 17923,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 960,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 25.5146484375,
+          "part": "MC_DAY01_Upper_Molar03_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 48,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.3232782781124115,
+              0.7856547236442566
+            ],
+            [
+              0.42230695486068726,
+              0.8662441372871399
+            ]
+          ],
+          "raster_pixels": 115938,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 547.864013671875,
+          "part": "MC_DAY01_Lower_Central_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 49,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.003906275145709515,
+              0.7856547236442566
+            ],
+            [
+              0.10332102328538895,
+              0.8664942979812622
+            ]
+          ],
+          "raster_pixels": 116465,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 16.000102996826172,
+          "part": "MC_DAY01_Lower_Central_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 50,
+          "polygons": 620,
+          "uv_bbox": [
+            [
+              0.6200923919677734,
+              0.8753204941749573
+            ],
+            [
+              0.6564883589744568,
+              0.9239183664321899
+            ]
+          ],
+          "raster_pixels": 27275,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1240,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 311.63037109375,
+          "part": "MC_DAY01_Lower_Central_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 51,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.43011948466300964,
+              0.7856546640396118
+            ],
+            [
+              0.5291481018066406,
+              0.8662440180778503
+            ]
+          ],
+          "raster_pixels": 115966,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 547.864501953125,
+          "part": "MC_DAY01_Lower_Central_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 52,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.7645825147628784,
+              0.6473199725151062
+            ],
+            [
+              0.863997220993042,
+              0.7281595468521118
+            ]
+          ],
+          "raster_pixels": 116436,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 557.0673828125,
+          "part": "MC_DAY01_Lower_Central_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 53,
+          "polygons": 620,
+          "uv_bbox": [
+            [
+              0.664300799369812,
+              0.8753204941749573
+            ],
+            [
+              0.7006967067718506,
+              0.9239183664321899
+            ]
+          ],
+          "raster_pixels": 27266,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1240,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 311.63037109375,
+          "part": "MC_DAY01_Lower_Central_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 54,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.11113349348306656,
+              0.7856547832489014
+            ],
+            [
+              0.20939339697360992,
+              0.8669548630714417
+            ]
+          ],
+          "raster_pixels": 116122,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 455.2027893066406,
+          "part": "MC_DAY01_Lower_Lateral_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 55,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.7645825743675232,
+              0.5579689741134644
+            ],
+            [
+              0.8632262945175171,
+              0.6395074129104614
+            ]
+          ],
+          "raster_pixels": 116662,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 560.22509765625,
+          "part": "MC_DAY01_Lower_Lateral_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 56,
+          "polygons": 620,
+          "uv_bbox": [
+            [
+              0.7085092067718506,
+              0.8753204941749573
+            ],
+            [
+              0.7449342608451843,
+              0.9232463836669922
+            ]
+          ],
+          "raster_pixels": 26906,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1240,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 314.3828125,
+          "part": "MC_DAY01_Lower_Lateral_R",
+          "nearest_other_island_px": 31.0
+        },
+        {
+          "island": 57,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.21720591187477112,
+              0.7856547832489014
+            ],
+            [
+              0.3154657781124115,
+              0.8669548630714417
+            ]
+          ],
+          "raster_pixels": 116156,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 544.952880859375,
+          "part": "MC_DAY01_Lower_Lateral_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 58,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.7645825147628784,
+              0.4686180353164673
+            ],
+            [
+              0.8632262945175171,
+              0.5501564145088196
+            ]
+          ],
+          "raster_pixels": 116672,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 560.22509765625,
+          "part": "MC_DAY01_Lower_Lateral_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 59,
+          "polygons": 620,
+          "uv_bbox": [
+            [
+              0.7527467608451843,
+              0.8753204941749573
+            ],
+            [
+              0.7891718149185181,
+              0.9232463836669922
+            ]
+          ],
+          "raster_pixels": 26914,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1240,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 314.3828125,
+          "part": "MC_DAY01_Lower_Lateral_L",
+          "nearest_other_island_px": 31.0
+        },
+        {
+          "island": 60,
+          "polygons": 2750,
+          "uv_bbox": [
+            [
+              0.6553908586502075,
+              0.5123847126960754
+            ],
+            [
+              0.7563460469245911,
+              0.5988134145736694
+            ]
+          ],
+          "raster_pixels": 127012,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5500,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 998.006591796875,
+          "part": "MC_DAY01_Lower_Canine_R",
+          "nearest_other_island_px": 34.0
+        },
+        {
+          "island": 61,
+          "polygons": 2750,
+          "uv_bbox": [
+            [
+              0.6553908586502075,
+              0.3237040936946869
+            ],
+            [
+              0.7567697763442993,
+              0.41033080220222473
+            ]
+          ],
+          "raster_pixels": 127593,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5500,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 996.27099609375,
+          "part": "MC_DAY01_Lower_Canine_R",
+          "nearest_other_island_px": 34.0
+        },
+        {
+          "island": 62,
+          "polygons": 644,
+          "uv_bbox": [
+            [
+              0.33823415637016296,
+              0.8753204345703125
+            ],
+            [
+              0.37735500931739807,
+              0.925165057182312
+            ]
+          ],
+          "raster_pixels": 28984,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1288,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 306.52392578125,
+          "part": "MC_DAY01_Lower_Canine_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 63,
+          "polygons": 2750,
+          "uv_bbox": [
+            [
+              0.6553908586502075,
+              0.41814330220222473
+            ],
+            [
+              0.7563462257385254,
+              0.5045722126960754
+            ]
+          ],
+          "raster_pixels": 127029,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5500,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 998.005859375,
+          "part": "MC_DAY01_Lower_Canine_L",
+          "nearest_other_island_px": 34.0
+        },
+        {
+          "island": 64,
+          "polygons": 2750,
+          "uv_bbox": [
+            [
+              0.6553908586502075,
+              0.22926488518714905
+            ],
+            [
+              0.7567700147628784,
+              0.3158915936946869
+            ]
+          ],
+          "raster_pixels": 127624,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5500,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 939.0689697265625,
+          "part": "MC_DAY01_Lower_Canine_L",
+          "nearest_other_island_px": 32.78759765625
+        },
+        {
+          "island": 65,
+          "polygons": 644,
+          "uv_bbox": [
+            [
+              0.3851674795150757,
+              0.8753204345703125
+            ],
+            [
+              0.4242883026599884,
+              0.925165057182312
+            ]
+          ],
+          "raster_pixels": 28979,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1288,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 306.52392578125,
+          "part": "MC_DAY01_Lower_Canine_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 66,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.5984014272689819,
+              0.6786640882492065
+            ],
+            [
+              0.6971336603164673,
+              0.7646062970161438
+            ]
+          ],
+          "raster_pixels": 123153,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 964.172607421875,
+          "part": "MC_DAY01_Lower_Premolar01_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 67,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.38455837965011597,
+              0.6786640882492065
+            ],
+            [
+              0.48366740345954895,
+              0.7648126482963562
+            ]
+          ],
+          "raster_pixels": 123717,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 963.327392578125,
+          "part": "MC_DAY01_Lower_Premolar01_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 68,
+          "polygons": 620,
+          "uv_bbox": [
+            [
+              0.527403712272644,
+              0.8753204941749573
+            ],
+            [
+              0.5659356117248535,
+              0.9216630458831787
+            ]
+          ],
+          "raster_pixels": 27476,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1240,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 320.8681640625,
+          "part": "MC_DAY01_Lower_Premolar01_R",
+          "nearest_other_island_px": 31.0
+        },
+        {
+          "island": 69,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.7645825147628784,
+              0.0039062199648469687
+            ],
+            [
+              0.8633146286010742,
+              0.08984841406345367
+            ]
+          ],
+          "raster_pixels": 123186,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 15.999876976013184,
+          "part": "MC_DAY01_Lower_Premolar01_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 70,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.49147993326187134,
+              0.6786640882492065
+            ],
+            [
+              0.5905889272689819,
+              0.7648126482963562
+            ]
+          ],
+          "raster_pixels": 123675,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 963.327392578125,
+          "part": "MC_DAY01_Lower_Premolar01_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 71,
+          "polygons": 620,
+          "uv_bbox": [
+            [
+              0.5737480521202087,
+              0.8753204345703125
+            ],
+            [
+              0.6122798919677734,
+              0.9216629862785339
+            ]
+          ],
+          "raster_pixels": 27481,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1240,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 320.868408203125,
+          "part": "MC_DAY01_Lower_Premolar01_L",
+          "nearest_other_island_px": 31.0
+        },
+        {
+          "island": 72,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.7645825147628784,
+              0.3759761154651642
+            ],
+            [
+              0.861140787601471,
+              0.46080559492111206
+            ]
+          ],
+          "raster_pixels": 118656,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 568.767333984375,
+          "part": "MC_DAY01_Lower_Premolar02_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 73,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.7645825147628784,
+              0.190497487783432
+            ],
+            [
+              0.8615002036094666,
+              0.275521457195282
+            ]
+          ],
+          "raster_pixels": 119188,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 567.295166015625,
+          "part": "MC_DAY01_Lower_Premolar02_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 74,
+          "polygons": 620,
+          "uv_bbox": [
+            [
+              0.8432878255844116,
+              0.8753204941749573
+            ],
+            [
+              0.8817787170410156,
+              0.9198858141899109
+            ]
+          ],
+          "raster_pixels": 26450,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1240,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 328.147705078125,
+          "part": "MC_DAY01_Lower_Premolar02_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 75,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.7645825147628784,
+              0.2833339273929596
+            ],
+            [
+              0.861140787601471,
+              0.368163526058197
+            ]
+          ],
+          "raster_pixels": 118650,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 568.767333984375,
+          "part": "MC_DAY01_Lower_Premolar02_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 76,
+          "polygons": 2762,
+          "uv_bbox": [
+            [
+              0.7645825147628784,
+              0.09766091406345367
+            ],
+            [
+              0.8615002036094666,
+              0.18268494307994843
+            ]
+          ],
+          "raster_pixels": 119216,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5524,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 400.01910400390625,
+          "part": "MC_DAY01_Lower_Premolar02_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 77,
+          "polygons": 620,
+          "uv_bbox": [
+            [
+              0.7969842553138733,
+              0.8753204941749573
+            ],
+            [
+              0.8354753255844116,
+              0.9198858141899109
+            ]
+          ],
+          "raster_pixels": 26414,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 1240,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 328.147705078125,
+          "part": "MC_DAY01_Lower_Premolar02_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 78,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.7355053424835205,
+              0.7856547236442566
+            ],
+            [
+              0.826664924621582,
+              0.8674185276031494
+            ]
+          ],
+          "raster_pixels": 106419,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 543.0537109375,
+          "part": "MC_DAY01_Lower_Molar01_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 79,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.6362329721450806,
+              0.7856547236442566
+            ],
+            [
+              0.7276927828788757,
+              0.8675078749656677
+            ]
+          ],
+          "raster_pixels": 106956,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 542.687744140625,
+          "part": "MC_DAY01_Lower_Molar01_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 80,
+          "polygons": 480,
+          "uv_bbox": [
+            [
+              0.17903074622154236,
+              0.9579225182533264
+            ],
+            [
+              0.2143247425556183,
+              0.9946381449699402
+            ]
+          ],
+          "raster_pixels": 19713,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 960,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 21.962158203125,
+          "part": "MC_DAY01_Lower_Molar01_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 81,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.871809720993042,
+              0.00390624743886292
+            ],
+            [
+              0.9629693031311035,
+              0.08566995710134506
+            ]
+          ],
+          "raster_pixels": 106395,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 15.99998950958252,
+          "part": "MC_DAY01_Lower_Molar01_L",
+          "nearest_other_island_px": 33.0
+        },
+        {
+          "island": 82,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.5369606018066406,
+              0.7856547236442566
+            ],
+            [
+              0.6284204721450806,
+              0.8675079345703125
+            ]
+          ],
+          "raster_pixels": 106894,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 542.6875,
+          "part": "MC_DAY01_Lower_Molar01_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 83,
+          "polygons": 480,
+          "uv_bbox": [
+            [
+              0.13592413067817688,
+              0.9579225182533264
+            ],
+            [
+              0.17121818661689758,
+              0.9946381449699402
+            ]
+          ],
+          "raster_pixels": 19682,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 960,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 21.962158203125,
+          "part": "MC_DAY01_Lower_Molar01_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 84,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.8718097805976868,
+              0.2691108286380768
+            ],
+            [
+              0.9607912302017212,
+              0.3490292429924011
+            ]
+          ],
+          "raster_pixels": 101748,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 160.59912109375,
+          "part": "MC_DAY01_Lower_Molar02_R",
+          "nearest_other_island_px": 33.0
+        },
+        {
+          "island": 85,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.871809720993042,
+              0.1812966763973236
+            ],
+            [
+              0.9610772132873535,
+              0.26129835844039917
+            ]
+          ],
+          "raster_pixels": 102208,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 159.427734375,
+          "part": "MC_DAY01_Lower_Molar02_R",
+          "nearest_other_island_px": 33.0
+        },
+        {
+          "island": 86,
+          "polygons": 480,
+          "uv_bbox": [
+            [
+              0.26512935757637024,
+              0.9579225182533264
+            ],
+            [
+              0.3003089427947998,
+              0.9931584596633911
+            ]
+          ],
+          "raster_pixels": 18852,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 960,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 28.02294921875,
+          "part": "MC_DAY01_Lower_Molar02_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 87,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.8718097805976868,
+              0.35684168338775635
+            ],
+            [
+              0.9607912302017212,
+              0.4367600381374359
+            ]
+          ],
+          "raster_pixels": 101740,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 160.59912109375,
+          "part": "MC_DAY01_Lower_Molar02_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 88,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.871809720993042,
+              0.09348244965076447
+            ],
+            [
+              0.9610773324966431,
+              0.1734841763973236
+            ]
+          ],
+          "raster_pixels": 102169,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 159.42724609375,
+          "part": "MC_DAY01_Lower_Molar02_L",
+          "nearest_other_island_px": 33.0
+        },
+        {
+          "island": 89,
+          "polygons": 480,
+          "uv_bbox": [
+            [
+              0.2221371829509735,
+              0.9579225182533264
+            ],
+            [
+              0.25731679797172546,
+              0.9931584596633911
+            ]
+          ],
+          "raster_pixels": 18841,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 960,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 28.02294921875,
+          "part": "MC_DAY01_Lower_Molar02_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 90,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.871809720993042,
+              0.7010777592658997
+            ],
+            [
+              0.9566580057144165,
+              0.778658926486969
+            ]
+          ],
+          "raster_pixels": 94413,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 177.52880859375,
+          "part": "MC_DAY01_Lower_Molar03_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 91,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.871809720993042,
+              0.4445725679397583
+            ],
+            [
+              0.9569191932678223,
+              0.5223157405853271
+            ]
+          ],
+          "raster_pixels": 94782,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 176.458984375,
+          "part": "MC_DAY01_Lower_Molar03_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 92,
+          "polygons": 480,
+          "uv_bbox": [
+            [
+              0.4299187958240509,
+              0.9579224586486816
+            ],
+            [
+              0.46208107471466064,
+              0.9930828809738159
+            ]
+          ],
+          "raster_pixels": 17181,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 960,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 28.33251953125,
+          "part": "MC_DAY01_Lower_Molar03_R",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 93,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.871809720993042,
+              0.615683913230896
+            ],
+            [
+              0.956658124923706,
+              0.6932651996612549
+            ]
+          ],
+          "raster_pixels": 94364,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 177.5283203125,
+          "part": "MC_DAY01_Lower_Molar03_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 94,
+          "polygons": 2832,
+          "uv_bbox": [
+            [
+              0.8718097805976868,
+              0.5301282405853271
+            ],
+            [
+              0.956919252872467,
+              0.607871413230896
+            ]
+          ],
+          "raster_pixels": 94696,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5664,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 176.458740234375,
+          "part": "MC_DAY01_Lower_Molar03_L",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 95,
+          "polygons": 480,
+          "uv_bbox": [
+            [
+              0.389943927526474,
+              0.9579224586486816
+            ],
+            [
+              0.4221062660217285,
+              0.9930829405784607
+            ]
+          ],
+          "raster_pixels": 17193,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 960,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 28.332275390625,
+          "part": "MC_DAY01_Lower_Molar03_L",
+          "nearest_other_island_px": 32.0
+        }
+      ]
+    },
+    "1": {
+      "name": "MC_Gum",
+      "island_count": 10,
+      "occupied_pixels": 7200760,
+      "coverage_fraction": 0.4291987419128418,
+      "inter_island_overlap_pixels": 0,
+      "collapsed_uv_nonzero_surface_triangles": 0,
+      "mixed_winding_triangles": 0,
+      "islands": [
+        {
+          "island": 96,
+          "polygons": 2688,
+          "uv_bbox": [
+            [
+              0.18890339136123657,
+              0.42395853996276855
+            ],
+            [
+              0.3657752573490143,
+              0.6127098798751831
+            ]
+          ],
+          "raster_pixels": 482780,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5376,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 773.748291015625,
+          "part": "MC_DAY01_Upper_Gum",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 97,
+          "polygons": 16384,
+          "uv_bbox": [
+            [
+              0.003906277008354664,
+              0.22069299221038818
+            ],
+            [
+              0.9889215230941772,
+              0.41614606976509094
+            ]
+          ],
+          "raster_pixels": 2916098,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 32768,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 16.000110626220703,
+          "part": "MC_DAY01_Upper_Gum",
+          "nearest_other_island_px": 34.0
+        },
+        {
+          "island": 98,
+          "polygons": 2688,
+          "uv_bbox": [
+            [
+              0.00390624743886292,
+              0.42395853996276855
+            ],
+            [
+              0.18109089136123657,
+              0.6128988862037659
+            ]
+          ],
+          "raster_pixels": 482759,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 5376,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 15.99998950958252,
+          "part": "MC_DAY01_Upper_Gum",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 99,
+          "polygons": 64,
+          "uv_bbox": [
+            [
+              0.5669752359390259,
+              0.42395853996276855
+            ],
+            [
+              0.584162712097168,
+              0.44755464792251587
+            ]
+          ],
+          "raster_pixels": 5503,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 64,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 1703.26953125,
+          "part": "MC_DAY01_Upper_Gum",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 100,
+          "polygons": 64,
+          "uv_bbox": [
+            [
+              0.5919752717018127,
+              0.42395853996276855
+            ],
+            [
+              0.6091628074645996,
+              0.44755369424819946
+            ]
+          ],
+          "raster_pixels": 5514,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 64,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 1600.869140625,
+          "part": "MC_DAY01_Upper_Gum",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 101,
+          "polygons": 1152,
+          "uv_bbox": [
+            [
+              0.47062763571739197,
+              0.42395856976509094
+            ],
+            [
+              0.5591627955436707,
+              0.598074197769165
+            ]
+          ],
+          "raster_pixels": 179019,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 2304,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 1646.2880859375,
+          "part": "MC_DAY01_Lower_Gum",
+          "nearest_other_island_px": 43.378292083740234
+        },
+        {
+          "island": 102,
+          "polygons": 19456,
+          "uv_bbox": [
+            [
+              0.0039062174037098885,
+              0.003906247206032276
+            ],
+            [
+              0.99609375,
+              0.2128804624080658
+            ]
+          ],
+          "raster_pixels": 2939046,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 38912,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 15.999866485595703,
+          "part": "MC_DAY01_Lower_Gum",
+          "nearest_other_island_px": 34.0
+        },
+        {
+          "island": 103,
+          "polygons": 1152,
+          "uv_bbox": [
+            [
+              0.3735877573490143,
+              0.42395853996276855
+            ],
+            [
+              0.4628151059150696,
+              0.5970277786254883
+            ]
+          ],
+          "raster_pixels": 179046,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 2304,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 1530.2154541015625,
+          "part": "MC_DAY01_Lower_Gum",
+          "nearest_other_island_px": 42.544189453125
+        },
+        {
+          "island": 104,
+          "polygons": 64,
+          "uv_bbox": [
+            [
+              0.6169751882553101,
+              0.42395853996276855
+            ],
+            [
+              0.6341627240180969,
+              0.4475526809692383
+            ]
+          ],
+          "raster_pixels": 5503,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 64,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 1498.469482421875,
+          "part": "MC_DAY01_Lower_Gum",
+          "nearest_other_island_px": 32.0
+        },
+        {
+          "island": 105,
+          "polygons": 64,
+          "uv_bbox": [
+            [
+              0.6419752836227417,
+              0.42395853996276855
+            ],
+            [
+              0.6591627597808838,
+              0.447551965713501
+            ]
+          ],
+          "raster_pixels": 5492,
+          "mixed_winding_triangles": 0,
+          "positive_uv_triangles": 64,
+          "negative_uv_triangles": 0,
+          "edge_padding_px": 1396.0693359375,
+          "part": "MC_DAY01_Lower_Gum",
+          "nearest_other_island_px": 32.0
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "Raster overlap/padding accuracy approximately2pixels",
+    "Intra-island same-winding self-overlap not exhaustively proven absent; checker/render review still required"
+  ],
+  "minority_winding_face_locations": [],
+  "uv_finite": true,
+  "uv_outside_0_1_loops": 0,
+  "charts_per_part": {
+    "MC_DAY01_Upper_Central_R": 3,
+    "MC_DAY01_Upper_Central_L": 3,
+    "MC_DAY01_Upper_Lateral_R": 3,
+    "MC_DAY01_Upper_Lateral_L": 3,
+    "MC_DAY01_Upper_Canine_R": 3,
+    "MC_DAY01_Upper_Canine_L": 3,
+    "MC_DAY01_Upper_Premolar01_R": 3,
+    "MC_DAY01_Upper_Premolar01_L": 3,
+    "MC_DAY01_Upper_Premolar02_R": 3,
+    "MC_DAY01_Upper_Premolar02_L": 3,
+    "MC_DAY01_Upper_Molar01_R": 3,
+    "MC_DAY01_Upper_Molar01_L": 3,
+    "MC_DAY01_Upper_Molar02_R": 3,
+    "MC_DAY01_Upper_Molar02_L": 3,
+    "MC_DAY01_Upper_Molar03_R": 3,
+    "MC_DAY01_Upper_Molar03_L": 3,
+    "MC_DAY01_Lower_Central_R": 3,
+    "MC_DAY01_Lower_Central_L": 3,
+    "MC_DAY01_Lower_Lateral_R": 3,
+    "MC_DAY01_Lower_Lateral_L": 3,
+    "MC_DAY01_Lower_Canine_R": 3,
+    "MC_DAY01_Lower_Canine_L": 3,
+    "MC_DAY01_Lower_Premolar01_R": 3,
+    "MC_DAY01_Lower_Premolar01_L": 3,
+    "MC_DAY01_Lower_Premolar02_R": 3,
+    "MC_DAY01_Lower_Premolar02_L": 3,
+    "MC_DAY01_Lower_Molar01_R": 3,
+    "MC_DAY01_Lower_Molar01_L": 3,
+    "MC_DAY01_Lower_Molar02_R": 3,
+    "MC_DAY01_Lower_Molar02_L": 3,
+    "MC_DAY01_Lower_Molar03_R": 3,
+    "MC_DAY01_Lower_Molar03_L": 3,
+    "MC_DAY01_Upper_Gum": 5,
+    "MC_DAY01_Lower_Gum": 5
+  },
+  "gates": {
+    "finite_uv": true,
+    "all_uv_in_0_1": true,
+    "no_inter_island_overlap_at_4k": true,
+    "no_collapsed_uv_visible_surface": true,
+    "no_intra_island_winding_folds": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "found": true,
+  "job": {
+    "job_id": "a7cdbdfdd90642678dc409870efe5958",
+    "operation": "bake",
+    "texture_set": "MC_Tongue",
+    "status": "success",
+    "progress": 1,
+    "cancel_requested": false,
+    "started_at": 1792135268.3066814,
+    "finished_at": 1792135298.450645,
+    "error": null
+  },
+  "busy": false
+}

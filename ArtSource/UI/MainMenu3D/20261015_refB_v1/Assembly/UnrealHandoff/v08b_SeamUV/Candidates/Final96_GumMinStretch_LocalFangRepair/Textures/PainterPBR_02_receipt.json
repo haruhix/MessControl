@@ -1,0 +1,199 @@
+{
+  "preset": "Document channels + Normal + AO (No Alpha)",
+  "files": [
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Enamel_Base_color_1001.png",
+      "bytes": 2022960,
+      "sha256": "d624cdae8af926bb7a1b7ddd3c5356e79ce71de7b87eca045dd19554b18b9920"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Enamel_Base_metalness_1001.png",
+      "bytes": 16411,
+      "sha256": "f790625c24510389aba626a3b4ea80806ad5012b1f838bfbee3b69dd87e3a70e"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Enamel_Specular_roughness_1001.png",
+      "bytes": 663253,
+      "sha256": "dc2d75dcc14db2bc7db6e8852d666ba1b6df09fff9779369e6c6972c1ba3667f"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Enamel_Normal_1001.png",
+      "bytes": 58788,
+      "sha256": "2cbc0ee77ec4e254e8c7192e3fdb47d0922ed73fadfe1ac4ea3a4b75f4aaf6ee"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Enamel_Height_1001.png",
+      "bytes": 3951730,
+      "sha256": "1f289b4f164fd6d6c5ab7d139c81dd2ce3523e129f46c829d867c9275d163ca9"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Enamel_Normal_DirectX_1001.png",
+      "bytes": 11727073,
+      "sha256": "eea8119f391bbc93ce761de3f35c4d6d306754c20faa2a03b94dff65929b8db9"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Enamel_Mixed_AO_1001.png",
+      "bytes": 3239718,
+      "sha256": "147f53e67cdbaacca3640ed9b944d6b137c8ab54987ac15db42cc4b658e7bff7"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Gum_Base_color_1001.png",
+      "bytes": 3172830,
+      "sha256": "411f8b499f14e1c25285abff4f3a4425df85f0c39f96f4dcb5e0f8dbc5f15014"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Gum_Base_metalness_1001.png",
+      "bytes": 16411,
+      "sha256": "f790625c24510389aba626a3b4ea80806ad5012b1f838bfbee3b69dd87e3a70e"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Gum_Specular_roughness_1001.png",
+      "bytes": 1254497,
+      "sha256": "66313a562951e172aa547bda47079b9167f045d90c31fe4605220e42828ef7ca"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Gum_Normal_1001.png",
+      "bytes": 58788,
+      "sha256": "2cbc0ee77ec4e254e8c7192e3fdb47d0922ed73fadfe1ac4ea3a4b75f4aaf6ee"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Gum_Height_1001.png",
+      "bytes": 2814365,
+      "sha256": "d25282e025be8187d7bea4e6eb6eb333b4f75cb462f7e7807d5e4b4a73af68c5"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Gum_Normal_DirectX_1001.png",
+      "bytes": 12353145,
+      "sha256": "c6b71dc66633ff8cdd5fdcb902198e532afa112111bffd20cf9bb9f0580f4623"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\Textures\\PainterPBR_02\\MC_Gum_Mixed_AO_1001.png",
+      "bytes": 1515211,
+      "sha256": "a7c34dcb1ce8e8067d3a25534b92870a6a0b162bc3281fedf664c049c85559ad"
+    }
+  ],
+  "result": {
+    "status": "Success",
+    "message": "Export successfully finished",
+    "groups": [
+      {
+        "texture_set": "MC_Enamel",
+        "stack": "",
+        "files": [
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Base_color_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Base_metalness_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Specular_roughness_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Normal_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Height_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Normal_DirectX_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Mixed_AO_1001.png"
+        ]
+      },
+      {
+        "texture_set": "MC_Gum",
+        "stack": "",
+        "files": [
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Base_color_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Base_metalness_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Specular_roughness_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Normal_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Height_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Normal_DirectX_1001.png",
+          "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Mixed_AO_1001.png"
+        ]
+      }
+    ],
+    "files": [
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Base_color_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Base_metalness_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Specular_roughness_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Normal_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Height_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Normal_DirectX_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Mixed_AO_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Base_color_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Base_metalness_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Specular_roughness_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Normal_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Height_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Normal_DirectX_1001.png",
+      "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Mixed_AO_1001.png"
+    ],
+    "preset": {
+      "name": "Document channels + Normal + AO (No Alpha)",
+      "url": "export-preset-generator://doc-channel-normal-no-alpha"
+    },
+    "verification": [
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Base_color_1001.png",
+        "exists": true,
+        "bytes": 2022960
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Base_metalness_1001.png",
+        "exists": true,
+        "bytes": 16411
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Specular_roughness_1001.png",
+        "exists": true,
+        "bytes": 663253
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Normal_1001.png",
+        "exists": true,
+        "bytes": 58788
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Height_1001.png",
+        "exists": true,
+        "bytes": 3951730
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Normal_DirectX_1001.png",
+        "exists": true,
+        "bytes": 11727073
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Enamel_Mixed_AO_1001.png",
+        "exists": true,
+        "bytes": 3239718
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Base_color_1001.png",
+        "exists": true,
+        "bytes": 3172830
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Base_metalness_1001.png",
+        "exists": true,
+        "bytes": 16411
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Specular_roughness_1001.png",
+        "exists": true,
+        "bytes": 1254497
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Normal_1001.png",
+        "exists": true,
+        "bytes": 58788
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Height_1001.png",
+        "exists": true,
+        "bytes": 2814365
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Normal_DirectX_1001.png",
+        "exists": true,
+        "bytes": 12353145
+      },
+      {
+        "path": "C:/Users/user/Documents/Adobe/Adobe Substance 3D Painter/MessControlMenu3D/Final96/PainterPBR_02/MC_Gum_Mixed_AO_1001.png",
+        "exists": true,
+        "bytes": 1515211
+      }
+    ]
+  }
+}

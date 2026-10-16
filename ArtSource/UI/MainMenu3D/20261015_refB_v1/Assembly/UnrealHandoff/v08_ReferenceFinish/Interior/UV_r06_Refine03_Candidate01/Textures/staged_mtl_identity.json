@@ -1,0 +1,8 @@
+{
+  "source": "ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\MC_DAY03_Interior_Painter_Open.mtl",
+  "staged": "C:\\Users\\user\\Documents\\Adobe\\Adobe Substance 3D Painter\\MessControlMenu3D\\DAY03_Interior_r06_Refine03\\MC_DAY03_Interior_Painter_Open.mtl",
+  "sha256": "1efc0a74479fd3cc949f90d4b9e10e0749d56ed15ca715f6b824eec1e1eaad7b",
+  "byte_exact": true,
+  "normalization_applied": false,
+  "policy": "Released Refine03 MTL already contains strict decimal literals; staged without changes."
+}

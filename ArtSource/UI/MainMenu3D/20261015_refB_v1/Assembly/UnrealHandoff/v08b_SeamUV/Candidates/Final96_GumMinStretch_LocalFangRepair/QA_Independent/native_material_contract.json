@@ -1,0 +1,123 @@
+{
+  "independent": true,
+  "shader_binding_sha256": "740cc6fd09959eb9dc040dcf74e34e9d5fe680c5776b81600fa13300557efe6f",
+  "file_contract_pass": true,
+  "maps": [
+    {
+      "set": "MC_Enamel",
+      "channel": "BaseColorTexture",
+      "hash_ok": true,
+      "size": [
+        4096,
+        4096
+      ],
+      "bound_hash_matches": true,
+      "srgb": true
+    },
+    {
+      "set": "MC_Enamel",
+      "channel": "RoughnessTexture",
+      "hash_ok": true,
+      "size": [
+        4096,
+        4096
+      ],
+      "bound_hash_matches": true,
+      "srgb": false
+    },
+    {
+      "set": "MC_Enamel",
+      "channel": "NormalTexture",
+      "hash_ok": true,
+      "size": [
+        4096,
+        4096
+      ],
+      "bound_hash_matches": true,
+      "srgb": false
+    },
+    {
+      "set": "MC_Enamel",
+      "channel": "AOTexture",
+      "hash_ok": true,
+      "size": [
+        4096,
+        4096
+      ],
+      "bound_hash_matches": true,
+      "srgb": false
+    },
+    {
+      "set": "MC_Enamel",
+      "channel": "ThicknessTexture",
+      "hash_ok": true,
+      "size": [
+        4096,
+        4096
+      ],
+      "bound_hash_matches": true,
+      "srgb": false
+    },
+    {
+      "set": "MC_Gum",
+      "channel": "BaseColorTexture",
+      "hash_ok": true,
+      "size": [
+        4096,
+        4096
+      ],
+      "bound_hash_matches": true,
+      "srgb": true
+    },
+    {
+      "set": "MC_Gum",
+      "channel": "RoughnessTexture",
+      "hash_ok": true,
+      "size": [
+        4096,
+        4096
+      ],
+      "bound_hash_matches": true,
+      "srgb": false
+    },
+    {
+      "set": "MC_Gum",
+      "channel": "NormalTexture",
+      "hash_ok": true,
+      "size": [
+        4096,
+        4096
+      ],
+      "bound_hash_matches": true,
+      "srgb": false
+    },
+    {
+      "set": "MC_Gum",
+      "channel": "AOTexture",
+      "hash_ok": true,
+      "size": [
+        4096,
+        4096
+      ],
+      "bound_hash_matches": true,
+      "srgb": false
+    },
+    {
+      "set": "MC_Gum",
+      "channel": "ThicknessTexture",
+      "hash_ok": true,
+      "size": [
+        4096,
+        4096
+      ],
+      "bound_hash_matches": true,
+      "srgb": false
+    }
+  ],
+  "normal_convention": "DirectX",
+  "limitations": [
+    "Saved binder report and exact source files checked; native shader inputs and visual response await actual PIE capture",
+    "Thickness is normalized per texture set, not metric; density parameter is art-directed",
+    "Unfinished old interior is excluded"
+  ]
+}

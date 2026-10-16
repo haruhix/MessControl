@@ -1,0 +1,56 @@
+{
+  "ShowPage": [
+    "CallFunction|ShowPage"
+  ],
+  "SelectDay": [
+    "CallFunction|SelectDay"
+  ],
+  "OpenConnection": [
+    "CallFunction|OpenConnection"
+  ],
+  "UpdateStage": [
+    "CallFunction|UpdateStage"
+  ],
+  "FindStageActors": [
+    "CallFunction|FindStageActors"
+  ],
+  "Variables|Default|GetPageIndex": [
+    "Variables|Default|GetPageIndex"
+  ],
+  "Input|Key|": [
+    "Input|Key|IsValidKey",
+    "Input|Key|IsMouseButton",
+    "Input|Key|IsModifierKey",
+    "Input|Key|IsKeyboardKey",
+    "Input|Key|IsGamepadKey",
+    "Input|Key|IsDigital",
+    "Input|Key|IsButtonAxis",
+    "Input|Key|IsAxis3D",
+    "Input|Key|IsAxis2D",
+    "Input|Key|IsAxis1D",
+    "Input|Key|IsAnalog",
+    "Input|Key|GetKeyDisplayName",
+    "Input|Key|GetInputChordDisplayName"
+  ],
+  "EqualExactly": [
+    "Utilities|Text|NotEqualExactly(Text)",
+    "Utilities|Text|EqualExactly(Text)",
+    "Utilities|String|NotEqualExactly(String)",
+    "Utilities|String|EqualExactly(String)",
+    "Math|Vector|NotEqualExactly(Vector)",
+    "Math|Vector|EqualExactly(Vector)",
+    "Math|Vector2D|NotEqualExactly(Vector2D)",
+    "Math|Vector2D|EqualExactly(Vector2D)",
+    "Math|Vector4|NotEqualExactly(Vector4)",
+    "Math|Vector4|EqualExactly(Vector4)"
+  ],
+  "RemovefromParent": [
+    "Widget|RemovefromParent"
+  ],
+  "SetActorHidden": [
+    "Rendering|SetActorHiddenInGame"
+  ],
+  "GetActorLocation": [
+    "Transformation|GetActorLocation"
+  ]
+}

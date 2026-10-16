@@ -1,0 +1,206 @@
+{
+  "independent": true,
+  "fresh_fbx": {
+    "SM_DAY03_Interior": {
+      "unique_source_corners": 16644,
+      "unique_other_corners": 16644,
+      "exact_quantized_corner_bins_equal": true,
+      "uv_material_corner_identity": true,
+      "max_uv_coordinate_error": 0.0,
+      "max_position_error_source_units": 1.3486991292666062e-06,
+      "normal_angle_degrees_p95": 7.588506156264597e-06,
+      "normal_angle_degrees_max": 1.5152979023796936e-05,
+      "pass": true
+    },
+    "SM_DAY03_Tongue": {
+      "unique_source_corners": 9218,
+      "unique_other_corners": 9218,
+      "exact_quantized_corner_bins_equal": true,
+      "uv_material_corner_identity": true,
+      "max_uv_coordinate_error": 0.0,
+      "max_position_error_source_units": 8.596304041930125e-07,
+      "normal_angle_degrees_p95": 5.915117333884395e-06,
+      "normal_angle_degrees_max": 1.059505231752994e-05,
+      "pass": true
+    }
+  },
+  "painter_obj": {
+    "unique_source_corners": 25862,
+    "unique_other_corners": 25862,
+    "exact_quantized_corner_bins_equal": false,
+    "uv_material_corner_identity": true,
+    "max_uv_coordinate_error": 7.450580596923828e-09,
+    "max_position_error_source_units": 1.053671194739536e-08,
+    "normal_angle_degrees_p95": 1.7075472925031877e-06,
+    "normal_angle_degrees_max": 2.9575586669421963e-06,
+    "pass": true
+  },
+  "charts": [
+    {
+      "chart": 0,
+      "material": 0,
+      "surface": "inner_cavity",
+      "anatomy_weight_means": {
+        "hidden_return_weight": 0.0,
+        "tongue_dorsal_weight": 0.0
+      },
+      "area_source_units2": 386.4951309827482,
+      "UV_area": 0.5540330723644139,
+      "uv_bbox": [
+        [
+          0.00513180997222662,
+          0.004858026280999184
+        ],
+        [
+          0.9124638438224792,
+          0.8034460544586182
+        ]
+      ],
+      "density_p05_median_p95": [
+        120.73693433977294,
+        155.70981279066072,
+        179.29678519609095
+      ],
+      "density_intrachart_spread": 1.4850201901890374,
+      "kappa_p95": 1.4463537666693722,
+      "kappa_p99": 1.5413340930212933,
+      "angle_error_degrees_p95": 12.598091510195616,
+      "minimum_texels_per_design_screen_pixel_bound": 2.2458562205138404
+    },
+    {
+      "chart": 1,
+      "material": 0,
+      "surface": "back_return",
+      "anatomy_weight_means": {
+        "hidden_return_weight": 1.0,
+        "tongue_dorsal_weight": 0.0
+      },
+      "area_source_units2": 389.96125225973776,
+      "UV_area": 0.06847710839947041,
+      "uv_bbox": [
+        [
+          0.6604982614517212,
+          0.7005450129508972
+        ],
+        [
+          0.9796664714813232,
+          0.9811598658561707
+        ]
+      ],
+      "density_p05_median_p95": [
+        42.33740375117739,
+        54.48662266268385,
+        62.70547270379171
+      ],
+      "density_intrachart_spread": 1.4810892295692055,
+      "kappa_p95": 1.441770297189427,
+      "kappa_p99": 1.5368252762677401,
+      "angle_error_degrees_p95": 12.502413974469292,
+      "minimum_texels_per_design_screen_pixel_bound": 0.7875280426402663
+    },
+    {
+      "chart": 2,
+      "material": 0,
+      "surface": "rim",
+      "anatomy_weight_means": {
+        "hidden_return_weight": 0.5005813077113133,
+        "tongue_dorsal_weight": 0.0
+      },
+      "area_source_units2": 12.724020279435562,
+      "UV_area": 0.0036940132152190053,
+      "uv_bbox": [
+        [
+          0.9858308434486389,
+          0.011511017568409443
+        ],
+        [
+          0.9960938692092896,
+          0.8601950407028198
+        ]
+      ],
+      "density_p05_median_p95": [
+        69.5945105977894,
+        69.78600895687524,
+        69.98845421783592
+      ],
+      "density_intrachart_spread": 1.0056605559355574,
+      "kappa_p95": 1.0103922140597317,
+      "kappa_p99": 1.0107555550998941,
+      "angle_error_degrees_p95": 0.4654373026780263,
+      "minimum_texels_per_design_screen_pixel_bound": 1.2945439222418111
+    },
+    {
+      "chart": 3,
+      "material": 1,
+      "surface": "ventral",
+      "anatomy_weight_means": {
+        "hidden_return_weight": 0.0,
+        "tongue_dorsal_weight": 0.0
+      },
+      "area_source_units2": 72.24153884316368,
+      "UV_area": 0.06008834793351229,
+      "uv_bbox": [
+        [
+          0.003906234400346875,
+          0.404723197221756
+        ],
+        [
+          0.4774570167064667,
+          0.5670913457870483
+        ]
+      ],
+      "density_p05_median_p95": [
+        116.76034795960751,
+        117.81801229938178,
+        119.94781900990067
+      ],
+      "density_intrachart_spread": 1.027299259603062,
+      "kappa_p95": 1.0394158773756967,
+      "kappa_p99": 1.0851501417464886,
+      "angle_error_degrees_p95": 1.3225987352794206,
+      "minimum_texels_per_design_screen_pixel_bound": 2.171886798421572
+    },
+    {
+      "chart": 4,
+      "material": 1,
+      "surface": "dorsal",
+      "anatomy_weight_means": {
+        "hidden_return_weight": 0.0,
+        "tongue_dorsal_weight": 0.9717071407815012
+      },
+      "area_source_units2": 96.59403941634531,
+      "UV_area": 0.2901157523740168,
+      "uv_bbox": [
+        [
+          0.034226492047309875,
+          0.00390625
+        ],
+        [
+          0.9657735228538513,
+          0.396910697221756
+        ]
+      ],
+      "density_p05_median_p95": [
+        214.81995402365422,
+        223.48294240878812,
+        235.36180594487868
+      ],
+      "density_intrachart_spread": 1.0956235747027605,
+      "kappa_p95": 1.1240020752975937,
+      "kappa_p99": 1.2478091389596113,
+      "angle_error_degrees_p95": 4.389766562488916,
+      "minimum_texels_per_design_screen_pixel_bound": 3.9959166817737533
+    }
+  ],
+  "limits": [
+    "Normals checked as world-space corner vectors, UVs at1e\u22127quantization; materialized appearance still needs Painter/Unreal",
+    "Density metrics weighted by actual3Dtrianglearea; chart intentionalpriorities are compared separately",
+    "Screen texel ratio is a conservative projection scale bound, not native pixel-raster texturequality"
+  ],
+  "measured_priority_density_ratios": {
+    "cavity_back_to_inner": 0.34992414213442485,
+    "cavity_rim_to_inner": 0.4481799040545819,
+    "tongue_ventral_to_dorsal": 0.5271901784963646
+  },
+  "uv_export_normal_identity_pass": true
+}

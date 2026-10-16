@@ -1,0 +1,19 @@
+{
+  "status": "SAVED_PENDING_NATIVE_REVIEW",
+  "relative_x": 0.94,
+  "changes": [
+    {
+      "actor": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.StaticMeshActor_0",
+      "old": "<Struct 'Vector' (0x000001D99C6CF1B0) {x: 0.940000, y: 1.000000, z: 1.000000}>",
+      "new": "<Struct 'Vector' (0x000001D99C6CF1B0) {x: 0.940000, y: 1.000000, z: 1.000000}>"
+    },
+    {
+      "actor": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.StaticMeshActor_1",
+      "old": "<Struct 'Vector' (0x000001D99C6C0BB0) {x: 0.940000, y: 1.000000, z: 1.000000}>",
+      "new": "<Struct 'Vector' (0x000001D99C6C0BB0) {x: 0.940000, y: 1.000000, z: 1.000000}>"
+    }
+  ],
+  "crown_meshes_and_character_unchanged": true,
+  "widget_changes": "DAY03 heading/species/Play/Back shifted up18designpx; two DAY03 interior/tongue mask denominators2\u21922.35294117647 (85% card height).",
+  "intent": "Keep old cheek/tongue volumes inside the remodeled gum silhouette and innerBack clear of lower enamel."
+}

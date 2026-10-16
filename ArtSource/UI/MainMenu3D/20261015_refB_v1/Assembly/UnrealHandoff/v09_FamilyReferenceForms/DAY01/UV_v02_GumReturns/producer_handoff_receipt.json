@@ -1,0 +1,42 @@
+{
+  "status": "UNACCEPTED_UV_CANDIDATE_REQUIRES_ACTUAL_ATLAS_CHECKER_AND_TECHNICAL_REVIEW",
+  "geometry_morphs_bit_exact": true,
+  "files": {
+    "family_finish_uv_export_executed.py": {
+      "bytes": 17552,
+      "sha256": "548ba459470a3c2036ced9d81c6091ddb1c953d9beb2c925dd298d03659ef15c"
+    },
+    "MC_DAY01_Painter_Open.mtl": {
+      "bytes": 59,
+      "sha256": "5ed9d1bd19e08b6577570d98a3d5fd5b5942bffec3d62f9833f15f30ae351eca"
+    },
+    "MC_DAY01_Painter_Open.obj": {
+      "bytes": 88938766,
+      "sha256": "60c52de962722797e6dbab29438d15a9e5779cf681c71c292304f2492f117311"
+    },
+    "MC_DAY01_UnrealMorphSource.blend": {
+      "bytes": 15385720,
+      "sha256": "e18dd3fa1981a965436d586948c4817c3dcd6b9c42c73ff9a7bff98f90d1969b"
+    },
+    "painter_uv_handoff.json": {
+      "bytes": 9679,
+      "sha256": "514d54c2d48876a6906332363ad1236bb2923cce5fa8f9d5ef40e489c7ce2d38"
+    },
+    "SK_DAY01.fbx": {
+      "bytes": 18513036,
+      "sha256": "2ce1bd15e5e56301b5d004e186ca855960e48c6fb3991d1f52afc3609ceefcb4"
+    },
+    "source_world_poses_cm.npz": {
+      "bytes": 11235727,
+      "sha256": "3a7bfcc0eb8ede6a377dce23530773991a3f396e240175f69a9f2feb633af090"
+    },
+    "texture_mesh_packet.npz": {
+      "bytes": 7959878,
+      "sha256": "b330346544110cfd1ab55bc44df18884c6acf6c4bfc4ab0ed9dfa61fcefa8a78"
+    },
+    "unreal_mouth_handoff.json": {
+      "bytes": 15941,
+      "sha256": "b3c64a682773f360e5b997673fe3dcc7f36b9c64ad78a8c334bb5a2380e5d03c"
+    }
+  }
+}

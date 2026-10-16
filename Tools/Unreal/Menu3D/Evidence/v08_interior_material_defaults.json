@@ -1,0 +1,16 @@
+{
+  "status": "CAVITY_MATERIAL_DEFAULTS_PENDING_REVISED_GEOMETRY_AND_TEXTURES",
+  "world": "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08",
+  "bindings": [
+    {
+      "actor": "Menu3D_DAY03_Interior",
+      "previous": "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Interior.M_Blocking_Interior",
+      "material": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Interior_v08.MI_DAY03_Interior_v08"
+    },
+    {
+      "actor": "Menu3D_DAY03_Tongue",
+      "previous": "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Tongue.M_Blocking_Tongue",
+      "material": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Tongue_v08.MI_DAY03_Tongue_v08"
+    }
+  ]
+}

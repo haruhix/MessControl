@@ -1,0 +1,656 @@
+{
+  "status": "FROZEN_FOR_NATIVE_AND_PAINTER_HANDOFF_FINAL_UNREAL_ART_PENDING",
+  "day": "DAY02",
+  "script": "E:\\DEVGAME\\MessControl\\Tools\\Blender\\Menu3D_20261015\\family_finish_reference_forms.py",
+  "source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\MC_DAY02_UnrealMorphSource.blend",
+  "reference": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\References\\B_FullWidth_Approved.png",
+  "vertices": 168644,
+  "triangles": 337152,
+  "parts": [
+    {
+      "mesh": "MC_DAY02_Upper_Pointed_01_R",
+      "vertex_start": 0,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 0.708,
+      "root_z": 3.1196867100000003,
+      "ordinal": 1,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Upper_Pointed_01_L",
+      "vertex_start": 3906,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 0.708,
+      "root_z": 3.1196867100000003,
+      "ordinal": 1,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Upper_Pointed_02_R",
+      "vertex_start": 7812,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 2.11,
+      "root_z": 3.1172174375,
+      "ordinal": 2,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Upper_Pointed_02_L",
+      "vertex_start": 11718,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 2.11,
+      "root_z": 3.1172174375,
+      "ordinal": 2,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Upper_Pointed_03_R",
+      "vertex_start": 15624,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 3.5020000000000002,
+      "root_z": 3.1123349975,
+      "ordinal": 3,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Upper_Pointed_03_L",
+      "vertex_start": 19530,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 3.5020000000000002,
+      "root_z": 3.1123349975,
+      "ordinal": 3,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Upper_Pointed_04_R",
+      "vertex_start": 23436,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 4.8740000000000006,
+      "root_z": 3.1051525775,
+      "ordinal": 4,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Upper_Pointed_04_L",
+      "vertex_start": 27342,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 4.8740000000000006,
+      "root_z": 3.1051525775,
+      "ordinal": 4,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Upper_Pointed_05_R",
+      "vertex_start": 31248,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 6.221000000000001,
+      "root_z": 3.095811974375,
+      "ordinal": 5,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Upper_Pointed_05_L",
+      "vertex_start": 35154,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 6.221000000000001,
+      "root_z": 3.095811974375,
+      "ordinal": 5,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Upper_Pointed_06_R",
+      "vertex_start": 39060,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 7.528000000000001,
+      "root_z": 3.08458076,
+      "ordinal": 6,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Upper_Pointed_06_L",
+      "vertex_start": 42966,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 7.528000000000001,
+      "root_z": 3.08458076,
+      "ordinal": 6,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Upper_Pointed_07_R",
+      "vertex_start": 46872,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 9.21,
+      "root_z": 3.0669849375,
+      "ordinal": 7,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY02_Upper_Pointed_07_L",
+      "vertex_start": 50778,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 9.21,
+      "root_z": 3.0669849375,
+      "ordinal": 7,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY02_Upper_Pointed_08_R",
+      "vertex_start": 54684,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 10.502000000000002,
+      "root_z": 3.0510674975,
+      "ordinal": 8,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY02_Upper_Pointed_08_L",
+      "vertex_start": 58590,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Upper",
+      "arch_distance": 10.502000000000002,
+      "root_z": 3.0510674975,
+      "ordinal": 8,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY02_Lower_Pointed_01_R",
+      "vertex_start": 62496,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 0.708,
+      "root_z": -3.1196867100000003,
+      "ordinal": 1,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Lower_Pointed_01_L",
+      "vertex_start": 66402,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 0.708,
+      "root_z": -3.1196867100000003,
+      "ordinal": 1,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Lower_Pointed_02_R",
+      "vertex_start": 70308,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 2.11,
+      "root_z": -3.1172174375,
+      "ordinal": 2,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Lower_Pointed_02_L",
+      "vertex_start": 74214,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 2.11,
+      "root_z": -3.1172174375,
+      "ordinal": 2,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Lower_Pointed_03_R",
+      "vertex_start": 78120,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 3.5020000000000002,
+      "root_z": -3.1123349975,
+      "ordinal": 3,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Lower_Pointed_03_L",
+      "vertex_start": 82026,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 3.5020000000000002,
+      "root_z": -3.1123349975,
+      "ordinal": 3,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Lower_Pointed_04_R",
+      "vertex_start": 85932,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 4.8740000000000006,
+      "root_z": -3.1051525775,
+      "ordinal": 4,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Lower_Pointed_04_L",
+      "vertex_start": 89838,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 4.8740000000000006,
+      "root_z": -3.1051525775,
+      "ordinal": 4,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Lower_Pointed_05_R",
+      "vertex_start": 93744,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 6.221000000000001,
+      "root_z": -3.095811974375,
+      "ordinal": 5,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Lower_Pointed_05_L",
+      "vertex_start": 97650,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 6.221000000000001,
+      "root_z": -3.095811974375,
+      "ordinal": 5,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Lower_Pointed_06_R",
+      "vertex_start": 101556,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 7.528000000000001,
+      "root_z": -3.08458076,
+      "ordinal": 6,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Lower_Pointed_06_L",
+      "vertex_start": 105462,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 7.528000000000001,
+      "root_z": -3.08458076,
+      "ordinal": 6,
+      "inferred": false
+    },
+    {
+      "mesh": "MC_DAY02_Lower_Pointed_07_R",
+      "vertex_start": 109368,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 9.21,
+      "root_z": -3.0669849375,
+      "ordinal": 7,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY02_Lower_Pointed_07_L",
+      "vertex_start": 113274,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 9.21,
+      "root_z": -3.0669849375,
+      "ordinal": 7,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY02_Lower_Pointed_08_R",
+      "vertex_start": 117180,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 10.502000000000002,
+      "root_z": -3.0510674975,
+      "ordinal": 8,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY02_Lower_Pointed_08_L",
+      "vertex_start": 121086,
+      "vertex_count": 3906,
+      "material_slot": 0,
+      "row": "Lower",
+      "arch_distance": 10.502000000000002,
+      "root_z": -3.0510674975,
+      "ordinal": 8,
+      "inferred": true
+    },
+    {
+      "mesh": "MC_DAY02_Upper_Gum",
+      "vertex_start": 124992,
+      "vertex_count": 21826,
+      "material_slot": 1,
+      "row": "Upper",
+      "source": "Closed scalloped root-seat loft, real U-arch"
+    },
+    {
+      "mesh": "MC_DAY02_Lower_Gum",
+      "vertex_start": 146818,
+      "vertex_count": 21826,
+      "material_slot": 1,
+      "row": "Lower",
+      "source": "Closed scalloped root-seat loft, real U-arch"
+    }
+  ],
+  "mirror_pairs": [
+    {
+      "right_part": 0,
+      "left_part": 1,
+      "row": "Upper",
+      "kind": "Pointed_01"
+    },
+    {
+      "right_part": 2,
+      "left_part": 3,
+      "row": "Upper",
+      "kind": "Pointed_02"
+    },
+    {
+      "right_part": 4,
+      "left_part": 5,
+      "row": "Upper",
+      "kind": "Pointed_03"
+    },
+    {
+      "right_part": 6,
+      "left_part": 7,
+      "row": "Upper",
+      "kind": "Pointed_04"
+    },
+    {
+      "right_part": 8,
+      "left_part": 9,
+      "row": "Upper",
+      "kind": "Pointed_05"
+    },
+    {
+      "right_part": 10,
+      "left_part": 11,
+      "row": "Upper",
+      "kind": "Pointed_06"
+    },
+    {
+      "right_part": 12,
+      "left_part": 13,
+      "row": "Upper",
+      "kind": "Pointed_07"
+    },
+    {
+      "right_part": 14,
+      "left_part": 15,
+      "row": "Upper",
+      "kind": "Pointed_08"
+    },
+    {
+      "right_part": 16,
+      "left_part": 17,
+      "row": "Lower",
+      "kind": "Pointed_01"
+    },
+    {
+      "right_part": 18,
+      "left_part": 19,
+      "row": "Lower",
+      "kind": "Pointed_02"
+    },
+    {
+      "right_part": 20,
+      "left_part": 21,
+      "row": "Lower",
+      "kind": "Pointed_03"
+    },
+    {
+      "right_part": 22,
+      "left_part": 23,
+      "row": "Lower",
+      "kind": "Pointed_04"
+    },
+    {
+      "right_part": 24,
+      "left_part": 25,
+      "row": "Lower",
+      "kind": "Pointed_05"
+    },
+    {
+      "right_part": 26,
+      "left_part": 27,
+      "row": "Lower",
+      "kind": "Pointed_06"
+    },
+    {
+      "right_part": 28,
+      "left_part": 29,
+      "row": "Lower",
+      "kind": "Pointed_07"
+    },
+    {
+      "right_part": 30,
+      "left_part": 31,
+      "row": "Lower",
+      "kind": "Pointed_08"
+    }
+  ],
+  "materials": [
+    "MC_Enamel",
+    "MC_Gum"
+  ],
+  "primary_uv": "UV0",
+  "UV_status": "LEAD_ACCEPTED_SEAM_UV_FROZEN_PENDING_INDEPENDENT_REVIEW",
+  "morphs": [
+    "Pose_000",
+    "Pose_025",
+    "Pose_050",
+    "Pose_075"
+  ],
+  "root_bone": "root",
+  "final_export": true,
+  "source_to_native_cm": 100.0,
+  "no_nonuniform_scale": true,
+  "baseline_trajectory": "Exact least-squares rigid row transforms from saved functional blocking, max deviation <3e-5 source units",
+  "pose_bounds": {
+    "1.0": [
+      [
+        -8.520059585571289,
+        -5.0537190437316895,
+        -3.740345001220703
+      ],
+      [
+        8.520059585571289,
+        0.7820973992347717,
+        3.740345001220703
+      ]
+    ],
+    "0.0": [
+      [
+        -8.520059585571289,
+        -5.0537190437316895,
+        -2.0403449535369873
+      ],
+      [
+        8.520059585571289,
+        0.7820973992347717,
+        2.0403449535369873
+      ]
+    ],
+    "0.25": [
+      [
+        -8.520059585571289,
+        -5.0537190437316895,
+        -2.4653449058532715
+      ],
+      [
+        8.520059585571289,
+        0.7820973992347717,
+        2.4653449058532715
+      ]
+    ],
+    "0.5": [
+      [
+        -8.520059585571289,
+        -5.0537190437316895,
+        -2.8903450965881348
+      ],
+      [
+        8.520059585571289,
+        0.7820973992347717,
+        2.8903450965881348
+      ]
+    ],
+    "0.75": [
+      [
+        -8.520059585571289,
+        -5.0537190437316895,
+        -3.31534481048584
+      ],
+      [
+        8.520059585571289,
+        0.7820973992347717,
+        3.315345048904419
+      ]
+    ]
+  },
+  "symmetry": {
+    "1.0": {
+      "max_paired_crown_error": 0.0
+    },
+    "0.0": {
+      "max_paired_crown_error": 1.4901161193847656e-08
+    },
+    "0.25": {
+      "max_paired_crown_error": 1.1920928955078125e-07
+    },
+    "0.5": {
+      "max_paired_crown_error": 9.313225746154785e-10
+    },
+    "0.75": {
+      "max_paired_crown_error": 2.384185791015625e-07
+    }
+  },
+  "paired_center_seams": true,
+  "source_sha256": "e4a483ea11d11bf424b87a28c952f739f83b48094efa7a506eb21ab516ca2339",
+  "parent_source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\v02\\MC_DAY02_ReferenceForms.blend",
+  "parent_source_sha256": "f58c5371d988d1ea9967825e970e2f931983e47dc3588e091db44cd98f04e0d5",
+  "painter_uv_handoff": "painter_uv_handoff.json",
+  "source_unit_to_cm": 100.0,
+  "fbx_geometry_scale": 1.0,
+  "bounds_open_cm": [
+    [
+      -852.0059814453125,
+      -505.3719177246094,
+      -374.03448486328125
+    ],
+    [
+      852.0059814453125,
+      78.2097396850586,
+      374.03448486328125
+    ]
+  ],
+  "bounds_each_pose_cm": {
+    "Basis": {
+      "min": [
+        -852.0059814453125,
+        -505.3719177246094,
+        -374.03448486328125
+      ],
+      "max": [
+        852.0059814453125,
+        78.2097396850586,
+        374.03448486328125
+      ]
+    },
+    "Pose_000": {
+      "min": [
+        -852.0059814453125,
+        -505.3719177246094,
+        -204.0345001220703
+      ],
+      "max": [
+        852.0059814453125,
+        78.2097396850586,
+        204.0345001220703
+      ]
+    },
+    "Pose_025": {
+      "min": [
+        -852.0059814453125,
+        -505.3719177246094,
+        -246.53448486328125
+      ],
+      "max": [
+        852.0059814453125,
+        78.2097396850586,
+        246.53448486328125
+      ]
+    },
+    "Pose_050": {
+      "min": [
+        -852.0059814453125,
+        -505.3719177246094,
+        -289.0345153808594
+      ],
+      "max": [
+        852.0059814453125,
+        78.2097396850586,
+        289.0345153808594
+      ]
+    },
+    "Pose_075": {
+      "min": [
+        -852.0059814453125,
+        -505.3719177246094,
+        -331.53448486328125
+      ],
+      "max": [
+        852.0059814453125,
+        78.2097396850586,
+        331.5345153808594
+      ]
+    }
+  },
+  "final_art_accepted": false,
+  "approval_scope": "Lead accepted shape candidate and actual UV front/oblique checkers plus both atlases. Source/fresh nine-pose producer technical gates pass; independent family gate and actual native material/motion remain pending."
+}

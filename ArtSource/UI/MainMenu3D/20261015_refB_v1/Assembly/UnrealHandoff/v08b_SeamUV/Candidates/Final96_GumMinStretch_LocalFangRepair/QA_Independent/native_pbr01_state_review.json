@@ -1,0 +1,79 @@
+{
+  "source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\Review\\Unreal_FunctionalBlocking_v03_FullRoute\\LowerRow_v08b_PBR01",
+  "frame_count": 85,
+  "first_frame_time": 0.08042764663696289,
+  "last_frame_time": 8.03762698173523,
+  "post_tick_samples": 80,
+  "command_time_samples_excluded": 6,
+  "actions": [
+    {
+      "elapsed": 0.015000000013969839,
+      "action": "ShowPage",
+      "value": 0
+    },
+    {
+      "elapsed": 0.5310000000754371,
+      "action": "catalog",
+      "value": null
+    },
+    {
+      "elapsed": 1.0150000000139698,
+      "action": "SelectDay",
+      "value": 3
+    },
+    {
+      "elapsed": 2.812000000034459,
+      "action": "footer",
+      "value": null
+    },
+    {
+      "elapsed": 4.89000000001397,
+      "action": "footer",
+      "value": null
+    },
+    {
+      "elapsed": 5.609000000054948,
+      "action": "catalog",
+      "value": null
+    },
+    {
+      "elapsed": 6.0,
+      "action": "SelectDay",
+      "value": 3
+    }
+  ],
+  "post_tick_invariant_errors": [],
+  "observed_route": {
+    "catalog_closed": {
+      "first_t": 0.6400000000139698,
+      "last_t": 0.9220000000204891,
+      "observations": 4
+    },
+    "day3_first_fully_open": {
+      "first_t": 1.5929999999934807,
+      "last_t": 2.7179999999934807,
+      "observations": 13
+    },
+    "footer1_collapses_in_catalog": {
+      "first_t": 3.281000000075437,
+      "last_t": 4.797000000020489,
+      "observations": 17
+    },
+    "footer2_returns_main": {
+      "first_t": 4.967999999993481,
+      "last_t": 5.592999999993481,
+      "observations": 8
+    },
+    "day3_second_fully_open": {
+      "first_t": 6.562000000034459,
+      "last_t": 8.031000000075437,
+      "observations": 16
+    }
+  },
+  "limits": [
+    "Controlled shared Blueprint function route, pointer hit delivery isolated; not physical input validation",
+    "Capture ~10.6 actual frames/s; cannot exclude sub-frame transient flicker",
+    "State assertions are based on after-world-tick observations only"
+  ],
+  "bounded_route_pass": true
+}

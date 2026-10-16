@@ -1,0 +1,269 @@
+{
+  "started_monotonic": 593360.406,
+  "requested_fps": 12.0,
+  "frames": [
+    {
+      "file": "frame_0000.png",
+      "request_time": 0.015000000013969839,
+      "time": 0.2120044231414795
+    },
+    {
+      "file": "frame_0001.png",
+      "request_time": 0.2190000000409782,
+      "time": 0.5271470546722412
+    },
+    {
+      "file": "frame_0002.png",
+      "request_time": 0.5310000000754371,
+      "time": 0.6625618934631348
+    },
+    {
+      "file": "frame_0003.png",
+      "request_time": 0.6720000000204891,
+      "time": 0.9708991050720215
+    },
+    {
+      "file": "frame_0004.png",
+      "request_time": 0.9690000000409782,
+      "time": 1.085387945175171
+    },
+    {
+      "file": "frame_0005.png",
+      "request_time": 1.0940000000409782,
+      "time": 1.3926591873168945
+    },
+    {
+      "file": "frame_0006.png",
+      "request_time": 1.4060000000754371,
+      "time": 1.5158543586730957
+    },
+    {
+      "file": "frame_0007.png",
+      "request_time": 1.5150000000139698,
+      "time": 1.819871425628662
+    },
+    {
+      "file": "frame_0008.png",
+      "request_time": 1.8280000000959262,
+      "time": 1.9388761520385742
+    },
+    {
+      "file": "frame_0009.png",
+      "request_time": 1.937000000034459,
+      "time": 2.2402963638305664
+    },
+    {
+      "file": "frame_0010.png",
+      "request_time": 2.25,
+      "time": 2.3644235134124756
+    },
+    {
+      "file": "frame_0011.png",
+      "request_time": 2.375,
+      "time": 2.6688451766967773
+    },
+    {
+      "file": "frame_0012.png",
+      "request_time": 2.672000000020489,
+      "time": 2.7981367111206055
+    },
+    {
+      "file": "frame_0013.png",
+      "request_time": 2.797000000020489,
+      "time": 3.11655855178833
+    },
+    {
+      "file": "frame_0014.png",
+      "request_time": 3.125,
+      "time": 3.237156391143799
+    },
+    {
+      "file": "frame_0015.png",
+      "request_time": 3.25,
+      "time": 3.543126344680786
+    },
+    {
+      "file": "frame_0016.png",
+      "request_time": 3.547000000020489,
+      "time": 3.666551113128662
+    },
+    {
+      "file": "frame_0017.png",
+      "request_time": 3.672000000020489,
+      "time": 3.9610445499420166
+    },
+    {
+      "file": "frame_0018.png",
+      "request_time": 3.969000000040978,
+      "time": 4.076202154159546
+    },
+    {
+      "file": "frame_0019.png",
+      "request_time": 4.078000000095926,
+      "time": 4.394999265670776
+    },
+    {
+      "file": "frame_0020.png",
+      "request_time": 4.406000000075437,
+      "time": 4.5214362144470215
+    },
+    {
+      "file": "frame_0021.png",
+      "request_time": 4.531000000075437,
+      "time": 4.851983070373535
+    },
+    {
+      "file": "frame_0022.png",
+      "request_time": 4.859000000054948,
+      "time": 4.973958253860474
+    },
+    {
+      "file": "frame_0023.png",
+      "request_time": 4.984000000054948,
+      "time": 5.271069765090942
+    },
+    {
+      "file": "frame_0024.png",
+      "request_time": 5.281000000075437,
+      "time": 5.393373489379883
+    },
+    {
+      "file": "frame_0025.png",
+      "request_time": 5.406000000075437,
+      "time": 5.6987340450286865
+    },
+    {
+      "file": "frame_0026.png",
+      "request_time": 5.703000000095926,
+      "time": 5.823266506195068
+    },
+    {
+      "file": "frame_0027.png",
+      "request_time": 5.828000000095926,
+      "time": 6.137537479400635
+    },
+    {
+      "file": "frame_0028.png",
+      "request_time": 6.14000000001397,
+      "time": 6.335870027542114
+    },
+    {
+      "file": "frame_0029.png",
+      "request_time": 6.344000000040978,
+      "time": 6.657826662063599
+    },
+    {
+      "file": "frame_0030.png",
+      "request_time": 6.656000000075437,
+      "time": 6.837077856063843
+    },
+    {
+      "file": "frame_0031.png",
+      "request_time": 6.844000000040978,
+      "time": 7.1313395500183105
+    },
+    {
+      "file": "frame_0032.png",
+      "request_time": 7.14000000001397,
+      "time": 7.337425470352173
+    },
+    {
+      "file": "frame_0033.png",
+      "request_time": 7.344000000040978,
+      "time": 7.659250497817993
+    },
+    {
+      "file": "frame_0034.png",
+      "request_time": 7.672000000020489,
+      "time": 7.87248682975769
+    },
+    {
+      "file": "frame_0035.png",
+      "request_time": 7.875,
+      "time": 8.201192617416382
+    },
+    {
+      "file": "frame_0036.png",
+      "request_time": 8.203000000095926,
+      "time": 8.39414358139038
+    },
+    {
+      "file": "frame_0037.png",
+      "request_time": 8.406000000075437,
+      "time": 8.70288610458374
+    },
+    {
+      "file": "frame_0038.png",
+      "request_time": 8.703000000095926,
+      "time": 8.901808977127075
+    },
+    {
+      "file": "frame_0039.png",
+      "request_time": 8.906000000075437,
+      "time": 9.227211236953735
+    },
+    {
+      "file": "frame_0040.png",
+      "request_time": 9.234000000054948,
+      "time": 9.444782733917236
+    },
+    {
+      "file": "frame_0041.png",
+      "request_time": 9.453000000095926,
+      "time": 9.786203622817993
+    },
+    {
+      "file": "frame_0042.png",
+      "request_time": 9.797000000020489,
+      "time": 10.015908479690552
+    },
+    {
+      "file": "frame_0043.png",
+      "request_time": 10.01500000001397,
+      "time": 10.321216821670532
+    },
+    {
+      "file": "frame_0044.png",
+      "request_time": 10.328000000095926,
+      "time": 10.503785371780396
+    },
+    {
+      "file": "frame_0045.png",
+      "request_time": 10.51500000001397,
+      "time": 10.807909727096558
+    },
+    {
+      "file": "frame_0046.png",
+      "request_time": 10.812000000034459,
+      "time": 11.000824928283691
+    },
+    {
+      "file": "frame_0047.png",
+      "request_time": 11.01500000001397,
+      "time": 11.304824352264404
+    },
+    {
+      "file": "frame_0048.png",
+      "request_time": 11.312000000034459,
+      "time": 11.490905523300171
+    },
+    {
+      "file": "frame_0049.png",
+      "request_time": 11.5,
+      "time": 11.779203414916992
+    },
+    {
+      "file": "frame_0050.png",
+      "request_time": 11.781000000075437,
+      "time": 11.958240985870361
+    },
+    {
+      "file": "frame_0051.png",
+      "request_time": 11.969000000040978,
+      "time": 12.250545501708984
+    }
+  ],
+  "source": "Engine Shot SHOWUI after real scene draw. Actual file completion timestamps; no generated motion.",
+  "show_ui": true,
+  "error": null
+}

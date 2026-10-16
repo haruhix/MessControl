@@ -1,0 +1,17 @@
+{
+  "source": "ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\MC_DAY03_UnrealMorphSource.blend",
+  "source_sha256": "f7a613f17f97ae1681a13325da81fe33488837146d8702536b3b4ff34a7273d6",
+  "material_names": [
+    "MC_Enamel",
+    "MC_Gum"
+  ],
+  "uv_name": "UV0",
+  "vertices": 251964,
+  "polygons": 334040,
+  "triangles": 503792,
+  "independent": true,
+  "read_only": true,
+  "evidence_source": "Candidate packet with independently verified identical frozen geometry/topology; final source UV read still required",
+  "candidate_packet": "ArtSource/UI/MainMenu3D/20261015_refB_v1/Assembly/UnrealHandoff/v08b_SeamUV/Candidates/Final96_GumMinStretch_LocalFangRepair/texture_mesh_packet.npz",
+  "candidate_packet_sha256": "bb42a0c3fd91f8e2a180ec179c61188c9aaac085529806c30ec2b38876b13eea"
+}

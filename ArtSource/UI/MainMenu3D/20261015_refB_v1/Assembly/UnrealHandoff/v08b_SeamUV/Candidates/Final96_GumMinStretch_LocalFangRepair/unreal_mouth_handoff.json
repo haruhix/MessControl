@@ -1,0 +1,1637 @@
+{
+  "status": "Composite coherentUV candidate; geometry/morphs exact acceptedv08. Await final independent directsource/freshFBX and actualvisual gate.",
+  "source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\MC_DAY03_UnrealMorphSource.blend",
+  "source_sha256": "e5b14557b090f955065050f8426011e9e66fb07eb33cbcf88738c734148fb3b7",
+  "source_unit_to_cm": 100.0,
+  "fbx_geometry_scale": 1.0,
+  "native_y_flip": true,
+  "vertices": 251964,
+  "polygons": 334040,
+  "triangles": 503792,
+  "materials": [
+    "MC_Enamel",
+    "MC_Gum"
+  ],
+  "primary_uv": "UV0",
+  "parts": [
+    {
+      "mesh": "MC_DAY03_Upper_Central_R",
+      "vertex_start": 0,
+      "vertex_count": 13282,
+      "material_slot": 0,
+      "source_profile": "Upper_Central_L",
+      "mirror_partner": "MC_DAY03_Upper_Central_L"
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Central_L",
+      "vertex_start": 13282,
+      "vertex_count": 13282,
+      "material_slot": 0,
+      "source_profile": "Upper_Central_L",
+      "mirror_partner": "MC_DAY03_Upper_Central_R"
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Lateral_R",
+      "vertex_start": 26564,
+      "vertex_count": 13282,
+      "material_slot": 0,
+      "source_profile": "Upper_Lateral_L",
+      "mirror_partner": "MC_DAY03_Upper_Lateral_L"
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Lateral_L",
+      "vertex_start": 39846,
+      "vertex_count": 13282,
+      "material_slot": 0,
+      "source_profile": "Upper_Lateral_L",
+      "mirror_partner": "MC_DAY03_Upper_Lateral_R"
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Fang_R",
+      "vertex_start": 53128,
+      "vertex_count": 13282,
+      "material_slot": 0,
+      "source_profile": "Upper_Fang_L",
+      "mirror_partner": "MC_DAY03_Upper_Fang_L"
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Fang_L",
+      "vertex_start": 66410,
+      "vertex_count": 13282,
+      "material_slot": 0,
+      "source_profile": "Upper_Fang_L",
+      "mirror_partner": "MC_DAY03_Upper_Fang_R"
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Premolar01_R",
+      "vertex_start": 79692,
+      "vertex_count": 5024,
+      "material_slot": 0,
+      "source_profile": "Upper_Posterior_L04",
+      "mirror_partner": "MC_DAY03_Upper_Premolar01_L"
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Premolar01_L",
+      "vertex_start": 84716,
+      "vertex_count": 5024,
+      "material_slot": 0,
+      "source_profile": "Upper_Posterior_L04",
+      "mirror_partner": "MC_DAY03_Upper_Premolar01_R"
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Premolar02_R",
+      "vertex_start": 89740,
+      "vertex_count": 3990,
+      "material_slot": 0,
+      "source_profile": "Upper_Posterior_L03",
+      "mirror_partner": "MC_DAY03_Upper_Premolar02_L"
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Premolar02_L",
+      "vertex_start": 93730,
+      "vertex_count": 3990,
+      "material_slot": 0,
+      "source_profile": "Upper_Posterior_L03",
+      "mirror_partner": "MC_DAY03_Upper_Premolar02_R"
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Molar01_R",
+      "vertex_start": 97720,
+      "vertex_count": 3628,
+      "material_slot": 0,
+      "source_profile": "Upper_Posterior_L02",
+      "mirror_partner": "MC_DAY03_Upper_Molar01_L"
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Molar01_L",
+      "vertex_start": 101348,
+      "vertex_count": 3628,
+      "material_slot": 0,
+      "source_profile": "Upper_Posterior_L02",
+      "mirror_partner": "MC_DAY03_Upper_Molar01_R"
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Molar02_R",
+      "vertex_start": 104976,
+      "vertex_count": 3982,
+      "material_slot": 0,
+      "source_profile": "Upper_Posterior_L01",
+      "mirror_partner": "MC_DAY03_Upper_Molar02_L"
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Molar02_L",
+      "vertex_start": 108958,
+      "vertex_count": 3982,
+      "material_slot": 0,
+      "source_profile": "Upper_Posterior_L01",
+      "mirror_partner": "MC_DAY03_Upper_Molar02_R"
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Molar03_R",
+      "vertex_start": 112940,
+      "vertex_count": 3982,
+      "material_slot": 0,
+      "source_profile": "Upper_Posterior_L01",
+      "mirror_partner": "MC_DAY03_Upper_Molar03_L"
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Molar03_L",
+      "vertex_start": 116922,
+      "vertex_count": 3982,
+      "material_slot": 0,
+      "source_profile": "Upper_Posterior_L01",
+      "mirror_partner": "MC_DAY03_Upper_Molar03_R"
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Central_R",
+      "vertex_start": 120904,
+      "vertex_count": 12286,
+      "material_slot": 0,
+      "source_profile": "Lower_Central_L",
+      "mirror_partner": "MC_DAY03_Lower_Central_L"
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Central_L",
+      "vertex_start": 133190,
+      "vertex_count": 12286,
+      "material_slot": 0,
+      "source_profile": "Lower_Central_L",
+      "mirror_partner": "MC_DAY03_Lower_Central_R"
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Lateral_R",
+      "vertex_start": 145476,
+      "vertex_count": 11871,
+      "material_slot": 0,
+      "source_profile": "Lower_Lateral_L",
+      "mirror_partner": "MC_DAY03_Lower_Lateral_L"
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Lateral_L",
+      "vertex_start": 157347,
+      "vertex_count": 11871,
+      "material_slot": 0,
+      "source_profile": "Lower_Lateral_L",
+      "mirror_partner": "MC_DAY03_Lower_Lateral_R"
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Canine_R",
+      "vertex_start": 169218,
+      "vertex_count": 12203,
+      "material_slot": 0,
+      "source_profile": "Lower_Canine_L",
+      "mirror_partner": "MC_DAY03_Lower_Canine_L"
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Canine_L",
+      "vertex_start": 181421,
+      "vertex_count": 12203,
+      "material_slot": 0,
+      "source_profile": "Lower_Canine_L",
+      "mirror_partner": "MC_DAY03_Lower_Canine_R"
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Premolar_R",
+      "vertex_start": 193624,
+      "vertex_count": 4508,
+      "material_slot": 0,
+      "source_profile": "Lower_Premolar_L",
+      "mirror_partner": "MC_DAY03_Lower_Premolar_L"
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Premolar_L",
+      "vertex_start": 198132,
+      "vertex_count": 4508,
+      "material_slot": 0,
+      "source_profile": "Lower_Premolar_L",
+      "mirror_partner": "MC_DAY03_Lower_Premolar_R"
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Molar_R",
+      "vertex_start": 202640,
+      "vertex_count": 4556,
+      "material_slot": 0,
+      "source_profile": "Lower_Molar_L",
+      "mirror_partner": "MC_DAY03_Lower_Molar_L"
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Molar_L",
+      "vertex_start": 207196,
+      "vertex_count": 4556,
+      "material_slot": 0,
+      "source_profile": "Lower_Molar_L",
+      "mirror_partner": "MC_DAY03_Lower_Molar_R"
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Posterior_01_R",
+      "vertex_start": 211752,
+      "vertex_count": 3998,
+      "material_slot": 0,
+      "source_profile": "Lower_Posterior_L01",
+      "mirror_partner": "MC_DAY03_Lower_Posterior_01_L"
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Posterior_01_L",
+      "vertex_start": 215750,
+      "vertex_count": 3998,
+      "material_slot": 0,
+      "source_profile": "Lower_Posterior_L01",
+      "mirror_partner": "MC_DAY03_Lower_Posterior_01_R"
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Posterior_02_R",
+      "vertex_start": 219748,
+      "vertex_count": 3472,
+      "material_slot": 0,
+      "source_profile": "Lower_Posterior_L02",
+      "mirror_partner": "MC_DAY03_Lower_Posterior_02_L"
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Posterior_02_L",
+      "vertex_start": 223220,
+      "vertex_count": 3472,
+      "material_slot": 0,
+      "source_profile": "Lower_Posterior_L02",
+      "mirror_partner": "MC_DAY03_Lower_Posterior_02_R"
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Posterior_03_R",
+      "vertex_start": 226692,
+      "vertex_count": 2994,
+      "material_slot": 0,
+      "source_profile": "Lower_Posterior_L03",
+      "mirror_partner": "MC_DAY03_Lower_Posterior_03_L"
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Posterior_03_L",
+      "vertex_start": 229686,
+      "vertex_count": 2994,
+      "material_slot": 0,
+      "source_profile": "Lower_Posterior_L03",
+      "mirror_partner": "MC_DAY03_Lower_Posterior_03_R"
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Gum",
+      "vertex_start": 232680,
+      "vertex_count": 9642,
+      "material_slot": 1,
+      "source_profile": "v06 closed scalloped arch loft",
+      "mirror_partner": null
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Gum",
+      "vertex_start": 242322,
+      "vertex_count": 9642,
+      "material_slot": 1,
+      "source_profile": "v06 closed scalloped arch loft",
+      "mirror_partner": null
+    }
+  ],
+  "mirror_pairs": [
+    {
+      "right": "MC_DAY03_Upper_Central_R",
+      "left": "MC_DAY03_Upper_Central_L",
+      "right_part": 0,
+      "left_part": 1,
+      "row": "Upper",
+      "kind": "Central"
+    },
+    {
+      "right": "MC_DAY03_Upper_Lateral_R",
+      "left": "MC_DAY03_Upper_Lateral_L",
+      "right_part": 2,
+      "left_part": 3,
+      "row": "Upper",
+      "kind": "Lateral"
+    },
+    {
+      "right": "MC_DAY03_Upper_Fang_R",
+      "left": "MC_DAY03_Upper_Fang_L",
+      "right_part": 4,
+      "left_part": 5,
+      "row": "Upper",
+      "kind": "Fang"
+    },
+    {
+      "right": "MC_DAY03_Upper_Premolar01_R",
+      "left": "MC_DAY03_Upper_Premolar01_L",
+      "right_part": 6,
+      "left_part": 7,
+      "row": "Upper",
+      "kind": "Premolar01"
+    },
+    {
+      "right": "MC_DAY03_Upper_Premolar02_R",
+      "left": "MC_DAY03_Upper_Premolar02_L",
+      "right_part": 8,
+      "left_part": 9,
+      "row": "Upper",
+      "kind": "Premolar02"
+    },
+    {
+      "right": "MC_DAY03_Upper_Molar01_R",
+      "left": "MC_DAY03_Upper_Molar01_L",
+      "right_part": 10,
+      "left_part": 11,
+      "row": "Upper",
+      "kind": "Molar01"
+    },
+    {
+      "right": "MC_DAY03_Upper_Molar02_R",
+      "left": "MC_DAY03_Upper_Molar02_L",
+      "right_part": 12,
+      "left_part": 13,
+      "row": "Upper",
+      "kind": "Molar02"
+    },
+    {
+      "right": "MC_DAY03_Upper_Molar03_R",
+      "left": "MC_DAY03_Upper_Molar03_L",
+      "right_part": 14,
+      "left_part": 15,
+      "row": "Upper",
+      "kind": "Molar03"
+    },
+    {
+      "right": "MC_DAY03_Lower_Central_R",
+      "left": "MC_DAY03_Lower_Central_L",
+      "right_part": 16,
+      "left_part": 17,
+      "row": "Lower",
+      "kind": "Central"
+    },
+    {
+      "right": "MC_DAY03_Lower_Lateral_R",
+      "left": "MC_DAY03_Lower_Lateral_L",
+      "right_part": 18,
+      "left_part": 19,
+      "row": "Lower",
+      "kind": "Lateral"
+    },
+    {
+      "right": "MC_DAY03_Lower_Canine_R",
+      "left": "MC_DAY03_Lower_Canine_L",
+      "right_part": 20,
+      "left_part": 21,
+      "row": "Lower",
+      "kind": "Canine"
+    },
+    {
+      "right": "MC_DAY03_Lower_Premolar_R",
+      "left": "MC_DAY03_Lower_Premolar_L",
+      "right_part": 22,
+      "left_part": 23,
+      "row": "Lower",
+      "kind": "Premolar"
+    },
+    {
+      "right": "MC_DAY03_Lower_Molar_R",
+      "left": "MC_DAY03_Lower_Molar_L",
+      "right_part": 24,
+      "left_part": 25,
+      "row": "Lower",
+      "kind": "Molar"
+    },
+    {
+      "right": "MC_DAY03_Lower_Posterior_01_R",
+      "left": "MC_DAY03_Lower_Posterior_01_L",
+      "right_part": 26,
+      "left_part": 27,
+      "row": "Lower",
+      "kind": "Posterior_01"
+    },
+    {
+      "right": "MC_DAY03_Lower_Posterior_02_R",
+      "left": "MC_DAY03_Lower_Posterior_02_L",
+      "right_part": 28,
+      "left_part": 29,
+      "row": "Lower",
+      "kind": "Posterior_02"
+    },
+    {
+      "right": "MC_DAY03_Lower_Posterior_03_R",
+      "left": "MC_DAY03_Lower_Posterior_03_L",
+      "right_part": 30,
+      "left_part": 31,
+      "row": "Lower",
+      "kind": "Posterior_03"
+    }
+  ],
+  "morphs": [
+    "Pose_000",
+    "Pose_025",
+    "Pose_050",
+    "Pose_075"
+  ],
+  "control": "w_i=max(0,1-abs(OpenAmount-sample_i)/.25); Open is Basis",
+  "interior": "Reuse v04 separately; root importer reviews fit",
+  "bounds_open_cm": [
+    [
+      -846.0,
+      -361.86883544921875,
+      -406.7880554199219
+    ],
+    [
+      846.0,
+      78.58072662353516,
+      413.9817810058594
+    ]
+  ],
+  "fbx_length_policy": "Blender unit meter, metadata converts to native cm; do not pre-multiply geometry by100.",
+  "symmetry_checks": {
+    "1.0": [
+      {
+        "pair": "Central",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Lateral",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Fang",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Premolar01",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Premolar02",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar01",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar02",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar03",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Central",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Lateral",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Canine",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Premolar",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Posterior_01",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Posterior_02",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Posterior_03",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      }
+    ],
+    "0.0": [
+      {
+        "pair": "Central",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Lateral",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Fang",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Premolar01",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Premolar02",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar01",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar02",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar03",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Central",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Lateral",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Canine",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Premolar",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Posterior_01",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Posterior_02",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Posterior_03",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      }
+    ],
+    "0.25": [
+      {
+        "pair": "Central",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Lateral",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Fang",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Premolar01",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Premolar02",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar01",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar02",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar03",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Central",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Lateral",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Canine",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Premolar",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Posterior_01",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Posterior_02",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Posterior_03",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      }
+    ],
+    "0.5": [
+      {
+        "pair": "Central",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Lateral",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Fang",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Premolar01",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Premolar02",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar01",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar02",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar03",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Central",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Lateral",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Canine",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Premolar",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Posterior_01",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Posterior_02",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Posterior_03",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      }
+    ],
+    "0.75": [
+      {
+        "pair": "Central",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Lateral",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Fang",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Premolar01",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Premolar02",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar01",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar02",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar03",
+        "row": "Upper",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Central",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Lateral",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Canine",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Premolar",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Molar",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Posterior_01",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Posterior_02",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      },
+      {
+        "pair": "Posterior_03",
+        "row": "Lower",
+        "max_corresponding_vertex_error": 0.0
+      }
+    ]
+  },
+  "gum_symmetry_checks": {
+    "1.0": {
+      "MC_DAY03_Upper_Gum": {
+        "max_paired_ring_vertex_error": 0.0,
+        "symmetry_index_policy": "section i mirrored to240-i, same radialj; endcaps exchanged"
+      },
+      "MC_DAY03_Lower_Gum": {
+        "max_paired_ring_vertex_error": 0.0,
+        "symmetry_index_policy": "section i mirrored to240-i, same radialj; endcaps exchanged"
+      }
+    },
+    "0.0": {
+      "MC_DAY03_Upper_Gum": {
+        "max_paired_ring_vertex_error": 0.0,
+        "symmetry_index_policy": "section i mirrored to240-i, same radialj; endcaps exchanged"
+      },
+      "MC_DAY03_Lower_Gum": {
+        "max_paired_ring_vertex_error": 0.0,
+        "symmetry_index_policy": "section i mirrored to240-i, same radialj; endcaps exchanged"
+      }
+    },
+    "0.25": {
+      "MC_DAY03_Upper_Gum": {
+        "max_paired_ring_vertex_error": 0.0,
+        "symmetry_index_policy": "section i mirrored to240-i, same radialj; endcaps exchanged"
+      },
+      "MC_DAY03_Lower_Gum": {
+        "max_paired_ring_vertex_error": 0.0,
+        "symmetry_index_policy": "section i mirrored to240-i, same radialj; endcaps exchanged"
+      }
+    },
+    "0.5": {
+      "MC_DAY03_Upper_Gum": {
+        "max_paired_ring_vertex_error": 0.0,
+        "symmetry_index_policy": "section i mirrored to240-i, same radialj; endcaps exchanged"
+      },
+      "MC_DAY03_Lower_Gum": {
+        "max_paired_ring_vertex_error": 0.0,
+        "symmetry_index_policy": "section i mirrored to240-i, same radialj; endcaps exchanged"
+      }
+    },
+    "0.75": {
+      "MC_DAY03_Upper_Gum": {
+        "max_paired_ring_vertex_error": 0.0,
+        "symmetry_index_policy": "section i mirrored to240-i, same radialj; endcaps exchanged"
+      },
+      "MC_DAY03_Lower_Gum": {
+        "max_paired_ring_vertex_error": 0.0,
+        "symmetry_index_policy": "section i mirrored to240-i, same radialj; endcaps exchanged"
+      }
+    }
+  },
+  "fang_landmarks": {
+    "1.0": {
+      "MC_DAY03_Upper_Fang_R": {
+        "tip_xyz": [
+          3.563908576965332,
+          0.12781299650669098,
+          0.50899738073349
+        ],
+        "root_max_z": 3.118237018585205
+      },
+      "MC_DAY03_Upper_Fang_L": {
+        "tip_xyz": [
+          -3.563908576965332,
+          0.12781299650669098,
+          0.50899738073349
+        ],
+        "root_max_z": 3.118237018585205
+      }
+    },
+    "0.0": {
+      "MC_DAY03_Upper_Fang_R": {
+        "tip_xyz": [
+          3.563908576965332,
+          -0.09970216453075409,
+          -1.3443021774291992
+        ],
+        "root_max_z": 1.2936880588531494
+      },
+      "MC_DAY03_Upper_Fang_L": {
+        "tip_xyz": [
+          -3.563908576965332,
+          -0.09970216453075409,
+          -1.3443021774291992
+        ],
+        "root_max_z": 1.2936880588531494
+      }
+    },
+    "0.25": {
+      "MC_DAY03_Upper_Fang_R": {
+        "tip_xyz": [
+          3.563908576965332,
+          -0.03977081924676895,
+          -0.8837290406227112
+        ],
+        "root_max_z": 1.7494624853134155
+      },
+      "MC_DAY03_Upper_Fang_L": {
+        "tip_xyz": [
+          -3.563908576965332,
+          -0.03977081924676895,
+          -0.8837290406227112
+        ],
+        "root_max_z": 1.7494624853134155
+      }
+    },
+    "0.5": {
+      "MC_DAY03_Upper_Fang_R": {
+        "tip_xyz": [
+          3.563908576965332,
+          0.018157433718442917,
+          -0.42128586769104004
+        ],
+        "root_max_z": 2.2053022384643555
+      },
+      "MC_DAY03_Upper_Fang_L": {
+        "tip_xyz": [
+          -3.563908576965332,
+          0.018157433718442917,
+          -0.42128586769104004
+        ],
+        "root_max_z": 2.2053022384643555
+      }
+    },
+    "0.75": {
+      "MC_DAY03_Upper_Fang_R": {
+        "tip_xyz": [
+          3.563908576965332,
+          0.07403432577848434,
+          0.04297438636422157
+        ],
+        "root_max_z": 2.6616604328155518
+      },
+      "MC_DAY03_Upper_Fang_L": {
+        "tip_xyz": [
+          -3.563908576965332,
+          0.07403432577848434,
+          0.04297438636422157
+        ],
+        "root_max_z": 2.6616604328155518
+      }
+    }
+  },
+  "centering_checks": {
+    "1.0": {
+      "Upper": {
+        "right_central_min_x": 0.015712250024080276,
+        "center_seam_gap": 0.03142450004816055,
+        "no_center_crown": true
+      },
+      "Lower": {
+        "right_central_min_x": 0.012461058795452118,
+        "center_seam_gap": 0.024922117590904236,
+        "no_center_crown": true
+      }
+    },
+    "0.0": {
+      "Upper": {
+        "right_central_min_x": 0.015712250024080276,
+        "center_seam_gap": 0.03142450004816055,
+        "no_center_crown": true
+      },
+      "Lower": {
+        "right_central_min_x": 0.012461058795452118,
+        "center_seam_gap": 0.024922117590904236,
+        "no_center_crown": true
+      }
+    },
+    "0.25": {
+      "Upper": {
+        "right_central_min_x": 0.015712250024080276,
+        "center_seam_gap": 0.03142450004816055,
+        "no_center_crown": true
+      },
+      "Lower": {
+        "right_central_min_x": 0.012461058795452118,
+        "center_seam_gap": 0.024922117590904236,
+        "no_center_crown": true
+      }
+    },
+    "0.5": {
+      "Upper": {
+        "right_central_min_x": 0.015712250024080276,
+        "center_seam_gap": 0.03142450004816055,
+        "no_center_crown": true
+      },
+      "Lower": {
+        "right_central_min_x": 0.012461058795452118,
+        "center_seam_gap": 0.024922117590904236,
+        "no_center_crown": true
+      }
+    },
+    "0.75": {
+      "Upper": {
+        "right_central_min_x": 0.015712250024080276,
+        "center_seam_gap": 0.03142450004816055,
+        "no_center_crown": true
+      },
+      "Lower": {
+        "right_central_min_x": 0.012461058795452118,
+        "center_seam_gap": 0.024922117590904236,
+        "no_center_crown": true
+      }
+    }
+  },
+  "preview_camera": {
+    "front": "Orthographic width19.5units",
+    "diagnostic_perspective": "Source distance30units FOV39.97degrees. Not a nativecard/cavityruntimecomposition claim.",
+    "native_context_validation": "Root owns actualUnreal9sampleclip/interior/tongue review."
+  },
+  "construction": "Rigid mirrored source crown profiles,32crowns8pairs/row; upper2premolar3molarhierarchy. Closed scalloped gumtube lofts, realUarchdepth, shared rigidjaw5poses.",
+  "parent_source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\MinimumStretch_3Charts\\MC_DAY03_UnrealMorphSource.blend",
+  "parent_source_sha256": "a0e9508abddb5a001777a67157c69f39135bf2ed77eda59cf705b09f818b1616",
+  "repair": "All17 lower parts Z +=.8*OpenAmount; Closed,upper,XY,UV,topology,rig unchanged.",
+  "lower_readability_checks": {
+    "Basis": {
+      "open_amount": 1.0,
+      "lower_z_lift": 0.8,
+      "upper_exact": true,
+      "all_xy_exact": true,
+      "closed_all_vertices_exact": false,
+      "only_declared_lower_z_changed": true
+    },
+    "Pose_000": {
+      "open_amount": 0.0,
+      "lower_z_lift": 0.0,
+      "upper_exact": true,
+      "all_xy_exact": true,
+      "closed_all_vertices_exact": true,
+      "only_declared_lower_z_changed": true
+    },
+    "Pose_025": {
+      "open_amount": 0.25,
+      "lower_z_lift": 0.2,
+      "upper_exact": true,
+      "all_xy_exact": true,
+      "closed_all_vertices_exact": false,
+      "only_declared_lower_z_changed": true
+    },
+    "Pose_050": {
+      "open_amount": 0.5,
+      "lower_z_lift": 0.4,
+      "upper_exact": true,
+      "all_xy_exact": true,
+      "closed_all_vertices_exact": false,
+      "only_declared_lower_z_changed": true
+    },
+    "Pose_075": {
+      "open_amount": 0.75,
+      "lower_z_lift": 0.6000000000000001,
+      "upper_exact": true,
+      "all_xy_exact": true,
+      "closed_all_vertices_exact": false,
+      "only_declared_lower_z_changed": true
+    }
+  },
+  "uv0_sha256": "c18246a930c68d7603f42023bcd958ab0a57de7dc8ef73b4b27da00eaa95b24b",
+  "bounds_each_pose_cm": {
+    "Basis": {
+      "min": [
+        -846.0,
+        -361.86883544921875,
+        -406.7880554199219
+      ],
+      "max": [
+        846.0,
+        78.58072662353516,
+        413.9817810058594
+      ]
+    },
+    "Pose_000": {
+      "min": [
+        -846.0,
+        -427.9975280761719,
+        -234.65872192382812
+      ],
+      "max": [
+        846.0,
+        86.57823944091797,
+        246.423095703125
+      ]
+    },
+    "Pose_025": {
+      "min": [
+        -846.0,
+        -410.3760681152344,
+        -277.653076171875
+      ],
+      "max": [
+        846.0,
+        84.97029876708984,
+        285.1856689453125
+      ]
+    },
+    "Pose_050": {
+      "min": [
+        -846.0,
+        -392.67034912109375,
+        -320.7615661621094
+      ],
+      "max": [
+        846.0,
+        83.10108184814453,
+        324.2569274902344
+      ]
+    },
+    "Pose_075": {
+      "min": [
+        -846.0,
+        -375.15509033203125,
+        -363.8457336425781
+      ],
+      "max": [
+        846.0,
+        80.97102355957031,
+        367.5896301269531
+      ]
+    }
+  },
+  "reference_finish": {
+    "stage": "Unique per-materialUV0/nativeFBX/PainterstaticOpenOBJ",
+    "scope": "Paired crown outline polish, restrained facial convexity/cervical taper, gingival root-seat volume; acceptedv07jawpath retained",
+    "polish": [
+      {
+        "part": "MC_DAY03_Upper_Central_R",
+        "paired_part": "MC_DAY03_Upper_Central_L",
+        "iterations": 160,
+        "max_delta": 0.20327513195938174,
+        "facial_bulge_max": 0.11623554412311592,
+        "lower_cervical_height_factor": 1.0,
+        "root_tip_axis": "Root atV1, tip atV0 anatomicalmask; lower+Ztip,upper-Ztip"
+      },
+      {
+        "part": "MC_DAY03_Upper_Lateral_R",
+        "paired_part": "MC_DAY03_Upper_Lateral_L",
+        "iterations": 160,
+        "max_delta": 0.16969064734369232,
+        "facial_bulge_max": 0.08984659946696928,
+        "lower_cervical_height_factor": 1.0,
+        "root_tip_axis": "Root atV1, tip atV0 anatomicalmask; lower+Ztip,upper-Ztip"
+      },
+      {
+        "part": "MC_DAY03_Upper_Fang_R",
+        "paired_part": "MC_DAY03_Upper_Fang_L",
+        "iterations": 120,
+        "max_delta": 0.0714503261690724,
+        "facial_bulge_max": 0.07124212443713297,
+        "lower_cervical_height_factor": 1.0,
+        "root_tip_axis": "Root atV1, tip atV0 anatomicalmask; lower+Ztip,upper-Ztip"
+      },
+      {
+        "part": "MC_DAY03_Upper_Premolar01_R",
+        "paired_part": "MC_DAY03_Upper_Premolar01_L",
+        "iterations": 160,
+        "max_delta": 0.08767245873117688,
+        "facial_bulge_max": 0.08664628133257007,
+        "lower_cervical_height_factor": 1.0,
+        "root_tip_axis": "Root atV1, tip atV0 anatomicalmask; lower+Ztip,upper-Ztip"
+      },
+      {
+        "part": "MC_DAY03_Upper_Premolar02_R",
+        "paired_part": "MC_DAY03_Upper_Premolar02_L",
+        "iterations": 160,
+        "max_delta": 0.07460903922598165,
+        "facial_bulge_max": 0.07313306330370413,
+        "lower_cervical_height_factor": 1.0,
+        "root_tip_axis": "Root atV1, tip atV0 anatomicalmask; lower+Ztip,upper-Ztip"
+      },
+      {
+        "part": "MC_DAY03_Upper_Molar01_R",
+        "paired_part": "MC_DAY03_Upper_Molar01_L",
+        "iterations": 160,
+        "max_delta": 0.0660555519159342,
+        "facial_bulge_max": 0.06392156228050688,
+        "lower_cervical_height_factor": 1.0,
+        "root_tip_axis": "Root atV1, tip atV0 anatomicalmask; lower+Ztip,upper-Ztip"
+      },
+      {
+        "part": "MC_DAY03_Upper_Molar02_R",
+        "paired_part": "MC_DAY03_Upper_Molar02_L",
+        "iterations": 160,
+        "max_delta": 0.05830191192575625,
+        "facial_bulge_max": 0.05704889109783091,
+        "lower_cervical_height_factor": 1.0,
+        "root_tip_axis": "Root atV1, tip atV0 anatomicalmask; lower+Ztip,upper-Ztip"
+      },
+      {
+        "part": "MC_DAY03_Upper_Molar03_R",
+        "paired_part": "MC_DAY03_Upper_Molar03_L",
+        "iterations": 160,
+        "max_delta": 0.051503251972081485,
+        "facial_bulge_max": 0.05016750938027506,
+        "lower_cervical_height_factor": 1.0,
+        "root_tip_axis": "Root atV1, tip atV0 anatomicalmask; lower+Ztip,upper-Ztip"
+      },
+      {
+        "part": "MC_DAY03_Lower_Central_R",
+        "paired_part": "MC_DAY03_Lower_Central_L",
+        "iterations": 160,
+        "max_delta": 0.21836104066954512,
+        "facial_bulge_max": 0.11624349146569134,
+        "lower_cervical_height_factor": 0.85,
+        "root_tip_axis": "Root atV1, tip atV0 anatomicalmask; lower+Ztip,upper-Ztip"
+      },
+      {
+        "part": "MC_DAY03_Lower_Lateral_R",
+        "paired_part": "MC_DAY03_Lower_Lateral_L",
+        "iterations": 160,
+        "max_delta": 0.21489083855533758,
+        "facial_bulge_max": 0.10740685610009283,
+        "lower_cervical_height_factor": 0.85,
+        "root_tip_axis": "Root atV1, tip atV0 anatomicalmask; lower+Ztip,upper-Ztip"
+      },
+      {
+        "part": "MC_DAY03_Lower_Canine_R",
+        "paired_part": "MC_DAY03_Lower_Canine_L",
+        "iterations": 160,
+        "max_delta": 0.2339649179980602,
+        "facial_bulge_max": 0.11056474244390133,
+        "lower_cervical_height_factor": 1.0,
+        "root_tip_axis": "Root atV1, tip atV0 anatomicalmask; lower+Ztip,upper-Ztip"
+      },
+      {
+        "part": "MC_DAY03_Lower_Premolar_R",
+        "paired_part": "MC_DAY03_Lower_Premolar_L",
+        "iterations": 160,
+        "max_delta": 0.104862208523122,
+        "facial_bulge_max": 0.10314571286799698,
+        "lower_cervical_height_factor": 1.0,
+        "root_tip_axis": "Root atV1, tip atV0 anatomicalmask; lower+Ztip,upper-Ztip"
+      },
+      {
+        "part": "MC_DAY03_Lower_Molar_R",
+        "paired_part": "MC_DAY03_Lower_Molar_L",
+        "iterations": 160,
+        "max_delta": 0.09529464502948984,
+        "facial_bulge_max": 0.09375168358316278,
+        "lower_cervical_height_factor": 1.0,
+        "root_tip_axis": "Root atV1, tip atV0 anatomicalmask; lower+Ztip,upper-Ztip"
+      },
+      {
+        "part": "MC_DAY03_Lower_Posterior_01_R",
+        "paired_part": "MC_DAY03_Lower_Posterior_01_L",
+        "iterations": 160,
+        "max_delta": 0.07031379882947053,
+        "facial_bulge_max": 0.06876288998779655,
+        "lower_cervical_height_factor": 1.0,
+        "root_tip_axis": "Root atV1, tip atV0 anatomicalmask; lower+Ztip,upper-Ztip"
+      },
+      {
+        "part": "MC_DAY03_Lower_Posterior_02_R",
+        "paired_part": "MC_DAY03_Lower_Posterior_02_L",
+        "iterations": 160,
+        "max_delta": 0.05909201081485651,
+        "facial_bulge_max": 0.057476336134288375,
+        "lower_cervical_height_factor": 1.0,
+        "root_tip_axis": "Root atV1, tip atV0 anatomicalmask; lower+Ztip,upper-Ztip"
+      },
+      {
+        "part": "MC_DAY03_Lower_Posterior_03_R",
+        "paired_part": "MC_DAY03_Lower_Posterior_03_L",
+        "iterations": 160,
+        "max_delta": 0.0514016913029289,
+        "facial_bulge_max": 0.04905248151393712,
+        "lower_cervical_height_factor": 1.0,
+        "root_tip_axis": "Root atV1, tip atV0 anatomicalmask; lower+Ztip,upper-Ztip"
+      }
+    ],
+    "row_transforms": {
+      "Basis": {
+        "Upper": {
+          "rigid_fit_max_error": 1.831026719408895e-15,
+          "rotation": [
+            [
+              1.0,
+              -8.150511904481585e-17,
+              -4.498935768317906e-17
+            ],
+            [
+              8.150511904481583e-17,
+              1.0000000000000002,
+              -1.6653345369377348e-16
+            ],
+            [
+              4.4989357683179065e-17,
+              8.326672684688674e-17,
+              1.0000000000000002
+            ]
+          ],
+          "centroid_basis": [
+            0.0,
+            -0.5997081386676679,
+            2.4475699099158543
+          ],
+          "centroid_pose": [
+            0.0,
+            -0.5997081386676679,
+            2.4475699099158543
+          ]
+        },
+        "Lower": {
+          "rigid_fit_max_error": 1.4043333874306805e-15,
+          "rotation": [
+            [
+              1.0,
+              -6.896943551777755e-17,
+              9.801954279066653e-18
+            ],
+            [
+              6.896943551777753e-17,
+              1.0000000000000002,
+              -2.220446049250313e-16
+            ],
+            [
+              -9.801954279066634e-18,
+              1.6653345369377348e-16,
+              1.0
+            ]
+          ],
+          "centroid_basis": [
+            0.0,
+            -0.8453111926227767,
+            -2.0838227033139916
+          ],
+          "centroid_pose": [
+            0.0,
+            -0.8453111926227767,
+            -2.0838227033139916
+          ]
+        }
+      },
+      "Pose_000": {
+        "Upper": {
+          "rigid_fit_max_error": 1.6258253042968815e-07,
+          "rotation": [
+            [
+              1.0,
+              -8.576129389801305e-17,
+              -3.6223296429138723e-17
+            ],
+            [
+              8.150511904481583e-17,
+              0.994521895364451,
+              -0.10452846330401916
+            ],
+            [
+              4.4989357683179065e-17,
+              0.10452846330401935,
+              0.9945218953644511
+            ]
+          ],
+          "centroid_basis": [
+            0.0,
+            -0.5997081386676679,
+            2.4475699099158543
+          ],
+          "centroid_pose": [
+            0.0,
+            -0.6206018568841067,
+            0.6596973603203105
+          ]
+        },
+        "Lower": {
+          "rigid_fit_max_error": 3.535876531374915e-07,
+          "rotation": [
+            [
+              1.0,
+              -6.966239808567751e-17,
+              1.0787160133438181e-19
+            ],
+            [
+              6.896943551777753e-17,
+              0.9902680677026707,
+              0.13917310835221652
+            ],
+            [
+              -9.801954279066634e-18,
+              -0.13917310835221636,
+              0.9902680677026712
+            ]
+          ],
+          "centroid_basis": [
+            0.0,
+            -0.8453111926227767,
+            -2.0838227033139916
+          ],
+          "centroid_pose": [
+            0.0,
+            -1.5159530966324588,
+            -0.49091772872012235
+          ]
+        }
+      },
+      "Pose_025": {
+        "Upper": {
+          "rigid_fit_max_error": 1.6489333606132674e-07,
+          "rotation": [
+            [
+              1.0,
+              -8.478369028960926e-17,
+              -3.84558525601793e-17
+            ],
+            [
+              8.150511904481583e-17,
+              0.9969173337236387,
+              -0.07845909584842686
+            ],
+            [
+              4.4989357683179065e-17,
+              0.07845909584842659,
+              0.9969173337236381
+            ]
+          ],
+          "centroid_basis": [
+            0.0,
+            -0.5997081386676679,
+            2.4475699099158543
+          ],
+          "centroid_pose": [
+            0.0,
+            -0.6129506027103314,
+            1.1059481386673475
+          ]
+        },
+        "Lower": {
+          "rigid_fit_max_error": 3.282933888792759e-07,
+          "rotation": [
+            [
+              1.0,
+              -6.961619698368768e-17,
+              2.5389881563683767e-18
+            ],
+            [
+              6.896943551777753e-17,
+              0.9945218940402727,
+              0.1045284759027334
+            ],
+            [
+              -9.801954279066634e-18,
+              -0.10452847590273345,
+              0.9945218940402729
+            ]
+          ],
+          "centroid_basis": [
+            0.0,
+            -0.8453111926227767,
+            -2.0838227033139916
+          ],
+          "centroid_pose": [
+            0.0,
+            -1.3444757199647899,
+            -0.8875196316437343
+          ]
+        }
+      },
+      "Pose_050": {
+        "Upper": {
+          "rigid_fit_max_error": 1.6658746605761664e-07,
+          "rotation": [
+            [
+              1.0,
+              -8.37479801623501e-17,
+              -4.06620529976198e-17
+            ],
+            [
+              8.150511904481583e-17,
+              0.9986295347604891,
+              -0.05233595613008138
+            ],
+            [
+              4.4989357683179065e-17,
+              0.05233595613008099,
+              0.9986295347604889
+            ]
+          ],
+          "centroid_basis": [
+            0.0,
+            -0.5997081386676679,
+            2.4475699099158543
+          ],
+          "centroid_pose": [
+            0.0,
+            -0.6069096123075288,
+            1.5527054260369104
+          ]
+        },
+        "Lower": {
+          "rigid_fit_max_error": 2.5417382268711895e-07,
+          "rotation": [
+            [
+              1.0,
+              -6.948517924184355e-17,
+              4.967012085615871e-18
+            ],
+            [
+              6.896943551777753e-17,
+              0.9975640497502134,
+              0.06975648103189391
+            ],
+            [
+              -9.801954279066634e-18,
+              -0.06975648103189369,
+              0.9975640497502137
+            ]
+          ],
+          "centroid_basis": [
+            0.0,
+            -0.8453111926227767,
+            -2.0838227033139916
+          ],
+          "centroid_pose": [
+            0.0,
+            -1.1755179119217825,
+            -1.2852637492784582
+          ]
+        }
+      },
+      "Pose_075": {
+        "Upper": {
+          "rigid_fit_max_error": 1.6647835810756531e-07,
+          "rotation": [
+            [
+              1.0,
+              -8.265487335841239e-17,
+              -4.284038568173072e-17
+            ],
+            [
+              8.150511904481583e-17,
+              0.9996573249805798,
+              -0.026176948116073906
+            ],
+            [
+              4.4989357683179065e-17,
+              0.02617694811607396,
+              0.9996573249805798
+            ]
+          ],
+          "centroid_basis": [
+            0.0,
+            -0.5997081386676679,
+            2.4475699099158543
+          ],
+          "centroid_pose": [
+            0.0,
+            -0.6024915927097683,
+            1.9999268982112166
+          ]
+        },
+        "Lower": {
+          "rigid_fit_max_error": 5.920503516033415e-07,
+          "rotation": [
+            [
+              1.0,
+              -6.92695045232434e-17,
+              7.388984127344344e-18
+            ],
+            [
+              6.896943551777753e-17,
+              0.9993908267779719,
+              0.03489950360738431
+            ],
+            [
+              -9.801954279066634e-18,
+              -0.0348995036073842,
+              0.999390826777972
+            ]
+          ],
+          "centroid_basis": [
+            0.0,
+            -0.8453111926227767,
+            -2.0838227033139916
+          ],
+          "centroid_pose": [
+            0.0,
+            -1.0091179994552735,
+            -1.6840613611644717
+          ]
+        }
+      }
+    }
+  },
+  "painter_uv_handoff": "painter_uv_handoff.json",
+  "gum_uv_parent": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\GumMinimumStretch_Boundary08\\MC_DAY03_UnrealMorphSource.blend"
+}

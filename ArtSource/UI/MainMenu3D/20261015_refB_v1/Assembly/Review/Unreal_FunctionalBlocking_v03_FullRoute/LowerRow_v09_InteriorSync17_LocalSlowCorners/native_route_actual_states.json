@@ -1,0 +1,6509 @@
+{
+  "started": 593360.406,
+  "started_wall": 1792141803.8713822,
+  "index": 7,
+  "actions": [
+    {
+      "elapsed": 0.015000000013969839,
+      "action": "ShowPage",
+      "value": 0
+    },
+    {
+      "elapsed": 0.5310000000754371,
+      "action": "catalog",
+      "value": null
+    },
+    {
+      "elapsed": 1.0940000000409782,
+      "action": "dilation",
+      "value": 0.15
+    },
+    {
+      "elapsed": 1.4060000000754371,
+      "action": "SelectDay",
+      "value": 3
+    },
+    {
+      "elapsed": 4.078000000095926,
+      "action": "SelectDay",
+      "value": 2
+    },
+    {
+      "elapsed": 7.14000000001397,
+      "action": "Back",
+      "value": null
+    },
+    {
+      "elapsed": 10.01500000001397,
+      "action": "dilation",
+      "value": 1
+    }
+  ],
+  "samples": [
+    {
+      "elapsed": 0.015000000013969839,
+      "observation_phase": "command_before_next_world_tick",
+      "page": 0,
+      "selected": 3,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        185.0,
+        185.0,
+        370.0,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "01 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": 0.0,
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": true,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": true,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": true,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": true,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            1.0
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            1.0
+          ]
+        }
+      },
+      "dilation": 1.0,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 0.2190000000409782,
+      "observation_phase": "after_world_tick",
+      "page": 0,
+      "selected": 3,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        185.0,
+        185.0,
+        370.0,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "01 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": 0.0,
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": true,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": true,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": true,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": true,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            1.0
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            1.0
+          ]
+        }
+      },
+      "dilation": 1.0,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 0.5310000000754371,
+      "observation_phase": "command_before_next_world_tick",
+      "page": 1,
+      "selected": 1,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        185.0,
+        185.0,
+        370.0,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "01 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": 0.0,
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": true,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": true,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": true,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": true,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            1.0
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            1.0
+          ]
+        }
+      },
+      "dilation": 1.0,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 0.6720000000204891,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 1,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "01 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -246.66666750000002,
+      "pose_weights": {
+        "Pose_000": 0.9999899864196777,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        }
+      },
+      "dilation": 1.0,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 0.9690000000409782,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 1,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "01 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -246.66666750000002,
+      "pose_weights": {
+        "Pose_000": 1.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        }
+      },
+      "dilation": 1.0,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 1.0940000000409782,
+      "observation_phase": "command_before_next_world_tick",
+      "page": 1,
+      "selected": 1,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "01 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -246.66666750000002,
+      "pose_weights": {
+        "Pose_000": 0.9999899864196777,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 1.4060000000754371,
+      "observation_phase": "command_before_next_world_tick",
+      "page": 1,
+      "selected": 3,
+      "active": 3,
+      "openness": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "03 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -246.66666750000002,
+      "pose_weights": {
+        "Pose_000": 1.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 1.5150000000139698,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 3,
+      "active": 3,
+      "openness": [
+        0.0,
+        0.0,
+        0.41547803208231926,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        221.04551696777344,
+        221.04551696777344,
+        297.9089660644531,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "03 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -221.0455218420252,
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.33808785676956177,
+        "Pose_050": 0.6619121432304382,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.33808785676956177,
+          "Pose_050": 0.6619121432304382,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.7077390160411596
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.7077390160411596
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 1.8280000000959262,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 3,
+      "active": 3,
+      "openness": [
+        0.0,
+        0.0,
+        0.5130907604891345,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        215.0260772705078,
+        215.0260772705078,
+        309.9478454589844,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "03 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -215.02607017559433,
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.9476369619369507,
+        "Pose_075": 0.052363041788339615
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.9476369619369507,
+          "Pose_075": 0.052363041788339615
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.7565453802445672
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.7565453802445672
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 1.937000000034459,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 3,
+      "active": 3,
+      "openness": [
+        0.0,
+        0.0,
+        0.7105861888866072,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        202.84718322753906,
+        202.84718322753906,
+        334.3056335449219,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "03 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -202.84718525983737,
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.1576552391052246,
+        "Pose_075": 0.8423447608947754
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.1576552391052246,
+          "Pose_075": 0.8423447608947754
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.8552930944433036
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.8552930944433036
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 2.25,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 3,
+      "active": 3,
+      "openness": [
+        0.0,
+        0.0,
+        0.7574998685701744,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        199.9541778564453,
+        199.9541778564453,
+        340.0916442871094,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "03 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -199.95417497358937,
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.9700005054473877
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.9700005054473877
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.8787499342850872
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.8787499342850872
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 2.375,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 3,
+      "active": 3,
+      "openness": [
+        0.0,
+        0.0,
+        0.8561574621699537,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        193.8702850341797,
+        193.8702850341797,
+        352.2594299316406,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "03 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -193.87028995272158,
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.5753701329231262
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.5753701329231262
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9280787310849768
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9280787310849768
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 2.672000000020489,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 3,
+      "active": 3,
+      "openness": [
+        0.0,
+        0.0,
+        0.8801519996545054,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        192.390625,
+        192.390625,
+        355.21875,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "03 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -192.39062678784558,
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.47939199209213257
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.47939199209213257
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9400759998272528
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9400759998272528
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 2.797000000020489,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 3,
+      "active": 3,
+      "openness": [
+        0.0,
+        0.0,
+        0.9295908157364825,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        189.34190368652344,
+        189.34190368652344,
+        361.3161926269531,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "03 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -189.3418997549245,
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.2816367447376251
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.2816367447376251
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9647954078682413
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9647954078682413
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 3.125,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 3,
+      "active": 3,
+      "openness": [
+        0.0,
+        0.0,
+        0.9418386400743033,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        188.5866241455078,
+        188.5866241455078,
+        362.8267517089844,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "03 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -188.5866172438857,
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.2326454371213913
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.2326454371213913
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9709193200371516
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9709193200371516
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 3.25,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 3,
+      "active": 3,
+      "openness": [
+        0.0,
+        0.0,
+        0.9669114888175498,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        187.0404510498047,
+        187.0404510498047,
+        365.9190979003906,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "03 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -187.04045821715818,
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.13235405087471008
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.13235405087471008
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9834557444087749
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9834557444087749
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 3.547000000020489,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 3,
+      "active": 3,
+      "openness": [
+        0.0,
+        0.0,
+        0.9723587372419308,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        186.7045440673828,
+        186.7045440673828,
+        366.5909118652344,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "03 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -186.70454455978188,
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.11056505143642426
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.11056505143642426
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9861793686209654
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9861793686209654
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 3.672000000020489,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 3,
+      "active": 3,
+      "openness": [
+        0.0,
+        0.0,
+        0.9836989648368563,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        186.00523376464844,
+        186.00523376464844,
+        367.9895324707031,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "03 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -186.00523051531138,
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.06520414352416992
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.06520414352416992
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9918494824184281
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9918494824184281
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 3.969000000040978,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 3,
+      "active": 3,
+      "openness": [
+        0.0,
+        0.0,
+        0.9864023562890982,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        185.83851623535156,
+        185.83851623535156,
+        368.3229675292969,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "03 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -185.83852137350368,
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.05439057573676109
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.05439057573676109
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9932011781445491
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9932011781445491
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 4.078000000095926,
+      "observation_phase": "command_before_next_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 2,
+      "openness": [
+        0.0,
+        0.0,
+        0.9918074482458549,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        185.5052032470703,
+        185.5052032470703,
+        368.9895935058594,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -185.50520736499936,
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.03277020528912544
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.03277020528912544
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9959037241229274
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9959037241229274
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 4.406000000075437,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 2,
+      "openness": [
+        0.0,
+        0.15637360699474812,
+        0.8367149401193936,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        185.42620849609375,
+        214.35531616210938,
+        340.2184753417969,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -199.8907649140683,
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.6531402468681335
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.37450557947158813,
+          "Pose_025": 0.6254944205284119,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.6531402468681335
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5781868034973741
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5781868034973741
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9183574700596968
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9183574700596968
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 4.531000000075437,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 2,
+      "openness": [
+        0.0,
+        0.5199637771188883,
+        0.47610350128129386,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        185.24252319335938,
+        281.4358215332031,
+        273.3216552734375,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -233.33916721876324,
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.09558599442243576,
+        "Pose_050": 0.9044139981269836,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.9201449155807495,
+          "Pose_075": 0.07985510677099228
+        },
+        "3": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.09558599442243576,
+          "Pose_050": 0.9044139981269836,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.7599818885594442
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.7599818885594442
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.738051750640647
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.738051750640647
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 4.859000000054948,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 2,
+      "openness": [
+        0.0,
+        0.6013072651988423,
+        0.39542642393729766,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        185.201416015625,
+        296.4432678222656,
+        258.3553161621094,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -240.82234453688625,
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.4182943105697632,
+        "Pose_050": 0.5817056894302368,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.5947709679603577,
+          "Pose_075": 0.4052290618419647
+        },
+        "3": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.4182943105697632,
+          "Pose_050": 0.5817056894302368,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.8006536325994211
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.8006536325994211
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.6977132119686489
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.6977132119686489
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 4.984000000054948,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 2,
+      "openness": [
+        0.0,
+        0.7799685363149731,
+        0.2182288445312471,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        185.1111602783203,
+        329.40533447265625,
+        225.48350524902344,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -257.2582511251203,
+      "pose_weights": {
+        "Pose_000": 0.12708334624767303,
+        "Pose_025": 0.8729153871536255,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.880125880241394
+        },
+        "3": {
+          "Pose_000": 0.12708334624767303,
+          "Pose_025": 0.8729153871536255,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.8899842681574865
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.8899842681574865
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.6091144222656235
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.6091144222656235
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 5.281000000075437,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 2,
+      "openness": [
+        0.0,
+        0.8154117641205798,
+        0.18307598720377183,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        185.09326171875,
+        335.9444274902344,
+        218.96231079101562,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -260.51884351741217,
+      "pose_weights": {
+        "Pose_000": 0.2676960527896881,
+        "Pose_025": 0.7323039770126343,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.7383529543876648
+        },
+        "3": {
+          "Pose_000": 0.2676960527896881,
+          "Pose_025": 0.7323039770126343,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.9077058820602899
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9077058820602899
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5915379936018859
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5915379936018859
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 5.406000000075437,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 2,
+      "openness": [
+        0.0,
+        0.8898223528094462,
+        0.10927501111379533,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        185.0556640625,
+        349.67279052734375,
+        205.27154541015625,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -267.3642301936927,
+      "pose_weights": {
+        "Pose_000": 0.562894344329834,
+        "Pose_025": 0.43710005283355713,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.44071057438850403
+        },
+        "3": {
+          "Pose_000": 0.562894344329834,
+          "Pose_025": 0.43710005283355713,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.9449111764047231
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9449111764047231
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5546375055568976
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5546375055568976
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 5.703000000095926,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 2,
+      "openness": [
+        0.0,
+        0.9079906114532184,
+        0.09125559686924498,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        185.04647827148438,
+        353.0247497558594,
+        201.92877197265625,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -269.0356153801656,
+      "pose_weights": {
+        "Pose_000": 0.6349776387214661,
+        "Pose_025": 0.3650223910808563,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.36803755164146423
+        },
+        "3": {
+          "Pose_000": 0.6349776387214661,
+          "Pose_025": 0.3650223910808563,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.9539953057266092
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9539953057266092
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5456277984346225
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5456277984346225
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 5.828000000095926,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 2,
+      "openness": [
+        0.0,
+        0.9458552093435645,
+        0.05370120665676538,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        185.02735900878906,
+        360.01055908203125,
+        194.9620819091797,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -272.51896121129573,
+      "pose_weights": {
+        "Pose_000": 0.785187304019928,
+        "Pose_025": 0.21480482816696167,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.21657916903495789
+        },
+        "3": {
+          "Pose_000": 0.785187304019928,
+          "Pose_025": 0.21480482816696167,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.9729276046717823
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9729276046717823
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5268506033283827
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5268506033283827
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 6.14000000001397,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 2,
+      "openness": [
+        0.0,
+        0.9551630179777296,
+        0.044469652726553274,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        185.0226593017578,
+        361.7278137207031,
+        193.24954223632812,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -273.37523113648206,
+      "pose_weights": {
+        "Pose_000": 0.8221213817596436,
+        "Pose_025": 0.17787861824035645,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.1793479323387146
+        },
+        "3": {
+          "Pose_000": 0.8221213817596436,
+          "Pose_025": 0.17787861824035645,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.9775815089888649
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9775815089888649
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5222348263632767
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5222348263632767
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 6.344000000040978,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 2,
+      "openness": [
+        0.0,
+        0.9742038081643773,
+        0.02558485519894946,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        185.01303100585938,
+        365.24072265625,
+        189.74623107910156,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 739.9999847412109,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -275.1268846813092,
+      "pose_weights": {
+        "Pose_000": 0.8976516127586365,
+        "Pose_025": 0.10233942419290543,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.1031847670674324
+        },
+        "3": {
+          "Pose_000": 0.8976516127586365,
+          "Pose_025": 0.10233942419290543,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.9871019040821887
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9871019040821887
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5127924275994747
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5127924275994747
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 6.656000000075437,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 2,
+      "openness": [
+        0.0,
+        0.9810919944732226,
+        0.018753100712931618,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        185.00955200195312,
+        366.5115661621094,
+        188.4788818359375,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -275.7605619524227,
+      "pose_weights": {
+        "Pose_000": 0.9249876141548157,
+        "Pose_025": 0.07501240074634552,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0756320208311081
+        },
+        "3": {
+          "Pose_000": 0.9249876141548157,
+          "Pose_025": 0.07501240074634552,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.9905459972366113
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9905459972366113
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5093765503564658
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5093765503564658
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 6.844000000040978,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 2,
+      "openness": [
+        0.0,
+        0.989264603030034,
+        0.010647446674688192,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        185.0054168701172,
+        368.0193786621094,
+        186.97520446777344,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -276.5123993818936,
+      "pose_weights": {
+        "Pose_000": 0.9574006199836731,
+        "Pose_025": 0.042589787393808365,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.042941588908433914
+        },
+        "3": {
+          "Pose_000": 0.9574006199836731,
+          "Pose_025": 0.042589787393808365,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.994632301515017
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.994632301515017
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5053237233373441
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5053237233373441
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 7.14000000001397,
+      "observation_phase": "command_before_next_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.9918592277917897,
+        0.00807407851057585,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        185.00411987304688,
+        368.4980773925781,
+        186.49781799316406,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -276.7510913488169,
+      "pose_weights": {
+        "Pose_000": 0.9677037000656128,
+        "Pose_025": 0.0322963148355484,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.032563090324401855
+        },
+        "3": {
+          "Pose_000": 0.9677037000656128,
+          "Pose_025": 0.0322963148355484,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.9959296138958948
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.9959296138958948
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.504037039255288
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.504037039255288
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 7.344000000040978,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.5925486321889535,
+        0.004823551612540177,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        209.82872009277344,
+        319.4502258300781,
+        210.7210693359375,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -264.63946414524264,
+      "pose_weights": {
+        "Pose_000": 0.9806959629058838,
+        "Pose_025": 0.01929420605301857,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.6298054456710815,
+          "Pose_075": 0.37019452452659607
+        },
+        "3": {
+          "Pose_000": 0.9806959629058838,
+          "Pose_025": 0.01929420605301857,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.7962743160944767
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.7962743160944767
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5024117758062701
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5024117758062701
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 7.672000000020489,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.4313261844532744,
+        0.003511144907827499,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        219.85169982910156,
+        299.64703369140625,
+        220.5012664794922,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -259.74937055562873,
+      "pose_weights": {
+        "Pose_000": 0.9859554171562195,
+        "Pose_025": 0.014044580049812794,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.0,
+          "Pose_025": 0.2746952474117279,
+          "Pose_050": 0.7253047227859497,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.9859554171562195,
+          "Pose_025": 0.014044580049812794,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.7156630922266372
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.7156630922266372
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5017555724539138
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5017555724539138
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 7.875,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.24159706947975929,
+        0.0019666840336279136,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        231.6468963623047,
+        276.34234619140625,
+        232.0107421875,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 739.9999847412109,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -253.99463142391573,
+      "pose_weights": {
+        "Pose_000": 0.9921233654022217,
+        "Pose_025": 0.007866736501455307,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.03361138701438904,
+          "Pose_025": 0.9663882851600647,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.9921233654022217,
+          "Pose_025": 0.007866736501455307,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.6207985347398797
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.6207985347398797
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5009833420168139
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5009833420168139
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 8.203000000095926,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.1728688838535496,
+        0.0014072127386227967,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        235.91964721679688,
+        267.900390625,
+        236.1799774169922,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -251.910013154706,
+      "pose_weights": {
+        "Pose_000": 0.9943711757659912,
+        "Pose_025": 0.005628850776702166,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.3085244596004486,
+          "Pose_025": 0.691475510597229,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.9943711757659912,
+          "Pose_025": 0.005628850776702166,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5864344419267749
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5864344419267749
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5007036063693114
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5007036063693114
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 8.406000000075437,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.09665059146922172,
+        0.0007867693738691534,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        240.6580352783203,
+        258.53839111328125,
+        240.8035888671875,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -249.59820987771468,
+      "pose_weights": {
+        "Pose_000": 0.9968429803848267,
+        "Pose_025": 0.003147077513858676,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.6133915185928345,
+          "Pose_025": 0.38660237193107605,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.9968429803848267,
+          "Pose_025": 0.003147077513858676,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5483252957346109
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5483252957346109
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5003933846869346
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5003933846869346
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 8.703000000095926,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.07124112806635034,
+        0.0005799275190193099,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        242.23770141601562,
+        255.4173126220703,
+        242.34498596191406,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -248.82750669185543,
+      "pose_weights": {
+        "Pose_000": 0.9976803064346313,
+        "Pose_025": 0.0023197100963443518,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.7150354981422424,
+          "Pose_025": 0.28496450185775757,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.9976803064346313,
+          "Pose_025": 0.0023197100963443518,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5356205640331752
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5356205640331752
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5002899637595096
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5002899637595096
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 8.906000000075437,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.041563371085748195,
+        0.00033834027239697663,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        244.08273315429688,
+        251.77195739746094,
+        244.14532470703125,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -247.92734042342795,
+      "pose_weights": {
+        "Pose_000": 0.9986366629600525,
+        "Pose_025": 0.0013533610617741942,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.8337382078170776,
+          "Pose_025": 0.1662534773349762,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.9986366629600525,
+          "Pose_025": 0.0013533610617741942,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5207816855428741
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5207816855428741
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5001691701361984
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5001691701361984
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 9.234000000054948,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.030383718929305113,
+        0.0002473340220110111,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        244.7777557373047,
+        250.39874267578125,
+        244.82350158691406,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -247.58824654343698,
+      "pose_weights": {
+        "Pose_000": 0.9990106821060181,
+        "Pose_025": 0.0009893360547721386,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.8784651160240173,
+          "Pose_025": 0.12153487652540207,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.9990106821060181,
+          "Pose_025": 0.0009893360547721386,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5151918594646525
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5151918594646525
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5001236670110055
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5001236670110055
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 9.453000000095926,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.016927776337091596,
+        0.00013779797709744809,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        245.61428833007812,
+        248.7459259033203,
+        245.63978576660156,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -247.18010971425133,
+      "pose_weights": {
+        "Pose_000": 0.9994388222694397,
+        "Pose_025": 0.0005511919152922928,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.9322795867919922,
+          "Pose_025": 0.06771110743284225,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.9994388222694397,
+          "Pose_025": 0.0005511919152922928,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5084638881685458
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5084638881685458
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5000688989885487
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5000688989885487
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 9.797000000020489,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.011956466819113182,
+        9.732979146802872e-05,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        245.92335510253906,
+        248.1352996826172,
+        245.9413604736328,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -247.0293232130706,
+      "pose_weights": {
+        "Pose_000": 0.9996106624603271,
+        "Pose_025": 0.00038931917515583336,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.9521741271018982,
+          "Pose_025": 0.04782586544752121,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.9996106624603271,
+          "Pose_025": 0.00038931917515583336,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5059782334095566
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5059782334095566
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.500048664895734
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.500048664895734
+          ]
+        }
+      },
+      "dilation": 0.15,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 10.01500000001397,
+      "observation_phase": "command_before_next_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.006461780550431735,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        246.2681884765625,
+        247.463623046875,
+        246.2681884765625,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -246.86590572825344,
+      "pose_weights": {
+        "Pose_000": 0.9999899864196777,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.9741431474685669,
+          "Pose_025": 0.025847122073173523,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5032308902752158
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5032308902752158
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        }
+      },
+      "dilation": 1,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 10.328000000095926,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -246.66666750000002,
+      "pose_weights": {
+        "Pose_000": 1.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        }
+      },
+      "dilation": 1,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 10.51500000001397,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -246.66666750000002,
+      "pose_weights": {
+        "Pose_000": 0.9999899864196777,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        }
+      },
+      "dilation": 1,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 10.812000000034459,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -246.66666750000002,
+      "pose_weights": {
+        "Pose_000": 1.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        }
+      },
+      "dilation": 1,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 11.01500000001397,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -246.66666750000002,
+      "pose_weights": {
+        "Pose_000": 0.9999899864196777,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        }
+      },
+      "dilation": 1,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 11.312000000034459,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -246.66666750000002,
+      "pose_weights": {
+        "Pose_000": 1.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        }
+      },
+      "dilation": 1,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 11.5,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -246.66666750000002,
+      "pose_weights": {
+        "Pose_000": 0.9999899864196777,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        }
+      },
+      "dilation": 1,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 11.781000000075437,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -246.66666750000002,
+      "pose_weights": {
+        "Pose_000": 1.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        }
+      },
+      "dilation": 1,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 11.969000000040978,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -246.66666750000002,
+      "pose_weights": {
+        "Pose_000": 0.9999899864196777,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 0.9999899864196777,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        }
+      },
+      "dilation": 1,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    },
+    {
+      "elapsed": 12.26500000001397,
+      "observation_phase": "after_world_tick",
+      "page": 1,
+      "selected": 2,
+      "active": 0,
+      "openness": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "heights": [
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297,
+        246.6666717529297
+      ],
+      "three_row_sum": 740.0000152587891,
+      "window_first": 1,
+      "day_counter": "02 / 07",
+      "scale": "<Struct 'Vector' (0x0000022BD866DBE0) {x: 0.537654, y: 0.537654, z: 0.537654}>",
+      "world_z": -246.66666750000002,
+      "pose_weights": {
+        "Pose_000": 1.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      },
+      "all_pose_weights": {
+        "1": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "2": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        },
+        "3": {
+          "Pose_000": 1.0,
+          "Pose_025": 0.0,
+          "Pose_050": 0.0,
+          "Pose_075": 0.0
+        }
+      },
+      "interiors": {
+        "day1_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day1_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.88,
+            1.0,
+            0.5
+          ]
+        },
+        "day2_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Interior": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        },
+        "day3_Tongue": {
+          "actor_hidden": false,
+          "component_visible": true,
+          "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_r06.SM_DAY03_Tongue_Organic_r06",
+          "relative_scale": [
+            0.9,
+            1.0,
+            0.5
+          ]
+        }
+      },
+      "dilation": 1,
+      "vsm_enabled": 1,
+      "morph_force_update": 0
+    }
+  ],
+  "source_mesh": null,
+  "scope": "Solo PIE, shared BP functions; physical wheel validated separately",
+  "slow_pass": "See recorded dilation actions. Normal dilation restored on exit.",
+  "requested_schedule": [
+    [
+      0,
+      "ShowPage",
+      0
+    ],
+    [
+      0.5,
+      "catalog",
+      null
+    ],
+    [
+      1,
+      "dilation",
+      0.15
+    ],
+    [
+      1.2,
+      "SelectDay",
+      3
+    ],
+    [
+      4,
+      "SelectDay",
+      2
+    ],
+    [
+      7,
+      "Back",
+      null
+    ],
+    [
+      10,
+      "dilation",
+      1
+    ]
+  ],
+  "duration": 12.0,
+  "render_overrides": {
+    "r.Shadow.Virtual.Enable": 1
+  },
+  "render_previous": {
+    "r.Shadow.Virtual.Enable": 0
+  },
+  "quality_overrides": {},
+  "quality_previous": {},
+  "actual_mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Reference_v08b.SK_DAY03_Reference_v08b",
+  "pointer_isolation": "Root widget HitTestInvisible only during controlled render review; restored on exit. Shared BP functions still run. Physical input is not tested here.",
+  "error": null
+}

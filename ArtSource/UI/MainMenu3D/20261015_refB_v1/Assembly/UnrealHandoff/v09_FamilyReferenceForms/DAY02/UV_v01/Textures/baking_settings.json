@@ -1,0 +1,31 @@
+{
+  "enabled_bakers": [
+    "Normal",
+    "WorldSpaceNormal",
+    "AO",
+    "Curvature",
+    "Position",
+    "Thickness"
+  ],
+  "common": {
+    "OutputSize": [
+      12,
+      12
+    ],
+    "DilationWidth": 32,
+    "SubSampling": "2x2",
+    "LowAsHigh": true
+  },
+  "baker_values": {
+    "AO": {
+      "NbSecondary": 128
+    },
+    "Thickness": {
+      "NbSecondary": 128
+    }
+  },
+  "job_id": "fea7523b91824331be35ead28c18ad22",
+  "status": "success",
+  "all_12_expected_mesh_maps_verified": true,
+  "duration_seconds": 27.761247
+}

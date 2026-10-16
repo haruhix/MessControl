@@ -1,0 +1,509 @@
+{
+  "started_monotonic": 593062.75,
+  "requested_fps": 12.0,
+  "frames": [
+    {
+      "file": "frame_0000.png",
+      "request_time": 0.015000000013969839,
+      "time": 0.31259799003601074
+    },
+    {
+      "file": "frame_0001.png",
+      "request_time": 0.3279999999795109,
+      "time": 0.3785405158996582
+    },
+    {
+      "file": "frame_0002.png",
+      "request_time": 0.42099999997299165,
+      "time": 0.4780716896057129
+    },
+    {
+      "file": "frame_0003.png",
+      "request_time": 0.5150000000139698,
+      "time": 0.5688819885253906
+    },
+    {
+      "file": "frame_0004.png",
+      "request_time": 0.609000000054948,
+      "time": 0.6665806770324707
+    },
+    {
+      "file": "frame_0005.png",
+      "request_time": 0.7029999999795109,
+      "time": 0.7583427429199219
+    },
+    {
+      "file": "frame_0006.png",
+      "request_time": 0.7959999999729916,
+      "time": 0.853909969329834
+    },
+    {
+      "file": "frame_0007.png",
+      "request_time": 0.8900000000139698,
+      "time": 0.9427530765533447
+    },
+    {
+      "file": "frame_0008.png",
+      "request_time": 0.984000000054948,
+      "time": 1.043919563293457
+    },
+    {
+      "file": "frame_0009.png",
+      "request_time": 1.077999999979511,
+      "time": 1.1559290885925293
+    },
+    {
+      "file": "frame_0010.png",
+      "request_time": 1.1709999999729916,
+      "time": 1.2421197891235352
+    },
+    {
+      "file": "frame_0011.png",
+      "request_time": 1.2650000000139698,
+      "time": 1.3471460342407227
+    },
+    {
+      "file": "frame_0012.png",
+      "request_time": 1.359000000054948,
+      "time": 1.4277513027191162
+    },
+    {
+      "file": "frame_0013.png",
+      "request_time": 1.452999999979511,
+      "time": 1.5277259349822998
+    },
+    {
+      "file": "frame_0014.png",
+      "request_time": 1.5459999999729916,
+      "time": 1.6247913837432861
+    },
+    {
+      "file": "frame_0015.png",
+      "request_time": 1.6400000000139698,
+      "time": 1.707594394683838
+    },
+    {
+      "file": "frame_0016.png",
+      "request_time": 1.734000000054948,
+      "time": 1.8126912117004395
+    },
+    {
+      "file": "frame_0017.png",
+      "request_time": 1.827999999979511,
+      "time": 1.9048967361450195
+    },
+    {
+      "file": "frame_0018.png",
+      "request_time": 1.9209999999729916,
+      "time": 1.998673439025879
+    },
+    {
+      "file": "frame_0019.png",
+      "request_time": 2.01500000001397,
+      "time": 2.101386547088623
+    },
+    {
+      "file": "frame_0020.png",
+      "request_time": 2.109000000054948,
+      "time": 2.192748785018921
+    },
+    {
+      "file": "frame_0021.png",
+      "request_time": 2.202999999979511,
+      "time": 2.2821240425109863
+    },
+    {
+      "file": "frame_0022.png",
+      "request_time": 2.2959999999729916,
+      "time": 2.372314929962158
+    },
+    {
+      "file": "frame_0023.png",
+      "request_time": 2.39000000001397,
+      "time": 2.480509042739868
+    },
+    {
+      "file": "frame_0024.png",
+      "request_time": 2.484000000054948,
+      "time": 2.570052146911621
+    },
+    {
+      "file": "frame_0025.png",
+      "request_time": 2.577999999979511,
+      "time": 2.665480136871338
+    },
+    {
+      "file": "frame_0026.png",
+      "request_time": 2.6709999999729916,
+      "time": 2.761460304260254
+    },
+    {
+      "file": "frame_0027.png",
+      "request_time": 2.780999999959022,
+      "time": 2.8591771125793457
+    },
+    {
+      "file": "frame_0028.png",
+      "request_time": 2.875,
+      "time": 2.9504554271698
+    },
+    {
+      "file": "frame_0029.png",
+      "request_time": 2.9679999999934807,
+      "time": 3.058882236480713
+    },
+    {
+      "file": "frame_0030.png",
+      "request_time": 3.062000000034459,
+      "time": 3.1482326984405518
+    },
+    {
+      "file": "frame_0031.png",
+      "request_time": 3.155999999959022,
+      "time": 3.2392680644989014
+    },
+    {
+      "file": "frame_0032.png",
+      "request_time": 3.25,
+      "time": 3.3280882835388184
+    },
+    {
+      "file": "frame_0033.png",
+      "request_time": 3.3429999999934807,
+      "time": 3.4223947525024414
+    },
+    {
+      "file": "frame_0034.png",
+      "request_time": 3.437000000034459,
+      "time": 3.5283119678497314
+    },
+    {
+      "file": "frame_0035.png",
+      "request_time": 3.530999999959022,
+      "time": 3.6193320751190186
+    },
+    {
+      "file": "frame_0036.png",
+      "request_time": 3.625,
+      "time": 3.7074332237243652
+    },
+    {
+      "file": "frame_0037.png",
+      "request_time": 3.7179999999934807,
+      "time": 3.811389446258545
+    },
+    {
+      "file": "frame_0038.png",
+      "request_time": 3.812000000034459,
+      "time": 3.904654026031494
+    },
+    {
+      "file": "frame_0039.png",
+      "request_time": 3.905999999959022,
+      "time": 4.00230860710144
+    },
+    {
+      "file": "frame_0040.png",
+      "request_time": 4.01500000001397,
+      "time": 4.092717885971069
+    },
+    {
+      "file": "frame_0041.png",
+      "request_time": 4.109000000054948,
+      "time": 4.18674635887146
+    },
+    {
+      "file": "frame_0042.png",
+      "request_time": 4.280999999959022,
+      "time": 4.3673272132873535
+    },
+    {
+      "file": "frame_0043.png",
+      "request_time": 4.375,
+      "time": 4.462710857391357
+    },
+    {
+      "file": "frame_0044.png",
+      "request_time": 4.467999999993481,
+      "time": 4.557661294937134
+    },
+    {
+      "file": "frame_0045.png",
+      "request_time": 4.562000000034459,
+      "time": 4.650891304016113
+    },
+    {
+      "file": "frame_0046.png",
+      "request_time": 4.655999999959022,
+      "time": 4.743890285491943
+    },
+    {
+      "file": "frame_0047.png",
+      "request_time": 4.75,
+      "time": 4.841419219970703
+    },
+    {
+      "file": "frame_0048.png",
+      "request_time": 4.842999999993481,
+      "time": 4.935758352279663
+    },
+    {
+      "file": "frame_0049.png",
+      "request_time": 4.952999999979511,
+      "time": 5.043640851974487
+    },
+    {
+      "file": "frame_0050.png",
+      "request_time": 5.045999999972992,
+      "time": 5.145738840103149
+    },
+    {
+      "file": "frame_0051.png",
+      "request_time": 5.155999999959022,
+      "time": 5.252450704574585
+    },
+    {
+      "file": "frame_0052.png",
+      "request_time": 5.26500000001397,
+      "time": 5.349388122558594
+    },
+    {
+      "file": "frame_0053.png",
+      "request_time": 5.359000000054948,
+      "time": 5.444744348526001
+    },
+    {
+      "file": "frame_0054.png",
+      "request_time": 5.452999999979511,
+      "time": 5.53630256652832
+    },
+    {
+      "file": "frame_0055.png",
+      "request_time": 5.545999999972992,
+      "time": 5.630234241485596
+    },
+    {
+      "file": "frame_0056.png",
+      "request_time": 5.64000000001397,
+      "time": 5.724111557006836
+    },
+    {
+      "file": "frame_0057.png",
+      "request_time": 5.734000000054948,
+      "time": 5.824392795562744
+    },
+    {
+      "file": "frame_0058.png",
+      "request_time": 5.827999999979511,
+      "time": 5.925622463226318
+    },
+    {
+      "file": "frame_0059.png",
+      "request_time": 5.937000000034459,
+      "time": 6.025627374649048
+    },
+    {
+      "file": "frame_0060.png",
+      "request_time": 6.030999999959022,
+      "time": 6.1248931884765625
+    },
+    {
+      "file": "frame_0061.png",
+      "request_time": 6.14000000001397,
+      "time": 6.223348140716553
+    },
+    {
+      "file": "frame_0062.png",
+      "request_time": 6.234000000054948,
+      "time": 6.320246934890747
+    },
+    {
+      "file": "frame_0063.png",
+      "request_time": 6.327999999979511,
+      "time": 6.421156883239746
+    },
+    {
+      "file": "frame_0064.png",
+      "request_time": 6.420999999972992,
+      "time": 6.523412227630615
+    },
+    {
+      "file": "frame_0065.png",
+      "request_time": 6.530999999959022,
+      "time": 6.6236631870269775
+    },
+    {
+      "file": "frame_0066.png",
+      "request_time": 6.625,
+      "time": 6.725949764251709
+    },
+    {
+      "file": "frame_0067.png",
+      "request_time": 6.734000000054948,
+      "time": 6.829019546508789
+    },
+    {
+      "file": "frame_0068.png",
+      "request_time": 6.842999999993481,
+      "time": 6.929019927978516
+    },
+    {
+      "file": "frame_0069.png",
+      "request_time": 6.937000000034459,
+      "time": 7.028861999511719
+    },
+    {
+      "file": "frame_0070.png",
+      "request_time": 7.045999999972992,
+      "time": 7.127211093902588
+    },
+    {
+      "file": "frame_0071.png",
+      "request_time": 7.14000000001397,
+      "time": 7.229801177978516
+    },
+    {
+      "file": "frame_0072.png",
+      "request_time": 7.234000000054948,
+      "time": 7.333131551742554
+    },
+    {
+      "file": "frame_0073.png",
+      "request_time": 7.342999999993481,
+      "time": 7.435460329055786
+    },
+    {
+      "file": "frame_0074.png",
+      "request_time": 7.437000000034459,
+      "time": 7.5303404331207275
+    },
+    {
+      "file": "frame_0075.png",
+      "request_time": 7.545999999972992,
+      "time": 7.6241655349731445
+    },
+    {
+      "file": "frame_0076.png",
+      "request_time": 7.64000000001397,
+      "time": 7.748432397842407
+    },
+    {
+      "file": "frame_0077.png",
+      "request_time": 7.76500000001397,
+      "time": 7.851683616638184
+    },
+    {
+      "file": "frame_0078.png",
+      "request_time": 7.859000000054948,
+      "time": 7.952732086181641
+    },
+    {
+      "file": "frame_0079.png",
+      "request_time": 7.967999999993481,
+      "time": 8.060022830963135
+    },
+    {
+      "file": "frame_0080.png",
+      "request_time": 8.062000000034459,
+      "time": 8.160176753997803
+    },
+    {
+      "file": "frame_0081.png",
+      "request_time": 8.170999999972992,
+      "time": 8.259902238845825
+    },
+    {
+      "file": "frame_0082.png",
+      "request_time": 8.26500000001397,
+      "time": 8.355759143829346
+    },
+    {
+      "file": "frame_0083.png",
+      "request_time": 8.359000000054948,
+      "time": 8.457045555114746
+    },
+    {
+      "file": "frame_0084.png",
+      "request_time": 8.46799999999348,
+      "time": 8.555880546569824
+    },
+    {
+      "file": "frame_0085.png",
+      "request_time": 8.562000000034459,
+      "time": 8.650754928588867
+    },
+    {
+      "file": "frame_0086.png",
+      "request_time": 8.655999999959022,
+      "time": 8.742150068283081
+    },
+    {
+      "file": "frame_0087.png",
+      "request_time": 8.75,
+      "time": 8.840033769607544
+    },
+    {
+      "file": "frame_0088.png",
+      "request_time": 8.84299999999348,
+      "time": 8.940888404846191
+    },
+    {
+      "file": "frame_0089.png",
+      "request_time": 8.952999999979511,
+      "time": 9.049110889434814
+    },
+    {
+      "file": "frame_0090.png",
+      "request_time": 9.062000000034459,
+      "time": 9.149487972259521
+    },
+    {
+      "file": "frame_0091.png",
+      "request_time": 9.155999999959022,
+      "time": 9.250471115112305
+    },
+    {
+      "file": "frame_0092.png",
+      "request_time": 9.26500000001397,
+      "time": 9.351059436798096
+    },
+    {
+      "file": "frame_0093.png",
+      "request_time": 9.359000000054948,
+      "time": 9.454087257385254
+    },
+    {
+      "file": "frame_0094.png",
+      "request_time": 9.46799999999348,
+      "time": 9.5529043674469
+    },
+    {
+      "file": "frame_0095.png",
+      "request_time": 9.562000000034459,
+      "time": 9.654328346252441
+    },
+    {
+      "file": "frame_0096.png",
+      "request_time": 9.655999999959022,
+      "time": 9.753350973129272
+    },
+    {
+      "file": "frame_0097.png",
+      "request_time": 9.76500000001397,
+      "time": 9.856581211090088
+    },
+    {
+      "file": "frame_0098.png",
+      "request_time": 9.859000000054948,
+      "time": 9.955873966217041
+    },
+    {
+      "file": "frame_0099.png",
+      "request_time": 9.96799999999348,
+      "time": 10.056536674499512
+    }
+  ],
+  "source": "Engine Shot direct viewport readback without forced Slate SHOWUI redraw; diagnostic excludes UI.",
+  "show_ui": false,
+  "error": null
+}

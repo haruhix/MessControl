@@ -1,0 +1,44 @@
+{
+  "status": "EXPORT_TIME_SNAPSHOT_SUPERSEDED_BY_FROZEN_HANDOFF_RECEIPT",
+  "geometry_morphs_bit_exact": true,
+  "files": {
+    "family_finish_uv_export_executed.py": {
+      "bytes": 17692,
+      "sha256": "ff978acbcfc6947a7c670d0d3b3aef963ebb8851528a393fc0ad969f9d3377a7"
+    },
+    "MC_DAY02_Painter_Open.mtl": {
+      "bytes": 59,
+      "sha256": "5ed9d1bd19e08b6577570d98a3d5fd5b5942bffec3d62f9833f15f30ae351eca"
+    },
+    "MC_DAY02_Painter_Open.obj": {
+      "bytes": 62553833,
+      "sha256": "7f0a06254fd2bbbc190eb986f11764fe010d63a0864d1734104a719ab2d47ff1"
+    },
+    "MC_DAY02_UnrealMorphSource.blend": {
+      "bytes": 10182724,
+      "sha256": "e4a483ea11d11bf424b87a28c952f739f83b48094efa7a506eb21ab516ca2339"
+    },
+    "painter_uv_handoff.json": {
+      "bytes": 9728,
+      "sha256": "b731ee560a150cf549f6ab0c34cc428ef92fc48497d586befae06fd6ee979e6f"
+    },
+    "SK_DAY02.fbx": {
+      "bytes": 12966540,
+      "sha256": "3e4737c0f22ec8ef2c25d4f0ec63fc22c0c7ead9afdee9a1efa9c070f02d330f"
+    },
+    "source_world_poses_cm.npz": {
+      "bytes": 6960724,
+      "sha256": "a3d7b866a373d001953bd82985e5834f9ae4c1b3ca9b2bc041c4154b5991ca01"
+    },
+    "texture_mesh_packet.npz": {
+      "bytes": 5469088,
+      "sha256": "ee735723f4ba067aef9d402e5d599ef34c153a7c291a6ee85b6b4b6146ab3657"
+    },
+    "unreal_mouth_handoff.json": {
+      "bytes": 16123,
+      "sha256": "e7a4c3f3602233d9cc68b878cb945b52898b173e9c673ebbcee4692ef48fade2"
+    }
+  },
+  "current_authority": "frozen_handoff_receipt.json",
+  "note": "Listed hashes preserve the pre-review export snapshot; current complete hashes are in frozen_handoff_receipt.json"
+}

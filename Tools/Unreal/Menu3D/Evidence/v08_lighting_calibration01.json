@@ -1,0 +1,97 @@
+{
+  "status": "BROAD_PHYSICAL_LIGHTING_CANDIDATE_PENDING_NATIVE_REVIEW",
+  "lights": [
+    {
+      "tag": "Menu3D_Key",
+      "before": {
+        "intensity": 420.0,
+        "color": "<Struct 'Color' (0x000001DA10C0E8B8) {b: 215, g: 234, r: 255, a: 255}>"
+      },
+      "after": {
+        "intensity": 420.0,
+        "color": "<Struct 'Color' (0x000001DA10C0E8B8) {b: 215, g: 234, r: 255, a: 255}>"
+      }
+    },
+    {
+      "tag": "Menu3D_Fill",
+      "before": {
+        "intensity": 95.0,
+        "color": "<Struct 'Color' (0x000001DA10C07FB8) {b: 160, g: 173, r: 255, a: 255}>"
+      },
+      "after": {
+        "intensity": 95.0,
+        "color": "<Struct 'Color' (0x000001DA10C07FB8) {b: 160, g: 173, r: 255, a: 255}>"
+      }
+    },
+    {
+      "tag": "Menu3D_BlockingRim",
+      "before": {
+        "intensity": 100.0,
+        "color": "<Struct 'Color' (0x000001DA10C070B8) {b: 255, g: 124, r: 196, a: 255}>"
+      },
+      "after": {
+        "intensity": 100.0,
+        "color": "<Struct 'Color' (0x000001DA10C070B8) {b: 255, g: 124, r: 196, a: 255}>"
+      }
+    },
+    {
+      "tag": "Menu3D_BlockingCavity",
+      "before": {
+        "intensity": 35.0,
+        "color": "<Struct 'Color' (0x000001DA10C0B6B8) {b: 124, g: 111, r: 255, a: 255}>"
+      },
+      "after": {
+        "intensity": 35.0,
+        "color": "<Struct 'Color' (0x000001DA10C0B6B8) {b: 124, g: 111, r: 255, a: 255}>"
+      }
+    }
+  ],
+  "materials": [
+    {
+      "part": "Enamel",
+      "before": {
+        "SubsurfaceTint": "<Struct 'LinearColor' (0x000001D9BA5C2F60) {r: 0.800000, g: 0.580000, b: 0.400000, a: 1.000000}>",
+        "ScatterDensity": 0.7799999713897705
+      },
+      "SubsurfaceTint": [
+        0.8,
+        0.58,
+        0.4
+      ],
+      "ScatterDensity": 1.6
+    },
+    {
+      "part": "Gum",
+      "before": {
+        "SubsurfaceTint": "<Struct 'LinearColor' (0x000001DA2F7411E0) {r: 0.800000, g: 0.070000, b: 0.100000, a: 1.000000}>",
+        "ScatterDensity": 0.550000011920929
+      },
+      "SubsurfaceTint": [
+        0.65,
+        0.025,
+        0.04
+      ],
+      "ScatterDensity": 0.9
+    },
+    {
+      "part": "Tongue",
+      "before": {
+        "SubsurfaceTint": "<Struct 'LinearColor' (0x000001D9BA5C2F60) {r: 0.550000, g: 0.035000, b: 0.060000, a: 1.000000}>",
+        "ScatterDensity": 0.6000000238418579
+      },
+      "SubsurfaceTint": [
+        0.32,
+        0.008,
+        0.018
+      ],
+      "ScatterDensity": 1.5
+    }
+  ],
+  "original_scene_snapshot": "Tools/Unreal/Menu3D/Evidence/v08_scene_before.json",
+  "setter_note": "UE5.8 MaterialEditingLibrary setters return false even after writing; validate by readback.",
+  "post_process_before": {
+    "exposure_bias": -0.699999988079071,
+    "ao_intensity": 0.6000000238418579
+  },
+  "validation": "Only look-dev map lights/postprocess and task material instances changed. Actual rendered comparison pending; texture maps and replacement UV not accepted."
+}

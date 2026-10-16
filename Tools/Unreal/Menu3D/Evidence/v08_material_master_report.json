@@ -1,0 +1,22 @@
+{
+  "status": "UNBOUND_MATERIAL_MASTERS_CREATED_PENDING_GEOMETRY_TEXTURE_LOOK_REVIEW",
+  "work_map": "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08",
+  "materials": [
+    {
+      "path": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuEnamel_v08",
+      "status": "existing_with_explicit_linear_mask_samplers"
+    },
+    {
+      "path": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuGum_v08",
+      "status": "existing_with_explicit_linear_mask_samplers"
+    },
+    {
+      "path": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuInterior_v08",
+      "status": "existing_with_explicit_linear_mask_samplers"
+    },
+    {
+      "path": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/M_MenuTongue_v08",
+      "status": "existing_with_explicit_linear_mask_samplers"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "pie_running": false,
+  "active_lower_review_callback": false,
+  "editor_map": "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08",
+  "dirty_maps": [],
+  "dirty_content": [
+    "/Game/UI/MainMenu3D/BP_Menu3DPlayerController",
+    "/Game/UI/MainMenu3D/WBP_MainMenu3D"
+  ],
+  "cvars": {
+    "r.MorphTarget.ForceUpdate": 0,
+    "r.MorphTarget.Mode": 1,
+    "r.AntiAliasingMethod": 2,
+    "r.OneFrameThreadLag": 1,
+    "r.Shadow.Virtual.Enable": 0
+  },
+  "play_window": {
+    "NewWindowWidth": 2560,
+    "NewWindowHeight": 1358,
+    "CenterNewWindow": false
+  },
+  "validation": "Native isolated-map solo PIE only; physical wheel not exercised after Computer Use was stopped by Escape. No build/cook/network test."
+}

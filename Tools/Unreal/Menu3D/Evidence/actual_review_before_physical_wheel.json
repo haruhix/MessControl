@@ -1,0 +1,107 @@
+{
+  "action": "catalog",
+  "page": 1,
+  "active_day": 0,
+  "selected_day": 1,
+  "openness": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "window_first_day": 1,
+  "day_counter": "01 / 07",
+  "wheel_accumulator": 0.0,
+  "scroll_offset": 0.0,
+  "actual_row_heights": [
+    185.0,
+    185.0,
+    370.0,
+    246.6666717529297,
+    246.6666717529297,
+    246.6666717529297,
+    246.6666717529297
+  ],
+  "mouths": [
+    {
+      "day": 1,
+      "location": "<Struct 'Vector' (0x000001D97756DFA0) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001D97756DFA0) {x: 0.540000, y: 0.540000, z: 0.540000}>",
+      "pose_weights": {
+        "Pose_000": 1.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      }
+    },
+    {
+      "day": 2,
+      "location": "<Struct 'Vector' (0x000001D97756DFA0) {x: 0.000000, y: 0.000000, z: -0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001D97756DFA0) {x: 0.540000, y: 0.540000, z: 0.540000}>",
+      "pose_weights": {
+        "Pose_000": 1.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      }
+    },
+    {
+      "day": 3,
+      "location": "<Struct 'Vector' (0x000001D97756DFA0) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001D97756DFA0) {x: 0.540000, y: 0.540000, z: 0.540000}>",
+      "pose_weights": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      }
+    },
+    {
+      "day": 4,
+      "location": "<Struct 'Vector' (0x000001D97756DFA0) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001D97756DFA0) {x: 0.540000, y: 0.540000, z: 0.540000}>",
+      "pose_weights": {
+        "Pose_000": 1.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      }
+    },
+    {
+      "day": 5,
+      "location": "<Struct 'Vector' (0x000001D97756DFA0) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001D97756DFA0) {x: 0.540000, y: 0.540000, z: 0.540000}>",
+      "pose_weights": {
+        "Pose_000": 1.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      }
+    },
+    {
+      "day": 6,
+      "location": "<Struct 'Vector' (0x000001D97756DFA0) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001D97756DFA0) {x: 0.540000, y: 0.540000, z: 0.540000}>",
+      "pose_weights": {
+        "Pose_000": 1.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      }
+    },
+    {
+      "day": 7,
+      "location": "<Struct 'Vector' (0x000001D97756DFA0) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x000001D97756DFA0) {x: 0.540000, y: 0.540000, z: 0.540000}>",
+      "pose_weights": {
+        "Pose_000": 1.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      }
+    }
+  ]
+}

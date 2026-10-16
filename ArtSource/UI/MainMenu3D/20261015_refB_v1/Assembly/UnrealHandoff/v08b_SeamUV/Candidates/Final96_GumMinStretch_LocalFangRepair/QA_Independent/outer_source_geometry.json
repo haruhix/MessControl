@@ -1,0 +1,2827 @@
+{
+  "asset": "ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\MC_DAY03_UnrealMorphSource.blend",
+  "sha256": "e5b14557b090f955065050f8426011e9e66fb07eb33cbcf88738c734148fb3b7",
+  "blender_version": "5.1.0",
+  "independent": true,
+  "read_only": true,
+  "mesh": "SK_DAY03",
+  "vertices": 251964,
+  "triangles": 503792,
+  "morph_names": [
+    "Basis",
+    "Pose_000",
+    "Pose_025",
+    "Pose_050",
+    "Pose_075"
+  ],
+  "armatures": [
+    {
+      "name": "MC_MenuMouth_Rig",
+      "bones": [
+        "root"
+      ]
+    }
+  ],
+  "object_scales": {
+    "MC_MenuMouth_Rig": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "SK_DAY03": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "parts": [
+    {
+      "name": "MC_DAY03_Upper_Central_R",
+      "vertices": 13282,
+      "min": [
+        0.015712250024080276,
+        -0.49222180247306824,
+        1.7662094831466675
+      ],
+      "max": [
+        1.5643800497055054,
+        0.487914115190506,
+        3.1398751735687256
+      ],
+      "center": [
+        0.7900461498647928,
+        -0.002153843641281128,
+        2.4530423283576965
+      ]
+    },
+    {
+      "name": "MC_DAY03_Upper_Central_L",
+      "vertices": 13282,
+      "min": [
+        -1.5643800497055054,
+        -0.49222180247306824,
+        1.7662094831466675
+      ],
+      "max": [
+        -0.015712250024080276,
+        0.487914115190506,
+        3.1398751735687256
+      ],
+      "center": [
+        -0.7900461498647928,
+        -0.002153843641281128,
+        2.4530423283576965
+      ]
+    },
+    {
+      "name": "MC_DAY03_Upper_Lateral_R",
+      "vertices": 13282,
+      "min": [
+        1.5786350965499878,
+        -0.42947909235954285,
+        1.8501116037368774
+      ],
+      "max": [
+        2.777838706970215,
+        0.32946470379829407,
+        3.1330132484436035
+      ],
+      "center": [
+        2.1782369017601013,
+        -0.05000719428062439,
+        2.4915624260902405
+      ]
+    },
+    {
+      "name": "MC_DAY03_Upper_Lateral_L",
+      "vertices": 13282,
+      "min": [
+        -2.777838706970215,
+        -0.42947909235954285,
+        1.8501116037368774
+      ],
+      "max": [
+        -1.5786350965499878,
+        0.32946470379829407,
+        3.1330132484436035
+      ],
+      "center": [
+        -2.1782369017601013,
+        -0.05000719428062439,
+        2.4915624260902405
+      ]
+    },
+    {
+      "name": "MC_DAY03_Upper_Fang_R",
+      "vertices": 13282,
+      "min": [
+        2.785959243774414,
+        -0.715149462223053,
+        0.50899738073349
+      ],
+      "max": [
+        4.074267864227295,
+        0.3599923849105835,
+        3.118237018585205
+      ],
+      "center": [
+        3.4301135540008545,
+        -0.17757853865623474,
+        1.8136171996593475
+      ]
+    },
+    {
+      "name": "MC_DAY03_Upper_Fang_L",
+      "vertices": 13282,
+      "min": [
+        -4.074267864227295,
+        -0.715149462223053,
+        0.50899738073349
+      ],
+      "max": [
+        -2.785959243774414,
+        0.3599923849105835,
+        3.118237018585205
+      ],
+      "center": [
+        -3.4301135540008545,
+        -0.17757853865623474,
+        1.8136171996593475
+      ]
+    },
+    {
+      "name": "MC_DAY03_Upper_Premolar01_R",
+      "vertices": 5024,
+      "min": [
+        4.073770046234131,
+        -0.9362088441848755,
+        1.9682360887527466
+      ],
+      "max": [
+        5.225701808929443,
+        -0.02387314662337303,
+        3.0999813079833984
+      ],
+      "center": [
+        4.649735927581787,
+        -0.48004099540412426,
+        2.5341086983680725
+      ]
+    },
+    {
+      "name": "MC_DAY03_Upper_Premolar01_L",
+      "vertices": 5024,
+      "min": [
+        -5.225701808929443,
+        -0.9362088441848755,
+        1.9682360887527466
+      ],
+      "max": [
+        -4.073770046234131,
+        -0.02387314662337303,
+        3.0999813079833984
+      ],
+      "center": [
+        -4.649735927581787,
+        -0.48004099540412426,
+        2.5341086983680725
+      ]
+    },
+    {
+      "name": "MC_DAY03_Upper_Premolar02_R",
+      "vertices": 3990,
+      "min": [
+        5.208497047424316,
+        -1.3794971704483032,
+        2.0158350467681885
+      ],
+      "max": [
+        6.184109210968018,
+        -0.5244376063346863,
+        3.0800323486328125
+      ],
+      "center": [
+        5.696303129196167,
+        -0.9519673883914948,
+        2.5479336977005005
+      ]
+    },
+    {
+      "name": "MC_DAY03_Upper_Premolar02_L",
+      "vertices": 3990,
+      "min": [
+        -6.184109210968018,
+        -1.3794971704483032,
+        2.0158350467681885
+      ],
+      "max": [
+        -5.208497047424316,
+        -0.5244376063346863,
+        3.0800323486328125
+      ],
+      "center": [
+        -5.696303129196167,
+        -0.9519673883914948,
+        2.5479336977005005
+      ]
+    },
+    {
+      "name": "MC_DAY03_Upper_Molar01_R",
+      "vertices": 3628,
+      "min": [
+        6.1351447105407715,
+        -1.8995603322982788,
+        1.902769923210144
+      ],
+      "max": [
+        6.9882731437683105,
+        -1.085986614227295,
+        3.0605344772338867
+      ],
+      "center": [
+        6.561708927154541,
+        -1.4927734732627869,
+        2.4816522002220154
+      ]
+    },
+    {
+      "name": "MC_DAY03_Upper_Molar01_L",
+      "vertices": 3628,
+      "min": [
+        -6.9882731437683105,
+        -1.8995603322982788,
+        1.902769923210144
+      ],
+      "max": [
+        -6.1351447105407715,
+        -1.085986614227295,
+        3.0605344772338867
+      ],
+      "center": [
+        -6.561708927154541,
+        -1.4927734732627869,
+        2.4816522002220154
+      ]
+    },
+    {
+      "name": "MC_DAY03_Upper_Molar02_R",
+      "vertices": 3982,
+      "min": [
+        6.907113075256348,
+        -2.4670064449310303,
+        2.111276865005493
+      ],
+      "max": [
+        7.665092468261719,
+        -1.6865549087524414,
+        3.0419936180114746
+      ],
+      "center": [
+        7.286102771759033,
+        -2.076780676841736,
+        2.576635241508484
+      ]
+    },
+    {
+      "name": "MC_DAY03_Upper_Molar02_L",
+      "vertices": 3982,
+      "min": [
+        -7.665092468261719,
+        -2.4670064449310303,
+        2.111276865005493
+      ],
+      "max": [
+        -6.907113075256348,
+        -1.6865549087524414,
+        3.0419936180114746
+      ],
+      "center": [
+        -7.286102771759033,
+        -2.076780676841736,
+        2.576635241508484
+      ]
+    },
+    {
+      "name": "MC_DAY03_Upper_Molar03_R",
+      "vertices": 3982,
+      "min": [
+        7.5666046142578125,
+        -3.041595935821533,
+        2.178708553314209
+      ],
+      "max": [
+        8.234405517578125,
+        -2.3124632835388184,
+        3.0248148441314697
+      ],
+      "center": [
+        7.900505065917969,
+        -2.677029609680176,
+        2.6017616987228394
+      ]
+    },
+    {
+      "name": "MC_DAY03_Upper_Molar03_L",
+      "vertices": 3982,
+      "min": [
+        -8.234405517578125,
+        -3.041595935821533,
+        2.178708553314209
+      ],
+      "max": [
+        -7.5666046142578125,
+        -2.3124632835388184,
+        3.0248148441314697
+      ],
+      "center": [
+        -7.900505065917969,
+        -2.677029609680176,
+        2.6017616987228394
+      ]
+    },
+    {
+      "name": "MC_DAY03_Lower_Central_R",
+      "vertices": 12286,
+      "min": [
+        0.012461058795452118,
+        -0.694564700126648,
+        -2.8921308517456055
+      ],
+      "max": [
+        1.5645495653152466,
+        0.4829944670200348,
+        -1.6741361618041992
+      ],
+      "center": [
+        0.7885053120553493,
+        -0.10578511655330658,
+        -2.2831335067749023
+      ]
+    },
+    {
+      "name": "MC_DAY03_Lower_Central_L",
+      "vertices": 12286,
+      "min": [
+        -1.5645495653152466,
+        -0.694564700126648,
+        -2.8921308517456055
+      ],
+      "max": [
+        -0.012461058795452118,
+        0.4829944670200348,
+        -1.6741361618041992
+      ],
+      "center": [
+        -0.7885053120553493,
+        -0.10578511655330658,
+        -2.2831335067749023
+      ]
+    },
+    {
+      "name": "MC_DAY03_Lower_Lateral_R",
+      "vertices": 11871,
+      "min": [
+        1.5848839282989502,
+        -0.7160366177558899,
+        -2.8893489837646484
+      ],
+      "max": [
+        3.0182301998138428,
+        0.37787869572639465,
+        -1.658128023147583
+      ],
+      "center": [
+        2.3015570640563965,
+        -0.16907896101474762,
+        -2.2737385034561157
+      ]
+    },
+    {
+      "name": "MC_DAY03_Lower_Lateral_L",
+      "vertices": 11871,
+      "min": [
+        -3.0182301998138428,
+        -0.7160366177558899,
+        -2.8893489837646484
+      ],
+      "max": [
+        -1.5848839282989502,
+        0.37787869572639465,
+        -1.658128023147583
+      ],
+      "center": [
+        -2.3015570640563965,
+        -0.16907896101474762,
+        -2.2737385034561157
+      ]
+    },
+    {
+      "name": "MC_DAY03_Lower_Canine_R",
+      "vertices": 12203,
+      "min": [
+        3.0023739337921143,
+        -0.9562262296676636,
+        -3.1059985160827637
+      ],
+      "max": [
+        4.474686622619629,
+        0.1671130657196045,
+        -1.5592215061187744
+      ],
+      "center": [
+        3.7385302782058716,
+        -0.39455658197402954,
+        -2.332610011100769
+      ]
+    },
+    {
+      "name": "MC_DAY03_Lower_Canine_L",
+      "vertices": 12203,
+      "min": [
+        -4.474686622619629,
+        -0.9562262296676636,
+        -3.1059985160827637
+      ],
+      "max": [
+        -3.0023739337921143,
+        0.1671130657196045,
+        -1.5592215061187744
+      ],
+      "center": [
+        -3.7385302782058716,
+        -0.39455658197402954,
+        -2.332610011100769
+      ]
+    },
+    {
+      "name": "MC_DAY03_Lower_Premolar_R",
+      "vertices": 4508,
+      "min": [
+        4.473856449127197,
+        -1.3350565433502197,
+        -2.4568746089935303
+      ],
+      "max": [
+        5.8488030433654785,
+        -0.19023163616657257,
+        -1.3098835945129395
+      ],
+      "center": [
+        5.161329746246338,
+        -0.7626440897583961,
+        -1.8833791017532349
+      ]
+    },
+    {
+      "name": "MC_DAY03_Lower_Premolar_L",
+      "vertices": 4508,
+      "min": [
+        -5.8488030433654785,
+        -1.3350565433502197,
+        -2.4568746089935303
+      ],
+      "max": [
+        -4.473856449127197,
+        -0.19023163616657257,
+        -1.3098835945129395
+      ],
+      "center": [
+        -5.161329746246338,
+        -0.7626440897583961,
+        -1.8833791017532349
+      ]
+    },
+    {
+      "name": "MC_DAY03_Lower_Molar_R",
+      "vertices": 4556,
+      "min": [
+        5.762251853942871,
+        -1.8363840579986572,
+        -2.2903194427490234
+      ],
+      "max": [
+        7.011117458343506,
+        -0.7838547825813293,
+        -1.0585262775421143
+      ],
+      "center": [
+        6.3866846561431885,
+        -1.3101194202899933,
+        -1.6744228601455688
+      ]
+    },
+    {
+      "name": "MC_DAY03_Lower_Molar_L",
+      "vertices": 4556,
+      "min": [
+        -7.011117458343506,
+        -1.8363840579986572,
+        -2.2903194427490234
+      ],
+      "max": [
+        -5.762251853942871,
+        -0.7838547825813293,
+        -1.0585262775421143
+      ],
+      "center": [
+        -6.3866846561431885,
+        -1.3101194202899933,
+        -1.6744228601455688
+      ]
+    },
+    {
+      "name": "MC_DAY03_Lower_Posterior_01_R",
+      "vertices": 3998,
+      "min": [
+        6.525394916534424,
+        -2.6581740379333496,
+        -2.157453775405884
+      ],
+      "max": [
+        7.443401336669922,
+        -1.872066855430603,
+        -0.7603511214256287
+      ],
+      "center": [
+        6.984398126602173,
+        -2.2651204466819763,
+        -1.4589024484157562
+      ]
+    },
+    {
+      "name": "MC_DAY03_Lower_Posterior_01_L",
+      "vertices": 3998,
+      "min": [
+        -7.443401336669922,
+        -2.6581740379333496,
+        -2.157453775405884
+      ],
+      "max": [
+        -6.525394916534424,
+        -1.872066855430603,
+        -0.7603511214256287
+      ],
+      "center": [
+        -6.984398126602173,
+        -2.2651204466819763,
+        -1.4589024484157562
+      ]
+    },
+    {
+      "name": "MC_DAY03_Lower_Posterior_02_R",
+      "vertices": 3472,
+      "min": [
+        6.9389214515686035,
+        -2.9570043087005615,
+        -1.7256219387054443
+      ],
+      "max": [
+        7.708111763000488,
+        -2.2978503704071045,
+        -0.5095160603523254
+      ],
+      "center": [
+        7.323516607284546,
+        -2.627427339553833,
+        -1.1175689995288849
+      ]
+    },
+    {
+      "name": "MC_DAY03_Lower_Posterior_02_L",
+      "vertices": 3472,
+      "min": [
+        -7.708111763000488,
+        -2.9570043087005615,
+        -1.7256219387054443
+      ],
+      "max": [
+        -6.9389214515686035,
+        -2.2978503704071045,
+        -0.5095160603523254
+      ],
+      "center": [
+        -7.323516607284546,
+        -2.627427339553833,
+        -1.1175689995288849
+      ]
+    },
+    {
+      "name": "MC_DAY03_Lower_Posterior_03_R",
+      "vertices": 2994,
+      "min": [
+        7.344612121582031,
+        -3.321615219116211,
+        -1.3437864780426025
+      ],
+      "max": [
+        8.000624656677246,
+        -2.710221290588379,
+        -0.3631584048271179
+      ],
+      "center": [
+        7.672618389129639,
+        -3.015918254852295,
+        -0.8534724414348602
+      ]
+    },
+    {
+      "name": "MC_DAY03_Lower_Posterior_03_L",
+      "vertices": 2994,
+      "min": [
+        -8.000624656677246,
+        -3.321615219116211,
+        -1.3437864780426025
+      ],
+      "max": [
+        -7.344612121582031,
+        -2.710221290588379,
+        -0.3631584048271179
+      ],
+      "center": [
+        -7.672618389129639,
+        -3.015918254852295,
+        -0.8534724414348602
+      ]
+    },
+    {
+      "name": "MC_DAY03_Upper_Gum",
+      "vertices": 9642,
+      "min": [
+        -8.460000038146973,
+        -3.6186883449554443,
+        2.767174005508423
+      ],
+      "max": [
+        8.460000038146973,
+        0.7858072519302368,
+        4.139817714691162
+      ],
+      "center": [
+        0.0,
+        -1.4164405465126038,
+        3.4534958600997925
+      ]
+    },
+    {
+      "name": "MC_DAY03_Lower_Gum",
+      "vertices": 9642,
+      "min": [
+        -8.319999694824219,
+        -3.5759425163269043,
+        -4.067880630493164
+      ],
+      "max": [
+        8.319999694824219,
+        0.7548038363456726,
+        -1.0887774229049683
+      ],
+      "center": [
+        0.0,
+        -1.4105693399906158,
+        -2.578329026699066
+      ]
+    }
+  ],
+  "poses": {
+    "Basis": {
+      "min": [
+        -8.460000038146973,
+        -3.6186883449554443,
+        -4.067880630493164
+      ],
+      "max": [
+        8.460000038146973,
+        0.7858072519302368,
+        4.139817714691162
+      ],
+      "non_finite": 0,
+      "whole_mesh_reflection": {
+        "max": 5.2653611137440315e-18,
+        "mean": 6.446180668514446e-22,
+        "p99": 0.0,
+        "count": 251964
+      },
+      "part_reflection": [
+        {
+          "left": "MC_DAY03_Upper_Central_L",
+          "right": "MC_DAY03_Upper_Central_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Lateral_L",
+          "right": "MC_DAY03_Upper_Lateral_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Fang_L",
+          "right": "MC_DAY03_Upper_Fang_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Premolar01_L",
+          "right": "MC_DAY03_Upper_Premolar01_R",
+          "left_count": 5024,
+          "right_count": 5024,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 5024
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Premolar02_L",
+          "right": "MC_DAY03_Upper_Premolar02_R",
+          "left_count": 3990,
+          "right_count": 3990,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3990
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar01_L",
+          "right": "MC_DAY03_Upper_Molar01_R",
+          "left_count": 3628,
+          "right_count": 3628,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3628
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar02_L",
+          "right": "MC_DAY03_Upper_Molar02_R",
+          "left_count": 3982,
+          "right_count": 3982,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3982
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar03_L",
+          "right": "MC_DAY03_Upper_Molar03_R",
+          "left_count": 3982,
+          "right_count": 3982,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3982
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Central_L",
+          "right": "MC_DAY03_Lower_Central_R",
+          "left_count": 12286,
+          "right_count": 12286,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 12286
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Lateral_L",
+          "right": "MC_DAY03_Lower_Lateral_R",
+          "left_count": 11871,
+          "right_count": 11871,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 11871
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Canine_L",
+          "right": "MC_DAY03_Lower_Canine_R",
+          "left_count": 12203,
+          "right_count": 12203,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 12203
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Premolar_L",
+          "right": "MC_DAY03_Lower_Premolar_R",
+          "left_count": 4508,
+          "right_count": 4508,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 4508
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Molar_L",
+          "right": "MC_DAY03_Lower_Molar_R",
+          "left_count": 4556,
+          "right_count": 4556,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 4556
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_01_L",
+          "right": "MC_DAY03_Lower_Posterior_01_R",
+          "left_count": 3998,
+          "right_count": 3998,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3998
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_02_L",
+          "right": "MC_DAY03_Lower_Posterior_02_R",
+          "left_count": 3472,
+          "right_count": 3472,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3472
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_03_L",
+          "right": "MC_DAY03_Lower_Posterior_03_R",
+          "left_count": 2994,
+          "right_count": 2994,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 2994
+          }
+        }
+      ],
+      "gum_reflection": [
+        {
+          "name": "MC_DAY03_Upper_Gum",
+          "distance": {
+            "max": 4.7783990599534516e-18,
+            "mean": 7.553412951792619e-21,
+            "p99": 0.0,
+            "count": 9642
+          }
+        },
+        {
+          "name": "MC_DAY03_Lower_Gum",
+          "distance": {
+            "max": 5.2653611137440315e-18,
+            "mean": 9.291696630882903e-21,
+            "p99": 0.0,
+            "count": 9642
+          }
+        }
+      ]
+    },
+    "Pose_000": {
+      "min": [
+        -8.460000038146973,
+        -4.279975414276123,
+        -2.3465871810913086
+      ],
+      "max": [
+        8.460000038146973,
+        0.8657823801040649,
+        2.464231014251709
+      ],
+      "non_finite": 0,
+      "whole_mesh_reflection": {
+        "max": 5.2653611137440315e-18,
+        "mean": 6.446180668514446e-22,
+        "p99": 0.0,
+        "count": 251964
+      },
+      "part_reflection": [
+        {
+          "left": "MC_DAY03_Upper_Central_L",
+          "right": "MC_DAY03_Upper_Central_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Lateral_L",
+          "right": "MC_DAY03_Upper_Lateral_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Fang_L",
+          "right": "MC_DAY03_Upper_Fang_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Premolar01_L",
+          "right": "MC_DAY03_Upper_Premolar01_R",
+          "left_count": 5024,
+          "right_count": 5024,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 5024
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Premolar02_L",
+          "right": "MC_DAY03_Upper_Premolar02_R",
+          "left_count": 3990,
+          "right_count": 3990,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3990
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar01_L",
+          "right": "MC_DAY03_Upper_Molar01_R",
+          "left_count": 3628,
+          "right_count": 3628,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3628
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar02_L",
+          "right": "MC_DAY03_Upper_Molar02_R",
+          "left_count": 3982,
+          "right_count": 3982,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3982
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar03_L",
+          "right": "MC_DAY03_Upper_Molar03_R",
+          "left_count": 3982,
+          "right_count": 3982,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3982
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Central_L",
+          "right": "MC_DAY03_Lower_Central_R",
+          "left_count": 12286,
+          "right_count": 12286,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 12286
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Lateral_L",
+          "right": "MC_DAY03_Lower_Lateral_R",
+          "left_count": 11871,
+          "right_count": 11871,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 11871
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Canine_L",
+          "right": "MC_DAY03_Lower_Canine_R",
+          "left_count": 12203,
+          "right_count": 12203,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 12203
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Premolar_L",
+          "right": "MC_DAY03_Lower_Premolar_R",
+          "left_count": 4508,
+          "right_count": 4508,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 4508
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Molar_L",
+          "right": "MC_DAY03_Lower_Molar_R",
+          "left_count": 4556,
+          "right_count": 4556,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 4556
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_01_L",
+          "right": "MC_DAY03_Lower_Posterior_01_R",
+          "left_count": 3998,
+          "right_count": 3998,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3998
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_02_L",
+          "right": "MC_DAY03_Lower_Posterior_02_R",
+          "left_count": 3472,
+          "right_count": 3472,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3472
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_03_L",
+          "right": "MC_DAY03_Lower_Posterior_03_R",
+          "left_count": 2994,
+          "right_count": 2994,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 2994
+          }
+        }
+      ],
+      "gum_reflection": [
+        {
+          "name": "MC_DAY03_Upper_Gum",
+          "distance": {
+            "max": 4.7783990599534516e-18,
+            "mean": 7.553412951792619e-21,
+            "p99": 0.0,
+            "count": 9642
+          }
+        },
+        {
+          "name": "MC_DAY03_Lower_Gum",
+          "distance": {
+            "max": 5.2653611137440315e-18,
+            "mean": 9.291696630882903e-21,
+            "p99": 0.0,
+            "count": 9642
+          }
+        }
+      ]
+    },
+    "Pose_025": {
+      "min": [
+        -8.460000038146973,
+        -4.103760719299316,
+        -2.7765307426452637
+      ],
+      "max": [
+        8.460000038146973,
+        0.8497029542922974,
+        2.8518567085266113
+      ],
+      "non_finite": 0,
+      "whole_mesh_reflection": {
+        "max": 5.2653611137440315e-18,
+        "mean": 6.446180668514446e-22,
+        "p99": 0.0,
+        "count": 251964
+      },
+      "part_reflection": [
+        {
+          "left": "MC_DAY03_Upper_Central_L",
+          "right": "MC_DAY03_Upper_Central_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Lateral_L",
+          "right": "MC_DAY03_Upper_Lateral_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Fang_L",
+          "right": "MC_DAY03_Upper_Fang_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Premolar01_L",
+          "right": "MC_DAY03_Upper_Premolar01_R",
+          "left_count": 5024,
+          "right_count": 5024,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 5024
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Premolar02_L",
+          "right": "MC_DAY03_Upper_Premolar02_R",
+          "left_count": 3990,
+          "right_count": 3990,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3990
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar01_L",
+          "right": "MC_DAY03_Upper_Molar01_R",
+          "left_count": 3628,
+          "right_count": 3628,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3628
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar02_L",
+          "right": "MC_DAY03_Upper_Molar02_R",
+          "left_count": 3982,
+          "right_count": 3982,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3982
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar03_L",
+          "right": "MC_DAY03_Upper_Molar03_R",
+          "left_count": 3982,
+          "right_count": 3982,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3982
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Central_L",
+          "right": "MC_DAY03_Lower_Central_R",
+          "left_count": 12286,
+          "right_count": 12286,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 12286
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Lateral_L",
+          "right": "MC_DAY03_Lower_Lateral_R",
+          "left_count": 11871,
+          "right_count": 11871,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 11871
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Canine_L",
+          "right": "MC_DAY03_Lower_Canine_R",
+          "left_count": 12203,
+          "right_count": 12203,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 12203
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Premolar_L",
+          "right": "MC_DAY03_Lower_Premolar_R",
+          "left_count": 4508,
+          "right_count": 4508,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 4508
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Molar_L",
+          "right": "MC_DAY03_Lower_Molar_R",
+          "left_count": 4556,
+          "right_count": 4556,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 4556
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_01_L",
+          "right": "MC_DAY03_Lower_Posterior_01_R",
+          "left_count": 3998,
+          "right_count": 3998,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3998
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_02_L",
+          "right": "MC_DAY03_Lower_Posterior_02_R",
+          "left_count": 3472,
+          "right_count": 3472,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3472
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_03_L",
+          "right": "MC_DAY03_Lower_Posterior_03_R",
+          "left_count": 2994,
+          "right_count": 2994,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 2994
+          }
+        }
+      ],
+      "gum_reflection": [
+        {
+          "name": "MC_DAY03_Upper_Gum",
+          "distance": {
+            "max": 4.7783990599534516e-18,
+            "mean": 7.553412951792619e-21,
+            "p99": 0.0,
+            "count": 9642
+          }
+        },
+        {
+          "name": "MC_DAY03_Lower_Gum",
+          "distance": {
+            "max": 5.2653611137440315e-18,
+            "mean": 9.291696630882903e-21,
+            "p99": 0.0,
+            "count": 9642
+          }
+        }
+      ]
+    },
+    "Pose_050": {
+      "min": [
+        -8.460000038146973,
+        -3.926703453063965,
+        -3.207615613937378
+      ],
+      "max": [
+        8.460000038146973,
+        0.8310108184814453,
+        3.2425692081451416
+      ],
+      "non_finite": 0,
+      "whole_mesh_reflection": {
+        "max": 5.2653611137440315e-18,
+        "mean": 6.446180668514446e-22,
+        "p99": 0.0,
+        "count": 251964
+      },
+      "part_reflection": [
+        {
+          "left": "MC_DAY03_Upper_Central_L",
+          "right": "MC_DAY03_Upper_Central_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Lateral_L",
+          "right": "MC_DAY03_Upper_Lateral_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Fang_L",
+          "right": "MC_DAY03_Upper_Fang_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Premolar01_L",
+          "right": "MC_DAY03_Upper_Premolar01_R",
+          "left_count": 5024,
+          "right_count": 5024,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 5024
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Premolar02_L",
+          "right": "MC_DAY03_Upper_Premolar02_R",
+          "left_count": 3990,
+          "right_count": 3990,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3990
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar01_L",
+          "right": "MC_DAY03_Upper_Molar01_R",
+          "left_count": 3628,
+          "right_count": 3628,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3628
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar02_L",
+          "right": "MC_DAY03_Upper_Molar02_R",
+          "left_count": 3982,
+          "right_count": 3982,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3982
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar03_L",
+          "right": "MC_DAY03_Upper_Molar03_R",
+          "left_count": 3982,
+          "right_count": 3982,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3982
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Central_L",
+          "right": "MC_DAY03_Lower_Central_R",
+          "left_count": 12286,
+          "right_count": 12286,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 12286
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Lateral_L",
+          "right": "MC_DAY03_Lower_Lateral_R",
+          "left_count": 11871,
+          "right_count": 11871,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 11871
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Canine_L",
+          "right": "MC_DAY03_Lower_Canine_R",
+          "left_count": 12203,
+          "right_count": 12203,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 12203
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Premolar_L",
+          "right": "MC_DAY03_Lower_Premolar_R",
+          "left_count": 4508,
+          "right_count": 4508,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 4508
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Molar_L",
+          "right": "MC_DAY03_Lower_Molar_R",
+          "left_count": 4556,
+          "right_count": 4556,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 4556
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_01_L",
+          "right": "MC_DAY03_Lower_Posterior_01_R",
+          "left_count": 3998,
+          "right_count": 3998,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3998
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_02_L",
+          "right": "MC_DAY03_Lower_Posterior_02_R",
+          "left_count": 3472,
+          "right_count": 3472,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3472
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_03_L",
+          "right": "MC_DAY03_Lower_Posterior_03_R",
+          "left_count": 2994,
+          "right_count": 2994,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 2994
+          }
+        }
+      ],
+      "gum_reflection": [
+        {
+          "name": "MC_DAY03_Upper_Gum",
+          "distance": {
+            "max": 4.7783990599534516e-18,
+            "mean": 7.553412951792619e-21,
+            "p99": 0.0,
+            "count": 9642
+          }
+        },
+        {
+          "name": "MC_DAY03_Lower_Gum",
+          "distance": {
+            "max": 5.2653611137440315e-18,
+            "mean": 9.291696630882903e-21,
+            "p99": 0.0,
+            "count": 9642
+          }
+        }
+      ]
+    },
+    "Pose_075": {
+      "min": [
+        -8.460000038146973,
+        -3.7515509128570557,
+        -3.6384572982788086
+      ],
+      "max": [
+        8.460000038146973,
+        0.8097102642059326,
+        3.675896406173706
+      ],
+      "non_finite": 0,
+      "whole_mesh_reflection": {
+        "max": 5.2653611137440315e-18,
+        "mean": 6.446180668514446e-22,
+        "p99": 0.0,
+        "count": 251964
+      },
+      "part_reflection": [
+        {
+          "left": "MC_DAY03_Upper_Central_L",
+          "right": "MC_DAY03_Upper_Central_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Lateral_L",
+          "right": "MC_DAY03_Upper_Lateral_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Fang_L",
+          "right": "MC_DAY03_Upper_Fang_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Premolar01_L",
+          "right": "MC_DAY03_Upper_Premolar01_R",
+          "left_count": 5024,
+          "right_count": 5024,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 5024
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Premolar02_L",
+          "right": "MC_DAY03_Upper_Premolar02_R",
+          "left_count": 3990,
+          "right_count": 3990,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3990
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar01_L",
+          "right": "MC_DAY03_Upper_Molar01_R",
+          "left_count": 3628,
+          "right_count": 3628,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3628
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar02_L",
+          "right": "MC_DAY03_Upper_Molar02_R",
+          "left_count": 3982,
+          "right_count": 3982,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3982
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar03_L",
+          "right": "MC_DAY03_Upper_Molar03_R",
+          "left_count": 3982,
+          "right_count": 3982,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3982
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Central_L",
+          "right": "MC_DAY03_Lower_Central_R",
+          "left_count": 12286,
+          "right_count": 12286,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 12286
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Lateral_L",
+          "right": "MC_DAY03_Lower_Lateral_R",
+          "left_count": 11871,
+          "right_count": 11871,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 11871
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Canine_L",
+          "right": "MC_DAY03_Lower_Canine_R",
+          "left_count": 12203,
+          "right_count": 12203,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 12203
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Premolar_L",
+          "right": "MC_DAY03_Lower_Premolar_R",
+          "left_count": 4508,
+          "right_count": 4508,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 4508
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Molar_L",
+          "right": "MC_DAY03_Lower_Molar_R",
+          "left_count": 4556,
+          "right_count": 4556,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 4556
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_01_L",
+          "right": "MC_DAY03_Lower_Posterior_01_R",
+          "left_count": 3998,
+          "right_count": 3998,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3998
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_02_L",
+          "right": "MC_DAY03_Lower_Posterior_02_R",
+          "left_count": 3472,
+          "right_count": 3472,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3472
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_03_L",
+          "right": "MC_DAY03_Lower_Posterior_03_R",
+          "left_count": 2994,
+          "right_count": 2994,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 2994
+          }
+        }
+      ],
+      "gum_reflection": [
+        {
+          "name": "MC_DAY03_Upper_Gum",
+          "distance": {
+            "max": 4.7783990599534516e-18,
+            "mean": 7.553412951792619e-21,
+            "p99": 0.0,
+            "count": 9642
+          }
+        },
+        {
+          "name": "MC_DAY03_Lower_Gum",
+          "distance": {
+            "max": 5.2653611137440315e-18,
+            "mean": 9.291696630882903e-21,
+            "p99": 0.0,
+            "count": 9642
+          }
+        }
+      ]
+    },
+    "Hat_0.125": {
+      "min": [
+        -8.460000038146973,
+        -4.19186806678772,
+        -2.561558961868286
+      ],
+      "max": [
+        8.460000038146973,
+        0.8577426671981812,
+        2.657853841781616
+      ],
+      "non_finite": 0,
+      "whole_mesh_reflection": {
+        "max": 5.2653611137440315e-18,
+        "mean": 6.446180668514446e-22,
+        "p99": 0.0,
+        "count": 251964
+      },
+      "part_reflection": [
+        {
+          "left": "MC_DAY03_Upper_Central_L",
+          "right": "MC_DAY03_Upper_Central_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Lateral_L",
+          "right": "MC_DAY03_Upper_Lateral_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Fang_L",
+          "right": "MC_DAY03_Upper_Fang_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Premolar01_L",
+          "right": "MC_DAY03_Upper_Premolar01_R",
+          "left_count": 5024,
+          "right_count": 5024,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 5024
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Premolar02_L",
+          "right": "MC_DAY03_Upper_Premolar02_R",
+          "left_count": 3990,
+          "right_count": 3990,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3990
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar01_L",
+          "right": "MC_DAY03_Upper_Molar01_R",
+          "left_count": 3628,
+          "right_count": 3628,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3628
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar02_L",
+          "right": "MC_DAY03_Upper_Molar02_R",
+          "left_count": 3982,
+          "right_count": 3982,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3982
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar03_L",
+          "right": "MC_DAY03_Upper_Molar03_R",
+          "left_count": 3982,
+          "right_count": 3982,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3982
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Central_L",
+          "right": "MC_DAY03_Lower_Central_R",
+          "left_count": 12286,
+          "right_count": 12286,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 12286
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Lateral_L",
+          "right": "MC_DAY03_Lower_Lateral_R",
+          "left_count": 11871,
+          "right_count": 11871,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 11871
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Canine_L",
+          "right": "MC_DAY03_Lower_Canine_R",
+          "left_count": 12203,
+          "right_count": 12203,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 12203
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Premolar_L",
+          "right": "MC_DAY03_Lower_Premolar_R",
+          "left_count": 4508,
+          "right_count": 4508,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 4508
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Molar_L",
+          "right": "MC_DAY03_Lower_Molar_R",
+          "left_count": 4556,
+          "right_count": 4556,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 4556
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_01_L",
+          "right": "MC_DAY03_Lower_Posterior_01_R",
+          "left_count": 3998,
+          "right_count": 3998,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3998
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_02_L",
+          "right": "MC_DAY03_Lower_Posterior_02_R",
+          "left_count": 3472,
+          "right_count": 3472,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3472
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_03_L",
+          "right": "MC_DAY03_Lower_Posterior_03_R",
+          "left_count": 2994,
+          "right_count": 2994,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 2994
+          }
+        }
+      ],
+      "gum_reflection": [
+        {
+          "name": "MC_DAY03_Upper_Gum",
+          "distance": {
+            "max": 4.7783990599534516e-18,
+            "mean": 7.553412951792619e-21,
+            "p99": 0.0,
+            "count": 9642
+          }
+        },
+        {
+          "name": "MC_DAY03_Lower_Gum",
+          "distance": {
+            "max": 5.2653611137440315e-18,
+            "mean": 9.291696630882903e-21,
+            "p99": 0.0,
+            "count": 9642
+          }
+        }
+      ]
+    },
+    "Hat_0.375": {
+      "min": [
+        -8.460000038146973,
+        -4.015232086181641,
+        -2.9915508031845093
+      ],
+      "max": [
+        8.460000038146973,
+        0.8403568863868713,
+        3.04702627658844
+      ],
+      "non_finite": 0,
+      "whole_mesh_reflection": {
+        "max": 5.2653611137440315e-18,
+        "mean": 6.446180668514446e-22,
+        "p99": 0.0,
+        "count": 251964
+      },
+      "part_reflection": [
+        {
+          "left": "MC_DAY03_Upper_Central_L",
+          "right": "MC_DAY03_Upper_Central_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Lateral_L",
+          "right": "MC_DAY03_Upper_Lateral_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Fang_L",
+          "right": "MC_DAY03_Upper_Fang_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Premolar01_L",
+          "right": "MC_DAY03_Upper_Premolar01_R",
+          "left_count": 5024,
+          "right_count": 5024,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 5024
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Premolar02_L",
+          "right": "MC_DAY03_Upper_Premolar02_R",
+          "left_count": 3990,
+          "right_count": 3990,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3990
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar01_L",
+          "right": "MC_DAY03_Upper_Molar01_R",
+          "left_count": 3628,
+          "right_count": 3628,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3628
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar02_L",
+          "right": "MC_DAY03_Upper_Molar02_R",
+          "left_count": 3982,
+          "right_count": 3982,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3982
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar03_L",
+          "right": "MC_DAY03_Upper_Molar03_R",
+          "left_count": 3982,
+          "right_count": 3982,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3982
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Central_L",
+          "right": "MC_DAY03_Lower_Central_R",
+          "left_count": 12286,
+          "right_count": 12286,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 12286
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Lateral_L",
+          "right": "MC_DAY03_Lower_Lateral_R",
+          "left_count": 11871,
+          "right_count": 11871,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 11871
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Canine_L",
+          "right": "MC_DAY03_Lower_Canine_R",
+          "left_count": 12203,
+          "right_count": 12203,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 12203
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Premolar_L",
+          "right": "MC_DAY03_Lower_Premolar_R",
+          "left_count": 4508,
+          "right_count": 4508,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 4508
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Molar_L",
+          "right": "MC_DAY03_Lower_Molar_R",
+          "left_count": 4556,
+          "right_count": 4556,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 4556
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_01_L",
+          "right": "MC_DAY03_Lower_Posterior_01_R",
+          "left_count": 3998,
+          "right_count": 3998,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3998
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_02_L",
+          "right": "MC_DAY03_Lower_Posterior_02_R",
+          "left_count": 3472,
+          "right_count": 3472,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3472
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_03_L",
+          "right": "MC_DAY03_Lower_Posterior_03_R",
+          "left_count": 2994,
+          "right_count": 2994,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 2994
+          }
+        }
+      ],
+      "gum_reflection": [
+        {
+          "name": "MC_DAY03_Upper_Gum",
+          "distance": {
+            "max": 4.7783990599534516e-18,
+            "mean": 7.553412951792619e-21,
+            "p99": 0.0,
+            "count": 9642
+          }
+        },
+        {
+          "name": "MC_DAY03_Lower_Gum",
+          "distance": {
+            "max": 5.2653611137440315e-18,
+            "mean": 9.291696630882903e-21,
+            "p99": 0.0,
+            "count": 9642
+          }
+        }
+      ]
+    },
+    "Hat_0.625": {
+      "min": [
+        -8.460000038146973,
+        -3.838981032371521,
+        -3.4230364561080933
+      ],
+      "max": [
+        8.460000038146973,
+        0.820360541343689,
+        3.443572163581848
+      ],
+      "non_finite": 0,
+      "whole_mesh_reflection": {
+        "max": 5.2653611137440315e-18,
+        "mean": 6.446180668514446e-22,
+        "p99": 0.0,
+        "count": 251964
+      },
+      "part_reflection": [
+        {
+          "left": "MC_DAY03_Upper_Central_L",
+          "right": "MC_DAY03_Upper_Central_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Lateral_L",
+          "right": "MC_DAY03_Upper_Lateral_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Fang_L",
+          "right": "MC_DAY03_Upper_Fang_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Premolar01_L",
+          "right": "MC_DAY03_Upper_Premolar01_R",
+          "left_count": 5024,
+          "right_count": 5024,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 5024
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Premolar02_L",
+          "right": "MC_DAY03_Upper_Premolar02_R",
+          "left_count": 3990,
+          "right_count": 3990,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3990
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar01_L",
+          "right": "MC_DAY03_Upper_Molar01_R",
+          "left_count": 3628,
+          "right_count": 3628,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3628
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar02_L",
+          "right": "MC_DAY03_Upper_Molar02_R",
+          "left_count": 3982,
+          "right_count": 3982,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3982
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar03_L",
+          "right": "MC_DAY03_Upper_Molar03_R",
+          "left_count": 3982,
+          "right_count": 3982,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3982
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Central_L",
+          "right": "MC_DAY03_Lower_Central_R",
+          "left_count": 12286,
+          "right_count": 12286,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 12286
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Lateral_L",
+          "right": "MC_DAY03_Lower_Lateral_R",
+          "left_count": 11871,
+          "right_count": 11871,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 11871
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Canine_L",
+          "right": "MC_DAY03_Lower_Canine_R",
+          "left_count": 12203,
+          "right_count": 12203,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 12203
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Premolar_L",
+          "right": "MC_DAY03_Lower_Premolar_R",
+          "left_count": 4508,
+          "right_count": 4508,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 4508
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Molar_L",
+          "right": "MC_DAY03_Lower_Molar_R",
+          "left_count": 4556,
+          "right_count": 4556,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 4556
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_01_L",
+          "right": "MC_DAY03_Lower_Posterior_01_R",
+          "left_count": 3998,
+          "right_count": 3998,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3998
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_02_L",
+          "right": "MC_DAY03_Lower_Posterior_02_R",
+          "left_count": 3472,
+          "right_count": 3472,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3472
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_03_L",
+          "right": "MC_DAY03_Lower_Posterior_03_R",
+          "left_count": 2994,
+          "right_count": 2994,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 2994
+          }
+        }
+      ],
+      "gum_reflection": [
+        {
+          "name": "MC_DAY03_Upper_Gum",
+          "distance": {
+            "max": 4.7783990599534516e-18,
+            "mean": 7.553412951792619e-21,
+            "p99": 0.0,
+            "count": 9642
+          }
+        },
+        {
+          "name": "MC_DAY03_Lower_Gum",
+          "distance": {
+            "max": 5.2653611137440315e-18,
+            "mean": 9.291696630882903e-21,
+            "p99": 0.0,
+            "count": 9642
+          }
+        }
+      ]
+    },
+    "Hat_0.875": {
+      "min": [
+        -8.460000038146973,
+        -3.66374671459198,
+        -3.8531689643859863
+      ],
+      "max": [
+        8.460000038146973,
+        0.7977587580680847,
+        3.907857060432434
+      ],
+      "non_finite": 0,
+      "whole_mesh_reflection": {
+        "max": 5.2653611137440315e-18,
+        "mean": 6.446180668514446e-22,
+        "p99": 0.0,
+        "count": 251964
+      },
+      "part_reflection": [
+        {
+          "left": "MC_DAY03_Upper_Central_L",
+          "right": "MC_DAY03_Upper_Central_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Lateral_L",
+          "right": "MC_DAY03_Upper_Lateral_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Fang_L",
+          "right": "MC_DAY03_Upper_Fang_R",
+          "left_count": 13282,
+          "right_count": 13282,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 13282
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Premolar01_L",
+          "right": "MC_DAY03_Upper_Premolar01_R",
+          "left_count": 5024,
+          "right_count": 5024,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 5024
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Premolar02_L",
+          "right": "MC_DAY03_Upper_Premolar02_R",
+          "left_count": 3990,
+          "right_count": 3990,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3990
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar01_L",
+          "right": "MC_DAY03_Upper_Molar01_R",
+          "left_count": 3628,
+          "right_count": 3628,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3628
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar02_L",
+          "right": "MC_DAY03_Upper_Molar02_R",
+          "left_count": 3982,
+          "right_count": 3982,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3982
+          }
+        },
+        {
+          "left": "MC_DAY03_Upper_Molar03_L",
+          "right": "MC_DAY03_Upper_Molar03_R",
+          "left_count": 3982,
+          "right_count": 3982,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3982
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Central_L",
+          "right": "MC_DAY03_Lower_Central_R",
+          "left_count": 12286,
+          "right_count": 12286,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 12286
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Lateral_L",
+          "right": "MC_DAY03_Lower_Lateral_R",
+          "left_count": 11871,
+          "right_count": 11871,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 11871
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Canine_L",
+          "right": "MC_DAY03_Lower_Canine_R",
+          "left_count": 12203,
+          "right_count": 12203,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 12203
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Premolar_L",
+          "right": "MC_DAY03_Lower_Premolar_R",
+          "left_count": 4508,
+          "right_count": 4508,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 4508
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Molar_L",
+          "right": "MC_DAY03_Lower_Molar_R",
+          "left_count": 4556,
+          "right_count": 4556,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 4556
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_01_L",
+          "right": "MC_DAY03_Lower_Posterior_01_R",
+          "left_count": 3998,
+          "right_count": 3998,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3998
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_02_L",
+          "right": "MC_DAY03_Lower_Posterior_02_R",
+          "left_count": 3472,
+          "right_count": 3472,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 3472
+          }
+        },
+        {
+          "left": "MC_DAY03_Lower_Posterior_03_L",
+          "right": "MC_DAY03_Lower_Posterior_03_R",
+          "left_count": 2994,
+          "right_count": 2994,
+          "distance": {
+            "max": 0.0,
+            "mean": 0.0,
+            "p99": 0.0,
+            "count": 2994
+          }
+        }
+      ],
+      "gum_reflection": [
+        {
+          "name": "MC_DAY03_Upper_Gum",
+          "distance": {
+            "max": 4.7783990599534516e-18,
+            "mean": 7.553412951792619e-21,
+            "p99": 0.0,
+            "count": 9642
+          }
+        },
+        {
+          "name": "MC_DAY03_Lower_Gum",
+          "distance": {
+            "max": 5.2653611137440315e-18,
+            "mean": 9.291696630882903e-21,
+            "p99": 0.0,
+            "count": 9642
+          }
+        }
+      ]
+    }
+  },
+  "gates": {
+    "32_crowns_8_pairs_per_row": true,
+    "two_gums": true,
+    "native_shape_keys": true,
+    "root_rig": true,
+    "root_weights": true,
+    "uv_present_finite": true,
+    "all_pose_coordinates_finite": true,
+    "source_symmetry_1e_minus_5_units": true,
+    "no_negative_object_scale": true,
+    "all_16_named_crown_pairs_symmetric_in_all_9_samples": true,
+    "both_gums_symmetric_in_all_9_samples": true
+  },
+  "uv_layers": {
+    "UV0": {
+      "loops": 1171872,
+      "non_finite": 0,
+      "min": [
+        0.003906222991645336,
+        0.0039062430150806904
+      ],
+      "max": [
+        0.99609375,
+        0.954540491104126
+      ]
+    }
+  },
+  "all_root_weights_one": true,
+  "source_pose_arrays": "ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\QA_Independent\\outer_source_geometry.npz",
+  "source_manifest_counts": {
+    "Upper": {
+      "total": 16,
+      "left": 8,
+      "right": 8
+    },
+    "Lower": {
+      "total": 16,
+      "left": 8,
+      "right": 8
+    }
+  },
+  "geometry_gates_pass": true,
+  "visual_review_required": true
+}

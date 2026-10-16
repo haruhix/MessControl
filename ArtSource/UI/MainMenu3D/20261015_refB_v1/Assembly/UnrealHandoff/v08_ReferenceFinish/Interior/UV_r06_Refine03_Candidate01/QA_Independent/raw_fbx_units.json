@@ -1,0 +1,197 @@
+{
+  "method": "Direct binary FBX parse, no DCC unit conversion",
+  "files": [
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\SM_DAY03_Interior.fbx",
+      "version": 7400,
+      "global_settings": {
+        "UpAxis": [
+          2
+        ],
+        "UpAxisSign": [
+          1
+        ],
+        "FrontAxis": [
+          1
+        ],
+        "FrontAxisSign": [
+          1
+        ],
+        "CoordAxis": [
+          0
+        ],
+        "CoordAxisSign": [
+          -1
+        ],
+        "OriginalUpAxis": [
+          -1
+        ],
+        "OriginalUpAxisSign": [
+          1
+        ],
+        "UnitScaleFactor": [
+          1.0
+        ],
+        "OriginalUnitScaleFactor": [
+          1.0
+        ],
+        "AmbientColor": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "DefaultCamera": [
+          "Producer Perspective"
+        ],
+        "TimeMode": [
+          11
+        ],
+        "TimeSpanStart": [
+          0
+        ],
+        "TimeSpanStop": [
+          46186158000
+        ],
+        "CustomFrameRate": [
+          24.0
+        ]
+      },
+      "models": [
+        {
+          "name": "SM_DAY03_Interior\u0000\u0001Model",
+          "properties": {
+            "Lcl Rotation": [
+              0.0,
+              -0.0,
+              180.00000500895632
+            ],
+            "Lcl Scaling": [
+              100.0,
+              100.0,
+              100.0
+            ],
+            "DefaultAttributeIndex": [
+              0
+            ],
+            "InheritType": [
+              1
+            ]
+          }
+        }
+      ],
+      "geometries": [
+        {
+          "name": "SM_DAY03_Interior_Surface\u0000\u0001Geometry",
+          "vertices": 16386,
+          "raw_min": [
+            -9.415450096130371,
+            -14.035672187805176,
+            -6.324100017547607
+          ],
+          "raw_max": [
+            9.415450096130371,
+            -3.1993870735168457,
+            6.364099979400635
+          ]
+        }
+      ]
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\SM_DAY03_Tongue.fbx",
+      "version": 7400,
+      "global_settings": {
+        "UpAxis": [
+          2
+        ],
+        "UpAxisSign": [
+          1
+        ],
+        "FrontAxis": [
+          1
+        ],
+        "FrontAxisSign": [
+          1
+        ],
+        "CoordAxis": [
+          0
+        ],
+        "CoordAxisSign": [
+          -1
+        ],
+        "OriginalUpAxis": [
+          -1
+        ],
+        "OriginalUpAxisSign": [
+          1
+        ],
+        "UnitScaleFactor": [
+          1.0
+        ],
+        "OriginalUnitScaleFactor": [
+          1.0
+        ],
+        "AmbientColor": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "DefaultCamera": [
+          "Producer Perspective"
+        ],
+        "TimeMode": [
+          11
+        ],
+        "TimeSpanStart": [
+          0
+        ],
+        "TimeSpanStop": [
+          46186158000
+        ],
+        "CustomFrameRate": [
+          24.0
+        ]
+      },
+      "models": [
+        {
+          "name": "SM_DAY03_Tongue\u0000\u0001Model",
+          "properties": {
+            "Lcl Rotation": [
+              0.0,
+              -0.0,
+              180.00000500895632
+            ],
+            "Lcl Scaling": [
+              100.0,
+              100.0,
+              100.0
+            ],
+            "DefaultAttributeIndex": [
+              0
+            ],
+            "InheritType": [
+              1
+            ]
+          }
+        }
+      ],
+      "geometries": [
+        {
+          "name": "SM_DAY03_Tongue_Surface\u0000\u0001Geometry",
+          "vertices": 9090,
+          "raw_min": [
+            -8.050000190734863,
+            -5.050000190734863,
+            -4.75
+          ],
+          "raw_max": [
+            8.050000190734863,
+            -0.6499999761581421,
+            -1.3132609128952026
+          ]
+        }
+      ]
+    }
+  ],
+  "pass": true,
+  "contract": "Source identity objects in metres; FBX raw vertices retain metre-sized values, cm metadata UnitScaleFactor1 and ModelLclScaling100. Use existing native TransformVertexToAbsoluteTrue once; importuniformscale1, no extra100."
+}

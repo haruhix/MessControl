@@ -14,9 +14,14 @@ command=Path(u.Paths.project_dir())/'Tools/Unreal/Menu3D/Evidence/review_command
 args=json.loads(command.read_text(encoding='utf8'))
 action=args['action']
 if action=='page':widget.call_method('ShowPage',args=(int(args['index']),))
+elif action=='catalog':widget.get_editor_property('PlayButton').on_clicked.broadcast()
 elif action=='select':widget.call_method('SelectDay',args=(int(args['day']),))
 elif action=='step':widget.call_method('StepDay',args=(int(args['direction']),))
 elif action=='back':widget.call_method('Back')
+elif action=='connection':widget.call_method('OpenConnection')
+elif action=='focus':
+    target=widget.get_editor_property(args['widget']) if args.get('widget') else widget
+    target.call_method('SetKeyboardFocus')
 elif action=='pose':
     # A bounded freeze-frame pose check, separate from menu interaction proof.
     widget.set_editor_property('Open3',float(args['amount']))
@@ -30,6 +35,8 @@ report={'action':action,'page':widget.get_editor_property('PageIndex'),
         'active_day':widget.get_editor_property('ActiveDay'),'selected_day':widget.get_editor_property('SelectedDay'),
         'openness':[widget.get_editor_property('Open'+str(i)) for i in range(1,8)],
         'window_first_day':widget.get_editor_property('WindowFirstDay'),
+        'day_counter':str(widget.get_editor_property('DayCounter').get_text()),
+        'wheel_accumulator':widget.get_editor_property('WheelAccumulator'),
         'scroll_offset':widget.get_editor_property('DayScroll').get_scroll_offset(),
         'actual_row_heights':[widget.get_editor_property('Day'+str(i)+'Size').get_editor_property('height_override') for i in range(1,8)],
         'mouths':[]}

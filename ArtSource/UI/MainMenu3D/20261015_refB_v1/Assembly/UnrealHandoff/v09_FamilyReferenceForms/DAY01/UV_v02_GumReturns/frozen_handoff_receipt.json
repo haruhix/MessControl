@@ -1,0 +1,168 @@
+{
+  "schema": "messcontrol.menu3d.frozen_family_handoff.v1",
+  "day": "DAY01",
+  "status": "FROZEN_FOR_NATIVE_PAINTER_NOT_FINAL_ART",
+  "normal_texture_convention_expected": "DirectX; physicalPainter maps not produced by this handoff",
+  "source_units_to_native_cm": 100.0,
+  "geometry_scale": 1.0,
+  "materials": [
+    "MC_Enamel",
+    "MC_Gum"
+  ],
+  "root_bone": "root",
+  "morphs": [
+    "Pose_000",
+    "Pose_025",
+    "Pose_050",
+    "Pose_075"
+  ],
+  "lead_shape_source": {
+    "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY01\\v03\\MC_DAY01_ReferenceForms.blend",
+    "sha256": "f2fb2ad410227fcca1ee3f82a7ec00ec70ae83946fbcaa2c94878be5f6156703"
+  },
+  "preservation": "All5absolute geometry/morph arrays bit-exact acceptedshape; enamel UV bit-exact UV_v01; only gum UV changed in A/B",
+  "validation": {
+    "producer": "QA_Producer/fresh_fbx_nine_pose_validation.json",
+    "atlas": "QA_Producer/uv_atlas_report.json",
+    "distortion_density": "QA_Producer/uv_quality_report.json",
+    "independent_family": "pending",
+    "Unreal_material_and_motion": "pending"
+  },
+  "limits": [
+    "No final1:1 art acceptance claim",
+    "No Painter project/maps authored by family agent",
+    "No Unreal asset/gameflow changes made by family agent"
+  ],
+  "FBX_export": {
+    "axis_forward": "-Y",
+    "axis_up": "Z",
+    "apply_unit_scale": false,
+    "apply_scale_options": "FBX_SCALE_NONE",
+    "use_mesh_modifiers": false,
+    "add_leaf_bones": false,
+    "use_armature_deform_only": true,
+    "bake_anim": false,
+    "mesh_smooth_type": "FACE",
+    "use_tspace": false
+  },
+  "native_import": {
+    "convert_scene": false,
+    "convert_scene_unit": false,
+    "force_front_x_axis": false,
+    "import_morph_targets": true,
+    "import_materials": false,
+    "import_textures": false,
+    "import_animations": false,
+    "create_physics_asset": false
+  },
+  "files": {
+    "checker_back_open.png": {
+      "bytes": 1302205,
+      "sha256": "3f43d50f1b8790059dfede607a844646831ce5befa0f888e66796db69740da68"
+    },
+    "checker_front_open.png": {
+      "bytes": 1281335,
+      "sha256": "1885c8c26875e7ee235178db83475fe0a0d5ecd0f7ed60386991a301a58bafb6"
+    },
+    "checker_oblique_open.png": {
+      "bytes": 1273400,
+      "sha256": "bbab29a72bb70ccdf685d49a247055c844280d451d2ac09dd4377ecadfa6b90e"
+    },
+    "family_finish_uv_export_executed.py": {
+      "bytes": 17552,
+      "sha256": "548ba459470a3c2036ced9d81c6091ddb1c953d9beb2c925dd298d03659ef15c"
+    },
+    "MC_DAY01_Painter_Open.mtl": {
+      "bytes": 59,
+      "sha256": "5ed9d1bd19e08b6577570d98a3d5fd5b5942bffec3d62f9833f15f30ae351eca"
+    },
+    "MC_DAY01_Painter_Open.obj": {
+      "bytes": 88938766,
+      "sha256": "60c52de962722797e6dbab29438d15a9e5779cf681c71c292304f2492f117311"
+    },
+    "MC_DAY01_UnrealMorphSource.blend": {
+      "bytes": 15385720,
+      "sha256": "e18dd3fa1981a965436d586948c4817c3dcd6b9c42c73ff9a7bff98f90d1969b"
+    },
+    "painter_uv_handoff.json": {
+      "bytes": 9945,
+      "sha256": "75a556570656ab3d04a12d261ea40f4b68a8c9309bc2cd76f7d3e7ef9448656f"
+    },
+    "producer_handoff_receipt.json": {
+      "bytes": 1520,
+      "sha256": "8ca0ded1e159ad9924b6e51bb5a5964e167f7812737e2a6b6fc5721bb4aa185c"
+    },
+    "QA_Producer/fresh_fbx_nine_pose_validation.json": {
+      "bytes": 9232,
+      "sha256": "0cfcddfe4ced48fa7068d91e45e6f67976f72fa68696528add88b46dcfdf8167"
+    },
+    "QA_Producer/source_uv_extraction.json": {
+      "bytes": 341,
+      "sha256": "4b2dc18b4390e7e5f99a23c6d3f0f73616ca071e676909886ef8192eea6f4f2c"
+    },
+    "QA_Producer/source_uv_extraction.npz": {
+      "bytes": 9775188,
+      "sha256": "a1da70811249a27841ae32f800c74af636d385c9a105be5373d44581c305d8d7"
+    },
+    "QA_Producer/uv_atlas_report.json": {
+      "bytes": 67481,
+      "sha256": "8d3b44c7902721487c3b2465e865088b8618656399e7cf3b0d62d8c11b20022b"
+    },
+    "QA_Producer/uv_chart_layout_material_0.png": {
+      "bytes": 535028,
+      "sha256": "da9b4dd16dfc946f8f158741a20ef850cec6ea146d9039b35e92cd6d8702197f"
+    },
+    "QA_Producer/uv_chart_layout_material_1.png": {
+      "bytes": 134733,
+      "sha256": "308791f341a90455bd86786c45a0cba4acd316f4eaa1d2d10bfe765c91b9ee56"
+    },
+    "QA_Producer/uv_density_material_0.png": {
+      "bytes": 1935490,
+      "sha256": "bcbf6d3da27e6aed7a38f0931899a171d0caaefce0d99f39fd1c72dac62cfce6"
+    },
+    "QA_Producer/uv_density_material_1.png": {
+      "bytes": 846739,
+      "sha256": "034328861f89d5e26849d0f8c6193056f1a6a75f500093f2f246ded4e6d8bc67"
+    },
+    "QA_Producer/uv_distortion_material_0.png": {
+      "bytes": 1481302,
+      "sha256": "034643df4fc3628f93afe7931199b759c5a49d1ec48c7d758af0f37b4da006f6"
+    },
+    "QA_Producer/uv_distortion_material_1.png": {
+      "bytes": 651267,
+      "sha256": "160ef4ff8175ab9e34b4814058b7d350ddaa5ce7673781dcf7475aed0818b5a3"
+    },
+    "QA_Producer/uv_occupancy_material_0.png": {
+      "bytes": 160280,
+      "sha256": "779c195bf3af6381ab385721c1d89a8ed09c82322a0f3afcb0c0fd9ab8a9d0f6"
+    },
+    "QA_Producer/uv_occupancy_material_1.png": {
+      "bytes": 47532,
+      "sha256": "f7ffadb39b06e435ebbf8060d380b6e5189ee5dd412951fca71c69beaa98835b"
+    },
+    "QA_Producer/uv_quality_report.json": {
+      "bytes": 124964,
+      "sha256": "975ed63f5e1376140d36c1859a7469ac657227eb5e532184c421845f3d90270c"
+    },
+    "QA_Producer/uv_triangle_charts.npy": {
+      "bytes": 3844224,
+      "sha256": "619f946c33456814a86cbdaefa6db6262acd42d6044416d568d64e0651342c8f"
+    },
+    "SK_DAY01.fbx": {
+      "bytes": 18513036,
+      "sha256": "2ce1bd15e5e56301b5d004e186ca855960e48c6fb3991d1f52afc3609ceefcb4"
+    },
+    "source_world_poses_cm.npz": {
+      "bytes": 11235727,
+      "sha256": "3a7bfcc0eb8ede6a377dce23530773991a3f396e240175f69a9f2feb633af090"
+    },
+    "texture_mesh_packet.npz": {
+      "bytes": 7959878,
+      "sha256": "b330346544110cfd1ab55bc44df18884c6acf6c4bfc4ab0ed9dfa61fcefa8a78"
+    },
+    "unreal_mouth_handoff.json": {
+      "bytes": 16150,
+      "sha256": "d7867ddc416c54fd16af91b5fb175bbd64b58ac2d0f93ccfcaac80db06b6f28e"
+    }
+  }
+}

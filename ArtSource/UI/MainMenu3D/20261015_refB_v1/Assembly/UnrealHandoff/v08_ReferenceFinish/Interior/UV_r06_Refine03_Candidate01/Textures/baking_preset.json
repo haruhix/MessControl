@@ -1,0 +1,82 @@
+{
+  "schema": "substance-painter-mcp/baking-preset@1",
+  "source_texture_set": "MC_Tongue",
+  "enabled": true,
+  "enabled_bakers": [
+    "Normal",
+    "WorldSpaceNormal",
+    "AO",
+    "Curvature",
+    "Position",
+    "Thickness"
+  ],
+  "enabled_uv_tiles": [
+    1001
+  ],
+  "curvature_method": "FromMesh",
+  "common_values": {
+    "OutputSize": [
+      12,
+      12
+    ],
+    "DilationWidth": 32,
+    "ApplyDiffusion": false,
+    "LowAsHigh": true,
+    "CageMode": 0,
+    "MaxHeight": 0.009999999776482582,
+    "MaxDepth": 0.009999999776482582,
+    "RelativeScale": true,
+    "SmoothNormals": true,
+    "SkewFaceBehavior": 0,
+    "IgnoreBackface": true,
+    "FilterMethod": 0,
+    "LowpolySuffix": "_low",
+    "HipolySuffix": "_high",
+    "BackfaceCullingSuffix": "_ignorebf",
+    "SubSampling": 1
+  },
+  "baker_values": {
+    "Normal": {},
+    "WorldSpaceNormal": {},
+    "AO": {
+      "NbSecondary": 128,
+      "MinDistance": 0.000009999999747378752,
+      "MaxDistance": 1,
+      "MaxDistanceRelativeScale": true,
+      "Spread": 180,
+      "Distribution": 1,
+      "IgnoreBackfaceSecondary": 0,
+      "FilterMethodSecondary": 0,
+      "Attenuation": 2,
+      "GroundPlane": false,
+      "GroundOffset": 0
+    },
+    "Curvature": {
+      "NbSecondary": 32,
+      "SamplingRadius": 0.0010000000474974513,
+      "MaxDistanceRelativeScale": true,
+      "FilterMethodSecondary": 0,
+      "AutoMinMax": true,
+      "TonemappingBounds": [
+        -1,
+        1
+      ]
+    },
+    "Position": {
+      "Mode": 0,
+      "Axis": 0,
+      "Normalization": 1,
+      "NormalizationScale": 1
+    },
+    "Thickness": {
+      "NbSecondary": 128,
+      "MinDistance": 0.000009999999747378752,
+      "MaxDistance": 0.10000000149011612,
+      "MaxDistanceRelativeScale": true,
+      "Spread": 180,
+      "Distribution": 1,
+      "FilterMethodSecondary": 0,
+      "MaximizeRange": 1
+    }
+  }
+}

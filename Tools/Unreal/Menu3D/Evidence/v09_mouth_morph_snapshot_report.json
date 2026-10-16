@@ -1,0 +1,38 @@
+{
+  "status": "MOUTH_MORPH_SNAPSHOT_COMPILED_SAVED_NATIVE_REVIEW_PENDING",
+  "scope": "One node in DriveMouthDay after Pose_075, before material parameters; no character driver changes",
+  "node": {
+    "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:DriveMouthDay.K2Node_CallFunction_219"
+  },
+  "previous_output": {
+    "direction": "EGPD_Output",
+    "index_id": 0,
+    "node": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:DriveMouthDay.K2Node_CallFunction_191"
+    }
+  },
+  "next_input": {
+    "direction": "EGPD_Input",
+    "index_id": 0,
+    "node": {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:DriveMouthDay.K2Node_CallFunction_192"
+    }
+  },
+  "rollback": "Disconnect and delete new node, reconnect previous_output to next_input, compile/save widget",
+  "source_basis": [
+    "SkeletalMeshComponent.cpp4433-4448 OverrideAnimationData ticks/evaluates synchronously",
+    "SkeletalMeshComponent.cpp4264 same SingleNode does not recreate instance",
+    "SkeletalMeshComponent.cpp3276-3302 morph overrides applied during PostAnimEvaluation"
+  ],
+  "graph_diff": [
+    "--- ",
+    "+++ ",
+    "@@ -31,5 +31,6 @@",
+    "     (Components|SkeletalMesh|SetMorphTarget _skeletalmeshcomponent \"Pose_025\" (Math|Float|Clamp(Float) (- 1.0 (Math|Float|Absolute(Float) (* (- Open 0.25) 4.0)))))",
+    "     (Components|SkeletalMesh|SetMorphTarget _skeletalmeshcomponent \"Pose_050\" (Math|Float|Clamp(Float) (- 1.0 (Math|Float|Absolute(Float) (* (- Open 0.5) 4.0)))))",
+    "     (Components|SkeletalMesh|SetMorphTarget _skeletalmeshcomponent \"Pose_075\" (Math|Float|Clamp(Float) (- 1.0 (Math|Float|Absolute(Float) (* (- Open 0.75) 4.0)))))",
+    "+    (Components|Animation|OverrideAnimationData _skeletalmeshcomponent 0 false false 0.0 1.0)",
+    "     (Rendering|Material|SetScalarParameterValueOnMaterials _skeletalmeshcomponent \"OpenAmount\" Open)",
+    "     (Rendering|Material|SetScalarParameterValueOnMaterials _skeletalmeshcomponent \"CardHalfHeight\" (/ (select (or (== (Variables|Default|GetPageIndex) 1) (== (Variables|Default|GetPageIndex) 5)) Height 370.0) (* 2.0 Scale)))))"
+  ]
+}

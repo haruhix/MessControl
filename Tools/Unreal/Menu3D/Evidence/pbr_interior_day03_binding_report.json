@@ -1,0 +1,71 @@
+{
+  "status": "RELEASED_PBR_BOUND_PENDING_NATIVE_APPEARANCE_MOTION_REVIEW",
+  "kind": "INTERIOR_DAY03",
+  "manifest_sha256": "4bf82cf5d3b78147ab38466f93b59853895ba557c34a6e5cfd45fd60fb72e075",
+  "textures": [
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_BaseColor_v08",
+      "source_sha256": "76fbca63cdc784d1ee0bf55850c972f5474112be9766484f3bbe3f02cf3b7f27",
+      "srgb": true
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Roughness_v08",
+      "source_sha256": "3daaf99ce6d402bec56bb7bfff1b5e9a64a5c9d502d56e25a996250661541187",
+      "srgb": false
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Normal_v08",
+      "source_sha256": "34d72c48cca8e93db53c1b4929bb137825fa29da2bbbd90e45ffd81ed7838995",
+      "srgb": false
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_AO_v08",
+      "source_sha256": "d343f1453d165e624ef243d1b19248b684d69b3897a22158ca9242328abc2e57",
+      "srgb": false
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Interior_Thickness_v08",
+      "source_sha256": "588d4416ced3d09b27408fff9949c54586e5eee4727771de61b49bcb87540f3d",
+      "srgb": false
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_BaseColor_v08",
+      "source_sha256": "15193c5f3ac52340d3f5abd07760f6e10437b87d6a889e578661a619e7b82cf3",
+      "srgb": true
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Roughness_v08",
+      "source_sha256": "da932f88122be564ae739fe2cfb89a2109ded558b490960f219025db6fb2b3d1",
+      "srgb": false
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Normal_v08",
+      "source_sha256": "8542657ddcb694a21dd3dc30458decb0af64f568ce669425fb69f31781f5456f",
+      "srgb": false
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_AO_v08",
+      "source_sha256": "17b64809b6ece1a9c7f724260f222cf4fa8d24626865adfd25d31e064df53718",
+      "srgb": false
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/ReferenceFinish/Textures/DAY03/Interior/T_DAY03_Tongue_Thickness_v08",
+      "source_sha256": "22c191bb512bbc2b97432424a98b8ab01484a5b6bd11027cd4f1a39caf421bbb",
+      "srgb": false
+    }
+  ],
+  "bindings": [
+    {
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Organic_v08.SM_DAY03_Interior_Organic_v08",
+      "slot": 0,
+      "material": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Interior_v08"
+    },
+    {
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Organic_v08.SM_DAY03_Tongue_Organic_v08",
+      "slot": 0,
+      "material": "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Tongue_v08"
+    }
+  ],
+  "source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_Organic_r05_Candidate01\\Textures\\shader_binding.json",
+  "camera_motion_character_startup_changed": false
+}

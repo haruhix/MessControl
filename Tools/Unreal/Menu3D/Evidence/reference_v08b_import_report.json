@@ -1,0 +1,22 @@
+{
+  "status": "REVIEWED_UV_CANDIDATE_IMPORTED_PENDING_PBR_AND_NATIVE_MOTION_REVIEW",
+  "source_fbx": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\Final96_GumMinStretch_LocalFangRepair\\SK_DAY03.fbx",
+  "source_sha256": "41f93635dbf1b44513e0df8f8066f4b9a4f9a724641f112ae1a6132bc8e805f1",
+  "previous_mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Reference_v08.SK_DAY03_Reference_v08",
+  "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Reference_v08b.SK_DAY03_Reference_v08b",
+  "morphs": [
+    "Pose_000",
+    "Pose_025",
+    "Pose_050",
+    "Pose_075"
+  ],
+  "skeleton": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04_Skeleton.SK_DAY03_Seated_v04_Skeleton",
+  "bounds": "<Struct 'BoxSphereBounds' (0x000001DA8F814AC0) {origin: {x: -0.000031, y: -141.644081, z: 3.596863}, box_extent: {x: 846.000031, y: 220.224815, z: 410.384918}, sphere_radius: 965.728120}>",
+  "blocking_overrides": [
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Enamel_v08.MI_DAY03_Enamel_v08",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY03_Gum_v08.MI_DAY03_Gum_v08"
+  ],
+  "saved_map": "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08",
+  "startup_map_changed": false,
+  "validation": "Root opened actual final checker and both atlases; independent QA verified source/packet UV bitexact, fresh FBX position/UV/material identity, all nine rig/morph/symmetry poses and lower-row source visibility with zero card-mask loss. UV has 96 enamel + 6 gum charts, no overlaps/collapses/flips. Continuous long gum strips intentionally leave unused atlas space; all surfaces remain covered. This is technical UV acceptance; physical texture look, native tongue/UI/readability and timing require actual PIE review."
+}

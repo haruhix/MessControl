@@ -1,0 +1,22 @@
+{
+  "status": "SYMMETRIC_CANDIDATE_IMPORTED_PENDING_NATIVE_LOWER_ROW_REVIEW",
+  "source_fbx": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v07_LowerRowReadability\\SK_DAY03.fbx",
+  "source_sha256": "bbbc62e2eb6ec8c325d6ac69edd5e6c25513e7c03742c095c2c6f272c7bf8f08",
+  "previous_mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Symmetric_v06.SK_DAY03_Symmetric_v06",
+  "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_LowerReadable_v07.SK_DAY03_LowerReadable_v07",
+  "morphs": [
+    "Pose_000",
+    "Pose_025",
+    "Pose_050",
+    "Pose_075"
+  ],
+  "skeleton": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04_Skeleton.SK_DAY03_Seated_v04_Skeleton",
+  "bounds": "<Struct 'BoxSphereBounds' (0x000001DA6E5FF840) {origin: {x: -0.000031, y: -150.434448, z: 2.000000}, box_extent: {x: 846.000031, y: 211.434448, z: 412.000000}, sphere_radius: 964.450402}>",
+  "blocking_overrides": [
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel_DAY03.M_Blocking_Enamel_DAY03",
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum_DAY03.M_Blocking_Gum_DAY03"
+  ],
+  "saved_map": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D",
+  "startup_map_changed": false,
+  "validation": "Source/fresh FBX independently checked. Import and package save; solo PIE and lower panel clipping remain pending."
+}

@@ -1,0 +1,7 @@
+{
+  "status": "REJECTED_CANDIDATE_REMOVED_COMPILED_SAVED",
+  "reason": "Actual10 command boundary still mismatched; preserve05 shell fix only",
+  "node_removed": {
+    "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:DriveMouthDay.K2Node_CallFunction_219"
+  }
+}

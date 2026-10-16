@@ -1,0 +1,36 @@
+{
+  "source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\MC_DAY03_InteriorSource.blend",
+  "source_sha256": "59e65b91570d1014deec20c0d3f648dc8244702cc6b7e3b8d68f268634da6349",
+  "read_only": true,
+  "scope": "Dorsal UV0 repaired on approved Refine03; ventral unchanged; actual per-triangle geometric distortion measured.",
+  "surfaces": [
+    {
+      "surface": "dorsal",
+      "triangle_count": 9088,
+      "area_source_units2": 96.59403941634531,
+      "density_p05_median_p95_px_per_source_unit": [
+        214.81995402365422,
+        223.48294240878812,
+        235.36180594487868
+      ],
+      "density_intrachart_spread": 1.0956235747027605,
+      "kappa_p95": 1.1240020752975937,
+      "kappa_p99": 1.2478091389596113,
+      "angle_error_degrees_p95": 4.389766562488916
+    },
+    {
+      "surface": "ventral",
+      "triangle_count": 9088,
+      "area_source_units2": 72.24153884316368,
+      "density_p05_median_p95_px_per_source_unit": [
+        116.76034795960751,
+        117.81801229938178,
+        119.94781900990067
+      ],
+      "density_intrachart_spread": 1.027299259603062,
+      "kappa_p95": 1.0394158773756967,
+      "kappa_p99": 1.0851501417464886,
+      "angle_error_degrees_p95": 1.3225987352794206
+    }
+  ]
+}

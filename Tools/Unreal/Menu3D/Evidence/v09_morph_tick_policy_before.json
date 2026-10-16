@@ -1,0 +1,44 @@
+[
+  {
+    "day": 1,
+    "mesh": "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.SkeletalMeshActor_2.SkeletalMeshComponent0",
+    "properties": {
+      "animation_mode": "<AnimationMode.ANIMATION_BLUEPRINT: 0>",
+      "anim_class": "None",
+      "visibility_based_anim_tick_option": "<VisibilityBasedAnimTickOption.ALWAYS_TICK_POSE: 1>",
+      "enable_update_rate_optimizations": "False",
+      "primary_component_tick": "<Struct 'ActorComponentTickFunction' (0x0000022D13F25048) {}>",
+      "pause_anims": "False",
+      "no_skeleton_update": "False",
+      "b_update_animation_in_editor": "UNAVAILABLE: SkeletalMeshComponent: Failed to find property 'b_update_animation_in_editor' for attribute 'b_update_animation_in_editor' on 'SkeletalMeshComponent'"
+    }
+  },
+  {
+    "day": 2,
+    "mesh": "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.SkeletalMeshActor_3.SkeletalMeshComponent0",
+    "properties": {
+      "animation_mode": "<AnimationMode.ANIMATION_BLUEPRINT: 0>",
+      "anim_class": "None",
+      "visibility_based_anim_tick_option": "<VisibilityBasedAnimTickOption.ALWAYS_TICK_POSE: 1>",
+      "enable_update_rate_optimizations": "False",
+      "primary_component_tick": "<Struct 'ActorComponentTickFunction' (0x0000022D13F20048) {}>",
+      "pause_anims": "False",
+      "no_skeleton_update": "False",
+      "b_update_animation_in_editor": "UNAVAILABLE: SkeletalMeshComponent: Failed to find property 'b_update_animation_in_editor' for attribute 'b_update_animation_in_editor' on 'SkeletalMeshComponent'"
+    }
+  },
+  {
+    "day": 3,
+    "mesh": "/Game/UI/MainMenu3D/L_MainMenu3D_RefFinish_v08.L_MainMenu3D_RefFinish_v08:PersistentLevel.SkeletalMeshActor_0.SkeletalMeshComponent0",
+    "properties": {
+      "animation_mode": "<AnimationMode.ANIMATION_BLUEPRINT: 0>",
+      "anim_class": "None",
+      "visibility_based_anim_tick_option": "<VisibilityBasedAnimTickOption.ALWAYS_TICK_POSE: 1>",
+      "enable_update_rate_optimizations": "False",
+      "primary_component_tick": "<Struct 'ActorComponentTickFunction' (0x0000022D13F2A048) {}>",
+      "pause_anims": "False",
+      "no_skeleton_update": "False",
+      "b_update_animation_in_editor": "UNAVAILABLE: SkeletalMeshComponent: Failed to find property 'b_update_animation_in_editor' for attribute 'b_update_animation_in_editor' on 'SkeletalMeshComponent'"
+    }
+  }
+]

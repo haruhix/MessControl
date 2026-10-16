@@ -1,0 +1,146 @@
+{
+  "native_source": "ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\Review\\Unreal_FunctionalBlocking_v03_FullRoute\\PBRCalibration_v08b_02",
+  "patches_xyxy": {
+    "uppercentral": [
+      654,
+      436,
+      684,
+      455
+    ],
+    "fang": [
+      488,
+      445,
+      501,
+      478
+    ],
+    "lowercentral": [
+      654,
+      632,
+      682,
+      651
+    ],
+    "gumrim": [
+      654,
+      400,
+      681,
+      410
+    ],
+    "gumlower": [
+      654,
+      670,
+      681,
+      682
+    ]
+  },
+  "candidates": {
+    "A_baseline": {
+      "uppercentral": [
+        231.0,
+        206.0,
+        184.0
+      ],
+      "fang": [
+        233.0,
+        212.0,
+        191.0
+      ],
+      "lowercentral": [
+        225.0,
+        197.0,
+        172.0
+      ],
+      "gumrim": [
+        214.0,
+        32.0,
+        37.0
+      ],
+      "gumlower": [
+        231.0,
+        61.0,
+        53.0
+      ]
+    },
+    "B_tall_key_neutral": {
+      "uppercentral": [
+        229.0,
+        212.0,
+        196.0
+      ],
+      "fang": [
+        231.0,
+        215.0,
+        200.0
+      ],
+      "lowercentral": [
+        223.0,
+        204.0,
+        186.0
+      ],
+      "gumrim": [
+        183.0,
+        64.5,
+        68.0
+      ],
+      "gumlower": [
+        209.0,
+        90.0,
+        89.0
+      ]
+    },
+    "C_rose_body": {
+      "uppercentral": [
+        227.0,
+        203.0,
+        192.0
+      ],
+      "fang": [
+        230.0,
+        206.0,
+        196.0
+      ],
+      "lowercentral": [
+        222.0,
+        193.0,
+        181.0
+      ],
+      "gumrim": [
+        182.0,
+        64.0,
+        68.0
+      ],
+      "gumlower": [
+        209.0,
+        90.0,
+        89.0
+      ]
+    },
+    "D_soft_rose": {
+      "uppercentral": [
+        228.0,
+        205.0,
+        195.0
+      ],
+      "fang": [
+        231.0,
+        208.0,
+        197.0
+      ],
+      "lowercentral": [
+        223.0,
+        195.0,
+        184.0
+      ],
+      "gumrim": [
+        187.0,
+        67.0,
+        71.0
+      ],
+      "gumlower": [
+        211.0,
+        93.0,
+        91.0
+      ]
+    }
+  },
+  "status": "WORK_LOOK_DIRECTION_ONLY_PENDING_DETAILED_INTERIOR_AND_FINAL_NATIVE_CALIBRATION"
+}

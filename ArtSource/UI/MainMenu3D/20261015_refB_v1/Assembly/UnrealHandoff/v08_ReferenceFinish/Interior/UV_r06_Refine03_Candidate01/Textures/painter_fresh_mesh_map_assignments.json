@@ -1,0 +1,76 @@
+{
+  "busy": false,
+  "texture_sets": [
+    {
+      "texture_set": "MC_Tongue",
+      "enabled": true,
+      "curvature_method": "FromMesh",
+      "enabled_bakers": [
+        "Normal",
+        "WorldSpaceNormal",
+        "AO",
+        "Curvature",
+        "Position",
+        "Thickness"
+      ],
+      "uv_tiles": [
+        "UVTile(u=0, v=0, _material_id=28)"
+      ],
+      "enabled_uv_tiles": [
+        "UVTile(u=0, v=0, _material_id=28)"
+      ],
+      "mesh_maps": [
+        {
+          "usage": "AO",
+          "resource": "resource://project9/ambient occlusion MC_Tongue?version=5b732a0a0d6cc6fc3b5a32121abfc31a826d1dc6.image",
+          "baker_enabled": true
+        },
+        {
+          "usage": "BentNormals",
+          "resource": null,
+          "baker_enabled": false
+        },
+        {
+          "usage": "Curvature",
+          "resource": "resource://project9/curvature MC_Tongue?version=81dfd17b05fe2d198c5be0243c8150fc10746d30.image",
+          "baker_enabled": true
+        },
+        {
+          "usage": "Height",
+          "resource": null,
+          "baker_enabled": false
+        },
+        {
+          "usage": "ID",
+          "resource": null,
+          "baker_enabled": false
+        },
+        {
+          "usage": "Normal",
+          "resource": "resource://project9/normal MC_Tongue?version=7082d1f81260b7a41a98e2a84a56f215bb7940ec.image",
+          "baker_enabled": true
+        },
+        {
+          "usage": "Opacity",
+          "resource": null,
+          "baker_enabled": false
+        },
+        {
+          "usage": "Position",
+          "resource": "resource://project9/position MC_Tongue?version=ec2966dd253c9b4c37e35f4f0810784603243679.image",
+          "baker_enabled": true
+        },
+        {
+          "usage": "Thickness",
+          "resource": "resource://project9/thickness MC_Tongue?version=6f0a0d60951ba4255910380634ef0314e3f94d72.image",
+          "baker_enabled": true
+        },
+        {
+          "usage": "WorldSpaceNormal",
+          "resource": "resource://project9/world space normal MC_Tongue?version=ea8c7e256bc2b974a7394fe9ea26a9949fb644e0.image",
+          "baker_enabled": true
+        }
+      ]
+    }
+  ]
+}

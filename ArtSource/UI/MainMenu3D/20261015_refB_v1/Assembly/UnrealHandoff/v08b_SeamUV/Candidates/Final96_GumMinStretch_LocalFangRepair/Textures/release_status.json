@@ -1,0 +1,19 @@
+{
+  "schema": "messcontrol.menu3d.texture_release.v1",
+  "status": "FROZEN_AUTHOR_HANDOFF_NATIVE_UNREAL_VISUAL_GATE_PENDING",
+  "shader_binding_sha256": "740cc6fd09959eb9dc040dcf74e34e9d5fe680c5776b81600fa13300557efe6f",
+  "selected_pbr_export": "PainterPBR_02",
+  "selected_mesh_maps": "PainterMeshMaps_01",
+  "map_count": 10,
+  "resolution": [4096, 4096],
+  "normal_format": "DirectX",
+  "editable_spp_sha256": "05a1a9d8a991edb448cf8faf12e57d522b334e70fce49a23bc73080658ebb33a",
+  "native_painter_viewport_review": {
+    "performed": true,
+    "views": ["front", "oblique grazing studio", "close grazing studio"],
+    "observed": "Continuous facial highlights and cervical pigment; no visible hero facial UV seams in reviewed views; restrained exported microrelief.",
+    "capture_method": "Supported computer-use sky window capture; actual Painter window, not a reconstructed render."
+  },
+  "unreal_review": "Pending lead integration: reference lighting, subsurface response, cavity/tongue/character composition and opening poses.",
+  "mutation_policy": "Released map files and shader_binding.json remain unchanged until further lead direction."
+}

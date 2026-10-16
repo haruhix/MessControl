@@ -1,0 +1,17 @@
+{
+  "status": "STAGED_WITH_INTERIM_PHYSICAL_DEFAULTS_PENDING_NATIVE_FIT_AND_OWN_PAINTER_MAPS",
+  "day": 2,
+  "source_fbx": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v09_FamilyReferenceForms\\DAY02\\UV_v01\\SK_DAY02.fbx",
+  "source_sha256": "3e4737c0f22ec8ef2c25d4f0ec63fc22c0c7ead9afdee9a1efa9c070f02d330f",
+  "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Reference_v09",
+  "previous_mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking.SK_DAY02_Blocking",
+  "skeleton": "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking_Skeleton.SK_DAY02_Blocking_Skeleton",
+  "bounds": "<Struct 'BoxSphereBounds' (0x000001DAA281E780) {origin: {x: -0.000031, y: -213.581116, z: 0.000000}, box_extent: {x: 852.005951, y: 291.790863, z: 374.034485}, sphere_radius: 975.170674}>",
+  "materials": [
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Enamel_v09.MI_DAY02_Enamel_v09",
+    "/Game/UI/MainMenu3D/ReferenceFinish/Materials/MI_DAY02_Gum_v09.MI_DAY02_Gum_v09"
+  ],
+  "validation": "Root inspected actual shape, coherent front/oblique checkers and both atlases. Independent source/fresh FBX/UV/rig/nine-pose symmetry/lower coverage gates passed; all frozen hashes match. Native fit/motion and own Painter appearance remain pending.",
+  "startup_map_changed": false,
+  "character_and_motion_graphs_changed": false
+}

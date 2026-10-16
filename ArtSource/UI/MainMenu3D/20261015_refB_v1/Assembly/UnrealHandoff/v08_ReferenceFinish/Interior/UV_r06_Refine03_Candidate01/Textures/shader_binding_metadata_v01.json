@@ -1,0 +1,205 @@
+{
+  "schema": "messcontrol.menu3d.physical_shader_binding.v1",
+  "status": "FROZEN_PAINTER_RELEASE_NATIVE_UNREAL_VISUAL_PENDING",
+  "normal_format": "DirectX",
+  "texture_resolution": 4096,
+  "mesh_packet_sha256": "53215b04995cfc46b820b622726cf78d692b36f8619f6a964b12cfe097088bbb",
+  "static_obj_sha256": "3fd2e321bcbddcedfd56b0dbd9658bdae73940a8ca3eee7f7eb2e551ac050776",
+  "native_fbx_sha256": {
+    "SM_DAY03_Interior.fbx": "1dcb142957e0efe25aba29204593c7d401347b3b7d693e53b7cf0a0fe1b1d8ce",
+    "SM_DAY03_Tongue.fbx": "6c98123d3b26b70fdae0924dcc7a6f1992962c83bdc05b57833a8c2c10e47456"
+  },
+  "texture_sets": {
+    "MC_Interior": {
+      "BaseColorTexture": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_Organic_r05_Candidate01\\Textures\\PainterPBR_02\\MC_Interior_Base_color_1001.png",
+      "RoughnessTexture": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_Organic_r05_Candidate01\\Textures\\PainterPBR_02\\MC_Interior_Specular_roughness_1001.png",
+      "NormalTexture": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_Organic_r05_Candidate01\\Textures\\PainterPBR_02\\MC_Interior_Normal_DirectX_1001.png",
+      "AOTexture": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_Organic_r05_Candidate01\\Textures\\PainterPBR_02\\MC_Interior_Mixed_AO_1001.png",
+      "ThicknessTexture": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_Organic_r05_Candidate01\\Textures\\PainterMeshMaps_01\\MC_Interior_thickness.1001.png"
+    },
+    "MC_Tongue": {
+      "BaseColorTexture": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\PainterPBR_01\\MC_Tongue_Base_color_1001.png",
+      "RoughnessTexture": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\PainterPBR_01\\MC_Tongue_Specular_roughness_1001.png",
+      "NormalTexture": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\PainterPBR_01\\MC_Tongue_Normal_DirectX_1001.png",
+      "AOTexture": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\PainterPBR_01\\MC_Tongue_Mixed_AO_1001.png",
+      "ThicknessTexture": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\PainterMeshMaps_01\\MC_Tongue_thickness.1001.png"
+    }
+  },
+  "map_metadata": {
+    "MC_Interior": {
+      "BaseColorTexture": {
+        "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_Organic_r05_Candidate01\\Textures\\PainterPBR_02\\MC_Interior_Base_color_1001.png",
+        "sha256": "76fbca63cdc784d1ee0bf55850c972f5474112be9766484f3bbe3f02cf3b7f27",
+        "bytes": 2061156,
+        "dimensions": [
+          4096,
+          4096
+        ],
+        "srgb": true,
+        "compression": "TC_DEFAULT",
+        "flip_green_channel": null
+      },
+      "RoughnessTexture": {
+        "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_Organic_r05_Candidate01\\Textures\\PainterPBR_02\\MC_Interior_Specular_roughness_1001.png",
+        "sha256": "3daaf99ce6d402bec56bb7bfff1b5e9a64a5c9d502d56e25a996250661541187",
+        "bytes": 1585068,
+        "dimensions": [
+          4096,
+          4096
+        ],
+        "srgb": false,
+        "compression": "TC_MASKS",
+        "flip_green_channel": null
+      },
+      "NormalTexture": {
+        "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_Organic_r05_Candidate01\\Textures\\PainterPBR_02\\MC_Interior_Normal_DirectX_1001.png",
+        "sha256": "34d72c48cca8e93db53c1b4929bb137825fa29da2bbbd90e45ffd81ed7838995",
+        "bytes": 13714213,
+        "dimensions": [
+          4096,
+          4096
+        ],
+        "srgb": false,
+        "compression": "TC_NORMALMAP",
+        "flip_green_channel": false
+      },
+      "AOTexture": {
+        "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_Organic_r05_Candidate01\\Textures\\PainterPBR_02\\MC_Interior_Mixed_AO_1001.png",
+        "sha256": "d343f1453d165e624ef243d1b19248b684d69b3897a22158ca9242328abc2e57",
+        "bytes": 3872271,
+        "dimensions": [
+          4096,
+          4096
+        ],
+        "srgb": false,
+        "compression": "TC_MASKS",
+        "flip_green_channel": null
+      },
+      "ThicknessTexture": {
+        "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_Organic_r05_Candidate01\\Textures\\PainterMeshMaps_01\\MC_Interior_thickness.1001.png",
+        "sha256": "588d4416ced3d09b27408fff9949c54586e5eee4727771de61b49bcb87540f3d",
+        "bytes": 2250733,
+        "dimensions": [
+          4096,
+          4096
+        ],
+        "srgb": false,
+        "compression": "TC_MASKS",
+        "flip_green_channel": null
+      }
+    },
+    "MC_Tongue": {
+      "BaseColorTexture": {
+        "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\PainterPBR_01\\MC_Tongue_Base_color_1001.png",
+        "sha256": "1c3ace19df6a7ae20f3b680866bc2b929004afded2a35fdd03460073a7d556b5",
+        "bytes": 316597,
+        "dimensions": [
+          4096,
+          4096
+        ],
+        "srgb": true,
+        "compression": "TC_DEFAULT",
+        "flip_green_channel": null
+      },
+      "RoughnessTexture": {
+        "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\PainterPBR_01\\MC_Tongue_Specular_roughness_1001.png",
+        "sha256": "56096562a7c3b2efaa414b5ee2a40e7699d85134226416fe7ba57d704b060096",
+        "bytes": 773673,
+        "dimensions": [
+          4096,
+          4096
+        ],
+        "srgb": false,
+        "compression": "TC_MASKS",
+        "flip_green_channel": null
+      },
+      "NormalTexture": {
+        "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\PainterPBR_01\\MC_Tongue_Normal_DirectX_1001.png",
+        "sha256": "be990a573487b0510f09264f89c851b702185520ad6aca96228e9656780111b6",
+        "bytes": 13273310,
+        "dimensions": [
+          4096,
+          4096
+        ],
+        "srgb": false,
+        "compression": "TC_NORMALMAP",
+        "flip_green_channel": false
+      },
+      "AOTexture": {
+        "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\PainterPBR_01\\MC_Tongue_Mixed_AO_1001.png",
+        "sha256": "12fe8e1c599b56b08bc6f327602f6d5dcd2b3df5a338e4594ff260336d5185a9",
+        "bytes": 1350700,
+        "dimensions": [
+          4096,
+          4096
+        ],
+        "srgb": false,
+        "compression": "TC_MASKS",
+        "flip_green_channel": null
+      },
+      "ThicknessTexture": {
+        "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\PainterMeshMaps_01\\MC_Tongue_thickness.1001.png",
+        "sha256": "13241f92b2ed610147c5cc515a29d4e97f5282eff4c0b299e9c7d8760313c108",
+        "bytes": 1106475,
+        "dimensions": [
+          4096,
+          4096
+        ],
+        "srgb": false,
+        "compression": "TC_MASKS",
+        "flip_green_channel": null
+      }
+    }
+  },
+  "thickness_semantics": "Black thin / white thick, inward-ray bake normalized per texture set; not metric thickness.",
+  "thickness_reference": "https://experienceleague.adobe.com/en/docs/substance-3d/bakers/bakers-settings/thickness-map-from-mesh",
+  "lighting_baked_into_basecolor": false,
+  "validation_scope": "Exact source/UV/linkage and physical-map files; actual Painter front/oblique/grazing reviewed. Native Unreal masking, animation and final reference look remain pending.",
+  "editable_project": {
+    "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\MC_DAY03_Interior_r06_Refine03.spp",
+    "sha256": "2d1744ba6844977b17d45cbaded68571bc587d39b3a2eb9a3948709f5f3e6625",
+    "bytes": 249259959
+  },
+  "basecolor_color_semantics": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_Organic_r05_Candidate01\\Textures\\basecolor_color_semantics.json",
+  "texture_qa": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\texture_qa.json",
+  "additional_authored_masks": {
+    "MC_Interior": {
+      "ThinTissueMask": {
+        "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_Organic_r05_Candidate01\\Textures\\AnatomyMasks\\MC_Interior_ThinTissueMask.png",
+        "sha256": "4bf19293f12a3f04fb28891eabc2e5bbbc80fb5d26c7e6cca1229e677d269a04",
+        "srgb": false,
+        "semantics": "Geometry-authored anatomy support, not metric physical thickness"
+      },
+      "ArtistDensityMask": {
+        "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_Organic_r05_Candidate01\\Textures\\AnatomyMasks\\MC_Interior_ArtistDensityMask.png",
+        "sha256": "e38c99dc3f0bdf606dca019ed5759349cc2f658e9439e60e353a2282c512ddc0",
+        "srgb": false,
+        "semantics": "Geometry-authored anatomy support, not metric physical thickness"
+      }
+    },
+    "MC_Tongue": {
+      "ThinTissueMask": {
+        "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\AnatomyMasks\\MC_Tongue_ThinTissueMask.png",
+        "sha256": "38a3f387bfc63bbfd27104f785525d8917ab15c53e7f63e13e5e153692699734",
+        "srgb": false,
+        "semantics": "Geometry-authored anatomy support, not metric physical thickness"
+      },
+      "ArtistDensityMask": {
+        "path": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\AnatomyMasks\\MC_Tongue_ArtistDensityMask.png",
+        "sha256": "efd6dc7d69d8bd13883e1b685a32288516abe2bf92df110dcf3ddaf109fb30bd",
+        "srgb": false,
+        "semantics": "Geometry-authored anatomy support, not metric physical thickness"
+      }
+    }
+  },
+  "selected_pbr_revision": "01",
+  "selected_mesh_map_revision": "01",
+  "baking_settings": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_Organic_r05_Candidate01\\Textures\\baking_settings.json",
+  "viewport_review": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\painter_viewport_qa.json",
+  "staged_mtl_normalization": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_Organic_r05_Candidate01\\Textures\\staged_mtl_normalization.json",
+  "source_release_manifest_sha256": "535bf9e152190f64ab2663851278278c81df5214f79d1db547e418e28bac0ccb",
+  "anatomy_mask_receipt": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\AnatomyMasks\\anatomy_mask_receipt.json",
+  "uv_reprojection_receipt": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08_ReferenceFinish\\Interior\\UV_r06_Refine03_Candidate01\\Textures\\source_frozen_linkage.json",
+  "cavity_map_policy": "MC_Interior: direct frozen r05 map links. Geometry/UV/FBX and regenerated anatomy masks verified exact.",
+  "tongue_authoring_policy": "Copied editable r05 layer stack, all six anatomy-image bindings regenerated on Refine03 UV; original physical palette/roughness/procedural papillae preserved; fresh 4K six-map bake. No screen-space/shadow paint."
+}

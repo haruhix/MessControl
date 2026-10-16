@@ -1,0 +1,24 @@
+{
+  "schema": "messcontrol.painter.actual_viewport_qa.v1",
+  "application": "Adobe Substance 3D Painter 12.1.5",
+  "source_packet_sha256": "53215b04995cfc46b820b622726cf78d692b36f8619f6a964b12cfe097088bbb",
+  "actual_visual_review_performed": true,
+  "method": "Typed Painter MCP camera/environment and actual native foreground window inspection using computer-use. Tool screenshots were viewed directly; saved screenshot files are not claimed.",
+  "views": [
+    {"name": "front_soft", "position": [0,26,0], "rotation": [90,180,0], "fov": 42, "environment": "Soft 1Front 2Backs"},
+    {"name": "dorsal_oblique_soft", "position": [4,15,4], "rotation": [112,165,0], "fov": 42, "environment": "Soft 1Front 2Backs"},
+    {"name": "dorsal_oblique_grazing", "position": [4,15,4], "rotation": [112,165,0], "fov": 42, "environment": "Soft 4TubeBank 2BlackFlags"}
+  ],
+  "observations": [
+    "Refine03 tongue reads as one continuous broad low bed; no false split valley was painted into its center.",
+    "Fine rounded dorsal grain remains visible in grazing highlights while the central sulcus zone is smoother.",
+    "No new visible dorsal/equatorial UV discontinuity was found in the inspected front and above-oblique views.",
+    "Soft and tube-bank lighting produce different reflected highlights; no white highlight or shadow-compensation shapes are painted into BaseColor.",
+    "Original tongue physical fill colors, roughness, height values and procedural grain frequency/opacity were preserved in the copied editable stack. The six anatomy-image bindings use freshly generated Refine03 UV masks."
+  ],
+  "limits": [
+    "Painter shader/HDRI are inspection conditions. Final Unreal jaw masking, open/close animation, character contact and reference look require the lead's native review.",
+    "Unchanged cavity maps are selected through direct frozen r05 links. Copied-layer cavity re-exports are unused; measured differences are sparse one-level RGB8 rounding/dither differences, not selected material changes.",
+    "Baked thickness is normalized per texture set, not metric thickness."
+  ]
+}

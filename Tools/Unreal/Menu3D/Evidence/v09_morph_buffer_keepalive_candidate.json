@@ -1,0 +1,114 @@
+{
+  "status": "SAVED_NARROW_NATIVE_GEOMETRY_CONTINUITY_PASS",
+  "graph": {
+    "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:DriveMouthDay"
+  },
+  "inputs": [
+    {
+      "pin": {
+        "direction": "EGPD_Input",
+        "index_id": 2,
+        "node": {
+          "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:DriveMouthDay.K2Node_CallFunction_155"
+        }
+      },
+      "previous_connections": [
+        {
+          "direction": "EGPD_Output",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:DriveMouthDay.K2Node_CommutativeAssociativeBinaryOperator_7"
+          }
+        }
+      ],
+      "previous_value": "false"
+    },
+    {
+      "pin": {
+        "direction": "EGPD_Input",
+        "index_id": 2,
+        "node": {
+          "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:DriveMouthDay.K2Node_CallFunction_167"
+        }
+      },
+      "previous_connections": [
+        {
+          "direction": "EGPD_Output",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:DriveMouthDay.K2Node_CommutativeAssociativeBinaryOperator_7"
+          }
+        }
+      ],
+      "previous_value": "false"
+    },
+    {
+      "pin": {
+        "direction": "EGPD_Input",
+        "index_id": 3,
+        "node": {
+          "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:DriveMouthDay.K2Node_CallFunction_173"
+        }
+      },
+      "previous_connections": [
+        {
+          "direction": "EGPD_Output",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:DriveMouthDay.K2Node_CallFunction_172"
+          }
+        }
+      ],
+      "previous_value": "0.0"
+    },
+    {
+      "pin": {
+        "direction": "EGPD_Input",
+        "index_id": 3,
+        "node": {
+          "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:DriveMouthDay.K2Node_CallFunction_197"
+        }
+      },
+      "previous_connections": [
+        {
+          "direction": "EGPD_Output",
+          "index_id": 0,
+          "node": {
+            "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:DriveMouthDay.K2Node_PromotableOperator_106"
+          }
+        }
+      ],
+      "previous_value": "0.0"
+    }
+  ],
+  "created_nodes": [
+    {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:DriveMouthDay.K2Node_CallFunction_245"
+    },
+    {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:DriveMouthDay.K2Node_CallFunction_246"
+    },
+    {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:DriveMouthDay.K2Node_CallFunction_247"
+    },
+    {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:DriveMouthDay.K2Node_CallFunction_248"
+    },
+    {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:DriveMouthDay.K2Node_CallFunction_249"
+    },
+    {
+      "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:DriveMouthDay.K2Node_CallFunction_250"
+    }
+  ],
+  "scope": "Jaw driver only. Cavity/tongue own-jaw shell and character drivers retained.",
+  "closed_pose_weight": "canonical Pose000 * lerp(.99999,1,float(GetFrameCount()%2))",
+  "hidden_policy": "Actor/component visible; logical Hidden selects CardHalfHeight=-1, clipping all material passes.",
+  "native_evidence": [
+    "LowerRow_v09_InteriorSync15_LocalBuffers",
+    "LowerRow_v09_InteriorSync16_LocalFullRoute",
+    "LowerRow_v09_InteriorSync17_LocalSlowCorners"
+  ],
+  "limits": "Sampled solo PIE geometry continuity only. Final1:1, motion look/flicker, minimized/reveal, performance, physical wheel and production integration remain unapproved.",
+  "cleanup_receipt": "v09_interior_continuity_saved_editor_state.json"
+}

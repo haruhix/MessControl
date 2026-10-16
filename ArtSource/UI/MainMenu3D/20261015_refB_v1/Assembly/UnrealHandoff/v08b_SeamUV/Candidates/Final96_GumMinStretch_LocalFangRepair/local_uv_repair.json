@@ -1,0 +1,57 @@
+{
+  "policy": "Accepted96chart enamel restored exactly except two local lingual UVvertex repairs. New measured MinimumStretch gum UV reused exactly. No global enamel re-solve/repack.",
+  "enamel_parent": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\MinimumStretch_3Charts",
+  "gum_parent": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\v08b_SeamUV\\Candidates\\GumMinimumStretch_Boundary08",
+  "enamel_changed_loops": 4,
+  "repairs": [
+    {
+      "triangle": 123531,
+      "vertex": 61854,
+      "uv_chart": 12,
+      "affected_loops": [
+        248498,
+        248503
+      ],
+      "UV_before": [
+        0.03423717990517616,
+        0.015247908420860767
+      ],
+      "UV_after": [
+        0.03425043951519309,
+        0.015206902477648481
+      ],
+      "displacement_4K_px": 0.176523089325078,
+      "incident_triangles": [
+        123528,
+        123529,
+        123531
+      ]
+    },
+    {
+      "triangle": 150702,
+      "vertex": 75443,
+      "uv_chart": 15,
+      "affected_loops": [
+        303165,
+        303168
+      ],
+      "UV_before": [
+        0.16736944019794464,
+        0.01117070484906435
+      ],
+      "UV_after": [
+        0.1674102879022334,
+        0.011116297623890232
+      ],
+      "displacement_4K_px": 0.2786689479584506,
+      "incident_triangles": [
+        150702,
+        150704,
+        150705
+      ]
+    }
+  ],
+  "enamel_triangles_consistent_winding": true,
+  "geometry_arrays_exact": true,
+  "packet_sha256": "bb42a0c3fd91f8e2a180ec179c61188c9aaac085529806c30ec2b38876b13eea"
+}
