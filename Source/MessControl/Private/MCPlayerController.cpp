@@ -34,6 +34,7 @@
 #include "MCFogBrawlEvent.h"
 #include "MCNutRainEvent.h"
 #include "MCColdCola.h"
+#include "InputKeyEventArgs.h"
 
 void AMCPlayerController::BeginPlay()
 {
@@ -62,9 +63,20 @@ void AMCPlayerController::SetupInputComponent()
     InputComponent->BindKey(EKeys::Tab,IE_Released,this,&AMCPlayerController::HideScoreboard);
     InputComponent->BindKey(EKeys::Right,IE_Pressed,this,&AMCPlayerController::NextSpectator);
     InputComponent->BindKey(EKeys::Left,IE_Pressed,this,&AMCPlayerController::PreviousSpectator);
+    InputComponent->BindKey(EKeys::Gamepad_Special_Right,IE_Pressed,this,&AMCPlayerController::TogglePauseMenu);
+    InputComponent->BindKey(EKeys::Gamepad_FaceButton_Right,IE_Pressed,this,&AMCPlayerController::ActivateRogueBooster);
+    InputComponent->BindKey(EKeys::Gamepad_Special_Left,IE_Pressed,this,&AMCPlayerController::ShowScoreboard);
+    InputComponent->BindKey(EKeys::Gamepad_Special_Left,IE_Released,this,&AMCPlayerController::HideScoreboard);
 #if !UE_BUILD_SHIPPING
     InputComponent->BindKey(EKeys::F3,IE_Pressed,this,&AMCPlayerController::ToggleDevPanel);
 #endif
+}
+bool AMCPlayerController::InputKey(const FInputKeyEventArgs& Params)
+{
+    // Ignore stick drift and release events when choosing the visible control hints.
+    if (Params.Event==IE_Pressed || (Params.Event==IE_Axis && FMath::Abs(Params.AmountDepressed)>.25f))
+        bUsingGamepad=Params.Key.IsGamepadKey();
+    return Super::InputKey(Params);
 }
 void AMCPlayerController::ShowScoreboard()
 {
@@ -99,12 +111,16 @@ void AMCPlayerController::Tick(float DeltaSeconds)
     }
     if (bBossIntroPlaying) return;
     // UI input mode can swallow the release event when a menu opens while Tab is held.
-    if (ScoreboardWidget && ScoreboardWidget->IsVisible() && !IsInputKeyDown(EKeys::Tab)) HideScoreboard();
+    if (ScoreboardWidget && ScoreboardWidget->IsVisible() && !IsInputKeyDown(EKeys::Tab) && !IsInputKeyDown(EKeys::Gamepad_Special_Left)) HideScoreboard();
     const double Now=GetWorld()->GetTimeSeconds();
     if (Now>=NextSpectatorCheck) { NextSpectatorCheck=Now+.1; UpdateDeathSpectating(); }
     if(bDeathSpectating && SpectatorTarget.IsValid() && !bShowMouseCursor && !IsLookInputIgnored()) {
         float X=0,Y=0; GetInputMouseDelta(X,Y);
         ApplySpectatorOrbitInput(FVector2D(X,Y));
+        const auto* Target=SpectatorTarget.Get();
+        const float Scale=FMath::Clamp(Target->GamepadCameraTurnRate,30.f,360.f)*DeltaSeconds/FMath::Clamp(Target->CameraOrbitSensitivity,.02f,1.f);
+        auto Stick=[](float Value){return FMath::Sign(Value)*FMath::Clamp((FMath::Abs(Value)-.2f)/.8f,0.f,1.f);};
+        ApplySpectatorOrbitInput(FVector2D(Stick(GetInputAnalogKeyState(EKeys::Gamepad_RightX)),Stick(GetInputAnalogKeyState(EKeys::Gamepad_RightY)))*Scale);
         ZoomSpectatorCamera(GetInputAnalogKeyState(EKeys::MouseWheelAxis));
     }
 }

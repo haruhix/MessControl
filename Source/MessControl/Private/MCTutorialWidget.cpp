@@ -1,4 +1,5 @@
 #include "MCTutorialWidget.h"
+#include "MCGamepadHints.h"
 #include "MCTutorialDirector.h"
 #include "MCTutorialTypes.h"
 #include "MCGameState.h"
@@ -221,7 +222,8 @@ void UMCTutorialWidget::RefreshState()
     Dialogue->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);
     Dialogue->SetToolTipText(Director->FairyLine);
     Dialogue->SetVisibility(ESlateVisibility::HitTestInvisible);
-    Action->SetText(Director->Instruction);
+    const auto* InputPC=GetOwningPlayer<AMCPlayerController>();
+    Action->SetText(InputPC && InputPC->IsUsingGamepad()?FText::FromString(MCGamepadHints::Adapt(Director->Instruction.ToString())):Director->Instruction);
     Action->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),Expanded?17:15));
     ReadyButton->SetVisibility(Complete && !Director->UsesShortFlow()?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
     MenuButton->SetVisibility(Complete && !Director->UsesShortFlow()?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
@@ -256,7 +258,7 @@ void UMCTutorialWidget::RefreshState()
     } else Action->SetColorAndOpacity(FSlateColor(MCTutorialWidgetPrivate::Cream));
     Progress->SetVisibility(Required>0 || Complete || Director->TeamTasksTotal>0?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     ReadyButton->SetIsEnabled(Complete && Personal && !Ready);
-    ReadyLabel->SetText(FText::FromString(Ready?TEXT("Ты готов ✓"):TEXT("Готов к дню 1  ·  Enter")));
+    ReadyLabel->SetText(FText::FromString(Ready?TEXT("Ты готов ✓"):TEXT("Готов к дню 1  ·  Enter / A")));
     const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
     const double Remaining=Director->StageEndsAt>0 && GS?FMath::Max(0.,Director->StageEndsAt-GS->GetServerWorldTimeSeconds()):0.;
     Timer->SetVisibility(Director->StageEndsAt>0?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
@@ -293,9 +295,9 @@ void UMCTutorialWidget::MenuClicked()
 
 FReply UMCTutorialWidget::NativeOnKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
 {
-    if (!Event.IsRepeat() && RequiresMenuInput() && (Event.GetKey()==EKeys::Enter || Event.GetKey()==EKeys::Virtual_Gamepad_Accept.GetVirtualKey()))
+    if (!Event.IsRepeat() && RequiresMenuInput() && (Event.GetKey()==EKeys::Enter || Event.GetKey()==EKeys::Gamepad_FaceButton_Bottom || Event.GetKey()==EKeys::Virtual_Gamepad_Accept.GetVirtualKey()))
     { ReadyClicked(); return FReply::Handled(); }
-    if (!Event.IsRepeat() && Event.GetKey()==EKeys::Escape)
+    if (!Event.IsRepeat() && (Event.GetKey()==EKeys::Escape || Event.GetKey()==EKeys::Gamepad_FaceButton_Right))
     { MenuClicked(); return FReply::Handled(); }
     return Super::NativeOnKeyDown(Geometry,Event);
 }

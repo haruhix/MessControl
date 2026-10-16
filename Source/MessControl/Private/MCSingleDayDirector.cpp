@@ -1,6 +1,7 @@
 #include "MCSingleDayDirector.h"
 #include "MCCoffeeFlood.h"
 #include "MCNutRainEvent.h"
+#include "MCNutBoss.h"
 #include "MCIceEvent.h"
 #include "MCFogBrawlEvent.h"
 #include "MCNutRainProfile.h"
@@ -418,9 +419,17 @@ void AMCSingleDayDirector::Tick(float Dt)
     else if(Stage==EMCSingleDayStage::Nuts && NutEvent) {
         if(NutEvent->bFailed) { Fail(TEXT("Не удалось запустить ореховый дождь. Проверьте язык и коллизию орехов.")); return; }
         if(NutEvent->IsComplete()) BeginDirector();
-        else if(NutEvent->Stage==EMCNutRainStage::Enemies)
-            Publish(TEXT("ОРЕХОВЫЙ БОЙ"),TEXT("Победите Рыцаря и Колдуна. Разбивайте орехи до призыва и убивайте малых саммонов до взрыва."),NutEvent->BossesLeft,2);
-        else Publish(TEXT("ОРЕХОГЕДДОН"),TEXT("Переживите катаклизм: уклоняйтесь от красных зон падения. После последнего ореха прибудут два босса."));
+        else if(NutEvent->Stage==EMCNutRainStage::Enemies) {
+            const AMCNutBoss* Boss=NutEvent->Bosses.IsEmpty()?nullptr:NutEvent->Bosses[0].Get();
+            const bool Mage=IsValid(Boss) && Boss->BossRole==EMCNutBossRole::Mage;
+            const bool Transforming=IsValid(Boss) && Boss->State==EMCNutBossState::Transforming;
+            Publish(Transforming?TEXT("ГОЛОВА РАСКАЛЫВАЕТСЯ"):Mage?TEXT("ОРЕХОВЫЙ БОЙ · ФАЗА 2/2"):TEXT("ОРЕХОВЫЙ БОЙ · ФАЗА 1/2"),
+                Transforming?TEXT("Рыцарь повержен и превращается в Орехового Колдуна. Приготовьтесь ко второй фазе."):
+                Mage?TEXT("Победите Орехового Колдуна. Разбивайте орехи до призыва и убивайте малых саммонов до взрыва."):
+                    TEXT("Победите Орехового Рыцаря. После раскола головы он превратится в Колдуна."),
+                NutEvent->BossesLeft>0?(Mage?1:2):0,2);
+        }
+        else Publish(TEXT("ОРЕХОГЕДДОН"),TEXT("Уклоняйтесь от красных зон падения. После дождя появится Рыцарь; после его поражения — Колдун."));
     }
     else if(Stage==EMCSingleDayStage::Director && InterludeEndsAt>0 && GS->GetServerWorldTimeSeconds()>=InterludeEndsAt) {
         if (IsLegacyTimedFinale()) BeginBoss();

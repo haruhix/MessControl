@@ -112,6 +112,7 @@ void UMCPerkChoiceWidget::AddAction(const FText& Text,int32 Index)
     Style.SetNormalPadding(FMargin(18,10));Style.SetPressedPadding(FMargin(18,10));Button->SetStyle(Style);
     auto* Label=MCPerkCardPrivate::Label(WidgetTree,Text,14,Accent);Label->SetAutoWrapText(false);Button->SetContent(Label);
     Actions->AddChildToHorizontalBox(Button)->SetPadding(FMargin(12,4));Buttons.Add(Button);
+    ButtonStyles.Add(Style); RefreshGamepadSelection();
 }
 void UMCPerkChoiceWidget::ShowRogueChoices(const FMCRogueChestOffer& Offer)
 {
@@ -142,7 +143,7 @@ void UMCPerkChoiceWidget::ShowRogueChoices(const FMCRogueChestOffer& Offer)
                 if(auto* Footer=Cast<UTextBlock>(Column->GetChildAt(Column->GetChildrenCount()-1))) Footer->SetText(FText::FromString(TEXT("ВЫБРАНО")));
         }
         AddAction(FText::FromString(TEXT("ПРИНЯТЬ ДОГОВОР [ENTER]")),-3);
-        Hint->SetText(FText::FromString(TEXT("Принять — Enter / 1. Отказаться — Escape / 2.")));
+        Hint->SetText(FText::FromString(TEXT("Принять — Enter / A. Отказаться — Escape / B.")));
     }
     AddAction(FText::FromString(TEXT("ОТКАЗАТЬСЯ [ESC]")),-2);
 }
@@ -157,7 +158,8 @@ void UMCPerkChoiceWidget::UpdateLevelChoiceHeader(int32 TeamLevel,int32 PendingC
     const auto* State=GetOwningPlayer<AMCPlayerController>()->GetPlayerState<AMCPlayerState>();
     if(Actions && Actions->GetChildrenCount()==0) AddAction(FText::FromString(TEXT("ПЕРЕБРОСИТЬ [R]")),-1);
     if(Actions && Actions->GetChildrenCount()>0) Actions->GetChildAt(0)->SetIsEnabled(State && !State->bRogueRerollSpent && !bSelectionPending);
-    Hint->SetText(FText::FromString(State && State->bRogueRerollSpent?TEXT("Выбор: 1 / 2 / 3 · переброс уже использован"):TEXT("Выбор: 1 / 2 / 3 · один переброс за забег [R]")));
+    Hint->SetText(FText::FromString(State && State->bRogueRerollSpent?TEXT("1 / 2 / 3 или D-pad + A · переброс уже использован"):TEXT("1 / 2 / 3 или D-pad + A · переброс: R / Y")));
+    RefreshGamepadSelection();
 }
 
 void UMCPerkChoiceWidget::BuildChoices(const TArray<FName>& IDs,EMCPerkPolarity Polarity,bool bPersonal)
@@ -169,9 +171,10 @@ void UMCPerkChoiceWidget::BuildChoices(const TArray<FName>& IDs,EMCPerkPolarity 
     Cards->SetVisibility(ESlateVisibility::Visible);
     Cards->ClearChildren();
     Buttons.Reset();
+    ButtonStyles.Reset(); GamepadSelection=0; NextStickNavigationAt=0;
     Title->SetText(FText::FromString(TEXT("Выберите один перк")));
     Subtitle->SetText(FText::FromString(TEXT("Два других исчезнут после выбора")));
-    Hint->SetText(FText::FromString(TEXT("Нажмите на карточку или клавишу 1 / 2 / 3")));
+    Hint->SetText(FText::FromString(TEXT("Выбор: мышь / 1 / 2 / 3 · геймпад: стик / D-pad + A")));
     auto* PC = GetOwningPlayer<AMCPlayerController>();
     const auto* State = PC ? PC->GetPlayerState<AMCPlayerState>() : nullptr;
 
@@ -248,18 +251,67 @@ void UMCPerkChoiceWidget::BuildChoices(const TArray<FName>& IDs,EMCPerkPolarity 
         CardSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
         CardSlot->SetPadding(FMargin(10, 0));
         Buttons.Add(Button);
+        ButtonStyles.Add(Style);
     }
+    RefreshGamepadSelection();
 }
 
 void UMCPerkChoiceWidget::SetSelectionPending(bool bPending)
 {
     bSelectionPending = bPending;
     for (UMCPerkCardButton* Button : Buttons) if (Button) Button->SetIsEnabled(!bPending);
-    Hint->SetText(FText::FromString(bPending ? TEXT("Подтверждаем выбор…") : bConfirming?TEXT("Принять — Enter / 1. Отказаться — Escape / 2."):TEXT("Нажмите на карточку или клавишу 1 / 2 / 3")));
+    Hint->SetText(FText::FromString(bPending ? TEXT("Подтверждаем выбор…") : bConfirming?TEXT("Принять — Enter / A. Отказаться — Escape / B."):TEXT("Выбор: 1 / 2 / 3 или стик / D-pad + A")));
+    RefreshGamepadSelection();
+}
+
+void UMCPerkChoiceWidget::RefreshGamepadSelection()
+{
+    if (!Buttons.IsValidIndex(GamepadSelection) || !Buttons[GamepadSelection]->GetIsEnabled())
+        GamepadSelection=Buttons.IndexOfByPredicate([](const auto& Button){return Button && Button->GetIsEnabled();});
+    for(int32 Index=0;Index<Buttons.Num();++Index) if(ButtonStyles.IsValidIndex(Index)) {
+        FButtonStyle Style=ButtonStyles[Index];
+        if(Index==GamepadSelection) Style.SetNormal(Style.Hovered);
+        Buttons[Index]->SetStyle(Style);
+    }
+}
+
+void UMCPerkChoiceWidget::MoveGamepadSelection(int32 Direction)
+{
+    if (Buttons.IsEmpty() || bSelectionPending) return;
+    for(int32 Attempt=0;Attempt<Buttons.Num();++Attempt) {
+        GamepadSelection=(GamepadSelection+Direction+Buttons.Num())%Buttons.Num();
+        if(Buttons[GamepadSelection]->GetIsEnabled()) break;
+    }
+    RefreshGamepadSelection();
+}
+
+FReply UMCPerkChoiceWidget::NativeOnAnalogValueChanged(const FGeometry& Geometry,const FAnalogInputEvent& Event)
+{
+    if(Event.GetKey()==EKeys::Gamepad_LeftX || Event.GetKey()==EKeys::Gamepad_LeftY) {
+        const float Value=Event.GetAnalogValue();
+        if(FMath::Abs(Value)>.55f && FPlatformTime::Seconds()>=NextStickNavigationAt) {
+            const int32 Direction=(Event.GetKey()==EKeys::Gamepad_LeftY?-Value:Value)>0?1:-1;
+            MoveGamepadSelection(Direction); NextStickNavigationAt=FPlatformTime::Seconds()+.22;
+        }
+        return FReply::Handled();
+    }
+    return Super::NativeOnAnalogValueChanged(Geometry,Event);
 }
 
 FReply UMCPerkChoiceWidget::NativeOnKeyDown(const FGeometry& Geometry, const FKeyEvent& Event)
 {
+    const FKey Key=Event.GetKey();
+    if(bShowingChoices && !bSelectionPending && Key.IsGamepadKey()) {
+        if(Key==EKeys::Gamepad_DPad_Left || Key==EKeys::Gamepad_DPad_Up) MoveGamepadSelection(-1);
+        else if(Key==EKeys::Gamepad_DPad_Right || Key==EKeys::Gamepad_DPad_Down) MoveGamepadSelection(1);
+        else if(!Event.IsRepeat()) {
+            if(Key==EKeys::Gamepad_FaceButton_Bottom && Buttons.IsValidIndex(GamepadSelection) && Buttons[GamepadSelection]->GetIsEnabled())
+                Buttons[GamepadSelection]->OnClicked.Broadcast();
+            else if(Key==EKeys::Gamepad_FaceButton_Right && bOptionalReward) GetOwningPlayer<AMCPlayerController>()->ConfirmRogueReward(false);
+            else if(Key==EKeys::Gamepad_FaceButton_Top && bLevelPanel) GetOwningPlayer<AMCPlayerController>()->RerollLevelPerks();
+        }
+        return FReply::Handled();
+    }
     if (bShowingChoices && !bSelectionPending && !Event.IsRepeat())
     {
         if(bLevelPanel && Event.GetKey()==EKeys::R) {if(auto* PC=GetOwningPlayer<AMCPlayerController>()) PC->RerollLevelPerks();return FReply::Handled();}

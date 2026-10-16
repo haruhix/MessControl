@@ -15,7 +15,7 @@ class AMCNutBoss;
 UENUM(BlueprintType)
 enum class EMCNutRainStage : uint8 { Idle, Rainfall, Settling, Enemies, Complete };
 
-/** Dense timed rain leads straight into two bosses; ground debris never gates the fight. */
+/** Rain leads to one knight, then its wizard phase; ground debris never gates the fight. */
 UCLASS(Blueprintable)
 class MESSCONTROL_API AMCNutRainEvent : public AActor
 {

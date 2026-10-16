@@ -1,0 +1,349 @@
+FILE C:\Program Files\Epic Games\UE_5.8\Engine\Plugins\Animation\DeformerGraph\Content\SourceLibraries\DSL_DualQuaternion.uasset
+float3 DualQuatRotateVector(in float2x4 DQuat, in float3 Vector)
+{
+    return Vector + 2 * cross(DQuat[0].xyz, cross(DQuat[0].xyz, Vector) + DQuat[0].w * Vector);
+}
+
+float3 DualQuatTransformVector(in float2x4 DQuat, in float3 Vector)
+{
+    return Vector +
+        2 * cross(DQuat[0].xyz, cross(DQuat[0].xyz, Vector) + DQuat[0].w * Vector) +
+        2 * (DQuat[0].w * DQuat[1].xyz - DQuat[1].w * DQuat[0].xyz + cross(DQuat[0].xyz, DQuat[1].xyz));
+}
+
+float2x4 DualQuatMultiply(in float2x4 DQuatA, in float2x4 DQuatB)
+{
+    float2x4 Result;
+    Result[0] = QuatMultiply(DQuatA[0], DQuatB[0]);
+    Result[1] = QuatMultiply(DQuatA[1], DQuatB[0]) + QuatMultiply(DQuatB[1], DQuatA[0]);
+    return Result;
+}
+ 
+float2x4 DualQuatFromMatrix(in float4x4 Mat)
+{
+    float2x4 DQuatTrans;
+    DQuatTrans[0] = float4(0, 0, 0, 1);
+    DQuatTrans[1] = float4(0.5 * Mat[3].xyz, 0);
+
+    float2x4 DQuatRot;
+    //DQuatRot[0] = QuatFromMatrix((float3x3)Mat)); // Why not this?
+    DQuatRot[0] = QuatInverse(QuatFromMatrix(transpose((float3x3)Mat)));
+    DQuatRot[1] = 0;
+
+    return DualQuatMultiply(DQuatTrans, DQuatRot);
+}
+
+float2x4 DualQuatNormalize(in float2x4 DQuat)
+{
+	return DQuat * rcp(sqrt(dot(DQuat[0], DQuat[0])));
+}
+
+
+FILE C:\Program Files\Epic Games\UE_5.8\Engine\Plugins\Animation\DeformerGraph\Content\SourceLibraries\DSL_Quaternion.uasset
+float4 QuatNormalize(in float4 Quat)
+{
+	return Quat * rcp(sqrt(dot(Quat, Quat)));
+}
+
+float4 QuatNormalizeSafe(in float4 Quat)
+{
+	float NormSquared = dot(Quat, Quat);
+	return (NormSquared >= 1e-6) ? Quat * rcp(sqrt(NormSquared)) : float4(0, 0, 0, 1);
+}
+
+float4 QuatInverse(in float4 Quat)
+{
+	return float4(-Quat.xyz, Quat.w);
+}
+
+float4 QuatMultiply(in float4 QuatA, in float4 QuatB)
+{
+	return float4(
+		QuatB.xyz * QuatA.w + QuatA.xyz * QuatB.w + cross(QuatA.xyz, QuatB.xyz),
+		QuatA.w * QuatB.w - dot(QuatA.xyz, QuatB.xyz));
+}
+
+float4 QuatMultiplyAxisX(in float4 QuatA)
+{
+	return float4(QuatA.w,QuatA.z,-QuatA.y,-QuatA.x);
+}
+
+float4 QuatMultiplyAxisY(in float4 QuatA)
+{
+	return float4(-QuatA.z,QuatA.w,QuatA.x,-QuatA.y);
+}
+
+float4 QuatMultiplyAxisZ(in float4 QuatA)
+{
+	return float4(QuatA.y,-QuatA.x,QuatA.w,-QuatA.z);
+}
+
+float3 QuatRotateVector(in float4 Quat, in float3 Vector)
+{
+	float3 T = 2.f * cross(Quat.xyz, Vector);
+	return Vector + Quat.w * T + cross(Quat.xyz, T);
+}
+
+float4 QuatFromAxisAngle(in float3 Axis, in float Angle)
+{
+	float S, C;
+	sincos(Angle * 0.5f, S, C);
+	return float4(S * Axis, C);
+}
+
+float4 QuatToAxisAngle(in float4 Quat)
+{
+	float Angle = 2.f * acos(Quat.w);
+	float S = dot(Quat.xyz, Quat.xyz);
+	float3 Axis = (S > 1e-6) ? Quat.xyz * rcp(sqrt(S)) : float3(1, 0, 0);
+	return float4(Axis, Angle);
+}
+
+float4 QuatFromMatrix(in float3x3 Mat)
+{
+	float4 Quat;
+	float tr = Mat[0][0] + Mat[1][1] + Mat[2][2];
+
+	if (tr > 0.f)
+	{
+		float InvS = 1.f / sqrt(tr + 1.f);
+		float S = 0.5f * InvS;
+
+		Quat.x = (Mat[1][2] - Mat[2][1]) * S;
+		Quat.y = (Mat[2][0] - Mat[0][2]) * S;
+		Quat.z = (Mat[0][1] - Mat[1][0]) * S;
+		Quat.w = 0.5f * (1.f / InvS);
+	}
+	else
+	{
+		uint i = 0;
+
+		if (Mat[1][1] > Mat[0][0])
+		{
+			i = 1;
+		}
+		if (Mat[2][2] > Mat[i][i])
+		{
+			i = 2;
+		}
+
+		const uint j = (i + 1) % 3;
+		const uint k = (j + 1) % 3;
+
+		tr = Mat[i][i] - Mat[j][j] - Mat[k][k];
+		float InvS = 1.f / sqrt(tr + 1.f);
+		float S = 0.5f * InvS;
+
+		float Qi = 0.5 * (1.0 / InvS);
+		float Qj = (Mat[i][j] + Mat[j][i]) * S;
+		float Qk = (Mat[i][k] + Mat[k][i]) * S;
+
+		Quat.w = (Mat[j][k] - Mat[k][j]) * S;
+
+		if (i == 0)
+		{
+			Quat.x = Qi;
+			Quat.y = Qj;
+			Quat.z = Qk;
+		}
+		else if (i == 1)
+		{
+			Quat.y = Qi;
+			Quat.z = Qj;
+			Quat.x = Qk;
+		}
+		else if (i == 2)
+		{
+			Quat.z = Qi;
+			Quat.x = Qj;
+			Quat.y = Qk;
+		}
+	}
+
+	return QuatNormalize(Quat);
+}
+
+float3x3 QuatToMatrix(in float4 Quat)
+{
+	float XX = 2 * Quat.x * Quat.x;
+	float XY = 2 * Quat.x * Quat.y;
+	float XZ = 2 * Quat.x * Quat.z;
+	float YY = 2 * Quat.y * Quat.y;
+	float YZ = 2 * Quat.y * Quat.z;
+	float ZZ = 2 * Quat.z * Quat.z;
+	float WX = 2 * Quat.w * Quat.x;
+	float WY = 2 * Quat.w * Quat.y;
+	float WZ = 2 * Quat.w * Quat.z;
+
+	float3x3 Mat;
+	Mat[0][0] = 1.f - (YY + ZZ);
+	Mat[0][1] = XY - WZ;
+	Mat[0][2] = XZ + WY;
+	Mat[1][0] = XY + WZ;
+	Mat[1][1] = 1.f - (XX + ZZ);
+	Mat[1][2] = YZ - WX;
+	Mat[2][0] = XZ - WY;
+	Mat[2][1] = YZ + WX;
+	Mat[2][2] = 1.f - (XX + YY);
+	return Mat;
+}
+
+float4 QuatFromEulerAngles(in float3 Rotations)
+{
+	float3 Sin, Cos;
+	sincos(Rotations * 0.5f, Sin, Cos);
+
+	return float4(
+		Sin.x * Cos.y * Cos.z - Cos.x * Sin.y * Sin.z,
+		Cos.x * Sin.y * Cos.z + Sin.x * Cos.y * Sin.z,
+		Cos.x * Cos.y * Sin.z - Sin.x * Sin.y * Cos.z,
+		Cos.x * Cos.y * Cos.z + Sin.x * Sin.y * Sin.z);
+}
+
+float QuatAngleBetween(in float4 QuatA, in float4 QuatB)
+{
+	float InnerProd = dot(QuatA, QuatB);
+	return acos((2.f * InnerProd * InnerProd) - 1.f);
+}
+
+float4 QuatFastLerp(in float4 QuatA, in float4 QuatB, in float Alpha)
+{
+	float Sign = dot(QuatA, QuatB) >= 0.f ? 1.f : -1.f;
+	return (QuatB * Alpha) + (QuatA * (Sign * (1.f - Alpha)));
+}
+
+float4 QuatSlerp(in float4 QuatA, in float4 QuatB, in float Alpha)
+{
+	float InnerProd = dot(QuatA, QuatB);
+	float AbsInnerProd = abs(InnerProd);
+	float SignInnerProd = (InnerProd >= 0.0) ? 1.f : -1.f;
+
+	float Scale0, Scale1;
+	if (AbsInnerProd < 0.9999f)
+	{
+		float Omega = acos(AbsInnerProd);
+		float InvSin = rcp(sin(Omega));
+		Scale0 = sin((1.f - Alpha) * Omega) * InvSin;
+		Scale1 = sin(Alpha * Omega) * InvSin;
+	}
+	else
+	{
+		Scale0 = 1.f - Alpha;
+		Scale1 = Alpha;
+	}
+
+	float4 Result = Scale0 * QuatA + SignInnerProd * Scale1 * QuatB;
+	return QuatNormalize(Result);
+}
+
+void QuatSwingTwist(in float4 Quat, in float3 Axis, out float4 OutSwing, out float4 OutTwist)
+{
+	float3 P = dot(Quat.xyz, Axis) * Axis;
+	OutTwist = float4(P, Quat.w);
+	OutTwist = QuatNormalizeSafe(OutTwist);
+	OutSwing = QuatMultiply(Quat, QuatInverse(OutTwist));
+}
+
+float4 QuatBetweenHelper(in float3 A, in float3 B, in float NormAB)
+{
+	float W = NormAB + dot(A,B);
+	float4 Quat = (W>1e-6*NormAB) ? float4(A.y*B.z-A.z*B.y,A.z*B.x-A.x*B.z,A.x*B.y-A.y*B.x,W) :
+			(abs(A.x) > abs(A.y)) ? float4(-A.z,0.0,A.x,0.0) : float4(0.0,-A.z,A.y,0.0);
+
+	return QuatNormalize(Quat);
+}
+
+/*float4 QuatBetweenVectors(in float3 VectorA, in float3 VectorB)
+{
+	float NormAB = sqrt(dot(VectorA,VectorA) * dot(VectorB,VectorB));
+	return QuatBetweenHelper(VectorA,VectorB,NormAB);
+}*/
+
+float4 QuatBetweenNormals(in float3 NormalA, in float3 NormalB)
+{
+	float NormAB = 1.0;
+	return QuatBetweenHelper(NormalA,NormalB,NormAB);
+}
+
+float3 QuatSlerpNormals(in float3 NormalA, in float3 NormalB, in float Alpha)
+{
+    // Find rotation from A to B
+	const float4 AxisAngle = QuatToAxisAngle(QuatBetweenNormals(NormalA, NormalB));
+
+	// Rotate from A toward B using portion of the angle specified by Alpha.
+	const float4 DeltaQuat = QuatFromAxisAngle(AxisAngle.xyz, AxisAngle.w * Alpha);
+	return QuatRotateVector(DeltaQuat, NormalA);
+}
+
+
+FILE C:\Program Files\Epic Games\UE_5.8\Engine\Plugins\Animation\DeformerGraph\Content\Deformers\DG_DualQuatSkin_Morph_Cloth.uasset
+uint3 ReadNumThreads() { return KernelInternal::ReadNumThreads(); }
+
+#line 1 "/Engine/Generated/UObject/DeformerGraph/DeformerFunctions/DG_Function_DualQuatSkin_Morph_Cloth.DG_Function_DualQuatSkin_Morph_Cloth@DualQuatSkin_Morph_Cloth.OptimusNode_CustomComputeKernel.ush"
+void __kernel_func(uint Index)
+{
+	if (Index >= ReadNumThreads().x) return;
+	
+	float3 LocalPosition = ReadPosition(Index);
+	float4 LocalTangentX = ReadTangentX(Index);
+	float4 LocalTangentZ = ReadTangentZ(Index);
+	
+
+    float3 DeltaPosition = ReadDeltaPosition(Index);
+    float3 DeltaTangentZ = ReadDeltaNormal(Index);
+
+
+    float3 MorphPosition = LocalPosition + DeltaPosition;
+    float3 MorphTangentZ = LocalTangentZ.xyz + DeltaTangentZ;
+
+
+    float3 ClothWeight = ReadClothWeight(Index);
+    float3 ClothPosition = ReadClothPosition(Index);
+    float3 ClothTangentX = ReadClothTangentX(Index);
+    float3 ClothTangentZ = ReadClothTangentZ(Index);
+
+	float2x4 DQuat = 0;
+	int NumBones = ReadNumBones(Index);
+	for (int BoneIndex = 0; BoneIndex < NumBones; ++BoneIndex)
+	{
+    	float BoneWeight = ReadBoneWeight(Index, BoneIndex);
+    	float3x4 BoneMatrix34 = ReadBoneMatrix(Index, BoneIndex);
+    	float4x4 BoneMatrix44 = transpose(float4x4(BoneMatrix34, float4(0, 0, 0, 1)));
+    	float2x4 BoneDQuat = DualQuatFromMatrix(BoneMatrix44);
+    	
+    	if (dot(BoneDQuat[0], DQuat[0]) < 0)
+    	{
+    		BoneDQuat = -BoneDQuat;
+    	}
+    	
+    	DQuat += BoneWeight * BoneDQuat;
+	}
+	
+	DQuat = DualQuatNormalize(DQuat);
+	
+	float3 SkinnedPosition = DualQuatTransformVector(DQuat, MorphPosition);
+	float4 SkinnedTangentX = float4(normalize(DualQuatRotateVector(DQuat, LocalTangentX.xyz)), LocalTangentX.w);
+	float4 SkinnedTangentZ = float4(normalize(DualQuatRotateVector(DQuat, MorphTangentZ.xyz)), LocalTangentZ.w);
+	
+    float3 LocalClothPosition = mul(float4(ClothPosition, 1), ReadClothToLocal()).xyz;
+    float3 FinalPosition = lerp(SkinnedPosition, LocalClothPosition.xyz, ClothWeight);
+
+    float4 FinalTangentX = float4(lerp(SkinnedTangentX.xyz, ClothTangentX, ClothWeight), SkinnedTangentX.w);
+    float4 FinalTangentZ = float4(lerp(SkinnedTangentZ.xyz, ClothTangentZ, ClothWeight), SkinnedTangentZ.w);
+
+    WriteOutPosition(Index, FinalPosition);
+    WriteOutTangentX(Index, FinalTangentX);
+    WriteOutTangentZ(Index, FinalTangentZ);
+}
+
+#include "/Engine/Private/ComputeShaderUtils.ush"
+
+[numthreads(64,1,1)]
+void DualQuatSkin_Morph_Cloth_OptimusNode_CustomComputeKernel(uint3 GroupId : SV_GroupID, uint GroupIndex : SV_GroupIndex)
+{
+uint IndexForInvocation = GetUnWrappedDispatchThreadId(GroupId, GroupIndex, 64);
+if (IndexForInvocation >= KernelInternal::ReadNumThreadsPerInvocation()) return;
+uint Index = IndexForInvocation + KernelInternal::ReadThreadIndexOffset();
+
+__kernel_func(Index);
+}

@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "pid": 12660,
+  "pie_ended": true,
+  "dirty_content": [],
+  "dirty_maps": [],
+  "engine_settings": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  },
+  "interchange_fbx_restored": true,
+  "all_14_source_metadata_and_reimport_paths_valid": true
+}

@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "deformer": "/DeformerGraph/Deformers/DG_DualQuatSkin_Morph_Cloth.DG_DualQuatSkin_Morph_Cloth",
+  "meshes": [
+    "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+    "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank_NoShield.SK_NutTank_NoShield"
+  ],
+  "weights_geometry_animations_materials_skeleton_unchanged": true
+}

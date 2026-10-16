@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "changed_files": [
+    "Content/Gameplay/CoreLoop/NutTank/SK_NutTank.uasset",
+    "Content/Gameplay/CoreLoop/NutTank/SK_NutTank_NoShield.uasset",
+    "MessControl.uproject",
+    "Content/Gameplay/VFX/M_CombatHitOverlay.uasset"
+  ],
+  "protected_files_unchanged": 517,
+  "source_blend_preserved": true,
+  "native_source_animations_weights_material_appearance_and_skeleton_preserved": true,
+  "full_solo_checks": 21,
+  "overlay_checks": 3,
+  "same_pose_comparison_pairs": 6,
+  "body_vertex_count": 1007,
+  "source_linear_min_thickness_fraction": 0.640049929760609,
+  "native_build_cook_package_run": false,
+  "multiplayer_tests_run": false,
+  "limitation": "GPU deformer requires Compute Framework support. Verified here on PCD3D_SM5; packaged build and Steam Deck were not tested."
+}

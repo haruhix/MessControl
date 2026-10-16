@@ -19,7 +19,7 @@ enum class EMCNutCombatCue : uint8
 {
     ChargeTell, JumpTell, SlamImpact, FireCast, FireImpact, NutRain, SummonTell, EntranceImpact, RollTell,
     CastCharge, CastRelease, RitualCast, ShieldHit, Transform, DeathBurst,
-    MeleeTell, MeleeSlash, TeleportTell, TeleportBurst
+    MeleeTell, MeleeSlash, TeleportTell, TeleportBurst, KnightHeadSplit
 };
 
 /** One server-clock cue. Rendering peers reconstruct bounded cosmetic geometry from these values. */
@@ -98,6 +98,7 @@ private:
     void InitializeMaterials();
     void Present(float Age);
     void PresentTankImpact(float Age);
+    void PresentKnightHeadSplit(float Age);
     void Burst(FVector Point,bool bFire,float Scale=1);
     void PlayBurst(UNiagaraSystem* System,FVector Point,FVector Direction,float Scale=1);
     void PresentMagic(float Age,FVector Floor,FVector Normal,FVector Right,FVector Side,float Fade);

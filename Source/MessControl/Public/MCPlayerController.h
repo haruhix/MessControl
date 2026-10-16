@@ -36,6 +36,8 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Audio") FName BackgroundAudioContextOverride=NAME_None;
     virtual void BeginPlay() override;
     virtual void SetupInputComponent() override;
+    virtual bool InputKey(const FInputKeyEventArgs& Params) override;
+    bool IsUsingGamepad() const { return bUsingGamepad; }
     virtual void Tick(float DeltaSeconds) override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
     virtual void CalcCamera(float DeltaTime,FMinimalViewInfo& OutResult) override;
@@ -104,6 +106,7 @@ public:
     UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCPerkChoiceWidget> PerkChoiceWidget;
     UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCBossHealthWidget> BossHealthWidget;
 private:
+    bool bUsingGamepad=false;
     void ResetWorldPresentation();
     void RefreshFrontEnd();
     UFUNCTION(Server, Reliable) void ServerGameplayLoaded();

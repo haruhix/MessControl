@@ -1,0 +1,147 @@
+{
+  "palette": "/Game/Data/DA_MouthSounds.DA_MouthSounds",
+  "scenes": {
+    "MainMenu": {
+      "text": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+      "music": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      },
+      "ambience": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      }
+    },
+    "Hub": {
+      "text": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+      "music": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      },
+      "ambience": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      }
+    },
+    "Relax": {
+      "text": "(Music=(Sound=\"/Game/Audio/Relax.Relax\",Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+      "music": {
+        "source": "/Game/Audio/Relax.Relax",
+        "text": "(Sound=\"/Game/Audio/Relax.Relax\",Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)",
+        "type": "SoundWave",
+        "settings": {
+          "duration": "42.63999938964844",
+          "looping": "False",
+          "virtualization_mode": "<VirtualizationMode.RESTART: 2>",
+          "sound_class_object": "None",
+          "concurrency_set": "set([])",
+          "override_concurrency": "False",
+          "concurrency_overrides": "<Struct 'SoundConcurrencySettings' (0x00000215252B0AF8) {max_count: 16, limit_to_owner: False, volume_scale_can_release: False, enable_max_count_platform_scaling: False, resolution_rule: StopFarthestThenOldest, retrigger_time: 0.000000, platform_max_count: {default: 16}, volume_scale_mode: Default, volume_scale_attack_time: 0.010000, volume_scale_release_time: 0.500000, voice_steal_release_time: 0.000000}>",
+          "volume": "1.0",
+          "pitch": "1.0",
+          "fade_in_duration": "SoundWave: Failed to find property 'fade_in_duration' for attribute 'fade_in_duration' on 'SoundWave'",
+          "fade_out_duration": "SoundWave: Failed to find property 'fade_out_duration' for attribute 'fade_out_duration' on 'SoundWave'",
+          "attenuation_settings": "None",
+          "override_attenuation": "SoundWave: Failed to find property 'override_attenuation' for attribute 'override_attenuation' on 'SoundWave'",
+          "play_when_silent": "SoundWave: Failed to find property 'play_when_silent' for attribute 'play_when_silent' on 'SoundWave'",
+          "loading_behavior": "<SoundWaveLoadingBehavior.INHERITED: 0>"
+        }
+      },
+      "ambience": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      }
+    },
+    "Gameplay": {
+      "text": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+      "music": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      },
+      "ambience": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      }
+    },
+    "NutEncounter": {
+      "text": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+      "music": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      },
+      "ambience": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      }
+    },
+    "IceEvent": {
+      "text": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+      "music": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      },
+      "ambience": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      }
+    },
+    "FogBrawl": {
+      "text": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+      "music": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      },
+      "ambience": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      }
+    },
+    "CataclysmRafts": {
+      "text": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+      "music": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      },
+      "ambience": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      }
+    },
+    "CataclysmJellies": {
+      "text": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+      "music": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      },
+      "ambience": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      }
+    },
+    "ColdCola": {
+      "text": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+      "music": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      },
+      "ambience": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      }
+    },
+    "FinalBoss": {
+      "text": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+      "music": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      },
+      "ambience": {
+        "source": null,
+        "text": "(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)"
+      }
+    }
+  },
+  "dirty": [
+    "/Game/Audio/Relax"
+  ]
+}

@@ -1,4 +1,5 @@
 #include "MCGameplayHUD.h"
+#include "MCGamepadHints.h"
 #include "MCStaminaWidget.h"
 #include "MCGameplayAlertWidget.h"
 #include "MCColdCola.h"
@@ -284,7 +285,7 @@ void UMCGameplayHUD::RefreshGameplayAlerts()
     }
     for(TActorIterator<AMCNutBoss> It(GetWorld());It;++It) {
         const FString Message=It->BossRole==EMCNutBossRole::Tank?TEXT("БОСС · ОРЕХОВЫЙ РЫЦАРЬ!"):TEXT("БОСС · ОРЕХОВЫЙ КОЛДУН!");
-        Observe(*It,TEXT("NutBoss"),It->IsEncounterAlive(),0,Message,3.5f);
+        Observe(*It,TEXT("NutBoss"),It->IsEncounterAlive(),int32(It->BossRole),Message,3.5f);
     }
     if(GS->CurrentEvent && (LastAlertDayEvent.Get()!=GS->CurrentEvent || LastAlertStepStartedAt!=GS->StepStartedAt)) {
         LastAlertDayEvent=GS->CurrentEvent; LastAlertStepStartedAt=GS->StepStartedAt;
@@ -548,6 +549,7 @@ void UMCGameplayHUD::RefreshState()
     const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr; if(!GS) return;
     RefreshGameplayAlerts();
     const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
+    const auto* InputController=GetOwningPlayer<AMCPlayerController>();
     if(StaminaWidget) StaminaWidget->Refresh();
     // HUD refresh wakes the collapsed gauge when water or recovery begins.
     if(SwimEnergyWidget) SwimEnergyWidget->Refresh();
@@ -846,7 +848,7 @@ void UMCGameplayHUD::RefreshState()
             }
             if(Move && Move->IsDrowning()) Hint=FString::Printf(TEXT("ТОНЕШЬ · %.1f С · НА ПЛОТ ИЛИ СУШУ!"),Move->GetDrowningSecondsRemaining());
         }
-        Text(TEXT("ActionHint"),Hint); Show(TEXT("ContactProgress"),Contact>0); Bar(TEXT("ContactProgress"),Contact);
+        Text(TEXT("ActionHint"),InputController && InputController->IsUsingGamepad()?MCGamepadHints::Adapt(Hint):Hint); Show(TEXT("ContactProgress"),Contact>0); Bar(TEXT("ContactProgress"),Contact);
     }
     if(auto* Results=Find(TEXT("ResultsPanel")))
         Results->SetRenderTranslation(FVector2D(Directed && HUD::DirectorDebug.GetValueOnGameThread()>0?-186.f:0.f,0));

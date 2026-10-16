@@ -236,7 +236,7 @@ AMCNutCombatEffect* AMCNutCombatEffect::Spawn(AActor* Source,AMCTongue* Surface,
     FVector Origin,FVector Target,float Radius,float Windup,float Active,int32 Seed,float DetailRadius,int32 DropCount,float DropCadence)
 {
     if(!IsValid(Source) || !Source->HasAuthority() || !IsValid(Surface) || Surface->GetWorld()!=Source->GetWorld()
-        || Origin.ContainsNaN() || Target.ContainsNaN() || uint8(Type)>uint8(EMCNutCombatCue::TeleportBurst)) return nullptr;
+        || Origin.ContainsNaN() || Target.ContainsNaN() || uint8(Type)>uint8(EMCNutCombatCue::KnightHeadSplit)) return nullptr;
     const FTransform Pose(Target);
     auto* Effect=Source->GetWorld()->SpawnActorDeferred<AMCNutCombatEffect>(StaticClass(),Pose,Source,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
     if(!Effect) return nullptr;
@@ -572,9 +572,57 @@ void AMCNutCombatEffect::PresentTankImpact(float Age)
     }
 }
 
+void AMCNutCombatEffect::PresentKnightHeadSplit(float Age)
+{
+    using namespace MCNutCombatVisuals;
+    const float Total=Cue.WindupSeconds+Cue.ActiveSeconds;
+    const bool Visible=Age>=Cue.WindupSeconds && Age<Total;
+    Warning->SetVisibility(false);DropWarnings->SetVisibility(false);DropShadows->SetVisibility(false);
+    Storm->SetVisibility(false);Flames->SetVisibility(false);RainNuts->SetVisibility(false);
+    const float Open=FMath::SmoothStep(Cue.WindupSeconds,1.25f,Age);
+    const float Fade=1-FMath::SmoothStep(1.85f,Total,Age);
+    const FVector Center=Cue.Origin-GetActorLocation();
+    const FVector Side=IsValid(SourceActor)?SourceActor->GetActorRightVector():FVector::RightVector;
+    if(!bBurstPresented) {
+        if(!Visible) return;
+        bBurstPresented=true;
+        Debris->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Gameplay/CoreLoop/SM_Walnut_HalfShell.SM_Walnut_HalfShell")));
+        Debris->AddInstance(FTransform::Identity);Debris->AddInstance(FTransform::Identity);
+        if(Age<Cue.WindupSeconds+.2f) {
+            PlayBurst(ArcaneBurstSystem.LoadSynchronous(),Cue.Origin,FVector::UpVector,1.35f);
+            PlayBurst(DustImpactSystem.LoadSynchronous(),Cue.Origin,FVector::UpVector,.65f);
+        }
+    }
+    const UStaticMesh* Shell=Debris->GetStaticMesh();
+    if(Shell) for(int32 I=0;I<2;++I) {
+        const float Sign=I==0?-1.f:1.f;
+        const float Scale=Cue.Radius*.95f/FMath::Max(1.,Shell->GetBounds().BoxExtent.GetMax())*Fade;
+        const FQuat Rotation=FRotator(Sign*(14+Open*58),I*180.f,Sign*Open*42).Quaternion();
+        const FVector Point=Center+Side*(Sign*Open*Cue.Radius*1.1f)+FVector(0,0,Open*25-Open*Open*90);
+        Debris->UpdateInstanceTransform(I,FTransform(Rotation,Point-Rotation.RotateVector(Shell->GetBounds().Origin*Scale),FVector(Scale)),false,I==1,true);
+    }
+    Debris->SetVisibility(Visible && Shell);
+    FMesh Arcane;
+    if(MagicMID) {
+        MagicMID->SetVectorParameterValue(TEXT("Tint"),FLinearColor(.55f,.16f,1.f));
+        MagicMID->SetScalarParameterValue(TEXT("Age"),Age);
+        MagicMID->SetScalarParameterValue(TEXT("Progress"),Open);
+        constexpr int32 Segments=32;
+        const float Radius=Cue.Radius*(.25f+.55f*Open);
+        for(int32 I=0;I<Segments;++I) {
+            const float Angle=(I+.5f)*2*PI/Segments+Age;
+            const FVector Radial(FMath::Cos(Angle),FMath::Sin(Angle),0),Tangent(-Radial.Y,Radial.X,0);
+            Arcane.Quad(Center+Radial*Radius,Tangent,FVector::UpVector,Radius*PI/Segments*1.08f,
+                Cue.Radius*.6f*FMath::Sin(Open*PI),FLinearColor(1,1,1,Fade*.8f));
+        }
+    }
+    Arcane.Upload(Magic);Magic->SetVisibility(Visible && MagicMID);
+}
+
 void AMCNutCombatEffect::Present(float Age)
 {
     using namespace MCNutCombatVisuals;
+    if(Cue.Type==EMCNutCombatCue::KnightHeadSplit) {PresentKnightHeadSplit(Age);return;}
     if(Cue.Role==EMCNutBossRole::Tank && (Cue.Type==EMCNutCombatCue::ShieldHit || Cue.Type==EMCNutCombatCue::MeleeSlash)) {
         PresentTankImpact(Age);return;
     }

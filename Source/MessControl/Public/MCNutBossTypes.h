@@ -11,12 +11,12 @@ UENUM(BlueprintType)
 enum class EMCNutBossRole : uint8 { Tank, Mage };
 
 UENUM(BlueprintType)
-enum class EMCNutBossState : uint8 { Falling, Idle, Telegraph, Executing, Recovery, Defeated, Stunned, Retargeting };
+enum class EMCNutBossState : uint8 { Falling, Idle, Telegraph, Executing, Recovery, Defeated, Stunned, Retargeting, Transforming };
 
 UENUM(BlueprintType)
 enum class EMCNutBossAttack : uint8 { None, Melee, Charge, Jump, Fireball, Summon, NutRain, Roll, Teleport };
 
-/** Encounter tuning shared by the event and the two authoritative boss actors. */
+/** Encounter tuning shared by the knight and its subsequent wizard phase. */
 USTRUCT(BlueprintType)
 struct MESSCONTROL_API FMCNutBossSettings
 {

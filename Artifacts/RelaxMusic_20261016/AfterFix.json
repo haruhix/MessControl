@@ -1,0 +1,1994 @@
+{
+  "passed": true,
+  "error": null,
+  "samples": [
+    {
+      "stage": "automatic",
+      "time": 0.0,
+      "world_time": 0.0403296984732151,
+      "context": "Relax",
+      "phase": "<MCShiftPhase.INTERMISSION: 0>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.FADING_IN: 3>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 0.11000000000058208,
+      "world_time": 0.49238739162683487,
+      "context": "Relax",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.FADING_IN: 3>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 0.21899999999732245,
+      "world_time": 0.6054097935557365,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.FADING_IN: 3>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 0.3280000000013388,
+      "world_time": 0.7118310928344727,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.FADING_IN: 3>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 0.43800000000192085,
+      "world_time": 0.8268496915698051,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.FADING_IN: 3>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 0.5469999999986612,
+      "world_time": 0.9303575903177261,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.FADING_IN: 3>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 0.6569999999992433,
+      "world_time": 1.042684093117714,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 0.7659999999959837,
+      "world_time": 1.1473353914916515,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 0.875,
+      "world_time": 1.261171292513609,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 0.9850000000005821,
+      "world_time": 1.37296699360013,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 1.0939999999973224,
+      "world_time": 1.4804626926779747,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 1.2030000000013388,
+      "world_time": 1.5931208916008472,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 1.3130000000019209,
+      "world_time": 1.6970457918941975,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 1.4219999999986612,
+      "world_time": 1.80442039296031,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 1.5319999999992433,
+      "world_time": 1.908574890345335,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 1.6409999999959837,
+      "world_time": 2.022851090878248,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 1.75,
+      "world_time": 2.1353273913264275,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 1.860000000000582,
+      "world_time": 2.248120591044426,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 1.9689999999973224,
+      "world_time": 2.354139592498541,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 2.0780000000013388,
+      "world_time": 2.4614063911139965,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 2.188000000001921,
+      "world_time": 2.5738792903721333,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 2.2969999999986612,
+      "world_time": 2.6786440908908844,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 2.4069999999992433,
+      "world_time": 2.7944215908646584,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 2.5159999999959837,
+      "world_time": 2.89932619035244,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 2.625,
+      "world_time": 3.012109190225601,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 2.735000000000582,
+      "world_time": 3.118932891637087,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 2.8439999999973224,
+      "world_time": 3.2254871912300587,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 2.9530000000013388,
+      "world_time": 3.339133992791176,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 3.063000000001921,
+      "world_time": 3.4464423917233944,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 3.1719999999986612,
+      "world_time": 3.553581092506647,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 3.2819999999992433,
+      "world_time": 3.6685054935514927,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 3.3909999999959837,
+      "world_time": 3.773926291614771,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 3.5,
+      "world_time": 3.8814194910228252,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 3.610000000000582,
+      "world_time": 3.990214291960001,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 3.7189999999973224,
+      "world_time": 4.104435093700886,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 3.8280000000013388,
+      "world_time": 4.211059890687466,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 3.938000000001921,
+      "world_time": 4.320179991424084,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 4.046999999998661,
+      "world_time": 4.4308518916368484,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 4.156999999999243,
+      "world_time": 4.545377492904663,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 4.265999999995984,
+      "world_time": 4.641884490847588,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 4.375,
+      "world_time": 4.759303692728281,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 4.485000000000582,
+      "world_time": 4.866458393633366,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 4.5939999999973224,
+      "world_time": 4.981273591518402,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 4.703000000001339,
+      "world_time": 5.089051090180874,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 4.813000000001921,
+      "world_time": 5.195315893739462,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 4.921999999998661,
+      "world_time": 5.309710193425417,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 5.031999999999243,
+      "world_time": 5.415079593658447,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 5.140999999995984,
+      "world_time": 5.523607090115547,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 5.25,
+      "world_time": 5.6379606910049915,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 5.360000000000582,
+      "world_time": 5.74389299377799,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 5.4689999999973224,
+      "world_time": 5.8480319902300835,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 5.578000000001339,
+      "world_time": 5.9636813923716545,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 5.688000000001921,
+      "world_time": 6.069433193653822,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 5.796999999998661,
+      "world_time": 6.175245590507984,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 5.906999999999243,
+      "world_time": 6.291054591536522,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 6.015999999995984,
+      "world_time": 6.404635593295097,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 6.125,
+      "world_time": 6.511825792491436,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 6.235000000000582,
+      "world_time": 6.617987293750048,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 6.3439999999973224,
+      "world_time": 6.730907890945673,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 6.453000000001339,
+      "world_time": 6.835934892296791,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 6.563000000001921,
+      "world_time": 6.941792391240597,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 6.671999999998661,
+      "world_time": 7.0483543910086155,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 6.781999999999243,
+      "world_time": 7.170607190579176,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 6.890999999995984,
+      "world_time": 7.275770891457796,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 7.0,
+      "world_time": 7.381110690534115,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 7.110000000000582,
+      "world_time": 7.495277993381023,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 7.2189999999973224,
+      "world_time": 7.605009291321039,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 7.328000000001339,
+      "world_time": 7.714703593403101,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 7.438000000001921,
+      "world_time": 7.819181893020868,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 7.546999999998661,
+      "world_time": 7.929265592247248,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 7.656999999999243,
+      "world_time": 8.039203491061926,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 7.765999999995984,
+      "world_time": 8.141219291836023,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 7.875,
+      "world_time": 8.261473391205072,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 7.985000000000582,
+      "world_time": 8.370278891175985,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 8.093999999997322,
+      "world_time": 8.475189190357924,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 8.203000000001339,
+      "world_time": 8.577726691961288,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 8.31300000000192,
+      "world_time": 8.699076991528273,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 8.421999999998661,
+      "world_time": 8.809561990201473,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 8.531999999999243,
+      "world_time": 8.911125890910625,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 8.640999999995984,
+      "world_time": 9.02335349097848,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 8.75,
+      "world_time": 9.13274759054184,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 8.860000000000582,
+      "world_time": 9.244284190237522,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 8.968999999997322,
+      "world_time": 9.344511792063713,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 9.078000000001339,
+      "world_time": 9.46691209077835,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 9.18800000000192,
+      "world_time": 9.575924690812826,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 9.296999999998661,
+      "world_time": 9.677476093173027,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 9.406999999999243,
+      "world_time": 9.789729792624712,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 9.515999999995984,
+      "world_time": 9.898675490170717,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 9.625,
+      "world_time": 10.008797392249107,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 9.735000000000582,
+      "world_time": 10.109644692391157,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 9.843999999997322,
+      "world_time": 10.231742292642593,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 9.953000000001339,
+      "world_time": 10.340247392654419,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 10.06300000000192,
+      "world_time": 10.443273093551397,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 10.171999999998661,
+      "world_time": 10.55698349326849,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 10.281999999999243,
+      "world_time": 10.667897991836071,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 10.390999999995984,
+      "world_time": 10.776945993304253,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 10.5,
+      "world_time": 10.879904691129923,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 10.610000000000582,
+      "world_time": 10.991554293781519,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 10.718999999997322,
+      "world_time": 11.101546991616488,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 10.828000000001339,
+      "world_time": 11.210371691733599,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 10.93800000000192,
+      "world_time": 11.313920591026545,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 11.046999999998661,
+      "world_time": 11.42849139124155,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 11.156999999999243,
+      "world_time": 11.537873290479183,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 11.265999999995984,
+      "world_time": 11.64168069139123,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 11.375,
+      "world_time": 11.754846092313528,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 11.485000000000582,
+      "world_time": 11.865517992526293,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 11.593999999997322,
+      "world_time": 11.9746516905725,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 11.703000000001339,
+      "world_time": 12.08824859187007,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 11.81300000000192,
+      "world_time": 12.197935290634632,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    },
+    {
+      "stage": "automatic",
+      "time": 11.921999999998661,
+      "world_time": 12.307521991431713,
+      "context": "Gameplay",
+      "phase": "<MCShiftPhase.WORKING: 1>",
+      "tutorial": false,
+      "lobby": false,
+      "pacing": "<MCGameDirectorPacing.INTERMISSION: 4>",
+      "voices": [
+        {
+          "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0.AudioComponent_0",
+          "sound": "/Game/Audio/Relax.Relax",
+          "playing": true,
+          "state": "<AudioComponentPlayState.PLAYING: 0>"
+        }
+      ]
+    }
+  ],
+  "scope": "Twelve-second native startup check; no controller audio override or DA edits.\n\nResolves the opening run-only perk choice so actual gameplay advances. Checks\nthe actual source and persistent voice across automatic Relax -> Gameplay.\nMaster mixer WAV is verified separately for complete late non-silent output.\n",
+  "checks": {
+    "automatic_relax_and_gameplay_observed": true,
+    "same_voice_without_restart": true,
+    "music_still_playing_after_eleven_seconds": true,
+    "no_fade_out_on_startup_context_change": true,
+    "actual_gameplay_clock_advanced": true
+  }
+}

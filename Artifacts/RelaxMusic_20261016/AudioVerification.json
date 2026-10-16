@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "capture": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\RelaxMusic_20261016\\AfterFix.wav",
+  "complete_riff": true,
+  "duration_seconds": 11.968,
+  "sample_rate": 48000,
+  "channels": 2,
+  "rms_per_second": [
+    0.026144095984984104,
+    0.024604660101219374,
+    0.027943787337581415,
+    0.029086640041870806,
+    0.027508175196553027,
+    0.034199616551729435,
+    0.02418847611676182,
+    0.02679647927107455,
+    0.021888105361078113,
+    0.028879185683223303,
+    0.03130866419309198,
+    0.030320781149993817
+  ],
+  "late_audio_present": true,
+  "scope": "Master mixer output in native solo gameplay; actual selected source and continuous voice independently verified in AfterFix.json."
+}

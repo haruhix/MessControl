@@ -10,6 +10,7 @@ class UMCValidationSubsystem : public UTickableWorldSubsystem
     GENERATED_BODY()
 public:
     virtual void Tick(float DeltaSeconds) override;
+    virtual bool IsTickableWhenPaused() const override;
     virtual TStatId GetStatId() const override { RETURN_QUICK_DECLARE_CYCLE_STAT(UMCValidationSubsystem,STATGROUP_Tickables); }
     virtual bool DoesSupportWorldType(EWorldType::Type WorldType) const override { return WorldType == EWorldType::Game || WorldType == EWorldType::PIE; }
 private:

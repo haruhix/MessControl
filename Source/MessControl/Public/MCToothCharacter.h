@@ -197,6 +197,7 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="1",ClampMax="20")) float FollowSpeed=7;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ToolTip="Movement in centimetres allowed around the tracked point before the camera follows.")) FVector CameraDeadZone=FVector(110,80,90);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Orbit",meta=(ClampMin="0.02",ClampMax="1")) float CameraOrbitSensitivity=.18f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Orbit",meta=(ClampMin="30",ClampMax="360",Units="deg/s")) float GamepadCameraTurnRate=150.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Orbit",meta=(ClampMin="10",ClampMax="300")) float CameraZoomStep=100.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Orbit",meta=(ClampMin="30",ClampMax="250",ToolTip="Height of the free-camera pivot above the character, in centimetres.")) float CameraOrbitHeight=100.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Walls") bool bCameraWallReveal=true;
@@ -244,6 +245,8 @@ private:
     void MoveRight(const FInputActionValue& Value);
     void OrbitMouseX(const FInputActionValue& Value);
     void OrbitMouseY(const FInputActionValue& Value);
+    void OrbitGamepadX(const FInputActionValue& Value);
+    void OrbitGamepadY(const FInputActionValue& Value);
     void CameraMouseWheel(const FInputActionValue& Value);
     void InitializeCameraOrbit();
     FVector OrbitCameraPivot() const;
@@ -316,6 +319,8 @@ private:
     UPROPERTY() TWeakObjectPtr<UEnhancedInputLocalPlayerSubsystem> AppliedInputSubsystem;
     UPROPERTY() TObjectPtr<UInputAction> ForwardAction;
     UPROPERTY() TObjectPtr<UInputAction> RightAction;
+    UPROPERTY() TObjectPtr<UInputAction> GamepadLookXAction;
+    UPROPERTY() TObjectPtr<UInputAction> GamepadLookYAction;
     UPROPERTY() TObjectPtr<UInputAction> JumpAction;
     UPROPERTY() TObjectPtr<UInputAction> SprintAction;
     UPROPERTY() TObjectPtr<UInputAction> BrushAction;

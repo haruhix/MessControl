@@ -144,20 +144,20 @@ FReply UMCEmoteWidget::NativeOnKeyDown(const FGeometry& Geometry,const FKeyEvent
         }
         return FReply::Handled();
     }
-    if(Key==EKeys::T || Key==EKeys::Escape)
+    if(Key==EKeys::T || Key==EKeys::Escape || Key==EKeys::Gamepad_FaceButton_Right || Key==EKeys::Gamepad_Special_Right)
     {
         if(auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->ToggleEmotes();return FReply::Handled();
     }
     if(Key==EKeys::One || Key==EKeys::Two || Key==EKeys::Three)
     {SelectCategory(Key==EKeys::One?0:Key==EKeys::Two?1:2);return FReply::Handled();}
-    if(Key==EKeys::Left || Key==EKeys::Right)
-    {SelectCategory((Category+(Key==EKeys::Left?2:1))%3);return FReply::Handled();}
-    if(Key==EKeys::Up || Key==EKeys::Down)
+    if(Key==EKeys::Left || Key==EKeys::Right || Key==EKeys::Gamepad_DPad_Left || Key==EKeys::Gamepad_DPad_Right)
+    {SelectCategory((Category+(Key==EKeys::Left || Key==EKeys::Gamepad_DPad_Left?2:1))%3);return FReply::Handled();}
+    if(Key==EKeys::Up || Key==EKeys::Down || Key==EKeys::Gamepad_DPad_Up || Key==EKeys::Gamepad_DPad_Down)
     {
-        if(!Buttons.IsEmpty()) KeyboardChoice=(KeyboardChoice+Buttons.Num()+(Key==EKeys::Up?-1:1))%Buttons.Num();
+        if(!Buttons.IsEmpty()) KeyboardChoice=(KeyboardChoice+Buttons.Num()+(Key==EKeys::Up || Key==EKeys::Gamepad_DPad_Up?-1:1))%Buttons.Num();
         RefreshAvailability();return FReply::Handled();
     }
-    if(Key==EKeys::Enter || Key==EKeys::SpaceBar)
+    if(Key==EKeys::Enter || Key==EKeys::SpaceBar || Key==EKeys::Gamepad_FaceButton_Bottom)
     {
         if(Buttons.IsValidIndex(KeyboardChoice) && Buttons[KeyboardChoice]->GetIsEnabled()) Buttons[KeyboardChoice]->OnClicked.Broadcast();
         return FReply::Handled();

@@ -2,7 +2,18 @@
 
 The opening cataclysm lasts 20–25 seconds, with one overhead nut every 1.5–3 seconds and no pauses between series. Each landing has a reachable warning footprint. Ground nuts remain available until players break or handle them, or the Wizard summons them. Neither nuts nor their fragments grant XP.
 
-After the final landing, two large falling nuts become the Knight and Wizard. Both must die to complete the encounter. Ground debris does not delay their arrival; surviving summons do not delay victory.
+After the final landing, one large falling nut becomes the Knight. Defeating
+the Knight splits its walnut head and transforms the same actor into the Wizard.
+The Wizard has its own full health pool. Only defeating that second form
+completes the encounter. Ground debris does not delay arrival; surviving summons
+do not delay victory.
+
+The phase change lasts 2.4 seconds. Existing attacks are cancelled, the shell
+opens into two halves, and the Wizard emerges before resuming its spell schedule.
+The event remains active throughout; extra hits during the split cannot damage
+the new form or carry over the Knight's lethal-hit overkill. The phase banner
+and arrival alert identify the current form. See
+`Docs/NutSequentialPhases_20261017.md` for implementation and current validation.
 
 | Boss | Ability | Result |
 | --- | --- | --- |

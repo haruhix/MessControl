@@ -13,7 +13,7 @@ class USceneComponent;
 class AMCVFXLabBossStation;
 struct FMCNutBossAnimationSnapshot;
 
-/** Two complementary bosses share tool contact, but own distinct server attack schedules. */
+/** The encounter knight transforms into the wizard; standalone roles retain their own schedules. */
 UCLASS(Blueprintable)
 class MESSCONTROL_API AMCNutBoss : public AMCNutEnemy
 {
@@ -26,7 +26,11 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void ConfigureEncounter(AMCTongue* OnTongue,AMCNutRainEvent* OwnerEvent,EMCNutBossRole InRole,
                             const FMCNutBossSettings& InSettings,int32 Players,int32 Seed);
-    virtual bool CanReceiveToolHit() const override { return IsEncounterAlive() && State!=EMCNutBossState::Falling; }
+    virtual bool IsEncounterAlive() const override { return (State==EMCNutBossState::Transforming && !bDefeated && !IsActorBeingDestroyed()) || Super::IsEncounterAlive(); }
+    virtual bool CanReceiveToolHit() const override { return IsEncounterAlive() && State!=EMCNutBossState::Falling && State!=EMCNutBossState::Transforming; }
+    static constexpr float MagePhaseSeconds=2.4f;
+    static constexpr float HeadSplitAt=.42f;
+    static constexpr float MageRevealAt=.9f;
     virtual float ReceiveToolDamage(float Damage,AMCToothCharacter* Source) override;
     bool IsShieldProtectingFrom(FVector SourcePoint) const;
     bool IsPlayerInThreat(const AMCToothCharacter* Hero,FVector& EscapeDirection) const;
@@ -46,6 +50,8 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) TObjectPtr<AMCNutRainEvent> EncounterOwner;
     UPROPERTY(ReplicatedUsing=RefreshBossPresentation, BlueprintReadOnly) FMCNutBossSettings BossSettings;
     UPROPERTY(ReplicatedUsing=RefreshBossPresentation, BlueprintReadOnly) EMCNutBossRole BossRole=EMCNutBossRole::Tank;
+    /** Only the event's opening knight has a second phase; preview/standalone bosses do not. */
+    UPROPERTY(Replicated, BlueprintReadOnly) bool bHasMagePhase=false;
     UPROPERTY(ReplicatedUsing=RefreshBossPresentation, BlueprintReadOnly) EMCNutBossState State=EMCNutBossState::Falling;
     UPROPERTY(ReplicatedUsing=RefreshBossPresentation, BlueprintReadOnly) EMCNutBossAttack Attack=EMCNutBossAttack::None;
     UPROPERTY(Replicated, BlueprintReadOnly) double StateStartedAt=0;
@@ -97,6 +103,8 @@ private:
     void ExecuteAttack(float Dt);
     void ExecuteRoll(float Dt);
     void PresentTankModel(double Time);
+    void BeginMageTransformation();
+    void RevealMagePhase();
     void CacheBossAnimations();
     void DamageRollSegment(FVector Start,FVector End);
     void PushPlayer(AMCToothCharacter* Hero,FVector Direction,float Speed);

@@ -130,6 +130,7 @@ UMCMainMenuActionButton* UMCMainMenuWidget::AddButton(const FString& Text, EMCMa
     ButtonPadding->SetContent(Label); Button->SetContent(ButtonPadding);
     Content->AddChildToVerticalBox(Button)->SetPadding(FMargin(0,4));
     Buttons.Add(Button);
+    GamepadTargets.Add(Button);
     return Button;
 }
 
@@ -137,6 +138,7 @@ UComboBoxString* UMCMainMenuWidget::AddPicker(const FString& Label)
 {
     AddText(Label,15);
     auto* Picker=WidgetTree->ConstructWidget<UComboBoxString>();
+    GamepadTargets.Add(Picker);
     Content->AddChildToVerticalBox(Picker)->SetPadding(FMargin(0,0,0,8));
     return Picker;
 }
@@ -154,6 +156,21 @@ void UMCMainMenuWidget::FocusFirst()
 void UMCMainMenuWidget::FocusMenu()
 {
     FocusFirst();
+}
+
+bool UMCMainMenuWidget::MoveGamepadFocus(int32 Direction)
+{
+    if(GamepadTargets.IsEmpty()) return false;
+    auto* PC=GetOwningPlayer();
+    int32 Current=GamepadTargets.IndexOfByPredicate([&](const auto& Target){return Target && (Target->HasUserFocus(PC) || Target->HasFocusedDescendants());});
+    if(GamepadTargets.IsValidIndex(Current))
+        if(const auto* Picker=Cast<UComboBoxString>(GamepadTargets[Current]);Picker && Picker->IsOpen()) return false;
+    for(int32 Attempt=0;Attempt<GamepadTargets.Num();++Attempt) {
+        Current=(Current+Direction+GamepadTargets.Num())%GamepadTargets.Num();
+        auto* Target=GamepadTargets[Current].Get();
+        if(Target && Target->GetIsEnabled() && Target->IsVisible()) {Target->SetUserFocus(GetOwningPlayer());return true;}
+    }
+    return true;
 }
 
 bool UMCMainMenuWidget::NormalizeJoinAddress(const FString& Input, FString& OutAddress)
@@ -220,7 +237,7 @@ void UMCMainMenuWidget::ShowPause()
 void UMCMainMenuWidget::ShowPage(EPage NewPage)
 {
     Page=NewPage;
-    Content->ClearChildren(); Buttons.Reset(); OnlineButtons.Reset();
+    Content->ClearChildren(); Buttons.Reset(); OnlineButtons.Reset(); GamepadTargets.Reset(); NextStickNavigationAt=0;
     RoomPicker=nullptr; AddressBox=nullptr; ResolutionPicker=nullptr; WindowModePicker=nullptr;
     QualityPicker=nullptr; VSyncCheck=nullptr; HostTutorialCheck=nullptr; LobbyPlayers=nullptr; StartButton=nullptr;
     LastSearchRevision=INDEX_NONE;
@@ -244,6 +261,7 @@ void UMCMainMenuWidget::ShowPage(EPage NewPage)
     case EPage::Host:
         AddText(TEXT("CREATE LOBBY"),24);
         HostTutorialCheck=WidgetTree->ConstructWidget<UCheckBox>();
+        GamepadTargets.Add(HostTutorialCheck);
         {
             auto* Label=WidgetTree->ConstructWidget<UTextBlock>();
             Label->SetText(FText::FromString(TEXT("Начать с обучения")));
@@ -270,6 +288,7 @@ void UMCMainMenuWidget::ShowPage(EPage NewPage)
         }
         AddText(bSteam?TEXT("Для локальных тестов можно подключиться по IP."):TEXT("В редакторе Steam отключён. Введи IP хоста и при необходимости порт: 192.168.1.10:7777."),14);
         AddressBox=WidgetTree->ConstructWidget<UEditableTextBox>();
+        GamepadTargets.Add(AddressBox);
         AddressBox->SetText(FText::FromString(TEXT("127.0.0.1:7777")));
         AddressBox->SetHintText(FText::FromString(TEXT("Адрес хоста")));
         Content->AddChildToVerticalBox(AddressBox)->SetPadding(FMargin(0,8));
@@ -304,6 +323,7 @@ void UMCMainMenuWidget::ShowPage(EPage NewPage)
     case EPage::Pause:
         AddText(TEXT("MENU"),24);
         AddButton(TEXT("Resume"),EMCMainMenuAction::Resume);
+        AddButton(TEXT("Emotes / Сигналы"),EMCMainMenuAction::Emotes);
         AddButton(TEXT("Settings"),EMCMainMenuAction::Settings);
         AddButton(TEXT("Credits"),EMCMainMenuAction::Credits);
         AddButton(TEXT("Return to Main Menu"),EMCMainMenuAction::LeaveLobby);
@@ -357,6 +377,7 @@ void UMCMainMenuWidget::BuildSettings()
     if (Quality<0) { QualityPicker->AddOption(TEXT("Custom (keep current)")); QualityPicker->SetSelectedIndex(5); }
     else QualityPicker->SetSelectedIndex(FMath::Clamp(Quality,0,4));
     VSyncCheck=WidgetTree->ConstructWidget<UCheckBox>();
+    GamepadTargets.Add(VSyncCheck);
     auto* VSyncLabel=WidgetTree->ConstructWidget<UTextBlock>();
     VSyncLabel->SetText(FText::FromString(TEXT("VSync")));
     VSyncLabel->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),17));
@@ -428,6 +449,8 @@ void UMCMainMenuWidget::RefreshLobby()
 void UMCMainMenuWidget::NativeTick(const FGeometry& Geometry, float DeltaSeconds)
 {
     Super::NativeTick(Geometry,DeltaSeconds);
+    for(UButton* Button:Buttons) if(Button)
+        Button->SetBackgroundColor(Button->HasUserFocus(GetOwningPlayer())?FLinearColor(.16f,.42f,.38f):FLinearColor(.07f,.15f,.19f));
     if (bVideoConfirmationPending && FPlatformTime::Seconds()>=VideoConfirmationEndsAt)
     {
         RevertVideoSettings(); ShowPage(EPage::Settings); SetStatus(TEXT("Предыдущий режим экрана восстановлен."));
@@ -458,12 +481,35 @@ void UMCMainMenuWidget::NativeTick(const FGeometry& Geometry, float DeltaSeconds
 
 FReply UMCMainMenuWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry, const FKeyEvent& Event)
 {
+    const FKey Key=Event.GetKey();
+    if((Key==EKeys::Gamepad_DPad_Up || Key==EKeys::Gamepad_DPad_Down) && MoveGamepadFocus(Key==EKeys::Gamepad_DPad_Up?-1:1))
+        return FReply::Handled();
+    if(Key==EKeys::Gamepad_FaceButton_Bottom && !Event.IsRepeat()) {
+        for(UButton* Button:Buttons) if(Button && Button->GetIsEnabled() && Button->HasUserFocus(GetOwningPlayer())) {
+            Button->OnClicked.Broadcast(); return FReply::Handled();
+        }
+    }
+    if(Event.GetKey()==EKeys::Gamepad_Special_Right && bPauseMenu && !Event.IsRepeat()) {
+        HandleAction(EMCMainMenuAction::Back); return FReply::Handled();
+    }
     if (Event.GetKey()==EKeys::Escape || Event.GetKey()==EKeys::Gamepad_FaceButton_Right)
     {
         HandleAction(EMCMainMenuAction::Back);
         return FReply::Handled();
     }
     return Super::NativeOnPreviewKeyDown(Geometry,Event);
+}
+
+FReply UMCMainMenuWidget::NativeOnAnalogValueChanged(const FGeometry& Geometry,const FAnalogInputEvent& Event)
+{
+    if(Event.GetKey()==EKeys::Gamepad_LeftY && FMath::Abs(Event.GetAnalogValue())>.55f) {
+        if(FPlatformTime::Seconds()<NextStickNavigationAt) return FReply::Handled();
+        if(FPlatformTime::Seconds()>=NextStickNavigationAt && MoveGamepadFocus(Event.GetAnalogValue()>0?-1:1)) {
+            NextStickNavigationAt=FPlatformTime::Seconds()+.22;
+            return FReply::Handled();
+        }
+    }
+    return Super::NativeOnAnalogValueChanged(Geometry,Event);
 }
 
 void UMCMainMenuWidget::HandleAction(EMCMainMenuAction Action)
@@ -530,6 +576,9 @@ void UMCMainMenuWidget::HandleAction(EMCMainMenuAction Action)
         break;
     case EMCMainMenuAction::Resume:
         if (auto* GamePC=Cast<AMCPlayerController>(PC)) GamePC->TogglePauseMenu();
+        break;
+    case EMCMainMenuAction::Emotes:
+        if(auto* GamePC=Cast<AMCPlayerController>(PC)) { GamePC->TogglePauseMenu(); GamePC->ToggleEmotes(); }
         break;
     }
 }

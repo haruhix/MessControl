@@ -92,7 +92,7 @@ void AMCNutRainEvent::Start(UMCDayPlan* Plan,UMCNutRainProfile* Profile)
     PartyPlayers=FMath::Clamp(Players,1,8);
     RainTargetCount=Settings.RainCountForPlayers(Players); EnemyTargetCount=Settings.EnemyCountForPlayers(Players);
     if(Settings.bBossEncounter) {
-        // The fight opens with exactly two bosses. Summons come from ground nuts,
+        // The fight opens with one knight, which becomes the wizard. Summons come from ground nuts,
         // rather than an unrelated quota of enemies at the transition.
         EnemyTargetCount=0;
         const auto* State=GetWorld()->GetGameState<AMCGameState>();
@@ -140,7 +140,7 @@ void AMCNutRainEvent::Start(UMCDayPlan* Plan,UMCNutRainProfile* Profile)
     SetActorTickEnabled(true); Enter(EMCNutRainStage::Rainfall);
     RainStartedAt=StageStartedAt;
     if(Settings.bBossEncounter) BeginSeries(); else SpawnNut();
-    Record(FString::Printf(TEXT("Орехи: непрерывный катаклизм %.1f с, %d падений с интервалом 1.5–3 с; после последнего приземления — Рыцарь и Колдун"),Settings.RainSeconds,RainTargetCount));
+    Record(FString::Printf(TEXT("Орехи: непрерывный катаклизм %.1f с, %d падений с интервалом 1.5–3 с; затем Рыцарь, который после поражения станет Колдуном"),Settings.RainSeconds,RainTargetCount));
     UE_LOG(LogTemp,Display,TEXT("MC_NUT_RAIN_START players=%d target=%d enemies=%d seconds=%.1f"),Players,RainTargetCount,EnemyTargetCount,Settings.RainSeconds);
 }
 
@@ -363,28 +363,23 @@ void AMCNutRainEvent::SpawnBossEncounter()
 {
     if(!IsValid(Tongue)) { bFailed=true; Enter(EMCNutRainStage::Complete); return; }
     Enter(EMCNutRainStage::Enemies);
-    TArray<FVector> Occupied;
-    for(int32 Index=0;Index<2;++Index) {
-        const EMCNutBossRole EncounterRole=Index==0?EMCNutBossRole::Tank:EMCNutBossRole::Mage;
-        const float Radius=Settings.Boss.BodyRadiusForRole(EncounterRole);
-        FHitResult Floor;
-        const float BossSeparation=Settings.Boss.BodyRadiusForRole(EMCNutBossRole::Tank)
-            +Settings.Boss.BodyRadiusForRole(EMCNutBossRole::Mage)+40.f;
-        if(!Tongue->RandomGameplaySpawnPoint(Random,Radius+20,BossSeparation,Occupied,Floor)) { bFailed=true; break; }
+    const float Radius=Settings.Boss.BodyRadiusForRole(EMCNutBossRole::Tank);
+    FHitResult Floor;
+    if(Tongue->RandomGameplaySpawnPoint(Random,Radius+20,0,TArray<FVector>(),Floor)) {
         const FTransform Pose(FRotator(0,Random.FRandRange(-180,180),0),Floor.ImpactPoint+FVector(0,0,Radius+4));
-        auto* Boss=GetWorld()->SpawnActorDeferred<AMCNutBoss>(AMCNutBoss::StaticClass(),Pose,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-        if(!Boss) { bFailed=true; break; }
-        Boss->ConfigureEncounter(Tongue,this,EncounterRole,Settings.Boss,PartyPlayers,Random.RandHelper(MAX_int32));
-        FTransform AirbornePose=Pose; AirbornePose.SetLocation(Boss->LockedStart);
-        Boss->FinishSpawning(AirbornePose); Bosses.Add(Boss); RegisterEncounterEnemy(Boss); Occupied.Add(Floor.ImpactPoint);
+        if(auto* Boss=GetWorld()->SpawnActorDeferred<AMCNutBoss>(AMCNutBoss::StaticClass(),Pose,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn)) {
+            Boss->ConfigureEncounter(Tongue,this,EMCNutBossRole::Tank,Settings.Boss,PartyPlayers,Random.RandHelper(MAX_int32));
+            FTransform AirbornePose=Pose;AirbornePose.SetLocation(Boss->LockedStart);
+            Boss->FinishSpawning(AirbornePose);Bosses.Add(Boss);RegisterEncounterEnemy(Boss);
+        }
     }
-    if(bFailed || Bosses.Num()!=2) {
-        bFailed=true; Record(TEXT("Орехи: не удалось разместить двух боссов; этап остановлен"));
+    if(bFailed || Bosses.Num()!=1) {
+        bFailed=true; Record(TEXT("Орехи: не удалось разместить Рыцаря; этап остановлен"));
         Enter(EMCNutRainStage::Complete); SetActorTickEnabled(false); return;
     }
-    BossesLeft=2;
-    Record(FString::Printf(TEXT("Орехи: после %d падений прибыли Рыцарь и Колдун. Для победы нужно убить обоих"),NutsSpawned));
-    UE_LOG(LogTemp,Display,TEXT("MC_NUT_ENCOUNTER_START series=%d nuts=%d bosses=2 creeps=0"),CompletedSeries,NutsSpawned);
+    BossesLeft=1;
+    Record(FString::Printf(TEXT("Орехи: после %d падений появился Рыцарь. Победите его, затем его вторую форму — Колдуна"),NutsSpawned));
+    UE_LOG(LogTemp,Display,TEXT("MC_NUT_ENCOUNTER_START series=%d nuts=%d bosses=1 phases=2 creeps=0"),CompletedSeries,NutsSpawned);
 }
 
 void AMCNutRainEvent::Tick(float Dt)
@@ -444,7 +439,7 @@ void AMCNutRainEvent::Tick(float Dt)
             if(Settings.bBossEncounter) for(AMCNutEnemy* Enemy:Enemies)
                 if(IsValid(Enemy) && !Cast<AMCNutBoss>(Enemy)) Enemy->Destroy();
             EnemiesLeft=0;
-            Record(TEXT("Орехи: оба босса побеждены; директор снова управляет промежутком"));
+            Record(TEXT("Орехи: Рыцарь и его вторая форма Колдун побеждены; директор снова управляет промежутком"));
             Enter(EMCNutRainStage::Complete); SetActorTickEnabled(false);
         }
     }

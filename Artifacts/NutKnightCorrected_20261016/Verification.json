@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "animations_updated": 14,
+  "updated_packages": [
+    "Content/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_Attack1.uasset",
+    "Content/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_Attack2.uasset",
+    "Content/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_BallEnd.uasset",
+    "Content/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_BallStart.uasset",
+    "Content/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_Block.uasset",
+    "Content/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_Combo.uasset",
+    "Content/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_Death.uasset",
+    "Content/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_HeadLeft.uasset",
+    "Content/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_HeadRight.uasset",
+    "Content/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_Hit.uasset",
+    "Content/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_Idle.uasset",
+    "Content/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_Jump.uasset",
+    "Content/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_Stun.uasset",
+    "Content/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_StunHit.uasset"
+  ],
+  "source_blend_preserved": true,
+  "skeleton_meshes_materials_maps_profile_preserved": true,
+  "source_code_and_config_preserved": true,
+  "sampled_animation_frames": 984,
+  "export_max_bind_matrix_delta": 0.0,
+  "solo_checks": 20,
+  "captured_frames": 635,
+  "build_package_run": false,
+  "network_tests_run": false
+}

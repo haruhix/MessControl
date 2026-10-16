@@ -1,0 +1,10 @@
+{
+  "pid": 26436,
+  "engine": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  },
+  "dirty_content": [],
+  "dirty_maps": []
+}

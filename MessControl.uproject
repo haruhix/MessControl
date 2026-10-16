@@ -17,6 +17,10 @@
 	],
 	"Plugins": [
 		{
+			"Name": "DeformerGraph",
+			"Enabled": true
+		},
+		{
 			"Name": "Metasound",
 			"Enabled": true
 		},

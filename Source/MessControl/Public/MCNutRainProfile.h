@@ -23,7 +23,7 @@ struct MESSCONTROL_API FMCNutEnemySettings
     void Sanitize();
 };
 
-/** A dense 20–25 second dodge phase followed by two bosses; legacy fixtures retain their authored rain. */
+/** A dense dodge phase followed by the knight and its wizard form; legacy rain fixtures stay authored. */
 USTRUCT(BlueprintType)
 struct MESSCONTROL_API FMCNutRainSettings
 {

@@ -1,0 +1,22 @@
+{
+  "SK_NutTank": {
+    "skeleton": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank_Skeleton.SK_NutTank_Skeleton",
+    "deformer": "None",
+    "materials": [
+      "(MaterialInterface=\"/Script/Engine.MaterialInstanceConstant'/Game/FromBlender8/Walnut.Walnut'\",MaterialSlotName=\"Walnut\",ImportedMaterialSlotName=\"Walnut\",UVChannelData=(bInitialized=True,bOverrideDensities=False,LocalUVDensities[0]=467.302216,LocalUVDensities[1]=691.656677,LocalUVDensities[2]=0.000000,LocalUVDensities[3]=0.000000),OverlayMaterialInterface=None)",
+      "(MaterialInterface=\"/Script/Engine.MaterialInstanceConstant'/Game/FromBlender8/Material_001.Material_001'\",MaterialSlotName=\"hand_eye\",ImportedMaterialSlotName=\"hand_eye\",UVChannelData=(bInitialized=True,bOverrideDensities=False,LocalUVDensities[0]=582.226379,LocalUVDensities[1]=0.000000,LocalUVDensities[2]=227.414810,LocalUVDensities[3]=0.000000),OverlayMaterialInterface=None)"
+    ],
+    "bounds": "<Struct 'BoxSphereBounds' (0x00000297898F32C0) {origin: {x: -3.733429, y: 39.645212, z: 77.459954}, box_extent: {x: 142.924377, y: 97.847403, z: 77.402854}, sphere_radius: 189.717405}>",
+    "lod_count": 1
+  },
+  "SK_NutTank_NoShield": {
+    "skeleton": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank_Skeleton.SK_NutTank_Skeleton",
+    "deformer": "None",
+    "materials": [
+      "(MaterialInterface=\"/Script/Engine.MaterialInstanceConstant'/Game/FromBlender8/Walnut.Walnut'\",MaterialSlotName=\"Walnut\",ImportedMaterialSlotName=\"Walnut\",UVChannelData=(bInitialized=True,bOverrideDensities=False,LocalUVDensities[0]=437.590637,LocalUVDensities[1]=707.985474,LocalUVDensities[2]=0.000000,LocalUVDensities[3]=0.000000),OverlayMaterialInterface=None)",
+      "(MaterialInterface=\"/Script/Engine.MaterialInstanceConstant'/Game/FromBlender8/Material_001.Material_001'\",MaterialSlotName=\"hand_eye\",ImportedMaterialSlotName=\"hand_eye\",UVChannelData=(bInitialized=True,bOverrideDensities=False,LocalUVDensities[0]=582.226379,LocalUVDensities[1]=0.000000,LocalUVDensities[2]=227.414810,LocalUVDensities[3]=0.000000),OverlayMaterialInterface=None)"
+    ],
+    "bounds": "<Struct 'BoxSphereBounds' (0x00000297898F9A00) {origin: {x: -3.733429, y: 41.052774, z: 77.459954}, box_extent: {x: 142.924377, y: 96.439840, z: 77.402854}, sphere_radius: 188.995297}>",
+    "lod_count": 1
+  }
+}

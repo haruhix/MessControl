@@ -1,0 +1,36 @@
+[
+  {
+    "simulatedGamepadInput": true,
+    "editorOnlyStartupDiagnostics": [
+      "[2026.10.16-16.17.48:688][  0]LogGameFeatures: Error: Asset manager settings do not include a rule for assets of type GameFeatureData, which is required for game feature plugins to function\r"
+    ],
+    "physicalControllerTested": false,
+    "markers": [
+      "[2026.10.16-16.17.52:388][142]LogTemp: Display: MC_GAMEPAD_PASS main menu, lobby page, settings, accept, back\r"
+    ],
+    "passed": true,
+    "log": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\Gamepad_20261016\\EditorValidationClean\\Menu.log",
+    "exitCode": 0,
+    "case": "Menu",
+    "fps": 60,
+    "network": false,
+    "errors": []
+  },
+  {
+    "simulatedGamepadInput": true,
+    "editorOnlyStartupDiagnostics": [
+      "[2026.10.16-16.18.01:179][  0]LogGameFeatures: Error: Asset manager settings do not include a rule for assets of type GameFeatureData, which is required for game feature plugins to function\r"
+    ],
+    "physicalControllerTested": false,
+    "markers": [
+      "[2026.10.16-16.18.07:066][106]LogTemp: Display: MC_GAMEPAD_FAIL LT attack\r"
+    ],
+    "passed": false,
+    "log": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\Gamepad_20261016\\EditorValidationClean\\Gameplay_30.log",
+    "exitCode": 0,
+    "case": "Gameplay_30",
+    "fps": 30,
+    "network": false,
+    "errors": []
+  }
+]

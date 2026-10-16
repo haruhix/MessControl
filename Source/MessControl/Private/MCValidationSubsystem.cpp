@@ -43,6 +43,7 @@ void MCTickSprayNetworkValidation(UWorld* World);
 void MCTickShiftResetValidation(UWorld* World);
 void MCTickSteamValidation(UWorld* World);
 void MCTickOrbitCameraValidation(UWorld* World);
+void MCTickGamepadValidation(UWorld* World);
 void MCTickCameraRevealValidation(UWorld* World);
 void MCTickCameraSteadyValidation(UWorld* World);
 void MCTickDashSuctionValidation(UWorld* World);
@@ -67,6 +68,7 @@ void UMCValidationSubsystem::Tick(float DeltaSeconds)
     if(FParse::Param(FCommandLine::Get(),TEXT("MCCameraSteadyTest"))) { MCTickCameraSteadyValidation(GetWorld()); return; }
     if(FParse::Param(FCommandLine::Get(),TEXT("MCCameraRevealTest"))) { MCTickCameraRevealValidation(GetWorld()); return; }
     if(FParse::Param(FCommandLine::Get(),TEXT("MCOrbitCameraTest"))) { MCTickOrbitCameraValidation(GetWorld()); return; }
+    if(FParse::Param(FCommandLine::Get(),TEXT("MCGamepadTest")) || FParse::Param(FCommandLine::Get(),TEXT("MCGamepadMenuTest"))) { MCTickGamepadValidation(GetWorld()); return; }
     if(FParse::Param(FCommandLine::Get(),TEXT("MCSteamHostTest")) || FParse::Param(FCommandLine::Get(),TEXT("MCSteamFindTest"))) { MCTickSteamValidation(GetWorld()); return; }
     MCTickApprovalRecorder(GetWorld());
     if(FParse::Param(FCommandLine::Get(),TEXT("MCSpawnZones"))) {MCTickSpawnZonesValidation(GetWorld());return;}

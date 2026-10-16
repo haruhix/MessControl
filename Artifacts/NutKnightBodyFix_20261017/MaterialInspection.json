@@ -1,0 +1,13 @@
+{
+  "materials": [
+    {
+      "asset": "/Game/Gameplay/VFX/M_CombatHitOverlay.M_CombatHitOverlay",
+      "deformer_usage": false
+    },
+    {
+      "asset": "/InterchangeAssets/Materials/FBXLegacyPhongSurfaceMaterial.FBXLegacyPhongSurfaceMaterial",
+      "deformer_usage": true
+    }
+  ],
+  "dirty_content": []
+}

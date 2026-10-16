@@ -1,5 +1,8 @@
 # Nut Knight animation update — 2026-10-16
 
+Current animation revision: [all fourteen corrected actions from Nut_Tank2 (3).blend](NutKnightCorrected_20261017.md).
+The ten-clip integration below is retained as historical evidence.
+
 The supplied `Nut_Tank.blend` now drives the Knight in the existing Nutaggedon
 event. The source blend is read-only; its SHA-256 before/after is
 `82ee69ef6b39f856714eb06d3216e56e7b65541695ab86c4cbd678c5e6ab28ef`.

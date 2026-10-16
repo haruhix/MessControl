@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "pie_ended": true,
+  "dirty_content": [],
+  "dirty_maps": [],
+  "engine_settings": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  },
+  "editor_left_open_as_found": true,
+  "both_mesh_deformers_saved": true
+}

@@ -1,0 +1,2557 @@
+{
+  "passed": true,
+  "error": null,
+  "checks": [
+    {
+      "name": "block actual pickaxe damage",
+      "passed": true,
+      "damage": 8.0
+    },
+    {
+      "name": "frontal block recorded",
+      "passed": true
+    },
+    {
+      "name": "active GPU deformer survives the actual hit overlay",
+      "passed": true
+    }
+  ],
+  "samples": [
+    {
+      "case": "block",
+      "time": 0.01666666567325592,
+      "game_time": 0.7071377485990524,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        98.30237167580543,
+        178.7729484540182,
+        218.69262920937638
+      ],
+      "head": [
+        150.17127317651776,
+        -4.455225956967563,
+        246.52556787072288
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": -12.000000000000055,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.03333333134651184,
+      "game_time": 0.7238044142723083,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        98.30667882960876,
+        178.77398395784917,
+        219.42980998288715
+      ],
+      "head": [
+        150.0675350210882,
+        -4.553736683997215,
+        246.63997253141235
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": -12.000000000000055,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.04999999701976776,
+      "game_time": 0.7404710799455643,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        98.30796983208731,
+        178.77398352026543,
+        220.11978403769277
+      ],
+      "head": [
+        149.9548992099634,
+        -4.643061012935089,
+        246.74408414237723
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": -12.000000000000055,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.06666666269302368,
+      "game_time": 0.7571377456188202,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        59.77727605483341,
+        171.01857827414636,
+        220.46135457024153
+      ],
+      "head": [
+        146.61325110653866,
+        1.3319362943258568,
+        246.91623027629856
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.0833333283662796,
+      "game_time": 0.7738044112920761,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        64.67332303611104,
+        172.7773137374412,
+        220.1504852453356
+      ],
+      "head": [
+        146.51477220003434,
+        0.5264424998393196,
+        247.19497011064183
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.09999999403953552,
+      "game_time": 0.790471076965332,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        64.60567527483818,
+        172.80345918871456,
+        220.5951480432883
+      ],
+      "head": [
+        146.41418697545862,
+        0.5148061352341635,
+        247.22701308558678
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.11666665971279144,
+      "game_time": 0.807137742638588,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        64.35533301301928,
+        172.76725399658028,
+        221.02552153492314
+      ],
+      "head": [
+        146.31949454089647,
+        0.5437947814139719,
+        247.24238757582438
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.13333332538604736,
+      "game_time": 0.8238044083118439,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        63.98992699223129,
+        172.68994211208434,
+        221.41657788283288
+      ],
+      "head": [
+        146.2328441130747,
+        0.6057199560938074,
+        247.2408389650522
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.14999999105930328,
+      "game_time": 0.8404710739850998,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        63.501798230694504,
+        172.55781339144903,
+        221.7800343379807
+      ],
+      "head": [
+        146.1429348099046,
+        0.6861474089907134,
+        247.22358713220333
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.1666666567325592,
+      "game_time": 0.8571377396583557,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        62.93983649177676,
+        172.3930501800939,
+        222.0851469020958
+      ],
+      "head": [
+        146.04756019053855,
+        0.7874202012650962,
+        247.19188392361397
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.18333332240581512,
+      "game_time": 0.8738044053316116,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        62.313796477845386,
+        172.1892069009188,
+        222.35407609205066
+      ],
+      "head": [
+        145.94392373901266,
+        0.8668451836247719,
+        247.14800761278033
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.19999998807907104,
+      "game_time": 0.8904710710048676,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        61.66127546951574,
+        171.9631230360569,
+        222.55522577551858
+      ],
+      "head": [
+        145.8287564628379,
+        0.915965141271684,
+        247.09031412165206
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.21666665375232697,
+      "game_time": 0.9071377366781235,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        60.99394985566573,
+        171.7152915927026,
+        222.7113288452173
+      ],
+      "head": [
+        145.68708628481076,
+        0.9234754023751464,
+        247.03026576671363
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.23333331942558289,
+      "game_time": 0.9238044023513794,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        60.34356818668013,
+        171.4549266931299,
+        222.79280421147982
+      ],
+      "head": [
+        145.50949628548344,
+        0.8754643293025346,
+        246.96680698461233
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.2499999850988388,
+      "game_time": 0.9404710680246353,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        59.73509812240579,
+        171.19242232412978,
+        222.808496878881
+      ],
+      "head": [
+        145.29314286253017,
+        0.788652861711924,
+        246.8920758129932
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.2666666507720947,
+      "game_time": 0.9571377336978912,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        59.19458406458875,
+        170.94458302531507,
+        222.72892053939714
+      ],
+      "head": [
+        145.02433035638774,
+        0.6560100999357026,
+        246.80417179411867
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.28333331644535065,
+      "game_time": 0.9738043993711472,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.73225079964715,
+        170.71973339274518,
+        222.57753871459965
+      ],
+      "head": [
+        144.70671550575017,
+        0.4802962383205802,
+        246.71926018003978
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.29999998211860657,
+      "game_time": 0.9904710650444031,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.36791282768348,
+        170.5369197522828,
+        222.3305080323656
+      ],
+      "head": [
+        144.32276209601918,
+        0.25997648785611815,
+        246.64525397429097
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.3166666477918625,
+      "game_time": 1.007137730717659,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.05106209399159,
+        170.37686786992168,
+        222.0224155228597
+      ],
+      "head": [
+        143.93091294550814,
+        0.012599762291447547,
+        246.56758745976936
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.3333333134651184,
+      "game_time": 1.023804396390915,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.05285508776021,
+        170.38086171196835,
+        221.53961613053607
+      ],
+      "head": [
+        143.52853162011095,
+        -0.2604102893847262,
+        246.48309124130083
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.34999997913837433,
+      "game_time": 1.0404710620641708,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.05566431034447,
+        170.37852227639758,
+        221.01043260209366
+      ],
+      "head": [
+        143.13749822310803,
+        -0.5290430780721387,
+        246.38454877131738
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.36666664481163025,
+      "game_time": 1.0571377277374268,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.055011088353496,
+        170.3747357281639,
+        220.42009900460255
+      ],
+      "head": [
+        142.7626944962208,
+        -0.7921570259561079,
+        246.26864275919712
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.38333331048488617,
+      "game_time": 1.0738043934106827,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.05834938345362,
+        170.37056113869568,
+        219.78871890915545
+      ],
+      "head": [
+        142.39127589001245,
+        -1.0470150056867205,
+        246.1518031655135
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.3999999761581421,
+      "game_time": 1.0904710590839386,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.064518755586334,
+        170.37073609536014,
+        219.77858217374515
+      ],
+      "head": [
+        142.39293666477784,
+        -1.0489802672173916,
+        246.14069662250262
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.416666641831398,
+      "game_time": 1.1071377247571945,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.10184099621566,
+        170.3729357062963,
+        219.64816256524415
+      ],
+      "head": [
+        142.37969769781736,
+        -1.0528064369775993,
+        246.02262358013135
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.43333330750465393,
+      "game_time": 1.1238043904304504,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.228537510826044,
+        170.38048753174564,
+        219.20551394904055
+      ],
+      "head": [
+        142.34978543551313,
+        -1.0365558607903296,
+        245.58909333984144
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.44999997317790985,
+      "game_time": 1.1404710561037064,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.4925354292001,
+        170.39373539100586,
+        218.21495491944432
+      ],
+      "head": [
+        142.2815102397646,
+        -0.9649104782431426,
+        244.59854202091162
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.46666663885116577,
+      "game_time": 1.1571377217769623,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.91987920729764,
+        170.40215673933494,
+        216.4474694380611
+      ],
+      "head": [
+        142.14516608704375,
+        -0.7969996228125495,
+        242.82661293287745
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.4833333045244217,
+      "game_time": 1.1738043874502182,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        59.50744409279548,
+        170.38312508234606,
+        213.72766273302602
+      ],
+      "head": [
+        141.90831500648684,
+        -0.4862809893743716,
+        240.09910869798463
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.4999999701976776,
+      "game_time": 1.1904710531234741,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        60.22053801467172,
+        170.30069562758842,
+        209.9575297293374
+      ],
+      "head": [
+        141.54571538741405,
+        -0.001757693153745521,
+        236.32604138799377
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.5166666358709335,
+      "game_time": 1.20713771879673,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        60.993253507158556,
+        170.11366081687908,
+        205.15130577050053
+      ],
+      "head": [
+        141.0428994558464,
+        0.6420046663024301,
+        231.51725458860201
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.5333333015441895,
+      "game_time": 1.223804384469986,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        61.741486095534896,
+        169.79158385445646,
+        199.45038542461432
+      ],
+      "head": [
+        140.40118141788753,
+        1.4237151985211511,
+        225.80929281990166
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.5499999672174454,
+      "game_time": 1.2404710501432419,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        62.39011831065588,
+        169.3246459554308,
+        193.15365212234758
+      ],
+      "head": [
+        139.63464885537837,
+        2.2933396542791478,
+        219.4690409434298
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.5666666328907013,
+      "game_time": 1.2571377158164978,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        62.89286673939907,
+        168.7433300061635,
+        186.69561964843513
+      ],
+      "head": [
+        138.7837884881311,
+        3.1905946717289524,
+        212.9174910710012
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.5833332985639572,
+      "game_time": 1.2738043814897537,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        63.24070242950927,
+        168.11505302118042,
+        180.6270529724578
+      ],
+      "head": [
+        137.9164099993947,
+        4.025347815045421,
+        206.70251020011335
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.5999999642372131,
+      "game_time": 1.2904710471630096,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        63.468582897034196,
+        167.56695352237847,
+        175.5771689507274
+      ],
+      "head": [
+        137.15248230582918,
+        4.737251587951672,
+        201.47826102854864
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.616666629910469,
+      "game_time": 1.3071377128362656,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        63.6297753870289,
+        167.18001001969867,
+        172.1604188280089
+      ],
+      "head": [
+        136.61588548414,
+        5.249997378513353,
+        197.92004299883217
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.633333295583725,
+      "game_time": 1.3238043785095215,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        63.758134319869754,
+        167.07972379722924,
+        170.91734486060355
+      ],
+      "head": [
+        136.43029715571592,
+        5.508081789263244,
+        196.6580634453879
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.6499999612569809,
+      "game_time": 1.3404710441827774,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        63.870736189401555,
+        167.12202059708102,
+        170.91227742268129
+      ],
+      "head": [
+        136.45183838767923,
+        5.615799473490959,
+        196.7218090699957
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.6666666269302368,
+      "game_time": 1.3571377098560333,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        63.98246492935934,
+        167.17795945243796,
+        170.91033972865122
+      ],
+      "head": [
+        136.4790518115908,
+        5.730324521002334,
+        196.79587815831965
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.6833332926034927,
+      "game_time": 1.3738043755292892,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        64.1020331947154,
+        167.22493029228963,
+        170.90990965200837
+      ],
+      "head": [
+        136.5060511108667,
+        5.84478968216127,
+        196.86987160319606
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.6999999582767487,
+      "game_time": 1.3904710412025452,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        64.1627615091152,
+        167.34407019989817,
+        171.39156200392372
+      ],
+      "head": [
+        136.61712202564019,
+        5.8780763037448835,
+        197.60369291851427
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.7166666239500046,
+      "game_time": 1.407137706875801,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        64.09902784463205,
+        167.54156855801097,
+        172.67540058197952
+      ],
+      "head": [
+        136.8794547839959,
+        5.761136126306312,
+        199.48575993720993
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.7333332896232605,
+      "game_time": 1.423804372549057,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        63.87326670127479,
+        167.81202178538155,
+        174.52586109294302
+      ],
+      "head": [
+        137.2574522811109,
+        5.520550928514059,
+        202.29915836722424
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.7499999552965164,
+      "game_time": 1.440471038222313,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        63.47839342217418,
+        168.11004023988698,
+        176.71636191001173
+      ],
+      "head": [
+        137.6666438709104,
+        5.1738278989621875,
+        205.8531949342951
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.7666666209697723,
+      "game_time": 1.4571377038955688,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        62.93503211750084,
+        168.4287986194285,
+        179.0313571587205
+      ],
+      "head": [
+        138.07233718825887,
+        4.744142327495275,
+        209.9324227140905
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.7833332866430283,
+      "game_time": 1.4738043695688248,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        62.27842639538164,
+        168.74335213846769,
+        181.30848489841225
+      ],
+      "head": [
+        138.45591869702855,
+        4.265658530163396,
+        214.3117105122013
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.7999999523162842,
+      "game_time": 1.4904710352420807,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        61.55617925370359,
+        169.04818571983225,
+        183.40897652070717
+      ],
+      "head": [
+        138.81277469190388,
+        3.7779952787435818,
+        218.78749116631656
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.8166666179895401,
+      "game_time": 1.5071377009153366,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        60.820682152929805,
+        169.32991265060696,
+        185.23529468539323
+      ],
+      "head": [
+        139.14124885801752,
+        3.296814584663135,
+        223.18107500340108
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.833333283662796,
+      "game_time": 1.5238043665885925,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        60.12925824847579,
+        169.586087451502,
+        186.71399010022228
+      ],
+      "head": [
+        139.44315529783188,
+        2.8468030558103443,
+        227.3317522052233
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.8499999493360519,
+      "game_time": 1.5404710322618484,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        59.506024365707674,
+        169.8104728641303,
+        187.81177046699207
+      ],
+      "head": [
+        139.7098836151578,
+        2.4481987291897056,
+        231.10770672557408
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.8666666150093079,
+      "game_time": 1.5571376979351044,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.977128443227514,
+        170.00042230440494,
+        188.52823246165855
+      ],
+      "head": [
+        139.94241037112863,
+        2.117778846617302,
+        234.38826656102648
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.8833332806825638,
+      "game_time": 1.5738043636083603,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.56957002302144,
+        170.15574947847153,
+        188.85836068474262
+      ],
+      "head": [
+        140.15360530104567,
+        1.90045056068994,
+        237.06458491875267
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.8999999463558197,
+      "game_time": 1.5904710292816162,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.290748679460364,
+        170.27553029165955,
+        188.83179196446739
+      ],
+      "head": [
+        140.34908062245003,
+        1.8218553348312945,
+        239.0379351964054
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.9166666120290756,
+      "game_time": 1.6071376949548721,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.12489163343088,
+        170.34991275829918,
+        188.48522873297216
+      ],
+      "head": [
+        140.52670155217183,
+        1.883648527354456,
+        240.2072542515358
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.9333332777023315,
+      "game_time": 1.623804360628128,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.06340116305779,
+        170.37442794847288,
+        187.8591193742441
+      ],
+      "head": [
+        140.68281679603658,
+        2.0972383339700826,
+        240.4717533489344
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.9499999433755875,
+      "game_time": 1.640471026301384,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.063369908686894,
+        170.37442823680078,
+        187.8496467212809
+      ],
+      "head": [
+        140.68466117107744,
+        2.1004752675897365,
+        240.46902688533757
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.9666666090488434,
+      "game_time": 1.65713769197464,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.063358990165455,
+        170.37461069811758,
+        187.7894032422019
+      ],
+      "head": [
+        140.69742817168964,
+        2.1194421767415292,
+        240.45176836807576
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.9833332747220993,
+      "game_time": 1.6738043576478958,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.06332470068514,
+        170.3752298683532,
+        187.64250480280015
+      ],
+      "head": [
+        140.72989232502087,
+        2.1636926637860014,
+        240.40990653557105
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 0.9999999403953552,
+      "game_time": 1.6904710233211517,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.06295318312169,
+        170.3764813560236,
+        187.3901643725085
+      ],
+      "head": [
+        140.78791941164653,
+        2.2363648436583787,
+        240.3384912311335
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 1.0166666060686111,
+      "game_time": 1.7071376889944077,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.0631510837967,
+        170.3784601503877,
+        187.02449203946588
+      ],
+      "head": [
+        140.87866872524845,
+        2.3455619548045554,
+        240.23127253816014
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 1.033333271741867,
+      "game_time": 1.7238043546676636,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.06500851555947,
+        170.38117419370445,
+        186.55501123598057
+      ],
+      "head": [
+        141.0082351031303,
+        2.4972600939137237,
+        240.08479808699136
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 1.049999937415123,
+      "game_time": 1.7404710203409195,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.065964911511315,
+        170.3837437353892,
+        185.99770340835457
+      ],
+      "head": [
+        141.17497392822204,
+        2.677558997941773,
+        239.90479794981883
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 1.066666603088379,
+      "game_time": 1.7571376860141754,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.0641605130331,
+        170.385577647653,
+        185.38747261186768
+      ],
+      "head": [
+        141.3772965218494,
+        2.871719936073468,
+        239.69971477926237
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 1.0833332687616348,
+      "game_time": 1.7738043516874313,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.06286020884093,
+        170.3866194773692,
+        184.75362847163615
+      ],
+      "head": [
+        141.57334575737607,
+        3.0528701699477097,
+        239.49504938404212
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 1.0999999344348907,
+      "game_time": 1.7904710173606873,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.06361404546146,
+        170.38750745041756,
+        184.14823682791308
+      ],
+      "head": [
+        141.7267754380561,
+        3.1873382550767495,
+        239.32091947289368
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 1.1166666001081467,
+      "game_time": 1.8071376830339432,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.06277805555024,
+        170.38639964405002,
+        183.60012135753217
+      ],
+      "head": [
+        141.81479530060176,
+        3.283716416867982,
+        239.20278050588985
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 1.1333332657814026,
+      "game_time": 1.823804348707199,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.060029806515416,
+        170.3825065958331,
+        183.16606858940972
+      ],
+      "head": [
+        141.79446690026074,
+        3.321897159948044,
+        239.17949477304109
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 1.1499999314546585,
+      "game_time": 1.840471014380455,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.05749124029151,
+        170.37666183070792,
+        182.86991414550232
+      ],
+      "head": [
+        141.80603387279055,
+        3.337966994816906,
+        239.13122045164752
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 1.1666665971279144,
+      "game_time": 1.857137680053711,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.0571015105956,
+        170.3724408597335,
+        182.76142736747573
+      ],
+      "head": [
+        141.88370403365354,
+        3.3347555627433714,
+        239.02947468836564
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    },
+    {
+      "case": "block",
+      "time": 1.1833332628011703,
+      "game_time": 1.8738043457269669,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1392.0,
+      "shield": 460.0,
+      "hero_health": 100.0,
+      "blocked": true,
+      "position": [
+        118.13554233057505,
+        -16.891813448368637,
+        257.79295349121094
+      ],
+      "hand": [
+        58.054268864475944,
+        170.371081441851,
+        182.84341364462716
+      ],
+      "head": [
+        141.95219882135018,
+        3.2730065537853044,
+        238.9905465208014
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 0.0,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0
+    }
+  ],
+  "captures": [
+    {
+      "case": "block",
+      "time": 0.01666666567325592,
+      "game_time": 0.7071377485990524,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBodyFix_20261017\\OverlayCheck\\GameplayFrames\\block_0000.png"
+    },
+    {
+      "case": "block",
+      "time": 0.0833333283662796,
+      "game_time": 0.7738044112920761,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBodyFix_20261017\\OverlayCheck\\GameplayFrames\\block_0001.png"
+    },
+    {
+      "case": "block",
+      "time": 0.14999999105930328,
+      "game_time": 0.8404710739850998,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBodyFix_20261017\\OverlayCheck\\GameplayFrames\\block_0002.png"
+    },
+    {
+      "case": "block",
+      "time": 0.21666665375232697,
+      "game_time": 0.9071377366781235,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBodyFix_20261017\\OverlayCheck\\GameplayFrames\\block_0003.png"
+    },
+    {
+      "case": "block",
+      "time": 0.28333331644535065,
+      "game_time": 0.9738043993711472,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBodyFix_20261017\\OverlayCheck\\GameplayFrames\\block_0004.png"
+    },
+    {
+      "case": "block",
+      "time": 0.34999997913837433,
+      "game_time": 1.0404710620641708,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBodyFix_20261017\\OverlayCheck\\GameplayFrames\\block_0005.png"
+    },
+    {
+      "case": "block",
+      "time": 0.416666641831398,
+      "game_time": 1.1071377247571945,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBodyFix_20261017\\OverlayCheck\\GameplayFrames\\block_0006.png"
+    },
+    {
+      "case": "block",
+      "time": 0.4833333045244217,
+      "game_time": 1.1738043874502182,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBodyFix_20261017\\OverlayCheck\\GameplayFrames\\block_0007.png"
+    },
+    {
+      "case": "block",
+      "time": 0.5499999672174454,
+      "game_time": 1.2404710501432419,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBodyFix_20261017\\OverlayCheck\\GameplayFrames\\block_0008.png"
+    },
+    {
+      "case": "block",
+      "time": 0.616666629910469,
+      "game_time": 1.3071377128362656,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBodyFix_20261017\\OverlayCheck\\GameplayFrames\\block_0009.png"
+    },
+    {
+      "case": "block",
+      "time": 0.6833332926034927,
+      "game_time": 1.3738043755292892,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBodyFix_20261017\\OverlayCheck\\GameplayFrames\\block_0010.png"
+    },
+    {
+      "case": "block",
+      "time": 0.7499999552965164,
+      "game_time": 1.440471038222313,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBodyFix_20261017\\OverlayCheck\\GameplayFrames\\block_0011.png"
+    },
+    {
+      "case": "block",
+      "time": 0.8166666179895401,
+      "game_time": 1.5071377009153366,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBodyFix_20261017\\OverlayCheck\\GameplayFrames\\block_0012.png"
+    },
+    {
+      "case": "block",
+      "time": 0.8833332806825638,
+      "game_time": 1.5738043636083603,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBodyFix_20261017\\OverlayCheck\\GameplayFrames\\block_0013.png"
+    },
+    {
+      "case": "block",
+      "time": 0.9499999433755875,
+      "game_time": 1.640471026301384,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBodyFix_20261017\\OverlayCheck\\GameplayFrames\\block_0014.png"
+    },
+    {
+      "case": "block",
+      "time": 1.0166666060686111,
+      "game_time": 1.7071376889944077,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBodyFix_20261017\\OverlayCheck\\GameplayFrames\\block_0015.png"
+    },
+    {
+      "case": "block",
+      "time": 1.0833332687616348,
+      "game_time": 1.7738043516874313,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBodyFix_20261017\\OverlayCheck\\GameplayFrames\\block_0016.png"
+    },
+    {
+      "case": "block",
+      "time": 1.1499999314546585,
+      "game_time": 1.840471014380455,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBodyFix_20261017\\OverlayCheck\\GameplayFrames\\block_0017.png"
+    }
+  ],
+  "inputs": [
+    {
+      "case": "block",
+      "time": 0.1666666567325592
+    }
+  ],
+  "restored_engine_settings": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  },
+  "scope": "One bounded solo PIE knight check, native scheduler and real primary tool hits.\n\nFixtures: isolated boss/hero placement, ability readiness, observer HP and a\n40-durability shield for the break. No fabricated attack phases/damage. Captures\nare a review camera under L_Mouth lighting, not an asset-gallery animation.\n"
+}

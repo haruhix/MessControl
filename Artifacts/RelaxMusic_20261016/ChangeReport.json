@@ -1,0 +1,38 @@
+{
+  "changed": "Scenes.Gameplay.Music",
+  "relax_preserved": true,
+  "other_scenes_and_events_preserved": true,
+  "layer": "(Sound=\"/Game/Audio/Relax.Relax\",Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000)",
+  "sound": "/Game/Audio/Relax.Relax",
+  "before_scenes": {
+    "MainMenu": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "Hub": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "Relax": "(Music=(Sound=\"/Game/Audio/Relax.Relax\",Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "Gameplay": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "NutEncounter": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "IceEvent": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "FogBrawl": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "CataclysmRafts": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "CataclysmJellies": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "ColdCola": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "FinalBoss": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))"
+  },
+  "after_scenes": {
+    "MainMenu": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "Hub": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "Relax": "(Music=(Sound=\"/Game/Audio/Relax.Relax\",Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "Gameplay": "(Music=(Sound=\"/Game/Audio/Relax.Relax\",Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "NutEncounter": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "IceEvent": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "FogBrawl": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "CataclysmRafts": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "CataclysmJellies": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "ColdCola": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))",
+    "FinalBoss": "(Music=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000),Ambience=(Sound=None,Volume=0.350000,bRepeatOnFinish=True,FadeInSeconds=1.000000,FadeOutSeconds=1.000000))"
+  },
+  "track_saved_without_setting_changes": true,
+  "sha256": {
+    "Content\\Data\\DA_MouthSounds.uasset": "a898a198d9ad0b232ec52ae55e830e5bce5eaf72170f441a5fc2e9bc54828cb2",
+    "Content\\Audio\\Relax.uasset": "dff476590c576c4ec09f0b8ba4b3281c7ab668e742ad50b9a1da8c098c1dffef"
+  }
+}

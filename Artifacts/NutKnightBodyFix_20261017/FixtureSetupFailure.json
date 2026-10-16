@@ -1,0 +1,59 @@
+{
+  "passed": false,
+  "error": "Traceback (most recent call last):\n  File \"D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Tools\\Unreal\\check_nut_knight_ball_solo.py\", line 152, in tick\n    self.record(now)\n  File \"D:/PROJECT/GAME/WaifuTD/MessControl/Tools/Unreal/check_nut_knight_body_volume_solo.py\", line 25, in record\n    instance=model.get_editor_property('mesh_deformer_instance')\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nDeprecationWarning: SkeletalMeshComponent: Property 'mesh_deformer_instance' on 'SkeletalMeshComponent' is deprecated: Use the GetMeshDeformerInstance function instead\n",
+  "checks": [],
+  "samples": [
+    {
+      "case": "idle",
+      "time": 0.01666666567325592,
+      "game_time": 0.750000074505806,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "variant": 0,
+      "health": 1400.0,
+      "shield": 500.0,
+      "hero_health": 100.0,
+      "blocked": false,
+      "position": [
+        118.14547579560362,
+        -16.386931756832727,
+        257.80303955078125
+      ],
+      "hand": [
+        20.446188407139033,
+        154.29816389809054,
+        220.48860581737438
+      ],
+      "head": [
+        142.18489355603742,
+        7.675773916270822,
+        246.80590319631756
+      ],
+      "mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+      "visible": true,
+      "yaw": 11.999999046325684,
+      "switches": 0,
+      "head_variant": 0,
+      "ball_visible": false,
+      "state_end": 0.0,
+      "ball_scale_allowed": false,
+      "bone_scale_error": 1.5700924586837752e-16,
+      "component_scale_error": 0.0
+    }
+  ],
+  "captures": [
+    {
+      "case": "idle",
+      "time": 0.01666666567325592,
+      "game_time": 0.750000074505806,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBodyFix_20261017\\GameplayFrames\\idle_0000.png"
+    }
+  ],
+  "inputs": [],
+  "restored_engine_settings": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  },
+  "scope": "Solo PIE smoke check with both knight meshes using volume-preserving skinning.\n\nUses the established real tool-hit/native scheduler fixture. Unlike checking\nbone scale alone, this asserts active GPU deformers and captures rendered poses.\n"
+}

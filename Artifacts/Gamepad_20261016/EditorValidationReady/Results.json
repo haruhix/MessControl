@@ -1,0 +1,53 @@
+[
+  {
+    "errors": [],
+    "network": false,
+    "passed": true,
+    "fps": 60,
+    "simulatedGamepadInput": true,
+    "physicalControllerTested": false,
+    "log": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\Gamepad_20261016\\EditorValidationReady\\Menu.log",
+    "markers": [
+      "[2026.10.16-16.19.51:445][176]LogTemp: Display: MC_GAMEPAD_PASS main menu, lobby page, settings, accept, back\r"
+    ],
+    "case": "Menu",
+    "exitCode": 0,
+    "editorOnlyStartupDiagnostics": [
+      "[2026.10.16-16.19.47:735][  0]LogGameFeatures: Error: Asset manager settings do not include a rule for assets of type GameFeatureData, which is required for game feature plugins to function\r"
+    ]
+  },
+  {
+    "errors": [],
+    "network": false,
+    "passed": true,
+    "fps": 30,
+    "simulatedGamepadInput": true,
+    "physicalControllerTested": false,
+    "log": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\Gamepad_20261016\\EditorValidationReady\\Gameplay_30.log",
+    "markers": [
+      "[2026.10.16-16.20.08:205][209]LogTemp: Display: MC_GAMEPAD_PASS movement, camera, dead zone, tools, RT, LT, booster, pause, emotes, reward reroll and choice\r"
+    ],
+    "case": "Gameplay_30",
+    "exitCode": 0,
+    "editorOnlyStartupDiagnostics": [
+      "[2026.10.16-16.19.59:934][  0]LogGameFeatures: Error: Asset manager settings do not include a rule for assets of type GameFeatureData, which is required for game feature plugins to function\r"
+    ]
+  },
+  {
+    "errors": [],
+    "network": false,
+    "passed": true,
+    "fps": 120,
+    "simulatedGamepadInput": true,
+    "physicalControllerTested": false,
+    "log": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\Gamepad_20261016\\EditorValidationReady\\Gameplay_120.log",
+    "markers": [
+      "[2026.10.16-16.20.25:367][815]LogTemp: Display: MC_GAMEPAD_PASS movement, camera, dead zone, tools, RT, LT, booster, pause, emotes, reward reroll and choice\r"
+    ],
+    "case": "Gameplay_120",
+    "exitCode": 0,
+    "editorOnlyStartupDiagnostics": [
+      "[2026.10.16-16.20.17:193][  0]LogGameFeatures: Error: Asset manager settings do not include a rule for assets of type GameFeatureData, which is required for game feature plugins to function\r"
+    ]
+  }
+]

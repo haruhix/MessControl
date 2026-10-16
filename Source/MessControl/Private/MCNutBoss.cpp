@@ -88,6 +88,7 @@ void AMCNutBoss::ConfigureEncounter(AMCTongue* OnTongue,AMCNutRainEvent* OwnerEv
     if(!HasAuthority() || !IsValid(OnTongue)) return;
     Tongue=OnTongue; EncounterOwner=OwnerEvent; if(OwnerEvent) SetOwner(OwnerEvent);
     BossRole=InRole; BossSettings=InSettings; BossSettings.Sanitize(); PartyPlayers=FMath::Clamp(Players,1,8);
+    bHasMagePhase=InRole==EMCNutBossRole::Tank && IsValid(OwnerEvent);
     ShieldHealth=BossRole==EMCNutBossRole::Tank?BossSettings.ShieldMaxHealth:0.f;
     ShieldBrokenAt=-100;
     TargetSwitchCount=0;HeadTurnVariant=0;PendingHeadTurns.Reset();
@@ -201,7 +202,7 @@ void AMCNutBoss::RefreshPresentation()
     SetCenteredMesh(OpenShell,Shell,BossSettings.MageHeight,FVector(-Settings.BodyRadius*.38f,0,-12),FRotator(0,-20,-22));
     OpenShell->SetVisibility(!bDefeated && BossRole==EMCNutBossRole::Mage && !MageMesh);
     Kernel->SetVisibility(false); // the inherited main mesh is the exposed kernel for the mage
-    Label->SetText(FText::FromString(BossRole==EMCNutBossRole::Tank?
+    Label->SetText(FText::FromString(State==EMCNutBossState::Transforming?TEXT("ГОЛОВА РАСКАЛЫВАЕТСЯ") : BossRole==EMCNutBossRole::Tank?
         FString::Printf(TEXT("NUT TANK  %d | SHIELD %d"),FMath::CeilToInt(Health),FMath::CeilToInt(ShieldHealth)):
         FString::Printf(TEXT("NUT MAGE  %d"),FMath::CeilToInt(Health))));
     Label->SetTextRenderColor(BossRole==EMCNutBossRole::Tank?FColor(240,185,85):FColor(225,115,255));
@@ -493,6 +494,13 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
     Out.bHasDeathClip=Has(EMCNutBossClip::Death);
     if(bDefeated) Add(Out.bHasDeathClip?EMCNutBossClip::Death:IdleClip,Out.Death,1.f);
     if(Out.Samples.IsEmpty()) Add(IdleClip,0,1.f,true);
+    if(State==EMCNutBossState::Transforming) {
+        Out.Samples.Reset();
+        Add(Out.bMage?EMCNutBossClip::Idle:EMCNutBossClip::Hit,
+            Progress(Time-StateStartedAt,.65),1.f,Out.bMage);
+        Out.AimYaw=0;Out.AimPitch=0;Out.Hit=0;Out.ShieldHit=0;
+        Out.AuthoredTankHitWeight=1.f;
+    }
     if(!Out.bMage) {
         // Match the final pose mixture, including hit rescaling. A tiny marked
         // sample must not abruptly remove the idle guard or procedural breath.
@@ -524,13 +532,16 @@ void AMCNutBoss::PresentTankModel(double Time)
     const float DeathAge=bDefeated?FMath::Max(0.f,float(Time-StateStartedAt)):0;
     const float DeathScale=bDefeated?1-FMath::SmoothStep(DeathSeconds()-.3f,DeathSeconds(),DeathAge):1.f;
     const bool HasMage=BossRole==EMCNutBossRole::Mage && MageModel->GetSkeletalMeshAsset();
-    MageModel->SetVisibility(HasMage);
+    const bool Transforming=State==EMCNutBossState::Transforming;
+    const float PhaseAge=Transforming?FMath::Max(0.f,float(Time-StateStartedAt)):0.f;
+    const float MageReveal=Transforming?FMath::SmoothStep(MageRevealAt,1.75f,PhaseAge):1.f;
+    MageModel->SetVisibility(HasMage && MageReveal>.001f);
     if(BossRole==EMCNutBossRole::Mage) {
         Visual->SetVisibility(!HasMage);
         Feedback->SetVisualTarget(HasMage?static_cast<UMeshComponent*>(MageModel.Get()):Visual.Get());
     }
     if(HasMage) {
-        const FVector Scale=MageModelScale*DeathScale;
+        const FVector Scale=MageModelScale*DeathScale*MageReveal;
         const FRotator ModelRotation(0,BossSettings.MageModelYaw,0);
         MageModel->SetRelativeScale3D(Scale); MageModel->SetRelativeLocation(-ModelRotation.RotateVector(MageModelCenter*Scale)+FVector(0,0,BossSettings.MageHeight*.5f-Settings.BodyRadius));
         MageModel->SetRelativeRotation(ModelRotation); Visual->SetVisibility(false);
@@ -547,8 +558,9 @@ void AMCNutBoss::PresentTankModel(double Time)
     else BallWeight=bTankWasBall?1.f:0.f;
     if(!TankBall->GetStaticMesh()) BallWeight=0;
     const bool HasWarrior=TankModel->GetSkeletalMeshAsset()!=nullptr;
-    TankBall->SetVisibility(BallWeight>.001f); TankModel->SetVisibility(HasWarrior && BallWeight<.999f);
-    Visual->SetVisibility(!HasWarrior && BallWeight<.999f);
+    const bool KnightVisible=!Transforming || PhaseAge<HeadSplitAt;
+    TankBall->SetVisibility(BallWeight>.001f && KnightVisible); TankModel->SetVisibility(HasWarrior && BallWeight<.999f && KnightVisible);
+    Visual->SetVisibility(!HasWarrior && BallWeight<.999f && KnightVisible);
     Feedback->SetVisualTarget(BallWeight>.5f?static_cast<UMeshComponent*>(TankBall.Get()):
         HasWarrior?static_cast<UMeshComponent*>(TankModel.Get()):Visual.Get());
     const FQuat ParentRotation=GetActorQuat();
@@ -630,7 +642,6 @@ float AMCNutBoss::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
     }
     // A light tool hit registers through the ordinary contact path, without
     // cancelling an entire boss attack each time four workers swing together.
-    const float Before=Health;
     const AMCToothCharacter* PreviousTarget=Target;
     float Applied=0;
     if(Perks) {TGuardValue<bool> Resolved(Perks->bRogueExtraHit,true);Applied=Super::ReceiveToolDamage(Damage,Source);}
@@ -644,7 +655,7 @@ float AMCNutBoss::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
         }
     }
     Feedback->ReportAcceptedHit(Source,GetToolTargetPoint(Source?Source->GetActorLocation():GetActorLocation()+VisualHitDirection*Settings.BodyRadius),
-        -VisualHitDirection,Before-Health,FMath::Max(0.f,ShieldBefore-ShieldHealth),Shielded,Health<=0.f);
+        -VisualHitDirection,Applied,FMath::Max(0.f,ShieldBefore-ShieldHealth),Shielded,bDefeated);
     if(Applied>0) {
         if(BossRole==EMCNutBossRole::Mage && IsValid(Source)) {
             if(VisualHitAt-FocusWindowStartedAt>2) {FocusWindowStartedAt=VisualHitAt;FocusHits=0;}
@@ -1221,6 +1232,17 @@ void AMCNutBoss::Tick(float Dt)
     const auto* Game=GetWorld()->GetGameState<AMCGameState>();
     if(Game && (Game->Phase==EMCShiftPhase::Won || Game->Phase==EMCShiftPhase::Lost)) {CancelAttacks();return;}
     if(!IsValid(Tongue) || Tongue->IsActorBeingDestroyed()) {Defeat();return;}
+    if(State==EMCNutBossState::Transforming) {
+        if(BossRole==EMCNutBossRole::Tank && Time>=StateStartedAt+MageRevealAt) RevealMagePhase();
+        if(Time>=AttackEndAt) {
+            Enter(EMCNutBossState::Idle,0);
+            NextTargetAt=Time;NextFireballAt=Time+1.25;NextSummonAt=Time+3;NextRainAt=Time+6;
+            NextMeleeAt=Time+1.5;NextTeleportAt=Time+4;NextSpecialAt=Time+1.25;
+            if(IsValid(EncounterOwner)) if(auto* GS=GetWorld()->GetGameState<AMCGameState>())
+                GS->RecordDirectorDecision(TEXT("Орехи: скорлупа Рыцаря раскололась — победите Орехового Колдуна"));
+        }
+        return;
+    }
     if(State==EMCNutBossState::Falling) {
         const float Alpha=FMath::Clamp(float((Time-StateStartedAt)/BossSettings.EntranceSeconds),0.f,1.f);
         SetActorLocation(FMath::Lerp(LockedStart,EntranceLanding,Alpha*Alpha),false);
@@ -1339,11 +1361,47 @@ void AMCNutBoss::CancelAttacks()
 
 void AMCNutBoss::Defeat()
 {
+    if(bDefeated || State==EMCNutBossState::Transforming) return;
+    if(bHasMagePhase && BossRole==EMCNutBossRole::Tank && IsValid(Tongue)
+        && IsValid(EncounterOwner) && EncounterOwner->Stage==EMCNutRainStage::Enemies) {
+        BeginMageTransformation();return;
+    }
     CancelAttacks(); State=EMCNutBossState::Defeated; Attack=EMCNutBossAttack::None;
     StateStartedAt=Now();
     Super::Defeat();
     SetLifeSpan(DeathSeconds());
     TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::DeathBurst,GetActorLocation(),GetActorLocation(),Settings.BodyRadius,0,1.1f,AttackSeed));
+}
+
+void AMCNutBoss::BeginMageTransformation()
+{
+    CancelAttacks();Attack=EMCNutBossAttack::None;PendingHeadTurns.Reset();
+    ShieldHealth=0;ShieldBrokenAt=Now();Health=0;bTankWasBall=false;
+    FHitResult Floor;
+    if(Tongue->SurfacePoint(GetActorLocation(),Floor))
+        SetActorLocation(Floor.ImpactPoint+FVector(0,0,Settings.BodyRadius+4),false);
+    LastTankPresentationAt=-1;TankPresentationMotion=FVector::ZeroVector;
+    Enter(EMCNutBossState::Transforming,MagePhaseSeconds);
+    const FVector Head=GetActorLocation()+FVector(0,0,BossSettings.TankHeight*.62f-Settings.BodyRadius-4);
+    TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::KnightHeadSplit,
+        Head,Head,BossSettings.TankHeight*.33f,HeadSplitAt,MagePhaseSeconds+.45f-HeadSplitAt,
+        Random.RandHelper(MAX_int32)));
+    if(IsValid(EncounterOwner)) if(auto* GS=GetWorld()->GetGameState<AMCGameState>())
+        GS->RecordDirectorDecision(TEXT("Орехи: Рыцарь повержен; его голова раскалывается, начинается вторая фаза"));
+    ForceNetUpdate();
+}
+
+void AMCNutBoss::RevealMagePhase()
+{
+    const float OldRadius=Settings.BodyRadius;
+    BossRole=EMCNutBossRole::Mage;ShieldHealth=0;
+    Settings.BodyRadius=BossSettings.BodyRadiusForRole(BossRole);Settings.MoveSpeed=BossSettings.MageMoveSpeed;Settings.HopHeight=9;
+    Health=BossSettings.HealthForPlayers(BossRole,PartyPlayers);Settings.MaxHealth=Health;
+    NutMesh=BossSettings.KernelMesh.LoadSynchronous();MeshScale=HeightScale(NutMesh,BossSettings.MageHeight*.8f);
+    SetActorLocation(GetActorLocation()+FVector(0,0,Settings.BodyRadius-OldRadius),false);
+    FocusHits=0;FocusWindowStartedAt=-100;VisualHitAt=ShieldHitAt=-100;
+    bLastToolHitBlocked=false;PendingHeadTurns.Reset();SetLifeSpan(0);
+    RefreshPresentation();ForceNetUpdate();
 }
 
 void AMCNutBoss::EndPlay(const EEndPlayReason::Type Reason)
@@ -1355,6 +1413,7 @@ void AMCNutBoss::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCNutBoss,EncounterOwner); DOREPLIFETIME(AMCNutBoss,BossSettings); DOREPLIFETIME(AMCNutBoss,BossRole);
+    DOREPLIFETIME(AMCNutBoss,bHasMagePhase);
     DOREPLIFETIME(AMCNutBoss,State); DOREPLIFETIME(AMCNutBoss,Attack); DOREPLIFETIME(AMCNutBoss,StateStartedAt);
     DOREPLIFETIME(AMCNutBoss,ResolveAt); DOREPLIFETIME(AMCNutBoss,AttackEndAt); DOREPLIFETIME(AMCNutBoss,LockedStart);
     DOREPLIFETIME(AMCNutBoss,LockedTarget); DOREPLIFETIME(AMCNutBoss,AttackForward); DOREPLIFETIME(AMCNutBoss,AttackSeed);

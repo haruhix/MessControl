@@ -16,7 +16,7 @@ enum class EMCMainMenuAction : uint8
 {
     Tutorial, CreateLobby, JoinLobby, Settings, Credits, Exit, Back,
     Host, FindRooms, JoinRoom, JoinAddress, ApplySettings, KeepSettings, RevertSettings,
-    StartLobby, Invite, LeaveLobby, ConfirmLeave, ConfirmExit, Resume
+    StartLobby, Invite, LeaveLobby, ConfirmLeave, ConfirmExit, Resume, Emotes
 };
 
 /** Small delegate adapter so runtime-generated buttons can share the same action handler. */
@@ -50,12 +50,14 @@ protected:
     virtual void NativeDestruct() override;
     virtual void NativeTick(const FGeometry& Geometry, float DeltaSeconds) override;
     virtual FReply NativeOnPreviewKeyDown(const FGeometry& Geometry, const FKeyEvent& Event) override;
+    virtual FReply NativeOnAnalogValueChanged(const FGeometry& Geometry, const FAnalogInputEvent& Event) override;
 private:
     enum class EPage : uint8 { Main, Host, Join, Settings, Credits, Exit, Lobby, Leave, VideoConfirm, Pause };
     void ShowPage(EPage NewPage);
     void BuildSettings();
     void RefreshLobby();
     void FocusFirst();
+    bool MoveGamepadFocus(int32 Direction);
     void SetStatus(const FString& Text);
     void ApplySettings();
     void RevertVideoSettings();
@@ -77,6 +79,8 @@ private:
     UPROPERTY(Transient) TObjectPtr<UCheckBox> HostTutorialCheck;
     UPROPERTY(Transient) TArray<TObjectPtr<UButton>> Buttons;
     UPROPERTY(Transient) TArray<TObjectPtr<UButton>> OnlineButtons;
+    UPROPERTY(Transient) TArray<TObjectPtr<UWidget>> GamepadTargets;
+    double NextStickNavigationAt=0;
     TArray<FIntPoint> Resolutions;
     EPage Page=EPage::Main;
     bool bLobby=false;

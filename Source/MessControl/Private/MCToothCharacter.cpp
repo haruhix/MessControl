@@ -351,6 +351,11 @@ void AMCToothCharacter::BuildInput()
     if (InputMap) return;
     InputMap = NewObject<UInputMappingContext>(this);
     auto Action = [this](EInputActionValueType Type) { UInputAction* Result = NewObject<UInputAction>(this); Result->ValueType = Type; return Result; };
+    auto MapStick = [this](UInputAction* InputAction,FKey Key) {
+        auto* DeadZone=NewObject<UInputModifierDeadZone>(this);
+        DeadZone->LowerThreshold=.2f; DeadZone->UpperThreshold=1.f;
+        InputMap->MapKey(InputAction,Key).Modifiers.Add(DeadZone);
+    };
     ForwardAction = Action(EInputActionValueType::Axis1D); RightAction = Action(EInputActionValueType::Axis1D);
     JumpAction = Action(EInputActionValueType::Boolean); BrushAction = Action(EInputActionValueType::Boolean);
     HandleAction = Action(EInputActionValueType::Boolean); PanelAction = Action(EInputActionValueType::Boolean);
@@ -358,6 +363,7 @@ void AMCToothCharacter::BuildInput()
     SwingAction=Action(EInputActionValueType::Boolean);
     BraceAction=Action(EInputActionValueType::Boolean);
     OrbitXAction=Action(EInputActionValueType::Axis1D); OrbitYAction=Action(EInputActionValueType::Axis1D);
+    GamepadLookXAction=Action(EInputActionValueType::Axis1D); GamepadLookYAction=Action(EInputActionValueType::Axis1D);
     ZoomAction=Action(EInputActionValueType::Axis1D);
     SelfCareAction=Action(EInputActionValueType::Boolean);
     ThrowAction=Action(EInputActionValueType::Boolean);
@@ -368,15 +374,17 @@ void AMCToothCharacter::BuildInput()
     InputMap->MapKey(SwingAction,EKeys::F); InputMap->MapKey(SwingAction,EKeys::Gamepad_LeftTrigger);
     InputMap->MapKey(BraceAction,EKeys::RightMouseButton); InputMap->MapKey(BraceAction,EKeys::Gamepad_LeftShoulder);
     InputMap->MapKey(OrbitXAction,EKeys::MouseX); InputMap->MapKey(OrbitYAction,EKeys::MouseY);
+    MapStick(GamepadLookXAction,EKeys::Gamepad_RightX); MapStick(GamepadLookYAction,EKeys::Gamepad_RightY);
     InputMap->MapKey(ZoomAction,EKeys::MouseWheelAxis);
     InputMap->MapKey(ForwardAction, EKeys::W);
     InputMap->MapKey(ForwardAction, EKeys::S).Modifiers.Add(NewObject<UInputModifierNegate>(this));
-    InputMap->MapKey(ForwardAction, EKeys::Gamepad_LeftY);
+    MapStick(ForwardAction,EKeys::Gamepad_LeftY);
     InputMap->MapKey(RightAction, EKeys::D);
     InputMap->MapKey(RightAction, EKeys::A).Modifiers.Add(NewObject<UInputModifierNegate>(this));
-    InputMap->MapKey(RightAction, EKeys::Gamepad_LeftX);
+    MapStick(RightAction,EKeys::Gamepad_LeftX);
     InputMap->MapKey(JumpAction, EKeys::SpaceBar); InputMap->MapKey(JumpAction, EKeys::Gamepad_FaceButton_Bottom);
     InputMap->MapKey(BrushAction, EKeys::LeftMouseButton); InputMap->MapKey(BrushAction, EKeys::Gamepad_RightShoulder);
+    InputMap->MapKey(BrushAction,EKeys::Gamepad_RightTrigger);
     InputMap->MapKey(HandleAction, EKeys::E); InputMap->MapKey(HandleAction, EKeys::Gamepad_FaceButton_Left);
     const FKey Keys[]={EKeys::One,EKeys::Two,EKeys::Three,EKeys::Four};
     const FKey Pad[]={EKeys::Gamepad_DPad_Left,EKeys::Gamepad_DPad_Up,EKeys::Gamepad_DPad_Right,EKeys::Gamepad_DPad_Down};
@@ -423,6 +431,8 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(BraceAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::StopBrace);
     Input->BindAction(OrbitXAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::OrbitMouseX);
     Input->BindAction(OrbitYAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::OrbitMouseY);
+    Input->BindAction(GamepadLookXAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::OrbitGamepadX);
+    Input->BindAction(GamepadLookYAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::OrbitGamepadY);
     Input->BindAction(ZoomAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::CameraMouseWheel);
     Input->BindAction(SelfCareAction,ETriggerEvent::Started,this,&AMCToothCharacter::ToggleSelfCare);
     Input->BindAction(ThrowAction,ETriggerEvent::Started,this,&AMCToothCharacter::ThrowItem);
@@ -439,6 +449,17 @@ void AMCToothCharacter::MoveForward(const FInputActionValue& Value) { LocalPaddl
 void AMCToothCharacter::MoveRight(const FInputActionValue& Value) { LocalPaddle.Y=IsMimicCaptured() || HasFrozenLegs()?0:Value.Get<float>(); const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); if (!IsMimicCaptured() && !HasFrozenLegs() && !ClingTooth && !OrderJumpTarget) AddMovementInput(Move->IsClimbing()?FVector::CrossProduct(FVector(Move->ClimbNormal),FVector::UpVector).GetSafeNormal():CameraMoveDirection(true), LocalPaddle.Y); }
 void AMCToothCharacter::OrbitMouseX(const FInputActionValue& Value) { ApplyCameraOrbitInput(FVector2D(Value.Get<float>(),0)); }
 void AMCToothCharacter::OrbitMouseY(const FInputActionValue& Value) { ApplyCameraOrbitInput(FVector2D(0,Value.Get<float>())); }
+// Stick deflection is a turn rate; mouse input remains an unscaled per-frame delta.
+void AMCToothCharacter::OrbitGamepadX(const FInputActionValue& Value)
+{
+    const float Scale=FMath::Clamp(GamepadCameraTurnRate,30.f,360.f)*GetWorld()->GetDeltaSeconds()/FMath::Clamp(CameraOrbitSensitivity,.02f,1.f);
+    ApplyCameraOrbitInput(FVector2D(Value.Get<float>()*Scale,0));
+}
+void AMCToothCharacter::OrbitGamepadY(const FInputActionValue& Value)
+{
+    const float Scale=FMath::Clamp(GamepadCameraTurnRate,30.f,360.f)*GetWorld()->GetDeltaSeconds()/FMath::Clamp(CameraOrbitSensitivity,.02f,1.f);
+    ApplyCameraOrbitInput(FVector2D(0,Value.Get<float>()*Scale));
+}
 void AMCToothCharacter::CameraMouseWheel(const FInputActionValue& Value) { ZoomCamera(Value.Get<float>()); }
 FVector2D AMCToothCharacter::WorldPaddleInput() const
 {

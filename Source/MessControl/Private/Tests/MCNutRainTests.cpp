@@ -181,8 +181,11 @@ bool FMCNutDirectedEncounter::RunTest(const FString&)
     T.Step(7);
     TestFalse(TEXT("Directed encounter starts successfully"),T.Event->bFailed);
     TestTrue(TEXT("Several individual drops precede bosses"),T.Event->CompletedSeries>=4);
-    TestEqual(TEXT("Removing every existing walnut cannot cancel the two bosses"),T.Event->Bosses.Num(),2);
-    TestEqual(TEXT("Falling bosses remain part of the alive encounter"),T.Event->BossesLeft,2);
+    if(!TestEqual(TEXT("Rain creates only the knight, never a simultaneous wizard"),T.Event->Bosses.Num(),1)) return false;
+    TestEqual(TEXT("Falling knight remains part of the alive encounter"),T.Event->BossesLeft,1);
+    AMCNutBoss* Boss=T.Event->Bosses[0];
+    TestEqual(TEXT("The first form is the knight"),Boss->BossRole,EMCNutBossRole::Tank);
+    TestTrue(TEXT("The event knight owns a pending wizard phase"),Boss->bHasMagePhase);
     TestFalse(TEXT("An untouched encounter cannot complete on a deadline"),T.Event->IsComplete());
     const auto& Times=T.Event->PlannedLaunchTimes;
     for(int32 I=1;I<Times.Num();++I) {
@@ -229,9 +232,23 @@ bool FMCNutDirectedEncounter::RunTest(const FString&)
     auto* SpareCreep=T.World->SpawnActor<AMCNutEnemy>();
     T.Event->RegisterEncounterEnemy(SpareCreep);
     TestTrue(TEXT("A newly registered ordinary enemy is initially alive"),SpareCreep->IsEncounterAlive());
-    for(AMCNutBoss* Boss:T.Event->Bosses) if(IsValid(Boss)) Boss->ReceiveToolDamage(100000,nullptr);
+    Boss->ReceiveToolDamage(100000,nullptr);
     T.Step(.1f);
-    TestTrue(TEXT("Defeating both bosses unlocks the encounter without a leftover summon gate"),T.Event->IsComplete());
+    TestEqual(TEXT("Lethal knight hit starts the head split"),Boss->State,EMCNutBossState::Transforming);
+    TestFalse(TEXT("The phase change does not count as a final defeat"),Boss->bDefeated);
+    TestFalse(TEXT("The encounter cannot finish in the gap between forms"),T.Event->IsComplete());
+    TestEqual(TEXT("The transitioning actor still owns the live encounter"),T.Event->BossesLeft,1);
+    TestEqual(TEXT("Repeated lethal damage is ignored during transformation"),Boss->ReceiveToolDamage(100000,nullptr),0.f);
+    T.Step(AMCNutBoss::MagePhaseSeconds+.1f);
+    TestEqual(TEXT("The same actor becomes the wizard"),Boss->BossRole,EMCNutBossRole::Mage);
+    TestEqual(TEXT("The transition never spawns an extra boss"),T.Event->Bosses.Num(),1);
+    TestTrue(TEXT("Wizard receives its own complete health pool without knight overkill"),
+        FMath::IsNearlyEqual(Boss->Health,T.Event->Settings.Boss.HealthForPlayers(EMCNutBossRole::Mage,1)));
+    TestTrue(TEXT("Wizard can be fought after the split"),Boss->CanReceiveToolHit());
+    TestEqual(TEXT("The wizard has no knight shield"),Boss->ShieldHealth,0.f);
+    TestFalse(TEXT("A living wizard still blocks event completion"),T.Event->IsComplete());
+    Boss->ReceiveToolDamage(100000,nullptr);T.Step(.1f);
+    TestTrue(TEXT("Defeating the wizard unlocks the encounter without a leftover summon gate"),T.Event->IsComplete());
     TestTrue(TEXT("Remaining summons are removed when both bosses are defeated"),!IsValid(SpareCreep) || SpareCreep->IsActorBeingDestroyed());
     T.Event->Stop();
     int32 Left=0; for(TActorIterator<AMCFoodActor> It(T.World);It;++It) if(It->Batch==Batch) ++Left;
