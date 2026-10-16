@@ -1,0 +1,75 @@
+{
+  "passed": false,
+  "error": "Traceback (most recent call last):\n  File \"D:/PROJECT/GAME/WaifuTD/MessControl/Tools/Unreal/check_arena_v10_solo.py\", line 97, in tick\n    self.check('coffee care status can be applied to every active tooth',all(t.status.coffee_amount()>.99 for t in self.teeth))\n                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:/PROJECT/GAME/WaifuTD/MessControl/Tools/Unreal/check_arena_v10_solo.py\", line 97, in <genexpr>\n    self.check('coffee care status can be applied to every active tooth',all(t.status.coffee_amount()>.99 for t in self.teeth))\n                                                                             ^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: 'MCToothStatusComponent' object has no attribute 'coffee_amount'\n",
+  "checks": [
+    {
+      "name": "all twelve lower side teeth are active",
+      "passed": true
+    },
+    {
+      "name": "all twelve teeth are available respawn reserves",
+      "passed": true
+    },
+    {
+      "name": "all active crowns use the new care and gum-contact material",
+      "passed": true
+    },
+    {
+      "name": "new tongue retains the previous pressure material",
+      "passed": true
+    },
+    {
+      "name": "twelve upper crowns and both front rows remain decorative",
+      "passed": true
+    },
+    {
+      "name": "new tongue has matching playable collision",
+      "passed": true
+    }
+  ],
+  "floor_samples": [
+    [
+      -1500.0,
+      -150.0,
+      29.078543186187744
+    ],
+    [
+      -700.0,
+      -150.0,
+      46.13703489303589
+    ],
+    [
+      0.0,
+      -150.0,
+      84.48421955108643
+    ],
+    [
+      1000.0,
+      -150.0,
+      92.88257360458374
+    ],
+    [
+      -700.0,
+      800.0,
+      86.44580841064453
+    ],
+    [
+      -700.0,
+      -900.0,
+      89.13624286651611
+    ]
+  ],
+  "captures": [
+    "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\ArenaRefresh_20261017\\Overview.png",
+    "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\ArenaRefresh_20261017\\GumContact_Right.png",
+    "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\ArenaRefresh_20261017\\GumContact_Left.png"
+  ],
+  "samples": [],
+  "restored_engine_settings": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  },
+  "grime_before": null,
+  "grime_after": 1044480
+}

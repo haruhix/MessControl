@@ -1,0 +1,285 @@
+{
+  "passed": true,
+  "error": null,
+  "phase": 6,
+  "checks": [
+    {
+      "name": "all twelve lower side teeth are active",
+      "passed": true
+    },
+    {
+      "name": "all twelve teeth are available respawn reserves",
+      "passed": true
+    },
+    {
+      "name": "all active crowns use the assigned gameplay material",
+      "passed": true
+    },
+    {
+      "name": "new tongue retains the previous pressure material",
+      "passed": true
+    },
+    {
+      "name": "twelve upper crowns and both front rows remain decorative",
+      "passed": true
+    },
+    {
+      "name": "new tongue has matching playable collision",
+      "passed": true
+    },
+    {
+      "name": "all twelve teeth show <MCArenaToothDamageStage.INTACT: 0> with matching brush geometry and M_ArenaTooth",
+      "passed": true
+    },
+    {
+      "name": "all twelve teeth show <MCArenaToothDamageStage.CHIPPED: 1> with matching brush geometry and M_ArenaTooth",
+      "passed": true
+    },
+    {
+      "name": "all twelve teeth show <MCArenaToothDamageStage.BROKEN: 2> with matching brush geometry and M_ArenaTooth",
+      "passed": true
+    },
+    {
+      "name": "ordinary held Spray repairs broken crown back to chipped",
+      "passed": true
+    },
+    {
+      "name": "ordinary held Spray restores the original V10 tooth at full health",
+      "passed": true
+    },
+    {
+      "name": "zero health still knocks the tooth out with physics",
+      "passed": true
+    }
+  ],
+  "stages": [
+    {
+      "id": 1,
+      "health": 100.0,
+      "stage": "<MCArenaToothDamageStage.INTACT: 0>",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_01.SM_Teeth_L_01"
+    },
+    {
+      "id": 2,
+      "health": 100.0,
+      "stage": "<MCArenaToothDamageStage.INTACT: 0>",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01.SM_Teeth_R_01"
+    },
+    {
+      "id": 3,
+      "health": 100.0,
+      "stage": "<MCArenaToothDamageStage.INTACT: 0>",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_02.SM_Teeth_L_02"
+    },
+    {
+      "id": 4,
+      "health": 100.0,
+      "stage": "<MCArenaToothDamageStage.INTACT: 0>",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_02.SM_Teeth_R_02"
+    },
+    {
+      "id": 5,
+      "health": 100.0,
+      "stage": "<MCArenaToothDamageStage.INTACT: 0>",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_03.SM_Teeth_L_03"
+    },
+    {
+      "id": 6,
+      "health": 100.0,
+      "stage": "<MCArenaToothDamageStage.INTACT: 0>",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_03.SM_Teeth_R_03"
+    },
+    {
+      "id": 7,
+      "health": 100.0,
+      "stage": "<MCArenaToothDamageStage.INTACT: 0>",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_04.SM_Teeth_L_04"
+    },
+    {
+      "id": 8,
+      "health": 100.0,
+      "stage": "<MCArenaToothDamageStage.INTACT: 0>",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_04.SM_Teeth_R_04"
+    },
+    {
+      "id": 9,
+      "health": 100.0,
+      "stage": "<MCArenaToothDamageStage.INTACT: 0>",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_05.SM_Teeth_L_05"
+    },
+    {
+      "id": 10,
+      "health": 100.0,
+      "stage": "<MCArenaToothDamageStage.INTACT: 0>",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_05.SM_Teeth_R_05"
+    },
+    {
+      "id": 11,
+      "health": 100.0,
+      "stage": "<MCArenaToothDamageStage.INTACT: 0>",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_07.SM_Teeth_L_07"
+    },
+    {
+      "id": 12,
+      "health": 100.0,
+      "stage": "<MCArenaToothDamageStage.INTACT: 0>",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_06.SM_Teeth_R_06"
+    },
+    {
+      "id": 1,
+      "health": 66.66667175292969,
+      "stage": "<MCArenaToothDamageStage.CHIPPED: 1>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_01_Chipped.SM_Teeth_L_01_Chipped"
+    },
+    {
+      "id": 2,
+      "health": 66.66667175292969,
+      "stage": "<MCArenaToothDamageStage.CHIPPED: 1>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_01_Chipped.SM_Teeth_R_01_Chipped"
+    },
+    {
+      "id": 3,
+      "health": 66.66667175292969,
+      "stage": "<MCArenaToothDamageStage.CHIPPED: 1>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_02_Chipped.SM_Teeth_L_02_Chipped"
+    },
+    {
+      "id": 4,
+      "health": 66.66667175292969,
+      "stage": "<MCArenaToothDamageStage.CHIPPED: 1>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_02_Chipped.SM_Teeth_R_02_Chipped"
+    },
+    {
+      "id": 5,
+      "health": 66.66667175292969,
+      "stage": "<MCArenaToothDamageStage.CHIPPED: 1>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_03_Chipped.SM_Teeth_L_03_Chipped"
+    },
+    {
+      "id": 6,
+      "health": 66.66667175292969,
+      "stage": "<MCArenaToothDamageStage.CHIPPED: 1>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_03_Chipped.SM_Teeth_R_03_Chipped"
+    },
+    {
+      "id": 7,
+      "health": 66.66667175292969,
+      "stage": "<MCArenaToothDamageStage.CHIPPED: 1>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_04_Chipped.SM_Teeth_L_04_Chipped"
+    },
+    {
+      "id": 8,
+      "health": 66.66667175292969,
+      "stage": "<MCArenaToothDamageStage.CHIPPED: 1>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_04_Chipped.SM_Teeth_R_04_Chipped"
+    },
+    {
+      "id": 9,
+      "health": 66.66667175292969,
+      "stage": "<MCArenaToothDamageStage.CHIPPED: 1>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_05_Chipped.SM_Teeth_L_05_Chipped"
+    },
+    {
+      "id": 10,
+      "health": 66.66667175292969,
+      "stage": "<MCArenaToothDamageStage.CHIPPED: 1>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_05_Chipped.SM_Teeth_R_05_Chipped"
+    },
+    {
+      "id": 11,
+      "health": 66.66667175292969,
+      "stage": "<MCArenaToothDamageStage.CHIPPED: 1>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_07_Chipped.SM_Teeth_L_07_Chipped"
+    },
+    {
+      "id": 12,
+      "health": 66.66667175292969,
+      "stage": "<MCArenaToothDamageStage.CHIPPED: 1>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_06_Chipped.SM_Teeth_R_06_Chipped"
+    },
+    {
+      "id": 1,
+      "health": 33.33333969116211,
+      "stage": "<MCArenaToothDamageStage.BROKEN: 2>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_01_Broken.SM_Teeth_L_01_Broken"
+    },
+    {
+      "id": 2,
+      "health": 33.33333969116211,
+      "stage": "<MCArenaToothDamageStage.BROKEN: 2>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_01_Broken.SM_Teeth_R_01_Broken"
+    },
+    {
+      "id": 3,
+      "health": 33.33333969116211,
+      "stage": "<MCArenaToothDamageStage.BROKEN: 2>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_02_Broken.SM_Teeth_L_02_Broken"
+    },
+    {
+      "id": 4,
+      "health": 33.33333969116211,
+      "stage": "<MCArenaToothDamageStage.BROKEN: 2>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_02_Broken.SM_Teeth_R_02_Broken"
+    },
+    {
+      "id": 5,
+      "health": 33.33333969116211,
+      "stage": "<MCArenaToothDamageStage.BROKEN: 2>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_03_Broken.SM_Teeth_L_03_Broken"
+    },
+    {
+      "id": 6,
+      "health": 33.33333969116211,
+      "stage": "<MCArenaToothDamageStage.BROKEN: 2>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_03_Broken.SM_Teeth_R_03_Broken"
+    },
+    {
+      "id": 7,
+      "health": 33.33333969116211,
+      "stage": "<MCArenaToothDamageStage.BROKEN: 2>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_04_Broken.SM_Teeth_L_04_Broken"
+    },
+    {
+      "id": 8,
+      "health": 33.33333969116211,
+      "stage": "<MCArenaToothDamageStage.BROKEN: 2>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_04_Broken.SM_Teeth_R_04_Broken"
+    },
+    {
+      "id": 9,
+      "health": 33.33333969116211,
+      "stage": "<MCArenaToothDamageStage.BROKEN: 2>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_05_Broken.SM_Teeth_L_05_Broken"
+    },
+    {
+      "id": 10,
+      "health": 33.33333969116211,
+      "stage": "<MCArenaToothDamageStage.BROKEN: 2>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_05_Broken.SM_Teeth_R_05_Broken"
+    },
+    {
+      "id": 11,
+      "health": 33.33333969116211,
+      "stage": "<MCArenaToothDamageStage.BROKEN: 2>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_07_Broken.SM_Teeth_L_07_Broken"
+    },
+    {
+      "id": 12,
+      "health": 33.33333969116211,
+      "stage": "<MCArenaToothDamageStage.BROKEN: 2>",
+      "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_06_Broken.SM_Teeth_R_06_Broken"
+    }
+  ],
+  "captures": [
+    "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\ToothDamageV10_20261017\\01_Intact.png",
+    "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\ToothDamageV10_20261017\\02_Chipped.png",
+    "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\ToothDamageV10_20261017\\03_Broken.png",
+    "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\ToothDamageV10_20261017\\04_Repaired.png"
+  ],
+  "restored_engine_settings": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  },
+  "scope": "one standalone solo PIE; native damage on all 12 teeth; held Spray repairs one; one knockout"
+}

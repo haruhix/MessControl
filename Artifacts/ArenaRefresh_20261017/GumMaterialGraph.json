@@ -1,0 +1,605 @@
+{
+  "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade": [
+    {
+      "cls": "MaterialExpressionLinearInterpolate",
+      "name": "MaterialExpressionLinearInterpolate_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_11",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_12",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_13",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionNormalize",
+      "name": "MaterialExpressionNormalize_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_14",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_2",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionDivide",
+      "name": "MaterialExpressionDivide_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionComponentMask",
+      "name": "MaterialExpressionComponentMask_2",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionTextureSampleParameter2D",
+      "name": "MaterialExpressionTextureSampleParameter2D_0",
+      "desc": "",
+      "parameter_name": "ARM",
+      "texture": "/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture"
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_10",
+      "desc": "",
+      "parameter_name": "Param_1",
+      "default_value": "0.0"
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_15",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_11",
+      "desc": "",
+      "parameter_name": "Param",
+      "default_value": "148.64498901367188"
+    },
+    {
+      "cls": "MaterialExpressionSaturate",
+      "name": "MaterialExpressionSaturate_2",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_16",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionTextureSampleParameter2D",
+      "name": "MaterialExpressionTextureSampleParameter2D_1",
+      "desc": "",
+      "parameter_name": "Albedo Texture",
+      "texture": "/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture"
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_12",
+      "desc": "",
+      "parameter_name": "Metalic",
+      "default_value": "0.0"
+    },
+    {
+      "cls": "MaterialExpressionTextureSampleParameter2D",
+      "name": "MaterialExpressionTextureSampleParameter2D_2",
+      "desc": "",
+      "parameter_name": "Normal Texture",
+      "texture": "/Engine/EngineMaterials/DefaultNormal.DefaultNormal"
+    },
+    {
+      "cls": "MaterialExpressionVectorParameter",
+      "name": "MaterialExpressionVectorParameter_1",
+      "desc": "",
+      "parameter_name": "Albedo Color",
+      "default_value": "<Struct 'LinearColor' (0x000002D9971DFCF8) {r: 1.000000, g: 1.000000, b: 1.000000, a: 1.000000}>"
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_13",
+      "desc": "",
+      "parameter_name": "Roughness Strength",
+      "default_value": "0.5"
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_14",
+      "desc": "",
+      "parameter_name": "Normal Strength",
+      "default_value": "1.0"
+    },
+    {
+      "cls": "MaterialExpressionPower",
+      "name": "MaterialExpressionPower_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_17",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionComponentMask",
+      "name": "MaterialExpressionComponentMask_3",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionDesaturation",
+      "name": "MaterialExpressionDesaturation_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionAppendVector",
+      "name": "MaterialExpressionAppendVector_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_15",
+      "desc": "",
+      "parameter_name": "Saturate",
+      "default_value": "0.0"
+    },
+    {
+      "cls": "MaterialExpressionSaturate",
+      "name": "MaterialExpressionSaturate_3",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionTextureCoordinate",
+      "name": "MaterialExpressionTextureCoordinate_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionConstant",
+      "name": "MaterialExpressionConstant_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_16",
+      "desc": "",
+      "parameter_name": "lightning",
+      "default_value": "1.0"
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_18",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_17",
+      "desc": "",
+      "parameter_name": "Spec",
+      "default_value": "0.5"
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_19",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_18",
+      "desc": "",
+      "parameter_name": "Tile",
+      "default_value": "1.0"
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_20",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_19",
+      "desc": "",
+      "parameter_name": "Mask",
+      "default_value": "1.0"
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_21",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionReroute",
+      "name": "MaterialExpressionReroute_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionVectorParameter",
+      "name": "MaterialExpressionVectorParameter_3",
+      "desc": "",
+      "parameter_name": "GragientTint",
+      "default_value": "<Struct 'LinearColor' (0x000002D9971DFE78) {r: 0.000000, g: 0.000000, b: 0.000000, a: 1.000000}>"
+    },
+    {
+      "cls": "MaterialExpressionWorldPosition",
+      "name": "MaterialExpressionWorldPosition_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionObjectPositionWS",
+      "name": "MaterialExpressionObjectPositionWS_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionSubtract",
+      "name": "MaterialExpressionSubtract_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionMaterialFunctionCall",
+      "name": "MaterialExpressionMaterialFunctionCall_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_4",
+      "desc": "",
+      "parameter_name": "Blending",
+      "default_value": "0.0"
+    },
+    {
+      "cls": "MaterialExpressionCollectionParameter",
+      "name": "MaterialExpressionCollectionParameter_0",
+      "desc": "",
+      "parameter_name": "ColdAmount"
+    },
+    {
+      "cls": "MaterialExpressionWorldPosition",
+      "name": "MaterialExpressionWorldPosition_0",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionVertexNormalWS",
+      "name": "MaterialExpressionVertexNormalWS_0",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionCustom",
+      "name": "MaterialExpressionCustom_0",
+      "description": "Mouth climate frost crystal coverage",
+      "desc": "",
+      "code": "\nfloat grains=frac(sin(dot(floor(P*.9),float3(12.9898,78.233,45.164)))*43758.5453);\nfloat wisps=.5+.5*sin(P.x*.021+sin(P.y*.018)*2+P.z*.015);\nfloat coat=saturate(.38+.50*saturate(N.z)+.28*wisps+.12*grains);\nreturn saturate(Cold)*coat;\n"
+    },
+    {
+      "cls": "MaterialExpressionCustom",
+      "name": "MaterialExpressionCustom_1",
+      "description": "Mouth climate frost color",
+      "desc": "",
+      "code": "return lerp(Base,float3(.65,.82,.93),Frost*.84);"
+    },
+    {
+      "cls": "MaterialExpressionCustom",
+      "name": "MaterialExpressionCustom_2",
+      "description": "Mouth climate rough crystalline finish",
+      "desc": "",
+      "code": "return lerp(Rough,.58,Frost);"
+    },
+    {
+      "cls": "MaterialExpressionTextureSampleParameter2D",
+      "name": "MaterialExpressionTextureSampleParameter2D_3",
+      "desc": "Baked distance to only the external SK_Exit boundary. UV0 follows morph animation.",
+      "parameter_name": "Edge Distance Texture",
+      "texture": "/Game/Art/Materials/ThroatEdgeFade/T_ExitOuterEdgeDistance.T_ExitOuterEdgeDistance"
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_0",
+      "desc": "Fade width in mesh local centimetres, from 1 to 200. Larger values soften a wider border.",
+      "parameter_name": "Edge Fade Width",
+      "default_value": "100.0"
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_1",
+      "desc": "0 restores the original visible border; 1 fully fades the external edge.",
+      "parameter_name": "Edge Fade Amount",
+      "default_value": "1.0"
+    },
+    {
+      "cls": "MaterialExpressionCustom",
+      "name": "MaterialExpressionCustom_3",
+      "description": "Smooth transparency at the outer perimeter",
+      "desc": "",
+      "code": "float d = saturate(Distance) * 200.0;\nfloat edge = smoothstep(0.0, clamp(Width, 0.01, 200.0), d);\nreturn lerp(1.0, edge, saturate(Amount));"
+    },
+    {
+      "cls": "MaterialExpressionMaterialFunctionCall",
+      "name": "MaterialExpressionMaterialFunctionCall_0",
+      "desc": "Temporal dithering preserves the existing lit surface."
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_0",
+      "desc": "Keep the original material mask and add only the soft outer edge."
+    },
+    {
+      "cls": "MaterialExpressionMaterialFunctionCall",
+      "name": "MaterialExpressionMaterialFunctionCall_2",
+      "desc": "Shared matte fern frost; existing climate ColdAmount"
+    }
+  ],
+  "/Game/Art/Materials/MM_Standart_SSS": [
+    {
+      "cls": "MaterialExpressionLinearInterpolate",
+      "name": "MaterialExpressionLinearInterpolate_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_11",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_12",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_13",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionNormalize",
+      "name": "MaterialExpressionNormalize_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_14",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_2",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionDivide",
+      "name": "MaterialExpressionDivide_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionComponentMask",
+      "name": "MaterialExpressionComponentMask_2",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionTextureSampleParameter2D",
+      "name": "MaterialExpressionTextureSampleParameter2D_0",
+      "desc": "",
+      "parameter_name": "ARM",
+      "texture": "/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture"
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_10",
+      "desc": "",
+      "parameter_name": "Param_1",
+      "default_value": "0.0"
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_15",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_11",
+      "desc": "",
+      "parameter_name": "Param",
+      "default_value": "148.64498901367188"
+    },
+    {
+      "cls": "MaterialExpressionSaturate",
+      "name": "MaterialExpressionSaturate_2",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_16",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionTextureSampleParameter2D",
+      "name": "MaterialExpressionTextureSampleParameter2D_1",
+      "desc": "",
+      "parameter_name": "Albedo Texture",
+      "texture": "/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture"
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_12",
+      "desc": "",
+      "parameter_name": "Metalic",
+      "default_value": "0.0"
+    },
+    {
+      "cls": "MaterialExpressionTextureSampleParameter2D",
+      "name": "MaterialExpressionTextureSampleParameter2D_2",
+      "desc": "",
+      "parameter_name": "Normal Texture",
+      "texture": "/Engine/EngineMaterials/DefaultNormal.DefaultNormal"
+    },
+    {
+      "cls": "MaterialExpressionVectorParameter",
+      "name": "MaterialExpressionVectorParameter_1",
+      "desc": "",
+      "parameter_name": "Albedo Color",
+      "default_value": "<Struct 'LinearColor' (0x000002D935247D78) {r: 1.000000, g: 1.000000, b: 1.000000, a: 1.000000}>"
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_13",
+      "desc": "",
+      "parameter_name": "Roughness Strength",
+      "default_value": "0.5"
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_14",
+      "desc": "",
+      "parameter_name": "Normal Strength",
+      "default_value": "1.0"
+    },
+    {
+      "cls": "MaterialExpressionPower",
+      "name": "MaterialExpressionPower_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_17",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionComponentMask",
+      "name": "MaterialExpressionComponentMask_3",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionDesaturation",
+      "name": "MaterialExpressionDesaturation_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionAppendVector",
+      "name": "MaterialExpressionAppendVector_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_15",
+      "desc": "",
+      "parameter_name": "Saturate",
+      "default_value": "0.0"
+    },
+    {
+      "cls": "MaterialExpressionSaturate",
+      "name": "MaterialExpressionSaturate_3",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionTextureCoordinate",
+      "name": "MaterialExpressionTextureCoordinate_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionConstant",
+      "name": "MaterialExpressionConstant_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_16",
+      "desc": "",
+      "parameter_name": "lightning",
+      "default_value": "1.0"
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_18",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_17",
+      "desc": "",
+      "parameter_name": "Spec",
+      "default_value": "0.5"
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_19",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_18",
+      "desc": "",
+      "parameter_name": "Tile",
+      "default_value": "1.0"
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_20",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_19",
+      "desc": "",
+      "parameter_name": "Mask",
+      "default_value": "1.0"
+    },
+    {
+      "cls": "MaterialExpressionMultiply",
+      "name": "MaterialExpressionMultiply_21",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionReroute",
+      "name": "MaterialExpressionReroute_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionVectorParameter",
+      "name": "MaterialExpressionVectorParameter_3",
+      "desc": "",
+      "parameter_name": "GragientTint",
+      "default_value": "<Struct 'LinearColor' (0x000002D935246878) {r: 0.000000, g: 0.000000, b: 0.000000, a: 1.000000}>"
+    },
+    {
+      "cls": "MaterialExpressionWorldPosition",
+      "name": "MaterialExpressionWorldPosition_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionObjectPositionWS",
+      "name": "MaterialExpressionObjectPositionWS_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionSubtract",
+      "name": "MaterialExpressionSubtract_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionMaterialFunctionCall",
+      "name": "MaterialExpressionMaterialFunctionCall_1",
+      "desc": ""
+    },
+    {
+      "cls": "MaterialExpressionScalarParameter",
+      "name": "MaterialExpressionScalarParameter_4",
+      "desc": "",
+      "parameter_name": "Blending",
+      "default_value": "0.0"
+    },
+    {
+      "cls": "MaterialExpressionMaterialFunctionCall",
+      "name": "MaterialExpressionMaterialFunctionCall_0",
+      "desc": "Shared matte fern frost; existing climate ColdAmount"
+    }
+  ]
+}

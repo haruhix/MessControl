@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "checks": {
+    "twelve_active_teeth": true,
+    "all_active_material_parents_exact": true,
+    "fourteen_decorative_meshes": true,
+    "all_decorative_materials_exact": true,
+    "one_moving_tongue": true
+  },
+  "material": "/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth",
+  "scope": "Short standalone solo PIE: inspect exact material references on spawned teeth and decorations. No status or lighting fixture, no saved asset edits."
+}

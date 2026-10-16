@@ -1,0 +1,46 @@
+{
+  "inspected_at_utc": "2026-10-16T20:50:34.118142+00:00",
+  "passed": true,
+  "checks": {
+    "final_editor_compile_succeeded": true,
+    "phase_sources_not_newer_than_editor_binary": true,
+    "focused_test_succeeded": true,
+    "solo_all_11_checks_passed": true,
+    "preview_full_decode": true,
+    "protected_assets_unchanged": true,
+    "compiler_settings_restored": true,
+    "fixture_engine_settings_restored": true,
+    "editor_closed_normally": true,
+    "whitespace_check_passed": true,
+    "documentation_exists": true
+  },
+  "protected_files": 110,
+  "protected_file_differences": [],
+  "compiler_file_differences": [],
+  "phase_sources_newer_than_binary": [],
+  "phase_source_sha256": {
+    "Public/MCNutBossTypes.h": "1239f5a750f9b6c27af7febbda15ae4b37ba1366d1b1f831f26987289518b964",
+    "Public/MCNutBoss.h": "bce0253ed9176cf6392347ae42e21615a07daf436010ffe745ec379fe46aad8c",
+    "Public/MCNutRainEvent.h": "07242e8014e32390443a42dae8aa6ae7df730742e8af81bbb5a19f05b23d3edc",
+    "Public/MCNutRainProfile.h": "bcb8dc0b89f25cb9a88ca01ea9ee1feb9cdd708ec23d02b51f14e2aea4177f7e",
+    "Public/MCNutCombatEffect.h": "11a05d5023d651b93d7d1e5be6701e2d39666ebb91c11cf7b5242980f612a11d",
+    "Private/MCNutBoss.cpp": "7811d595d5b9b98cbcd649b5e3d29e5c5b5ca966476271f42e1fd62486593716",
+    "Private/MCNutRainEvent.cpp": "650891d13fe14e281c8a6d6e361050b39b1ea8685df230429e72011ac2277559",
+    "Private/MCNutCombatEffect.cpp": "89666dc55d3de04903faea39944eb628fd8c6a8c55d54e587fa2aac31c8c0f67",
+    "Private/MCGameplayHUD.cpp": "443a512d6385d0af7fce81f60ec03957dc9745053cd802a55ea0685266324b2b",
+    "Private/MCDevPanelWidget.cpp": "372f9a492f487181067beea9f199ee26a17ed72be05e50f67a2eb27eefd8be93",
+    "Private/MCSingleDayDirector.cpp": "2c5cdcb8cbf6f03213dd9a7f7a6497d85f3a61b88b4116ba366c071dc5f169b6",
+    "Private/Tests/MCNutRainTests.cpp": "a4c273a66bcca00a3582bbf7cb3c649d2e14458a9fd9df9451595f0b8c760f5d"
+  },
+  "editor_module_sha256": "5b5b19860356336630e3bf2fbf03d4cf6ffc79be14f0aa329948ce68c90a538d",
+  "focused_test": {
+    "fullTestPath": "MessControl.CoreLoop.NutRain.DirectedSeriesAndGuaranteedBossGate",
+    "state": "Success",
+    "errors": 0,
+    "warnings": 2
+  },
+  "solo_checks": 11,
+  "genuine_frames": 127,
+  "whitespace_check_output": "",
+  "validation_scope": "Native Editor compile, one focused native test and bounded final solo PIE. No Windows game build, cook/package or multiplayer test."
+}

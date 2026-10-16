@@ -1,0 +1,5785 @@
+{
+  "world": "/Game/Maps/L_Mouth.L_Mouth",
+  "pie": [],
+  "selected": [],
+  "dirty_content": [
+    "/Game/Art/Materials/Arena/MI_Gum_v2",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_BaseColor",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_Normal",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_OcclusionRoughnessMetallic"
+  ],
+  "dirty_maps": [
+    "/Game/Maps/L_Mouth"
+  ],
+  "actors": [
+    {
+      "label": "COLLISION | Front boundary",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_76",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -1400.0,
+        14100.0,
+        100.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D9A3D75C30) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        0.5,
+        21.0,
+        8.0
+      ],
+      "hidden": true,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Engine/BasicShapes/Cube.Cube",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -1400.0,
+            14100.0,
+            100.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D9A40B1280) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+          "scale": [
+            0.5,
+            21.0,
+            8.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D9A40B1280) {x: -1400.000000, y: 14100.000000, z: 100.000000}>, <Struct 'Vector' (0x000002D9A40B1BE0) {x: 25.000000, y: 1050.000000, z: 400.000000}>, 1123.8883056640625)"
+        }
+      ]
+    },
+    {
+      "label": "START | Tooth 1",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.PlayerStart_4",
+      "cls": "PlayerStart",
+      "folder": "None",
+      "location": [
+        -720.0,
+        -240.0,
+        105.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D9A40B1280) {pitch: 0.000000, yaw: 180.000000, roll: 180.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": []
+    },
+    {
+      "label": "START | Tooth 2",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.PlayerStart_5",
+      "cls": "PlayerStart",
+      "folder": "None",
+      "location": [
+        -720.0,
+        -80.0,
+        105.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D9A40B1280) {pitch: 0.000000, yaw: 180.000000, roll: 180.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": []
+    },
+    {
+      "label": "START | Tooth 3",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.PlayerStart_6",
+      "cls": "PlayerStart",
+      "folder": "None",
+      "location": [
+        -720.0,
+        80.0,
+        105.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D9A40B1280) {pitch: 0.000000, yaw: 180.000000, roll: 180.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": []
+    },
+    {
+      "label": "START | Tooth 4",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.PlayerStart_7",
+      "cls": "PlayerStart",
+      "folder": "None",
+      "location": [
+        -720.0,
+        240.0,
+        105.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D9A40B1280) {pitch: 0.000000, yaw: 180.000000, roll: 180.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": []
+    },
+    {
+      "label": "Plane",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_66",
+      "cls": "SkeletalMeshActor",
+      "folder": "None",
+      "location": [
+        160.0,
+        0.0,
+        -40.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D9A40B1BE0) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "SkeletalMeshComponent0",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            160.0,
+            0.0,
+            -40.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D9A40C4600) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D9A40C4600) {x: 160.000000, y: 0.000000, z: -40.000000}>, <Struct 'Vector' (0x000002D86FB0E400) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "Plane_002",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_67",
+      "cls": "SkeletalMeshActor",
+      "folder": "None",
+      "location": [
+        160.0,
+        -40.0,
+        30.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0E400) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "SkeletalMeshComponent0",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            160.0,
+            -40.0,
+            30.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0E4A0) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0E4A0) {x: 160.000000, y: -40.000000, z: 30.000000}>, <Struct 'Vector' (0x000002D86FB0E4F0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "Torus",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_68",
+      "cls": "SkeletalMeshActor",
+      "folder": "None",
+      "location": [
+        160.0,
+        -40.0,
+        120.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0E4F0) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "SkeletalMeshComponent0",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            160.0,
+            -40.0,
+            120.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0E590) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0E590) {x: 160.000000, y: -40.000000, z: 120.000000}>, <Struct 'Vector' (0x000002D86FB0E5E0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "BézierCurve_001_003",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_69",
+      "cls": "SkeletalMeshActor",
+      "folder": "None",
+      "location": [
+        -30.0,
+        -10.0,
+        30.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0E5E0) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "SkeletalMeshComponent0",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -30.0,
+            -10.0,
+            30.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0E680) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0E680) {x: -30.000000, y: -10.000000, z: 30.000000}>, <Struct 'Vector' (0x000002D86FB0E6D0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "BézierCurve_001_004",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_70",
+      "cls": "SkeletalMeshActor",
+      "folder": "None",
+      "location": [
+        -30.0,
+        -10.0,
+        30.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0E6D0) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "SkeletalMeshComponent0",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -30.0,
+            -10.0,
+            30.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0E770) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0E770) {x: -30.000000, y: -10.000000, z: 30.000000}>, <Struct 'Vector' (0x000002D86FB0E7C0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "BézierCurve_001_005",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_71",
+      "cls": "SkeletalMeshActor",
+      "folder": "None",
+      "location": [
+        -30.0,
+        -10.0,
+        30.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0E7C0) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "SkeletalMeshComponent0",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -30.0,
+            -10.0,
+            30.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0E860) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0E860) {x: -30.000000, y: -10.000000, z: 30.000000}>, <Struct 'Vector' (0x000002D86FB0E8B0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "BézierCurve_001_006",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_72",
+      "cls": "SkeletalMeshActor",
+      "folder": "None",
+      "location": [
+        -40.0,
+        -10.0,
+        30.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0E8B0) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "SkeletalMeshComponent0",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -40.0,
+            -10.0,
+            30.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0E950) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0E950) {x: -40.000000, y: -10.000000, z: 30.000000}>, <Struct 'Vector' (0x000002D86FB0E9A0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "Torus_001",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_73",
+      "cls": "SkeletalMeshActor",
+      "folder": "None",
+      "location": [
+        160.0,
+        -40.0,
+        30.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0E9A0) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "SkeletalMeshComponent0",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            160.0,
+            -40.0,
+            30.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0EA40) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0EA40) {x: 160.000000, y: -40.000000, z: 30.000000}>, <Struct 'Vector' (0x000002D86FB0EA90) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "Cube",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_74",
+      "cls": "SkeletalMeshActor",
+      "folder": "None",
+      "location": [
+        160.0,
+        -10.0,
+        30.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0EA90) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "SkeletalMeshComponent0",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            160.0,
+            -10.0,
+            30.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0EB30) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0EB30) {x: 160.000000, y: -10.000000, z: 30.000000}>, <Struct 'Vector' (0x000002D86FB0EB80) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "BézierCurve_001_7",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_75",
+      "cls": "SkeletalMeshActor",
+      "folder": "None",
+      "location": [
+        390.0,
+        200.0,
+        -590.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0EB80) {pitch: 74.927750, yaw: -129.317674, roll: 118.458910}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "SkeletalMeshComponent0",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            390.0,
+            200.0,
+            -590.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0EC20) {pitch: 74.927750, yaw: -129.317674, roll: 118.458910}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0EC20) {x: 390.000000, y: 200.000000, z: -590.000000}>, <Struct 'Vector' (0x000002D86FB0EC70) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Location",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_2",
+      "cls": "SkeletalMeshActor",
+      "folder": "None",
+      "location": [
+        650.0,
+        -700.0,
+        50.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0EC70) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "SkeletalMeshComponent0",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            650.0,
+            -700.0,
+            50.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0ED10) {pitch: 0.000000, yaw: 90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0ED10) {x: 650.000000, y: -700.000000, z: 50.000000}>, <Struct 'Vector' (0x000002D86FB0ED60) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "COLLISION | Artist mouth",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_3",
+      "cls": "StaticMeshActor",
+      "folder": "Gameplay/Collision",
+      "location": [
+        419.0592945135138,
+        -130.4520263671875,
+        -21.50616455078125
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0EDB0) {pitch: 0.000000, yaw: 84.113584, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": true,
+      "tags": [
+        "ArtistArenaIntegrationV1"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/Gameplay/Arena/SM_MouthShell.SM_MouthShell",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            419.0592945135138,
+            -130.4520263671875,
+            -21.50616455078125
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0EEA0) {pitch: 0.000000, yaw: 84.113584, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": false,
+          "hidden": true,
+          "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0EEA0) {x: 654.340439, y: -154.709591, z: 453.804001}>, <Struct 'Vector' (0x000002D86FB0EEF0) {x: 1713.429072, y: 1204.517814, z: 933.287613}>, 1865.71240234375)"
+        }
+      ]
+    },
+    {
+      "label": "Plane_005_001_002",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_24",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        220.0,
+        -10.0,
+        -180.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0EEF0) {pitch: 0.000000, yaw: 89.960767, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            220.0,
+            -10.0,
+            -180.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0EF90) {pitch: 0.000000, yaw: 89.960767, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0EF90) {x: 220.000000, y: -10.000000, z: -180.000000}>, <Struct 'Vector' (0x000002D86FB0EFE0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "Plane_005_001_001",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_26",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        230.0,
+        0.0,
+        -210.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0EFE0) {pitch: 0.000000, yaw: 89.779573, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            230.0,
+            0.0,
+            -210.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0F080) {pitch: 0.000000, yaw: 89.779573, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0F080) {x: 230.000000, y: 0.000000, z: -210.000000}>, <Struct 'Vector' (0x000002D86FB0F0D0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "Plane_005_001",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_28",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        160.0,
+        -50.0,
+        -200.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0F080) {pitch: 0.000000, yaw: 90.087778, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            160.0,
+            -50.0,
+            -200.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0F120) {pitch: 0.000000, yaw: 90.087778, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0F120) {x: 160.000000, y: -50.000000, z: -200.000000}>, <Struct 'Vector' (0x000002D86FB0F170) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "LOOK | Reference camera",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.CameraActor_0",
+      "cls": "CameraActor",
+      "folder": "Look/ReferenceLighting",
+      "location": [
+        -1940.0,
+        0.0,
+        620.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0F1C0) {pitch: -27.801459, yaw: 0.000000, roll: -0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "CameraProxyMeshComponent_0",
+          "cls": "CameraProxyMeshComponent",
+          "mesh": "/Engine/EditorMeshes/MatineeCam_SM.MatineeCam_SM",
+          "materials": [
+            "/Engine/EditorMaterials/MatineeCam_mat.MatineeCam_mat"
+          ],
+          "location": [
+            -1940.0,
+            0.0,
+            620.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0F260) {pitch: -27.801459, yaw: 0.000000, roll: -0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": true,
+          "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0F260) {x: -1981.032641, y: -0.000001, z: 643.673005}>, <Struct 'Vector' (0x000002D86FB0F2B0) {x: 54.771337, y: 24.012367, z: 45.968339}>, 57.15544509887695)"
+        }
+      ]
+    },
+    {
+      "label": "LOOK | Throat detail",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.CameraActor_1",
+      "cls": "CameraActor",
+      "folder": "Look/ReferenceLighting",
+      "location": [
+        -550.0,
+        -30.0,
+        250.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0F300) {pitch: -1.718358, yaw: 0.000000, roll: -0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "CameraProxyMeshComponent_0",
+          "cls": "CameraProxyMeshComponent",
+          "mesh": "/Engine/EditorMeshes/MatineeCam_SM.MatineeCam_SM",
+          "materials": [
+            "/Engine/EditorMaterials/MatineeCam_mat.MatineeCam_mat"
+          ],
+          "location": [
+            -550.0,
+            -30.0,
+            250.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0F3A0) {pitch: -1.718358, yaw: 0.000000, roll: -0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": true,
+          "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0F3A0) {x: -597.262177, y: -30.000001, z: 253.221085}>, <Struct 'Vector' (0x000002D86FB0F3F0) {x: 48.590731, y: 24.012367, z: 28.179716}>, 57.15544509887695)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_104",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        1280.0,
+        -80.0,
+        -170.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0F3A0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            1280.0,
+            -80.0,
+            -170.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0F440) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0F440) {x: 1280.000000, y: -80.000000, z: -170.000000}>, <Struct 'Vector' (0x000002D86FB0F490) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_01",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_111",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        1200.0,
+        -70.0,
+        -230.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0F440) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        0.9399999789893627,
+        0.9399999789893627,
+        0.9399999789893627
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            1200.0,
+            -70.0,
+            -230.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0F4E0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            0.9399999789893627,
+            0.9399999789893627,
+            0.9399999789893627
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0F4E0) {x: 1200.000000, y: -70.000000, z: -230.000000}>, <Struct 'Vector' (0x000002D86FB0F530) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Exit",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_133",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        930.0,
+        -120.0,
+        -160.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0F4E0) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+      "scale": [
+        1.0881774596737275,
+        1.0,
+        1.0881774596737275
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            930.0,
+            -120.0,
+            -160.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0F580) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+          "scale": [
+            1.0881774596737275,
+            1.0,
+            1.0881774596737275
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0F580) {x: 930.000000, y: -120.000000, z: -160.000000}>, <Struct 'Vector' (0x000002D86FB0F5D0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Gum",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_134",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        970.0,
+        -120.0,
+        -330.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0F580) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+      "scale": [
+        1.0881774596737275,
+        1.0,
+        1.0881774596737275
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            970.0,
+            -120.0,
+            -330.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0F620) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+          "scale": [
+            1.0881774596737275,
+            1.0,
+            1.0881774596737275
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0F620) {x: 970.000000, y: -120.000000, z: -330.000000}>, <Struct 'Vector' (0x000002D86FB0F670) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth2",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_136",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        960.0,
+        -120.0,
+        -370.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0F620) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+      "scale": [
+        1.0881774596737275,
+        1.0,
+        1.0881774596737275
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            960.0,
+            -120.0,
+            -370.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0F6C0) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+          "scale": [
+            1.0881774596737275,
+            1.0,
+            1.0881774596737275
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0F6C0) {x: 960.000000, y: -120.000000, z: -370.000000}>, <Struct 'Vector' (0x000002D86FB0F710) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_Forwart",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_137",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        970.0,
+        -120.0,
+        -330.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0F710) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+      "scale": [
+        1.0881774596737275,
+        1.0,
+        1.0881774596737275
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            970.0,
+            -120.0,
+            -330.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0F7B0) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+          "scale": [
+            1.0881774596737275,
+            1.0,
+            1.0881774596737275
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0F7B0) {x: 970.000000, y: -120.000000, z: -330.000000}>, <Struct 'Vector' (0x000002D86FB0F800) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_L_01",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_138",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        970.0,
+        -120.0,
+        -330.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0F7B0) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+      "scale": [
+        1.0881774596737275,
+        1.0,
+        1.0881774596737275
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            970.0,
+            -120.0,
+            -330.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0F850) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+          "scale": [
+            1.0881774596737275,
+            1.0,
+            1.0881774596737275
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0F850) {x: 970.000000, y: -120.000000, z: -330.000000}>, <Struct 'Vector' (0x000002D86FB0F8A0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_L_02",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_139",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        970.0,
+        -120.0,
+        -340.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0F850) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+      "scale": [
+        1.0881774596737275,
+        1.0,
+        1.0881774596737275
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            970.0,
+            -120.0,
+            -340.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0F8F0) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+          "scale": [
+            1.0881774596737275,
+            1.0,
+            1.0881774596737275
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0F8F0) {x: 970.000000, y: -120.000000, z: -340.000000}>, <Struct 'Vector' (0x000002D86FB0F940) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_L_03",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_140",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        970.0,
+        -120.0,
+        -330.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0F8F0) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+      "scale": [
+        1.0881774596737275,
+        1.0,
+        1.0881774596737275
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            970.0,
+            -120.0,
+            -330.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0F990) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+          "scale": [
+            1.0881774596737275,
+            1.0,
+            1.0881774596737275
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0F990) {x: 970.000000, y: -120.000000, z: -330.000000}>, <Struct 'Vector' (0x000002D86FB0F9E0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_l_04",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_141",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        970.0,
+        -120.0,
+        -330.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0F990) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+      "scale": [
+        1.0881774596737275,
+        1.0,
+        1.0881774596737275
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            970.0,
+            -120.0,
+            -330.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0FA30) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+          "scale": [
+            1.0881774596737275,
+            1.0,
+            1.0881774596737275
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0FA30) {x: 970.000000, y: -120.000000, z: -330.000000}>, <Struct 'Vector' (0x000002D86FB0FA80) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_l_05",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_142",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        970.0,
+        -110.0,
+        -330.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0FA30) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+      "scale": [
+        1.0881774596737275,
+        1.0,
+        1.0881774596737275
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            970.0,
+            -110.0,
+            -330.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0FAD0) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+          "scale": [
+            1.0881774596737275,
+            1.0,
+            1.0881774596737275
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0FAD0) {x: 970.000000, y: -110.000000, z: -330.000000}>, <Struct 'Vector' (0x000002D86FB0FB20) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_2",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_143",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        970.0,
+        -120.0,
+        -380.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0FAD0) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+      "scale": [
+        1.0881774596737275,
+        1.0,
+        1.0881774596737275
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            970.0,
+            -120.0,
+            -380.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0FB70) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+          "scale": [
+            1.0881774596737275,
+            1.0,
+            1.0881774596737275
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0FB70) {x: 970.000000, y: -120.000000, z: -380.000000}>, <Struct 'Vector' (0x000002D86FB0FBC0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_02",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_144",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        970.0,
+        -120.0,
+        -390.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0FB70) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+      "scale": [
+        1.0881774596737275,
+        1.0,
+        1.0881774596737275
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            970.0,
+            -120.0,
+            -390.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0FC10) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+          "scale": [
+            1.0881774596737275,
+            1.0,
+            1.0881774596737275
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0FC10) {x: 970.000000, y: -120.000000, z: -390.000000}>, <Struct 'Vector' (0x000002D86FB0FC60) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_03",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_145",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        970.0,
+        -120.0,
+        -330.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0FC10) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+      "scale": [
+        1.0881774596737275,
+        1.0,
+        1.0881774596737275
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            970.0,
+            -120.0,
+            -330.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0FCB0) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+          "scale": [
+            1.0881774596737275,
+            1.0,
+            1.0881774596737275
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0FCB0) {x: 970.000000, y: -120.000000, z: -330.000000}>, <Struct 'Vector' (0x000002D86FB0FD00) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_04",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_146",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        970.0,
+        -120.0,
+        -330.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0FCB0) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+      "scale": [
+        1.0881774596737275,
+        1.0,
+        1.0881774596737275
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            970.0,
+            -120.0,
+            -330.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0FD50) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+          "scale": [
+            1.0881774596737275,
+            1.0,
+            1.0881774596737275
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0FD50) {x: 970.000000, y: -120.000000, z: -330.000000}>, <Struct 'Vector' (0x000002D86FB0FDA0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_05",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_147",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        970.0,
+        -120.0,
+        -330.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0FD50) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+      "scale": [
+        1.0881774596737275,
+        1.0,
+        1.0881774596737275
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            970.0,
+            -120.0,
+            -330.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0FDF0) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+          "scale": [
+            1.0881774596737275,
+            1.0,
+            1.0881774596737275
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0FDF0) {x: 970.000000, y: -120.000000, z: -330.000000}>, <Struct 'Vector' (0x000002D86FB0FE40) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_WTooth",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_148",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        970.0,
+        -120.0,
+        -330.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0FE40) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+      "scale": [
+        1.0881774596737275,
+        1.0,
+        1.0881774596737275
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            970.0,
+            -120.0,
+            -330.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0FEE0) {pitch: -0.134454, yaw: -88.600529, roll: 5.486734}>",
+          "scale": [
+            1.0881774596737275,
+            1.0,
+            1.0881774596737275
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0FEE0) {x: 970.000000, y: -120.000000, z: -330.000000}>, <Struct 'Vector' (0x000002D86FB0FF30) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Exit2",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_3",
+      "cls": "SkeletalMeshActor",
+      "folder": "None",
+      "location": [
+        570.0,
+        -80.0,
+        -130.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB0FF30) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "SkeletalMeshComponent0",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            570.0,
+            -80.0,
+            -130.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB0FFD0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB0FFD0) {x: 570.000000, y: -80.000000, z: -130.000000}>, <Struct 'Vector' (0x000002D86FB24060) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Exit_Anim",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_4",
+      "cls": "SkeletalMeshActor",
+      "folder": "None",
+      "location": [
+        200.0,
+        -4020.0,
+        -50.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB24060) {pitch: 0.000000, yaw: -93.158114, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "SkeletalMeshComponent0",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            200.0,
+            -4020.0,
+            -50.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB24100) {pitch: 0.000000, yaw: -93.158114, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB24100) {x: 200.000000, y: -4020.000000, z: -50.000000}>, <Struct 'Vector' (0x000002D86FB24150) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Exit_Skeleton",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_6",
+      "cls": "SkeletalMeshActor",
+      "folder": "None",
+      "location": [
+        200.0,
+        -4020.0,
+        -50.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB241A0) {pitch: 0.000000, yaw: -93.158114, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "SkeletalMeshComponent0",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            200.0,
+            -4020.0,
+            -50.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB24240) {pitch: 0.000000, yaw: -93.158114, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB24240) {x: 200.000000, y: -4020.000000, z: -50.000000}>, <Struct 'Vector' (0x000002D86FB24290) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Gum2",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_149",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        850.0,
+        -180.0,
+        -150.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB24240) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            850.0,
+            -180.0,
+            -150.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB242E0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB242E0) {x: 850.000000, y: -180.000000, z: -150.000000}>, <Struct 'Vector' (0x000002D86FB24330) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Roof_Wall2",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_7",
+      "cls": "SkeletalMeshActor",
+      "folder": "None",
+      "location": [
+        480.0,
+        -170.0,
+        -50.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB24330) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "SkeletalMeshComponent0",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            480.0,
+            -170.0,
+            -50.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB243D0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB243D0) {x: 480.000000, y: -170.000000, z: -50.000000}>, <Struct 'Vector' (0x000002D86FB24420) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Roof_Wall_Skeleton",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_9",
+      "cls": "SkeletalMeshActor",
+      "folder": "None",
+      "location": [
+        200.0,
+        -4020.0,
+        -50.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB24470) {pitch: 0.000000, yaw: -93.158114, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "SkeletalMeshComponent0",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            200.0,
+            -4020.0,
+            -50.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB24510) {pitch: 0.000000, yaw: -93.158114, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB24510) {x: 200.000000, y: -4020.000000, z: -50.000000}>, <Struct 'Vector' (0x000002D86FB24560) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth3",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_150",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        200.0,
+        -4020.0,
+        -50.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB24510) {pitch: 0.000000, yaw: -93.158114, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            200.0,
+            -4020.0,
+            -50.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB245B0) {pitch: 0.000000, yaw: -93.158114, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB245B0) {x: 200.000000, y: -4020.000000, z: -50.000000}>, <Struct 'Vector' (0x000002D86FB24600) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_Forwart2",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_151",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        200.0,
+        -4020.0,
+        -50.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB24600) {pitch: 0.000000, yaw: -93.158114, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            200.0,
+            -4020.0,
+            -50.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB246A0) {pitch: 0.000000, yaw: -93.158114, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB246A0) {x: 200.000000, y: -4020.000000, z: -50.000000}>, <Struct 'Vector' (0x000002D86FB246F0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_L_2",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_152",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        200.0,
+        -150.0,
+        -50.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB246A0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            200.0,
+            -150.0,
+            -50.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB24740) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB24740) {x: 200.000000, y: -150.000000, z: -50.000000}>, <Struct 'Vector' (0x000002D86FB24790) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_L_3",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_153",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        200.0,
+        -150.0,
+        -50.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB24740) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            200.0,
+            -150.0,
+            -50.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB247E0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB247E0) {x: 200.000000, y: -150.000000, z: -50.000000}>, <Struct 'Vector' (0x000002D86FB24830) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_L_4",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_154",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        200.0,
+        -150.0,
+        -50.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB247E0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            200.0,
+            -150.0,
+            -50.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB24880) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB24880) {x: 200.000000, y: -150.000000, z: -50.000000}>, <Struct 'Vector' (0x000002D86FB248D0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_l_5",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_155",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        200.0,
+        -150.0,
+        -50.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB24880) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            200.0,
+            -150.0,
+            -50.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB24920) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB24920) {x: 200.000000, y: -150.000000, z: -50.000000}>, <Struct 'Vector' (0x000002D86FB24970) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_l_6",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_156",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        200.0,
+        -150.0,
+        -50.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB24920) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            200.0,
+            -150.0,
+            -50.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB249C0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB249C0) {x: 200.000000, y: -150.000000, z: -50.000000}>, <Struct 'Vector' (0x000002D86FB24A10) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_3",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_157",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        200.0,
+        -150.0,
+        -50.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB249C0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            200.0,
+            -150.0,
+            -50.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB24A60) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB24A60) {x: 200.000000, y: -150.000000, z: -50.000000}>, <Struct 'Vector' (0x000002D86FB24AB0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_4",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_158",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        200.0,
+        -150.0,
+        -50.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB24A60) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            200.0,
+            -150.0,
+            -50.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB24B00) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB24B00) {x: 200.000000, y: -150.000000, z: -50.000000}>, <Struct 'Vector' (0x000002D86FB24B50) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_5",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_159",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        200.0,
+        -150.0,
+        -50.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB24B00) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            200.0,
+            -150.0,
+            -50.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB24BA0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB24BA0) {x: 200.000000, y: -150.000000, z: -50.000000}>, <Struct 'Vector' (0x000002D86FB24BF0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_6",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_160",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        200.0,
+        -150.0,
+        -50.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB24BA0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            200.0,
+            -150.0,
+            -50.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB24C40) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB24C40) {x: 200.000000, y: -150.000000, z: -50.000000}>, <Struct 'Vector' (0x000002D86FB24C90) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_7",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_161",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        200.0,
+        -150.0,
+        -50.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB24C40) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            200.0,
+            -150.0,
+            -50.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB24CE0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB24CE0) {x: 200.000000, y: -150.000000, z: -50.000000}>, <Struct 'Vector' (0x000002D86FB24D30) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Exit3",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_163",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -3060.0,
+        -150.0,
+        -100.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB24CE0) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -3060.0,
+            -150.0,
+            -100.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB24D80) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB24D80) {x: -3060.000000, y: -150.000000, z: -100.000000}>, <Struct 'Vector' (0x000002D86FB24DD0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Gum3",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_164",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -3060.0,
+        -150.0,
+        -100.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB24D80) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -3060.0,
+            -150.0,
+            -100.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB24E20) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB24E20) {x: -3060.000000, y: -150.000000, z: -100.000000}>, <Struct 'Vector' (0x000002D86FB24E70) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Roof_Wall",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_165",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -3060.0,
+        -150.0,
+        -100.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB24E20) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -3060.0,
+            -150.0,
+            -100.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB24EC0) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB24EC0) {x: -3060.000000, y: -150.000000, z: -100.000000}>, <Struct 'Vector' (0x000002D86FB24F10) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth4",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_166",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -3060.0,
+        -150.0,
+        -100.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB24EC0) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -3060.0,
+            -150.0,
+            -100.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB24F60) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB24F60) {x: -3060.000000, y: -150.000000, z: -100.000000}>, <Struct 'Vector' (0x000002D86FB24FB0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_Forwart3",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_167",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -3060.0,
+        -150.0,
+        -100.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB24FB0) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -3060.0,
+            -150.0,
+            -100.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB25050) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB25050) {x: -3060.000000, y: -150.000000, z: -100.000000}>, <Struct 'Vector' (0x000002D86FB250A0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_L_7",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_168",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -3060.0,
+        -150.0,
+        -100.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB25050) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -3060.0,
+            -150.0,
+            -100.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB250F0) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB250F0) {x: -3060.000000, y: -150.000000, z: -100.000000}>, <Struct 'Vector' (0x000002D86FB25140) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_L_8",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_169",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -3060.0,
+        -150.0,
+        -100.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB250F0) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -3060.0,
+            -150.0,
+            -100.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB25190) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB25190) {x: -3060.000000, y: -150.000000, z: -100.000000}>, <Struct 'Vector' (0x000002D86FB251E0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_L_9",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_170",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -3060.0,
+        -150.0,
+        -100.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB25190) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -3060.0,
+            -150.0,
+            -100.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB25230) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB25230) {x: -3060.000000, y: -150.000000, z: -100.000000}>, <Struct 'Vector' (0x000002D86FB25280) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_l_10",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_171",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -3060.0,
+        -150.0,
+        -100.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB25230) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -3060.0,
+            -150.0,
+            -100.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB252D0) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB252D0) {x: -3060.000000, y: -150.000000, z: -100.000000}>, <Struct 'Vector' (0x000002D86FB25320) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_l_11",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_172",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -3060.0,
+        -150.0,
+        -100.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB252D0) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -3060.0,
+            -150.0,
+            -100.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB25370) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB25370) {x: -3060.000000, y: -150.000000, z: -100.000000}>, <Struct 'Vector' (0x000002D86FB253C0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_8",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_173",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -3060.0,
+        -150.0,
+        -100.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB25370) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -3060.0,
+            -150.0,
+            -100.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB25410) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB25410) {x: -3060.000000, y: -150.000000, z: -100.000000}>, <Struct 'Vector' (0x000002D86FB25460) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_9",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_174",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -3060.0,
+        -150.0,
+        -100.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB25410) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -3060.0,
+            -150.0,
+            -100.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB254B0) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB254B0) {x: -3060.000000, y: -150.000000, z: -100.000000}>, <Struct 'Vector' (0x000002D86FB25500) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_10",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_175",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -3060.0,
+        -150.0,
+        -100.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB254B0) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -3060.0,
+            -150.0,
+            -100.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB25550) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB25550) {x: -3060.000000, y: -150.000000, z: -100.000000}>, <Struct 'Vector' (0x000002D86FB255A0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_11",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_176",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -3060.0,
+        -150.0,
+        -100.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB25550) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -3060.0,
+            -150.0,
+            -100.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB255F0) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB255F0) {x: -3060.000000, y: -150.000000, z: -100.000000}>, <Struct 'Vector' (0x000002D86FB25640) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_12",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_177",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -3060.0,
+        -150.0,
+        -100.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB255F0) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -3060.0,
+            -150.0,
+            -100.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB25690) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB25690) {x: -3060.000000, y: -150.000000, z: -100.000000}>, <Struct 'Vector' (0x000002D86FB256E0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_WTooth2",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_178",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -3060.0,
+        -150.0,
+        -100.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB256E0) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -3060.0,
+            -150.0,
+            -100.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB25780) {pitch: 0.000000, yaw: -87.944717, roll: 101.853729}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB25780) {x: -3060.000000, y: -150.000000, z: -100.000000}>, <Struct 'Vector' (0x000002D86FB257D0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Gum4",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_205",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        870.0,
+        -200.0,
+        -100.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB25780) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            870.0,
+            -200.0,
+            -100.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB25820) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB25820) {x: 870.000000, y: -200.000000, z: -100.000000}>, <Struct 'Vector' (0x000002D86FB25870) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_Forwart4",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_206",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -1270.0,
+        -60.0,
+        -120.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB25870) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -1270.0,
+            -60.0,
+            -120.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB25910) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB25910) {x: -1270.000000, y: -60.000000, z: -120.000000}>, <Struct 'Vector' (0x000002D86FB25960) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_L_12",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_207",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        770.0,
+        -420.0,
+        -110.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB25910) {pitch: 0.000000, yaw: -79.887651, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            770.0,
+            -420.0,
+            -110.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB259B0) {pitch: 0.000000, yaw: -79.887651, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB259B0) {x: 770.000000, y: -420.000000, z: -110.000000}>, <Struct 'Vector' (0x000002D86FB25A00) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_L_13",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_208",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        770.0,
+        -430.0,
+        -110.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB259B0) {pitch: 0.000000, yaw: -79.887651, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            770.0,
+            -430.0,
+            -110.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB25A50) {pitch: 0.000000, yaw: -79.887651, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB25A50) {x: 770.000000, y: -430.000000, z: -110.000000}>, <Struct 'Vector' (0x000002D86FB25AA0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_L_14",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_209",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        770.0,
+        -450.0,
+        -110.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB25A50) {pitch: 0.000000, yaw: -79.887651, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            770.0,
+            -450.0,
+            -110.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB25AF0) {pitch: 0.000000, yaw: -79.887651, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB25AF0) {x: 770.000000, y: -450.000000, z: -110.000000}>, <Struct 'Vector' (0x000002D86FB25B40) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_l_15",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_210",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        770.0,
+        -430.0,
+        -110.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB25AF0) {pitch: 0.000000, yaw: -79.887651, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            770.0,
+            -430.0,
+            -110.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB25B90) {pitch: 0.000000, yaw: -79.887651, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB25B90) {x: 770.000000, y: -430.000000, z: -110.000000}>, <Struct 'Vector' (0x000002D86FB25BE0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_l_16",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_211",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        770.0,
+        -410.0,
+        -110.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB25B90) {pitch: 0.000000, yaw: -79.887651, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            770.0,
+            -410.0,
+            -110.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB25C30) {pitch: 0.000000, yaw: -79.887651, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB25C30) {x: 770.000000, y: -410.000000, z: -110.000000}>, <Struct 'Vector' (0x000002D86FB25C80) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_13",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_212",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        770.0,
+        -20.0,
+        -110.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB25C30) {pitch: 0.000000, yaw: -79.887651, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            770.0,
+            -20.0,
+            -110.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB25CD0) {pitch: 0.000000, yaw: -79.887651, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB25CD0) {x: 770.000000, y: -20.000000, z: -110.000000}>, <Struct 'Vector' (0x000002D86FB25D20) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_14",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_213",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -710.0,
+        710.0,
+        -40.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB25CD0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -710.0,
+            710.0,
+            -40.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB25D70) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB25D70) {x: -710.000000, y: 710.000000, z: -40.000000}>, <Struct 'Vector' (0x000002D86FB25DC0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_15",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_214",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -110.0,
+        800.0,
+        0.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB25D70) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -110.0,
+            800.0,
+            0.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB25E10) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB25E10) {x: -110.000000, y: 800.000000, z: 0.000000}>, <Struct 'Vector' (0x000002D86FB25E60) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_16",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_215",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        130.0,
+        800.0,
+        30.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB25E10) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            130.0,
+            800.0,
+            30.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB25EB0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB25EB0) {x: 130.000000, y: 800.000000, z: 30.000000}>, <Struct 'Vector' (0x000002D86FB25F00) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_17",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_216",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        -400.0,
+        780.0,
+        -30.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB25EB0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -400.0,
+            780.0,
+            -30.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB25F50) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB25F50) {x: -400.000000, y: 780.000000, z: -30.000000}>, <Struct 'Vector' (0x000002D86FB25FA0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_WTooth3",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_217",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        380.0,
+        670.0,
+        -110.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB25FA0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            380.0,
+            670.0,
+            -110.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB26040) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB26040) {x: 380.000000, y: 670.000000, z: -110.000000}>, <Struct 'Vector' (0x000002D86FB26090) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Exit_PhysicsAsset",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_5",
+      "cls": "SkeletalMeshActor",
+      "folder": "None",
+      "location": [
+        200.0,
+        -4020.0,
+        -50.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB260E0) {pitch: 0.000000, yaw: -93.158114, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "SkeletalMeshComponent0",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            200.0,
+            -4020.0,
+            -50.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB26180) {pitch: 0.000000, yaw: -93.158114, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB26180) {x: 200.000000, y: -4020.000000, z: -50.000000}>, <Struct 'Vector' (0x000002D86FB261D0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Roof_Wall_PhysicsAsset",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_8",
+      "cls": "SkeletalMeshActor",
+      "folder": "None",
+      "location": [
+        200.0,
+        -4020.0,
+        -50.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB26220) {pitch: 0.000000, yaw: -93.158114, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "SkeletalMeshComponent0",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            200.0,
+            -4020.0,
+            -50.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB262C0) {pitch: 0.000000, yaw: -93.158114, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB262C0) {x: 200.000000, y: -4020.000000, z: -50.000000}>, <Struct 'Vector' (0x000002D86FB26310) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "CAMERA | Follow bounds",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.TriggerBox_0",
+      "cls": "TriggerBox",
+      "folder": "Gameplay/Camera",
+      "location": [
+        -600.0,
+        -25.0,
+        500.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB26310) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": true,
+      "tags": [
+        "MCCameraBounds",
+        "ArtistArenaIntegrationV2"
+      ],
+      "components": []
+    },
+    {
+      "label": "DirectionalLight",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.DirectionalLight_1",
+      "cls": "DirectionalLight",
+      "folder": "None",
+      "location": [
+        0.0,
+        0.0,
+        340.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB26400) {pitch: -53.409835, yaw: -102.776946, roll: -10.812245}>",
+      "scale": [
+        2.5,
+        2.5,
+        2.5
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": []
+    },
+    {
+      "label": "PostProcessVolume",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.PostProcessVolume_2",
+      "cls": "PostProcessVolume",
+      "folder": "None",
+      "location": [
+        -800.0,
+        -50.0,
+        210.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB264A0) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": []
+    },
+    {
+      "label": "SkyAtmosphere",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkyAtmosphere_0",
+      "cls": "SkyAtmosphere",
+      "folder": "None",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB264A0) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": []
+    },
+    {
+      "label": "SkyLight",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkyLight_0",
+      "cls": "SkyLight",
+      "folder": "None",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB264A0) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": []
+    },
+    {
+      "label": "VolumetricCloud",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.VolumetricCloud_0",
+      "cls": "VolumetricCloud",
+      "folder": "None",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB264A0) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": []
+    },
+    {
+      "label": "SM_Exit",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_0",
+      "cls": "SkeletalMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        1483.259033,
+        -77.485107,
+        233.778961
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB264F0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": true,
+      "tags": [
+        "UESizeExport:c0635365378fe25b9ef7a62ce9671e4ff05ec9281dd35811839270b277306c71"
+      ],
+      "components": [
+        {
+          "name": "SkeletalMeshComponent0",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "/Game/FromBlender4/SK_Exit.SK_Exit",
+          "materials": [
+            "/Game/Art/Materials/Arena/M_Exit.M_Exit"
+          ],
+          "location": [
+            1483.259033,
+            -77.485107,
+            233.778961
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB26590) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": false,
+          "hidden": false,
+          "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB26590) {x: 1483.259033, y: -77.485046, z: 233.778961}>, <Struct 'Vector' (0x000002D86FB265E0) {x: 435.660583, y: 1017.523560, z: 770.388916}>, 1348.5745849609375)"
+        }
+      ]
+    },
+    {
+      "label": "ExponentialHeightFog",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.ExponentialHeightFog_0",
+      "cls": "ExponentialHeightFog",
+      "folder": "None",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB26630) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": []
+    },
+    {
+      "label": "Reward Drop Zone 1",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCRewardDropZone_0",
+      "cls": "MCRewardDropZone",
+      "folder": "None",
+      "location": [
+        -564.8218614478742,
+        -479.57737642380846,
+        -263.54102325439453
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB266D0) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [
+        "MC_RewardZone_0"
+      ],
+      "components": []
+    },
+    {
+      "label": "Reward Drop Zone 2",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCRewardDropZone_1",
+      "cls": "MCRewardDropZone",
+      "folder": "None",
+      "location": [
+        -564.8218614478742,
+        446.1941942240129,
+        -263.54102325439453
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB26770) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [
+        "MC_RewardZone_1"
+      ],
+      "components": []
+    },
+    {
+      "label": "Reward Drop Zone 3",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCRewardDropZone_2",
+      "cls": "MCRewardDropZone",
+      "folder": "None",
+      "location": [
+        907.957722856408,
+        -479.57737642380846,
+        -263.54102325439453
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB26810) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [
+        "MC_RewardZone_2"
+      ],
+      "components": []
+    },
+    {
+      "label": "Reward Drop Zone 4",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCRewardDropZone_3",
+      "cls": "MCRewardDropZone",
+      "folder": "None",
+      "location": [
+        907.957722856408,
+        446.1941942240129,
+        -263.54102325439453
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB268B0) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [
+        "MC_RewardZone_3"
+      ],
+      "components": []
+    },
+    {
+      "label": "Placed Chest Safe Area",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCRewardDropZone_4",
+      "cls": "MCRewardDropZone",
+      "folder": "None",
+      "location": [
+        0.0,
+        -850.0,
+        -34.125298690979264
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB26950) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [
+        "MC_PlacedChestZone"
+      ],
+      "components": []
+    },
+    {
+      "label": "MC Boss Navigation",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.NavMeshBoundsVolume_0",
+      "cls": "NavMeshBoundsVolume",
+      "folder": "None",
+      "location": [
+        171.56793070426693,
+        -16.691591099897778,
+        -263.54102325439453
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB26A40) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [
+        "MC_Roguelike_BossNavigation"
+      ],
+      "components": []
+    },
+    {
+      "label": "RecastNavMesh0",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.RecastNavMesh_0",
+      "cls": "RecastNavMesh",
+      "folder": "None",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB26A90) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [
+        "MC_Roguelike_BossNavigation"
+      ],
+      "components": []
+    },
+    {
+      "label": "RecastNavMesh-Default",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.RecastNavMesh-Default",
+      "cls": "RecastNavMesh",
+      "folder": "None",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB26B30) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": []
+    },
+    {
+      "label": "SM_NutTank.001",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_4",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -0.6885959506034851,
+        -10.315641403198242,
+        74.8542709350586
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB26B30) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:3c3ca5509e8f3b0669de1781444834c521337e4d64a491cc70e9ba62a3451150"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            -0.6885959506034851,
+            -10.315641403198242,
+            74.8542709350586
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB26BD0) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB26BD0) {x: -0.688596, y: -10.315641, z: 74.854271}>, <Struct 'Vector' (0x000002D86FB26C20) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Plane_001",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_2",
+      "cls": "StaticMeshActor",
+      "folder": "None",
+      "location": [
+        267.4664365372166,
+        -85.70918309973058,
+        965.78612932346
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB26BD0) {pitch: 0.000000, yaw: -90.625656, roll: 0.000000}>",
+      "scale": [
+        2.6324999411590397,
+        5.521805346609604,
+        1.9769748439341337
+      ],
+      "hidden": false,
+      "tags": [],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender3/SM_Plane_001.SM_Plane_001",
+          "materials": [
+            "/Game/Art/Materials/Arena/MI_Roof_0.MI_Roof_0"
+          ],
+          "location": [
+            267.4664365372166,
+            -85.70918309973058,
+            965.78612932346
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB26C70) {pitch: 0.000000, yaw: -90.625656, roll: 0.000000}>",
+          "scale": [
+            2.6324999411590397,
+            5.521805346609604,
+            1.9769748439341337
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB26C70) {x: 268.844110, y: -85.724228, z: 965.587756}>, <Struct 'Vector' (0x000002D86FB26CC0) {x: 7397.711756, y: 2721.276097, z: 1843.061224}>, 8094.958984375)"
+        }
+      ]
+    },
+    {
+      "label": "Cylinder_001.001",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_5",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        5.329070518200751e-13,
+        7.256865501403809e-06,
+        205.6927490234375
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB26CC0) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:f46ed5992db5e81436ed484832278a5064ba841442b34e31db1eddee76fd8028"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "None",
+          "materials": [],
+          "location": [
+            5.329070518200751e-13,
+            7.256865501403809e-06,
+            205.6927490234375
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB26D60) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+          "scale": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB26D60) {x: 0.000000, y: 0.000007, z: 205.692749}>, <Struct 'Vector' (0x000002D86FB26DB0) {x: 0.000000, y: 0.000000, z: 0.000000}>, 0.0)"
+        }
+      ]
+    },
+    {
+      "label": "GAMEPLAY | Brush exit",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCFoodDisposal_1",
+      "cls": "MCFoodDisposal",
+      "folder": "Gameplay/Exits",
+      "location": [
+        -1260.0,
+        -100.0,
+        0.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB26DB0) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [
+        "ArtistArenaIntegrationV1"
+      ],
+      "components": []
+    },
+    {
+      "label": "GAMEPLAY | Living throat",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCThroat_0",
+      "cls": "MCThroat",
+      "folder": "Gameplay/Throat",
+      "location": [
+        1970.0,
+        -25.0,
+        280.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB26E50) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        1.6399999633431435,
+        1.6399999633431435,
+        1.6399999633431435
+      ],
+      "hidden": false,
+      "tags": [
+        "ArtistArenaIntegrationV2"
+      ],
+      "components": [
+        {
+          "name": "LivingTissue",
+          "cls": "ProceduralMeshComponent",
+          "mesh": null,
+          "materials": [
+            "/Game/Art/Materials/MI_LivingThroat.MI_LivingThroat"
+          ],
+          "location": [
+            1970.0,
+            -25.0,
+            280.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB26EF0) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+          "scale": [
+            1.6399999633431435,
+            1.6399999633431435,
+            1.6399999633431435
+          ],
+          "visible": false,
+          "hidden": false,
+          "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB26EF0) {x: 2362.512402, y: -25.000000, z: -47.999993}>, <Struct 'Vector' (0x000002D86FB26F40) {x: 148.687586, y: 819.999982, z: 819.999982}>, 1169.1484375)"
+        },
+        {
+          "name": "SculptedTissue",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "/Game/Gameplay/Throat/SK_Throat.SK_Throat",
+          "materials": [
+            "/Game/Art/Materials/MI_LivingThroat.MI_LivingThroat"
+          ],
+          "location": [
+            2215.9999945014715,
+            -25.0,
+            -47.99999266862869
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB26F40) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+          "scale": [
+            1.6399999633431435,
+            1.2424242146538966,
+            1.6399999633431435
+          ],
+          "visible": false,
+          "hidden": false,
+          "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB26F40) {x: 3138.499886, y: -52.206087, z: -122.389366}>, <Struct 'Vector' (0x000002D86FB26F90) {x: 1127.500062, y: 1446.744911, z: 1465.108041}>, 2347.52392578125)"
+        },
+        {
+          "name": "AuthoredMouth",
+          "cls": "SkeletalMeshComponent",
+          "mesh": "/Game/FromBlender4/SK_Exit.SK_Exit",
+          "materials": [
+            "/Game/Gameplay/Cold/M_ExitClimate.M_ExitClimate"
+          ],
+          "location": [
+            2270.544807735425,
+            -111.07557424793595,
+            728.9974863020145
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB26F90) {pitch: -0.000000, yaw: -90.000000, roll: -0.000000}>",
+          "scale": [
+            1.6399999633431435,
+            1.6399999633431435,
+            1.6399999633431435
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB26F90) {x: 2270.544808, y: -111.075474, z: 728.997486}>, <Struct 'Vector' (0x000002D86FB26FE0) {x: 714.483341, y: 1668.738600, z: 1263.437794}>, 2211.662353515625)"
+        },
+        {
+          "name": "Uvula",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/Gameplay/Throat/SM_Uvula.SM_Uvula",
+          "materials": [
+            "/Game/Art/Materials/MI_MouthPalate.MI_MouthPalate",
+            "/Game/Art/Materials/MI_MouthPalate.MI_MouthPalate"
+          ],
+          "location": [
+            1773.2000043988228,
+            -25.0,
+            985.1999842375517
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB26FE0) {pitch: 0.000000, yaw: 0.000000, roll: -0.109983}>",
+          "scale": [
+            1.1479999547898774,
+            1.394000007942318,
+            3.1159998912513265
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB26FE0) {x: 1773.200004, y: -25.179441, z: 1078.679809}>, <Struct 'Vector' (0x000002D86FB27030) {x: 152.683994, y: 530.496604, z: 406.096071}>, 685.3123779296875)"
+        },
+        {
+          "name": "FoodZoneRing",
+          "cls": "ProceduralMeshComponent",
+          "mesh": null,
+          "materials": [
+            "/Game/Art/Materials/MI_ThroatRing.MI_ThroatRing",
+            "/Game/Art/Materials/MI_ThroatRing.MI_ThroatRing"
+          ],
+          "location": [
+            1970.0,
+            -25.0,
+            280.0
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB27030) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+          "scale": [
+            1.6399999633431435,
+            1.6399999633431435,
+            1.6399999633431435
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB27030) {x: 1510.800010, y: -25.000000, z: 218.500001}>, <Struct 'Vector' (0x000002D86FB27080) {x: 483.799989, y: 483.799989, z: 4.100000}>, 684.2088012695312)"
+        }
+      ]
+    },
+    {
+      "label": "Task Reward Director",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCRoguelikeDirector_0",
+      "cls": "MCRoguelikeDirector",
+      "folder": "None",
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D99D711F50) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [
+        "MC_RewardDirector"
+      ],
+      "components": []
+    },
+    {
+      "label": "SM_Gum_Bot",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_6",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -936.0096884877657,
+        -164.9163285118707,
+        -390.5060484733738
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB270D0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.2816320524676938,
+        1.116043640697526,
+        1.4625075263685794
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:031f1bff5c76451d31a3e03a78ef0482c6ef84c86246fd735a4aad318fb6b6fc"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Gum_Bot.SM_Gum_Bot",
+          "materials": [
+            "/Game/Art/Materials/Arena/MI_Gum_v2.MI_Gum_v2"
+          ],
+          "location": [
+            -936.0096884877657,
+            -164.9163285118707,
+            -390.5060484733738
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB27170) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.2816320524676938,
+            1.116043640697526,
+            1.4625075263685794
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB27170) {x: -936.009757, y: -164.916485, z: -390.506048}>, <Struct 'Vector' (0x000002D86FB271C0) {x: 1927.276241, y: 1943.603143, z: 506.849060}>, 2783.681640625)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Gum_Up",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_7",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        292.18986702622465,
+        -175.32910355414654,
+        -94.08316802978365
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB27170) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.2816320524676938,
+        1.116043640697526,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:dc5ecc383d2165e917b1a842ce05882b6a95df110aa4085e630b5a51397cb90a"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Gum_Up.SM_Gum_Up",
+          "materials": [
+            "/Game/Gameplay/Arena/Pressure/MI_Pressure_Soft.MI_Pressure_Soft"
+          ],
+          "location": [
+            292.18986702622465,
+            -175.32910355414654,
+            -94.08316802978365
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB27210) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.2816320524676938,
+            1.116043640697526,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB27210) {x: 292.189867, y: -175.329260, z: -94.083168}>, <Struct 'Vector' (0x000002D86FB27260) {x: 2904.256988, y: 1654.342606, z: 230.938263}>, 3338.56884765625)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Gum_Up.001",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_8",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -765.2870929436624,
+        -81.97403355769575,
+        1773.4570052615152
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB27210) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.421330564079026,
+        1.0,
+        1.3451301725462814
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:b647f7ac96834fbca51bb46d8c0bb4b6a5466eb79ddec1533d5f3ec6249bfb37"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Gum_Up_001.SM_Gum_Up_001",
+          "materials": [
+            "/Game/Art/Materials/Arena/MI_Gum_v2.MI_Gum_v2"
+          ],
+          "location": [
+            -765.2870929436624,
+            -81.97403355769575,
+            1773.4570052615152
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB272B0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.421330564079026,
+            1.0,
+            1.3451301725462814
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB272B0) {x: -765.287093, y: -81.974207, z: 1773.456923}>, <Struct 'Vector' (0x000002D86FB27300) {x: 2262.037109, y: 2293.322070, z: 740.028898}>, 3305.1142578125)"
+        }
+      ]
+    },
+    {
+      "label": "SM_MiniTong",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_9",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        2243.7191320452357,
+        -72.9119455528089,
+        804.1816406249995
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB272B0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.0174999772571027,
+        0.6884891864835695,
+        0.9261075782108927
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:9e5f6b762c6bf8ef3a70a2c7aed15a0e60b9445914080a3f7dd29b87a7596e2f"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_MiniTong.SM_MiniTong",
+          "materials": [
+            "/Game/Art/Materials/MI_LivingThroat.MI_LivingThroat"
+          ],
+          "location": [
+            2243.7191320452357,
+            -72.9119455528089,
+            804.1816406249995
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB27350) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.0174999772571027,
+            0.6884891864835695,
+            0.9261075782108927
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB27350) {x: 2243.719216, y: -72.911946, z: 804.181697}>, <Struct 'Vector' (0x000002D86FB273A0) {x: 85.187846, y: 148.988136, z: 357.503809}>, 396.56451416015625)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_Forwart",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_10",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -2598.8293612359116,
+        -178.47286966620095,
+        -63.994994705324274
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB273A0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.2816320524676938,
+        1.116043640697526,
+        1.4625075263685794
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:59989be486e656b653381bc8cc8282aa8854a7891e398061acf196370b891459"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_Forwart.SM_Teeth_Forwart",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -2598.8293612359116,
+            -178.47286966620095,
+            -63.994994705324274
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB27440) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.2816320524676938,
+            1.116043640697526,
+            1.4625075263685794
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB27440) {x: -2598.829327, y: -178.472870, z: -63.994995}>, <Struct 'Vector' (0x000002D86FB27490) {x: 351.712632, y: 1023.158220, z: 405.059286}>, 1155.2608642578125)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_Forwart.001",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_11",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -2726.338827639317,
+        -100.76131669866618,
+        1324.8794091827403
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB27490) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.421330564079026,
+        1.0,
+        1.3451301725462814
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:b6ef4db88004ebbca624aef6930655d336afe720ffc38ebd193d04f06546126e"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_Forwart_001.SM_Teeth_Forwart_001",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -2726.338827639317,
+            -100.76131669866618,
+            1324.8794091827403
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB27530) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.421330564079026,
+            1.0,
+            1.3451301725462814
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB27530) {x: -2726.338858, y: -100.761317, z: 1324.879409}>, <Struct 'Vector' (0x000002D86FB27580) {x: 342.503143, y: 1212.286445, z: 537.720712}>, 1315.120361328125)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_L_01",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_12",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -2047.2653769720268,
+        -1256.4123657369473,
+        -138.79437932955489
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB27530) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.2816320524676938,
+        1.116043640697526,
+        1.4625075263685794
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:0e6bf6814a24474de0099bbe8c1d873c31064f21db295a3d076dc0b7d0c96e93"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_L_01.SM_Teeth_L_01",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -2047.2653769720268,
+            -1256.4123657369473,
+            -138.79437932955489
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB275D0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.2816320524676938,
+            1.116043640697526,
+            1.4625075263685794
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB275D0) {x: -2047.265445, y: -1256.412366, z: -138.794379}>, <Struct 'Vector' (0x000002D86FB27620) {x: 211.195796, y: 189.529240, z: 336.527900}>, 371.369873046875)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_L_02",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_13",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -1695.5263466292363,
+        -1489.8595590393152,
+        -30.427003601885854
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB275D0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.2816320524676938,
+        1.116043640697526,
+        1.4625075263685794
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:000ddc2a2bf430d12a79e506925143d165165cfbdea9035a6237e0c5658ad7cf"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_L_02.SM_Teeth_L_02",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -1695.5263466292363,
+            -1489.8595590393152,
+            -30.427003601885854
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB27670) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.2816320524676938,
+            1.116043640697526,
+            1.4625075263685794
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB27670) {x: -1695.526347, y: -1489.859481, z: -30.427004}>, <Struct 'Vector' (0x000002D86FB276C0) {x: 219.593303, y: 202.444437, z: 331.029125}>, 379.64935302734375)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_L_03",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_14",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -1264.1369226886102,
+        -1660.8619987672614,
+        29.07106116680863
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB27670) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.2816320524676938,
+        1.116043640697526,
+        1.4625075263685794
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:de4856dc0a6311309c2634f56e48483535ab838ae2f2ce895194e35b1fb84669"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_L_03.SM_Teeth_L_03",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -1264.1369226886102,
+            -1660.8619987672614,
+            29.07106116680863
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB27710) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.2816320524676938,
+            1.116043640697526,
+            1.4625075263685794
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB27710) {x: -1264.136923, y: -1660.861921, z: 29.071061}>, <Struct 'Vector' (0x000002D86FB27760) {x: 238.551603, y: 214.286705, z: 318.232319}>, 383.7602844238281)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_L_04",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_15",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -770.9239675983385,
+        -1782.875022522565,
+        24.619781507581532
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB27710) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.2816320524676938,
+        1.116043640697526,
+        1.4625075263685794
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:b29791e8256a6beb1f26f79f03ae1f3be84c953299060dd6a0efc89f03e77aa5"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_L_04.SM_Teeth_L_04",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -770.9239675983385,
+            -1782.875022522565,
+            24.619781507581532
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB277B0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.2816320524676938,
+            1.116043640697526,
+            1.4625075263685794
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB277B0) {x: -770.923976, y: -1782.875013, z: 24.619793}>, <Struct 'Vector' (0x000002D86FB27800) {x: 257.953071, y: 208.266157, z: 340.486072}>, 407.79803466796875)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_L_05",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_16",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -231.8937053844055,
+        -1891.8799184456543,
+        10.571733482502333
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB277B0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.2816320524676938,
+        1.116043640697526,
+        1.4625075263685794
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:e956a725cab13d1466f2383e3c6f60eb0b1d4b491ea65dcab17d22b087d7deca"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_L_05.SM_Teeth_L_05",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -231.8937053844055,
+            -1891.8799184456543,
+            10.571733482502333
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB27850) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.2816320524676938,
+            1.116043640697526,
+            1.4625075263685794
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB27850) {x: -231.893714, y: -1891.879918, z: 10.571733}>, <Struct 'Vector' (0x000002D86FB278A0) {x: 263.098254, y: 212.660024, z: 356.155485}>, 443.0154113769531)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_L_07",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_17",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        338.40079740472447,
+        -1889.046616038777,
+        -0.10397338867323924
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB27850) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.2816320524676938,
+        1.116043640697526,
+        1.4625075263685794
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:bc3b2696bd67943a2f0837627b79c96ff546ff8ca52a35fedf36a1cf4c45819d"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_L_07.SM_Teeth_L_07",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            338.40079740472447,
+            -1889.046616038777,
+            -0.10397338867323924
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB278F0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.2816320524676938,
+            1.116043640697526,
+            1.4625075263685794
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB278F0) {x: 338.400831, y: -1889.046616, z: -0.103973}>, <Struct 'Vector' (0x000002D86FB27940) {x: 275.975747, y: 200.751891, z: 344.514518}>, 428.9435729980469)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_01",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_18",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -2047.265402952568,
+        878.745878651009,
+        -138.7943793295549
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB278F0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.2816320524676938,
+        1.116043640697526,
+        1.4625075263685794
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:e3df6f5e503861b09cb3e7e91a21bf25c311b7dec2b693399af6a12bc800ae5f"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_R_01.SM_Teeth_R_01",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -2047.265402952568,
+            878.745878651009,
+            -138.7943793295549
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB27990) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.2816320524676938,
+            1.116043640697526,
+            1.4625075263685794
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB27990) {x: -2047.265471, y: 878.745918, z: -138.794379}>, <Struct 'Vector' (0x000002D86FB279E0) {x: 211.195796, y: 189.529280, z: 336.527945}>, 371.36993408203125)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_01.002",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_19",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -2232.6756272805105,
+        -1353.168073049923,
+        1284.409578481228
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB279E0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.421330564079026,
+        1.0,
+        1.3451301725462814
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:ae2c6afb743de5f70b250de0f54ab193545799a5fa823c876a75d20b1acfa434"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_R_01_002.SM_Teeth_R_01_002",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -2232.6756272805105,
+            -1353.168073049923,
+            1284.409578481228
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB27A80) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.421330564079026,
+            1.0,
+            1.3451301725462814
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB27A80) {x: -2232.675688, y: -1353.168073, z: 1284.409496}>, <Struct 'Vector' (0x000002D86FB27AD0) {x: 205.665833, y: 224.562161, z: 341.328177}>, 394.9739990234375)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_01.003",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_20",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -2232.675658063483,
+        1176.669423550894,
+        1277.3409128564767
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB27AD0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.421330564079026,
+        1.0,
+        1.3451301725462814
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:8aa1f7998c6804cc19e82c13b2081182347060f947fb2ab57ca414b33af096e1"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_R_01_003.SM_Teeth_R_01_003",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -2232.675658063483,
+            1176.669423550894,
+            1277.3409128564767
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB27B70) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.421330564079026,
+            1.0,
+            1.3451301725462814
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB27B70) {x: -2232.675658, y: 1176.669424, z: 1277.340913}>, <Struct 'Vector' (0x000002D86FB27BC0) {x: 205.665894, y: 224.564330, z: 341.633179}>, 394.659912109375)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_01.004",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_21",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -989.7542024491715,
+        -1977.3474051178887,
+        1120.4435962229581
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB27BC0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.421330564079026,
+        1.0,
+        1.3451301725462814
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:697caf6c3ac786b51946be101e707b952961a6c2432e93e30e03058486285810"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_R_01_004.SM_Teeth_R_01_004",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -989.7542024491715,
+            -1977.3474051178887,
+            1120.4435962229581
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB27C60) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.421330564079026,
+            1.0,
+            1.3451301725462814
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB27C60) {x: -989.754210, y: -1977.347394, z: 1120.443678}>, <Struct 'Vector' (0x000002D86FB27CB0) {x: 251.198692, y: 246.753025, z: 345.515946}>, 433.1300964355469)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_01.005",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_22",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -464.8381242173357,
+        -2106.512895768611,
+        1134.9800987919684
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB27CB0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.421330564079026,
+        1.0,
+        1.3451301725462814
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:ee71cc5a65b904dd00260f09da418816fc95ad05866da3deacda7fc031eeffb1"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_R_01_005.SM_Teeth_R_01_005",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -464.8381242173357,
+            -2106.512895768611,
+            1134.9800987919684
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB27D50) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.421330564079026,
+            1.0,
+            1.3451301725462814
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB27D50) {x: -464.838124, y: -2106.512809, z: 1134.980099}>, <Struct 'Vector' (0x000002D86FB27DA0) {x: 256.209167, y: 251.987317, z: 361.590268}>, 471.3890075683594)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_01.006",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_23",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        90.52372267881151,
+        -2074.240950628453,
+        1145.8933539992363
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB27DA0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.421330564079026,
+        1.0,
+        1.3451301725462814
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:b259e600c4053d1c4f57f70d8ee762338b727a93823be172c5afedf4b148d35b"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_R_01_006.SM_Teeth_R_01_006",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            90.52372267881151,
+            -2074.240950628453,
+            1145.8933539992363
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB27E40) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.421330564079026,
+            1.0,
+            1.3451301725462814
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB27E40) {x: 90.523692, y: -2074.241037, z: 1145.893436}>, <Struct 'Vector' (0x000002D86FB27E90) {x: 268.749603, y: 237.833003, z: 349.835895}>, 455.79071044921875)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_01.007",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_25",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -1890.146571176848,
+        -1630.065280202185,
+        1175.229736675929
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB27E90) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.421330564079026,
+        1.0,
+        1.3451301725462814
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:7b4713f83ffe965bba00feac2fff5038712e00403a901f6379cc27e33204aa63"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_R_01_007.SM_Teeth_R_01_007",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -1890.146571176848,
+            -1630.065280202185,
+            1175.229736675929
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB27F30) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.421330564079026,
+            1.0,
+            1.3451301725462814
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB27F30) {x: -1890.146632, y: -1630.065356, z: 1175.229655}>, <Struct 'Vector' (0x000002D86FB27F80) {x: 213.843445, y: 239.920072, z: 335.886081}>, 403.48785400390625)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_01.008",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_27",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -1470.0528187118964,
+        -1832.6421834589758,
+        1115.5509151009655
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB27F80) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.421330564079026,
+        1.0,
+        1.3451301725462814
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:6a221ec9fe132e074213170d95f3b1228e29726f4e3cee1b5169a4f14349a1fe"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_R_01_008.SM_Teeth_R_01_008",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -1470.0528187118964,
+            -1832.6421834589758,
+            1115.5509151009655
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB5C060) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.421330564079026,
+            1.0,
+            1.3451301725462814
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB5C060) {x: -1470.052819, y: -1832.642183, z: 1115.550915}>, <Struct 'Vector' (0x000002D86FB5C0B0) {x: 232.305298, y: 253.913279, z: 322.902176}>, 408.6760559082031)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_01.009",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_29",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -989.754248412373,
+        1800.0462511345372,
+        1109.6681052020595
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB5C0B0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.421330564079026,
+        1.0,
+        1.3451301725462814
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:cd25377b3bf701cc31a16f495460cf68b27a779465ef22a522cc66a98e38b226"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_R_01_009.SM_Teeth_R_01_009",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -989.754248412373,
+            1800.0462511345372,
+            1109.6681052020595
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB5C150) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.421330564079026,
+            1.0,
+            1.3451301725462814
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB5C150) {x: -989.754256, y: 1800.046262, z: 1109.668187}>, <Struct 'Vector' (0x000002D86FB5C1A0) {x: 251.198692, y: 246.774518, z: 345.478508}>, 432.8955383300781)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_01.010",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_30",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -464.83817332363515,
+        1929.1900667763061,
+        1123.6415643919613
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB5C1A0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.421330564079026,
+        1.0,
+        1.3451301725462814
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:d3b361033a3b4696d1115b36cfb8cff6ac04410f95a84f46ce42fbb536fd2310"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_R_01_010.SM_Teeth_R_01_010",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -464.83817332363515,
+            1929.1900667763061,
+            1123.6415643919613
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB5C240) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.421330564079026,
+            1.0,
+            1.3451301725462814
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB5C240) {x: -464.838173, y: 1929.190067, z: 1123.641564}>, <Struct 'Vector' (0x000002D86FB5C290) {x: 256.209167, y: 251.953398, z: 361.204068}>, 471.257568359375)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_01.011",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_31",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        90.52367364024154,
+        1925.8952655002572,
+        1134.3937389474638
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB5C290) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.421330564079026,
+        1.0,
+        1.3451301725462814
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:9dba32b87592433b907555e4274883709d9ff6e06c6552265afcb78cb3c1221b"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_R_01_011.SM_Teeth_R_01_011",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            90.52367364024154,
+            1925.8952655002572,
+            1134.3937389474638
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB5C330) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.421330564079026,
+            1.0,
+            1.3451301725462814
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB5C330) {x: 90.523643, y: 1925.895266, z: 1134.393739}>, <Struct 'Vector' (0x000002D86FB5C380) {x: 268.749603, y: 237.888263, z: 349.333853}>, 455.6630859375)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_01.012",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_46",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -1890.1466086911423,
+        1452.9707455059151,
+        1166.5962406624599
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB5C380) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.421330564079026,
+        1.0,
+        1.3451301725462814
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:c06fb72ad9d377c40b7502e9bbb0a130908a709cdbcbc76a3e5cb29a74087a8f"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_R_01_012.SM_Teeth_R_01_012",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -1890.1466086911423,
+            1452.9707455059151,
+            1166.5962406624599
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB5C420) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.421330564079026,
+            1.0,
+            1.3451301725462814
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB5C420) {x: -1890.146609, y: 1452.970713, z: 1166.596241}>, <Struct 'Vector' (0x000002D86FB5C470) {x: 213.843506, y: 239.811568, z: 335.916212}>, 403.1125793457031)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_01.013",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_47",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -1470.0528001217845,
+        1655.617580399322,
+        1105.5274621892281
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB5C470) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.421330564079026,
+        1.0,
+        1.3451301725462814
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:74f3454c6660f5ed44cfb8ebed34f6d1b21c832d002d3c7d42bbb806a8db806f"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_R_01_013.SM_Teeth_R_01_013",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -1470.0528001217845,
+            1655.617580399322,
+            1105.5274621892281
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB5C510) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.421330564079026,
+            1.0,
+            1.3451301725462814
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB5C510) {x: -1470.052800, y: 1655.617667, z: 1105.527462}>, <Struct 'Vector' (0x000002D86FB5C560) {x: 232.305237, y: 253.881442, z: 322.929762}>, 408.8389892578125)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_02",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_48",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -1695.526378290926,
+        1112.193158737866,
+        -30.42699244383931
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB5C510) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.2816320524676938,
+        1.116043640697526,
+        1.4625075263685794
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:bd24c7ce5ec51f24ab44657e00827ca5346f1d6aa6d6553911c8b35c7fe34c79"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_R_02.SM_Teeth_R_02",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -1695.526378290926,
+            1112.193158737866,
+            -30.42699244383931
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB5C5B0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.2816320524676938,
+            1.116043640697526,
+            1.4625075263685794
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB5C5B0) {x: -1695.526446, y: 1112.193159, z: -30.426992}>, <Struct 'Vector' (0x000002D86FB5C600) {x: 219.593234, y: 202.444515, z: 331.029125}>, 379.64947509765625)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_03",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_49",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -1264.137026629706,
+        1283.1954525148165,
+        29.071061166807972
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB5C5B0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.2816320524676938,
+        1.116043640697526,
+        1.4625075263685794
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:5f1b0935d5599fdafdd6c88606cbe27ed8524fecdd464ffd2c01cc8655755e91"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_R_03.SM_Teeth_R_03",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -1264.137026629706,
+            1283.1954525148165,
+            29.071061166807972
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB5C650) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.2816320524676938,
+            1.116043640697526,
+            1.4625075263685794
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB5C650) {x: -1264.137027, y: 1283.195413, z: 29.071072}>, <Struct 'Vector' (0x000002D86FB5C6A0) {x: 238.551603, y: 214.286822, z: 318.232307}>, 383.7603759765625)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_04",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_50",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -770.923972331902,
+        1405.2084882729216,
+        24.619759191486935
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB5C650) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.2816320524676938,
+        1.116043640697526,
+        1.4625075263685794
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:9ea308e9960e8bfa11b52eca6ea5438b7ad372d56e87d5556f0db3d6d5c392b9"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_R_04.SM_Teeth_R_04",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -770.923972331902,
+            1405.2084882729216,
+            24.619759191486935
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB5C6F0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.2816320524676938,
+            1.116043640697526,
+            1.4625075263685794
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB5C6F0) {x: -770.923972, y: 1405.208498, z: 24.619759}>, <Struct 'Vector' (0x000002D86FB5C740) {x: 257.953045, y: 208.265981, z: 340.486061}>, 407.79803466796875)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_05",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_51",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        -231.893763859116,
+        1514.2133973138068,
+        10.571778114689316
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB5C6F0) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.2816320524676938,
+        1.116043640697526,
+        1.4625075263685794
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:b10d215503ecb22c174fdb8c8d9d1cd45438b7af6421d604bccd41b2195cb16b"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_R_05.SM_Teeth_R_05",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            -231.893763859116,
+            1514.2133973138068,
+            10.571778114689316
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB5C790) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.2816320524676938,
+            1.116043640697526,
+            1.4625075263685794
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB5C790) {x: -231.893764, y: 1514.213476, z: 10.571767}>, <Struct 'Vector' (0x000002D86FB5C7E0) {x: 263.098229, y: 212.660102, z: 356.155496}>, 443.0153503417969)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Teeth_R_06",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_52",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        338.40075602843535,
+        1511.3804216841036,
+        -0.10398864746321124
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB5C790) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scale": [
+        1.2816320524676938,
+        1.116043640697526,
+        1.4625075263685794
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:b554b3aecbae171487d87835e8d63aa260d9b03ad469457f40c887971add9741"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Teeth_R_06.SM_Teeth_R_06",
+          "materials": [
+            "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+          ],
+          "location": [
+            338.40075602843535,
+            1511.3804216841036,
+            -0.10398864746321124
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB5C830) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+          "scale": [
+            1.2816320524676938,
+            1.116043640697526,
+            1.4625075263685794
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB5C830) {x: 338.400773, y: 1511.380500, z: -0.104000}>, <Struct 'Vector' (0x000002D86FB5C880) {x: 275.975764, y: 200.751969, z: 344.514507}>, 428.943603515625)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Wall_L",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_53",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        1561.113602326903,
+        -1606.2088508644006,
+        377.4284667968675
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB5C830) {pitch: 0.000000, yaw: -74.687097, roll: 0.000000}>",
+      "scale": [
+        1.2816320524676938,
+        1.87259015369786,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:6221bf26db2e0455e225b56689676b753f1ba9855ef1ed673cb495741064e575"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Wall_L.SM_Wall_L",
+          "materials": [
+            "/Game/Art/Materials/Arena/MI_Gum_v2.MI_Gum_v2"
+          ],
+          "location": [
+            1561.113602326903,
+            -1606.2088508644006,
+            377.4284667968675
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB5C8D0) {pitch: 0.000000, yaw: -74.687097, roll: 0.000000}>",
+          "scale": [
+            1.2816320524676938,
+            1.87259015369786,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB5C8D0) {x: 1561.113685, y: -1606.208828, z: 377.428467}>, <Struct 'Vector' (0x000002D86FB5C920) {x: 1004.355322, y: 588.998657, z: 442.553772}>, 1245.5933837890625)"
+        }
+      ]
+    },
+    {
+      "label": "SM_Wall_R",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_54",
+      "cls": "StaticMeshActor",
+      "folder": "FromBlender",
+      "location": [
+        1565.0262713144652,
+        1313.3138318363672,
+        345.7058410644447
+      ],
+      "rotation": "<Struct 'Rotator' (0x000002D86FB5C8D0) {pitch: 0.000000, yaw: -103.493637, roll: 0.000000}>",
+      "scale": [
+        1.2816320524676938,
+        1.87259015369786,
+        1.0
+      ],
+      "hidden": false,
+      "tags": [
+        "UESizeExport:bc2f5830a0193806760fea23ccd340793298981115623de1a58a7eed3cd97fbf"
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "cls": "StaticMeshComponent",
+          "mesh": "/Game/FromBlender10/SM_Wall_R.SM_Wall_R",
+          "materials": [
+            "/Game/Art/Materials/Arena/MI_Gum_v2.MI_Gum_v2"
+          ],
+          "location": [
+            1565.0262713144652,
+            1313.3138318363672,
+            345.7058410644447
+          ],
+          "rotation": "<Struct 'Rotator' (0x000002D86FB5C970) {pitch: 0.000000, yaw: -103.493637, roll: 0.000000}>",
+          "scale": [
+            1.2816320524676938,
+            1.87259015369786,
+            1.0
+          ],
+          "visible": true,
+          "hidden": false,
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "bounds": "(<Struct 'Vector' (0x000002D86FB5C970) {x: 1565.026234, y: 1313.313800, z: 345.705826}>, <Struct 'Vector' (0x000002D86FB5C9C0) {x: 1003.260760, y: 565.514485, z: 441.548019}>, 1233.4112548828125)"
+        }
+      ]
+    }
+  ]
+}

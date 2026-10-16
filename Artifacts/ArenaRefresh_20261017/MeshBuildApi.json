@@ -1,0 +1,7 @@
+{
+  "build_from_static_mesh_descriptions": "x.build_from_static_mesh_descriptions(static_mesh_descriptions, build_simple_collision=False, fast_build=True) -> None\r\nBuilds static mesh LODs from the array of StaticMeshDescriptions passed in\r\n\r\nArgs:\r\n    static_mesh_descriptions (Array[StaticMeshDescription]): \r\n    build_simple_collision (bool): \r\n    fast_build (bool):",
+  "get_static_mesh_description": "x.get_static_mesh_description(lod_index) -> StaticMeshDescription\r\nReturn a new StaticMeshDescription referencing the MeshDescription of the given LOD\r\n\r\nArgs:\r\n    lod_index (int32): \r\n\r\nReturns:\r\n    StaticMeshDescription:",
+  "uv_channels": 1,
+  "VertexInstanceID_doc": "Vertex Instance ID\r\n\r\n**C++ Source:**\r\n\r\n- **Module**: MeshDescription\r\n- **File**: MeshTypes.h\r\n\r\n**Editor Properties:** (see get_editor_property/set_editor_property)\r\n\r\n- ``id_value`` (int32):  [Read-Write] The actual mesh element index this ID represents.  Read-only.",
+  "preview": "<Struct 'Vector2D' (0x000002D9A3BA4BA0) {x: 0.195334, y: 0.964449}>"
+}

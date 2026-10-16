@@ -1,0 +1,106 @@
+{
+  "retained": 8,
+  "new": 12,
+  "rows": [
+    {
+      "Intact": "/Game/Gameplay/Arena/V2/SM_Teeth_L_01.SM_Teeth_L_01",
+      "Chipped": "/Game/Gameplay/Arena/Damage/SM_Teeth_L_01_Chipped.SM_Teeth_L_01_Chipped",
+      "Broken": "/Game/Gameplay/Arena/Damage/SM_Teeth_L_01_Broken.SM_Teeth_L_01_Broken"
+    },
+    {
+      "Intact": "/Game/Gameplay/Arena/V2/SM_Teeth_L_02.SM_Teeth_L_02",
+      "Chipped": "/Game/Gameplay/Arena/Damage/SM_Teeth_L_02_Chipped.SM_Teeth_L_02_Chipped",
+      "Broken": "/Game/Gameplay/Arena/Damage/SM_Teeth_L_02_Broken.SM_Teeth_L_02_Broken"
+    },
+    {
+      "Intact": "/Game/Gameplay/Arena/V2/SM_Teeth_L_03.SM_Teeth_L_03",
+      "Chipped": "/Game/Gameplay/Arena/Damage/SM_Teeth_L_03_Chipped.SM_Teeth_L_03_Chipped",
+      "Broken": "/Game/Gameplay/Arena/Damage/SM_Teeth_L_03_Broken.SM_Teeth_L_03_Broken"
+    },
+    {
+      "Intact": "/Game/Gameplay/Arena/V2/SM_Teeth_R_01.SM_Teeth_R_01",
+      "Chipped": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_01_Chipped.SM_Teeth_R_01_Chipped",
+      "Broken": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_01_Broken.SM_Teeth_R_01_Broken"
+    },
+    {
+      "Intact": "/Game/Gameplay/Arena/V2/SM_Teeth_R_02.SM_Teeth_R_02",
+      "Chipped": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_02_Chipped.SM_Teeth_R_02_Chipped",
+      "Broken": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_02_Broken.SM_Teeth_R_02_Broken"
+    },
+    {
+      "Intact": "/Game/Gameplay/Arena/V2/SM_Teeth_R_03.SM_Teeth_R_03",
+      "Chipped": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_03_Chipped.SM_Teeth_R_03_Chipped",
+      "Broken": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_03_Broken.SM_Teeth_R_03_Broken"
+    },
+    {
+      "Intact": "/Game/Gameplay/Arena/V2/SM_Teeth_R_04.SM_Teeth_R_04",
+      "Chipped": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_04_Chipped.SM_Teeth_R_04_Chipped",
+      "Broken": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_04_Broken.SM_Teeth_R_04_Broken"
+    },
+    {
+      "Intact": "/Game/Gameplay/Arena/V2/SM_Teeth_l_04.SM_Teeth_l_04",
+      "Chipped": "/Game/Gameplay/Arena/Damage/SM_Teeth_l_04_Chipped.SM_Teeth_l_04_Chipped",
+      "Broken": "/Game/Gameplay/Arena/Damage/SM_Teeth_l_04_Broken.SM_Teeth_l_04_Broken"
+    },
+    {
+      "Intact": "/Game/Gameplay/Arena/V10/SM_Teeth_L_01.SM_Teeth_L_01",
+      "Chipped": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_01_Chipped.SM_Teeth_L_01_Chipped",
+      "Broken": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_01_Broken.SM_Teeth_L_01_Broken"
+    },
+    {
+      "Intact": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01.SM_Teeth_R_01",
+      "Chipped": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_01_Chipped.SM_Teeth_R_01_Chipped",
+      "Broken": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_01_Broken.SM_Teeth_R_01_Broken"
+    },
+    {
+      "Intact": "/Game/Gameplay/Arena/V10/SM_Teeth_L_02.SM_Teeth_L_02",
+      "Chipped": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_02_Chipped.SM_Teeth_L_02_Chipped",
+      "Broken": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_02_Broken.SM_Teeth_L_02_Broken"
+    },
+    {
+      "Intact": "/Game/Gameplay/Arena/V10/SM_Teeth_R_02.SM_Teeth_R_02",
+      "Chipped": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_02_Chipped.SM_Teeth_R_02_Chipped",
+      "Broken": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_02_Broken.SM_Teeth_R_02_Broken"
+    },
+    {
+      "Intact": "/Game/Gameplay/Arena/V10/SM_Teeth_L_03.SM_Teeth_L_03",
+      "Chipped": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_03_Chipped.SM_Teeth_L_03_Chipped",
+      "Broken": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_03_Broken.SM_Teeth_L_03_Broken"
+    },
+    {
+      "Intact": "/Game/Gameplay/Arena/V10/SM_Teeth_R_03.SM_Teeth_R_03",
+      "Chipped": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_03_Chipped.SM_Teeth_R_03_Chipped",
+      "Broken": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_03_Broken.SM_Teeth_R_03_Broken"
+    },
+    {
+      "Intact": "/Game/Gameplay/Arena/V10/SM_Teeth_L_04.SM_Teeth_L_04",
+      "Chipped": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_04_Chipped.SM_Teeth_L_04_Chipped",
+      "Broken": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_04_Broken.SM_Teeth_L_04_Broken"
+    },
+    {
+      "Intact": "/Game/Gameplay/Arena/V10/SM_Teeth_R_04.SM_Teeth_R_04",
+      "Chipped": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_04_Chipped.SM_Teeth_R_04_Chipped",
+      "Broken": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_04_Broken.SM_Teeth_R_04_Broken"
+    },
+    {
+      "Intact": "/Game/Gameplay/Arena/V10/SM_Teeth_L_05.SM_Teeth_L_05",
+      "Chipped": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_05_Chipped.SM_Teeth_L_05_Chipped",
+      "Broken": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_05_Broken.SM_Teeth_L_05_Broken"
+    },
+    {
+      "Intact": "/Game/Gameplay/Arena/V10/SM_Teeth_R_05.SM_Teeth_R_05",
+      "Chipped": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_05_Chipped.SM_Teeth_R_05_Chipped",
+      "Broken": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_05_Broken.SM_Teeth_R_05_Broken"
+    },
+    {
+      "Intact": "/Game/Gameplay/Arena/V10/SM_Teeth_L_07.SM_Teeth_L_07",
+      "Chipped": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_07_Chipped.SM_Teeth_L_07_Chipped",
+      "Broken": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_07_Broken.SM_Teeth_L_07_Broken"
+    },
+    {
+      "Intact": "/Game/Gameplay/Arena/V10/SM_Teeth_R_06.SM_Teeth_R_06",
+      "Chipped": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_06_Chipped.SM_Teeth_R_06_Chipped",
+      "Broken": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_06_Broken.SM_Teeth_R_06_Broken"
+    }
+  ]
+}

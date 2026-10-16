@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "checks": {
+    "material_compiled_without_errors": true,
+    "protected_assets_unchanged": true,
+    "solo_dirty_tooth_and_real_brush_check_passed": true,
+    "all_nine_checks_passed": true,
+    "existing_unsaved_edits_preserved": true,
+    "engine_settings_restored": true
+  },
+  "protected_count": 71,
+  "protected_differences": [],
+  "dirty_content": [
+    "/Game/Art/Materials/Arena/MI_Gum_v2",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_BaseColor",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_Normal",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_OcclusionRoughnessMetallic"
+  ],
+  "dirty_maps": [],
+  "engine_settings": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  }
+}

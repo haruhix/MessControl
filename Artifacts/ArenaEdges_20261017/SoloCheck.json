@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "error": null,
+  "checks": [
+    {
+      "name": "all four authored tissue edge masks are used in PIE",
+      "passed": true
+    },
+    {
+      "name": "twelve active teeth and moving tongue are retained",
+      "passed": true
+    }
+  ],
+  "captures": [
+    "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\ArenaEdges_20261017\\Before.png",
+    "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\ArenaEdges_20261017\\Before_Unlit.png",
+    "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\ArenaEdges_20261017\\After.png",
+    "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\ArenaEdges_20261017\\After_Unlit.png"
+  ],
+  "component_references_restored": true,
+  "scope": "One paused standalone solo PIE. Before/After swaps four runtime mesh/material references at the same stored camera under saved lighting. Additional Unlit views disable lighting only on the transient capture to inspect the mask. No saved asset or lighting changes."
+}

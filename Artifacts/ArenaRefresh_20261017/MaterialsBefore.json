@@ -1,0 +1,416 @@
+{
+  "/Game/Data/DA_ArenaTooth": {
+    "cls": "MCArenaToothProfile",
+    "settings": "<Struct 'MCArenaToothSettings' (0x000002D9DB734540) {max_health: 100.000000, brush_hit_damage: 25.000000, hit_squash: 0.180000, wobble_degrees: 12.000000, reaction_seconds: 0.800000, fall_anticipation: 0.250000, fall_lift: 310.000000, fall_speed: 220.000000, piano_enabled: True, piano_press_depth: 10.000000, piano_press_seconds: 0.360000, initial_calculus_every_nth_tooth: 6, initial_calculus_patch_count: 2}>",
+    "gameplay_material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+  },
+  "/Game/Data/DA_RunRules": {
+    "cls": "MCRunRules",
+    "settings": "<Struct 'MCRunSettings' (0x000002D9D4B82F20) {max_mouth_health: 100.000000, days_to_survive: 7, max_players: 4, initial_arena_teeth: 8}>"
+  },
+  "/Game/Data/DA_Tongue": {
+    "cls": "MCTongueProfile",
+    "settings": "<Struct 'MCTongueSettings' (0x000002D997296F80) {idle_height: 3.000000, idle_period: 5.000000, automatic_jolts: False, jolt_rest_min: 22.000000, jolt_rest_max: 32.000000, jolt_height: 180.000000, jolt_anticipation: 0.700000, jolt_rise: 0.350000, jolt_return: 1.400000, jolt_lift: 1000.000000, jolt_push: 260.000000, wave_height: 28.000000, wave_speed: 850.000000, wave_width: 260.000000, wave_radius: 2600.000000, cooldown: 4.000000, push_speed: 470.000000, lift_speed: 210.000000, affect_height: 170.000000}>",
+    "pain_motion": "/Game/Data/DA_Tongue_Pain.DA_Tongue_Pain",
+    "jolt_motion": "/Game/Data/DA_Tongue_Jolt.DA_Tongue_Jolt",
+    "pressure": "<Struct 'MCTonguePressureSettings' (0x000002D997296FCC) {enabled: True, depth_per_kg: 3.000000, max_depth: 35.000000, falloff_power: 3.000000, player_depth_scale: 1.000000, ragdoll_depth_scale: 1.000000, food_depth_scale: 1.000000, player_radius: 120.000000, ragdoll_radius: 150.000000, food_margin: 70.000000, player_width_ratio: 1.000000, ragdoll_width_ratio: 0.800000, press_seconds: 0.080000, recover_seconds: 2.200000, trail_hold_seconds: 0.350000, landing_boost: 1.000000, landing_speed: 650.000000, landing_seconds: 0.220000, contact_tolerance: 12.000000, max_sources: 24}>"
+  },
+  "/Game/Art/Materials/Arena/MI_Teeth_v2": {
+    "cls": "MaterialInstanceConstant",
+    "parent": "/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS",
+    "scalars": {
+      "Param_1": 0.0,
+      "Param": 148.64498901367188,
+      "Metalic": 0.0,
+      "Roughness Strength": 0.46720099449157715,
+      "Normal Strength": 1.0,
+      "Saturate": 0.0,
+      "lightning": 1.0,
+      "Spec": 2.165735960006714,
+      "Tile": 1.0,
+      "Mask": 1.0,
+      "Blending": 0.0,
+      "Environment Frost Amount": 1.0,
+      "Environment Frost Tiling": 2.5
+    },
+    "vectors": {
+      "Albedo Color": "<Struct 'LinearColor' (0x000002D86FB57F20) {r: 1.000000, g: 1.000000, b: 1.000000, a: 1.000000}>",
+      "GragientTint": "<Struct 'LinearColor' (0x000002D86FB57FA0) {r: 0.000000, g: 0.000000, b: 0.000000, a: 1.000000}>",
+      "Environment Frost Tint": "<Struct 'LinearColor' (0x000002D86FB57FA0) {r: 0.730000, g: 0.840000, b: 0.910000, a: 1.000000}>"
+    },
+    "textures": {
+      "ARM": "/Game/Art/Texture/Arena/teeth_loc_low_DefaultMaterial_OcclusionRoughnessMetallic.teeth_loc_low_DefaultMaterial_OcclusionRoughnessMetallic",
+      "Albedo Texture": "/Game/Art/Texture/Arena/teeth_loc_low_DefaultMaterial_BaseColor.teeth_loc_low_DefaultMaterial_BaseColor",
+      "Normal Texture": "/Game/Art/Texture/Arena/teeth_loc_low_DefaultMaterial_Normal.teeth_loc_low_DefaultMaterial_Normal",
+      "Environment Frost Texture": "/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask"
+    }
+  },
+  "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2": {
+    "cls": "Material",
+    "nodes": [
+      {
+        "cls": "MaterialExpressionVectorParameter",
+        "name": "MaterialExpressionVectorParameter_1",
+        "desc": "",
+        "parameter_name": "Tint",
+        "default_value": "<Struct 'LinearColor' (0x000002D990FE3878) {r: 0.917608, g: 0.915610, b: 0.940000, a: 1.000000}>"
+      },
+      {
+        "cls": "MaterialExpressionScalarParameter",
+        "name": "MaterialExpressionScalarParameter_1",
+        "desc": "",
+        "parameter_name": "Roughness",
+        "default_value": "0.0"
+      },
+      {
+        "cls": "MaterialExpressionPreSkinnedPosition",
+        "name": "MaterialExpressionPreSkinnedPosition_0",
+        "desc": ""
+      },
+      {
+        "cls": "MaterialExpressionVertexInterpolator",
+        "name": "MaterialExpressionVertexInterpolator_0",
+        "desc": ""
+      },
+      {
+        "cls": "MaterialExpressionPreSkinnedNormal",
+        "name": "MaterialExpressionPreSkinnedNormal_0",
+        "desc": ""
+      },
+      {
+        "cls": "MaterialExpressionVertexInterpolator",
+        "name": "MaterialExpressionVertexInterpolator_1",
+        "desc": ""
+      },
+      {
+        "cls": "MaterialExpressionWorldPosition",
+        "name": "MaterialExpressionWorldPosition_0",
+        "desc": ""
+      },
+      {
+        "cls": "MaterialExpressionVertexNormalWS",
+        "name": "MaterialExpressionVertexNormalWS_0",
+        "desc": ""
+      },
+      {
+        "cls": "MaterialExpressionVertexInterpolator",
+        "name": "MaterialExpressionVertexInterpolator_2",
+        "desc": ""
+      },
+      {
+        "cls": "MaterialExpressionTextureObjectParameter",
+        "name": "MaterialExpressionTextureObjectParameter_0",
+        "desc": "",
+        "parameter_name": "GrimeWipe",
+        "texture": "/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture"
+      },
+      {
+        "cls": "MaterialExpressionTextureObjectParameter",
+        "name": "MaterialExpressionTextureObjectParameter_1",
+        "desc": "",
+        "parameter_name": "GrimePigment",
+        "texture": "/Game/Gameplay/Care/Textures/T_Grime_BaseColor.T_Grime_BaseColor"
+      },
+      {
+        "cls": "MaterialExpressionScalarParameter",
+        "name": "MaterialExpressionScalarParameter_0",
+        "desc": "",
+        "parameter_name": "GrimeAmount",
+        "default_value": "0.0"
+      },
+      {
+        "cls": "MaterialExpressionScalarParameter",
+        "name": "MaterialExpressionScalarParameter_2",
+        "desc": "",
+        "parameter_name": "BrushAge",
+        "default_value": "4.0"
+      },
+      {
+        "cls": "MaterialExpressionScalarParameter",
+        "name": "MaterialExpressionScalarParameter_3",
+        "desc": "",
+        "parameter_name": "GrimeSeed",
+        "default_value": "1.0"
+      },
+      {
+        "cls": "MaterialExpressionScalarParameter",
+        "name": "MaterialExpressionScalarParameter_4",
+        "desc": "",
+        "parameter_name": "GrimeThickness",
+        "default_value": "3.5"
+      },
+      {
+        "cls": "MaterialExpressionVectorParameter",
+        "name": "MaterialExpressionVectorParameter_0",
+        "desc": "",
+        "parameter_name": "GrimeMin",
+        "default_value": "<Struct 'LinearColor' (0x000002D990FE1A78) {r: -50.000000, g: -50.000000, b: -50.000000, a: 0.000000}>"
+      },
+      {
+        "cls": "MaterialExpressionVectorParameter",
+        "name": "MaterialExpressionVectorParameter_2",
+        "desc": "",
+        "parameter_name": "GrimeSize",
+        "default_value": "<Struct 'LinearColor' (0x000002D990FE2AF8) {r: 100.000000, g: 100.000000, b: 100.000000, a: 0.000000}>"
+      },
+      {
+        "cls": "MaterialExpressionVectorParameter",
+        "name": "MaterialExpressionVectorParameter_3",
+        "desc": "",
+        "parameter_name": "GrimeScale",
+        "default_value": "<Struct 'LinearColor' (0x000002D990FE03F8) {r: 1.000000, g: 1.000000, b: 1.000000, a: 0.000000}>"
+      },
+      {
+        "cls": "MaterialExpressionVectorParameter",
+        "name": "MaterialExpressionVectorParameter_4",
+        "desc": "",
+        "parameter_name": "BrushLocal",
+        "default_value": "<Struct 'LinearColor' (0x000002D990FEB378) {r: 0.000000, g: 0.000000, b: 0.000000, a: 0.000000}>"
+      },
+      {
+        "cls": "MaterialExpressionVectorParameter",
+        "name": "MaterialExpressionVectorParameter_5",
+        "desc": "",
+        "parameter_name": "GrimeColor",
+        "default_value": "<Struct 'LinearColor' (0x000002D944C6CFF8) {r: 0.160000, g: 0.034000, b: 0.004000, a: 1.000000}>"
+      },
+      {
+        "cls": "MaterialExpressionScalarParameter",
+        "name": "MaterialExpressionScalarParameter_5",
+        "desc": "",
+        "parameter_name": "Damage",
+        "default_value": "0.0"
+      },
+      {
+        "cls": "MaterialExpressionScalarParameter",
+        "name": "MaterialExpressionScalarParameter_6",
+        "desc": "",
+        "parameter_name": "HitFlash",
+        "default_value": "0.0"
+      },
+      {
+        "cls": "MaterialExpressionCustom",
+        "name": "MaterialExpressionCustom_0",
+        "description": "MC Care: pigmentColor",
+        "desc": "",
+        "code": "\nfloat3 w=pow(abs(N),4); w/=max(dot(w,1),.001);\nreturn Texture2DSample(Tex,TexSampler,P.yz*.009).rgb*w.x+\n       Texture2DSample(Tex,TexSampler,P.xz*.009).rgb*w.y+\n       Texture2DSample(Tex,TexSampler,P.xy*.009).rgb*w.z;\n"
+      },
+      {
+        "cls": "MaterialExpressionCustom",
+        "name": "MaterialExpressionCustom_1",
+        "description": "MC Care: localFilm",
+        "desc": "",
+        "code": "\nstruct Noise {\n float hash(float3 p) { return frac(sin(dot(p,float3(127.1,311.7,74.7)))*43758.5453); }\n float value(float3 p) {\n  float3 i=floor(p), f=frac(p); f=f*f*(3-2*f);\n  return lerp(lerp(lerp(hash(i),hash(i+float3(1,0,0)),f.x),lerp(hash(i+float3(0,1,0)),hash(i+float3(1,1,0)),f.x),f.y),\n              lerp(lerp(hash(i+float3(0,0,1)),hash(i+float3(1,0,1)),f.x),lerp(hash(i+float3(0,1,1)),hash(i+1),f.x),f.y),f.z);\n }\n}; Noise S;\n\nfloat3 uv=saturate((P-Minimum)/max(Size,.01))*15;\nfloat z0=floor(uv.z),z1=min(z0+1,15);\nfloat2 a=(uv.xy+float2(fmod(z0,4),floor(z0/4))*16+.5)/64;\nfloat2 b=(uv.xy+float2(fmod(z1,4),floor(z1/4))*16+.5)/64;\nfloat wipe=lerp(Texture2DSampleLevel(Wipe,WipeSampler,a,0).r,Texture2DSampleLevel(Wipe,WipeSampler,b,0).r,frac(uv.z));\nfloat3 q=P+Seed*float3(13.7,21.3,8.1);\nfloat grain=S.value(q*float3(.055,.052,.036)+4);\nfloat streak=S.value(q*float3(.12,.11,.022)+19);\nfloat flecks=S.value(q*.20);\nfloat h=uv.z/15;\nfloat band=smoothstep(.10,.25,h)*(1-smoothstep(.63,.84,h));\nfloat field=grain*.67+streak*.23+flecks*.10-(1-band)*.30;\nfloat threshold=lerp(.63,.51,Amount);\nfloat patch=smoothstep(threshold,threshold+.045,field);\nfloat dirt=0; // Visible coating is the continuous projected relief mesh.\nfloat distance=length((P-Brush)*Scale);\nfloat foam=(1-smoothstep(23,45,distance))*(1-smoothstep(.25,1.4,Age));\nfloat bubbles=smoothstep(.23,.49,S.value(P*.65));\nfoam*=lerp(.72,1,bubbles);\nfloat wet=(1-wipe)*patch;\nfloat crack=1-smoothstep(.025,.075,abs(sin(P.z*.044+P.y*.029+sin(P.y*.055)*.8)));\ncrack*=smoothstep(.15,.65,Damage)*smoothstep(-20,50,P.z);\nreturn float4(dirt,foam,wet,crack);\n"
+      },
+      {
+        "cls": "MaterialExpressionCustom",
+        "name": "MaterialExpressionCustom_2",
+        "description": "MC Care: cleaningColor",
+        "desc": "",
+        "code": "\nfloat3 cream=float3(.91,.79,.62)*lerp(.96,1.04,saturate(Enamel.r));\nfloat3 pigment=Tint*lerp(.7,1.5,saturate(Pigment.r*2.5));\nfloat3 color=lerp(cream,pigment,F.x);\ncolor=lerp(color,float3(.075,.024,.012),F.w*.85);\ncolor=lerp(color,float3(.91,.98,.95),F.y*.95);\nreturn lerp(color,float3(1,.3,.08),saturate(Flash)*.55);\n"
+      },
+      {
+        "cls": "MaterialExpressionCustom",
+        "name": "MaterialExpressionCustom_3",
+        "description": "MC Care: cleaningRoughness",
+        "desc": "",
+        "code": "return lerp(lerp(.18,.135,F.z*.6),.38,F.y);"
+      },
+      {
+        "cls": "MaterialExpressionScalarParameter",
+        "name": "MaterialExpressionScalarParameter_7",
+        "desc": "",
+        "parameter_name": "Specular",
+        "default_value": "0.6499999761581421"
+      },
+      {
+        "cls": "MaterialExpressionCustom",
+        "name": "MaterialExpressionCustom_4",
+        "description": "MC Care: filmHeight",
+        "desc": "",
+        "code": "\nstruct Noise {\n float hash(float3 p) { return frac(sin(dot(p,float3(127.1,311.7,74.7)))*43758.5453); }\n float value(float3 p) {\n  float3 i=floor(p), f=frac(p); f=f*f*(3-2*f);\n  return lerp(lerp(lerp(hash(i),hash(i+float3(1,0,0)),f.x),lerp(hash(i+float3(0,1,0)),hash(i+float3(1,1,0)),f.x),f.y),\n              lerp(lerp(hash(i+float3(0,0,1)),hash(i+float3(1,0,1)),f.x),lerp(hash(i+float3(0,1,1)),hash(i+1),f.x),f.y),f.z);\n }\n}; Noise S;\n\nfloat bead=smoothstep(.39,.67,S.value(P*.18+Seed));\nfloat broad=smoothstep(.30,.68,S.value(P*.060+Seed*2.7));\nreturn pow(saturate(F.x),.62)*Thickness*(.25+.30*broad+1.10*bead)+F.y*.35;\n"
+      },
+      {
+        "cls": "MaterialExpressionCustom",
+        "name": "MaterialExpressionCustom_5",
+        "description": "MC Care: filmNormal",
+        "desc": "",
+        "code": "\nfloat3 n=normalize(N);\nfloat3 dx=ddx(World),dy=ddy(World);\nfloat3 rx=cross(dy,n),ry=cross(n,dx);\nfloat det=dot(dx,rx);\nfloat3 slope=(ddx(Height)*rx+ddy(Height)*ry)*sign(det)/max(abs(det),1e-5);\nreturn normalize(n-slope);\n"
+      },
+      {
+        "cls": "MaterialExpressionTextureSampleParameter2D",
+        "name": "MaterialExpressionTextureSampleParameter2D_0",
+        "desc": "",
+        "parameter_name": "Albedo Texture",
+        "texture": "/Game/Art/Texture/Arena/teeth_loc_low_DefaultMaterial_BaseColor.teeth_loc_low_DefaultMaterial_BaseColor"
+      },
+      {
+        "cls": "MaterialExpressionTextureSampleParameter2D",
+        "name": "MaterialExpressionTextureSampleParameter2D_1",
+        "desc": "",
+        "parameter_name": "ARM",
+        "texture": "/Game/Art/Texture/Arena/teeth_loc_low_DefaultMaterial_OcclusionRoughnessMetallic.teeth_loc_low_DefaultMaterial_OcclusionRoughnessMetallic"
+      },
+      {
+        "cls": "MaterialExpressionTextureSampleParameter2D",
+        "name": "MaterialExpressionTextureSampleParameter2D_2",
+        "desc": "",
+        "parameter_name": "Normal Texture",
+        "texture": "/Game/Art/Texture/Arena/teeth_loc_low_DefaultMaterial_Normal.teeth_loc_low_DefaultMaterial_Normal"
+      },
+      {
+        "cls": "MaterialExpressionTransform",
+        "name": "MaterialExpressionTransform_0",
+        "desc": "Arena V2 normal to world"
+      },
+      {
+        "cls": "MaterialExpressionCollectionParameter",
+        "name": "MaterialExpressionCollectionParameter_0",
+        "desc": "",
+        "parameter_name": "ColdAmount"
+      },
+      {
+        "cls": "MaterialExpressionWorldPosition",
+        "name": "MaterialExpressionWorldPosition_1",
+        "desc": ""
+      },
+      {
+        "cls": "MaterialExpressionVertexNormalWS",
+        "name": "MaterialExpressionVertexNormalWS_1",
+        "desc": ""
+      },
+      {
+        "cls": "MaterialExpressionCustom",
+        "name": "MaterialExpressionCustom_6",
+        "description": "Mouth climate frost crystal coverage",
+        "desc": "",
+        "code": "\nfloat grains=frac(sin(dot(floor(P*.9),float3(12.9898,78.233,45.164)))*43758.5453);\nfloat wisps=.5+.5*sin(P.x*.021+sin(P.y*.018)*2+P.z*.015);\nfloat coat=saturate(.38+.50*saturate(N.z)+.28*wisps+.12*grains);\nreturn saturate(Cold)*coat;\n"
+      },
+      {
+        "cls": "MaterialExpressionCustom",
+        "name": "MaterialExpressionCustom_7",
+        "description": "Mouth climate frost color",
+        "desc": "",
+        "code": "return lerp(Base,float3(.65,.82,.93),Frost*.84);"
+      },
+      {
+        "cls": "MaterialExpressionCustom",
+        "name": "MaterialExpressionCustom_8",
+        "description": "Mouth climate rough crystalline finish",
+        "desc": "",
+        "code": "return lerp(Rough,.58,Frost);"
+      },
+      {
+        "cls": "MaterialExpressionMaterialFunctionCall",
+        "name": "MaterialExpressionMaterialFunctionCall_0",
+        "desc": "Shared matte fern frost; existing climate ColdAmount"
+      }
+    ],
+    "blend_mode": "<BlendMode.BLEND_OPAQUE: 0>"
+  },
+  "/Game/Gameplay/Arena/Pressure/MI_Pressure_Soft": {
+    "cls": "MaterialInstanceConstant",
+    "parent": "/Game/Gameplay/Arena/M_TonguePain.M_TonguePain",
+    "scalars": {
+      "Param_1": 0.0,
+      "Param": 148.64498901367188,
+      "Metalic": 0.0,
+      "Roughness Strength": 1.0,
+      "Normal Strength": 0.23999999463558197,
+      "Saturate": 0.0,
+      "lightning": 1.0,
+      "Spec": 0.15111500024795532,
+      "Tile": 1.0,
+      "Mask": 1.0,
+      "PainGlow": -0.5269309878349304,
+      "Pressure Contrast": 0.4000000059604645,
+      "Pressure Tint Amount": 0.3499999940395355,
+      "Pressure Darken": 0.11999999731779099,
+      "Pressure Rim Light": 0.10000000149011612,
+      "Pressure Wetness": 0.25,
+      "Pressure Roughness": 0.18000000715255737,
+      "Pressure Normal Flatten": 0.4000000059604645,
+      "Pressure Feather": 0.11999999731779099
+    },
+    "vectors": {
+      "Albedo Color": "<Struct 'LinearColor' (0x000002D86FB71720) {r: 0.680000, g: 0.630000, b: 0.820000, a: 1.000000}>",
+      "GragientTint": "<Struct 'LinearColor' (0x000002D86FB71820) {r: 0.000000, g: 0.000000, b: 0.000000, a: 1.000000}>",
+      "PainColor": "<Struct 'LinearColor' (0x000002D86FB71760) {r: 1.000000, g: 0.000000, b: 0.022506, a: 1.000000}>",
+      "Pressure Tint": "<Struct 'LinearColor' (0x000002D86FB717A0) {r: 0.960000, g: 0.840000, b: 0.880000, a: 1.000000}>"
+    },
+    "textures": {
+      "ARM": "/Game/Gameplay/Arena/test/SM_TongueSurface_MI_TonguePain_OcclusionRoughnessMetallic.SM_TongueSurface_MI_TonguePain_OcclusionRoughnessMetallic",
+      "Albedo Texture": "/Game/Gameplay/Arena/test/SM_TongueSurface_MI_TonguePain_BaseColor.SM_TongueSurface_MI_TonguePain_BaseColor",
+      "Normal Texture": "/Game/Gameplay/Arena/test/SM_TongueSurface_MI_TonguePain_Normal.SM_TongueSurface_MI_TonguePain_Normal"
+    }
+  },
+  "/Game/Gameplay/Arena/MI_TonguePain": {
+    "cls": "MaterialInstanceConstant",
+    "parent": "/Game/Gameplay/Arena/M_TonguePain.M_TonguePain",
+    "scalars": {
+      "Param_1": 0.0,
+      "Param": 148.64498901367188,
+      "Metalic": 0.0,
+      "Roughness Strength": 1.399999976158142,
+      "Normal Strength": 0.23999999463558197,
+      "Saturate": 0.0,
+      "lightning": 1.0,
+      "Spec": 0.4000000059604645,
+      "Tile": 1.0,
+      "Mask": 1.0,
+      "PainGlow": -0.5269309878349304,
+      "Pressure Contrast": 0.4000000059604645,
+      "Pressure Tint Amount": 0.3499999940395355,
+      "Pressure Darken": 0.11999999731779099,
+      "Pressure Rim Light": 0.10000000149011612,
+      "Pressure Wetness": 0.25,
+      "Pressure Roughness": 0.18000000715255737,
+      "Pressure Normal Flatten": 0.4000000059604645,
+      "Pressure Feather": 0.11999999731779099
+    },
+    "vectors": {
+      "Albedo Color": "<Struct 'LinearColor' (0x000002D86FB71BE0) {r: 0.680000, g: 0.630000, b: 0.820000, a: 1.000000}>",
+      "GragientTint": "<Struct 'LinearColor' (0x000002D86FB71E20) {r: 0.000000, g: 0.000000, b: 0.000000, a: 1.000000}>",
+      "PainColor": "<Struct 'LinearColor' (0x000002D86FB724A0) {r: 1.000000, g: 0.000000, b: 0.022506, a: 1.000000}>",
+      "Pressure Tint": "<Struct 'LinearColor' (0x000002D86FB71EE0) {r: 0.960000, g: 0.840000, b: 0.880000, a: 1.000000}>"
+    },
+    "textures": {
+      "ARM": "/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture",
+      "Albedo Texture": "/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture",
+      "Normal Texture": "/Engine/EngineMaterials/DefaultNormal.DefaultNormal"
+    }
+  },
+  "/Game/Art/Materials/Arena/MI_Gum_v2": {
+    "cls": "MaterialInstanceConstant",
+    "parent": "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade.M_ExitClimate_EdgeFade",
+    "scalars": {
+      "Param_1": 0.0,
+      "Param": 148.64498901367188,
+      "Metalic": 0.0,
+      "Roughness Strength": 1.0,
+      "Normal Strength": 1.1599980592727661,
+      "Saturate": 0.0,
+      "lightning": 1.0,
+      "Spec": 0.25520598888397217,
+      "Tile": 1.0,
+      "Mask": 1.0,
+      "Blending": 26.916114807128906,
+      "Edge Fade Width": 100.0,
+      "Edge Fade Amount": 1.0,
+      "Environment Frost Amount": 1.0,
+      "Environment Frost Tiling": 2.5
+    },
+    "vectors": {
+      "Albedo Color": "<Struct 'LinearColor' (0x000002D86FB729E0) {r: 1.000000, g: 1.000000, b: 1.000000, a: 1.000000}>",
+      "GragientTint": "<Struct 'LinearColor' (0x000002D86FB72A60) {r: 0.000000, g: 0.000000, b: 0.000000, a: 1.000000}>",
+      "Environment Frost Tint": "<Struct 'LinearColor' (0x000002D86FB72A60) {r: 0.730000, g: 0.840000, b: 0.910000, a: 1.000000}>"
+    },
+    "textures": {
+      "ARM": "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_OcclusionRoughnessMetallic.gum_low_DefaultMaterial_OcclusionRoughnessMetallic",
+      "Albedo Texture": "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_BaseColor.gum_low_DefaultMaterial_BaseColor",
+      "Normal Texture": "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_Normal.gum_low_DefaultMaterial_Normal",
+      "Edge Distance Texture": "/Game/Art/Materials/ThroatEdgeFade/T_ExitOuterEdgeDistance.T_ExitOuterEdgeDistance",
+      "Environment Frost Texture": "/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask"
+    }
+  }
+}

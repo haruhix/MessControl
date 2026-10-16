@@ -1,0 +1,352 @@
+{
+  "checks": [
+    {
+      "name": "35 original artist and tongue assets remain byte-identical",
+      "passed": true
+    },
+    {
+      "name": "care and gum-contact material compiles",
+      "passed": true
+    },
+    {
+      "name": "all 26 meshes retain shape, UV0 and triangle count",
+      "passed": true
+    },
+    {
+      "name": "all 26 meshes retain baked contact UVs and signed seam masks",
+      "passed": true
+    },
+    {
+      "name": "saved map has twelve unique active sockets",
+      "passed": true
+    },
+    {
+      "name": "saved run rules enable all twelve sockets",
+      "passed": true
+    },
+    {
+      "name": "saved map has one new tongue with the original surface material",
+      "passed": true
+    },
+    {
+      "name": "live user gum material parameters remain unchanged",
+      "passed": true
+    },
+    {
+      "name": "unrelated unsaved gum material and textures are preserved",
+      "passed": true
+    },
+    {
+      "name": "bounded solo gameplay check passed",
+      "passed": true
+    },
+    {
+      "name": "probe frame settings restored",
+      "passed": true
+    }
+  ],
+  "meshes": [
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_01.SM_Teeth_L_01",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -142.07545471191406,
+        355.9554748535156
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01.SM_Teeth_R_01",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -161.5852813720703,
+        345.36962890625
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_02.SM_Teeth_L_02",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -155.1041717529297,
+        340.9427490234375
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_02.SM_Teeth_R_02",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -171.1826629638672,
+        332.4476318359375
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_03.SM_Teeth_L_03",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -145.86428833007812,
+        338.1908264160156
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_03.SM_Teeth_R_03",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -142.39077758789062,
+        334.43115234375
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_04.SM_Teeth_L_04",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -195.0791473388672,
+        336.5119323730469
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_04.SM_Teeth_R_04",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -192.4928436279297,
+        332.2691955566406
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_05.SM_Teeth_L_05",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -195.19827270507812,
+        323.71209716796875
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_05.SM_Teeth_R_05",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -194.94747924804688,
+        327.9832458496094
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_07.SM_Teeth_L_07",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -268.266845703125,
+        315.35430908203125
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_06.SM_Teeth_R_06",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -281.3201904296875,
+        330.43438720703125
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_Forwart.SM_Teeth_Forwart",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 1248,
+      "triangles_after": 1248,
+      "mask_range": [
+        -190.1087646484375,
+        464.3591003417969
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_Forwart_001.SM_Teeth_Forwart_001",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 1248,
+      "triangles_after": 1248,
+      "mask_range": [
+        -190.04318237304688,
+        496.79620361328125
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_002.SM_Teeth_R_01_002",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -176.87054443359375,
+        369.10919189453125
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_003.SM_Teeth_R_01_003",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -176.29837036132812,
+        367.6651916503906
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_004.SM_Teeth_R_01_004",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -174.82125854492188,
+        351.58856201171875
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_005.SM_Teeth_R_01_005",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -238.68597412109375,
+        346.54754638671875
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_006.SM_Teeth_R_01_006",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -253.59860229492188,
+        362.3933410644531
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_007.SM_Teeth_R_01_007",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -163.85812377929688,
+        351.0357360839844
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_008.SM_Teeth_R_01_008",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -129.46348571777344,
+        351.8747863769531
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_009.SM_Teeth_R_01_009",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -180.285400390625,
+        353.0374755859375
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_010.SM_Teeth_R_01_010",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -233.40667724609375,
+        347.07843017578125
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_011.SM_Teeth_R_01_011",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -246.3316650390625,
+        355.0391845703125
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_012.SM_Teeth_R_01_012",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -165.43136596679688,
+        353.6178283691406
+      ]
+    },
+    {
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_013.SM_Teeth_R_01_013",
+      "uv_channels": 3,
+      "geometry_errors": [],
+      "triangles_before": 2176,
+      "triangles_after": 2176,
+      "mask_range": [
+        -128.3441925048828,
+        350.754150390625
+      ]
+    }
+  ],
+  "protected_asset_differences": [],
+  "material_compile_errors": [],
+  "live_gum_material_differences": [],
+  "dirty_content": [
+    "/Game/Art/Materials/Arena/MI_Gum_v2",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_BaseColor",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_Normal",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_OcclusionRoughnessMetallic"
+  ],
+  "dirty_maps": [],
+  "engine_settings": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  },
+  "passed": true
+}

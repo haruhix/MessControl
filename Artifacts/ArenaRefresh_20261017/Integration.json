@@ -1,0 +1,225 @@
+{
+  "active": [
+    {
+      "id": 1,
+      "source": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_12",
+      "marker": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_8",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_01.SM_Teeth_L_01",
+      "location": [
+        -2047.2653769720268,
+        -1256.4123657369473,
+        -138.79437932955489
+      ]
+    },
+    {
+      "id": 2,
+      "source": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_18",
+      "marker": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_14",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01.SM_Teeth_R_01",
+      "location": [
+        -2047.265402952568,
+        878.745878651009,
+        -138.7943793295549
+      ]
+    },
+    {
+      "id": 3,
+      "source": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_13",
+      "marker": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_9",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_02.SM_Teeth_L_02",
+      "location": [
+        -1695.5263466292363,
+        -1489.8595590393152,
+        -30.427003601885854
+      ]
+    },
+    {
+      "id": 4,
+      "source": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_48",
+      "marker": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_15",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_02.SM_Teeth_R_02",
+      "location": [
+        -1695.526378290926,
+        1112.193158737866,
+        -30.42699244383931
+      ]
+    },
+    {
+      "id": 5,
+      "source": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_14",
+      "marker": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_10",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_03.SM_Teeth_L_03",
+      "location": [
+        -1264.1369226886102,
+        -1660.8619987672614,
+        29.07106116680863
+      ]
+    },
+    {
+      "id": 6,
+      "source": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_49",
+      "marker": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_16",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_03.SM_Teeth_R_03",
+      "location": [
+        -1264.137026629706,
+        1283.1954525148165,
+        29.071061166807972
+      ]
+    },
+    {
+      "id": 7,
+      "source": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_15",
+      "marker": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_11",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_04.SM_Teeth_L_04",
+      "location": [
+        -770.9239675983385,
+        -1782.875022522565,
+        24.619781507581532
+      ]
+    },
+    {
+      "id": 8,
+      "source": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_50",
+      "marker": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_17",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_04.SM_Teeth_R_04",
+      "location": [
+        -770.923972331902,
+        1405.2084882729216,
+        24.619759191486935
+      ]
+    },
+    {
+      "id": 9,
+      "source": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_16",
+      "marker": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_12",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_05.SM_Teeth_L_05",
+      "location": [
+        -231.8937053844055,
+        -1891.8799184456543,
+        10.571733482502333
+      ]
+    },
+    {
+      "id": 10,
+      "source": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_51",
+      "marker": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_18",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_05.SM_Teeth_R_05",
+      "location": [
+        -231.893763859116,
+        1514.2133973138068,
+        10.571778114689316
+      ]
+    },
+    {
+      "id": 11,
+      "source": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_17",
+      "marker": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_13",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_07.SM_Teeth_L_07",
+      "location": [
+        338.40079740472447,
+        -1889.046616038777,
+        -0.10397338867323924
+      ]
+    },
+    {
+      "id": 12,
+      "source": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_52",
+      "marker": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_19",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_06.SM_Teeth_R_06",
+      "location": [
+        338.40075602843535,
+        1511.3804216841036,
+        -0.10398864746321124
+      ]
+    }
+  ],
+  "decorative": [
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_10",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_Forwart.SM_Teeth_Forwart",
+      "upper": false
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_11",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_Forwart_001.SM_Teeth_Forwart_001",
+      "upper": true
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_19",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_002.SM_Teeth_R_01_002",
+      "upper": true
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_20",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_003.SM_Teeth_R_01_003",
+      "upper": true
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_21",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_004.SM_Teeth_R_01_004",
+      "upper": true
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_22",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_005.SM_Teeth_R_01_005",
+      "upper": true
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_23",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_006.SM_Teeth_R_01_006",
+      "upper": true
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_25",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_007.SM_Teeth_R_01_007",
+      "upper": true
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_27",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_008.SM_Teeth_R_01_008",
+      "upper": true
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_29",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_009.SM_Teeth_R_01_009",
+      "upper": true
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_30",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_010.SM_Teeth_R_01_010",
+      "upper": true
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_31",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_011.SM_Teeth_R_01_011",
+      "upper": true
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_46",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_012.SM_Teeth_R_01_012",
+      "upper": true
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_47",
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01_013.SM_Teeth_R_01_013",
+      "upper": true
+    }
+  ],
+  "materials": {
+    "teeth": "/Game/Gameplay/Arena/V10/M_ArenaToothCareV10.M_ArenaToothCareV10"
+  },
+  "tongue": {
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCTongue_1",
+    "source_mesh": "/Game/Gameplay/Arena/V10/SM_TongueSurface.SM_TongueSurface",
+    "material": "/Game/Gameplay/Arena/Pressure/MI_Pressure_Soft.MI_Pressure_Soft",
+    "replaced": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_7"
+  },
+  "gum_material_preserved": true,
+  "dirty_content_after": [
+    "/Game/Art/Materials/Arena/MI_Gum_v2",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_BaseColor",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_Normal",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_OcclusionRoughnessMetallic"
+  ],
+  "dirty_maps_after": []
+}

@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "checks": {
+    "protected_assets_unchanged": true,
+    "all_24_crown_volumes_caps_and_uv_channels_preserved": true,
+    "all_24_variants_have_branched_networks": true,
+    "legacy_wave_overlay_removed_flash_retained": true,
+    "material_compiled": true,
+    "solo_damage_stages_spray_repair_and_loss_passed": true,
+    "PIE_stopped": true,
+    "preexisting_unsaved_packages_preserved": true
+  },
+  "protected_files": 226,
+  "unexpected_changes": [],
+  "dirty": [
+    "/Game/Art/Materials/Arena/MI_Gum_v2",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_BaseColor",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_Normal",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_OcclusionRoughnessMetallic"
+  ],
+  "crack_quads_min": 1842,
+  "crack_quads_max": 3226
+}

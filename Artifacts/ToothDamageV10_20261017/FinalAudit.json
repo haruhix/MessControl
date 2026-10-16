@@ -1,0 +1,47 @@
+{
+  "passed": true,
+  "checks": {
+    "all_protected_files_unchanged": true,
+    "all_eight_old_profile_rows_retained": true,
+    "all_twelve_new_meshes_covered_once": true,
+    "all_24_closed_volumes_and_three_UVs_authored": true,
+    "solo_damage_repair_and_knockout_passed": true,
+    "editor_not_in_PIE": true,
+    "preexisting_dirty_packages_preserved": true
+  },
+  "protected_files": 161,
+  "unexpected_changes": [],
+  "profile_rows": 20,
+  "verified_damage_meshes": [
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_01_Chipped.SM_Teeth_L_01_Chipped",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_01_Broken.SM_Teeth_L_01_Broken",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_01_Chipped.SM_Teeth_R_01_Chipped",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_01_Broken.SM_Teeth_R_01_Broken",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_02_Chipped.SM_Teeth_L_02_Chipped",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_02_Broken.SM_Teeth_L_02_Broken",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_02_Chipped.SM_Teeth_R_02_Chipped",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_02_Broken.SM_Teeth_R_02_Broken",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_03_Chipped.SM_Teeth_L_03_Chipped",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_03_Broken.SM_Teeth_L_03_Broken",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_03_Chipped.SM_Teeth_R_03_Chipped",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_03_Broken.SM_Teeth_R_03_Broken",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_04_Chipped.SM_Teeth_L_04_Chipped",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_04_Broken.SM_Teeth_L_04_Broken",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_04_Chipped.SM_Teeth_R_04_Chipped",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_04_Broken.SM_Teeth_R_04_Broken",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_05_Chipped.SM_Teeth_L_05_Chipped",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_05_Broken.SM_Teeth_L_05_Broken",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_05_Chipped.SM_Teeth_R_05_Chipped",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_05_Broken.SM_Teeth_R_05_Broken",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_07_Chipped.SM_Teeth_L_07_Chipped",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_07_Broken.SM_Teeth_L_07_Broken",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_06_Chipped.SM_Teeth_R_06_Chipped",
+    "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_06_Broken.SM_Teeth_R_06_Broken"
+  ],
+  "dirty": [
+    "/Game/Art/Materials/Arena/MI_Gum_v2",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_BaseColor",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_Normal",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_OcclusionRoughnessMetallic"
+  ]
+}

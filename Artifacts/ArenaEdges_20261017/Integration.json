@@ -1,0 +1,139 @@
+{
+  "source_instance": "/Game/Art/Materials/Arena/MI_Gum_v2.MI_Gum_v2",
+  "source_parent": "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade.M_ExitClimate_EdgeFade",
+  "original_parameters": {
+    "scalars": {
+      "Param_1": 0.0,
+      "Param": 148.64498901367188,
+      "Metalic": 0.0,
+      "Roughness Strength": 1.0,
+      "Normal Strength": 1.1599980592727661,
+      "Saturate": 0.0,
+      "lightning": 1.0,
+      "Spec": 0.25520598888397217,
+      "Tile": 1.0,
+      "Mask": 1.0,
+      "Blending": 26.916114807128906,
+      "Edge Fade Width": 100.0,
+      "Edge Fade Amount": 1.0,
+      "Environment Frost Amount": 1.0,
+      "Environment Frost Tiling": 2.5
+    },
+    "vectors": {
+      "Albedo Color": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "GragientTint": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "Environment Frost Tint": [
+        0.7300000190734863,
+        0.8399999737739563,
+        0.9100000262260437,
+        1.0
+      ]
+    },
+    "textures": {
+      "ARM": "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_OcclusionRoughnessMetallic.gum_low_DefaultMaterial_OcclusionRoughnessMetallic",
+      "Albedo Texture": "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_BaseColor.gum_low_DefaultMaterial_BaseColor",
+      "Normal Texture": "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_Normal.gum_low_DefaultMaterial_Normal",
+      "Edge Distance Texture": "/Game/Art/Materials/ThroatEdgeFade/T_ExitOuterEdgeDistance.T_ExitOuterEdgeDistance",
+      "Environment Frost Texture": "/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask"
+    }
+  },
+  "actors": [
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_6",
+      "label": "SM_Gum_Bot",
+      "source_mesh": "/Game/FromBlender10/SM_Gum_Bot.SM_Gum_Bot",
+      "mesh": "/Game/Gameplay/Arena/V10/Edges/SM_Gum_Bot.SM_Gum_Bot",
+      "boundary_edges": 256,
+      "transform": "<Struct 'Transform' (0x000002D9A40E6F10) {rotation: {x: -0.000000, y: -0.000000, z: -0.707107, w: 0.707107}, translation: {x: -936.009688, y: -164.916329, z: -390.506048}, scale3d: {x: 1.281632, y: 1.116044, z: 1.462508}}>"
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_8",
+      "label": "SM_Gum_Up.001",
+      "source_mesh": "/Game/FromBlender10/SM_Gum_Up_001.SM_Gum_Up_001",
+      "mesh": "/Game/Gameplay/Arena/V10/Edges/SM_Gum_Up_001.SM_Gum_Up_001",
+      "boundary_edges": 148,
+      "transform": "<Struct 'Transform' (0x000002D9A40E6F10) {rotation: {x: -0.000000, y: -0.000000, z: -0.707107, w: 0.707107}, translation: {x: -765.287093, y: -81.974034, z: 1773.457005}, scale3d: {x: 1.421331, y: 1.000000, z: 1.345130}}>"
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_53",
+      "label": "SM_Wall_L",
+      "source_mesh": "/Game/FromBlender10/SM_Wall_L.SM_Wall_L",
+      "mesh": "/Game/Gameplay/Arena/V10/Edges/SM_Wall_L.SM_Wall_L",
+      "boundary_edges": 40,
+      "transform": "<Struct 'Transform' (0x000002D9A40E6F10) {rotation: {x: -0.000000, y: -0.000000, z: -0.606593, w: 0.795013}, translation: {x: 1561.113602, y: -1606.208851, z: 377.428467}, scale3d: {x: 1.281632, y: 1.872590, z: 1.000000}}>"
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_54",
+      "label": "SM_Wall_R",
+      "source_mesh": "/Game/FromBlender10/SM_Wall_R.SM_Wall_R",
+      "mesh": "/Game/Gameplay/Arena/V10/Edges/SM_Wall_R.SM_Wall_R",
+      "boundary_edges": 40,
+      "transform": "<Struct 'Transform' (0x000002D9A40E6F10) {rotation: {x: -0.000000, y: -0.000000, z: -0.785283, w: 0.619138}, translation: {x: 1565.026271, y: 1313.313832, z: 345.705841}, scale3d: {x: 1.281632, y: 1.872590, z: 1.000000}}>"
+    }
+  ],
+  "new_parameters": {
+    "scalars": {
+      "Param_1": 0.0,
+      "Param": 148.64498901367188,
+      "Metalic": 0.0,
+      "Roughness Strength": 1.0,
+      "Normal Strength": 1.1599980592727661,
+      "Saturate": 0.0,
+      "lightning": 1.0,
+      "Spec": 0.25520598888397217,
+      "Tile": 1.0,
+      "Mask": 1.0,
+      "Blending": 26.916114807128906,
+      "Edge Fade Width": 100.0,
+      "Edge Fade Amount": 1.0,
+      "Environment Frost Amount": 1.0,
+      "Environment Frost Tiling": 2.5
+    },
+    "vectors": {
+      "Albedo Color": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "GragientTint": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "Environment Frost Tint": [
+        0.7300000190734863,
+        0.8399999737739563,
+        0.9100000262260437,
+        1.0
+      ]
+    },
+    "textures": {
+      "ARM": "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_OcclusionRoughnessMetallic.gum_low_DefaultMaterial_OcclusionRoughnessMetallic",
+      "Albedo Texture": "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_BaseColor.gum_low_DefaultMaterial_BaseColor",
+      "Normal Texture": "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_Normal.gum_low_DefaultMaterial_Normal",
+      "Edge Distance Texture": "/Game/Art/Materials/ThroatEdgeFade/T_ExitOuterEdgeDistance.T_ExitOuterEdgeDistance",
+      "Environment Frost Texture": "/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask"
+    }
+  },
+  "material": "/Game/Gameplay/Arena/V10/Edges/M_TissueV10_EdgeFade.M_TissueV10_EdgeFade",
+  "instance": "/Game/Gameplay/Arena/V10/Edges/MI_TissueV10_EdgeFade.MI_TissueV10_EdgeFade",
+  "dirty_content": [
+    "/Game/Art/Materials/Arena/MI_Gum_v2",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_BaseColor",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_Normal",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_OcclusionRoughnessMetallic"
+  ],
+  "dirty_maps": []
+}

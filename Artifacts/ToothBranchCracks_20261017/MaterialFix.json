@@ -1,0 +1,15 @@
+{
+  "nodes": [
+    {
+      "node": "MaterialExpressionCustom_0",
+      "before": "\nfloat waves = sin(P.y*.16 + sin(P.z*.09)*1.8) + sin(P.x*.18 + P.z*.115) + .55*cos(P.z*.26-P.y*.11);\nfloat patch = smoothstep(.05,.35,waves) * Coffee;\nfloat3 base = Enamel; // Native projected grime supplies the visible plaque.\nfloat crack = 1-smoothstep(.025,.075,abs(sin(P.z*.13+P.y*.085+sin(P.y*.16)*.8)));\ncrack *= smoothstep(.15,.65,Damage) * smoothstep(25,65,P.z);\nbase = lerp(base, float3(.075,.024,.012), crack*.85);\nbase = lerp(base,float3(1,.3,.08),Flash*.55);\nreturn base;\n",
+      "after": "\nfloat3 base = Enamel; // Native plaque and authored branching cracks supply surface detail.\nbase = lerp(base,float3(1,.3,.08),Flash*.55);\nreturn base;\n"
+    },
+    {
+      "node": "MaterialExpressionCustom_1",
+      "before": "\nfloat waves = sin(P.y*.16 + sin(P.z*.09)*1.8) + sin(P.x*.18 + P.z*.115) + .55*cos(P.z*.26-P.y*.11);\nfloat patch = smoothstep(.05,.35,waves) * Coffee;\nfloat3 base = Enamel; // Native projected grime supplies the visible plaque.\nfloat crack = 1-smoothstep(.025,.075,abs(sin(P.z*.13+P.y*.085+sin(P.y*.16)*.8)));\ncrack *= smoothstep(.15,.65,Damage) * smoothstep(25,65,P.z);\nbase = lerp(base, float3(.075,.024,.012), crack*.85);\nbase = lerp(base,float3(1,.3,.08),Flash*.55);\nreturn base;\n",
+      "after": "\nfloat3 base = Enamel; // Native plaque and authored branching cracks supply surface detail.\nbase = lerp(base,float3(1,.3,.08),Flash*.55);\nreturn base;\n"
+    }
+  ],
+  "compile_errors": []
+}

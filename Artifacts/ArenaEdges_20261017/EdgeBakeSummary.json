@@ -1,0 +1,34 @@
+[
+  {
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_6",
+    "mesh": "/Game/FromBlender10/SM_Gum_Bot.SM_Gum_Bot",
+    "label": "SM_Gum_Bot",
+    "boundary_edges": 256,
+    "boundary_vertices": 256,
+    "max_distance_cm": 725.3151726415351
+  },
+  {
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_8",
+    "mesh": "/Game/FromBlender10/SM_Gum_Up_001.SM_Gum_Up_001",
+    "label": "SM_Gum_Up.001",
+    "boundary_edges": 148,
+    "boundary_vertices": 148,
+    "max_distance_cm": 2504.1369194342615
+  },
+  {
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_53",
+    "mesh": "/Game/FromBlender10/SM_Wall_L.SM_Wall_L",
+    "label": "SM_Wall_L",
+    "boundary_edges": 40,
+    "boundary_vertices": 40,
+    "max_distance_cm": 340.3466165988835
+  },
+  {
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_54",
+    "mesh": "/Game/FromBlender10/SM_Wall_R.SM_Wall_R",
+    "label": "SM_Wall_R",
+    "boundary_edges": 40,
+    "boundary_vertices": 40,
+    "max_distance_cm": 339.40052520655763
+  }
+]

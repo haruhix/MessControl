@@ -1,0 +1,506 @@
+[
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_01_Chipped.SM_Teeth_L_01_Chipped",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_01.SM_Teeth_L_01",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -148.1356658935547,
+      -187.4418182373047,
+      -230.1033477783203
+    ],
+    "max": [
+      147.88116455078125,
+      189.236083984375,
+      230.1033477783203
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_01_Broken.SM_Teeth_L_01_Broken",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_01.SM_Teeth_L_01",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -148.1356658935547,
+      -187.4418182373047,
+      -230.1033477783203
+    ],
+    "max": [
+      147.88116455078125,
+      189.236083984375,
+      160.50717163085938
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_01_Chipped.SM_Teeth_R_01_Chipped",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01.SM_Teeth_R_01",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -147.8812255859375,
+      -186.03321838378906,
+      -230.1033935546875
+    ],
+    "max": [
+      147.88116455078125,
+      189.236083984375,
+      230.1033935546875
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_01_Broken.SM_Teeth_R_01_Broken",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01.SM_Teeth_R_01",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -144.66412353515625,
+      -186.03321838378906,
+      -230.1033935546875
+    ],
+    "max": [
+      145.07745361328125,
+      189.38072204589844,
+      163.99789428710938
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_02_Chipped.SM_Teeth_L_02_Chipped",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_02.SM_Teeth_L_02",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -157.95838928222656,
+      -188.64952087402344,
+      -226.34353637695312
+    ],
+    "max": [
+      157.958251953125,
+      196.95823669433594,
+      226.34353637695312
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_02_Broken.SM_Teeth_L_02_Broken",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_02.SM_Teeth_L_02",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -157.95838928222656,
+      -188.64952087402344,
+      -226.34353637695312
+    ],
+    "max": [
+      148.48928833007812,
+      196.95823669433594,
+      172.52194213867188
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_02_Chipped.SM_Teeth_R_02_Chipped",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_02.SM_Teeth_R_02",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -157.9583740234375,
+      -196.760498046875,
+      -226.34353637695312
+    ],
+    "max": [
+      158.07528686523438,
+      196.76036071777344,
+      226.34353637695312
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_02_Broken.SM_Teeth_R_02_Broken",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_02.SM_Teeth_R_02",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -157.0642852783203,
+      -196.760498046875,
+      -226.34353637695312
+    ],
+    "max": [
+      158.0753631591797,
+      196.76036071777344,
+      155.2908172607422
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_03_Chipped.SM_Teeth_L_03_Chipped",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_03.SM_Teeth_L_03",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -167.1983642578125,
+      -213.74754333496094,
+      -217.5936279296875
+    ],
+    "max": [
+      167.1982421875,
+      213.10801696777344,
+      200.85580444335938
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_03_Broken.SM_Teeth_L_03_Broken",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_03.SM_Teeth_L_03",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -167.1983642578125,
+      -213.74754333496094,
+      -217.5936279296875
+    ],
+    "max": [
+      167.1982421875,
+      213.10801696777344,
+      177.00135803222656
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_03_Chipped.SM_Teeth_R_03_Chipped",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_03.SM_Teeth_R_03",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -167.19834899902344,
+      -213.2942657470703,
+      -217.59359741210938
+    ],
+    "max": [
+      167.1984100341797,
+      213.74754333496094,
+      217.5936279296875
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_03_Broken.SM_Teeth_R_03_Broken",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_03.SM_Teeth_R_03",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -167.19834899902344,
+      -213.2942657470703,
+      -217.59359741210938
+    ],
+    "max": [
+      167.1984100341797,
+      213.74754333496094,
+      136.373779296875
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_04_Chipped.SM_Teeth_L_04_Chipped",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_04.SM_Teeth_L_04",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -162.70889282226562,
+      -231.26560974121094,
+      -232.80978393554688
+    ],
+    "max": [
+      162.500732421875,
+      228.94973754882812,
+      220.15122985839844
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_04_Broken.SM_Teeth_L_04_Broken",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_04.SM_Teeth_L_04",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -162.21536254882812,
+      -231.26560974121094,
+      -232.80978393554688
+    ],
+    "max": [
+      162.500732421875,
+      228.94973754882812,
+      160.2277069091797
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_04_Chipped.SM_Teeth_R_04_Chipped",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_04.SM_Teeth_R_04",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -162.5006103515625,
+      -231.1316680908203,
+      -232.80978393554688
+    ],
+    "max": [
+      162.68821716308594,
+      227.5341033935547,
+      220.15122985839844
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_04_Broken.SM_Teeth_R_04_Broken",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_04.SM_Teeth_R_04",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -160.90213012695312,
+      -231.1316680908203,
+      -232.80978393554688
+    ],
+    "max": [
+      156.2989501953125,
+      227.5341033935547,
+      176.9542999267578
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_05_Chipped.SM_Teeth_L_05_Chipped",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_05.SM_Teeth_L_05",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -165.92909240722656,
+      -235.7418975830078,
+      -243.52386474609375
+    ],
+    "max": [
+      165.92909240722656,
+      236.03684997558594,
+      243.52386474609375
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_05_Broken.SM_Teeth_L_05_Broken",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_05.SM_Teeth_L_05",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -155.54693603515625,
+      -235.7418975830078,
+      -243.52386474609375
+    ],
+    "max": [
+      158.50498962402344,
+      236.03684997558594,
+      202.4039764404297
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_05_Chipped.SM_Teeth_R_05_Chipped",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_05.SM_Teeth_R_05",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -166.12310791015625,
+      -234.63023376464844,
+      -243.5238800048828
+    ],
+    "max": [
+      165.9290771484375,
+      235.74188232421875,
+      237.670654296875
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_05_Broken.SM_Teeth_R_05_Broken",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_05.SM_Teeth_R_05",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -162.19288635253906,
+      -234.63023376464844,
+      -243.5238800048828
+    ],
+    "max": [
+      165.9290771484375,
+      235.74188232421875,
+      153.59982299804688
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_07_Chipped.SM_Teeth_L_07_Chipped",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_07.SM_Teeth_L_07",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -156.6376953125,
+      -247.28038024902344,
+      -235.5642547607422
+    ],
+    "max": [
+      156.86524963378906,
+      247.59567260742188,
+      235.5642547607422
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_L_07_Broken.SM_Teeth_L_07_Broken",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_07.SM_Teeth_L_07",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -152.58717346191406,
+      -247.28038024902344,
+      -235.5642547607422
+    ],
+    "max": [
+      156.7121124267578,
+      247.59567260742188,
+      192.15225219726562
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_06_Chipped.SM_Teeth_R_06_Chipped",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_06.SM_Teeth_R_06",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -156.87960815429688,
+      -246.03770446777344,
+      -235.5642547607422
+    ],
+    "max": [
+      156.65940856933594,
+      247.40919494628906,
+      230.41542053222656
+    ],
+    "cpu_access": true
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/V10/Damage/SM_Teeth_R_06_Broken.SM_Teeth_R_06_Broken",
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_06.SM_Teeth_R_06",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "uvs": 3,
+    "min": [
+      -145.05494689941406,
+      -246.03770446777344,
+      -235.5642547607422
+    ],
+    "max": [
+      147.56265258789062,
+      247.40919494628906,
+      171.1546630859375
+    ],
+    "cpu_access": true
+  }
+]

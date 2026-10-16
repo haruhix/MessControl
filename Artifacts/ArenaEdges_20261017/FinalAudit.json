@@ -1,0 +1,93 @@
+{
+  "checks": [
+    {
+      "name": "original imports, gum tuning, teeth and tongue assets preserved",
+      "passed": true
+    },
+    {
+      "name": "new perimeter shader compiles",
+      "passed": true
+    },
+    {
+      "name": "four masks cover open borders and retain solid interiors",
+      "passed": true
+    },
+    {
+      "name": "tissue shape, UV0, triangle counts and collision mode preserved",
+      "passed": true
+    },
+    {
+      "name": "all four scene components use the new edge material",
+      "passed": true
+    },
+    {
+      "name": "original gum instance retains its parent",
+      "passed": true
+    },
+    {
+      "name": "copied color, texture and surface parameters are identical",
+      "passed": true
+    },
+    {
+      "name": "solo PIE visual check passed",
+      "passed": true
+    },
+    {
+      "name": "existing unsaved gum edits remain open",
+      "passed": true
+    }
+  ],
+  "meshes": [
+    {
+      "actor": "SM_Gum_Bot",
+      "geometry_and_uv0_preserved": true,
+      "triangle_count_preserved": true,
+      "uv_channels": 2,
+      "mask_min": 0.0,
+      "mask_max": 1.0,
+      "material_correct": true,
+      "collision_mode_preserved": true
+    },
+    {
+      "actor": "SM_Gum_Up.001",
+      "geometry_and_uv0_preserved": true,
+      "triangle_count_preserved": true,
+      "uv_channels": 2,
+      "mask_min": 0.0,
+      "mask_max": 1.0,
+      "material_correct": true,
+      "collision_mode_preserved": true
+    },
+    {
+      "actor": "SM_Wall_L",
+      "geometry_and_uv0_preserved": true,
+      "triangle_count_preserved": true,
+      "uv_channels": 2,
+      "mask_min": 0.0,
+      "mask_max": 1.0,
+      "material_correct": true,
+      "collision_mode_preserved": true
+    },
+    {
+      "actor": "SM_Wall_R",
+      "geometry_and_uv0_preserved": true,
+      "triangle_count_preserved": true,
+      "uv_channels": 2,
+      "mask_min": 0.0,
+      "mask_max": 1.0,
+      "material_correct": true,
+      "collision_mode_preserved": true
+    }
+  ],
+  "protected_files": 71,
+  "protected_file_differences": [],
+  "material_compile_errors": [],
+  "dirty_content": [
+    "/Game/Art/Materials/Arena/MI_Gum_v2",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_BaseColor",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_Normal",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_OcclusionRoughnessMetallic"
+  ],
+  "dirty_maps": [],
+  "passed": true
+}

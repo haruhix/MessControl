@@ -1,0 +1,21 @@
+{
+  "inspected_at_utc": "2026-10-16T20:50:34.076896+00:00",
+  "baseline_pid": 26436,
+  "baseline_engine_settings": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  },
+  "fixture_restored_engine_settings": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  },
+  "fixture_settings_match_baseline": true,
+  "baseline_dirty_content": [],
+  "baseline_dirty_maps": [],
+  "final_editor_processes": [],
+  "pie_teardown_in_log": true,
+  "normal_editor_shutdown_in_log": true,
+  "note": "Editor already closed at final inspection; final live dirty-package query was unavailable. Protected files audited from disk. No editor reopened or terminated at final inspection."
+}

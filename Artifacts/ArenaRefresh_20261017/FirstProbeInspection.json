@@ -1,0 +1,89 @@
+{
+  "rows": [
+    {
+      "id": 1,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_01.SM_Teeth_L_01",
+      "uv": 0,
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_0.MID_M_ArenaToothCareV10_0",
+      "parent": "/Game/Gameplay/Arena/V10/M_ArenaToothCareV10.M_ArenaToothCareV10"
+    },
+    {
+      "id": 2,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01.SM_Teeth_R_01",
+      "uv": 0,
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_1.MID_M_ArenaToothCareV10_0",
+      "parent": "/Game/Gameplay/Arena/V10/M_ArenaToothCareV10.M_ArenaToothCareV10"
+    },
+    {
+      "id": 3,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_02.SM_Teeth_L_02",
+      "uv": 0,
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_2.MID_M_ArenaToothCareV10_0",
+      "parent": "/Game/Gameplay/Arena/V10/M_ArenaToothCareV10.M_ArenaToothCareV10"
+    },
+    {
+      "id": 4,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_02.SM_Teeth_R_02",
+      "uv": 0,
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_3.MID_M_ArenaToothCareV10_0",
+      "parent": "/Game/Gameplay/Arena/V10/M_ArenaToothCareV10.M_ArenaToothCareV10"
+    },
+    {
+      "id": 5,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_03.SM_Teeth_L_03",
+      "uv": 0,
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_4.MID_M_ArenaToothCareV10_0",
+      "parent": "/Game/Gameplay/Arena/V10/M_ArenaToothCareV10.M_ArenaToothCareV10"
+    },
+    {
+      "id": 6,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_03.SM_Teeth_R_03",
+      "uv": 0,
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_5.MID_M_ArenaToothCareV10_0",
+      "parent": "/Game/Gameplay/Arena/V10/M_ArenaToothCareV10.M_ArenaToothCareV10"
+    },
+    {
+      "id": 7,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_04.SM_Teeth_L_04",
+      "uv": 0,
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_6.MID_M_ArenaToothCareV10_0",
+      "parent": "/Game/Gameplay/Arena/V10/M_ArenaToothCareV10.M_ArenaToothCareV10"
+    },
+    {
+      "id": 8,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_04.SM_Teeth_R_04",
+      "uv": 0,
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_7.MID_M_ArenaToothCareV10_0",
+      "parent": "/Game/Gameplay/Arena/V10/M_ArenaToothCareV10.M_ArenaToothCareV10"
+    },
+    {
+      "id": 9,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_05.SM_Teeth_L_05",
+      "uv": 0,
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_8.MID_M_ArenaToothCareV10_0",
+      "parent": "/Game/Gameplay/Arena/V10/M_ArenaToothCareV10.M_ArenaToothCareV10"
+    },
+    {
+      "id": 10,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_05.SM_Teeth_R_05",
+      "uv": 0,
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_9.MID_M_ArenaToothCareV10_0",
+      "parent": "/Game/Gameplay/Arena/V10/M_ArenaToothCareV10.M_ArenaToothCareV10"
+    },
+    {
+      "id": 11,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_07.SM_Teeth_L_07",
+      "uv": 0,
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_10.MID_M_ArenaToothCareV10_0",
+      "parent": "/Game/Gameplay/Arena/V10/M_ArenaToothCareV10.M_ArenaToothCareV10"
+    },
+    {
+      "id": 12,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_06.SM_Teeth_R_06",
+      "uv": 0,
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_11.MID_M_ArenaToothCareV10_0",
+      "parent": "/Game/Gameplay/Arena/V10/M_ArenaToothCareV10.M_ArenaToothCareV10"
+    }
+  ],
+  "old": []
+}

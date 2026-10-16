@@ -1,0 +1,151 @@
+{
+  "passed": true,
+  "checks": {
+    "all_26_component_and_mesh_assignments_correct": true,
+    "runtime_profile_correct": true,
+    "protected_material_gum_masks_and_tongue_assets_unchanged": true,
+    "user_unsaved_edits_preserved": true,
+    "solo_check_passed": true
+  },
+  "protected_count": 44,
+  "protected_differences": [],
+  "dirty_content": [
+    "/Game/Art/Materials/Arena/MI_Gum_v2",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_BaseColor",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_Normal",
+    "/Game/Art/Texture/Arena/gum_low_DefaultMaterial_OcclusionRoughnessMetallic"
+  ],
+  "dirty_maps": [],
+  "actors": [
+    {
+      "actor": "ARENA | Tooth 01",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "ARENA | Tooth 03",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "ARENA | Tooth 05",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "ARENA | Tooth 07",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "ARENA | Tooth 09",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "ARENA | Tooth 11",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "ARENA | Tooth 02",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "ARENA | Tooth 04",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "ARENA | Tooth 06",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "ARENA | Tooth 08",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "ARENA | Tooth 10",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "ARENA | Tooth 12",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "SM_Teeth_Forwart",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "SM_Teeth_Forwart.001",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "SM_Teeth_R_01.002",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "SM_Teeth_R_01.003",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "SM_Teeth_R_01.004",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "SM_Teeth_R_01.005",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "SM_Teeth_R_01.006",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "SM_Teeth_R_01.007",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "SM_Teeth_R_01.008",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "SM_Teeth_R_01.009",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "SM_Teeth_R_01.010",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "SM_Teeth_R_01.011",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "SM_Teeth_R_01.012",
+      "component_materials": true,
+      "mesh_defaults": true
+    },
+    {
+      "actor": "SM_Teeth_R_01.013",
+      "component_materials": true,
+      "mesh_defaults": true
+    }
+  ]
+}

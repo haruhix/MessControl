@@ -1,0 +1,410 @@
+[
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_01.SM_Teeth_L_01",
+    "variant": "SM_Teeth_L_01_Chipped",
+    "stage": 1,
+    "seed": 4229577778,
+    "closed_enamel_volume": 18.355038209972303,
+    "original_volume": 20.98658469567985,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 1891,
+    "polygons": 2184,
+    "fracture_faces": 50,
+    "crack_faces": 196
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_01.SM_Teeth_L_01",
+    "variant": "SM_Teeth_L_01_Broken",
+    "stage": 2,
+    "seed": 4229577778,
+    "closed_enamel_volume": 13.514805575623138,
+    "original_volume": 20.98658469567985,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 2324,
+    "polygons": 2092,
+    "fracture_faces": 61,
+    "crack_faces": 327
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01.SM_Teeth_R_01",
+    "variant": "SM_Teeth_R_01_Chipped",
+    "stage": 1,
+    "seed": 1200847283,
+    "closed_enamel_volume": 18.16666231619265,
+    "original_volume": 20.986585043354655,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 1869,
+    "polygons": 2169,
+    "fracture_faces": 47,
+    "crack_faces": 197
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01.SM_Teeth_R_01",
+    "variant": "SM_Teeth_R_01_Broken",
+    "stage": 2,
+    "seed": 1200847283,
+    "closed_enamel_volume": 11.022596699469565,
+    "original_volume": 20.986585043354655,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 2314,
+    "polygons": 2058,
+    "fracture_faces": 41,
+    "crack_faces": 339
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_02.SM_Teeth_L_02",
+    "variant": "SM_Teeth_L_02_Chipped",
+    "stage": 1,
+    "seed": 3826304422,
+    "closed_enamel_volume": 20.531319137688726,
+    "original_volume": 23.38859083149958,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 1806,
+    "polygons": 2160,
+    "fracture_faces": 43,
+    "crack_faces": 179
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_02.SM_Teeth_L_02",
+    "variant": "SM_Teeth_L_02_Broken",
+    "stage": 2,
+    "seed": 3826304422,
+    "closed_enamel_volume": 11.912896120586405,
+    "original_volume": 23.38859083149958,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 2415,
+    "polygons": 2082,
+    "fracture_faces": 56,
+    "crack_faces": 357
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_02.SM_Teeth_R_02",
+    "variant": "SM_Teeth_R_02_Chipped",
+    "stage": 1,
+    "seed": 3423619388,
+    "closed_enamel_volume": 21.66019678478112,
+    "original_volume": 23.38859255933476,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 1844,
+    "polygons": 2245,
+    "fracture_faces": 44,
+    "crack_faces": 179
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_02.SM_Teeth_R_02",
+    "variant": "SM_Teeth_R_02_Broken",
+    "stage": 2,
+    "seed": 3423619388,
+    "closed_enamel_volume": 14.287159415943922,
+    "original_volume": 23.38859255933476,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 2512,
+    "polygons": 2128,
+    "fracture_faces": 48,
+    "crack_faces": 379
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_03.SM_Teeth_L_03",
+    "variant": "SM_Teeth_L_03_Chipped",
+    "stage": 1,
+    "seed": 2579330127,
+    "closed_enamel_volume": 24.559154884545936,
+    "original_volume": 26.758885200272783,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 1882,
+    "polygons": 2218,
+    "fracture_faces": 47,
+    "crack_faces": 190
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_03.SM_Teeth_L_03",
+    "variant": "SM_Teeth_L_03_Broken",
+    "stage": 2,
+    "seed": 2579330127,
+    "closed_enamel_volume": 17.172095795627218,
+    "original_volume": 26.758885200272783,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 2423,
+    "polygons": 2130,
+    "fracture_faces": 60,
+    "crack_faces": 353
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_03.SM_Teeth_R_03",
+    "variant": "SM_Teeth_R_03_Chipped",
+    "stage": 1,
+    "seed": 2711110581,
+    "closed_enamel_volume": 23.65806892450233,
+    "original_volume": 26.758879365697535,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 1895,
+    "polygons": 2198,
+    "fracture_faces": 40,
+    "crack_faces": 200
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_03.SM_Teeth_R_03",
+    "variant": "SM_Teeth_R_03_Broken",
+    "stage": 2,
+    "seed": 2711110581,
+    "closed_enamel_volume": 17.60027673544359,
+    "original_volume": 26.758879365697535,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 2494,
+    "polygons": 2132,
+    "fracture_faces": 50,
+    "crack_faces": 378
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_04.SM_Teeth_L_04",
+    "variant": "SM_Teeth_L_04_Chipped",
+    "stage": 1,
+    "seed": 1213941406,
+    "closed_enamel_volume": 26.646638380102832,
+    "original_volume": 31.167949696949023,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 1826,
+    "polygons": 2197,
+    "fracture_faces": 50,
+    "crack_faces": 179
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_04.SM_Teeth_L_04",
+    "variant": "SM_Teeth_L_04_Broken",
+    "stage": 2,
+    "seed": 1213941406,
+    "closed_enamel_volume": 20.01130521810086,
+    "original_volume": 31.167949696949023,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 2386,
+    "polygons": 2120,
+    "fracture_faces": 73,
+    "crack_faces": 342
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_04.SM_Teeth_R_04",
+    "variant": "SM_Teeth_R_04_Chipped",
+    "stage": 1,
+    "seed": 3534489471,
+    "closed_enamel_volume": 27.005192961373044,
+    "original_volume": 31.1679448379,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 1804,
+    "polygons": 2178,
+    "fracture_faces": 36,
+    "crack_faces": 177
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_04.SM_Teeth_R_04",
+    "variant": "SM_Teeth_R_04_Broken",
+    "stage": 2,
+    "seed": 3534489471,
+    "closed_enamel_volume": 16.618508204637788,
+    "original_volume": 31.1679448379,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 2450,
+    "polygons": 2110,
+    "fracture_faces": 59,
+    "crack_faces": 363
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_05.SM_Teeth_L_05",
+    "variant": "SM_Teeth_L_05_Chipped",
+    "stage": 1,
+    "seed": 3490170123,
+    "closed_enamel_volume": 27.382233586410976,
+    "original_volume": 32.67906936315574,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 1785,
+    "polygons": 2149,
+    "fracture_faces": 15,
+    "crack_faces": 182
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_05.SM_Teeth_L_05",
+    "variant": "SM_Teeth_L_05_Broken",
+    "stage": 2,
+    "seed": 3490170123,
+    "closed_enamel_volume": 14.573686771003654,
+    "original_volume": 32.67906936315574,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 2459,
+    "polygons": 2111,
+    "fracture_faces": 49,
+    "crack_faces": 366
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_05.SM_Teeth_R_05",
+    "variant": "SM_Teeth_R_05_Chipped",
+    "stage": 1,
+    "seed": 1083873171,
+    "closed_enamel_volume": 28.564892365604607,
+    "original_volume": 32.67906915596107,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 1860,
+    "polygons": 2218,
+    "fracture_faces": 39,
+    "crack_faces": 189
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_05.SM_Teeth_R_05",
+    "variant": "SM_Teeth_R_05_Broken",
+    "stage": 2,
+    "seed": 1083873171,
+    "closed_enamel_volume": 18.839496909346472,
+    "original_volume": 32.67906915596107,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 2376,
+    "polygons": 2091,
+    "fracture_faces": 42,
+    "crack_faces": 350
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_07.SM_Teeth_L_07",
+    "variant": "SM_Teeth_L_07_Chipped",
+    "stage": 1,
+    "seed": 439577612,
+    "closed_enamel_volume": 30.89769079523098,
+    "original_volume": 35.57772982438365,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 1833,
+    "polygons": 2155,
+    "fracture_faces": 49,
+    "crack_faces": 183
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_L_07.SM_Teeth_L_07",
+    "variant": "SM_Teeth_L_07_Broken",
+    "stage": 2,
+    "seed": 439577612,
+    "closed_enamel_volume": 18.673213599604363,
+    "original_volume": 35.57772982438365,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 2490,
+    "polygons": 2116,
+    "fracture_faces": 52,
+    "crack_faces": 376
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_06.SM_Teeth_R_06",
+    "variant": "SM_Teeth_R_06_Chipped",
+    "stage": 1,
+    "seed": 1153776608,
+    "closed_enamel_volume": 30.517449094073342,
+    "original_volume": 35.577728310460316,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 1807,
+    "polygons": 2165,
+    "fracture_faces": 44,
+    "crack_faces": 179
+  },
+  {
+    "source": "/Game/Gameplay/Arena/V10/SM_Teeth_R_06.SM_Teeth_R_06",
+    "variant": "SM_Teeth_R_06_Broken",
+    "stage": 2,
+    "seed": 1153776608,
+    "closed_enamel_volume": 17.303370591111477,
+    "original_volume": 35.577728310460316,
+    "uv_layers": [
+      "LightMapUV",
+      "UVmap_1",
+      "UVmap_2"
+    ],
+    "vertices": 2527,
+    "polygons": 2093,
+    "fracture_faces": 34,
+    "crack_faces": 393
+  }
+]

@@ -1,0 +1,314 @@
+[
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_Forwart.SM_Teeth_Forwart",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_10",
+    "label": "SM_Teeth_Forwart",
+    "upper": false,
+    "gum": "SM_Gum_Bot",
+    "mask_band_vertices": 45,
+    "signed_range": [
+      -190.1087646484375,
+      464.3591003417969
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_Forwart_001.SM_Teeth_Forwart_001",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_11",
+    "label": "SM_Teeth_Forwart.001",
+    "upper": true,
+    "gum": "SM_Gum_Up.001",
+    "mask_band_vertices": 46,
+    "signed_range": [
+      -190.04318237304688,
+      496.79620361328125
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_L_01.SM_Teeth_L_01",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_12",
+    "label": "SM_Teeth_L_01",
+    "upper": false,
+    "gum": "SM_Gum_Bot",
+    "mask_band_vertices": 220,
+    "signed_range": [
+      -142.07545471191406,
+      355.9554748535156
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_L_02.SM_Teeth_L_02",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_13",
+    "label": "SM_Teeth_L_02",
+    "upper": false,
+    "gum": "SM_Gum_Bot",
+    "mask_band_vertices": 213,
+    "signed_range": [
+      -155.1041717529297,
+      340.9427490234375
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_L_03.SM_Teeth_L_03",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_14",
+    "label": "SM_Teeth_L_03",
+    "upper": false,
+    "gum": "SM_Gum_Bot",
+    "mask_band_vertices": 298,
+    "signed_range": [
+      -145.86428833007812,
+      338.1908264160156
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_L_04.SM_Teeth_L_04",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_15",
+    "label": "SM_Teeth_L_04",
+    "upper": false,
+    "gum": "SM_Gum_Bot",
+    "mask_band_vertices": 263,
+    "signed_range": [
+      -195.0791473388672,
+      336.5119323730469
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_L_05.SM_Teeth_L_05",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_16",
+    "label": "SM_Teeth_L_05",
+    "upper": false,
+    "gum": "SM_Gum_Bot",
+    "mask_band_vertices": 94,
+    "signed_range": [
+      -195.19827270507812,
+      323.71209716796875
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_L_07.SM_Teeth_L_07",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_17",
+    "label": "SM_Teeth_L_07",
+    "upper": false,
+    "gum": "SM_Gum_Bot",
+    "mask_band_vertices": 85,
+    "signed_range": [
+      -268.266845703125,
+      315.35430908203125
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_R_01.SM_Teeth_R_01",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_18",
+    "label": "SM_Teeth_R_01",
+    "upper": false,
+    "gum": "SM_Gum_Bot",
+    "mask_band_vertices": 219,
+    "signed_range": [
+      -161.5852813720703,
+      345.36962890625
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_R_01_002.SM_Teeth_R_01_002",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_19",
+    "label": "SM_Teeth_R_01.002",
+    "upper": true,
+    "gum": "SM_Gum_Up.001",
+    "mask_band_vertices": 259,
+    "signed_range": [
+      -176.87054443359375,
+      369.10919189453125
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_R_01_003.SM_Teeth_R_01_003",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_20",
+    "label": "SM_Teeth_R_01.003",
+    "upper": true,
+    "gum": "SM_Gum_Up.001",
+    "mask_band_vertices": 270,
+    "signed_range": [
+      -176.29837036132812,
+      367.6651916503906
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_R_01_004.SM_Teeth_R_01_004",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_21",
+    "label": "SM_Teeth_R_01.004",
+    "upper": true,
+    "gum": "SM_Gum_Up.001",
+    "mask_band_vertices": 322,
+    "signed_range": [
+      -174.82125854492188,
+      351.58856201171875
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_R_01_005.SM_Teeth_R_01_005",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_22",
+    "label": "SM_Teeth_R_01.005",
+    "upper": true,
+    "gum": "SM_Gum_Up.001",
+    "mask_band_vertices": 122,
+    "signed_range": [
+      -238.68597412109375,
+      346.54754638671875
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_R_01_006.SM_Teeth_R_01_006",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_23",
+    "label": "SM_Teeth_R_01.006",
+    "upper": true,
+    "gum": "SM_Gum_Up.001",
+    "mask_band_vertices": 79,
+    "signed_range": [
+      -253.59860229492188,
+      362.3933410644531
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_R_01_007.SM_Teeth_R_01_007",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_25",
+    "label": "SM_Teeth_R_01.007",
+    "upper": true,
+    "gum": "SM_Gum_Up.001",
+    "mask_band_vertices": 229,
+    "signed_range": [
+      -163.85812377929688,
+      351.0357360839844
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_R_01_008.SM_Teeth_R_01_008",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_27",
+    "label": "SM_Teeth_R_01.008",
+    "upper": true,
+    "gum": "SM_Gum_Up.001",
+    "mask_band_vertices": 308,
+    "signed_range": [
+      -129.46348571777344,
+      351.8747863769531
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_R_01_009.SM_Teeth_R_01_009",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_29",
+    "label": "SM_Teeth_R_01.009",
+    "upper": true,
+    "gum": "SM_Gum_Up.001",
+    "mask_band_vertices": 312,
+    "signed_range": [
+      -180.285400390625,
+      353.0374755859375
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_R_01_010.SM_Teeth_R_01_010",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_30",
+    "label": "SM_Teeth_R_01.010",
+    "upper": true,
+    "gum": "SM_Gum_Up.001",
+    "mask_band_vertices": 126,
+    "signed_range": [
+      -233.40667724609375,
+      347.07843017578125
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_R_01_011.SM_Teeth_R_01_011",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_31",
+    "label": "SM_Teeth_R_01.011",
+    "upper": true,
+    "gum": "SM_Gum_Up.001",
+    "mask_band_vertices": 82,
+    "signed_range": [
+      -246.3316650390625,
+      355.0391845703125
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_R_01_012.SM_Teeth_R_01_012",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_46",
+    "label": "SM_Teeth_R_01.012",
+    "upper": true,
+    "gum": "SM_Gum_Up.001",
+    "mask_band_vertices": 243,
+    "signed_range": [
+      -165.43136596679688,
+      353.6178283691406
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_R_01_013.SM_Teeth_R_01_013",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_47",
+    "label": "SM_Teeth_R_01.013",
+    "upper": true,
+    "gum": "SM_Gum_Up.001",
+    "mask_band_vertices": 318,
+    "signed_range": [
+      -128.3441925048828,
+      350.754150390625
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_R_02.SM_Teeth_R_02",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_48",
+    "label": "SM_Teeth_R_02",
+    "upper": false,
+    "gum": "SM_Gum_Bot",
+    "mask_band_vertices": 215,
+    "signed_range": [
+      -171.1826629638672,
+      332.4476318359375
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_R_03.SM_Teeth_R_03",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_49",
+    "label": "SM_Teeth_R_03",
+    "upper": false,
+    "gum": "SM_Gum_Bot",
+    "mask_band_vertices": 264,
+    "signed_range": [
+      -142.39077758789062,
+      334.43115234375
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_R_04.SM_Teeth_R_04",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_50",
+    "label": "SM_Teeth_R_04",
+    "upper": false,
+    "gum": "SM_Gum_Bot",
+    "mask_band_vertices": 212,
+    "signed_range": [
+      -192.4928436279297,
+      332.2691955566406
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_R_05.SM_Teeth_R_05",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_51",
+    "label": "SM_Teeth_R_05",
+    "upper": false,
+    "gum": "SM_Gum_Bot",
+    "mask_band_vertices": 121,
+    "signed_range": [
+      -194.94747924804688,
+      327.9832458496094
+    ]
+  },
+  {
+    "mesh": "/Game/FromBlender10/SM_Teeth_R_06.SM_Teeth_R_06",
+    "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_52",
+    "label": "SM_Teeth_R_06",
+    "upper": false,
+    "gum": "SM_Gum_Bot",
+    "mask_band_vertices": 84,
+    "signed_range": [
+      -281.3201904296875,
+      330.43438720703125
+    ]
+  }
+]

@@ -1,0 +1,79 @@
+{
+  "passed": false,
+  "error": "Traceback (most recent call last):\n  File \"D:/PROJECT/GAME/WaifuTD/MessControl/Tools/Unreal/check_arena_v10_solo.py\", line 104, in tick\n    self.samples.append(dict(time=age,grime=grime,hero=list(self.hero.get_actor_location().to_tuple()),contact=str(self.hero.get_editor_property('BrushContact').get_editor_property('Target'))))\n                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nException: MCBrushContactComponent: Property 'Target' for attribute 'Target' on 'MCBrushContactComponent' is protected and cannot be read\n",
+  "checks": [
+    {
+      "name": "all twelve lower side teeth are active",
+      "passed": true
+    },
+    {
+      "name": "all twelve teeth are available respawn reserves",
+      "passed": true
+    },
+    {
+      "name": "all active crowns use the new care and gum-contact material",
+      "passed": true
+    },
+    {
+      "name": "new tongue retains the previous pressure material",
+      "passed": true
+    },
+    {
+      "name": "twelve upper crowns and both front rows remain decorative",
+      "passed": true
+    },
+    {
+      "name": "new tongue has matching playable collision",
+      "passed": true
+    },
+    {
+      "name": "coffee care status can be applied to every active tooth",
+      "passed": true
+    }
+  ],
+  "floor_samples": [
+    [
+      -1500.0,
+      -150.0,
+      30.371546745300293
+    ],
+    [
+      -700.0,
+      -150.0,
+      49.59350824356079
+    ],
+    [
+      0.0,
+      -150.0,
+      89.49440717697144
+    ],
+    [
+      1000.0,
+      -150.0,
+      97.70500659942627
+    ],
+    [
+      -700.0,
+      800.0,
+      87.69553899765015
+    ],
+    [
+      -700.0,
+      -900.0,
+      91.20315313339233
+    ]
+  ],
+  "captures": [
+    "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\ArenaRefresh_20261017\\Overview.png",
+    "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\ArenaRefresh_20261017\\GumContact_Right.png",
+    "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\ArenaRefresh_20261017\\GumContact_Left.png"
+  ],
+  "samples": [],
+  "restored_engine_settings": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  },
+  "grime_before": 1044480,
+  "grime_after": 1044480
+}

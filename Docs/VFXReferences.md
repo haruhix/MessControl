@@ -191,6 +191,25 @@ All 16 closed enamel volumes were checked in Blender; eight-tooth render sheets
 and a short solo gameplay-camera check are recorded separately under
 `Artifacts/ToothDamageIrregular_20261014`. No runtime random fracture is implied.
 
+2026-10-17: the V10 arena restores this same technique on its 12 new active
+crowns. The reviewed Epic/CGHOW references above still apply; no new effect
+technique or Chaos system was introduced. Twenty-four closed crown volumes,
+progressively deeper seeded chips and projected branching cracks were authored
+in a separate background Blender process. The original pivots and all three UV
+channels survive. Solo PIE frames under the arena's saved lighting and native
+damage/held-Spray repair checks are in `Artifacts/ToothDamageV10_20261017`.
+
+The user's 2026-10-17 branching-crack image is the art direction for the next
+pass (copied to `Artifacts/ToothBranchCracks_20261017/Reference_Target.png`).
+The reviewed CGHOW separation of dark cavities from exposed fracture remains
+applicable. Seeded irregular paths now form several main arms, secondary forks
+and tapering hairline tips; the severe stage retains the primary cluster and
+adds another. Projected ribbons are subdivided to stay above the curved enamel.
+The legacy periodic sine-wave overlay in `M_ArenaTooth` is removed. No source
+texture from the reference is sampled or tiled. Current crown cuts and caps are
+unchanged. Close and wider solo gameplay captures, damage/repair checks and
+protected-asset hashes are recorded in `Artifacts/ToothBranchCracks_20261017`.
+
 ## Fog roulette — 2026-10-14
 
 The roulette reuses the fog/beacon material techniques and reviewed Epic/CGHOW
@@ -351,3 +370,21 @@ the gameplay, trail, post-rupture and brush stills. The pressure dent under the
 player remains; Walking mode and actual blocking floor hits confirm support in
 both fixed snapshots. Videos repeat genuine 12 Hz captures at 30 fps, without
 generated motion; four startup editor-window frames are explicitly excluded.
+
+## Knight head split into Wizard — 2026-10-17
+
+Reuses the previously reviewed Epic fracture-geometry and Atif Ali fast-burst /
+controlled-tail references from the walnut effects work above. The visible
+technique uses two existing `SM_Walnut_HalfShell` instances opening outward,
+then drifting away around a bounded purple arcane burst and ring. Existing
+walnut and arcane assets are reused; no Chaos fracture or skeletal mesh asset
+change is introduced. The halves have no collision or damage, and cue age is
+reconstructed from the replicated server clock with existing owner cleanup.
+
+The 2.4-second phase transition was exercised in solo PIE under `L_Mouth`
+lighting. The lead inspected the actual shell separation and Wizard emergence
+frames in `Artifacts/NutSequentialPhases_20261017/ContactSheet.jpg`; the genuine
+motion preview is `preview.mp4` beside it. The probe observed exactly two shell
+instances. No GPU cost or multiplayer measurements are claimed. Implementation,
+fixture details and validation are recorded in
+`Docs/NutSequentialPhases_20261017.md`.
