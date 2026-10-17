@@ -8,6 +8,7 @@
 #include "MCNutRainEvent.h"
 #include "MCNutLandingShadow.h"
 #include "MCNutRainProfile.h"
+#include "MCNutRainPattern.h"
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
@@ -29,13 +30,14 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutRainLimits,"MessControl.CoreLoop.NutRain.
 bool FMCNutRainLimits::RunTest(const FString&)
 {
     FMCNutRainSettings Settings;
-    TestEqual(TEXT("Directed rain includes final flight inside twenty to twenty-five seconds"),Settings.RainSeconds,22.5f);
-    TestEqual(TEXT("Directed rain derives its count from duration and individual drop spacing"),Settings.RainCountForPlayers(4),10);
+    TestEqual(TEXT("Dark reference pattern has ten zones"),Settings.PatternA.Num(),10);
+    TestEqual(TEXT("Magenta reference pattern has eight zones"),Settings.PatternB.Num(),8);
+    TestEqual(TEXT("Directed rain visits every authored zone once, without party-count duplication"),Settings.RainCountForPlayers(4),18);
     Settings.RainSeconds=40; Settings.MinimumDropSeconds=1.5f; Settings.MaximumDropSeconds=2.5f; Settings.SeriesRestSeconds=4;
     Settings.MinimumNutsPerSeries=2; Settings.MaximumNutsPerSeries=4; Settings.Sanitize();
-    TestEqual(TEXT("Saved forty-second profile is migrated into the approved duration"),Settings.RainSeconds,25.f);
-    TestTrue(TEXT("Individual drops retain one-and-a-half to three second reaction time"),Settings.MinimumDropSeconds>=1.5f && Settings.MaximumDropSeconds<=3.f);
-    TestEqual(TEXT("Saved multi-second pauses are removed for continuous rain"),Settings.SeriesRestSeconds,0.f);
+    TestTrue(TEXT("Legacy duration cannot override two-pattern timing plus final flight"),FMath::IsNearlyEqual(Settings.RainSeconds,10.55f,.001f));
+    TestEqual(TEXT("Pattern launches have half-second spacing"),Settings.PatternDropSeconds,.5f);
+    TestEqual(TEXT("Pattern handover has a nine-tenths-second last-to-first launch gap"),Settings.PatternSeriesGapSeconds,.9f);
     Settings.bBossEncounter=false;
     TestEqual(TEXT("Solo prototype launches 30 nuts"),Settings.RainCountForPlayers(1),30);
     TestEqual(TEXT("Solo prototype can awaken four surviving nuts"),Settings.EnemyCountForPlayers(1),4);
@@ -51,6 +53,41 @@ bool FMCNutRainLimits::RunTest(const FString&)
     TestTrue(TEXT("Awakening waits for the final launch to land"),Settings.SettleSeconds>=Settings.Entry.FlightSeconds+.25f);
     TestTrue(TEXT("Corrupt rain duration becomes finite"),FMath::IsFinite(Settings.RainSeconds) && Settings.RainSeconds>=3);
     TestTrue(TEXT("Enemies retain a readable finite telegraph"),FMath::IsFinite(Settings.Enemy.WindupSeconds) && Settings.Enemy.WindupSeconds>=.25f);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutRainPatternSchedule,"MessControl.CoreLoop.NutRain.TwoPatternsAndHitchSafeCadence",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutRainPatternSchedule::RunTest(const FString&)
+{
+    FMCNutRainSettings Settings; Settings.Sanitize();
+    for(int32 First=0;First<2;++First) {
+        TArray<FMCNutRainPatternStep> Steps;
+        MCNutRainPattern::BuildSchedule(Settings.PatternA,Settings.PatternB,First,.5f,.9f,Steps);
+        TestEqual(TEXT("Both groups are emitted exactly once"),Steps.Num(),18);
+        const int32 FirstCount=First==0?Settings.PatternA.Num():Settings.PatternB.Num();
+        TestEqual(TEXT("The selected whole group starts the storm"),Steps[0].PatternIndex,First);
+        TestEqual(TEXT("The other whole group ends the storm"),Steps.Last().PatternIndex,1-First);
+        TSet<FIntPoint> Seen;
+        for(int32 I=0;I<Steps.Num();++I) {
+            const auto& Step=Steps[I];
+            const auto& Pattern=Step.PatternIndex==0?Settings.PatternA:Settings.PatternB;
+            TestEqual(TEXT("A scheduled landing uses its actual authored zone"),Step.Zone,Pattern[Step.ZoneIndex]);
+            Seen.Add(FIntPoint(Step.PatternIndex,Step.ZoneIndex));
+            if(I>0) TestTrue(TEXT("Only the whole-group boundary uses the longer gap"),
+                FMath::IsNearlyEqual(Step.LaunchSeconds-Steps[I-1].LaunchSeconds,I==FirstCount?.9f:.5f,.0001f));
+        }
+        TestEqual(TEXT("No zone is repeated or omitted"),Seen.Num(),18);
+        TestTrue(TEXT("Both orders have the same nominal duration"),FMath::IsNearlyEqual(Steps.Last().LaunchSeconds,8.9f,.0001f));
+        const double AfterHitch=MCNutRainPattern::NextLaunchAt(30.,Steps[0].LaunchSeconds,Steps[1].LaunchSeconds);
+        TestEqual(TEXT("A late frame retains the next reaction interval instead of catching up"),AfterHitch,30.5);
+        TestTrue(TEXT("The group handover also survives a late frame"),FMath::IsNearlyEqual(
+            MCNutRainPattern::NextLaunchAt(30.,Steps[FirstCount-1].LaunchSeconds,Steps[FirstCount].LaunchSeconds),30.9,.0001));
+    }
+    Settings.PatternA={FVector2D(0,0),FVector2D(0,0),FVector2D(-2,3),FVector2D(std::numeric_limits<double>::quiet_NaN(),.5)};
+    Settings.PatternB.Reset(); Settings.PatternDropSeconds=std::numeric_limits<float>::infinity(); Settings.Sanitize();
+    TestEqual(TEXT("Duplicate and invalid zones cannot silently duplicate an impact"),Settings.PatternA.Num(),2);
+    TestEqual(TEXT("An empty second group restores the authored reference"),Settings.PatternB.Num(),8);
+    TestEqual(TEXT("Invalid spacing restores the approved interval"),Settings.PatternDropSeconds,.5f);
     return true;
 }
 
@@ -168,19 +205,18 @@ bool FMCNutDirectedEncounter::RunTest(const FString&)
     T.Event->Start(nullptr,T.Profile.Get());
     const int32 Batch=T.Event->Nuts[0]->Batch;
     TestTrue(TEXT("Rain walnuts have the configured player-sized height"),FMath::IsNearlyEqual(float(T.Event->Nuts[0]->Visual->Bounds.BoxExtent.Z*2),180.f,1.f));
-    TestTrue(TEXT("Director's storm lasts between twenty and twenty-five seconds"),T.Event->Settings.RainSeconds>=20 && T.Event->Settings.RainSeconds<=25);
-    TestTrue(TEXT("The rain schedule continuously covers the storm with individual launches"),T.Event->PlannedLaunchTimes.Num()>=8);
+    TestEqual(TEXT("The opening storm visits both complete reference patterns"),T.Event->PlannedLaunchTimes.Num(),18);
     TestTrue(TEXT("The last scheduled launch reserves its flight inside the storm"),
         FMath::IsNearlyEqual(T.Event->PlannedLaunchTimes.Last()+T.Event->Settings.Entry.FlightSeconds,T.Event->Settings.RainSeconds,.01f));
     for(int32 Index=0;Index<T.Event->PlannedLandings.Num();++Index)
         TestTrue(TEXT("Boss cataclysm starts directly above its advertised landing"),
             FVector::DistSquared2D(T.Event->LaunchLocations[Index],T.Event->PlannedLandings[Index])<1.f);
-    T.Step(19);
-    TestEqual(TEXT("The minimum twenty-second dodge phase cannot start bosses early"),T.Event->Stage,EMCNutRainStage::Rainfall);
+    T.Step(T.Event->PlannedLaunchTimes.Last()-.1f);
+    TestEqual(TEXT("The second group must finish before the boss gate opens"),T.Event->Stage,EMCNutRainStage::Rainfall);
     for(AMCFoodActor* Food:T.Event->Nuts) if(IsValid(Food) && !Food->IsDisposed()) Food->Dispose();
-    T.Step(7);
+    T.Step(3);
     TestFalse(TEXT("Directed encounter starts successfully"),T.Event->bFailed);
-    TestTrue(TEXT("Several individual drops precede bosses"),T.Event->CompletedSeries>=4);
+    TestEqual(TEXT("Exactly two complete groups precede bosses"),T.Event->CompletedSeries,2);
     if(!TestEqual(TEXT("Rain creates only the knight, never a simultaneous wizard"),T.Event->Bosses.Num(),1)) return false;
     TestEqual(TEXT("Falling knight remains part of the alive encounter"),T.Event->BossesLeft,1);
     AMCNutBoss* Boss=T.Event->Bosses[0];
@@ -190,7 +226,8 @@ bool FMCNutDirectedEncounter::RunTest(const FString&)
     const auto& Times=T.Event->PlannedLaunchTimes;
     for(int32 I=1;I<Times.Num();++I) {
         const float Gap=Times[I]-Times[I-1];
-        TestTrue(TEXT("Every individual drop follows the approved one-and-a-half to three second interval"),Gap>=1.499f && Gap<=3.001f);
+        const bool Boundary=T.Event->PlannedPatternIndices[I]!=T.Event->PlannedPatternIndices[I-1];
+        TestTrue(TEXT("Every drop follows its half-second interval or the single group gap"),FMath::IsNearlyEqual(Gap,Boundary?.9f:.5f,.001f));
     }
     const int32 SpellBefore=T.Event->NutsSpawned;
     TestTrue(TEXT("Wizard rain targeting outside the playable interest area falls back to a real reachable nut"),
@@ -279,7 +316,7 @@ bool FMCNutRainGroundSpacing::RunTest(const FString&)
         return !Food->IsMouthEntryActive() && !Food->IsDisposed();
     };
     if(!TestTrue(TEXT("First whole nut is resting and no longer in mouth entry"),RestOnFloor(First,T.Event->PlannedLandings[0]))) return false;
-    T.Step(3.1f);
+    T.Step(.6f);
     if(!TestTrue(TEXT("Normal opening scheduler launches the next individual nut"),T.Event->Nuts.Num()>=2)) return false;
     auto* Second=T.Event->Nuts[1].Get();
     const auto Clearance=[&](const AMCFoodActor* A,const AMCFoodActor* B) {

@@ -1,292 +1,326 @@
 #include "MCPerkChoiceWidget.h"
+#include "MCPerkCardWidget.h"
+#include "MCGameplayUITheme.h"
+#include "MCGameplayHUD.h"
+#include "MCUIVisualStyle.h"
+#include "MCUIDataLibrary.h"
 #include "MCPlayerController.h"
 #include "MCPlayerState.h"
 #include "MCPerkComponent.h"
+#include "MCToothCharacter.h"
+#include "MCToothStatusComponent.h"
+#include "MCFoodCollectionComponent.h"
 #include "Blueprint/WidgetTree.h"
-#include "Brushes/SlateRoundedBoxBrush.h"
 #include "Components/Border.h"
-#include "Components/ButtonSlot.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
-#include "Components/Image.h"
 #include "Components/ScaleBox.h"
-#include "Components/ScaleBoxSlot.h"
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
+#include "Internationalization/Internationalization.h"
+#include "Internationalization/Culture.h"
 #include "InputCoreTypes.h"
-#include "Styling/CoreStyle.h"
+
+#define LOCTEXT_NAMESPACE "MCPerkChoice"
 
 namespace MCPerkCardPrivate
 {
-    const FLinearColor Cream(.98f, .97f, .90f);
-    const FLinearColor Muted(.58f, .68f, .73f);
-    const FLinearColor Mint(.32f, .91f, .72f);
-    const FLinearColor Coral(1.f, .38f, .48f);
-
-    UTextBlock* Label(UWidgetTree* Tree, const FText& Text, int32 Size, FLinearColor Color = Cream)
+    UTextBlock* Label(UWidgetTree* Tree,const FText& Text)
     {
-        auto* Result = Tree->ConstructWidget<UTextBlock>();
-        Result->SetText(Text);
-        Result->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"), Size));
-        Result->SetColorAndOpacity(FSlateColor(Color));
-        Result->SetJustification(ETextJustify::Center);
-        Result->SetAutoWrapText(true);
-        return Result;
+        auto* Result=Tree->ConstructWidget<UTextBlock>();Result->SetText(Text);
+        Result->SetJustification(ETextJustify::Center);Result->SetAutoWrapText(true);return Result;
+    }
+    FButtonStyle ActionStyle(UMCPerkCardButton* Button,const UMCGameplayUITheme* T,int32 Index)
+    {
+        const auto& P=T->Palette;const FLinearColor Fill=Index==-3?P.Mint:Index==-2?P.Cream:P.Button;
+        FButtonStyle Style=Button->GetStyle();const auto Size=MCUIVisualStyle::SizeFor(Button,FVector2D(310,52));
+        Style.SetNormal(MCUIVisualStyle::Surface(Button,Style.Normal,T,Fill,Size,9));
+        Style.SetHovered(MCUIVisualStyle::Surface(Button,Style.Hovered,T,P.ButtonHover,Size,9,false,0,false,true));
+        Style.SetPressed(MCUIVisualStyle::Surface(Button,Style.Pressed,T,P.ButtonPressed,Size,9,false,0,false,true));
+        Style.SetDisabled(MCUIVisualStyle::Surface(Button,Style.Disabled,T,P.ButtonDisabled,Size,9));
+        Style.SetNormalPadding(FMargin(22,10));Style.SetPressedPadding(FMargin(22,10));return Style;
     }
 }
 
-UMCPerkCardButton::UMCPerkCardButton() { InitIsFocusable(false); }
-void UMCPerkCardButton::Configure(AMCPlayerController* Player, int32 Index)
+UMCPerkCardButton::UMCPerkCardButton() { InitIsFocusable(true); }
+void UMCPerkCardButton::Configure(AMCPlayerController* Player,int32 Index)
 {
-    Controller = Player;
-    ChoiceIndex = Index;
-    OnClicked.AddUniqueDynamic(this, &UMCPerkCardButton::Choose);
+    Controller=Player;ChoiceIndex=Index;OnClicked.AddUniqueDynamic(this,&UMCPerkCardButton::Choose);
 }
 void UMCPerkCardButton::Choose()
 {
-    if (!Controller.IsValid()) return;
+    if(IsDesignTime() || !bInteractionAllowed || !GetIsEnabled() || !Controller.IsValid()) return;
     if(ChoiceIndex==-1) Controller->RerollLevelPerks();
     else if(ChoiceIndex==-2 || ChoiceIndex==-3) Controller->ConfirmRogueReward(ChoiceIndex==-3);
     else Controller->ChooseRewardPerk(ChoiceIndex);
 }
+void UMCPerkCardButton::SetInteractionAllowed(bool bAllowed)
+{
+    bInteractionAllowed=bAllowed;
+    InitIsFocusable(bAllowed);
+    // Read-only contract cards retain their child scroll region for long descriptions.
+    SetVisibility(bAllowed?ESlateVisibility::Visible:ESlateVisibility::SelfHitTestInvisible);
+}
 
+FString UMCPerkChoiceWidget::DisplayCulture() const
+{
+    return IsDesignTime() || bApplyingPreview?PreviewCulture:FInternationalization::Get().GetCurrentLanguage()->GetName();
+}
+FText UMCPerkChoiceWidget::Copy(FName Key,const FText& Fallback) const
+{
+    return UMCUIDataLibrary::ResolveText(LocalizationTable,Key,Fallback,DisplayCulture());
+}
+FText UMCPerkChoiceWidget::Format(const FText& Pattern,const FFormatNamedArguments& Arguments) const
+{
+    return UMCUIDataLibrary::FormatTextForCulture(Pattern,Arguments,DisplayCulture());
+}
 void UMCPerkChoiceWidget::NativeOnInitialized()
 {
-    Super::NativeOnInitialized();
-    SetIsFocusable(true);
-
-    // Scale one compact panel to fit small windows; the world remains visible behind it.
-    auto* Backdrop = WidgetTree->ConstructWidget<UBorder>();
-    WidgetTree->RootWidget = Backdrop;
-    Backdrop->SetBrushColor(FLinearColor(.004f, .010f, .016f, .84f));
-    Backdrop->SetPadding(FMargin(38));
-    Backdrop->SetHorizontalAlignment(HAlign_Fill);
-    Backdrop->SetVerticalAlignment(VAlign_Fill);
-    auto* Scale = WidgetTree->ConstructWidget<UScaleBox>();
-    Scale->SetStretch(EStretch::ScaleToFit);
-    Scale->SetStretchDirection(EStretchDirection::DownOnly);
-    Backdrop->SetContent(Scale);
-    auto* Size = WidgetTree->ConstructWidget<USizeBox>();
-    Size->SetWidthOverride(1000);
-    Size->SetHeightOverride(660);
-    Scale->SetContent(Size);
-    auto* Main = WidgetTree->ConstructWidget<UVerticalBox>();
-    Size->SetContent(Main);
-
-    Title = MCPerkCardPrivate::Label(WidgetTree, FText::GetEmpty(), 30);
-    Main->AddChildToVerticalBox(Title)->SetPadding(FMargin(0, 0, 0, 6));
-    Subtitle = MCPerkCardPrivate::Label(WidgetTree, FText::GetEmpty(), 15, MCPerkCardPrivate::Muted);
-    Main->AddChildToVerticalBox(Subtitle)->SetPadding(FMargin(0, 0, 0, 18));
-    Cards = WidgetTree->ConstructWidget<UHorizontalBox>();
-    Main->AddChildToVerticalBox(Cards)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
-
-    Hint = MCPerkCardPrivate::Label(WidgetTree, FText::GetEmpty(), 14, MCPerkCardPrivate::Muted);
-    Main->AddChildToVerticalBox(Hint)->SetPadding(FMargin(0, 18, 0, 0));
-    Actions=WidgetTree->ConstructWidget<UHorizontalBox>();
-    auto* ActionSlot=Main->AddChildToVerticalBox(Actions);
-    ActionSlot->SetPadding(FMargin(0,8,0,0));ActionSlot->SetHorizontalAlignment(HAlign_Center);
+    Super::NativeOnInitialized();SetIsFocusable(true);BuildPresentationTree();
 }
-
-void UMCPerkChoiceWidget::ShowChoices(const TArray<FName>& IDs, EMCPerkPolarity Polarity)
+void UMCPerkChoiceWidget::BuildPresentationTree()
 {
-    BuildChoices(IDs,Polarity,false);
+    if(!WidgetTree || Title) return;
+    const auto* ResolvedTheme=GetResolvedTheme();
+    if(!LocalizationTable) LocalizationTable=ResolvedTheme && !ResolvedTheme->LocalizationTable.IsNull()?ResolvedTheme->LocalizationTable.LoadSynchronous():UMCUIDataLibrary::GetDefaultLocalizationTable();
+    if(!CardTable) CardTable=ResolvedTheme && !ResolvedTheme->CardTable.IsNull()?ResolvedTheme->CardTable.LoadSynchronous():UMCUIDataLibrary::GetDefaultCardTable();
+    if(WidgetTree->RootWidget) {
+        Title=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("RewardTitle")));
+        Subtitle=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("RewardSubtitle")));
+        Hint=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("RewardHint")));
+        Cards=Cast<UHorizontalBox>(WidgetTree->FindWidget(TEXT("RewardCards")));
+        Actions=Cast<UHorizontalBox>(WidgetTree->FindWidget(TEXT("RewardActions")));
+        PanelBorder=Cast<UBorder>(WidgetTree->FindWidget(TEXT("RewardPanel")));
+        HeaderBorder=Cast<UBorder>(WidgetTree->FindWidget(TEXT("RewardHeader")));
+        if(auto* Size=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("RewardPanelSize")))) {Size->SetWidthOverride(1040);Size->SetHeightOverride(680);}
+        if(Title) Title->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+        if(Subtitle) Subtitle->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+        return;
+    }
+    auto* Backdrop=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("RewardBackdrop"));WidgetTree->RootWidget=Backdrop;
+    Backdrop->SetPadding(FMargin(28));Backdrop->SetHorizontalAlignment(HAlign_Center);Backdrop->SetVerticalAlignment(VAlign_Center);
+    Backdrop->SetBrushColor(GetResolvedTheme()->Palette.Backdrop);
+    auto* Scale=WidgetTree->ConstructWidget<UScaleBox>(UScaleBox::StaticClass(),TEXT("RewardViewportFit"));Scale->SetStretch(EStretch::ScaleToFit);Scale->SetStretchDirection(EStretchDirection::DownOnly);Backdrop->SetContent(Scale);
+    // Stable card viewport: long copy scrolls inside the card instead of shrinking the modal.
+    auto* Width=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("RewardPanelSize"));Width->SetWidthOverride(1040);Width->SetHeightOverride(680);Scale->SetContent(Width);
+    PanelBorder=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("RewardPanel"));PanelBorder->SetPadding(FMargin(18));Width->SetContent(PanelBorder);
+    auto* Main=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("RewardColumn"));PanelBorder->SetContent(Main);
+    HeaderBorder=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("RewardHeader"));HeaderBorder->SetPadding(FMargin(14,10));
+    auto* HeaderRow=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("RewardHeaderRow"));HeaderBorder->SetContent(HeaderRow);
+    auto* HeaderIconSize=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("RewardHeaderIconSize"));HeaderIconSize->SetWidthOverride(44);HeaderIconSize->SetHeightOverride(50);
+    auto* HeaderIcon=WidgetTree->ConstructWidget<UMCHUDIcon>(UMCHUDIcon::StaticClass(),TEXT("RewardHeaderIcon"));HeaderIcon->bTooth=true;HeaderIcon->bHappy=true;HeaderIconSize->SetContent(HeaderIcon);
+    auto* HeaderIconSlot=HeaderRow->AddChildToHorizontalBox(HeaderIconSize);HeaderIconSlot->SetPadding(FMargin(0,0,12,0));HeaderIconSlot->SetVerticalAlignment(VAlign_Center);
+    Title=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("RewardTitle"));Title->SetAutoWrapText(true);Title->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);Title->SetJustification(ETextJustify::Center);
+    auto* TitleSlot=HeaderRow->AddChildToHorizontalBox(Title);TitleSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));TitleSlot->SetVerticalAlignment(VAlign_Center);
+    Main->AddChildToVerticalBox(HeaderBorder)->SetPadding(FMargin(0,0,0,9));
+    Subtitle=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("RewardSubtitle"));Subtitle->SetAutoWrapText(true);Subtitle->SetJustification(ETextJustify::Center);
+    Main->AddChildToVerticalBox(Subtitle)->SetPadding(FMargin(8,0,8,14));
+    Cards=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("RewardCards"));Main->AddChildToVerticalBox(Cards)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+    Actions=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("RewardActions"));
+    auto* ActionSlot=Main->AddChildToVerticalBox(Actions);ActionSlot->SetPadding(FMargin(0,12,0,0));ActionSlot->SetHorizontalAlignment(HAlign_Center);
+    Hint=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("RewardHint"));Hint->SetAutoWrapText(true);Hint->SetJustification(ETextJustify::Center);
+    Main->AddChildToVerticalBox(Hint)->SetPadding(FMargin(6,9,6,0));ApplyTheme();
 }
-
+void UMCPerkChoiceWidget::ApplyTheme()
+{
+    const auto* T=GetResolvedTheme();if(!T) return;const auto& P=T->Palette;
+    if(WidgetTree) if(auto* Size=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("RewardPanelSize")))) {Size->SetWidthOverride(1040);Size->SetHeightOverride(680);}
+    BindStyle(TEXT("RewardPanel"),EMCUIColorToken::Marine,EMCUIStyleTarget::Background);
+    BindStyle(TEXT("RewardHeader"),EMCUIColorToken::Cream,EMCUIStyleTarget::Background);
+    BindStyle(TEXT("RewardTitle"),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,29,true);
+    BindStyle(TEXT("RewardSubtitle"),EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,16,false);
+    BindStyle(TEXT("RewardHint"),EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,13,false);
+    Super::ApplyTheme();
+    if(WidgetTree) if(auto* Backdrop=Cast<UBorder>(WidgetTree->FindWidget(TEXT("RewardBackdrop")))) Backdrop->SetBrushColor(P.Backdrop);
+    if(WidgetTree) if(auto* Icon=Cast<UMCHUDIcon>(WidgetTree->FindWidget(TEXT("RewardHeaderIcon")))) {Icon->Tint=P.Surface;Icon->InkTint=P.Ink;Icon->InvalidateLayoutAndVolatility();}
+    for(int32 Index=0;Index<Buttons.Num();++Index) if(Buttons[Index] && ButtonStyles.IsValidIndex(Index)) {
+        if(CardWidgets.IsValidIndex(Index) && CardWidgets[Index]) {CardWidgets[Index]->ApplyTheme();ButtonStyles[Index]=CardWidgets[Index]->GetBaseButtonStyle();}
+        else {
+            ButtonStyles[Index]=MCPerkCardPrivate::ActionStyle(Buttons[Index],T,Buttons[Index]->GetChoiceIndex());
+            if(auto* TextLabel=Cast<UTextBlock>(Buttons[Index]->GetContent())) {TextLabel->SetFont(T->MakeFont(16));TextLabel->SetColorAndOpacity(Buttons[Index]->GetChoiceIndex()==-2?P.Cost:P.Ink);}
+        }
+    }
+    RefreshGamepadSelection();
+}
+void UMCPerkChoiceWidget::SetOrdinaryHeader()
+{
+    if(!Title || !Subtitle || !Hint) return;
+    Title->SetText(Copy(TEXT("UI.Reward.ChoosePerk"),LOCTEXT("ChoosePerk","Выберите один перк")));
+    Subtitle->SetText(Copy(TEXT("UI.Reward.OtherChoicesDisappear"),LOCTEXT("OtherChoicesDisappear","Два других исчезнут после выбора")));
+    Hint->SetText(Copy(TEXT("UI.Reward.ChoiceHint"),LOCTEXT("ChoiceHint","Выбор: мышь / 1 / 2 / 3 · геймпад: стик / D-pad + A")));
+}
+void UMCPerkChoiceWidget::ShowChoices(const TArray<FName>& IDs,EMCPerkPolarity Polarity) {BuildChoices(IDs,Polarity,false);}
 void UMCPerkChoiceWidget::ShowLevelChoices(const TArray<FName>& IDs,int32 TeamLevel,int32 PendingChoices)
 {
-    BuildChoices(IDs,EMCPerkPolarity::Positive,true);
-    UpdateLevelChoiceHeader(TeamLevel,PendingChoices);
+    BuildChoices(IDs,EMCPerkPolarity::Positive,true);UpdateLevelChoiceHeader(TeamLevel,PendingChoices);
 }
-
 void UMCPerkChoiceWidget::AddAction(const FText& Text,int32 Index)
 {
-    auto* Button=WidgetTree->ConstructWidget<UMCPerkCardButton>();Button->Configure(GetOwningPlayer<AMCPlayerController>(),Index);
-    const FLinearColor Accent=Index==-2?MCPerkCardPrivate::Coral:MCPerkCardPrivate::Mint;
-    FButtonStyle Style=Button->GetStyle();
-    Style.SetNormal(FSlateRoundedBoxBrush(FLinearColor(.025f,.06f,.075f),8.f,Accent,.9f));
-    Style.SetHovered(FSlateRoundedBoxBrush(FLinearColor(.06f,.12f,.14f),8.f,Accent,2.f));
-    Style.SetPressed(FSlateRoundedBoxBrush(FLinearColor(.02f,.04f,.06f),8.f,Accent,2.f));
-    Style.SetDisabled(FSlateRoundedBoxBrush(FLinearColor(.025f,.04f,.05f),8.f,Accent.CopyWithNewOpacity(.25f),1.f));
-    Style.SetNormalPadding(FMargin(18,10));Style.SetPressedPadding(FMargin(18,10));Button->SetStyle(Style);
-    auto* Label=MCPerkCardPrivate::Label(WidgetTree,Text,14,Accent);Label->SetAutoWrapText(false);Button->SetContent(Label);
-    Actions->AddChildToHorizontalBox(Button)->SetPadding(FMargin(12,4));Buttons.Add(Button);
-    ButtonStyles.Add(Style); RefreshGamepadSelection();
+    if(!Actions) return;auto* Button=WidgetTree->ConstructWidget<UMCPerkCardButton>();Button->Configure(bApplyingPreview?nullptr:GetOwningPlayer<AMCPlayerController>(),Index);
+    const auto* T=GetResolvedTheme();const auto& P=T->Palette;
+    const FButtonStyle Style=MCPerkCardPrivate::ActionStyle(Button,T,Index);Button->SetStyle(Style);
+    auto* TextLabel=MCPerkCardPrivate::Label(WidgetTree,Text);TextLabel->SetWrapTextAt(270);TextLabel->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);TextLabel->SetFont(T->MakeFont(16));TextLabel->SetColorAndOpacity(Index==-2?P.Cost:P.Ink);Button->SetContent(TextLabel);
+    Actions->AddChildToHorizontalBox(Button)->SetPadding(FMargin(8,0));Buttons.Add(Button);ButtonStyles.Add(Style);RefreshGamepadSelection();
+}
+FMCPerkCardPresentation UMCPerkChoiceWidget::MakePresentation(FName ID,const FMCPerkDefinition& Definition,bool bPersonal,int32 PreviewStacks) const
+{
+    FMCPerkCardPresentation Data;Data.GameplayID=ID;Data.Polarity=Definition.Polarity;
+    const auto Content=UMCUIDataLibrary::FindCardForGameplayID(CardTable,ID,DisplayCulture());
+    Data.DisplayName=Content.bFound?Content.DisplayName:Definition.DisplayName;
+    Data.Description=Content.bFound?Content.Description:Definition.Description;
+    Data.Image=Content.bFound?Content.Image:Definition.Icon;
+    if(Data.DisplayName.IsEmpty()) Data.DisplayName=FText::FromName(ID);
+    const auto* PC=bApplyingPreview?nullptr:GetOwningPlayer<AMCPlayerController>();const auto* State=PC?PC->GetPlayerState<AMCPlayerState>():nullptr;const auto* Perks=State?State->Perks.Get():nullptr;
+    const int32 Before=PreviewStacks!=INDEX_NONE?PreviewStacks:Perks?Perks->GetStacks(ID):0;
+    const FCulturePtr Culture=FInternationalization::Get().GetCulture(DisplayCulture());
+    UMCPerkCardWidget::ApplyDefinitionMetadata(Data,Definition,LocalizationTable,DisplayCulture(),bPersonal,Before);
+    // These are the same optional before/after values as the existing gameplay preview.
+    if(Perks) for(const auto& M:Definition.Modifiers) if(M.Condition==EMCRogueActivation::Always) {
+        float Base=1.f;FText Stat;const auto* Hero=State?Cast<AMCToothCharacter>(State->GetPawn()):nullptr;
+        switch(M.Stat) {
+        case EMCRogueStat::NormalSpeed:Stat=Copy(TEXT("UI.Reward.Stat.Speed"),LOCTEXT("Speed","Скорость"));break;
+        case EMCRogueStat::MaxHealth:Stat=Copy(TEXT("UI.Reward.Stat.MaxHealth"),LOCTEXT("MaxHealth","Макс. HP"));Base=Hero && Hero->Status?Hero->Status->GetBaseMaxHealth():100;break;
+        case EMCRogueStat::PickaxeDamage:case EMCRogueStat::ChainsawDamage:case EMCRogueStat::WeaponDamage:Stat=Copy(TEXT("UI.Reward.Stat.Damage"),LOCTEXT("Damage","Урон"));break;
+        case EMCRogueStat::BrushPower:Stat=Copy(TEXT("UI.Reward.Stat.Cleaning"),LOCTEXT("Cleaning","Чистка"));break;
+        case EMCRogueStat::CarryCapacity:Stat=Copy(TEXT("UI.Reward.Stat.Pieces"),LOCTEXT("Pieces","Куски"));Base=Hero && Hero->FoodCollection?Hero->FoodCollection->MaxPieces:6;break;
+        default:continue;
+        }
+        const float Current=Perks->RogueValue(M.Stat,Base),Next=Perks->RogueValue(M.Stat,Base,nullptr,ID);
+        FNumberFormattingOptions Rounded;Rounded.SetMaximumFractionalDigits(0);
+        const FText CurrentText=FText::AsNumber(Base==1?Current*100:Current,&Rounded,Culture),NextText=FText::AsNumber(Base==1?Next*100:Next,&Rounded,Culture);
+        const FText Delta=Format(Base==1?Copy(TEXT("UI.Reward.StatPercentFormat"),LOCTEXT("StatPercentFormat","{Stat} {Before}% → {After}%")):Copy(TEXT("UI.Reward.StatValueFormat"),LOCTEXT("StatValueFormat","{Stat} {Before} → {After}")),FFormatNamedArguments{{TEXT("Stat"),Stat},{TEXT("Before"),CurrentText},{TEXT("After"),NextText}});
+        Data.StackPreview=Format(Copy(TEXT("UI.Reward.StackAndStat"),LOCTEXT("StackAndStat","{Stack}\n{Stat}")),FFormatNamedArguments{{TEXT("Stack"),Data.StackPreview},{TEXT("Stat"),Delta}});break;
+    }
+    return Data;
+}
+void UMCPerkChoiceWidget::BuildChoices(const TArray<FName>& IDs,EMCPerkPolarity Polarity,bool bPersonal,bool bReadOnly)
+{
+    BuildPresentationTree();if(!Cards || !Actions || !Title || !Subtitle || !Hint) return;
+    bShowingChoices=true;bSelectionPending=false;bLevelPanel=bPersonal;bOptionalReward=false;bConfirming=false;
+    Actions->ClearChildren();Cards->ClearChildren();Cards->SetVisibility(ESlateVisibility::Visible);Buttons.Reset();ButtonStyles.Reset();CardWidgets.Reset();GamepadSelection=0;NextStickNavigationAt=0;
+    SetOrdinaryHeader();
+    auto* PC=bApplyingPreview?nullptr:GetOwningPlayer<AMCPlayerController>();const auto* State=PC?PC->GetPlayerState<AMCPlayerState>():nullptr;
+    for(int32 Index=0;Index<IDs.Num() && Index<3;++Index) {
+        FMCPerkDefinition Definition;Definition.Polarity=Polarity;
+        if(State && State->Perks) State->Perks->GetPerkDefinition(IDs[Index],Definition);
+        else if(bApplyingPreview && PreviewDefinitions) if(const auto* Row=PreviewDefinitions->FindRow<FMCPerkDefinition>(IDs[Index],TEXT("UI Preview"),false)) Definition=*Row;
+        auto* Card=WidgetTree->ConstructWidget<UMCPerkCardWidget>(CardWidgetClass?CardWidgetClass.Get():UMCPerkCardWidget::StaticClass());Card->PreviewCulture=DisplayCulture();
+        Card->Configure(MakePresentation(IDs[Index],Definition,bPersonal,bApplyingPreview?0:INDEX_NONE),PC,Index,!bReadOnly);
+        auto* CardSlot=Cards->AddChildToHorizontalBox(Card);CardSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));CardSlot->SetPadding(FMargin(6,0));CardSlot->SetVerticalAlignment(VAlign_Fill);
+        CardWidgets.Add(Card);Buttons.Add(Card->GetChoiceButton());ButtonStyles.Add(Card->GetBaseButtonStyle());
+    }
+    RefreshGamepadSelection();ApplyTheme();
 }
 void UMCPerkChoiceWidget::ShowRogueChoices(const FMCRogueChestOffer& Offer)
 {
     const bool Confirm=Offer.Kind==EMCRogueRewardKind::CursedContract && Offer.Step==2;
     TArray<FName> IDs=Offer.IDs;if(Confirm) IDs={Offer.Curse,Offer.Reward};
-    BuildChoices(IDs,Offer.Kind==EMCRogueRewardKind::RiskyAltar?EMCPerkPolarity::Risky:Offer.Step==0?EMCPerkPolarity::Negative:EMCPerkPolarity::Positive,false);
-    bOptionalReward=true;bConfirming=Confirm;
+    BuildChoices(IDs,Offer.Kind==EMCRogueRewardKind::RiskyAltar?EMCPerkPolarity::Risky:Offer.Step==0?EMCPerkPolarity::Negative:EMCPerkPolarity::Positive,false,Confirm);
+    if(!Title || !Subtitle || !Hint) return;bOptionalReward=true;bConfirming=Confirm;
     if(Offer.Kind==EMCRogueRewardKind::RiskyAltar) {
-        Title->SetText(FText::FromString(TEXT("СИЛА С ЦЕНОЙ")));
-        Subtitle->SetText(FText::FromString(TEXT("Выберите один эффект. Цена останется до конца забега.")));
+        Title->SetText(Copy(TEXT("UI.Reward.RiskyTitle"),LOCTEXT("RiskyTitle","СИЛА С ЦЕНОЙ")));
+        Subtitle->SetText(Copy(TEXT("UI.Reward.RiskySubtitle"),LOCTEXT("RiskySubtitle","Выберите один эффект. Цена останется до конца забега.")));
     } else {
-        Title->SetText(FText::FromString(Confirm?TEXT("ПОДТВЕРДИТЬ ДОГОВОР"):Offer.Step==0?TEXT("ВЫБЕРИТЕ ПРОКЛЯТИЕ"):TEXT("ВЫБЕРИТЕ НАГРАДУ")));
-        FString Preview;
+        Title->SetText(Confirm?Copy(TEXT("UI.Reward.ContractConfirmTitle"),LOCTEXT("ContractConfirmTitle","ПОДТВЕРДИТЬ ДОГОВОР")):Offer.Step==0?Copy(TEXT("UI.Reward.ChooseCurse"),LOCTEXT("ChooseCurse","ВЫБЕРИТЕ ПРОКЛЯТИЕ")):Copy(TEXT("UI.Reward.ChooseReward"),LOCTEXT("ChooseReward","ВЫБЕРИТЕ НАГРАДУ")));
+        FText Summary;
         if(Offer.Step==0) {
-            auto* State=GetOwningPlayer<AMCPlayerController>()->GetPlayerState<AMCPlayerState>();
-            Preview=TEXT("Взамен получите одну редкую награду: ");
+            FText Names;auto* PC=bApplyingPreview?nullptr:GetOwningPlayer<AMCPlayerController>();auto* State=PC?PC->GetPlayerState<AMCPlayerState>():nullptr;
             for(int32 I=0;I<Offer.RewardIDs.Num();++I) {
                 FMCPerkDefinition Row;if(State && State->Perks) State->Perks->GetPerkDefinition(Offer.RewardIDs[I],Row);
-                Preview+=(I?TEXT(" / "):TEXT(""))+Row.DisplayName.ToString();
+                const auto Content=UMCUIDataLibrary::FindCardForGameplayID(CardTable,Offer.RewardIDs[I],DisplayCulture());const FText Name=Content.bFound?Content.DisplayName:Row.DisplayName;
+                Names=I==0?Name:Format(Copy(TEXT("UI.Reward.NameList"),LOCTEXT("NameList","{Previous} / {Next}")),FFormatNamedArguments{{TEXT("Previous"),Names},{TEXT("Next"),Name}});
             }
-        } else Preview=Confirm?TEXT("Обе карты будут применены вместе. До подтверждения ничего не получено."):TEXT("После выбора награды покажем обе карты для общего подтверждения.");
-        Subtitle->SetText(FText::FromString(Preview));
+            Summary=Format(Copy(TEXT("UI.Reward.ContractRewardPreview"),LOCTEXT("ContractRewardPreview","Взамен получите одну редкую награду: {Rewards}")),FFormatNamedArguments{{TEXT("Rewards"),Names}});
+        } else Summary=Confirm?Copy(TEXT("UI.Reward.ContractConfirmSubtitle"),LOCTEXT("ContractConfirmSubtitle","Обе карты будут применены вместе. До подтверждения ничего не получено.")):Copy(TEXT("UI.Reward.ContractChooseRewardSubtitle"),LOCTEXT("ContractChooseRewardSubtitle","После выбора награды покажем обе карты для общего подтверждения."));
+        Subtitle->SetText(Summary);
     }
     if(Confirm) {
-        for(const auto& Button:Buttons) {
-            Button->SetIsEnabled(false);
-            if(auto* Column=Cast<UVerticalBox>(Button->GetContent());Column && Column->GetChildrenCount()>0)
-                if(auto* Footer=Cast<UTextBlock>(Column->GetChildAt(Column->GetChildrenCount()-1))) Footer->SetText(FText::FromString(TEXT("ВЫБРАНО")));
-        }
-        AddAction(FText::FromString(TEXT("ПРИНЯТЬ ДОГОВОР [ENTER]")),-3);
-        Hint->SetText(FText::FromString(TEXT("Принять — Enter / A. Отказаться — Escape / B.")));
+        for(const auto& Card:CardWidgets) if(Card) Card->SetInteractionEnabled(false);
+        AddAction(Copy(TEXT("UI.Reward.AcceptContract"),LOCTEXT("AcceptContract","ПРИНЯТЬ ДОГОВОР [ENTER]")),-3);
+        Hint->SetText(Copy(TEXT("UI.Reward.ContractConfirmHint"),LOCTEXT("ContractConfirmHint","Принять — Enter / A. Отказаться — Escape / B.")));
     }
-    AddAction(FText::FromString(TEXT("ОТКАЗАТЬСЯ [ESC]")),-2);
+    AddAction(Copy(TEXT("UI.Reward.Decline"),LOCTEXT("Decline","ОТКАЗАТЬСЯ [ESC]")),-2);
 }
-
 void UMCPerkChoiceWidget::UpdateLevelChoiceHeader(int32 TeamLevel,int32 PendingChoices)
 {
-    if (!Title || !Subtitle) return;
-    Title->SetText(FText::FromString(FString::Printf(TEXT("КОМАНДА · УРОВЕНЬ %d"),TeamLevel)));
-    Subtitle->SetText(FText::FromString(PendingChoices>1
-        ? FString::Printf(TEXT("Выберите личный перк · осталось выборов: %d"),PendingChoices)
-        : FString(TEXT("Общие усилия открыли уровень. Выберите личный перк."))));
-    const auto* State=GetOwningPlayer<AMCPlayerController>()->GetPlayerState<AMCPlayerState>();
-    if(Actions && Actions->GetChildrenCount()==0) AddAction(FText::FromString(TEXT("ПЕРЕБРОСИТЬ [R]")),-1);
-    if(Actions && Actions->GetChildrenCount()>0) Actions->GetChildAt(0)->SetIsEnabled(State && !State->bRogueRerollSpent && !bSelectionPending);
-    Hint->SetText(FText::FromString(State && State->bRogueRerollSpent?TEXT("1 / 2 / 3 или D-pad + A · переброс уже использован"):TEXT("1 / 2 / 3 или D-pad + A · переброс: R / Y")));
-    RefreshGamepadSelection();
+    if(!Title || !Subtitle || !Hint) return;const FCulturePtr Culture=FInternationalization::Get().GetCulture(DisplayCulture());
+    Title->SetText(Format(Copy(TEXT("UI.Reward.LevelTitle"),LOCTEXT("LevelTitle","КОМАНДА · УРОВЕНЬ {Level}")),FFormatNamedArguments{{TEXT("Level"),FText::AsNumber(TeamLevel,nullptr,Culture)}}));
+    Subtitle->SetText(PendingChoices>1?Format(Copy(TEXT("UI.Reward.PendingChoices"),LOCTEXT("PendingChoices","Выберите личный перк · осталось выборов: {Count}")),FFormatNamedArguments{{TEXT("Count"),FText::AsNumber(PendingChoices,nullptr,Culture)}}):Copy(TEXT("UI.Reward.LevelSubtitle"),LOCTEXT("LevelSubtitle","Общие усилия открыли уровень. Выберите личный перк.")));
+    const auto* PC=bApplyingPreview?nullptr:GetOwningPlayer<AMCPlayerController>();const auto* State=PC?PC->GetPlayerState<AMCPlayerState>():nullptr;
+    const bool Spent=bApplyingPreview?bPreviewRerollSpent:State && State->bRogueRerollSpent;
+    if(Actions && Actions->GetChildrenCount()==0) AddAction(Copy(TEXT("UI.Reward.Reroll"),LOCTEXT("Reroll","ПЕРЕБРОСИТЬ [R]")),-1);
+    if(Actions && Actions->GetChildrenCount()>0) Actions->GetChildAt(0)->SetIsEnabled((bApplyingPreview || State) && !Spent && !bSelectionPending);
+    Hint->SetText(Spent?Copy(TEXT("UI.Reward.RerollSpentHint"),LOCTEXT("RerollSpentHint","1 / 2 / 3 или D-pad + A · переброс уже использован")):Copy(TEXT("UI.Reward.LevelHint"),LOCTEXT("LevelHint","1 / 2 / 3 или D-pad + A · переброс: R / Y")));RefreshGamepadSelection();
 }
-
-void UMCPerkChoiceWidget::BuildChoices(const TArray<FName>& IDs,EMCPerkPolarity Polarity,bool bPersonal)
-{
-    bShowingChoices = true;
-    bSelectionPending = false;
-    bLevelPanel=bPersonal;bOptionalReward=false;bConfirming=false;
-    Actions->ClearChildren();
-    Cards->SetVisibility(ESlateVisibility::Visible);
-    Cards->ClearChildren();
-    Buttons.Reset();
-    ButtonStyles.Reset(); GamepadSelection=0; NextStickNavigationAt=0;
-    Title->SetText(FText::FromString(TEXT("Выберите один перк")));
-    Subtitle->SetText(FText::FromString(TEXT("Два других исчезнут после выбора")));
-    Hint->SetText(FText::FromString(TEXT("Выбор: мышь / 1 / 2 / 3 · геймпад: стик / D-pad + A")));
-    auto* PC = GetOwningPlayer<AMCPlayerController>();
-    const auto* State = PC ? PC->GetPlayerState<AMCPlayerState>() : nullptr;
-
-    for (int32 Index = 0; Index < IDs.Num() && Index < 3; ++Index)
-    {
-        FMCPerkDefinition Definition;
-        if (State && State->Perks) State->Perks->GetPerkDefinition(IDs[Index], Definition);
-        const bool Legendary=Definition.Rarity==EMCPerkRarity::Legendary;
-        const bool Rare=Definition.Rarity==EMCPerkRarity::Rare;
-        const bool Positive=Definition.Polarity==EMCPerkPolarity::Positive,Risky=Definition.Polarity==EMCPerkPolarity::Risky;
-        const FLinearColor Accent=Legendary?FLinearColor(1.f,.70f,.14f):Risky?FLinearColor(1.f,.65f,.25f):!Positive?MCPerkCardPrivate::Coral:Rare?FLinearColor(.30f,.58f,1.f):MCPerkCardPrivate::Mint;
-        auto* Button = WidgetTree->ConstructWidget<UMCPerkCardButton>();
-        Button->Configure(PC, Index);
-        FButtonStyle Style = Button->GetStyle();
-        Style.SetNormal(FSlateRoundedBoxBrush(FLinearColor(.023f, .047f, .060f), 16.f, Accent.CopyWithNewOpacity(.60f), 2.f));
-        Style.SetHovered(FSlateRoundedBoxBrush(FLinearColor(.044f, .085f, .093f), 16.f, Accent, 3.f));
-        Style.SetPressed(FSlateRoundedBoxBrush(FLinearColor(.025f, .060f, .071f), 16.f, Accent, 3.f));
-        Style.SetDisabled(FSlateRoundedBoxBrush(FLinearColor(.023f, .047f, .060f), 16.f, Accent.CopyWithNewOpacity(.25f), 2.f));
-        Style.SetNormalPadding(FMargin(0));
-        Style.SetPressedPadding(FMargin(0));
-        Button->SetStyle(Style);
-        auto* Column = WidgetTree->ConstructWidget<UVerticalBox>();
-        auto* ContentSlot=Cast<UButtonSlot>(Button->SetContent(Column));
-        ContentSlot->SetPadding(FMargin(16,14));
-        ContentSlot->SetHorizontalAlignment(HAlign_Fill);
-        ContentSlot->SetVerticalAlignment(VAlign_Fill);
-        auto* Badge = MCPerkCardPrivate::Label(WidgetTree,
-            FText::FromString(FString(Risky?TEXT("С ЦЕНОЙ"):Positive?TEXT("ПОЛОЖИТЕЛЬНЫЙ"):TEXT("ПРОКЛЯТИЕ"))
-                +TEXT(" · ")+(Legendary?TEXT("ЛЕГЕНДАРНЫЙ"):Rare?TEXT("РЕДКИЙ"):TEXT("ОБЫЧНЫЙ"))
-                +(!bPersonal && Legendary && Definition.ToolUpgrade!=EMCToolUpgrade::None?TEXT(" · КОМАНДА"):TEXT(" · ВАМ"))), 11, Accent);
-        Column->AddChildToVerticalBox(Badge)->SetPadding(FMargin(0, 0, 0, 10));
-
-        auto* IconSize = WidgetTree->ConstructWidget<USizeBox>();
-        IconSize->SetWidthOverride(80);
-        IconSize->SetHeightOverride(80);
-        auto* IconBorder = WidgetTree->ConstructWidget<UBorder>();
-        IconBorder->SetBrush(FSlateRoundedBoxBrush(FLinearColor(.055f, .095f, .108f), 20.f));
-        IconBorder->SetPadding(FMargin(10));
-        IconSize->SetContent(IconBorder);
-        if (!Definition.Icon.IsNull())
-        {
-            auto* Icon = WidgetTree->ConstructWidget<UImage>();
-            Icon->SetBrushFromSoftTexture(Definition.Icon);
-            IconBorder->SetContent(Icon);
-        }
-        else IconBorder->SetContent(MCPerkCardPrivate::Label(WidgetTree, FText::FromString(Definition.ToolUpgrade==EMCToolUpgrade::None?(Risky?TEXT("±"):Positive?TEXT("+"):TEXT("−")):Definition.ToolUpgrade==EMCToolUpgrade::MeshaBrush?TEXT("1"):Definition.ToolUpgrade==EMCToolUpgrade::Buffer?TEXT("2"):Definition.ToolUpgrade==EMCToolUpgrade::Chainsaw?TEXT("3"):TEXT("4")), 44, Accent));
-        auto* IconSlot = Column->AddChildToVerticalBox(IconSize);
-        IconSlot->SetHorizontalAlignment(HAlign_Center);
-        IconSlot->SetPadding(FMargin(0, 0, 0, 12));
-        const FText Name = Definition.DisplayName.IsEmpty() ? FText::FromName(IDs[Index]) : Definition.DisplayName;
-        auto* NameLabel = MCPerkCardPrivate::Label(WidgetTree, Name, 20);
-        Column->AddChildToVerticalBox(NameLabel)->SetPadding(FMargin(0, 0, 0, 8));
-        auto* Description = MCPerkCardPrivate::Label(WidgetTree,
-            FText::FromString(Definition.Description.ToString().Replace(TEXT("<br>"), TEXT("\n"))
-                +(State && State->Perks?TEXT("\n\n")+State->Perks->RoguePreview(IDs[Index]):FString())), 14, MCPerkCardPrivate::Muted);
-        // Give wrapping a stable prepass width, then fit the complete description
-        // into its own flexible area. It cannot paint over the fixed choice footer.
-        Description->SetAutoWrapText(false);
-        Description->SetWrapTextAt(264);
-        auto* DescriptionSize=WidgetTree->ConstructWidget<USizeBox>();
-        DescriptionSize->SetWidthOverride(264); DescriptionSize->SetHeightOverride(210); DescriptionSize->SetContent(Description);
-        DescriptionSize->SetClipping(EWidgetClipping::ClipToBounds);
-        auto* DescriptionFit=WidgetTree->ConstructWidget<UScaleBox>();
-        DescriptionFit->SetStretch(EStretch::ScaleToFit);
-        DescriptionFit->SetStretchDirection(EStretchDirection::DownOnly);
-        auto* FitSlot=Cast<UScaleBoxSlot>(DescriptionFit->SetContent(DescriptionSize));
-        FitSlot->SetVerticalAlignment(VAlign_Top);
-        auto* DescriptionSlot = Column->AddChildToVerticalBox(DescriptionFit);
-        DescriptionSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
-        DescriptionSlot->SetVerticalAlignment(VAlign_Fill);
-        Column->AddChildToVerticalBox(MCPerkCardPrivate::Label(WidgetTree,
-            FText::FromString(FString::Printf(TEXT("ВЫБРАТЬ   [%d]"), Index + 1)), 15, Accent))->SetPadding(FMargin(0,8,0,0));
-        auto* CardSlot = Cards->AddChildToHorizontalBox(Button);
-        CardSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
-        CardSlot->SetPadding(FMargin(10, 0));
-        Buttons.Add(Button);
-        ButtonStyles.Add(Style);
-    }
-    RefreshGamepadSelection();
-}
-
 void UMCPerkChoiceWidget::SetSelectionPending(bool bPending)
 {
-    bSelectionPending = bPending;
-    for (UMCPerkCardButton* Button : Buttons) if (Button) Button->SetIsEnabled(!bPending);
-    Hint->SetText(FText::FromString(bPending ? TEXT("Подтверждаем выбор…") : bConfirming?TEXT("Принять — Enter / A. Отказаться — Escape / B."):TEXT("Выбор: 1 / 2 / 3 или стик / D-pad + A")));
+    bSelectionPending=bPending;
+    const auto* PC=bApplyingPreview?nullptr:GetOwningPlayer<AMCPlayerController>();const auto* State=PC?PC->GetPlayerState<AMCPlayerState>():nullptr;
+    for(const auto& Button:Buttons) if(Button) {
+        const int32 Choice=Button->GetChoiceIndex();bool Enabled=!bPending && (!bConfirming || Choice<0);
+        if(Choice==-1) Enabled&=(bApplyingPreview?!bPreviewRerollSpent:State && !State->bRogueRerollSpent);
+        Button->SetIsEnabled(bConfirming && Choice>=0?true:Enabled);
+    }
+    if(Hint) Hint->SetText(bPending?Copy(TEXT("UI.Reward.SelectionPending"),LOCTEXT("SelectionPending","Подтверждаем выбор…")):bConfirming?Copy(TEXT("UI.Reward.ContractConfirmHint"),LOCTEXT("ContractConfirmHint","Принять — Enter / A. Отказаться — Escape / B.")):Copy(TEXT("UI.Reward.ActiveChoiceHint"),LOCTEXT("ActiveChoiceHint","Выбор: 1 / 2 / 3 или стик / D-pad + A")));
     RefreshGamepadSelection();
 }
-
 void UMCPerkChoiceWidget::RefreshGamepadSelection()
 {
-    if (!Buttons.IsValidIndex(GamepadSelection) || !Buttons[GamepadSelection]->GetIsEnabled())
-        GamepadSelection=Buttons.IndexOfByPredicate([](const auto& Button){return Button && Button->GetIsEnabled();});
-    for(int32 Index=0;Index<Buttons.Num();++Index) if(ButtonStyles.IsValidIndex(Index)) {
-        FButtonStyle Style=ButtonStyles[Index];
-        if(Index==GamepadSelection) Style.SetNormal(Style.Hovered);
-        Buttons[Index]->SetStyle(Style);
-    }
+    if(!Buttons.IsValidIndex(GamepadSelection) || !Buttons[GamepadSelection] || !Buttons[GamepadSelection]->GetIsEnabled() || !Buttons[GamepadSelection]->IsInteractionAllowed()) GamepadSelection=Buttons.IndexOfByPredicate([](const auto& Button){return Button && Button->GetIsEnabled() && Button->IsInteractionAllowed();});
+    for(int32 Index=0;Index<Buttons.Num();++Index) if(Buttons[Index] && ButtonStyles.IsValidIndex(Index)) {FButtonStyle Style=ButtonStyles[Index];if(Index==GamepadSelection) Style.SetNormal(Style.Hovered);Buttons[Index]->SetStyle(Style);}
 }
-
 void UMCPerkChoiceWidget::MoveGamepadSelection(int32 Direction)
 {
-    if (Buttons.IsEmpty() || bSelectionPending) return;
-    for(int32 Attempt=0;Attempt<Buttons.Num();++Attempt) {
-        GamepadSelection=(GamepadSelection+Direction+Buttons.Num())%Buttons.Num();
-        if(Buttons[GamepadSelection]->GetIsEnabled()) break;
-    }
+    if(Buttons.IsEmpty() || bSelectionPending) return;
+    for(int32 Attempt=0;Attempt<Buttons.Num();++Attempt) {GamepadSelection=(GamepadSelection+Direction+Buttons.Num())%Buttons.Num();if(Buttons[GamepadSelection] && Buttons[GamepadSelection]->GetIsEnabled() && Buttons[GamepadSelection]->IsInteractionAllowed()) break;}
     RefreshGamepadSelection();
+    if(Buttons.IsValidIndex(GamepadSelection) && Buttons[GamepadSelection]->GetIsEnabled())
+        if(auto* PC=GetOwningPlayer<AMCPlayerController>()) Buttons[GamepadSelection]->SetUserFocus(PC);
 }
-
+void UMCPerkChoiceWidget::ApplyEditorPreview(float Time)
+{
+    TGuardValue<bool> PreviewGuard(bApplyingPreview,true);BuildPresentationTree();
+    // Play updates only presentation time; rebuilding three trees every editor frame is unnecessary.
+    // Details Preview invalidates this through ResetEditorPreview; Play retains
+    // its content until the scenario, data-table choice or child class changes.
+    if(bHasPreviewFixture && LastPreviewState==PreviewState && LastPreviewScenario==PreviewScenario
+        && LastPreviewCulture==PreviewCulture && LastPreviewIDs==PreviewPerkIDs
+        && LastPreviewCardTable.Get()==CardTable && LastPreviewLocalizationTable.Get()==LocalizationTable
+        && LastPreviewCardWidgetClass.Get()==CardWidgetClass.Get()) {
+        SetRenderOpacity(Time<=0.f?1.f:FMath::Clamp(Time*6.f,0.f,1.f));return;
+    }
+    if(!PreviewDefinitions) PreviewDefinitions=LoadObject<UDataTable>(nullptr,TEXT("/Game/Gameplay/Roguelike/DT_Perks.DT_Perks"));
+    const TArray<FName> IDs=PreviewPerkIDs.IsEmpty()?TArray<FName>{TEXT("P01"),TEXT("P02"),TEXT("P03")}:PreviewPerkIDs;
+    bPreviewRerollSpent=PreviewState==TEXT("RerollSpent");
+    if(PreviewState==TEXT("ContractConfirm")) {
+        FMCRogueChestOffer Offer;Offer.Kind=EMCRogueRewardKind::CursedContract;Offer.Step=2;Offer.Curse=TEXT("N01");Offer.Reward=TEXT("P30");ShowRogueChoices(Offer);
+    } else if(PreviewState==TEXT("Risky")) {
+        FMCRogueChestOffer Offer;Offer.Kind=EMCRogueRewardKind::RiskyAltar;Offer.IDs=PreviewPerkIDs.IsEmpty()?TArray<FName>{TEXT("X01"),TEXT("X02"),TEXT("X04")}:IDs;ShowRogueChoices(Offer);
+    } else if(PreviewState==TEXT("Reward")) ShowChoices(IDs,EMCPerkPolarity::Positive);
+    else ShowLevelChoices(IDs,2,1);
+    if(PreviewState==TEXT("Pending")) SetSelectionPending(true);
+    bHasPreviewFixture=true;LastPreviewState=PreviewState;LastPreviewCulture=PreviewCulture;LastPreviewIDs=PreviewPerkIDs;
+    LastPreviewScenario=PreviewScenario;LastPreviewCardTable=CardTable;LastPreviewLocalizationTable=LocalizationTable;LastPreviewCardWidgetClass=CardWidgetClass.Get();
+    SetRenderOpacity(Time<=0.f?1.f:FMath::Clamp(Time*6.f,0.f,1.f));
+}
+void UMCPerkChoiceWidget::ResetEditorPreview() {bHasPreviewFixture=false;SetRenderOpacity(1.f);}
+FReply UMCPerkChoiceWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
+{
+    // Keep one keyboard/gamepad routing path when the complete card button has focus.
+    return NativeOnKeyDown(Geometry,Event);
+}
 FReply UMCPerkChoiceWidget::NativeOnAnalogValueChanged(const FGeometry& Geometry,const FAnalogInputEvent& Event)
 {
+    if(bShowingChoices && Event.GetKey()==EKeys::Gamepad_RightY) {
+        const float Delta=-Event.GetAnalogValue()*18.f;
+        if(FMath::Abs(Event.GetAnalogValue())>.15f) {
+            if(bConfirming) {for(const auto& Card:CardWidgets) if(Card) Card->ScrollContent(Delta);}
+            else if(CardWidgets.IsValidIndex(GamepadSelection) && CardWidgets[GamepadSelection]) CardWidgets[GamepadSelection]->ScrollContent(Delta);
+        }
+        return FReply::Handled();
+    }
     if(Event.GetKey()==EKeys::Gamepad_LeftX || Event.GetKey()==EKeys::Gamepad_LeftY) {
         const float Value=Event.GetAnalogValue();
         if(FMath::Abs(Value)>.55f && FPlatformTime::Seconds()>=NextStickNavigationAt) {
@@ -300,7 +334,12 @@ FReply UMCPerkChoiceWidget::NativeOnAnalogValueChanged(const FGeometry& Geometry
 
 FReply UMCPerkChoiceWidget::NativeOnKeyDown(const FGeometry& Geometry, const FKeyEvent& Event)
 {
+    if(IsDesignTime() || bApplyingPreview || !GetOwningPlayer<AMCPlayerController>()) return FReply::Handled();
     const FKey Key=Event.GetKey();
+    if(bShowingChoices && !bSelectionPending && !bConfirming && !Event.IsRepeat() && (Key==EKeys::Enter || Key==EKeys::SpaceBar)) {
+        if(Buttons.IsValidIndex(GamepadSelection) && Buttons[GamepadSelection]->GetIsEnabled()) Buttons[GamepadSelection]->OnClicked.Broadcast();
+        return FReply::Handled();
+    }
     if(bShowingChoices && !bSelectionPending && Key.IsGamepadKey()) {
         if(Key==EKeys::Gamepad_DPad_Left || Key==EKeys::Gamepad_DPad_Up) MoveGamepadSelection(-1);
         else if(Key==EKeys::Gamepad_DPad_Right || Key==EKeys::Gamepad_DPad_Down) MoveGamepadSelection(1);
@@ -336,3 +375,5 @@ FReply UMCPerkChoiceWidget::NativeOnKeyDown(const FGeometry& Geometry, const FKe
         return FReply::Handled();
     return Super::NativeOnKeyDown(Geometry, Event);
 }
+
+#undef LOCTEXT_NAMESPACE

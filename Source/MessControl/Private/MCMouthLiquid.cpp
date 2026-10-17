@@ -100,6 +100,25 @@ void AMCMouthSurface::SetLiquidDepositMask(const TArray<uint8>& Mask)
     if (!HasAuthority() || Mask.Num()!=FMCCoffeeWipe::Count) return;
     LiquidDepositMask=Mask; ResetLiquid();
 }
+bool AMCMouthSurface::AppendLiquidDepositMask(const TArray<uint8>& Mask)
+{
+    if(!HasAuthority() || !bPaintTile || Mask.Num()!=FMCCoffeeWipe::Count) return false;
+    if(LiquidDepositMask.Num()!=FMCCoffeeWipe::Count) LiquidDepositMask.Init(0,FMCCoffeeWipe::Count);
+    if(WipeMask.Num()!=FMCCoffeeWipe::Count) WipeMask.Init(0,FMCCoffeeWipe::Count);
+    bool Changed=false;
+    for(int32 I=0;I<Mask.Num();++I) if(Mask[I]>LiquidDepositMask[I])
+    {
+        // The deposit ledger is monotonic; a stationary/passed wave never fills
+        // a brush stroke again. Only genuinely new footprint may add liquid.
+        const int32 Added=Mask[I]-LiquidDepositMask[I];
+        LiquidDepositMask[I]=Mask[I];
+        WipeMask[I]=FMath::Min(255,int32(WipeMask[I])+Added);
+        if(WipeFractional.IsValidIndex(I)) WipeFractional[I]=0;
+        Changed=true;
+    }
+    if(Changed) {bPaintDepositPending=true;Finish=0;OnRep_Wipe();FlushPaintDeposit();}
+    return Changed;
+}
 void AMCMouthSurface::InitializePaintTile(AMCTongue* InTongue)
 {
     if(!HasAuthority() || !InTongue) return;

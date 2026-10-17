@@ -520,16 +520,40 @@ void AMCCoffeeFlood::UpdateRiverDebris()
 }
 void AMCCoffeeFlood::InitializeResidue()
 {
-    ResidueCells.Reset(); LastResidueTime=-100;
+    ResidueCells.Reset(); ResiduePatches.Reset(); LastResidueTime=-100;
     auto* Tongue=FindRiverTongue(); if (!Tongue) return;
     ResidueCells.SetNum(ResidueSize*ResidueSize);
     for (int32 Y=0;Y<ResidueSize;++Y) for (int32 X=0;X<ResidueSize;++X) {
         auto& Cell=ResidueCells[Y*ResidueSize+X];
         const FVector Probe=ArenaCenter+FVector(((X+.5f)/ResidueSize*2-1)*HalfSize.X,((Y+.5f)/ResidueSize*2-1)*HalfSize.Y,0);
+        // Keep the complete liquid rectangle for teeth beside the tongue too.
+        // Only supported cells are eligible to host a floor puddle.
+        Cell.Point=FVector(Probe.X,Probe.Y,InletFloorZ);
         FHitResult Floor;
         if (Tongue->SurfacePoint(Probe,Floor) && Floor.ImpactNormal.Z>.65f) {
             Cell.Point=Floor.ImpactPoint; Cell.bSurface=true;
         }
+    }
+    TArray<FVector> Placed;
+    for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It)
+        if(!It->bUlcer && !It->IsClean() && (!Cast<AMCTongue>(GetOwner()) || It->GetTongue()==Tongue)) Placed.Add(It->GetActorLocation());
+    const int32 Budget=FMath::Clamp(18-Placed.Num(),0,8);
+    FRandomStream Random(HashCombine(GetTypeHash(StartedAt),GetTypeHash(ArenaCenter)));
+    TArray<int32> Candidates;
+    for(int32 I=0;I<ResidueCells.Num();++I) if(ResidueCells[I].bSurface) Candidates.Add(I);
+    for(int32 I=Candidates.Num()-1;I>0;--I) Candidates.Swap(I,Random.RandRange(0,I));
+    // Choose supported footprints before arrival. Their visibility is solely the
+    // swept wet mask, never a random spawn performed when the event finishes.
+    for(const int32 Index:Candidates)
+    {
+        if(ResiduePatches.Num()>=Budget) break;
+        const float Half=Random.FRandRange(160.f,320.f);
+        const FVector Point=ResidueCells[Index].Point;
+        bool Near=false; for(const FVector& Other:Placed) if(FVector::Dist2D(Point,Other)<Half*1.6f+200) {Near=true;break;}
+        if(Near) continue;
+        FHitResult Floor; if(!Tongue->InteriorSurfacePoint(Point,Half*.9f,Floor)) continue;
+        FResiduePatch Patch;Patch.Point=Floor.ImpactPoint;Patch.HalfSize=Half;
+        ResiduePatches.Add(Patch);Placed.Add(Patch.Point);
     }
 }
 void AMCCoffeeFlood::AccumulateResidue(float Time)
@@ -542,7 +566,7 @@ void AMCCoffeeFlood::AccumulateResidue(float Time)
     for (int32 Step=1;Step<=Steps;++Step) {
         const float T=FMath::Lerp(From,Time,float(Step)/Steps);
         if (WaterSettings.Phase(T)==EMCCoffeePhase::Inactive) continue;
-        for (auto& Cell:ResidueCells) if (Cell.bSurface) {
+        for (auto& Cell:ResidueCells) {
             float Top;
             if (bRiverFlood) {
                 const float Along=FVector::DotProduct(Cell.Point-RiverOrigin,RiverDirection),Front=RiverFrontAt(Cell.Point,T);
@@ -556,59 +580,75 @@ void AMCCoffeeFlood::AccumulateResidue(float Time)
                 if (WaterSettings.Phase(T)==EMCCoffeePhase::Filling && FVector::Dist2D(Cell.Point,WaterSettings.Inlet)>=WaterSettings.FrontRadius(T)+WaterSettings.FrontWidth) continue;
                 Top=BaseHeight(T)+WaterSettings.SurfaceOffset(Cell.Point,T)+StormWaveAt(Cell.Point,T);
             }
-            if (Top>=Cell.Point.Z) Cell.WetTop=FMath::Max(Cell.WetTop,Top);
+            // A tooth can be reached above an otherwise unsupported side cell.
+            if (!Cell.bSurface || Top>=Cell.Point.Z) Cell.WetTop=FMath::Max(Cell.WetTop,Top);
         }
     }
     LastResidueTime=Time;
+    DepositResidue();
 }
-bool AMCCoffeeFlood::HasResidueAt(FVector P) const
+bool AMCCoffeeFlood::HasResidueAt(FVector P,bool bNewOnly) const
 {
     if (ResidueCells.IsEmpty() || P.ContainsNaN()) return false;
     const FVector2D UV((P.X-ArenaCenter.X)/(2*HalfSize.X)+.5,(P.Y-ArenaCenter.Y)/(2*HalfSize.Y)+.5);
     if (UV.X<0 || UV.Y<0 || UV.X>=1 || UV.Y>=1) return false;
     const int32 X=FMath::Clamp(int32(UV.X*ResidueSize),0,ResidueSize-1),Y=FMath::Clamp(int32(UV.Y*ResidueSize),0,ResidueSize-1);
     const auto& Cell=ResidueCells[Y*ResidueSize+X];
-    return Cell.bSurface && Cell.WetTop> -MAX_flt && P.Z<=Cell.WetTop+5;
+    return Cell.WetTop> -MAX_flt && P.Z<=Cell.WetTop+5
+        && (!bNewOnly || Cell.EmittedTop<=-MAX_flt || P.Z>Cell.EmittedTop+5);
 }
 void AMCCoffeeFlood::DepositResidue()
 {
     auto* Tongue=FindRiverTongue(); if (!Tongue || ResidueCells.IsEmpty()) return;
-    for (TActorIterator<AMCArenaTooth> It(GetWorld());It;++It)
-        It->DepositLiquidGrime([this](FVector Point) { return HasResidueAt(Point); });
-    TArray<FVector> Placed;
-    for (TActorIterator<AMCMouthSurface> It(GetWorld());It;++It)
-        if (!It->bUlcer && !It->IsClean() && (!Cast<AMCTongue>(GetOwner()) || It->GetTongue()==Tongue)) Placed.Add(It->GetActorLocation());
-    const int32 Budget=FMath::Clamp(18-Placed.Num(),0,8);
-    FRandomStream Random(HashCombine(GetTypeHash(StartedAt),GetTypeHash(ArenaCenter)));
-    TArray<int32> Candidates;
-    for (int32 I=0;I<ResidueCells.Num();++I) if (ResidueCells[I].bSurface && ResidueCells[I].WetTop> -MAX_flt) Candidates.Add(I);
-    for (int32 I=Candidates.Num()-1;I>0;--I) Candidates.Swap(I,Random.RandRange(0,I));
-    int32 Spawned=0;
-    for (const int32 Index:Candidates) {
-        if (Spawned>=Budget) break;
-        const float Half=Random.FRandRange(160.f,320.f);
-        const FVector Point=ResidueCells[Index].Point;
-        bool Near=false; for (const FVector& Other:Placed) if (FVector::Dist2D(Point,Other)<Half*1.6f+200) { Near=true; break; }
-        if (Near) continue;
-        FHitResult Floor; if (!Tongue->InteriorSurfacePoint(Point,Half*.9f,Floor)) continue;
-        const FTransform Pose(FRotationMatrix::MakeFromZX(Floor.ImpactNormal,FVector::ForwardVector).ToQuat(),Floor.ImpactPoint+Floor.ImpactNormal*5);
+    bool NewWet=false; for(const auto& Cell:ResidueCells) if(Cell.WetTop>Cell.EmittedTop) {NewWet=true;break;}
+    if(!NewWet) return;
+    for (TActorIterator<AMCArenaTooth> It(GetWorld());It;++It) {
+        const FBox Bounds=It->Visual->Bounds.GetBox();
+        if(!It->IsAvailable() || Bounds.Min.X>ArenaCenter.X+HalfSize.X || Bounds.Max.X<ArenaCenter.X-HalfSize.X
+            || Bounds.Min.Y>ArenaCenter.Y+HalfSize.Y || Bounds.Max.Y<ArenaCenter.Y-HalfSize.Y) continue;
+        const auto CellIndex=[&](double Position,double Center,double Half) {
+            return FMath::Clamp(FMath::FloorToInt(((Position-Center)/(Half*2)+.5)*ResidueSize),0,ResidueSize-1);
+        };
+        const int32 MinX=CellIndex(Bounds.Min.X,ArenaCenter.X,HalfSize.X),MaxX=CellIndex(Bounds.Max.X,ArenaCenter.X,HalfSize.X);
+        const int32 MinY=CellIndex(Bounds.Min.Y,ArenaCenter.Y,HalfSize.Y),MaxY=CellIndex(Bounds.Max.Y,ArenaCenter.Y,HalfSize.Y);
+        bool Reached=false;
+        for(int32 Y=MinY;Y<=MaxY && !Reached;++Y) for(int32 X=MinX;X<=MaxX;++X) {
+            const auto& Cell=ResidueCells[Y*ResidueSize+X];
+            if(Cell.WetTop>Cell.EmittedTop && Cell.WetTop+5>=Bounds.Min.Z && Cell.EmittedTop+5<Bounds.Max.Z) {Reached=true;break;}
+        }
+        // Avoid projecting every initially clean tooth on the first wave tick.
+        // Detailed coating work starts only when its actual bounds are reached.
+        if(Reached) It->DepositLiquidGrime([this](FVector Point) { return HasResidueAt(Point,true); });
+    }
+    for(auto& Planned:ResiduePatches) {
+        const float Half=Planned.HalfSize;
+        const FTransform Pose(FQuat::Identity,Planned.Point+FVector(0,0,5));
         TArray<uint8> Mask; Mask.Init(0,FMCCoffeeWipe::Count);
         int32 Wet=0;
+        // Match the supported source footprint on the server. The shader uses
+        // precisely this cleanable mask; it does not invent extra visible dirt.
+        const int32 Seed=1+int32(HashCombine(GetTypeHash(FMath::RoundToInt(Planned.Point.X)),GetTypeHash(FMath::RoundToInt(Planned.Point.Y)))%4093);
+        const TArray<uint8> Full;
         for (int32 Y=0;Y<FMCCoffeeWipe::Size;++Y) for (int32 X=0;X<FMCCoffeeWipe::Size;++X) {
-            const FVector Local(((X+.5f)/FMCCoffeeWipe::Size-.5f)*2*Half,((Y+.5f)/FMCCoffeeWipe::Size-.5f)*2*Half,0);
+            const FVector2D UV((X+.5f)/FMCCoffeeWipe::Size,(Y+.5f)/FMCCoffeeWipe::Size);
+            if(!FMCCoffeeWipe::WetAt(Full,UV,Seed)) continue;
+            const FVector Local((UV.X-.5)*2*Half,(UV.Y-.5)*2*Half,0);
             if (HasResidueAt(Pose.TransformPosition(Local))) { Mask[Y*FMCCoffeeWipe::Size+X]=255; ++Wet; }
         }
-        if (Wet<FMCCoffeeWipe::Count/5) continue;
-        auto* Patch=GetWorld()->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose);
-        if (!Patch) continue;
-        Patch->bRandomizeLiquidSize=false; Patch->LiquidHalfSize=Half; Patch->Batch=ResidueBatch;
-        // Opening coffee belongs to the same dirt completion/reset contract as its meal.
-        if (ResidueBatch>0) Patch->Tags.AddUnique(FName(TEXT("MCFoodServedDirt")));
-        Patch->SetLiquidDepositMask(Mask); Patch->FinishSpawning(Pose);
-        Patch->Status->ApplyCoffee(1.f); Patch->ForceNetUpdate();
-        Placed.Add(Floor.ImpactPoint); ++Spawned;
+        if(Wet==0) continue;
+        auto* Patch=Planned.Surface.Get();
+        if(!Patch) {
+            Patch=GetWorld()->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose);
+            if(!Patch) continue;
+            Patch->bRandomizeLiquidSize=false; Patch->LiquidHalfSize=Half; Patch->Batch=ResidueBatch;
+            Patch->LiquidMaterial=TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Game/Cataclysm/Jelly/M_CataclysmPaintTrail.M_CataclysmPaintTrail")));
+            Patch->Tags.AddUnique(TEXT("MCCoffeeWaveResidue"));
+            if(ResidueBatch>0) Patch->Tags.AddUnique(TEXT("MCFoodServedDirt"));
+            Patch->InitializePaintTile(Tongue);Patch->FinishSpawning(Pose);Planned.Surface=Patch;
+        }
+        Patch->AppendLiquidDepositMask(Mask);
     }
-    ResidueCells.Reset();
+    for(auto& Cell:ResidueCells) Cell.EmittedTop=Cell.WetTop;
 }
 void AMCCoffeeFlood::Stop()
 {
@@ -633,7 +673,7 @@ void AMCCoffeeFlood::Tick(float Dt)
             && Director && Director->IsManagingEvents();
         if (!GS || (GS->Phase!=EMCShiftPhase::Working && !CarryingIntoRest)) { Stop(); return; }
         const float Age=WaterTime();
-        if (Age>=Seconds) { AccumulateResidue(Seconds-UE_KINDA_SMALL_NUMBER); DepositResidue(); Stop(); return; }
+        if (Age>=Seconds) { AccumulateResidue(Seconds-UE_KINDA_SMALL_NUMBER); Stop(); return; }
         AccumulateResidue(Age);
         const int32 Current=FMath::FloorToInt(Age/WaterSettings.CycleSeconds())+1;
         if (Current!=Wave) { Wave=Current; HitThisWave.Empty(); FoodHitThisWave.Empty(); ForceNetUpdate(); }

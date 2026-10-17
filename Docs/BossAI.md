@@ -49,7 +49,10 @@ crossfades timestamped full-body sequences. Attacks enter at full weight and
 finish their entire clip before blending out to locomotion; death can cancel
 the presentation lock. Repeated attacks also start without an incoming blend,
 and server damage timing is unchanged. Profiles
-with zero blend duration retain the original single-node presentation.
+with zero blend duration use the same native presenter with immediate sequence
+transitions. This also lets Zombie and other default-profile bosses participate
+in the local F3 Native / StylizedDynamics / KawaiiPhysics comparison. An explicit
+custom `AnimationClass` retains its authored animation setup.
 The latest source update reimports Walk/Hit and replaces the static idle with
 the artist's five-second `idle`. `atack_aoe` supplies a 6.633-second `AreaAttack`
 slot with 180-degree half-angle (full circle), radius 280 cm and one impact

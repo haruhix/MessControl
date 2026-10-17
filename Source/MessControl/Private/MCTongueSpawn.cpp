@@ -49,6 +49,7 @@ bool TouchesDeliveryLane(const AMCTongue& Tongue,FVector Point,float Margin,bool
 {
     for(TActorIterator<AMCFoodDisposal> It(Tongue.GetWorld());It;++It)
     {
+        if(!It->bEnableLegacyDeliveryZone) continue;
         if(AllowBrushBin && It->bBrushBin) continue;
         TArray<FVector> Outer,Inner,Polygon;
         if(It->GetDeliveryZoneOutline(Outer,Inner))

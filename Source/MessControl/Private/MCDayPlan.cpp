@@ -6,7 +6,7 @@ void FMCFoodRow::Sanitize()
 {
     auto Safe=[](float V,float D,float Lo,float Hi){return FMath::IsFinite(V)?FMath::Clamp(V,Lo,Hi):D;};
     SelectionWeight=Safe(SelectionWeight,1,0,100); Health=Safe(Health,75,1,1000);
-    Mass=Safe(Mass,9,1,50); SpoilSeconds=Safe(SpoilSeconds,180,3,600); Fragments=FMath::Clamp(Fragments,2,5);
+    Mass=Safe(Mass,9,1,50); SpoilSeconds=Safe(SpoilSeconds,180,3,600); Fragments=FragmentCount();
     FuseSeconds=Safe(FuseSeconds,10,1,60); FirstPulseRadius=Safe(FirstPulseRadius,180,50,600);
     RadiusPerRound=Safe(RadiusPerRound,90,0,200); PulseDamage=Safe(PulseDamage,18,0,100);
     AbsorbSeconds=Safe(AbsorbSeconds,2,.5f,10);

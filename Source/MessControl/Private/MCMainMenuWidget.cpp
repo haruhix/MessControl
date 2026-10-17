@@ -4,6 +4,8 @@
 #include "MCPlayerController.h"
 #include "MCSteamSessionSubsystem.h"
 #include "Blueprint/WidgetTree.h"
+#include "Brushes/SlateColorBrush.h"
+#include "Brushes/SlateRoundedBoxBrush.h"
 #include "Components/Border.h"
 #include "Components/CheckBox.h"
 #include "Components/ComboBoxString.h"
@@ -30,6 +32,23 @@ namespace MCMainMenuPrivate
     const FLinearColor TextColor(.94f,.96f,.97f);
     const FLinearColor Accent(.26f,.78f,.65f);
 
+    FButtonStyle EmbeddedButtonStyle(const FButtonStyle& Base, const FMCEmbeddedMenuStyle& Theme, bool bPrimary)
+    {
+        FButtonStyle Style=Base;
+        const FLinearColor Fill=bPrimary?Theme.AccentColor:Theme.ButtonColor;
+        const FLinearColor Hover=FMath::Lerp(Fill,Theme.TextColor,.16f);
+        const FLinearColor Pressed(Fill.R*.72f,Fill.G*.72f,Fill.B*.72f,Fill.A);
+        const FLinearColor Disabled(Fill.R,Fill.G,Fill.B,Fill.A*.35f);
+        const float Radius=FMath::Clamp(Theme.CornerRadius,0.f,32.f);
+        Style.SetNormal(FSlateRoundedBoxBrush(Fill,Radius));
+        Style.SetHovered(FSlateRoundedBoxBrush(Hover,Radius));
+        Style.SetPressed(FSlateRoundedBoxBrush(Pressed,Radius));
+        Style.SetDisabled(FSlateRoundedBoxBrush(Disabled,Radius));
+        Style.SetNormalPadding(FMargin(0));
+        Style.SetPressedPadding(FMargin(0));
+        return Style;
+    }
+
     UMCSteamSessionSubsystem* Sessions(const UUserWidget* Widget)
     {
         UGameInstance* Instance=Widget->GetGameInstance();
@@ -53,7 +72,7 @@ void UMCMainMenuWidget::NativeOnInitialized()
     Super::NativeOnInitialized();
     SetIsFocusable(true);
 
-    auto* Backdrop=WidgetTree->ConstructWidget<UBorder>();
+    Backdrop=WidgetTree->ConstructWidget<UBorder>();
     Backdrop->SetBrushColor(FLinearColor(.015f,.025f,.035f,.98f));
     Backdrop->SetPadding(FMargin(28));
     Backdrop->SetHorizontalAlignment(HAlign_Center);
@@ -66,13 +85,17 @@ void UMCMainMenuWidget::NativeOnInitialized()
     Backdrop->SetContent(Scale);
     auto* Size=WidgetTree->ConstructWidget<USizeBox>();
     Size->SetWidthOverride(540); Size->SetHeightOverride(680);
-    Scale->SetContent(Size);
+    Card=WidgetTree->ConstructWidget<UBorder>();
+    Card->SetBrushColor(FLinearColor::Transparent);
+    Card->SetPadding(FMargin(0));
+    Scale->SetContent(Card);
+    Card->SetContent(Size);
     auto* Main=WidgetTree->ConstructWidget<UVerticalBox>(); Size->SetContent(Main);
-    auto* Title=WidgetTree->ConstructWidget<UTextBlock>();
-    Title->SetText(FText::FromString(TEXT("MESS CONTROL")));
-    Title->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),36));
-    Title->SetColorAndOpacity(FSlateColor(MCMainMenuPrivate::Accent));
-    Main->AddChildToVerticalBox(Title)->SetPadding(FMargin(0,0,0,20));
+    TitleText=WidgetTree->ConstructWidget<UTextBlock>();
+    TitleText->SetText(FText::FromString(TEXT("MESS CONTROL")));
+    TitleText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),36));
+    TitleText->SetColorAndOpacity(FSlateColor(MCMainMenuPrivate::Accent));
+    Main->AddChildToVerticalBox(TitleText)->SetPadding(FMargin(0,0,0,20));
 
     auto* Scroll=WidgetTree->ConstructWidget<UScrollBox>();
     Main->AddChildToVerticalBox(Scroll)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
@@ -82,12 +105,12 @@ void UMCMainMenuWidget::NativeOnInitialized()
     StatusText->SetColorAndOpacity(FSlateColor(MCMainMenuPrivate::Accent));
     StatusText->SetAutoWrapText(true);
     Main->AddChildToVerticalBox(StatusText)->SetPadding(FMargin(0,14,0,0));
-    auto* Hint=WidgetTree->ConstructWidget<UTextBlock>();
-    Hint->SetText(FText::FromString(TEXT("Мышь / ↑↓ / D-pad · Enter / A — выбрать · Esc / B — назад")));
-    Hint->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),12));
-    Hint->SetColorAndOpacity(FSlateColor(MCMainMenuPrivate::TextColor));
-    Hint->SetAutoWrapText(true);
-    Main->AddChildToVerticalBox(Hint)->SetPadding(FMargin(0,10,0,0));
+    HintText=WidgetTree->ConstructWidget<UTextBlock>();
+    HintText->SetText(FText::FromString(TEXT("Мышь / ↑↓ / D-pad · Enter / A — выбрать · Esc / B — назад")));
+    HintText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),12));
+    HintText->SetColorAndOpacity(FSlateColor(MCMainMenuPrivate::TextColor));
+    HintText->SetAutoWrapText(true);
+    Main->AddChildToVerticalBox(HintText)->SetPadding(FMargin(0,10,0,0));
     ShowPage(EPage::Main);
 }
 
@@ -109,7 +132,7 @@ UTextBlock* UMCMainMenuWidget::AddText(const FString& Text, int32 Size)
     auto* Label=WidgetTree->ConstructWidget<UTextBlock>();
     Label->SetText(FText::FromString(Text));
     Label->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),Size));
-    Label->SetColorAndOpacity(FSlateColor(MCMainMenuPrivate::TextColor));
+    Label->SetColorAndOpacity(FSlateColor(MenuTextColor()));
     Label->SetAutoWrapText(true);
     Content->AddChildToVerticalBox(Label)->SetPadding(FMargin(0,4,0,8));
     return Label;
@@ -120,10 +143,19 @@ UMCMainMenuActionButton* UMCMainMenuWidget::AddButton(const FString& Text, EMCMa
     auto* Button=WidgetTree->ConstructWidget<UMCMainMenuActionButton>();
     Button->Configure(this,Action);
     Button->SetBackgroundColor(FLinearColor(.07f,.15f,.19f));
+    const bool bEmbedded=EmbeddedRoot!=EEmbeddedRoot::None;
+    const bool bPrimary=Action==EMCMainMenuAction::CreateLobby || Action==EMCMainMenuAction::Host
+        || Action==EMCMainMenuAction::JoinRoom || Action==EMCMainMenuAction::JoinAddress
+        || Action==EMCMainMenuAction::ApplySettings || Action==EMCMainMenuAction::KeepSettings;
+    if (bEmbedded)
+    {
+        Button->SetStyle(MCMainMenuPrivate::EmbeddedButtonStyle(Button->GetStyle(),EmbeddedStyle,bPrimary));
+        Button->SetBackgroundColor(FLinearColor::White);
+    }
     auto* Label=WidgetTree->ConstructWidget<UTextBlock>();
     Label->SetText(FText::FromString(Text));
     Label->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),19));
-    Label->SetColorAndOpacity(FSlateColor(MCMainMenuPrivate::TextColor));
+    Label->SetColorAndOpacity(FSlateColor(bEmbedded && bPrimary?EmbeddedStyle.CardColor:MenuTextColor()));
     Label->SetJustification(ETextJustify::Center);
     auto* ButtonPadding=WidgetTree->ConstructWidget<UBorder>();
     ButtonPadding->SetBrushColor(FLinearColor::Transparent); ButtonPadding->SetPadding(FMargin(14,9));
@@ -138,9 +170,26 @@ UComboBoxString* UMCMainMenuWidget::AddPicker(const FString& Label)
 {
     AddText(Label,15);
     auto* Picker=WidgetTree->ConstructWidget<UComboBoxString>();
+    if (EmbeddedRoot!=EEmbeddedRoot::None)
+    {
+        FComboBoxStyle Style=Picker->GetWidgetStyle();
+        Style.ComboButtonStyle.SetButtonStyle(MCMainMenuPrivate::EmbeddedButtonStyle(Style.ComboButtonStyle.ButtonStyle,EmbeddedStyle,false));
+        Style.ComboButtonStyle.SetMenuBorderBrush(FSlateRoundedBoxBrush(EmbeddedStyle.CardColor,FMath::Clamp(EmbeddedStyle.CornerRadius,0.f,32.f)));
+        Picker->SetWidgetStyle(Style);
+        Picker->OnGenerateWidgetEvent.BindDynamic(this,&ThisClass::GeneratePickerItem);
+    }
     GamepadTargets.Add(Picker);
     Content->AddChildToVerticalBox(Picker)->SetPadding(FMargin(0,0,0,8));
     return Picker;
+}
+
+UWidget* UMCMainMenuWidget::GeneratePickerItem(FString Item)
+{
+    auto* Label=WidgetTree->ConstructWidget<UTextBlock>();
+    Label->SetText(FText::FromString(Item));
+    Label->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),17));
+    Label->SetColorAndOpacity(FSlateColor(MenuTextColor()));
+    return Label;
 }
 
 void UMCMainMenuWidget::FocusFirst()
@@ -155,7 +204,93 @@ void UMCMainMenuWidget::FocusFirst()
 
 void UMCMainMenuWidget::FocusMenu()
 {
-    FocusFirst();
+    if (!bEmbeddedCloseRequested) FocusFirst();
+}
+
+const FLinearColor& UMCMainMenuWidget::MenuTextColor() const
+{
+    return EmbeddedRoot==EEmbeddedRoot::None?MCMainMenuPrivate::TextColor:EmbeddedStyle.TextColor;
+}
+
+const FLinearColor& UMCMainMenuWidget::MenuAccentColor() const
+{
+    return EmbeddedRoot==EEmbeddedRoot::None?MCMainMenuPrivate::Accent:EmbeddedStyle.AccentColor;
+}
+
+bool UMCMainMenuWidget::CanLaunchEmbeddedDay() const
+{
+    return EmbeddedRoot==EEmbeddedRoot::None
+        || (EmbeddedRoot==EEmbeddedRoot::Connection && EmbeddedSelectedDay==1);
+}
+
+void UMCMainMenuWidget::ApplyPresentation()
+{
+    const bool bEmbedded=EmbeddedRoot!=EEmbeddedRoot::None;
+    if (Backdrop)
+    {
+        const FLinearColor Color=bEmbedded && EmbeddedStyle.bTransparentBackdrop?FLinearColor::Transparent:
+            bEmbedded?EmbeddedStyle.CardColor:FLinearColor(.015f,.025f,.035f,.98f);
+        Backdrop->SetBrush(FSlateColorBrush(Color));
+        Backdrop->SetBrushColor(FLinearColor::White);
+    }
+    if (Card)
+    {
+        Card->SetBrush(FSlateRoundedBoxBrush(bEmbedded?EmbeddedStyle.CardColor:FLinearColor::Transparent,
+            FMath::Clamp(EmbeddedStyle.CornerRadius,0.f,32.f)));
+        Card->SetBrushColor(FLinearColor::White);
+        Card->SetPadding(FMargin(bEmbedded?24.f:0.f));
+    }
+    if (TitleText)
+    {
+        FString Title=TEXT("MESS CONTROL");
+        if (EmbeddedRoot==EEmbeddedRoot::Connection)
+        {
+            const TCHAR* Species=EmbeddedSelectedDay==1?TEXT("HUMAN"):EmbeddedSelectedDay==2?TEXT("PREDATOR"):
+                EmbeddedSelectedDay==3?TEXT("VAMPIRE"):TEXT("COMING SOON");
+            Title=EmbeddedSelectedDay>=1 && EmbeddedSelectedDay<=7?
+                FString::Printf(TEXT("DAY %02d / %s"),EmbeddedSelectedDay,Species):TEXT("DAY —");
+        }
+        TitleText->SetText(FText::FromString(Title));
+        TitleText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),bEmbedded?30:36));
+        TitleText->SetColorAndOpacity(FSlateColor(MenuAccentColor()));
+    }
+    if (StatusText) StatusText->SetColorAndOpacity(FSlateColor(MenuAccentColor()));
+    if (HintText) HintText->SetColorAndOpacity(FSlateColor(MenuTextColor()));
+}
+
+void UMCMainMenuWidget::LeaveEmbeddedMode()
+{
+    if (bVideoConfirmationPending) RevertVideoSettings();
+    EmbeddedRoot=EEmbeddedRoot::None;
+    EmbeddedSelectedDay=0;
+    bEmbeddedCloseRequested=false;
+}
+
+void UMCMainMenuWidget::ShowEmbeddedConnection(int32 SelectedDay)
+{
+    if (bVideoConfirmationPending) RevertVideoSettings();
+    EmbeddedRoot=EEmbeddedRoot::Connection;
+    EmbeddedSelectedDay=SelectedDay;
+    bEmbeddedCloseRequested=false;
+    bLobby=false;
+    bPauseMenu=false;
+    ShowPage(EPage::Connection);
+}
+
+void UMCMainMenuWidget::ShowEmbeddedSettings()
+{
+    if (bVideoConfirmationPending) RevertVideoSettings();
+    EmbeddedRoot=EEmbeddedRoot::Settings;
+    EmbeddedSelectedDay=0;
+    bEmbeddedCloseRequested=false;
+    bLobby=false;
+    bPauseMenu=false;
+    ShowPage(EPage::Settings);
+}
+
+void UMCMainMenuWidget::RequestBack()
+{
+    HandleAction(EMCMainMenuAction::Back);
 }
 
 bool UMCMainMenuWidget::MoveGamepadFocus(int32 Direction)
@@ -222,6 +357,7 @@ void UMCMainMenuWidget::SetStatus(const FString& Text)
 
 void UMCMainMenuWidget::ShowLobby()
 {
+    LeaveEmbeddedMode();
     bLobby=true;
     bPauseMenu=false;
     if (Content) ShowPage(EPage::Lobby);
@@ -229,6 +365,7 @@ void UMCMainMenuWidget::ShowLobby()
 
 void UMCMainMenuWidget::ShowPause()
 {
+    LeaveEmbeddedMode();
     bPauseMenu=true;
     bLobby=false;
     if (Content) ShowPage(EPage::Pause);
@@ -237,6 +374,8 @@ void UMCMainMenuWidget::ShowPause()
 void UMCMainMenuWidget::ShowPage(EPage NewPage)
 {
     Page=NewPage;
+    if (!Content) return;
+    ApplyPresentation();
     Content->ClearChildren(); Buttons.Reset(); OnlineButtons.Reset(); GamepadTargets.Reset(); NextStickNavigationAt=0;
     RoomPicker=nullptr; AddressBox=nullptr; ResolutionPicker=nullptr; WindowModePicker=nullptr;
     QualityPicker=nullptr; VSyncCheck=nullptr; HostTutorialCheck=nullptr; LobbyPlayers=nullptr; StartButton=nullptr;
@@ -248,6 +387,21 @@ void UMCMainMenuWidget::ShowPage(EPage NewPage)
 
     switch (Page)
     {
+    case EPage::Connection:
+        if (CanLaunchEmbeddedDay())
+        {
+            AddText(TEXT("PLAY TOGETHER"),24);
+            AddText(TEXT("Создай комнату для обычной смены или присоединись к друзьям."));
+            OnlineButtons.Add(AddButton(TEXT("Create Lobby"),EMCMainMenuAction::CreateLobby));
+            OnlineButtons.Add(AddButton(TEXT("Join Lobby"),EMCMainMenuAction::JoinLobby));
+        }
+        else
+        {
+            AddText(TEXT("COMING SOON"),24);
+            AddText(TEXT("Игровой контент этого дня ещё не подключён. Пока доступна игра в Day 01."));
+        }
+        AddButton(TEXT("Back"),EMCMainMenuAction::Back);
+        break;
     case EPage::Main:
         AddText(TEXT("Четыре маленьких зуба. Один рот. Семь дней хаоса."),16);
         AddButton(TEXT("Tutorial"),EMCMainMenuAction::Tutorial);
@@ -266,7 +420,7 @@ void UMCMainMenuWidget::ShowPage(EPage NewPage)
             auto* Label=WidgetTree->ConstructWidget<UTextBlock>();
             Label->SetText(FText::FromString(TEXT("Начать с обучения")));
             Label->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),17));
-            Label->SetColorAndOpacity(FSlateColor(MCMainMenuPrivate::TextColor));
+            Label->SetColorAndOpacity(FSlateColor(MenuTextColor()));
             HostTutorialCheck->SetContent(Label);
             HostTutorialCheck->SetIsChecked(bHostStartWithTutorial);
             HostTutorialCheck->OnCheckStateChanged.AddDynamic(this,&ThisClass::HostTutorialChanged);
@@ -291,6 +445,15 @@ void UMCMainMenuWidget::ShowPage(EPage NewPage)
         GamepadTargets.Add(AddressBox);
         AddressBox->SetText(FText::FromString(TEXT("127.0.0.1:7777")));
         AddressBox->SetHintText(FText::FromString(TEXT("Адрес хоста")));
+        if (EmbeddedRoot!=EEmbeddedRoot::None)
+        {
+            FEditableTextBoxStyle Style=AddressBox->GetWidgetStyle();
+            Style.SetBackgroundImageNormal(FSlateRoundedBoxBrush(EmbeddedStyle.ButtonColor,8.f));
+            Style.SetBackgroundImageHovered(FSlateRoundedBoxBrush(EmbeddedStyle.ButtonColor,8.f));
+            Style.SetBackgroundImageFocused(FSlateRoundedBoxBrush(EmbeddedStyle.ButtonColor,8.f));
+            AddressBox->SetWidgetStyle(Style);
+            AddressBox->SetForegroundColor(MenuTextColor());
+        }
         Content->AddChildToVerticalBox(AddressBox)->SetPadding(FMargin(0,8));
         OnlineButtons.Add(AddButton(TEXT("Join by IP"),EMCMainMenuAction::JoinAddress));
         AddButton(TEXT("Back"),EMCMainMenuAction::Back);
@@ -346,7 +509,9 @@ void UMCMainMenuWidget::ShowPage(EPage NewPage)
         break;
     }
     if (bSteam && (Page==EPage::Host || Page==EPage::Join)) SetStatus(LastSessionStatus);
-    else if (Page==EPage::Main && Steam && Steam->HadFailure()) SetStatus(LastSessionStatus);
+    else if ((Page==EPage::Main || Page==EPage::Connection) && Steam && Steam->HadFailure()) SetStatus(LastSessionStatus);
+    if (Steam)
+        for (UButton* Button:OnlineButtons) if (Button) Button->SetIsEnabled(!Steam->IsBusy());
     FocusFirst();
 }
 
@@ -381,7 +546,7 @@ void UMCMainMenuWidget::BuildSettings()
     auto* VSyncLabel=WidgetTree->ConstructWidget<UTextBlock>();
     VSyncLabel->SetText(FText::FromString(TEXT("VSync")));
     VSyncLabel->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),17));
-    VSyncLabel->SetColorAndOpacity(FSlateColor(MCMainMenuPrivate::TextColor));
+    VSyncLabel->SetColorAndOpacity(FSlateColor(MenuTextColor()));
     VSyncCheck->SetContent(VSyncLabel); VSyncCheck->SetIsChecked(Settings->IsVSyncEnabled());
     Content->AddChildToVerticalBox(VSyncCheck)->SetPadding(FMargin(0,6,0,12));
     AddButton(TEXT("Apply & Save"),EMCMainMenuAction::ApplySettings);
@@ -494,7 +659,7 @@ FReply UMCMainMenuWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry, cons
     }
     if (Event.GetKey()==EKeys::Escape || Event.GetKey()==EKeys::Gamepad_FaceButton_Right)
     {
-        HandleAction(EMCMainMenuAction::Back);
+        RequestBack();
         return FReply::Handled();
     }
     return Super::NativeOnPreviewKeyDown(Geometry,Event);
@@ -514,8 +679,18 @@ FReply UMCMainMenuWidget::NativeOnAnalogValueChanged(const FGeometry& Geometry,c
 
 void UMCMainMenuWidget::HandleAction(EMCMainMenuAction Action)
 {
+    if (bEmbeddedCloseRequested) return;
     auto* Steam=MCMainMenuPrivate::Sessions(this);
     auto* PC=GetOwningPlayer();
+    const bool bLaunchAction=Action==EMCMainMenuAction::Tutorial || Action==EMCMainMenuAction::CreateLobby
+        || Action==EMCMainMenuAction::JoinLobby || Action==EMCMainMenuAction::Host
+        || Action==EMCMainMenuAction::FindRooms || Action==EMCMainMenuAction::JoinRoom
+        || Action==EMCMainMenuAction::JoinAddress || Action==EMCMainMenuAction::StartLobby;
+    if (bLaunchAction && !CanLaunchEmbeddedDay())
+    {
+        SetStatus(TEXT("Игровой контент этого дня ещё не подключён."));
+        return;
+    }
     switch (Action)
     {
     case EMCMainMenuAction::Tutorial:
@@ -529,6 +704,21 @@ void UMCMainMenuWidget::HandleAction(EMCMainMenuAction Action)
     case EMCMainMenuAction::Exit: ShowPage(EPage::Exit); break;
     case EMCMainMenuAction::Back:
         if (bVideoConfirmationPending) { RevertVideoSettings(); ShowPage(EPage::Settings); }
+        else if (EmbeddedRoot!=EEmbeddedRoot::None)
+        {
+            if (EmbeddedRoot==EEmbeddedRoot::Connection && Steam && Steam->IsBusy())
+            {
+                SetStatus(TEXT("Дождись завершения подключения."));
+                break;
+            }
+            const EPage RootPage=EmbeddedRoot==EEmbeddedRoot::Connection?EPage::Connection:EPage::Settings;
+            if (Page!=RootPage) ShowPage(RootPage);
+            else
+            {
+                bEmbeddedCloseRequested=true;
+                OnBackRequested.Broadcast();
+            }
+        }
         else if (Page==EPage::Main) ShowPage(EPage::Exit);
         else if (Page==EPage::Lobby) ShowPage(EPage::Leave);
         else if (Page==EPage::Pause) HandleAction(EMCMainMenuAction::Resume);

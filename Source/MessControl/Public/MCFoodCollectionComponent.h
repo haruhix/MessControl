@@ -20,6 +20,9 @@ public:
     bool HasCandidate() const;
     void Toggle();
     void Stop(bool Throw=false);
+    /** Server-only: launch the uppermost piece, retaining every other stack slot. */
+    bool ThrowOne(FVector AimDirection);
+    float ThrowIntervalSeconds() const;
     void Spill(FVector Impulse=FVector::ZeroVector);
     void HandleCarrierCollision(AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit);
     void HandleStackCollision(AMCFoodActor* Food,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit);
@@ -36,6 +39,8 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly) TArray<TObjectPtr<AMCFoodActor>> Pieces;
     UPROPERTY(EditAnywhere,BlueprintReadWrite) int32 MaxPieces=6;
     UPROPERTY(EditAnywhere,BlueprintReadWrite) float CollectionReach=180;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Collection|Throw",meta=(ClampMin="0.15",ClampMax="1")) float ThrowInterval=.3f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Collection|Throw",meta=(ClampMin="400",ClampMax="2400",Units="cm/s")) float ThrowSpeed=1200;
     /** Minimum normal contact impulse (kg cm/s). A resting overlap has no impact strength. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Collection|Collision",meta=(ClampMin="1")) float SpillContactImpulse=600;
     int32 FallenPieces=0;
@@ -48,6 +53,7 @@ private:
     FVector2D SwayAngle=FVector2D::ZeroVector,SwayVelocity=FVector2D::ZeroVector;
     bool bHasHand=false;
     double NextCollectAt=0;
+    double NextThrowAt=0;
     const FMCFoodStackSettings* LayoutSettings() const;
     void RebuildStackLayout();
     FQuat StackRotation() const;

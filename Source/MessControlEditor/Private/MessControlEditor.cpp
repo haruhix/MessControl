@@ -1,4 +1,5 @@
 #include "MCFoodCollisionEditorLibrary.h"
+#include "MCGameplayUIPreview.h"
 
 #include "MCFoodCollisionBaker.h"
 #include "MCFoodCollisionData.h"
@@ -111,6 +112,7 @@ public:
     virtual void StartupModule() override
     {
         if(!IsEditorAuthoringSession()) return;
+        MCGameplayUIPreview::EnsureRegistered();
         SaveHandle=FCoreUObjectDelegates::OnObjectPreSave.AddRaw(this,&FMessControlEditorModule::OnObjectPreSave);
         // Export/audit commandlets never author assets implicitly. Explicit library calls still work.
         if(IsRunningCommandlet() || !IsAutomaticBakingEnabled()) return;
@@ -132,6 +134,7 @@ public:
 
     virtual void ShutdownModule() override
     {
+        MCGameplayUIPreview::Unregister();
         FTSTicker::GetCoreTicker().RemoveTicker(DebounceTicker);
         FTSTicker::GetCoreTicker().RemoveTicker(InitialLoadTicker);
         FCoreUObjectDelegates::OnObjectPreSave.Remove(SaveHandle);

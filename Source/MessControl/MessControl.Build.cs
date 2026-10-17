@@ -9,6 +9,11 @@ public class MessControl : ModuleRules
         PublicDependencyModuleNames.AddRange(new[] { "AIModule", "GameplayTasks" });
         PrivateDependencyModuleNames.Add("NavigationSystem");
         PrivateDependencyModuleNames.Add("AnimationCore");
+        PrivateDependencyModuleNames.AddRange(new[] { "AnimGraphRuntime", "KawaiiPhysics" });
+        // StylizedDynamics is a local experimental install; upstream currently has no license file.
+        bool HasStylizedDynamics = System.IO.Directory.Exists(System.IO.Path.Combine(ModuleDirectory, "../../Plugins/StylizedDynamics/Source/StylizedDynamics"));
+        PublicDefinitions.Add("WITH_MC_STYLIZED_DYNAMICS=" + (HasStylizedDynamics ? "1" : "0"));
+        if (HasStylizedDynamics) PrivateDependencyModuleNames.Add("StylizedDynamics");
         PrivateDependencyModuleNames.Add("Chaos");
         PrivateDependencyModuleNames.Add("ChaosCore");
         PrivateDependencyModuleNames.Add("RHI");

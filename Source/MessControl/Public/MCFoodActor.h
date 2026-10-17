@@ -22,6 +22,13 @@ struct FMCFoodSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact") float MaxDamage=40;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact") float Knockback=560;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact") float HitCooldown=0.75f;
+    /** Whole Nutageddon nuts only. Energy uses kg and m/s; ordinary food keeps its impact rules. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Physics",meta=(ClampMin="1",DisplayName="Nut Tooth Min Energy (J)")) float NutToothMinEnergy=70;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Physics",meta=(ClampMin="0")) float NutToothDamagePerJoule=.08f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Physics",meta=(ClampMin="0")) float NutToothMaxDamage=35;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Physics",meta=(ClampMin="0",ClampMax="1")) float NutRestitution=.28f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Physics",meta=(ClampMin="0",ClampMax="5")) float NutLinearDamping=.18f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Physics",meta=(ClampMin="0",ClampMax="10")) float NutAngularDamping=.45f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Grab") float GrabReach=145;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Grab") float BreakDistance=340;
     // Serialized legacy fields; grip tuning lives in DA_Grip.
@@ -85,6 +92,14 @@ public:
     /** Launch a newly spawned piece through the mouth; call after FinishSpawning. */
     void BeginMouthEntry(FVector LaunchVelocity,float PushSpeed,TOptional<FVector> ExpectedLanding=TOptional<FVector>());
     bool IsMouthEntryActive() const { return bMouthEntry; }
+    /** Call after ConfigureItem/FinishSpawning, before the rain launch. */
+    void EnableNutKinetics();
+    bool IsNutKineticsActive() const;
+    /** Server-only external impact; converts velocity change to an impulse using the real body mass. */
+    bool ApplyNutImpulse(FVector VelocityChange,FVector WorldPoint);
+    UPROPERTY(ReplicatedUsing=OnRep_NutKinetics,BlueprintReadOnly,Category="Nut Physics") bool bNutKineticsEnabled=false;
+    UPROPERTY(BlueprintReadOnly,Category="Nut Physics") int32 NutToothImpacts=0;
+    UPROPERTY(BlueprintReadOnly,Category="Nut Physics") float LastNutImpactEnergy=0;
     /** Optional server hazard owns the entry impact instead of physical player contact. */
     void ManageEntryImpact() { if(HasAuthority()) bEntryImpactManaged=true; }
     FMCFoodEntryLanding OnEntryLanding;
@@ -105,6 +120,9 @@ public:
     void Dispose();
     void AwardDelivery();
     class AMCPlayerState* GetLastHandledBy() const { return LastHandledBy.Get(); }
+    /** Physical intake accepts an intentional loose throw, never a held/incoming meal. */
+    bool WasManuallyThrown() const { return bManuallyThrown; }
+    void MarkManualThrow(AMCToothCharacter* Hero);
     bool BeginSwallow();
     void CancelSwallow();
     void ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream& Random,bool Fragment=false);
@@ -136,7 +154,7 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Ulcer") double AbsorbStartedAt=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Ulcer") bool bAbsorbed=false;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Ulcer") TObjectPtr<class AMCMouthSurface> AbsorbedUlcer;
-    void Throw(AMCToothCharacter* Hero);
+    void Throw(AMCToothCharacter* Hero,FVector AimDirection=FVector::ZeroVector);
     float DragSpeed() const;
     bool IsDisposed() const { return Phase==EMCFoodPhase::Disposed; }
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UBoxComponent> Body;
@@ -186,7 +204,10 @@ private:
     FQuat NetworkRotation=FQuat::Identity;
     UFUNCTION() void OnRep_Phase();
     UFUNCTION() void OnRep_Item();
+    UFUNCTION() void OnRep_NutKinetics();
     UFUNCTION() void OnHit(UPrimitiveComponent* Component,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit);
+    void HandleNutToothImpact(class AMCArenaTooth* Tooth,FVector Impulse,const FHitResult& Hit);
+    UPROPERTY(Transient) TObjectPtr<class UPhysicalMaterial> NutPhysicsMaterial;
     bool bJamOnLanding=false;
     float RiverEscapeZ=-250;
     mutable TWeakObjectPtr<class AMCTongue> EscapeTongue;
@@ -223,6 +244,7 @@ private:
     TWeakObjectPtr<class AMCThroat> FuseOwner;
     UPROPERTY() TObjectPtr<class AMCPlayerState> LastHandledBy;
     bool bDeliveryScored=false;
+    bool bManuallyThrown=false;
     UPROPERTY() TArray<TObjectPtr<class UMaterialInstanceDynamic>> HazardMaterials;
     UPROPERTY() TObjectPtr<class UMaterialInstanceDynamic> ReactionMaterial;
     FString LastLabelCaption;
@@ -240,6 +262,8 @@ public:
     UPROPERTY(VisibleAnywhere) TObjectPtr<UTextRenderComponent> Label;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Delivery") TObjectPtr<class UMCDeliveryZoneVisualComponent> DeliveryZoneVisual;
     UPROPERTY(EditAnywhere, Replicated) bool bBrushBin=false;
+    /** Legacy floor delivery/discard caps are retired; explicit throat throws own intake. */
+    UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Delivery") bool bEnableLegacyDeliveryZone=false;
     /** Shared footprint for gameplay intake and the animated floor guide. */
     virtual void GetDeliveryZoneGeometry(FTransform& OutTransform,FVector& OutHalfExtent,bool& bOutCircular) const;
     /** Paired world-space rim and inner fade curves; false keeps the fixture's authored box/circle. */

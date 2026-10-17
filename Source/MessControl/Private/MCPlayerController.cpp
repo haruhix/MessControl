@@ -33,6 +33,12 @@
 #include "MCIceEvent.h"
 #include "MCFogBrawlEvent.h"
 #include "MCNutRainEvent.h"
+#include "MCNutBoss.h"
+#include "MCUIDataLibrary.h"
+#include "MCGameplayUIFactory.h"
+#include "MCGameplayUITheme.h"
+#include "MCGameplayMenuWidget.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "MCColdCola.h"
 #include "InputKeyEventArgs.h"
 
@@ -48,7 +54,7 @@ void AMCPlayerController::BeginPlay()
         if (auto* Steam=GetGameInstance()->GetSubsystem<UMCSteamSessionSubsystem>()) Steam->RefreshAvailability();
         PrototypeWidget = CreateWidget<UMCPrototypeWidget>(this,UMCPrototypeWidget::StaticClass());
         PrototypeWidget->AddToViewport(); UpdateInputMode();
-        BossHealthWidget=CreateWidget<UMCBossHealthWidget>(this,UMCBossHealthWidget::StaticClass());
+        BossHealthWidget=CreateWidget<UMCBossHealthWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("BossHealth"),UMCBossHealthWidget::StaticClass()));
         if (BossHealthWidget) BossHealthWidget->AddToViewport(40);
         GetWorldTimerManager().SetTimer(BossHUDTimer,this,&AMCPlayerController::RefreshBossHUD,.1f,true);
     }
@@ -83,7 +89,7 @@ void AMCPlayerController::ShowScoreboard()
     if (!IsLocalController() || IsRewardInteractionActive() || bBossIntroPlaying) return;
     if (!ScoreboardWidget)
     {
-        ScoreboardWidget=CreateWidget<UMCScoreboardWidget>(this,UMCScoreboardWidget::StaticClass());
+        ScoreboardWidget=CreateWidget<UMCScoreboardWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("Scoreboard"),UMCScoreboardWidget::StaticClass()));
         if (!ScoreboardWidget) return;
         ScoreboardWidget->AddToViewport(12);
     }
@@ -193,6 +199,7 @@ void AMCPlayerController::ResetWorldPresentation()
     BossIntro=nullptr; bBossIntroPlaying=false;
     CloseRewardUI(false); HideScoreboard();
     if(FrontEndWidget) FrontEndWidget->RemoveFromParent(); FrontEndWidget=nullptr;
+    CloseGameplayMenus(); PauseWidget=nullptr; ConnectionWidget=nullptr;
     if(TutorialWidget) TutorialWidget->RemoveFromParent(); TutorialWidget=nullptr;
     if(DevPanel) DevPanel->RemoveFromParent(); DevPanel=nullptr;
     if(EmoteWidget) EmoteWidget->RemoveFromParent(); EmoteWidget=nullptr;
@@ -204,7 +211,7 @@ void AMCPlayerController::ResetWorldPresentation()
         PrototypeWidget=CreateWidget<UMCPrototypeWidget>(this,UMCPrototypeWidget::StaticClass());
         if(PrototypeWidget) PrototypeWidget->AddToViewport();
         if(BossHealthWidget) BossHealthWidget->RemoveFromParent();
-        BossHealthWidget=CreateWidget<UMCBossHealthWidget>(this,UMCBossHealthWidget::StaticClass());
+        BossHealthWidget=CreateWidget<UMCBossHealthWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("BossHealth"),UMCBossHealthWidget::StaticClass()));
         if(BossHealthWidget) BossHealthWidget->AddToViewport(40);
         GetWorldTimerManager().SetTimer(BossHUDTimer,this,&AMCPlayerController::RefreshBossHUD,.1f,true);
         UpdateInputMode();
@@ -350,7 +357,7 @@ void AMCPlayerController::ToggleEmotes()
     if (!IsLocalController() || IsRewardInteractionActive() || bBossIntroPlaying) return;
     if (!EmoteWidget)
     {
-        EmoteWidget=CreateWidget<UMCEmoteWidget>(this,UMCEmoteWidget::StaticClass());
+        EmoteWidget=CreateWidget<UMCEmoteWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("Emotes"),UMCEmoteWidget::StaticClass()));
         EmoteWidget->AddToViewport(15); EmoteWidget->SetVisibility(ESlateVisibility::Collapsed);
     }
     const bool Open=!EmoteWidget->IsVisible();
@@ -360,21 +367,72 @@ void AMCPlayerController::ToggleEmotes()
     if (Open) EmoteWidget->Refresh(); UpdateInputMode();
 }
 void AMCPlayerController::ToggleTuning() { if (IsRewardInteractionActive() || bBossIntroPlaying) return; if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleTuning(); UpdateInputMode(); } }
-void AMCPlayerController::ToggleConnection() { if (IsRewardInteractionActive() || bBossIntroPlaying) return; if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleConnection(); UpdateInputMode(); } }
+void AMCPlayerController::ToggleConnection()
+{
+    if (!IsLocalController() || bLobbyUIOpen || IsRewardInteractionActive() || bBossIntroPlaying) return;
+    if (bConnectionMenuOpen) { CloseConnectionMenu(); return; }
+    CloseGameplayMenus();
+    auto* Menu=EnsureGameplayMenu(true);
+    if (!Menu) return;
+    bConnectionMenuOpen=true;
+    Menu->ShowConnection(); Menu->AddToViewport(60);
+    if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed);
+    if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed);
+    if (PrototypeWidget) PrototypeWidget->ClosePanels();
+    HideScoreboard(); UpdateInputMode();
+}
+
+UMCGameplayMenuWidget* AMCPlayerController::EnsureGameplayMenu(bool bConnection)
+{
+    auto& Widget=bConnection?ConnectionWidget:PauseWidget;
+    if (!Widget)
+    {
+        Widget=CreateWidget<UMCGameplayMenuWidget>(this,UMCGameplayUIFactory::ResolveClass(
+            bConnection?TEXT("ConnectionMenu"):TEXT("PauseMenu"),UMCGameplayMenuWidget::StaticClass()));
+        if (!Widget) return nullptr;
+        Widget->OnResumeRequested.AddUniqueDynamic(this,&AMCPlayerController::ResumeGameplayMenu);
+        Widget->OnEmotesRequested.AddUniqueDynamic(this,&AMCPlayerController::OpenMenuEmotes);
+        Widget->OnConnectionCloseRequested.AddUniqueDynamic(this,&AMCPlayerController::CloseConnectionMenu);
+        Widget->OnLeaveRequested.AddUniqueDynamic(this,&AMCPlayerController::ReturnToMainMenu);
+        Widget->OnExitRequested.AddUniqueDynamic(this,&AMCPlayerController::ExitFromGameplayMenu);
+        Widget->OnHostRequested.AddUniqueDynamic(this,&AMCPlayerController::HostGame);
+        Widget->OnJoinAddressRequested.AddUniqueDynamic(this,&AMCPlayerController::JoinFromGameplayMenu);
+    }
+    return Widget;
+}
+void AMCPlayerController::CloseGameplayMenus()
+{
+    if (PauseWidget) PauseWidget->RemoveFromParent();
+    if (ConnectionWidget) ConnectionWidget->RemoveFromParent();
+    bPauseMenuOpen=bConnectionMenuOpen=false;
+}
+void AMCPlayerController::ResumeGameplayMenu() {CloseGameplayMenus();UpdateInputMode();}
+void AMCPlayerController::CloseConnectionMenu() {CloseGameplayMenus();UpdateInputMode();}
+void AMCPlayerController::OpenMenuEmotes() {CloseGameplayMenus();ToggleEmotes();UpdateInputMode();}
+void AMCPlayerController::ExitFromGameplayMenu() {UKismetSystemLibrary::QuitGame(this,this,EQuitPreference::Quit,false);}
+void AMCPlayerController::JoinFromGameplayMenu(const FString& Address)
+{
+    FString Normalized;
+    if (UMCGameplayMenuWidget::NormalizeJoinAddress(Address,Normalized)) ClientTravel(Normalized,TRAVEL_Absolute);
+}
 void AMCPlayerController::UpdateInputMode()
 {
     UpdatePerkChoicePause();
-    if (bLobbyUIOpen || bPauseMenuOpen || bTutorialMenuInput)
+    if (bLobbyUIOpen || bPauseMenuOpen || bConnectionMenuOpen || bTutorialMenuInput)
     {
         bShowMouseCursor=true;
         ResetIgnoreMoveInput(); SetIgnoreMoveInput(true);
         ResetIgnoreLookInput(); SetIgnoreLookInput(true);
         if (auto* Hero=Cast<AMCToothCharacter>(GetPawn())) Hero->CancelGameplayInput();
         FInputModeUIOnly Mode;
-        if ((bLobbyUIOpen || bPauseMenuOpen) && FrontEndWidget) Mode.SetWidgetToFocus(FrontEndWidget->TakeWidget());
+        if (bLobbyUIOpen && FrontEndWidget) Mode.SetWidgetToFocus(FrontEndWidget->TakeWidget());
+        else if (bPauseMenuOpen && PauseWidget) Mode.SetWidgetToFocus(PauseWidget->TakeWidget());
+        else if (bConnectionMenuOpen && ConnectionWidget) Mode.SetWidgetToFocus(ConnectionWidget->TakeWidget());
         else if (TutorialWidget) Mode.SetWidgetToFocus(TutorialWidget->TakeWidget());
         SetInputMode(Mode);
-        if ((bLobbyUIOpen || bPauseMenuOpen) && FrontEndWidget) FrontEndWidget->FocusMenu();
+        if (bLobbyUIOpen && FrontEndWidget) FrontEndWidget->FocusMenu();
+        else if (bPauseMenuOpen && PauseWidget) PauseWidget->FocusMenu();
+        else if (bConnectionMenuOpen && ConnectionWidget) ConnectionWidget->FocusMenu();
         return;
     }
     if (bBossIntroPlaying)
@@ -463,6 +521,7 @@ bool AMCPlayerController::PrepareRewardInteraction(AMCRewardChest* Chest)
 {
     auto* Hero=Cast<AMCToothCharacter>(GetPawn());
     if (!IsLocalController() || ActiveLevelOfferId.IsValid() || !IsValid(Chest) || !Hero || !Hero->Status || !Hero->Status->IsAlive()) return false;
+    CloseGameplayMenus();
     ActiveRewardChest=Chest;
     RewardPawn=Hero;
     RewardShownAt=GetWorld()->GetTimeSeconds();
@@ -480,7 +539,7 @@ bool AMCPlayerController::PrepareRewardUI(AMCRewardChest* Chest)
 {
     if (!PrepareRewardInteraction(Chest)) return false;
     if (!PerkChoiceWidget)
-        PerkChoiceWidget=CreateWidget<UMCPerkChoiceWidget>(this,UMCPerkChoiceWidget::StaticClass());
+        PerkChoiceWidget=CreateWidget<UMCPerkChoiceWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("PerkChoice"),UMCPerkChoiceWidget::StaticClass()));
     if (!PerkChoiceWidget) { CloseRewardUI(); return false; }
     if (!PerkChoiceWidget->IsInViewport()) PerkChoiceWidget->AddToViewport(30);
     PerkChoiceWidget->SetVisibility(ESlateVisibility::Visible);
@@ -594,7 +653,7 @@ void AMCPlayerController::RefreshLevelPerkChoices()
     const auto* ProgressPlayer=GetPlayerState<AMCPlayerState>();
     const auto* Game=GetWorld()->GetGameState<AMCGameState>();
     const bool CanShow=ProgressPlayer && ProgressPlayer->LevelUpOffer.IsValid() && ProgressPlayer->LevelUpOffer.OfferId!=AcceptedLevelOfferId && Game && !Game->bLobbyWaiting
-        && !Game->bTutorialActive && !bPauseMenuOpen && !bTutorialMenuInput && !bBossIntroPlaying;
+        && !Game->bTutorialActive && !bPauseMenuOpen && !bConnectionMenuOpen && !bTutorialMenuInput && !bBossIntroPlaying;
     if (!CanShow)
     {
         if (ActiveLevelOfferId.IsValid()) CloseRewardUI();
@@ -606,7 +665,7 @@ void AMCPlayerController::RefreshLevelPerkChoices()
         PerkChoiceWidget->UpdateLevelChoiceHeader(Offer.TeamLevel,ProgressPlayer->PendingLevelChoices);
         return;
     }
-    if (!PerkChoiceWidget) PerkChoiceWidget=CreateWidget<UMCPerkChoiceWidget>(this,UMCPerkChoiceWidget::StaticClass());
+    if (!PerkChoiceWidget) PerkChoiceWidget=CreateWidget<UMCPerkChoiceWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("PerkChoice"),UMCPerkChoiceWidget::StaticClass()));
     if (!PerkChoiceWidget) return;
     ActiveLevelOfferId=Offer.OfferId; bRewardChoicePending=false;
     if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed);
@@ -668,6 +727,7 @@ void AMCPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     UMCPlayerCameraComponent::ClearSpectatorView(SpectatorCameraView);
     if (FrontEndWidget) FrontEndWidget->RemoveFromParent();
+    CloseGameplayMenus();
     if (TutorialWidget) TutorialWidget->RemoveFromParent();
     GetWorldTimerManager().ClearTimer(BossHUDTimer);
     if (IsValid(BossIntro)) BossIntro->CancelIntro();
@@ -706,14 +766,16 @@ void AMCPlayerController::TogglePauseMenu()
     bPauseMenuOpen=!bPauseMenuOpen;
     if (bPauseMenuOpen)
     {
-        if (!FrontEndWidget) FrontEndWidget=CreateWidget<UMCMainMenuWidget>(this,UMCMainMenuWidget::StaticClass());
-        if (FrontEndWidget) { FrontEndWidget->ShowPause(); if (!FrontEndWidget->IsInViewport()) FrontEndWidget->AddToViewport(60); }
+        if (ConnectionWidget) ConnectionWidget->RemoveFromParent();
+        bConnectionMenuOpen=false;
+        if (auto* Menu=EnsureGameplayMenu(false)) { Menu->ShowPause(); if (!Menu->IsInViewport()) Menu->AddToViewport(60); }
+        else bPauseMenuOpen=false;
         if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed);
         if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed);
         if (PrototypeWidget) PrototypeWidget->ClosePanels();
         HideScoreboard();
     }
-    else if (FrontEndWidget) FrontEndWidget->RemoveFromParent();
+    else if (PauseWidget) PauseWidget->RemoveFromParent();
     UpdateInputMode();
 }
 void AMCPlayerController::RefreshFrontEnd()
@@ -725,6 +787,7 @@ void AMCPlayerController::RefreshFrontEnd()
     if (GetPawn() && !bGameplayLoadAckSent) { ServerGameplayLoaded(); bGameplayLoadAckSent=true; }
     if (State->bLobbyWaiting && !bLobbyUIOpen)
     {
+        CloseGameplayMenus();
         bLobbyUIOpen=true;
         if (!FrontEndWidget) FrontEndWidget=CreateWidget<UMCMainMenuWidget>(this,UMCMainMenuWidget::StaticClass());
         if (FrontEndWidget) { FrontEndWidget->ShowLobby(); FrontEndWidget->AddToViewport(60); }
@@ -743,7 +806,7 @@ void AMCPlayerController::RefreshFrontEnd()
     else if (PrototypeWidget && bFrontEndHidPrototype) { PrototypeWidget->SetVisibility(ESlateVisibility::Visible); bFrontEndHidPrototype=false; }
     if (State->bTutorialActive)
     {
-        if (!TutorialWidget) { TutorialWidget=CreateWidget<UMCTutorialWidget>(this,UMCTutorialWidget::StaticClass()); if (TutorialWidget) TutorialWidget->AddToViewport(20); }
+        if (!TutorialWidget) { TutorialWidget=CreateWidget<UMCTutorialWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("Tutorial"),UMCTutorialWidget::StaticClass())); if (TutorialWidget) TutorialWidget->AddToViewport(20); }
         if (TutorialWidget) TutorialWidget->RefreshState();
         auto* Director=AMCTutorialDirector::Find(GetWorld());
         // The server rejects a load ACK without a pawn; retry after possession instead of caching that request.
@@ -786,6 +849,7 @@ bool AMCPlayerController::IsBossIntroPlaying() const
 void AMCPlayerController::BeginBossIntroPresentation()
 {
     if (bBossIntroPlaying) return;
+    CloseGameplayMenus();
     bBossIntroPlaying=true;
     if (PrototypeWidget)
     {
@@ -816,7 +880,9 @@ void AMCPlayerController::RefreshBossHUD()
     if (!BossHealthWidget || !IsLocalController()) return;
     if(const auto* State=GetWorld()->GetGameState<AMCGameState>(); State && State->bSingleDayLoop
         && (State->Phase==EMCShiftPhase::Won || State->Phase==EMCShiftPhase::Lost)) {
-        BossHealthWidget->HideHealth(); return;
+        BossHealthWidget->HideHealth();
+        if (GameplayHUD) GameplayHUD->SetBossStackCount(0);
+        return;
     }
     const double Now=GetWorld()->GetTimeSeconds();
     auto* Boss=HealthBoss.Get();
@@ -846,11 +912,44 @@ void AMCPlayerController::RefreshBossHUD()
     if (Boss && Boss->Runtime.State==EMCBossState::Dead)
     {
         if (BossDiedAt<0) BossDiedAt=Now;
-        if (Now-BossDiedAt>2.) { BossHealthWidget->HideHealth(); return; }
+        if (Now-BossDiedAt>2.) Boss=nullptr;
     }
     else BossDiedAt=-1;
-    if (Boss) BossHealthWidget->ShowHealth(Boss->Runtime.Health,Boss->Runtime.MaxHealth,.1f);
-    else BossHealthWidget->HideHealth();
+    TArray<FMCBossHealthPresentation> Snapshots;
+    auto Copy=[](FName Key,const FText& Fallback)
+    {
+        auto* Theme=UMCGameplayUIFactory::GetMasterTheme();
+        auto* Table=Theme->LocalizationTable.LoadSynchronous();
+        return UMCUIDataLibrary::ResolveText(Table?Table:UMCUIDataLibrary::GetDefaultLocalizationTable(),Key,Fallback);
+    };
+    if (Boss)
+    {
+        auto& Entry=Snapshots.AddDefaulted_GetRef();
+        Entry.BossID=Boss->GetFName();
+        Entry.Name=Copy(TEXT("UI.Boss.Zombie.Name"),NSLOCTEXT("MCBossHealth","Caries","Гнилой страж"));
+        Entry.Portrait=UMCGameplayUIFactory::GetMasterTheme()->BossPortraits.FindRef(TEXT("RottenGuardian"));
+        Entry.Health=Boss->Runtime.Health; Entry.MaxHealth=Boss->Runtime.MaxHealth;
+    }
+    TArray<AMCNutBoss*> Nuts;
+    const FVector Eye=GetPawn()?GetPawn()->GetActorLocation():GetFocalLocation();
+    for (TActorIterator<AMCNutBoss> It(GetWorld());It;++It)
+        if (It->IsEncounterAlive() && FVector::DistSquared(Eye,It->GetActorLocation())<FMath::Square(6500.f)) Nuts.Add(*It);
+    // Actor identity keeps row order stable while players and bosses move.
+    Nuts.Sort([](const AMCNutBoss& A,const AMCNutBoss& B){return A.GetFName().LexicalLess(B.GetFName());});
+    for (auto* Nut:Nuts)
+    {
+        if (Snapshots.Num()==3) break;
+        auto& Entry=Snapshots.AddDefaulted_GetRef();
+        Entry.BossID=Nut->GetFName();
+        const bool bKnight=Nut->BossRole==EMCNutBossRole::Tank;
+        Entry.Name=bKnight?Copy(TEXT("UI.Boss.NutTank.Name"),NSLOCTEXT("MCBossHealth","Knight","Ореховый рыцарь")):
+            Copy(TEXT("UI.Boss.NutMage.Name"),NSLOCTEXT("MCBossHealth","Mage","Ореховый колдун"));
+        Entry.Portrait=UMCGameplayUIFactory::GetMasterTheme()->BossPortraits.FindRef(bKnight?TEXT("NutKnight"):TEXT("NutWizard"));
+        Entry.Health=Nut->Health; Entry.MaxHealth=Nut->Settings.MaxHealth;
+        Entry.bHasShield=bKnight; Entry.Shield=Nut->ShieldHealth; Entry.MaxShield=Nut->BossSettings.ShieldMaxHealth;
+    }
+    BossHealthWidget->ShowBosses(Snapshots,.1f);
+    if (GameplayHUD) GameplayHUD->SetBossStackCount(BossHealthWidget->GetDisplayedBossCount(),BossHealthWidget->GetDisplayedStackHeight());
 }
 void AMCPlayerController::HostGame()
 {

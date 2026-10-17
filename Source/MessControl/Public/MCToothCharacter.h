@@ -87,7 +87,12 @@ public:
     void NotifyTaskFeedback(bool Success,FVector Point=FVector::ZeroVector);
     bool CanSwitchTool() const;
     UFUNCTION(BlueprintCallable, Category="Tools") void ThrowItem();
+    UFUNCTION(BlueprintCallable, Category="Tools") void SetThrowInputHeld(bool Held);
+    UFUNCTION(BlueprintPure, Category="Tools") bool HasFoodToThrow() const;
+    UFUNCTION(BlueprintPure, Category="Tools") float FoodIntakeAimStrength() const;
     UFUNCTION(Server,Reliable) void ServerThrowItem();
+    UFUNCTION(Server,Reliable) void ServerSetThrowHeld(bool Held,FVector_NetQuantizeNormal Direction);
+    UFUNCTION(Server,Unreliable) void ServerUpdateThrowAim(FVector_NetQuantizeNormal Direction);
     UFUNCTION(Server,Unreliable) void ServerPaddle(FVector2D Direction);
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") double RespawnAt=0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") int32 RespawnSourceId=0;
@@ -140,7 +145,12 @@ public:
     UFUNCTION(BlueprintCallable,Category="Cataclysm|Rowing") void SetRowingInputHeld(bool Held);
     UFUNCTION(BlueprintPure,Category="Cataclysm|Rowing") bool IsRowing() const;
     class AMCCataclysmRaft* GetRowingRaft() const;
-    /** Rowing owns yaw while deck walking remains free to move in another direction. */
+    UFUNCTION(BlueprintPure,Category="Cataclysm|Raft") bool IsSeatedOnRaft() const;
+    /** Authority-only seat state. The raft owns occupancy; input RPCs remain on the pawn. */
+    void SetRaftSeat(class AMCCataclysmRaft* Raft, int32 Slot);
+    UPROPERTY(ReplicatedUsing=OnRep_RaftSeat,BlueprintReadOnly,Category="Cataclysm|Raft") TObjectPtr<class AMCCataclysmRaft> SeatedRaft;
+    UPROPERTY(ReplicatedUsing=OnRep_RaftSeat,BlueprintReadOnly,Category="Cataclysm|Raft") int32 RaftSeatIndex=INDEX_NONE;
+    /** Body and brush share a stroke heading independently of camera orbit. */
     bool WantsRowingFacing(FVector& Direction) const;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Cataclysm|Rowing") bool bRowing=false;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Cataclysm|Rowing") TObjectPtr<class AMCCataclysmRaft> RowingRaft;
@@ -261,7 +271,12 @@ private:
     void StartBrace(); void StopBrace();
     void StartRowing(); void StopRowing();
     void UpdateRowing(float Dt);
-    FVector2D WorldRowingInput() const;
+    FVector2D RaftRowingInput() const;
+    void UpdateRaftSeat();
+    UFUNCTION() void OnRep_RaftSeat();
+    UFUNCTION(Server,Reliable) void ServerLeaveRaft();
+    TWeakObjectPtr<class AMCCataclysmRaft> AppliedSeatRaft;
+    bool bAppliedRaftSeat=false;
     UFUNCTION(Server,Reliable) void ServerSetRowingHeld(bool Held,FVector2D Direction,uint16 RequestId);
     UFUNCTION(Server,Unreliable) void ServerRowingDirection(FVector2D Direction,uint16 RequestId);
     UFUNCTION(Client,Reliable) void ClientStopRowing(uint16 RequestId);
@@ -304,6 +319,14 @@ private:
     float MimicCameraDistance=1000.f;
     float OrderJumpAirControl=.05f;
     bool bThroatCaptured=false;
+    bool bThrowInputHeld=false,bThrowHeld=false;
+    FVector ThrowAim=FVector::ForwardVector;
+    double NextHeldThrowAt=0,LastThrowAimSentAt=-100;
+    void StartThrowItem();
+    void StopThrowItem();
+    void UpdateThrowInput(float Dt);
+    FVector CameraThrowDirection() const;
+    void PerformThrow(FVector Direction,bool StackOnly=false);
     TWeakObjectPtr<class AMCThroat> ThroatTickPrerequisite;
     TArray<TWeakObjectPtr<AActor>> OrderJumpIgnoredActors;
     void FindWork(float DeltaSeconds);

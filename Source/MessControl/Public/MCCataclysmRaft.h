@@ -12,7 +12,7 @@ class UProceduralMeshComponent;
 class UStaticMeshComponent;
 struct FCollisionQueryParams;
 
-/** Kinematic, walkable Cataclysm refuge. Only actual deck riders count as load. */
+/** Server-driven Cataclysm refuge with two stable port/starboard rowing slots. */
 UCLASS()
 class MESSCONTROL_API AMCCataclysmRaft : public AActor
 {
@@ -20,6 +20,7 @@ class MESSCONTROL_API AMCCataclysmRaft : public AActor
 public:
     AMCCataclysmRaft();
     virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void Tick(float DeltaSeconds) override;
     virtual void PostNetReceiveLocationAndRotation() override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
@@ -35,14 +36,19 @@ public:
         { return FindBoardingPoint(Hero, DeckFootPoint); }
     UPrimitiveComponent* GetDeckComponent() const;
     bool IsRider(const AMCToothCharacter* Hero) const;
+    UFUNCTION(BlueprintPure, Category="Cataclysm|Raft") int32 SeatIndex(const AMCToothCharacter* Hero) const;
+    /** Called only after the movement component has completed its collision-tested boarding. */
+    UFUNCTION(BlueprintCallable, Category="Cataclysm|Raft") bool TryClaimSeat(AMCToothCharacter* Hero);
+    UFUNCTION(BlueprintCallable, Category="Cataclysm|Raft") void ReleaseSeat(AMCToothCharacter* Hero, FVector LaunchVelocity = FVector::ZeroVector);
+    FVector SeatFootPoint(int32 Slot) const;
     bool IsHoldingRail(const AMCToothCharacter* Hero) const;
-    /** Authority input in world XY; expires when the owning pawn stops refreshing it. */
-    bool SetRowingInput(AMCToothCharacter* Hero, FVector2D Direction, bool Held);
+    /** Authority input in raft-local forward/right axes; zero never creates thrust. */
+    UFUNCTION(BlueprintCallable, Category="Cataclysm|Raft") bool SetRowingInput(AMCToothCharacter* Hero, FVector2D Direction, bool Held);
     /** Two actual handle points on the player's existing brush used as a paddle. */
     bool GetRowingHandTargets(const AMCToothCharacter* Hero, FVector& Left, FVector& Right) const;
     /** Shared radians for the brush stroke and the passenger's body pose. */
     float RowingStrokePhase(const AMCToothCharacter* Hero = nullptr) const;
-    /** Each passenger retains their own world-space aim, even when forces cancel. */
+    /** Each passenger retains their own raft-local effort, even when forces cancel. */
     FVector RowingDirectionFor(const AMCToothCharacter* Hero) const;
     FVector RowingVisualDirectionFor(const AMCToothCharacter* Hero) const;
     void AlignRowingBrushToHand(const AMCToothCharacter* Hero, const FTransform& HandWorld);
@@ -58,6 +64,8 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Cataclysm|Raft")
     TObjectPtr<UStaticMeshComponent> Deck;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Cataclysm|Raft") int32 OccupantCount = 0;
+    /** Index 0 is left, index 1 is right; an empty slot never moves the remaining passenger. */
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Cataclysm|Raft") TArray<TObjectPtr<AMCToothCharacter>> SeatPlayers;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Cataclysm|Raft") double WarningStartedAt = -1.;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Cataclysm|Raft") double SinkStartedAt = -1.;
     UPROPERTY(ReplicatedUsing=OnRep_Flood, BlueprintReadOnly, Category="Cataclysm|Raft") TObjectPtr<AMCCoffeeFlood> Flood;
@@ -79,11 +87,14 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cataclysm|Raft|Rowing", meta=(ClampMin="0.1",ClampMax="5")) float AngularDrag = 1.6f;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cataclysm|Raft|Rowing", meta=(ClampMin="1",ClampMax="180")) float MaxYawSpeed = 65.f;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cataclysm|Raft|Rowing", meta=(ClampMin="10",ClampMax="720")) float MaxYawAcceleration = 150.f;
+    /** Contact kick required to eject the closest occupied slot, in cm/s. */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cataclysm|Raft", meta=(ClampMin="20",ClampMax="140")) float DebrisEjectThreshold = 85.f;
 
 private:
     double Clock() const;
     void CollectRiders(TArray<AMCToothCharacter*>& Riders) const;
     void UpdateLoad(double Now);
+    void ValidateSeats();
     void UpdatePose(float DeltaSeconds, double Now);
     void UpdateCues(double Now);
     float SinkAmount(double Now) const;

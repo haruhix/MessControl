@@ -9,6 +9,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCFoodActor.h"
 #include "MCUlcerProgressWidget.h"
+#include "MCGameplayUIFactory.h"
 #include "Components/WidgetComponent.h"
 #include "MCHazardWave.h"
 #include "MCFirePatch.h"
@@ -75,6 +76,8 @@ AMCMouthSurface::AMCMouthSurface()
 void AMCMouthSurface::BeginPlay()
 {
     Super::BeginPlay();
+    if(GetNetMode()!=NM_DedicatedServer && TreatmentIndicator->GetWidgetClass()==UMCUlcerProgressWidget::StaticClass())
+        TreatmentIndicator->SetWidgetClass(UMCGameplayUIFactory::ResolveClass(TEXT("UlcerProgress"),UMCUlcerProgressWidget::StaticClass()));
     if (HasAuthority())
     {
         const FVector P=GetActorLocation();

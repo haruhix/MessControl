@@ -135,6 +135,7 @@ AMCCataclysmRaft::AMCCataclysmRaft()
         Oar->SetVisibility(false);
     }
     RowingPlayers.Init(nullptr, Capacity);
+    SeatPlayers.Init(nullptr, Capacity);
     RowingDirections.Init(FVector2D::ZeroVector, Capacity);
     RowingStartedAt.Init(0., Capacity);
 }
@@ -150,6 +151,14 @@ void AMCCataclysmRaft::BeginPlay()
     InitializeCues();
     OnRep_Flood();
     UpdatePose(0.f, Clock());
+}
+
+void AMCCataclysmRaft::EndPlay(const EEndPlayReason::Type Reason)
+{
+    if (HasAuthority())
+        for (int32 Slot=0; Slot<SeatPlayers.Num(); ++Slot)
+            if (AMCToothCharacter* Hero=SeatPlayers[Slot].Get()) ReleaseSeat(Hero);
+    Super::EndPlay(Reason);
 }
 
 void AMCCataclysmRaft::SetupForFlood(AMCCoffeeFlood* InFlood, FVector GroundAnchor, float SurfaceOffset)
@@ -222,7 +231,8 @@ bool AMCCataclysmRaft::IsOverloaded() const
 
 bool AMCCataclysmRaft::IsBoardable() const
 {
-    return bConfigured && Deck->GetStaticMesh() && !IsSubmerging() && OccupantCount < Capacity;
+    return bConfigured && Flood && Flood->IsActive() && Deck->GetStaticMesh() && !IsSubmerging()
+        && SeatPlayers.ContainsByPredicate([](const auto& Player) { return !IsValid(Player.Get()); });
 }
 
 UPrimitiveComponent* AMCCataclysmRaft::GetDeckComponent() const { return Deck; }
@@ -230,9 +240,79 @@ UPrimitiveComponent* AMCCataclysmRaft::GetDeckComponent() const { return Deck; }
 bool AMCCataclysmRaft::IsRider(const AMCToothCharacter* Hero) const
 {
     if (!IsValid(Hero) || Hero->GetWorld() != GetWorld()) return false;
-    TArray<AMCToothCharacter*> Riders;
-    CollectRiders(Riders);
-    return Riders.Contains(Hero);
+    return SeatIndex(Hero)!=INDEX_NONE && Hero->SeatedRaft==this;
+}
+
+int32 AMCCataclysmRaft::SeatIndex(const AMCToothCharacter* Hero) const
+{
+    return Hero ? SeatPlayers.IndexOfByPredicate([Hero](const auto& Player) { return Player.Get()==Hero; }) : INDEX_NONE;
+}
+
+FVector AMCCataclysmRaft::SeatFootPoint(int32 Slot) const
+{
+    return Deck->GetComponentTransform().TransformPosition(FVector(0,Slot==0?-46.f:46.f,DeckTop));
+}
+
+bool AMCCataclysmRaft::TryClaimSeat(AMCToothCharacter* Hero)
+{
+    if (!HasAuthority() || !IsValid(Hero) || Hero->GetWorld()!=GetWorld() || !Hero->CanWork()
+        || !Hero->GetController() || !Hero->GetPlayerState() || Hero->GetPlayerState()->IsSpectator()
+        || Hero->GetPlayerState()->IsOnlyASpectator() || !bConfigured || !Flood || !Flood->IsActive() || IsSubmerging()
+        || (Hero->IsSeatedOnRaft() && Hero->SeatedRaft!=this)) return false;
+    if (SeatIndex(Hero)!=INDEX_NONE) return true;
+    // Also handles simultaneous boarding attempts: only authority reserves slots.
+    if (!IsBoardable()) return false;
+    const int32 Slot=SeatPlayers.IndexOfByPredicate([](const auto& Player) { return !IsValid(Player.Get()); });
+    const FVector LocalFoot=Deck->GetComponentTransform().InverseTransformPosition(Hero->GetActorLocation()
+        -FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+    if (Slot==INDEX_NONE || FMath::Abs(LocalFoot.X)>120.f || FMath::Abs(LocalFoot.Y)>85.f
+        || FMath::Abs(LocalFoot.Z-DeckTop)>15.f) return false;
+    SeatPlayers[Slot]=Hero;
+    OccupantCount=0;
+    for (const auto& Player:SeatPlayers) if (IsValid(Player.Get())) ++OccupantCount;
+    Hero->SetRaftSeat(this,Slot);
+    ForceNetUpdate();
+    return true;
+}
+
+void AMCCataclysmRaft::ReleaseSeat(AMCToothCharacter* Hero,FVector LaunchVelocity)
+{
+    if (!HasAuthority() || !Hero) return;
+    const int32 Slot=SeatIndex(Hero);
+    if (Slot!=INDEX_NONE) SeatPlayers[Slot]=nullptr;
+    SetRowingInput(Hero,FVector2D::ZeroVector,false);
+    if (Hero->SeatedRaft==this) Hero->SetRaftSeat(nullptr,INDEX_NONE);
+    OccupantCount=0;
+    for (const auto& Player:SeatPlayers) if (IsValid(Player.Get())) ++OccupantCount;
+    if (!LaunchVelocity.ContainsNaN() && !LaunchVelocity.IsNearlyZero())
+        Hero->LaunchCharacter(LaunchVelocity,true,true);
+    ForceNetUpdate();
+}
+
+void AMCCataclysmRaft::ValidateSeats()
+{
+    for (int32 Slot=0; Slot<SeatPlayers.Num(); ++Slot)
+    {
+        AMCToothCharacter* Hero=SeatPlayers[Slot].Get();
+        if (!IsValid(Hero)) { SeatPlayers[Slot]=nullptr; continue; }
+        if (!Flood || !Flood->IsActive() || !Hero->GetController() || !Hero->CanWork()
+            || Hero->HasFrozenLegs() || Hero->SeatedRaft!=this || Hero->RaftSeatIndex!=Slot
+            || !Hero->GetPlayerState() || Hero->GetPlayerState()->IsSpectator()
+            || Hero->GetPlayerState()->IsOnlyASpectator()) ReleaseSeat(Hero);
+    }
+    // Jumping onto the deck uses the same slots as the hand-over-rail mantle.
+    // A third passenger cannot bypass capacity by landing on its collision.
+    for (TActorIterator<AMCToothCharacter> It(GetWorld()); It; ++It)
+    {
+        AMCToothCharacter* Hero=*It;
+        if (Hero->IsSeatedOnRaft() || Hero->GetMovementBaseObject()!=Deck || !Hero->CanWork()) continue;
+        if (!TryClaimSeat(Hero))
+        {
+            FVector Out=(Hero->GetActorLocation()-GetActorLocation()).GetSafeNormal2D();
+            if (Out.IsNearlyZero()) Out=GetActorRightVector();
+            Hero->LaunchCharacter(Out*220.f+FVector(0,0,160.f),true,true);
+        }
+    }
 }
 
 bool AMCCataclysmRaft::IsHoldingRail(const AMCToothCharacter* Hero) const
@@ -252,28 +332,24 @@ bool AMCCataclysmRaft::SetRowingInput(AMCToothCharacter* Hero, FVector2D Directi
     }
     if (!FMath::IsFinite(Direction.X) || !FMath::IsFinite(Direction.Y) || !Hero->CanWork()
         || !IsRider(Hero) || !Hero->GetPlayerState() || Hero->GetPlayerState()->IsSpectator()
-        || !Flood || !Flood->IsActive() || !Flood->IsCataclysmStorm() || IsSubmerging()
-        || (Hero->Grip && Hero->Grip->IsBraceInputHeld()) || IsHoldingRail(Hero))
+        || !Flood || !Flood->IsActive() || !Flood->IsCataclysmStorm() || IsSubmerging())
     {
         if (Existing != INDEX_NONE) RowingRequests.RemoveAt(Existing);
         return false;
     }
     Direction = Direction.GetClampedToMaxSize(1.f);
-    if (Direction.IsNearlyZero())
-    {
-        const FVector Stream = Flood->StormStreamDirection();
-        Direction = FVector2D(-Stream.X, -Stream.Y);
-    }
+    if (Direction.IsNearlyZero()) { if (Existing!=INDEX_NONE) RowingRequests.RemoveAt(Existing); return true; }
     int32 Index = Existing;
     if (Index == INDEX_NONE)
     {
         if (RowingRequests.Num() >= Capacity) return false;
-        int32 Oar = Deck->GetComponentTransform().InverseTransformPosition(Hero->GetActorLocation()).Y >= 0 ? 1 : 0;
-        if (RowingRequests.ContainsByPredicate([&](const FRowingRequest& Row) { return Row.Oar == Oar; })) Oar = 1-Oar;
+        const int32 Oar = SeatIndex(Hero);
+        if (Oar<0 || Oar>=Capacity) return false;
         Index = RowingRequests.AddDefaulted();
         RowingRequests[Index].Hero = Hero;
         RowingRequests[Index].Oar = Oar;
-        RowingRequests[Index].StartedAt = Clock();
+        // Shared phase makes equal inputs add and opposed inputs cancel exactly.
+        RowingRequests[Index].StartedAt = FloatStartedAt;
     }
     RowingRequests[Index].Direction = Direction;
     RowingRequests[Index].RefreshedAt = Clock();
@@ -289,7 +365,7 @@ void AMCCataclysmRaft::UpdateRowing(double Now)
     {
         const AMCToothCharacter* Hero = Row.Hero.Get();
         return !Hero || Now-Row.RefreshedAt > RowInputLifetime || !Riders.Contains(Hero) || !Hero->CanWork()
-            || (Hero->Grip && Hero->Grip->IsBraceInputHeld()) || !Flood || !Flood->IsActive()
+            || !Flood || !Flood->IsActive()
             || !Flood->IsCataclysmStorm() || IsSubmerging();
     });
     const int32 Before = RowingCount;
@@ -333,7 +409,7 @@ float AMCCataclysmRaft::RowingStrokePhase(const AMCToothCharacter* Hero) const
 FVector AMCCataclysmRaft::RowingDirectionFor(const AMCToothCharacter* Hero) const
 {
     const int32 Slot=RowingPlayers.IndexOfByPredicate([Hero](const TObjectPtr<AMCToothCharacter>& Player){return Player.Get()==Hero;});
-    return RowingDirections.IsValidIndex(Slot) ? FVector(RowingDirections[Slot].X,RowingDirections[Slot].Y,0) : FVector::ZeroVector;
+    return RowingDirections.IsValidIndex(Slot) ? FRotator(0,GetActorRotation().Yaw,0).RotateVector(FVector(RowingDirections[Slot].X,RowingDirections[Slot].Y,0)) : FVector::ZeroVector;
 }
 
 const UStaticMeshComponent* AMCCataclysmRaft::RowingBrushFor(const AMCToothCharacter* Hero) const
@@ -388,15 +464,19 @@ void AMCCataclysmRaft::ApplyDebrisImpulse(FVector WorldVelocityImpulse, FVector 
     YawVelocity = FMath::Clamp(YawVelocity+YawKick,-YawLimit,YawLimit);
     ImpactPitch = FMath::Clamp(ImpactPitch + float(FVector::DotProduct(Applied, GetActorForwardVector()))*.015f, -3.f, 3.f);
     ImpactRoll = FMath::Clamp(ImpactRoll - float(FVector::DotProduct(Applied, GetActorRightVector()))*.018f, -3.f, 3.f);
-    // A based character otherwise follows a sudden hull displacement perfectly.
-    // Use the contact kick before the raft's travel-speed cap: the hull cap must
-    // not erase the passenger's stumble. A small lift briefly releases floor
-    // friction, so an unbraced edge rider can actually lose the deck.
-    TArray<AMCToothCharacter*> Riders;
-    CollectRiders(Riders);
-    for (AMCToothCharacter* Hero : Riders)
-        if (Hero->CanWork() && !IsHoldingRail(Hero) && Hero->GetCharacterMovement())
-            Hero->GetCharacterMovement()->AddImpulse(-Kick*3.2f + FVector(0,0,110.f), true);
+    // A collision ejects the closest occupied side, rather than adding an impulse
+    // that a fixed-seat transform would silently erase on the following tick.
+    if (Kick.Size()>=BoundedRowingSetting(DebrisEjectThreshold,85.f,20.f,140.f))
+    {
+        AMCToothCharacter* Closest=nullptr; float Best=MAX_flt;
+        for (const auto& Player:SeatPlayers)
+            if (AMCToothCharacter* Hero=Player.Get(); IsValid(Hero))
+            {
+                const float Distance=FVector::DistSquared2D(ContactPoint,Hero->GetActorLocation());
+                if (Distance<Best) {Closest=Hero; Best=Distance;}
+            }
+        if (Closest) ReleaseSeat(Closest,HorizontalVelocity+Kick*2.6f+FVector(0,0,210.f));
+    }
     ForceNetUpdate();
 }
 
@@ -483,20 +563,17 @@ void AMCCataclysmRaft::UpdateDrift(float DeltaSeconds, double Now)
         const double StrokeTime = Now-Remaining-Step*.5f;
         FVector PaddleAcceleration = FVector::ZeroVector;
         float PaddleYawAcceleration = 0.f;
-        const FQuat HullTurn = FRotator(0,AnchorYaw-GetActorRotation().Yaw,0).Quaternion();
+        const FQuat HullTurn = FRotator(0,AnchorYaw,0).Quaternion();
         for (const FRowingRequest& Row : RowingRequests)
             if (const AMCToothCharacter* Hero = Row.Hero.Get())
             {
                 const double Age = FMath::Max(0.,StrokeTime-Row.StartedAt);
                 const float Phase = float(FMath::Fmod(Age,MCRowingStroke::CycleSeconds)*UE_TWO_PI/MCRowingStroke::CycleSeconds);
                 const auto Stroke = MCRowingStroke::Sample(Phase);
-                const FVector Aim(Row.Direction.X,Row.Direction.Y,0);
+                const FVector Aim=HullTurn.RotateVector(FVector(Row.Direction.X,Row.Direction.Y,0));
                 const FVector Force = Aim*Thrust*(2.1f*Stroke.Power);
-                const FVector Across = FVector::CrossProduct(FVector::UpVector,Aim).GetSafeNormal2D();
-                const FVector RowerArm = HullTurn.RotateVector(Hero->GetActorLocation()-GetActorLocation());
-                const float Side = float(FVector::DotProduct(RowerArm,Across));
-                const float Sign = Side>12.f?1.f:Side<-12.f?-1.f:Row.Oar==0?-1.f:1.f;
-                const FVector Arm = (RowerArm+Across*(Sign*BladeOffset)).GetClampedToMaxSize2D(155.f);
+                const FVector RowerArm = HullTurn.RotateVector(FVector(0,Row.Oar==0?-46.f:46.f,0));
+                const FVector Arm = (RowerArm+HullTurn.GetRightVector()*(Row.Oar==0?-BladeOffset:BladeOffset)).GetClampedToMaxSize2D(155.f);
                 // Preserve the sum of all forces and their actual lever arms.
                 // Opposite strokes can cancel translation while adding rotation.
                 PaddleAcceleration += Force;
@@ -574,27 +651,9 @@ void AMCCataclysmRaft::UpdateDrift(float DeltaSeconds, double Now)
 void AMCCataclysmRaft::CollectRiders(TArray<AMCToothCharacter*>& Riders) const
 {
     if (!bConfigured || !GetWorld()) return;
-    const FTransform Pose = Deck->GetComponentTransform();
-    for (TActorIterator<AMCToothCharacter> It(GetWorld()); It; ++It)
-    {
-        AMCToothCharacter* Hero = *It;
-        if (!Hero->Status || !Hero->Status->IsAlive() || !Hero->GetPlayerState()
-            || Hero->GetPlayerState()->IsOnlyASpectator() || Hero->GetPlayerState()->IsSpectator()
-            || Hero->SwallowedBy || Hero->MimicCaptor) continue;
-        const UCharacterMovementComponent* Movement = Hero->GetCharacterMovement();
-        const bool bRagdoll = Hero->ToothPhysics && Hero->ToothPhysics->GetBodyState() == EMCBodyState::Ragdoll;
-        const FVector Center = bRagdoll ? Hero->ToothPhysics->PhysicalLocation() : Hero->GetActorLocation();
-        const FVector Foot = bRagdoll ? Center : Center - FVector(0, 0, Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
-        const FVector Local = Pose.InverseTransformPosition(Foot);
-        if (FMath::Abs(Local.X) > 120.f || FMath::Abs(Local.Y) > 85.f) continue;
-        if (bRagdoll)
-        {
-            if (Local.Z >= DeckTop - 8.f && Local.Z <= DeckTop + 65.f) Riders.Add(Hero);
-        }
-        else if (Movement && Movement->IsMovingOnGround() && Movement->GetMovementBaseObject() == Deck
-            && FMath::Abs(Local.Z - DeckTop) < 15.f)
+    for (const auto& Player:SeatPlayers)
+        if (AMCToothCharacter* Hero=Player.Get(); IsValid(Hero) && Hero->SeatedRaft==this)
             Riders.Add(Hero);
-    }
 }
 
 void AMCCataclysmRaft::UpdateLoad(double Now)
@@ -713,38 +772,15 @@ void AMCCataclysmRaft::UpdatePose(float DeltaSeconds, double Now)
 bool AMCCataclysmRaft::FindBoardingPoint(const AMCToothCharacter* Hero, FVector& DeckFootPoint) const
 {
     if (!Hero || !IsBoardable() || !Hero->Status || !Hero->Status->IsAlive()) return false;
-    TArray<AMCToothCharacter*> Riders;
-    CollectRiders(Riders);
-    Riders.Remove(const_cast<AMCToothCharacter*>(Hero));
-    if (Riders.Num() >= Capacity) return false;
-    const float Radius = Hero->GetCapsuleComponent()->GetScaledCapsuleRadius();
-    const float X = 120.f - Radius - 8.f, Y = 85.f - Radius - 8.f;
-    if (X <= 0.f || Y <= 0.f) return false;
-    const FTransform Pose = Deck->GetComponentTransform();
-    const FVector Local = Pose.InverseTransformPosition(Hero->GetActorLocation());
-    TArray<FVector> Candidates = {FVector(FMath::Clamp(float(Local.X), -X, X), FMath::Clamp(float(Local.Y), -Y, Y), DeckTop),
-        FVector(-X, -Y, DeckTop), FVector(-X, Y, DeckTop), FVector(X, -Y, DeckTop), FVector(X, Y, DeckTop), FVector(0, 0, DeckTop)};
-    Candidates.Sort([&](const FVector& A, const FVector& B) { return FVector::DistSquared(A, Local) < FVector::DistSquared(B, Local); });
-    for (const FVector& Candidate : Candidates)
-    {
-        const FVector WorldPoint = Pose.TransformPosition(Candidate);
-        bool bFree = true;
-        for (const AMCToothCharacter* Rider : Riders)
-        {
-            const float Separation = Radius + Rider->GetCapsuleComponent()->GetScaledCapsuleRadius() + 12.f;
-            if (FVector::DistSquared2D(WorldPoint, Rider->GetActorLocation()) < FMath::Square(Separation)) { bFree = false; break; }
-        }
-        if (!bFree) continue;
-        FHitResult Hit;
-        FCollisionQueryParams Params(SCENE_QUERY_STAT(MCCataclysmBoard), false, Hero);
-        if (Deck->LineTraceComponent(Hit, WorldPoint + FVector(0, 0, 25), WorldPoint - FVector(0, 0, 25), Params)
-            && Hit.ImpactNormal.Z > .9f)
-        {
-            DeckFootPoint = Hit.ImpactPoint;
-            return true;
-        }
-    }
-    return false;
+    const int32 Slot=SeatPlayers.IndexOfByPredicate([](const auto& Player) { return !IsValid(Player.Get()); });
+    if (Slot==INDEX_NONE) return false;
+    const FVector Point=SeatFootPoint(Slot);
+    FHitResult Hit;
+    FCollisionQueryParams Params(SCENE_QUERY_STAT(MCCataclysmBoard),false,Hero);
+    if (!Deck->LineTraceComponent(Hit,Point+FVector(0,0,25),Point-FVector(0,0,25),Params)
+        || Hit.ImpactNormal.Z<.9f) return false;
+    DeckFootPoint=Hit.ImpactPoint;
+    return true;
 }
 
 void AMCCataclysmRaft::InitializeCues()
@@ -786,7 +822,7 @@ void AMCCataclysmRaft::UpdateOars(double Now)
         Oar->SetWorldScale3D(BrushScale);
         const FVector Rider = DeckPose.InverseTransformPosition(Hero->GetActorLocation());
         // Choose the nearby water side in the requested stroke frame. The
-        // camera can aim across or behind the hull while the rider walks.
+        // stroke can point across or behind the hull while slots stay fixed.
         const FVector DesiredLocalRow=DeckPose.InverseTransformVectorNoScale(DesiredRow).GetSafeNormal2D();
         const FVector DesiredAcross=FVector::CrossProduct(FVector::UpVector,DesiredLocalRow).GetSafeNormal();
         const float AcrossPosition=float(FVector::DotProduct(Rider,DesiredAcross));
@@ -815,7 +851,7 @@ void AMCCataclysmRaft::UpdateOars(double Now)
         const FVector Contact = Hero->Inventory ? Hero->Inventory->BrushContactLocal() : FVector(72,0,-20);
         const float Length = float((Contact*BrushScale).Size());
         // Match the actual short brush. Do not enlarge it into a new long oar or
-        // move the player into a seat; a small downward stroke uses nearby hands.
+        // stretch the shaft; a small downward stroke uses nearby hands.
         const float GripHeight = FMath::Clamp(Length*.85f,DeckTop+24.f,DeckTop+48.f);
         const FVector Grip = FVector(Rider.X,Rider.Y,GripHeight+15.f*Lift-3.f*Stroke.Power)
             + LocalRow*(23.f*Stroke.Reach) + Across*(Sign*28.f)
@@ -858,6 +894,7 @@ void AMCCataclysmRaft::Tick(float DeltaSeconds)
     const double Now = Clock();
     if (HasAuthority() && bConfigured)
     {
+        ValidateSeats();
         if (Flood && Flood->IsActive()) UpdateSurface(Flood->SurfaceHeightAt(Anchor));
         if (Now >= NextLoadScanAt) { UpdateLoad(Now); NextLoadScanAt = Now + .05; }
         UpdateRowing(Now);
@@ -878,6 +915,7 @@ void AMCCataclysmRaft::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
     DOREPLIFETIME(AMCCataclysmRaft, WaterlineOffset);
     DOREPLIFETIME(AMCCataclysmRaft, FloatStartedAt);
     DOREPLIFETIME(AMCCataclysmRaft, OccupantCount);
+    DOREPLIFETIME(AMCCataclysmRaft, SeatPlayers);
     DOREPLIFETIME(AMCCataclysmRaft, WarningStartedAt);
     DOREPLIFETIME(AMCCataclysmRaft, SinkStartedAt);
     DOREPLIFETIME(AMCCataclysmRaft, LoadPitch);

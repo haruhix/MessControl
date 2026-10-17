@@ -22,6 +22,7 @@ void AMCFoodActor::SetStackCarrier(AMCToothCharacter* Hero)
     StackCarrier=Hero; CollisionIgnoredCarrier=Hero;
     if(!Hero) StackPickup.StartedAt=-100;
     if(Hero) {
+        bManuallyThrown=false;
         LastHandledBy=Hero->GetPlayerState<AMCPlayerState>();
         Body->IgnoreActorWhenMoving(Hero,true); Hero->GetCapsuleComponent()->IgnoreActorWhenMoving(this,true);
         if(Phase==EMCFoodPhase::Falling) Phase=EMCFoodPhase::Free;

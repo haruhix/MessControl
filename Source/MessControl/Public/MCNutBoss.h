@@ -8,8 +8,8 @@
 class AMCNutRainEvent;
 class AMCNutCombatEffect;
 class AMCNutSpellProjectile;
-class USkeletalMeshComponent;
 class USceneComponent;
+class USkeletalMeshComponent;
 class AMCVFXLabBossStation;
 struct FMCNutBossAnimationSnapshot;
 
@@ -22,6 +22,7 @@ public:
     AMCNutBoss();
     virtual void BeginPlay() override;
     virtual void Tick(float Dt) override;
+    virtual void PostNetReceiveLocationAndRotation() override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void ConfigureEncounter(AMCTongue* OnTongue,AMCNutRainEvent* OwnerEvent,EMCNutBossRole InRole,
@@ -39,6 +40,8 @@ public:
     /** Cosmetic focus follows the authored palms; projectile origin remains server-defined. */
     FVector GetSpellFocusOrigin() const;
     void BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCNutBossAnimationSnapshot& Snapshot) const;
+    /** Client smoothing moves only this collision-free visual subtree. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<USceneComponent> PresentationRoot;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Shield;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Kernel;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> OpenShell;
@@ -103,6 +106,8 @@ private:
     void ExecuteAttack(float Dt);
     void ExecuteRoll(float Dt);
     void PresentTankModel(double Time);
+    void TickClientPresentation(float Dt);
+    void ResetClientPresentation();
     void BeginMageTransformation();
     void RevealMagePhase();
     void CacheBossAnimations();
@@ -122,6 +127,9 @@ private:
     float DeathSeconds() const;
     void StartAttackCooldown(double RecoveryEndsAt);
     void DamageArea(FVector Center,float Radius,float Damage,float Push,TSet<TWeakObjectPtr<AMCToothCharacter>>* HitSet=nullptr);
+    void PushNutsAlongSegment(FVector Start,FVector End,float Seconds);
+    void PushNutsInArea(FVector Center,float Radius,float Speed,bool bForwardOnly=false);
+    TMap<TWeakObjectPtr<AMCFoodActor>,double> NutContactAt;
     void DamageChargeSegment(FVector Start,FVector End);
     void SummonCreeps();
     void TrackAttackActor(AActor* Actor);
@@ -156,6 +164,7 @@ private:
     EMCNutBossRole CachedAnimationRole=EMCNutBossRole::Tank;
     FVector LastTankPresentationLocation=FVector::ZeroVector,TankPresentationMotion=FVector::ZeroVector;
     double LastTankPresentationAt=-1;
+    double LastClientMovementAt=-1;
     FVector LastTankRollLocation=FVector::ZeroVector;
     FQuat TankRollWorldRotation=FQuat::Identity;
     bool bTankRollRotationInitialized=false;

@@ -7,6 +7,7 @@ FMCNutBossSettings::FMCNutBossSettings()
 {
     WholeMesh=TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/SM_Walnut_Whole.SM_Walnut_Whole")));
     TankSkeletalMesh=TSoftObjectPtr<USkeletalMesh>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank")));
+    TankUnshieldedSkeletalMesh=TSoftObjectPtr<USkeletalMesh>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutTank/SK_NutTank_NoShield.SK_NutTank_NoShield")));
     TankBallMesh=TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutTank/SM_NutTank_Ball.SM_NutTank_Ball")));
     TankIdleAnimation=TSoftObjectPtr<UAnimSequence>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutTank/Animations/A_NutTank_Idle.A_NutTank_Idle")));
     TankWalkAnimation=TSoftObjectPtr<UAnimSequence>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutTank/Animations/A_NutTank_Walk.A_NutTank_Walk")));
@@ -65,12 +66,13 @@ void FMCNutBossSettings::Sanitize()
     if(FMath::IsNearlyEqual(SummonCooldown,17.f)) SummonCooldown=22.f;
     if(FMath::IsNearlyEqual(RainCooldown,20.f)) RainCooldown=28.f;
     if(FMath::IsNearlyEqual(MageTeleportCooldown,12.f)) MageTeleportCooldown=18.f;
+    if(FMath::IsNearlyEqual(TankStunSeconds,3.f)) TankStunSeconds=5.f;
     Safe(TankHealth,1400,200,10000); Safe(MageHealth,1100,200,10000); Safe(ExtraPlayerHealth,.65f,0,2);
     Safe(TankModelYaw,-90,-180,180); Safe(MageModelYaw,-90,-180,180);
     Safe(TankHeight,440,150,640); Safe(MageHeight,400,140,600); Safe(CreepHeight,116,40,240);
     Safe(TankBallHeight,400,120,600); Safe(TankMeleeImpactFraction,.5f,.05f,.95f);
     Safe(TankMeleeAnimationSeconds,1.2666667f,.3f,5.f);Safe(TankMelee2ImpactFraction,.3947368f,.05f,.95f);
-    Safe(TankComboAnimationSeconds,3.0666667f,1.f,8.f);Safe(TankStunSeconds,3.f,.5f,8.f);Safe(TankDeathSeconds,5.1666667f,1.f,10.f);
+    Safe(TankComboAnimationSeconds,3.0666667f,1.f,8.f);Safe(TankStunSeconds,5.f,.5f,8.f);Safe(TankDeathSeconds,5.1666667f,1.f,10.f);
     if(TankComboContactFractions.ContainsNaN()) TankComboContactFractions=FVector(.1630435f,.3152174f,.5326087f);
     TankComboContactFractions.X=FMath::Clamp(TankComboContactFractions.X,.05,.75);
     TankComboContactFractions.Y=FMath::Clamp(TankComboContactFractions.Y,TankComboContactFractions.X+.05,.85);

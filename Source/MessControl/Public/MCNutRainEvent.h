@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "MCDayPlan.h"
 #include "MCNutRainProfile.h"
+#include "MCNutRainPattern.h"
 #include "MCNutRainEvent.generated.h"
 
 class AMCFoodActor;
@@ -44,6 +45,8 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) int32 SeriesIndex=0;
     UPROPERTY(Replicated, BlueprintReadOnly) int32 CompletedSeries=0;
     UPROPERTY(Replicated, BlueprintReadOnly) int32 SeriesDropsLeft=0;
+    /** 0 = dark/reference A starts, 1 = magenta/reference B starts. */
+    UPROPERTY(Replicated, BlueprintReadOnly) int32 FirstPattern=0;
     UPROPERTY(Replicated, BlueprintReadOnly) int32 BossesLeft=0;
     UPROPERTY(Replicated, BlueprintReadOnly) double NextDropAt=0;
     UPROPERTY(Replicated, BlueprintReadOnly) bool bFailed=false;
@@ -53,6 +56,10 @@ public:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly) TArray<TObjectPtr<AMCNutBoss>> Bosses;
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly) TArray<TObjectPtr<AMCNutLandingShadow>> LandingShadows;
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly) TArray<float> PlannedLaunchTimes;
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly) TArray<float> ActualLaunchTimes;
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly) TArray<int32> PlannedPatternIndices;
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly) TArray<int32> PlannedZoneIndices;
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly) TArray<FVector2D> PlannedZoneCoordinates;
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly) TArray<FVector> PlannedLandings;
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly) TArray<FVector> LaunchLocations;
 private:
@@ -60,9 +67,11 @@ private:
     bool SpawnNut(TOptional<FVector> Candidate=TOptional<FVector>());
     void AwakenLastNuts();
     void BeginSeries();
+    void UpdatePatternProgress();
     void SpawnBossEncounter();
     void Record(const FString& Decision);
     bool ChooseLanding(float Margin,float NutBodyRadius,FHitResult& Floor);
+    bool ResolvePatternLanding(FVector2D Zone,float Margin,FHitResult& Floor) const;
     bool AreRainDropsResolved() const;
     UPROPERTY() TObjectPtr<UMCNutRainProfile> ActiveProfile;
     UPROPERTY() TObjectPtr<AMCTongue> Tongue;
@@ -74,5 +83,7 @@ private:
     int32 DropsAttempted=0,FoodBatch=0;
     int32 PartyPlayers=1;
     double RainStartedAt=0;
+    double LastPatternLaunchAt=0;
+    TArray<FMCNutRainPatternStep> PatternSteps;
     UPROPERTY() TArray<TObjectPtr<AActor>> EncounterActors;
 };

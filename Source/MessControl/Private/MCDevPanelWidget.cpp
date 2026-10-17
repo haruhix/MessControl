@@ -1,4 +1,5 @@
 #include "MCDevPanelWidget.h"
+#include "MCAnimationComparisonSubsystem.h"
 #include "MCTongue.h"
 #include "MCPlayerController.h"
 #include "MCPrototypeWidget.h"
@@ -26,6 +27,7 @@
 #include "Components/CheckBox.h"
 #include "Components/ComboBoxString.h"
 #include "Styling/CoreStyle.h"
+#include "Engine/World.h"
 #include "EngineUtils.h"
 #include "HAL/IConsoleManager.h"
 
@@ -63,7 +65,7 @@ void UMCDevPanelWidget::NativeOnInitialized()
     auto* CanvasSlot=Root->AddChildToCanvas(Border); CanvasSlot->SetAnchors(FAnchors(.10f,.05f,.90f,.95f)); CanvasSlot->SetOffsets(FMargin(0));
     auto* Main=WidgetTree->ConstructWidget<UVerticalBox>(); Border->SetContent(Main);
     AddText(Main,TEXT("DEV / ТЕСТ МЕХАНИК"),25)->SetColorAndOpacity(FSlateColor(DevMint));
-    AddText(Main,TEXT("F3 / Esc — закрыть. Мир продолжает работать. Команды доступны хосту."),13);
+    AddText(Main,TEXT("F3 / Esc — закрыть. Мир продолжает работать. Игровые команды доступны хосту; сравнение анимации — локально."),13);
     Status=AddText(Main,TEXT(""),14);
     PlayerOverlayCheck=WidgetTree->ConstructWidget<UCheckBox>();
     auto* OverlayLabel=WidgetTree->ConstructWidget<UTextBlock>();
@@ -74,6 +76,28 @@ void UMCDevPanelWidget::NativeOnInitialized()
     PlayerOverlayCheck->SetToolTipText(FText::FromString(TEXT("Нижние плашки HP, взаимодействия и клавиш. Только на моём экране.")));
     PlayerOverlayCheck->OnCheckStateChanged.AddDynamic(this,&UMCDevPanelWidget::PlayerOverlayChanged);
     Main->AddChildToVerticalBox(PlayerOverlayCheck)->SetPadding(FMargin(0,2,0,12));
+    AnimationModeStatus=AddText(Main,TEXT("Добавочное движение · Native"),13);
+    auto* AnimationButtons=WidgetTree->ConstructWidget<UHorizontalBox>();
+    Main->AddChildToVerticalBox(AnimationButtons)->SetPadding(FMargin(0,0,0,8));
+    auto AnimationButton=[&](const TCHAR* Name)
+    {
+        auto* Button=WidgetTree->ConstructWidget<UButton>();
+        Button->SetToolTipText(FText::FromString(TEXT("Добавочное движение; базовая анимация и физика сохраняются. Выбор только на моём экране, в лаборатории и обычной игре.")));
+        auto* Label=WidgetTree->ConstructWidget<UTextBlock>();
+        Label->SetText(FText::FromString(Name)); Label->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),13));
+        Label->SetColorAndOpacity(FSlateColor(DevMint));
+        CastChecked<UButtonSlot>(Button->AddChild(Label))->SetPadding(FMargin(8,5));
+        auto* Slot=AnimationButtons->AddChildToHorizontalBox(Button);
+        Slot->SetSize(FSlateChildSize(ESlateSizeRule::Fill)); Slot->SetPadding(FMargin(0,0,6,0));
+        return Button;
+    };
+    NativeAnimationButton=AnimationButton(TEXT("Native"));
+    StylizedAnimationButton=AnimationButton(TEXT("StylizedDynamics"));
+    KawaiiAnimationButton=AnimationButton(TEXT("KawaiiPhysics"));
+    NativeAnimationButton->OnClicked.AddDynamic(this,&UMCDevPanelWidget::NativeAnimationClicked);
+    StylizedAnimationButton->OnClicked.AddDynamic(this,&UMCDevPanelWidget::StylizedAnimationClicked);
+    KawaiiAnimationButton->OnClicked.AddDynamic(this,&UMCDevPanelWidget::KawaiiAnimationClicked);
+    RefreshAnimationComparison();
     AddText(Main,TEXT("AI-БОТЫ / ПРОВЕРКА ТЕМПА И СЛОЖНОСТИ"),18)->SetColorAndOpacity(FSlateColor(DevMint));
     AddText(Main,TEXT("Запуск начинает новый обычный день с текущим seed. До 4 участников: игроки + боты. Наблюдение убирает тела игроков; остановка возвращает их и перезапускает день."),12);
     auto* BotOptions=WidgetTree->ConstructWidget<UHorizontalBox>();
@@ -143,6 +167,7 @@ void UMCDevPanelWidget::NativeOnInitialized()
 }
 void UMCDevPanelWidget::RefreshActions()
 {
+    RefreshAnimationComparison();
     if (!Steps || !Actions) return;
     if (const auto* PC=Cast<AMCPlayerController>(GetOwningPlayer()); PC && PC->PrototypeWidget && PlayerOverlayCheck)
         PlayerOverlayCheck->SetIsChecked(PC->PrototypeWidget->IsPlayerOverlayVisible());
@@ -191,6 +216,10 @@ void UMCDevPanelWidget::RefreshActions()
         AddAction(Steps,RiverFlood?TEXT("КОФЕ / ЦУНАМИ"):Step.Title.ToString(),
             RiverFlood?TEXT("Волна сносит к глотке и смывает мелкие кусочки еды. WASD + Shift — бежать. ПКМ у стены, еды или игрока — держаться."):Step.Instruction.ToString(),EMCDevAction::StartStep,I);
     }
+    AddText(Actions,TEXT("ЭКСПЕРИМЕНТ / SPINE VFX"),18)->SetColorAndOpacity(FSlateColor(DevMint));
+    AddAction(Actions,TEXT("Spine VFX — тест ×1"),TEXT("Один эффект из приложенного экспорта Spine перед игроком. Закрой F3 для просмотра; повторное нажатие заменяет предыдущий тест."),EMCDevAction::SpineVFXTest,1);
+    AddAction(Actions,TEXT("Spine VFX — тест ×16"),TEXT("Сетка из 16 копий приложенного экспорта Spine для оценки вида и нагрузки. Показывается только на экране хоста."),EMCDevAction::SpineVFXTest,16);
+    AddAction(Actions,TEXT("Spine VFX — убрать тест"),TEXT("Удаляет только свои эффекты, созданные этими кнопками F3."),EMCDevAction::SpineVFXTestStop);
     AddText(Actions,TEXT("НОВЫЕ ИНСТРУМЕНТЫ"),18);
     AddAction(Actions,TEXT("Все новые инструменты — себе"),TEXT("Выдать редкие версии всех доступных бустеров своему игроку."),EMCDevAction::GrantAllToolBoosters,0);
     AddAction(Actions,TEXT("Все новые инструменты — всей команде"),TEXT("Выдать легендарные версии всех бустеров всей команде, включая будущие возрождения."),EMCDevAction::GrantAllToolBoosters,1);
@@ -280,6 +309,7 @@ void UMCDevPanelWidget::DirectorOverlayChanged(bool Checked)
 void UMCDevPanelWidget::NativeTick(const FGeometry& Geometry,float Dt)
 {
     Super::NativeTick(Geometry,Dt); if (!Status || !IsVisible()) return;
+    RefreshAnimationComparison();
     const auto* GS=GetWorld()->GetGameState<AMCGameState>(); if (!GS) return;
     if (DirectorLogText) {
         FString History;
@@ -305,7 +335,7 @@ void UMCDevPanelWidget::NativeTick(const FGeometry& Geometry,float Dt)
     if (BotsStatus) BotsStatus->SetText(FText::FromString(FString::Printf(TEXT("%s  |  Seed %d  |  прототип, без калибровки по людям"),
         BotsActive?TEXT("БОТЫ ИГРАЮТ — ручные события заблокированы"):GS->bDevManualEvents?TEXT("Для ботов сначала верни обычный день"):TEXT("Боты не запущены"),GS->RunSeed)));
     FString Summary=FString::Printf(TEXT("%s  |  %s\nРот %.0f HP  /  зубы %d/%d  /  еда %d  /  язвы %d  /  кофе %s"),
-        PC && PC->CanUseDevPanel()?TEXT("ХОСТ"):TEXT("КЛИЕНТ: только просмотр"),GS->bDevManualEvents?TEXT("РУЧНОЙ ТЕСТ — без дедлайна"):TEXT("ОБЫЧНЫЙ ДЕНЬ"),
+        PC && PC->CanUseDevPanel()?TEXT("ХОСТ"):TEXT("КЛИЕНТ: локальная анимация и просмотр"),GS->bDevManualEvents?TEXT("РУЧНОЙ ТЕСТ — без дедлайна"):TEXT("ОБЫЧНЫЙ ДЕНЬ"),
         GS->MouthHealth,GS->AvailableArenaTeeth(),GS->ArenaTeeth.Num(),Food,Ulcers,Water?TEXT("активен"):TEXT("нет"));
     if(const auto* Cat=AMCCataclysmEvent::FindActive(GetWorld()))
         Summary+=FString::Printf(TEXT("\n%s · желе %d · грязь %d/%d\n%s"),*Cat->Title(),Cat->JelliesLeft,Cat->DirtLeft,Cat->DirtTotal,*Cat->Instruction());
@@ -321,6 +351,46 @@ void UMCDevPanelWidget::NativeTick(const FGeometry& Geometry,float Dt)
     Status->SetText(FText::FromString(Summary));
 }
 void UMCDevPanelWidget::CloseClicked() { if (auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->ToggleDevPanel(); }
+void UMCDevPanelWidget::NativeAnimationClicked()
+{
+    if (auto* World=GetWorld()) if (auto* Comparison=World->GetSubsystem<UMCAnimationComparisonSubsystem>()) Comparison->SetMode(EMCSecondaryAnimationMode::Native);
+    RefreshAnimationComparison();
+}
+void UMCDevPanelWidget::StylizedAnimationClicked()
+{
+    if (auto* World=GetWorld()) if (auto* Comparison=World->GetSubsystem<UMCAnimationComparisonSubsystem>()) Comparison->SetMode(EMCSecondaryAnimationMode::StylizedDynamics);
+    RefreshAnimationComparison();
+}
+void UMCDevPanelWidget::KawaiiAnimationClicked()
+{
+    if (auto* World=GetWorld()) if (auto* Comparison=World->GetSubsystem<UMCAnimationComparisonSubsystem>()) Comparison->SetMode(EMCSecondaryAnimationMode::KawaiiPhysics);
+    RefreshAnimationComparison();
+}
+void UMCDevPanelWidget::RefreshAnimationComparison()
+{
+    const auto* World=GetWorld();
+    const auto* Comparison=World?World->GetSubsystem<UMCAnimationComparisonSubsystem>():nullptr;
+    const uint8 Mode=Comparison?uint8(Comparison->GetMode()):255;
+    if (!AnimationModeStatus) return;
+    const FString AnimationStatus=FString::Printf(TEXT("%s · локально\nДобавочное движение; базовая анимация и физика сохраняются."),
+        Comparison?*Comparison->GetStatusText():TEXT("Сравнение недоступно"));
+    if (AnimationModeStatus->GetText().ToString()!=AnimationStatus) AnimationModeStatus->SetText(FText::FromString(AnimationStatus));
+    if (DisplayedAnimationMode==Mode) return;
+    DisplayedAnimationMode=Mode;
+    auto UpdateButton=[&](UButton* Button,EMCSecondaryAnimationMode Choice)
+    {
+        if (!Button) return;
+        const bool Available=Comparison && Comparison->IsModeAvailable(Choice);
+        Button->SetIsEnabled(Available);
+        Button->SetToolTipText(FText::FromString(Available
+            ?TEXT("Добавочное движение; базовая анимация и физика сохраняются. Выбор только на моём экране, в лаборатории и обычной игре.")
+            :Choice==EMCSecondaryAnimationMode::StylizedDynamics?TEXT("StylizedDynamics не установлен в этой локальной копии проекта."):TEXT("Режим недоступен в этой копии проекта.")));
+        Button->SetBackgroundColor(Mode==uint8(Choice)?FLinearColor(.16f,.40f,.32f):FLinearColor(.055f,.22f,.22f));
+    };
+    UpdateButton(NativeAnimationButton,EMCSecondaryAnimationMode::Native);
+    UpdateButton(StylizedAnimationButton,EMCSecondaryAnimationMode::StylizedDynamics);
+    UpdateButton(KawaiiAnimationButton,EMCSecondaryAnimationMode::KawaiiPhysics);
+}
 FReply UMCDevPanelWidget::NativeOnKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
 {
     if (auto* PC=Cast<AMCPlayerController>(GetOwningPlayer()))

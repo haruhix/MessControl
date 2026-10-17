@@ -6,7 +6,6 @@
 #include "MCNutEnemy.h"
 #include "MCNutBoss.h"
 #include "MCNutLandingShadow.h"
-#include "MCSingleDayDirector.h"
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
@@ -24,8 +23,7 @@ bool IsSupportedRainNut(const AMCFoodActor* Food,const AMCTongue* Tongue,float N
     if(Food->Phase==EMCFoodPhase::Free || Food->Phase==EMCFoodPhase::Stuck) return true;
     if(Food->Phase!=EMCFoodPhase::Falling || !IsValid(Tongue) || !Food->Body) return false;
     // Food/obstacle contacts can stop entry without setting the food's
-    // WorldStatic-only landing phase. Use the actual floor and motion for that
-    // resting case, consistently for the boss gate and the wizard's summons.
+    // WorldStatic-only landing phase. Use actual support for wizard summons.
     FHitResult Floor;
     if(!Tongue->SurfacePoint(Food->GetActorLocation(),Floor)) return false;
     const float Bottom=float(Food->GetActorLocation().Z-Food->Body->GetScaledBoxExtent().Z);
@@ -48,10 +46,9 @@ void CollectNutLandingReservations(const TArray<TObjectPtr<AMCFoodActor>>& Nuts,
             || Food->StackCarrier || !Food->Holders.IsEmpty() || !Food->Body) continue;
         const bool Airborne=Food->IsMouthEntryActive();
         if(!Airborne && !IsSupportedRainNut(Food,Tongue,NutHeight)) continue;
-        // A live whole ground nut is part of the future summon pool. Incoming
-        // nuts must not stack on it or stop entry before reaching the tongue
-        // surface advertised by their warning. Held food and fragments do not
-        // reserve a new rainfall footprint.
+        // Individual wizard spells retain their explicit placement clearance.
+        // The opening patterns intentionally permit nut-to-nut impacts. Held
+        // food and fragments do not reserve a spell's landing footprint.
         Out.Add({Airborne?Food->WorkPosition():Food->GetActorLocation(),float(Food->Body->GetScaledBoxExtent().Size2D())});
     }
 }
@@ -95,10 +92,6 @@ void AMCNutRainEvent::Start(UMCDayPlan* Plan,UMCNutRainProfile* Profile)
         // The fight opens with one knight, which becomes the wizard. Summons come from ground nuts,
         // rather than an unrelated quota of enemies at the transition.
         EnemyTargetCount=0;
-        const auto* State=GetWorld()->GetGameState<AMCGameState>();
-        const auto* Director=State?State->SingleDayDirector.Get():nullptr;
-        const int32 Intensity=Director?Director->ChooseNutSeriesSize(6,10,0):8;
-        Settings.RainSeconds=FMath::Lerp(20.f,25.f,float(Intensity-6)/4.f);
     }
     const auto* State=GetWorld()->GetGameState<AMCGameState>();
     Random.Initialize(int32(uint32(State?State->RunSeed:41)^0x4E555453u)); FoodBatch=10000+int32(GetUniqueID());
@@ -140,7 +133,9 @@ void AMCNutRainEvent::Start(UMCDayPlan* Plan,UMCNutRainProfile* Profile)
     SetActorTickEnabled(true); Enter(EMCNutRainStage::Rainfall);
     RainStartedAt=StageStartedAt;
     if(Settings.bBossEncounter) BeginSeries(); else SpawnNut();
-    Record(FString::Printf(TEXT("Орехи: непрерывный катаклизм %.1f с, %d падений с интервалом 1.5–3 с; затем Рыцарь, который после поражения станет Колдуном"),Settings.RainSeconds,RainTargetCount));
+    if(Settings.bBossEncounter)
+        Record(FString::Printf(TEXT("Орехи: 2 серии зон %s → %s, %d падений каждые %.2f с, между сериями %.2f с; затем Рыцарь и Колдун"),
+            FirstPattern==0?TEXT("A"):TEXT("B"),FirstPattern==0?TEXT("B"):TEXT("A"),RainTargetCount,Settings.PatternDropSeconds,Settings.PatternSeriesGapSeconds));
     UE_LOG(LogTemp,Display,TEXT("MC_NUT_RAIN_START players=%d target=%d enemies=%d seconds=%.1f"),Players,RainTargetCount,EnemyTargetCount,Settings.RainSeconds);
 }
 
@@ -168,43 +163,31 @@ void AMCNutRainEvent::RegisterEncounterEnemy(AMCNutEnemy* Enemy)
 
 void AMCNutRainEvent::BeginSeries()
 {
-    const auto* State=GetWorld()->GetGameState<AMCGameState>();
-    const auto* Director=State?State->SingleDayDirector.Get():nullptr;
-    // Every individual drop stays 1.5–3 seconds apart. Reserve the last flight
-    // inside the 20–25 second phase; there are no pauses between series.
-    const float Window=FMath::Max(.1f,Settings.RainSeconds-Settings.Entry.FlightSeconds);
-    const int32 Intensity=Director?Director->ChooseNutSeriesSize(6,10,0):8;
-    const float Preferred=FMath::Lerp(Settings.MaximumDropSeconds,Settings.MinimumDropSeconds,float(Intensity-6)/4.f);
-    float MinInterval=Settings.MinimumDropSeconds,MaxInterval=Settings.MaximumDropSeconds;
-    int32 MinimumGaps=FMath::Max(1,FMath::CeilToInt(Window/MaxInterval));
-    int32 MaximumGaps=FMath::Max(1,FMath::FloorToInt(Window/MinInterval));
-    if(MinimumGaps>MaximumGaps) {
-        // A designer can set equal endpoints that do not divide the phase
-        // duration. Keep the approved reaction-time bounds rather than silently
-        // squeeze the final gap to fit that impossible narrower range.
-        MinInterval=1.5f; MaxInterval=3.f;
-        MinimumGaps=FMath::Max(1,FMath::CeilToInt(Window/MaxInterval));
-        MaximumGaps=FMath::Max(MinimumGaps,FMath::FloorToInt(Window/MinInterval));
+    FirstPattern=Random.RandRange(0,1);
+    MCNutRainPattern::BuildSchedule(Settings.PatternA,Settings.PatternB,FirstPattern,
+        Settings.PatternDropSeconds,Settings.PatternSeriesGapSeconds,PatternSteps);
+    for(const FMCNutRainPatternStep& Step:PatternSteps) {
+        PlannedLaunchTimes.Add(Step.LaunchSeconds); PlannedPatternIndices.Add(Step.PatternIndex);
+        PlannedZoneIndices.Add(Step.ZoneIndex); PlannedZoneCoordinates.Add(Step.Zone);
     }
-    const int32 Gaps=FMath::Clamp(FMath::RoundToInt(Window/Preferred),MinimumGaps,MaximumGaps);
-    TArray<float> Intervals; Intervals.Init(Window/Gaps,Gaps);
-    // Pair transfers preserve the exact sum without ever compressing a gap
-    // below its reaction-time bound when normalizing the end of the storm.
-    for(int32 Pass=0;Pass<Gaps*4;++Pass) {
-        const int32 A=Random.RandRange(0,Gaps-1),B=Random.RandRange(0,Gaps-1);
-        if(A==B) continue;
-        const float Low=FMath::Max(MinInterval-Intervals[A],Intervals[B]-MaxInterval);
-        const float High=FMath::Min(MaxInterval-Intervals[A],Intervals[B]-MinInterval);
-        const float Change=Random.FRandRange(Low,High);
-        Intervals[A]+=Change; Intervals[B]-=Change;
-    }
-    PlannedLaunchTimes.Add(0); float Total=0;
-    for(const float Gap:Intervals) { Total+=Gap; PlannedLaunchTimes.Add(Total); }
     RainTargetCount=PlannedLaunchTimes.Num();
     SeriesIndex=1; ClusterDropsLeft=0;
-    SpawnNut(); SeriesDropsLeft=RainTargetCount-DropsAttempted;
-    NextDropAt=RainStartedAt+(PlannedLaunchTimes.Num()>1?PlannedLaunchTimes[1]:Window);
+    if(!SpawnNut()) bFailed=true;
+    LastPatternLaunchAt=GetWorld()->GetTimeSeconds(); UpdatePatternProgress();
+    NextDropAt=PlannedLaunchTimes.Num()>1?MCNutRainPattern::NextLaunchAt(LastPatternLaunchAt,PlannedLaunchTimes[0],PlannedLaunchTimes[1]):0;
     ForceNetUpdate();
+}
+
+void AMCNutRainEvent::UpdatePatternProgress()
+{
+    if(PatternSteps.IsEmpty()) {SeriesIndex=CompletedSeries=SeriesDropsLeft=0;return;}
+    CompletedSeries=0;
+    for(int32 I=0;I<DropsAttempted && I<PatternSteps.Num();++I)
+        if(I+1==PatternSteps.Num() || PatternSteps[I+1].PatternIndex!=PatternSteps[I].PatternIndex) ++CompletedSeries;
+    const int32 Last=FMath::Clamp(DropsAttempted-1,0,PatternSteps.Num()-1);
+    SeriesIndex=PatternSteps.IsValidIndex(Last) && PatternSteps[Last].PatternIndex==FirstPattern?1:2;
+    SeriesDropsLeft=0;
+    for(int32 I=DropsAttempted;I<PatternSteps.Num() && PatternSteps[I].PatternIndex==PatternSteps[Last].PatternIndex;++I) ++SeriesDropsLeft;
 }
 
 void AMCNutRainEvent::Enter(EMCNutRainStage Next)
@@ -214,6 +197,7 @@ void AMCNutRainEvent::Enter(EMCNutRainStage Next)
 
 bool AMCNutRainEvent::SpawnNut(TOptional<FVector> Candidate)
 {
+    const int32 DropIndex=DropsAttempted;
     ++DropsAttempted;
     if(!IsValid(Tongue)) return false;
     FTransform Pose(FRotator(0,Random.FRandRange(-180,180),0));
@@ -230,8 +214,10 @@ bool AMCNutRainEvent::SpawnNut(TOptional<FVector> Candidate)
     const float Margin=FMath::Max(float(Food->Body->GetScaledBoxExtent().Size2D()+18),Settings.ImpactRadius);
     const float BodyRadius=float(Food->Body->GetScaledBoxExtent().Size2D());
     FHitResult Floor;
-    bool FoundFloor=Candidate.IsSet() && Tongue->GameplaySpawnFootprint(Candidate.GetValue(),Margin,Floor);
-    if(FoundFloor && Settings.bBossEncounter) {
+    const bool PatternDrop=Settings.bBossEncounter && Stage==EMCNutRainStage::Rainfall && PatternSteps.IsValidIndex(DropIndex);
+    bool FoundFloor=PatternDrop?ResolvePatternLanding(PatternSteps[DropIndex].Zone,Margin,Floor)
+        :Candidate.IsSet() && Tongue->GameplaySpawnFootprint(Candidate.GetValue(),Margin,Floor);
+    if(FoundFloor && Settings.bBossEncounter && !PatternDrop) {
         TArray<FNutLandingReservation> Reserved;
         CollectNutLandingReservations(Nuts,Tongue,Settings.LargeNutHeight,Reserved);
         FoundFloor=IsNutLandingClear(Floor.ImpactPoint,BodyRadius,Settings.LargeNutHeight,Reserved);
@@ -239,8 +225,16 @@ bool AMCNutRainEvent::SpawnNut(TOptional<FVector> Candidate)
     // A wizard can target a player in a delivery strip or at the tongue edge.
     // Preserve the rain spell by moving that individual nut to a reachable
     // gameplay footprint; its real landing warning advertises the new point.
-    if(!FoundFloor) FoundFloor=ChooseLanding(Margin,BodyRadius,Floor);
-    if(!FoundFloor) { Food->Destroy(); return false; }
+    if(!FoundFloor && !PatternDrop) FoundFloor=ChooseLanding(Margin,BodyRadius,Floor);
+    if(!FoundFloor) {
+        Food->Destroy();
+        if(PatternDrop) {
+            bFailed=true;
+            UE_LOG(LogTemp,Error,TEXT("MC_NUT_RAIN_FAILED pattern=%d zone=%d has no reachable footprint; fix authored zone/margin"),
+                PatternSteps[DropIndex].PatternIndex,PatternSteps[DropIndex].ZoneIndex);
+        }
+        return false;
+    }
     const FVector Landing=Floor.ImpactPoint+FVector(0,0,Food->Body->GetScaledBoxExtent().Z+5);
     FVector Start,Velocity;
     if(!Settings.Entry.BuildTrajectory(Tongue->Surface->Bounds.GetBox(),Landing,GetWorld()->GetGravityZ(),Start,Velocity)) { Food->Destroy(); return false; }
@@ -251,6 +245,7 @@ bool AMCNutRainEvent::SpawnNut(TOptional<FVector> Candidate)
     Start.Z=FMath::Max(Landing.Z,Bounds.Max.Z)+FMath::Clamp(Settings.Entry.EntryHeight*Random.FRandRange(.75f,1.2f),150.f,900.f);
     Velocity=(Landing-Start-FVector(0,0,GetWorld()->GetGravityZ())*(.5f*Settings.Entry.FlightSeconds*Settings.Entry.FlightSeconds))/Settings.Entry.FlightSeconds;
     Pose.SetLocation(Start); Food->FinishSpawning(Pose);
+    if(Settings.bBossEncounter) Food->EnableNutKinetics();
     if(Settings.bBossEncounter) Food->Settings.MaxDamage=Settings.ImpactDamageLimit;
     const FTransform ShadowPose(Floor.ImpactPoint);
     if(auto* Shadow=GetWorld()->SpawnActorDeferred<AMCNutLandingShadow>(AMCNutLandingShadow::StaticClass(),ShadowPose,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn)) {
@@ -262,7 +257,41 @@ bool AMCNutRainEvent::SpawnNut(TOptional<FVector> Candidate)
     }
     Food->BeginMouthEntry(Velocity,Settings.Entry.PushSpeed,Landing);
     PlannedLandings.Add(Landing); LaunchLocations.Add(Start);
+    if(PatternDrop) ActualLaunchTimes.Add(float(GetWorld()->GetTimeSeconds()-RainStartedAt));
     Nuts.Add(Food); ++NutsSpawned; ForceNetUpdate(); return true;
+}
+
+bool AMCNutRainEvent::ResolvePatternLanding(FVector2D Zone,float Margin,FHitResult& Floor) const
+{
+    if(!IsValid(Tongue) || Zone.ContainsNaN() || !FMath::IsFinite(Margin)) return false;
+    const FBox Bounds=Tongue->Surface->Bounds.GetBox();
+    const float NearDepth=FMath::IsFinite(Tongue->GameplaySpawnNearDepth)?FMath::Clamp(Tongue->GameplaySpawnNearDepth,0.f,.95f):.18f;
+    const float FarDepth=FMath::IsFinite(Tongue->GameplaySpawnFarDepth)?FMath::Clamp(Tongue->GameplaySpawnFarDepth,NearDepth+.05f,1.f):.82f;
+    const double Back=Bounds.Max.X-Bounds.GetSize().X*NearDepth-Margin-2.;
+    const double Front=Bounds.Max.X-Bounds.GetSize().X*FarDepth+Margin+2.;
+    if(Back<=Front || Bounds.GetSize().Y<=2*Margin) return false;
+    const double X=FMath::Lerp(Back,Front,Zone.Y);
+    // Mouth depth is +world X at the throat and -world X at the front. Normalize
+    // width to the largest *reachable* cross-section of the real tongue, never
+    // to its rectangular bounds. This preserves the staggered pattern without
+    // spilling nuts under gums or relocating a blocked zone to a random patch.
+    constexpr int32 Samples=48;
+    int32 RunStart=INDEX_NONE,BestStart=INDEX_NONE,BestEnd=INDEX_NONE;
+    const double MinY=Bounds.Min.Y+Margin,MaxY=Bounds.Max.Y-Margin;
+    for(int32 I=0;I<=Samples+1;++I) {
+        FHitResult Test;
+        const bool Valid=I<=Samples && Tongue->GameplaySpawnFootprint(FVector(X,FMath::Lerp(MinY,MaxY,double(I)/Samples),Bounds.GetCenter().Z),Margin,Test);
+        if(Valid && RunStart==INDEX_NONE) RunStart=I;
+        if(!Valid && RunStart!=INDEX_NONE) {
+            if(BestStart==INDEX_NONE || I-1-RunStart>BestEnd-BestStart) {BestStart=RunStart;BestEnd=I-1;}
+            RunStart=INDEX_NONE;
+        }
+    }
+    if(BestStart==INDEX_NONE || BestEnd<=BestStart) return false;
+    const double Left=FMath::Lerp(MinY,MaxY,double(BestStart)/Samples);
+    const double Right=FMath::Lerp(MinY,MaxY,double(BestEnd)/Samples);
+    const FVector Candidate(X,FMath::Lerp(Left,Right,Zone.X),Bounds.GetCenter().Z);
+    return Tongue->GameplaySpawnFootprint(Candidate,Margin,Floor);
 }
 
 bool AMCNutRainEvent::SpawnSpellNut(FVector Candidate,int32 Seed)
@@ -291,7 +320,10 @@ bool AMCNutRainEvent::AreRainDropsResolved() const
 {
     for(const AMCFoodActor* Food:Nuts) {
         if(!IsValid(Food) || Food->IsActorBeingDestroyed() || Food->IsDisposed() || Food->StackCarrier || !Food->Holders.IsEmpty()) continue;
-        if(!IsSupportedRainNut(Food,Tongue,Settings.LargeNutHeight)) return false;
+        // Physics-enabled nuts may keep rolling after the advertised landing.
+        // The boss gate waits for transport to finish, not for kinetic debris
+        // to become stationary. The summon pool still requires floor support.
+        if(Food->IsMouthEntryActive()) return false;
     }
     return true;
 }
@@ -392,10 +424,17 @@ void AMCNutRainEvent::Tick(float Dt)
     if(Stage==EMCNutRainStage::Rainfall)
     {
         if(Settings.bBossEncounter) {
-            for(int32 Burst=0;DropsAttempted<PlannedLaunchTimes.Num() && Age>=PlannedLaunchTimes[DropsAttempted] && Burst<4;++Burst) SpawnNut();
-            CompletedSeries=DropsAttempted; SeriesIndex=DropsAttempted;
-            SeriesDropsLeft=FMath::Max(0,RainTargetCount-DropsAttempted);
-            NextDropAt=DropsAttempted<PlannedLaunchTimes.Num()?RainStartedAt+PlannedLaunchTimes[DropsAttempted]:0;
+            // One launch per frame at most. A hitch shifts the remaining times
+            // rather than bursting several overdue zones or dropping a zone.
+            const double Now=GetWorld()->GetTimeSeconds();
+            if(DropsAttempted<PlannedLaunchTimes.Num() && Now>=NextDropAt) {
+                const int32 Previous=DropsAttempted;
+                if(!SpawnNut()) bFailed=true;
+                LastPatternLaunchAt=Now; UpdatePatternProgress();
+                NextDropAt=DropsAttempted<PlannedLaunchTimes.Num()
+                    ?MCNutRainPattern::NextLaunchAt(Now,PlannedLaunchTimes[Previous],PlannedLaunchTimes[DropsAttempted]):0;
+                ForceNetUpdate();
+            }
             if(bFailed) { Enter(EMCNutRainStage::Complete); SetActorTickEnabled(false); return; }
             if(DropsAttempted>=PlannedLaunchTimes.Num()) {
                 if(NutsSpawned==0) { bFailed=true; Enter(EMCNutRainStage::Complete); SetActorTickEnabled(false); return; }
@@ -414,13 +453,13 @@ void AMCNutRainEvent::Tick(float Dt)
     }
     else if(Stage==EMCNutRainStage::Settling) {
         if(Settings.bBossEncounter) {
-            const auto* Director=GS?GS->SingleDayDirector.Get():nullptr;
-            const float RainAge=float(GetWorld()->GetTimeSeconds()-RainStartedAt);
-            const bool Ready=Director?Director->ShouldFinishNutRain(CompletedSeries,Settings.MinimumSeries,RainAge,Settings.RainSeconds)
-                :RainAge>=Settings.RainSeconds;
+            // Two authored series define the new duration. The old director's
+            // 20–25 second clamp must not append a dead interval to this storm.
+            const float FinalFlightAge=float(GetWorld()->GetTimeSeconds()-LastPatternLaunchAt);
+            const bool Ready=CompletedSeries==2 && FinalFlightAge>=Settings.Entry.FlightSeconds;
             const bool Resolved=AreRainDropsResolved();
             if(Ready && Resolved) SpawnBossEncounter();
-            else if(!Resolved && RainAge>Settings.RainSeconds+10.f) {
+            else if(!Resolved && FinalFlightAge>Settings.Entry.FlightSeconds+10.f) {
                 bFailed=true; Record(TEXT("Орехи: падение не завершилось на доступной поверхности; тест события остановлен"));
                 UE_LOG(LogTemp,Error,TEXT("MC_NUT_RAIN_FAILED final drop did not resolve after bounded recovery"));
                 Enter(EMCNutRainStage::Complete); SetActorTickEnabled(false);
@@ -457,9 +496,10 @@ void AMCNutRainEvent::Stop()
     if(FoodBatch!=0) for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
         if(It->Batch==FoodBatch) It->Destroy();
     Nuts.Reset(); Enemies.Reset(); Bosses.Reset(); EncounterActors.Reset(); LandingShadows.Reset(); PlannedLaunchTimes.Reset(); PlannedLandings.Reset(); LaunchLocations.Reset();
+    ActualLaunchTimes.Reset(); PatternSteps.Reset(); PlannedPatternIndices.Reset(); PlannedZoneIndices.Reset(); PlannedZoneCoordinates.Reset();
     ClusterDropsLeft=0; Tongue=nullptr; ActiveProfile=nullptr;
     EnemiesLeft=0; Stage=EMCNutRainStage::Idle; FoodBatch=0; ForceNetUpdate();
-    SeriesIndex=CompletedSeries=SeriesDropsLeft=BossesLeft=0; NextDropAt=0; RainStartedAt=0;
+    SeriesIndex=CompletedSeries=SeriesDropsLeft=BossesLeft=0; FirstPattern=0; NextDropAt=0; RainStartedAt=LastPatternLaunchAt=0;
 }
 
 void AMCNutRainEvent::EndPlay(const EEndPlayReason::Type Reason)
@@ -476,4 +516,5 @@ void AMCNutRainEvent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(AMCNutRainEvent,bFailed); DOREPLIFETIME(AMCNutRainEvent,Settings);
     DOREPLIFETIME(AMCNutRainEvent,SeriesIndex); DOREPLIFETIME(AMCNutRainEvent,CompletedSeries);
     DOREPLIFETIME(AMCNutRainEvent,SeriesDropsLeft); DOREPLIFETIME(AMCNutRainEvent,BossesLeft); DOREPLIFETIME(AMCNutRainEvent,NextDropAt);
+    DOREPLIFETIME(AMCNutRainEvent,FirstPattern);
 }

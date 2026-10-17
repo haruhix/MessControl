@@ -1,96 +1,104 @@
 #include "MCDeliveryZoneCaptionWidget.h"
+#include "MCUIVisualStyle.h"
 
 #include "Blueprint/WidgetTree.h"
-#include "Brushes/SlateRoundedBoxBrush.h"
 #include "Components/Border.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
-#include "Components/ScaleBox.h"
-#include "Components/ScaleBoxSlot.h"
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
-#include "Styling/CoreStyle.h"
+
+#define LOCTEXT_NAMESPACE "MCDeliveryZones"
 
 void UMCDeliveryZoneCaptionWidget::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
     SetIsFocusable(false);
     SetVisibility(ESlateVisibility::HitTestInvisible);
+    BuildPresentationTree();
+    ApplyTheme();
+}
 
-    auto* Size=WidgetTree->ConstructWidget<USizeBox>();
-    Size->SetWidthOverride(280);Size->SetHeightOverride(56);
-    WidgetTree->RootWidget=Size;
-    Background=WidgetTree->ConstructWidget<UBorder>();
-    Background->SetPadding(FMargin(10,6));
-    Background->SetClipping(EWidgetClipping::ClipToBounds);
-    Size->SetContent(Background);
-
-    auto* Row=WidgetTree->ConstructWidget<UHorizontalBox>();
-    Background->SetContent(Row);
+void UMCDeliveryZoneCaptionWidget::BuildPresentationTree()
+{
+    if(!WidgetTree || (Background && Title && Description)) return;
+    if(WidgetTree->RootWidget)
+    {
+        Background=Cast<UBorder>(WidgetTree->FindWidget(TEXT("DeliveryBackground")));
+        IconBackground=Cast<UBorder>(WidgetTree->FindWidget(TEXT("DeliveryIconBackground")));
+        DirectionIcon=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("DeliveryDirection")));
+        Title=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("DeliveryTitle")));
+        Description=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("DeliveryDescription")));
+        return;
+    }
+    auto* Size=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("DeliverySize"));
+    Size->SetWidthOverride(320);Size->SetMinDesiredHeight(64);WidgetTree->RootWidget=Size;
+    Background=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("DeliveryBackground"));
+    Background->SetPadding(FMargin(12,9));Size->SetContent(Background);
+    auto* Row=WidgetTree->ConstructWidget<UHorizontalBox>();Background->SetContent(Row);
     auto* IconSize=WidgetTree->ConstructWidget<USizeBox>();
-    IconSize->SetWidthOverride(28);IconSize->SetHeightOverride(28);
-    IconBackground=WidgetTree->ConstructWidget<UBorder>();
-    IconBackground->SetPadding(FMargin(0));
-    IconSize->SetContent(IconBackground);
-    DirectionIcon=WidgetTree->ConstructWidget<UTextBlock>();
-    DirectionIcon->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),20));
-    DirectionIcon->SetJustification(ETextJustify::Center);
-    DirectionIcon->SetAutoWrapText(false);
-    IconBackground->SetHorizontalAlignment(HAlign_Center);
-    IconBackground->SetVerticalAlignment(VAlign_Center);
-    IconBackground->SetContent(DirectionIcon);
+    IconSize->SetWidthOverride(32);IconSize->SetHeightOverride(32);
+    IconBackground=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("DeliveryIconBackground"));
+    IconBackground->SetPadding(FMargin(0));IconSize->SetContent(IconBackground);
+    DirectionIcon=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("DeliveryDirection"));
+    DirectionIcon->SetJustification(ETextJustify::Center);DirectionIcon->SetAutoWrapText(false);
+    IconBackground->SetHorizontalAlignment(HAlign_Center);IconBackground->SetVerticalAlignment(VAlign_Center);IconBackground->SetContent(DirectionIcon);
     auto* IconSlot=Row->AddChildToHorizontalBox(IconSize);
-    IconSlot->SetVerticalAlignment(VAlign_Center);
-    IconSlot->SetPadding(FMargin(0,0,8,0));
-
+    IconSlot->SetVerticalAlignment(VAlign_Center);IconSlot->SetPadding(FMargin(0,0,8,0));
     auto* Column=WidgetTree->ConstructWidget<UVerticalBox>();
     auto* ColumnSlot=Row->AddChildToHorizontalBox(Column);
-    ColumnSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
-    ColumnSlot->SetVerticalAlignment(VAlign_Center);
-    Title=WidgetTree->ConstructWidget<UTextBlock>();
-    Title->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),18));
-    Title->SetAutoWrapText(false);
-    Column->AddChildToVerticalBox(Title)->SetPadding(FMargin(0,0,0,1));
+    ColumnSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));ColumnSlot->SetVerticalAlignment(VAlign_Center);
+    Title=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("DeliveryTitle"));
+    Title->SetAutoWrapText(true);Title->SetWrapTextAt(252);Title->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);Title->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);
+    Column->AddChildToVerticalBox(Title)->SetPadding(FMargin(0,0,0,3));
 
-    // The complete Russian exit description remains on one line at small screen resolutions.
-    auto* DescriptionHeight=WidgetTree->ConstructWidget<USizeBox>();
-    DescriptionHeight->SetHeightOverride(18);
-    auto* DescriptionScale=WidgetTree->ConstructWidget<UScaleBox>();
-    DescriptionScale->SetStretch(EStretch::ScaleToFit);
-    DescriptionScale->SetStretchDirection(EStretchDirection::DownOnly);
-    DescriptionHeight->SetContent(DescriptionScale);
-    Description=WidgetTree->ConstructWidget<UTextBlock>();
-    Description->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),13));
-    Description->SetAutoWrapText(false);
-    DescriptionScale->SetContent(Description);
-    auto* DescriptionSlot=CastChecked<UScaleBoxSlot>(Description->Slot);
-    DescriptionSlot->SetHorizontalAlignment(HAlign_Left);
-    DescriptionSlot->SetVerticalAlignment(VAlign_Center);
-    Column->AddChildToVerticalBox(DescriptionHeight);
-    RefreshCaption();
+    // Keep a bounded world-label width and let translated descriptions grow down.
+    // Shrinking the entire sentence to a fixed single line makes it unreadable.
+    Description=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("DeliveryDescription"));
+    Description->SetAutoWrapText(true);Description->SetWrapTextAt(252);Description->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);Description->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);
+    Column->AddChildToVerticalBox(Description);
 }
 
 void UMCDeliveryZoneCaptionWidget::SetDeliveryCaption(bool bExit,bool bSortingError)
 {
     if(bExitCaption==bExit && bErrorCaption==bSortingError && Title) return;
     bExitCaption=bExit;bErrorCaption=bSortingError;
+    BuildPresentationTree();
+    RefreshCaption();
+}
+
+void UMCDeliveryZoneCaptionWidget::ApplyTheme()
+{
+    BuildPresentationTree();
+    Super::ApplyTheme();
     RefreshCaption();
 }
 
 void UMCDeliveryZoneCaptionWidget::RefreshCaption()
 {
     if(!Title || !Description || !Background || !DirectionIcon || !IconBackground) return;
-    const FLinearColor Accent=bExitCaption?FLinearColor(1.f,.22f,.18f):FLinearColor(.20f,1.f,.52f);
-    Background->SetBrush(FSlateRoundedBoxBrush(FLinearColor(.012f,.024f,.034f,.85f),10.f,Accent.CopyWithNewOpacity(.52f),1.f));
-    IconBackground->SetBrush(FSlateRoundedBoxBrush(Accent.CopyWithNewOpacity(.14f),7.f));
-    DirectionIcon->SetColorAndOpacity(FSlateColor(Accent));
-    DirectionIcon->SetText(FText::FromString(bExitCaption?TEXT("»"):TEXT("«")));
-    Title->SetColorAndOpacity(FSlateColor(Accent));
-    Title->SetText(bExitCaption?NSLOCTEXT("DeliveryZones","ExitTitle","ВЫХОД"):NSLOCTEXT("DeliveryZones","EntryTitle","ВХОД"));
-    Description->SetColorAndOpacity(FSlateColor(bErrorCaption?FLinearColor(1.f,.74f,.34f):FLinearColor(.92f,.96f,.97f)));
-    Description->SetText(bErrorCaption?NSLOCTEXT("DeliveryZones","SortingError","ОШИБКА СОРТИРОВКИ")
-        :bExitCaption?NSLOCTEXT("DeliveryZones","ExitDescription","МУСОР · ИСПОРЧЕННОЕ · ЩЁТКИ")
-        :NSLOCTEXT("DeliveryZones","EntryDescription","СВЕЖАЯ ЕДА"));
+    const auto* Resolved=GetResolvedTheme();const auto& P=Resolved->Palette;
+    const FLinearColor Accent=bErrorCaption?P.Warning:bExitCaption?P.Cost:P.Accent;
+    MCUIVisualStyle::Panel(Background,Resolved,P.Marine);
+    MCUIVisualStyle::Panel(IconBackground,Resolved,Accent);
+    DirectionIcon->SetFont(Resolved->MakeFont(24));DirectionIcon->SetColorAndOpacity(P.Ink);
+    DirectionIcon->SetText(FText::AsCultureInvariant(bExitCaption?TEXT("»"):TEXT("«")));
+    Title->SetFont(Resolved->MakeFont(18));Title->SetColorAndOpacity(Accent);
+    Title->SetText(bExitCaption?Localized(TEXT("UI.Delivery.ExitTitle"),LOCTEXT("ExitTitle","ВЫХОД")):Localized(TEXT("UI.Delivery.EntryTitle"),LOCTEXT("EntryTitle","ВХОД")));
+    Description->SetFont(Resolved->MakeFont(16,false));Description->SetColorAndOpacity(bErrorCaption?P.Warning:P.OnMarine);
+    Description->SetText(bErrorCaption?Localized(TEXT("UI.Delivery.SortingError"),LOCTEXT("SortingError","ОШИБКА СОРТИРОВКИ"))
+        :bExitCaption?Localized(TEXT("UI.Delivery.ExitDescription"),LOCTEXT("ExitDescription","МУСОР · ИСПОРЧЕННОЕ · ЩЁТКИ"))
+        :Localized(TEXT("UI.Delivery.EntryDescription"),LOCTEXT("EntryDescription","СВЕЖАЯ ЕДА")));
 }
+
+void UMCDeliveryZoneCaptionWidget::ApplyEditorPreview(float Time)
+{
+    bExitCaption=PreviewState==TEXT("Exit") || PreviewState==TEXT("SortingError");
+    bErrorCaption=PreviewState==TEXT("SortingError");
+    Super::ApplyEditorPreview(Time);
+    SetVisibility(PreviewScenario==EMCGameplayUIPreviewScenario::Empty?ESlateVisibility::Hidden:ESlateVisibility::HitTestInvisible);
+}
+
+#undef LOCTEXT_NAMESPACE

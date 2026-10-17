@@ -2,6 +2,7 @@
 #include "MCNutCombatEffect.h"
 #include "MCNutCombatVisuals.h"
 #include "MCGameState.h"
+#include "MCFoodActor.h"
 #include "MCNutRainEvent.h"
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
@@ -148,6 +149,11 @@ void AMCNutSpellProjectile::ResolveImpact(const FHitResult& Hit)
 {
     if(!HasAuthority() || Impact.bImpacted) return;
     Impact.bImpacted=true;Impact.Point=Hit.ImpactPoint;Impact.Normal=Hit.ImpactNormal.GetSafeNormal(SMALL_NUMBER,FVector::UpVector);Impact.At=Now();
+    if(auto* Food=Cast<AMCFoodActor>(Hit.GetActor()); Food && Food->IsNutKineticsActive()) {
+        const FVector Direction=(Flight.Target-Flight.Start).GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector);
+        const float Speed=FMath::Min(900.f,float(FVector::Dist(Flight.Start,Flight.Target))/FMath::Max(.1f,Flight.Seconds)*.8f);
+        Food->ApplyNutImpulse(Direction*Speed+FVector(0,0,90),Hit.ImpactPoint);
+    }
     if(auto* Hero=Cast<AMCToothCharacter>(Hit.GetActor());Hero && Hero->Status && Hero->Status->IsAlive()) {
         const FVector Direction=(Flight.Target-Flight.Start).GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector);
         if(Hero->Status->Damage(Damage,Direction,SourceActor)) {
@@ -186,7 +192,16 @@ void AMCNutSpellProjectile::Tick(float DeltaSeconds)
         FCollisionQueryParams Params(SCENE_QUERY_STAT(MCNutFireball),false,this);Params.AddIgnoredActor(SourceActor);Params.AddIgnoredActor(GetOwner());
         FHitResult Hit;
         // The entire distance since the previous update is swept; low frame rates cannot tunnel through a tooth.
-        if(GetWorld()->SweepSingleByObjectType(Hit,PositionAt(PreviousAge),PositionAt(Age),FQuat::Identity,Objects,FCollisionShape::MakeSphere(Flight.Radius),Params)) {ResolveImpact(Hit);return;}
+        bool bHit=GetWorld()->SweepSingleByObjectType(Hit,PositionAt(PreviousAge),PositionAt(Age),FQuat::Identity,Objects,FCollisionShape::MakeSphere(Flight.Radius),Params);
+        // Whole encounter nuts are PhysicsBody objects. Query them separately so
+        // unrelated food, fragments and ragdoll bodies keep their existing rules.
+        TArray<FHitResult> NutHits;
+        GetWorld()->SweepMultiByObjectType(NutHits,PositionAt(PreviousAge),PositionAt(Age),FQuat::Identity,
+            FCollisionObjectQueryParams(ECC_PhysicsBody),FCollisionShape::MakeSphere(Flight.Radius),Params);
+        for(const FHitResult& Candidate:NutHits)
+            if(const auto* Food=Cast<AMCFoodActor>(Candidate.GetActor());Food && Food->IsNutKineticsActive()
+                && (!bHit || Candidate.Time<Hit.Time)) {Hit=Candidate;bHit=true;}
+        if(bHit) {ResolveImpact(Hit);return;}
         if(Age>=Flight.Seconds) {Hit.ImpactPoint=Flight.Target;Hit.ImpactNormal=FVector::UpVector;ResolveImpact(Hit);return;}
         PreviousAge=Age;
     }

@@ -28,7 +28,7 @@ struct MESSCONTROL_API FMCThroatSuctionState
     FVector VelocityAt(FVector Location,double ServerTime) const;
 };
 
-/** A breathing throat with automatic food intake and a decorative uvula. */
+/** An open throat: players physically throw individual ingredients into its aperture. */
 UCLASS(Blueprintable)
 class MESSCONTROL_API AMCThroat : public AMCFoodDisposal
 {
@@ -51,6 +51,16 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Art") TObjectPtr<UMaterialInterface> RingMaterial;
     // The current artist's Open target collapses the aperture rather than opening it.
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Art") bool bReverseAuthoredOpen=true;
+    /** Fixed artist opening during manual intake: 0 is closed, 1 is fully expanded. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Art",meta=(ClampMin="0.05",ClampMax="1")) float ManualAuthoredExpansion=.4f;
+    /** Compatibility switch for old authored test fixtures; normal play uses explicit throws. */
+    UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Throat|Intake") bool bManualIntake=true;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Intake",meta=(ClampMin="0",Units="cm")) float IntakeDepth=45.f;
+    /** Camera can reveal the food reticle just outside the visible opening. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Intake",meta=(ClampMin="0",ClampMax="30",Units="deg")) float AimAssistMarginDegrees=6.f;
+    /** Exact transform of the new artist uvula; the old decoration remains hidden. */
+    UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Throat|Art") bool bUseAuthoredUvula=false;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Art") FTransform AuthoredUvulaRestTransform=FTransform::Identity;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Shape") FVector GateCenter=FVector(150,0,-200);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Shape") FVector2D GateSize=FVector2D(500,500);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Shape") FVector UvulaTop=FVector(-120,0,430);
@@ -90,6 +100,10 @@ public:
     /** Authority reserves a loose ingredient or atomically transfers it from its carrier. */
     virtual bool AcceptDelivery(AMCFoodActor* Food) override;
     UFUNCTION(BlueprintPure,Category="Throat") float OpenAmount() const;
+    /** World-space center/radius of the currently visible upper aperture. */
+    UFUNCTION(BlueprintPure,Category="Throat|Intake") bool GetIntakeAimTarget(FVector& Center,float& Radius) const;
+    /** Zero when occluded/behind the camera; ramps up when looking at or near the hole. */
+    UFUNCTION(BlueprintPure,Category="Throat|Intake") float IntakeAimStrength(FVector ViewOrigin,FVector ViewDirection) const;
     /** A point inside the visible artist aperture, above the tongue surface. */
     FVector VacuumInlet() const;
     UFUNCTION(BlueprintPure,Category="Throat|Suction") bool IsAmbientSuctionActive() const;
@@ -116,6 +130,11 @@ private:
     void BuildRing();
     void CollectCarriedDeliveries();
     void CollectLooseDeliveries();
+    void CollectThrownDeliveries();
+    bool IsInsideIntakeAperture(FVector Point,float InwardDepth=0.f) const;
+    bool CrossesIntakeAperture(FVector From,FVector To) const;
+    bool AcceptThrownDelivery(AMCFoodActor* Food);
+    void IntakeFrame(FVector& Center,FVector& Inward,FVector& Right,FVector& Up) const;
     void CheckOpenThroatPlayers();
     bool CaptureMeal();
     void BeginVomit();
@@ -131,6 +150,7 @@ private:
     float PendingPileHeight=0;
     double NextIntakeAt=0;
     TWeakObjectPtr<class AMCThroatVortex> ActiveVortex;
+    TMap<TWeakObjectPtr<AMCFoodActor>,FVector> PreviousThrownPositions;
     struct FSwallowedPlayer { TWeakObjectPtr<AMCToothCharacter> Hero; FVector Start; };
     TArray<FSwallowedPlayer> SwallowedPlayers;
     TWeakObjectPtr<class AMCVomitBurst> ActiveVomit;

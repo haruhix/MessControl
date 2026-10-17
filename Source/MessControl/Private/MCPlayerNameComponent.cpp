@@ -1,9 +1,10 @@
 #include "MCPlayerNameComponent.h"
 #include "MCToothCharacter.h"
 #include "MCGameplayHUD.h"
+#include "MCGameplayUIFactory.h"
 #include "MCPlayerState.h"
+#include "MCUIVisualStyle.h"
 #include "Blueprint/WidgetTree.h"
-#include "Brushes/SlateRoundedBoxBrush.h"
 #include "Components/Border.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -15,60 +16,114 @@
 #include "Components/VerticalBoxSlot.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/GameStateBase.h"
-#include "Styling/CoreStyle.h"
+
+#define LOCTEXT_NAMESPACE "MCPlayerName"
 
 void UMCPlayerNameWidget::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
-    SetVisibility(ESlateVisibility::HitTestInvisible);
-    auto* Box=WidgetTree->ConstructWidget<UVerticalBox>();WidgetTree->RootWidget=Box;
-    AlarmPanel=WidgetTree->ConstructWidget<UBorder>();
-    AlarmPanel->SetBrush(FSlateRoundedBoxBrush(FLinearColor::White,10));
+    SetIsFocusable(false);SetVisibility(ESlateVisibility::HitTestInvisible);
+    BuildPresentationTree();
+    ApplyTheme();
+}
+
+void UMCPlayerNameWidget::BuildPresentationTree()
+{
+    if(!WidgetTree || NameText) return;
+    if(WidgetTree->RootWidget)
+    {
+        NameText=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("PlayerNameText")));
+        NameBackground=Cast<UBorder>(WidgetTree->FindWidget(TEXT("PlayerNameBackground")));
+        AlarmText=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("PlayerAlarmText")));
+        AlarmPanel=Cast<UBorder>(WidgetTree->FindWidget(TEXT("PlayerAlarmPanel")));
+        PlayerIcon=Cast<UMCHUDIcon>(WidgetTree->FindWidget(TEXT("PlayerNameIcon")));
+        return;
+    }
+    auto* Box=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("PlayerNameRoot"));WidgetTree->RootWidget=Box;
+    AlarmPanel=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("PlayerAlarmPanel"));
     AlarmPanel->SetPadding(FMargin(12,6));AlarmPanel->SetVisibility(ESlateVisibility::Collapsed);
     Box->AddChildToVerticalBox(AlarmPanel)->SetPadding(FMargin(0,0,0,6));
-    AlarmText=WidgetTree->ConstructWidget<UTextBlock>();AlarmText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),20));
-    AlarmText->SetJustification(ETextJustify::Center);AlarmText->SetColorAndOpacity(FSlateColor(FLinearColor(.012f,.020f,.033f)));
-    AlarmPanel->SetContent(AlarmText);
-    auto* Background=WidgetTree->ConstructWidget<UBorder>();
-    Background->SetBrush(FSlateRoundedBoxBrush(FLinearColor::White,7.f));
-    Background->SetBrushColor(FLinearColor(.012f,.020f,.033f,.80f));
-    Background->SetPadding(FMargin(9,4));
-    NameText=WidgetTree->ConstructWidget<UTextBlock>();
-    auto Font=FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),16);
-    Font.OutlineSettings.OutlineSize=1;
-    Font.OutlineSettings.OutlineColor=FLinearColor::Black;
-    NameText->SetFont(Font);
-    NameText->SetColorAndOpacity(FSlateColor(FLinearColor(.98f,.97f,.93f)));
-    NameText->SetJustification(ETextJustify::Center);
-    NameText->SetAutoWrapText(false);
-    auto* NameRow=WidgetTree->ConstructWidget<UHorizontalBox>();Background->SetContent(NameRow);
-    PlayerIcon=WidgetTree->ConstructWidget<UMCHUDIcon>();PlayerIcon->bTooth=true;
-    auto* IconSize=WidgetTree->ConstructWidget<USizeBox>();IconSize->SetWidthOverride(28);IconSize->SetHeightOverride(28);IconSize->SetContent(PlayerIcon);
-    NameRow->AddChildToHorizontalBox(IconSize)->SetPadding(FMargin(0,0,6,0));
-    NameRow->AddChildToHorizontalBox(NameText)->SetVerticalAlignment(VAlign_Center);
-    Box->AddChildToVerticalBox(Background)->SetHorizontalAlignment(HAlign_Center);
+    AlarmText=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("PlayerAlarmText"));
+    AlarmText->SetJustification(ETextJustify::Center);AlarmText->SetAutoWrapText(true);AlarmText->SetWrapTextAt(296);
+    AlarmText->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);AlarmText->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);AlarmPanel->SetContent(AlarmText);
+    NameBackground=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("PlayerNameBackground"));NameBackground->SetPadding(FMargin(9,4));
+    NameText=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("PlayerNameText"));
+    NameText->SetJustification(ETextJustify::Center);NameText->SetAutoWrapText(false);
+    NameText->SetTextOverflowPolicy(ETextOverflowPolicy::Ellipsis);
+    auto* NameRow=WidgetTree->ConstructWidget<UHorizontalBox>();NameBackground->SetContent(NameRow);
+    PlayerIcon=WidgetTree->ConstructWidget<UMCHUDIcon>(UMCHUDIcon::StaticClass(),TEXT("PlayerNameIcon"));PlayerIcon->bTooth=true;
+    auto* IconSize=WidgetTree->ConstructWidget<USizeBox>();IconSize->SetWidthOverride(32);IconSize->SetHeightOverride(32);IconSize->SetContent(PlayerIcon);
+    auto* IconSlot=NameRow->AddChildToHorizontalBox(IconSize);IconSlot->SetPadding(FMargin(0,0,6,0));IconSlot->SetVerticalAlignment(VAlign_Center);
+    auto* NameWidth=WidgetTree->ConstructWidget<USizeBox>();NameWidth->SetMaxDesiredWidth(240);NameWidth->SetContent(NameText);
+    NameRow->AddChildToHorizontalBox(NameWidth)->SetVerticalAlignment(VAlign_Center);
+    Box->AddChildToVerticalBox(NameBackground)->SetHorizontalAlignment(HAlign_Center);
 }
+
 void UMCPlayerNameWidget::SetPlayerName(const FString& Name)
 {
-    if(NameText && NameText->GetText().ToString()!=Name) NameText->SetText(FText::FromString(Name));
-}
-FString UMCPlayerNameWidget::GetPlayerName() const
-{
-    return NameText?NameText->GetText().ToString():FString();
-}
-void UMCPlayerNameWidget::SetPresentation(FLinearColor Color,bool bHost,EMCPlayerAlarm Alarm)
-{
-    if(PlayerIcon && (!PlayerIcon->Tint.Equals(Color) || PlayerIcon->bHost!=bHost))
-    {PlayerIcon->Tint=Color;PlayerIcon->bHost=bHost;PlayerIcon->InvalidateLayoutAndVolatility();}
-    if(!AlarmPanel || !AlarmText || PresentedAlarm==Alarm) return;
-    PresentedAlarm=Alarm;
-    AlarmPanel->SetVisibility(Alarm==EMCPlayerAlarm::None?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);
-    if(Alarm!=EMCPlayerAlarm::None)
+    PresentedName=Name;BuildPresentationTree();
+    if(NameText && NameText->GetText().ToString()!=Name)
     {
-        AlarmText->SetText(FText::FromString(Alarm==EMCPlayerAlarm::Help?TEXT("+ НУЖНА ПОМОЩЬ"):TEXT("! ВНИМАНИЕ")));
-        AlarmPanel->SetBrushColor(Alarm==EMCPlayerAlarm::Help?FLinearColor(.26f,.91f,.71f):FLinearColor(1,.64f,.23f));
+        NameText->SetText(FText::AsCultureInvariant(Name));
+        NameText->SetToolTipText(FText::AsCultureInvariant(Name));
     }
 }
+
+FString UMCPlayerNameWidget::GetPlayerName() const
+{
+    return PresentedName;
+}
+
+void UMCPlayerNameWidget::SetPresentation(FLinearColor Color,bool bHost,EMCPlayerAlarm Alarm)
+{
+    if(PresentedColor.Equals(Color) && bPresentedHost==bHost && PresentedAlarm==Alarm && PlayerIcon) return;
+    PresentedColor=Color;bPresentedHost=bHost;PresentedAlarm=Alarm;
+    ApplyTheme();
+}
+
+void UMCPlayerNameWidget::ApplyTheme()
+{
+    BuildPresentationTree();Super::ApplyTheme();
+    const auto* Resolved=GetResolvedTheme();const auto& P=Resolved->Palette;
+    MCUIVisualStyle::Panel(NameBackground,Resolved,P.Marine.CopyWithNewOpacity(P.Marine.A*.92f));
+    if(NameText)
+    {
+        NameText->SetFont(Resolved->MakeFont(18));NameText->SetColorAndOpacity(P.OnMarine);
+        NameText->SetText(FText::AsCultureInvariant(PresentedName));NameText->SetToolTipText(FText::AsCultureInvariant(PresentedName));
+    }
+    if(PlayerIcon)
+    {
+        PlayerIcon->Tint=PresentedColor;PlayerIcon->InkTint=P.Ink;PlayerIcon->HostTint=P.Warning;PlayerIcon->bHost=bPresentedHost;
+        PlayerIcon->InvalidateLayoutAndVolatility();
+    }
+    const bool AlarmVisible=PresentedAlarm!=EMCPlayerAlarm::None;
+    if(AlarmPanel)
+    {
+        MCUIVisualStyle::Panel(AlarmPanel,Resolved,PresentedAlarm==EMCPlayerAlarm::Help?P.Mint:P.Warning);
+        AlarmPanel->SetVisibility(AlarmVisible?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    }
+    if(AlarmText)
+    {
+        AlarmText->SetFont(Resolved->MakeFont(18));AlarmText->SetColorAndOpacity(P.Ink);
+        AlarmText->SetText(!AlarmVisible?FText::GetEmpty():PresentedAlarm==EMCPlayerAlarm::Help
+            ?Localized(TEXT("UI.PlayerAlarm.Help"),LOCTEXT("Help","+ НУЖНА ПОМОЩЬ"))
+            :Localized(TEXT("UI.PlayerAlarm.Attention"),LOCTEXT("Attention","! ВНИМАНИЕ")));
+    }
+}
+
+void UMCPlayerNameWidget::ApplyEditorPreview(float Time)
+{
+    const auto& P=GetResolvedTheme()->Palette;
+    PresentedColor=P.Mint;bPresentedHost=PreviewState==TEXT("Host");
+    PresentedAlarm=PreviewState==TEXT("Help")?EMCPlayerAlarm::Help:PreviewState==TEXT("Attention")?EMCPlayerAlarm::Attention:EMCPlayerAlarm::None;
+    PresentedName=(PreviewScenario==EMCGameplayUIPreviewScenario::LongText?Localized(TEXT("UI.World.LongPlayerName"),LOCTEXT("LongPlayerName","Очень длинное имя игрока для проверки интерфейса")):Localized(TEXT("UI.World.PlayerName"),LOCTEXT("PlayerName","Игрок 1"))).ToString();
+    Super::ApplyEditorPreview(Time);
+    SetVisibility(PreviewScenario==EMCGameplayUIPreviewScenario::Empty?ESlateVisibility::Hidden:ESlateVisibility::HitTestInvisible);
+}
+
+#undef LOCTEXT_NAMESPACE
+
+
 UMCPlayerNameComponent::UMCPlayerNameComponent()
 {
     PrimaryComponentTick.bCanEverTick=true;
@@ -89,6 +144,7 @@ void UMCPlayerNameComponent::BeginPlay()
 {
     Super::BeginPlay();
     if(GetNetMode()==NM_DedicatedServer) { SetComponentTickEnabled(false); return; }
+    if(GetWidgetClass()==UMCPlayerNameWidget::StaticClass()) SetWidgetClass(UMCGameplayUIFactory::ResolveClass(TEXT("PlayerName"),UMCPlayerNameWidget::StaticClass()));
     if(auto* Hero=Cast<AMCToothCharacter>(GetOwner())) AddTickPrerequisiteComponent(Hero->GetMesh());
     RefreshName();
 }

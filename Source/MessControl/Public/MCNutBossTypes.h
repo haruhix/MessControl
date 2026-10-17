@@ -49,7 +49,7 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation", meta=(ClampMin="0.05",ClampMax="0.95")) float TankMelee2ImpactFraction=.3947368f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation", meta=(ClampMin="1",ClampMax="8")) float TankComboAnimationSeconds=3.0666667f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FVector TankComboContactFractions=FVector(.1630435f,.3152174f,.5326087f);
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shield", meta=(ClampMin="0.5",ClampMax="8",Units="s")) float TankStunSeconds=3.f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shield", meta=(ClampMin="0.5",ClampMax="8",Units="s")) float TankStunSeconds=5.f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation", meta=(ClampMin="1",ClampMax="10")) float TankDeathSeconds=5.1666667f;
     /** Optional short authored reaction. Missing clips keep the procedural recoil. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankHitAnimation;

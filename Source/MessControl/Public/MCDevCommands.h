@@ -16,6 +16,7 @@ enum class EMCDevAction : uint8
     GrantToolBooster, GrantAllToolBoosters,
     NutEncounter, StopNutEncounter, IceEvent, StopIceEvent, CoffeeFlood, StuckFood,
     FogEvent, FogEventStop,
+    SpineVFXTest, SpineVFXTestStop,
     HugeTongueStain=62,
     CataclysmRandom=63, CataclysmRafts=64, CataclysmJellies=65, CataclysmStop=66
 };
