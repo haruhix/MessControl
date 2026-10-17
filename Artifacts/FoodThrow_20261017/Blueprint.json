@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "throw_speed": 1800.0,
+  "preserved": {
+    "throw_interval": 0.30000001192092896,
+    "max_pieces": 6,
+    "collection_reach": 180.0,
+    "spill_contact_impulse": 600.0
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "pid": 15920,
+  "dirty_content": [
+    "/Game/Gameplay/Arena/V10/Edges/SM_Wall_L",
+    "/Game/Gameplay/Arena/V10/Edges/SM_Wall_R",
+    "/Game/Gameplay/Care/MI_ArenaToothGrime"
+  ],
+  "dirty_maps": [
+    "/Game/Maps/L_Mouth"
+  ],
+  "throw_speed": 1400.0,
+  "collection": {
+    "throw_interval": 0.30000001192092896,
+    "max_pieces": 6,
+    "collection_reach": 180.0,
+    "spill_contact_impulse": 600.0
+  },
+  "protected_hashes": {
+    "Content/Maps/L_Mouth.umap": "105972e9560e6e211785c225193303a938e85fb221d4c41b2d0ce0628023808e",
+    "Content/Gameplay/Care/M_ArenaToothRelief.uasset": "754ff269ebfda7baf1de37d9e4263bae2da964a671da5c1a16ba6c373131333f",
+    "Content/Gameplay/Care/MI_ArenaToothGrime.uasset": "1a5f65123b85b59037227efb504853b7a4c945ad80a81a2b01564d3ed3a88aa4",
+    "Config/DefaultEditor.ini": "0efbbd750eafbe5712cf6519e3784ed6402aa4b025dc0f3b54056015b96b5fb5"
+  }
+}

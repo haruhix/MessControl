@@ -23,6 +23,7 @@ public:
     /** Server-only: launch the uppermost piece, retaining every other stack slot. */
     bool ThrowOne(FVector AimDirection);
     float ThrowIntervalSeconds() const;
+    float EffectiveThrowSpeed() const;
     void Spill(FVector Impulse=FVector::ZeroVector);
     void HandleCarrierCollision(AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit);
     void HandleStackCollision(AMCFoodActor* Food,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit);
@@ -40,7 +41,7 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite) int32 MaxPieces=6;
     UPROPERTY(EditAnywhere,BlueprintReadWrite) float CollectionReach=180;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Collection|Throw",meta=(ClampMin="0.15",ClampMax="1")) float ThrowInterval=.3f;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Collection|Throw",meta=(ClampMin="400",ClampMax="2400",Units="cm/s")) float ThrowSpeed=1200;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Collection|Throw",meta=(ClampMin="400",ClampMax="2400",Units="cm/s")) float ThrowSpeed=1800;
     /** Minimum normal contact impulse (kg cm/s). A resting overlap has no impact strength. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Collection|Collision",meta=(ClampMin="1")) float SpillContactImpulse=600;
     int32 FallenPieces=0;

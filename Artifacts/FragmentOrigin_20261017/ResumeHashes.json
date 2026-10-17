@@ -1,0 +1,12 @@
+{
+  "Content/Maps/L_Mouth.umap": "6922c67427152df29f55bc0e28f363bf1628deb8379ce44bf3994ddc6e2e1c76",
+  "Content/Blueprints/BP_PlayerCharacter.uasset": "505d6202c02d51b7737001942f56e2e43c5a0e28196cd3e33f05310fac52772a",
+  "Content/Gameplay/Care/MI_ArenaToothGrime.uasset": "ddcbab2443f732c8fbb8ce443d0b1a5e3542e347acee57d09b4d6a85bec3425e",
+  "Source/MessControl/Private/MCFoodActor.cpp": "d255ed25d7d315d019d762c62e84a472f8522dbaa7734e0c5c9b4b5dce324492",
+  "Source/MessControl/Private/MCFoodCollectionComponent.cpp": "ea874c02f7687a29dbcfdb5ee147cfd765f4ed0455d2c5fe95027fb386e351d8",
+  "Source/MessControl/Private/MCThroat.cpp": "5fa2ad39bb13e5812a15052d40ac1586dfdeaba0d82b66af0fe66b3adeaa4334",
+  "Source/MessControl/Private/MCToothCharacter.cpp": "86b9d059f9256e9c017c6c440e82e61f0fe3a0c8a067a56630c71152fc16b1af",
+  "Config/DefaultEditor.ini": "0efbbd750eafbe5712cf6519e3784ed6402aa4b025dc0f3b54056015b96b5fb5",
+  "Content/Gameplay/Arena/V10/Edges/SM_Wall_L.uasset": "9f6dba61cef047bd083a28cc857a663d518c273669b7f80801df58095af8caf2",
+  "Content/Gameplay/Arena/V10/Edges/SM_Wall_R.uasset": "cac41c6457f968e8694967f7ebf271d032c2d5cd97e06754991d452746cece28"
+}

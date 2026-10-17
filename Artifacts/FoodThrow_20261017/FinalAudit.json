@@ -1,0 +1,50 @@
+{
+  "passed": true,
+  "checks": {
+    "solo_passed": true,
+    "physical_arc_spin_speed": true,
+    "saved_blueprint_speed": true,
+    "collection_tuning_preserved": true,
+    "protected_assets_and_config_unchanged": true,
+    "user_unsaved_content_preserved": true,
+    "user_unsaved_map_preserved": true,
+    "engine_settings_restored": true,
+    "compiler_target_restored": true,
+    "compiler_config_restored": true
+  },
+  "protected_differences": [],
+  "received_events": [
+    {
+      "time": 2.476486787199974,
+      "count": 1,
+      "held": 2,
+      "feedback": 2.476486787199974
+    },
+    {
+      "time": 2.8264867663383484,
+      "count": 2,
+      "held": 0,
+      "feedback": 2.8264867663383484
+    },
+    {
+      "time": 3.126486748456955,
+      "count": 3,
+      "held": 0,
+      "feedback": 3.126486748456955
+    },
+    {
+      "time": 3.143153414130211,
+      "count": 4,
+      "held": 0,
+      "feedback": 3.126486748456955
+    },
+    {
+      "time": 3.159820079803467,
+      "count": 5,
+      "held": 0,
+      "feedback": 3.126486748456955
+    }
+  ],
+  "before_speed": 1400.0,
+  "after_speed": 1800.0
+}

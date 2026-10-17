@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "checks": {
+    "gameplay": true,
+    "three_physical_launches": true,
+    "faster_flight": true,
+    "gentle_spin": true,
+    "ballistic_arcs": true,
+    "each_manual_piece_has_feedback": true
+  },
+  "flights": [
+    {
+      "name": "MCFoodActor_2",
+      "samples": 20,
+      "initial_speed": 1793.8919317533728,
+      "angular_speed": 1.6885103028851969,
+      "rotation_change": 28.369991705717467,
+      "gravity": 979.2626880311203,
+      "arc_fit_error_cm": 3.570267989101483e-05
+    },
+    {
+      "name": "MCFoodActor_0",
+      "samples": 20,
+      "initial_speed": 1793.7360127692875,
+      "angular_speed": 1.6885104112815548,
+      "rotation_change": 27.679498238628696,
+      "gravity": 979.4372050064632,
+      "arc_fit_error_cm": 9.496000623953841e-05
+    },
+    {
+      "name": "MCFoodActor_1",
+      "samples": 20,
+      "initial_speed": 1793.5768472074103,
+      "angular_speed": 1.6885103918440643,
+      "rotation_change": 28.16431632760134,
+      "gravity": 979.3659704824114,
+      "arc_fit_error_cm": 7.089611096396255e-05
+    }
+  ]
+}

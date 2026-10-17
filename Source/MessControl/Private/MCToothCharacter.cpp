@@ -60,6 +60,7 @@
 #include "InputMappingContext.h"
 #include "InputModifiers.h"
 #include "EngineUtils.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Misc/ConfigCacheIni.h"
 #include "UObject/ConstructorHelpers.h"
@@ -1970,8 +1971,25 @@ FVector AMCToothCharacter::CameraThrowDirection() const
     if(IsValid(HeldFood)) Params.AddIgnoredActor(HeldFood);
     FHitResult Hit;
     const FVector End=Origin+Forward*10000;
-    const FVector Target=GetWorld()->LineTraceSingleByChannel(Hit,Origin,End,ECC_Visibility,Params)?Hit.ImpactPoint:End;
-    return FVector::DotProduct(Target-Launch,Forward)>25?(Target-Launch).GetSafeNormal():Forward;
+    FVector Target=GetWorld()->LineTraceSingleByChannel(Hit,Origin,End,ECC_Visibility,Params)?Hit.ImpactPoint:End;
+    if(!HasFoodToThrow()) return FVector::DotProduct(Target-Launch,Forward)>25?(Target-Launch).GetSafeNormal():Forward;
+    // The existing throat reticle identifies its visible opening. Solve to that
+    // plane rather than to a dark wall far behind it, which used to undershoot.
+    float BestAim=0;
+    if(HasFoodToThrow()) for(TActorIterator<AMCThroat> It(GetWorld());It;++It) {
+        const float Strength=It->IntakeAimStrength(Origin,Forward);
+        FVector Center;float Radius;
+        if(Strength>BestAim && It->GetIntakeAimTarget(Center,Radius)) {BestAim=Strength;Target=Center;}
+    }
+    const float Speed=FoodCollection?FoodCollection->EffectiveThrowSpeed():1800.f;
+    UGameplayStatics::FSuggestProjectileVelocityParameters Arc(this,Launch,Target,Speed);
+    Arc.OverrideGravityZ=GetWorld()->GetGravityZ();Arc.TraceOption=ESuggestProjVelocityTraceOption::DoNotTrace;
+    FVector Velocity;
+    if(FVector::DotProduct(Target-Launch,Forward)>25
+        && UGameplayStatics::SuggestProjectileVelocity(Arc,Velocity))
+        return Velocity.GetSafeNormal();
+    // Unreachable/distant aim still produces a short upward toss under gravity.
+    return (Forward*Speed+FVector(0,0,260)).GetSafeNormal();
 }
 void AMCToothCharacter::ThrowItem()
 {
