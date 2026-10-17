@@ -1,0 +1,17 @@
+{
+  "map": "/Game/Maps/L_Mouth.L_Mouth",
+  "pie": false,
+  "dirty": [],
+  "eye": [
+    2965.4243575586056,
+    -705.9439452896178,
+    406.8010207429937
+  ],
+  "rotation": {
+    "roll": 0.0,
+    "pitch": -4.824628802295308,
+    "yaw": 146.00333600852912
+  },
+  "selected": [],
+  "throttle": true
+}

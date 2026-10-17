@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "protected_count": 145,
+  "old_assets_unchanged": true,
+  "source_unchanged": true,
+  "walking_preserved": true,
+  "bindings": {
+    "MageIdleAnimation": "/Game/Gameplay/CoreLoop/NutWizard/ArtistUpdate_20261017/Animations/A_NutWizard_Idle.A_NutWizard_Idle",
+    "MageHitAnimation": "/Game/Gameplay/CoreLoop/NutWizard/ArtistUpdate_20261017/Animations/A_NutWizard_Hit.A_NutWizard_Hit",
+    "MageDeathAnimation": "/Game/Gameplay/CoreLoop/NutWizard/ArtistUpdate_20261017/Animations/A_NutWizard_Death.A_NutWizard_Death",
+    "MageCastAnimation": "/Game/Gameplay/CoreLoop/NutWizard/ArtistUpdate_20261017/Animations/A_NutWizard_Cast.A_NutWizard_Cast",
+    "MageSummonAnimation": "/Game/Gameplay/CoreLoop/NutWizard/ArtistUpdate_20261017/Animations/A_NutWizard_Summon.A_NutWizard_Summon",
+    "MageRainAnimation": "/Game/Gameplay/CoreLoop/NutWizard/ArtistUpdate_20261017/Animations/A_NutWizard_Rain.A_NutWizard_Rain",
+    "MageTeleportAnimation": "/Game/Gameplay/CoreLoop/NutWizard/ArtistUpdate_20261017/Animations/A_NutWizard_Teleport.A_NutWizard_Teleport"
+  },
+  "mesh": "/Game/Gameplay/CoreLoop/NutWizard/ArtistUpdate_20261017/SK_NutWizard_ArtistUpdate.SK_NutWizard_ArtistUpdate",
+  "deformer": "/DeformerGraph/Deformers/DG_DualQuatSkin_Morph_Cloth.DG_DualQuatSkin_Morph_Cloth",
+  "dirty": []
+}

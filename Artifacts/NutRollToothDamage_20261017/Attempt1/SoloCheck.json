@@ -1,0 +1,8698 @@
+{
+  "passed": false,
+  "error": "Traceback (most recent call last):\n  File \"D:/PROJECT/GAME/WaifuTD/MessControl/Tools/Unreal/check_nut_roll_tooth_damage_solo.py\", line 60, in tick\n    assert now<9,'Native roll did not collide with the tooth'\n           ^^^^^\nAssertionError: Native roll did not collide with the tooth\n",
+  "checks": [
+    {
+      "name": "all twelve lower side teeth are active",
+      "passed": true
+    },
+    {
+      "name": "all twelve teeth are available respawn reserves",
+      "passed": true
+    },
+    {
+      "name": "all active crowns use the assigned gameplay material",
+      "passed": true
+    },
+    {
+      "name": "new tongue retains the previous pressure material",
+      "passed": true
+    },
+    {
+      "name": "twelve upper crowns and both front rows remain decorative",
+      "passed": true
+    },
+    {
+      "name": "new tongue has matching playable collision",
+      "passed": true
+    }
+  ],
+  "rows": [
+    {
+      "time": 0.01666666567325592,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.03333333134651184,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.04999999701976776,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.06666666269302368,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.0833333283662796,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.09999999403953552,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.11666665971279144,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.13333332538604736,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.14999999105930328,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.1666666567325592,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.18333332240581512,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.19999998807907104,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.21666665375232697,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.23333331942558289,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.2499999850988388,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.2666666507720947,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.28333331644535065,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.29999998211860657,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.3166666477918625,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.3333333134651184,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.34999997913837433,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.36666664481163025,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.38333331048488617,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.3999999761581421,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.416666641831398,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.43333330750465393,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.44999997317790985,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.46666663885116577,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.4833333045244217,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.4999999701976776,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.5166666358709335,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.5333333015441895,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.5499999672174454,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.5666666328907013,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.5833332985639572,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.5999999642372131,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.616666629910469,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.633333295583725,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.6499999612569809,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.6666666269302368,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.6833332926034927,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.6999999582767487,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.7166666239500046,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.7333332896232605,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.7499999552965164,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.7666666209697723,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.7833332866430283,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.7999999523162842,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.8166666179895401,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.833333283662796,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.8499999493360519,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.8666666150093079,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.8833332806825638,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.8999999463558197,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.9166666120290756,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.9333332777023315,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.9499999433755875,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.9666666090488434,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.9833332747220993,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.9999999403953552,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.0166666060686111,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.033333271741867,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.049999937415123,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.066666603088379,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.0833332687616348,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.0999999344348907,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.1166666001081467,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.1333332657814026,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.1499999314546585,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.1666665971279144,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.1833332628011703,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.1999999284744263,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.2166665941476822,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.233333259820938,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.249999925494194,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.26666659116745,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.2833332568407059,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.2999999225139618,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.3166665881872177,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.3333332538604736,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.3499999195337296,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.3666665852069855,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.3833332508802414,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.3999999165534973,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.4166665822267532,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.4333332479000092,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.449999913573265,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.466666579246521,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.483333244919777,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.4999999105930328,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.5166665762662888,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.5333332419395447,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.5499999076128006,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.5666665732860565,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.5833332389593124,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.5999999046325684,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.6166665703058243,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.6333332359790802,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.6499999016523361,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.666666567325592,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.683333232998848,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.6999998986721039,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.7166665643453598,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.7333332300186157,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.7499998956918716,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.7666665613651276,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.7833332270383835,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.7999998927116394,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.8166665583848953,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.8333332240581512,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.8499998897314072,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.866666555404663,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.883333221077919,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.899999886751175,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.9166665524244308,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.9333332180976868,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.9499998837709427,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.9666665494441986,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.9833332151174545,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.9999998807907104,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.0166665464639664,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.0333332121372223,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.049999877810478,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.066666543483734,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.08333320915699,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.099999874830246,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.116666540503502,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.133333206176758,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.1499998718500137,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.1666665375232697,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.1833332031965256,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.1999998688697815,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.2166665345430374,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.2333332002162933,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.2499998658895493,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.266666531562805,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.283333197236061,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.299999862909317,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.316666528582573,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.333333194255829,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.3499998599290848,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.3666665256023407,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.3833331912755966,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.3999998569488525,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.4166665226221085,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.4333331882953644,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.4499998539686203,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.466666519641876,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.483333185315132,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.499999850988388,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.516666516661644,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.5333331823349,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.549999848008156,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.5666665136814117,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.5833331793546677,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.5999998450279236,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.6166665107011795,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.6333331763744354,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.6499998420476913,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.6666665077209473,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.683333173394203,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.699999839067459,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.716666504740715,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.733333170413971,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.749999836087227,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.766666501760483,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.7833331674337387,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.7999998331069946,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.8166664987802505,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.8333331644535065,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.8499998301267624,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.8666664958000183,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.8833331614732742,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.89999982714653,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.916666492819786,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.933333158493042,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.949999824166298,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.966666489839554,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.9833331555128098,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 2.9999998211860657,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.0166664868593216,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.0333331525325775,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.0499998182058334,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.0666664838790894,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.0833331495523453,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.099999815225601,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.116666480898857,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.133333146572113,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.149999812245369,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.166666477918625,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.183333143591881,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.1999998092651367,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.2166664749383926,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.2333331406116486,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.2499998062849045,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.2666664719581604,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.2833331376314163,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.2999998033046722,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.316666468977928,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.333333134651184,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.34999980032444,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.366666465997696,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.383333131670952,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.3999997973442078,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.4166664630174637,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.4333331286907196,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.4499997943639755,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.4666664600372314,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.4833331257104874,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.4999997913837433,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.516666457056999,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1279.7865700393409,
+        1303.739579498546,
+        309.5724140978655
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.533333122730255,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7864482096365,
+        1309.0728407031913,
+        308.84543355489427
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.549999788403511,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7864482096365,
+        1309.0728407031913,
+        308.84543355489427
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.566666454076767,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7863263218778,
+        1314.4060924737712,
+        309.05125936055833
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.583333119750023,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7863263218778,
+        1314.4060924737712,
+        309.05125936055833
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.599999785423279,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7862044341189,
+        1319.739344244351,
+        309.25693257833177
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.6166664510965347,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7862044341189,
+        1319.739344244351,
+        309.25693257833177
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.6333331167697906,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7860825463558,
+        1325.0724739446223,
+        309.4623311379021
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.6499997824430466,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7860825463558,
+        1325.0724739446223,
+        309.4623311379021
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.6666664481163025,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.785960658593,
+        1330.405603644894,
+        309.667394004113
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.6833331137895584,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.785960658593,
+        1330.405603644894,
+        309.667394004113
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.6999997794628143,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7858387708336,
+        1335.7388554154736,
+        309.8721211769646
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.7166664451360703,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7858387708336,
+        1335.7388554154736,
+        309.8721211769646
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.733333110809326,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.785716883071,
+        1341.0719851157448,
+        310.07639058614427
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.749999776482582,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.785716883071,
+        1341.0719851157448,
+        310.07639058614427
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.766666442155838,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7855949953077,
+        1346.4051148160165,
+        310.2747853615349
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.783333107829094,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7855949953077,
+        1346.4051148160165,
+        310.2747853615349
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.79999977350235,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7854731075447,
+        1351.7382445162878,
+        310.41940816426927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.8166664391756058,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7854731075447,
+        1351.7382445162878,
+        310.41940816426927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.8333331048488617,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7853512197858,
+        1357.0714962868674,
+        310.5810597755974
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.8499997705221176,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7853512197858,
+        1357.0714962868674,
+        310.5810597755974
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.8666664361953735,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7852293320225,
+        1362.404625987139,
+        310.74216207051927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.8833331018686295,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7852293320225,
+        1362.404625987139,
+        310.74216207051927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.8999997675418854,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.78510744426,
+        1367.7377556874103,
+        310.9025929787224
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.9166664332151413,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.78510744426,
+        1367.7377556874103,
+        310.9025929787224
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.933333098888397,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7851076268093,
+        1373.0710074579858,
+        311.06235250020677
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.949999764561653,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7851076268093,
+        1373.0710074579858,
+        311.06235250020677
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.966666430234909,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7851078093545,
+        1378.4041371582532,
+        311.2213643410271
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.983333095908165,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7851078093545,
+        1378.4041371582532,
+        311.2213643410271
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 3.999999761581421,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7851079918998,
+        1383.7372668585203,
+        311.3796437599724
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.016666427254677,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7851079918998,
+        1383.7372668585203,
+        311.3796437599724
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.033333092927933,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7851081744495,
+        1389.0705186290957,
+        311.53712972188646
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.049999758601189,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7851081744495,
+        1389.0705186290957,
+        311.53712972188646
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.066666424274445,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7851083569947,
+        1394.403648329363,
+        311.61749776387865
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.0833330899477005,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7851083569947,
+        1394.403648329363,
+        311.61749776387865
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.099999755620956,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.78510853954,
+        1399.7367780296302,
+        311.5882619240349
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.116666421294212,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.78510853954,
+        1399.7367780296302,
+        311.5882619240349
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.133333086967468,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7851086581122,
+        1403.200912038047,
+        311.5687171984157
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.149999752640724,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1279.7851086581122,
+        1403.200912038047,
+        311.5687171984157
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.16666641831398,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1285.1183604286784,
+        1403.2006449160176,
+        311.36583455587083
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.183333083987236,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1285.1183604286784,
+        1403.2006449160176,
+        311.36583455587083
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.199999749660492,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1290.4512459906146,
+        1403.2674171921326,
+        311.2253011086052
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.216666415333748,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1290.4512459906146,
+        1403.2674171921326,
+        311.2253011086052
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.233333081007004,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1295.7827887814528,
+        1403.4012060675625,
+        311.08481343770677
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.24999974668026,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1295.7827887814528,
+        1403.4012060675625,
+        311.08481343770677
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.266666412353516,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1301.112256379344,
+        1403.6020115423319,
+        310.94440206075365
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.2833330780267715,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1301.112256379344,
+        1403.6020115423319,
+        310.94440206075365
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.2999997437000275,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1303.3125711118087,
+        1403.712544064366,
+        310.8864127855252
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.316666409373283,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1303.3125711118087,
+        1403.712544064366,
+        310.8864127855252
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.333333075046539,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1297.987378550282,
+        1403.416953061876,
+        311.0698598244255
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.349999740719795,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1297.987378550282,
+        1403.416953061876,
+        311.0698598244255
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.366666406393051,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1303.3157475163384,
+        1403.6452243560555,
+        310.9285176613396
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.383333072066307,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1303.3157475163384,
+        1403.6452243560555,
+        310.9285176613396
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.399999737739563,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1304.479285918,
+        1403.7097453117653,
+        310.8970373357554
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.416666403412819,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1304.479285918,
+        1403.7097453117653,
+        310.8970373357554
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.433333069086075,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1299.1548589784777,
+        1403.3996190381333,
+        311.08253987813646
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.449999734759331,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1299.1548589784777,
+        1403.3996190381333,
+        311.08253987813646
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.466666400432587,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1304.4826175934977,
+        1403.6426608396405,
+        310.93996175313646
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.483333066105843,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1304.4826175934977,
+        1403.6426608396405,
+        310.93996175313646
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.4999997317790985,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1305.6096072179528,
+        1403.7082657774681,
+        310.9086837591806
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.516666397452354,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1305.6096072179528,
+        1403.7082657774681,
+        310.9086837591806
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.53333306312561,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1300.28608452516,
+        1403.3839939999477,
+        311.0924886086052
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.549999728798866,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1300.28608452516,
+        1403.3839939999477,
+        311.0924886086052
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.566666394472122,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1305.6131107188148,
+        1403.6411959572454,
+        310.9484456398552
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.583333060145378,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1305.6131107188148,
+        1403.6411959572454,
+        310.9484456398552
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.599999725818634,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1306.692475444769,
+        1403.7068602238155,
+        310.917714224988
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.61666639149189,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1306.692475444769,
+        1403.7068602238155,
+        310.917714224988
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.633333057165146,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1301.3698247219265,
+        1403.3689793149294,
+        311.09943135762865
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.649999722838402,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1301.3698247219265,
+        1403.3689793149294,
+        311.09943135762865
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.666666388511658,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1306.6962405644992,
+        1403.6396090061633,
+        310.9536946632927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.683333054184914,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1306.6962405644992,
+        1403.6396090061633,
+        310.9536946632927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.6999997198581696,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1307.7355378365046,
+        1403.705491674447,
+        310.9233365368193
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.7166663855314255,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1307.7355378365046,
+        1403.705491674447,
+        310.9233365368193
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.733333051204681,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1302.4136479278923,
+        1403.354574982819,
+        311.102452597863
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.749999716877937,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1302.4136479278923,
+        1403.354574982819,
+        311.102452597863
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.766666382551193,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1307.7393313490663,
+        1403.6383882673765,
+        310.9538167336052
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.783333048224449,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1307.7393313490663,
+        1403.6383882673765,
+        310.9538167336052
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.799999713897705,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1308.7377031167232,
+        1403.7041600811276,
+        310.92410260560996
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.816666379570961,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1308.7377031167232,
+        1403.7041600811276,
+        310.92410260560996
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.833333045244217,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1303.4166996508955,
+        1403.3406589333374,
+        311.1010793068474
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.849999710917473,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1303.4166996508955,
+        1403.3406589333374,
+        311.1010793068474
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.866666376590729,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1308.7415285803415,
+        1403.6370454596813,
+        310.9484456398552
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.883333042263985,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1308.7415285803415,
+        1403.6370454596813,
+        310.9484456398552
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.899999707937241,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1303.4204838281637,
+        1403.2737644042475,
+        311.1164601662224
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.9166663736104965,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1303.4204838281637,
+        1403.2737644042475,
+        311.1164601662224
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.933333039283752,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1308.7454348279139,
+        1403.570028860279,
+        310.9623311379021
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.949999704957008,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1308.7454348279139,
+        1403.570028860279,
+        310.9623311379021
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.966666370630264,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1310.6929229582786,
+        1403.7029024472058,
+        310.90310987567705
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.98333303630352,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1310.6929229582786,
+        1403.7029024472058,
+        310.90310987567705
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 4.999999701976776,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1305.3734866924146,
+        1403.3150241016117,
+        311.07668050313646
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.016666367650032,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1305.3734866924146,
+        1403.3150241016117,
+        311.07668050313646
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.033333033323288,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1310.6970949196095,
+        1403.6357026193534,
+        310.91657002950365
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.049999698996544,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1310.6970949196095,
+        1403.6357026193534,
+        310.91657002950365
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.0666663646698,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1305.3776370805997,
+        1403.2478854318929,
+        311.084874472863
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.083333030343056,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1305.3776370805997,
+        1403.2478854318929,
+        311.084874472863
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.099999696016312,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1310.7012453077987,
+        1403.5686860199428,
+        310.92323812032396
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.116666361689568,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1310.7012453077987,
+        1403.5686860199428,
+        310.92323812032396
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.1333330273628235,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1312.50993132627,
+        1403.7004365698422,
+        310.86702929760145
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.149999693036079,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1312.50993132627,
+        1403.7004365698422,
+        310.86702929760145
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.166666358709335,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1307.1923342855478,
+        1403.2898775558408,
+        311.0378926613396
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.183333024382591,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1307.1923342855478,
+        1403.2898775558408,
+        311.0378926613396
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.199999690055847,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1312.5144776698196,
+        1403.6332611509808,
+        310.87079366231615
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.216666355729103,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1312.5144776698196,
+        1403.6332611509808,
+        310.87079366231615
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.233333021402359,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1307.1967288143533,
+        1403.222860956422,
+        311.03851827169115
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.249999687075615,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1307.1967288143533,
+        1403.222860956422,
+        311.03851827169115
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.266666352748871,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1312.5188721986294,
+        1403.56636662187,
+        310.8699239113396
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.283333018422127,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1312.5188721986294,
+        1403.56636662187,
+        310.8699239113396
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.299999684095383,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1314.2273027889878,
+        1403.6981433079222,
+        310.81568856258104
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.316666349768639,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1314.2273027889878,
+        1403.6981433079222,
+        310.81568856258104
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.3333330154418945,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1308.9113283665238,
+        1403.2661958571878,
+        310.9800313332146
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.3499996811151505,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1308.9113283665238,
+        1403.2661958571878,
+        310.9800313332146
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.366666346788406,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1314.2321289781391,
+        1403.6310638266382,
+        310.8094075539177
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.383333012461662,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1314.2321289781391,
+        1403.6310638266382,
+        310.8094075539177
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.399999678134918,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1308.9162111765668,
+        1403.1993013280603,
+        310.9730733254021
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.416666343808174,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1308.9162111765668,
+        1403.1993013280603,
+        310.9730733254021
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.43333300948143,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1314.2370117881783,
+        1403.5640472272025,
+        310.80104573751146
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.449999675154686,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1314.2370117881783,
+        1403.5640472272025,
+        310.80104573751146
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.466666340827942,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1315.8629491406066,
+        1403.6959979968074,
+        310.7483858191347
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.483333006501198,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1315.8629491406066,
+        1403.6959979968074,
+        310.7483858191347
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.499999672174454,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1310.5487794815824,
+        1403.243734864409,
+        310.90610250020677
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.51666633784771,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1310.5487794815824,
+        1403.243734864409,
+        310.90610250020677
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.533333003520966,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1315.8681152501913,
+        1403.6288665050909,
+        310.73219808126146
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.5499996691942215,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1315.8681152501913,
+        1403.6288665050909,
+        310.73219808126146
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.566666334867477,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1310.5539064322338,
+        1403.1765961946567,
+        310.8918813088005
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.583333000540733,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1310.5539064322338,
+        1403.1765961946567,
+        310.8918813088005
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.599999666213989,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1315.8732422008432,
+        1403.5617278353386,
+        310.71669515157396
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.616666331887245,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1315.8732422008432,
+        1403.5617278353386,
+        310.71669515157396
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.633332997560501,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1317.4283758711613,
+        1403.6939389712547,
+        310.6654146413023
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.649999663233757,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1317.4283758711613,
+        1403.6939389712547,
+        310.6654146413023
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.666666328907013,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1312.1157960287728,
+        1403.222250436508,
+        310.81674703145677
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.683332994580269,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1312.1157960287728,
+        1403.222250436508,
+        310.81674703145677
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.699999660253525,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1317.4336669543504,
+        1403.6269133265712,
+        310.6399434425896
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.716666325926781,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1317.4336669543504,
+        1403.6269133265712,
+        310.6399434425896
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.733332991600037,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1312.121167120049,
+        1403.1553559073636,
+        310.79587300801927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.7499996572732925,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1312.121167120049,
+        1403.1553559073636,
+        310.79587300801927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.7666663229465485,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1317.439038045627,
+        1403.5600187974271,
+        310.6179555275505
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.783332988619804,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1317.439038045627,
+        1403.5600187974271,
+        310.6179555275505
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.79999965429306,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1318.9262753683918,
+        1403.6919662472853,
+        310.56816764312794
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.816666319966316,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1318.9262753683918,
+        1403.6919662472853,
+        310.56816764312794
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.833332985639572,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1313.615429765803,
+        1403.2017425733795,
+        310.71364339376146
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.849999651312828,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1313.615429765803,
+        1403.2017425733795,
+        310.71364339376146
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.866666316986084,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1318.9318358483245,
+        1403.6252042909746,
+        310.53441365743333
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.88333298265934,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1318.9318358483245,
+        1403.6252042909746,
+        310.53441365743333
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.899999648332596,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1313.6210449977,
+        1403.1349701145355,
+        310.68700154805833
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.916666314005852,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1313.6210449977,
+        1403.1349701145355,
+        310.68700154805833
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.933332979679108,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1318.937451080222,
+        1403.5584318321305,
+        310.50690206075365
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.949999645352364,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1318.937451080222,
+        1403.5584318321305,
+        310.50690206075365
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.9666663110256195,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1320.36412930302,
+        1403.6900646155748,
+        310.4585768392528
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.983332976698875,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1320.36412930302,
+        1403.6900646155748,
+        310.4585768392528
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 5.999999642372131,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1315.0548828408598,
+        1403.182089204469,
+        310.5989583351677
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.016666308045387,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1315.0548828408598,
+        1403.182089204469,
+        310.5989583351677
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.033332973718643,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1320.3698240802876,
+        1403.6232511168212,
+        310.41794332051927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.049999639391899,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1320.3698240802876,
+        1403.6232511168212,
+        310.41794332051927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.066666305065155,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1315.060620143057,
+        1403.1150726050043,
+        310.5677083351677
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.083332970738411,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1315.060620143057,
+        1403.1150726050043,
+        310.5677083351677
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.099999636411667,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1320.3755613824887,
+        1403.5563565876646,
+        310.3860677101677
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.116666302084923,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1320.3755613824887,
+        1403.5563565876646,
+        310.3860677101677
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.133332967758179,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1321.7547616676068,
+        1403.6882797697983,
+        310.33898681327696
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.149999633431435,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1321.7547616676068,
+        1403.6882797697983,
+        310.33898681327696
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.1666662991046906,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1316.4470947066175,
+        1403.1630461887178,
+        310.47536214376146
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.1833329647779465,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1316.4470947066175,
+        1403.1630461887178,
+        310.47536214376146
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.199999630451202,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1321.7605711029385,
+        1403.6215420849016,
+        310.29320271993333
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.216666296124458,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1321.7605711029385,
+        1403.6215420849016,
+        310.29320271993333
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.233332961797714,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1316.4530761494393,
+        1403.096273729861,
+        310.44081624532396
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.24999962747097,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1316.4530761494393,
+        1403.096273729861,
+        310.44081624532396
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.266666293144226,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1321.7665525457603,
+        1403.5547696260448,
+        310.2583821632927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.283332958817482,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1321.7665525457603,
+        1403.5547696260448,
+        310.2583821632927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.299999624490738,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1323.0990425083005,
+        1403.686553627989,
+        310.2127212878115
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.316666290163994,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1323.0990425083005,
+        1403.686553627989,
+        310.2127212878115
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.33333295583725,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1317.79316399585,
+        1403.1446135260871,
+        310.34625752950365
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.349999621510506,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1317.79316399585,
+        1403.1446135260871,
+        310.34625752950365
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.366666287183762,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1323.1051755490475,
+        1403.6199551248696,
+        310.163731894738
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.3833329528570175,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1323.1051755490475,
+        1403.6199551248696,
+        310.163731894738
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.399999618530273,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1317.799389579293,
+        1403.0779631375303,
+        310.30991109395677
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.416666284203529,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1317.799389579293,
+        1403.0779631375303,
+        310.30991109395677
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.433332949876785,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1323.1114011324864,
+        1403.5531826660042,
+        310.12741597676927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.449999615550041,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1323.1114011324864,
+        1403.5531826660042,
+        310.12741597676927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.466666281223297,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1324.4009203378637,
+        1403.6848521923946,
+        310.0832504469952
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.483332946896553,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1324.4009203378637,
+        1403.6848521923946,
+        310.0832504469952
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.499999612569809,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1319.096752817803,
+        1403.1266691461437,
+        310.2152608254021
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.516666278243065,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1319.096752817803,
+        1403.1266691461437,
+        310.2152608254021
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.533332943916321,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1324.4072995278484,
+        1403.6180019553667,
+        310.03319295430833
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.549999609589577,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1324.4072995278484,
+        1403.6180019553667,
+        310.03319295430833
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.566666275262833,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1319.1029784012417,
+        1403.0598966872788,
+        310.17868550801927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.583332940936089,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1319.1029784012417,
+        1403.0598966872788,
+        310.17868550801927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.5999996066093445,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1324.4135251112873,
+        1403.5512294965013,
+        309.99692281270677
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.6166662722826,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1324.4135251112873,
+        1403.5512294965013,
+        309.99692281270677
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.633332937955856,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1325.6688827119294,
+        1403.6832370221557,
+        309.95413375255725
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.649999603629112,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1325.6688827119294,
+        1403.6832370221557,
+        309.95413375255725
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.666666269302368,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1320.366406094068,
+        1403.109457189212,
+        310.0860646584099
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.683332934975624,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1320.366406094068,
+        1403.109457189212,
+        310.0860646584099
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.69999960064888,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1325.6754879609566,
+        1403.6166591385668,
+        309.905186972863
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.716666266322136,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1325.6754879609566,
+        1403.6166591385668,
+        309.905186972863
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.733332931995392,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1320.372997888436,
+        1403.042806800643,
+        310.05080159688646
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.749999597668648,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1320.372997888436,
+        1403.042806800643,
+        310.05080159688646
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.766666263341904,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1325.6820797553248,
+        1403.5500087499975,
+        309.8705342629021
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.78333292901516,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1325.6820797553248,
+        1403.5500087499975,
+        309.8705342629021
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.7999995946884155,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1326.8995562935029,
+        1403.6816588517202,
+        309.82939884703796
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.8166662603616714,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1326.8995562935029,
+        1403.6816588517202,
+        309.82939884703796
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.833332926034927,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1321.5987058559992,
+        1403.092611444484,
+        309.96262105489427
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.849999591708183,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1321.5987058559992,
+        1403.092611444484,
+        309.96262105489427
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.866666257381439,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1326.9063228797102,
+        1403.615072182429,
+        309.78366597676927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.883332923054695,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1326.9063228797102,
+        1403.615072182429,
+        309.78366597676927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.899999588727951,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1321.605541790992,
+        1403.026205196523,
+        309.9301808693474
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.916666254401207,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1321.605541790992,
+        1403.026205196523,
+        309.9301808693474
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.933332920074463,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1326.9131588146993,
+        1403.5485438641597,
+        309.75209554219896
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.949999585747719,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1326.9131588146993,
+        1403.5485438641597,
+        309.75209554219896
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.966666251420975,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1328.0976217969132,
+        1403.680105357897,
+        309.71258002610534
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.983332917094231,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1328.0976217969132,
+        1403.680105357897,
+        309.71258002610534
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 6.999999582767487,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1322.798412845625,
+        1403.0762539821046,
+        309.8484395363396
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.0166662484407425,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1322.798412845625,
+        1403.0762539821046,
+        309.8484395363396
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.033332914113998,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1328.1045650261417,
+        1403.6134852274067,
+        309.672032675988
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.049999579787254,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1328.1045650261417,
+        1403.6134852274067,
+        309.672032675988
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.06666624546051,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1322.8053708509265,
+        1403.0098477341394,
+        309.820226035363
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.083332911133766,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1322.8053708509265,
+        1403.0098477341394,
+        309.820226035363
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.099999576807022,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1328.1115230314388,
+        1403.546956909133,
+        309.6449025490349
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.116666242480278,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1328.1115230314388,
+        1403.546956909133,
+        309.6449025490349
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.133332908153534,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1329.2674862430088,
+        1403.6786134867589,
+        309.6069587325212
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.14999957382679,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1329.2674862430088,
+        1403.6786134867589,
+        309.6069587325212
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.166666239500046,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1323.9700436643536,
+        1403.0603848019196,
+        309.7467091896599
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.183332905173302,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1323.9700436643536,
+        1403.0603848019196,
+        309.7467091896599
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.199999570846558,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1329.274608931355,
+        1403.6120203436578,
+        309.57338460469896
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.2166662365198135,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1329.274608931355,
+        1403.6120203436578,
+        309.57338460469896
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.2333329021930695,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1323.977123739959,
+        1402.993856483642,
+        309.72389730001146
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.249999567866325,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1323.977123739959,
+        1402.993856483642,
+        309.72389730001146
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.266666233539581,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1329.281811077273,
+        1403.5456140956844,
+        309.5518391945427
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.283332899212837,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1329.281811077273,
+        1403.5456140956844,
+        309.5518391945427
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.299999564886093,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1330.409857668895,
+        1403.677170969632,
+        309.5155089759676
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.316666230559349,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1330.409857668895,
+        1403.677170969632,
+        309.5155089759676
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.333332896232605,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1325.114086593418,
+        1403.0450039039122,
+        309.66017659688646
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.349999561905861,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1325.114086593418,
+        1403.0450039039122,
+        309.66017659688646
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.366666227579117,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1330.417187017205,
+        1403.610799601466,
+        309.49033101583177
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.383332893252373,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1330.417187017205,
+        1403.610799601466,
+        309.49033101583177
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.399999558925629,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1325.1214108096444,
+        1402.9785976559344,
+        309.6437276222771
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.416666224598885,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1325.1214108096444,
+        1402.9785976559344,
+        309.6437276222771
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.4333328902721405,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1330.424389163123,
+        1403.5443933534925,
+        309.4752705910271
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.449999555945396,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1330.424389163123,
+        1403.5443933534925,
+        309.4752705910271
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.466666221618652,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1331.5253645890048,
+        1403.6757530682648,
+        309.44056215060914
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.483332887291908,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1331.5253645890048,
+        1403.6757530682648,
+        309.44056215060914
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.499999552965164,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1326.2311519843522,
+        1403.0298671474447,
+        309.59100850606615
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.51666621863842,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1326.2311519843522,
+        1403.0298671474447,
+        309.59100850606615
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.533332884311676,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1331.532787564911,
+        1403.609456789889,
+        309.42490132833177
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.549999549984932,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1331.532787564911,
+        1403.609456789889,
+        309.42490132833177
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.566666215658188,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1326.2385982708868,
+        1402.9634608994627,
+        309.58160909200365
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.583332881331444,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1326.2385982708868,
+        1402.9634608994627,
+        309.58160909200365
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.5999995470047,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1331.5402338514411,
+        1403.5429284715988,
+        309.41693624044115
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.616666212677956,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1331.5402338514411,
+        1403.5429284715988,
+        309.41693624044115
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.6333328783512115,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1332.6182563999698,
+        1403.674372166693,
+        309.3853274769356
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.6499995440244675,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1332.6182563999698,
+        1403.674372166693,
+        309.3853274769356
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.666666209697723,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1327.3257564385676,
+        1403.015096602671,
+        309.54051717305833
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.683332875370979,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1327.3257564385676,
+        1403.015096602671,
+        309.54051717305833
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.699999541044235,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1332.6259271758818,
+        1403.6079919087724,
+        309.3782246925896
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.716666206717491,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1332.6259271758818,
+        1403.6079919087724,
+        309.3782246925896
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.733332872390747,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1327.3334468657183,
+        1402.9486903546808,
+        309.53851827169115
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.749999538064003,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1327.3334468657183,
+        1402.9486903546808,
+        309.53851827169115
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.766666203737259,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1332.633617603033,
+        1403.5415856607822,
+        309.37770589376146
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.783332869410515,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1332.633617603033,
+        1403.5415856607822,
+        309.37770589376146
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.799999535083771,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1333.6892234902637,
+        1403.6730159223089,
+        309.3508957434349
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.816666200757027,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1333.6892234902637,
+        1403.6730159223089,
+        309.3508957434349
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.833332866430283,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1328.3982661669804,
+        1403.0004481289618,
+        309.5093282082146
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.8499995321035385,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1328.3982661669804,
+        1403.0004481289618,
+        309.5093282082146
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.866666197776794,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1333.6969720610462,
+        1403.6065270284123,
+        309.35081990743333
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.88333286345005,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1333.6969720610462,
+        1403.6065270284123,
+        309.35081990743333
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.899999529123306,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1328.4060786644359,
+        1402.933919810659,
+        309.514806113488
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.916666194796562,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1328.4060786644359,
+        1402.933919810659,
+        309.514806113488
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.933332860469818,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1333.7046624881932,
+        1403.5399987101137,
+        309.3576711037224
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.949999526143074,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1333.7046624881932,
+        1403.5399987101137,
+        309.3576711037224
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.96666619181633,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1334.7412387634674,
+        1403.6716843520942,
+        309.33532089126334
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.983332857489586,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1334.7412387634674,
+        1403.6716843520942,
+        309.33532089126334
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 7.999999523162842,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1329.4519770679287,
+        1402.9862879371296,
+        309.4972432472771
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.016666188836098,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1329.4519770679287,
+        1402.9862879371296,
+        309.4972432472771
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.033332854509354,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1334.7490960484295,
+        1403.6053062893166,
+        309.3422444679802
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.04999952018261,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1334.7490960484295,
+        1403.6053062893166,
+        309.3422444679802
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.066666185855865,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1329.4599116356967,
+        1402.9198816891312,
+        309.5098927834099
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.083332851529121,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1329.4599116356967,
+        1402.9198816891312,
+        309.5098927834099
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.099999517202377,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1334.7570306161972,
+        1403.5389000413177,
+        309.3561604836052
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.116666182875633,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1334.7570306161972,
+        1403.5389000413177,
+        309.3561604836052
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.13333284854889,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1335.77183908801,
+        1403.6703651082955,
+        309.3380614882683
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.149999514222145,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1335.77183908801,
+        1403.6703651082955,
+        309.3380614882683
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.166666179895401,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1330.4843256649292,
+        1402.9723718866453,
+        309.50336202169115
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.183332845568657,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1330.4843256649292,
+        1402.9723718866453,
+        309.50336202169115
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.199999511241913,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1335.7798577318556,
+        1403.6040855509518,
+        309.35150655294115
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.216666176915169,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1335.7798577318556,
+        1403.6040855509518,
+        309.35150655294115
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.233332842588425,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1330.4922602326967,
+        1402.9059656386466,
+        309.52260335469896
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.24999950826168,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1330.4922602326967,
+        1402.9059656386466,
+        309.52260335469896
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.266666173934937,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1335.7879143699322,
+        1403.5376793029488,
+        309.3718312599724
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.283332839608192,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1335.7879143699322,
+        1403.5376793029488,
+        309.3718312599724
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.299999505281448,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1336.7840091990827,
+        1403.6691074888956,
+        309.35763057254394
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.316666170954704,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1336.7840091990827,
+        1403.6691074888956,
+        309.35763057254394
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.33333283662796,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1331.498119575073,
+        1402.9586999774126,
+        309.52586873555833
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.349999502301216,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1331.498119575073,
+        1402.9586999774126,
+        309.52586873555833
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.366666167974472,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1336.792186798726,
+        1403.6028648132178,
+        309.37668355489427
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.383332833647728,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1336.792186798726,
+        1403.6028648132178,
+        309.37668355489427
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.399999499320984,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1331.5062982834615,
+        1402.8924157997137,
+        309.55084737325365
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.41666616499424,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1331.5062982834615,
+        1402.8924157997137,
+        309.55084737325365
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.433332830667496,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1336.8004875774272,
+        1403.5367027058235,
+        309.40248616719896
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.449999496340752,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1336.8004875774272,
+        1403.5367027058235,
+        309.40248616719896
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.466666162014008,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1331.5145990621588,
+        1402.8261316220112,
+        309.5778096535271
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.483332827687263,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1331.5145990621588,
+        1402.8261316220112,
+        309.5778096535271
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.49999949336052,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1336.8087883561245,
+        1403.4704185281207,
+        309.4301808693474
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.516666159033775,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1336.8087883561245,
+        1403.4704185281207,
+        309.4301808693474
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.533332824707031,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1338.2784084024263,
+        1403.6678498812826,
+        309.4142119027822
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.549999490380287,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1338.2784084024263,
+        1403.6678498812826,
+        309.4142119027822
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.566666156053543,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1332.9949456950453,
+        1402.9391686768467,
+        309.5768330910271
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.583332821726799,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1332.9949456950453,
+        1402.9391686768467,
+        309.5768330910271
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.599999487400055,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1338.2868156537756,
+        1403.6016440589758,
+        309.45212300801927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.61666615307331,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1338.2868156537756,
+        1403.6016440589758,
+        309.45212300801927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.633332818746567,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1333.0033685440505,
+        1402.87288449914,
+        309.60788472676927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.649999484419823,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1333.0033685440505,
+        1402.87288449914,
+        309.60788472676927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.666666150093079,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1338.295238502781,
+        1403.5353598812687,
+        309.4827931740349
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.683332815766335,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1338.295238502781,
+        1403.5353598812687,
+        309.4827931740349
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.69999948143959,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1333.01179139306,
+        1402.8067223917412,
+        309.64020284200365
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.716666147112846,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1333.01179139306,
+        1402.8067223917412,
+        309.64020284200365
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.733332812786102,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1338.3036613517907,
+        1403.46919777387,
+        309.51459249044115
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.749999478459358,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1338.3036613517907,
+        1403.46919777387,
+        309.51459249044115
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.766666144132614,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1339.7307875073461,
+        1403.6659881329736,
+        309.5003805821418
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.78333280980587,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1339.7307875073461,
+        1403.6659881329736,
+        309.5003805821418
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.799999475479126,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1334.4499016992593,
+        1402.919515307406,
+        309.6469014504021
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.816666141152382,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1334.4499016992593,
+        1402.919515307406,
+        309.6469014504021
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.833332806825638,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1339.7395743930535,
+        1403.5999350249333,
+        309.54587300801927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.849999472498894,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1339.7395743930535,
+        1403.5999350249333,
+        309.54587300801927
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.86666613817215,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1334.458690759198,
+        1402.853475270303,
+        309.68129476094896
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.883332803845406,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1334.458690759198,
+        1402.853475270303,
+        309.68129476094896
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.899999469518661,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1339.7483634529924,
+        1403.5338949878305,
+        309.57948812032396
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.916666135191917,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1339.7483634529924,
+        1403.5338949878305,
+        309.57948812032396
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.933332800865173,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1334.4674798191322,
+        1402.787313162892,
+        309.71613057637865
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.94999946653843,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1334.4674798191322,
+        1402.787313162892,
+        309.71613057637865
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.966666132211685,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1339.7571525129226,
+        1403.467610810111,
+        309.61337789083177
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.983332797884941,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1339.7571525129226,
+        1403.467610810111,
+        309.61337789083177
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 8.999999463558197,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1341.1486774348411,
+        1403.6642127107389,
+        309.59962266979096
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 9.016666129231453,
+      "state": "<MCNutBossState.IDLE: 1>",
+      "attack": "<MCNutBossAttack.NONE: 0>",
+      "boss": [
+        -1341.1486774348411,
+        1403.6642127107389,
+        309.59962266979096
+      ],
+      "forward": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "tooth_health": 100.0
+    }
+  ],
+  "captures": [],
+  "damage": 16.0,
+  "hp_before": 100.0,
+  "hp_after": 100.0,
+  "restored_engine_settings": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  },
+  "scope": "Short solo collision proof on an authored V10 crown.\n\nTemporary fixture: pause directors, spawn one knight with the saved boss profile,\nset only its ability readiness and place its target on the tooth's crown. The\nnative scheduler, telegraph, roll movement, blocking sweep and tooth HP run\nnormally; no attack state or tooth health is fabricated.\n"
+}

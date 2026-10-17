@@ -1,0 +1,33 @@
+{
+  "passed": true,
+  "native_tests": 1,
+  "solo_checks": 10,
+  "speed": 1800.0000383949016,
+  "ulcer": {
+    "aim_fixture": true,
+    "target": [
+      -654.3224505557034,
+      -461.6871485825526,
+      120.01476986171201
+    ],
+    "speed": 1800.0,
+    "position": [
+      -676.4019341076998,
+      -467.09146949839777,
+      125.2331721291712
+    ],
+    "impact": [
+      -675.8739935007443,
+      -468.07414200559924,
+      120.32697042012933
+    ],
+    "pulse_interval": 3.0,
+    "pain_wave_seen": true,
+    "cleanup_passed": true
+  },
+  "map": "/Game/Maps/L_Mouth.L_Mouth",
+  "dirty": [],
+  "preferences_restored": true,
+  "protected_packages_unchanged": true,
+  "profile_only_speed_changed": true
+}

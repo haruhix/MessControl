@@ -1,6 +1,7 @@
 #if WITH_DEV_AUTOMATION_TESTS
 #include "Misc/AutomationTest.h"
 #include "MCNutBoss.h"
+#include "MCArenaTooth.h"
 #include "MCNutCombatEffect.h"
 #include "MCNutSpellProjectile.h"
 #include "MCNutKamikaze.h"
@@ -9,12 +10,15 @@
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCTongue.h"
+#include "MCMouthSurface.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/BoxComponent.h"
+#include "ProceduralMeshComponent.h"
 #include <limits>
 #if WITH_EDITOR
 #include "StaticMeshCompiler.h"
@@ -159,6 +163,101 @@ bool FMCNutBossRollTest::RunTest(const FString&)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutBossRollToothTest,"MessControl.CoreLoop.NutBoss.RollCollisionDamagesArenaTeeth",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutBossRollToothTest::RunTest(const FString&)
+{
+    MCNutBossTestsPrivate::FFixture T; T.AddBoss(); T.Step(1.4f);
+    auto* Hero=T.AddHero(FVector(900,0,130));
+    auto AddTooth=[&](int32 Id,float Y) {
+        const FTransform Pose(FVector(0,Y,145));
+        auto* Tooth=T.World->SpawnActorDeferred<AMCArenaTooth>(AMCArenaTooth::StaticClass(),Pose,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+        FMCArenaToothSettings Settings; Settings.InitialCalculusEveryNthTooth=0;
+        Tooth->SetAppearance(T.Cube,FVector(2,3,3)); Tooth->Initialize(Id,Settings); Tooth->FinishSpawning(Pose);
+        return Tooth;
+    };
+    auto* Tooth=AddTooth(1,0); auto* Other=AddTooth(2,650);
+    auto AimAt=[&](AMCArenaTooth* Target) {
+        const FVector Center=Target->GetActorLocation();
+        T.Boss->SetActorLocation(FVector(-Target->Body->GetScaledBoxExtent().X-T.Boss->Settings.BodyRadius-5,Center.Y,T.Boss->Settings.BodyRadius+14));
+        T.Boss->AttackForward=FVector::ForwardVector;
+        Hero->SetActorLocation(FVector(900,Center.Y,130)); T.Boss->Target=Hero;
+    };
+    T.Boss->Attack=EMCNutBossAttack::Roll; T.Boss->State=EMCNutBossState::Telegraph;
+    T.Boss->ResolveAt=T.World->GetTimeSeconds()+.5;
+    AimAt(Tooth); T.Step(.3f);
+    TestEqual(TEXT("The rolling warning cannot damage a nearby tooth"),Tooth->State.Health,100.f);
+    T.Step(.35f);
+    if(!TestEqual(TEXT("A real blocking roll sweep damages the struck tooth once"),Tooth->State.Health,100-T.Boss->BossSettings.RollDamage)) return false;
+    TestEqual(TEXT("The damage enters the ordinary chipped stage"),Tooth->DamageStage(),EMCArenaToothDamageStage::Chipped);
+    TestEqual(TEXT("Teeth outside the collision path keep their health"),Other->State.Health,100.f);
+    const float AfterFirst=Tooth->State.Health;
+    AimAt(Tooth); T.Step(.05f);
+    AimAt(Tooth); T.Step(.05f);
+    TestEqual(TEXT("Repeated collision substeps cannot drain HP every frame"),Tooth->State.Health,AfterFirst);
+    AimAt(Other); T.Step(.05f);
+    TestEqual(TEXT("Another tooth has an independent contact cooldown"),Other->State.Health,100-T.Boss->BossSettings.RollDamage);
+    T.Boss->SetActorTickEnabled(false); T.Step(T.Boss->BossSettings.RollHitGap+.05f); T.Boss->SetActorTickEnabled(true);
+    AimAt(Tooth); T.Step(.05f);
+    TestEqual(TEXT("A later roll collision can damage the same tooth again"),Tooth->State.Health,AfterFirst-T.Boss->BossSettings.RollDamage);
+    const float BeforeRecovery=Tooth->State.Health;
+    T.Boss->State=EMCNutBossState::Recovery; T.Boss->AttackEndAt=T.World->GetTimeSeconds()+3;
+    AimAt(Tooth); T.Step(.2f);
+    TestEqual(TEXT("Recovery contact cannot apply rolling damage"),Tooth->State.Health,BeforeRecovery);
+    Tooth->ReceiveArenaHit(Tooth->State.Health-1,FVector::ForwardVector);
+    T.Boss->SetActorTickEnabled(false); T.Step(T.Boss->BossSettings.RollHitGap+.05f); T.Boss->SetActorTickEnabled(true);
+    T.Boss->State=EMCNutBossState::Executing; T.Boss->AttackEndAt=T.World->GetTimeSeconds()+3;
+    AimAt(Tooth); T.Step(.05f);
+    TestEqual(TEXT("A lethal roll collision uses normal tooth loss"),Tooth->DamageStage(),EMCArenaToothDamageStage::Lost);
+    TestFalse(TEXT("A tooth knocked out by the boss is no longer a respawn reserve"),Tooth->IsAvailable());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutWizardPressureTest,"MessControl.CoreLoop.NutBoss.WizardPressureWaitsForFullCastAndTurnsSmoothly",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutWizardPressureTest::RunTest(const FString&)
+{
+    MCNutBossTestsPrivate::FFixture T;T.AddBoss(EMCNutBossRole::Mage);T.Step(1.4f);
+    T.Event->Stage=EMCNutRainStage::Enemies;T.Event->Settings.bBossEncounter=true;
+    T.Event->Bosses.AddUnique(T.Boss);
+    T.Event->SetActorTickEnabled(true);
+    auto* Hero=T.AddHero(T.Boss->GetActorLocation()+FVector(-800,0,16));T.Boss->Target=Hero;
+    T.Boss->NextMeleeAt=T.Boss->NextFireballAt=T.Boss->NextRainAt=T.Boss->NextSummonAt=T.Boss->NextTeleportAt=T.Boss->NextSpecialAt=10000;
+    const float OldYaw=T.Boss->GetActorRotation().Yaw;T.Step(.05f);
+    const float Turn=FMath::Abs(FMath::FindDeltaAngleDegrees(OldYaw,T.Boss->GetActorRotation().Yaw));
+    TestTrue(TEXT("A target behind the wizard causes a bounded turn over time"),Turn>0 && Turn<=T.Boss->BossSettings.MageTurnDegreesPerSecond*.05f+.1f);
+    Hero->SetActorLocation(FVector(800,0,130));T.Boss->NextFireballAt=T.Boss->NextSpecialAt=0;T.Boss->NextTeleportAt=0;
+    if(!TestTrue(TEXT("A scheduled fire-nut first enters its native teleport"),T.WaitFor(EMCNutBossAttack::Teleport,EMCNutBossState::Telegraph,2))) return false;
+    if(!TestTrue(TEXT("Native AI starts fire-nut after the teleport"),T.WaitFor(EMCNutBossAttack::Fireball,EMCNutBossState::Telegraph,6))) return false;
+    // Re-arm the second evasive blink only for this bounded pressure fixture.
+    T.Boss->NextTeleportAt=0;
+    const double Resolve=T.Boss->ResolveAt;
+    T.Boss->ReceiveToolDamage(5,Hero);T.Step(.35f);T.Boss->ReceiveToolDamage(5,Hero);T.Step(.35f);T.Boss->ReceiveToolDamage(5,Hero);
+    TestEqual(TEXT("Sustained damage does not restart or interrupt the cast"),T.Boss->ResolveAt,Resolve);
+    TestEqual(TEXT("The interrupted hit reaction waits behind the committed cast"),T.Boss->Attack,EMCNutBossAttack::Fireball);
+    if(!TestTrue(TEXT("Fire-nut resolves into its authored exit"),T.WaitFor(EMCNutBossAttack::Fireball,EMCNutBossState::Recovery,2))) return false;
+    const float Exit=T.Boss->BossSettings.MageCastAnimationSeconds*(1-T.Boss->BossSettings.MageCastReleaseFraction);
+    TestTrue(TEXT("Recovery includes every remaining source frame and a separate blend"),T.Boss->AttackEndAt-T.Boss->StateStartedAt>=Exit+T.Boss->BossSettings.AnimationBlendSeconds-.001);
+    T.Step(Exit-.05f);TestEqual(TEXT("The late source frames cannot be cut short by teleport"),T.Boss->Attack,EMCNutBossAttack::Fireball);
+    if(!TestTrue(TEXT("The real encounter wizard later teleports under sustained damage"),T.WaitFor(EMCNutBossAttack::Teleport,EMCNutBossState::Telegraph,7))) return false;
+    const FVector Before=T.Boss->GetActorLocation();T.Step(T.Boss->BossSettings.MageTeleportWindup-.1f);
+    TestTrue(TEXT("The full teleport windup holds the advertised departure point"),T.Boss->GetActorLocation().Equals(Before,.1f));
+    T.Step(.2f);TestTrue(TEXT("Teleport now reaches the increased minimum distance"),
+        FVector::Dist2D(Before,T.Boss->GetActorLocation())>=T.Boss->BossSettings.MageTeleportMinDistance-.1f);
+    TestEqual(TEXT("Arrival retains the authored teleport recovery"),T.Boss->State,EMCNutBossState::Recovery);
+    const double Arrival=T.Boss->StateStartedAt;
+    T.Boss->NextRainAt=T.Boss->NextSummonAt=T.Boss->NextSpecialAt=0;
+    if(!TestTrue(TEXT("The next attack after a completed teleport is fire-nut even when other spells are ready"),
+        T.WaitFor(EMCNutBossAttack::Fireball,EMCNutBossState::Telegraph,4))) return false;
+    TestTrue(TEXT("Fire-nut waits until the complete teleport exit and blend have played"),
+        T.Boss->StateStartedAt-Arrival>=T.Boss->BossSettings.MageTeleportAnimationSeconds*(1-T.Boss->BossSettings.MageCastReleaseFraction)+T.Boss->BossSettings.AnimationBlendSeconds-.05);
+    T.Boss->ReceiveToolDamage(100000,Hero);
+    T.Step(3.2f);
+    TestTrue(TEXT("The final boss remains visible through its full death performance"),IsValid(T.Boss));
+    TestEqual(TEXT("Victory cleanup waits for the death clip instead of destroying it early"),T.Event->Stage,EMCNutRainStage::Enemies);
+    T.Step(.5f);
+    TestEqual(TEXT("The encounter completes after the finished death pose and fade"),T.Event->Stage,EMCNutRainStage::Complete);
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutBossJumpTest,"MessControl.CoreLoop.NutBoss.JumpAreaHitsOnceAndAllowsEscape",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCNutBossJumpTest::RunTest(const FString&)
 {
@@ -241,6 +340,101 @@ bool FMCNutBossSummonTest::RunTest(const FString&)
     TestEqual(TEXT("Defeat cancels owned attacks while retaining its cosmetic death burst"),Attacks,0);
     T.Event->Stop();
     TestTrue(TEXT("An explicit event reset destroys the surviving creep"),Remaining->IsActorBeingDestroyed());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutFireAimTest,"MessControl.CoreLoop.NutBoss.FireNutTracksUntilReleaseWithoutGroundMarker",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutFireAimTest::RunTest(const FString&)
+{
+    MCNutBossTestsPrivate::FFixture T;T.AddBoss(EMCNutBossRole::Mage);T.Step(1.4f);
+    auto* Hero=T.AddHero(FVector(800,0,130));T.Boss->Target=Hero;
+    T.Boss->NextMeleeAt=T.Boss->NextRainAt=T.Boss->NextSummonAt=10000;
+    T.Boss->NextFireballAt=T.Boss->NextTeleportAt=T.Boss->NextSpecialAt=0;
+    if(!TestTrue(TEXT("The real blink schedules its subsequent fire-nut cast"),T.WaitFor(EMCNutBossAttack::Fireball,EMCNutBossState::Telegraph,7))) return false;
+    const FVector Initial=T.Boss->LockedTarget;
+    Hero->SetActorLocation(Hero->GetActorLocation()+FVector(0,300,0));T.Step(.2f);
+    TestTrue(TEXT("Moving during the cast changes the wizard's aim"),FVector::Dist(T.Boss->LockedTarget,Initial)>200);
+    TestTrue(TEXT("The wizard aims at the current player position"),FVector::Dist(T.Boss->LockedTarget,Hero->GetActorLocation())<1);
+    bool Charge=false,DestinationCue=false;
+    for(TActorIterator<AMCNutCombatEffect> It(T.World);It;++It) if(It->SourceActor==T.Boss) {
+        DestinationCue|=It->Cue.Type==EMCNutCombatCue::FireCast;
+        if(It->Cue.Type==EMCNutCombatCue::CastCharge) {
+            Charge=true;
+            TestFalse(TEXT("The hand charge draws no floor destination marker"),It->Warning->IsVisible() || It->DropWarnings->IsVisible() || It->DropShadows->IsVisible());
+        }
+    }
+    TestTrue(TEXT("The visible charge in the hand remains"),Charge);
+    TestFalse(TEXT("Native fire-nut no longer creates a destination telegraph"),DestinationCue);
+    // Compatibility: an old/lab FireCast cue must not restore the old marker.
+    auto* Legacy=AMCNutCombatEffect::Spawn(T.Boss,T.Tongue,EMCNutCombatCue::FireCast,T.Boss->GetCastOrigin(),FVector(20000,0,500),90,1,.2f);
+    if(!TestNotNull(TEXT("A legacy charge can be previewed without a target floor"),Legacy)) return false;
+    // PreviewAtAge intentionally skips game worlds; let the actual runtime
+    // presentation tick before inspecting component visibility.
+    T.Step(.05f);
+    TestFalse(TEXT("A legacy FireCast never reveals its target on the floor"),Legacy->Warning->IsVisible());
+    TestTrue(TEXT("The charge remains visible even without a target floor"),Legacy->Flames->IsVisible());
+    Legacy->Cue.Target=Hero->GetActorLocation();T.Step(.05f);
+    TestFalse(TEXT("A valid target floor cannot restore the old destination marker"),Legacy->Warning->IsVisible());
+    Hero->SetActorLocation(Hero->GetActorLocation()+FVector(0,200,0));
+    AMCNutSpellProjectile* Shot=nullptr;
+    for(int32 I=0;I<35 && !Shot;++I) {
+        T.Step(.05f);
+        for(TActorIterator<AMCNutSpellProjectile> It(T.World);It;++It) if(It->SourceActor==T.Boss) {Shot=*It;break;}
+    }
+    if(!TestNotNull(TEXT("The completed cast releases a real projectile"),Shot)) return false;
+    TestTrue(TEXT("The release uses the player's latest position"),FVector::Dist(Shot->Flight.Target,Hero->GetActorLocation())<1);
+    TestTrue(TEXT("The projectile exceeds the old 1800 cm/s cap"),FMath::IsNearlyEqual(float(FVector::Dist(Shot->Flight.Start,Shot->Flight.Target)/Shot->Flight.Seconds),2800.f,.1f));
+    const FVector Aim=Shot->Flight.Target;const float Health=Hero->Status->State.Health;
+    Hero->SetActorLocation(Hero->GetActorLocation()+FVector(0,600,0));T.Step(.2f);
+    TestTrue(TEXT("A post-release dodge never bends the existing projectile"),IsValid(Shot) && Shot->Flight.Target.Equals(Aim,.01f));
+    TestEqual(TEXT("A real post-release sidestep avoids this projectile's damage"),Hero->Status->State.Health,Health);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutFireUlcerTest,"MessControl.CoreLoop.NutBoss.FireNutTongueImpactCreatesPainUlcer",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutFireUlcerTest::RunTest(const FString&)
+{
+    MCNutBossTestsPrivate::FFixture T;
+    const auto Shoot=[&](FVector Start,FVector Target) {
+        auto* Shot=AMCNutSpellProjectile::Spawn(T.Event,T.Tongue,Start,Target,1800,18,65);
+        if(Shot) {Shot->SetOwner(T.Event);T.Event->TrackEncounterActor(Shot);}
+        return Shot;
+    };
+    const auto CountUlcers=[&]() {
+        int32 Count=0;for(TActorIterator<AMCMouthSurface> It(T.World);It;++It) if(It->bUlcer && !It->IsHealed()) ++Count;
+        return Count;
+    };
+    FHitResult Floor;
+    if(!TestTrue(TEXT("The projectile fixture has real tongue collision"),T.Tongue->SurfacePoint(FVector::ZeroVector,Floor))) return false;
+    auto* Shot=Shoot(Floor.ImpactPoint+FVector(0,0,500),Floor.ImpactPoint-FVector(0,0,100));
+    if(!TestNotNull(TEXT("A real fire-nut is launched toward the tongue"),Shot)) return false;
+    TestEqual(TEXT("The faster projectile retains its requested travel speed"),float(FVector::Dist(Shot->Flight.Start,Shot->Flight.Target)/Shot->Flight.Seconds),1800.f,.1f);
+    T.Step(.5f);
+    TestTrue(TEXT("The swept tongue collision resolves before an airborne endpoint"),Shot->Impact.bImpacted);
+    if(!TestEqual(TEXT("The first tongue hit creates one pain ulcer"),CountUlcers(),1)) return false;
+    AMCMouthSurface* Ulcer=nullptr;
+    for(TActorIterator<AMCMouthSurface> It(T.World);It;++It) if(It->ActorHasTag(TEXT("MC_NutFireUlcer"))) Ulcer=*It;
+    if(!TestNotNull(TEXT("The new ulcer is identified as fire-nut damage"),Ulcer)) return false;
+    TestTrue(TEXT("The wound is placed on the actual tongue surface"),FVector::Dist(Ulcer->GetActorLocation(),Floor.ImpactPoint)<12);
+    TestTrue(TEXT("The wound uses the ordinary treatable pain-wave mechanics"),!Ulcer->bTreatmentBlocked && Ulcer->Healing==0 && Ulcer->PulseDamage>0 && Ulcer->PulseInterval>0);
+    TestEqual(TEXT("The encounter owns its new wound for reset cleanup"),Ulcer->GetOwner(),static_cast<AActor*>(T.Event));
+    T.Step(.1f);
+    TestEqual(TEXT("Repeated impact ticks cannot create extra ulcers"),CountUlcers(),1);
+    // Expiring in the air must not invent a collision by projecting onto tissue.
+    Shoot(FVector(-1000,0,400),FVector(-700,0,400));T.Step(.3f);
+    TestEqual(TEXT("An airborne endpoint creates no wound below the shot"),CountUlcers(),1);
+    // The shared spawner can return an existing wound. Keep its ownership and
+    // lifecycle even if that wound had no previous owner.
+    const FVector OtherPoint=Floor.ImpactPoint+FVector(700,0,0);
+    auto* Existing=AMCMouthSurface::SpawnDamageUlcer(T.World,OtherPoint);
+    if(!TestNotNull(TEXT("An unrelated pre-existing ulcer is available"),Existing)) return false;
+    Existing->Area->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    Shoot(OtherPoint+FVector(0,0,500),OtherPoint-FVector(0,0,100));T.Step(.5f);
+    TestEqual(TEXT("A hit near an existing ulcer preserves deduplication"),CountUlcers(),2);
+    TestNull(TEXT("The projectile never adopts a pre-existing unowned ulcer"),Existing->GetOwner());
+    T.Event->Stop();
+    TestTrue(TEXT("Stopping the event removes its fire-nut ulcer"),!IsValid(Ulcer) || Ulcer->IsActorBeingDestroyed());
+    TestTrue(TEXT("Stopping the event preserves the unrelated ulcer"),IsValid(Existing) && !Existing->IsActorBeingDestroyed());
     return true;
 }
 

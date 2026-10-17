@@ -1,4 +1,5 @@
 #include "MCBossCharacter.h"
+#include "MCDevCommands.h"
 #include "MCPerkComponent.h"
 #include "MCGameDirector.h"
 #include "MCBossAnimInstance.h"
@@ -222,6 +223,7 @@ float AMCBossCharacter::ReceiveBossDamage(float Damage,AActor* DamageCauser)
         || !FMath::IsFinite(Damage) || Damage<=0.f) return 0.f;
     auto* Perks=UMCPerkComponent::ForActor(DamageCauser);
     if(Perks) Damage=Perks->WeaponDamage(Damage,this);
+    Damage=MCDevEnemyHitDamage(Damage,Runtime.Health,DamageCauser);
     const float Applied=FMath::Min(Runtime.Health,Damage);
     if(Perks && Applied>0) Perks->NotifyWeaponHit(this);
     Runtime.Health-=Applied;

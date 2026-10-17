@@ -4,12 +4,14 @@
 #include "MCGameState.h"
 #include "MCNutRainEvent.h"
 #include "MCTongue.h"
+#include "MCMouthSurface.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothPhysicsComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
 #include "GameFramework/GameStateBase.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "NiagaraComponent.h"
@@ -126,7 +128,7 @@ AMCNutSpellProjectile* AMCNutSpellProjectile::Spawn(AActor* Source,AMCTongue* Su
     if(!Shot) return nullptr;
     Shot->SourceActor=Source;Shot->Tongue=Surface;Shot->Damage=FMath::Clamp(Amount,1.f,35.f);
     Shot->Flight.Start=Start;Shot->Flight.Target=Target;Shot->Flight.Radius=FMath::Clamp(Radius,8.f,90.f);
-    Shot->Flight.Seconds=FMath::Clamp(FVector::Dist(Start,Target)/FMath::Clamp(Speed,100.f,1800.f),.1f,8.f);
+    Shot->Flight.Seconds=FMath::Clamp(FVector::Dist(Start,Target)/FMath::Clamp(Speed,100.f,4000.f),.1f,8.f);
     Shot->Flight.StartedAt=Shot->Now();Shot->FinishSpawning(Pose);return Shot;
 }
 
@@ -153,6 +155,19 @@ void AMCNutSpellProjectile::ResolveImpact(const FHitResult& Hit)
         if(Hero->Status->Damage(Damage,Direction,SourceActor)) {
             ++DamageApplications;
             if(Hero->ToothPhysics) Hero->ToothPhysics->ApplyHit(Direction*180+FVector(0,0,65),Hit.ImpactPoint);
+        }
+    }
+    // A real hit on the walkable tongue burns a normal, treatable pain ulcer.
+    // Hitting a player/prop or reaching an airborne target never projects one
+    // onto the floor. The terminal-hit guard above also prevents duplicates.
+    if(Hit.GetActor()==Tongue && Hit.ImpactNormal.Z>=.35f) {
+        TArray<AMCMouthSurface*> Existing;
+        for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(It->bUlcer) Existing.Add(*It);
+        if(auto* Ulcer=AMCMouthSurface::SpawnDamageUlcer(GetWorld(),Hit.ImpactPoint);Ulcer && !Existing.Contains(Ulcer)) {
+            Ulcer->Tags.AddUnique(TEXT("MC_NutFireUlcer"));
+            if(auto* Event=Cast<AMCNutRainEvent>(GetOwner())) {
+                Ulcer->SetOwner(Event);Event->TrackEncounterActor(Ulcer);
+            } else Ulcer->SetOwner(SourceActor);
         }
     }
     if(auto* Effect=AMCNutCombatEffect::Spawn(SourceActor,Tongue,EMCNutCombatCue::FireImpact,

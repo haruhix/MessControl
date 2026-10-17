@@ -1,0 +1,145 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "VB",
+			"instance": "467277BA4EF62574694C85865223662F",
+			"instanceName": "VB-35948",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9711] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5080",
+			"cPUModel": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+			"rAMInGB": 62,
+			"renderMode": "D3D12_SM5",
+			"rHI": "D3D12 (SM5)",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.17-02.38.41",
+	"succeeded": 0,
+	"succeededWithWarnings": 2,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 1.3110344409942627,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "BossPlacementSurvivesUnavailableBand",
+			"fullTestPath": "MessControl.CoreLoop.NutRain.BossPlacementSurvivesUnavailableBand",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"467277BA4EF62574694C85865223662F"
+			],
+			"duration": 0.46031731367111206,
+			"dateTime": "2026.10.17-02.38.40",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.17-02.38.40"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.17-02.38.40"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "LooseDebrisNeverCancelsBossGate",
+			"fullTestPath": "MessControl.CoreLoop.NutRain.LooseDebrisNeverCancelsBossGate",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"467277BA4EF62574694C85865223662F"
+			],
+			"duration": 0.85071712732315063,
+			"dateTime": "2026.10.17-02.38.40",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.17-02.38.40"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.17-02.38.40"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.17-02.38.41"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.17-02.38.41"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogTemp: MC_NUT_RAIN_RECOVER stale_flights=1; continuing to knight",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.17-02.38.41"
+				}
+			],
+			"warnings": 5,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

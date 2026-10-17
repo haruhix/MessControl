@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "disabled mode retains ordinary generic boss damage",
+      "passed": true
+    },
+    {
+      "name": "F3 action enables one-hit mode in the cold Editor build",
+      "passed": true
+    },
+    {
+      "name": "enabled mode leaves environmental boss damage unchanged",
+      "passed": true
+    },
+    {
+      "name": "enabled mode kills the generic boss through its normal receiver",
+      "passed": true
+    },
+    {
+      "name": "disabled mode restores ordinary generic boss damage",
+      "passed": true
+    }
+  ],
+  "scope": "Bounded solo receiver check for the independent generic boss class.\n\nUses real ReceiveBossDamage, death and ResetForRun calls. This supplements the\nPickaxe/F3 gameplay check; it does not claim a simulated tool contact.\n"
+}

@@ -1,0 +1,226 @@
+{
+  "map": "/Game/Maps/L_Mouth.L_Mouth",
+  "pie": false,
+  "dirty": [],
+  "eye": [
+    2691.8106612975816,
+    425.3925121225483,
+    507.2418973620264
+  ],
+  "rotation": {
+    "roll": 0.0,
+    "pitch": -10.184337487416709,
+    "yaw": -170.05512051581152
+  },
+  "selected": [],
+  "throttle": true,
+  "boss": "(TankHealth=1400.000000,MageHealth=1100.000000,ExtraPlayerHealth=0.650000,WholeMesh=\"/Game/Gameplay/CoreLoop/SM_Walnut_Whole.SM_Walnut_Whole\",TankSkeletalMesh=\"/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank\",TankUnshieldedSkeletalMesh=\"/Game/Gameplay/CoreLoop/NutTank/SK_NutTank_NoShield.SK_NutTank_NoShield\",TankModelYaw=-90.000000,TankBallMesh=\"/Game/Gameplay/CoreLoop/NutTank/SM_NutTank_Ball.SM_NutTank_Ball\",TankBallHeight=400.000000,TankIdleAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_Idle.A_NutKnight_Idle\",TankWalkAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/MCStyleV3/A_NutTank_Walk.A_NutTank_Walk\",TankUnshieldedIdleAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_Idle.A_NutKnight_Idle\",TankUnshieldedWalkAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/MCStyleV4/A_NutTank_UnshieldedWalk.A_NutTank_UnshieldedWalk\",TankWalkLeftAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/MCSmoothV2/A_NutTank_WalkLeft.A_NutTank_WalkLeft\",TankWalkRightAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/MCSmoothV2/A_NutTank_WalkRight.A_NutTank_WalkRight\",TankMeleeAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_Attack1.A_NutKnight_Attack1\",TankMelee2Animation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_Attack2.A_NutKnight_Attack2\",TankComboAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_Combo.A_NutKnight_Combo\",TankBlockAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_Block.A_NutKnight_Block\",TankStunHitAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_StunHit.A_NutKnight_StunHit\",TankDeathAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_Death.A_NutKnight_Death\",TankMeleeAnimationSeconds=1.266667,TankMelee2ImpactFraction=0.394737,TankComboAnimationSeconds=5.133333,TankComboContactFractions=(X=0.097403,Y=0.188312,Z=0.318182),TankStunSeconds=3.000000,TankDeathSeconds=5.433333,TankHitAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_Hit.A_NutKnight_Hit\",TankShieldBreakAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_Stun.A_NutKnight_Stun\",TankJumpAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_Jump.A_NutKnight_Jump\",TankJumpAnimationSeconds=5.133333,TankTransformAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_BallStart.A_NutKnight_BallStart\",TankBallEndAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_BallEnd.A_NutKnight_BallEnd\",TankHeadLeftAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_HeadLeft.A_NutKnight_HeadLeft\",TankHeadRightAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/KnightBallUpdate/A_NutKnight_HeadRight.A_NutKnight_HeadRight\",TankBallEndSeconds=2.466667,TankHeadTurnSeconds=1.833333,TankAnimationBlendSeconds=0.250000,TankChargeTellAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/MCStyleV4/A_NutTank_ChargeTell.A_NutTank_ChargeTell\",TankChargeLoopAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/MCSmoothV2/A_NutTank_ChargeLoop.A_NutTank_ChargeLoop\",TankChargeRecoveryAnimation=\"/Game/Gameplay/CoreLoop/NutTank/Animations/MCStyleV4/A_NutTank_ChargeRecovery.A_NutTank_ChargeRecovery\",TankChargeLoopPlayRate=2.000000,TankMeleeImpactFraction=0.394737,TankJumpTakeoffFraction=0.051948,TankJumpImpactFraction=0.240260,MageSkeletalMesh=\"/Game/Gameplay/CoreLoop/NutWizard/ArtistUpdate_20261017/SK_NutWizard_ArtistUpdate.SK_NutWizard_ArtistUpdate\",MageModelYaw=-90.000000,MageIdleAnimation=\"/Game/Gameplay/CoreLoop/NutWizard/ArtistUpdate_20261017/Animations/A_NutWizard_Idle.A_NutWizard_Idle\",MageWalkAnimation=\"/Game/Gameplay/CoreLoop/NutWizard/Animations/MCStyleV6/A_NutWizard_Walk.A_NutWizard_Walk\",MageCastAnimation=\"/Game/Gameplay/CoreLoop/NutWizard/ArtistUpdate_20261017/Animations/A_NutWizard_Cast.A_NutWizard_Cast\",MageMeleeAnimation=\"/Game/Gameplay/CoreLoop/NutWizard/Animations/MCStyleV6/A_NutWizard_Melee.A_NutWizard_Melee\",MageMeleeImpactFraction=0.550000,MageHeavyCastAnimation=\"/Game/Gameplay/CoreLoop/NutWizard/Animations/MCMixamo/A_NutWizard_HeavyCast.A_NutWizard_HeavyCast\",MageSummonAnimation=\"/Game/Gameplay/CoreLoop/NutWizard/ArtistUpdate_20261017/Animations/A_NutWizard_Summon.A_NutWizard_Summon\",MageRainAnimation=\"/Game/Gameplay/CoreLoop/NutWizard/ArtistUpdate_20261017/Animations/A_NutWizard_Rain.A_NutWizard_Rain\",MageHitAnimation=\"/Game/Gameplay/CoreLoop/NutWizard/ArtistUpdate_20261017/Animations/A_NutWizard_Hit.A_NutWizard_Hit\",MageDeathAnimation=\"/Game/Gameplay/CoreLoop/NutWizard/ArtistUpdate_20261017/Animations/A_NutWizard_Death.A_NutWizard_Death\",MageTeleportAnimation=\"/Game/Gameplay/CoreLoop/NutWizard/ArtistUpdate_20261017/Animations/A_NutWizard_Teleport.A_NutWizard_Teleport\",MageCastAnimationSeconds=2.300000,MageSummonAnimationSeconds=2.300000,MageRainAnimationSeconds=3.266667,MageTeleportAnimationSeconds=3.300000,MageHitAnimationSeconds=0.466667,MageTurnDegreesPerSecond=180.000000,MageCastReleaseFraction=0.550000,AnimationBlendSeconds=0.250000,DeathSeconds=3.550000,MageCastOffset=(X=258.028675,Y=23.872097,Z=11.159819),MageCastSocket=\"cast_palm\",TorsoBone=\"root_x\",HeadBone=\"head_x\",LeftArmBone=\"arm_stretch_l\",RightArmBone=\"arm_stretch_r\",LeftForearmBone=\"forearm_stretch_l\",RightForearmBone=\"forearm_stretch_r\",LeftHandBone=\"hand_l\",RightHandBone=\"hand_r\",ShellMesh=\"/Game/Gameplay/CoreLoop/SM_Walnut_HalfShell.SM_Walnut_HalfShell\",KernelMesh=\"/Game/Gameplay/CoreLoop/SM_Walnut_Kernel.SM_Walnut_Kernel\",TankHeight=440.000000,MageHeight=400.000000,CreepHeight=116.000000,EntranceSeconds=1.300000,EntranceHeight=800.000000,TankMoveSpeed=160.000000,MageMoveSpeed=120.000000,ShieldMaxHealth=500.000000,ShieldFrontDamageScale=0.200000,ShieldHalfAngle=55.000000,SpecialAttackGap=3.000000,TankRecoverySeconds=2.500000,MeleeDamage=12.000000,MeleeRange=380.000000,TankMeleePush=620.000000,TankPushLift=210.000000,MeleeWindup=0.650000,MeleeCooldown=3.500000,ChargeDamage=22.000000,TankChargePush=820.000000,ChargeWindup=1.100000,ChargeCooldown=14.000000,ChargeSpeed=650.000000,ChargeDistance=1100.000000,RollDamage=16.000000,RollWindup=1.200000,RollCooldown=40.000000,RollDuration=12.000000,RollDurationMax=20.000000,RollRecoverySeconds=3.500000,RollSpeed=520.000000,RollTurnDegreesPerSecond=50.000000,RollHitGap=1.100000,RollPush=620.000000,RollPainCooldown=1.250000,JumpDamage=25.000000,TankJumpPush=900.000000,JumpWindup=1.200000,JumpFlightSeconds=0.800000,JumpRadius=460.000000,JumpCooldown=20.000000,FireballDamage=18.000000,FireballWindup=1.265000,FireballCooldown=8.000000,FireballSpeed=550.000000,FireballRadius=65.000000,SummonCooldown=22.000000,SummonCount=2,MaxLiveCreeps=8,CreepHealth=40.000000,CreepMoveSpeed=360.000000,RainRadius=703.562378,RainImpactRadius=90.000000,RainWindup=1.796667,RainActiveSeconds=4.000000,RainDrops=8,RainDamage=8.000000,RainHitGap=0.800000,RainCooldown=28.000000,MageTeleportCooldown=18.000000,MageTeleportWindup=1.815000,MageTeleportMinDistance=1200.000000,MageTeleportMaxDistance=2000.000000,MageFocusRadius=420.000000)",
+  "speed": 550.0,
+  "socket": "cast_palm",
+  "mesh": "/Game/Gameplay/CoreLoop/NutWizard/ArtistUpdate_20261017/SK_NutWizard_ArtistUpdate.SK_NutWizard_ArtistUpdate",
+  "clip": "/Game/Gameplay/CoreLoop/NutWizard/ArtistUpdate_20261017/Animations/A_NutWizard_Cast.A_NutWizard_Cast",
+  "samples": [
+    {
+      "time": 0.0,
+      "head_x": [
+        -6.828328085959997,
+        -10.484396238844642,
+        71.9453725744888
+      ],
+      "hand_l": [
+        19.206879693483806,
+        49.8651546084468,
+        41.44104110566043
+      ],
+      "hand_r": [
+        -60.30947819428043,
+        -59.15819601328113,
+        76.43752439330297
+      ]
+    },
+    {
+      "time": 0.4,
+      "head_x": [
+        -10.641099793991641,
+        -12.69772055380897,
+        67.89965692814127
+      ],
+      "hand_l": [
+        -12.09698420883322,
+        56.807319218285414,
+        56.674724483052145
+      ],
+      "hand_r": [
+        -49.49578912530227,
+        -80.05446608930762,
+        59.53214906081324
+      ]
+    },
+    {
+      "time": 0.8,
+      "head_x": [
+        -4.538229269809907,
+        5.129674731888657,
+        66.78655131125558
+      ],
+      "hand_l": [
+        67.94249380126959,
+        -33.662901700712546,
+        67.53952560047303
+      ],
+      "hand_r": [
+        -70.08382343531454,
+        59.097863330044895,
+        72.47534326689579
+      ]
+    },
+    {
+      "time": 1.0,
+      "head_x": [
+        -0.35062591023631917,
+        6.606213190359838,
+        63.22460834285056
+      ],
+      "hand_l": [
+        38.62362018066676,
+        -67.48982088999956,
+        66.65246178617687
+      ],
+      "hand_r": [
+        -10.451869324396535,
+        92.87087699266111,
+        66.33399696063783
+      ]
+    },
+    {
+      "time": 1.2,
+      "head_x": [
+        2.1317262818161486,
+        7.1369514557375,
+        62.83433114609376
+      ],
+      "hand_l": [
+        22.608696238270554,
+        -77.53873608562887,
+        68.11063394851848
+      ],
+      "hand_r": [
+        -10.483259027152396,
+        93.1843582309616,
+        67.89830751052939
+      ]
+    },
+    {
+      "time": 1.265,
+      "head_x": [
+        2.3573119677341534,
+        7.321779091293552,
+        63.71274230853098
+      ],
+      "hand_l": [
+        24.98996376877227,
+        -76.71950591493245,
+        70.55686731527454
+      ],
+      "hand_r": [
+        -15.768567901448266,
+        91.03788131880927,
+        68.9981808930696
+      ]
+    },
+    {
+      "time": 1.4,
+      "head_x": [
+        1.1202723678530015,
+        7.454661481447581,
+        66.56613901959768
+      ],
+      "hand_l": [
+        41.67691250892265,
+        -63.05598226389948,
+        69.95380549975705
+      ],
+      "hand_r": [
+        -31.409783482654966,
+        72.99239733825928,
+        61.94679533262124
+      ]
+    },
+    {
+      "time": 1.6,
+      "head_x": [
+        -2.733470599471614,
+        2.8541723888375463,
+        70.9142739446217
+      ],
+      "hand_l": [
+        63.278217409425295,
+        17.299665166520242,
+        55.35623740896618
+      ],
+      "hand_r": [
+        -57.12492793444696,
+        16.903783969194972,
+        43.596460967585955
+      ]
+    },
+    {
+      "time": 1.8,
+      "head_x": [
+        -4.703239181492954,
+        -3.683861997156816,
+        70.95642438722562
+      ],
+      "hand_l": [
+        38.304998013312755,
+        50.64585170788568,
+        47.949057831394676
+      ],
+      "hand_r": [
+        -68.67837676711605,
+        -43.09941200549173,
+        63.22960717795444
+      ]
+    },
+    {
+      "time": 2.0,
+      "head_x": [
+        -5.719009775577556,
+        -7.96360947849327,
+        71.40328436769583
+      ],
+      "hand_l": [
+        22.742637255674424,
+        49.29568562877718,
+        45.08108282237017
+      ],
+      "hand_r": [
+        -63.21781732553427,
+        -54.335318858899875,
+        75.29989230462378
+      ]
+    },
+    {
+      "time": 2.3,
+      "head_x": [
+        -6.828130092707527,
+        -10.48583003244217,
+        71.94568166546604
+      ],
+      "hand_l": [
+        19.184888370988503,
+        49.87033593077635,
+        41.43920970498013
+      ],
+      "hand_r": [
+        -60.297837228493954,
+        -59.170842647201724,
+        76.44048207432577
+      ]
+    }
+  ],
+  "hashes": {
+    "Content/Maps/L_Mouth.umap": "85e671c48f39baea71a0ff29828dabd49ff7560b13499d31059a80ee067ee772",
+    "Content/Data/DT_BreakfastMenu.uasset": "a38ed583b33a7c26d046a65aee2477dae208c72640aeff8a014aae6d3bae586d"
+  }
+}

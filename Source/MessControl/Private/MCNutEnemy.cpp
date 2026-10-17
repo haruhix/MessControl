@@ -1,4 +1,5 @@
 #include "MCNutEnemy.h"
+#include "MCDevCommands.h"
 #include "MCPerkComponent.h"
 
 #include "MCFoodActor.h"
@@ -113,6 +114,7 @@ float AMCNutEnemy::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
         || (Source && (Source->GetWorld()!=GetWorld() || !IsLiveTarget(Source)))) return 0;
     auto* Perks=UMCPerkComponent::ForActor(Source);
     if(Perks) Damage=Perks->WeaponDamage(Damage,this);
+    Damage=MCDevEnemyHitDamage(Damage,Health,Source);
     const float Applied=FMath::Min(Health,Damage); Health-=Applied; HitAt=GetWorld()->GetTimeSeconds();
     if(Perks && Applied>0) Perks->NotifyWeaponHit(this);
     ReportDamageFeedback(Source,Applied);

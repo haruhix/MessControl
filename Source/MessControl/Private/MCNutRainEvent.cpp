@@ -25,7 +25,7 @@ bool IsSupportedRainNut(const AMCFoodActor* Food,const AMCTongue* Tongue,float N
     if(Food->Phase!=EMCFoodPhase::Falling || !IsValid(Tongue) || !Food->Body) return false;
     // Food/obstacle contacts can stop entry without setting the food's
     // WorldStatic-only landing phase. Use the actual floor and motion for that
-    // resting case, consistently for the boss gate and the wizard's summons.
+    // resting case for summon eligibility and subsequent landing reservations.
     FHitResult Floor;
     if(!Tongue->SurfacePoint(Food->GetActorLocation(),Floor)) return false;
     const float Bottom=float(Food->GetActorLocation().Z-Food->Body->GetScaledBoxExtent().Z);
@@ -291,7 +291,10 @@ bool AMCNutRainEvent::AreRainDropsResolved() const
 {
     for(const AMCFoodActor* Food:Nuts) {
         if(!IsValid(Food) || Food->IsActorBeingDestroyed() || Food->IsDisposed() || Food->StackCarrier || !Food->Holders.IsEmpty()) continue;
-        if(!IsSupportedRainNut(Food,Tongue,Settings.LargeNutHeight)) return false;
+        // Only the opening flight gates the knight. A nut can roll, bounce or
+        // leave the tongue after contact without cancelling the boss fight.
+        // Ground support is still required separately for the wizard's summons.
+        if(Food->IsMouthEntryActive()) return false;
     }
     return true;
 }
@@ -362,10 +365,27 @@ void AMCNutRainEvent::AwakenLastNuts()
 void AMCNutRainEvent::SpawnBossEncounter()
 {
     if(!IsValid(Tongue)) { bFailed=true; Enter(EMCNutRainStage::Complete); return; }
-    Enter(EMCNutRainStage::Enemies);
     const float Radius=Settings.Boss.BodyRadiusForRole(EMCNutBossRole::Tank);
     FHitResult Floor;
-    if(Tongue->RandomGameplaySpawnPoint(Random,Radius+20,0,TArray<FVector>(),Floor)) {
+    bool FoundFloor=Tongue->RandomGameplaySpawnPoint(Random,Radius+20,0,TArray<FVector>(),Floor);
+    // Ordinary food deliberately samples just one 30/70 spawn band. A blocked
+    // band must not cancel a mandatory boss: reuse a rain footprint, freshly
+    // validated for the knight on the current (possibly deformed) tongue.
+    const bool UsedFallback=!FoundFloor;
+    if(!FoundFloor) for(const FVector& Landing:PlannedLandings) {
+        if(Tongue->GameplaySpawnFootprint(Landing,Radius+20,Floor)) { FoundFloor=true; break; }
+    }
+    // The surface can move since the rain. Search both bands without weakening
+    // edge, delivery-lane or player-access checks if old footprints no longer fit.
+    if(!FoundFloor) {
+        const FBox Bounds=Tongue->Surface->Bounds.GetBox();
+        constexpr int32 Samples=16;
+        for(int32 X=0;X<Samples && !FoundFloor;++X) for(int32 Y=0;Y<Samples && !FoundFloor;++Y) {
+            const FVector Candidate=Bounds.Min+Bounds.GetSize()*FVector((X+.5f)/Samples,(Y+.5f)/Samples,.5f);
+            FoundFloor=Tongue->GameplaySpawnFootprint(Candidate,Radius+20,Floor);
+        }
+    }
+    if(FoundFloor) {
         const FTransform Pose(FRotator(0,Random.FRandRange(-180,180),0),Floor.ImpactPoint+FVector(0,0,Radius+4));
         if(auto* Boss=GetWorld()->SpawnActorDeferred<AMCNutBoss>(AMCNutBoss::StaticClass(),Pose,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn)) {
             Boss->ConfigureEncounter(Tongue,this,EMCNutBossRole::Tank,Settings.Boss,PartyPlayers,Random.RandHelper(MAX_int32));
@@ -375,11 +395,12 @@ void AMCNutRainEvent::SpawnBossEncounter()
     }
     if(bFailed || Bosses.Num()!=1) {
         bFailed=true; Record(TEXT("Орехи: не удалось разместить Рыцаря; этап остановлен"));
+        UE_LOG(LogTemp,Error,TEXT("MC_NUT_BOSS_SPAWN_FAILED floor=%d rain_landings=%d tongue=%s"),FoundFloor,PlannedLandings.Num(),*GetNameSafe(Tongue));
         Enter(EMCNutRainStage::Complete); SetActorTickEnabled(false); return;
     }
-    BossesLeft=1;
+    BossesLeft=1; Enter(EMCNutRainStage::Enemies);
     Record(FString::Printf(TEXT("Орехи: после %d падений появился Рыцарь. Победите его, затем его вторую форму — Колдуна"),NutsSpawned));
-    UE_LOG(LogTemp,Display,TEXT("MC_NUT_ENCOUNTER_START series=%d nuts=%d bosses=1 phases=2 creeps=0"),CompletedSeries,NutsSpawned);
+    UE_LOG(LogTemp,Display,TEXT("MC_NUT_ENCOUNTER_START series=%d nuts=%d bosses=1 phases=2 creeps=0 placement_fallback=%d"),CompletedSeries,NutsSpawned,UsedFallback);
 }
 
 void AMCNutRainEvent::Tick(float Dt)
@@ -420,10 +441,19 @@ void AMCNutRainEvent::Tick(float Dt)
                 :RainAge>=Settings.RainSeconds;
             const bool Resolved=AreRainDropsResolved();
             if(Ready && Resolved) SpawnBossEncounter();
-            else if(!Resolved && RainAge>Settings.RainSeconds+10.f) {
-                bFailed=true; Record(TEXT("Орехи: падение не завершилось на доступной поверхности; тест события остановлен"));
-                UE_LOG(LogTemp,Error,TEXT("MC_NUT_RAIN_FAILED final drop did not resolve after bounded recovery"));
-                Enter(EMCNutRainStage::Complete); SetActorTickEnabled(false);
+            else if(Ready && !Resolved && Age>10.f) {
+                // Food normally ends mouth entry within eight seconds. Recover
+                // only a stale flight after the last actual launch, even if a
+                // slow frame delayed the schedule. Retain ground
+                // nuts for summons instead of silently skipping the encounter.
+                int32 Recovered=0;
+                for(AMCFoodActor* Food:Nuts)
+                    if(IsValid(Food) && !Food->IsActorBeingDestroyed() && !Food->IsDisposed()
+                        && !Food->StackCarrier && Food->Holders.IsEmpty() && Food->IsMouthEntryActive()) {
+                        Food->Dispose(); ++Recovered;
+                    }
+                UE_LOG(LogTemp,Warning,TEXT("MC_NUT_RAIN_RECOVER stale_flights=%d; continuing to knight"),Recovered);
+                if(Ready && AreRainDropsResolved()) SpawnBossEncounter();
             }
         } else if(Age>=Settings.SettleSeconds) AwakenLastNuts();
     }
@@ -439,6 +469,12 @@ void AMCNutRainEvent::Tick(float Dt)
             if(Settings.bBossEncounter) for(AMCNutEnemy* Enemy:Enemies)
                 if(IsValid(Enemy) && !Cast<AMCNutBoss>(Enemy)) Enemy->Destroy();
             EnemiesLeft=0;
+            // Keep the encounter open through the final authored death pose.
+            // The director otherwise stops the event and destroys this actor
+            // immediately when its health reaches zero.
+            if(Settings.bBossEncounter && Bosses.ContainsByPredicate([](const auto& Boss) {
+                return IsValid(Boss.Get()) && Boss->bDefeated && Boss->GetLifeSpan()>0.f;
+            })) return;
             Record(TEXT("Орехи: Рыцарь и его вторая форма Колдун побеждены; директор снова управляет промежутком"));
             Enter(EMCNutRainStage::Complete); SetActorTickEnabled(false);
         }

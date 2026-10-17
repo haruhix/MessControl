@@ -1,0 +1,69 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "VB",
+			"instance": "882E29B84327D800CBBBFDB0C69E8136",
+			"instanceName": "VB-7832",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9711] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5080",
+			"cPUModel": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+			"rAMInGB": 62,
+			"renderMode": "D3D12_SM5",
+			"rHI": "D3D12 (SM5)",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.17-03.12.15",
+	"succeeded": 0,
+	"succeededWithWarnings": 1,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 0.4750933051109314,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "FireNutTracksUntilReleaseWithoutGroundMarker",
+			"fullTestPath": "MessControl.CoreLoop.NutBoss.FireNutTracksUntilReleaseWithoutGroundMarker",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"882E29B84327D800CBBBFDB0C69E8136"
+			],
+			"duration": 0.4750933051109314,
+			"dateTime": "2026.10.17-03.12.15",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.17-03.12.15"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.17-03.12.15"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

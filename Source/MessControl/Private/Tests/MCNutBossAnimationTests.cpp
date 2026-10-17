@@ -113,6 +113,70 @@ const FMCNutBossClipSample* Find(const FMCNutBossAnimationSnapshot& Snapshot,con
 }
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutWizardArtistClipsTest,"MessControl.CoreLoop.NutBoss.Animation.WizardArtistFullClips",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutWizardArtistClipsTest::RunTest(const FString&)
+{
+    using namespace MCNutBossAnimationTestsPrivate;
+    FFixture T;
+    T.Curve(T.Cast,TEXT("MCSpellGesture"),1);T.Curve(T.Cast,TEXT("MCAuthoredWizard"),1);
+    auto* Hit=T.Clip(14,30);auto* Death=T.Clip(99,30);
+    T.Settings.MageHitAnimation=Hit;T.Settings.MageDeathAnimation=Death;
+    T.Settings.MageTeleportAnimation=T.Cast;T.Settings.MageTeleportAnimationSeconds=T.Cast->GetPlayLength();
+    T.Settings.AnimationBlendSeconds=.25f;T.Settings.MageHitAnimationSeconds=Hit->GetPlayLength();
+    T.Curve(T.Idle,TEXT("MCAuthoredWizard"),1);T.Configure(EMCNutBossRole::Mage);
+    const float Release=T.Settings.MageCastReleaseFraction,Exit=T.Cast->GetPlayLength()*(1-Release);
+    T.Phase(EMCNutBossAttack::Teleport,EMCNutBossState::Recovery,Exit-.001,Exit+.25);
+    auto Snapshot=T.Snapshot();const auto* Sample=Find(Snapshot,T.Cast);
+    if(!TestNotNull(TEXT("Teleport selects its dedicated authored clip"),Sample)) return false;
+    TestTrue(TEXT("The final source frame retains full weight before blend-out"),Sample->Seconds>T.Cast->GetPlayLength()-.002f && FMath::IsNearlyEqual(Sample->Weight,1.f));
+    TestFalse(TEXT("Teleport never loops the source"),Sample->bLoop);
+    TestEqual(TEXT("All transitions use the requested quarter second"),Snapshot.BlendSeconds,.25f);
+    TestEqual(TEXT("Authored wizard pose suppresses procedural replacement"),Snapshot.AuthoredMageMotionWeight,1.f);
+    T.Phase(EMCNutBossAttack::Teleport,EMCNutBossState::Recovery,Exit+.125,Exit+.25);
+    Snapshot=T.Snapshot();Sample=Find(Snapshot,T.Cast);
+    if(!TestNotNull(TEXT("The completed teleport holds its final pose during blend-out"),Sample)) return false;
+    TestEqual(TEXT("Blend-out holds the final frame, not a truncated earlier pose"),Sample->Seconds,T.Cast->GetPlayLength(),.001f);
+    T.Phase(EMCNutBossAttack::None,EMCNutBossState::Idle,.5,0);
+    T.Boss->VisualHitAt=T.World->GetTimeSeconds()-T.Settings.MageHitAnimationSeconds;
+    Snapshot=T.Snapshot();Sample=Find(Snapshot,Hit);
+    if(!TestNotNull(TEXT("The full damage reaction reaches its last frame"),Sample)) return false;
+    TestEqual(TEXT("Damage reaction completes before fading"),Sample->Seconds,Hit->GetPlayLength(),.001f);
+    T.Boss->bDefeated=true;T.Phase(EMCNutBossAttack::None,EMCNutBossState::Defeated,Death->GetPlayLength(),Death->GetPlayLength()+.25);
+    Snapshot=T.Snapshot();Sample=Find(Snapshot,Death);
+    if(!TestNotNull(TEXT("Death keeps its final authored pose before despawn"),Sample)) return false;
+    TestEqual(TEXT("Death plays the complete source length"),Sample->Seconds,Death->GetPlayLength(),.001f);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutWizardRainIdleTest,"MessControl.CoreLoop.NutBoss.Animation.WizardRainReturnsToLiveIdle",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutWizardRainIdleTest::RunTest(const FString&)
+{
+    using namespace MCNutBossAnimationTestsPrivate;
+    FFixture T;auto* Rain=T.Clip(98,30);
+    T.Curve(Rain,TEXT("MCSpellGesture"),1);T.Curve(Rain,TEXT("MCAuthoredWizard"),1);
+    T.Curve(T.Idle,TEXT("MCAuthoredWizard"),1);
+    T.Settings.MageRainAnimation=Rain;T.Settings.MageRainAnimationSeconds=Rain->GetPlayLength();
+    T.Settings.RainWindup=Rain->GetPlayLength()*.55f;T.Settings.AnimationBlendSeconds=.25f;
+    T.Configure(EMCNutBossRole::Mage);
+    const float Full=Rain->GetPlayLength()-T.Settings.RainWindup;
+    T.Phase(EMCNutBossAttack::NutRain,EMCNutBossState::Executing,Full-.001,4.);
+    auto Snapshot=T.Snapshot();const auto* Sample=Find(Snapshot,Rain);
+    if(!TestNotNull(TEXT("Rain reaches its complete final source frame before blending"),Sample)) return false;
+    TestEqual(TEXT("The source plays forward instead of holding its release pose"),Sample->Seconds,Rain->GetPlayLength()-.001f,.001f);
+    TestEqual(TEXT("The final source frames remain fully weighted"),Sample->Weight,1.f,.001f);
+    T.Phase(EMCNutBossAttack::NutRain,EMCNutBossState::Executing,Full+.125,4.);
+    Snapshot=T.Snapshot();Sample=Find(Snapshot,Rain);
+    if(!TestNotNull(TEXT("Rain blends out over the requested quarter second"),Sample)) return false;
+    TestEqual(TEXT("The completed cast is halfway through its idle blend"),Sample->Weight,.5f,.001f);
+    T.Phase(EMCNutBossAttack::NutRain,EMCNutBossState::Executing,Full+.26,4.);
+    Snapshot=T.Snapshot();Sample=Find(Snapshot,T.Idle);
+    TestNull(TEXT("The active storm no longer keeps a frozen rain clip"),Find(Snapshot,Rain));
+    if(!TestNotNull(TEXT("The storm continues above a fully weighted live idle"),Sample)) return false;
+    TestTrue(TEXT("The idle remains looping while nuts fall"),Sample->bLoop && Sample->Weight>.999f);
+    TestEqual(TEXT("A channel overlay cannot recreate the old frozen casting pose"),Snapshot.Channel,0.f);
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutBossChargeAnimationTest,"MessControl.CoreLoop.NutBoss.Animation.ChargePhasesAndServerClock",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCNutBossChargeAnimationTest::RunTest(const FString&)
 {

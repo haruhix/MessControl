@@ -388,3 +388,14 @@ motion preview is `preview.mp4` beside it. The probe observed exactly two shell
 instances. No GPU cost or multiplayer measurements are claimed. Implementation,
 fixture details and validation are recorded in
 `Docs/NutSequentialPhases_20261017.md`.
+
+## Wizard teleport — 2026-10-17
+
+Reviewed [Ashif Ali / CGHOW: Teleportation effect in Niagara](https://cghow.com/unreal-engine-teleportation-effect-in-niagara-tutorial/)
+before authoring. Adapt the charge/disappear/arrival timing, surrounding rings
+and rising sparks to the existing bounded `MCNutCombatEffect` meshes and arcane
+burst. Three counter-rotating portal bands and sixteen rising motes at each
+endpoint frame the wizard; the character shrinks away and returns around the
+native relocation time. Existing materials and Niagara burst assets are reused;
+no reference asset or texture is copied. Gameplay-camera validation is recorded
+separately in `Artifacts/NutWizardUpdate_20261017`.

@@ -17,8 +17,14 @@ enum class EMCDevAction : uint8
     NutEncounter, StopNutEncounter, IceEvent, StopIceEvent, CoffeeFlood, StuckFood,
     FogEvent, FogEventStop,
     HugeTongueStain=62,
-    CataclysmRandom=63, CataclysmRafts=64, CataclysmJellies=65, CataclysmStop=66
+    CataclysmRandom=63, CataclysmRafts=64, CataclysmJellies=65, CataclysmStop=66,
+    OneHitKill=67
 };
+
+/** Session-only host debug mode; never active in Shipping. */
+MESSCONTROL_API bool MCDevOneHitKillEnabled(const UWorld* World);
+/** Applied only by enemy damage receivers, after ordinary contact validation. */
+MESSCONTROL_API float MCDevEnemyHitDamage(float Damage,float Health,const AActor* Source);
 
 // Reuse the existing typed dev-command argument for the 4 counts x 3 skills x 2 modes.
 inline int32 MCDevBotSetup(int32 Count,int32 SkillIndex,bool bObserve)

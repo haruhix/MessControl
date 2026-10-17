@@ -1,0 +1,1874 @@
+{
+  "passed": true,
+  "error": null,
+  "checks": [
+    {
+      "name": "all twelve lower side teeth are active",
+      "passed": true
+    },
+    {
+      "name": "all twelve teeth are available respawn reserves",
+      "passed": true
+    },
+    {
+      "name": "all active crowns use the assigned gameplay material",
+      "passed": true
+    },
+    {
+      "name": "new tongue retains the previous pressure material",
+      "passed": true
+    },
+    {
+      "name": "twelve upper crowns and both front rows remain decorative",
+      "passed": true
+    },
+    {
+      "name": "new tongue has matching playable collision",
+      "passed": true
+    },
+    {
+      "name": "native roll warning leaves the tooth intact",
+      "passed": true
+    },
+    {
+      "name": "a real rolling collision damages the authored V10 tooth",
+      "passed": true
+    },
+    {
+      "name": "roll damage reveals the chipped crown and branching cracks",
+      "passed": true
+    },
+    {
+      "name": "teeth outside the collision retain their HP",
+      "passed": true
+    },
+    {
+      "name": "the collision does not drain health on every movement substep",
+      "passed": true
+    }
+  ],
+  "rows": [
+    {
+      "time": 0.01666666567325592,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.03333333134651184,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.04999999701976776,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.06666666269302368,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.0833333283662796,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.09999999403953552,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.11666665971279144,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.13333332538604736,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.14999999105930328,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.1666666567325592,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.18333332240581512,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.19999998807907104,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.21666665375232697,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.23333331942558289,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.2499999850988388,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.2666666507720947,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.28333331644535065,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.29999998211860657,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.3166666477918625,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.3333333134651184,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.34999997913837433,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.36666664481163025,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.38333331048488617,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.3999999761581421,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.416666641831398,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.43333330750465393,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.44999997317790985,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.46666663885116577,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.4833333045244217,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.4999999701976776,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.5166666358709335,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.5333333015441895,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.5499999672174454,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.5666666328907013,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.5833332985639572,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.5999999642372131,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.616666629910469,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.633333295583725,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.6499999612569809,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.6666666269302368,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.6833332926034927,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.6999999582767487,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.7166666239500046,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.7333332896232605,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.7499999552965164,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.7666666209697723,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.7833332866430283,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.7999999523162842,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.8166666179895401,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.833333283662796,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.8499999493360519,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.8666666150093079,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.8833332806825638,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.8999999463558197,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.9166666120290756,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.9333332777023315,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.9499999433755875,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.9666666090488434,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.9833332747220993,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 0.9999999403953552,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.0166666060686111,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.033333271741867,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.049999937415123,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.066666603088379,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.0833332687616348,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.0999999344348907,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.1166666001081467,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.1333332657814026,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.1499999314546585,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.1666665971279144,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.1833332628011703,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.1999999284744263,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.2166665941476822,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -947.1568157738282,
+        1269.378362387929,
+        333.2137619829973
+      ],
+      "forward": [
+        -0.5117380834854043,
+        0.8591415098286693,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.233333259820938,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -956.4562582234298,
+        1284.005591886141,
+        331.75705464864427
+      ],
+      "forward": [
+        -0.5365094795640807,
+        0.8438942933435913,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.249999925494194,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -956.4562582234298,
+        1284.005591886141,
+        331.75705464864427
+      ],
+      "forward": [
+        -0.5365094795640807,
+        0.8438942933435913,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.26666659116745,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -966.1772056475245,
+        1298.356299070016,
+        330.9016621925895
+      ],
+      "forward": [
+        -0.5608269351468769,
+        0.8279330581718313,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.2833332568407059,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -966.1772056475245,
+        1298.356299070016,
+        330.9016621925895
+      ],
+      "forward": [
+        -0.5608269351468769,
+        0.8279330581718313,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.2999999225139618,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -976.3113610553987,
+        1312.4180658199496,
+        330.02321370626146
+      ],
+      "forward": [
+        -0.5846698752425462,
+        0.8112713091092681,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.3166665881872177,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -976.3113610553987,
+        1312.4180658199496,
+        330.02321370626146
+      ],
+      "forward": [
+        -0.5846698752425462,
+        0.8112713091092681,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.3333332538604736,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -986.8503015953763,
+        1326.179173386632,
+        329.16994222188646
+      ],
+      "forward": [
+        -0.608018126347241,
+        0.793923143656356,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.3499999195337296,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -986.8503015953763,
+        1326.179173386632,
+        329.16994222188646
+      ],
+      "forward": [
+        -0.608018126347241,
+        0.793923143656356,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.3666665852069855,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -997.7849940642404,
+        1339.6279030207731,
+        328.3121388771599
+      ],
+      "forward": [
+        -0.6308519335133076,
+        0.7759032400902326,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.3833332508802414,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -997.7849940642404,
+        1339.6279030207731,
+        328.3121388771599
+      ],
+      "forward": [
+        -0.6308519335133076,
+        0.7759032400902326,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.3999999165534973,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1009.1062221533286,
+        1352.7530242543226,
+        327.477467856652
+      ],
+      "forward": [
+        -0.6531519770639418,
+        0.7572268450454357,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.4166665822267532,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1009.1062221533286,
+        1352.7530242543226,
+        327.477467856652
+      ],
+      "forward": [
+        -0.6531519770639418,
+        0.7572268450454357,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.4333332479000092,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1020.8044033430538,
+        1365.5433066192431,
+        326.6260732033317
+      ],
+      "forward": [
+        -0.6748993889395597,
+        0.7379097606137279,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.449999913573265,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1020.8044033430538,
+        1365.5433066192431,
+        326.6260732033317
+      ],
+      "forward": [
+        -0.6748993889395597,
+        0.7379097606137279,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.466666579246521,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1032.869649938073,
+        1377.9880079287407,
+        325.6555379250114
+      ],
+      "forward": [
+        -0.6960757686620582,
+        0.717968330973954,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.483333244919777,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1032.869649938073,
+        1377.9880079287407,
+        325.6555379250114
+      ],
+      "forward": [
+        -0.6960757686620582,
+        0.717968330973954,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.4999999105930328,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1045.2917080321206,
+        1390.076385996034,
+        324.79663594747234
+      ],
+      "forward": [
+        -0.7166631989034526,
+        0.6974194285632359,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.5166665762662888,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1045.2917080321206,
+        1390.076385996034,
+        324.79663594747234
+      ],
+      "forward": [
+        -0.7166631989034526,
+        0.6974194285632359,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.5333332419395447,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1058.0600795783378,
+        1401.7984310562003,
+        323.8942311623161
+      ],
+      "forward": [
+        -0.7366442606457225,
+        0.6762804398012091,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.5499999076128006,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1058.0600795783378,
+        1401.7984310562003,
+        323.8942311623161
+      ],
+      "forward": [
+        -0.7366442606457225,
+        0.6762804398012091,
+        0.0
+      ],
+      "tooth_health": 100.0
+    },
+    {
+      "time": 1.5666665732860565,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1059.534380663208,
+        1403.074921601387,
+        323.7724519996047
+      ],
+      "forward": [
+        -0.7560020031091323,
+        -0.6545693021330741,
+        0.0
+      ],
+      "tooth_health": 84.0
+    },
+    {
+      "time": 1.5833332389593124,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1059.534380663208,
+        1403.074921601387,
+        323.7724519996047
+      ],
+      "forward": [
+        -0.7560020031091323,
+        -0.6545693021330741,
+        0.0
+      ],
+      "tooth_health": 84.0
+    },
+    {
+      "time": 1.5999999046325684,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1072.962788697722,
+        1392.1148371275578,
+        322.80722554708177
+      ],
+      "forward": [
+        -0.7747201388201842,
+        -0.6323042831631261,
+        0.0
+      ],
+      "tooth_health": 84.0
+    },
+    {
+      "time": 1.6166665703058243,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1072.962788697722,
+        1392.1148371275578,
+        322.80722554708177
+      ],
+      "forward": [
+        -0.7747201388201842,
+        -0.6323042831631261,
+        0.0
+      ],
+      "tooth_health": 84.0
+    },
+    {
+      "time": 1.6333332359790802,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1086.7042429438784,
+        1381.5500176828887,
+        321.76964314962083
+      ],
+      "forward": [
+        -0.792782784074161,
+        -0.6095042717451798,
+        0.0
+      ],
+      "tooth_health": 84.0
+    },
+    {
+      "time": 1.6499999016523361,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1086.7042429438784,
+        1381.5500176828887,
+        321.76964314962083
+      ],
+      "forward": [
+        -0.792782784074161,
+        -0.6095042717451798,
+        0.0
+      ],
+      "tooth_health": 84.0
+    },
+    {
+      "time": 1.666666567325592,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1100.7472108654242,
+        1371.3893730187522,
+        320.73529561544115
+      ],
+      "forward": [
+        -0.8101746560727981,
+        -0.5861885589614686,
+        0.0
+      ],
+      "tooth_health": 84.0
+    },
+    {
+      "time": 1.683333232998848,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1100.7472108654242,
+        1371.3893730187522,
+        320.73529561544115
+      ],
+      "forward": [
+        -0.8101746560727981,
+        -0.5861885589614686,
+        0.0
+      ],
+      "tooth_health": 84.0
+    },
+    {
+      "time": 1.6999998986721039,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1115.0797295724356,
+        1361.641448057141,
+        319.6858723976677
+      ],
+      "forward": [
+        -0.8268810395588633,
+        -0.562376872228983,
+        0.0
+      ],
+      "tooth_health": 84.0
+    },
+    {
+      "time": 1.7166665643453598,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1115.0797295724356,
+        1361.641448057141,
+        319.6858723976677
+      ],
+      "forward": [
+        -0.8268810395588633,
+        -0.562376872228983,
+        0.0
+      ],
+      "tooth_health": 84.0
+    },
+    {
+      "time": 1.7333332300186157,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1129.689714104669,
+        1352.3144215091254,
+        318.62035115743333
+      ],
+      "forward": [
+        -0.8428877992667309,
+        -0.5380893586081102,
+        0.0
+      ],
+      "tooth_health": 84.0
+    },
+    {
+      "time": 1.7499998956918716,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1129.689714104669,
+        1352.3144215091254,
+        318.62035115743333
+      ],
+      "forward": [
+        -0.8428877992667309,
+        -0.5380893586081102,
+        0.0
+      ],
+      "tooth_health": 84.0
+    },
+    {
+      "time": 1.7666665613651276,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1144.5647743261059,
+        1343.4163500154793,
+        317.5061391213005
+      ],
+      "forward": [
+        -0.8581813918822268,
+        -0.5133465677562127,
+        0.0
+      ],
+      "tooth_health": 84.0
+    },
+    {
+      "time": 1.7833332270383835,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1144.5647743261059,
+        1343.4163500154793,
+        317.5061391213005
+      ],
+      "forward": [
+        -0.8581813918822268,
+        -0.5133465677562127,
+        0.0
+      ],
+      "tooth_health": 84.0
+    },
+    {
+      "time": 1.7999998927116394,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1159.6923369952392,
+        1334.954557795132,
+        316.43674214864427
+      ],
+      "forward": [
+        -0.8727488775016217,
+        -0.48816943454056994,
+        0.0
+      ],
+      "tooth_health": 84.0
+    },
+    {
+      "time": 1.8166665583848953,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1159.6923369952392,
+        1334.954557795132,
+        316.43674214864427
+      ],
+      "forward": [
+        -0.8727488775016217,
+        -0.48816943454056994,
+        0.0
+      ],
+      "tooth_health": 84.0
+    },
+    {
+      "time": 1.8333332240581512,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1175.0595847299417,
+        1326.9362469967139,
+        315.3678029396599
+      ],
+      "forward": [
+        -0.8865779305800778,
+        -0.4625792613253934,
+        0.0
+      ],
+      "tooth_health": 84.0
+    },
+    {
+      "time": 1.8499998897314072,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1175.0595847299417,
+        1326.9362469967139,
+        315.3678029396599
+      ],
+      "forward": [
+        -0.8865779305800778,
+        -0.4625792613253934,
+        0.0
+      ],
+      "tooth_health": 84.0
+    },
+    {
+      "time": 1.866666555404663,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1190.653517042616,
+        1319.3683756282433,
+        314.2819112160271
+      ],
+      "forward": [
+        -0.8996568503602915,
+        -0.43659769994790437,
+        0.0
+      ],
+      "tooth_health": 84.0
+    },
+    {
+      "time": 1.883333221077919,
+      "state": "<MCNutBossState.EXECUTING: 3>",
+      "attack": "<MCNutBossAttack.ROLL: 7>",
+      "boss": [
+        -1190.653517042616,
+        1319.3683756282433,
+        314.2819112160271
+      ],
+      "forward": [
+        -0.8996568503602915,
+        -0.43659769994790437,
+        0.0
+      ],
+      "tooth_health": 84.0
+    }
+  ],
+  "captures": [
+    "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutRollToothDamage_20261017\\01_RollWindup.png",
+    "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutRollToothDamage_20261017\\02_RollImpact.png",
+    "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutRollToothDamage_20261017\\03_ChippedAfterImpact.png"
+  ],
+  "damage": 16.0,
+  "hp_before": 100.0,
+  "hp_after": 84.0,
+  "restored_engine_settings": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  },
+  "scope": "Short solo collision proof on an authored V10 crown.\n\nTemporary fixture: pause directors, spawn one knight with the saved boss profile,\nset only its ability readiness and place its target on the tooth's crown. The\nnative scheduler, telegraph, roll movement, blocking sweep and tooth HP run\nnormally; no attack state or tooth health is fabricated.\n"
+}

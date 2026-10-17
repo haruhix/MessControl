@@ -257,6 +257,70 @@ bool FMCNutDirectedEncounter::RunTest(const FString&)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutBossSpawnFallback,"MessControl.CoreLoop.NutRain.BossPlacementSurvivesUnavailableBand",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutBossSpawnFallback::RunTest(const FString&)
+{
+    FNutRainWorld T;
+    T.Profile->Settings.bBossEncounter=true;
+    auto* Cube=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"));
+    T.Profile->Settings.Boss.WholeMesh=Cube; T.Profile->Settings.Boss.ShellMesh=Cube; T.Profile->Settings.Boss.KernelMesh=Cube;
+    // The near band is narrower than the knight's footprint. Rain still has a
+    // large, reachable far band; ordinary sampling may legitimately miss it.
+    T.Tongue->GameplaySpawnSplitDepth=.19f; T.Tongue->GameplaySpawnLeftChance=0;
+    T.Event->Start(nullptr,T.Profile.Get());
+    if(!TestTrue(TEXT("A real opening drop validates the available far band"),!T.Event->PlannedLandings.IsEmpty())) return false;
+    T.Tongue->GameplaySpawnLeftChance=1;
+    FRandomStream Probe(7); FHitResult Floor;
+    const float Margin=T.Event->Settings.Boss.BodyRadiusForRole(EMCNutBossRole::Tank)+20;
+    TestFalse(TEXT("Single-band random placement cannot fit this knight"),T.Tongue->RandomGameplaySpawnPoint(Probe,Margin,0,{},Floor));
+    T.Step(19);
+    for(AMCFoodActor* Food:T.Event->Nuts) if(IsValid(Food)) Food->Dispose();
+    T.Step(7);
+    TestFalse(TEXT("An unavailable random band does not fail the cataclysm"),T.Event->bFailed);
+    if(!TestEqual(TEXT("The natural rain gate creates exactly one knight via a validated fallback"),T.Event->Bosses.Num(),1)) return false;
+    const AMCNutBoss* Boss=T.Event->Bosses[0];
+    TestEqual(TEXT("The event stays in combat until both forms are defeated"),T.Event->Stage,EMCNutRainStage::Enemies);
+    TestTrue(TEXT("The fallback landing passes the full knight footprint checks"),T.Tongue->GameplaySpawnFootprint(Boss->LockedTarget,Margin,Floor));
+    TestTrue(TEXT("The knight retains the subsequent wizard phase"),Boss->bHasMagePhase);
+    TestFalse(TEXT("No deadline can count the untouched boss as defeated"),T.Event->IsComplete());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutRainDebrisGate,"MessControl.CoreLoop.NutRain.LooseDebrisNeverCancelsBossGate",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutRainDebrisGate::RunTest(const FString&)
+{
+    for(const bool StaleFlight:{false,true}) {
+        FNutRainWorld T;
+        T.Profile->Settings.bBossEncounter=true;
+        auto* Cube=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"));
+        T.Profile->Settings.Boss.WholeMesh=Cube; T.Profile->Settings.Boss.ShellMesh=Cube; T.Profile->Settings.Boss.KernelMesh=Cube;
+        T.Event->Start(nullptr,T.Profile.Get()); T.Step(19);
+        if(!TestTrue(TEXT("The real rain provides a food actor for the recovery fixture"),!T.Event->Nuts.IsEmpty())) return false;
+        AMCFoodActor* Orphan=T.Event->Nuts[0];
+        Orphan->SetActorLocation(FVector(5000,5000,-1000),false,nullptr,ETeleportType::TeleportPhysics);
+        Orphan->Body->SetSimulatePhysics(false);
+        Orphan->Phase=EMCFoodPhase::Falling; Orphan->Tick(.01f);
+        if(StaleFlight) {
+            Orphan->BeginMouthEntry(FVector(0,0,-1),0);
+            if(!TestTrue(TEXT("The stalled fixture retains a real active mouth-entry flight"),Orphan->IsMouthEntryActive())) return false;
+        }
+        Orphan->SetActorTickEnabled(false);
+        for(AMCFoodActor* Food:T.Event->Nuts) if(IsValid(Food) && Food!=Orphan) Food->Dispose();
+        T.Step(7);
+        if(StaleFlight) {
+            TestEqual(TEXT("An actual pending flight is allowed to finish before the knight"),T.Event->Bosses.Num(),0);
+            TestFalse(TEXT("Waiting for an actual flight is not event failure"),T.Event->bFailed);
+            T.Step(8);
+            TestTrue(TEXT("Only the stale entry is retired by bounded recovery"),Orphan->IsDisposed());
+        } else TestFalse(TEXT("An off-surface loose nut is retained rather than consumed by the gate"),Orphan->IsDisposed());
+        TestFalse(TEXT("Unresolved debris never cancels the mandatory boss fight"),T.Event->bFailed);
+        TestEqual(TEXT("Natural gate/recovery spawns exactly one boss"),T.Event->Bosses.Num(),1);
+        TestEqual(TEXT("The recovered event remains in combat"),T.Event->Stage,EMCNutRainStage::Enemies);
+        TestFalse(TEXT("Recovery cannot grant victory without defeating both boss forms"),T.Event->IsComplete());
+    }
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutRainGroundSpacing,"MessControl.CoreLoop.NutRain.GroundSpacingAndExplicitSpellFallback",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCNutRainGroundSpacing::RunTest(const FString&)
 {

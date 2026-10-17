@@ -340,6 +340,7 @@ void AMCPlayerController::RequestDevAction(EMCDevAction Action,int32 StepIndex)
     if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>())
     {
         const FText Result=Mode->ExecuteDevAction(this,Action,StepIndex);
+        if (DevPanel && Action==EMCDevAction::OneHitKill) DevPanel->RefreshActions();
         if (DevPanel) DevPanel->SetFeedback(Result);
     }
     else if (DevPanel) DevPanel->SetFeedback(FText::FromString(TEXT("События запускает хост. Его изменения появятся у всех игроков.")));

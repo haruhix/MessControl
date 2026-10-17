@@ -1,0 +1,954 @@
+{
+  "error": null,
+  "rows": [
+    {
+      "age": 0.01666666567325592,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 1.0166666060686111,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 2.0166665464639664,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 3.0166664868593216,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 4.016666427254677,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FALLING: 0>",
+          "pos": [
+            132.07880910863815,
+            118.49384347735565,
+            923.3558546735078
+          ],
+          "speed": 29.57084846496582,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 5.016666367650032,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FALLING: 0>",
+          "pos": [
+            132.07880910863815,
+            118.49384347735565,
+            399.701542370107
+          ],
+          "speed": 1009.5718383789062,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 6.016666308045387,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            81.44370818784331,
+            42.51084315903937,
+            180.94322139257608
+          ],
+          "speed": 113.65651642811233,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 7.0166662484407425,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            80.2587820081901,
+            19.453114987006614,
+            174.3692465689204
+          ],
+          "speed": 47.63753568904469,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_17",
+          "phase": "<MCFoodPhase.FALLING: 0>",
+          "pos": [
+            -39.91179231566838,
+            314.9777023249727,
+            887.5460739777684
+          ],
+          "speed": 193.23497009277344,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 8.016666188836098,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            72.00964876640647,
+            15.143950318740059,
+            168.9958231621384
+          ],
+          "speed": 8.105687540201098,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_17",
+          "phase": "<MCFoodPhase.FALLING: 0>",
+          "pos": [
+            -39.51417181213743,
+            314.8692593117589,
+            208.7715404201969
+          ],
+          "speed": 159.99999676868606,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 9.016666129231453,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            75.26773243043726,
+            17.678253865967047,
+            167.94976701549075
+          ],
+          "speed": 7.056422467806475,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_17",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -7.406564618634209,
+            275.8319455769039,
+            209.2385632255483
+          ],
+          "speed": 34.50151571399092,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 10.016666069626808,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            76.35438836122275,
+            17.791908870928165,
+            171.69869368218244
+          ],
+          "speed": 3.9949379484548775,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_17",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            52.890605547656996,
+            246.34423086021562,
+            189.98230706750374
+          ],
+          "speed": 102.12851766397412,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_18",
+          "phase": "<MCFoodPhase.FALLING: 0>",
+          "pos": [
+            -325.02325579196395,
+            96.51543502901886,
+            877.6909471404625
+          ],
+          "speed": 207.7562255859375,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 11.016666010022163,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            75.87310294010167,
+            16.975204244306063,
+            175.46065086923625
+          ],
+          "speed": 3.7653629524628154,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_17",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            72.12322397837247,
+            227.76170355656492,
+            189.40602833545117
+          ],
+          "speed": 29.30353295887813,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_18",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -325.994096820138,
+            94.45352344166454,
+            205.3642099618238
+          ],
+          "speed": 143.32450641065574,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 12.016665950417519,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            76.01200743806105,
+            16.835865629843862,
+            174.4978418260101
+          ],
+          "speed": 3.9735760810939027,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_17",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            50.29125955061056,
+            225.43488062538097,
+            190.30310739952975
+          ],
+          "speed": 22.88443968411704,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_18",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -322.0154474814468,
+            66.07907841456506,
+            200.0254690987794
+          ],
+          "speed": 14.577897686268539,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 13.016665890812874,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            75.94886790821012,
+            16.853284375500984,
+            170.17107684638768
+          ],
+          "speed": 3.9556402954083194,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_17",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            54.31472591826548,
+            227.25131764674506,
+            185.08784081246026
+          ],
+          "speed": 11.337337909735862,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_18",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -317.8992421326841,
+            94.49429503496302,
+            194.4707266420761
+          ],
+          "speed": 31.60923258718643,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 14.016665831208229,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            75.8921617994806,
+            16.725503612902067,
+            168.5550570217073
+          ],
+          "speed": 3.6793487572898993,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_17",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            53.748657312473554,
+            226.53042792340824,
+            183.56199254290647
+          ],
+          "speed": 6.349677463025367,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_18",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -316.54695950386747,
+            91.12825953949451,
+            192.67915650698845
+          ],
+          "speed": 6.6401336326009455,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 15.016665771603584,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            75.9645614196159,
+            16.355116868521026,
+            171.93829394680654
+          ],
+          "speed": 3.554073801168839,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_17",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            53.79134427825757,
+            225.81851850039294,
+            186.7537683994826
+          ],
+          "speed": 3.719130820388637,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_18",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -319.7308560675897,
+            92.51224436638782,
+            195.63711052607786
+          ],
+          "speed": 3.789668843905425,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 16.01666571199894,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            76.14108580936265,
+            15.963900349724847,
+            175.67432102846604
+          ],
+          "speed": 3.6362382827098463,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_17",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            53.82911310050353,
+            225.06554563334637,
+            190.29376400553568
+          ],
+          "speed": 3.702219514778324,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_18",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -319.60359642701457,
+            91.78959092405798,
+            199.52253607460017
+          ],
+          "speed": 3.7674668648301934,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_21",
+          "phase": "<MCFoodPhase.FALLING: 0>",
+          "pos": [
+            -370.95331817021054,
+            395.66424218719885,
+            974.5153269880334
+          ],
+          "speed": 155.7527618408203,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 17.016665652394295,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            76.2305576926063,
+            15.824527576541403,
+            174.6172373077253
+          ],
+          "speed": 3.982912752386736,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_17",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            53.95049090086892,
+            224.81471677985056,
+            189.2965529058532
+          ],
+          "speed": 3.803831342067445,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_18",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -319.3226618886106,
+            91.38372814531888,
+            198.78848918362004
+          ],
+          "speed": 3.9646450241352813,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_21",
+          "phase": "<MCFoodPhase.FALLING: 0>",
+          "pos": [
+            -370.95331817021054,
+            395.66424218719885,
+            636.1847677908039
+          ],
+          "speed": 824.2477416992188,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 18.01666559278965,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            76.18008936520869,
+            15.87995548749467,
+            170.23638734795264
+          ],
+          "speed": 4.026584919631649,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_17",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            54.084115937875936,
+            224.93718647676792,
+            185.133913064438
+          ],
+          "speed": 3.8213657364676976,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_18",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -319.2014760031614,
+            91.10696408491913,
+            194.467199180225
+          ],
+          "speed": 3.9563102574170497,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_21",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -366.9591640788832,
+            320.8235577491568,
+            203.86288754907176
+          ],
+          "speed": 131.4883324126212,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 19.016665533185005,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            76.13501948771872,
+            15.778711300389094,
+            168.58762117658898
+          ],
+          "speed": 3.684213722344956,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_17",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            54.11604405827378,
+            224.76422970608758,
+            183.53904322788267
+          ],
+          "speed": 3.711535214580446,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_18",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -319.16529738887573,
+            90.73796542893129,
+            192.5325291341456
+          ],
+          "speed": 3.764668346784567,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_21",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -357.4571042103175,
+            252.04783330710808,
+            186.74513688045047
+          ],
+          "speed": 23.36318368482364,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_22",
+          "phase": "<MCFoodPhase.FALLING: 0>",
+          "pos": [
+            -463.8553579376409,
+            523.4264111478566,
+            872.0598966193357
+          ],
+          "speed": 266.3058776855469,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 20.01666547358036,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            76.23062035749672,
+            15.41468003231542,
+            171.9492538349263
+          ],
+          "speed": 3.550980337487354,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_17",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            54.08153707258099,
+            224.06971738327246,
+            186.6918678250235
+          ],
+          "speed": 3.718694998384595,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_18",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -319.13658878443385,
+            90.07451756106306,
+            195.63699294118297
+          ],
+          "speed": 3.8084390503650534,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_21",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -354.1867730290148,
+            279.97779891518377,
+            190.43008395310994
+          ],
+          "speed": 12.002867239499565,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_22",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -470.8959837174664,
+            513.3138330095112,
+            242.39961410955723
+          ],
+          "speed": 94.54863297935476,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 21.016665413975716,
+      "stage": "<MCNutRainStage.SETTLING: 2>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            76.34131335426308,
+            15.132794232357035,
+            175.67425801569013
+          ],
+          "speed": 3.7052709486975846,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_17",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            54.09543838154022,
+            223.34517017167306,
+            190.20763721574303
+          ],
+          "speed": 3.704967988072246,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_18",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -319.0683320874479,
+            89.36247174883653,
+            199.4640263661743
+          ],
+          "speed": 3.759200897979745,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_21",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -355.47085781345993,
+            269.4820484094402,
+            191.2340968537504
+          ],
+          "speed": 10.372480654789904,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_22",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -512.5127476305684,
+            417.66035610869756,
+            205.26519344314434
+          ],
+          "speed": 113.00025981765575,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_23",
+          "phase": "<MCFoodPhase.FALLING: 0>",
+          "pos": [
+            -159.0554602589013,
+            594.5294464907098,
+            896.4620815625462
+          ],
+          "speed": 302.9597473144531,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 22.01666535437107,
+      "stage": "<MCNutRainStage.SETTLING: 2>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            76.41761617735163,
+            15.025071695446005,
+            174.60964998368792
+          ],
+          "speed": 3.9828640577081273,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_17",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            54.19618266810067,
+            223.11700478338417,
+            189.1939874809231
+          ],
+          "speed": 3.8103068479334654,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_18",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -318.89366346797897,
+            88.89168318058383,
+            198.688561299031
+          ],
+          "speed": 3.830699763463765,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_21",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -355.706316359953,
+            268.3210039266574,
+            190.5937503264537
+          ],
+          "speed": 4.055560881665987,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_22",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -559.644986069921,
+            401.43182790146165,
+            201.4057132358201
+          ],
+          "speed": 23.682891193751065,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_23",
+          "phase": "<MCFoodPhase.FALLING: 0>",
+          "pos": [
+            -159.0554602589013,
+            594.5294464907098,
+            705.3385357970831
+          ],
+          "speed": 677.0404052734375,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    },
+    {
+      "age": 23.016665294766426,
+      "stage": "<MCNutRainStage.COMPLETE: 4>",
+      "failed": true,
+      "bosses": 0,
+      "nuts": [
+        {
+          "name": "MCFoodActor_16",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            76.3667841994666,
+            15.091103455292568,
+            170.2240993165671
+          ],
+          "speed": 3.886944531865041,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_17",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            54.31310617015144,
+            223.25739121236418,
+            185.02000811053557
+          ],
+          "speed": 3.8250739891033403,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_18",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -318.92022734554587,
+            88.35701700113398,
+            194.32130213370462
+          ],
+          "speed": 4.068592437824802,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_21",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -355.6488882021094,
+            267.85644707434227,
+            186.62541738469383
+          ],
+          "speed": 3.658015703973455,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_22",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -568.4255220397285,
+            405.2819132131873,
+            198.47843746834653
+          ],
+          "speed": 6.290359350549782,
+          "holders": 0
+        },
+        {
+          "name": "MCFoodActor_23",
+          "phase": "<MCFoodPhase.FREE: 2>",
+          "pos": [
+            -144.47174083858286,
+            595.6011853584191,
+            238.2343744632313
+          ],
+          "speed": 20.492114990169423,
+          "holders": 0
+        }
+      ],
+      "gs": "<MCShiftPhase.WORKING: 1>"
+    }
+  ]
+}

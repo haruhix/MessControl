@@ -6,7 +6,7 @@
 
 class UAnimSequence;
 
-enum class EMCNutBossClip : uint8 { Idle, Walk, WalkLeft, WalkRight, Melee, Jump, Transform, Cast, HeavyCast, Summon, Rain, Hit, Death, ChargeTell, ChargeLoop, ChargeRecovery, ShieldBreak, UnshieldedIdle, UnshieldedWalk, Melee2, MeleeCombo, Block, StunHit, BallEnd, HeadLeft, HeadRight, Count };
+enum class EMCNutBossClip : uint8 { Idle, Walk, WalkLeft, WalkRight, Melee, Jump, Transform, Cast, HeavyCast, Summon, Rain, Hit, Death, ChargeTell, ChargeLoop, ChargeRecovery, ShieldBreak, UnshieldedIdle, UnshieldedWalk, Melee2, MeleeCombo, Block, StunHit, BallEnd, HeadLeft, HeadRight, Teleport, Count };
 enum class EMCNutPoseBone : uint8 { Torso, Head, LeftArm, RightArm, LeftForearm, RightForearm, LeftHand, RightHand, Count };
 
 struct FMCNutBossClipSample
@@ -38,6 +38,10 @@ struct FMCNutBossAnimationSnapshot
     bool bMage=false,bHasDeathClip=false,bHasMeleeClip=false;
     bool bAuthoredSpellGestures=false;
     float AuthoredTankMotionWeight=0,AuthoredTankHitWeight=0;
+    float AuthoredMageMotionWeight=0;
+    /** Walking keeps its original legs/body while both shoulder subtrees use idle. */
+    UAnimSequence* MageWalkIdleArms=nullptr;
+    float MageWalkIdleArmsSeconds=0,MageWalkIdleArmsWeight=0;
 
     /** Correct the palm at release/channel contact, leaving authored gathering and recovery gestures free. */
     float CastHandAlignmentWeight() const

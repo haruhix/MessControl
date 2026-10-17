@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "native_tests": 2,
+  "solo_checks": 5,
+  "boss_appeared_at": 23.016665294766426,
+  "dirty": [],
+  "map": "/Game/Maps/L_Mouth.L_Mouth",
+  "preferences_restored": true
+}

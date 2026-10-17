@@ -1,0 +1,978 @@
+{
+  "source": "C:\\Users\\vasil\\Downloads\\Telegram Desktop\\Nut_Wizard (2).blend",
+  "sha256": "1cc9457fc636f90cb7db87d68503e0bf9a949e4b644c0bb33bdd61fd9d11fcaa",
+  "fps": 30.0,
+  "scene": "Scene",
+  "actions": [
+    {
+      "name": "mixamo.com",
+      "range": [
+        1.0,
+        66.0
+      ],
+      "slots": [
+        {
+          "name": "OBArmature",
+          "type": "OBJECT"
+        }
+      ],
+      "users": 2
+    },
+    {
+      "name": "mixamo.com.001",
+      "range": [
+        1.0,
+        70.0
+      ],
+      "slots": [
+        {
+          "name": "OBArmature.001",
+          "type": "OBJECT"
+        }
+      ],
+      "users": 1
+    },
+    {
+      "name": "mixamo.com.002",
+      "range": [
+        1.0,
+        69.0
+      ],
+      "slots": [
+        {
+          "name": "OBArmature.002",
+          "type": "OBJECT"
+        }
+      ],
+      "users": 1
+    },
+    {
+      "name": "mixamo.com.003",
+      "range": [
+        1.0,
+        99.0
+      ],
+      "slots": [
+        {
+          "name": "OBArmature.003",
+          "type": "OBJECT"
+        }
+      ],
+      "users": 1
+    },
+    {
+      "name": "mixamo.com.004",
+      "range": [
+        1.0,
+        35.0
+      ],
+      "slots": [
+        {
+          "name": "OBArmature.004",
+          "type": "OBJECT"
+        }
+      ],
+      "users": 1
+    },
+    {
+      "name": "mixamo.com.005",
+      "range": [
+        1.0,
+        34.0
+      ],
+      "slots": [
+        {
+          "name": "OBArmature.005",
+          "type": "OBJECT"
+        }
+      ],
+      "users": 1
+    },
+    {
+      "name": "NUT_W_CastSummon",
+      "range": [
+        1.0,
+        70.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "users": 3
+    },
+    {
+      "name": "NUT_W_death",
+      "range": [
+        1.0,
+        100.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "users": 2
+    },
+    {
+      "name": "NUT_W_Firenut",
+      "range": [
+        1.0,
+        70.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "users": 2
+    },
+    {
+      "name": "NUT_W_Nut_damage",
+      "range": [
+        1.0,
+        15.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "users": 2
+    },
+    {
+      "name": "NUT_W_Nut_Idle",
+      "range": [
+        1.0,
+        46.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "users": 3
+    },
+    {
+      "name": "NUT_W_Nut_teleport",
+      "range": [
+        1.0,
+        100.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "users": 2
+    },
+    {
+      "name": "NUT_W_NutRain",
+      "range": [
+        1.0,
+        99.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "users": 3
+    },
+    {
+      "name": "pose0",
+      "range": [
+        1.0,
+        1.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "users": 1
+    }
+  ],
+  "objects": [
+    {
+      "name": "SM_NutWizard",
+      "type": "MESH",
+      "parent": "rig",
+      "scale": [
+        0.1283276081085205,
+        0.1283276081085205,
+        0.1283276081085205
+      ],
+      "rotation": [
+        0.0,
+        -0.2115887850522995,
+        0.0
+      ],
+      "location": [
+        -0.19473761320114136,
+        0.16023367643356323,
+        0.9046677350997925
+      ],
+      "vertices": 2361,
+      "materials": [
+        "Walnut",
+        "hand/eye"
+      ],
+      "modifiers": [
+        {
+          "name": "rig",
+          "type": "ARMATURE",
+          "rig": "rig",
+          "preserve_volume": true
+        }
+      ]
+    },
+    {
+      "name": "Plane",
+      "type": "MESH",
+      "parent": null,
+      "scale": [
+        4.174403190612793,
+        4.174403190612793,
+        4.174403190612793
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "vertices": 4,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "rig",
+      "type": "ARMATURE",
+      "parent": "char_grp",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "bones": 286,
+      "deform_bones": 49,
+      "roots": [
+        "c_pos",
+        "c_arms_pole.l",
+        "c_arms_pole.r",
+        "c_foot_ik.r",
+        "c_leg_pole.r",
+        "c_foot_ik.l",
+        "c_leg_pole.l",
+        "c_hand_ik.r",
+        "c_hand_ik.l",
+        "root_ref.x"
+      ],
+      "action": null,
+      "properties": [
+        "cycles",
+        "rig_spine_count",
+        "ant_landscape",
+        "arp_fingers_shape_style",
+        "animation_retarget",
+        "flip_fluid",
+        "arp_rig_type",
+        "als",
+        "arp_previous_secondaries",
+        "arp_retarget_bound",
+        "arp_retarget_ik_chains",
+        "arp_retarget_fk_chains"
+      ]
+    },
+    {
+      "name": "cs_half_circle",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.06933577358722687,
+        0.06933577358722687,
+        0.06933577358722687
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        -1.5707964897155762
+      ],
+      "location": [
+        0.030198991298675537,
+        -0.052722807973623276,
+        -0.08672314882278442
+      ],
+      "vertices": 17,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_base_finger_end",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.09799998998641968,
+        0.09799998998641968,
+        0.09799998998641968
+      ],
+      "rotation": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "location": [
+        -2.890305757522583,
+        -0.052722807973623276,
+        -0.15675002336502075
+      ],
+      "vertices": 32,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_base_finger",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.09799998998641968,
+        0.09799998998641968,
+        0.09799998998641968
+      ],
+      "rotation": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "location": [
+        -2.669957160949707,
+        -0.052722807973623276,
+        -0.15675002336502075
+      ],
+      "vertices": 32,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_circle_head",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.07370437681674957,
+        0.07370437681674957,
+        0.07370437681674957
+      ],
+      "rotation": [
+        1.5707964897155762,
+        -0.0,
+        -0.0
+      ],
+      "location": [
+        -5.032209396362305,
+        -0.3814167380332947,
+        0.8100844025611877
+      ],
+      "vertices": 32,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_user_c_thigh_fk.r",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "location": [
+        4.96339225769043,
+        -0.06696313619613647,
+        -0.5079615116119385
+      ],
+      "vertices": 8,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_user_c_thigh_fk.l",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.4148308038711548,
+        0.41483074426651,
+        0.4148308336734772
+      ],
+      "rotation": [
+        -1.6303026676177979,
+        -0.17520497739315033,
+        -2.993172998344562e-08
+      ],
+      "location": [
+        0.12550967931747437,
+        -0.0006352381315082312,
+        0.7724714875221252
+      ],
+      "vertices": 8,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_user_c_leg_fk.r",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "location": [
+        2.4764819145202637,
+        0.05070078372955322,
+        0.479195237159729
+      ],
+      "vertices": 8,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_user_c_leg_fk.l",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.4747134745121002,
+        0.47471359372138977,
+        0.474713534116745
+      ],
+      "rotation": [
+        -1.4104416370391846,
+        0.030008982867002487,
+        -1.3680411577224731
+      ],
+      "location": [
+        0.16881835460662842,
+        -0.015437537804245949,
+        0.5278171300888062
+      ],
+      "vertices": 8,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_spine",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.0500105619430542,
+        0.0500105656683445,
+        0.050004880875349045
+      ],
+      "rotation": [
+        1.5707963705062866,
+        -3.292704719992656e-10,
+        -0.006602589040994644
+      ],
+      "location": [
+        3.0155959951372324e-09,
+        -0.006318323314189911,
+        1.074682593345642
+      ],
+      "vertices": 16,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_hand",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.09799998998641968,
+        0.09799998998641968,
+        0.09799998998641968
+      ],
+      "rotation": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "location": [
+        2.4764819145202637,
+        0.05070078372955322,
+        0.479195237159729
+      ],
+      "vertices": 8,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_box",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.701725423336029,
+        0.701725423336029,
+        0.701725423336029
+      ],
+      "rotation": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "location": [
+        -2.3468399047851562,
+        -0.052722807973623276,
+        -0.160267174243927
+      ],
+      "vertices": 8,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_foot_roll",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.09799998998641968,
+        0.09799998998641968,
+        0.09799998998641968
+      ],
+      "rotation": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "location": [
+        -1.4086779356002808,
+        -0.052722807973623276,
+        -0.15675002336502075
+      ],
+      "vertices": 56,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_foot.l",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.09799998998641968,
+        0.09799998998641968,
+        0.09799998998641968
+      ],
+      "rotation": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "location": [
+        1.966504454612732,
+        -0.052722834050655365,
+        0.4723239839076996
+      ],
+      "vertices": 8,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_foot.r",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.09799998998641968,
+        0.09799998998641968,
+        0.09799998998641968
+      ],
+      "rotation": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "location": [
+        2.067277431488037,
+        -0.052722834050655365,
+        0.4723239839076996
+      ],
+      "vertices": 8,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_pos",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.09799998998641968,
+        0.09799998998641968,
+        0.09799998998641968
+      ],
+      "rotation": [
+        1.5707964897155762,
+        2.220446843343701e-16,
+        2.220446843343701e-16
+      ],
+      "location": [
+        -2.074038028717041,
+        -0.052722807973623276,
+        0.8220245838165283
+      ],
+      "vertices": 32,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_curve",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.09799998998641968,
+        0.09799998998641968,
+        0.09799998998641968
+      ],
+      "rotation": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "location": [
+        0.42219266295433044,
+        -0.052722807973623276,
+        0.5151544809341431
+      ],
+      "vertices": 16,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_arrow_cross",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.28297722339630127,
+        0.28297722339630127,
+        0.28297722339630127
+      ],
+      "rotation": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "location": [
+        2.0816988945007324,
+        -0.04398176074028015,
+        0.03700609505176544
+      ],
+      "vertices": 44,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_circle_squashed",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.09799998998641968,
+        0.09799998998641968,
+        0.09799998998641968
+      ],
+      "rotation": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "location": [
+        0.5312565565109253,
+        -0.052722807973623276,
+        -0.06137993931770325
+      ],
+      "vertices": 32,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_torus_04",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.09799998998641968,
+        0.09799998998641968,
+        0.09799998998641968
+      ],
+      "rotation": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "location": [
+        -1.2646207809448242,
+        -0.052722807973623276,
+        -0.15675002336502075
+      ],
+      "vertices": 48,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_torus_02",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.09799998998641968,
+        0.09799998998641968,
+        0.09799998998641968
+      ],
+      "rotation": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "location": [
+        -0.8402689695358276,
+        -0.052722807973623276,
+        0.16403165459632874
+      ],
+      "vertices": 48,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_torus_03",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.09799998998641968,
+        0.09799998998641968,
+        0.09799998998641968
+      ],
+      "rotation": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "location": [
+        -0.25941985845565796,
+        -0.052722811698913574,
+        0.1563916951417923
+      ],
+      "vertices": 48,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_sphere",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.08495540171861649,
+        0.08495540171861649,
+        0.08495540171861649
+      ],
+      "rotation": [
+        1.5707964897155762,
+        -0.0,
+        0.0
+      ],
+      "location": [
+        -0.8484876155853271,
+        -0.052722807973623276,
+        0.4720396101474762
+      ],
+      "vertices": 48,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_arrow_twist",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "location": [
+        5.246315956115723,
+        -0.045859456062316895,
+        0.30829918384552
+      ],
+      "vertices": 24,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_user_c_shoulder.l",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.081199049949646,
+        0.0811990350484848,
+        0.08119907230138779
+      ],
+      "rotation": [
+        3.141592502593994,
+        -4.066944256919669e-07,
+        1.5384068489074707
+      ],
+      "location": [
+        0.0779912993311882,
+        -0.06399919092655182,
+        1.396466612815857
+      ],
+      "vertices": 16,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_user_c_shoulder.r",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "location": [
+        -1.730238676071167,
+        0.12479555606842041,
+        0.128013014793396
+      ],
+      "vertices": 16,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_user_c_arm_fk.l",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        0.2286764532327652,
+        0.2286764532327652,
+        0.2286764532327652
+      ],
+      "rotation": [
+        -2.772533893585205,
+        -0.012172541581094265,
+        1.6756744384765625
+      ],
+      "location": [
+        0.23730605840682983,
+        0.026400208473205566,
+        1.2941750288009644
+      ],
+      "vertices": 8,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_user_c_arm_fk.r",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "location": [
+        0.13130508363246918,
+        0.014737256802618504,
+        1.335418462753296
+      ],
+      "vertices": 8,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_user_c_arm_ik.r",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "location": [
+        0.1313050538301468,
+        0.014737253077328205,
+        1.3354181051254272
+      ],
+      "vertices": 8,
+      "materials": [],
+      "modifiers": []
+    },
+    {
+      "name": "cs_line",
+      "type": "MESH",
+      "parent": "cs_grp",
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "vertices": 2,
+      "materials": [],
+      "modifiers": []
+    }
+  ]
+}

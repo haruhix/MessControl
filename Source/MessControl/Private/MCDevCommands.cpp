@@ -46,6 +46,7 @@
 
 namespace
 {
+    const FName OneHitKillTag(TEXT("MC.DevOneHitKill"));
 #if !UE_BUILD_SHIPPING
     void SuspendDevSchedulers(AMCGameMode* Mode,AMCGameState* State)
     {
@@ -187,6 +188,27 @@ namespace
 #endif
 }
 
+bool MCDevOneHitKillEnabled(const UWorld* World)
+{
+#if !UE_BUILD_SHIPPING
+    const auto* Mode=World?World->GetAuthGameMode<AMCGameMode>():nullptr;
+    return IsValid(Mode) && Mode->ActorHasTag(OneHitKillTag);
+#else
+    return false;
+#endif
+}
+
+float MCDevEnemyHitDamage(float Damage,float Health,const AActor* Source)
+{
+#if !UE_BUILD_SHIPPING
+    const auto* Hero=Cast<AMCToothCharacter>(Source);
+    if(!Hero && IsValid(Source)) Hero=Cast<AMCToothCharacter>(Source->GetInstigator());
+    if(IsValid(Hero) && Hero->Status && Hero->Status->IsAlive() && MCDevOneHitKillEnabled(Hero->GetWorld()))
+        return FMath::Max(Damage,Health);
+#endif
+    return Damage;
+}
+
 bool AMCGameMode::CanUseDevPanel(const APlayerController* Requester) const
 {
 #if UE_BUILD_SHIPPING
@@ -217,6 +239,8 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         const int32 Humans=GetGameplayParticipantCount();
         if (Count+(bObserve?0:Humans)>Cap)
             return FText::FromString(FString::Printf(TEXT("В команде максимум %d: игроков %d, запрошено ботов %d. Уменьши число или выбери наблюдение."),Cap,bObserve?0:Humans,Count));
+        // Bot measurements always use ordinary combat damage.
+        Tags.Remove(OneHitKillTag);
         if (!BotSession) BotSession=GetWorld()->SpawnActor<AMCPlaytestSession>();
         FString Error;
         if (!BotSession || !BotSession->StartSession(Count,Skill,bObserve,GS->RunSeed,Error))
@@ -243,6 +267,14 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     }
     if (BotSession && BotSession->IsActive())
         return FText::FromString(TEXT("Во время теста ботов ручные события отключены. Сначала нажми «Остановить ботов»."));
+    if(Action==EMCDevAction::OneHitKill)
+    {
+        const bool Enabled=!MCDevOneHitKillEnabled(GetWorld());
+        if(Enabled) Tags.AddUnique(OneHitKillTag); else Tags.Remove(OneHitKillTag);
+        return FText::FromString(Enabled?
+            TEXT("Убийство с одного удара ВКЛ: попадания игроков убивают врагов и текущую фазу босса. Повторное нажатие выключает режим."):
+            TEXT("Убийство с одного удара ВЫКЛ: обычный урон восстановлен."));
+    }
     if(Action==EMCDevAction::CataclysmRandom || Action==EMCDevAction::CataclysmRafts
         || Action==EMCDevAction::CataclysmJellies || Action==EMCDevAction::CataclysmStop)
     {

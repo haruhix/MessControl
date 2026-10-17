@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "checks": {
+    "solo_passed": true,
+    "native_focused_test_passed": true,
+    "protected_assets_unchanged": true,
+    "dirty_packages_preserved": true,
+    "PIE_stopped": true,
+    "owned_editor": true
+  },
+  "protected_files": 62,
+  "unexpected_changes": [],
+  "dirty": [],
+  "hp_before": 100.0,
+  "hp_after": 84.0
+}

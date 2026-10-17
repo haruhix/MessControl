@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "real_projectile": true,
+  "after_impact_seconds": 1.7,
+  "decal_visible": true,
+  "fallback_plane_hidden": true
+}

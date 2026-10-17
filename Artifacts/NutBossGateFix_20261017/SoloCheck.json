@@ -1,0 +1,282 @@
+{
+  "passed": true,
+  "error": null,
+  "checks": [
+    {
+      "name": "The complete natural storm precedes exactly one knight",
+      "passed": true
+    },
+    {
+      "name": "The knight owns the subsequent wizard phase",
+      "passed": true
+    },
+    {
+      "name": "The real F3 storm launches falling nuts",
+      "passed": true
+    },
+    {
+      "name": "The knight appears and completes its falling entrance",
+      "passed": true
+    },
+    {
+      "name": "The living boss keeps the event open beyond the rain deadline",
+      "passed": true
+    }
+  ],
+  "boss_appeared_at": 23.016665294766426,
+  "rows": [
+    {
+      "age": 0.01666666567325592,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 1
+    },
+    {
+      "age": 1.0166666060686111,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 1
+    },
+    {
+      "age": 2.0166665464639664,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 1
+    },
+    {
+      "age": 3.0166664868593216,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 2
+    },
+    {
+      "age": 4.016666427254677,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 2
+    },
+    {
+      "age": 5.016666367650032,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 2
+    },
+    {
+      "age": 6.016666308045387,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 3
+    },
+    {
+      "age": 7.0166662484407425,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 3
+    },
+    {
+      "age": 8.016666188836098,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 4
+    },
+    {
+      "age": 9.016666129231453,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 4
+    },
+    {
+      "age": 10.016666069626808,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 4
+    },
+    {
+      "age": 11.016666010022163,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 4
+    },
+    {
+      "age": 12.016665950417519,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 4
+    },
+    {
+      "age": 13.016665890812874,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 4
+    },
+    {
+      "age": 14.016665831208229,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 5
+    },
+    {
+      "age": 15.016665771603584,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 5
+    },
+    {
+      "age": 16.01666571199894,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 5
+    },
+    {
+      "age": 17.016665652394295,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 5
+    },
+    {
+      "age": 18.01666559278965,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 5
+    },
+    {
+      "age": 19.016665533185005,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 6
+    },
+    {
+      "age": 20.01666547358036,
+      "stage": "<MCNutRainStage.RAINFALL: 1>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 6
+    },
+    {
+      "age": 21.016665413975716,
+      "stage": "<MCNutRainStage.SETTLING: 2>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 6
+    },
+    {
+      "age": 22.01666535437107,
+      "stage": "<MCNutRainStage.SETTLING: 2>",
+      "failed": false,
+      "bosses": 0,
+      "nuts": 6
+    },
+    {
+      "age": 23.016665294766426,
+      "stage": "<MCNutRainStage.ENEMIES: 3>",
+      "failed": false,
+      "bosses": 1,
+      "nuts": 6,
+      "boss_state": "<MCNutBossState.FALLING: 0>",
+      "health": 1400.0,
+      "role": "<MCNutBossRole.TANK: 0>"
+    },
+    {
+      "age": 24.01666523516178,
+      "stage": "<MCNutRainStage.ENEMIES: 3>",
+      "failed": false,
+      "bosses": 1,
+      "nuts": 6,
+      "boss_state": "<MCNutBossState.IDLE: 1>",
+      "health": 1400.0,
+      "role": "<MCNutBossRole.TANK: 0>"
+    },
+    {
+      "age": 25.016665175557137,
+      "stage": "<MCNutRainStage.ENEMIES: 3>",
+      "failed": false,
+      "bosses": 1,
+      "nuts": 6,
+      "boss_state": "<MCNutBossState.IDLE: 1>",
+      "health": 1400.0,
+      "role": "<MCNutBossRole.TANK: 0>"
+    },
+    {
+      "age": 26.01666511595249,
+      "stage": "<MCNutRainStage.ENEMIES: 3>",
+      "failed": false,
+      "bosses": 1,
+      "nuts": 6,
+      "boss_state": "<MCNutBossState.IDLE: 1>",
+      "health": 1400.0,
+      "role": "<MCNutBossRole.TANK: 0>"
+    },
+    {
+      "age": 27.016665056347847,
+      "stage": "<MCNutRainStage.ENEMIES: 3>",
+      "failed": false,
+      "bosses": 1,
+      "nuts": 6,
+      "boss_state": "<MCNutBossState.IDLE: 1>",
+      "health": 1400.0,
+      "role": "<MCNutBossRole.TANK: 0>"
+    },
+    {
+      "age": 28.016664996743202,
+      "stage": "<MCNutRainStage.ENEMIES: 3>",
+      "failed": false,
+      "bosses": 1,
+      "nuts": 6,
+      "boss_state": "<MCNutBossState.IDLE: 1>",
+      "health": 1400.0,
+      "role": "<MCNutBossRole.TANK: 0>"
+    },
+    {
+      "age": 29.016664937138557,
+      "stage": "<MCNutRainStage.ENEMIES: 3>",
+      "failed": false,
+      "bosses": 1,
+      "nuts": 6,
+      "boss_state": "<MCNutBossState.TELEGRAPH: 2>",
+      "health": 1400.0,
+      "role": "<MCNutBossRole.TANK: 0>"
+    },
+    {
+      "age": 30.016664877533913,
+      "stage": "<MCNutRainStage.ENEMIES: 3>",
+      "failed": false,
+      "bosses": 1,
+      "nuts": 6,
+      "boss_state": "<MCNutBossState.RECOVERY: 4>",
+      "health": 1400.0,
+      "role": "<MCNutBossRole.TANK: 0>"
+    },
+    {
+      "age": 31.016664817929268,
+      "stage": "<MCNutRainStage.ENEMIES: 3>",
+      "failed": false,
+      "bosses": 1,
+      "nuts": 6,
+      "boss_state": "<MCNutBossState.TELEGRAPH: 2>",
+      "health": 1400.0,
+      "role": "<MCNutBossRole.TANK: 0>"
+    }
+  ],
+  "scope": "One natural F3 storm through knight landing and an open boss fight.\n\nRestores observer HP and fixed-rate/background preferences. Does not change\nrain, boss, placement, stage, ability clocks or combat outcomes.\n",
+  "preferences_restored": true
+}

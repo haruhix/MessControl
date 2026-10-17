@@ -6,6 +6,7 @@
 #include "MCNutBoss.generated.h"
 
 class AMCNutRainEvent;
+class AMCArenaTooth;
 class AMCNutCombatEffect;
 class AMCNutSpellProjectile;
 class USkeletalMeshComponent;
@@ -112,9 +113,10 @@ private:
     bool FindTeleportPoint(FVector& Result);
     bool IsTeleportPointFree(FVector Point) const;
     void BeginTeleport();
-    void TriggerRollToothPain(const FHitResult& Hit);
+    void HandleRollToothImpact(const FHitResult& Hit);
     void Recover(float Seconds);
     float RecoverySeconds(float Requested) const;
+    float MageAttackAnimationSeconds() const;
     float TankMeleeSeconds() const;
     float TankMeleeContactFraction(int32 Contact) const;
     float TankMeleeContactOffset(int32 Contact) const;
@@ -133,6 +135,7 @@ private:
     double NextTargetAt=0,NextRollPainAt=0;
     double FocusWindowStartedAt=-100;
     int32 FocusHits=0;
+    bool bMageHitQueued=false,bMageTeleportQueued=false;
     bool bMeleeBetweenAbilities=true;
     bool bResolved=false;
     int32 RainDropsResolved=0;
@@ -143,6 +146,7 @@ private:
     TSet<TWeakObjectPtr<AMCToothCharacter>> AttackHits;
     TMap<TWeakObjectPtr<AMCToothCharacter>,double> RainHitAt;
     TMap<TWeakObjectPtr<AMCToothCharacter>,double> RollHitAt;
+    TMap<TWeakObjectPtr<AMCArenaTooth>,double> RollToothHitAt;
     FVector TankModelScale=FVector::OneVector;
     FVector TankModelGroundAnchor=FVector::ZeroVector;
     FVector TankBallScale=FVector::OneVector,TankBallCenter=FVector::ZeroVector;

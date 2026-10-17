@@ -1,0 +1,2468 @@
+{
+  "passed": true,
+  "error": null,
+  "checks": [
+    {
+      "name": "Native teleport still precedes the fire-nut cast",
+      "passed": true
+    },
+    {
+      "name": "Saved and sanitized fire-nut speed is doubled",
+      "passed": true,
+      "speed_cm_s": 1100.000024859497
+    },
+    {
+      "name": "The projectile leaves the casting right palm",
+      "passed": true,
+      "min_error_cm": 0.010081804923048002
+    },
+    {
+      "name": "The charging flames track the casting right palm",
+      "passed": true,
+      "median_error_cm": 1.0475092244838187
+    },
+    {
+      "name": "Actual projectile movement uses the faster flight",
+      "passed": true,
+      "samples": 55,
+      "median_speed": 1100.000008925233
+    },
+    {
+      "name": "The complete cast returns to idle",
+      "passed": true
+    }
+  ],
+  "flight": {
+    "start": [
+      1272.3649554317033,
+      972.1961206544369,
+      311.527308271942
+    ],
+    "target": [
+      845.6775494442966,
+      -61.68714858255257,
+      178.54058307338937
+    ],
+    "seconds": 1.0239536762237549,
+    "speed": 1100.000024859497,
+    "release": 5.274999883025885
+  },
+  "origin_errors": [
+    0.010081804923048002,
+    5.738178219087401,
+    11.56764193396649,
+    18.330368662889935,
+    25.244436427539654,
+    34.14751711724035
+  ],
+  "charge_errors": [
+    0.0,
+    0.0,
+    1.4629832854828146,
+    1.4629832854828146,
+    3.7276518195807493,
+    3.7276518195807493,
+    0.0,
+    0.0,
+    3.3611193269889648,
+    3.3611193269889648,
+    0.0,
+    0.0,
+    3.653670558014532,
+    3.653670558014532,
+    0.0,
+    0.0,
+    3.731589836092312,
+    3.731589836092312,
+    0.0,
+    0.0,
+    4.904410497231111,
+    4.904410497231111,
+    0.0,
+    0.0,
+    5.399006214353632,
+    5.399006214353632,
+    0.0,
+    0.0,
+    5.462254900684477,
+    5.462254900684477,
+    0.0,
+    0.0,
+    4.2723568020956995,
+    4.2723568020956995,
+    0.0,
+    0.0,
+    6.117695806750196,
+    6.117695806750196,
+    0.0,
+    0.0,
+    7.39047670571302,
+    7.39047670571302,
+    0.0,
+    0.0,
+    7.512280291988453,
+    7.512280291988453,
+    0.0,
+    0.0,
+    7.550091354910805,
+    7.550091354910805,
+    0.0,
+    0.0,
+    7.009901580297071,
+    7.009901580297071,
+    0.0,
+    0.0,
+    5.027130079868306,
+    5.027130079868306,
+    0.0,
+    0.0,
+    5.5356734933877885,
+    5.5356734933877885,
+    0.0,
+    0.0,
+    9.655547537950488,
+    9.655547537950488,
+    0.0,
+    0.0,
+    13.548241183225295,
+    13.548241183225295,
+    0.0,
+    0.0,
+    12.718303475591155,
+    12.718303475591155,
+    0.0,
+    0.0,
+    16.9975722668675,
+    16.9975722668675,
+    0.0,
+    0.0,
+    21.87048487225919,
+    21.87048487225919,
+    0.0,
+    0.0,
+    27.744599758381497,
+    27.744599758381497,
+    0.0,
+    0.0,
+    34.430108790518155,
+    34.430108790518155,
+    0.0,
+    0.0,
+    37.82386831475473,
+    37.82386831475473,
+    1.1368683772161603e-13,
+    1.1368683772161603e-13,
+    29.05106543765771,
+    29.05106543765771,
+    1.1368683772161603e-13,
+    1.1368683772161603e-13,
+    27.07192366244121,
+    27.07192366244121,
+    0.0,
+    0.0,
+    19.205253294057968,
+    19.205253294057968,
+    0.0,
+    0.0,
+    15.41677490324623,
+    15.41677490324623,
+    1.1368683772161603e-13,
+    1.1368683772161603e-13,
+    12.348755229837696,
+    12.348755229837696,
+    0.0,
+    0.0,
+    8.919370621203115,
+    8.919370621203115,
+    1.1368683772161603e-13,
+    1.1368683772161603e-13,
+    6.004837086527784,
+    6.004837086527784,
+    0.0,
+    0.0,
+    3.039370837914509,
+    3.039370837914509,
+    1.1368683772161603e-13,
+    1.1368683772161603e-13,
+    1.0475092244838187,
+    1.0475092244838187,
+    1.1368683772161603e-13,
+    1.1368683772161603e-13,
+    1.1232635239713578,
+    1.1232635239713578,
+    1.1368683772161603e-13,
+    1.1368683772161603e-13,
+    1.2618552498243043,
+    1.2618552498243043,
+    1.1368683772161603e-13,
+    1.1368683772161603e-13,
+    1.5383436676120377,
+    1.5383436676120377,
+    0.0,
+    0.0,
+    2.2061810202035197,
+    2.2061810202035197,
+    1.1368683772161603e-13,
+    1.1368683772161603e-13,
+    3.50076275224654,
+    3.50076275224654,
+    1.1368683772161603e-13,
+    1.1368683772161603e-13
+  ],
+  "motion": [
+    {
+      "time": 5.274999883025885,
+      "pos": [
+        1272.3649554317033,
+        972.1961206544369,
+        311.527308271942
+      ]
+    },
+    {
+      "time": 5.2916665486991405,
+      "pos": [
+        1265.4198597650782,
+        955.367833453511,
+        309.3627130297698
+      ]
+    },
+    {
+      "time": 5.3083332143723965,
+      "pos": [
+        1258.4747640984529,
+        938.5395462525852,
+        307.19811778759754
+      ]
+    },
+    {
+      "time": 5.324999880045652,
+      "pos": [
+        1251.5296684318278,
+        921.7112590516595,
+        305.03352254542534
+      ]
+    },
+    {
+      "time": 5.341666545718908,
+      "pos": [
+        1244.5845727652024,
+        904.8829718507336,
+        302.86892730325314
+      ]
+    },
+    {
+      "time": 5.358333211392164,
+      "pos": [
+        1237.6394770985773,
+        888.0546846498078,
+        300.7043320610809
+      ]
+    },
+    {
+      "time": 5.37499987706542,
+      "pos": [
+        1230.694381431952,
+        871.2263974488819,
+        298.5397368189087
+      ]
+    },
+    {
+      "time": 5.391666542738676,
+      "pos": [
+        1223.749285765327,
+        854.3981102479561,
+        296.3751415767365
+      ]
+    },
+    {
+      "time": 5.408333208411932,
+      "pos": [
+        1216.8041900987016,
+        837.5698230470304,
+        294.2105463345643
+      ]
+    },
+    {
+      "time": 5.424999874085188,
+      "pos": [
+        1209.8590944320765,
+        820.7415358461045,
+        292.04595109239204
+      ]
+    },
+    {
+      "time": 5.441666539758444,
+      "pos": [
+        1202.9139987654512,
+        803.9132486451787,
+        289.88135585021985
+      ]
+    },
+    {
+      "time": 5.4583332054317,
+      "pos": [
+        1195.968903098826,
+        787.0849614442529,
+        287.71676060804765
+      ]
+    },
+    {
+      "time": 5.474999871104956,
+      "pos": [
+        1189.0238074322008,
+        770.2566742433271,
+        285.5521653658754
+      ]
+    },
+    {
+      "time": 5.491666536778212,
+      "pos": [
+        1182.0787117655757,
+        753.4283870424013,
+        283.3875701237032
+      ]
+    },
+    {
+      "time": 5.5083332024514675,
+      "pos": [
+        1175.1336160989504,
+        736.6000998414754,
+        281.222974881531
+      ]
+    },
+    {
+      "time": 5.524999868124723,
+      "pos": [
+        1168.1885204323253,
+        719.7718126405496,
+        279.0583796393588
+      ]
+    },
+    {
+      "time": 5.541666533797979,
+      "pos": [
+        1161.2434247657,
+        702.9435254396237,
+        276.89378439718655
+      ]
+    },
+    {
+      "time": 5.558333199471235,
+      "pos": [
+        1154.2983290990749,
+        686.1152382386979,
+        274.72918915501435
+      ]
+    },
+    {
+      "time": 5.574999865144491,
+      "pos": [
+        1147.3532334324495,
+        669.2869510377722,
+        272.56459391284216
+      ]
+    },
+    {
+      "time": 5.591666530817747,
+      "pos": [
+        1140.4081250495487,
+        652.4586330247239,
+        270.39999470735665
+      ]
+    },
+    {
+      "time": 5.608333196491003,
+      "pos": [
+        1133.4630420991991,
+        635.6303766359206,
+        268.2354034284977
+      ]
+    },
+    {
+      "time": 5.624999862164259,
+      "pos": [
+        1126.517946432574,
+        618.8020894349947,
+        266.0708081863255
+      ]
+    },
+    {
+      "time": 5.641666527837515,
+      "pos": [
+        1119.5728507659487,
+        601.9738022340689,
+        263.90621294415325
+      ]
+    },
+    {
+      "time": 5.658333193510771,
+      "pos": [
+        1112.627742383048,
+        585.1454842210205,
+        261.7416137386678
+      ]
+    },
+    {
+      "time": 5.674999859184027,
+      "pos": [
+        1105.6826594326983,
+        568.3172278322172,
+        259.57702245980886
+      ]
+    },
+    {
+      "time": 5.691666524857283,
+      "pos": [
+        1098.7375637660732,
+        551.4889406312914,
+        257.4124272176366
+      ]
+    },
+    {
+      "time": 5.708333190530539,
+      "pos": [
+        1091.792468099448,
+        534.6606534303655,
+        255.2478319754644
+      ]
+    },
+    {
+      "time": 5.7249998562037945,
+      "pos": [
+        1084.847359716547,
+        517.8323354173173,
+        253.08323276997893
+      ]
+    },
+    {
+      "time": 5.74166652187705,
+      "pos": [
+        1077.9022767661975,
+        501.00407902851396,
+        250.91864149111998
+      ]
+    },
+    {
+      "time": 5.758333187550306,
+      "pos": [
+        1070.9571810995724,
+        484.17579182758817,
+        248.75404624894776
+      ]
+    },
+    {
+      "time": 5.774999853223562,
+      "pos": [
+        1064.012085432947,
+        467.3475046266623,
+        246.58945100677556
+      ]
+    },
+    {
+      "time": 5.791666518896818,
+      "pos": [
+        1057.066989766322,
+        450.51921742573654,
+        244.42485576460334
+      ]
+    },
+    {
+      "time": 5.808333184570074,
+      "pos": [
+        1050.1218940996969,
+        433.6909302248107,
+        242.2602605224311
+      ]
+    },
+    {
+      "time": 5.82499985024333,
+      "pos": [
+        1043.1767984330716,
+        416.86264302388486,
+        240.0956652802589
+      ]
+    },
+    {
+      "time": 5.841666515916586,
+      "pos": [
+        1036.2317027664462,
+        400.034355822959,
+        237.93107003808672
+      ]
+    },
+    {
+      "time": 5.858333181589842,
+      "pos": [
+        1029.2866070998211,
+        383.2060686220333,
+        235.7664747959145
+      ]
+    },
+    {
+      "time": 5.874999847263098,
+      "pos": [
+        1022.3415114331959,
+        366.37778142110744,
+        233.60187955374226
+      ]
+    },
+    {
+      "time": 5.891666512936354,
+      "pos": [
+        1015.3964157665707,
+        349.5494942201816,
+        231.43728431157007
+      ]
+    },
+    {
+      "time": 5.90833317860961,
+      "pos": [
+        1008.4512946673942,
+        332.7211453950108,
+        229.27268114277132
+      ]
+    },
+    {
+      "time": 5.9249998442828655,
+      "pos": [
+        1001.5062244333203,
+        315.89291981833003,
+        227.10809382722562
+      ]
+    },
+    {
+      "time": 5.9416665099561214,
+      "pos": [
+        994.5611287666951,
+        299.0646326174042,
+        224.94349858505342
+      ]
+    },
+    {
+      "time": 5.958333175629377,
+      "pos": [
+        987.6160331000699,
+        282.23634541647834,
+        222.7789033428812
+      ]
+    },
+    {
+      "time": 5.974999841302633,
+      "pos": [
+        980.6709374334447,
+        265.4080582155525,
+        220.61430810070897
+      ]
+    },
+    {
+      "time": 5.991666506975889,
+      "pos": [
+        973.7258417668195,
+        248.57977101462666,
+        218.44971285853677
+      ]
+    },
+    {
+      "time": 6.008333172649145,
+      "pos": [
+        966.7807461001943,
+        231.75148381370093,
+        216.28511761636457
+      ]
+    },
+    {
+      "time": 6.024999838322401,
+      "pos": [
+        959.8356504335691,
+        214.9231966127751,
+        214.12052237419235
+      ]
+    },
+    {
+      "time": 6.041666503995657,
+      "pos": [
+        952.8905293343926,
+        198.0948477876043,
+        211.95591920539363
+      ]
+    },
+    {
+      "time": 6.058333169668913,
+      "pos": [
+        945.9454591003187,
+        181.2666222109234,
+        209.79133188984792
+      ]
+    },
+    {
+      "time": 6.074999835342169,
+      "pos": [
+        939.0003634336936,
+        164.43833500999756,
+        207.6267366476757
+      ]
+    },
+    {
+      "time": 6.091666501015425,
+      "pos": [
+        932.0552677670682,
+        147.61004780907183,
+        205.46214140550347
+      ]
+    },
+    {
+      "time": 6.108333166688681,
+      "pos": [
+        925.1101721004432,
+        130.781760608146,
+        203.29754616333128
+      ]
+    },
+    {
+      "time": 6.124999832361937,
+      "pos": [
+        918.1650764338178,
+        113.95347340722014,
+        201.13295092115905
+      ]
+    },
+    {
+      "time": 6.1416664980351925,
+      "pos": [
+        911.2199807671927,
+        97.1251862062943,
+        198.96835567898682
+      ]
+    },
+    {
+      "time": 6.158333163708448,
+      "pos": [
+        904.2748851005674,
+        80.29689900536857,
+        196.80376043681463
+      ]
+    },
+    {
+      "time": 6.174999829381704,
+      "pos": [
+        897.329764001391,
+        63.46855018019767,
+        194.63915726801588
+      ]
+    },
+    {
+      "time": 6.19166649505496,
+      "pos": [
+        890.384693767317,
+        46.64032460351689,
+        192.47456995247018
+      ]
+    }
+  ],
+  "captures": [
+    {
+      "time": 3.599999785423279,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0000.png",
+      "since_release": null
+    },
+    {
+      "time": 3.6499997824430466,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0001.png",
+      "since_release": null
+    },
+    {
+      "time": 3.6999997794628143,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0002.png",
+      "since_release": null
+    },
+    {
+      "time": 3.749999776482582,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0003.png",
+      "since_release": null
+    },
+    {
+      "time": 3.79999977350235,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0004.png",
+      "since_release": null
+    },
+    {
+      "time": 3.8499997705221176,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0005.png",
+      "since_release": null
+    },
+    {
+      "time": 3.8999997675418854,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0006.png",
+      "since_release": null
+    },
+    {
+      "time": 3.949999764561653,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0007.png",
+      "since_release": null
+    },
+    {
+      "time": 3.999999761581421,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0008.png",
+      "since_release": null
+    },
+    {
+      "time": 4.049999758601189,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0009.png",
+      "since_release": null
+    },
+    {
+      "time": 4.099999755620956,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0010.png",
+      "since_release": null
+    },
+    {
+      "time": 4.149999752640724,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0011.png",
+      "since_release": null
+    },
+    {
+      "time": 4.199999749660492,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0012.png",
+      "since_release": null
+    },
+    {
+      "time": 4.24999974668026,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0013.png",
+      "since_release": null
+    },
+    {
+      "time": 4.2999997437000275,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0014.png",
+      "since_release": null
+    },
+    {
+      "time": 4.349999740719795,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0015.png",
+      "since_release": null
+    },
+    {
+      "time": 4.399999737739563,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0016.png",
+      "since_release": null
+    },
+    {
+      "time": 4.449999734759331,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0017.png",
+      "since_release": null
+    },
+    {
+      "time": 4.4999997317790985,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0018.png",
+      "since_release": null
+    },
+    {
+      "time": 4.549999728798866,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0019.png",
+      "since_release": null
+    },
+    {
+      "time": 4.599999725818634,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0020.png",
+      "since_release": null
+    },
+    {
+      "time": 4.649999722838402,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0021.png",
+      "since_release": null
+    },
+    {
+      "time": 4.6999997198581696,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0022.png",
+      "since_release": null
+    },
+    {
+      "time": 4.749999716877937,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0023.png",
+      "since_release": null
+    },
+    {
+      "time": 4.799999713897705,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0024.png",
+      "since_release": null
+    },
+    {
+      "time": 4.849999710917473,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0025.png",
+      "since_release": null
+    },
+    {
+      "time": 4.899999707937241,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0026.png",
+      "since_release": 0.03333333134651184
+    },
+    {
+      "time": 4.949999704957008,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0027.png",
+      "since_release": 0.0833333283662796
+    },
+    {
+      "time": 4.999999701976776,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0028.png",
+      "since_release": 0.13333332538604736
+    },
+    {
+      "time": 5.049999698996544,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0029.png",
+      "since_release": 0.18333332240581512
+    },
+    {
+      "time": 5.099999696016312,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0030.png",
+      "since_release": 0.23333331942558289
+    },
+    {
+      "time": 5.149999693036079,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0031.png",
+      "since_release": 0.28333331644535065
+    },
+    {
+      "time": 5.199999690055847,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0032.png",
+      "since_release": 0.3333333134651184
+    },
+    {
+      "time": 5.249999687075615,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0033.png",
+      "since_release": 0.38333331048488617
+    },
+    {
+      "time": 5.299999684095383,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0034.png",
+      "since_release": 0.43333330750465393
+    },
+    {
+      "time": 5.3499996811151505,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0035.png",
+      "since_release": 0.4833333045244217
+    },
+    {
+      "time": 5.399999678134918,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0036.png",
+      "since_release": 0.5333333015441895
+    },
+    {
+      "time": 5.449999675154686,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0037.png",
+      "since_release": 0.5833332985639572
+    },
+    {
+      "time": 5.499999672174454,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0038.png",
+      "since_release": 0.633333295583725
+    },
+    {
+      "time": 5.5499996691942215,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0039.png",
+      "since_release": 0.6833332926034927
+    },
+    {
+      "time": 5.599999666213989,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0040.png",
+      "since_release": 0.7333332896232605
+    },
+    {
+      "time": 5.649999663233757,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0041.png",
+      "since_release": 0.7833332866430283
+    },
+    {
+      "time": 5.699999660253525,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0042.png",
+      "since_release": 0.833333283662796
+    },
+    {
+      "time": 5.7499996572732925,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0043.png",
+      "since_release": 0.8833332806825638
+    },
+    {
+      "time": 5.79999965429306,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0044.png",
+      "since_release": 0.9333332777023315
+    },
+    {
+      "time": 5.849999651312828,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0045.png",
+      "since_release": 0.9833332747220993
+    },
+    {
+      "time": 5.899999648332596,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0046.png",
+      "since_release": 1.033333271741867
+    },
+    {
+      "time": 5.949999645352364,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0047.png",
+      "since_release": 1.0833332687616348
+    },
+    {
+      "time": 5.999999642372131,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0048.png",
+      "since_release": 1.1333332657814026
+    },
+    {
+      "time": 6.049999639391899,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0049.png",
+      "since_release": 1.1833332628011703
+    },
+    {
+      "time": 6.099999636411667,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0050.png",
+      "since_release": 1.233333259820938
+    },
+    {
+      "time": 6.149999633431435,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\FireNutHandFix_20261017\\GameplayFrames\\fire_nut_0051.png",
+      "since_release": 1.2833332568407059
+    }
+  ],
+  "samples": [
+    {
+      "age": 3.599999785423279,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1534.9465218686769,
+        1279.0154827251938,
+        347.20515508819295
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.6166664510965347,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1533.9219154241505,
+        1279.7269141160584,
+        346.44071601048336
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.6333331167697906,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1532.3026430189257,
+        1280.8019497398213,
+        345.2780255332565
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.6499997824430466,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1530.2251530367712,
+        1282.1727908010757,
+        343.8094990390125
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.6666664481163025,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1527.774237244275,
+        1283.7509862300649,
+        342.1363480905716
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.6833331137895584,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1525.3951890852163,
+        1285.4728576125026,
+        340.1308898850321
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.6999997794628143,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1523.044827023354,
+        1287.2533874638584,
+        337.9733866583622
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.7166664451360703,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1521.1927890333059,
+        1289.2334021547626,
+        335.36158455347766
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.733333110809326,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1519.6851602522452,
+        1291.1783980630046,
+        332.55644479220604
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.749999776482582,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1518.6853410621354,
+        1293.571479773289,
+        328.6253826740586
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.766666442155838,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1518.0824176413616,
+        1295.8523270225621,
+        324.3256778586653
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.783333107829094,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1517.9114582595037,
+        1298.107218929763,
+        319.46594567021396
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.79999977350235,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1518.178324568569,
+        1300.164720076499,
+        314.48149590049064
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.8166664391756058,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1518.305851043195,
+        1303.0169927367203,
+        309.0540379059337
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.8333331048488617,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1518.6963236797837,
+        1305.5495764535572,
+        304.23016192936257
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.8499997705221176,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1519.0016331502738,
+        1309.0961416784082,
+        302.2766063923566
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.8666664361953735,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1518.9509258781686,
+        1312.8328130573889,
+        300.2059184819085
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.8833331018686295,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1517.5038151165834,
+        1318.2186594930506,
+        298.04659401931184
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.8999997675418854,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1515.615627459548,
+        1323.6614071620868,
+        295.9880879671105
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.9166664332151413,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1512.4846051531974,
+        1330.1372713511107,
+        294.2239315791538
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.933333098888397,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1508.9292856599604,
+        1336.4562653553917,
+        292.79244144207394
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.949999764561653,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1504.6641577055382,
+        1342.7493253734613,
+        292.11721868392397
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.966666430234909,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1500.1128171783257,
+        1348.719149434694,
+        291.8328680752045
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.983333095908165,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1495.2146658949912,
+        1354.5000434160318,
+        293.1671059609678
+      ],
+      "shot": false
+    },
+    {
+      "age": 3.999999761581421,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1490.1517426327673,
+        1359.8144628430807,
+        294.93561766908164
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.016666427254677,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1485.5335196139747,
+        1363.8824714318177,
+        298.43918517600014
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.033333092927933,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1480.8639884966813,
+        1367.4448969827301,
+        302.26584475117613
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.049999758601189,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1477.3901585461222,
+        1367.7613214724774,
+        305.9044969390137
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.066666424274445,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1473.8561871466047,
+        1367.7582006760492,
+        309.4798393349164
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.0833330899477005,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1472.81749415857,
+        1364.2667222305195,
+        313.6396567032377
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.099999755620956,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1471.4951610828916,
+        1360.8110870894316,
+        317.7571440479713
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.116666421294212,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1472.1900195714263,
+        1353.0540913451389,
+        324.01150832513594
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.133333086967468,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1471.874503794436,
+        1345.5998561451968,
+        330.1404907558528
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.149999752640724,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1473.4189248950895,
+        1333.9462317787004,
+        338.0427010670661
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.16666641831398,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1473.3991170115467,
+        1322.7944023561934,
+        345.73627938524146
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.183333083987236,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1476.7688941236809,
+        1310.026856623643,
+        346.88861430535474
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.199999749660492,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1479.0619087623893,
+        1297.5456863918773,
+        347.7357959916476
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.216666415333748,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1487.0366528955544,
+        1285.2327162173508,
+        341.4402650124534
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.233333081007004,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1493.7652907085412,
+        1271.5074061935613,
+        334.0066413402534
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.24999974668026,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1501.93038382948,
+        1252.520587597243,
+        328.2744747085897
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.266666412353516,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1508.2828574304092,
+        1232.1412444219015,
+        323.51563457270834
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.2833330780267715,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1511.1773158156102,
+        1204.7115728015226,
+        322.62978287496696
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.2999997437000275,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1510.2443278859282,
+        1176.9847043658813,
+        322.9661101389325
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.316666409373283,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1504.8735835017574,
+        1142.9046531840772,
+        324.29639495784784
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.333333075046539,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1493.7034131997664,
+        1110.438274217008,
+        326.8642585675593
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.349999740719795,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1481.1779029917045,
+        1075.372341231373,
+        330.04922504697663
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.366666406393051,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1462.0661403505628,
+        1042.9013119368137,
+        333.36853214220656
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.383333072066307,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1448.483950901374,
+        1012.6175912287576,
+        322.3514403546041
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.399999737739563,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1426.3541893256518,
+        994.6105870820888,
+        316.8755059752849
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.416666403412819,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1400.671657522583,
+        979.7351944063191,
+        320.76156065422106
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.433333069086075,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1375.3509429575793,
+        970.5185070043839,
+        323.3698432381566
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.449999734759331,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1356.1568030045073,
+        966.5433399788914,
+        323.37146357874644
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.466666400432587,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1337.0974017850613,
+        964.1860189041639,
+        323.2164906916053
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.483333066105843,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1321.9138542701955,
+        963.8759506340779,
+        320.13578195728826
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.4999997317790985,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1306.8372303653923,
+        964.8280770602845,
+        317.059125441036
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.516666397452354,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1294.8635132239344,
+        965.7565586414496,
+        314.26849979931046
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.53333306312561,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1283.0688832316373,
+        967.6729166311469,
+        311.1530494102701
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.549999728798866,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1274.596594400238,
+        968.8807541029136,
+        308.4577504082266
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.566666394472122,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1266.2158122665514,
+        970.5341864668516,
+        305.89185397151226
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.583333060145378,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1260.4055880471847,
+        970.7981233577354,
+        304.1628615199888
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.599999725818634,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1254.6302453049298,
+        971.322696817664,
+        302.6045588117958
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.61666639149189,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1251.6021304393676,
+        971.1628859839926,
+        301.967926895544
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.633333057165146,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1248.5957820533986,
+        971.1489705207466,
+        301.5213277101109
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.649999722838402,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1247.7312759958854,
+        970.7372431722927,
+        301.7845069691371
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.666666388511658,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1246.8399373018608,
+        970.3905602164191,
+        302.2118263298265
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.683333054184914,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1247.209064186138,
+        969.9515610527051,
+        303.1798324920555
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.6999997198581696,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1247.576698996481,
+        969.5833280410247,
+        304.1753072730608
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.7166663855314255,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1248.5565849053444,
+        969.5612174131049,
+        304.9374741470799
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.733333051204681,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1249.545194836616,
+        969.5821825250523,
+        305.72136797878244
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.749999716877937,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1250.9299269658577,
+        969.9612215296911,
+        306.18889256518355
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.766666382551193,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1252.3054508434209,
+        970.3839300796052,
+        306.7327241418367
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.783333048224449,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1254.3925177291835,
+        970.6781207761884,
+        307.24643917442853
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.799999713897705,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1256.460739954067,
+        971.0649372907376,
+        307.9098127543033
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.816666379570961,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1259.929576603335,
+        971.1936722666226,
+        308.2265263045797
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.833333045244217,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1263.3645525185752,
+        971.5558785738593,
+        308.7966902285818
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.849999710917473,
+      "state": "<MCNutBossState.TELEGRAPH: 2>",
+      "palm": [
+        1268.1301522416718,
+        971.6668431559385,
+        310.04597143940634
+      ],
+      "shot": false
+    },
+    {
+      "age": 4.866666376590729,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1272.3737764913067,
+        972.191239565749,
+        311.5272265945224
+      ],
+      "shot": true
+    },
+    {
+      "age": 4.883333042263985,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1278.06186940893,
+        972.8157647828835,
+        311.82379025144223
+      ],
+      "shot": true
+    },
+    {
+      "age": 4.899999707937241,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1283.7660142257416,
+        973.9865300285828,
+        312.31511063314105
+      ],
+      "shot": true
+    },
+    {
+      "age": 4.9166663736104965,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1290.3141028266325,
+        975.5933922299163,
+        310.0143413341004
+      ],
+      "shot": true
+    },
+    {
+      "age": 4.933333039283752,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1296.6955422075741,
+        977.8285682845177,
+        307.8422504188947
+      ],
+      "shot": true
+    },
+    {
+      "age": 4.949999704957008,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1304.4989895951587,
+        980.212221114202,
+        303.2087202263026
+      ],
+      "shot": true
+    },
+    {
+      "age": 4.966666370630264,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1312.0636808014797,
+        983.2982012797635,
+        298.7734430169291
+      ],
+      "shot": true
+    },
+    {
+      "age": 4.98333303630352,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1319.9078628605996,
+        987.9812736682502,
+        293.3824950366224
+      ],
+      "shot": true
+    },
+    {
+      "age": 4.999999701976776,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1327.228564807834,
+        993.9812994136172,
+        288.35466830400577
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.016666367650032,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1336.2877017714677,
+        1000.7146018744817,
+        282.4112759771314
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.033333033323288,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1344.490758634568,
+        1008.949221747346,
+        276.580091337045
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.049999698996544,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1353.1580245461573,
+        1016.964524428442,
+        273.83015212961476
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.0666663646698,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1361.1794609522494,
+        1025.793093995073,
+        271.5086155861689
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.083333030343056,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1370.1125378630384,
+        1035.5188015676263,
+        267.3820246701765
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.099999696016312,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1378.1280173791852,
+        1046.0521422805668,
+        263.23422034187007
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.116666361689568,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1386.6126191197181,
+        1057.2458763732652,
+        257.1648596028037
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.1333330273628235,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1393.7058078807981,
+        1069.0972187335244,
+        251.23422038106023
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.149999693036079,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1403.72047651589,
+        1081.3617013574274,
+        247.97660110867167
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.166666358709335,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1413.175402173753,
+        1094.4295754829782,
+        245.44401057550442
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.183333024382591,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1424.570980376842,
+        1108.8016018702174,
+        244.5847813791873
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.199999690055847,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1434.8119911768304,
+        1124.2026342644015,
+        244.67690227530574
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.216666355729103,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1445.4699838217596,
+        1139.8855527169287,
+        246.71305143559738
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.233333021402359,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1454.3663737413426,
+        1156.5679152044786,
+        249.42621452777303
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.249999687075615,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1463.7527904212566,
+        1171.7815784527988,
+        253.5279660895273
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.266666352748871,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1471.2740646926889,
+        1187.85794558023,
+        257.9807371953281
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.283333018422127,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1479.3419007850403,
+        1201.7633675324184,
+        264.55688586917
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.299999684095383,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1486.043354078618,
+        1216.2050329340937,
+        271.78869198424456
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.316666349768639,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1491.7372462454402,
+        1227.056266197783,
+        277.7615450310538
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.3333330154418945,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1496.6063919183364,
+        1237.9415776714875,
+        283.84744626475043
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.3499996811151505,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1500.142016873091,
+        1244.4452772841491,
+        287.76382072940186
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.366666346788406,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1503.4951413020674,
+        1250.517535454118,
+        291.62076203449476
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.383333012461662,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1506.5152390118326,
+        1253.8789331139321,
+        294.2715054735377
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.399999678134918,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1509.5605880373887,
+        1257.0016984658419,
+        296.9458927045435
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.416666343808174,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1511.4736905475017,
+        1259.9781532875218,
+        299.75136565606357
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.43333300948143,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1513.2285553538475,
+        1262.995424155417,
+        302.624733651613
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.449999675154686,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1514.2371549971533,
+        1266.3641614313115,
+        305.87326336493146
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.466666340827942,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1515.137183059943,
+        1269.8204393097,
+        309.2373109003735
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.483333006501198,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1515.4438607190157,
+        1272.9957190786772,
+        311.83798824858883
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.499999672174454,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1515.6968846543205,
+        1276.1723200086542,
+        314.41460219943184
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.51666633784771,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1515.771065692125,
+        1278.5708616373759,
+        316.5190121413957
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.533333003520966,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1515.8168666242727,
+        1280.8992848087992,
+        318.5943125007185
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.5499996691942215,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1515.8075157152937,
+        1282.5969823844819,
+        320.17702905793647
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.566666334867477,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1515.777338002972,
+        1284.2307410837395,
+        321.7218370631148
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.583333000540733,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1515.4046554103427,
+        1285.524237934857,
+        322.7902056049268
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.599999666213989,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1514.97354286037,
+        1286.7730127787206,
+        323.8058291828648
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.616666331887245,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1514.399388419884,
+        1288.138342020081,
+        324.8326121988864
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.633332997560501,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1513.798276514288,
+        1289.5140538202068,
+        325.88093123927854
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.649999663233757,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1513.0858039703835,
+        1290.9064612058442,
+        326.3913316162358
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.666666328907013,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1512.3528397825971,
+        1292.2997307729304,
+        326.8627883608693
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.683332994580269,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1511.7047689328142,
+        1293.2969866076508,
+        327.3327971057514
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.699999660253525,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1511.0586385479744,
+        1294.2440464135618,
+        327.82813489394147
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.716666325926781,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1510.356225831785,
+        1295.2497112704555,
+        328.1751403039749
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.733332991600037,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1509.6445336693553,
+        1296.2621378610281,
+        328.53276492399226
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.7499996572732925,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1509.0704315022383,
+        1297.1537782199541,
+        328.87407624101985
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.7666663229465485,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1508.5057894197064,
+        1298.0324633100447,
+        329.2380920241681
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.783332988619804,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1507.9407542357255,
+        1298.4708612729573,
+        329.39330544453105
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.79999965429306,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1507.3737474562986,
+        1298.8601098919305,
+        329.5339604645224
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.816666319966316,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1506.9007752605746,
+        1299.077443532797,
+        329.6797453245098
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.833332985639572,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1506.4396690854248,
+        1299.277782609996,
+        329.833430485156
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.849999651312828,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1506.1637296799129,
+        1299.3339075209785,
+        329.8937959896972
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.866666316986084,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1505.9166751730443,
+        1299.376373569252,
+        329.95249317685995
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.88333298265934,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1505.5772247347563,
+        1299.4754133141776,
+        330.2007430880675
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.899999648332596,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1505.2314963901945,
+        1299.5850025805391,
+        330.4762830836759
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.916666314005852,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1505.4172405294362,
+        1299.4903416197483,
+        330.6178020425627
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.933332979679108,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1506.1641212661798,
+        1299.1019462144245,
+        331.0822693222523
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.949999645352364,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1507.4044879693695,
+        1298.4193911327745,
+        332.0224867947485
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.9666663110256195,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1509.071220279416,
+        1297.4724374506973,
+        333.5551208271842
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.983332976698875,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1511.0612669366217,
+        1296.3072690070383,
+        335.76879532023565
+      ],
+      "shot": true
+    },
+    {
+      "age": 5.999999642372131,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1513.2463345286847,
+        1294.9474899379472,
+        338.702759829453
+      ],
+      "shot": true
+    },
+    {
+      "age": 6.016666308045387,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1515.4760328746322,
+        1293.4205706594241,
+        342.32035687560574
+      ],
+      "shot": true
+    },
+    {
+      "age": 6.033332973718643,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1517.6125303152062,
+        1291.7099010705708,
+        346.5047617836361
+      ],
+      "shot": true
+    },
+    {
+      "age": 6.049999639391899,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1519.5421335299247,
+        1289.8353983984114,
+        351.0507405524066
+      ],
+      "shot": true
+    },
+    {
+      "age": 6.066666305065155,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1521.1975416225916,
+        1287.8515940143068,
+        355.69864794105314
+      ],
+      "shot": true
+    },
+    {
+      "age": 6.083332970738411,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1522.5660077187129,
+        1285.845012971268,
+        360.1455607342771
+      ],
+      "shot": true
+    },
+    {
+      "age": 6.099999636411667,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1523.6706003100594,
+        1283.9398020457609,
+        364.0866600264184
+      ],
+      "shot": true
+    },
+    {
+      "age": 6.116666302084923,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1524.569758434027,
+        1282.274019058815,
+        367.22953358997717
+      ],
+      "shot": true
+    },
+    {
+      "age": 6.133332967758179,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1525.315276602467,
+        1280.9941579288984,
+        369.3289871291401
+      ],
+      "shot": true
+    },
+    {
+      "age": 6.149999633431435,
+      "state": "<MCNutBossState.RECOVERY: 4>",
+      "palm": [
+        1525.9388216194986,
+        1280.2257783204468,
+        370.1598453962711
+      ],
+      "shot": true
+    }
+  ],
+  "preferences_restored": true,
+  "scope": "Short solo check of the saved fire-nut: native blink/cast, palm and speed.\n\nThe fixture places one wizard/observer, holds other abilities on cooldown and\nrestores observer HP. Native AI performs the full teleport/fire-nut chain.\n"
+}

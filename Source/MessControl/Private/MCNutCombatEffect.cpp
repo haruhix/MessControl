@@ -641,7 +641,7 @@ void AMCNutCombatEffect::Present(float Age)
         DropWarnings->SetVisibility(false);DropShadows->SetVisibility(false);RainNuts->SetVisibility(false);Debris->SetVisibility(false);
         if(MagicMID) {
             MagicMID->SetScalarParameterValue(TEXT("Age"),Age);MagicMID->SetScalarParameterValue(TEXT("Beam"),Melee?1:0);
-            MagicMID->SetVectorParameterValue(TEXT("Tint"),Melee?FLinearColor(1,.60f,.12f):FLinearColor(.33f,.68f,1.f));
+            MagicMID->SetVectorParameterValue(TEXT("Tint"),Melee?FLinearColor(1,.60f,.12f):FLinearColor(.55f,.24f,1.f));
         }
         FHitResult Floor;
         if(Melee && Tongue->SurfacePoint(Cue.Origin,Floor)) {
@@ -676,6 +676,27 @@ void AMCNutCombatEffect::Present(float Age)
                 const FVector Side=FVector::CrossProduct(Normal,Right).GetSafeNormal();
                 const FVector Base=Floor.ImpactPoint-GetActorLocation()+Normal*7;
                 const float Radius=Cue.Radius*(Release?FMath::Lerp(.45f,1.35f,T):1.f);
+                const float Charge=Release?1.f:FMath::SmoothStep(0.f,1.f,T);
+                // Counter-rotating portal bands gather around the silhouette;
+                // arrival rings expand into a short burst at both endpoints.
+                for(int32 Ring=0;Ring<3;++Ring) for(int32 Segment=0;Segment<32;++Segment) {
+                    const float Angle=(Segment+.5f)*2*PI/32+Age*(Ring%2?-2.2f:1.6f)+Ring*.7f;
+                    const FVector Radial=Right*FMath::Cos(Angle)+Side*FMath::Sin(Angle);
+                    const FVector Tangent=-Right*FMath::Sin(Angle)+Side*FMath::Cos(Angle);
+                    const float Height=(Ring*.62f+(Release?T*.5f:Charge*.25f))*Cue.Radius;
+                    const float R=Radius*(.72f+Ring*.11f)*(Release?1.f:1.12f-Charge*.2f);
+                    const float Pulse=.7f+.3f*FMath::Sin(Angle*3+Age*6);
+                    Detail.Quad(Base+Radial*R+Normal*Height,Tangent,Normal,
+                        R*PI/32*1.04f,Release?6.f:3.5f,FLinearColor(1,1,1,Fade*Pulse*(.3f+.7f*Charge)));
+                }
+                for(int32 Spark=0;Spark<16;++Spark) {
+                    const float Phase=FMath::Frac(Spark*.618034f+Age*(Release?1.8f:.7f));
+                    const float Angle=Spark*2.399963f+Age*.8f;
+                    const FVector Radial=Right*FMath::Cos(Angle)+Side*FMath::Sin(Angle);
+                    const FVector Tangent=-Right*FMath::Sin(Angle)+Side*FMath::Cos(Angle);
+                    const FVector P=Base+Radial*Radius*(Release?.3f+Phase:1.2f-Phase*.55f)+Normal*(Phase*Cue.Radius*1.9f);
+                    Detail.Quad(P,Tangent,Normal,2.f,7.f+Phase*13.f,FLinearColor(1,1,1,Fade*FMath::Sin(Phase*PI)));
+                }
                 for(int32 I=0;I<24;++I) {
                     const float Angle=I*2*PI/24+Age*1.7f;
                     const FVector Radial=Right*FMath::Cos(Angle)+Side*FMath::Sin(Angle);
@@ -701,7 +722,12 @@ void AMCNutCombatEffect::Present(float Age)
         ?1-FMath::SmoothStep(.15f,1.f,T):1-FMath::SmoothStep(.88f,1.f,T);
     FHitResult Ground;const FVector Center=(Roll || Cue.Type==EMCNutCombatCue::Transform || Cue.Type==EMCNutCombatCue::DeathBurst) && IsValid(SourceActor)
         ?SourceActor->GetActorLocation():Line?(Cue.Origin+Cue.Target)*.5f:Cue.Target;
-    if(Cue.Type==EMCNutCombatCue::FireImpact) {
+    const bool HandCast=Cue.Type==EMCNutCombatCue::FireCast || Cue.Type==EMCNutCombatCue::CastCharge || Cue.Type==EMCNutCombatCue::CastRelease;
+    if(HandCast) {
+        // Charging and release belong to the caster, with no destination mark
+        // or dependency on there being a tongue surface below the target.
+        Ground.ImpactPoint=Cue.Origin;Ground.ImpactNormal=FVector::UpVector;
+    } else if(Cue.Type==EMCNutCombatCue::FireImpact) {
         Ground.ImpactPoint=Cue.Target;
         Ground.ImpactNormal=(Cue.Origin-Cue.Target).GetSafeNormal(SMALL_NUMBER,FVector::UpVector);
     } else if(!Tongue->SurfacePoint(Center,Ground)) {Warning->SetVisibility(false);Magic->SetVisibility(false);Storm->SetVisibility(false);return;}
@@ -714,7 +740,7 @@ void AMCNutCombatEffect::Present(float Age)
     FMesh Area;
     const float Size=Impact?Cue.Radius*FMath::Lerp(.18f,1.25f,T):Cue.Radius;
     Area.Quad(Ground.ImpactPoint-GetActorLocation()+Up*5,Right,Side,Line?FMath::Max(Cue.Radius,FVector::Dist(Cue.Origin,Cue.Target)*.5f+Cue.Radius):Size,Line?Cue.Radius:Size,FLinearColor(1,1,1,Fade));
-    const bool GroundCue=uint8(Cue.Type)<=uint8(EMCNutCombatCue::RollTell) || Cue.Type==EMCNutCombatCue::DeathBurst;
+    const bool GroundCue=!HandCast && (uint8(Cue.Type)<=uint8(EMCNutCombatCue::RollTell) || Cue.Type==EMCNutCombatCue::DeathBurst);
     Area.Upload(Warning);Warning->SetVisibility(GroundCue && Age<=Total && WarningMID);
     if(WarningMID) {
         WarningMID->SetScalarParameterValue(TEXT("Age"),Age);
@@ -728,7 +754,7 @@ void AMCNutCombatEffect::Present(float Age)
     if(Fire && FireMID) {
         const auto* Caster=Cast<AMCNutBoss>(SourceActor);
         const bool Charging=Cue.Type==EMCNutCombatCue::FireCast || Cue.Type==EMCNutCombatCue::CastCharge;
-        Flames->SetRelativeLocation(Charging?(Caster?Caster->GetCastOrigin():Cue.Origin)-GetActorLocation():Ground.ImpactPoint-GetActorLocation());
+        Flames->SetRelativeLocation(Charging?(Caster?Caster->GetSpellFocusOrigin():Cue.Origin)-GetActorLocation():Ground.ImpactPoint-GetActorLocation());
         FireMID->SetScalarParameterValue(TEXT("FireAge"),Age);
         const float Charge=FMath::Clamp(Age/FMath::Max(.1f,Cue.WindupSeconds),0.f,1.f);
         RenderFlames(Flames,Charging?FMath::Lerp(8.f,24.f,Charge):FMath::Min(Cue.Radius*.45f,65.f),Age,Fade);

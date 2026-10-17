@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "pid": 28600,
+  "editor_build": true,
+  "map": "/Game/Maps/L_Mouth.L_Mouth",
+  "dirty": [],
+  "camera_and_selection_restored": true,
+  "previous_wizard_bindings_preserved": true,
+  "gameplay_checks": 12,
+  "generic_boss_checks": 5,
+  "new_enum_available": true
+}

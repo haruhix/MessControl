@@ -57,6 +57,32 @@ void MatchCastHand(FCompactPose& Pose,const FMCNutBossAnimationSnapshot& Input,f
     Pose[Forearm]=Lower.GetRelativeTransform(Upper); Pose[Hand]=End.GetRelativeTransform(Lower);
 }
 
+void ApplyMageWalkingArms(FPoseContext& Output,const FMCNutBossAnimationSnapshot& Input)
+{
+    if(!Input.bMage || !Input.MageWalkIdleArms || Input.MageWalkIdleArmsWeight<=.001f) return;
+    FPoseContext Idle(Output);Idle.ResetToRefPose();FAnimationPoseData IdleData(Idle);
+    Input.MageWalkIdleArms->GetAnimationPose(IdleData,FAnimExtractContext(Input.MageWalkIdleArmsSeconds,false,{},true));
+    const FBoneContainer& Bones=Output.Pose.GetBoneContainer();
+    for(const auto Arm:{EMCNutPoseBone::LeftArm,EMCNutPoseBone::RightArm}) {
+        const auto Upper=PoseBone(Output.Pose,Input,Arm);
+        if(Upper.GetInt()==INDEX_NONE) continue;
+        // The project rig parents arm_stretch under its dedicated shoulder.
+        auto Root=Bones.GetParentBoneIndex(Upper);
+        if(Root.GetInt()==INDEX_NONE) Root=Upper;
+        for(const auto Bone:Output.Pose.ForEachBoneIndex()) {
+            auto Parent=Bone;bool InArm=false;
+            for(int32 Depth=0;Parent.GetInt()!=INDEX_NONE && Depth<64;++Depth) {
+                if(Parent==Root) {InArm=true;break;}
+                Parent=Bones.GetParentBoneIndex(Parent);
+            }
+            if(InArm) {
+                FTransform Blended;Blended.Blend(Output.Pose[Bone],Idle.Pose[Bone],Input.MageWalkIdleArmsWeight);
+                Output.Pose[Bone]=Blended;
+            }
+        }
+    }
+}
+
 struct FMCNutBossAnimProxy final : FAnimInstanceProxy
 {
     explicit FMCNutBossAnimProxy(UAnimInstance* Instance):FAnimInstanceProxy(Instance) {}
@@ -127,6 +153,7 @@ protected:
         }
         if(!Input.bMage && Sum>KINDA_SMALL_NUMBER) Input.AuthoredTankMotionWeight=FMath::Clamp(Authored/Sum,0.f,1.f);
         ApplyOverlays(Output.Pose);
+        ApplyMageWalkingArms(Output,Input);
         const int32 Count=Output.Pose.GetNumBones();
         if(bNewTransition) {
             PreviousPose=LastPose; bNewTransition=false;
@@ -149,6 +176,7 @@ protected:
 private:
     void ApplyOverlays(FCompactPose& Pose)
     {
+        if(Input.bMage && Input.AuthoredMageMotionWeight>.999f) return;
         auto Rotate=[&](FCompactPoseBoneIndex Bone,const FRotator& Rotation){RotateComponent(Pose,Bone,Rotation,Input.ActorToComponent);};
         const auto Torso=PoseBone(Pose,Input,EMCNutPoseBone::Torso);
         const auto Head=PoseBone(Pose,Input,EMCNutPoseBone::Head);
@@ -157,7 +185,7 @@ private:
         const auto LeftHand=PoseBone(Pose,Input,EMCNutPoseBone::LeftHand);
         const auto RightHand=PoseBone(Pose,Input,EMCNutPoseBone::RightHand);
         const float Alive=1-Input.Death;
-        const float Procedural=1-Input.AuthoredTankMotionWeight;
+        const float Procedural=1-(Input.bMage?Input.AuthoredMageMotionWeight:Input.AuthoredTankMotionWeight);
         const float Breath=FMath::Sin(float(Input.ServerTime)*2.4f)*Alive*Procedural;
         const float Stride=FMath::Sin(float(Input.ServerTime)*6.28f)*Procedural;
         const float Cast=Input.Cast*Alive;
@@ -192,7 +220,7 @@ private:
             Rotate(PoseBone(Pose,Input,EMCNutPoseBone::RightForearm),FRotator(-Strike*24*Weight,0,0));
             Rotate(RightHand,FRotator(Strike*12*Weight,0,0));
         }
-        if(Input.Death>0 && (Input.bMage || !Input.bHasDeathClip)) {
+        if(Input.Death>0 && !Input.bHasDeathClip) {
             const float Fall=FMath::SmoothStep(.1f,.85f,Input.Death);
             Rotate(Torso,FRotator(-Fall*(Input.bHasDeathClip?10:65),0,Fall*12));
             if(Torso.GetInt()!=INDEX_NONE) Pose[Torso].AddToTranslation(FVector(0,0,-Fall*(Input.bHasDeathClip?2:12)));

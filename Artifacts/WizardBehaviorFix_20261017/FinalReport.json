@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "native_tests": 3,
+  "solo_checks": 11,
+  "protected_assets_unchanged": 36,
+  "source_unchanged": true,
+  "profile_only_distance_changed": true,
+  "walking_binding_preserved": true,
+  "teleport_min": 1200,
+  "teleport_max": 2000,
+  "observed_teleport_cm": 1879.6275270681854,
+  "map": "/Game/Maps/L_Mouth.L_Mouth",
+  "dirty": [],
+  "editor_preferences_restored": true,
+  "preview_scope": "Walking and rain only. Teleport/fire-nut are validated by native and solo telemetry; the follow camera is occluded after arrival near the mouth wall.",
+  "preview_full_decode": true
+}

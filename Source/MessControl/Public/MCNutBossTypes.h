@@ -88,10 +88,18 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> MageRainAnimation;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> MageHitAnimation;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> MageDeathAnimation;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> MageTeleportAnimation;
+    /** Full source durations remain available on authority without cosmetic assets. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") float MageCastAnimationSeconds=2.3f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") float MageSummonAnimationSeconds=2.3f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") float MageRainAnimationSeconds=3.2666667f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") float MageTeleportAnimationSeconds=3.3f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") float MageHitAnimationSeconds=.4666667f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement",meta=(ClampMin="45",ClampMax="720",Units="deg/s")) float MageTurnDegreesPerSecond=180;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") float MageCastReleaseFraction=.55f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") float AnimationBlendSeconds=.18f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") float DeathSeconds=2.4f;
-    /** Gameplay emitter in world centimetres relative to the boss body, rotated toward the locked target. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") float AnimationBlendSeconds=.25f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") float DeathSeconds=3.55f;
+    /** Gameplay emitter in centimetres: fire-nut is baked from the cast palm and rotates with the body. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FVector MageCastOffset=FVector(240,-44,130);
     /** Optional visual socket; authoritative projectile origins never depend on evaluated cosmetic bones. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FName MageCastSocket=TEXT("cast_palm");
@@ -133,6 +141,7 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Charge", meta=(Units="s")) float ChargeCooldown=14;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Charge") float ChargeSpeed=650;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Charge") float ChargeDistance=1100;
+    /** Contact damage to workers and active arena teeth while the knight rolls. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollDamage=16;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollWindup=1.2f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll", meta=(Units="s")) float RollCooldown=40;
@@ -153,9 +162,9 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Jump") float JumpRadius=460;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Jump", meta=(Units="s")) float JumpCooldown=20;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fireball") float FireballDamage=18;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fireball") float FireballWindup=.9f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fireball") float FireballWindup=1.265f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fireball", meta=(Units="s")) float FireballCooldown=8;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fireball") float FireballSpeed=550;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fireball") float FireballSpeed=2800;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fireball") float FireballRadius=65;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Summon", meta=(Units="s")) float SummonCooldown=22;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Summon") int32 SummonCount=2;
@@ -165,16 +174,16 @@ struct MESSCONTROL_API FMCNutBossSettings
     /** The original 300 cm radius enlarged by sqrt(5.5), so its area grows 5.5 times. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Rain") float RainRadius=703.5624f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Rain") float RainImpactRadius=90;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Rain") float RainWindup=1.2f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Rain") float RainWindup=1.7966667f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Rain") float RainActiveSeconds=4;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Rain") int32 RainDrops=8;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Rain") float RainDamage=8;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Rain") float RainHitGap=.8f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Rain", meta=(Units="s")) float RainCooldown=28;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Teleport", meta=(Units="s")) float MageTeleportCooldown=18;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Teleport") float MageTeleportWindup=.65f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Teleport") float MageTeleportMinDistance=600;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Teleport") float MageTeleportMaxDistance=1100;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Teleport") float MageTeleportWindup=1.815f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Teleport") float MageTeleportMinDistance=1200;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Teleport") float MageTeleportMaxDistance=2000;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Teleport") float MageFocusRadius=420;
     void Sanitize();
     /** Same physical footprint for event placement and the boss's authoritative body. */

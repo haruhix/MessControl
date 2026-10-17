@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "solo_checks": 6,
+  "speed": 1100.000024859497,
+  "min_palm_error_cm": 0.010081804923048002,
+  "map": "/Game/Maps/L_Mouth.L_Mouth",
+  "dirty": [],
+  "preferences_restored": true,
+  "protected_packages_unchanged": true,
+  "profile_only_speed_and_palm_offset_changed": true
+}

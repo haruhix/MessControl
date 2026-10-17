@@ -153,6 +153,9 @@ void UMCDevPanelWidget::RefreshActions()
     while (Actions->GetChildrenCount()>2) Actions->RemoveChildAt(2);
     auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>();
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    AddAction(Actions,MCDevOneHitKillEnabled(GetWorld())?
+        TEXT("Убийство с одного удара: ВКЛ — выключить"):TEXT("Убийство с одного удара: ВЫКЛ — включить"),
+        TEXT("Попадания игроков убивают врагов и боссов с одного удара. Рыцарь сначала превращается в Колдуна; каждую форму нужно ударить отдельно. Действует до выключения или выхода из Play; союзники и зубы арены получают обычный урон."),EMCDevAction::OneHitKill);
     const UMCDayPlan* Plan=Mode?Mode->FirstDayPlan.LoadSynchronous():GS?GS->DayPlan.Get():nullptr;
     if (!Plan) Plan=LoadObject<UMCDayPlan>(nullptr,TEXT("/Game/Data/DA_Day01.DA_Day01"));
     AddText(Steps,TEXT("КЛЮЧЕВЫЕ СОБЫТИЯ"),18)->SetColorAndOpacity(FSlateColor(DevMint));
@@ -307,6 +310,7 @@ void UMCDevPanelWidget::NativeTick(const FGeometry& Geometry,float Dt)
     FString Summary=FString::Printf(TEXT("%s  |  %s\nРот %.0f HP  /  зубы %d/%d  /  еда %d  /  язвы %d  /  кофе %s"),
         PC && PC->CanUseDevPanel()?TEXT("ХОСТ"):TEXT("КЛИЕНТ: только просмотр"),GS->bDevManualEvents?TEXT("РУЧНОЙ ТЕСТ — без дедлайна"):TEXT("ОБЫЧНЫЙ ДЕНЬ"),
         GS->MouthHealth,GS->AvailableArenaTeeth(),GS->ArenaTeeth.Num(),Food,Ulcers,Water?TEXT("активен"):TEXT("нет"));
+    Summary+=MCDevOneHitKillEnabled(GetWorld())?TEXT("\nУбийство с одного удара: ВКЛ"):TEXT("\nУбийство с одного удара: ВЫКЛ");
     if(const auto* Cat=AMCCataclysmEvent::FindActive(GetWorld()))
         Summary+=FString::Printf(TEXT("\n%s · желе %d · грязь %d/%d\n%s"),*Cat->Title(),Cat->JelliesLeft,Cat->DirtLeft,Cat->DirtTotal,*Cat->Instruction());
     if (GS->ArenaTeeth.Num()<GS->RunSettings.InitialArenaTeeth)

@@ -1,0 +1,16 @@
+{
+  "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\WizardBehaviorFix_20261017\\preview.mp4",
+  "frames": 152,
+  "full_decode": true,
+  "cases": {
+    "walk": {
+      "start": 0.0,
+      "end": 2.7999998331069946
+    },
+    "rain": {
+      "start": 2.8666664958000183,
+      "end": 10.066666066646576
+    }
+  },
+  "source": "Genuine solo PIE SceneCapture frames under L_Mouth lighting, copied hero-camera postprocess; 15 Hz capture repeated at 30 fps, original game-clock timing, no generated/interpolated poses, silent."
+}

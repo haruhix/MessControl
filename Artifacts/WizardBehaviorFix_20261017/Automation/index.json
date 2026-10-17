@@ -1,0 +1,197 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "VB",
+			"instance": "4B2465764414DF74D8EF5795D89E707D",
+			"instanceName": "VB-36600",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9711] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5080",
+			"cPUModel": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+			"rAMInGB": 62,
+			"renderMode": "D3D12_SM5",
+			"rHI": "D3D12 (SM5)",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.17-02.28.54",
+	"succeeded": 0,
+	"succeededWithWarnings": 3,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 1.1129205226898193,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "WizardArtistFullClips",
+			"fullTestPath": "MessControl.CoreLoop.NutBoss.Animation.WizardArtistFullClips",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"4B2465764414DF74D8EF5795D89E707D"
+			],
+			"duration": 0.038110800087451935,
+			"dateTime": "2026.10.17-02.28.52",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogAnimation: Skeletal Mesh asset 'SkeletalMesh_0' has no render data",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.17-02.28.52"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogAnimation: Skeletal Mesh asset 'SkeletalMesh_0' has no render data",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.17-02.28.52"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogAnimation: Skeletal Mesh asset 'SkeletalMesh_0' has no render data",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.17-02.28.52"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogAnimation: Skeletal Mesh asset 'SkeletalMesh_0' has no render data",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.17-02.28.52"
+				}
+			],
+			"warnings": 4,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "WizardRainReturnsToLiveIdle",
+			"fullTestPath": "MessControl.CoreLoop.NutBoss.Animation.WizardRainReturnsToLiveIdle",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"4B2465764414DF74D8EF5795D89E707D"
+			],
+			"duration": 0.01248599961400032,
+			"dateTime": "2026.10.17-02.28.52",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogAnimation: Skeletal Mesh asset 'SkeletalMesh_1' has no render data",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.17-02.28.52"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogAnimation: Skeletal Mesh asset 'SkeletalMesh_1' has no render data",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.17-02.28.52"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogAnimation: Skeletal Mesh asset 'SkeletalMesh_1' has no render data",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.17-02.28.52"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogAnimation: Skeletal Mesh asset 'SkeletalMesh_1' has no render data",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.17-02.28.52"
+				}
+			],
+			"warnings": 4,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "WizardPressureWaitsForFullCastAndTurnsSmoothly",
+			"fullTestPath": "MessControl.CoreLoop.NutBoss.WizardPressureWaitsForFullCastAndTurnsSmoothly",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"4B2465764414DF74D8EF5795D89E707D"
+			],
+			"duration": 1.0623236894607544,
+			"dateTime": "2026.10.17-02.28.53",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.17-02.28.53"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.17-02.28.53"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

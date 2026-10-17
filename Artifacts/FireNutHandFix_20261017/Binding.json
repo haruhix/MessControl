@@ -1,0 +1,13 @@
+{
+  "speed": 1100.0,
+  "old_speed": 550.0,
+  "offset": [
+    266.25133587175037,
+    46.08522624393702,
+    -9.045832192131343
+  ],
+  "right_hand": "hand_r",
+  "source": "/Game/Gameplay/CoreLoop/NutWizard/ArtistUpdate_20261017/Animations/A_NutWizard_Cast.A_NutWizard_Cast",
+  "release_fraction": 0.550000011920929,
+  "only_speed_and_offset_changed": true
+}
