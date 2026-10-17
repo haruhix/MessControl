@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "error": null,
+  "checks": [],
+  "samples": [],
+  "captures": [
+    "Normal_Offset0.png",
+    "Flat_Offset0.png",
+    "Flat_Offset1.png",
+    "Flat_Offset2.png",
+    "Normal_Offset1.png",
+    "Solid_Offset1.png"
+  ],
+  "frame_times": [],
+  "engine_restored": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  }
+}

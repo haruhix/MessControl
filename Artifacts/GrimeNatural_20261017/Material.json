@@ -1,0 +1,14 @@
+{
+  "material": "/Game/Gameplay/Care/M_ArenaToothRelief",
+  "compile_errors": [],
+  "pigment_size_cm": 420,
+  "previous_pigment_size_cm": 180,
+  "scale_increase": 2.3333333333333335,
+  "stochastic": "Three random rotations/offsets/scales per triangular cell, per tooth seed, three rest-space projections, restrained spatial warp",
+  "edge": "Seeded broad/medium/fine erosion and continuously blended wash; lit surface translucency",
+  "statistics": {
+    "num_pixel_shader_instructions": 3057,
+    "num_samplers": 14,
+    "num_pixel_texture_samples": 2
+  }
+}

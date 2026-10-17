@@ -1,0 +1,602 @@
+{
+  "pid": 14276,
+  "dirty_content": [
+    "/Game/Gameplay/Care/MI_ArenaToothGrime"
+  ],
+  "dirty_maps": [],
+  "nodes": [
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionPreSkinnedPosition_1",
+      "type": "MaterialExpressionPreSkinnedPosition",
+      "desc": "",
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVertexInterpolator_2",
+      "type": "MaterialExpressionVertexInterpolator",
+      "desc": "",
+      "sources": [
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionPreSkinnedPosition_1"
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVertexColor_1",
+      "type": "MaterialExpressionVertexColor",
+      "desc": "",
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionPreSkinnedNormal_1",
+      "type": "MaterialExpressionPreSkinnedNormal",
+      "desc": "",
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVertexInterpolator_3",
+      "type": "MaterialExpressionVertexInterpolator",
+      "desc": "",
+      "sources": [
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionPreSkinnedNormal_1"
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionTextureObjectParameter_2",
+      "type": "MaterialExpressionTextureObjectParameter",
+      "desc": "",
+      "name": "GrimeWipe",
+      "group": "90 Runtime Automatic",
+      "texture": "/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture",
+      "sources": [
+        null,
+        null
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionTextureObjectParameter_3",
+      "type": "MaterialExpressionTextureObjectParameter",
+      "desc": "",
+      "name": "GrimePigment",
+      "group": "01 Pattern",
+      "texture": "/Game/Gameplay/Care/Textures/T_PlaqueReference.T_PlaqueReference",
+      "sources": [
+        null,
+        null
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_3",
+      "type": "MaterialExpressionScalarParameter",
+      "desc": "",
+      "name": "GrimeAmount",
+      "group": "90 Runtime Automatic",
+      "default": 0.0,
+      "instance": 1.0,
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_4",
+      "type": "MaterialExpressionScalarParameter",
+      "desc": "",
+      "name": "BrushAge",
+      "group": "90 Runtime Automatic",
+      "default": 4.0,
+      "instance": 4.0,
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_5",
+      "type": "MaterialExpressionVectorParameter",
+      "desc": "",
+      "name": "GrimeMin",
+      "group": "90 Runtime Automatic",
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_6",
+      "type": "MaterialExpressionVectorParameter",
+      "desc": "",
+      "name": "GrimeSize",
+      "group": "90 Runtime Automatic",
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_7",
+      "type": "MaterialExpressionVectorParameter",
+      "desc": "",
+      "name": "GrimeScale",
+      "group": "90 Runtime Automatic",
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_8",
+      "type": "MaterialExpressionVectorParameter",
+      "desc": "",
+      "name": "BrushLocal",
+      "group": "90 Runtime Automatic",
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_9",
+      "type": "MaterialExpressionVectorParameter",
+      "desc": "",
+      "name": "GrimeColor",
+      "group": "90 Runtime Automatic",
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_4",
+      "type": "MaterialExpressionCustom",
+      "desc": "",
+      "description": "MC Care: coatingMask",
+      "code": "float3 uv=saturate((P-Minimum)/max(Size,.01))*15;\nfloat z0=floor(uv.z),z1=min(z0+1,15);\nfloat2 a=(uv.xy+float2(fmod(z0,4),floor(z0/4))*16+.5)/64;\nfloat2 b=(uv.xy+float2(fmod(z1,4),floor(z1/4))*16+.5)/64;\nfloat wipe=lerp(Texture2DSampleLevel(Wipe,WipeSampler,a,0).r,Texture2DSampleLevel(Wipe,WipeSampler,b,0).r,frac(uv.z));\nfloat foam=(1-smoothstep(23,45,length((P-Brush)*Scale)))*(1-smoothstep(.25,1.4,Age));\nreturn float4(V.r*wipe*saturate(Amount*2),foam,V.b,V.g);\n",
+      "inputs": [
+        "P",
+        "V",
+        "Minimum",
+        "Size",
+        "Scale",
+        "Wipe",
+        "Amount",
+        "Age",
+        "Brush"
+      ],
+      "sources": [
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVertexInterpolator_2",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVertexColor_1",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_5",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_6",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_7",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionTextureObjectParameter_2",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_3",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_4",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_8"
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_5",
+      "type": "MaterialExpressionCustom",
+      "desc": "",
+      "description": "MC Care: coatingColor",
+      "code": "\n// The supplied ochre wash and brown specks retain their own size in cm.\nfloat3 color=lerp(Pigment,float3(.79,.48,.14),.10);\nfloat margin=1-smoothstep(.23,.70,F.x);\ncolor=lerp(color,float3(.90,.73,.37),margin*.20);\nreturn lerp(color*max(ArtistTint,0),float3(.92,.97,.94),F.y*.92);\n",
+      "inputs": [
+        "P",
+        "N",
+        "Tex",
+        "Tint",
+        "F",
+        "D",
+        "Light",
+        "Dark",
+        "Rim",
+        "Pigment",
+        "ArtistTint"
+      ],
+      "sources": [
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVertexInterpolator_2",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVertexInterpolator_3",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionTextureObjectParameter_3",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_9",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_4",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_0",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_0",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_1",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_2",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_1",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_3"
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_6",
+      "type": "MaterialExpressionCustom",
+      "desc": "",
+      "description": "MC Care: coatingRoughness",
+      "code": "return lerp(saturate(Roughness+(D.z-.5)*.14),.43,F.y);",
+      "inputs": [
+        "F",
+        "D",
+        "Roughness"
+      ],
+      "sources": [
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_4",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_0",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_14"
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_7",
+      "type": "MaterialExpressionCustom",
+      "desc": "",
+      "description": "MC Care: coatingClip",
+      "code": "\nstruct PlaqueNoise {\n float hash(float3 p) { return frac(sin(dot(p,float3(127.1,311.7,74.7)))*43758.5453); }\n float noise(float3 p) {\n  float3 i=floor(p),f=frac(p);f=f*f*(3-2*f);\n  return lerp(lerp(lerp(hash(i),hash(i+float3(1,0,0)),f.x),\n                   lerp(hash(i+float3(0,1,0)),hash(i+float3(1,1,0)),f.x),f.y),\n              lerp(lerp(hash(i+float3(0,0,1)),hash(i+float3(1,0,1)),f.x),\n                   lerp(hash(i+float3(0,1,1)),hash(i+float3(1,1,1)),f.x),f.y),f.z);\n }\n float2 rotate(float2 p,float a) {\n  float s=sin(a),c=cos(a);return float2(c*p.x-s*p.y,s*p.x+c*p.y);\n }\n float3 stochastic(Texture2D tex,SamplerState samp,float2 uv,float seed) {\n  // Three neighboring random patches form one continuous triangular blend.\n  float2 skew=float2(uv.x-.577350269*uv.y,1.154700538*uv.y)*1.6;\n  float2 cell=floor(skew),f=frac(skew),a,b,c;float3 weights;\n  if(f.x+f.y<=1) {\n   a=cell;b=cell+float2(1,0);c=cell+float2(0,1);\n   weights=float3(1-f.x-f.y,f.x,f.y);\n  } else {\n   a=cell+1;b=cell+float2(0,1);c=cell+float2(1,0);\n   weights=float3(f.x+f.y-1,1-f.x,1-f.y);\n  }\n  weights=weights*weights*weights;weights/=max(dot(weights,1),.0001);\n  float2 dx=ddx(uv),dy=ddy(uv);float3 color=0;\n  [unroll] for(int j=0;j<3;j++) {\n   float2 id=j==0?a:j==1?b:c;\n   float3 h=float3(hash(float3(id,seed)),hash(float3(id+17.31,seed+3.7)),hash(float3(id+53.13,seed+11.9)));\n   float angle=h.z*6.2831853,scale=lerp(.86,1.10,h.x);\n   float2 q=rotate(uv,angle)*scale+h.xy*7.17;\n   color+=Texture2DSampleGrad(tex,samp,q,rotate(dx,angle)*scale,rotate(dy,angle)*scale).rgb*weights[j];\n  }\n  return color;\n }\n};\nPlaqueNoise H;\n\n float3 cm=P*Scale;\n float broad=H.noise(cm/58+(Seed+PatternSeed)*float3(2.7,1.3,4.1));\n float medium=H.noise(cm/19+(Seed+PatternSeed)*float3(5.1,3.7,2.3));\n float fine=H.noise(cm/5.5+(Seed+PatternSeed)*2.13);\n float2 q=UV*2-1;\n float boundary=1-max(abs(q.x),abs(q.y));\n float ragged=(broad-.5)*.29+(medium-.5)*.11+(fine-.5)*.035;\n float feather=smoothstep(.025,.025+max(EdgeSoftness,.001),boundary+ragged*max(EdgeErosion,0));\n // A translucent-looking wash joins the enamel rather than a clipped sticker.\n float paper=lerp(saturate(WashOpacity),1,smoothstep(.10,.58,1-Pigment.g));\n float wipe=smoothstep(.06,.66,F.x);\n return saturate(feather*paper*wipe)*saturate(Opacity);\n",
+      "inputs": [
+        "F",
+        "UV",
+        "P",
+        "Scale",
+        "Seed",
+        "Pigment",
+        "PatternSeed",
+        "Opacity",
+        "EdgeSoftness",
+        "EdgeErosion",
+        "WashOpacity"
+      ],
+      "sources": [
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_4",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionTextureCoordinate_0",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVertexInterpolator_2",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_7",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_1",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_1",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_8",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_10",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_11",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_12",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_13"
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_5",
+      "type": "MaterialExpressionScalarParameter",
+      "desc": "",
+      "name": "Specular",
+      "group": "Grime optics",
+      "default": 0.5199999809265137,
+      "instance": 0.5199999809265137,
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionWorldPosition_0",
+      "type": "MaterialExpressionWorldPosition",
+      "desc": "",
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVertexNormalWS_0",
+      "type": "MaterialExpressionVertexNormalWS",
+      "desc": "",
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVertexInterpolator_4",
+      "type": "MaterialExpressionVertexInterpolator",
+      "desc": "",
+      "sources": [
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVertexNormalWS_0"
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_8",
+      "type": "MaterialExpressionCustom",
+      "desc": "",
+      "description": "MC Care: meniscusNormal",
+      "code": "\nfloat3 n=normalize(N);\nfloat h=saturate(F.x)*(.06+.08*F.z+D.w*max(Strength,0));\nfloat3 dx=ddx(World),dy=ddy(World),rx=cross(dy,n),ry=cross(n,dx);\nfloat det=dot(dx,rx);\nfloat sx=ddx(h)+saturate(F.x)*max(NormalStrength,0)*dot(Slope,ddx(P*Scale));\nfloat sy=ddy(h)+saturate(F.x)*max(NormalStrength,0)*dot(Slope,ddy(P*Scale));\nfloat3 gradient=(sx*rx+sy*ry)*sign(det)/max(abs(det),1e-5);\nreturn normalize(n-clamp(gradient,-.25,.25));\n",
+      "inputs": [
+        "World",
+        "N",
+        "F",
+        "D",
+        "Strength",
+        "Slope",
+        "P",
+        "Scale",
+        "NormalStrength"
+      ],
+      "sources": [
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionWorldPosition_0",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVertexInterpolator_4",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_4",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_0",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_2",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_2",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVertexInterpolator_2",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_7",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_6"
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionMaterialFunctionCall_0",
+      "type": "MaterialExpressionMaterialFunctionCall",
+      "desc": "MC Care: soft coating edge",
+      "sources": [
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_7",
+        null
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionTextureObjectParameter_0",
+      "type": "MaterialExpressionTextureObjectParameter",
+      "desc": "",
+      "name": "GrimeSurface",
+      "group": "04 Micro Surface",
+      "texture": "/Game/Gameplay/Care/Textures/T_GrimeRich_Roughness.T_GrimeRich_Roughness",
+      "sources": [
+        null,
+        null
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_0",
+      "type": "MaterialExpressionScalarParameter",
+      "desc": "",
+      "name": "GrimeDetailSize",
+      "group": "04 Micro Surface",
+      "default": 180.0,
+      "instance": 180.0,
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_1",
+      "type": "MaterialExpressionScalarParameter",
+      "desc": "",
+      "name": "GrimeSeed",
+      "group": "90 Runtime Automatic",
+      "default": 1.0,
+      "instance": 1.0,
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_2",
+      "type": "MaterialExpressionScalarParameter",
+      "desc": "",
+      "name": "GrimeMicroRelief",
+      "group": "04 Micro Surface",
+      "default": 0.12999999523162842,
+      "instance": 0.12999999523162842,
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_0",
+      "type": "MaterialExpressionVectorParameter",
+      "desc": "",
+      "name": "GrimeLightColor",
+      "group": "99 Legacy",
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_1",
+      "type": "MaterialExpressionVectorParameter",
+      "desc": "",
+      "name": "GrimeDarkColor",
+      "group": "99 Legacy",
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_2",
+      "type": "MaterialExpressionVectorParameter",
+      "desc": "",
+      "name": "GrimeRimColor",
+      "group": "99 Legacy",
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_0",
+      "type": "MaterialExpressionCustom",
+      "desc": "",
+      "description": "MC Care: anchored plaque detail",
+      "code": "\n[branch] if (Amount<=.0001) return float4(.5,1,.5,0);\n// Coordinates follow the surface, including piano movement and skeletal pose.\nfloat3 q=P*Scale/max(Tile,8.0)+Seed*float3(.37,.19,.73);\nfloat3 w=abs(normalize(N)); w*=w; w*=w; w/=max(dot(w,1),.0001);\nfloat h=Texture2DSample(Height,HeightSampler,q.yz).r*w.x\n       +Texture2DSample(Height,HeightSampler,q.xz).r*w.y\n       +Texture2DSample(Height,HeightSampler,q.xy).r*w.z;\nfloat rough=Texture2DSample(Surface,SurfaceSampler,q.yz).r*w.x\n           +Texture2DSample(Surface,SurfaceSampler,q.xz).r*w.y\n           +Texture2DSample(Surface,SurfaceSampler,q.xy).r*w.z;\n// Height is independent of albedo: pits, granules and built-up plateaus remain\n// visible under moving lights rather than collapsing to one saturated brown.\nfloat plateau=smoothstep(.24,.78,h);\nfloat pit=1-smoothstep(.13,.43,h);\nfloat relief=(h-.5)*.72+plateau*.28-pit*.13;\nreturn float4(h,1-pit*.52,saturate(rough),relief);\n",
+      "inputs": [
+        "P",
+        "N",
+        "Scale",
+        "Tile",
+        "Seed",
+        "Pigment",
+        "Surface",
+        "Amount",
+        "Height"
+      ],
+      "sources": [
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVertexInterpolator_2",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVertexInterpolator_3",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_7",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_0",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_1",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionTextureObjectParameter_3",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionTextureObjectParameter_0",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_3",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionTextureObjectParameter_1"
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_6",
+      "type": "MaterialExpressionScalarParameter",
+      "desc": "",
+      "name": "GrimeNormalStrength",
+      "group": "04 Micro Surface",
+      "default": 0.11999999731779099,
+      "instance": 0.11999999731779099,
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionTextureObjectParameter_1",
+      "type": "MaterialExpressionTextureObjectParameter",
+      "desc": "",
+      "name": "GrimeHeight",
+      "group": "04 Micro Surface",
+      "texture": "/Game/Gameplay/Care/Textures/T_GrimeRich_Height.T_GrimeRich_Height",
+      "sources": [
+        null,
+        null
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionTextureObjectParameter_4",
+      "type": "MaterialExpressionTextureObjectParameter",
+      "desc": "",
+      "name": "GrimeNormal",
+      "group": "04 Micro Surface",
+      "texture": "/Game/Gameplay/Care/Textures/T_GrimeRich_Normal.T_GrimeRich_Normal",
+      "sources": [
+        null,
+        null
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_1",
+      "type": "MaterialExpressionCustom",
+      "desc": "",
+      "description": "MC Care: anchored plaque detail pigment",
+      "code": "\nstruct PlaqueNoise {\n float hash(float3 p) { return frac(sin(dot(p,float3(127.1,311.7,74.7)))*43758.5453); }\n float noise(float3 p) {\n  float3 i=floor(p),f=frac(p);f=f*f*(3-2*f);\n  return lerp(lerp(lerp(hash(i),hash(i+float3(1,0,0)),f.x),\n                   lerp(hash(i+float3(0,1,0)),hash(i+float3(1,1,0)),f.x),f.y),\n              lerp(lerp(hash(i+float3(0,0,1)),hash(i+float3(1,0,1)),f.x),\n                   lerp(hash(i+float3(0,1,1)),hash(i+float3(1,1,1)),f.x),f.y),f.z);\n }\n float2 rotate(float2 p,float a) {\n  float s=sin(a),c=cos(a);return float2(c*p.x-s*p.y,s*p.x+c*p.y);\n }\n float3 stochastic(Texture2D tex,SamplerState samp,float2 uv,float seed) {\n  // Three neighboring random patches form one continuous triangular blend.\n  float2 skew=float2(uv.x-.577350269*uv.y,1.154700538*uv.y)*1.6;\n  float2 cell=floor(skew),f=frac(skew),a,b,c;float3 weights;\n  if(f.x+f.y<=1) {\n   a=cell;b=cell+float2(1,0);c=cell+float2(0,1);\n   weights=float3(1-f.x-f.y,f.x,f.y);\n  } else {\n   a=cell+1;b=cell+float2(0,1);c=cell+float2(1,0);\n   weights=float3(f.x+f.y-1,1-f.x,1-f.y);\n  }\n  weights=weights*weights*weights;weights/=max(dot(weights,1),.0001);\n  float2 dx=ddx(uv),dy=ddy(uv);float3 color=0;\n  [unroll] for(int j=0;j<3;j++) {\n   float2 id=j==0?a:j==1?b:c;\n   float3 h=float3(hash(float3(id,seed)),hash(float3(id+17.31,seed+3.7)),hash(float3(id+53.13,seed+11.9)));\n   float angle=h.z*6.2831853,scale=lerp(.86,1.10,h.x);\n   float2 q=rotate(uv,angle)*scale+h.xy*7.17;\n   color+=Texture2DSampleGrad(tex,samp,q,rotate(dx,angle)*scale,rotate(dy,angle)*scale).rgb*weights[j];\n  }\n  return color;\n }\n};\nPlaqueNoise H;\n\n [branch] if(Amount<=.0001) return float3(.82,.66,.36);\n float3 cm=P*Scale;\n float3 q=cm/max(Tile,8.0);\n float3 warp=float3(H.noise(cm/135+(Seed+PatternSeed)*2.31),H.noise(cm/135+19.73+(Seed+PatternSeed)*3.17),H.noise(cm/135+41.19+(Seed+PatternSeed)*1.37));\n q+=(warp-.5)*max(WarpStrength,0);\n float3 w=pow(abs(normalize(N)),4);w/=max(dot(w,1),.0001);\n float3 color=0;\n color+=H.stochastic(Pigment,PigmentSampler,q.yz,(Seed+PatternSeed)+7.1)*w.x;\n color+=H.stochastic(Pigment,PigmentSampler,q.xz,(Seed+PatternSeed)+31.7)*w.y;\n color+=H.stochastic(Pigment,PigmentSampler,q.xy,(Seed+PatternSeed)+53.3)*w.z;\n return color;\n",
+      "inputs": [
+        "P",
+        "N",
+        "Scale",
+        "Tile",
+        "Seed",
+        "Amount",
+        "Pigment",
+        "PatternSeed",
+        "WarpStrength"
+      ],
+      "sources": [
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVertexInterpolator_2",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVertexInterpolator_3",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_7",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_7",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_1",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_3",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionTextureObjectParameter_3",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_8",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_9"
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_2",
+      "type": "MaterialExpressionCustom",
+      "desc": "",
+      "description": "MC Care: anchored plaque detail normal slope",
+      "code": "\n[branch] if (Amount<=.0001) return float3(0,0,0);\nfloat3 q=P*Scale/max(Tile,8.0)+Seed*float3(.37,.19,.73);\nfloat3 w=abs(normalize(N)); w*=w; w*=w; w/=max(dot(w,1),.0001);\n// BC5 normal textures store signed tangent X/Y in their two sampled channels.\n// Reconstruct Z, then express the three projection slopes in rest-space cm.\nfloat2 x=Texture2DSample(NormalMap,NormalMapSampler,q.yz).rg*2-1;\nfloat2 y=Texture2DSample(NormalMap,NormalMapSampler,q.xz).rg*2-1;\nfloat2 z=Texture2DSample(NormalMap,NormalMapSampler,q.xy).rg*2-1;\nx/=-max(sqrt(saturate(1-dot(x,x))),.35);\ny/=-max(sqrt(saturate(1-dot(y,y))),.35);\nz/=-max(sqrt(saturate(1-dot(z,z))),.35);\nreturn float3(0,x.x,x.y)*w.x+float3(y.x,0,y.y)*w.y+float3(z.x,z.y,0)*w.z;\n",
+      "inputs": [
+        "P",
+        "N",
+        "Scale",
+        "Tile",
+        "Seed",
+        "Amount",
+        "NormalMap"
+      ],
+      "sources": [
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVertexInterpolator_2",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVertexInterpolator_3",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_7",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_0",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_1",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_3",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionTextureObjectParameter_4"
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionMaterialFunctionCall_1",
+      "type": "MaterialExpressionMaterialFunctionCall",
+      "desc": "Shared matte fern frost; existing climate ColdAmount",
+      "sources": [
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_5",
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_6",
+        null,
+        "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_5"
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_7",
+      "type": "MaterialExpressionScalarParameter",
+      "desc": "\u0420\u0430\u0437\u043c\u0435\u0440 \u043f\u044f\u0442\u0435\u043d \u0432 \u0441\u0430\u043d\u0442\u0438\u043c\u0435\u0442\u0440\u0430\u0445. \u0411\u043e\u043b\u044c\u0448\u0435 \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435 \u2014 \u043a\u0440\u0443\u043f\u043d\u0435\u0435 \u0440\u0438\u0441\u0443\u043d\u043e\u043a.",
+      "name": "GrimePigmentSize",
+      "group": "01 Pattern",
+      "default": 420.0,
+      "instance": 339.52001953125,
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionTextureCoordinate_0",
+      "type": "MaterialExpressionTextureCoordinate",
+      "desc": "Natural plaque window UV",
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_8",
+      "type": "MaterialExpressionScalarParameter",
+      "desc": "\u041c\u0435\u043d\u044f\u0435\u0442 \u0441\u043b\u0443\u0447\u0430\u0439\u043d\u044b\u0439 \u0440\u0438\u0441\u0443\u043d\u043e\u043a. \u041a\u0430\u0436\u0434\u044b\u0439 \u0437\u0443\u0431 \u0434\u043e\u043f\u043e\u043b\u043d\u0438\u0442\u0435\u043b\u044c\u043d\u043e \u043f\u043e\u043b\u0443\u0447\u0430\u0435\u0442 \u0441\u0432\u043e\u0439 \u0432\u0430\u0440\u0438\u0430\u043d\u0442.",
+      "name": "GrimePatternSeed",
+      "group": "01 Pattern",
+      "default": 0.0,
+      "instance": 48.0,
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_9",
+      "type": "MaterialExpressionScalarParameter",
+      "desc": "\u0421\u0438\u043b\u0430 \u0434\u0435\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u0438 \u043f\u044f\u0442\u0435\u043d.",
+      "name": "GrimeWarpStrength",
+      "group": "01 Pattern",
+      "default": 0.10000000149011612,
+      "instance": 0.09759999811649323,
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_10",
+      "type": "MaterialExpressionScalarParameter",
+      "desc": "\u041e\u0431\u0449\u0430\u044f \u043f\u0440\u043e\u0437\u0440\u0430\u0447\u043d\u043e\u0441\u0442\u044c \u0441\u043b\u043e\u044f \u043d\u0430\u043b\u0451\u0442\u0430.",
+      "name": "GrimeOpacity",
+      "group": "02 Coating",
+      "default": 1.0,
+      "instance": 1.0,
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_11",
+      "type": "MaterialExpressionScalarParameter",
+      "desc": "\u0428\u0438\u0440\u0438\u043d\u0430 \u043f\u043b\u0430\u0432\u043d\u043e\u0433\u043e \u043f\u0435\u0440\u0435\u0445\u043e\u0434\u0430 \u043d\u0430\u043b\u0451\u0442\u0430 \u0432 \u044d\u043c\u0430\u043b\u044c.",
+      "name": "GrimeEdgeSoftness",
+      "group": "02 Coating",
+      "default": 0.26499998569488525,
+      "instance": 0.27160701155662537,
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_12",
+      "type": "MaterialExpressionScalarParameter",
+      "desc": "\u0412\u044b\u0440\u0430\u0436\u0435\u043d\u043d\u043e\u0441\u0442\u044c \u043d\u0435\u0440\u043e\u0432\u043d\u044b\u0445 \u043a\u0440\u0430\u0451\u0432 \u0438 \u0440\u0430\u0437\u043c\u044b\u0442\u044b\u0445 \u0440\u0430\u0437\u0432\u043e\u0434\u043e\u0432.",
+      "name": "GrimeEdgeErosion",
+      "group": "02 Coating",
+      "default": 1.0,
+      "instance": 1.0,
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_13",
+      "type": "MaterialExpressionScalarParameter",
+      "desc": "\u041f\u043b\u043e\u0442\u043d\u043e\u0441\u0442\u044c \u0441\u0432\u0435\u0442\u043b\u044b\u0445 \u0440\u0430\u0437\u0432\u043e\u0434\u043e\u0432 \u043c\u0435\u0436\u0434\u0443 \u0442\u0451\u043c\u043d\u044b\u043c\u0438 \u043f\u044f\u0442\u043d\u0430\u043c\u0438.",
+      "name": "GrimeWashOpacity",
+      "group": "02 Coating",
+      "default": 0.6200000047683716,
+      "instance": 0.6200000047683716,
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_14",
+      "type": "MaterialExpressionScalarParameter",
+      "desc": "\u0428\u0435\u0440\u043e\u0445\u043e\u0432\u0430\u0442\u043e\u0441\u0442\u044c \u043d\u0430\u043b\u0451\u0442\u0430: \u043e\u0442 \u0433\u043b\u044f\u043d\u0446\u0435\u0432\u043e\u0433\u043e \u043a \u043c\u0430\u0442\u043e\u0432\u043e\u043c\u0443.",
+      "name": "GrimeRoughness",
+      "group": "03 Surface",
+      "default": 0.7099999785423279,
+      "instance": 0.7099999785423279,
+      "sources": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionVectorParameter_3",
+      "type": "MaterialExpressionVectorParameter",
+      "desc": "\u0426\u0432\u0435\u0442\u043e\u0432\u043e\u0439 \u043c\u043d\u043e\u0436\u0438\u0442\u0435\u043b\u044c \u043d\u0430\u043b\u0451\u0442\u0430. \u0411\u0435\u043b\u044b\u0439 \u0441\u043e\u0445\u0440\u0430\u043d\u044f\u0435\u0442 \u0442\u0435\u043a\u0443\u0449\u0438\u0439 \u0446\u0432\u0435\u0442.",
+      "name": "GrimeTint",
+      "group": "03 Surface",
+      "sources": []
+    }
+  ],
+  "tangent_space_normal": false,
+  "blend_mode": "<BlendMode.BLEND_TRANSLUCENT: 2>",
+  "protected_hashes": {
+    "Content/Art/Materials/M_ArenaTooth.uasset": "5b7e986beac649804e9a7b5f5a8992809544ff9fc990c9f55fc9c4b0ab48cc9a",
+    "Content/Maps/L_Mouth.umap": "85e671c48f39baea71a0ff29828dabd49ff7560b13499d31059a80ee067ee772",
+    "Source/MessControl/Private/MCBrushContactComponent.cpp": "994c47e85160be534c963989d9d0a490f581309ebe53e9b57c2776e63694af3d"
+  }
+}

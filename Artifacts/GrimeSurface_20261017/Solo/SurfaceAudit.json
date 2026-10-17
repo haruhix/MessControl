@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "checks": {
+    "source_fitted_vertices": true,
+    "triangles_stay_on_enamel_faces": true,
+    "normal_control_changes_shading": true,
+    "mask_threshold_changes_coating": true,
+    "matching_optional_mask_tracks_pattern": true
+  },
+  "vertex_count": 6930,
+  "triangle_count": 4962,
+  "sampled_vertices": 2048,
+  "sampled_triangles": 2048,
+  "max_recovered_vertex_error_local_cm": 9.309439801227904e-09,
+  "max_recovered_triangle_error_local_cm": 9.298651314484506e-09,
+  "base_surface_offset_cm": 0.55,
+  "pixel_differences": {
+    "normal_disabled": 1.1279633333333334,
+    "normal_strong": 1.6259583333333334,
+    "mask_threshold_high": 21.68746833333333,
+    "matching_optional_mask_texture": 0.553925
+  },
+  "normal_strong_vs_disabled": 2.349155
+}

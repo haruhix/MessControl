@@ -1,0 +1,6 @@
+{
+  "material": "/Game/Gameplay/Care/M_ArenaToothRelief",
+  "reference_texture": "/Game/Gameplay/Care/Textures/T_PlaqueReference",
+  "detail_size_cm": 180,
+  "compile_errors": []
+}

@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "checks": {
+    "solo_complete_clean_passed": true,
+    "protected_native_contact_enamel_and_map_unchanged": true,
+    "unsaved_content_preserved": true,
+    "unsaved_maps_preserved": true,
+    "engine_settings_restored": true,
+    "final_material_compiled": true,
+    "pigment_size_420cm": true,
+    "continuous_translucent_margin": true
+  },
+  "compile_errors": [],
+  "protected_differences": [],
+  "clean_seconds": 8.966667134314775
+}

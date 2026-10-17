@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "checks": {
+    "editor_unsaved_content_preserved": true,
+    "editor_unsaved_maps_preserved": true,
+    "material_compiled_without_errors": true,
+    "VerifiedFinal_ordinary_brush_completes": true,
+    "VerifiedFinalLeft_ordinary_brush_completes": true,
+    "engine_settings_restored": true,
+    "temporary_compiler_target_restored": true,
+    "temporary_compiler_config_restored": true
+  },
+  "dirty_content": [],
+  "dirty_maps": [],
+  "engine_settings": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  }
+}
