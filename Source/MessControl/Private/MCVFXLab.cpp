@@ -1,4 +1,5 @@
 #include "MCVFXLab.h"
+#include "MCAnimationComparisonSubsystem.h"
 
 #include "MCGameState.h"
 #include "MCPlayerState.h"
@@ -163,6 +164,8 @@ public:
                         [SNew(STextBlock).Text(this,&SMCVFXLabNavigator::Summary).AutoWrapText(true)
                             .ColorAndOpacity(FLinearColor(.7f,.83f,.95f)).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),12))]
                         +SVerticalBox::Slot().AutoHeight().Padding(0,0,0,7)
+                        [BuildAnimationControls()]
+                        +SVerticalBox::Slot().AutoHeight().Padding(0,0,0,7)
                         [
                             SNew(SHorizontalBox)
                             +SHorizontalBox::Slot().FillWidth(1).Padding(0,0,4,0)
@@ -205,6 +208,38 @@ public:
         }
     }
 private:
+    UMCAnimationComparisonSubsystem* AnimationComparison() const
+    {
+        const auto* PC=Controller.Get();
+        return PC && PC->GetWorld()?PC->GetWorld()->GetSubsystem<UMCAnimationComparisonSubsystem>():nullptr;
+    }
+    TSharedRef<SWidget> BuildAnimationButton(EMCSecondaryAnimationMode Mode,const TCHAR* Name)
+    {
+        return SNew(SButton).ContentPadding(FMargin(6,5))
+            .IsEnabled_Lambda([this,Mode]{const auto* Comparison=AnimationComparison();return Comparison && Comparison->IsModeAvailable(Mode);})
+            .ButtonColorAndOpacity_Lambda([this,Mode]{const auto* Comparison=AnimationComparison();return FSlateColor(
+                Comparison && Comparison->GetMode()==Mode?FLinearColor(.16f,.40f,.32f):FLinearColor(.08f,.11f,.15f));})
+            .OnClicked_Lambda([this,Mode]{if (auto* Comparison=AnimationComparison()) Comparison->SetMode(Mode);return FReply::Handled();})
+            .ToolTipText_Lambda([this,Mode]{const auto* Comparison=AnimationComparison();return FText::FromString(
+                Comparison && Comparison->IsModeAvailable(Mode)?TEXT("Добавочное движение; базовая анимация и физика сохраняются. Выбор локальный, работает и в обычной игре.")
+                :Mode==EMCSecondaryAnimationMode::StylizedDynamics?TEXT("StylizedDynamics не установлен в этой локальной копии проекта."):TEXT("Режим недоступен в этой копии проекта."));})
+            [SNew(STextBlock).Text(FText::FromString(Name)).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),12)).AutoWrapText(true)];
+    }
+    TSharedRef<SWidget> BuildAnimationControls()
+    {
+        return SNew(SVerticalBox)
+            +SVerticalBox::Slot().AutoHeight().Padding(0,0,0,4)
+            [SNew(STextBlock).Text_Lambda([this]{
+                const auto* Comparison=AnimationComparison();
+                return FText::FromString(FString::Printf(TEXT("%s · локально\nДобавочное движение; базовая анимация и физика сохраняются."),
+                    Comparison?*Comparison->GetStatusText():TEXT("Сравнение недоступно")));})
+                .Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),12)).AutoWrapText(true)]
+            +SVerticalBox::Slot().AutoHeight()
+            [SNew(SHorizontalBox)
+                +SHorizontalBox::Slot().FillWidth(1).Padding(0,0,4,0)[BuildAnimationButton(EMCSecondaryAnimationMode::Native,TEXT("Native"))]
+                +SHorizontalBox::Slot().FillWidth(1).Padding(0,0,4,0)[BuildAnimationButton(EMCSecondaryAnimationMode::StylizedDynamics,TEXT("StylizedDynamics"))]
+                +SHorizontalBox::Slot().FillWidth(1)[BuildAnimationButton(EMCSecondaryAnimationMode::KawaiiPhysics,TEXT("KawaiiPhysics"))]];
+    }
     float InverseViewportScale() const
     {
         if (const auto* PC=Controller.Get())

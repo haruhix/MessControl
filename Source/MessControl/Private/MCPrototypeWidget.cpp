@@ -2,6 +2,7 @@
 #include "MCToothCharacter.h"
 #include "MCGripComponent.h"
 #include "MCGameplayHUD.h"
+#include "MCGameplayUIFactory.h"
 #include "MCThroat.h"
 #include "MCPlayerController.h"
 #include "MCSteamSessionSubsystem.h"
@@ -55,8 +56,8 @@ void UMCPrototypeWidget::NativeOnInitialized()
 {
     Super::NativeOnInitialized(); SetIsFocusable(true);
     UCanvasPanel* Root = WidgetTree->ConstructWidget<UCanvasPanel>(); WidgetTree->RootWidget = Root;
-    auto* HUDClass=LoadClass<UMCGameplayHUD>(nullptr,TEXT("/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD_C"));
-    auto* GameplayHUD=CreateWidget<UMCGameplayHUD>(GetOwningPlayer(),HUDClass?HUDClass:UMCGameplayHUD::StaticClass());
+    auto* HUDClass=UMCGameplayUIFactory::ResolveClass(TEXT("GameplayHUD"),UMCGameplayHUD::StaticClass());
+    auto* GameplayHUD=CreateWidget<UMCGameplayHUD>(GetOwningPlayer(),HUDClass);
     GameplayHUD->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
     auto* HUDSlot=Root->AddChildToCanvas(GameplayHUD); HUDSlot->SetAnchors(FAnchors(0,0,1,1)); HUDSlot->SetOffsets(FMargin(0)); HUDSlot->SetZOrder(-1);
     auto Panel = [&](FVector2D Position,FVector2D Size,FAnchors Anchors,FVector2D Alignment,UBorder*& Border)

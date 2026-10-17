@@ -142,11 +142,13 @@ private:
     void UpdateRiverDebris();
     void InitializeResidue();
     void AccumulateResidue(float Time);
-    bool HasResidueAt(FVector Position) const;
+    bool HasResidueAt(FVector Position,bool bNewOnly=false) const;
     void DepositResidue();
     static constexpr int32 ResidueSize=48;
-    struct FResidueCell { FVector Point=FVector::ZeroVector; float WetTop=-MAX_flt; bool bSurface=false; };
+    struct FResidueCell { FVector Point=FVector::ZeroVector; float WetTop=-MAX_flt,EmittedTop=-MAX_flt; bool bSurface=false; };
     TArray<FResidueCell> ResidueCells;
+    struct FResiduePatch { FVector Point=FVector::ZeroVector; float HalfSize=240; TWeakObjectPtr<class AMCMouthSurface> Surface; };
+    TArray<FResiduePatch> ResiduePatches;
     float LastResidueTime=-100;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> Material;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> JetMaterial;

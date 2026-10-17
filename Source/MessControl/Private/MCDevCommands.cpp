@@ -43,6 +43,7 @@
 #include "MCPlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "TimerManager.h"
+#include "Math/RotationMatrix.h"
 
 namespace
 {
@@ -223,6 +224,48 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
 {
     if (!CanUseDevPanel(Requester)) return FText::FromString(TEXT("Доступно только хосту в Development / Editor."));
 #if !UE_BUILD_SHIPPING
+    if (Action==EMCDevAction::SpineVFXTestStop)
+    {
+        for (TActorIterator<AActor> It(GetWorld());It;++It)
+            if (It->GetOwner()==Requester && It->ActorHasTag(TEXT("MC_DevSpineVFXTest"))) It->Destroy();
+        return FText::FromString(TEXT("Тестовые эффекты Spine убраны."));
+    }
+    if (Action==EMCDevAction::SpineVFXTest)
+    {
+        if (StepIndex!=1 && StepIndex!=16) return FText::FromString(TEXT("Для теста Spine выбери 1 или 16 копий."));
+        APawn* Pawn=Requester->GetPawn();
+        if (!IsValid(Pawn)) return FText::FromString(TEXT("Для просмотра эффекта нужен игрок хоста."));
+        auto* PreviewClass=LoadClass<AActor>(nullptr,TEXT("/Script/MPFSpineVFXTest.MPFSpineVFXTestActor"));
+        if (!PreviewClass) return FText::FromString(TEXT("Тестовый плагин/ассеты Spine ещё не подготовлены."));
+        for (TActorIterator<AActor> It(GetWorld());It;++It)
+            if (It->GetOwner()==Requester && It->ActorHasTag(TEXT("MC_DevSpineVFXTest"))) It->Destroy();
+        FVector ViewLocation; FRotator ViewRotation;
+        Requester->GetPlayerViewPoint(ViewLocation,ViewRotation);
+        const FRotationMatrix ViewAxes(ViewRotation);
+        const FVector Forward=ViewAxes.GetUnitAxis(EAxis::X);
+        const FVector Right=ViewAxes.GetUnitAxis(EAxis::Y);
+        const FVector Up=ViewAxes.GetUnitAxis(EAxis::Z);
+        const FRotator EffectRotation=FRotationMatrix::MakeFromYZ(-Forward,Up).Rotator();
+        const FVector Center=Pawn->GetActorLocation()+Forward.GetSafeNormal2D()*280.f+FVector::UpVector*(StepIndex==16?520.f:160.f);
+        FActorSpawnParameters Params;
+        Params.Owner=Requester; Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+        int32 Spawned=0;
+        for (int32 I=0;I<StepIndex;++I)
+        {
+            const FVector Offset=StepIndex==16?Right*((I%4-1.5f)*240.f)+Up*((I/4-1.5f)*240.f):FVector::ZeroVector;
+            auto* Preview=GetWorld()->SpawnActor<AActor>(PreviewClass,Center+Offset,EffectRotation,Params);
+            if (!IsValid(Preview) || Preview->IsActorBeingDestroyed() || !Preview->ActorHasTag(TEXT("MC_SpineVFXReady")))
+            {
+                if (IsValid(Preview)) Preview->Destroy();
+                for (TActorIterator<AActor> It(GetWorld());It;++It)
+                    if (It->GetOwner()==Requester && It->ActorHasTag(TEXT("MC_DevSpineVFXTest"))) It->Destroy();
+                return FText::FromString(TEXT("Экспорт Spine ещё не импортирован; подготовь тестовые ассеты."));
+            }
+            Preview->Tags.AddUnique(TEXT("MC_DevSpineVFXTest")); ++Spawned;
+        }
+        if (!Spawned) return FText::FromString(TEXT("Не удалось показать Spine VFX. Проверь тестовый плагин и файлы экспорта."));
+        return FText::FromString(FString::Printf(TEXT("Spine VFX: %d из %d копий. F3 — закрыть и посмотреть эффект."),Spawned,StepIndex));
+    }
     auto* GS=GetGameState<AMCGameState>();
     if (!GS) return FText::FromString(TEXT("Мир ещё не готов."));
     AMCPlaytestSession* BotSession=AMCPlaytestSession::Find(GetWorld());

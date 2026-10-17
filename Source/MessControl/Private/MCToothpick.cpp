@@ -4,6 +4,7 @@
 #include "MCToothCharacter.h"
 #include "MCInventoryComponent.h"
 #include "MCUlcerProgressWidget.h"
+#include "MCGameplayUIFactory.h"
 #include "MCReactionVFX.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SceneComponent.h"
@@ -36,6 +37,8 @@ AMCToothpick::AMCToothpick()
 void AMCToothpick::BeginPlay()
 {
     Super::BeginPlay();
+    if(GetNetMode()!=NM_DedicatedServer && ActionIndicator->GetWidgetClass()==UMCUlcerProgressWidget::StaticClass())
+        ActionIndicator->SetWidgetClass(UMCGameplayUIFactory::ResolveClass(TEXT("UlcerProgress"),UMCUlcerProgressWidget::StaticClass()));
     if(auto* Material=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/M_Coffee.M_Coffee")))
         if(auto* MID=Body->CreateDynamicMaterialInstance(0,Material)) MID->SetVectorParameterValue(TEXT("Color"),FLinearColor(.72f,.46f,.19f));
     RefreshAppearance();

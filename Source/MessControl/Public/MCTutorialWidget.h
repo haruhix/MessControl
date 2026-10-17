@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "MCGameplayUIWidget.h"
 #include "MCTutorialWidget.generated.h"
 
 class AMCTutorialDirector;
@@ -17,7 +17,7 @@ class UVerticalBox;
 
 /** Local presentation of the server-owned Day 0 state. Input mode remains the controller's responsibility. */
 UCLASS()
-class MESSCONTROL_API UMCTutorialWidget : public UUserWidget
+class MESSCONTROL_API UMCTutorialWidget : public UMCGameplayUIWidget
 {
     GENERATED_BODY()
 public:
@@ -27,6 +27,17 @@ public:
     bool RequiresMenuInput() const;
     bool IsTutorialVisible() const;
     UWidget* GetReadyFocusTarget() const;
+    virtual void BuildPresentationTree() override;
+    virtual void ApplyTheme() override;
+    virtual void ApplyEditorPreview(float Time) override;
+    virtual void ResetEditorPreview() override;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Tutorial") FText PreviewTitle;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Tutorial", meta=(MultiLine=true)) FText PreviewDialogue;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Tutorial", meta=(MultiLine=true)) FText PreviewInstruction;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Tutorial") int32 PreviewCurrent=0;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Tutorial") int32 PreviewRequired=1;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Tutorial") bool bPreviewShortFlow=false;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Tutorial") bool bPreviewReady=false;
 protected:
     virtual void NativeOnInitialized() override;
     virtual void NativeConstruct() override;
@@ -36,6 +47,10 @@ private:
     UFUNCTION() void ReadyClicked();
     UFUNCTION() void MenuClicked();
     void UpdatePortrait();
+    FText Copy(FName Key,const FText& Fallback) const;
+    FText DirectorCopy(const FText& Text) const;
+    FString DisplayCulture() const;
+    void BindPresentationTree();
     UPROPERTY() TObjectPtr<UCanvasPanelSlot> CardSlot;
     UPROPERTY() TObjectPtr<USizeBox> CardSize;
     UPROPERTY() TObjectPtr<UBorder> Card;
@@ -51,7 +66,14 @@ private:
     UPROPERTY() TObjectPtr<UButton> ReadyButton;
     UPROPERTY() TObjectPtr<UTextBlock> ReadyLabel;
     UPROPERTY() TObjectPtr<UButton> MenuButton;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> MenuLabel;
+    UPROPERTY(Transient) TObjectPtr<UBorder> PortraitBorder;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> PortraitStar;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> PortraitName;
     TWeakObjectPtr<UTexture2D> DisplayedPortrait;
     float RefreshElapsed=0;
     float DesiredCardHeight=230;
+    bool bEditorFixture=false;
+    bool bFixtureComplete=false;
+    bool bFixtureShort=false;
 };

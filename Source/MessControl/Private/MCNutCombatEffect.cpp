@@ -129,7 +129,8 @@ void ImpactTriangle(MCNutCombatVisuals::FMesh& Mesh,FVector Center,FVector A,FVe
 AMCNutCombatEffect::AMCNutCombatEffect()
 {
     bReplicates=true;bAlwaysRelevant=true;SetReplicateMovement(false);SetNetUpdateFrequency(10);
-    PrimaryActorTick.bCanEverTick=true;PrimaryActorTick.TickInterval=1.f/30;
+    // Ribbons and debris follow continuous server time on every rendered frame.
+    PrimaryActorTick.bCanEverTick=true;PrimaryActorTick.TickInterval=0;
     auto* Root=CreateDefaultSubobject<USceneComponent>(TEXT("CueRoot"));SetRootComponent(Root);
     Warning=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("GroundTelegraph"));Warning->SetupAttachment(Root);
     DropWarnings=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("DropTelegraphs"));DropWarnings->SetupAttachment(Root);

@@ -1,0 +1,578 @@
+[
+  {
+    "Name": "P01",
+    "GameplayPerkID": "P01",
+    "Image": "/Game/Gameplay/UI/Art/T_UI_Card_P01_v10.T_UI_Card_P01_v10",
+    "DisplayName": "Лёгкая походка",
+    "Description": "Обычная скорость ходьбы и бега +8% за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P02",
+    "GameplayPerkID": "P02",
+    "Image": "/Game/Gameplay/UI/Art/T_UI_Card_P02_v10.T_UI_Card_P02_v10",
+    "DisplayName": "Вместительные лёгкие",
+    "Description": "Максимальная выносливость +15 за стак. Получение перка не восстанавливает потраченную выносливость.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P03",
+    "GameplayPerkID": "P03",
+    "Image": "/Game/Gameplay/UI/Art/T_UI_Card_P03_v10.T_UI_Card_P03_v10",
+    "DisplayName": "Шустрый рывок",
+    "Description": "Перезарядка обычного рывка −10% за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P04",
+    "GameplayPerkID": "P04",
+    "Image": "None",
+    "DisplayName": "Цепкие подошвы",
+    "Description": "На скользком полу торможение при обычном движении эффективнее на 25% за стак; заморозка ног действует.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P05",
+    "GameplayPerkID": "P05",
+    "Image": "None",
+    "DisplayName": "Второе дыхание",
+    "Description": "Скорость восстановления выносливости +15% за стак. Задержка до начала восстановления сохраняется.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P06",
+    "GameplayPerkID": "P06",
+    "Image": "None",
+    "DisplayName": "Надёжная опора",
+    "Description": "Снос волной жидкости слабее на 15% за стак. Не удерживает над водой.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P07",
+    "GameplayPerkID": "P07",
+    "Image": "None",
+    "DisplayName": "Острая заточка",
+    "Description": "Урон кирки по еде и врагам +12% за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P08",
+    "GameplayPerkID": "P08",
+    "Image": "None",
+    "DisplayName": "Длинная рукоять",
+    "Description": "Рабочая дальность попадания кирки +10% за стак. Поза и свободный замах сохраняются.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P09",
+    "GameplayPerkID": "P09",
+    "Image": "None",
+    "DisplayName": "Контрудар",
+    "Description": "Прицельная атака врага по владельцу промахнулась во время его рывка: следующий удар оружием в течение 2 секунд наносит +25% урона. Перезарядка 6 секунд.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P10",
+    "GameplayPerkID": "P10",
+    "Image": "None",
+    "DisplayName": "Щитолом",
+    "Description": "Урон по щиту орехового рыцаря +20% за стак; урон по его здоровью не меняется.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P11",
+    "GameplayPerkID": "P11",
+    "Image": "None",
+    "DisplayName": "Зубастая цепь",
+    "Description": "Урон работающей бензопилы +12% за стак; управление и условие остановки не меняются.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P12",
+    "GameplayPerkID": "P12",
+    "Image": "None",
+    "DisplayName": "Рикошетная струя",
+    "Description": "После попадания основного выстрела водного пистолета один дополнительный удар поражает ближайшего другого мелкого врага в 2 метрах на 30% исходного урона. Не чаще раза в 0,5 секунды; без попаданий сквозь стены и повторных рикошетов.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P13",
+    "GameplayPerkID": "P13",
+    "Image": "None",
+    "DisplayName": "Широкая щетина",
+    "Description": "Ширина рабочей полосы щётки +15% за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P14",
+    "GameplayPerkID": "P14",
+    "Image": "None",
+    "DisplayName": "Глубокая чистка",
+    "Description": "Количество грязи, убираемой одним рабочим движением щётки, +20% за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P15",
+    "GameplayPerkID": "P15",
+    "Image": "None",
+    "DisplayName": "Пенный след",
+    "Description": "При работе щёткой раз в 3 секунды появляется маленькое пятно пены на 3 секунды. Мелкие враги в нём замедляются на 20%; боссы не замедляются.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P16",
+    "GameplayPerkID": "P16",
+    "Image": "None",
+    "DisplayName": "Борец с пятнами",
+    "Description": "Очистка кофейного загрязнения вашего персонажа требует на 20% меньше времени за стак. Грязь арены остаётся.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P17",
+    "GameplayPerkID": "P17",
+    "Image": "None",
+    "DisplayName": "Сухая полоса",
+    "Description": "После фактической очистки участка пола обычная скорость владельца +10% на 3 секунды. Повторная уборка обновляет время, сила не складывается.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P18",
+    "GameplayPerkID": "P18",
+    "Image": "None",
+    "DisplayName": "Тёплая щётка",
+    "Description": "Созданные вами щёткой тёплые участки существуют на 1 секунду дольше за стак. Лимит продления — 6 секунд.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P19",
+    "GameplayPerkID": "P19",
+    "Image": "None",
+    "DisplayName": "Крепкий хват",
+    "Description": "Штраф к обычной скорости от массы переносимой еды уменьшается на 20% за стак. Саму массу и коллизии не меняет.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P20",
+    "GameplayPerkID": "P20",
+    "Image": "None",
+    "DisplayName": "Большая порция",
+    "Description": "Лимит пищевых фрагментов в переносимой стопке +1 за стак; общий лимит не выше 10.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P21",
+    "GameplayPerkID": "P21",
+    "Image": "None",
+    "DisplayName": "Уверенный бросок",
+    "Description": "Импульс ручного броска переносимой еды +15% за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P22",
+    "GameplayPerkID": "P22",
+    "Image": "None",
+    "DisplayName": "Свежая доставка",
+    "Description": "Пока игрок держит еду, её порча идёт на 25% медленнее за стак. После выпуска еды её оставшийся срок сохраняется, таймер не сбрасывается.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P23",
+    "GameplayPerkID": "P23",
+    "Image": "None",
+    "DisplayName": "Аккуратный раздел",
+    "Description": "Куски еды после разрушения целого предмета разлетаются на 25% слабее за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P24",
+    "GameplayPerkID": "P24",
+    "Image": "None",
+    "DisplayName": "Порционная награда",
+    "Description": "За еду, доставленную владельцем, в командную шкалу опыта зачисляется на 10% больше за стак. Не повышает опыт за орехи или завершение события.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P25",
+    "GameplayPerkID": "P25",
+    "Image": "None",
+    "DisplayName": "Толстая эмаль",
+    "Description": "Максимальное здоровье владельца +15 за стак. Увеличение максимума само по себе не лечит.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P26",
+    "GameplayPerkID": "P26",
+    "Image": "None",
+    "DisplayName": "Каска по размеру",
+    "Description": "Урон от прямого попадания падающего ореха −15% за стак. Наземные взрывы и катящийся рыцарь действуют обычно.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P27",
+    "GameplayPerkID": "P27",
+    "Image": "None",
+    "DisplayName": "Термослой",
+    "Description": "Шкала холода заполняется на 10% медленнее за стак. Уже накопленный холод не исчезает.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P28",
+    "GameplayPerkID": "P28",
+    "Image": "None",
+    "DisplayName": "Хрупкий лёд",
+    "Description": "Лёд на ногах владельца имеет на 15% меньше здоровья за стак, поэтому его легче разбить.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P29",
+    "GameplayPerkID": "P29",
+    "Image": "None",
+    "DisplayName": "Прочный кожух",
+    "Description": "Урон владельцу при столкновении работающей бензопилы со стеной −5 за стак, но не ниже 10. Остановка и сбивание персонажа сохраняются.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P30",
+    "GameplayPerkID": "P30",
+    "Image": "/Game/Gameplay/UI/Art/T_UI_Card_P30_v10.T_UI_Card_P30_v10",
+    "DisplayName": "Чистое дыхание",
+    "Description": "Фактическая работа щёткой по грязи восстанавливает владельцу 3 здоровья, не чаще раза в 15 секунд. Работа на уже чистой поверхности не срабатывает.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P31",
+    "GameplayPerkID": "P31",
+    "Image": "None",
+    "DisplayName": "Наплечник защитника",
+    "Description": "Личный урон при правильно выполненном прижатии к зубу −15% за стак. Защита цели на расстоянии не появляется.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P32",
+    "GameplayPerkID": "P32",
+    "Image": "None",
+    "DisplayName": "Быстрый спасатель",
+    "Description": "Скорость освобождения союзника из мимика +20% за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P33",
+    "GameplayPerkID": "P33",
+    "Image": "None",
+    "DisplayName": "Светонос",
+    "Description": "В темноте вокруг владельца есть слабый личный свет радиусом 2,5 метра. Не раскрывает предметы сквозь препятствия.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P34",
+    "GameplayPerkID": "P34",
+    "Image": "None",
+    "DisplayName": "Чуткая эмаль",
+    "Description": "Раз в 6 секунд на 1 секунду показывает владельцу направление к активному зубу, который нужно защитить. Не подсвечивает весь путь.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P35",
+    "GameplayPerkID": "P35",
+    "Image": "None",
+    "DisplayName": "Согласованный удар",
+    "Description": "Попадание по врагу, которого другой игрок ударил не более 2 секунд назад, наносит +15% урона. Не чаще раза в 3 секунды; усиливается только удар владельца.",
+    "Localizations": {}
+  },
+  {
+    "Name": "P36",
+    "GameplayPerkID": "P36",
+    "Image": "None",
+    "DisplayName": "Плечом к плечу",
+    "Description": "Владелец встаёт после сбивания на 20% быстрее, если живой союзник находится не дальше 2 метров.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N01",
+    "GameplayPerkID": "N01",
+    "Image": "/Game/Gameplay/UI/Art/T_UI_Card_N01_v10.T_UI_Card_N01_v10",
+    "DisplayName": "Тяжёлые подошвы",
+    "Description": "Обычная скорость ходьбы и бега −8% за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N02",
+    "GameplayPerkID": "N02",
+    "Image": "None",
+    "DisplayName": "Короткий прыжок",
+    "Description": "Высота обычного прыжка −15% за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N03",
+    "GameplayPerkID": "N03",
+    "Image": "None",
+    "DisplayName": "Задумчивый рывок",
+    "Description": "Перезарядка обычного рывка +15% за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N04",
+    "GameplayPerkID": "N04",
+    "Image": "None",
+    "DisplayName": "Раскачка",
+    "Description": "На скользком полу торможение при обычном движении на 20% слабее за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N05",
+    "GameplayPerkID": "N05",
+    "Image": "None",
+    "DisplayName": "Тупая кирка",
+    "Description": "Урон кирки по еде и врагам −12% за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N06",
+    "GameplayPerkID": "N06",
+    "Image": "None",
+    "DisplayName": "Короткая рукоять",
+    "Description": "Рабочая дальность попадания кирки −10%. Свободная анимация замаха сохраняется.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N07",
+    "GameplayPerkID": "N07",
+    "Image": "None",
+    "DisplayName": "Тугая цепь",
+    "Description": "Урон бензопилы −12% за стак; её движение и остановка работают по обычным правилам.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N08",
+    "GameplayPerkID": "N08",
+    "Image": "None",
+    "DisplayName": "Капризная струя",
+    "Description": "Частота выстрелов водного пистолета −15% за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N09",
+    "GameplayPerkID": "N09",
+    "Image": "None",
+    "DisplayName": "Узкая щетина",
+    "Description": "Ширина рабочей полосы щётки −15% за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N10",
+    "GameplayPerkID": "N10",
+    "Image": "None",
+    "DisplayName": "Поверхностная чистка",
+    "Description": "Количество грязи, убираемой рабочим движением щётки, −15% за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N11",
+    "GameplayPerkID": "N11",
+    "Image": "None",
+    "DisplayName": "Остывшая паста",
+    "Description": "Тёплые участки, созданные владельцем щёткой, существуют на 0,5 секунды меньше за стак, но не меньше 1 секунды.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N12",
+    "GameplayPerkID": "N12",
+    "Image": "None",
+    "DisplayName": "Липкие пятна",
+    "Description": "Очистка кофейного загрязнения вашего персонажа требует на 20% больше времени за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N13",
+    "GameplayPerkID": "N13",
+    "Image": "None",
+    "DisplayName": "Слабый хват",
+    "Description": "Штраф к обычной скорости от массы переносимой еды увеличивается на 20% за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N14",
+    "GameplayPerkID": "N14",
+    "Image": "None",
+    "DisplayName": "Маленькая порция",
+    "Description": "Лимит фрагментов в переносимой стопке −1, но всегда можно нести хотя бы один.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N15",
+    "GameplayPerkID": "N15",
+    "Image": "None",
+    "DisplayName": "Неловкий бросок",
+    "Description": "Импульс ручного броска еды −15% за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N16",
+    "GameplayPerkID": "N16",
+    "Image": "None",
+    "DisplayName": "Крошки повсюду",
+    "Description": "Фрагменты после разрушения владельцем целой еды разлетаются на 35% сильнее за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N17",
+    "GameplayPerkID": "N17",
+    "Image": "None",
+    "DisplayName": "Тонкая эмаль",
+    "Description": "Максимальное здоровье владельца −12 за стак. Общий максимум не опускается ниже 50% базового.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N18",
+    "GameplayPerkID": "N18",
+    "Image": "None",
+    "DisplayName": "Без каски",
+    "Description": "Урон от прямого попадания падающего ореха +20% за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N19",
+    "GameplayPerkID": "N19",
+    "Image": "None",
+    "DisplayName": "Остывший зуб",
+    "Description": "Шкала холода заполняется на 15% быстрее за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N20",
+    "GameplayPerkID": "N20",
+    "Image": "None",
+    "DisplayName": "Толстый лёд",
+    "Description": "Лёд на ногах владельца имеет на 20% больше здоровья за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N21",
+    "GameplayPerkID": "N21",
+    "Image": "None",
+    "DisplayName": "Неудобная стойка",
+    "Description": "Личный урон при прижатии к защищаемому зубу +20% за стак. Если прижатие выполнено, сам зуб по-прежнему защищён.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N22",
+    "GameplayPerkID": "N22",
+    "Image": "None",
+    "DisplayName": "Тяжёлый подъём",
+    "Description": "Восстановление владельца после сбивания занимает на 20% больше времени за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N23",
+    "GameplayPerkID": "N23",
+    "Image": "None",
+    "DisplayName": "Медленный спасатель",
+    "Description": "Скорость освобождения союзника из мимика −20% за стак.",
+    "Localizations": {}
+  },
+  {
+    "Name": "N24",
+    "GameplayPerkID": "N24",
+    "Image": "None",
+    "DisplayName": "Сахарная ломота",
+    "Description": "После доставки порции еды обычная скорость владельца −10% на 3 секунды. Повторная доставка обновляет длительность, сила не складывается.",
+    "Localizations": {}
+  },
+  {
+    "Name": "X01",
+    "GameplayPerkID": "X01",
+    "Image": "/Game/Gameplay/UI/Art/T_UI_Card_X01_v10.T_UI_Card_X01_v10",
+    "DisplayName": "Стеклянная эмаль",
+    "Description": "Урон оружия +30%, максимальное здоровье −25%. Увеличение урона не усиливает уборку.",
+    "Localizations": {}
+  },
+  {
+    "Name": "X02",
+    "GameplayPerkID": "X02",
+    "Image": "/Game/Gameplay/UI/Art/T_UI_Card_X02_v10.T_UI_Card_X02_v10",
+    "DisplayName": "Тяжёлая рука",
+    "Description": "Урон кирки +35%, частота её ударов −20%.",
+    "Localizations": {}
+  },
+  {
+    "Name": "X03",
+    "GameplayPerkID": "X03",
+    "Image": "None",
+    "DisplayName": "Моторная лихорадка",
+    "Description": "Урон бензопилы +30%; её столкновение со стеной наносит владельцу на 15 урона больше. Остановка только от стены сохраняется.",
+    "Localizations": {}
+  },
+  {
+    "Name": "X04",
+    "GameplayPerkID": "X04",
+    "Image": "/Game/Gameplay/UI/Art/T_UI_Card_X04_v10.T_UI_Card_X04_v10",
+    "DisplayName": "Щётка-снегоочиститель",
+    "Description": "Ширина рабочей полосы щётки +40%, эффективность удаления грязи −20%.",
+    "Localizations": {}
+  },
+  {
+    "Name": "X05",
+    "GameplayPerkID": "X05",
+    "Image": "None",
+    "DisplayName": "Сахарный курьер",
+    "Description": "При переноске еды обычная скорость +20%, получаемый владельцем урон +20%.",
+    "Localizations": {}
+  },
+  {
+    "Name": "X06",
+    "GameplayPerkID": "X06",
+    "Image": "None",
+    "DisplayName": "Ледяной прикус",
+    "Description": "При заполнении шкалы холода не менее чем наполовину урон оружия +30%. Холод всегда накапливается на 20% быстрее.",
+    "Localizations": {}
+  },
+  {
+    "Name": "X07",
+    "GameplayPerkID": "X07",
+    "Image": "None",
+    "DisplayName": "Горячая паста",
+    "Description": "Радиус тёплых участков от щётки +35%, длительность −40%, но не меньше 1 секунды.",
+    "Localizations": {}
+  },
+  {
+    "Name": "X08",
+    "GameplayPerkID": "X08",
+    "Image": "None",
+    "DisplayName": "Ночная охота",
+    "Description": "В ночном ивенте урон оружия +30%, обычная скорость ходьбы и бега −15%. Вне этого ивента обе части выключены.",
+    "Localizations": {}
+  },
+  {
+    "Name": "X09",
+    "GameplayPerkID": "X09",
+    "Image": "None",
+    "DisplayName": "Коллективный импульс",
+    "Description": "Урон +25%, если союзник попадал по той же цели в последние 2 секунды; иначе урон −15%.",
+    "Localizations": {}
+  },
+  {
+    "Name": "X10",
+    "GameplayPerkID": "X10",
+    "Image": "None",
+    "DisplayName": "Неутомимый щит",
+    "Description": "Личный урон при правильном прижатии к зубу −35%, обычная скорость ходьбы и бега −15%.",
+    "Localizations": {}
+  },
+  {
+    "Name": "X11",
+    "GameplayPerkID": "X11",
+    "Image": "None",
+    "DisplayName": "Рекордная порция",
+    "Description": "Лимит переносимых фрагментов +2; еда в руках владельца портится на 40% быстрее.",
+    "Localizations": {}
+  },
+  {
+    "Name": "X12",
+    "GameplayPerkID": "X12",
+    "Image": "None",
+    "DisplayName": "Бешеная струя",
+    "Description": "Частота выстрелов водного пистолета +35%; при его активной стрельбе обычная скорость владельца −35%.",
+    "Localizations": {}
+  }
+]

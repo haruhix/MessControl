@@ -1,0 +1,48 @@
+
+skeleton.png
+size: 130,250
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+snow_1
+  rotate: false
+  xy: 2, 155
+  size: 93, 93
+  orig: 93, 93
+  offset: 0, 0
+  index: -1
+snowball
+  rotate: false
+  xy: 74, 51
+  size: 50, 50
+  orig: 50, 50
+  offset: 0, 0
+  index: -1
+snowflake_small_white
+  rotate: false
+  xy: 74, 2
+  size: 51, 47
+  orig: 51, 47
+  offset: 0, 0
+  index: -1
+sparkle_1
+  rotate: false
+  xy: 74, 103
+  size: 54, 50
+  orig: 54, 50
+  offset: 0, 0
+  index: -1
+sparkle_2
+  rotate: false
+  xy: 2, 87
+  size: 70, 66
+  orig: 70, 66
+  offset: 0, 0
+  index: -1
+sparkle_3
+  rotate: false
+  xy: 2, 19
+  size: 70, 66
+  orig: 70, 66
+  offset: 0, 0
+  index: -1

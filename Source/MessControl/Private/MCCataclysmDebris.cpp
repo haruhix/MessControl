@@ -220,7 +220,8 @@ bool AMCCataclysmDebris::SweepContact(FVector Start, FVector& End, double Now)
             const float BoxVerticalExtent = FMath::Abs(Rotation.GetAxisX().Z) * HalfExtent.X
                 + FMath::Abs(Rotation.GetAxisY().Z) * HalfExtent.Y + FMath::Abs(Rotation.GetAxisZ().Z) * HalfExtent.Z;
             const UPrimitiveComponent* Base = Cast<UPrimitiveComponent>(Hero->GetMovementBaseObject());
-            const AMCCataclysmRaft* RidingRaft = Base ? Cast<AMCCataclysmRaft>(Base->GetOwner()) : nullptr;
+            const AMCCataclysmRaft* RidingRaft = Hero->IsSeatedOnRaft() ? Hero->SeatedRaft.Get()
+                : Base ? Cast<AMCCataclysmRaft>(Base->GetOwner()) : nullptr;
             const bool ActualRider = RidingRaft && RidingRaft->IsRider(Hero);
             const float WaterHeight = Flood->SurfaceHeightAt(Foot);
             FVector WaterProbe = Foot;
@@ -231,12 +232,15 @@ bool AMCCataclysmDebris::SweepContact(FVector Start, FVector& End, double Now)
                 || (!ActualRider && Foot.Z > WaterHeight + 1.f) || !Flood->Contains(WaterProbe)
                 || !ClearContact(Hit, Start) || !ClaimPlayerContact(Hero, Now)) continue;
             const AMCCataclysmRaft* Rail = Hero->Grip ? Cast<AMCCataclysmRaft>(Hero->Grip->BraceTarget()) : nullptr;
-            if (Rail && Rail->IsHoldingRail(Hero)) ++BracedContactCount;
+            if (!ActualRider && Rail && Rail->IsHoldingRail(Hero)) ++BracedContactCount;
             else
             {
                 // Existing authoritative ragdoll/feedback path, with zero HP damage.
                 FVector Direction = DriftVelocity.GetSafeNormal2D();
                 if (Direction.IsNearlyZero()) Direction = Flood->StormStreamDirection().GetSafeNormal2D();
+                // Release authoritative slot/input before entering the normal
+                // ragdoll path. ApplyHit supplies the one physical impulse.
+                if (Hero->IsSeatedOnRaft()) Hero->SeatedRaft->ReleaseSeat(Hero);
                 Hero->ToothPhysics->ApplyHit(Direction * 380.f + FVector(0, 0, 110.f), Hit.ImpactPoint);
                 ++PlayerImpactCount;
             }

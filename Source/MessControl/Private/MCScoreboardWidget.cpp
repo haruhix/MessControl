@@ -3,6 +3,7 @@
 #include "MCPlayerState.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
+#include "MCUIDataLibrary.h"
 #include "Blueprint/WidgetTree.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Components/Border.h"
@@ -11,22 +12,17 @@
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/ScrollBox.h"
+#include "Components/ScaleBox.h"
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
 #include "GameFramework/GameStateBase.h"
-#include "Styling/CoreStyle.h"
+
+#define LOCTEXT_NAMESPACE "MCScoreboard"
 
 namespace MCScoreboardPrivate
 {
-    UTextBlock* Label(UWidgetTree* Tree,const FString& Text,int32 Size)
-    {
-        auto* Result=Tree->ConstructWidget<UTextBlock>();
-        Result->SetText(FText::FromString(Text)); Result->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),Size));
-        Result->SetColorAndOpacity(FSlateColor(FLinearColor(.98f,.97f,.93f)));
-        return Result;
-    }
     USizeBox* Width(UWidgetTree* Tree,UWidget* Child,float Value)
     {
         auto* Result=Tree->ConstructWidget<USizeBox>();Result->SetWidthOverride(Value);Result->SetContent(Child);return Result;
@@ -34,55 +30,79 @@ namespace MCScoreboardPrivate
 }
 void UMCScoreboardWidget::NativeOnInitialized()
 {
-    Super::NativeOnInitialized(); SetVisibility(ESlateVisibility::HitTestInvisible);
-    if(WidgetTree->RootWidget) return;
+    Super::NativeOnInitialized();SetVisibility(ESlateVisibility::HitTestInvisible);BuildPresentationTree();
+}
+void UMCScoreboardWidget::BuildPresentationTree()
+{
+    if(!WidgetTree || Players) return;
+    if(WidgetTree->RootWidget) {Players=Cast<UVerticalBox>(WidgetTree->FindWidget(TEXT("ScorePlayers")));RebuildRows(4);return;}
     auto* Root=WidgetTree->ConstructWidget<UCanvasPanel>(); WidgetTree->RootWidget=Root;
-    auto* Background=WidgetTree->ConstructWidget<UBorder>();
-    Background->SetBrush(FSlateRoundedBoxBrush(FLinearColor::White,18));
-    Background->SetBrushColor(FLinearColor(.012f,.020f,.033f,.96f));Background->SetPadding(FMargin(24));
-    auto* Panel=Root->AddChildToCanvas(Background);Panel->SetAnchors(FAnchors(.5f,.5f));Panel->SetAlignment(FVector2D(.5f,.5f));Panel->SetSize(FVector2D(660,420));
+    auto* Background=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("ScoreFrame"));
+    Background->SetPadding(FMargin(18));
+    BindStyle(TEXT("ScoreFrame"),EMCUIColorToken::Marine,EMCUIStyleTarget::Background);
+    auto* Scale=WidgetTree->ConstructWidget<UScaleBox>();Scale->SetStretch(EStretch::ScaleToFit);Scale->SetStretchDirection(EStretchDirection::DownOnly);
+    auto* DesignSize=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("ScoreDesignSize"));DesignSize->SetWidthOverride(1060);DesignSize->SetHeightOverride(552);DesignSize->SetContent(Background);Scale->SetContent(DesignSize);
+    auto* Panel=Root->AddChildToCanvas(Scale);Panel->SetAnchors(FAnchors(0,0,1,1));Panel->SetOffsets(FMargin(24));
     auto* Box=WidgetTree->ConstructWidget<UVerticalBox>();Background->SetContent(Box);
-    Box->AddChildToVerticalBox(MCScoreboardPrivate::Label(WidgetTree,TEXT("КОМАНДА"),25))->SetPadding(FMargin(0,0,0,16));
-    auto* Header=WidgetTree->ConstructWidget<UHorizontalBox>();
-    Box->AddChildToVerticalBox(Header)->SetPadding(FMargin(0,0,0,10));
-    Header->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,MCScoreboardPrivate::Label(WidgetTree,TEXT(""),14),46));
-    Header->AddChildToHorizontalBox(MCScoreboardPrivate::Label(WidgetTree,TEXT("ИГРОК"),14))->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
-    Header->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,MCScoreboardPrivate::Label(WidgetTree,TEXT("ОЧКИ"),14),90));
-    Header->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,MCScoreboardPrivate::Label(WidgetTree,TEXT("PING"),14),80));
-    auto* Scroll=WidgetTree->ConstructWidget<UScrollBox>();Box->AddChildToVerticalBox(Scroll)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
-    Players=WidgetTree->ConstructWidget<UVerticalBox>();Scroll->AddChild(Players);
-    auto* Footer=MCScoreboardPrivate::Label(WidgetTree,TEXT("Корона — хост комнаты   ·   Отпусти Tab, чтобы закрыть"),13);
-    Footer->SetColorAndOpacity(FSlateColor(FLinearColor(.56f,.66f,.72f)));Box->AddChildToVerticalBox(Footer)->SetPadding(FMargin(0,16,0,0));
+    auto Label=[&](FName Name,const FText& Copy,int32 Size,EMCUIColorToken Token){auto* Text=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);Text->SetText(Copy);Text->SetAutoWrapText(true);BindStyle(Name,Token,EMCUIStyleTarget::Text,Size,true);return Text;};
+    auto* Heading=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("ScoreHeading"));Heading->SetPadding(FMargin(18,10));BindStyle(TEXT("ScoreHeading"),EMCUIColorToken::Cream,EMCUIStyleTarget::Background);
+    auto* HeadingRow=WidgetTree->ConstructWidget<UHorizontalBox>();Heading->SetContent(HeadingRow);
+    auto* TitleIcon=WidgetTree->ConstructWidget<UMCHUDIcon>(UMCHUDIcon::StaticClass(),TEXT("ScoreHeadingTooth"));TitleIcon->bTooth=true;TitleIcon->bHappy=true;
+    auto* TitleIconSize=MCScoreboardPrivate::Width(WidgetTree,TitleIcon,44);TitleIconSize->SetHeightOverride(48);
+    HeadingRow->AddChildToHorizontalBox(TitleIconSize)->SetPadding(FMargin(0,0,14,0));
+    auto* TitleSlot=HeadingRow->AddChildToHorizontalBox(Label(TEXT("ScoreTitle"),Localized(TEXT("UI.Scoreboard.Title"),LOCTEXT("Title","КОМАНДА")),30,EMCUIColorToken::Ink));TitleSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));TitleSlot->SetVerticalAlignment(VAlign_Center);
+    auto* TabBadge=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("ScoreTabBadge"));TabBadge->SetPadding(FMargin(12,6));BindStyle(TEXT("ScoreTabBadge"),EMCUIColorToken::Mint,EMCUIStyleTarget::Background);TabBadge->SetContent(Label(TEXT("ScoreTabKey"),FText::AsCultureInvariant(TEXT("TAB")),20,EMCUIColorToken::Ink));HeadingRow->AddChildToHorizontalBox(TabBadge)->SetVerticalAlignment(VAlign_Center);
+    Box->AddChildToVerticalBox(Heading)->SetPadding(FMargin(0,0,0,8));
+    auto* HeaderFrame=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("ScoreColumnsFrame"));HeaderFrame->SetPadding(FMargin(12,10));BindStyle(TEXT("ScoreColumnsFrame"),EMCUIColorToken::SurfaceAlt,EMCUIStyleTarget::Background);
+    auto* Header=WidgetTree->ConstructWidget<UHorizontalBox>();HeaderFrame->SetContent(Header);
+    Box->AddChildToVerticalBox(HeaderFrame)->SetPadding(FMargin(0,0,0,2));
+    Header->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,WidgetTree->ConstructWidget<UTextBlock>(),60));
+    Header->AddChildToHorizontalBox(Label(TEXT("ScorePlayerHeader"),Localized(TEXT("UI.Scoreboard.Player"),LOCTEXT("Player","Игрок")),20,EMCUIColorToken::Ink))->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+    auto* PointsHeader=Label(TEXT("ScorePointsHeader"),Localized(TEXT("UI.Scoreboard.Points"),LOCTEXT("Points","Очки")),20,EMCUIColorToken::Ink);PointsHeader->SetJustification(ETextJustify::Center);
+    Header->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,PointsHeader,180));
+    auto* PingHeader=Label(TEXT("ScorePingHeader"),FText::AsCultureInvariant(TEXT("PING")),20,EMCUIColorToken::Ink);PingHeader->SetJustification(ETextJustify::Center);
+    Header->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,PingHeader,172));
+    auto* Scroll=WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(),TEXT("ScoreScroll"));Scroll->SetScrollBarVisibility(ESlateVisibility::Collapsed);Scroll->SetConsumeMouseWheel(EConsumeMouseWheel::Never);Box->AddChildToVerticalBox(Scroll)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+    Players=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("ScorePlayers"));Scroll->AddChild(Players);
+    auto* Footer=Label(TEXT("ScoreFooterText"),Localized(TEXT("UI.Scoreboard.Footer"),LOCTEXT("Footer","Корона — хост комнаты · Отпусти TAB, чтобы закрыть")),16,EMCUIColorToken::Ink);
+    auto* FooterFrame=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("ScoreFooterFrame"));FooterFrame->SetPadding(FMargin(16,10));FooterFrame->SetContent(Footer);BindStyle(TEXT("ScoreFooterFrame"),EMCUIColorToken::Cream,EMCUIStyleTarget::Background);
+    Box->AddChildToVerticalBox(FooterFrame)->SetPadding(FMargin(0,8,0,0));RebuildRows(4);ApplyTheme();
 }
 void UMCScoreboardWidget::NativeTick(const FGeometry& Geometry,float Dt)
 {
-    Super::NativeTick(Geometry,Dt); if(!IsVisible()) return; RefreshElapsed+=Dt;
+    Super::NativeTick(Geometry,Dt); if(IsDesignTime() || !IsVisible()) return; RefreshElapsed+=Dt;
     if(RefreshElapsed>=.25f) {RefreshElapsed=0;Refresh();}
 }
 void UMCScoreboardWidget::RebuildRows(int32 Count)
 {
     if(!Players) return;
-    Players->ClearChildren(); Rows.Reset();
-    for(int32 Index=0;Index<Count;++Index)
+    Count=FMath::Max(4,Count);
+    for(int32 Index=Rows.Num();Index<Count;++Index)
     {
-        auto* Background=WidgetTree->ConstructWidget<UBorder>();Background->SetPadding(FMargin(8));
-        Background->SetBrushColor(FLinearColor(.04f,.075f,.10f,.8f));
+        const FString Prefix=FString::Printf(TEXT("ScorePlayer%d"),Index+1);
+        if(auto* Existing=Cast<UBorder>(WidgetTree->FindWidget(FName(Prefix+TEXT("Row"))))) {
+            auto& Controls=Rows.AddDefaulted_GetRef();Controls.Background=Existing;
+            Controls.Name=Cast<UTextBlock>(WidgetTree->FindWidget(FName(Prefix+TEXT("Name"))));Controls.Points=Cast<UTextBlock>(WidgetTree->FindWidget(FName(Prefix+TEXT("Points"))));Controls.Ping=Cast<UTextBlock>(WidgetTree->FindWidget(FName(Prefix+TEXT("Ping"))));Controls.Icon=Cast<UMCHUDIcon>(WidgetTree->FindWidget(FName(Prefix+TEXT("Icon"))));continue;
+        }
+        auto* Background=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),FName(Prefix+TEXT("Row")));Background->SetPadding(FMargin(12,8));
         Players->AddChildToVerticalBox(Background)->SetPadding(FMargin(0,3));
         auto* Row=WidgetTree->ConstructWidget<UHorizontalBox>();Background->SetContent(Row);
-        FMCScoreboardRow& Controls=Rows.AddDefaulted_GetRef();
-        Controls.Icon=CreateWidget<UMCHUDIcon>(GetOwningPlayer(),UMCHUDIcon::StaticClass());Controls.Icon->bTooth=true;
-        auto* Portrait=MCScoreboardPrivate::Width(WidgetTree,Controls.Icon,38);Portrait->SetHeightOverride(42);
-        Row->AddChildToHorizontalBox(Portrait)->SetPadding(FMargin(0,0,10,0));
-        Controls.Name=MCScoreboardPrivate::Label(WidgetTree,TEXT(""),17);Controls.Name->SetTextOverflowPolicy(ETextOverflowPolicy::Ellipsis);
+        FMCScoreboardRow& Controls=Rows.AddDefaulted_GetRef();Controls.Background=Background;
+        Controls.Icon=WidgetTree->ConstructWidget<UMCHUDIcon>(UMCHUDIcon::StaticClass(),FName(Prefix+TEXT("Icon")));Controls.Icon->bTooth=true;
+        auto* Portrait=MCScoreboardPrivate::Width(WidgetTree,Controls.Icon,44);Portrait->SetHeightOverride(52);
+        Row->AddChildToHorizontalBox(Portrait)->SetPadding(FMargin(0,0,16,0));
+        auto Label=[&](const TCHAR* Suffix,int32 Size){auto* Text=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),FName(Prefix+Suffix));BindStyle(Text->GetFName(),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,Size,true);return Text;};
+        Controls.Name=Label(TEXT("Name"),22);Controls.Name->SetTextOverflowPolicy(ETextOverflowPolicy::Ellipsis);Controls.Name->SetClipping(EWidgetClipping::ClipToBounds);
         auto* NameSlot=Row->AddChildToHorizontalBox(Controls.Name);NameSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));NameSlot->SetVerticalAlignment(VAlign_Center);
-        Controls.Points=MCScoreboardPrivate::Label(WidgetTree,TEXT("0"),19);
-        Row->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,Controls.Points,90))->SetVerticalAlignment(VAlign_Center);
-        Controls.Ping=MCScoreboardPrivate::Label(WidgetTree,TEXT("—"),16);
-        Row->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,Controls.Ping,80))->SetVerticalAlignment(VAlign_Center);
+        Controls.Points=Label(TEXT("Points"),24);Controls.Points->SetJustification(ETextJustify::Center);
+        Row->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,Controls.Points,180))->SetVerticalAlignment(VAlign_Center);
+        Controls.Ping=Label(TEXT("Ping"),22);Controls.Ping->SetJustification(ETextJustify::Center);
+        Row->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,Controls.Ping,172))->SetVerticalAlignment(VAlign_Center);
     }
 }
 void UMCScoreboardWidget::Refresh()
 {
+    if(IsDesignTime()) return;BuildPresentationTree();
     PlayerEntries.Reset();
     const auto* GS=GetWorld()?GetWorld()->GetGameState():nullptr;
     if(GS)
@@ -106,14 +126,57 @@ void UMCScoreboardWidget::Refresh()
             Entry.bSpectating=!Hero || !Hero->Status || !Hero->Status->IsAlive();
         }
     }
-    if(Rows.Num()!=PlayerEntries.Num()) RebuildRows(PlayerEntries.Num());
+    RebuildRows(PlayerEntries.Num());ApplyTheme();OnScoreboardUpdated();
+}
+void UMCScoreboardWidget::PresentEntries()
+{
+    const auto& Palette=GetResolvedTheme()->Palette;const FString Culture=IsDesignTime()?PreviewCulture:FString();
     for(int32 Index=0;Index<Rows.Num();++Index)
     {
+        auto& Controls=Rows[Index];const bool Available=PlayerEntries.IsValidIndex(Index);
+        if(Controls.Background) Controls.Background->SetVisibility(Available?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+        if(!Available) continue;
         const FMCScoreboardEntry& Entry=PlayerEntries[Index];FMCScoreboardRow& Row=Rows[Index];
-        Row.Name->SetText(FText::FromString(Entry.Nickname+(Entry.bSpectating?TEXT(" · наблюдает"):TEXT(""))));
-        Row.Points->SetText(FText::AsNumber(Entry.Points));
-        Row.Ping->SetText(FText::FromString(Entry.bHost?TEXT("0 мс"):FString::Printf(TEXT("%d мс"),FMath::RoundToInt(Entry.PingMilliseconds))));
-        Row.Icon->Tint=Entry.PlayerColor;Row.Icon->bHost=Entry.bHost;Row.Icon->bDead=Entry.bSpectating;Row.Icon->InvalidateLayoutAndVolatility();
+        if(Row.Background) BindStyle(Row.Background->GetFName(),Entry.bHost?EMCUIColorToken::Mint:Index%2==0?EMCUIColorToken::Surface:EMCUIColorToken::SurfaceAlt,EMCUIStyleTarget::Background);
+        const FText Name=FText::AsCultureInvariant(Entry.Nickname);
+        if(Row.Name) {Row.Name->SetTextOverflowPolicy(ETextOverflowPolicy::Ellipsis);Row.Name->SetClipping(EWidgetClipping::ClipToBounds);Row.Name->SetText(Entry.bSpectating?UMCUIDataLibrary::FormatTextForCulture(Localized(TEXT("UI.Scoreboard.ObserverName"),LOCTEXT("ObserverName","{Name} · наблюдает")),FFormatNamedArguments{{TEXT("Name"),Name}},Culture):Name);Row.Name->SetColorAndOpacity(Entry.bSpectating?Palette.Muted:Palette.Ink);Row.Name->SetToolTipText(Row.Name->GetText());}
+        if(Row.Points) Row.Points->SetText(UMCUIDataLibrary::NumberForCulture(Entry.Points,Culture));
+        if(Row.Ping) Row.Ping->SetText(UMCUIDataLibrary::FormatTextForCulture(Localized(TEXT("UI.Scoreboard.PingValue"),LOCTEXT("PingValue","{Ping} мс")),FFormatNamedArguments{{TEXT("Ping"),UMCUIDataLibrary::NumberForCulture(Entry.bHost?0:FMath::RoundToInt(Entry.PingMilliseconds),Culture)}},Culture));
+        if(Row.Icon) {Row.Icon->Tint=Entry.PlayerColor;Row.Icon->InkTint=Palette.Ink;Row.Icon->EmptyTint=Palette.Muted;Row.Icon->HostTint=Palette.Focus;Row.Icon->bHost=Entry.bHost;Row.Icon->bDead=Entry.bSpectating;Row.Icon->InvalidateLayoutAndVolatility();}
     }
-    OnScoreboardUpdated();
 }
+void UMCScoreboardWidget::ApplyTheme()
+{
+    if(!WidgetTree) return;PresentEntries();
+    BindStyle(TEXT("ScoreFrame"),EMCUIColorToken::Marine,EMCUIStyleTarget::Background);
+    BindStyle(TEXT("ScoreColumnsFrame"),EMCUIColorToken::SurfaceAlt,EMCUIStyleTarget::Background);
+    BindStyle(TEXT("ScoreHeading"),EMCUIColorToken::Cream,EMCUIStyleTarget::Background);
+    BindStyle(TEXT("ScoreFooterFrame"),EMCUIColorToken::Cream,EMCUIStyleTarget::Background);
+    BindStyle(TEXT("ScoreTitle"),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,30,true);
+    for(const auto* HeaderName:{TEXT("ScorePlayerHeader"),TEXT("ScorePointsHeader"),TEXT("ScorePingHeader")}) BindStyle(HeaderName,WidgetTree->FindWidget(TEXT("ScoreColumnsFrame"))?EMCUIColorToken::Ink:EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,20,true);
+    for(auto& Row:Rows) {
+        if(Row.Name) BindStyle(Row.Name->GetFName(),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,22,true);
+        if(Row.Points) BindStyle(Row.Points->GetFName(),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,24,true);
+        if(Row.Ping) BindStyle(Row.Ping->GetFName(),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,22,true);
+    }
+    BindStyle(TEXT("ScoreFooterText"),WidgetTree->FindWidget(TEXT("ScoreFooterFrame"))?EMCUIColorToken::Ink:EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,16);
+    Super::ApplyTheme();
+    // Entry-specific semantic colors must survive the shared text bindings.
+    const auto& Palette=GetResolvedTheme()->Palette;
+    for(int32 Index=0;Index<Rows.Num();++Index) if(PlayerEntries.IsValidIndex(Index) && Rows[Index].Name) Rows[Index].Name->SetColorAndOpacity(PlayerEntries[Index].bSpectating?Palette.Muted:Palette.Ink);
+    if(auto* Icon=Cast<UMCHUDIcon>(WidgetTree->FindWidget(TEXT("ScoreHeadingTooth")))) {Icon->Tint=Palette.Accent;Icon->InkTint=Palette.Ink;Icon->InvalidateLayoutAndVolatility();}
+    auto Copy=[&](FName WidgetName,FName Key,const FText& Fallback){if(auto* Text=Cast<UTextBlock>(WidgetTree->FindWidget(WidgetName))) Text->SetText(Localized(Key,Fallback));};
+    Copy(TEXT("ScoreTitle"),TEXT("UI.Scoreboard.Title"),LOCTEXT("Title","КОМАНДА"));
+    Copy(TEXT("ScorePlayerHeader"),TEXT("UI.Scoreboard.Player"),LOCTEXT("Player","Игрок"));
+    Copy(TEXT("ScorePointsHeader"),TEXT("UI.Scoreboard.Points"),LOCTEXT("Points","Очки"));
+    Copy(TEXT("ScoreFooterText"),TEXT("UI.Scoreboard.Footer"),LOCTEXT("Footer","Корона — хост комнаты · Отпусти TAB, чтобы закрыть"));
+}
+void UMCScoreboardWidget::ApplyEditorPreview(float Time)
+{
+    PreviewTime=FMath::Max(0.f,Time);BuildPresentationTree();PlayerEntries.Reset();
+    if(PreviewScenario!=EMCGameplayUIPreviewScenario::Empty) for(int32 Index=0;Index<4;++Index) {
+        auto& Entry=PlayerEntries.AddDefaulted_GetRef();Entry.Nickname=PreviewScenario==EMCGameplayUIPreviewScenario::LongText?TEXT("Очень_длинное_имя_игрока_для_проверки_вёрстки"):FString::Printf(TEXT("P%d"),Index+1);Entry.Points=920-Index*180;Entry.PingMilliseconds=Index==0?47.f:28.f+Index*14.f;Entry.bHost=Index==0;Entry.bSpectating=Index==3;Entry.PlayerColor=Index==2?GetResolvedTheme()->Palette.BossHealth:GetResolvedTheme()->Palette.Accent;
+    }
+    RebuildRows(4);ApplyTheme();
+}
+#undef LOCTEXT_NAMESPACE

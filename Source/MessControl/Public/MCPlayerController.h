@@ -23,6 +23,7 @@ class AMCTutorialDirector;
 class UMCGameplayHUD;
 class UMCSoundPalette;
 class UMCSceneAudioComponent;
+class UMCGameplayMenuWidget;
 
 UCLASS()
 class MESSCONTROL_API AMCPlayerController : public APlayerController
@@ -112,6 +113,16 @@ private:
     UFUNCTION(Server, Reliable) void ServerGameplayLoaded();
     UFUNCTION(Server, Reliable) void ServerTutorialLoaded();
     UPROPERTY(Transient) TObjectPtr<UMCMainMenuWidget> FrontEndWidget;
+    UPROPERTY(Transient) TObjectPtr<UMCGameplayMenuWidget> PauseWidget;
+    UPROPERTY(Transient) TObjectPtr<UMCGameplayMenuWidget> ConnectionWidget;
+    bool bConnectionMenuOpen=false;
+    UMCGameplayMenuWidget* EnsureGameplayMenu(bool bConnection);
+    void CloseGameplayMenus();
+    UFUNCTION() void ResumeGameplayMenu();
+    UFUNCTION() void OpenMenuEmotes();
+    UFUNCTION() void CloseConnectionMenu();
+    UFUNCTION() void ExitFromGameplayMenu();
+    UFUNCTION() void JoinFromGameplayMenu(const FString& Address);
     UPROPERTY(Transient) TObjectPtr<UMCTutorialWidget> TutorialWidget;
     TWeakObjectPtr<AMCTutorialDirector> AcknowledgedTutorial;
     double NextFrontEndCheck=0;

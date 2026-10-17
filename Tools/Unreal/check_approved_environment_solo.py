@@ -506,27 +506,52 @@ class ApprovedEnvironmentSolo:
         except Exception:
             self.finish(traceback.format_exc())
 
+    def owned_pie_is_active(self, worlds=None):
+        """Destroyed UObject wrappers can raise even during list membership."""
+        try:
+            if self.world is None or not u.SystemLibrary.is_valid(self.world):
+                return False
+            owned_path = self.world.get_path_name()
+            candidates = list(u.EditorLevelLibrary.get_pie_worlds(True)) if worlds is None else worlds
+            for candidate in candidates:
+                if u.SystemLibrary.is_valid(candidate) and candidate.get_path_name() == owned_path:
+                    return True
+        except (TypeError,RuntimeError):
+            return False
+        return False
+
     def finish(self, error=None):
         if self.done:
             return
         self.done = True
         restore_errors = []
         if self.callback is not None:
-            u.unregister_slate_post_tick_callback(self.callback)
-            self.callback = None
-        if self.hero and self.world in u.EditorLevelLibrary.get_pie_worlds(True):
             try:
-                self.primary_input(False)
+                u.unregister_slate_post_tick_callback(self.callback)
+            except Exception:
+                restore_errors.append(traceback.format_exc())
+            self.callback = None
+        try:
+            worlds = list(u.EditorLevelLibrary.get_pie_worlds(True))
+        except Exception:
+            worlds = []
+            restore_errors.append(traceback.format_exc())
+        owned_active = self.owned_pie_is_active(worlds)
+        interrupted = self.world is not None and not owned_active
+        if interrupted:
+            self.report['interruption'] = dict(reason='Owned PIE was stopped or replaced externally',
+                replacement_pie_preserved=bool(worlds),last_phase=self.phase)
+            error = error or 'Owned PIE ended before the check completed'
+        if owned_active:
+            try:
+                if self.hero is not None and u.SystemLibrary.is_valid(self.hero):
+                    self.primary_input(False)
             except Exception:
                 restore_errors.append(traceback.format_exc())
         try:
-            worlds = list(u.EditorLevelLibrary.get_pie_worlds(True))
-            if self.requested_pie and self.levels.is_in_play_in_editor():
-                if self.world is None or self.world in worlds:
-                    self.levels.editor_request_end_play()
-                    self.report['owned_pie_end_requested'] = True
-                else:
-                    restore_errors.append('Owned world was replaced; replacement PIE was preserved')
+            if self.requested_pie and owned_active and self.levels.is_in_play_in_editor():
+                self.levels.editor_request_end_play()
+                self.report['owned_pie_end_requested'] = True
         except Exception:
             restore_errors.append(traceback.format_exc())
         actions = [
@@ -544,7 +569,7 @@ class ApprovedEnvironmentSolo:
         if restore_errors:
             self.report['restore_errors'] = restore_errors
             error = error or 'Setting restoration failed'
-        self.report.update(status='failed' if error else 'passed', passed=not bool(error), error=error,
+        self.report.update(status='interrupted' if interrupted else 'failed' if error else 'passed', passed=not bool(error), error=error,
                            restored_settings=not restore_errors, wall_seconds=time.monotonic()-self.started)
         self.write()
         u.log('MC_APPROVED_ENV_'+('FAIL ' if error else 'PASS ')+str(self.output/'Report.json'))

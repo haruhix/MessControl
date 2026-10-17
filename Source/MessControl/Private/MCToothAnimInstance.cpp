@@ -1,5 +1,7 @@
 ﻿#include "MCToothAnimInstance.h"
 #include "MCToothCharacter.h"
+#include "MCSecondaryAnimationSolver.h"
+#include "MCAnimationComparisonSubsystem.h"
 #include "MCWeaponImpact.h"
 #include "MCMeleeCombo.h"
 #include "MCInventoryComponent.h"
@@ -11,6 +13,7 @@
 #include "MCExpressionComponent.h"
 #include "MCRewardChest.h"
 #include "Animation/AnimInstanceProxy.h"
+#include "Animation/AnimNodeBase.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/SkeletalMesh.h"
@@ -40,6 +43,7 @@ class FMCToothAnimProxy final : public FAnimInstanceProxy
 {
 public:
     explicit FMCToothAnimProxy(UAnimInstance* Instance):FAnimInstanceProxy(Instance) {}
+    FMCSecondaryAnimationSolver SecondaryMotion;
     TArray<FTransform> Pose;
     FVector PlantedFeet[2]={FVector::ZeroVector,FVector::ZeroVector};
     bool FootPlanted[2]={false,false};
@@ -912,6 +916,11 @@ public:
         const auto* Mesh=Instance->GetSkelMeshComponent()->GetSkeletalMeshAsset();
         if (!Tooth || !Mesh) return;
         const auto& Ref=Mesh->GetRefSkeleton();
+        SecondaryMotion.PreUpdate(Instance,*this,Dt,{Tooth->RigBone(TEXT("body")),Tooth->RigBone(TEXT("gaze_head"))},
+            !Tooth->ToothPhysics || Tooth->ToothPhysics->CanAct());
+        if(auto* Comparison=Instance->GetWorld()->GetSubsystem<UMCAnimationComparisonSubsystem>())
+            Comparison->RecordSample(Instance->GetSkelMeshComponent(),Comparison->GetMode(),SecondaryMotion.GetActiveBoneCount(),
+                SecondaryMotion.GetEvaluationCount(),SecondaryMotion.GetLastMaxAngleDegrees(),SecondaryMotion.GetLastMaxTranslation());
         // Hold only the rendered contact pose for two or three frames. Input,
         // movement, target health and the authoritative swing timer keep running.
         if(Pose.Num()==Ref.GetNum() && Tooth->ToothPhysics->CanAct()
@@ -1152,6 +1161,7 @@ public:
             const FCompactPoseBoneIndex Compact=Bones.MakeCompactPoseIndex(FMeshPoseBoneIndex(I));
             if (Compact.IsValid()) Output.Pose[Compact]=Pose[I];
         }
+        SecondaryMotion.Evaluate(Output);
         return true;
     }
 };

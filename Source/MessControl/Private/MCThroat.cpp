@@ -14,19 +14,21 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
+#include "Engine/StaticMesh.h"
 #include "Components/TextRenderComponent.h"
 #include "ProceduralMeshComponent.h"
 #include "KismetProceduralMeshLibrary.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PlayerController.h"
 #include "EngineUtils.h"
 #include "Net/UnrealNetwork.h"
 #include "UObject/ConstructorHelpers.h"
 
 namespace {
 // Measured from the saved /Game/FromBlender4/SK_Exit native export. These are
-// the actual inner boundary, not the bounds of the whole back wall and uvula.
+// the actual inner boundary, not the bounds of the whole back wall.
 // Provenance and FBX coordinate conversion: Saved/ApertureProbe/ApertureExact.json.
 const FVector ExitApertureCenter(0,369.93134,-397.40539);
 const FVector ExitApertureNormal(0,.9851301,.1718100);
@@ -43,6 +45,89 @@ const FVector ExitApertureBoundary[]={
     {-509.47531,389.65305,-446.42477},{-462.85513,407.53983,-585.38525},
     {-351.69406,409.12411,-673.91443},{-163.29343,426.63367,-750.67853}
 };
+
+// The artist's existing Open morph contracts these front rings. Manual intake
+// fixes its expansion scalar rather than replacing or rescaling the mesh.
+// Measurements from the original saved native export are retained in
+// Tools/Unreal/manual_intake_aperture.json; no derived visual asset is needed.
+const FVector FrontApertureBasis[]={
+    {152.00694275,416.39166260,-727.80169678},
+    {0.00003723,425.84802246,-742.89849854},
+    {-152.00688171,416.39166260,-727.80169678},
+    {-341.01901245,393.97171021,-650.09130859},
+    {-449.76574707,377.77029419,-560.92285156},
+    {-496.06015015,351.92568970,-443.79141235},
+    {-473.40542603,332.47659302,-308.82653809},
+    {-444.55258179,312.75143433,-248.34115601},
+    {-357.68313599,276.94686890,-138.98298645},
+    {-238.20034790,264.52090454,-65.03102112},
+    {-126.99697113,257.39025879,-37.32032776},
+    {0.00002229,255.02284241,-30.13883972},
+    {126.99701691,257.39025879,-37.32032776},
+    {238.20040894,264.52084351,-65.03102112},
+    {357.68319702,276.94680786,-138.98298645},
+    {444.55264282,312.75137329,-248.34115601},
+    {473.40548706,332.47653198,-308.82653809},
+    {496.06021118,351.92562866,-443.79141235},
+    {449.76580811,377.77023315,-560.92285156},
+    {341.01907349,393.97164917,-650.09130859},
+};
+const FVector FrontApertureOpen[]={
+    {1.24247742,268.05297852,-425.72698975},
+    {-0.00150244,268.13021851,-425.85040283},
+    {-1.24241638,268.05297852,-425.72698975},
+    {-2.78738403,267.86968994,-425.09179688},
+    {-3.67620850,267.73730469,-424.36291504},
+    {-4.05462646,267.52606201,-423.40551758},
+    {-3.86959839,267.36709595,-422.30230713},
+    {-3.63385010,267.20584106,-421.80792236},
+    {-2.92355347,266.91314697,-420.91406250},
+    {-1.94699097,266.81158447,-420.30957031},
+    {-1.03795624,266.75329590,-420.08306885},
+    {-0.00150256,266.73394775,-420.02435303},
+    {1.03800201,266.75329590,-420.08306885},
+    {1.94705200,266.81158447,-420.30957031},
+    {2.92361450,266.91314697,-420.91406250},
+    {3.63391113,267.20584106,-421.80792236},
+    {3.86965942,267.36709595,-422.30230713},
+    {4.05465698,267.52606201,-423.40551758},
+    {3.67623901,267.73730469,-424.36291504},
+    {2.78741455,267.86968994,-425.09179688},
+};
+
+struct FIntakeApertureProfile {
+    FVector Center,Normal,Up;
+    FVector Boundary[UE_ARRAY_COUNT(ExitApertureBoundary)];
+    double HalfWidth=0,HalfHeight=0;
+    bool bFixedFront=false;
+};
+FIntakeApertureProfile IntakeProfile(const AMCThroat* Throat)
+{
+    FIntakeApertureProfile Profile;
+    static const FName ArtistExitName(TEXT("SK_Exit"));
+    Profile.bFixedFront=Throat->bManualIntake && Throat->AuthoredMouth
+        && Throat->AuthoredMouth->GetSkeletalMeshAsset()
+        && Throat->AuthoredMouth->GetSkeletalMeshAsset()->GetFName()==ArtistExitName;
+    if(Profile.bFixedFront) {
+        const float Expansion=FMath::Clamp(Throat->ManualAuthoredExpansion,.05f,1.f)*Throat->OpenAmount();
+        const float Morph=Throat->bReverseAuthoredOpen?1-Expansion:Expansion;
+        Profile.Center=FMath::Lerp(FVector(.00003081,339.24208692,-386.35745988),
+            FVector(.00001988,267.42235677,-422.93604172),Morph);
+        Profile.Normal=FVector(0,.9747185974,.2234360218);
+        Profile.Up=FVector(0,-.2234360218,.9747185974);
+        for(int32 I=0;I<UE_ARRAY_COUNT(Profile.Boundary);++I)
+            Profile.Boundary[I]=FMath::Lerp(FrontApertureBasis[I],FrontApertureOpen[I],Morph);
+    } else {
+        Profile.Center=ExitApertureCenter;Profile.Normal=ExitApertureNormal;Profile.Up=ExitApertureUp;
+        for(int32 I=0;I<UE_ARRAY_COUNT(Profile.Boundary);++I) Profile.Boundary[I]=ExitApertureBoundary[I];
+    }
+    for(const FVector& Vertex:Profile.Boundary) {
+        Profile.HalfWidth=FMath::Max(Profile.HalfWidth,FMath::Abs(Vertex.X-Profile.Center.X));
+        Profile.HalfHeight=FMath::Max(Profile.HalfHeight,FMath::Abs(FVector::DotProduct(Vertex-Profile.Center,Profile.Up)));
+    }
+    return Profile;
+}
+
 }
 
 bool FMCThroatSuctionState::IsActive(double ServerTime) const
@@ -108,6 +193,7 @@ AMCThroat::AMCThroat()
 void AMCThroat::OnConstruction(const FTransform& Transform)
 {
     Super::OnConstruction(Transform);
+    ManualAuthoredExpansion=FMath::Clamp(ManualAuthoredExpansion,.05f,1.f);
     GateSize.X=FMath::Max(100.f,GateSize.X); GateSize.Y=FMath::Max(100.f,GateSize.Y);
     ZoneRadius=FMath::Max(80.f,ZoneRadius); ZoneHeight=FMath::Max(40.f,ZoneHeight);
     DeliveryStripHalfExtent.X=FMath::Max(80.,DeliveryStripHalfExtent.X);DeliveryStripHalfExtent.Y=FMath::Max(80.,DeliveryStripHalfExtent.Y);
@@ -116,7 +202,7 @@ void AMCThroat::OnConstruction(const FTransform& Transform)
     VomitSeconds=FMath::Max(2.f,VomitSeconds);
     SuctionRadius=FMath::Max(1000.f,SuctionRadius);SuctionPullSpeed=FMath::Clamp(SuctionPullSpeed,0.f,150.f);
     Tissue->SetMaterial(0,TissueMaterial);
-    Uvula->SetMaterial(0,LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/MI_MouthPalate.MI_MouthPalate")));
+    if(!bUseAuthoredUvula) Uvula->SetMaterial(0,LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/MI_MouthPalate.MI_MouthPalate")));
     SculptedTissue->SetRelativeLocation(GateCenter);
     SculptedTissue->SetRelativeScale3D(FVector(1,GateSize.X/660,GateSize.Y/500));
     SculptedTissue->SetMaterial(0,TissueMaterial);
@@ -128,11 +214,11 @@ void AMCThroat::OnConstruction(const FTransform& Transform)
 void AMCThroat::BeginPlay()
 {
     Super::BeginPlay();
-    if (auto* Mesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Gameplay/Throat/SM_Uvula.SM_Uvula"))) Uvula->SetStaticMesh(Mesh);
+    if (!bUseAuthoredUvula) if (auto* Mesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Gameplay/Throat/SM_Uvula.SM_Uvula"))) Uvula->SetStaticMesh(Mesh);
     if (!TissueMaterial) TissueMaterial=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/MI_LivingThroat.MI_LivingThroat"));
     if (!RingMaterial) RingMaterial=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/MI_ThroatRing.MI_ThroatRing"));
     Tissue->SetMaterial(0,TissueMaterial);
-    Uvula->SetMaterial(0,LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/MI_MouthPalate.MI_MouthPalate")));
+    if(!bUseAuthoredUvula) Uvula->SetMaterial(0,LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/MI_MouthPalate.MI_MouthPalate")));
     if(!SculptedTissue->GetSkeletalMeshAsset()) SculptedTissue->SetSkeletalMesh(LoadObject<USkeletalMesh>(nullptr,TEXT("/Game/Gameplay/Throat/SK_Throat.SK_Throat")));
     SculptedTissue->SetRelativeLocation(GateCenter); SculptedTissue->SetRelativeScale3D(FVector(1,GateSize.X/660,GateSize.Y/500));
     SculptedTissue->SetMaterial(0,TissueMaterial); Tissue->SetVisibility(!SculptedTissue->GetSkeletalMeshAsset());
@@ -145,12 +231,13 @@ void AMCThroat::BeginPlay()
         Depth->SetupAttachment(AuthoredMouth);Depth->SetCollisionEnabled(ECollisionEnabled::NoCollision);
         Depth->SetCastShadow(false);AddInstanceComponent(Depth);Depth->RegisterComponent();
         TArray<FVector> V,N;TArray<FVector2D> UV;TArray<int32> Tri;TArray<FLinearColor> Colors;TArray<FProcMeshTangent> Tangents;
+        const FIntakeApertureProfile Profile=IntakeProfile(this);
         constexpr int32 Segments=UE_ARRAY_COUNT(ExitApertureBoundary),Rings=7;
         for(int32 Ring=0;Ring<Rings;++Ring) {
             const float T=float(Ring)/(Rings-1),Scale=FMath::Lerp(1.025f,0.f,T);
             for(int32 I=0;I<=Segments;++I) {
-                V.Add(ExitApertureCenter+(ExitApertureBoundary[I%Segments]-ExitApertureCenter)*Scale+ExitApertureNormal*(12+T*400));
-                N.Add(-ExitApertureNormal);UV.Add(FVector2D(float(I)/Segments,T));
+                V.Add(Profile.Center+(Profile.Boundary[I%Segments]-Profile.Center)*Scale+Profile.Normal*(12+T*400));
+                N.Add(-Profile.Normal);UV.Add(FVector2D(float(I)/Segments,T));
                 Colors.Add(FLinearColor::LerpUsingHSV(FLinearColor(.025f,.003f,.006f,1),FLinearColor(.001f,.0001f,.0002f,1),T));
                 Tangents.Add(FProcMeshTangent(1,0,0));
                 if(Ring>0 && I>0) {const int32 B=(Ring-1)*(Segments+1)+I-1,C=B+Segments+1;Tri.Append({B,C,B+1,B+1,C,C+1});}
@@ -176,6 +263,7 @@ bool AMCThroat::ContainsFood(const AMCFoodActor* Food) const
 {
     if (!IsValid(Food) || Food->bBrushTool || Food->IsDisposed() || Food->Phase==EMCFoodPhase::Stuck
         || Food->StackCarrier || Food->Phase==EMCFoodPhase::Equipped || Food->Phase==EMCFoodPhase::Swallowing || Food->Phase==EMCFoodPhase::Absorbing || !Food->Holders.IsEmpty()) return false;
+    if(bManualIntake) return Food->WasManuallyThrown() && IsInsideIntakeAperture(Food->GetActorLocation(),IntakeDepth);
     const FVector P=GetActorTransform().InverseTransformPosition(Food->GetActorLocation())-ZoneCenter;
     bool HasCap=false;const bool InCap=ContainsDeliveryCap(Food->GetActorLocation(),HasCap);
     if(HasCap)
@@ -188,12 +276,14 @@ bool AMCThroat::ContainsFood(const AMCFoodActor* Food) const
 }
 void AMCThroat::GetDeliveryZoneGeometry(FTransform& OutTransform,FVector& OutHalfExtent,bool& bOutCircular) const
 {
+    if(bManualIntake) {OutTransform=GetActorTransform();OutTransform.SetLocation(VacuumInlet());OutHalfExtent=FVector(45,GateSize.X*.65f,GateSize.Y*.5f);bOutCircular=false;return;}
     OutTransform=GetActorTransform();OutTransform.SetLocation(GetActorTransform().TransformPosition(ZoneCenter));
     OutHalfExtent=bUseDeliveryStrip?FVector(DeliveryStripHalfExtent.X,DeliveryStripHalfExtent.Y,ZoneHeight):FVector(ZoneRadius,ZoneRadius,ZoneHeight);
     bOutCircular=!bUseDeliveryStrip;
 }
 bool AMCThroat::ContainsDeliveryPosition(FVector Position) const
 {
+    if(bManualIntake) return IsInsideIntakeAperture(Position,IntakeDepth);
     if(Position.ContainsNaN()) return false;
     const FVector P=GetActorTransform().InverseTransformPosition(Position)-ZoneCenter;
     bool HasCap=false;const bool InCap=ContainsDeliveryCap(Position,HasCap);
@@ -208,6 +298,12 @@ bool AMCThroat::ContainsDeliveryPosition(FVector Position) const
 }
 bool AMCThroat::CanAcceptDelivery(const AMCFoodActor* Food) const
 {
+    if(bManualIntake) return HasAuthority() && IsValid(Food) && Food->GetWorld()==GetWorld()
+        && Food->WasManuallyThrown() && !Food->bBrushTool && !Food->IsDisposed() && !Food->IsMouthEntryActive()
+        && !Food->StackCarrier && !Food->EquippedBy && Food->Holders.IsEmpty()
+        && (Food->Phase==EMCFoodPhase::Free || Food->Phase==EMCFoodPhase::Falling)
+        && ThroatPhase!=EMCThroatPhase::Spasm && ThroatPhase!=EMCThroatPhase::Vomiting
+        && IsInsideIntakeAperture(Food->GetActorLocation(),IntakeDepth);
     if(!HasAuthority() || !IsValid(Food) || Food->GetWorld()!=GetWorld() || Food->bBrushTool || Food->IsDisposed()
         || (!Food->bFragment && !Food->Holders.IsEmpty())
         || (Food->Phase!=EMCFoodPhase::Free && Food->Phase!=EMCFoodPhase::Falling && !(Food->bFragment && Food->Phase==EMCFoodPhase::Carried))) return false;
@@ -218,6 +314,7 @@ bool AMCThroat::CanAcceptDelivery(const AMCFoodActor* Food) const
 bool AMCThroat::AcceptDelivery(AMCFoodActor* Food)
 {
     if(!CanAcceptDelivery(Food)) return false;
+    if(bManualIntake) return AcceptThrownDelivery(Food);
     if(Food->bFragment && !Food->IsWrongIngredient()) {
         auto* Carrier=Food->StackCarrier.Get();
         auto* Worker=Food->GetLastHandledBy()?Cast<AMCToothCharacter>(Food->GetLastHandledBy()->GetPawn()):nullptr;
@@ -270,6 +367,7 @@ bool AMCThroat::AcceptDelivery(AMCFoodActor* Food)
 }
 void AMCThroat::CollectCarriedDeliveries()
 {
+    if(bManualIntake) return;
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->CanWork() && ContainsPlayer(*It)) {
         const auto Pieces=It->FoodCollection->Pieces;
         for(const auto& Piece:Pieces) if(IsValid(Piece)) AcceptDelivery(Piece);
@@ -283,9 +381,146 @@ void AMCThroat::CollectLooseDeliveries()
     for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
         if((It->bFragment && ContainsDeliveryPosition(It->GetActorLocation())) || ContainsFood(*It)) AcceptDelivery(*It);
 }
+void AMCThroat::IntakeFrame(FVector& Center,FVector& Inward,FVector& Right,FVector& Up) const
+{
+    if(AuthoredMouth && AuthoredMouth->GetSkeletalMeshAsset()) {
+        const FTransform Art=AuthoredMouth->GetComponentTransform();
+        const auto Profile=IntakeProfile(this);
+        Center=Art.TransformPosition(Profile.Center);
+        Inward=Art.TransformVectorNoScale(Profile.Normal).GetSafeNormal();
+        Right=Art.TransformVectorNoScale(FVector::ForwardVector).GetSafeNormal();
+        Up=Art.TransformVectorNoScale(Profile.Up).GetSafeNormal();
+    } else {
+        Center=GetActorTransform().TransformPosition(GateCenter+FVector(0,0,230));
+        Inward=GetActorForwardVector();Right=GetActorRightVector();Up=GetActorUpVector();
+    }
+}
+bool AMCThroat::IsInsideIntakeAperture(FVector Point,float InwardDepth) const
+{
+    if(Point.ContainsNaN()) return false;
+    FVector Center,Inward,Right,Up;IntakeFrame(Center,Inward,Right,Up);
+    const double Depth=FVector::DotProduct(Point-Center,Inward)-InwardDepth;
+    if(Depth<0 || Depth>500) return false;
+    if(AuthoredMouth && AuthoredMouth->GetSkeletalMeshAsset()) {
+        // The authored lower aperture is buried under the tongue. Only its
+        // visible upper opening receives food or players, never a route under the floor.
+        if(GetWorld()) for(TActorIterator<AMCTongue> It(GetWorld());It;++It) {
+            FHitResult Floor;
+            if(It->SurfacePoint(GetActorTransform().TransformPosition(ZoneCenter),Floor)) {
+                if(Point.Z<Floor.ImpactPoint.Z-10.f) return false;
+                break;
+            }
+        }
+        // Use the measured artist opening rather than the former floor-wide cap.
+        // This remains valid when the complete mouth is scaled/rotated in the level.
+        const FTransform Art=AuthoredMouth->GetComponentTransform();
+        const auto Profile=IntakeProfile(this);
+        const FVector Local=Art.InverseTransformPosition(Point);
+        const FVector2D P(Local.X,FVector::DotProduct(Local-Profile.Center,Profile.Up));
+        const FVector& Last=Profile.Boundary[UE_ARRAY_COUNT(Profile.Boundary)-1];
+        FVector2D A(Last.X,FVector::DotProduct(Last-Profile.Center,Profile.Up));
+        bool Inside=false;
+        for(const FVector& Vertex:Profile.Boundary) {
+            const FVector2D B(Vertex.X,FVector::DotProduct(Vertex-Profile.Center,Profile.Up));
+            if((A.Y>P.Y)!=(B.Y>P.Y) && P.X<(B.X-A.X)*(P.Y-A.Y)/(B.Y-A.Y)+A.X) Inside=!Inside;
+            A=B;
+        }
+        return Inside;
+    }
+    const FVector Offset=Point-Center;
+    const FVector2D HalfSize(GateSize.X*.9f,GateSize.Y*.9f);
+    return FMath::Square(FVector::DotProduct(Offset,Right)/FMath::Max(1.,HalfSize.X))
+        +FMath::Square(FVector::DotProduct(Offset,Up)/FMath::Max(1.,HalfSize.Y))<=1;
+}
+bool AMCThroat::CrossesIntakeAperture(FVector From,FVector To) const
+{
+    FVector Center,Inward,Right,Up;IntakeFrame(Center,Inward,Right,Up);
+    const double Before=FVector::DotProduct(From-Center,Inward)-IntakeDepth;
+    const double After=FVector::DotProduct(To-Center,Inward)-IntakeDepth;
+    if(Before>=0 || After<0 || After-Before<=SMALL_NUMBER) return false;
+    // Intersect the swept center with the intake plane so fast throws cannot skip it.
+    const FVector Crossing=FMath::Lerp(From,To,-Before/(After-Before));
+    return IsInsideIntakeAperture(Crossing+Inward*.01f,IntakeDepth);
+}
+bool AMCThroat::GetIntakeAimTarget(FVector& Center,float& Radius) const
+{
+    Center=VacuumInlet();Radius=FMath::Max(60.f,FMath::Min(GateSize.X,GateSize.Y)*.32f)*FMath::Abs(GetActorScale3D().Z);
+    const auto Profile=IntakeProfile(this);
+    if(Profile.bFixedFront) Radius=Profile.HalfHeight*.72f*FMath::Abs(AuthoredMouth->GetComponentScale().Z);
+    return bManualIntake && OpenAmount()>=.65f && !Center.ContainsNaN();
+}
+float AMCThroat::IntakeAimStrength(FVector ViewOrigin,FVector ViewDirection) const
+{
+    FVector Center;float Radius;
+    if(!GetIntakeAimTarget(Center,Radius) || ViewOrigin.ContainsNaN() || ViewDirection.ContainsNaN()) return 0;
+    const FVector Offset=Center-ViewOrigin,Direction=ViewDirection.GetSafeNormal();
+    const float Distance=Offset.Size();
+    if(Distance<=SMALL_NUMBER || Direction.IsNearlyZero()) return 0;
+    const float Angle=FMath::Acos(FMath::Clamp(float(FVector::DotProduct(Direction,Offset/Distance)),-1.f,1.f));
+    const float HoleAngle=FMath::Asin(FMath::Clamp(Radius/Distance,0.f,1.f));
+    const float Margin=FMath::DegreesToRadians(FMath::Max(.1f,AimAssistMarginDegrees));
+    if(Angle>HoleAngle+Margin) return 0;
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCIntakeAim),false,this);
+    if(auto* PC=GetWorld()->GetFirstPlayerController();PC && PC->GetPawn()) {
+        Query.AddIgnoredActor(PC->GetPawn());
+        if(const auto* Hero=Cast<AMCToothCharacter>(PC->GetPawn())) {
+            if(Hero->FoodCollection) for(const auto& Piece:Hero->FoodCollection->Pieces) if(IsValid(Piece)) Query.AddIgnoredActor(Piece.Get());
+            if(IsValid(Hero->HeldFood)) Query.AddIgnoredActor(Hero->HeldFood.Get());
+        }
+    }
+    FHitResult Hit;
+    if(GetWorld()->LineTraceSingleByChannel(Hit,ViewOrigin,Center,ECC_Visibility,Query) && Hit.Distance<Distance-Radius*.5f) return 0;
+    return 1-FMath::SmoothStep(HoleAngle,HoleAngle+Margin,Angle);
+}
+bool AMCThroat::AcceptThrownDelivery(AMCFoodActor* Food)
+{
+    if(!HasAuthority() || !IsValid(Food) || Food->IsDisposed() || !Food->WasManuallyThrown()
+        || Food->StackCarrier || Food->EquippedBy || !Food->Holders.IsEmpty()
+        || (Food->Phase!=EMCFoodPhase::Free && Food->Phase!=EMCFoodPhase::Falling)) return false;
+    if(Food->IsWrongIngredient()) {
+        // A bad throw still provokes the existing gag/vomit consequence.
+        if(!Food->BeginSwallow()) return false;
+        Food->PauseFuse(this);Meal.Add({Food,Food->GetActorLocation(),Food->GetActorQuat()});
+        FoodInZone=Meal.Num();++SpasmCount;SetPhase(EMCThroatPhase::Spasm,ServerNow());
+        if(auto* Worker=Food->GetLastHandledBy()?Cast<AMCToothCharacter>(Food->GetLastHandledBy()->GetPawn()):nullptr) {
+            if(auto* Tutorial=AMCTutorialDirector::Find(GetWorld())) Tutorial->NotifyIncorrectSort(Worker,Food);
+            Worker->NotifyTaskFeedback(false,Food->GetActorLocation());
+        }
+    } else {
+        const FVector Point=Food->GetActorLocation();
+        auto* Worker=Food->GetLastHandledBy()?Cast<AMCToothCharacter>(Food->GetLastHandledBy()->GetPawn()):nullptr;
+        Food->AwardDelivery();Food->Dispose();++FoodSwallowed;++SwallowCount;++MealSequence;
+        // One marker for the player's completed sequence, rather than every stack layer.
+        if(Worker && !AMCTutorialDirector::IsSafeTutorial(GetWorld())
+            && (!Worker->FoodCollection || Worker->FoodCollection->Pieces.IsEmpty())) Worker->NotifyTaskFeedback(true,Point);
+        ForceNetUpdate();
+    }
+    return true;
+}
+void AMCThroat::CollectThrownDeliveries()
+{
+    if(ThroatPhase==EMCThroatPhase::Spasm || ThroatPhase==EMCThroatPhase::Vomiting) {PreviousThrownPositions.Reset();return;}
+    for(auto It=PreviousThrownPositions.CreateIterator();It;++It) {
+        const auto* Food=It.Key().Get();
+        if(!IsValid(Food) || Food->IsDisposed() || !Food->WasManuallyThrown() || Food->StackCarrier || Food->EquippedBy || !Food->Holders.IsEmpty()) It.RemoveCurrent();
+    }
+    for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) {
+        auto* Food=*It;
+        if(!Food->WasManuallyThrown() || Food->bBrushTool || Food->IsDisposed() || Food->IsMouthEntryActive()
+            || Food->StackCarrier || Food->EquippedBy || !Food->Holders.IsEmpty()
+            || (Food->Phase!=EMCFoodPhase::Free && Food->Phase!=EMCFoodPhase::Falling)) continue;
+        const FVector Position=Food->GetActorLocation();
+        const FVector* Previous=PreviousThrownPositions.Find(Food);
+        if((IsInsideIntakeAperture(Position,IntakeDepth) || Previous && CrossesIntakeAperture(*Previous,Position)) && AcceptThrownDelivery(Food)) {
+            PreviousThrownPositions.Remove(Food);
+            if(ThroatPhase==EMCThroatPhase::Spasm) break;
+        } else PreviousThrownPositions.Add(Food,Position);
+    }
+}
 void AMCThroat::ReactToWaterTickle(AMCToothCharacter* Source,FVector Impact)
 {
     if(!HasAuthority() || !IsValid(Source) || Source->GetWorld()!=GetWorld() || Impact.ContainsNaN()) return;
+    if(bUseAuthoredUvula && !Uvula->Bounds.GetBox().ExpandBy(15).IsInsideOrOn(Impact)) return;
     if(ServerNow()-TickleStartedAt<.6) return;
     TickleStartedAt=ServerNow();ForceNetUpdate();
 }
@@ -300,8 +535,9 @@ void AMCThroat::CheckOpenThroatPlayers()
         const float Depth=FVector::DotProduct(Offset,Forward);
         // Crossing the aperture plane is lethal; the green delivery strip in
         // front of it remains usable. Waves and suction can push a player across.
-        if(Depth>=-15 && Depth<500 && FMath::Abs(FVector::DotProduct(Offset,Side))<GateSize.X*.78f
-            && FMath::Abs(Offset.Z)<GateSize.Y*.8f) {
+        const bool Entered=bManualIntake?IsInsideIntakeAperture(It->GetActorLocation())
+            :Depth>=-15 && Depth<500 && FMath::Abs(FVector::DotProduct(Offset,Side))<GateSize.X*.78f && FMath::Abs(Offset.Z)<GateSize.Y*.8f;
+        if(Entered) {
             It->DropFood();
             It->Status->Damage(It->Status->State.MaxHealth*2,Forward,this);
         }
@@ -406,6 +642,7 @@ void AMCThroat::SetPhase(EMCThroatPhase Phase,double At)
 }
 float AMCThroat::OpenAmount() const
 {
+    if(bManualIntake && ThroatPhase!=EMCThroatPhase::Spasm) return 1.f;
     const float Age=FMath::Max(0.,ServerNow()-PhaseStartedAt);
     if (ThroatPhase==EMCThroatPhase::Swallowing) return FMath::SmoothStep(0.f,.35f,Age);
     if (ThroatPhase==EMCThroatPhase::Recovering) return 1-FMath::SmoothStep(0.f,RecoverySeconds*.75f,Age);
@@ -421,8 +658,10 @@ FVector AMCThroat::VacuumInlet() const
 {
     if(AuthoredMouth && AuthoredMouth->GetSkeletalMeshAsset()) {
         const FTransform Art=AuthoredMouth->GetComponentTransform();
-        const FVector Center=Art.TransformPosition(ExitApertureCenter);
-        const FVector Up=Art.TransformVectorNoScale(ExitApertureUp);
+        const auto Profile=IntakeProfile(this);
+        const FVector Center=Art.TransformPosition(Profile.Center);
+        if(Profile.bFixedFront) return Center;
+        const FVector Up=Art.TransformVectorNoScale(Profile.Up);
         const float Top=Art.TransformPosition(FVector(0,291.62140,-39.19496)).Z;
         float FloorZ=Center.Z;
         for(TActorIterator<AMCTongue> It(GetWorld());It;++It) {
@@ -527,7 +766,7 @@ void AMCThroat::ResetSwallow()
     if(ActiveVomit.IsValid()) ActiveVomit->Destroy(); ActiveVomit.Reset();
     SpitOut(true);
     for(const auto& Piece:PendingMeal) if(auto* Food=Piece.Food.Get();IsValid(Food) && !Food->IsDisposed()) {Food->CancelSwallow();Food->ResumeFuse(this);}
-    PendingMeal.Reset();PendingPileHeight=0;QueuedFoodCount=FoodInZone=0;NextIntakeAt=0;
+    PendingMeal.Reset();PendingPileHeight=0;QueuedFoodCount=FoodInZone=0;NextIntakeAt=0;PreviousThrownPositions.Reset();
     for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) It->ResumeFuse(this);
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->OrderJumpTarget==this) It->ClearOrderJump();
     PreparingPlayers.Reset();
@@ -538,6 +777,16 @@ void AMCThroat::Tick(float Dt)
 {
     // AMCFoodDisposal's legacy tick deletes immediately; this actor owns the full cycle.
     AActor::Tick(Dt);
+    if(bManualIntake) {
+        if(HasAuthority()) {
+            const double Now=ServerNow();
+            CheckOpenThroatPlayers();CollectThrownDeliveries();
+            if(ThroatPhase==EMCThroatPhase::Spasm && Now-PhaseStartedAt>=SpasmSeconds) BeginVomit();
+            if(ThroatPhase==EMCThroatPhase::Vomiting && Now-PhaseStartedAt>=FMath::Max(2.f,VomitSeconds)) SetPhase(EMCThroatPhase::Recovering,Now);
+            if(ThroatPhase==EMCThroatPhase::Recovering && Now-PhaseStartedAt>=RecoverySeconds) SetPhase(EMCThroatPhase::Collecting,Now);
+        }
+        UpdatePresentation(Dt);return;
+    }
     if (HasAuthority())
     {
         const double Now=ServerNow();
@@ -618,10 +867,11 @@ void AMCThroat::UpdatePresentation(float Dt)
     const float Time=ServerNow(),Open=OpenAmount();
     bool Yawning=false;
     for(TActorIterator<AMCTongue> It(GetWorld());It;++It) Yawning|=It->IsYawnActive();
-    ZoneRing->SetVisibility(!Yawning);
+    ZoneRing->SetVisibility(!bManualIntake && !Yawning);
+    if(bManualIntake) Label->SetVisibility(false);
     if(AuthoredMouth->GetSkeletalMeshAsset()) {
         const float Breath=.015f+.012f*FMath::Sin(Time*1.35f);
-        const float Aperture=FMath::Clamp(Open+Breath,0.f,1.f);
+        const float Aperture=bManualIntake?FMath::Clamp(ManualAuthoredExpansion,.05f,1.f)*Open:FMath::Clamp(Open+Breath,0.f,1.f);
         AuthoredMouth->SetMorphTarget(TEXT("Open"),bReverseAuthoredOpen?1-Aperture:Aperture);
         const float Age=FMath::Max(0.f,float(Time-PhaseStartedAt));
         const float Gag=ThroatPhase==EMCThroatPhase::Spasm?FMath::SmoothStep(0.f,.25f,Age)*(.65f+.35f*FMath::Square(FMath::Sin(Age*12))):0;
@@ -635,14 +885,36 @@ void AMCThroat::UpdatePresentation(float Dt)
     const float Length=UvulaLength+Pull;
     // The authored uvula is 100 cm long, top-pivoted. The sphere is only a missing-asset fallback.
     const bool Authored=Uvula->GetStaticMesh() && Uvula->GetStaticMesh()->GetName()==TEXT("SM_Uvula");
-    Uvula->SetRelativeLocation(Authored?UvulaTop:UvulaTop-FVector(0,0,Length*.5f));
-    Uvula->SetRelativeScale3D(FVector(.7f,.85f,Length/100.f));
+    if(!bUseAuthoredUvula) {
+        Uvula->SetRelativeLocation(Authored?UvulaTop:UvulaTop-FVector(0,0,Length*.5f));
+        Uvula->SetRelativeScale3D(FVector(.7f,.85f,Length/100.f));
+    }
     UvulaLanding->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     const float TickleAge=Time-TickleStartedAt;
     const float Tickle=TickleAge>=0 && TickleAge<1.2f?FMath::Sin(TickleAge*32)*18*FMath::Sin(TickleAge/1.2f*PI):0;
     const float Sway=Tickle+FMath::Sin(Time*1.8f)*1.2f*(1-VisualWeight)+(ThroatPhase==EMCThroatPhase::Spasm?FMath::Sin(Time*28)*12:
         ThroatPhase==EMCThroatPhase::Vomiting?FMath::Sin(float(Time-PhaseStartedAt)*24)*8*FMath::Exp(-float(Time-PhaseStartedAt)):0);
-    Uvula->SetRelativeRotation(FRotator(0,0,Sway));
+    if(bUseAuthoredUvula) {
+        // Imported MiniTong is center-pivoted. Rotate around its real upper root
+        // so the attachment stays fixed while the hanging tip reacts to water.
+        FTransform Shape=AuthoredUvulaRestTransform;
+        if(const UStaticMesh* Mesh=Uvula->GetStaticMesh()) {
+            const FVector LocalPivot(0,0,Mesh->GetBoundingBox().Max.Z);
+            const FVector Pivot=Shape.TransformPosition(LocalPivot);
+            const FQuat Rotation=Shape.GetRotation()*FQuat(FVector::ForwardVector,FMath::DegreesToRadians(Sway));
+            Shape.SetRotation(Rotation);
+            Shape.SetLocation(Pivot-Rotation.RotateVector(Shape.GetScale3D()*LocalPivot));
+        }
+        Uvula->SetRelativeTransform(Shape);
+    } else Uvula->SetRelativeRotation(FRotator(0,0,Sway));
+    const bool ShowUvula=!bManualIntake || bUseAuthoredUvula;
+    Uvula->SetVisibility(ShowUvula);Uvula->SetHiddenInGame(!ShowUvula);
+    if(Dt<=0) {
+        Uvula->SetCollisionEnabled(bUseAuthoredUvula?ECollisionEnabled::QueryOnly:ECollisionEnabled::NoCollision);
+        Uvula->SetCollisionObjectType(ECC_WorldDynamic);Uvula->SetCollisionResponseToAllChannels(ECR_Ignore);
+        Uvula->SetCollisionResponseToChannel(ECC_Visibility,bUseAuthoredUvula?ECR_Block:ECR_Ignore);
+        Uvula->SetGenerateOverlapEvents(false);Uvula->SetCanEverAffectNavigation(false);
+    }
     // The character braces against the front of the bulb. A pad on its central
     // axis let the visible stalk pass through the body despite a valid landing.
     UvulaLanding->SetRelativeLocation(UvulaTop+FRotator(0,0,Sway).RotateVector(FVector(-86,0,-Length*.81f))-FVector(0,0,16));
@@ -695,6 +967,7 @@ void AMCThroat::UpdateTissue(float Open,float Time,bool Rebuild)
 }
 void AMCThroat::BuildRing()
 {
+    if(bManualIntake) {ZoneRing->ClearAllMeshSections();ZoneRing->SetVisibility(false);return;}
     AMCTongue* Tongue=nullptr; if(GetWorld()) for(TActorIterator<AMCTongue> It(GetWorld());It;++It) { Tongue=*It; break; }
     auto Point=[&](FVector Local) {
         FHitResult Hit; if(Tongue && Tongue->SurfacePoint(GetActorTransform().TransformPosition(Local),Hit))

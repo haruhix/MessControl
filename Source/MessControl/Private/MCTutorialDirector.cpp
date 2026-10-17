@@ -5,6 +5,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCInventoryComponent.h"
 #include "MCFoodActor.h"
+#include "MCThroat.h"
 #include "MCArenaTooth.h"
 #include "MCMouthSurface.h"
 #include "MCTongue.h"
@@ -101,18 +102,8 @@ void AMCTutorialDirector::Start(UMCDayPlan* Plan,bool bUseShortFlow)
         if (It->Calculus) Snapshot.Calculus=It->Calculus->State;
         ToothSnapshots.Add(MoveTemp(Snapshot));
     }
-    bool HasFrontExit=false;
-    for (TActorIterator<AMCFoodDisposal> It(GetWorld());It;++It) if (It->bBrushBin) { HasFrontExit=true; break; }
-    if (!HasFrontExit)
-    {
-        // Ordinary day one creates this marker in DayDirector::Start; an isolated tutorial needs its own equivalent.
-        auto* Exit=GetWorld()->SpawnActor<AMCFoodDisposal>(Settings->ArenaCenter+FVector(-1110,0,140),FRotator::ZeroRotator);
-        if (Exit)
-        {
-            Exit->bBrushBin=true; Exit->Volume->SetBoxExtent(FVector(70,680,240));
-            Exit->Label->SetRelativeLocation(FVector(80,0,0)); Exit->ForceNetUpdate(); SpawnedActors.Add(Exit);
-        }
-    }
+    // The lesson uses the same open-hole Q throws and overboard discard as play.
+    // It must not recreate the retired automatic front delivery/disposal cap.
     SyncPlayers(); EnterStage(EMCTutorialStage::Loading);
 }
 
@@ -186,11 +177,11 @@ void AMCTutorialDirector::NotifyAction(AMCToothCharacter* Worker,EMCTutorialActi
     if (const auto* Food=Cast<AMCFoodActor>(Target))
     {
         if (Food->Batch!=TutorialFoodBatch) return;
-        // ResolveSwing reports FoodCut after HitFood disposes the whole product; delivery is a separate legacy action.
+        // Cutting and actually throwing a fragment into the hole are separate lessons.
         if (Action==EMCTutorialAction::FoodCut && (Food->bFragment || Food->Health>0)) return;
-        if (Action==EMCTutorialAction::FoodDelivered && Food->IsWrongIngredient()) return;
-        if (Action==EMCTutorialAction::SpoiledDiscarded && !Food->bSpoiled) return;
-        if (Action==EMCTutorialAction::TrashDiscarded && Food->FoodData.Kind!=EMCFoodKind::ForeignObject) return;
+        if (Action==EMCTutorialAction::FoodDelivered && (Food->IsWrongIngredient() || !Food->WasManuallyThrown())) return;
+        if (Action==EMCTutorialAction::SpoiledDiscarded && (!Food->bSpoiled || !Food->WasManuallyThrown() || !Food->IsDisposed())) return;
+        if (Action==EMCTutorialAction::TrashDiscarded && (Food->FoodData.Kind!=EMCFoodKind::ForeignObject || !Food->WasManuallyThrown() || !Food->IsDisposed())) return;
     }
     if (FMCTutorialProgressRules::CreditAction(*Progress,Stage,Action,true))
     { Worker->NotifyTaskFeedback(true,Target->GetActorLocation()); ForceNetUpdate(); }
@@ -201,8 +192,8 @@ void AMCTutorialDirector::NotifyIncorrectSort(AMCToothCharacter* Worker,AActor* 
     if (!HasAuthority() || !IsValid(Worker) || !IsTutorialTarget(Target) || !bStarted) return;
     const auto* Food=Cast<AMCFoodActor>(Target);
     FairyLine=Food && !Food->IsWrongIngredient()
-        ?LOCTEXT("FreshWrongExit","Свежее съедобное — назад, в глотку. Предмет вернулся: попробуй ещё раз!")
-        :LOCTEXT("TrashWrongExit","Испорченное и мусор — вперёд, изо рта. Попробуй другой выход!");
+        ?LOCTEXT("FreshWrongExit","Свежую еду бросай в открытую глотку: наведи камеру на лунку и нажми Q. Предмет вернулся — попробуй ещё раз!")
+        :LOCTEXT("TrashWrongExit","Испорченное и мусор выбрасывай за край рта через Q. В глотку их отправлять не нужно!");
     FeedbackEndsAt=Now()+5; ForceNetUpdate();
 }
 
@@ -307,7 +298,8 @@ void AMCTutorialDirector::EnsureLessonTargets()
         auto& Player=Players[I];
         if (!Player.bLoaded || Player.StageProgress>=Player.StageRequired) continue;
         bool Missing=!IsValid(Player.GoalTarget);
-        if (auto* Food=Cast<AMCFoodActor>(Player.GoalTarget)) Missing=Food->IsDisposed() || Food->GetActorLocation().Z<-1200;
+        if (auto* Food=Cast<AMCFoodActor>(Player.GoalTarget)) Missing=Food->IsDisposed()
+            || Food->GetActorLocation().Z<-1200 && !(Food->WasManuallyThrown() && Food->IsWrongIngredient());
         if (auto* Patch=Cast<AMCMouthSurface>(Player.GoalTarget)) Missing=Patch->IsClean();
         if (auto* Tooth=Cast<AMCArenaTooth>(Player.GoalTarget))
         {
@@ -422,25 +414,25 @@ void AMCTutorialDirector::EnterStage(EMCTutorialStage NewStage)
         Instruction=LOCTEXT("BrushHint","1 — щётка. Держи ЛКМ у своего подсвеченного зуба до полной очистки. Без таймера."); break;
     case EMCTutorialStage::FoodCut:
         Title=LOCTEXT("CutTitle","02 · РАЗБИТЬ ЕДУ");
-        FairyLine=LOCTEXT("CutFairy","Бей свою подсвеченную еду ножом, пока она не разрушится. Продукт исчезнет, и задача будет выполнена.");
+        FairyLine=LOCTEXT("CutFairy","Разбей подсвеченную еду ножом. Из неё выпадут кусочки: их можно собирать в стопку через E и по одному бросать в глотку через Q.");
         Instruction=LOCTEXT("CutHint","3 — нож. ЛКМ или F — удары по подсвеченной еде до полного разрушения."); break;
     case EMCTutorialStage::FreshSort:
         Title=LOCTEXT("FreshTitle","03 · СВЕЖЕЕ — В ГЛОТКУ");
-        FairyLine=LOCTEXT("FreshFairy","Съедобное отправляем назад. Собери свой кусочек и доставь его в глотку — затем дождись глотания.");
-        Instruction=LOCTEXT("FreshHint","1 — режим сбора. ЛКМ у кусочка — собирать в стопку. Войди со стопкой в зону THROAT: передача автоматическая."); break;
+        FairyLine=LOCTEXT("FreshFairy","Собери свой кусочек через E. Наведи камеру на открытую глотку наверху: прицел раскроется. Попади едой в лунку!");
+        Instruction=LOCTEXT("FreshHint","E у еды — собирать в стопку. Q — бросить верхний кусочек; удерживай Q для серии. Засчитывается попадание в глотку."); break;
     case EMCTutorialStage::SpoiledSort:
-        Title=LOCTEXT("SpoiledTitle","04 · ИСПОРЧЕННОЕ — НА ВЫХОД");
-        FairyLine=LOCTEXT("SpoiledFairy","Этот кусочек испортился. Отнеси его вперёд, к выходу у передних зубов.");
-        Instruction=LOCTEXT("SpoiledHint","1 + ЛКМ — собрать. Отнеси свою испорченную еду к передней зоне EXIT. Q — бросить."); break;
+        Title=LOCTEXT("SpoiledTitle","04 · ИСПОРЧЕННОЕ — ЗА БОРТ");
+        FairyLine=LOCTEXT("SpoiledFairy","Этот кусочек испортился. Возьми его через E и выброси за край рта — он не должен попасть в глотку.");
+        Instruction=LOCTEXT("SpoiledHint","E у еды — собрать. Наведи камеру за край рта и нажми Q. Задача выполнится, когда испорченная еда покинет арену."); break;
     case EMCTutorialStage::BreakfastRain:
         Title=LOCTEXT("BreakfastTitle","05 · УЧЕБНЫЙ ЗАВТРАК");
         FairyLine=LOCTEXT("BreakfastFairy","Теперь общий заказ: брокколи, яйцо и бекон. Работайте вместе!");
-        Instruction=LOCTEXT("BreakfastHint","Еда падает! Разделяйте, собирайте и доставляйте в глотку.");
+        Instruction=LOCTEXT("BreakfastHint","Разбивайте еду, собирайте кусочки через E и бросайте через Q в открытую глотку.");
         BreakfastSpawned=0; StageEndsAt=Now()+2; break;
     case EMCTutorialStage::BreakfastCleanup:
         Title=LOCTEXT("BreakfastCleanupTitle","ЗАВТРАК · УБОРКА КОМАНДОЙ");
         FairyLine=LOCTEXT("BreakfastCleanupFairy","Двадцать секунд на уборку. Если не успеете — помогу закончить. Здоровьем здесь не рискуем.");
-        Instruction=LOCTEXT("BreakfastCleanupHint","3 — нож; 1 + ЛКМ — сбор; доставка в THROAT. Это общая задача.");
+        Instruction=LOCTEXT("BreakfastCleanupHint","3 — нож; E у кусочков — сбор. Наведи камеру на глотку и бросай через Q; удержание Q — серия. Это общая задача.");
         StageEndsAt=Now()+20; TeamTasksLeft=CountTutorialFood(); TeamTasksTotal=TeamTasksLeft; break;
     case EMCTutorialStage::CoffeeWarning:
         Title=LOCTEXT("CoffeeWarningTitle","06 · ОСТОРОЖНО, КОФЕ!");
@@ -616,7 +608,14 @@ void AMCTutorialDirector::UpdatePresentation()
     {
         FVector Position=Target->GetActorLocation()+FVector(0,0,110);
         if (const auto* Tooth=Cast<AMCArenaTooth>(Target)) Position=Tooth->Visual->Bounds.Origin+FVector(0,0,Tooth->Visual->Bounds.BoxExtent.Z+30);
-        GoalLabel->SetWorldLocation(Position); GoalLabel->SetText(FMCTutorialProgressRules::IsSharedStage(Stage)?LOCTEXT("SharedTarget","▼ ОБЩАЯ ЦЕЛЬ"):LOCTEXT("YourTarget","▼ ТВОЯ ЦЕЛЬ"));
+        bool AimAtThroat=false;
+        if(Stage==EMCTutorialStage::FreshSort) if(const auto* Food=Cast<AMCFoodActor>(Target);Food && Food->StackCarrier && PC && Food->StackCarrier==PC->GetPawn())
+            for(TActorIterator<AMCThroat> It(GetWorld());It;++It) {
+                FVector Center;float Radius;
+                if(It->GetIntakeAimTarget(Center,Radius)) {Position=Center+FVector(0,0,Radius+30);AimAtThroat=true;break;}
+            }
+        GoalLabel->SetWorldLocation(Position); GoalLabel->SetText(AimAtThroat?FText::FromString(TEXT("Q")):
+            FMCTutorialProgressRules::IsSharedStage(Stage)?LOCTEXT("SharedTarget","▼ ОБЩАЯ ЦЕЛЬ"):LOCTEXT("YourTarget","▼ ТВОЯ ЦЕЛЬ"));
         if (PC && PC->PlayerCameraManager) GoalLabel->SetWorldRotation((PC->PlayerCameraManager->GetCameraLocation()-Position).Rotation());
     }
     if (Stage!=EMCTutorialStage::FoamParty)

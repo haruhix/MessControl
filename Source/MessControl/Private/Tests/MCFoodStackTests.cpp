@@ -16,6 +16,7 @@
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "Engine/DataTable.h"
+#include "EngineUtils.h"
 #if WITH_EDITOR
 #include "Misc/DataValidation.h"
 #endif
@@ -70,6 +71,74 @@ struct FFoodStackWorld
         A->SetRootComponent(Box);Box->SetBoxExtent(Extent);Box->SetCollisionProfileName(TEXT("BlockAll"));Box->RegisterComponent();A->SetActorLocation(Position);return A;
     }
 };
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCStackManualThrowOne,"MessControl.Food.ManualIntake.ThrowOneKeepsStack",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCStackManualThrowOne::RunTest(const FString&)
+{
+    FFoodStackWorld T;
+    if(!TestTrue(TEXT("Three fragments can be picked up together"),T.Collect(3))) return false;
+    T.Step(.7f);
+    auto* Collection=T.Hero->FoodCollection.Get();
+    auto* Top=Collection->Pieces.Last().Get();
+    auto* Bottom=Collection->Pieces[0].Get();
+    auto* Nearby=T.Food(T.Hero->GetActorLocation()+FVector(95,65,-35));
+    const FVector Aim=FRotator(35,160,0).Vector();
+    TestFalse(TEXT("An empty aim request does not release anything"),Collection->ThrowOne(FVector::ZeroVector));
+    if(!TestTrue(TEXT("The first valid camera-directed throw succeeds"),Collection->ThrowOne(Aim))) return false;
+    TestEqual(TEXT("One press removes exactly one top fragment"),Collection->Pieces.Num(),2);
+    TestTrue(TEXT("The remaining load stays held and collecting"),Collection->bCollecting && Bottom->StackCarrier==T.Hero && !Bottom->Body->IsSimulatingPhysics());
+    TestTrue(TEXT("The top piece becomes an intentional physical throw"),Top->WasManuallyThrown() && !Top->StackCarrier && Top->Body->IsSimulatingPhysics());
+    TestTrue(TEXT("Throw velocity follows upward camera aim rather than actor forward"),FVector::DotProduct(Top->Body->GetPhysicsLinearVelocity().GetSafeNormal(),Aim)>.995);
+    TestEqual(TEXT("A thrown fragment retains its player-safe collision"),Top->Body->GetCollisionResponseToChannel(ECC_Pawn),ECR_Ignore);
+    TestFalse(TEXT("A duplicate request in the same interval cannot consume another slot"),Collection->ThrowOne(Aim));
+    T.Step(Collection->ThrowIntervalSeconds()+.02f);
+    TestTrue(TEXT("Throwing beside loose food does not refill the vacated tower slot"),Collection->Pieces.Num()==2 && !Nearby->StackCarrier);
+    TestTrue(TEXT("The next timed request consumes one more fragment"),Collection->ThrowOne(Aim));
+    TestEqual(TEXT("Two timed requests leave exactly one held fragment"),Collection->Pieces.Num(),1);
+    T.Step(Collection->ThrowIntervalSeconds()+.02f);
+    TestTrue(TEXT("The third request consumes the final fragment"),Collection->ThrowOne(Aim));
+    TestTrue(TEXT("An empty tower exits collection cleanly"),Collection->Pieces.IsEmpty() && !Collection->bCollecting);
+    TestFalse(TEXT("Holding throw after depletion cannot create a projectile"),Collection->ThrowOne(Aim));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCConfiguredTwentyFragments,"MessControl.Food.ManualIntake.TwentyFragmentsOneVariant",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCConfiguredTwentyFragments::RunTest(const FString&)
+{
+    FFoodStackWorld T;
+    auto* Mesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"));
+    if(!TestNotNull(TEXT("Single fragment variant is available"),Mesh)) return false;
+#if WITH_EDITOR
+    FStaticMeshCompilingManager::Get().FinishCompilation({Mesh});
+#endif
+    FMCFoodRow Row;Row.WholeMeshes={Mesh};Row.FragmentMeshes={Mesh};
+    Row.Fragments=20;Row.Mass=9;Row.Scale=Row.FragmentScale=FVector(.15);Row.Health=1;Row.SpoilSeconds=300;
+    const FTransform Pose(FVector(1200,0,2000));
+    auto* Parent=T.World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),Pose,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+    if(!TestNotNull(TEXT("A breakable whole ingredient is created"),Parent)) return false;
+    FRandomStream Random(42);Parent->ConfigureItem(TEXT("TwentyFragmentFixture"),Row,Random);
+    Parent->Batch=91220;Parent->FinishSpawning(Pose);
+    const double Deadline=Parent->SpoilAt;
+    TestEqual(TEXT("Configured count survives row sanitization"),Parent->FoodData.Fragments,20);
+    TestTrue(TEXT("One actual cutting hit breaks the whole ingredient"),Parent->HitFood(10000,FVector::ForwardVector));
+    int32 Count=0;float TotalMass=0;
+    TArray<FBox> InitialEnvelopes;
+    for(TActorIterator<AMCFoodActor> It(T.World);It;++It) if(It->Batch==91220 && It->bFragment && !It->IsDisposed()) {
+        ++Count;TotalMass+=It->Body->GetMass();
+        TestTrue(TEXT("A single mesh variant is reused for every fragment"),It->ItemMesh==Mesh);
+        TestEqual(TEXT("Every fragment retains the original spoil deadline"),It->SpoilAt,Deadline);
+        TestEqual(TEXT("Every fragment remains harmless to player collision"),It->Body->GetCollisionResponseToChannel(ECC_Pawn),ECR_Ignore);
+        const FBox Envelope=It->Body->CalcBounds(It->Body->GetComponentTransform()).GetBox()
+            +It->Visual->CalcBounds(It->Visual->GetComponentTransform()).GetBox();
+        for(const FBox& Other:InitialEnvelopes)
+            TestFalse(TEXT("New fragments start outside every other fragment's collision and visible bounds"),Envelope.Intersect(Other));
+        InitialEnvelopes.Add(Envelope);
+    }
+    TestTrue(TEXT("The whole ingredient is retired after cutting"),Parent->IsDisposed());
+    TestEqual(TEXT("One mesh variant still produces all twenty physical fragments"),Count,20);
+    TestTrue(TEXT("All twenty fragment masses sum to the whole ingredient mass"),FMath::IsNearlyEqual(TotalMass,Row.Mass,.01f));
+    return true;
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCCarrierPlayerContact,"MessControl.Food.Stack.PlayerContactKnocksCarrierOnly",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)

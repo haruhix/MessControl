@@ -435,7 +435,9 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(GamepadLookYAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::OrbitGamepadY);
     Input->BindAction(ZoomAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::CameraMouseWheel);
     Input->BindAction(SelfCareAction,ETriggerEvent::Started,this,&AMCToothCharacter::ToggleSelfCare);
-    Input->BindAction(ThrowAction,ETriggerEvent::Started,this,&AMCToothCharacter::ThrowItem);
+    Input->BindAction(ThrowAction,ETriggerEvent::Started,this,&AMCToothCharacter::StartThrowItem);
+    Input->BindAction(ThrowAction,ETriggerEvent::Completed,this,&AMCToothCharacter::StopThrowItem);
+    Input->BindAction(ThrowAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::StopThrowItem);
     Input->BindAction(ToolActions[0],ETriggerEvent::Started,this,&AMCToothCharacter::SelectBrush);
     Input->BindAction(ToolActions[1],ETriggerEvent::Started,this,&AMCToothCharacter::SelectPickaxe);
     Input->BindAction(ToolActions[2],ETriggerEvent::Started,this,&AMCToothCharacter::SelectKnife);
@@ -445,8 +447,8 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(ForwardAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::MoveForward);
     Input->BindAction(RightAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::MoveRight);
 }
-void AMCToothCharacter::MoveForward(const FInputActionValue& Value) { LocalPaddle.X=IsMimicCaptured() || HasFrozenLegs()?0:Value.Get<float>(); const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); if (!IsMimicCaptured() && !HasFrozenLegs() && !ClingTooth && !OrderJumpTarget) AddMovementInput(Move->IsClimbing()?FVector::UpVector:CameraMoveDirection(false), LocalPaddle.X); }
-void AMCToothCharacter::MoveRight(const FInputActionValue& Value) { LocalPaddle.Y=IsMimicCaptured() || HasFrozenLegs()?0:Value.Get<float>(); const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); if (!IsMimicCaptured() && !HasFrozenLegs() && !ClingTooth && !OrderJumpTarget) AddMovementInput(Move->IsClimbing()?FVector::CrossProduct(FVector(Move->ClimbNormal),FVector::UpVector).GetSafeNormal():CameraMoveDirection(true), LocalPaddle.Y); }
+void AMCToothCharacter::MoveForward(const FInputActionValue& Value) { LocalPaddle.X=IsMimicCaptured() || HasFrozenLegs()?0:Value.Get<float>(); if(IsSeatedOnRaft()) return; const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); if (!IsMimicCaptured() && !HasFrozenLegs() && !ClingTooth && !OrderJumpTarget) AddMovementInput(Move->IsClimbing()?FVector::UpVector:CameraMoveDirection(false), LocalPaddle.X); }
+void AMCToothCharacter::MoveRight(const FInputActionValue& Value) { LocalPaddle.Y=IsMimicCaptured() || HasFrozenLegs()?0:Value.Get<float>(); if(IsSeatedOnRaft()) return; const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); if (!IsMimicCaptured() && !HasFrozenLegs() && !ClingTooth && !OrderJumpTarget) AddMovementInput(Move->IsClimbing()?FVector::CrossProduct(FVector(Move->ClimbNormal),FVector::UpVector).GetSafeNormal():CameraMoveDirection(true), LocalPaddle.Y); }
 void AMCToothCharacter::OrbitMouseX(const FInputActionValue& Value) { ApplyCameraOrbitInput(FVector2D(Value.Get<float>(),0)); }
 void AMCToothCharacter::OrbitMouseY(const FInputActionValue& Value) { ApplyCameraOrbitInput(FVector2D(0,Value.Get<float>())); }
 // Stick deflection is a turn rate; mouse input remains an unscaled per-frame delta.
@@ -468,6 +470,7 @@ FVector2D AMCToothCharacter::WorldPaddleInput() const
 }
 void AMCToothCharacter::StartJump()
 {
+    if(IsSeatedOnRaft()) {ServerLeaveRaft(); return;}
     StopRowing();
     if(!CanWork() || HasFrozenLegs() || OrderJumpTarget) return;
     auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement());
@@ -634,6 +637,7 @@ void AMCToothCharacter::StopJump() { StopJumping(); }
 void AMCToothCharacter::SetSprintInputHeld(bool Held) { if(Held) StartSprint(); else StopSprint(); }
 void AMCToothCharacter::StartSprint()
 {
+    if(IsSeatedOnRaft()) return;
     StopRowing();
     if(bSprintInputHeld || !CanWork() || HasFrozenLegs()) return;
     bSprintInputHeld=true;
@@ -662,6 +666,7 @@ void AMCToothCharacter::StartBrush() { ServerSetWorking(true,true); }
 void AMCToothCharacter::StopBrush() { ServerSetWorking(true,false); }
 void AMCToothCharacter::StartHandle()
 {
+    if(IsSeatedOnRaft()) return;
     StopRowing();
     if(!CanWork() || Inventory->IsChainsawRunning()) return;
     if(const auto* PC=Cast<APlayerController>(Controller);PC && PC->IsMoveInputIgnored()) return;
@@ -732,9 +737,7 @@ void AMCToothCharacter::StartPrimary()
 {
     if(IsMimicCaptured()) return;
     if (!Status->IsAlive()) { if (auto* PC=Cast<AMCPlayerController>(Controller)) PC->NextSpectator(); return; }
-    // The selected brush doubles as a paddle while standing on a storm raft.
-    // Walking remains normal; the camera supplies the independent stroke direction.
-    if(Inventory && Inventory->Selected==EMCToolSlot::Brush && !bSelfCare && GetRowingRaft()) {StartRowing();return;}
+    if(IsSeatedOnRaft()) return; // WASD owns the paddle; primary use does not start a second action.
     StopRowing();
     Inventory->UpdateSprayAim(true);
     ServerSetPrimary(true);
@@ -752,7 +755,7 @@ void AMCToothCharacter::SelectBrush() { Inventory->ServerSelect(EMCToolSlot::Bru
 void AMCToothCharacter::SelectPickaxe() { Inventory->ServerSelect(EMCToolSlot::Pickaxe); }
 void AMCToothCharacter::SelectKnife() { Inventory->ServerSelect(EMCToolSlot::Knife); }
 void AMCToothCharacter::SelectSpray() { Inventory->ServerSelect(EMCToolSlot::Spray); }
-bool AMCToothCharacter::CanSwitchTool() const {const auto* Perks=UMCPerkComponent::ForActor(this);return !Inventory->IsChainsawRunning() && (!Perks || !Perks->IsFuryActive()) && GetWorld()->GetTimeSeconds()>=NextSwingTime;}
+bool AMCToothCharacter::CanSwitchTool() const {if(IsSeatedOnRaft()) return false; const auto* Perks=UMCPerkComponent::ForActor(this);return !Inventory->IsChainsawRunning() && (!Perks || !Perks->IsFuryActive()) && GetWorld()->GetTimeSeconds()>=NextSwingTime;}
 void AMCToothCharacter::NotifyTaskFeedback(bool Success,FVector Point)
 {
     if(!HasAuthority()) return;
@@ -795,6 +798,7 @@ void AMCToothCharacter::SetSelfCareInput(bool Enabled)
 void AMCToothCharacter::SetBraceInputHeld(bool Held) { if(Held) StartBrace(); else StopBrace(); }
 void AMCToothCharacter::StartBrace()
 {
+    if(IsSeatedOnRaft()) return;
     StopRowing();
     if(!Status->IsAlive()) { if(auto* PC=Cast<AMCPlayerController>(Controller)) PC->PreviousSpectator(); return; }
     if(!CanWork() || Inventory->IsChainsawRunning()) return;
@@ -805,18 +809,82 @@ void AMCToothCharacter::StartBrace()
 }
 void AMCToothCharacter::StopBrace() { Grip->SetBraceHeld(false); }
 void AMCToothCharacter::SetRowingInputHeld(bool Held) { if(Held) StartRowing(); else StopRowing(); }
+bool AMCToothCharacter::IsSeatedOnRaft() const
+{
+    return IsValid(SeatedRaft) && RaftSeatIndex>=0 && RaftSeatIndex<AMCCataclysmRaft::Capacity;
+}
+void AMCToothCharacter::SetRaftSeat(AMCCataclysmRaft* Raft,int32 Slot)
+{
+    if(!HasAuthority()) return;
+    StopRowing();
+    if(Raft) {
+        CancelGameplayInput(); DropFood(); ClingTooth=nullptr; bWantsCling=false;
+        bSelfCare=false; bPrimaryHeld=false; bBrushing=false; bHandling=false;
+        if(Grip) {Grip->ReleaseBrace(); Grip->ReleasePlayer();}
+        if(Inventory) Inventory->ServerSelect(EMCToolSlot::Brush);
+    }
+    SeatedRaft=Raft; RaftSeatIndex=Raft?Slot:INDEX_NONE;
+    OnRep_RaftSeat(); ForceNetUpdate();
+}
+void AMCToothCharacter::OnRep_RaftSeat()
+{
+    AMCCataclysmRaft* Raft=IsSeatedOnRaft()?SeatedRaft.Get():nullptr;
+    if(AppliedSeatRaft.Get()!=Raft) {
+        if(AppliedSeatRaft.IsValid()) RemoveTickPrerequisiteActor(AppliedSeatRaft.Get());
+        AppliedSeatRaft=Raft;
+        if(Raft) AddTickPrerequisiteActor(Raft);
+    }
+    if(Raft) {
+        if(!bAppliedRaftSeat) {
+            LocalPaddle=FVector2D::ZeroVector; bRowingInputHeld=false;
+            CancelSprintInput(); ConsumeMovementInputVector(); StopJumping();
+        }
+        bAppliedRaftSeat=true;
+        GetCharacterMovement()->StopMovementImmediately();
+        GetCharacterMovement()->SetMovementMode(MOVE_None);
+        SetBase(static_cast<FMovementBaseInterfaceData*>(nullptr));
+        UpdateRaftSeat();
+    }
+    else if(bAppliedRaftSeat) {
+        bAppliedRaftSeat=false; LocalPaddle=FVector2D::ZeroVector; bRowingInputHeld=false;
+        if(!SwallowedBy && !IsMimicCaptured() && !HasFrozenLegs() && Status->IsAlive() && ToothPhysics->CanAct())
+            GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+    }
+}
+void AMCToothCharacter::UpdateRaftSeat()
+{
+    if(!IsSeatedOnRaft()) {if(bAppliedRaftSeat) OnRep_RaftSeat(); return;}
+    if(!bAppliedRaftSeat || AppliedSeatRaft.Get()!=SeatedRaft.Get()) {OnRep_RaftSeat(); return;}
+    if(!CanWork() || HasFrozenLegs()) {
+        if(HasAuthority()) SeatedRaft->ReleaseSeat(this);
+        return;
+    }
+    ConsumeMovementInputVector();
+    GetCharacterMovement()->StopMovementImmediately();
+    if(GetCharacterMovement()->MovementMode!=MOVE_None) GetCharacterMovement()->SetMovementMode(MOVE_None);
+    const FVector Location=SeatedRaft->SeatFootPoint(RaftSeatIndex)
+        +FVector(0,0,GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+4.f);
+    FVector Facing=SeatedRaft->GetActorForwardVector().GetSafeNormal2D();
+    FVector StrokeFacing;
+    if(WantsRowingFacing(StrokeFacing)) Facing=StrokeFacing;
+    SetActorLocationAndRotation(Location,FRotator(0,Facing.Rotation().Yaw,0),false,nullptr,ETeleportType::TeleportPhysics);
+}
+void AMCToothCharacter::ServerLeaveRaft_Implementation()
+{
+    if(!IsSeatedOnRaft()) return;
+    AMCCataclysmRaft* Raft=SeatedRaft.Get();
+    const FVector Out=Raft->GetActorRightVector()*(RaftSeatIndex==0?-210.f:210.f);
+    Raft->ReleaseSeat(this,Out+FVector(0,0,320.f));
+}
 AMCCataclysmRaft* AMCToothCharacter::GetRowingRaft() const
 {
-    const auto* Base=Cast<UPrimitiveComponent>(GetMovementBaseObject());
-    auto* Raft=Base?Cast<AMCCataclysmRaft>(Base->GetOwner()):nullptr;
-    return Raft && Base==Raft->GetDeckComponent() && !Raft->IsSubmerging() && Raft->IsRider(this)
-        && IsValid(Raft->Flood) && Raft->Flood->IsActive() && Raft->Flood->IsCataclysmStorm()?Raft:nullptr;
+    return IsSeatedOnRaft() && !SeatedRaft->IsSubmerging() && IsValid(SeatedRaft->Flood)
+        && SeatedRaft->Flood->IsActive() && SeatedRaft->Flood->IsCataclysmStorm()?SeatedRaft.Get():nullptr;
 }
 bool AMCToothCharacter::IsRowing() const
 {
     if(IsLocallyControlled() && !HasAuthority())
-        return bRowingInputHeld && Inventory && Inventory->Selected==EMCToolSlot::Brush && CanWork()
-            && !HasFrozenLegs() && GetRowingRaft() && (!Grip || !Grip->IsBraceInputHeld());
+        return bRowingInputHeld && CanWork() && !HasFrozenLegs() && GetRowingRaft() && !RaftRowingInput().IsNearlyZero();
     return bRowing;
 }
 bool AMCToothCharacter::WantsRowingFacing(FVector& Direction) const
@@ -825,35 +893,26 @@ bool AMCToothCharacter::WantsRowingFacing(FVector& Direction) const
     if(!IsRowing() || !Raft) return false;
     // The brush and torso already share this bounded visual heading. Following
     // it exactly keeps movement input and rotating deck bases from facing the
-    // passenger away from their own camera-selected stroke.
+    // passenger away from the stroke selected in the raft's local axes.
     Direction=Raft->RowingVisualDirectionFor(this).GetSafeNormal2D();
     if(Direction.IsNearlyZero()) {
-        const FVector2D Aim=IsLocallyControlled()?WorldRowingInput():RowingInput;
-        Direction=FVector(Aim.X,Aim.Y,0).GetSafeNormal2D();
+        const FVector2D Aim=IsLocallyControlled()?RaftRowingInput():RowingInput;
+        Direction=FRotator(0,Raft->GetActorRotation().Yaw,0).RotateVector(FVector(Aim.X,Aim.Y,0)).GetSafeNormal2D();
     }
     return !Direction.IsNearlyZero() && !Direction.ContainsNaN();
 }
-FVector2D AMCToothCharacter::WorldRowingInput() const
+FVector2D AMCToothCharacter::RaftRowingInput() const
 {
-    // Stroke aim follows the view actually shown to this player, including view
-    // targets and camera modifiers; ordinary walking keeps its own camera rules.
-    FVector Forward=Camera?Camera->GetForwardVector():GetActorForwardVector();
-    if(const auto* PC=Cast<APlayerController>(Controller)) {
-        if(PC->PlayerCameraManager) Forward=PC->PlayerCameraManager->GetCameraRotation().Vector();
-    }
-    else if(Controller) Forward=Controller->GetControlRotation().Vector();
-    return FVector2D(Forward.X,Forward.Y).GetSafeNormal();
+    if(!CanWork() || HasFrozenLegs()) return FVector2D::ZeroVector;
+    if(const auto* PC=Cast<APlayerController>(Controller); PC && PC->IsMoveInputIgnored()) return FVector2D::ZeroVector;
+    return LocalPaddle.ContainsNaN()?FVector2D::ZeroVector:LocalPaddle.GetClampedToMaxSize(1.f);
 }
 void AMCToothCharacter::StartRowing()
 {
-    if(bRowingInputHeld || (!HasAuthority() && !IsLocallyControlled()) || !Inventory
-        || Inventory->Selected!=EMCToolSlot::Brush || bSelfCare || !CanWork() || HasFrozenLegs()
-        || !GetRowingRaft() || (Grip && Grip->IsBraceInputHeld())) return;
-    if(const auto* PC=Cast<APlayerController>(Controller);PC && PC->IsMoveInputIgnored()) return;
-    StopPrimary();StopHandle();FoodCollection->Stop();CancelSprintInput();Inventory->CancelUpgradeUse();
-    CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->CancelDash();
-    bRowingInputHeld=true;RowingSendElapsed=0;
-    ServerSetRowingHeld(true,WorldRowingInput(),++RowingRequestId);
+    if(bRowingInputHeld || (!HasAuthority() && !IsLocallyControlled()) || !CanWork() || HasFrozenLegs()
+        || !GetRowingRaft() || RaftRowingInput().IsNearlyZero()) return;
+    bRowingInputHeld=true; RowingSendElapsed=0;
+    ServerSetRowingHeld(true,RaftRowingInput(),++RowingRequestId);
 }
 void AMCToothCharacter::StopRowing()
 {
@@ -865,21 +924,21 @@ void AMCToothCharacter::StopRowing()
         const uint16 Request=HasAuthority() && !IsLocallyControlled()?RowingRequestId:++RowingRequestId;
         ServerSetRowingHeld(false,FVector2D::ZeroVector,Request);
     }
+    if(!HasAuthority()) {bRowing=false;RowingRaft=nullptr;}
 }
 void AMCToothCharacter::ServerSetRowingHeld_Implementation(bool Held,FVector2D Direction,uint16 RequestId)
 {
     const bool WasRowing=bRowing;
     RowingRequestId=RequestId;
     auto* Raft=GetRowingRaft();
-    const bool Valid=Held && Inventory && Inventory->Selected==EMCToolSlot::Brush && !bSelfCare && CanWork()
-        && !HasFrozenLegs() && Raft && !Raft->IsHoldingRail(this) && (!Grip || !Grip->IsBraceInputHeld())
-        && !Direction.ContainsNaN() && FMath::IsFinite(Direction.X) && FMath::IsFinite(Direction.Y);
+    const bool Valid=Held && CanWork() && !HasFrozenLegs() && Raft
+        && !Direction.ContainsNaN() && FMath::IsFinite(Direction.X) && FMath::IsFinite(Direction.Y) && !Direction.IsNearlyZero();
     if(IsValid(RowingRaft) && (!Valid || RowingRaft!=Raft)) RowingRaft->SetRowingInput(this,FVector2D::ZeroVector,false);
     bRowing=Valid;RowingRaft=Valid?Raft:nullptr;RowingInput=Valid?Direction.GetClampedToMaxSize(1.f):FVector2D::ZeroVector;
     LastRowingInputAt=GetWorld()->GetTimeSeconds();
     if(Valid) {
         bPrimaryHeld=false;bBrushing=false;bHandling=false;bSelfCare=false;bWantsCling=false;
-        DropFood();ResetContact();Inventory->CancelUpgradeUse();
+        ResetContact();if(Inventory) Inventory->CancelUpgradeUse();
         Raft->SetRowingInput(this,RowingInput,true);
     }
     else {
@@ -902,18 +961,33 @@ void AMCToothCharacter::ServerRowingDirection_Implementation(FVector2D Direction
 }
 void AMCToothCharacter::UpdateRowing(float Dt)
 {
-    if(IsLocallyControlled() && bRowingInputHeld) {
-        if(!Inventory || Inventory->Selected!=EMCToolSlot::Brush || !CanWork() || HasFrozenLegs()
-            || !GetRowingRaft() || (Grip && Grip->IsBraceInputHeld())) {StopRowing();return;}
-        RowingSendElapsed+=Dt;
-        if(RowingSendElapsed>=.1f) {ServerRowingDirection(WorldRowingInput(),RowingRequestId);RowingSendElapsed=0;}
+    if(HasAuthority() && !IsPlayerControlled() && IsSeatedOnRaft()) {
+        // CMC normally ticks before its owner and has already consumed this
+        // frame's AI AddMovementInput. A later controller tick may instead have
+        // fresh pending input. Neither source is accumulated across frames.
+        FVector Intent=GetPendingMovementInputVector();
+        if(Intent.IsNearlyZero()) Intent=GetLastMovementInputVector();
+        const FVector Local=FRotator(0,SeatedRaft->GetActorRotation().Yaw,0).UnrotateVector(Intent);
+        LocalPaddle=Local.ContainsNaN()?FVector2D::ZeroVector:FVector2D(Local.X,Local.Y).GetClampedToMaxSize(1.f);
+    }
+    UpdateRaftSeat();
+    if(IsLocallyControlled()) {
+        const FVector2D Direction=RaftRowingInput();
+        if(!GetRowingRaft() || Direction.IsNearlyZero()) StopRowing();
+        else {
+            if(!bRowingInputHeld) StartRowing();
+            if(bRowingInputHeld) {
+                RowingSendElapsed+=Dt;
+                if(RowingSendElapsed>=.1f) {ServerRowingDirection(Direction,RowingRequestId);RowingSendElapsed=0;}
+            }
+        }
     }
     if(HasAuthority() && bRowing) {
         auto* Raft=GetRowingRaft();
-        if(!Inventory || Inventory->Selected!=EMCToolSlot::Brush || !CanWork() || HasFrozenLegs()
-            || Raft!=RowingRaft || !Raft || Raft->IsHoldingRail(this) || (Grip && Grip->IsBraceInputHeld())
+        if(!CanWork() || HasFrozenLegs() || Raft!=RowingRaft || !Raft
             || GetWorld()->GetTimeSeconds()-LastRowingInputAt>.35
-            || !Raft->SetRowingInput(this,RowingInput,true)) ServerSetRowingHeld_Implementation(false,FVector2D::ZeroVector,RowingRequestId);
+            || !Raft->SetRowingInput(this,RowingInput,true))
+            ServerSetRowingHeld_Implementation(false,FVector2D::ZeroVector,RowingRequestId);
     }
 }
 void AMCToothCharacter::ContinueFogGuard()
@@ -928,6 +1002,7 @@ void AMCToothCharacter::ContinueFogGuard()
 }
 void AMCToothCharacter::ServerSetPrimary_Implementation(bool bActive)
 {
+    if(bActive && IsSeatedOnRaft()) return;
     if(!bActive) StopRowing();
     else if(bRowing) return;
     const bool NewPrimaryPress=bActive && !bPrimaryHeld;
@@ -953,6 +1028,9 @@ void AMCToothCharacter::ResolvePrimaryAction(bool bNewPress)
 {
     if(FoodCollection->bCollecting) return;
     if (!bPrimaryHeld || !CanWork()) return;
+    if(bSelfCare && !Status->NeedsCare(Inventory->IsCleaningTool())) {
+        bSelfCare=false; ResetContact(); ForceNetUpdate();
+    }
     if(HeldFood && HeldFood->FoodData.Kind==EMCFoodKind::Spicy) {
         bHandling=true;bBrushing=false;return;
     }
@@ -1040,6 +1118,7 @@ void AMCToothCharacter::ResolvePrimaryAction(bool bNewPress)
 void AMCToothCharacter::CancelGameplayInput()
 {
     StopRowing();
+    StopThrowItem();
     if(Inventory) Inventory->CancelUpgradeUse();
     bSharedPrimaryInputHeld=false; bSharedHandleInputHeld=false; bSharedJumpInputHeld=false;
     StopBrace();
@@ -1053,6 +1132,7 @@ void AMCToothCharacter::ToggleConnection() { StopRowing(); StopBrace(); StopPrim
 void AMCToothCharacter::RestartRun() { if (auto* PC = Cast<AMCPlayerController>(Controller)) PC->RequestRestart(); }
 void AMCToothCharacter::ServerSetWorking_Implementation(bool bBrush, bool bActive)
 {
+    if(bActive && IsSeatedOnRaft()) return;
     if(bActive && bRowing) return;
     if(bActive && IsMimicCaptured()) return;
     if(bActive) Grip->ReleaseBrace();
@@ -1109,6 +1189,7 @@ void AMCToothCharacter::FindWork(float DeltaSeconds)
 void AMCToothCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    UpdateThrowInput(DeltaSeconds);
     if(MCMeleeCombo::ConsumeBufferedPress(this)) ServerSwingBrush();
     UpdateRowing(DeltaSeconds);
     if(IsFreezingToDeath())
@@ -1269,7 +1350,7 @@ void AMCToothCharacter::SwingBrush()
 void AMCToothCharacter::ServerSwingBrush_Implementation()
 {
     const float Now=GetWorld()->GetTimeSeconds();
-    if (bRowing || !CanWork()) return;
+    if (IsSeatedOnRaft() || bRowing || !CanWork()) return;
     if(Now<NextSwingTime) {MCMeleeCombo::QueuePress(this);return;}
     if(Inventory->Selected==EMCToolSlot::Knife && Inventory->HasUpgrade(EMCToolUpgrade::Chainsaw)) return;
     Grip->ReleaseBrace();
@@ -1633,6 +1714,7 @@ void AMCToothCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
     DOREPLIFETIME(AMCToothCharacter,EquippedBrush); DOREPLIFETIME(AMCToothCharacter,bInCoffee); DOREPLIFETIME(AMCToothCharacter,ClingTooth);
     DOREPLIFETIME(AMCToothCharacter,SwimIntent);
     DOREPLIFETIME(AMCToothCharacter,bRowing);DOREPLIFETIME(AMCToothCharacter,RowingRaft);
+    DOREPLIFETIME(AMCToothCharacter,SeatedRaft);DOREPLIFETIME(AMCToothCharacter,RaftSeatIndex);
     DOREPLIFETIME(AMCToothCharacter,SwallowedBy); DOREPLIFETIME(AMCToothCharacter,OrderJumpTarget);
     DOREPLIFETIME(AMCToothCharacter,OrderJumpStartedAt); DOREPLIFETIME(AMCToothCharacter,bOrderJumpLaunched);
     DOREPLIFETIME(AMCToothCharacter,ThroatCaptureStart);
@@ -1709,6 +1791,11 @@ void AMCToothCharacter::AdvanceCare(float Dt)
 {
     if (!HasAuthority()) return;
     if (!CanWork() || (!bBrushing && !bHandling) || HeldFood || (bBrushing && !HasBrush()) || bInCoffee) { ResetContact(); return; }
+    // A completed self-care action must hand the still-held brush back to the
+    // environment. Otherwise FindCareTarget keeps selecting only a clean self.
+    if(bSelfCare && !Status->NeedsCare(bBrushing)) {
+        bSelfCare=false; ResetContact(); ForceNetUpdate();
+    }
     auto* Target=FindCareTarget(bBrushing);
     if (!Target) {
         if(bBrushing && FMath::IsFinite(Dt) && Dt>0)
@@ -1747,7 +1834,10 @@ void AMCToothCharacter::AdvanceCare(float Dt)
     {
         if (Target->CareContact(bBrushing,this) && bBrushing) ++SuccessfulBrushContacts;
         ContactElapsed=0; ContactProgress=0;
-        if (!Target->NeedsCare(bBrushing)) { NotifyTaskFeedback(true,Target->GetOwner()->GetActorLocation()); ResetContact(); }
+        if (!Target->NeedsCare(bBrushing)) {
+            if(bSelfCare && Target==Status) bSelfCare=false;
+            NotifyTaskFeedback(true,Target->GetOwner()->GetActorLocation()); ResetContact();
+        }
         ForceNetUpdate();
     }
 }
@@ -1831,6 +1921,7 @@ void AMCToothCharacter::FellOutOfWorld(const UDamageType&)
 }
 void AMCToothCharacter::EndPlay(const EEndPlayReason::Type Reason)
 {
+    if(HasAuthority() && IsValid(SeatedRaft)) SeatedRaft->ReleaseSeat(this);
     if(IsValid(FreezeDeathVisual)) FreezeDeathVisual->Destroy();
     if(HasAuthority()) ClearFrozenLegs();
     for(UStaticMeshComponent* Part:IceLegParts) if(Part) Part->SetVisibility(false);
@@ -1847,17 +1938,105 @@ bool AMCToothCharacter::HasBrush() const
 {
     return !Inventory || Inventory->IsCleaningTool();
 }
-void AMCToothCharacter::ThrowItem() { ServerThrowItem(); }
+bool AMCToothCharacter::HasFoodToThrow() const
+{
+    if(FoodCollection) for(const auto& Piece:FoodCollection->Pieces)
+        if(IsValid(Piece) && !Piece->bBrushTool) return true;
+    return IsValid(HeldFood) && !HeldFood->bBrushTool;
+}
+float AMCToothCharacter::FoodIntakeAimStrength() const
+{
+    if(!CanWork() || !HasFoodToThrow() || bInCoffee) return 0;
+    const auto* PC=Cast<APlayerController>(GetController());
+    if(!PC || !PC->IsLocalController()) return 0;
+    FVector Origin; FRotator Rotation; PC->GetPlayerViewPoint(Origin,Rotation);
+    float Strength=0;
+    for(TActorIterator<AMCThroat> It(GetWorld());It;++It)
+        Strength=FMath::Max(Strength,It->IntakeAimStrength(Origin,Rotation.Vector()));
+    return Strength;
+}
+FVector AMCToothCharacter::CameraThrowDirection() const
+{
+    FVector Origin=GetActorLocation(); FRotator Rotation=GetBaseAimRotation();
+    if(const auto* PC=Cast<APlayerController>(GetController()); PC && PC->IsLocalController())
+        PC->GetPlayerViewPoint(Origin,Rotation);
+    const FVector Forward=Rotation.Vector();
+    FVector Launch=GetActorLocation()+FVector(0,0,55);
+    if(FoodCollection && !FoodCollection->Pieces.IsEmpty() && IsValid(FoodCollection->Pieces.Last()))
+        Launch=FoodCollection->Pieces.Last()->GetActorLocation();
+    else if(IsValid(HeldFood)) Launch=HeldFood->GetActorLocation();
+    FCollisionQueryParams Params(SCENE_QUERY_STAT(MCFoodThrowAim),true,this);
+    if(FoodCollection) for(const auto& Piece:FoodCollection->Pieces) if(IsValid(Piece)) Params.AddIgnoredActor(Piece);
+    if(IsValid(HeldFood)) Params.AddIgnoredActor(HeldFood);
+    FHitResult Hit;
+    const FVector End=Origin+Forward*10000;
+    const FVector Target=GetWorld()->LineTraceSingleByChannel(Hit,Origin,End,ECC_Visibility,Params)?Hit.ImpactPoint:End;
+    return FVector::DotProduct(Target-Launch,Forward)>25?(Target-Launch).GetSafeNormal():Forward;
+}
+void AMCToothCharacter::ThrowItem()
+{
+    if(!HasAuthority() && !IsLocallyControlled()) return;
+    const FVector Direction=CameraThrowDirection();
+    ServerSetThrowHeld(true,Direction); ServerSetThrowHeld(false,Direction);
+}
+void AMCToothCharacter::StartThrowItem() { SetThrowInputHeld(true); }
+void AMCToothCharacter::StopThrowItem() { if(HasAuthority()) bThrowHeld=false; SetThrowInputHeld(false); }
+void AMCToothCharacter::SetThrowInputHeld(bool Held)
+{
+    if((!HasAuthority() && !IsLocallyControlled()) || bThrowInputHeld==Held) return;
+    bThrowInputHeld=Held;
+    ServerSetThrowHeld(Held,CameraThrowDirection());
+    LastThrowAimSentAt=GetWorld()->GetTimeSeconds();
+}
+void AMCToothCharacter::ServerSetThrowHeld_Implementation(bool Held,FVector_NetQuantizeNormal Direction)
+{
+    if(!Held) { bThrowHeld=false; return; }
+    if(!CanWork() || bInCoffee || Direction.ContainsNaN() || Direction.IsNearlyZero()) return;
+    ThrowAim=FVector(Direction).GetSafeNormal();
+    if(bThrowHeld) return;
+    bThrowHeld=true;
+    PerformThrow(ThrowAim);
+    NextHeldThrowAt=GetWorld()->GetTimeSeconds()+(FoodCollection?FoodCollection->ThrowIntervalSeconds():.3f);
+}
+void AMCToothCharacter::ServerUpdateThrowAim_Implementation(FVector_NetQuantizeNormal Direction)
+{
+    if(bThrowHeld && !Direction.ContainsNaN() && !Direction.IsNearlyZero()) ThrowAim=FVector(Direction).GetSafeNormal();
+}
+void AMCToothCharacter::UpdateThrowInput(float /*Dt*/)
+{
+    const double Now=GetWorld()->GetTimeSeconds();
+    const auto* Player=Cast<APlayerController>(GetController());
+    const bool UI=Player && Player->IsLocalController() && (Player->bShowMouseCursor || Player->IsLookInputIgnored());
+    if(!CanWork() || UI) {
+        if(bThrowInputHeld) SetThrowInputHeld(false);
+        if(HasAuthority()) bThrowHeld=false;
+        return;
+    }
+    if(IsLocallyControlled() && bThrowInputHeld && Now-LastThrowAimSentAt>=.1) {
+        ServerUpdateThrowAim(CameraThrowDirection()); LastThrowAimSentAt=Now;
+    }
+    if(HasAuthority() && bThrowHeld && Now>=NextHeldThrowAt) {
+        PerformThrow(ThrowAim,true);
+        NextHeldThrowAt=Now+(FoodCollection?FoodCollection->ThrowIntervalSeconds():.3f);
+    }
+}
 void AMCToothCharacter::ServerThrowItem_Implementation()
 {
+    PerformThrow(GetBaseAimRotation().Vector());
+}
+void AMCToothCharacter::PerformThrow(FVector Direction,bool StackOnly)
+{
     if (!CanWork()) return;
+    if(FoodCollection && !FoodCollection->Pieces.IsEmpty()) {
+        Grip->ReleaseBrace(); FoodCollection->ThrowOne(Direction); return;
+    }
+    if(StackOnly) return;
     Grip->ReleaseBrace();
-    if(FoodCollection->bCollecting || !FoodCollection->Pieces.IsEmpty()) {FoodCollection->Stop(true);return;}
     if (Grip->GrabbedPlayer) Grip->ThrowPlayer();
     else if (HeldFood)
     {
-        auto* Other=Grip->Secondary.Food.Get(); HeldFood->Throw(this);
-        if (IsValid(Other)) Other->Throw(this);
+        auto* Other=Grip->Secondary.Food.Get(); HeldFood->Throw(this,Direction);
+        if (IsValid(Other)) Other->Throw(this,Direction);
     }
     bPrimaryHeld=false; bWantsCling=false; ClingTooth=nullptr; bHandling=false; bBrushing=false; ResetContact();
 }

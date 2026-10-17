@@ -30,7 +30,7 @@ def insert_action(rig,name,keys,loop=False):
     for f,p in keys:A.keypose(rig,p,f)
     for fc in A.fcurves(action):
         for k in fc.keyframe_points:
-            k.handle_left_type='AUTO_CLAMPED';k.handle_right_type='AUTO_CLAMPED';k.interpolation='CONSTANT' if '["' in fc.data_path else 'BEZIER'
+            k.handle_left_type='AUTO_CLAMPED';k.handle_right_type='AUTO_CLAMPED';k.interpolation='CONSTANT' if fc.data_path.endswith('"]') else 'BEZIER'
     action.use_frame_range=True;action.frame_start=keys[0][0];action.frame_end=keys[-1][0]
     action['mc_loop']=loop;action['mc_style_version']='2';action['mc_role']='Charge authoring asset; runtime slot addition required'
     return action
@@ -198,7 +198,7 @@ def build_review(scene,rig,base,brace,actions,report):
                 for k in fc.keyframe_points:k.interpolation='CONSTANT' if fc.data_path=='hide_render' else 'LINEAR'
             obj.animation_data.action['mc_review_only']=True;obj.animation_data.action.use_fake_user=True
     for fc in A.fcurves(pose_action):
-        for k in fc.keyframe_points:k.interpolation='CONSTANT' if '["' in fc.data_path else 'LINEAR'
+        for k in fc.keyframe_points:k.interpolation='CONSTANT' if fc.data_path.endswith('"]') else 'LINEAR'
     review.frame_start=1;review.frame_end=count;review.frame_set(1)
     for i,s in enumerate(sections):review.timeline_markers.new(s['label'],frame=round(s['start_seconds']*FPS)+1)
     report['review']={'scene':review.name,'frames':count,'fps':FPS,'duration_seconds':(count-1)/FPS,'sections':sections,
