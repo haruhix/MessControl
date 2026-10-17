@@ -1,0 +1,32 @@
+{
+  "source_archive": "D:/sda/0.5 (2).zip",
+  "source_kind": "Spine JSON export",
+  "spine_version": "3.8.84",
+  "bones": 30,
+  "slots": 24,
+  "animation": "animation",
+  "atlas_size": "130x250",
+  "mpf_status": "Preserved original; binary format not decoded; not used as runtime input",
+  "files": [
+    {
+      "name": "perfume_bag.mpf",
+      "size": 128424,
+      "sha256": "28C5817F3997BAFFE6512EADEB5FF546A6A6ABAE7EECFCEC5896D6251E325DE2"
+    },
+    {
+      "name": "Preview-skeleton.json",
+      "size": 47361,
+      "sha256": "DCADFC98C1259DFD57883EC79784FC9A7BA89A0360F8450C964E5CB3492675A0"
+    },
+    {
+      "name": "Preview.atlas",
+      "size": 662,
+      "sha256": "B719F520D25996BA8CF4C18349A25D992A484B9B0775C6374D06E7964E000FE2"
+    },
+    {
+      "name": "skeleton.png",
+      "size": 26193,
+      "sha256": "E867A59C8C6715EDE01D754BB564882C12A4C0C55EF42292B4F1B27163BD6EDB"
+    }
+  ]
+}

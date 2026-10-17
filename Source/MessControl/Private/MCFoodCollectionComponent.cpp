@@ -165,6 +165,42 @@ void UMCFoodCollectionComponent::Stop(bool Throw)
     if(!GetOwner()->HasAuthority()) return;
     ReleaseFrom(0,Throw); bCollecting=false; bHasHand=false; GetOwner()->ForceNetUpdate();
 }
+float UMCFoodCollectionComponent::ThrowIntervalSeconds() const
+{ return FMath::IsFinite(ThrowInterval)?FMath::Clamp(ThrowInterval,.15f,1.f):.3f; }
+bool UMCFoodCollectionComponent::ThrowOne(FVector AimDirection)
+{
+    auto* Hero=Cast<AMCToothCharacter>(GetOwner());
+    if(!Hero || !Hero->HasAuthority() || !Hero->CanWork() || Pieces.IsEmpty()
+        || AimDirection.ContainsNaN() || AimDirection.IsNearlyZero()) return false;
+    const auto* Movement=Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement());
+    if(Hero->bInCoffee || (Movement && Movement->IsClimbing())) return false;
+    // The orbit camera is independent of actor/control rotation and can face
+    // through 360 degrees. Validate direction and action state, not walking yaw.
+    AimDirection=AimDirection.GetSafeNormal();
+    const double Now=GetWorld()->GetTimeSeconds();
+    if(Now+KINDA_SMALL_NUMBER<NextThrowAt) return false;
+    AMCFoodActor* Food=Pieces.Last();
+    if(!IsValid(Food) || Food->IsDisposed() || Food->StackCarrier!=Hero) return false;
+    const FPieceMotion Motion=PieceMotion.FindRef(Food);
+    // Remove just the top slot. Lower pieces retain their layout, pickup cues,
+    // sway and collision ignores instead of being released/recollected.
+    ReleaseFrom(Pieces.Num()-1);
+    Food->ProtectPlayersOnStackRelease(true);
+    Food->MarkManualThrow(Hero);
+    const float Speed=FMath::IsFinite(ThrowSpeed)?FMath::Clamp(ThrowSpeed,400.f,2400.f):1200.f;
+    const auto* Perks=UMCPerkComponent::ForActor(Hero);
+    const float Multiplier=Perks?Perks->RogueValue(EMCRogueStat::ThrowImpulse):1.f;
+    Food->Body->SetPhysicsLinearVelocity(Hero->GetVelocity()+AimDirection*Speed*Multiplier);
+    Food->Body->SetPhysicsAngularVelocityInRadians(Motion.Angular.GetClampedToMaxSize(6));
+    Food->Body->WakeAllRigidBodies();
+    NextThrowAt=Now+ThrowIntervalSeconds();
+    // Emptying a tower beside a pile must not vacuum a replacement into each
+    // released slot. Holding Q continually extends this short pickup pause.
+    NextCollectAt=FMath::Max(NextCollectAt,Now+2.);
+    if(Pieces.IsEmpty()) {bCollecting=false;bHasHand=false;SwayAngle=SwayVelocity=FVector2D::ZeroVector;}
+    Food->ForceNetUpdate();Hero->ForceNetUpdate();
+    return true;
+}
 void UMCFoodCollectionComponent::Spill(FVector Impulse)
 {
     if(!GetOwner()->HasAuthority() || Pieces.IsEmpty() || Impulse.ContainsNaN()) return;

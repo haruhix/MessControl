@@ -182,7 +182,8 @@ def main():
         for f in fcurves(a):
             for k in f.keyframe_points:
                 k.interpolation='BEZIER';k.handle_left_type='AUTO_CLAMPED';k.handle_right_type='AUTO_CLAMPED'
-            if '["' in f.data_path:
+            # Bone selectors also contain ["; only a terminal ["property"] is a custom-property channel.
+            if f.data_path.endswith('"]'):
                 for k in f.keyframe_points:k.interpolation='CONSTANT'
         a['mc_readme']='Sparse key poses on original ARP controls; feet IK, equipment FK. Source actions retained.'
         if label=='Melee':a['mc_hit_fraction']=.5

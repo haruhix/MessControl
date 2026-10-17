@@ -44,6 +44,15 @@ private:
     UFUNCTION() void StartBotsClicked();
     UFUNCTION() void StopBotsClicked();
     UFUNCTION() void ReportBotsClicked();
+    UFUNCTION() void NativeAnimationClicked();
+    UFUNCTION() void StylizedAnimationClicked();
+    UFUNCTION() void KawaiiAnimationClicked();
+    void RefreshAnimationComparison();
+    UPROPERTY() TObjectPtr<UButton> NativeAnimationButton;
+    UPROPERTY() TObjectPtr<UButton> StylizedAnimationButton;
+    UPROPERTY() TObjectPtr<UButton> KawaiiAnimationButton;
+    UPROPERTY() TObjectPtr<UTextBlock> AnimationModeStatus;
+    uint8 DisplayedAnimationMode=254;
     UPROPERTY() TObjectPtr<UComboBoxString> BotCount;
     UPROPERTY() TObjectPtr<UComboBoxString> BotSkill;
     UPROPERTY() TObjectPtr<UComboBoxString> BotMode;

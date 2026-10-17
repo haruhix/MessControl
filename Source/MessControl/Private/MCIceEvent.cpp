@@ -7,6 +7,7 @@
 #include "Engine/SkeletalMesh.h"
 #include "MCColdCola.h"
 #include "MCFreezeBarWidget.h"
+#include "MCGameplayUIFactory.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
 #include "MCGameDirector.h"
@@ -1350,10 +1351,10 @@ void AMCIceEvent::RefreshFreezeBars()
         {
             auto* Bar=NewObject<UWidgetComponent>(this);
             Bar->SetupAttachment(Hero->GetRootComponent()); Bar->SetWidgetSpace(EWidgetSpace::Screen);
-            Bar->SetDrawSize(FVector2D(220,52)); Bar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+            Bar->SetDrawSize(FVector2D(240,64)); Bar->SetDrawAtDesiredSize(true); Bar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
             Bar->SetPivot(FVector2D(.5f,1.f));
             Bar->SetRelativeLocation(FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+170));
-            Bar->SetWidgetClass(UMCFreezeBarWidget::StaticClass()); Bar->RegisterComponent(); AddInstanceComponent(Bar);
+            Bar->SetWidgetClass(UMCGameplayUIFactory::ResolveClass(TEXT("FreezeBar"),UMCFreezeBarWidget::StaticClass())); Bar->RegisterComponent(); AddInstanceComponent(Bar);
             Index=FreezeBars.Add(Bar); BarHeroes.Add(Hero); Bar->InitWidget();
         }
         FreezeBars[Index]->SetVisibility(bShow);

@@ -17,6 +17,7 @@
 #include "MCToothStatusComponent.h"
 #include "Animation/AnimSequence.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -55,19 +56,22 @@ void SetCenteredMesh(UStaticMeshComponent* Component,UStaticMesh* Mesh,float Hei
 AMCNutBoss::AMCNutBoss()
 {
     Feedback->bUseProceduralRecoil=false;
-    PrimaryActorTick.TickInterval=1.f/30.f;
-    Shield=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Shield")); Shield->SetupAttachment(Body);
-    Kernel=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Kernel")); Kernel->SetupAttachment(Body);
-    OpenShell=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("OpenShell")); OpenShell->SetupAttachment(Body);
-    TankTurnPivot=CreateDefaultSubobject<USceneComponent>(TEXT("TankTurnPivot"));TankTurnPivot->SetupAttachment(Body);
+    PrimaryActorTick.TickInterval=0.f;
+    PresentationRoot=CreateDefaultSubobject<USceneComponent>(TEXT("NutPresentationRoot")); PresentationRoot->SetupAttachment(Body);
+    USceneComponent* InheritedVisuals[]={Visual.Get(),LeftEye.Get(),RightEye.Get(),Label.Get()};
+    for(auto* Component:InheritedVisuals) Component->SetupAttachment(PresentationRoot);
+    Shield=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Shield")); Shield->SetupAttachment(PresentationRoot);
+    Kernel=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Kernel")); Kernel->SetupAttachment(PresentationRoot);
+    OpenShell=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("OpenShell")); OpenShell->SetupAttachment(PresentationRoot);
+    TankTurnPivot=CreateDefaultSubobject<USceneComponent>(TEXT("TankTurnPivot")); TankTurnPivot->SetupAttachment(PresentationRoot);
     TankModel=CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TankModel")); TankModel->SetupAttachment(TankTurnPivot);
     TankModel->SetCollisionEnabled(ECollisionEnabled::NoCollision); TankModel->SetCanEverAffectNavigation(false);
     TankModel->SetVisibility(false);
     TankModel->bEnableUpdateRateOptimizations=false;
-    MageModel=CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MageModel")); MageModel->SetupAttachment(Body);
+    MageModel=CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MageModel")); MageModel->SetupAttachment(PresentationRoot);
     MageModel->SetCollisionEnabled(ECollisionEnabled::NoCollision); MageModel->SetCanEverAffectNavigation(false);
     MageModel->SetVisibility(false); MageModel->bEnableUpdateRateOptimizations=false;
-    TankBall=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TankBall")); TankBall->SetupAttachment(Body);
+    TankBall=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TankBall")); TankBall->SetupAttachment(PresentationRoot);
     TankBall->SetCollisionEnabled(ECollisionEnabled::NoCollision); TankBall->SetCanEverAffectNavigation(false);
     TankBall->SetVisibility(false);
     for(auto* Component:{Shield.Get(),Kernel.Get(),OpenShell.Get()}) {
@@ -109,7 +113,7 @@ void AMCNutBoss::ConfigureEncounter(AMCTongue* OnTongue,AMCNutRainEvent* OwnerEv
 void AMCNutBoss::BeginPlay()
 {
     Super::BeginPlay(); BossSettings.Sanitize(); Settings.MaxHealth=Health;
-    bTankRollRotationInitialized=false;
+    ResetClientPresentation(); LastClientMovementAt=-1; bTankRollRotationInitialized=false;
     TankModel->AddTickPrerequisiteActor(this);
     MageModel->AddTickPrerequisiteActor(this);
     if(GetNetMode()==NM_DedicatedServer) {TankModel->SetComponentTickEnabled(false);MageModel->SetComponentTickEnabled(false);}
@@ -126,6 +130,53 @@ void AMCNutBoss::BeginPlay()
 }
 
 void AMCNutBoss::RefreshBossPresentation() { RefreshPresentation(); }
+
+void AMCNutBoss::ResetClientPresentation()
+{
+    if(PresentationRoot) PresentationRoot->SetRelativeTransform(FTransform::Identity);
+    LastTankPresentationAt=-1; TankPresentationMotion=FVector::ZeroVector;
+}
+
+void AMCNutBoss::PostNetReceiveLocationAndRotation()
+{
+    const bool Smooth=GetNetMode()==NM_Client && HasActorBegunPlay() && PresentationRoot && Body;
+    const FVector PreviousLocation=GetActorLocation();
+    const FQuat PreviousRotation=GetActorQuat();
+    const FTransform PreviousVisual=PresentationRoot?PresentationRoot->GetComponentTransform():FTransform::Identity;
+    // The engine immediately updates the authoritative collision root. Only
+    // restore the old rendered transform beneath it, never its hit geometry.
+    Super::PostNetReceiveLocationAndRotation();
+    if(!Smooth) {ResetClientPresentation();return;}
+    const double Time=GetWorld()->GetTimeSeconds();
+    const FVector Offset=PreviousVisual.GetLocation()-Body->GetComponentLocation();
+    const FTransform Relative=PreviousVisual.GetRelativeTransform(Body->GetComponentTransform());
+    const bool ResetRoll=LastClientMovementAt<0
+        || FVector::DistSquared(PreviousLocation,GetActorLocation())>=FMath::Square(200.f) || Relative.ContainsNaN();
+    const bool Snap=ResetRoll || Time-LastClientMovementAt>.25
+        || PreviousRotation.AngularDistance(GetActorQuat())>=PI*.5f
+        || Relative.GetRotation().AngularDistance(FQuat::Identity)>=PI*.5f
+        || Offset.SizeSquared()>FMath::Square(150.f);
+    LastClientMovementAt=Time;
+    if(Snap) {
+        ResetClientPresentation();
+        // A bounce can flip the body's yaw instantly. The rolling sphere's
+        // independent world orientation must survive that angular correction.
+        if(ResetRoll) bTankRollRotationInitialized=false;
+        return;
+    }
+    PresentationRoot->SetRelativeLocationAndRotation(Relative.GetLocation(),Relative.GetRotation());
+}
+
+void AMCNutBoss::TickClientPresentation(float Dt)
+{
+    if(GetNetMode()!=NM_Client || !PresentationRoot) return;
+    const float Alpha=1-FMath::Exp(-20.f*FMath::Max(0.f,Dt));
+    FVector Offset=FMath::Lerp(PresentationRoot->GetRelativeLocation(),FVector::ZeroVector,Alpha);
+    FQuat Rotation=FQuat::Slerp(PresentationRoot->GetRelativeRotation().Quaternion(),FQuat::Identity,Alpha).GetNormalized();
+    if(Offset.IsNearlyZero(.01f)) Offset=FVector::ZeroVector;
+    if(Rotation.AngularDistance(FQuat::Identity)<.0001f) Rotation=FQuat::Identity;
+    PresentationRoot->SetRelativeLocationAndRotation(Offset,Rotation);
+}
 
 void AMCNutBoss::RefreshPresentation()
 {
@@ -567,7 +618,7 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
 
 void AMCNutBoss::PresentTankModel(double Time)
 {
-    const FVector Position=GetActorLocation();
+    const FVector Position=GetNetMode()==NM_Client && PresentationRoot?PresentationRoot->GetComponentLocation():GetActorLocation();
     const double Dt=Time-LastTankPresentationAt;
     if(LastTankPresentationAt>=0 && Dt>.001 && Dt<.5) {
         FVector Motion=(Position-LastTankPresentationLocation)/Dt; Motion.Z=0;
@@ -617,7 +668,7 @@ void AMCNutBoss::PresentTankModel(double Time)
     Visual->SetVisibility(!HasWarrior && BallWeight<.999f && KnightVisible);
     Feedback->SetVisualTarget(BallWeight>.5f?static_cast<UMeshComponent*>(TankBall.Get()):
         HasWarrior?static_cast<UMeshComponent*>(TankModel.Get()):Visual.Get());
-    const FQuat ParentRotation=GetActorQuat();
+    const FQuat ParentRotation=PresentationRoot?PresentationRoot->GetComponentQuat():GetActorQuat();
     const bool ShowingBall=BallWeight>.001f || (!HasWarrior && (Rolling || Returning));
     if(!ShowingBall) bTankRollRotationInitialized=false;
     FQuat Rotation=FQuat::Identity;
@@ -1022,6 +1073,54 @@ void AMCNutBoss::DamageArea(FVector Center,float Radius,float Damage,float Push,
     }
 }
 
+void AMCNutBoss::PushNutsAlongSegment(FVector Start,FVector End,float Seconds)
+{
+    if(!HasAuthority() || !IsEncounterAlive() || !FMath::IsFinite(Seconds) || Seconds<=0) return;
+    const FVector Motion=(End-Start).GetSafeNormal2D();
+    const float Speed=FMath::Min(1000.f,float(FVector::Dist2D(Start,End))/Seconds);
+    if(Motion.IsNearlyZero() || Speed<1) return;
+    const double Time=Now();
+    for(auto It=NutContactAt.CreateIterator();It;++It)
+        if(!It.Key().IsValid() || Time-It.Value()>1.) It.RemoveCurrent();
+    // Boss movement is query-only, so its sweep cannot physically push Chaos
+    // bodies. Probe the real food hull along the actual travelled body segment.
+    for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) {
+        auto* Nut=*It;
+        if(!Nut->IsNutKineticsActive() || !Nut->Body->IsSimulatingPhysics()) continue;
+        if(const double* Last=NutContactAt.Find(Nut); Last && Time-*Last<.12) continue;
+        const FVector Center=Nut->Body->GetCenterOfMass();
+        const FVector Closest=FMath::ClosestPointOnSegment(Center,Start,End);
+        FVector Contact;
+        const float Distance=Nut->Body->GetClosestPointOnCollision(Closest,Contact);
+        if(Distance<0 || Distance>Settings.BodyRadius+4) continue;
+        FVector Direction=(Center-Closest).GetSafeNormal2D();
+        if(Direction.IsNearlyZero()) Direction=Motion;
+        const float Closing=FVector::DotProduct(Motion*Speed-Nut->Body->GetPhysicsLinearVelocity(),Direction);
+        if(Closing<=0) continue;
+        if(Nut->ApplyNutImpulse(Direction*Closing,Contact)) NutContactAt.Add(Nut,Time);
+    }
+}
+
+void AMCNutBoss::PushNutsInArea(FVector Center,float Radius,float Speed,bool bForwardOnly)
+{
+    if(!HasAuthority() || !IsEncounterAlive() || Radius<=0 || Speed<=0) return;
+    for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) {
+        auto* Nut=*It;
+        if(!Nut->IsNutKineticsActive() || !Nut->Body->IsSimulatingPhysics()) continue;
+        FVector Contact;
+        const float Distance=Nut->Body->GetClosestPointOnCollision(Center,Contact);
+        if(Distance<0 || Distance>Radius || FMath::Abs(Nut->GetActorLocation().Z-Center.Z)>230) continue;
+        FVector Direction=(Nut->Body->GetCenterOfMass()-Center).GetSafeNormal2D();
+        if(Direction.IsNearlyZero()) Direction=AttackForward;
+        if(bForwardOnly && FVector::DotProduct(Direction,AttackForward)<.35f) continue;
+        FHitResult Obstacle;
+        FCollisionQueryParams Query(SCENE_QUERY_STAT(MCNutBossNutImpulse),false,this); Query.AddIgnoredActor(Nut);
+        if(GetWorld()->LineTraceSingleByChannel(Obstacle,Center+FVector(0,0,80),Nut->Body->GetCenterOfMass(),ECC_Visibility,Query)) continue;
+        const float Falloff=FMath::Lerp(1.f,.4f,FMath::Clamp(Distance/Radius,0.f,1.f));
+        Nut->ApplyNutImpulse((Direction*Speed+FVector(0,0,Speed*.16f))*Falloff,Contact);
+    }
+}
+
 void AMCNutBoss::DamageChargeSegment(FVector Start,FVector End)
 {
     if(!HasAuthority()) return;
@@ -1098,6 +1197,7 @@ void AMCNutBoss::ExecuteRoll(float Dt)
             if(!LockSurfacePoint(Previous+AttackForward*StepDistance,Settings.BodyRadius+5,Goal)) continue;
         }
         FHitResult Hit; SetActorLocation(Goal,true,&Hit);
+        PushNutsAlongSegment(Previous,GetActorLocation(),FrameSeconds/Steps);
         DamageRollSegment(Previous,GetActorLocation());
         if(Hit.bBlockingHit) {
             HandleRollToothImpact(Hit);
@@ -1257,6 +1357,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
         FVector Goal;
         if(!LockSurfacePoint(LockedStart+AttackForward*Travel,Settings.BodyRadius+5,Goal)) { Recover(1.4f); return; }
         FHitResult Hit; SetActorLocation(Goal,true,&Hit); DamageChargeSegment(Previous,GetActorLocation());
+        PushNutsAlongSegment(Previous,GetActorLocation(),FMath::Max(.001f,Dt));
         if(Time>=AttackEndAt || (Hit.bBlockingHit && FVector::DistSquared2D(Previous,GetActorLocation())<4)) Recover(1.4f);
     } else if(Attack==EMCNutBossAttack::Roll) {
         ExecuteRoll(Dt);
@@ -1266,6 +1367,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
         SetActorLocation(Goal,false);
         if(Alpha>=1 && !bResolved) {
             bResolved=true; DamageArea(LockedTarget,BossSettings.JumpRadius,BossSettings.JumpDamage,BossSettings.TankJumpPush,&AttackHits);
+            PushNutsInArea(LockedTarget,BossSettings.JumpRadius,BossSettings.TankJumpPush);
             TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::SlamImpact,LockedTarget,LockedTarget,BossSettings.JumpRadius,0,.6f,AttackSeed));
             Recover(1.7f);
         }
@@ -1288,6 +1390,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
             if(!GroundHit) for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
                 if(FVector::DotProduct((It->GetActorLocation()-LockedStart).GetSafeNormal2D(),AttackForward)<.35f) AttackHits.Add(*It);
             DamageArea(Center,BossSettings.MeleeRange*(GroundHit?.8f:1.f),BossSettings.MeleeDamage,BossSettings.TankMeleePush,&AttackHits);
+            PushNutsInArea(Center,BossSettings.MeleeRange*(GroundHit?.8f:1.f),BossSettings.TankMeleePush,!GroundHit);
             TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,GroundHit?EMCNutCombatCue::SlamImpact:EMCNutCombatCue::MeleeSlash,
                 Center,GroundHit?Center:LockedTarget,BossSettings.MeleeRange*(GroundHit?.8f:1.f),0,GroundHit?.6f:.22f,AttackSeed+MeleeHitsResolved));
             ++MeleeHitsResolved;
@@ -1308,6 +1411,8 @@ void AMCNutBoss::ExecuteAttack(float Dt)
             }
             DamageArea(LockedStart,BossSettings.MeleeRange,BossSettings.MeleeDamage,
                 BossRole==EMCNutBossRole::Tank?BossSettings.TankMeleePush:90,&AttackHits);
+            PushNutsInArea(LockedStart,BossSettings.MeleeRange,
+                BossRole==EMCNutBossRole::Tank?BossSettings.TankMeleePush:90,true);
             TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::MeleeSlash,LockedStart,LockedTarget,
                 BossSettings.MeleeRange,0,.22f,AttackSeed));
         }
@@ -1317,7 +1422,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
 
 void AMCNutBoss::Tick(float Dt)
 {
-    AActor::Tick(Dt); const double Time=Now(); TickPresentation(Time); PresentTankModel(Time);
+    AActor::Tick(Dt); TickClientPresentation(Dt); const double Time=Now(); TickPresentation(Time); PresentTankModel(Time);
     AMCNutCombatEffect::UpdateShieldDamageVisual(this);
     if(!HasAuthority() || bDefeated) return;
     const auto* Game=GetWorld()->GetGameState<AMCGameState>();
@@ -1420,9 +1525,11 @@ void AMCNutBoss::Tick(float Dt)
             if(State==EMCNutBossState::Telegraph) return;
         }
     }
+    const FVector Previous=GetActorLocation();
     if(BossRole==EMCNutBossRole::Tank && Distance>BossSettings.MeleeRange*.8f) MoveOnTongue(Direction,Dt);
     else if(BossRole==EMCNutBossRole::Mage && Distance<BossSettings.MageFocusRadius) MoveOnTongue(-Direction,Dt);
     else if(BossRole==EMCNutBossRole::Mage && Distance>720+Settings.BodyRadius) MoveOnTongue(Direction,Dt);
+    PushNutsAlongSegment(Previous,GetActorLocation(),FMath::Max(.001f,Dt));
 }
 
 bool AMCNutBoss::IsPlayerInThreat(const AMCToothCharacter* Hero,FVector& EscapeDirection) const

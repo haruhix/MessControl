@@ -17,6 +17,15 @@
 	],
 	"Plugins": [
 		{
+			"Name": "KawaiiPhysics",
+			"Enabled": true
+		},
+		{
+			"Name": "StylizedDynamics",
+			"Enabled": true,
+			"Optional": true
+		},
+		{
 			"Name": "DeformerGraph",
 			"Enabled": true
 		},

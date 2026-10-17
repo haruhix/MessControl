@@ -35,11 +35,16 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--unit', choices=tuple(SPECS), required=True)
     parser.add_argument('--source', type=Path, help='Explicit saved production copy; never modifies the blend')
+    parser.add_argument('--output-dir', type=Path, help='Separate export revision directory')
+    parser.add_argument('--clips', nargs='+', help='Optional production subset, using existing clip suffixes')
     args = parser.parse_args(sys.argv[sys.argv.index('--') + 1:])
-    spec = SPECS[args.unit]
+    spec = dict(SPECS[args.unit])
+    if args.clips:
+        assert len(args.clips) == len(set(args.clips)) and set(args.clips).issubset(spec['clips']), args.clips
+        spec['clips'] = tuple(args.clips)
     source = (args.source if args.source is not None else ROOT / 'ArtSource/NutAnimationStyle' / spec['source']).resolve()
     assert source.is_file() and source.suffix.lower() == '.blend', source
-    out = ROOT / 'ArtSource/NutAnimationStyle/Exports' / args.unit
+    out = (args.output_dir if args.output_dir is not None else ROOT / 'ArtSource/NutAnimationStyle/Exports' / args.unit).resolve()
     out.mkdir(parents=True, exist_ok=True)
     legacy_file = ROOT / 'ArtSource' / spec['legacy'] / 'ExportReport.json'
     legacy = json.loads(legacy_file.read_text(encoding='utf8'))

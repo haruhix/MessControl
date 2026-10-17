@@ -463,3 +463,346 @@ endpoint frame the wizard; the character shrinks away and returns around the
 native relocation time. Existing materials and Niagara burst assets are reused;
 no reference asset or texture is copied. Gameplay-camera validation is recorded
 separately in `Artifacts/NutWizardUpdate_20261017`.
+## Progressive coffee deposition and wet film v3 — 2026-10-17
+
+Before authoring, reopened [Sam Perzanowski's original gel breakdown, post 5](https://realtimevfx.com/t/vfx-experiments-personal-wip-sam-perzanowski/1278)
+and [Epic's UE 5.8 material inputs](https://dev.epicgames.com/documentation/en-us/unreal-engine/material-inputs-in-unreal-engine).
+Adapt the separation between a stable footprint, restrained surface normal and
+readable liquid response. No creator texture, mesh or new particle pack is used.
+
+`Tools/Unreal/author_coffee_stain_film_v3.py` authors accepted
+`coffee_stain_film_v3:5` on `/Game/Cataclysm/Jelly/M_CataclysmPaintTrail`: calm
+espresso with +/-3% fine pigment variation, a .35cm mask-derived shading
+meniscus, very low fine-normal strength, roughness .085 and zero emissive.
+The underlying bilinear 64x64 cleaning mask and clip .25 remain. The appearance
+uses five WipeMask reads; the applied temporal-edge addition below also samples
+the Engine noise texture. There is no translucent layer, UV warp or geometric
+displacement. Native tongue-face bindings and the uniform 0.6cm offset remain.
+The author defaults to a read-only plan, checks ownership/idle clean editor
+state, and backs up the saved package before explicitly applied compile/save.
+
+Wave residue now uses the same film path: up to eight supported footprints are
+selected before arrival and gain only the texels reached by the native swept
+water front. Teeth gain their reached coating during the wave too. Previously
+emitted coverage is recorded separately from the live cleaning mask so a passed
+wave does not refill brush strokes. This replaces the old end-of-wave deposit.
+
+The authorized Editor build and solo runtime validation completed. The final
+plain-PBR rev5 material compiled and was saved; the lead inspected the actual
+gameplay-lighting comparison frames and accepted its direction with default
+roughness .085. `Saved/CoffeeFilmPBR/Capture/Runs/20261017T021443Z_paint_13451578`
+passed all six native functional gates, including progressively growing tongue
+coverage, tooth grime before wave completion and genuine held-brush removal.
+The comparison restored its transient MID parameters before real brushing.
+`Tools/Unreal/probe_coffee_wave_stains_solo.py` records moving-front, tooth and
+held-brush captures. Its disclosed PIE-only fixture clears the native coffee
+amount of three existing teeth before F3 so arrival can be seen; it never
+assigns masks or calls care/deposit helpers during the wave. Full encounter
+cleanup and network tests remain deferred. The bounded same-camera GPU
+comparison completed as described below.
+
+Coffee film revision3 research follow-up: [Adam Funari's original wetness/puddle
+shader tutorial](https://axton.artstation.com/projects/nYeAJe) varies the material
+response from its wetness mask rather than relying on one roughness value.
+[Alexander Zawadski's original Unreal water breakdown, Part 4: Glints](https://alexanderzawadski.artstation.com/blog/boaaN/unreal-water-material-breakdown)
+describes normal-driven stylized reflections when roughness/specular alone do
+not give a readable result, crediting Simon Trümpler's RiME talk. Reopened these
+sources before this pass. Revision3 tried a bounded view/normal-dependent reflection lobe
+with irregular pigment breakup, two-scale roasted-coffee color, a thin
+mask-derived meniscus and rare procedural crema rings. This uses five existing
+mask texture reads and arithmetic noise; no new texture, translucent layer,
+water-wave displacement, caustics, refraction or Niagara system is introduced.
+
+Revision1 was rejected for beige paste-like reflections and parallel sine bands;
+revision2 was rejected after the real mouth-lighting capture showed a mostly
+uniform matte brown fill. Revision3 was applied and compiled, but its actual
+close-up (`20261017T020451Z_paint_9e53f8d4/frames/00176.png`) was rejected: broad
+beige pigment/reflection islands and stronger normals suggested raised pudding.
+The tooth review framing passed lead inspection separately.
+
+Revision4 also compiled and passed the functional probe, but lead review of
+`20261017T020941Z_paint_e2f2f823/frames/00176.png` rejected its beige parallel
+scratch-like glints. The same actual frame already contained a real engine PBR
+reflection, so the procedural reflection/streak field is removed entirely in
+the accepted `coffee_stain_film_v3:5`. It uses plain masked DefaultLit shading,
+a calm espresso base with only +/-3% fine pigment variation, .35cm meniscus
+shading, very low fine-normal strength and parameterized .085 roughness. It has
+exactly zero emissive, five mask reads and one four-corner arithmetic-noise
+evaluation; no reflection power, new texture, transparency layer or global
+arena-lighting/reflection changes. Revision3's report incorrectly said two
+reflection powers; it actually used three.
+
+`Tools/Unreal/compare_coffee_film_pbr_solo.py` prepares three roughness candidates
+(.12, .08 and .05) on the same real wave patch in one PIE, each with three static
+seconds and a small camera orbit. Only transient MID values/camera change;
+native mask, clocks, AI and normal wave/brush gates remain active. Values are
+restored before the ordinary static close-up, real brush input and after-wipe
+review. Exact cleaning coverage and conforming geometry remain unchanged.
+Rev5 compile/application, candidate comparison, gameplay-camera review and all
+six native functional gates completed in the run above. The ordinary-puddle
+parity author (`Tools/Unreal/author_ordinary_coffee_film.py`,
+`ordinary_coffee_film_v1:2`) was applied and compiled. It replaces only owned
+appearance nodes, retains the
+original seeded opacity/WPO graph and every MI override array, and calibrates
+legacy palette/roughness/specular inputs to the same rev5 response.
+`Saved/BrushSelfcare/Capture/Runs/20261017T023710Z_jellies_dac1cf87` passed all
+seven native checks: self-care completes, exits automatically and reaches real
+environmental cleaning with the brush continuously selected and held input.
+Lead visual acceptance recorded here covers the rev5 wave/slime appearance and
+the edge A/B below; the ordinary probe establishes its native self-care/brush
+flow. No multiplayer measurement is claimed.
+
+### Coffee edge follow-up
+
+The paint mesh follows/clips the actual tongue triangles; its liquid outline
+comes from the 64x64 bilinear mask and clip .25. The separate 20x20 grid is for
+ordinary puddle geometry. Reviewed [Sigg and Hadwiger's original GPU Gems
+chapter on cubic filtering](https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-20-fast-third-order-texture-filtering)
+and [Epic's utility-material expressions](https://dev.epicgames.com/documentation/en-us/unreal-engine/utility-material-expressions-in-unreal-engine).
+The first pass tried interpolating cardinal cubic-Hermite weights between the
+same texels, but actual A/B frames00156/00206 and after-brush00386 in
+`20261017T022734Z_paint_a7c1d8ef` showed more obvious flat zigzags. It failed
+visual review and was disabled. No edge improvement is claimed from that pass.
+Non-interpolating B-spline blur remains deferred because it changes centre
+values and can hide weak remaining dirt.
+
+[Epic's stylized-material breakdown](https://dev.epicgames.com/documentation/unreal-engine/stylized-rendering-materials?application_version=4.27)
+uses DitherTemporalAA for a soft masked edge; [Epic's UE5 anti-aliasing
+guidance](https://dev.epicgames.com/documentation/unreal-engine/anti-aliasing-and-upscaling-in-unreal-engine?lang=en-US)
+requires checking temporal methods during movement. Applied and compiled
+`coffee_edge_reconstruction_v1:2` removes the two rejected cardinal nodes and
+restores original UV. It uses the
+existing Engine DitherTemporalAA function on a narrow rendered-opacity band
+around coverage .25: target 1.5 screen pixels with a 2–4cm world-width limit and
+an alpha half-width cap .24. A final gate keeps exact-zero coverage invisible
+and the core opaque; native mask bytes, Finish, brush logic and accepted rev5
+appearance/geometry remain unchanged. No translucent layer or emissive effect
+is added. Five WipeMask reads remain, but the native function contains an
+additional noise-texture sample and temporal arithmetic; total shader/GPU cost
+requires measurement. The Engine asset references
+`Good64x64TilingNoiseHighFreq`. TAA availability alone is not visual acceptance.
+
+`compare_coffee_edges_solo.py` completed the real wave/brush A/B in
+`Saved/CoffeeStainEdges/Capture/Runs/20261017T024049Z_paint_175f61eb`. The lead
+inspected hard frame00156, soft frame00206 and after-brush frame00386, and
+accepted edge2 for the integrated preview. Narrow soft coverage is visible;
+slight native temporal grain remains, and the 64x64 source still limits the
+contour shape. The lead decoded and inspected the genuine MP4 previews before
+and after brushing, including micro-orbit positions .15/.5/.85, and accepted
+the narrow softening for the integrated preview. Perfect contour smoothing
+or flicker-free motion is not claimed.
+
+All six native coffee gates passed. Both hard/soft pairs retained identical
+native-mask hashes, separately before and after genuine brushing; parameter
+changes did not repaint zeroed cells. Actual brush input removed native mask
+coverage between those checkpoints. Each candidate includes three static
+seconds and a small orbit, parameters restored, and active TAA was recorded.
+
+The clean A/B/A run `20261017T030842Z_paint_31996456` completed with six checks
+passed in `Saved/CoffeeFilmPerformance/Report_performance.json`, including
+unchanged masks, a stationary actual player camera, no video sampling during
+timing, and independent readback confirming settings restored. FFmpeg, builds
+and DCC work were absent at startup; the real PIE window was selected before
+timing. This supersedes the earlier encoding-overlapped attempt.
+
+Whole Editor RHI-frame GPU medians on the RTX 3080 were A1 original 3.66545ms,
+B current 3.62695ms and A2 original 3.63825ms. Relative to mean baseline 3.65185ms,
+B differed by -0.02490ms (-0.682%); the A/A repeat drift was 0.02720ms (0.745%).
+That delta is smaller than baseline drift: no measurable regression was found
+in this one paused-world, same-camera scene. This does not establish a speedup,
+isolated material cost or a global game/hardware performance budget.
+Texture-read counts and the fixed-rate preview window are not GPU timing
+evidence.
+
+### Coffee mask density experiment — 2026-10-17
+
+Reused the accepted rev5 film / Edge2 references above. Tested genuine
+independently rasterized 64x64, 128x128 and 256x256 coverage masks, with the
+same continuous UV deposit/brush recipe, physical 1200cm tile, native conforming
+tongue mesh, bilinear linear-data textures, lighting and camera. This is a
+mask-density experiment, not an art-texture resolution or geometry change.
+The transient material varies its normal neighbour step as 1/N and keeps the
+same five explicit WipeMask reads plus the native DitherTemporalAA noise read.
+No production material, map or native resolution was changed or saved.
+
+Data and standalone CPU results: `Saved/CoffeeMaskResolution/Data/cases.json`
+and `CpuAlgorithmReport.json`. The original `MCCoffeeWipe.cpp` was compiled
+unchanged as a separate MSVC x64 /O2 translation unit with a small standard-C++
+UE math/container shim; only the copied header's Size varied. Allocation,
+reset, copies and I/O were outside timing. There were 24 warmups and 240
+measured calls per operation, on Ryzen 9 5950X. This does not measure UE Core,
+allocations, live brush contact/completion, the optional CoverageAllowed
+callback, RHI uploads or networking; warm-cache sequential runs are not a
+whole-game CPU benchmark.
+
+| Mask | Physical cell | Stroke median / p95 | Deposit median / p95 | Raw BGRA texture / full upload |
+| --- | --- | --- | --- | --- |
+| 64x64 | 18.750cm | 23.4 / 30.4us | 5.7 / 5.7us | 16KiB |
+| 128x128 | 9.375cm | 90.6 / 139.9us | 20.9 / 21.1us | 64KiB |
+| 256x256 | 4.6875cm | 345.0 / 378.0us | 76.3 / 81.0us | 256KiB |
+
+Two native byte arrays would contain 8/32/128KiB raw state respectively;
+these are not measured network-packet sizes or bandwidth. A full BGRA upload
+at the maximum 30Hz would carry 0.469/1.875/7.5MiB/s per actor CPU-to-GPU,
+before overhead. Those are calculated payload budgets, not observed transfer
+rates or measured total VRAM. The 256 case has four times the cells/storage
+and approximately 3.81 times the measured Stroke cost of 128.
+
+Visual run `20261017T045636Z_paint_e7c3a0df` passed all eight native-fixture,
+mask-invariance, package and restoration checks. The lead reviewed real PNGs,
+same-camera comparison panels, the 1:1-pixel edge crop, and decoded MP4 orbit
+frames in `Artifacts/CoffeeMaskResolution_20261017/Review_045636Z`. Native 64
+contour steps are visibly larger; 128 reduces them substantially; 256 refines
+them further. The same local brush crossing is shown, without scaling the
+mesh or upsampling64. Temporal grain remains; this does not prove flicker-free
+motion. The first run 045205Z was visually rejected because the full-tile fit
+placed the camera through the mouth ceiling; it is not a comparison result.
+
+Separate GPU run `20261017T045931Z_paint_f88f3f10` passed all ten checks,
+including stationary actual camera, no video sampling, unchanged readable
+native 64 masks and independent settings restoration. FFmpeg, compiler and DCC
+work had ended before timing. The world was paused; each candidate had 3s
+warmup then 6s CSV capture, with sequence 64/128/64/256/64. Whole Editor RHI-frame
+GPU medians were 3.24170/3.20970/3.22040/3.21425/3.28285ms, on RTX 3080,
+D3D12/SM5, driver 581.57, UE 5.8.1, actual viewport 1280x722.
+
+128 differed from its bracketed 64 mean by -0.02135ms against 64 repeat drift
+0.02130ms; 256 differed by -0.037375ms against drift 0.06245ms. These differences
+do not demonstrate a GPU speedup. No measurable regression was found in this
+one stationary scene. All six textures were resident together, so this is not
+an isolated total-VRAM comparison. An independent agent recomputed all raw CSV
+medians/p95 and verified source/package/report hashes and restoration.
+
+The raw reports retain inherited `baseline`/`purpose` strings from the old
+helper; their mask-specific scope, sequence and measurements are correct.
+Those two metadata fields were corrected in the reusable probe after the run;
+recorded executed-source hashes and immutable raw reports remain unchanged.
+`TestResults.json` in the reviewed artifact directory records this correction.
+
+Recommended next integration candidate: 128 for large paint tiles. Production
+still uses 64. Higher-resolution native cleaning, contact/completion, uploads
+and multiplayer/replication remain unintegrated and unvalidated. The protected
+LiquidDepositMask ledger could not be read through the live API; readable
+WipeMask hashes and reported care state were checked instead. Unsaved user
+map edits were preserved. No Editor build, cook, package or network test ran.
+
+### Coffee architecture A/B — 2026-10-17
+
+Practical reference: Epic's [material layering overview](https://dev.epicgames.com/documentation/en-us/unreal-engine/layering-materials-in-unreal-engine),
+[Material Layers](https://dev.epicgames.com/documentation/unreal-engine/using-material-layers-in-unreal-engine),
+and [From Material Expression shading model](https://dev.epicgames.com/documentation/unreal-engine/from-material-expression-shading-model-in-unreal-engine?lang=en-US).
+Adapt the material-attribute blending technique to the existing accepted
+espresso film/Edge2 look. A literal Material Layers asset is not required by
+this prototype. No new external textures, Niagara assets or project packages
+were authored; both candidates clone existing source graphs into Transient.
+
+A renders the coffee as a separate conforming surface. B blends the same
+coverage, coffee PBR inputs and normal detail into the original receiving
+material. Original graph connections, parameters and cutouts are retained.
+The tongue's SubsurfaceProfile shading requires a supported per-pixel
+MakeMaterialAttributes/ShadingModel branch: clean tissue keeps its original
+model, coffee uses DefaultLit. B has continuous narrow alpha coverage; A uses
+the accepted masked temporal-dither edge, so this is explicitly a comparison
+of practical renderer candidates, not identical shader instructions.
+
+The accepted tongue preview is
+`Saved/CoffeeArchitectureAB/Preview/Fixture/Runs/20261017T054309Z_paint_3836f7f9/Report.json`.
+Both variants use the same independently rasterized 128 mask textures on one
+actual native 1200cm slime paint tile. Production masks remain 64. The lead
+reviewed actual engine PNGs, matched panels and decoded orbit/deformation
+videos in `Artifacts/CoffeeArchitectureAB_20261017/Tongue_054309Z`.
+B has a smoother narrow edge; the coffee identity remains close. Ten native
+StartYawn deformation checkpoints retained identical game time and geometry
+hashes between A/B. They are disclosed paused-time paired captures, not an
+ordinary continuous gameplay recording. Eight-Hz captures cannot establish
+flicker-free motion. Native actors and their geometry updates remain enabled
+in both variants; their removal or CPU savings was not tested.
+
+The first tongue GPU run was inconclusive due to baseline drift. The preferred
+repeat is `Saved/CoffeeArchitectureAB/Performance/Fixture/Runs/20261017T055553Z_paint_df90e91f/Report.json`:
+12s initial preheat, then 3s warmup and 6s CSV per A/B/A window, no video or
+FFmpeg during timing. Whole Editor RHI-frame GPU medians were
+3.43975 / 3.44930 / 3.45230ms on RTX3080, D3D12/SM5, UE5.8.1. B differs from
+the bracketed A mean by +0.003275ms (+0.0950%); A repeat drift is 0.01255ms
+(0.3642%). No GPU winner is established. This one paused scene does not measure
+an isolated material pass, shipping-game FPS, CPU mesh work or multiplayer.
+An independent agent recomputed all raw CSV statistics and hashes. The helper
+file changed in tooth-only code during preparation: retain the initial and
+build-time hashes. `Saved/CoffeeArchitectureAB/TongueRuntimeCodeAudit_055553.json`
+verifies the actual retained bytecode of all14 executed tongue-path functions
+against the final helper, plus shared constants; it does not claim whole-file
+SHA identity.
+
+Separate CPU kernel A/B evidence is
+`Saved/CoffeeWipeBoundedAB/Reports/Report.json`. A compiles unchanged native
+MCCoffeeWipe.cpp as its own MSVC /O2 translation unit with a small stdlib UE
+shim; B restricts Stroke iteration to the capsule's bounding rectangle. Each
+resolution passes708 correctness steps covering identical bytes, fractional
+float bits, Changed and aggregates. Each fixture has240 paired AB/BA timings;
+reset/copy/I/O are excluded. Short diagonal Stroke median A→B is
+23.6→0.8us at64, 95.3→2.7us at128, and417.25→11.2us at256. Long diagonals gain
+only about1.13–1.19x; broad brushes are near equal (B up to2.6% slower).
+Optional incremental aggregates help localized strokes, but broad strokes
+are7–9% slower. These are warm-cache standalone numerical kernels, not a
+GameThread, RHI-upload or network measurement. No optimized game code was
+integrated by this experiment.
+
+Recommended direction: shared paint/deposit/erase semantics and coffee style,
+with surface-specific coordinates: 2D tongue coverage and object-local volume
+coverage on curved teeth. Prefer bounded CPU work for local strokes. A direct
+surface-material renderer is a promising visual option; measured FPS does not
+justify a migration by itself. Tooth rendering, native grime-domain migration,
+brush/contact/completion, dirty-region/R8 uploads and replication require
+their own evidence before production integration.
+
+The accepted tooth renderer preview is
+`Saved/CoffeeToothArchitectureAB/Preview/Runs/20261017T061504Z_8cecefce/Report.json`.
+It uses an actual runtime tooth3 mesh, unchanged native grime state, and one
+shared synthetic16^3 mask packed into a64^2 atlas. A is an owned copy of the
+same native StaticMesh, offset0.6cm by normal WPO; B changes only enamel
+material inputs. Both preserve original UVs. Domain selection uses actual
+mesh normals and excludes actual reverse-facing vertices (0 painted out of776
+in the accepted offline domain). Domains based only on world inward direction
+were rejected because rotation could reduce safe depth below a native voxel;
+the final gate also requires sufficient painted front area and valid partial
+mask data. This is a synthetic future paint-domain experiment, not conversion
+of the current native GrimeRelief islands or native brush/contact validation.
+
+The lead rejected run061308Z visually despite telemetry passing: the original
+lower-crown domain was hidden by the tongue and the whole-tooth AABB camera
+was too distant. The accepted run uses the exposed upper-middle crown and a
+disclosed close review camera. Its before/partial/Chipped pairs share mask,
+camera and current native mesh. ReceiveArenaHit20 produces the real Chipped
+variant; the original Intact coordinates and masks are retained. Both the
+changed native tooth and its health exist only in the owned discarded PIE.
+
+The lead inspected engine PNGs, all three comparison panels and decoded A/B
+orbit MP4 frames in `Artifacts/CoffeeArchitectureAB_20261017/Tooth_061504Z`.
+Both renderer prototypes follow the real curved/chipped enamel. B smooths the
+edge and preserves more native crack detail: A's offset coat visibly covers
+part of the separate crack detail. This is useful architecture evidence, not
+approval of the final tooth-coffee art style. Partial erasure is generated
+with the native Stroke formula offline; no actual new tooth brushing mechanic
+or continuous erase-input video is claimed. Twelve oblique poses are captured
+at matched discrete camera angles, with genuine PNGs and recorded wall gaps.
+
+Separate tooth GPU run
+`Saved/CoffeeToothArchitectureAB/Performance/Runs/20261017T061645Z_8086b7f5/Report.json`
+passed all eight setup/mask/package/restoration checks. It used12s initial
+preheat, then3s warmup and6s CSV per A/B/A window with no screenshots during
+timing. GPU medians A1/B/A2 were4.2362 /4.0851 /4.0843ms; their p95 values were
+5.2679 /5.0459 /5.0034ms. The B delta is−0.07515ms (−1.806%) against A repeat
+drift0.1519ms (3.651%). This does not establish a GPU speedup. Native relief
+data/ticks remain intact in both modes, and this is one paused Editor view.
+No full gameplay CPU, upload, draw-call budget or network result is implied.
+An independent agent recomputed all three raw CSV statistics, verified all
+10 source hashes and94 package hashes, and checked actual settings readback.
+The accepted tooth preview also passed its independent camera/mask/mesh pairing
+audit for three static A/B pairs and all12 orbit poses.
+
+Both experiments restore settings and native material/visibility state and
+discard only their owned solo PIE. Saved source packages and unsaved user map
+edits were preserved. Zen DDC returned507/InsufficientStorage on C: during
+authoring; shader compilation succeeded in memory. No user cache was cleaned.
+No production renderer switch, native-resolution change, Editor build, cook,
+packaging, network test or push is part of these A/B experiments.

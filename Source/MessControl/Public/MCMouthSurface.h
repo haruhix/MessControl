@@ -66,6 +66,8 @@ public:
     void ClearLiquidForBooster();
     // Initial wet coverage, clipped to the path of the liquid that deposited it.
     void SetLiquidDepositMask(const TArray<uint8>& Mask);
+    /** Grow a source's footprint without restoring its already-cleaned coverage. */
+    bool AppendLiquidDepositMask(const TArray<uint8>& Mask);
     /** Bounded shared paint canvas; its shape is the mask, rather than a seeded puddle outline. */
     UPROPERTY(ReplicatedUsing=OnRep_LiquidSize,BlueprintReadOnly,Category="Liquid") bool bPaintTile=false;
     void InitializePaintTile(AMCTongue* InTongue);

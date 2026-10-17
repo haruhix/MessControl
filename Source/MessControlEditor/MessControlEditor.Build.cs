@@ -9,7 +9,9 @@ public class MessControlEditor : ModuleRules
         PrivateDependencyModuleNames.AddRange(new[] {
             "MessControl", "UnrealEd", "NavigationSystem", "AIModule",
             "AssetRegistry", "PhysicsCore", "PhysicsUtilities", "MeshDescription",
-            "StaticMeshDescription", "Chaos", "ChaosCore"
+            "StaticMeshDescription", "Chaos", "ChaosCore",
+            "UMG", "UMGEditor", "Slate", "SlateCore", "RenderCore", "RHI", "ImageCore", "PropertyEditor", "Kismet", "MovieScene",
+            "GraphEditor", "BlueprintGraph", "KismetWidgets", "Merge", "SourceControl"
         });
     }
 }

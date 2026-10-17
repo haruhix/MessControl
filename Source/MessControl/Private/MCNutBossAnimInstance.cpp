@@ -1,6 +1,8 @@
 #include "MCNutBossAnimInstance.h"
 
 #include "MCNutBoss.h"
+#include "MCSecondaryAnimationSolver.h"
+#include "MCAnimationComparisonSubsystem.h"
 #include "Animation/AnimInstanceProxy.h"
 #include "Animation/AnimNodeBase.h"
 #include "Animation/AnimSequence.h"
@@ -102,8 +104,15 @@ protected:
     {
         FAnimInstanceProxy::PreUpdate(Instance,Dt);
         Input=FMCNutBossAnimationSnapshot();
-        if(auto* Mesh=Instance->GetSkelMeshComponent())
+        if(auto* Mesh=Instance->GetSkelMeshComponent()) {
             if(const auto* Boss=Cast<AMCNutBoss>(Mesh->GetOwner())) Boss->BuildAnimationSnapshot(Mesh,Input);
+            TArray<FName> MotionBones;
+            for(int32 Role=0;Role<2;++Role) if(Input.Bones[Role]!=INDEX_NONE) MotionBones.Add(Mesh->GetBoneName(Input.Bones[Role]));
+            SecondaryMotion.PreUpdate(Instance,*this,Dt,MotionBones,Input.Death<.01f);
+            if(auto* Comparison=Instance->GetWorld()->GetSubsystem<UMCAnimationComparisonSubsystem>())
+                Comparison->RecordSample(Mesh,Comparison->GetMode(),SecondaryMotion.GetActiveBoneCount(),SecondaryMotion.GetEvaluationCount(),
+                    SecondaryMotion.GetLastMaxAngleDegrees(),SecondaryMotion.GetLastMaxTranslation());
+        }
     }
 
     virtual void Update(float Dt) override
@@ -171,9 +180,11 @@ protected:
         Output.Pose.NormalizeRotations();
         LastPose.SetNumUninitialized(Count);
         for(auto Bone:Output.Pose.ForEachBoneIndex()) LastPose[Bone.GetInt()]=Output.Pose[Bone];
+        SecondaryMotion.Evaluate(Output);
         return true;
     }
 private:
+    FMCSecondaryAnimationSolver SecondaryMotion;
     void ApplyOverlays(FCompactPose& Pose)
     {
         if(Input.bMage && Input.AuthoredMageMotionWeight>.999f) return;

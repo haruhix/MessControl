@@ -7,6 +7,7 @@
 #include "MCToothCharacter.h"
 #include "MCFoodCollectionComponent.h"
 #include "MCDeliveryZoneCaptionWidget.h"
+#include "MCGameplayUIFactory.h"
 #include "ProceduralMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Components/WidgetComponent.h"
@@ -70,6 +71,7 @@ UProceduralMeshComponent* UMCDeliveryZoneVisualComponent::MakeMesh(FName Name)
 void UMCDeliveryZoneVisualComponent::BeginPlay()
 {
     Super::BeginPlay();Zone=Cast<AMCFoodDisposal>(GetOwner());
+    if(Zone.IsValid() && !Zone->bEnableLegacyDeliveryZone) {Zone->Label->SetVisibility(false);SetComponentTickEnabled(false);return;}
     if(GetNetMode()==NM_DedicatedServer || !Zone.IsValid() || !GuideMaterial) {SetComponentTickEnabled(false);return;}
     for(TActorIterator<AMCTongue> It(GetWorld());It;++It) {Tongue=*It;AddTickPrerequisiteActor(*It);break;}
     SurfaceCache=MakeShared<MCDeliveryGuide::FSurfaceCache>();
@@ -81,7 +83,7 @@ void UMCDeliveryZoneVisualComponent::BeginPlay()
     Floor->SetMaterial(0,FloorMID);Arrows->SetMaterial(0,ArrowMID);
     Caption=NewObject<UWidgetComponent>(GetOwner(),TEXT("DeliveryCaption"));Caption->SetupAttachment(GetOwner()->GetRootComponent());
     Caption->SetCollisionEnabled(ECollisionEnabled::NoCollision);Caption->SetCastShadow(false);
-    Caption->SetWidgetSpace(EWidgetSpace::Screen);Caption->SetWidgetClass(UMCDeliveryZoneCaptionWidget::StaticClass());
+    Caption->SetWidgetSpace(EWidgetSpace::Screen);Caption->SetWidgetClass(UMCGameplayUIFactory::ResolveClass(TEXT("DeliveryCaption"),UMCDeliveryZoneCaptionWidget::StaticClass()));
     Caption->SetDrawSize(FVector2D(280,56));Caption->SetDrawAtDesiredSize(true);Caption->SetPivot(FVector2D(.5,.5));
     Caption->SetGenerateOverlapEvents(false);Caption->SetCanEverAffectNavigation(false);
     GetOwner()->AddInstanceComponent(Caption);Caption->RegisterComponent();Caption->InitWidget();

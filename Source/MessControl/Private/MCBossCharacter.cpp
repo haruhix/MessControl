@@ -7,6 +7,7 @@
 #include "MCBossFaceComponent.h"
 #include "MCBossMouthAttackComponent.h"
 #include "MCToothCharacter.h"
+#include "MCFoodActor.h"
 #include "MCToothStatusComponent.h"
 #include "MCCombatFeedbackComponent.h"
 #include "MCGameMode.h"
@@ -14,6 +15,7 @@
 #include "Animation/AnimSequence.h"
 #include "Animation/AnimSingleNodeInstance.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
 #include "Engine/World.h"
@@ -99,7 +101,9 @@ void AMCBossCharacter::OnRep_Profile()
             if (auto* BossMesh=ResolvedProfile->SkeletalMesh.LoadSynchronous()) GetMesh()->SetSkeletalMeshAsset(BossMesh);
         if (!ResolvedProfile->AnimationClass.IsNull())
             if (auto* AnimClass=ResolvedProfile->AnimationClass.LoadSynchronous()) GetMesh()->SetAnimInstanceClass(AnimClass);
-        if (ResolvedProfile->AnimationClass.IsNull() && ResolvedProfile->AnimationBlendSeconds>0.f)
+        // Zero blend seconds still uses the native presenter, with immediate
+        // transitions; every default boss supports the local secondary solver.
+        if (ResolvedProfile->AnimationClass.IsNull())
             GetMesh()->SetAnimInstanceClass(UMCBossAnimInstance::StaticClass());
         GetMesh()->SetRelativeTransform(ResolvedProfile->MeshTransform);
         const auto* DefaultBody=GetClass()->GetDefaultObject<AMCBossCharacter>()->BodyHitbox.Get();
@@ -354,6 +358,32 @@ void AMCBossCharacter::ExecuteAttack_Implementation(const FMCBossAttackDefinitio
     {
         auto* Player=*It;
         if (IsPlayerInAttack(Player,Attack,Runtime.AttackForward)) Player->Status->Damage(Attack.Damage,Runtime.AttackForward,this);
+    }
+    // Resolve whole rain nuts at the same authoritative melee impact. Custom
+    // Blueprint abilities and mouth-clot salvos keep their own impact routes.
+    for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) {
+        auto* Nut=*It;
+        if(!Nut->IsNutKineticsActive() || !Nut->Body->IsSimulatingPhysics()) continue;
+        const FVector Center=Nut->Body->Bounds.Origin;
+        const FVector Offset=Center-GetActorLocation();
+        const float Radius=FMath::Max(float(Nut->Body->Bounds.BoxExtent.X),float(Nut->Body->Bounds.BoxExtent.Y));
+        const float Distance=float(Offset.Size2D());
+        if(Distance>Attack.Range+Radius || FMath::Abs(Offset.Z)>Attack.VerticalReach+Nut->Body->Bounds.BoxExtent.Z) continue;
+        const float AngularRadius=Distance>Radius?FMath::RadiansToDegrees(FMath::Asin(Radius/Distance)):90.f;
+        const float HalfAngle=FMath::Min(180.f,Attack.HalfAngleDegrees+AngularRadius);
+        FVector TorsoPoint=Center,Contact=Center;
+        const float TorsoDistance=BodyHitbox->GetClosestPointOnCollision(Center,TorsoPoint);
+        const float Gap=TorsoDistance>=0?Nut->Body->GetClosestPointOnCollision(TorsoPoint,Contact):-1.f;
+        const bool TouchingTorso=Gap>=0 && Gap<=2.f;
+        const FVector Direction=Offset.GetSafeNormal2D(SMALL_NUMBER,Runtime.AttackForward);
+        if(!TouchingTorso && FVector::DotProduct(Runtime.AttackForward.GetSafeNormal2D(),Direction)
+            <FMath::Cos(FMath::DegreesToRadians(HalfAngle))) continue;
+        FHitResult Obstacle;
+        FCollisionQueryParams Params(SCENE_QUERY_STAT(MCBossNutImpact),false,this); Params.AddIgnoredActor(Nut);
+        if(GetWorld()->LineTraceSingleByChannel(Obstacle,GetPawnViewLocation(),Center,ECC_Visibility,Params)) continue;
+        if(!TouchingTorso && Nut->Body->GetClosestPointOnCollision(GetActorLocation(),Contact)<0) continue;
+        const float Speed=FMath::Clamp(Attack.Damage*20.f,180.f,900.f);
+        Nut->ApplyNutImpulse(Direction*Speed+FVector(0,0,Speed*.12f),Contact);
     }
 }
 

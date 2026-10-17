@@ -251,7 +251,7 @@ void UMCToothMovementComponent::SampleSwimMove(float Dt)
     const auto* Game=GetWorld()->GetGameState<AMCGameState>();
     if(Game && (Game->bTutorialActive || Game->bLobbyWaiting)) return;
     bSwimDeepSample=DeepWaterAt(UpdatedComponent->GetComponentLocation(),IsSwimming())!=nullptr;
-    bSwimRecoverySample=!bSwimDeepSample && IsMovingOnGround() && CurrentFloor.IsWalkableFloor();
+    bSwimRecoverySample=Hero->IsSeatedOnRaft() || (!bSwimDeepSample && IsMovingOnGround() && CurrentFloor.IsWalkableFloor());
     SwimEffortSample=bSwimDeepSample?FMath::Clamp(float(Acceleration.Size2D())/FMath::Max(1.f,GetMaxAcceleration()),0.f,1.f):0.f;
     AdvanceSwimPrediction(Dt,bSwimDeepSample,bSwimRecoverySample,SwimEffortSample);
 }
@@ -770,6 +770,7 @@ FRotator UMCToothMovementComponent::ComputeOrientToMovementRotation(const FRotat
 AMCCoffeeFlood* UMCToothMovementComponent::DeepWaterAt(FVector P,bool Continuing) const
 {
     if (!CharacterOwner || P.ContainsNaN()) return nullptr;
+    if (const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner); Hero && Hero->IsSeatedOnRaft()) return nullptr;
     const float Half=CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
     for (TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It)
     {
@@ -819,6 +820,11 @@ bool UMCToothMovementComponent::TryBoardRaft()
     FFindFloorResult Floor;
     FindFloor(UpdatedComponent->GetComponentLocation(),Floor,false);
     if(!Floor.IsWalkableFloor() || Floor.FloorDist>6.f || Floor.HitResult.GetComponent()!=Deck || !Raft->IsBoardable()) return Undo();
+    if(Hero->HasAuthority()) {
+        // A rejected claim stays inside the scoped mantle, before walking/base changes.
+        if(!Raft->TryClaimSeat(Hero)) return Undo();
+        BraceMovement={}; return true;
+    }
     SetMovementMode(MOVE_Walking);
     CurrentFloor=Floor; AdjustFloorHeight(); SetBaseFromFloor(CurrentFloor);
     Velocity=FVector::ZeroVector; BraceMovement={};
@@ -826,6 +832,9 @@ bool UMCToothMovementComponent::TryBoardRaft()
 }
 void UMCToothMovementComponent::UpdateCharacterStateBeforeMovement(float Dt)
 {
+    if(const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);Hero && Hero->IsSeatedOnRaft()) {
+        CancelDash(); StopMovementImmediately(); SetMovementMode(MOVE_None); return;
+    }
     if(const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);Hero && Hero->HasFrozenLegs()) {SetFrozenLegs(true);return;}
     Super::UpdateCharacterStateBeforeMovement(Dt);
     // Simulated peers receive the movement mode; they have no local E input.
@@ -864,6 +873,14 @@ void UMCToothMovementComponent::PerformMovement(float Dt)
 {
     bStaminaSprintRequested=false; bStaminaDashCharged=false;
     bSwimDeepSample=bSwimRecoverySample=false; SwimEffortSample=0.f;
+    if(const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);Hero && Hero->IsSeatedOnRaft()) {
+        // Includes authority handling a late pre-boarding movement packet. Neither
+        // that packet nor owner replay may turn a reserved slot into deck walking.
+        CancelDash(); StopMovementImmediately(); SetMovementMode(MOVE_None);
+        UpdateAmbientSuction(); UpdateRiverCurrent();
+        AdvanceStaminaPrediction(Dt,false,false);
+        Super::PerformMovement(Dt); SampleSwimMove(Dt); bHasBraceSample=false; return;
+    }
     if(const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);Hero && Hero->HasFrozenLegs())
     {
         // Applied on the server for every received move as well as owner replay.

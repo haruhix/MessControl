@@ -1,8 +1,13 @@
 #include "MCBossAnimInstance.h"
+#include "MCAnimationComparisonSubsystem.h"
+#include "MCBossCharacter.h"
+#include "MCSecondaryAnimationSolver.h"
 #include "Animation/AnimInstanceProxy.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/AnimationPoseData.h"
 #include "AnimationRuntime.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/World.h"
 
 namespace
 {
@@ -11,6 +16,29 @@ float SequenceTime(const FMCBossAnimationLayer& Layer,double Now)
     const float Length=Layer.Sequence->GetPlayLength();
     const float Time=FMath::Max(0.f,float(Now-Layer.StartedAt))*Layer.PlayRate;
     return Layer.bLoop && Length>0.f ? FMath::Fmod(Time,Length) : FMath::Min(Time,Length);
+}
+
+TArray<FName> SecondaryMotionBones(const USkeletalMeshComponent* Mesh)
+{
+    // Keep the two role slots even when a profile has no compatible torso or head.
+    TArray<FName> Bones={NAME_None,NAME_None};
+    if (!Mesh || !Mesh->GetSkeletalMeshAsset()) return Bones;
+    // The independent Zombie and Phase3 ARP rigs use root_x as their authored
+    // body joint; the top-level root is never a secondary-motion fallback.
+    if (Mesh->GetBoneIndex(TEXT("root_x"))!=INDEX_NONE
+        && Mesh->GetParentBone(TEXT("neck_x"))==FName(TEXT("root_x"))
+        && Mesh->GetParentBone(TEXT("head_x"))==FName(TEXT("neck_x")))
+    {
+        Bones[0]=TEXT("root_x");
+        Bones[1]=TEXT("head_x");
+        return Bones;
+    }
+    for (const FName Name:{FName(TEXT("body")),FName(TEXT("chest")),FName(TEXT("spine_03")),
+        FName(TEXT("spine_02")),FName(TEXT("spine"))})
+        if (Mesh->GetBoneIndex(Name)!=INDEX_NONE) {Bones[0]=Name;break;}
+    for (const FName Name:{FName(TEXT("head")),FName(TEXT("head_x")),FName(TEXT("gaze_head"))})
+        if (Mesh->GetBoneIndex(Name)!=INDEX_NONE) {Bones[1]=Name;break;}
+    return Bones;
 }
 }
 
@@ -30,6 +58,18 @@ struct FMCBossAnimInstanceProxy : FAnimInstanceProxy
         // Copy on the game thread; animation workers only read this frame's snapshot.
         Layers=BossInstance->Layers;
         SampleTime=BossInstance->SampleTime;
+        if (auto* Mesh=Instance->GetSkelMeshComponent())
+        {
+            const auto* Boss=Cast<AMCBossCharacter>(Mesh->GetOwner());
+            const bool bAllowMotion=(!Boss || (Boss->IsBossAlive()
+                && Boss->Runtime.AnimationPreview!=EMCBossAnimationPreview::Death)) && !Mesh->IsSimulatingPhysics();
+            SecondaryMotion.PreUpdate(Instance,*this,DeltaSeconds,SecondaryMotionBones(Mesh),bAllowMotion);
+            if (auto* World=Instance->GetWorld())
+                if (auto* Comparison=World->GetSubsystem<UMCAnimationComparisonSubsystem>())
+                    Comparison->RecordSample(Mesh,Comparison->GetMode(),SecondaryMotion.GetActiveBoneCount(),
+                        SecondaryMotion.GetEvaluationCount(),SecondaryMotion.GetLastMaxAngleDegrees(),SecondaryMotion.GetLastMaxTranslation());
+        }
+        else SecondaryMotion.Reset();
     }
 
     virtual bool Evaluate(FPoseContext& Output) override
@@ -54,6 +94,7 @@ struct FMCBossAnimInstanceProxy : FAnimInstanceProxy
         if (Poses.IsEmpty())
         {
             Output.ResetToRefPose();
+            SecondaryMotion.Evaluate(Output);
             return true;
         }
         // Normalize after culling tiny weights. Bone transforms, curves and attributes all crossfade.
@@ -62,9 +103,11 @@ struct FMCBossAnimInstanceProxy : FAnimInstanceProxy
         for (float& Weight:Weights) Weight/=Total;
         FAnimationPoseData OutputData(Output);
         FAnimationRuntime::BlendPosesTogether(Poses,Curves,Attributes,Weights,OutputData);
+        SecondaryMotion.Evaluate(Output);
         return true;
     }
 private:
+    FMCSecondaryAnimationSolver SecondaryMotion;
     TArray<FMCBossAnimationLayer> Layers;
     double SampleTime=0.;
 };

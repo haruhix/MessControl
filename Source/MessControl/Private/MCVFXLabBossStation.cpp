@@ -22,6 +22,7 @@
 #include "BrainComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SceneComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -522,9 +523,18 @@ void AMCVFXLabBossStation::Tick(float DeltaSeconds)
     }
     if((Kind==EMCVFXLabBossKind::TankShieldHit || Kind==EMCVFXLabBossKind::TankShieldBreakOverflow) && Age>=1) {
         const bool Cue=SeenCues.Contains(uint8(EMCNutCombatCue::ShieldHit));
-        FinishCycle(Cue && (AppliedHealthDamage>0 || (bComparisonMode && NutBoss->ShieldHealth<ShieldBefore)),Kind==EMCVFXLabBossKind::TankShieldHit?
-            TEXT("Shield 500: raw75 removed75 durability, protected health damage observed"):
-            TEXT("Shield 500: raw600 broke shield; reduced500 + full100 overflow observed"));return;
+        if(Kind==EMCVFXLabBossKind::TankShieldBreakOverflow) {
+            const float BeforeFollowup=NutBoss->Health;
+            const float Followup=NutBoss->ReceiveToolDamage(25.f,Subject);
+            const auto* Unshielded=NutBoss->BossSettings.TankUnshieldedSkeletalMesh.Get();
+            const bool LostShield=NutBoss->ShieldHealth<=0 && !NutBoss->IsShieldProtectingFrom(Subject->GetActorLocation())
+                && (!Unshielded || NutBoss->TankModel->GetSkeletalMeshAsset()==Unshielded);
+            FinishCycle(Cue && AppliedHealthDamage>0 && LostShield && FMath::IsNearlyEqual(Followup,25.f,.1f)
+                && FMath::IsNearlyEqual(BeforeFollowup-NutBoss->Health,25.f,.1f),
+                TEXT("Shield 500: raw600 broke shield; full100 overflow and next frontal hit full25 observed"));
+        } else FinishCycle(Cue && (AppliedHealthDamage>0 || (bComparisonMode && NutBoss->ShieldHealth<ShieldBefore)),
+            TEXT("Shield 500: raw75 removed75 durability, protected health damage observed"));
+        return;
     }
     if(Kind==EMCVFXLabBossKind::ZombieRoar && IsValid(Boss)) {
         const UMCBossProfile* Profile=Boss->GetResolvedProfile();
