@@ -925,3 +925,36 @@ jelly regression passed a four-canvas fixture with same-batch wave residue and
 one destroyed/replaced canvas; both producers remain in cleanup accounting.
 
 Portable reviewed previews: [Feedback 5–11 video bundle](../Artifacts/Feedback5_11_20261018/README.md). Raw capture files and full logs remain local under Saved/.
+
+## Weak coffee-paint mask visibility — 2026-10-19
+
+Reuses the previously reviewed [Epic material-input guidance](https://dev.epicgames.com/documentation/en-us/unreal-engine/material-inputs-in-unreal-engine)
+and the existing native DitherTemporalAA edge implementation. This is a visibility
+correction to the current film, rather than an additional effect or texture layer.
+
+The saved `M_CataclysmPaintTrail` uses a linear bilinear 64×64 wipe texture,
+masked clip 0.25, and a temporally feathered edge with an opaque core at 0.5.
+Gameplay keeps a paint tile dirty while any raw mask byte exceeds 63. A weak
+isolated byte near that threshold can therefore remain work while producing an
+extremely small or faint rendered footprint. This also applies to the starting
+coffee wave, whose paint tiles participate in the first-meal completion gate.
+
+The selected correction changes only the transient display texture: bytes 0–63
+display as zero, 64–127 display as 128, and 128–255 remain unchanged. The original
+replicated mask, deposit ledger, dirty predicate, brush exposure and task counters
+retain their values. Ordinary seeded puddles and tooth masks are unaffected.
+This preserves a visible core for remaining work without adding GPU samples,
+draw calls, materials or larger textures. No GPU benchmark is claimed.
+
+Status: saved-material audit, native Editor build and the focused
+`PaintResidueVisibilityKeepsStrictCleanup` regression passed. Root reviewed all
+three native 1280×720 A/B frames from `WeakMaskPreview_20261018T162104Z`: the weak
+single-cell residue gains a visible center, cleared regions remain empty and
+full-density controls retain their footprints. The final capture exited normally
+with no logged errors; temporary preview objects and map changes were not saved.
+Evidence and the bounded visual acceptance are under
+`E:/CodexWork/MessControlFeedback_20261019/VisualAudit/`. This is a synthetic material
+comparison, not a gameplay-camera or performance certification. The updated
+Windows game has been built and packaged under `VisibilityFix/`; its short launch
+checks and final ZIP are recorded separately there. The earlier intermediate ZIP
+does not contain this additional correction.

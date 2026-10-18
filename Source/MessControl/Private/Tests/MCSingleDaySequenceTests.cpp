@@ -11,6 +11,9 @@
 #include "MCFogBrawlEvent.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
+#include "MCFoodActor.h"
+#include "MCFoodDirectorHooks.h"
+#include "MCMouthSurface.h"
 #include "MCTongue.h"
 #include "MCArenaTooth.h"
 #include "MCDayPlan.h"
@@ -140,26 +143,71 @@ struct FSequenceWorld
         World->GetWorldSettings()->MaxUndilatedFrameTime=3600.f;
         ++GFrameCounter;World->Tick(LEVELTICK_TimeOnly,FMath::Max(.01f,Seconds-float(World->GetTimeSeconds())));
     }
-    void AddWorkerAndFoodGeometry()
+    void AddWorkerAndFoodGeometry(float TongueScale=10.f,bool SolidFood=false)
     {
         auto* Mesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Plane.Plane"));
 #if WITH_EDITOR
         if (Mesh) FStaticMeshCompilingManager::Get().FinishCompilation({Mesh});
 #endif
-        const FTransform Floor(FRotator::ZeroRotator,FVector(0,0,-50),FVector(10,10,1));
+        const FTransform Floor(FRotator::ZeroRotator,FVector(0,0,-50),FVector(TongueScale,TongueScale,1));
         auto* Tongue=World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),Floor);
         Tongue->SourceMesh=Mesh;Tongue->bAutomaticYawns=false;Tongue->FinishSpawning(Floor);
         FActorSpawnParameters Params;Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
         auto* Hero=World->SpawnActor<AMCToothCharacter>(Mode->DefaultPawnClass,FVector(0,0,150),FRotator::ZeroRotator,Params);
         auto* Controller=World->SpawnActor<APlayerController>();Controller->Possess(Hero);
         auto* Menu=NewObject<UDataTable>(World);Menu->RowStruct=FMCFoodRow::StaticStruct();
+        auto* FoodMesh=SolidFood?LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube")):Mesh;
+#if WITH_EDITOR
+        if(FoodMesh) FStaticMeshCompilingManager::Get().FinishCompilation({FoodMesh});
+#endif
         FMCFoodRow Food;Food.Health=10;Food.Fragments=1;Food.Resistance=EMCFoodResistance::Soft;
-        Food.WholeMeshes={Mesh};Food.FragmentMeshes={Mesh};
+        Food.WholeMeshes={FoodMesh};Food.FragmentMeshes={FoodMesh};
         Menu->AddRow(TEXT("SequenceFood"),Food);Plan->Menu=Menu;
         auto* Cola=NewObject<UMCColdColaProfile>(World);Cola->ColdSeconds=35;Cola->ThawSeconds=5;Plan->ColdColaProfile=Cola;
         FreezeActors();
     }
 };
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayOpeningMealGateTest,"MessControl.SingleDay.Sequence.OpeningMealExplainsItsActualRemainingWork",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSingleDayOpeningMealGateTest::RunTest(const FString&)
+{
+    MCSingleDaySequenceTestsPrivate::FSequenceWorld F;F.AddWorkerAndFoodGeometry(30.f,true);
+    F.Sequence->OpeningMealItems=1;F.Sequence->bOpeningCoffeeWave=false;
+    F.Sequence->AfterTrainingPauseSeconds=0;F.Sequence->BeforeNutsPauseSeconds=0;
+    F.Loop->Initialize(F.Plan,F.Sequence,F.Support);
+    F.RestoreTongueCollision();F.Loop->BeginFirstPerk();
+    F.Loop->Tick(.1f);F.Loop->Tick(.1f);F.Loop->Tick(.1f);
+    if(!TestEqual(TEXT("The real sequence reaches its opening meal"),F.Loop->Stage,EMCSingleDayStage::FirstMeal)) return false;
+    AMCFoodActor* Whole=nullptr;
+    for(TActorIterator<AMCFoodActor> It(F.World);It;++It) if(It->GetOwner()==F.Loop) {Whole=*It;break;}
+    if(!TestNotNull(TEXT("The real serving path issued its ordinary ingredient"),Whole)) return false;
+    const int32 Batch=Whole->Batch;
+    TestEqual(TEXT("Serving also commits a real cleanup task"),MCCountDirectedFoodDirt(F.World,Batch),1);
+    TestTrue(TEXT("The replicated instruction tells players to deliver fragments"),F.State->DirectorState.Instruction.Contains(TEXT("Q")));
+    Whole->Destroy();
+    auto* Fragment=F.World->SpawnActor<AMCFoodActor>();
+    Fragment->Batch=Batch;Fragment->bFragment=true;Fragment->Phase=EMCFoodPhase::Carried;
+    for(TActorIterator<AMCMouthSurface> It(F.World);It;++It) if(It->Batch==Batch) It->ClearLiquidForBooster();
+    F.Loop->Tick(.1f);
+    TestEqual(TEXT("A clean floor cannot skip a carried fragment"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
+    TestEqual(TEXT("A carried fragment remains one real task"),F.State->TasksLeft,1);
+    TestTrue(TEXT("Clients can see the outstanding carried piece"),F.State->DirectorState.Instruction.Contains(TEXT("фрагменты 1 (в руках 1)")));
+    Fragment->Destroy();
+    auto* Residue=F.World->SpawnActor<AMCMouthSurface>();
+    Residue->Batch=Batch;Residue->Tags.Add(FName(TEXT("MCFoodServedDirt")));Residue->Status->ApplyCoffee(.5f);
+    F.Loop->Tick(.1f);
+    TestEqual(TEXT("Real remaining residue also keeps the meal open"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
+    TestTrue(TEXT("The instruction names the remaining stain"),F.State->DirectorState.Instruction.Contains(TEXT("пятна 1")));
+    Residue->ClearLiquidForBooster();
+    AMCToothCharacter* Hero=nullptr;for(TActorIterator<AMCToothCharacter> It(F.World);It;++It) {Hero=*It;break;}
+    if(!TestNotNull(TEXT("The fixture has a real player status"),Hero)) return false;
+    Hero->Status->ApplyCoffee(1.f);
+    F.Loop->Tick(.1f);
+    TestEqual(TEXT("Resolving the batch advances despite unrelated global player dirt"),F.Loop->Stage,EMCSingleDayStage::MealRest);
+    TestTrue(TEXT("The unrelated player stain is preserved"),Hero->Status->State.CoffeeLeft>0);
+    return true;
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayFragmentSupportTest,"MessControl.SingleDay.Sequence.CompletedFogSlotOpensSupportWithoutFinalBoss",

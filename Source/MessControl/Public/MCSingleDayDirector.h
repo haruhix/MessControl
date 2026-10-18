@@ -14,6 +14,7 @@ class AMCCoffeeFlood;
 class AMCGameDirector;
 class AMCBossCharacter;
 class AMCDayDirector;
+struct FMCFoodPipelineLoad;
 
 UENUM(BlueprintType)
 enum class EMCSingleDayStage : uint8 { Training, FirstPerk, Nuts, Director, Boss, Complete, OpeningPause, FirstMeal, MealRest, Ice, FogBrawl };
@@ -90,6 +91,7 @@ private:
     void BeginOpeningPause(bool bAfterMeal=false);
     void BeginFirstMeal();
     void TickFirstMeal();
+    void ReportMealGate(const FMCFoodPipelineLoad& Food,int32 Dirt,int32 Pending,double Now);
     FName ChooseOpeningFood();
     void BeginKeyEvent();
     void BeginNuts();
@@ -111,6 +113,8 @@ private:
     double NextMealDropAt=0;
     double OpeningCoffeeAt=0;
     bool bOpeningCoffeeStarted=false;
+    FString LastMealGateState;
+    double NextMealDiagnosticAt=0;
     int32 FirstMealBatch=0,MealSpawned=0,MealAttempts=0;
     FRandomStream MealRandom;
     bool bStopped=false;

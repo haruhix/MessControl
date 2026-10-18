@@ -146,6 +146,40 @@ bool FMCCleanupSupportedPaintTest::RunTest(const FString&)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCCleanupLegacySparseResidueTest,"MessControl.Cleanup.LegacySparseResidueRemainsBrushable",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCCleanupLegacySparseResidueTest::RunTest(const FString&)
+{
+    MCCleanupConsistencyTests::FFixture F;
+    constexpr int32 Batch=43122;
+    const FTransform Pose(FVector(0,0,5));
+    auto* Patch=F.World->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose);
+    Patch->bRandomizeLiquidSize=false;Patch->LiquidHalfSize=100;Patch->Batch=Batch;
+    Patch->Tags.Add(TEXT("MCFoodServedDirt"));Patch->FinishSpawning(Pose);
+    Patch->Status->ApplyCoffee(1.f);
+    // A sparse wiped edge can still exceed the ordinary completion allowance.
+    // Keep real wet coverage on even columns only: the legacy lookup sampled
+    // odd X/odd Y, although its completion mask counts every supported cell.
+    Patch->WipeMask.Init(0,FMCCoffeeWipe::Count);
+    const TArray<uint8> Full;
+    for(int32 Y=24;Y<40;++Y) for(int32 X=24;X<40;X+=2) {
+        const FVector2D UV((X+.5)/FMCCoffeeWipe::Size,(Y+.5)/FMCCoffeeWipe::Size);
+        if(FMCCoffeeWipe::WetAt(Full,UV,Patch->LiquidSeed)) Patch->WipeMask[Y*FMCCoffeeWipe::Size+X]=255;
+    }
+    const float Remaining=Patch->RemainingLiquid();
+    TestTrue(TEXT("The real residue exceeds the normal completion allowance"),Remaining>.025f && Remaining<.4f);
+    TestEqual(TEXT("That residue holds the first-meal dirt gate"),MCCountDirectedFoodDirt(F.World,Batch),1);
+    auto* Hero=F.Worker(FVector(-50,0,80));
+    FVector Point,Normal;
+    TestTrue(TEXT("The real brush can acquire residue missed by every coarse sample"),Patch->FindDirtyContact(Hero,Point,Normal));
+    const auto Before=Patch->WipeMask;
+    const auto Brush=F.Brush(Patch,Hero);
+    TestTrue(TEXT("Actual bristle work reaches and changes the sparse residue"),Brush.ChangedMasks>0 && Patch->WipeMask!=Before);
+    TestTrue(TEXT("The regular cleanup completion path clears the legacy care state"),Patch->IsClean());
+    TestEqual(TEXT("Cleaning that reachable residue releases the first-meal gate"),MCCountDirectedFoodDirt(F.World,Batch),0);
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCCleanupCentralPlacementTest,"MessControl.Cleanup.CentralDirtRejectsRimsAndStaticCover",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCCleanupCentralPlacementTest::RunTest(const FString&)

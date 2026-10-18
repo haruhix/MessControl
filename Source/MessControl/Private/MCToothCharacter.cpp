@@ -1020,7 +1020,10 @@ void AMCToothCharacter::ServerSetPrimary_Implementation(bool bActive)
     bWantsCling=bPrimaryHeld;
     if (!bPrimaryHeld)
     {
-        ClingTooth=nullptr; bBrushing=false; bHandling=false; DropFood(); ResetContact();
+        ClingTooth=nullptr; bBrushing=false;
+        bHandling=ShouldPreserveFoodForPerkChoice() && IsValid(HeldFood);
+        if(!ShouldPreserveFoodForPerkChoice()) DropFood();
+        ResetContact();
     }
     else ResolvePrimaryAction(NewPrimaryPress);
     Inventory->UpdateWatergunInput();
@@ -1124,7 +1127,7 @@ void AMCToothCharacter::CancelGameplayInput()
     if(Inventory) Inventory->CancelUpgradeUse();
     bSharedPrimaryInputHeld=false; bSharedHandleInputHeld=false; bSharedJumpInputHeld=false;
     StopBrace();
-    FoodCollection->Stop();
+    if(!ShouldPreserveFoodForPerkChoice()) FoodCollection->Stop();
     CancelSprintInput();CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->CancelDash();
     StopPrimary(); StopBrush(); StopHandle(); StopJump(); LocalPaddle=FVector2D::ZeroVector; ServerPaddle(LocalPaddle);
     GetCharacterMovement()->StopMovementImmediately();
@@ -1143,7 +1146,11 @@ void AMCToothCharacter::ServerSetWorking_Implementation(bool bBrush, bool bActiv
     if (bActive && (!CanWork() || GetWorld()->GetTimeSeconds()<NextSwingTime-0.3f)) return;
     if ((bBrush?bBrushing:bHandling)==bActive) return;
     if (bBrush) { bBrushing=bActive; if (bActive) { bHandling=false; DropFood(); } }
-    else { bHandling=bActive; if (bActive) bBrushing=false; else DropFood(); }
+    else {
+        bHandling=bActive || (ShouldPreserveFoodForPerkChoice() && IsValid(HeldFood));
+        if (bActive) bBrushing=false;
+        else if(!ShouldPreserveFoodForPerkChoice()) DropFood();
+    }
     ResetContact();
     OnRep_Working(); ForceNetUpdate();
 }
@@ -1162,6 +1169,7 @@ void AMCToothCharacter::Landed(const FHitResult& Hit)
 }
 void AMCToothCharacter::FindWork(float DeltaSeconds)
 {
+    if(ShouldPreserveFoodForPerkChoice()) { ResetContact(); return; }
     if(bRowing) {bBrushing=false;bHandling=false;ResetContact();return;}
     if(HasAuthority() && bHandling && !bPrimaryHeld && !bSelfCare)
         if(auto* Pick=AMCToothpick::FindPullTarget(this)) {
@@ -1736,6 +1744,19 @@ bool AMCToothCharacter::CanWork() const
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     const auto* Player=Cast<AMCPlayerController>(GetController());
     return (!Player || (!Player->IsBossIntroPlaying() && !Player->IsRewardInteractionActive())) && !IsValid(RewardInteraction) && !IsMimicCaptured() && !SwallowedBy && Status->IsAlive() && ToothPhysics->CanAct() && (!GS || (!GS->bLobbyWaiting && GS->Phase!=EMCShiftPhase::Won && GS->Phase!=EMCShiftPhase::Lost));
+}
+bool AMCToothCharacter::ShouldPreserveFoodForPerkChoice() const
+{
+    const auto* Player=Cast<AMCPlayerController>(GetController());
+    const auto* Move=Cast<UMCToothMovementComponent>(GetCharacterMovement());
+    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    if(!Player || Player->IsBossIntroPlaying() || IsFreezingToDeath() || !Status->IsAlive()
+        || !ToothPhysics->CanAct() || IsMimicCaptured() || SwallowedBy || OrderJumpTarget || bInCoffee
+        || (Move && Move->IsClimbing()) || (GS && (GS->bLobbyWaiting || GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost))) return false;
+    const auto* Chest=RewardInteraction.Get();
+    return Player->IsRewardInteractionActive() || Player->IsWaitingForPerkTeam()
+        || (IsValid(Chest) && Chest->OpeningPlayer==this && (Chest->Stage==EMCRewardChestStage::Lockpicking
+            || Chest->Stage==EMCRewardChestStage::Opening || Chest->Stage==EMCRewardChestStage::Open));
 }
 void AMCToothCharacter::ToggleSelfCare() { StopRowing(); ServerToggleSelfCare(); }
 void AMCToothCharacter::ServerToggleSelfCare_Implementation()

@@ -1,6 +1,7 @@
 #if WITH_DEV_AUTOMATION_TESTS
 #include "Misc/AutomationTest.h"
 #include "MCCoffeeWipe.h"
+#include "MCPaintVisibility.h"
 #include "MCMouthSurface.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothCharacter.h"
@@ -42,6 +43,54 @@ bool FMCCoffeeMaskTest::RunTest(const FString&)
     FMCCoffeeWipe::Stroke(Huge,{.5f,.5f},{.6f,.5f},.12f,1000);
     TestTrue(TEXT("Large time step is bounded"),Huge==Clamped);
     FMCCoffeeWipe::Reset(Mask); TestEqual(TEXT("Fresh spill restores liquid"),FMCCoffeeWipe::Remaining(Mask),1.f);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPaintResidueVisibilityTest,"MessControl.Liquid.PaintResidueVisibilityKeepsStrictCleanup",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCPaintResidueVisibilityTest::RunTest(const FString&)
+{
+    const uint8 Values[]={0,63,64,127,128,255};
+    const uint8 Expected[]={0,0,128,128,128,255};
+    for(int32 I=0;I<UE_ARRAY_COUNT(Values);++I) {
+        TestEqual(*FString::Printf(TEXT("Paint display density at byte %u"),Values[I]),
+            MCPaintVisibility::UploadByte(Values[I],true),Expected[I]);
+    }
+    for(int32 Value=0;Value<=255;++Value)
+        TestEqual(TEXT("Ordinary seeded puddles keep every authored coverage byte"),
+            MCPaintVisibility::UploadByte(uint8(Value),false),uint8(Value));
+
+    TArray<uint8> Raw;Raw.Init(0,FMCCoffeeWipe::Count);
+    constexpr int32 X=FMCCoffeeWipe::Size/2,Y=FMCCoffeeWipe::Size/2;
+    constexpr int32 Center=Y*FMCCoffeeWipe::Size+X;
+    Raw[Center]=64;
+    Raw[0]=63; // A previously wiped cell must not be lifted with the live residue.
+    const auto Before=Raw;
+    TArray<uint8> Display;Display.Reserve(Raw.Num());
+    for(uint8 Value:Raw) Display.Add(MCPaintVisibility::UploadByte(Value,true));
+    TestTrue(TEXT("Preparing visual pixels preserves the authoritative mask byte-for-byte"),Raw==Before);
+    TestTrue(TEXT("The weak cell still requires real brush work"),FMCCoffeeWipe::HasWetCells(Raw));
+    TestEqual(TEXT("A cleared cell stays absent from the visual mask"),Display[0],uint8(0));
+
+    // At one quarter texel along both axes, bilinear sampling gives the lone
+    // center cell a .75*.75 weight. Test the material's actual .25 clip contract,
+    // rather than claiming that a center-only maximum is readable in gameplay.
+    const float OriginalCoverage=Raw[Center]/255.f*.75f*.75f;
+    const float DisplayCoverage=Display[Center]/255.f*.75f*.75f;
+    TestTrue(TEXT("A raw byte64 collapses below the clip within the same texel"),OriginalCoverage<.25f);
+    TestTrue(TEXT("The displayed residue has a finite two-dimensional footprint above clip"),DisplayCoverage>.25f);
+    const FVector2D Probe((X+.75)/FMCCoffeeWipe::Size,(Y+.75)/FMCCoffeeWipe::Size);
+    TestTrue(TEXT("The existing bilinear mask sampler also sees that display footprint"),
+        FMCCoffeeWipe::WetAt(Display,Probe,0,true,64));
+    TestFalse(TEXT("The original weak mask remains below clip at that footprint probe"),
+        FMCCoffeeWipe::WetAt(Raw,Probe,0,true,64));
+
+    const FVector2D CenterUV((X+.5)/FMCCoffeeWipe::Size,(Y+.5)/FMCCoffeeWipe::Size);
+    TestTrue(TEXT("The existing wipe stroke removes the final working residue"),
+        FMCCoffeeWipe::Stroke(Raw,CenterUV,CenterUV,.03f,.1f));
+    TestFalse(TEXT("Actual mask cleanup releases the final cell"),FMCCoffeeWipe::HasWetCells(Raw));
+    TestEqual(TEXT("That completed cell no longer contributes display coverage"),
+        MCPaintVisibility::UploadByte(Raw[Center],true),uint8(0));
     return true;
 }
 

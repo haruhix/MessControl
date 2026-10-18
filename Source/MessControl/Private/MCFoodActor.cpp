@@ -586,7 +586,8 @@ void AMCFoodActor::Tick(float Dt)
         for (int32 I=Holders.Num()-1;I>=0;--I)
         {
             AMCToothCharacter* Hero=Holders[I];
-            if (!UsesLegacyGrip() || !IsValid(Hero) || !Hero->CanWork() || !Hero->bHandling || FVector::Dist(Hero->GetActorLocation(),GetActorLocation())>Settings.BreakDistance)
+            if (!UsesLegacyGrip() || !IsValid(Hero) || (!Hero->CanWork() && !Hero->ShouldPreserveFoodForPerkChoice())
+                || !Hero->bHandling || FVector::Dist(Hero->GetActorLocation(),GetActorLocation())>Settings.BreakDistance)
             {
 #if !UE_BUILD_SHIPPING
                 if (FParse::Param(FCommandLine::Get(),TEXT("MCCore"))) UE_LOG(LogTemp,Display,TEXT("MC_CORE_RELEASE hero=%s distance=%.1f canwork=%d handling=%d"),*GetNameSafe(Hero),IsValid(Hero)?FVector::Dist(Hero->GetActorLocation(),GetActorLocation()):-1,IsValid(Hero)&&Hero->CanWork(),IsValid(Hero)&&Hero->bHandling);

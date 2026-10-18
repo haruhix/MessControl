@@ -7,6 +7,11 @@
 #include "MCToothStatusComponent.h"
 #include "MCPerkComponent.h"
 #include "MCInventoryComponent.h"
+#include "MCFoodActor.h"
+#include "MCFoodCollectionComponent.h"
+#include "Components/BoxComponent.h"
+#include "Engine/StaticMesh.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/DataTable.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
@@ -14,6 +19,9 @@
 #include "GameFramework/WorldSettings.h"
 #include "GameFramework/GameModeBase.h"
 #include "UObject/UnrealType.h"
+#if WITH_EDITOR
+#include "StaticMeshCompiler.h"
+#endif
 
 namespace
 {
@@ -116,6 +124,63 @@ bool FMCPerkChoiceSharedPauseTest::RunTest(const FString&)
     TestTrue(TEXT("Completing perks preserves another owner's rejecting pause lease"),W.World->IsPaused());
     ExternalMayResume=true;Mode->ClearPause();
     TestFalse(TEXT("The unrelated pause resumes under its own condition"),W.World->IsPaused());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPerkChoiceKeepsFoodTest,"MessControl.Rewards.ChoicePreservesCarriedFood",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCPerkChoiceKeepsFoodTest::RunTest(const FString&)
+{
+    FPerkPauseWorld W;
+    auto* PC=W.Player(false); auto* Hero=CastChecked<AMCToothCharacter>(PC->GetPawn());
+    Hero->GetCharacterMovement()->DisableMovement();
+    auto* Mesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"));
+    if(!TestNotNull(TEXT("The fragment fixture has a real engine mesh"),Mesh)) return false;
+#if WITH_EDITOR
+    FStaticMeshCompilingManager::Get().FinishCompilation({Mesh});
+#endif
+    Hero->FoodCollection->Toggle();
+    TArray<AMCFoodActor*> Food;
+    for(int32 I=0;I<2;++I) {
+        const FTransform Transform(Hero->GetActorLocation()+FVector(100,I*40-20,-35));
+        auto* Piece=W.World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),Transform,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+        FMCFoodRow Row;Row.WholeMeshes={Mesh};Row.FragmentMeshes={Mesh};Row.Scale=Row.FragmentScale=FVector(.3,.3,.1);Row.SpoilSeconds=300;
+        FRandomStream Random(7+I);Piece->ConfigureItem(TEXT("PerkCarryFixture"),Row,Random,true);Piece->FinishSpawning(Transform);
+        Piece->Body->SetEnableGravity(false);
+        if(!TestTrue(TEXT("Normal collection accepts the fragment before the offer"),Hero->FoodCollection->Collect(Piece))) return false;
+        Food.Add(Piece);
+    }
+    auto* State=PC->GetPlayerState<AMCPlayerState>();
+    auto* Table=NewObject<UDataTable>();Table->RowStruct=FMCPerkDefinition::StaticStruct();
+    for(int32 I=0;I<3;++I) {
+        FMCPerkDefinition Row;Row.MaxStacks=5;
+        Table->AddRow(FName(*FString::Printf(TEXT("CarryPerk%d"),I)),Row);
+    }
+    State->Perks->PerkTable=Table;State->QueueChoicesThroughLevel(2);
+    TestTrue(TEXT("A real earned offer gates gameplay actions"),State->LevelUpOffer.IsValid() && !Hero->CanWork());
+    // UI input cancellation and component ticks can arrive before the pause RPC.
+    // Exercise both paths instead of relying on the paused world skipping ticks.
+    Hero->CancelGameplayInput();
+    Hero->FoodCollection->TickComponent(1.f/60,LEVELTICK_All,nullptr);Hero->Tick(1.f/60);
+    TestEqual(TEXT("Opening the cards retains the entire tower"),Hero->FoodCollection->Pieces.Num(),2);
+    for(auto* Piece:Food) TestTrue(TEXT("Each original piece keeps its carrier and slot membership"),Piece->StackCarrier==Hero && Hero->FoodCollection->Contains(Piece));
+    TestFalse(TEXT("Cancelled input cannot continue an attack"),Hero->IsPrimaryHeld() || Hero->bBrushing);
+    auto* Teammate=W.Player(true);
+    PC->ServerSetPerkChoicePause(true);
+    if(!TestTrue(TEXT("The real personal offer can be selected"),State->TryChooseLevelUpPerk(State->LevelUpOffer.OfferId,0))) return false;
+    PC->RefreshPerkChoiceTeamState();
+    TestTrue(TEXT("A resolved chooser waits for the teammate while retaining the load"),PC->IsWaitingForPerkTeam() && Hero->ShouldPreserveFoodForPerkChoice());
+    Hero->CancelGameplayInput();Hero->FoodCollection->TickComponent(1.f/60,LEVELTICK_All,nullptr);
+    TestEqual(TEXT("The waiting modal retains every original piece"),Hero->FoodCollection->Pieces.Num(),2);
+    Teammate->GetPlayerState<AMCPlayerState>()->ResetLevelUpChoices();PC->RefreshPerkChoiceTeamState();
+    TestFalse(TEXT("Completing the choice resumes the solo world"),W.World->IsPaused());
+    TestEqual(TEXT("Selecting the perk preserves the original tower"),Hero->FoodCollection->Pieces.Num(),2);
+    TestTrue(TEXT("Normal Q can throw exactly one retained piece afterwards"),Hero->FoodCollection->ThrowOne(FVector(1,0,.3).GetSafeNormal()));
+    TestEqual(TEXT("Q leaves the other original piece in the hand"),Hero->FoodCollection->Pieces.Num(),1);
+    // Retention is specific to a valid reward interaction. Ordinary cancellation
+    // must still release a load instead of leaving orphaned carriers.
+    Hero->CancelGameplayInput();
+    TestTrue(TEXT("Ordinary cancellation still drops food outside perk UI"),Hero->FoodCollection->Pieces.IsEmpty());
     return true;
 }
 

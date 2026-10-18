@@ -16,6 +16,7 @@
 #include "MCBossCharacter.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
+#include "MCMouthSurface.h"
 #include "MCTongue.h"
 #include "MCDayPlan.h"
 #include "Engine/World.h"
@@ -85,6 +86,7 @@ void AMCSingleDayDirector::Initialize(UMCDayPlan* Plan, UMCSingleDayProfile* Pro
     Stage=EMCSingleDayStage::Training; bStopped=false;
     KeyEventIndex=0; bAuthoredFragmentComplete=false; InterludeEndsAt=StageEndsAt=0;
     FirstMealBatch=0; MealSpawned=MealAttempts=0;
+    LastMealGateState.Reset(); NextMealDiagnosticAt=0;
     RunStartedAt=GetWorld()->GetTimeSeconds();
     if(auto* GS=GetWorld()->GetGameState<AMCGameState>()) {
         GS->RunSettings.DaysToSurvive=1; GS->Day=1;
@@ -170,6 +172,7 @@ void AMCSingleDayDirector::BeginFirstMeal()
     Stage=EMCSingleDayStage::FirstMeal; StageEndsAt=0;
     FirstMealBatch=2000000+int32(GetUniqueID()&0x000FFFFF);
     MealSpawned=MealAttempts=0;
+    LastMealGateState.Reset(); NextMealDiagnosticAt=0;
     bOpeningCoffeeStarted=false; OpeningCoffeeAt=0;
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     MealRandom.Initialize((GS?GS->RunSeed:41)^0x4D45414C);
@@ -246,9 +249,47 @@ void AMCSingleDayDirector::TickFirstMeal()
         if(IsValid(MealServices)) MealServices->Destroy(); MealServices=nullptr;
         BeginOpeningPause(true); return;
     }
-    const int32 Left=Target-MealSpawned+Food.OutstandingActors+Dirt;
-    Publish(TEXT("ПРИЁМ ПИЩИ"),TEXT("Разбейте еду, получите XP и очистите оставшуюся грязь."),
+    const int32 Pending=FMath::Max(0,Target-MealSpawned);
+    ReportMealGate(Food,Dirt,Pending,Time);
+    const int32 Left=Pending+Food.OutstandingActors+Food.UnresolvedHazards+Dirt;
+    const FString Instruction=FString::Printf(
+        TEXT("Подано %d/%d. Осталось: еда %d · фрагменты %d (в руках %d) · пятна %d · угрозы %d.\nQ — закинуть фрагмент в глотку. Щётка — убрать пятна."),
+        MealSpawned,Target,Food.Whole,Food.Fragments,Food.Carried,Dirt,
+        FMath::Max(0,Food.OutstandingActors-Food.Whole-Food.Fragments)+Food.UnresolvedHazards);
+    Publish(TEXT("ПРИЁМ ПИЩИ"),Instruction,
         Left,FMath::Max(GS->TasksTotal,Left));
+}
+void AMCSingleDayDirector::ReportMealGate(const FMCFoodPipelineLoad& Food,int32 Dirt,int32 Pending,double Now)
+{
+    // The HUD's global cleanliness includes teeth and players too. Report the
+    // actual batch gate rather than making that rounded percentage a deadline.
+    const FString State=FString::Printf(TEXT("pending=%d whole=%d fragments=%d carried=%d swallowing=%d outstanding=%d hazards=%d dirt=%d"),
+        Pending,Food.Whole,Food.Fragments,Food.Carried,Food.Swallowing,Food.OutstandingActors,Food.UnresolvedHazards,Dirt);
+    const bool Changed=State!=LastMealGateState;
+    if(Changed) {
+        LastMealGateState=State;
+        if(Pending==0) Record(FString::Printf(TEXT("До орехового события: еда %d · пятна порции %d · последствия %d. Фрагменты нужно закинуть в глотку."),
+            Food.OutstandingActors,Dirt,Food.UnresolvedHazards));
+    }
+    if(!Changed && Now<NextMealDiagnosticAt) return;
+    UE_LOG(LogTemp,Display,TEXT("MC_MEAL_GATE batch=%d %s"),FirstMealBatch,*State);
+    if(Now<NextMealDiagnosticAt) return;
+    NextMealDiagnosticAt=Now+15.;
+    int32 Logged=0;
+    for(TActorIterator<AMCFoodActor> It(GetWorld());It && Logged<6;++It) {
+        if(It->IsActorBeingDestroyed() || It->Batch!=FirstMealBatch || It->bBrushTool || It->IsDisposed()) continue;
+        ++Logged;
+        UE_LOG(LogTemp,Display,TEXT("MC_MEAL_BLOCKER food=%s item=%s fragment=%d phase=%d location=%s"),
+            *It->GetName(),*It->ItemName.ToString(),It->bFragment,int32(It->Phase),*It->GetActorLocation().ToString());
+    }
+    Logged=0;
+    for(TActorIterator<AMCMouthSurface> It(GetWorld());It && Logged<6;++It) {
+        if(It->IsActorBeingDestroyed() || It->Batch!=FirstMealBatch || It->bUlcer || It->IsClean()
+            || !It->Tags.Contains(FName(TEXT("MCFoodServedDirt")))) continue;
+        ++Logged;
+        UE_LOG(LogTemp,Display,TEXT("MC_MEAL_BLOCKER stain=%s tile=%d layers=%d remaining=%.6f location=%s"),
+            *It->GetName(),It->bPaintTile,It->Status->State.CoffeeLeft,It->RemainingLiquid(),*It->GetActorLocation().ToString());
+    }
 }
 void AMCSingleDayDirector::BeginKeyEvent()
 {

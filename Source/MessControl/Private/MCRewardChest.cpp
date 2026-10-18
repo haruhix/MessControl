@@ -553,9 +553,10 @@ bool AMCRewardChest::BeginLockpicking(AMCToothCharacter* Player)
         if(LootIDs.Num()!=3) return false;
         for(FName ID:LootIDs) if(!PS->Perks->CanGrantPerk(ID)) return false;
     }
-    OpeningPlayer=Player; Player->CancelGameplayInput(); Player->RewardInteraction=this;
+    OpeningPlayer=Player; Player->RewardInteraction=this;
     Player->GetCharacterMovement()->StopMovementImmediately(); Player->ForceNetUpdate();
     SetStage(EMCRewardChestStage::Lockpicking);
+    Player->CancelGameplayInput();
     PC->ClientShowRewardOpening(this,StageStartedAt+FMath::Clamp(LockpickingSeconds,.1f,60.f));
     UE_LOG(LogTemp,Display,TEXT("MC_REWARD_LOCKPICK %s player=%s"),*GetName(),*PS->GetPlayerName());
     return true;

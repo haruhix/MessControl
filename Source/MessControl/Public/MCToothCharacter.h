@@ -97,6 +97,8 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") double RespawnAt=0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") int32 RespawnSourceId=0;
     bool CanWork() const;
+    /** Keep the existing load through perk UI; this never permits new gameplay actions. */
+    bool ShouldPreserveFoodForPerkChoice() const;
     // Fatal frost holds the visible pose in a glass cube before both fragment.
     static constexpr float FreezeDeathHoldSeconds=1.6f;
     UPROPERTY(ReplicatedUsing=OnRep_FreezeDeath,BlueprintReadOnly,Category="Ice|Death") double FreezeDeathStartedAt=-1;

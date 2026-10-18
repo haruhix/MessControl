@@ -1,6 +1,7 @@
 #include "MCMouthSurface.h"
 #include "MCPerkComponent.h"
 #include "MCCoffeeWipe.h"
+#include "MCPaintVisibility.h"
 #include "MCInventoryComponent.h"
 #include "MCTongue.h"
 #include "MCDirtPlacement.h"
@@ -261,9 +262,7 @@ bool AMCMouthSurface::FindDirtyContact(AMCToothCharacter* Worker,FVector& Point,
     float Best=MAX_flt;
     FCollisionQueryParams Query(SCENE_QUERY_STAT(MCLiquidBrushTarget),false,Worker); Query.AddIgnoredActor(this);
     const TArray<uint8> Full;
-    // Tiles include every cell: a thin surviving line may occupy only one texel.
-    const int32 Stride=bPaintTile?1:2,Start=bPaintTile?0:1;
-    int32 MinX=Start,MinY=Start,MaxX=FMCCoffeeWipe::Size-1,MaxY=MaxX;
+    int32 MinX=0,MinY=0,MaxX=FMCCoffeeWipe::Size-1,MaxY=MaxX;
     if(bPaintTile) {
         const FVector2D Center=FVector2D(GetActorTransform().InverseTransformPosition(Origin))/(2*LiquidHalfSize)+FVector2D(.5);
         const float ReachUV=(Contact->SurfaceReach+25)/(2*LiquidHalfSize);
@@ -272,20 +271,28 @@ bool AMCMouthSurface::FindDirtyContact(AMCToothCharacter* Worker,FVector& Point,
         MaxX=FMath::Clamp(FMath::CeilToInt((Center.X+ReachUV)*FMCCoffeeWipe::Size),0,MaxX);
         MaxY=FMath::Clamp(FMath::CeilToInt((Center.Y+ReachUV)*FMCCoffeeWipe::Size),0,MaxY);
     }
-    for(int32 Y=MinY;Y<=MaxY;Y+=Stride) for(int32 X=MinX;X<=MaxX;X+=Stride) {
-        const FVector2D UV((X+.5)/FMCCoffeeWipe::Size,(Y+.5)/FMCCoffeeWipe::Size);
-        if(bPaintTile ? !FMCCoffeeWipe::WetAt(WipeMask,UV,LiquidSeed,true,63)
-            : (!FMCCoffeeWipe::WetAt(Full,UV,LiquidSeed) || (WipeMask.Num()==FMCCoffeeWipe::Count && WipeMask[Y*FMCCoffeeWipe::Size+X]<=63))) continue;
-        FVector P=GetActorTransform().TransformPosition(FVector((UV.X-.5)*2*LiquidHalfSize,(UV.Y-.5)*2*LiquidHalfSize,0));
-        const float Score=FVector::DistSquared2D(P,Aim);
-        if(Score>=Best || FVector::Dist2D(P,Origin)>Contact->SurfaceReach) continue;
-        FVector N=GetActorUpVector(); FHitResult Floor;
-        if(Tongue && Tongue->SurfacePoint(P,Floor)) { P=Floor.ImpactPoint+Floor.ImpactNormal*2; N=Floor.ImpactNormal; }
-        if(!Contact->CanReachAfterFacing(P,N)) continue;
-        FHitResult Block;
-        if(GetWorld()->LineTraceSingleByChannel(Block,Origin+FVector(0,0,35),P+N*4,ECC_Visibility,Query)) continue;
-        Best=Score; Point=P; Normal=N;
-    }
+    const auto ScanCells=[&](int32 StartX,int32 StartY,int32 Stride) {
+        for(int32 Y=StartY;Y<=MaxY;Y+=Stride) for(int32 X=StartX;X<=MaxX;X+=Stride) {
+            const FVector2D UV((X+.5)/FMCCoffeeWipe::Size,(Y+.5)/FMCCoffeeWipe::Size);
+            if(bPaintTile ? !FMCCoffeeWipe::WetAt(WipeMask,UV,LiquidSeed,true,63)
+                : (!FMCCoffeeWipe::WetAt(Full,UV,LiquidSeed) || (WipeMask.Num()==FMCCoffeeWipe::Count && WipeMask[Y*FMCCoffeeWipe::Size+X]<=63))) continue;
+            FVector P=GetActorTransform().TransformPosition(FVector((UV.X-.5)*2*LiquidHalfSize,(UV.Y-.5)*2*LiquidHalfSize,0));
+            const float Score=FVector::DistSquared2D(P,Aim);
+            if(Score>=Best || FVector::Dist2D(P,Origin)>Contact->SurfaceReach) continue;
+            FVector N=GetActorUpVector(); FHitResult Floor;
+            if(Tongue && Tongue->SurfacePoint(P,Floor)) { P=Floor.ImpactPoint+Floor.ImpactNormal*2; N=Floor.ImpactNormal; }
+            if(!Contact->CanReachAfterFacing(P,N)) continue;
+            FHitResult Block;
+            if(GetWorld()->LineTraceSingleByChannel(Block,Origin+FVector(0,0,35),P+N*4,ECC_Visibility,Query)) continue;
+            Best=Score; Point=P; Normal=N;
+        }
+    };
+    // Keep the ordinary puddle's coarse lookup while broad residue remains.
+    // Its final wet cells can fall between those samples, so retry every cell
+    // before declaring the stain unreachable. Otherwise the brush never reaches
+    // the completion update and leaves a clean-looking puddle blocking the meal.
+    ScanCells(bPaintTile?MinX:1,bPaintTile?MinY:1,bPaintTile?1:2);
+    if(!bPaintTile && Best==MAX_flt) ScanCells(0,0,1);
     return Best<MAX_flt;
 }
 bool AMCMouthSurface::BrushLiquid(AMCToothCharacter* Worker,float Seconds)
@@ -467,7 +474,10 @@ void AMCMouthSurface::UploadWipe()
     // Ownership of both allocations transfers to the render-thread cleanup callback.
     auto* Bytes=new uint8[FMCCoffeeWipe::Count*4];
     for (int32 I=0;I<FMCCoffeeWipe::Count;++I)
-    { Bytes[I*4]=Bytes[I*4+1]=Bytes[I*4+2]=WipeMask[I]; Bytes[I*4+3]=255; }
+    {
+        const uint8 Value=MCPaintVisibility::UploadByte(WipeMask[I],bPaintTile);
+        Bytes[I*4]=Bytes[I*4+1]=Bytes[I*4+2]=Value; Bytes[I*4+3]=255;
+    }
     auto* Region=new FUpdateTextureRegion2D(0,0,0,0,FMCCoffeeWipe::Size,FMCCoffeeWipe::Size);
     WipeTexture->UpdateTextureRegions(0,1,Region,FMCCoffeeWipe::Size*4,4,Bytes,
         [](uint8* Data,const FUpdateTextureRegion2D* Rect){delete[] Data; delete Rect;});
@@ -484,7 +494,8 @@ void AMCMouthSurface::UpdateLiquid(float Dt)
         LiquidMID=UMaterialInstanceDynamic::Create(Base,this); Liquid->SetMaterial(0,LiquidMID);
         TArray64<uint8> Initial;Initial.SetNumUninitialized(FMCCoffeeWipe::Count*4);
         for(int32 I=0;I<FMCCoffeeWipe::Count;++I) {
-            const uint8 Value=WipeMask.IsValidIndex(I)?WipeMask[I]:(bPaintTile?0:255);
+            const uint8 Raw=WipeMask.IsValidIndex(I)?WipeMask[I]:(bPaintTile?0:255);
+            const uint8 Value=MCPaintVisibility::UploadByte(Raw,bPaintTile);
             Initial[I*4]=Initial[I*4+1]=Initial[I*4+2]=Value;Initial[I*4+3]=255;
         }
         WipeTexture=UTexture2D::CreateTransient(FMCCoffeeWipe::Size,FMCCoffeeWipe::Size,PF_B8G8R8A8,NAME_None,Initial);

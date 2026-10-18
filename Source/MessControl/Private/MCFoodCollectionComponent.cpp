@@ -294,6 +294,9 @@ void UMCFoodCollectionComponent::TickComponent(float Dt,ELevelTick Type,FActorCo
 {
     Super::TickComponent(Dt,Type,Tick);
     auto* H=Cast<AMCToothCharacter>(GetOwner()); if(!H || !H->HasAuthority()) return;
+    // A modal choice suspends input, not the already collected tower. In
+    // particular, do not spill it on the frame before the shared pause arrives.
+    if(H->ShouldPreserveFoodForPerkChoice()) return;
     const auto* Move=Cast<UMCToothMovementComponent>(H->GetCharacterMovement());
     if(!H->CanWork() || H->bInCoffee || Move->IsClimbing()) {if(bCollecting || Pieces.Num()) Stop();return;}
     if(!bCollecting) return;
