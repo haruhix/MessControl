@@ -96,6 +96,8 @@ bool AMCVFXLabBossStation::IsCombatKind() const
 
 FString AMCVFXLabBossStation::KindName() const
 {
+    // Retain the serialized enum value used by saved lab stations.
+    if(Kind==EMCVFXLabBossKind::TankShieldBreakOverflow) return TEXT("TankShieldBreak");
     const UEnum* Enum=StaticEnum<EMCVFXLabBossKind>();
     return Enum?Enum->GetNameStringByValue(int64(Kind)):TEXT("Boss");
 }
@@ -389,6 +391,7 @@ bool AMCVFXLabBossStation::LaunchAction()
         NutBoss->Target=Subject;
         BossHealthBefore=NutBoss->Health; ShieldBefore=NutBoss->ShieldHealth;
         if(IsDeathKind()) {
+            if(NutBoss->ShieldHealth>0) NutBoss->ReceiveToolDamage(NutBoss->ShieldHealth,nullptr);
             AppliedHealthDamage=NutBoss->ReceiveToolDamage(NutBoss->Health+1,nullptr);
             bSawDeath=NutBoss->State==EMCNutBossState::Defeated;
             return bSawDeath && AppliedHealthDamage>0;
@@ -403,8 +406,7 @@ bool AMCVFXLabBossStation::LaunchAction()
             if(!FMath::IsNearlyEqual(ShieldBefore,ExpectedShield,.1f) || !NutBoss->IsShieldProtectingFrom(Subject->GetActorLocation())) return false;
             const float Raw=Kind==EMCVFXLabBossKind::TankShieldHit?75.f:ShieldBefore+100.f;
             AppliedHealthDamage=NutBoss->ReceiveToolDamage(Raw,Subject);
-            const float Expected=FMath::Min(Raw,ShieldBefore)*NutBoss->BossSettings.ShieldFrontDamageScale+FMath::Max(0.f,Raw-ShieldBefore);
-            return FMath::IsNearlyEqual(BossHealthBefore-NutBoss->Health,Expected,.1f)
+            return FMath::IsNearlyEqual(BossHealthBefore,NutBoss->Health,.1f) && FMath::IsNearlyZero(AppliedHealthDamage,.1f)
                 && FMath::IsNearlyEqual(NutBoss->ShieldHealth,FMath::Max(0.f,ShieldBefore-Raw),.1f);
         }
         if(Kind==EMCVFXLabBossKind::MageTeleport) NutBoss->BeginTeleport();
@@ -529,11 +531,12 @@ void AMCVFXLabBossStation::Tick(float DeltaSeconds)
             const auto* Unshielded=NutBoss->BossSettings.TankUnshieldedSkeletalMesh.Get();
             const bool LostShield=NutBoss->ShieldHealth<=0 && !NutBoss->IsShieldProtectingFrom(Subject->GetActorLocation())
                 && (!Unshielded || NutBoss->TankModel->GetSkeletalMeshAsset()==Unshielded);
-            FinishCycle(Cue && AppliedHealthDamage>0 && LostShield && FMath::IsNearlyEqual(Followup,25.f,.1f)
+            FinishCycle(Cue && FMath::IsNearlyZero(AppliedHealthDamage,.1f) && LostShield && FMath::IsNearlyEqual(Followup,25.f,.1f)
                 && FMath::IsNearlyEqual(BeforeFollowup-NutBoss->Health,25.f,.1f),
-                TEXT("Shield 500: raw600 broke shield; full100 overflow and next frontal hit full25 observed"));
-        } else FinishCycle(Cue && (AppliedHealthDamage>0 || (bComparisonMode && NutBoss->ShieldHealth<ShieldBefore)),
-            TEXT("Shield 500: raw75 removed75 durability, protected health damage observed"));
+                TEXT("Shield 500: raw600 broke shield with zero HP overflow; next hit removed full25 HP"));
+        } else FinishCycle(Cue && FMath::IsNearlyZero(AppliedHealthDamage,.1f) && NutBoss->ShieldHealth<ShieldBefore
+            && FMath::IsNearlyEqual(BossHealthBefore,NutBoss->Health,.1f),
+            TEXT("Shield 500: raw75 removed75 durability and preserved boss HP"));
         return;
     }
     if(Kind==EMCVFXLabBossKind::ZombieRoar && IsValid(Boss)) {

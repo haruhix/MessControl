@@ -707,20 +707,18 @@ void AMCNutBoss::PresentTankModel(double Time)
     }
 }
 
-bool AMCNutBoss::IsShieldProtectingFrom(FVector SourcePoint) const
+bool AMCNutBoss::IsShieldProtectingFrom(FVector /*SourcePoint*/) const
 {
-    // Guard exists only in the matching visible stance. Every cast, attack and
-    // recovery lowers it, so a player can read the full-damage window from the pose.
-    if(BossRole!=EMCNutBossRole::Tank || ShieldHealth<=0 || !CanReceiveToolHit() || State!=EMCNutBossState::Idle) return false;
-    const FVector Towards=(SourcePoint-GetActorLocation()).GetSafeNormal2D();
-    return !Towards.IsNearlyZero() && FVector::DotProduct(Towards,GetActorForwardVector())>=FMath::Cos(FMath::DegreesToRadians(BossSettings.ShieldHalfAngle));
+    // Shield durability is the knight's first health gate in every combat pose.
+    // Keep the source argument for callers, but rear and area hits cannot bypass it.
+    return BossRole==EMCNutBossRole::Tank && ShieldHealth>0 && CanReceiveToolHit();
 }
 
 float AMCNutBoss::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
 {
     if(!HasAuthority() || !CanReceiveToolHit() || !FMath::IsFinite(Damage) || Damage<=0
         || (Source && (Source->GetWorld()!=GetWorld() || !IsLiveTarget(Source)))) return 0;
-    const bool Shielded=Source && IsShieldProtectingFrom(Source->GetActorLocation());
+    const bool Shielded=IsShieldProtectingFrom(Source?Source->GetActorLocation():GetActorLocation());
     bLastToolHitBlocked=Shielded;
     auto* Perks=UMCPerkComponent::ForActor(Source);
     if(Perks) Damage=Perks->WeaponDamage(Damage,this);
@@ -731,11 +729,11 @@ float AMCNutBoss::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
     else if(DamageTime-VisualHitAt>=BossSettings.MageHitAnimationSeconds+BossSettings.AnimationBlendSeconds) VisualHitAt=DamageTime;
     VisualHitDirection=Source?(Source->GetActorLocation()-GetActorLocation()).GetSafeNormal2D():-GetActorForwardVector();
     if(Shielded) {
-        // The incoming hit damages shield durability and deals 20% to the boss.
-        // A broken shield stops protecting subsequent hits, not half of this hit.
+        // The entire hit belongs to the shield, including its breaking blow.
+        // Excess durability damage is discarded; only later hits can remove HP.
         const float ShieldBonus=Perks && !Perks->bRogueExtraHit?Perks->RogueValue(EMCRogueStat::ShieldDamage):1.f;
         ShieldHealth=FMath::Max(0.f,ShieldHealth-Damage*ShieldBonus);
-        Damage*=BossSettings.ShieldFrontDamageScale;
+        Damage=0;
         const bool Broken=ShieldHealth<=0;
         if(Broken) {
             ShieldBrokenAt=VisualHitAt;
@@ -753,13 +751,16 @@ float AMCNutBoss::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
     // cancelling an entire boss attack each time four workers swing together.
     const AMCToothCharacter* PreviousTarget=Target;
     float Applied=0;
-    if(Perks) {TGuardValue<bool> Resolved(Perks->bRogueExtraHit,true);Applied=Super::ReceiveToolDamage(Damage,Source);}
+    if(Shielded) {
+        HitAt=GetWorld()->GetTimeSeconds();
+        if(IsValid(Source)) Target=Source;
+    } else if(Perks) {TGuardValue<bool> Resolved(Perks->bRogueExtraHit,true);Applied=Super::ReceiveToolDamage(Damage,Source);}
     else Applied=Super::ReceiveToolDamage(Damage,Source);
     if(!bDefeated) RecordTargetSwitch(PreviousTarget);
     if(Perks && (Applied>0 || ShieldHealth<ShieldBefore)) Perks->NotifyWeaponHit(this);
     if(Shielded && Applied<=0) {
-        RefreshPresentation();ForceNetUpdate();
-        if(!ActorHasTag(TEXT("MC.LegacyCombatFeedback"))) {
+        RefreshPresentation();AMCNutCombatEffect::UpdateShieldDamageVisual(this);ForceNetUpdate();
+        if(IsValid(Source) && !ActorHasTag(TEXT("MC.LegacyCombatFeedback"))) {
             Source->NotifyCameraImpact(550.f,-VisualHitDirection);
         }
     }
@@ -777,7 +778,7 @@ float AMCNutBoss::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
 
 void AMCNutBoss::ReportDamageFeedback(AMCToothCharacter* Source,float Applied)
 {
-    // ReceiveToolDamage reports once after resolving shield durability and health overflow.
+    // ReceiveToolDamage reports once after resolving either shield durability or HP.
 }
 
 float AMCNutBoss::GetAttackCooldownRemaining(EMCNutBossAttack Ability) const
@@ -1219,6 +1220,8 @@ void AMCNutBoss::SummonCreeps()
     // tell. Breaking a marked nut before release prevents that summon.
     TArray<AMCFoodActor*> Available;
     EncounterOwner->GetAvailableRainNuts(Available);
+    Available.Sort([](const AMCFoodActor& A,const AMCFoodActor& B) {return A.GetUniqueID()<B.GetUniqueID();});
+    TArray<AMCNutKamikaze*> Summoned;
     UStaticMesh* Fallback=BossSettings.WholeMesh.LoadSynchronous();
     for(auto* Nut:Available) {
         UStaticMesh* Mesh=Nut->ItemMesh?Nut->ItemMesh.Get():Fallback;
@@ -1233,8 +1236,10 @@ void AMCNutBoss::SummonCreeps()
         if(!Enemy->ConfigureKamikaze(Tongue,Mesh,HeightScale(Mesh,BossSettings.CreepHeight),Creep)) {Enemy->Destroy();continue;}
         Enemy->FinishSpawning(Pose);
         EncounterOwner->RegisterEncounterEnemy(Enemy);
+        Summoned.Add(Enemy);
         Nut->Dispose();
     }
+    AMCNutKamikaze::StaggerSummonedGroup(Summoned);
     SummonPositions.Reset();
 }
 

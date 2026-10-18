@@ -10,6 +10,7 @@ class UProceduralMeshComponent;
 class USkeletalMeshComponent;
 class USkeletalMesh;
 class UAnimSequence;
+struct FMCNutKamikazeFuseGroup;
 
 /** A killable summoned nut: its fuse starts on spawn, rather than on player contact. */
 UCLASS(Blueprintable)
@@ -25,6 +26,9 @@ public:
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Nut Combat|Summon")
     bool ConfigureKamikaze(AMCTongue* OnTongue,UStaticMesh* Mesh,FVector Scale,FMCNutEnemySettings InSettings,
         float FuseSeconds=5.f,float InBlastRadius=230.f,float InBlastDamage=20.f,float InPushSpeed=650.f);
+
+    /** Preserve the caller's summon order, with at least .75 seconds between actual blasts. */
+    static void StaggerSummonedGroup(const TArray<AMCNutKamikaze*>& Summons);
 
     UFUNCTION(BlueprintPure,Category="Nut Combat|Summon") float GetFuseSecondsRemaining() const;
 
@@ -53,12 +57,15 @@ protected:
     virtual void Defeat() override;
 private:
     double ServerNow() const;
+    bool IsDetonationDue(double Time);
+    void AdvanceGroupAfterBlast(double Time);
     void PresentFuse(double Time);
     void Detonate();
     void PresentSummon(double Time,float DeltaSeconds);
     FVector ModelCenter=FVector::ZeroVector,ModelScale=FVector::OneVector,LastModelLocation=FVector::ZeroVector;
     bool bModelMotionInitialized=false;
     double NextNearestTargetAt=0;
+    TSharedPtr<FMCNutKamikazeFuseGroup> FuseGroup;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> FuseMID;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> WarningMID;
 };

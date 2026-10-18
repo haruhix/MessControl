@@ -130,7 +130,7 @@ void UMCPerkChoiceWidget::BuildPresentationTree()
 void UMCPerkChoiceWidget::NormalizePresentationLayout()
 {
     if(!WidgetTree) return;
-    if(auto* Size=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("RewardPanelSize")))) {Size->SetWidthOverride(1040);Size->SetHeightOverride(680);}
+    if(auto* Size=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("RewardPanelSize")))) {Size->SetWidthOverride(bWaitingForTeam?760:1040);Size->SetHeightOverride(bWaitingForTeam?280:680);}
     if(PanelBorder) PanelBorder->SetPadding(FMargin(18));
     if(HeaderBorder) {HeaderBorder->SetPadding(FMargin(14,8));if(auto* LayoutSlot=Cast<UVerticalBoxSlot>(HeaderBorder->Slot)) LayoutSlot->SetPadding(FMargin(0,0,0,8));}
     if(Subtitle) if(auto* LayoutSlot=Cast<UVerticalBoxSlot>(Subtitle->Slot)) LayoutSlot->SetPadding(FMargin(8,0,8,12));
@@ -222,7 +222,9 @@ FMCPerkCardPresentation UMCPerkChoiceWidget::MakePresentation(FName ID,const FMC
 void UMCPerkChoiceWidget::BuildChoices(const TArray<FName>& IDs,EMCPerkPolarity Polarity,bool bPersonal,bool bReadOnly)
 {
     BuildPresentationTree();if(!Cards || !Actions || !Title || !Subtitle || !Hint) return;
-    bShowingChoices=true;bSelectionPending=false;bLevelPanel=bPersonal;bOptionalReward=false;bConfirming=false;
+    bShowingChoices=true;bSelectionPending=false;bWaitingForTeam=false;bLevelPanel=bPersonal;bOptionalReward=false;bConfirming=false;
+    Actions->SetVisibility(ESlateVisibility::Visible);
+    NormalizePresentationLayout();
     Actions->ClearChildren();Cards->ClearChildren();Cards->SetVisibility(ESlateVisibility::Visible);Buttons.Reset();ButtonStyles.Reset();CardWidgets.Reset();GamepadSelection=0;NextStickNavigationAt=0;
     SetOrdinaryHeader();
     auto* PC=bApplyingPreview?nullptr:GetOwningPlayer<AMCPlayerController>();const auto* State=PC?PC->GetPlayerState<AMCPlayerState>():nullptr;
@@ -292,6 +294,23 @@ void UMCPerkChoiceWidget::SetSelectionPending(bool bPending)
     if(Hint) Hint->SetText(bPending?Copy(TEXT("UI.Reward.SelectionPending"),LOCTEXT("SelectionPending","Подтверждаем выбор…")):bConfirming?Copy(TEXT("UI.Reward.ContractConfirmHint"),LOCTEXT("ContractConfirmHint","Принять — Enter / A. Отказаться — Escape / B.")):Copy(TEXT("UI.Reward.ActiveChoiceHint"),LOCTEXT("ActiveChoiceHint","Выбор: 1 / 2 / 3 или стик / D-pad + A")));
     RefreshGamepadSelection();
 }
+void UMCPerkChoiceWidget::ShowTeamWaiting(int32 Ready,int32 Total)
+{
+    BuildPresentationTree();
+    bShowingChoices=false;bSelectionPending=false;bWaitingForTeam=true;
+    bLevelPanel=bOptionalReward=bConfirming=false;
+    for(const auto& Button:Buttons) if(Button) {Button->SetIsEnabled(false);Button->SetInteractionAllowed(false);}
+    if(Cards) Cards->SetVisibility(ESlateVisibility::Collapsed);
+    if(Actions) Actions->SetVisibility(ESlateVisibility::Collapsed);
+    if(auto* Size=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("RewardPanelSize")))) {Size->SetWidthOverride(760);Size->SetHeightOverride(280);}
+    if(Title) Title->SetText(Copy(TEXT("UI.Reward.WaitingTitle"),LOCTEXT("WaitingTitle","ОЖИДАЕМ КОМАНДУ")));
+    if(Subtitle) {Subtitle->SetText(Copy(TEXT("UI.Reward.WaitingSubtitle"),LOCTEXT("WaitingSubtitle","Вы готовы. Остальные ещё выбирают перки.")));Subtitle->SetFont(GetResolvedTheme()->MakeGameplayFont(22));}
+    const FCulturePtr Culture=FInternationalization::Get().GetCulture(DisplayCulture());
+    if(Hint) Hint->SetText(Format(Copy(TEXT("UI.Reward.TeamReady"),LOCTEXT("TeamReady","Готовы: {Ready} / {Total} · игра продолжится после общего выбора")),
+        FFormatNamedArguments{{TEXT("Ready"),FText::AsNumber(FMath::Clamp(Ready,0,FMath::Max(0,Total)),nullptr,Culture)},
+            {TEXT("Total"),FText::AsNumber(FMath::Max(0,Total),nullptr,Culture)}}));
+    if(Hint) Hint->SetFont(GetResolvedTheme()->MakeGameplayFont(17));
+}
 void UMCPerkChoiceWidget::RefreshGamepadSelection()
 {
     if(!Buttons.IsValidIndex(GamepadSelection) || !Buttons[GamepadSelection] || !Buttons[GamepadSelection]->GetIsEnabled() || !Buttons[GamepadSelection]->IsInteractionAllowed()) GamepadSelection=Buttons.IndexOfByPredicate([](const auto& Button){return Button && Button->GetIsEnabled() && Button->IsInteractionAllowed();});
@@ -328,6 +347,7 @@ void UMCPerkChoiceWidget::ApplyEditorPreview(float Time)
     } else if(PreviewState==TEXT("Reward")) ShowChoices(IDs,EMCPerkPolarity::Positive);
     else ShowLevelChoices(IDs,2,1);
     if(PreviewState==TEXT("Pending")) SetSelectionPending(true);
+    if(PreviewState==TEXT("WaitingForTeam")) ShowTeamWaiting(1,2);
     bHasPreviewFixture=true;LastPreviewState=PreviewState;LastPreviewCulture=PreviewCulture;LastPreviewIDs=PreviewPerkIDs;
     LastPreviewScenario=PreviewScenario;LastPreviewCardTable=CardTable;LastPreviewLocalizationTable=LocalizationTable;LastPreviewCardWidgetClass=CardWidgetClass.Get();
     SetRenderOpacity(Time<=0.f?1.f:FMath::Clamp(Time*6.f,0.f,1.f));
@@ -345,6 +365,7 @@ FReply UMCPerkChoiceWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry,con
 }
 FReply UMCPerkChoiceWidget::NativeOnAnalogValueChanged(const FGeometry& Geometry,const FAnalogInputEvent& Event)
 {
+    if(bWaitingForTeam) return FReply::Handled();
     if(bShowingChoices && Event.GetKey()==EKeys::Gamepad_RightY) {
         const float Delta=-Event.GetAnalogValue()*18.f;
         if(FMath::Abs(Event.GetAnalogValue())>.15f) {
@@ -367,6 +388,7 @@ FReply UMCPerkChoiceWidget::NativeOnAnalogValueChanged(const FGeometry& Geometry
 FReply UMCPerkChoiceWidget::NativeOnKeyDown(const FGeometry& Geometry, const FKeyEvent& Event)
 {
     if(IsDesignTime() || bApplyingPreview || !GetOwningPlayer<AMCPlayerController>()) return FReply::Handled();
+    if(bWaitingForTeam) return FReply::Handled();
     const FKey Key=Event.GetKey();
     if(bShowingChoices && !bSelectionPending && !bConfirming && !Event.IsRepeat() && (Key==EKeys::Enter || Key==EKeys::SpaceBar)) {
         if(Buttons.IsValidIndex(GamepadSelection) && Buttons[GamepadSelection]->GetIsEnabled()) Buttons[GamepadSelection]->OnClicked.Broadcast();

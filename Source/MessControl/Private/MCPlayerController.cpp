@@ -100,19 +100,24 @@ void AMCPlayerController::HideScoreboard()
 void AMCPlayerController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
-    if (HasAuthority() && bPerkChoicePauseRequested && !HasAuthoritativePerkChoice())
-        ServerSetPerkChoicePause_Implementation(false);
+    if(HasAuthority()) RefreshPerkChoiceWorld();
+    if (HasAuthority() && GetWorld()->GetRealTimeSeconds()>=NextPerkTeamCheck) {
+        NextPerkTeamCheck=GetWorld()->GetRealTimeSeconds()+.1;RefreshPerkChoiceTeamState();
+    }
     if (!IsLocalController()) return;
     if(GetWorld()->GetRealTimeSeconds()>=NextBackgroundAudioAt) {
         NextBackgroundAudioAt=GetWorld()->GetRealTimeSeconds()+.5;
         RefreshBackgroundAudio();
     }
-    if (GetWorld()->GetTimeSeconds()>=NextFrontEndCheck) { NextFrontEndCheck=GetWorld()->GetTimeSeconds()+.1; RefreshFrontEnd(); }
+    // Lobby/tutorial presentation must follow replicated state even while a perk
+    // choice has paused gameplay time on this or another player's controller.
+    if (GetWorld()->GetRealTimeSeconds()>=NextFrontEndCheck) { NextFrontEndCheck=GetWorld()->GetRealTimeSeconds()+.1; RefreshFrontEnd(); }
     // Choice maintenance must keep running while gameplay time and timers are paused.
     if (GetWorld()->GetRealTimeSeconds()>=NextLevelChoiceCheck) {
         NextLevelChoiceCheck=GetWorld()->GetRealTimeSeconds()+.1;
         if (ActiveRewardChest.IsValid() || RewardPawn.IsValid()) CheckRewardUI();
         RefreshLevelPerkChoices();
+        RefreshPerkChoiceWaiting();
         UpdatePerkChoicePause();
     }
     if (bBossIntroPlaying) return;
@@ -184,6 +189,7 @@ void AMCPlayerController::PostSeamlessTravel()
 }
 void AMCPlayerController::ResetWorldPresentation()
 {
+    RefreshPerkChoiceWorld();
     bGameplayLoaded=false; bGameplayLoadAckSent=false;
     AcknowledgedTutorial.Reset(); NextFrontEndCheck=0; NextLevelChoiceCheck=0;
     NextAlarmAt=0; NextColorAt=0;
@@ -481,12 +487,128 @@ void AMCPlayerController::UpdatePerkChoicePause()
 
 bool AMCPlayerController::HasAuthoritativePerkChoice() const
 {
+    if(!IsPerkChoiceParticipant()) return false;
     const auto* Hero=Cast<AMCToothCharacter>(GetPawn());
     const auto* State=GetPlayerState<AMCPlayerState>();
-    if (!Hero || !Hero->Status || !Hero->Status->IsAlive() || !State) return false;
-    if (State->LevelUpOffer.IsValid()) return true;
+    // Incapacitated workers keep earned cards queued until they can choose. A
+    // world pause must not freeze the very recovery that would unlock their UI.
+    if(IsBossIntroPlaying() || Hero->Inventory->bChainsawRunning || (State->Perks && State->Perks->IsFuryActive())
+        || Hero->HasFrozenLegs() || Hero->IsMimicCaptured() || !Hero->ToothPhysics->CanAct()) return false;
+    const auto* Game=GetWorld()->GetGameState<AMCGameState>();
+    if(Game && (Game->bLobbyWaiting || Game->bTutorialActive || Game->Phase==EMCShiftPhase::Won || Game->Phase==EMCShiftPhase::Lost)) return false;
     const auto* Chest=Hero->RewardInteraction.Get();
-    return IsValid(Chest) && Chest->Stage==EMCRewardChestStage::Open && Chest->OpeningPlayer==Hero;
+    // An already approved chest must finish its lid/lockpicking before a pause;
+    // its open cards do not need fresh admission from the event director.
+    if(IsValid(Chest) && Chest->OpeningPlayer==Hero) return Chest->Stage==EMCRewardChestStage::Open;
+    if(!bPerkChoicePauseRequested) if(const auto* Director=AMCGameDirector::Find(GetWorld());Director && Director->IsManagingEvents()
+        && !Director->CanStartRewardInteraction()) return false;
+    return State->LevelUpOffer.IsValid();
+}
+
+bool AMCPlayerController::IsPerkChoiceParticipant() const
+{
+    const auto* State=GetPlayerState<AMCPlayerState>();
+    const auto* Hero=Cast<AMCToothCharacter>(GetPawn());
+    return !bPerkChoiceEnding && !IsActorBeingDestroyed() && State && !State->IsSpectator() && !State->IsOnlyASpectator()
+        && IsValid(Hero) && !Hero->IsActorBeingDestroyed() && Hero->Status && Hero->Status->IsAlive();
+}
+
+void AMCPlayerController::RefreshPerkChoiceWorld()
+{
+    if(PerkChoiceWorld.Get()==GetWorld()) return;
+    // Seamless travel retains this controller, but the old GameMode's pause
+    // delegates and real-time clock do not transfer to the destination world.
+    PerkChoiceWorld=GetWorld();
+    bPerkChoicePauseRequested=bPerkChoicePauseSent=false;
+    bPerkChoiceTeamActive=bPerkChoiceNeedsChoice=false;
+    PerkChoiceReadyPlayers=PerkChoiceTotalPlayers=0;
+    LastSentPerkReady=LastSentPerkTotal=-1;
+    bLastSentPerkActive=bLastSentPerkNeedsChoice=false;
+    NextPerkTeamCheck=0;
+}
+
+void AMCPlayerController::RefreshPerkChoiceTeamState()
+{
+    if(!HasAuthority() || !GetWorld()) return;
+    RefreshPerkChoiceWorld();
+    // A listen host's client callback can re-enter through UpdateInputMode.
+    static bool bRefreshing=false;
+    if(bRefreshing) return;
+    TGuardValue<bool> Guard(bRefreshing,true);
+    auto* Mode=GetWorld()->GetAuthGameMode(); if(!Mode) return;
+    struct FMember {AMCPlayerController* Controller;bool Participant;bool NeedsChoice;};
+    TArray<FMember> Controllers;
+    int32 Total=0,Pending=0;bool Changed=false,Released=false;
+    if(bPerkChoiceEnding && bPerkChoicePauseRequested) {bPerkChoicePauseRequested=false;Changed=Released=true;}
+    for(TActorIterator<AMCPlayerController> It(GetWorld());It;++It) {
+        It->RefreshPerkChoiceWorld();
+        if(It->bPerkChoiceEnding || It->IsActorBeingDestroyed()) continue;
+        const bool Participant=It->IsPerkChoiceParticipant(),NeedsChoice=It->HasAuthoritativePerkChoice();
+        Controllers.Add({*It,Participant,NeedsChoice});
+        Total+=Participant;Pending+=NeedsChoice;
+    }
+    // Acquire every authoritative choice before releasing any old lease. A fast
+    // first selection cannot resume a teammate whose widget/RPC arrived later.
+    for(const auto& Member:Controllers) if(auto* PC=Member.Controller;Member.NeedsChoice && !PC->bPerkChoicePauseRequested) {
+        PC->bPerkChoicePauseRequested=Mode->SetPause(PC,FCanUnpause::CreateUObject(PC,&AMCPlayerController::CanUnpausePerkChoice));
+        Changed|=PC->bPerkChoicePauseRequested;
+    }
+    for(const auto& Member:Controllers) if(auto* PC=Member.Controller;!Member.NeedsChoice && PC->bPerkChoicePauseRequested) {PC->bPerkChoicePauseRequested=false;Changed=Released=true;}
+    // Only release our completed leases. Polling must not clear unrelated pauses.
+    if(Released) Mode->ClearPause();
+    for(const auto& Member:Controllers) {
+        auto* PC=Member.Controller;
+        const bool Active=Pending>0 && Member.Participant,NeedsChoice=Member.NeedsChoice;
+        if(PC->LastSentPerkReady!=Total-Pending || PC->LastSentPerkTotal!=Total
+            || PC->bLastSentPerkActive!=Active || PC->bLastSentPerkNeedsChoice!=NeedsChoice) {
+            PC->LastSentPerkReady=Total-Pending;PC->LastSentPerkTotal=Total;
+            PC->bLastSentPerkActive=Active;PC->bLastSentPerkNeedsChoice=NeedsChoice;
+            PC->ClientPerkChoiceTeamState(Total-Pending,Total,Active,NeedsChoice);
+            Changed=true;
+        }
+    }
+    if(Changed) GetWorldSettings()->ForceNetUpdate();
+}
+
+void AMCPlayerController::ClientPerkChoiceTeamState_Implementation(int32 Ready,int32 Total,bool bActive,bool bNeedsChoice)
+{
+    RefreshPerkChoiceWorld();
+    PerkChoiceTotalPlayers=FMath::Max(0,Total);PerkChoiceReadyPlayers=FMath::Clamp(Ready,0,PerkChoiceTotalPlayers);
+    bPerkChoiceTeamActive=bActive;bPerkChoiceNeedsChoice=bNeedsChoice;
+    if(!IsLocalController()) return;
+    RefreshPerkChoiceWaiting();
+    RefreshLevelPerkChoices();
+}
+
+bool AMCPlayerController::IsWaitingForPerkTeam() const
+{
+    if(!bPerkChoiceTeamActive || bPerkChoiceNeedsChoice || !IsPerkChoiceParticipant()) return false;
+    const auto* Hero=Cast<AMCToothCharacter>(GetPawn());
+    const auto* State=GetPlayerState<AMCPlayerState>();
+    // Other players can pause the shared clock without cancelling an ongoing
+    // saw run or covering an intro/recovery with a modal that calls CancelInput.
+    return !IsBossIntroPlaying() && !Hero->Inventory->bChainsawRunning
+        && (!State->Perks || !State->Perks->IsFuryActive()) && !Hero->HasFrozenLegs()
+        && !Hero->IsMimicCaptured() && Hero->ToothPhysics->CanAct();
+}
+
+void AMCPlayerController::RefreshPerkChoiceWaiting()
+{
+    if(!IsLocalController()) return;
+    if(!IsWaitingForPerkTeam()) {
+        if(PerkChoiceWidget && PerkChoiceWidget->IsWaitingForTeam() && PerkChoiceWidget->IsInViewport()) {
+            PerkChoiceWidget->RemoveFromParent();UpdateInputMode();
+        }
+        return;
+    }
+    const bool AlreadyWaiting=IsRewardMenuOpen() && PerkChoiceWidget->IsWaitingForTeam();
+    ActiveLevelOfferId.Invalidate();bRewardChoicePending=false;
+    if(!PerkChoiceWidget) PerkChoiceWidget=CreateWidget<UMCPerkChoiceWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("PerkChoice"),UMCPerkChoiceWidget::StaticClass()));
+    if(!PerkChoiceWidget) return;
+    if(!PerkChoiceWidget->IsInViewport()) PerkChoiceWidget->AddToViewport(30);
+    PerkChoiceWidget->SetVisibility(ESlateVisibility::Visible);
+    PerkChoiceWidget->ShowTeamWaiting(PerkChoiceReadyPlayers,PerkChoiceTotalPlayers);
+    if(!AlreadyWaiting) {UpdateInputMode();PerkChoiceWidget->SetUserFocus(this);}
 }
 
 bool AMCPlayerController::CanUnpausePerkChoice()
@@ -496,17 +618,9 @@ bool AMCPlayerController::CanUnpausePerkChoice()
 
 void AMCPlayerController::ServerSetPerkChoicePause_Implementation(bool bOpen)
 {
-    if (bOpen==bPerkChoicePauseRequested || (bOpen && !HasAuthoritativePerkChoice())) return;
-    auto* Mode=GetWorld()->GetAuthGameMode();
-    if (!Mode) return;
-    bPerkChoicePauseRequested=bOpen;
-    // Register one delegate per chooser, even when another player already paused.
-    // Unreal replicates the world pause and removes a departing controller's delegate.
-    if (bOpen) {
-        if (!Mode->SetPause(this,FCanUnpause::CreateUObject(this,&AMCPlayerController::CanUnpausePerkChoice)))
-            bPerkChoicePauseRequested=false;
-    } else Mode->ClearPause();
-    GetWorldSettings()->ForceNetUpdate();
+    if(bOpen && !HasAuthoritativePerkChoice()) return;
+    // Closing a local panel is not proof that its server-owned offer was consumed.
+    RefreshPerkChoiceTeamState();
 }
 
 bool AMCPlayerController::IsRewardInteractionActive() const
@@ -609,6 +723,7 @@ void AMCPlayerController::ServerConfirmRogueReward_Implementation(AMCRewardChest
     if(!IsValid(Chest) || !Hero) return;
     const bool Done=Accept?Chest->ConfirmRogueContract(Hero):Chest->DeclineRogueReward(Hero);
     if(!Done && Chest->Stage==EMCRewardChestStage::Open && Chest->OpeningPlayer==Hero) Chest->PublishRogueOffer();
+    RefreshPerkChoiceTeamState();
 }
 void AMCPlayerController::ClientShowRogueChoices_Implementation(AMCRewardChest* Chest,const FMCRogueChestOffer& Offer)
 {
@@ -628,6 +743,7 @@ void AMCPlayerController::ServerChooseRewardPerk_Implementation(AMCRewardChest* 
             else ClientShowPerkChoices(Chest,Chest->LootIDs,Chest->Polarity);
         else ClientClosePerkChoices(Chest);
     }
+    RefreshPerkChoiceTeamState();
 }
 
 void AMCPlayerController::ClientClosePerkChoices_Implementation(AMCRewardChest* Chest)
@@ -639,6 +755,7 @@ void AMCPlayerController::ClientClosePerkChoices_Implementation(AMCRewardChest* 
 void AMCPlayerController::RefreshLevelPerkChoices()
 {
     if (!IsLocalController()) return;
+    if(IsWaitingForPerkTeam()) {RefreshPerkChoiceWaiting();return;}
     // Keep earned choices queued until the unstoppable saw run has ended.
     // Opening its menu would otherwise cancel the tool and halt the player.
     if(const auto* Hero=Cast<AMCToothCharacter>(GetPawn());Hero && Hero->Inventory->bChainsawRunning) return;
@@ -660,6 +777,9 @@ void AMCPlayerController::RefreshLevelPerkChoices()
         if (ActiveLevelOfferId.IsValid()) CloseRewardUI();
         return;
     }
+    // The lobby flag and the offer can arrive before the next front-end poll.
+    // Remove the old lobby before giving the cards focus and pausing the world.
+    if (bLobbyUIOpen) RefreshFrontEnd();
     if (ActiveRewardChest.IsValid()) return; // Finish an existing chest before presenting queued levels.
     const auto& Offer=ProgressPlayer->LevelUpOffer;
     if (ActiveLevelOfferId==Offer.OfferId && IsRewardMenuOpen()) {
@@ -687,15 +807,18 @@ void AMCPlayerController::ServerChooseLevelPerk_Implementation(FGuid OfferId,int
     const auto* Hero=Cast<AMCToothCharacter>(GetPawn());
     const bool Accepted=ProgressPlayer && Hero && Hero->Status->IsAlive() && Game && !Game->bLobbyWaiting && !Game->bTutorialActive
         && ChoiceIndex>=0 && ChoiceIndex<3 && ProgressPlayer->TryChooseLevelUpPerk(OfferId,ChoiceIndex);
+    RefreshPerkChoiceTeamState();
     ClientLevelPerkChoiceResolved(OfferId,Accepted);
 }
 
 void AMCPlayerController::ClientLevelPerkChoiceResolved_Implementation(FGuid OfferId,bool bAccepted)
 {
-    if (ActiveLevelOfferId!=OfferId) return;
-    if (bAccepted) { AcceptedLevelOfferId=OfferId; CloseRewardUI(); }
-    else { bRewardChoicePending=false; if (PerkChoiceWidget) PerkChoiceWidget->SetSelectionPending(false); }
+    // Team state can arrive first and replace the cards with waiting UI. Still
+    // remember the accepted token so a delayed offer replica cannot reopen it.
+    if (bAccepted) {AcceptedLevelOfferId=OfferId;if(ActiveLevelOfferId==OfferId) CloseRewardUI();}
+    else if(ActiveLevelOfferId==OfferId) { bRewardChoicePending=false; if (PerkChoiceWidget) PerkChoiceWidget->SetSelectionPending(false); }
     RefreshLevelPerkChoices();
+    RefreshPerkChoiceWaiting();
 }
 
 void AMCPlayerController::CheckRewardUI()
@@ -722,10 +845,13 @@ void AMCPlayerController::CloseRewardUI(bool bRestoreInput)
     UpdatePerkChoicePause();
     if (HasAuthority()) ServerSetPerkChoicePause_Implementation(false);
     if (bRestoreInput && IsLocalController()) UpdateInputMode();
+    if(bRestoreInput) RefreshPerkChoiceWaiting();
 }
 
 void AMCPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    bPerkChoiceEnding=true;
+    if(HasAuthority()) RefreshPerkChoiceTeamState();
     UMCPlayerCameraComponent::ClearSpectatorView(SpectatorCameraView);
     if (FrontEndWidget) FrontEndWidget->RemoveFromParent();
     CloseGameplayMenus();

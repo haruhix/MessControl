@@ -2,9 +2,11 @@
 
 #include "MCCataclysmEvent.h"
 #include "MCCombatFeedbackComponent.h"
+#include "MCDirtPlacement.h"
 #include "MCGameState.h"
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
+#include "MCToothPhysicsComponent.h"
 #include "MCToothStatusComponent.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/AnimSingleNodeInstance.h"
@@ -94,16 +96,28 @@ void AMCCataclysmJelly::BeginPlay()
     RefreshPresentation();
 }
 
-void AMCCataclysmJelly::ConfigureJelly(AMCTongue* OnTongue,float InMaxHealth)
+float AMCCataclysmJelly::PresentationScale() const
+{
+    return JellySize==EMCCataclysmJellySize::Large?1.25f:JellySize==EMCCataclysmJellySize::Medium?.8f:.5f;
+}
+
+void AMCCataclysmJelly::ConfigureJelly(AMCTongue* OnTongue,float InMaxHealth,EMCCataclysmJellySize InSize)
 {
     if(!HasAuthority() || !IsValid(OnTongue)) return;
-    FMCNutEnemySettings JellySettings=Settings;
+    JellySize=InSize;
+    const auto* Defaults=GetClass()->GetDefaultObject<AMCCataclysmJelly>();
+    const float Scale=PresentationScale();
+    FMCNutEnemySettings JellySettings=Defaults->Settings;
     JellySettings.MaxHealth=FMath::IsFinite(InMaxHealth)?FMath::Clamp(InMaxHealth,40.f,1000.f):360.f;
     JellySettings.AttackDamage=0.f;
+    JellySettings.BodyRadius=72.f*Scale;
+    JellySettings.MoveSpeed=JellySize==EMCCataclysmJellySize::Large?175.f:JellySize==EMCCataclysmJellySize::Medium?205.f:235.f;
+    TrailRadius=FMath::Max(24.f,Defaults->TrailRadius*Scale);
+    RuptureRadius=FMath::Max(160.f,Defaults->RuptureRadius*Scale);
     bPendingRupture=false;
     DeathStartedAt=RupturedAt=-100.;
     HopStartedAt=ServerTime();
-    ConfigureEnemy(OnTongue,NutMesh,MeshScale,JellySettings);
+    ConfigureEnemy(OnTongue,NutMesh,Defaults->MeshScale*Scale,JellySettings);
     ResetWandering(HopStartedAt);
     ForceNetUpdate();
 }
@@ -188,7 +202,7 @@ void AMCCataclysmJelly::LoadCoffeePresentation()
     }
     JellyMesh->SetSkeletalMeshAsset(Mesh);
     JellyMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-    JellyMesh->SetRelativeScale3D(FVector::OneVector);
+    JellyMesh->SetRelativeScale3D(FVector(PresentationScale()));
     JellyMesh->SetRelativeLocation(FVector(0,0,-Settings.BodyRadius-4.f));
     if(UAnimSingleNodeInstance* Animation=JellyMesh->GetSingleNodeInstance())
     {
@@ -232,7 +246,7 @@ void AMCCataclysmJelly::TickCoffeePresentation(double Now)
     if(Animation->GetAnimationAsset()!=Clip) Animation->SetAnimationAsset(Clip,false,0.f);
     Animation->SetPlaying(false);
     Animation->SetPosition(FMath::Clamp(Age/Duration,0.f,1.f)*Clip->GetPlayLength(),false);
-    JellyMesh->SetRelativeScale3D(FVector::OneVector);
+    JellyMesh->SetRelativeScale3D(FVector(PresentationScale()));
     JellyMesh->SetRelativeLocation(FVector(0,0,-Settings.BodyRadius-4.f));
     JellyMesh->SetVisibility(Visible);
     // The authored foam bone carries body lift/squash; the health label follows
@@ -283,20 +297,15 @@ void AMCCataclysmJelly::TickGelPresentation(double Now)
             GelMID->SetScalarParameterValue(TEXT("JellyHit"),Hit);
         }
     }
-    const bool BurstVisible=BurstAge>=0.f && BurstAge<.65f;
     const bool ContactVisible=!bPendingRupture && !bDefeated;
-    GroundBurst->SetVisibility(BurstVisible || ContactVisible);
+    // Death liquid is the real thin, tongue-bound paint canvas. Expanding a
+    // flattened sphere here made an elevated shiny disc above that coating.
+    // Keep only the live contact footprint and the bounded ballistic droplets.
+    GroundBurst->SetVisibility(ContactVisible);
     if(ContactVisible)
     {
         GroundBurst->SetRelativeLocation(FVector(0,0,-Settings.BodyRadius-3.f));
         GroundBurst->SetRelativeScale3D(FVector(TrailRadius*.02f,TrailRadius*.018f,.018f));
-    }
-    if(BurstVisible)
-    {
-        const float Spread=FMath::Clamp(BurstAge/.16f,0.f,1.f);
-        const float Fade=FMath::Clamp((.65f-BurstAge)/.25f,0.f,1.f);
-        GroundBurst->SetRelativeLocation(FVector(0,0,-Settings.BodyRadius-2.f));
-        GroundBurst->SetRelativeScale3D(FVector(RuptureRadius*.02f*Spread,RuptureRadius*.02f*Spread,.028f*Fade));
     }
     for(int32 Index=0;Index<Droplets.Num();++Index)
     {
@@ -310,11 +319,11 @@ void AMCCataclysmJelly::TickGelPresentation(double Now)
         const float Angle=Index*2.f*PI/Droplets.Num()+.13f*(Index%3);
         const float Travel=1.f-FMath::Square(1.f-T);
         const float Distance=(.65f+.09f*(Index%4))*RuptureRadius*Travel;
-        const float Z=Settings.BodyRadius*.65f*(1.f-T)+FMath::Sin(T*PI)*(65.f+Index%3*35.f);
+        const float Z=Settings.BodyRadius*.65f*(1.f-T)+FMath::Sin(T*PI)*(65.f+Index%3*35.f)*PresentationScale();
         Droplet->SetRelativeLocation(FVector(FMath::Cos(Angle)*Distance,FMath::Sin(Angle)*Distance,Z-Settings.BodyRadius));
         Droplet->SetRelativeRotation(FRotator(FMath::Lerp(35.f,-25.f,T),FMath::RadiansToDegrees(Angle),0.f));
         const float Fade=FMath::Clamp((1.f-T)/.25f,0.f,1.f);
-        Droplet->SetRelativeScale3D(FVector(.34f*(1.f-T*.35f),.13f,.18f*(1.f-T*.75f))*Fade);
+        Droplet->SetRelativeScale3D(FVector(.34f*(1.f-T*.35f),.13f,.18f*(1.f-T*.75f))*Fade*PresentationScale());
     }
 }
 
@@ -336,6 +345,73 @@ void AMCCataclysmJelly::ContaminateNearby(float Radius,float Amount)
         const float After=FMath::Clamp(Before+Amount,0.f,1.f);
         if(After>Before+KINDA_SMALL_NUMBER) Hero->Status->ApplyCoffee(After);
     }
+}
+
+void AMCCataclysmJelly::PushRupturePlayers()
+{
+    if(!HasAuthority()) return;
+    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
+    {
+        AMCToothCharacter* Hero=*It;
+        if(!IsPlayerTarget(Hero)) continue;
+        const FVector Offset=Hero->GetActorLocation()-GetActorLocation();
+        if(Offset.SizeSquared2D()>FMath::Square(RuptureRadius) || FMath::Abs(Offset.Z)>190.f) continue;
+        FHitResult Block;
+        FCollisionQueryParams Query(SCENE_QUERY_STAT(MCJellyRupturePush),false,this);
+        Query.AddIgnoredActor(Hero);
+        if(GetOwner()) Query.AddIgnoredActor(GetOwner());
+        if(GetWorld()->LineTraceSingleByChannel(Block,GetActorLocation(),Hero->GetActorLocation(),ECC_Visibility,Query)) continue;
+        const float Falloff=FMath::Lerp(1.f,.65f,FMath::Clamp(float(Offset.Size2D())/RuptureRadius,0.f,1.f));
+        const float Speed=(JellySize==EMCCataclysmJellySize::Large?510.f:JellySize==EMCCataclysmJellySize::Medium?425.f:340.f)*Falloff;
+        const FVector Away=Offset.GetSafeNormal2D(SMALL_NUMBER,GetActorForwardVector());
+        const FVector Velocity=Away*Speed+FVector::UpVector*95.f;
+        // ApplyHit can start ragdoll/recovery. A paint pop only pushes and never
+        // changes the body state, stun timers, health or the player's input.
+        if(Hero->ToothPhysics && Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll)
+            Hero->GetMesh()->AddImpulseToAllBodiesBelow(Velocity,Hero->RigBone(TEXT("body")),true,true);
+        else Hero->LaunchCharacter(Velocity,false,false);
+        Hero->NotifyCameraImpact(Speed*.35f,Away);
+        ++RupturePlayersPushed;
+    }
+}
+
+void AMCCataclysmJelly::SpawnChildren()
+{
+    auto* Event=Cast<AMCCataclysmEvent>(GetOwner());
+    if(JellySize==EMCCataclysmJellySize::Small || !IsValid(Tongue) || !Event || !Event->IsRunning()) return;
+    const EMCCataclysmJellySize ChildSize=JellySize==EMCCataclysmJellySize::Large?EMCCataclysmJellySize::Medium:EMCCataclysmJellySize::Small;
+    const float ChildRadius=72.f*(ChildSize==EMCCataclysmJellySize::Medium?.8f:.5f);
+    const float StartAngle=WanderRandom.FRandRange(-180.f,180.f);
+    TArray<FVector,TInlineAllocator<3>> Placed;
+    for(int32 Index=0;Index<3;++Index)
+    {
+        FHitResult Floor;
+        bool Supported=false;
+        for(int32 Attempt=0;Attempt<24 && !Supported;++Attempt)
+        {
+            const float Angle=StartAngle+Index*120.f+(Attempt%8)*45.f;
+            const float Distance=(Settings.BodyRadius+ChildRadius+18.f)*(1.f+.35f*(Attempt/8));
+            const FVector Candidate=GetActorLocation()+FVector::ForwardVector.RotateAngleAxis(Angle,FVector::UpVector)*Distance;
+            if(!MCDirtPlacement::FindSurface(Tongue,Candidate,ChildRadius+12.f,Floor)) continue;
+            Supported=true;
+            for(const FVector& Other:Placed) if(FVector::DistSquared2D(Other,Floor.ImpactPoint)<FMath::Square(ChildRadius*2.f+8.f)) Supported=false;
+        }
+        // The parent occupied the same central, brush-accessible work area with
+        // a larger body. Never rescue a child spawn by placing it under a gum.
+        if(!Supported) Supported=MCDirtPlacement::FindSurface(Tongue,GetActorLocation(),ChildRadius+8.f,Floor);
+        if(!Supported) continue;
+        const FTransform Pose(FRotator(0,StartAngle+Index*120.f,0),Floor.ImpactPoint+FVector::UpVector*(ChildRadius+4.f));
+        auto* Child=GetWorld()->SpawnActorDeferred<AMCCataclysmJelly>(GetClass(),Pose,Event);
+        if(!Child) continue;
+        Child->ConfigureJelly(Tongue,Settings.MaxHealth*.5f,ChildSize);
+        Child->OnDirtyPatchRequested.AddUObject(Event,&AMCCataclysmEvent::RegisterDirtyPatch);
+        Child->FinishSpawning(Pose);
+        Event->Jellies.Add(Child);
+        Placed.Add(Floor.ImpactPoint);
+        ++ChildrenSpawned;
+    }
+    Event->ForceNetUpdate();
+    UE_LOG(LogTemp,Display,TEXT("MC_JELLY SPLIT name=%s tier=%d children=%d"),*GetName(),int32(JellySize),ChildrenSpawned);
 }
 
 void AMCCataclysmJelly::RequestDirtyPatch(float Radius,bool bDeathBurst)
@@ -361,7 +437,7 @@ void AMCCataclysmJelly::ResetWandering(double Now)
     Target=nullptr;
     bHasWanderGoal=bHasTrailAnchor=false;
     WanderDistance=0.f;
-    WanderGoalChanges=PaintStrokeRequests=TrailDiscontinuities=RuptureCount=0;
+    WanderGoalChanges=PaintStrokeRequests=PaintFloorRejections=TrailDiscontinuities=RuptureCount=ChildrenSpawned=RupturePlayersPushed=0;
     LastTrailLocation=LastObservedLocation=Position;
     LastTrailSampleAt=-100.;
     NextContactAt=NextWanderAt=NextTrailAt=NextMoveAt=LastMoveAt=Now;
@@ -373,9 +449,10 @@ void AMCCataclysmJelly::PickWanderGoal(double Now)
     const FVector Position=GetActorLocation();
     const float Margin=FMath::Max(Settings.BodyRadius+10.f,TrailRadius+10.f);
     FHitResult Floor;
-    // Local turns make scribbles; occasional arena-wide goals keep a painter
+    // Local turns make scribbles; occasional work-area goals keep a painter
     // from circling one patch. Neither choice reads a player's position.
-    const FBox Bounds=Tongue->Surface->Bounds.GetBox();
+    const FBox Bounds=MCDirtPlacement::WorkBounds(Tongue,Margin+65.f);
+    if(!Bounds.IsValid) {NextWanderAt=Now+.75;return;}
     for(int32 Attempt=0;Attempt<8 && !bHasWanderGoal;++Attempt)
     {
         const float Turn=WanderRandom.FRandRange(-155.f,155.f);
@@ -386,7 +463,7 @@ void AMCCataclysmJelly::PickWanderGoal(double Now)
         if(WanderGoalChanges%4==3 && Attempt<6)
             Candidate=Bounds.GetCenter()+FVector(WanderRandom.FRandRange(-Bounds.GetExtent().X,Bounds.GetExtent().X),
                 WanderRandom.FRandRange(-Bounds.GetExtent().Y,Bounds.GetExtent().Y),0.f);
-        if(!Tongue->GameplaySpawnFootprint(Candidate,Margin,Floor)) continue;
+        if(!MCDirtPlacement::FindSurface(Tongue,Candidate,Margin,Floor)) continue;
         WanderGoal=Floor.ImpactPoint;
         bHasWanderGoal=true;
     }
@@ -406,7 +483,7 @@ void AMCCataclysmJelly::WanderOnTongue(double Now)
     const FVector Direction=(WanderGoal-Position).GetSafeNormal2D();
     FHitResult Ahead;
     const float Margin=FMath::Max(Settings.BodyRadius+10.f,TrailRadius+10.f);
-    if(!Tongue->GameplaySpawnFootprint(Position+Direction*Settings.MoveSpeed*MoveSeconds,Margin,Ahead))
+    if(!MCDirtPlacement::FindSurface(Tongue,Position+Direction*Settings.MoveSpeed*MoveSeconds,Margin,Ahead))
     {
         bHasWanderGoal=false;
         NextWanderAt=Now+.18;
@@ -419,7 +496,7 @@ void AMCCataclysmJelly::WanderOnTongue(double Now)
     if(!Moved.IsNearlyZero() && FVector::DotProduct(Moved.GetSafeNormal2D(),Direction)<.995f)
     {
         FHitResult Deflected;
-        if(!Tongue->GameplaySpawnFootprint(GetActorLocation(),Margin,Deflected))
+        if(!MCDirtPlacement::FindSurface(Tongue,GetActorLocation(),Margin,Deflected))
         {
             SetActorLocation(Position,false);
             bHasWanderGoal=false;
@@ -452,9 +529,15 @@ void AMCCataclysmJelly::PaintTrail(double Now,float DeltaSeconds,bool bFlush)
     if(LastTrailSampleAt>-99. && (Now-LastTrailSampleAt>.35 || FVector::DistSquared2D(Position,LastObservedLocation)>FMath::Square(MaxTickTravel))) BreakTrail();
     LastObservedLocation=Position;
     LastTrailSampleAt=Now;
+    // Movement is observed each tick to catch teleports; expensive contact
+    // probes are needed only when a new 10 Hz paint sample is due.
+    if(!bFlush && Now<NextTrailAt) return;
+    NextTrailAt=Now+PaintInterval;
     FHitResult Floor;
-    if(!Tongue->InteriorSurfacePoint(Position,TrailRadius+8.f,Floor) || Tongue->GameplaySpawnZone(Floor.ImpactPoint)==INDEX_NONE)
+    if(!MCDirtPlacement::IsInWorkArea(Tongue,Position,TrailRadius+8.f+65.f)
+        || !Tongue->InteriorSurfacePoint(Position,TrailRadius+8.f,Floor))
     {
+        ++PaintFloorRejections;
         BreakTrail();
         return;
     }
@@ -463,13 +546,11 @@ void AMCCataclysmJelly::PaintTrail(double Now,float DeltaSeconds,bool bFlush)
     {
         LastTrailLocation=Point;
         bHasTrailAnchor=true;
-        Event->RegisterPaintStroke(Point,Point,TrailRadius);
+        Event->RegisterJellyPaintStroke(this,Point,Point,TrailRadius);
         ++PaintStrokeRequests;
         NextTrailAt=Now+PaintInterval;
         return;
     }
-    if(!bFlush && Now<NextTrailAt) return;
-    NextTrailAt=Now+PaintInterval;
     const float Distance=FVector::Dist2D(LastTrailLocation,Point);
     if(Distance<4.f) return;
     // A late frame or external teleport starts a fresh dot; never draw a bridge
@@ -481,14 +562,15 @@ void AMCCataclysmJelly::PaintTrail(double Now,float DeltaSeconds,bool bFlush)
     {
         FHitResult Sample;
         const FVector Candidate=FMath::Lerp(LastTrailLocation,Point,float(Index)/Segments);
-        if(!Tongue->InteriorSurfacePoint(Candidate,TrailRadius+8.f,Sample)
-            || Tongue->GameplaySpawnZone(Sample.ImpactPoint)==INDEX_NONE || FMath::Abs(Sample.ImpactPoint.Z-From.Z)>45.f)
+        if(!MCDirtPlacement::IsInWorkArea(Tongue,Candidate,TrailRadius+8.f+65.f)
+            || !Tongue->InteriorSurfacePoint(Candidate,TrailRadius+8.f,Sample)
+            || FMath::Abs(Sample.ImpactPoint.Z-From.Z)>45.f)
         {
             BreakTrail();
             return;
         }
         const FVector To=Sample.ImpactPoint+Sample.ImpactNormal*2.f;
-        Event->RegisterPaintStroke(From,To,TrailRadius);
+        Event->RegisterJellyPaintStroke(this,From,To,TrailRadius);
         ++PaintStrokeRequests;
         From=To;
     }
@@ -518,10 +600,12 @@ void AMCCataclysmJelly::Rupture(double Now)
     ++RuptureCount;
     ContaminateNearby(RuptureRadius,1.f);
     RequestDirtyPatch(RuptureRadius,true);
+    PushRupturePlayers();
+    SpawnChildren();
     RefreshPresentation();
     ForceNetUpdate();
-    UE_LOG(LogTemp,Display,TEXT("MC_JELLY RUPTURE name=%s travel=%.1f goals=%d strokes=%d breaks=%d ruptures=%d"),
-        *GetName(),WanderDistance,WanderGoalChanges,PaintStrokeRequests,TrailDiscontinuities,RuptureCount);
+    UE_LOG(LogTemp,Display,TEXT("MC_JELLY RUPTURE name=%s tier=%d travel=%.1f goals=%d strokes=%d breaks=%d ruptures=%d children=%d pushes=%d"),
+        *GetName(),int32(JellySize),WanderDistance,WanderGoalChanges,PaintStrokeRequests,TrailDiscontinuities,RuptureCount,ChildrenSpawned,RupturePlayersPushed);
     SetLifeSpan(1.1f);
 }
 
@@ -559,4 +643,7 @@ void AMCCataclysmJelly::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
     DOREPLIFETIME(AMCCataclysmJelly,DeathStartedAt);
     DOREPLIFETIME(AMCCataclysmJelly,RupturedAt);
     DOREPLIFETIME(AMCCataclysmJelly,bPendingRupture);
+    DOREPLIFETIME(AMCCataclysmJelly,JellySize);
+    DOREPLIFETIME(AMCCataclysmJelly,TrailRadius);
+    DOREPLIFETIME(AMCCataclysmJelly,RuptureRadius);
 }

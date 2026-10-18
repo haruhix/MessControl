@@ -3,6 +3,7 @@
 #include "MCNutBoss.h"
 #include "MCArenaTooth.h"
 #include "MCNutCombatEffect.h"
+#include "MCCombatFeedbackComponent.h"
 #include "MCNutSpellProjectile.h"
 #include "MCNutKamikaze.h"
 #include "MCFoodActor.h"
@@ -95,14 +96,14 @@ bool FMCNutBossSettingsTest::RunTest(const FString&)
     Settings.ShieldFrontDamageScale=0; Settings.ChargeDamage=1000; Settings.RainDrops=MAX_int32;
     Settings.RainHitGap=0; Settings.Sanitize();
     TestTrue(TEXT("Corrupt encounter health becomes bounded and finite"),FMath::IsFinite(Settings.HealthForPlayers(EMCNutBossRole::Tank,MAX_int32)));
-    TestTrue(TEXT("Directional protection always permits some real damage"),Settings.ShieldFrontDamageScale>=.15f);
+    TestEqual(TEXT("The default shield break opens a five-second damage window"),Settings.TankStunSeconds,5.f);
     TestTrue(TEXT("One attack cannot become a default-player one-shot"),Settings.ChargeDamage<=40);
     TestTrue(TEXT("Rain damage respects a reaction-sized per-player hit interval"),Settings.RainHitGap>=.6f);
     TestTrue(TEXT("Cosmetic and server rain work remains bounded"),Settings.RainDrops<=12);
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutBossShieldTest,"MessControl.CoreLoop.NutBoss.DropAndDirectionalShield",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutBossShieldTest,"MessControl.CoreLoop.NutBoss.DropAndShieldFirstHealth",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCNutBossShieldTest::RunTest(const FString&)
 {
     MCNutBossTestsPrivate::FFixture T; T.AddBoss();
@@ -115,26 +116,49 @@ bool FMCNutBossShieldTest::RunTest(const FString&)
     TestEqual(TEXT("Base enemy sanitization does not truncate boss health"),T.Boss->Health,Initial);
     T.Boss->SetActorTickEnabled(false);
     auto* Hero=T.AddHero(T.Boss->GetActorLocation()+FVector(180,0,16));
-    TestTrue(TEXT("A source directly ahead meets the directional shield"),T.Boss->IsShieldProtectingFrom(Hero->GetActorLocation()));
-    TestTrue(TEXT("A guarded hit damages the boss by twenty percent"),FMath::IsNearlyEqual(T.Boss->ReceiveToolDamage(40,Hero),8.f));
+    TestTrue(TEXT("An intact shield protects against a frontal source"),T.Boss->IsShieldProtectingFrom(Hero->GetActorLocation()));
+    TestEqual(TEXT("A shielded hit cannot damage boss HP"),T.Boss->ReceiveToolDamage(40,Hero),0.f);
     TestEqual(TEXT("The same hit damages the shield's own durability"),T.Boss->ShieldHealth,460.f);
+    TestEqual(TEXT("Shield-only contact still produces accepted combat feedback"),T.Boss->Feedback->LastHit.ShieldDamage,40.f);
+    TestEqual(TEXT("Shield feedback reports no boss health damage"),T.Boss->Feedback->LastHit.HealthDamage,0.f);
     Hero->SetActorLocation(T.Boss->GetActorLocation()-FVector(180,0,-16));
-    TestEqual(TEXT("A rear hit applies the whole tool damage"),T.Boss->ReceiveToolDamage(40,Hero),40.f);
+    TestTrue(TEXT("The shield also protects against a rear source"),T.Boss->IsShieldProtectingFrom(Hero->GetActorLocation()));
+    TestEqual(TEXT("A rear hit cannot bypass shield durability"),T.Boss->ReceiveToolDamage(40,Hero),0.f);
+    TestEqual(TEXT("A rear hit removes the same shield durability"),T.Boss->ShieldHealth,420.f);
+    for(const float Side:{-1.f,1.f}) {
+        Hero->SetActorLocation(T.Boss->GetActorLocation()+FVector(0,Side*180,16));
+        TestTrue(TEXT("Either side is protected by the intact shield"),T.Boss->IsShieldProtectingFrom(Hero->GetActorLocation()));
+        TestEqual(TEXT("Side hits cannot bypass the shield"),T.Boss->ReceiveToolDamage(40,Hero),0.f);
+    }
     Hero->SetActorLocation(T.Boss->GetActorLocation()+FVector(180,0,16));
     for(const auto State:{EMCNutBossState::Telegraph,EMCNutBossState::Executing,EMCNutBossState::Recovery}) {
         T.Boss->State=State; T.Boss->Attack=EMCNutBossAttack::Melee;
-        TestFalse(TEXT("The visible non-guard attack pose cannot protect the front"),T.Boss->IsShieldProtectingFrom(Hero->GetActorLocation()));
-        TestEqual(TEXT("Attacking and recovery take full front damage"),T.Boss->ReceiveToolDamage(40,Hero),40.f);
+        TestTrue(TEXT("Attack and recovery poses retain shield protection"),T.Boss->IsShieldProtectingFrom(Hero->GetActorLocation()));
+        TestEqual(TEXT("Attacking and recovery cannot bypass shield durability"),T.Boss->ReceiveToolDamage(40,Hero),0.f);
     }
+    const float BeforeAreaShield=T.Boss->ShieldHealth;
+    TestEqual(TEXT("Source-less area damage also belongs to the shield"),T.Boss->ReceiveToolDamage(40,nullptr),0.f);
+    TestEqual(TEXT("Area damage removes ordinary shield durability"),T.Boss->ShieldHealth,BeforeAreaShield-40.f);
+    TestEqual(TEXT("No protected direction or combat pose removed HP"),T.Boss->Health,Initial);
     T.Boss->State=EMCNutBossState::Idle; T.Boss->ShieldHealth=10;
-    TestEqual(TEXT("Even a breaking guarded hit deals twenty percent to the boss"),T.Boss->ReceiveToolDamage(40,Hero),8.f);
+    TestEqual(TEXT("The breaking hit discards excess damage instead of spilling into HP"),T.Boss->ReceiveToolDamage(40,Hero),0.f);
     TestEqual(TEXT("The shield is now broken"),T.Boss->ShieldHealth,0.f);
+    TestEqual(TEXT("Breaking the shield preserves the knight's full HP"),T.Boss->Health,Initial);
+    TestEqual(TEXT("Shield break enters the existing stun state"),T.Boss->State,EMCNutBossState::Stunned);
+    TestEqual(TEXT("The interrupted attack is cleared"),T.Boss->Attack,EMCNutBossAttack::None);
+    TestEqual(TEXT("The damage window lasts five seconds"),float(T.Boss->AttackEndAt-T.Boss->StateStartedAt),5.f);
+    const double StunEndsAt=T.Boss->AttackEndAt;
     TestEqual(TEXT("The next front hit is no longer protected"),T.Boss->ReceiveToolDamage(40,Hero),40.f);
+    TestEqual(TEXT("Hits during stun do not prolong the five-second window"),T.Boss->AttackEndAt,StunEndsAt);
     const float Before=T.Boss->Health;
     TestEqual(TEXT("NaN damage is rejected"),T.Boss->ReceiveToolDamage(std::numeric_limits<float>::quiet_NaN(),Hero),0.f);
     Hero->Status->Damage(1000);
     TestEqual(TEXT("A defeated source cannot deal another hit"),T.Boss->ReceiveToolDamage(40,Hero),0.f);
     TestEqual(TEXT("Rejected hits preserve authoritative health"),T.Boss->Health,Before);
+    T.Boss->SetActorTickEnabled(true); T.Step(4.9f);
+    TestEqual(TEXT("The knight remains stunned until the window ends"),T.Boss->State,EMCNutBossState::Stunned);
+    T.Step(.2f);
+    TestTrue(TEXT("The knight leaves stun after five seconds"),T.Boss->State!=EMCNutBossState::Stunned);
     return true;
 }
 
@@ -154,7 +178,7 @@ bool FMCNutBossRollTest::RunTest(const FString&)
     if(!TestTrue(TEXT("The roll enters execution"),T.WaitFor(EMCNutBossAttack::Roll,EMCNutBossState::Executing,3))) return false;
     const double Duration=T.Boss->AttackEndAt-T.Boss->StateStartedAt;
     TestTrue(TEXT("The roll lasts twelve to twenty seconds"),Duration>=12 && Duration<=20);
-    TestFalse(TEXT("Rolling exposes the shield"),T.Boss->IsShieldProtectingFrom(T.Boss->GetActorLocation()+Forward*200));
+    TestTrue(TEXT("Rolling cannot bypass an intact shield"),T.Boss->IsShieldProtectingFrom(T.Boss->GetActorLocation()+Forward*200));
     const float BeforeTurn=T.Boss->AttackForward.Rotation().Yaw;
     Hero->SetActorLocation(T.Boss->GetActorLocation()+FVector(0,500,16));
     T.Step(1.f/60);

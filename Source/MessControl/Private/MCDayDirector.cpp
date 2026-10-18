@@ -8,12 +8,37 @@
 #include "MCArenaTooth.h"
 #include "MCMouthSurface.h"
 #include "MCTongue.h"
+#include "MCDirtPlacement.h"
 #include "MCCoffeeFlood.h"
 #include "MCColdCola.h"
 #include "Components/BoxComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
+
+namespace
+{
+bool FindCentralDirtPoint(AMCTongue* Tongue,FRandomStream& Random,float HalfSize,
+    float Separation,TConstArrayView<FVector> Excluded,FHitResult& Hit)
+{
+    const float Radius=HalfSize*1.415f;
+    const FBox Bounds=MCDirtPlacement::WorkBounds(Tongue,Radius+65.f);
+    if(!Bounds.IsValid || Bounds.Min.X>=Bounds.Max.X || Bounds.Min.Y>=Bounds.Max.Y) return false;
+    for(int32 Attempt=0;Attempt<128;++Attempt) {
+        // Uniform continuous positions across the safe field, without pulling
+        // every new stain toward the same centre or a worker at the rim.
+        const FVector2D UV(Random.FRand(),Random.FRand());
+        const FVector Candidate(Bounds.Min.X+Bounds.GetSize().X*UV.X,
+            Bounds.Min.Y+Bounds.GetSize().Y*UV.Y,Bounds.GetCenter().Z);
+        bool Near=false;
+        for(const FVector& Point:Excluded)
+            if(FVector::DistSquared2D(Candidate,Point)<FMath::Square(Separation)) {Near=true;break;}
+        if(!Near && MCDirtPlacement::FindSurface(Tongue,Candidate,Radius,Hit)) return true;
+    }
+    return false;
+}
+}
+
 AMCDayDirector::AMCDayDirector() { PrimaryActorTick.bCanEverTick=true; }
 void AMCDayDirector::Start(UMCDayPlan* Plan,int32 InitialStep,bool bManual)
 {
@@ -40,7 +65,7 @@ int32 AMCDayDirector::CountDirt() const
     int32 Count=0;
     for (TActorIterator<AActor> It(GetWorld());It;++It)
     {
-        if (const auto* Patch=Cast<AMCMouthSurface>(*It); Patch && Patch->bUlcer) { Count+=!Patch->IsHealed(); continue; }
+        if (const auto* Patch=Cast<AMCMouthSurface>(*It)) { Count+=Patch->bUlcer?!Patch->IsHealed():!Patch->IsClean(); continue; }
         if (const auto* Tooth=Cast<AMCArenaTooth>(*It); Tooth && !Tooth->IsAvailable()) continue;
         if (const auto* Status=It->FindComponentByClass<UMCToothStatusComponent>(); Status && Status->NeedsCare(true)) ++Count;
     }
@@ -84,10 +109,14 @@ void AMCDayDirector::AddDirt(bool bCoffee,int32 Patches,int32 Batch,int32 ToothL
     for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(!It->IsClean()) Placed.Add(It->GetActorLocation());
     for (int32 I=0;I<FMath::Clamp(Patches,0,40);++I)
     {
-        const float HalfSize=Random.FRandRange(190.f,360.f);
+        const float RequestedHalfSize=Random.FRandRange(190.f,360.f);
+        float HalfSize=RequestedHalfSize;
         FHitResult Floor; bool FoundFloor=false;
-        for(auto* Tongue:Tongues)
-            if(Tongue->RandomGameplayInterestPoint(Random,HalfSize*1.415f+40,HalfSize*1.6f+90,Placed,Floor)) {FoundFloor=true;break;}
+        for(int32 SizePass=0;SizePass<3 && !FoundFloor;++SizePass) {
+            HalfSize=FMath::Max(160.f,RequestedHalfSize*FMath::Pow(.8f,SizePass));
+            for(auto* Tongue:Tongues)
+                if(FindCentralDirtPoint(Tongue,Random,HalfSize,HalfSize*1.6f+90,Placed,Floor)) {FoundFloor=true;break;}
+        }
         if(!FoundFloor) {UE_LOG(LogTemp,Warning,TEXT("MC_DIRT_SPAWN no interior tongue footprint for patch %d"),I);continue;}
         const FTransform Pose(FRotationMatrix::MakeFromZX(Floor.ImpactNormal,FVector::ForwardVector).ToQuat(),Floor.ImpactPoint+Floor.ImpactNormal*5);
         auto* Patch=GetWorld()->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose);

@@ -592,7 +592,8 @@ bool AMCGameDirector::TryStart(FTicket& T,const FMCGameDirectorState& S,double N
         FActorSpawnParameters Spawn;Spawn.Owner=this;
         auto* Encounter=GetWorld()->SpawnActor<AMCCataclysmEvent>(Spawn);
         if(Encounter) {
-            const auto Variant=Random.FRand()<.5f?EMCCataclysmVariant::Rafts:EMCCataclysmVariant::Jellies;
+            // The raft branch is dormant; random scheduling must not select it.
+            const auto Variant=EMCCataclysmVariant::Jellies;
             Success=Encounter->Start(Mechanics,Variant,T.Batch);T.Actor=Encounter;
             if(Success) Record(Variant==EMCCataclysmVariant::Rafts?TEXT("Катаклизм: выбран вариант с плотами"):TEXT("Катаклизм: выбран вариант с желе"));
             else {Encounter->Destroy();T.Actor.Reset();}

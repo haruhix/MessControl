@@ -321,6 +321,8 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     if(Action==EMCDevAction::CataclysmRandom || Action==EMCDevAction::CataclysmRafts
         || Action==EMCDevAction::CataclysmJellies || Action==EMCDevAction::CataclysmStop)
     {
+        if(Action==EMCDevAction::CataclysmRafts)
+            return FText::FromString(TEXT("Вариант с плотами деактивирован. Код и ассеты сохранены."));
         if(Action==EMCDevAction::CataclysmStop) {
             TArray<AMCCataclysmEvent*> Tests;
             for(TActorIterator<AMCCataclysmEvent> It(GetWorld());It;++It)

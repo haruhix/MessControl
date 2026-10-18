@@ -269,6 +269,10 @@ bool FMCNutDirectedEncounter::RunTest(const FString&)
     auto* SpareCreep=T.World->SpawnActor<AMCNutEnemy>();
     T.Event->RegisterEncounterEnemy(SpareCreep);
     TestTrue(TEXT("A newly registered ordinary enemy is initially alive"),SpareCreep->IsEncounterAlive());
+    const float KnightHealth=Boss->Health;
+    TestEqual(TEXT("The first lethal-sized hit only breaks the knight shield"),Boss->ReceiveToolDamage(100000,nullptr),0.f);
+    TestEqual(TEXT("Shield break cannot prematurely start the wizard phase"),Boss->State,EMCNutBossState::Stunned);
+    TestEqual(TEXT("Shield break leaves the knight health pool intact"),Boss->Health,KnightHealth);
     Boss->ReceiveToolDamage(100000,nullptr);
     T.Step(.1f);
     TestEqual(TEXT("Lethal knight hit starts the head split"),Boss->State,EMCNutBossState::Transforming);

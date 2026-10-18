@@ -26,6 +26,7 @@
 #include "MCTutorialDirector.h"
 #include "MCToothpick.h"
 #include "MCNutEnemy.h"
+#include "MCNutBoss.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "MCPlayerController.h"
 #include "MCPlayerState.h"
@@ -1558,7 +1559,10 @@ void AMCToothCharacter::ResolveSwing()
     const bool FoodChop=MCMeleeCombo::IsFoodChop(this);
     if(auto* Enemy=FoodChop?nullptr:FindMeleeEnemyTarget()) {
         if(auto* Nut=Cast<AMCNutEnemy>(Enemy)) {
-            if(Nut->ReceiveToolDamage(Inventory->Damage(),this)>0) {
+            const auto* Knight=Cast<AMCNutBoss>(Nut);
+            const float ShieldBefore=Knight?Knight->ShieldHealth:0.f;
+            const float Applied=Nut->ReceiveToolDamage(Inventory->Damage(),this);
+            if(Applied>0 || (Knight && Knight->ShieldHealth<ShieldBefore)) {
                 ++ConfirmedHitCount;MulticastHitSound(Nut->GetActorLocation(),AudioTool,HitIntensity);
             }
         } else if(auto* Boss=Cast<AMCBossCharacter>(Enemy)) {

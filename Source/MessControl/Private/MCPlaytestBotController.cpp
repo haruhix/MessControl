@@ -611,18 +611,8 @@ void AMCPlaytestBotController::WorkAtTarget()
         if(Hero->Inventory->Selected!=EMCToolSlot::Pickaxe) return;
     }
     const bool NutEncounter=Nut && IsNutEncounterActive();
-    if(auto* Boss=Cast<AMCNutBoss>(Nut); Boss && NutEncounter) {
-        if(TryNutFlank(Boss)) return;
-    } else if(Boss && Boss->IsShieldProtectingFrom(Hero->GetActorLocation())) {
-        // Approach a flank using the same nav/direct movement as all other work.
-        // The shield keeps receiving real reduced hits if no flank is reachable.
-        const FVector Side=(-Boss->GetActorForwardVector()+Boss->GetActorRightVector()*NutFlankSide).GetSafeNormal2D();
-        FVector Stand;
-        if(ProjectStandingPosition(Boss->GetActorLocation()+Side*(Boss->Settings.BodyRadius+70),Stand)
-            && FVector::DistSquared2D(Hero->GetActorLocation(),Stand)>FMath::Square(40.f)) {
-            ReleaseInputs(); MoveTowards(Stand,25); return;
-        }
-    }
+    // The knight's shield protects every side. Keep ordinary contact/avoidance
+    // movement and attack its durability instead of orbiting for a rear bypass.
     if(Nut && FVector::DistSquared2D(Hero->GetActorLocation(),Nut->GetActorLocation())<FMath::Square(35.f)) {
         // An enemy can pass through the worker capsule. Step out using ordinary
         // movement instead of swinging straight down at an invalid aim vector.

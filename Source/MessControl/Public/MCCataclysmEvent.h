@@ -32,10 +32,14 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
 
     bool Start(const UMCDayPlan* Plan, EMCCataclysmVariant Choice=EMCCataclysmVariant::Random, int32 Batch=0);
+    /** Raft gameplay is retained for later work, but excluded from live events. */
+    static bool IsVariantEnabled(EMCCataclysmVariant Choice) { return Choice!=EMCCataclysmVariant::Rafts; }
     void Stop(bool bClearEventDirt=false);
     void RegisterDirtyPatch(FVector Center, float Radius, bool bDeathBurst);
     // Native authoritative gel-pen path, clipped to reachable tongue gameplay zones.
     void RegisterPaintStroke(FVector From,FVector To,float Radius);
+    // An owned moving jelly already validated a larger walking footprint.
+    void RegisterJellyPaintStroke(const AMCCataclysmJelly* Source,FVector From,FVector To,float Radius);
     static AMCCataclysmEvent* FindActive(UWorld* World);
     bool IsRunning() const;
     bool IsComplete() const { return Phase==EMCCataclysmPhase::Complete; }
@@ -100,6 +104,7 @@ private:
     void SeedDirt(int32 Count);
     bool InitializePaintGrid();
     bool DepositSupportedPaintSegment(FVector From,FVector To,float Radius,const TFunction<bool(FVector)>& CoverageAllowed={});
+    void RegisterPaintStrokeInternal(FVector From,FVector To,float Radius,bool bVerifiedJellyPath);
     void FlushPaintTiles();
     void DepositDeathPaint(FVector Center,float Radius);
     void ObserveConsequences();

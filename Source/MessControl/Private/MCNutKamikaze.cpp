@@ -22,6 +22,16 @@
 #include "Materials/MaterialInterface.h"
 #include "Net/UnrealNetwork.h"
 
+// Server-only coordination: actor references remain weak, so killing a summon
+// cannot keep it alive or strand a timer on a defeated queue leader.
+struct FMCNutKamikazeFuseGroup
+{
+    static constexpr double Interval=.75;
+    TArray<TWeakObjectPtr<AMCNutKamikaze>> Members;
+    int32 NextIndex=0;
+    double EarliestNextBlast=-1;
+};
+
 namespace
 {
 float SafeValue(float Value,float Default,float Minimum,float Maximum)
@@ -121,6 +131,7 @@ bool AMCNutKamikaze::ConfigureKamikaze(AMCTongue* OnTongue,UStaticMesh* Mesh,FVe
     float FuseSeconds,float InBlastRadius,float InBlastDamage,float InPushSpeed)
 {
     if(!HasAuthority() || !IsValid(OnTongue) || OnTongue->GetWorld()!=GetWorld() || !IsValid(Mesh) || Scale.ContainsNaN()) return false;
+    FuseGroup.Reset();
     ConfigureEnemy(OnTongue,Mesh,Scale,InSettings);
     BlastRadius=SafeValue(InBlastRadius,230.f,80.f,600.f);
     BlastDamage=SafeValue(InBlastDamage,20.f,0.f,40.f);
@@ -131,6 +142,51 @@ bool AMCNutKamikaze::ConfigureKamikaze(AMCTongue* OnTongue,UStaticMesh* Mesh,FVe
     // A weapon hit may change the base enemy's target. This subtype always resumes nearest-player pursuit.
     Retarget(); RefreshPresentation(); ForceNetUpdate();
     return true;
+}
+
+void AMCNutKamikaze::StaggerSummonedGroup(const TArray<AMCNutKamikaze*>& Summons)
+{
+    auto Group=MakeShared<FMCNutKamikazeFuseGroup>();
+    UWorld* World=nullptr;
+    double PreviousDeadline=-1;
+    for(auto* Nut:Summons) {
+        if(!IsValid(Nut) || !Nut->HasAuthority() || !Nut->bArmed || !Nut->IsEncounterAlive()
+            || (World && Nut->GetWorld()!=World)
+            || Group->Members.ContainsByPredicate([Nut](const auto& Member) {return Member.Get()==Nut;})) continue;
+        World=Nut->GetWorld();
+        if(PreviousDeadline>=0) Nut->FuseExplodesAt=FMath::Max(Nut->FuseExplodesAt,PreviousDeadline+Group->Interval);
+        PreviousDeadline=Nut->FuseExplodesAt;
+        Nut->FuseGroup=Group; Group->Members.Add(Nut); Nut->ForceNetUpdate();
+    }
+}
+
+bool AMCNutKamikaze::IsDetonationDue(double Time)
+{
+    if(!FuseGroup) return Time>=FuseExplodesAt;
+    while(FuseGroup->Members.IsValidIndex(FuseGroup->NextIndex)) {
+        auto* Next=FuseGroup->Members[FuseGroup->NextIndex].Get();
+        if(Next && Next->bArmed && Next->IsEncounterAlive() && Next->FuseGroup==FuseGroup)
+            return Next==this && Time>=FuseExplodesAt && Time>=FuseGroup->EarliestNextBlast;
+        ++FuseGroup->NextIndex;
+    }
+    return false;
+}
+
+void AMCNutKamikaze::AdvanceGroupAfterBlast(double Time)
+{
+    if(!FuseGroup) return;
+    ++FuseGroup->NextIndex;
+    FuseGroup->EarliestNextBlast=Time+FuseGroup->Interval;
+    double Earliest=FuseGroup->EarliestNextBlast;
+    // Rebase only after a real explosion, never every Tick. A delayed server
+    // frame must not dispatch all overdue fuses together or perpetually extend them.
+    for(int32 Index=FuseGroup->NextIndex;Index<FuseGroup->Members.Num();++Index) {
+        auto* Nut=FuseGroup->Members[Index].Get();
+        if(!Nut || !Nut->bArmed || !Nut->IsEncounterAlive() || Nut->FuseGroup!=FuseGroup) continue;
+        const double Deadline=FMath::Max(Nut->FuseExplodesAt,Earliest);
+        if(Deadline>Nut->FuseExplodesAt) {Nut->FuseExplodesAt=Deadline;Nut->ForceNetUpdate();}
+        Earliest=Deadline+FuseGroup->Interval;
+    }
 }
 
 float AMCNutKamikaze::GetFuseSecondsRemaining() const
@@ -247,6 +303,7 @@ void AMCNutKamikaze::Detonate()
         }
     }
     HitAt=ServerNow();
+    AdvanceGroupAfterBlast(HitAt);
     Defeat();
 }
 
@@ -269,7 +326,7 @@ void AMCNutKamikaze::Tick(float DeltaSeconds)
     if((Game && (Game->Phase==EMCShiftPhase::Won || Game->Phase==EMCShiftPhase::Lost))
         || !IsValid(Tongue) || Tongue->IsActorBeingDestroyed()) {Defeat();return;}
     // Expiry is independent of contact and target presence. A lost target cannot stop or reset the fuse.
-    if(Time>=FuseExplodesAt) {Detonate();return;}
+    if(IsDetonationDue(Time)) {Detonate();return;}
     if(Time>=NextNearestTargetAt || !IsLiveTarget(Target)) {
         Retarget(); NextNearestTargetAt=Time+.2;
     }

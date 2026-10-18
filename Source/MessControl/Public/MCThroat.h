@@ -56,6 +56,9 @@ public:
     /** Compatibility switch for old authored test fixtures; normal play uses explicit throws. */
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Throat|Intake") bool bManualIntake=true;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Intake",meta=(ClampMin="0",Units="cm")) float IntakeDepth=45.f;
+    /** Only incoming loose food within the aperture projection is captured. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Intake",meta=(ClampMin="80",ClampMax="600",Units="cm")) float IntakeCaptureDepth=320.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Intake",meta=(ClampMin="0.5",ClampMax="2",Units="s")) float IntakePullSeconds=1.1f;
     /** Camera can reveal the food reticle just outside the visible opening. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Intake",meta=(ClampMin="0",ClampMax="30",Units="deg")) float AimAssistMarginDegrees=6.f;
     /** Exact transform of the new artist uvula; the old decoration remains hidden. */
@@ -131,6 +134,8 @@ private:
     void CollectCarriedDeliveries();
     void CollectLooseDeliveries();
     void CollectThrownDeliveries();
+    void UpdateManualIntakes();
+    void RefreshManualVortex();
     bool IsInsideIntakeAperture(FVector Point,float InwardDepth=0.f) const;
     bool CrossesIntakeAperture(FVector From,FVector To) const;
     bool AcceptThrownDelivery(AMCFoodActor* Food);
@@ -146,6 +151,8 @@ private:
     struct FMealPiece { TWeakObjectPtr<AMCFoodActor> Food; FVector Start; FQuat Rotation; };
     TArray<FMealPiece> Meal;
     TArray<FMealPiece> PendingMeal;
+    struct FManualIntakePiece { TWeakObjectPtr<AMCFoodActor> Food; FVector Start,Inlet,Axis,Right,Up; FQuat Rotation; double StartedAt; float Duration,Seed,Radius; };
+    TArray<FManualIntakePiece> ManualIntakes;
     FVector SwallowInlet=FVector::ZeroVector,SwallowAxis=FVector::ForwardVector;
     float PendingPileHeight=0;
     double NextIntakeAt=0;

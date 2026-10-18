@@ -5,6 +5,7 @@
 #include "MCCoffeeFlood.h"
 #include "MCCoffeeProfile.h"
 #include "MCDayPlan.h"
+#include "MCDirtPlacement.h"
 #include "MCGameState.h"
 #include "MCMouthSurface.h"
 #include "MCTongue.h"
@@ -46,14 +47,14 @@ AMCCataclysmEvent* AMCCataclysmEvent::FindActive(UWorld* World)
 }
 bool AMCCataclysmEvent::Start(const UMCDayPlan* Plan,EMCCataclysmVariant Choice,int32 Batch)
 {
-    if(!HasAuthority() || !Plan || IsRunning()) return false;
+    if(!HasAuthority() || !Plan || IsRunning() || !IsVariantEnabled(Choice)) return false;
     if(const auto* Active=FindActive(GetWorld());Active && Active!=this) return false;
     for(TActorIterator<AMCTongue> It(GetWorld());It;++It)
         if(!It->CurrentVertices().IsEmpty()) {Tongue=*It;break;}
     if(!Tongue) {bFailed=true;SetPhase(EMCCataclysmPhase::Stopped);return false;}
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     Random.Initialize(HashCombine(GS?GS->RunSeed:1,GetTypeHash(Batch?Batch:GetUniqueID())));
-    Variant=Choice==EMCCataclysmVariant::Random?(Random.RandRange(0,1)?EMCCataclysmVariant::Rafts:EMCCataclysmVariant::Jellies):Choice;
+    Variant=Choice==EMCCataclysmVariant::Random?EMCCataclysmVariant::Jellies:Choice;
     bCola=Random.RandRange(0,1)!=0;
     DrinkPlan=DuplicateObject<UMCDayPlan>(Plan,this);
     if(bCola) if(auto* Cola=LoadObject<UMCCoffeeProfile>(nullptr,TEXT("/Game/Data/DA_ColdColaLiquid.DA_ColdColaLiquid")))
@@ -143,33 +144,43 @@ bool AMCCataclysmEvent::SpawnRafts()
 }
 bool AMCCataclysmEvent::SpawnJellies()
 {
-    int32 Players=0;
-    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) {
-        const auto* PlayerState=It->GetPlayerState();
-        Players+=PlayerState && !PlayerState->IsOnlyASpectator() && !PlayerState->IsSpectator() && It->Status && It->Status->IsAlive();
-    }
-    const int32 Count=FMath::Clamp(Players+1,2,5);
+    // Two large painters form a bounded 2 -> 6 -> 18 encounter, independently
+    // of player count. Every child stays in this event's cleanup/living ledger.
+    constexpr int32 Count=2;
+    const FBox WorkArea=MCDirtPlacement::WorkBounds(Tongue,100.f+65.f);
+    if(!WorkArea.IsValid) return false;
     TArray<FVector> Placed;
     for(int32 Index=0;Index<Count;++Index) {
-        FHitResult Floor;
-        if(!Tongue->RandomGameplayInterestPoint(Random,100.f,240.f,Placed,Floor)
-            && !Tongue->RandomGameplaySpawnPoint(Random,100.f,240.f,Placed,Floor)) continue;
+        FHitResult Floor;bool Supported=false;
+        for(int32 Attempt=0;Attempt<32 && !Supported;++Attempt) {
+            const FVector Candidate(Random.FRandRange(WorkArea.Min.X,WorkArea.Max.X),
+                Random.FRandRange(WorkArea.Min.Y,WorkArea.Max.Y),WorkArea.GetCenter().Z);
+            if(!MCDirtPlacement::FindSurface(Tongue,Candidate,100.f,Floor)) continue;
+            Supported=true;
+            for(const FVector& Other:Placed) if(FVector::DistSquared2D(Other,Floor.ImpactPoint)<FMath::Square(240.f)) Supported=false;
+        }
+        if(!Supported) continue;
         const FTransform Pose(Floor.ImpactPoint+FVector(0,0,90));
         auto* Jelly=GetWorld()->SpawnActorDeferred<AMCCataclysmJelly>(AMCCataclysmJelly::StaticClass(),Pose,this);
         if(!Jelly) continue;
-        Jelly->ConfigureJelly(Tongue,FMath::Clamp(JellyHealth,80.f,1000.f));
+        Jelly->ConfigureJelly(Tongue,FMath::Clamp(JellyHealth,80.f,1000.f),EMCCataclysmJellySize::Large);
         Jelly->OnDirtyPatchRequested.AddUObject(this,&AMCCataclysmEvent::RegisterDirtyPatch);
         Jelly->FinishSpawning(Pose);Jellies.Add(Jelly);Placed.Add(Floor.ImpactPoint);
     }
-    JelliesLeft=Jellies.Num();return JelliesLeft>0;
+    JelliesLeft=Jellies.Num();return JelliesLeft==Count;
 }
 void AMCCataclysmEvent::SeedDirt(int32 Count)
 {
+    const FBox WorkArea=MCDirtPlacement::WorkBounds(Tongue,220.f+65.f);
+    if(!WorkArea.IsValid) return;
     for(int32 Index=0;Index<Count;++Index) {
-        FHitResult Floor;
-        if(Tongue->RandomGameplayInterestPoint(Random,220.f,0,TConstArrayView<FVector>(),Floor)
-            || Tongue->RandomGameplaySpawnPoint(Random,220.f,0,TConstArrayView<FVector>(),Floor))
-            RegisterDirtyPatch(Floor.ImpactPoint,150.f,false);
+        for(int32 Attempt=0;Attempt<24;++Attempt) {
+            const FVector Candidate(Random.FRandRange(WorkArea.Min.X,WorkArea.Max.X),
+                Random.FRandRange(WorkArea.Min.Y,WorkArea.Max.Y),WorkArea.GetCenter().Z);
+            FHitResult Floor;
+            if(!MCDirtPlacement::FindSurface(Tongue,Candidate,220.f,Floor)) continue;
+            RegisterDirtyPatch(Floor.ImpactPoint,150.f,false);break;
+        }
     }
 }
 void AMCCataclysmEvent::ClearFloatingDebris()
@@ -217,10 +228,10 @@ void AMCCataclysmEvent::RegisterDirtyPatch(FVector Center,float Radius,bool bDea
     float Half=FMath::Clamp(Radius,65.f,300.f);
     FHitResult Floor;bool Found=false;
     for(int32 Attempt=0;Attempt<4 && !Found;++Attempt) {
-        Found=Tongue->GameplaySpawnFootprint(Center,Half*1.415f+12.f,Floor);
+        Found=MCDirtPlacement::FindSurface(Tongue,Center,Half*1.415f+12.f,Floor);
         if(!Found) Half*=.72f;
     }
-    if(!Found || Tongue->GameplaySpawnZone(Floor.ImpactPoint)<0) return;
+    if(!Found) return;
     TArray<AMCMouthSurface*> Patches;
     AMCMouthSurface* Nearest=nullptr;float Best=MAX_flt;
     for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(It->Batch==DirtBatch && !It->bUlcer && !It->bPaintTile) {
@@ -261,6 +272,16 @@ bool AMCCataclysmEvent::InitializePaintGrid()
 bool AMCCataclysmEvent::DepositSupportedPaintSegment(FVector From,FVector To,float Radius,const TFunction<bool(FVector)>& CoverageAllowed)
 {
     if(!InitializePaintGrid()) return false;
+    // This map owns only this event's trail canvases. Same-batch wave residue
+    // has its own bounded producer and must not exhaust the trail budget.
+    for(auto It=PaintTiles.CreateIterator();It;++It) {
+        const auto* Tile=It.Value().Get();
+        if(!IsValid(Tile) || Tile->IsActorBeingDestroyed() || Tile->GetOwner()!=this
+            || Tile->Batch!=DirtBatch || !Tile->ActorHasTag(TEXT("MCCataclysmPaintTile"))) {
+            PendingPaintTiles.Remove(It.Value());
+            It.RemoveCurrent();
+        }
+    }
     bool Changed=false;
     const FVector2D A(From),B(To);
     const FVector2D Low(FMath::Min(A.X,B.X)-Radius,FMath::Min(A.Y,B.Y)-Radius);
@@ -274,9 +295,7 @@ bool AMCCataclysmEvent::DepositSupportedPaintSegment(FVector From,FVector To,flo
         const FIntPoint Key(X,Y);
         auto* Patch=PaintTiles.FindRef(Key).Get();
         if(!IsValid(Patch)) {
-            int32 Used=0;
-            for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(It->Batch==DirtBatch && It->bPaintTile) ++Used;
-            if(Used>=MaxPaintTiles) continue;
+            if(PaintTiles.Num()>=MaxPaintTiles) continue;
             const FVector2D XY=PaintGridOrigin+FVector2D(X+.5,Y+.5)*PaintTileWidth;
             FVector Center(XY.X,XY.Y,From.Z+5);
             FHitResult Floor;
@@ -296,6 +315,18 @@ bool AMCCataclysmEvent::DepositSupportedPaintSegment(FVector From,FVector To,flo
 }
 void AMCCataclysmEvent::RegisterPaintStroke(FVector From,FVector To,float Radius)
 {
+    RegisterPaintStrokeInternal(From,To,Radius,false);
+}
+void AMCCataclysmEvent::RegisterJellyPaintStroke(const AMCCataclysmJelly* Source,FVector From,FVector To,float Radius)
+{
+    if(!IsValid(Source) || Source->GetOwner()!=this || Source->Tongue!=Tongue
+        || !Jellies.ContainsByPredicate([Source](const auto& Jelly){return Jelly.Get()==Source;})
+        || !Source->IsEncounterAlive() || FVector::DistSquared2D(To,Source->GetActorLocation())>FMath::Square(96.f)
+        || FVector::DistSquared2D(From,To)>FMath::Square(96.f)) return;
+    RegisterPaintStrokeInternal(From,To,Radius,true);
+}
+void AMCCataclysmEvent::RegisterPaintStrokeInternal(FVector From,FVector To,float Radius,bool bVerifiedJellyPath)
+{
     if(!HasAuthority() || !IsRunning() || !Tongue || From.ContainsNaN() || To.ContainsNaN() || !FMath::IsFinite(Radius) || Radius<=0) return;
     Radius=FMath::Clamp(Radius,20.f,400.f);
     // A teleport has no traversed path. Deposit only its supported destination.
@@ -308,7 +339,16 @@ void AMCCataclysmEvent::RegisterPaintStroke(FVector From,FVector To,float Radius
     for(int32 I=0;I<=Steps;++I) {
         const FVector Candidate=FMath::Lerp(From,To,float(I)/Steps);
         FHitResult Floor;
-        if(!Tongue->GameplaySpawnFootprint(Candidate,Margin,Floor) || Floor.ImpactNormal.Z<.65f) {Connected=false;continue;}
+        bool Supported=false;
+        if(bVerifiedJellyPath)
+        {
+            // Retain actual tissue/arena clipping without re-running the food
+            // accessibility sweeps for every 10 Hz point of up to 18 painters.
+            Supported=MCDirtPlacement::IsInWorkArea(Tongue,Candidate,Margin+65.f)
+                && Tongue->InteriorSurfacePoint(Candidate,Margin,Floor);
+        }
+        else Supported=MCDirtPlacement::FindSurface(Tongue,Candidate,Margin,Floor);
+        if(!Supported || Floor.ImpactNormal.Z<.65f) {Connected=false;continue;}
         const FVector Point=Floor.ImpactPoint;
         if(DepositSupportedPaintSegment(Connected?Previous:Point,Point,Radius)) {
             if(Connected) PaintDistanceCm+=FVector::Dist2D(Previous,Point);
@@ -336,41 +376,49 @@ void AMCCataclysmEvent::DepositDeathPaint(FVector Center,float Radius)
     for(const auto& Jelly:Jellies) if(IsValid(Jelly)) SplashQuery.AddIgnoredActor(Jelly);
     const TFunction<bool(FVector)> PaintAllowed=[&](FVector Point) {
         FHitResult Floor,Block;
-        if(!Tongue->SurfacePoint(Point,Floor) || Floor.ImpactNormal.Z<.65f) return false;
+        if(!MCDirtPlacement::IsInWorkArea(Tongue,Point,65.f)
+            || !Tongue->SurfacePoint(Point,Floor) || Floor.ImpactNormal.Z<.65f) return false;
         return !GetWorld()->LineTraceSingleByChannel(Block,Splash,Floor.ImpactPoint+Floor.ImpactNormal*3.f,ECC_Visibility,SplashQuery);
     };
-    // The center forms a broad balloon spill; spoke capsules carry the thrown paint.
-    // Footprint checks shorten it near delivery caps, gums and unsupported edges.
-    for(float R=Radius*.82f;R>=45.f;R*=.74f) {
+    // Overlapping round footprints form one uneven liquid spill. Long capsule
+    // spokes read as a regular star, rather than a balloon full of paint.
+    const float TexelGuard=PaintTileWidth/FMCCoffeeWipe::Size*.7072f;
+    struct FRoundSplat {FVector Point;float Radius;};
+    TArray<FRoundSplat,TInlineAllocator<24>> Footprints;
+    const auto DepositRound=[&](FVector Candidate,float R) {
         FHitResult Floor;
-        if(Tongue->GameplaySpawnFootprint(Center,R+PaintTileWidth/FMCCoffeeWipe::Size*.7072f,Floor)) {
-            DepositSupportedPaintSegment(Floor.ImpactPoint,Floor.ImpactPoint,R,PaintAllowed);break;
-        }
-    }
+        if(!MCDirtPlacement::FindSurface(Tongue,Candidate,R+TexelGuard,Floor) || !PaintAllowed(Floor.ImpactPoint)) return false;
+        if(DepositSupportedPaintSegment(Floor.ImpactPoint,Floor.ImpactPoint,R,PaintAllowed)) ++PaintStrokesAccepted;
+        Footprints.Add({Floor.ImpactPoint,R});
+        return true;
+    };
+    for(float R=Radius*.72f;R>=45.f;R*=.74f) if(DepositRound(Center,R)) break;
     const float Heading=Random.FRandRange(0,2*PI);
-    for(int32 I=0;I<12;++I) {
-        const float Angle=Heading+I*2*PI/12+Random.FRandRange(-.09f,.09f);
+    const int32 LobeCount=Random.RandRange(5,7);
+    for(int32 I=0;I<LobeCount;++I) {
+        const float Angle=Heading+I*2*PI/LobeCount+Random.FRandRange(-.32f,.32f);
         const FVector Direction(FMath::Cos(Angle),FMath::Sin(Angle),0);
-        const FVector End=Center+Direction*Radius*Random.FRandRange(1.25f,1.7f);
-        const float Width=Random.FRandRange(22.f,40.f);
-        const float Length=FVector::Dist2D(Center,End);
-        const int32 Steps=FMath::Max(1,FMath::CeilToInt(Length/FMath::Min(Width*.5f,24.f)));
-        const float Margin=Width+PaintTileWidth/FMCCoffeeWipe::Size*.7072f+Length/Steps*.5f;
-        FVector Previous=Center;bool Connected=false,Accepted=false;
-        for(int32 Step=0;Step<=Steps;++Step) {
-            FHitResult Floor;
-            const FVector Candidate=FMath::Lerp(Center,End,float(Step)/Steps);
-            // Thrown paint stops at its first gap or blocker. It cannot restart
-            // on reachable tissue on the far side of a wall or delivery lane.
-            if(!Tongue->GameplaySpawnFootprint(Candidate,Margin,Floor) || !PaintAllowed(Floor.ImpactPoint)
-                || (Connected && FMath::Abs(Floor.ImpactPoint.Z-Previous.Z)>45.f)) break;
-            if(DepositSupportedPaintSegment(Connected?Previous:Floor.ImpactPoint,Floor.ImpactPoint,Width,PaintAllowed)) {
-                if(Connected) PaintDistanceCm+=FVector::Dist2D(Previous,Floor.ImpactPoint);
-                Accepted=true;
+        const FVector Candidate=Center+Direction*Radius*Random.FRandRange(.50f,.83f);
+        DepositRound(Candidate,Radius*Random.FRandRange(.28f,.46f));
+    }
+    // Separate droplets must occupy actual cleanable texels. Keep a dry gap
+    // around each one instead of reconnecting it to the pool with a thin ray.
+    const float MinDropRadius=FMath::Max(20.f,PaintTileWidth/FMCCoffeeWipe::Size*.9f);
+    const int32 DropCount=Random.RandRange(5,9);
+    for(int32 I=0;I<DropCount;++I) {
+        for(int32 Attempt=0;Attempt<12;++Attempt) {
+            const float Angle=Random.FRandRange(0,2*PI);
+            const FVector Direction(FMath::Cos(Angle),FMath::Sin(Angle),0);
+            const FVector Candidate=Center+Direction*Radius*Random.FRandRange(1.25f,1.62f);
+            const float R=Random.FRandRange(MinDropRadius,FMath::Max(MinDropRadius,Radius*.15f));
+            bool Separate=true;
+            for(const FRoundSplat& Existing:Footprints) {
+                if(FVector::DistSquared2D(Candidate,Existing.Point)<FMath::Square(R+Existing.Radius+TexelGuard)) {
+                    Separate=false;break;
+                }
             }
-            Previous=Floor.ImpactPoint;Connected=true;
+            if(Separate && DepositRound(Candidate,R)) break;
         }
-        if(Accepted) ++PaintStrokesAccepted;
     }
     // Existing 3D grime coverage preserves previous stains. Only visible nearby
     // tooth samples with an unobstructed splash path receive the new coating.

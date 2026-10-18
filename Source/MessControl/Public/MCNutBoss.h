@@ -34,6 +34,7 @@ public:
     static constexpr float HeadSplitAt=.42f;
     static constexpr float MageRevealAt=.9f;
     virtual float ReceiveToolDamage(float Damage,AMCToothCharacter* Source) override;
+    /** Intact knight shields protect HP from every direction and combat pose. */
     bool IsShieldProtectingFrom(FVector SourcePoint) const;
     bool IsPlayerInThreat(const AMCToothCharacter* Hero,FVector& EscapeDirection) const;
     UFUNCTION(BlueprintPure,Category="Nut Combat") float GetAttackCooldownRemaining(EMCNutBossAttack Ability) const;

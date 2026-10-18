@@ -25,6 +25,7 @@
 #include "MCCoreScenario.h"
 #include "MCDayOneScenario.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "MCArenaTooth.h"
 #include "MCArenaToothSocket.h"
 #include "Components/StaticMeshComponent.h"
@@ -45,6 +46,30 @@
 #include "GameFramework/PlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
+
+namespace
+{
+void SettleFreshPlayerAboveTongue(ACharacter* Character)
+{
+    if(!IsValid(Character)) return;
+    FVector Position=Character->GetActorLocation();bool Supported=false;
+    for(TActorIterator<AMCTongue> It(Character->GetWorld());It;++It) {
+        FHitResult Floor;
+        if(It->SurfacePoint(Position,Floor) && Floor.ImpactNormal.Z>=.65f) {
+            Position.Z=FMath::Max(Position.Z,Floor.ImpactPoint.Z+Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+30.f);
+            Supported=true;
+        }
+    }
+    if(!Supported) return;
+    // Character initialization may snap a walking capsule back to the floor.
+    // Apply the clearance after that initialization, using the actual capsule,
+    // and let its first ordinary falling frames settle onto the tissue.
+    Character->SetActorLocation(Position,false,nullptr,ETeleportType::TeleportPhysics);
+    Character->GetCharacterMovement()->StopMovementImmediately();
+    Character->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+    Character->ForceNetUpdate();
+}
+}
 
 AMCGameMode::AMCGameMode()
 {
@@ -110,6 +135,32 @@ void AMCGameMode::PreLogin(const FString& Options, const FString& Address, const
         ErrorMessage=TEXT("A diagnostic playtest is active. Stop it with MC.Bots.Stop before joining.");
     if (ErrorMessage.IsEmpty() && GetGameplayParticipantCount() >= Limit)
         ErrorMessage = FString::Printf(TEXT("This mouth is full (%d players)."), Limit);
+}
+APawn* AMCGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer,const FTransform& SpawnTransform)
+{
+    FTransform SafeTransform=SpawnTransform;
+    FVector Position=SafeTransform.GetLocation()+FVector(0,0,30);
+    const UClass* PawnType=GetDefaultPawnClassForController(NewPlayer);
+    const auto* Character=PawnType?Cast<ACharacter>(PawnType->GetDefaultObject()):nullptr;
+    const float HalfHeight=Character?Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight():90.f;
+    // PlayerStart can be authored at tissue height. Resolve the authoritative
+    // capsule center before replication, rather than correcting a falling pawn.
+    for(TActorIterator<AMCTongue> It(GetWorld());It;++It) {
+        FHitResult Floor;
+        if(It->SurfacePoint(Position,Floor) && Floor.ImpactNormal.Z>=.65f)
+            Position.Z=FMath::Max(Position.Z,Floor.ImpactPoint.Z+HalfHeight+30.f);
+    }
+    SafeTransform.SetLocation(Position);
+    APawn* Pawn=Super::SpawnDefaultPawnAtTransform_Implementation(NewPlayer,SafeTransform);
+    SettleFreshPlayerAboveTongue(Cast<ACharacter>(Pawn));
+    return Pawn;
+}
+void AMCGameMode::FinishRestartPlayer(AController* NewPlayer,const FRotator& StartRotation)
+{
+    Super::FinishRestartPlayer(NewPlayer,StartRotation);
+    // Possession restarts CharacterMovement and may snap a walking capsule to
+    // its floor. Apply the settling gap after the complete restart as well.
+    SettleFreshPlayerAboveTongue(NewPlayer?Cast<ACharacter>(NewPlayer->GetPawn()):nullptr);
 }
 void AMCGameMode::ClearTasks()
 {
@@ -562,7 +613,7 @@ void AMCGameMode::ProcessRespawns()
             FVector Location=Reserve->GetActorLocation()+Inward*(Clearance+Attempt*60);
             if(Tongue) {
                 FHitResult Floor; if(!Tongue->SurfacePoint(Location,Floor) || Floor.ImpactNormal.Z<.4f) continue;
-                Location=Floor.ImpactPoint+FVector(0,0,Old->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+4);
+                Location=Floor.ImpactPoint+FVector(0,0,Old->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+30);
             } else { Location.Y=FMath::Sign(Location.Y)*510; Location.Z=120; }
             NewHero=GetWorld()->SpawnActor<AMCToothCharacter>(Old->GetClass(),Location,Inward.Rotation(),Params);
         }
@@ -574,6 +625,7 @@ void AMCGameMode::ProcessRespawns()
         NewHero->Inventory->SprayReadyAt=Old->Inventory->SprayReadyAt;
         for (auto& O:Objectives) if (!O.bCompleted && (O.Target==Old || O.Target==Reserve)) O.Target=NewHero;
         AController* Controller=Old->GetController(); Controller->Possess(NewHero);
+        SettleFreshPlayerAboveTongue(NewHero);
         Old->RespawnAt=0; Old->SetLifeSpan(3); NewHero->ForceNetUpdate();
         PendingRespawns.RemoveAt(I); GS->ForceNetUpdate();
     }

@@ -42,6 +42,8 @@ public:
     void ShowRogueChoices(const FMCRogueChestOffer& Offer);
     void UpdateLevelChoiceHeader(int32 TeamLevel,int32 PendingChoices);
     void SetSelectionPending(bool bPending);
+    void ShowTeamWaiting(int32 Ready,int32 Total);
+    bool IsWaitingForTeam() const { return bWaitingForTeam; }
     bool IsShowingChoices() const { return bShowingChoices; }
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UI|Data") TObjectPtr<UDataTable> CardTable;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UI|Data") TObjectPtr<UDataTable> LocalizationTable;
@@ -84,6 +86,7 @@ private:
     bool bShowingChoices = false;
     bool bNavigationHighlight=false;
     bool bSelectionPending = false;
+    bool bWaitingForTeam=false;
     bool bLevelPanel=false,bOptionalReward=false,bConfirming=false;
     bool bApplyingPreview=false,bPreviewRerollSpent=false;
     bool bHasPreviewFixture=false;

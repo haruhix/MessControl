@@ -33,6 +33,8 @@ class MESSCONTROL_API AMCGameMode : public AGameModeBase
 public:
     AMCGameMode();
     virtual void BeginPlay() override;
+    virtual APawn* SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer,const FTransform& SpawnTransform) override;
+    virtual void FinishRestartPlayer(AController* NewPlayer,const FRotator& StartRotation) override;
     virtual void Tick(float DeltaSeconds) override;
     virtual void PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
     virtual void PostLogin(APlayerController* NewPlayer) override;

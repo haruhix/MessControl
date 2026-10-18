@@ -3,6 +3,11 @@
 #include "MCGameplayUIPreview.h"
 #include "MCGameplayUIWidget.h"
 #include "MCUIDataLibrary.h"
+#include "MCThroatVortex.h"
+#include "MCFoodActor.h"
+#include "MCTongue.h"
+#include "MCNutRainEvent.h"
+#include "MCNutBoss.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Blueprint/WidgetBlueprintGeneratedClass.h"
 #include "Blueprint/WidgetTree.h"
@@ -22,6 +27,9 @@
 #include "Subsystems/EditorAssetSubsystem.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "Engine/Texture2D.h"
+#include "Engine/GameViewportClient.h"
+#include "Engine/World.h"
+#include "EngineUtils.h"
 #include "TextureCompiler.h"
 #include "Engine/UserInterfaceSettings.h"
 #include "HAL/FileManager.h"
@@ -32,6 +40,7 @@
 #include "Serialization/BufferArchive.h"
 #include "Slate/WidgetRenderer.h"
 #include "Widgets/Layout/SDPIScaler.h"
+#include "Widgets/SWindow.h"
 #include "UObject/StrongObjectPtr.h"
 #include "Engine/Font.h"
 #include "Engine/FontFace.h"
@@ -39,6 +48,68 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Rendering/SlateRenderer.h"
 #include "UObject/UnrealType.h"
+
+bool UMCGameplayUIEditorLibrary::ReadPIEThroatVortex(UWorld* World,AMCThroatVortex* Vortex,
+    TArray<AMCFoodActor*>& OutSources,double& OutStartedAt,float& OutDuration)
+{
+    OutSources.Reset();OutStartedAt=0;OutDuration=0;
+    if(!IsInGameThread() || !GEditor || !IsValid(World) || !IsValid(Vortex)
+        || World->WorldType!=EWorldType::PIE || Vortex->GetWorld()!=World || Vortex->IsActorBeingDestroyed()) return false;
+    const FWorldContext* Context=GEditor->GetWorldContextFromWorld(World);
+    if(!Context || Context->WorldType!=EWorldType::PIE) return false;
+    OutSources.Reserve(Vortex->FoodSources.Num());
+    for(const auto& Food:Vortex->FoodSources) OutSources.Add(Food.Get());
+    OutStartedAt=Vortex->StartedAt;OutDuration=Vortex->Duration;
+    return true;
+}
+
+AMCNutBoss* UMCGameplayUIEditorLibrary::SpawnPIEMageForSummon(UWorld* World,AMCTongue* Tongue,
+    AMCNutRainEvent* Event,FVector NearFloor,int32 Seed)
+{
+    if(!IsInGameThread() || !GEditor || !IsValid(World) || World->WorldType!=EWorldType::PIE
+        || World->GetNetMode()!=NM_Standalone || !IsValid(Tongue) || !IsValid(Event) || NearFloor.ContainsNaN()
+        || Tongue->GetWorld()!=World || Event->GetWorld()!=World || Event->IsActorBeingDestroyed()
+        || Event->bFailed || Event->Stage!=EMCNutRainStage::Enemies) return nullptr;
+    const FWorldContext* Context=GEditor->GetWorldContextFromWorld(World);
+    if(!Context || Context->WorldType!=EWorldType::PIE || GEditor->PlayWorld!=World) return nullptr;
+    for(TActorIterator<AMCNutBoss> It(World);It;++It)
+        if(It->BossRole==EMCNutBossRole::Mage && It->IsEncounterAlive()) return nullptr;
+    TArray<AMCFoodActor*> Available;Event->GetAvailableRainNuts(Available);
+    if(Available.IsEmpty()) return nullptr;
+    const float Radius=Event->Settings.Boss.BodyRadiusForRole(EMCNutBossRole::Mage);
+    FHitResult Floor;
+    if(!Tongue->GameplaySpawnFootprint(NearFloor,Radius+20,Floor)) return nullptr;
+    const FTransform Pose(Floor.ImpactPoint+FVector::UpVector*(Radius+4));
+    auto* Mage=World->SpawnActorDeferred<AMCNutBoss>(AMCNutBoss::StaticClass(),Pose,Event,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+    if(!Mage) return nullptr;
+    Mage->ConfigureEncounter(Tongue,Event,EMCNutBossRole::Mage,Event->Settings.Boss,1,Seed);
+    FTransform AirbornePose=Pose;AirbornePose.SetLocation(Mage->GetActorLocation());
+    Mage->FinishSpawning(AirbornePose);
+    Event->Bosses.Add(Mage);Event->RegisterEncounterEnemy(Mage);
+    return Mage;
+}
+
+bool UMCGameplayUIEditorLibrary::CapturePIEGameWindow(UWorld* World,const FString& OutputFile)
+{
+    FString Path=FPaths::ConvertRelativePathToFull(OutputFile);FPaths::NormalizeFilename(Path);
+    if(!IsInGameThread() || !GEditor || !IsValid(World) || World->WorldType!=EWorldType::PIE
+        || !FSlateApplication::IsInitialized() || !FPaths::CollapseRelativeDirectories(Path)
+        || !Path.StartsWith(TEXT("E:/"),ESearchCase::IgnoreCase)
+        || !Path.EndsWith(TEXT(".png"),ESearchCase::IgnoreCase)) return false;
+    const FWorldContext* Context=GEditor->GetWorldContextFromWorld(World);
+    auto* Viewport=World->GetGameViewport();
+    if(!Context || Context->WorldType!=EWorldType::PIE || !Viewport || Viewport->GetWorld()!=World) return false;
+    const TSharedPtr<SWindow> Window=Viewport->GetWindow();
+    if(!Window.IsValid()) return false;
+    TArray<FColor> Pixels;FIntVector Size=FIntVector::ZeroValue;
+    // Unlike Shot/FScreenshotRequest, this binds the screenshot to the owned
+    // game SWindow. Editor viewport invalidations cannot consume its request.
+    if(!FSlateApplication::Get().TakeScreenshot(Window.ToSharedRef(),Pixels,Size)
+        || Size.X<=0 || Size.Y<=0 || Pixels.Num()<int64(Size.X)*Size.Y) return false;
+    TArray64<uint8> PNG;
+    if(!FImageUtils::CompressImage(PNG,TEXT("PNG"),FImageView(Pixels.GetData(),Size.X,Size.Y,EGammaSpace::sRGB))) return false;
+    return IFileManager::Get().MakeDirectory(*FPaths::GetPath(Path),true) && FFileHelper::SaveArrayToFile(PNG,*Path);
+}
 
 bool UMCGameplayUIEditorLibrary::RenderGameplayUIPreview(TSubclassOf<UMCGameplayUIWidget> WidgetClass,
     const FString& OutputFile,FIntPoint DrawSize,const FString& State,const FString& Culture,float Time)

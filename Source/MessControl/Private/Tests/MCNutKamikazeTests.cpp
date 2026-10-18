@@ -158,4 +158,70 @@ bool FMCNutKamikazeNearestPursuit::RunTest(const FString&)
     TestEqual(TEXT("The timer applies its authored explosion damage once"),BlastHero->Status->State.Health,Before-20.f);
     return true;
 }
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutKamikazeSummonGroup,
+    "MessControl.CoreLoop.NutKamikaze.SummonGroupStaggersActualBlastsAndSkipsKilledSlots",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutKamikazeSummonGroup::RunTest(const FString&)
+{
+    {
+        MCNutKamikazeTestsPrivate::FFixture T;
+        auto* First=T.AddNut(1.f,FVector(-300,0,72));
+        auto* Second=T.AddNut(1.f);
+        auto* Third=T.AddNut(1.f,FVector(300,0,72));
+        const double OriginalFirstDeadline=First->FuseExplodesAt;
+        AMCNutKamikaze::StaggerSummonedGroup({First,Second,Third});
+        TestEqual(TEXT("The first summon retains its already running fuse"),First->FuseExplodesAt,OriginalFirstDeadline);
+        TestTrue(TEXT("Each summon has its own warning deadline"),
+            Second->FuseExplodesAt-First->FuseExplodesAt>=.749 && Third->FuseExplodesAt-Second->FuseExplodesAt>=.749);
+        T.Step(1.1f);
+        TestTrue(TEXT("The first summon explodes first"),First->bExploded);
+        TestFalse(TEXT("The remaining summons do not explode with the first"),Second->bExploded || Third->bExploded);
+        const double FirstBlast=First->HitAt;
+        const double SecondDeadline=Second->FuseExplodesAt;
+        T.Step(.3f);
+        TestEqual(TEXT("Ordinary ticks do not keep extending the next fuse"),Second->FuseExplodesAt,SecondDeadline);
+        T.Step(.5f);
+        TestTrue(TEXT("The second summon follows the stable group order"),Second->bExploded);
+        TestFalse(TEXT("The third summon still has a running timer"),Third->bExploded);
+        const double SecondBlast=Second->HitAt;
+        TestTrue(TEXT("The first two actual blasts are separated by at least .75 seconds"),SecondBlast-FirstBlast>=.749);
+        T.Step(.8f);
+        TestTrue(TEXT("The final summon eventually detonates"),Third->bExploded);
+        TestTrue(TEXT("The final actual blast retains the same minimum spacing"),Third->HitAt-SecondBlast>=.749);
+    }
+    {
+        MCNutKamikazeTestsPrivate::FFixture T;
+        auto* First=T.AddNut(1.f,FVector(-450,0,72));
+        auto* Killed=T.AddNut(1.f,FVector(-150,0,72));
+        auto* Third=T.AddNut(1.f,FVector(150,0,72));
+        auto* Fourth=T.AddNut(1.f,FVector(450,0,72));
+        AMCNutKamikaze::StaggerSummonedGroup({First,Killed,Third,Fourth});
+        TestTrue(TEXT("A grouped summon remains killable before its warning expires"),Killed->ReceiveToolDamage(1000,nullptr)>0);
+        TestFalse(TEXT("The killed slot is disarmed without an explosion"),Killed->bArmed || Killed->bExploded);
+        // Simulate one delayed AI dispatch: the world clock advances beyond
+        // every deadline while these actor ticks cannot run.
+        for(auto* Nut:{First,Third,Fourth}) Nut->SetActorTickEnabled(false);
+        T.Step(4.f);
+        for(auto* Nut:{First,Third,Fourth}) Nut->SetActorTickEnabled(true);
+        T.Step(1.f/60);
+        TestTrue(TEXT("The overdue leader detonates when dispatch resumes"),First->bExploded);
+        TestFalse(TEXT("One delayed dispatch cannot produce a same-frame chain explosion"),Third->bExploded || Fourth->bExploded);
+        const double FirstBlast=First->HitAt;
+        TestTrue(TEXT("The next live warning is rebased after the actual delayed blast"),Third->FuseExplodesAt>=FirstBlast+.749);
+        const double ThirdDeadline=Third->FuseExplodesAt;
+        T.Step(.4f);
+        TestEqual(TEXT("Waiting after a hitch does not perpetually rebase a fuse"),Third->FuseExplodesAt,ThirdDeadline);
+        TestFalse(TEXT("The next live summon survives until its own deadline"),Third->bExploded);
+        T.Step(.4f);
+        TestTrue(TEXT("An early-killed queue slot cannot deadlock later summons"),Third->bExploded);
+        TestFalse(TEXT("The final overdue summon does not share the next blast"),Fourth->bExploded);
+        const double ThirdBlast=Third->HitAt;
+        TestTrue(TEXT("Skipping a dead slot preserves actual blast spacing"),ThirdBlast-FirstBlast>=.749);
+        T.Step(.8f);
+        TestTrue(TEXT("The final overdue summon still completes its timer"),Fourth->bExploded);
+        TestTrue(TEXT("The final delayed blast is also separated"),Fourth->HitAt-ThirdBlast>=.749);
+    }
+    return true;
+}
 #endif

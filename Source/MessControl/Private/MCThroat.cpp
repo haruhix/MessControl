@@ -302,7 +302,7 @@ bool AMCThroat::ContainsDeliveryPosition(FVector Position) const
 bool AMCThroat::CanAcceptDelivery(const AMCFoodActor* Food) const
 {
     if(bManualIntake) return HasAuthority() && IsValid(Food) && Food->GetWorld()==GetWorld()
-        && !Food->bBrushTool && !Food->IsDisposed() && !Food->IsMouthEntryActive()
+        && !Food->bBrushTool && !Food->IsDisposed() && !Food->IsMouthEntryActive() && Food->WasManuallyThrown()
         && !Food->StackCarrier && !Food->EquippedBy && Food->Holders.IsEmpty()
         && (Food->Phase==EMCFoodPhase::Free || Food->Phase==EMCFoodPhase::Falling)
         && (!Food->IsWrongIngredient() || (ThroatPhase!=EMCThroatPhase::Spasm && ThroatPhase!=EMCThroatPhase::Vomiting))
@@ -403,7 +403,7 @@ bool AMCThroat::IsInsideIntakeAperture(FVector Point,float InwardDepth) const
     if(Point.ContainsNaN()) return false;
     FVector Center,Inward,Right,Up;IntakeFrame(Center,Inward,Right,Up);
     const double Depth=FVector::DotProduct(Point-Center,Inward)-InwardDepth;
-    if(Depth<0 || Depth>500) return false;
+    if(Depth<0 || Depth>500+FMath::Max(0.f,-InwardDepth)) return false;
     if(AuthoredMouth && AuthoredMouth->GetSkeletalMeshAsset()) {
         // The authored lower aperture is buried under the tongue. Only its
         // visible upper opening receives food or players, never a route under the floor.
@@ -478,25 +478,79 @@ float AMCThroat::IntakeAimStrength(FVector ViewOrigin,FVector ViewDirection) con
 bool AMCThroat::AcceptThrownDelivery(AMCFoodActor* Food)
 {
     if(!HasAuthority() || !IsValid(Food) || Food->GetWorld()!=GetWorld() || Food->IsDisposed() || Food->bBrushTool || Food->IsMouthEntryActive()
+        || !Food->WasManuallyThrown()
         || Food->StackCarrier || Food->EquippedBy || !Food->Holders.IsEmpty()
         || (Food->Phase!=EMCFoodPhase::Free && Food->Phase!=EMCFoodPhase::Falling)) return false;
-    if(Food->IsWrongIngredient()) {
-        // A bad throw still provokes the existing gag/vomit consequence.
-        if(!Food->BeginSwallow()) return false;
-        Food->PauseFuse(this);Meal.Add({Food,Food->GetActorLocation(),Food->GetActorQuat()});
-        FoodInZone=Meal.Num();++SpasmCount;SetPhase(EMCThroatPhase::Spasm,ServerNow());
-        if(auto* Worker=Food->GetLastHandledBy()?Cast<AMCToothCharacter>(Food->GetLastHandledBy()->GetPawn()):nullptr) {
-            if(auto* Tutorial=AMCTutorialDirector::Find(GetWorld())) Tutorial->NotifyIncorrectSort(Worker,Food);
-            Worker->NotifyTaskFeedback(false,Food->GetActorLocation());
-        }
-    } else {
-        const FVector Point=Food->GetActorLocation();
-        auto* Worker=Food->GetLastHandledBy()?Cast<AMCToothCharacter>(Food->GetLastHandledBy()->GetPawn()):nullptr;
-        Food->AwardDelivery();Food->Dispose();++FoodSwallowed;++SwallowCount;++MealSequence;
-        if(Worker && !AMCTutorialDirector::IsSafeTutorial(GetWorld())) Worker->NotifyTaskFeedback(true,Point);
-        ForceNetUpdate();
-    }
+    if(!Food->BeginSwallow()) return false;
+    Food->PauseFuse(this);
+    FVector Inlet,Axis,Right,Up;IntakeFrame(Inlet,Axis,Right,Up);
+    const float Seed=(Food->GetUniqueID()%4096)*2.399963f;
+    const float Duration=FMath::Clamp(IntakePullSeconds,.5f,2.f)+.18f*FMath::Frac(Seed);
+    FVector Aim;float ApertureRadius=80.f;GetIntakeAimTarget(Aim,ApertureRadius);
+    Inlet=Aim;
+    ManualIntakes.Add({Food,Food->GetActorLocation(),Inlet,Axis,Right,Up,Food->GetActorQuat(),ServerNow(),Duration,Seed,FMath::Clamp(ApertureRadius*.12f,12.f,55.f)});
+    QueuedFoodCount=ManualIntakes.Num();FoodInZone=QueuedFoodCount+Meal.Num();
+    RefreshManualVortex();ForceNetUpdate();
     return true;
+}
+void AMCThroat::RefreshManualVortex()
+{
+    if(ManualIntakes.IsEmpty()) return;
+    const auto& First=ManualIntakes[0];
+    TArray<AMCFoodActor*> Sources;
+    float Remaining=.5f;
+    for(const auto& Piece:ManualIntakes) {
+        if(auto* Food=Piece.Food.Get();IsValid(Food) && !Food->IsDisposed()) Sources.Add(Food);
+        Remaining=FMath::Max(Remaining,float(Piece.StartedAt+Piece.Duration-ServerNow())+.25f);
+    }
+    // Dedicated servers intentionally disable presentation ticking. Only the
+    // authoritative lifetime determines whether this shared effect has ended.
+    if(ActiveVortex.IsValid() && ServerNow()>=ActiveVortex->StartedAt+ActiveVortex->Duration) {
+        ActiveVortex->Destroy();ActiveVortex.Reset();
+    }
+    if(!ActiveVortex.IsValid()) {
+        ActiveVortex=AMCThroatVortex::Spawn(GetWorld(),First.Inlet,First.Axis,
+            FMath::Clamp(First.Radius*2.5f,80.f,150.f),FMath::Clamp(IntakeCaptureDepth,80.f,600.f),Remaining,Sources,180.f,150.f);
+    } else {
+        auto* Vortex=ActiveVortex.Get();
+        Vortex->Duration=float(ServerNow()-Vortex->StartedAt)+Remaining;
+        Vortex->FoodSources.Reset();
+        for(int32 I=0;I<FMath::Min(24,Sources.Num());++I) Vortex->FoodSources.Add(Sources[I]);
+        Vortex->SetLifeSpan(Remaining+.15f);Vortex->ForceNetUpdate();
+    }
+}
+void AMCThroat::UpdateManualIntakes()
+{
+    const double Now=ServerNow();bool Changed=false;
+    for(int32 I=ManualIntakes.Num()-1;I>=0;--I) {
+        const auto Piece=ManualIntakes[I];auto* Food=Piece.Food.Get();
+        if(!IsValid(Food) || Food->IsDisposed() || Food->Phase!=EMCFoodPhase::Swallowing) {
+            if(IsValid(Food)) Food->ResumeFuse(this);
+            ManualIntakes.RemoveAt(I);Changed=true;continue;
+        }
+        const float T=FMath::Clamp(float(Now-Piece.StartedAt)/Piece.Duration,0.f,1.f);
+        const float Alpha=FMath::SmoothStep(0.f,1.f,T),Angle=Piece.Seed+Alpha*PI*3.5f;
+        const float Curl=FMath::Sin(Alpha*PI)*Piece.Radius;
+        const FVector Point=FMath::Lerp(Piece.Start,Piece.Inlet+Piece.Axis*240.f,Alpha)
+            +(Piece.Right*FMath::Cos(Angle)+Piece.Up*FMath::Sin(Angle))*Curl;
+        Food->SetActorLocationAndRotation(Point,FQuat(Piece.Axis,Alpha*PI*2.5f)*Piece.Rotation,false,nullptr,ETeleportType::TeleportPhysics);
+        if(T<1.f) continue;
+        auto* Worker=Food->GetLastHandledBy()?Cast<AMCToothCharacter>(Food->GetLastHandledBy()->GetPawn()):nullptr;
+        if(Food->IsWrongIngredient()) {
+            // The visible intake finishes before the existing gag/vomit response.
+            Meal.Add({Food,Food->GetActorLocation(),Food->GetActorQuat()});
+            ++SpasmCount;SetPhase(EMCThroatPhase::Spasm,Now);
+            if(Worker) {
+                if(auto* Tutorial=AMCTutorialDirector::Find(GetWorld())) Tutorial->NotifyIncorrectSort(Worker,Food);
+                Worker->NotifyTaskFeedback(false,Piece.Inlet);
+            }
+        } else {
+            Food->AwardDelivery();Food->Dispose();++FoodSwallowed;++SwallowCount;++MealSequence;
+            if(Worker && !AMCTutorialDirector::IsSafeTutorial(GetWorld())) Worker->NotifyTaskFeedback(true,Piece.Inlet);
+        }
+        ManualIntakes.RemoveAt(I);Changed=true;
+    }
+    if(Changed) {QueuedFoodCount=ManualIntakes.Num();FoodInZone=QueuedFoodCount+Meal.Num();ForceNetUpdate();}
 }
 void AMCThroat::CollectThrownDeliveries()
 {
@@ -506,14 +560,19 @@ void AMCThroat::CollectThrownDeliveries()
     }
     for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) {
         auto* Food=*It;
-        if(Food->bBrushTool || Food->IsDisposed() || Food->IsMouthEntryActive()
+        if(Food->bBrushTool || Food->IsDisposed() || Food->IsMouthEntryActive() || !Food->WasManuallyThrown()
             || Food->StackCarrier || Food->EquippedBy || !Food->Holders.IsEmpty()
             || (Food->Phase!=EMCFoodPhase::Free && Food->Phase!=EMCFoodPhase::Falling)) continue;
         const FVector Position=Food->GetActorLocation();
         if(Food->IsWrongIngredient() && (ThroatPhase==EMCThroatPhase::Spasm || ThroatPhase==EMCThroatPhase::Vomiting)) continue;
         const FVector* Tracked=PreviousThrownPositions.Find(Food);
         const FVector Previous=Tracked?*Tracked:Food->IntakeSweepStart();
-        if((IsInsideIntakeAperture(Position) || CrossesIntakeAperture(Previous,Position)) && AcceptThrownDelivery(Food)) {
+        FVector Center,Inward,Right,Up;IntakeFrame(Center,Inward,Right,Up);
+        // Use the aperture silhouette, excluding resting food and rim misses.
+        const bool Incoming=FVector::DotProduct(Position-Previous,Inward)>.05f;
+        const bool FrontCapture=Incoming && FVector::DotProduct(Position-Center,Inward)<0
+            && IsInsideIntakeAperture(Position,-FMath::Clamp(IntakeCaptureDepth,80.f,600.f));
+        if((FrontCapture || IsInsideIntakeAperture(Position) || CrossesIntakeAperture(Previous,Position)) && AcceptThrownDelivery(Food)) {
             PreviousThrownPositions.Remove(Food);
         } else PreviousThrownPositions.Add(Food,Position);
     }
@@ -637,7 +696,7 @@ void AMCThroat::UpdateOrderJumps()
 void AMCThroat::NotifyUvulaLanding(AMCToothCharacter* Hero,const FHitResult& Hit,float DownSpeed) {}
 void AMCThroat::SetPhase(EMCThroatPhase Phase,double At)
 {
-    if(Phase!=EMCThroatPhase::Swallowing && ActiveVortex.IsValid()) {ActiveVortex->Destroy();ActiveVortex.Reset();}
+    if(Phase!=EMCThroatPhase::Swallowing && (!bManualIntake || ManualIntakes.IsEmpty()) && ActiveVortex.IsValid()) {ActiveVortex->Destroy();ActiveVortex.Reset();}
     if(Phase!=EMCThroatPhase::Swallowing) SuctionState.Duration=0;
     ThroatPhase=Phase; PhaseStartedAt=At; ForceNetUpdate();
 }
@@ -777,6 +836,11 @@ void AMCThroat::BeginVomit()
 void AMCThroat::ResetSwallow()
 {
     if (!HasAuthority()) return;
+    for(const auto& Piece:ManualIntakes) if(auto* Food=Piece.Food.Get();IsValid(Food) && !Food->IsDisposed()) {
+        Food->SetActorLocation(Piece.Start,false,nullptr,ETeleportType::TeleportPhysics);
+        Food->CancelSwallow();Food->ResumeFuse(this);
+    }
+    ManualIntakes.Reset();
     if(ActiveVomit.IsValid()) ActiveVomit->Destroy(); ActiveVomit.Reset();
     SpitOut(true);
     for(const auto& Piece:PendingMeal) if(auto* Food=Piece.Food.Get();IsValid(Food) && !Food->IsDisposed()) {Food->CancelSwallow();Food->ResumeFuse(this);}
@@ -794,7 +858,7 @@ void AMCThroat::Tick(float Dt)
     if(bManualIntake) {
         if(HasAuthority()) {
             const double Now=ServerNow();
-            CheckOpenThroatPlayers();CollectThrownDeliveries();
+            CheckOpenThroatPlayers();CollectThrownDeliveries();UpdateManualIntakes();
             if(ThroatPhase==EMCThroatPhase::Spasm && Now-PhaseStartedAt>=SpasmSeconds) BeginVomit();
             if(ThroatPhase==EMCThroatPhase::Vomiting && Now-PhaseStartedAt>=FMath::Max(2.f,VomitSeconds)) SetPhase(EMCThroatPhase::Recovering,Now);
             if(ThroatPhase==EMCThroatPhase::Recovering && Now-PhaseStartedAt>=RecoverySeconds) SetPhase(EMCThroatPhase::Collecting,Now);

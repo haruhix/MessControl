@@ -5,7 +5,7 @@ HugeTongueStain paths plus held primary input; never calls brush gameplay helper
 directly. Spoiled food is a transient fixture whose normal tick drives smell and
 the player's expression. All mutations are confined to this probe's PIE world.
 
-Writes Saved/Checks/ApprovedEnvironmentSolo/Report.json and SHOWUI screenshots.
+Writes Saved/Checks/ApprovedEnvironmentSolo/Report.json and exact PIE-window screenshots.
 No map/package saves, network peers or native automation suite. Stops only its
 own PIE, unregisters its callback and restores play/frame/foreground settings.
 Optional globals: MC_ENV_OUTPUT (directory), MC_ENV_CAPTURE_HZ (default 6;
@@ -13,6 +13,7 @@ set 0 to capture key stills only).
 Cancel: builtins.mc_approved_environment_solo.finish('cancelled').
 """
 import builtins
+import hashlib
 import json
 import math
 import time
@@ -74,6 +75,7 @@ class ApprovedEnvironmentSolo:
         self.callback = None
         self.pie_start = None
         self.requested_pie = False
+        self.viewport_realtime_overrides = []
         self.world = self.pc = self.hero = self.tongue = self.ice = self.food = self.huge = self.camera = None
         self.statics = u.get_default_object(u.GameplayStatics)
         self.started = time.monotonic()
@@ -116,7 +118,7 @@ class ApprovedEnvironmentSolo:
             'The smell check uses one stationary spoiled food fixture with its normal actor tick '
             'enabled. Native smell VFX and the player expression/gesture are observed. '
             'The huge stain is spawned by the existing F3 action, then cleaned using held input.\n\n'
-            'Frames are genuine Shot SHOWUI engine screenshots, recorded at requested '
+            'Frames are genuine synchronous Slate screenshots of this PIE game window and its HUD, recorded at requested '
             +str(self.capture_hz)+' Hz. Report.json stores each absolute file and game timestamp '
             'for video composition. Temporary review cameras improve visibility; UI remains visible. '
             'Key stills are in screenshots/.\n\n'
@@ -130,9 +132,18 @@ class ApprovedEnvironmentSolo:
     def screenshot(self, name, sequence=False):
         target = self.output/('frames' if sequence else 'screenshots')/name
         target.parent.mkdir(parents=True, exist_ok=True)
-        self.console('Shot SHOWUI filename="'+str(target).replace('\\', '/')+'" -nosuffix')
+        game_time = float(u.GameplayStatics.get_time_seconds(self.world))
+        request_wall = time.monotonic()
+        self.require(u.MCGameplayUIEditorLibrary.capture_pie_game_window(self.world, str(target)),
+                     'Exact PIE game-window screenshot failed: '+str(target))
+        data = target.read_bytes()
+        self.require(len(data)>=24 and data.startswith(b'\x89PNG\r\n\x1a\n'),
+                     'Exact PIE game-window capture did not save a PNG: '+str(target))
         entry = dict(file=str(target), phase=self.phase,
-                     time=float(u.GameplayStatics.get_time_seconds(self.world)))
+                     time=game_time, capture_request_wall_seconds=request_wall-self.started,
+                     capture_method='UMCGameplayUIEditorLibrary::CapturePIEGameWindow: synchronous owned PIE SWindow',
+                     capture_world=self.world.get_path_name(), sha256=hashlib.sha256(data).hexdigest(),
+                     width=int.from_bytes(data[16:20], 'big'), height=int.from_bytes(data[20:24], 'big'))
         self.report['frames' if sequence else 'screenshots'].append(entry)
 
     def frame_camera(self, location, target):
@@ -156,6 +167,25 @@ class ApprovedEnvironmentSolo:
         u.log('MC_APPROVED_ENV_STAGE '+name)
 
     def start(self):
+        # UE's PlayLevel overrides even bSimulate=false with spectator mode
+        # while Ctrl is held. Respect the user's keyboard, never synthesize a
+        # release; reject before changing settings or requesting a PIE world.
+        self.require(not u.InputLibrary.modifier_keys_state_is_control_down(u.InputLibrary.get_modifier_keys_state()),
+                     'Ctrl is held; Unreal would start a spectator instead of a gameplay pawn. Retry after release.')
+        # UE 5.8 EditorSetViewportRealtime(false, key) PUSHES a temporary named
+        # override. True POPS the last matching entry; it does not set/save the
+        # user's underlying realtime preference. Pair only our successful pushes.
+        # Keep this paired override only to reduce background editor rendering;
+        # captures now bind directly to the PIE SWindow instead of global Shot.
+        guard = self.report.setdefault('editor_viewport_capture_guard', dict(
+            method='LevelEditorSubsystem named realtime override push/pop',
+            source='UE5.8 LevelEditorSubsystem.cpp:223; EditorViewportClient.cpp:712-750',
+            pushed_keys=[], restored_keys=[],
+            limitation='Background editor redraws remain possible, but screenshots use a specific PIE SWindow without a global Shot request.'))
+        for key in list(self.levels.get_viewport_config_keys()):
+            self.levels.editor_set_viewport_realtime(False, key)
+            self.viewport_realtime_overrides.append(key)
+            guard['pushed_keys'].append(str(key))
         self.require(u.ToolsetLibrary.set_object_properties(self.play, json.dumps(PLAY)),
                      'Could not apply standalone PIE settings')
         self.engine.set_editor_property('FixedFrameRate', 60.)
@@ -168,11 +198,18 @@ class ApprovedEnvironmentSolo:
         # EditorRequestBeginPlay API always attaches to an editor viewport.
         self.pie_start = u.ToolsetRegistry.execute_tool(
             'EditorToolset.EditorAppToolset', 'StartPIE',
-            json.dumps({'Options': {'bSimulate': False, 'PlayMode': 1, 'WarmupSeconds': 0.}}))
+            json.dumps({'options': {'bSimulate': False, 'playMode': 'PlayMode_InEditorFloating', 'warmupSeconds': 0.}}))
         self.require(self.pie_start is not None, 'StartPIE returned no async result')
         self.require(not prop(self.pie_start, 'Error'), str(prop(self.pie_start, 'Error')))
         self.write()
         u.log('MC_APPROVED_ENV_START '+str(self.output))
+
+    def restore_viewport_realtime_override(self, key):
+        # Remove exactly one matching override for each key pushed by this probe.
+        # Existing user preferences and any earlier matching overrides survive.
+        self.levels.editor_set_viewport_realtime(True, key)
+        self.viewport_realtime_overrides.remove(key)
+        self.report['editor_viewport_capture_guard']['restored_keys'].append(str(key))
 
     def actors(self, cls):
         return list(u.GameplayStatics.get_all_actors_of_class(self.world, cls))
@@ -554,7 +591,8 @@ class ApprovedEnvironmentSolo:
                 self.report['owned_pie_end_requested'] = True
         except Exception:
             restore_errors.append(traceback.format_exc())
-        actions = [
+        actions = [lambda key=key: self.restore_viewport_realtime_override(key)
+                   for key in reversed(list(self.viewport_realtime_overrides))] + [
             lambda: self.require(u.ToolsetLibrary.set_object_properties(self.play, json.dumps(self.old_play)),
                                  'PIE settings restore rejected'),
             lambda: self.engine.set_editor_property('FixedFrameRate', self.old_engine[1]),

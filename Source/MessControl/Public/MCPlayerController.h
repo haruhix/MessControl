@@ -94,6 +94,12 @@ public:
     UFUNCTION(BlueprintPure, Category="Rewards") bool IsRewardMenuOpen() const;
     /** An open choice panel pauses the shared world until every chooser is done. */
     UFUNCTION(Server, Reliable) void ServerSetPerkChoicePause(bool bOpen);
+    /** Server snapshot contains counts only; personal offer cards stay owner-only. */
+    UFUNCTION(Client, Reliable) void ClientPerkChoiceTeamState(int32 Ready,int32 Total,bool bActive,bool bNeedsChoice);
+    void RefreshPerkChoiceTeamState();
+    UFUNCTION(BlueprintPure,Category="Rewards") int32 GetPerkChoiceReadyPlayers() const { return PerkChoiceReadyPlayers; }
+    UFUNCTION(BlueprintPure,Category="Rewards") int32 GetPerkChoiceTotalPlayers() const { return PerkChoiceTotalPlayers; }
+    UFUNCTION(BlueprintPure,Category="Rewards") bool IsWaitingForPerkTeam() const;
     bool IsRewardInteractionActive() const;
     UFUNCTION(Client, Reliable) void ClientPlayBossIntro(AMCBossCharacter* Boss);
     UFUNCTION(BlueprintPure, Category="Boss") bool IsBossIntroPlaying() const;
@@ -148,9 +154,20 @@ private:
     void CheckRewardUI();
     void UpdatePerkChoicePause();
     bool HasAuthoritativePerkChoice() const;
+    bool IsPerkChoiceParticipant() const;
+    void RefreshPerkChoiceWorld();
+    void RefreshPerkChoiceWaiting();
     bool CanUnpausePerkChoice();
     bool bPerkChoicePauseSent=false;
     bool bPerkChoicePauseRequested=false;
+    bool bPerkChoiceEnding=false;
+    bool bPerkChoiceTeamActive=false,bPerkChoiceNeedsChoice=false;
+    int32 PerkChoiceReadyPlayers=0,PerkChoiceTotalPlayers=0;
+    int32 LastSentPerkReady=-1,LastSentPerkTotal=-1;
+    bool bLastSentPerkActive=false,bLastSentPerkNeedsChoice=false;
+    double NextPerkTeamCheck=0;
+    /** Pause delegates belong to a GameMode/world, unlike a retained controller. */
+    UPROPERTY(Transient) TWeakObjectPtr<UWorld> PerkChoiceWorld;
     TWeakObjectPtr<AMCRewardChest> ActiveRewardChest;
     TWeakObjectPtr<APawn> RewardPawn;
     FTimerHandle RewardUITimer;

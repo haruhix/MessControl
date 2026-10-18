@@ -11,6 +11,9 @@ class UMaterialInterface;
 class USkeletalMesh;
 class USkeletalMeshComponent;
 
+UENUM(BlueprintType)
+enum class EMCCataclysmJellySize : uint8 { Small, Medium, Large };
+
 /** The encounter owns persistent, brush-cleanable patches and their finite budget. */
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FMCCataclysmJellyDirtyPatch, FVector, float, bool);
 
@@ -26,7 +29,7 @@ public:
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-    void ConfigureJelly(AMCTongue* OnTongue, float InMaxHealth=360.f);
+    void ConfigureJelly(AMCTongue* OnTongue, float InMaxHealth=360.f, EMCCataclysmJellySize InSize=EMCCataclysmJellySize::Large);
     // A lethal hit starts a short escape cue; the encounter counts it until rupture.
     virtual bool IsEncounterAlive() const override;
     virtual bool CanReceiveToolHit() const override;
@@ -45,8 +48,9 @@ public:
     UPROPERTY(EditDefaultsOnly, Category="Jelly|Presentation") TSoftObjectPtr<UAnimSequence> CoffeeBurst;
     UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category="Jelly|Presentation") bool bCoffeePresentationReady=false;
 
-    UPROPERTY(EditDefaultsOnly, Category="Jelly|Grime", meta=(ClampMin="20", ClampMax="100")) float TrailRadius=38.f;
-    UPROPERTY(EditDefaultsOnly, Category="Jelly|Grime", meta=(ClampMin="100", ClampMax="500")) float RuptureRadius=280.f;
+    UPROPERTY(Replicated, EditDefaultsOnly, Category="Jelly|Grime", meta=(ClampMin="20", ClampMax="100")) float TrailRadius=38.f;
+    UPROPERTY(Replicated, EditDefaultsOnly, Category="Jelly|Grime", meta=(ClampMin="100", ClampMax="500")) float RuptureRadius=280.f;
+    UPROPERTY(ReplicatedUsing=RefreshPresentation, BlueprintReadOnly, Category="Jelly") EMCCataclysmJellySize JellySize=EMCCataclysmJellySize::Large;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Jelly") double HopStartedAt=-100.;
     UPROPERTY(ReplicatedUsing=RefreshPresentation, BlueprintReadOnly, Category="Jelly") double DeathStartedAt=-100.;
     UPROPERTY(ReplicatedUsing=RefreshPresentation, BlueprintReadOnly, Category="Jelly") double RupturedAt=-100.;
@@ -57,8 +61,11 @@ public:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="Jelly|Diagnostics") float WanderDistance=0.f;
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="Jelly|Diagnostics") int32 WanderGoalChanges=0;
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="Jelly|Diagnostics") int32 PaintStrokeRequests=0;
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="Jelly|Diagnostics") int32 PaintFloorRejections=0;
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="Jelly|Diagnostics") int32 TrailDiscontinuities=0;
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="Jelly|Diagnostics") int32 RuptureCount=0;
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="Jelly|Diagnostics") int32 ChildrenSpawned=0;
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="Jelly|Diagnostics") int32 RupturePlayersPushed=0;
 
 protected:
     virtual void RefreshPresentation() override;
@@ -96,6 +103,9 @@ private:
     void TickCoffeePresentation(double Now);
     void TickGelPresentation(double Now);
     void ContaminateNearby(float Radius, float Amount);
+    void PushRupturePlayers();
+    void SpawnChildren();
+    float PresentationScale() const;
     void RequestDirtyPatch(float Radius, bool bDeathBurst);
     void Rupture(double Now);
 };

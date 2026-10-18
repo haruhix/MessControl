@@ -12,6 +12,7 @@
 #include "MCFoodActor.h"
 #include "MCGripComponent.h"
 #include "MCTongue.h"
+#include "MCDirtPlacement.h"
 #include "MCArenaTooth.h"
 #include "MCMouthSurface.h"
 #include "MCCoffeeWipe.h"
@@ -538,20 +539,36 @@ void AMCCoffeeFlood::InitializeResidue()
     for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It)
         if(!It->bUlcer && !It->IsClean() && (!Cast<AMCTongue>(GetOwner()) || It->GetTongue()==Tongue)) Placed.Add(It->GetActorLocation());
     const int32 Budget=FMath::Clamp(18-Placed.Num(),0,8);
-    FRandomStream Random(HashCombine(GetTypeHash(StartedAt),GetTypeHash(ArenaCenter)));
-    TArray<int32> Candidates;
-    for(int32 I=0;I<ResidueCells.Num();++I) if(ResidueCells[I].bSurface) Candidates.Add(I);
-    for(int32 I=Candidates.Num()-1;I>0;--I) Candidates.Swap(I,Random.RandRange(0,I));
+    uint32 PlacementSeed=HashCombine(GetTypeHash(StartedAt),GetTypeHash(ArenaCenter));
+    if(const auto* Game=GetWorld()->GetGameState<AMCGameState>())
+        PlacementSeed=HashCombine(PlacementSeed,GetTypeHash(Game->RunSeed));
+    FRandomStream Random(PlacementSeed);
     // Choose supported footprints before arrival. Their visibility is solely the
     // swept wet mask, never a random spawn performed when the event finishes.
-    for(const int32 Index:Candidates)
+    // Centres are continuous seeded samples, independent of the wet-cell grid;
+    // separation rejects crowding without constructing rings or ordered rows.
+    for(int32 Attempt=0;Attempt<ResidueSize*ResidueSize && ResiduePatches.Num()<Budget;++Attempt)
     {
-        if(ResiduePatches.Num()>=Budget) break;
-        const float Half=Random.FRandRange(160.f,320.f);
-        const FVector Point=ResidueCells[Index].Point;
-        bool Near=false; for(const FVector& Other:Placed) if(FVector::Dist2D(Point,Other)<Half*1.6f+200) {Near=true;break;}
-        if(Near) continue;
-        FHitResult Floor; if(!Tongue->InteriorSurfacePoint(Point,Half*.9f,Floor)) continue;
+        const float RequestedHalf=Random.FRandRange(160.f,320.f);
+        float Half=RequestedHalf;
+        FHitResult Floor;bool Found=false;
+        for(int32 SizePass=0;SizePass<3 && !Found;++SizePass) {
+            Half=FMath::Max(160.f,RequestedHalf*FMath::Pow(.8f,SizePass));
+            const FBox Bounds=MCDirtPlacement::WorkBounds(Tongue,Half*1.415f+65.f);
+            if(!Bounds.IsValid) continue;
+            // Keep the candidate within this wave's liquid rectangle as well
+            // as the safe tongue area, so it can actually receive swept water.
+            const double MinX=FMath::Max(Bounds.Min.X,ArenaCenter.X-HalfSize.X);
+            const double MaxX=FMath::Min(Bounds.Max.X,ArenaCenter.X+HalfSize.X);
+            const double MinY=FMath::Max(Bounds.Min.Y,ArenaCenter.Y-HalfSize.Y);
+            const double MaxY=FMath::Min(Bounds.Max.Y,ArenaCenter.Y+HalfSize.Y);
+            if(MinX>=MaxX || MinY>=MaxY) continue;
+            const FVector Point(FMath::Lerp(MinX,MaxX,Random.FRand()),
+                FMath::Lerp(MinY,MaxY,Random.FRand()),Bounds.GetCenter().Z);
+            bool Near=false; for(const FVector& Other:Placed) if(FVector::Dist2D(Point,Other)<Half*1.6f+200) {Near=true;break;}
+            if(!Near) Found=MCDirtPlacement::FindSurface(Tongue,Point,Half*1.415f,Floor);
+        }
+        if(!Found) continue;
         FResiduePatch Patch;Patch.Point=Floor.ImpactPoint;Patch.HalfSize=Half;
         ResiduePatches.Add(Patch);Placed.Add(Patch.Point);
     }

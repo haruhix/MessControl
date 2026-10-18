@@ -2,7 +2,7 @@
 
 Real primary Pickaxe input drives native damage/state/animation. A two-hit shield
 durability fixture avoids repetitive swings. No damage, pose, stun or mesh-swap
-helper; no network peers/package writes. Genuine Shot SHOWUI frames use the
+helper; no network peers/package writes. Genuine Slate game-window frames use the
 strict shared preview format, with camera evidence and recorded game timestamps.
 """
 import builtins
@@ -17,7 +17,7 @@ from pathlib import Path
 import unreal as u
 
 ROOT = Path(u.Paths.project_dir()).resolve()
-OUTPUT = Path(globals().get('MC_KNIGHT_SHIELD_OUTPUT', ROOT/'Artifacts/ManualIntake_20261017/Shield')).resolve()
+OUTPUT = Path(globals().get('MC_KNIGHT_SHIELD_OUTPUT', ROOT/'Saved/Feedback5_11_20261018/Shield')).resolve()
 RUN = OUTPUT/'Runs'/(datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'_'+uuid.uuid4().hex[:8])
 support = runpy.run_path(str(ROOT/'Tools/Unreal/check_approved_environment_solo.py'),
     run_name='knight_shield_support', init_globals={'MC_ENV_OUTPUT': RUN, 'MC_ENV_CAPTURE_HZ': 12})
@@ -119,12 +119,11 @@ class KnightShieldSolo(Base):
         prop(self.boss, 'label').set_hidden_in_game(True)
         self.ready()
         self.check('saved stun duration is five seconds', abs(prop(settings, 'tank_stun_seconds')-5.) < .001)
-        self.front_scale = float(prop(settings, 'shield_front_damage_scale'))
         self.guard_health = float(prop(self.boss, 'health'))
         model = prop(self.boss, 'tank_model')
         self.initial_scale, self.initial_anchor = prop(model, 'relative_scale3d'), prop(model, 'relative_location')
         anchor = self.boss.get_actor_location()
-        self.frame_camera(anchor+u.Vector(750, -1100, 500), anchor+u.Vector(40, 0, 30))
+        self.frame_camera(anchor+u.Vector(600, -900, 430), anchor+u.Vector(40, 0, 45))
         prop(self.camera, 'camera_component').set_editor_property('field_of_view', 60.)
         self.pc.set_editor_property('bAutoManageActiveCameraTarget', False)
         self.report['saved_pickaxe_damage'] = self.damage
@@ -214,20 +213,26 @@ class KnightShieldSolo(Base):
                          and prop(self.hero, 'status').is_alive(), 'Owned fixture ended unexpectedly')
             if self.phase == 'capture_flush':
                 if now-self.phase_at >= .6:
+                    dimensions = set()
                     for entry in self.report['frames']:
                         data = Path(entry['file']).read_bytes()
                         self.require(data.startswith(b'\x89PNG\r\n\x1a\n'), 'Missing genuine PNG')
                         entry.update(sha256=hashlib.sha256(data).hexdigest(), width=int.from_bytes(data[16:20], 'big'), height=int.from_bytes(data[20:24], 'big'))
+                        dimensions.add((entry['width'],entry['height']))
+                    self.check('all captured frames use one genuine gameplay viewport size',
+                               len(dimensions) == 1 and next(iter(dimensions)) in ((1280,720),(1286,760)))
                     self.check('camera-verified client frames captured', len(self.report['frames']) >= 70)
                     span = self.report['frames'][-1]['time']-self.report['frames'][0]['time']
                     self.check('seven-to-nine-second captured game span', 7. <= span <= 9.)
                     self.finish()
                 return
             self.pc.set_view_target_with_blend(self.camera, 0.)
-            point = self.floor(self.boss.get_actor_location()+u.Vector(280, 0, 0))
+            point = self.floor(self.boss.get_actor_location()+u.Vector(280, 100, 0))
             self.require(point is not None, 'Frontal Pickaxe fixture lost support')
-            self.hero.set_actor_location_and_rotation(point+u.Vector(0, 0, self.hero.capsule_component.get_scaled_capsule_half_height()+3), u.Rotator(yaw=180.), False, True)
-            self.pc.set_control_rotation(u.Rotator(yaw=180.))
+            facing=u.MathLibrary.find_look_at_rotation(point,self.boss.get_actor_location())
+            facing=u.Rotator(yaw=facing.yaw)
+            self.hero.set_actor_location_and_rotation(point+u.Vector(0, 0, self.hero.capsule_component.get_scaled_capsule_half_height()+3), facing, False, True)
+            self.pc.set_control_rotation(facing)
             if self.phase == 'alert_warmup':
                 elapsed = now-self.phase_at
                 if elapsed >= 4.25 and not self.alert_presenting():
@@ -243,7 +248,7 @@ class KnightShieldSolo(Base):
             if self.phase == 'guard':
                 if elapsed >= .2: self.press('guard_hit')
                 if prop(self.boss, 'shield_health') < self.initial_shield-.01:
-                    self.check('frontal guard receives twenty-percent health damage', abs(self.guard_health-prop(self.boss, 'health')-self.damage*self.front_scale) < .01)
+                    self.check('intact shield absorbs the entire hit without HP damage', abs(self.guard_health-prop(self.boss, 'health')) < .01)
                     self.check('guard impact registered', bool(prop(self.boss, 'last_tool_hit_blocked')))
                     self.stage('guard_settle')
                 self.require(elapsed < 3., 'Real guard hit did not arrive')
@@ -257,7 +262,7 @@ class KnightShieldSolo(Base):
                     self.expiry = float(prop(self.boss, 'attack_end_at'))
                     self.stun_position = self.boss.get_actor_location()
                     self.stun_health = float(prop(self.boss, 'health'))
-                    self.check('breaking hit retains twenty-percent health damage', abs(self.break_health-self.stun_health-self.damage*self.front_scale) < .01)
+                    self.check('breaking shield hit has no HP overflow', abs(self.break_health-self.stun_health) < .01)
                     self.check('native shield stun lasts exactly five seconds', abs(self.expiry-self.break_at-5.) < .001)
                     self.stage('stun')
                 self.require(elapsed < 2., 'Actual Pickaxe did not break fixture shield')

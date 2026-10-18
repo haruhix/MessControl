@@ -1132,6 +1132,7 @@ bool AMCFoodActor::BeginSwallow()
 void AMCFoodActor::CancelSwallow()
 {
     if (!HasAuthority() || Phase!=EMCFoodPhase::Swallowing) return;
+    bManuallyThrown=false;
     Phase=EMCFoodPhase::Free; OnRep_Phase(); ForceNetUpdate();
 }
 void AMCFoodActor::Spoil()

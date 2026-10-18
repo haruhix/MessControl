@@ -122,7 +122,9 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement") float MageMoveSpeed=120;
     /** Fixed durability for the tank shield; independent of party health scaling. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shield", meta=(ClampMin="1",ClampMax="10000")) float ShieldMaxHealth=500;
+    /** Legacy serialized setting; shield-first damage no longer uses a health multiplier. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shield", meta=(ClampMin="0.2",ClampMax="0.2")) float ShieldFrontDamageScale=.2f;
+    /** Legacy serialized setting; intact shields now protect every direction. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shield") float ShieldHalfAngle=55;
     /** Minimum seconds after recovery before any special attack, including teleport. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cooldown", meta=(ClampMin="0",ClampMax="10",Units="s")) float SpecialAttackGap=3;

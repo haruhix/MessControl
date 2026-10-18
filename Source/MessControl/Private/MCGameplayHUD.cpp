@@ -1136,13 +1136,24 @@ void UMCGameplayHUD::RefreshState()
     if(Finished) Title=(GS->Phase==EMCShiftPhase::Lost?Copy(TEXT("UI.HUD.RunLost"),LOCTEXT("RunLost","РОТ НЕ СПАСЁН")):Copy(TEXT("UI.HUD.RunComplete"),LOCTEXT("RunComplete","ЗАБЕГ ЗАВЕРШЁН"))).ToString();
     Show(TEXT("DayTitle"),false);Text(TEXT("EventTitle"),Title);
     const float Done=Directed?FMath::Clamp(Director.CompletionProgress,0.f,1.f):GS->TasksTotal>0?1-float(GS->TasksLeft)/GS->TasksTotal:0;
-    int32 Surfaces=0; float Clean=0;
+    int32 Surfaces=0; float Clean=0;bool HasDirt=false;
     for(TActorIterator<AActor> It(GetWorld());It;++It) {
-        if(const auto* Patch=Cast<AMCMouthSurface>(*It);Patch && Patch->bUlcer) continue;
+        if(const auto* Patch=Cast<AMCMouthSurface>(*It)) {
+            if(!Patch->bUlcer) {
+                const bool IsClean=Patch->IsClean();HasDirt|=!IsClean;++Surfaces;
+                Clean+=IsClean?1.f:1-FMath::Clamp(Patch->RemainingLiquid(),0.f,1.f);
+            }
+            continue;
+        }
         if(const auto* Tooth=Cast<AMCArenaTooth>(*It);Tooth && !Tooth->IsAvailable()) continue;
-        if(const auto* Care=It->FindComponentByClass<UMCToothStatusComponent>()) { ++Surfaces; Clean+=1-Care->CoffeeAmount(); }
+        if(const auto* Care=It->FindComponentByClass<UMCToothStatusComponent>();Care && Care->IsAlive()) {
+            ++Surfaces;Clean+=1-Care->CoffeeAmount();HasDirt|=Care->State.CoffeeLeft>0;
+        }
     }
     Clean=Surfaces?Clean/Surfaces:1;
+    // An almost erased tile must not round up to "100%" while the same live
+    // residue still holds the meal/cleanup gate open.
+    if(HasDirt) Clean=FMath::Min(Clean,.99f);
     const float Health=GS->MouthHealth/FMath::Max(1.f,GS->RunSettings.MaxMouthHealth);
     SetCopy(TEXT("TaskLabel"),Directed && !GS->bSingleDayLoop?Copy(TEXT("UI.HUD.FoodCompleted"),LOCTEXT("FoodCompleted","ЕДА ЗАВЕРШЕНА")):Copy(TEXT("UI.HUD.Task"),LOCTEXT("Task","ЗАДАЧА")));
     SetCopy(TEXT("TaskValue"),FText::Format(Copy(TEXT("UI.HUD.CountPair"),LOCTEXT("CountPair","{Current} / {Maximum}")),FFormatNamedArguments{{TEXT("Current"),FText::AsNumber(Directed?Director.FinishedFood:FMath::Max(0,GS->TasksTotal-GS->TasksLeft))},{TEXT("Maximum"),FText::AsNumber(Directed?Director.SpawnedFood:GS->TasksTotal)}})); Bar(TEXT("TaskProgress"),Done);

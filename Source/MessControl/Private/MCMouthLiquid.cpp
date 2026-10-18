@@ -3,6 +3,7 @@
 #include "MCCoffeeWipe.h"
 #include "MCInventoryComponent.h"
 #include "MCTongue.h"
+#include "MCDirtPlacement.h"
 #include "MCToothCharacter.h"
 #include "MCBrushContactComponent.h"
 #include "MCToothStatusComponent.h"
@@ -84,7 +85,7 @@ void AMCMouthSurface::OnRep_LiquidSize()
 {
     LiquidHalfSize=FMath::IsFinite(LiquidHalfSize)?FMath::Clamp(LiquidHalfSize,20.f,1600.f):240.f;
     if (!bUlcer) Area->SetBoxExtent(FVector(LiquidHalfSize*(bPaintTile?1.f:.75f),LiquidHalfSize*(bPaintTile?1.f:.75f),bPaintTile?120.f:6.f));
-    LiquidVertices.Reset();
+    LiquidVertices.Reset();PaintSupportMask.Reset();bRemainingLiquidDirty=true;
 }
 
 void AMCMouthSurface::ResetLiquid()
@@ -92,6 +93,8 @@ void AMCMouthSurface::ResetLiquid()
     if (!HasAuthority()) return;
     if (LiquidDepositMask.Num()==FMCCoffeeWipe::Count) WipeMask=LiquidDepositMask;
     else FMCCoffeeWipe::Reset(WipeMask);
+    if(bPaintTile && EnsurePaintSupport()) for(int32 I=0;I<WipeMask.Num();++I)
+        if(!PaintSupportMask[I]) WipeMask[I]=0;
     WipeFractional.Reset(); PreviousBrush.Reset(); BrushCenters.Reset(); Finish=0; BrushAt=-100; BrushClock=0;
     OnRep_Wipe(); ForceNetUpdate();
 }
@@ -103,10 +106,11 @@ void AMCMouthSurface::SetLiquidDepositMask(const TArray<uint8>& Mask)
 bool AMCMouthSurface::AppendLiquidDepositMask(const TArray<uint8>& Mask)
 {
     if(!HasAuthority() || !bPaintTile || Mask.Num()!=FMCCoffeeWipe::Count) return false;
+    if(!EnsurePaintSupport()) return false;
     if(LiquidDepositMask.Num()!=FMCCoffeeWipe::Count) LiquidDepositMask.Init(0,FMCCoffeeWipe::Count);
     if(WipeMask.Num()!=FMCCoffeeWipe::Count) WipeMask.Init(0,FMCCoffeeWipe::Count);
     bool Changed=false;
-    for(int32 I=0;I<Mask.Num();++I) if(Mask[I]>LiquidDepositMask[I])
+    for(int32 I=0;I<Mask.Num();++I) if(PaintSupportMask[I] && Mask[I]>LiquidDepositMask[I])
     {
         // The deposit ledger is monotonic; a stationary/passed wave never fills
         // a brush stroke again. Only genuinely new footprint may add liquid.
@@ -125,17 +129,71 @@ void AMCMouthSurface::InitializePaintTile(AMCTongue* InTongue)
     bPaintTile=true;Tongue=InTongue;
     TongueAnchor=InTongue->GetActorTransform().InverseTransformPosition(GetActorLocation());
     LiquidDepositMask.Init(0,FMCCoffeeWipe::Count);WipeMask=LiquidDepositMask;
+    PaintSupportMask.Reset();
     OnRep_LiquidSize();
+}
+bool AMCMouthSurface::EnsurePaintSupport()
+{
+    if(!bPaintTile || !IsValid(Tongue) || LiquidHalfSize<=0) return false;
+    const auto& Vertices=Tongue->CurrentWorldVertices();
+    const auto& Indices=Tongue->TriangleIndices();
+    const FProcMeshSection* Section=Tongue->Surface->GetProcMeshSection(0);
+    if(!Section || Section->ProcVertexBuffer.Num()!=Vertices.Num() || Indices.IsEmpty()) return false;
+    const FTransform TileTransform=GetActorTransform(),TissueTransform=Tongue->Surface->GetComponentTransform();
+    FTransform PlanarTileTransform=TileTransform;
+    FVector PlanarOrigin=PlanarTileTransform.GetTranslation();PlanarOrigin.Z=0;PlanarTileTransform.SetTranslation(PlanarOrigin);
+    if(PaintSupportMask.Num()==FMCCoffeeWipe::Count && PaintSupportSource.Get()==Tongue->SourceMesh.Get()
+        && PaintSupportVertexCount==Vertices.Num() && PaintSupportIndexCount==Indices.Num()
+        && PaintSupportTileTransform.Equals(PlanarTileTransform) && PaintSupportTongueTransform.Equals(TissueTransform)) return true;
+    PaintSupportMask.Init(0,FMCCoffeeWipe::Count);
+    const FBox DirtWorkBounds=MCDirtPlacement::WorkBounds(Tongue,65.f);
+    // Rasterize the same upward triangles used by BuildLiquid, once per canvas.
+    // Tongue waves change Z, so their ordinary deformation needs no new rays,
+    // collision cooks or per-frame 64x64 scan.
+    for(int32 Face=0;Face+2<Indices.Num();Face+=3) {
+        const int32 IA=Indices[Face],IB=Indices[Face+1],IC=Indices[Face+2];
+        if(!Vertices.IsValidIndex(IA) || !Vertices.IsValidIndex(IB) || !Vertices.IsValidIndex(IC)) continue;
+        const FVector A=Vertices[IA],B=Vertices[IB],C=Vertices[IC];
+        const FVector Normal=TissueTransform.TransformVectorNoScale(Section->ProcVertexBuffer[IA].Normal
+            +Section->ProcVertexBuffer[IB].Normal+Section->ProcVertexBuffer[IC].Normal);
+        FVector FaceNormal=FVector::CrossProduct(B-A,C-A);
+        if(FVector::DotProduct(FaceNormal,Normal)<0) FaceNormal=-FaceNormal;
+        if(FaceNormal.Z<=UE_SMALL_NUMBER) continue;
+        const auto UV=[&](FVector P) {return FVector2D(TileTransform.InverseTransformPosition(P))/(2*LiquidHalfSize)+FVector2D(.5);};
+        const FVector2D U=UV(A),V=UV(B),W=UV(C);
+        const double Det=(V.Y-W.Y)*(U.X-W.X)+(W.X-V.X)*(U.Y-W.Y);
+        if(FMath::Abs(Det)<1.e-12) continue;
+        const int32 MinX=FMath::Max(0,FMath::CeilToInt(FMath::Min3(U.X,V.X,W.X)*FMCCoffeeWipe::Size-.5));
+        const int32 MaxX=FMath::Min(FMCCoffeeWipe::Size-1,FMath::FloorToInt(FMath::Max3(U.X,V.X,W.X)*FMCCoffeeWipe::Size-.5));
+        const int32 MinY=FMath::Max(0,FMath::CeilToInt(FMath::Min3(U.Y,V.Y,W.Y)*FMCCoffeeWipe::Size-.5));
+        const int32 MaxY=FMath::Min(FMCCoffeeWipe::Size-1,FMath::FloorToInt(FMath::Max3(U.Y,V.Y,W.Y)*FMCCoffeeWipe::Size-.5));
+        for(int32 Y=MinY;Y<=MaxY;++Y) for(int32 X=MinX;X<=MaxX;++X) {
+            const FVector2D P((X+.5)/FMCCoffeeWipe::Size,(Y+.5)/FMCCoffeeWipe::Size);
+            const double S=((V.Y-W.Y)*(P.X-W.X)+(W.X-V.X)*(P.Y-W.Y))/Det;
+            const double T=((W.Y-U.Y)*(P.X-W.X)+(U.X-W.X)*(P.Y-W.Y))/Det;
+            if(S>=-1.e-6 && T>=-1.e-6 && S+T<=1.+1.e-6)
+            {
+                const FVector Point=TileTransform.TransformPosition(FVector((P.X-.5)*2*LiquidHalfSize,(P.Y-.5)*2*LiquidHalfSize,0));
+                if(DirtWorkBounds.IsValid && DirtWorkBounds.IsInsideXY(Point)) PaintSupportMask[Y*FMCCoffeeWipe::Size+X]=1;
+            }
+        }
+    }
+    PaintSupportSource=Tongue->SourceMesh;PaintSupportVertexCount=Vertices.Num();PaintSupportIndexCount=Indices.Num();
+    PaintSupportTileTransform=PlanarTileTransform;PaintSupportTongueTransform=TissueTransform;
+    return true;
 }
 bool AMCMouthSurface::DepositPaintStroke(FVector From,FVector To,float Radius,const TFunction<bool(FVector)>& CoverageAllowed)
 {
     if(!HasAuthority() || !bPaintTile || LiquidHalfSize<=0 || From.ContainsNaN() || To.ContainsNaN()) return false;
+    if(!EnsurePaintSupport()) return false;
     const FTransform Transform=GetActorTransform();
     const FVector2D A=FVector2D(Transform.InverseTransformPosition(From))/(2*LiquidHalfSize)+FVector2D(.5);
     const FVector2D B=FVector2D(Transform.InverseTransformPosition(To))/(2*LiquidHalfSize)+FVector2D(.5);
-    TFunction<bool(FVector2D)> Allowed;
-    if(CoverageAllowed) Allowed=[&](FVector2D UV) {
-        return CoverageAllowed(Transform.TransformPosition(FVector((UV.X-.5)*2*LiquidHalfSize,(UV.Y-.5)*2*LiquidHalfSize,0)));
+    TFunction<bool(FVector2D)> Allowed=[&](FVector2D UV) {
+        const int32 X=FMath::Clamp(FMath::FloorToInt(UV.X*FMCCoffeeWipe::Size),0,FMCCoffeeWipe::Size-1);
+        const int32 Y=FMath::Clamp(FMath::FloorToInt(UV.Y*FMCCoffeeWipe::Size),0,FMCCoffeeWipe::Size-1);
+        return PaintSupportMask[Y*FMCCoffeeWipe::Size+X] && (!CoverageAllowed ||
+            CoverageAllowed(Transform.TransformPosition(FVector((UV.X-.5)*2*LiquidHalfSize,(UV.Y-.5)*2*LiquidHalfSize,0))));
     };
     if(!FMCCoffeeWipe::Deposit(WipeMask,LiquidDepositMask,A,B,Radius/(2*LiquidHalfSize),&WipeFractional,Allowed)) return false;
     bPaintDepositPending=true;Finish=0;OnRep_Wipe();return true;
@@ -171,7 +229,7 @@ bool AMCMouthSurface::GetNearestPaintPoint(FVector Near,FVector& Point,FVector& 
     }
     return Best<MAX_flt;
 }
-void AMCMouthSurface::OnRep_Wipe() { bWipeDirty=true; }
+void AMCMouthSurface::OnRep_Wipe() { bWipeDirty=true;bRemainingLiquidDirty=true; }
 
 void AMCMouthSurface::ClearLiquidForBooster()
 {
@@ -182,6 +240,7 @@ void AMCMouthSurface::ClearLiquidForBooster()
 }
 float AMCMouthSurface::RemainingLiquid() const
 {
+    if(!bRemainingLiquidDirty) return CachedRemainingLiquid;
     int32 Total=0; float Left=0;
     for(int32 Y=0;Y<FMCCoffeeWipe::Size;++Y) for(int32 X=0;X<FMCCoffeeWipe::Size;++X) {
         const FVector2D UV((X+.5)/FMCCoffeeWipe::Size,(Y+.5)/FMCCoffeeWipe::Size);
@@ -190,7 +249,8 @@ float AMCMouthSurface::RemainingLiquid() const
         const float Value=WipeMask.Num()==FMCCoffeeWipe::Count?WipeMask[Y*FMCCoffeeWipe::Size+X]/255.f:1.f;
         Left+=FMath::Clamp((Value-.25f)/.75f,0.f,1.f);
     }
-    return Total>0?Left/Total:0.f;
+    CachedRemainingLiquid=Total>0?Left/Total:0.f;bRemainingLiquidDirty=false;
+    return CachedRemainingLiquid;
 }
 bool AMCMouthSurface::FindDirtyContact(AMCToothCharacter* Worker,FVector& Point,FVector& Normal) const
 {

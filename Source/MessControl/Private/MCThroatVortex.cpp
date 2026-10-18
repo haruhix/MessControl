@@ -83,6 +83,7 @@ struct FVortexSection
 
 struct FFoodWake
 {
+    TWeakObjectPtr<AMCFoodActor> Source;
     FVector History[WakePoints];
     bool bInitialized=false;
     float Visibility=0;
@@ -182,7 +183,13 @@ void AMCThroatVortex::Tick(float Dt)
     if(!Geometry || GetNetMode()==NM_DedicatedServer) return;
     TRACE_CPUPROFILER_EVENT_SCOPE(MCThroatVortex);
     const float Age=FMath::Max(0.f,float(ServerNow()-StartedAt)), Progress=Age/FMath::Max(.5f,Duration);
-    if(Progress>=1) { Airflow->SetVisibility(false); SuctionAudio->FadeOut(.1f,0); SetActorTickEnabled(false); return; }
+    if(Progress>=1) {
+        if(Airflow->IsVisible()) { Airflow->SetVisibility(false); SuctionAudio->FadeOut(.1f,0); }
+        // A duration extension can arrive after a client reached the old end.
+        // Keep this cheap lifetime check until authority destroys the actor.
+        return;
+    }
+    Airflow->SetVisibility(true);
     const float Strength=FMath::SmoothStep(.035f,.24f,Age)*(1-FMath::SmoothStep(.82f,1.f,Progress));
     SuctionAudio->SetVolumeMultiplier(.20f*Strength);
     if(Strength>.035f && Age>=NextAirflowCueAt && SuctionAudio->Sound && !SuctionAudio->IsPlaying())
@@ -286,6 +293,7 @@ void AMCThroatVortex::Tick(float Dt)
     {
         auto& Wake=Geometry->Wakes[I];
         auto* Food=FoodSources.IsValidIndex(I)?FoodSources[I].Get():nullptr;
+        if(Wake.Source.Get()!=Food) {Wake.Source=Food;Wake.bInitialized=false;Wake.Visibility=0;}
         const bool bVisible=IsValid(Food) && !Food->IsDisposed();
         if(bVisible)
         {

@@ -487,6 +487,31 @@ water front. Teeth gain their reached coating during the wave too. Previously
 emitted coverage is recorded separately from the live cleaning mask so a passed
 wave does not refill brush strokes. This replaces the old end-of-wave deposit.
 
+The accepted 2026-10-18 central-placement follow-up keeps that moving-front
+behavior. Future meal/wave puddles use the shared safe central tongue envelope,
+full footprint and brush-approach clearance; painted coverage excludes the
+outer work-area strips. Actual first-meal run
+`E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Cleanup8/Runs/20261018T083313Z_c312dd32/Report.json`
+records nine central stains and 6761 wet texels with zero outside in both
+placement snapshots. Real input delivered ten native fragments and erased both
+floor kinds before automatic `FIRST_MEAL -> MEAL_REST`. The twelve teeth remain
+visibly dirty and overall cleanliness is 41%; this is floor-gate evidence.
+Accepted placement/brush/completion videos are in
+`E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Previews/CentralDirt/Cleanup/`.
+See `Docs/CleanupFeedback8_20261018.md` for fixtures and the native regression
+boundary. No current performance, network or packaged-parity claim follows.
+
+The later spacing follow-up expands the middle work width from 58% to 72%
+while retaining full footprint plus 65 cm brush/static clearance. It replaces
+nearest-centre sorted wave-grid origins and ordinary triangular centre bias
+with continuous seeded random XY and distance rejection. The actual moving
+wet front, coating, sizes and budgets remain unchanged. Two short native
+layout captures (`DirtScatter/Runs/20261018T085450Z_74f4d2b0` and
+`20261018T085550Z_83268ffb`) each show nine stains, with 7139/7382 wet texels,
+zero outside and no ordinary static footprint blocks. Lead review accepted
+the wider irregular layout. These are layout-only subsets, not another full
+cleanup test, equal-camera A/B or proof of statistical randomness/performance.
+
 The authorized Editor build and solo runtime validation completed. The final
 plain-PBR rev5 material compiled and was saved; the lead inspected the actual
 gameplay-lighting comparison frames and accepted its direction with default
@@ -806,3 +831,97 @@ edits were preserved. Zen DDC returned507/InsufficientStorage on C: during
 authoring; shader compilation succeeded in memory. No user cache was cleaned.
 No production renderer switch, native-resolution change, Editor build, cook,
 packaging, network test or push is part of these A/B experiments.
+
+## Three-tier coffee painters — 2026-10-18 (solo accepted)
+
+Reuses the already reviewed [Sam Perzanowski gel breakdown](https://realtimevfx.com/t/vfx-experiments-personal-wip-sam-perzanowski/1278)
+and the original coffee-slime hop/pre-burst/burst actions above. The existing
+coffee material, clipped tongue coating and finite additive coverage canvas
+remain the visual contract. Two large painters split into three medium each;
+each medium splits into three small. Every size paints while wandering and
+deposits a persistent splash when it pops. The original pre-burst inflation and
+bounded ballistic droplets are scaled with the body rather than replaced by a
+generic star/flash. A pop pushes nearby players without starting a stun or
+ragdoll. No new transparent layer, texture, particle asset or fluid simulation.
+
+`Tools/Unreal/probe_jelly_split_solo.py` prepares six genuine gameplay-camera
+clips (trail and rupture/split at each size) using ordinary Pickaxe input. The
+focused `MessControl.Cataclysm.JellySplitPaintAndPush` regression covers the
+1 -> 3 -> 9 branch and body-state preservation. The Editor build, focused native regression and actual solo traces/pops passed.
+Current central-placement evidence:
+`E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Jelly7/Runs/20261018T083103Z_paint_5a7a2914/Report.json`.
+Lead and independent review accepted the genuine frames and decoded MP4s in
+`E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Previews/CentralDirt/Jelly/`.
+All three tiers retained connected central trails, three/three/zero children
+and an upright push. Each tier recorded 60 new stroke requests and 40/40 wet
+path probes. Those probes may overlap earlier paint; they do not independently
+isolate every newly covered texel. One lineage was exercised; simultaneous
+18-small-jelly behavior, frame cost, multiplayer and packaged parity remain
+unvalidated. A 10 Hz paint-contact clock and reuse of verified walking
+footprints reduce repeated source-level work; no measured FPS improvement is
+claimed.
+
+The first LargeTrail frame at game 9.983 s shows a grey checker/default body
+material; by approximately 10.78 s it shows the intended coffee material. The
+encoded source sequence retains this frame. Its cause is not established by
+the footage. Run `20261018T075939Z_paint_156810aa` remains the accepted earlier
+silhouette baseline, not evidence for the new central layout.
+
+## Manual food intake vortex — 2026-10-18 (solo accepted)
+
+References: [Ashif Ali / CGHOW: Tornado in Niagara](https://cghow.com/unreal-engine-tornado-in-niagara-tutorial/)
+for varied curl, rotation and eroded wisps; [Epic: Effect Type budgeting](https://dev.epicgames.com/documentation/en-us/unreal-engine/performance-budgeting-using-effect-types-in-niagara-for-unreal-engine)
+for bounded effect instances. Adapted here using the existing procedural
+`AMCThroatVortex` and its three materials, without a fluid simulation or new
+asset dependency. Loose incoming food inside the opening silhouette is reserved
+and follows an individual seeded spiral into the visible inlet before delivery
+is credited. One shared vortex serves concurrent arrivals, with at most 24 food
+wakes; wake history resets when its food identity changes. Completed effects
+are replaced if another throw arrives during their destruction grace period.
+The player's carried food and objects outside the aperture are not captured.
+Lead review accepted the actual gameplay-camera intake in
+`E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/SpawnIntake/Runs/20261018T081253Z_caf45b95/Report.json`.
+Real Q throws showed individual curved arrivals, concurrent shared-vortex
+presentation and native delivery credit. The decoded clip is
+`E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Previews/Feedback6_10/Feedback6_10_10_delivery_procedural_vortex.mp4`.
+These owned solo fixtures do not establish frame cost, multiplayer behavior or
+packaged parity.
+
+## Coffee rupture silhouette refinement — 2026-10-18 (solo accepted)
+
+Reuses the [Sam Perzanowski gel breakdown](https://realtimevfx.com/t/vfx-experiments-personal-wip-sam-perzanowski/1278)
+and [Epic material-input guidance](https://dev.epicgames.com/documentation/en-us/unreal-engine/material-inputs-in-unreal-engine)
+already reviewed above. The first three-tier solo probe passed its gameplay
+checks, but lead and independent visual review rejected the persistent radial
+star and the temporary raised brown disc. That baseline remains intact in
+`Saved/Feedback5_11_20261018/Jelly7/Runs/20261018T073559Z_paint_d654e4df`.
+
+The source refinement replaces twelve thin radial spokes with a broad pool,
+five to seven overlapping round lobes and five to nine separated drops using
+the event's seeded random stream. Every deposited footprint retains the real
+tongue/accessibility checks, texel support mask and per-texel splash occlusion.
+Drop size has a texel-based minimum so visible drops remain brushable. The
+temporary expanding sphere is removed; the actual conforming coffee film and
+fourteen existing ballistic mesh drops now carry the rupture. No new assets,
+transparent layer or render target is introduced. Damage, health, split/push
+behavior, animation/warning timing and wandering-trail clocks are unchanged.
+
+The matching Editor build and focused native mask/budget regression passed.
+Actual three-tier captures `20261018T075939Z_paint_156810aa` were compared with
+the preserved baseline and accepted by lead and independent visual review.
+Decoded previews are in `Saved/Feedback5_11_20261018/Previews/Jelly7_075939`.
+The later central-layout run `20261018T083103Z_paint_5a7a2914` retained that
+irregular pool, separated drops and visible inflation without the raised disc
+or symmetric star. Lead and independent review accepted its source and decoded
+clips under `E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Previews/CentralDirt/Jelly/`.
+The disclosed initial grey LargeTrail body frame above remains in this newer
+recording; it is not presented as a solved material-loading issue.
+No GPU/frame-time result is claimed; existing coarse mask edges remain a polish
+limit, and the older character-reflection streak is visible in both A/B captures.
+The same source pass also corrects trail-budget ownership: same-batch wave
+residue remains in cleanup accounting but cannot consume the event's separate
+bounded trail canvases. Retired trail entries release their slots. The existing
+jelly regression passed a four-canvas fixture with same-batch wave residue and
+one destroyed/replaced canvas; both producers remain in cleanup accounting.
+
+Portable reviewed previews: [Feedback 5–11 video bundle](../Artifacts/Feedback5_11_20261018/README.md). Raw capture files and full logs remain local under Saved/.

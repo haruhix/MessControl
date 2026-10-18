@@ -1,0 +1,842 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-18T09:12:14.459889+00:00",
+  "purpose": "Portable final preview bundle; original MP4 bytes copied without re-encoding.",
+  "portable_paths_relative_to": "Artifacts/Feedback5_11_20261018",
+  "selected_from_document": "Docs/Feedback5_11_20261018.md",
+  "selection_document_sha256": "01c8f62c4edcaf5e86f0a1e34730f63b18eb0bccc7919c64a8da166995981630",
+  "video_count": 18,
+  "total_video_bytes": 22628795,
+  "raw_evidence_included": false,
+  "source_metadata_policy": "Original ExportManifest status/checks/review/limitations are preserved; source IDs deduplicate common metadata.",
+  "important_scope_corrections": [
+    "Отдельный диагностический fixture: editor-only helper создал дополнительного Mage при живом Tank; в сцене два босса. Видео показывает настоящий каст SummonCreeps, преследование и последовательные детонации. Штатный переход Tank → Mage после смерти Tank этим видео НЕ показан и НЕ проверен."
+  ],
+  "sources": [
+    {
+      "source_status": "passed",
+      "source_passed": true,
+      "source_checks": {
+        "standalone authority only": true,
+        "saved stun duration is five seconds": true,
+        "intact shield absorbs the entire hit without HP damage": true,
+        "guard impact registered": true,
+        "breaking shield hit has no HP overflow": true,
+        "native shield stun lasts exactly five seconds": true,
+        "post-break frontal hit deals full damage": true,
+        "full-damage follow-up observed": true,
+        "stun ended naturally after five seconds": true,
+        "native attack resumes without shield": true,
+        "native resumed attack progresses into recovery": true,
+        "shield removal preserves body scale and anchor": true,
+        "all captured frames use one genuine gameplay viewport size": true,
+        "camera-verified client frames captured": true,
+        "seven-to-nine-second captured game span": true
+      },
+      "scope": "One owned standalone PIE on L_Mouth; real primary Pickaxe hits and native Knight scheduler",
+      "fixture_tuning": {
+        "shield_max_health_and_initial_health": "two saved Pickaxe hits",
+        "ability_readiness": "blocked during guard/stun proof; melee ready after native expiry"
+      },
+      "visual_review": "Accepted: root reviewed genuine shield frames and decoded video; independent QC passed. Shield break, 5 s stun and subsequent HP damage are visible.",
+      "limitations": [
+        "One stationary observer and one Knight on L_Mouth; placement/readiness isolate the mechanic.",
+        "Shield maximum/current durability are set to two saved Pickaxe hits before spawning; real input drives both impacts.",
+        "Full damage, five-second native state and mesh disappearance are checked; network peers are not.",
+        "Genuine engine screenshots at requested 12 Hz; output repeats frames at recorded game timestamps.",
+        "Rendered visual quality requires separate review; no package saves, build/cook/package or broad suite."
+      ],
+      "clock_basis": "recorded game seconds",
+      "presentation": "30fps repetition of genuine source PNGs; no generated motion. Existing encoder adds a final 1/12s hold and may quantize output timing.",
+      "source_report_sha256": "39c646983022f792d6ca75055fa747ad5c148b0aacb897c76729e13d30c6ed39",
+      "id": "source_01",
+      "local_raw_evidence": {
+        "portable": false,
+        "included_in_bundle": false,
+        "note": "Локальные исходные отчёты/кадры: raw evidence остаётся на машине и не коммитится.",
+        "original_report_path": "E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Shield/Report.json",
+        "original_export_manifest_path": "E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Previews/05_ExportManifest.json",
+        "original_export_manifest_sha256": "dc8ce94f092ccb072b9b6005a82aa5cb039ab8d8cb80428c6dc0db99ec0be477"
+      }
+    },
+    {
+      "source_status": "passed",
+      "source_passed": true,
+      "source_checks": {
+        "native_E_collects_four_pieces": true,
+        "four_client_Q_deliveries": true,
+        "held_Q_releases_one_by_one": true,
+        "four_individual_curved_intake_paths": true,
+        "concurrent_food_pull": true,
+        "one_shared_visible_vortex": true,
+        "actual_F3_has_no_raft_action": true,
+        "random_cataclysm_only_jelly_branch": true,
+        "no_active_raft_actors": true,
+        "verified_source_frames_for_requested_cases": true
+      },
+      "scope": "Feedback 9/10, optionally 6: owned solo PIE, real respawn and E/Q delivery.\n\nRun in idle saved L_Mouth after the approved Editor build. The spawn fixture is\none temporary nonlocal PlayerController using native RestartPlayerAtTransform\nfrom an intentionally floor-level transform; no network peer is created. Intake\nuses four small food fixtures, ordinary E and client Q/held Q. Native geometry,\ngravity, capture, curl, VFX and scoring decide results. The scheduler is paused\nonly in this owned PIE after resolving the first normal perk.\n\nOptional globals: MC_FEEDBACK_CASES=('spawn','intake','rafts'),\nMC_FEEDBACK_CAPTURE_HZ=12. Cancel with\nbuiltins.mc_feedback_spawn_intake_solo.finish('Stopped by operator').\nNo source/package authoring, build, network or commit is performed here.\n",
+      "fixture_tuning": {},
+      "visual_review": "Accepted: root reviewed actual F3, random cataclysm and native Hero-camera intake frames; independent decoded review passed. Four Q deliveries, individual curves and FoodSwallowed 0 to 4.",
+      "limitations": [
+        "Only one standalone PIE. The temporary nonlocal controller is an in-process spawn fixture, not a network peer or a latency simulation.",
+        "RestartPlayerAtTransform receives a disclosed floor-level transform. Native capsule placement/collision and subsequent movement remain active; no health, reserve, movement mode or actor-position correction is applied to its spawned pawn.",
+        "Small broccoli fragments, the main player approach positions and review CameraActor are disclosed PIE fixtures. Collection, client Q/held Q, projectile physics, throat attraction, individual curl, vortex and scoring stay native.",
+        "The unrelated scheduler is paused in the owned PIE after its ordinary first perk. No gameplay progress counter is assigned to pass a check.",
+        "The optional raft check opens the real F3 panel and starts native CataclysmRandom. It asserts the selected jelly branch and absence of raft actors; this is not an entire cataclysm completion playthrough.",
+        "For that branch check, a disclosed supported tooth-side observer position and actual held RMB brace survive the opening wave. The brace releases before the jelly clip; no health, phase, movement mode or native force is assigned to survive it.",
+        "Slate captures bind directly to the owned floating PIE window. Reports include source timestamps and reject unsupported frame sizes/camera mismatches."
+      ],
+      "clock_basis": "recorded game seconds",
+      "presentation": "30fps repetition of genuine source PNGs; no generated motion. Existing encoder adds a final 1/12s hold and may quantize output timing.",
+      "source_report_sha256": "ae5a34dc4ade9af88cc62b5e692641ce2b8a2dbc7ffccea008d01669422b22f5",
+      "id": "source_02",
+      "local_raw_evidence": {
+        "portable": false,
+        "included_in_bundle": false,
+        "note": "Локальные исходные отчёты/кадры: raw evidence остаётся на машине и не коммитится.",
+        "original_report_path": "E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/SpawnIntake/Runs/20261018T081253Z_caf45b95/Report.json",
+        "original_export_manifest_path": "E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Previews/Feedback6_10/Feedback6_10_ExportManifest.json",
+        "original_export_manifest_sha256": "4ddb86fc314ee815e723697cebf35251b8ade7ba9fa4f360fe29f5a6dc60540e"
+      }
+    },
+    {
+      "source_status": "passed",
+      "source_passed": true,
+      "source_checks": {
+        "real_f3_deterministic_start": true,
+        "exactly_two_large_sources": true,
+        "large_leaves_real_trail": true,
+        "large_splits_and_pushes_without_stun": true,
+        "medium_leaves_real_trail": true,
+        "medium_splits_and_pushes_without_stun": true,
+        "small_leaves_real_trail": true,
+        "small_splits_and_pushes_without_stun": true
+      },
+      "scope": "One standalone authority PIE; real F3, native three-tier painter and normal Pickaxe input",
+      "fixture_tuning": {},
+      "visual_review": "Accepted with disclosed warm-up limitation: root reviewed source sheets and actual decoded subset; independent QC passed. All tiers leave central trails, split 3/3/0 and push without stun. First LargeTrail frame is grey/default; by game 10.78 s coffee material is visible. Cause not established.",
+      "limitations": [
+        "Position-only melee observer follows a moving native jelly until lethal warning, then remains free for the push.",
+        "Combat uses ordinary repeated LMB press/release edges every .90 s; the native combo still decides swing acceptance, recovery and damage.",
+        "The observer holds a real fixed tooth with normal RMB during the opening wave, then releases before jelly input.",
+        "The unrelated day scheduler is temporarily paused; actual Cataclysm/hero/jelly/paint ticks and health remain native.",
+        "This PIE checks the native initial pair, then kills one lineage through Large -> Medium -> Small. The focused native regression exercises one 1 -> 3 -> 9 branch; a full simultaneous 2 -> 6 -> 18 population is not runtime-tested here.",
+        "No network clients, package saves, health edits, clock jumps or broad test suite.",
+        "Camera frames establish visible behavior only after human/lead visual review; GPU cost and final balance are unmeasured."
+      ],
+      "clock_basis": "recorded game seconds",
+      "presentation": "30fps repetition of genuine source PNGs; no generated motion. Existing encoder adds a final 1/12s hold and may quantize output timing.",
+      "source_report_sha256": "514da2867ab16ab2795b8c780ebba24f6d3c6aa2a6af19434c0c0a07d63e6a34",
+      "id": "source_03",
+      "local_raw_evidence": {
+        "portable": false,
+        "included_in_bundle": false,
+        "note": "Локальные исходные отчёты/кадры: raw evidence остаётся на машине и не коммитится.",
+        "original_report_path": "E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Jelly7/Runs/20261018T083103Z_paint_5a7a2914/Report.json",
+        "original_export_manifest_path": "E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Previews/CentralDirt/Jelly/07_ExportManifest.json",
+        "original_export_manifest_sha256": "38b6b4a94804a63b2bf39256b27c22c09c776cdd6040d1cce18ccf6954942279"
+      }
+    },
+    {
+      "source_status": "subset_passed",
+      "source_passed": null,
+      "source_checks": {
+        "actual_first_meal_dirt_within_central_work_area": true,
+        "three_second_native_layout_overview_recorded": true
+      },
+      "scope": "Short layout-only subset of the genuine first-meal solo PIE probe.\n\nRun in idle L_Mouth after the matching Editor build. The existing one-portion\nprivate PIE profile, normal perk selection, opening wave and real RMB brace are\nreused. Native producers choose every dirt position/mask. Stop after a three\nsecond recorded overview: food delivery, brushing and cleanup completion are NOT\ntested. Two runs are descriptive layout samples, not a randomness proof.\n\nOutput: E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/DirtScatter.\nCancel: builtins.mc_dirt_scatter_solo.finish('Stopped by operator').\n",
+      "fixture_tuning": {
+        "profile": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCSingleDayDirector_0.DA_SingleDay",
+        "outer": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCSingleDayDirector_0",
+        "before": {
+          "opening_meal_items": 12,
+          "after_training_pause_seconds": 5.0,
+          "before_nuts_pause_seconds": 4.0
+        },
+        "after": {
+          "opening_meal_items": 1,
+          "after_training_pause_seconds": 1.0,
+          "before_nuts_pause_seconds": 12.0
+        },
+        "saved_profile_changed": false
+      },
+      "visual_review": "Accepted: root reviewed genuine source frame 00012.png and an actual PNG decoded from the final MP4 at 1.5 s. Wider irregular safe layout. This is a layout-only subset, not full cleanup or a fixed-camera A/B; cameras face opposite ends. Food partly occludes a footprint in some frames.",
+      "limitations": [
+        "Only initial native first-meal dirt placement and a three-second overview are observed.",
+        "No food cutting/delivery, brushing, FirstMeal completion, whole-mouth cleanliness or performance claim.",
+        "Only the private PIE one-portion profile is tuned; normal perk, native wave, health and dirt remain authoritative.",
+        "Real held RMB anchors the observer during the wave; the review camera does not hide geometry.",
+        "Paint canvas origins are allocation coordinates, not individual stain placement positions. Actual wet-cell positions are recorded separately.",
+        "Spacing and two-run nearest-centre comparisons describe observed geometry; they do not establish statistical randomness.",
+        "Camera projection/LOS screening is geometric evidence, not visual approval or a pixel-occlusion proof.",
+        "No package saves, gameplay state/mask edits, network clients, build or broad tests."
+      ],
+      "clock_basis": "recorded game seconds",
+      "presentation": "30fps repetition of genuine source PNGs; no generated motion. Existing encoder adds a final 1/12s hold and may quantize output timing.",
+      "source_report_sha256": "3b9fbdd260d0e7d6061d68fd3ea17781a67770d18864deaae3d4c7a1d1dc0668",
+      "id": "source_04",
+      "local_raw_evidence": {
+        "portable": false,
+        "included_in_bundle": false,
+        "note": "Локальные исходные отчёты/кадры: raw evidence остаётся на машине и не коммитится.",
+        "original_report_path": "E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/DirtScatter/Runs/20261018T085450Z_74f4d2b0/Report.json",
+        "original_export_manifest_path": "E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Previews/DirtScatter/ScatterA_ExportManifest.json",
+        "original_export_manifest_sha256": "35d2e25d02109c78f6dd77ed4b483861adc6d3479adb689b7c3b59de4a48bde9"
+      }
+    },
+    {
+      "source_status": "subset_passed",
+      "source_passed": null,
+      "source_checks": {
+        "actual_first_meal_dirt_within_central_work_area": true,
+        "three_second_native_layout_overview_recorded": true
+      },
+      "scope": "Short layout-only subset of the genuine first-meal solo PIE probe.\n\nRun in idle L_Mouth after the matching Editor build. The existing one-portion\nprivate PIE profile, normal perk selection, opening wave and real RMB brace are\nreused. Native producers choose every dirt position/mask. Stop after a three\nsecond recorded overview: food delivery, brushing and cleanup completion are NOT\ntested. Two runs are descriptive layout samples, not a randomness proof.\n\nOutput: E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/DirtScatter.\nCancel: builtins.mc_dirt_scatter_solo.finish('Stopped by operator').\n",
+      "fixture_tuning": {
+        "profile": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCSingleDayDirector_0.DA_SingleDay",
+        "outer": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCSingleDayDirector_0",
+        "before": {
+          "opening_meal_items": 12,
+          "after_training_pause_seconds": 5.0,
+          "before_nuts_pause_seconds": 4.0
+        },
+        "after": {
+          "opening_meal_items": 1,
+          "after_training_pause_seconds": 1.0,
+          "before_nuts_pause_seconds": 12.0
+        },
+        "saved_profile_changed": false
+      },
+      "visual_review": "Accepted: root reviewed genuine source frame 00012.png and an actual PNG decoded from the final MP4 at 1.5 s. Wider irregular safe layout. This is a layout-only subset, not full cleanup or a fixed-camera A/B; cameras face opposite ends. Food partly occludes a footprint in some frames.",
+      "limitations": [
+        "Only initial native first-meal dirt placement and a three-second overview are observed.",
+        "No food cutting/delivery, brushing, FirstMeal completion, whole-mouth cleanliness or performance claim.",
+        "Only the private PIE one-portion profile is tuned; normal perk, native wave, health and dirt remain authoritative.",
+        "Real held RMB anchors the observer during the wave; the review camera does not hide geometry.",
+        "Paint canvas origins are allocation coordinates, not individual stain placement positions. Actual wet-cell positions are recorded separately.",
+        "Spacing and two-run nearest-centre comparisons describe observed geometry; they do not establish statistical randomness.",
+        "Camera projection/LOS screening is geometric evidence, not visual approval or a pixel-occlusion proof.",
+        "No package saves, gameplay state/mask edits, network clients, build or broad tests."
+      ],
+      "clock_basis": "recorded game seconds",
+      "presentation": "30fps repetition of genuine source PNGs; no generated motion. Existing encoder adds a final 1/12s hold and may quantize output timing.",
+      "source_report_sha256": "83c2fe34f0f3e1306d044b7e3445da4a9833ddc4154ff876b19fc75d1daf350a",
+      "id": "source_05",
+      "local_raw_evidence": {
+        "portable": false,
+        "included_in_bundle": false,
+        "note": "Локальные исходные отчёты/кадры: raw evidence остаётся на машине и не коммитится.",
+        "original_report_path": "E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/DirtScatter/Runs/20261018T085550Z_83268ffb/Report.json",
+        "original_export_manifest_path": "E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Previews/DirtScatter/ScatterB_ExportManifest.json",
+        "original_export_manifest_sha256": "99b9e54d72c20b4555d936e64a6a8e7ce8514a86077bd3d6ec6453ca4e2a9bdf"
+      }
+    },
+    {
+      "source_status": "passed",
+      "source_passed": true,
+      "source_checks": {
+        "actual_first_meal_dirt_within_central_work_area": true,
+        "native_first_meal_and_wave_issued_work": true,
+        "two_real_stain_kinds_exist": true,
+        "native_cut_E_and_held_Q_resolve_issued_portion": true,
+        "twelve_physical_teeth_observed": true,
+        "no_unsupported_wet_paint_before_brush": true,
+        "ordinary_brush_erases_both_real_stain_kinds": true,
+        "native_first_meal_to_meal_rest_without_state_override": true
+      },
+      "scope": "Focused owned solo PIE: actual first-meal dirt -> brushing -> MealRest.\n\nRun only in idle L_Mouth after the matching Editor build and root approval.\nNo stage, task counter, care state, coverage mask or dirt actor is overwritten.\nThe private native run-profile COPY is found by its PIE Director outer and tuned\nto one portion / 1 s opening pause / 12 s final pause. The real opening wave and\nordinary food-dirt producer run normally. One issued food is broken with normal\nrepeated tool press/release input, its native pieces collected with E and delivered by actual held Q.\nOrdinary held Brush input visibly erases both stain kinds. Then the existing\nMeshaBrush reward is granted through its existing F3 command to bound the\nremaining sweep, still using real held input and native bristle contact.\n\nThe native MCCountDirectedFoodDirt function is not reflected. This probe observes\nits real TickFirstMeal caller's TasksLeft and automatic FirstMeal -> MealRest\ntransition, and reports its independent read-only surface census separately.\nNo test-helper counter is substituted for that native transition.\n\nOutputs: E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Cleanup8.\nOptional MC_CLEANUP_OUTPUT / MC_CLEANUP_CAPTURE_HZ. No package saves/network.\nCancel: builtins.mc_cleanup_first_relax_solo.finish('Stopped by operator').\n",
+      "fixture_tuning": {
+        "profile": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCSingleDayDirector_0.DA_SingleDay",
+        "outer": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCSingleDayDirector_0",
+        "before": {
+          "opening_meal_items": 12,
+          "after_training_pause_seconds": 5.0,
+          "before_nuts_pause_seconds": 4.0
+        },
+        "after": {
+          "opening_meal_items": 1,
+          "after_training_pause_seconds": 1.0,
+          "before_nuts_pause_seconds": 12.0
+        },
+        "saved_profile_changed": false
+      },
+      "visual_review": "Accepted: root reviewed source frames and actual decoded central-placement/completion PNGs; independent QC passed. Nine central patches; native first-meal completion. Teeth remain dirty and overall mouth cleanliness is 41%, not 100%.",
+      "limitations": [
+        "This is a cleaning-gate fixture, not a full food-combat, balance, multiplayer or performance test.",
+        "Only the native private run-profile copy is tuned to one food portion and short pauses; no saved profile is changed.",
+        "The naturally issued food is cut by normal LMB press/release edges every .90 s, collected with E and delivered by held Q; native contact, recovery and intake remain authoritative.",
+        "Read-only GripSurface triangle lines choose a supported approach; they are hints, not substitutes for the native swept tool contact or real health decreases.",
+        "Default brush contact is proved on both surface kinds before the existing MeshaBrush reward accelerates the remaining real-input sweep.",
+        "Observer transforms are position-only fixtures; approach time, bristle reach, surface occlusion and native masks remain authoritative.",
+        "Normal held RMB anchors the observer to a real tooth through the opening wave; it is released before ordinary food cutting.",
+        "The native global MCCountDirectedFoodDirt has no Python entry point. Its actual caller/automatic stage transition is observed instead.",
+        "The exact native regression separately tests unsupported-mask rejection and MCCountDirectedFoodDirt returning zero after real contact."
+      ],
+      "clock_basis": "recorded game seconds",
+      "presentation": "30fps repetition of genuine source PNGs; no generated motion. Existing encoder adds a final 1/12s hold and may quantize output timing.",
+      "source_report_sha256": "c3a0714477109bc240c2426f34e51a013792fa98d340b4298cf47c87857f3ac3",
+      "id": "source_06",
+      "local_raw_evidence": {
+        "portable": false,
+        "included_in_bundle": false,
+        "note": "Локальные исходные отчёты/кадры: raw evidence остаётся на машине и не коммитится.",
+        "original_report_path": "E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Cleanup8/Runs/20261018T083313Z_c312dd32/Report.json",
+        "original_export_manifest_path": "E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Previews/CentralDirt/Cleanup/08_ExportManifest.json",
+        "original_export_manifest_sha256": "15e7f0cdc74d27c4e7b73a5c876f66ad9a57d8fea66287e97041594d94a57a9a"
+      }
+    },
+    {
+      "source_status": "partial",
+      "source_passed": null,
+      "source_checks": {
+        "native_spawn_has_30cm_tissue_clearance": true,
+        "native_spawn_stays_alive_after_settle": true,
+        "native_spawn_preserves_reserve": true,
+        "temporary_spawn_fixture_fully_removed": true
+      },
+      "scope": "Exact completed feedback9 capture extracted from the combined run; that parent later failed its unrelated F3 widget lookup. No source frames, timestamps or results are edited.",
+      "fixture_tuning": null,
+      "visual_review": "Accepted for completed spawn subcase only: root reviewed genuine spawn frames; MP4 full decode passed. Parent combined run failed later at an unrelated F3 lookup; this does not mark the parent run passed.",
+      "limitations": [
+        "Only one standalone PIE. The temporary nonlocal controller is an in-process spawn fixture, not a network peer or a latency simulation.",
+        "RestartPlayerAtTransform receives a disclosed floor-level transform. Native capsule placement/collision and subsequent movement remain active; no health, reserve, movement mode or actor-position correction is applied to its spawned pawn.",
+        "Small broccoli fragments, the main player approach positions and review CameraActor are disclosed PIE fixtures. Collection, client Q/held Q, projectile physics, throat attraction, individual curl, vortex and scoring stay native.",
+        "The unrelated scheduler is paused in the owned PIE after its ordinary first perk. No gameplay progress counter is assigned to pass a check.",
+        "The optional raft check opens the real F3 panel and starts native CataclysmRandom. It asserts the selected jelly branch and absence of raft actors; this is not an entire cataclysm completion playthrough.",
+        "For that branch check, a disclosed supported tooth-side observer position and actual held RMB brace survive the opening wave. The brace releases before the jelly clip; no health, phase, movement mode or native force is assigned to survive it.",
+        "Slate captures bind directly to the owned floating PIE window. Reports include source timestamps and reject unsupported frame sizes/camera mismatches."
+      ],
+      "clock_basis": "recorded game seconds",
+      "presentation": "30fps repetition of genuine source PNGs; no generated motion. Existing encoder adds a final 1/12s hold and may quantize output timing.",
+      "source_report_sha256": "17e266a1c9ecb45e9617792aecfd6bd23496afc24467fd19bd9a01810ddc3759",
+      "id": "source_07",
+      "local_raw_evidence": {
+        "portable": false,
+        "included_in_bundle": false,
+        "note": "Локальные исходные отчёты/кадры: raw evidence остаётся на машине и не коммитится.",
+        "original_report_path": "E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/SpawnIntake/Runs/20261018T075400Z_721dbc17/Spawn9_Extract.json",
+        "original_export_manifest_path": "E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Previews/09_ExportManifest.json",
+        "original_export_manifest_sha256": "299f0ec322dbda0f26bc68d3cb8fa4ec2599c8c376df275a50322838c5137878"
+      }
+    },
+    {
+      "source_status": "passed",
+      "source_passed": true,
+      "source_checks": {
+        "one standalone authority world": true,
+        "review camera settled before the real choice pauses gameplay": true,
+        "one real team level earned": true,
+        "both real personal queues contain one choice": true,
+        "local earned offer is visible": true,
+        "first chooser sees one of two ready": true,
+        "waiting remains a visible modal": true,
+        "waiting blocks move and look input": true,
+        "gameplay remains frozen while the other chooser waits": true,
+        "the last real choice resumes gameplay": true,
+        "waiting and cards close after everyone finishes": true,
+        "gameplay movement and look input unlock after everyone finishes": true,
+        "gameplay time advances after both choices": true,
+        "all screenshots use one gameplay viewport size": true,
+        "captured actual choice waiting and resume frames": true
+      },
+      "scope": "One standalone PIE; two authoritative controller/PlayerState fixtures; one local UI",
+      "fixture_tuning": {
+        "directors": "disabled in owned PIE only",
+        "second_controller": "unconnected same-world authority fixture"
+      },
+      "visual_review": "Accepted: root and independent review of genuine frames and decoded video. In-process two-controller solo fixture, not network multiplayer.",
+      "limitations": [
+        "Not a network replication, latency, packet loss or multiplayer test.",
+        "Second chooser has no local player or remote connection; its real earned offer is resolved through the server RPC locally.",
+        "Genuine Slate game-window frames require separate visual review; no packages/build/cook/package are run."
+      ],
+      "clock_basis": "recorded wall seconds",
+      "presentation": "30fps repetition of genuine source PNGs; no generated motion. Existing encoder adds a final 1/12s hold and may quantize output timing.",
+      "source_report_sha256": "824fe0b98cfa76a3d8c1d3039f90c8b3d1ebc40629c9f847ef2c85d40a7b7e58",
+      "id": "source_08",
+      "local_raw_evidence": {
+        "portable": false,
+        "included_in_bundle": false,
+        "note": "Локальные исходные отчёты/кадры: raw evidence остаётся на машине и не коммитится.",
+        "original_report_path": "E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Perks/Report.json",
+        "original_export_manifest_path": "E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Previews/11_perk_team_wait_ExportManifest.json",
+        "original_export_manifest_sha256": "16e9e11b5cf45c82158c7b03f509fd2ffc147bf0f4aeffad1739b14018fd9397"
+      }
+    },
+    {
+      "source_status": "passed",
+      "source_passed": true,
+      "source_checks": {
+        "native_mage_cast_created_real_minions": true,
+        "actual_detonations_separated_by_native_interval": true,
+        "native_nearest_pursuit_observed": true,
+        "all_group_members_popped_without_fuse_or_damage_edits": true
+      },
+      "scope": "Owned solo PIE: real F3 rain nuts -> native mage cast -> sequential minion pops.\n\nThe editor-only native mage fixture calls ConfigureEncounter, with its complete\nsaved health/entrance/AI. Other boss abilities are postponed before observation.\nNo food, health, phase, summon, fuse, explosion or clock is written by Python.\nAll remaining actual rain nuts are used, so group size follows the native rain.\nPosition-only observer dodging keeps the camera subject alive; this is not balance\nor multiplayer evidence. Exact owned PIE SWindow capture includes the game HUD.\nCancel: builtins.mc_mage_sequential_summons_solo.finish('Stopped by operator').\n",
+      "fixture_tuning": {},
+      "visual_review": "Accepted: root and independent review of genuine frames and actual decoded samples. Sequential later bursts are readable; early bursts partly occluded by bosses. Timing and counts supported by runtime report.",
+      "limitations": [
+        "One owned standalone PIE, no client prediction/network test, package saves or performance claim.",
+        "This checks one actual cast group; all remaining rain nuts are eligible, so it is not an artificial four-minion fixture.",
+        "Position-only observer dodging and review camera are disclosed survival/visibility fixtures.",
+        "A native editor-only Mage fixture bypasses the earlier Knight defeat, but native ConfigureEncounter/entrance/cast/pursuit/fuses/pops execute unchanged.",
+        "Other boss cooldowns are postponed to isolate this one summon cast; no optional player kill is attempted.",
+        "Root visual review of exact game-window frames remains necessary."
+      ],
+      "clock_basis": "recorded game seconds",
+      "presentation": "30fps repetition of genuine source PNGs; no generated motion. Existing encoder adds a final 1/12s hold and may quantize output timing.",
+      "source_report_sha256": "1e45a7308f17e1683f6462b5ddecd24f250d1f968978ba345510980e73e77dd1",
+      "id": "source_09",
+      "local_raw_evidence": {
+        "portable": false,
+        "included_in_bundle": false,
+        "note": "Локальные исходные отчёты/кадры: raw evidence остаётся на машине и не коммитится.",
+        "original_report_path": "E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Kamikaze/Runs/20261018T080641Z_cfdf9ad4/Report.json",
+        "original_export_manifest_path": "E:/DEVGAME/MessControl/Saved/Feedback5_11_20261018/Previews/Kamikaze/Kamikaze_ExportManifest.json",
+        "original_export_manifest_sha256": "fff4906cbd862106e2698e310256cb024ff33b0c6100653961e5ac4ad71f622a"
+      },
+      "diagnostic_scope_correction": {
+        "explanation": "Отдельный диагностический fixture: editor-only helper создал дополнительного Mage при живом Tank; в сцене два босса. Видео показывает настоящий каст SummonCreeps, преследование и последовательные детонации. Штатный переход Tank → Mage после смерти Tank этим видео НЕ показан и НЕ проверен.",
+        "additional_mage_spawned_by_editor_helper": true,
+        "tank_alive_during_clip": true,
+        "bosses_in_fixture": 2,
+        "native_tank_to_mage_transition_demonstrated": false
+      }
+    }
+  ],
+  "videos": [
+    {
+      "video": "Previews/05_knight_shield_break.mp4",
+      "title": "разрушение, стан и урон по HP",
+      "size_bytes": 1197879,
+      "sha256": "85ca5d169b721eb042c4ee3dd20b09bb7fe9e32ceeb24f6a4304360512aeb0e3",
+      "source_id": "source_01",
+      "genuine_source_frames": 86,
+      "source_duration": 7.083333702757955,
+      "clock_basis": "recorded game seconds",
+      "source_time_start": 5.266666941344738,
+      "source_time_end": 12.350000644102693,
+      "full_decode": "PASS",
+      "encoded": {
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "216"
+          }
+        ],
+        "duration_seconds": "7.200000"
+      }
+    },
+    {
+      "video": "Previews/Feedback6_10/Feedback6_10_06_f3_without_raft_action.mp4",
+      "title": "настоящее меню F3",
+      "size_bytes": 152381,
+      "sha256": "502af732071018d99225d6b63d56eff61281122e7c012827c22be7caf69dc033",
+      "source_id": "source_02",
+      "genuine_source_frames": 19,
+      "source_duration": 1.5000000782310963,
+      "clock_basis": "recorded game seconds",
+      "source_time_start": 8.066667087376118,
+      "source_time_end": 9.566667165607214,
+      "full_decode": "PASS",
+      "encoded": {
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "50"
+          }
+        ],
+        "duration_seconds": "1.666667"
+      }
+    },
+    {
+      "video": "Previews/Feedback6_10/Feedback6_10_06_random_jellies_without_rafts.mp4",
+      "title": "случайный катаклизм без плотов",
+      "size_bytes": 368840,
+      "sha256": "e11cd2616bc5d840dd26e8991164016f7da0209d2900bf5308d8728662f390e6",
+      "source_id": "source_02",
+      "genuine_source_frames": 29,
+      "source_duration": 2.3333334550261497,
+      "clock_basis": "recorded game seconds",
+      "source_time_start": 19.666667692363262,
+      "source_time_end": 22.000001147389412,
+      "full_decode": "PASS",
+      "encoded": {
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "74"
+          }
+        ],
+        "duration_seconds": "2.466667"
+      }
+    },
+    {
+      "video": "Previews/CentralDirt/Jelly/07_jelly_large_trail.mp4",
+      "title": "след большого",
+      "size_bytes": 1594141,
+      "sha256": "12124bdebf01b9eed17633d43f52f083ae8b6177f739ee54aa3d60e30378c457",
+      "source_id": "source_03",
+      "genuine_source_frames": 45,
+      "source_duration": 5.8666669726371765,
+      "clock_basis": "recorded game seconds",
+      "source_time_start": 9.98333385400474,
+      "source_time_end": 15.850000826641917,
+      "full_decode": "PASS",
+      "encoded": {
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "182"
+          }
+        ],
+        "duration_seconds": "6.066667"
+      }
+    },
+    {
+      "video": "Previews/CentralDirt/Jelly/07_jelly_large_split_pop.mp4",
+      "title": "деление большого",
+      "size_bytes": 2778091,
+      "sha256": "768bfe74b348dfbb7a0383b2f4c9f4c9f5bf7dbe8c94f9990fe4c57c33374003",
+      "source_id": "source_03",
+      "genuine_source_frames": 69,
+      "source_duration": 9.066667139530182,
+      "clock_basis": "recorded game seconds",
+      "source_time_start": 15.983334166929126,
+      "source_time_end": 25.050001306459308,
+      "full_decode": "PASS",
+      "encoded": {
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "278"
+          }
+        ],
+        "duration_seconds": "9.266667"
+      }
+    },
+    {
+      "video": "Previews/CentralDirt/Jelly/07_jelly_medium_trail.mp4",
+      "title": "след среднего",
+      "size_bytes": 1654494,
+      "sha256": "b2704829a68a407f4a73de41d94031e61545364368a229cada1e0e73c09b7db7",
+      "source_id": "source_03",
+      "genuine_source_frames": 45,
+      "source_duration": 5.8666669726371765,
+      "clock_basis": "recorded game seconds",
+      "source_time_start": 25.183334646746516,
+      "source_time_end": 31.050001619383693,
+      "full_decode": "PASS",
+      "encoded": {
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "182"
+          }
+        ],
+        "duration_seconds": "6.066667"
+      }
+    },
+    {
+      "video": "Previews/CentralDirt/Jelly/07_jelly_medium_split_pop.mp4",
+      "title": "деление среднего",
+      "size_bytes": 1471911,
+      "sha256": "c05d2cd336b96dffe78e1dbfd1a180402d6bf1cf89318295f8b6c0ccc8d6c66a",
+      "source_id": "source_03",
+      "genuine_source_frames": 41,
+      "source_duration": 5.333333611488342,
+      "clock_basis": "recorded game seconds",
+      "source_time_start": 31.1833349596709,
+      "source_time_end": 36.516668571159244,
+      "full_decode": "PASS",
+      "encoded": {
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "164"
+          }
+        ],
+        "duration_seconds": "5.466667"
+      }
+    },
+    {
+      "video": "Previews/CentralDirt/Jelly/07_jelly_small_trail.mp4",
+      "title": "след маленького",
+      "size_bytes": 1822412,
+      "sha256": "1e2c54e4f5724e21014acc01779d84623f63eb56e6f42f51c46318edfdd67cc9",
+      "source_id": "source_03",
+      "genuine_source_frames": 45,
+      "source_duration": 5.8666669726371765,
+      "clock_basis": "recorded game seconds",
+      "source_time_start": 36.65000191144645,
+      "source_time_end": 42.51666888408363,
+      "full_decode": "PASS",
+      "encoded": {
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "182"
+          }
+        ],
+        "duration_seconds": "6.066667"
+      }
+    },
+    {
+      "video": "Previews/CentralDirt/Jelly/07_jelly_small_split_pop.mp4",
+      "title": "детонация маленького",
+      "size_bytes": 1334110,
+      "sha256": "c24322144d9dc687336a07744c39a5492abd5ede04be78a7c6a2088568999423",
+      "source_id": "source_03",
+      "genuine_source_frames": 34,
+      "source_duration": 4.400000229477882,
+      "clock_basis": "recorded game seconds",
+      "source_time_start": 42.65000222437084,
+      "source_time_end": 47.05000245384872,
+      "full_decode": "PASS",
+      "encoded": {
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "137"
+          }
+        ],
+        "duration_seconds": "4.566667"
+      }
+    },
+    {
+      "video": "Previews/DirtScatter/ScatterA_08_central_floor_placement.mp4",
+      "title": "окончательный разброс, вариант A",
+      "size_bytes": 339258,
+      "sha256": "a379ca08fd5687da7e78597c4aa50856c649b995e07d5ff684eea588ce441cca",
+      "source_id": "source_04",
+      "genuine_source_frames": 23,
+      "source_duration": 2.9333334863185883,
+      "clock_basis": "recorded game seconds",
+      "source_time_start": 12.383333979174495,
+      "source_time_end": 15.316667465493083,
+      "full_decode": "PASS",
+      "encoded": {
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "92"
+          }
+        ],
+        "duration_seconds": "3.066667"
+      }
+    },
+    {
+      "video": "Previews/DirtScatter/ScatterB_08_central_floor_placement.mp4",
+      "title": "вариант B",
+      "size_bytes": 295883,
+      "sha256": "a727ac9c68803d825b845105c4464b52fd7f728e2e22093466331757e3e68487",
+      "source_id": "source_05",
+      "genuine_source_frames": 23,
+      "source_duration": 2.9333334863185883,
+      "clock_basis": "recorded game seconds",
+      "source_time_start": 12.383333979174495,
+      "source_time_end": 15.316667465493083,
+      "full_decode": "PASS",
+      "encoded": {
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "92"
+          }
+        ],
+        "duration_seconds": "3.066667"
+      }
+    },
+    {
+      "video": "Previews/CentralDirt/Cleanup/08_08_default_brush_ordinary.mp4",
+      "title": "обычная щётка и обычное пятно",
+      "size_bytes": 513534,
+      "sha256": "707667deb03caee7c77f56f8d00d589b36b76b731971136ed3f21ee3371ce242",
+      "source_id": "source_06",
+      "genuine_source_frames": 23,
+      "source_duration": 2.9333334863185883,
+      "clock_basis": "recorded game seconds",
+      "source_time_start": 47.55000247992575,
+      "source_time_end": 50.48333596624434,
+      "full_decode": "PASS",
+      "encoded": {
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "92"
+          }
+        ],
+        "duration_seconds": "3.066667"
+      }
+    },
+    {
+      "video": "Previews/CentralDirt/Cleanup/08_08_default_brush_painted_wave.mp4",
+      "title": "обычная щётка и след волны",
+      "size_bytes": 497300,
+      "sha256": "90c294aaa4d62654ade4953e16e9e3614c9e2a4f9818b5fb111b0a97a9eb1da1",
+      "source_id": "source_06",
+      "genuine_source_frames": 22,
+      "source_duration": 2.8000001460313797,
+      "clock_basis": "recorded game seconds",
+      "source_time_start": 50.61666930653155,
+      "source_time_end": 53.41666945256293,
+      "full_decode": "PASS",
+      "encoded": {
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "89"
+          }
+        ],
+        "duration_seconds": "2.966667"
+      }
+    },
+    {
+      "video": "Previews/CentralDirt/Cleanup/08_08_cleanup_completion.mp4",
+      "title": "автоматический переход в передышку",
+      "size_bytes": 686014,
+      "sha256": "0bd14beec3530bb33a880a6a0aa5790d5707143f3f8308e8d092311d508bd65c",
+      "source_id": "source_06",
+      "genuine_source_frames": 26,
+      "source_duration": 3.333333507180214,
+      "clock_basis": "recorded game seconds",
+      "source_time_start": 61.73333655297756,
+      "source_time_end": 65.06667006015778,
+      "full_decode": "PASS",
+      "encoded": {
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "104"
+          }
+        ],
+        "duration_seconds": "3.466667"
+      }
+    },
+    {
+      "video": "Previews/09_safe_player_spawn.mp4",
+      "title": "зазор над языком и сохранённый резерв",
+      "size_bytes": 359740,
+      "sha256": "e1444967f24e5face016232a3f5e20e33dfc2a595f8d3615b4b794bc7ec5a685",
+      "source_id": "source_07",
+      "genuine_source_frames": 30,
+      "source_duration": 2.416666792705655,
+      "clock_basis": "recorded game seconds",
+      "source_time_start": 0.06666667014360428,
+      "source_time_end": 2.4833334628492594,
+      "full_decode": "PASS",
+      "encoded": {
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "77"
+          }
+        ],
+        "duration_seconds": "2.566667"
+      }
+    },
+    {
+      "video": "Previews/Feedback6_10/Feedback6_10_10_delivery_procedural_vortex.mp4",
+      "title": "реальные броски и процедурная воронка",
+      "size_bytes": 1176446,
+      "sha256": "c7ebbe28ac03ebf9ac0bac71b693ca08de01b244f9488aa5ef540af70eb6f693",
+      "source_id": "source_02",
+      "genuine_source_frames": 84,
+      "source_duration": 6.916667027398944,
+      "clock_basis": "recorded game seconds",
+      "source_time_start": 1.0666667222976685,
+      "source_time_end": 7.983333749696612,
+      "full_decode": "PASS",
+      "encoded": {
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "212"
+          }
+        ],
+        "duration_seconds": "7.066016"
+      }
+    },
+    {
+      "video": "Previews/11_perk_team_wait.mp4",
+      "title": "выбор → ожидание 1/2 → продолжение",
+      "size_bytes": 347817,
+      "sha256": "fc452e6c96594d137f47eebdd58f5d2f86b8009f8d5dbd5d6d7f0e52401e973f",
+      "source_id": "source_08",
+      "genuine_source_frames": 46,
+      "source_duration": 5.921999999904074,
+      "clock_basis": "recorded wall seconds",
+      "source_time_start": 0.01600000006146729,
+      "source_time_end": 5.937999999965541,
+      "full_decode": "PASS",
+      "encoded": {
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "183"
+          }
+        ],
+        "duration_seconds": "6.100000"
+      }
+    },
+    {
+      "video": "Previews/Kamikaze/Kamikaze_mage_native_cast_and_sequential_pops.mp4",
+      "title": "каст колдуна и последовательные детонации",
+      "size_bytes": 6038544,
+      "sha256": "4ff9131a1f7384bdd228c276152f4d719af0d82712405eb4132031665f114f71",
+      "source_id": "source_09",
+      "genuine_source_frames": 144,
+      "source_duration": 19.600001022219658,
+      "clock_basis": "recorded game seconds",
+      "source_time_start": 12.100000631064177,
+      "source_time_end": 31.700001653283834,
+      "full_decode": "PASS",
+      "encoded": {
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "nb_frames": "593"
+          }
+        ],
+        "duration_seconds": "19.766667"
+      },
+      "diagnostic_scope_correction": "Отдельный диагностический fixture: editor-only helper создал дополнительного Mage при живом Tank; в сцене два босса. Видео показывает настоящий каст SummonCreeps, преследование и последовательные детонации. Штатный переход Tank → Mage после смерти Tank этим видео НЕ показан и НЕ проверен."
+    }
+  ]
+}

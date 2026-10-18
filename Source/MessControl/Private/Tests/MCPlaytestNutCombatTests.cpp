@@ -167,8 +167,9 @@ bool FMCPlaytestNutCommitmentTest::RunTest(const FString&)
     T.Hero->Status->Settings.ContactSeconds=4;
     T.Step(1.5f); // Beyond the skilled bot's 1.2-second ordinary task commitment.
     if(!TestTrue(TEXT("The bot acquired the boss through an ordinary decision"),T.Bot->GetTaskTarget()==Boss)) return false;
-    TestTrue(TEXT("A blocked flank still permits real shield-front weapon hits"),T.Hero->ConfirmedHitCount>0);
+    TestTrue(TEXT("Ordinary contact registers real hits against shield durability"),T.Hero->ConfirmedHitCount>0);
     const float BossHealth=Boss->Health;
+    const float BossShield=Boss->ShieldHealth;
     T.Hero->Status->Damage(T.Hero->Status->State.MaxHealth*.25f);
     const float WorkerHealth=T.Hero->Status->State.Health;
     // Exercise the next decision with attack released, as during an approach or
@@ -178,7 +179,8 @@ bool FMCPlaytestNutCommitmentTest::RunTest(const FString&)
     TestTrue(TEXT("The active encounter retains a valid boss after task commitment expires"),T.Bot->GetTaskTarget()==Boss);
     TestEqual(TEXT("Combat keeps its ordinary weapon selected"),T.Hero->Inventory->Selected,EMCToolSlot::Pickaxe);
     T.Step(.9f);
-    TestTrue(TEXT("Retained combat produces another actual tool contact"),Boss->Health<BossHealth);
+    TestTrue(TEXT("Retained combat produces another actual shield contact"),Boss->ShieldHealth<BossShield);
+    TestEqual(TEXT("The bot cannot bypass an intact shield to damage HP"),Boss->Health,BossHealth);
     TestEqual(TEXT("Retaining combat does not silently heal the worker"),T.Hero->Status->State.Health,WorkerHealth);
     T.Hero->Status->Damage(T.Hero->Status->State.MaxHealth*.5f);
     T.Step(.3f);

@@ -89,6 +89,13 @@ private:
     void BuildLiquid();
     void UpdateLiquid(float Dt);
     void UploadWipe();
+    // The paint mesh is clipped to upward tissue triangles. Its gameplay mask
+    // must have the same support, including tiles crossing a tongue edge.
+    bool EnsurePaintSupport();
+    TArray<uint8> PaintSupportMask;
+    TWeakObjectPtr<class UStaticMesh> PaintSupportSource;
+    FTransform PaintSupportTileTransform=FTransform::Identity,PaintSupportTongueTransform=FTransform::Identity;
+    int32 PaintSupportVertexCount=0,PaintSupportIndexCount=0;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> LiquidMID;
     UPROPERTY() TObjectPtr<class UTexture2D> WipeTexture;
     UPROPERTY(Replicated) FVector2D BrushUV=FVector2D(.5,.5);
@@ -111,6 +118,8 @@ private:
     FTransform PaintGeometryTransform=FTransform::Identity,PaintTongueTransform=FTransform::Identity;
     float Finish=0,TextureElapsed=0,GeometryElapsed=0,BrushClock=0;
     bool bWipeDirty=true;
+    mutable bool bRemainingLiquidDirty=true;
+    mutable float CachedRemainingLiquid=0;
     bool bPaintDepositPending=false;
     UPROPERTY(Replicated) TObjectPtr<class AMCTongue> Tongue;
     UPROPERTY(Replicated) FVector TongueAnchor=FVector::ZeroVector;
