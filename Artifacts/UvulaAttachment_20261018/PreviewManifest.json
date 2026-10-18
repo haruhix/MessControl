@@ -1,0 +1,106 @@
+{
+  "source_status": "passed",
+  "source_passed": true,
+  "source_report_sha256": "3b12f260d7502a6e4fb564b5f21d8c5a1ea0ab550ff158678ff19c20fe79916a",
+  "source_checks": {
+    "normal_first_perk_resolved": true,
+    "one_visible_new_uvula_and_no_visible_old_mesh": true,
+    "raised_upper_attachment": true,
+    "actual_watergun_tickle": true,
+    "fixed_upper_anchor_during_motion": true,
+    "authored_mouth_root_and_morph_unchanged": true,
+    "genuine_owned_pie_window_frames": true
+  },
+  "scope": "Uvula-only owned solo PIE: upper attachment, idle, real watergun, recovery.\n\nNormal first perk is resolved, then only the unrelated day scheduler is paused.\nNo food fixtures, throws, bosses, waves, phase writes, geometry edits or direct\ntickle call. The review camera supplies the existing ServerCommitSprayView input\nRPC; actual held LMB, shot collision and native uvula response remain in control.\nOutput Saved/UvulaLocation_20261018/Preview. No package saves/build/network.\nCancel: builtins.mc_uvula_attachment_solo.finish('Stopped by operator').\n",
+  "fixture_tuning": {},
+  "limitations": [
+    "Only the active SM_InteractiveUvula, its upper attachment, visible reaction and recovery are tested.",
+    "The native day scheduler is paused after normal first-perk selection and restored during teardown.",
+    "Observer location and one review camera are disclosed PIE fixtures; no gameplay phase, health, uvula transform or morph is assigned.",
+    "The existing ServerCommitSprayView RPC supplies review-camera aim; real held primary input drives native shots/collision/tickle.",
+    "Capture uses the synchronous exact owned PIE SWindow helper with timestamps and SHA256; rendered attachment quality awaits root visual review.",
+    "No food fixture, throws, bosses, waves, package save, build, network clients or performance claims."
+  ],
+  "clock_basis": "recorded game seconds",
+  "visual_review": "Accepted: root reviewed actual source frame 00020 and final MP4 decoded at 1.8s. Independent review accepted native idle, watergun and recovery with one visible new uvula attached to the palate. Close-up does not show the complete intake hole; editor/PIE transform checks separately preserve its placement.",
+  "presentation": "30fps repetition of genuine source PNGs; no generated motion. Existing encoder adds a final 1/12s hold and may quantize output timing.",
+  "schema_version": 1,
+  "created_utc": "2026-10-18T10:41:58.249359+00:00",
+  "portable_video": "UvulaAttachment.mp4",
+  "sha256": "cd7c92bbdb55b42c8474ff738c65866a6bb9bb07fa7ed8d32d7bba2e7d92c2d0",
+  "size_bytes": 395948,
+  "original_video_bytes_preserved": true,
+  "reencoded_for_bundle": false,
+  "raw_evidence_included": false,
+  "local_raw_evidence": {
+    "portable": false,
+    "included_in_bundle": false,
+    "original_report_path": "E:/DEVGAME/MessControl/Saved/UvulaLocation_20261018/Preview/Runs/20261018T103158Z_dcd09028/Report.json",
+    "original_export_manifest_path": "E:/DEVGAME/MessControl/Saved/UvulaLocation_20261018/Previews/Uvula_ExportManifest.json",
+    "original_export_manifest_sha256": "756391cb0d54f969500ed8b9e56faf94d31ff1eae79ebea5400db2c08b376314"
+  },
+  "asset_change_receipt": "Changes.json",
+  "asset_change_receipt_sha256": "12745678d7f98c6ef7b04d1752abbdf163675cf452c270184c2f4e4988e855f1",
+  "behaviour_scope": "One visible active SM_InteractiveUvula, copied from SM_MiniTong; only authored rest translation lifted 500cm. Throat root, AuthoredMouth, hole and fixed morph are preserved.",
+  "genuine_source_frames": 55,
+  "source_duration": 5.400000281631947,
+  "source_time_start": 0.5666666962206364,
+  "source_time_end": 5.966666977852583,
+  "full_decode": "PASS",
+  "encoded": {
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1280,
+        "height": 720,
+        "nb_frames": "167"
+      }
+    ],
+    "duration_seconds": "5.566667"
+  },
+  "upper_attachment": {
+    "anchor_cm": [
+      2622.668773281605,
+      -72.91194555280875,
+      1457.734533009927
+    ],
+    "tip_cm": [
+      2624.014711495298,
+      -72.91194555280903,
+      742.7281810744074
+    ],
+    "bounds_center_cm": [
+      2623.3418264323923,
+      -72.91194555280889,
+      1100.2313572003727
+    ],
+    "bounds_extent_cm": [
+      85.86066434610454,
+      123.48857259319483,
+      357.6635345073008
+    ],
+    "expected_anchor_z_cm": 1458.0,
+    "expected_center_z_cm": 1100.0,
+    "height_tolerance_cm": 90.0,
+    "native_pivot_local_cm": [
+      0.0,
+      0.0,
+      386.0284423828125
+    ]
+  },
+  "motion_evidence": {
+    "maximum_anchor_drift_cm": 5.086215585428499e-13,
+    "maximum_tip_displacement_cm": 184.53183682061876,
+    "tickle_before": -100.0,
+    "tickle_after": 3.4500001799315214
+  },
+  "scheduler_tick_restored": true,
+  "uvula_component_census": [
+    {
+      "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCThroat_0.Uvula",
+      "mesh": "SM_InteractiveUvula",
+      "visible": true,
+      "hidden_in_game": false
+    }
+  ]
+}

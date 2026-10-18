@@ -1,0 +1,45 @@
+{
+  "revision": "restore_authored_uvula_height_v1",
+  "active_mesh": "/Game/Gameplay/Arena/ManualIntake/SM_InteractiveUvula.SM_InteractiveUvula",
+  "source_mesh": "/Game/FromBlender10/SM_MiniTong",
+  "world_lift_cm": 500.0,
+  "before_rest": "<Struct 'Transform' (0x0000019592E92420) {rotation: {x: -0.000000, y: -0.000000, z: -0.707107, w: 0.707107}, translation: {x: 155.519040, y: -29.214602, z: 500.140662}, scale3d: {x: 0.514240, y: 0.419810, z: 0.564700}}>",
+  "after_rest": "<Struct 'Transform' (0x00000195D18E3780) {rotation: {x: -0.000000, y: -0.000000, z: -0.707107, w: 0.707107}, translation: {x: 155.519040, y: -29.214602, z: 805.018717}, scale3d: {x: 0.514240, y: 0.419810, z: 0.564700}}>",
+  "neutral_world_before_cm": [
+    2622.6687732816044,
+    -72.9119455528089,
+    600.2306671142574
+  ],
+  "neutral_world_after_cm": [
+    2622.6687732816044,
+    -72.9119455528089,
+    1100.2306671142574
+  ],
+  "actor_before": "<Struct 'Transform' (0x00000195D18E3810) {rotation: {x: 0.000000, y: 0.000000, z: 0.000000, w: 1.000000}, translation: {x: 2367.617554, y: -25.000000, z: -220.000000}, scale3d: {x: 1.640000, y: 1.640000, z: 1.640000}}>",
+  "mouth_before": "<Struct 'Transform' (0x00000195D18E38A0) {rotation: {x: 0.000000, y: 0.000000, z: -0.707107, w: 0.707107}, translation: {x: 2668.162361, y: -111.075574, z: 728.997486}, scale3d: {x: 1.640000, y: 1.640000, z: 1.640000}}>",
+  "expansion_before": 0.75,
+  "original_mesh_package_sha256": {
+    "Content\\Gameplay\\Arena\\ManualIntake\\SM_InteractiveUvula.uasset": "3cc9a36e80337541b9a4742746ce3ebbea192d646173b1820a259e90dde9e716",
+    "Content\\FromBlender10\\SM_MiniTong.uasset": "1a37ae3c9788155fe7884b43bea457c196460f3ff9f17c9a9ac202f2466f4fc2",
+    "Content\\FromBlender4\\SK_Exit.uasset": "d429f0c33ac71371d426d875aae50697f4ed722f056ac5ac936f65da387c22ee"
+  },
+  "map_before_sha256": "6922c67427152df29f55bc0e28f363bf1628deb8379ce44bf3994ddc6e2e1c76",
+  "status": "passed",
+  "map_after_sha256": "b5c78f5de530747f82d47006ac32f15b47c7460d3bd44d84a459ae5e4bd04681",
+  "actual_top_world_cm": [
+    2622.6687732816044,
+    -72.91194555280875,
+    1457.734533009927
+  ],
+  "upper_attachment_error_cm": 0.0,
+  "throat_root_preserved": true,
+  "mouth_transform_mesh_and_expansion_preserved": true,
+  "original_mesh_packages_preserved": true,
+  "dirty_after": [],
+  "local_source_receipt": {
+    "path": "E:/DEVGAME/MessControl/Saved/UvulaLocation_20261018/HeightApplied.json",
+    "sha256": "f3a96d4ea306949380f77dea9f68aaac6483221ea1d2d4d5cc108f39f06f0b8a",
+    "included_as_original_bytes": false,
+    "note": "Compact receipt copy; local backup path omitted. No raw captures included."
+  }
+}
