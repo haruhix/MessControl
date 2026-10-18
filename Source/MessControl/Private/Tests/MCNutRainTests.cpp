@@ -229,6 +229,19 @@ bool FMCNutDirectedEncounter::RunTest(const FString&)
         const bool Boundary=T.Event->PlannedPatternIndices[I]!=T.Event->PlannedPatternIndices[I-1];
         TestTrue(TEXT("Every drop follows its half-second interval or the single group gap"),FMath::IsNearlyEqual(Gap,Boundary?.9f:.5f,.001f));
     }
+    const TArray<FVector> OpeningLandings=T.Event->PlannedLandings;
+    const int32 PatternNutsBefore=T.Event->Nuts.Num();
+    for(int32 Index=0;Index<OpeningLandings.Num();++Index) {
+        if(!TestTrue(TEXT("Indexed wizard rain visits every opening zone"),
+            T.Event->SpawnSpellNut(FVector::ZeroVector,12345+Index,Index))) return false;
+        TestTrue(TEXT("Wizard rain preserves the opening footprint even with earlier spell drops reserved"),
+            FVector::Dist2D(T.Event->PlannedLandings.Last(),OpeningLandings[Index])<.01f);
+    }
+    TestFalse(TEXT("The complete opening pattern cannot produce an extra indexed drop"),
+        T.Event->SpawnSpellNut(FVector::ZeroVector,12345,OpeningLandings.Num()));
+    // Release this coverage fixture before the independent free-placement check.
+    for(int32 Index=PatternNutsBefore;Index<T.Event->Nuts.Num();++Index)
+        if(IsValid(T.Event->Nuts[Index])) T.Event->Nuts[Index]->Dispose();
     const int32 SpellBefore=T.Event->NutsSpawned;
     TestTrue(TEXT("Wizard rain targeting outside the playable interest area falls back to a real reachable nut"),
         T.Event->SpawnSpellNut(FVector(100000,100000,0),12345));
@@ -288,7 +301,8 @@ bool FMCNutDirectedEncounter::RunTest(const FString&)
     TestTrue(TEXT("Wizard can be fought after the split"),Boss->CanReceiveToolHit());
     TestEqual(TEXT("The wizard has no knight shield"),Boss->ShieldHealth,0.f);
     TestFalse(TEXT("A living wizard still blocks event completion"),T.Event->IsComplete());
-    Boss->ReceiveToolDamage(100000,nullptr);T.Step(.1f);
+    Boss->ReceiveToolDamage(100000,nullptr);
+    T.Step(Boss->BossSettings.DeathSeconds+.1f);
     TestTrue(TEXT("Defeating the wizard unlocks the encounter without a leftover summon gate"),T.Event->IsComplete());
     TestTrue(TEXT("Remaining summons are removed when both bosses are defeated"),!IsValid(SpareCreep) || SpareCreep->IsActorBeingDestroyed());
     T.Event->Stop();

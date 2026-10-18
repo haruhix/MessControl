@@ -32,8 +32,9 @@ public:
     void Stop();
     void TrackEncounterActor(AActor* Actor);
     void RegisterEncounterEnemy(AMCNutEnemy* Enemy);
-    /** Wizard rain uses the same real food, warning and cleanup ownership as the opening storm. */
-    bool SpawnSpellNut(FVector Candidate,int32 Seed);
+    /** Wizard rain uses the same real food, warning and cleanup ownership as the opening storm.
+     * An indexed drop replays the opening A/B zones; unindexed callers retain free placement. */
+    bool SpawnSpellNut(FVector Candidate,int32 Seed,int32 PatternIndex=INDEX_NONE);
     /** Available whole ground nuts only. The caller disposes one after its summon was successfully created. */
     void GetAvailableRainNuts(TArray<AMCFoodActor*>& Out) const;
     UPROPERTY(Replicated, BlueprintReadOnly) EMCNutRainStage Stage=EMCNutRainStage::Idle;
@@ -64,7 +65,7 @@ public:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly) TArray<FVector> LaunchLocations;
 private:
     void Enter(EMCNutRainStage Next);
-    bool SpawnNut(TOptional<FVector> Candidate=TOptional<FVector>());
+    bool SpawnNut(TOptional<FVector> Candidate=TOptional<FVector>(),TOptional<FVector2D> PatternZone=TOptional<FVector2D>());
     void AwakenLastNuts();
     void BeginSeries();
     void UpdatePatternProgress();

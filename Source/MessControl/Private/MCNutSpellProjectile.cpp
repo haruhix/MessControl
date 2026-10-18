@@ -158,9 +158,13 @@ void AMCNutSpellProjectile::ResolveImpact(const FHitResult& Hit)
     }
     if(auto* Hero=Cast<AMCToothCharacter>(Hit.GetActor());Hero && Hero->Status && Hero->Status->IsAlive()) {
         const FVector Direction=(Flight.Target-Flight.Start).GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector);
-        if(Hero->Status->Damage(Damage,Direction,SourceActor)) {
+        // This spell removes a fixed share of health at contact, independently
+        // of max health and ordinary incoming-damage perk multipliers.
+        const float ImpactDamage=Hero->Status->State.Health*.8f;
+        if(Hero->Status->Damage(ImpactDamage,Direction,SourceActor,EMCRogueDamageKind::Ordinary,false)) {
             ++DamageApplications;
-            if(Hero->ToothPhysics) Hero->ToothPhysics->ApplyHit(Direction*180+FVector(0,0,65),Hit.ImpactPoint);
+            const FVector Away=Direction.GetSafeNormal2D(SMALL_NUMBER,FVector::ForwardVector);
+            if(Hero->ToothPhysics) Hero->ToothPhysics->ApplyHit(Away*820+FVector(0,0,260),Hit.ImpactPoint);
         }
     }
     // A real hit on the walkable tongue burns a normal, treatable pain ulcer.
