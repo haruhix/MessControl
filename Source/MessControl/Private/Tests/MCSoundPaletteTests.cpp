@@ -1,7 +1,12 @@
 #if WITH_DEV_AUTOMATION_TESTS
 #include "MCDataAssets.h"
+#include "Engine/Engine.h"
+#include "Engine/World.h"
 #include "Misc/AutomationTest.h"
+#include "Misc/ScopeExit.h"
 #include "Sound/SoundWave.h"
+#include "UObject/UObjectGlobals.h"
+#include "UObject/UObjectHash.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSoundPaletteRoutingTest, "MessControl.Audio.PaletteRouting",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
@@ -61,6 +66,52 @@ bool FMCSoundPaletteRoutingTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Next resolution observes a designer replacement without a cached selection"),
         Palette->ResolveEvent(TEXT("Brush"))->Sounds[0] == KnifeSound);
 
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSoundPalettePlaybackGCTest, "MessControl.Audio.PalettePlaybackGCSafety",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+
+bool FMCSoundPalettePlaybackGCTest::RunTest(const FString& Parameters)
+{
+    if (!TestNotNull(TEXT("Engine for the fixture world"), GEngine)) return false;
+    UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+    if (!TestNotNull(TEXT("Fixture world"), World)) return false;
+    GEngine->CreateNewWorldContext(EWorldType::Game).SetCurrentWorld(World);
+    World->bAllowAudioPlayback = false;
+
+    auto* Palette = NewObject<UMCSoundPalette>();
+    Palette->AddToRoot();
+    ON_SCOPE_EXIT
+    {
+        Palette->RemoveFromRoot();
+        GEngine->DestroyWorldContext(World);
+        World->DestroyWorld(false);
+    };
+
+    // The palette is the only GC owner of the authored sound. No saved bank is touched.
+    TWeakObjectPtr<USoundWave> AuthoredSound = NewObject<USoundWave>();
+    Palette->Events.FindOrAdd(TEXT("Hit")).Sounds.Add(AuthoredSound.Get());
+    for (int32 Cycle = 0; Cycle < 2; ++Cycle)
+    {
+        for (int32 Playback = 0; Playback < 3; ++Playback)
+            TestTrue(TEXT("Configured playback stays handled when world audio is disabled"),
+                Palette->PlayWithParameters(World, TEXT("KnifeHit"), FVector::ZeroVector, .7f, .3f));
+
+        TArray<UObject*> RuntimeChildren;
+        GetObjectsWithOuter(Palette, RuntimeChildren);
+        TestTrue(TEXT("Playback leaves the data asset free of runtime UObject children"), RuntimeChildren.IsEmpty());
+
+        CollectGarbage(RF_NoFlags, true);
+        TestTrue(TEXT("Authored sound remains alive through the palette after GC"), AuthoredSound.IsValid());
+        FName ResolvedEvent;
+        const auto* Entry = Palette->ResolveEvent(TEXT("KnifeHit"), &ResolvedEvent);
+        TestEqual(TEXT("Authored routing survives GC"), ResolvedEvent, FName(TEXT("Hit")));
+        TestTrue(TEXT("The authored sound pool survives GC unchanged"),
+            Entry && Entry->Sounds.Num() == 1 && Entry->Sounds[0].Get() == AuthoredSound.Get());
+    }
+
+    // Editor GC cannot certify the startup disregard-for-GC assumptions of a packaged game.
     return true;
 }
 #endif

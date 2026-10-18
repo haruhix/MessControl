@@ -1,10 +1,12 @@
 #include "MCDataAssets.h"
+#include "AudioDevice.h"
 #include "AudioParameter.h"
-#include "Components/AudioComponent.h"
+#include "Audio/ActorSoundParameterInterface.h"
+#include "Components/ActorComponent.h"
+#include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
 #include "HAL/IConsoleManager.h"
-#include "Kismet/GameplayStatics.h"
 
 namespace
 {
@@ -52,7 +54,8 @@ bool UMCSoundPalette::PlayWithParameters(UObject* WorldContext, FName Event, FVe
     FName ResolvedEvent;
     const FMCSoundVariation* Entry = ResolveEvent(Event, &ResolvedEvent);
     if (!Entry) return false;
-    if (!WorldContext || !WorldContext->GetWorld() || WorldContext->GetWorld()->GetNetMode() == NM_DedicatedServer) return true;
+    UWorld* World = WorldContext ? WorldContext->GetWorld() : nullptr;
+    if (!World || World->GetNetMode() == NM_DedicatedServer) return true;
 
     TArray<USoundBase*, TInlineAllocator<8>> ValidSounds;
     for (const auto& Candidate : Entry->Sounds) if (IsValid(Candidate.Get())) ValidSounds.Add(Candidate.Get());
@@ -61,15 +64,24 @@ bool UMCSoundPalette::PlayWithParameters(UObject* WorldContext, FName Event, FVe
     const float Pitch = FMath::FRandRange(Entry->PitchMin, FMath::Max(Entry->PitchMin, Entry->PitchMax));
     const float NormalizedIntensity = FMath::Clamp(Intensity, 0.f, 1.f);
     const float NormalizedSpeed = FMath::Clamp(Speed, 0.f, 1.f);
-    if (!InitialParameters) InitialParameters = NewObject<UInitialActiveSoundParams>(const_cast<UMCSoundPalette*>(this));
-    InitialParameters->Reset(2);
-    InitialParameters->AudioParams.Emplace(FName(TEXT("Intensity")), NormalizedIntensity);
-    InitialParameters->AudioParams.Emplace(FName(TEXT("Speed")), NormalizedSpeed);
-    // UE copies the initial parameters during this call; the shared palette can reuse them for the next actor.
     AActor* SoundOwner = Cast<AActor>(WorldContext);
     if (!SoundOwner) if (const auto* Component = Cast<UActorComponent>(WorldContext)) SoundOwner = Component->GetOwner();
-    UGameplayStatics::PlaySoundAtLocation(WorldContext, Sound, Location, FRotator::ZeroRotator,
-        Entry->Volume, Pitch, 0.f, nullptr, nullptr, SoundOwner, InitialParameters);
+    if (!SoundOwner) SoundOwner = WorldContext->GetTypedOuter<AActor>();
+    if (GEngine && GEngine->UseSound() && World->bAllowAudioPlayback)
+    {
+        if (FAudioDeviceHandle AudioDevice = World->GetAudioDevice())
+        {
+            // Startup-loaded palettes can be disregarded by GC. Keep runtime parameters
+            // owned by the active sound instead of caching a UObject on the data asset.
+            TArray<FAudioParameter> Parameters;
+            Parameters.Reserve(2);
+            Parameters.Emplace(FName(TEXT("Intensity")), NormalizedIntensity);
+            Parameters.Emplace(FName(TEXT("Speed")), NormalizedSpeed);
+            UActorSoundParameterInterface::Fill(SoundOwner, Parameters);
+            AudioDevice->PlaySoundAtLocation(Sound, World, Entry->Volume, Pitch, 0.f,
+                Location, FRotator::ZeroRotator, nullptr, nullptr, MoveTemp(Parameters), SoundOwner);
+        }
+    }
     if (CVarAudioPaletteLog.GetValueOnGameThread() != 0)
         UE_LOG(LogTemp, Display, TEXT("MC_AUDIO_PALETTE event=%s key=%s palette=%s path=%s class=%s volume=%.3f pitch=%.3f intensity=%.3f speed=%.3f"),
             *Event.ToString(), *ResolvedEvent.ToString(), *GetPathName(), *Sound->GetPathName(), *Sound->GetClass()->GetName(),

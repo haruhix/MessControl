@@ -8,7 +8,6 @@ class UPhysicsAsset;
 class UMaterialInterface;
 class UAnimSequence;
 class UStaticMesh;
-class UInitialActiveSoundParams;
 
 // Maps gameplay roles to an artist's skeleton without renaming the source rig.
 UCLASS(BlueprintType)
@@ -115,8 +114,6 @@ public:
     /** Scene music/ambience are independent of one-shot Events. No missing-key fallback. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio|Scenes") TMap<FName,FMCSoundScene> Scenes;
     UFUNCTION(BlueprintPure, Category="Audio|Scenes") bool GetScene(FName Scene, FMCSoundScene& Settings) const;
-private:
-    UPROPERTY(Transient) mutable TObjectPtr<UInitialActiveSoundParams> InitialParameters;
 };
 
 UCLASS(BlueprintType)
