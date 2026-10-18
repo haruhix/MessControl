@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "mode": "solo PIE",
+  "fireballs": [
+    {
+      "health_before": 100.0,
+      "health_after": 20.0,
+      "physical_displacement_cm": 127.6640421283612,
+      "knockback_along_projectile_cm": 114.91138738409869
+    },
+    {
+      "health_before": 37.5,
+      "health_after": 7.5,
+      "physical_displacement_cm": 128.04577124730264,
+      "knockback_along_projectile_cm": 115.47031902674271
+    }
+  ],
+  "rain": {
+    "opening_drops": 18,
+    "spell_drops": 18,
+    "max_landing_xy_error_cm": 0.0
+  },
+  "error": null
+}

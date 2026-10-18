@@ -65,7 +65,8 @@ public:
     void Restore(const FMCToothStatus& Source);
     void ApplyCoffee(float Amount=1.f);
     void Loosen();
-    bool Damage(float Amount,FVector Direction=FVector::ForwardVector,AActor* Source=nullptr,EMCRogueDamageKind Kind=EMCRogueDamageKind::Ordinary);
+    /** Fixed health-fraction attacks may bypass perk scaling while retaining normal hit validation and feedback. */
+    bool Damage(float Amount,FVector Direction=FVector::ForwardVector,AActor* Source=nullptr,EMCRogueDamageKind Kind=EMCRogueDamageKind::Ordinary,bool bScaleWithPerks=true);
     void Heal(float Amount);
     void ClearCoffeeForBooster();
     void SetPerkMaxHealth(float Maximum);

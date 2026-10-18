@@ -1,0 +1,19 @@
+{
+  "before": "(MaxMouthHealth=100.000000,DaysToSurvive=7,MaxPlayers=4,InitialArenaTeeth=8)",
+  "before_asset_sha256": "38e55be16bbb796ab8f81eb23ce63a3d46dc4d3cb4b20331f325dae258baca16",
+  "socket_ids": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "after": "(MaxMouthHealth=100.000000,DaysToSurvive=7,MaxPlayers=4,InitialArenaTeeth=12)"
+}

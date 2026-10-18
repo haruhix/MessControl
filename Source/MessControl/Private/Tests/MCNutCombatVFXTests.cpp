@@ -4,6 +4,7 @@
 #include "MCNutSpellProjectile.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
+#include "MCToothPhysicsComponent.h"
 #include "MCTongue.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
@@ -74,16 +75,19 @@ bool FMCNutCueSafetyTest::RunTest(const FString&)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutFireballSweepTest,"MessControl.CoreLoop.NutVFX.ServerSweepHitsOnceAndCancels",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCNutFireballSweepTest::RunTest(const FString&)
 {
-    MCNutCombatVFXTestsPrivate::FFixture T;auto* Hero=T.Hero();const float Before=Hero->Status->State.Health;
+    MCNutCombatVFXTestsPrivate::FFixture T;auto* Hero=T.Hero();
+    Hero->Status->State.Health=37.5f;
+    const float Before=Hero->Status->State.Health;
     auto* Shot=AMCNutSpellProjectile::Spawn(T.Source,T.Tongue,FVector(-500,0,150),FVector(500,0,150),1000,18,28);
     if(!TestNotNull(TEXT("A finite locked fireball can launch"),Shot)) return false;
     Shot->SetActorTickEnabled(false);T.Step(.9f);Shot->Tick(.9f);
     TestTrue(TEXT("Sweeping accumulated travel catches the real tooth capsule at low update rate"),Shot->Impact.bImpacted);
     TestEqual(TEXT("A fireball applies one bounded server damage contact"),Shot->DamageApplications,1);
-    TestEqual(TEXT("The contact uses the configured damage"),Hero->Status->State.Health,Before-18);
+    TestEqual(TEXT("The contact leaves twenty percent of current health"),Hero->Status->State.Health,Before*.2f,.001f);
+    TestEqual(TEXT("The impact knocks the tooth into physical flight"),Hero->ToothPhysics->GetBodyState(),EMCBodyState::Ragdoll);
     Shot->Tick(.9f);
     TestEqual(TEXT("Repeated terminal updates cannot damage again"),Shot->DamageApplications,1);
-    TestEqual(TEXT("Terminal damage does not repeat"),Hero->Status->State.Health,Before-18);
+    TestEqual(TEXT("Terminal damage does not repeat"),Hero->Status->State.Health,Before*.2f,.001f);
     TestNull(TEXT("NaN launch speed cannot spawn a hazard"),AMCNutSpellProjectile::Spawn(T.Source,T.Tongue,FVector(-500,0,150),FVector(500,0,150),std::numeric_limits<float>::quiet_NaN(),18,28));
     auto* Cancelled=AMCNutSpellProjectile::Spawn(T.Source,T.Tongue,FVector(-500,300,150),FVector(500,300,150),550,18,28);
     if(!TestNotNull(TEXT("Another spell can be owned by the encounter"),Cancelled)) return false;

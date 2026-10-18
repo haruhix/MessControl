@@ -1372,15 +1372,16 @@ void AMCNutBoss::ExecuteAttack(float Dt)
             Recover(1.7f);
         }
     } else if(Attack==EMCNutBossAttack::NutRain) {
-        const double Cadence=BossSettings.RainActiveSeconds/BossSettings.RainDrops;
-        for(int32 Budget=0;RainDropsResolved<BossSettings.RainDrops && Time>=ResolveAt+RainDropsResolved*Cadence && Budget<2;++Budget,++RainDropsResolved) {
+        const int32 DropCount=IsValid(EncounterOwner)
+            ?EncounterOwner->Settings.PatternA.Num()+EncounterOwner->Settings.PatternB.Num():BossSettings.RainDrops;
+        const double Cadence=BossSettings.RainActiveSeconds/FMath::Max(1,DropCount);
+        for(int32 Budget=0;RainDropsResolved<DropCount && Time>=ResolveAt+RainDropsResolved*Cadence && Budget<2;++Budget,++RainDropsResolved) {
             // The warning and contact damage belong to each real falling food.
             // No invisible whole-region damage is added to the same cast.
             if(IsValid(EncounterOwner)) EncounterOwner->SpawnSpellNut(
-                AMCNutCombatEffect::GetNutRainDropPoint(LockedTarget,BossSettings.RainRadius,AttackSeed,RainDropsResolved),
-                int32(uint32(AttackSeed)+uint32(RainDropsResolved)));
+                LockedTarget,int32(uint32(AttackSeed)+uint32(RainDropsResolved)),RainDropsResolved);
         }
-        if(Time>=AttackEndAt && RainDropsResolved>=BossSettings.RainDrops) Recover(1.4f);
+        if(Time>=AttackEndAt && RainDropsResolved>=DropCount) Recover(1.4f);
     } else if(Attack==EMCNutBossAttack::Melee && BossRole==EMCNutBossRole::Tank) {
         const int32 ContactCount=TankMeleeVariant==2?3:1;
         while(MeleeHitsResolved<ContactCount && Time>=ResolveAt+TankMeleeContactOffset(MeleeHitsResolved)) {

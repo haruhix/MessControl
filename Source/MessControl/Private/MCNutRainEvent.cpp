@@ -196,7 +196,7 @@ void AMCNutRainEvent::Enter(EMCNutRainStage Next)
     Stage=Next; StageStartedAt=GetWorld()->GetTimeSeconds(); ForceNetUpdate();
 }
 
-bool AMCNutRainEvent::SpawnNut(TOptional<FVector> Candidate)
+bool AMCNutRainEvent::SpawnNut(TOptional<FVector> Candidate,TOptional<FVector2D> PatternZone)
 {
     const int32 DropIndex=DropsAttempted;
     ++DropsAttempted;
@@ -216,9 +216,10 @@ bool AMCNutRainEvent::SpawnNut(TOptional<FVector> Candidate)
     const float BodyRadius=float(Food->Body->GetScaledBoxExtent().Size2D());
     FHitResult Floor;
     const bool PatternDrop=Settings.bBossEncounter && Stage==EMCNutRainStage::Rainfall && PatternSteps.IsValidIndex(DropIndex);
-    bool FoundFloor=PatternDrop?ResolvePatternLanding(PatternSteps[DropIndex].Zone,Margin,Floor)
+    const bool UsesPattern=PatternDrop || PatternZone.IsSet();
+    bool FoundFloor=UsesPattern?ResolvePatternLanding(PatternZone.IsSet()?PatternZone.GetValue():PatternSteps[DropIndex].Zone,Margin,Floor)
         :Candidate.IsSet() && Tongue->GameplaySpawnFootprint(Candidate.GetValue(),Margin,Floor);
-    if(FoundFloor && Settings.bBossEncounter && !PatternDrop) {
+    if(FoundFloor && Settings.bBossEncounter && !UsesPattern) {
         TArray<FNutLandingReservation> Reserved;
         CollectNutLandingReservations(Nuts,Tongue,Settings.LargeNutHeight,Reserved);
         FoundFloor=IsNutLandingClear(Floor.ImpactPoint,BodyRadius,Settings.LargeNutHeight,Reserved);
@@ -226,7 +227,7 @@ bool AMCNutRainEvent::SpawnNut(TOptional<FVector> Candidate)
     // A wizard can target a player in a delivery strip or at the tongue edge.
     // Preserve the rain spell by moving that individual nut to a reachable
     // gameplay footprint; its real landing warning advertises the new point.
-    if(!FoundFloor && !PatternDrop) FoundFloor=ChooseLanding(Margin,BodyRadius,Floor);
+    if(!FoundFloor && !UsesPattern) FoundFloor=ChooseLanding(Margin,BodyRadius,Floor);
     if(!FoundFloor) {
         Food->Destroy();
         if(PatternDrop) {
@@ -295,13 +296,22 @@ bool AMCNutRainEvent::ResolvePatternLanding(FVector2D Zone,float Margin,FHitResu
     return Tongue->GameplaySpawnFootprint(Candidate,Margin,Floor);
 }
 
-bool AMCNutRainEvent::SpawnSpellNut(FVector Candidate,int32 Seed)
+bool AMCNutRainEvent::SpawnSpellNut(FVector Candidate,int32 Seed,int32 PatternIndex)
 {
     if(!HasAuthority() || Stage!=EMCNutRainStage::Enemies || !Settings.bBossEncounter || Candidate.ContainsNaN()) return false;
+    TOptional<FVector2D> Zone;
+    if(PatternIndex!=INDEX_NONE) {
+        // Replay both complete opening patterns on the same reachable footprint.
+        // Existing debris must not move the spell's zones into a smaller cluster.
+        const auto& First=FirstPattern==0?Settings.PatternA:Settings.PatternB;
+        const auto& Second=FirstPattern==0?Settings.PatternB:Settings.PatternA;
+        if(PatternIndex<0 || PatternIndex>=First.Num()+Second.Num()) return false;
+        Zone=PatternIndex<First.Num()?First[PatternIndex]:Second[PatternIndex-First.Num()];
+    }
     const FRandomStream SavedRandom=Random;
     const int32 SavedAttempts=DropsAttempted;
     Random.Initialize(Seed);
-    const bool Spawned=SpawnNut(Candidate);
+    const bool Spawned=SpawnNut(Candidate,Zone);
     Random=SavedRandom; DropsAttempted=SavedAttempts;
     return Spawned;
 }

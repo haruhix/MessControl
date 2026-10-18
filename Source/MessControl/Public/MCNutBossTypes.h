@@ -161,6 +161,7 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Jump") float JumpFlightSeconds=.8f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Jump") float JumpRadius=460;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Jump", meta=(Units="s")) float JumpCooldown=20;
+    /** Legacy launch setting; player contact now removes exactly 80% of current health. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fireball") float FireballDamage=18;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fireball") float FireballWindup=1.265f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fireball", meta=(Units="s")) float FireballCooldown=8;

@@ -1,0 +1,90 @@
+{
+  "passed": true,
+  "initial_teeth": 12,
+  "teeth": [
+    {
+      "id": 1,
+      "lost": false,
+      "consumed": false,
+      "visible": true,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_01.SM_Teeth_L_01"
+    },
+    {
+      "id": 2,
+      "lost": false,
+      "consumed": false,
+      "visible": true,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01.SM_Teeth_R_01"
+    },
+    {
+      "id": 3,
+      "lost": false,
+      "consumed": false,
+      "visible": true,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_02.SM_Teeth_L_02"
+    },
+    {
+      "id": 4,
+      "lost": false,
+      "consumed": false,
+      "visible": true,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_02.SM_Teeth_R_02"
+    },
+    {
+      "id": 5,
+      "lost": false,
+      "consumed": false,
+      "visible": true,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_03.SM_Teeth_L_03"
+    },
+    {
+      "id": 6,
+      "lost": false,
+      "consumed": false,
+      "visible": true,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_03.SM_Teeth_R_03"
+    },
+    {
+      "id": 7,
+      "lost": false,
+      "consumed": false,
+      "visible": true,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_04.SM_Teeth_L_04"
+    },
+    {
+      "id": 8,
+      "lost": false,
+      "consumed": false,
+      "visible": true,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_04.SM_Teeth_R_04"
+    },
+    {
+      "id": 9,
+      "lost": false,
+      "consumed": false,
+      "visible": true,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_05.SM_Teeth_L_05"
+    },
+    {
+      "id": 10,
+      "lost": false,
+      "consumed": false,
+      "visible": true,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_05.SM_Teeth_R_05"
+    },
+    {
+      "id": 11,
+      "lost": false,
+      "consumed": false,
+      "visible": true,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_07.SM_Teeth_L_07"
+    },
+    {
+      "id": 12,
+      "lost": false,
+      "consumed": false,
+      "visible": true,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_06.SM_Teeth_R_06"
+    }
+  ]
+}
