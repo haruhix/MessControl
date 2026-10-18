@@ -1,0 +1,20 @@
+{
+  "dirty_content": [
+    "/Game/Gameplay/Arena/V10/Edges/SM_Wall_L",
+    "/Game/Gameplay/Arena/V10/Edges/SM_Wall_R",
+    "/Game/Gameplay/Care/MI_ArenaToothGrime"
+  ],
+  "dirty_maps": [
+    "/Game/Maps/L_Mouth"
+  ],
+  "protected_hashes": {
+    "Content/Maps/L_Mouth.umap": "105972e9560e6e211785c225193303a938e85fb221d4c41b2d0ce0628023808e",
+    "Content/Blueprints/BP_PlayerCharacter.uasset": "505d6202c02d51b7737001942f56e2e43c5a0e28196cd3e33f05310fac52772a",
+    "Content/Gameplay/Care/MI_ArenaToothGrime.uasset": "1a5f65123b85b59037227efb504853b7a4c945ad80a81a2b01564d3ed3a88aa4",
+    "Source/MessControl/Private/MCFoodActor.cpp": "d255ed25d7d315d019d762c62e84a472f8522dbaa7734e0c5c9b4b5dce324492",
+    "Source/MessControl/Private/MCFoodCollectionComponent.cpp": "ea874c02f7687a29dbcfdb5ee147cfd765f4ed0455d2c5fe95027fb386e351d8",
+    "Source/MessControl/Private/MCThroat.cpp": "5fa2ad39bb13e5812a15052d40ac1586dfdeaba0d82b66af0fe66b3adeaa4334",
+    "Source/MessControl/Private/MCToothCharacter.cpp": "0326b5a39a9e0c5f6e5284361d53a1b0842c5214d0d0744d9c4ad375d9edbc33",
+    "Config/DefaultEditor.ini": "0efbbd750eafbe5712cf6519e3784ed6402aa4b025dc0f3b54056015b96b5fb5"
+  }
+}

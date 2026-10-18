@@ -1,0 +1,80 @@
+{
+  "passed": true,
+  "all_teeth_use_saved_instance": true,
+  "live_parameter_change_reaches_runtime_mid": true,
+  "restored_size": 420.0,
+  "teeth": [
+    {
+      "id": 1,
+      "parent": "/Game/Gameplay/Care/MI_ArenaToothGrime.MI_ArenaToothGrime",
+      "size": 420.0,
+      "opacity": 1.0
+    },
+    {
+      "id": 2,
+      "parent": "/Game/Gameplay/Care/MI_ArenaToothGrime.MI_ArenaToothGrime",
+      "size": 420.0,
+      "opacity": 1.0
+    },
+    {
+      "id": 3,
+      "parent": "/Game/Gameplay/Care/MI_ArenaToothGrime.MI_ArenaToothGrime",
+      "size": 420.0,
+      "opacity": 1.0
+    },
+    {
+      "id": 4,
+      "parent": "/Game/Gameplay/Care/MI_ArenaToothGrime.MI_ArenaToothGrime",
+      "size": 420.0,
+      "opacity": 1.0
+    },
+    {
+      "id": 5,
+      "parent": "/Game/Gameplay/Care/MI_ArenaToothGrime.MI_ArenaToothGrime",
+      "size": 420.0,
+      "opacity": 1.0
+    },
+    {
+      "id": 6,
+      "parent": "/Game/Gameplay/Care/MI_ArenaToothGrime.MI_ArenaToothGrime",
+      "size": 420.0,
+      "opacity": 1.0
+    },
+    {
+      "id": 7,
+      "parent": "/Game/Gameplay/Care/MI_ArenaToothGrime.MI_ArenaToothGrime",
+      "size": 420.0,
+      "opacity": 1.0
+    },
+    {
+      "id": 8,
+      "parent": "/Game/Gameplay/Care/MI_ArenaToothGrime.MI_ArenaToothGrime",
+      "size": 420.0,
+      "opacity": 1.0
+    },
+    {
+      "id": 9,
+      "parent": "/Game/Gameplay/Care/MI_ArenaToothGrime.MI_ArenaToothGrime",
+      "size": 420.0,
+      "opacity": 1.0
+    },
+    {
+      "id": 10,
+      "parent": "/Game/Gameplay/Care/MI_ArenaToothGrime.MI_ArenaToothGrime",
+      "size": 420.0,
+      "opacity": 1.0
+    },
+    {
+      "id": 11,
+      "parent": "/Game/Gameplay/Care/MI_ArenaToothGrime.MI_ArenaToothGrime",
+      "size": 420.0,
+      "opacity": 1.0
+    },
+    {
+      "id": 12,
+      "parent": "/Game/Gameplay/Care/MI_ArenaToothGrime.MI_ArenaToothGrime",
+      "size": 420.0,
+      "opacity": 1.0
+    }
+  ]
+}

@@ -46,24 +46,24 @@ bool AMCFoodActor::SpawnFragments(FVector Direction)
     if(!HasAuthority() || bFragment || bBrushTool || FoodData.Kind!=EMCFoodKind::Food) return false;
     FRandomStream Random(HashCombine(GetTypeHash(GetActorLocation()),GetTypeHash(GetWorld()->GetTimeSeconds())));
     int32 Created=0;
-    const FVector Center=GetActorLocation();
+    const FBox ParentBounds=Body->CalcBounds(Body->GetComponentTransform()).GetBox()
+        +Visual->CalcBounds(Visual->GetComponentTransform()).GetBox();
+    const FVector Center=ParentBounds.GetCenter();
     const auto* Perks=UMCPerkComponent::ForActor(LastHandledBy);
     const float ScatterFactor=Perks?Perks->RogueValue(EMCRogueStat::FoodScatter):1.f;
-    const float Scatter=FMath::Clamp(float(Visual->Bounds.SphereRadius)*.3f,25.f,70.f)*ScatterFactor;
     const int32 Count=FoodData.FragmentCount();
     struct FFragment
     {
         AMCFoodActor* Food=nullptr;
         FTransform Pose;
         FVector Extent=FVector::ZeroVector;
+        FVector BoundsOffset=FVector::ZeroVector;
     };
     TArray<FFragment> Pending;
     FVector LargestExtent=FVector::ZeroVector;
-    double LargestRadius=0;
     for(int32 I=0;I<Count;++I) {
-        const float Angle=I*PI*2/Count;
-        const FVector Ray(FMath::Cos(Angle),FMath::Sin(Angle),0);
-        const FTransform Pose(FRotator(0,Random.FRandRange(-180.f,180.f),0),Center+Ray*Scatter+FVector(0,0,20));
+        const FQuat Rotation=GetActorQuat()*FRotator(0,Random.FRandRange(-12.f,12.f),0).Quaternion();
+        const FTransform Pose(Rotation,Center);
         auto* Piece=GetWorld()->SpawnActorDeferred<AMCFoodActor>(StaticClass(),Pose,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         if(!Piece) continue;
         Piece->ConfigureItem(ItemName,FoodData,Random,true);
@@ -76,94 +76,50 @@ bool AMCFoodActor::SpawnFragments(FVector Direction)
         Piece->EntryRecoveryLanding=Center;
         // Configure the actual variant before choosing positions: different
         // imported meshes/scales do not have one universal fragment diameter.
-        const FVector BodyExtent=Piece->Body->CalcBounds(Piece->Body->GetComponentTransform()).BoxExtent;
-        const FVector VisualExtent=Piece->Visual->CalcBounds(Piece->Visual->GetComponentTransform()).BoxExtent;
-        const FVector Extent=BodyExtent.ComponentMax(VisualExtent);
+        const FBox Envelope=Piece->Body->CalcBounds(Piece->Body->GetComponentTransform()).GetBox()
+            +Piece->Visual->CalcBounds(Piece->Visual->GetComponentTransform()).GetBox();
+        const FVector Extent=Envelope.GetExtent();
         LargestExtent=LargestExtent.ComponentMax(Extent);
-        LargestRadius=FMath::Max(LargestRadius,Extent.Size2D());
-        Pending.Add({Piece,Pose,Extent});
+        Pending.Add({Piece,Pose,Extent,Envelope.GetCenter()-Pose.GetLocation()});
     }
-    bool DenseLayout=Count>5;
-    // Preserve the original small burst when it really fits. Even three large
-    // authored fragments can otherwise begin inside one another.
-    for(int32 I=0;!DenseLayout && I<Pending.Num();++I)
-        for(int32 J=0;J<I;++J) {
-            const auto& A=Pending[I];const auto& B=Pending[J];
-            if(FBox(A.Pose.GetLocation()-A.Extent-FVector(3),A.Pose.GetLocation()+A.Extent+FVector(3))
-                .Intersect(FBox(B.Pose.GetLocation()-B.Extent-FVector(3),B.Pose.GetLocation()+B.Extent+FVector(3)))) {
-                DenseLayout=true;break;
-            }
+    if(!Pending.IsEmpty()) {
+        // Fit a compact volume to the parent's proportions. A floor-wide ring
+        // and a supported-spawn search moved remote pieces before physics even
+        // began. All slots are now local to this cut, including airborne cuts.
+        const FVector Pitch=LargestExtent*2+FVector(4);
+        const FVector ParentSize=ParentBounds.GetSize().ComponentMax(LargestExtent*2).ComponentMax(FVector(1));
+        FIntVector Grid(1,1,Pending.Num());
+        double Best=DBL_MAX;
+        for(int32 NX=1;NX<=Pending.Num();++NX) for(int32 NY=1;NY<=Pending.Num();++NY) {
+            const int32 NZ=FMath::DivideAndRoundUp(Pending.Num(),NX*NY);
+            const FVector Size=FVector(NX-1,NY-1,NZ-1)*Pitch+LargestExtent*2;
+            const FVector Ratio=Size/ParentSize;
+            const double Cost=Ratio.GetMax()+Ratio.SizeSquared()*.05+(NX*NY*NZ-Pending.Num())*.002+NZ*.0001;
+            if(Cost<Best) {Best=Cost;Grid=FIntVector(NX,NY,NZ);}
         }
-    if(DenseLayout && !Pending.IsEmpty()) {
-        // A fixed 70 cm ring has a 22 cm neighbour gap with twenty pieces.
-        // Pack disjoint footprints first, rather than ask Chaos to resolve a
-        // deeply overlapping pile with explosive depenetration velocities.
-        const double Pitch=LargestRadius*2+6;
         TArray<FVector> Offsets;
-        for(int32 Q=-6;Q<=6;++Q) for(int32 R=-6;R<=6;++R)
-            if(FMath::Max3(FMath::Abs(Q),FMath::Abs(R),FMath::Abs(Q+R))<=6)
-                Offsets.Add(FVector(Pitch*(Q+R*.5),Pitch*R*FMath::Sqrt(3.)*.5,0));
+        for(int32 Z=0;Z<Grid.Z;++Z) for(int32 Y=0;Y<Grid.Y;++Y) for(int32 X=0;X<Grid.X;++X)
+            Offsets.Add(FVector(X-(Grid.X-1)*.5,Y-(Grid.Y-1)*.5,Z-(Grid.Z-1)*.5)*Pitch);
         Offsets.Sort([](const FVector& A,const FVector& B) {
-            const double DA=A.SizeSquared2D(),DB=B.SizeSquared2D();
+            const double DA=A.SizeSquared(),DB=B.SizeSquared();
             if(!FMath::IsNearlyEqual(DA,DB,.01)) return DA<DB;
+            if(A.Z!=B.Z) return A.Z<B.Z;
             return A.X==B.X?A.Y<B.Y:A.X<B.X;
         });
-        AMCTongue* Tongue=nullptr;
-        for(TActorIterator<AMCTongue> It(GetWorld());It;++It) {Tongue=*It;break;}
-        FCollisionQueryParams Query(SCENE_QUERY_STAT(MCFragmentSpawn),false,this);
-        for(const auto& Entry:Pending) Query.AddIgnoredActor(Entry.Food);
-        FCollisionObjectQueryParams Objects(ECC_WorldStatic);
-        Objects.AddObjectTypesToQuery(ECC_WorldDynamic);
-        Objects.AddObjectTypesToQuery(ECC_PhysicsBody);
-        Objects.AddObjectTypesToQuery(FragmentCollisionChannel);
-        const FCollisionShape Shape=FCollisionShape::MakeBox(LargestExtent+FVector(2));
-        TArray<FVector> Supported,Positions;
-        int32 Attempts=0;
-        for(const FVector& Offset:Offsets) {
-            FVector Position=Center+Offset+FVector(0,0,20);
-            if(Tongue) {
-                FHitResult Floor;
-                if(!Tongue->GameplaySpawnFootprint(Center+Offset,float(LargestRadius+4),Floor)) continue;
-                Position=Floor.ImpactPoint+FVector(0,0,LargestExtent.Z+6);
-            }
-            Supported.Add(Position);
-            ++Attempts;
-            if(!GetWorld()->OverlapAnyTestByObjectType(Position,FQuat::Identity,Objects,Shape,Query))
-                Positions.Add(Position);
-            if(Positions.Num()>=Pending.Num()) break;
+        FVector Mean=FVector::ZeroVector;double Bottom=DBL_MAX;
+        for(int32 I=0;I<Pending.Num();++I) {Mean+=Offsets[I];Bottom=FMath::Min(Bottom,Offsets[I].Z-LargestExtent.Z);}
+        Mean/=Pending.Num();Mean.Z=0;
+        const double Lift=FMath::Max(0.,ParentBounds.Min.Z+3-(Center.Z+Bottom));
+        for(int32 I=0;I<Pending.Num();++I) {
+            auto& Entry=Pending[I];
+            Entry.Pose.SetLocation(Center+Offsets[I]-Mean+FVector(0,0,Lift)-Entry.BoundsOffset);
         }
-        // Tight edges may offer fewer supported columns. Reuse their footprint
-        // at separated heights; never shrink the requested count or the meshes.
-        int32 Layer=1;
-        const double LayerPitch=LargestExtent.Z*2+8;
-        for(;Positions.Num()<Pending.Num() && !Supported.IsEmpty() && Attempts<256;++Layer)
-            for(const FVector& Base:Supported) {
-                if(Positions.Num()>=Pending.Num() || Attempts++>=256) break;
-                const FVector Position=Base+FVector(0,0,LayerPitch*Layer);
-                if(!GetWorld()->OverlapAnyTestByObjectType(Position,FQuat::Identity,Objects,Shape,Query))
-                    Positions.Add(Position);
-            }
-        if(Positions.Num()<Pending.Num()) {
-            // Exceptional cut outside supported tissue or under fully blocked
-            // scenery: retain every item in disjoint air slots and let ordinary
-            // unreachable-food recovery handle it, instead of silently losing
-            // the configured pieces or reinstating overlapping spawn bodies.
-            UE_LOG(LogTemp,Warning,TEXT("MC_FOOD_FRAGMENT_SUPPORT item=%s grounded=%d requested=%d; using separated airborne fallback"),*ItemName.ToString(),Positions.Num(),Pending.Num());
-            const FVector Anchor=Supported.IsEmpty()?Center+FVector(0,0,20):Supported[0];
-            while(Positions.Num()<Pending.Num()) {
-                Positions.Add(Anchor+FVector(0,0,LayerPitch*(Layer+Pending.Num())));
-                ++Layer;
-            }
-        }
-        for(int32 I=0;I<Pending.Num();++I) Pending[I].Pose.SetLocation(Positions[I]);
     }
     for(auto& Entry:Pending) {
         auto* Piece=Entry.Food;
         Piece->FinishSpawning(Entry.Pose);
         const FVector Ray=(Entry.Pose.GetLocation()-Center).GetSafeNormal2D();
-        const FVector Velocity=DenseLayout
-            ?(Ray*22+Direction.GetSafeNormal()*12)*ScatterFactor+FVector(0,0,45)
-            :(Ray*90+Direction.GetSafeNormal()*35)*ScatterFactor+FVector(0,0,110);
+        const FVector Velocity=(Ray*22+Direction.GetSafeNormal()*12)*ScatterFactor+FVector(0,0,45);
         Piece->Body->SetPhysicsLinearVelocity(Velocity);
         Piece->ForceNetUpdate();++Created;
     }
@@ -208,7 +164,19 @@ void AMCFoodActor::RecoverUnreachableFood(float Dt)
     bool Found=false;
     for(const auto& Point:{LastAccessiblePosition,EntryRecoveryLanding})
         if(Point.IsSet() && Tongue->GameplaySpawnFootprint(Point.GetValue(),Margin,Floor)) {Found=true;break;}
-    if(!Found) {
+    if(!Found && bFragment && EntryRecoveryLanding.IsSet()) {
+        // A cut piece may settle over an edge. Recover close to its parent,
+        // never at an unrelated random point elsewhere on the tongue.
+        for(float Radius:{25.f,50.f,100.f,150.f}) {
+            for(int32 I=0;I<8 && !Found;++I) {
+                const float Angle=I*PI*.25f;
+                const FVector Probe=EntryRecoveryLanding.GetValue()+FVector(FMath::Cos(Angle),FMath::Sin(Angle),0)*Radius;
+                Found=Tongue->GameplaySpawnFootprint(Probe,Margin,Floor);
+            }
+            if(Found) break;
+        }
+    }
+    if(!Found && !bFragment) {
         FRandomStream Random(HashCombine(GetTypeHash(GetActorLocation()),GetTypeHash(GetWorld()->GetTimeSeconds())));
         Found=Tongue->RandomGameplaySpawnPoint(Random,Margin,Margin*2,TConstArrayView<FVector>(),Floor);
     }

@@ -62,6 +62,70 @@ Research reviewed on 2026-10-13 for MessControl / UE 5.8.1. Links are learning
 references; their source assets are not copied into the project. New entries
 should record what can be reproduced with our tools, rather than only a reel.
 
+## Reference plaque film — 2026-10-17
+
+The user's supplied cream/ochre/brown spotted wash is imported unchanged as
+`/Game/Gameplay/Care/Textures/T_PlaqueReference`. The arena coating uses a broad,
+irregular envelope above the gum and a 180 cm pigment tile in rest coordinates
+multiplied by the crown's scale. This retains grain density when the tooth is
+resized and keeps the pigment attached during tooth motion. Thin geometry,
+restrained normal slopes and matte roughness replace the dark raised blobs.
+
+| Original source | Adaptation | Status |
+|---|---|---|
+| [Epic: Texturing / WorldAlignedTexture](https://dev.epicgames.com/documentation/en-us/unreal-engine/texturing?application_version=4.27) | Texture density specified in world units independently of object dimensions. Use scaled rest coordinates here so the moving tooth does not swim through a world-anchored texture. | Applied to the arena plaque pigment; original reference image supplied by the user. |
+| [World Aligned Texture & How To Use It, original community tutorial](https://dev.epicgames.com/community/learning/tutorials/34ER/unreal-engine-world-aligned-texture-how-to-use-it) | Separate texture tiling from an object's UV stretch and coverage envelope. | Reviewed for this pass. Existing triplanar projection reused; no extra particle systems. |
+
+The cleaning mask remains local to the brush stroke. Crown-size normalization
+keeps mask texels reachable by the ordinary brush; the visible local pawn must
+present its bristles before erasing dirt. Solo gameplay measurements and motion
+captures are stored in `Artifacts/GrimeReference_20261017`.
+
+The later natural-plaque pass increases the pigment scale from 180 to 420 cm.
+Three randomized texture patches meet through continuous triangular blending;
+each tooth seed changes their offsets, rotations and scales. A restrained rest-space
+warp removes the remaining alignment. Broad, medium and fine erosion soften the
+coverage window; lit translucency blends pale washes into the enamel without a
+temporal stipple border. The geometry, brush contact and cleaning mask remain
+those validated in the earlier pass. New evidence is in `Artifacts/GrimeNatural_20261017`.
+
+Artist settings now live in `/Game/Gameplay/Care/MI_ArenaToothGrime`, with
+`M_ArenaToothRelief` as its parent. Pigment size, pattern seed, warp, opacity,
+edge softness/erosion, pale-wash density, tint and roughness are instance
+parameters. Each tooth's runtime MID inherits the saved instance and continues
+to own its cleaning mask and automatic state. The creation/update script is
+`Tools/Unreal/create_plaque_material_instance.py`; run it after rebuilding the
+parent with earlier material-authoring scripts. Instance-specific overrides
+are preserved on reapplication. Evidence is in `Artifacts/GrimeInstance_20261017`.
+
+The normal/opacity follow-up uses [Epic: Bump Mapping Without Tangent Space](https://dev.epicgames.com/documentation/unreal-engine/bump-mapping-without-tangent-space-in-unreal-engine?lang=en-US)
+for a bounded world-space surface gradient. Reference-pigment luminance supplies
+the main bump, so its size, rotations, blending and per-tooth seed agree with
+the color. The existing normal/height textures provide independently adjustable
+micro detail. Coverage and the cleaning-volume gradient are no longer differentiated
+as height: they must not imprint their interpolation boundaries into lighting.
+`GrimeNormalIntensity=0` completely disables both bump and micro normal.
+
+`02 Opacity Mask` exposes threshold, softness, contrast, inversion and strength,
+alongside overall opacity. By default, the artist mask comes from the reference
+pigment. An optional `GrimeOpacityMask` texture uses the same stochastic projection
+when `GrimeMaskTextureStrength` is raised. This artist mask multiplies the native
+brush wipe; it does not change gameplay progress. [Epic: Depth Material Expressions](https://dev.epicgames.com/documentation/en-us/unreal-engine/depth-material-expressions-in-unreal-engine)
+was also reviewed while diagnosing intersections. Depth fading alone cannot
+correct a mesh spanning enamel creases, so the visual film instead subdivides
+the original enamel triangles and uses their interpolated smooth normals. The
+original projected grid remains the gameplay/contact sampler. Existing arena
+meshes already allow CPU access; their packages need no edits. A 0.55 cm normal
+offset seats the film, with optional bounded instance adjustment. Author with
+`Tools/Unreal/refine_plaque_surface.py` after the earlier instance script; user
+instance values are preserved. Verification is recorded in
+`Artifacts/GrimeSurface_20261017`.
+
+| Original source | Adaptation | Status |
+|---|---|---|
+| [Thomas Deliot and Eric Heitz: Procedural Stochastic Textures by Tiling and Blending](https://eheitzresearch.wordpress.com/738-2/) | Stochastic neighboring patches with continuous blends. This pass uses a simpler triangular blend of the supplied pigment, without histogram precomputation or copying the authors' demo. | Applied to the rest-space pigment lookup with explicit sample gradients. |
+| [tharle VFX: Random Tile Material](https://www.tharlevfx.com/random-tile-material) | Blend separately offset and rotated versions of the same texture to disguise repetition. | Applied per tooth seed and triangular cell, with independent scale variation. |
+
 ## Current visual direction
 
 Keep the walnut and shell recognizable under the actual mouth lighting and

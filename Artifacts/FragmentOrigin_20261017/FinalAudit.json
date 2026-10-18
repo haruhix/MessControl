@@ -1,0 +1,60 @@
+{
+  "passed": true,
+  "checks": {
+    "native_knife_ground_and_air": true,
+    "all_twenty_fragments_each_cut": true,
+    "protected_files_unchanged": true,
+    "previous_throw_fix_only_adds_required_include": true,
+    "unsaved_content_preserved": true,
+    "unsaved_map_preserved": true,
+    "engine_settings_restored": true,
+    "compiler_target_restored": true,
+    "compiler_config_restored": true,
+    "built_source_unchanged": true,
+    "main_module_persistent": true,
+    "editor_target_build_succeeded": true
+  },
+  "protected_differences": [],
+  "cases": [
+    {
+      "case": "ground",
+      "passed": true,
+      "count": 20,
+      "parent_center": [
+        -858.4971561531077,
+        -77.70296769554635,
+        88.5985194305242
+      ],
+      "parent_extent": [
+        6.757738952836348,
+        8.061895335849371,
+        8.682045757888673
+      ],
+      "max_birth_horizontal_cm": 14.029592826817272,
+      "centroid_horizontal_error_cm": 0.5144729784475908,
+      "bottom_clearance_from_parent_min_cm": 2.464107978023165,
+      "allowed_radius_cm": 30.77934353393578,
+      "max_settled_horizontal_cm": 23.287635210048013
+    },
+    {
+      "case": "air",
+      "passed": true,
+      "count": 20,
+      "parent_center": [
+        -842.6309407499093,
+        -79.18356970687933,
+        169.49593005985903
+      ],
+      "parent_extent": [
+        8.024810168668978,
+        5.591575574874881,
+        8.079004976140965
+      ],
+      "max_birth_horizontal_cm": 13.44215205315689,
+      "centroid_horizontal_error_cm": 2.2737367544323206e-13,
+      "bottom_clearance_from_parent_min_cm": 2.9923046548981915,
+      "allowed_radius_cm": 29.671142260185412,
+      "max_settled_horizontal_cm": 41.857565784316876
+    }
+  ]
+}

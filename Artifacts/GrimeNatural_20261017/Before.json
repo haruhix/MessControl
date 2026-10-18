@@ -1,0 +1,225 @@
+{
+  "pie": false,
+  "dirty_content": [],
+  "dirty_maps": [],
+  "customs": [
+    {
+      "name": "MaterialExpressionCustom_4",
+      "description": "MC Care: coatingMask",
+      "code": "float3 uv=saturate((P-Minimum)/max(Size,.01))*15;\nfloat z0=floor(uv.z),z1=min(z0+1,15);\nfloat2 a=(uv.xy+float2(fmod(z0,4),floor(z0/4))*16+.5)/64;\nfloat2 b=(uv.xy+float2(fmod(z1,4),floor(z1/4))*16+.5)/64;\nfloat wipe=lerp(Texture2DSampleLevel(Wipe,WipeSampler,a,0).r,Texture2DSampleLevel(Wipe,WipeSampler,b,0).r,frac(uv.z));\nfloat foam=(1-smoothstep(23,45,length((P-Brush)*Scale)))*(1-smoothstep(.25,1.4,Age));\nreturn float4(V.r*wipe*saturate(Amount*2),foam,V.b,V.g);\n",
+      "inputs": [
+        "P",
+        "V",
+        "Minimum",
+        "Size",
+        "Scale",
+        "Wipe",
+        "Amount",
+        "Age",
+        "Brush"
+      ]
+    },
+    {
+      "name": "MaterialExpressionCustom_5",
+      "description": "MC Care: coatingColor",
+      "code": "\n// The supplied ochre wash and brown specks retain their own size in cm.\nfloat3 color=lerp(Pigment,float3(.79,.48,.14),.10);\nfloat margin=1-smoothstep(.23,.70,F.x);\ncolor=lerp(color,float3(.90,.73,.37),margin*.20);\nreturn lerp(color,float3(.92,.97,.94),F.y*.92);\n",
+      "inputs": [
+        "P",
+        "N",
+        "Tex",
+        "Tint",
+        "F",
+        "D",
+        "Light",
+        "Dark",
+        "Rim",
+        "Pigment"
+      ]
+    },
+    {
+      "name": "MaterialExpressionCustom_6",
+      "description": "MC Care: coatingRoughness",
+      "code": "return lerp(lerp(.64,.78,D.z),.43,F.y);",
+      "inputs": [
+        "F",
+        "D"
+      ]
+    },
+    {
+      "name": "MaterialExpressionCustom_7",
+      "description": "MC Care: coatingClip",
+      "code": "\nfloat edge=max(fwidth(F.x)*1.25,.025);\nreturn smoothstep(.25-edge,.25+edge,F.x);\n",
+      "inputs": [
+        "F"
+      ]
+    },
+    {
+      "name": "MaterialExpressionCustom_8",
+      "description": "MC Care: meniscusNormal",
+      "code": "\nfloat3 n=normalize(N);\nfloat h=saturate(F.x)*(.06+.08*F.z+D.w*max(Strength,0));\nfloat3 dx=ddx(World),dy=ddy(World),rx=cross(dy,n),ry=cross(n,dx);\nfloat det=dot(dx,rx);\nfloat sx=ddx(h)+saturate(F.x)*max(NormalStrength,0)*dot(Slope,ddx(P*Scale));\nfloat sy=ddy(h)+saturate(F.x)*max(NormalStrength,0)*dot(Slope,ddy(P*Scale));\nfloat3 gradient=(sx*rx+sy*ry)*sign(det)/max(abs(det),1e-5);\nreturn normalize(n-clamp(gradient,-.25,.25));\n",
+      "inputs": [
+        "World",
+        "N",
+        "F",
+        "D",
+        "Strength",
+        "Slope",
+        "P",
+        "Scale",
+        "NormalStrength"
+      ]
+    },
+    {
+      "name": "MaterialExpressionCustom_0",
+      "description": "MC Care: anchored plaque detail",
+      "code": "\n[branch] if (Amount<=.0001) return float4(.5,1,.5,0);\n// Coordinates follow the surface, including piano movement and skeletal pose.\nfloat3 q=P*Scale/max(Tile,8.0)+Seed*float3(.37,.19,.73);\nfloat3 w=abs(normalize(N)); w*=w; w*=w; w/=max(dot(w,1),.0001);\nfloat h=Texture2DSample(Height,HeightSampler,q.yz).r*w.x\n       +Texture2DSample(Height,HeightSampler,q.xz).r*w.y\n       +Texture2DSample(Height,HeightSampler,q.xy).r*w.z;\nfloat rough=Texture2DSample(Surface,SurfaceSampler,q.yz).r*w.x\n           +Texture2DSample(Surface,SurfaceSampler,q.xz).r*w.y\n           +Texture2DSample(Surface,SurfaceSampler,q.xy).r*w.z;\n// Height is independent of albedo: pits, granules and built-up plateaus remain\n// visible under moving lights rather than collapsing to one saturated brown.\nfloat plateau=smoothstep(.24,.78,h);\nfloat pit=1-smoothstep(.13,.43,h);\nfloat relief=(h-.5)*.72+plateau*.28-pit*.13;\nreturn float4(h,1-pit*.52,saturate(rough),relief);\n",
+      "inputs": [
+        "P",
+        "N",
+        "Scale",
+        "Tile",
+        "Seed",
+        "Pigment",
+        "Surface",
+        "Amount",
+        "Height"
+      ]
+    },
+    {
+      "name": "MaterialExpressionCustom_1",
+      "description": "MC Care: anchored plaque detail pigment",
+      "code": "\n[branch] if (Amount<=.0001) return float3(.2,.08,.018);\nfloat3 q=P*Scale/max(Tile,8.0)+Seed*float3(.37,.19,.73);\nfloat3 w=abs(normalize(N)); w*=w; w*=w; w/=max(dot(w,1),.0001);\nreturn Texture2DSample(Pigment,PigmentSampler,q.yz).rgb*w.x\n      +Texture2DSample(Pigment,PigmentSampler,q.xz).rgb*w.y\n      +Texture2DSample(Pigment,PigmentSampler,q.xy).rgb*w.z;\n",
+      "inputs": [
+        "P",
+        "N",
+        "Scale",
+        "Tile",
+        "Seed",
+        "Amount",
+        "Pigment"
+      ]
+    },
+    {
+      "name": "MaterialExpressionCustom_2",
+      "description": "MC Care: anchored plaque detail normal slope",
+      "code": "\n[branch] if (Amount<=.0001) return float3(0,0,0);\nfloat3 q=P*Scale/max(Tile,8.0)+Seed*float3(.37,.19,.73);\nfloat3 w=abs(normalize(N)); w*=w; w*=w; w/=max(dot(w,1),.0001);\n// BC5 normal textures store signed tangent X/Y in their two sampled channels.\n// Reconstruct Z, then express the three projection slopes in rest-space cm.\nfloat2 x=Texture2DSample(NormalMap,NormalMapSampler,q.yz).rg*2-1;\nfloat2 y=Texture2DSample(NormalMap,NormalMapSampler,q.xz).rg*2-1;\nfloat2 z=Texture2DSample(NormalMap,NormalMapSampler,q.xy).rg*2-1;\nx/=-max(sqrt(saturate(1-dot(x,x))),.35);\ny/=-max(sqrt(saturate(1-dot(y,y))),.35);\nz/=-max(sqrt(saturate(1-dot(z,z))),.35);\nreturn float3(0,x.x,x.y)*w.x+float3(y.x,0,y.y)*w.y+float3(z.x,z.y,0)*w.z;\n",
+      "inputs": [
+        "P",
+        "N",
+        "Scale",
+        "Tile",
+        "Seed",
+        "Amount",
+        "NormalMap"
+      ]
+    }
+  ],
+  "parameters": [
+    {
+      "name": "GrimeWipe",
+      "kind": "MaterialExpressionTextureObjectParameter",
+      "value": "/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture"
+    },
+    {
+      "name": "GrimePigment",
+      "kind": "MaterialExpressionTextureObjectParameter",
+      "value": "/Game/Gameplay/Care/Textures/T_PlaqueReference.T_PlaqueReference"
+    },
+    {
+      "name": "GrimeAmount",
+      "kind": "MaterialExpressionScalarParameter",
+      "value": "0.0"
+    },
+    {
+      "name": "BrushAge",
+      "kind": "MaterialExpressionScalarParameter",
+      "value": "4.0"
+    },
+    {
+      "name": "GrimeMin",
+      "kind": "MaterialExpressionVectorParameter",
+      "value": "<Struct 'LinearColor' (0x00000158A25D66F8) {r: -50.000000, g: -50.000000, b: -50.000000, a: 0.000000}>"
+    },
+    {
+      "name": "GrimeSize",
+      "kind": "MaterialExpressionVectorParameter",
+      "value": "<Struct 'LinearColor' (0x00000158A25D4478) {r: 100.000000, g: 100.000000, b: 100.000000, a: 0.000000}>"
+    },
+    {
+      "name": "GrimeScale",
+      "kind": "MaterialExpressionVectorParameter",
+      "value": "<Struct 'LinearColor' (0x00000158A25D3878) {r: 1.000000, g: 1.000000, b: 1.000000, a: 0.000000}>"
+    },
+    {
+      "name": "BrushLocal",
+      "kind": "MaterialExpressionVectorParameter",
+      "value": "<Struct 'LinearColor' (0x00000158A25D0278) {r: 0.000000, g: 0.000000, b: 0.000000, a: 0.000000}>"
+    },
+    {
+      "name": "GrimeColor",
+      "kind": "MaterialExpressionVectorParameter",
+      "value": "<Struct 'LinearColor' (0x00000158A25D00F8) {r: 0.160000, g: 0.034000, b: 0.004000, a: 1.000000}>"
+    },
+    {
+      "name": "Specular",
+      "kind": "MaterialExpressionScalarParameter",
+      "value": "0.5199999809265137"
+    },
+    {
+      "name": "GrimeSurface",
+      "kind": "MaterialExpressionTextureObjectParameter",
+      "value": "/Game/Gameplay/Care/Textures/T_GrimeRich_Roughness.T_GrimeRich_Roughness"
+    },
+    {
+      "name": "GrimeDetailSize",
+      "kind": "MaterialExpressionScalarParameter",
+      "value": "180.0"
+    },
+    {
+      "name": "GrimeSeed",
+      "kind": "MaterialExpressionScalarParameter",
+      "value": "1.0"
+    },
+    {
+      "name": "GrimeMicroRelief",
+      "kind": "MaterialExpressionScalarParameter",
+      "value": "0.12999999523162842"
+    },
+    {
+      "name": "GrimeLightColor",
+      "kind": "MaterialExpressionVectorParameter",
+      "value": "<Struct 'LinearColor' (0x00000158A25D96F8) {r: 0.420000, g: 0.210000, b: 0.065000, a: 1.000000}>"
+    },
+    {
+      "name": "GrimeDarkColor",
+      "kind": "MaterialExpressionVectorParameter",
+      "value": "<Struct 'LinearColor' (0x00000158A25D7BF8) {r: 0.105000, g: 0.032000, b: 0.008000, a: 1.000000}>"
+    },
+    {
+      "name": "GrimeRimColor",
+      "kind": "MaterialExpressionVectorParameter",
+      "value": "<Struct 'LinearColor' (0x00000158A25D69F8) {r: 0.530000, g: 0.300000, b: 0.100000, a: 1.000000}>"
+    },
+    {
+      "name": "GrimeNormalStrength",
+      "kind": "MaterialExpressionScalarParameter",
+      "value": "0.11999999731779099"
+    },
+    {
+      "name": "GrimeHeight",
+      "kind": "MaterialExpressionTextureObjectParameter",
+      "value": "/Game/Gameplay/Care/Textures/T_GrimeRich_Height.T_GrimeRich_Height"
+    },
+    {
+      "name": "GrimeNormal",
+      "kind": "MaterialExpressionTextureObjectParameter",
+      "value": "/Game/Gameplay/Care/Textures/T_GrimeRich_Normal.T_GrimeRich_Normal"
+    }
+  ],
+  "protected_hashes": {
+    "Source/MessControl/Private/MCArenaToothGrime.cpp": "53880b8b1beb753c642df333bcd494b0b2e4f815e7d7ab76679a72e9cfd5ca5e",
+    "Source/MessControl/Private/MCBrushContactComponent.cpp": "994c47e85160be534c963989d9d0a490f581309ebe53e9b57c2776e63694af3d",
+    "Content/Art/Materials/M_ArenaTooth.uasset": "5b7e986beac649804e9a7b5f5a8992809544ff9fc990c9f55fc9c4b0ab48cc9a",
+    "Content/Maps/L_Mouth.umap": "85e671c48f39baea71a0ff29828dabd49ff7560b13499d31059a80ee067ee772"
+  }
+}

@@ -120,9 +120,12 @@ public:
     void Dispose();
     void AwardDelivery();
     class AMCPlayerState* GetLastHandledBy() const { return LastHandledBy.Get(); }
-    /** Physical intake accepts an intentional loose throw, never a held/incoming meal. */
+    /** Tracks handling intent; physical throat entry also accepts loose bounced food. */
     bool WasManuallyThrown() const { return bManuallyThrown; }
     void MarkManualThrow(AMCToothCharacter* Hero);
+    /** Shared physical food launch for hand-stack and legacy grip throws. */
+    void LaunchManualThrow(AMCToothCharacter* Hero,FVector Direction,float Speed);
+    FVector IntakeSweepStart() const { return PreviousPhysicsLocation; }
     bool BeginSwallow();
     void CancelSwallow();
     void ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream& Random,bool Fragment=false);
@@ -218,6 +221,9 @@ private:
     TWeakObjectPtr<AMCToothCharacter> CollisionIgnoredCarrier;
     // Sampled in the actor's PrePhysics tick, before contact impulses change velocity.
     FVector PrePhysicsVelocity=FVector::ZeroVector;
+    FVector PreviousPhysicsLocation=FVector::ZeroVector;
+    bool bManualThrowInFlight=false;
+    void EndManualThrowFlight();
     bool bMouthEntry=false;
     bool bEntryImpactManaged=false;
     double EntryImpactSafeUntil=0;

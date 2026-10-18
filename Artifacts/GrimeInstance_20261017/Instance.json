@@ -1,0 +1,20 @@
+{
+  "parent": "/Game/Gameplay/Care/M_ArenaToothRelief",
+  "instance": "/Game/Gameplay/Care/MI_ArenaToothGrime",
+  "compile_errors": [],
+  "created": true,
+  "artist_parameters": {
+    "GrimePigmentSize": 420.0,
+    "GrimePatternSeed": 0.0,
+    "GrimeWarpStrength": 0.10000000149011612,
+    "GrimeOpacity": 1.0,
+    "GrimeEdgeSoftness": 0.26499998569488525,
+    "GrimeEdgeErosion": 1.0,
+    "GrimeWashOpacity": 0.6200000047683716,
+    "GrimeRoughness": 0.7099999785423279,
+    "GrimeMicroRelief": 0.12999999523162842,
+    "GrimeNormalStrength": 0.11999999731779099,
+    "GrimeDetailSize": 180.0
+  },
+  "runtime_parent": "Every tooth creates its own dynamic instance inheriting this saved instance."
+}

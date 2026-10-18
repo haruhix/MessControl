@@ -1,0 +1,40 @@
+{
+  "compile_errors": [],
+  "added": [
+    "GrimeMaskThreshold",
+    "GrimeMaskSoftness",
+    "GrimeMaskContrast",
+    "GrimeMaskStrength",
+    "GrimeMaskInvert",
+    "GrimeMaskTextureStrength",
+    "GrimeNormalIntensity",
+    "GrimePigmentRelief",
+    "GrimeSurfaceOffset"
+  ],
+  "values": {
+    "GrimeAmount": 1.0,
+    "BrushAge": 4.0,
+    "Specular": 0.5199999809265137,
+    "GrimeDetailSize": 180.0,
+    "GrimeSeed": 1.0,
+    "GrimeMicroRelief": 0.12999999523162842,
+    "GrimeNormalStrength": 0.11999999731779099,
+    "GrimePigmentSize": 339.52001953125,
+    "GrimePatternSeed": 48.0,
+    "GrimeWarpStrength": 0.09759999811649323,
+    "GrimeOpacity": 1.0,
+    "GrimeEdgeSoftness": 0.27160701155662537,
+    "GrimeEdgeErosion": 1.0,
+    "GrimeWashOpacity": 0.6200000047683716,
+    "GrimeRoughness": 0.7099999785423279,
+    "GrimeMaskThreshold": 0.11999999731779099,
+    "GrimeMaskSoftness": 0.4000000059604645,
+    "GrimeMaskContrast": 1.0,
+    "GrimeMaskStrength": 0.75,
+    "GrimeMaskInvert": 1.0,
+    "GrimeMaskTextureStrength": 0.0,
+    "GrimeNormalIntensity": 1.0,
+    "GrimePigmentRelief": 0.6499999761581421,
+    "GrimeSurfaceOffset": 0.0
+  }
+}

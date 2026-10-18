@@ -167,6 +167,12 @@ void UMCFoodCollectionComponent::Stop(bool Throw)
 }
 float UMCFoodCollectionComponent::ThrowIntervalSeconds() const
 { return FMath::IsFinite(ThrowInterval)?FMath::Clamp(ThrowInterval,.15f,1.f):.3f; }
+float UMCFoodCollectionComponent::EffectiveThrowSpeed() const
+{
+    const float Speed=FMath::IsFinite(ThrowSpeed)?FMath::Clamp(ThrowSpeed,400.f,2400.f):1800.f;
+    const auto* Perks=UMCPerkComponent::ForActor(GetOwner());
+    return FMath::Clamp(Speed*(Perks?Perks->RogueValue(EMCRogueStat::ThrowImpulse):1.f),400.f,4800.f);
+}
 bool UMCFoodCollectionComponent::ThrowOne(FVector AimDirection)
 {
     auto* Hero=Cast<AMCToothCharacter>(GetOwner());
@@ -181,18 +187,11 @@ bool UMCFoodCollectionComponent::ThrowOne(FVector AimDirection)
     if(Now+KINDA_SMALL_NUMBER<NextThrowAt) return false;
     AMCFoodActor* Food=Pieces.Last();
     if(!IsValid(Food) || Food->IsDisposed() || Food->StackCarrier!=Hero) return false;
-    const FPieceMotion Motion=PieceMotion.FindRef(Food);
     // Remove just the top slot. Lower pieces retain their layout, pickup cues,
     // sway and collision ignores instead of being released/recollected.
     ReleaseFrom(Pieces.Num()-1);
     Food->ProtectPlayersOnStackRelease(true);
-    Food->MarkManualThrow(Hero);
-    const float Speed=FMath::IsFinite(ThrowSpeed)?FMath::Clamp(ThrowSpeed,400.f,2400.f):1200.f;
-    const auto* Perks=UMCPerkComponent::ForActor(Hero);
-    const float Multiplier=Perks?Perks->RogueValue(EMCRogueStat::ThrowImpulse):1.f;
-    Food->Body->SetPhysicsLinearVelocity(Hero->GetVelocity()+AimDirection*Speed*Multiplier);
-    Food->Body->SetPhysicsAngularVelocityInRadians(Motion.Angular.GetClampedToMaxSize(6));
-    Food->Body->WakeAllRigidBodies();
+    Food->LaunchManualThrow(Hero,AimDirection,EffectiveThrowSpeed());
     NextThrowAt=Now+ThrowIntervalSeconds();
     // Emptying a tower beside a pile must not vacuum a replacement into each
     // released slot. Holding Q continually extends this short pickup pause.

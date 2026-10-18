@@ -1,0 +1,113 @@
+{
+  "passed": true,
+  "teeth": [
+    {
+      "id": 1,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_01.SM_Teeth_L_01",
+      "cpu_access": true,
+      "normal_intensity": 1.0,
+      "mask_threshold": 0.11999999731779099,
+      "pigment_size": 339.52001953125,
+      "seed": 48.0
+    },
+    {
+      "id": 2,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_01.SM_Teeth_R_01",
+      "cpu_access": true,
+      "normal_intensity": 1.0,
+      "mask_threshold": 0.11999999731779099,
+      "pigment_size": 339.52001953125,
+      "seed": 48.0
+    },
+    {
+      "id": 3,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_02.SM_Teeth_L_02",
+      "cpu_access": true,
+      "normal_intensity": 1.0,
+      "mask_threshold": 0.11999999731779099,
+      "pigment_size": 339.52001953125,
+      "seed": 48.0
+    },
+    {
+      "id": 4,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_02.SM_Teeth_R_02",
+      "cpu_access": true,
+      "normal_intensity": 1.0,
+      "mask_threshold": 0.11999999731779099,
+      "pigment_size": 339.52001953125,
+      "seed": 48.0
+    },
+    {
+      "id": 5,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_03.SM_Teeth_L_03",
+      "cpu_access": true,
+      "normal_intensity": 1.0,
+      "mask_threshold": 0.11999999731779099,
+      "pigment_size": 339.52001953125,
+      "seed": 48.0
+    },
+    {
+      "id": 6,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_03.SM_Teeth_R_03",
+      "cpu_access": true,
+      "normal_intensity": 1.0,
+      "mask_threshold": 0.11999999731779099,
+      "pigment_size": 339.52001953125,
+      "seed": 48.0
+    },
+    {
+      "id": 7,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_04.SM_Teeth_L_04",
+      "cpu_access": true,
+      "normal_intensity": 1.0,
+      "mask_threshold": 0.11999999731779099,
+      "pigment_size": 339.52001953125,
+      "seed": 48.0
+    },
+    {
+      "id": 8,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_04.SM_Teeth_R_04",
+      "cpu_access": true,
+      "normal_intensity": 1.0,
+      "mask_threshold": 0.11999999731779099,
+      "pigment_size": 339.52001953125,
+      "seed": 48.0
+    },
+    {
+      "id": 9,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_05.SM_Teeth_L_05",
+      "cpu_access": true,
+      "normal_intensity": 1.0,
+      "mask_threshold": 0.11999999731779099,
+      "pigment_size": 339.52001953125,
+      "seed": 48.0
+    },
+    {
+      "id": 10,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_05.SM_Teeth_R_05",
+      "cpu_access": true,
+      "normal_intensity": 1.0,
+      "mask_threshold": 0.11999999731779099,
+      "pigment_size": 339.52001953125,
+      "seed": 48.0
+    },
+    {
+      "id": 11,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_07.SM_Teeth_L_07",
+      "cpu_access": true,
+      "normal_intensity": 1.0,
+      "mask_threshold": 0.11999999731779099,
+      "pigment_size": 339.52001953125,
+      "seed": 48.0
+    },
+    {
+      "id": 12,
+      "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_R_06.SM_Teeth_R_06",
+      "cpu_access": true,
+      "normal_intensity": 1.0,
+      "mask_threshold": 0.11999999731779099,
+      "pigment_size": 339.52001953125,
+      "seed": 48.0
+    }
+  ]
+}

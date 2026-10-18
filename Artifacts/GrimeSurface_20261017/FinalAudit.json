@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "checks": {
+    "material_instance_parent": true,
+    "user_instance_settings_preserved": true,
+    "all_twelve_teeth_use_instance": true,
+    "surface_and_parameter_probes": true,
+    "ordinary_brush_completes": true,
+    "protected_assets_and_brush_unchanged": true,
+    "other_unsaved_content_preserved": true,
+    "maps_preserved": true,
+    "engine_settings_restored": true,
+    "compiler_target_restored": true,
+    "compiler_config_restored": true
+  },
+  "changed_previous_instance_values": {},
+  "protected_differences": [],
+  "clean_seconds": 10.333333872258663
+}

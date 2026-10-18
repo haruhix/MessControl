@@ -1,0 +1,5 @@
+{
+  "source_sha256": "4497532b53acafac96b2c696b2387f0bf5f47dd68bead56e9c63e4ce4db6065d",
+  "compiler_workaround": "temporary /Y- and four compile actions; original settings backed up",
+  "validation": "two solo PIE cuts with ordinary knife input, twenty fragments per parent; ground and airborne"
+}

@@ -1,0 +1,6 @@
+{
+  "PlayNumberOfClients": 1,
+  "PlayNetMode": "PIE_Standalone",
+  "RunUnderOneProcess": true,
+  "bLaunchSeparateServer": false
+}

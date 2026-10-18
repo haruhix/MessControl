@@ -74,6 +74,7 @@ AMCFoodActor::AMCFoodActor()
 void AMCFoodActor::BeginPlay()
 {
     Super::BeginPlay();
+    PreviousPhysicsLocation=GetActorLocation();
     if (HasAuthority()) { if (const auto* P=Profile.LoadSynchronous()) Settings=P->Settings; Settings.Sanitize(); }
     if (!ItemName.IsNone()) Settings.Mass=FoodData.Mass;
     if (bBrushTool) Settings.Mass=1;
@@ -262,6 +263,7 @@ void AMCFoodActor::UpdateCarryPresentation(float Dt)
 }
 void AMCFoodActor::OnRep_Phase()
 {
+    if(HasAuthority() && (StackCarrier || !Holders.IsEmpty() || Phase!=EMCFoodPhase::Free)) EndManualThrowFlight();
     if (bMouthEntry && (Phase!=EMCFoodPhase::Falling || StackCarrier || !Holders.IsEmpty())) EndMouthEntry();
     const bool bGone=IsDisposed() || Phase==EMCFoodPhase::Equipped;
     const bool bSimulate=HasAuthority() && !StackCarrier && (Phase==EMCFoodPhase::Falling || Phase==EMCFoodPhase::Free || Phase==EMCFoodPhase::Carried);
@@ -288,6 +290,7 @@ bool AMCFoodActor::TryGrab(AMCToothCharacter* Hero)
     if (!Hero->Grip || !Hero->Grip->BeginGrip(this)) return false;
     EndMouthEntry();
     bManuallyThrown=false;
+    EndManualThrowFlight();
     Holders.Add(Hero); Hero->HeldFood=Hero->Grip->Frame.Food;
     LastHandledBy=Hero->GetPlayerState<AMCPlayerState>();
     AttendFood();
@@ -431,6 +434,7 @@ void AMCFoodActor::EndPlay(const EEndPlayReason::Type Reason)
 }
 void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit)
 {
+    if(HasAuthority() && Hit.bBlockingHit) EndManualThrowFlight();
     // Fragments remain physical against scenery and food, but never attack a player.
     if(bFragment && Cast<AMCToothCharacter>(Other)) return;
     if(StackCarrier) {
@@ -539,6 +543,7 @@ void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent*
 }
 void AMCFoodActor::Tick(float Dt)
 {
+    if(HasAuthority()) PreviousPhysicsLocation=GetActorLocation();
     Super::Tick(Dt);
     if (bMouthEntry && (GetWorld()->GetTimeSeconds()>=MouthEntryEndsAt || !Body->IsSimulatingPhysics()
         || Phase!=EMCFoodPhase::Falling || StackCarrier || !Holders.IsEmpty())) EndMouthEntry();
@@ -1035,7 +1040,11 @@ void AMCFoodActor::Throw(AMCToothCharacter* Hero,FVector AimDirection)
     for (int32 I=Holders.Num()-1;I>=0;--I) Release(Holders[I]);
     MarkManualThrow(Hero);
     if (WasTool) { Hero->EquippedBrush=nullptr; EquippedBy=nullptr; SetActorLocation(Hero->GetActorLocation()+Hero->GetActorForwardVector()*70+FVector(0,0,30)); }
-    if (Phase!=EMCFoodPhase::Stuck) { Phase=EMCFoodPhase::Free; OnRep_Phase(); Body->SetPhysicsLinearVelocity(Hero->GetVelocity()+AimDirection*(WasTool?1000.f:1200.f)); }
+    if (Phase!=EMCFoodPhase::Stuck) {
+        Phase=EMCFoodPhase::Free; OnRep_Phase();
+        if(WasTool) Body->SetPhysicsLinearVelocity(Hero->GetVelocity()+AimDirection*1000.f);
+        else LaunchManualThrow(Hero,AimDirection,Hero->FoodCollection?Hero->FoodCollection->EffectiveThrowSpeed():1800.f);
+    }
     Hero->ForceNetUpdate(); ForceNetUpdate();
 }
 void AMCFoodActor::MarkManualThrow(AMCToothCharacter* Hero)
@@ -1043,6 +1052,28 @@ void AMCFoodActor::MarkManualThrow(AMCToothCharacter* Hero)
     if(!HasAuthority() || !IsValid(Hero) || Hero->GetWorld()!=GetWorld() || IsDisposed()) return;
     bManuallyThrown=true;LastHandledBy=Hero->GetPlayerState<AMCPlayerState>();
     UnreachableSeconds=0;AccessCheckElapsed=0;
+}
+void AMCFoodActor::LaunchManualThrow(AMCToothCharacter* Hero,FVector Direction,float Speed)
+{
+    if(!HasAuthority() || !IsValid(Hero) || Hero->GetWorld()!=GetWorld() || IsDisposed()
+        || StackCarrier || !Holders.IsEmpty() || !Body->IsSimulatingPhysics()
+        || Direction.ContainsNaN() || Direction.IsNearlyZero() || !FMath::IsFinite(Speed)) return;
+    MarkManualThrow(Hero);bManualThrowInFlight=true;
+    PreviousPhysicsLocation=GetActorLocation();
+    Body->SetEnableGravity(true);Body->SetLinearDamping(0);Body->SetAngularDamping(.12f);
+    // CameraThrowDirection already solves the ballistic arc. Adding carrier
+    // velocity again would move its endpoint sideways while the player walks.
+    Body->SetPhysicsLinearVelocity(Direction.GetSafeNormal()*FMath::Clamp(Speed,400.f,4800.f));
+    const FVector Right=FVector::CrossProduct(FVector::UpVector,Direction).GetSafeNormal();
+    Body->SetPhysicsAngularVelocityInRadians(Right*1.6f+FVector::UpVector*.55f);
+    Body->WakeAllRigidBodies();ForceNetUpdate();
+}
+void AMCFoodActor::EndManualThrowFlight()
+{
+    if(!bManualThrowInFlight) return;
+    bManualThrowInFlight=false;
+    Body->SetLinearDamping(bNutKineticsEnabled?Settings.NutLinearDamping:.7f);
+    Body->SetAngularDamping(bNutKineticsEnabled?Settings.NutAngularDamping:2.f);
 }
 bool AMCFoodActor::HitFood(float Damage,FVector Direction,AMCToothCharacter* Worker)
 {

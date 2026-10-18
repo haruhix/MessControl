@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "checks": {
+    "parent_correct": true,
+    "all_twelve_runtime_teeth_use_instance": true,
+    "live_parameter_inheritance_passed": true,
+    "ordinary_brush_completes": true,
+    "protected_assets_and_brush_unchanged": true,
+    "unrelated_unsaved_content_preserved": true,
+    "maps_preserved": true,
+    "engine_settings_restored": true,
+    "compiler_target_restored": true,
+    "compiler_config_restored": true
+  },
+  "protected_differences": [],
+  "clean_seconds": 8.966667134314775
+}
