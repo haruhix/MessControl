@@ -32,15 +32,17 @@ namespace MCPerkCardPrivate
         auto* Result=Tree->ConstructWidget<UTextBlock>();Result->SetText(Text);
         Result->SetJustification(ETextJustify::Center);Result->SetAutoWrapText(true);return Result;
     }
-    FButtonStyle ActionStyle(UMCPerkCardButton* Button,const UMCGameplayUITheme* T,int32 Index)
+    FButtonStyle ActionStyle(UMCPerkCardButton* Button,const UMCGameplayUITheme* T,int32 Index,const FButtonStyle* PreviousBase=nullptr)
     {
-        const auto& P=T->Palette;const FLinearColor Fill=Index==-3?P.Mint:Index==-2?P.Cream:P.Button;
-        FButtonStyle Style=Button->GetStyle();const auto Size=MCUIVisualStyle::SizeFor(Button,FVector2D(310,52));
+        const auto& P=T->Palette;const FLinearColor Fill=Index==-3?P.Mint:Index==-2?P.Cost:P.Button;
+        // The visible Normal may temporarily be a copy of Hovered for keyboard
+        // selection. Reuse the independent base MIDs, never that aliased brush.
+        FButtonStyle Style=PreviousBase?*PreviousBase:Button->GetStyle();const auto Size=MCUIVisualStyle::SizeFor(Button,FVector2D(310,52));
         Style.SetNormal(MCUIVisualStyle::Surface(Button,Style.Normal,T,Fill,Size,9));
         Style.SetHovered(MCUIVisualStyle::Surface(Button,Style.Hovered,T,P.ButtonHover,Size,9,false,0,false,true));
         Style.SetPressed(MCUIVisualStyle::Surface(Button,Style.Pressed,T,P.ButtonPressed,Size,9,false,0,false,true));
         Style.SetDisabled(MCUIVisualStyle::Surface(Button,Style.Disabled,T,P.ButtonDisabled,Size,9));
-        Style.SetNormalPadding(FMargin(22,10));Style.SetPressedPadding(FMargin(22,10));return Style;
+        Style.SetNormalPadding(FMargin(20,14));Style.SetPressedPadding(FMargin(20,14));return Style;
     }
 }
 
@@ -97,6 +99,7 @@ void UMCPerkChoiceWidget::BuildPresentationTree()
         if(auto* Size=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("RewardPanelSize")))) {Size->SetWidthOverride(1040);Size->SetHeightOverride(680);}
         if(Title) Title->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
         if(Subtitle) Subtitle->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+        NormalizePresentationLayout();
         return;
     }
     auto* Backdrop=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("RewardBackdrop"));WidgetTree->RootWidget=Backdrop;
@@ -123,13 +126,34 @@ void UMCPerkChoiceWidget::BuildPresentationTree()
     Hint=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("RewardHint"));Hint->SetAutoWrapText(true);Hint->SetJustification(ETextJustify::Center);
     Main->AddChildToVerticalBox(Hint)->SetPadding(FMargin(6,9,6,0));ApplyTheme();
 }
+
+void UMCPerkChoiceWidget::NormalizePresentationLayout()
+{
+    if(!WidgetTree) return;
+    if(auto* Size=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("RewardPanelSize")))) {Size->SetWidthOverride(1040);Size->SetHeightOverride(680);}
+    if(PanelBorder) PanelBorder->SetPadding(FMargin(18));
+    if(HeaderBorder) {HeaderBorder->SetPadding(FMargin(14,8));if(auto* LayoutSlot=Cast<UVerticalBoxSlot>(HeaderBorder->Slot)) LayoutSlot->SetPadding(FMargin(0,0,0,8));}
+    if(Subtitle) if(auto* LayoutSlot=Cast<UVerticalBoxSlot>(Subtitle->Slot)) LayoutSlot->SetPadding(FMargin(8,0,8,12));
+    if(Cards) if(auto* LayoutSlot=Cast<UVerticalBoxSlot>(Cards->Slot)) LayoutSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+    if(Actions) {
+        const bool Multiple=Actions->GetChildrenCount()>1;
+        if(auto* LayoutSlot=Cast<UVerticalBoxSlot>(Actions->Slot)) {LayoutSlot->SetHorizontalAlignment(Multiple?HAlign_Fill:HAlign_Center);LayoutSlot->SetPadding(FMargin(6,12,6,0));}
+        for(int32 Index=0;Index<Actions->GetChildrenCount();++Index) {
+            auto* Button=Cast<UMCPerkCardButton>(Actions->GetChildAt(Index));if(!Button) continue;
+            if(auto* LayoutSlot=Cast<UHorizontalBoxSlot>(Button->Slot)) {LayoutSlot->SetSize(FSlateChildSize(Multiple?ESlateSizeRule::Fill:ESlateSizeRule::Automatic));LayoutSlot->SetPadding(FMargin(6,0));LayoutSlot->SetVerticalAlignment(VAlign_Fill);}
+            if(auto* Label=Cast<UTextBlock>(Button->GetContent())) {Label->SetWrapTextAt(Multiple?410.f:320.f);Label->SetMinDesiredWidth(Multiple?0.f:260.f);}
+        }
+    }
+    if(Hint) if(auto* LayoutSlot=Cast<UVerticalBoxSlot>(Hint->Slot)) LayoutSlot->SetPadding(FMargin(6,8,6,0));
+}
+
 void UMCPerkChoiceWidget::ApplyTheme()
 {
     const auto* T=GetResolvedTheme();if(!T) return;const auto& P=T->Palette;
-    if(WidgetTree) if(auto* Size=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("RewardPanelSize")))) {Size->SetWidthOverride(1040);Size->SetHeightOverride(680);}
+    NormalizePresentationLayout();
     BindStyle(TEXT("RewardPanel"),EMCUIColorToken::Marine,EMCUIStyleTarget::Background);
     BindStyle(TEXT("RewardHeader"),EMCUIColorToken::Cream,EMCUIStyleTarget::Background);
-    BindStyle(TEXT("RewardTitle"),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,29,true);
+    BindStyle(TEXT("RewardTitle"),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,28,true);
     BindStyle(TEXT("RewardSubtitle"),EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,16,false);
     BindStyle(TEXT("RewardHint"),EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,13,false);
     Super::ApplyTheme();
@@ -138,8 +162,8 @@ void UMCPerkChoiceWidget::ApplyTheme()
     for(int32 Index=0;Index<Buttons.Num();++Index) if(Buttons[Index] && ButtonStyles.IsValidIndex(Index)) {
         if(CardWidgets.IsValidIndex(Index) && CardWidgets[Index]) {CardWidgets[Index]->ApplyTheme();ButtonStyles[Index]=CardWidgets[Index]->GetBaseButtonStyle();}
         else {
-            ButtonStyles[Index]=MCPerkCardPrivate::ActionStyle(Buttons[Index],T,Buttons[Index]->GetChoiceIndex());
-            if(auto* TextLabel=Cast<UTextBlock>(Buttons[Index]->GetContent())) {TextLabel->SetFont(T->MakeFont(16));TextLabel->SetColorAndOpacity(Buttons[Index]->GetChoiceIndex()==-2?P.Cost:P.Ink);}
+            ButtonStyles[Index]=MCPerkCardPrivate::ActionStyle(Buttons[Index],T,Buttons[Index]->GetChoiceIndex(),&ButtonStyles[Index]);
+            if(auto* TextLabel=Cast<UTextBlock>(Buttons[Index]->GetContent())) {TextLabel->SetFont(T->MakeGameplayFont(17));TextLabel->SetColorAndOpacity(P.Ink);}
         }
     }
     RefreshGamepadSelection();
@@ -161,8 +185,8 @@ void UMCPerkChoiceWidget::AddAction(const FText& Text,int32 Index)
     if(!Actions) return;auto* Button=WidgetTree->ConstructWidget<UMCPerkCardButton>();Button->Configure(bApplyingPreview?nullptr:GetOwningPlayer<AMCPlayerController>(),Index);
     const auto* T=GetResolvedTheme();const auto& P=T->Palette;
     const FButtonStyle Style=MCPerkCardPrivate::ActionStyle(Button,T,Index);Button->SetStyle(Style);
-    auto* TextLabel=MCPerkCardPrivate::Label(WidgetTree,Text);TextLabel->SetWrapTextAt(270);TextLabel->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);TextLabel->SetFont(T->MakeFont(16));TextLabel->SetColorAndOpacity(Index==-2?P.Cost:P.Ink);Button->SetContent(TextLabel);
-    Actions->AddChildToHorizontalBox(Button)->SetPadding(FMargin(8,0));Buttons.Add(Button);ButtonStyles.Add(Style);RefreshGamepadSelection();
+    auto* TextLabel=MCPerkCardPrivate::Label(WidgetTree,Text);TextLabel->SetWrapTextAt(320);TextLabel->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);TextLabel->SetFont(T->MakeGameplayFont(17));TextLabel->SetColorAndOpacity(P.Ink);Button->SetContent(TextLabel);
+    Actions->AddChildToHorizontalBox(Button)->SetPadding(FMargin(6,0));Buttons.Add(Button);ButtonStyles.Add(Style);NormalizePresentationLayout();RefreshGamepadSelection();
 }
 FMCPerkCardPresentation UMCPerkChoiceWidget::MakePresentation(FName ID,const FMCPerkDefinition& Definition,bool bPersonal,int32 PreviewStacks) const
 {
@@ -202,6 +226,8 @@ void UMCPerkChoiceWidget::BuildChoices(const TArray<FName>& IDs,EMCPerkPolarity 
     Actions->ClearChildren();Cards->ClearChildren();Cards->SetVisibility(ESlateVisibility::Visible);Buttons.Reset();ButtonStyles.Reset();CardWidgets.Reset();GamepadSelection=0;NextStickNavigationAt=0;
     SetOrdinaryHeader();
     auto* PC=bApplyingPreview?nullptr:GetOwningPlayer<AMCPlayerController>();const auto* State=PC?PC->GetPlayerState<AMCPlayerState>():nullptr;
+    bNavigationHighlight=(PC && PC->IsUsingGamepad()) || ((bApplyingPreview || IsDesignTime()) &&
+        (PreviewState==TEXT("Selected") || PreviewScenario==EMCGameplayUIPreviewScenario::Selected));
     for(int32 Index=0;Index<IDs.Num() && Index<3;++Index) {
         FMCPerkDefinition Definition;Definition.Polarity=Polarity;
         if(State && State->Perks) State->Perks->GetPerkDefinition(IDs[Index],Definition);
@@ -269,11 +295,12 @@ void UMCPerkChoiceWidget::SetSelectionPending(bool bPending)
 void UMCPerkChoiceWidget::RefreshGamepadSelection()
 {
     if(!Buttons.IsValidIndex(GamepadSelection) || !Buttons[GamepadSelection] || !Buttons[GamepadSelection]->GetIsEnabled() || !Buttons[GamepadSelection]->IsInteractionAllowed()) GamepadSelection=Buttons.IndexOfByPredicate([](const auto& Button){return Button && Button->GetIsEnabled() && Button->IsInteractionAllowed();});
-    for(int32 Index=0;Index<Buttons.Num();++Index) if(Buttons[Index] && ButtonStyles.IsValidIndex(Index)) {FButtonStyle Style=ButtonStyles[Index];if(Index==GamepadSelection) Style.SetNormal(Style.Hovered);Buttons[Index]->SetStyle(Style);}
+    for(int32 Index=0;Index<Buttons.Num();++Index) if(Buttons[Index] && ButtonStyles.IsValidIndex(Index)) {FButtonStyle Style=ButtonStyles[Index];if(bNavigationHighlight && Index==GamepadSelection) Style.SetNormal(Style.Hovered);Buttons[Index]->SetStyle(Style);}
 }
 void UMCPerkChoiceWidget::MoveGamepadSelection(int32 Direction)
 {
     if(Buttons.IsEmpty() || bSelectionPending) return;
+    bNavigationHighlight=true;
     for(int32 Attempt=0;Attempt<Buttons.Num();++Attempt) {GamepadSelection=(GamepadSelection+Direction+Buttons.Num())%Buttons.Num();if(Buttons[GamepadSelection] && Buttons[GamepadSelection]->GetIsEnabled() && Buttons[GamepadSelection]->IsInteractionAllowed()) break;}
     RefreshGamepadSelection();
     if(Buttons.IsValidIndex(GamepadSelection) && Buttons[GamepadSelection]->GetIsEnabled())
@@ -306,6 +333,11 @@ void UMCPerkChoiceWidget::ApplyEditorPreview(float Time)
     SetRenderOpacity(Time<=0.f?1.f:FMath::Clamp(Time*6.f,0.f,1.f));
 }
 void UMCPerkChoiceWidget::ResetEditorPreview() {bHasPreviewFixture=false;SetRenderOpacity(1.f);}
+FReply UMCPerkChoiceWidget::NativeOnMouseMove(const FGeometry& Geometry,const FPointerEvent& Event)
+{
+    if(bNavigationHighlight && !Event.GetCursorDelta().IsNearlyZero()) {bNavigationHighlight=false;RefreshGamepadSelection();}
+    return Super::NativeOnMouseMove(Geometry,Event);
+}
 FReply UMCPerkChoiceWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
 {
     // Keep one keyboard/gamepad routing path when the complete card button has focus.

@@ -415,6 +415,7 @@ void MCGameplayUIPreview::SynchronizeFixtureTree(UMCGameplayUIWidget* Widget)
     };
     Sync(Widget);
     if(Widget->WidgetTree) Widget->WidgetTree->ForEachWidgetAndDescendants(Sync);
+    Widget->RefreshPresentationGeometry();
 }
 
 void MCGameplayUIPreview::EnsureRegistered()

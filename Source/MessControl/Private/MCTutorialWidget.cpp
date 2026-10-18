@@ -11,6 +11,7 @@
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Components/Border.h"
 #include "Components/Button.h"
+#include "Components/ButtonSlot.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/HorizontalBox.h"
@@ -36,7 +37,7 @@ namespace MCTutorialWidgetPrivate
     UTextBlock* Label(UWidgetTree* Tree,int32 Size,FLinearColor Color=FLinearColor::White,FName Name=NAME_None)
     {
         auto* Text=Tree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);
-        if(const auto* Owner=Tree->GetTypedOuter<UMCGameplayUIWidget>()) Text->SetFont(Owner->GetResolvedTheme()->MakeFont(Size,false));
+        if(const auto* Owner=Tree->GetTypedOuter<UMCGameplayUIWidget>()) Text->SetFont(Owner->GetResolvedTheme()->MakeGameplayFont(Size,false));
         Text->SetColorAndOpacity(Color);Text->SetAutoWrapText(true);return Text;
     }
     UButton* Button(UWidgetTree* Tree,UTextBlock*& OutLabel,const TCHAR* Text,FName Name,FName LabelName)
@@ -87,6 +88,28 @@ void UMCTutorialWidget::BindPresentationTree()
     if(CardSlot) CardSlot->SetAutoSize(true);
     if(ReadyButton) ReadyButton->OnClicked.AddUniqueDynamic(this,&UMCTutorialWidget::ReadyClicked);
     if(MenuButton) MenuButton->OnClicked.AddUniqueDynamic(this,&UMCTutorialWidget::MenuClicked);
+    NormalizePresentationLayout();
+}
+
+void UMCTutorialWidget::NormalizePresentationLayout()
+{
+    if(!WidgetTree || !ReadyButton) return;
+    auto* Scroll=Cast<UScrollBox>(WidgetTree->FindWidget(TEXT("TutorialBodyScroll")));
+    auto* Actions=Cast<UHorizontalBox>(ReadyButton->GetParent());
+    if(!Scroll || !Actions) return;
+    if(!WidgetTree->FindWidget(TEXT("TutorialContentColumn"))) if(auto* Row=Cast<UHorizontalBox>(Scroll->GetParent())) {
+        // Pin completion actions below the scrolling instructions. This also
+        // upgrades the existing authored tree without replacing its content.
+        Scroll->RemoveFromParent();Actions->RemoveFromParent();
+        auto* Column=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("TutorialContentColumn"));
+        Row->AddChildToHorizontalBox(Column)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+        Column->AddChildToVerticalBox(Scroll)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+        Column->AddChildToVerticalBox(Actions)->SetPadding(FMargin(0,10,0,0));
+    }
+    Scroll->SetAllowOverscroll(false);Scroll->SetScrollbarThickness(FVector2D(5,5));
+    for(UButton* Button:{ReadyButton.Get(),MenuButton.Get()}) if(Button) if(auto* ContentSlot=Cast<UButtonSlot>(Button->GetContentSlot())) {
+        ContentSlot->SetHorizontalAlignment(HAlign_Fill);ContentSlot->SetVerticalAlignment(VAlign_Center);ContentSlot->SetPadding(FMargin(0));
+    }
 }
 
 void UMCTutorialWidget::BuildPresentationTree()
@@ -187,7 +210,7 @@ void UMCTutorialWidget::BuildPresentationTree()
     MenuButton=MCTutorialWidgetPrivate::Button(WidgetTree,MenuText,TEXT("В главное меню"),TEXT("TutorialMenuButton"),TEXT("TutorialMenuLabel"));MenuLabel=MenuText;
     MenuButton->OnClicked.AddUniqueDynamic(this,&UMCTutorialWidget::MenuClicked);
     Buttons->AddChildToHorizontalBox(MenuButton)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
-    UpdatePortrait();ApplyTheme();
+    NormalizePresentationLayout();UpdatePortrait();ApplyTheme();
 }
 
 void UMCTutorialWidget::NativeConstruct()
@@ -258,6 +281,7 @@ void UMCTutorialWidget::RefreshState()
     const bool FullComplete=Complete && !Director->UsesShortFlow();
     if(ReadyButton) ReadyButton->SetVisibility(FullComplete?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
     if(MenuButton) MenuButton->SetVisibility(FullComplete?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+    if(ReadyButton) if(auto* Actions=Cast<UHorizontalBox>(ReadyButton->GetParent())) Actions->SetVisibility(FullComplete?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
     const auto* Personal=Director->GetPlayerProgress(PC?PC->GetPlayerState<APlayerState>():nullptr);
     const int32 Required=Personal?Personal->StageRequired:0,Done=Personal?FMath::Clamp(Personal->StageProgress,0,Required):0;const bool Ready=Personal && Personal->bReady;
     FText PersonalText;
@@ -302,7 +326,9 @@ void UMCTutorialWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
         // would make translated instructions progressively smaller.
         if(CardSize && !FMath::IsNearlyEqual(CardSize->GetWidthOverride(),Width,.5f)) CardSize->SetWidthOverride(Width);
         const float TextWidth=FMath::Max(140.f,Width-116.f);
-        for(UTextBlock* Text:{StageTitle.Get(),Dialogue.Get(),Action.Get()}) if(Text) Text->SetWrapTextAt(TextWidth);
+        if(StageTitle) {StageTitle->SetWrapTextAt(TextWidth-28.f);StageTitle->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);}
+        for(UTextBlock* Text:{Dialogue.Get(),Action.Get()}) if(Text) {Text->SetWrapTextAt(TextWidth-8.f);Text->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);}
+        for(UTextBlock* Label:{ReadyLabel.Get(),MenuLabel.Get()}) if(Label) {Label->SetWrapTextAt(FMath::Max(80.f,(TextWidth-12.f)*.5f-32.f));Label->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);}
         if(OwnProgress) OwnProgress->SetWrapTextAt(FMath::Max(70.f,TextWidth*.5f-20.f));
         if(TeamProgress) {TeamProgress->SetAutoWrapText(true);TeamProgress->SetWrapTextAt(FMath::Max(70.f,TextWidth*.5f-20.f));}
         // The compact lesson sits just above stamina and controls, below the player.
@@ -332,18 +358,33 @@ void UMCTutorialWidget::MenuClicked()
 FReply UMCTutorialWidget::NativeOnKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
 {
     if(IsDesignTime() || bEditorFixture) return Super::NativeOnKeyDown(Geometry,Event);
+    if(!Event.IsRepeat() && RequiresMenuInput() && (Event.GetKey()==EKeys::Left || Event.GetKey()==EKeys::Right || Event.GetKey()==EKeys::Tab || Event.GetKey()==EKeys::Gamepad_DPad_Left || Event.GetKey()==EKeys::Gamepad_DPad_Right)) {
+        const bool ReadyFocused=ReadyButton && (ReadyButton->HasUserFocus(GetOwningPlayer()) || ReadyButton->HasFocusedDescendants());
+        UButton* Target=ReadyFocused || !ReadyButton || !ReadyButton->GetIsEnabled()?MenuButton.Get():ReadyButton.Get();
+        if(Target && GetOwningPlayer()) Target->SetUserFocus(GetOwningPlayer());
+        return FReply::Handled();
+    }
     if (!Event.IsRepeat() && RequiresMenuInput() && (Event.GetKey()==EKeys::Enter || Event.GetKey()==EKeys::Gamepad_FaceButton_Bottom || Event.GetKey()==EKeys::Virtual_Gamepad_Accept.GetVirtualKey()))
-    { ReadyClicked(); return FReply::Handled(); }
+    { if(MenuButton && (MenuButton->HasUserFocus(GetOwningPlayer()) || MenuButton->HasFocusedDescendants())) MenuClicked();else ReadyClicked();return FReply::Handled(); }
     if (!Event.IsRepeat() && (Event.GetKey()==EKeys::Escape || Event.GetKey()==EKeys::Gamepad_FaceButton_Right))
     { MenuClicked(); return FReply::Handled(); }
     return Super::NativeOnKeyDown(Geometry,Event);
+}
+
+FReply UMCTutorialWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
+{
+    // Handle directional navigation before a focused button consumes Enter/A.
+    const FKey Key=Event.GetKey();
+    const bool NavigationKey=Key==EKeys::Left || Key==EKeys::Right || Key==EKeys::Tab || Key==EKeys::Gamepad_DPad_Left || Key==EKeys::Gamepad_DPad_Right ||
+        Key==EKeys::Enter || Key==EKeys::Gamepad_FaceButton_Bottom || Key==EKeys::Virtual_Gamepad_Accept.GetVirtualKey() || Key==EKeys::Escape || Key==EKeys::Gamepad_FaceButton_Right;
+    return RequiresMenuInput() && NavigationKey?NativeOnKeyDown(Geometry,Event):Super::NativeOnPreviewKeyDown(Geometry,Event);
 }
 
 
 void UMCTutorialWidget::ApplyTheme()
 {
     const auto* Style=GetResolvedTheme();if(!Style) return;const auto& P=Style->Palette;
-    auto Text=[&](UTextBlock* Label,int32 Size,FLinearColor Color,bool Bold=false){if(Label){Label->SetFont(Style->MakeFont(Size,Bold));Label->SetColorAndOpacity(Color);}};
+    auto Text=[&](UTextBlock* Label,int32 Size,FLinearColor Color,bool Bold=false){if(Label){Label->SetFont(Style->MakeGameplayFont(Size,Bold));Label->SetColorAndOpacity(Color);}};
     BindStyle(TEXT("TutorialCard"),EMCUIColorToken::Marine,EMCUIStyleTarget::Background);
     BindStyle(TEXT("TutorialHeader"),EMCUIColorToken::Cream,EMCUIStyleTarget::Background);
     BindStyle(TEXT("TutorialPortraitBorder"),EMCUIColorToken::SurfaceAlt,EMCUIStyleTarget::Background);
@@ -388,6 +429,7 @@ void UMCTutorialWidget::ApplyEditorPreview(float Time)
     if(Progress){Progress->SetPercent(bFixtureComplete?1:PreviewRequired>0?FMath::Clamp(float(PreviewCurrent)/PreviewRequired,0.f,1.f):0);Progress->SetVisibility(ESlateVisibility::HitTestInvisible);}
     if(ReadyButton){ReadyButton->SetVisibility(bFixtureComplete && !Short?ESlateVisibility::Visible:ESlateVisibility::Collapsed);ReadyButton->SetIsEnabled(!Ready);}
     if(MenuButton) MenuButton->SetVisibility(bFixtureComplete && !Short?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+    if(ReadyButton) if(auto* Actions=Cast<UHorizontalBox>(ReadyButton->GetParent())) Actions->SetVisibility(bFixtureComplete && !Short?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
     if(ReadyLabel) ReadyLabel->SetText(Ready?Copy(TEXT("UI.Tutorial.ReadyConfirmed"),LOCTEXT("FixtureReadyConfirmed","Ты готов ✓")):Copy(TEXT("UI.Tutorial.ReadyAction"),LOCTEXT("FixtureReadyAction","Готов")));
     if(Timer) Timer->SetVisibility(ESlateVisibility::Collapsed);
     DesiredCardHeight=bFixtureComplete || PreviewState==TEXT("LongText")?MCTutorialWidgetPrivate::ExpandedHeight:MCTutorialWidgetPrivate::LessonHeight;

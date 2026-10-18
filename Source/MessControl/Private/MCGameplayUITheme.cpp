@@ -113,6 +113,13 @@ void UMCGameplayUITheme::NotifyThemeChanged()
     OnThemeChanged.Broadcast();
 }
 
+FSlateFontInfo UMCGameplayUITheme::MakeGameplayFont(int32 Size,bool bBold) const
+{
+    FSlateFontInfo Result=bBold && CompactHeadingFont.HasValidFont()?CompactHeadingFont:MakeFont(Size,bBold);
+    Result.Size=FMath::Clamp(Size,8,96);
+    return Result;
+}
+
 #if WITH_EDITOR
 void UMCGameplayUITheme::PostEditChangeProperty(FPropertyChangedEvent& Event)
 {

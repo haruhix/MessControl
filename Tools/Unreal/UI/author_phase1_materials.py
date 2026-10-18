@@ -8,11 +8,12 @@ Shared MID contract (all names case-sensitive):
   PanelSize: vector4, XY = allocated logical-pixel dimensions, ZW unused.
   Radius, BorderWidth: logical pixels. Glow: 0..4, not a pixel distance.
   Shape: 0 rounded rectangle, 1 rounded diamond. Segments: 0 off, otherwise count.
-Fill adds Fill=1 (0..1) and Dim=.14 (unfilled track RGB factor).
+Fill adds Fill=1 (0..1) and TrackColor RGBA (unfilled track RGB).
 Tool adds Selected=0 and Focus=0 (0..1). All materials expose all scalars so a
 common C++ setter may be used; irrelevant parameters simply have no effect.
-The Fill material can be used as a ProgressBar brush with Fill=1, or draw its own
-rounded end cap when a MID receives Fill directly. Do not apply both percentages.
+Direct LTR ProgressBars use one background brush with Fill=Percent and no native
+fill brush, keeping a single opacity layer. Unsupported native modes retain
+UMG clipping with Fill=1. Do not apply both percentages.
 
 All geometry is analytic. Leave transparent space for glow inside the allocation;
 the material reserves up to 5 logical pixels automatically. Update PanelSize when
@@ -32,6 +33,7 @@ GLYPH_CODE = r'''
 struct ShapeMath {
 float capsule(float2 p,float2 a,float2 b,float r) {float2 v=b-a;return length(p-a-v*saturate(dot(p-a,v)/max(dot(v,v),.001)))-r;}
 float box(float2 p,float2 c,float2 h,float r) {float2 q=abs(p-c)-h+r;return length(max(q,0))+min(max(q.x,q.y),0)-r;}
+float blend(float a,float b,float k) {float h=saturate(.5+.5*(b-a)/k);return lerp(b,a,h)-k*h*(1-h);}
 float TriSDF(float2 p,float2 a,float2 b,float2 c) {
 float2 e0=b-a,e1=c-b,e2=a-c;float2 v0=p-a,v1=p-b,v2=p-c;
 float2 q0=v0-e0*saturate(dot(v0,e0)/dot(e0,e0));float2 q1=v1-e1*saturate(dot(v1,e1)/dot(e1,e1));float2 q2=v2-e2*saturate(dot(v2,e2)/dot(e2,e2));
@@ -45,30 +47,32 @@ float aa=max(.7,80/smallest*.7);
 float d=100,detail=100;
 int kind=(int)floor(GlyphKind+.5);
 if(kind<=1) {
- d=min(length(p-float2(28,25))-20,length(p-float2(52,25))-20);
- d=min(d,S.box(p,float2(40,40),float2(24,19),12));
- d=min(d,min(S.capsule(p,float2(24,48),float2(28,68),9),S.capsule(p,float2(56,48),float2(52,68),9)));
- d=max(d,-(length(p-float2(40,73))-13));
- d=max(d,-(length(p-float2(40,-2))-13));
+ d=S.blend(length(p-float2(28,26))-19,length(p-float2(52,26))-19,8);
+ d=S.blend(d,S.box(p,float2(40,37),float2(25,20),13),7);
+ d=S.blend(d,min(S.capsule(p,float2(25,46),float2(27,62),9),S.capsule(p,float2(55,46),float2(53,62),9)),6);
+ d=max(d,-(length(p-float2(40,66))-12));
+ d=max(d,-(length(p-float2(40,-1))-11));
  if(kind==0) {
   if(IsDead>.5) {detail=min(min(S.capsule(p,float2(24,29),float2(32,37),1.5),S.capsule(p,float2(32,29),float2(24,37),1.5)),min(S.capsule(p,float2(48,29),float2(56,37),1.5),S.capsule(p,float2(56,29),float2(48,37),1.5)));}
-  else {detail=min(length(p-float2(28,32))-2.1,length(p-float2(52,32))-2.1);}
-  float smileY=IsSad>.5?46:42;
-  float centerY=IsSad>.5?42:47;
-  detail=min(detail,min(S.capsule(p,float2(32,smileY),float2(40,centerY),1.5),S.capsule(p,float2(40,centerY),float2(48,smileY),1.5)));
+  else if(IsHappy>.5) {
+   detail=min(min(S.capsule(p,float2(24,33),float2(28,30),1.6),S.capsule(p,float2(28,30),float2(32,33),1.6)),min(S.capsule(p,float2(48,33),float2(52,30),1.6),S.capsule(p,float2(52,30),float2(56,33),1.6)));
+  } else {detail=min(length(p-float2(28,32))-2.2,length(p-float2(52,32))-2.2);}
+  float mouth=abs(length(p-float2(40,IsSad>.5?52:39))-8)-1.4;
+  mouth=max(mouth,IsSad>.5?p.y-47:43-p.y);
+  detail=min(detail,mouth);
  }
 } else if(kind==2) {
- d=S.capsule(p,float2(23,65),float2(49,26),4.8);
- d=min(d,S.capsule(p,float2(44,25),float2(56,33),6));
- for(int i=0;i<5;i++) d=min(d,S.capsule(p,float2(43+i*3,23+i*2),float2(48+i*3,15+i*2),1.8));
+ d=S.capsule(p,float2(23,65),float2(47,29),5.8);
+ d=min(d,S.capsule(p,float2(42,26),float2(56,35),7));
+ for(int i=0;i<5;i++) d=min(d,S.capsule(p,float2(42+i*3.3,24+i*2.2),float2(48+i*3.3,15+i*2.2),2.2));
  detail=S.capsule(p,float2(23,60),float2(35,42),1);
 } else if(kind==3) {
- d=S.capsule(p,float2(26,66),float2(49,26),4.3);
+ d=S.capsule(p,float2(26,66),float2(49,26),5.3);
  d=min(d,S.capsule(p,float2(18,25),float2(37,16),4));
  d=min(d,S.capsule(p,float2(37,16),float2(57,20),4));
  d=min(d,S.capsule(p,float2(57,20),float2(68,30),3));
 } else if(kind==4) {
- d=S.capsule(p,float2(24,65),float2(37,48),5);
+ d=S.capsule(p,float2(24,65),float2(37,48),5.8);
  d=min(d,S.TriSDF(p,float2(37,48),float2(62,13),float2(59,39)));
  d=min(d,S.TriSDF(p,float2(37,48),float2(59,39),float2(46,50)));
 } else if(kind==5) {
@@ -90,7 +94,7 @@ float3 tint=SurfaceColor.rgb;
 float tintAlpha=SurfaceColor.a;
 if(kind==1 && (IsLost>.5 || p.y<lerp(80,0,saturate(HealthFraction)))) {tint=EmptyColor.rgb;tintAlpha=EmptyColor.a;}
 if(kind==0 && IsDead>.5) tint=lerp(tint,EmptyColor.rgb,.7);
-float highlight=exp(-pow(length((p-float2(26,20))/float2(10,15)),2))*inner;
+float highlight=exp(-pow(length((p-float2(25,20))/float2(10,13)),2))*inner;
 float3 rgb=lerp(tint,HighlightColor.rgb,highlight*.32*HighlightColor.a)*inner*tintAlpha+InkColor.rgb*rim*InkColor.a;
 float alpha=inner*tintAlpha+rim*InkColor.a;
 float lines=saturate(.5-detail/aa)*inner;
@@ -152,8 +156,13 @@ float highlightAlpha = saturate(HighlightColor.a);
 float vertical = saturate(0.5 - p.y / max(halfSize.y * 2.0, 1.0));
 float lightMode = smoothstep(0.30, 0.65,
     dot(surfaceRGB, float3(0.2126, 0.7152, 0.0722)));
-float shade = lerp(lerp(0.78, 1.10, vertical), lerp(0.94, 1.02, vertical), lightMode);
+float shade = lerp(lerp(0.42, 1.12, vertical), lerp(0.88, 1.04, vertical), lightMode);
 float3 baseRGB = surfaceRGB * shade;
+// A shallow inset and cool top reflection give the navy panels depth without
+// baking a frame or adding noise behind localized text.
+float inset = exp(-pow((d + width + 1.7) / 1.2, 2.0)) * inner;
+baseRGB *= 1.0-inset*lerp(.36,.12,lightMode);
+baseRGB += edgeRGB * pow(vertical,5.0) * inner * lerp(.030,.003,lightMode);
 float active = inner;
 float segmentMask = 1.0;
 
@@ -179,7 +188,7 @@ if (mode == 1)
         float gapDistance = min(phase, 1.0 - phase) * usableWidth / count;
         segmentMask = saturate((gapDistance - 0.65) / aa + 0.5);
     }
-    float3 trackRGB = surfaceRGB * clamp(Dim, 0.0, 1.0);
+    float3 trackRGB = TrackColor.rgb;
     float3 fillRGB = surfaceRGB * lerp(0.88, 1.08, vertical);
     // Interpolate RGB within one surface layer. Compositing a second surface
     // over the track would incorrectly turn SurfaceColor.a=.5 into .75.
@@ -199,19 +208,19 @@ rgb = baseRGB * layerA + rgb * (1.0 - layerA);
 a = layerA + a * (1.0 - layerA);
 
 layerA = border * edgeAlpha;
-float3 rimRGB = edgeRGB * lerp(0.78, 1.04, vertical);
+float3 rimRGB = edgeRGB * lerp(0.36, 1.10, vertical);
 rgb = rimRGB * layerA + rgb * (1.0 - layerA);
 a = layerA + a * (1.0 - layerA);
 
 // Thin cool upper lip and a soft restrained gloss, also suitable for cream cards.
-float topLip = border * smoothstep(0.42, 0.92, vertical) * 0.40;
+float topLip = border * smoothstep(0.42, 0.92, vertical) * 0.65;
 float gloss = exp(-pow((vertical - 0.72) / 0.20, 2.0));
-gloss *= mode == 1 ? active * segmentMask * 0.24 : inner * 0.035;
+gloss *= mode == 1 ? active * segmentMask * 0.32 : inner * lerp(.065,.025,lightMode);
 float focusRing = mode == 2 ? border * max(selected * 0.12, focus * 0.30) : 0.0;
 layerA = saturate(topLip + gloss + focusRing) * highlightAlpha;
 rgb = highlightRGB * layerA + rgb * (1.0 - layerA);
 a = layerA + a * (1.0 - layerA);
-return float4(a > 1e-5 ? rgb / a : float3(0.0, 0.0, 0.0), saturate(a));
+return float4(a > 1e-5 ? rgb / a : float3(0.0, 0.0, 0.0), mode == 1 ? min(saturate(a),surfaceAlpha) : saturate(a));
 '''
 
 
@@ -262,6 +271,7 @@ def author_material(name, mode):
         'SurfaceColor': linear_color(33, 239, 246, 1.0) if mode == 1 else linear_color(13, 58, 79, 0.96),
         'EdgeColor': linear_color(35, 222, 237, 0.94),
         'HighlightColor': linear_color(232, 255, 248, 0.80),
+        'TrackColor': linear_color(3, 43, 64),
         'PanelSize': u.LinearColor(220, 18, 0, 0) if mode == 1 else u.LinearColor(64, 64, 0, 0) if mode == 2 else u.LinearColor(320, 180, 0, 0),
     }
     if mode==3:
@@ -335,7 +345,7 @@ def main():
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps({
         'materials': report,
-        'contract': 'Linear RGBA; PanelSize XY logical pixels; Shape 0 rect/1 diamond; Fill=1 when UProgressBar owns clipping.',
+        'contract': 'Linear RGBA; PanelSize XY logical pixels; Shape 0 rect/1 diamond; single-pass LTR ProgressBar background Fill=Percent/TrackColor; native fallback Fill=1.',
         'validation': 'Authoring/recompile requested. Shader diagnostics and native-scale visual QA are required before acceptance.',
     }, indent=2), encoding='utf-8')
     u.log('MC_PHASE1_PROCEDURAL_MATERIALS_AUTHORED ' + str(output))

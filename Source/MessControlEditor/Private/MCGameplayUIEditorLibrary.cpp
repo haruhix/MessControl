@@ -94,6 +94,11 @@ bool UMCGameplayUIEditorLibrary::RenderGameplayUIPreview(TSubclassOf<UMCGameplay
     FlushRenderingCommands();
     // Auto-wrap needs an allotted width before its measured height is final.
     // Warm the actual tree, then export the settled layout.
+    // Transient fixtures have no World and do not receive NativeTick. Reapply
+    // the fixture with its real paint geometry/DPI so measured HUD panels use
+    // the same font scale as the final draw.
+    Widget->ApplyEditorPreview(Time);
+    MCGameplayUIPreview::SynchronizeFixtureTree(Widget.Get());
     Widget->RefreshPresentationGeometry();
     SlateWidget->Invalidate(EInvalidateWidgetReason::Layout);
     PreviewSurface->SlatePrepass();

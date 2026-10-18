@@ -1,5 +1,7 @@
 # Phase 1: игровой интерфейс
 
+Последующая визуальная доводка 17–18 октября, успешный pass 37 и новые превью: [GameplayUIPolish_20261017.md](E:/DEVGAME/MessControl/Docs/UI/GameplayUIPolish_20261017.md). Ниже — исходный отчёт интеграции pass 32.
+
 Актуально на 17 октября 2026 года. Техническая база Phase 1 готова: editor build **pass 32 — SUCCESS**, сохранены и подключены новые виджеты, завершены статические превью, короткие проверки solo PIE и управление превью из Details. **Визуальное утверждение пользователем ожидается.** [Лог сборки pass 32](E:/DEVGAME/MessControl/Saved/GameplayUI/ColdEditorBuild-pass32.log).
 
 ## Что подключено

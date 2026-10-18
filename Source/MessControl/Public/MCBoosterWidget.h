@@ -77,6 +77,7 @@ protected:
 private:
     void CacheDataTable();
     void BindPresentationTree();
+    void NormalizePresentationLayout();
     void RefreshPresentation(const FMCUIResolvedContent& Content, bool bShowDetails);
     void UpdateImage(const TSoftObjectPtr<UTexture2D>& Image);
     void ShowLoadedImage(UTexture2D* Texture);
@@ -106,4 +107,12 @@ private:
     TWeakObjectPtr<UWidget> BoundRoot;
     bool bImageRequestFinished = false;
     bool bApplyingPreview = false;
+    bool bHasPreviewFixture = false;
+    FName LastPreviewState;
+    FString LastPreviewCulture;
+    EMCGameplayUIPreviewScenario LastPreviewScenario=EMCGameplayUIPreviewScenario::Default;
+    FDataTableRowHandle LastPreviewRow;
+    int32 LastPreviewQueueCount=0;
+    TWeakObjectPtr<UDataTable> LastPreviewTable;
+    TWeakObjectPtr<UDataTable> LastPreviewLocalizationTable;
 };

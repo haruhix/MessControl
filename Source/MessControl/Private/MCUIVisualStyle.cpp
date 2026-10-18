@@ -52,8 +52,9 @@ FSlateBrush Surface(UObject* Owner,const FSlateBrush& Previous,const UMCGameplay
     MID->SetVectorParameterValue(TEXT("EdgeColor"),Edge.CopyWithNewOpacity(Edge.A*Color.A));
     MID->SetVectorParameterValue(TEXT("HighlightColor"),P.Cream.CopyWithNewOpacity((Light?.26f:.32f)*Color.A*P.Cream.A));
     MID->SetVectorParameterValue(TEXT("PanelSize"),FLinearColor(FMath::Max(1.,Size.X),FMath::Max(1.,Size.Y),0,0));
-    MID->SetScalarParameterValue(TEXT("Radius"),Radius);
-    MID->SetScalarParameterValue(TEXT("BorderWidth"),bFill?.6f:bEmphasized?2.2f:Theme->OutlineWidth);
+    const float SurfaceRadius=bFill || bDiamond?Radius:FMath::Min(Radius+3.f,static_cast<float>(FMath::Min(Size.X,Size.Y))*.24f);
+    MID->SetScalarParameterValue(TEXT("Radius"),SurfaceRadius);
+    MID->SetScalarParameterValue(TEXT("BorderWidth"),bFill?.75f:bEmphasized?2.6f:FMath::Max(2.f,Theme->OutlineWidth));
     MID->SetScalarParameterValue(TEXT("Glow"),bFill?.08f:bEmphasized?1.f:Light?0.f:.18f);
     MID->SetScalarParameterValue(TEXT("Segments"),Segments);
     MID->SetScalarParameterValue(TEXT("Shape"),bDiamond?1.f:0.f);
@@ -84,8 +85,24 @@ void Progress(UProgressBar* Widget,const UMCGameplayUITheme* Theme,FLinearColor 
     if(!Widget || !Theme) return;
     const auto Size=SizeFor(Widget,FVector2D(240,12));const auto& P=Theme->Palette;
     auto Style=Widget->GetWidgetStyle();
-    Style.SetBackgroundImage(Surface(Widget,Style.BackgroundImage,Theme,P.Ink.CopyWithNewOpacity(Color.A),Size,4,true,Segments));
-    Style.SetFillImage(Surface(Widget,Style.FillImage,Theme,Color,Size,4,true,Segments));
+    // One shader composites track and fill. Two translucent Slate brushes would
+    // increase opacity wherever the fill overlaps its background.
+    FSlateBrush WholeBar=Surface(Widget,Style.BackgroundImage,Theme,Color,Size,4,true,Segments);
+    auto* WholeMID=Cast<UMaterialInstanceDynamic>(WholeBar.GetResourceObject());
+    const bool SinglePass=WholeMID && !Widget->UseMarquee() && !Widget->PercentDelegate.IsBound()
+        && Widget->GetBarFillType()==EProgressBarFillType::LeftToRight;
+    if(SinglePass) {
+        WholeMID->SetVectorParameterValue(TEXT("TrackColor"),P.Ink.CopyWithNewOpacity(Color.A));
+        WholeMID->SetScalarParameterValue(TEXT("Fill"),FMath::Clamp(Widget->GetPercent(),0.f,1.f));
+        Style.SetBackgroundImage(WholeBar);Style.SetFillImage(FSlateNoResource());
+    } else {
+        // Preserve native UMG behavior for marquee, delegate/directional bars,
+        // and projects that temporarily have no procedural material available.
+        Style.SetBackgroundImage(Surface(Widget,Style.BackgroundImage,Theme,P.Ink.CopyWithNewOpacity(Color.A),Size,4,true,Segments));
+        Style.SetFillImage(Surface(Widget,Style.FillImage,Theme,Color,Size,4,true,Segments));
+        if(auto* MID=Cast<UMaterialInstanceDynamic>(Style.BackgroundImage.GetResourceObject())) MID->SetScalarParameterValue(TEXT("Fill"),1.f);
+        if(auto* MID=Cast<UMaterialInstanceDynamic>(Style.FillImage.GetResourceObject())) MID->SetScalarParameterValue(TEXT("Fill"),1.f);
+    }
     FSlateBrush Marquee=FSlateNoResource();Marquee.ImageSize=Size;Style.SetMarqueeImage(Marquee);
     Widget->SetWidgetStyle(Style);Widget->SetBarFillStyle(EProgressBarFillStyle::Mask);
     Widget->SetFillColorAndOpacity(FLinearColor::White);
@@ -125,7 +142,16 @@ void RefreshGeometry(UWidgetTree* Tree)
         };
         if(auto* Border=Cast<UBorder>(Widget)) Update(Border->Background);
         if(auto* ImageWidget=Cast<UImage>(Widget)) Update(ImageWidget->GetBrush());
-        if(auto* ProgressWidget=Cast<UProgressBar>(Widget)) {Update(ProgressWidget->GetWidgetStyle().FillImage);Update(ProgressWidget->GetWidgetStyle().BackgroundImage);}
+        if(auto* ProgressWidget=Cast<UProgressBar>(Widget)) {
+            const auto& Style=ProgressWidget->GetWidgetStyle();
+            Update(Style.FillImage);Update(Style.BackgroundImage);
+            // Percent changes independently of PanelSize, including Designer
+            // Play. Never put this update behind the geometry equality guard.
+            if(Style.FillImage.DrawAs==ESlateBrushDrawType::NoDrawType)
+                if(auto* MID=Cast<UMaterialInstanceDynamic>(Style.BackgroundImage.GetResourceObject()))
+                    if(MID->GetMaterial() && MID->GetMaterial()->GetName()==TEXT("M_UI_Phase1Fill"))
+                        MID->SetScalarParameterValue(TEXT("Fill"),FMath::Clamp(ProgressWidget->GetPercent(),0.f,1.f));
+        }
         if(auto* ButtonWidget=Cast<UButton>(Widget)) {const auto& S=ButtonWidget->GetStyle();Update(S.Normal);Update(S.Hovered);Update(S.Pressed);Update(S.Disabled);}
     });
 }

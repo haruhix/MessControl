@@ -156,7 +156,7 @@ void UMCGameplayUIWidget::ApplyTheme()
             {
                 Text->SetColorAndOpacity(FSlateColor(Color));
                 const int32 Size=Binding.FontSize>0?Binding.FontSize:FMath::RoundToInt(Text->GetFont().Size);
-                Text->SetFont(Resolved->MakeFont(Size,Binding.bBold));
+                Text->SetFont(Resolved->MakeGameplayFont(Size,Binding.bBold));
             }
             break;
         case EMCUIStyleTarget::Image:

@@ -13,6 +13,7 @@
 #include "Components/ScaleBox.h"
 #include "Components/ScrollBox.h"
 #include "Components/SizeBox.h"
+#include "Components/SizeBoxSlot.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
@@ -82,21 +83,53 @@ void UMCBoosterWidget::BindPresentationTree()
     DetailsPanel = Cast<UBorder>(WidgetTree->FindWidget(TEXT("BoosterDetailsPanel")));
     DescriptionLabel = Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("BoosterDescription")));
     DetailsScroll = Cast<UScrollBox>(WidgetTree->FindWidget(TEXT("BoosterDetailsScroll")));
-    if(auto* Root=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("BoosterRoot")))) Root->SetWidthOverride(304);
-    if(auto* IconSize=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("BoosterIconSize")))) {IconSize->SetWidthOverride(54);IconSize->SetHeightOverride(54);}
     for(UTextBlock* Text:{NameLabel.Get(),CountLabel.Get(),FuryLabel.Get(),ArmedLabel.Get(),DescriptionLabel.Get()})
         if(Text) {Text->SetAutoWrapText(true);Text->SetWrapTextAt(0);Text->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);}
     BindStyle(TEXT("BoosterMainPanel"),EMCUIColorToken::Surface,EMCUIStyleTarget::Background);
     BindStyle(TEXT("BoosterQueuePanel"),EMCUIColorToken::LCDBackground,EMCUIStyleTarget::Background);
-    BindStyle(TEXT("BoosterFuryPanel"),EMCUIColorToken::Marine,EMCUIStyleTarget::Background);
-    BindStyle(TEXT("BoosterArmedPanel"),EMCUIColorToken::Warning,EMCUIStyleTarget::Background);
+    BindStyle(TEXT("BoosterFuryPanel"),EMCUIColorToken::LCDBackground,EMCUIStyleTarget::Background);
+    BindStyle(TEXT("BoosterArmedPanel"),EMCUIColorToken::Ink,EMCUIStyleTarget::Background);
     BindStyle(TEXT("BoosterDetailsPanel"),EMCUIColorToken::SurfaceAlt,EMCUIStyleTarget::Background);
-    BindStyle(TEXT("BoosterName"),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,16,true);
-    BindStyle(TEXT("BoosterQueueCount"),EMCUIColorToken::LCDInk,EMCUIStyleTarget::Text,12,false);
-    BindStyle(TEXT("BoosterFuryText"),EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,13,true);
-    BindStyle(TEXT("BoosterArmedText"),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,13,true);
+    BindStyle(TEXT("BoosterName"),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,15,true);
+    BindStyle(TEXT("BoosterQueueCount"),EMCUIColorToken::LCDInk,EMCUIStyleTarget::Text,13,true);
+    BindStyle(TEXT("BoosterFuryText"),EMCUIColorToken::LCDInk,EMCUIStyleTarget::Text,13,true);
+    BindStyle(TEXT("BoosterArmedText"),EMCUIColorToken::Cost,EMCUIStyleTarget::Text,13,true);
     BindStyle(TEXT("BoosterDescription"),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,14,false);
+    NormalizePresentationLayout();
     BoundRoot = WidgetTree->RootWidget;
+}
+
+void UMCBoosterWidget::NormalizePresentationLayout()
+{
+    if(!WidgetTree) return;
+    auto* Root=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("BoosterRoot")));
+    auto* Stack=Cast<UVerticalBox>(WidgetTree->FindWidget(TEXT("BoosterStack")));
+    if(Root && Stack) {
+        Root->SetWidthOverride(304);
+        auto* Compact=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("BoosterCompactSize")));
+        if(!Compact && Root->GetContent()==Stack) {
+            // WidthOverride is only a desired size. The outer preview can allot
+            // 640px; a left-aligned 304px inner box keeps the real HUD compact.
+            Compact=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("BoosterCompactSize"));
+            Root->SetContent(Compact);Compact->SetContent(Stack);
+        }
+        if(Compact) {
+            Compact->SetWidthOverride(304);
+            if(auto* LayoutSlot=Cast<USizeBoxSlot>(Compact->Slot)) {LayoutSlot->SetHorizontalAlignment(HAlign_Left);LayoutSlot->SetVerticalAlignment(VAlign_Top);}
+        }
+    }
+    if(MainPanel) MainPanel->SetPadding(FMargin(9,7));
+    if(auto* Size=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("BoosterIconSize")))) {Size->SetWidthOverride(46);Size->SetHeightOverride(46);}
+    if(auto* Column=WidgetTree->FindWidget(TEXT("BoosterTextColumn"))) if(auto* LayoutSlot=Cast<UHorizontalBoxSlot>(Column->Slot)) LayoutSlot->SetPadding(FMargin(8,0,7,0));
+    if(auto* Queue=Cast<UBorder>(WidgetTree->FindWidget(TEXT("BoosterQueuePanel")))) Queue->SetPadding(FMargin(6,3));
+    if(Keycap) Keycap->SetPadding(FMargin(7,5));
+    for(UBorder* Panel:{FuryPanel.Get(),ArmedPanel.Get()}) if(Panel) {
+        Panel->SetPadding(FMargin(9,6));
+        if(auto* LayoutSlot=Cast<UVerticalBoxSlot>(Panel->Slot)) LayoutSlot->SetPadding(FMargin(0,4,0,0));
+    }
+    for(const TCHAR* Name:{TEXT("BoosterFuryIconSize"),TEXT("BoosterArmedIconSize")})
+        if(auto* Size=Cast<USizeBox>(WidgetTree->FindWidget(Name))) {Size->SetWidthOverride(26);Size->SetHeightOverride(26);}
+    if(DetailsScroll) {DetailsScroll->SetAllowOverscroll(false);DetailsScroll->SetScrollBarVisibility(ESlateVisibility::Visible);DetailsScroll->SetAlwaysShowScrollbar(false);}
 }
 
 void UMCBoosterWidget::BuildPresentationTree()
@@ -280,13 +313,14 @@ void UMCBoosterWidget::ApplyTheme()
     if (!Style) { Super::ApplyTheme(); return; }
     const auto& P = Style->Palette;
     const bool Blocked = Presentation.bActivationBlocked || Presentation.QueueCount <= 0;
+    NormalizePresentationLayout();
     Super::ApplyTheme();
     MCUIVisualStyle::Panel(Keycap,Style,Blocked?P.SurfaceAlt:P.Cream);
-    if(KeyLabel) {KeyLabel->SetFont(Style->MakeFont(14));KeyLabel->SetColorAndOpacity(Blocked?P.Muted:P.Ink);}
+    if(KeyLabel) {KeyLabel->SetFont(Style->MakeGameplayFont(14));KeyLabel->SetColorAndOpacity(Blocked?P.Muted:P.Ink);}
     if (FallbackIcon) { FallbackIcon->Tint = P.Marine;FallbackIcon->FillTint=P.Cream; FallbackIcon->InvalidateLayoutAndVolatility(); }
     if(WidgetTree) {
-        if(auto* Icon=Cast<UMCBoosterFallbackIcon>(WidgetTree->FindWidget(TEXT("BoosterFuryIcon")))) {Icon->Tint=P.OnMarine;Icon->FillTint=P.Mint;Icon->InvalidateLayoutAndVolatility();}
-        if(auto* Icon=Cast<UMCBoosterFallbackIcon>(WidgetTree->FindWidget(TEXT("BoosterArmedIcon")))) {Icon->Tint=P.Ink;Icon->FillTint=P.Cream;Icon->InvalidateLayoutAndVolatility();}
+        if(auto* Icon=Cast<UMCBoosterFallbackIcon>(WidgetTree->FindWidget(TEXT("BoosterFuryIcon")))) {Icon->Tint=P.LCDInk;Icon->FillTint=P.Mint;Icon->InvalidateLayoutAndVolatility();}
+        if(auto* Icon=Cast<UMCBoosterFallbackIcon>(WidgetTree->FindWidget(TEXT("BoosterArmedIcon")))) {Icon->Tint=P.Cost;Icon->FillTint=P.Ink;Icon->InvalidateLayoutAndVolatility();}
     }
     if (Illustration) Illustration->SetColorAndOpacity(FLinearColor::White);
 }
@@ -295,7 +329,12 @@ void UMCBoosterWidget::ApplyEditorPreview(float Time)
 {
     BuildPresentationTree();
     CacheDataTable();
-    bApplyingPreview = true;
+    TGuardValue<bool> PreviewGuard(bApplyingPreview,true);
+    if(bHasPreviewFixture && LastPreviewState==PreviewState && LastPreviewCulture==PreviewCulture
+        && LastPreviewScenario==PreviewScenario && LastPreviewRow==PreviewBoosterRow && LastPreviewQueueCount==PreviewQueueCount
+        && LastPreviewTable.Get()==CachedBoosterTable && LastPreviewLocalizationTable.Get()==CachedLocalizationTable) {
+        SetRenderOpacity(Time<=0.f?1.f:FMath::Clamp(Time*6.f,0.f,1.f));return;
+    }
     FMCUIBoosterViewData Data;
     Data.QueueCount = FMath::Max(0, PreviewQueueCount);
     FMCUIResolvedContent Content;
@@ -327,12 +366,14 @@ void UMCBoosterWidget::ApplyEditorPreview(float Time)
     bPreviewUsedFallback = Content.bUsedFallback;
     RefreshPresentation(Content, ShowDetails);
     ApplyTheme();
+    LastPreviewState=PreviewState;LastPreviewCulture=PreviewCulture;LastPreviewScenario=PreviewScenario;
+    LastPreviewRow=PreviewBoosterRow;LastPreviewQueueCount=PreviewQueueCount;LastPreviewTable=CachedBoosterTable;LastPreviewLocalizationTable=CachedLocalizationTable;bHasPreviewFixture=true;
     SetRenderOpacity(Time <= 0.f ? 1.f : FMath::Clamp(Time * 6.f, 0.f, 1.f));
-    bApplyingPreview = false;
 }
 
 void UMCBoosterWidget::ResetEditorPreview()
 {
+    bHasPreviewFixture=false;
     SetRenderOpacity(1.f);
 }
 

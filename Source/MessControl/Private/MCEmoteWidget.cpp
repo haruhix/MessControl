@@ -10,6 +10,7 @@
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/Border.h"
+#include "Components/ButtonSlot.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/VerticalBox.h"
@@ -34,7 +35,7 @@ namespace MCEmotePrivate
     {
         auto* Result=Tree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);Result->SetText(Text);Result->SetAutoWrapText(true);
         if (const auto* Owner=Tree->GetTypedOuter<UMCGameplayUIWidget>()) if(const auto* Style=Owner->GetResolvedTheme()) {
-            Result->SetFont(Style->MakeFont(Size));Result->SetColorAndOpacity(Style->Palette.Ink);
+            Result->SetFont(Style->MakeGameplayFont(Size));Result->SetColorAndOpacity(Style->Palette.Ink);
         }
         Result->SetJustification(ETextJustify::Center);return Result;
     }
@@ -242,13 +243,14 @@ void UMCEmoteWidget::ApplyTheme()
     if(Wheel) {Wheel->SelectedTint=P.Marine;Wheel->NormalTint=P.Surface;Wheel->BorderTint=P.Border;Wheel->SelectedSector=Category;Wheel->InvalidateLayoutAndVolatility();}
     if(WidgetTree) if(auto* Backdrop=Cast<UBorder>(WidgetTree->FindWidget(TEXT("EmoteBackdrop")))) {Backdrop->SetBrush(FSlateRoundedBoxBrush(P.Backdrop,0));Backdrop->SetBrushColor(FLinearColor::White);}
     BindStyle(TEXT("EmoteListPanel"),EMCUIColorToken::Marine,EMCUIStyleTarget::Background);BindStyle(TEXT("EmoteHeader"),EMCUIColorToken::Cream,EMCUIStyleTarget::Background);
-    auto Text=[&](UTextBlock* Label,int32 Size,FLinearColor Color) {if(Label) {Label->SetFont(Style->MakeFont(Size));Label->SetColorAndOpacity(Color);}};
-    Text(CategoryTitle,25,WidgetTree && WidgetTree->FindWidget(TEXT("EmoteHeader"))?P.Ink:P.OnMarine);Text(Hint,15,P.OnMarine);Text(Footer,14,P.OnMarine);Text(ColorHeading,14,P.OnMarine);
+    auto Text=[&](UTextBlock* Label,int32 Size,FLinearColor Color) {if(Label) {Label->SetFont(Style->MakeGameplayFont(Size));Label->SetColorAndOpacity(Color);}};
+    Text(CategoryTitle,25,WidgetTree && WidgetTree->FindWidget(TEXT("EmoteHeader"))?P.Ink:P.OnMarine);Text(Hint,15,P.OnMarine);Text(Footer,15,P.OnMarine);Text(ColorHeading,16,P.OnMarine);
     const FString Culture=IsPreviewing()?PreviewCulture:FString();
     for(int32 Index=0;Index<SectorLabels.Num();++Index) if(SectorLabels[Index]) {
         SectorLabels[Index]->SetText(UMCUIDataLibrary::FormatTextForCulture(Copy(TEXT("UI.Emote.CategoryShortcut"),LOCTEXT("CategoryShortcut","{Shortcut}  {Category}")),
             FFormatNamedArguments{{TEXT("Shortcut"),Index+1},{TEXT("Category"),CategoryCopy(Index)}},Culture));
-        Text(SectorLabels[Index],16,Index==Category?P.OnMarine:P.Ink);
+        Text(SectorLabels[Index],18,Index==Category?P.OnMarine:P.Ink);
+        SectorLabels[Index]->SetWrapTextAt(190);SectorLabels[Index]->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
     }
     if(ColorHeading) ColorHeading->SetText(Copy(TEXT("UI.Emote.PlayerColor"),LOCTEXT("PlayerColor","Цвет игрока")));
     if(Footer) Footer->SetText(Copy(TEXT("UI.Emote.Controls"),LOCTEXT("Controls","1 / 2 / 3 — раздел    ↑ / ↓ — выбор    Enter — отправить    T / Esc — закрыть")));
@@ -258,14 +260,54 @@ void UMCEmoteWidget::ApplyTheme()
         const bool Selected=Index==KeyboardChoice;MCUIVisualStyle::Button(Button,Style,Selected?P.Mint:P.Button);
         auto ButtonStyle=Button->GetStyle();ButtonStyle.SetNormalPadding(FMargin(12,10));ButtonStyle.SetPressedPadding(FMargin(12,10));
         if(Selected) ButtonStyle.SetNormal(MCUIVisualStyle::Surface(Button,ButtonStyle.Normal,Style,P.Mint,MCUIVisualStyle::SizeFor(Button),Style->CornerRadius,false,0,false,true));
-        Button->SetStyle(ButtonStyle);Text(Cast<UTextBlock>(Button->GetContent()),20,P.ButtonText);
+        Button->SetStyle(ButtonStyle);
+        if(auto* Label=Cast<UTextBlock>(Button->GetContent())) {
+            Text(Label,20,P.ButtonText);
+            const float ArrangedItemsWidth=Items?Items->GetPaintSpaceGeometry().GetLocalSize().X:0.f;
+            const float WrapWidth=ArrangedItemsWidth>1.f?FMath::Min(292.f,FMath::Max(64.f,ArrangedItemsWidth-24.f)):292.f;
+            Label->SetAutoWrapText(false);Label->SetWrapTextAt(WrapWidth);Label->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+        }
+        if(auto* ContentSlot=Cast<UButtonSlot>(Button->GetContentSlot())) {ContentSlot->SetHorizontalAlignment(HAlign_Fill);ContentSlot->SetVerticalAlignment(VAlign_Center);ContentSlot->SetPadding(FMargin(0));}
     }
     for(int32 Index=0;Index<ColorButtons.Num();++Index) {
-        if(ColorButtons[Index]) MCUIVisualStyle::Button(ColorButtons[Index],Style,FMath::Lerp(P.Surface,MCEmotePrivate::PlayerColors[Index],.32f));
-        if(ColorLabels.IsValidIndex(Index) && ColorLabels[Index]) {ColorLabels[Index]->SetText(ColorNames[Index]);Text(ColorLabels[Index],12,P.Ink);}
+        if(ColorButtons[Index]) {
+            MCUIVisualStyle::Button(ColorButtons[Index],Style,FMath::Lerp(P.Surface,MCEmotePrivate::PlayerColors[Index],.32f));
+            auto ButtonStyle=ColorButtons[Index]->GetStyle();ButtonStyle.SetNormalPadding(FMargin(7,4));ButtonStyle.SetPressedPadding(FMargin(7,4));ColorButtons[Index]->SetStyle(ButtonStyle);
+            if(auto* ContentSlot=Cast<UButtonSlot>(ColorButtons[Index]->GetContentSlot())) {ContentSlot->SetHorizontalAlignment(HAlign_Fill);ContentSlot->SetVerticalAlignment(VAlign_Center);ContentSlot->SetPadding(FMargin(0));}
+        }
+        if(ColorLabels.IsValidIndex(Index) && ColorLabels[Index]) {ColorLabels[Index]->SetText(ColorNames[Index]);Text(ColorLabels[Index],14,P.Ink);ColorLabels[Index]->SetWrapTextAt(76);ColorLabels[Index]->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);}
     }
     if(WidgetTree) Text(Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("EmoteCenterKey"))),24,P.OnMarine);
-    Super::ApplyTheme();InvalidateLayoutAndVolatility();
+    Super::ApplyTheme();
+    // Update the named slots too: the authored Phase1 tree has the original
+    // tightly packed color/footer positions and is intentionally preserved.
+    if(ColorHeading) if(auto* PresentationSlot=Cast<UCanvasPanelSlot>(ColorHeading->Slot)) {PresentationSlot->SetPosition(FVector2D(-165,222));PresentationSlot->SetSize(FVector2D(390,28));}
+    if(Footer) {
+        Footer->SetWrapTextAt(900);Footer->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+        if(auto* PresentationSlot=Cast<UCanvasPanelSlot>(Footer->Slot)) {PresentationSlot->SetPosition(FVector2D(-40,318));PresentationSlot->SetSize(FVector2D(900,48));}
+    }
+    if(WidgetTree) {
+        if(auto* Colors=WidgetTree->FindWidget(TEXT("EmoteColors"))) if(auto* PresentationSlot=Cast<UCanvasPanelSlot>(Colors->Slot)) {PresentationSlot->SetPosition(FVector2D(-165,244));PresentationSlot->SetSize(FVector2D(390,44));}
+        if(CategoryTitle) {CategoryTitle->SetAutoWrapText(false);CategoryTitle->SetWrapTextAt(296);CategoryTitle->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);}
+        if(Hint) {Hint->SetAutoWrapText(false);Hint->SetWrapTextAt(320);Hint->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);}
+        auto* Column=ListPanel?Cast<UVerticalBox>(ListPanel->GetContent()):nullptr;
+        auto* Scroll=Cast<UScrollBox>(WidgetTree->FindWidget(TEXT("EmoteListScroll")));
+        if(Column && Scroll && Items) {
+            Scroll->SetAllowOverscroll(false);Scroll->SetScrollbarThickness(FVector2D(5,5));
+            const float GeometryScale=GetPaintSpaceGeometry().GetAccumulatedLayoutTransform().GetScale();
+            const float LayoutScale=FMath::IsFinite(GeometryScale) && GeometryScale>0.f?GeometryScale:1.f;
+            const auto ColumnSlate=Column->TakeWidget();ColumnSlate->MarkPrepassAsDirty();ColumnSlate->SlatePrepass(LayoutScale);
+            const auto ItemsSlate=Items->TakeWidget();ItemsSlate->MarkPrepassAsDirty();ItemsSlate->SlatePrepass(LayoutScale);
+            float Height=ListPanel->GetPadding().GetDesiredSize().Y+8.f;
+            for(UWidget* Child:Column->GetAllChildren()) {
+                const auto* ChildSlot=Cast<UVerticalBoxSlot>(Child->Slot);
+                Height+=(Child==Scroll?Items->GetDesiredSize().Y:Child->GetDesiredSize().Y)+(ChildSlot?ChildSlot->GetPadding().GetDesiredSize().Y:0.f);
+            }
+            if(auto* PresentationSlot=Cast<UCanvasPanelSlot>(ListPanel->Slot)) PresentationSlot->SetSize(FVector2D(360,FMath::Clamp(FMath::CeilToFloat(Height),280.f,470.f)));
+            Scroll->SetScrollBarVisibility(Height>470.f?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+        }
+    }
+    InvalidateLayoutAndVolatility();
 }
 void UMCEmoteWidget::ApplyEditorPreview(float Time)
 {

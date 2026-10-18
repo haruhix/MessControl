@@ -1,6 +1,6 @@
 # Стилевая система игрового интерфейса
 
-Актуальный статус Phase 1 после успешного pass 32, проверок F2 и Details Preview: [Phase1GameplayUI_20261017.md](E:/DEVGAME/MessControl/Docs/UI/Phase1GameplayUI_20261017.md). Визуальное утверждение пользователем ожидается. Ниже сохранена история предыдущих этапов, включая pass 15 и BossHealth Reference.
+Последняя доводка Phase 1: [GameplayUIPolish_20261017.md](E:/DEVGAME/MessControl/Docs/UI/GameplayUIPolish_20261017.md), успешный pass 37 и новые превью. Исходная интеграция с проверкой Details: [Phase1GameplayUI_20261017.md](E:/DEVGAME/MessControl/Docs/UI/Phase1GameplayUI_20261017.md). Визуальное утверждение пользователем ожидается. Ниже — история предыдущих этапов, включая pass 15 и BossHealth Reference.
 
 Обновлено 17 октября 2026 года, по результатам финальной сборки 15. Утверждённый набор — [FriendlyUISuite v10](E:/DEVGAME/MessControl/ArtSource/UI/FriendlyUISuite_20261017_v10/README.md): I01 `_smooth_v4`, I03 `_smooth_v3`, остальные I02/I04–I08 `_smooth_v2`. Сохранены и успешно компилируются 18 authored WBP, сохранены три DT со строками 522/3/72 и подключены 14 отдельных иллюстраций. Проходят 44/44 проверки локализации, 27 технических render fixtures и проверка изменения с восстановлением RGBA общей темы. Подтверждён короткий actual solo PIE с резервом 8/8, выбором награды, паузой, F2, TAB и активацией G; точный охват приведён ниже. Полная приёмка всех состояний, клавиш и физического gamepad этим статусом не заявляется; проверка продвижения, остановки и сброса времени Designer Preview завершена.
 

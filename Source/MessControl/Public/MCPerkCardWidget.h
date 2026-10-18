@@ -69,6 +69,7 @@ protected:
 private:
     void RefreshPresentation();
     void BindPresentationTree();
+    void NormalizePresentationLayout();
     void UpdateImage();
     void ShowLoadedImage(UTexture2D* Texture);
     UPROPERTY(Transient) TObjectPtr<UMCPerkCardButton> ChoiceButton;

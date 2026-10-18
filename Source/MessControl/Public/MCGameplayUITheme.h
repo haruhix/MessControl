@@ -88,6 +88,8 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Theme|Typography") FSlateFontInfo BodyFont;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Theme|Typography") FSlateFontInfo HeadingFont;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Theme|Typography") FSlateFontInfo DisplayFont;
+    /** Compact gameplay headings; encounter reference typography remains independent. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Theme|Typography") FSlateFontInfo CompactHeadingFont;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Theme|Shape", meta=(ClampMin="0",ClampMax="32")) float CornerRadius=8.f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Theme|Shape", meta=(ClampMin="0",ClampMax="4")) float OutlineWidth=1.5f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Theme|Data") TSoftObjectPtr<class UDataTable> LocalizationTable;
@@ -99,6 +101,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Theme|Art") TMap<FName,TSoftObjectPtr<class UTexture2D>> BossPortraits;
     UFUNCTION(BlueprintPure, Category="Theme") FLinearColor GetColor(EMCUIColorToken Token) const;
     UFUNCTION(BlueprintPure, Category="Theme") FSlateFontInfo MakeFont(int32 Size,bool bBold=true) const;
+    UFUNCTION(BlueprintPure, Category="Theme") FSlateFontInfo MakeGameplayFont(int32 Size,bool bBold=true) const;
     UFUNCTION(BlueprintCallable, Category="Theme") void NotifyThemeChanged();
     FOnMCGameplayUIThemeChanged OnThemeChanged;
 #if WITH_EDITOR

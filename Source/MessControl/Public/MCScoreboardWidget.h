@@ -52,4 +52,7 @@ private:
     float RefreshElapsed=.25f;
     void RebuildRows(int32 Count);
     void PresentEntries();
+    void UpdatePresentationLayout(FVector2D Area=FVector2D::ZeroVector);
+    FVector2D LastLayoutArea=FVector2D::ZeroVector;
+    bool bLayoutDirty=true;
 };

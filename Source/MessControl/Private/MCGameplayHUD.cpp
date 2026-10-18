@@ -400,16 +400,18 @@ void UMCGameplayHUD::ApplyTheme()
 {
     const auto* T=GetResolvedTheme();if(!T || !WidgetTree) return;CachePresentationWidgets();const auto& P=T->Palette;
     LocalizationTable=T->LocalizationTable.LoadSynchronous();bSourceKeysCached=false;SourceTextKeys.Reset();
+    SetCopy(TEXT("ReserveLabel"),Copy(TEXT("UI.HUD.ReserveTitle"),LOCTEXT("ReserveTitle","ЗДОРОВЬЕ ЗУБОВ")));
+    SetCopy(TEXT("CleanLabel"),Copy(TEXT("UI.HUD.Cleanliness"),LOCTEXT("Cleanliness","ЧИСТОТА РТА")));
     const FName MarineBoxes[]={TEXT("ReserveBG"),TEXT("CleanBG"),TEXT("HintBG"),TEXT("ResultsBG"),TEXT("ToolTitleBG"),TEXT("CooldownBG"),TEXT("PreviewResourceBG")};
     for(FName Name:MarineBoxes) if(auto* Image=Cast<UImage>(Find(Name))) {Image->SetBrush(FSlateRoundedBoxBrush(FLinearColor::White,T->CornerRadius));Image->SetColorAndOpacity(P.Marine);}
     if(auto* Image=Cast<UImage>(Find(TEXT("TimerBG")))) Image->SetColorAndOpacity(P.LCDBackground);
     for(FName Name:{FName(TEXT("ReserveLabel")),FName(TEXT("CleanLabel")),FName(TEXT("ToolTitle")),FName(TEXT("ActionHint")),FName(TEXT("ResultDetail")),FName(TEXT("PreviewResourceValue"))})
-        if(auto* Label=Cast<UTextBlock>(Find(Name))) {Label->SetFont(T->MakeFont(Name==TEXT("ToolTitle")?14:13));Label->SetColorAndOpacity(P.OnMarine);}
+        if(auto* Label=Cast<UTextBlock>(Find(Name))) {Label->SetFont(T->MakeGameplayFont(Name==TEXT("ToolTitle")?14:13));Label->SetColorAndOpacity(P.OnMarine);}
     if(ProgressionPanel) {ProgressionPanel->SetBrush(FSlateRoundedBoxBrush(P.Marine,T->CornerRadius,P.Border,T->OutlineWidth));ProgressionPanel->SetBrushColor(FLinearColor::White);}
-    if(ProgressionText) {ProgressionText->SetFont(T->MakeFont(13));ProgressionText->SetColorAndOpacity(P.OnMarine);}
+    if(ProgressionText) {ProgressionText->SetFont(T->MakeGameplayFont(13));ProgressionText->SetColorAndOpacity(P.OnMarine);}
     if(ProgressionBar) ProgressionBar->SetFillColorAndOpacity(P.Accent);
     if(CataclysmPanel) {CataclysmPanel->SetBrush(FSlateRoundedBoxBrush(P.Marine,T->CornerRadius,P.Border,T->OutlineWidth));CataclysmPanel->SetBrushColor(FLinearColor::White);}
-    if(CataclysmInstruction) {CataclysmInstruction->SetFont(T->MakeFont(13,false));CataclysmInstruction->SetColorAndOpacity(P.OnMarine);}
+    if(CataclysmInstruction) {CataclysmInstruction->SetFont(T->MakeGameplayFont(13,false));CataclysmInstruction->SetColorAndOpacity(P.OnMarine);}
     for(int32 Index=1;Index<=4;++Index) {
         const FString Player=FString::Printf(TEXT("Player%d"),Index),Tool=FString::Printf(TEXT("Tool%d"),Index);
         if(auto* Image=Cast<UImage>(Find(FName(Player+TEXT("BG"))))) Image->SetColorAndOpacity(P.SurfaceAlt);
@@ -447,7 +449,11 @@ void UMCGameplayHUD::ApplyResourceTheme(UMCStaminaWidget* Resource)
 void UMCGameplayHUD::UpdatePhase1Layout()
 {
     if(!WidgetTree || !Find(TEXT("TimerClock"))) return; // Preserve historical authored trees.
-    FString Signature=FString::Printf(TEXT("%.0f|players%d"),LayoutLogicalWidth,DisplayedPlayerCount);
+    const auto& PaintGeometry=GetPaintSpaceGeometry();
+    if(PaintGeometry.GetLocalSize().X>1.f) LayoutLogicalWidth=PaintGeometry.GetLocalSize().X;
+    const float GeometryScale=PaintGeometry.GetAccumulatedLayoutTransform().GetScale();
+    const float LayoutScale=FMath::IsFinite(GeometryScale) && GeometryScale>0.f?GeometryScale:1.f;
+    FString Signature=FString::Printf(TEXT("%.0f|scale%.4f|players%d"),LayoutLogicalWidth,LayoutScale,DisplayedPlayerCount);
     for(FName Name:{FName(TEXT("ReserveLabel")),FName(TEXT("CleanLabel")),FName(TEXT("TimerLabel")),FName(TEXT("TaskLabel")),FName(TEXT("ToolTitle")),FName(TEXT("ActionHint")),FName(TEXT("ResultTitle")),FName(TEXT("ResultDetail"))})
         if(const auto* Label=Cast<UTextBlock>(Find(Name))) Signature+=TEXT("\x1f")+Label->GetText().ToString();
     if(ProgressionText) Signature+=ProgressionText->GetText().ToString();
@@ -464,7 +470,8 @@ void UMCGameplayHUD::UpdatePhase1Layout()
     {
         auto* Label=Cast<UTextBlock>(Find(Name));if(!Label) return Minimum;
         Label->SetAutoWrapText(false);Label->SetWrapTextAt(Width);Label->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);Label->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);
-        Label->TakeWidget()->SlatePrepass();return FMath::Max(Minimum,static_cast<float>(Label->GetDesiredSize().Y)+1.f);
+        const auto Slate=Label->TakeWidget();Slate->MarkPrepassAsDirty();Slate->SlatePrepass(LayoutScale);
+        return FMath::Max(Minimum,FMath::CeilToFloat(static_cast<float>(Label->GetDesiredSize().Y))+1.f);
     };
     const float ReserveTitleHeight=TextHeight(TEXT("ReserveLabel"),225,24);
     const float ReserveHeight=FMath::Max(88.f,ReserveTitleHeight+58.f);
@@ -490,18 +497,34 @@ void UMCGameplayHUD::UpdatePhase1Layout()
     const float ToolHeight=TextHeight(TEXT("ToolTitle"),214,20);
     const auto* ToolLabel=Cast<UTextBlock>(Find(TEXT("ToolTitle")));
     const float ToolWidth=FMath::Clamp(ToolLabel?ToolLabel->GetDesiredSize().X+16.f:78.f,78.f,230.f);
-    Place(TEXT("ToolTitleBG"),{0,218},{ToolWidth,ToolHeight+10});Place(TEXT("ToolTitle"),{8,222},{ToolWidth-16,ToolHeight});
-    Place(TEXT("InventoryPanel"),{22,-(218+ToolHeight+10+18)},{230,218+ToolHeight+10});
+    constexpr float ToolTitleTop=238.f;
+    Place(TEXT("ToolTitleBG"),{0,ToolTitleTop},{ToolWidth,ToolHeight+10});Place(TEXT("ToolTitle"),{8,ToolTitleTop+4},{ToolWidth-16,ToolHeight});
+    Place(TEXT("InventoryPanel"),{22,-(ToolTitleTop+ToolHeight+10+18)},{230,ToolTitleTop+ToolHeight+10});
+    // Keycaps sit outside the tool silhouettes, so even the smallest viewport
+    // retains a distinct icon and shortcut instead of a tiny corner badge.
+    const FVector2D KeyPositions[]={{-10,20},{20,-12},{49,20},{20,49}};
+    for(int32 Index=0;Index<4;++Index)
+    {
+        const FString Tool=FString::Printf(TEXT("Tool%d"),Index+1);
+        Place(FName(Tool+TEXT("KeyBG")),KeyPositions[Index],{25,26});
+        Place(FName(Tool+TEXT("Key")),KeyPositions[Index]+FVector2D(1,2),{23,23});
+        if(auto* Label=Cast<UTextBlock>(Find(FName(Tool+TEXT("Key")))))
+        {
+            Label->SetJustification(ETextJustify::Center);Label->SetFont(GetResolvedTheme()->MakeGameplayFont(14));
+            Label->SetAutoWrapText(false);Label->SetWrapTextAt(0);
+        }
+        Place(FName(Tool+TEXT("Icon")),{4,3},{54,54});
+    }
     const float HintMaximum=FMath::Clamp((LayoutLogicalWidth-336.f)*.5f-252.f-32.f,220.f,420.f);
     TextHeight(TEXT("ActionHint"),HintMaximum-60.f,28);
     const auto* HintLabel=Cast<UTextBlock>(Find(TEXT("ActionHint")));
     const float HintWidth=FMath::Clamp(HintLabel?HintLabel->GetDesiredSize().X+60.f:200.f,180.f,HintMaximum);
-    const float HintTextHeight=TextHeight(TEXT("ActionHint"),HintWidth-60.f,28),HintHeight=FMath::Max(64.f,HintTextHeight+24.f);
+    const float HintTextHeight=TextHeight(TEXT("ActionHint"),HintWidth-60.f,24),HintHeight=FMath::Max(52.f,HintTextHeight+22.f);
     Place(TEXT("HintPanel"),{252,-(HintHeight+22)},{HintWidth,HintHeight});Place(TEXT("HintBG"),{0,0},{HintWidth,HintHeight});
     Place(TEXT("ActionHint"),{45,10},{HintWidth-60,HintTextHeight});Place(TEXT("ContactProgress"),{45,HintHeight-9},{HintWidth-60,5});
     if(ProgressionText && ProgressionPanel)
     {
-        ProgressionText->SetAutoWrapText(false);ProgressionText->SetWrapTextAt(284);ProgressionText->TakeWidget()->SlatePrepass();
+        ProgressionText->SetAutoWrapText(false);ProgressionText->SetWrapTextAt(284);ProgressionText->TakeWidget()->MarkPrepassAsDirty();ProgressionText->TakeWidget()->SlatePrepass(LayoutScale);
         const float Height=FMath::Max(40.f,ProgressionText->GetDesiredSize().Y+22.f);
         const float PlayersWidth=76.f*FMath::Clamp(DisplayedPlayerCount,1,4);
         Place(TEXT("TeamProgression"),{-326,20},{304,Height});
@@ -580,8 +603,9 @@ void UMCGameplayHUD::ApplyEditorPreview(float Time)
     PreviewTime=FMath::IsFinite(Time)?FMath::Max(0.f,Time):0.f;
     TGuardValue<bool> Guard(bApplyingPreview,true);BuildPresentationTree();CachePresentationWidgets();ApplyTheme();
     const bool Empty=PreviewScenario==EMCGameplayUIPreviewScenario::Empty || PreviewState==TEXT("Empty");
-    const bool Low=PreviewScenario==EMCGameplayUIPreviewScenario::LowResources || PreviewState==TEXT("LowResources");
-    const bool Long=PreviewScenario==EMCGameplayUIPreviewScenario::LongText || PreviewState==TEXT("LongText");
+    const bool PolishStress=PreviewState==TEXT("PolishStress");
+    const bool Low=PolishStress || PreviewScenario==EMCGameplayUIPreviewScenario::LowResources || PreviewState==TEXT("LowResources");
+    const bool Long=PolishStress || PreviewScenario==EMCGameplayUIPreviewScenario::LongText || PreviewState==TEXT("LongText");
     DisplayedPlayerCount=4;
     // Designer intentionally reveals collapsed authored controls for editing.
     // This fixture has no cataclysm instruction, so keep its empty panel absent.
@@ -615,7 +639,7 @@ void UMCGameplayHUD::ApplyEditorPreview(float Time)
         SetCopy(TEXT("ResultTitle"),ResultsDefeat?Copy(TEXT("UI.HUD.RunLost"),LOCTEXT("RunLost","РОТ НЕ СПАСЁН")):Copy(TEXT("UI.HUD.RunComplete"),LOCTEXT("RunComplete","ЗАБЕГ ЗАВЕРШЁН")));
         SetCopy(TEXT("ResultDetail"),UMCUIDataLibrary::FormatTextForCulture(Copy(TEXT("UI.HUD.RunResultDetail"),LOCTEXT("RunResultDetail","Незавершённых событий: {Failed} · R — новый забег")),FFormatNamedArguments{{TEXT("Failed"),ResultsDefeat?3:0}},PreviewCulture));
     }
-    EnsureBoosterWidget();if(BoosterWidget) {FMCUIBoosterViewData Data;Data.GameplayPerkID=TEXT("Fallback_Mouthwash");Data.QueueCount=Empty?0:3;Data.bFuryActive=PreviewScenario==EMCGameplayUIPreviewScenario::ActiveEffect;Data.bGrenadeArmed=PreviewScenario==EMCGameplayUIPreviewScenario::Armed;BoosterWidget->ApplyPresentation(Data);}
+    EnsureBoosterWidget();if(BoosterWidget) {BoosterWidget->PreviewCulture=PreviewCulture;FMCUIBoosterViewData Data;Data.GameplayPerkID=TEXT("Fallback_Mouthwash");Data.QueueCount=Empty?0:3;Data.bFuryActive=PolishStress || PreviewScenario==EMCGameplayUIPreviewScenario::ActiveEffect;Data.bGrenadeArmed=PolishStress || PreviewScenario==EMCGameplayUIPreviewScenario::Armed;BoosterWidget->ApplyPresentation(Data);}
     auto* Root=Cast<UCanvasPanel>(WidgetTree->FindWidget(TEXT("HUDRoot")));
     if(!EncounterPreviewWidget && Root) {
         EncounterPreviewWidget=WidgetTree->ConstructWidget<UMCGameplayUIWidget>(EncounterPreviewWidgetClass?EncounterPreviewWidgetClass.Get():UMCGameplayUIFactory::ResolveClass(TEXT("BossHealth"),UMCBossHealthWidget::StaticClass()),TEXT("EncounterPreview"));
@@ -626,11 +650,11 @@ void UMCGameplayHUD::ApplyEditorPreview(float Time)
         if(PreviewState==TEXT("OneBoss")) EncounterPreviewWidget->PreviewScenario=EMCGameplayUIPreviewScenario::OneBoss;
         else if(PreviewState==TEXT("TwoBosses")) EncounterPreviewWidget->PreviewScenario=EMCGameplayUIPreviewScenario::TwoBosses;
         else if(PreviewState==TEXT("ThreeBosses")) EncounterPreviewWidget->PreviewScenario=EMCGameplayUIPreviewScenario::ThreeBosses;
-        EncounterPreviewWidget->ApplyEditorPreview(Time);EncounterPreviewWidget->SetVisibility(Empty || PreviewState==TEXT("ZeroBosses")?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);
+        EncounterPreviewWidget->ApplyEditorPreview(Time);EncounterPreviewWidget->SetVisibility(Empty || PolishStress || PreviewState==TEXT("ZeroBosses")?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);
     }
     EnsureAlertWidget();if(AlertWidget) {
         AlertWidget->PreviewCulture=PreviewCulture;AlertWidget->PreviewScenario=PreviewScenario;AlertWidget->ApplyEditorPreview(Time);
-        if(const auto* Boss=Cast<UMCBossHealthWidget>(EncounterPreviewWidget)) AlertWidget->SetBossStackCount(Empty || PreviewState==TEXT("ZeroBosses")?0:Boss->GetDisplayedBossCount(),Boss->GetDisplayedStackHeight());
+        if(const auto* Boss=Cast<UMCBossHealthWidget>(EncounterPreviewWidget)) AlertWidget->SetBossStackCount(Empty || PolishStress || PreviewState==TEXT("ZeroBosses")?0:Boss->GetDisplayedBossCount(),PolishStress?0:Boss->GetDisplayedStackHeight());
         else AlertWidget->SetBossStackCount(Empty?0:PreviewScenario==EMCGameplayUIPreviewScenario::OneBoss?1:PreviewScenario==EMCGameplayUIPreviewScenario::TwoBosses?2:3);
         AlertWidget->SetVisibility(!Empty && (Low || Long || PreviewState==TEXT("Alert"))?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     }
@@ -1021,7 +1045,7 @@ int32 UMCGameplayHUD::NativePaint(const FPaintArgs& Args,const FGeometry& Geomet
         }
         FSlateDrawElement::MakeText(Elements,Top+2,
             Geometry.ToPaintGeometry(FVector2D(180,24),FSlateLayoutTransform(AimCenter+FVector2D(-58,Radius+12))),
-            Copy(TEXT("UI.HUD.FoodThrow"),LOCTEXT("FoodThrow","Q · БРОСИТЬ")),ThemeData->MakeFont(12),ESlateDrawEffect::None,Palette.OnMarine.CopyWithNewOpacity(Palette.OnMarine.A*A));
+            Copy(TEXT("UI.HUD.FoodThrow"),LOCTEXT("FoodThrow","Q · БРОСИТЬ")),ThemeData->MakeGameplayFont(12),ESlateDrawEffect::None,Palette.OnMarine.CopyWithNewOpacity(Palette.OnMarine.A*A));
         Top+=2;
     }
     if(!PC || !PC->IsLocalController() || PC->bShowMouseCursor || PC->IsLookInputIgnored() || PC->IsSpectating()
@@ -1208,7 +1232,7 @@ void UMCGameplayHUD::RefreshState()
         for(int32 I=0;I<4;++I) {
             const FString N=FString::Printf(TEXT("Tool%d"),I+1); const bool Selected=uint8(Inv->Selected)==I;
             if(auto* Frame=Cast<UImage>(Find(FName(N+TEXT("Frame"))))) MCUIVisualStyle::Image(Frame,GetResolvedTheme(),Palette.Marine,true,Selected);
-            Color(FName(N+TEXT("KeyBG")),Selected?Palette.Mint:Palette.OnMarine);
+            if(auto* Key=Cast<UImage>(Find(FName(N+TEXT("KeyBG"))))) MCUIVisualStyle::Image(Key,GetResolvedTheme(),Selected?Palette.Mint:Palette.Cream);
             if(auto* Icon=Cast<UMCHUDIcon>(Find(FName(N+TEXT("Icon")))))
             {
                 const FLinearColor NewTint=Selected?Palette.Accent:Palette.OnMarine;

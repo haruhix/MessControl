@@ -6,6 +6,8 @@
 #include "MCPerkChoiceWidget.h"
 #include "MCUIDataLibrary.h"
 #include "Blueprint/WidgetTree.h"
+#include "Brushes/SlateNoResource.h"
+#include "Brushes/SlateRoundedBoxBrush.h"
 #include "Components/Border.h"
 #include "Components/ButtonSlot.h"
 #include "Components/Image.h"
@@ -121,9 +123,35 @@ void UMCPerkCardWidget::BindPresentationTree()
     if(Illustration) if(auto* Fit=Cast<UScaleBox>(Illustration->GetParent())) if(auto* FitSlot=Cast<UOverlaySlot>(Fit->Slot)) FitSlot->SetVerticalAlignment(VAlign_Fill);
     BindStyle(TEXT("BadgeBorder"),EMCUIColorToken::Cream,EMCUIStyleTarget::Background);
     BindStyle(TEXT("StatsBorder"),EMCUIColorToken::LCDBackground,EMCUIStyleTarget::Background);
-    BindStyle(TEXT("CardName"),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,21,true);
+    BindStyle(TEXT("CardName"),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,20,true);
     BindStyle(TEXT("CardBadge"),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,11,true);
     BindStyle(TEXT("CardStats"),EMCUIColorToken::LCDInk,EMCUIStyleTarget::Text,14,true);
+    NormalizePresentationLayout();
+}
+
+void UMCPerkCardWidget::NormalizePresentationLayout()
+{
+    if(!WidgetTree) return;
+    if(ChoiceButton) if(auto* Content=ChoiceButton->GetContent()) if(auto* ContentSlot=Cast<UButtonSlot>(Content->Slot)) {
+        ContentSlot->SetPadding(FMargin(14,12));ContentSlot->SetHorizontalAlignment(HAlign_Fill);ContentSlot->SetVerticalAlignment(VAlign_Fill);
+    }
+    if(BadgeBorder) {BadgeBorder->SetPadding(FMargin(8,5));if(auto* LayoutSlot=Cast<UVerticalBoxSlot>(BadgeBorder->Slot)) LayoutSlot->SetPadding(FMargin(0,0,0,8));}
+    if(NameLabel) {NameLabel->SetLineHeightPercentage(1.f);if(auto* LayoutSlot=Cast<UVerticalBoxSlot>(NameLabel->Slot)) LayoutSlot->SetPadding(FMargin(0,0,0,8));}
+    if(DescriptionLabel) {DescriptionLabel->SetLineHeightPercentage(1.f);if(auto* LayoutSlot=Cast<UVerticalBoxSlot>(DescriptionLabel->Slot)) LayoutSlot->SetPadding(FMargin(2,0,3,8));}
+    if(auto* Size=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("CardIllustrationSize")))) {
+        Size->SetWidthOverride(160);Size->SetHeightOverride(112);
+        if(auto* LayoutSlot=Cast<UVerticalBoxSlot>(Size->Slot)) {LayoutSlot->SetHorizontalAlignment(HAlign_Center);LayoutSlot->SetPadding(FMargin(0,0,0,8));}
+    }
+    if(BodyScroll) {
+        BodyScroll->SetAllowOverscroll(false);BodyScroll->SetAllowRightClickDragScrolling(false);
+        BodyScroll->SetScrollbarThickness(FVector2D(5,5));BodyScroll->SetScrollbarPadding(FMargin(3,0,0,0));
+        BodyScroll->SetScrollBarVisibility(ESlateVisibility::Visible);BodyScroll->SetAlwaysShowScrollbar(false);
+        if(auto* LayoutSlot=Cast<UVerticalBoxSlot>(BodyScroll->Slot)) LayoutSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+    }
+    if(StatsBorder) {
+        StatsBorder->SetPadding(FMargin(9,8));StatsBorder->SetVerticalAlignment(VAlign_Center);
+        if(auto* LayoutSlot=Cast<UVerticalBoxSlot>(StatsBorder->Slot)) {LayoutSlot->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));LayoutSlot->SetPadding(FMargin(0,8,0,0));}
+    }
 }
 
 void UMCPerkCardWidget::BuildPresentationTree()
@@ -195,8 +223,10 @@ void UMCPerkCardWidget::Configure(const FMCPerkCardPresentation& Data,AMCPlayerC
 
 void UMCPerkCardWidget::SetInteractionEnabled(bool bEnabled)
 {
+    const bool Changed=bInteractive!=bEnabled;
     bInteractive=bEnabled;
     if(ChoiceButton) {ChoiceButton->SetIsEnabled(true);ChoiceButton->SetInteractionAllowed(bEnabled);}
+    if(Changed) ApplyTheme();
 }
 
 FButtonStyle UMCPerkCardWidget::GetBaseButtonStyle() const { return BaseButtonStyle; }
@@ -256,25 +286,40 @@ void UMCPerkCardWidget::ApplyTheme()
     const auto* Style=GetResolvedTheme();if(!Style) return;
     const auto& P=Style->Palette;
     const FLinearColor Semantic=Presentation.Polarity==EMCPerkPolarity::Negative?P.Cost:Presentation.Polarity==EMCPerkPolarity::Positive?P.Benefit:P.Ink;
+    NormalizePresentationLayout();
     Super::ApplyTheme();
     const FVector2D CardSize=MCUIVisualStyle::SizeFor(ChoiceButton,FVector2D(316,480));
     BaseButtonStyle.SetNormal(MCUIVisualStyle::Surface(ChoiceButton,BaseButtonStyle.Normal,Style,P.Surface,CardSize,12));
-    BaseButtonStyle.SetHovered(MCUIVisualStyle::Surface(ChoiceButton,BaseButtonStyle.Hovered,Style,P.SurfaceAlt,CardSize,12,false,0,false,true));
-    BaseButtonStyle.SetPressed(MCUIVisualStyle::Surface(ChoiceButton,BaseButtonStyle.Pressed,Style,P.Mint,CardSize,12,false,0,false,true));
+    BaseButtonStyle.SetHovered(MCUIVisualStyle::Surface(ChoiceButton,BaseButtonStyle.Hovered,Style,bInteractive?P.SurfaceAlt:P.Surface,CardSize,12,false,0,false,bInteractive));
+    BaseButtonStyle.SetPressed(MCUIVisualStyle::Surface(ChoiceButton,BaseButtonStyle.Pressed,Style,bInteractive?P.Mint:P.Surface,CardSize,12,false,0,false,bInteractive));
     // Read-only contract cards keep their full readable ink rather than disabled greying.
     BaseButtonStyle.SetDisabled(MCUIVisualStyle::Surface(ChoiceButton,BaseButtonStyle.Disabled,Style,P.Surface,CardSize,12));
     BaseButtonStyle.SetNormalPadding(FMargin(0));BaseButtonStyle.SetPressedPadding(FMargin(0));
     if(ChoiceButton) {ChoiceButton->SetStyle(BaseButtonStyle);ChoiceButton->SetBackgroundColor(FLinearColor::White);}
-    if(IconFallback) {IconFallback->SetFont(Style->MakeFont(NativeIcon?30:58));IconFallback->SetColorAndOpacity(Semantic);}
+    if(NameLabel) {NameLabel->SetFont(Style->MakeGameplayFont(20));NameLabel->SetColorAndOpacity(!bInteractive?Semantic:P.Ink);}
+    if(BadgeBorder) {
+        const FLinearColor BadgeColor=Presentation.Polarity==EMCPerkPolarity::Negative?FMath::Lerp(P.Cream,P.Cost,.3f):
+            Presentation.Polarity==EMCPerkPolarity::Positive?FMath::Lerp(P.Cream,P.Mint,.35f):P.Cream;
+        BadgeBorder->SetBrush(MCUIVisualStyle::Surface(BadgeBorder,BadgeBorder->Background,Style,BadgeColor,MCUIVisualStyle::SizeFor(BadgeBorder),6));
+        BadgeBorder->SetBrushColor(FLinearColor::White);
+    }
+    if(StatsBorder) {StatsBorder->SetBrush(MCUIVisualStyle::Surface(StatsBorder,StatsBorder->Background,Style,P.LCDBackground,MCUIVisualStyle::SizeFor(StatsBorder),6));StatsBorder->SetBrushColor(FLinearColor::White);}
+    if(BodyScroll) {
+        auto BarStyle=BodyScroll->GetWidgetBarStyle();
+        BarStyle.SetNormalThumbImage(FSlateRoundedBoxBrush(P.Muted,3));BarStyle.SetHoveredThumbImage(FSlateRoundedBoxBrush(P.Border,3));BarStyle.SetDraggedThumbImage(FSlateRoundedBoxBrush(P.Focus,3));
+        BodyScroll->SetWidgetBarStyle(BarStyle);
+        auto ScrollStyle=BodyScroll->GetWidgetStyle();ScrollStyle.SetTopShadowBrush(FSlateNoResource());ScrollStyle.SetBottomShadowBrush(FSlateNoResource());BodyScroll->SetWidgetStyle(ScrollStyle);
+    }
+    if(IconFallback) {IconFallback->SetFont(Style->MakeGameplayFont(NativeIcon?30:58));IconFallback->SetColorAndOpacity(Semantic);}
     if(NativeIcon) {NativeIcon->Tint=P.Cream;NativeIcon->InkTint=P.Ink;NativeIcon->HostTint=Semantic;NativeIcon->InvalidateLayoutAndVolatility();}
     if(Illustration) Illustration->SetColorAndOpacity(FLinearColor::White);
     if(DescriptionLabel) {
         if(!RichStyles) {RichStyles=NewObject<UDataTable>(this);RichStyles->RowStruct=FRichTextStyleRow::StaticStruct();}
         else RichStyles->EmptyTable();
-        FTextBlockStyle TextStyle;TextStyle.SetFont(Style->MakeFont(16,false));TextStyle.SetColorAndOpacity(P.Ink);
+        FTextBlockStyle TextStyle;TextStyle.SetFont(Style->MakeGameplayFont(16,false));TextStyle.SetColorAndOpacity(P.Ink);
         FRichTextStyleRow Default;Default.TextStyle=TextStyle;RichStyles->AddRow(TEXT("Default"),Default);
-        FRichTextStyleRow Benefit=Default;Benefit.TextStyle.SetColorAndOpacity(P.Benefit);Benefit.TextStyle.SetFont(Style->MakeFont(16));RichStyles->AddRow(TEXT("benefit"),Benefit);
-        FRichTextStyleRow Cost=Default;Cost.TextStyle.SetColorAndOpacity(P.Cost);Cost.TextStyle.SetFont(Style->MakeFont(16));RichStyles->AddRow(TEXT("cost"),Cost);
+        FRichTextStyleRow Benefit=Default;Benefit.TextStyle.SetColorAndOpacity(P.Benefit);Benefit.TextStyle.SetFont(Style->MakeGameplayFont(16));RichStyles->AddRow(TEXT("benefit"),Benefit);
+        FRichTextStyleRow Cost=Default;Cost.TextStyle.SetColorAndOpacity(P.Cost);Cost.TextStyle.SetFont(Style->MakeGameplayFont(16));RichStyles->AddRow(TEXT("cost"),Cost);
         DescriptionLabel->SetTextStyleSet(nullptr);
         DescriptionLabel->SetTextStyleSet(RichStyles);DescriptionLabel->SetDefaultTextStyle(TextStyle);
     }

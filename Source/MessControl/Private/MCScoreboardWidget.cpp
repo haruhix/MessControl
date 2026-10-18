@@ -70,7 +70,7 @@ void UMCScoreboardWidget::BuildPresentationTree()
 }
 void UMCScoreboardWidget::NativeTick(const FGeometry& Geometry,float Dt)
 {
-    Super::NativeTick(Geometry,Dt); if(IsDesignTime() || !IsVisible()) return; RefreshElapsed+=Dt;
+    Super::NativeTick(Geometry,Dt);UpdatePresentationLayout(Geometry.GetLocalSize());if(IsDesignTime() || !IsVisible()) return;RefreshElapsed+=Dt;
     if(RefreshElapsed>=.25f) {RefreshElapsed=0;Refresh();}
 }
 void UMCScoreboardWidget::RebuildRows(int32 Count)
@@ -142,8 +142,50 @@ void UMCScoreboardWidget::PresentEntries()
         if(Row.Name) {Row.Name->SetTextOverflowPolicy(ETextOverflowPolicy::Ellipsis);Row.Name->SetClipping(EWidgetClipping::ClipToBounds);Row.Name->SetText(Entry.bSpectating?UMCUIDataLibrary::FormatTextForCulture(Localized(TEXT("UI.Scoreboard.ObserverName"),LOCTEXT("ObserverName","{Name} · наблюдает")),FFormatNamedArguments{{TEXT("Name"),Name}},Culture):Name);Row.Name->SetColorAndOpacity(Entry.bSpectating?Palette.Muted:Palette.Ink);Row.Name->SetToolTipText(Row.Name->GetText());}
         if(Row.Points) Row.Points->SetText(UMCUIDataLibrary::NumberForCulture(Entry.Points,Culture));
         if(Row.Ping) Row.Ping->SetText(UMCUIDataLibrary::FormatTextForCulture(Localized(TEXT("UI.Scoreboard.PingValue"),LOCTEXT("PingValue","{Ping} мс")),FFormatNamedArguments{{TEXT("Ping"),UMCUIDataLibrary::NumberForCulture(Entry.bHost?0:FMath::RoundToInt(Entry.PingMilliseconds),Culture)}},Culture));
-        if(Row.Icon) {Row.Icon->Tint=Entry.PlayerColor;Row.Icon->InkTint=Palette.Ink;Row.Icon->EmptyTint=Palette.Muted;Row.Icon->HostTint=Palette.Focus;Row.Icon->bHost=Entry.bHost;Row.Icon->bDead=Entry.bSpectating;Row.Icon->InvalidateLayoutAndVolatility();}
+        if(Row.Icon) {Row.Icon->Tint=Entry.PlayerColor;Row.Icon->InkTint=Palette.Ink;Row.Icon->EmptyTint=Palette.Muted;Row.Icon->HostTint=Palette.Warning;Row.Icon->bHost=Entry.bHost;Row.Icon->bDead=Entry.bSpectating;Row.Icon->InvalidateLayoutAndVolatility();}
     }
+}
+void UMCScoreboardWidget::UpdatePresentationLayout(FVector2D Area)
+{
+    if(!WidgetTree || !Players) return;
+    auto* Size=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("ScoreDesignSize")));
+    auto* Frame=Cast<UBorder>(WidgetTree->FindWidget(TEXT("ScoreFrame")));
+    auto* Column=Frame?Cast<UVerticalBox>(Frame->GetContent()):nullptr;
+    auto* Scroll=Cast<UScrollBox>(WidgetTree->FindWidget(TEXT("ScoreScroll")));
+    if(!Size || !Column || !Scroll) return;
+    if(Area.IsNearlyZero()) Area=GetCachedGeometry().GetLocalSize();
+    if(Area.X<=1 || Area.Y<=1) Area=FVector2D(1920,1080);
+    if(!bLayoutDirty && Area.Equals(LastLayoutArea,.5f)) return;
+    LastLayoutArea=Area;
+    const float Width=FMath::Min(1060.f,FMath::Max(620.f,float(Area.X)-48.f));
+    Size->SetWidthOverride(Width);
+    for(const TCHAR* Name:{TEXT("ScoreTitle"),TEXT("ScoreFooterText"),TEXT("ScorePlayerHeader"),TEXT("ScorePointsHeader"),TEXT("ScorePingHeader")})
+        if(auto* Label=Cast<UTextBlock>(WidgetTree->FindWidget(Name))) {
+            const FName LabelName=Label->GetFName();
+            const float Wrap=LabelName==TEXT("ScoreTitle")?Width-196.f:LabelName==TEXT("ScoreFooterText")?Width-68.f:
+                LabelName==TEXT("ScorePointsHeader")?180.f:LabelName==TEXT("ScorePingHeader")?172.f:Width-472.f;
+            Label->SetAutoWrapText(true);Label->SetWrapTextAt(FMath::Max(90.f,Wrap));Label->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+        }
+    Scroll->SetAllowOverscroll(false);
+    Column->ForceLayoutPrepass();Players->ForceLayoutPrepass();
+    float RowsHeight=0;
+    for(int32 Index=0;Index<Rows.Num();++Index) if(PlayerEntries.IsValidIndex(Index) && Rows[Index].Background) {
+        UBorder* Row=Rows[Index].Background;
+        const auto* RowSlot=Cast<UVerticalBoxSlot>(Row->Slot);
+        RowsHeight+=Row->GetDesiredSize().Y+(RowSlot?RowSlot->GetPadding().GetDesiredSize().Y:0.f);
+    }
+    if(!PlayerEntries.IsEmpty() && RowsHeight<1.f) {bLayoutDirty=true;return;}
+    float Height=Frame->GetPadding().GetDesiredSize().Y+8.f;
+    for(UWidget* Child:Column->GetAllChildren()) {
+        const auto* ChildSlot=Cast<UVerticalBoxSlot>(Child->Slot);
+        Height+=(Child==Scroll?RowsHeight:Child->GetDesiredSize().Y)+(ChildSlot?ChildSlot->GetPadding().GetDesiredSize().Y:0.f);
+    }
+    const float MaximumHeight=FMath::Max(220.f,float(Area.Y)-48.f);
+    Size->SetHeightOverride(FMath::Clamp(FMath::CeilToFloat(Height),220.f,MaximumHeight));
+    // TAB is a held overlay. Keeping the ordinary four rows fully visible is
+    // preferable to a permanently allocated blank fifth row.
+    Scroll->SetScrollBarVisibility(Height>MaximumHeight?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+    bLayoutDirty=false;
 }
 void UMCScoreboardWidget::ApplyTheme()
 {
@@ -170,6 +212,7 @@ void UMCScoreboardWidget::ApplyTheme()
     Copy(TEXT("ScorePlayerHeader"),TEXT("UI.Scoreboard.Player"),LOCTEXT("Player","Игрок"));
     Copy(TEXT("ScorePointsHeader"),TEXT("UI.Scoreboard.Points"),LOCTEXT("Points","Очки"));
     Copy(TEXT("ScoreFooterText"),TEXT("UI.Scoreboard.Footer"),LOCTEXT("Footer","Корона — хост комнаты · Отпусти TAB, чтобы закрыть"));
+    bLayoutDirty=true;UpdatePresentationLayout();
 }
 void UMCScoreboardWidget::ApplyEditorPreview(float Time)
 {

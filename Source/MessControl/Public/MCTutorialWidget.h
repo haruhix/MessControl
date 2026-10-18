@@ -42,6 +42,7 @@ protected:
     virtual void NativeOnInitialized() override;
     virtual void NativeConstruct() override;
     virtual void NativeTick(const FGeometry& Geometry, float DeltaSeconds) override;
+    virtual FReply NativeOnPreviewKeyDown(const FGeometry& Geometry, const FKeyEvent& Event) override;
     virtual FReply NativeOnKeyDown(const FGeometry& Geometry, const FKeyEvent& Event) override;
 private:
     UFUNCTION() void ReadyClicked();
@@ -51,6 +52,7 @@ private:
     FText DirectorCopy(const FText& Text) const;
     FString DisplayCulture() const;
     void BindPresentationTree();
+    void NormalizePresentationLayout();
     UPROPERTY() TObjectPtr<UCanvasPanelSlot> CardSlot;
     UPROPERTY() TObjectPtr<USizeBox> CardSize;
     UPROPERTY() TObjectPtr<UBorder> Card;

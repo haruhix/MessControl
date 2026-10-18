@@ -76,7 +76,7 @@ void UMCGameplayMenuWidget::NativeDestruct()
 UTextBlock* UMCGameplayMenuWidget::AddText(UVerticalBox* Parent,FName Name,const FText& Text,int32 Size)
 {
     auto* Label=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);
-    Label->SetText(Text);Label->SetAutoWrapText(true);Label->SetFont(GetResolvedTheme()->MakeFont(Size));
+    Label->SetText(Text);Label->SetAutoWrapText(true);Label->SetFont(GetResolvedTheme()->MakeGameplayFont(Size));
     Label->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);
     Parent->AddChildToVerticalBox(Label)->SetPadding(FMargin(0,3,0,10));return Label;
 }
@@ -214,6 +214,109 @@ void UMCGameplayMenuWidget::BindPresentationTree()
             Note->RemoveFromParent();Column->AddChildToVerticalBox(Note)->SetPadding(FMargin(0,8,0,6));
             for(UTextBlock* Footer:{Status.Get(),Hint.Get()}) if(Footer) {Footer->RemoveFromParent();Column->AddChildToVerticalBox(Footer)->SetPadding(FMargin(0,3,0,8));}
         }
+    NormalizePresentationLayout();
+}
+
+void UMCGameplayMenuWidget::NormalizePresentationLayout()
+{
+    if(!WidgetTree) return;
+    auto* Settings=Cast<UVerticalBox>(WidgetTree->FindWidget(TEXT("MenuSettingsPage")));
+    if(Settings && VSyncCheck && VSyncCheck->GetParent()==Settings && !WidgetTree->FindWidget(TEXT("MenuVSyncFrame")))
+    {
+        // Replace only the known settings row. Detaching/re-appending the tail
+        // updates live Slate too; InsertChildAt would only reorder the UObject tree.
+        struct FTailEntry {UWidget* Widget;FMargin Padding;FSlateChildSize Size;};
+        TArray<FTailEntry> Tail;
+        const int32 RowIndex=Settings->GetChildIndex(VSyncCheck);
+        for(int32 Index=RowIndex+1;Index<Settings->GetChildrenCount();++Index) {
+            UWidget* Child=Settings->GetChildAt(Index);const auto* ChildSlot=Cast<UVerticalBoxSlot>(Child->Slot);
+            Tail.Add({Child,ChildSlot?ChildSlot->GetPadding():FMargin(0),ChildSlot?ChildSlot->GetSize():FSlateChildSize(ESlateSizeRule::Automatic)});
+        }
+        for(auto& Entry:Tail) Entry.Widget->RemoveFromParent();
+        VSyncCheck->RemoveFromParent();
+        auto* Caption=Cast<UTextBlock>(VSyncCheck->GetContent());VSyncCheck->SetContent(nullptr);
+        auto* Frame=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("MenuVSyncFrame"));Frame->SetPadding(FMargin(16,10));
+        auto* Row=WidgetTree->ConstructWidget<UHorizontalBox>();Frame->SetContent(Row);
+        if(Caption) {
+            auto* CaptionSize=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("MenuVSyncCaptionSize"));CaptionSize->SetWidthOverride(300);CaptionSize->SetContent(Caption);
+            auto* CaptionSlot=Row->AddChildToHorizontalBox(CaptionSize);CaptionSlot->SetPadding(FMargin(0,0,16,0));CaptionSlot->SetVerticalAlignment(VAlign_Center);
+        }
+        auto* CheckSize=WidgetTree->ConstructWidget<USizeBox>();CheckSize->SetWidthOverride(32);CheckSize->SetHeightOverride(32);CheckSize->SetContent(VSyncCheck);
+        Row->AddChildToHorizontalBox(CheckSize)->SetVerticalAlignment(VAlign_Center);
+        Settings->AddChildToVerticalBox(Frame)->SetPadding(FMargin(0,0,0,10));
+        for(auto& Entry:Tail) {auto* ChildSlot=Settings->AddChildToVerticalBox(Entry.Widget);ChildSlot->SetPadding(Entry.Padding);ChildSlot->SetSize(Entry.Size);}
+    }
+    BindStyle(TEXT("MenuVSyncFrame"),EMCUIColorToken::Surface,EMCUIStyleTarget::Background);
+    if(auto* Scroll=Cast<UScrollBox>(WidgetTree->FindWidget(TEXT("GameplayMenuScroll")))) {Scroll->SetAllowOverscroll(false);Scroll->SetScrollbarThickness(FVector2D(5,5));}
+    bLayoutDirty=true;
+}
+
+void UMCGameplayMenuWidget::UpdatePresentationLayout(FVector2D Area)
+{
+    if(!WidgetTree || !Card || !Pages) return;
+    auto* Size=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("GameplayMenuSize")));
+    auto* Column=Cast<UVerticalBox>(WidgetTree->FindWidget(TEXT("GameplayMenuColumn")));
+    auto* Scroll=Cast<UScrollBox>(WidgetTree->FindWidget(TEXT("GameplayMenuScroll")));
+    UWidget* ActivePage=Pages->GetActiveWidget();
+    if(!Size || !Column || !Scroll || !ActivePage) return;
+    if(Area.IsNearlyZero()) Area=GetCachedGeometry().GetLocalSize();
+    if(Area.X<=1 || Area.Y<=1) Area=FVector2D(1920,1080);
+    const float PreferredWidth=Page==EPage::Settings?840.f:Page==EPage::Credits?760.f:Page==EPage::Pause?500.f:640.f;
+    const float Width=FMath::Min(PreferredWidth,FMath::Max(280.f,float(Area.X)-56.f));
+    const float MaximumHeight=FMath::Max(240.f,float(Area.Y)-56.f);
+    const FVector2D ArrangedSize=Size->GetCachedGeometry().GetLocalSize();
+    const float ArrangedScrollHeight=Scroll->GetCachedGeometry().GetLocalSize().Y;
+    // Auto-wrap can change desired height during paint, after the first
+    // prepass. These cached-size reads are cheap once the layout has settled.
+    const bool ContentOutgrewViewport=ArrangedScrollHeight>1.f && ActivePage->GetDesiredSize().Y>ArrangedScrollHeight+1.f && Size->GetHeightOverride()<MaximumHeight-.5f;
+    if(!bLayoutDirty && Area.Equals(LastLayoutArea,.5f) && !ContentOutgrewViewport) return;
+    LastLayoutArea=Area;
+    Size->SetWidthOverride(Width);
+    const float InnerWidth=Width-40.f;
+    const bool UseArrangedWidths=FMath::IsNearlyEqual(float(ArrangedSize.X),Width,.5f);
+    auto WrapLabel=[&](UTextBlock* Label,float AvailableWidth) {
+        if(!Label) return;
+        const float ArrangedWidth=Label->GetCachedGeometry().GetLocalSize().X;
+        if(UseArrangedWidths && ArrangedWidth>1.f) AvailableWidth=FMath::Min(AvailableWidth,ArrangedWidth);
+        // An explicit width makes prepass and paint use the same wrapping
+        // input. AutoWrapText would also consult the previous paint's width.
+        Label->SetAutoWrapText(false);Label->SetWrapTextAt(FMath::Max(64.f,AvailableWidth));
+        Label->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+    };
+    WrapLabel(Heading,FMath::Max(140.f,InnerWidth-88.f));
+    for(const TCHAR* Name:{TEXT("MenuNetworkNote"),TEXT("GameplayMenuHint"),TEXT("GameplayMenuStatus"),TEXT("MenuCreditsBody"),TEXT("MenuCreditsEngine"),TEXT("MenuLeaveBody"),TEXT("MenuVideoConfirmBody"),TEXT("MenuConnectionBody"),TEXT("MenuAddressLabel")})
+        WrapLabel(Cast<UTextBlock>(WidgetTree->FindWidget(Name)),InnerWidth-8.f);
+    for(const TCHAR* Name:{TEXT("MenuResolutionLabel"),TEXT("MenuModeLabel"),TEXT("MenuQualityLabel"),TEXT("MenuRoomLabel"),TEXT("MenuVSyncLabel")})
+        if(auto* Label=Cast<UTextBlock>(WidgetTree->FindWidget(Name))) {
+            const float CaptionWidth=FMath::Clamp(InnerWidth*.39f,160.f,300.f);
+            if(auto* CaptionSize=Cast<USizeBox>(Label->GetParent())) CaptionSize->SetWidthOverride(CaptionWidth);
+            WrapLabel(Label,CaptionWidth);
+        }
+    for(const auto& Button:Buttons) if(Button) if(auto* Inset=Cast<UBorder>(Button->GetContent())) if(auto* Label=Cast<UTextBlock>(Inset->GetContent())) {
+        const bool ActionRow=Cast<UHorizontalBox>(Button->GetParent())!=nullptr;
+        WrapLabel(Label,ActionRow?(InnerWidth-12.f)*.5f-40.f:InnerWidth-40.f);
+    }
+    // Measure the active page and fixed footer separately. A Fill ScrollBox
+    // should consume only the bounded remainder, not create a blank modal body.
+    const float GeometryScale=GetPaintSpaceGeometry().GetAccumulatedLayoutTransform().GetScale();
+    const float LayoutScale=FMath::IsFinite(GeometryScale) && GeometryScale>0.f?GeometryScale:1.f;
+    Column->TakeWidget()->MarkPrepassAsDirty();Column->TakeWidget()->SlatePrepass(LayoutScale);
+    ActivePage->TakeWidget()->MarkPrepassAsDirty();ActivePage->TakeWidget()->SlatePrepass(LayoutScale);
+    float Height=Card->GetPadding().GetDesiredSize().Y+8.f;
+    const float PageHeight=ActivePage->GetDesiredSize().Y;
+    for(UWidget* Child:Column->GetAllChildren()) {
+        if(Child==Status && (!Status || Status->GetText().IsEmpty())) continue;
+        if(Child->GetFName()==TEXT("MenuNetworkNote") && Page!=EPage::Pause) continue;
+        const auto* ChildSlot=Cast<UVerticalBoxSlot>(Child->Slot);
+        Height+=(Child==Scroll?PageHeight:Child->GetDesiredSize().Y)+(ChildSlot?ChildSlot->GetPadding().GetDesiredSize().Y:0.f);
+    }
+    if(PageHeight<1.f) {bLayoutDirty=true;return;}
+    const float TargetHeight=FMath::Clamp(FMath::CeilToFloat(Height),220.f,MaximumHeight);
+    if(!FMath::IsNearlyEqual(Size->GetHeightOverride(),TargetHeight,.5f)) Size->SetHeightOverride(TargetHeight);
+    Scroll->SetScrollBarVisibility(Height>MaximumHeight?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+    // Keep measuring across the first arranged frames, then stop doing
+    // prepasses. A page/theme/viewport change starts the same settle again.
+    bLayoutDirty=!UseArrangedWidths || !FMath::IsNearlyEqual(float(ArrangedSize.Y),TargetHeight,.5f);
 }
 
 void UMCGameplayMenuWidget::UpdatePageCopy()
@@ -319,7 +422,7 @@ void UMCGameplayMenuWidget::SetStatus(const FText& Text)
                 DisplayText=UMCUIDataLibrary::ResolveText(Table,MatchingKey,Text,IsPreviewing()?PreviewCulture:FString());
         }
     }
-    if(!Status->GetText().EqualTo(DisplayText)) Status->SetText(DisplayText);
+    if(!Status->GetText().EqualTo(DisplayText)) {Status->SetText(DisplayText);bLayoutDirty=true;}
     Status->SetVisibility(DisplayText.IsEmpty()?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);
 }
 bool UMCGameplayMenuWidget::SteamAvailable() const
@@ -510,7 +613,7 @@ bool UMCGameplayMenuWidget::MoveFocus(int32 Direction)
 
 void UMCGameplayMenuWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
-    Super::NativeTick(Geometry,DeltaSeconds);if(IsPreviewing()) return;
+    Super::NativeTick(Geometry,DeltaSeconds);UpdatePresentationLayout(Geometry.GetLocalSize());if(IsPreviewing()) return;
     UWidget* Focused=nullptr;
     for(UWidget* Target:FocusTargets) if(Target && (Target->HasUserFocus(GetOwningPlayer()) || Target->HasFocusedDescendants())) {Focused=Target;break;}
     if(LastFocusTarget.Get()!=Focused) {LastFocusTarget=Focused;ApplyTheme();}
@@ -550,7 +653,7 @@ FReply UMCGameplayMenuWidget::NativeOnAnalogValueChanged(const FGeometry& Geomet
 UWidget* UMCGameplayMenuWidget::GeneratePickerItem(FString Item)
 {
     auto* Label=WidgetTree->ConstructWidget<UTextBlock>();Label->SetText(FText::FromString(Item));
-    Label->SetAutoWrapText(true);Label->SetWrapTextAt(340);Label->SetFont(GetResolvedTheme()->MakeFont(20));Label->SetColorAndOpacity(GetResolvedTheme()->Palette.Ink);GeneratedPickerLabels.Add(Label);return Label;
+    Label->SetAutoWrapText(true);Label->SetWrapTextAt(340);Label->SetFont(GetResolvedTheme()->MakeGameplayFont(20));Label->SetColorAndOpacity(GetResolvedTheme()->Palette.Ink);GeneratedPickerLabels.Add(Label);return Label;
 }
 
 void UMCGameplayMenuWidget::ApplyTheme()
@@ -560,12 +663,7 @@ void UMCGameplayMenuWidget::ApplyTheme()
     BindStyle(TEXT("GameplayMenuCard"),EMCUIColorToken::Marine,EMCUIStyleTarget::Background);
     BindStyle(TEXT("GameplayMenuHeader"),EMCUIColorToken::Cream,EMCUIStyleTarget::Background);
     if(Card) Card->SetPadding(FMargin(20,18));
-    const bool Wide=Page==EPage::Settings || Page==EPage::Credits;
-    const float PanelWidth=Wide?840:Page==EPage::Pause?500:640;
-    if(auto* Size=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("GameplayMenuSize")))) {
-        Size->SetWidthOverride(PanelWidth);
-        Size->SetHeightOverride(Page==EPage::Pause?620:Page==EPage::Settings?620:Page==EPage::Connection?790:Page==EPage::Credits?620:460);
-    }
+    const float PanelWidth=Page==EPage::Settings?840:Page==EPage::Credits?760:Page==EPage::Pause?500:640;
     if(auto* Note=WidgetTree->FindWidget(TEXT("MenuNetworkNote"))) Note->SetVisibility(Page==EPage::Pause?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     UpdatePageCopy();TArray<UWidget*> Widgets;WidgetTree->GetAllWidgets(Widgets);
     for(auto* Widget:Widgets) {
@@ -574,7 +672,7 @@ void UMCGameplayMenuWidget::ApplyTheme()
             const bool PickerCaption=Cast<USizeBox>(Label->GetParent()) && Cast<UHorizontalBox>(Label->GetParent()->GetParent());
             Label->SetAutoWrapText(true);Label->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);
             const bool NetworkNote=Label->GetFName()==TEXT("MenuNetworkNote");
-            Label->SetFont(ThemeData->MakeFont(Label==Heading?30:Label==Hint?14:Label==Status || NetworkNote?16:bButton?22:PickerCaption?21:18,bButton || Label==Heading || PickerCaption));
+            Label->SetFont(ThemeData->MakeGameplayFont(Label==Heading?30:Label==Hint?14:Label==Status || NetworkNote?16:bButton?22:PickerCaption?21:18,bButton || Label==Heading || PickerCaption));
             if(NetworkNote || Label==Hint) Label->SetWrapTextAt(PanelWidth-40.f);
             Label->SetColorAndOpacity(Label==Heading?(WidgetTree->FindWidget(TEXT("GameplayMenuHeader"))?P.Ink:P.OnMarine):Label==Hint?P.OnMarine:Label==Status?P.Mint:bButton?P.ButtonText:PickerCaption?P.Ink:P.OnMarine);
             Label->SetShadowOffset(FVector2D::ZeroVector);
@@ -612,7 +710,8 @@ void UMCGameplayMenuWidget::ApplyTheme()
             TintGlyph(Style.UncheckedImage,P.Ink);TintGlyph(Style.UncheckedHoveredImage,P.Focus);TintGlyph(Style.UncheckedPressedImage,P.ButtonText);
             TintGlyph(Style.CheckedImage,P.ButtonText);TintGlyph(Style.CheckedHoveredImage,P.ButtonText);TintGlyph(Style.CheckedPressedImage,P.ButtonText);
             TintGlyph(Style.UndeterminedImage,P.ButtonText);TintGlyph(Style.UndeterminedHoveredImage,P.ButtonText);TintGlyph(Style.UndeterminedPressedImage,P.ButtonText);
-            const FVector2D CheckSize=Style.BackgroundImage.ImageSize.IsNearlyZero()?FVector2D(20,20):FVector2D(Style.BackgroundImage.ImageSize);
+            const FVector2D CheckSize(28,28);
+            for(FSlateBrush* Glyph:{&Style.UncheckedImage,&Style.UncheckedHoveredImage,&Style.UncheckedPressedImage,&Style.CheckedImage,&Style.CheckedHoveredImage,&Style.CheckedPressedImage,&Style.UndeterminedImage,&Style.UndeterminedHoveredImage,&Style.UndeterminedPressedImage}) Glyph->ImageSize=CheckSize;
             Style.SetBackgroundImage(FSlateRoundedBoxBrush(Enabled?P.Button:P.ButtonDisabled,4,P.Border,ThemeData->OutlineWidth,CheckSize));
             Style.SetBackgroundHoveredImage(FSlateRoundedBoxBrush(Enabled?P.ButtonHover:P.ButtonDisabled,4,P.Focus,ThemeData->OutlineWidth,CheckSize));
             Style.SetBackgroundPressedImage(FSlateRoundedBoxBrush(Enabled?P.ButtonPressed:P.ButtonDisabled,4,P.Focus,ThemeData->OutlineWidth,CheckSize));
@@ -620,7 +719,7 @@ void UMCGameplayMenuWidget::ApplyTheme()
             Style.SetCheckedForegroundColor(P.Ink);Style.SetCheckedHoveredForegroundColor(P.Ink);Style.SetCheckedPressedForegroundColor(P.Ink);Style.SetUndeterminedForegroundColor(P.Ink);
             Style.SetBorderBackgroundColor(Enabled?P.Button:P.ButtonDisabled);Check->SetWidgetStyle(Style);
         } else if(auto* Edit=Cast<UEditableTextBox>(Widget)) {
-            auto Style=Edit->GetWidgetStyle();Style.SetFont(ThemeData->MakeFont(17));
+            auto Style=Edit->GetWidgetStyle();Style.SetFont(ThemeData->MakeGameplayFont(17));
             Style.SetBackgroundImageNormal(FSlateRoundedBoxBrush(P.SurfaceAlt,8,P.Border,ThemeData->OutlineWidth));
             Style.SetBackgroundImageHovered(FSlateRoundedBoxBrush(P.SurfaceAlt,8,P.Focus,ThemeData->OutlineWidth));
             Style.SetBackgroundImageFocused(FSlateRoundedBoxBrush(P.SurfaceAlt,8,P.Focus,ThemeData->OutlineWidth));
@@ -631,9 +730,10 @@ void UMCGameplayMenuWidget::ApplyTheme()
             Edit->SetForegroundColor(P.Ink);
         }
     }
-    for(UTextBlock* Label:GeneratedPickerLabels) if(Label) {Label->SetFont(ThemeData->MakeFont(20));Label->SetColorAndOpacity(P.Ink);}
+    for(UTextBlock* Label:GeneratedPickerLabels) if(Label) {Label->SetFont(ThemeData->MakeGameplayFont(20));Label->SetColorAndOpacity(P.Ink);}
     if(auto* Icon=Cast<UMCHUDIcon>(WidgetTree->FindWidget(TEXT("GameplayMenuTooth")))) {Icon->Tint=P.Accent;Icon->InkTint=P.Ink;Icon->InvalidateLayoutAndVolatility();}
     Super::ApplyTheme();
+    bLayoutDirty=true;UpdatePresentationLayout();
 }
 void UMCGameplayMenuWidget::ApplyEditorPreview(float Time)
 {

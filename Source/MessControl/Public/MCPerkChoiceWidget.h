@@ -56,6 +56,7 @@ protected:
     virtual FReply NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event) override;
     virtual FReply NativeOnKeyDown(const FGeometry& Geometry, const FKeyEvent& Event) override;
     virtual FReply NativeOnAnalogValueChanged(const FGeometry& Geometry, const FAnalogInputEvent& Event) override;
+    virtual FReply NativeOnMouseMove(const FGeometry& Geometry,const FPointerEvent& Event) override;
 private:
     void BuildChoices(const TArray<FName>& IDs,EMCPerkPolarity Polarity,bool bPersonal,bool bReadOnly=false);
     void AddAction(const FText& Text,int32 Index);
@@ -66,6 +67,7 @@ private:
     FString DisplayCulture() const;
     FMCPerkCardPresentation MakePresentation(FName ID,const FMCPerkDefinition& Definition,bool bPersonal,int32 PreviewStacks=INDEX_NONE) const;
     void SetOrdinaryHeader();
+    void NormalizePresentationLayout();
     UPROPERTY(Transient) TObjectPtr<UBorder> PanelBorder;
     UPROPERTY(Transient) TObjectPtr<UBorder> HeaderBorder;
     UPROPERTY() TObjectPtr<UTextBlock> Title;
@@ -80,6 +82,7 @@ private:
     int32 GamepadSelection=0;
     double NextStickNavigationAt=0;
     bool bShowingChoices = false;
+    bool bNavigationHighlight=false;
     bool bSelectionPending = false;
     bool bLevelPanel=false,bOptionalReward=false,bConfirming=false;
     bool bApplyingPreview=false,bPreviewRerollSpent=false;

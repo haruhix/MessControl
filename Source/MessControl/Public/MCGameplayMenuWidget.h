@@ -79,6 +79,8 @@ protected:
 private:
     enum class EPage:uint8 { Pause,Settings,Credits,Leave,Exit,VideoConfirm,Connection };
     void BindPresentationTree();
+    void NormalizePresentationLayout();
+    void UpdatePresentationLayout(FVector2D Area=FVector2D::ZeroVector);
     void ShowPage(EPage NewPage);
     void PopulateSettings();
     void ApplySettings();
@@ -125,4 +127,6 @@ private:
     int32 LastSearchRevision=INDEX_NONE;
     FString LastSessionStatus;
     TWeakObjectPtr<UWidget> LastFocusTarget;
+    FVector2D LastLayoutArea=FVector2D::ZeroVector;
+    bool bLayoutDirty=true;
 };
