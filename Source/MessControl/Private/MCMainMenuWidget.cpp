@@ -3,6 +3,9 @@
 #include "MCGameState.h"
 #include "MCPlayerController.h"
 #include "MCSteamSessionSubsystem.h"
+#include "MCUIDataLibrary.h"
+#include "MCGameplayUIFactory.h"
+#include "MCGameplayUITheme.h"
 #include "Blueprint/WidgetTree.h"
 #include "Brushes/SlateColorBrush.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
@@ -27,6 +30,12 @@
 
 namespace MCMainMenuPrivate
 {
+    FSlateFontInfo Font(FName Style,int32 Size)
+    {
+        // The saved runtime composite contains its CJK face in packaged games.
+        const auto* Theme=UMCGameplayUIFactory::GetMasterTheme();
+        return Theme?Theme->MakeFont(Size,Style==TEXT("Bold")):FCoreStyle::GetDefaultFontStyle(Style,Size);
+    }
     const FName MouthMap(TEXT("/Game/Maps/L_Mouth"));
     const FName TutorialMap(TEXT("/Game/Maps/L_Tutorial"));
     const FLinearColor TextColor(.94f,.96f,.97f);
@@ -67,6 +76,16 @@ void UMCMainMenuActionButton::Clicked()
     if (Menu) Menu->HandleAction(Action);
 }
 
+FString UMCMainMenuWidget::LocalizedCopy(FName Key,const FString& Fallback) const
+{
+    return UMCUIDataLibrary::ResolveText(UMCUIDataLibrary::GetDefaultLocalizationTable(),Key,FText::AsCultureInvariant(Fallback)).ToString();
+}
+FString UMCMainMenuWidget::FormatCopy(FName Key,const FString& Fallback,const FFormatNamedArguments& Arguments) const
+{
+    return UMCUIDataLibrary::FormatTextForCulture(UMCUIDataLibrary::ResolveText(
+        UMCUIDataLibrary::GetDefaultLocalizationTable(),Key,FText::AsCultureInvariant(Fallback)),Arguments).ToString();
+}
+
 void UMCMainMenuWidget::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
@@ -92,8 +111,8 @@ void UMCMainMenuWidget::NativeOnInitialized()
     Card->SetContent(Size);
     auto* Main=WidgetTree->ConstructWidget<UVerticalBox>(); Size->SetContent(Main);
     TitleText=WidgetTree->ConstructWidget<UTextBlock>();
-    TitleText->SetText(FText::FromString(TEXT("MESS CONTROL")));
-    TitleText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),36));
+    TitleText->SetText(FText::FromString(LocalizedCopy(TEXT("UI.MainMenu.BrandTitle"),TEXT("MESS CONTROL"))));
+    TitleText->SetFont(MCMainMenuPrivate::Font(TEXT("Bold"),36));
     TitleText->SetColorAndOpacity(FSlateColor(MCMainMenuPrivate::Accent));
     Main->AddChildToVerticalBox(TitleText)->SetPadding(FMargin(0,0,0,20));
 
@@ -101,13 +120,13 @@ void UMCMainMenuWidget::NativeOnInitialized()
     Main->AddChildToVerticalBox(Scroll)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
     Content=WidgetTree->ConstructWidget<UVerticalBox>(); Scroll->AddChild(Content);
     StatusText=WidgetTree->ConstructWidget<UTextBlock>();
-    StatusText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),14));
+    StatusText->SetFont(MCMainMenuPrivate::Font(TEXT("Regular"),14));
     StatusText->SetColorAndOpacity(FSlateColor(MCMainMenuPrivate::Accent));
     StatusText->SetAutoWrapText(true);
     Main->AddChildToVerticalBox(StatusText)->SetPadding(FMargin(0,14,0,0));
     HintText=WidgetTree->ConstructWidget<UTextBlock>();
-    HintText->SetText(FText::FromString(TEXT("Мышь / ↑↓ / D-pad · Enter / A — выбрать · Esc / B — назад")));
-    HintText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),12));
+    HintText->SetText(FText::FromString(LocalizedCopy(TEXT("UI.MainMenu.NavigationHint"),TEXT("Мышь / ↑↓ / D-pad · Enter / A — выбрать · Esc / B — назад"))));
+    HintText->SetFont(MCMainMenuPrivate::Font(TEXT("Regular"),12));
     HintText->SetColorAndOpacity(FSlateColor(MCMainMenuPrivate::TextColor));
     HintText->SetAutoWrapText(true);
     Main->AddChildToVerticalBox(HintText)->SetPadding(FMargin(0,10,0,0));
@@ -131,7 +150,7 @@ UTextBlock* UMCMainMenuWidget::AddText(const FString& Text, int32 Size)
 {
     auto* Label=WidgetTree->ConstructWidget<UTextBlock>();
     Label->SetText(FText::FromString(Text));
-    Label->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),Size));
+    Label->SetFont(MCMainMenuPrivate::Font(TEXT("Regular"),Size));
     Label->SetColorAndOpacity(FSlateColor(MenuTextColor()));
     Label->SetAutoWrapText(true);
     Content->AddChildToVerticalBox(Label)->SetPadding(FMargin(0,4,0,8));
@@ -153,8 +172,13 @@ UMCMainMenuActionButton* UMCMainMenuWidget::AddButton(const FString& Text, EMCMa
         Button->SetBackgroundColor(FLinearColor::White);
     }
     auto* Label=WidgetTree->ConstructWidget<UTextBlock>();
-    Label->SetText(FText::FromString(Text));
-    Label->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),19));
+    static const TCHAR* ActionNames[]={TEXT("Tutorial"),TEXT("CreateLobby"),TEXT("JoinLobby"),TEXT("Settings"),TEXT("Credits"),TEXT("Exit"),TEXT("Back"),TEXT("Host"),TEXT("FindRooms"),TEXT("JoinRoom"),TEXT("JoinAddress"),TEXT("ApplySettings"),TEXT("KeepSettings"),TEXT("RevertSettings"),TEXT("StartLobby"),TEXT("Invite"),TEXT("LeaveLobby"),TEXT("ConfirmLeave"),TEXT("ConfirmExit"),TEXT("Resume"),TEXT("Emotes")};
+    static_assert(UE_ARRAY_COUNT(ActionNames)==int32(EMCMainMenuAction::Emotes)+1,"Keep action keys aligned with the existing menu actions");
+    FName Key(*(FString(TEXT("UI.MainMenu.Action."))+ActionNames[FMath::Clamp(int32(Action),0,int32(UE_ARRAY_COUNT(ActionNames))-1)]));
+    if(Action==EMCMainMenuAction::Back && (Page==EPage::Exit || Page==EPage::Leave)) Key=TEXT("UI.MainMenu.Action.Cancel");
+    if(Action==EMCMainMenuAction::LeaveLobby && Page==EPage::Pause) Key=TEXT("UI.MainMenu.Action.ReturnToMenu");
+    Label->SetText(FText::FromString(LocalizedCopy(Key,Text)));
+    Label->SetFont(MCMainMenuPrivate::Font(TEXT("Bold"),19));
     Label->SetColorAndOpacity(FSlateColor(bEmbedded && bPrimary?EmbeddedStyle.CardColor:MenuTextColor()));
     Label->SetJustification(ETextJustify::Center);
     auto* ButtonPadding=WidgetTree->ConstructWidget<UBorder>();
@@ -170,13 +194,13 @@ UComboBoxString* UMCMainMenuWidget::AddPicker(const FString& Label)
 {
     AddText(Label,15);
     auto* Picker=WidgetTree->ConstructWidget<UComboBoxString>();
+    Picker->OnGenerateWidgetEvent.BindDynamic(this,&ThisClass::GeneratePickerItem);
     if (EmbeddedRoot!=EEmbeddedRoot::None)
     {
         FComboBoxStyle Style=Picker->GetWidgetStyle();
         Style.ComboButtonStyle.SetButtonStyle(MCMainMenuPrivate::EmbeddedButtonStyle(Style.ComboButtonStyle.ButtonStyle,EmbeddedStyle,false));
         Style.ComboButtonStyle.SetMenuBorderBrush(FSlateRoundedBoxBrush(EmbeddedStyle.CardColor,FMath::Clamp(EmbeddedStyle.CornerRadius,0.f,32.f)));
         Picker->SetWidgetStyle(Style);
-        Picker->OnGenerateWidgetEvent.BindDynamic(this,&ThisClass::GeneratePickerItem);
     }
     GamepadTargets.Add(Picker);
     Content->AddChildToVerticalBox(Picker)->SetPadding(FMargin(0,0,0,8));
@@ -187,7 +211,7 @@ UWidget* UMCMainMenuWidget::GeneratePickerItem(FString Item)
 {
     auto* Label=WidgetTree->ConstructWidget<UTextBlock>();
     Label->SetText(FText::FromString(Item));
-    Label->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),17));
+    Label->SetFont(MCMainMenuPrivate::Font(TEXT("Regular"),17));
     Label->SetColorAndOpacity(FSlateColor(MenuTextColor()));
     return Label;
 }
@@ -242,16 +266,16 @@ void UMCMainMenuWidget::ApplyPresentation()
     }
     if (TitleText)
     {
-        FString Title=TEXT("MESS CONTROL");
+        FString Title=LocalizedCopy(TEXT("UI.MainMenu.BrandTitle"),TEXT("MESS CONTROL"));
         if (EmbeddedRoot==EEmbeddedRoot::Connection)
         {
-            const TCHAR* Species=EmbeddedSelectedDay==1?TEXT("HUMAN"):EmbeddedSelectedDay==2?TEXT("PREDATOR"):
-                EmbeddedSelectedDay==3?TEXT("VAMPIRE"):TEXT("COMING SOON");
+            const FString Species=EmbeddedSelectedDay==1?LocalizedCopy(TEXT("UI.MainMenu.Species.Human"),TEXT("HUMAN")):EmbeddedSelectedDay==2?LocalizedCopy(TEXT("UI.MainMenu.Species.Predator"),TEXT("PREDATOR")):
+                EmbeddedSelectedDay==3?LocalizedCopy(TEXT("UI.MainMenu.Species.Vampire"),TEXT("VAMPIRE")):LocalizedCopy(TEXT("UI.MainMenu.ComingSoon"),TEXT("COMING SOON"));
             Title=EmbeddedSelectedDay>=1 && EmbeddedSelectedDay<=7?
-                FString::Printf(TEXT("DAY %02d / %s"),EmbeddedSelectedDay,Species):TEXT("DAY —");
+                FormatCopy(TEXT("UI.MainMenu.EmbeddedDayTitle"),TEXT("DAY {Day} / {Species}"),{{TEXT("Day"),FText::AsCultureInvariant(FString::Printf(TEXT("%02d"),EmbeddedSelectedDay))},{TEXT("Species"),FText::AsCultureInvariant(Species)}}):LocalizedCopy(TEXT("UI.MainMenu.DayUnavailable"),TEXT("DAY —"));
         }
         TitleText->SetText(FText::FromString(Title));
-        TitleText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),bEmbedded?30:36));
+        TitleText->SetFont(MCMainMenuPrivate::Font(TEXT("Bold"),bEmbedded?30:36));
         TitleText->SetColorAndOpacity(FSlateColor(MenuAccentColor()));
     }
     if (StatusText) StatusText->SetColorAndOpacity(FSlateColor(MenuAccentColor()));
@@ -352,7 +376,19 @@ bool UMCMainMenuWidget::NormalizeJoinAddress(const FString& Input, FString& OutA
 
 void UMCMainMenuWidget::SetStatus(const FString& Text)
 {
-    if (StatusText) StatusText->SetText(FText::FromString(Text));
+    if(!StatusText) return;
+    UDataTable* Table=UMCUIDataLibrary::GetDefaultLocalizationTable();FName Key=NAME_None;
+    if(!Text.IsEmpty() && Table && Table->GetRowStruct()==FMCUILocalizationRow::StaticStruct()) {
+        for(const auto& Entry:Table->GetRowMap()) {
+            if(!Entry.Key.ToString().StartsWith(TEXT("UI.Connection.Status."),ESearchCase::CaseSensitive)) continue;
+            const auto* Row=reinterpret_cast<const FMCUILocalizationRow*>(Entry.Value);
+            const FString* Source=Row?FTextInspector::GetSourceString(Row->SourceText):nullptr;
+            if(!Row || (Source?*Source:Row->SourceText.ToString())!=Text) continue;
+            if(!Key.IsNone()) {Key=NAME_None;break;}
+            Key=Entry.Key;
+        }
+    }
+    StatusText->SetText(UMCUIDataLibrary::ResolveText(Table,Key,FText::AsCultureInvariant(Text)));
 }
 
 void UMCMainMenuWidget::ShowLobby()
@@ -390,61 +426,61 @@ void UMCMainMenuWidget::ShowPage(EPage NewPage)
     case EPage::Connection:
         if (CanLaunchEmbeddedDay())
         {
-            AddText(TEXT("PLAY TOGETHER"),24);
-            AddText(TEXT("Создай комнату для обычной смены или присоединись к друзьям."));
+            AddText(LocalizedCopy(TEXT("UI.MainMenu.ConnectionHeading"),TEXT("PLAY TOGETHER")),24);
+            AddText(LocalizedCopy(TEXT("UI.MainMenu.ConnectionBody"),TEXT("Создай комнату для обычной смены или присоединись к друзьям.")));
             OnlineButtons.Add(AddButton(TEXT("Create Lobby"),EMCMainMenuAction::CreateLobby));
             OnlineButtons.Add(AddButton(TEXT("Join Lobby"),EMCMainMenuAction::JoinLobby));
         }
         else
         {
-            AddText(TEXT("COMING SOON"),24);
-            AddText(TEXT("Игровой контент этого дня ещё не подключён. Пока доступна игра в Day 01."));
+            AddText(LocalizedCopy(TEXT("UI.MainMenu.ComingSoon"),TEXT("COMING SOON")),24);
+            AddText(LocalizedCopy(TEXT("UI.MainMenu.DayUnavailableBody"),TEXT("Игровой контент этого дня ещё не подключён. Пока доступна игра в Day 01.")));
         }
         AddButton(TEXT("Back"),EMCMainMenuAction::Back);
         break;
     case EPage::Main:
-        AddText(TEXT("Четыре маленьких зуба. Один рот. Семь дней хаоса."),16);
+        AddText(LocalizedCopy(TEXT("UI.MainMenu.Tagline"),TEXT("Четыре маленьких зуба. Один рот. Семь дней хаоса.")),16);
         AddButton(TEXT("Tutorial"),EMCMainMenuAction::Tutorial);
         AddButton(TEXT("Create Lobby"),EMCMainMenuAction::CreateLobby);
         AddButton(TEXT("Join Lobby"),EMCMainMenuAction::JoinLobby);
         AddButton(TEXT("Settings"),EMCMainMenuAction::Settings);
         AddButton(TEXT("Credits"),EMCMainMenuAction::Credits);
         AddButton(TEXT("Exit"),EMCMainMenuAction::Exit);
-        AddText(TEXT("Tutorial — отдельная учебная смена. Create Lobby — обычная игра с друзьями."),14);
+        AddText(LocalizedCopy(TEXT("UI.MainMenu.ModeHint"),TEXT("Tutorial — отдельная учебная смена. Create Lobby — обычная игра с друзьями.")),14);
         break;
     case EPage::Host:
-        AddText(TEXT("CREATE LOBBY"),24);
+        AddText(LocalizedCopy(TEXT("UI.MainMenu.HostHeading"),TEXT("CREATE LOBBY")),24);
         HostTutorialCheck=WidgetTree->ConstructWidget<UCheckBox>();
         GamepadTargets.Add(HostTutorialCheck);
         {
             auto* Label=WidgetTree->ConstructWidget<UTextBlock>();
-            Label->SetText(FText::FromString(TEXT("Начать с обучения")));
-            Label->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),17));
+            Label->SetText(FText::FromString(LocalizedCopy(TEXT("UI.MainMenu.StartWithTutorial"),TEXT("Начать с обучения"))));
+            Label->SetFont(MCMainMenuPrivate::Font(TEXT("Regular"),17));
             Label->SetColorAndOpacity(FSlateColor(MenuTextColor()));
             HostTutorialCheck->SetContent(Label);
             HostTutorialCheck->SetIsChecked(bHostStartWithTutorial);
             HostTutorialCheck->OnCheckStateChanged.AddDynamic(this,&ThisClass::HostTutorialChanged);
             Content->AddChildToVerticalBox(HostTutorialCheck)->SetPadding(FMargin(0,6,0,12));
         }
-        AddText(TEXT("С обучением: сначала учебная карта, затем обычная игра. Без галочки — сразу обычная карта."),14);
-        AddText(bSteam?FString::Printf(TEXT("Steam · %s\nДо четырёх игроков. После загрузки комнаты хост запускает смену кнопкой Start."),*Steam->GetPlayerName()):
-            TEXT("Локальная комната по IP · UDP 7777\nДрузья подключаются через Join Lobby. Хост запускает смену кнопкой Start."));
+        AddText(LocalizedCopy(TEXT("UI.MainMenu.TutorialOptionHint"),TEXT("С обучением: сначала учебная карта, затем обычная игра. Без галочки — сразу обычная карта.")),14);
+        AddText(bSteam?FormatCopy(TEXT("UI.MainMenu.HostSteamBody"),TEXT("Steam · {Host}\nДо четырёх игроков. После загрузки комнаты хост запускает смену кнопкой Start."),{{TEXT("Host"),FText::AsCultureInvariant(Steam->GetPlayerName())}}):
+            LocalizedCopy(TEXT("UI.MainMenu.HostLocalBody"),TEXT("Локальная комната по IP · UDP 7777\nДрузья подключаются через Join Lobby. Хост запускает смену кнопкой Start.")));
         OnlineButtons.Add(AddButton(TEXT("Create"),EMCMainMenuAction::Host));
         AddButton(TEXT("Back"),EMCMainMenuAction::Back);
         break;
     case EPage::Join:
-        AddText(TEXT("JOIN LOBBY"),24);
+        AddText(LocalizedCopy(TEXT("UI.MainMenu.JoinHeading"),TEXT("JOIN LOBBY")),24);
         if (bSteam)
         {
             OnlineButtons.Add(AddButton(TEXT("Find Steam Lobbies"),EMCMainMenuAction::FindRooms));
-            RoomPicker=AddPicker(TEXT("Комната друга"));
+            RoomPicker=AddPicker(LocalizedCopy(TEXT("UI.MainMenu.FriendRoom"),TEXT("Комната друга")));
             OnlineButtons.Add(AddButton(TEXT("Join Selected Lobby"),EMCMainMenuAction::JoinRoom));
         }
-        AddText(bSteam?TEXT("Для локальных тестов можно подключиться по IP."):TEXT("В редакторе Steam отключён. Введи IP хоста и при необходимости порт: 192.168.1.10:7777."),14);
+        AddText(bSteam?LocalizedCopy(TEXT("UI.MainMenu.LocalJoinHint"),TEXT("Для локальных тестов можно подключиться по IP.")):LocalizedCopy(TEXT("UI.MainMenu.EditorJoinHint"),TEXT("В редакторе Steam отключён. Введи IP хоста и при необходимости порт: 192.168.1.10:7777.")),14);
         AddressBox=WidgetTree->ConstructWidget<UEditableTextBox>();
         GamepadTargets.Add(AddressBox);
         AddressBox->SetText(FText::FromString(TEXT("127.0.0.1:7777")));
-        AddressBox->SetHintText(FText::FromString(TEXT("Адрес хоста")));
+        AddressBox->SetHintText(FText::FromString(LocalizedCopy(TEXT("UI.MainMenu.HostAddress"),TEXT("Адрес хоста"))));
         if (EmbeddedRoot!=EEmbeddedRoot::None)
         {
             FEditableTextBoxStyle Style=AddressBox->GetWidgetStyle();
@@ -454,6 +490,10 @@ void UMCMainMenuWidget::ShowPage(EPage NewPage)
             AddressBox->SetWidgetStyle(Style);
             AddressBox->SetForegroundColor(MenuTextColor());
         }
+        {
+            auto AddressStyle=AddressBox->GetWidgetStyle();AddressStyle.SetFont(MCMainMenuPrivate::Font(TEXT("Regular"),17));
+            AddressBox->SetWidgetStyle(AddressStyle);AddressBox->SetWidgetStyle(AddressBox->GetWidgetStyle());
+        }
         Content->AddChildToVerticalBox(AddressBox)->SetPadding(FMargin(0,8));
         OnlineButtons.Add(AddButton(TEXT("Join by IP"),EMCMainMenuAction::JoinAddress));
         AddButton(TEXT("Back"),EMCMainMenuAction::Back);
@@ -462,48 +502,48 @@ void UMCMainMenuWidget::ShowPage(EPage NewPage)
         BuildSettings();
         break;
     case EPage::Credits:
-        AddText(TEXT("CREDITS"),24);
-        AddText(TEXT("Mess Control\nКооперативная игра про маленькие зубы и большой беспорядок во рту."));
-        AddText(TEXT("Движок: Unreal Engine\nUnreal Engine — товарный знак Epic Games, Inc.\nИмена команды и авторов материалов будут добавлены после утверждения титров."),15);
+        AddText(LocalizedCopy(TEXT("UI.MainMenu.CreditsHeading"),TEXT("CREDITS")),24);
+        AddText(LocalizedCopy(TEXT("UI.Menu.CreditsBody"),TEXT("Mess Control\nКооперативная игра про маленькие зубы и большой беспорядок во рту.")));
+        AddText(LocalizedCopy(TEXT("UI.Menu.CreditsEngine"),TEXT("Движок: Unreal Engine\nUnreal Engine — товарный знак Epic Games, Inc.\nИмена команды и авторов материалов будут добавлены после утверждения титров.")),15);
         AddButton(TEXT("Back"),EMCMainMenuAction::Back);
         break;
     case EPage::Exit:
-        AddText(TEXT("Выйти из игры?"),24);
+        AddText(LocalizedCopy(TEXT("UI.Menu.ExitHeading"),TEXT("Выйти из игры?")),24);
         AddButton(TEXT("Cancel"),EMCMainMenuAction::Back);
         AddButton(TEXT("Exit Game"),EMCMainMenuAction::ConfirmExit);
         break;
     case EPage::Lobby:
-        AddText(TEXT("LOBBY"),24);
-        LobbyPlayers=AddText(TEXT("Загружаем участников…"));
-        AddText(TEXT("Хост запускает обычную смену, когда команда собрана."),15);
+        AddText(LocalizedCopy(TEXT("UI.MainMenu.LobbyHeading"),TEXT("LOBBY")),24);
+        LobbyPlayers=AddText(LocalizedCopy(TEXT("UI.MainMenu.LoadingPlayers"),TEXT("Загружаем участников…")));
+        AddText(LocalizedCopy(TEXT("UI.MainMenu.LobbyStartHint"),TEXT("Хост запускает обычную смену, когда команда собрана.")),15);
         StartButton=AddButton(TEXT("Start / Play"),EMCMainMenuAction::StartLobby);
         if (bSteam) OnlineButtons.Add(AddButton(TEXT("Invite Steam Friends"),EMCMainMenuAction::Invite));
-        else AddText(TEXT("Друзья: Join Lobby → IP этого компьютера:7777."),14);
+        else AddText(LocalizedCopy(TEXT("UI.MainMenu.LobbyLocalHint"),TEXT("Друзья: Join Lobby → IP этого компьютера:7777.")),14);
         AddButton(TEXT("Settings"),EMCMainMenuAction::Settings);
         AddButton(TEXT("Leave Lobby"),EMCMainMenuAction::LeaveLobby);
         RefreshLobby();
         break;
     case EPage::Pause:
-        AddText(TEXT("MENU"),24);
+        AddText(LocalizedCopy(TEXT("UI.MainMenu.PauseHeading"),TEXT("MENU")),24);
         AddButton(TEXT("Resume"),EMCMainMenuAction::Resume);
         AddButton(TEXT("Emotes / Сигналы"),EMCMainMenuAction::Emotes);
         AddButton(TEXT("Settings"),EMCMainMenuAction::Settings);
         AddButton(TEXT("Credits"),EMCMainMenuAction::Credits);
         AddButton(TEXT("Return to Main Menu"),EMCMainMenuAction::LeaveLobby);
         AddButton(TEXT("Exit"),EMCMainMenuAction::Exit);
-        AddText(TEXT("В сетевой игре смена продолжается, пока это меню открыто."),14);
+        AddText(LocalizedCopy(TEXT("UI.Menu.NetworkNote"),TEXT("В сетевой игре смена продолжается, пока это меню открыто.")),14);
         break;
     case EPage::Leave:
-        AddText(TEXT("Выйти из комнаты?"),24);
+        AddText(LocalizedCopy(TEXT("UI.Menu.LeaveHeading"),TEXT("Выйти из комнаты?")),24);
         AddText(GetOwningPlayer() && GetOwningPlayer()->HasAuthority()?
-            TEXT("Ты — хост. При выходе соединение остальных игроков с комнатой закроется."):
-            TEXT("Ты вернёшься в главное меню."),16);
+            LocalizedCopy(TEXT("UI.Menu.LeaveHostBody"),TEXT("Ты — хост. При выходе соединение остальных игроков с комнатой закроется.")):
+            LocalizedCopy(TEXT("UI.Menu.LeaveClientBody"),TEXT("Ты вернёшься в главное меню.")),16);
         AddButton(TEXT("Cancel"),EMCMainMenuAction::Back);
         AddButton(TEXT("Leave to Main Menu"),EMCMainMenuAction::ConfirmLeave);
         break;
     case EPage::VideoConfirm:
-        AddText(TEXT("Сохранить режим экрана?"),24);
-        AddText(TEXT("Если изображение пропало, предыдущий режим вернётся автоматически через 15 секунд."));
+        AddText(LocalizedCopy(TEXT("UI.Menu.VideoHeading"),TEXT("Сохранить режим экрана?")),24);
+        AddText(LocalizedCopy(TEXT("UI.Menu.VideoConfirmBody"),TEXT("Если изображение пропало, предыдущий режим вернётся автоматически через 15 секунд.")));
         AddButton(TEXT("Keep"),EMCMainMenuAction::KeepSettings);
         AddButton(TEXT("Revert"),EMCMainMenuAction::RevertSettings);
         break;
@@ -517,10 +557,10 @@ void UMCMainMenuWidget::ShowPage(EPage NewPage)
 
 void UMCMainMenuWidget::BuildSettings()
 {
-    AddText(TEXT("SETTINGS"),24);
+    AddText(LocalizedCopy(TEXT("UI.MainMenu.SettingsHeading"),TEXT("SETTINGS")),24);
     UGameUserSettings* Settings=UGameUserSettings::GetGameUserSettings();
-    if (!Settings) { AddText(TEXT("Настройки экрана недоступны.")); AddButton(TEXT("Back"),EMCMainMenuAction::Back); return; }
-    ResolutionPicker=AddPicker(TEXT("Разрешение"));
+    if (!Settings) { AddText(LocalizedCopy(TEXT("UI.Menu.SettingsUnavailable"),TEXT("Настройки экрана недоступны."))); AddButton(TEXT("Back"),EMCMainMenuAction::Back); return; }
+    ResolutionPicker=AddPicker(LocalizedCopy(TEXT("UI.Menu.Resolution"),TEXT("Разрешение")));
     Resolutions.Reset();
     UKismetSystemLibrary::GetSupportedFullscreenResolutions(Resolutions);
     Resolutions.RemoveAll([](const FIntPoint& Point){return Point.X<1024 || Point.Y<600;});
@@ -531,21 +571,23 @@ void UMCMainMenuWidget::BuildSettings()
     for (const FIntPoint& Resolution:Resolutions)
         ResolutionPicker->AddOption(FString::Printf(TEXT("%d × %d"),Resolution.X,Resolution.Y));
     ResolutionPicker->SetSelectedIndex(FMath::Max(0,Resolutions.IndexOfByKey(Current)));
-    WindowModePicker=AddPicker(TEXT("Режим экрана"));
-    WindowModePicker->AddOption(TEXT("Fullscreen"));
-    WindowModePicker->AddOption(TEXT("Borderless"));
-    WindowModePicker->AddOption(TEXT("Windowed"));
+    WindowModePicker=AddPicker(LocalizedCopy(TEXT("UI.Menu.WindowMode"),TEXT("Режим экрана")));
+    WindowModePicker->AddOption(LocalizedCopy(TEXT("UI.MainMenu.Option.Fullscreen"),TEXT("Fullscreen")));
+    WindowModePicker->AddOption(LocalizedCopy(TEXT("UI.MainMenu.Option.Borderless"),TEXT("Borderless")));
+    WindowModePicker->AddOption(LocalizedCopy(TEXT("UI.MainMenu.Option.Windowed"),TEXT("Windowed")));
     WindowModePicker->SetSelectedIndex(static_cast<int32>(Settings->GetFullscreenMode()));
-    QualityPicker=AddPicker(TEXT("Качество графики"));
-    for (const TCHAR* Label:{TEXT("Low"),TEXT("Medium"),TEXT("High"),TEXT("Epic"),TEXT("Cinematic")}) QualityPicker->AddOption(Label);
+    QualityPicker=AddPicker(LocalizedCopy(TEXT("UI.Menu.Quality"),TEXT("Качество графики")));
+    const TCHAR* QualityNames[]={TEXT("Low"),TEXT("Medium"),TEXT("High"),TEXT("Epic"),TEXT("Cinematic")};
+    for(int32 Index=0;Index<UE_ARRAY_COUNT(QualityNames);++Index)
+        QualityPicker->AddOption(LocalizedCopy(FName(*(TEXT("UI.MainMenu.Option.Quality.")+FString(QualityNames[Index]))),QualityNames[Index]));
     const int32 Quality=Settings->GetOverallScalabilityLevel();
-    if (Quality<0) { QualityPicker->AddOption(TEXT("Custom (keep current)")); QualityPicker->SetSelectedIndex(5); }
+    if (Quality<0) { QualityPicker->AddOption(LocalizedCopy(TEXT("UI.MainMenu.Option.QualityCustom"),TEXT("Custom (keep current)"))); QualityPicker->SetSelectedIndex(5); }
     else QualityPicker->SetSelectedIndex(FMath::Clamp(Quality,0,4));
     VSyncCheck=WidgetTree->ConstructWidget<UCheckBox>();
     GamepadTargets.Add(VSyncCheck);
     auto* VSyncLabel=WidgetTree->ConstructWidget<UTextBlock>();
-    VSyncLabel->SetText(FText::FromString(TEXT("VSync")));
-    VSyncLabel->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),17));
+    VSyncLabel->SetText(FText::FromString(LocalizedCopy(TEXT("UI.Menu.VSync"),TEXT("VSync"))));
+    VSyncLabel->SetFont(MCMainMenuPrivate::Font(TEXT("Regular"),17));
     VSyncLabel->SetColorAndOpacity(FSlateColor(MenuTextColor()));
     VSyncCheck->SetContent(VSyncLabel); VSyncCheck->SetIsChecked(Settings->IsVSyncEnabled());
     Content->AddChildToVerticalBox(VSyncCheck)->SetPadding(FMargin(0,6,0,12));
@@ -580,7 +622,7 @@ void UMCMainMenuWidget::ApplySettings()
         VideoConfirmationEndsAt=FPlatformTime::Seconds()+15.;
         ShowPage(EPage::VideoConfirm);
     }
-    else SetStatus(TEXT("Настройки применены и сохранены."));
+    else SetStatus(LocalizedCopy(TEXT("UI.Menu.SettingsSaved"),TEXT("Настройки применены и сохранены.")));
 }
 
 void UMCMainMenuWidget::RevertVideoSettings()
@@ -600,15 +642,15 @@ void UMCMainMenuWidget::RefreshLobby()
 {
     const auto* State=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
     if (!State || !LobbyPlayers) return;
-    FString Players=FString::Printf(TEXT("Игроков: %d / %d\nЗагрузились: %d / %d\n"),State->PlayerArray.Num(),State->RunSettings.MaxPlayers,
-        State->LobbyLoadedPlayers,State->PlayerArray.Num());
+    FString Players=FormatCopy(TEXT("UI.MainMenu.LobbyCounts"),TEXT("Игроков: {Count} / {Maximum}\nЗагрузились: {Loaded} / {Count}\n"),
+        {{TEXT("Count"),State->PlayerArray.Num()},{TEXT("Maximum"),State->RunSettings.MaxPlayers},{TEXT("Loaded"),State->LobbyLoadedPlayers}});
     for (const APlayerState* Player:State->PlayerArray)
         if (Player) Players+=FString::Printf(TEXT("• %s\n"),*Player->GetPlayerName());
     LobbyPlayers->SetText(FText::FromString(Players));
     const bool bHost=GetOwningPlayer() && GetOwningPlayer()->HasAuthority();
     if (StartButton) StartButton->SetIsEnabled(bHost && State->bLobbyWaiting && State->LobbyLoadedPlayers>=State->PlayerArray.Num()
         && State->PlayerArray.Num()>0);
-    if (!bHost) SetStatus(TEXT("Ожидаем, пока хост нажмёт Start / Play."));
+    if (!bHost) SetStatus(LocalizedCopy(TEXT("UI.MainMenu.WaitForHost"),TEXT("Ожидаем, пока хост нажмёт Start / Play.")));
 }
 
 void UMCMainMenuWidget::NativeTick(const FGeometry& Geometry, float DeltaSeconds)
@@ -618,7 +660,7 @@ void UMCMainMenuWidget::NativeTick(const FGeometry& Geometry, float DeltaSeconds
         Button->SetBackgroundColor(Button->HasUserFocus(GetOwningPlayer())?FLinearColor(.16f,.42f,.38f):FLinearColor(.07f,.15f,.19f));
     if (bVideoConfirmationPending && FPlatformTime::Seconds()>=VideoConfirmationEndsAt)
     {
-        RevertVideoSettings(); ShowPage(EPage::Settings); SetStatus(TEXT("Предыдущий режим экрана восстановлен."));
+        RevertVideoSettings(); ShowPage(EPage::Settings); SetStatus(LocalizedCopy(TEXT("UI.Menu.VideoRestored"),TEXT("Предыдущий режим экрана восстановлен.")));
     }
     RefreshAccumulator+=DeltaSeconds;
     if (RefreshAccumulator<.2f) return;
@@ -641,7 +683,7 @@ void UMCMainMenuWidget::NativeTick(const FGeometry& Geometry, float DeltaSeconds
     }
     if (Page==EPage::Lobby) RefreshLobby();
     if (bVideoConfirmationPending)
-        SetStatus(FString::Printf(TEXT("Автоматический возврат: %d сек."),FMath::CeilToInt(VideoConfirmationEndsAt-FPlatformTime::Seconds())));
+        SetStatus(FormatCopy(TEXT("UI.Menu.VideoCountdown"),TEXT("Автоматический возврат: {Seconds} сек."),{{TEXT("Seconds"),FMath::CeilToInt(VideoConfirmationEndsAt-FPlatformTime::Seconds())}}));
 }
 
 FReply UMCMainMenuWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry, const FKeyEvent& Event)
@@ -688,13 +730,13 @@ void UMCMainMenuWidget::HandleAction(EMCMainMenuAction Action)
         || Action==EMCMainMenuAction::JoinAddress || Action==EMCMainMenuAction::StartLobby;
     if (bLaunchAction && !CanLaunchEmbeddedDay())
     {
-        SetStatus(TEXT("Игровой контент этого дня ещё не подключён."));
+        SetStatus(LocalizedCopy(TEXT("UI.MainMenu.DayNotConnected"),TEXT("Игровой контент этого дня ещё не подключён.")));
         return;
     }
     switch (Action)
     {
     case EMCMainMenuAction::Tutorial:
-        if (Steam && Steam->IsBusy()) { SetStatus(TEXT("Дождись завершения подключения.")); break; }
+        if (Steam && Steam->IsBusy()) { SetStatus(LocalizedCopy(TEXT("UI.MainMenu.ConnectionBusy"),TEXT("Дождись завершения подключения."))); break; }
         UGameplayStatics::OpenLevel(this,MCMainMenuPrivate::TutorialMap,true,TEXT("MCTutorial=1"));
         break;
     case EMCMainMenuAction::CreateLobby: ShowPage(EPage::Host); break;
@@ -708,7 +750,7 @@ void UMCMainMenuWidget::HandleAction(EMCMainMenuAction Action)
         {
             if (EmbeddedRoot==EEmbeddedRoot::Connection && Steam && Steam->IsBusy())
             {
-                SetStatus(TEXT("Дождись завершения подключения."));
+                SetStatus(LocalizedCopy(TEXT("UI.MainMenu.ConnectionBusy"),TEXT("Дождись завершения подключения.")));
                 break;
             }
             const EPage RootPage=EmbeddedRoot==EEmbeddedRoot::Connection?EPage::Connection:EPage::Settings;
@@ -733,24 +775,24 @@ void UMCMainMenuWidget::HandleAction(EMCMainMenuAction Action)
     case EMCMainMenuAction::FindRooms: if (Steam) Steam->FindRooms(); break;
     case EMCMainMenuAction::JoinRoom:
         if (Steam && RoomPicker && RoomPicker->GetSelectedIndex()!=INDEX_NONE) Steam->JoinRoom(RoomPicker->GetSelectedIndex());
-        else SetStatus(TEXT("Сначала найди и выбери комнату."));
+        else SetStatus(LocalizedCopy(TEXT("UI.Menu.ChooseRoom"),TEXT("Сначала найди и выбери комнату.")));
         break;
     case EMCMainMenuAction::JoinAddress:
         if (PC && AddressBox && (!Steam || !Steam->IsBusy()))
         {
             FString Address;
             if (NormalizeJoinAddress(AddressBox->GetText().ToString(),Address)) PC->ClientTravel(Address,TRAVEL_Absolute);
-            else SetStatus(TEXT("Введи IP или имя компьютера, при необходимости с портом. Например: 192.168.1.10:7777."));
+            else SetStatus(LocalizedCopy(TEXT("UI.Menu.InvalidAddress"),TEXT("Введи IP или имя компьютера, при необходимости с портом. Например: 192.168.1.10:7777.")));
         }
         break;
     case EMCMainMenuAction::ApplySettings: ApplySettings(); break;
     case EMCMainMenuAction::KeepSettings:
         bVideoConfirmationPending=false;
         if (UGameUserSettings* Settings=UGameUserSettings::GetGameUserSettings()) { Settings->ConfirmVideoMode(); Settings->SaveSettings(); }
-        ShowPage(EPage::Settings); SetStatus(TEXT("Настройки сохранены."));
+        ShowPage(EPage::Settings); SetStatus(LocalizedCopy(TEXT("UI.MainMenu.SettingsSavedShort"),TEXT("Настройки сохранены.")));
         break;
     case EMCMainMenuAction::RevertSettings:
-        RevertVideoSettings(); ShowPage(EPage::Settings); SetStatus(TEXT("Предыдущий режим экрана восстановлен."));
+        RevertVideoSettings(); ShowPage(EPage::Settings); SetStatus(LocalizedCopy(TEXT("UI.Menu.VideoRestored"),TEXT("Предыдущий режим экрана восстановлен.")));
         break;
     case EMCMainMenuAction::StartLobby:
         if (auto* GamePC=Cast<AMCPlayerController>(PC)) GamePC->ServerStartLobby();

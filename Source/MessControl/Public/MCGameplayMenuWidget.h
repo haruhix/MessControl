@@ -70,6 +70,7 @@ public:
     virtual void ResetEditorPreview() override;
     static bool NormalizeJoinAddress(const FString& Input, FString& OutAddress);
 protected:
+    virtual void OnLocalizationChanged() override;
     virtual void NativeOnInitialized() override;
     virtual void NativeConstruct() override;
     virtual void NativeDestruct() override;
@@ -83,6 +84,7 @@ private:
     void UpdatePresentationLayout(FVector2D Area=FVector2D::ZeroVector);
     void ShowPage(EPage NewPage);
     void PopulateSettings();
+    void RefreshSettingsChoiceCopy(int32 Mode,int32 Quality,bool bIncludeCustom);
     void ApplySettings();
     void RevertVideoSettings();
     void RefreshConnection();
@@ -91,6 +93,8 @@ private:
     bool SteamAvailable() const;
     FText Copy(FName Key,const FText& Fallback) const;
     void SetStatus(const FText& Text);
+    void SetStatusKey(FName Key,const FText& Fallback);
+    void RefreshStatusCopy();
     void UpdatePageCopy();
     UTextBlock* AddText(UVerticalBox* Parent,FName Name,const FText& Text,int32 Size=18);
     UMCGameplayMenuActionButton* AddButton(UVerticalBox* Parent,FName Name,const FText& Text,EMCGameplayMenuAction Action);
@@ -126,6 +130,8 @@ private:
     float RefreshAccumulator=0;
     int32 LastSearchRevision=INDEX_NONE;
     FString LastSessionStatus;
+    FName StatusKey=NAME_None;
+    FText StatusFallback;
     TWeakObjectPtr<UWidget> LastFocusTarget;
     FVector2D LastLayoutArea=FVector2D::ZeroVector;
     bool bLayoutDirty=true;

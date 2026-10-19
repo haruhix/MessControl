@@ -117,6 +117,26 @@ FText StepName(EMCDayStep Step,UDataTable* Table,const FString& Culture=FString(
     case EMCDayStep::StuckFood:return Copy(TEXT("UI.HUD.Step.StuckFood"),LOCTEXT("StepStuckFood","МЕЖДУ ЗУБАМИ"));
     default:return Copy(TEXT("UI.HUD.Step.Complete"),LOCTEXT("StepComplete","ДЕНЬ ЗАВЕРШЁН")); }
 }
+FName CataclysmTitleKey(const AMCCataclysmEvent& Event)
+{
+    switch(Event.Phase) {
+    case EMCCataclysmPhase::Complete:return TEXT("UI.Event.Cataclysm.Complete.Title");
+    case EMCCataclysmPhase::Cleanup:return TEXT("UI.Event.Cataclysm.Cleanup.Title");
+    case EMCCataclysmPhase::JellyFight:return TEXT("UI.Event.Cataclysm.Jellies.Title");
+    case EMCCataclysmPhase::Flooding:case EMCCataclysmPhase::BranchWarning:return TEXT("UI.Event.Cataclysm.Rafts.Title");
+    default:return Event.bCola?TEXT("UI.Event.Cataclysm.ColaWave.Title"):TEXT("UI.Event.Cataclysm.CoffeeWave.Title");
+    }
+}
+FName CataclysmInstructionKey(const AMCCataclysmEvent& Event)
+{
+    switch(Event.Phase) {
+    case EMCCataclysmPhase::Complete:return TEXT("UI.Event.Cataclysm.Complete.Instruction");
+    case EMCCataclysmPhase::Cleanup:return TEXT("UI.Event.Cataclysm.Cleanup.Instruction");
+    case EMCCataclysmPhase::JellyFight:return TEXT("UI.Event.Cataclysm.Jellies.Instruction");
+    case EMCCataclysmPhase::Flooding:case EMCCataclysmPhase::BranchWarning:return TEXT("UI.Event.Cataclysm.Rafts.Instruction");
+    default:return TEXT("UI.Event.Cataclysm.Warning.Instruction");
+    }
+}
 struct FHUDPainter
 {
     const FGeometry& G; FSlateWindowElementList& E; int32 L; float S;
@@ -260,11 +280,15 @@ void UMCReserveToothWidget::ApplyEditorPreview(float Time)
 
 FText UMCGameplayHUD::Copy(FName Key,const FText& Fallback) const
 {
-    return UMCUIDataLibrary::ResolveText(LocalizationTable,Key,Fallback,IsDesignTime() || bApplyingPreview?PreviewCulture:FString());
+    return UMCUIDataLibrary::ResolveText(GetResolvedTranslationTable(),Key,Fallback,IsDesignTime() || bApplyingPreview?PreviewCulture:FString());
 }
 FText UMCGameplayHUD::LiteralCopy(const FString& Value)
 {
-    // Dynamic gameplay sentences keep their literal copy unless an exact authored source exists.
+    // Legacy FString gameplay payloads use the preserved source alias, never editable RU copy.
+    // Known event states route directly by semantic key below.
+    if(LocalizationTable!=GetResolvedTranslationTable()) {
+        LocalizationTable=GetResolvedTranslationTable();bSourceKeysCached=false;SourceTextKeys.Reset();
+    }
     if(!bSourceKeysCached && LocalizationTable && LocalizationTable->GetRowStruct()==FMCUILocalizationRow::StaticStruct()) {
         TSet<FString> Ambiguous;
         for(const auto& Pair:LocalizationTable->GetRowMap()) {
@@ -399,7 +423,7 @@ void UMCGameplayHUD::BuildPresentationTree()
 void UMCGameplayHUD::ApplyTheme()
 {
     const auto* T=GetResolvedTheme();if(!T || !WidgetTree) return;CachePresentationWidgets();const auto& P=T->Palette;
-    LocalizationTable=T->LocalizationTable.LoadSynchronous();bSourceKeysCached=false;SourceTextKeys.Reset();
+    LocalizationTable=GetResolvedTranslationTable();bSourceKeysCached=false;SourceTextKeys.Reset();
     SetCopy(TEXT("ReserveLabel"),Copy(TEXT("UI.HUD.ReserveTitle"),LOCTEXT("ReserveTitle","ЗДОРОВЬЕ ЗУБОВ")));
     SetCopy(TEXT("CleanLabel"),Copy(TEXT("UI.HUD.Cleanliness"),LOCTEXT("Cleanliness","ЧИСТОТА РТА")));
     const FName MarineBoxes[]={TEXT("ReserveBG"),TEXT("CleanBG"),TEXT("HintBG"),TEXT("ResultsBG"),TEXT("ToolTitleBG"),TEXT("CooldownBG"),TEXT("PreviewResourceBG")};
@@ -439,6 +463,13 @@ void UMCGameplayHUD::ApplyTheme()
     if(auto* Clock=Cast<UMCHUDIcon>(Find(TEXT("TimerClock")))) {Clock->Tint=P.LCDInk;Clock->InkTint=P.LCDInk;}
     if(auto* Mouse=Cast<UMCHUDIcon>(Find(TEXT("ActionMouse")))) {Mouse->Tint=P.OnMarine;Mouse->InkTint=P.Ink;}
     Phase1LayoutSignature.Reset();UpdatePhase1Layout();
+}
+
+void UMCGameplayHUD::OnLocalizationChanged()
+{
+    Super::OnLocalizationChanged();
+    // Refresh text in the current live state without restarting alerts or gameplay.
+    if(!IsDesignTime() && !bApplyingPreview && WidgetTree && WidgetTree->RootWidget) RefreshState();
 }
 
 void UMCGameplayHUD::ApplyResourceTheme(UMCStaminaWidget* Resource)
@@ -806,7 +837,7 @@ void UMCGameplayHUD::RefreshGameplayAlerts()
             const FPrimaryAssetId AssetId=GS->CurrentEvent->GetPrimaryAssetId();
             if(AssetId.IsValid() && LocalizationTable && LocalizationTable->GetRowStruct()==FMCUILocalizationRow::StaticStruct()) {
                 const FName TitleKey(*(TEXT("UI.Event.")+AssetId.ToString().Replace(TEXT(":"),TEXT("."))+TEXT(".Title")));
-                if(const auto* Row=LocalizationTable->FindRow<FMCUILocalizationRow>(TitleKey,TEXT("HUD event title"),false);Row && !Row->SourceText.IsEmpty())
+                if(LocalizationTable->FindRow<FMCUILocalizationRow>(TitleKey,TEXT("HUD event title"),false))
                     EventTitle=Copy(TitleKey,EventTitle);
             }
             QueueGameplayAlert(UMCUIDataLibrary::FormatTextForCulture(Copy(TEXT("UI.Alert.Event.DayEvent"),LOCTEXT("AlertDayEvent","СОБЫТИЕ · {Title}")),
@@ -1123,8 +1154,10 @@ void UMCGameplayHUD::RefreshState()
     EnsureCataclysmPanel();
     if(CataclysmPanel) {
         CataclysmPanel->SetVisibility(Cataclysm && !Finished?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
-        if(Cataclysm && CataclysmInstruction && CataclysmInstruction->GetText().ToString()!=Cataclysm->Instruction())
-            CataclysmInstruction->SetText(LiteralCopy(Cataclysm->Instruction()));
+        if(Cataclysm && CataclysmInstruction) {
+            const FText Instruction=Copy(HUD::CataclysmInstructionKey(*Cataclysm),FText::FromString(Cataclysm->Instruction()));
+            if(!CataclysmInstruction->GetText().EqualTo(Instruction)) CataclysmInstruction->SetText(Instruction);
+        }
     }
     const FString StartingSoon=Copy(TEXT("UI.HUD.StartingSoon"),LOCTEXT("StartingSoon","СКОРО НАЧНЁМ")).ToString();
     FString Title=Directed?(Director.CurrentTitle.IsEmpty()?StartingSoon:Director.CurrentTitle):HasStep?HUD::StepName(GS->DayPlan->Steps[GS->StepIndex].Step,LocalizationTable).ToString():GS->CurrentEvent?GS->CurrentEvent->Title.ToString():StartingSoon;
@@ -1132,7 +1165,7 @@ void UMCGameplayHUD::RefreshState()
     for(TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It) if(It->IsActive()) { ActiveFlood=*It; break; }
     if(!Directed && ActiveFlood) Title=ActiveFlood->bRiverFlood?Copy(TEXT("UI.HUD.Step.CoffeeWaves"),LOCTEXT("StepCoffeeWaves","ЦУНАМИ")).ToString():ActiveFlood->GetPhase()==EMCCoffeePhase::Holding?Copy(TEXT("UI.HUD.CoffeeSwimming"),LOCTEXT("CoffeeSwimming","КОФЕ · ПЛАВАНИЕ")).ToString():TEXT("old_flood");
     if(Directed && GS->Phase==EMCShiftPhase::Intermission) Title=Copy(TEXT("UI.HUD.Intermission"),LOCTEXT("Intermission","ПЕРЕДЫШКА")).ToString();
-    if(Cataclysm) Title=Cataclysm->Title();
+    if(Cataclysm) Title=Copy(HUD::CataclysmTitleKey(*Cataclysm),FText::FromString(Cataclysm->Title())).ToString();
     if(Finished) Title=(GS->Phase==EMCShiftPhase::Lost?Copy(TEXT("UI.HUD.RunLost"),LOCTEXT("RunLost","РОТ НЕ СПАСЁН")):Copy(TEXT("UI.HUD.RunComplete"),LOCTEXT("RunComplete","ЗАБЕГ ЗАВЕРШЁН"))).ToString();
     Show(TEXT("DayTitle"),false);Text(TEXT("EventTitle"),Title);
     const float Done=Directed?FMath::Clamp(Director.CompletionProgress,0.f,1.f):GS->TasksTotal>0?1-float(GS->TasksLeft)/GS->TasksTotal:0;

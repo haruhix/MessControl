@@ -43,7 +43,8 @@ class MESSCONTROL_API UMCPerkCardWidget : public UMCGameplayUIWidget
 {
     GENERATED_BODY()
 public:
-    void Configure(const FMCPerkCardPresentation& Data, AMCPlayerController* Controller, int32 ChoiceIndex, bool bInteractive=true);
+    void Configure(const FMCPerkCardPresentation& Data, AMCPlayerController* Controller, int32 ChoiceIndex,
+        bool bInteractive=true, bool bPreserveScroll=false);
     void SetInteractionEnabled(bool bEnabled);
     UMCPerkCardButton* GetChoiceButton() const { return ChoiceButton; }
     FButtonStyle GetBaseButtonStyle() const;
@@ -64,7 +65,9 @@ public:
     virtual void ResetEditorPreview() override;
 
 protected:
+    virtual void OnLocalizationChanged() override;
     virtual void NativeDestruct() override;
+    virtual void BeginDestroy() override;
 
 private:
     void RefreshPresentation();
@@ -72,6 +75,8 @@ private:
     void NormalizePresentationLayout();
     void UpdateImage();
     void ShowLoadedImage(UTexture2D* Texture);
+    void ObservePreviewCardTable(UDataTable* Table);
+    void UnobservePreviewCardTable();
     UPROPERTY(Transient) TObjectPtr<UMCPerkCardButton> ChoiceButton;
     UPROPERTY(Transient) TObjectPtr<UBorder> BadgeBorder;
     UPROPERTY(Transient) TObjectPtr<UBorder> StatsBorder;
@@ -101,4 +106,6 @@ private:
     FString LastPreviewCulture;
     TWeakObjectPtr<UDataTable> LastPreviewCardTable;
     TWeakObjectPtr<UDataTable> LastPreviewCopyTable;
+    TWeakObjectPtr<UDataTable> ObservedPreviewCardTable;
+    FDelegateHandle PreviewCardTableHandle;
 };

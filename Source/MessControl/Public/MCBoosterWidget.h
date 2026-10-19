@@ -72,7 +72,9 @@ public:
     virtual void ApplyTheme() override;
 
 protected:
+    virtual void OnLocalizationChanged() override;
     virtual void NativeDestruct() override;
+    virtual void BeginDestroy() override;
 
 private:
     void CacheDataTable();
@@ -83,6 +85,7 @@ private:
     void ShowLoadedImage(UTexture2D* Texture);
     FString DisplayCulture() const;
     FText Copy(FName Key, const FText& Fallback) const;
+    void UnobserveContentTables();
 
     UPROPERTY(Transient) TObjectPtr<UDataTable> CachedBoosterTable;
     UPROPERTY(Transient) TObjectPtr<UDataTable> CachedLocalizationTable;
@@ -115,4 +118,9 @@ private:
     int32 LastPreviewQueueCount=0;
     TWeakObjectPtr<UDataTable> LastPreviewTable;
     TWeakObjectPtr<UDataTable> LastPreviewLocalizationTable;
+    TWeakObjectPtr<UDataTable> ObservedBoosterTable;
+    TWeakObjectPtr<UDataTable> ObservedPreviewBoosterTable;
+    FDelegateHandle BoosterTableHandle;
+    FDelegateHandle PreviewBoosterTableHandle;
+    bool bHasExternalPresentation=false;
 };

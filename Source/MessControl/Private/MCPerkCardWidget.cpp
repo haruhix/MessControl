@@ -210,13 +210,13 @@ void UMCPerkCardWidget::BuildPresentationTree()
     ApplyTheme();
 }
 
-void UMCPerkCardWidget::Configure(const FMCPerkCardPresentation& Data,AMCPlayerController* Controller,int32 ChoiceIndex,bool bInInteractive)
+void UMCPerkCardWidget::Configure(const FMCPerkCardPresentation& Data,AMCPlayerController* Controller,int32 ChoiceIndex,bool bInInteractive,bool bPreserveScroll)
 {
     TGuardValue<bool> PreviewGuard(bApplyingPreview,Controller==nullptr);
     BuildPresentationTree();
     const bool NewCard=Presentation.GameplayID!=Data.GameplayID || !Presentation.DisplayName.IdenticalTo(Data.DisplayName) || !Presentation.Description.IdenticalTo(Data.Description);
     Presentation=Data;bInteractive=bInInteractive;bHasExternalPresentation=true;
-    if(NewCard && BodyScroll) BodyScroll->SetScrollOffset(0);
+    if(NewCard && BodyScroll && !bPreserveScroll) BodyScroll->SetScrollOffset(0);
     if(ChoiceButton) ChoiceButton->Configure(Controller,ChoiceIndex);
     RefreshPresentation();ApplyTheme();SetInteractionEnabled(bInInteractive);
 }
@@ -334,7 +334,9 @@ void UMCPerkCardWidget::ApplyEditorPreview(float Time)
     FMCPerkCardPresentation Data=SampleCard;
     const auto* Style=GetResolvedTheme();
     UDataTable* Cards=Style && !Style->CardTable.IsNull()?Style->CardTable.LoadSynchronous():UMCUIDataLibrary::GetDefaultCardTable();
-    UDataTable* CopyTable=Style && !Style->LocalizationTable.IsNull()?Style->LocalizationTable.LoadSynchronous():UMCUIDataLibrary::GetDefaultLocalizationTable();
+    UDataTable* CopyTable=GetResolvedTranslationTable();
+    // Read-only row handles still allow observing their table's edit delegate.
+    ObservePreviewCardTable(PreviewCardRow.DataTable?const_cast<UDataTable*>(PreviewCardRow.DataTable.Get()):Cards);
     // Explicit Details Preview calls ResetEditorPreview. Play reuses its fixture
     // until inputs change; no synchronous image loads or MID/style rebuilds per tick.
     if(bHasPreviewFixture && LastPreviewCardRow==PreviewCardRow && LastPreviewCulture==PreviewCulture
@@ -345,7 +347,7 @@ void UMCPerkCardWidget::ApplyEditorPreview(float Time)
     const bool HasSelectedRow=PreviewCardRow.DataTable || !PreviewCardRow.RowName.IsNone();
     bPreviewRowFound=false;bPreviewUsedFallback=false;
     if(HasSelectedRow || Data.DisplayName.IsEmpty()) {
-        const auto Content=HasSelectedRow?UMCUIDataLibrary::ResolveCard(PreviewCardRow,PreviewCulture):UMCUIDataLibrary::FindCardForGameplayID(Cards,TEXT("P03"),PreviewCulture);
+        const auto Content=HasSelectedRow?UMCUIDataLibrary::ResolveCard(PreviewCardRow,PreviewCulture,CopyTable):UMCUIDataLibrary::FindCardForGameplayID(Cards,TEXT("P03"),PreviewCulture,CopyTable);
         bPreviewRowFound=Content.bFound;bPreviewUsedFallback=Content.bUsedFallback;
         Data.GameplayID=HasSelectedRow?NAME_None:FName(TEXT("P03"));
         if(HasSelectedRow && PreviewCardRow.DataTable && PreviewCardRow.DataTable->GetRowStruct()==FMCUICardRow::StaticStruct())
@@ -374,9 +376,43 @@ void UMCPerkCardWidget::ResetEditorPreview() {bHasPreviewFixture=false;SetRender
 
 void UMCPerkCardWidget::NativeDestruct()
 {
+    UnobservePreviewCardTable();
     if(ImageLoadHandle.IsValid()) {ImageLoadHandle->CancelHandle();ImageLoadHandle.Reset();}
     RequestedImage.Reset();bImageRequestFinished=false;
     Super::NativeDestruct();
+}
+
+void UMCPerkCardWidget::ObservePreviewCardTable(UDataTable* Table)
+{
+    if (ObservedPreviewCardTable.Get()==Table && (!Table || PreviewCardTableHandle.IsValid())) return;
+    UnobservePreviewCardTable();
+    ObservedPreviewCardTable=Table;
+    if (Table) PreviewCardTableHandle=Table->OnDataTableChanged().AddUObject(this,&ThisClass::RefreshLocalization);
+}
+
+void UMCPerkCardWidget::UnobservePreviewCardTable()
+{
+    if (auto* Table=ObservedPreviewCardTable.Get()) Table->OnDataTableChanged().Remove(PreviewCardTableHandle);
+    ObservedPreviewCardTable.Reset();PreviewCardTableHandle.Reset();
+}
+
+void UMCPerkCardWidget::BeginDestroy()
+{
+    UnobservePreviewCardTable();
+    Super::BeginDestroy();
+}
+
+void UMCPerkCardWidget::OnLocalizationChanged()
+{
+    bHasPreviewFixture=false;
+    if (!bHasExternalPresentation && (IsDesignTime() || bApplyingPreview))
+    {
+        ApplyEditorPreview(PreviewTime);
+        return;
+    }
+    // A composed offer owns its metadata, custom table and interaction state.
+    // Keep that value presentation; its parent re-localizes the existing offer.
+    RefreshPresentation();ApplyTheme();
 }
 
 #undef LOCTEXT_NAMESPACE

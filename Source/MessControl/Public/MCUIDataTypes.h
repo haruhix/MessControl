@@ -12,15 +12,29 @@ struct MESSCONTROL_API FMCUILocalizationRow : public FTableRowBase
 {
     GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Localization", meta=(MultiLine=true))
-    FText SourceText;
+    /** Editable common languages. RU is the native copy and empty translations use it. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Translations", meta=(MultiLine=true, DataTableImportOptional)) FText RU;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Translations", meta=(MultiLine=true, DataTableImportOptional)) FText EN;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Translations", meta=(MultiLine=true, DataTableImportOptional)) FText DE;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Translations", meta=(MultiLine=true, DataTableImportOptional)) FText FR;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Translations", meta=(MultiLine=true, DataTableImportOptional)) FText ES;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Translations", meta=(MultiLine=true, DataTableImportOptional, DisplayName="PT-BR")) FText PT_BR;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Translations", meta=(MultiLine=true, DataTableImportOptional, DisplayName="Chinese (Simplified)")) FText ZH_HANS;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Translations", meta=(MultiLine=true, DataTableImportOptional, DisplayName="Chinese (Traditional)")) FText ZH_HANT;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Translations", meta=(MultiLine=true, DataTableImportOptional, DisplayName="Japanese")) FText JA;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Translations", meta=(MultiLine=true, DataTableImportOptional, DisplayName="Korean")) FText KO;
 
-    /** UE culture names, for example en or pt-BR. Empty entries fall back to SourceText. */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Localization")
-    TMap<FString, FText> Localizations;
+    /** Exact additional cultures, including regional variants such as en-GB and es-419. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Translations", meta=(DataTableImportOptional)) TMap<FString, FText> AdditionalLanguages;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Translations", meta=(MultiLine=true, DataTableImportOptional)) FString Context;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Localization", meta=(MultiLine=true))
-    FString Context;
+    // Kept serialized for existing packages/Blueprints and old import tools. SourceText is an
+    // immutable legacy-string alias after migration; changing RU must never change that identity.
+    UPROPERTY(BlueprintReadWrite, Category="Localization|Legacy", meta=(HideFromDataTableEditorColumn, DataTableImportOptional)) FText SourceText;
+    UPROPERTY(BlueprintReadWrite, Category="Localization|Legacy", meta=(HideFromDataTableEditorColumn, DataTableImportOptional)) TMap<FString, FText> Localizations;
+
+    const FText& GetNativeText() const { return RU.IsEmptyOrWhitespace() ? SourceText : RU; }
+
 };
 
 /** A translated name and description, authored in the same row as the UI image. */
@@ -49,13 +63,16 @@ struct MESSCONTROL_API FMCUIBoosterRow : public FTableRowBase
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Booster")
     TSoftObjectPtr<UTexture2D> Image;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Booster")
+    UPROPERTY(BlueprintReadWrite, Category="Localization|Legacy", meta=(HideFromDataTableEditorColumn, DataTableImportOptional))
     FText DisplayName;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Booster", meta=(MultiLine=true))
+    UPROPERTY(BlueprintReadWrite, Category="Localization|Legacy", meta=(HideFromDataTableEditorColumn, DataTableImportOptional))
     FText Description;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Localization")
+    /** Stable row names in the shared translation catalogue. Image and gameplay identity stay here. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Translations", meta=(DataTableImportOptional)) FName DisplayNameKey;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Translations", meta=(DataTableImportOptional)) FName DescriptionKey;
+    UPROPERTY(BlueprintReadWrite, Category="Localization|Legacy", meta=(HideFromDataTableEditorColumn, DataTableImportOptional))
     TMap<FString, FMCUILocalizedCopy> Localizations;
 };
 
@@ -71,13 +88,16 @@ struct MESSCONTROL_API FMCUICardRow : public FTableRowBase
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Card")
     TSoftObjectPtr<UTexture2D> Image;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Card")
+    UPROPERTY(BlueprintReadWrite, Category="Localization|Legacy", meta=(HideFromDataTableEditorColumn, DataTableImportOptional))
     FText DisplayName;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Card", meta=(MultiLine=true))
+    UPROPERTY(BlueprintReadWrite, Category="Localization|Legacy", meta=(HideFromDataTableEditorColumn, DataTableImportOptional))
     FText Description;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Localization")
+    /** Stable row names in the shared translation catalogue. Image and gameplay identity stay here. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Translations", meta=(DataTableImportOptional)) FName DisplayNameKey;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Translations", meta=(DataTableImportOptional)) FName DescriptionKey;
+    UPROPERTY(BlueprintReadWrite, Category="Localization|Legacy", meta=(HideFromDataTableEditorColumn, DataTableImportOptional))
     TMap<FString, FMCUILocalizedCopy> Localizations;
 };
 

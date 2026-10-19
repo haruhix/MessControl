@@ -5,7 +5,9 @@
     "Image": "/Game/Gameplay/UI/Art/T_UI_Card_P01_v10.T_UI_Card_P01_v10",
     "DisplayName": "Лёгкая походка",
     "Description": "Обычная скорость ходьбы и бега +8% за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P01.Title",
+    "DescriptionKey": "UI.Card.P01.Description"
   },
   {
     "Name": "P02",
@@ -13,7 +15,9 @@
     "Image": "/Game/Gameplay/UI/Art/T_UI_Card_P02_v10.T_UI_Card_P02_v10",
     "DisplayName": "Вместительные лёгкие",
     "Description": "Максимальная выносливость +15 за стак. Получение перка не восстанавливает потраченную выносливость.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P02.Title",
+    "DescriptionKey": "UI.Card.P02.Description"
   },
   {
     "Name": "P03",
@@ -21,7 +25,9 @@
     "Image": "/Game/Gameplay/UI/Art/T_UI_Card_P03_v10.T_UI_Card_P03_v10",
     "DisplayName": "Шустрый рывок",
     "Description": "Перезарядка обычного рывка −10% за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P03.Title",
+    "DescriptionKey": "UI.Card.P03.Description"
   },
   {
     "Name": "P04",
@@ -29,7 +35,9 @@
     "Image": "None",
     "DisplayName": "Цепкие подошвы",
     "Description": "На скользком полу торможение при обычном движении эффективнее на 25% за стак; заморозка ног действует.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P04.Title",
+    "DescriptionKey": "UI.Card.P04.Description"
   },
   {
     "Name": "P05",
@@ -37,7 +45,9 @@
     "Image": "None",
     "DisplayName": "Второе дыхание",
     "Description": "Скорость восстановления выносливости +15% за стак. Задержка до начала восстановления сохраняется.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P05.Title",
+    "DescriptionKey": "UI.Card.P05.Description"
   },
   {
     "Name": "P06",
@@ -45,7 +55,9 @@
     "Image": "None",
     "DisplayName": "Надёжная опора",
     "Description": "Снос волной жидкости слабее на 15% за стак. Не удерживает над водой.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P06.Title",
+    "DescriptionKey": "UI.Card.P06.Description"
   },
   {
     "Name": "P07",
@@ -53,7 +65,9 @@
     "Image": "None",
     "DisplayName": "Острая заточка",
     "Description": "Урон кирки по еде и врагам +12% за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P07.Title",
+    "DescriptionKey": "UI.Card.P07.Description"
   },
   {
     "Name": "P08",
@@ -61,7 +75,9 @@
     "Image": "None",
     "DisplayName": "Длинная рукоять",
     "Description": "Рабочая дальность попадания кирки +10% за стак. Поза и свободный замах сохраняются.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P08.Title",
+    "DescriptionKey": "UI.Card.P08.Description"
   },
   {
     "Name": "P09",
@@ -69,7 +85,9 @@
     "Image": "None",
     "DisplayName": "Контрудар",
     "Description": "Прицельная атака врага по владельцу промахнулась во время его рывка: следующий удар оружием в течение 2 секунд наносит +25% урона. Перезарядка 6 секунд.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P09.Title",
+    "DescriptionKey": "UI.Card.P09.Description"
   },
   {
     "Name": "P10",
@@ -77,7 +95,9 @@
     "Image": "None",
     "DisplayName": "Щитолом",
     "Description": "Урон по щиту орехового рыцаря +20% за стак; урон по его здоровью не меняется.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P10.Title",
+    "DescriptionKey": "UI.Card.P10.Description"
   },
   {
     "Name": "P11",
@@ -85,7 +105,9 @@
     "Image": "None",
     "DisplayName": "Зубастая цепь",
     "Description": "Урон работающей бензопилы +12% за стак; управление и условие остановки не меняются.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P11.Title",
+    "DescriptionKey": "UI.Card.P11.Description"
   },
   {
     "Name": "P12",
@@ -93,7 +115,9 @@
     "Image": "None",
     "DisplayName": "Рикошетная струя",
     "Description": "После попадания основного выстрела водного пистолета один дополнительный удар поражает ближайшего другого мелкого врага в 2 метрах на 30% исходного урона. Не чаще раза в 0,5 секунды; без попаданий сквозь стены и повторных рикошетов.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P12.Title",
+    "DescriptionKey": "UI.Card.P12.Description"
   },
   {
     "Name": "P13",
@@ -101,7 +125,9 @@
     "Image": "None",
     "DisplayName": "Широкая щетина",
     "Description": "Ширина рабочей полосы щётки +15% за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P13.Title",
+    "DescriptionKey": "UI.Card.P13.Description"
   },
   {
     "Name": "P14",
@@ -109,7 +135,9 @@
     "Image": "None",
     "DisplayName": "Глубокая чистка",
     "Description": "Количество грязи, убираемой одним рабочим движением щётки, +20% за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P14.Title",
+    "DescriptionKey": "UI.Card.P14.Description"
   },
   {
     "Name": "P15",
@@ -117,7 +145,9 @@
     "Image": "None",
     "DisplayName": "Пенный след",
     "Description": "При работе щёткой раз в 3 секунды появляется маленькое пятно пены на 3 секунды. Мелкие враги в нём замедляются на 20%; боссы не замедляются.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P15.Title",
+    "DescriptionKey": "UI.Card.P15.Description"
   },
   {
     "Name": "P16",
@@ -125,7 +155,9 @@
     "Image": "None",
     "DisplayName": "Борец с пятнами",
     "Description": "Очистка кофейного загрязнения вашего персонажа требует на 20% меньше времени за стак. Грязь арены остаётся.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P16.Title",
+    "DescriptionKey": "UI.Card.P16.Description"
   },
   {
     "Name": "P17",
@@ -133,7 +165,9 @@
     "Image": "None",
     "DisplayName": "Сухая полоса",
     "Description": "После фактической очистки участка пола обычная скорость владельца +10% на 3 секунды. Повторная уборка обновляет время, сила не складывается.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P17.Title",
+    "DescriptionKey": "UI.Card.P17.Description"
   },
   {
     "Name": "P18",
@@ -141,7 +175,9 @@
     "Image": "None",
     "DisplayName": "Тёплая щётка",
     "Description": "Созданные вами щёткой тёплые участки существуют на 1 секунду дольше за стак. Лимит продления — 6 секунд.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P18.Title",
+    "DescriptionKey": "UI.Card.P18.Description"
   },
   {
     "Name": "P19",
@@ -149,7 +185,9 @@
     "Image": "None",
     "DisplayName": "Крепкий хват",
     "Description": "Штраф к обычной скорости от массы переносимой еды уменьшается на 20% за стак. Саму массу и коллизии не меняет.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P19.Title",
+    "DescriptionKey": "UI.Card.P19.Description"
   },
   {
     "Name": "P20",
@@ -157,7 +195,9 @@
     "Image": "None",
     "DisplayName": "Большая порция",
     "Description": "Лимит пищевых фрагментов в переносимой стопке +1 за стак; общий лимит не выше 10.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P20.Title",
+    "DescriptionKey": "UI.Card.P20.Description"
   },
   {
     "Name": "P21",
@@ -165,7 +205,9 @@
     "Image": "None",
     "DisplayName": "Уверенный бросок",
     "Description": "Импульс ручного броска переносимой еды +15% за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P21.Title",
+    "DescriptionKey": "UI.Card.P21.Description"
   },
   {
     "Name": "P22",
@@ -173,7 +215,9 @@
     "Image": "None",
     "DisplayName": "Свежая доставка",
     "Description": "Пока игрок держит еду, её порча идёт на 25% медленнее за стак. После выпуска еды её оставшийся срок сохраняется, таймер не сбрасывается.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P22.Title",
+    "DescriptionKey": "UI.Card.P22.Description"
   },
   {
     "Name": "P23",
@@ -181,7 +225,9 @@
     "Image": "None",
     "DisplayName": "Аккуратный раздел",
     "Description": "Куски еды после разрушения целого предмета разлетаются на 25% слабее за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P23.Title",
+    "DescriptionKey": "UI.Card.P23.Description"
   },
   {
     "Name": "P24",
@@ -189,7 +235,9 @@
     "Image": "None",
     "DisplayName": "Порционная награда",
     "Description": "За еду, доставленную владельцем, в командную шкалу опыта зачисляется на 10% больше за стак. Не повышает опыт за орехи или завершение события.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P24.Title",
+    "DescriptionKey": "UI.Card.P24.Description"
   },
   {
     "Name": "P25",
@@ -197,7 +245,9 @@
     "Image": "None",
     "DisplayName": "Толстая эмаль",
     "Description": "Максимальное здоровье владельца +15 за стак. Увеличение максимума само по себе не лечит.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P25.Title",
+    "DescriptionKey": "UI.Card.P25.Description"
   },
   {
     "Name": "P26",
@@ -205,7 +255,9 @@
     "Image": "None",
     "DisplayName": "Каска по размеру",
     "Description": "Урон от прямого попадания падающего ореха −15% за стак. Наземные взрывы и катящийся рыцарь действуют обычно.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P26.Title",
+    "DescriptionKey": "UI.Card.P26.Description"
   },
   {
     "Name": "P27",
@@ -213,7 +265,9 @@
     "Image": "None",
     "DisplayName": "Термослой",
     "Description": "Шкала холода заполняется на 10% медленнее за стак. Уже накопленный холод не исчезает.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P27.Title",
+    "DescriptionKey": "UI.Card.P27.Description"
   },
   {
     "Name": "P28",
@@ -221,7 +275,9 @@
     "Image": "None",
     "DisplayName": "Хрупкий лёд",
     "Description": "Лёд на ногах владельца имеет на 15% меньше здоровья за стак, поэтому его легче разбить.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P28.Title",
+    "DescriptionKey": "UI.Card.P28.Description"
   },
   {
     "Name": "P29",
@@ -229,7 +285,9 @@
     "Image": "None",
     "DisplayName": "Прочный кожух",
     "Description": "Урон владельцу при столкновении работающей бензопилы со стеной −5 за стак, но не ниже 10. Остановка и сбивание персонажа сохраняются.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P29.Title",
+    "DescriptionKey": "UI.Card.P29.Description"
   },
   {
     "Name": "P30",
@@ -237,7 +295,9 @@
     "Image": "/Game/Gameplay/UI/Art/T_UI_Card_P30_v10.T_UI_Card_P30_v10",
     "DisplayName": "Чистое дыхание",
     "Description": "Фактическая работа щёткой по грязи восстанавливает владельцу 3 здоровья, не чаще раза в 15 секунд. Работа на уже чистой поверхности не срабатывает.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P30.Title",
+    "DescriptionKey": "UI.Card.P30.Description"
   },
   {
     "Name": "P31",
@@ -245,7 +305,9 @@
     "Image": "None",
     "DisplayName": "Наплечник защитника",
     "Description": "Личный урон при правильно выполненном прижатии к зубу −15% за стак. Защита цели на расстоянии не появляется.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P31.Title",
+    "DescriptionKey": "UI.Card.P31.Description"
   },
   {
     "Name": "P32",
@@ -253,7 +315,9 @@
     "Image": "None",
     "DisplayName": "Быстрый спасатель",
     "Description": "Скорость освобождения союзника из мимика +20% за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P32.Title",
+    "DescriptionKey": "UI.Card.P32.Description"
   },
   {
     "Name": "P33",
@@ -261,7 +325,9 @@
     "Image": "None",
     "DisplayName": "Светонос",
     "Description": "В темноте вокруг владельца есть слабый личный свет радиусом 2,5 метра. Не раскрывает предметы сквозь препятствия.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P33.Title",
+    "DescriptionKey": "UI.Card.P33.Description"
   },
   {
     "Name": "P34",
@@ -269,7 +335,9 @@
     "Image": "None",
     "DisplayName": "Чуткая эмаль",
     "Description": "Раз в 6 секунд на 1 секунду показывает владельцу направление к активному зубу, который нужно защитить. Не подсвечивает весь путь.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P34.Title",
+    "DescriptionKey": "UI.Card.P34.Description"
   },
   {
     "Name": "P35",
@@ -277,7 +345,9 @@
     "Image": "None",
     "DisplayName": "Согласованный удар",
     "Description": "Попадание по врагу, которого другой игрок ударил не более 2 секунд назад, наносит +15% урона. Не чаще раза в 3 секунды; усиливается только удар владельца.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P35.Title",
+    "DescriptionKey": "UI.Card.P35.Description"
   },
   {
     "Name": "P36",
@@ -285,7 +355,9 @@
     "Image": "None",
     "DisplayName": "Плечом к плечу",
     "Description": "Владелец встаёт после сбивания на 20% быстрее, если живой союзник находится не дальше 2 метров.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.P36.Title",
+    "DescriptionKey": "UI.Card.P36.Description"
   },
   {
     "Name": "N01",
@@ -293,7 +365,9 @@
     "Image": "/Game/Gameplay/UI/Art/T_UI_Card_N01_v10.T_UI_Card_N01_v10",
     "DisplayName": "Тяжёлые подошвы",
     "Description": "Обычная скорость ходьбы и бега −8% за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N01.Title",
+    "DescriptionKey": "UI.Card.N01.Description"
   },
   {
     "Name": "N02",
@@ -301,7 +375,9 @@
     "Image": "None",
     "DisplayName": "Короткий прыжок",
     "Description": "Высота обычного прыжка −15% за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N02.Title",
+    "DescriptionKey": "UI.Card.N02.Description"
   },
   {
     "Name": "N03",
@@ -309,7 +385,9 @@
     "Image": "None",
     "DisplayName": "Задумчивый рывок",
     "Description": "Перезарядка обычного рывка +15% за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N03.Title",
+    "DescriptionKey": "UI.Card.N03.Description"
   },
   {
     "Name": "N04",
@@ -317,7 +395,9 @@
     "Image": "None",
     "DisplayName": "Раскачка",
     "Description": "На скользком полу торможение при обычном движении на 20% слабее за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N04.Title",
+    "DescriptionKey": "UI.Card.N04.Description"
   },
   {
     "Name": "N05",
@@ -325,7 +405,9 @@
     "Image": "None",
     "DisplayName": "Тупая кирка",
     "Description": "Урон кирки по еде и врагам −12% за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N05.Title",
+    "DescriptionKey": "UI.Card.N05.Description"
   },
   {
     "Name": "N06",
@@ -333,7 +415,9 @@
     "Image": "None",
     "DisplayName": "Короткая рукоять",
     "Description": "Рабочая дальность попадания кирки −10%. Свободная анимация замаха сохраняется.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N06.Title",
+    "DescriptionKey": "UI.Card.N06.Description"
   },
   {
     "Name": "N07",
@@ -341,7 +425,9 @@
     "Image": "None",
     "DisplayName": "Тугая цепь",
     "Description": "Урон бензопилы −12% за стак; её движение и остановка работают по обычным правилам.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N07.Title",
+    "DescriptionKey": "UI.Card.N07.Description"
   },
   {
     "Name": "N08",
@@ -349,7 +435,9 @@
     "Image": "None",
     "DisplayName": "Капризная струя",
     "Description": "Частота выстрелов водного пистолета −15% за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N08.Title",
+    "DescriptionKey": "UI.Card.N08.Description"
   },
   {
     "Name": "N09",
@@ -357,7 +445,9 @@
     "Image": "None",
     "DisplayName": "Узкая щетина",
     "Description": "Ширина рабочей полосы щётки −15% за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N09.Title",
+    "DescriptionKey": "UI.Card.N09.Description"
   },
   {
     "Name": "N10",
@@ -365,7 +455,9 @@
     "Image": "None",
     "DisplayName": "Поверхностная чистка",
     "Description": "Количество грязи, убираемой рабочим движением щётки, −15% за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N10.Title",
+    "DescriptionKey": "UI.Card.N10.Description"
   },
   {
     "Name": "N11",
@@ -373,7 +465,9 @@
     "Image": "None",
     "DisplayName": "Остывшая паста",
     "Description": "Тёплые участки, созданные владельцем щёткой, существуют на 0,5 секунды меньше за стак, но не меньше 1 секунды.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N11.Title",
+    "DescriptionKey": "UI.Card.N11.Description"
   },
   {
     "Name": "N12",
@@ -381,7 +475,9 @@
     "Image": "None",
     "DisplayName": "Липкие пятна",
     "Description": "Очистка кофейного загрязнения вашего персонажа требует на 20% больше времени за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N12.Title",
+    "DescriptionKey": "UI.Card.N12.Description"
   },
   {
     "Name": "N13",
@@ -389,7 +485,9 @@
     "Image": "None",
     "DisplayName": "Слабый хват",
     "Description": "Штраф к обычной скорости от массы переносимой еды увеличивается на 20% за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N13.Title",
+    "DescriptionKey": "UI.Card.N13.Description"
   },
   {
     "Name": "N14",
@@ -397,7 +495,9 @@
     "Image": "None",
     "DisplayName": "Маленькая порция",
     "Description": "Лимит фрагментов в переносимой стопке −1, но всегда можно нести хотя бы один.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N14.Title",
+    "DescriptionKey": "UI.Card.N14.Description"
   },
   {
     "Name": "N15",
@@ -405,7 +505,9 @@
     "Image": "None",
     "DisplayName": "Неловкий бросок",
     "Description": "Импульс ручного броска еды −15% за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N15.Title",
+    "DescriptionKey": "UI.Card.N15.Description"
   },
   {
     "Name": "N16",
@@ -413,7 +515,9 @@
     "Image": "None",
     "DisplayName": "Крошки повсюду",
     "Description": "Фрагменты после разрушения владельцем целой еды разлетаются на 35% сильнее за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N16.Title",
+    "DescriptionKey": "UI.Card.N16.Description"
   },
   {
     "Name": "N17",
@@ -421,7 +525,9 @@
     "Image": "None",
     "DisplayName": "Тонкая эмаль",
     "Description": "Максимальное здоровье владельца −12 за стак. Общий максимум не опускается ниже 50% базового.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N17.Title",
+    "DescriptionKey": "UI.Card.N17.Description"
   },
   {
     "Name": "N18",
@@ -429,7 +535,9 @@
     "Image": "None",
     "DisplayName": "Без каски",
     "Description": "Урон от прямого попадания падающего ореха +20% за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N18.Title",
+    "DescriptionKey": "UI.Card.N18.Description"
   },
   {
     "Name": "N19",
@@ -437,7 +545,9 @@
     "Image": "None",
     "DisplayName": "Остывший зуб",
     "Description": "Шкала холода заполняется на 15% быстрее за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N19.Title",
+    "DescriptionKey": "UI.Card.N19.Description"
   },
   {
     "Name": "N20",
@@ -445,7 +555,9 @@
     "Image": "None",
     "DisplayName": "Толстый лёд",
     "Description": "Лёд на ногах владельца имеет на 20% больше здоровья за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N20.Title",
+    "DescriptionKey": "UI.Card.N20.Description"
   },
   {
     "Name": "N21",
@@ -453,7 +565,9 @@
     "Image": "None",
     "DisplayName": "Неудобная стойка",
     "Description": "Личный урон при прижатии к защищаемому зубу +20% за стак. Если прижатие выполнено, сам зуб по-прежнему защищён.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N21.Title",
+    "DescriptionKey": "UI.Card.N21.Description"
   },
   {
     "Name": "N22",
@@ -461,7 +575,9 @@
     "Image": "None",
     "DisplayName": "Тяжёлый подъём",
     "Description": "Восстановление владельца после сбивания занимает на 20% больше времени за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N22.Title",
+    "DescriptionKey": "UI.Card.N22.Description"
   },
   {
     "Name": "N23",
@@ -469,7 +585,9 @@
     "Image": "None",
     "DisplayName": "Медленный спасатель",
     "Description": "Скорость освобождения союзника из мимика −20% за стак.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N23.Title",
+    "DescriptionKey": "UI.Card.N23.Description"
   },
   {
     "Name": "N24",
@@ -477,7 +595,9 @@
     "Image": "None",
     "DisplayName": "Сахарная ломота",
     "Description": "После доставки порции еды обычная скорость владельца −10% на 3 секунды. Повторная доставка обновляет длительность, сила не складывается.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.N24.Title",
+    "DescriptionKey": "UI.Card.N24.Description"
   },
   {
     "Name": "X01",
@@ -485,7 +605,9 @@
     "Image": "/Game/Gameplay/UI/Art/T_UI_Card_X01_v10.T_UI_Card_X01_v10",
     "DisplayName": "Стеклянная эмаль",
     "Description": "Урон оружия +30%, максимальное здоровье −25%. Увеличение урона не усиливает уборку.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.X01.Title",
+    "DescriptionKey": "UI.Card.X01.Description"
   },
   {
     "Name": "X02",
@@ -493,7 +615,9 @@
     "Image": "/Game/Gameplay/UI/Art/T_UI_Card_X02_v10.T_UI_Card_X02_v10",
     "DisplayName": "Тяжёлая рука",
     "Description": "Урон кирки +35%, частота её ударов −20%.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.X02.Title",
+    "DescriptionKey": "UI.Card.X02.Description"
   },
   {
     "Name": "X03",
@@ -501,7 +625,9 @@
     "Image": "None",
     "DisplayName": "Моторная лихорадка",
     "Description": "Урон бензопилы +30%; её столкновение со стеной наносит владельцу на 15 урона больше. Остановка только от стены сохраняется.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.X03.Title",
+    "DescriptionKey": "UI.Card.X03.Description"
   },
   {
     "Name": "X04",
@@ -509,7 +635,9 @@
     "Image": "/Game/Gameplay/UI/Art/T_UI_Card_X04_v10.T_UI_Card_X04_v10",
     "DisplayName": "Щётка-снегоочиститель",
     "Description": "Ширина рабочей полосы щётки +40%, эффективность удаления грязи −20%.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.X04.Title",
+    "DescriptionKey": "UI.Card.X04.Description"
   },
   {
     "Name": "X05",
@@ -517,7 +645,9 @@
     "Image": "None",
     "DisplayName": "Сахарный курьер",
     "Description": "При переноске еды обычная скорость +20%, получаемый владельцем урон +20%.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.X05.Title",
+    "DescriptionKey": "UI.Card.X05.Description"
   },
   {
     "Name": "X06",
@@ -525,7 +655,9 @@
     "Image": "None",
     "DisplayName": "Ледяной прикус",
     "Description": "При заполнении шкалы холода не менее чем наполовину урон оружия +30%. Холод всегда накапливается на 20% быстрее.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.X06.Title",
+    "DescriptionKey": "UI.Card.X06.Description"
   },
   {
     "Name": "X07",
@@ -533,7 +665,9 @@
     "Image": "None",
     "DisplayName": "Горячая паста",
     "Description": "Радиус тёплых участков от щётки +35%, длительность −40%, но не меньше 1 секунды.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.X07.Title",
+    "DescriptionKey": "UI.Card.X07.Description"
   },
   {
     "Name": "X08",
@@ -541,7 +675,9 @@
     "Image": "None",
     "DisplayName": "Ночная охота",
     "Description": "В ночном ивенте урон оружия +30%, обычная скорость ходьбы и бега −15%. Вне этого ивента обе части выключены.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.X08.Title",
+    "DescriptionKey": "UI.Card.X08.Description"
   },
   {
     "Name": "X09",
@@ -549,7 +685,9 @@
     "Image": "None",
     "DisplayName": "Коллективный импульс",
     "Description": "Урон +25%, если союзник попадал по той же цели в последние 2 секунды; иначе урон −15%.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.X09.Title",
+    "DescriptionKey": "UI.Card.X09.Description"
   },
   {
     "Name": "X10",
@@ -557,7 +695,9 @@
     "Image": "None",
     "DisplayName": "Неутомимый щит",
     "Description": "Личный урон при правильном прижатии к зубу −35%, обычная скорость ходьбы и бега −15%.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.X10.Title",
+    "DescriptionKey": "UI.Card.X10.Description"
   },
   {
     "Name": "X11",
@@ -565,7 +705,9 @@
     "Image": "None",
     "DisplayName": "Рекордная порция",
     "Description": "Лимит переносимых фрагментов +2; еда в руках владельца портится на 40% быстрее.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.X11.Title",
+    "DescriptionKey": "UI.Card.X11.Description"
   },
   {
     "Name": "X12",
@@ -573,6 +715,8 @@
     "Image": "None",
     "DisplayName": "Бешеная струя",
     "Description": "Частота выстрелов водного пистолета +35%; при его активной стрельбе обычная скорость владельца −35%.",
-    "Localizations": {}
+    "Localizations": {},
+    "DisplayNameKey": "UI.Card.X12.Title",
+    "DescriptionKey": "UI.Card.X12.Description"
   }
 ]

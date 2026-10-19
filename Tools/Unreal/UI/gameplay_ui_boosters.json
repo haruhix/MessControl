@@ -1,26 +1,32 @@
 [
   {
-    "Name":"Fallback_Mouthwash",
-    "GameplayPerkID":"Fallback_Mouthwash",
-    "Image":"/Game/Gameplay/UI/Art/T_UI_Booster_MouthwashWave_v10.T_UI_Booster_MouthwashWave_v10",
-    "DisplayName":"Ополаскиватель",
-    "Description":"Заряд: G выпускает очищающую волну. Повреждает врагов и смывает союзников.",
-    "Localizations":{}
+    "Name": "Fallback_Mouthwash",
+    "GameplayPerkID": "Fallback_Mouthwash",
+    "Image": "/Game/Gameplay/UI/Art/T_UI_Booster_MouthwashWave_v10.T_UI_Booster_MouthwashWave_v10",
+    "DisplayName": "Ополаскиватель",
+    "Description": "Заряд: G выпускает очищающую волну. Повреждает врагов и смывает союзников.",
+    "Localizations": {},
+    "DisplayNameKey": "UI.Booster.Fallback_Mouthwash.Title",
+    "DescriptionKey": "UI.Booster.Fallback_Mouthwash.Description"
   },
   {
-    "Name":"Fallback_BrushFury",
-    "GameplayPerkID":"Fallback_BrushFury",
-    "Image":"/Game/Gameplay/UI/Art/T_UI_Booster_BrushFury_v10.T_UI_Booster_BrushFury_v10",
-    "DisplayName":"Щёточный вихрь",
-    "Description":"Заряд: G запускает вихрь на 5 секунд. Тормозить нельзя; союзников разбрасывает.",
-    "Localizations":{}
+    "Name": "Fallback_BrushFury",
+    "GameplayPerkID": "Fallback_BrushFury",
+    "Image": "/Game/Gameplay/UI/Art/T_UI_Booster_BrushFury_v10.T_UI_Booster_BrushFury_v10",
+    "DisplayName": "Щёточный вихрь",
+    "Description": "Заряд: G запускает вихрь на 5 секунд. Тормозить нельзя; союзников разбрасывает.",
+    "Localizations": {},
+    "DisplayNameKey": "UI.Booster.Fallback_BrushFury.Title",
+    "DescriptionKey": "UI.Booster.Fallback_BrushFury.Description"
   },
   {
-    "Name":"Fallback_Grenade",
-    "GameplayPerkID":"Fallback_Grenade",
-    "Image":"/Game/Gameplay/UI/Art/T_UI_Booster_FallGrenade_v10.T_UI_Booster_FallGrenade_v10",
-    "DisplayName":"Граната падения",
-    "Description":"Заряд: G вооружает гранату. При сбивании взрывается и повреждает союзников.",
-    "Localizations":{}
+    "Name": "Fallback_Grenade",
+    "GameplayPerkID": "Fallback_Grenade",
+    "Image": "/Game/Gameplay/UI/Art/T_UI_Booster_FallGrenade_v10.T_UI_Booster_FallGrenade_v10",
+    "DisplayName": "Граната падения",
+    "Description": "Заряд: G вооружает гранату. При сбивании взрывается и повреждает союзников.",
+    "Localizations": {},
+    "DisplayNameKey": "UI.Booster.Fallback_Grenade.Title",
+    "DescriptionKey": "UI.Booster.Fallback_Grenade.Description"
   }
 ]

@@ -63,8 +63,27 @@ void UMCBoosterWidget::CacheDataTable()
     CachedBoosterTable = BoosterTable;
     if (!CachedBoosterTable && Style && !Style->BoosterTable.IsNull()) CachedBoosterTable = Style->BoosterTable.LoadSynchronous();
     if (!CachedBoosterTable) CachedBoosterTable = UMCUIDataLibrary::GetDefaultBoosterTable();
-    CachedLocalizationTable = Style && !Style->LocalizationTable.IsNull() ? Style->LocalizationTable.LoadSynchronous() : nullptr;
-    if (!CachedLocalizationTable) CachedLocalizationTable = UMCUIDataLibrary::GetDefaultLocalizationTable();
+    CachedLocalizationTable = GetResolvedTranslationTable();
+    // Row handles expose const tables; subscribing to edits does not change rows.
+    auto* PreviewTable=const_cast<UDataTable*>(PreviewBoosterRow.DataTable.Get());
+    if (ObservedBoosterTable.Get()!=CachedBoosterTable || ObservedPreviewBoosterTable.Get()!=PreviewTable
+        || (CachedBoosterTable && !BoosterTableHandle.IsValid()))
+    {
+        UnobserveContentTables();
+        ObservedBoosterTable=CachedBoosterTable;
+        ObservedPreviewBoosterTable=PreviewTable;
+        if (CachedBoosterTable) BoosterTableHandle=CachedBoosterTable->OnDataTableChanged().AddUObject(this,&ThisClass::RefreshLocalization);
+        if (PreviewTable && PreviewTable!=CachedBoosterTable)
+            PreviewBoosterTableHandle=PreviewTable->OnDataTableChanged().AddUObject(this,&ThisClass::RefreshLocalization);
+    }
+}
+
+void UMCBoosterWidget::UnobserveContentTables()
+{
+    if (auto* Table=ObservedBoosterTable.Get()) Table->OnDataTableChanged().Remove(BoosterTableHandle);
+    if (auto* Table=ObservedPreviewBoosterTable.Get()) Table->OnDataTableChanged().Remove(PreviewBoosterTableHandle);
+    ObservedBoosterTable.Reset();ObservedPreviewBoosterTable.Reset();
+    BoosterTableHandle.Reset();PreviewBoosterTableHandle.Reset();
 }
 
 void UMCBoosterWidget::BindPresentationTree()
@@ -225,10 +244,11 @@ FText UMCBoosterWidget::Copy(FName Key, const FText& Fallback) const
 void UMCBoosterWidget::ApplyPresentation(const FMCUIBoosterViewData& Data)
 {
     BuildPresentationTree();
-    if (BoosterTable && CachedBoosterTable != BoosterTable) CachedBoosterTable = BoosterTable;
+    CacheDataTable();
+    bHasExternalPresentation=true;
     Presentation = Data;
     Presentation.QueueCount = FMath::Max(0, Presentation.QueueCount);
-    const auto Content = UMCUIDataLibrary::FindBoosterForGameplayID(CachedBoosterTable, Data.GameplayPerkID, DisplayCulture());
+    const auto Content = UMCUIDataLibrary::FindBoosterForGameplayID(CachedBoosterTable, Data.GameplayPerkID, DisplayCulture(),CachedLocalizationTable);
     RefreshPresentation(Content, false);
     ApplyTheme();
 }
@@ -329,6 +349,7 @@ void UMCBoosterWidget::ApplyEditorPreview(float Time)
 {
     BuildPresentationTree();
     CacheDataTable();
+    bHasExternalPresentation=false;
     TGuardValue<bool> PreviewGuard(bApplyingPreview,true);
     if(bHasPreviewFixture && LastPreviewState==PreviewState && LastPreviewCulture==PreviewCulture
         && LastPreviewScenario==PreviewScenario && LastPreviewRow==PreviewBoosterRow && LastPreviewQueueCount==PreviewQueueCount
@@ -340,14 +361,14 @@ void UMCBoosterWidget::ApplyEditorPreview(float Time)
     FMCUIResolvedContent Content;
     if (PreviewBoosterRow.DataTable || !PreviewBoosterRow.RowName.IsNone())
     {
-        Content = UMCUIDataLibrary::ResolveBooster(PreviewBoosterRow, PreviewCulture);
+        Content = UMCUIDataLibrary::ResolveBooster(PreviewBoosterRow, PreviewCulture,CachedLocalizationTable);
         if (PreviewBoosterRow.DataTable && PreviewBoosterRow.DataTable->GetRowStruct() == FMCUIBoosterRow::StaticStruct())
             if (const auto* Row = PreviewBoosterRow.DataTable->FindRow<FMCUIBoosterRow>(PreviewBoosterRow.RowName, TEXT("Booster editor preview"), false)) Data.GameplayPerkID = Row->GameplayPerkID;
     }
     else
     {
         Data.GameplayPerkID = TEXT("Fallback_Mouthwash");
-        Content = UMCUIDataLibrary::FindBoosterForGameplayID(CachedBoosterTable, Data.GameplayPerkID, PreviewCulture);
+        Content = UMCUIDataLibrary::FindBoosterForGameplayID(CachedBoosterTable, Data.GameplayPerkID, PreviewCulture,CachedLocalizationTable);
     }
     if (PreviewScenario == EMCGameplayUIPreviewScenario::ActiveEffect || PreviewState == TEXT("ActiveEffect"))
     {
@@ -379,10 +400,30 @@ void UMCBoosterWidget::ResetEditorPreview()
 
 void UMCBoosterWidget::NativeDestruct()
 {
+    UnobserveContentTables();
     if (ImageLoadHandle.IsValid()) { ImageLoadHandle->CancelHandle(); ImageLoadHandle.Reset(); }
     RequestedImage.Reset();
     bImageRequestFinished = false;
     Super::NativeDestruct();
+}
+
+void UMCBoosterWidget::BeginDestroy()
+{
+    UnobserveContentTables();
+    Super::BeginDestroy();
+}
+
+void UMCBoosterWidget::OnLocalizationChanged()
+{
+    bHasPreviewFixture=false;
+    if ((IsDesignTime() || bApplyingPreview) && !bHasExternalPresentation)
+    {
+        ApplyEditorPreview(PreviewTime);
+        return;
+    }
+    // Keep queue count, active effects, chosen input and all gameplay state.
+    const FMCUIBoosterViewData Current=Presentation;
+    ApplyPresentation(Current);
 }
 
 #undef LOCTEXT_NAMESPACE

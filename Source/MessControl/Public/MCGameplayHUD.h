@@ -38,6 +38,7 @@ public:
     void SetBossStackCount(int32 Count,float StackHeight=-1.f);
     UFUNCTION(BlueprintPure,Category="HUD|Food") float GetFoodReticleAlpha() const { return FoodReticleAlpha; }
 protected:
+    virtual void OnLocalizationChanged() override;
     virtual void NativeOnInitialized() override;
     virtual void NativeConstruct() override;
     virtual void NativeDestruct() override;

@@ -36,19 +36,19 @@ public:
     static FText DecimalForCulture(double Value, int32 FractionalDigits = 1, const FString& Culture = TEXT(""));
 
     UFUNCTION(BlueprintPure, Category="MessControl|UI|Data", meta=(AutoCreateRefTerm="Culture"))
-    static FMCUIResolvedContent ResolveBooster(const FDataTableRowHandle& RowHandle, const FString& Culture = TEXT(""));
+    static FMCUIResolvedContent ResolveBooster(const FDataTableRowHandle& RowHandle, const FString& Culture = TEXT(""), UDataTable* LocalizationTable = nullptr);
 
     /** Duplicate GameplayPerkID mappings are ambiguous and return bFound=false. */
     UFUNCTION(BlueprintPure, Category="MessControl|UI|Data", meta=(AutoCreateRefTerm="Culture"))
-    static FMCUIResolvedContent FindBoosterForGameplayID(UDataTable* Table, FName GameplayPerkID, const FString& Culture = TEXT(""));
+    static FMCUIResolvedContent FindBoosterForGameplayID(UDataTable* Table, FName GameplayPerkID, const FString& Culture = TEXT(""), UDataTable* LocalizationTable = nullptr);
 
     UFUNCTION(BlueprintPure, Category="MessControl|UI|Data", meta=(AutoCreateRefTerm="Culture"))
-    static FMCUIResolvedContent ResolveCard(const FDataTableRowHandle& RowHandle, const FString& Culture = TEXT(""));
+    static FMCUIResolvedContent ResolveCard(const FDataTableRowHandle& RowHandle, const FString& Culture = TEXT(""), UDataTable* LocalizationTable = nullptr);
 
     UFUNCTION(BlueprintPure, Category="MessControl|UI|Data", meta=(AutoCreateRefTerm="Culture"))
-    static FMCUIResolvedContent FindCardForGameplayID(UDataTable* Table, FName GameplayPerkID, const FString& Culture = TEXT(""));
+    static FMCUIResolvedContent FindCardForGameplayID(UDataTable* Table, FName GameplayPerkID, const FString& Culture = TEXT(""), UDataTable* LocalizationTable = nullptr);
 
     /** Authoring check for supported row structs, empty source copy/culture variants and duplicate IDs. */
     UFUNCTION(BlueprintCallable, Category="MessControl|UI|Data")
-    static bool ValidateContentTable(UDataTable* Table, TArray<FString>& OutProblems);
+    static bool ValidateContentTable(UDataTable* Table, TArray<FString>& OutProblems, UDataTable* LocalizationTable = nullptr);
 };

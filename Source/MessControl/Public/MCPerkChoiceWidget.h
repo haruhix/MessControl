@@ -49,7 +49,11 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UI|Data") TObjectPtr<UDataTable> LocalizationTable;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UI|Components") TSubclassOf<UMCPerkCardWidget> CardWidgetClass;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Preview|Rewards") TArray<FName> PreviewPerkIDs;
+    virtual UDataTable* GetResolvedTranslationTable() const override;
 protected:
+    virtual void OnLocalizationChanged() override;
+    virtual void NativeDestruct() override;
+    virtual void BeginDestroy() override;
     virtual void NativeOnInitialized() override;
     virtual void BuildPresentationTree() override;
     virtual void ApplyTheme() override;
@@ -69,6 +73,9 @@ private:
     FString DisplayCulture() const;
     FMCPerkCardPresentation MakePresentation(FName ID,const FMCPerkDefinition& Definition,bool bPersonal,int32 PreviewStacks=INDEX_NONE) const;
     void SetOrdinaryHeader();
+    void RefreshRogueCopy(const FMCRogueChestOffer& Offer);
+    void CacheDataTables();
+    void UnobserveCardTable();
     void NormalizePresentationLayout();
     UPROPERTY(Transient) TObjectPtr<UBorder> PanelBorder;
     UPROPERTY(Transient) TObjectPtr<UBorder> HeaderBorder;
@@ -80,6 +87,10 @@ private:
     UPROPERTY() TArray<TObjectPtr<UMCPerkCardButton>> Buttons;
     UPROPERTY(Transient) TArray<TObjectPtr<UMCPerkCardWidget>> CardWidgets;
     UPROPERTY(Transient) TObjectPtr<UDataTable> PreviewDefinitions;
+    UPROPERTY(Transient) TObjectPtr<UDataTable> CachedCardTable;
+    UPROPERTY(Transient) TArray<FName> CurrentChoiceIDs;
+    UPROPERTY(Transient) TArray<FMCPerkDefinition> CurrentDefinitions;
+    UPROPERTY(Transient) FMCRogueChestOffer CurrentRogueOffer;
     UPROPERTY(Transient) TArray<FButtonStyle> ButtonStyles;
     int32 GamepadSelection=0;
     double NextStickNavigationAt=0;
@@ -97,4 +108,7 @@ private:
     TWeakObjectPtr<UDataTable> LastPreviewCardTable;
     TWeakObjectPtr<UDataTable> LastPreviewLocalizationTable;
     TWeakObjectPtr<UClass> LastPreviewCardWidgetClass;
+    TWeakObjectPtr<UDataTable> ObservedCardTable;
+    FDelegateHandle CardTableHandle;
+    int32 CurrentTeamLevel=0,CurrentPendingChoices=0,CurrentReady=0,CurrentTotal=0;
 };

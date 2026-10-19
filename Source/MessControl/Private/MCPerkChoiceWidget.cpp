@@ -72,7 +72,31 @@ FString UMCPerkChoiceWidget::DisplayCulture() const
 }
 FText UMCPerkChoiceWidget::Copy(FName Key,const FText& Fallback) const
 {
-    return UMCUIDataLibrary::ResolveText(LocalizationTable,Key,Fallback,DisplayCulture());
+    return UMCUIDataLibrary::ResolveText(GetResolvedTranslationTable(),Key,Fallback,DisplayCulture());
+}
+UDataTable* UMCPerkChoiceWidget::GetResolvedTranslationTable() const
+{
+    for (const auto* Owner=static_cast<const UMCGameplayUIWidget*>(this);Owner;Owner=Owner->GetTypedOuter<UMCGameplayUIWidget>())
+        if (IsValid(Owner->TranslationTable)) return Owner->TranslationTable;
+    return IsValid(LocalizationTable)?LocalizationTable.Get():Super::GetResolvedTranslationTable();
+}
+void UMCPerkChoiceWidget::CacheDataTables()
+{
+    const auto* Style=GetResolvedTheme();
+    CachedCardTable=CardTable;
+    if (!CachedCardTable && Style) CachedCardTable=Style->CardTable.LoadSynchronous();
+    if (!CachedCardTable) CachedCardTable=UMCUIDataLibrary::GetDefaultCardTable();
+    if (ObservedCardTable.Get()!=CachedCardTable || (CachedCardTable && !CardTableHandle.IsValid()))
+    {
+        UnobserveCardTable();
+        ObservedCardTable=CachedCardTable;
+        if (CachedCardTable) CardTableHandle=CachedCardTable->OnDataTableChanged().AddUObject(this,&ThisClass::RefreshLocalization);
+    }
+}
+void UMCPerkChoiceWidget::UnobserveCardTable()
+{
+    if (auto* Table=ObservedCardTable.Get()) Table->OnDataTableChanged().Remove(CardTableHandle);
+    ObservedCardTable.Reset();CardTableHandle.Reset();
 }
 FText UMCPerkChoiceWidget::Format(const FText& Pattern,const FFormatNamedArguments& Arguments) const
 {
@@ -84,10 +108,8 @@ void UMCPerkChoiceWidget::NativeOnInitialized()
 }
 void UMCPerkChoiceWidget::BuildPresentationTree()
 {
+    CacheDataTables();
     if(!WidgetTree || Title) return;
-    const auto* ResolvedTheme=GetResolvedTheme();
-    if(!LocalizationTable) LocalizationTable=ResolvedTheme && !ResolvedTheme->LocalizationTable.IsNull()?ResolvedTheme->LocalizationTable.LoadSynchronous():UMCUIDataLibrary::GetDefaultLocalizationTable();
-    if(!CardTable) CardTable=ResolvedTheme && !ResolvedTheme->CardTable.IsNull()?ResolvedTheme->CardTable.LoadSynchronous():UMCUIDataLibrary::GetDefaultCardTable();
     if(WidgetTree->RootWidget) {
         Title=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("RewardTitle")));
         Subtitle=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("RewardSubtitle")));
@@ -191,7 +213,7 @@ void UMCPerkChoiceWidget::AddAction(const FText& Text,int32 Index)
 FMCPerkCardPresentation UMCPerkChoiceWidget::MakePresentation(FName ID,const FMCPerkDefinition& Definition,bool bPersonal,int32 PreviewStacks) const
 {
     FMCPerkCardPresentation Data;Data.GameplayID=ID;Data.Polarity=Definition.Polarity;
-    const auto Content=UMCUIDataLibrary::FindCardForGameplayID(CardTable,ID,DisplayCulture());
+    const auto Content=UMCUIDataLibrary::FindCardForGameplayID(CachedCardTable,ID,DisplayCulture(),GetResolvedTranslationTable());
     Data.DisplayName=Content.bFound?Content.DisplayName:Definition.DisplayName;
     Data.Description=Content.bFound?Content.Description:Definition.Description;
     Data.Image=Content.bFound?Content.Image:Definition.Icon;
@@ -199,7 +221,7 @@ FMCPerkCardPresentation UMCPerkChoiceWidget::MakePresentation(FName ID,const FMC
     const auto* PC=bApplyingPreview?nullptr:GetOwningPlayer<AMCPlayerController>();const auto* State=PC?PC->GetPlayerState<AMCPlayerState>():nullptr;const auto* Perks=State?State->Perks.Get():nullptr;
     const int32 Before=PreviewStacks!=INDEX_NONE?PreviewStacks:Perks?Perks->GetStacks(ID):0;
     const FCulturePtr Culture=FInternationalization::Get().GetCulture(DisplayCulture());
-    UMCPerkCardWidget::ApplyDefinitionMetadata(Data,Definition,LocalizationTable,DisplayCulture(),bPersonal,Before);
+    UMCPerkCardWidget::ApplyDefinitionMetadata(Data,Definition,GetResolvedTranslationTable(),DisplayCulture(),bPersonal,Before);
     // These are the same optional before/after values as the existing gameplay preview.
     if(Perks) for(const auto& M:Definition.Modifiers) if(M.Condition==EMCRogueActivation::Always) {
         float Base=1.f;FText Stat;const auto* Hero=State?Cast<AMCToothCharacter>(State->GetPawn()):nullptr;
@@ -223,6 +245,7 @@ void UMCPerkChoiceWidget::BuildChoices(const TArray<FName>& IDs,EMCPerkPolarity 
 {
     BuildPresentationTree();if(!Cards || !Actions || !Title || !Subtitle || !Hint) return;
     bShowingChoices=true;bSelectionPending=false;bWaitingForTeam=false;bLevelPanel=bPersonal;bOptionalReward=false;bConfirming=false;
+    CurrentChoiceIDs.Reset();CurrentDefinitions.Reset();
     Actions->SetVisibility(ESlateVisibility::Visible);
     NormalizePresentationLayout();
     Actions->ClearChildren();Cards->ClearChildren();Cards->SetVisibility(ESlateVisibility::Visible);Buttons.Reset();ButtonStyles.Reset();CardWidgets.Reset();GamepadSelection=0;NextStickNavigationAt=0;
@@ -234,6 +257,7 @@ void UMCPerkChoiceWidget::BuildChoices(const TArray<FName>& IDs,EMCPerkPolarity 
         FMCPerkDefinition Definition;Definition.Polarity=Polarity;
         if(State && State->Perks) State->Perks->GetPerkDefinition(IDs[Index],Definition);
         else if(bApplyingPreview && PreviewDefinitions) if(const auto* Row=PreviewDefinitions->FindRow<FMCPerkDefinition>(IDs[Index],TEXT("UI Preview"),false)) Definition=*Row;
+        CurrentChoiceIDs.Add(IDs[Index]);CurrentDefinitions.Add(Definition);
         auto* Card=WidgetTree->ConstructWidget<UMCPerkCardWidget>(CardWidgetClass?CardWidgetClass.Get():UMCPerkCardWidget::StaticClass());Card->PreviewCulture=DisplayCulture();
         Card->Configure(MakePresentation(IDs[Index],Definition,bPersonal,bApplyingPreview?0:INDEX_NONE),PC,Index,!bReadOnly);
         auto* CardSlot=Cards->AddChildToHorizontalBox(Card);CardSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));CardSlot->SetPadding(FMargin(6,0));CardSlot->SetVerticalAlignment(VAlign_Fill);
@@ -246,7 +270,20 @@ void UMCPerkChoiceWidget::ShowRogueChoices(const FMCRogueChestOffer& Offer)
     const bool Confirm=Offer.Kind==EMCRogueRewardKind::CursedContract && Offer.Step==2;
     TArray<FName> IDs=Offer.IDs;if(Confirm) IDs={Offer.Curse,Offer.Reward};
     BuildChoices(IDs,Offer.Kind==EMCRogueRewardKind::RiskyAltar?EMCPerkPolarity::Risky:Offer.Step==0?EMCPerkPolarity::Negative:EMCPerkPolarity::Positive,false,Confirm);
-    if(!Title || !Subtitle || !Hint) return;bOptionalReward=true;bConfirming=Confirm;
+    CurrentRogueOffer=Offer;bOptionalReward=true;bConfirming=Confirm;
+    if(!Title || !Subtitle || !Hint) return;
+    RefreshRogueCopy(Offer);
+    if(Confirm) {
+        for(const auto& Card:CardWidgets) if(Card) Card->SetInteractionEnabled(false);
+        AddAction(Copy(TEXT("UI.Reward.AcceptContract"),LOCTEXT("AcceptContract","ПРИНЯТЬ ДОГОВОР [ENTER]")),-3);
+        Hint->SetText(Copy(TEXT("UI.Reward.ContractConfirmHint"),LOCTEXT("ContractConfirmHint","Принять — Enter / A. Отказаться — Escape / B.")));
+    }
+    AddAction(Copy(TEXT("UI.Reward.Decline"),LOCTEXT("Decline","ОТКАЗАТЬСЯ [ESC]")),-2);
+}
+void UMCPerkChoiceWidget::RefreshRogueCopy(const FMCRogueChestOffer& Offer)
+{
+    if(!Title || !Subtitle || !Hint) return;
+    const bool Confirm=Offer.Kind==EMCRogueRewardKind::CursedContract && Offer.Step==2;
     if(Offer.Kind==EMCRogueRewardKind::RiskyAltar) {
         Title->SetText(Copy(TEXT("UI.Reward.RiskyTitle"),LOCTEXT("RiskyTitle","СИЛА С ЦЕНОЙ")));
         Subtitle->SetText(Copy(TEXT("UI.Reward.RiskySubtitle"),LOCTEXT("RiskySubtitle","Выберите один эффект. Цена останется до конца забега.")));
@@ -257,22 +294,18 @@ void UMCPerkChoiceWidget::ShowRogueChoices(const FMCRogueChestOffer& Offer)
             FText Names;auto* PC=bApplyingPreview?nullptr:GetOwningPlayer<AMCPlayerController>();auto* State=PC?PC->GetPlayerState<AMCPlayerState>():nullptr;
             for(int32 I=0;I<Offer.RewardIDs.Num();++I) {
                 FMCPerkDefinition Row;if(State && State->Perks) State->Perks->GetPerkDefinition(Offer.RewardIDs[I],Row);
-                const auto Content=UMCUIDataLibrary::FindCardForGameplayID(CardTable,Offer.RewardIDs[I],DisplayCulture());const FText Name=Content.bFound?Content.DisplayName:Row.DisplayName;
+                const auto Content=UMCUIDataLibrary::FindCardForGameplayID(CachedCardTable,Offer.RewardIDs[I],DisplayCulture(),GetResolvedTranslationTable());const FText Name=Content.bFound?Content.DisplayName:Row.DisplayName;
                 Names=I==0?Name:Format(Copy(TEXT("UI.Reward.NameList"),LOCTEXT("NameList","{Previous} / {Next}")),FFormatNamedArguments{{TEXT("Previous"),Names},{TEXT("Next"),Name}});
             }
             Summary=Format(Copy(TEXT("UI.Reward.ContractRewardPreview"),LOCTEXT("ContractRewardPreview","Взамен получите одну редкую награду: {Rewards}")),FFormatNamedArguments{{TEXT("Rewards"),Names}});
         } else Summary=Confirm?Copy(TEXT("UI.Reward.ContractConfirmSubtitle"),LOCTEXT("ContractConfirmSubtitle","Обе карты будут применены вместе. До подтверждения ничего не получено.")):Copy(TEXT("UI.Reward.ContractChooseRewardSubtitle"),LOCTEXT("ContractChooseRewardSubtitle","После выбора награды покажем обе карты для общего подтверждения."));
         Subtitle->SetText(Summary);
     }
-    if(Confirm) {
-        for(const auto& Card:CardWidgets) if(Card) Card->SetInteractionEnabled(false);
-        AddAction(Copy(TEXT("UI.Reward.AcceptContract"),LOCTEXT("AcceptContract","ПРИНЯТЬ ДОГОВОР [ENTER]")),-3);
-        Hint->SetText(Copy(TEXT("UI.Reward.ContractConfirmHint"),LOCTEXT("ContractConfirmHint","Принять — Enter / A. Отказаться — Escape / B.")));
-    }
-    AddAction(Copy(TEXT("UI.Reward.Decline"),LOCTEXT("Decline","ОТКАЗАТЬСЯ [ESC]")),-2);
+    if(Confirm) Hint->SetText(Copy(TEXT("UI.Reward.ContractConfirmHint"),LOCTEXT("ContractConfirmHint","Принять — Enter / A. Отказаться — Escape / B.")));
 }
 void UMCPerkChoiceWidget::UpdateLevelChoiceHeader(int32 TeamLevel,int32 PendingChoices)
 {
+    CurrentTeamLevel=TeamLevel;CurrentPendingChoices=PendingChoices;
     if(!Title || !Subtitle || !Hint) return;const FCulturePtr Culture=FInternationalization::Get().GetCulture(DisplayCulture());
     Title->SetText(Format(Copy(TEXT("UI.Reward.LevelTitle"),LOCTEXT("LevelTitle","КОМАНДА · УРОВЕНЬ {Level}")),FFormatNamedArguments{{TEXT("Level"),FText::AsNumber(TeamLevel,nullptr,Culture)}}));
     Subtitle->SetText(PendingChoices>1?Format(Copy(TEXT("UI.Reward.PendingChoices"),LOCTEXT("PendingChoices","Выберите личный перк · осталось выборов: {Count}")),FFormatNamedArguments{{TEXT("Count"),FText::AsNumber(PendingChoices,nullptr,Culture)}}):Copy(TEXT("UI.Reward.LevelSubtitle"),LOCTEXT("LevelSubtitle","Общие усилия открыли уровень. Выберите личный перк.")));
@@ -296,6 +329,7 @@ void UMCPerkChoiceWidget::SetSelectionPending(bool bPending)
 }
 void UMCPerkChoiceWidget::ShowTeamWaiting(int32 Ready,int32 Total)
 {
+    CurrentReady=Ready;CurrentTotal=Total;
     BuildPresentationTree();
     bShowingChoices=false;bSelectionPending=false;bWaitingForTeam=true;
     bLevelPanel=bOptionalReward=bConfirming=false;
@@ -333,7 +367,7 @@ void UMCPerkChoiceWidget::ApplyEditorPreview(float Time)
     // its content until the scenario, data-table choice or child class changes.
     if(bHasPreviewFixture && LastPreviewState==PreviewState && LastPreviewScenario==PreviewScenario
         && LastPreviewCulture==PreviewCulture && LastPreviewIDs==PreviewPerkIDs
-        && LastPreviewCardTable.Get()==CardTable && LastPreviewLocalizationTable.Get()==LocalizationTable
+        && LastPreviewCardTable.Get()==CachedCardTable && LastPreviewLocalizationTable.Get()==GetResolvedTranslationTable()
         && LastPreviewCardWidgetClass.Get()==CardWidgetClass.Get()) {
         SetRenderOpacity(Time<=0.f?1.f:FMath::Clamp(Time*6.f,0.f,1.f));return;
     }
@@ -349,10 +383,66 @@ void UMCPerkChoiceWidget::ApplyEditorPreview(float Time)
     if(PreviewState==TEXT("Pending")) SetSelectionPending(true);
     if(PreviewState==TEXT("WaitingForTeam")) ShowTeamWaiting(1,2);
     bHasPreviewFixture=true;LastPreviewState=PreviewState;LastPreviewCulture=PreviewCulture;LastPreviewIDs=PreviewPerkIDs;
-    LastPreviewScenario=PreviewScenario;LastPreviewCardTable=CardTable;LastPreviewLocalizationTable=LocalizationTable;LastPreviewCardWidgetClass=CardWidgetClass.Get();
+    LastPreviewScenario=PreviewScenario;LastPreviewCardTable=CachedCardTable;LastPreviewLocalizationTable=GetResolvedTranslationTable();LastPreviewCardWidgetClass=CardWidgetClass.Get();
     SetRenderOpacity(Time<=0.f?1.f:FMath::Clamp(Time*6.f,0.f,1.f));
 }
 void UMCPerkChoiceWidget::ResetEditorPreview() {bHasPreviewFixture=false;SetRenderOpacity(1.f);}
+void UMCPerkChoiceWidget::OnLocalizationChanged()
+{
+    bHasPreviewFixture=false;
+    CacheDataTables();
+    if (IsDesignTime() || bApplyingPreview)
+    {
+        ApplyEditorPreview(PreviewTime);
+        return;
+    }
+    if (bWaitingForTeam)
+    {
+        ShowTeamWaiting(CurrentReady,CurrentTotal);
+        ApplyTheme();
+        return;
+    }
+    if (!bShowingChoices) {ApplyTheme();return;}
+    // Re-present the existing offer, retaining controls, selection and pending
+    // authority state. Localization never requests a new gameplay offer.
+    auto* PC=GetOwningPlayer<AMCPlayerController>();
+    for (int32 Index=0;Index<CardWidgets.Num();++Index)
+    {
+        auto* Card=CardWidgets[Index].Get();
+        if (!Card || !CurrentChoiceIDs.IsValidIndex(Index) || !CurrentDefinitions.IsValidIndex(Index)) continue;
+        auto* Button=Card->GetChoiceButton();
+        const bool bEnabled=Button && Button->GetIsEnabled();
+        Card->Configure(MakePresentation(CurrentChoiceIDs[Index],CurrentDefinitions[Index],bLevelPanel),PC,Index,!bConfirming,true);
+        if (Button) Button->SetIsEnabled(bEnabled);
+    }
+    SetOrdinaryHeader();
+    if (bLevelPanel) UpdateLevelChoiceHeader(CurrentTeamLevel,CurrentPendingChoices);
+    else if (bOptionalReward) RefreshRogueCopy(CurrentRogueOffer);
+    for (const auto& Button:Buttons) if (Button)
+    {
+        auto* Label=Cast<UTextBlock>(Button->GetContent());
+        if (!Label) continue;
+        switch (Button->GetChoiceIndex())
+        {
+        case -1:Label->SetText(Copy(TEXT("UI.Reward.Reroll"),LOCTEXT("Reroll","ПЕРЕБРОСИТЬ [R]")));break;
+        case -2:Label->SetText(Copy(TEXT("UI.Reward.Decline"),LOCTEXT("Decline","ОТКАЗАТЬСЯ [ESC]")));break;
+        case -3:Label->SetText(Copy(TEXT("UI.Reward.AcceptContract"),LOCTEXT("AcceptContract","ПРИНЯТЬ ДОГОВОР [ENTER]")));break;
+        default:break;
+        }
+    }
+    if (bSelectionPending) SetSelectionPending(true);
+    ApplyTheme();
+}
+void UMCPerkChoiceWidget::NativeDestruct()
+{
+    UnobserveCardTable();
+    Super::NativeDestruct();
+}
+void UMCPerkChoiceWidget::BeginDestroy()
+{
+    UnobserveCardTable();
+    Super::BeginDestroy();
+}
 FReply UMCPerkChoiceWidget::NativeOnMouseMove(const FGeometry& Geometry,const FPointerEvent& Event)
 {
     if(bNavigationHighlight && !Event.GetCursorDelta().IsNearlyZero()) {bNavigationHighlight=false;RefreshGamepadSelection();}

@@ -278,6 +278,30 @@ namespace MCUIDataPrivate
         return Found;
     }
 
+    const FText* FindTranslation(const FMCUILocalizationRow& Row, const FString& Name)
+    {
+        const FText* Common=nullptr;
+        if(Name.Equals(TEXT("ru"),ESearchCase::IgnoreCase)) Common=&Row.RU;
+        else if(Name.Equals(TEXT("en"),ESearchCase::IgnoreCase)) Common=&Row.EN;
+        else if(Name.Equals(TEXT("de"),ESearchCase::IgnoreCase)) Common=&Row.DE;
+        else if(Name.Equals(TEXT("fr"),ESearchCase::IgnoreCase)) Common=&Row.FR;
+        else if(Name.Equals(TEXT("es"),ESearchCase::IgnoreCase)) Common=&Row.ES;
+        else if(Name.Equals(TEXT("pt-BR"),ESearchCase::IgnoreCase)) Common=&Row.PT_BR;
+        else if(Name.Equals(TEXT("zh-Hans"),ESearchCase::IgnoreCase)) Common=&Row.ZH_HANS;
+        else if(Name.Equals(TEXT("zh-Hant"),ESearchCase::IgnoreCase)) Common=&Row.ZH_HANT;
+        else if(Name.Equals(TEXT("ja"),ESearchCase::IgnoreCase)) Common=&Row.JA;
+        else if(Name.Equals(TEXT("ko"),ESearchCase::IgnoreCase)) Common=&Row.KO;
+        if(Common && HasCopy(*Common)) return Common;
+        if(const FText* Extra=FindCulture(Row.AdditionalLanguages,Name);Extra && HasCopy(*Extra)) return Extra;
+        return FindCulture(Row.Localizations,Name); // Serialized compatibility for unmigrated/custom tables.
+    }
+
+    const FMCUILocalizationRow* FindTextRow(UDataTable* Table,FName Key)
+    {
+        return Table && Table->GetRowStruct()==FMCUILocalizationRow::StaticStruct() && !Key.IsNone()
+            ? Table->FindRow<FMCUILocalizationRow>(Key,TEXT("UI localization lookup"),false) : nullptr;
+    }
+
     template<typename TCopyLookup>
     FText ResolveField(const FText& Source, const TArray<FString>& Chain, TCopyLookup Lookup, bool& bUsedFallback)
     {
@@ -298,8 +322,18 @@ namespace MCUIDataPrivate
         return DisplayCopy(Source);
     }
 
+    FText ResolveCatalogField(UDataTable* Table,FName Key,const FText& Fallback,
+        const FString& Culture,bool& bUsedFallback)
+    {
+        if(Key.IsNone()) return Fallback;
+        const auto* Row=FindTextRow(Table,Key);
+        if(!Row || !HasCopy(Row->GetNativeText())) {bUsedFallback=true;return Fallback;}
+        return ResolveField(Row->GetNativeText(),CultureChain(Culture),[&](const FString& Name)
+        {return FindTranslation(*Row,Name);},bUsedFallback);
+    }
+
     template<typename TRow>
-    FMCUIResolvedContent ResolveRow(const TRow* Row, const FString& Culture)
+    FMCUIResolvedContent ResolveRow(const TRow* Row, const FString& Culture, UDataTable* LocalizationTable)
     {
         FMCUIResolvedContent Result;
         if (!Row)
@@ -310,29 +344,36 @@ namespace MCUIDataPrivate
         Result.bFound = true;
         Result.Image = Row->Image;
         const TArray<FString> Chain = CultureChain(Culture);
+        bool bNameFallback=false,bDescriptionFallback=false;
         Result.DisplayName = ResolveField(Row->DisplayName, Chain, [&](const FString& Name) -> const FText*
         {
             const auto* Copy = FindCulture(Row->Localizations, Name);
             return Copy ? &Copy->DisplayName : nullptr;
-        }, Result.bUsedFallback);
+        }, bNameFallback);
         Result.Description = ResolveField(Row->Description, Chain, [&](const FString& Name) -> const FText*
         {
             const auto* Copy = FindCulture(Row->Localizations, Name);
             return Copy ? &Copy->Description : nullptr;
-        }, Result.bUsedFallback);
+        }, bDescriptionFallback);
+        UDataTable* Catalogue=LocalizationTable?LocalizationTable:UMCUIDataLibrary::GetDefaultLocalizationTable();
+        if(const auto* Text=FindTextRow(Catalogue,Row->DisplayNameKey);Text && HasCopy(Text->GetNativeText())) bNameFallback=false;
+        if(const auto* Text=FindTextRow(Catalogue,Row->DescriptionKey);Text && HasCopy(Text->GetNativeText())) bDescriptionFallback=false;
+        Result.DisplayName=ResolveCatalogField(Catalogue,Row->DisplayNameKey,Result.DisplayName,Culture,bNameFallback);
+        Result.Description=ResolveCatalogField(Catalogue,Row->DescriptionKey,Result.Description,Culture,bDescriptionFallback);
+        Result.bUsedFallback=bNameFallback || bDescriptionFallback;
         return Result;
     }
 
     template<typename TRow>
-    FMCUIResolvedContent ResolveHandle(const FDataTableRowHandle& Handle, const FString& Culture)
+    FMCUIResolvedContent ResolveHandle(const FDataTableRowHandle& Handle, const FString& Culture, UDataTable* LocalizationTable)
     {
         const auto* Row = Handle.DataTable && Handle.DataTable->GetRowStruct() == TRow::StaticStruct() && !Handle.RowName.IsNone()
             ? Handle.DataTable->FindRow<TRow>(Handle.RowName, TEXT("UI presentation lookup"), false) : nullptr;
-        return ResolveRow(Row, Culture);
+        return ResolveRow(Row, Culture, LocalizationTable);
     }
 
     template<typename TRow>
-    FMCUIResolvedContent FindGameplayRow(UDataTable* Table, FName GameplayPerkID, const FString& Culture)
+    FMCUIResolvedContent FindGameplayRow(UDataTable* Table, FName GameplayPerkID, const FString& Culture, UDataTable* LocalizationTable)
     {
         const TRow* Found = nullptr;
         if (Table && Table->GetRowStruct() == TRow::StaticStruct() && !GameplayPerkID.IsNone())
@@ -341,11 +382,11 @@ namespace MCUIDataPrivate
             {
                 const auto* Row = reinterpret_cast<const TRow*>(Entry.Value);
                 if (!Row || Row->GameplayPerkID != GameplayPerkID) continue;
-                if (Found) return ResolveRow<TRow>(nullptr, Culture);
+                if (Found) return ResolveRow<TRow>(nullptr, Culture, LocalizationTable);
                 Found = Row;
             }
         }
-        return ResolveRow(Found, Culture);
+        return ResolveRow(Found, Culture, LocalizationTable);
     }
 
     UDataTable* LoadDefault(const TCHAR* Path, const UScriptStruct* ExpectedStruct, TWeakObjectPtr<UDataTable>& Cache)
@@ -394,7 +435,7 @@ namespace MCUIDataPrivate
     }
 
     template<typename TRow>
-    void ValidateRows(const UDataTable* Table, TArray<FString>& Problems)
+    void ValidateRows(const UDataTable* Table, TArray<FString>& Problems, UDataTable* LocalizationTable)
     {
         TMap<FName, FName> GameplayRows;
         for (const auto& Entry : Table->GetRowMap())
@@ -407,22 +448,44 @@ namespace MCUIDataPrivate
                 Problems.Add(Location + TEXT(": duplicate GameplayPerkID '") + Row->GameplayPerkID.ToString()
                     + TEXT("' also used by ") + Previous->ToString());
             else GameplayRows.Add(Row->GameplayPerkID, Entry.Key);
-            if (!HasCopy(Row->DisplayName)) Problems.Add(Location + TEXT(": source DisplayName is empty"));
-            if (!HasCopy(Row->Description)) Problems.Add(Location + TEXT(": source Description is empty"));
-            ValidatePattern(Row->DisplayName, NativeCulture, Location + TEXT(".DisplayName"), Problems);
-            ValidatePattern(Row->Description, NativeCulture, Location + TEXT(".Description"), Problems);
+            if(!Row->DisplayNameKey.IsNone() || !Row->DescriptionKey.IsNone())
+            {
+                UDataTable* Catalogue=LocalizationTable?LocalizationTable:UMCUIDataLibrary::GetDefaultLocalizationTable();
+                for(FName Key:{Row->DisplayNameKey,Row->DescriptionKey})
+                    if(!Key.IsNone() && !FindTextRow(Catalogue,Key)) Problems.Add(Location+TEXT(": missing catalogue key ")+Key.ToString());
+                const auto Copy=ResolveRow(Row,NativeCulture,Catalogue);
+                if(!HasCopy(Copy.DisplayName)) Problems.Add(Location+TEXT(": resolved DisplayName is empty"));
+                if(!HasCopy(Copy.Description)) Problems.Add(Location+TEXT(": resolved Description is empty"));
+                ValidatePattern(Copy.DisplayName,NativeCulture,Location+TEXT(".DisplayName"),Problems);
+                ValidatePattern(Copy.Description,NativeCulture,Location+TEXT(".Description"),Problems);
+                // The shared catalogue validates keyed translations. An unkeyed field still
+                // uses its serialized legacy copy and needs its own validation below.
+            }
+            const bool bLegacyName=Row->DisplayNameKey.IsNone();
+            const bool bLegacyDescription=Row->DescriptionKey.IsNone();
+            if(!bLegacyName && !bLegacyDescription) continue;
+            if(bLegacyName)
+            {
+                if (!HasCopy(Row->DisplayName)) Problems.Add(Location + TEXT(": source DisplayName is empty"));
+                ValidatePattern(Row->DisplayName, NativeCulture, Location + TEXT(".DisplayName"), Problems);
+            }
+            if(bLegacyDescription)
+            {
+                if (!HasCopy(Row->Description)) Problems.Add(Location + TEXT(": source Description is empty"));
+                ValidatePattern(Row->Description, NativeCulture, Location + TEXT(".Description"), Problems);
+            }
             ValidateCultures(Row->Localizations, Location, Problems);
             for (const auto& Variant : Row->Localizations)
             {
                 const FString VariantLocation = Location + TEXT("[") + Variant.Key + TEXT("]");
-                if (!HasCopy(Variant.Value.DisplayName) && !HasCopy(Variant.Value.Description))
+                if (bLegacyName && bLegacyDescription && !HasCopy(Variant.Value.DisplayName) && !HasCopy(Variant.Value.Description))
                     Problems.Add(VariantLocation + TEXT(": empty localization; source copy will be used"));
-                if (HasCopy(Variant.Value.DisplayName))
+                if (bLegacyName && HasCopy(Variant.Value.DisplayName))
                 {
                     ValidatePattern(Variant.Value.DisplayName, CanonicalCulture(Variant.Key), VariantLocation + TEXT(".DisplayName"), Problems);
                     ValidateParameters(Row->DisplayName, Variant.Value.DisplayName, VariantLocation + TEXT(".DisplayName"), Problems);
                 }
-                if (HasCopy(Variant.Value.Description))
+                if (bLegacyDescription && HasCopy(Variant.Value.Description))
                 {
                     ValidatePattern(Variant.Value.Description, CanonicalCulture(Variant.Key), VariantLocation + TEXT(".Description"), Problems);
                     ValidateParameters(Row->Description, Variant.Value.Description, VariantLocation + TEXT(".Description"), Problems);
@@ -453,14 +516,8 @@ UDataTable* UMCUIDataLibrary::GetDefaultCardTable()
 FText UMCUIDataLibrary::ResolveText(UDataTable* Table, FName Key, const FText& Fallback, const FString& Culture)
 {
     using namespace MCUIDataPrivate;
-    if (!Table || Table->GetRowStruct() != FMCUILocalizationRow::StaticStruct() || Key.IsNone()) return DisplayCopy(Fallback);
-    const auto* Row = Table->FindRow<FMCUILocalizationRow>(Key, TEXT("UI localization lookup"), false);
-    if (!Row || !HasCopy(Row->SourceText)) return DisplayCopy(Fallback);
-    bool bUsedFallback = false;
-    return ResolveField(Row->SourceText, CultureChain(Culture), [&](const FString& Name) -> const FText*
-    {
-        return FindCulture(Row->Localizations, Name);
-    }, bUsedFallback);
+    bool bUsedFallback=false;
+    return ResolveCatalogField(Table,Key,DisplayCopy(Fallback),Culture,bUsedFallback);
 }
 
 FText UMCUIDataLibrary::FormatTextForCulture(const FText& Pattern, const FFormatNamedArguments& Arguments, const FString& Culture)
@@ -498,33 +555,33 @@ FText UMCUIDataLibrary::DecimalForCulture(double Value, int32 FractionalDigits, 
     return FText::AsNumber(Value, &Options, MCUIDataPrivate::FormattingCulture(Culture));
 }
 
-FMCUIResolvedContent UMCUIDataLibrary::ResolveBooster(const FDataTableRowHandle& RowHandle, const FString& Culture)
+FMCUIResolvedContent UMCUIDataLibrary::ResolveBooster(const FDataTableRowHandle& RowHandle, const FString& Culture, UDataTable* LocalizationTable)
 {
-    return MCUIDataPrivate::ResolveHandle<FMCUIBoosterRow>(RowHandle, Culture);
+    return MCUIDataPrivate::ResolveHandle<FMCUIBoosterRow>(RowHandle, Culture, LocalizationTable);
 }
 
-FMCUIResolvedContent UMCUIDataLibrary::FindBoosterForGameplayID(UDataTable* Table, FName GameplayPerkID, const FString& Culture)
+FMCUIResolvedContent UMCUIDataLibrary::FindBoosterForGameplayID(UDataTable* Table, FName GameplayPerkID, const FString& Culture, UDataTable* LocalizationTable)
 {
-    return MCUIDataPrivate::FindGameplayRow<FMCUIBoosterRow>(Table, GameplayPerkID, Culture);
+    return MCUIDataPrivate::FindGameplayRow<FMCUIBoosterRow>(Table, GameplayPerkID, Culture, LocalizationTable);
 }
 
-FMCUIResolvedContent UMCUIDataLibrary::ResolveCard(const FDataTableRowHandle& RowHandle, const FString& Culture)
+FMCUIResolvedContent UMCUIDataLibrary::ResolveCard(const FDataTableRowHandle& RowHandle, const FString& Culture, UDataTable* LocalizationTable)
 {
-    return MCUIDataPrivate::ResolveHandle<FMCUICardRow>(RowHandle, Culture);
+    return MCUIDataPrivate::ResolveHandle<FMCUICardRow>(RowHandle, Culture, LocalizationTable);
 }
 
-FMCUIResolvedContent UMCUIDataLibrary::FindCardForGameplayID(UDataTable* Table, FName GameplayPerkID, const FString& Culture)
+FMCUIResolvedContent UMCUIDataLibrary::FindCardForGameplayID(UDataTable* Table, FName GameplayPerkID, const FString& Culture, UDataTable* LocalizationTable)
 {
-    return MCUIDataPrivate::FindGameplayRow<FMCUICardRow>(Table, GameplayPerkID, Culture);
+    return MCUIDataPrivate::FindGameplayRow<FMCUICardRow>(Table, GameplayPerkID, Culture, LocalizationTable);
 }
 
-bool UMCUIDataLibrary::ValidateContentTable(UDataTable* Table, TArray<FString>& OutProblems)
+bool UMCUIDataLibrary::ValidateContentTable(UDataTable* Table, TArray<FString>& OutProblems, UDataTable* LocalizationTable)
 {
     using namespace MCUIDataPrivate;
     OutProblems.Reset();
     if (!Table) OutProblems.Add(TEXT("No UI data table selected"));
-    else if (Table->GetRowStruct() == FMCUIBoosterRow::StaticStruct()) ValidateRows<FMCUIBoosterRow>(Table, OutProblems);
-    else if (Table->GetRowStruct() == FMCUICardRow::StaticStruct()) ValidateRows<FMCUICardRow>(Table, OutProblems);
+    else if (Table->GetRowStruct() == FMCUIBoosterRow::StaticStruct()) ValidateRows<FMCUIBoosterRow>(Table, OutProblems, LocalizationTable);
+    else if (Table->GetRowStruct() == FMCUICardRow::StaticStruct()) ValidateRows<FMCUICardRow>(Table, OutProblems, LocalizationTable);
     else if (Table->GetRowStruct() == FMCUILocalizationRow::StaticStruct())
     {
         for (const auto& Entry : Table->GetRowMap())
@@ -532,15 +589,35 @@ bool UMCUIDataLibrary::ValidateContentTable(UDataTable* Table, TArray<FString>& 
             const auto* Row = reinterpret_cast<const FMCUILocalizationRow*>(Entry.Value);
             const FString Location = Entry.Key.ToString();
             if (!Row) { OutProblems.Add(Location + TEXT(": missing row payload")); continue; }
-            if (!HasCopy(Row->SourceText)) OutProblems.Add(Location + TEXT(": SourceText is empty"));
-            ValidatePattern(Row->SourceText, NativeCulture, Location, OutProblems);
-            ValidateCultures(Row->Localizations, Location, OutProblems);
-            for (const auto& Variant : Row->Localizations)
+            const FText& Native=Row->GetNativeText();
+            if(!HasCopy(Native)) OutProblems.Add(Location+TEXT(": RU/native copy is empty"));
+            ValidatePattern(Native,NativeCulture,Location,OutProblems);
+            const auto ValidateCopy=[&](const FText& Text,const FString& Culture,const FString& Field)
             {
-                const FString VariantLocation = Location + TEXT("[") + Variant.Key + TEXT("]");
-                if (!HasCopy(Variant.Value)) { OutProblems.Add(VariantLocation + TEXT(": translation is empty")); continue; }
-                ValidatePattern(Variant.Value, CanonicalCulture(Variant.Key), VariantLocation, OutProblems);
-                ValidateParameters(Row->SourceText, Variant.Value, VariantLocation, OutProblems);
+                if(!HasCopy(Text)) return; // Empty optional languages deliberately fall back to RU.
+                ValidatePattern(Text,Culture,Location+TEXT(".")+Field,OutProblems);
+                ValidateParameters(Native,Text,Location+TEXT(".")+Field,OutProblems);
+            };
+            ValidateCopy(Row->EN,TEXT("en"),TEXT("EN"));ValidateCopy(Row->DE,TEXT("de"),TEXT("DE"));
+            ValidateCopy(Row->FR,TEXT("fr"),TEXT("FR"));ValidateCopy(Row->ES,TEXT("es"),TEXT("ES"));
+            ValidateCopy(Row->PT_BR,TEXT("pt-BR"),TEXT("PT_BR"));
+            ValidateCopy(Row->ZH_HANS,TEXT("zh-Hans"),TEXT("ZH_HANS"));ValidateCopy(Row->ZH_HANT,TEXT("zh-Hant"),TEXT("ZH_HANT"));
+            ValidateCopy(Row->JA,TEXT("ja"),TEXT("JA"));ValidateCopy(Row->KO,TEXT("ko"),TEXT("KO"));
+            ValidateCultures(Row->AdditionalLanguages,Location+TEXT(".AdditionalLanguages"),OutProblems);
+            for(const auto& Variant:Row->AdditionalLanguages)
+            {
+                const FString Field=TEXT("AdditionalLanguages[")+Variant.Key+TEXT("]");
+                if(!HasCopy(Variant.Value)) OutProblems.Add(Location+TEXT(".")+Field+TEXT(": translation is empty"));
+                else ValidateCopy(Variant.Value,CanonicalCulture(Variant.Key),Field);
+            }
+            ValidateCultures(Row->Localizations,Location+TEXT(".Legacy"),OutProblems);
+            // Validate only still-active legacy translations; migrated columns are authoritative.
+            for(const auto& Variant:Row->Localizations)
+            {
+                const FString Culture=CanonicalCulture(Variant.Key);
+                if(FindTranslation(*Row,Culture)!=&Variant.Value) continue;
+                if(!HasCopy(Variant.Value)) OutProblems.Add(Location+TEXT("[Legacy ")+Variant.Key+TEXT("]: translation is empty"));
+                else ValidateCopy(Variant.Value,Culture,TEXT("Legacy[")+Variant.Key+TEXT("]"));
             }
         }
     }

@@ -104,6 +104,8 @@ protected:
 private:
     enum class EPage : uint8 { Main, Host, Join, Settings, Credits, Exit, Lobby, Leave, VideoConfirm, Pause, Connection };
     enum class EEmbeddedRoot : uint8 { None, Connection, Settings };
+    FString LocalizedCopy(FName Key,const FString& Fallback) const;
+    FString FormatCopy(FName Key,const FString& Fallback,const FFormatNamedArguments& Arguments) const;
     void ShowPage(EPage NewPage);
     void ApplyPresentation();
     void LeaveEmbeddedMode();

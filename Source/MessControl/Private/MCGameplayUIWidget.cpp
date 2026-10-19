@@ -14,6 +14,7 @@
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
+#include "Components/RichTextBlock.h"
 #include "Components/ScaleBox.h"
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
@@ -21,6 +22,7 @@
 #include "Components/VerticalBoxSlot.h"
 #include "Engine/DataTable.h"
 #include "Engine/Texture.h"
+#include "Internationalization/Internationalization.h"
 #include "UObject/UObjectGlobals.h"
 
 #define LOCTEXT_NAMESPACE "MCGameplayUI"
@@ -35,10 +37,113 @@ UMCGameplayUITheme* UMCGameplayUIWidget::GetResolvedTheme() const
 
 FText UMCGameplayUIWidget::Localized(FName Key,const FText& Fallback) const
 {
-    const auto* Resolved=GetResolvedTheme();
-    UDataTable* Table=Resolved?Resolved->LocalizationTable.LoadSynchronous():nullptr;
-    if (!Table) Table=UMCUIDataLibrary::GetDefaultLocalizationTable();
-    return UMCUIDataLibrary::ResolveText(Table,Key,Fallback,IsDesignTime()?PreviewCulture:FString());
+    return UMCUIDataLibrary::ResolveText(GetResolvedTranslationTable(),Key,Fallback,IsDesignTime()?PreviewCulture:FString());
+}
+
+UDataTable* UMCGameplayUIWidget::GetResolvedTranslationTable() const
+{
+    // An explicit screen override is inherited independently of the visual theme.
+    for (const auto* Owner=this;Owner;Owner=Owner->GetTypedOuter<UMCGameplayUIWidget>())
+        if (IsValid(Owner->TranslationTable)) return Owner->TranslationTable;
+    // Let a composed screen retain a compatible legacy override. A child's
+    // independently assigned theme still owns its own default table.
+    if (!IsValid(Theme))
+        if (const auto* Parent=GetTypedOuter<UMCGameplayUIWidget>()) return Parent->GetResolvedTranslationTable();
+    if (const auto* Resolved=GetResolvedTheme())
+        if (auto* Table=Resolved->LocalizationTable.LoadSynchronous()) return Table;
+    return UMCUIDataLibrary::GetDefaultLocalizationTable();
+}
+
+void UMCGameplayUIWidget::SetTranslationTable(UDataTable* NewTable)
+{
+    TranslationTable=NewTable;
+    if (HasAnyFlags(RF_ClassDefaultObject)) return;
+    RefreshLocalization();
+    // ApplyTheme redraws children but does not re-present their state. Refresh
+    // every composed screen as well so its delegate follows the new table.
+    TFunction<void(UWidgetTree*)> RefreshChildren;
+    RefreshChildren=[&RefreshChildren](UWidgetTree* Tree)
+    {
+        if (!Tree) return;
+        Tree->ForEachWidget([&RefreshChildren](UWidget* Widget)
+        {
+            if (auto* Child=Cast<UMCGameplayUIWidget>(Widget)) Child->RefreshLocalization();
+            if (auto* Child=Cast<UUserWidget>(Widget)) RefreshChildren(Child->WidgetTree);
+        });
+    };
+    RefreshChildren(WidgetTree);
+}
+
+void UMCGameplayUIWidget::ObserveLocalization()
+{
+    if (HasAnyFlags(RF_ClassDefaultObject)) return;
+    auto* Table=GetResolvedTranslationTable();
+    if (ObservedTranslationTable!=Table || (Table && !TranslationTableHandle.IsValid()))
+    {
+        if (ObservedTranslationTable) ObservedTranslationTable->OnDataTableChanged().Remove(TranslationTableHandle);
+        ObservedTranslationTable=Table;
+        TranslationTableHandle.Reset();
+        if (Table) TranslationTableHandle=Table->OnDataTableChanged().AddUObject(this,&ThisClass::RefreshLocalization);
+    }
+    if (!CultureHandle.IsValid())
+        CultureHandle=FInternationalization::Get().OnCultureChanged().AddUObject(this,&ThisClass::RefreshLocalization);
+}
+
+void UMCGameplayUIWidget::UnobserveLocalization()
+{
+    if (ObservedTranslationTable) ObservedTranslationTable->OnDataTableChanged().Remove(TranslationTableHandle);
+    ObservedTranslationTable=nullptr;
+    TranslationTableHandle.Reset();
+    if (CultureHandle.IsValid() && FInternationalization::IsAvailable())
+        FInternationalization::Get().OnCultureChanged().Remove(CultureHandle);
+    CultureHandle.Reset();
+}
+
+void UMCGameplayUIWidget::ApplyTextBindings()
+{
+    if (!WidgetTree) return;
+    for (auto It=OriginalLocalizedCopy.CreateIterator();It;++It)
+        if (!It.Key().IsValid()) It.RemoveCurrent();
+    for (const auto& Binding:TextBindings)
+    {
+        if (Binding.Key.IsNone() || Binding.Value.IsNone()) continue;
+        auto* Widget=WidgetTree->FindWidget(Binding.Key);
+        auto* Text=Cast<UTextBlock>(Widget);
+        auto* RichText=Cast<URichTextBlock>(Widget);
+        if (!Text && !RichText) continue;
+        const TWeakObjectPtr<UWidget> WidgetKey(Widget);
+        auto* Fallback=OriginalLocalizedCopy.Find(WidgetKey);
+        if (!Fallback) Fallback=&OriginalLocalizedCopy.Add(WidgetKey,Text?Text->GetText():RichText->GetText());
+        const FText Copy=Localized(Binding.Value,*Fallback);
+        TArray<FString> Arguments;
+        FText::GetFormatPatternParameters(FTextFormat(Copy),Arguments);
+        // Counters and stateful text keep their presenter's formatted value. A
+        // static binding must never put a raw "{Count}" pattern on the screen.
+        if (!Arguments.IsEmpty()) continue;
+        if (Text)
+        {
+            if (!Text->GetText().EqualTo(Copy)) Text->SetText(Copy);
+        }
+        else if (!RichText->GetText().EqualTo(Copy)) RichText->SetText(Copy);
+    }
+}
+
+void UMCGameplayUIWidget::RefreshLocalization()
+{
+    if (bRefreshingLocalization || HasAnyFlags(RF_ClassDefaultObject)) return;
+    TGuardValue<bool> Guard(bRefreshingLocalization,true);
+    ObserveLocalization();
+    ApplyTextBindings();
+    OnLocalizationChanged();
+    InvalidateLayoutAndVolatility();
+}
+
+void UMCGameplayUIWidget::OnLocalizationChanged()
+{
+    // Only Designer roots own preview fixtures. Runtime widgets retain the
+    // latest gameplay snapshot and only redraw their existing presentation.
+    if (IsDesignTime() && !GetTypedOuter<UMCGameplayUIWidget>()) ApplyEditorPreview(PreviewTime);
+    else ApplyTheme();
 }
 
 void UMCGameplayUIWidget::BuildPresentationTree()
@@ -51,6 +156,7 @@ TSharedRef<SWidget> UMCGameplayUIWidget::RebuildWidget()
     Initialize();
     BuildPresentationTree();
     ObserveTheme();
+    ObserveLocalization();
     return Super::RebuildWidget();
 }
 
@@ -58,6 +164,7 @@ void UMCGameplayUIWidget::NativePreConstruct()
 {
     BuildPresentationTree();
     ObserveTheme();
+    ObserveLocalization();
     Super::NativePreConstruct();
     // The parent owns fixtures for a composed screen. A late child PreConstruct
     // must not replace the snapshot the parent has already supplied.
@@ -69,11 +176,13 @@ void UMCGameplayUIWidget::NativeConstruct()
 {
     Super::NativeConstruct();
     ObserveTheme();
+    ObserveLocalization();
     ApplyTheme();
 }
 
 void UMCGameplayUIWidget::NativeDestruct()
 {
+    UnobserveLocalization();
     if (auto* Previous=ObservedTheme.Get()) Previous->OnThemeChanged.Remove(ThemeHandle);
     ObservedTheme.Reset();
     ThemeHandle.Reset();
@@ -82,6 +191,8 @@ void UMCGameplayUIWidget::NativeDestruct()
 
 void UMCGameplayUIWidget::BeginDestroy()
 {
+    UnobserveLocalization();
+    OriginalLocalizedCopy.Reset();
     if (auto* Previous=ObservedTheme.Get()) Previous->OnThemeChanged.Remove(ThemeHandle);
     ObservedTheme.Reset();
     ThemeHandle.Reset();
@@ -135,6 +246,8 @@ void UMCGameplayUIWidget::ApplyTheme()
 {
     if (!WidgetTree) return;
     ObserveTheme();
+    ObserveLocalization();
+    ApplyTextBindings();
     const auto* Resolved=GetResolvedTheme();
     if (!Resolved) return;
     for (const auto& Binding:StyleBindings)

@@ -56,9 +56,7 @@ void UMCGameplayMenuActionButton::Clicked() {if(Menu) Menu->HandleAction(MenuAct
 
 FText UMCGameplayMenuWidget::Copy(FName Key,const FText& Fallback) const
 {
-    auto* Resolved=GetResolvedTheme();
-    auto* Table=Resolved?Resolved->LocalizationTable.LoadSynchronous():UMCUIDataLibrary::GetDefaultLocalizationTable();
-    return UMCUIDataLibrary::ResolveText(Table,Key,Fallback,IsPreviewing()?PreviewCulture:FString());
+    return UMCUIDataLibrary::ResolveText(GetResolvedTranslationTable(),Key,Fallback,IsPreviewing()?PreviewCulture:FString());
 }
 void UMCGameplayMenuWidget::NativeOnInitialized() {Super::NativeOnInitialized();SetIsFocusable(true);}
 void UMCGameplayMenuWidget::NativeConstruct()
@@ -396,14 +394,11 @@ void UMCGameplayMenuWidget::ShowConnection()
 }
 void UMCGameplayMenuWidget::SetStatus(const FText& Text)
 {
-    if(!Status) return;
-    FText DisplayText=Text;
+    StatusKey=NAME_None;StatusFallback=Text;
     if(!Text.IsEmpty()) {
         const FString* NativeSource=FTextInspector::GetSourceString(Text);
         const FString Source=NativeSource?*NativeSource:Text.ToString();
-        const auto* ThemeData=GetResolvedTheme();
-        UDataTable* Table=ThemeData?ThemeData->LocalizationTable.LoadSynchronous():nullptr;
-        if(!Table) Table=UMCUIDataLibrary::GetDefaultLocalizationTable();
+        UDataTable* Table=GetResolvedTranslationTable();
         if(Table && Table->GetRowStruct()==FMCUILocalizationRow::StaticStruct()) {
             FName MatchingKey=NAME_None;
             bool bAmbiguous=false;
@@ -411,6 +406,7 @@ void UMCGameplayMenuWidget::SetStatus(const FText& Text)
                 if(!Entry.Key.ToString().StartsWith(TEXT("UI.Connection.Status."),ESearchCase::CaseSensitive)) continue;
                 const auto* Row=reinterpret_cast<const FMCUILocalizationRow*>(Entry.Value);
                 if(!Row) continue;
+                // SourceText is the immutable migration alias; editing RU never changes identity.
                 const FString* RowNativeSource=FTextInspector::GetSourceString(Row->SourceText);
                 const FString RowSource=RowNativeSource?*RowNativeSource:Row->SourceText.ToString();
                 if(Source!=RowSource) continue;
@@ -418,10 +414,19 @@ void UMCGameplayMenuWidget::SetStatus(const FText& Text)
                 if(!MatchingKey.IsNone()) {bAmbiguous=true;break;}
                 MatchingKey=Entry.Key;
             }
-            if(!MatchingKey.IsNone() && !bAmbiguous)
-                DisplayText=UMCUIDataLibrary::ResolveText(Table,MatchingKey,Text,IsPreviewing()?PreviewCulture:FString());
+            if(!MatchingKey.IsNone() && !bAmbiguous) StatusKey=MatchingKey;
         }
     }
+    RefreshStatusCopy();
+}
+void UMCGameplayMenuWidget::SetStatusKey(FName Key,const FText& Fallback)
+{
+    StatusKey=Key;StatusFallback=Fallback;RefreshStatusCopy();
+}
+void UMCGameplayMenuWidget::RefreshStatusCopy()
+{
+    if(!Status) return;
+    const FText DisplayText=StatusKey.IsNone()?StatusFallback:Copy(StatusKey,StatusFallback);
     if(!Status->GetText().EqualTo(DisplayText)) {Status->SetText(DisplayText);bLayoutDirty=true;}
     Status->SetVisibility(DisplayText.IsEmpty()?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);
 }
@@ -436,7 +441,7 @@ void UMCGameplayMenuWidget::PopulateSettings()
     if(!ResolutionPicker || !ModePicker || !QualityPicker || !VSyncCheck) return;
     auto* Settings=IsPreviewing()?nullptr:UGameUserSettings::GetGameUserSettings();
     if(!Settings && !IsPreviewing()) {
-        SetStatus(Copy(TEXT("UI.Menu.SettingsUnavailable"),LOCTEXT("SettingsUnavailable","Настройки экрана недоступны.")));
+        SetStatusKey(TEXT("UI.Menu.SettingsUnavailable"),LOCTEXT("SettingsUnavailable","Настройки экрана недоступны."));
         if(auto* Button=WidgetTree->FindWidget(TEXT("MenuApply"))) Button->SetIsEnabled(false);return;
     }
     if(auto* Button=WidgetTree->FindWidget(TEXT("MenuApply"))) Button->SetIsEnabled(true);
@@ -450,21 +455,27 @@ void UMCGameplayMenuWidget::PopulateSettings()
     Resolutions.Sort([](const FIntPoint& A,const FIntPoint& B){return A.X==B.X?A.Y<B.Y:A.X<B.X;});
     ResolutionPicker->ClearOptions();for(const auto& Resolution:Resolutions) ResolutionPicker->AddOption(FString::Printf(TEXT("%d × %d"),Resolution.X,Resolution.Y));
     ResolutionPicker->SetSelectedIndex(FMath::Max(0,Resolutions.IndexOfByKey(Current)));
+    const int32 Quality=Settings?Settings->GetOverallScalabilityLevel():3;
+    RefreshSettingsChoiceCopy(Settings?static_cast<int32>(Settings->GetFullscreenMode()):1,Quality<0?5:FMath::Clamp(Quality,0,4),Quality<0);
+    VSyncCheck->SetIsChecked(Settings?Settings->IsVSyncEnabled():true);
+}
+void UMCGameplayMenuWidget::RefreshSettingsChoiceCopy(int32 Mode,int32 Quality,bool bIncludeCustom)
+{
+    if(!ModePicker || !QualityPicker) return;
+    // Only labels change. Preserve both pending selections and their semantic indices.
     ModePicker->ClearOptions();
     ModePicker->AddOption(Copy(TEXT("UI.Menu.Fullscreen"),LOCTEXT("Fullscreen","Полный экран")).ToString());
     ModePicker->AddOption(Copy(TEXT("UI.Menu.Borderless"),LOCTEXT("Borderless","Окно без рамки")).ToString());
     ModePicker->AddOption(Copy(TEXT("UI.Menu.Windowed"),LOCTEXT("Windowed","Оконный")).ToString());
-    ModePicker->SetSelectedIndex(Settings?static_cast<int32>(Settings->GetFullscreenMode()):1);
+    ModePicker->SetSelectedIndex(FMath::Clamp(Mode,0,2));
     QualityPicker->ClearOptions();
     QualityPicker->AddOption(Copy(TEXT("UI.Menu.QualityLow"),LOCTEXT("QualityLow","Низкое")).ToString());
     QualityPicker->AddOption(Copy(TEXT("UI.Menu.QualityMedium"),LOCTEXT("QualityMedium","Среднее")).ToString());
     QualityPicker->AddOption(Copy(TEXT("UI.Menu.QualityHigh"),LOCTEXT("QualityHigh","Высокое")).ToString());
     QualityPicker->AddOption(Copy(TEXT("UI.Menu.QualityEpic"),LOCTEXT("QualityEpic","Эпическое")).ToString());
     QualityPicker->AddOption(Copy(TEXT("UI.Menu.QualityCinematic"),LOCTEXT("QualityCinematic","Кинематографическое")).ToString());
-    const int32 Quality=Settings?Settings->GetOverallScalabilityLevel():3;
-    if(Quality<0) {QualityPicker->AddOption(Copy(TEXT("UI.Menu.QualityCustom"),LOCTEXT("QualityCustom","Свои настройки — сохранить")).ToString());QualityPicker->SetSelectedIndex(5);}
-    else QualityPicker->SetSelectedIndex(FMath::Clamp(Quality,0,4));
-    VSyncCheck->SetIsChecked(Settings?Settings->IsVSyncEnabled():true);
+    if(bIncludeCustom) QualityPicker->AddOption(Copy(TEXT("UI.Menu.QualityCustom"),LOCTEXT("QualityCustom","Свои настройки — сохранить")).ToString());
+    QualityPicker->SetSelectedIndex(FMath::Clamp(Quality,0,5));
 }
 
 void UMCGameplayMenuWidget::ApplySettings()
@@ -480,7 +491,7 @@ void UMCGameplayMenuWidget::ApplySettings()
     Settings->SetVSyncEnabled(VSyncCheck->IsChecked());Settings->ApplySettings(false);Settings->SaveSettings();
     if(PreviousResolution!=Settings->GetScreenResolution() || PreviousWindowMode!=Mode) {
         bVideoConfirmationPending=true;VideoConfirmationEndsAt=FPlatformTime::Seconds()+15.;ShowPage(EPage::VideoConfirm);
-    } else SetStatus(Copy(TEXT("UI.Menu.SettingsSaved"),LOCTEXT("SettingsSaved","Настройки применены и сохранены.")));
+    } else SetStatusKey(TEXT("UI.Menu.SettingsSaved"),LOCTEXT("SettingsSaved","Настройки применены и сохранены."));
 }
 void UMCGameplayMenuWidget::RevertVideoSettings()
 {
@@ -565,19 +576,19 @@ void UMCGameplayMenuWidget::HandleAction(EMCGameplayMenuAction Action)
         if(!bVideoConfirmationPending) break;
         bVideoConfirmationPending=false;
         if(auto* Settings=UGameUserSettings::GetGameUserSettings()) {Settings->ConfirmVideoMode();Settings->SaveSettings();}
-        ShowPage(EPage::Settings);SetStatus(Copy(TEXT("UI.Menu.SettingsSaved"),LOCTEXT("SettingsSaved","Настройки применены и сохранены.")));break;
+        ShowPage(EPage::Settings);SetStatusKey(TEXT("UI.Menu.SettingsSaved"),LOCTEXT("SettingsSaved","Настройки применены и сохранены."));break;
     case EMCGameplayMenuAction::RevertSettings:
-        RevertVideoSettings();ShowPage(EPage::Settings);SetStatus(Copy(TEXT("UI.Menu.VideoRestored"),LOCTEXT("VideoRestored","Предыдущий режим экрана восстановлен.")));break;
+        RevertVideoSettings();ShowPage(EPage::Settings);SetStatusKey(TEXT("UI.Menu.VideoRestored"),LOCTEXT("VideoRestored","Предыдущий режим экрана восстановлен."));break;
     case EMCGameplayMenuAction::Host:if(!Steam || !Steam->IsBusy()) OnHostRequested.Broadcast();break;
     case EMCGameplayMenuAction::FindRooms:if(Steam && !Steam->IsBusy()) Steam->FindRooms();break;
     case EMCGameplayMenuAction::JoinRoom:
         if(Steam && !Steam->IsBusy() && RoomPicker && RoomPicker->GetSelectedIndex()!=INDEX_NONE) Steam->JoinRoom(RoomPicker->GetSelectedIndex());
-        else SetStatus(Copy(TEXT("UI.Menu.ChooseRoom"),LOCTEXT("ChooseRoom","Сначала найди и выбери комнату.")));break;
+        else SetStatusKey(TEXT("UI.Menu.ChooseRoom"),LOCTEXT("ChooseRoom","Сначала найди и выбери комнату."));break;
     case EMCGameplayMenuAction::Invite:if(Steam && !Steam->IsBusy()) Steam->InviteFriends();break;
     case EMCGameplayMenuAction::JoinAddress:
         if(AddressBox && (!Steam || !Steam->IsBusy())) {
             FString Address;if(NormalizeJoinAddress(AddressBox->GetText().ToString(),Address)) OnJoinAddressRequested.Broadcast(Address);
-            else SetStatus(Copy(TEXT("UI.Menu.InvalidAddress"),LOCTEXT("InvalidAddress","Введи IP или имя компьютера, при необходимости с портом. Например: 192.168.1.10:7777.")));
+            else SetStatusKey(TEXT("UI.Menu.InvalidAddress"),LOCTEXT("InvalidAddress","Введи IP или имя компьютера, при необходимости с портом. Например: 192.168.1.10:7777."));
         }break;
     }
 }
@@ -619,7 +630,7 @@ void UMCGameplayMenuWidget::NativeTick(const FGeometry& Geometry,float DeltaSeco
     if(LastFocusTarget.Get()!=Focused) {LastFocusTarget=Focused;ApplyTheme();}
     if(bVideoConfirmationPending) {
         if(FPlatformTime::Seconds()>=VideoConfirmationEndsAt) {
-            RevertVideoSettings();ShowPage(EPage::Settings);SetStatus(Copy(TEXT("UI.Menu.VideoRestored"),LOCTEXT("VideoRestored","Предыдущий режим экрана восстановлен.")));
+            RevertVideoSettings();ShowPage(EPage::Settings);SetStatusKey(TEXT("UI.Menu.VideoRestored"),LOCTEXT("VideoRestored","Предыдущий режим экрана восстановлен."));
         } else {
             const FText Pattern=Copy(TEXT("UI.Menu.VideoCountdown"),LOCTEXT("VideoCountdown","Автоматический возврат: {Seconds} сек."));
             SetStatus(UMCUIDataLibrary::FormatTextForCulture(Pattern,FFormatNamedArguments{{TEXT("Seconds"),UMCUIDataLibrary::NumberForCulture(FMath::CeilToInt(VideoConfirmationEndsAt-FPlatformTime::Seconds()))}}));
@@ -654,6 +665,14 @@ UWidget* UMCGameplayMenuWidget::GeneratePickerItem(FString Item)
 {
     auto* Label=WidgetTree->ConstructWidget<UTextBlock>();Label->SetText(FText::FromString(Item));
     Label->SetAutoWrapText(true);Label->SetWrapTextAt(340);Label->SetFont(GetResolvedTheme()->MakeGameplayFont(20));Label->SetColorAndOpacity(GetResolvedTheme()->Palette.Ink);GeneratedPickerLabels.Add(Label);return Label;
+}
+
+void UMCGameplayMenuWidget::OnLocalizationChanged()
+{
+    Super::OnLocalizationChanged();
+    if(ModePicker && QualityPicker && ModePicker->GetOptionCount()>0 && QualityPicker->GetOptionCount()>0)
+        RefreshSettingsChoiceCopy(ModePicker->GetSelectedIndex(),QualityPicker->GetSelectedIndex(),QualityPicker->GetOptionCount()>5);
+    RefreshStatusCopy();
 }
 
 void UMCGameplayMenuWidget::ApplyTheme()

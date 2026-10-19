@@ -4,6 +4,8 @@
 #include "MCGameplayUITheme.h"
 #include "MCGameplayUIWidget.generated.h"
 
+class UDataTable;
+
 UENUM(BlueprintType)
 enum class EMCGameplayUIPreviewScenario : uint8
 {
@@ -32,6 +34,11 @@ class MESSCONTROL_API UMCGameplayUIWidget : public UUserWidget
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Theme") TObjectPtr<UMCGameplayUITheme> Theme;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Theme") TArray<FMCUIStyleBinding> StyleBindings;
+    /** Optional screen override. Otherwise inherit the parent's override, then the resolved theme's table. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Localization", meta=(RequiredAssetDataTags="RowStructure=/Script/MessControl.MCUILocalizationRow"))
+    TObjectPtr<UDataTable> TranslationTable;
+    /** TextBlock/RichTextBlock widget name -> stable table key. Use static labels; format dynamic text in its presenter. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Localization") TMap<FName,FName> TextBindings;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview") EMCGameplayUIPreviewScenario PreviewScenario=EMCGameplayUIPreviewScenario::Default;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview") FName PreviewState=TEXT("Default");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview") FString PreviewCulture=TEXT("ru");
@@ -42,6 +49,10 @@ public:
     UFUNCTION(BlueprintCallable, Category="Preview") virtual void ResetEditorPreview();
     UFUNCTION(BlueprintCallable, Category="Theme") virtual void ApplyTheme();
     UFUNCTION(BlueprintPure, Category="Theme") UMCGameplayUITheme* GetResolvedTheme() const;
+    UFUNCTION(BlueprintPure, Category="Localization") virtual UDataTable* GetResolvedTranslationTable() const;
+    UFUNCTION(BlueprintCallable, Category="Localization") void SetTranslationTable(UDataTable* NewTable);
+    /** Reapply static labels after changing bindings. Table edits and the game's culture also refresh them. */
+    UFUNCTION(BlueprintCallable, Category="Localization") void RefreshLocalization();
     FText Localized(FName Key,const FText& Fallback) const;
     void BindStyle(FName Name,EMCUIColorToken Color,EMCUIStyleTarget Target=EMCUIStyleTarget::Text,int32 Size=0,bool bBold=false);
     /** Update analytic brush metrics after Slate has allotted the composed tree. */
@@ -53,10 +64,20 @@ protected:
     virtual void NativeConstruct() override;
     virtual void NativeDestruct() override;
     virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
+    /** Presenters may refresh their current snapshot here; runtime refresh must not create preview fixtures. */
+    virtual void OnLocalizationChanged();
 private:
     void ObserveTheme();
+    void ObserveLocalization();
+    void UnobserveLocalization();
+    void ApplyTextBindings();
     TWeakObjectPtr<UMCGameplayUITheme> ObservedTheme;
     FDelegateHandle ThemeHandle;
+    UPROPERTY(Transient) TObjectPtr<UDataTable> ObservedTranslationTable;
+    FDelegateHandle TranslationTableHandle;
+    FDelegateHandle CultureHandle;
+    TMap<TWeakObjectPtr<UWidget>,FText> OriginalLocalizedCopy;
+    bool bRefreshingLocalization=false;
     float BrushMetricsElapsed=1.f;
 };
 
