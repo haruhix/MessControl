@@ -23,6 +23,8 @@
 #include "MCMeleeCombo.h"
 #include "MCFoodActor.h"
 #include "MCGameMode.h"
+#include "MCHubGameMode.h"
+#include "MCHubGameState.h"
 #include "MCTutorialDirector.h"
 #include "MCToothpick.h"
 #include "MCNutEnemy.h"
@@ -1254,7 +1256,8 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     {
         if (GetWorld()->GetTimeSeconds()-LastPaddleAt>.3) PaddleInput=FVector2D::ZeroVector;
         FindWork(FMath::Min(DeltaSeconds,0.1f));
-        if (!SwallowedBy && !IsMimicCaptured() && Status->IsAlive() && GetActorLocation().Z < -300) Status->Damage(Status->State.MaxHealth);
+        if (!GetWorld()->GetGameState<AMCHubGameState>() && !SwallowedBy && !IsMimicCaptured()
+            && Status->IsAlive() && GetActorLocation().Z < -300) Status->Damage(Status->State.MaxHealth);
     }
     if (IsLocallyControlled() && IsPlayerControlled() && bInCoffee)
     { PaddleSendElapsed+=DeltaSeconds; if (PaddleSendElapsed>=.05f) { ServerPaddle(WorldPaddleInput()); PaddleSendElapsed=0; } }
@@ -1935,6 +1938,7 @@ void AMCToothCharacter::StatusChanged()
 void AMCToothCharacter::FellOutOfWorld(const UDamageType&)
 {
     if (!HasAuthority()) return;
+    if(auto* Hub=GetWorld()->GetAuthGameMode<AMCHubGameMode>(); Hub && Hub->RecoverPlayer(this)) return;
     if (AMCTutorialDirector::IsSafeTutorial(GetWorld()))
     {
         ClearFrozenLegs();

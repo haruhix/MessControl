@@ -1,0 +1,49 @@
+[
+  {
+    "Name": "Day01",
+    "Day": 1,
+    "DisplayNameKey": "hub.day.01.name",
+    "DescriptionKey": "hub.day.01.description",
+    "DisplayName": "День 1",
+    "Description": "Первый день. Рот и его обитатели.",
+    "bEnabled": true,
+    "Map": "/Game/Maps/L_Mouth.L_Mouth",
+    "SingleDayProfile": "/Game/Gameplay/CoreLoop/DA_SingleDay.DA_SingleDay"
+  },
+  {
+    "Name": "Day02", "Day": 2,
+    "DisplayNameKey": "hub.day.02.name", "DescriptionKey": "hub.day.unavailable",
+    "DisplayName": "День 2", "Description": "Локация ещё не доступна.",
+    "bEnabled": false, "Map": "None", "SingleDayProfile": "None"
+  },
+  {
+    "Name": "Day03", "Day": 3,
+    "DisplayNameKey": "hub.day.03.name", "DescriptionKey": "hub.day.unavailable",
+    "DisplayName": "День 3", "Description": "Локация ещё не доступна.",
+    "bEnabled": false, "Map": "None", "SingleDayProfile": "None"
+  },
+  {
+    "Name": "Day04", "Day": 4,
+    "DisplayNameKey": "hub.day.04.name", "DescriptionKey": "hub.day.unavailable",
+    "DisplayName": "День 4", "Description": "Локация ещё не доступна.",
+    "bEnabled": false, "Map": "None", "SingleDayProfile": "None"
+  },
+  {
+    "Name": "Day05", "Day": 5,
+    "DisplayNameKey": "hub.day.05.name", "DescriptionKey": "hub.day.unavailable",
+    "DisplayName": "День 5", "Description": "Локация ещё не доступна.",
+    "bEnabled": false, "Map": "None", "SingleDayProfile": "None"
+  },
+  {
+    "Name": "Day06", "Day": 6,
+    "DisplayNameKey": "hub.day.06.name", "DescriptionKey": "hub.day.unavailable",
+    "DisplayName": "День 6", "Description": "Локация ещё не доступна.",
+    "bEnabled": false, "Map": "None", "SingleDayProfile": "None"
+  },
+  {
+    "Name": "Day07", "Day": 7,
+    "DisplayNameKey": "hub.day.07.name", "DescriptionKey": "hub.day.unavailable",
+    "DisplayName": "День 7", "Description": "Локация ещё не доступна.",
+    "bEnabled": false, "Map": "None", "SingleDayProfile": "None"
+  }
+]

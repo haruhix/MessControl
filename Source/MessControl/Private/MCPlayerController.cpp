@@ -41,6 +41,8 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "MCColdCola.h"
 #include "InputKeyEventArgs.h"
+#include "MCHubGameState.h"
+#include "MCHubWidget.h"
 
 void AMCPlayerController::BeginPlay()
 {
@@ -52,16 +54,20 @@ void AMCPlayerController::BeginPlay()
         AddInstanceComponent(SceneAudio); SceneAudio->RegisterComponent();
         RefreshBackgroundAudio();
         if (auto* Steam=GetGameInstance()->GetSubsystem<UMCSteamSessionSubsystem>()) Steam->RefreshAvailability();
-        PrototypeWidget = CreateWidget<UMCPrototypeWidget>(this,UMCPrototypeWidget::StaticClass());
-        PrototypeWidget->AddToViewport(); UpdateInputMode();
-        BossHealthWidget=CreateWidget<UMCBossHealthWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("BossHealth"),UMCBossHealthWidget::StaticClass()));
-        if (BossHealthWidget) BossHealthWidget->AddToViewport(40);
-        GetWorldTimerManager().SetTimer(BossHUDTimer,this,&AMCPlayerController::RefreshBossHUD,.1f,true);
+        if(!IsHubWorld()) {
+            PrototypeWidget = CreateWidget<UMCPrototypeWidget>(this,UMCPrototypeWidget::StaticClass());
+            if(PrototypeWidget) PrototypeWidget->AddToViewport();
+            BossHealthWidget=CreateWidget<UMCBossHealthWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("BossHealth"),UMCBossHealthWidget::StaticClass()));
+            if (BossHealthWidget) BossHealthWidget->AddToViewport(40);
+            GetWorldTimerManager().SetTimer(BossHUDTimer,this,&AMCPlayerController::RefreshBossHUD,.1f,true);
+        }
+        RefreshHubPresentation(0.f); UpdateInputMode();
     }
 }
 void AMCPlayerController::SetupInputComponent()
 {
     Super::SetupInputComponent();
+    InputComponent->BindKey(EKeys::Enter,IE_Pressed,this,&AMCPlayerController::HandleHubStartInput);
     InputComponent->BindKey(EKeys::G,IE_Pressed,this,&AMCPlayerController::ActivateRogueBooster);
     InputComponent->BindKey(EKeys::T,IE_Pressed,this,&AMCPlayerController::ToggleEmotes);
     InputComponent->BindKey(EKeys::Escape,IE_Pressed,this,&AMCPlayerController::TogglePauseMenu);
@@ -99,6 +105,8 @@ void AMCPlayerController::HideScoreboard()
 { if (ScoreboardWidget) ScoreboardWidget->SetVisibility(ESlateVisibility::Collapsed); }
 void AMCPlayerController::Tick(float DeltaSeconds)
 {
+    // Drive the cosmetic mouth stage before its skeletal components update.
+    if(IsLocalController()) RefreshHubPresentation(DeltaSeconds);
     Super::Tick(DeltaSeconds);
     if(HasAuthority()) RefreshPerkChoiceWorld();
     if (HasAuthority() && GetWorld()->GetRealTimeSeconds()>=NextPerkTeamCheck) {
@@ -146,6 +154,7 @@ void AMCPlayerController::RefreshBackgroundAudio()
     FName Context=BackgroundAudioContextOverride;
     if(Context.IsNone()) {
         auto ChooseContext=[&]() -> FName {
+            if(IsHubWorld()) return TEXT("Hub");
             for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It)
                 if(It->IsBossAlive() && It->Runtime.State!=EMCBossState::Dormant
                     && It->Runtime.AnimationPreview==EMCBossAnimationPreview::None) return TEXT("FinalBoss");
@@ -169,6 +178,9 @@ void AMCPlayerController::RefreshBackgroundAudio()
 }
 void AMCPlayerController::CalcCamera(float DeltaTime,FMinimalViewInfo& OutResult)
 {
+    if(IsLocalController() && IsHubWorld() && HubSceneCamera.IsValid()) {
+        HubSceneCamera->CalcCamera(DeltaTime,OutResult); return;
+    }
     if(IsLocalController() && bDeathSpectating && SpectatorTarget.IsValid()) {
         UMCPlayerCameraComponent::GetSpectatorView(SpectatorTarget.Get(),GetPawn(),SpectatorOrbit,
             SpectatorDistance,DeltaTime,SpectatorCameraView,OutResult);
@@ -189,6 +201,7 @@ void AMCPlayerController::PostSeamlessTravel()
 }
 void AMCPlayerController::ResetWorldPresentation()
 {
+    ResetHubPresentation();
     RefreshPerkChoiceWorld();
     bGameplayLoaded=false; bGameplayLoadAckSent=false;
     AcknowledgedTutorial.Reset(); NextFrontEndCheck=0; NextLevelChoiceCheck=0;
@@ -200,7 +213,6 @@ void AMCPlayerController::ResetWorldPresentation()
     HealthBoss.Reset(); GuardedIntroBoss.Reset(); BossDiedAt=-1; NextBossScan=0;
     if(!IsLocalController()) return;
     // A retained controller needs fresh world-bound widgets and timers after seamless travel.
-    const bool HadHUD=PrototypeWidget!=nullptr;
     if(IsValid(BossIntro)) BossIntro->CancelIntro();
     BossIntro=nullptr; bBossIntroPlaying=false;
     CloseRewardUI(false); HideScoreboard();
@@ -212,16 +224,19 @@ void AMCPlayerController::ResetWorldPresentation()
     if(ScoreboardWidget) ScoreboardWidget->RemoveFromParent(); ScoreboardWidget=nullptr;
     if(PerkChoiceWidget) PerkChoiceWidget->RemoveFromParent(); PerkChoiceWidget=nullptr;
     bLobbyUIOpen=bPauseMenuOpen=bTutorialMenuInput=bFrontEndHidPrototype=false;
-    if(HadHUD) {
-        PrototypeWidget->RemoveFromParent(); PrototypeWidget=nullptr; GameplayHUD=nullptr;
+    if(PrototypeWidget) PrototypeWidget->RemoveFromParent();
+    PrototypeWidget=nullptr; GameplayHUD=nullptr;
+    if(BossHealthWidget) BossHealthWidget->RemoveFromParent();
+    BossHealthWidget=nullptr;
+    GetWorldTimerManager().ClearTimer(BossHUDTimer);
+    if(!IsHubWorld()) {
         PrototypeWidget=CreateWidget<UMCPrototypeWidget>(this,UMCPrototypeWidget::StaticClass());
         if(PrototypeWidget) PrototypeWidget->AddToViewport();
-        if(BossHealthWidget) BossHealthWidget->RemoveFromParent();
         BossHealthWidget=CreateWidget<UMCBossHealthWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("BossHealth"),UMCBossHealthWidget::StaticClass()));
         if(BossHealthWidget) BossHealthWidget->AddToViewport(40);
         GetWorldTimerManager().SetTimer(BossHUDTimer,this,&AMCPlayerController::RefreshBossHUD,.1f,true);
-        UpdateInputMode();
     }
+    RefreshHubPresentation(0.f); UpdateInputMode();
     if(IsValid(GetPawn()) && GetPawn()->GetWorld()==GetWorld()) SetViewTarget(GetPawn());
 }
 void AMCPlayerController::ApplySpectatorOrbitInput(FVector2D Delta)
@@ -440,6 +455,16 @@ void AMCPlayerController::UpdateInputMode()
         if (bLobbyUIOpen && FrontEndWidget) FrontEndWidget->FocusMenu();
         else if (bPauseMenuOpen && PauseWidget) PauseWidget->FocusMenu();
         else if (bConnectionMenuOpen && ConnectionWidget) ConnectionWidget->FocusMenu();
+        return;
+    }
+    if(HubWidget && bHubMenuInput)
+    {
+        bShowMouseCursor=true;
+        ResetIgnoreMoveInput(); SetIgnoreMoveInput(true);
+        ResetIgnoreLookInput(); SetIgnoreLookInput(true);
+        if(auto* Hero=Cast<AMCToothCharacter>(GetPawn())) Hero->CancelGameplayInput();
+        FInputModeUIOnly Mode; Mode.SetWidgetToFocus(HubWidget->TakeWidget());
+        SetInputMode(Mode); HubWidget->SetUserFocus(this);
         return;
     }
     if (bBossIntroPlaying)
@@ -850,6 +875,7 @@ void AMCPlayerController::CloseRewardUI(bool bRestoreInput)
 
 void AMCPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    ResetHubPresentation();
     bPerkChoiceEnding=true;
     if(HasAuthority()) RefreshPerkChoiceTeamState();
     UMCPlayerCameraComponent::ClearSpectatorView(SpectatorCameraView);
@@ -1082,7 +1108,7 @@ void AMCPlayerController::HostGame()
 {
     if (auto* Steam=GetGameInstance()->GetSubsystem<UMCSteamSessionSubsystem>(); Steam && Steam->CanUseSteam())
         Steam->HostRoom();
-    else UGameplayStatics::OpenLevel(this,TEXT("L_Mouth"),true,TEXT("listen"));
+    else UGameplayStatics::OpenLevel(this,TEXT("/Game/Maps/Hub"),true,TEXT("listen?game=/Script/MessControl.MCHubGameMode"));
 }
 void AMCPlayerController::JoinGame(const FString& Address)
 {

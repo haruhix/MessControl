@@ -1,5 +1,6 @@
 #include "MCToothCharacter.h"
 #include "MCGameState.h"
+#include "MCHubGameState.h"
 #include "MCToothStatusComponent.h"
 #include "MCTongue.h"
 #include "MCThroat.h"
@@ -83,6 +84,14 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
         Arm->SetIgnoredViewActor(Viewer?MimicCaptor.Get():nullptr);
     }
     if(!Viewer) { ClearCameraWallReveal(); return; }
+    if(!bManualCameraOrbit && GetWorld()->GetGameState<AMCHubGameState>())
+    {
+        // The hub extends beyond the mouth arena's automatic camera bounds.
+        // Start its existing free orbit aimed at the avatar, then follow normally.
+        const FVector Aim=GetActorLocation()+OrbitCameraPivot()-Camera->GetComponentLocation();
+        if(!Aim.IsNearlyZero()) Camera->SetWorldRotation(Aim.Rotation());
+        InitializeCameraOrbit();
+    }
     const bool Aiming=Inventory && Inventory->Selected==EMCToolSlot::Spray && CanWork() && !bInCoffee && Inventory->ShouldPresentTool();
     // Keep the centre ray beside the avatar, with the ordinary collision sweep
     // still beginning at the avatar instead of beyond the shoulder offset.

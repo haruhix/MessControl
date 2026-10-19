@@ -147,9 +147,10 @@ void UMCSteamSessionSubsystem::Created(FName Name, bool Success)
     SetStatus(TEXT("Комната создана. Друг может найти её по твоему имени Steam или принять приглашение."));
     UE_LOG(LogTemp,Display,TEXT("MC_STEAM_ROOM_CREATED"));
     FString Options=TEXT("listen");
-    if(bHostWaitsForLobby) Options+=TEXT("?MCLobby=1");
-    if(bHostStartsWithTutorial) Options+=TEXT("?MCTutorial=1");
-    UGameplayStatics::OpenLevel(GetGameInstance(),FName(bHostStartsWithTutorial?TEXT("/Game/Maps/L_Tutorial"):TEXT("/Game/Maps/L_Mouth")),true,Options);
+    if(bHostWaitsForLobby && bHostStartsWithTutorial) Options+=TEXT("?MCLobby=1");
+    if(bHostStartsWithTutorial) Options+=TEXT("?MCTutorial=1?MCHubAfterTutorial=1");
+    else Options+=TEXT("?game=/Script/MessControl.MCHubGameMode");
+    UGameplayStatics::OpenLevel(GetGameInstance(),FName(bHostStartsWithTutorial?TEXT("/Game/Maps/L_Tutorial"):TEXT("/Game/Maps/Hub")),true,Options);
 }
 
 void UMCSteamSessionSubsystem::FindRooms()

@@ -15,6 +15,7 @@
 #include "MCReactionVFX.h"
 #include "MCCoffeeFlood.h"
 #include "MCGameState.h"
+#include "MCHubGameState.h"
 #include "MCRoguelikeDirector.h"
 #include "MCRoguelikePreview.h"
 #include "MCRewardChest.h"
@@ -101,6 +102,17 @@ void AMCGameMode::BeginPlay()
     bTutorialRequested=UGameplayStatics::GetCurrentLevelName(this,true)==TEXT("L_Tutorial")
         || UGameplayStatics::GetIntOption(OptionsString,TEXT("MCTutorial"),0)!=0;
     bLobbyRequested=UGameplayStatics::HasOption(OptionsString,TEXT("MCLobby"));
+    bAutoStartHubRun=bLobbyRequested && UGameplayStatics::GetIntOption(OptionsString,TEXT("MCHubRun"),0)!=0;
+    if(bAutoStartHubRun) {
+        FMCHubDestinationRow Destination;
+        const int32 SelectedDay=UGameplayStatics::GetIntOption(OptionsString,TEXT("MCHubDay"),1);
+        if(AMCHubGameState::ResolveAuthoredDestination(SelectedDay,Destination) && Destination.bEnabled
+            && Destination.Map.ToSoftObjectPath().GetAssetName()==UGameplayStatics::GetCurrentLevelName(this,true)
+            && !Destination.SingleDayProfile.IsNull()) {
+            SingleDayProfile=Destination.SingleDayProfile;
+            bUseSingleDayLoop=true;
+        }
+    }
     if(FParse::Param(FCommandLine::Get(),TEXT("MCSingleDay"))) bUseSingleDayLoop=true;
     if(FParse::Param(FCommandLine::Get(),TEXT("MCLegacyDays")) || FParse::Param(FCommandLine::Get(),TEXT("MCCore")) || FParse::Param(FCommandLine::Get(),TEXT("MCDayOne"))) bUseSingleDayLoop=false;
     if (FParse::Param(FCommandLine::Get(),TEXT("MCLegacyDays"))) { bUseDayOnePlan=false; bUseAdaptiveDirector=false; }
@@ -357,10 +369,18 @@ void AMCGameMode::Tick(float DeltaSeconds)
     AMCGameState* State = GetGameState<AMCGameState>();
     if (State && State->bLobbyWaiting)
     {
-        int32 Loaded=0;
+        int32 Loaded=0,Participants=0; APlayerController* Host=nullptr;
         for (FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It)
-            if (const auto* PC=Cast<AMCPlayerController>(It->Get()); PC && PC->HasAcknowledgedGameplay() && PC->GetPawn()) ++Loaded;
+            if(auto* PC=Cast<AMCPlayerController>(It->Get()); PC && IsGameplayParticipant(PC)) {
+                ++Participants;
+                if(PC->HasAcknowledgedGameplay() && PC->GetPawn()) ++Loaded;
+                if(PC->IsLocalController() && GetNetMode()!=NM_DedicatedServer) Host=PC;
+            }
         if (State->LobbyLoadedPlayers!=Loaded) { State->LobbyLoadedPlayers=Loaded; State->ForceNetUpdate(); }
+        if(bAutoStartHubRun && Participants>0 && Loaded==Participants && Host) {
+            StartLobby(Host);
+            if(!State->bLobbyWaiting) bAutoStartHubRun=false;
+        }
         return;
     }
     if (State && State->bTutorialActive)
@@ -414,6 +434,7 @@ void AMCGameMode::StartLobby(APlayerController* Requester)
     if (!State || !State->bLobbyWaiting || !Requester || !Requester->IsLocalController() || GetNetMode()==NM_DedicatedServer) return;
     for (FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It)
     {
+        if(!IsGameplayParticipant(It->Get())) continue;
         const auto* PC=Cast<AMCPlayerController>(It->Get());
         if (!PC || !PC->HasAcknowledgedGameplay() || !PC->GetPawn()) return;
     }
@@ -430,7 +451,9 @@ void AMCGameMode::FinishTutorial()
     TutorialDirector->Stop();
     bTutorialRequested=false;
     if(UGameplayStatics::GetCurrentLevelName(this,true)==TEXT("L_Tutorial")) {
-        GetWorld()->ServerTravel(TEXT("/Game/Maps/L_Mouth?MCTutorial=0"),true);
+        const bool ReturnToHub=UGameplayStatics::GetIntOption(OptionsString,TEXT("MCHubAfterTutorial"),0)!=0;
+        GetWorld()->ServerTravel(ReturnToHub?TEXT("/Game/Maps/Hub?game=/Script/MessControl.MCHubGameMode")
+            :TEXT("/Game/Maps/L_Mouth?MCTutorial=0"),true);
         UE_LOG(LogTemp,Display,TEXT("MC_TUTORIAL_FINISHED_TRAVEL_MAIN"));
         return;
     }

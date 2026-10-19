@@ -78,6 +78,7 @@ public:
     UPROPERTY(VisibleInstanceOnly,BlueprintReadOnly,Category="Roguelike") TObjectPtr<class AMCRoguelikeDirector> RoguelikeDirector;
 private:
     bool bTutorialRequested=false;
+    bool bAutoStartHubRun=false;
     bool bLobbyRequested=false;
     bool bRestartingForPlaytest=false;
     TOptional<int32> NextPlaytestSeed;

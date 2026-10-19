@@ -769,8 +769,8 @@ void UMCMainMenuWidget::HandleAction(EMCMainMenuAction Action)
     case EMCMainMenuAction::Host:
         if (Steam && Steam->IsBusy()) break;
         if (Steam && Steam->CanUseSteam()) Steam->HostRoom(true,bHostStartWithTutorial);
-        else UGameplayStatics::OpenLevel(this,bHostStartWithTutorial?MCMainMenuPrivate::TutorialMap:MCMainMenuPrivate::MouthMap,
-            true,bHostStartWithTutorial?TEXT("listen?MCLobby=1?MCTutorial=1"):TEXT("listen?MCLobby=1"));
+        else UGameplayStatics::OpenLevel(this,bHostStartWithTutorial?MCMainMenuPrivate::TutorialMap:FName(TEXT("/Game/Maps/Hub")),
+            true,bHostStartWithTutorial?TEXT("listen?MCLobby=1?MCTutorial=1?MCHubAfterTutorial=1"):TEXT("listen?game=/Script/MessControl.MCHubGameMode"));
         break;
     case EMCMainMenuAction::FindRooms: if (Steam) Steam->FindRooms(); break;
     case EMCMainMenuAction::JoinRoom:

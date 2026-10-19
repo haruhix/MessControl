@@ -24,6 +24,7 @@ class UMCGameplayHUD;
 class UMCSoundPalette;
 class UMCSceneAudioComponent;
 class UMCGameplayMenuWidget;
+class UMCHubWidget;
 
 UCLASS()
 class MESSCONTROL_API AMCPlayerController : public APlayerController
@@ -54,6 +55,16 @@ public:
     void TogglePauseMenu();
     UFUNCTION(BlueprintCallable, Category="Front End") void ReturnToMainMenu();
     UFUNCTION(Server, Reliable) void ServerStartLobby();
+    UFUNCTION(BlueprintCallable,Category="Hub") void RequestHubOpenSelection();
+    UFUNCTION(BlueprintCallable,Category="Hub") void RequestHubSelectDay(int32 Day);
+    UFUNCTION(BlueprintCallable,Category="Hub") void RequestHubLaunch();
+    UFUNCTION(BlueprintCallable,Category="Hub") void RequestHubReturn();
+    UFUNCTION(BlueprintPure,Category="Hub") bool IsHubWorld() const;
+    UFUNCTION(Server,Reliable) void ServerHubOpenSelection();
+    UFUNCTION(Server,Reliable) void ServerHubSelectDay(int32 Day);
+    UFUNCTION(Server,Reliable) void ServerHubLaunch();
+    UFUNCTION(Server,Reliable) void ServerHubReturn();
+    UFUNCTION(Server,Reliable) void ServerHubSceneLoaded();
     UFUNCTION(Server, Reliable) void ServerSetTutorialReady(bool bReady);
     bool HasAcknowledgedGameplay() const { return bGameplayLoaded; }
     void ShowScoreboard();
@@ -113,6 +124,14 @@ public:
     UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCPerkChoiceWidget> PerkChoiceWidget;
     UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCBossHealthWidget> BossHealthWidget;
 private:
+    void RefreshHubPresentation(float DeltaSeconds);
+    void ResetHubPresentation();
+    void HandleHubStartInput();
+    UPROPERTY(Transient) TObjectPtr<UMCHubWidget> HubWidget;
+    TWeakObjectPtr<AActor> HubSceneCamera;
+    bool bHubMenuInput=false;
+    bool bHubStagePrerequisitesAdded=false;
+    double NextHubLoadAckAt=0;
     bool bUsingGamepad=false;
     void ResetWorldPresentation();
     void RefreshFrontEnd();
