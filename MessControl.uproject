@@ -18,7 +18,8 @@
 	"Plugins": [
 		{
 			"Name": "KawaiiPhysics",
-			"Enabled": true
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/Fab/product/f870c07e-0a02-4a78-a888-e52a22794572"
 		},
 		{
 			"Name": "StylizedDynamics",
@@ -44,7 +45,9 @@
 		{
 			"Name": "MessControlProjectIndex",
 			"Enabled": true,
-			"TargetAllowList": ["Editor"]
+			"TargetAllowList": [
+				"Editor"
+			]
 		},
 		{
 			"Name": "Niagara",
@@ -67,7 +70,9 @@
 		{
 			"Name": "SequencerScripting",
 			"Enabled": true,
-			"TargetAllowList": ["Editor"]
+			"TargetAllowList": [
+				"Editor"
+			]
 		},
 		{
 			"Name": "EnhancedInput",
