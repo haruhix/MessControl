@@ -19,6 +19,8 @@
 #include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/SphereComponent.h"
 #include "ProceduralMeshComponent.h"
 #include <limits>
 #if WITH_EDITOR
@@ -168,6 +170,11 @@ bool FMCNutBossRollTest::RunTest(const FString&)
     MCNutBossTestsPrivate::FFixture T; T.AddBoss();
     auto* Hero=T.AddHero(FVector(150,0,130));
     if(!TestTrue(TEXT("The knight schedules a visible rolling windup"),T.WaitFor(EMCNutBossAttack::Roll,EMCNutBossState::Telegraph,25))) return false;
+    bool MatchingRollTell=false;
+    for(TActorIterator<AMCNutCombatEffect> It(T.World);It;++It)
+        if(It->SourceActor==T.Boss && It->Cue.Type==EMCNutCombatCue::RollTell)
+            MatchingRollTell|=FMath::IsNearlyEqual(It->Cue.Radius,T.Boss->BossSettings.RollDamageRadius(T.Boss->Settings.BodyRadius));
+    TestTrue(TEXT("The visible roll warning uses the same enlarged radius as damage"),MatchingRollTell);
     const FVector End=T.Boss->LockedTarget,Forward=T.Boss->AttackForward;
     const float Before=Hero->Status->State.Health;
     Hero->SetActorLocation(FVector(150,650,130));
@@ -184,6 +191,36 @@ bool FMCNutBossRollTest::RunTest(const FString&)
     T.Step(1.f/60);
     TestTrue(TEXT("Pursuit turns at the authored angular speed, without snapping"),
         FMath::Abs(FMath::FindDeltaAngleDegrees(BeforeTurn,T.Boss->AttackForward.Rotation().Yaw))<=T.Boss->BossSettings.RollTurnDegreesPerSecond/60.f+.01f);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutBossRollPressureTest,"MessControl.CoreLoop.NutBoss.RollSpeedAndExpandedDamageRadius",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutBossRollPressureTest::RunTest(const FString&)
+{
+    MCNutBossTestsPrivate::FFixture T;T.AddBoss();T.Step(1.4f);
+    const float BodyRadius=T.Boss->Body->GetScaledSphereRadius();
+    const float OldDamageRadius=T.Boss->Settings.BodyRadius+15.f;
+    const float Radius=T.Boss->BossSettings.RollDamageRadius(T.Boss->Settings.BodyRadius);
+    TestTrue(TEXT("The roll's radius increases by twenty percent, not its area"),FMath::IsNearlyEqual(Radius,OldDamageRadius*1.2f));
+    TestEqual(TEXT("The native roll speed is thirty percent above the previous 520 cm/s"),T.Boss->BossSettings.RollSpeed,676.f);
+    const FVector Start=T.Boss->GetActorLocation();
+    auto* Aim=T.AddHero(Start+FVector(1000,0,16));
+    auto* Inside=T.AddHero(Start+FVector(5,700,16));
+    auto* Outside=T.AddHero(Start+FVector(5,-700,16));
+    const float HeroRadius=Inside->GetCapsuleComponent()->GetScaledCapsuleRadius();
+    Inside->SetActorLocation(Start+FVector(5,(OldDamageRadius+Radius)*.5f+HeroRadius,16));
+    Outside->SetActorLocation(Start+FVector(5,-Radius-HeroRadius-12.f,16));
+    const float BeforeInside=Inside->Status->State.Health,BeforeOutside=Outside->Status->State.Health;
+    T.Boss->Target=Aim;
+    T.Boss->Attack=EMCNutBossAttack::Roll;T.Boss->State=EMCNutBossState::Executing;
+    T.Boss->AttackForward=FVector::ForwardVector;T.Boss->AttackEndAt=T.World->GetTimeSeconds()+12;
+    T.Step(1.f/60.f);
+    TestTrue(TEXT("Actual roll movement uses the increased speed"),FMath::IsNearlyEqual(
+        float(FVector::Dist2D(Start,T.Boss->GetActorLocation())),T.Boss->BossSettings.RollSpeed/60.f,.15f));
+    TestEqual(TEXT("A player in the newly added annulus takes the actual rolling hit"),Inside->Status->State.Health,BeforeInside-T.Boss->BossSettings.RollDamage);
+    TestEqual(TEXT("A player beyond the enlarged radius takes no rolling damage"),Outside->Status->State.Health,BeforeOutside);
+    TestEqual(TEXT("The physical body is not enlarged to implement this attack"),T.Boss->Body->GetScaledSphereRadius(),BodyRadius);
+    TestEqual(TEXT("The authored turn rate remains unchanged"),T.Boss->BossSettings.RollTurnDegreesPerSecond,50.f);
     return true;
 }
 

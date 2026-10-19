@@ -16,6 +16,7 @@
 #include "MCBossCharacter.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
+#include "MCArenaTooth.h"
 #include "MCMouthSurface.h"
 #include "MCTongue.h"
 #include "MCDayPlan.h"
@@ -42,6 +43,16 @@ FTeamCondition ObserveTeam(UWorld* World)
 }
 bool NeedsRelief(const FTeamCondition& Team) { return Team.Health<.5f || Team.Stamina<.25f; }
 bool IsHealthy(const FTeamCondition& Team) { return Team.Health>.8f && Team.Stamina>.55f; }
+int32 CountDirtyAvailableArenaTeeth(UWorld* World)
+{
+    if(!World) return 0;
+    int32 Count=0;
+    // Observe physical teeth, just like the adaptive Director; the HUD's icon
+    // count and the portion's Batch are not limits on which teeth need care.
+    for(TActorIterator<AMCArenaTooth> It(World);It;++It)
+        if(!It->IsActorBeingDestroyed() && It->IsAvailable() && It->Status && It->Status->NeedsCare(true)) ++Count;
+    return Count;
+}
 }
 UMCSingleDayProfile::UMCSingleDayProfile()
 {
@@ -185,7 +196,7 @@ void AMCSingleDayDirector::BeginFirstMeal()
     OpeningCoffeeAt=Settings->bOpeningCoffeeWave?NextMealDropAt+Warning:0;
     Record(TEXT("Начало приёма пищи: гарантированная волна кофе, затем увеличенная порция еды; орехи ждут завершения задач"));
     Publish(Settings->bOpeningCoffeeWave?TEXT("СКОРО: КОФЕЙНАЯ ВОЛНА"):TEXT("ПРИЁМ ПИЩИ"),
-        Settings->bOpeningCoffeeWave?TEXT("Приготовьтесь к волне кофе. Еда появится после неё."):TEXT("Разбейте еду, получите XP и очистите оставшуюся грязь."),
+        Settings->bOpeningCoffeeWave?TEXT("Приготовьтесь к волне кофе. Еда появится после неё."):TEXT("Разбейте еду, очистите пятна на языке и грязные зубы."),
         FMath::Clamp(Settings->OpeningMealItems,1,30),FMath::Clamp(Settings->OpeningMealItems,1,30));
     ForceNetUpdate();
 }
@@ -245,31 +256,32 @@ void AMCSingleDayDirector::TickFirstMeal()
     // and swallowing also stay outstanding until their existing work ends.
     const auto Food=MCMeasureFoodPipeline(GetWorld(),FirstMealBatch);
     const int32 Dirt=MCCountDirectedFoodDirt(GetWorld(),FirstMealBatch);
-    if(MealSpawned>=Target && Food.OutstandingActors==0 && Food.UnresolvedHazards==0 && Dirt==0) {
+    const int32 DirtyTeeth=MCSingleDayDirectorPrivate::CountDirtyAvailableArenaTeeth(GetWorld());
+    if(MealSpawned>=Target && Food.OutstandingActors==0 && Food.UnresolvedHazards==0 && Dirt==0 && DirtyTeeth==0) {
         if(IsValid(MealServices)) MealServices->Destroy(); MealServices=nullptr;
         BeginOpeningPause(true); return;
     }
     const int32 Pending=FMath::Max(0,Target-MealSpawned);
-    ReportMealGate(Food,Dirt,Pending,Time);
-    const int32 Left=Pending+Food.OutstandingActors+Food.UnresolvedHazards+Dirt;
+    ReportMealGate(Food,Dirt,DirtyTeeth,Pending,Time);
+    const int32 Left=Pending+Food.OutstandingActors+Food.UnresolvedHazards+Dirt+DirtyTeeth;
     const FString Instruction=FString::Printf(
-        TEXT("Подано %d/%d. Осталось: еда %d · фрагменты %d (в руках %d) · пятна %d · угрозы %d.\nQ — закинуть фрагмент в глотку. Щётка — убрать пятна."),
-        MealSpawned,Target,Food.Whole,Food.Fragments,Food.Carried,Dirt,
+        TEXT("Подано %d/%d. Осталось: еда %d · фрагменты %d (в руках %d) · пятна %d · грязные зубы %d · угрозы %d.\nQ — закинуть фрагмент в глотку. Щётка — очистить язык и зубы."),
+        MealSpawned,Target,Food.Whole,Food.Fragments,Food.Carried,Dirt,DirtyTeeth,
         FMath::Max(0,Food.OutstandingActors-Food.Whole-Food.Fragments)+Food.UnresolvedHazards);
     Publish(TEXT("ПРИЁМ ПИЩИ"),Instruction,
         Left,FMath::Max(GS->TasksTotal,Left));
 }
-void AMCSingleDayDirector::ReportMealGate(const FMCFoodPipelineLoad& Food,int32 Dirt,int32 Pending,double Now)
+void AMCSingleDayDirector::ReportMealGate(const FMCFoodPipelineLoad& Food,int32 Dirt,int32 DirtyTeeth,int32 Pending,double Now)
 {
-    // The HUD's global cleanliness includes teeth and players too. Report the
-    // actual batch gate rather than making that rounded percentage a deadline.
-    const FString State=FString::Printf(TEXT("pending=%d whole=%d fragments=%d carried=%d swallowing=%d outstanding=%d hazards=%d dirt=%d"),
-        Pending,Food.Whole,Food.Fragments,Food.Carried,Food.Swallowing,Food.OutstandingActors,Food.UnresolvedHazards,Dirt);
+    // The global cleanliness also includes players. Report the actual portion
+    // and available arena-tooth gate instead of using a rounded percentage.
+    const FString State=FString::Printf(TEXT("pending=%d whole=%d fragments=%d carried=%d swallowing=%d outstanding=%d hazards=%d dirt=%d teeth=%d"),
+        Pending,Food.Whole,Food.Fragments,Food.Carried,Food.Swallowing,Food.OutstandingActors,Food.UnresolvedHazards,Dirt,DirtyTeeth);
     const bool Changed=State!=LastMealGateState;
     if(Changed) {
         LastMealGateState=State;
-        if(Pending==0) Record(FString::Printf(TEXT("До орехового события: еда %d · пятна порции %d · последствия %d. Фрагменты нужно закинуть в глотку."),
-            Food.OutstandingActors,Dirt,Food.UnresolvedHazards));
+        if(Pending==0) Record(FString::Printf(TEXT("До орехового события: еда %d · пятна порции %d · грязные зубы %d · последствия %d. Щёткой очистите язык и зубы."),
+            Food.OutstandingActors,Dirt,DirtyTeeth,Food.UnresolvedHazards));
     }
     if(!Changed && Now<NextMealDiagnosticAt) return;
     UE_LOG(LogTemp,Display,TEXT("MC_MEAL_GATE batch=%d %s"),FirstMealBatch,*State);
@@ -289,6 +301,13 @@ void AMCSingleDayDirector::ReportMealGate(const FMCFoodPipelineLoad& Food,int32 
         ++Logged;
         UE_LOG(LogTemp,Display,TEXT("MC_MEAL_BLOCKER stain=%s tile=%d layers=%d remaining=%.6f location=%s"),
             *It->GetName(),It->bPaintTile,It->Status->State.CoffeeLeft,It->RemainingLiquid(),*It->GetActorLocation().ToString());
+    }
+    Logged=0;
+    for(TActorIterator<AMCArenaTooth> It(GetWorld());It && Logged<6;++It) {
+        if(It->IsActorBeingDestroyed() || !It->IsAvailable() || !It->Status || !It->Status->NeedsCare(true)) continue;
+        ++Logged;
+        UE_LOG(LogTemp,Display,TEXT("MC_MEAL_BLOCKER tooth=%s id=%d layers=%d health=%.1f location=%s"),
+            *It->GetName(),It->State.ToothId,It->Status->State.CoffeeLeft,It->Status->State.Health,*It->GetActorLocation().ToString());
     }
 }
 void AMCSingleDayDirector::BeginKeyEvent()
@@ -325,7 +344,7 @@ void AMCSingleDayDirector::BeginNuts()
     FRandomStream Roll((GS?GS->RunSeed:0)+KeyEventIndex*7919);
     VariantIndex=Variants.IsEmpty()?0:Roll.RandRange(0,Variants.Num()-1);
     UMCNutRainProfile* Variant=Variants.IsValidIndex(VariantIndex)?Variants[VariantIndex].LoadSynchronous():nullptr;
-    Record(FString::Printf(TEXT("Ключевое событие %d: непрерывный ореховый катаклизм и два босса; обычные события приостановлены"),KeyEventIndex+1));
+    Record(FString::Printf(TEXT("Ключевое событие %d: ореховый катаклизм, Рыцарь и его превращение в Колдуна; обычные события приостановлены"),KeyEventIndex+1));
     NutEvent->Start(Mechanics,Variant);
     Publish(TEXT("ОРЕХОГЕДДОН"),TEXT("Уклоняйтесь от красных зон падения, затем победите Рыцаря и Колдуна. Разбитые орехи уменьшают будущий призыв; XP за них не начисляется."));
     UE_LOG(LogTemp,Display,TEXT("MC_SINGLE_DAY NUTS variant=%d"),VariantIndex);

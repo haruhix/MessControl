@@ -43,6 +43,8 @@ public:
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UProceduralMeshComponent> Tissue;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<USkeletalMeshComponent> SculptedTissue;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<USkeletalMeshComponent> AuthoredMouth;
+    /** Baked contact triangles from the artist's fixed manual-intake pose. */
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> TissueContact;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Uvula;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UBoxComponent> UvulaLanding;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UBoxComponent> ClosedBarrier;

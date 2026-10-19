@@ -175,6 +175,15 @@ AMCThroat::AMCThroat()
     AuthoredMouth->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     AuthoredMouth->VisibilityBasedAnimTickOption=EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
     AuthoredMouth->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+    TissueContact=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AuthoredTissueContact"));
+    TissueContact->SetupAttachment(AuthoredMouth);
+    TissueContact->SetCollisionProfileName(TEXT("BlockAll"));
+    TissueContact->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
+    TissueContact->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    TissueContact->SetVisibility(false);TissueContact->SetHiddenInGame(true);
+    TissueContact->SetCastShadow(false);TissueContact->SetCanEverAffectNavigation(false);
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> ContactMesh(TEXT("/Game/Gameplay/Arena/ManualIntake/SM_ThroatTissueContact.SM_ThroatTissueContact"));
+    TissueContact->SetStaticMesh(ContactMesh.Object);
     Uvula=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Uvula")); Uvula->SetupAttachment(Volume);
     Uvula->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     UvulaLanding=CreateDefaultSubobject<UBoxComponent>(TEXT("UvulaLanding")); UvulaLanding->SetupAttachment(Volume);
@@ -463,6 +472,13 @@ float AMCThroat::IntakeAimStrength(FVector ViewOrigin,FVector ViewDirection) con
     const float HoleAngle=FMath::Asin(FMath::Clamp(Radius/Distance,0.f,1.f));
     const float Margin=FMath::DegreesToRadians(FMath::Max(.1f,AimAssistMarginDegrees));
     if(Angle>HoleAngle+Margin) return 0;
+    // The world trace below ignores this actor (including decorative throat
+    // parts), so explicitly test its physical tissue before revealing the aim.
+    if(TissueContact && TissueContact->IsCollisionEnabled()) {
+        FHitResult TissueHit;
+        const FCollisionQueryParams TissueQuery(SCENE_QUERY_STAT(MCIntakeTissueAim),true);
+        if(TissueContact->LineTraceComponent(TissueHit,ViewOrigin,Center,TissueQuery)) return 0;
+    }
     FCollisionQueryParams Query(SCENE_QUERY_STAT(MCIntakeAim),false,this);
     if(auto* PC=GetWorld()->GetFirstPlayerController();PC && PC->GetPawn()) {
         Query.AddIgnoredActor(PC->GetPawn());
@@ -942,6 +958,13 @@ void AMCThroat::Tick(float Dt)
 }
 void AMCThroat::UpdatePresentation(float Dt)
 {
+    // This derivative keeps the authored glands/walls and the real open hole
+    // at the saved manual expansion (.75, reversed Open=.25). Re-bake it when
+    // changing that fixed pose; the short gag/vomit morphs are visual only.
+    // The source skeletal model and the food capture volume remain independent.
+    const bool ContactActive=bManualIntake && AuthoredMouth->GetSkeletalMeshAsset()
+        && AuthoredMouth->GetSkeletalMeshAsset()->GetFName()==FName(TEXT("SK_Exit")) && TissueContact->GetStaticMesh();
+    TissueContact->SetCollisionEnabled(ContactActive?ECollisionEnabled::QueryAndPhysics:ECollisionEnabled::NoCollision);
     const float Time=ServerNow(),Open=OpenAmount();
     bool Yawning=false;
     for(TActorIterator<AMCTongue> It(GetWorld());It;++It) Yawning|=It->IsYawnActive();

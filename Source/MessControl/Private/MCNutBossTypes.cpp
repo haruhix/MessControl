@@ -101,7 +101,7 @@ void FMCNutBossSettings::Sanitize()
     Safe(ChargeSpeed,650,300,900); Safe(ChargeDistance,1100,350,1600);
     Safe(RollDamage,16,1,30); Safe(RollWindup,1.2f,.9f,3); Safe(RollCooldown,40,10,90);
     Safe(RollDuration,12,12,20); Safe(RollDurationMax,20,RollDuration,20);
-    Safe(RollSpeed,520,300,750); Safe(RollTurnDegreesPerSecond,50,0,75);
+    Safe(RollSpeed,676,300,975); Safe(RollTurnDegreesPerSecond,50,0,75);
     Safe(RollHitGap,1.1f,.8f,3); Safe(RollPush,620,50,1000); Safe(RollPainCooldown,1.25f,.4f,4);
     Safe(JumpDamage,25,1,40); Safe(JumpWindup,1.2f,.8f,3); Safe(JumpFlightSeconds,.8f,.6f,1.5f);
     Safe(JumpRadius,460,150,660); Safe(JumpCooldown,20,8,60);
@@ -121,6 +121,12 @@ float FMCNutBossSettings::BodyRadiusForRole(EMCNutBossRole Role) const
 {
     const float Radius=Role==EMCNutBossRole::Tank?TankHeight*(100.f/220.f):MageHeight*.45f;
     return FMath::IsFinite(Radius)?FMath::Clamp(Radius,60.f,260.f):(Role==EMCNutBossRole::Tank?200.f:180.f);
+}
+
+float FMCNutBossSettings::RollDamageRadius(float BodyRadius) const
+{
+    const float Radius=FMath::IsFinite(BodyRadius)?FMath::Max(0.f,BodyRadius):BodyRadiusForRole(EMCNutBossRole::Tank);
+    return (Radius+15.f)*1.2f;
 }
 
 float FMCNutBossSettings::HealthForPlayers(EMCNutBossRole Role,int32 Players) const

@@ -210,6 +210,58 @@ bool FMCSingleDayOpeningMealGateTest::RunTest(const FString&)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayOpeningMealArenaTeethTest,"MessControl.SingleDay.Sequence.OpeningMealWaitsForAvailableDirtyArenaTeeth",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSingleDayOpeningMealArenaTeethTest::RunTest(const FString&)
+{
+    MCSingleDaySequenceTestsPrivate::FSequenceWorld F;F.AddWorkerAndFoodGeometry(30.f,true);
+    F.Sequence->OpeningMealItems=1;F.Sequence->bOpeningCoffeeWave=false;
+    F.Sequence->AfterTrainingPauseSeconds=F.Sequence->BeforeNutsPauseSeconds=0;
+    F.Loop->Initialize(F.Plan,F.Sequence,F.Support);
+    F.RestoreTongueCollision();F.Loop->BeginFirstPerk();
+    F.Loop->Tick(.1f);F.Loop->Tick(.1f);F.Loop->Tick(.1f);
+    if(!TestEqual(TEXT("The actual serving sequence reaches FirstMeal"),F.Loop->Stage,EMCSingleDayStage::FirstMeal)) return false;
+    AMCFoodActor* Served=nullptr;
+    for(TActorIterator<AMCFoodActor> It(F.World);It;++It) if(It->GetOwner()==F.Loop) {Served=*It;break;}
+    if(!TestNotNull(TEXT("The ordinary meal was really issued"),Served)) return false;
+    const int32 Batch=Served->Batch;
+    Served->Destroy();
+    for(TActorIterator<AMCMouthSurface> It(F.World);It;++It) if(It->Batch==Batch) It->ClearLiquidForBooster();
+    auto* Mesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"));
+#if WITH_EDITOR
+    if(Mesh) FStaticMeshCompilingManager::Get().FinishCompilation({Mesh});
+#endif
+    if(!TestNotNull(TEXT("Arena tooth fixture mesh is available"),Mesh)) return false;
+    auto AddDirtyTooth=[&](int32 Id) {
+        const FTransform Pose(FVector(900,Id*100,100));
+        auto* Tooth=F.World->SpawnActorDeferred<AMCArenaTooth>(AMCArenaTooth::StaticClass(),Pose);
+        FMCArenaToothSettings Settings;Settings.InitialCalculusEveryNthTooth=0;
+        Tooth->SetAppearance(Mesh,FVector(1));Tooth->Initialize(Id,Settings);Tooth->FinishSpawning(Pose);
+        Tooth->SetActorTickEnabled(false);Tooth->SetActorEnableCollision(false);
+        F.State->ArenaTeeth.Add(Tooth);Tooth->SetCoffee(1.f);
+        return Tooth;
+    };
+    auto* Available=AddDirtyTooth(12);
+    auto* Lost=AddDirtyTooth(13);
+    auto* Consumed=AddDirtyTooth(14);
+    if(!TestTrue(TEXT("A destroyed tooth enters the ordinary unavailable state"),Lost->ReceiveArenaHit(1000,FVector::ForwardVector))) return false;
+    if(!TestTrue(TEXT("A respawn-consumed tooth is unavailable despite retained care data"),Consumed->ConsumeForRespawn())) return false;
+    F.Loop->Tick(.1f);
+    TestEqual(TEXT("Clean food and floor cannot bypass a dirty available arena tooth"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
+    TestEqual(TEXT("Only the one available dirty tooth remains as work"),F.State->TasksLeft,1);
+    TestTrue(TEXT("The replicated instruction explains the remaining dirty tooth"),F.State->DirectorState.Instruction.Contains(TEXT("грязные зубы 1")));
+    TestTrue(TEXT("The Director journal explains the same tooth gate"),F.State->DirectorState.LastDecision.Contains(TEXT("грязные зубы 1")));
+    TestTrue(TEXT("The consumed tooth still has dirt, so availability must exclude it"),Consumed->Status->State.CoffeeLeft>0);
+    const int32 Contacts=Available->Status->State.CoffeeLeft;
+    for(int32 Contact=0;Contact<Contacts;++Contact)
+        if(!TestTrue(TEXT("The normal care API cleans a real tooth layer"),Available->Status->CareContact(true,nullptr))) return false;
+    TestFalse(TEXT("The remaining tooth now needs no brushing"),Available->Status->NeedsCare(true));
+    F.Loop->Tick(.1f);
+    TestEqual(TEXT("Cleaning that actual available tooth releases the real meal-to-event barrier"),F.Loop->Stage,EMCSingleDayStage::MealRest);
+    TestTrue(TEXT("The successful handoff preserves dirt on the unavailable consumed tooth"),Consumed->Status->State.CoffeeLeft>0);
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayFragmentSupportTest,"MessControl.SingleDay.Sequence.CompletedFogSlotOpensSupportWithoutFinalBoss",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCSingleDayFragmentSupportTest::RunTest(const FString&)

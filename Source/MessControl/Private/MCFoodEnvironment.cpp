@@ -11,6 +11,50 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 
+namespace
+{
+bool IsBeyondMouthFront(const AMCTongue* Tongue,const FBox& FoodBounds)
+{
+    if(!IsValid(Tongue) || !Tongue->Surface || !FoodBounds.IsValid) return false;
+    const FBox MouthBounds=Tongue->Surface->Bounds.GetBox();
+    if(!MouthBounds.IsValid) return false;
+    const FVector2D Center(MouthBounds.GetCenter()),Position(FoodBounds.GetCenter());
+    const FVector2D Delta=Position-Center;
+    const double Radius=FoodBounds.GetExtent().Size2D();
+    const AMCFoodDisposal* Exit=nullptr;
+    for(TActorIterator<AMCFoodDisposal> It(Tongue->GetWorld());It;++It)
+        if(It->bBrushBin && !It->IsActorBeingDestroyed()) {Exit=*It;break;}
+    // The retained front marker still defines the mouth's outward direction
+    // even when its old automatic delivery zone is disabled.
+    const FVector2D Front=Exit?FVector2D(Exit->GetDeliveryDirection()):FVector2D(-1,0);
+    if(Front.IsNearlyZero() || FVector2D::DotProduct(Delta,Front)<=Radius) return false;
+    if(!Exit) {
+        // Maps without a front marker retain the native arena's -X convention.
+        // Only accept a load fully past the real tongue bounds in this fallback.
+        return FoodBounds.Max.X<MouthBounds.Min.X && Position.Y>=MouthBounds.Min.Y && Position.Y<=MouthBounds.Max.Y;
+    }
+    TArray<FVector> Outer,Inner;
+    if(!Exit->GetDeliveryZoneOutline(Outer,Inner) || Outer.Num()<2) return false;
+    // GetDeliveryZoneOutline caches the actual authored triangle silhouette.
+    // This cheap polyline check never rescans the tongue for each thrown item.
+    const FVector2D Direction=Delta.GetSafeNormal();
+    double LastCrossing=-1,NearestSquared=TNumericLimits<double>::Max();
+    for(int32 I=1;I<Outer.Num();++I) {
+        const FVector2D A(Outer[I-1]),B(Outer[I]),Edge=B-A;
+        const double Along=FMath::Clamp(FVector2D::DotProduct(Position-A,Edge)/FMath::Max(Edge.SizeSquared(),1.e-12),0.,1.);
+        NearestSquared=FMath::Min(NearestSquared,(Position-(A+Edge*Along)).SizeSquared());
+        const double Denominator=FVector2D::CrossProduct(Direction,Edge);
+        if(FMath::Abs(Denominator)<=1.e-9) continue;
+        const double Ray=FVector2D::CrossProduct(A-Center,Edge)/Denominator;
+        const double Segment=FVector2D::CrossProduct(A-Center,Direction)/Denominator;
+        if(Ray>=0 && Segment>=0 && Segment<=1) LastCrossing=FMath::Max(LastCrossing,Ray);
+    }
+    // A bounding circle must clear the curved lip, not merely its center. The
+    // hemisphere guard excludes sideways/backward misses from this early rule.
+    return LastCrossing>=0 && Delta.Size()>LastCrossing && NearestSquared>Radius*Radius;
+}
+}
+
 AMCFoodActor* AMCFoodActor::FindNearbySpoiledFood(UWorld* World,FVector Point,float Radius)
 {
     if(!World || Point.ContainsNaN() || !FMath::IsFinite(Radius) || Radius<=0) return nullptr;
@@ -135,15 +179,31 @@ void AMCFoodActor::RecoverUnreachableFood(float Dt)
     AccessCheckElapsed+=Dt;
     if(AccessCheckElapsed<.75f) return;
     const float Interval=AccessCheckElapsed;AccessCheckElapsed=0;
+    AMCTongue* Tongue=nullptr;
+    for(TActorIterator<AMCTongue> It(GetWorld());It;++It) {Tongue=*It;break;}
+    if(!Tongue) return;
+    const auto Discard=[this]() {
+        Dispose();
+        if(AMCTutorialDirector::IsTutorialTarget(this))
+            if(auto* Tutorial=AMCTutorialDirector::Find(GetWorld()))
+                Tutorial->NotifyAction(LastHandledBy?Cast<AMCToothCharacter>(LastHandledBy->GetPawn()):nullptr,
+                    bSpoiled?EMCTutorialAction::SpoiledDiscarded:EMCTutorialAction::TrashDiscarded,this);
+    };
+    // A deliberate Q throw of spoiled food is complete once its whole load
+    // clears the front lip. Do this before the airborne-speed recovery guard:
+    // a fast outgoing fragment must not remain an outstanding meal ingredient.
+    if(bManuallyThrown && bSpoiled && FoodData.Kind==EMCFoodKind::Food
+        && IsBeyondMouthFront(Tongue,Body->Bounds.GetBox())) {
+        UE_LOG(LogTemp,Display,TEXT("MC_FOOD_FRONT_DISCARD item=%s batch=%d fragment=%d location=%s"),
+            *ItemName.ToString(),Batch,bFragment,*GetActorLocation().ToString());
+        Discard();return;
+    }
     // Wait for the throw to finish. A piece already below the arena can recover
     // immediately; otherwise fast airborne food keeps its real trajectory.
     const bool BelowArena=GetActorLocation().Z<OutOfArenaZ();
     if(!BelowArena && Body->GetPhysicsLinearVelocity().SizeSquared()>FMath::Square(80.f)) {UnreachableSeconds=0;return;}
     for(TActorIterator<AMCFoodDisposal> It(GetWorld());It;++It)
         if(It->ContainsDeliveryPosition(GetActorLocation())) {UnreachableSeconds=0;return;}
-    AMCTongue* Tongue=nullptr;
-    for(TActorIterator<AMCTongue> It(GetWorld());It;++It) {Tongue=*It;break;}
-    if(!Tongue) return;
     FHitResult Floor;
     const float Margin=FMath::Max(35.f,float(Body->GetScaledBoxExtent().Size2D())+15);
     const bool Accessible=Tongue->GameplaySpawnFootprint(GetActorLocation(),Margin,Floor)
@@ -154,11 +214,7 @@ void AMCFoodActor::RecoverUnreachableFood(float Dt)
     // Deliberately discarded spoiled/foreign objects stay discarded. Ordinary
     // missed food still recovers so the meal cannot become impossible to finish.
     if(bManuallyThrown && IsWrongIngredient()) {
-        Dispose();
-        if(AMCTutorialDirector::IsTutorialTarget(this))
-            if(auto* Tutorial=AMCTutorialDirector::Find(GetWorld()))
-                Tutorial->NotifyAction(LastHandledBy?Cast<AMCToothCharacter>(LastHandledBy->GetPawn()):nullptr,
-                    bSpoiled?EMCTutorialAction::SpoiledDiscarded:EMCTutorialAction::TrashDiscarded,this);
+        Discard();
         return;
     }
     bool Found=false;

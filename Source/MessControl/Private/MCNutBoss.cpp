@@ -992,7 +992,7 @@ void AMCNutBoss::BeginAttack(EMCNutBossAttack Next)
             if(LockSurfacePoint(LockedStart+AttackForward*Distance,Settings.BodyRadius+5,LockedTarget)) {Valid=true;break;}
         if(!Valid) { Recover(.6f); return; }
         PlannedRollSeconds=Random.FRandRange(BossSettings.RollDuration,BossSettings.RollDurationMax);
-        Cue=EMCNutCombatCue::RollTell; CueRadius=Settings.BodyRadius+25; ActiveSeconds=PlannedRollSeconds;
+        Cue=EMCNutCombatCue::RollTell; CueRadius=BossSettings.RollDamageRadius(Settings.BodyRadius); ActiveSeconds=PlannedRollSeconds;
     } else if(Next==EMCNutBossAttack::Jump) {
         Windup=BossSettings.JumpWindup;
         const FVector Candidate=LockedStart+(LockedTarget-LockedStart).GetClampedToMaxSize(BossSettings.ChargeDistance);
@@ -1146,7 +1146,7 @@ void AMCNutBoss::DamageRollSegment(FVector Start,FVector End)
         auto* Hero=*It; if(!IsLiveTarget(Hero)) continue;
         if(const double* Last=RollHitAt.Find(Hero); Last && Time-*Last<BossSettings.RollHitGap) continue;
         const FVector Closest=FMath::ClosestPointOnSegment(Hero->GetActorLocation(),Start,End);
-        const float Reach=Settings.BodyRadius+Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()+15;
+        const float Reach=BossSettings.RollDamageRadius(Settings.BodyRadius)+Hero->GetCapsuleComponent()->GetScaledCapsuleRadius();
         const FVector Delta=Hero->GetActorLocation()-Closest;
         if(Delta.SizeSquared2D()>FMath::Square(Reach) || FMath::Abs(Delta.Z)>180 || !HasLineOfSight(Hero,Closest)) continue;
         FVector PushDirection=Delta.GetSafeNormal2D(); if(PushDirection.IsNearlyZero()) PushDirection=AttackForward;
@@ -1551,7 +1551,7 @@ bool AMCNutBoss::IsPlayerInThreat(const AMCToothCharacter* Hero,FVector& EscapeD
         const FVector Start=State==EMCNutBossState::Telegraph?LockedStart:GetActorLocation();
         const FVector End=State==EMCNutBossState::Telegraph?LockedTarget:Start+AttackForward*BossSettings.RollSpeed*.7f;
         const FVector Closest=FMath::ClosestPointOnSegment(Point,Start,End);
-        if(FVector::DistSquared2D(Point,Closest)>FMath::Square(Settings.BodyRadius+HeroRadius+35)
+        if(FVector::DistSquared2D(Point,Closest)>FMath::Square(BossSettings.RollDamageRadius(Settings.BodyRadius)+HeroRadius+20)
             || FMath::Abs(Point.Z-Closest.Z)>180) return false;
         EscapeDirection=(Point-Closest).GetSafeNormal2D();
         if(EscapeDirection.IsNearlyZero()) EscapeDirection=FVector::CrossProduct(AttackForward,FVector::UpVector);

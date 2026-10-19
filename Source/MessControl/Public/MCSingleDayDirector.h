@@ -91,7 +91,7 @@ private:
     void BeginOpeningPause(bool bAfterMeal=false);
     void BeginFirstMeal();
     void TickFirstMeal();
-    void ReportMealGate(const FMCFoodPipelineLoad& Food,int32 Dirt,int32 Pending,double Now);
+    void ReportMealGate(const FMCFoodPipelineLoad& Food,int32 Dirt,int32 DirtyTeeth,int32 Pending,double Now);
     FName ChooseOpeningFood();
     void BeginKeyEvent();
     void BeginNuts();

@@ -152,7 +152,8 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll", meta=(ClampMin="12",ClampMax="20",Units="s")) float RollDurationMax=20;
     /** Vulnerable recovery after the longer roll finishes. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll", meta=(ClampMin="0.5",ClampMax="8",Units="s")) float RollRecoverySeconds=3.5f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollSpeed=520;
+    /** Centimetres per second; 30% faster than the earlier 520 cm/s roll. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll",meta=(Units="cm/s")) float RollSpeed=676;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollTurnDegreesPerSecond=50;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollHitGap=1.1f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollPush=620;
@@ -191,5 +192,7 @@ struct MESSCONTROL_API FMCNutBossSettings
     void Sanitize();
     /** Same physical footprint for event placement and the boss's authoritative body. */
     float BodyRadiusForRole(EMCNutBossRole Role) const;
+    /** Attack-only radius: 20% beyond the previous body+15 contact; does not resize collision. */
+    float RollDamageRadius(float BodyRadius) const;
     float HealthForPlayers(EMCNutBossRole Role,int32 Players) const;
 };
