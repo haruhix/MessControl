@@ -107,6 +107,9 @@ private:
     void BeginAttack(EMCNutBossAttack Next);
     void ExecuteAttack(float Dt);
     void ExecuteRoll(float Dt);
+    /** Solid to ordinary character movement; attack sweeps resolve player hits separately. */
+    void UpdatePlayerBlocking();
+    void MoveAttackBody(FVector Goal,FHitResult& Hit);
     void PresentTankModel(double Time);
     void TickClientPresentation(float Dt);
     void ResetClientPresentation();

@@ -1,0 +1,318 @@
+{
+  "scope": "Enemy contact and boss standing collision repair; local authority only",
+  "editor_build": {
+    "nativeExit": 0,
+    "finishedUtc": "2026-10-20T13:43:28.8819054Z"
+  },
+  "targeted_native": {
+    "passed": true,
+    "count": 26,
+    "tests": [
+      {
+        "name": "MessControl.Boss.Blocking.RealCharacterCapsuleSweep",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.Combat.EnemyWeapons.CandyGuardsRemain",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.Combat.EnemyWeapons.CandySurfaceAndOverlap",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.Combat.EnemyWeapons.InsideVolumeAndFacing",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.Combat.EnemyWeapons.RangeHeightAndOcclusion",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.Combat.EnemyWeapons.SurfaceReachAcrossFamilies",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.CoreLoop.NutBoss.Blocking.LandingTransformationAndDeath",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.CoreLoop.NutBoss.Blocking.RealCharacterSweepsAndWalking",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.CoreLoop.NutBoss.Blocking.RollAndChargeKeepPlayerDamageAndWalls",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.CoreLoop.NutBoss.DropAndShieldFirstHealth",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.CoreLoop.NutBoss.RollCollisionDamagesArenaTeeth",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.CoreLoop.NutBoss.RollDurationAndPredictableSteering",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.CoreLoop.NutBoss.RollSpeedAndExpandedDamageRadius",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.Inventory.EnemyUpgrades.ChainsawAllNutFamilies",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.Inventory.EnemyUpgrades.ChainsawBossBlockingDoesNotCauseWallCrash",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.Inventory.EnemyUpgrades.ChainsawInsideContactsKeepRearArcRejected",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.Inventory.EnemyUpgrades.ChainsawRejectsWallsReachAndInactiveTargets",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.Inventory.EnemyUpgrades.ChainsawShieldBreakHasNoHPSpill",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.Inventory.Knife.GrapeSurfaceHits",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.Inventory.Knife.MovingFoodAndSingleDamage",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.Inventory.Knife.ReachOcclusionAndCut",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.Inventory.PlayerHits.ReachWallsAndLateKnifeContact",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.PlaytestBots.NutEncounterKeepsCombatWithoutDefaultHealing",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.PlaytestBots.NutOutsideContactNeedsApproach",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.PlaytestBots.NutThreatDropsFoodThroughToolSelection",
+        "state": "Success"
+      },
+      {
+        "name": "MessControl.PlaytestBots.NutThreatInterruptsCareAndUsesWeaponContact",
+        "state": "Success"
+      }
+    ],
+    "first_run": "E:/CodexWork/MessControlHitboxes_20261020/Native01/Report/index.json",
+    "followup": "E:/CodexWork/MessControlHitboxes_20261020/Native02/Report/index.json",
+    "followup_reason": "Two new physical-knockback fixtures originally ran during the ordinary 0.6-second spawn immunity. Tests now wait for protection to expire; damage, real ragdoll and displacement assertions remain."
+  },
+  "known_preexisting_failure": {
+    "name": "MessControl.Inventory.PlayerHits.KnockbackWithoutFriendlyDamage",
+    "state": "Fail",
+    "message": "Repeated input cannot create a second offensive swing: expected 1, actual 2",
+    "same_error_sequence_as_prior_baseline": true,
+    "runtime_or_old_test_not_changed": true
+  },
+  "solo": {
+    "passed": true,
+    "report": "E:\\CodexWork\\MessControlHitboxes_20261020\\Solo05\\Report.json",
+    "checks": {
+      "first_perk_visible_after_loading_cover_removed": true,
+      "food_starts_normally_only_after_preparation": true,
+      "one_natural_encounter_boss": true,
+      "live_knight_blocks_player_channel": true,
+      "ordinary_walking_contacts_body_without_penetrating": true,
+      "ordinary_pickaxe_hits_shield_beyond_care_reach": true,
+      "ordinary_knife_hits_same_shield": true,
+      "intact_shield_preserves_boss_hp": true,
+      "observed_real_loading_overlay": true,
+      "observed_nonready_then_ready": true,
+      "director_remains_training_until_ready": true,
+      "readiness_matches_native_phase": true
+    },
+    "walking": {
+      "toward_boss_cm": 464.7416198432851,
+      "signed_distance_from_boss_cm": -192.72741200398661,
+      "centre_to_sphere_gap_cm": 128.46521999872664,
+      "last_second_motion_cm": 290.7884831533063,
+      "minimum_capsule_sphere_separation_cm": 0.01286836844403183,
+      "body_contact_samples": 20,
+      "criterion": "The capsule must reach the surface without penetrating it. Sliding around a curved obstacle is legal."
+    },
+    "scope": "Owned solo PIE: normal start, F3 nut event and its single natural knight arrival, then isolated walking and ordinary held Pickaxe/Knife contacts.",
+    "limitations": [
+      "One local authority, no multiplayer or packaged verification.",
+      "F3 sandbox restarts the shift. Position-only dodging during natural rain is an explicit observer fixture.",
+      "Only after the real knight lands, its actor tick is disabled temporarily to isolate collision and input. Native hit geometry, health, shield durability, damage and weapon timing remain unchanged.",
+      "Player placements and review camera are explicit fixtures. Walking uses ordinary movement input; strikes use ordinary selected-tool primary input, without damage resolver calls.",
+      "This checks the knight in rendered gameplay; other enemy families, upgrades, walls and attack transitions are checked separately by native tests.",
+      "No saved-package writes, complete battle or natural progression completion claim."
+    ],
+    "frames": 55,
+    "cleanup": {
+      "owned_pie_end_requested": true,
+      "owned_pie_stopped": true,
+      "original_map_restored": true
+    },
+    "dirty_after": []
+  },
+  "saved_candy_inspection": {
+    "asset": "/Game/Gameplay/Cold/Candy/SM_WinterCandy.SM_WinterCandy",
+    "saved_primitive_count": 0,
+    "saved_convex_count": 1,
+    "trace_flag": "<CollisionTraceFlag.CTF_USE_DEFAULT: 0>",
+    "disk_sha256": "f10ae1e485c57f84343c495dd0e39df5d49879152d8d9c18140e05e855adaeee",
+    "dirty_after": []
+  },
+  "media": {
+    "video": "KnightContacts.mp4",
+    "contact_sheet": "KnightContacts_ContactSheet.png",
+    "sha256": "ca16d9bab585e3fe04f2527a322b3cd101e86f7ca7dc9158ef76c879f6e939fd",
+    "probe": {
+      "streams": [
+        {
+          "index": 0,
+          "codec_name": "h264",
+          "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+          "profile": "High",
+          "codec_type": "video",
+          "codec_tag_string": "avc1",
+          "codec_tag": "0x31637661",
+          "width": 1286,
+          "height": 760,
+          "coded_width": 1286,
+          "coded_height": 760,
+          "has_b_frames": 2,
+          "pix_fmt": "yuv420p",
+          "level": 32,
+          "chroma_location": "left",
+          "field_order": "progressive",
+          "refs": 1,
+          "is_avc": "true",
+          "nal_length_size": "4",
+          "id": "0x1",
+          "r_frame_rate": "30/1",
+          "avg_frame_rate": "30/1",
+          "time_base": "1/15360",
+          "start_pts": 0,
+          "start_time": "0.000000",
+          "duration_ts": 189440,
+          "duration": "12.333333",
+          "bit_rate": "753709",
+          "bits_per_raw_sample": "8",
+          "nb_frames": "370",
+          "extradata_size": 47,
+          "disposition": {
+            "default": 1,
+            "dub": 0,
+            "original": 0,
+            "comment": 0,
+            "lyrics": 0,
+            "karaoke": 0,
+            "forced": 0,
+            "hearing_impaired": 0,
+            "visual_impaired": 0,
+            "clean_effects": 0,
+            "attached_pic": 0,
+            "timed_thumbnails": 0,
+            "non_diegetic": 0,
+            "captions": 0,
+            "descriptions": 0,
+            "metadata": 0,
+            "dependent": 0,
+            "still_image": 0,
+            "multilayer": 0
+          },
+          "tags": {
+            "language": "und",
+            "handler_name": "VideoHandler",
+            "encoder": "Lavc62.21.100 libx264"
+          }
+        }
+      ],
+      "format": {
+        "filename": "E:\\DEVGAME\\MessControl\\Artifacts\\EnemyHitboxes_20261020\\KnightContacts.mp4",
+        "nb_streams": 1,
+        "nb_programs": 0,
+        "nb_stream_groups": 0,
+        "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+        "format_long_name": "QuickTime / MOV",
+        "start_time": "0.000000",
+        "duration": "12.333333",
+        "size": "1167272",
+        "bit_rate": "757149",
+        "probe_score": 100,
+        "tags": {
+          "major_brand": "isom",
+          "minor_version": "512",
+          "compatible_brands": "isomiso2avc1mp41",
+          "encoder": "Lavf62.6.103"
+        }
+      }
+    },
+    "visual_review_pending": false,
+    "visual_review": "Reviewed the genuine 8-frame gameplay contact sheet and native telemetry: one knight, capsule slides around solid body, one accepted Pickaxe hit and one Knife hit (shield 500 -> 460 -> 435), boss HP remains 1400. Position/review-camera changes and stopped boss AI are explicit contact fixtures."
+  },
+  "deferred": [
+    "Multiplayer/ping validation",
+    "Windows cook/package",
+    "Full fight/complete level progression"
+  ],
+  "source_sha256": [
+    {
+      "path": "Source/MessControl/Private/MCEnemyWeaponContact.h",
+      "sha256": "493d14bef84176315766ca45db1b656f8dc324ca3151a7bba02a6f36dcf8dc02"
+    },
+    {
+      "path": "Source/MessControl/Private/MCToothCharacter.cpp",
+      "sha256": "06c5d220ba4ba35f1cbcde5b7169b13aa0a3dda5dfed75f77854157488e26e76"
+    },
+    {
+      "path": "Source/MessControl/Private/MCNutBoss.cpp",
+      "sha256": "31514050f5f6d3c443837a731dba252c85d44a8cb08f587d1fb95d527157c411"
+    },
+    {
+      "path": "Source/MessControl/Public/MCNutBoss.h",
+      "sha256": "ede67a852e8777214203b3b64f25d96136057af1f8b636a3d3a2bde34629b8d0"
+    },
+    {
+      "path": "Source/MessControl/Private/MCInventoryComponent.cpp",
+      "sha256": "f098e3b19154c6cd6f2e2f2a0f668495d1f366c9fa54cb0b334ac543660abcba"
+    },
+    {
+      "path": "Source/MessControl/Private/MCInventoryUpgrades.cpp",
+      "sha256": "da4719b4c29c06ec359ebbd04607253b4528fc6416da32c6685cba3585e2bd01"
+    },
+    {
+      "path": "Source/MessControl/Private/MCIceEvent.cpp",
+      "sha256": "c4565c41d4e9bd6d5d99544dddf206317bdf4d676cfcfbd34780614969d46604"
+    },
+    {
+      "path": "Source/MessControl/Private/MCSmallMintCandy.cpp",
+      "sha256": "435d91e8f36d0504dffbb70d7247eaabefade9df746b33fc417967d3adfac4e5"
+    },
+    {
+      "path": "Source/MessControl/Private/Tests/MCEnemyWeaponContactTests.cpp",
+      "sha256": "383d3d23e29c1a8b6f41d0f83905815005dd891b19891756fe2bad7f710966a0"
+    },
+    {
+      "path": "Source/MessControl/Private/Tests/MCEnemyUpgradeContactTests.cpp",
+      "sha256": "78118958b8ca41db741898721edc987b1478aeabba40754f4ac4742c1103de13"
+    },
+    {
+      "path": "Source/MessControl/Private/Tests/MCNutBossBlockingTests.cpp",
+      "sha256": "c9ca47b6822668e9f96563479a3993ad93188a81df82341fd62897f104a7fbab"
+    }
+  ]
+}

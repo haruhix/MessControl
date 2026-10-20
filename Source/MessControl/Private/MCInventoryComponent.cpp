@@ -21,6 +21,7 @@
 #include "MCSmallMintCandy.h"
 #include "MCColdCola.h"
 #include "MCNutEnemy.h"
+#include "MCNutBoss.h"
 #include "MCBossCharacter.h"
 #include "MCTutorialDirector.h"
 #include "Components/StaticMeshComponent.h"
@@ -323,7 +324,11 @@ bool UMCInventoryComponent::ResolveBufferContact()
     }
     for(TActorIterator<AMCNutEnemy> It(GetWorld());It;++It) {
         const FVector Point=It->GetToolTargetPoint(Center);
-        if(It->CanReceiveToolHit() && CanBufferContact(*It,Point) && It->ReceiveToolDamage(HitDamage,Hero)>0) RegisterHit(Point);
+        if(!It->CanReceiveToolHit() || !CanBufferContact(*It,Point)) continue;
+        const auto* Knight=Cast<AMCNutBoss>(*It);
+        const float ShieldBefore=Knight?Knight->ShieldHealth:0.f;
+        const float Applied=It->ReceiveToolDamage(HitDamage,Hero);
+        if(Applied>0 || (Knight && Knight->ShieldHealth<ShieldBefore)) RegisterHit(Point);
     }
     for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) {
         const FVector Point=It->GetMeleeTargetPoint(Center);

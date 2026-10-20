@@ -21,6 +21,7 @@
 #include "MCToothStatusComponent.h"
 #include "MCCombatFeedbackComponent.h"
 #include "MCWeaponImpact.h"
+#include "MCEnemyWeaponContact.h"
 #include "MCMeleeCombo.h"
 #include "MCFoodActor.h"
 #include "MCGameMode.h"
@@ -1456,26 +1457,25 @@ AMCArenaTooth* AMCToothCharacter::FindCalculusTarget(FVector& Point,FVector& Nor
 AActor* AMCToothCharacter::FindMeleeEnemyTarget() const
 {
     if(!Inventory || Inventory->IsCleaningTool()) return nullptr;
+    const FVector Origin=GetActorLocation();
     const float ReachSquared=FMath::Square(Inventory->MeleeReach());
     AMCNutEnemy* Nut=nullptr;float Best=ReachSquared;
     for(TActorIterator<AMCNutEnemy> It(GetWorld());It;++It) {
         if(!It->CanReceiveToolHit()) continue;
-        const FVector Offset=It->GetToolTargetPoint(GetActorLocation())-GetActorLocation();
-        if(Offset.SizeSquared()<Best && FMath::Abs(Offset.Z)<120
-            && FVector::DotProduct(Offset.GetSafeNormal2D(),GetActorForwardVector())>.15f && CanContact(*It)) {
-            Nut=*It;Best=Offset.SizeSquared();
+        const FVector Point=It->GetToolTargetPoint(Origin);
+        const float Distance=FVector::DistSquared(Point,Origin);
+        // Weapon reach is independent of the shorter cleaning/care reach.
+        if(Distance<Best && MCEnemyWeaponContact::CanHit(this,*It,Point,.15f)) {
+            Nut=*It;Best=Distance;
         }
     }
     if(Nut) return Nut;
     AMCBossCharacter* Boss=nullptr;Best=ReachSquared;
     for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) {
-        const FVector Point=It->GetMeleeTargetPoint(GetActorLocation());
-        const FVector Offset=Point-GetActorLocation(),Aim=It->GetActorLocation()-GetActorLocation();
-        if(!It->CanReceiveWeaponHit() || Offset.SizeSquared2D()>=Best || FMath::Abs(Offset.Z)>120
-            || FVector::DotProduct(GetActorForwardVector(),Aim.GetSafeNormal2D())<.25f) continue;
-        FHitResult Hit;FCollisionQueryParams Query(SCENE_QUERY_STAT(MCBossWeaponHit),false,this);Query.AddIgnoredActor(*It);
-        if(GetWorld()->LineTraceSingleByChannel(Hit,GetActorLocation(),Point,ECC_Visibility,Query)) continue;
-        Boss=*It;Best=Offset.SizeSquared2D();
+        const FVector Point=It->GetMeleeTargetPoint(Origin);
+        const float Distance=FVector::DistSquared(Point,Origin);
+        if(!It->CanReceiveWeaponHit() || Distance>=Best || !MCEnemyWeaponContact::CanHit(this,*It,Point)) continue;
+        Boss=*It;Best=Distance;
     }
     return Boss;
 }
@@ -1557,8 +1557,8 @@ void AMCToothCharacter::ResolveSwing()
         AMCSmallMintCandy* SmallCandy=nullptr;float SmallMintDistance=FMath::Square(Inventory->MeleeReach());
         for(TActorIterator<AMCSmallMintCandy> It(GetWorld());It;++It) {
             if(It->Stage!=EMCSmallMintStage::Active) continue;
-            const FVector Offset=It->ContactPoint(GetActorLocation())-GetActorLocation();
-            if(Offset.SizeSquared()<SmallMintDistance && FVector::DotProduct(Offset.GetSafeNormal2D(),GetActorForwardVector())>.25f && CanContact(*It))
+            const FVector Point=It->ContactPoint(GetActorLocation()),Offset=Point-GetActorLocation();
+            if(Offset.SizeSquared()<SmallMintDistance && MCEnemyWeaponContact::CanHit(this,*It,Point))
                 {SmallCandy=*It;SmallMintDistance=Offset.SizeSquared();}
         }
         if(SmallCandy && SmallCandy->HitWithPickaxe(this,Inventory->Damage())) {
@@ -1567,8 +1567,8 @@ void AMCToothCharacter::ResolveSwing()
         AMCIceEvent* BestMint=nullptr; float MintDistance=FMath::Square(Inventory->MeleeReach());
         for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It) {
             if(It->Stage!=EMCIceEventStage::Active) continue;
-            const FVector Offset=It->CandyContactPoint(GetActorLocation())-GetActorLocation();
-            if(Offset.SizeSquared()<MintDistance && FVector::DotProduct(Offset.GetSafeNormal2D(),GetActorForwardVector())>.25f && CanContact(*It))
+            const FVector Point=It->CandyContactPoint(GetActorLocation()),Offset=Point-GetActorLocation();
+            if(Offset.SizeSquared()<MintDistance && MCEnemyWeaponContact::CanHit(this,*It,Point))
             { BestMint=*It; MintDistance=Offset.SizeSquared(); }
         }
         if(BestMint && BestMint->HitWithPickaxe(this,Inventory->Damage())) { ++ConfirmedHitCount; MulticastHitSound(BestMint->GetActorLocation(),AudioTool,HitIntensity); return; }

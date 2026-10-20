@@ -8,6 +8,7 @@
 #include "MCBossCharacter.h"
 #include "MCFoodActor.h"
 #include "MCNutEnemy.h"
+#include "MCNutBoss.h"
 #include "MCThroat.h"
 #include "MCArenaTooth.h"
 #include "MCReactionVFX.h"
@@ -235,6 +236,7 @@ void UMCInventoryComponent::TickChainsaw(float Dt)
 void UMCInventoryComponent::HandleChainsawCollision(AActor* Other,const FHitResult& Hit)
 {
     if(!Hero || !Hero->HasAuthority() || !IsChainsawRunning() || Cast<AMCToothCharacter>(Other) || Cast<AMCFoodActor>(Other)
+        || Cast<AMCNutEnemy>(Other) || Cast<AMCBossCharacter>(Other)
         || FMath::Abs(Hit.ImpactNormal.Z)>.6f || FVector::DotProduct(Hero->GetActorForwardVector(),Hit.ImpactNormal)>-.25f) return;
     // CharacterMovement may already have clipped Velocity against this wall
     // before its hit notification. The blocking sweep still records the real
@@ -255,6 +257,18 @@ void UMCInventoryComponent::HandleChainsawCollision(AActor* Other,const FHitResu
 void UMCInventoryComponent::SawContact()
 {
     const FVector Origin=Hero->GetActorLocation(),Forward=Hero->GetActorForwardVector();
+    auto RegisterEnemyHit=[&](AActor* Target,FVector Point)
+    {
+        SawContacts.Add(Target,Now()+.65);
+        ++Hero->ConfirmedHitCount;
+        Hero->MulticastHitSound(Point,uint8(EMCToolSlot::Knife),FMath::Clamp(Damage()/60.f,.25f,1.f));
+    };
+    auto InBladeArc=[&](FVector TargetCenter)
+    {
+        FVector Direction=(TargetCenter-Origin).GetSafeNormal2D();
+        if(Direction.IsNearlyZero()) Direction=Forward;
+        return FVector::DotProduct(Direction,Forward)>=.35f;
+    };
     // Visible blade-side contact, bounded reach, and per-target cadence prevent frame-rate damage.
     AMCFoodActor* Best=nullptr;float Distance=FMath::Square(190.f);
     for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) {
@@ -281,9 +295,23 @@ void UMCInventoryComponent::SawContact()
     for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) {
         if(!It->CanReceiveWeaponHit() || Now()<SawContacts.FindRef(*It)) continue;
         const FVector Point=It->GetMeleeTargetPoint(Origin),D=Point-Origin;
-        if(D.SizeSquared()>FMath::Square(190.f) || FVector::DotProduct((It->GetActorLocation()-Origin).GetSafeNormal2D(),Forward)<.35f) continue;
+        if(D.SizeSquared()>FMath::Square(190.f) || !InBladeArc(It->GetActorLocation())) continue;
         FHitResult Block;FCollisionQueryParams Q(SCENE_QUERY_STAT(MCChainsawBoss),false,Hero);Q.AddIgnoredActor(*It);
-        if(!GetWorld()->LineTraceSingleByChannel(Block,Origin,Point,ECC_Visibility,Q) && It->ReceiveBossDamage(Damage(),Hero)>0) SawContacts.Add(*It,Now()+.65);
+        if(!GetWorld()->LineTraceSingleByChannel(Block,Origin,Point,ECC_Visibility,Q) && It->ReceiveBossDamage(Damage(),Hero)>0) RegisterEnemyHit(*It,Point);
+    }
+    // The knight, wizard, ordinary nuts and coffee jelly share this damage
+    // interface rather than AMCBossCharacter. Use the same bounded blade arc
+    // and scene occlusion as the generic boss path, including shield-only hits.
+    for(TActorIterator<AMCNutEnemy> It(GetWorld());It;++It) {
+        if(!It->CanReceiveToolHit() || Now()<SawContacts.FindRef(*It)) continue;
+        const FVector Point=It->GetToolTargetPoint(Origin),D=Point-Origin;
+        if(D.SizeSquared()>FMath::Square(190.f) || !InBladeArc(It->GetActorLocation())) continue;
+        FHitResult Block;FCollisionQueryParams Q(SCENE_QUERY_STAT(MCChainsawNut),false,Hero);Q.AddIgnoredActor(*It);
+        if(GetWorld()->LineTraceSingleByChannel(Block,Origin,Point,ECC_Visibility,Q)) continue;
+        const auto* Knight=Cast<AMCNutBoss>(*It);
+        const float ShieldBefore=Knight?Knight->ShieldHealth:0.f;
+        const float Applied=It->ReceiveToolDamage(Damage(),Hero);
+        if(Applied>0 || (Knight && Knight->ShieldHealth<ShieldBefore)) RegisterEnemyHit(*It,Point);
     }
     if(SawContacts.Num()>64) for(auto It=SawContacts.CreateIterator();It;++It) if(!It.Key().IsValid() || It.Value()<Now()-2) It.RemoveCurrent();
 }

@@ -1,4 +1,5 @@
 #include "MCIceEvent.h"
+#include "MCEnemyWeaponContact.h"
 #include "MCPerkComponent.h"
 #include "MCIceEventVFX.h"
 #include "Algo/MinElement.h"
@@ -1120,12 +1121,7 @@ bool AMCIceEvent::HitWithPickaxe(AMCToothCharacter* Hero,float Damage)
         FVector Center; float Radius;
         if(!Hero->Inventory->BufferContactSphere(Center,Radius) || !Hero->Inventory->CanBufferContact(this,CandyContactPoint(Center))) return false;
     }
-    else
-    {
-        const FVector Offset=CandyContactPoint(Hero->GetActorLocation())-Hero->GetActorLocation();
-        if(Offset.SizeSquared()>FMath::Square(180.f) || FVector::DotProduct(Offset.GetSafeNormal2D(),Hero->GetActorForwardVector())<.25f
-            || !Hero->CanContact(this)) return false;
-    }
+    else if(!MCEnemyWeaponContact::CanHit(Hero,this,CandyContactPoint(Hero->GetActorLocation()))) return false;
     auto* Perks=UMCPerkComponent::ForActor(Hero);
     if(Perks) Damage=Perks->WeaponDamage(Damage,this);
     CandyHealth=FMath::Max(0.f,CandyHealth-Damage); ForceNetUpdate();

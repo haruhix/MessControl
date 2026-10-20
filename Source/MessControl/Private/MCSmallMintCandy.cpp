@@ -1,4 +1,5 @@
 #include "MCSmallMintCandy.h"
+#include "MCEnemyWeaponContact.h"
 #include "MCHazardWave.h"
 #include "MCFrostNovaVFXComponent.h"
 #include "MCTongue.h"
@@ -112,7 +113,12 @@ void AMCSmallMintCandy::Tick(float DeltaSeconds)
     ForceNetUpdate();
 }
 
-FVector AMCSmallMintCandy::ContactPoint(FVector From) const {return Body->Bounds.GetBox().GetClosestPointTo(From);}
+FVector AMCSmallMintCandy::ContactPoint(FVector From) const
+{
+    FVector Point;
+    if(Body->GetClosestPointOnCollision(From,Point)>=0.f) return Point;
+    return Body->Bounds.GetBox().GetClosestPointTo(From);
+}
 
 bool AMCSmallMintCandy::HitWithPickaxe(AMCToothCharacter* Worker,float Damage)
 {
@@ -120,12 +126,10 @@ bool AMCSmallMintCandy::HitWithPickaxe(AMCToothCharacter* Worker,float Damage)
         || !Worker->CanWork() || !Worker->Inventory || Worker->Inventory->Selected!=EMCToolSlot::Pickaxe
         || !FMath::IsFinite(Damage) || Damage<=0) return false;
     const FVector Point=ContactPoint(Worker->GetActorLocation());
-    const FVector Offset=Point-Worker->GetActorLocation();
     if(Worker->Inventory->HasUpgrade(EMCToolUpgrade::Buffer)) {
         if(!Worker->Inventory->CanBufferContact(this,Point)) return false;
     }
-    else if(Offset.SizeSquared()>FMath::Square(Worker->Inventory->MeleeReach())
-        || FVector::DotProduct(Offset.GetSafeNormal2D(),Worker->GetActorForwardVector())<.25f || !Worker->CanContact(this)) return false;
+    else if(!MCEnemyWeaponContact::CanHit(Worker,this,Point)) return false;
     Health=FMath::Max(0.f,Health-Damage);
     if(Health<=0) {Stage=EMCSmallMintStage::Complete;Multicast_Shatter(Body->Bounds.Origin);Stop();}
     ForceNetUpdate();return true;
