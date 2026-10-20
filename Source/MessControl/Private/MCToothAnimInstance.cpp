@@ -9,6 +9,7 @@
 #include "MCGazeComponent.h"
 #include "MCGripComponent.h"
 #include "MCFoodCollectionComponent.h"
+#include "MCHubBasketball.h"
 #include "MCBrushContactComponent.h"
 #include "MCExpressionComponent.h"
 #include "MCRewardChest.h"
@@ -406,7 +407,7 @@ public:
     void CollectionAndYawnPose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref)
     {
         const bool Yawn=Tooth->IsYawning() && Tooth->ToothPhysics->CanAct();
-        const bool Collecting=Tooth->FoodCollection && Tooth->FoodCollection->bCollecting;
+        const bool Collecting=Tooth->FoodCollection && (Tooth->FoodCollection->bCollecting || AMCHubBasketball::HeldBy(Tooth));
         if(!Yawn && !Collecting) return;
         const FTransform World=Tooth->GetMesh()->GetComponentTransform();
         const auto* GS=Tooth->GetWorld()->GetGameState();

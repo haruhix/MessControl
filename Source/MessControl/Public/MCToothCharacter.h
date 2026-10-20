@@ -91,6 +91,7 @@ public:
     UFUNCTION(BlueprintPure, Category="Tools") bool HasFoodToThrow() const;
     UFUNCTION(BlueprintPure, Category="Tools") float FoodIntakeAimStrength() const;
     UFUNCTION(Server,Reliable) void ServerThrowItem();
+    UFUNCTION(Server,Reliable) void ServerInteractBasketball();
     UFUNCTION(Server,Reliable) void ServerSetThrowHeld(bool Held,FVector_NetQuantizeNormal Direction);
     UFUNCTION(Server,Unreliable) void ServerUpdateThrowAim(FVector_NetQuantizeNormal Direction);
     UFUNCTION(Server,Unreliable) void ServerPaddle(FVector2D Direction);
