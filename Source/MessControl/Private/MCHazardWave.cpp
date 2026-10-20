@@ -8,6 +8,8 @@
 #include "MCArenaTooth.h"
 #include "MCNutEnemy.h"
 #include "MCBossCharacter.h"
+#include "MCFrostNovaVFXComponent.h"
+#include "MCSmallMintCandy.h"
 #include "Components/CapsuleComponent.h"
 #include "ProceduralMeshComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -20,6 +22,7 @@ AMCHazardWave::AMCHazardWave()
     bReplicates=true; bAlwaysRelevant=true; PrimaryActorTick.bCanEverTick=true;
     Ring=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("PulseRing")); SetRootComponent(Ring);
     Ring->SetCollisionEnabled(ECollisionEnabled::NoCollision); Ring->SetCastShadow(false);
+    FrostNovaVFX=CreateDefaultSubobject<UMCFrostNovaVFXComponent>(TEXT("FrostNovaVFX"));
 }
 double AMCHazardWave::Now() const
 { const auto* GS=GetWorld()->GetGameState(); return GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds(); }
@@ -79,7 +82,12 @@ void AMCHazardWave::Tick(float Dt)
     Super::Tick(Dt);
     if(const auto* Lesion=Cast<AMCMouthSurface>(Source); Lesion && Lesion->bTutorialLesion && Lesion->IsActorBeingDestroyed()) {if(HasAuthority()) Destroy();return;}
     if(const auto* Ulcer=Cast<AMCMouthSurface>(Source); Ulcer && (Ulcer->IsNumb() || Ulcer->IsHealed() || !Ulcer->bUlcer)) { if(HasAuthority()) Destroy(); return; }
-    Ring->SetVisibility(!Tongue);
+    if(bFreezeLegs && !IsValid(Source)) {if(HasAuthority()) Destroy();return;}
+    UMCFrostNovaVFXComponent* LocalFrost=FrostNovaVFX;
+    if(const auto* Mint=Cast<AMCSmallMintCandy>(Source); Mint && Mint->FrostNovaVFX)
+        LocalFrost=Mint->FrostNovaVFX;
+    const bool bFrostArtReady=bFreezeLegs && GetNetMode()!=NM_DedicatedServer && LocalFrost && LocalFrost->UpdateWave(*this);
+    Ring->SetVisibility(!Tongue && !bFrostArtReady);
     const float CurrentRadius=Radius();
     if(HasAuthority() && Now()-StartedAt>=WarningSeconds)
     {
@@ -95,6 +103,12 @@ void AMCHazardWave::Tick(float Dt)
             // Once crossed, a wave cannot damage a player who lands behind it.
             HitActors.Add(Hero);
             if(Hero->ClearsGroundWave(ClearHeight)) continue;
+            if(bFreezeLegs) {
+                Hero->FreezeLegs(FootIceHealth);
+                if(Hero->HasFrozenLegs()) OnLegsFrozen.Broadcast(Hero);
+                ++HitCount;
+                continue;
+            }
             FVector Direction=(P-GetActorLocation()).GetSafeNormal2D();
             if(Direction.IsNearlyZero()) Direction=FVector::ForwardVector;
             const auto* Lesion=Cast<AMCMouthSurface>(Source);
@@ -102,13 +116,13 @@ void AMCHazardWave::Tick(float Dt)
             ++HitCount;
             Hero->ToothPhysics->ApplyHit(Direction*260+FVector(0,0,130),P);
         }
-        if(bSpicy) for(TActorIterator<AMCArenaTooth> It(GetWorld());It;++It)
+        if(bSpicy && !bFreezeLegs) for(TActorIterator<AMCArenaTooth> It(GetWorld());It;++It)
         {
             if(!It->IsAvailable() || HitActors.Contains(*It)) continue;
             const float D=FVector::Dist2D(It->Body->Bounds.Origin,GetActorLocation());
             if(D<=CurrentRadius+It->Body->Bounds.BoxExtent.Size2D()) { HitActors.Add(*It); It->Status->Damage(Damage,(*It)->GetActorLocation()-GetActorLocation()); }
         }
-        if(bSpicy) {
+        if(bSpicy && !bFreezeLegs) {
             for(TActorIterator<AMCNutEnemy> It(GetWorld());It;++It) {
                 if(!It->CanReceiveToolHit() || HitActors.Contains(*It)) continue;
                 const FVector Point=It->GetToolTargetPoint(GetActorLocation());
@@ -128,7 +142,7 @@ void AMCHazardWave::Tick(float Dt)
         if(Now()-StartedAt>WarningSeconds+TravelSeconds+.15f) { Destroy(); return; }
     }
     GeometryClock+=Dt;
-    if(!Tongue && GetNetMode()!=NM_DedicatedServer && GeometryClock>=1.f/15) { GeometryClock=0; DrawRing(); }
+    if(!Tongue && !bFrostArtReady && GetNetMode()!=NM_DedicatedServer && GeometryClock>=1.f/15) { GeometryClock=0; DrawRing(); }
 }
 void AMCHazardWave::DrawRing()
 {
@@ -147,13 +161,14 @@ void AMCHazardWave::DrawRing()
         if(I<Segments && Edge==0) { const int32 B=I*2; Tri.Append({B,B+2,B+1,B+1,B+2,B+3}); }
     }
     Ring->CreateMeshSection_LinearColor(0,V,Tri,N,UV,C,Tangents,false);
-    if(Material) Material->SetVectorParameterValue(TEXT("ZoneColor"),FLinearColor(1,.015f,bSpicy?.005f:.12f)*(Warning?1.5f+.6f*FMath::Sin(Now()*12):2.f));
+    if(Material) Material->SetVectorParameterValue(TEXT("ZoneColor"),(bFreezeLegs?FLinearColor(.20f,.85f,1.f):FLinearColor(1,.015f,bSpicy?.005f:.12f))*(Warning?1.5f+.6f*FMath::Sin(Now()*12):2.f));
 }
 void AMCHazardWave::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCHazardWave,MaxRadius); DOREPLIFETIME(AMCHazardWave,Damage); DOREPLIFETIME(AMCHazardWave,WarningSeconds);
     DOREPLIFETIME(AMCHazardWave,TravelSeconds); DOREPLIFETIME(AMCHazardWave,ClearHeight); DOREPLIFETIME(AMCHazardWave,bSpicy);
+    DOREPLIFETIME(AMCHazardWave,bFreezeLegs);DOREPLIFETIME(AMCHazardWave,FootIceHealth);
     DOREPLIFETIME(AMCHazardWave,StartedAt); DOREPLIFETIME(AMCHazardWave,Source); DOREPLIFETIME(AMCHazardWave,HitCount);
     DOREPLIFETIME(AMCHazardWave,Tongue); DOREPLIFETIME(AMCHazardWave,TissueMotion);
 }

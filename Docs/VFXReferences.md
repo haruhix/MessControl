@@ -958,3 +958,99 @@ comparison, not a gameplay-camera or performance certification. The updated
 Windows game has been built and packaged under `VisibilityFix/`; its short launch
 checks and final ZIP are recorded separately there. The earlier intermediate ZIP
 does not contain this additional correction.
+
+## Ground frost nova for mint pulses — 2026-10-20
+
+Researched before authoring for the user's Frost Nova direction. The reference
+is a readable icy release at foot height, followed by a brief powder volume and
+faceted crystal accents. Existing cold-throne climate expansion and recession
+are separate effects and are not part of this change.
+
+| Original source | Reproducible technique | MessControl adaptation / status |
+|---|---|---|
+| [Nicolás Bertoa: Niagara VFX ring and burst breakdown](https://nbertoa.com/2022/06/28/unreal-4-niagara-vfx/) | A continuous circular front gives a clear silhouette; a short radial burst and layered sprites provide impact and apparent volume. Separate their lifetimes instead of covering the view with one persistent cloud. | Retain the authoritative wave radius in a tongue-projected band. A separate, short two-emitter Niagara burst supplies powder and ice flecks. No creator asset or code is copied. Implemented and saved; runtime iterations are recorded below. |
+| [Joshua Meris: Magic Ice Attack](https://www.artstation.com/artwork/OvmlAv) | The creator separates ice spears, cracks, debris, frost and particles, then adjusts timing and reduces competing layers. | Use pale radial filaments, a brief low crest and small dissolving crystals as distinct layers. The indexed creator description was reviewed; the media page required sign-in, so no video inspection is claimed. Reference only. |
+| [Epic 5.8: Niagara lightweight emitters](https://dev.epicgames.com/documentation/unreal-engine/niagara-lightweight-emitters-overview?lang=en-US) | Stateless burst modules, fixed bounds, velocity/drag and size/lifetime curves cover this effect without a fluid simulation or custom simulation script. | Isolated two-emitter one-shot with at most 44 particles and a 0.78 s maximum lifetime. Native authoring, saved-system compilation and actual repeated emission verified. |
+| [Epic 5.8: Depth material expressions](https://dev.epicgames.com/documentation/en-us/unreal-engine/depth-material-expressions-in-unreal-engine) | DepthFade softens translucent intersections. Pixel/world distance can control near-camera visibility. | Soft powder-floor contact, rounded sprite normals for directional lighting and a 60–155 cm camera-distance fade. The bright ground front stays independent of powder visibility. Saved shaders validated; the actual gameplay camera keeps the character and HUD readable. |
+
+The owned implementation uses `UMCFrostNovaVFXComponent`, the existing
+`SM_IceShard`, and the already imported Kenney white puff. New packages belong
+only below `/Game/Gameplay/Cold/VFX/FrostNova`. Shared ice materials, phase-front
+powder and original source assets are preserved. No external download, plugin,
+ray-marched volume, dynamic light, refraction pass or particle collision is needed.
+
+The front receives the existing wave clock and `Radius()`; its bright leading
+edge is at that radius and its faint wake trails behind. A raised sole remains
+the gameplay counter. Crystal instances have no collision and dissolve in place;
+they never determine freezing, damage, jump height or wave range. The effect is
+client-local, with a bounded 64-sector band, up to 32 crystal instances (24 by
+default), two burst emitters and no additional replicated particle actors.
+
+The first real `SoloMint02` capture was rejected visually: the narrow front read
+like a soap ring, unlit sides of the lit crystals became dark under red lighting,
+and the central powder was not visibly convincing. Its gameplay fixture also
+failed ordinary pickaxe self-rescue; that failed run is not passing evidence.
+
+Iteration 2 keeps the same 44-particle budget, with a 0.78 s maximum powder
+lifetime, but places the powder on a 95–130 cm ring outside the solid candy,
+adds restrained pale emission fill. Source inspection verified that
+`FNiagaraDistributionFloat({0,1})` is an
+actual normalized-age `UniformCurve` in UE 5.8, not a random range. The ground
+wake is now 110–170 cm wide with a translucent 18–54 cm veil behind the true
+leading edge; crystal facets receive pale emission fill. Tongue projection still
+uses at most 130 shared samples per refresh, and no new particle actors or lights
+were added. Owned materials and the burst system have a versioned rebuild path
+with disk backups; shared assets are preserved.
+
+`SoloMint04` passed all twelve gameplay/tool checks, including a real jump,
+held-pickaxe self-rescue and mint destruction. Root and independent visual review
+still rejected its regular, ribbed ground pattern. The first pulse also showed
+dark shards and a less apparent burst before its subsequent light frames.
+
+Iteration 3 replaces periodic angular stripes with two scales of tissue-anchored
+value noise and irregular frost patches. `M_FrostNovaFront` is tagged version 3;
+the other v2 materials and two-emitter system are preserved. The candy now
+prepares one exact shard/material/custom-data presenter and a Niagara controller
+during its fall, then reuses it for non-overlapping pulses. Particle scale stays
+in centimeters independently of candy scale. Wave teardown releases only its
+matching pulse, including an early remote-destruction path. Gameplay timing,
+radius and leg-freeze payload are unchanged.
+
+Fresh saved-material validation passed in `Authoring/FrostCheck04`, after a
+rebuild-time validation had correctly refused a missing active shader map.
+`SoloMint05` again passed twelve gameplay/tool checks, with the new noise pattern
+and successful jump. The dark initial frame persisted, so early controller/PSO
+requests alone were not accepted as a demonstrated fix.
+
+Runtime-only layer isolation confirmed the dark geometry belongs to the ISM
+crystals: `DiagNoISM` removes it, while `DiagNoNiagara` retains it. Both reports
+record the exact hidden component; the shard has one correct material slot.
+These are diagnostic captures with an intentionally hidden layer, not final art.
+Engine-source review identified a concrete preparation gap: a hidden ISM does
+not add its primitive/render proxy, and the effect then recreated that proxy
+with `MarkRenderStateDirty` on every refresh. The final implementation keeps
+one visible proxy with zero-scale/zero-fade instances between pulses, then uses
+UE 5.8's `MarkRenderInstancesDirty` to send transforms/custom data incrementally.
+Outside the pulse, collapsed masked instances have no visible footprint.
+
+Final `SoloMint06` passed all twelve checks and a real jump; its first visible
+shards are pale immediately. Root reviewed the actual initial and developed
+front frames. The new pattern reads as irregular frost instead of regular ribs,
+powder gives a brief volume, and the character/HUD remain visible. The source
+break cancels the front. Its owned Editor exits normally (native code 0).
+The preview and contact sheet are under `Previews/FinalMint03/`; they retain
+actual sampled wall timing. This accepts the observed gameplay-camera result,
+not every hardware/driver configuration or a specific low-level GPU fault theory.
+
+Evidence is retained under
+`E:/CodexWork/MessControlNextRelax_20261020/` (`Authoring`, `SoloMint04`,
+`SoloMint05`, `SoloMint06`, `DiagNoISM`, `DiagNoNiagara`,
+`QA/FirstPulseColdStartAudit.md`, `Previews`). Early unsuccessful
+authoring processes included access violations after full Editor teardown; no
+local stack/dump established their cause. Later saved-material checks, final
+authoring and rendering PIE exited with native code 0. This does not certify
+an engine-wide crash fix. A rendering Python commandlet timed out during default
+shader compilation and is not passing evidence.
+
+Particle/transparency and tongue-projection cost still require dedicated runtime
+measurement; no performance, packaged-game or multiplayer claim is made here.

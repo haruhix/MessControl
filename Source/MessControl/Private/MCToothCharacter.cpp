@@ -6,6 +6,7 @@
 #include "Components/BoxComponent.h"
 #include "MCColdCola.h"
 #include "MCIceEvent.h"
+#include "MCSmallMintCandy.h"
 #include "MCFreezeDeathVFX.h"
 #include "MCFogBrawlEvent.h"
 #include "MCMouthSurface.h"
@@ -1044,9 +1045,10 @@ void AMCToothCharacter::ResolvePrimaryAction(bool bNewPress)
     const bool Mining=Inventory->Selected==EMCToolSlot::Pickaxe && IsValid(CalculusTarget)
         && CalculusTarget->Calculus && CalculusTarget->Calculus->HasCalculus();
     if(!bInCoffee && MCMeleeCombo::Supports(this) && !Mining) {
-        // Combat consumes press edges. Only a reachable food target repeats
-        // while held, and only after the current swing has fully recovered.
-        if(bNewPress || (GetWorld()->GetTimeSeconds()>=NextSwingTime && WantsFoodChop())) ServerSwingBrush();
+        // Combat consumes press edges. Food chopping and the advertised held
+        // pickaxe self-rescue repeat only after the current swing has recovered.
+        const bool BreakingOwnIce=Inventory->Selected==EMCToolSlot::Pickaxe && HasFrozenLegs();
+        if(bNewPress || (GetWorld()->GetTimeSeconds()>=NextSwingTime && (WantsFoodChop() || BreakingOwnIce))) ServerSwingBrush();
         return;
     }
     if(GetWorld()->GetTimeSeconds()<NextSwingTime-.3f) return;
@@ -1552,6 +1554,16 @@ void AMCToothCharacter::ResolveSwing()
             if(Offset.SizeSquared()<PickDistance) {BestPick=*It;PickDistance=Offset.SizeSquared();}
         }
         if(BestPick && BestPick->HitWithPickaxe(this,Inventory->Damage())) {++ConfirmedHitCount;MulticastHitSound(BestPick->GetActorLocation(),AudioTool,HitIntensity);return;}
+        AMCSmallMintCandy* SmallCandy=nullptr;float SmallMintDistance=FMath::Square(Inventory->MeleeReach());
+        for(TActorIterator<AMCSmallMintCandy> It(GetWorld());It;++It) {
+            if(It->Stage!=EMCSmallMintStage::Active) continue;
+            const FVector Offset=It->ContactPoint(GetActorLocation())-GetActorLocation();
+            if(Offset.SizeSquared()<SmallMintDistance && FVector::DotProduct(Offset.GetSafeNormal2D(),GetActorForwardVector())>.25f && CanContact(*It))
+                {SmallCandy=*It;SmallMintDistance=Offset.SizeSquared();}
+        }
+        if(SmallCandy && SmallCandy->HitWithPickaxe(this,Inventory->Damage())) {
+            ++ConfirmedHitCount;MulticastHitSound(SmallCandy->ContactPoint(GetActorLocation()),AudioTool,HitIntensity);return;
+        }
         AMCIceEvent* BestMint=nullptr; float MintDistance=FMath::Square(Inventory->MeleeReach());
         for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It) {
             if(It->Stage!=EMCIceEventStage::Active) continue;

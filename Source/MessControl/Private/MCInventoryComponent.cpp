@@ -18,6 +18,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCToothpick.h"
 #include "MCIceEvent.h"
+#include "MCSmallMintCandy.h"
 #include "MCColdCola.h"
 #include "MCNutEnemy.h"
 #include "MCBossCharacter.h"
@@ -309,6 +310,10 @@ bool UMCInventoryComponent::ResolveBufferContact()
     }
     for(TActorIterator<AMCToothpick> It(GetWorld());It;++It)
         if(It->HitWithPickaxe(Hero,HitDamage)) RegisterHit(It->Body->Bounds.GetBox().GetClosestPointTo(Center));
+    for(TActorIterator<AMCSmallMintCandy> It(GetWorld());It;++It) {
+        const FVector Point=It->ContactPoint(Center);
+        if(CanBufferContact(*It,Point) && It->HitWithPickaxe(Hero,HitDamage)) RegisterHit(Point);
+    }
     for(TActorIterator<AMCIceBlock> It(GetWorld());It;++It) {
         const FVector Point=It->Body->Bounds.GetBox().GetClosestPointTo(Center);
         if(CanBufferContact(*It,Point) && It->HitWithPickaxe(Hero,HitDamage)) {

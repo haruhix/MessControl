@@ -1,0 +1,65 @@
+{
+  "editorBuild": {
+    "nativeExit": 0,
+    "finishedUtc": "2026-10-20T04:43:43.3286013Z",
+    "project": "E:/DEVGAME/MessControl/MessControl.uproject"
+  },
+  "nativeSourcesOlderThanDll": true,
+  "latestNativePath": "E:\\DEVGAME\\MessControl\\Source\\MessControl\\Private\\MCFrostNovaVFXComponent.cpp",
+  "tests": {
+    "passed": true,
+    "count": 20,
+    "report": "E:/CodexWork/MessControlResourceLoading_20261020/Tests/20261020_043031/Report/index.json"
+  },
+  "solo": {
+    "passed": true,
+    "checkCount": 12,
+    "jump": {
+      "attempted": true,
+      "cleared": true,
+      "measured_peak_sole_clearance_cm": 103.934494972229,
+      "limitation": null
+    },
+    "frames": 113,
+    "dirtyPackagesAfter": [],
+    "exit": {
+      "wallSeconds": 63.3434694,
+      "case": "Mint08",
+      "script": "E:\\CodexWork\\MessControlResourceLoading_20261020\\CheckMint06.py",
+      "timedOut": false,
+      "exitCode": 0
+    }
+  },
+  "modifiedTrackedContent": [
+    "Content/Gameplay/CoreLoop/DA_SingleDay.uasset"
+  ],
+  "modifiedConfig": [],
+  "savedVfxPackages": [
+    {
+      "file": "M_FrostNovaCrystal.uasset",
+      "sha256": "04AC186E1464C158C1BF76F96D3C46FF6DFB9E173E3CF2E5E2E4E4DE7056BD27"
+    },
+    {
+      "file": "M_FrostNovaFront.uasset",
+      "sha256": "DA15FD656545FE3E54CE300212826B576A28FB3311B6AD97C9E4919DDB8448EB"
+    },
+    {
+      "file": "M_FrostNovaPowder.uasset",
+      "sha256": "9C77A164FA83E0ECB710ADE415C25A0F83E63A2437E033E023F55D27592F2C5A"
+    },
+    {
+      "file": "M_FrostNovaSnow.uasset",
+      "sha256": "30F8F0CC25D1DA6ED114B8F1432ECF7B46275E4641A2FA5B88B027EF60FB5677"
+    },
+    {
+      "file": "NS_FrostNovaBurst.uasset",
+      "sha256": "32638EA97767D36E610D144BE6BEC1FA8661B0DA302CA27C6AB5F44C1372941F"
+    }
+  ],
+  "limits": [
+    "Controlled mint fixture; full manually completed 5/8/9 gameplay not filmed",
+    "No network, cook/package or quantitative GPU profiling",
+    "Earlier authoring teardown access violations retained in audit; later final authoring/PIE native exit 0 is not an engine-wide crash diagnosis"
+  ],
+  "completedUtc": "2026-10-20T04:48:52.1193442Z"
+}

@@ -1,5 +1,6 @@
 #include "MCSingleDayDirector.h"
 #include "MCCoffeeFlood.h"
+#include "MCCataclysmEvent.h"
 #include "MCNutRainEvent.h"
 #include "MCNutBoss.h"
 #include "MCIceEvent.h"
@@ -53,10 +54,22 @@ int32 CountDirtyAvailableArenaTeeth(UWorld* World)
         if(!It->IsActorBeingDestroyed() && It->IsAvailable() && It->Status && It->Status->NeedsCare(true)) ++Count;
     return Count;
 }
+int32 CountDirtyFloorSurfaces(UWorld* World)
+{
+    if(!World) return 0;
+    int32 Count=0;
+    // Both ordinary stains and painted coffee tiles use this cleanable actor.
+    // No Batch/tag filter: old or unrelated visible floor dirt also needs care.
+    for(TActorIterator<AMCMouthSurface> It(World);It;++It)
+        if(!It->IsActorBeingDestroyed() && !It->bUlcer && !It->IsClean()) ++Count;
+    return Count;
+}
 }
 UMCSingleDayProfile::UMCSingleDayProfile()
 {
     KeyEvents.AddDefaulted();
+    auto& Jellies=KeyEvents.AddDefaulted_GetRef();
+    Jellies.EventId=TEXT("Jellies");Jellies.Kind=EMCSingleDayKeyEventKind::Jellies;
     auto& Ice=KeyEvents.AddDefaulted_GetRef();
     Ice.EventId=TEXT("IceEvent");
     Ice.Kind=EMCSingleDayKeyEventKind::IceEvent;
@@ -74,10 +87,19 @@ void AMCSingleDayDirector::Initialize(UMCDayPlan* Plan, UMCSingleDayProfile* Pro
     if(!HasAuthority()) return;
     Mechanics=Plan?Plan:NewObject<UMCDayPlan>(this);
     Settings=Profile?DuplicateObject<UMCSingleDayProfile>(Profile,this):NewObject<UMCSingleDayProfile>(this);
-    // Saved prototype profiles retain their original opening portion. Change
-    // only those defaults in the private run copy; custom portions survive.
-    if(Settings->OpeningMealItems==3) Settings->OpeningMealItems=12;
-    if(FMath::IsNearlyEqual(Settings->OpeningMealDropSeconds,1.5f)) Settings->OpeningMealDropSeconds=1.f;
+    if(Settings->OpeningMealPortions.IsEmpty()) Settings->OpeningMealPortions={3,5,8};
+    if(Settings->OpeningMealPortions.Num()>30) Settings->OpeningMealPortions.SetNum(30);
+    for(int32& Count:Settings->OpeningMealPortions) Count=FMath::Clamp(Count,1,30);
+    Settings->BetweenMealPauseMinSeconds=FMath::IsFinite(Settings->BetweenMealPauseMinSeconds)
+        ?FMath::Clamp(Settings->BetweenMealPauseMinSeconds,0.f,30.f):5.f;
+    Settings->BetweenMealPauseMaxSeconds=FMath::IsFinite(Settings->BetweenMealPauseMaxSeconds)
+        ?FMath::Clamp(Settings->BetweenMealPauseMaxSeconds,Settings->BetweenMealPauseMinSeconds,30.f)
+        :FMath::Max(Settings->BetweenMealPauseMinSeconds,10.f);
+    if(Settings->AfterNutMealPortions.IsEmpty()) Settings->AfterNutMealPortions={5,8,9};
+    if(Settings->AfterNutMealPortions.Num()>30) Settings->AfterNutMealPortions.SetNum(30);
+    for(int32& Count:Settings->AfterNutMealPortions) Count=FMath::Clamp(Count,1,30);
+    Settings->AfterNutMealDropSeconds=FMath::IsFinite(Settings->AfterNutMealDropSeconds)?FMath::Clamp(Settings->AfterNutMealDropSeconds,.5f,5.f):1.f;
+    Settings->SmallMint.Sanitize();
     // Extend the previous prototype shapes in the runtime copy only, preserving
     // saved identities, variants and support intervals. Custom sequences stay authored.
     if(!Settings->bLegacyTimedFinale && Settings->KeyEvents.Num()==1
@@ -96,7 +118,9 @@ void AMCSingleDayDirector::Initialize(UMCDayPlan* Plan, UMCSingleDayProfile* Pro
     DirectorProfile=InterludeProfile;
     Stage=EMCSingleDayStage::Training; bStopped=false;
     KeyEventIndex=0; bAuthoredFragmentComplete=false; InterludeEndsAt=StageEndsAt=0;
-    FirstMealBatch=0; MealSpawned=MealAttempts=0;
+    FirstMealBatch=PostNutMealBatch=0; MealAttempts=0;
+    MealPortionNumber=MealPortionTarget=MealPortionSpawned=0;
+    MealPortionCount=Settings->OpeningMealPortions.Num();
     LastMealGateState.Reset(); NextMealDiagnosticAt=0;
     RunStartedAt=GetWorld()->GetTimeSeconds();
     if(auto* GS=GetWorld()->GetGameState<AMCGameState>()) {
@@ -152,17 +176,25 @@ void AMCSingleDayDirector::Publish(const FString& Title,const FString& Instructi
     auto& S=GS->DirectorState; S=FMCGameDirectorState(); S.bEnabled=true;
     S.CurrentTitle=Title; S.Instruction=Instruction;
     const bool BeforeMeal=(!IsLegacyTimedFinale() && Stage==EMCSingleDayStage::FirstPerk) || Stage==EMCSingleDayStage::OpeningPause;
-    S.NextTitle=BeforeMeal?TEXT("ПРИЁМ ПИЩИ"):
+    S.NextTitle=BeforeMeal || Stage==EMCSingleDayStage::BetweenMealsPause?TEXT("ПРИЁМ ПИЩИ"):
+        Stage==EMCSingleDayStage::PostNutMeal?(MealPortionNumber<MealPortionCount?TEXT("ПРИЁМ ПИЩИ"):TEXT("МЯТНАЯ КОНФЕТА")):
+        Stage==EMCSingleDayStage::PostNutMint?TEXT("ГРЯЗНОЕ ЖЕЛЕ"):
+        Stage==EMCSingleDayStage::MealCoffeeWave?TEXT("ПЕРЕДЫШКА"):
+        Stage==EMCSingleDayStage::FirstMeal && MealPortionNumber<MealPortionCount?TEXT("КОФЕЙНАЯ ВОЛНА"):
         Stage==EMCSingleDayStage::FirstMeal || Stage==EMCSingleDayStage::MealRest?TEXT("ОРЕХОВОЕ СОБЫТИЕ"):
-        Stage==EMCSingleDayStage::Nuts || Stage==EMCSingleDayStage::Ice || Stage==EMCSingleDayStage::FogBrawl?TEXT("ПОДДЕРЖКА ДИРЕКТОРА"):
+        Stage==EMCSingleDayStage::Nuts && Settings && Settings->KeyEvents.IsValidIndex(KeyEventIndex+1)
+            && Settings->KeyEvents[KeyEventIndex+1].Kind==EMCSingleDayKeyEventKind::Jellies?TEXT("ПЕРЕДЫШКА ПОСЛЕ ОРЕХОВ"):
+        Stage==EMCSingleDayStage::Nuts || Stage==EMCSingleDayStage::Ice || Stage==EMCSingleDayStage::FogBrawl || Stage==EMCSingleDayStage::Jellies?TEXT("ПОДДЕРЖКА ДИРЕКТОРА"):
         IsLegacyTimedFinale() && Stage==EMCSingleDayStage::Director?TEXT("ФИНАЛЬНЫЙ БОСС"):TEXT("");
-    if(Stage==EMCSingleDayStage::FirstMeal && DirectorProfile)
+    if((Stage==EMCSingleDayStage::FirstMeal || Stage==EMCSingleDayStage::MealCoffeeWave
+        || Stage==EMCSingleDayStage::BetweenMealsPause || Stage==EMCSingleDayStage::PostNutMeal) && DirectorProfile)
         S.Difficulty=DirectorProfile->GetScaledDaySettings(0).MinimumDifficulty;
     S.DecisionLog=GS->DirectorDecisionLog;
     S.LastDecision=S.DecisionLog.IsEmpty()?FString():S.DecisionLog.Last();
     S.SpawnedFood=Total; S.FinishedFood=FMath::Max(0,Total-Left);
     S.CompletionProgress=Total>0?1-float(Left)/Total:0;
-    S.DayProgress=Stage==EMCSingleDayStage::Nuts?.25f:Stage==EMCSingleDayStage::Ice?.55f:Stage==EMCSingleDayStage::FogBrawl?.75f:Stage==EMCSingleDayStage::Boss?.85f:.1f;
+    S.DayProgress=Stage==EMCSingleDayStage::Nuts?.25f:Stage==EMCSingleDayStage::PostNutMeal?.35f:Stage==EMCSingleDayStage::PostNutMint?.4f:
+        Stage==EMCSingleDayStage::Jellies?.45f:Stage==EMCSingleDayStage::Ice?.55f:Stage==EMCSingleDayStage::FogBrawl?.75f:Stage==EMCSingleDayStage::Boss?.85f:.1f;
     GS->ForceNetUpdate();
 }
 void AMCSingleDayDirector::BeginOpeningPause(bool bAfterMeal)
@@ -180,24 +212,33 @@ void AMCSingleDayDirector::BeginOpeningPause(bool bAfterMeal)
 }
 void AMCSingleDayDirector::BeginFirstMeal()
 {
-    Stage=EMCSingleDayStage::FirstMeal; StageEndsAt=0;
     FirstMealBatch=2000000+int32(GetUniqueID()&0x000FFFFF);
-    MealSpawned=MealAttempts=0;
-    LastMealGateState.Reset(); NextMealDiagnosticAt=0;
-    bOpeningCoffeeStarted=false; OpeningCoffeeAt=0;
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     MealRandom.Initialize((GS?GS->RunSeed:41)^0x4D45414C);
+    MealPortionCount=Settings->OpeningMealPortions.Num();
     MealServices=GetWorld()->SpawnActor<AMCDayDirector>();
     if(!MealServices) {Fail(TEXT("Не удалось запустить обычный приём пищи."));return;}
     MealServices->SetOwner(this);
     MealServices->InitializeEventServices(Mechanics,GS?GS->RunSeed:41);
+    Record(FString::Printf(TEXT("Начало первого Relax: %d порции еды для всей команды, без начальной кофейной волны"),MealPortionCount));
+    BeginMealPortion(0);
+}
+void AMCSingleDayDirector::BeginMealPortion(int32 PortionIndex)
+{
+    if(!Settings || !Settings->OpeningMealPortions.IsValidIndex(PortionIndex)) {
+        Fail(TEXT("Не найдены настройки следующей порции еды."));return;
+    }
+    Stage=EMCSingleDayStage::FirstMeal; StageEndsAt=0;
+    MealPortionNumber=PortionIndex+1;
+    MealPortionTarget=Settings->OpeningMealPortions[PortionIndex];
+    MealPortionSpawned=MealAttempts=0;
+    LastMealGateState.Reset(); NextMealDiagnosticAt=0;
+    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     NextMealDropAt=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
-    const float Warning=FMath::IsFinite(Settings->OpeningCoffeeWarningSeconds)?FMath::Clamp(Settings->OpeningCoffeeWarningSeconds,1.f,6.f):2.f;
-    OpeningCoffeeAt=Settings->bOpeningCoffeeWave?NextMealDropAt+Warning:0;
-    Record(TEXT("Начало приёма пищи: гарантированная волна кофе, затем увеличенная порция еды; орехи ждут завершения задач"));
-    Publish(Settings->bOpeningCoffeeWave?TEXT("СКОРО: КОФЕЙНАЯ ВОЛНА"):TEXT("ПРИЁМ ПИЩИ"),
-        Settings->bOpeningCoffeeWave?TEXT("Приготовьтесь к волне кофе. Еда появится после неё."):TEXT("Разбейте еду, очистите пятна на языке и грязные зубы."),
-        FMath::Clamp(Settings->OpeningMealItems,1,30),FMath::Clamp(Settings->OpeningMealItems,1,30));
+    Record(FString::Printf(TEXT("Первый Relax: порция %d/%d, целых продуктов %d; предыдущая грязь остаётся"),
+        MealPortionNumber,MealPortionCount,MealPortionTarget));
+    Publish(TEXT("ПРИЁМ ПИЩИ"),FString::Printf(TEXT("Порция %d/%d: обработайте %d продуктов. Q — закинуть фрагмент в глотку. Щётка — очистить язык и зубы."),
+        MealPortionNumber,MealPortionCount,MealPortionTarget),MealPortionTarget,MealPortionTarget);
     ForceNetUpdate();
 }
 FName AMCSingleDayDirector::ChooseOpeningFood()
@@ -218,33 +259,17 @@ FName AMCSingleDayDirector::ChooseOpeningFood()
 void AMCSingleDayDirector::TickFirstMeal()
 {
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); if(!GS) return;
-    const int32 Target=FMath::Clamp(Settings->OpeningMealItems,1,30);
+    const int32 Target=MealPortionTarget;
     const double Time=GS->GetServerWorldTimeSeconds();
-    if(Settings->bOpeningCoffeeWave && !bOpeningCoffeeStarted) {
-        if(Time<OpeningCoffeeAt) return;
-        OpeningCoffee=GetWorld()->SpawnActor<AMCCoffeeFlood>();
-        if(!OpeningCoffee) {Fail(TEXT("Не удалось создать начальную волну кофе."));return;}
-        OpeningCoffee->SetOwner(this); OpeningCoffee->ResidueBatch=FirstMealBatch; OpeningCoffee->Start(Mechanics);
-        if(!OpeningCoffee->IsActive()) {Fail(TEXT("Не удалось запустить начальную волну кофе."));return;}
-        bOpeningCoffeeStarted=true;
-        Record(TEXT("Начальная волна кофе запущена до подачи еды"));
-    }
-    if(IsValid(OpeningCoffee)) {
-        if(OpeningCoffee->IsActive()) {
-            Publish(TEXT("КОФЕЙНАЯ ВОЛНА"),TEXT("Уклоняйтесь от волны и держитесь за опору. Еда появится после кофе."),Target,Target);
-            return;
-        }
-        OpeningCoffee->Destroy(); OpeningCoffee=nullptr; NextMealDropAt=Time;
-    }
     const auto CurrentFood=MCMeasureFoodPipeline(GetWorld());
     int32 Workers=0;
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->GetController() && It->Status && It->Status->IsAlive()) ++Workers;
     const int32 WholeLimit=FMath::Clamp(6+2*(FMath::Max(1,Workers)-1),6,12);
-    if(MealSpawned<Target && Time>=NextMealDropAt && CurrentFood.Whole<WholeLimit && CurrentFood.Fragments<48
+    if(MealPortionSpawned<Target && Time>=NextMealDropAt && CurrentFood.Whole<WholeLimit && CurrentFood.Fragments<48
         && !CurrentFood.bThroatBusy) {
         const FName Row=ChooseOpeningFood(); ++MealAttempts;
         if(auto* Food=MCSpawnDirectedFoodEntry(GetWorld(),Mechanics,Row,FirstMealBatch,MealRandom,MealServices)) {
-            Food->SetOwner(this); ++MealSpawned;
+            Food->SetOwner(this); ++MealPortionSpawned; ForceNetUpdate();
         }
         else if(MealAttempts>=Target*6) {
             Fail(TEXT("Не удалось подать обычную еду. Проверьте меню, язык и коллизию продуктов.")); return;
@@ -254,34 +279,80 @@ void AMCSingleDayDirector::TickFirstMeal()
     }
     // Each ordinary item remains outstanding until destroyed. Retained transport
     // and swallowing also stay outstanding until their existing work ends.
-    const auto Food=MCMeasureFoodPipeline(GetWorld(),FirstMealBatch);
-    const int32 Dirt=MCCountDirectedFoodDirt(GetWorld(),FirstMealBatch);
+    const bool bFinalPortion=MealPortionNumber>=MealPortionCount;
+    const auto Food=MCMeasureFoodPipeline(GetWorld(),bFinalPortion?INDEX_NONE:FirstMealBatch);
+    const int32 Dirt=MCSingleDayDirectorPrivate::CountDirtyFloorSurfaces(GetWorld());
     const int32 DirtyTeeth=MCSingleDayDirectorPrivate::CountDirtyAvailableArenaTeeth(GetWorld());
-    if(MealSpawned>=Target && Food.OutstandingActors==0 && Food.UnresolvedHazards==0 && Dirt==0 && DirtyTeeth==0) {
-        if(IsValid(MealServices)) MealServices->Destroy(); MealServices=nullptr;
-        BeginOpeningPause(true); return;
+    if(MealPortionSpawned>=Target && Food.OutstandingActors==0 && Food.UnresolvedHazards==0) {
+        if(!bFinalPortion) {BeginMealCoffeeWave();return;}
+        if(Dirt==0 && DirtyTeeth==0) {
+            if(IsValid(MealServices)) MealServices->Destroy(); MealServices=nullptr;
+            BeginOpeningPause(true); return;
+        }
     }
-    const int32 Pending=FMath::Max(0,Target-MealSpawned);
+    const int32 Pending=FMath::Max(0,Target-MealPortionSpawned);
     ReportMealGate(Food,Dirt,DirtyTeeth,Pending,Time);
-    const int32 Left=Pending+Food.OutstandingActors+Food.UnresolvedHazards+Dirt+DirtyTeeth;
+    const int32 Left=Pending+Food.OutstandingActors+Food.UnresolvedHazards+(bFinalPortion?Dirt+DirtyTeeth:0);
     const FString Instruction=FString::Printf(
-        TEXT("Подано %d/%d. Осталось: еда %d · фрагменты %d (в руках %d) · пятна %d · грязные зубы %d · угрозы %d.\nQ — закинуть фрагмент в глотку. Щётка — очистить язык и зубы."),
-        MealSpawned,Target,Food.Whole,Food.Fragments,Food.Carried,Dirt,DirtyTeeth,
-        FMath::Max(0,Food.OutstandingActors-Food.Whole-Food.Fragments)+Food.UnresolvedHazards);
+        TEXT("Порция %d/%d · подано %d/%d. Осталось: еда %d · фрагменты %d (в руках %d) · пятна %d · грязные зубы %d · угрозы %d.\nQ — закинуть фрагмент в глотку. Щётка — очистить язык и зубы.%s"),
+        MealPortionNumber,MealPortionCount,MealPortionSpawned,Target,Food.Whole,Food.Fragments,Food.Carried,Dirt,DirtyTeeth,
+        FMath::Max(0,Food.OutstandingActors-Food.Whole-Food.Fragments)+Food.UnresolvedHazards,
+        bFinalPortion?TEXT(" Уберите всю оставшуюся грязь перед ореховым событием."):TEXT(" Следующая порция не требует полной уборки."));
     Publish(TEXT("ПРИЁМ ПИЩИ"),Instruction,
         Left,FMath::Max(GS->TasksTotal,Left));
+}
+void AMCSingleDayDirector::BeginMealCoffeeWave()
+{
+    Stage=EMCSingleDayStage::MealCoffeeWave; StageEndsAt=0;
+    Publish(TEXT("КОФЕЙНАЯ ВОЛНА"),FString::Printf(TEXT("Порция %d/%d обработана. Держитесь за опору; следующая порция появится после кофе и короткой передышки."),
+        MealPortionNumber,MealPortionCount));
+    OpeningCoffee=GetWorld()->SpawnActor<AMCCoffeeFlood>();
+    if(!OpeningCoffee) {Fail(TEXT("Не удалось создать волну кофе между порциями."));return;}
+    OpeningCoffee->SetOwner(this); OpeningCoffee->ResidueBatch=FirstMealBatch;
+    OpeningCoffee->Start(Mechanics);
+    if(!OpeningCoffee->IsActive()) {Fail(TEXT("Не удалось запустить волну кофе между порциями."));return;}
+    // Start copies authored settings before initializing residue. Keep that
+    // saved Profile reference for client visuals; limit only this owned drink.
+    OpeningCoffee->WaterSettings.Cycles=1;
+    OpeningCoffee->Waves=1;
+    OpeningCoffee->Seconds=OpeningCoffee->WaterSettings.CycleSeconds();
+    OpeningCoffee->ForceNetUpdate();
+    Record(FString::Printf(TEXT("Порция %d/%d обработана: кофейная волна, накопленная грязь сохраняется"),MealPortionNumber,MealPortionCount));
+    ForceNetUpdate();
+}
+void AMCSingleDayDirector::TickMealCoffeeWave()
+{
+    if(!IsValid(OpeningCoffee)) {Fail(TEXT("Кофейная волна исчезла до завершения."));return;}
+    if(OpeningCoffee->IsActive()) return;
+    OpeningCoffee->Destroy(); OpeningCoffee=nullptr;
+    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    const float Pause=MealRandom.FRandRange(Settings->BetweenMealPauseMinSeconds,Settings->BetweenMealPauseMaxSeconds);
+    Stage=EMCSingleDayStage::BetweenMealsPause; StageEndsAt=Now+Pause;
+    Record(FString::Printf(TEXT("Кофе после порции %d/%d завершён: передышка %.2f с отсчитывается от конца волны"),MealPortionNumber,MealPortionCount,Pause));
+    Publish(TEXT("ПЕРЕДЫШКА"),FString::Printf(TEXT("Кофе закончился. Порция %d/%d скоро появится; можно продолжать уборку."),MealPortionNumber+1,MealPortionCount));
+    ForceNetUpdate();
+}
+void AMCSingleDayDirector::TickBetweenMealsPause()
+{
+    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    if(Now>=StageEndsAt) BeginMealPortion(MealPortionNumber);
 }
 void AMCSingleDayDirector::ReportMealGate(const FMCFoodPipelineLoad& Food,int32 Dirt,int32 DirtyTeeth,int32 Pending,double Now)
 {
     // The global cleanliness also includes players. Report the actual portion
     // and available arena-tooth gate instead of using a rounded percentage.
-    const FString State=FString::Printf(TEXT("pending=%d whole=%d fragments=%d carried=%d swallowing=%d outstanding=%d hazards=%d dirt=%d teeth=%d"),
-        Pending,Food.Whole,Food.Fragments,Food.Carried,Food.Swallowing,Food.OutstandingActors,Food.UnresolvedHazards,Dirt,DirtyTeeth);
+    const bool bFinalPortion=MealPortionNumber>=MealPortionCount;
+    const FString State=FString::Printf(TEXT("portion=%d/%d served=%d/%d pending=%d whole=%d fragments=%d carried=%d swallowing=%d outstanding=%d hazards=%d dirt=%d teeth=%d cleanup_gate=%d"),
+        MealPortionNumber,MealPortionCount,MealPortionSpawned,MealPortionTarget,
+        Pending,Food.Whole,Food.Fragments,Food.Carried,Food.Swallowing,Food.OutstandingActors,Food.UnresolvedHazards,Dirt,DirtyTeeth,bFinalPortion);
     const bool Changed=State!=LastMealGateState;
     if(Changed) {
         LastMealGateState=State;
-        if(Pending==0) Record(FString::Printf(TEXT("До орехового события: еда %d · пятна порции %d · грязные зубы %d · последствия %d. Щёткой очистите язык и зубы."),
-            Food.OutstandingActors,Dirt,DirtyTeeth,Food.UnresolvedHazards));
+        if(Pending==0) Record(FString::Printf(TEXT("Порция %d/%d: еда %d · пятна %d · грязные зубы %d · последствия %d. %s"),
+            MealPortionNumber,MealPortionCount,Food.OutstandingActors,Dirt,DirtyTeeth,Food.UnresolvedHazards,
+            bFinalPortion?TEXT("Перед ореховым событием очистите язык и зубы."):TEXT("Следующую волну ждёт обработка еды; полная уборка пока не требуется.")));
     }
     if(!Changed && Now<NextMealDiagnosticAt) return;
     UE_LOG(LogTemp,Display,TEXT("MC_MEAL_GATE batch=%d %s"),FirstMealBatch,*State);
@@ -289,15 +360,14 @@ void AMCSingleDayDirector::ReportMealGate(const FMCFoodPipelineLoad& Food,int32 
     NextMealDiagnosticAt=Now+15.;
     int32 Logged=0;
     for(TActorIterator<AMCFoodActor> It(GetWorld());It && Logged<6;++It) {
-        if(It->IsActorBeingDestroyed() || It->Batch!=FirstMealBatch || It->bBrushTool || It->IsDisposed()) continue;
+        if(It->IsActorBeingDestroyed() || (!bFinalPortion && It->Batch!=FirstMealBatch) || It->bBrushTool || It->IsDisposed()) continue;
         ++Logged;
         UE_LOG(LogTemp,Display,TEXT("MC_MEAL_BLOCKER food=%s item=%s fragment=%d phase=%d location=%s"),
             *It->GetName(),*It->ItemName.ToString(),It->bFragment,int32(It->Phase),*It->GetActorLocation().ToString());
     }
     Logged=0;
     for(TActorIterator<AMCMouthSurface> It(GetWorld());It && Logged<6;++It) {
-        if(It->IsActorBeingDestroyed() || It->Batch!=FirstMealBatch || It->bUlcer || It->IsClean()
-            || !It->Tags.Contains(FName(TEXT("MCFoodServedDirt")))) continue;
+        if(It->IsActorBeingDestroyed() || It->bUlcer || It->IsClean()) continue;
         ++Logged;
         UE_LOG(LogTemp,Display,TEXT("MC_MEAL_BLOCKER stain=%s tile=%d layers=%d remaining=%.6f location=%s"),
             *It->GetName(),It->bPaintTile,It->Status->State.CoffeeLeft,It->RemainingLiquid(),*It->GetActorLocation().ToString());
@@ -321,6 +391,7 @@ void AMCSingleDayDirector::BeginKeyEvent()
         case EMCSingleDayKeyEventKind::NutEncounter: BeginNuts(); break;
         case EMCSingleDayKeyEventKind::IceEvent: BeginIce(); break;
         case EMCSingleDayKeyEventKind::FogBrawl: BeginFogBrawl(); break;
+        case EMCSingleDayKeyEventKind::Jellies: BeginJellies(); break;
         default: Fail(TEXT("Ключевое событие ещё не реализовано.")); break;
     }
 }
@@ -406,6 +477,10 @@ void AMCSingleDayDirector::BeginDirector()
     IceEvent=nullptr;
     if(IsValid(FogEvent)) {FogEvent->Stop();FogEvent->Destroy();} FogEvent=nullptr;
     const bool HasNext=!Legacy && Settings->KeyEvents.IsValidIndex(KeyEventIndex+1);
+    if(!Legacy && CompletedSlot && CompletedSlot->Kind==EMCSingleDayKeyEventKind::NutEncounter
+        && HasNext && Settings->KeyEvents[KeyEventIndex+1].Kind==EMCSingleDayKeyEventKind::Jellies) {
+        BeginPostNutMeal();return;
+    }
     bAuthoredFragmentComplete=!Legacy && !HasNext;
     const float Configured=Legacy?Settings->DirectorSeconds:HasNext?CompletedSlot->DirectorSupportSeconds:0.f;
     const float Seconds=Legacy?(FMath::IsFinite(Configured)?FMath::Clamp(Configured,5.f,300.f):30.f):
@@ -454,6 +529,11 @@ void AMCSingleDayDirector::Tick(float Dt)
     }
     else if(Stage==EMCSingleDayStage::OpeningPause && GS->GetServerWorldTimeSeconds()>=StageEndsAt) BeginFirstMeal();
     else if(Stage==EMCSingleDayStage::FirstMeal) TickFirstMeal();
+    else if(Stage==EMCSingleDayStage::MealCoffeeWave) TickMealCoffeeWave();
+    else if(Stage==EMCSingleDayStage::BetweenMealsPause) TickBetweenMealsPause();
+    else if(Stage==EMCSingleDayStage::PostNutMeal) TickPostNutMeal();
+    else if(Stage==EMCSingleDayStage::PostNutMint) TickSmallMint();
+    else if(Stage==EMCSingleDayStage::Jellies) TickJellies();
     else if(Stage==EMCSingleDayStage::MealRest && GS->GetServerWorldTimeSeconds()>=StageEndsAt) {
         if(!GS->Progression || !GS->Progression->HasPendingChoices()) BeginKeyEvent();
         else Publish(TEXT("ПЕРВОЕ УСИЛЕНИЕ"),TEXT("Выберите личный перк перед ореховым событием: 1 / 2 / 3."));
@@ -509,6 +589,7 @@ void AMCSingleDayDirector::Stop()
 {
     bStopped=true;
     if(!HasAuthority()) return;
+    if(IsValid(OpeningCoffee)) {OpeningCoffee->Stop();OpeningCoffee->Destroy();} OpeningCoffee=nullptr;
     if(FirstMealBatch>0) {
         MCDestroyDirectedFoodDirt(GetWorld(),FirstMealBatch);
         TArray<AMCFoodActor*> Meal;
@@ -517,8 +598,16 @@ void AMCSingleDayDirector::Stop()
         FirstMealBatch=0;
     }
     if(IsValid(MealServices)) MealServices->Destroy(); MealServices=nullptr;
-    if(IsValid(OpeningCoffee)) {OpeningCoffee->Stop();OpeningCoffee->Destroy();} OpeningCoffee=nullptr;
-    OpeningCoffeeAt=0; bOpeningCoffeeStarted=false;
+    if(PostNutMealBatch>0) {
+        MCDestroyDirectedFoodDirt(GetWorld(),PostNutMealBatch);
+        TArray<AMCFoodActor*> Meal;
+        for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(It->Batch==PostNutMealBatch) Meal.Add(*It);
+        for(auto* Food:Meal) Food->Destroy();
+        PostNutMealBatch=0;
+    }
+    if(IsValid(SmallMint)) {SmallMint->Stop();SmallMint->Destroy();} SmallMint=nullptr;
+    if(IsValid(JellyEvent)) {JellyEvent->Stop(true);JellyEvent->Destroy();} JellyEvent=nullptr;
+    StageEndsAt=0;
     if(IsValid(NutEvent)) {NutEvent->Stop();NutEvent->Destroy();} NutEvent=nullptr;
     if(IsValid(IceEvent)) {IceEvent->Stop();IceEvent->Destroy();} IceEvent=nullptr;
     if(IsValid(FogEvent)) {FogEvent->Stop();FogEvent->Destroy();} FogEvent=nullptr;
@@ -541,7 +630,12 @@ void AMCSingleDayDirector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
     DOREPLIFETIME(AMCSingleDayDirector,Stage); DOREPLIFETIME(AMCSingleDayDirector,NutEvent);
     DOREPLIFETIME(AMCSingleDayDirector,IceEvent);
     DOREPLIFETIME(AMCSingleDayDirector,FogEvent);
+    DOREPLIFETIME(AMCSingleDayDirector,JellyEvent);DOREPLIFETIME(AMCSingleDayDirector,SmallMint);
     DOREPLIFETIME(AMCSingleDayDirector,FinalBoss); DOREPLIFETIME(AMCSingleDayDirector,VariantIndex);
     DOREPLIFETIME(AMCSingleDayDirector,KeyEventIndex); DOREPLIFETIME(AMCSingleDayDirector,bAuthoredFragmentComplete);
     DOREPLIFETIME(AMCSingleDayDirector,StageEndsAt);
+    DOREPLIFETIME(AMCSingleDayDirector,MealPortionNumber);
+    DOREPLIFETIME(AMCSingleDayDirector,MealPortionCount);
+    DOREPLIFETIME(AMCSingleDayDirector,MealPortionTarget);
+    DOREPLIFETIME(AMCSingleDayDirector,MealPortionSpawned);
 }

@@ -20,6 +20,8 @@ public class MessControl : ModuleRules
         PrivateDependencyModuleNames.Add("RenderCore");
         PrivateDependencyModuleNames.Add("ApplicationCore");
         PrivateDependencyModuleNames.Add("AudioExtensions");
+        PrivateDependencyModuleNames.Add("MoviePlayer");
+        PublicDependencyModuleNames.Add("DeveloperSettings");
         PrivateDependencyModuleNames.AddRange(new[] { "LevelSequence", "MovieScene", "MovieSceneTracks", "CinematicCamera" });
         PublicDependencyModuleNames.AddRange(new[] { "OnlineBase", "OnlineSubsystem", "OnlineSubsystemUtils" });
         DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");

@@ -43,12 +43,14 @@
 #include "InputKeyEventArgs.h"
 #include "MCHubGameState.h"
 #include "MCHubWidget.h"
+#include "MCLoadingWidget.h"
 
 void AMCPlayerController::BeginPlay()
 {
     Super::BeginPlay();
     if (IsLocalController())
     {
+        RefreshLoadingPresentation();
         if(!BackgroundSoundPalette) BackgroundSoundPalette=LoadObject<UMCSoundPalette>(nullptr,TEXT("/Game/Data/DA_MouthSounds.DA_MouthSounds"));
         SceneAudio=NewObject<UMCSceneAudioComponent>(this,TEXT("BackgroundSceneAudio"));
         AddInstanceComponent(SceneAudio); SceneAudio->RegisterComponent();
@@ -106,7 +108,7 @@ void AMCPlayerController::HideScoreboard()
 void AMCPlayerController::Tick(float DeltaSeconds)
 {
     // Drive the cosmetic mouth stage before its skeletal components update.
-    if(IsLocalController()) RefreshHubPresentation(DeltaSeconds);
+    if(IsLocalController()) {RefreshLoadingPresentation();RefreshHubPresentation(DeltaSeconds);}
     Super::Tick(DeltaSeconds);
     if(HasAuthority()) RefreshPerkChoiceWorld();
     if (HasAuthority() && GetWorld()->GetRealTimeSeconds()>=NextPerkTeamCheck) {
@@ -201,6 +203,7 @@ void AMCPlayerController::PostSeamlessTravel()
 }
 void AMCPlayerController::ResetWorldPresentation()
 {
+    ResetLoadingPresentation();
     ResetHubPresentation();
     RefreshPerkChoiceWorld();
     bGameplayLoaded=false; bGameplayLoadAckSent=false;
@@ -236,7 +239,7 @@ void AMCPlayerController::ResetWorldPresentation()
         if(BossHealthWidget) BossHealthWidget->AddToViewport(40);
         GetWorldTimerManager().SetTimer(BossHUDTimer,this,&AMCPlayerController::RefreshBossHUD,.1f,true);
     }
-    RefreshHubPresentation(0.f); UpdateInputMode();
+    RefreshLoadingPresentation();RefreshHubPresentation(0.f); UpdateInputMode();
     if(IsValid(GetPawn()) && GetPawn()->GetWorld()==GetWorld()) SetViewTarget(GetPawn());
 }
 void AMCPlayerController::ApplySpectatorOrbitInput(FVector2D Delta)
@@ -440,6 +443,7 @@ void AMCPlayerController::JoinFromGameplayMenu(const FString& Address)
 void AMCPlayerController::UpdateInputMode()
 {
     UpdatePerkChoicePause();
+    if(bLoadingInputBlocked) {ApplyLoadingInputMode();return;}
     if (bLobbyUIOpen || bPauseMenuOpen || bConnectionMenuOpen || bTutorialMenuInput)
     {
         bShowMouseCursor=true;
@@ -875,6 +879,7 @@ void AMCPlayerController::CloseRewardUI(bool bRestoreInput)
 
 void AMCPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    ResetLoadingPresentation();
     ResetHubPresentation();
     bPerkChoiceEnding=true;
     if(HasAuthority()) RefreshPerkChoiceTeamState();
@@ -937,7 +942,7 @@ void AMCPlayerController::RefreshFrontEnd()
     if (!State || !GetPlayerState<AMCPlayerState>()) return;
     // Observe-mode bots remove the human pawn. Still clear the previous lesson
     // overlay and restore the HUD instead of leaving that player's UI frozen.
-    if (GetPawn() && !bGameplayLoadAckSent) { ServerGameplayLoaded(); bGameplayLoadAckSent=true; }
+    if (GetPawn() && GetPawn()->GetWorld()==GetWorld() && IsWorldPresentationReady() && !bGameplayLoadAckSent) { ServerGameplayLoaded(); bGameplayLoadAckSent=true; }
     if (State->bLobbyWaiting && !bLobbyUIOpen)
     {
         CloseGameplayMenus();
@@ -963,7 +968,7 @@ void AMCPlayerController::RefreshFrontEnd()
         if (TutorialWidget) TutorialWidget->RefreshState();
         auto* Director=AMCTutorialDirector::Find(GetWorld());
         // The server rejects a load ACK without a pawn; retry after possession instead of caching that request.
-        if (GetPawn() && Director && AcknowledgedTutorial.Get()!=Director) { ServerTutorialLoaded(); AcknowledgedTutorial=Director; }
+        if (GetPawn() && GetPawn()->GetWorld()==GetWorld() && IsWorldPresentationReady() && Director && AcknowledgedTutorial.Get()!=Director) { ServerTutorialLoaded(); AcknowledgedTutorial=Director; }
         const bool NeedsInput=TutorialWidget && TutorialWidget->RequiresMenuInput();
         if (NeedsInput!=bTutorialMenuInput) { bTutorialMenuInput=NeedsInput; UpdateInputMode(); if (NeedsInput && TutorialWidget->GetReadyFocusTarget()) TutorialWidget->GetReadyFocusTarget()->SetUserFocus(this); }
     }

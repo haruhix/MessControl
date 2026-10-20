@@ -18,18 +18,33 @@
 
 namespace
 {
+bool HasRemainingOpeningCoffee(const AMCSingleDayDirector* Sequence)
+{
+    if(!Sequence || Sequence->IsLegacyTimedFinale() || Sequence->MealPortionCount<2) return false;
+    switch(Sequence->Stage) {
+    case EMCSingleDayStage::Training:
+    case EMCSingleDayStage::FirstPerk:
+    case EMCSingleDayStage::OpeningPause:return true;
+    case EMCSingleDayStage::FirstMeal:return Sequence->MealPortionNumber<Sequence->MealPortionCount;
+    case EMCSingleDayStage::MealCoffeeWave:return true;
+    case EMCSingleDayStage::BetweenMealsPause:return Sequence->MealPortionNumber+1<Sequence->MealPortionCount;
+    default:return false;
+    }
+}
 FName NextRogueEvent(const UWorld* World)
 {
     const auto* GS=World?World->GetGameState<AMCGameState>():nullptr;
     const auto* Sequence=GS?GS->SingleDayDirector.Get():nullptr;
     const auto* Profile=Sequence?Sequence->GetRunProfile():nullptr;
     if(!Profile || Sequence->Stage==EMCSingleDayStage::Complete) return NAME_None;
-    if(Profile->bOpeningCoffeeWave && (Sequence->Stage==EMCSingleDayStage::Training || Sequence->Stage==EMCSingleDayStage::FirstPerk || Sequence->Stage==EMCSingleDayStage::OpeningPause)) return TEXT("CoffeeWave");
+    if(Sequence->Stage==EMCSingleDayStage::PostNutMeal || Sequence->Stage==EMCSingleDayStage::PostNutMint) return TEXT("CoffeeFlood");
+    if(HasRemainingOpeningCoffee(Sequence)) return TEXT("CoffeeWave");
     if(!Profile->KeyEvents.IsValidIndex(Sequence->KeyEventIndex)) return NAME_None;
     switch(Profile->KeyEvents[Sequence->KeyEventIndex].Kind) {
     case EMCSingleDayKeyEventKind::NutEncounter:return TEXT("NutEncounter");
     case EMCSingleDayKeyEventKind::IceEvent:return TEXT("IceEvent");
     case EMCSingleDayKeyEventKind::FogBrawl:return TEXT("FogBrawl");
+    case EMCSingleDayKeyEventKind::Jellies:return TEXT("CoffeeFlood");
     }
     return NAME_None;
 }
@@ -54,14 +69,15 @@ bool UMCPerkComponent::HasRunEvent(FName Event) const
     const auto* Sequence=GS->SingleDayDirector.Get();
     const auto* Profile=Sequence?Sequence->GetRunProfile():nullptr;
     if(Profile && Sequence->Stage!=EMCSingleDayStage::Complete) {
-        for(int32 I=FMath::Max(0,Sequence->KeyEventIndex);I<Profile->KeyEvents.Num();++I) {
+        const bool PastNuts=Sequence->Stage==EMCSingleDayStage::PostNutMeal || Sequence->Stage==EMCSingleDayStage::PostNutMint;
+        for(int32 I=FMath::Max(0,Sequence->KeyEventIndex+(PastNuts?1:0));I<Profile->KeyEvents.Num();++I) {
             const auto Kind=Profile->KeyEvents[I].Kind;
             if(Kind==EMCSingleDayKeyEventKind::NutEncounter && (Event==TEXT("NutEncounter") || Event==TEXT("NutBossKnight") || Event==TEXT("NutBossMage"))) return true;
             if(Kind==EMCSingleDayKeyEventKind::IceEvent && Event==TEXT("IceEvent")) return true;
             if(Kind==EMCSingleDayKeyEventKind::FogBrawl && Event==TEXT("FogBrawl")) return true;
+            if(Kind==EMCSingleDayKeyEventKind::Jellies && (Event==TEXT("CoffeeFlood") || Event==TEXT("CoffeeWave"))) return true;
         }
-        if(Event==TEXT("CoffeeWave") && Profile->bOpeningCoffeeWave
-            && (Sequence->Stage==EMCSingleDayStage::Training || Sequence->Stage==EMCSingleDayStage::FirstPerk || Sequence->Stage==EMCSingleDayStage::OpeningPause)) return true;
+        if(Event==TEXT("CoffeeWave") && HasRemainingOpeningCoffee(Sequence)) return true;
     }
     const auto* Director=AMCGameDirector::Find(GetWorld());
     const UMCGameDirectorProfile* Support=Director?Director->Settings.Get():Sequence?Sequence->GetSupportProfile():nullptr;

@@ -6,6 +6,9 @@
 class UProceduralMeshComponent;
 class UMaterialInstanceDynamic;
 class AMCTongue;
+class AMCToothCharacter;
+class UMCFrostNovaVFXComponent;
+DECLARE_MULTICAST_DELEGATE_OneParam(FMCWaveLegsFrozen,AMCToothCharacter*);
 
 /** One expanding server-owned wave. A raised sole clears it; each victim is hit once. */
 UCLASS(Blueprintable)
@@ -24,6 +27,9 @@ public:
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite) float TravelSeconds=1.1f;
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite) float ClearHeight=12;
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite) bool bSpicy=false;
+    /** Leg ice only: no health damage, impulse or ragdoll. */
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite) bool bFreezeLegs=false;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite) float FootIceHealth=80.f;
     UPROPERTY(Replicated,BlueprintReadOnly) double StartedAt=0;
     UPROPERTY(Replicated,BlueprintReadOnly) int32 HitCount=0;
     UPROPERTY(Replicated) TObjectPtr<AActor> Source;
@@ -34,10 +40,12 @@ public:
     // this actor retains authority over timing, swept damage and jump clearance.
     bool SurfaceMotion(const AMCTongue* SurfaceTongue,float Time,FMCTongueMotionState& Out) const;
     static bool Crosses(float Before,float After,float RadiusBefore,float RadiusAfter,float HalfWidth);
+    FMCWaveLegsFrozen OnLegsFrozen;
 private:
     double Now() const;
     void DrawRing();
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> Material;
+    UPROPERTY() TObjectPtr<UMCFrostNovaVFXComponent> FrostNovaVFX;
     UPROPERTY(Replicated) TObjectPtr<AMCTongue> Tongue;
     UPROPERTY(Replicated) FMCTongueMotionSettings TissueMotion;
     TSet<TWeakObjectPtr<AActor>> HitActors;

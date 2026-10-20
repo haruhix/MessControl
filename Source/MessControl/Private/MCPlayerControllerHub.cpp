@@ -71,8 +71,8 @@ void AMCPlayerController::RefreshHubPresentation(float DeltaSeconds)
         return Entry.Player==LocalPlayerState && Entry.bLoaded;
     });
     const bool HasScene=State->Phase==EMCHubPhase::Gathering
-        ? GetPawn()!=nullptr : HubSceneCamera.IsValid();
-    if(LocalPlayerState && HasScene && HubWidget->IsSceneReady() && !Loaded
+        ? GetPawn() && GetPawn()->GetWorld()==GetWorld() : HubSceneCamera.IsValid();
+    if(LocalPlayerState && HasScene && IsWorldPresentationReady() && HubWidget->IsSceneReady() && !Loaded
         && GetWorld()->GetRealTimeSeconds()>=NextHubLoadAckAt) {
         NextHubLoadAckAt=GetWorld()->GetRealTimeSeconds()+1.; ServerHubSceneLoaded();
     }

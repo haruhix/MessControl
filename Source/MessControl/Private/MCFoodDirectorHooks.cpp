@@ -71,7 +71,19 @@ bool CommitServedDirt(AMCFoodActor* Food,const UMCDayPlan* Plan,AMCDayDirector* 
     for(TActorIterator<AMCMouthSurface> It(World);It;++It) if(!Before.Contains(*It) && !It->bUlcer && It->Batch==Food->Batch) {
         It->SetOwner(Food);It->Tags.AddUnique(ServedDirtTag);++Created;
     }
-    return Created>0;
+    if(Created>0) return true;
+    // Verified food/coffee producers can already occupy the safe dirt field.
+    // Their unclean surface is still this batch's real cleanup debt. Reuse it
+    // without changing its mask, ownership or lineage, rather than rejecting
+    // another ingredient solely because a separate new stain cannot fit.
+    for(TActorIterator<AMCMouthSurface> It(World);It;++It)
+        if(!It->IsActorBeingDestroyed() && !It->bUlcer && It->Batch==Food->Batch
+            && It->Tags.Contains(ServedDirtTag) && !It->IsClean()) {
+            UE_LOG(LogTemp,Display,TEXT("MC_FOOD_DIRT_REUSE food=%s stain=%s batch=%d remaining=%.6f"),
+                *Food->GetName(),*It->GetName(),Food->Batch,It->RemainingLiquid());
+            return true;
+        }
+    return false;
 }
 float Positive(float Value,float Default)
 {

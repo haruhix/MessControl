@@ -25,6 +25,7 @@ class UMCSoundPalette;
 class UMCSceneAudioComponent;
 class UMCGameplayMenuWidget;
 class UMCHubWidget;
+class UMCLoadingWidget;
 
 UCLASS()
 class MESSCONTROL_API AMCPlayerController : public APlayerController
@@ -67,6 +68,8 @@ public:
     UFUNCTION(Server,Reliable) void ServerHubSceneLoaded();
     UFUNCTION(Server, Reliable) void ServerSetTutorialReady(bool bReady);
     bool HasAcknowledgedGameplay() const { return bGameplayLoaded; }
+    /** Local asset/render preparation; remote server controllers use their client's ACK. */
+    UFUNCTION(BlueprintPure,Category="Loading") bool IsWorldPresentationReady() const;
     void ShowScoreboard();
     void HideScoreboard();
     void NextSpectator();
@@ -124,6 +127,17 @@ public:
     UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCPerkChoiceWidget> PerkChoiceWidget;
     UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCBossHealthWidget> BossHealthWidget;
 private:
+    void RefreshLoadingPresentation();
+    void ResetLoadingPresentation();
+    void ApplyLoadingInputMode();
+    bool NeedsWorldPreparation() const;
+    bool IsWaitingForWorldStart() const;
+    UPROPERTY(Transient) TObjectPtr<UMCLoadingWidget> LoadingWidget;
+    TWeakObjectPtr<UWorld> LoadingPresentationWorld;
+    TWeakObjectPtr<APawn> LoadingCancelledPawn;
+    bool bLoadingInputBlocked=false;
+    bool bLoadingPresentationReleased=false;
+    bool bLoadingFailureFocused=false;
     void RefreshHubPresentation(float DeltaSeconds);
     void ResetHubPresentation();
     void HandleHubStartInput();

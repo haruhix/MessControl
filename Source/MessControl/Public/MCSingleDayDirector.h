@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Engine/DataAsset.h"
+#include "MCSmallMintCandy.h"
 #include "MCSingleDayDirector.generated.h"
 
 class UMCDayPlan;
@@ -14,13 +15,14 @@ class AMCCoffeeFlood;
 class AMCGameDirector;
 class AMCBossCharacter;
 class AMCDayDirector;
+class AMCCataclysmEvent;
 struct FMCFoodPipelineLoad;
 
 UENUM(BlueprintType)
-enum class EMCSingleDayStage : uint8 { Training, FirstPerk, Nuts, Director, Boss, Complete, OpeningPause, FirstMeal, MealRest, Ice, FogBrawl };
+enum class EMCSingleDayStage : uint8 { Training, FirstPerk, Nuts, Director, Boss, Complete, OpeningPause, FirstMeal, MealRest, Ice, FogBrawl, MealCoffeeWave, BetweenMealsPause, PostNutMeal, PostNutMint, Jellies };
 
 UENUM(BlueprintType)
-enum class EMCSingleDayKeyEventKind : uint8 { NutEncounter, IceEvent, FogBrawl };
+enum class EMCSingleDayKeyEventKind : uint8 { NutEncounter, IceEvent, FogBrawl, Jellies };
 
 /** A saved position in the main sequence. Only authored event kinds can run. */
 USTRUCT(BlueprintType)
@@ -46,12 +48,21 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Sequence",meta=(ClampMin="1",ClampMax="120",Units="min")) float RunTargetMinMinutes=25;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Sequence",meta=(ClampMin="1",ClampMax="120",Units="min")) float RunTargetMaxMinutes=35;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="0",ClampMax="30",Units="s")) float AfterTrainingPauseSeconds=5;
-    /** An announced coffee wave opens the first meal; food arrives after it passes. */
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening") bool bOpeningCoffeeWave=true;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="1",ClampMax="6",Units="s")) float OpeningCoffeeWarningSeconds=2;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="1",ClampMax="30")) int32 OpeningMealItems=12;
+    /** Whole ordinary ingredients for the team, served one portion at a time. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="1",ClampMax="30")) TArray<int32> OpeningMealPortions={3,5,8};
+    /** The next portion's pause starts only after the preceding coffee wave ends. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="0",ClampMax="30",Units="s")) float BetweenMealPauseMinSeconds=5.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="0",ClampMax="30",Units="s")) float BetweenMealPauseMaxSeconds=10.f;
+    /** Retained serialized prototype settings; the portion sequence does not read these three fields. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening|Legacy") bool bOpeningCoffeeWave=true;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening|Legacy",meta=(ClampMin="1",ClampMax="6",Units="s")) float OpeningCoffeeWarningSeconds=2;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening|Legacy",meta=(ClampMin="1",ClampMax="30")) int32 OpeningMealItems=12;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin=".5",ClampMax="5",Units="s")) float OpeningMealDropSeconds=1.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="0",ClampMax="30",Units="s")) float BeforeNutsPauseSeconds=4;
+    /** Explicit second Relax; no random support hazards or coffee between these portions. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="After Nuts",meta=(ClampMin="1",ClampMax="30")) TArray<int32> AfterNutMealPortions={5,8,9};
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="After Nuts",meta=(ClampMin=".5",ClampMax="5",Units="s")) float AfterNutMealDropSeconds=1.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="After Nuts") FMCSmallMintCandySettings SmallMint;
     /** Explicit compatibility for the old short prototype, never enabled by new fragment authoring. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Legacy") bool bLegacyTimedFinale=false;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sequence") TArray<TSoftObjectPtr<UMCNutRainProfile>> NutRainVariants;
@@ -82,21 +93,39 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") TObjectPtr<AMCNutRainEvent> NutEvent;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") TObjectPtr<AMCIceEvent> IceEvent;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") TObjectPtr<AMCFogBrawlEvent> FogEvent;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") TObjectPtr<AMCCataclysmEvent> JellyEvent;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") TObjectPtr<AMCSmallMintCandy> SmallMint;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") TObjectPtr<AMCBossCharacter> FinalBoss;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") int32 VariantIndex=0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") int32 KeyEventIndex=0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") bool bAuthoredFragmentComplete=false;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") double StageEndsAt=0;
+    /** One-based current portion, zero before the opening Relax starts. */
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Opening") int32 MealPortionNumber=0;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Opening") int32 MealPortionCount=0;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Opening") int32 MealPortionTarget=0;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Opening") int32 MealPortionSpawned=0;
 private:
     void BeginOpeningPause(bool bAfterMeal=false);
     void BeginFirstMeal();
+    void BeginMealPortion(int32 PortionIndex);
     void TickFirstMeal();
+    void BeginMealCoffeeWave();
+    void TickMealCoffeeWave();
+    void TickBetweenMealsPause();
     void ReportMealGate(const FMCFoodPipelineLoad& Food,int32 Dirt,int32 DirtyTeeth,int32 Pending,double Now);
     FName ChooseOpeningFood();
     void BeginKeyEvent();
     void BeginNuts();
     void BeginIce();
     void BeginFogBrawl();
+    void BeginPostNutMeal();
+    void BeginPostNutPortion(int32 Portion);
+    void TickPostNutMeal();
+    void BeginSmallMint();
+    void TickSmallMint();
+    void BeginJellies();
+    void TickJellies();
     void BeginDirector();
     void BeginBoss();
     void Fail(const FString& Reason);
@@ -111,11 +140,10 @@ private:
     double InterludeEndsAt=0;
     double RunStartedAt=0;
     double NextMealDropAt=0;
-    double OpeningCoffeeAt=0;
-    bool bOpeningCoffeeStarted=false;
     FString LastMealGateState;
     double NextMealDiagnosticAt=0;
-    int32 FirstMealBatch=0,MealSpawned=0,MealAttempts=0;
+    int32 FirstMealBatch=0,MealAttempts=0;
+    int32 PostNutMealBatch=0;
     FRandomStream MealRandom;
     bool bStopped=false;
 };
