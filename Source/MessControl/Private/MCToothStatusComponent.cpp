@@ -62,6 +62,9 @@ void UMCToothStatusComponent::OnRep_State()
 }
 bool UMCToothStatusComponent::NeedsCare(bool bBrush) const
 {
+    // Baseline tool care cleans players but does not restore their HP. Explicit
+    // perk recovery remains separate; an ally-healing perk can add its own gate.
+    if (!bBrush && Cast<AMCToothCharacter>(GetOwner())) return false;
     if(const auto* Hero=Cast<AMCToothCharacter>(GetOwner());Hero && Hero->IsFreezingToDeath()) return false;
     return IsAlive() && (bBrush?State.CoffeeLeft>0:State.Health<State.MaxHealth || State.RepairLeft>0);
 }

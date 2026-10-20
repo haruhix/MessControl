@@ -7,9 +7,13 @@
 
 class AMCToothCharacter;
 class AMCNutBoss;
+class AMCFoodActor;
+class AMCFoodDisposal;
+class AMCSingleDayDirector;
+class AMCCoffeeFlood;
 
 UENUM()
-enum class EMCPlaytestBotGoal : uint8 { Idle, Clean, Repair, Spray, BreakFood, CollectFood, PullFood, Deliver, Calculus, Fight, Escape, Recover };
+enum class EMCPlaytestBotGoal : uint8 { Idle, Clean, Repair, Spray, BreakFood, CollectFood, PullFood, Deliver, Calculus, Fight, Escape, Recover, RescueIce, Warm, FogGuard };
 
 /** Server-side playtester. All work is performed through the ordinary pawn input actions. */
 UCLASS(Transient)
@@ -40,12 +44,15 @@ private:
     void ChooseTask();
     bool IsTaskValid() const;
     bool CanObserve(AActor* Actor) const;
+    void RefreshMealObjectiveKnowledge();
+    bool IsKnownMealFood(const AMCFoodActor* Food) const;
     FVector TaskPoint(AActor* Actor) const;
     void ReleaseInputs(bool bDropCollection=false,bool bKeepSprint=false);
     void MoveTowards(FVector Destination,float Acceptance=30.f);
     void WorkAtTarget();
     void FailPath();
     bool PlanCleanApproach(class AMCArenaTooth* Tooth);
+    bool UpdatePhysicalCleanApproach(bool bSubmitInput);
     bool PlanLabFloorApproach(class AMCMouthSurface* Surface);
     bool ProjectStandingPosition(FVector Candidate,FVector& PawnCenter) const;
     void ResetApproach(bool bRememberFailure=false);
@@ -54,6 +61,13 @@ private:
     bool InterruptForNutThreat();
     bool IsNutEncounterActive() const;
     bool TryNutFlank(AMCNutBoss* Boss);
+    bool HandleEventWork();
+    bool HandleCoffeeSurvival(float DeltaSeconds=0.f);
+    bool RescueFrozenLegs();
+    void ReactToGroundWaves();
+    void PulsePrimary();
+    bool WorkFoodDelivery(AMCFoodDisposal* Zone);
+    AMCFoodActor* CarriedFood() const;
     double TargetProgress() const;
     UPROPERTY(Transient) TObjectPtr<AMCToothCharacter> Hero;
     TWeakObjectPtr<AActor> Target;
@@ -67,6 +81,9 @@ private:
     FVector LastProgressPosition=FVector::ZeroVector;
     FVector EscapeDestination=FVector::ZeroVector;
     FVector WorkStand=FVector::ZeroVector,WorkAim=FVector::ZeroVector;
+    FVector WorkNavAnchor=FVector::ZeroVector,WorkNormal=FVector::UpVector;
+    bool bManualWorkApproach=false,bManualWorkAtAnchor=false;
+    double NextManualPoseCheckAt=0;
     TArray<TPair<FVector,double>> FailedApproaches;
     bool bHasWorkApproach=false;
     double RecoveryUntil=0,JumpReleaseAt=0;
@@ -86,4 +103,12 @@ private:
     FVector NutFlankCenter=FVector::ZeroVector;
     int32 NutFlankPointIndex=0;
     double NutFlankUntil=0,NextNutFlankAt=0;
+    double NextPrimaryAt=0,PrimaryReleaseAt=0,NextThrowAt=0,CollectStartedAt=0;
+    bool bSeekingWarmth=false;
+    TWeakObjectPtr<AMCSingleDayDirector> MealObjectiveDirector;
+    TSet<int32> KnownMealBatches;
+    TWeakObjectPtr<AMCCoffeeFlood> CoffeeThreat;
+    FVector CoffeeSafePoint=FVector::ZeroVector;
+    double NextCoffeePlanAt=0;
+    bool bCoffeeSurvival=false,bCoffeeHasSafePoint=false,bCoffeeWasWet=false;
 };

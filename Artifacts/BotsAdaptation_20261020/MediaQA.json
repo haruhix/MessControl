@@ -1,0 +1,101 @@
+{
+  "passed": true,
+  "status": "passed_with_camera_scope_limit",
+  "source_probe_passed": true,
+  "source_frame_count": 58,
+  "source_wall_range_seconds": [
+    27.328000000095926,
+    43.26500000001397
+  ],
+  "source_game_range_seconds": [
+    22.296080384403467,
+    37.84925278648734
+  ],
+  "actual_video_seconds": 15.916667,
+  "full_decode_passed": true,
+  "resolution": [
+    1280,
+    720
+  ],
+  "fps": 24,
+  "audio": false,
+  "interpolation": false,
+  "actual_wall_timing_preserved": true,
+  "cropped": false,
+  "gameplay_overlays_added": false,
+  "encoding_threads": 2,
+  "filter_threads": 1,
+  "source_report": {
+    "file": "E:\\CodexWork\\MessControlBots_20261020\\SoloCoop04\\Report.json",
+    "sha256": "e71749b50c2a71fdd6badea1321b2dce37c6062b383140a4a36dd9bcdd221a17"
+  },
+  "source_frame_csv": {
+    "file": "E:\\CodexWork\\MessControlBots_20261020\\SoloCoop04\\FrameTimes.csv",
+    "sha256": "df48e7addafd83794cebec159f04990a9483314ed77168d01610a14ad5e868eb"
+  },
+  "timeline": {
+    "file": "E:\\CodexWork\\MessControlBots_20261020\\Previews\\Timeline.json",
+    "sha256": "4e79acbf204edb8a92bfa3deed400209490ece22fc7a3bfde6280f122022e06a"
+  },
+  "video": {
+    "file": "E:\\CodexWork\\MessControlBots_20261020\\Previews\\CoopFirstFood.mp4",
+    "sha256": "a9cabe4608cba933f6ae7768718d0af830113709f239d826711fdf3a5bf219b1",
+    "bytes": 1095603
+  },
+  "contact_sheet": {
+    "file": "E:\\CodexWork\\MessControlBots_20261020\\Previews\\CoopFirstFood_ContactSheet.png",
+    "sha256": "5e296ffacfc497b89847ef6cd7b023aa71dad96e60f39d2500255ffa02e2b944"
+  },
+  "encoder": {
+    "reused_source": "E:/CodexWork/MessControlResourceLoading_20261020/EncodePreview.py",
+    "reused_source_sha256": "1a028a38ccd66c5db6fe7ba264237a6dc42e6fb55d943755e04c0fda255bbfd0",
+    "adapter": "E:\\CodexWork\\MessControlBots_20261020\\Encoding\\EncodeCoopPreview.py",
+    "adapter_sha256": "6a2a323c7b3a785c63235381e757fe22dd7b191caa924abf35e68635051a0669"
+  },
+  "decoded_qa_frames": [
+    {
+      "file": "E:\\CodexWork\\MessControlBots_20261020\\Previews\\DecodedQA\\Decoded_00.png",
+      "video_seconds": 0.0,
+      "sha256": "d74e9bc7e9ef0286ff26388a141ea1752af5a6508e4bee5a2b4bde7aa2ff0c2a"
+    },
+    {
+      "file": "E:\\CodexWork\\MessControlBots_20261020\\Previews\\DecodedQA\\Decoded_01.png",
+      "video_seconds": 8.0,
+      "sha256": "2c97f9c70b6e9b1253901a312a0a4df1d672ba2e646d4dbbb1915000ea63fb0b"
+    },
+    {
+      "file": "E:\\CodexWork\\MessControlBots_20261020\\Previews\\DecodedQA\\Decoded_02.png",
+      "video_seconds": 15.6,
+      "sha256": "36e339addfc639c6bb2e55e582ab2c0c04c4f87009e8ed714c8d2c6f0e66be9f"
+    }
+  ],
+  "visual_review": {
+    "inspected_source_frames": [
+      "00000.png",
+      "00028.png",
+      "00057.png"
+    ],
+    "inspected_contact_sheet": true,
+    "decoded_frame_review_pending": false,
+    "observations": [
+      "Ordinary player camera stays fixed over one area of the tongue, with the stationary human near screen centre.",
+      "Bot 1 visibly scrubs the left coffee stain; missing wet coverage grows between actual captured frames.",
+      "Bots move across the frame with normal tool poses. Tomato pieces enter the view and are visible near Bot 1.",
+      "The native cleanliness HUD changes from 84% to 95% during this real sampled interval.",
+      "The full native window and HUD are retained by proportional letterboxing; no crop, speed-up, cuts or synthetic motion.",
+      "The camera shows only part of the arena: some bots/food cross the left/top/right edges. The throat and delivery throw are outside this shot.",
+      "This short clip does not show first-portion completion, later events or the full level; that separate native pass is recorded in the source Report.json."
+    ],
+    "limits": [
+      "Approximately 3.64 actual source samples/sec are repeated at24fps without interpolation.",
+      "The six-image contact sheet has timing captions; the video itself contains only the original game/window pixels.",
+      "Silent footage cannot validate ASMR/sound. No game performance or multiplayer claim."
+    ],
+    "decoded_frames_inspected_seconds": [
+      0.0,
+      8.0,
+      15.6
+    ],
+    "decoded_video_matches_source_framing": true
+  }
+}

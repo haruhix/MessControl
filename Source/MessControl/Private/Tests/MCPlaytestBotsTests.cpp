@@ -9,6 +9,7 @@
 #include "MCPlaytestBotController.h"
 #include "MCPlaytestSession.h"
 #include "MCPlayerState.h"
+#include "MCPlayerController.h"
 #include "MCPerkComponent.h"
 #include "MCProgressionComponent.h"
 #include "MCSingleDayDirector.h"
@@ -84,7 +85,7 @@ namespace MCPlaytestBotsTestsPrivate
             return Controller;
         }
 
-        bool StartSingleDayTraining()
+        bool StartSingleDayRun()
         {
             auto* Cube=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"));
             if(!Cube) return false;
@@ -101,11 +102,9 @@ namespace MCPlaytestBotsTestsPrivate
             Tongue->SetActorTickEnabled(false);
             Mode->bUseSingleDayLoop=true;
             Mode->RestartShift();
-            // Start the normal lesson, then let StartSession perform its own
-            // diagnostic reset. No tutorial-completed flags are manufactured.
-            Mode->Tick(.01f);
-            return IsValid(Mode->TutorialDirector) && IsValid(State->SingleDayDirector)
-                && State->bTutorialActive;
+            // An ordinary arena starts at the loading/first-perk bootstrap.
+            // The separate tutorial is now explicitly selected by its map/URL.
+            return IsValid(State->SingleDayDirector) && !State->bTutorialActive;
         }
 
         TArray<AMCPlaytestBotController*> Bots() const
@@ -245,10 +244,10 @@ bool FMCPlaytestSingleDayObserveTest::RunTest(const FString&)
     auto* Session=Fixture.World->SpawnActor<AMCPlaytestSession>();
     if(!TestNotNull(TEXT("Normal human identity exists"),Observer)
         || !TestNotNull(TEXT("Playtest session exists"),Session)
-        || !TestTrue(TEXT("An ordinary restart starts real single-day training"),Fixture.StartSingleDayTraining())) return false;
-    TestEqual(TEXT("Normal single-day launch starts in training"),Fixture.State->SingleDayDirector->Stage,EMCSingleDayStage::Training);
+        || !TestTrue(TEXT("An ordinary restart creates the single-day bootstrap"),Fixture.StartSingleDayRun())) return false;
+    TestEqual(TEXT("Normal launch waits at the first-perk bootstrap"),Fixture.State->SingleDayDirector->Stage,EMCSingleDayStage::Training);
     FString Error;
-    if(!TestTrue(TEXT("Observe can launch four actual AI participants from training"),
+    if(!TestTrue(TEXT("Observe can launch four actual AI participants from the arena"),
         Session->StartSession(4,EMCPlaytestBotSkill::Skilled,true,41,Error)))
     { AddError(Error); return false; }
     TestFalse(TEXT("Diagnostic reset releases tutorial safety"),Fixture.State->bTutorialActive);
@@ -280,11 +279,15 @@ bool FMCPlaytestSingleDayObserveTest::RunTest(const FString&)
     TestFalse(TEXT("No bot or observer blocks the first-card gate"),Fixture.State->Progression->HasPendingChoices());
     Fixture.Step(.35f);
     auto* Loop=Fixture.State->SingleDayDirector.Get();
-    TestEqual(TEXT("Actual director ticks advance the autonomous team into nuts"),Loop->Stage,EMCSingleDayStage::Nuts);
-    if(!TestNotNull(TEXT("Autonomous launch creates the real nut event"),Loop->NutEvent.Get())) return false;
-    TestFalse(TEXT("The event finds a live tongue and usable nut collision"),Loop->NutEvent->bFailed);
-    TestEqual(TEXT("The event enters real rainfall"),Loop->NutEvent->Stage,EMCNutRainStage::Rainfall);
-    TestTrue(TEXT("Rainfall has actually launched food"),Loop->NutEvent->NutsSpawned>0);
+    TestEqual(TEXT("The autonomous team enters the opening Relax pause"),Loop->Stage,EMCSingleDayStage::OpeningPause);
+    TestNull(TEXT("Nuts cannot skip the new opening meal"),Loop->NutEvent.Get());
+    const auto* Profile=Loop->GetRunProfile();
+    if(!TestNotNull(TEXT("The run owns its authored opening profile"),Profile)) return false;
+    Fixture.Step(Profile->AfterTrainingPauseSeconds+Profile->OpeningMealDropSeconds*2+.5f);
+    TestEqual(TEXT("Normal director ticks enter the real first meal"),Loop->Stage,EMCSingleDayStage::FirstMeal);
+    TestEqual(TEXT("The opening portion remains three foods for the whole team"),Loop->MealPortionTarget,3);
+    TestEqual(TEXT("The normal food entry pipeline issues all three foods"),Loop->MealPortionSpawned,3);
+    TestNull(TEXT("Bots never manufacture an early nut event"),Loop->NutEvent.Get());
 
     Session->StopSession();
     TestFalse(TEXT("Stop ends the diagnostic session"),Session->IsActive());
@@ -294,8 +297,8 @@ bool FMCPlaytestSingleDayObserveTest::RunTest(const FString&)
     TestFalse(TEXT("Stop restores the human participant flag"),Observer->IsOnlyASpectator());
     TestFalse(TEXT("Stop removes the human observer registration"),Session->IsObserver(Human));
     TestNotNull(TEXT("Stop restores a normal human worker"),Cast<AMCToothCharacter>(Human->GetPawn()));
-    TestTrue(TEXT("Stop restores ordinary tutorial safety"),Fixture.State->bTutorialActive);
-    TestEqual(TEXT("Stop starts a fresh training sequence"),Fixture.State->SingleDayDirector->Stage,EMCSingleDayStage::Training);
+    TestFalse(TEXT("Stop does not activate the separate tutorial in the arena"),Fixture.State->bTutorialActive);
+    TestEqual(TEXT("Stop starts the normal arena bootstrap"),Fixture.State->SingleDayDirector->Stage,EMCSingleDayStage::Training);
     TestNull(TEXT("Stop leaves no previous nut event"),Fixture.State->SingleDayDirector->NutEvent.Get());
     TestEqual(TEXT("Stop resets the team level"),Fixture.State->Progression->TeamLevel,1);
     TestEqual(TEXT("Stop resets shared XP"),Fixture.State->Progression->TotalExperience,int64(0));
@@ -312,9 +315,9 @@ bool FMCPlaytestSingleDayCoopTest::RunTest(const FString&)
     auto* Session=Fixture.World->SpawnActor<AMCPlaytestSession>();
     if(!TestNotNull(TEXT("Coop human identity exists"),Player)
         || !TestNotNull(TEXT("Coop session exists"),Session)
-        || !TestTrue(TEXT("Coop starts from the ordinary single-day lesson"),Fixture.StartSingleDayTraining())) return false;
+        || !TestTrue(TEXT("Coop starts from the ordinary single-day bootstrap"),Fixture.StartSingleDayRun())) return false;
     FString Error;
-    if(!TestTrue(TEXT("A human and bot can start coop while the new lesson is active"),
+    if(!TestTrue(TEXT("A human and bot can start coop from the ordinary arena"),
         Session->StartSession(1,EMCPlaytestBotSkill::Regular,false,41,Error)))
     { AddError(Error); return false; }
     const auto Bots=Fixture.Bots();
@@ -359,16 +362,20 @@ bool FMCPlaytestSingleDayCoopTest::RunTest(const FString&)
     TestFalse(TEXT("The complete coop team has released the card gate"),Progression->HasPendingChoices());
     TestEqual(TEXT("The human owns exactly its three selected stacks"),MCPlaytestBotsTestsPrivate::PerkStacks(Player),3);
     Fixture.Step(.2f);
-    TestEqual(TEXT("Real sequence ticks launch nuts after the last human choice"),Fixture.State->SingleDayDirector->Stage,EMCSingleDayStage::Nuts);
-    if(!TestNotNull(TEXT("Coop launches the real nut event"),Fixture.State->SingleDayDirector->NutEvent.Get())) return false;
-    TestFalse(TEXT("Coop rain setup succeeds"),Fixture.State->SingleDayDirector->NutEvent->bFailed);
+    TestEqual(TEXT("The last human choice starts the opening Relax pause"),Fixture.State->SingleDayDirector->Stage,EMCSingleDayStage::OpeningPause);
+    TestNull(TEXT("Coop cannot bypass the opening meals to reach nuts"),Fixture.State->SingleDayDirector->NutEvent.Get());
+    const auto* Profile=Fixture.State->SingleDayDirector->GetRunProfile();
+    if(!TestNotNull(TEXT("Coop keeps the authored opening profile"),Profile)) return false;
+    Fixture.Step(Profile->AfterTrainingPauseSeconds+Profile->OpeningMealDropSeconds*2+.5f);
+    TestEqual(TEXT("The real food pipeline enters the first coop portion"),Fixture.State->SingleDayDirector->Stage,EMCSingleDayStage::FirstMeal);
+    TestEqual(TEXT("A coop team receives three opening foods"),Fixture.State->SingleDayDirector->MealPortionSpawned,3);
 
     Session->StopSession();
     TestEqual(TEXT("Coop stop removes the bot controller"),Fixture.Bots().Num(),0);
     TestFalse(TEXT("Coop stop removes its bot identity"),Fixture.State->PlayerArray.Contains(BotPlayer));
     TestNotNull(TEXT("Coop stop restores a playable human pawn"),Cast<AMCToothCharacter>(Human->GetPawn()));
-    TestTrue(TEXT("Coop stop restores the normal lesson"),Fixture.State->bTutorialActive);
-    TestEqual(TEXT("Coop stop restores training stage"),Fixture.State->SingleDayDirector->Stage,EMCSingleDayStage::Training);
+    TestFalse(TEXT("Coop stop keeps the separate tutorial disabled in the arena"),Fixture.State->bTutorialActive);
+    TestEqual(TEXT("Coop stop restores the normal arena bootstrap"),Fixture.State->SingleDayDirector->Stage,EMCSingleDayStage::Training);
     TestEqual(TEXT("Coop stop resets human personal perks"),MCPlaytestBotsTestsPrivate::PerkStacks(Player),0);
     TestEqual(TEXT("Coop stop clears the human's old pending choices"),Player->PendingLevelChoices,0);
     TestEqual(TEXT("Coop stop resets shared XP"),Progression->TotalExperience,int64(0));
@@ -419,32 +426,146 @@ bool FMCPlaytestActionEligibilityTest::RunTest(const FString&)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPlaytestOrdinaryCareTest,"MessControl.PlaytestBots.SelfRepairUsesTimedContact",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPlaytestLoadingPreflightTest,"MessControl.PlaytestBots.LoadingRejectsBeforeShiftReset",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCPlaytestLoadingPreflightTest::RunTest(const FString&)
+{
+    MCPlaytestBotsTestsPrivate::FWorldFixture Fixture;
+    auto* Human=Fixture.World->SpawnActor<AMCPlayerController>();
+    Fixture.Mode->RestartPlayer(Human);
+    auto* OriginalPawn=Cast<AMCToothCharacter>(Human->GetPawn());
+    auto* Session=Fixture.World->SpawnActor<AMCPlaytestSession>();
+    if(!TestNotNull(TEXT("The real project controller has its normal pawn"),OriginalPawn)
+        || !TestNotNull(TEXT("The session exists"),Session)) return false;
+    TestFalse(TEXT("A new real controller has not acknowledged presentation"),Human->HasAcknowledgedGameplay());
+    const int32 OriginalSeed=Fixture.State->RunSeed;
+    FString Error;
+    TestFalse(TEXT("Bots cannot start through an unfinished human loading screen"),
+        Session->StartSession(3,EMCPlaytestBotSkill::Skilled,false,765,Error));
+    TestTrue(TEXT("The rejection explains the missing loading gate"),Error.Contains(TEXT("loading")));
+    TestFalse(TEXT("A rejected startup remains inactive"),Session->IsActive());
+    TestEqual(TEXT("Loading rejection cannot reset the run seed"),Fixture.State->RunSeed,OriginalSeed);
+    TestTrue(TEXT("Loading rejection preserves the original human pawn"),Human->GetPawn()==OriginalPawn);
+    TestEqual(TEXT("Loading rejection cannot spawn an incomplete AI team"),Fixture.Bots().Num(),0);
+    TestEqual(TEXT("Loading rejection cannot award initial XP"),Fixture.State->Progression->TotalExperience,int64(0));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPlaytestLiveTeamBarrierTest,"MessControl.PlaytestBots.InitialSequenceRequiresEveryLivePawn",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCPlaytestLiveTeamBarrierTest::RunTest(const FString&)
+{
+    MCPlaytestBotsTestsPrivate::FWorldFixture Fixture;
+    Fixture.AddHuman();
+    auto* Session=Fixture.World->SpawnActor<AMCPlaytestSession>();
+    FString Error;
+    if(!TestNotNull(TEXT("The session exists"),Session)
+        || !TestTrue(TEXT("A complete ordinary human/AI roster starts"),Session->StartSession(1,EMCPlaytestBotSkill::Regular,false,41,Error)))
+    { AddError(Error); return false; }
+    const auto Bots=Fixture.Bots();
+    if(!TestEqual(TEXT("Exactly one ordinary bot exists"),Bots.Num(),1)) return false;
+    auto* Pawn=Cast<AMCToothCharacter>(Bots[0]->GetPawn());
+    if(!TestNotNull(TEXT("The AI owns its ordinary worker"),Pawn)) return false;
+    TestTrue(TEXT("The complete live roster satisfies the sequence barrier"),Session->IsReadyToBeginSequence());
+    Bots[0]->UnPossess();
+    TestFalse(TEXT("An AI identity without its worker cannot release initial XP"),Session->IsReadyToBeginSequence());
+    Bots[0]->Possess(Pawn);
+    TestTrue(TEXT("Normal possession restores the complete roster"),Session->IsReadyToBeginSequence());
+    Pawn->Status->Damage(Pawn->Status->State.MaxHealth);
+    TestFalse(TEXT("A dead worker must await its ordinary reserve-tooth respawn"),Session->IsReadyToBeginSequence());
+    Session->StopSession();
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPlaytestTongueSpawnClearanceTest,"MessControl.PlaytestBots.AuthoredLowStartsSpawnAboveTongue",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCPlaytestTongueSpawnClearanceTest::RunTest(const FString&)
+{
+    MCPlaytestBotsTestsPrivate::FWorldFixture Fixture;
+    Fixture.AddHuman();
+    if(!TestTrue(TEXT("The fixture owns real authored tongue geometry"),Fixture.StartSingleDayRun())) return false;
+    // Isolate initial placement before the first level offer: a legitimate
+    // MaxHealth perk raises the maximum without healing the new worker. The
+    // spawn path is shared with legacy runs, so retain the real tongue and
+    // normal session restart while omitting the unrelated single-day XP grant.
+    Fixture.Mode->bUseSingleDayLoop=false;
+    TArray<APlayerStart*> Starts;
+    for(TActorIterator<APlayerStart> It(Fixture.World);It;++It) Starts.Add(*It);
+    for(auto* Start:Starts) Start->Destroy();
+    for(int32 Index=0;Index<4;++Index)
+        Fixture.World->SpawnActor<APlayerStart>(FVector(Index*320-480,5000,-600),FRotator::ZeroRotator);
+    auto* Session=Fixture.World->SpawnActor<AMCPlaytestSession>();
+    FString Error;
+    if(!TestNotNull(TEXT("The session exists"),Session)
+        || !TestTrue(TEXT("Human plus three bots can use low authored starts"),Session->StartSession(3,EMCPlaytestBotSkill::Skilled,false,41,Error)))
+    { AddError(Error); return false; }
+    const auto Bots=Fixture.Bots();
+    if(!TestEqual(TEXT("Every requested AI worker spawned"),Bots.Num(),3)) return false;
+    TestEqual(TEXT("The spawn-only fixture has not issued the first level"),Fixture.State->Progression->TeamLevel,1);
+    for(auto* Bot:Bots)
+    {
+        const auto* Pawn=Cast<AMCToothCharacter>(Bot->GetPawn());
+        if(!TestNotNull(TEXT("The AI has its ordinary pawn"),Pawn)) return false;
+        bool Supported=false;
+        for(TActorIterator<AMCTongue> It(Fixture.World);It;++It) {
+            FHitResult Floor;
+            if(!It->SurfacePoint(Pawn->GetActorLocation(),Floor)) continue;
+            Supported=true;
+            const float FeetZ=Pawn->GetActorLocation().Z-Pawn->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+            TestTrue(TEXT("The full capsule starts above tissue with the human settling gap"),FeetZ>=Floor.ImpactPoint.Z+29.f);
+        }
+        TestTrue(TEXT("The spawned worker is actually over the tongue"),Supported);
+        TestEqual(TEXT("No initial perk can change the spawn-only health baseline"),
+            MCPlaytestBotsTestsPrivate::PerkStacks(Bot->GetPlayerState<AMCPlayerState>()),0);
+        TestEqual(TEXT("Spawn clearance consumes no player health"),Pawn->Status->State.Health,Pawn->Status->State.MaxHealth);
+    }
+    Session->StopSession();
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPlaytestOrdinaryCareTest,"MessControl.PlaytestBots.DisabledPlayerHealingDoesNotStallWork",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCPlaytestOrdinaryCareTest::RunTest(const FString&)
 {
     MCPlaytestBotsTestsPrivate::FWorldFixture Fixture;
     auto* Bot=Fixture.World->SpawnActor<AMCPlaytestBotController>();
     auto* Pawn=Fixture.World->SpawnActor<AMCToothCharacter>(FVector(0,5000,130),FRotator::ZeroRotator);
-    if(!TestNotNull(TEXT("Bot exists"),Bot) || !TestNotNull(TEXT("Ordinary worker exists"),Pawn)) return false;
+    auto* Teammate=Fixture.World->SpawnActor<AMCToothCharacter>(FVector(100,5000,130),FRotator::ZeroRotator);
+    auto* Human=Fixture.World->SpawnActor<APlayerController>();
+    if(!TestNotNull(TEXT("Bot exists"),Bot) || !TestNotNull(TEXT("Ordinary worker exists"),Pawn)
+        || !TestNotNull(TEXT("Ordinary teammate exists"),Teammate) || !TestNotNull(TEXT("Teammate controller exists"),Human)) return false;
     Pawn->GetCharacterMovement()->DisableMovement();
+    Teammate->GetCharacterMovement()->DisableMovement();
+    Human->Possess(Teammate);
     Fixture.State->Phase=EMCShiftPhase::Working;
     Pawn->Status->Settings.ContactSeconds=.5f;
     Pawn->Status->Settings.HealPerContact=25.f;
     Pawn->Status->Settings.bAllowSelfCare=true;
     Pawn->Status->Damage(Pawn->Status->State.MaxHealth*.35f);
+    Teammate->Status->Damage(Teammate->Status->State.MaxHealth*.35f);
     const float DamagedHealth=Pawn->Status->State.Health;
+    const float TeammateHealth=Teammate->Status->State.Health;
     Bot->Configure(EMCPlaytestBotSkill::Skilled,0,41);
     Bot->Possess(Pawn);
 
-    // Run the real timer, actor ticks and normal care contact. A decision by
-    // itself must never create healing before the configured contact duration.
+    // Run the real decision timer, actor ticks and ordinary pawn input for
+    // longer than several contact periods. Neither damaged player may become
+    // an impossible repair task or receive free health from bot automation.
     Fixture.Step(.2f);
-    TestEqual(TEXT("Choosing self repair cannot manufacture early healing"),Pawn->Status->State.Health,DamagedHealth);
-    Fixture.Step(2.f);
-    TestTrue(TEXT("Bot-selected self repair makes real timed contact progress"),Pawn->Status->State.Health>DamagedHealth);
-    TestTrue(TEXT("Self repair cannot exceed ordinary maximum health"),Pawn->Status->State.Health<=Pawn->Status->State.MaxHealth);
-    TestFalse(TEXT("Ordinary care grants no tool upgrade"),Pawn->Inventory->bWaterJetUnlocked);
+    TestEqual(TEXT("A first decision cannot manufacture self healing"),Pawn->Status->State.Health,DamagedHealth);
+    bool bSelectedRepair=Bot->GetActivity()==TEXT("repair"),bHeldSelfTreatment=Pawn->bSelfCare && Pawn->bHandling;
+    for(int32 Index=0;Index<120;++Index)
+    {
+        Fixture.Step(1.f/60);
+        bSelectedRepair|=Bot->GetActivity()==TEXT("repair");
+        bHeldSelfTreatment|=Pawn->bSelfCare && Pawn->bHandling;
+    }
+    TestEqual(TEXT("Elapsed ordinary decisions cannot restore the bot's HP"),Pawn->Status->State.Health,DamagedHealth);
+    TestEqual(TEXT("Elapsed ordinary decisions cannot restore the teammate's HP"),Teammate->Status->State.Health,TeammateHealth);
+    TestFalse(TEXT("The bot never selects disabled self or ally repair"),bSelectedRepair);
+    TestFalse(TEXT("The bot never holds a forbidden self-treatment action"),bHeldSelfTreatment);
+    TestTrue(TEXT("Neither damaged player remains an impossible work target"),Bot->GetTaskTarget()!=Pawn && Bot->GetTaskTarget()!=Teammate);
+    TestFalse(TEXT("Disabled treatment grants no tool upgrade"),Pawn->Inventory->bWaterJetUnlocked);
     return true;
 }
 

@@ -1,0 +1,162 @@
+{
+  "status": "encoded_and_technically_valid_with_camera_limit",
+  "passed": true,
+  "source_probe_passed": true,
+  "source_frame_count": 57,
+  "actual_video_seconds": 16.0,
+  "source_wall_range_seconds": [
+    131.25,
+    147.26500000001397
+  ],
+  "source_game_range_seconds": [
+    125.90957220643759,
+    141.33151640370488
+  ],
+  "fps": 24,
+  "resolution": [
+    1280,
+    720
+  ],
+  "audio": false,
+  "interpolation": false,
+  "source_timing_preserved": true,
+  "cropped": false,
+  "synthetic_frames": false,
+  "gameplay_overlays_added": false,
+  "encoding_threads": 2,
+  "filter_threads": 1,
+  "full_decode_passed": true,
+  "source_report": {
+    "file": "E:\\CodexWork\\MessControlBots_20261020\\SoloCoopCoffee01\\Report.json",
+    "sha256": "92abe8dcc48c75046842d2ca4c99425e2ceea87995b389d1f84773e70b55ac26"
+  },
+  "source_frame_csv": {
+    "file": "E:\\CodexWork\\MessControlBots_20261020\\SoloCoopCoffee01\\FrameTimes.csv",
+    "sha256": "ada692f7d60a6960adad021dbb3cf6a20be1e8e793727059cb56d6331dded5fd"
+  },
+  "encoder_report": {
+    "file": "E:\\CodexWork\\MessControlBots_20261020\\Previews\\CoffeeSurvivalEvidence\\EncodeReport.json",
+    "sha256": "7a6d057d34e7bcd2d2215887f6d7ea291d65308a00b6ed460225f3a1f9a117f5"
+  },
+  "timeline": {
+    "file": "E:\\CodexWork\\MessControlBots_20261020\\Previews\\CoffeeSurvivalEvidence\\Timeline.json",
+    "sha256": "46de31087196180525ebc2c4b14b10cd0d441a29bdb517d6e575a1c169278184"
+  },
+  "files": {
+    "CoffeeSurvival.mp4": {
+      "file": "E:\\CodexWork\\MessControlBots_20261020\\Previews\\CoffeeSurvival.mp4",
+      "sha256": "2b75e4430e51a22244a78aaadf16fcd4be0cba3b549d1dbfb34edcae1fdd495f",
+      "bytes": 2142110
+    },
+    "CoffeeSurvival_ContactSheet.png": {
+      "file": "E:\\CodexWork\\MessControlBots_20261020\\Previews\\CoffeeSurvival_ContactSheet.png",
+      "sha256": "16ad5a989cc3610ef5c336214bcbcb1c406120436f043a207f6c9470901ac460",
+      "bytes": 3078185
+    }
+  },
+  "decoded_qa": [
+    {
+      "file": "E:\\CodexWork\\MessControlBots_20261020\\Previews\\CoffeeSurvivalEvidence\\DecodedQA\\Decoded_00.png",
+      "video_seconds": 0.0,
+      "sha256": "d413ca7240cc13cd02e2149918d0c2997d68fac366df21a6af7cfba9aac1d3cb"
+    },
+    {
+      "file": "E:\\CodexWork\\MessControlBots_20261020\\Previews\\CoffeeSurvivalEvidence\\DecodedQA\\Decoded_01.png",
+      "video_seconds": 5.0,
+      "sha256": "26af6f2274fcfdebe5d4d8a332aa22f20ba7f456ddf005bf66c271d8a90b5f8b"
+    },
+    {
+      "file": "E:\\CodexWork\\MessControlBots_20261020\\Previews\\CoffeeSurvivalEvidence\\DecodedQA\\Decoded_02.png",
+      "video_seconds": 15.5,
+      "sha256": "c426526edeeaee21ff1b73c2f2ec2ad8c4608f8aae2d47cb2730696c7f22cfa6"
+    }
+  ],
+  "source_runtime_result": "coop_coffee_survival_and_second_portion_confirmed",
+  "source_runtime_coffee": {
+    "first_coffee_game": 125.90957220643759,
+    "coffee_finished_game": 133.71009792760015,
+    "second_portion_game": 141.6190592981875,
+    "second_portion_five_issued": true,
+    "observed_second_portion_game_seconds": 10.032579597085714,
+    "post_coffee_bots": {
+      "1": {
+        "baseline_elapsed": 121.857,
+        "last_elapsed": 140.353,
+        "ordinary_distance_cm": 414.2472085202635,
+        "confirmed_work": true,
+        "last_position": [
+          -104.745,
+          11.545,
+          159.451
+        ],
+        "last_deaths": 0,
+        "last_alive": true,
+        "last_points": 60,
+        "last_hits": 3,
+        "last_brushes": 6
+      },
+      "2": {
+        "baseline_elapsed": 121.857,
+        "last_elapsed": 140.353,
+        "ordinary_distance_cm": 967.6576992363873,
+        "confirmed_work": true,
+        "last_position": [
+          -1484.134,
+          -380.136,
+          114.593
+        ],
+        "last_deaths": 0,
+        "last_alive": true,
+        "last_points": 50,
+        "last_hits": 0,
+        "last_brushes": 12
+      },
+      "3": {
+        "baseline_elapsed": 121.857,
+        "last_elapsed": 140.353,
+        "ordinary_distance_cm": 491.0935154466845,
+        "confirmed_work": true,
+        "last_position": [
+          257.991,
+          -792.881,
+          202.533
+        ],
+        "last_deaths": 0,
+        "last_alive": true,
+        "last_points": 35,
+        "last_hits": 12,
+        "last_brushes": 5
+      }
+    }
+  },
+  "honest_caption": "Кофейная волна и движение отдельных ботов. Выживание и работа всех трёх после кофе подтверждены отдельным Report/CSV; камера не показывает всю команду.",
+  "visual_review": {
+    "source_frames_inspected": [
+      "00000.png",
+      "00010.png",
+      "00018.png",
+      "00028.png",
+      "00056.png"
+    ],
+    "encoded_frame_review_pending": false,
+    "observations": [
+      "The real coffee wave crosses the player and covers most of the gameplay camera.",
+      "Bot 1 and another partially clipped bot are visible during the water section, rather than all three at once.",
+      "After the wave the ordinary camera is low facing the throat, with the human distant; most bots are outside the shot.",
+      "A dark rectangular plane is visible beneath/behind the wave near source frame 10. It was preserved without masking or cuts.",
+      "The original native HUD/window remains intact and readable. The contact sheet alone adds timing captions.",
+      "The clip ends before the second portion is fully observed. It cannot visually prove all three survivors resumed work."
+    ],
+    "limits": [
+      "Silent sampled footage, repeated at24fps without interpolation.",
+      "The separate native source Report/CSV establishes three living, standing, dry, walking bots with fresh post-coffee work and movement.",
+      "No full-level, multiplayer or performance conclusion is made from this clip."
+    ],
+    "encoded_frames_inspected_seconds": [
+      5.0,
+      15.5
+    ],
+    "contact_sheet_inspected": true,
+    "encoded_view_matches_source_and_retains_HUD": true
+  }
+}

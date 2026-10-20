@@ -1,4 +1,4 @@
-param([string]$EngineRoot = $env:UE_ROOT, [switch]$Game)
+param([string]$EngineRoot = $env:UE_ROOT, [switch]$Game, [string[]]$AdditionalArguments=@())
 $ErrorActionPreference = 'Stop'
 $taskProjectRoot = Split-Path -Parent $PSScriptRoot
 if (-not $EngineRoot) {
@@ -10,5 +10,5 @@ if (-not $EngineRoot) {
 }
 if (-not $EngineRoot -or -not (Test-Path -LiteralPath "$EngineRoot\Engine\Build\BatchFiles\Build.bat")) { throw 'UE 5.8 not found. Set UE_ROOT or pass -EngineRoot.' }
 $taskTarget = if ($Game) { 'MessControl' } else { 'MessControlEditor' }
-& "$EngineRoot\Engine\Build\BatchFiles\Build.bat" $taskTarget Win64 Development "-Project=$taskProjectRoot\MessControl.uproject" -WaitMutex -NoHotReloadFromIDE
+& "$EngineRoot\Engine\Build\BatchFiles\Build.bat" $taskTarget Win64 Development "-Project=$taskProjectRoot\MessControl.uproject" -WaitMutex -NoHotReloadFromIDE @AdditionalArguments
 if ($LASTEXITCODE -ne 0) { throw "Unreal build failed: $LASTEXITCODE" }

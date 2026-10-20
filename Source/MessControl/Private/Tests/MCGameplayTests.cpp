@@ -2699,11 +2699,17 @@ bool FMCAuthoredThroatMorphTest::RunTest(const FString&)
     if(!TestNotNull(TEXT("Imported artist throat"),Mesh)) return false;
     TestNotNull(TEXT("Open morph exists"),Mesh->FindMorphTarget(TEXT("Open")));
     TestNotNull(TEXT("vomit morph exists"),Mesh->FindMorphTarget(TEXT("vomit")));
+    // Manual intake keeps the artist aperture at its configured expansion;
+    // swallowing no longer switches between the former closed/open poses.
+    TestTrue(TEXT("Normal throat uses manual intake"),Throat->bManualIntake);
+    const float FixedOpenWeight=Throat->bReverseAuthoredOpen?1.f-Throat->ManualAuthoredExpansion:Throat->ManualAuthoredExpansion;
     Throat->AuthoredMouth->SetSkeletalMesh(Mesh); Throat->Tick(.01f);
-    TestTrue(TEXT("Artist's closing target is active at rest"),Throat->AuthoredMouth->GetMorphTarget(TEXT("Open"))>.95f);
+    TestTrue(TEXT("Resting throat holds the configured artist expansion"),FMath::IsNearlyEqual(Throat->OpenAmount(),1.f)
+        && FMath::IsNearlyEqual(Throat->AuthoredMouth->GetMorphTarget(TEXT("Open")),FixedOpenWeight));
     Throat->ThroatPhase=EMCThroatPhase::Swallowing; Throat->PhaseStartedAt=M.World->GetTimeSeconds()-.4;
     Throat->Tick(.01f);
-    TestTrue(TEXT("Swallow releases the closing target to reveal the aperture"),Throat->AuthoredMouth->GetMorphTarget(TEXT("Open"))<.03f);
+    TestTrue(TEXT("Swallow preserves the fixed manual-intake aperture"),FMath::IsNearlyEqual(Throat->OpenAmount(),1.f)
+        && FMath::IsNearlyEqual(Throat->AuthoredMouth->GetMorphTarget(TEXT("Open")),FixedOpenWeight));
     Throat->ThroatPhase=EMCThroatPhase::Spasm; Throat->PhaseStartedAt=M.World->GetTimeSeconds()-.4;
     Throat->Tick(.01f); TestTrue(TEXT("Spasm drives the imported vomit pose"),Throat->AuthoredMouth->GetMorphTarget(TEXT("vomit"))>.5f);
     Throat->ThroatPhase=EMCThroatPhase::Vomiting; Throat->PhaseStartedAt=M.World->GetTimeSeconds()-.3;
@@ -2711,7 +2717,10 @@ bool FMCAuthoredThroatMorphTest::RunTest(const FString&)
     Throat->PhaseStartedAt=M.World->GetTimeSeconds()-Throat->VomitSeconds+.01;
     const float BeforeRecovery=Throat->OpenAmount();
     Throat->ThroatPhase=EMCThroatPhase::Recovering; Throat->PhaseStartedAt=M.World->GetTimeSeconds();
-    TestTrue(TEXT("Expulsion flows into closing without closing and reopening"),BeforeRecovery>.9f && FMath::Abs(BeforeRecovery-Throat->OpenAmount())<.1f);
+    Throat->Tick(.01f);
+    TestTrue(TEXT("Expulsion enters recovery without changing the fixed intake aperture"),FMath::IsNearlyEqual(BeforeRecovery,1.f)
+        && FMath::IsNearlyEqual(Throat->OpenAmount(),BeforeRecovery)
+        && FMath::IsNearlyEqual(Throat->AuthoredMouth->GetMorphTarget(TEXT("Open")),FixedOpenWeight));
     return true;
 }
 // A rejected gulp is atomic even when a frame passes the entire swallow interval.

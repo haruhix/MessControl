@@ -57,6 +57,8 @@ AMCNutBoss::AMCNutBoss()
 {
     Feedback->bUseProceduralRecoil=false;
     PrimaryActorTick.TickInterval=0.f;
+    Body->CanCharacterStepUpOn=ECB_No;
+    Body->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
     PresentationRoot=CreateDefaultSubobject<USceneComponent>(TEXT("NutPresentationRoot")); PresentationRoot->SetupAttachment(Body);
     USceneComponent* InheritedVisuals[]={Visual.Get(),LeftEye.Get(),RightEye.Get(),Label.Get()};
     for(auto* Component:InheritedVisuals) Component->SetupAttachment(PresentationRoot);
@@ -181,6 +183,7 @@ void AMCNutBoss::TickClientPresentation(float Dt)
 void AMCNutBoss::RefreshPresentation()
 {
     Super::RefreshPresentation();
+    UpdatePlayerBlocking();
     if(!Shield || !Kernel || !OpenShell) return;
     if(TankModel->GetAttachParent()!=TankTurnPivot)
         TankModel->AttachToComponent(TankTurnPivot,FAttachmentTransformRules::KeepRelativeTransform);
@@ -259,6 +262,36 @@ void AMCNutBoss::RefreshPresentation()
     Label->SetTextRenderColor(BossRole==EMCNutBossRole::Tank?FColor(240,185,85):FColor(225,115,255));
     Label->SetRelativeLocation(FVector(0,0,(BossRole==EMCNutBossRole::Tank?BossSettings.TankHeight:BossSettings.MageHeight)*.5f+38));
     PresentTankModel(Now());
+}
+
+void AMCNutBoss::UpdatePlayerBlocking()
+{
+    // The root remains a query-only world obstacle. Enabling PhysicsBody
+    // contacts here would snag the active-ragdoll limbs and physical food;
+    // attacks already apply their authoritative impulses explicitly.
+    const bool Airborne=State==EMCNutBossState::Falling
+        || (State==EMCNutBossState::Executing && Attack==EMCNutBossAttack::Jump);
+    Body->SetCollisionObjectType(ECC_WorldDynamic);
+    Body->SetCollisionResponseToChannel(ECC_Pawn,IsEncounterAlive() && !Airborne?ECR_Block:ECR_Ignore);
+    Body->SetCollisionResponseToChannel(ECC_PhysicsBody,ECR_Ignore);
+    Body->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
+    Body->CanCharacterStepUpOn=ECB_No;
+}
+
+void AMCNutBoss::MoveAttackBody(FVector Goal,FHitResult& Hit)
+{
+    // A rolling/charging boss hits and pushes workers through the existing
+    // segment resolver. Do not reflect off a worker as if they were a wall.
+    // Move ignores affect only this sweep: workers still collide with the boss
+    // in their own CharacterMovement queries, including between attack ticks.
+    TArray<AMCToothCharacter*,TInlineAllocator<8>> AddedIgnores;
+    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
+        if(!Body->GetMoveIgnoreActors().Contains(*It)) {
+            Body->IgnoreActorWhenMoving(*It,true);
+            AddedIgnores.Add(*It);
+        }
+    SetActorLocation(Goal,true,&Hit);
+    for(AMCToothCharacter* Hero:AddedIgnores) Body->IgnoreActorWhenMoving(Hero,false);
 }
 
 void AMCNutBoss::CacheBossAnimations()
@@ -1197,7 +1230,7 @@ void AMCNutBoss::ExecuteRoll(float Dt)
             ForceNetUpdate();
             if(!LockSurfacePoint(Previous+AttackForward*StepDistance,Settings.BodyRadius+5,Goal)) continue;
         }
-        FHitResult Hit; SetActorLocation(Goal,true,&Hit);
+        FHitResult Hit; MoveAttackBody(Goal,Hit);
         PushNutsAlongSegment(Previous,GetActorLocation(),FrameSeconds/Steps);
         DamageRollSegment(Previous,GetActorLocation());
         if(Hit.bBlockingHit) {
@@ -1361,7 +1394,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
         const float Travel=FMath::Clamp(float(Time-ResolveAt)*BossSettings.ChargeSpeed,0.f,float(FVector::Dist2D(LockedStart,LockedTarget)));
         FVector Goal;
         if(!LockSurfacePoint(LockedStart+AttackForward*Travel,Settings.BodyRadius+5,Goal)) { Recover(1.4f); return; }
-        FHitResult Hit; SetActorLocation(Goal,true,&Hit); DamageChargeSegment(Previous,GetActorLocation());
+        FHitResult Hit; MoveAttackBody(Goal,Hit); DamageChargeSegment(Previous,GetActorLocation());
         PushNutsAlongSegment(Previous,GetActorLocation(),FMath::Max(.001f,Dt));
         if(Time>=AttackEndAt || (Hit.bBlockingHit && FVector::DistSquared2D(Previous,GetActorLocation())<4)) Recover(1.4f);
     } else if(Attack==EMCNutBossAttack::Roll) {
