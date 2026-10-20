@@ -20,6 +20,13 @@
 #include "Net/UnrealNetwork.h"
 
 float FMCEmoteEntry::Length() const { return Animation && !bHoldFinalPose && !bLooping?Animation->GetPlayLength():FMath::Clamp(Duration,.5f,10.f); }
+bool FMCEmoteEntry::LoopsUntilMovement() const
+{
+    // Exact stable IDs cover the saved pre-flag library. A looping greeting or
+    // another one-shot gesture must not accidentally become an endless dance.
+    return Animation && !bFaceOnly && (bLoopUntilMovement || Id==TEXT("dance1") || Id==TEXT("dance2")
+        || Id==TEXT("dance3") || Id==TEXT("dance4") || Id==TEXT("dance5"));
+}
 UMCExpressionComponent::UMCExpressionComponent()
 {
     SetIsReplicatedByDefault(true); PrimaryComponentTick.bCanEverTick=true;
@@ -68,10 +75,22 @@ void UMCExpressionComponent::PlayChestCelebration()
 float UMCExpressionComponent::EmoteAlpha() const
 {
     const auto* Entry=ActiveEntry(); if (!Entry) return 0;
-    const double End=State.StoppedAt>=0?FMath::Min(State.StoppedAt,State.StartedAt+Entry->Length()):State.StartedAt+Entry->Length();
+    const double StoppedAt=EmoteStoppedAt();
+    double End=Entry->LoopsUntilMovement()?MAX_dbl:State.StartedAt+Entry->Length();
+    if(StoppedAt>=0) End=FMath::Min(StoppedAt,End);
     const float In=FMath::Clamp(float((Now()-State.StartedAt)/.18),0.f,1.f);
-    const float Out=FMath::Clamp(float((End+.22-Now())/.22),0.f,1.f);
+    const float Out=End==MAX_dbl?1.f:FMath::Clamp(float((End+.22-Now())/.22),0.f,1.f);
     return FMath::SmoothStep(0.f,1.f,FMath::Min(In,Out));
+}
+double UMCExpressionComponent::EmoteStoppedAt() const
+{
+    double StoppedAt=State.StoppedAt;
+    // Only the owning player's presentation predicts cancellation. The existing
+    // replicated server state remains authoritative for everyone, including
+    // late joiners; serial + start time cannot leak a stop into a later dance.
+    if(PredictedEmoteStoppedAt>=0 && PredictedEmoteSerial==State.Serial && PredictedEmoteStartedAt==State.StartedAt)
+        StoppedAt=StoppedAt>=0?FMath::Min(StoppedAt,PredictedEmoteStoppedAt):PredictedEmoteStoppedAt;
+    return StoppedAt;
 }
 float UMCExpressionComponent::BodyAlpha() const
 {
@@ -128,8 +147,17 @@ void UMCExpressionComponent::TickComponent(float Dt,ELevelTick Type,FActorCompon
     SprayReaction=FMath::Lerp(SprayReaction,Spray,1-FMath::Exp(-14.f*FMath::Max(0.f,Dt)));
     SprayFlinch=1-FMath::SmoothStep(.15f,.55f,float(Now()-SprayState.StartedAt));
     if (Now()-VoiceAt>.25) { Voice=0; VoiceViseme=MCViseme::Rest; }
-    if (Tooth && Tooth->HasAuthority() && State.StoppedAt<0)
-        if (const auto* Entry=ActiveEntry(); Entry && !CanPlay(*Entry)) { State.StoppedAt=Now(); Tooth->ForceNetUpdate(); }
+    if(Tooth && State.StoppedAt<0) if(const auto* Entry=ActiveEntry()) {
+        const bool Moving=Entry->LoopsUntilMovement()
+            && (!Tooth->GetPendingMovementInputVector().IsNearlyZero(.01f) || !Tooth->GetLastMovementInputVector().IsNearlyZero(.01f)
+                || !Tooth->GetCharacterMovement()->GetCurrentAcceleration().IsNearlyZero(.01f));
+        const bool Stop=!CanPlay(*Entry) || Moving;
+        if(Stop && Tooth->HasAuthority()) {State.StoppedAt=Now();Tooth->ForceNetUpdate();}
+        else if(Stop && Entry->LoopsUntilMovement() && Tooth->IsLocallyControlled()
+            && (PredictedEmoteSerial!=State.Serial || PredictedEmoteStartedAt!=State.StartedAt || PredictedEmoteStoppedAt<0)) {
+            PredictedEmoteSerial=State.Serial;PredictedEmoteStartedAt=State.StartedAt;PredictedEmoteStoppedAt=Now();
+        }
+    }
 }
 void UMCExpressionComponent::SetSpeechInput(float Envelope,MCViseme Viseme)
 {
@@ -233,10 +261,11 @@ void UMCExpressionComponent::BuildBodyPose(TArray<FTransform>& Pose,const FRefer
     const auto* Entry=ActiveEntry(); const float Alpha=BodyAlpha();
     if (!Entry || Alpha<.001f || !Tooth->ToothPhysics->CanAct()) return;
     const auto* Skeleton=Entry->Animation->GetSkeleton(); if (!Skeleton) return;
-    const double SampleNow=State.StoppedAt>=0?FMath::Min(Now(),State.StoppedAt):Now();
+    const double StoppedAt=EmoteStoppedAt();
+    const double SampleNow=StoppedAt>=0?FMath::Min(Now(),StoppedAt):Now();
     const double Elapsed=FMath::Max(0.,SampleNow-State.StartedAt);
     const double ClipLength=Entry->Animation->GetPlayLength();
-    const double Time=Entry->bLooping && ClipLength>SMALL_NUMBER?FMath::Fmod(Elapsed,ClipLength):FMath::Min(Elapsed,ClipLength);
+    const double Time=(Entry->bLooping || Entry->LoopsUntilMovement()) && ClipLength>SMALL_NUMBER?FMath::Fmod(Elapsed,ClipLength):FMath::Min(Elapsed,ClipLength);
     FAnimExtractContext Context(Time,false);
     for (int32 I=0;I<Pose.Num();++I)
     {

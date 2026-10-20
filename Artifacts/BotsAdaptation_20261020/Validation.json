@@ -1,0 +1,4869 @@
+{
+  "build": {
+    "nativeExit": 0,
+    "finishedUtc": "2026-10-20T10:04:36.1907406Z",
+    "project": "E:/DEVGAME/MessControl/MessControl.uproject"
+  },
+  "native_tests": {
+    "testCount": 28,
+    "nativeExit": 0,
+    "scope": "28 focused native bot/dance tests, including real collision/CMC final approach, off-Nav controller task and saved animation clips. Solo fixtures; no network/cook/package or full-level completion claim.",
+    "passed": true,
+    "succeeded": 23,
+    "report": "E:/CodexWork/MessControlBots_20261020/CombinedTests/20261020_100605/Report/index.json",
+    "tests": [
+      {
+        "fullTestPath": "MessControl.Animation.Dances.AllFiveContinueUntilMovement",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Animation.Dances.BlockedInputDamageAndWorkCancel",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Animation.Dances.LoopPhaseAndTimedGesturesStayDistinct",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Adaptation.ArenaRepairUsesOrdinaryTimedSpray",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Adaptation.FrozenBotUsesOrdinaryHeldPickaxe",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Adaptation.ReplanningPreservesCollectedFragment",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Adaptation.SmallMintIsChosenAndBrokenThroughWeaponContacts",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Adaptation.SpoiledFragmentFliesBeyondActualFront",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Coffee.DeepWaterUsesRealCMCStrokeInput",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Coffee.RiverUsesMovementBeforeFrontAndReleasesAfterward",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.PhysicalApproach.ControllerCleansAcrossShortLegWithoutNavPrefix",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.PhysicalApproach.RechecksWallsSupportAndDistance",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.PhysicalApproach.WalksThroughOrdinaryCMCInput",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.ApproachRejectsTeethAndPlayers",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.AuthoredLowStartsSpawnAboveTongue",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.CoopCapacityAndIdentity",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.IneligiblePawnReleasesInputs",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.InitialSequenceRequiresEveryLivePawn",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.LoadingRejectsBeforeShiftReset",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.NutEncounterKeepsCombatButAllowsCriticalCare",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.NutOutsideContactNeedsApproach",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.NutThreatDropsFoodThroughToolSelection",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.NutThreatInterruptsCareAndUsesWeaponContact",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.ObserverTeamAndShiftOutcome",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.SelfRepairUsesTimedContact",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.SingleDayCoopPersonalGateAndQueuedChoices",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.SingleDayObserveLaunchAndPersonalOffers",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.UnreachableGrimeDoesNotGrabTeammate",
+        "state": "Success"
+      }
+    ],
+    "failed": 0
+  },
+  "bot_test_subset": {
+    "failed": 0,
+    "scope": "Subset of the same final28-test native run after boss objective/contact fixes; no network/package/full-level claim.",
+    "report": "E:/CodexWork/MessControlBots_20261020/CombinedTests/20261020_100605/Report/index.json",
+    "tests": [
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Adaptation.ArenaRepairUsesOrdinaryTimedSpray",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Adaptation.FrozenBotUsesOrdinaryHeldPickaxe",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Adaptation.ReplanningPreservesCollectedFragment",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Adaptation.SmallMintIsChosenAndBrokenThroughWeaponContacts",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Adaptation.SpoiledFragmentFliesBeyondActualFront",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Coffee.DeepWaterUsesRealCMCStrokeInput",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Coffee.RiverUsesMovementBeforeFrontAndReleasesAfterward",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.PhysicalApproach.ControllerCleansAcrossShortLegWithoutNavPrefix",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.PhysicalApproach.RechecksWallsSupportAndDistance",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.PhysicalApproach.WalksThroughOrdinaryCMCInput",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.ApproachRejectsTeethAndPlayers",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.AuthoredLowStartsSpawnAboveTongue",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.CoopCapacityAndIdentity",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.IneligiblePawnReleasesInputs",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.InitialSequenceRequiresEveryLivePawn",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.LoadingRejectsBeforeShiftReset",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.NutEncounterKeepsCombatButAllowsCriticalCare",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.NutOutsideContactNeedsApproach",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.NutThreatDropsFoodThroughToolSelection",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.NutThreatInterruptsCareAndUsesWeaponContact",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.ObserverTeamAndShiftOutcome",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.SelfRepairUsesTimedContact",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.SingleDayCoopPersonalGateAndQueuedChoices",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.SingleDayObserveLaunchAndPersonalOffers",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.UnreachableGrimeDoesNotGrabTeammate",
+        "state": "Success"
+      }
+    ],
+    "testCount": 25,
+    "passed": true
+  },
+  "dance_test_subset": {
+    "failed": 0,
+    "scope": "Subset of the same final28-test native run after boss objective/contact fixes; no network/package/full-level claim.",
+    "report": "E:/CodexWork/MessControlBots_20261020/CombinedTests/20261020_100605/Report/index.json",
+    "tests": [
+      {
+        "fullTestPath": "MessControl.Animation.Dances.AllFiveContinueUntilMovement",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Animation.Dances.BlockedInputDamageAndWorkCancel",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Animation.Dances.LoopPhaseAndTimedGesturesStayDistinct",
+        "state": "Success"
+      }
+    ],
+    "testCount": 3,
+    "passed": true
+  },
+  "cases": [
+    {
+      "case": "SoloCoop04",
+      "status": "passed",
+      "passed": true,
+      "result": "coop_first_portion_and_contribution_confirmed",
+      "error": null,
+      "mode": "coop",
+      "scope": "Natural saved-level bot probe in one explicitly owned solo PIE; never launches Editor.\n\nMC_BOTS_MODE='coop' (default): normal resource preparation and first human perk,\nthen the ordinary MC.Bots 3 skilled coop console action, the new human perk,\nand natural first-three-food processing until coffee/portion two. Success needs\nreal AI movement and confirmed contribution from its own native diagnostic CSV.\nThe human is stationary apart from ordinary perk choices made by this driver.\n\nMC_BOTS_MODE='observe_cycle': MC.Bots 4 skilled observe; the human becomes an\nordinary spectator. Observe the saved Nut -> post-nut 5/8/9 -> small mint ->\nJellies -> Ice -> Fog chain through bAuthoredFragmentComplete. This is an AI\nobservation, not a human coop playthrough or a forced game-win assertion.\n\nRequires an idle, saved owned Editor (-MCHubOwned or -MCFirstRelaxOwned), fresh\nDLL and saved assets. No clock/stage/profile/nav/health/position changes, direct\ndamage/cleaning, actors spawned/deleted by Python, network peers, saves or builds.\nOnly ordinary MC.Bots / MC.Bots.Report / MC.Bots.Stop and the human's normal\nChooseRewardPerk(0) callback are driven. Physical keyboard/mouse is not tested.\n\nGlobals: MC_BOTS_OUTPUT (fresh E: folder), MC_BOTS_SEED (default41),\nMC_BOTS_GAME_BUDGET_SECONDS (coop180, cycle1800; max1800),\nMC_BOTS_WALL_BUDGET_SECONDS (coop300, cycle2400; max2400).\nMilestone PNGs are capped at32 /96MiB. MC_BOTS_PREVIEW=True additionally\nrecords at most16 seconds /64 frames /128MiB in coop, using the ordinary\ncamera orbit/zoom handlers to frame the first food; no camera rig replacement.\nNative CSV stays in project Saved/Playtests and is copied into output at exit.\nNo -MCBotsSmoke flag: that older probe assumes the obsolete short nut fragment.\nCancel this probe only: builtins.mc_bots_coop_solo.cancel().\n",
+      "seed": 41,
+      "network": false,
+      "live_code_patch": null,
+      "additional_live_code_patches": null,
+      "gameplay_overrides": false,
+      "game_budget_seconds": 180.0,
+      "wall_seconds": 134.9220000000205,
+      "last_sample": {
+        "game_seconds": 128.25436648726463,
+        "elapsed_run_game_seconds": 114.11105739325285,
+        "wall_seconds": 133.625,
+        "native_stage": "FIRSTMEAL",
+        "native_phase": "WORKING",
+        "portion_number": 1,
+        "portion_target": 3,
+        "portion_spawned": 3,
+        "authored_fragment_complete": false,
+        "tasks_left": 1,
+        "tasks_total": 9,
+        "mouth_health": 100.0,
+        "human_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+        "human_spectator": false,
+        "pending_human_choices": 0,
+        "bot_pawns": [
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_0",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_3"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_1",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_4"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_2",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_5"
+          }
+        ],
+        "instruction": "Порция 1/3 · подано 3/3. Осталось: еда 0 · фрагменты 1 (в руках 0) · пятна 0 · грязные зубы 0 · угрозы 0.\nQ — закинуть фрагмент в глотку. Щётка — очистить язык и зубы. Следующая порция не требует полной уборки."
+      },
+      "seen_native_stages": [
+        "FIRSTMEAL",
+        "FIRSTPERK",
+        "MEALCOFFEEWAVE",
+        "OPENINGPAUSE"
+      ],
+      "post_nut_portions": {},
+      "checks": {
+        "preparation_ready_before_bot_start": true,
+        "native_csv_owns_complete_ai_roster": true,
+        "native_four_player_participant_count": true,
+        "ordinary_ai_movement": true,
+        "ordinary_ai_confirmed_contribution": true,
+        "first_three_foods_naturally_issued": true,
+        "first_food_gate_naturally_released": true
+      },
+      "bot_metrics": {
+        "1": {
+          "max_points": 60,
+          "max_confirmed_hits": 0,
+          "max_brush_contacts": 4,
+          "max_deaths": 0,
+          "moved_cm": 3147.676507023077,
+          "ordinary_distance_cm": 26475.079457264343,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "collect_food",
+            "deliver"
+          ],
+          "first_position": [
+            -720.0,
+            -240.0,
+            184.999
+          ],
+          "last_position": [
+            -285.593,
+            1647.776,
+            190.743
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 340.0
+        },
+        "2": {
+          "max_points": 20,
+          "max_confirmed_hits": 8,
+          "max_brush_contacts": 0,
+          "max_deaths": 0,
+          "moved_cm": 3578.21145000306,
+          "ordinary_distance_cm": 27930.4711946535,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "break_food",
+            "collect_food",
+            "deliver"
+          ],
+          "first_position": [
+            -720.0,
+            -171.75,
+            179.197
+          ],
+          "last_position": [
+            2766.338,
+            -977.383,
+            -26.903
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 340.0
+        },
+        "3": {
+          "max_points": 35,
+          "max_confirmed_hits": 4,
+          "max_brush_contacts": 2,
+          "max_deaths": 0,
+          "moved_cm": 3160.346932952931,
+          "ordinary_distance_cm": 28056.439442772615,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "break_food",
+            "deliver",
+            "collect_food"
+          ],
+          "first_position": [
+            -720.0,
+            -308.25,
+            190.884
+          ],
+          "last_position": [
+            1798.977,
+            -166.238,
+            167.781
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 340.0
+        }
+      },
+      "coffee_extension": null,
+      "cleanup": {
+        "ordinary_bots_stop_requested": true,
+        "owned_pie_end_requested": true,
+        "owned_pie_stopped": true,
+        "original_map_restored": true
+      },
+      "protected_files_unchanged": true,
+      "report_sha256": "e71749b50c2a71fdd6badea1321b2dce37c6062b383140a4a36dd9bcdd221a17",
+      "native_csv_sha256": "ff9af5eb492d009368178135ec6b50ffdffb90281a44929d461ec10be0f4f517",
+      "local_raw_report": "E:\\CodexWork\\MessControlBots_20261020\\SoloCoop04\\Report.json",
+      "limitations": [
+        "One standalone PIE process. AI teammates do not exercise network replication or latency.",
+        "Coop has a stationary human whose normal perk callbacks are driven by this probe; physical input is not tested.",
+        "observe_cycle replaces the human with a spectator through the ordinary bot command. It does not establish human coop comfort.",
+        "A completed authored sequence is recorded separately from native Won / Lost. No victory flag is manufactured.",
+        "Budget expiry, missing stages or absent native contribution produce an explicit failure, not a shortened pass.",
+        "Native non-reflected bot counters/activity are read from the real session CSV; requests are not counted as accepted hits.",
+        "Milestones use the existing camera. An optional coop preview uses only the normal player orbit/zoom inputs; no pawn or camera rig is relocated.",
+        "No packaged game, cook, network or quantitative performance check."
+      ],
+      "external_patch_confirmation": null,
+      "read_only_boss_samples": null,
+      "read_only_boss_observer_initial_errors": null
+    },
+    {
+      "case": "SoloCoopCoffee01",
+      "status": "passed",
+      "passed": true,
+      "result": "coop_coffee_survival_and_second_portion_confirmed",
+      "error": null,
+      "mode": "coop",
+      "scope": "Natural saved-level bot probe in one explicitly owned solo PIE; never launches Editor.\n\nMC_BOTS_MODE='coop' (default): normal resource preparation and first human perk,\nthen the ordinary MC.Bots 3 skilled coop console action, the new human perk,\nand natural first-three-food processing until coffee/portion two. Success needs\nreal AI movement and confirmed contribution from its own native diagnostic CSV.\nThe human is stationary apart from ordinary perk choices made by this driver.\n\nMC_BOTS_COOP_THROUGH_COFFEE=True extends only coop: wait for the first natural\ncoffee to finish, five foods in portion two, and at least ten game seconds\nactually observed in portion two. Every bot must then be alive and show new\nordinary locomotion or confirmed work AFTER coffee in fresh native CSV rows.\nThis option defaults to/caps budgets at300 game /420 wall seconds. Old work\ncounters cannot satisfy the post-coffee check. Default coop/cycle are unchanged.\n\nMC_BOTS_MODE='observe_cycle': MC.Bots 4 skilled observe; the human becomes an\nordinary spectator. Observe the saved Nut -> post-nut 5/8/9 -> small mint ->\nJellies -> Ice -> Fog chain through bAuthoredFragmentComplete. This is an AI\nobservation, not a human coop playthrough or a forced game-win assertion.\n\nRequires an idle, saved owned Editor (-MCHubOwned or -MCFirstRelaxOwned), fresh\nDLL and saved assets. No clock/stage/profile/nav/health/position changes, direct\ndamage/cleaning, actors spawned/deleted by Python, network peers, saves or builds.\nOnly ordinary MC.Bots / MC.Bots.Report / MC.Bots.Stop and the human's normal\nChooseRewardPerk(0) callback are driven. Physical keyboard/mouse is not tested.\n\nGlobals: MC_BOTS_OUTPUT (fresh E: folder), MC_BOTS_SEED (default41),\nMC_BOTS_GAME_BUDGET_SECONDS (coop180, cycle1800; max1800),\nMC_BOTS_WALL_BUDGET_SECONDS (coop300, cycle2400; max2400).\nMilestone PNGs are capped at32 /96MiB. MC_BOTS_PREVIEW=True additionally\nrecords at most16 seconds /64 frames /128MiB in coop, using the ordinary\ncamera orbit/zoom handlers to frame the first food; no camera rig replacement.\nWith THROUGH_COFFEE the optional16-second preview starts at the first actual\nMEALCOFFEEWAVE instead, retaining the current camera without a replacement.\nNative CSV stays in project Saved/Playtests and is copied into output at exit.\nNo -MCBotsSmoke flag: that older probe assumes the obsolete short nut fragment.\nCancel this probe only: builtins.mc_bots_coop_solo.cancel().\n",
+      "seed": 41,
+      "network": false,
+      "live_code_patch": null,
+      "additional_live_code_patches": null,
+      "gameplay_overrides": false,
+      "game_budget_seconds": 300.0,
+      "wall_seconds": 158.51500000001397,
+      "last_sample": {
+        "game_seconds": 150.82350499555469,
+        "elapsed_run_game_seconds": 138.97035028412938,
+        "wall_seconds": 156.64000000001397,
+        "native_stage": "FIRSTMEAL",
+        "native_phase": "WORKING",
+        "portion_number": 2,
+        "portion_target": 5,
+        "portion_spawned": 5,
+        "authored_fragment_complete": false,
+        "tasks_left": 5,
+        "tasks_total": 5,
+        "mouth_health": 100.0,
+        "human_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+        "human_spectator": false,
+        "pending_human_choices": 0,
+        "bot_pawns": [
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_0",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_3"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_1",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_4"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_2",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_5"
+          }
+        ],
+        "instruction": "Порция 2/3 · подано 5/5. Осталось: еда 5 · фрагменты 0 (в руках 0) · пятна 13 · грязные зубы 12 · угрозы 0.\nQ — закинуть фрагмент в глотку. Щётка — очистить язык и зубы. Следующая порция не требует полной уборки."
+      },
+      "seen_native_stages": [
+        "BETWEENMEALSPAUSE",
+        "FIRSTMEAL",
+        "FIRSTPERK",
+        "MEALCOFFEEWAVE",
+        "OPENINGPAUSE"
+      ],
+      "post_nut_portions": {},
+      "checks": {
+        "preparation_ready_before_bot_start": true,
+        "native_csv_owns_complete_ai_roster": true,
+        "native_four_player_participant_count": true,
+        "ordinary_ai_movement": true,
+        "ordinary_ai_confirmed_contribution": true,
+        "first_three_foods_naturally_issued": true,
+        "first_food_gate_naturally_released": true,
+        "natural_first_coffee_finished": true,
+        "natural_second_portion_issued_five": true,
+        "ten_actual_game_seconds_in_second_portion": true,
+        "every_bot_alive_and_active_after_coffee": true
+      },
+      "bot_metrics": {
+        "1": {
+          "max_points": 60,
+          "max_confirmed_hits": 3,
+          "max_brush_contacts": 6,
+          "max_deaths": 0,
+          "moved_cm": 3145.140630325614,
+          "ordinary_distance_cm": 31226.59452301351,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "recover",
+            "collect_food",
+            "deliver",
+            "break_food",
+            "coffee_survival"
+          ],
+          "first_position": [
+            -720.0,
+            -240.0,
+            187.975
+          ],
+          "last_position": [
+            -104.745,
+            11.545,
+            159.451
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 560.0
+        },
+        "2": {
+          "max_points": 50,
+          "max_confirmed_hits": 0,
+          "max_brush_contacts": 12,
+          "max_deaths": 0,
+          "moved_cm": 3146.6422157634956,
+          "ordinary_distance_cm": 21869.795868987156,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "recover",
+            "collect_food",
+            "deliver",
+            "coffee_survival"
+          ],
+          "first_position": [
+            -720.0,
+            -171.75,
+            182.209
+          ],
+          "last_position": [
+            -1484.134,
+            -380.136,
+            114.593
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1000.0
+        },
+        "3": {
+          "max_points": 35,
+          "max_confirmed_hits": 12,
+          "max_brush_contacts": 5,
+          "max_deaths": 0,
+          "moved_cm": 3499.001665940301,
+          "ordinary_distance_cm": 30708.732411374844,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "break_food",
+            "collect_food",
+            "deliver",
+            "coffee_survival",
+            "recover"
+          ],
+          "first_position": [
+            -720.0,
+            -308.25,
+            193.805
+          ],
+          "last_position": [
+            257.991,
+            -792.881,
+            202.533
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 560.0
+        }
+      },
+      "coffee_extension": {
+        "first_coffee_game": 125.90957220643759,
+        "coffee_finished_game": 133.71009792760015,
+        "second_portion_game": 141.6190592981875,
+        "second_portion_five_issued": true,
+        "observed_second_portion_game_seconds": 10.032579597085714,
+        "post_coffee_bots": {
+          "1": {
+            "baseline_elapsed": 121.857,
+            "last_elapsed": 140.353,
+            "ordinary_distance_cm": 414.2472085202635,
+            "confirmed_work": true,
+            "last_position": [
+              -104.745,
+              11.545,
+              159.451
+            ],
+            "last_deaths": 0,
+            "last_alive": true,
+            "last_points": 60,
+            "last_hits": 3,
+            "last_brushes": 6
+          },
+          "2": {
+            "baseline_elapsed": 121.857,
+            "last_elapsed": 140.353,
+            "ordinary_distance_cm": 967.6576992363873,
+            "confirmed_work": true,
+            "last_position": [
+              -1484.134,
+              -380.136,
+              114.593
+            ],
+            "last_deaths": 0,
+            "last_alive": true,
+            "last_points": 50,
+            "last_hits": 0,
+            "last_brushes": 12
+          },
+          "3": {
+            "baseline_elapsed": 121.857,
+            "last_elapsed": 140.353,
+            "ordinary_distance_cm": 491.0935154466845,
+            "confirmed_work": true,
+            "last_position": [
+              257.991,
+              -792.881,
+              202.533
+            ],
+            "last_deaths": 0,
+            "last_alive": true,
+            "last_points": 35,
+            "last_hits": 12,
+            "last_brushes": 5
+          }
+        }
+      },
+      "cleanup": {
+        "ordinary_bots_stop_requested": true,
+        "owned_pie_end_requested": true,
+        "owned_pie_stopped": true,
+        "original_map_restored": true
+      },
+      "protected_files_unchanged": true,
+      "report_sha256": "92abe8dcc48c75046842d2ca4c99425e2ceea87995b389d1f84773e70b55ac26",
+      "native_csv_sha256": "35a1c265290722f2b49e1c0804b421fc20f9c35c510beb06c8c210dab908cf25",
+      "local_raw_report": "E:\\CodexWork\\MessControlBots_20261020\\SoloCoopCoffee01\\Report.json",
+      "limitations": [
+        "One standalone PIE process. AI teammates do not exercise network replication or latency.",
+        "Coop has a stationary human whose normal perk callbacks are driven by this probe; physical input is not tested.",
+        "observe_cycle replaces the human with a spectator through the ordinary bot command. It does not establish human coop comfort.",
+        "A completed authored sequence is recorded separately from native Won / Lost. No victory flag is manufactured.",
+        "Budget expiry, missing stages or absent native contribution produce an explicit failure, not a shortened pass.",
+        "Native non-reflected bot counters/activity are read from the real session CSV; requests are not counted as accepted hits.",
+        "Milestones use the existing camera. An optional coop preview uses only the normal player orbit/zoom inputs; no pawn or camera rig is relocated.",
+        "No packaged game, cook, network or quantitative performance check."
+      ],
+      "external_patch_confirmation": null,
+      "read_only_boss_samples": null,
+      "read_only_boss_observer_initial_errors": null
+    },
+    {
+      "case": "SoloCycle01",
+      "status": "failed",
+      "passed": false,
+      "result": null,
+      "error": "Observed gameplay blocker: three living bots were swept behind the arena by the first coffee wave and remained immobile for over 200 game seconds with increasing path failures. Stopped this failed run for a bot survival fix; the authored cycle did not pass.",
+      "mode": "observe_cycle",
+      "scope": "Natural saved-level bot probe in one explicitly owned solo PIE; never launches Editor.\n\nMC_BOTS_MODE='coop' (default): normal resource preparation and first human perk,\nthen the ordinary MC.Bots 3 skilled coop console action, the new human perk,\nand natural first-three-food processing until coffee/portion two. Success needs\nreal AI movement and confirmed contribution from its own native diagnostic CSV.\nThe human is stationary apart from ordinary perk choices made by this driver.\n\nMC_BOTS_MODE='observe_cycle': MC.Bots 4 skilled observe; the human becomes an\nordinary spectator. Observe the saved Nut -> post-nut 5/8/9 -> small mint ->\nJellies -> Ice -> Fog chain through bAuthoredFragmentComplete. This is an AI\nobservation, not a human coop playthrough or a forced game-win assertion.\n\nRequires an idle, saved owned Editor (-MCHubOwned or -MCFirstRelaxOwned), fresh\nDLL and saved assets. No clock/stage/profile/nav/health/position changes, direct\ndamage/cleaning, actors spawned/deleted by Python, network peers, saves or builds.\nOnly ordinary MC.Bots / MC.Bots.Report / MC.Bots.Stop and the human's normal\nChooseRewardPerk(0) callback are driven. Physical keyboard/mouse is not tested.\n\nGlobals: MC_BOTS_OUTPUT (fresh E: folder), MC_BOTS_SEED (default41),\nMC_BOTS_GAME_BUDGET_SECONDS (coop180, cycle1800; max1800),\nMC_BOTS_WALL_BUDGET_SECONDS (coop300, cycle2400; max2400).\nMilestone PNGs are capped at32 /96MiB. MC_BOTS_PREVIEW=True additionally\nrecords at most16 seconds /64 frames /128MiB in coop, using the ordinary\ncamera orbit/zoom handlers to frame the first food; no camera rig replacement.\nNative CSV stays in project Saved/Playtests and is copied into output at exit.\nNo -MCBotsSmoke flag: that older probe assumes the obsolete short nut fragment.\nCancel this probe only: builtins.mc_bots_coop_solo.cancel().\n",
+      "seed": 41,
+      "network": false,
+      "live_code_patch": null,
+      "additional_live_code_patches": null,
+      "gameplay_overrides": false,
+      "game_budget_seconds": 1800.0,
+      "wall_seconds": 492.9220000000205,
+      "last_sample": {
+        "game_seconds": 487.36849814653397,
+        "elapsed_run_game_seconds": 478.65748843178153,
+        "wall_seconds": 492.2179999999935,
+        "native_stage": "FIRSTMEAL",
+        "native_phase": "WORKING",
+        "portion_number": 2,
+        "portion_target": 5,
+        "portion_spawned": 5,
+        "authored_fragment_complete": false,
+        "tasks_left": 7,
+        "tasks_total": 9,
+        "mouth_health": 100.0,
+        "human_pawn": null,
+        "human_spectator": true,
+        "pending_human_choices": 0,
+        "bot_pawns": [
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_0",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_3"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_1",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_4"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_2",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_5"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_3",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_6"
+          }
+        ],
+        "instruction": "Порция 2/3 · подано 5/5. Осталось: еда 2 · фрагменты 5 (в руках 3) · пятна 8 · грязные зубы 12 · угрозы 0.\nQ — закинуть фрагмент в глотку. Щётка — очистить язык и зубы. Следующая порция не требует полной уборки."
+      },
+      "seen_native_stages": [
+        "BETWEENMEALSPAUSE",
+        "FIRSTMEAL",
+        "MEALCOFFEEWAVE",
+        "OPENINGPAUSE"
+      ],
+      "post_nut_portions": {},
+      "checks": {
+        "preparation_ready_before_bot_start": true
+      },
+      "bot_metrics": {
+        "1": {
+          "max_points": 60,
+          "max_confirmed_hits": 0,
+          "max_brush_contacts": 6,
+          "max_deaths": 0,
+          "moved_cm": 3799.5378246445975,
+          "ordinary_distance_cm": 22423.62948254476,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "recover",
+            "collect_food",
+            "deliver"
+          ],
+          "first_position": [
+            -720.0,
+            -80.0,
+            170.691
+          ],
+          "last_position": [
+            2948.704,
+            908.483,
+            -22.247
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 766.758
+        },
+        "2": {
+          "max_points": 25,
+          "max_confirmed_hits": 4,
+          "max_brush_contacts": 4,
+          "max_deaths": 0,
+          "moved_cm": 3646.2788301776923,
+          "ordinary_distance_cm": 24512.22095022913,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "recover",
+            "collect_food",
+            "deliver",
+            "break_food"
+          ],
+          "first_position": [
+            -720.0,
+            -240.0,
+            183.776
+          ],
+          "last_position": [
+            2921.801,
+            -420.651,
+            -55.551
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1211.829
+        },
+        "3": {
+          "max_points": 45,
+          "max_confirmed_hits": 0,
+          "max_brush_contacts": 8,
+          "max_deaths": 0,
+          "moved_cm": 3874.2998696688414,
+          "ordinary_distance_cm": 23841.86489498492,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "collect_food",
+            "deliver"
+          ],
+          "first_position": [
+            -720.0,
+            -171.75,
+            177.958
+          ],
+          "last_position": [
+            3140.954,
+            -493.05,
+            -224.28
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 968.632
+        },
+        "4": {
+          "max_points": 95,
+          "max_confirmed_hits": 32,
+          "max_brush_contacts": 23,
+          "max_deaths": 0,
+          "moved_cm": 3254.9614814035817,
+          "ordinary_distance_cm": 50059.12715795038,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "break_food",
+            "collect_food",
+            "deliver",
+            "recover"
+          ],
+          "first_position": [
+            -720.0,
+            -308.25,
+            189.683
+          ],
+          "last_position": [
+            -423.77,
+            -279.828,
+            165.286
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1023.84
+        }
+      },
+      "coffee_extension": null,
+      "cleanup": {
+        "ordinary_bots_stop_requested": true,
+        "owned_pie_end_requested": true,
+        "owned_pie_stopped": true,
+        "original_map_restored": true
+      },
+      "protected_files_unchanged": true,
+      "report_sha256": "a1fb290f6cf91588dcce92e7258fda0dcea828becbc34b9b2f5c01169a1f19ad",
+      "native_csv_sha256": "f34c9b3e99588db8f6d86691206fc9dcb65efc0e6f89a31ad5b643db8bdd389b",
+      "local_raw_report": "E:\\CodexWork\\MessControlBots_20261020\\SoloCycle01\\Report.json",
+      "limitations": [
+        "One standalone PIE process. AI teammates do not exercise network replication or latency.",
+        "Coop has a stationary human whose normal perk callbacks are driven by this probe; physical input is not tested.",
+        "observe_cycle replaces the human with a spectator through the ordinary bot command. It does not establish human coop comfort.",
+        "A completed authored sequence is recorded separately from native Won / Lost. No victory flag is manufactured.",
+        "Budget expiry, missing stages or absent native contribution produce an explicit failure, not a shortened pass.",
+        "Native non-reflected bot counters/activity are read from the real session CSV; requests are not counted as accepted hits.",
+        "Milestones use the existing camera. An optional coop preview uses only the normal player orbit/zoom inputs; no pawn or camera rig is relocated.",
+        "No packaged game, cook, network or quantitative performance check."
+      ],
+      "external_patch_confirmation": null,
+      "read_only_boss_samples": null,
+      "read_only_boss_observer_initial_errors": null
+    },
+    {
+      "case": "SoloCycle02",
+      "status": "failed",
+      "passed": false,
+      "result": null,
+      "error": "Observed gameplay blocker: spoiled carried fragments target the obsolete interior bin Volume at X=-1700 rather than clearing the real mouth-front outline. Actual throw sweeps hit the tongue before that aim, repeated failed plans stop delivery. Stopped this failed natural run for an ordinary front-discard planner fix; full cycle did not pass.",
+      "mode": "observe_cycle",
+      "scope": "Natural saved-level bot probe in one explicitly owned solo PIE; never launches Editor.\n\nMC_BOTS_MODE='coop' (default): normal resource preparation and first human perk,\nthen the ordinary MC.Bots 3 skilled coop console action, the new human perk,\nand natural first-three-food processing until coffee/portion two. Success needs\nreal AI movement and confirmed contribution from its own native diagnostic CSV.\nThe human is stationary apart from ordinary perk choices made by this driver.\n\nMC_BOTS_COOP_THROUGH_COFFEE=True extends only coop: wait for the first natural\ncoffee to finish, five foods in portion two, and at least ten game seconds\nactually observed in portion two. Every bot must then be alive and show new\nordinary locomotion or confirmed work AFTER coffee in fresh native CSV rows.\nThis option defaults to/caps budgets at300 game /420 wall seconds. Old work\ncounters cannot satisfy the post-coffee check. Default coop/cycle are unchanged.\n\nMC_BOTS_MODE='observe_cycle': MC.Bots 4 skilled observe; the human becomes an\nordinary spectator. Observe the saved Nut -> post-nut 5/8/9 -> small mint ->\nJellies -> Ice -> Fog chain through bAuthoredFragmentComplete. This is an AI\nobservation, not a human coop playthrough or a forced game-win assertion.\n\nRequires an idle, saved owned Editor (-MCHubOwned or -MCFirstRelaxOwned), fresh\nDLL and saved assets. No clock/stage/profile/nav/health/position changes, direct\ndamage/cleaning, actors spawned/deleted by Python, network peers, saves or builds.\nOnly ordinary MC.Bots / MC.Bots.Report / MC.Bots.Stop and the human's normal\nChooseRewardPerk(0) callback are driven. Physical keyboard/mouse is not tested.\n\nGlobals: MC_BOTS_OUTPUT (fresh E: folder), MC_BOTS_SEED (default41),\nMC_BOTS_GAME_BUDGET_SECONDS (coop180, cycle1800; max1800),\nMC_BOTS_WALL_BUDGET_SECONDS (coop300, cycle2400; max2400).\nMilestone PNGs are capped at32 /96MiB. MC_BOTS_PREVIEW=True additionally\nrecords at most16 seconds /64 frames /128MiB in coop, using the ordinary\ncamera orbit/zoom handlers to frame the first food; no camera rig replacement.\nWith THROUGH_COFFEE the optional16-second preview starts at the first actual\nMEALCOFFEEWAVE instead, retaining the current camera without a replacement.\nNative CSV stays in project Saved/Playtests and is copied into output at exit.\nNo -MCBotsSmoke flag: that older probe assumes the obsolete short nut fragment.\nCancel this probe only: builtins.mc_bots_coop_solo.cancel().\n",
+      "seed": 41,
+      "network": false,
+      "live_code_patch": null,
+      "additional_live_code_patches": null,
+      "gameplay_overrides": false,
+      "game_budget_seconds": 1800.0,
+      "wall_seconds": 767.640000000014,
+      "last_sample": {
+        "game_seconds": 758.955138232559,
+        "elapsed_run_game_seconds": 750.8573265261948,
+        "wall_seconds": 766.7030000000959,
+        "native_stage": "FIRSTMEAL",
+        "native_phase": "WORKING",
+        "portion_number": 3,
+        "portion_target": 8,
+        "portion_spawned": 8,
+        "authored_fragment_complete": false,
+        "tasks_left": 55,
+        "tasks_total": 86,
+        "mouth_health": 100.0,
+        "human_pawn": null,
+        "human_spectator": true,
+        "pending_human_choices": 0,
+        "bot_pawns": [
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_0",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_3"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_1",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_4"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_2",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_5"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_3",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_6"
+          }
+        ],
+        "instruction": "Порция 3/3 · подано 8/8. Осталось: еда 4 · фрагменты 32 (в руках 5) · пятна 8 · грязные зубы 11 · угрозы 0.\nQ — закинуть фрагмент в глотку. Щётка — очистить язык и зубы. Уберите всю оставшуюся грязь перед ореховым событием."
+      },
+      "seen_native_stages": [
+        "BETWEENMEALSPAUSE",
+        "FIRSTMEAL",
+        "MEALCOFFEEWAVE",
+        "OPENINGPAUSE"
+      ],
+      "post_nut_portions": {},
+      "checks": {
+        "preparation_ready_before_bot_start": true
+      },
+      "bot_metrics": {
+        "1": {
+          "max_points": 160,
+          "max_confirmed_hits": 5,
+          "max_brush_contacts": 23,
+          "max_deaths": 0,
+          "moved_cm": 3665.352160890001,
+          "ordinary_distance_cm": 90231.19575181554,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "recover",
+            "collect_food",
+            "deliver",
+            "break_food",
+            "coffee_survival"
+          ],
+          "first_position": [
+            -720.0,
+            -80.0,
+            170.526
+          ],
+          "last_position": [
+            2253.578,
+            243.285,
+            155.42
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1000.0
+        },
+        "2": {
+          "max_points": 200,
+          "max_confirmed_hits": 27,
+          "max_brush_contacts": 43,
+          "max_deaths": 0,
+          "moved_cm": 3342.715901410708,
+          "ordinary_distance_cm": 87100.29502025762,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "break_food",
+            "collect_food",
+            "deliver",
+            "coffee_survival",
+            "recover"
+          ],
+          "first_position": [
+            -720.0,
+            -240.0,
+            183.614
+          ],
+          "last_position": [
+            -2060.434,
+            -182.407,
+            88.982
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1000.0
+        },
+        "3": {
+          "max_points": 185,
+          "max_confirmed_hits": 23,
+          "max_brush_contacts": 26,
+          "max_deaths": 0,
+          "moved_cm": 3552.6235949029274,
+          "ordinary_distance_cm": 108385.0916955065,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "collect_food",
+            "deliver",
+            "break_food",
+            "coffee_survival",
+            "recover"
+          ],
+          "first_position": [
+            -720.0,
+            -171.75,
+            177.795
+          ],
+          "last_position": [
+            2590.013,
+            -572.253,
+            90.192
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1000.0
+        },
+        "4": {
+          "max_points": 275,
+          "max_confirmed_hits": 21,
+          "max_brush_contacts": 60,
+          "max_deaths": 0,
+          "moved_cm": 3576.119289483783,
+          "ordinary_distance_cm": 94431.83568362401,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "break_food",
+            "collect_food",
+            "deliver",
+            "coffee_survival",
+            "recover"
+          ],
+          "first_position": [
+            -720.0,
+            -308.25,
+            189.524
+          ],
+          "last_position": [
+            1635.787,
+            38.747,
+            169.579
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1000.0
+        }
+      },
+      "coffee_extension": null,
+      "cleanup": {
+        "ordinary_bots_stop_requested": true,
+        "owned_pie_end_requested": true,
+        "owned_pie_stopped": true,
+        "original_map_restored": true
+      },
+      "protected_files_unchanged": true,
+      "report_sha256": "db4b46b9a82fa258f35541f231b753ead450814e193015967fef967056109e73",
+      "native_csv_sha256": "bf7a5d7275c7a827d160cd1de7be8745c648ce4f5d6e9b628b551ed74ab737de",
+      "local_raw_report": "E:\\CodexWork\\MessControlBots_20261020\\SoloCycle02\\Report.json",
+      "limitations": [
+        "One standalone PIE process. AI teammates do not exercise network replication or latency.",
+        "Coop has a stationary human whose normal perk callbacks are driven by this probe; physical input is not tested.",
+        "observe_cycle replaces the human with a spectator through the ordinary bot command. It does not establish human coop comfort.",
+        "A completed authored sequence is recorded separately from native Won / Lost. No victory flag is manufactured.",
+        "Budget expiry, missing stages or absent native contribution produce an explicit failure, not a shortened pass.",
+        "Native non-reflected bot counters/activity are read from the real session CSV; requests are not counted as accepted hits.",
+        "Milestones use the existing camera. An optional coop preview uses only the normal player orbit/zoom inputs; no pawn or camera rig is relocated.",
+        "No packaged game, cook, network or quantitative performance check."
+      ],
+      "external_patch_confirmation": null,
+      "read_only_boss_samples": null,
+      "read_only_boss_observer_initial_errors": null
+    },
+    {
+      "case": "SoloCycle03",
+      "status": "failed",
+      "passed": false,
+      "result": null,
+      "error": "Observed real-map blocker: the front tongue lip slopes downward, so lip-relative discard aim is below the top of the actual front-teeth mesh SM_Teeth_Forwart (top Z404). Arc sweeps correctly reject the low target. Stopped for a world-height-aware aim fix and a physical raised-front-border regression; no full-cycle pass claimed.",
+      "mode": "observe_cycle",
+      "scope": "Natural saved-level bot probe in one explicitly owned solo PIE; never launches Editor.\n\nMC_BOTS_MODE='coop' (default): normal resource preparation and first human perk,\nthen the ordinary MC.Bots 3 skilled coop console action, the new human perk,\nand natural first-three-food processing until coffee/portion two. Success needs\nreal AI movement and confirmed contribution from its own native diagnostic CSV.\nThe human is stationary apart from ordinary perk choices made by this driver.\n\nMC_BOTS_COOP_THROUGH_COFFEE=True extends only coop: wait for the first natural\ncoffee to finish, five foods in portion two, and at least ten game seconds\nactually observed in portion two. Every bot must then be alive and show new\nordinary locomotion or confirmed work AFTER coffee in fresh native CSV rows.\nThis option defaults to/caps budgets at300 game /420 wall seconds. Old work\ncounters cannot satisfy the post-coffee check. Default coop/cycle are unchanged.\n\nMC_BOTS_MODE='observe_cycle': MC.Bots 4 skilled observe; the human becomes an\nordinary spectator. Observe the saved Nut -> post-nut 5/8/9 -> small mint ->\nJellies -> Ice -> Fog chain through bAuthoredFragmentComplete. This is an AI\nobservation, not a human coop playthrough or a forced game-win assertion.\n\nRequires an idle, saved owned Editor (-MCHubOwned or -MCFirstRelaxOwned), fresh\nDLL and saved assets. No clock/stage/profile/nav/health/position changes, direct\ndamage/cleaning, actors spawned/deleted by Python, network peers, saves or builds.\nOnly ordinary MC.Bots / MC.Bots.Report / MC.Bots.Stop and the human's normal\nChooseRewardPerk(0) callback are driven. Physical keyboard/mouse is not tested.\n\nGlobals: MC_BOTS_OUTPUT (fresh E: folder), MC_BOTS_SEED (default41),\nMC_BOTS_GAME_BUDGET_SECONDS (coop180, cycle1800; max1800),\nMC_BOTS_WALL_BUDGET_SECONDS (coop300, cycle2400; max2400).\nMilestone PNGs are capped at32 /96MiB. MC_BOTS_PREVIEW=True additionally\nrecords at most16 seconds /64 frames /128MiB in coop, using the ordinary\ncamera orbit/zoom handlers to frame the first food; no camera rig replacement.\nWith THROUGH_COFFEE the optional16-second preview starts at the first actual\nMEALCOFFEEWAVE instead, retaining the current camera without a replacement.\nNative CSV stays in project Saved/Playtests and is copied into output at exit.\nNo -MCBotsSmoke flag: that older probe assumes the obsolete short nut fragment.\nCancel this probe only: builtins.mc_bots_coop_solo.cancel().\n",
+      "seed": 41,
+      "network": false,
+      "live_code_patch": null,
+      "additional_live_code_patches": null,
+      "gameplay_overrides": false,
+      "game_budget_seconds": 1800.0,
+      "wall_seconds": 920.625,
+      "last_sample": {
+        "game_seconds": 914.1250849030912,
+        "elapsed_run_game_seconds": 895.3056366033852,
+        "wall_seconds": 919.640999999945,
+        "native_stage": "FIRSTMEAL",
+        "native_phase": "WORKING",
+        "portion_number": 3,
+        "portion_target": 8,
+        "portion_spawned": 8,
+        "authored_fragment_complete": false,
+        "tasks_left": 37,
+        "tasks_total": 62,
+        "mouth_health": 100.0,
+        "human_pawn": null,
+        "human_spectator": true,
+        "pending_human_choices": 0,
+        "bot_pawns": [
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_0",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_3"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_1",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_4"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_2",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_5"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_3",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_6"
+          }
+        ],
+        "instruction": "Порция 3/3 · подано 8/8. Осталось: еда 5 · фрагменты 16 (в руках 2) · пятна 6 · грязные зубы 10 · угрозы 0.\nQ — закинуть фрагмент в глотку. Щётка — очистить язык и зубы. Уберите всю оставшуюся грязь перед ореховым событием."
+      },
+      "seen_native_stages": [
+        "BETWEENMEALSPAUSE",
+        "FIRSTMEAL",
+        "MEALCOFFEEWAVE",
+        "OPENINGPAUSE"
+      ],
+      "post_nut_portions": {},
+      "checks": {
+        "preparation_ready_before_bot_start": true
+      },
+      "bot_metrics": {
+        "1": {
+          "max_points": 165,
+          "max_confirmed_hits": 16,
+          "max_brush_contacts": 20,
+          "max_deaths": 0,
+          "moved_cm": 3494.1331543379965,
+          "ordinary_distance_cm": 110565.60176930876,
+          "activities": [
+            "idle",
+            "repair",
+            "calculus",
+            "clean",
+            "break_food",
+            "collect_food",
+            "deliver",
+            "coffee_survival",
+            "recover"
+          ],
+          "first_position": [
+            -720.0,
+            -80.0,
+            170.928
+          ],
+          "last_position": [
+            -1997.311,
+            462.787,
+            102.368
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1000.0
+        },
+        "2": {
+          "max_points": 165,
+          "max_confirmed_hits": 27,
+          "max_brush_contacts": 46,
+          "max_deaths": 0,
+          "moved_cm": 3140.4597817435906,
+          "ordinary_distance_cm": 37209.33502181714,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "recover",
+            "break_food",
+            "collect_food",
+            "deliver",
+            "coffee_survival"
+          ],
+          "first_position": [
+            -720.0,
+            -240.0,
+            184.008
+          ],
+          "last_position": [
+            -1400.43,
+            -516.366,
+            129.114
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1000.0
+        },
+        "3": {
+          "max_points": 175,
+          "max_confirmed_hits": 20,
+          "max_brush_contacts": 40,
+          "max_deaths": 0,
+          "moved_cm": 3557.532320611578,
+          "ordinary_distance_cm": 104893.19446233995,
+          "activities": [
+            "idle",
+            "repair",
+            "calculus",
+            "clean",
+            "collect_food",
+            "deliver",
+            "break_food",
+            "recover",
+            "coffee_survival"
+          ],
+          "first_position": [
+            -720.0,
+            -171.75,
+            178.193
+          ],
+          "last_position": [
+            874.749,
+            1364.692,
+            183.638
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1000.0
+        },
+        "4": {
+          "max_points": 270,
+          "max_confirmed_hits": 12,
+          "max_brush_contacts": 36,
+          "max_deaths": 0,
+          "moved_cm": 3444.2915621539646,
+          "ordinary_distance_cm": 110831.88872944191,
+          "activities": [
+            "idle",
+            "repair",
+            "calculus",
+            "clean",
+            "collect_food",
+            "deliver",
+            "coffee_survival",
+            "recover",
+            "break_food"
+          ],
+          "first_position": [
+            -720.0,
+            -308.25,
+            189.911
+          ],
+          "last_position": [
+            -995.764,
+            -608.33,
+            167.901
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 560.0
+        }
+      },
+      "coffee_extension": null,
+      "cleanup": {
+        "ordinary_bots_stop_requested": true,
+        "owned_pie_end_requested": true,
+        "owned_pie_stopped": true,
+        "original_map_restored": true
+      },
+      "protected_files_unchanged": true,
+      "report_sha256": "b6d85188f91585f91ea9a6bb0b5dfc260b5f742906aad00fd5bfd58ac644c36f",
+      "native_csv_sha256": "deac2aae65866316004a57db544aebbc7de29c24cbd3d51d6163742698ff5219",
+      "local_raw_report": "E:\\CodexWork\\MessControlBots_20261020\\SoloCycle03\\Report.json",
+      "limitations": [
+        "One standalone PIE process. AI teammates do not exercise network replication or latency.",
+        "Coop has a stationary human whose normal perk callbacks are driven by this probe; physical input is not tested.",
+        "observe_cycle replaces the human with a spectator through the ordinary bot command. It does not establish human coop comfort.",
+        "A completed authored sequence is recorded separately from native Won / Lost. No victory flag is manufactured.",
+        "Budget expiry, missing stages or absent native contribution produce an explicit failure, not a shortened pass.",
+        "Native non-reflected bot counters/activity are read from the real session CSV; requests are not counted as accepted hits.",
+        "Milestones use the existing camera. An optional coop preview uses only the normal player orbit/zoom inputs; no pawn or camera rig is relocated.",
+        "No packaged game, cook, network or quantitative performance check."
+      ],
+      "external_patch_confirmation": null,
+      "read_only_boss_samples": null,
+      "read_only_boss_observer_initial_errors": null
+    },
+    {
+      "case": "SoloCycle04",
+      "status": "failed",
+      "passed": false,
+      "result": null,
+      "error": "Traceback (most recent call last):\n  File \"E:/DEVGAME/MessControl/Tools/Unreal/check_bots_coop_solo.py\", line 540, in tick\n    require(self.now()-self.bot_start_game < self.game_budget,\n  File \"E:\\DEVGAME\\MessControl\\Tools\\Unreal\\check_first_relax_solo.py\", line 39, in require\n    raise RuntimeError(message)\nRuntimeError: Bot probe exceeded its game-time budget; remaining stages/gates are reported unchanged\n",
+      "mode": "observe_cycle",
+      "scope": "Natural saved-level bot probe in one explicitly owned solo PIE; never launches Editor.\n\nMC_BOTS_MODE='coop' (default): normal resource preparation and first human perk,\nthen the ordinary MC.Bots 3 skilled coop console action, the new human perk,\nand natural first-three-food processing until coffee/portion two. Success needs\nreal AI movement and confirmed contribution from its own native diagnostic CSV.\nThe human is stationary apart from ordinary perk choices made by this driver.\n\nMC_BOTS_COOP_THROUGH_COFFEE=True extends only coop: wait for the first natural\ncoffee to finish, five foods in portion two, and at least ten game seconds\nactually observed in portion two. Every bot must then be alive and show new\nordinary locomotion or confirmed work AFTER coffee in fresh native CSV rows.\nThis option defaults to/caps budgets at300 game /420 wall seconds. Old work\ncounters cannot satisfy the post-coffee check. Default coop/cycle are unchanged.\n\nMC_BOTS_MODE='observe_cycle': MC.Bots 4 skilled observe; the human becomes an\nordinary spectator. Observe the saved Nut -> post-nut 5/8/9 -> small mint ->\nJellies -> Ice -> Fog chain through bAuthoredFragmentComplete. This is an AI\nobservation, not a human coop playthrough or a forced game-win assertion.\n\nRequires an idle, saved owned Editor (-MCHubOwned or -MCFirstRelaxOwned), fresh\nDLL and saved assets. No clock/stage/profile/nav/health/position changes, direct\ndamage/cleaning, actors spawned/deleted by Python, network peers, saves or builds.\nOnly ordinary MC.Bots / MC.Bots.Report / MC.Bots.Stop and the human's normal\nChooseRewardPerk(0) callback are driven. Physical keyboard/mouse is not tested.\n\nGlobals: MC_BOTS_OUTPUT (fresh E: folder), MC_BOTS_SEED (default41),\nMC_BOTS_GAME_BUDGET_SECONDS (coop180, cycle1800; max1800),\nMC_BOTS_WALL_BUDGET_SECONDS (coop300, cycle2400; max2400).\nMilestone PNGs are capped at32 /96MiB. MC_BOTS_PREVIEW=True additionally\nrecords at most16 seconds /64 frames /128MiB in coop, using the ordinary\ncamera orbit/zoom handlers to frame the first food; no camera rig replacement.\nWith THROUGH_COFFEE the optional16-second preview starts at the first actual\nMEALCOFFEEWAVE instead, retaining the current camera without a replacement.\nNative CSV stays in project Saved/Playtests and is copied into output at exit.\nNo -MCBotsSmoke flag: that older probe assumes the obsolete short nut fragment.\nCancel this probe only: builtins.mc_bots_coop_solo.cancel().\n",
+      "seed": 41,
+      "network": false,
+      "live_code_patch": {
+        "reason": "Extend ordinary throw stand distances for physically tall stacks; no stage, clock, actor, health or food changes",
+        "requested_game_seconds": 469.96549509838223,
+        "source_sha256": "55438d278eed54eabfe51de047aedeac178145ea873e6090b2ac8286c9a75cca",
+        "command": "LiveCoding.Compile",
+        "completion_confirmed": true,
+        "failed_attempts": [
+          {
+            "reason": "Independent CPP compile found missing Navigation/PathFollowingComponent.h include; fixed in source",
+            "ubt_log": "E:/CodexWork/MessControlBots_20261020/LiveCoding/Completed/Log-backup-2025.10.31-17.16.38.txt"
+          }
+        ],
+        "retry_game_seconds": 734.1917623095214,
+        "confirmed_game_seconds": 851.0814658999443
+      },
+      "additional_live_code_patches": [
+        {
+          "reason": "Opt-in read-only tooth approach gate diagnostics",
+          "requested_game_seconds": 1350.1989843957126,
+          "source_sha256": "8ac5d93956f77a1d4a39c3dad20222f5436e7186e5fd746ba66c8b9b12a8c4f3",
+          "completion_confirmed": true,
+          "confirmed_game_seconds": 1399.8300269842148
+        },
+        {
+          "reason": "Broaden real tooth approach candidates within unchanged native brush reach",
+          "requested_game_seconds": 1549.9917782843113,
+          "source_sha256": "9714fb6c15044a0ad5c1ad530f8faea63e765b78ad747fb7719b199b876c5600",
+          "completion_confirmed": true,
+          "confirmed_game_seconds": 1734.5627391897142
+        },
+        {
+          "reason": "Tiered approach search and read-only first in-range hand-pose diagnostics",
+          "requested_game_seconds": 1789.4672258011997,
+          "source_sha256": "d3d7b758bc53d30da39a7a5808b24cac07af615f734d79dbaea97af2e22a1d86",
+          "compilation_confirmed": true,
+          "editor_log_success_utc": "2026-10-20T07:55:12.708Z",
+          "applied_after_observation": true,
+          "gameplay_observed": false
+        }
+      ],
+      "gameplay_overrides": false,
+      "game_budget_seconds": 1800.0,
+      "wall_seconds": 1834.859000000055,
+      "last_sample": {
+        "game_seconds": 1815.0006412155926,
+        "elapsed_run_game_seconds": 1799.3248000219464,
+        "wall_seconds": 1833.359000000055,
+        "native_stage": "FIRSTMEAL",
+        "native_phase": "WORKING",
+        "portion_number": 3,
+        "portion_target": 8,
+        "portion_spawned": 8,
+        "authored_fragment_complete": false,
+        "tasks_left": 4,
+        "tasks_total": 87,
+        "mouth_health": 100.0,
+        "human_pawn": null,
+        "human_spectator": true,
+        "pending_human_choices": 0,
+        "bot_pawns": [
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_0",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_3"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_1",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_4"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_2",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_5"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_3",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_6"
+          }
+        ],
+        "instruction": "Порция 3/3 · подано 8/8. Осталось: еда 0 · фрагменты 0 (в руках 0) · пятна 0 · грязные зубы 4 · угрозы 0.\nQ — закинуть фрагмент в глотку. Щётка — очистить язык и зубы. Уберите всю оставшуюся грязь перед ореховым событием."
+      },
+      "seen_native_stages": [
+        "BETWEENMEALSPAUSE",
+        "FIRSTMEAL",
+        "MEALCOFFEEWAVE",
+        "OPENINGPAUSE"
+      ],
+      "post_nut_portions": {},
+      "checks": {
+        "preparation_ready_before_bot_start": true
+      },
+      "bot_metrics": {
+        "1": {
+          "max_points": 235,
+          "max_confirmed_hits": 20,
+          "max_brush_contacts": 49,
+          "max_deaths": 0,
+          "moved_cm": 3630.461793322304,
+          "ordinary_distance_cm": 148460.76098226107,
+          "activities": [
+            "idle",
+            "repair",
+            "calculus",
+            "clean",
+            "break_food",
+            "collect_food",
+            "deliver",
+            "coffee_survival",
+            "recover"
+          ],
+          "first_position": [
+            -720.0,
+            -80.0,
+            177.317
+          ],
+          "last_position": [
+            -563.783,
+            1381.688,
+            205.651
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1000.0
+        },
+        "2": {
+          "max_points": 235,
+          "max_confirmed_hits": 36,
+          "max_brush_contacts": 51,
+          "max_deaths": 0,
+          "moved_cm": 3664.2745108636445,
+          "ordinary_distance_cm": 156966.91403953295,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "break_food",
+            "collect_food",
+            "deliver",
+            "coffee_survival",
+            "recover"
+          ],
+          "first_position": [
+            -720.0,
+            -240.0,
+            190.272
+          ],
+          "last_position": [
+            2226.563,
+            538.134,
+            158.24
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1000.0
+        },
+        "3": {
+          "max_points": 170,
+          "max_confirmed_hits": 47,
+          "max_brush_contacts": 34,
+          "max_deaths": 0,
+          "moved_cm": 3713.4505181344475,
+          "ordinary_distance_cm": 137865.5148991668,
+          "activities": [
+            "idle",
+            "repair",
+            "calculus",
+            "clean",
+            "collect_food",
+            "deliver",
+            "break_food",
+            "coffee_survival",
+            "recover"
+          ],
+          "first_position": [
+            -720.0,
+            -171.75,
+            184.535
+          ],
+          "last_position": [
+            2752.229,
+            464.967,
+            27.261
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1002.754
+        },
+        "4": {
+          "max_points": 290,
+          "max_confirmed_hits": 56,
+          "max_brush_contacts": 62,
+          "max_deaths": 0,
+          "moved_cm": 3751.393761384827,
+          "ordinary_distance_cm": 151025.84168164834,
+          "activities": [
+            "idle",
+            "repair",
+            "calculus",
+            "clean",
+            "collect_food",
+            "deliver",
+            "break_food",
+            "coffee_survival",
+            "recover"
+          ],
+          "first_position": [
+            -720.0,
+            -308.25,
+            196.061
+          ],
+          "last_position": [
+            583.625,
+            1663.334,
+            165.045
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1000.0
+        }
+      },
+      "coffee_extension": null,
+      "cleanup": {
+        "ordinary_bots_stop_requested": true,
+        "owned_pie_end_requested": true,
+        "owned_pie_stopped": true,
+        "original_map_restored": true
+      },
+      "protected_files_unchanged": true,
+      "report_sha256": "da3b6e3a9119b223f5a35c9142494dd84dc38b61beb8af13f475d50cf6fccb83",
+      "native_csv_sha256": "c04de066dfc4e1243b3b1644d96f64b7a9bd1442900a49533d7cb05cf44f4608",
+      "local_raw_report": "E:\\CodexWork\\MessControlBots_20261020\\SoloCycle04\\Report.json",
+      "limitations": [
+        "One standalone PIE process. AI teammates do not exercise network replication or latency.",
+        "Coop has a stationary human whose normal perk callbacks are driven by this probe; physical input is not tested.",
+        "observe_cycle replaces the human with a spectator through the ordinary bot command. It does not establish human coop comfort.",
+        "A completed authored sequence is recorded separately from native Won / Lost. No victory flag is manufactured.",
+        "Budget expiry, missing stages or absent native contribution produce an explicit failure, not a shortened pass.",
+        "Native non-reflected bot counters/activity are read from the real session CSV; requests are not counted as accepted hits.",
+        "Milestones use the existing camera. An optional coop preview uses only the normal player orbit/zoom inputs; no pawn or camera rig is relocated.",
+        "No packaged game, cook, network or quantitative performance check.",
+        "The natural Cycle04 observation includes an ordinary C++ Live Coding fix for tall-stack throw distance. No stages, clock, health, positions or task completion were forced; this is not a clean-start run of one final prebuilt DLL.",
+        "The final tiered approach/first-in-range diagnostics patch compiled during cleanup after the 1800-game-second observation had already failed; it has no gameplay result in this case."
+      ],
+      "external_patch_confirmation": null,
+      "read_only_boss_samples": null,
+      "read_only_boss_observer_initial_errors": null
+    },
+    {
+      "case": "SoloCoopCoffee02",
+      "status": "passed",
+      "passed": true,
+      "result": "coop_coffee_survival_and_second_portion_confirmed",
+      "error": null,
+      "mode": "coop",
+      "scope": "Natural saved-level bot probe in one explicitly owned solo PIE; never launches Editor.\n\nMC_BOTS_MODE='coop' (default): normal resource preparation and first human perk,\nthen the ordinary MC.Bots 3 skilled coop console action, the new human perk,\nand natural first-three-food processing until coffee/portion two. Success needs\nreal AI movement and confirmed contribution from its own native diagnostic CSV.\nThe human is stationary apart from ordinary perk choices made by this driver.\n\nMC_BOTS_COOP_THROUGH_COFFEE=True extends only coop: wait for the first natural\ncoffee to finish, five foods in portion two, and at least ten game seconds\nactually observed in portion two. Every bot must then be alive and show new\nordinary locomotion or confirmed work AFTER coffee in fresh native CSV rows.\nThis option defaults to/caps budgets at300 game /420 wall seconds. Old work\ncounters cannot satisfy the post-coffee check. Default coop/cycle are unchanged.\n\nMC_BOTS_MODE='observe_cycle': MC.Bots 4 skilled observe; the human becomes an\nordinary spectator. Observe the saved Nut -> post-nut 5/8/9 -> small mint ->\nJellies -> Ice -> Fog chain through bAuthoredFragmentComplete. This is an AI\nobservation, not a human coop playthrough or a forced game-win assertion.\n\nRequires an idle, saved owned Editor (-MCHubOwned or -MCFirstRelaxOwned), fresh\nDLL and saved assets. No clock/stage/profile/nav/health/position changes, direct\ndamage/cleaning, actors spawned/deleted by Python, network peers, saves or builds.\nOnly ordinary MC.Bots / MC.Bots.Report / MC.Bots.Stop and the human's normal\nChooseRewardPerk(0) callback are driven. Physical keyboard/mouse is not tested.\n\nGlobals: MC_BOTS_OUTPUT (fresh E: folder), MC_BOTS_SEED (default41),\nMC_BOTS_GAME_BUDGET_SECONDS (coop180, cycle1800; max1800),\nMC_BOTS_WALL_BUDGET_SECONDS (coop300, cycle2400; max2400).\nMilestone PNGs are capped at32 /96MiB. MC_BOTS_PREVIEW=True additionally\nrecords at most16 seconds /64 frames /128MiB in coop, using the ordinary\ncamera orbit/zoom handlers to frame the first food; no camera rig replacement.\nWith THROUGH_COFFEE the optional16-second preview starts at the first actual\nMEALCOFFEEWAVE instead, retaining the current camera without a replacement.\nNative CSV stays in project Saved/Playtests and is copied into output at exit.\nNo -MCBotsSmoke flag: that older probe assumes the obsolete short nut fragment.\nCancel this probe only: builtins.mc_bots_coop_solo.cancel().\n",
+      "seed": 41,
+      "network": false,
+      "live_code_patch": null,
+      "additional_live_code_patches": null,
+      "gameplay_overrides": false,
+      "game_budget_seconds": 300.0,
+      "wall_seconds": 142.76500000001397,
+      "last_sample": {
+        "game_seconds": 134.66556042432785,
+        "elapsed_run_game_seconds": 122.4004835113883,
+        "wall_seconds": 140.71799999999348,
+        "native_stage": "FIRSTMEAL",
+        "native_phase": "WORKING",
+        "portion_number": 2,
+        "portion_target": 5,
+        "portion_spawned": 5,
+        "authored_fragment_complete": false,
+        "tasks_left": 5,
+        "tasks_total": 5,
+        "mouth_health": 100.0,
+        "human_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+        "human_spectator": false,
+        "pending_human_choices": 0,
+        "bot_pawns": [
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_0",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_3"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_1",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_4"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_2",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_5"
+          }
+        ],
+        "instruction": "Порция 2/3 · подано 5/5. Осталось: еда 5 · фрагменты 0 (в руках 0) · пятна 12 · грязные зубы 12 · угрозы 0.\nQ — закинуть фрагмент в глотку. Щётка — очистить язык и зубы. Следующая порция не требует полной уборки."
+      },
+      "seen_native_stages": [
+        "BETWEENMEALSPAUSE",
+        "FIRSTMEAL",
+        "FIRSTPERK",
+        "MEALCOFFEEWAVE",
+        "OPENINGPAUSE"
+      ],
+      "post_nut_portions": {},
+      "checks": {
+        "preparation_ready_before_bot_start": true,
+        "native_csv_owns_complete_ai_roster": true,
+        "native_four_player_participant_count": true,
+        "ordinary_ai_movement": true,
+        "ordinary_ai_confirmed_contribution": true,
+        "first_three_foods_naturally_issued": true,
+        "first_food_gate_naturally_released": true,
+        "natural_first_coffee_finished": true,
+        "natural_second_portion_issued_five": true,
+        "ten_actual_game_seconds_in_second_portion": true,
+        "every_bot_alive_and_active_after_coffee": true
+      },
+      "bot_metrics": {
+        "1": {
+          "max_points": 65,
+          "max_confirmed_hits": 0,
+          "max_brush_contacts": 9,
+          "max_deaths": 0,
+          "moved_cm": 2688.9956076070484,
+          "ordinary_distance_cm": 27119.156416197453,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "collect_food",
+            "deliver",
+            "coffee_survival"
+          ],
+          "first_position": [
+            -720.0,
+            -240.0,
+            186.205
+          ],
+          "last_position": [
+            -357.741,
+            -875.706,
+            217.761
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 560.0
+        },
+        "2": {
+          "max_points": 40,
+          "max_confirmed_hits": 14,
+          "max_brush_contacts": 7,
+          "max_deaths": 0,
+          "moved_cm": 2407.6850600576895,
+          "ordinary_distance_cm": 24175.485993474915,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "break_food",
+            "deliver",
+            "collect_food",
+            "coffee_survival",
+            "recover"
+          ],
+          "first_position": [
+            -720.0,
+            -171.75,
+            180.418
+          ],
+          "last_position": [
+            -1031.673,
+            1276.365,
+            176.154
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 535.677
+        },
+        "3": {
+          "max_points": 50,
+          "max_confirmed_hits": 8,
+          "max_brush_contacts": 11,
+          "max_deaths": 0,
+          "moved_cm": 2437.1964986215207,
+          "ordinary_distance_cm": 22747.30364601063,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "break_food",
+            "collect_food",
+            "deliver",
+            "recover",
+            "coffee_survival"
+          ],
+          "first_position": [
+            -720.0,
+            -308.25,
+            192.068
+          ],
+          "last_position": [
+            -1166.435,
+            -533.036,
+            151.37
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1000.0
+        }
+      },
+      "coffee_extension": {
+        "first_coffee_game": 109.48743322864175,
+        "coffee_finished_game": 117.36309763789177,
+        "second_portion_game": 125.28096763044596,
+        "second_portion_five_issued": true,
+        "observed_second_portion_game_seconds": 10.08156879618764,
+        "post_coffee_bots": {
+          "1": {
+            "baseline_elapsed": 105.098,
+            "last_elapsed": 123.696,
+            "ordinary_distance_cm": 173.45061791251143,
+            "confirmed_work": true,
+            "last_position": [
+              -357.741,
+              -875.706,
+              217.761
+            ],
+            "last_deaths": 0,
+            "last_alive": true,
+            "last_points": 65,
+            "last_hits": 0,
+            "last_brushes": 9
+          },
+          "2": {
+            "baseline_elapsed": 105.098,
+            "last_elapsed": 123.696,
+            "ordinary_distance_cm": 443.3577644024706,
+            "confirmed_work": true,
+            "last_position": [
+              -1031.673,
+              1276.365,
+              176.154
+            ],
+            "last_deaths": 0,
+            "last_alive": true,
+            "last_points": 40,
+            "last_hits": 14,
+            "last_brushes": 7
+          },
+          "3": {
+            "baseline_elapsed": 105.098,
+            "last_elapsed": 123.696,
+            "ordinary_distance_cm": 1017.4369396354757,
+            "confirmed_work": true,
+            "last_position": [
+              -1166.435,
+              -533.036,
+              151.37
+            ],
+            "last_deaths": 0,
+            "last_alive": true,
+            "last_points": 50,
+            "last_hits": 8,
+            "last_brushes": 11
+          }
+        }
+      },
+      "cleanup": {
+        "ordinary_bots_stop_requested": true,
+        "owned_pie_end_requested": true,
+        "owned_pie_stopped": true,
+        "original_map_restored": true
+      },
+      "protected_files_unchanged": true,
+      "report_sha256": "12e98eafe7baea27214793651ef4c979e9df669c1be1991203626a8db4a4d50d",
+      "native_csv_sha256": "7dbb2a8d36bcd4b944b82696783d91f1c208e2aa129c6f395f1b7d3dea37b25f",
+      "local_raw_report": "E:\\CodexWork\\MessControlBots_20261020\\SoloCoopCoffee02\\Report.json",
+      "limitations": [
+        "One standalone PIE process. AI teammates do not exercise network replication or latency.",
+        "Coop has a stationary human whose normal perk callbacks are driven by this probe; physical input is not tested.",
+        "observe_cycle replaces the human with a spectator through the ordinary bot command. It does not establish human coop comfort.",
+        "A completed authored sequence is recorded separately from native Won / Lost. No victory flag is manufactured.",
+        "Budget expiry, missing stages or absent native contribution produce an explicit failure, not a shortened pass.",
+        "Native non-reflected bot counters/activity are read from the real session CSV; requests are not counted as accepted hits.",
+        "Milestones use the existing camera. An optional coop preview uses only the normal player orbit/zoom inputs; no pawn or camera rig is relocated.",
+        "No packaged game, cook, network or quantitative performance check."
+      ],
+      "external_patch_confirmation": null,
+      "read_only_boss_samples": null,
+      "read_only_boss_observer_initial_errors": null
+    },
+    {
+      "case": "SoloCycle05",
+      "status": "failed",
+      "passed": false,
+      "result": null,
+      "error": "Traceback (most recent call last):\n  File \"E:/DEVGAME/MessControl/Tools/Unreal/check_bots_coop_solo.py\", line 540, in tick\n    require(self.now()-self.bot_start_game < self.game_budget,\n  File \"E:\\DEVGAME\\MessControl\\Tools\\Unreal\\check_first_relax_solo.py\", line 39, in require\n    raise RuntimeError(message)\nRuntimeError: Bot probe exceeded its game-time budget; remaining stages/gates are reported unchanged\n",
+      "mode": "observe_cycle",
+      "scope": "Natural saved-level bot probe in one explicitly owned solo PIE; never launches Editor.\n\nMC_BOTS_MODE='coop' (default): normal resource preparation and first human perk,\nthen the ordinary MC.Bots 3 skilled coop console action, the new human perk,\nand natural first-three-food processing until coffee/portion two. Success needs\nreal AI movement and confirmed contribution from its own native diagnostic CSV.\nThe human is stationary apart from ordinary perk choices made by this driver.\n\nMC_BOTS_COOP_THROUGH_COFFEE=True extends only coop: wait for the first natural\ncoffee to finish, five foods in portion two, and at least ten game seconds\nactually observed in portion two. Every bot must then be alive and show new\nordinary locomotion or confirmed work AFTER coffee in fresh native CSV rows.\nThis option defaults to/caps budgets at300 game /420 wall seconds. Old work\ncounters cannot satisfy the post-coffee check. Default coop/cycle are unchanged.\n\nMC_BOTS_MODE='observe_cycle': MC.Bots 4 skilled observe; the human becomes an\nordinary spectator. Observe the saved Nut -> post-nut 5/8/9 -> small mint ->\nJellies -> Ice -> Fog chain through bAuthoredFragmentComplete. This is an AI\nobservation, not a human coop playthrough or a forced game-win assertion.\n\nRequires an idle, saved owned Editor (-MCHubOwned or -MCFirstRelaxOwned), fresh\nDLL and saved assets. No clock/stage/profile/nav/health/position changes, direct\ndamage/cleaning, actors spawned/deleted by Python, network peers, saves or builds.\nOnly ordinary MC.Bots / MC.Bots.Report / MC.Bots.Stop and the human's normal\nChooseRewardPerk(0) callback are driven. Physical keyboard/mouse is not tested.\n\nGlobals: MC_BOTS_OUTPUT (fresh E: folder), MC_BOTS_SEED (default41),\nMC_BOTS_GAME_BUDGET_SECONDS (coop180, cycle1800; max1800),\nMC_BOTS_WALL_BUDGET_SECONDS (coop300, cycle2400; max2400).\nMilestone PNGs are capped at32 /96MiB. MC_BOTS_PREVIEW=True additionally\nrecords at most16 seconds /64 frames /128MiB in coop, using the ordinary\ncamera orbit/zoom handlers to frame the first food; no camera rig replacement.\nWith THROUGH_COFFEE the optional16-second preview starts at the first actual\nMEALCOFFEEWAVE instead, retaining the current camera without a replacement.\nNative CSV stays in project Saved/Playtests and is copied into output at exit.\nNo -MCBotsSmoke flag: that older probe assumes the obsolete short nut fragment.\nCancel this probe only: builtins.mc_bots_coop_solo.cancel().\n",
+      "seed": 41,
+      "network": false,
+      "live_code_patch": null,
+      "additional_live_code_patches": [
+        {
+          "reason": "Opt-in read-only physical approach anchor rejection counters; no gameplay branch changed",
+          "requested_game_seconds": 891.7805885747075,
+          "command": "LiveCoding.Compile",
+          "completion_confirmed": true,
+          "source_sha256": "da928fdd29ee6963c1f5a0ad0932b3290abd0d2435a1971bfd0bc4f0dc2f10e3",
+          "confirmed_game_seconds": 1217.7858067303896,
+          "native_result": "Succeeded; 240.49 seconds",
+          "ubt_log": "E:/CodexWork/MessControlBots_20261020/LiveCoding/Cycle05Diagnostic/Log.txt"
+        },
+        {
+          "reason": "AI-only ordinary CMC short walk from its actual supported current pose before requiring an invalid Nav anchor path. Existing 200 cm/support/capsule/brush checks unchanged.",
+          "requested_game_seconds": 1286.437857888639,
+          "command": "LiveCoding.Compile",
+          "completion_confirmed": true,
+          "source_sha256": "64158fa9dc5e44f0fb1f937a683d44ffcea1178e11d2024c34d82812b5a278d8",
+          "confirmed_game_seconds": 1355.335448794067,
+          "native_result": "Succeeded; 10.49 seconds",
+          "ubt_log": "E:/CodexWork/MessControlBots_20261020/LiveCoding/Cycle05DirectApproach/Log.txt"
+        },
+        {
+          "reason": "AI-only return from a supported off-Nav stance: ordinary direct native path at most200 cm, validated floor/capsule and full remaining Nav path, per-frame segment recheck. No human movement or geometry changes.",
+          "requested_game_seconds": 1660.790336124599,
+          "command": "LiveCoding.Compile",
+          "completion_confirmed": false,
+          "source_sha256": {
+            "Source/MessControl/Private/MCPlaytestBotController.cpp": "ced2dff603214a34bc7d26138bca243172341cab7c01dd55a15328d8a48e6df6",
+            "Source/MessControl/Private/Tests/MCPlaytestPhysicalApproachTests.cpp": "b5d2403f14d1fd471a83152189e65b9554db3ee71f72294500b538008b0e2bbf"
+          }
+        }
+      ],
+      "gameplay_overrides": false,
+      "game_budget_seconds": 1800.0,
+      "wall_seconds": 1838.359999999986,
+      "last_sample": {
+        "game_seconds": 1815.9029914923012,
+        "elapsed_run_game_seconds": 1799.9235328659415,
+        "wall_seconds": 1837.1879999999655,
+        "native_stage": "NUTS",
+        "native_phase": "WORKING",
+        "portion_number": 3,
+        "portion_target": 8,
+        "portion_spawned": 8,
+        "authored_fragment_complete": false,
+        "tasks_left": 2,
+        "tasks_total": 2,
+        "mouth_health": 100.0,
+        "human_pawn": null,
+        "human_spectator": true,
+        "pending_human_choices": 0,
+        "bot_pawns": [
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_0",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_3"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_1",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_4"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_2",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_5"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_3",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_6"
+          }
+        ],
+        "instruction": "Победите Орехового Рыцаря. После раскола головы он превратится в Колдуна."
+      },
+      "seen_native_stages": [
+        "BETWEENMEALSPAUSE",
+        "FIRSTMEAL",
+        "MEALCOFFEEWAVE",
+        "MEALREST",
+        "NUTS",
+        "OPENINGPAUSE"
+      ],
+      "post_nut_portions": {},
+      "checks": {
+        "preparation_ready_before_bot_start": true
+      },
+      "bot_metrics": {
+        "1": {
+          "max_points": 240,
+          "max_confirmed_hits": 29,
+          "max_brush_contacts": 55,
+          "max_deaths": 0,
+          "moved_cm": 3664.2681668963587,
+          "ordinary_distance_cm": 91511.49221202964,
+          "activities": [
+            "idle",
+            "repair",
+            "calculus",
+            "clean",
+            "break_food",
+            "collect_food",
+            "deliver",
+            "coffee_survival",
+            "recover",
+            "physical_tooth_approach"
+          ],
+          "first_position": [
+            -720.0,
+            -80.0,
+            177.363
+          ],
+          "last_position": [
+            469.161,
+            1349.919,
+            191.8
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 560.0
+        },
+        "2": {
+          "max_points": 280,
+          "max_confirmed_hits": 39,
+          "max_brush_contacts": 50,
+          "max_deaths": 0,
+          "moved_cm": 2634.771064736365,
+          "ordinary_distance_cm": 117273.21256123982,
+          "activities": [
+            "idle",
+            "repair",
+            "calculus",
+            "clean",
+            "break_food",
+            "collect_food",
+            "deliver",
+            "coffee_survival",
+            "recover",
+            "physical_tooth_approach",
+            "escape"
+          ],
+          "first_position": [
+            -720.0,
+            -240.0,
+            190.317
+          ],
+          "last_position": [
+            1678.3,
+            -96.662,
+            170.357
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1000.0
+        },
+        "3": {
+          "max_points": 195,
+          "max_confirmed_hits": 26,
+          "max_brush_contacts": 37,
+          "max_deaths": 0,
+          "moved_cm": 2672.50594384615,
+          "ordinary_distance_cm": 69701.73397485507,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "recover",
+            "collect_food",
+            "deliver",
+            "break_food",
+            "coffee_survival",
+            "physical_tooth_approach",
+            "repair",
+            "escape"
+          ],
+          "first_position": [
+            -720.0,
+            -171.75,
+            184.581
+          ],
+          "last_position": [
+            -1256.995,
+            -2350.013,
+            -254.936
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1088.807
+        },
+        "4": {
+          "max_points": 370,
+          "max_confirmed_hits": 71,
+          "max_brush_contacts": 68,
+          "max_deaths": 0,
+          "moved_cm": 2761.2152064371944,
+          "ordinary_distance_cm": 114139.53971866213,
+          "activities": [
+            "idle",
+            "repair",
+            "calculus",
+            "clean",
+            "collect_food",
+            "deliver",
+            "recover",
+            "coffee_survival",
+            "break_food",
+            "physical_tooth_approach"
+          ],
+          "first_position": [
+            -720.0,
+            -308.25,
+            196.105
+          ],
+          "last_position": [
+            2038.418,
+            -183.994,
+            167.759
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 560.0
+        }
+      },
+      "coffee_extension": null,
+      "cleanup": {
+        "ordinary_bots_stop_requested": true,
+        "owned_pie_end_requested": true,
+        "owned_pie_stopped": true,
+        "original_map_restored": true
+      },
+      "protected_files_unchanged": true,
+      "report_sha256": "9fa7d291bb57a9cb21861704e101e63c4b26a268fcad8780949799b1fed65a21",
+      "native_csv_sha256": "6dbb120e063fe148d3f1a1d410311d61576e030dcf3519421d12babb3809a417",
+      "local_raw_report": "E:\\CodexWork\\MessControlBots_20261020\\SoloCycle05\\Report.json",
+      "limitations": [
+        "One standalone PIE process. AI teammates do not exercise network replication or latency.",
+        "Coop has a stationary human whose normal perk callbacks are driven by this probe; physical input is not tested.",
+        "observe_cycle replaces the human with a spectator through the ordinary bot command. It does not establish human coop comfort.",
+        "A completed authored sequence is recorded separately from native Won / Lost. No victory flag is manufactured.",
+        "Budget expiry, missing stages or absent native contribution produce an explicit failure, not a shortened pass.",
+        "Native non-reflected bot counters/activity are read from the real session CSV; requests are not counted as accepted hits.",
+        "Milestones use the existing camera. An optional coop preview uses only the normal player orbit/zoom inputs; no pawn or camera rig is relocated.",
+        "No packaged game, cook, network or quantitative performance check.",
+        "Cycle05 began with the final regular DLL, then received an opt-in C++ diagnostic-only Live Coding patch after the remaining four teeth stalled. Patch times and hashes are preserved; no game state was forced.",
+        "Cycle05 includes a behavior Live Coding patch for AI-only physically validated final approach after the four-crown stall. This is a mixed-revision natural observation, not a clean final-DLL start."
+      ],
+      "external_patch_confirmation": {
+        "scope": "Post-run corroboration from the owned Editor log; the raw probe report is preserved unchanged.",
+        "raw_probe_status": "failed_by_1800_game_second_budget",
+        "editor_log": "E:/CodexWork/MessControlBots_20261020/Editor/Cycle05/Editor.log",
+        "third_patch": {
+          "native_result": "Succeeded; 15.01 seconds",
+          "editor_log_succeeded_utc": "2026-10-20 09:21:02.754",
+          "ubt_log": "E:/CodexWork/MessControlBots_20261020/LiveCoding/Cycle05NavReturn/Log.txt",
+          "driver_confirmation": "Failed to connect because the owned PIE/Editor was ending at its declared budget; no success invented by the driver."
+        },
+        "observed_outcome": "All three opening portions and final dental cleanup completed, then the director started NUTS naturally. Full chain not completed in this run.",
+        "gameplay_overrides": false,
+        "network": false
+      },
+      "read_only_boss_samples": null,
+      "read_only_boss_observer_initial_errors": null
+    },
+    {
+      "case": "SoloCycle06",
+      "status": "failed",
+      "passed": false,
+      "result": null,
+      "error": "Traceback (most recent call last):\n  File \"E:/DEVGAME/MessControl/Tools/Unreal/check_bots_coop_solo.py\", line 540, in tick\n    require(self.now()-self.bot_start_game < self.game_budget,\n  File \"E:\\DEVGAME\\MessControl\\Tools\\Unreal\\check_first_relax_solo.py\", line 39, in require\n    raise RuntimeError(message)\nRuntimeError: Bot probe exceeded its game-time budget; remaining stages/gates are reported unchanged\n",
+      "mode": "observe_cycle",
+      "scope": "Natural saved-level bot probe in one explicitly owned solo PIE; never launches Editor.\n\nMC_BOTS_MODE='coop' (default): normal resource preparation and first human perk,\nthen the ordinary MC.Bots 3 skilled coop console action, the new human perk,\nand natural first-three-food processing until coffee/portion two. Success needs\nreal AI movement and confirmed contribution from its own native diagnostic CSV.\nThe human is stationary apart from ordinary perk choices made by this driver.\n\nMC_BOTS_COOP_THROUGH_COFFEE=True extends only coop: wait for the first natural\ncoffee to finish, five foods in portion two, and at least ten game seconds\nactually observed in portion two. Every bot must then be alive and show new\nordinary locomotion or confirmed work AFTER coffee in fresh native CSV rows.\nThis option defaults to/caps budgets at300 game /420 wall seconds. Old work\ncounters cannot satisfy the post-coffee check. Default coop/cycle are unchanged.\n\nMC_BOTS_MODE='observe_cycle': MC.Bots 4 skilled observe; the human becomes an\nordinary spectator. Observe the saved Nut -> post-nut 5/8/9 -> small mint ->\nJellies -> Ice -> Fog chain through bAuthoredFragmentComplete. This is an AI\nobservation, not a human coop playthrough or a forced game-win assertion.\n\nRequires an idle, saved owned Editor (-MCHubOwned or -MCFirstRelaxOwned), fresh\nDLL and saved assets. No clock/stage/profile/nav/health/position changes, direct\ndamage/cleaning, actors spawned/deleted by Python, network peers, saves or builds.\nOnly ordinary MC.Bots / MC.Bots.Report / MC.Bots.Stop and the human's normal\nChooseRewardPerk(0) callback are driven. Physical keyboard/mouse is not tested.\n\nGlobals: MC_BOTS_OUTPUT (fresh E: folder), MC_BOTS_SEED (default41),\nMC_BOTS_GAME_BUDGET_SECONDS (coop180, cycle1800; max1800),\nMC_BOTS_WALL_BUDGET_SECONDS (coop300, cycle2400; max2400).\nMilestone PNGs are capped at32 /96MiB. MC_BOTS_PREVIEW=True additionally\nrecords at most16 seconds /64 frames /128MiB in coop, using the ordinary\ncamera orbit/zoom handlers to frame the first food; no camera rig replacement.\nWith THROUGH_COFFEE the optional16-second preview starts at the first actual\nMEALCOFFEEWAVE instead, retaining the current camera without a replacement.\nNative CSV stays in project Saved/Playtests and is copied into output at exit.\nNo -MCBotsSmoke flag: that older probe assumes the obsolete short nut fragment.\nCancel this probe only: builtins.mc_bots_coop_solo.cancel().\n",
+      "seed": 41,
+      "network": false,
+      "live_code_patch": null,
+      "additional_live_code_patches": [
+        {
+          "reason": "AI keeps the announced boss of its active current NutEvent as a known objective beyond local sight, like meal/mint objectives. Ordinary path, melee contact, collision, damage and boss behavior unchanged.",
+          "requested_game_seconds": 1268.717676896602,
+          "command": "LiveCoding.Compile",
+          "completion_confirmed": true,
+          "source_sha256": "26be205278d538ce6365f63094813c2857540487456949a899a7325edb6cfc75",
+          "confirmed_game_seconds": 1527.6305226273835,
+          "confirmation_source": "Owned Editor LogLiveCoding succeeded and actual shield/HP progress in read_only_boss_samples",
+          "ubt_log": "E:/CodexWork/MessControlBots_20261020/LiveCoding/Cycle06BossObjective/Log.txt"
+        },
+        {
+          "reason": "AI-only final supported weapon approach for a large enemy skin just beyond a clamped Nav edge. Same existing200 cm floor/capsule checks and per-Tick validation; ordinary CMC/weapon contact only.",
+          "requested_game_seconds": 1774.0756292417645,
+          "command": "LiveCoding.Compile",
+          "completion_confirmed": false,
+          "source_sha256": "972582f44651f5eddba02a6e5647e86bd961dd2fad6febcfb58eac83281edd2a"
+        }
+      ],
+      "gameplay_overrides": false,
+      "game_budget_seconds": 1800.0,
+      "wall_seconds": 1836.265000000014,
+      "last_sample": {
+        "game_seconds": 1816.4848833046854,
+        "elapsed_run_game_seconds": 1799.9990888871253,
+        "wall_seconds": 1835.1560000000754,
+        "native_stage": "NUTS",
+        "native_phase": "WORKING",
+        "portion_number": 3,
+        "portion_target": 8,
+        "portion_spawned": 8,
+        "authored_fragment_complete": false,
+        "tasks_left": 2,
+        "tasks_total": 2,
+        "mouth_health": 100.0,
+        "human_pawn": null,
+        "human_spectator": true,
+        "pending_human_choices": 0,
+        "bot_pawns": [
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_0",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_3"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_1",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_4"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_2",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_5"
+          },
+          {
+            "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlaytestBotController_3",
+            "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_6"
+          }
+        ],
+        "instruction": "Победите Орехового Рыцаря. После раскола головы он превратится в Колдуна."
+      },
+      "seen_native_stages": [
+        "BETWEENMEALSPAUSE",
+        "FIRSTMEAL",
+        "MEALCOFFEEWAVE",
+        "MEALREST",
+        "NUTS",
+        "OPENINGPAUSE"
+      ],
+      "post_nut_portions": {},
+      "checks": {
+        "preparation_ready_before_bot_start": true
+      },
+      "bot_metrics": {
+        "1": {
+          "max_points": 365,
+          "max_confirmed_hits": 21,
+          "max_brush_contacts": 56,
+          "max_deaths": 0,
+          "moved_cm": 2696.7940809503793,
+          "ordinary_distance_cm": 84768.65180132499,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "collect_food",
+            "deliver",
+            "coffee_survival",
+            "recover",
+            "break_food",
+            "physical_tooth_approach",
+            "repair",
+            "escape",
+            "fight"
+          ],
+          "first_position": [
+            -720.0,
+            -80.0,
+            176.354
+          ],
+          "last_position": [
+            -2916.28,
+            960.442,
+            -97.235
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1000.0
+        },
+        "2": {
+          "max_points": 340,
+          "max_confirmed_hits": 90,
+          "max_brush_contacts": 43,
+          "max_deaths": 0,
+          "moved_cm": 3647.0265857810796,
+          "ordinary_distance_cm": 142685.07371075705,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "break_food",
+            "collect_food",
+            "deliver",
+            "coffee_survival",
+            "recover",
+            "physical_tooth_approach",
+            "escape",
+            "fight",
+            "repair"
+          ],
+          "first_position": [
+            -720.0,
+            -240.0,
+            189.327
+          ],
+          "last_position": [
+            -374.482,
+            1667.317,
+            186.486
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1000.0
+        },
+        "3": {
+          "max_points": 265,
+          "max_confirmed_hits": 37,
+          "max_brush_contacts": 39,
+          "max_deaths": 0,
+          "moved_cm": 3524.6302696129706,
+          "ordinary_distance_cm": 89013.74229662037,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "recover",
+            "break_food",
+            "collect_food",
+            "deliver",
+            "coffee_survival",
+            "physical_tooth_approach",
+            "repair",
+            "fight",
+            "escape"
+          ],
+          "first_position": [
+            -720.0,
+            -171.75,
+            183.579
+          ],
+          "last_position": [
+            -366.19,
+            1852.321,
+            167.969
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 604.8
+        },
+        "4": {
+          "max_points": 570,
+          "max_confirmed_hits": 135,
+          "max_brush_contacts": 63,
+          "max_deaths": 0,
+          "moved_cm": 3764.6001326850105,
+          "ordinary_distance_cm": 178658.38174952084,
+          "activities": [
+            "idle",
+            "calculus",
+            "clean",
+            "break_food",
+            "collect_food",
+            "deliver",
+            "coffee_survival",
+            "recover",
+            "physical_tooth_approach",
+            "repair",
+            "escape",
+            "fight"
+          ],
+          "first_position": [
+            -720.0,
+            -308.25,
+            195.134
+          ],
+          "last_position": [
+            -2438.36,
+            1132.519,
+            53.517
+          ],
+          "last_alive": true,
+          "last_deaths": 0,
+          "max_speed_cm_s": 1000.0
+        }
+      },
+      "coffee_extension": null,
+      "cleanup": {
+        "ordinary_bots_stop_requested": true,
+        "owned_pie_end_requested": true,
+        "owned_pie_stopped": true,
+        "original_map_restored": true
+      },
+      "protected_files_unchanged": true,
+      "report_sha256": "6bd25ab2d7e54828dad6bed2ca055e01f2ca3e4a3ba5f930ce85a452c3ae153a",
+      "native_csv_sha256": "5f0162aed90ca29eae6b409d5a9d7f31df0d8d1de19cc8ec9efaeb947ec3c006",
+      "local_raw_report": "E:\\CodexWork\\MessControlBots_20261020\\SoloCycle06\\Report.json",
+      "limitations": [
+        "One standalone PIE process. AI teammates do not exercise network replication or latency.",
+        "Coop has a stationary human whose normal perk callbacks are driven by this probe; physical input is not tested.",
+        "observe_cycle replaces the human with a spectator through the ordinary bot command. It does not establish human coop comfort.",
+        "A completed authored sequence is recorded separately from native Won / Lost. No victory flag is manufactured.",
+        "Budget expiry, missing stages or absent native contribution produce an explicit failure, not a shortened pass.",
+        "Native non-reflected bot counters/activity are read from the real session CSV; requests are not counted as accepted hits.",
+        "Milestones use the existing camera. An optional coop preview uses only the normal player orbit/zoom inputs; no pawn or camera rig is relocated.",
+        "No packaged game, cook, network or quantitative performance check.",
+        "Cycle06 began with the final28-test regular DLL, then a real boss-perception stall required an AI-only C++ Live Coding fix. This observation includes mixed source revisions; no stage/clock/health/actor positions were forced."
+      ],
+      "external_patch_confirmation": {
+        "scope": "Post-run corroboration from the owned Editor log and read-only public boss samples; raw probe report unchanged.",
+        "raw_probe_status": "failed_by_1800_game_second_budget",
+        "editor_log": "E:/CodexWork/MessControlBots_20261020/Editor/Cycle06/Editor.log",
+        "patches": [
+          {
+            "reason": "Known active event boss objective",
+            "native_result": "Succeeded;174.94 seconds",
+            "editor_log_succeeded_utc": "2026-10-20 09:54:30.650",
+            "ubt_log": "E:/CodexWork/MessControlBots_20261020/LiveCoding/Cycle06BossObjective/Log.txt"
+          },
+          {
+            "reason": "Supported final weapon-contact leg beyond clamped Nav edge",
+            "native_result": "Succeeded;11.29 seconds",
+            "editor_log_succeeded_utc": "2026-10-20 10:00:06.642",
+            "ubt_log": "E:/CodexWork/MessControlBots_20261020/LiveCoding/Cycle06CombatLeg/Log.txt",
+            "driver_confirmation": "Compiled just before budget end; post-run log corroboration only, not a new clean-start run."
+          }
+        ],
+        "observed_outcome": "Opening meals and cleanup passed; Knight shield reached0 and HP fell to1615.197. Knight/Mage defeat, post-nut meals, mint, jellies, ice and fog were not reached.",
+        "gameplay_overrides": false,
+        "network": false
+      },
+      "read_only_boss_samples": [
+        {
+          "game_seconds": 857.4223933257163,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 862.445514023304,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 867.4666115231812,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.TELEGRAPH: 2>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 872.493090428412,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.TELEGRAPH: 2>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 877.5008252300322,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.TELEGRAPH: 2>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 882.5353059247136,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 887.5501444227993,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.TELEGRAPH: 2>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 892.5849171131849,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 897.6231548152864,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 902.6339607164264,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 907.6485405191779,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 912.650621317327,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 917.6633874177933,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 922.6783735118806,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.EXECUTING: 3>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 927.6867855079472,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 932.6909048110247,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 937.6989185102284,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 942.707345508039,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 947.7230710051954,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 952.7273791097105,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.TELEGRAPH: 2>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 957.7757175117731,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 962.8016792051494,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 967.8231147043407,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.EXECUTING: 3>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 972.8340440988541,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 977.8401248902082,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 982.8514832928777,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 987.8521476909518,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.EXECUTING: 3>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 992.8716056905687,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 997.8842882923782,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1002.9103718847036,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1007.9498675912619,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1012.9540820904076,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1017.9582912921906,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1022.9640323929489,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1028.0004957951605,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.EXECUTING: 3>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1033.024840194732,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1038.057678192854,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1043.0642018988729,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1048.0883959941566,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.TELEGRAPH: 2>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1053.1138365902007,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1058.1318839900196,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1063.1492257900536,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1068.1537009887397,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.EXECUTING: 3>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1073.178096782416,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1078.1805255822837,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1083.2183531746268,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1088.2193394750357,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1093.240843579173,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1098.2445804774761,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1103.2771803811193,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1108.3047044835985,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1113.3384118825197,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.EXECUTING: 3>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1118.3519187830389,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1123.352457974106,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1128.3658037669957,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1133.3766483701766,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.TELEGRAPH: 2>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1138.3891383707523,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1143.40113016963,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1148.4013627655804,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1153.4034583680332,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1158.424995072186,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1163.4519822746515,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1168.4824268743396,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1173.5015555731952,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1178.5186314731836,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1183.528399579227,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1188.5450335778296,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1193.5704787820578,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1198.5846178792417,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1203.6094247847795,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1208.6369599811733,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1213.6416111811996,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1218.6462322808802,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1223.6714955866337,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1228.692744486034,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1233.7043229863048,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1238.7307699881494,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.EXECUTING: 3>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1243.7360700890422,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1248.7360970899463,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1253.7411039881408,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1258.7568998895586,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1263.7613000907004,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1269.1176769025624,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1274.146706495434,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.TELEGRAPH: 2>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1279.1500063873827,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.TELEGRAPH: 2>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1284.1675586886704,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1289.2002670913935,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1294.2221635840833,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1299.2565844878554,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1304.2667675949633,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1309.276403605938,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1314.3211798034608,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1319.3262635096908,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1324.3328921981156,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.EXECUTING: 3>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1329.3418879881501,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1334.3439050875604,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1339.384379785508,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1344.3958310894668,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1349.4071773923934,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1354.4224041886628,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1359.4432710930705,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1364.4659912958741,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1369.5025583989918,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1374.5192069895566,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1379.5443033836782,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1384.5589791871607,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1389.5608130916953,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1394.573534797877,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1399.579670496285,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1404.6035966053605,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1409.6346747092903,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1414.656525310129,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.TELEGRAPH: 2>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1419.682724505663,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.EXECUTING: 3>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1424.7068954110146,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.EXECUTING: 3>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1429.7347337082028,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.EXECUTING: 3>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1434.7446663044393,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.EXECUTING: 3>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1439.7479112148285,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 4129.99951171875,
+              "shield_health": 60.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1444.7779686041176,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.STUNNED: 6>",
+              "health": 4040.3994140625,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1449.778831206262,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RETARGETING: 7>",
+              "health": 3816.399169921875,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1454.7980984076858,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 3816.399169921875,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1459.8161727115512,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 3681.9990234375,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1464.8318996056914,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 3413.19873046875,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1469.8357786126435,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 3278.798583984375,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1474.8383470214903,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 3189.198486328125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1479.861292220652,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 3189.198486328125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1484.8738491274416,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.TELEGRAPH: 2>",
+              "health": 2869.59814453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1489.8793357238173,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.EXECUTING: 3>",
+              "health": 2869.59814453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1494.8859335295856,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.EXECUTING: 3>",
+              "health": 2869.59814453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1499.889345023781,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.EXECUTING: 3>",
+              "health": 2869.59814453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1504.9184267260134,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RETARGETING: 7>",
+              "health": 2735.197998046875,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1509.9278108291328,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2645.597900390625,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1514.9422804303467,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2555.997802734375,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1519.9952835291624,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2555.997802734375,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1525.0044646300375,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.TELEGRAPH: 2>",
+              "health": 2555.997802734375,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1530.0065550282598,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2555.997802734375,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1535.0211334303021,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2555.997802734375,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1540.0238749273121,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2555.997802734375,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1545.0332437306643,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.TELEGRAPH: 2>",
+              "health": 2466.397705078125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1550.0513901263475,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.EXECUTING: 3>",
+              "health": 2466.397705078125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1555.0617586299777,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.EXECUTING: 3>",
+              "health": 2466.397705078125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1560.086717326194,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2466.397705078125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1565.1043850257993,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2466.397705078125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1570.119243323803,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2287.197509765625,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1575.1205570213497,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1580.1310904175043,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1585.1367137096822,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1590.1495877094567,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1595.1518857106566,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1600.1678390055895,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1605.201062001288,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1610.2244526036084,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1615.2520630024374,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1620.2539635971189,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1625.2673094943166,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1630.267684802413,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1635.2699057981372,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1640.2891211993992,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1645.3154185079038,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1650.34134651348,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1655.3454421199858,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1660.3597714342177,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1665.3848220258951,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1670.421105325222,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1675.4400037266314,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1680.4664867259562,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1685.489722326398,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1690.5174746252596,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1695.5240704342723,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1700.5613055303693,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1705.570916119963,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1710.5942821241915,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1715.6055529303849,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1720.630213033408,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1725.6561481282115,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1730.6651018299162,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1735.6728430315852,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1740.6953807286918,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1745.713459532708,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.EXECUTING: 3>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1750.7380384281278,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.TELEGRAPH: 2>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1755.7446431294084,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1760.755160242319,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1765.7761363387108,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1770.8024492412806,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1775.8157326243818,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1780.8230456151068,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1785.8410821184516,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1790.8684021160007,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 2107.997314453125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1795.8806721121073,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.EXECUTING: 3>",
+              "health": 2018.397216796875,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1800.912935115397,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RETARGETING: 7>",
+              "health": 1749.596923828125,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1805.9158080145717,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 1615.19677734375,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1810.9423713088036,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.RECOVERY: 4>",
+              "health": 1615.19677734375,
+              "shield_health": 0.0
+            }
+          ]
+        },
+        {
+          "game_seconds": 1815.9458053074777,
+          "bosses": [
+            {
+              "actor": "MCNutBoss_0",
+              "role": "<MCNutBossRole.TANK: 0>",
+              "state": "<MCNutBossState.IDLE: 1>",
+              "health": 1615.19677734375,
+              "shield_health": 0.0
+            }
+          ]
+        }
+      ],
+      "read_only_boss_observer_initial_errors": [
+        "MCNutBoss: Failed to find property 'runtime' for attribute 'runtime' on 'MCNutBoss'"
+      ]
+    }
+  ],
+  "dance_captures": [
+    {
+      "case": "DancePreview01",
+      "status": "failed",
+      "passed": false,
+      "error": "Traceback (most recent call last):\n  File \"E:/CodexWork/MessControlBots_20261020/RunDancePreview.py\", line 296, in tick\n    self.advance_dance(row, overlay)\n  File \"E:/CodexWork/MessControlBots_20261020/RunDancePreview.py\", line 209, in advance_dance\n    self.play_saved_dance()\n  File \"E:/CodexWork/MessControlBots_20261020/RunDancePreview.py\", line 178, in play_saved_dance\n    self.emote_state('before_ordinary_emote_request')\n  File \"E:/CodexWork/MessControlBots_20261020/RunDancePreview.py\", line 142, in emote_state\n    state = prop(self.expression, 'state')\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\DEVGAME\\MessControl\\Tools\\Unreal\\check_first_relax_solo.py\", line 50, in prop\n    raise RuntimeError('No readable property ' + repr(name) + ' on ' + str(obj)\nRuntimeError: No readable property 'state' on <Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Expression' (0x000001B1AF46F900) Class 'MCExpressionComponent'>; attempts: state: MCExpressionComponent: Property 'State' for attribute 'state' on 'MCExpressionComponent' is protected and cannot be read | State: MCExpressionComponent: Property 'State' for attribute 'State' on 'MCExpressionComponent' is protected and cannot be read | bState: MCExpressionComponent: Failed to find property 'bState' for attribute 'bState' on 'MCExpressionComponent'\n",
+      "capture_driver_pass_only": false,
+      "report_sha256": "2c3bd425a634cd8128947a0244dacbed13ad1baa5e97f4b830ef4770617b30bf",
+      "accepted_for_delivery": false,
+      "visual_rejection": null,
+      "local_raw_report": "E:\\CodexWork\\MessControlBots_20261020\\DancePreview01\\Report.json",
+      "dirty_after": [],
+      "source_hashes_before": {
+        "E:\\DEVGAME\\MessControl\\Content\\Data\\DA_Emotes.uasset": "bab956a685df20ab443ab3b7f8055db4514f4a8bc0d36b66cd0d3bbc5f581d27",
+        "E:\\DEVGAME\\MessControl\\Content\\Gameplay\\CoreLoop\\DA_SingleDay.uasset": "07ef7804f114c5e8d2efab4580eb44f8c68bd949bb0fda62dff028e3d990c7be",
+        "E:\\DEVGAME\\MessControl\\Config\\DefaultEngine.ini": "04481d480cb9df231f7a79c7c969e9536cd95ae80795a40a7245a354d77d9b00",
+        "E:\\DEVGAME\\MessControl\\Config\\DefaultGame.ini": "39743d2fc454d131b078ee65a529f28b6fd101591a0e58164ea7748b296a401b"
+      },
+      "source_hashes_after": {
+        "E:\\DEVGAME\\MessControl\\Content\\Data\\DA_Emotes.uasset": "bab956a685df20ab443ab3b7f8055db4514f4a8bc0d36b66cd0d3bbc5f581d27",
+        "E:\\DEVGAME\\MessControl\\Content\\Gameplay\\CoreLoop\\DA_SingleDay.uasset": "07ef7804f114c5e8d2efab4580eb44f8c68bd949bb0fda62dff028e3d990c7be",
+        "E:\\DEVGAME\\MessControl\\Config\\DefaultEngine.ini": "04481d480cb9df231f7a79c7c969e9536cd95ae80795a40a7245a354d77d9b00",
+        "E:\\DEVGAME\\MessControl\\Config\\DefaultGame.ini": "39743d2fc454d131b078ee65a529f28b6fd101591a0e58164ea7748b296a401b"
+      }
+    },
+    {
+      "case": "DancePreview02",
+      "status": "passed",
+      "passed": true,
+      "error": null,
+      "capture_driver_pass_only": true,
+      "report_sha256": "41774f968c16579967860d85ea1de8afa5d8592493c3545570d30dee926938b1",
+      "accepted_for_delivery": false,
+      "visual_rejection": "Cropped character framing",
+      "local_raw_report": "E:\\CodexWork\\MessControlBots_20261020\\DancePreview02\\Report.json",
+      "dirty_after": [],
+      "source_hashes_before": {
+        "E:\\DEVGAME\\MessControl\\Content\\Data\\DA_Emotes.uasset": "bab956a685df20ab443ab3b7f8055db4514f4a8bc0d36b66cd0d3bbc5f581d27",
+        "E:\\DEVGAME\\MessControl\\Content\\Gameplay\\CoreLoop\\DA_SingleDay.uasset": "07ef7804f114c5e8d2efab4580eb44f8c68bd949bb0fda62dff028e3d990c7be",
+        "E:\\DEVGAME\\MessControl\\Config\\DefaultEngine.ini": "04481d480cb9df231f7a79c7c969e9536cd95ae80795a40a7245a354d77d9b00",
+        "E:\\DEVGAME\\MessControl\\Config\\DefaultGame.ini": "39743d2fc454d131b078ee65a529f28b6fd101591a0e58164ea7748b296a401b"
+      },
+      "source_hashes_after": {
+        "E:\\DEVGAME\\MessControl\\Content\\Data\\DA_Emotes.uasset": "bab956a685df20ab443ab3b7f8055db4514f4a8bc0d36b66cd0d3bbc5f581d27",
+        "E:\\DEVGAME\\MessControl\\Content\\Gameplay\\CoreLoop\\DA_SingleDay.uasset": "07ef7804f114c5e8d2efab4580eb44f8c68bd949bb0fda62dff028e3d990c7be",
+        "E:\\DEVGAME\\MessControl\\Config\\DefaultEngine.ini": "04481d480cb9df231f7a79c7c969e9536cd95ae80795a40a7245a354d77d9b00",
+        "E:\\DEVGAME\\MessControl\\Config\\DefaultGame.ini": "39743d2fc454d131b078ee65a529f28b6fd101591a0e58164ea7748b296a401b"
+      }
+    },
+    {
+      "case": "DancePreview03",
+      "status": "passed",
+      "passed": true,
+      "error": null,
+      "capture_driver_pass_only": true,
+      "report_sha256": "82569ee5506761c56e11a9cd0ab7c31700892ac15fd0e61f093020435997ca4d",
+      "accepted_for_delivery": true,
+      "visual_rejection": null,
+      "local_raw_report": "E:\\CodexWork\\MessControlBots_20261020\\DancePreview03\\Report.json",
+      "dirty_after": [],
+      "source_hashes_before": {
+        "E:\\DEVGAME\\MessControl\\Content\\Data\\DA_Emotes.uasset": "bab956a685df20ab443ab3b7f8055db4514f4a8bc0d36b66cd0d3bbc5f581d27",
+        "E:\\DEVGAME\\MessControl\\Content\\Gameplay\\CoreLoop\\DA_SingleDay.uasset": "07ef7804f114c5e8d2efab4580eb44f8c68bd949bb0fda62dff028e3d990c7be",
+        "E:\\DEVGAME\\MessControl\\Config\\DefaultEngine.ini": "04481d480cb9df231f7a79c7c969e9536cd95ae80795a40a7245a354d77d9b00",
+        "E:\\DEVGAME\\MessControl\\Config\\DefaultGame.ini": "39743d2fc454d131b078ee65a529f28b6fd101591a0e58164ea7748b296a401b"
+      },
+      "source_hashes_after": {
+        "E:\\DEVGAME\\MessControl\\Content\\Data\\DA_Emotes.uasset": "bab956a685df20ab443ab3b7f8055db4514f4a8bc0d36b66cd0d3bbc5f581d27",
+        "E:\\DEVGAME\\MessControl\\Content\\Gameplay\\CoreLoop\\DA_SingleDay.uasset": "07ef7804f114c5e8d2efab4580eb44f8c68bd949bb0fda62dff028e3d990c7be",
+        "E:\\DEVGAME\\MessControl\\Config\\DefaultEngine.ini": "04481d480cb9df231f7a79c7c969e9536cd95ae80795a40a7245a354d77d9b00",
+        "E:\\DEVGAME\\MessControl\\Config\\DefaultGame.ini": "39743d2fc454d131b078ee65a529f28b6fd101591a0e58164ea7748b296a401b"
+      }
+    }
+  ],
+  "source_readiness": {
+    "build": {
+      "nativeExit": 0,
+      "finishedUtc": "2026-10-20T10:04:36.1907406Z",
+      "project": "E:/DEVGAME/MessControl/MessControl.uproject"
+    },
+    "nativeTests": "E:/CodexWork/MessControlBots_20261020/CombinedTests/20261020_100605/Report/index.json",
+    "nativeTestCount": 28,
+    "files": [
+      {
+        "Path": "E:\\DEVGAME\\MessControl\\Source\\MessControl\\Private\\MCGameMode.cpp",
+        "Hash": "3561B58FD4EF8EC178141809FF172F134FF6B40797BEF5A89810518FB1788B69"
+      },
+      {
+        "Path": "E:\\DEVGAME\\MessControl\\Source\\MessControl\\Private\\MCPlaytestBotController.cpp",
+        "Hash": "04432DDDDE449CF262783EFC56E55CEBF64787DA81A66198D3FBB1D8292CC0C7"
+      },
+      {
+        "Path": "E:\\DEVGAME\\MessControl\\Source\\MessControl\\Private\\MCPlaytestBotEvents.cpp",
+        "Hash": "55438D278EED54EABFE51DE047AEDEAC178145EA873E6090B2AC8286C9A75CCA"
+      },
+      {
+        "Path": "E:\\DEVGAME\\MessControl\\Source\\MessControl\\Private\\MCPlaytestSession.cpp",
+        "Hash": "7B242221EC96145828EA48DAB16A91E4E341A82ED89657ECAF75A313DB6CD84C"
+      },
+      {
+        "Path": "E:\\DEVGAME\\MessControl\\Source\\MessControl\\Public\\MCPlaytestBotController.h",
+        "Hash": "D46BFFEA91CFDBD139E9A33D898C5D4B358739BF3FEE41648107A38921082CF7"
+      },
+      {
+        "Path": "E:\\DEVGAME\\MessControl\\Source\\MessControl\\Public\\MCPlaytestSession.h",
+        "Hash": "1F70ADFC7E622FEC45E3D0F5B9BC7A177C9515A7F726334BD559A0506AA2A9F8"
+      },
+      {
+        "Path": "E:\\DEVGAME\\MessControl\\Source\\MessControl\\Private\\MCExpressionComponent.cpp",
+        "Hash": "F653C033D9B399F5BD7FAF49F0AD7052232BA10D6FC9CBA953A9A751D0FE0286"
+      },
+      {
+        "Path": "E:\\DEVGAME\\MessControl\\Source\\MessControl\\Public\\MCExpressionComponent.h",
+        "Hash": "B9F62E7AA1559E130DB2D0AB9080DFA7D30D99F8D90DC14791F631729B63CBDB"
+      },
+      {
+        "Path": "E:\\DEVGAME\\MessControl\\Source\\MessControl\\Private\\MCPlaytestPhysicalApproach.cpp",
+        "Hash": "17945EA814255210E3DF1FF0CF47F1E6BF9DF485B498385060EC956D97DDC6E2"
+      },
+      {
+        "Path": "E:\\DEVGAME\\MessControl\\Source\\MessControl\\Private\\MCPlaytestPhysicalApproach.h",
+        "Hash": "EA5F5DB4B1BDFEA4FDDCB91F81F554854A86FEAF3E65A157BA829F767F103E54"
+      },
+      {
+        "Path": "E:\\DEVGAME\\MessControl\\Source\\MessControl\\Private\\Tests\\MCContinuousDanceTests.cpp",
+        "Hash": "DE93EBE4B76283AA9823614F465B29256AA382DBBA7E05D12BEA011F76AF6BFB"
+      },
+      {
+        "Path": "E:\\DEVGAME\\MessControl\\Source\\MessControl\\Private\\Tests\\MCPlaytestPhysicalApproachTests.cpp",
+        "Hash": "B5D2403F14D1FD471A83152189E65B9554DB3EE71F72294500B538008B0E2BBF"
+      },
+      {
+        "Path": "E:\\DEVGAME\\MessControl\\Source\\MessControl\\Private\\Tests\\MCPlaytestToothInspection.cpp",
+        "Hash": "EF54EBF2822F99D979D2EB0E5AD61F9BCDDEEFA336FCF6F3B8072AB005E41458"
+      },
+      {
+        "Path": "E:\\DEVGAME\\MessControl\\Binaries\\Win64\\UnrealEditor-MessControl.dll",
+        "Hash": "298427DAC100F4E6336A591C53AC5F10418E0A84876044124D71CD4204F44293"
+      }
+    ],
+    "createdUtc": "2026-10-20T10:08:16.2863327Z"
+  },
+  "source_sha256": {
+    "Source/MessControl/Private/MCGameMode.cpp": "3561b58fd4ef8ec178141809ff172f134ff6b40797bef5a89810518fb1788b69",
+    "Source/MessControl/Private/MCPlaytestBotController.cpp": "04432dddde449cf262783efc56e55cebf64787da81a66198d3fbb1d8292cc0c7",
+    "Source/MessControl/Private/MCPlaytestBotEvents.cpp": "55438d278eed54eabfe51de047aedeac178145ea873e6090b2ac8286c9a75cca",
+    "Source/MessControl/Private/MCPlaytestSession.cpp": "7b242221ec96145828ea48dab16a91e4e341a82ed89657ecaf75a313db6cd84c",
+    "Source/MessControl/Public/MCPlaytestBotController.h": "d46bffea91cfdbd139e9a33d898c5d4b358739bf3fee41648107a38921082cf7",
+    "Source/MessControl/Public/MCPlaytestSession.h": "1f70adfc7e622fec45e3d0f5b9bc7a177c9515a7f726334bd559a0506aa2a9f8",
+    "Source/MessControl/Private/Tests/MCPlaytestBotsTests.cpp": "125dad163e127620030d226971b02bb113ff4e4f231cdd808d5565c6ed647b18",
+    "Source/MessControl/Private/Tests/MCPlaytestNutCombatTests.cpp": "21b6403c655834c5219228ff7aff2fb0f8e365f0bc791b13cb45a0a880922dd9",
+    "Source/MessControl/Private/Tests/MCPlaytestBotsAdaptationTests.cpp": "461d1a73ea5df2574ceb654245696e083d66011ab2e6ea84711f2ec3067c2953",
+    "Source/MessControl/Private/Tests/MCPlaytestBotCoffeeTests.cpp": "cb90dde20be35c6df5d35f787f7d517c23fa1613d723aa34046b6cd7c68d692c",
+    "Source/MessControl/Private/Tests/MCPlaytestBotDiscardTests.cpp": "0fb315945faaede26e7c5dbee2c244708d9a29f1dbdcd7f692e55c58c5da9ef8",
+    "Tools/Unreal/check_bots_coop_solo.py": "4c9bccab2c80fe3e75867c55cb346f7ca6c670124f5ac04ce515638039a56d6a",
+    "Source/MessControl/Private/MCPlaytestPhysicalApproach.h": "ea5f5db4b1bdfea4fddcb91f81f554854a86feaf3e65a157ba829f767f103e54",
+    "Source/MessControl/Private/MCPlaytestPhysicalApproach.cpp": "17945ea814255210e3df1ff0cf47f1e6bf9df485b498385060ec956d97ddc6e2",
+    "Source/MessControl/Private/Tests/MCPlaytestPhysicalApproachTests.cpp": "b5d2403f14d1fd471a83152189e65b9554db3ee71f72294500b538008b0e2bbf",
+    "Source/MessControl/Private/Tests/MCPlaytestToothInspection.cpp": "ef54ebf2822f99d979d2eb0e5ad61f9bcddeefa336fcf6f3b8072ab005e41458",
+    "Source/MessControl/Private/MCExpressionComponent.cpp": "f653c033d9b399f5bd7faf49f0ad7052232ba10d6fc9cba953a9a751d0fe0286",
+    "Source/MessControl/Public/MCExpressionComponent.h": "b9f62e7aa1559e130db2d0ab9080dfa7d30d99f8d90dc14791f631729b63cbdb",
+    "Source/MessControl/Private/Tests/MCContinuousDanceTests.cpp": "de93ebe4b76283aa9823614f465b29256aa382dbba7e05d12bea011f76af6bfb"
+  },
+  "full_authored_cycle_confirmed": false,
+  "editor_dll_sha256": "298427dac100f4e6336a591c53ac5f10418e0a84876044124d71cd4204f44293",
+  "previews": [
+    {
+      "file": "CoffeeSurvival.mp4",
+      "sha256": "2b75e4430e51a22244a78aaadf16fcd4be0cba3b549d1dbfb34edcae1fdd495f",
+      "bytes": 2142110
+    },
+    {
+      "file": "CoffeeSurvival_ContactSheet.png",
+      "sha256": "16ad5a989cc3610ef5c336214bcbcb1c406120436f043a207f6c9470901ac460",
+      "bytes": 3078185
+    },
+    {
+      "file": "CoopFirstFood.mp4",
+      "sha256": "a9cabe4608cba933f6ae7768718d0af830113709f239d826711fdf3a5bf219b1",
+      "bytes": 1095603
+    },
+    {
+      "file": "CoopFirstFood_ContactSheet.png",
+      "sha256": "5e296ffacfc497b89847ef6cd7b023aa71dad96e60f39d2500255ffa02e2b944",
+      "bytes": 2795574
+    },
+    {
+      "file": "DanceLoop.mp4",
+      "sha256": "1c268ce95d89e669c82d5495ccdb180aa5a94cf79c2bd20632c742aa648b8548",
+      "bytes": 1005938
+    },
+    {
+      "file": "DanceLoop_ContactSheet.png",
+      "sha256": "e10f21e69aa2b1752c35aae1f090180bfebdc2fce944a190450d86b164537c3e",
+      "bytes": 3314519
+    }
+  ],
+  "preview_scope": {
+    "CoopFirstFood.mp4": "Earlier first-portion coop run: cleaning and chopping. Partial camera; no visible Q/intake or portion completion.",
+    "CoffeeSurvival.mp4": "Coffee-build coop run before discard fix: wave and some bots. Partial camera; whole-team recovery is proven by native CSV/report, not this clip.",
+    "DanceLoop.mp4": "Regular Editor build of the final dance implementation, before later AI-only approach/objective fixes; saved dance1 beyond its prior duration and normal movement cancellation. Whole body framed. 4 Hz real source frames repeated to 24 fps without motion interpolation. Protected runtime emote State was unavailable to Python; three native tests verify loop and cancellation logic. DancePreview01 driver failure and DancePreview02 rejected cropped framing are preserved in raw reports."
+  },
+  "root_visual_review": {
+    "DanceLoop.mp4": "Root reviewed the final 16-frame contact sheet: whole character visible, distinct dance poses beyond10 seconds and return to the held brush during the movement tail. 4 Hz source cannot establish smoothness."
+  },
+  "deferred": [
+    "Packaged game/cook",
+    "Network and latency",
+    "Human physical keyboard/mouse interaction",
+    "Quantitative performance benchmark"
+  ]
+}

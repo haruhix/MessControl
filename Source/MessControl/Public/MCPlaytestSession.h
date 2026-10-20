@@ -31,6 +31,8 @@ public:
     void StopSession();
     void PrintReport();
     bool IsActive() const { return bActive; }
+    /** Local AI has no loading ACK. Wait for real human ACKs and every live pawn before initial XP. */
+    bool IsReadyToBeginSequence() const;
     bool IsObserver(const AController* Controller) const;
     void RecordDeath(AMCToothCharacter* Hero);
     const FString& GetReportPath() const { return ReportPath; }

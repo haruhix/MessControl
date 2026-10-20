@@ -2,11 +2,13 @@
 #include "MCGameMode.h"
 #include "MCGameState.h"
 #include "MCPlayerState.h"
+#include "MCPlayerController.h"
 #include "MCProgressionComponent.h"
 #include "MCSingleDayDirector.h"
 #include "MCPlaytestBotController.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
+#include "MCTongue.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
@@ -40,6 +42,16 @@ namespace
         Value.ReplaceInline(TEXT("\r"), TEXT(" "));
         Value.ReplaceInline(TEXT("\n"), TEXT(" "));
         return TEXT("\"")+Value+TEXT("\"");
+    }
+
+    bool IsHumanPresentationReady(const APlayerController* Player)
+    {
+        if (const auto* GamePlayer=Cast<AMCPlayerController>(Player))
+            return GamePlayer->HasAcknowledgedGameplay()
+                && (!GamePlayer->IsLocalController() || GamePlayer->IsWorldPresentationReady());
+        // Native controller fixtures and legacy integrations have no resource
+        // preparation protocol. Real project controllers always use the branch above.
+        return IsValid(Player);
     }
 
 #if !UE_BUILD_SHIPPING
@@ -110,6 +122,25 @@ bool AMCPlaytestSession::IsObserver(const AController* Controller) const
     return Observers.ContainsByPredicate([Controller](const FMCPlaytestObserver& Observer) { return Observer.Controller.Get()==Controller; });
 }
 
+bool AMCPlaytestSession::IsReadyToBeginSequence() const
+{
+    if (!bActive || !HasAuthority() || !GetWorld() || Bots.IsEmpty()) return false;
+    for (auto It=GetWorld()->GetPlayerControllerIterator(); It; ++It)
+    {
+        const APlayerController* Player=It->Get();
+        if (!AMCGameMode::IsGameplayParticipant(Player) && !IsObserver(Player)) continue;
+        if (!IsHumanPresentationReady(Player)) return false;
+        if (!IsObserver(Player) && (!IsValid(Player->GetPawn()) || Player->GetPawn()->GetWorld()!=GetWorld())) return false;
+    }
+    for (const auto& WeakBot:Bots)
+    {
+        const auto* Bot=WeakBot.Get();
+        const auto* Pawn=Bot?Cast<AMCToothCharacter>(Bot->GetPawn()):nullptr;
+        if (!IsValid(Pawn) || Pawn->GetWorld()!=GetWorld() || !Pawn->Status || !Pawn->Status->IsAlive()) return false;
+    }
+    return true;
+}
+
 bool AMCPlaytestSession::StartSession(int32 Count, EMCPlaytestBotSkill Skill, bool bObserve, int32 Seed, FString& Error)
 {
     Error.Empty();
@@ -135,6 +166,9 @@ bool AMCPlaytestSession::StartSession(int32 Count, EMCPlaytestBotSkill Skill, bo
     { Error=FString::Printf(TEXT("Bot count must be between 1 and %d."), Cap); return false; }
     if (Count+(bObserve?0:InitialHumans)>Cap)
     { Error=FString::Printf(TEXT("Requested team exceeds the %d-player limit (humans=%d, bots=%d)."), Cap, bObserve?0:InitialHumans, Count); return false; }
+    for (auto It=GetWorld()->GetPlayerControllerIterator(); It; ++It)
+        if (AMCGameMode::IsGameplayParticipant(It->Get()) && !IsHumanPresentationReady(It->Get()))
+        { Error=TEXT("Wait for every player's loading screen to finish, then start the bots again. The current shift was not changed."); return false; }
     bool bHasStart=false;
     for (TActorIterator<APlayerStart> It(GetWorld()); It; ++It) { bHasStart=true; break; }
     if (!bHasStart || !Mode->DefaultPawnClass || !Mode->DefaultPawnClass->IsChildOf(AMCToothCharacter::StaticClass())
@@ -186,7 +220,7 @@ bool AMCPlaytestSession::StartSession(int32 Count, EMCPlaytestBotSkill Skill, bo
     NextSnapshotAt=StartedAt+1.; NextFlushAt=StartedAt+5.;
     bActive=true;
     SetActorTickEnabled(true);
-    Mode->BeginPlaytestSequence();
+    if (IsReadyToBeginSequence()) Mode->BeginPlaytestSequence();
     UE_LOG(LogTemp,Display,TEXT("MC_BOTS_SETUP single_day=%d skipped_training=%d participants=%d tutorial=%d"),
         State->bSingleDayLoop?1:0,bSkippedTraining?1:0,Mode->GetGameplayParticipantCount(),State->bTutorialActive?1:0);
     WriteSnapshot(TEXT("started")); FlushReport();
@@ -228,21 +262,41 @@ bool AMCPlaytestSession::SpawnBot(AMCGameMode* Mode, int32 Index, FString& Error
             {
                 const float Angle=(Attempt-1)*PI/4.f;
                 Location+=FVector(FMath::Cos(Angle),FMath::Sin(Angle),0)*180.f;
-                // Offset candidates must sit on the actual arena floor.
-                FHitResult Floor;
+            }
+            // The authored start itself can be below the tissue, just like an
+            // offset candidate. Resolve the live tongue before collision-adjusted spawn.
+            FHitResult Floor;
+            bool Supported=false,HasTongue=false;
+            for (TActorIterator<AMCTongue> It(GetWorld()); It; ++It) {
+                HasTongue=true;
+                if (It->SurfacePoint(Location,Floor) && Floor.ImpactNormal.Z>=.65f) { Supported=true; break; }
+            }
+            if (HasTongue && !Supported) continue;
+            if (!Supported)
+            {
                 FCollisionQueryParams Query(SCENE_QUERY_STAT(MCPlaytestSpawn), false);
                 for (TActorIterator<AMCToothCharacter> It(GetWorld()); It; ++It) Query.AddIgnoredActor(*It);
-                if (!GetWorld()->LineTraceSingleByChannel(Floor,Location+FVector(0,0,100),Location-FVector(0,0,300),ECC_Visibility,Query) || Floor.ImpactNormal.Z<.4f) continue;
-                const AMCToothCharacter* Defaults=Mode->DefaultPawnClass->GetDefaultObject<AMCToothCharacter>();
-                Location=Floor.ImpactPoint+FVector(0,0,Defaults->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+4);
+                Supported=GetWorld()->LineTraceSingleByChannel(Floor,Location+FVector(0,0,1500),Location-FVector(0,0,2000),ECC_Visibility,Query)
+                    && Floor.ImpactNormal.Z>=.65f;
             }
+            if (!Supported) continue;
+            const AMCToothCharacter* Defaults=Mode->DefaultPawnClass->GetDefaultObject<AMCToothCharacter>();
+            Location.Z=FMath::Max(Location.Z,Floor.ImpactPoint.Z+Defaults->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+30);
             Hero=GetWorld()->SpawnActor<AMCToothCharacter>(Mode->DefaultPawnClass, Location, FRotator(0,Start->GetActorRotation().Yaw,0), PawnSpawn);
         }
         if (Hero) break;
     }
     if (!Hero)
     { Bot->Destroy(); Error=TEXT("No collision-safe space at player starts. Move/add PlayerStarts and retry."); return false; }
-    Bot->Possess(Hero);
+    // Match RestartPlayerAtTransform: FinishRestartPlayer performs possession
+    // itself, then applies ordinary defaults and the final tongue settling gap.
+    Bot->SetPawn(Hero);
+    Mode->FinishRestartPlayer(Bot,Hero->GetActorRotation());
+    if (!IsValid(Hero) || Bot->GetPawn()!=Hero || Hero->GetController()!=Bot)
+    {
+        if (IsValid(Hero)) Hero->Destroy();
+        Bot->Destroy(); Error=TEXT("The ordinary bot pawn restart did not complete possession."); return false;
+    }
     Hero->ApplyPlayerColor(Identity->PlayerColor);
     Identity->ForceNetUpdate();
     Bots.Add(Bot); BotDeaths.Add(0);
@@ -275,6 +329,9 @@ void AMCPlaytestSession::Tick(float DeltaSeconds)
 #endif
     const AMCGameState* State=GetWorld()->GetGameState<AMCGameState>();
     if (!State) return;
+    if (State->bSingleDayLoop && State->SingleDayDirector
+        && State->SingleDayDirector->Stage==EMCSingleDayStage::Training && IsReadyToBeginSequence())
+        if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->BeginPlaytestSequence();
     const double Now=State->GetServerWorldTimeSeconds();
     const FString Outcome=CurrentOutcome();
     if (TerminalOutcome.IsEmpty() && Outcome!=TEXT("running"))

@@ -138,15 +138,17 @@ bool FMCMainMenuNavigation::RunTest(const FString&)
     FWorldContext& Context=GEngine->GetWorldContextFromWorldChecked(Test.World);
     Menu->HandleAction(EMCMainMenuAction::Tutorial);
     FURL Tutorial(nullptr,*Context.TravelURL,TRAVEL_Absolute);
-    TestEqual(TEXT("Tutorial launches the existing arena"),Tutorial.Map,FString(TEXT("/Game/Maps/L_Mouth")));
+    TestEqual(TEXT("Tutorial launches the dedicated tutorial map"),Tutorial.Map,FString(TEXT("/Game/Maps/L_Tutorial")));
     TestTrue(TEXT("Tutorial explicitly opts in"),Tutorial.HasOption(TEXT("MCTutorial=1")));
     TestFalse(TEXT("Tutorial launch remains standalone"),Tutorial.HasOption(TEXT("listen")));
     Context.TravelURL.Reset();
     Menu->HandleAction(EMCMainMenuAction::Host);
-    FURL Lobby(nullptr,*Context.TravelURL,TRAVEL_Absolute);
-    TestTrue(TEXT("Local host waits for Start instead of advancing the gameplay loop"),Lobby.HasOption(TEXT("MCLobby=1")));
-    TestTrue(TEXT("Local host accepts friends"),Lobby.HasOption(TEXT("listen")));
-    TestFalse(TEXT("Normal lobby never enables the tutorial implicitly"),Lobby.HasOption(TEXT("MCTutorial=")));
+    FURL Host(nullptr,*Context.TravelURL,TRAVEL_Absolute);
+    TestEqual(TEXT("Normal host opens the shared Hub"),Host.Map,FString(TEXT("/Game/Maps/Hub")));
+    TestEqual(TEXT("Normal host uses the separate Hub game mode"),FString(Host.GetOption(TEXT("game="),TEXT(""))),FString(TEXT("/Script/MessControl.MCHubGameMode")));
+    TestFalse(TEXT("Normal host does not enter the legacy mouth lobby"),Host.HasOption(TEXT("MCLobby=")));
+    TestTrue(TEXT("Local host accepts friends"),Host.HasOption(TEXT("listen")));
+    TestFalse(TEXT("Normal host never enables the tutorial implicitly"),Host.HasOption(TEXT("MCTutorial=")));
     Context.TravelURL.Reset();
 
     Menu->ShowPause();

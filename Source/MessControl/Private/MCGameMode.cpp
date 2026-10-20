@@ -348,7 +348,8 @@ void AMCGameMode::BeginPlaytestSequence()
     if (!HasAuthority()) return;
     const AMCPlaytestSession* Session=AMCPlaytestSession::Find(GetWorld());
     const auto* GS=GetGameState<AMCGameState>();
-    if (!Session || !Session->IsActive() || !GS || GS->bTutorialActive || GS->bLobbyWaiting || GS->bDevManualEvents) return;
+    if (!Session || !Session->IsActive() || !Session->IsReadyToBeginSequence()
+        || !GS || GS->bTutorialActive || GS->bLobbyWaiting || GS->bDevManualEvents) return;
     BeginSingleDaySequence();
 }
 void AMCGameMode::BeginSingleDaySequence()
@@ -402,14 +403,23 @@ void AMCGameMode::Tick(float DeltaSeconds)
         && State->SingleDayDirector->Stage==EMCSingleDayStage::Training
         && GetGameplayParticipantCount()>0 && !State->bDevManualEvents)
     {
-        bool bTeamLoaded=true;
-        for(FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It)
+        if(const auto* Session=AMCPlaytestSession::Find(GetWorld()); Session && Session->IsActive())
         {
-            if(!IsGameplayParticipant(It->Get())) continue;
-            const auto* PC=Cast<AMCPlayerController>(It->Get());
-            bTeamLoaded&=PC && PC->HasAcknowledgedGameplay() && PC->GetPawn();
+            // Observing humans still need their real local loading screen;
+            // server-controlled AI has no client acknowledgement to fabricate.
+            if(Session->IsReadyToBeginSequence()) BeginPlaytestSequence();
         }
-        if(bTeamLoaded) BeginSingleDaySequence();
+        else
+        {
+            bool bTeamLoaded=true;
+            for(FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It)
+            {
+                if(!IsGameplayParticipant(It->Get())) continue;
+                const auto* PC=Cast<AMCPlayerController>(It->Get());
+                bTeamLoaded&=PC && PC->HasAcknowledgedGameplay() && PC->GetPawn();
+            }
+            if(bTeamLoaded) BeginSingleDaySequence();
+        }
     }
     if (!State || State->Phase==EMCShiftPhase::Won || State->Phase==EMCShiftPhase::Lost) return;
     ProcessRespawns();

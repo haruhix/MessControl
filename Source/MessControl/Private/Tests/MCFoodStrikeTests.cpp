@@ -69,7 +69,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCGrapeKnifeContact,"MessControl.Inventory.Kni
 bool FMCGrapeKnifeContact::RunTest(const FString&)
 {
     // Food is frozen so the geometry fixtures stay at their measured contacts.
-    AddExpectedError(TEXT("has to have 'Simulate Physics' enabled if you'd like to AddImpulse"),EAutomationExpectedErrorFlags::Contains,0);
+    // Hitting a kinematic fixture must no longer require a physics warning.
     auto* Table=LoadObject<UDataTable>(nullptr,TEXT("/Game/Data/DT_BreakfastMenu.DT_BreakfastMenu"));
     if (!TestNotNull(TEXT("Saved breakfast menu"),Table)) return false;
     const auto* Menu=Table->FindRow<FMCFoodRow>(TEXT("Bacon"),TEXT("Grape knife regression"));
@@ -104,7 +104,6 @@ bool FMCGrapeKnifeContact::RunTest(const FString&)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCKnifeMovingContact,"MessControl.Inventory.Knife.MovingFoodAndSingleDamage",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCKnifeMovingContact::RunTest(const FString&)
 {
-    AddExpectedError(TEXT("has to have 'Simulate Physics' enabled if you'd like to AddImpulse"),EAutomationExpectedErrorFlags::Contains,0);
     for (float Dt:{1.f/30.f,1.f/60.f,1.f/120.f})
     {
         FFoodStrikeWorld T; auto* Food=T.Food(CubeRow(),T.Hero->GetActorLocation()+FVector(500,0,0));
@@ -112,12 +111,26 @@ bool FMCKnifeMovingContact::RunTest(const FString&)
         TestEqual(TEXT("Distant food misses the first contact sample"),T.Hero->ConfirmedHitCount,0);
         Food->SetActorLocation(T.Hero->GetActorLocation()+FVector(130,0,0),false,nullptr,ETeleportType::TeleportPhysics);
         T.Step(.2f,Dt);
-        TestEqual(TEXT("Food entering the follow-through registers"),T.Hero->ConfirmedHitCount,1);
+        TestEqual(TEXT("A combat sweep started without food never cuts food that enters sideways"),T.Hero->ConfirmedHitCount,0);
+        TestEqual(TEXT("Entering a combat sweep preserves food health"),Food->Health,100.f);
+        T.Step(.5f,Dt); // Finish the combat swing and its combo-reset window.
+
+        // The visible ingredient selects the normal overhead food chop. Move it
+        // away during wind-up, then return before that chop's authored contact.
+        // Combat follow-through and food contact are deliberately distinct.
+        T.Hero->SwingBrush();
+        const float ContactAt=T.Hero->Inventory->SwingContactTime();
+        Food->SetActorLocation(T.Hero->GetActorLocation()+FVector(500,0,0),false,nullptr,ETeleportType::TeleportPhysics);
+        T.Step(FMath::Max(0.f,ContactAt-.08f),Dt);
+        TestEqual(TEXT("Food remains unhit during the chop's wind-up"),T.Hero->ConfirmedHitCount,0);
+        Food->SetActorLocation(T.Hero->GetActorLocation()+FVector(130,0,0),false,nullptr,ETeleportType::TeleportPhysics);
+        T.Step(.20f,Dt);
+        TestEqual(TEXT("Moving food returned before the authored chop contact registers"),T.Hero->ConfirmedHitCount,1);
         TestEqual(TEXT("One swing applies exactly one damage amount"),Food->Health,100-T.Hero->Inventory->Damage());
         for (int32 I=0;I<10;++I) T.Hero->SwingBrush();
         T.Step(.1f,Dt);
         TestEqual(TEXT("Input spam during the cooldown does not create more hits"),T.Hero->ConfirmedHitCount,1);
-        T.Step(.2f,Dt); T.Hero->SwingBrush(); T.Step(.5f,Dt);
+        T.Step(T.Hero->Inventory->SwingDuration(),Dt); T.Hero->SwingBrush(); T.Step(.5f,Dt);
         TestEqual(TEXT("A later swing can hit the same food again"),T.Hero->ConfirmedHitCount,2);
     }
     return true;
@@ -126,7 +139,6 @@ bool FMCKnifeMovingContact::RunTest(const FString&)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCKnifeContactProtection,"MessControl.Inventory.Knife.ReachOcclusionAndCut",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCKnifeContactProtection::RunTest(const FString&)
 {
-    AddExpectedError(TEXT("has to have 'Simulate Physics' enabled if you'd like to AddImpulse"),EAutomationExpectedErrorFlags::Contains,0);
     FFoodStrikeWorld T; auto* Food=T.Food(CubeRow(),T.Hero->GetActorLocation()+FVector(130,0,0));
     auto* Wall=T.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Wall);
     Wall->SetRootComponent(Box); Box->SetBoxExtent(FVector(5,300,300)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent();

@@ -9,13 +9,29 @@
 .\Tools\PackageWindows.ps1 -EngineRoot 'E:\UE\UE_5.8'
 # Steam / Spacewar для теста с другом:
 .\Tools\PackageWindows.ps1 -SteamTest
+# Явно пересоздать профили коллизии перед cook, если они ещё не подготовлены:
+.\Tools\PackageWindows.ps1 -BakeFoodCollision
+# Необязательное ограничение UBT на машине сборки:
+.\Tools\PackageWindows.ps1 -UbtArguments @('-NoUBA', '-MaxParallelActions=2')
 ```
 
 Скрипт собирает модули редактора и игры, готовит контент и создаёт отдельную
 папку `Saved/Builds/Win64_<дата>/Windows`. Путь к `MessControl.exe` выводится
 после успешной упаковки. Для передачи игры копируй всю папку `Windows`.
-`BuildInfo.json` рядом с ней содержит исходный коммит и незакоммиченные изменения.
+`BuildInfo.json` рядом с ней содержит исходный коммит и изменения отслеживаемых
+файлов (`trackedChangesOnly=true`); сырые неотслеживаемые материалы не перечисляются.
 `-SteamTest` добавляет App ID 480 и `Start_Steam.cmd`; [инструкция для двух ПК](SteamTesting.md).
+
+Cook использует полный `MapsToCook` из настроек проекта: меню, хаб, общую сцену
+выбора, рот и обучение. По умолчанию коллизии еды только проверяются через
+`-AuditOnly`; сохранённые профили меняет отдельный opt-in `-BakeFoodCollision`.
+При неуспешном аудите упаковка останавливается, чтобы исправление можно было
+проверить до cook. `-OutputDirectory` должен находиться на `E:`; временные файлы
+и логи UAT/UBT остаются на этом диске, process env восстанавливается после сборки.
+Уже заданный локальный DDC на `E:` переиспользуется; иначе используется
+`Saved/DerivedDataCache` проекта.
+`Tools/Build.ps1` также принимает необязательный массив `-AdditionalArguments`
+для UBT, например путь `-Log=E:/CodexWork/Build/UBT.log` или лимит параллелизма.
 
 ## Проверить
 

@@ -1,0 +1,344 @@
+{
+  "dateUtc": "2026-10-20T12:18:09.2651692Z",
+  "baseCommit": "1164bb607f706b4a00f2a376836cd5ca1e775175",
+  "scope": "Current gameplay targeted checks after default player tool healing disabled. This is not an all-project or complete-bot-playthrough PASS.",
+  "policy": {
+    "defaultPlayerToolHealing": false,
+    "arenaToothRepair": true,
+    "explicitExistingPerkRecovery": true,
+    "futureAllyHealingPerkImplemented": false,
+    "selfCoffeeCleaning": true
+  },
+  "editorBuild": {
+    "nativeExit": 0,
+    "finishedUtc": "2026-10-20T12:15:53.3853839Z"
+  },
+  "native": {
+    "passed": true,
+    "total": 54,
+    "states": [
+      {
+        "Name": "Success",
+        "Count": 54
+      }
+    ],
+    "tests": [
+      {
+        "fullTestPath": "MessControl.Animation.Dances.AllFiveContinueUntilMovement",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Animation.Dances.BlockedInputDamageAndWorkCancel",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Animation.Dances.LoopPhaseAndTimedGesturesStayDistinct",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Cleanup.BothStainKindsAndTwelveTeethAreObserved",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Cleanup.CentralDirtRejectsRimsAndStaticCover",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Cleanup.LegacySparseResidueRemainsBrushable",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Cleanup.OverhangingWavePaintHasNoInvisibleDebt",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Food.ManualIntake.TwentyFragmentsOneVariant",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Food.Stack.AtomicDeliveryKeepsRemainingPieces",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Food.Stack.DamageAndFoodHitsRelease",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Food.Stack.DropProtectsBystandersWithoutDisablingFoodHazards",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Food.Stack.ForcedHorizontalAxesAndSpacing",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Food.Stack.FragmentsDoNotKnockPlayers",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Food.Stack.PickupArcAndInterruptions",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Food.Stack.PilePickupAndContactThreshold",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Food.Stack.PlayerContactKnocksCarrierOnly",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Food.Stack.SavedMenuFlatPosesAndRowValidation",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Food.Stack.StableSwayAtDifferentFrameRates",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Food.Stack.WorldAndIncomingBodyCollisions",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Inventory.Knife.GrapeSurfaceHits",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Inventory.Knife.MovingFoodAndSingleDamage",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Inventory.Knife.ReachOcclusionAndCut",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Liquid.AuthoritativeBrushContact",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlayerCare.AimedSprayAndWatergunDoNotRestoreCharacterHP",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlayerCare.DefaultSelfAndAllyToolContactsCannotHeal",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlayerCare.TimedSelfBrushCleansWithoutHealing",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Adaptation.ArenaRepairUsesOrdinaryTimedSpray",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Adaptation.FrozenBotUsesOrdinaryHeldPickaxe",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Adaptation.ReplanningPreservesCollectedFragment",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Adaptation.SmallMintIsChosenAndBrokenThroughWeaponContacts",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Adaptation.SpoiledFragmentFliesBeyondActualFront",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Coffee.DeepWaterUsesRealCMCStrokeInput",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.Coffee.RiverUsesMovementBeforeFrontAndReleasesAfterward",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.PhysicalApproach.ControllerCleansAcrossShortLegWithoutNavPrefix",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.PhysicalApproach.RechecksWallsSupportAndDistance",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.PhysicalApproach.WalksThroughOrdinaryCMCInput",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.ApproachRejectsTeethAndPlayers",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.AuthoredLowStartsSpawnAboveTongue",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.CoopCapacityAndIdentity",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.DisabledPlayerHealingDoesNotStallWork",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.IneligiblePawnReleasesInputs",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.InitialSequenceRequiresEveryLivePawn",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.LoadingRejectsBeforeShiftReset",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.NutEncounterKeepsCombatWithoutDefaultHealing",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.NutOutsideContactNeedsApproach",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.NutThreatDropsFoodThroughToolSelection",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.NutThreatInterruptsCareAndUsesWeaponContact",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.ObserverTeamAndShiftOutcome",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.SingleDayCoopPersonalGateAndQueuedChoices",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.SingleDayObserveLaunchAndPersonalOffers",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.PlaytestBots.UnreachableGrimeDoesNotGrabTeammate",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Progression.RecoveryStacksApplyOnceAndSurviveHandoff",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Rogue.RealEffectsAndLimits",
+        "state": "Success"
+      },
+      {
+        "fullTestPath": "MessControl.Throat.ManualIntakeIndividualFlow",
+        "state": "Success"
+      }
+    ],
+    "report": "E:/CodexWork/MessControlHealing_20261020/Native02/Report/index.json"
+  },
+  "soloPIE": {
+    "scope": "Owned solo PIE: normal loading/perk/first food, then F3 DamageSelf fixture and ordinary held care/spray input. No saved-package changes, peers, profile overrides or progression completion.",
+    "report": "E:/CodexWork/MessControlHealing_20261020/Solo01/Report.json",
+    "dirtyAfter": [],
+    "checks": {
+      "first_perk_visible_after_loading_cover_removed": true,
+      "food_starts_normally_only_after_preparation": true,
+      "real_f3_damage_fixture": true,
+      "ordinary_self_care_input_accepted": true,
+      "ordinary_spray_selected": true,
+      "default_care_and_spray_preserve_damaged_hp": true,
+      "observed_real_loading_overlay": true,
+      "observed_nonready_then_ready": true,
+      "director_remains_training_until_ready": true,
+      "readiness_matches_native_phase": true
+    },
+    "cleanup": {
+      "owned_pie_end_requested": true,
+      "owned_pie_stopped": true,
+      "original_map_restored": true
+    },
+    "passed": true,
+    "caveat": "Explicit F3 nonlethal damage fixture. No natural enemy, multiplayer or complete progression proof.",
+    "health": {
+      "before": 100.0,
+      "after_damage": 75.0,
+      "after_treatment": 75.0
+    }
+  },
+  "earlierBroaderRegression": {
+    "nativeTotal": 341,
+    "allTestsGreen": false,
+    "explanation": "Mixture of obsolete fixture expectations and unresolved checks; not 62 confirmed runtime bugs. Current-scope followups corrected menu, authored aperture and knife/care fixtures. Not all broad failures were rerun or resolved.",
+    "soloHubChecksPassed": 20,
+    "nativeFailed": 62,
+    "packagedMapsSmokePassed": 5,
+    "report": "E:/CodexWork/MessControlRegression_20261020/Assessment.json",
+    "blueprintErrors": 8,
+    "packageContainsLatestHealingChange": false,
+    "cookErrors": 0,
+    "blueprintErrorAsset": "/Game/NiagaraExamples/Utilities/Blueprints/EUB_SnapToActor",
+    "package": "E:/CodexWork/MessControlRegression_20261020/Package/Windows",
+    "beforeLatestHealingPolicy": true,
+    "cookWarnings": 30,
+    "windowsPackagePassed": true,
+    "blueprintException": "Unmodified imported editor utility, not in final cooked manifest; runtime Blueprint compilation succeeded."
+  },
+  "retainedIssues": [
+    {
+      "fixed": false,
+      "area": "Food fracture after river wave",
+      "problem": "SpawnFragments does not inherit bRiverSwept/RiverEscapeZ. Fragments lose persistent wash-away policy.",
+      "severity": "P2",
+      "source": "Source/MessControl/Private/MCFoodEnvironment.cpp:108",
+      "preExisting": true
+    },
+    {
+      "fixed": false,
+      "area": "Manually actor-scaled food",
+      "problem": "Fragments do not inherit nonunit actor scale. Native ordinary meals use unit actor scale and DT mesh scale; ordinary meal impact is not established.",
+      "severity": "P2 compatibility",
+      "source": "Source/MessControl/Private/MCFoodEnvironment.cpp:109",
+      "preExisting": true
+    }
+  ],
+  "deferred": {
+    "chests": "Future maps per user; no new chest implementation or behavior fix in this change.",
+    "wholeLocationFoodWash": "Future gameplay per user. Existing river debris code still exists; not asserted globally disabled.",
+    "nonunitFoodActorScale": "Compatibility issue remains; ordinary meal producers use DT mesh scaling. No complete absence of impact claimed.",
+    "fullBotCycle": "Not confirmed. Prior 4-AI run reached opening 3/5/8 cleanup and nuts, but ended during Tank combat at the configured time cap. Later events not proven by natural progression.",
+    "otherRegressionDebt": "Bounds/reaction, ragdoll/tongue release and other unresolved broad fixture checks remain in the earlier assessment.",
+    "network": "No multiplayer or ping validation performed.",
+    "latestPackagedGame": "Windows cook/package was performed before the latest healing policy; no updated ZIP is claimed."
+  },
+  "previousBotDanceMedia": "../BotsAdaptation_20261020/Validation.json",
+  "previousMediaCaveat": "Recorded before latest healing policy; not proof of current complete level progression.",
+  "finalReview": "Independent read-only review checked CareContact guard, Spray/Watergun player reactions, ArenaTooth-only RepairWithTool, and explicitly granted perk recovery.",
+  "sourceSHA256": [
+    {
+      "sha256": "9C80F28F273818A11735DD00C0433C092525061B27C8D3D7752CD8B998CE857A",
+      "path": "Source/MessControl/Private/MCToothStatusComponent.cpp"
+    },
+    {
+      "sha256": "04432DDDDE449CF262783EFC56E55CEBF64787DA81A66198D3FBB1D8292CC0C7",
+      "path": "Source/MessControl/Private/MCPlaytestBotController.cpp"
+    },
+    {
+      "sha256": "55438D278EED54EABFE51DE047AEDEAC178145EA873E6090B2AC8286C9A75CCA",
+      "path": "Source/MessControl/Private/MCPlaytestBotEvents.cpp"
+    },
+    {
+      "sha256": "F653C033D9B399F5BD7FAF49F0AD7052232BA10D6FC9CBA953A9A751D0FE0286",
+      "path": "Source/MessControl/Private/MCExpressionComponent.cpp"
+    },
+    {
+      "sha256": "F4FFD711809B87E928D41D445703D598CEC8A88D703F9FD5EA788ACD81BB45BC",
+      "path": "Source/MessControl/Private/Tests/MCPlayerToolHealingTests.cpp"
+    }
+  ]
+}

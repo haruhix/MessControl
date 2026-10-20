@@ -1,0 +1,183 @@
+{
+  "passed": true,
+  "status": "technical_and_visual_review_passed_with_sample_rate_limit",
+  "source_probe_passed": true,
+  "source_probe_scope": "Capture-only normal solo PIE; native State is unavailable to the Python driver.",
+  "source_frame_count": 56,
+  "nominal_source_capture_hz": 4.0,
+  "fps": 24,
+  "resolution": [
+    1280,
+    720
+  ],
+  "video_seconds": 15.125,
+  "encoded_frame_count": 363,
+  "silent": true,
+  "interpolation": false,
+  "cropped": false,
+  "gameplay_overlays_added": false,
+  "source_timing_preserved": true,
+  "synthesized_gameplay_frames": false,
+  "full_decode_passed": true,
+  "encoding_threads": 2,
+  "filter_threads": 1,
+  "source_wall_range_seconds": [
+    32.875,
+    48.0
+  ],
+  "source_game_range_seconds": [
+    27.045289497822523,
+    42.039937894791365
+  ],
+  "source_report": {
+    "file": "E:\\CodexWork\\MessControlBots_20261020\\DancePreview03\\Report.json",
+    "sha256": "82569ee5506761c56e11a9cd0ab7c31700892ac15fd0e61f093020435997ca4d"
+  },
+  "source_frame_csv": {
+    "file": "E:\\CodexWork\\MessControlBots_20261020\\DancePreview03\\FrameTimes.csv",
+    "sha256": "52fc608282571955cb606b3673107a1b31aadbc3067fd19c3bf1e8b538a0a117"
+  },
+  "encoder_report": {
+    "file": "E:\\CodexWork\\MessControlBots_20261020\\Previews\\DanceLoopEvidence\\EncodeReport.json",
+    "sha256": "a4fbb885bb711a4437e1da1d9dc5dc780868553b94a0d1aa92c662f0474041d8"
+  },
+  "timeline": {
+    "file": "E:\\CodexWork\\MessControlBots_20261020\\Previews\\DanceLoopEvidence\\Timeline.json",
+    "sha256": "91c453ff3c3d74f5e9a1d862f3297f69c2c8f240612a47fb97ae5060261e8e40"
+  },
+  "saved_dance": {
+    "library": "/Game/Data/DA_Emotes.DA_Emotes",
+    "id": "dance1",
+    "animation": "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Dance1.A_Teeth_Dance1",
+    "animation_seconds": 1.4333332777023315,
+    "saved_duration_seconds": 9.962000846862793,
+    "saved_looping": false,
+    "saved_loop_until_movement": false,
+    "legacy_effective_length_seconds": 1.4333332777023315
+  },
+  "camera": {
+    "label": "settled_framing_candidate",
+    "wall_seconds": 32.71799999999348,
+    "game_seconds": 26.88931469246745,
+    "camera_position_cm": [
+      -1294.5663389028498,
+      -79.99965438180412,
+      729.6193322174784
+    ],
+    "camera_rotation": {
+      "pitch": -39.99983544449252,
+      "yaw": -1.7970553869872664e-05
+    },
+    "camera_to_orbit_pivot_cm": 750.3433856262019,
+    "camera_to_pawn_cm": 818.2495259806883,
+    "saved_orbit_pivot_height_cm": 100.0,
+    "saved_fov_degrees": 55.0,
+    "requested_distance_cm": 750.0,
+    "candidate_yaw_offset_degrees": 0.0
+  },
+  "ordinary_movement_request": {
+    "method": "Pawn.AddMovementInput",
+    "world_direction": [
+      -0.9999999999999996,
+      1.224646799147353e-16,
+      0.0
+    ],
+    "scale": 1.0,
+    "duration_game_seconds": 0.5,
+    "game_seconds": 40.51818620413542,
+    "wall_seconds": 46.34299999999348
+  },
+  "ordinary_movement_actual_game_seconds": 0.5334592014551163,
+  "protected_runtime_emote_state": {
+    "available": false,
+    "fields": [
+      "Id",
+      "Serial",
+      "StartedAt",
+      "StoppedAt"
+    ],
+    "reason": "Expression.State has Replicated only; no Edit / BlueprintVisible / BlueprintAssignable flags. Both Python and the existing Toolset getter reject protected access.",
+    "inspected_engine_sources": [
+      "E:/UE/UE_5.8/Engine/Plugins/Experimental/ToolsetRegistry/Source/ToolsetRegistry/Private/ToolsetRegistry/ToolsetLibrary.cpp:48",
+      "E:/UE/UE_5.8/Engine/Source/Runtime/CoreUObject/Private/UObject/PropertyAccessUtil.cpp:425"
+    ],
+    "new_game_api_or_state_edits": false
+  },
+  "authoritative_state_validated_by_this_video_driver": false,
+  "separate_native_logic_coverage": [
+    "MessControl.Animation.Dances.AllFiveContinueUntilMovement",
+    "MessControl.Animation.Dances.BlockedInputDamageAndWorkCancel",
+    "MessControl.Animation.Dances.LoopPhaseAndTimedGesturesStayDistinct"
+  ],
+  "separate_native_execution": "Root reported all three passed as part of the regular-DLL 27-test run; this media task did not rerun tests.",
+  "files": {
+    "DanceLoop.mp4": {
+      "sha256": "1c268ce95d89e669c82d5495ccdb180aa5a94cf79c2bd20632c742aa648b8548",
+      "bytes": 1005938,
+      "copies": [
+        "E:\\CodexWork\\MessControlBots_20261020\\Previews\\DanceLoop.mp4",
+        "E:\\DEVGAME\\MessControl\\Artifacts\\BotsAdaptation_20261020\\DanceLoop.mp4"
+      ]
+    },
+    "DanceLoop_ContactSheet.png": {
+      "sha256": "e10f21e69aa2b1752c35aae1f090180bfebdc2fce944a190450d86b164537c3e",
+      "bytes": 3314519,
+      "copies": [
+        "E:\\CodexWork\\MessControlBots_20261020\\Previews\\DanceLoop_ContactSheet.png",
+        "E:\\DEVGAME\\MessControl\\Artifacts\\BotsAdaptation_20261020\\DanceLoop_ContactSheet.png"
+      ]
+    }
+  },
+  "decoded_qa": [
+    {
+      "file": "E:\\CodexWork\\MessControlBots_20261020\\Previews\\DanceLoopEvidence\\DecodedQA\\Decoded_00.png",
+      "video_seconds": 0.0,
+      "sha256": "263cf5feee47204a6bd006a77c05898c575648cbf3c790725f1f44b441cdd687"
+    },
+    {
+      "file": "E:\\CodexWork\\MessControlBots_20261020\\Previews\\DanceLoopEvidence\\DecodedQA\\Decoded_01.png",
+      "video_seconds": 10.5,
+      "sha256": "ee8b5f660715e053202009977e60a7f0bc434ce040683dfaa3937db9043bacf3"
+    },
+    {
+      "file": "E:\\CodexWork\\MessControlBots_20261020\\Previews\\DanceLoopEvidence\\DecodedQA\\Decoded_02.png",
+      "video_seconds": 13.0,
+      "sha256": "070fd322828bc8f763b2d193f34386e879ecf44529f965651854771435a388a2"
+    },
+    {
+      "file": "E:\\CodexWork\\MessControlBots_20261020\\Previews\\DanceLoopEvidence\\DecodedQA\\Decoded_03.png",
+      "video_seconds": 14.75,
+      "sha256": "06f5b91c189923a284a1d5ab4087dea8e96d2c6c9a394c679f75915d3ac7e862"
+    }
+  ],
+  "contact_shot_count": 16,
+  "honest_caption": "Танец из реального solo PIE дольше 10 секунд, затем обычное движение и возврат к щётке. Исходник снят примерно в 4 кадра/с; защищённое состояние проверялось отдельно native-тестами.",
+  "visual_review": {
+    "completed": true,
+    "root_approved_source_framing": true,
+    "source_frames_inspected": [
+      "00000.png",
+      "00020.png",
+      "00055.png"
+    ],
+    "contact_sheet_inspected": true,
+    "decoded_video_seconds_inspected": [
+      10.5,
+      14.75
+    ],
+    "observations": [
+      "The entire avatar and its hands remain inside the native gameplay view; the bottom-crop issue of Dance02 is resolved.",
+      "The avatar is moderately small in the gameplay camera, but its tilt and hand dance poses are readable.",
+      "Different dance poses remain visible after video time 10 seconds, beyond the saved 1.433-second clip length.",
+      "The final movement section changes pawn/camera position and returns the visible brush to the hand.",
+      "The native HUD and full game-window border remain intact. Only contact-sheet timing captions were added.",
+      "Full ffmpeg decoding succeeded; reviewed decoded frames preserve source composition without artifacts."
+    ],
+    "limits": [
+      "The approximately 4 Hz source makes motion sampled/choppy and cannot establish sub-frame loop-seam quality.",
+      "Output is 24 fps repetition of recorded samples, without optical interpolation or manufactured movement.",
+      "Expression.State/Serial/StartedAt/StoppedAt were unavailable through existing editor APIs; the driver makes no runtime state-validation claim.",
+      "No multiplayer, packaged-game, whole-level or performance conclusion is made from this clip."
+    ]
+  }
+}

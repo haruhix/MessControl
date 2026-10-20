@@ -76,10 +76,11 @@ bool FMCPlaytestNutCombatTest::RunTest(const FString&)
     T.Hero->Status->Settings.ContactSeconds=4;
     T.Hero->Status->Settings.bAllowSelfCare=true;
     T.Hero->Status->Damage(T.Hero->Status->State.MaxHealth*.25f);
+    T.Hero->Status->ApplyCoffee();
     const float DamagedHealth=T.Hero->Status->State.Health;
     T.Step(.2f);
-    TestTrue(TEXT("The bot was holding an ordinary care action"),T.Hero->IsPrimaryHeld());
-    TestEqual(TEXT("The initial task is self repair"),T.Bot->GetActivity(),FString(TEXT("repair")));
+    TestTrue(TEXT("The bot was holding the ordinary self-cleaning brush action"),T.Hero->bBrushing && T.Hero->bSelfCare);
+    TestEqual(TEXT("The initial task is self cleaning"),T.Bot->GetActivity(),FString(TEXT("clean")));
 
     auto* Nut=T.AddNut();
     if(!TestNotNull(TEXT("A nearby hostile nut exists"),Nut)) return false;
@@ -87,6 +88,7 @@ bool FMCPlaytestNutCombatTest::RunTest(const FString&)
     T.Step(.3f);
     TestTrue(TEXT("A nearby threat interrupts an already-held care action"),T.Bot->GetTaskTarget()==Nut);
     TestEqual(TEXT("The bot selects the ordinary pickaxe"),T.Hero->Inventory->Selected,EMCToolSlot::Pickaxe);
+    TestFalse(TEXT("Combat releases the interrupted handle treatment"),T.Hero->bHandling || T.Hero->bSelfCare);
     TestTrue(TEXT("A real weapon swing was validated"),T.Hero->ValidatedSwingCount>0);
     TestEqual(TEXT("Choosing combat cannot damage before weapon contact"),Nut->Health,InitialHealth);
     TestEqual(TEXT("The interrupted care cannot manufacture healing"),T.Hero->Status->State.Health,DamagedHealth);
@@ -138,7 +140,13 @@ bool FMCPlaytestNutContactRangeTest::RunTest(const FString&)
 {
     MCPlaytestNutCombatTestsPrivate::FWorldFixture T;
     auto* Nut=T.AddNut();
-    Nut->SetActorLocation(T.Hero->GetActorLocation()+FVector(160,0,-50));
+    // A centre distance of 160 is now inside the ordinary weapon/care reach
+    // after subtracting the nut's real body radius. Move the fixture instead
+    // of changing the production reach or testing an obsolete balance value.
+    const float Reach=FMath::Max(T.Hero->Status->Settings.Reach,T.Hero->Inventory->MeleeReach());
+    Nut->SetActorLocation(T.Hero->GetActorLocation()+FVector(Reach+Nut->Settings.BodyRadius+80.f,0,-50));
+    if(!TestTrue(TEXT("The real nut weapon contact point exceeds the actual equipped reach"),
+        FVector::Dist(T.Hero->GetActorLocation(),Nut->GetToolTargetPoint(T.Hero->GetActorLocation()))>T.Hero->Inventory->MeleeReach())) return false;
     if (!TestFalse(TEXT("This visible hostile is outside the real weapon contact range"),T.Hero->CanContact(Nut))) return false;
     const float Health=Nut->Health;
     T.Step(.3f);
@@ -147,7 +155,7 @@ bool FMCPlaytestNutContactRangeTest::RunTest(const FString&)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPlaytestNutCommitmentTest,"MessControl.PlaytestBots.NutEncounterKeepsCombatButAllowsCriticalCare",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPlaytestNutCommitmentTest,"MessControl.PlaytestBots.NutEncounterKeepsCombatWithoutDefaultHealing",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCPlaytestNutCommitmentTest::RunTest(const FString&)
 {
@@ -173,7 +181,7 @@ bool FMCPlaytestNutCommitmentTest::RunTest(const FString&)
     T.Hero->Status->Damage(T.Hero->Status->State.MaxHealth*.25f);
     const float WorkerHealth=T.Hero->Status->State.Health;
     // Exercise the next decision with attack released, as during an approach or
-    // between contacts. Ordinary self repair now has a higher score than tank combat.
+    // between contacts. Injury cannot create an unavailable tool-healing task.
     T.Hero->SetPrimaryInputHeld(false);
     T.Step(.3f);
     TestTrue(TEXT("The active encounter retains a valid boss after task commitment expires"),T.Bot->GetTaskTarget()==Boss);
@@ -183,9 +191,12 @@ bool FMCPlaytestNutCommitmentTest::RunTest(const FString&)
     TestEqual(TEXT("The bot cannot bypass an intact shield to damage HP"),Boss->Health,BossHealth);
     TestEqual(TEXT("Retaining combat does not silently heal the worker"),T.Hero->Status->State.Health,WorkerHealth);
     T.Hero->Status->Damage(T.Hero->Status->State.MaxHealth*.5f);
+    const float CriticalHealth=T.Hero->Status->State.Health;
     T.Step(.3f);
-    TestTrue(TEXT("Critical health still interrupts boss commitment for normal self care"),T.Bot->GetTaskTarget()==T.Hero);
-    TestEqual(TEXT("Critical care selects the existing repair action"),T.Bot->GetActivity(),FString(TEXT("repair")));
+    TestTrue(TEXT("Critical health does not divert the bot into disabled self healing"),T.Bot->GetTaskTarget()==Boss);
+    TestEqual(TEXT("The bot keeps its available encounter action"),T.Bot->GetActivity(),FString(TEXT("fight")));
+    TestEqual(TEXT("Low health grants no implicit recovery"),T.Hero->Status->State.Health,CriticalHealth);
+    TestFalse(TEXT("Combat never holds a forbidden self-treatment action"),T.Hero->bSelfCare && T.Hero->bHandling);
     return true;
 }
 #endif

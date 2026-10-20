@@ -26,8 +26,12 @@ struct FMCEmoteEntry
     UPROPERTY(EditAnywhere,BlueprintReadWrite) bool bHoldFinalPose=false;
     // Short authored dance cycles repeat for Duration instead of ending mid-gesture.
     UPROPERTY(EditAnywhere,BlueprintReadWrite) bool bLooping=false;
+    // Continuous body dances stop through the ordinary movement/action rules.
+    // Native dance1..dance5 retain this behavior for already-saved libraries.
+    UPROPERTY(EditAnywhere,BlueprintReadWrite) bool bLoopUntilMovement=false;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(ClampMin="0.5",ClampMax="10")) float Duration=3;
     float Length() const;
+    bool LoopsUntilMovement() const;
 };
 UCLASS(BlueprintType)
 class MESSCONTROL_API UMCEmoteLibrary : public UPrimaryDataAsset
@@ -100,6 +104,9 @@ public:
 private:
     UPROPERTY() TObjectPtr<AMCToothCharacter> Tooth;
     double Now() const;
+    double EmoteStoppedAt() const;
+    double PredictedEmoteStoppedAt=-1,PredictedEmoteStartedAt=-1;
+    uint16 PredictedEmoteSerial=0;
     double VoiceAt=-100,NextEmoteAt=0;
     double FoodSuctionReactionAt=-100;
     double StinkCheckAt=0,StinkGestureAt=-100,NextStinkGestureAt=0;
