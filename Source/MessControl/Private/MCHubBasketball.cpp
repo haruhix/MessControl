@@ -4,8 +4,10 @@
 #include "MCFoodCollectionComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
@@ -23,8 +25,8 @@ AMCHubBasketball::AMCHubBasketball()
     Body=CreateDefaultSubobject<USphereComponent>(TEXT("BallPhysics")); SetRootComponent(Body);
     Body->InitSphereRadius(Radius);
     Body->SetCollisionProfileName(TEXT("PhysicsActor"));
-    // Character movement applies very large push forces to light physics props.
-    Body->SetCollisionResponseToChannel(ECC_Pawn,ECR_Ignore);
+    Body->SetCollisionResponseToChannel(ECC_Pawn,ECR_Block);
+    Body->CanCharacterStepUpOn=ECB_No;
     Body->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
     Body->SetGenerateOverlapEvents(false);
     Body->SetLinearDamping(.025f); Body->SetAngularDamping(.18f);
@@ -243,6 +245,28 @@ void AMCHubBasketball::Tick(float DeltaSeconds)
         Body->SetPhysicsLinearVelocity(FVector::ZeroVector);Body->SetPhysicsAngularVelocityInRadians(FVector::ZeroVector);
         bHasPreviousFreePosition=false; bWasAboveRim=false; bPassingThroughRim=false;
         ForceNetUpdate();
+    }
+    if(HasAuthority() && !IsValid(Holder) && Body->IsSimulatingPhysics()
+        && Body->GetCollisionResponseToChannel(ECC_Pawn)==ECR_Block) {
+        // General CharacterMovement pushes are disabled for food carrying.
+        // Match the player's approach speed only while touching this ball.
+        for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) {
+            const auto* Hero=*It;
+            const auto* Capsule=Hero->GetCapsuleComponent();
+            if(!Hero->Status->IsAlive() || !Capsule->IsQueryCollisionEnabled()
+                || Capsule->GetCollisionResponseToChannel(Body->GetCollisionObjectType())!=ECR_Block) continue;
+            FVector Closest;
+            const float Gap=Capsule->GetClosestPointOnCollision(Body->GetComponentLocation(),Closest);
+            if(Gap<0.f || Gap>Body->GetScaledSphereRadius()+3.f) continue;
+            const FVector Direction=(Body->GetComponentLocation()-Capsule->GetComponentLocation()).GetSafeNormal2D();
+            const float ApproachSpeed=FMath::Clamp(FMath::Max(
+                FVector::DotProduct(Hero->GetVelocity(),Direction),
+                FVector::DotProduct(Hero->GetLastMovementInputVector(),Direction)*Hero->GetCharacterMovement()->GetMaxSpeed()),0.f,600.f);
+            if(ApproachSpeed<=1.f) continue;
+            const float DeltaSpeed=FMath::Clamp(ApproachSpeed-FVector::DotProduct(Body->GetPhysicsLinearVelocity(),Direction),0.f,250.f);
+            if(DeltaSpeed>UE_SMALL_NUMBER)
+                Body->AddImpulse(Direction*DeltaSpeed*FMath::Clamp(DeltaSeconds*15.f,0.f,1.f),NAME_None,true);
+        }
     }
     CheckBasket();
 }
