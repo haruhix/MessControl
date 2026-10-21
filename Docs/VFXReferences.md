@@ -1094,3 +1094,13 @@ emission fill make the six colors and curled strips readable against the trees.
 Final frames at successive actual game times and a GIF preview are retained in
 `Saved/HubBasketballConfetti_20261021`; no composited particles were added.
 No multiplayer, packaged-game or performance-profile validation was run.
+
+Restart correction: in-session Live Coding had not updated the base editor DLL.
+The user restart exposed this integration gap; the saved Niagara packages were
+intact. A normal `MessControlEditor` compilation now persists the basketball
+code. A fresh normal editor process, without Live Coding compilation, passed
+the same 13 solo checks, and its gameplay-camera confetti frame was reviewed.
+The cold-start verifier checks DLL/source freshness, the native effect default
+and the saved Hub ball assignment. Evidence: `RestartFix/cold_start.json`,
+`loaded_modules.json`, `solo_after_restart.json` and `complete.json` under
+`Saved/HubBasketballConfetti_20261021`.

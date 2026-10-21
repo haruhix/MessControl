@@ -273,3 +273,16 @@ camera captures were reviewed and particle size/fill increased for visibility
 against the Hub trees. Temporary compiler/play/performance settings were restored;
 the pre-existing unsaved Hub and sky material edits were preserved. No multiplayer
 or packaged validation was requested.
+
+Restart persistence correction (2026-10-21): the original validation above used
+Live Coding, while the base `UnrealEditor-MessControl.dll` still predated the
+basketball integration. A fresh editor therefore had neither `BasketConfetti`
+nor `BasketsMade`, although the Niagara asset was saved. Recompiled the normal
+`MessControlEditor` target with the editor closed, producing the persistent DLL,
+then reopened Hub normally without a Live Coding compile. All 13 solo gameplay
+checks passed again in that fresh process, and the visible burst was reviewed.
+`check_basket_confetti_cold_start.py` now checks native DLL freshness and the
+saved Hub actor before running that focused gameplay probe. Cold-start/module
+and gameplay evidence is in `Saved/HubBasketballConfetti_20261021/RestartFix`.
+The editor is left open in Hub with its camera/settings restored and no dirty
+packages. No gameplay executable, cook or package was built.
