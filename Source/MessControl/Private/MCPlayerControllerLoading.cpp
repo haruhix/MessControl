@@ -5,6 +5,7 @@
 #include "MCHubWidget.h"
 #include "MCHubWidget.h"
 #include "MCLoadingWidget.h"
+#include "MCGameplayUIFactory.h"
 #include "MCPlayerState.h"
 #include "MCSingleDayDirector.h"
 #include "MCToothCharacter.h"
@@ -92,7 +93,7 @@ void AMCPlayerController::RefreshLoadingPresentation()
     bLoadingInputBlocked=true;
     bool NewWidget=false;
     if(!LoadingWidget) {
-        LoadingWidget=CreateWidget<UMCLoadingWidget>(this,UMCLoadingWidget::StaticClass());
+        LoadingWidget=CreateWidget<UMCLoadingWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("Loading"),UMCLoadingWidget::StaticClass()));
         if(LoadingWidget) {LoadingWidget->AddToViewport(10000);NewWidget=true;}
     }
     if(LoadingWidget) {

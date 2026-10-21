@@ -3,6 +3,7 @@
 #include "MCDataAssets.h"
 #include "MCSceneAudioComponent.h"
 #include "MCLoadingWidget.h"
+#include "MCGameplayUIFactory.h"
 #include "MCWorldPreloadSubsystem.h"
 #include "Engine/World.h"
 
@@ -14,7 +15,7 @@ void AMCMainMenuPlayerController::BeginPlay()
     SceneAudio=NewObject<UMCSceneAudioComponent>(this,TEXT("BackgroundSceneAudio"));
     AddInstanceComponent(SceneAudio); SceneAudio->RegisterComponent();
     SceneAudio->SetScene(BackgroundSoundPalette,TEXT("MainMenu"));
-    MenuWidget=CreateWidget<UMCMainMenuWidget>(this,UMCMainMenuWidget::StaticClass());
+    MenuWidget=CreateWidget<UMCMainMenuWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("MainMenu"),UMCMainMenuWidget::StaticClass()));
     if (!MenuWidget) return;
     MenuWidget->AddToViewport(50);
     FInputModeUIOnly Mode;
@@ -51,7 +52,7 @@ void AMCMainMenuPlayerController::RefreshPreparation()
     }
     const bool NewWidget=!LoadingWidget;
     if(NewWidget) {
-        LoadingWidget=CreateWidget<UMCLoadingWidget>(this,UMCLoadingWidget::StaticClass());
+        LoadingWidget=CreateWidget<UMCLoadingWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("Loading"),UMCLoadingWidget::StaticClass()));
         if(LoadingWidget) LoadingWidget->AddToViewport(10000);
     }
     if(LoadingWidget) {

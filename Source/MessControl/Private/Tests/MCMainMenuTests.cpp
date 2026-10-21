@@ -50,9 +50,36 @@ namespace MCMainMenuTestsPrivate
     bool HasText(UMCMainMenuWidget* Menu, const FString& Expected)
     {
         bool bFound=false;
-        Menu->WidgetTree->ForEachWidget([&](UWidget* Widget)
+        if(!Menu || !Menu->GetActiveMenuPageRoot()) return false;
+        UWidgetTree::ForWidgetAndChildren(Menu->GetActiveMenuPageRoot(),[&](UWidget* Widget)
         {
-            if (const auto* Text=Cast<UTextBlock>(Widget)) bFound|=Text->GetText().ToString()==Expected;
+            // Inactive Designer pages stay in the tree. Test only the current
+            // page and controls whose hierarchy actually permits rendering.
+            for(const UWidget* Ancestor=Widget;Ancestor;Ancestor=Ancestor->GetParent())
+            {
+                // The isolated fixture intentionally has no Slate viewport.
+                const auto Visibility=Ancestor->GetVisibility();
+                if(Visibility==ESlateVisibility::Hidden || Visibility==ESlateVisibility::Collapsed) return;
+            }
+            if(const auto* Text=Cast<UTextBlock>(Widget)) bFound|=Text->GetText().ToString()==Expected;
+        });
+        return bFound;
+    }
+
+    bool HasAction(UMCMainMenuWidget* Menu, EMCMainMenuAction Expected)
+    {
+        if(!Menu || !Menu->GetActiveMenuPageRoot()) return false;
+        bool bFound=false;
+        UWidgetTree::ForWidgetAndChildren(Menu->GetActiveMenuPageRoot(),[&](UWidget* Widget)
+        {
+            const auto* Button=Cast<UMCMainMenuActionButton>(Widget);
+            if(!Button || Button->Action!=Expected || !Button->GetIsEnabled()) return;
+            for(const UWidget* Ancestor=Widget;Ancestor;Ancestor=Ancestor->GetParent())
+            {
+                const auto Visibility=Ancestor->GetVisibility();
+                if(Visibility==ESlateVisibility::Hidden || Visibility==ESlateVisibility::Collapsed) return;
+            }
+            bFound=true;
         });
         return bFound;
     }
@@ -126,7 +153,7 @@ bool FMCMainMenuNavigation::RunTest(const FString&)
         TestTrue(*FString::Printf(TEXT("Main menu exposes %s"),Label),HasText(Menu,Label));
 
     Menu->HandleAction(EMCMainMenuAction::Settings);
-    TestTrue(TEXT("Settings exposes a real apply action"),HasText(Menu,TEXT("Apply & Save")));
+    TestTrue(TEXT("Settings exposes a real apply action"),HasAction(Menu,EMCMainMenuAction::ApplySettings));
     TestFalse(TEXT("Settings does not retain main menu actions"),HasText(Menu,TEXT("Tutorial")));
     Menu->HandleAction(EMCMainMenuAction::Back);
     TestTrue(TEXT("Settings Back returns to the main menu"),HasText(Menu,TEXT("Create Lobby")));

@@ -78,7 +78,7 @@ connection=f'''(fn OpenConnection ()
   (Widget|Panel|ClearChildren :self {g('LegacyMenuHost')})
   (CallFunction|ShowPage :Index 5)
   (bind owner (Widget|GetOwningPlayer))
-  (bind menu (UserInterface|CreateWidget :Class "/Script/MessControl.MCMainMenuWidget" :OwningPlayer owner))
+  (bind menu (UserInterface|CreateWidget :Class "/Game/Gameplay/UI/WBP_MainMenu.WBP_MainMenu_C" :OwningPlayer owner))
   {s('LegacyMenu','menu')}
   (Widget|AddChildtoOverlay :self {g('LegacyMenuHost')} :Content menu)
 )'''

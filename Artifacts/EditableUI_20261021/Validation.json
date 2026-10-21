@@ -1,0 +1,249 @@
+{
+  "utc": "2026-10-21T04:42:09.461466+00:00",
+  "project": "E:\\DEVGAME\\MessControl",
+  "head": "451f8e5f0e9bcb9f718599cb0ff7e4ad29cff287",
+  "scope": "Editable loading, Hub and menu WBP; settings with shared theme and local preferences.",
+  "editor_build": {
+    "nativeExit": 0,
+    "finishedUtc": "2026-10-21T04:30:02.9249638Z"
+  },
+  "native_tests": {
+    "MessControl.Loading.Manifest.ExcludesDestinationWorldsAndStreamedAudio": {
+      "state": "Success",
+      "run": "Native04"
+    },
+    "MessControl.Loading.Manifest.FoodTableDependenciesAndDeduplication": {
+      "state": "Success",
+      "run": "Native04"
+    },
+    "MessControl.Loading.Manifest.NativeClassDefaults": {
+      "state": "Success",
+      "run": "Native04"
+    },
+    "MessControl.Loading.Manifest.UIMapValuesAndSoftWidgetClasses": {
+      "state": "Success",
+      "run": "Native04"
+    },
+    "MessControl.Menu.IsolatedFromGameplay": {
+      "state": "Success",
+      "run": "Native04"
+    },
+    "MessControl.Menu.JoinAddressBecomesNetworkTravel": {
+      "state": "Success",
+      "run": "Native04"
+    },
+    "MessControl.Menu.WidgetNavigationAndTravel": {
+      "state": "Success",
+      "run": "Native05"
+    },
+    "MessControl.Settings.AbsoluteGainsAndLocalLook": {
+      "state": "Success",
+      "run": "Native04"
+    },
+    "MessControl.Settings.ConfigRoundtripDoesNotChangeCulture": {
+      "state": "Success",
+      "run": "Native04"
+    },
+    "MessControl.UI.Designer.HubPreservesAuthoredTree": {
+      "state": "Success",
+      "run": "Native04"
+    },
+    "MessControl.UI.Designer.LoadingPreservesAuthoredTree": {
+      "state": "Success",
+      "run": "Native04"
+    },
+    "MessControl.UI.Designer.MainMenuLocalizationPreservesPendingEdits": {
+      "state": "Success",
+      "run": "Native04"
+    },
+    "MessControl.UI.Designer.MainMenuPreservesAuthoredTree": {
+      "state": "Success",
+      "run": "Native05"
+    }
+  },
+  "unique_native_tests_passed": 13,
+  "solo": {
+    "SettingsSolo": {
+      "report": "E:\\CodexWork\\MessControlEditableUI_20261020\\SettingsSolo\\Report.json",
+      "passed": true,
+      "checks": {
+        "authored_menu_class": true,
+        "populated_ResolutionPicker": true,
+        "populated_WindowModePicker": true,
+        "populated_QualityPicker": true,
+        "populated_FrameRatePicker": true,
+        "audio_stays_pending_before_apply": true,
+        "ten_language_choices": true,
+        "audio_pending_survives_tab_switches": true,
+        "applied_master_volume": true,
+        "applied_music_volume": true,
+        "applied_ambience_volume": true,
+        "applied_sfx_volume": true,
+        "applied_mouse_sensitivity": true,
+        "applied_gamepad_sensitivity": true,
+        "applied_invert_y": true,
+        "applied_language": true,
+        "absolute_music_gain": true,
+        "absolute_ambience_gain": true,
+        "absolute_sfx_gain": true,
+        "saved_settings_reload": true,
+        "reopened_saved_music": true,
+        "back_discards_unapplied_edit": true
+      },
+      "wall_seconds": 12.234000000054948,
+      "restored_settings": true
+    },
+    "LoadingMouthFinal": {
+      "report": "E:\\CodexWork\\MessControlEditableUI_20261020\\LoadingMouthFinal\\Report.json",
+      "passed": true,
+      "checks": {
+        "first_perk_visible_after_loading_cover_removed": true,
+        "food_starts_normally_only_after_preparation": true,
+        "observed_real_loading_overlay": true,
+        "observed_nonready_then_ready": true,
+        "director_remains_training_until_ready": true,
+        "readiness_matches_native_phase": true
+      },
+      "wall_seconds": 27.609000000054948,
+      "restored_settings": true
+    },
+    "HubFinal": {
+      "report": "E:\\CodexWork\\MessControlEditableUI_20261020\\HubFinal\\Report.json",
+      "passed": true,
+      "checks": {
+        "one_authored_ready_zone": true,
+        "hub_uses_separate_game_state": true,
+        "one_real_participant": true,
+        "no_authored_preview_pawns_at_hub_start": true,
+        "spawn_outside_ready_zone": true,
+        "walking_enters_ready_zone": true,
+        "hub_camera_follows_at_distant_corner": true,
+        "walking_exit_clears_ready": true,
+        "walking_reentry_restores_ready": true,
+        "normal_hub_to_selector_travel": true,
+        "mouth_click_regions_have_ordered_visible_rectangles": true,
+        "day2_unavailable_definition": true,
+        "day2_authoritative_visual_mirror": true,
+        "unavailable_launch_rejected_without_scene_change": true,
+        "day3_authoritative_visual_mirror": true,
+        "return_to_hub_resets_ready": true,
+        "no_authored_preview_pawns_after_return": true,
+        "normal_level_auto_exits_hub_ack_barrier": true,
+        "normal_first_perk_has_three_visible_cards": true,
+        "normal_gameplay_alive_four_seconds": true
+      },
+      "wall_seconds": 87.98499999998603,
+      "restored_settings": true
+    }
+  },
+  "authoring_report": "E:\\CodexWork\\MessControlEditableUI_20261020\\SettingsAuthoring03\\Authoring.json",
+  "saved_asset_refresh": {
+    "job": "62e4ed4ed83649a7960cc04885abecd1",
+    "status": "complete",
+    "exported": 7,
+    "export_errors": {},
+    "build_current": true
+  },
+  "media_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\EditableUI_20261021\\Media.json",
+  "changed_file_sha256": {
+    "Config/DefaultEngine.ini": "a5759c71043fa0651eb6cd30d5485f04afb6860218bf183547cfdc30a063712b",
+    "Content/Gameplay/UI/Data/DT_UI_Localization.uasset": "298d1a726867b5b574108f136e1ec775dbf86498fb224bfa245f36a92f135161",
+    "Content/Gameplay/UI/Materials/DesignerSnapshots/WBP_Hub/MI_HubLaunch_Disabled.uasset": "e321c1d3ee994074f1b33ed43f5b8dc2c3d9c9a28b869d3e8061ca74233f3fbf",
+    "Content/Gameplay/UI/Materials/DesignerSnapshots/WBP_Hub/MI_HubLaunch_Hovered.uasset": "c80bbb950df5b487220c6b31ddd3ee9ba4eba6f88f5dc76b0b03ead219920121",
+    "Content/Gameplay/UI/Materials/DesignerSnapshots/WBP_Hub/MI_HubLaunch_Normal.uasset": "2506889005fbe9839cad73b61a55875383a674fc772df066050cce29e8326cca",
+    "Content/Gameplay/UI/Materials/DesignerSnapshots/WBP_Hub/MI_HubLaunch_Pressed.uasset": "5c8d54ba68ddbf6a59cfcd8a41189197f7d929a3b7110c69d235e4e2b6189382",
+    "Content/Gameplay/UI/Materials/DesignerSnapshots/WBP_Hub/MI_HubOpenSelection_Disabled.uasset": "f94822f93fb96e8d7a28259dca699af944c2883bc9df59ca55b96f90e19e0dbf",
+    "Content/Gameplay/UI/Materials/DesignerSnapshots/WBP_Hub/MI_HubOpenSelection_Hovered.uasset": "1c2b120d7498c4af17752e7946c12580a6ff5555e7f5fa18143ec2130a2d3ea4",
+    "Content/Gameplay/UI/Materials/DesignerSnapshots/WBP_Hub/MI_HubOpenSelection_Normal.uasset": "9853f317e4ccd8d134442b0e405d36e73aa3c469a40d786f5c80fda0de647581",
+    "Content/Gameplay/UI/Materials/DesignerSnapshots/WBP_Hub/MI_HubOpenSelection_Pressed.uasset": "f6eddcf8ef924e62ea2c0d3eb01f577d6b9c5f9bc5fa8b5458d3e9c45b0fef12",
+    "Content/Gameplay/UI/Materials/DesignerSnapshots/WBP_Hub/MI_HubReadinessPanel_Background.uasset": "e00f2cfb788e76f6fe7c5c80f93ddbd3b7fc345675082660882bbd72009147ee",
+    "Content/Gameplay/UI/Materials/DesignerSnapshots/WBP_Hub/MI_HubReturn_Disabled.uasset": "2b210da1826c0d61184f6f64021b012148b69035f2b8e39d2125b1c9915aa854",
+    "Content/Gameplay/UI/Materials/DesignerSnapshots/WBP_Hub/MI_HubReturn_Hovered.uasset": "b9c282f515249c911a31ac098b647f25dda2d49f0385cb1165f2a2f925b34407",
+    "Content/Gameplay/UI/Materials/DesignerSnapshots/WBP_Hub/MI_HubReturn_Normal.uasset": "f0bfb7e79984bd0990f84ea08c9d94865cec72ea99a6148eb08a701db2e3a480",
+    "Content/Gameplay/UI/Materials/DesignerSnapshots/WBP_Hub/MI_HubReturn_Pressed.uasset": "d9ad5841460b957d8eb93027bfcf817ce158b86a75b9af745719dd53d015cff0",
+    "Content/Gameplay/UI/Theme/DA_GameplayUITheme.uasset": "8da025fc46f8aea638dd98d8f34edd01367eee4ac7843afc51b7598d00d2838c",
+    "Content/Gameplay/UI/WBP_GameplayHUD_Phase1.uasset": "8074465ecc556167bb28387b0c38165a8a29c252c889a930d29e38cd44eb5c36",
+    "Content/Gameplay/UI/WBP_Hub.uasset": "7224b0011d375d9c91a97ea9e34837a9ecd9311de0163a15a5da83281adfbc18",
+    "Content/Gameplay/UI/WBP_Loading.uasset": "967127a0bd4aacbac8026384b284c578c4302a3641982d42ee6f6a7e5f546d1f",
+    "Content/Gameplay/UI/WBP_MainMenu.uasset": "5d090ab9dd6ff678efae44547bf49b3fb4972b6547f49e560028cbcf12b7aa46",
+    "Content/UI/MainMenu3D/WBP_MainMenu3D.uasset": "3e40e600685d5ed69989101e53c1c870e98fd4843da22a8e55919ef4f88eaf47",
+    "Docs/UI/GameplayUIStyleSystem_20261016.md": "f8e32691ba0716fddcbaccc55e949d2328db449f192016357e80edad439e78c0",
+    "Source/MessControl/Private/MCBoosterWidget.cpp": "6f417c8499591f24d11993ee5591fbf1bdadec530d4227611e217033761d6961",
+    "Source/MessControl/Private/MCEmoteWidget.cpp": "91fe30cc6f960eabfc2af8e5cac59bc980018f3ab3dfaa1c343a4837c3bb7439",
+    "Source/MessControl/Private/MCGameUserSettings.cpp": "bce3290e232af125c95ef32eeaccc1e34e80794498ecc440b45d366cecc5d76e",
+    "Source/MessControl/Private/MCGameplayHUD.cpp": "4f3220461d3fd32b33f5740d8596a47bd5f909ddfd024b080ac14bddffd3e774",
+    "Source/MessControl/Private/MCGameplayMenuWidget.cpp": "7b25a132055e8e567116508ad98078814613539330836b821b77b53ee129b9d4",
+    "Source/MessControl/Private/MCGameplayUIWidget.cpp": "28a938d202a4abc5757e7741c5cc70cdce02c9df2847e9862e7db876639fd649",
+    "Source/MessControl/Private/MCHubWidget.cpp": "54aff0d61f27d3ef439712992191ecc6df8a238f5da688dd0a425756a793a04e",
+    "Source/MessControl/Private/MCLoadingWidget.cpp": "4c3e244b14000c66dc9486b546958484a40f47fbdc560a67185ec2cc364686b8",
+    "Source/MessControl/Private/MCMainMenuPlayerController.cpp": "946d70da3adc2fcfd4a854e2a03c67fd037a3cd5b1e28b785fb02c52533e361b",
+    "Source/MessControl/Private/MCMainMenuWidget.cpp": "87e706944c0d4a3b011e32157cf6a5b2936d6637575eb280ace0e4772f1b4680",
+    "Source/MessControl/Private/MCPerkCardWidget.cpp": "bb22bba1ef0694b07cac1a2f07141ddec134842c34e58b8948e52204b5fc22aa",
+    "Source/MessControl/Private/MCPerkChoiceWidget.cpp": "cda8ab9e8f2faefccc8f6321e31c8e81fa89b37fe67ee44d970d49983439b60d",
+    "Source/MessControl/Private/MCPlayerController.cpp": "e4b15420e999f2b199f83c7272cba7e90bd02ceb7a9023c2c2144517af8536ae",
+    "Source/MessControl/Private/MCPlayerControllerHub.cpp": "37773897a8082034d4bba7f090ae162c916fd1cd873c363eda54c71ee7a60cbf",
+    "Source/MessControl/Private/MCPlayerControllerLoading.cpp": "eafa9c63cb3bfc6b839c2561978a55b66d139b084400e3aea78d5a053b03041a",
+    "Source/MessControl/Private/MCSceneAudioComponent.cpp": "bf4bd3b3293b19c1e744e41edd948a74f96526f68ba4b065003ca78d15713ce2",
+    "Source/MessControl/Private/MCScoreboardWidget.cpp": "b3f591e45fbb676b9425ba201419a126ff738530bc38b4ab9c091a6a3ca77665",
+    "Source/MessControl/Private/MCToothCharacter.cpp": "69d7a90975f3d472ec8624d086cae8090841fb97d1c371fc02db16b2acc36bec",
+    "Source/MessControl/Private/MCTutorialWidget.cpp": "65b409419362a1c675b2b65e26af1dc18b2b6e56a797d73cafe01d6c53b067e0",
+    "Source/MessControl/Private/Tests/MCDesignerPresentationTests.cpp": "0b22b100ab6c45c051220203934c5d8b07e1c6b94e698718616bc818a5534310",
+    "Source/MessControl/Private/Tests/MCGameUserSettingsTests.cpp": "90baf62ffe1695ddf4210293a92d52f25f419566b82177e95fe0e499f9385f1f",
+    "Source/MessControl/Private/Tests/MCGamepadSmoke.cpp": "aeaeb3cfc518748e6032510fbfdecbad4a2f54506de63a62a046b1804dd26cd7",
+    "Source/MessControl/Private/Tests/MCMainMenuTests.cpp": "342a5d55444a2a1a5608a7db01f9ea0c2edb9520191a194957cc020f72b4af92",
+    "Source/MessControl/Public/MCGameUserSettings.h": "4f1a8a05096a1f50e31b9e4e76c27f5d64c766412036391f595854a59db469cf",
+    "Source/MessControl/Public/MCGameplayHUD.h": "d696ecb564743dd7b57c365386868bd6b485eee4190d3dd1863db1edcee2815b",
+    "Source/MessControl/Public/MCGameplayUIWidget.h": "8141197864f7eaecc939622547603557c7efcbbe567ebc58f5e6dd302cadef87",
+    "Source/MessControl/Public/MCHubWidget.h": "40d7a9d141e39367e7daeb7796d879692ba6ce4272c7f084bed5d105f2a5c5cb",
+    "Source/MessControl/Public/MCLoadingWidget.h": "c0e19d2789df5e43c33cc6f5df43b82797922f1eb316c01ecfbc4df65263c191",
+    "Source/MessControl/Public/MCMainMenuWidget.h": "bf6688bc00f26d55dbdabd3a4f390e1d49777291a772bcdff5d568f851efad14",
+    "Source/MessControlEditor/Private/MCGameplayUIEditorLibrary.cpp": "5be935f62e692ff423054aeac88ea107d38372675d487490225d3b44977d1a8b",
+    "Source/MessControlEditor/Public/MCGameplayUIEditorLibrary.h": "de9f04d92bce020480c844526c0b707ef14251cb8821d03fa0c4849d2fa3ee7d",
+    "Tools/Unreal/Menu3D/write_menu_blueprint_logic.py": "110eb99f4d72ea28c663a543a8cb854372e92c5efbebc25484cc87a6e49a0b8a",
+    "Tools/Unreal/UI/author_editable_shells.py": "ae27a3b279a0ac84f313a09c2c1ceac157a4249b1f0e5db6a9af87b2d1dbb19e",
+    "Tools/Unreal/UI/check_editable_settings_solo.py": "68c62f2b9c13a49e836bf383f61e3190c916b28de709089f862a340ecea8172b",
+    "Tools/Unreal/UI/gameplay_ui_texts.json": "f6f76d8fe5ea33f1371e632473bdfdc3faec7f082761ccd789b0bc802120ede3",
+    "Tools/Unreal/UI/update_editable_settings.py": "7ee56f7d1f0463d9640cad873af0b2d8e897e78954c86bc980eba7d6df5a0b90"
+  },
+  "limitations": [
+    "Editor Development and local solo PIE only; no Windows cook/package or network tests.",
+    "Callbacks and UMG control setters exercised; physical input and every monitor/display mode were not exhaustively exercised.",
+    "Videos are silent sampled real game-window frames with recorded wall timing; no listening test or interpolated motion.",
+    "Ten culture choices are supported; this change does not supply complete translations in all ten languages.",
+    "Blocking MoviePlayer/Slate cover and developer panels remain native; data-driven rows can be runtime-generated.",
+    "Gameplay camera captures are not a cold driver cache, full level playthrough or performance benchmark."
+  ],
+  "visual_review": {
+    "reviewed": [
+      "All four authored settings tabs and Hub preview",
+      "Actual settings captures",
+      "Loading overlay and Cyrillic HUD labels",
+      "Hub travel contact sheet"
+    ],
+    "minor_polish": [
+      "Standard ComboBox/CheckBox styling is editable but remains stock.",
+      "Graphics fields use a scroll area.",
+      "World-space Ready-zone sign shows missing Cyrillic glyphs; it is separate from the migrated UMG shell."
+    ]
+  },
+  "committed": false,
+  "pushed": false,
+  "known_issues": [
+    {
+      "issue": "A newly served dirt patch briefly exposes its square support mesh before resolving to the usual irregular blotch.",
+      "evidence": "LoadingMouthFinal frames 79-80 at game20.675/21.017s versus frame81 at21.279s; captured without actor/gameplay overrides.",
+      "source": "Source/MessControl/Private/MCMouthLiquid.cpp:487-520; food CommitServedDirt -> AddDirt -> AMCMouthSurface",
+      "diagnosis": "Visibility immediately follows dynamic material/transient wipe-mask setup. A render resource/material/PSO readiness gap is suspected; exact cause is unproven.",
+      "modified_by_this_task": false,
+      "fixed": false
+    },
+    {
+      "issue": "World-space Ready-zone sign lacks Cyrillic glyphs.",
+      "scope": "TextRender in the world, separate from the migrated UMG shell.",
+      "fixed": false
+    }
+  ],
+  "evidence_notes": [
+    "Hub named 09_normal_first_perk.png shows the loading/wait cover; first-perk visual evidence is in LoadingMouthFinal instead."
+  ]
+}

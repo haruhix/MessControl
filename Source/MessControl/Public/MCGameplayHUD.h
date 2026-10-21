@@ -29,6 +29,8 @@ public:
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="HUD") TSubclassOf<UMCReserveToothWidget> ReserveToothWidgetClass;
     /** Optional encounter component used only by composition previews, never a second runtime HUD. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Preview|Composition") TSubclassOf<UMCGameplayUIWidget> EncounterPreviewWidgetClass;
+    /** Opt in to the historical debug sidebar's automatic positioning and text sizing. Otherwise the Designer owns its layout. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="HUD|Layout") bool bAutoArrangeDirectorMonitor=false;
     virtual void BuildPresentationTree() override;
     virtual void ApplyTheme() override;
     virtual void ApplyEditorPreview(float Time) override;
@@ -85,6 +87,7 @@ private:
     UWidget* Find(FName Name) const;
     void CachePresentationWidgets();
     void BindAuthoredPresentation();
+    void BindDirectorPresentation();
     void RefreshReserveTeeth(const class AMCGameState& State);
     void RefreshBooster(const class AMCToothCharacter* Hero);
     void EnsureBoosterWidget();

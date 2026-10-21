@@ -2,6 +2,7 @@
 #include "MCHubGameMode.h"
 #include "MCHubGameState.h"
 #include "MCHubWidget.h"
+#include "MCGameplayUIFactory.h"
 #include "MCPlayerState.h"
 #include "MCToothCharacter.h"
 #include "MCPrototypeWidget.h"
@@ -44,7 +45,7 @@ void AMCPlayerController::RefreshHubPresentation(float DeltaSeconds)
     auto* State=GetWorld()->GetGameState<AMCHubGameState>();
     if(!State) return;
     if(!HubWidget) {
-        HubWidget=CreateWidget<UMCHubWidget>(this,UMCHubWidget::StaticClass());
+        HubWidget=CreateWidget<UMCHubWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("Hub"),UMCHubWidget::StaticClass()));
         if(HubWidget) HubWidget->AddToViewport(25);
     }
     if(!HubWidget) return;

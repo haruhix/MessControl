@@ -150,6 +150,3 @@ class Probe:
         print('HUB_BASKETBALL_SOLO_RESULT',json.dumps({k:v for k,v in self.report.items() if k!='trajectory'}))
 
 builtins.mc_basketball_probe=Probe()
-
-
-

@@ -69,7 +69,9 @@ void MCTickGamepadValidation(UWorld* World)
     };
     auto HasText=[](UMCMainMenuWidget* Widget,const TCHAR* Expected) {
         bool Found=false;
-        if(Widget && Widget->WidgetTree) Widget->WidgetTree->ForEachWidget([&](UWidget* Child) {
+        if(Widget && Widget->GetActiveMenuPageRoot()) UWidgetTree::ForWidgetAndChildren(Widget->GetActiveMenuPageRoot(),[&](UWidget* Child) {
+            for(const UWidget* Ancestor=Child;Ancestor;Ancestor=Ancestor->GetParent())
+                if(!Ancestor->IsVisible()) return;
             if(const auto* Text=Cast<UTextBlock>(Child)) Found|=Text->GetText().ToString()==Expected;
         });
         return Found;

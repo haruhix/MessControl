@@ -15,8 +15,9 @@ class AMCFoodActor;
 class AMCTongue;
 class AMCNutRainEvent;
 class AMCNutBoss;
+class UMCMainMenuWidget;
 
-/** Explicit editor authoring for the approved gameplay UI; main-menu assets are excluded. */
+/** Explicit editor authoring for the approved UI; existing artist trees are preserved unless a narrow repair is requested. */
 UCLASS()
 class MESSCONTROLEDITOR_API UMCGameplayUIEditorLibrary : public UBlueprintFunctionLibrary
 {
@@ -43,9 +44,25 @@ public:
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static void OpenGameplayUITheme(UMCGameplayUITheme* Theme = nullptr);
 
-    /** Creates and saves a new editable tree only; an existing asset is returned without changes. */
+    /** Saves a new editable tree and parameter-preserving material snapshots; existing assets are never replaced. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static UWidgetBlueprint* CreateEditableGameplayWidget(const FString& AssetPath, TSubclassOf<UMCGameplayUIWidget> ParentClass);
+
+    /** Append only missing named HUD controls, preserving the saved Designer layout and graph. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
+    static bool AddMissingGameplayHUDPresentation(UWidgetBlueprint* Blueprint);
+
+    /** Repair only bare-material brushes from today's WBP_Hub migration; preserves artist instances/layout. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
+    static bool RepairEditableHubMaterialSnapshots(UWidgetBlueprint* Blueprint);
+
+    /** Today's generated WBP_MainMenu only: replace Settings children, retaining its page/slot and all other pages. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
+    static bool RefreshMainMenuSettingsPresentation(UWidgetBlueprint* Blueprint);
+
+    /** Replace only native menu CreateWidget class pins in the existing 3D front end. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
+    static bool UseAuthoredMainMenu(UWidgetBlueprint* Host, TSubclassOf<UMCMainMenuWidget> MenuClass);
 
     /** Explicit-culture formatter checks; never changes editor culture, creates actors or saves assets. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")

@@ -120,7 +120,7 @@ void UMCBoosterWidget::BindPresentationTree()
 
 void UMCBoosterWidget::NormalizePresentationLayout()
 {
-    if(!WidgetTree) return;
+    if(!bUseNativeLayout || !WidgetTree) return;
     auto* Root=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("BoosterRoot")));
     auto* Stack=Cast<UVerticalBox>(WidgetTree->FindWidget(TEXT("BoosterStack")));
     if(Root && Stack) {

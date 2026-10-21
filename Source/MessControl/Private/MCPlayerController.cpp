@@ -1,5 +1,6 @@
 #include "MCPlayerController.h"
 #include "MCPrototypeWidget.h"
+#include "MCGameUserSettings.h"
 #include "MCDevPanelWidget.h"
 #include "MCEmoteWidget.h"
 #include "MCGameMode.h"
@@ -137,11 +138,14 @@ void AMCPlayerController::Tick(float DeltaSeconds)
     if (Now>=NextSpectatorCheck) { NextSpectatorCheck=Now+.1; UpdateDeathSpectating(); }
     if(bDeathSpectating && SpectatorTarget.IsValid() && !bShowMouseCursor && !IsLookInputIgnored()) {
         float X=0,Y=0; GetInputMouseDelta(X,Y);
-        ApplySpectatorOrbitInput(FVector2D(X,Y));
+        const auto* Settings=UMCGameUserSettings::Get();
+        const FVector2D MouseDelta(X,Y);
+        ApplySpectatorOrbitInput(Settings?Settings->ScaleLookInput(MouseDelta,false):MouseDelta);
         const auto* Target=SpectatorTarget.Get();
         const float Scale=FMath::Clamp(Target->GamepadCameraTurnRate,30.f,360.f)*DeltaSeconds/FMath::Clamp(Target->CameraOrbitSensitivity,.02f,1.f);
         auto Stick=[](float Value){return FMath::Sign(Value)*FMath::Clamp((FMath::Abs(Value)-.2f)/.8f,0.f,1.f);};
-        ApplySpectatorOrbitInput(FVector2D(Stick(GetInputAnalogKeyState(EKeys::Gamepad_RightX)),Stick(GetInputAnalogKeyState(EKeys::Gamepad_RightY)))*Scale);
+        const FVector2D StickDelta=FVector2D(Stick(GetInputAnalogKeyState(EKeys::Gamepad_RightX)),Stick(GetInputAnalogKeyState(EKeys::Gamepad_RightY)))*Scale;
+        ApplySpectatorOrbitInput(Settings?Settings->ScaleLookInput(StickDelta,true):StickDelta);
         ZoomSpectatorCamera(GetInputAnalogKeyState(EKeys::MouseWheelAxis));
     }
 }
@@ -947,7 +951,7 @@ void AMCPlayerController::RefreshFrontEnd()
     {
         CloseGameplayMenus();
         bLobbyUIOpen=true;
-        if (!FrontEndWidget) FrontEndWidget=CreateWidget<UMCMainMenuWidget>(this,UMCMainMenuWidget::StaticClass());
+        if (!FrontEndWidget) FrontEndWidget=CreateWidget<UMCMainMenuWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("MainMenu"),UMCMainMenuWidget::StaticClass()));
         if (FrontEndWidget) { FrontEndWidget->ShowLobby(); FrontEndWidget->AddToViewport(60); }
         UpdateInputMode();
     }

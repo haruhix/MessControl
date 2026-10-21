@@ -14,6 +14,7 @@
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
+#include "Components/Slider.h"
 #include "Components/RichTextBlock.h"
 #include "Components/ScaleBox.h"
 #include "Components/SizeBox.h"
@@ -289,6 +290,24 @@ void UMCGameplayUIWidget::ApplyTheme()
             if (auto* Button=Cast<UButton>(Widget))
             {
                 MCUIVisualStyle::Button(Button,Resolved,Color);
+            }
+            break;
+        case EMCUIStyleTarget::Slider:
+            if(auto* Slider=Cast<USlider>(Widget))
+            {
+                const auto& P=Resolved->Palette;
+                auto Style=Slider->GetWidgetStyle();
+                FSlateBrush Track=FSlateRoundedBoxBrush(P.Ink,2.f);Track.ImageSize=FVector2D(16,4);
+                FSlateBrush HoverTrack=FSlateRoundedBoxBrush(P.Border,2.f);HoverTrack.ImageSize=Track.ImageSize;
+                FSlateBrush DisabledTrack=FSlateRoundedBoxBrush(P.Muted,2.f);DisabledTrack.ImageSize=Track.ImageSize;
+                FSlateBrush Thumb=FSlateRoundedBoxBrush(Color,9.f);Thumb.ImageSize=FVector2D(18,18);
+                FSlateBrush HoverThumb=FSlateRoundedBoxBrush(P.Focus,9.f);HoverThumb.ImageSize=Thumb.ImageSize;
+                FSlateBrush DisabledThumb=FSlateRoundedBoxBrush(P.Muted,9.f);DisabledThumb.ImageSize=Thumb.ImageSize;
+                Style.SetNormalBarImage(Track).SetHoveredBarImage(HoverTrack).SetDisabledBarImage(DisabledTrack);
+                Style.SetNormalThumbImage(Thumb).SetHoveredThumbImage(HoverThumb).SetDisabledThumbImage(DisabledThumb);
+                Style.BarThickness=4.f;
+                Slider->SetWidgetStyle(Style);
+                Slider->SetSliderBarColor(FLinearColor::White);Slider->SetSliderHandleColor(FLinearColor::White);
             }
             break;
         }

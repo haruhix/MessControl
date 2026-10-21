@@ -14,7 +14,7 @@ enum class EMCGameplayUIPreviewScenario : uint8
 };
 
 UENUM(BlueprintType)
-enum class EMCUIStyleTarget : uint8 { Background, Text, Image, Progress, Button };
+enum class EMCUIStyleTarget : uint8 { Background, Text, Image, Progress, Button, Slider };
 
 USTRUCT(BlueprintType)
 struct MESSCONTROL_API FMCUIStyleBinding
@@ -32,6 +32,8 @@ class MESSCONTROL_API UMCGameplayUIWidget : public UUserWidget
 {
     GENERATED_BODY()
 public:
+    /** Disable to keep Designer sizing, padding and placement instead of legacy runtime layout corrections. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") bool bUseNativeLayout=true;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Theme") TObjectPtr<UMCGameplayUITheme> Theme;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Theme") TArray<FMCUIStyleBinding> StyleBindings;
     /** Optional screen override. Otherwise inherit the parent's override, then the resolved theme's table. */

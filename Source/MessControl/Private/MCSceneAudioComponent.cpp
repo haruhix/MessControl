@@ -1,5 +1,6 @@
 #include "MCSceneAudioComponent.h"
 
+#include "MCGameUserSettings.h"
 #include "Components/AudioComponent.h"
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
@@ -101,6 +102,8 @@ void UMCSceneAudioComponent::StartLayer(int32 Layer,uint64 Revision)
     {
         Voices[Layer*2]=Incoming;
         State.Active=State.Desired;
+        if(auto* Preferences=UMCGameUserSettings::Get())
+            Incoming->SoundClassOverride=Preferences->GetSceneSoundClass(GetWorld(),Layer==0);
         Incoming->bStopWhenOwnerDestroyed=true;
         Incoming->OnAudioFinishedNative.AddUObject(this,&UMCSceneAudioComponent::HandleFinished);
         Incoming->FadeIn(State.Active.FadeInSeconds,State.Active.Volume);

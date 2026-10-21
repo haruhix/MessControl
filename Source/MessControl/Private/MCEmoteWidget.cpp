@@ -281,6 +281,7 @@ void UMCEmoteWidget::ApplyTheme()
     Super::ApplyTheme();
     // Update the named slots too: the authored Phase1 tree has the original
     // tightly packed color/footer positions and is intentionally preserved.
+    if(!bUseNativeLayout) {InvalidateLayoutAndVolatility();return;}
     if(ColorHeading) if(auto* PresentationSlot=Cast<UCanvasPanelSlot>(ColorHeading->Slot)) {PresentationSlot->SetPosition(FVector2D(-165,222));PresentationSlot->SetSize(FVector2D(390,28));}
     if(Footer) {
         Footer->SetWrapTextAt(900);Footer->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
