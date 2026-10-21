@@ -45,6 +45,7 @@
 #include "MCHubGameState.h"
 #include "MCHubWidget.h"
 #include "MCLoadingWidget.h"
+#include "MCVoiceChatSubsystem.h"
 
 void AMCPlayerController::BeginPlay()
 {
@@ -704,12 +705,13 @@ void AMCPlayerController::ClientShowRewardOpening_Implementation(AMCRewardChest*
     CheckRewardUI();
 }
 
-void AMCPlayerController::ClientShowPerkChoices_Implementation(AMCRewardChest* Chest,const TArray<FName>& IDs,EMCPerkPolarity Polarity)
+void AMCPlayerController::ClientShowPerkChoices_Implementation(AMCRewardChest* Chest,const TArray<FName>& IDs,EMCPerkPolarity Polarity,bool bTeamBooster)
 {
     if (IDs.Num()!=3 || IDs.Contains(NAME_None) || IDs[0]==IDs[1] || IDs[1]==IDs[2] || IDs[0]==IDs[2]
         || uint8(Polarity)>uint8(EMCPerkPolarity::Negative) || !PrepareRewardUI(Chest)) return;
     // Render the reliable payload directly; actor replication may still be one frame behind this RPC.
     PerkChoiceWidget->ShowChoices(IDs,Polarity);
+    if(bTeamBooster) PerkChoiceWidget->SetTeamBoosterHeader();
     UpdateInputMode();
     PerkChoiceWidget->SetUserFocus(this);
 }
@@ -773,7 +775,7 @@ void AMCPlayerController::ServerChooseRewardPerk_Implementation(AMCRewardChest* 
     {
         if (IsValid(Chest) && Hero && Chest->Stage==EMCRewardChestStage::Open && Chest->OpeningPlayer==Hero)
             if(Chest->RogueKind!=EMCRogueRewardKind::Ordinary) Chest->PublishRogueOffer();
-            else ClientShowPerkChoices(Chest,Chest->LootIDs,Chest->Polarity);
+            else ClientShowPerkChoices(Chest,Chest->LootIDs,Chest->Polarity,Chest->bTeamStageBooster);
         else ClientClosePerkChoices(Chest);
     }
     RefreshPerkChoiceTeamState();
@@ -883,6 +885,8 @@ void AMCPlayerController::CloseRewardUI(bool bRestoreInput)
 
 void AMCPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    if(IsLocalController() && GetGameInstance())
+        if(auto* Voice=GetGameInstance()->GetSubsystem<UMCVoiceChatSubsystem>()) Voice->SuspendLocalInput();
     ResetLoadingPresentation();
     ResetHubPresentation();
     bPerkChoiceEnding=true;

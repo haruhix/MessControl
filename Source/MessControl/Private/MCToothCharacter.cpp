@@ -402,6 +402,9 @@ void AMCToothCharacter::BuildInput()
 void AMCToothCharacter::PawnClientRestart()
 {
     Super::PawnClientRestart(); BuildInput();
+    // ACharacter::Restart resets movement to Walking. Its replicated movement
+    // mode excludes the owning client, so replay the initial entrance hold.
+    if(bArenaArrivalHeld) OnRep_ArenaArrivalHeld();
     if (APlayerController* PC = Cast<APlayerController>(Controller))
         if (ULocalPlayer* Local = PC->GetLocalPlayer())
             if (auto* Subsystem = Local->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
@@ -411,6 +414,17 @@ void AMCToothCharacter::PawnClientRestart()
                     if (*It!=this && It->AppliedInputSubsystem==Subsystem && It->InputMap) Subsystem->RemoveMappingContext(It->InputMap);
                 Subsystem->RemoveMappingContext(InputMap); Subsystem->AddMappingContext(InputMap, 0); AppliedInputSubsystem=Subsystem;
             }
+}
+void AMCToothCharacter::SetArenaArrivalHeld(bool bHeld)
+{
+    if(!HasAuthority() || bArenaArrivalHeld==bHeld) return;
+    bArenaArrivalHeld=bHeld;OnRep_ArenaArrivalHeld();ForceNetUpdate();
+}
+void AMCToothCharacter::OnRep_ArenaArrivalHeld()
+{
+    auto* Movement=GetCharacterMovement();if(!Movement) return;
+    if(bArenaArrivalHeld) {Movement->StopMovementImmediately();Movement->DisableMovement();}
+    else if(Movement->MovementMode==MOVE_None) Movement->SetMovementMode(MOVE_Falling);
 }
 void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -1756,6 +1770,7 @@ void AMCToothCharacter::ResetTuning() { AnimationSettings = AnimationProfile ? A
 void AMCToothCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    DOREPLIFETIME(AMCToothCharacter,bArenaArrivalHeld);
     DOREPLIFETIME(AMCToothCharacter,bBrushing); DOREPLIFETIME(AMCToothCharacter,bHandling);
     DOREPLIFETIME(AMCToothCharacter,bPrimaryHeld);
     DOREPLIFETIME(AMCToothCharacter,IceLegHealth);

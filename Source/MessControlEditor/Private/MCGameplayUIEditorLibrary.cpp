@@ -4,6 +4,7 @@
 #include "MCGameplayUIWidget.h"
 #include "MCGameplayHUD.h"
 #include "MCMainMenuWidget.h"
+#include "MCVoiceSettingsWidget.h"
 #include "MCHubWidget.h"
 #include "MCUIDataLibrary.h"
 #include "MCThroatVortex.h"
@@ -23,6 +24,9 @@
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
+#include "Components/HorizontalBox.h"
+#include "Components/HorizontalBoxSlot.h"
+#include "Components/ScrollBox.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/ProgressBar.h"
 #include "Components/Image.h"
@@ -675,6 +679,117 @@ bool UMCGameplayUIEditorLibrary::RefreshMainMenuSettingsPresentation(UWidgetBlue
     if(!Snapshots.Save()) {RollBack();return false;}
     UE_LOG(LogTemp,Display,TEXT("MC_UI_SETTINGS Replaced Settings children only; retained page, slot and all other menu pages"));
     return Assets->SaveLoadedAsset(Blueprint,false);
+}
+
+bool UMCGameplayUIEditorLibrary::AddMainMenuVoicePresentation(UWidgetBlueprint* Blueprint)
+{
+    if(!IsInGameThread() || !GEditor || GEditor->PlayWorld || IsRunningCommandlet() || !IsValid(Blueprint)
+        || Blueprint->GetPathName()!=TEXT("/Game/Gameplay/UI/WBP_MainMenu.WBP_MainMenu")
+        || !Blueprint->ParentClass || !Blueprint->ParentClass->IsChildOf(UMCMainMenuWidget::StaticClass())
+        || Blueprint->GetPackage()->IsDirty() || !Blueprint->WidgetTree || HasDirtyDesignerPackages()) return false;
+    TStrongObjectPtr<UWidgetBlueprint> BlueprintGuard(Blueprint);
+    UWidgetTree* Tree=Blueprint->WidgetTree;
+    auto* Tabs=Tree->FindWidget<UHorizontalBox>(TEXT("MenuSettings_Tabs"));
+    auto* Sections=Tree->FindWidget<UWidgetSwitcher>(TEXT("MenuSettings_Sections"));
+    auto* PreviousDefaults=Cast<UMCGameplayUIWidget>(Blueprint->GeneratedClass?Blueprint->GeneratedClass->GetDefaultObject():nullptr);
+    if(!Tabs || !Sections || !PreviousDefaults) return false;
+    const FName TabName(TEXT("MenuSettings_TabVoice")),SectionName(TEXT("MenuSettings_VoiceSection")),PanelName(TEXT("MenuSettings_VoicePanel"));
+    auto* ExistingTab=Tree->FindWidget(TabName);auto* ExistingSection=Tree->FindWidget(SectionName);auto* ExistingPanel=Tree->FindWidget(PanelName);
+    if(ExistingTab || ExistingSection || ExistingPanel) {
+        int32 Index=INDEX_NONE;
+        // Partial/custom trees are never completed by guessing at their intent.
+        return Cast<UMCMainMenuActionButton>(ExistingTab) && ExistingTab->GetParent()==Tabs
+            && Cast<UScrollBox>(ExistingSection) && Sections->GetChildIndex(ExistingSection)==4
+            && Cast<UMCVoiceSettingsWidget>(ExistingPanel)
+            && UWidgetTree::FindWidgetChild(Cast<UPanelWidget>(ExistingSection),PanelName,Index)==ExistingPanel;
+    }
+    if(Tabs->GetChildrenCount()!=4 || Sections->GetChildrenCount()!=4) return false;
+    const TCHAR* Names[]={TEXT("Graphics"),TEXT("Audio"),TEXT("Language"),TEXT("Controls")};
+    for(int32 I=0;I<4;++I) {
+        const auto* Tab=Tree->FindWidget(FName(*(FString(TEXT("MenuSettings_Tab"))+Names[I])));
+        const auto* Section=Tree->FindWidget(FName(*(FString(TEXT("MenuSettings_"))+Names[I]+TEXT("Section"))));
+        if(!Tab || Tabs->GetChildAt(I)!=Tab || !Section || Sections->GetChildAt(I)!=Section) return false;
+    }
+    auto* Assets=GEditor->GetEditorSubsystem<UEditorAssetSubsystem>();if(!Assets) return false;
+    const auto PreviousStyle=PreviousDefaults->StyleBindings;const auto PreviousText=PreviousDefaults->TextBindings;
+    TStrongObjectPtr<UMCMainMenuWidget> Source(NewObject<UMCMainMenuWidget>(GetTransientPackage()));
+    Source->Theme=PreviousDefaults->Theme;Source->TranslationTable=PreviousDefaults->TranslationTable;
+    Source->SetDesignerFlags(EWidgetDesignFlags::Designing);Source->Initialize();Source->BuildPresentationTree();
+    TStrongObjectPtr<UWidgetTree> Copy(DuplicateObject<UWidgetTree>(Source->WidgetTree,GetTransientPackage(),
+        MakeUniqueObjectName(GetTransientPackage(),UWidgetTree::StaticClass(),TEXT("MainMenuVoiceSeed"))));
+    auto* Tab=Copy->FindWidget<UMCMainMenuActionButton>(TabName);
+    auto* Section=Copy->FindWidget<UScrollBox>(SectionName);
+    auto* Voice=Copy->FindWidget<UMCVoiceSettingsWidget>(PanelName);
+    // WidgetTree is DuplicateTransient on UUserWidget. This detached seed copy
+    // is outside engine widget-tree initialization, so initialize its nested
+    // presenter explicitly before validating and moving the new branch.
+    if(Voice) {Voice->SetDesignerFlags(EWidgetDesignFlags::Designing);Voice->Initialize();Voice->BuildPresentationTree();}
+    if(!Tab || !Section || !Voice || !Voice->WidgetTree || !Voice->WidgetTree->RootWidget) return false;
+    const auto* TabSlot=Cast<UHorizontalBoxSlot>(Tab->Slot);if(!TabSlot) return false;
+    const auto Padding=TabSlot->GetPadding();const auto Size=TabSlot->GetSize();
+    const auto Horizontal=TabSlot->GetHorizontalAlignment();const auto Vertical=TabSlot->GetVerticalAlignment();
+    TArray<UWidget*> NewWidgets;
+    for(UWidget* Root:{static_cast<UWidget*>(Tab),static_cast<UWidget*>(Section)}) {
+        NewWidgets.AddUnique(Root);
+        UWidgetTree::ForWidgetAndChildren(Root,[&NewWidgets](UWidget* Child) {NewWidgets.AddUnique(Child);});
+    }
+    for(UWidget* Widget:NewWidgets) {
+        if(Widget->GetOuter()!=Copy.Get()) return false;
+        const FName Name=Widget->GetFName();
+        if(!Name.ToString().StartsWith(TEXT("MenuSettings_"))) {
+            if(Source->TextBindings.Contains(Name) || Source->StyleBindings.ContainsByPredicate(
+                [Name](const FMCUIStyleBinding& Binding) {return Binding.WidgetName==Name;})) return false;
+            const FString NewName=TEXT("MenuSettings_VoiceSeed_")+Name.ToString();
+            if(StaticFindObjectFast(UObject::StaticClass(),Copy.Get(),FName(NewName))
+                || !Widget->Rename(*NewName,Copy.Get(),REN_DontCreateRedirectors|REN_NonTransactional)) return false;
+        }
+        if(StaticFindObjectFast(UObject::StaticClass(),Tree,Widget->GetFName())) return false;
+    }
+    FDesignerMaterialSnapshots Snapshots(Blueprint,Assets,Copy.Get());
+    for(UWidget* Widget:NewWidgets) {
+        if(!SanitizeAppendedDesignerWidget(Widget,Source.Get(),Snapshots)) return false;
+        if(auto* Nested=Cast<UUserWidget>(Widget);Nested && Nested->WidgetTree) {
+            Nested->WidgetTree->ClearFlags(RF_Transient);Nested->WidgetTree->SetFlags(RF_Transactional);
+            Nested->WidgetTree->ForEachWidgetAndDescendants([&](UWidget* Child) {
+                if(!SanitizeAppendedDesignerWidget(Child,Source.Get(),Snapshots)) Snapshots.bFailed=true;
+            });
+            if(Snapshots.bFailed) return false;
+        }
+    }
+    const auto PreviousGuids=Blueprint->WidgetVariableNameToGuidMap;
+    const int32 Active=Sections->GetActiveWidgetIndex();
+    auto RollBack=[&] {
+        Tab->RemoveFromParent();Section->RemoveFromParent();
+        for(UWidget* Widget:NewWidgets) if(Widget->GetOuter()==Tree) UWidgetTree::TryMoveWidgetToNewTree(Widget,Copy.Get());
+        Sections->SetActiveWidgetIndex(Active);Blueprint->WidgetVariableNameToGuidMap=PreviousGuids;
+        if(auto* Defaults=Cast<UMCGameplayUIWidget>(Blueprint->GeneratedClass?Blueprint->GeneratedClass->GetDefaultObject():nullptr)) {
+            Defaults->StyleBindings=PreviousStyle;Defaults->TextBindings=PreviousText;
+            CastChecked<UWidgetBlueprintGeneratedClass>(Blueprint->GeneratedClass)->UpdateCustomPropertyListForPostConstruction();
+        }
+        UE_LOG(LogTemp,Error,TEXT("MC_UI_VOICE Restored original four-tab tree after failed append; no WBP saved"));
+    };
+    Blueprint->Modify();Tree->Modify();Tabs->Modify();Sections->Modify();
+    Tab->RemoveFromParent();Section->RemoveFromParent();
+    for(UWidget* Widget:NewWidgets) if(!UWidgetTree::TryMoveWidgetToNewTree(Widget,Tree)) {RollBack();return false;}
+    auto* NewSlot=Tabs->AddChildToHorizontalBox(Tab);NewSlot->SetPadding(Padding);NewSlot->SetSize(Size);
+    NewSlot->SetHorizontalAlignment(Horizontal);NewSlot->SetVerticalAlignment(Vertical);
+    Sections->AddChild(Section);Sections->SetActiveWidgetIndex(Active);
+    RegisterMissingDesignerGuids(Blueprint);
+    FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);FKismetEditorUtilities::CompileBlueprint(Blueprint);
+    if(Blueprint->Status==BS_Error || !Blueprint->GeneratedClass) {RollBack();return false;}
+    auto* Defaults=Cast<UMCGameplayUIWidget>(Blueprint->GeneratedClass->GetDefaultObject());
+    if(!Defaults) {RollBack();return false;}
+    Defaults->Modify();
+    for(const auto& Entry:Source->TextBindings)
+        if(NewWidgets.Contains(Tree->FindWidget(Entry.Key)) && !Defaults->TextBindings.Contains(Entry.Key)) Defaults->TextBindings.Add(Entry.Key,Entry.Value);
+    for(const auto& Binding:Source->StyleBindings)
+        if(NewWidgets.Contains(Tree->FindWidget(Binding.WidgetName)) && !Defaults->StyleBindings.ContainsByPredicate(
+            [&Binding](const FMCUIStyleBinding& Existing) {return Existing.WidgetName==Binding.WidgetName && Existing.Target==Binding.Target;})) Defaults->StyleBindings.Add(Binding);
+    CastChecked<UWidgetBlueprintGeneratedClass>(Blueprint->GeneratedClass)->UpdateCustomPropertyListForPostConstruction();
+    if(!Snapshots.Save()) {RollBack();return false;}
+    if(!Assets->SaveLoadedAsset(Blueprint,false)) {RollBack();return false;}
+    UE_LOG(LogTemp,Display,TEXT("MC_UI_VOICE Added Voice tab and section; retained all existing controls and materials"));
+    return true;
 }
 
 bool UMCGameplayUIEditorLibrary::UseAuthoredMainMenu(UWidgetBlueprint* Host,TSubclassOf<UMCMainMenuWidget> MenuClass)

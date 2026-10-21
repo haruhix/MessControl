@@ -20,6 +20,8 @@ public class MessControl : ModuleRules
         PrivateDependencyModuleNames.Add("RenderCore");
         PrivateDependencyModuleNames.Add("ApplicationCore");
         PrivateDependencyModuleNames.Add("AudioExtensions");
+        PrivateDependencyModuleNames.AddRange(new[] { "Voice", "SignalProcessing" });
+        if(Target.Platform==UnrealTargetPlatform.Win64) PublicSystemLibraries.AddRange(new[] { "ole32.lib", "uuid.lib" });
         PrivateDependencyModuleNames.Add("MoviePlayer");
         PublicDependencyModuleNames.Add("DeveloperSettings");
         PrivateDependencyModuleNames.AddRange(new[] { "LevelSequence", "MovieScene", "MovieSceneTracks", "CinematicCamera" });

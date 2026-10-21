@@ -16,7 +16,11 @@ class AMCGameDirector;
 class AMCBossCharacter;
 class AMCDayDirector;
 class AMCCataclysmEvent;
+class AMCRewardChest;
+class AMCRewardDropZone;
 struct FMCFoodPipelineLoad;
+
+enum class EMCSingleDayRewardContinuation : uint8 { OpeningCoffee, OpeningRest, PostNutPortion, PostNutMint, NextKeyEvent, EventSupport };
 
 UENUM(BlueprintType)
 enum class EMCSingleDayStage : uint8 { Training, FirstPerk, Nuts, Director, Boss, Complete, OpeningPause, FirstMeal, MealRest, Ice, FogBrawl, MealCoffeeWave, BetweenMealsPause, PostNutMeal, PostNutMint, Jellies };
@@ -86,6 +90,8 @@ public:
     bool ShouldFinishNutRain(int32 CompletedSeries,int32 MinimumSeries,float RainAge,float TargetSeconds) const;
     bool IsLegacyTimedFinale() const { return Settings && Settings->bLegacyTimedFinale; }
     void Stop();
+    /** Called by this director's authoritative shared reward only. Destroyed unclaimed chests retry. */
+    void NotifyStageRewardFinished(AMCRewardChest* Chest,bool bRetry);
     virtual void Tick(float DeltaSeconds) override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -105,7 +111,15 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Opening") int32 MealPortionCount=0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Opening") int32 MealPortionTarget=0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Opening") int32 MealPortionSpawned=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") bool bStageRewardPending=false;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") TObjectPtr<AMCRewardChest> StageRewardChest;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") FName StageRewardCompletionId;
 private:
+    friend class FMCStageRewardPortionGateTest;
+    bool BeginStageReward(FName CompletionId,EMCSingleDayRewardContinuation Continuation);
+    void TickStageReward();
+    void TrySpawnStageReward();
+    void ResetStageRewards();
     void BeginOpeningPause(bool bAfterMeal=false);
     void BeginFirstMeal();
     void BeginMealPortion(int32 PortionIndex);
@@ -145,5 +159,10 @@ private:
     int32 FirstMealBatch=0,MealAttempts=0;
     int32 PostNutMealBatch=0;
     FRandomStream MealRandom;
+    UPROPERTY() TObjectPtr<AMCRewardDropZone> StageRewardZone;
+    TSet<FName> CompletedStageRewards;
+    EMCSingleDayRewardContinuation StageRewardContinuation=EMCSingleDayRewardContinuation::OpeningCoffee;
+    double NextStageRewardAttemptAt=0;
+    int32 StageRewardPlacementAttempts=0;
     bool bStopped=false;
 };

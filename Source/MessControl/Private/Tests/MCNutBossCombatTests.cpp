@@ -1,6 +1,7 @@
 #if WITH_DEV_AUTOMATION_TESTS
 #include "Misc/AutomationTest.h"
 #include "MCNutBoss.h"
+#include "MCNutBossAnimInstance.h"
 #include "MCArenaTooth.h"
 #include "MCNutCombatEffect.h"
 #include "MCCombatFeedbackComponent.h"
@@ -17,6 +18,7 @@
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
+#include "Animation/AnimSequence.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -161,6 +163,83 @@ bool FMCNutBossShieldTest::RunTest(const FString&)
     TestEqual(TEXT("The knight remains stunned until the window ends"),T.Boss->State,EMCNutBossState::Stunned);
     T.Step(.2f);
     TestTrue(TEXT("The knight leaves stun after five seconds"),T.Boss->State!=EMCNutBossState::Stunned);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutBossTeamCounterTest,"MessControl.CoreLoop.NutBoss.TeamPressureCounterAndShieldPriority",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutBossTeamCounterTest::RunTest(const FString&)
+{
+    MCNutBossTestsPrivate::FFixture T;T.AddBoss();T.Step(1.4f);
+    T.Boss->SetActorTickEnabled(false);
+    T.Boss->BossSettings.TankCounterHitsMin=T.Boss->BossSettings.TankCounterHitsMax=10;
+    T.Boss->ShieldHealth=10000;
+    auto* Left=T.AddHero(T.Boss->GetActorLocation()+FVector(260,0,0));
+    auto* Right=T.AddHero(T.Boss->GetActorLocation()+FVector(-260,0,0));
+    auto* Far=T.AddHero(T.Boss->GetActorLocation()+FVector(1000,0,0));
+    for(int32 I=0;I<9;++I) T.Boss->ReceiveToolDamage(1,I%2?Right:Left);
+    TestEqual(TEXT("Team contacts share one pressure chain"),T.Boss->GetTankPressureHits(),9);
+    TestFalse(TEXT("Nine contacts do not trigger an early counter"),T.Boss->IsCounterShoving());
+    T.Boss->ReceiveToolDamage(0,Left);T.Boss->ReceiveToolDamage(1,nullptr);
+    TestEqual(TEXT("Rejected hits and source-less damage are not extra team contacts"),T.Boss->GetTankPressureHits(),9);
+    T.Boss->ReceiveToolDamage(1,Right);
+    TestEqual(TEXT("The tenth team contact starts the counter warning"),T.Boss->Attack,EMCNutBossAttack::CounterShove);
+    TestEqual(TEXT("A fresh counter clears the team chain"),T.Boss->GetTankPressureHits(),0);
+    const double Resolve=T.Boss->ResolveAt,End=T.Boss->AttackEndAt;
+    const float Shield=T.Boss->ShieldHealth;
+    for(int32 I=0;I<15;++I) T.Boss->ReceiveToolDamage(1,I%2?Right:Left);
+    TestEqual(TEXT("The committed counter still accepts ordinary shield damage"),T.Boss->ShieldHealth,Shield-15.f);
+    TestEqual(TEXT("Hits cannot restart the counter warning"),T.Boss->ResolveAt,Resolve);
+    TestEqual(TEXT("Hits cannot extend the counter phase"),T.Boss->AttackEndAt,End);
+    TestEqual(TEXT("Hits during a counter cannot prime a second counter"),T.Boss->GetTankPressureHits(),0);
+    const float NearHealth=Left->Status->State.Health,FarHealth=Far->Status->State.Health;
+    T.Boss->SetActorTickEnabled(true);T.Step(.48f);
+    TestEqual(TEXT("The counter deals one small close-range hit"),Left->Status->State.Health,NearHealth-T.Boss->BossSettings.TankCounterDamage);
+    TestEqual(TEXT("The counter does not hit distant players"),Far->Status->State.Health,FarHealth);
+    const float AfterPush=Left->Status->State.Health;T.Step(.15f);
+    TestEqual(TEXT("A counter does not damage a worker every frame"),Left->Status->State.Health,AfterPush);
+    // Breaking the shield overrides even a committed counter and guarantees
+    // the full vulnerable interval, regardless of continued team pressure.
+    T.Boss->SetActorTickEnabled(false);T.Boss->ShieldHealth=1;
+    T.Boss->ReceiveToolDamage(2,Far);
+    TestEqual(TEXT("Shield break interrupts the counter for its guaranteed stun"),T.Boss->State,EMCNutBossState::Stunned);
+    TestEqual(TEXT("Shield break clears the counter action"),T.Boss->Attack,EMCNutBossAttack::None);
+    TestEqual(TEXT("The shield window is never shortened by a counter"),float(T.Boss->AttackEndAt-T.Boss->StateStartedAt),5.f);
+    const double StunEnd=T.Boss->AttackEndAt;
+    for(int32 I=0;I<15;++I) T.Boss->ReceiveToolDamage(1,Far);
+    TestEqual(TEXT("Stun-window hits do not build anti-stun pressure"),T.Boss->GetTankPressureHits(),0);
+    TestEqual(TEXT("Stun-window hits do not restart its clock"),T.Boss->AttackEndAt,StunEnd);
+    T.Boss->SetActorTickEnabled(true);T.Step(4.9f);
+    TestEqual(TEXT("The knight grants the whole five-second window"),T.Boss->State,EMCNutBossState::Stunned);
+    T.Step(.2f);TestFalse(TEXT("The counter does not queue from damage during stun"),T.Boss->IsCounterShoving());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutBossPressureGapTest,"MessControl.CoreLoop.NutBoss.PressureGapResetsTeamChain",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutBossPressureGapTest::RunTest(const FString&)
+{
+    MCNutBossTestsPrivate::FFixture T;T.AddBoss();T.Step(1.4f);T.Boss->SetActorTickEnabled(false);
+    auto* Hero=T.AddHero(T.Boss->GetActorLocation()+FVector(260,0,0));
+    for(int32 I=0;I<9;++I) T.Boss->ReceiveToolDamage(1,Hero);
+    T.Step(T.Boss->BossSettings.TankCounterHitGap+.1f);
+    T.Boss->ReceiveToolDamage(1,Hero);
+    TestEqual(TEXT("A quiet gap starts a new chain rather than banking old hits"),T.Boss->GetTankPressureHits(),1);
+    TestFalse(TEXT("An interrupted chain does not trigger the counter"),T.Boss->IsCounterShoving());
+    T.Boss->BossSettings.TankCounterHitsMin=T.Boss->BossSettings.TankCounterHitsMax=10;
+    // Begin a fresh deterministic chain after the previous one has expired.
+    T.Step(T.Boss->BossSettings.TankCounterHitGap+.1f);
+    Hero->SetActorLocation(T.Boss->GetActorLocation()+FVector(1000,0,0));
+    for(int32 I=0;I<10;++I) T.Boss->ReceiveToolDamage(1,Hero);
+    TestTrue(TEXT("A complete fresh chain triggers one counter"),T.Boss->IsCounterShoving());
+    T.Boss->SetActorTickEnabled(true);T.Step(1.3f);T.Boss->SetActorTickEnabled(false);
+    TestFalse(TEXT("The short counter has finished its recovery"),T.Boss->IsCounterShoving());
+    for(int32 I=0;I<15;++I) T.Boss->ReceiveToolDamage(1,Hero);
+    TestEqual(TEXT("The post-counter cooldown cannot bank another team chain"),T.Boss->GetTankPressureHits(),0);
+    TestFalse(TEXT("The post-counter cooldown prevents repeated immediate pushes"),T.Boss->IsCounterShoving());
+    FMCNutBossSettings Settings;Settings.TankCounterHitsMin=0;Settings.TankCounterHitsMax=MAX_int32;
+    Settings.TankCounterDamage=1000;Settings.TankCounterWindup=0;Settings.Sanitize();
+    TestEqual(TEXT("Pressure thresholds stay within the promised range"),Settings.TankCounterHitsMin,10);
+    TestEqual(TEXT("Pressure thresholds cannot grow beyond twelve"),Settings.TankCounterHitsMax,12);
+    TestTrue(TEXT("The close counter remains a small hit with a visible warning"),Settings.TankCounterDamage<=12 && Settings.TankCounterWindup>=.3f);
     return true;
 }
 
@@ -337,7 +416,28 @@ bool FMCNutBossJumpTest::RunTest(const FString&)
     TestEqual(TEXT("Leaving the advertised radius avoids the landing hit"),Outside->Status->State.Health,OutsideBefore);
     const float After=Inside->Status->State.Health; T.Step(.5f);
     TestEqual(TEXT("Recovery does not repeat the landing damage"),Inside->Status->State.Health,After);
-    TestEqual(TEXT("The landing opens exactly a one-second damage window"),T.Boss->AttackEndAt-T.Boss->StateStartedAt,1.);
+    if(!TestEqual(TEXT("Landing retains the native jump recovery"),T.Boss->State,EMCNutBossState::Recovery)) return false;
+    const auto& Settings=T.Boss->BossSettings;
+    auto* JumpClip=Settings.TankJumpAnimation.LoadSynchronous();
+    if(!TestNotNull(TEXT("The recovery retains an authored jump clip"),JumpClip)) return false;
+    TestEqual(TEXT("Authority jump seconds match the authored source clip"),Settings.TankJumpAnimationSeconds,JumpClip->GetPlayLength(),.001f);
+    // Landing no longer truncates the animation to the prototype's one-second
+    // window: every remaining source frame and one blend interval must play.
+    const double ExpectedRecovery=JumpClip->GetPlayLength()*(1-Settings.TankJumpImpactFraction)+Settings.TankAnimationBlendSeconds;
+    TestEqual(TEXT("Jump recovery includes exactly the remaining authored frames and blend"),
+        T.Boss->AttackEndAt-T.Boss->StateStartedAt,ExpectedRecovery,.001);
+    FMCNutBossAnimationSnapshot Snapshot;
+    T.Boss->BuildAnimationSnapshot(T.Boss->TankModel.Get(),Snapshot);
+    const auto* JumpSample=Snapshot.Samples.FindByPredicate([JumpClip](const auto& Sample){return Sample.Clip==JumpClip;});
+    if(!TestNotNull(TEXT("The actual recovery snapshot plays the same jump clip"),JumpSample)) return false;
+    const float ExpectedClipTime=FMath::Min(JumpClip->GetPlayLength(),
+        JumpClip->GetPlayLength()*Settings.TankJumpImpactFraction+float(T.World->GetTimeSeconds()-T.Boss->StateStartedAt));
+    TestEqual(TEXT("The recovery advances continuously from the authored landing frame"),JumpSample->Seconds,ExpectedClipTime,.001f);
+    T.Step(FMath::Max(0.f,float(T.Boss->AttackEndAt-T.World->GetTimeSeconds())-.1f));
+    TestEqual(TEXT("The remaining source frames cannot be interrupted by the next attack"),T.Boss->State,EMCNutBossState::Recovery);
+    TestEqual(TEXT("The complete recovery never repeats the landing damage"),Inside->Status->State.Health,After);
+    T.Step(.15f);
+    TestFalse(TEXT("The jump releases recovery after its authored exit and blend"),T.Boss->State==EMCNutBossState::Recovery);
     return true;
 }
 
@@ -348,21 +448,51 @@ bool FMCNutBossComboTest::RunTest(const FString&)
     T.Boss->NextJumpAt=T.Boss->NextRollAt=T.Boss->NextSpecialAt=10000;
     T.Boss->NextMeleeAt=0;
     auto* Hero=T.AddHero(T.Boss->GetActorLocation()+FVector(300,0,16));
-    if(!TestTrue(TEXT("Close range starts the combo warning"),T.WaitFor(EMCNutBossAttack::Melee,EMCNutBossState::Telegraph,1))) return false;
+    const float Before=Hero->Status->State.Health;
+    // The native sequence is now Attack1, Attack2, Combo. The old fixture
+    // treated its first single swing as the entire three-contact combo.
+    for(uint8 Variant=0;Variant<3;++Variant) {
+        Hero->SetActorLocation(T.Boss->GetActorLocation()+T.Boss->GetActorForwardVector()*300+FVector(0,0,16));
+        if(!TestTrue(TEXT("Close range starts the next native melee warning"),
+            T.WaitFor(EMCNutBossAttack::Melee,EMCNutBossState::Telegraph,8))) return false;
+        if(!TestEqual(TEXT("The native melee sequence reaches both swings then the combo"),T.Boss->TankMeleeVariant,Variant)) return false;
+        if(Variant==2) break;
+        Hero->SetActorLocation(FVector(1300,900,130));
+        if(!TestTrue(TEXT("The preceding authored single swing reaches recovery"),
+            T.WaitFor(EMCNutBossAttack::Melee,EMCNutBossState::Recovery,3))) return false;
+        if(!TestTrue(TEXT("The preceding single swing completes before the next warning"),
+            T.WaitFor(EMCNutBossAttack::None,EMCNutBossState::Idle,5))) return false;
+    }
     const FVector ExpectedSlam=T.Boss->LockedStart+T.Boss->AttackForward*T.Boss->BossSettings.MeleeRange*.55f;
     Hero->SetActorLocation(FVector(1300,900,130)); // Exercise the advertised dodge before any contact.
-    const float Before=Hero->Status->State.Health;
-    T.Step(T.Boss->BossSettings.MeleeWindup+1.05f);
+    if(!TestTrue(TEXT("All three authored contacts complete before combo recovery"),
+        T.WaitFor(EMCNutBossAttack::Melee,EMCNutBossState::Recovery,4))) return false;
     TestEqual(TEXT("The complete combo enters recovery"),T.Boss->State,EMCNutBossState::Recovery);
-    TestEqual(TEXT("The combo opens exactly two seconds of recovery"),T.Boss->AttackEndAt-T.Boss->StateStartedAt,2.);
+    const auto& Settings=T.Boss->BossSettings;
+    auto* ComboClip=Settings.TankComboAnimation.LoadSynchronous();
+    if(!TestNotNull(TEXT("The combo recovery retains its authored source clip"),ComboClip)) return false;
+    TestEqual(TEXT("Authority combo seconds match the authored source clip"),Settings.TankComboAnimationSeconds,ComboClip->GetPlayLength(),.001f);
+    // Execution retains .1 seconds after the final contact; recovery owns the
+    // rest of this exact clip plus its blend, replacing the old fixed two seconds.
+    const double ExpectedRecovery=FMath::Max(.01f,ComboClip->GetPlayLength()*(1-float(Settings.TankComboContactFractions.Z))-.1f)
+        +Settings.TankAnimationBlendSeconds;
+    TestEqual(TEXT("The combo recovery exactly matches its source exit and blend"),
+        T.Boss->AttackEndAt-T.Boss->StateStartedAt,ExpectedRecovery,.001);
+    FMCNutBossAnimationSnapshot Snapshot;
+    T.Boss->BuildAnimationSnapshot(T.Boss->TankModel.Get(),Snapshot);
+    TestNotNull(TEXT("The actual recovery snapshot retains the combo clip"),
+        Snapshot.Samples.FindByPredicate([ComboClip](const auto& Sample){return Sample.Clip==ComboClip;}));
     TestEqual(TEXT("Leaving the locked combo footprint avoids all its hits"),Hero->Status->State.Health,Before);
     bool GroundImpact=false;
     for(TActorIterator<AMCNutCombatEffect> It(T.World);It;++It)
         if(It->SourceActor==T.Boss && It->Cue.Type==EMCNutCombatCue::SlamImpact)
             GroundImpact|=FVector::DistSquared(It->Cue.Target,ExpectedSlam)<1.f;
     TestTrue(TEXT("The last blow's ground VFX shares the actual damage centre"),GroundImpact);
-    T.Step(1.8f);
+    T.Step(FMath::Max(0.f,float(T.Boss->AttackEndAt-T.World->GetTimeSeconds())-.1f));
     TestEqual(TEXT("The knight remains inactive throughout the damage window"),T.Boss->State,EMCNutBossState::Recovery);
+    TestEqual(TEXT("A dodging worker stays unharmed through every swing and the complete combo"),Hero->Status->State.Health,Before);
+    T.Step(.15f);
+    TestFalse(TEXT("The combo releases recovery after the source exit and blend"),T.Boss->State==EMCNutBossState::Recovery);
     return true;
 }
 

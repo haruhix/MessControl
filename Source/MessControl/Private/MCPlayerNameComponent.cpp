@@ -4,6 +4,7 @@
 #include "MCGameplayUIFactory.h"
 #include "MCPlayerState.h"
 #include "MCUIVisualStyle.h"
+#include "MCVoiceIndicatorComponent.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Border.h"
 #include "Components/CapsuleComponent.h"
@@ -144,6 +145,11 @@ void UMCPlayerNameComponent::BeginPlay()
 {
     Super::BeginPlay();
     if(GetNetMode()==NM_DedicatedServer) { SetComponentTickEnabled(false); return; }
+    if(auto* Owner=GetOwner();Owner && !Owner->FindComponentByClass<UMCVoiceIndicatorComponent>())
+    {
+        auto* VoiceIndicator=NewObject<UMCVoiceIndicatorComponent>(Owner,TEXT("PlayerVoiceIndicator"));
+        VoiceIndicator->SetupAttachment(Owner->GetRootComponent());Owner->AddInstanceComponent(VoiceIndicator);VoiceIndicator->RegisterComponent();
+    }
     if(GetWidgetClass()==UMCPlayerNameWidget::StaticClass()) SetWidgetClass(UMCGameplayUIFactory::ResolveClass(TEXT("PlayerName"),UMCPlayerNameWidget::StaticClass()));
     if(auto* Hero=Cast<AMCToothCharacter>(GetOwner())) AddTickPrerequisiteComponent(Hero->GetMesh());
     RefreshName();

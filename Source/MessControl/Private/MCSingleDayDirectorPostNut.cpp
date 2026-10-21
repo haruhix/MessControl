@@ -76,15 +76,18 @@ void AMCSingleDayDirector::TickPostNutMeal()
     const int32 Dirt=MCSingleDayDirectorPrivate::CountDirtyFloorSurfaces(GetWorld());
     const int32 Teeth=MCSingleDayDirectorPrivate::CountDirtyAvailableArenaTeeth(GetWorld());
     if(MealPortionSpawned>=MealPortionTarget && Food.OutstandingActors==0 && Food.UnresolvedHazards==0) {
-        if(!Final) {BeginPostNutPortion(MealPortionNumber);return;}
-        if(Dirt==0 && Teeth==0) {if(IsValid(MealServices)) MealServices->Destroy();MealServices=nullptr;BeginSmallMint();return;}
+        if(Dirt==0 && Teeth==0) {
+            BeginStageReward(FName(*FString::Printf(TEXT("PostNutPortion_%d"),MealPortionNumber)),
+                Final?EMCSingleDayRewardContinuation::PostNutMint:EMCSingleDayRewardContinuation::PostNutPortion);
+            return;
+        }
     }
     const int32 Pending=FMath::Max(0,MealPortionTarget-MealPortionSpawned);
-    const int32 Left=Pending+Food.OutstandingActors+Food.UnresolvedHazards+(Final?Dirt+Teeth:0);
+    const int32 Left=Pending+Food.OutstandingActors+Food.UnresolvedHazards+Dirt+Teeth;
     Publish(TEXT("ПЕРЕДЫШКА ПОСЛЕ ОРЕХОВ"),FString::Printf(
         TEXT("Порция %d/%d · подано %d/%d. Еда: %d · пятна: %d · грязные зубы: %d. Q — закинуть фрагмент в глотку.%s"),
         MealPortionNumber,MealPortionCount,MealPortionSpawned,MealPortionTarget,Food.OutstandingActors,Dirt,Teeth,
-        Final?TEXT(" Очистите язык и зубы перед мятной конфетой."):TEXT(" Следующая подача начнётся после обработки и отправки этой порции.")),
+        TEXT(" Очистите язык и зубы: после завершённой порции появится общий сундук с бустером.")),
         Left,FMath::Max(GS->TasksTotal,Left));
     if(Time>=NextMealDiagnosticAt) {
         NextMealDiagnosticAt=Time+10;
@@ -114,7 +117,7 @@ void AMCSingleDayDirector::TickSmallMint()
     if(SmallMint->IsComplete()) {
         SmallMint->Destroy();SmallMint=nullptr;
         Record(TEXT("Мятная конфета разбита: второй Relax завершён, начинается событие с желе"));
-        ++KeyEventIndex;BeginKeyEvent();return;
+        BeginStageReward(TEXT("PostNutMint"),EMCSingleDayRewardContinuation::NextKeyEvent);return;
     }
     Publish(TEXT("МЯТНАЯ КОНФЕТА"),TEXT("Разбейте конфету киркой. Перепрыгивайте холодные волны; киркой можно освободить свои ноги и помочь союзнику. Волна не наносит урон."),
         FMath::CeilToInt(SmallMint->Health),FMath::CeilToInt(SmallMint->MaxHealth));

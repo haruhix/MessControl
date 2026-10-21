@@ -13,6 +13,7 @@
 #include "MCMouthSurface.h"
 #include "MCNutRainEvent.h"
 #include "MCSingleDayDirector.h"
+#include "MCRewardChest.h"
 #include "MCSmallMintCandy.h"
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
@@ -154,6 +155,20 @@ struct FFixture
         Loop->NutEvent=World->SpawnActor<AMCNutRainEvent>();
         Loop->NutEvent->Stage=EMCNutRainStage::Complete;
         Loop->NutEvent->EnemiesLeft=Loop->NutEvent->BossesLeft=0;Loop->Tick(.1f);
+        ResolveStageReward();
+    }
+    void ResolveStageReward()
+    {
+        if(!Loop->bStageRewardPending) return;
+        // Feed the real director its terminal reward signal; effect/claim
+        // correctness is covered independently by StageBooster reward tests.
+        auto* Reward=Loop->StageRewardChest.Get();
+        if(!IsValid(Reward)) {
+            Reward=World->SpawnActor<AMCRewardChest>();Reward->SetOwner(Loop);
+            Reward->InitializeTeamStageReward(FVector::ZeroVector,FVector(0,0,450),31,nullptr,nullptr);
+        }
+        Reward->ClaimedMask=7;Loop->StageRewardChest=Reward;
+        Loop->NotifyStageRewardFinished(Reward,false);Loop->Tick(.1f);Reward->Destroy();
     }
     AMCHazardWave* LastWave(AMCSmallMintCandy* Mint) const
     {
@@ -212,8 +227,12 @@ bool FMCPostNutRelaxFoodAndCleanupGateTest::RunTest(const FString&)
             F.Loop->Tick(.1f);
             TestEqual(TEXT("A carried piece blocks the next serving"),F.Loop->MealPortionNumber,Portion+1);
             Held->Destroy();F.Loop->Tick(.1f);
+            TestEqual(TEXT("Delivered food still waits for this portion's real cleanup"),F.Loop->MealPortionNumber,Portion+1);
+            TestTrue(TEXT("Intermediate portions retain cleanup debt before their reward"),F.DirtyFloor()>0);
+            F.ClearFloor();F.Loop->Tick(.1f);
+            TestTrue(TEXT("Every completed intermediate portion opens a shared reward"),F.Loop->bStageRewardPending);
+            F.ResolveStageReward();
             TestEqual(TEXT("Delivering that piece releases only the next portion"),F.Loop->MealPortionNumber,Portion+2);
-            TestTrue(TEXT("Intermediate portions preserve their real dirt until final cleanup"),F.DirtyFloor()>0);
         }
     }
     TestEqual(TEXT("All three native portions issue 22 distinct ingredients"),Issued.Num(),22);
@@ -236,6 +255,8 @@ bool FMCPostNutRelaxFoodAndCleanupGateTest::RunTest(const FString&)
     for(int32 Index=0;Index<Contacts;++Index)
         if(!TestTrue(TEXT("Real tooth care clears its remaining layer"),Tooth->Status->CareContact(true,nullptr))) return false;
     F.Loop->Tick(.1f);
+    TestTrue(TEXT("Final cleanup opens the final portion's shared booster"),F.Loop->bStageRewardPending);
+    F.ResolveStageReward();
     if(!TestEqual(TEXT("Actual shared cleanup releases mint without a timer shortcut"),F.Loop->Stage,EMCSingleDayStage::PostNutMint)) return false;
     if(!TestNotNull(TEXT("The real small-mint actor was started"),F.Loop->SmallMint.Get())) return false;
     TestEqual(TEXT("Mint must land before it can pulse"),F.Loop->SmallMint->Stage,EMCSmallMintStage::Falling);

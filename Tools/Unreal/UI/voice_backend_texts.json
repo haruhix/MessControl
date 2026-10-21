@@ -1,0 +1,74 @@
+[
+  {
+    "Name": "UI.Voice.Status.NotInRoom",
+    "RU": "Голосовой чат подключается в комнате. Для передачи удерживайте назначенную кнопку.",
+    "EN": "Voice chat connects when you join a room. Hold your assigned key to talk.",
+    "Context": "Voice backend status; no network session/capture is started by displaying this text."
+  },
+  {
+    "Name": "UI.Voice.Status.NoMicrophone",
+    "RU": "Микрофон не удалось подключить. Проверьте разрешение доступа и устройство Windows.",
+    "EN": "Could not connect the microphone. Check the Windows input device and microphone permission.",
+    "Context": "Voice backend could not register the local capture device."
+  },
+  {
+    "Name": "UI.Voice.Status.Disabled",
+    "RU": "Голосовой чат выключен.",
+    "EN": "Voice chat is disabled.",
+    "Context": "Voice chat disabled by saved local preference."
+  },
+  {
+    "Name": "UI.Voice.Status.SelfMuted",
+    "RU": "Ваш микрофон выключен.",
+    "EN": "Your microphone is muted.",
+    "Context": "Local self-mute is enabled; receiving other players remains possible."
+  },
+  {
+    "Name": "UI.Voice.Status.Recording",
+    "RU": "Микрофон активен.",
+    "EN": "Microphone active.",
+    "Context": "Network recording gate is enabled by PTT or open-microphone policy; not a claim that someone is currently speaking."
+  },
+  {
+    "Name": "UI.Voice.Status.PTTReady",
+    "RU": "Для разговора удерживайте назначенную кнопку.",
+    "EN": "Hold your assigned key to talk.",
+    "Context": "Registered local microphone with push-to-talk currently released."
+  },
+  {
+    "Name": "UI.Voice.Status.Unavailable",
+    "RU": "Голос Steam недоступен в этой сессии. Проверьте Steam и настройки микрофона.",
+    "EN": "Steam voice is unavailable in this session. Check Steam and your microphone settings.",
+    "Context": "The current Steam session does not expose an available voice interface."
+  },
+  {
+    "Name": "UI.Voice.Status.CaptureOverflow",
+    "RU": "Буфер микрофона переполнен. Запустите проверку заново.",
+    "EN": "The microphone buffer overflowed. Restart the microphone test.",
+    "Context": "Exclusive local microphone test stopped after an excessive capture buffer."
+  },
+  {
+    "Name": "UI.Voice.Status.CaptureError",
+    "RU": "Ошибка микрофона. Проверьте разрешение доступа в Windows.",
+    "EN": "Microphone error. Check microphone permission in Windows.",
+    "Context": "The exclusive offline test received an error/uninitialized capture state."
+  },
+  {
+    "Name": "UI.Voice.Status.TestOfflineOnly",
+    "RU": "Проверка микрофона доступна до входа в комнату, чтобы тест не слышали другие игроки.",
+    "EN": "Test your microphone before joining a room, so other players cannot hear the test.",
+    "Context": "Mic test rejected while a session, room operation or travel is active."
+  },
+  {
+    "Name": "UI.Voice.Status.TestNoMic",
+    "RU": "Не удалось открыть микрофон. Проверьте устройство и разрешение Windows.",
+    "EN": "Could not open the microphone. Check your input device and Windows permission.",
+    "Context": "Exclusive offline capture could not be opened/started."
+  },
+  {
+    "Name": "UI.Voice.Status.TestLocal",
+    "RU": "Проверка: слышите только вы. Используйте наушники, чтобы избежать обратной связи.",
+    "EN": "Microphone test: only you can hear it. Use headphones to avoid feedback.",
+    "Context": "Explicitly requested exclusive offline microphone test; audio is not sent to a room."
+  }
+]

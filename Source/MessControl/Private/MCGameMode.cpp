@@ -32,6 +32,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
+#include "CollisionQueryParams.h"
+#include "CollisionShape.h"
 #include "Engine/StaticMesh.h"
 #include "EngineUtils.h"
 #include "MCArenaDemo.h"
@@ -50,18 +52,54 @@
 
 namespace
 {
-void SettleFreshPlayerAboveTongue(ACharacter* Character)
+bool FindFreshPlayerAboveTongue(UWorld* World,const ACharacter* Character,FVector Requested,float Clearance,FVector& Position)
 {
-    if(!IsValid(Character)) return;
-    FVector Position=Character->GetActorLocation();bool Supported=false;
-    for(TActorIterator<AMCTongue> It(Character->GetWorld());It;++It) {
+    if(!World || !IsValid(Character)) return false;
+    const auto* Capsule=Character->GetCapsuleComponent();
+    if(!Capsule || !FMath::IsFinite(Clearance) || Requested.ContainsNaN()) return false;
+    FVector Base=Requested;bool Supported=false;
+    for(TActorIterator<AMCTongue> It(World);It;++It) {
         FHitResult Floor;
-        if(It->SurfacePoint(Position,Floor) && Floor.ImpactNormal.Z>=.65f) {
-            Position.Z=FMath::Max(Position.Z,Floor.ImpactPoint.Z+Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+30.f);
+        if(It->SurfacePoint(Requested,Floor) && Floor.ImpactNormal.Z>=.65f) {
+            const double Z=Floor.ImpactPoint.Z+Capsule->GetScaledCapsuleHalfHeight()+30.f;
+            if(!Supported || Z>Base.Z) Base.Z=Z;
             Supported=true;
         }
     }
-    if(!Supported) return;
+    if(!Supported) return false;
+    const auto Shape=FCollisionShape::MakeCapsule(Capsule->GetScaledCapsuleRadius(),Capsule->GetScaledCapsuleHalfHeight());
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCPlayerArrival),false,Character);
+    const FCollisionResponseParams Response(Capsule->GetCollisionResponseToChannels());
+    // Check the whole capsule corridor, not just a point on the tongue. A low
+    // roof reduces the arrival height; an obstructed landing refuses relocation.
+    if(World->OverlapBlockingTestByChannel(Base,FQuat::Identity,Capsule->GetCollisionObjectType(),Shape,Query,Response)) return false;
+    Position=Base+FVector(0,0,FMath::Clamp(Clearance,30.f,800.f)-30.f);
+    FHitResult Ceiling;
+    if(World->SweepSingleByChannel(Ceiling,Base,Position,FQuat::Identity,Capsule->GetCollisionObjectType(),Shape,Query,Response)) {
+        if(Ceiling.bStartPenetrating) return false;
+        Position.Z=FMath::Max(Base.Z,Ceiling.Location.Z-4.f);
+    }
+    return !World->OverlapBlockingTestByChannel(Position,FQuat::Identity,Capsule->GetCollisionObjectType(),Shape,Query,Response);
+}
+
+bool SettleFreshPlayerAboveTongue(ACharacter* Character,float Clearance=30.f)
+{
+    if(!IsValid(Character)) return false;
+    FVector Position=Character->GetActorLocation();
+    if(Clearance<=30.f) {
+        // Tooth-reserve respawns keep their prior position and 30 cm minimum
+        // settling behavior. They do not enter the initial-arrival barrier.
+        bool Supported=false;
+        for(TActorIterator<AMCTongue> It(Character->GetWorld());It;++It) {
+            FHitResult Floor;
+            if(It->SurfacePoint(Position,Floor) && Floor.ImpactNormal.Z>=.65f) {
+                Position.Z=FMath::Max(Position.Z,Floor.ImpactPoint.Z+Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+30.f);
+                Supported=true;
+            }
+        }
+        if(!Supported) return false;
+    }
+    else if(!FindFreshPlayerAboveTongue(Character->GetWorld(),Character,Position,Clearance,Position)) return false;
     // Character initialization may snap a walking capsule back to the floor.
     // Apply the clearance after that initialization, using the actual capsule,
     // and let its first ordinary falling frames settle onto the tissue.
@@ -69,6 +107,7 @@ void SettleFreshPlayerAboveTongue(ACharacter* Character)
     Character->GetCharacterMovement()->StopMovementImmediately();
     Character->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
     Character->ForceNetUpdate();
+    return true;
 }
 }
 
@@ -154,17 +193,13 @@ APawn* AMCGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewP
     FVector Position=SafeTransform.GetLocation()+FVector(0,0,30);
     const UClass* PawnType=GetDefaultPawnClassForController(NewPlayer);
     const auto* Character=PawnType?Cast<ACharacter>(PawnType->GetDefaultObject()):nullptr;
-    const float HalfHeight=Character?Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight():90.f;
     // PlayerStart can be authored at tissue height. Resolve the authoritative
     // capsule center before replication, rather than correcting a falling pawn.
-    for(TActorIterator<AMCTongue> It(GetWorld());It;++It) {
-        FHitResult Floor;
-        if(It->SurfacePoint(Position,Floor) && Floor.ImpactNormal.Z>=.65f)
-            Position.Z=FMath::Max(Position.Z,Floor.ImpactPoint.Z+HalfHeight+30.f);
-    }
+    FVector Arrival;
+    if(FindFreshPlayerAboveTongue(GetWorld(),Character,Position,ArenaArrivalHeight,Arrival)) Position=Arrival;
     SafeTransform.SetLocation(Position);
     APawn* Pawn=Super::SpawnDefaultPawnAtTransform_Implementation(NewPlayer,SafeTransform);
-    SettleFreshPlayerAboveTongue(Cast<ACharacter>(Pawn));
+    SettleFreshPlayerAboveTongue(Cast<ACharacter>(Pawn),ArenaArrivalHeight);
     return Pawn;
 }
 void AMCGameMode::FinishRestartPlayer(AController* NewPlayer,const FRotator& StartRotation)
@@ -172,7 +207,43 @@ void AMCGameMode::FinishRestartPlayer(AController* NewPlayer,const FRotator& Sta
     Super::FinishRestartPlayer(NewPlayer,StartRotation);
     // Possession restarts CharacterMovement and may snap a walking capsule to
     // its floor. Apply the settling gap after the complete restart as well.
-    SettleFreshPlayerAboveTongue(NewPlayer?Cast<ACharacter>(NewPlayer->GetPawn()):nullptr);
+    auto* Hero=NewPlayer?Cast<AMCToothCharacter>(NewPlayer->GetPawn()):nullptr;
+    if(SettleFreshPlayerAboveTongue(Hero,ArenaArrivalHeight)) {
+        // Loading only blocks input. Hold gravity too, otherwise the entire
+        // arrival finishes behind the loading screen or first perk selection.
+        Hero->SetArenaArrivalHeld(true);
+        PendingArenaArrivals.AddUnique(Hero);Hero->ForceNetUpdate();
+    }
+}
+
+void AMCGameMode::ReleaseReadyArenaArrivals()
+{
+    if(PendingArenaArrivals.IsEmpty()) return;
+    PendingArenaArrivals.RemoveAll([](const TWeakObjectPtr<AMCToothCharacter>& Hero) {
+        return !Hero.IsValid() || !Hero->Status->IsAlive();
+    });
+    const auto* State=GetGameState<AMCGameState>();
+    if(!State || State->bLobbyWaiting || State->Phase==EMCShiftPhase::Won || State->Phase==EMCShiftPhase::Lost) return;
+    if(State->bTutorialActive && (!IsValid(TutorialDirector) || TutorialDirector->Stage==EMCTutorialStage::Loading)) return;
+    if(State->bSingleDayLoop && !State->bTutorialActive && !State->bDevManualEvents
+        && (!IsValid(State->SingleDayDirector) || State->SingleDayDirector->Stage==EMCSingleDayStage::Training
+            || State->SingleDayDirector->Stage==EMCSingleDayStage::FirstPerk)) return;
+    if(State->Progression && State->Progression->HasPendingChoices()) return;
+    // The existing gameplay ACK is sent after local preheat. No extra world
+    // clock or director delay is introduced by the arrival presentation.
+    const FString Map=UGameplayStatics::GetCurrentLevelName(this,true);
+    if(Map==TEXT("L_Mouth") || Map==TEXT("L_Tutorial"))
+        for(FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It)
+            if(const auto* PC=Cast<AMCPlayerController>(It->Get());PC && IsGameplayParticipant(PC) && !PC->HasAcknowledgedGameplay()) return;
+    for(const auto& Entry:PendingArenaArrivals) if(auto* Hero=Entry.Get()) {
+        // Sweep again while still held: tissue/ceiling may have moved during
+        // preheat. Never teleport after input has been released to the player.
+        SettleFreshPlayerAboveTongue(Hero,ArenaArrivalHeight);
+        Hero->GetCharacterMovement()->StopMovementImmediately();
+        Hero->SetArenaArrivalHeld(false);
+        Hero->GetCharacterMovement()->SetMovementMode(MOVE_Falling);Hero->ForceNetUpdate();
+    }
+    PendingArenaArrivals.Reset();
 }
 void AMCGameMode::ClearTasks()
 {
@@ -367,6 +438,7 @@ void AMCGameMode::BeginSingleDaySequence()
 void AMCGameMode::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    ReleaseReadyArenaArrivals();
     AMCGameState* State = GetGameState<AMCGameState>();
     if (State && State->bLobbyWaiting)
     {

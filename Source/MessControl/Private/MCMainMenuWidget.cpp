@@ -7,6 +7,7 @@
 #include "MCGameplayUIFactory.h"
 #include "MCGameplayUITheme.h"
 #include "MCGameUserSettings.h"
+#include "MCVoiceSettingsWidget.h"
 #include "Blueprint/WidgetTree.h"
 #include "Brushes/SlateColorBrush.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
@@ -250,6 +251,7 @@ void UMCMainMenuWidget::ApplyEditorPreview(float Time)
         if(PreviewState==TEXT("SettingsAudio")) Tab=1;
         else if(PreviewState==TEXT("SettingsLanguage")) Tab=2;
         else if(PreviewState==TEXT("SettingsControls")) Tab=3;
+        else if(PreviewState==TEXT("SettingsVoice")) Tab=4;
         SwitchSettingsTab(Tab);RefreshSettingsValueLabels();
     }
     ApplyTheme();
@@ -279,6 +281,7 @@ void UMCMainMenuWidget::OnLocalizationChanged()
 
 void UMCMainMenuWidget::NativeDestruct()
 {
+    if(VoiceSettings) VoiceSettings->StopInteraction();
     // Never retain an unconfirmed display mode after the menu is removed or the world travels.
     if (bVideoConfirmationPending) RevertVideoSettings();
     Super::NativeDestruct();
@@ -793,11 +796,22 @@ void UMCMainMenuWidget::CachePageControls()
                 if(SettingsSections && Parent->GetParent()==SettingsSections.Get() && Parent!=SettingsSections->GetActiveWidget()) return true;
             return false;
         });
+        if(VoiceSettings)
+        {
+            TArray<UWidget*> VoiceControls;VoiceSettings->GetFocusableControls(VoiceControls);
+            for(auto* Control:VoiceControls)
+            {
+                GamepadTargets.Remove(Control);
+                if(auto* Button=Cast<UButton>(Control)) Buttons.Remove(Button);
+                if(ActiveSettingsTab==4) {GamepadTargets.AddUnique(Control);if(auto* Button=Cast<UButton>(Control)) Buttons.AddUnique(Button);}
+            }
+        }
     }
 }
 
 void UMCMainMenuWidget::ShowPage(EPage NewPage)
 {
+    if(VoiceSettings && NewPage!=EPage::Settings) VoiceSettings->StopInteraction();
     Page=NewPage;
     BuildPresentationTree();
     if (!Pages) return;
@@ -869,9 +883,9 @@ void UMCMainMenuWidget::BuildSettings()
     BindStyle(Heading->GetFName(),EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,24,true);
     auto* Tabs=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),PageWidgetName(TEXT("Tabs")));
     PageBody->AddChildToVerticalBox(Tabs)->SetPadding(FMargin(0,0,0,10));
-    const TCHAR* TabNames[]={TEXT("Graphics"),TEXT("Audio"),TEXT("Language"),TEXT("Controls")};
-    const TCHAR* TabCopy[]={TEXT("Графика"),TEXT("Аудио"),TEXT("Язык"),TEXT("Управление")};
-    for(int32 Index=0;Index<4;++Index)
+    const TCHAR* TabNames[]={TEXT("Graphics"),TEXT("Audio"),TEXT("Language"),TEXT("Controls"),TEXT("Voice")};
+    const TCHAR* TabCopy[]={TEXT("Графика"),TEXT("Аудио"),TEXT("Язык"),TEXT("Управление"),TEXT("Голос")};
+    for(int32 Index=0;Index<5;++Index)
     {
         const FString Suffix=FString(TEXT("Tab"))+TabNames[Index];
         auto* Tab=WidgetTree->ConstructWidget<UMCMainMenuActionButton>(UMCMainMenuActionButton::StaticClass(),PageWidgetName(*Suffix));
@@ -892,8 +906,8 @@ void UMCMainMenuWidget::BuildSettings()
     SectionSize->SetHeightOverride(320);Panel->SetContent(SectionSize);
     SettingsSections=WidgetTree->ConstructWidget<UWidgetSwitcher>(UWidgetSwitcher::StaticClass(),PageWidgetName(TEXT("Sections")));
     SectionSize->SetContent(SettingsSections);
-    UVerticalBox* Bodies[4];
-    for(int32 Index=0;Index<4;++Index)
+    UVerticalBox* Bodies[5];
+    for(int32 Index=0;Index<5;++Index)
     {
         const FString Section=FString(TabNames[Index])+TEXT("Section");
         auto* Scroll=WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(),PageWidgetName(*Section));
@@ -940,6 +954,8 @@ void UMCMainMenuWidget::BuildSettings()
     AddSettingsSlider(TEXT("UI.Settings.Mouse"),TEXT("Чувствительность мыши"),TEXT("MouseSlider"),.1f,5,.05f,1);
     AddSettingsSlider(TEXT("UI.Settings.Gamepad"),TEXT("Скорость камеры геймпада"),TEXT("GamepadSlider"),.1f,5,.05f,1);
     InvertYCheck=AddSettingsCheck(TEXT("UI.Settings.InvertY"),TEXT("Инверсия камеры по вертикали"),TEXT("InvertYCheck"));
+    VoiceSettings=WidgetTree->ConstructWidget<UMCVoiceSettingsWidget>(UMCGameplayUIFactory::ResolveClass(TEXT("VoiceSettings"),UMCVoiceSettingsWidget::StaticClass()),PageWidgetName(TEXT("VoicePanel")));
+    if(VoiceSettings) {VoiceSettings->Theme=GetResolvedTheme();Bodies[4]->AddChildToVerticalBox(VoiceSettings);VoiceSettings->BuildPresentationTree();VoiceSettings->ApplyTheme();}
     Content=PageBody;
     AddButton(TEXT("Применить"),EMCMainMenuAction::ApplySettings);
     AddButton(TEXT("Назад"),EMCMainMenuAction::Back);
@@ -976,6 +992,7 @@ void UMCMainMenuWidget::CacheSettingsControls()
 {
     if(!WidgetTree || Page!=EPage::Settings) return;
     SettingsSections=Cast<UWidgetSwitcher>(WidgetTree->FindWidget(PageWidgetName(TEXT("Sections"))));
+    EnsureVoiceSettingsPresentation();
     SettingsPickers.Reset();SettingsSliders.Reset();
     for(const TCHAR* Name:{TEXT("FrameRatePicker"),TEXT("LanguagePicker"),TEXT("TexturePicker"),TEXT("ShadowPicker"),TEXT("EffectsPicker"),TEXT("PostProcessPicker"),TEXT("AAPicker"),TEXT("ViewDistancePicker")})
         if(auto* Picker=Cast<UComboBoxString>(WidgetTree->FindWidget(PageWidgetName(Name)))) SettingsPickers.Add(FName(Name),Picker);
@@ -997,10 +1014,11 @@ void UMCMainMenuWidget::CacheSettingsControls()
 void UMCMainMenuWidget::SwitchSettingsTab(int32 Index)
 {
     if(Page!=EPage::Settings) return;
-    ActiveSettingsTab=FMath::Clamp(Index,0,3);
+    if(VoiceSettings && Index!=4) VoiceSettings->StopInteraction();
+    ActiveSettingsTab=FMath::Clamp(Index,0,4);
     if(SettingsSections) SettingsSections->SetActiveWidgetIndex(ActiveSettingsTab);
-    const TCHAR* Names[]={TEXT("TabGraphics"),TEXT("TabAudio"),TEXT("TabLanguage"),TEXT("TabControls")};
-    for(int32 Tab=0;Tab<4;++Tab)
+    const TCHAR* Names[]={TEXT("TabGraphics"),TEXT("TabAudio"),TEXT("TabLanguage"),TEXT("TabControls"),TEXT("TabVoice")};
+    for(int32 Tab=0;Tab<5;++Tab)
         BindStyle(PageWidgetName(Names[Tab]),Tab==ActiveSettingsTab?EMCUIColorToken::Accent:EMCUIColorToken::Button,EMCUIStyleTarget::Button);
     CachePageControls();ApplyTheme();
 }
@@ -1059,6 +1077,7 @@ void UMCMainMenuWidget::RefreshSettingsQualityOptions(bool bPreserveSelection)
 
 void UMCMainMenuWidget::RefreshSettingsControls()
 {
+    if(VoiceSettings) VoiceSettings->LoadPendingSettings();
     UGameUserSettings* Settings=UGameUserSettings::GetGameUserSettings();
     if (!Settings || !ResolutionPicker || !WindowModePicker || !QualityPicker || !VSyncCheck) return;
     CacheSettingsControls();
@@ -1175,6 +1194,7 @@ void UMCMainMenuWidget::ApplySettings()
         if(Codes.IsValidIndex(Language)) Preferences->SetLanguageCode(Codes[Language]);
     }
     Settings->SetVSyncEnabled(VSyncCheck->IsChecked());
+    if(VoiceSettings) VoiceSettings->ApplyPendingSettings();
     Settings->ApplySettings(false);
     if (PreviousResolution!=Settings->GetScreenResolution() || PreviousWindowMode!=Mode)
     {
@@ -1248,6 +1268,7 @@ void UMCMainMenuWidget::NativeTick(const FGeometry& Geometry, float DeltaSeconds
 
 FReply UMCMainMenuWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry, const FKeyEvent& Event)
 {
+    if(VoiceSettings && VoiceSettings->RouteRebindKey(Event.GetKey())) return FReply::Handled();
     const FKey Key=Event.GetKey();
     if((Key==EKeys::Gamepad_DPad_Up || Key==EKeys::Gamepad_DPad_Down) && MoveGamepadFocus(Key==EKeys::Gamepad_DPad_Up?-1:1))
         return FReply::Handled();
@@ -1299,6 +1320,7 @@ void UMCMainMenuWidget::HandleAction(EMCMainMenuAction Action)
     case EMCMainMenuAction::SettingsAudio: SwitchSettingsTab(1);break;
     case EMCMainMenuAction::SettingsLanguage: SwitchSettingsTab(2);break;
     case EMCMainMenuAction::SettingsControls: SwitchSettingsTab(3);break;
+    case EMCMainMenuAction::SettingsVoice: SwitchSettingsTab(4);break;
     case EMCMainMenuAction::Tutorial:
         if (Steam && Steam->IsBusy()) { SetStatus(LocalizedCopy(TEXT("UI.MainMenu.ConnectionBusy"),TEXT("Дождись завершения подключения."))); break; }
         UGameplayStatics::OpenLevel(this,MCMainMenuPrivate::TutorialMap,true,TEXT("MCTutorial=1"));

@@ -1,5 +1,6 @@
 #include "MCPerkComponent.h"
 #include "MCPlayerState.h"
+#include "MCGameState.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothPhysicsComponent.h"
@@ -13,6 +14,7 @@
 #include "MCReactionVFX.h"
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/GameStateBase.h"
+#include "GameFramework/Controller.h"
 #include "EngineUtils.h"
 
 namespace
@@ -39,31 +41,78 @@ bool UMCPerkComponent::ActivateBooster()
     } else RogueBurst(false);
     GetOwner()->ForceNetUpdate();return true;
 }
-void UMCPerkComponent::RogueBurst(bool Grenade)
+bool UMCPerkComponent::IsTeamStageBoosterID(FName ID)
+{
+    return ID==TEXT("Fallback_Mouthwash") || ID==TEXT("Fallback_BrushFury") || ID==TEXT("Fallback_Grenade");
+}
+
+bool UMCPerkComponent::ActivateTeamStageBooster(FName ID)
+{
+    if(!HasAuthority() || !IsTeamStageBoosterID(ID)) return false;
+    const auto* Definition=FindDefinition(ID);
+    if(!Definition || !Definition->bConsumableBooster) return false;
+    const auto* Game=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
+    if(!Game || Game->bLobbyWaiting || Game->Phase==EMCShiftPhase::Lost || Game->Phase==EMCShiftPhase::Won) return false;
+    TArray<AMCToothCharacter*> Team;
+    TArray<UMCPerkComponent*> Recipients;
+    for(TActorIterator<AMCPlayerState> It(GetWorld());It;++It) {
+        auto* Hero=Cast<AMCToothCharacter>(It->GetPawn());
+        if(It->IsActorBeingDestroyed() || It->IsSpectator() || It->IsOnlyASpectator() || !It->Perks
+            || !IsValid(Hero) || Hero->IsActorBeingDestroyed() || !Hero->GetController() || !Hero->Status
+            || Hero->GetController()->IsActorBeingDestroyed() || Hero->GetPlayerState<AMCPlayerState>()!=*It
+            || !Hero->Status->IsAlive()) continue;
+        Team.Add(Hero); Recipients.Add(It->Perks);
+    }
+    if(Team.IsEmpty()) return false;
+    // The mouthwash's shared area effects run once over the union of team
+    // radii. Overlapping players do not multiply damage/cleaning/knockback.
+    if(ID==TEXT("Fallback_Mouthwash")) RogueBurst(false,Team);
+    else for(int32 I=0;I<Team.Num();++I) {
+        auto* Perks=Recipients[I]; auto* Hero=Team[I];
+        if(ID==TEXT("Fallback_Grenade")) Perks->bGrenadeArmed=true;
+        else {
+            Perks->FuryUntil=BoosterNow(GetWorld())+5;
+            Perks->FuryDirection=Hero->GetActorForwardVector().GetSafeNormal2D();
+            CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement())->CancelDash();
+        }
+        Perks->GetOwner()->ForceNetUpdate();
+    }
+    UE_LOG(LogTemp,Display,TEXT("MC_STAGE_BOOSTER_APPLY booster=%s recipients=%d"),*ID.ToString(),Team.Num());
+    return true;
+}
+
+void UMCPerkComponent::RogueBurst(bool Grenade,const TArray<AMCToothCharacter*>& TeamOrigins)
 {
     auto* Hero=BoosterHero(this);if(!HasAuthority() || !Hero) return;
     const FVector Center=Hero->GetActorLocation();const float Radius=Grenade?450.f:400.f,Damage=Grenade?120.f:35.f;
     auto Visible=[&](AActor* Target) {
-        if(FVector::DistSquared(Center,Target->GetActorLocation())>FMath::Square(Radius)) return false;
-        FHitResult Hit;FCollisionQueryParams Query(SCENE_QUERY_STAT(MCRogueBurst),false,Hero);Query.AddIgnoredActor(Target);
-        return !GetWorld()->LineTraceSingleByChannel(Hit,Center,Target->GetActorLocation(),ECC_Visibility,Query);
+        auto From=[&](AMCToothCharacter* Origin) {
+            if(FVector::DistSquared(Origin->GetActorLocation(),Target->GetActorLocation())>FMath::Square(Radius)) return false;
+            FHitResult Hit;FCollisionQueryParams Query(SCENE_QUERY_STAT(MCRogueBurst),false,Origin);Query.AddIgnoredActor(Target);
+            return !GetWorld()->LineTraceSingleByChannel(Hit,Origin->GetActorLocation(),Target->GetActorLocation(),ECC_Visibility,Query);
+        };
+        if(TeamOrigins.IsEmpty()) return From(Hero);
+        for(auto* Origin:TeamOrigins) if(IsValid(Origin) && From(Origin)) return true;
+        return false;
     };
     TGuardValue<bool> Extra(bRogueExtraHit,true);
     for(TActorIterator<AMCNutEnemy> It(GetWorld());It;++It) if(Visible(*It)) It->ReceiveToolDamage(Damage,Hero);
     for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) if(Visible(*It)) It->ReceiveBossDamage(Damage,Hero);
-    for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(Visible(*It) && !It->bBrushTool)
+    for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(Visible(*It) && !It->bBrushTool
+        && (TeamOrigins.IsEmpty() || (!It->StackCarrier && It->Holders.IsEmpty() && It->Phase!=EMCFoodPhase::Carried)))
         It->HitFood(Damage,(It->GetActorLocation()-Center).GetSafeNormal2D(),Hero);
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->Status->IsAlive() && Visible(*It)) {
         const FVector Direction=(It->GetActorLocation()-Center).GetSafeNormal2D(UE_SMALL_NUMBER,Hero->GetActorForwardVector());
         if(Grenade) It->Status->Damage(60,Direction,GetOwner());
         else It->Status->ClearCoffeeForBooster();
-        if(*It!=Hero) It->ToothPhysics->ApplyHit(Direction*(Grenade?500:650)+FVector(0,0,100),It->GetActorLocation());
+        if(*It!=Hero && TeamOrigins.IsEmpty()) It->ToothPhysics->ApplyHit(Direction*(Grenade?500:650)+FVector(0,0,100),It->GetActorLocation());
     }
     if(!Grenade) {
         for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(Visible(*It)) It->ClearLiquidForBooster();
         for(TActorIterator<AMCArenaTooth> It(GetWorld());It;++It) if(Visible(*It)) It->ClearGrimeForBooster();
     }
-    AMCReactionVFX::Spawn(GetWorld(),Center,Grenade?EMCReactionEffect::Impact:EMCReactionEffect::WaterImpact,.65f,Radius);
+    if(TeamOrigins.IsEmpty()) AMCReactionVFX::Spawn(GetWorld(),Center,Grenade?EMCReactionEffect::Impact:EMCReactionEffect::WaterImpact,.65f,Radius);
+    else for(auto* Origin:TeamOrigins) AMCReactionVFX::Spawn(GetWorld(),Origin->GetActorLocation(),EMCReactionEffect::WaterImpact,.65f,Radius);
 }
 void UMCPerkComponent::OnRogueKnockdown()
 {

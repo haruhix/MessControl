@@ -85,6 +85,7 @@ AMCSingleDayDirector::AMCSingleDayDirector()
 void AMCSingleDayDirector::Initialize(UMCDayPlan* Plan, UMCSingleDayProfile* Profile, UMCGameDirectorProfile* InterludeProfile)
 {
     if(!HasAuthority()) return;
+    ResetStageRewards();
     Mechanics=Plan?Plan:NewObject<UMCDayPlan>(this);
     Settings=Profile?DuplicateObject<UMCSingleDayProfile>(Profile,this):NewObject<UMCSingleDayProfile>(this);
     if(Settings->OpeningMealPortions.IsEmpty()) Settings->OpeningMealPortions={3,5,8};
@@ -284,20 +285,20 @@ void AMCSingleDayDirector::TickFirstMeal()
     const int32 Dirt=MCSingleDayDirectorPrivate::CountDirtyFloorSurfaces(GetWorld());
     const int32 DirtyTeeth=MCSingleDayDirectorPrivate::CountDirtyAvailableArenaTeeth(GetWorld());
     if(MealPortionSpawned>=Target && Food.OutstandingActors==0 && Food.UnresolvedHazards==0) {
-        if(!bFinalPortion) {BeginMealCoffeeWave();return;}
         if(Dirt==0 && DirtyTeeth==0) {
-            if(IsValid(MealServices)) MealServices->Destroy(); MealServices=nullptr;
-            BeginOpeningPause(true); return;
+            BeginStageReward(FName(*FString::Printf(TEXT("OpeningPortion_%d"),MealPortionNumber)),
+                bFinalPortion?EMCSingleDayRewardContinuation::OpeningRest:EMCSingleDayRewardContinuation::OpeningCoffee);
+            return;
         }
     }
     const int32 Pending=FMath::Max(0,Target-MealPortionSpawned);
     ReportMealGate(Food,Dirt,DirtyTeeth,Pending,Time);
-    const int32 Left=Pending+Food.OutstandingActors+Food.UnresolvedHazards+(bFinalPortion?Dirt+DirtyTeeth:0);
+    const int32 Left=Pending+Food.OutstandingActors+Food.UnresolvedHazards+Dirt+DirtyTeeth;
     const FString Instruction=FString::Printf(
         TEXT("Порция %d/%d · подано %d/%d. Осталось: еда %d · фрагменты %d (в руках %d) · пятна %d · грязные зубы %d · угрозы %d.\nQ — закинуть фрагмент в глотку. Щётка — очистить язык и зубы.%s"),
         MealPortionNumber,MealPortionCount,MealPortionSpawned,Target,Food.Whole,Food.Fragments,Food.Carried,Dirt,DirtyTeeth,
         FMath::Max(0,Food.OutstandingActors-Food.Whole-Food.Fragments)+Food.UnresolvedHazards,
-        bFinalPortion?TEXT(" Уберите всю оставшуюся грязь перед ореховым событием."):TEXT(" Следующая порция не требует полной уборки."));
+        TEXT(" Очистите язык и зубы: после завершённой порции появится общий сундук с бустером."));
     Publish(TEXT("ПРИЁМ ПИЩИ"),Instruction,
         Left,FMath::Max(GS->TasksTotal,Left));
 }
@@ -346,13 +347,13 @@ void AMCSingleDayDirector::ReportMealGate(const FMCFoodPipelineLoad& Food,int32 
     const bool bFinalPortion=MealPortionNumber>=MealPortionCount;
     const FString State=FString::Printf(TEXT("portion=%d/%d served=%d/%d pending=%d whole=%d fragments=%d carried=%d swallowing=%d outstanding=%d hazards=%d dirt=%d teeth=%d cleanup_gate=%d"),
         MealPortionNumber,MealPortionCount,MealPortionSpawned,MealPortionTarget,
-        Pending,Food.Whole,Food.Fragments,Food.Carried,Food.Swallowing,Food.OutstandingActors,Food.UnresolvedHazards,Dirt,DirtyTeeth,bFinalPortion);
+        Pending,Food.Whole,Food.Fragments,Food.Carried,Food.Swallowing,Food.OutstandingActors,Food.UnresolvedHazards,Dirt,DirtyTeeth,true);
     const bool Changed=State!=LastMealGateState;
     if(Changed) {
         LastMealGateState=State;
         if(Pending==0) Record(FString::Printf(TEXT("Порция %d/%d: еда %d · пятна %d · грязные зубы %d · последствия %d. %s"),
             MealPortionNumber,MealPortionCount,Food.OutstandingActors,Dirt,DirtyTeeth,Food.UnresolvedHazards,
-            bFinalPortion?TEXT("Перед ореховым событием очистите язык и зубы."):TEXT("Следующую волну ждёт обработка еды; полная уборка пока не требуется.")));
+            TEXT("Очистите язык и зубы: затем команда получит общий сундук с бустером.")));
     }
     if(!Changed && Now<NextMealDiagnosticAt) return;
     UE_LOG(LogTemp,Display,TEXT("MC_MEAL_GATE batch=%d %s"),FirstMealBatch,*State);
@@ -463,6 +464,8 @@ void AMCSingleDayDirector::BeginFogBrawl()
 }
 void AMCSingleDayDirector::BeginDirector()
 {
+    if(Settings && Settings->KeyEvents.IsValidIndex(KeyEventIndex)
+        && BeginStageReward(FName(*FString::Printf(TEXT("KeyEvent_%d"),KeyEventIndex)),EMCSingleDayRewardContinuation::EventSupport)) return;
     Stage=EMCSingleDayStage::Director;
     auto* GS=GetWorld()->GetGameState<AMCGameState>();
     const bool Legacy=IsLegacyTimedFinale();
@@ -524,6 +527,7 @@ void AMCSingleDayDirector::Tick(float Dt)
     Super::Tick(Dt); if(!HasAuthority() || bStopped) return;
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); if(!GS) return;
     if(GS->Phase==EMCShiftPhase::Lost) {Stop();return;}
+    if(bStageRewardPending) {TickStageReward();return;}
     if(Stage==EMCSingleDayStage::FirstPerk && GS->Progression && !GS->Progression->HasPendingChoices()) {
         if(IsLegacyTimedFinale()) BeginKeyEvent(); else BeginOpeningPause();
     }
@@ -589,6 +593,7 @@ void AMCSingleDayDirector::Stop()
 {
     bStopped=true;
     if(!HasAuthority()) return;
+    ResetStageRewards();
     if(IsValid(OpeningCoffee)) {OpeningCoffee->Stop();OpeningCoffee->Destroy();} OpeningCoffee=nullptr;
     if(FirstMealBatch>0) {
         MCDestroyDirectedFoodDirt(GetWorld(),FirstMealBatch);
@@ -633,6 +638,8 @@ void AMCSingleDayDirector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
     DOREPLIFETIME(AMCSingleDayDirector,JellyEvent);DOREPLIFETIME(AMCSingleDayDirector,SmallMint);
     DOREPLIFETIME(AMCSingleDayDirector,FinalBoss); DOREPLIFETIME(AMCSingleDayDirector,VariantIndex);
     DOREPLIFETIME(AMCSingleDayDirector,KeyEventIndex); DOREPLIFETIME(AMCSingleDayDirector,bAuthoredFragmentComplete);
+    DOREPLIFETIME(AMCSingleDayDirector,bStageRewardPending);DOREPLIFETIME(AMCSingleDayDirector,StageRewardChest);
+    DOREPLIFETIME(AMCSingleDayDirector,StageRewardCompletionId);
     DOREPLIFETIME(AMCSingleDayDirector,StageEndsAt);
     DOREPLIFETIME(AMCSingleDayDirector,MealPortionNumber);
     DOREPLIFETIME(AMCSingleDayDirector,MealPortionCount);

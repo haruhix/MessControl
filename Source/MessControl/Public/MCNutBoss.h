@@ -37,6 +37,9 @@ public:
     /** Intact knight shields protect HP from every direction and combat pose. */
     bool IsShieldProtectingFrom(FVector SourcePoint) const;
     bool IsPlayerInThreat(const AMCToothCharacter* Hero,FVector& EscapeDirection) const;
+    /** Counter resistance prevents hit reactions, not incoming damage or the guaranteed shield-break window. */
+    bool IsCounterShoving() const;
+    int32 GetTankPressureHits() const { return TankPressureHits; }
     UFUNCTION(BlueprintPure,Category="Nut Combat") float GetAttackCooldownRemaining(EMCNutBossAttack Ability) const;
     FVector GetCastOrigin() const;
     /** Cosmetic focus follows the authored palms; projectile origin remains server-defined. */
@@ -105,6 +108,9 @@ private:
     void TurnTowards(FVector Direction,float Dt);
     bool LockSurfacePoint(FVector Candidate,float Margin,FVector& Result) const;
     void BeginAttack(EMCNutBossAttack Next);
+    void RegisterTankPressureHit();
+    void ResetTankPressure();
+    bool TryBeginTankCounter();
     void ExecuteAttack(float Dt);
     void ExecuteRoll(float Dt);
     /** Solid to ordinary character movement; attack sweeps resolve player hits separately. */
@@ -147,6 +153,9 @@ private:
     double NextTargetAt=0,NextRollPainAt=0;
     double FocusWindowStartedAt=-100;
     int32 FocusHits=0;
+    int32 TankPressureHits=0,TankCounterThreshold=0;
+    double LastTankPressureHitAt=-100,NextTankCounterAt=0;
+    bool bTankCounterQueued=false;
     bool bMageHitQueued=false,bMageTeleportQueued=false;
     bool bMeleeBetweenAbilities=true;
     bool bResolved=false;

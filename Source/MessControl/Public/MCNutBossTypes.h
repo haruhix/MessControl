@@ -14,7 +14,7 @@ UENUM(BlueprintType)
 enum class EMCNutBossState : uint8 { Falling, Idle, Telegraph, Executing, Recovery, Defeated, Stunned, Retargeting, Transforming };
 
 UENUM(BlueprintType)
-enum class EMCNutBossAttack : uint8 { None, Melee, Charge, Jump, Fireball, Summon, NutRain, Roll, Teleport };
+enum class EMCNutBossAttack : uint8 { None, Melee, Charge, Jump, Fireball, Summon, NutRain, Roll, Teleport, CounterShove };
 
 /** Encounter tuning shared by the knight and its subsequent wizard phase. */
 USTRUCT(BlueprintType)
@@ -137,6 +137,17 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Melee") float MeleeWindup=.65f;
     /** Cooldowns count seconds from the end of the attack's recovery. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Melee", meta=(Units="s")) float MeleeCooldown=3.5f;
+    /** Successful weapon contacts from the entire team; proc/area hits do not add a second contact. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Counter", meta=(ClampMin="10",ClampMax="12")) int32 TankCounterHitsMin=10;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Counter", meta=(ClampMin="10",ClampMax="12")) int32 TankCounterHitsMax=12;
+    /** A pause between team contacts abandons the pressure chain. Shield-break stun always takes priority. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Counter", meta=(Units="s")) float TankCounterHitGap=4.f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Counter", meta=(Units="s")) float TankCounterWindup=.45f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Counter", meta=(Units="s")) float TankCounterRecovery=.5f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Counter", meta=(Units="s")) float TankCounterCooldown=4.f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Counter", meta=(Units="cm")) float TankCounterRadius=340.f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Counter") float TankCounterDamage=6.f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Counter") float TankCounterPush=750.f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Charge") float ChargeDamage=22;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Charge") float TankChargePush=820;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Charge") float ChargeWindup=1.1f;

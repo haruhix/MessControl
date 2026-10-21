@@ -3,6 +3,7 @@
 #include "MCRewardDropZone.h"
 #include "MCPerkPickup.h"
 #include "MCRoguelikeDirector.h"
+#include "MCSingleDayDirector.h"
 #include "MCPerkComponent.h"
 #include "MCPerkEffect.h"
 #include "MCPlayerState.h"
@@ -153,6 +154,7 @@ FTransform AMCRewardChest::GetLockpickContact() const
 bool AMCRewardChest::CanReachLockpick(const AMCToothCharacter* Player) const
 {
     if(!IsValid(Player)) return false;
+    if(bTeamStageBooster) return FVector::DistSquared(Player->GetActorLocation(),GetActorLocation())<=FMath::Square(FMath::Clamp(OpenRadius,100.f,800.f));
     const FTransform Contact=GetLockpickContact();
     const FVector Delta=Player->GetActorLocation()-Contact.GetLocation();
     const FVector Front=Contact.GetUnitAxis(EAxis::X).GetSafeNormal2D();
@@ -177,6 +179,7 @@ double AMCRewardChest::ServerNow() const
 
 void AMCRewardChest::RollMimic()
 {
+    if(bTeamStageBooster) {bMimic=false;return;}
     MimicSwallowSeconds=FMath::IsFinite(MimicSwallowSeconds)?FMath::Clamp(MimicSwallowSeconds,.1f,5.f):.8f;
     RescueSeconds=FMath::IsFinite(RescueSeconds)?FMath::Clamp(RescueSeconds,.1f,30.f):3.f;
     const float Chance=FMath::IsFinite(MimicChance)?FMath::Clamp(MimicChance,0.f,1.f):.2f;
@@ -187,7 +190,7 @@ void AMCRewardChest::RollMimic()
 
 void AMCRewardChest::ForceMimicForTest(bool Enabled)
 {
-    if(!HasAuthority() || IsMimicActive()) return;
+    if(!HasAuthority() || bTeamStageBooster || IsMimicActive()) return;
     MimicTestOverride=Enabled?1:0; bMimic=Enabled; RefreshPresentation(); ForceNetUpdate();
 }
 
@@ -442,7 +445,7 @@ void AMCRewardChest::Tick(float Dt)
             if(IsValid(OpeningPlayer) && OpeningPlayer->Expression) OpeningPlayer->Expression->PlayChestCelebration();
             if(RogueKind!=EMCRogueRewardKind::Ordinary) PublishRogueOffer();
             else if(IsValid(OpeningPlayer)) if(auto* PC=Cast<AMCPlayerController>(OpeningPlayer->GetController()))
-                PC->ClientShowPerkChoices(this,LootIDs,Polarity);
+                PC->ClientShowPerkChoices(this,LootIDs,Polarity,bTeamStageBooster);
         }
     }
 }
@@ -479,6 +482,7 @@ bool AMCRewardChest::HasValidLoot(UDataTable* Table,const UMCPerkComponent* Reci
 void AMCRewardChest::PollApproach()
 {
     if(!HasAuthority() || !bRewardInitialized) return;
+    if(bTeamStageBooster && Stage==EMCRewardChestStage::Landed) {PollTeamBoosterApproach();return;}
     if(Stage==EMCRewardChestStage::Falling) {
         const double Age=ServerNow()-StageStartedAt;
         if(Age>=FMath::Max(.1f,FallSeconds)) {
@@ -504,6 +508,7 @@ EMCPerkRarity AMCRewardChest::RollToolRarity(int32 Seed,float LegendaryPercent,f
 }
 bool AMCRewardChest::BeginLockpicking(AMCToothCharacter* Player)
 {
+    if(bTeamStageBooster) return BeginTeamBoosterChoice(Player);
     if(!HasAuthority() || Stage!=EMCRewardChestStage::Landed || !IsLivingPlayer(Player)
         || !Player->CanWork() || !CanReachLockpick(Player) || !IsValid(DropZone) || !Body->GetStaticMesh() || !Lid->GetStaticMesh()
         || FVector::DistSquared(Player->GetActorLocation(),GetActorLocation())>FMath::Square(FMath::Clamp(OpenRadius,100.f,800.f))) return false;
@@ -587,6 +592,7 @@ bool AMCRewardChest::TryClaim(AMCPerkPickup*,AMCToothCharacter*) { return false;
 
 bool AMCRewardChest::TryChooseCard(AMCToothCharacter* Player,int32 Index)
 {
+    if(bTeamStageBooster) return TryChooseTeamBooster(Player,Index);
     if(!HasAuthority() || bClaimInProgress || Stage!=EMCRewardChestStage::Open || OpeningPlayer!=Player
         || !OpenerCanContinue() || LootIDs.Num()!=3 || !LootIDs.IsValidIndex(Index) || ClaimedMask!=0) return false;
     auto* PS=Player->GetPlayerState<AMCPlayerState>();
@@ -614,6 +620,7 @@ void AMCRewardChest::FinishReward(bool bRequeue)
     if(!HasAuthority() || bReported) return;
     bReported=true; GetWorldTimerManager().ClearTimer(ApproachTimer);
     if(auto* Director=Cast<AMCRoguelikeDirector>(GetOwner())) Director->NotifyChestFinished(this,bRequeue);
+    if(bTeamStageBooster) if(auto* Director=Cast<AMCSingleDayDirector>(GetOwner())) Director->NotifyStageRewardFinished(this,bRequeue);
     ReleaseCaptive(); ReleaseOpener();
     SetStage(EMCRewardChestStage::Exhausted);
     if(!bPlacedReward) SetLifeSpan(bRequeue?.1f:2.f);
@@ -640,6 +647,8 @@ void AMCRewardChest::EndPlay(const EEndPlayReason::Type Reason)
         ReleaseCaptive(Reason==EEndPlayReason::Destroyed); ReleaseOpener();
         if(!bReported && Reason==EEndPlayReason::Destroyed)
             if(auto* Director=Cast<AMCRoguelikeDirector>(GetOwner())) Director->NotifyChestFinished(this,!bMimic && ClaimedMask==0);
+        if(bTeamStageBooster && !bReported && Reason==EEndPlayReason::Destroyed)
+            if(auto* Director=Cast<AMCSingleDayDirector>(GetOwner())) Director->NotifyStageRewardFinished(this,ClaimedMask==0);
     }
     Super::EndPlay(Reason);
 }
@@ -653,6 +662,7 @@ void AMCRewardChest::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
     DOREPLIFETIME(AMCRewardChest,RogueKind);DOREPLIFETIME(AMCRewardChest,ContractRewards);DOREPLIFETIME(AMCRewardChest,ContractCurses);
     DOREPLIFETIME(AMCRewardChest,ContractCurse);DOREPLIFETIME(AMCRewardChest,ContractReward);DOREPLIFETIME(AMCRewardChest,ContractStep);
     DOREPLIFETIME(AMCRewardChest,OpeningPlayer);
+    DOREPLIFETIME(AMCRewardChest,bTeamStageBooster);
     DOREPLIFETIME(AMCRewardChest,bMimic); DOREPLIFETIME(AMCRewardChest,CaptivePlayer); DOREPLIFETIME(AMCRewardChest,RescuePlayer);
     DOREPLIFETIME(AMCRewardChest,RescueStartedAt); DOREPLIFETIME(AMCRewardChest,CapturedEntryLocation);
     DOREPLIFETIME(AMCRewardChest,MimicSwallowSeconds); DOREPLIFETIME(AMCRewardChest,RescueSeconds);

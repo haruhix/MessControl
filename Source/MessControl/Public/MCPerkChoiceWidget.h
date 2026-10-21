@@ -38,6 +38,7 @@ class MESSCONTROL_API UMCPerkChoiceWidget : public UMCGameplayUIWidget
     GENERATED_BODY()
 public:
     void ShowChoices(const TArray<FName>& IDs, EMCPerkPolarity Polarity);
+    void SetTeamBoosterHeader();
     void ShowLevelChoices(const TArray<FName>& IDs,int32 TeamLevel,int32 PendingChoices);
     void ShowRogueChoices(const FMCRogueChestOffer& Offer);
     void UpdateLevelChoiceHeader(int32 TeamLevel,int32 PendingChoices);
@@ -98,6 +99,7 @@ private:
     bool bNavigationHighlight=false;
     bool bSelectionPending = false;
     bool bWaitingForTeam=false;
+    bool bTeamBooster=false;
     bool bLevelPanel=false,bOptionalReward=false,bConfirming=false;
     bool bApplyingPreview=false,bPreviewRerollSpent=false;
     bool bHasPreviewFixture=false;

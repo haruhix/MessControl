@@ -3,6 +3,11 @@
 #include "AudioDevice.h"
 #include "AudioDeviceManager.h"
 #include "AudioThread.h"
+#include "ActiveSound.h"
+#include "Components/AudioComponent.h"
+#include "MCVoiceChatSubsystem.h"
+#include "MCVoiceSoundClass.h"
+#include "Engine/GameInstance.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "Internationalization/Culture.h"
@@ -32,6 +37,25 @@ float UMCGameUserSettings::GetEffectiveMusicVolume() const { return Volume(Maste
 float UMCGameUserSettings::GetEffectiveAmbienceVolume() const { return Volume(MasterVolume)*Volume(AmbienceVolume); }
 void UMCGameUserSettings::SetMouseSensitivity(float Value) { MouseSensitivity=Sensitivity(Value); }
 void UMCGameUserSettings::SetGamepadSensitivity(float Value) { GamepadSensitivity=Sensitivity(Value); }
+void UMCGameUserSettings::SetVoiceInputMode(EMCVoiceInputMode Value)
+{ VoiceInputMode=Value==EMCVoiceInputMode::OpenMic?Value:EMCVoiceInputMode::PushToTalk; }
+bool UMCGameUserSettings::SetPushToTalkKey(FKey Value)
+{
+    if(!Value.IsValid() || Value.IsAnalog() || Value.IsModifierKey()) return false;
+    PushToTalkKey=Value;return true;
+}
+void UMCGameUserSettings::SetMicrophoneGain(float Value)
+{ MicrophoneGain=FMath::IsFinite(Value)?FMath::Clamp(Value,0.f,3.f):1.f; }
+void UMCGameUserSettings::SetVoiceActivationThreshold(float Value)
+{ VoiceActivationThreshold=FMath::IsFinite(Value)?FMath::Clamp(Value,0.f,1.f):.08f; }
+void UMCGameUserSettings::SetVoiceVolume(float Value) { VoiceVolume=Volume(Value); }
+float UMCGameUserSettings::GetEffectiveVoiceVolume() const { return bVoiceEnabled?Volume(MasterVolume)*Volume(VoiceVolume):0.f; }
+bool UMCGameUserSettings::IsVoicePlayerMuted(const FString& Id) const { return !Id.IsEmpty() && MutedVoicePlayerIds.Contains(Id); }
+void UMCGameUserSettings::SetVoicePlayerMuted(const FString& Id,bool bMuted)
+{
+    if(Id.IsEmpty() || Id.Len()>256) return;
+    if(bMuted) MutedVoicePlayerIds.AddUnique(Id);else MutedVoicePlayerIds.Remove(Id);
+}
 
 FVector2D UMCGameUserSettings::ScaleLookInput(FVector2D Delta,bool bGamepad) const
 {
@@ -62,6 +86,10 @@ void UMCGameUserSettings::NormalizePreferences()
     MasterVolume=Volume(MasterVolume);MusicVolume=Volume(MusicVolume);
     AmbienceVolume=Volume(AmbienceVolume);SFXVolume=Volume(SFXVolume);
     MouseSensitivity=Sensitivity(MouseSensitivity);GamepadSensitivity=Sensitivity(GamepadSensitivity);
+    SetMicrophoneGain(MicrophoneGain);SetVoiceActivationThreshold(VoiceActivationThreshold);SetVoiceVolume(VoiceVolume);
+    SetVoiceInputMode(VoiceInputMode);
+    if(!SetPushToTalkKey(PushToTalkKey)) PushToTalkKey=EKeys::V;
+    MutedVoicePlayerIds.RemoveAll([](const FString& Id) { return Id.IsEmpty() || Id.Len()>256; });
     if(!SetLanguageCode(LanguageCode)) LanguageCode.Reset();
 }
 
@@ -70,6 +98,8 @@ void UMCGameUserSettings::SetToDefaults()
     Super::SetToDefaults();
     MasterVolume=MusicVolume=AmbienceVolume=SFXVolume=1.f;
     MouseSensitivity=GamepadSensitivity=1.f;bInvertY=false;LanguageCode.Reset();
+    bVoiceEnabled=true;VoiceInputMode=EMCVoiceInputMode::PushToTalk;PushToTalkKey=EKeys::V;
+    MicrophoneGain=1.f;VoiceActivationThreshold=.08f;VoiceVolume=1.f;bSelfMuted=false;MutedVoicePlayerIds.Reset();
 }
 
 void UMCGameUserSettings::ValidateSettings()
@@ -135,7 +165,11 @@ void UMCGameUserSettings::ApplyGameplaySettings()
     bool bPlaying=false;
     for(const FWorldContext& Context:GEngine->GetWorldContexts())
         if(UWorld* World=Context.World(); World && World->IsGameWorld() && World->GetNetMode()!=NM_DedicatedServer)
-        { bPlaying=true;InitializeForWorld(World); }
+        {
+            bPlaying=true;InitializeForWorld(World);
+            if(UGameInstance* Instance=World->GetGameInstance())
+                if(auto* Chat=Instance->GetSubsystem<UMCVoiceChatSubsystem>()) Chat->ApplyPreferences();
+        }
     if(!GIsEditor && !bPlaying && !LanguageCode.IsEmpty()) FInternationalization::Get().SetCurrentLanguage(LanguageCode);
 }
 
@@ -152,6 +186,7 @@ void UMCGameUserSettings::EnsureAudioRouting()
     // Independent roots: the SFX tree must never multiply music or ambience gain.
     MusicClass=NewObject<USoundClass>(this,TEXT("LocalMusicClass"),RF_Transient);
     AmbienceClass=NewObject<USoundClass>(this,TEXT("LocalAmbienceClass"),RF_Transient);
+    VoiceClass=GetMutableDefault<UMCVoiceSoundClass>();
     if(const USoundClass* Default=GetDefault<UAudioSettings>()->GetDefaultSoundClass())
     {
         MusicClass->Properties=Default->Properties;
@@ -165,18 +200,19 @@ void UMCGameUserSettings::ApplyAudioToDevice(FAudioDevice* Device)
     if(!Device || !GEngine->UseSound()) return;
     EnsureAudioRouting();
     USoundClass* EffectsClass=GetDefault<UAudioSettings>()->GetDefaultSoundClass();
-    Device->RegisterSoundClass(MusicClass);Device->RegisterSoundClass(AmbienceClass);
+    Device->RegisterSoundClass(MusicClass);Device->RegisterSoundClass(AmbienceClass);Device->RegisterSoundClass(VoiceClass);
     USoundMix* Mix=PreferencesMix;
-    USoundClass* Music=MusicClass;USoundClass* Ambience=AmbienceClass;
-    const float EffectsGain=GetEffectiveSFXVolume(),MusicGain=GetEffectiveMusicVolume(),AmbienceGain=GetEffectiveAmbienceVolume();
+    USoundClass* Music=MusicClass;USoundClass* Ambience=AmbienceClass;USoundClass* VoiceRoot=VoiceClass;
+    const float EffectsGain=GetEffectiveSFXVolume(),MusicGain=GetEffectiveMusicVolume(),AmbienceGain=GetEffectiveAmbienceVolume(),VoiceGain=GetEffectiveVoiceVolume();
     // Atomic audio-thread check: repeated Apply never stacks mix references.
-    FAudioThread::RunCommandOnAudioThread([Device,Mix,EffectsClass,Music,Ambience,EffectsGain,MusicGain,AmbienceGain]()
+    FAudioThread::RunCommandOnAudioThread([Device,Mix,EffectsClass,Music,Ambience,VoiceRoot,EffectsGain,MusicGain,AmbienceGain,VoiceGain]()
     {
         const FSoundMixState* Existing=Device->GetSoundMixModifiers().Find(Mix);
         if(!Existing || Existing->ActiveRefCount==0) Device->PushSoundMixModifier(Mix);
         Device->SetSoundMixClassOverride(Mix,EffectsClass,EffectsGain,1.f,.05f,true);
         Device->SetSoundMixClassOverride(Mix,Music,MusicGain,1.f,.05f,false);
         Device->SetSoundMixClassOverride(Mix,Ambience,AmbienceGain,1.f,.05f,false);
+        Device->SetSoundMixClassOverride(Mix,VoiceRoot,VoiceGain,1.f,.05f,false);
     });
 }
 
@@ -186,6 +222,22 @@ USoundClass* UMCGameUserSettings::GetSceneSoundClass(UWorld* World,bool bMusic)
     EnsureAudioRouting();
     if(auto Device=World->GetAudioDevice()) ApplyAudioToDevice(Device.GetAudioDevice());
     return bMusic?MusicClass.Get():AmbienceClass.Get();
+}
+
+void UMCGameUserSettings::RouteVoiceAudio(UAudioComponent* Component)
+{
+    if(!IsValid(Component) || Get()!=this || !Component->GetWorld() || !Component->GetWorld()->IsGameWorld()) return;
+    EnsureAudioRouting();
+    Component->SoundClassOverride=VoiceClass;
+    if(auto Device=Component->GetWorld()->GetAudioDevice())
+    {
+        ApplyAudioToDevice(Device.GetAudioDevice());
+        // OSS notifies UVOIPTalker just after Synth::Start. Update that active
+        // sound too, before its first decoded packet, without stopping playback.
+        USoundClass* Root=VoiceClass;
+        Device->SendCommandToActiveSounds(Component->GetAudioComponentID(),
+            [Root](FActiveSound& Sound) { Sound.SetSoundClass(Root); });
+    }
 }
 
 void UMCGameUserSettings::BeginDestroy()

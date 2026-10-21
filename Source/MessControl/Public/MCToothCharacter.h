@@ -50,6 +50,9 @@ public:
     virtual void FellOutOfWorld(const UDamageType& DamageType) override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+    /** GameMode's initial entrance barrier; replicated to the owning client too. */
+    void SetArenaArrivalHeld(bool bHeld);
+    bool IsArenaArrivalHeld() const { return bArenaArrivalHeld; }
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Physics") TObjectPtr<UMCToothPhysicsComponent> ToothPhysics;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Care") TObjectPtr<UMCToothStatusComponent> Status;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Combat|Feedback") TObjectPtr<UMCCombatFeedbackComponent> Feedback;
@@ -339,6 +342,8 @@ private:
     UFUNCTION(Client,Unreliable) void ClientCameraImpact(float ImpactSpeed,FVector_NetQuantizeNormal Direction);
     UFUNCTION(Client,Unreliable) void ClientGroundImpact(float Strength,FVector_NetQuantize Source);
     UFUNCTION() void OnBodyHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,UPrimitiveComponent* OtherComponent,FVector NormalImpulse,const FHitResult& Hit);
+    UFUNCTION() void OnRep_ArenaArrivalHeld();
+    UPROPERTY(ReplicatedUsing=OnRep_ArenaArrivalHeld) bool bArenaArrivalHeld=false;
     void ResolveSwing();
     AMCArenaTooth* FindCalculusTarget(FVector& Point,FVector& Normal) const;
     UPROPERTY() TObjectPtr<UInputMappingContext> InputMap;

@@ -281,7 +281,10 @@ bool FMCNutBossMageCastGestureTest::RunTest(const FString&)
 {
     using namespace MCNutBossAnimationTestsPrivate;
     FFixture T; T.Configure(EMCNutBossRole::Mage);
-    T.Phase(EMCNutBossAttack::Fireball,EMCNutBossState::Telegraph,.45,.9);
+    // The authored cast windup replaced the prototype's fixed .9 seconds.
+    // Sample its actual midpoint, rather than halfway through an obsolete tell.
+    const double Windup=T.Boss->BossSettings.FireballWindup;
+    T.Phase(EMCNutBossAttack::Fireball,EMCNutBossState::Telegraph,Windup*.5,Windup);
     auto Snapshot=T.Snapshot();
     TestEqual(TEXT("Gathering uses the authored clip phase"),Snapshot.CastProgress,.275f,.001f);
     TestEqual(TEXT("The gathering hand stays free of emitter IK"),Snapshot.CastHandAlignmentWeight(),0.f);

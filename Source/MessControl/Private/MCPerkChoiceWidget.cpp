@@ -198,6 +198,16 @@ void UMCPerkChoiceWidget::SetOrdinaryHeader()
     Hint->SetText(Copy(TEXT("UI.Reward.ChoiceHint"),LOCTEXT("ChoiceHint","Выбор: мышь / 1 / 2 / 3 · геймпад: стик / D-pad + A")));
 }
 void UMCPerkChoiceWidget::ShowChoices(const TArray<FName>& IDs,EMCPerkPolarity Polarity) {BuildChoices(IDs,Polarity,false);}
+void UMCPerkChoiceWidget::SetTeamBoosterHeader()
+{
+    bTeamBooster=true;
+    if(Title) Title->SetText(Copy(TEXT("UI.Reward.TeamBoosterTitle"),LOCTEXT("TeamBoosterTitle","КОМАНДНЫЙ БУСТЕР")));
+    if(Subtitle) Subtitle->SetText(Copy(TEXT("UI.Reward.TeamBoosterSubtitle"),LOCTEXT("TeamBoosterSubtitle","Один выбор — эффект сразу для всей команды")));
+    auto* PC=GetOwningPlayer<AMCPlayerController>();
+    for(int32 Index=0;Index<CardWidgets.Num();++Index)
+        if(CardWidgets[Index] && CurrentChoiceIDs.IsValidIndex(Index) && CurrentDefinitions.IsValidIndex(Index))
+            CardWidgets[Index]->Configure(MakePresentation(CurrentChoiceIDs[Index],CurrentDefinitions[Index],false),PC,Index,true,true);
+}
 void UMCPerkChoiceWidget::ShowLevelChoices(const TArray<FName>& IDs,int32 TeamLevel,int32 PendingChoices)
 {
     BuildChoices(IDs,EMCPerkPolarity::Positive,true);UpdateLevelChoiceHeader(TeamLevel,PendingChoices);
@@ -239,12 +249,20 @@ FMCPerkCardPresentation UMCPerkChoiceWidget::MakePresentation(FName ID,const FMC
         const FText Delta=Format(Base==1?Copy(TEXT("UI.Reward.StatPercentFormat"),LOCTEXT("StatPercentFormat","{Stat} {Before}% → {After}%")):Copy(TEXT("UI.Reward.StatValueFormat"),LOCTEXT("StatValueFormat","{Stat} {Before} → {After}")),FFormatNamedArguments{{TEXT("Stat"),Stat},{TEXT("Before"),CurrentText},{TEXT("After"),NextText}});
         Data.StackPreview=Format(Copy(TEXT("UI.Reward.StackAndStat"),LOCTEXT("StackAndStat","{Stack}\n{Stat}")),FFormatNamedArguments{{TEXT("Stack"),Data.StackPreview},{TEXT("Stat"),Delta}});break;
     }
+    if(bTeamBooster)
+    {
+        Data.Badge=Copy(TEXT("UI.Reward.TeamBoosterBadge"),LOCTEXT("TeamBoosterBadge","ВСЕЙ КОМАНДЕ · СРАЗУ"));
+        Data.StackPreview=FText::GetEmpty();Data.BenefitTokens.Reset();Data.CostTokens.Reset();
+        if(ID==TEXT("Fallback_Mouthwash")) Data.Description=Copy(TEXT("UI.Reward.TeamMouthwash"),LOCTEXT("TeamMouthwash","Мгновенная волна вокруг каждого живого союзника: убирает грязь и наносит урон врагам. Общие цели получают эффект один раз."));
+        else if(ID==TEXT("Fallback_BrushFury")) Data.Description=Copy(TEXT("UI.Reward.TeamFury"),LOCTEXT("TeamFury","Все живые союзники сразу входят в ярость щётки на 5 секунд."));
+        else if(ID==TEXT("Fallback_Grenade")) Data.Description=Copy(TEXT("UI.Reward.TeamGrenade"),LOCTEXT("TeamGrenade","Сразу вооружает каждого живого союзника. Его следующий нокдаун вызывает взрыв."));
+    }
     return Data;
 }
 void UMCPerkChoiceWidget::BuildChoices(const TArray<FName>& IDs,EMCPerkPolarity Polarity,bool bPersonal,bool bReadOnly)
 {
     BuildPresentationTree();if(!Cards || !Actions || !Title || !Subtitle || !Hint) return;
-    bShowingChoices=true;bSelectionPending=false;bWaitingForTeam=false;bLevelPanel=bPersonal;bOptionalReward=false;bConfirming=false;
+    bShowingChoices=true;bSelectionPending=false;bWaitingForTeam=false;bTeamBooster=false;bLevelPanel=bPersonal;bOptionalReward=false;bConfirming=false;
     CurrentChoiceIDs.Reset();CurrentDefinitions.Reset();
     Actions->SetVisibility(ESlateVisibility::Visible);
     NormalizePresentationLayout();
@@ -418,6 +436,7 @@ void UMCPerkChoiceWidget::OnLocalizationChanged()
     SetOrdinaryHeader();
     if (bLevelPanel) UpdateLevelChoiceHeader(CurrentTeamLevel,CurrentPendingChoices);
     else if (bOptionalReward) RefreshRogueCopy(CurrentRogueOffer);
+    else if (bTeamBooster) SetTeamBoosterHeader();
     for (const auto& Button:Buttons) if (Button)
     {
         auto* Label=Cast<UTextBlock>(Button->GetContent());

@@ -96,6 +96,10 @@ void FMCNutBossSettings::Sanitize()
     Safe(ShieldMaxHealth,500,1,10000); Safe(ShieldFrontDamageScale,.2f,.2f,.2f); Safe(ShieldHalfAngle,55,20,85);
     Safe(SpecialAttackGap,3,0,10); Safe(TankRecoverySeconds,2.5f,.5f,8); Safe(RollRecoverySeconds,3.5f,.5f,8);
     Safe(MeleeDamage,12,1,30); Safe(MeleeRange,380,140,560); Safe(MeleeWindup,.65f,.5f,2); Safe(MeleeCooldown,3.5f,1.5f,12);
+    TankCounterHitsMin=FMath::Clamp(TankCounterHitsMin,10,12);TankCounterHitsMax=FMath::Clamp(TankCounterHitsMax,TankCounterHitsMin,12);
+    Safe(TankCounterHitGap,4.f,1.f,8.f);Safe(TankCounterWindup,.45f,.3f,1.f);Safe(TankCounterRecovery,.5f,.3f,1.5f);
+    Safe(TankCounterCooldown,4.f,2.f,10.f);Safe(TankCounterRadius,340.f,180.f,500.f);
+    Safe(TankCounterDamage,6.f,1.f,12.f);Safe(TankCounterPush,750.f,300.f,1100.f);
     Safe(TankMeleePush,620,0,1500); Safe(TankChargePush,820,0,1500); Safe(TankJumpPush,900,0,1800); Safe(TankPushLift,210,0,500);
     Safe(ChargeDamage,22,1,40); Safe(ChargeWindup,1.1f,.8f,3); Safe(ChargeCooldown,14,5,60);
     Safe(ChargeSpeed,650,300,900); Safe(ChargeDistance,1100,350,1600);

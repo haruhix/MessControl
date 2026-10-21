@@ -45,6 +45,8 @@ public:
     void NotifyObjectiveCompleted(FName CompletionId);
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Score") FMCScoreRewards ScoreRewards;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Respawn", meta=(ClampMin="0.1")) float RespawnDelay=5.f;
+    /** Initial arrival only: clearance below the capsule. Low ceilings shorten the drop. */
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Arrival", meta=(ClampMin="30",ClampMax="800",Units="cm")) float ArenaArrivalHeight=420.f;
     void PlayerDied(AMCToothCharacter* Hero);
     void UpdateObjectives();
     void ProcessRespawns();
@@ -86,11 +88,13 @@ private:
     void StartDay();
     void FinishDay(bool bTimedOut);
     void ClearTasks();
+    void ReleaseReadyArenaArrivals();
     bool HasLivingPlayers() const;
     FRandomStream Random;
     int32 PreviousEvent = INDEX_NONE;
     UPROPERTY() TArray<TObjectPtr<AMCTaskActor>> ActiveTasks;
     UPROPERTY() TArray<FMCEventObjective> Objectives;
     UPROPERTY() TArray<TObjectPtr<AMCToothCharacter>> PendingRespawns;
+    TArray<TWeakObjectPtr<AMCToothCharacter>> PendingArenaArrivals;
     UPROPERTY() TObjectPtr<AMCFoodDisposal> Throat;
 };

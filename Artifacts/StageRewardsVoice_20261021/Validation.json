@@ -1,0 +1,112 @@
+{
+  "date": "2026-10-21",
+  "scope": "Editor build, editable WBP integration, focused native checks and owned solo PIE. No cook/package, microphone capture or network test.",
+  "build_passed": true,
+  "native_tests_passed": 47,
+  "solo_checks": {
+    "arrival_counter": 15,
+    "stage_chest": 16,
+    "voice_ui": 68
+  },
+  "latest_editor_process_exits": {
+    "ArrivalExit": 0,
+    "ChestExit": 0,
+    "VoiceExit": 0
+  },
+  "counter_observed": {
+    "started_at": 23.633334565907717,
+    "resolve_at": 24.083334553986788,
+    "accepted_team_hits": 11,
+    "pre_push_cm": [
+      125.67754944429657,
+      38.31285141744743,
+      173.15250674479785
+    ],
+    "initial_player_health": 100.0,
+    "final_health": 94.0,
+    "maximum_push_cm": 462.08283658049754,
+    "accepted_additional_hit_during_counter": true,
+    "warning_not_restarted": true,
+    "post_counter_attack": "<MCNutBossAttack.NONE: 0>",
+    "post_counter_state": "<MCNutBossState.IDLE: 1>"
+  },
+  "chest_result": {
+    "state_after": {
+      "queue": [],
+      "active_perk_count": 1,
+      "pending_personal": 0,
+      "personal_choices_taken": 1,
+      "grenade_armed": true,
+      "held_food": null,
+      "stack": []
+    },
+    "next_stage": "MEALCOFFEEWAVE",
+    "observed_chests": [
+      "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCRewardChest_0"
+    ],
+    "observed_stages": [
+      "EXHAUSTED",
+      "FALLING",
+      "LANDED",
+      "OPEN",
+      "OPENING",
+      "TELEGRAPH"
+    ],
+    "held_food_preservation": "not_exercised",
+    "death": "not_exercised"
+  },
+  "voice_transport_tested": false,
+  "microphone_capture": false,
+  "deferred": [
+    "Real Steam peer voice transmission, speaking indicator with actual audio, mute/rebind physical input and multiplayer travel.",
+    "Cook/package and packaged runtime."
+  ],
+  "shutdown_history": {
+    "earlier_case": "ArrivalCounter03",
+    "earlier_exit": "0xC0000005 after successful gameplay check and after log closed",
+    "latest_full_repeat": "ArrivalCounterClean01 passed with exit 0",
+    "cause": "Unknown; no stack/dump. The wrapper uses automatic script completion in the repeat. No production crash fix is claimed."
+  },
+  "media": [
+    {
+      "file": "01_VisibleInitialArrival.mp4",
+      "bytes": 303727,
+      "sha256": "667f304990643b034f30f44622236ab6afc13f592eb548be6cdb9344b2ae5897"
+    },
+    {
+      "file": "01_VisibleInitialArrival_ContactSheet.png",
+      "bytes": 827358,
+      "sha256": "63e10eb473b6f0bfe3e3e414e96ce341adb91cf64844a191c82adfe085e14cd8"
+    },
+    {
+      "file": "02_KnightTeamCounter.mp4",
+      "bytes": 3696307,
+      "sha256": "696a373f0c02b2bb08047f40596b2a5ceae37bbb56bbc8e69a3a886c8a1e2538"
+    },
+    {
+      "file": "02_KnightTeamCounter_ContactSheet.png",
+      "bytes": 889032,
+      "sha256": "5066161966bc39042e98acc86c19853fc616d7bcb89f561f7bfa1cfbc44e92e8"
+    },
+    {
+      "file": "03_StageRewardChest.mp4",
+      "bytes": 677284,
+      "sha256": "1760eeaa24f9bf578b957315218fff7a7eaa6fa68581af8ea44adf45a4b35f6a"
+    },
+    {
+      "file": "03_StageRewardChest_ContactSheet.png",
+      "bytes": 711905,
+      "sha256": "ecc6f069c311050e7c881d55207c74883e194af3ef7906a8116d7c4a3a8b3e65"
+    },
+    {
+      "file": "04_VoiceSettings_Runtime_NoMicrophone.mp4",
+      "bytes": 29826,
+      "sha256": "bf97ea28690cc1ae5fe6cd91c88308cec44cb33f8fe87ba1c5b287bc819f7f7f"
+    },
+    {
+      "file": "04_VoiceSettings_Runtime_NoMicrophone_ContactSheet.png",
+      "bytes": 67982,
+      "sha256": "a000a15ecff169b2ef8ca39bdd7e67f9acdaa0976a7ec58e5ddafac4e14d6dff"
+    }
+  ]
+}

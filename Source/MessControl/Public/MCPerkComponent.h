@@ -43,6 +43,9 @@ public:
     bool GetFogNavigation(FVector& Point) const;
     void AddBoosterCharge(FName ID);
     bool ActivateBooster();
+    /** Stage chest only: apply one supported booster immediately to the current team. No charges or perk stacks. */
+    bool ActivateTeamStageBooster(FName ID);
+    static bool IsTeamStageBoosterID(FName ID);
     void OnRogueKnockdown();
     bool IsFuryActive() const;
     void TickRogueBoosters(float Dt);
@@ -136,5 +139,5 @@ private:
     uint16 FuryMotionID=0;
     bool bFuryMotion=false;
     double NextFuryHitAt=-100;
-    void RogueBurst(bool Grenade);
+    void RogueBurst(bool Grenade,const TArray<AMCToothCharacter*>& TeamOrigins=TArray<AMCToothCharacter*>());
 };

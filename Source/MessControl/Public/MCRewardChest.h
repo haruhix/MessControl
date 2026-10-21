@@ -37,6 +37,9 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void InitializeReward(FVector Landing,FVector Start,int32 Seed,UDataTable* Table,
         EMCRewardSelectionPolicy Policy,AMCRewardDropZone* Zone);
+    /** Authored stage reward: one shared immediate booster, never a mimic or a personal perk. */
+    void InitializeTeamStageReward(FVector Landing,FVector Start,int32 Seed,UDataTable* Table,AMCRewardDropZone* Zone);
+    UPROPERTY(ReplicatedUsing=RefreshPresentation,BlueprintReadOnly,Category="Rewards") bool bTeamStageBooster=false;
     FVector GetPlacementHalfExtent() const;
     /** X points out of the keyhole; author a Lockpick socket on replacement meshes. */
     FTransform GetLockpickContact() const;
@@ -113,6 +116,7 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards|Mimic") TObjectPtr<AMCToothCharacter> RescuePlayer;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards|Mimic") double RescueStartedAt=0;
 private:
+    friend class FMCStageRewardBotSelectionTest;
     UFUNCTION() void RefreshPresentation();
     void ConfigureGeometry();
     void CacheRewardEffectsVisibility();
@@ -126,6 +130,11 @@ private:
     void SetStage(EMCRewardChestStage Next);
     void FinishReward(bool bRequeue);
     void RollMimic();
+    bool BeginTeamBoosterChoice(AMCToothCharacter* Player);
+    bool TryChooseTeamBooster(AMCToothCharacter* Player,int32 Index);
+    void PollTeamBoosterApproach();
+    bool BuildTeamBoosterOffer(const UMCPerkComponent* Perks);
+    bool ApplyTeamBoosterOnce(UMCPerkComponent* Perks,FName ID);
     void CaptureOpener();
     void ReleaseCaptive(bool FindClearFloor=true);
     void UpdateMimicPresentation(float Age);

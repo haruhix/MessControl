@@ -49,7 +49,7 @@ enum class EMCMainMenuAction : uint8
     Tutorial, CreateLobby, JoinLobby, Settings, Credits, Exit, Back,
     Host, FindRooms, JoinRoom, JoinAddress, ApplySettings, KeepSettings, RevertSettings,
     StartLobby, Invite, LeaveLobby, ConfirmLeave, ConfirmExit, Resume, Emotes,
-    SettingsGraphics, SettingsAudio, SettingsLanguage, SettingsControls
+    SettingsGraphics, SettingsAudio, SettingsLanguage, SettingsControls, SettingsVoice
 };
 
 /** Saved pages in WBP_MainMenu. All pages remain available in the UMG Designer. */
@@ -102,8 +102,8 @@ public:
     /** Select a page in Class Defaults to preview all of its editable controls. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview")
     EMCMainMenuPage PreviewPage=EMCMainMenuPage::Main;
-    /** Graphics, Audio, Language, Controls. Never reads or changes player settings in Designer. */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview",meta=(ClampMin="0",ClampMax="3"))
+    /** Graphics, Audio, Language, Controls, Voice. Never changes player settings in Designer. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview",meta=(ClampMin="0",ClampMax="4"))
     int32 PreviewSettingsTab=0;
     UFUNCTION(BlueprintPure, Category="Front End") UWidget* GetActiveMenuPageRoot() const;
 
@@ -156,6 +156,7 @@ private:
     void RefreshSettingsControls();
     void RefreshSettingsOptionLabels(int32 WindowModeIndex, int32 QualityIndex, bool bIncludeCustomQuality);
     void CacheSettingsControls();
+    void EnsureVoiceSettingsPresentation();
     void SwitchSettingsTab(int32 Index);
     void RefreshSettingsValueLabels();
     void RefreshSettingsQualityOptions(bool bPreserveSelection);
@@ -210,6 +211,7 @@ private:
     UPROPERTY(Transient) TObjectPtr<UComboBoxString> QualityPicker;
     UPROPERTY(Transient) TObjectPtr<UCheckBox> VSyncCheck;
     UPROPERTY(Transient) TObjectPtr<UWidgetSwitcher> SettingsSections;
+    UPROPERTY(Transient) TObjectPtr<class UMCVoiceSettingsWidget> VoiceSettings;
     UPROPERTY(Transient) TMap<FName,TObjectPtr<UComboBoxString>> SettingsPickers;
     UPROPERTY(Transient) TMap<FName,TObjectPtr<USlider>> SettingsSliders;
     UPROPERTY(Transient) TObjectPtr<UCheckBox> InvertYCheck;

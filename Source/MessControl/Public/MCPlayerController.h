@@ -90,7 +90,7 @@ public:
     UFUNCTION(BlueprintCallable, Category="Multiplayer") void JoinGame(const FString& Address);
     UFUNCTION(BlueprintCallable, Category="Shift") void RequestRestart();
     UFUNCTION(Client, Reliable) void ClientShowRewardOpening(AMCRewardChest* Chest, double ServerEndsAt);
-    UFUNCTION(Client, Reliable) void ClientShowPerkChoices(AMCRewardChest* Chest, const TArray<FName>& IDs, EMCPerkPolarity Polarity);
+    UFUNCTION(Client, Reliable) void ClientShowPerkChoices(AMCRewardChest* Chest, const TArray<FName>& IDs, EMCPerkPolarity Polarity,bool bTeamBooster=false);
     UFUNCTION(Client,Reliable) void ClientShowRogueChoices(AMCRewardChest* Chest,const FMCRogueChestOffer& Offer);
     UFUNCTION(Server,Reliable) void ServerConfirmRogueReward(AMCRewardChest* Chest,bool Accept);
     UFUNCTION(Server, Reliable) void ServerChooseRewardPerk(AMCRewardChest* Chest, int32 ChoiceIndex);

@@ -60,6 +60,10 @@ public:
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static bool RefreshMainMenuSettingsPresentation(UWidgetBlueprint* Blueprint);
 
+    /** Append only the Voice tab/section; retain all saved menu pages, controls and artist material instances. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
+    static bool AddMainMenuVoicePresentation(UWidgetBlueprint* Blueprint);
+
     /** Replace only native menu CreateWidget class pins in the existing 3D front end. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static bool UseAuthoredMainMenu(UWidgetBlueprint* Host, TSubclassOf<UMCMainMenuWidget> MenuClass);
