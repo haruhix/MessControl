@@ -1,6 +1,8 @@
 #include "MCHubWidget.h"
 
 #include "MCHubGameState.h"
+#include "MCHubBasketball.h"
+#include "MCToothCharacter.h"
 #include "MCHubTypes.h"
 #include "MCPlayerController.h"
 #include "MCPlayerState.h"
@@ -24,6 +26,7 @@
 #include "Components/VerticalBoxSlot.h"
 #include "EngineUtils.h"
 #include "InputCoreTypes.h"
+#include "Rendering/DrawElements.h"
 #include "UObject/StructOnScope.h"
 #include "UObject/UnrealType.h"
 
@@ -227,6 +230,23 @@ void UMCHubWidget::BuildPresentationTree()
     PlayerNames=AddLabel(ReadyBody,TEXT("HubPlayerNames"),18);
     ReadinessHint=AddLabel(ReadyBody,TEXT("HubReadinessHint"),18);
     OpenButton=AddAction(ReadyBody,TEXT("HubOpenSelection"),EMCHubMenuAction::OpenSelection);
+    BasketballHint=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("HubBasketballHint"));
+    BasketballHint->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),20));
+    BasketballHint->SetJustification(ETextJustify::Center);
+    BasketballHint->SetShadowColorAndOpacity(FLinearColor::Black);BasketballHint->SetShadowOffset(FVector2D(1,1));
+    auto* BallHintSlot=RootCanvas->AddChildToCanvas(BasketballHint);
+    BallHintSlot->SetAnchors(FAnchors(.5f,1.f));BallHintSlot->SetAlignment(FVector2D(.5f,1.f));
+    BallHintSlot->SetPosition(FVector2D(0,-36));BallHintSlot->SetAutoSize(true);BallHintSlot->SetZOrder(3);
+    BasketballReticle=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("HubBasketballReticle"));
+    BasketballReticle->SetText(FText::AsCultureInvariant(TEXT("+")));
+    BasketballReticle->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),24));
+    BasketballReticle->SetShadowColorAndOpacity(FLinearColor::Black);BasketballReticle->SetShadowOffset(FVector2D(1,1));
+    auto* BallAimSlot=RootCanvas->AddChildToCanvas(BasketballReticle);
+    BallAimSlot->SetAnchors(FAnchors(.5f,.5f));BallAimSlot->SetAlignment(FVector2D(.5f,.5f));
+    BallAimSlot->SetAutoSize(true);BallAimSlot->SetZOrder(3);
+    BasketballHint->SetVisibility(ESlateVisibility::Collapsed);BasketballReticle->SetVisibility(ESlateVisibility::Collapsed);
+    BindStyle(TEXT("HubBasketballHint"),EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,20,true);
+    BindStyle(TEXT("HubBasketballReticle"),EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,24,true);
 
     // Three invisible hit regions follow the real mouth row geometry. The
     // original labels remain visible; there is no second seven-day catalogue.
@@ -281,6 +301,28 @@ void UMCHubWidget::BindPresentationTree()
     ReadinessCount=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubReadinessCount")));
     PlayerNames=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubPlayerNames")));
     ReadinessHint=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubReadinessHint")));
+    // Older saved Hub trees predate basketball. Bind artist-authored controls
+    // when present; add just the two missing controls without replacing layout.
+    auto BallLabel=[this](FName Name,int32 FontSize,bool bHint)->UTextBlock*
+    {
+        if(auto* Existing=WidgetTree->FindWidget(Name)) return Cast<UTextBlock>(Existing);
+        if(!RootCanvas) return nullptr;
+        auto* Label=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);
+        if(const auto* ThemeData=GetResolvedTheme()) Label->SetFont(ThemeData->MakeGameplayFont(FontSize,true));
+        Label->SetJustification(ETextJustify::Center);
+        Label->SetShadowColorAndOpacity(FLinearColor::Black);Label->SetShadowOffset(FVector2D(1,1));
+        if(!bHint) Label->SetText(FText::AsCultureInvariant(TEXT("+")));
+        auto* LabelSlot=RootCanvas->AddChildToCanvas(Label);
+        LabelSlot->SetAnchors(FAnchors(.5f,bHint?1.f:.5f));
+        LabelSlot->SetAlignment(FVector2D(.5f,bHint?1.f:.5f));
+        LabelSlot->SetPosition(FVector2D(0,bHint?-36.f:0.f));
+        LabelSlot->SetAutoSize(true);LabelSlot->SetZOrder(3);
+        Label->SetVisibility(ESlateVisibility::Collapsed);
+        BindStyle(Name,EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,FontSize,true);
+        return Label;
+    };
+    BasketballHint=BallLabel(TEXT("HubBasketballHint"),20,true);
+    BasketballReticle=BallLabel(TEXT("HubBasketballReticle"),24,false);
     SelectionTitle=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubSelectionTitle")));
     SelectionStatus=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubSelectionStatus")));
     OpenButton=Cast<UMCHubActionButton>(WidgetTree->FindWidget(TEXT("HubOpenSelection")));
@@ -344,6 +386,16 @@ void UMCHubWidget::RefreshFromState()
     TGuardValue<bool> Guard(bRefreshingState,true);
     BuildPresentationTree();if(!ReadinessTitle) return;
     auto* Hub=State();
+    const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
+    const auto* HeldBall=Hero?AMCHubBasketball::HeldBy(Hero):nullptr;
+    const bool BallHeld=HeldBall!=nullptr;
+    const bool ShowBall=Hub && Hub->Phase==EMCHubPhase::Gathering && Hero && Hero->CanWork()
+        && (BallHeld || AMCHubBasketball::PickupCandidate(Hero));
+    if(BasketballHint) BasketballHint->SetVisibility(ShowBall?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    if(BasketballReticle) BasketballReticle->SetVisibility(ShowBall && HeldBall && HeldBall->IsAiming()?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    if(BasketballHint) BasketballHint->SetText(BallHeld
+        ? LOCTEXT("BasketballAimThrow","ПКМ — прицел   ·   ЛКМ / Q — бросить   ·   E — отпустить\nГеймпад: LB — прицел   ·   RT / Y — бросить   ·   X — отпустить")
+        : LOCTEXT("BasketballPickup","E — подобрать мяч   |   Геймпад: X — подобрать"));
     FString Signature=FString::Printf(TEXT("%p:%d:%d:%d:%d:%d:%s"),Hub,Hub?int32(Hub->Phase):-1,
         Hub?Hub->SelectedDay:0,IsLocalHost(),IsSceneReady(),bPresentationFailed,Hub?*Hub->Notice.ToString():TEXT(""));
     if(Hub) for(const auto& Player:Hub->Players)
@@ -501,6 +553,72 @@ void UMCHubWidget::AdvanceSelectionPresentation()
 void UMCHubWidget::TickPresentation(float DeltaSeconds)
 {
     if(DeltaSeconds>=0.f) AdvanceSelectionPresentation();
+    const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
+    const auto* PC=GetOwningPlayer();
+    const auto* Hub=State();
+    const auto* Ball=Hero?AMCHubBasketball::HeldBy(Hero):nullptr;
+    const bool Aiming=Ball && Ball->IsAiming() && Hub && Hub->Phase==EMCHubPhase::Gathering && Hero->CanWork()
+        && PC && !PC->bShowMouseCursor && !PC->IsLookInputIgnored();
+    if(BasketballReticle) BasketballReticle->SetVisibility(Aiming?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    if(!Aiming) {
+        BasketballTrajectory.Reset();NextBasketballPreviewAt=0.;return;
+    }
+    const double Now=GetWorld()->GetTimeSeconds();
+    if(Now>=NextBasketballPreviewAt) {
+        BasketballTrajectory=Ball->PredictThrowTrajectory();NextBasketballPreviewAt=Now+.05;
+    }
+}
+
+int32 UMCHubWidget::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
+    FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const
+{
+    int32 Top=Super::NativePaint(Args,Geometry,CullingRect,Elements,Layer,Style,ParentEnabled);
+    const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
+    auto* PC=GetOwningPlayer();
+    const auto* Ball=Hero?AMCHubBasketball::HeldBy(Hero):nullptr;
+    if(!Ball || !PC || !Ball->IsAiming() || BasketballTrajectory.Num()<2) return Top;
+    int32 Width=0,Height=0;PC->GetViewportSize(Width,Height);
+    if(Width<=0 || Height<=0) return Top;
+    const FVector2D Size=Geometry.GetLocalSize();
+    const float Scale=FMath::Clamp(float(Size.X/1600.),.5f,2.f);
+    const float Dash=18.f*Scale,Gap=13.f*Scale;
+    auto Project=[&](const FVector& Point,FVector2D& Local) {
+        FVector2D Pixel;
+        if(!PC->ProjectWorldLocationToScreen(Point,Pixel,true)) return false;
+        Local=FVector2D(Pixel.X*Size.X/Width,Pixel.Y*Size.Y/Height);return true;
+    };
+    auto Stroke=[&](const TArray<FVector2D>& Points) {
+        FSlateDrawElement::MakeLines(Elements,Top+1,Geometry.ToPaintGeometry(),Points,ESlateDrawEffect::None,FLinearColor(0,0,0,.35f),true,4.f*Scale);
+        FSlateDrawElement::MakeLines(Elements,Top+2,Geometry.ToPaintGeometry(),Points,ESlateDrawEffect::None,FLinearColor(1,1,1,.96f),true,2.5f*Scale);
+    };
+    double Walked=0;
+    for(int32 I=1;I<BasketballTrajectory.Num();++I) {
+        FVector2D A,B;
+        if(!Project(BasketballTrajectory[I-1],A) || !Project(BasketballTrajectory[I],B)) {Walked=0;continue;}
+        const float Length=(B-A).Size();
+        if(!FMath::IsFinite(Length) || Length<.01f || Length>10000.f*Scale) continue;
+        const FVector2D Direction=(B-A)/Length;
+        float Along=0;
+        while(Along<Length) {
+            const float Phase=FMath::Fmod(float(Walked+Along),Dash+Gap);
+            const bool Visible=Phase<Dash;
+            const float Count=FMath::Min(Length-Along,(Visible?Dash:Dash+Gap)-Phase);
+            if(Count<.001f) {Along+=.001f;continue;}
+            if(Visible) Stroke({A+Direction*Along,A+Direction*(Along+Count)});
+            Along+=Count;
+        }
+        Walked+=Length;
+    }
+    FVector2D End;
+    if(Project(BasketballTrajectory.Last(),End)) {
+        TArray<FVector2D> Circle;
+        for(int32 I=0;I<=20;++I) {
+            const float Angle=I*(2.f*PI/20.f);
+            Circle.Add(End+FVector2D(FMath::Cos(Angle),FMath::Sin(Angle))*5.f*Scale);
+        }
+        Stroke(Circle);
+    }
+    return Top+2;
 }
 
 void UMCHubWidget::UpdateMouthHitAreas()

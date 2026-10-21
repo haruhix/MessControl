@@ -7,6 +7,7 @@
 #include "MCGripComponent.h"
 #include "MCToothMovementComponent.generated.h"
 class AMCCoffeeFlood;
+struct FMCSwimWaterSample;
 
 /** Separate from sprint stamina; replayed at the same movement timestamp. */
 USTRUCT()
@@ -154,7 +155,9 @@ public:
     float Traction() const;
     FVector Intent() const;
     void RefreshGroundSurface();
-    AMCCoffeeFlood* DeepWaterAt(FVector Position,bool Continuing=false) const;
+    AActor* DeepWaterAt(FVector Position,bool Continuing=false) const;
+    float SwimmingSurfaceHeightAt(FVector Position) const;
+    float SwimmingRestHeightAt(FVector Position) const;
     virtual void UpdateCharacterStateBeforeMovement(float Dt) override;
     virtual void CalcVelocity(float Dt,float Friction,bool bFluid,float BrakingDeceleration) override;
     virtual void ApplyRootMotionToVelocity(float Dt) override;
@@ -181,6 +184,7 @@ private:
     float EffectiveDrowningGrace() const;
     float SwimStrokeStrength() const;
     void SampleSwimMove(float Dt);
+    bool SampleDeepWater(FVector Position,bool Continuing,FMCSwimWaterSample& Out) const;
     void ResolveDrowning();
     bool TryBoardRaft();
     bool bSwimDeepSample=false,bSwimRecoverySample=false;

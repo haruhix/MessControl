@@ -60,6 +60,8 @@ protected:
     virtual void NativeConstruct() override;
     virtual void NativeDestruct() override;
     virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
+    virtual int32 NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
+        FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const override;
     virtual FReply NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event) override;
     virtual FReply NativeOnMouseWheel(const FGeometry& Geometry,const FPointerEvent& Event) override;
     virtual void OnLocalizationChanged() override;
@@ -86,6 +88,8 @@ private:
     UPROPERTY(Transient) TObjectPtr<UTextBlock> ReadinessCount;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> PlayerNames;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> ReadinessHint;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> BasketballHint;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> BasketballReticle;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> SelectionTitle;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> SelectionStatus;
     UPROPERTY(Transient) TObjectPtr<UMCHubActionButton> OpenButton;
@@ -106,4 +110,6 @@ private:
     float RefreshElapsed=0.f;
     double NextNavigationAt=0.;
     FString LastStateSignature;
+    TArray<FVector> BasketballTrajectory;
+    double NextBasketballPreviewAt=0.;
 };

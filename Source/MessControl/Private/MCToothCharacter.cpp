@@ -27,6 +27,7 @@
 #include "MCFoodActor.h"
 #include "MCGameMode.h"
 #include "MCHubGameMode.h"
+#include "MCHubBasketball.h"
 #include "MCHubGameState.h"
 #include "MCTutorialDirector.h"
 #include "MCToothpick.h"
@@ -691,6 +692,7 @@ void AMCToothCharacter::StartHandle()
     StopRowing();
     if(!CanWork() || Inventory->IsChainsawRunning()) return;
     if(const auto* PC=Cast<APlayerController>(Controller);PC && PC->IsMoveInputIgnored()) return;
+    if(AMCHubBasketball::HeldBy(this) || AMCHubBasketball::PickupCandidate(this)) {ServerInteractBasketball();return;}
     AMCRewardChest* Rescue=nullptr; double RescueDistance=TNumericLimits<double>::Max();
     for(TActorIterator<AMCRewardChest> It(GetWorld());It;++It) if(It->CanRescue(this)) {
         const double Distance=FVector::DistSquared(GetActorLocation(),It->GetActorLocation());
@@ -759,6 +761,7 @@ void AMCToothCharacter::StartPrimary()
     if(IsMimicCaptured()) return;
     if (!Status->IsAlive()) { if (auto* PC=Cast<AMCPlayerController>(Controller)) PC->NextSpectator(); return; }
     if(IsSeatedOnRaft()) return; // WASD owns the paddle; primary use does not start a second action.
+    if(AMCHubBasketball::HeldBy(this)) {ThrowItem();return;}
     StopRowing();
     Inventory->UpdateSprayAim(true);
     ServerSetPrimary(true);
@@ -824,11 +827,15 @@ void AMCToothCharacter::StartBrace()
     if(!Status->IsAlive()) { if(auto* PC=Cast<AMCPlayerController>(Controller)) PC->PreviousSpectator(); return; }
     if(!CanWork() || Inventory->IsChainsawRunning()) return;
     if(const auto* PC=Cast<APlayerController>(Controller); PC && PC->IsMoveInputIgnored()) return;
+    if(auto* Ball=AMCHubBasketball::HeldBy(this)) {Ball->SetAimHeld(true);return;}
     StopPrimary(); StopHandle(); FoodCollection->Stop();
     CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->CancelDash();
     Grip->SetBraceHeld(true);
 }
-void AMCToothCharacter::StopBrace() { Grip->SetBraceHeld(false); }
+void AMCToothCharacter::StopBrace() {
+    if(auto* Ball=AMCHubBasketball::HeldBy(this)) Ball->SetAimHeld(false);
+    Grip->SetBraceHeld(false);
+}
 void AMCToothCharacter::SetRowingInputHeld(bool Held) { if(Held) StartRowing(); else StopRowing(); }
 bool AMCToothCharacter::IsSeatedOnRaft() const
 {
@@ -1023,6 +1030,10 @@ void AMCToothCharacter::ContinueFogGuard()
 }
 void AMCToothCharacter::ServerSetPrimary_Implementation(bool bActive)
 {
+    if(bActive) if(auto* Ball=AMCHubBasketball::HeldBy(this)) {
+        Ball->ThrowFromView();
+        return;
+    }
     if(bActive && IsSeatedOnRaft()) return;
     if(!bActive) StopRowing();
     else if(bRowing) return;
@@ -2014,6 +2025,7 @@ float AMCToothCharacter::FoodIntakeAimStrength() const
 }
 FVector AMCToothCharacter::CameraThrowDirection() const
 {
+    if(const auto* Ball=AMCHubBasketball::HeldBy(this)) return Ball->LaunchVelocity().GetSafeNormal();
     FVector Origin=GetActorLocation(); FRotator Rotation=GetBaseAimRotation();
     if(const auto* PC=Cast<APlayerController>(GetController()); PC && PC->IsLocalController())
         PC->GetPlayerViewPoint(Origin,Rotation);
@@ -2050,6 +2062,7 @@ FVector AMCToothCharacter::CameraThrowDirection() const
 void AMCToothCharacter::ThrowItem()
 {
     if(!HasAuthority() && !IsLocallyControlled()) return;
+    if(auto* Ball=AMCHubBasketball::HeldBy(this)) {Ball->ThrowFromView();return;}
     const FVector Direction=CameraThrowDirection();
     ServerSetThrowHeld(true,Direction); ServerSetThrowHeld(false,Direction);
 }
@@ -2059,6 +2072,7 @@ void AMCToothCharacter::SetThrowInputHeld(bool Held)
 {
     if((!HasAuthority() && !IsLocallyControlled()) || bThrowInputHeld==Held) return;
     bThrowInputHeld=Held;
+    if(Held) if(auto* Ball=AMCHubBasketball::HeldBy(this)) {Ball->ThrowFromView();return;}
     ServerSetThrowHeld(Held,CameraThrowDirection());
     LastThrowAimSentAt=GetWorld()->GetTimeSeconds();
 }
@@ -2101,6 +2115,9 @@ void AMCToothCharacter::ServerThrowItem_Implementation()
 void AMCToothCharacter::PerformThrow(FVector Direction,bool StackOnly)
 {
     if (!CanWork()) return;
+    if(!StackOnly) if(auto* Ball=AMCHubBasketball::HeldBy(this)) {
+        Ball->ThrowFromView();return;
+    }
     if(FoodCollection && !FoodCollection->Pieces.IsEmpty()) {
         Grip->ReleaseBrace(); FoodCollection->ThrowOne(Direction); return;
     }
@@ -2113,6 +2130,12 @@ void AMCToothCharacter::PerformThrow(FVector Direction,bool StackOnly)
         if (IsValid(Other)) Other->Throw(this,Direction);
     }
     bPrimaryHeld=false; bWantsCling=false; ClingTooth=nullptr; bHandling=false; bBrushing=false; ResetContact();
+}
+void AMCToothCharacter::ServerInteractBasketball_Implementation()
+{
+    if(!CanWork()) return;
+    if(auto* Ball=AMCHubBasketball::HeldBy(this)) Ball->Release(GetVelocity()*.3f);
+    else if(auto* Candidate=AMCHubBasketball::PickupCandidate(this)) Candidate->TryPickup(this);
 }
 void AMCToothCharacter::ServerPaddle_Implementation(FVector2D Direction)
 {

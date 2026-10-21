@@ -1054,3 +1054,66 @@ shader compilation and is not passing evidence.
 
 Particle/transparency and tongue-projection cost still require dedicated runtime
 measurement; no performance, packaged-game or multiplayer claim is made here.
+
+## Hub basketball confetti — 2026-10-21
+
+References reviewed before authoring:
+
+- Cleverlike Studios, [Creating a Niagara Confetti Emitter in Unreal Engine 5](https://dev.epicgames.com/community/learning/tutorials/b8Z0/creating-a-niagara-confetti-emitter-in-unreal-engine-5),
+  with the creator's [published breakdown](https://forums.unrealengine.com/t/community-tutorial-creating-a-niagara-confetti-emitter-in-unreal-engine-5/747932).
+  Adapt the template-based celebratory burst; replace proximity activation with a
+  completed downward basketball pass through the Hub hoop. No tutorial assets copied.
+- Epic, [Create a Mesh Particle Effect in Niagara](https://dev.epicgames.com/documentation/en-us/unreal-engine/create-a-mesh-particle-effect-in-niagara?application_version=4.27).
+  Adapt mesh particles, randomized lifetime/scale/orientation, gravity and drag.
+  Use the project's UE 5.8 lightweight mesh emitter instead of the older tutorial UI.
+- The user's reference: saturated red/blue/yellow/green/violet/pink paper pieces
+  and occasional curled ribbons. No bloom flash, translucent cloud or light needed.
+
+Implemented `/Game/Hub/VFX/NS_BasketConfetti`: one non-looping burst of 132
+mesh particles, weighted 88% bowed paper rectangles / 12% spiral strips, with
+2.4–3.5 second lifetimes, randomized rotation, upward cone velocity, drag,
+downward acceleration and restrained curl noise. Both meshes are generated from
+owned OBJ sources in `ArtSource/VFX/Confetti`; the repeatable editor authoring
+script is `Tools/Unreal/Hub/author_basket_confetti.py`. The two-sided opaque
+paper material uses a six-color palette and a small emission fill for readability
+under the Hub trees. Meshes use 8 / 48 triangles; no translucent particles,
+dynamic lights or collision queries are added by the VFX. Fixed bounds and pooled,
+auto-released Niagara components bound the effect lifetime. GPU cost is not profiled.
+
+The server checks the moving ball against the hoop-local opening plane and
+waits until the whole sphere is below it. A reliable cosmetic multicast places
+the burst 35 cm above the rim; holding, upward entry and outside passes cannot
+qualify. A completed pass latches once, with a short cooldown.
+
+Status: implemented and integrated. Editor Live Coding integration and Niagara
+compile checks passed. The final short solo PIE passed 13 checks, including a
+real pickup/primary shot, exactly one live celebration, automatic pool cleanup,
+outside/upward rejection and a second successful basket. Initial gameplay-camera
+review found the particles too small; the final 1.6–3.0 mesh scale range and 0.45
+emission fill make the six colors and curled strips readable against the trees.
+Final frames at successive actual game times and a GIF preview are retained in
+`Saved/HubBasketballConfetti_20261021`; no composited particles were added.
+No multiplayer, packaged-game or performance-profile validation was run.
+
+Restart correction: in-session Live Coding had not updated the base editor DLL.
+The user restart exposed this integration gap; the saved Niagara packages were
+intact. A normal `MessControlEditor` compilation now persists the basketball
+code. A fresh normal editor process, without Live Coding compilation, passed
+the same 13 solo checks, and its gameplay-camera confetti frame was reviewed.
+The cold-start verifier checks DLL/source freshness, the native effect default
+and the saved Hub ball assignment. Evidence: `RestartFix/cold_start.json`,
+`loaded_modules.json`, `solo_after_restart.json` and `complete.json` under
+`Saved/HubBasketballConfetti_20261021`.
+
+## Stylized turquoise water — 2026-10-21
+
+References reviewed:
+
+- Let's Stylize / GraphicLine, [Make STYLIZED water in under 5 minutes! FILE DOWNLOAD](https://www.youtube.com/watch?v=ysOSGKFX4CA), published 2026-04-17. Adapted the UE Water material, the hard threshold on the combined BeachFoam mask, turquoise color and solid white foam. The original engine materials and the creator's paid scene were not modified or imported.
+- Epic, [Single Layer Water shading model](https://dev.epicgames.com/documentation/en-us/unreal-engine/single-layer-water-shading-model-in-unreal-engine). Retained its scattering/absorption/refraction pipeline and lit surface opacity for foam.
+
+Implemented in `/Game/Art/Materials`: `M_Water_Stylized`, `MF_Water_StylizedFoam`, `MI_Water_Stylized`, and `MI_Water_Stylized_Plane`. The main instance retains Water System wave and Water Body support. The Plane instance disables Water Body dependent displacement/clipping and uses the moving normal surface with a separate scene-depth shoreline mask. It can be assigned to an ordinary horizontal mesh without a Water Body actor. The regular-mesh mask shares the threshold and white lit albedo with the Water System foam; the main instance retains the original animated foam texture and distance/depth detection.
+
+Editable controls include `Foam Threshold`, `Foam Shading`, `Foam Color`, `Foam Shore Width`, `Water Albedo`, `Scattering`, `Absorption`, normal scale/strength and roughness. The three authoring scripts are `Tools/Unreal/author_stylized_water.py`, `add_stylized_water_mesh_foam.py`, and `finish_stylized_water_foam_color.py`.
+
+Status: all four packages saved, final master compilation returned zero errors, and the Plane variant was visually checked on the user's selected plane in the Hub lighting. The temporary material assignment, viewport camera and actor selection were restored. Evidence: `Saved/StylizedWater_20261021/final_verification.json`, `preview_before.json`, and `preview_final.png`. The main instance's Water Body/Gerstner integration, gameplay PIE, GPU cost, multiplayer and packaged builds were not tested. No permanent level integration was made.

@@ -175,6 +175,38 @@ bool FMCHubDesignerRoundTrip::RunTest(const FString&)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCHubLegacyBasketballPresentation,
+    "MessControl.UI.Designer.LegacyHubAddsBasketballWithoutReplacingLayout",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+
+bool FMCHubLegacyBasketballPresentation::RunTest(const FString&)
+{
+    using namespace MCDesignerPresentationTests;
+    FPreviewWorld Fixture;
+    auto Source=Seed<UMCHubWidget>(Fixture.World);
+    for(FName Name:{FName(TEXT("HubBasketballHint")),FName(TEXT("HubBasketballReticle"))})
+    {
+        auto* Control=Source->WidgetTree->FindWidget(Name);
+        if(!TestNotNull(TEXT("Native seed contains a basketball control"),Control)) return false;
+        Control->RemoveFromParent();
+        Control->Rename(*FString::Printf(TEXT("Removed_%s"),*Name.ToString()),nullptr,
+            REN_DontCreateRedirectors|REN_NonTransactional);
+    }
+    auto Widget=RoundTrip(Source.Get(),Fixture.World);
+    auto* Decoration=AddArtistDecoration(Widget.Get(),TEXT("HubCanvas"));
+    auto* OriginalRoot=Widget->WidgetTree->RootWidget.Get();
+    const int32 Before=CountWidgets(Widget->WidgetTree);
+    Widget->BuildPresentationTree();
+    TestNotNull(TEXT("Legacy Hub gains the basketball hint"),Widget->WidgetTree->FindWidget<UTextBlock>(TEXT("HubBasketballHint")));
+    TestNotNull(TEXT("Legacy Hub gains the basketball reticle"),Widget->WidgetTree->FindWidget<UTextBlock>(TEXT("HubBasketballReticle")));
+    TestEqual(TEXT("Only the two absent controls are added"),CountWidgets(Widget->WidgetTree),Before+2);
+    Widget->BuildPresentationTree();Widget->ApplyEditorPreview(0.f);Widget->RefreshFromState();
+    TestEqual(TEXT("Repeated binding does not duplicate basketball controls"),CountWidgets(Widget->WidgetTree),Before+2);
+    TestTrue(TEXT("Legacy Hub retains its authored root"),Widget->WidgetTree->RootWidget.Get()==OriginalRoot);
+    TestTrue(TEXT("Legacy Hub retains artist decoration"),Widget->WidgetTree->FindWidget(TEXT("ArtistDecoration"))==Decoration);
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCMainMenuDesignerRoundTrip,
     "MessControl.UI.Designer.MainMenuPreservesAuthoredTree",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)

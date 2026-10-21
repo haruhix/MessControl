@@ -192,3 +192,97 @@ Network peers, Steam room travel, late joins/disconnects in a live room,
 physical pointer delivery, and a cooked Windows package remain untested in
 this batch. Replicated rules and cook references are implemented; the solo
 results do not establish multiplayer or packaged-game behavior.
+
+## Basketball in Hub (2026-10-21)
+
+The existing decorative `Sphere` is now `Hub_Basketball`, an
+`AMCHubBasketball` at the same position with its original mesh/material and
+50 cm radius. E picks it up within 220 cm with a clear line of sight; it stays
+held after releasing the key. E again drops it. Left mouse or Q throws toward
+the center reticle. On a gamepad, X picks up/drops and RT/RB or Y throws.
+Contextual controls and the reticle appear in the Hub HUD.
+
+The root uses analytic sphere collision, CCD, a 0.62 kg mass, restitution 0.50,
+friction, low air damping and backspin. The existing court/hoop mesh uses
+two-sided triangle collision, preserving the opening and actual rim/backboard.
+Aiming through the opening solves a descending ballistic arc to that plane;
+the released ball remains a free Chaos body, including misses and rebounds.
+Character push forces are excluded. A ball lost below/outside the Hub returns
+to its saved position. Holding/release and movement have replication support;
+this change was checked in solo only.
+
+`Tools/Unreal/Hub/author_basketball.py` authors the prop and collision, backing
+up and saving only the two target packages. It preserves designer transforms
+and stores the rim center relative to its hoop actor. The short runtime probe
+is `check_basketball_solo.py`. Editor compilation and the solo check passed:
+pickup/release/re-pickup, following movement, primary/Q throw, passing through
+the rim, backboard/rim rebounds and successive floor bounces. With the initial
+0.78 restitution setting, observed floor
+velocity ratios were approximately 0.79, 0.78 and 0.79. No multiplayer or package
+validation was run. Reports and verified originals are in
+`Saved/HubBasketball_20261021`; pre-existing unsaved Hub and ground edits were
+saved and separately backed up before implementation.
+
+The follow-up reuses the food carry hand pose for the basketball and applies
+the same precise-wrist physics mask; tools stay hidden while holding it.
+The throw speed ceiling is now 2100 cm/s (previously 1300). Aimed rim shots use
+a descending arc with a bounded apex instead of the very tall full-speed high
+arc on short shots. Other aimed throws use the increased speed.
+
+A white dashed trajectory updates while holding the ball and aiming with the
+right mouse button (gamepad LB), ending at the first
+predicted sphere collision. It uses the same launch velocity as the actual
+throw, with gravity and the ball's linear damping. The owned actor RPC sends
+that velocity and validates it against the held state and speed limit.
+Releasing the ball clears the trajectory. Follow-up backups and QA reports
+are under `Saved/HubBasketball_20261021/TrajectoryUpdate`.
+
+Follow-up validation passed: Editor compilation, both food-hand pose targets,
+hidden tools, matching planned/actual launch velocities, and real primary/Q
+shots through the rim from approximately 10.0 and 17.3 m. The preview's spatial
+deviation from the actual free flight stayed below 1.2 cm in the measured
+pre-contact samples. The white dashed arc was reviewed in the standalone PIE
+window. The check stopped cleanly, restored temporary play/performance settings
+and the editor camera, and left no dirty packages. Multiplayer remains untested.
+
+Aim is now held on right mouse (LB on gamepad): the crosshair and trajectory
+appear on press and disappear on release or dropping/throwing the ball. This
+input takes priority over ordinary bracing only while holding the basketball.
+Restitution was reduced from 0.78 to 0.50, reducing rebound height by about 60%
+for an equal impact. Throw strength and in-flight damping are unchanged.
+The focused solo check passed RMB press/release, repeated aiming, drop cleanup
+and reticle visibility. Measured floor rebound velocity ratios were 0.505 and
+0.493. Editor compilation passed; the editor returned to Hub with temporary
+settings restored and no dirty packages. Report: `Saved/HubBasketball_20261021/AimAndBounce/solo_report.json`.
+
+The hoop now celebrates a completed basket with colored paper confetti and
+curled ribbons (`/Game/Hub/VFX/NS_BasketConfetti`). The authoritative ball tick
+interpolates a downward crossing within the opening and waits for the whole
+sphere to clear the rim before sending the cosmetic multicast. The event
+latches once per pass, ignores held/upward/outside entries, and can retrigger
+for the next basket. The 132 opaque mesh particles have random rotation,
+gravity, drag and a 2.4–3.5 second lifetime; the pooled component auto-releases.
+The existing throw, aiming and Chaos bounce settings are unchanged.
+Authoring: `Tools/Unreal/Hub/author_basket_confetti.py`; focused solo check:
+`check_basket_confetti_solo.py`. Evidence is written under
+`Saved/HubBasketballConfetti_20261021`. Editor integration and Niagara compilation
+passed. The final solo check passed all 13 checks: actual pickup/primary throw
+through the hoop, one celebration per pass, automatic effect cleanup, no score
+for outside/upward passes, and a new celebration on the next basket. Gameplay
+camera captures were reviewed and particle size/fill increased for visibility
+against the Hub trees. Temporary compiler/play/performance settings were restored;
+the pre-existing unsaved Hub and sky material edits were preserved. No multiplayer
+or packaged validation was requested.
+
+Restart persistence correction (2026-10-21): the original validation above used
+Live Coding, while the base `UnrealEditor-MessControl.dll` still predated the
+basketball integration. A fresh editor therefore had neither `BasketConfetti`
+nor `BasketsMade`, although the Niagara asset was saved. Recompiled the normal
+`MessControlEditor` target with the editor closed, producing the persistent DLL,
+then reopened Hub normally without a Live Coding compile. All 13 solo gameplay
+checks passed again in that fresh process, and the visible burst was reviewed.
+`check_basket_confetti_cold_start.py` now checks native DLL freshness and the
+saved Hub actor before running that focused gameplay probe. Cold-start/module
+and gameplay evidence is in `Saved/HubBasketballConfetti_20261021/RestartFix`.
+The editor is left open in Hub with its camera/settings restored and no dirty
+packages. No gameplay executable, cook or package was built.
