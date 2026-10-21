@@ -9,6 +9,7 @@ class AMCToothCharacter;
 class USphereComponent;
 class UStaticMeshComponent;
 class UPhysicalMaterial;
+class UNiagaraSystem;
 
 /** A freely simulated hub prop. Holding is explicit; flight always uses Chaos. */
 UCLASS()
@@ -29,6 +30,8 @@ public:
     UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="Basketball|Hoop") TObjectPtr<AActor> Hoop;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Basketball|Hoop") FVector LocalRimCenter=FVector::ZeroVector;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Basketball|Hoop") float RimAimRadius=100.f;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Basketball|Hoop") TObjectPtr<UNiagaraSystem> BasketConfetti;
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Transient, Category="Basketball|Hoop") int32 BasketsMade=0;
     UPROPERTY(ReplicatedUsing=OnRep_Holder, BlueprintReadOnly, Category="Basketball") TObjectPtr<AMCToothCharacter> Holder;
 
     static AMCHubBasketball* HeldBy(const AMCToothCharacter* Hero);
@@ -45,7 +48,14 @@ public:
 private:
     UFUNCTION() void OnRep_Holder();
     void UpdateHeldPosition();
+    void CheckBasket();
+    UFUNCTION(NetMulticast, Reliable) void CelebrateBasket(FVector_NetQuantize Location, FVector_NetQuantizeNormal Up);
     UPROPERTY(Transient) TObjectPtr<UPhysicalMaterial> Rubber;
     FVector Home=FVector::ZeroVector;
     bool bAimHeld=false;
+    FVector PreviousFreePosition=FVector::ZeroVector;
+    bool bHasPreviousFreePosition=false;
+    bool bWasAboveRim=false;
+    bool bPassingThroughRim=false;
+    double LastBasketTime=-10.;
 };

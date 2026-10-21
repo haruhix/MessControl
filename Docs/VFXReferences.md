@@ -1054,3 +1054,43 @@ shader compilation and is not passing evidence.
 
 Particle/transparency and tongue-projection cost still require dedicated runtime
 measurement; no performance, packaged-game or multiplayer claim is made here.
+
+## Hub basketball confetti — 2026-10-21
+
+References reviewed before authoring:
+
+- Cleverlike Studios, [Creating a Niagara Confetti Emitter in Unreal Engine 5](https://dev.epicgames.com/community/learning/tutorials/b8Z0/creating-a-niagara-confetti-emitter-in-unreal-engine-5),
+  with the creator's [published breakdown](https://forums.unrealengine.com/t/community-tutorial-creating-a-niagara-confetti-emitter-in-unreal-engine-5/747932).
+  Adapt the template-based celebratory burst; replace proximity activation with a
+  completed downward basketball pass through the Hub hoop. No tutorial assets copied.
+- Epic, [Create a Mesh Particle Effect in Niagara](https://dev.epicgames.com/documentation/en-us/unreal-engine/create-a-mesh-particle-effect-in-niagara?application_version=4.27).
+  Adapt mesh particles, randomized lifetime/scale/orientation, gravity and drag.
+  Use the project's UE 5.8 lightweight mesh emitter instead of the older tutorial UI.
+- The user's reference: saturated red/blue/yellow/green/violet/pink paper pieces
+  and occasional curled ribbons. No bloom flash, translucent cloud or light needed.
+
+Implemented `/Game/Hub/VFX/NS_BasketConfetti`: one non-looping burst of 132
+mesh particles, weighted 88% bowed paper rectangles / 12% spiral strips, with
+2.4–3.5 second lifetimes, randomized rotation, upward cone velocity, drag,
+downward acceleration and restrained curl noise. Both meshes are generated from
+owned OBJ sources in `ArtSource/VFX/Confetti`; the repeatable editor authoring
+script is `Tools/Unreal/Hub/author_basket_confetti.py`. The two-sided opaque
+paper material uses a six-color palette and a small emission fill for readability
+under the Hub trees. Meshes use 8 / 48 triangles; no translucent particles,
+dynamic lights or collision queries are added by the VFX. Fixed bounds and pooled,
+auto-released Niagara components bound the effect lifetime. GPU cost is not profiled.
+
+The server checks the moving ball against the hoop-local opening plane and
+waits until the whole sphere is below it. A reliable cosmetic multicast places
+the burst 35 cm above the rim; holding, upward entry and outside passes cannot
+qualify. A completed pass latches once, with a short cooldown.
+
+Status: implemented and integrated. Editor Live Coding integration and Niagara
+compile checks passed. The final short solo PIE passed 13 checks, including a
+real pickup/primary shot, exactly one live celebration, automatic pool cleanup,
+outside/upward rejection and a second successful basket. Initial gameplay-camera
+review found the particles too small; the final 1.6–3.0 mesh scale range and 0.45
+emission fill make the six colors and curled strips readable against the trees.
+Final frames at successive actual game times and a GIF preview are retained in
+`Saved/HubBasketballConfetti_20261021`; no composited particles were added.
+No multiplayer, packaged-game or performance-profile validation was run.

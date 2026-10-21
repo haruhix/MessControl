@@ -254,3 +254,22 @@ The focused solo check passed RMB press/release, repeated aiming, drop cleanup
 and reticle visibility. Measured floor rebound velocity ratios were 0.505 and
 0.493. Editor compilation passed; the editor returned to Hub with temporary
 settings restored and no dirty packages. Report: `Saved/HubBasketball_20261021/AimAndBounce/solo_report.json`.
+
+The hoop now celebrates a completed basket with colored paper confetti and
+curled ribbons (`/Game/Hub/VFX/NS_BasketConfetti`). The authoritative ball tick
+interpolates a downward crossing within the opening and waits for the whole
+sphere to clear the rim before sending the cosmetic multicast. The event
+latches once per pass, ignores held/upward/outside entries, and can retrigger
+for the next basket. The 132 opaque mesh particles have random rotation,
+gravity, drag and a 2.4–3.5 second lifetime; the pooled component auto-releases.
+The existing throw, aiming and Chaos bounce settings are unchanged.
+Authoring: `Tools/Unreal/Hub/author_basket_confetti.py`; focused solo check:
+`check_basket_confetti_solo.py`. Evidence is written under
+`Saved/HubBasketballConfetti_20261021`. Editor integration and Niagara compilation
+passed. The final solo check passed all 13 checks: actual pickup/primary throw
+through the hoop, one celebration per pass, automatic effect cleanup, no score
+for outside/upward passes, and a new celebration on the next basket. Gameplay
+camera captures were reviewed and particle size/fill increased for visibility
+against the Hub trees. Temporary compiler/play/performance settings were restored;
+the pre-existing unsaved Hub and sky material edits were preserved. No multiplayer
+or packaged validation was requested.

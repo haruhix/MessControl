@@ -10,6 +10,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
 #include "UObject/ConstructorHelpers.h"
 
 AMCHubBasketball::AMCHubBasketball()
@@ -34,6 +36,8 @@ AMCHubBasketball::AMCHubBasketball()
     Visual->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Sphere(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
     if(Sphere.Succeeded()) Visual->SetStaticMesh(Sphere.Object);
+    static ConstructorHelpers::FObjectFinder<UNiagaraSystem> Confetti(TEXT("/Game/Hub/VFX/NS_BasketConfetti.NS_BasketConfetti"));
+    if(Confetti.Succeeded()) BasketConfetti=Confetti.Object;
 }
 
 void AMCHubBasketball::BeginPlay()
@@ -85,6 +89,7 @@ bool AMCHubBasketball::TryPickup(AMCToothCharacter* Hero)
 
 void AMCHubBasketball::OnRep_Holder()
 {
+    bHasPreviousFreePosition=false; bWasAboveRim=false; bPassingThroughRim=false;
     if(IsValid(Holder)) {
         Body->SetSimulatePhysics(false);
         Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -236,8 +241,51 @@ void AMCHubBasketball::Tick(float DeltaSeconds)
     } else if(HasAuthority() && (GetActorLocation().Z<Home.Z-1500.f || FVector::DistSquared(GetActorLocation(),Home)>FMath::Square(9000.f))) {
         SetActorLocation(Home,false,nullptr,ETeleportType::TeleportPhysics);
         Body->SetPhysicsLinearVelocity(FVector::ZeroVector);Body->SetPhysicsAngularVelocityInRadians(FVector::ZeroVector);
+        bHasPreviousFreePosition=false; bWasAboveRim=false; bPassingThroughRim=false;
         ForceNetUpdate();
     }
+    CheckBasket();
+}
+
+void AMCHubBasketball::CheckBasket()
+{
+    if(!HasAuthority()) return;
+    if(IsValid(Holder) || !IsValid(Hoop) || !Body->IsSimulatingPhysics()) {
+        bHasPreviousFreePosition=false; bWasAboveRim=false; bPassingThroughRim=false; return;
+    }
+    const FVector Position=GetActorLocation();
+    const FVector Center=Hoop->GetActorTransform().TransformPosition(LocalRimCenter);
+    const FVector Up=Hoop->GetActorUpVector();
+    const double Height=FVector::DotProduct(Position-Center,Up);
+    const float BallRadius=Body->GetScaledSphereRadius();
+    if(bHasPreviousFreePosition) {
+        const double PreviousHeight=FVector::DotProduct(PreviousFreePosition-Center,Up);
+        const double DownSpeed=-FVector::DotProduct(Body->GetPhysicsLinearVelocity(),Up);
+        // Sweep the center across the opening so a fast descending shot cannot skip the event.
+        if(bWasAboveRim && PreviousHeight>0. && Height<=0. && DownSpeed>20.) {
+            const FVector Crossing=FMath::Lerp(PreviousFreePosition,Position,PreviousHeight/(PreviousHeight-Height));
+            const float Clearance=FMath::Max(1.f,RimAimRadius-BallRadius);
+            bPassingThroughRim=FVector::DistSquared(Crossing,Center)<=FMath::Square(Clearance);
+            bWasAboveRim=false;
+        }
+        if(bPassingThroughRim) {
+            const FVector Radial=Position-Center-Up*Height;
+            if(DownSpeed<=0. || Radial.SizeSquared()>FMath::Square(RimAimRadius+BallRadius)) bPassingThroughRim=false;
+            else if(Height<-BallRadius && GetWorld()->GetTimeSeconds()-LastBasketTime>.75) {
+                bPassingThroughRim=false; LastBasketTime=GetWorld()->GetTimeSeconds(); ++BasketsMade;
+                CelebrateBasket(Center+Up*35.f,Up);
+            }
+        }
+    }
+    if(Height>BallRadius) bWasAboveRim=true;
+    PreviousFreePosition=Position; bHasPreviousFreePosition=true;
+}
+
+void AMCHubBasketball::CelebrateBasket_Implementation(FVector_NetQuantize Location, FVector_NetQuantizeNormal Up)
+{
+    if(GetNetMode()==NM_DedicatedServer || !BasketConfetti) return;
+    UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,BasketConfetti,Location,
+        FRotationMatrix::MakeFromZ(Up).Rotator(),FVector::OneVector,true,true,ENCPoolMethod::AutoRelease);
 }
 
 void AMCHubBasketball::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
