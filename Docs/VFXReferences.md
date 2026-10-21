@@ -1104,3 +1104,16 @@ The cold-start verifier checks DLL/source freshness, the native effect default
 and the saved Hub ball assignment. Evidence: `RestartFix/cold_start.json`,
 `loaded_modules.json`, `solo_after_restart.json` and `complete.json` under
 `Saved/HubBasketballConfetti_20261021`.
+
+## Stylized turquoise water — 2026-10-21
+
+References reviewed:
+
+- Let's Stylize / GraphicLine, [Make STYLIZED water in under 5 minutes! FILE DOWNLOAD](https://www.youtube.com/watch?v=ysOSGKFX4CA), published 2026-04-17. Adapted the UE Water material, the hard threshold on the combined BeachFoam mask, turquoise color and solid white foam. The original engine materials and the creator's paid scene were not modified or imported.
+- Epic, [Single Layer Water shading model](https://dev.epicgames.com/documentation/en-us/unreal-engine/single-layer-water-shading-model-in-unreal-engine). Retained its scattering/absorption/refraction pipeline and lit surface opacity for foam.
+
+Implemented in `/Game/Art/Materials`: `M_Water_Stylized`, `MF_Water_StylizedFoam`, `MI_Water_Stylized`, and `MI_Water_Stylized_Plane`. The main instance retains Water System wave and Water Body support. The Plane instance disables Water Body dependent displacement/clipping and uses the moving normal surface with a separate scene-depth shoreline mask. It can be assigned to an ordinary horizontal mesh without a Water Body actor. The regular-mesh mask shares the threshold and white lit albedo with the Water System foam; the main instance retains the original animated foam texture and distance/depth detection.
+
+Editable controls include `Foam Threshold`, `Foam Shading`, `Foam Color`, `Foam Shore Width`, `Water Albedo`, `Scattering`, `Absorption`, normal scale/strength and roughness. The three authoring scripts are `Tools/Unreal/author_stylized_water.py`, `add_stylized_water_mesh_foam.py`, and `finish_stylized_water_foam_color.py`.
+
+Status: all four packages saved, final master compilation returned zero errors, and the Plane variant was visually checked on the user's selected plane in the Hub lighting. The temporary material assignment, viewport camera and actor selection were restored. Evidence: `Saved/StylizedWater_20261021/final_verification.json`, `preview_before.json`, and `preview_final.png`. The main instance's Water Body/Gerstner integration, gameplay PIE, GPU cost, multiplayer and packaged builds were not tested. No permanent level integration was made.

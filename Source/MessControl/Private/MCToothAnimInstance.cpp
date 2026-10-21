@@ -759,8 +759,7 @@ public:
             for(bool& Planted:WallPlanted) Planted=false;
             if(Swim>.001f && !Tooth->ClingTooth) {
                 const float Effort=Tooth->AnimationSwimEffort,Phase=Tooth->AnimationStroke;
-                const auto* Water=Move->DeepWaterAt(Tooth->GetActorLocation(),true);
-                const float Surface=Water?Water->SurfaceHeightAt(Tooth->GetActorLocation()):Tooth->GetActorLocation().Z;
+                const float Surface=Move->SwimmingSurfaceHeightAt(Tooth->GetActorLocation());
                 for(int32 Side=0;Side<2;++Side) {
                     const float Sign=Side==0?-1.f:1.f,P=Phase+Side*PI;
                     // The mittens trace a real reach / pull / recovery loop instead

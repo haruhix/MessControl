@@ -380,7 +380,7 @@ bool UMCToothPhysicsComponent::TryRecover()
         FVector PathEnd=Probe;
         if(Water) {
             if(!Movement || Movement->DeepWaterAt(Probe,true)!=Water) continue;
-            Candidate=FVector(Probe.X,Probe.Y,Water->SurfaceHeightAt(Probe)-Water->WaterSettings.SwimFloatDepth);
+            Candidate=FVector(Probe.X,Probe.Y,Movement->SwimmingRestHeightAt(Probe));
         } else {
             FHitResult Support;FCollisionQueryParams FloorParams=Params;bool bSupported=false;
             for(int32 Retry=0;Retry<32;++Retry) {

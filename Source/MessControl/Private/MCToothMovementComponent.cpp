@@ -22,6 +22,31 @@
 #include "EngineUtils.h"
 #include "Engine/ScopedMovementUpdate.h"
 #include "GameFramework/GameStateBase.h"
+#include "GameFramework/PhysicsVolume.h"
+
+struct FMCSwimWaterSample
+{
+    AActor* Source=nullptr;
+    const FMCCoffeeWaterSettings* Settings=nullptr;
+    float Surface=0.f,VerticalSpeed=0.f,Paddle=400.f;
+    FVector Current=FVector::ZeroVector;
+};
+
+namespace
+{
+const FName SafeSwimmingTag(TEXT("SafeSwimming"));
+const FMCCoffeeWaterSettings& StillWaterSettings()
+{
+    static const FMCCoffeeWaterSettings Settings=[]
+    {
+        FMCCoffeeWaterSettings Value;
+        Value.RippleHeight=0.f; Value.WaterDrag=2.4f;
+        Value.VerticalDamping=6.f; Value.SwimStrokeMultiplier=1.7f;
+        return Value;
+    }();
+    return Settings;
+}
+}
 
 FRootMotionSource* FMCLocomotionRootMotionSource::Clone() const { return new FMCLocomotionRootMotionSource(*this); }
 bool FMCLocomotionRootMotionSource::Matches(const FRootMotionSource* Other) const { return FRootMotionSource::Matches(Other); }
@@ -70,8 +95,8 @@ void UMCToothMovementComponent::TickComponent(float Dt,ELevelTick TickType,FActo
         // The mesh simulates while the capsule may still send MOVE_None moves.
         // Survival uses ticks here; their ACKs must not replay this swim ledger.
         const FVector P=Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll?Hero->ToothPhysics->PhysicalLocation():Hero->GetActorLocation();
-        const bool Wet=DeepWaterAt(P,true)!=nullptr;
-        AdvanceSwimPrediction(Dt,Wet,false,0.f);
+        const AActor* Water=DeepWaterAt(P,true);
+        AdvanceSwimPrediction(Dt,Water!=nullptr,Water && Water->ActorHasTag(SafeSwimmingTag),0.f);
     }
     if(Hero->HasAuthority())
     {
@@ -221,7 +246,7 @@ void UMCToothMovementComponent::AdvanceSwimPrediction(float Dt,bool DeepWater,bo
 {
     if(!FMath::IsFinite(Dt) || Dt<=0) return;
     SwimState.bInDeepWater=DeepWater;
-    if(DeepWater)
+    if(DeepWater && !Recover)
     {
         const float Idle=FMath::IsFinite(SwimEnergyPerSecond)?FMath::Max(0.f,SwimEnergyPerSecond):3.5f;
         const float Stroke=FMath::IsFinite(SwimStrokeEnergyPerSecond)?FMath::Max(0.f,SwimStrokeEnergyPerSecond):1.3f;
@@ -250,8 +275,10 @@ void UMCToothMovementComponent::SampleSwimMove(float Dt)
         || Hero->SwallowedBy || Hero->IsMimicCaptured() || !UpdatedComponent) return;
     const auto* Game=GetWorld()->GetGameState<AMCGameState>();
     if(Game && (Game->bTutorialActive || Game->bLobbyWaiting)) return;
-    bSwimDeepSample=DeepWaterAt(UpdatedComponent->GetComponentLocation(),IsSwimming())!=nullptr;
-    bSwimRecoverySample=Hero->IsSeatedOnRaft() || (!bSwimDeepSample && IsMovingOnGround() && CurrentFloor.IsWalkableFloor());
+    const AActor* Water=DeepWaterAt(UpdatedComponent->GetComponentLocation(),IsSwimming());
+    bSwimDeepSample=Water!=nullptr;
+    bSwimRecoverySample=(Water && Water->ActorHasTag(SafeSwimmingTag)) || Hero->IsSeatedOnRaft()
+        || (!bSwimDeepSample && IsMovingOnGround() && CurrentFloor.IsWalkableFloor());
     SwimEffortSample=bSwimDeepSample?FMath::Clamp(float(Acceleration.Size2D())/FMath::Max(1.f,GetMaxAcceleration()),0.f,1.f):0.f;
     AdvanceSwimPrediction(Dt,bSwimDeepSample,bSwimRecoverySample,SwimEffortSample);
 }
@@ -767,22 +794,57 @@ FRotator UMCToothMovementComponent::ComputeOrientToMovementRotation(const FRotat
     }
     return Desired;
 }
-AMCCoffeeFlood* UMCToothMovementComponent::DeepWaterAt(FVector P,bool Continuing) const
+AActor* UMCToothMovementComponent::DeepWaterAt(FVector P,bool Continuing) const
 {
-    if (!CharacterOwner || P.ContainsNaN()) return nullptr;
-    if (const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner); Hero && Hero->IsSeatedOnRaft()) return nullptr;
+    FMCSwimWaterSample Sample;
+    return SampleDeepWater(P,Continuing,Sample)?Sample.Source:nullptr;
+}
+float UMCToothMovementComponent::SwimmingSurfaceHeightAt(FVector P) const
+{
+    FMCSwimWaterSample Sample;
+    return SampleDeepWater(P,true,Sample)?Sample.Surface:P.Z;
+}
+float UMCToothMovementComponent::SwimmingRestHeightAt(FVector P) const
+{
+    FMCSwimWaterSample Sample;
+    return SampleDeepWater(P,true,Sample)?Sample.Surface-Sample.Settings->SwimFloatDepth:P.Z;
+}
+bool UMCToothMovementComponent::SampleDeepWater(FVector P,bool Continuing,FMCSwimWaterSample& Out) const
+{
+    if (!CharacterOwner || P.ContainsNaN()) return false;
+    if (const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner); Hero && Hero->IsSeatedOnRaft()) return false;
     const float Half=CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+    const auto DeepEnough=[&](float Surface)
+    {
+        if (Surface-(P.Z-Half)<Half*(Continuing?.45f:.95f)) return false;
+        FHitResult Floor; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCSwimDepth),false,CharacterOwner);
+        return !GetWorld()->LineTraceSingleByChannel(Floor,P,P-FVector(0,0,Half+1000),ECC_WorldStatic,Params)
+            || Surface-Floor.ImpactPoint.Z>=Half*(Continuing?1.f:1.2f);
+    };
     for (TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It)
     {
         if (It->bRiverFlood || !It->Contains(P)) continue;
         const float Surface=It->SurfaceHeightAt(P);
-        if (Surface-(P.Z-Half)<Half*(Continuing?.45f:.95f)) continue;
-        FHitResult Floor; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCSwimDepth),false,CharacterOwner);
-        if (GetWorld()->LineTraceSingleByChannel(Floor,P,P-FVector(0,0,Half+1000),ECC_WorldStatic,Params)
-            && Surface-Floor.ImpactPoint.Z<Half*(Continuing?1.f:1.2f)) continue;
-        return *It;
+        if (!DeepEnough(Surface)) continue;
+        Out.Source=*It; Out.Settings=&It->WaterSettings; Out.Surface=Surface;
+        Out.VerticalSpeed=It->SurfaceVerticalSpeedAt(P); Out.Paddle=It->Paddle;
+        Out.Current=It->FlowAtPosition(P,CharacterOwner);
+        return true;
     }
-    return nullptr;
+    for (TActorIterator<APhysicsVolume> It(GetWorld());It;++It)
+    {
+        if (!It->bWaterVolume) continue;
+        const FBox Bounds=It->GetComponentsBoundingBox(true);
+        if (!Bounds.IsValid || P.Z<Bounds.Min.Z || P.Z>Bounds.Max.Z+35.f) continue;
+        // A floating capsule's center is slightly above the visible water. Test
+        // the brush footprint at its top rather than dropping surface contact.
+        const FVector Probe(P.X,P.Y,FMath::Clamp(P.Z,Bounds.Min.Z+1.f,Bounds.Max.Z-1.f));
+        if (!It->EncompassesPoint(Probe) || !DeepEnough(Bounds.Max.Z)) continue;
+        Out.Source=*It; Out.Settings=&StillWaterSettings(); Out.Surface=Bounds.Max.Z;
+        Out.VerticalSpeed=0.f; Out.Paddle=400.f; Out.Current=FVector::ZeroVector;
+        return true;
+    }
+    return false;
 }
 bool UMCToothMovementComponent::TryBoardRaft()
 {
@@ -958,17 +1020,17 @@ void UMCToothMovementComponent::PhysSwimming(float Dt,int32 Iterations)
         ++Iterations; const float Step=FMath::Min(Remaining,.033f); Remaining-=Step;
         const FVector Before=UpdatedComponent->GetComponentLocation();
         RestorePreAdditiveRootMotionVelocity();
-        auto* Water=DeepWaterAt(Before,true);
-        if (!Water) { SetMovementMode(MOVE_Falling); StartNewPhysics(Remaining+Step,Iterations); return; }
+        FMCSwimWaterSample Water;
+        if (!SampleDeepWater(Before,true,Water)) { SetMovementMode(MOVE_Falling); StartNewPhysics(Remaining+Step,Iterations); return; }
         if (Hero->ClingTooth) { Velocity=FVector::ZeroVector; return; }
         const FVector Input=FVector(Acceleration.X,Acceleration.Y,0).GetClampedToMaxSize(GetMaxAcceleration())/FMath::Max(1.f,GetMaxAcceleration());
         // The old ragdoll paddle could not overcome the drain. A deliberate stroke
         // is stronger, while an idle swimmer still drifts towards the throat.
-        const FVector Drive=Input*Water->Paddle*Water->WaterSettings.SwimStrokeMultiplier*SwimStrokeStrength()+Water->FlowAtPosition(Before,Hero);
+        const FVector Drive=Input*Water.Paddle*Water.Settings->SwimStrokeMultiplier*SwimStrokeStrength()+Water.Current;
         // Track a rising drink with its vertical speed. Damping against zero
         // velocity previously left the face submerged during fast filling.
-        const FVector RelativeVelocity=Velocity-FVector(0,0,Water->SurfaceVerticalSpeedAt(Before));
-        const FVector A=Water->WaterSettings.FloatAcceleration(Water->SurfaceHeightAt(Before),Before,RelativeVelocity,Drive,0,Water->WaterSettings.SwimFloatDepth);
+        const FVector RelativeVelocity=Velocity-FVector(0,0,Water.VerticalSpeed);
+        const FVector A=Water.Settings->FloatAcceleration(Water.Surface,Before,RelativeVelocity,Drive,0,Water.Settings->SwimFloatDepth);
         Velocity+=A*Step;
         // Custom swimming bypasses CalcVelocity. Keep the same predicted RMB
         // pull here so a deck rider can help an exhausted swimmer reach the lip.
