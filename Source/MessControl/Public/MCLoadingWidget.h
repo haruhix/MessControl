@@ -1,19 +1,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "MCGameplayUIWidget.h"
 #include "MCLoadingWidget.generated.h"
 
 class UButton;
-class UDataTable;
 class UHorizontalBox;
 class UMCWorldPreloadSubsystem;
 class UProgressBar;
 class UTextBlock;
 
-/** Asset-free loading fallback, shared by gameplay and the front end. */
-UCLASS()
-class MESSCONTROL_API UMCLoadingWidget : public UUserWidget
+/** Designer-authored loading screen with a native fallback, shared by gameplay and the front end. */
+UCLASS(Blueprintable)
+class MESSCONTROL_API UMCLoadingWidget : public UMCGameplayUIWidget
 {
     GENERATED_BODY()
 public:
@@ -22,19 +21,26 @@ public:
     void SetWaitingDetail(const FText& Detail);
     void RefreshPresentation();
     UWidget* GetFocusTarget() const;
+    virtual void BuildPresentationTree() override;
+    virtual void ApplyEditorPreview(float Time) override;
+
+    /** Retry and exit controls can also be wired from an authored Blueprint. */
+    UFUNCTION(BlueprintCallable, Category="Loading") void RetryPreparation();
+    UFUNCTION(BlueprintCallable, Category="Loading") void ReturnToMenu();
 
 protected:
-    virtual TSharedRef<SWidget> RebuildWidget() override;
     virtual void NativeOnInitialized() override;
     virtual FReply NativeOnKeyDown(const FGeometry& Geometry,const FKeyEvent& Event) override;
+    virtual void OnLocalizationChanged() override;
+
+    /** Optional custom animation/state feedback; called only when loading presentation changes. */
+    UFUNCTION(BlueprintImplementableEvent, Category="Loading", meta=(DisplayName="Loading Presentation Changed"))
+    void OnLoadingPresentationChanged(float Progress, bool bFailed, bool bWaiting);
 
 private:
-    void BuildTree();
+    void BindPresentationTree();
     FText Text(FName Key,const FText& Russian,const FText& English) const;
-    UFUNCTION() void RetryPreparation();
-    UFUNCTION() void ReturnToMenu();
     UPROPERTY(Transient) TObjectPtr<UMCWorldPreloadSubsystem> Preparation;
-    UPROPERTY(Transient) TObjectPtr<UDataTable> LocalizationTable;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> Title;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> Status;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> Detail;
@@ -46,4 +52,6 @@ private:
     UPROPERTY(Transient) TObjectPtr<UTextBlock> ReturnLabel;
     FText WaitingDetail;
     bool bWaitingForPlayers=false;
+    FString LastPresentationSignature;
+    TWeakObjectPtr<UWidget> BoundPresentationRoot;
 };

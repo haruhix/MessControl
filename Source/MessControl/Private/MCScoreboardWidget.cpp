@@ -147,7 +147,7 @@ void UMCScoreboardWidget::PresentEntries()
 }
 void UMCScoreboardWidget::UpdatePresentationLayout(FVector2D Area)
 {
-    if(!WidgetTree || !Players) return;
+    if(!bUseNativeLayout || !WidgetTree || !Players) return;
     auto* Size=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("ScoreDesignSize")));
     auto* Frame=Cast<UBorder>(WidgetTree->FindWidget(TEXT("ScoreFrame")));
     auto* Column=Frame?Cast<UVerticalBox>(Frame->GetContent()):nullptr;

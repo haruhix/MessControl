@@ -217,7 +217,7 @@ void UMCGameplayMenuWidget::BindPresentationTree()
 
 void UMCGameplayMenuWidget::NormalizePresentationLayout()
 {
-    if(!WidgetTree) return;
+    if(!bUseNativeLayout || !WidgetTree) return;
     auto* Settings=Cast<UVerticalBox>(WidgetTree->FindWidget(TEXT("MenuSettingsPage")));
     if(Settings && VSyncCheck && VSyncCheck->GetParent()==Settings && !WidgetTree->FindWidget(TEXT("MenuVSyncFrame")))
     {
@@ -251,6 +251,7 @@ void UMCGameplayMenuWidget::NormalizePresentationLayout()
 
 void UMCGameplayMenuWidget::UpdatePresentationLayout(FVector2D Area)
 {
+    if(!bUseNativeLayout) return;
     if(!WidgetTree || !Card || !Pages) return;
     auto* Size=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("GameplayMenuSize")));
     auto* Column=Cast<UVerticalBox>(WidgetTree->FindWidget(TEXT("GameplayMenuColumn")));

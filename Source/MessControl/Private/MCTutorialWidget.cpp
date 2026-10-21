@@ -82,10 +82,10 @@ void UMCTutorialWidget::BindPresentationTree()
     MenuButton=Cast<UButton>(WidgetTree->FindWidget(TEXT("TutorialMenuButton")));
     MenuLabel=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("TutorialMenuLabel")));
     CardSlot=nullptr;
-    if(auto* LegacyScale=Cast<UScaleBox>(WidgetTree->FindWidget(TEXT("TutorialScale")))) {LegacyScale->SetStretch(EStretch::None);CardSlot=Cast<UCanvasPanelSlot>(LegacyScale->Slot);}
+    if(auto* LegacyScale=Cast<UScaleBox>(WidgetTree->FindWidget(TEXT("TutorialScale")))) {if(bUseNativeLayout) LegacyScale->SetStretch(EStretch::None);CardSlot=Cast<UCanvasPanelSlot>(LegacyScale->Slot);}
     else if(CardSize) CardSlot=Cast<UCanvasPanelSlot>(CardSize->Slot);
-    if(CardSize) CardSize->SetMaxDesiredHeight(MCTutorialWidgetPrivate::MaximumHeight);
-    if(CardSlot) CardSlot->SetAutoSize(true);
+    if(bUseNativeLayout && CardSize) CardSize->SetMaxDesiredHeight(MCTutorialWidgetPrivate::MaximumHeight);
+    if(bUseNativeLayout && CardSlot) CardSlot->SetAutoSize(true);
     if(ReadyButton) ReadyButton->OnClicked.AddUniqueDynamic(this,&UMCTutorialWidget::ReadyClicked);
     if(MenuButton) MenuButton->OnClicked.AddUniqueDynamic(this,&UMCTutorialWidget::MenuClicked);
     NormalizePresentationLayout();
@@ -93,7 +93,7 @@ void UMCTutorialWidget::BindPresentationTree()
 
 void UMCTutorialWidget::NormalizePresentationLayout()
 {
-    if(!WidgetTree || !ReadyButton) return;
+    if(!bUseNativeLayout || !WidgetTree || !ReadyButton) return;
     auto* Scroll=Cast<UScrollBox>(WidgetTree->FindWidget(TEXT("TutorialBodyScroll")));
     auto* Actions=Cast<UHorizontalBox>(ReadyButton->GetParent());
     if(!Scroll || !Actions) return;
@@ -266,13 +266,13 @@ void UMCTutorialWidget::RefreshState()
 {
     if(IsDesignTime() || bEditorFixture) return;
     if(!Card) BuildPresentationTree();if(!Card) return;
-    if(CardSlot) CardSlot->SetAutoSize(true);
+    if(bUseNativeLayout && CardSlot) CardSlot->SetAutoSize(true);
     const auto* Director=AMCTutorialDirector::Find(GetWorld());const bool Visible=Director && Director->Stage!=EMCTutorialStage::Finished;
     Card->SetVisibility(Visible?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);if(!Visible) return;
     UpdatePortrait();
     const bool Complete=Director->IsComplete();const bool Expanded=Complete || Director->Stage==EMCTutorialStage::Intro || Director->Stage==EMCTutorialStage::Loading;
     DesiredCardHeight=Expanded?MCTutorialWidgetPrivate::ExpandedHeight:MCTutorialWidgetPrivate::LessonHeight;
-    if(CardSize) {CardSize->ClearHeightOverride();CardSize->SetMinDesiredHeight(DesiredCardHeight);}
+    if(bUseNativeLayout && CardSize) {CardSize->ClearHeightOverride();CardSize->SetMinDesiredHeight(DesiredCardHeight);}
     auto Format=[&](FName Key,const FText& Fallback,const FFormatNamedArguments& Args){return UMCUIDataLibrary::FormatTextForCulture(Copy(Key,Fallback),Args,DisplayCulture());};
     if(StageTitle) StageTitle->SetText(Format(TEXT("UI.Tutorial.StageHeading"),LOCTEXT("StageHeading","Обучение · Зубная фея · {StageTitle}"),{{TEXT("StageTitle"),DirectorCopy(Director->Title)}}));
     if(Dialogue) {Dialogue->SetText(DirectorCopy(Director->FairyLine));Dialogue->SetToolTipText(DirectorCopy(Director->FairyLine));}
@@ -319,7 +319,7 @@ void UMCTutorialWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
     Super::NativeTick(Geometry,DeltaSeconds);
     const FVector2D Area=Geometry.GetLocalSize();
-    if (CardSlot && Area.X>0 && Area.Y>0)
+    if (bUseNativeLayout && CardSlot && Area.X>0 && Area.Y>0)
     {
         const float Width=FMath::Min(MCTutorialWidgetPrivate::CardWidth,FMath::Max(280.f,float(Area.X)-32.f));
         // Reflow the text at the actual logical width; shrinking the whole lesson
@@ -433,8 +433,8 @@ void UMCTutorialWidget::ApplyEditorPreview(float Time)
     if(ReadyLabel) ReadyLabel->SetText(Ready?Copy(TEXT("UI.Tutorial.ReadyConfirmed"),LOCTEXT("FixtureReadyConfirmed","Ты готов ✓")):Copy(TEXT("UI.Tutorial.ReadyAction"),LOCTEXT("FixtureReadyAction","Готов")));
     if(Timer) Timer->SetVisibility(ESlateVisibility::Collapsed);
     DesiredCardHeight=bFixtureComplete || PreviewState==TEXT("LongText")?MCTutorialWidgetPrivate::ExpandedHeight:MCTutorialWidgetPrivate::LessonHeight;
-    if(CardSize){CardSize->ClearHeightOverride();CardSize->SetMinDesiredHeight(DesiredCardHeight);}
-    if(CardSlot) {CardSlot->SetAutoSize(true);CardSlot->SetSize(FVector2D(MCTutorialWidgetPrivate::CardWidth,DesiredCardHeight));}
+    if(bUseNativeLayout && CardSize){CardSize->ClearHeightOverride();CardSize->SetMinDesiredHeight(DesiredCardHeight);}
+    if(bUseNativeLayout && CardSlot) {CardSlot->SetAutoSize(true);CardSlot->SetSize(FVector2D(MCTutorialWidgetPrivate::CardWidth,DesiredCardHeight));}
     UpdatePortrait();ApplyTheme();SetRenderOpacity(Time<=0?1.f:FMath::Clamp(Time*6.f,0.f,1.f));
 }
 void UMCTutorialWidget::ResetEditorPreview(){bEditorFixture=false;SetRenderOpacity(1);}

@@ -49,6 +49,55 @@ F03/v8 и ранние белые/пиксельные варианты — ис
 
 В Class Defaults `WBP_BossHealth_v10`, категория `Appearance`, `PortraitBoxSize` задаёт общий конверт портрета 44×44 с сохранением пропорций (`ScaleToFit / DownOnly`). `PortraitScaleByBoss` позволяет отдельно компенсировать прозрачные поля картинки по `BossID`. При authoring начальные оптические коэффициенты вычисляются из размеров содержимого в `TechnicalQA.json`; это редактируемые значения WBP.
 
+## Редактируемые загрузка, хаб и меню — дополнение 21 октября 2026
+
+В `/Game/Gameplay/UI/` добавлены отдельные Designer-деревья для следующих оболочек. Это перенос оформления в WBP; правила загрузки, готовности и сетевые действия остаются в native-классах.
+
+| WBP | Родитель | Роль в `DA_GameplayUITheme → Widgets → WidgetClasses` |
+|---|---|---|
+| `WBP_Loading` | `UMCLoadingWidget` | `Loading` |
+| `WBP_Hub` | `UMCHubWidget` | `Hub` |
+| `WBP_MainMenu` | `UMCMainMenuWidget` | `MainMenu` |
+
+Контроллеры создают оболочки через `UMCGameplayUIFactory::ResolveClass`; при отсутствующей или несовместимой записи используется native fallback. В существующем `/Game/UI/MainMenu3D/WBP_MainMenu3D` встроенное меню подключения/настроек также использует класс `WBP_MainMenu`. Саму 3D-сцену ртов продолжать редактировать в `WBP_MainMenu3D` и её сценовых ассетах. Дополнение расширяет доступность Designer; прежняя граница художественного переоформления главного меню остаётся в силе.
+
+**Рабочий порядок:** открыть нужный WBP → изменить иерархию, размеры, anchors, padding, изображения и анимации → скомпилировать и сохранить. Существующий authored root не заменяется при обновлении состояния. Имена и типы перечисленных ниже служебных элементов сохранять: native presenter находит их по имени; внутри панелей и кнопок можно добавлять обёртки и декор. Тексты состояния, числа, доступность действий и видимость частей продолжают обновляться из игровых данных.
+
+| Оболочка | Имена элементов, используемые presenter |
+|---|---|
+| Loading | `LoadingRoot` — Canvas; `LoadingTitle`, `LoadingStatus`, `LoadingDetail`, `LoadingAssetLabel` — TextBlock; `LoadingAssetProgress` — ProgressBar; `RetryLoading`, `LeaveLoading` — Button; `RetryLoadingLabel`, `LeaveLoadingLabel` — TextBlock |
+| Hub | `HubCanvas` — Canvas; `HubMouthPresentation` — Overlay для сцены выбора; `HubReadinessPanel`, `HubSelectionFooter` — Border; `HubReadinessTitle`, `HubReadinessCount`, `HubPlayerNames`, `HubReadinessHint`, `HubSelectionTitle`, `HubSelectionStatus` — TextBlock; `HubOpenSelection`, `HubLaunch`, `HubReturn`, `HubMouthHit1`–`HubMouthHit3` — `UMCHubActionButton`; подписи трёх основных кнопок имеют суффикс `Label` |
+| MainMenu | `MenuBackdrop`, `MenuCard` — Border; `MenuTitle`, `MenuStatus`, `MenuNavigationHint` — TextBlock; `MenuPages` — WidgetSwitcher; `Menu<Page>_Page` — корень соответствующей страницы. Настройки: `MenuSettings_ResolutionPicker`, `MenuSettings_WindowModePicker`, `MenuSettings_QualityPicker` — ComboBoxString; `MenuSettings_VSyncCheck` — CheckBox. Подключение: `MenuJoin_RoomPicker`, `MenuJoin_AddressBox`; создание комнаты: `MenuHost_TutorialCheck` |
+
+В `WBP_MainMenu` все 11 страниц сохраняются одновременно в `MenuPages`: `Main`, `Host`, `Join`, `Settings`, `Credits`, `Exit`, `Lobby`, `Leave`, `VideoConfirm`, `Pause`, `Connection`. Переключение не удаляет и не строит их заново. Для редактирования страницы выбрать `PreviewPage` в Class Defaults; распознанное имя в `PreviewState`, например `Settings`, имеет приоритет. Кнопки типа `UMCMainMenuActionButton` имеют редактируемое поле `Action`: оно выбирает существующее действие, а содержимое и стиль кнопки принадлежат Designer. Для встроенной оболочки `bUseEmbeddedPresentationStyle` разрешает палитру, переданную 3D front end; отключить его, если оформление целиком задаётся в WBP.
+
+`StyleBindings` продолжает связывать конкретные цвета/шрифты/кисти с общей темой. Чтобы Designer полностью владел стилем отдельного элемента, убрать соответствующую запись из `StyleBindings`; иначе тема применит её повторно. `TextBindings` аналогично связывает статические подписи с ключами таблицы переводов. `bUseNativeLayout` — настройка совместимости для компонентов с legacy runtime-коррекцией геометрии: отключать при собственной компоновке в таких компонентах. Флаг не отключает игровые обновления и не заменяет `StyleBindings`; три новые оболочки дополнительно сохраняют существующее authored дерево независимо от native fallback-генерации.
+
+У `WBP_Loading` кнопки автоматически и однократно привязываются к текущему экземпляру: `RetryLoading → RetryPreparation()`, `LeaveLoading → ReturnToMenu()`. При собственных кнопках эти BlueprintCallable-функции можно вызвать из Blueprint; не добавлять второй вызов поверх автоматического обработчика. Для дополнительной анимации предусмотрено событие **Loading Presentation Changed** (`Progress`, `bFailed`, `bWaiting`); оно вызывается при изменении представления. Для preview доступны состояния `Default`, `Waiting`, `Failed`.
+
+Техническая Slate-заставка `UMCTravelLoadingSubsystem`/MoviePlayer на время блокирующей загрузки карты остаётся native и применяется вне Editor. `WBP_Loading` отвечает за подготовку уже загруженного мира и ожидание участников. Служебный/dev UI, включая F1/F3, также остаётся native. Динамические строки, элементы списков и другие зависимые от данных дочерние элементы могут создаваться C++; наличие WBP не означает, что любая runtime-геометрия стала статической. В solo PIE проверены настоящее окно загрузки, переход к первому перку и обычная подача еды; это не проверка холодного кеша драйвера или готовой Windows-сборки.
+
+### Расширенные настройки — интеграция и solo-проверка 21 октября
+
+Страница `MenuSettings_Page` в `WBP_MainMenu` содержит переключатель `MenuSettings_Sections` с четырьмя вкладками. `PreviewSettingsTab` (0–3) или состояния `Settings`, `SettingsAudio`, `SettingsLanguage`, `SettingsControls` позволяют просматривать их в Designer.
+
+| Вкладка | Параметры |
+|---|---|
+| Графика | Разрешение, режим экрана, FPS, масштаб рендера, общий пресет, текстуры, тени, эффекты, постобработка, сглаживание, дальность, VSync |
+| Аудио | Master, Music, Ambience, SFX; пользовательские множители поверх авторских значений DA |
+| Язык | 10 культур существующей таблицы; незаполненные переводы используют русский fallback |
+| Управление | Отдельная чувствительность мыши и геймпада, инверсия Y; только локальная камера |
+
+`UMCGameUserSettings` хранит пользовательские значения в GameUserSettings. Ползунки меняют ожидающие применения значения; «Применить» сохраняет их, «Назад» отбрасывает несохранённые изменения при следующем открытии. Для смены разрешения/режима остаётся подтверждение на 15 секунд. Статические подписи используют `UI.Settings.*` в общей DT. Значения `%`/`×` обновляет presenter.
+
+Настройки наследуют `GetResolvedTheme()` и общую палитру; новый `StyleBindings.Target=Slider` применяет цвета полосы, ручки и состояний. Собственные RGB не нужны. Стандартные ComboBox и CheckBox сохраняют редактируемые стили UMG. `Tools/Unreal/UI/update_editable_settings.py` интегрировал страницу в сохранённый `WBP_MainMenu`, сохранив остальные страницы; новые ключи добавлены в `DT_UI_Localization` без замены существующих строк.
+
+Сборка `MessControlEditor` успешна. В целевых native-проверках прошли 13 разных тестов: 11 в `Native04` и две исправленные проверки в `Native05`. В настоящем solo PIE `check_editable_settings_solo.py` проверил четыре вкладки, 10 вариантов языка без дубликатов, отложенное применение, сохранение и повторное чтение настроек, отмену неприменённых изменений, чувствительность и инверсию камеры. После проверки пользовательские параметры и настройки графики восстановлены. Аудиопроверка подтверждает расчёт коэффициентов и подключение настроек; видео из кадров не содержит звука и не является проверкой прослушиванием. Физическое нажатие кнопок мышью/геймпадом и все режимы монитора не перебирались. Cook/package и сетевые проверки не выполнялись.
+
+Сохранённые превью четырёх вкладок проверены основным агентом и независимым агентом: кнопка «Назад» и четыре аудиоползунка видны целиком. Графические параметры находятся во внутренней прокрутке. Полный перевод игры на все 10 языков этим изменением не заявляется; незаполненные строки используют существующий fallback.
+
+Видео: [настройки](E:/DEVGAME/MessControl/Artifacts/EditableUI_20261021/Settings.mp4), [загрузка и начало игры](E:/DEVGAME/MessControl/Artifacts/EditableUI_20261021/LoadingMouth.mp4), [хаб и выбор карты](E:/DEVGAME/MessControl/Artifacts/EditableUI_20261021/Hub.mp4). [Отчёт](E:/DEVGAME/MessControl/Artifacts/EditableUI_20261021/Validation.json) содержит охват, ограничения и найденные отдельные дефекты. В прогоне замечено краткое появление квадратной основы нового пятна перед его обычной фигурной формой; код грязи не менялся в этом UI-проходе, точная причина готовности ресурсов рендера не установлена.
+
 ## Три таблицы данных
 
 Ссылки назначаются в `DA_GameplayUITheme → Theme → Data`. RowStruct и lookup описаны в [MCUIDataTypes.h](E:/DEVGAME/MessControl/Source/MessControl/Public/MCUIDataTypes.h) и [MCUIDataLibrary.h](E:/DEVGAME/MessControl/Source/MessControl/Public/MCUIDataLibrary.h).

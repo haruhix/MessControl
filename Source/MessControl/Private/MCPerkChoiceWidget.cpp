@@ -151,7 +151,7 @@ void UMCPerkChoiceWidget::BuildPresentationTree()
 
 void UMCPerkChoiceWidget::NormalizePresentationLayout()
 {
-    if(!WidgetTree) return;
+    if(!bUseNativeLayout || !WidgetTree) return;
     if(auto* Size=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("RewardPanelSize")))) {Size->SetWidthOverride(bWaitingForTeam?760:1040);Size->SetHeightOverride(bWaitingForTeam?280:680);}
     if(PanelBorder) PanelBorder->SetPadding(FMargin(18));
     if(HeaderBorder) {HeaderBorder->SetPadding(FMargin(14,8));if(auto* LayoutSlot=Cast<UVerticalBoxSlot>(HeaderBorder->Slot)) LayoutSlot->SetPadding(FMargin(0,0,0,8));}

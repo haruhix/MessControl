@@ -328,7 +328,32 @@ void UMCGameplayHUD::BindAuthoredPresentation()
     if(auto* Booster=Cast<UMCBoosterWidget>(WidgetTree->FindWidget(TEXT("BoosterWidget")))) BoosterWidget=Booster;
     if(auto* Resource=Cast<UMCStaminaWidget>(WidgetTree->FindWidget(TEXT("StaminaWidget")))) StaminaWidget=Resource;
     if(auto* Resource=Cast<UMCStaminaWidget>(WidgetTree->FindWidget(TEXT("SwimEnergyWidget")))) SwimEnergyWidget=Resource;
+    if(auto* Alerts=Cast<UMCGameplayAlertWidget>(WidgetTree->FindWidget(TEXT("GameplayAlerts")))) AlertWidget=Alerts;
+    // Older authored trees can contain the same component under its generated
+    // UObject name. Reuse it instead of adding a second full-screen alert host.
+    if(!AlertWidget) WidgetTree->ForEachWidget([this](UWidget* Widget) {
+        if(!AlertWidget) AlertWidget=Cast<UMCGameplayAlertWidget>(Widget);
+    });
+    BindDirectorPresentation();
     CachePresentationWidgets();
+}
+void UMCGameplayHUD::BindDirectorPresentation()
+{
+    if(!WidgetTree) return;
+    DirectorPanel=Cast<UBorder>(WidgetTree->FindWidget(TEXT("DirectorMonitor")));
+    DirectorPanelSize=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("DirectorMonitorSize")));
+    DirectorText=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("DirectorMonitorText")));
+    DirectorCandidatesPanel=Cast<UBorder>(WidgetTree->FindWidget(TEXT("DirectorCandidates")));
+    DirectorCandidatesText=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("DirectorCandidatesText")));
+    DirectorLogButton=Cast<UButton>(WidgetTree->FindWidget(TEXT("DirectorLogButton")));
+    DirectorLogButtonText=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("DirectorLogButtonText")));
+    // Compatibility with a tree seeded before these children had stable names.
+    if(!DirectorPanelSize && DirectorPanel) DirectorPanelSize=Cast<USizeBox>(DirectorPanel->GetContent());
+    if(!DirectorText && DirectorPanelSize) DirectorText=Cast<UTextBlock>(DirectorPanelSize->GetContent());
+    if(!DirectorCandidatesText && DirectorCandidatesPanel)
+        if(auto* Size=Cast<USizeBox>(DirectorCandidatesPanel->GetContent())) DirectorCandidatesText=Cast<UTextBlock>(Size->GetContent());
+    if(!DirectorLogButtonText && DirectorLogButton) DirectorLogButtonText=Cast<UTextBlock>(DirectorLogButton->GetContent());
+    if(DirectorLogButton) DirectorLogButton->OnClicked.AddUniqueDynamic(this,&ThisClass::OpenDirectorLog);
 }
 void UMCGameplayHUD::BuildPresentationTree()
 {
@@ -417,6 +442,9 @@ void UMCGameplayHUD::BuildPresentationTree()
     auto* StaminaHost=Place(Root,StaminaWidget,{0,-20},{336,56},{.5f,1});StaminaHost->SetAlignment(FVector2D(.5f,1));StaminaHost->SetAutoSize(true);
     SwimEnergyWidget=WidgetTree->ConstructWidget<UMCStaminaWidget>(UMCGameplayUIFactory::ResolveClass(TEXT("Stamina"),UMCStaminaWidget::StaticClass()),TEXT("SwimEnergyWidget"));SwimEnergyWidget->bShowSwimEnergy=true;
     auto* SwimHost=Place(Root,SwimEnergyWidget,{0,-98},{336,56},{.5f,1});SwimHost->SetAlignment(FVector2D(.5f,1));SwimHost->SetAutoSize(true);SwimEnergyWidget->SetVisibility(ESlateVisibility::Collapsed);
+    // Seed late-added presentation in the initial tree too, so a newly authored
+    // WBP exposes these controls to the Designer before it ever enters gameplay.
+    EnsureDirectorMonitor();EnsureBoosterWidget();EnsureAlertWidget();
     BindAuthoredPresentation();ApplyTheme();
 }
 
@@ -479,7 +507,7 @@ void UMCGameplayHUD::ApplyResourceTheme(UMCStaminaWidget* Resource)
 
 void UMCGameplayHUD::UpdatePhase1Layout()
 {
-    if(!WidgetTree || !Find(TEXT("TimerClock"))) return; // Preserve historical authored trees.
+    if(!bUseNativeLayout || !WidgetTree || !Find(TEXT("TimerClock"))) return; // Preserve historical or freely authored trees.
     const auto& PaintGeometry=GetPaintSpaceGeometry();
     if(PaintGeometry.GetLocalSize().X>1.f) LayoutLogicalWidth=PaintGeometry.GetLocalSize().X;
     const float GeometryScale=PaintGeometry.GetAccumulatedLayoutTransform().GetScale();
@@ -591,6 +619,7 @@ void UMCGameplayHUD::UpdatePhase1Layout()
 void UMCGameplayHUD::EnsureBoosterWidget()
 {
     if(BoosterWidget || !WidgetTree) return;
+    if(auto* Existing=WidgetTree->FindWidget(TEXT("BoosterWidget"))) {BoosterWidget=Cast<UMCBoosterWidget>(Existing);return;}
     auto* Root=Cast<UCanvasPanel>(WidgetTree->FindWidget(TEXT("HUDRoot")));if(!Root) Root=Cast<UCanvasPanel>(WidgetTree->RootWidget);if(!Root) return;
     BoosterWidget=WidgetTree->ConstructWidget<UMCBoosterWidget>(BoosterWidgetClass?BoosterWidgetClass.Get():UMCGameplayUIFactory::ResolveClass(TEXT("Booster"),UMCBoosterWidget::StaticClass()),TEXT("BoosterWidget"));
     auto* BoosterHost=MCGameplayHUDPresentationPrivate::Place(Root,BoosterWidget,{22,-282},{304,120},{0,1});
@@ -733,11 +762,14 @@ void UMCGameplayHUD::NativeOnInitialized()
 }
 void UMCGameplayHUD::EnsureAlertWidget()
 {
-    if(AlertWidget || !WidgetTree || (!IsDesignTime() && !bApplyingPreview && !GetOwningPlayer())) return;
+    if(AlertWidget || !WidgetTree) return;
+    if(auto* Existing=WidgetTree->FindWidget(TEXT("GameplayAlerts"))) {AlertWidget=Cast<UMCGameplayAlertWidget>(Existing);return;}
+    WidgetTree->ForEachWidget([this](UWidget* Widget) {if(!AlertWidget) AlertWidget=Cast<UMCGameplayAlertWidget>(Widget);});
+    if(AlertWidget || (!IsDesignTime() && !bApplyingPreview && !GetOwningPlayer())) return;
     auto* Root=Cast<UCanvasPanel>(WidgetTree->FindWidget(TEXT("HUDRoot")));
     if(!Root) Root=Cast<UCanvasPanel>(WidgetTree->RootWidget);
     if(!Root) return;
-    AlertWidget=WidgetTree->ConstructWidget<UMCGameplayAlertWidget>(AlertWidgetClass?AlertWidgetClass.Get():UMCGameplayUIFactory::ResolveClass(TEXT("GameplayAlert"),UMCGameplayAlertWidget::StaticClass()));
+    AlertWidget=WidgetTree->ConstructWidget<UMCGameplayAlertWidget>(AlertWidgetClass?AlertWidgetClass.Get():UMCGameplayUIFactory::ResolveClass(TEXT("GameplayAlert"),UMCGameplayAlertWidget::StaticClass()),TEXT("GameplayAlerts"));
     if(!AlertWidget) return;
     auto* AlertSlot=Root->AddChildToCanvas(AlertWidget);
     AlertSlot->SetAnchors(FAnchors(0,0,1,1)); AlertSlot->SetOffsets(FMargin(0)); AlertSlot->SetZOrder(50);
@@ -849,13 +881,19 @@ void UMCGameplayHUD::RefreshGameplayAlerts()
 void UMCGameplayHUD::EnsureCataclysmPanel()
 {
     if(CataclysmPanel || !WidgetTree) return;
+    if(auto* Existing=WidgetTree->FindWidget(TEXT("CataclysmPanel"))) {
+        CataclysmPanel=Cast<UBorder>(Existing);
+        CataclysmInstruction=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("CataclysmInstruction")));
+        if(!CataclysmInstruction && CataclysmPanel) CataclysmInstruction=Cast<UTextBlock>(CataclysmPanel->GetContent());
+        return;
+    }
     auto* Root=Cast<UCanvasPanel>(WidgetTree->FindWidget(TEXT("HUDRoot")));
     if(!Root) Root=Cast<UCanvasPanel>(WidgetTree->RootWidget);
     if(!Root) return;
-    CataclysmPanel=WidgetTree->ConstructWidget<UBorder>();
+    CataclysmPanel=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("CataclysmPanel"));
     CataclysmPanel->SetPadding(FMargin(12,10)); CataclysmPanel->SetBrushColor(MCGameplayHUDPrivate::Ink);
     CataclysmPanel->SetVisibility(ESlateVisibility::Collapsed);
-    CataclysmInstruction=WidgetTree->ConstructWidget<UTextBlock>();
+    CataclysmInstruction=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("CataclysmInstruction"));
     CataclysmInstruction->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),13));
     CataclysmInstruction->SetColorAndOpacity(FSlateColor(MCGameplayHUDPrivate::White));
     CataclysmInstruction->SetWrapTextAt(280); CataclysmInstruction->SetAutoWrapText(true);
@@ -866,17 +904,23 @@ void UMCGameplayHUD::EnsureCataclysmPanel()
 void UMCGameplayHUD::EnsureProgressionPanel()
 {
     if(ProgressionPanel || !WidgetTree) return;
+    if(auto* Existing=WidgetTree->FindWidget(TEXT("TeamProgression"))) {
+        ProgressionPanel=Cast<UBorder>(Existing);
+        ProgressionText=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("ProgressionText")));
+        ProgressionBar=Cast<UProgressBar>(WidgetTree->FindWidget(TEXT("ProgressionBar")));
+        return;
+    }
     auto* Root=Cast<UCanvasPanel>(WidgetTree->FindWidget(TEXT("HUDRoot")));
     if(!Root) Root=Cast<UCanvasPanel>(WidgetTree->RootWidget);
     if(!Root) return;
     ProgressionPanel=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("TeamProgression"));
     ProgressionPanel->SetPadding(FMargin(14,8)); ProgressionPanel->SetBrushColor(MCGameplayHUDPrivate::Ink);
     ProgressionPanel->SetVisibility(ESlateVisibility::Collapsed);
-    auto* Column=WidgetTree->ConstructWidget<UVerticalBox>(); ProgressionPanel->SetContent(Column);
-    ProgressionText=WidgetTree->ConstructWidget<UTextBlock>();
+    auto* Column=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("ProgressionColumn")); ProgressionPanel->SetContent(Column);
+    ProgressionText=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("ProgressionText"));
     ProgressionText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),14));
     ProgressionText->SetColorAndOpacity(FSlateColor(MCGameplayHUDPrivate::White)); Column->AddChildToVerticalBox(ProgressionText);
-    ProgressionBar=WidgetTree->ConstructWidget<UProgressBar>(); ProgressionBar->SetFillColorAndOpacity(MCGameplayHUDPrivate::Mint);
+    ProgressionBar=WidgetTree->ConstructWidget<UProgressBar>(UProgressBar::StaticClass(),TEXT("ProgressionBar")); ProgressionBar->SetFillColorAndOpacity(MCGameplayHUDPrivate::Mint);
     Column->AddChildToVerticalBox(ProgressionBar);
     auto* XPPanelSlot=Root->AddChildToCanvas(ProgressionPanel); XPPanelSlot->SetAnchors(FAnchors(.5f,0));
     XPPanelSlot->SetAlignment(FVector2D(.5f,0)); XPPanelSlot->SetPosition(FVector2D(0,116)); XPPanelSlot->SetSize(FVector2D(330,58));
@@ -884,6 +928,8 @@ void UMCGameplayHUD::EnsureProgressionPanel()
 void UMCGameplayHUD::EnsureDirectorMonitor()
 {
     if((DirectorPanel && DirectorCandidatesPanel && DirectorLogButton) || !WidgetTree) return;
+    BindDirectorPresentation();
+    if(DirectorPanel && DirectorCandidatesPanel && DirectorLogButton) return;
     // Use the authored design canvas so the sidebar follows its viewport scale.
     auto* Root=Cast<UCanvasPanel>(WidgetTree->FindWidget(TEXT("HUDRoot")));
     if(!Root) Root=Cast<UCanvasPanel>(WidgetTree->RootWidget);
@@ -893,11 +939,12 @@ void UMCGameplayHUD::EnsureDirectorMonitor()
         Panel=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),Name);
         Panel->SetPadding(FMargin(12,10));Panel->SetBrushColor(MCGameplayHUDPrivate::Ink);
         Panel->SetVisibility(ESlateVisibility::Collapsed);
-        auto* PanelSize=WidgetTree->ConstructWidget<USizeBox>();
+        auto* PanelSize=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),FName(*(Name.ToString()+TEXT("Size"))));
         PanelSize->SetWidthOverride(Width);PanelSize->SetMaxDesiredHeight(600);
         PanelSize->SetClipping(EWidgetClipping::ClipToBounds);Panel->SetContent(PanelSize);
-        TextWidget=WidgetTree->ConstructWidget<UTextBlock>();
-        TextWidget->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),11));
+        TextWidget=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),FName(*(Name.ToString()+TEXT("Text"))));
+        // Use a saved font asset: FCoreStyle's transient composite does not survive a WBP round-trip.
+        TextWidget->SetFont(GetResolvedTheme()->MakeGameplayFont(14,false));
         TextWidget->SetColorAndOpacity(FSlateColor(MCGameplayHUDPrivate::White));
         TextWidget->SetWrapTextAt(Width);TextWidget->SetAutoWrapText(false);
         PanelSize->SetContent(TextWidget);
@@ -905,21 +952,21 @@ void UMCGameplayHUD::EnsureDirectorMonitor()
         PanelSlot->SetAlignment(FVector2D(1,0));PanelSlot->SetPosition(FVector2D(RightOffset,Top));PanelSlot->SetAutoSize(true);
         return PanelSize;
     };
-    if(!DirectorPanel) DirectorPanelSize=AddPanel(TEXT("DirectorMonitor"),DirectorPanel,DirectorText,280,-22,338);
+    if(!DirectorPanel && !WidgetTree->FindWidget(TEXT("DirectorMonitor"))) DirectorPanelSize=AddPanel(TEXT("DirectorMonitor"),DirectorPanel,DirectorText,280,-22,338);
     // The second column ends before the observation column and stays right of
     // the arena centre, leaving the player portraits and bottom controls clear.
-    if(!DirectorCandidatesPanel) AddPanel(TEXT("DirectorCandidates"),DirectorCandidatesPanel,DirectorCandidatesText,306,-362,144);
-    if (!DirectorLogButton) {
+    if(!DirectorCandidatesPanel && !WidgetTree->FindWidget(TEXT("DirectorCandidates"))) AddPanel(TEXT("DirectorCandidates"),DirectorCandidatesPanel,DirectorCandidatesText,306,-362,144);
+    if (!DirectorLogButton && !WidgetTree->FindWidget(TEXT("DirectorLogButton"))) {
         DirectorLogButton=WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(),TEXT("DirectorLogButton"));
         DirectorLogButton->SetBackgroundColor(MCGameplayHUDPrivate::Ink);
         DirectorLogButton->SetToolTipText(FText::FromString(TEXT("Открыть общий журнал забега и решения директора. F3 доступен также с клавиатуры.")));
-        DirectorLogButtonText=WidgetTree->ConstructWidget<UTextBlock>();
-        DirectorLogButtonText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),11));
+        DirectorLogButtonText=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("DirectorLogButtonText"));
+        DirectorLogButtonText->SetFont(GetResolvedTheme()->MakeGameplayFont(11));
         DirectorLogButtonText->SetColorAndOpacity(FSlateColor(MCGameplayHUDPrivate::Mint));
         DirectorLogButtonText->SetText(FText::FromString(TEXT("F3 · ЖУРНАЛ ДИРЕКТОРА")));
         auto* Content=CastChecked<UButtonSlot>(DirectorLogButton->AddChild(DirectorLogButtonText));
         Content->SetPadding(FMargin(12,8));
-        DirectorLogButton->OnClicked.AddDynamic(this,&UMCGameplayHUD::OpenDirectorLog);
+        DirectorLogButton->OnClicked.AddUniqueDynamic(this,&UMCGameplayHUD::OpenDirectorLog);
         auto* LogSlot=Root->AddChildToCanvas(DirectorLogButton);LogSlot->SetAnchors(FAnchors(1,0));
         LogSlot->SetAlignment(FVector2D(1,0));LogSlot->SetPosition(FVector2D(-22,96));LogSlot->SetAutoSize(true);
         LogSlot->SetZOrder(10);
@@ -932,7 +979,6 @@ void UMCGameplayHUD::OpenDirectorLog()
 void UMCGameplayHUD::RefreshDirectorMonitor(const FMCGameDirectorState& State)
 {
     EnsureDirectorMonitor();
-    if(!DirectorPanel || !DirectorText) return;
     const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
     const bool Debug=(State.bEnabled || (GS && !GS->DirectorDecisionLog.IsEmpty())) && MCGameplayHUDPrivate::DirectorDebug.GetValueOnGameThread()>0;
     if (DirectorLogButton) {
@@ -942,23 +988,27 @@ void UMCGameplayHUD::RefreshDirectorMonitor(const FMCGameDirectorState& State)
         DirectorLogButton->SetVisibility(ESlateVisibility::Visible);
 #endif
         const bool FragmentComplete=GS && GS->SingleDayDirector && GS->SingleDayDirector->bAuthoredFragmentComplete;
-        DirectorLogButtonText->SetText(FText::FromString(FragmentComplete?TEXT("ФРАГМЕНТ ГОТОВ · F3 / ЖУРНАЛ"):TEXT("F3 · ЖУРНАЛ ДИРЕКТОРА")));
+        if(DirectorLogButtonText) DirectorLogButtonText->SetText(FText::FromString(FragmentComplete?TEXT("ФРАГМЕНТ ГОТОВ · F3 / ЖУРНАЛ"):TEXT("F3 · ЖУРНАЛ ДИРЕКТОРА")));
     }
+    if(!DirectorPanel || !DirectorText) return;
     DirectorPanel->SetVisibility(State.bEnabled || Debug?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     if(DirectorCandidatesPanel) DirectorCandidatesPanel->SetVisibility(Debug?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     if(auto* Events=Find(TEXT("EventsPanel")))
         Events->SetVisibility(Debug?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);
     if(!State.bEnabled) return;
-    const float Width=Debug?306.f:280.f;
-    DirectorPanelSize->SetWidthOverride(Width);DirectorText->SetWrapTextAt(Width);
-    if(auto* PanelSlot=Cast<UCanvasPanelSlot>(DirectorPanel->Slot)) PanelSlot->SetPosition(FVector2D(-22,Debug?144:338));
+    if(bAutoArrangeDirectorMonitor) {
+        const float Width=Debug?306.f:280.f;
+        if(DirectorPanelSize) DirectorPanelSize->SetWidthOverride(Width);
+        DirectorText->SetWrapTextAt(Width);
+        if(auto* PanelSlot=Cast<UCanvasPanelSlot>(DirectorPanel->Slot)) PanelSlot->SetPosition(FVector2D(-22,Debug?144:338));
+    }
     if(GS && GS->bSingleDayLoop && !Debug) {
         if(State.Instruction.IsEmpty()) DirectorPanel->SetVisibility(ESlateVisibility::Collapsed);
-        DirectorText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),14));
+        if(bAutoArrangeDirectorMonitor) DirectorText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),14));
         DirectorText->SetText(FText::FromString(State.Instruction));
         return;
     }
-    DirectorText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),11));
+    if(bAutoArrangeDirectorMonitor) DirectorText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),11));
     using namespace MCGameplayHUDPrivate;
     FString Value=PacingName(State.Pacing)+FString::Printf(TEXT(" · сложность %.2f\nНагрузка %.2f · цель %.2f"),State.Difficulty,State.Pressure,State.TargetPressure);
     if(!State.Instruction.IsEmpty()) Value+=TEXT("\n")+ShortLine(State.Instruction,92);

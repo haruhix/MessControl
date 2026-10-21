@@ -6,6 +6,7 @@
 #include "MCUIDataLibrary.h"
 #include "MCGameplayUIFactory.h"
 #include "MCGameplayUITheme.h"
+#include "MCGameUserSettings.h"
 #include "Blueprint/WidgetTree.h"
 #include "Brushes/SlateColorBrush.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
@@ -13,20 +14,27 @@
 #include "Components/CheckBox.h"
 #include "Components/ComboBoxString.h"
 #include "Components/EditableTextBox.h"
+#include "Components/HorizontalBox.h"
+#include "Components/HorizontalBoxSlot.h"
 #include "Components/ScaleBox.h"
 #include "Components/ScrollBox.h"
 #include "Components/SizeBox.h"
+#include "Components/Slider.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
+#include "Components/WidgetSwitcher.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "GameFramework/GameUserSettings.h"
 #include "GameFramework/PlayerState.h"
 #include "InputCoreTypes.h"
+#include "Internationalization/Culture.h"
+#include "Internationalization/Internationalization.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Styling/CoreStyle.h"
+#include "UObject/UnrealType.h"
 
 namespace MCMainMenuPrivate
 {
@@ -40,6 +48,11 @@ namespace MCMainMenuPrivate
     const FName TutorialMap(TEXT("/Game/Maps/L_Tutorial"));
     const FLinearColor TextColor(.94f,.96f,.97f);
     const FLinearColor Accent(.26f,.78f,.65f);
+    constexpr float FrameRates[]={0,30,60,90,120,144,165,240};
+    const TCHAR* QualityControlNames[]={TEXT("TexturePicker"),TEXT("ShadowPicker"),TEXT("EffectsPicker"),TEXT("PostProcessPicker"),TEXT("AAPicker"),TEXT("ViewDistancePicker")};
+    const TCHAR* SliderNames[]={TEXT("RenderScaleSlider"),TEXT("MasterSlider"),TEXT("MusicSlider"),TEXT("AmbienceSlider"),TEXT("SFXSlider"),TEXT("MouseSlider"),TEXT("GamepadSlider")};
+    TArray<FString> LanguageCodes() {return {TEXT("ru"),TEXT("en"),TEXT("de"),TEXT("fr"),TEXT("es"),TEXT("pt-BR"),TEXT("zh-Hans"),TEXT("zh-Hant"),TEXT("ja"),TEXT("ko")};}
+    TArray<FString> LanguageNames() {return {TEXT("Русский"),TEXT("English"),TEXT("Deutsch"),TEXT("Français"),TEXT("Español"),TEXT("Português (Brasil)"),TEXT("简体中文"),TEXT("繁體中文"),TEXT("日本語"),TEXT("한국어")};}
 
     FButtonStyle EmbeddedButtonStyle(const FButtonStyle& Base, const FMCEmbeddedMenuStyle& Theme, bool bPrimary)
     {
@@ -76,22 +89,88 @@ void UMCMainMenuActionButton::Clicked()
     if (Menu) Menu->HandleAction(Action);
 }
 
+void UMCMainMenuPicker::SetPresentationOptions(const TArray<FString>& InOptions,int32 SelectedIndex)
+{
+    // DefaultOptions is private in stock UMG. It is the serialized source used
+    // by PostLoad; AddOption alone only fills the non-reflected runtime array.
+    if(auto* Property=FindFProperty<FArrayProperty>(UComboBoxString::StaticClass(),TEXT("DefaultOptions")))
+        *Property->ContainerPtrToValuePtr<TArray<FString>>(this)=InOptions;
+    ClearOptions();for(const auto& Option:InOptions) AddOption(Option);
+    if(!InOptions.IsEmpty()) SetSelectedIndex(FMath::Clamp(SelectedIndex,0,InOptions.Num()-1));
+}
+
+void UMCMainMenuPicker::PostDuplicate(EDuplicateMode::Type DuplicateMode)
+{
+    Super::PostDuplicate(DuplicateMode);
+    RestorePresentationOptions();
+}
+
+void UMCMainMenuPicker::PostLoad()
+{
+    Super::PostLoad();
+    // StaticDuplicateObjectEx routes PostDuplicate and then PostLoad. Stock
+    // ComboBoxString::PostLoad appends every default again, so normalize after
+    // that callback too. This also handles a disk load after PostInitProperties.
+    RestorePresentationOptions();
+}
+
+void UMCMainMenuPicker::RestorePresentationOptions()
+{
+    auto* Defaults=FindFProperty<FArrayProperty>(UComboBoxString::StaticClass(),TEXT("DefaultOptions"));
+    auto* Selection=FindFProperty<FStrProperty>(UComboBoxString::StaticClass(),TEXT("SelectedOption"));
+    if(!Defaults || !Selection) return;
+    const auto SavedOptions=*Defaults->ContainerPtrToValuePtr<TArray<FString>>(this);
+    const FString Selected=Selection->GetPropertyValue_InContainer(this);
+    ClearOptions();for(const FString& Option:SavedOptions) AddOption(Option);
+    // An intentionally empty/removed Designer selection stays unselected.
+    SetSelectedOption(Selected);
+}
+
 FString UMCMainMenuWidget::LocalizedCopy(FName Key,const FString& Fallback) const
 {
-    return UMCUIDataLibrary::ResolveText(UMCUIDataLibrary::GetDefaultLocalizationTable(),Key,FText::AsCultureInvariant(Fallback)).ToString();
+    const FString Copy=Localized(Key,FText::AsCultureInvariant(Fallback)).ToString();
+    LocalizationKeysByCopy.Add(Copy,Key);
+    return Copy;
 }
 FString UMCMainMenuWidget::FormatCopy(FName Key,const FString& Fallback,const FFormatNamedArguments& Arguments) const
 {
     return UMCUIDataLibrary::FormatTextForCulture(UMCUIDataLibrary::ResolveText(
-        UMCUIDataLibrary::GetDefaultLocalizationTable(),Key,FText::AsCultureInvariant(Fallback)),Arguments).ToString();
+        GetResolvedTranslationTable(),Key,FText::AsCultureInvariant(Fallback)),Arguments).ToString();
 }
 
 void UMCMainMenuWidget::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
     SetIsFocusable(true);
+    BuildPresentationTree();
+    if (!IsDesignTime()) ShowPage(EPage::Main);
+}
 
-    Backdrop=WidgetTree->ConstructWidget<UBorder>();
+FName UMCMainMenuWidget::PageWidgetName(const TCHAR* Suffix) const
+{
+    static const TCHAR* PageNames[]={TEXT("Main"),TEXT("Host"),TEXT("Join"),TEXT("Settings"),TEXT("Credits"),
+        TEXT("Exit"),TEXT("Lobby"),TEXT("Leave"),TEXT("VideoConfirm"),TEXT("Pause"),TEXT("Connection")};
+    return FName(*FString::Printf(TEXT("Menu%s_%s"),PageNames[FMath::Clamp(int32(Page),0,UE_ARRAY_COUNT(PageNames)-1)],Suffix));
+}
+
+void UMCMainMenuWidget::CacheRootControls()
+{
+    if (!WidgetTree) return;
+    Backdrop=Cast<UBorder>(WidgetTree->FindWidget(TEXT("MenuBackdrop")));
+    Card=Cast<UBorder>(WidgetTree->FindWidget(TEXT("MenuCard")));
+    TitleText=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("MenuTitle")));
+    StatusText=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("MenuStatus")));
+    HintText=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("MenuNavigationHint")));
+    Pages=Cast<UWidgetSwitcher>(WidgetTree->FindWidget(TEXT("MenuPages")));
+}
+
+void UMCMainMenuWidget::BuildPresentationTree()
+{
+    if (!WidgetTree) return;
+    if (WidgetTree->RootWidget) { CacheRootControls(); return; }
+    bNativeLayout=true;
+    TGuardValue<bool> Building(bBuildingTemplate,true);
+    Backdrop=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("MenuBackdrop"));
     Backdrop->SetBrushColor(FLinearColor(.015f,.025f,.035f,.98f));
     Backdrop->SetPadding(FMargin(28));
     Backdrop->SetHorizontalAlignment(HAlign_Center);
@@ -104,13 +183,13 @@ void UMCMainMenuWidget::NativeOnInitialized()
     Backdrop->SetContent(Scale);
     auto* Size=WidgetTree->ConstructWidget<USizeBox>();
     Size->SetWidthOverride(540); Size->SetHeightOverride(680);
-    Card=WidgetTree->ConstructWidget<UBorder>();
+    Card=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("MenuCard"));
     Card->SetBrushColor(FLinearColor::Transparent);
     Card->SetPadding(FMargin(0));
     Scale->SetContent(Card);
     Card->SetContent(Size);
     auto* Main=WidgetTree->ConstructWidget<UVerticalBox>(); Size->SetContent(Main);
-    TitleText=WidgetTree->ConstructWidget<UTextBlock>();
+    TitleText=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("MenuTitle"));
     TitleText->SetText(FText::FromString(LocalizedCopy(TEXT("UI.MainMenu.BrandTitle"),TEXT("MESS CONTROL"))));
     TitleText->SetFont(MCMainMenuPrivate::Font(TEXT("Bold"),36));
     TitleText->SetColorAndOpacity(FSlateColor(MCMainMenuPrivate::Accent));
@@ -118,25 +197,84 @@ void UMCMainMenuWidget::NativeOnInitialized()
 
     auto* Scroll=WidgetTree->ConstructWidget<UScrollBox>();
     Main->AddChildToVerticalBox(Scroll)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
-    Content=WidgetTree->ConstructWidget<UVerticalBox>(); Scroll->AddChild(Content);
-    StatusText=WidgetTree->ConstructWidget<UTextBlock>();
+    Pages=WidgetTree->ConstructWidget<UWidgetSwitcher>(UWidgetSwitcher::StaticClass(),TEXT("MenuPages"));
+    Scroll->AddChild(Pages);
+    StatusText=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("MenuStatus"));
     StatusText->SetFont(MCMainMenuPrivate::Font(TEXT("Regular"),14));
     StatusText->SetColorAndOpacity(FSlateColor(MCMainMenuPrivate::Accent));
     StatusText->SetAutoWrapText(true);
     Main->AddChildToVerticalBox(StatusText)->SetPadding(FMargin(0,14,0,0));
-    HintText=WidgetTree->ConstructWidget<UTextBlock>();
+    HintText=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("MenuNavigationHint"));
     HintText->SetText(FText::FromString(LocalizedCopy(TEXT("UI.MainMenu.NavigationHint"),TEXT("Мышь / ↑↓ / D-pad · Enter / A — выбрать · Esc / B — назад"))));
     HintText->SetFont(MCMainMenuPrivate::Font(TEXT("Regular"),12));
     HintText->SetColorAndOpacity(FSlateColor(MCMainMenuPrivate::TextColor));
     HintText->SetAutoWrapText(true);
     Main->AddChildToVerticalBox(HintText)->SetPadding(FMargin(0,10,0,0));
-    ShowPage(EPage::Main);
+
+    TextBindings.Add(TEXT("MenuNavigationHint"),TEXT("UI.MainMenu.NavigationHint"));
+    const EPage PreviousPage=Page;
+    for (int32 Index=0;Index<=int32(EPage::Connection);++Index)
+    {
+        Page=EPage(Index);
+        TemplateTextIndex=0;
+        Content=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),PageWidgetName(TEXT("Page")));
+        Pages->AddChild(Content);
+        BuildPageContents();
+    }
+    Page=PreviousPage;
+    Pages->SetActiveWidgetIndex(int32(Page));
+    Content=Cast<UVerticalBox>(Pages->GetActiveWidget());
+    Buttons.Reset();OnlineButtons.Reset();GamepadTargets.Reset();
+}
+
+UWidget* UMCMainMenuWidget::GetActiveMenuPageRoot() const
+{
+    return Pages?Pages->GetActiveWidget():nullptr;
+}
+
+void UMCMainMenuWidget::ApplyEditorPreview(float Time)
+{
+    PreviewTime=FMath::Max(0.f,Time);
+    BuildPresentationTree();
+    if (Pages)
+    {
+        const int64 StatePage=StaticEnum<EMCMainMenuPage>()->GetValueByNameString(PreviewState.ToString());
+        Page=PreviewState.ToString().StartsWith(TEXT("Settings"))?EPage::Settings:
+            StatePage>=0 && StatePage<=int64(EPage::Connection)?EPage(StatePage):PreviewPage;
+        if (auto* Root=WidgetTree->FindWidget(PageWidgetName(TEXT("Page")))) Pages->SetActiveWidget(Root);
+    }
+    if(Page==EPage::Settings)
+    {
+        CacheSettingsControls();
+        int32 Tab=PreviewSettingsTab;
+        if(PreviewState==TEXT("SettingsAudio")) Tab=1;
+        else if(PreviewState==TEXT("SettingsLanguage")) Tab=2;
+        else if(PreviewState==TEXT("SettingsControls")) Tab=3;
+        SwitchSettingsTab(Tab);RefreshSettingsValueLabels();
+    }
+    ApplyTheme();
 }
 
 void UMCMainMenuWidget::NativeConstruct()
 {
     Super::NativeConstruct();
-    FocusFirst();
+    if (!IsDesignTime()) { ApplyPresentation(); RefreshPageData(false); FocusFirst(); }
+}
+
+void UMCMainMenuWidget::OnLocalizationChanged()
+{
+    Super::OnLocalizationChanged();
+    if (!IsDesignTime() && Pages)
+    {
+        ApplyPresentation();
+        // Only localized option copy changes; unsaved selections, resolution and VSync remain intact.
+        if (Page==EPage::Settings && WindowModePicker && QualityPicker)
+        {
+            RefreshSettingsOptionLabels(WindowModePicker->GetSelectedIndex(),QualityPicker->GetSelectedIndex(),QualityPicker->GetOptionCount()>5);
+            RefreshSettingsQualityOptions(true);RefreshSettingsValueLabels();
+        }
+        RefreshPageData(false);
+    }
 }
 
 void UMCMainMenuWidget::NativeDestruct()
@@ -146,9 +284,12 @@ void UMCMainMenuWidget::NativeDestruct()
     Super::NativeDestruct();
 }
 
-UTextBlock* UMCMainMenuWidget::AddText(const FString& Text, int32 Size)
+UTextBlock* UMCMainMenuWidget::AddText(const FString& Text, int32 Size, const TCHAR* Suffix)
 {
-    auto* Label=WidgetTree->ConstructWidget<UTextBlock>();
+    const FString GeneratedSuffix=FString::Printf(TEXT("Text%d"),++TemplateTextIndex);
+    auto* Label=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),PageWidgetName(Suffix?Suffix:*GeneratedSuffix));
+    const bool bDynamic=Suffix && (FCString::Strcmp(Suffix,TEXT("ModeBody"))==0 || FCString::Strcmp(Suffix,TEXT("Players"))==0);
+    if (!bDynamic) if (const FName* Key=LocalizationKeysByCopy.Find(Text)) TextBindings.Add(Label->GetFName(),*Key);
     Label->SetText(FText::FromString(Text));
     Label->SetFont(MCMainMenuPrivate::Font(TEXT("Regular"),Size));
     Label->SetColorAndOpacity(FSlateColor(MenuTextColor()));
@@ -159,8 +300,10 @@ UTextBlock* UMCMainMenuWidget::AddText(const FString& Text, int32 Size)
 
 UMCMainMenuActionButton* UMCMainMenuWidget::AddButton(const FString& Text, EMCMainMenuAction Action)
 {
-    auto* Button=WidgetTree->ConstructWidget<UMCMainMenuActionButton>();
-    Button->Configure(this,Action);
+    const FString Suffix=FString::Printf(TEXT("Action%d"),int32(Action));
+    auto* Button=WidgetTree->ConstructWidget<UMCMainMenuActionButton>(UMCMainMenuActionButton::StaticClass(),PageWidgetName(*Suffix));
+    Button->Action=Action;
+    if (!bBuildingTemplate) Button->Configure(this,Action);
     Button->SetBackgroundColor(FLinearColor(.07f,.15f,.19f));
     const bool bEmbedded=EmbeddedRoot!=EEmbeddedRoot::None;
     const bool bPrimary=Action==EMCMainMenuAction::CreateLobby || Action==EMCMainMenuAction::Host
@@ -171,16 +314,24 @@ UMCMainMenuActionButton* UMCMainMenuWidget::AddButton(const FString& Text, EMCMa
         Button->SetStyle(MCMainMenuPrivate::EmbeddedButtonStyle(Button->GetStyle(),EmbeddedStyle,bPrimary));
         Button->SetBackgroundColor(FLinearColor::White);
     }
-    auto* Label=WidgetTree->ConstructWidget<UTextBlock>();
+    auto* Label=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),PageWidgetName(*(Suffix+TEXT("Label"))));
     static const TCHAR* ActionNames[]={TEXT("Tutorial"),TEXT("CreateLobby"),TEXT("JoinLobby"),TEXT("Settings"),TEXT("Credits"),TEXT("Exit"),TEXT("Back"),TEXT("Host"),TEXT("FindRooms"),TEXT("JoinRoom"),TEXT("JoinAddress"),TEXT("ApplySettings"),TEXT("KeepSettings"),TEXT("RevertSettings"),TEXT("StartLobby"),TEXT("Invite"),TEXT("LeaveLobby"),TEXT("ConfirmLeave"),TEXT("ConfirmExit"),TEXT("Resume"),TEXT("Emotes")};
     static_assert(UE_ARRAY_COUNT(ActionNames)==int32(EMCMainMenuAction::Emotes)+1,"Keep action keys aligned with the existing menu actions");
     FName Key(*(FString(TEXT("UI.MainMenu.Action."))+ActionNames[FMath::Clamp(int32(Action),0,int32(UE_ARRAY_COUNT(ActionNames))-1)]));
     if(Action==EMCMainMenuAction::Back && (Page==EPage::Exit || Page==EPage::Leave)) Key=TEXT("UI.MainMenu.Action.Cancel");
     if(Action==EMCMainMenuAction::LeaveLobby && Page==EPage::Pause) Key=TEXT("UI.MainMenu.Action.ReturnToMenu");
+    if(Page==EPage::Settings && Action==EMCMainMenuAction::ApplySettings) Key=TEXT("UI.Settings.Apply");
+    if(Page==EPage::Settings && Action==EMCMainMenuAction::Back) Key=TEXT("UI.Settings.Back");
     Label->SetText(FText::FromString(LocalizedCopy(Key,Text)));
+    TextBindings.Add(Label->GetFName(),Key);
     Label->SetFont(MCMainMenuPrivate::Font(TEXT("Bold"),19));
     Label->SetColorAndOpacity(FSlateColor(bEmbedded && bPrimary?EmbeddedStyle.CardColor:MenuTextColor()));
     Label->SetJustification(ETextJustify::Center);
+    if(Page==EPage::Settings)
+    {
+        BindStyle(Button->GetFName(),EMCUIColorToken::Button,EMCUIStyleTarget::Button);
+        BindStyle(Label->GetFName(),EMCUIColorToken::ButtonText,EMCUIStyleTarget::Text,19,true);
+    }
     auto* ButtonPadding=WidgetTree->ConstructWidget<UBorder>();
     ButtonPadding->SetBrushColor(FLinearColor::Transparent); ButtonPadding->SetPadding(FMargin(14,9));
     ButtonPadding->SetContent(Label); Button->SetContent(ButtonPadding);
@@ -190,11 +341,13 @@ UMCMainMenuActionButton* UMCMainMenuWidget::AddButton(const FString& Text, EMCMa
     return Button;
 }
 
-UComboBoxString* UMCMainMenuWidget::AddPicker(const FString& Label)
+UComboBoxString* UMCMainMenuWidget::AddPicker(const FString& Label, const TCHAR* Suffix)
 {
-    AddText(Label,15);
-    auto* Picker=WidgetTree->ConstructWidget<UComboBoxString>();
-    Picker->OnGenerateWidgetEvent.BindDynamic(this,&ThisClass::GeneratePickerItem);
+    const FString LabelSuffix=FString(Suffix)+TEXT("Label");
+    AddText(Label,15,*LabelSuffix);
+    auto* Picker=WidgetTree->ConstructWidget<UMCMainMenuPicker>(UMCMainMenuPicker::StaticClass(),PageWidgetName(Suffix));
+    Picker->InitializePresentationFont(MCMainMenuPrivate::Font(TEXT("Regular"),17));
+    if (!bBuildingTemplate) Picker->OnGenerateWidgetEvent.BindDynamic(this,&ThisClass::GeneratePickerItem);
     if (EmbeddedRoot!=EEmbeddedRoot::None)
     {
         FComboBoxStyle Style=Picker->GetWidgetStyle();
@@ -212,7 +365,8 @@ UWidget* UMCMainMenuWidget::GeneratePickerItem(FString Item)
     auto* Label=WidgetTree->ConstructWidget<UTextBlock>();
     Label->SetText(FText::FromString(Item));
     Label->SetFont(MCMainMenuPrivate::Font(TEXT("Regular"),17));
-    Label->SetColorAndOpacity(FSlateColor(MenuTextColor()));
+    const auto* ThemeData=GetResolvedTheme();
+    Label->SetColorAndOpacity(FSlateColor(Page==EPage::Settings && ThemeData?ThemeData->Palette.Ink:MenuTextColor()));
     return Label;
 }
 
@@ -221,7 +375,7 @@ void UMCMainMenuWidget::FocusFirst()
     if (!GetOwningPlayer()) return;
     for (UButton* Button:Buttons)
     {
-        if (Button && Button->GetIsEnabled()) { Button->SetUserFocus(GetOwningPlayer()); return; }
+        if (Button && Button->GetIsEnabled() && Button->IsVisible()) { Button->SetUserFocus(GetOwningPlayer()); return; }
     }
     SetUserFocus(GetOwningPlayer());
 }
@@ -247,17 +401,67 @@ bool UMCMainMenuWidget::CanLaunchEmbeddedDay() const
         || (EmbeddedRoot==EEmbeddedRoot::Connection && EmbeddedSelectedDay==1);
 }
 
+void UMCMainMenuWidget::ApplyEmbeddedDesignerStyle(bool bEmbedded)
+{
+    if (!WidgetTree) return;
+    bEmbedded&=bUseEmbeddedPresentationStyle;
+    if (bEmbedded && !bEmbeddedStyleApplied)
+    {
+        if (Backdrop) {DesignerBackdropBrush=Backdrop->Background;DesignerBackdropColor=Backdrop->GetBrushColor();}
+        if (Card) {DesignerCardBrush=Card->Background;DesignerCardColor=Card->GetBrushColor();DesignerCardPadding=Card->GetPadding();}
+        WidgetTree->ForEachWidget([this](UWidget* Widget)
+        {
+            if (auto* Button=Cast<UButton>(Widget)) {DesignerButtonStyles.Add(Button,Button->GetStyle());DesignerButtonColors.Add(Button,Button->GetBackgroundColor());}
+            if (auto* Text=Cast<UTextBlock>(Widget)) DesignerTextColors.Add(Text,Text->GetColorAndOpacity());
+        });
+        bEmbeddedStyleApplied=true;
+    }
+    if (!bEmbedded)
+    {
+        if (!bEmbeddedStyleApplied) return;
+        if (Backdrop) {Backdrop->SetBrush(DesignerBackdropBrush);Backdrop->SetBrushColor(DesignerBackdropColor);}
+        if (Card) {Card->SetBrush(DesignerCardBrush);Card->SetBrushColor(DesignerCardColor);Card->SetPadding(DesignerCardPadding);}
+        for (const auto& Entry:DesignerButtonStyles) if (IsValid(Entry.Key)) Entry.Key->SetStyle(Entry.Value);
+        for (const auto& Entry:DesignerButtonColors) if (IsValid(Entry.Key)) Entry.Key->SetBackgroundColor(Entry.Value);
+        for (const auto& Entry:DesignerTextColors) if (IsValid(Entry.Key)) Entry.Key->SetColorAndOpacity(Entry.Value);
+        DesignerButtonStyles.Reset();DesignerButtonColors.Reset();DesignerTextColors.Reset();
+        bEmbeddedStyleApplied=false;
+        return;
+    }
+    if (Backdrop) {Backdrop->SetBrush(FSlateColorBrush(EmbeddedStyle.bTransparentBackdrop?FLinearColor::Transparent:EmbeddedStyle.CardColor));Backdrop->SetBrushColor(FLinearColor::White);}
+    if (Card) {Card->SetBrush(FSlateRoundedBoxBrush(EmbeddedStyle.CardColor,FMath::Clamp(EmbeddedStyle.CornerRadius,0.f,32.f)));Card->SetBrushColor(FLinearColor::White);Card->SetPadding(FMargin(24));}
+    for (const auto& Entry:DesignerTextColors) if (IsValid(Entry.Key)) Entry.Key->SetColorAndOpacity(FSlateColor(EmbeddedStyle.TextColor));
+    for (const auto& Entry:DesignerButtonStyles)
+    {
+        auto* Button=Cast<UMCMainMenuActionButton>(Entry.Key);
+        if (!Button) continue;
+        const bool bPrimary=Button->Action==EMCMainMenuAction::CreateLobby || Button->Action==EMCMainMenuAction::Host
+            || Button->Action==EMCMainMenuAction::JoinRoom || Button->Action==EMCMainMenuAction::JoinAddress
+            || Button->Action==EMCMainMenuAction::ApplySettings || Button->Action==EMCMainMenuAction::KeepSettings;
+        Button->SetStyle(MCMainMenuPrivate::EmbeddedButtonStyle(Entry.Value,EmbeddedStyle,bPrimary));
+        Button->SetBackgroundColor(FLinearColor::White);
+        if (bPrimary) UWidgetTree::ForWidgetAndChildren(Button,[this](UWidget* Child)
+        {if (auto* Text=Cast<UTextBlock>(Child)) Text->SetColorAndOpacity(FSlateColor(EmbeddedStyle.CardColor));});
+    }
+    if (TitleText) TitleText->SetColorAndOpacity(FSlateColor(EmbeddedStyle.AccentColor));
+    if (StatusText) StatusText->SetColorAndOpacity(FSlateColor(EmbeddedStyle.AccentColor));
+}
+
 void UMCMainMenuWidget::ApplyPresentation()
 {
     const bool bEmbedded=EmbeddedRoot!=EEmbeddedRoot::None;
-    if (Backdrop)
+    // Settings share the project's theme rather than inheriting the old
+    // embedded menu's independent palette. Authored bindings stay opt-in.
+    ApplyEmbeddedDesignerStyle(bEmbedded && Page!=EPage::Settings);
+    if(Page==EPage::Settings) {ApplyTheme();return;}
+    if (Backdrop && bNativeLayout)
     {
         const FLinearColor Color=bEmbedded && EmbeddedStyle.bTransparentBackdrop?FLinearColor::Transparent:
             bEmbedded?EmbeddedStyle.CardColor:FLinearColor(.015f,.025f,.035f,.98f);
         Backdrop->SetBrush(FSlateColorBrush(Color));
         Backdrop->SetBrushColor(FLinearColor::White);
     }
-    if (Card)
+    if (Card && bNativeLayout)
     {
         Card->SetBrush(FSlateRoundedBoxBrush(bEmbedded?EmbeddedStyle.CardColor:FLinearColor::Transparent,
             FMath::Clamp(EmbeddedStyle.CornerRadius,0.f,32.f)));
@@ -275,11 +479,14 @@ void UMCMainMenuWidget::ApplyPresentation()
                 FormatCopy(TEXT("UI.MainMenu.EmbeddedDayTitle"),TEXT("DAY {Day} / {Species}"),{{TEXT("Day"),FText::AsCultureInvariant(FString::Printf(TEXT("%02d"),EmbeddedSelectedDay))},{TEXT("Species"),FText::AsCultureInvariant(Species)}}):LocalizedCopy(TEXT("UI.MainMenu.DayUnavailable"),TEXT("DAY —"));
         }
         TitleText->SetText(FText::FromString(Title));
-        TitleText->SetFont(MCMainMenuPrivate::Font(TEXT("Bold"),bEmbedded?30:36));
-        TitleText->SetColorAndOpacity(FSlateColor(MenuAccentColor()));
+        if (bNativeLayout)
+        {
+            TitleText->SetFont(MCMainMenuPrivate::Font(TEXT("Bold"),bEmbedded?30:36));
+            TitleText->SetColorAndOpacity(FSlateColor(MenuAccentColor()));
+        }
     }
-    if (StatusText) StatusText->SetColorAndOpacity(FSlateColor(MenuAccentColor()));
-    if (HintText) HintText->SetColorAndOpacity(FSlateColor(MenuTextColor()));
+    if (StatusText && bNativeLayout) StatusText->SetColorAndOpacity(FSlateColor(MenuAccentColor()));
+    if (HintText && bNativeLayout) HintText->SetColorAndOpacity(FSlateColor(MenuTextColor()));
 }
 
 void UMCMainMenuWidget::LeaveEmbeddedMode()
@@ -377,7 +584,7 @@ bool UMCMainMenuWidget::NormalizeJoinAddress(const FString& Input, FString& OutA
 void UMCMainMenuWidget::SetStatus(const FString& Text)
 {
     if(!StatusText) return;
-    UDataTable* Table=UMCUIDataLibrary::GetDefaultLocalizationTable();FName Key=NAME_None;
+    UDataTable* Table=GetResolvedTranslationTable();FName Key=NAME_None;
     if(!Text.IsEmpty() && Table && Table->GetRowStruct()==FMCUILocalizationRow::StaticStruct()) {
         for(const auto& Entry:Table->GetRowMap()) {
             if(!Entry.Key.ToString().StartsWith(TEXT("UI.Connection.Status."),ESearchCase::CaseSensitive)) continue;
@@ -396,7 +603,7 @@ void UMCMainMenuWidget::ShowLobby()
     LeaveEmbeddedMode();
     bLobby=true;
     bPauseMenu=false;
-    if (Content) ShowPage(EPage::Lobby);
+    ShowPage(EPage::Lobby);
 }
 
 void UMCMainMenuWidget::ShowPause()
@@ -404,38 +611,20 @@ void UMCMainMenuWidget::ShowPause()
     LeaveEmbeddedMode();
     bPauseMenu=true;
     bLobby=false;
-    if (Content) ShowPage(EPage::Pause);
+    ShowPage(EPage::Pause);
 }
 
-void UMCMainMenuWidget::ShowPage(EPage NewPage)
+void UMCMainMenuWidget::BuildPageContents()
 {
-    Page=NewPage;
-    if (!Content) return;
-    ApplyPresentation();
-    Content->ClearChildren(); Buttons.Reset(); OnlineButtons.Reset(); GamepadTargets.Reset(); NextStickNavigationAt=0;
-    RoomPicker=nullptr; AddressBox=nullptr; ResolutionPicker=nullptr; WindowModePicker=nullptr;
-    QualityPicker=nullptr; VSyncCheck=nullptr; HostTutorialCheck=nullptr; LobbyPlayers=nullptr; StartButton=nullptr;
-    LastSearchRevision=INDEX_NONE;
-    SetStatus(TEXT(""));
-    auto* Steam=MCMainMenuPrivate::Sessions(this);
-    const bool bSteam=Steam && Steam->CanUseSteam();
-    LastSessionStatus=Steam?Steam->GetStatus():FString();
-
     switch (Page)
     {
     case EPage::Connection:
-        if (CanLaunchEmbeddedDay())
-        {
-            AddText(LocalizedCopy(TEXT("UI.MainMenu.ConnectionHeading"),TEXT("PLAY TOGETHER")),24);
-            AddText(LocalizedCopy(TEXT("UI.MainMenu.ConnectionBody"),TEXT("Создай комнату для обычной смены или присоединись к друзьям.")));
-            OnlineButtons.Add(AddButton(TEXT("Create Lobby"),EMCMainMenuAction::CreateLobby));
-            OnlineButtons.Add(AddButton(TEXT("Join Lobby"),EMCMainMenuAction::JoinLobby));
-        }
-        else
-        {
-            AddText(LocalizedCopy(TEXT("UI.MainMenu.ComingSoon"),TEXT("COMING SOON")),24);
-            AddText(LocalizedCopy(TEXT("UI.MainMenu.DayUnavailableBody"),TEXT("Игровой контент этого дня ещё не подключён. Пока доступна игра в Day 01.")));
-        }
+        AddText(LocalizedCopy(TEXT("UI.MainMenu.ConnectionHeading"),TEXT("PLAY TOGETHER")),24,TEXT("AvailableHeading"));
+        AddText(LocalizedCopy(TEXT("UI.MainMenu.ConnectionBody"),TEXT("Создай комнату для обычной смены или присоединись к друзьям.")),17,TEXT("AvailableBody"));
+        OnlineButtons.Add(AddButton(TEXT("Create Lobby"),EMCMainMenuAction::CreateLobby));
+        OnlineButtons.Add(AddButton(TEXT("Join Lobby"),EMCMainMenuAction::JoinLobby));
+        AddText(LocalizedCopy(TEXT("UI.MainMenu.ComingSoon"),TEXT("COMING SOON")),24,TEXT("UnavailableHeading"));
+        AddText(LocalizedCopy(TEXT("UI.MainMenu.DayUnavailableBody"),TEXT("Игровой контент этого дня ещё не подключён. Пока доступна игра в Day 01.")),17,TEXT("UnavailableBody"));
         AddButton(TEXT("Back"),EMCMainMenuAction::Back);
         break;
     case EPage::Main:
@@ -450,34 +639,33 @@ void UMCMainMenuWidget::ShowPage(EPage NewPage)
         break;
     case EPage::Host:
         AddText(LocalizedCopy(TEXT("UI.MainMenu.HostHeading"),TEXT("CREATE LOBBY")),24);
-        HostTutorialCheck=WidgetTree->ConstructWidget<UCheckBox>();
+        HostTutorialCheck=WidgetTree->ConstructWidget<UCheckBox>(UCheckBox::StaticClass(),PageWidgetName(TEXT("TutorialCheck")));
         GamepadTargets.Add(HostTutorialCheck);
         {
-            auto* Label=WidgetTree->ConstructWidget<UTextBlock>();
+            auto* Label=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),PageWidgetName(TEXT("TutorialLabel")));
+            TextBindings.Add(Label->GetFName(),TEXT("UI.MainMenu.StartWithTutorial"));
             Label->SetText(FText::FromString(LocalizedCopy(TEXT("UI.MainMenu.StartWithTutorial"),TEXT("Начать с обучения"))));
             Label->SetFont(MCMainMenuPrivate::Font(TEXT("Regular"),17));
             Label->SetColorAndOpacity(FSlateColor(MenuTextColor()));
             HostTutorialCheck->SetContent(Label);
             HostTutorialCheck->SetIsChecked(bHostStartWithTutorial);
-            HostTutorialCheck->OnCheckStateChanged.AddDynamic(this,&ThisClass::HostTutorialChanged);
+
             Content->AddChildToVerticalBox(HostTutorialCheck)->SetPadding(FMargin(0,6,0,12));
         }
         AddText(LocalizedCopy(TEXT("UI.MainMenu.TutorialOptionHint"),TEXT("С обучением: сначала учебная карта, затем обычная игра. Без галочки — сразу обычная карта.")),14);
-        AddText(bSteam?FormatCopy(TEXT("UI.MainMenu.HostSteamBody"),TEXT("Steam · {Host}\nДо четырёх игроков. После загрузки комнаты хост запускает смену кнопкой Start."),{{TEXT("Host"),FText::AsCultureInvariant(Steam->GetPlayerName())}}):
-            LocalizedCopy(TEXT("UI.MainMenu.HostLocalBody"),TEXT("Локальная комната по IP · UDP 7777\nДрузья подключаются через Join Lobby. Хост запускает смену кнопкой Start.")));
+        AddText(LocalizedCopy(TEXT("UI.MainMenu.HostLocalBody"),TEXT("Локальная комната по IP · UDP 7777\nДрузья подключаются через Join Lobby. Хост запускает смену кнопкой Start.")),17,TEXT("ModeBody"));
         OnlineButtons.Add(AddButton(TEXT("Create"),EMCMainMenuAction::Host));
         AddButton(TEXT("Back"),EMCMainMenuAction::Back);
         break;
     case EPage::Join:
         AddText(LocalizedCopy(TEXT("UI.MainMenu.JoinHeading"),TEXT("JOIN LOBBY")),24);
-        if (bSteam)
         {
             OnlineButtons.Add(AddButton(TEXT("Find Steam Lobbies"),EMCMainMenuAction::FindRooms));
-            RoomPicker=AddPicker(LocalizedCopy(TEXT("UI.MainMenu.FriendRoom"),TEXT("Комната друга")));
+            RoomPicker=AddPicker(LocalizedCopy(TEXT("UI.MainMenu.FriendRoom"),TEXT("Комната друга")),TEXT("RoomPicker"));
             OnlineButtons.Add(AddButton(TEXT("Join Selected Lobby"),EMCMainMenuAction::JoinRoom));
         }
-        AddText(bSteam?LocalizedCopy(TEXT("UI.MainMenu.LocalJoinHint"),TEXT("Для локальных тестов можно подключиться по IP.")):LocalizedCopy(TEXT("UI.MainMenu.EditorJoinHint"),TEXT("В редакторе Steam отключён. Введи IP хоста и при необходимости порт: 192.168.1.10:7777.")),14);
-        AddressBox=WidgetTree->ConstructWidget<UEditableTextBox>();
+        AddText(LocalizedCopy(TEXT("UI.MainMenu.EditorJoinHint"),TEXT("В редакторе Steam отключён. Введи IP хоста и при необходимости порт: 192.168.1.10:7777.")),14,TEXT("ModeBody"));
+        AddressBox=WidgetTree->ConstructWidget<UEditableTextBox>(UEditableTextBox::StaticClass(),PageWidgetName(TEXT("AddressBox")));
         GamepadTargets.Add(AddressBox);
         AddressBox->SetText(FText::FromString(TEXT("127.0.0.1:7777")));
         AddressBox->SetHintText(FText::FromString(LocalizedCopy(TEXT("UI.MainMenu.HostAddress"),TEXT("Адрес хоста"))));
@@ -514,14 +702,13 @@ void UMCMainMenuWidget::ShowPage(EPage NewPage)
         break;
     case EPage::Lobby:
         AddText(LocalizedCopy(TEXT("UI.MainMenu.LobbyHeading"),TEXT("LOBBY")),24);
-        LobbyPlayers=AddText(LocalizedCopy(TEXT("UI.MainMenu.LoadingPlayers"),TEXT("Загружаем участников…")));
+        LobbyPlayers=AddText(LocalizedCopy(TEXT("UI.MainMenu.LoadingPlayers"),TEXT("Загружаем участников…")),17,TEXT("Players"));
         AddText(LocalizedCopy(TEXT("UI.MainMenu.LobbyStartHint"),TEXT("Хост запускает обычную смену, когда команда собрана.")),15);
         StartButton=AddButton(TEXT("Start / Play"),EMCMainMenuAction::StartLobby);
-        if (bSteam) OnlineButtons.Add(AddButton(TEXT("Invite Steam Friends"),EMCMainMenuAction::Invite));
-        else AddText(LocalizedCopy(TEXT("UI.MainMenu.LobbyLocalHint"),TEXT("Друзья: Join Lobby → IP этого компьютера:7777.")),14);
+        OnlineButtons.Add(AddButton(TEXT("Invite Steam Friends"),EMCMainMenuAction::Invite));
+        AddText(LocalizedCopy(TEXT("UI.MainMenu.LobbyLocalHint"),TEXT("Друзья: Join Lobby → IP этого компьютера:7777.")),14,TEXT("LocalHint"));
         AddButton(TEXT("Settings"),EMCMainMenuAction::Settings);
         AddButton(TEXT("Leave Lobby"),EMCMainMenuAction::LeaveLobby);
-        RefreshLobby();
         break;
     case EPage::Pause:
         AddText(LocalizedCopy(TEXT("UI.MainMenu.PauseHeading"),TEXT("MENU")),24);
@@ -535,9 +722,7 @@ void UMCMainMenuWidget::ShowPage(EPage NewPage)
         break;
     case EPage::Leave:
         AddText(LocalizedCopy(TEXT("UI.Menu.LeaveHeading"),TEXT("Выйти из комнаты?")),24);
-        AddText(GetOwningPlayer() && GetOwningPlayer()->HasAuthority()?
-            LocalizedCopy(TEXT("UI.Menu.LeaveHostBody"),TEXT("Ты — хост. При выходе соединение остальных игроков с комнатой закроется.")):
-            LocalizedCopy(TEXT("UI.Menu.LeaveClientBody"),TEXT("Ты вернёшься в главное меню.")),16);
+        AddText(LocalizedCopy(TEXT("UI.Menu.LeaveClientBody"),TEXT("Ты вернёшься в главное меню.")),16,TEXT("ModeBody"));
         AddButton(TEXT("Cancel"),EMCMainMenuAction::Back);
         AddButton(TEXT("Leave to Main Menu"),EMCMainMenuAction::ConfirmLeave);
         break;
@@ -548,19 +733,337 @@ void UMCMainMenuWidget::ShowPage(EPage NewPage)
         AddButton(TEXT("Revert"),EMCMainMenuAction::RevertSettings);
         break;
     }
+}
+
+void UMCMainMenuWidget::CachePageControls()
+{
+    Buttons.Reset(); OnlineButtons.Reset(); GamepadTargets.Reset();
+    auto Find=[this](const TCHAR* Suffix) {return WidgetTree?WidgetTree->FindWidget(PageWidgetName(Suffix)):nullptr;};
+    RoomPicker=Cast<UComboBoxString>(Find(TEXT("RoomPicker")));
+    AddressBox=Cast<UEditableTextBox>(Find(TEXT("AddressBox")));
+    ResolutionPicker=Cast<UComboBoxString>(Find(TEXT("ResolutionPicker")));
+    WindowModePicker=Cast<UComboBoxString>(Find(TEXT("WindowModePicker")));
+    QualityPicker=Cast<UComboBoxString>(Find(TEXT("QualityPicker")));
+    VSyncCheck=Cast<UCheckBox>(Find(TEXT("VSyncCheck")));
+    HostTutorialCheck=Cast<UCheckBox>(Find(TEXT("TutorialCheck")));
+    LobbyPlayers=Cast<UTextBlock>(Find(TEXT("Players")));
+    StartButton=nullptr;
+    auto* ActiveRoot=GetActiveMenuPageRoot();
+    if (!ActiveRoot) return;
+    UWidgetTree::ForWidgetAndChildren(ActiveRoot,[this](UWidget* Widget)
+    {
+        if (auto* Button=Cast<UMCMainMenuActionButton>(Widget))
+        {
+            Button->Configure(this,Button->Action);
+            Buttons.Add(Button);GamepadTargets.Add(Button);
+            switch(Button->Action)
+            {
+            case EMCMainMenuAction::CreateLobby: case EMCMainMenuAction::JoinLobby:
+                if (Page==EPage::Connection) OnlineButtons.Add(Button); break;
+            case EMCMainMenuAction::Host: case EMCMainMenuAction::FindRooms:
+            case EMCMainMenuAction::JoinRoom: case EMCMainMenuAction::JoinAddress:
+            case EMCMainMenuAction::Invite: OnlineButtons.Add(Button); break;
+            case EMCMainMenuAction::StartLobby: StartButton=Button; break;
+            default: break;
+            }
+        }
+        else if (auto* Picker=Cast<UComboBoxString>(Widget))
+        {
+            // Keep authored picker fonts/content; the existing choices remain runtime data.
+            GamepadTargets.Add(Picker);
+            if (bNativeLayout) Picker->OnGenerateWidgetEvent.BindDynamic(this,&ThisClass::GeneratePickerItem);
+        }
+        else if (Cast<USlider>(Widget)) GamepadTargets.Add(Widget);
+        else if (Cast<UEditableTextBox>(Widget) || Cast<UCheckBox>(Widget)) GamepadTargets.Add(Widget);
+    });
+    if (HostTutorialCheck)
+    {
+        HostTutorialCheck->OnCheckStateChanged.AddUniqueDynamic(this,&ThisClass::HostTutorialChanged);
+        HostTutorialCheck->SetIsChecked(bHostStartWithTutorial);
+    }
+    if(Page==EPage::Settings)
+    {
+        CacheSettingsControls();
+        // WidgetSwitcher does not change UObject visibility on inactive pages.
+        // Keep controller navigation inside the selected settings section.
+        GamepadTargets.RemoveAll([this](const auto& Entry)
+        {
+            UWidget* Widget=Entry.Get();
+            for(auto* Parent=Widget?Widget->GetParent():nullptr;Parent;Parent=Parent->GetParent())
+                if(SettingsSections && Parent->GetParent()==SettingsSections.Get() && Parent!=SettingsSections->GetActiveWidget()) return true;
+            return false;
+        });
+    }
+}
+
+void UMCMainMenuWidget::ShowPage(EPage NewPage)
+{
+    Page=NewPage;
+    BuildPresentationTree();
+    if (!Pages) return;
+    auto* PageRoot=WidgetTree->FindWidget(PageWidgetName(TEXT("Page")));
+    if (!PageRoot || Pages->GetChildIndex(PageRoot)==INDEX_NONE) return;
+    Pages->SetActiveWidget(PageRoot);
+    Content=Cast<UVerticalBox>(PageRoot);
+    NextStickNavigationAt=0;LastSearchRevision=INDEX_NONE;
+    ApplyPresentation();
+    CachePageControls();
+    SetStatus(TEXT(""));
+    RefreshPageData();
+    FocusFirst();
+}
+
+void UMCMainMenuWidget::RefreshPageData(bool bResetSettings)
+{
+    auto* Steam=MCMainMenuPrivate::Sessions(this);
+    const bool bSteam=Steam && Steam->CanUseSteam();
+    LastSessionStatus=Steam?Steam->GetStatus():FString();
+    auto Visible=[this](const TCHAR* Suffix,bool bShow)
+    {
+        if (auto* Widget=WidgetTree->FindWidget(PageWidgetName(Suffix)))
+            Widget->SetVisibility(bShow?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+    };
+    auto Copy=[this](const TCHAR* Suffix,const FString& Text)
+    {
+        if (auto* Label=Cast<UTextBlock>(WidgetTree->FindWidget(PageWidgetName(Suffix)))) Label->SetText(FText::FromString(Text));
+    };
+    auto ActionVisible=[&Visible](EMCMainMenuAction Action,bool bShow)
+    { Visible(*FString::Printf(TEXT("Action%d"),int32(Action)),bShow); };
+    switch (Page)
+    {
+    case EPage::Connection:
+        Visible(TEXT("AvailableHeading"),CanLaunchEmbeddedDay());Visible(TEXT("AvailableBody"),CanLaunchEmbeddedDay());
+        Visible(TEXT("UnavailableHeading"),!CanLaunchEmbeddedDay());Visible(TEXT("UnavailableBody"),!CanLaunchEmbeddedDay());
+        ActionVisible(EMCMainMenuAction::CreateLobby,CanLaunchEmbeddedDay());ActionVisible(EMCMainMenuAction::JoinLobby,CanLaunchEmbeddedDay());
+        break;
+    case EPage::Host:
+        Copy(TEXT("ModeBody"),bSteam?FormatCopy(TEXT("UI.MainMenu.HostSteamBody"),TEXT("Steam · {Host}\nДо четырёх игроков. После загрузки комнаты хост запускает смену кнопкой Start."),{{TEXT("Host"),FText::AsCultureInvariant(Steam->GetPlayerName())}}):
+            LocalizedCopy(TEXT("UI.MainMenu.HostLocalBody"),TEXT("Локальная комната по IP · UDP 7777\nДрузья подключаются через Join Lobby. Хост запускает смену кнопкой Start.")));
+        break;
+    case EPage::Join:
+        if (AddressBox) AddressBox->SetHintText(FText::FromString(LocalizedCopy(TEXT("UI.MainMenu.HostAddress"),TEXT("Адрес хоста"))));
+        ActionVisible(EMCMainMenuAction::FindRooms,bSteam);ActionVisible(EMCMainMenuAction::JoinRoom,bSteam);
+        Visible(TEXT("RoomPicker"),bSteam);Visible(TEXT("RoomPickerLabel"),bSteam);
+        Copy(TEXT("ModeBody"),bSteam?LocalizedCopy(TEXT("UI.MainMenu.LocalJoinHint"),TEXT("Для локальных тестов можно подключиться по IP.")):
+            LocalizedCopy(TEXT("UI.MainMenu.EditorJoinHint"),TEXT("В редакторе Steam отключён. Введи IP хоста и при необходимости порт: 192.168.1.10:7777.")));
+        break;
+    case EPage::Settings: if (bResetSettings) RefreshSettingsControls(); break;
+    case EPage::Lobby:
+        ActionVisible(EMCMainMenuAction::Invite,bSteam);Visible(TEXT("LocalHint"),!bSteam);RefreshLobby();break;
+    case EPage::Leave:
+        Copy(TEXT("ModeBody"),GetOwningPlayer() && GetOwningPlayer()->HasAuthority()?
+            LocalizedCopy(TEXT("UI.Menu.LeaveHostBody"),TEXT("Ты — хост. При выходе соединение остальных игроков с комнатой закроется.")):
+            LocalizedCopy(TEXT("UI.Menu.LeaveClientBody"),TEXT("Ты вернёшься в главное меню.")));
+        break;
+    default: break;
+    }
     if (bSteam && (Page==EPage::Host || Page==EPage::Join)) SetStatus(LastSessionStatus);
     else if ((Page==EPage::Main || Page==EPage::Connection) && Steam && Steam->HadFailure()) SetStatus(LastSessionStatus);
-    if (Steam)
-        for (UButton* Button:OnlineButtons) if (Button) Button->SetIsEnabled(!Steam->IsBusy());
-    FocusFirst();
+    if (Steam) for (UButton* Button:OnlineButtons) if (Button) Button->SetIsEnabled(!Steam->IsBusy());
 }
 
 void UMCMainMenuWidget::BuildSettings()
 {
-    AddText(LocalizedCopy(TEXT("UI.MainMenu.SettingsHeading"),TEXT("SETTINGS")),24);
+    auto* PageBody=Content.Get();
+    auto* Heading=AddText(LocalizedCopy(TEXT("UI.Settings.Title"),TEXT("Настройки")),24,TEXT("Heading"));
+    BindStyle(Heading->GetFName(),EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,24,true);
+    auto* Tabs=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),PageWidgetName(TEXT("Tabs")));
+    PageBody->AddChildToVerticalBox(Tabs)->SetPadding(FMargin(0,0,0,10));
+    const TCHAR* TabNames[]={TEXT("Graphics"),TEXT("Audio"),TEXT("Language"),TEXT("Controls")};
+    const TCHAR* TabCopy[]={TEXT("Графика"),TEXT("Аудио"),TEXT("Язык"),TEXT("Управление")};
+    for(int32 Index=0;Index<4;++Index)
+    {
+        const FString Suffix=FString(TEXT("Tab"))+TabNames[Index];
+        auto* Tab=WidgetTree->ConstructWidget<UMCMainMenuActionButton>(UMCMainMenuActionButton::StaticClass(),PageWidgetName(*Suffix));
+        Tab->Action=EMCMainMenuAction(int32(EMCMainMenuAction::SettingsGraphics)+Index);
+        auto* Text=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),PageWidgetName(*(Suffix+TEXT("Label"))));
+        const FName Key(*(FString(TEXT("UI.Settings.Tab."))+TabNames[Index]));
+        Text->SetText(Localized(Key,FText::AsCultureInvariant(TabCopy[Index])));Text->SetJustification(ETextJustify::Center);
+        TextBindings.Add(Text->GetFName(),Key);
+        auto* Pad=WidgetTree->ConstructWidget<UBorder>();Pad->SetBrushColor(FLinearColor::Transparent);Pad->SetPadding(FMargin(5,10));Pad->SetContent(Text);Tab->SetContent(Pad);
+        auto* TabSlot=Tabs->AddChildToHorizontalBox(Tab);TabSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));TabSlot->SetPadding(FMargin(0,0,4,0));
+        BindStyle(Tab->GetFName(),EMCUIColorToken::Button,EMCUIStyleTarget::Button);
+        BindStyle(Text->GetFName(),EMCUIColorToken::ButtonText,EMCUIStyleTarget::Text,14,true);
+    }
+    auto* Panel=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),PageWidgetName(TEXT("Panel")));
+    Panel->SetPadding(FMargin(16,12));PageBody->AddChildToVerticalBox(Panel);
+    BindStyle(Panel->GetFName(),EMCUIColorToken::Marine,EMCUIStyleTarget::Background);
+    auto* SectionSize=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),PageWidgetName(TEXT("SectionSize")));
+    SectionSize->SetHeightOverride(320);Panel->SetContent(SectionSize);
+    SettingsSections=WidgetTree->ConstructWidget<UWidgetSwitcher>(UWidgetSwitcher::StaticClass(),PageWidgetName(TEXT("Sections")));
+    SectionSize->SetContent(SettingsSections);
+    UVerticalBox* Bodies[4];
+    for(int32 Index=0;Index<4;++Index)
+    {
+        const FString Section=FString(TabNames[Index])+TEXT("Section");
+        auto* Scroll=WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(),PageWidgetName(*Section));
+        SettingsSections->AddChild(Scroll);
+        Bodies[Index]=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),PageWidgetName(*(Section+TEXT("Body"))));Scroll->AddChild(Bodies[Index]);
+    }
+    auto Picker=[this](FName Key,const TCHAR* Copy,const TCHAR* Suffix)
+    {
+        auto* Widget=AddPicker(LocalizedCopy(Key,Copy),Suffix);
+        BindStyle(PageWidgetName(*(FString(Suffix)+TEXT("Label"))),EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,15);
+        return CastChecked<UMCMainMenuPicker>(Widget);
+    };
+    Content=Bodies[0];
+    ResolutionPicker=Picker(TEXT("UI.Menu.Resolution"),TEXT("Разрешение"),TEXT("ResolutionPicker"));
+    CastChecked<UMCMainMenuPicker>(ResolutionPicker)->SetPresentationOptions({TEXT("1920 × 1080")});
+    WindowModePicker=Picker(TEXT("UI.Menu.WindowMode"),TEXT("Режим экрана"),TEXT("WindowModePicker"));
+    CastChecked<UMCMainMenuPicker>(WindowModePicker)->SetPresentationOptions({LocalizedCopy(TEXT("UI.MainMenu.Option.Fullscreen"),TEXT("Fullscreen")),LocalizedCopy(TEXT("UI.MainMenu.Option.Borderless"),TEXT("Borderless")),LocalizedCopy(TEXT("UI.MainMenu.Option.Windowed"),TEXT("Windowed"))},1);
+    auto* FrameRate=Picker(TEXT("UI.Settings.FrameRate"),TEXT("Лимит кадров"),TEXT("FrameRatePicker"));
+    TArray<FString> Rates={LocalizedCopy(TEXT("UI.Settings.Unlimited"),TEXT("Без ограничений"))};
+    for(int32 Index=1;Index<UE_ARRAY_COUNT(MCMainMenuPrivate::FrameRates);++Index) Rates.Add(FString::Printf(TEXT("%d FPS"),int32(MCMainMenuPrivate::FrameRates[Index])));
+    FrameRate->SetPresentationOptions(Rates);
+    AddSettingsSlider(TEXT("UI.Settings.RenderScale"),TEXT("Масштаб рендера"),TEXT("RenderScaleSlider"),50,100,1,100);
+    QualityPicker=Picker(TEXT("UI.Menu.Quality"),TEXT("Общий пресет"),TEXT("QualityPicker"));
+    const TCHAR* GroupKeys[]={TEXT("Textures"),TEXT("Shadows"),TEXT("Effects"),TEXT("PostProcess"),TEXT("AA"),TEXT("ViewDistance")};
+    const TCHAR* GroupCopy[]={TEXT("Текстуры"),TEXT("Тени"),TEXT("Эффекты"),TEXT("Постобработка"),TEXT("Сглаживание"),TEXT("Дальность прорисовки")};
+    TArray<FString> Levels;
+    const TCHAR* QualityNames[]={TEXT("Low"),TEXT("Medium"),TEXT("High"),TEXT("Epic"),TEXT("Cinematic")};
+    for(const TCHAR* Name:QualityNames) Levels.Add(LocalizedCopy(FName(*(FString(TEXT("UI.MainMenu.Option.Quality."))+Name)),Name));
+    auto OverallLevels=Levels;OverallLevels.Add(LocalizedCopy(TEXT("UI.MainMenu.Option.QualityCustom"),TEXT("Custom (keep current)")));
+    CastChecked<UMCMainMenuPicker>(QualityPicker)->SetPresentationOptions(OverallLevels,2);
+    for(int32 Index=0;Index<6;++Index)
+        Picker(FName(*(FString(TEXT("UI.Settings."))+GroupKeys[Index])),GroupCopy[Index],MCMainMenuPrivate::QualityControlNames[Index])->SetPresentationOptions(Levels,2);
+    VSyncCheck=AddSettingsCheck(TEXT("UI.Menu.VSync"),TEXT("VSync"),TEXT("VSyncCheck"));
+    Content=Bodies[1];
+    AddSettingsSlider(TEXT("UI.Settings.Master"),TEXT("Общая громкость"),TEXT("MasterSlider"),0,1,.01f,1);
+    AddSettingsSlider(TEXT("UI.Settings.Music"),TEXT("Музыка"),TEXT("MusicSlider"),0,1,.01f,1);
+    AddSettingsSlider(TEXT("UI.Settings.Ambience"),TEXT("Окружение"),TEXT("AmbienceSlider"),0,1,.01f,1);
+    AddSettingsSlider(TEXT("UI.Settings.SFX"),TEXT("Звуковые эффекты"),TEXT("SFXSlider"),0,1,.01f,1);
+    Content=Bodies[2];
+    Picker(TEXT("UI.Settings.Language"),TEXT("Язык интерфейса"),TEXT("LanguagePicker"))->SetPresentationOptions(MCMainMenuPrivate::LanguageNames());
+    auto* LanguageHint=AddText(LocalizedCopy(TEXT("UI.Settings.LanguageFallback"),TEXT("Если перевод ещё не заполнен, используется русский текст. Изменение языка применяется после нажатия «Применить».")),15,TEXT("LanguageFallback"));
+    BindStyle(LanguageHint->GetFName(),EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,15);
+    Content=Bodies[3];
+    AddSettingsSlider(TEXT("UI.Settings.Mouse"),TEXT("Чувствительность мыши"),TEXT("MouseSlider"),.1f,5,.05f,1);
+    AddSettingsSlider(TEXT("UI.Settings.Gamepad"),TEXT("Скорость камеры геймпада"),TEXT("GamepadSlider"),.1f,5,.05f,1);
+    InvertYCheck=AddSettingsCheck(TEXT("UI.Settings.InvertY"),TEXT("Инверсия камеры по вертикали"),TEXT("InvertYCheck"));
+    Content=PageBody;
+    AddButton(TEXT("Применить"),EMCMainMenuAction::ApplySettings);
+    AddButton(TEXT("Назад"),EMCMainMenuAction::Back);
+    SettingsSections->SetActiveWidgetIndex(0);CacheSettingsControls();RefreshSettingsValueLabels();
+}
+
+USlider* UMCMainMenuWidget::AddSettingsSlider(FName Key,const TCHAR* Copy,const TCHAR* Suffix,float Minimum,float Maximum,float Step,float Value)
+{
+    auto* Row=WidgetTree->ConstructWidget<UHorizontalBox>();Content->AddChildToVerticalBox(Row)->SetPadding(FMargin(0,8,0,2));
+    auto* Label=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),PageWidgetName(*(FString(Suffix)+TEXT("Label"))));
+    Label->SetText(Localized(Key,FText::AsCultureInvariant(Copy)));TextBindings.Add(Label->GetFName(),Key);
+    Row->AddChildToHorizontalBox(Label)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+    BindStyle(Label->GetFName(),EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,15);
+    auto* Number=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),PageWidgetName(*(FString(Suffix)+TEXT("Value"))));
+    Number->SetJustification(ETextJustify::Right);Row->AddChildToHorizontalBox(Number);
+    BindStyle(Number->GetFName(),EMCUIColorToken::Accent,EMCUIStyleTarget::Text,15,true);
+    auto* Slider=WidgetTree->ConstructWidget<USlider>(USlider::StaticClass(),PageWidgetName(Suffix));
+    Slider->SetMinValue(Minimum);Slider->SetMaxValue(Maximum);Slider->SetStepSize(Step);Slider->SetValue(Value);
+    Content->AddChildToVerticalBox(Slider)->SetPadding(FMargin(0,3,0,13));
+    BindStyle(Slider->GetFName(),EMCUIColorToken::Accent,EMCUIStyleTarget::Slider);
+    return Slider;
+}
+
+UCheckBox* UMCMainMenuWidget::AddSettingsCheck(FName Key,const TCHAR* Copy,const TCHAR* Suffix)
+{
+    auto* Check=WidgetTree->ConstructWidget<UCheckBox>(UCheckBox::StaticClass(),PageWidgetName(Suffix));
+    auto* Label=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),PageWidgetName(*(FString(Suffix)+TEXT("Label"))));
+    Label->SetText(Localized(Key,FText::AsCultureInvariant(Copy)));Label->SetAutoWrapText(true);TextBindings.Add(Label->GetFName(),Key);
+    BindStyle(Label->GetFName(),EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,15);
+    Check->SetContent(Label);Content->AddChildToVerticalBox(Check)->SetPadding(FMargin(0,8,0,12));return Check;
+}
+
+void UMCMainMenuWidget::CacheSettingsControls()
+{
+    if(!WidgetTree || Page!=EPage::Settings) return;
+    SettingsSections=Cast<UWidgetSwitcher>(WidgetTree->FindWidget(PageWidgetName(TEXT("Sections"))));
+    SettingsPickers.Reset();SettingsSliders.Reset();
+    for(const TCHAR* Name:{TEXT("FrameRatePicker"),TEXT("LanguagePicker"),TEXT("TexturePicker"),TEXT("ShadowPicker"),TEXT("EffectsPicker"),TEXT("PostProcessPicker"),TEXT("AAPicker"),TEXT("ViewDistancePicker")})
+        if(auto* Picker=Cast<UComboBoxString>(WidgetTree->FindWidget(PageWidgetName(Name)))) SettingsPickers.Add(FName(Name),Picker);
+    for(const TCHAR* Name:MCMainMenuPrivate::SliderNames)
+        if(auto* Slider=Cast<USlider>(WidgetTree->FindWidget(PageWidgetName(Name))))
+        {
+            SettingsSliders.Add(FName(Name),Slider);
+            if(!bBuildingTemplate && !IsDesignTime()) Slider->OnValueChanged.AddUniqueDynamic(this,&ThisClass::SettingsSliderChanged);
+        }
+    InvertYCheck=Cast<UCheckBox>(WidgetTree->FindWidget(PageWidgetName(TEXT("InvertYCheck"))));
+    if(!bBuildingTemplate && !IsDesignTime())
+    {
+        if(QualityPicker) QualityPicker->OnSelectionChanged.AddUniqueDynamic(this,&ThisClass::SettingsPresetChanged);
+        for(const TCHAR* Name:MCMainMenuPrivate::QualityControlNames)
+            if(auto* Picker=SettingsPickers.FindRef(FName(Name)).Get()) Picker->OnSelectionChanged.AddUniqueDynamic(this,&ThisClass::SettingsGroupChanged);
+    }
+}
+
+void UMCMainMenuWidget::SwitchSettingsTab(int32 Index)
+{
+    if(Page!=EPage::Settings) return;
+    ActiveSettingsTab=FMath::Clamp(Index,0,3);
+    if(SettingsSections) SettingsSections->SetActiveWidgetIndex(ActiveSettingsTab);
+    const TCHAR* Names[]={TEXT("TabGraphics"),TEXT("TabAudio"),TEXT("TabLanguage"),TEXT("TabControls")};
+    for(int32 Tab=0;Tab<4;++Tab)
+        BindStyle(PageWidgetName(Names[Tab]),Tab==ActiveSettingsTab?EMCUIColorToken::Accent:EMCUIColorToken::Button,EMCUIStyleTarget::Button);
+    CachePageControls();ApplyTheme();
+}
+
+void UMCMainMenuWidget::RefreshSettingsValueLabels()
+{
+    if(!WidgetTree || Page!=EPage::Settings) return;
+    for(const auto& Pair:SettingsSliders)
+    {
+        auto* Slider=Pair.Value.Get();if(!Slider) continue;
+        auto* Label=WidgetTree->FindWidget<UTextBlock>(PageWidgetName(*(Pair.Key.ToString()+TEXT("Value"))));
+        if(!Label) continue;
+        const bool Sensitivity=Pair.Key==TEXT("MouseSlider") || Pair.Key==TEXT("GamepadSlider");
+        const float Value=Slider->GetValue();
+        const FString Culture=IsDesignTime()?PreviewCulture:FString();
+        if(Sensitivity) Label->SetText(FText::FromString(UMCUIDataLibrary::DecimalForCulture(Value,2,Culture).ToString()+TEXT(" ×")));
+        else Label->SetText(FText::FromString(UMCUIDataLibrary::NumberForCulture(FMath::RoundToInt(Pair.Key==TEXT("RenderScaleSlider")?Value:Value*100.f),Culture).ToString()+TEXT("%")));
+    }
+}
+
+void UMCMainMenuWidget::SettingsSliderChanged(float Value)
+{
+    if(!bUpdatingSettingsControls) RefreshSettingsValueLabels();
+}
+
+void UMCMainMenuWidget::SettingsPresetChanged(FString Value,ESelectInfo::Type SelectionType)
+{
+    if(bUpdatingSettingsControls || !QualityPicker) return;
+    const int32 Preset=QualityPicker->GetSelectedIndex();if(Preset<0 || Preset>4) return;
+    TGuardValue<bool> Guard(bUpdatingSettingsControls,true);
+    for(const TCHAR* Name:MCMainMenuPrivate::QualityControlNames)
+        if(auto* Picker=SettingsPickers.FindRef(FName(Name)).Get()) Picker->SetSelectedIndex(Preset);
+}
+
+void UMCMainMenuWidget::SettingsGroupChanged(FString Value,ESelectInfo::Type SelectionType)
+{
+    if(!bUpdatingSettingsControls && QualityPicker && QualityPicker->GetOptionCount()>5)
+    {
+        TGuardValue<bool> Guard(bUpdatingSettingsControls,true);QualityPicker->SetSelectedIndex(5);
+    }
+}
+
+void UMCMainMenuWidget::RefreshSettingsQualityOptions(bool bPreserveSelection)
+{
+    TGuardValue<bool> Guard(bUpdatingSettingsControls,true);
+    const TCHAR* Names[]={TEXT("Low"),TEXT("Medium"),TEXT("High"),TEXT("Epic"),TEXT("Cinematic")};
+    for(const TCHAR* Name:MCMainMenuPrivate::QualityControlNames)
+        if(auto* Picker=SettingsPickers.FindRef(FName(Name)).Get())
+        {
+            const int32 Selected=bPreserveSelection?Picker->GetSelectedIndex():2;
+            Picker->ClearOptions();
+            for(const TCHAR* Level:Names) Picker->AddOption(LocalizedCopy(FName(*(FString(TEXT("UI.MainMenu.Option.Quality."))+Level)),Level));
+            Picker->SetSelectedIndex(FMath::Clamp(Selected,0,4));
+        }
+}
+
+void UMCMainMenuWidget::RefreshSettingsControls()
+{
     UGameUserSettings* Settings=UGameUserSettings::GetGameUserSettings();
-    if (!Settings) { AddText(LocalizedCopy(TEXT("UI.Menu.SettingsUnavailable"),TEXT("Настройки экрана недоступны."))); AddButton(TEXT("Back"),EMCMainMenuAction::Back); return; }
-    ResolutionPicker=AddPicker(LocalizedCopy(TEXT("UI.Menu.Resolution"),TEXT("Разрешение")));
+    if (!Settings || !ResolutionPicker || !WindowModePicker || !QualityPicker || !VSyncCheck) return;
+    CacheSettingsControls();
+    TGuardValue<bool> Guard(bUpdatingSettingsControls,true);
+    ResolutionPicker->ClearOptions();
     Resolutions.Reset();
     UKismetSystemLibrary::GetSupportedFullscreenResolutions(Resolutions);
     Resolutions.RemoveAll([](const FIntPoint& Point){return Point.X<1024 || Point.Y<600;});
@@ -571,28 +1074,63 @@ void UMCMainMenuWidget::BuildSettings()
     for (const FIntPoint& Resolution:Resolutions)
         ResolutionPicker->AddOption(FString::Printf(TEXT("%d × %d"),Resolution.X,Resolution.Y));
     ResolutionPicker->SetSelectedIndex(FMath::Max(0,Resolutions.IndexOfByKey(Current)));
-    WindowModePicker=AddPicker(LocalizedCopy(TEXT("UI.Menu.WindowMode"),TEXT("Режим экрана")));
+    const int32 Quality=Settings->GetOverallScalabilityLevel();
+    RefreshSettingsOptionLabels(static_cast<int32>(Settings->GetFullscreenMode()),Quality<0?5:FMath::Clamp(Quality,0,4),Quality<0);
+    VSyncCheck->SetIsChecked(Settings->IsVSyncEnabled());
+    RefreshSettingsQualityOptions(false);
+    const int32 Qualities[]={Settings->GetTextureQuality(),Settings->GetShadowQuality(),Settings->GetVisualEffectQuality(),Settings->GetPostProcessingQuality(),Settings->GetAntiAliasingQuality(),Settings->GetViewDistanceQuality()};
+    for(int32 Index=0;Index<6;++Index)
+        if(auto* Picker=SettingsPickers.FindRef(FName(MCMainMenuPrivate::QualityControlNames[Index])).Get()) Picker->SetSelectedIndex(FMath::Clamp(Qualities[Index],0,4));
+    if(auto* FrameRate=SettingsPickers.FindRef(TEXT("FrameRatePicker")).Get())
+    {
+        FrameRate->ClearOptions();FrameRate->AddOption(LocalizedCopy(TEXT("UI.Settings.Unlimited"),TEXT("Без ограничений")));
+        int32 Selected=0;
+        for(int32 Index=1;Index<UE_ARRAY_COUNT(MCMainMenuPrivate::FrameRates);++Index)
+        {
+            FrameRate->AddOption(FString::Printf(TEXT("%d FPS"),int32(MCMainMenuPrivate::FrameRates[Index])));
+            if(FMath::IsNearlyEqual(Settings->GetFrameRateLimit(),MCMainMenuPrivate::FrameRates[Index])) Selected=Index;
+        }
+        // Preserve an externally authored cap instead of silently converting it to unlimited.
+        if(Selected==0 && Settings->GetFrameRateLimit()>0)
+        {
+            FrameRate->AddOption(FString::Printf(TEXT("%.0f FPS"),Settings->GetFrameRateLimit()));Selected=FrameRate->GetOptionCount()-1;
+        }
+        FrameRate->SetSelectedIndex(Selected);
+    }
+    float Normalized,Scale,Min,Max;Settings->GetResolutionScaleInformationEx(Normalized,Scale,Min,Max);
+    if(auto* Slider=SettingsSliders.FindRef(TEXT("RenderScaleSlider")).Get()) {Slider->SetMinValue(FMath::Max(1.f,Min));Slider->SetMaxValue(FMath::Max(100.f,Max));Slider->SetValue(Scale);}
+    if(auto* Preferences=UMCGameUserSettings::Get())
+    {
+        const TCHAR* Names[]={TEXT("MasterSlider"),TEXT("MusicSlider"),TEXT("AmbienceSlider"),TEXT("SFXSlider"),TEXT("MouseSlider"),TEXT("GamepadSlider")};
+        const float Values[]={Preferences->GetMasterVolume(),Preferences->GetMusicVolume(),Preferences->GetAmbienceVolume(),Preferences->GetSFXVolume(),Preferences->GetMouseSensitivity(),Preferences->GetGamepadSensitivity()};
+        for(int32 Index=0;Index<6;++Index) if(auto* Slider=SettingsSliders.FindRef(FName(Names[Index])).Get()) Slider->SetValue(Values[Index]);
+        if(InvertYCheck) InvertYCheck->SetIsChecked(Preferences->GetInvertY());
+        if(auto* Picker=SettingsPickers.FindRef(TEXT("LanguagePicker")).Get())
+        {
+            const auto Codes=MCMainMenuPrivate::LanguageCodes();
+            const FString Language=Preferences->GetLanguageCode().IsEmpty()?FInternationalization::Get().GetCurrentLanguage()->GetName():Preferences->GetLanguageCode();
+            int32 Selected=Codes.IndexOfByKey(Language);
+            if(Selected==INDEX_NONE) Selected=Codes.IndexOfByPredicate([&Language](const auto& Code){return Language.StartsWith(Code+TEXT("-"));});
+            Picker->SetSelectedIndex(FMath::Max(0,Selected));
+        }
+    }
+    RefreshSettingsValueLabels();
+}
+
+void UMCMainMenuWidget::RefreshSettingsOptionLabels(int32 WindowModeIndex,int32 QualityIndex,bool bIncludeCustomQuality)
+{
+    if (!WindowModePicker || !QualityPicker) return;
+    TGuardValue<bool> Guard(bUpdatingSettingsControls,true);
+    WindowModePicker->ClearOptions();QualityPicker->ClearOptions();
     WindowModePicker->AddOption(LocalizedCopy(TEXT("UI.MainMenu.Option.Fullscreen"),TEXT("Fullscreen")));
     WindowModePicker->AddOption(LocalizedCopy(TEXT("UI.MainMenu.Option.Borderless"),TEXT("Borderless")));
     WindowModePicker->AddOption(LocalizedCopy(TEXT("UI.MainMenu.Option.Windowed"),TEXT("Windowed")));
-    WindowModePicker->SetSelectedIndex(static_cast<int32>(Settings->GetFullscreenMode()));
-    QualityPicker=AddPicker(LocalizedCopy(TEXT("UI.Menu.Quality"),TEXT("Качество графики")));
+    WindowModePicker->SetSelectedIndex(WindowModeIndex);
     const TCHAR* QualityNames[]={TEXT("Low"),TEXT("Medium"),TEXT("High"),TEXT("Epic"),TEXT("Cinematic")};
     for(int32 Index=0;Index<UE_ARRAY_COUNT(QualityNames);++Index)
         QualityPicker->AddOption(LocalizedCopy(FName(*(TEXT("UI.MainMenu.Option.Quality.")+FString(QualityNames[Index]))),QualityNames[Index]));
-    const int32 Quality=Settings->GetOverallScalabilityLevel();
-    if (Quality<0) { QualityPicker->AddOption(LocalizedCopy(TEXT("UI.MainMenu.Option.QualityCustom"),TEXT("Custom (keep current)"))); QualityPicker->SetSelectedIndex(5); }
-    else QualityPicker->SetSelectedIndex(FMath::Clamp(Quality,0,4));
-    VSyncCheck=WidgetTree->ConstructWidget<UCheckBox>();
-    GamepadTargets.Add(VSyncCheck);
-    auto* VSyncLabel=WidgetTree->ConstructWidget<UTextBlock>();
-    VSyncLabel->SetText(FText::FromString(LocalizedCopy(TEXT("UI.Menu.VSync"),TEXT("VSync"))));
-    VSyncLabel->SetFont(MCMainMenuPrivate::Font(TEXT("Regular"),17));
-    VSyncLabel->SetColorAndOpacity(FSlateColor(MenuTextColor()));
-    VSyncCheck->SetContent(VSyncLabel); VSyncCheck->SetIsChecked(Settings->IsVSyncEnabled());
-    Content->AddChildToVerticalBox(VSyncCheck)->SetPadding(FMargin(0,6,0,12));
-    AddButton(TEXT("Apply & Save"),EMCMainMenuAction::ApplySettings);
-    AddButton(TEXT("Back"),EMCMainMenuAction::Back);
+    if (bIncludeCustomQuality) QualityPicker->AddOption(LocalizedCopy(TEXT("UI.MainMenu.Option.QualityCustom"),TEXT("Custom (keep current)")));
+    QualityPicker->SetSelectedIndex(QualityIndex);
 }
 
 void UMCMainMenuWidget::HostTutorialChanged(bool bChecked)
@@ -613,9 +1151,31 @@ void UMCMainMenuWidget::ApplySettings()
     Settings->SetFullscreenMode(static_cast<EWindowMode::Type>(Mode));
     const int32 Quality=QualityPicker->GetSelectedIndex();
     if (Quality>=0 && Quality<=4) Settings->SetOverallScalabilityLevel(Quality);
+    const auto Selected=[this](FName Name)
+    {const auto* Picker=SettingsPickers.FindRef(Name).Get();return Picker?Picker->GetSelectedIndex():INDEX_NONE;};
+    const int32 Texture=Selected(TEXT("TexturePicker")),Shadow=Selected(TEXT("ShadowPicker")),Effects=Selected(TEXT("EffectsPicker"));
+    const int32 Post=Selected(TEXT("PostProcessPicker")),AA=Selected(TEXT("AAPicker")),Distance=Selected(TEXT("ViewDistancePicker"));
+    if(Texture>=0) Settings->SetTextureQuality(Texture);if(Shadow>=0) Settings->SetShadowQuality(Shadow);
+    if(Effects>=0) Settings->SetVisualEffectQuality(Effects);if(Post>=0) Settings->SetPostProcessingQuality(Post);
+    if(AA>=0) Settings->SetAntiAliasingQuality(AA);if(Distance>=0) Settings->SetViewDistanceQuality(Distance);
+    const int32 FrameRate=Selected(TEXT("FrameRatePicker"));
+    if(FrameRate>=0 && FrameRate<UE_ARRAY_COUNT(MCMainMenuPrivate::FrameRates)) Settings->SetFrameRateLimit(MCMainMenuPrivate::FrameRates[FrameRate]);
+    if(const auto* Scale=SettingsSliders.FindRef(TEXT("RenderScaleSlider")).Get()) Settings->SetResolutionScaleValueEx(Scale->GetValue());
+    if(auto* Preferences=UMCGameUserSettings::Get())
+    {
+        auto Value=[this](FName Name,float Fallback) {const auto* Slider=SettingsSliders.FindRef(Name).Get();return Slider?Slider->GetValue():Fallback;};
+        Preferences->SetMasterVolume(Value(TEXT("MasterSlider"),Preferences->GetMasterVolume()));
+        Preferences->SetMusicVolume(Value(TEXT("MusicSlider"),Preferences->GetMusicVolume()));
+        Preferences->SetAmbienceVolume(Value(TEXT("AmbienceSlider"),Preferences->GetAmbienceVolume()));
+        Preferences->SetSFXVolume(Value(TEXT("SFXSlider"),Preferences->GetSFXVolume()));
+        Preferences->SetMouseSensitivity(Value(TEXT("MouseSlider"),Preferences->GetMouseSensitivity()));
+        Preferences->SetGamepadSensitivity(Value(TEXT("GamepadSlider"),Preferences->GetGamepadSensitivity()));
+        if(InvertYCheck) Preferences->SetInvertY(InvertYCheck->IsChecked());
+        const auto Codes=MCMainMenuPrivate::LanguageCodes();const int32 Language=Selected(TEXT("LanguagePicker"));
+        if(Codes.IsValidIndex(Language)) Preferences->SetLanguageCode(Codes[Language]);
+    }
     Settings->SetVSyncEnabled(VSyncCheck->IsChecked());
     Settings->ApplySettings(false);
-    Settings->SaveSettings();
     if (PreviousResolution!=Settings->GetScreenResolution() || PreviousWindowMode!=Mode)
     {
         bVideoConfirmationPending=true;
@@ -656,7 +1216,7 @@ void UMCMainMenuWidget::RefreshLobby()
 void UMCMainMenuWidget::NativeTick(const FGeometry& Geometry, float DeltaSeconds)
 {
     Super::NativeTick(Geometry,DeltaSeconds);
-    for(UButton* Button:Buttons) if(Button)
+    if (bNativeLayout && EmbeddedRoot==EEmbeddedRoot::None && Page!=EPage::Settings) for(UButton* Button:Buttons) if(Button)
         Button->SetBackgroundColor(Button->HasUserFocus(GetOwningPlayer())?FLinearColor(.16f,.42f,.38f):FLinearColor(.07f,.15f,.19f));
     if (bVideoConfirmationPending && FPlatformTime::Seconds()>=VideoConfirmationEndsAt)
     {
@@ -735,6 +1295,10 @@ void UMCMainMenuWidget::HandleAction(EMCMainMenuAction Action)
     }
     switch (Action)
     {
+    case EMCMainMenuAction::SettingsGraphics: SwitchSettingsTab(0);break;
+    case EMCMainMenuAction::SettingsAudio: SwitchSettingsTab(1);break;
+    case EMCMainMenuAction::SettingsLanguage: SwitchSettingsTab(2);break;
+    case EMCMainMenuAction::SettingsControls: SwitchSettingsTab(3);break;
     case EMCMainMenuAction::Tutorial:
         if (Steam && Steam->IsBusy()) { SetStatus(LocalizedCopy(TEXT("UI.MainMenu.ConnectionBusy"),TEXT("Дождись завершения подключения."))); break; }
         UGameplayStatics::OpenLevel(this,MCMainMenuPrivate::TutorialMap,true,TEXT("MCTutorial=1"));

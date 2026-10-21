@@ -131,7 +131,7 @@ void UMCPerkCardWidget::BindPresentationTree()
 
 void UMCPerkCardWidget::NormalizePresentationLayout()
 {
-    if(!WidgetTree) return;
+    if(!bUseNativeLayout || !WidgetTree) return;
     if(ChoiceButton) if(auto* Content=ChoiceButton->GetContent()) if(auto* ContentSlot=Cast<UButtonSlot>(Content->Slot)) {
         ContentSlot->SetPadding(FMargin(14,12));ContentSlot->SetHorizontalAlignment(HAlign_Fill);ContentSlot->SetVerticalAlignment(VAlign_Fill);
     }

@@ -1,5 +1,6 @@
 ﻿#include "MCToothCharacter.h"
 #include "MCInventoryComponent.h"
+#include "MCGameUserSettings.h"
 #include "MCPerkComponent.h"
 #include "MCBossCharacter.h"
 #include "MCRewardChest.h"
@@ -455,18 +456,32 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 }
 void AMCToothCharacter::MoveForward(const FInputActionValue& Value) { LocalPaddle.X=IsMimicCaptured() || HasFrozenLegs()?0:Value.Get<float>(); if(IsSeatedOnRaft()) return; const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); if (!IsMimicCaptured() && !HasFrozenLegs() && !ClingTooth && !OrderJumpTarget) AddMovementInput(Move->IsClimbing()?FVector::UpVector:CameraMoveDirection(false), LocalPaddle.X); }
 void AMCToothCharacter::MoveRight(const FInputActionValue& Value) { LocalPaddle.Y=IsMimicCaptured() || HasFrozenLegs()?0:Value.Get<float>(); if(IsSeatedOnRaft()) return; const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); if (!IsMimicCaptured() && !HasFrozenLegs() && !ClingTooth && !OrderJumpTarget) AddMovementInput(Move->IsClimbing()?FVector::CrossProduct(FVector(Move->ClimbNormal),FVector::UpVector).GetSafeNormal():CameraMoveDirection(true), LocalPaddle.Y); }
-void AMCToothCharacter::OrbitMouseX(const FInputActionValue& Value) { ApplyCameraOrbitInput(FVector2D(Value.Get<float>(),0)); }
-void AMCToothCharacter::OrbitMouseY(const FInputActionValue& Value) { ApplyCameraOrbitInput(FVector2D(0,Value.Get<float>())); }
+void AMCToothCharacter::OrbitMouseX(const FInputActionValue& Value)
+{
+    FVector2D Delta(Value.Get<float>(),0);
+    if(const auto* Settings=UMCGameUserSettings::Get()) Delta=Settings->ScaleLookInput(Delta,false);
+    ApplyCameraOrbitInput(Delta);
+}
+void AMCToothCharacter::OrbitMouseY(const FInputActionValue& Value)
+{
+    FVector2D Delta(0,Value.Get<float>());
+    if(const auto* Settings=UMCGameUserSettings::Get()) Delta=Settings->ScaleLookInput(Delta,false);
+    ApplyCameraOrbitInput(Delta);
+}
 // Stick deflection is a turn rate; mouse input remains an unscaled per-frame delta.
 void AMCToothCharacter::OrbitGamepadX(const FInputActionValue& Value)
 {
     const float Scale=FMath::Clamp(GamepadCameraTurnRate,30.f,360.f)*GetWorld()->GetDeltaSeconds()/FMath::Clamp(CameraOrbitSensitivity,.02f,1.f);
-    ApplyCameraOrbitInput(FVector2D(Value.Get<float>()*Scale,0));
+    FVector2D Delta(Value.Get<float>()*Scale,0);
+    if(const auto* Settings=UMCGameUserSettings::Get()) Delta=Settings->ScaleLookInput(Delta,true);
+    ApplyCameraOrbitInput(Delta);
 }
 void AMCToothCharacter::OrbitGamepadY(const FInputActionValue& Value)
 {
     const float Scale=FMath::Clamp(GamepadCameraTurnRate,30.f,360.f)*GetWorld()->GetDeltaSeconds()/FMath::Clamp(CameraOrbitSensitivity,.02f,1.f);
-    ApplyCameraOrbitInput(FVector2D(0,Value.Get<float>()*Scale));
+    FVector2D Delta(0,Value.Get<float>()*Scale);
+    if(const auto* Settings=UMCGameUserSettings::Get()) Delta=Settings->ScaleLookInput(Delta,true);
+    ApplyCameraOrbitInput(Delta);
 }
 void AMCToothCharacter::CameraMouseWheel(const FInputActionValue& Value) { ZoomCamera(Value.Get<float>()); }
 FVector2D AMCToothCharacter::WorldPaddleInput() const

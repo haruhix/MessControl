@@ -186,7 +186,7 @@ UMCHubActionButton* UMCHubWidget::MakeAction(FName Name,EMCHubMenuAction Action,
 {
     auto* Button=WidgetTree->ConstructWidget<UMCHubActionButton>(UMCHubActionButton::StaticClass(),Name);
     Button->Configure(this,Action,Day);
-    auto* Label=WidgetTree->ConstructWidget<UTextBlock>();
+    auto* Label=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),FName(*FString::Printf(TEXT("%sLabel"),*Name.ToString())));
     Label->SetJustification(ETextJustify::Center);Label->SetAutoWrapText(true);
     Label->SetMinDesiredWidth(240.f);
     auto* ContentSlot=CastChecked<UButtonSlot>(Button->AddChild(Label));
@@ -195,7 +195,16 @@ UMCHubActionButton* UMCHubWidget::MakeAction(FName Name,EMCHubMenuAction Action,
 }
 void UMCHubWidget::BuildPresentationTree()
 {
-    if(!WidgetTree || RootCanvas) return;
+    if(!WidgetTree || (BoundPresentationRoot.IsValid() && BoundPresentationRoot.Get()==WidgetTree->RootWidget)) return;
+    if(WidgetTree->RootWidget)
+    {
+        // The Designer owns hierarchy, dimensions and style. Bind controls by
+        // their stable names instead of replacing the authored root.
+        bAuthoredPresentation=true;
+        BindPresentationTree();
+        return;
+    }
+    bAuthoredPresentation=false;
     // The authored mouths and their labels share a 1600 x 900 camera contract.
     // Fit our controls to that same frame so small windows keep every action.
     auto* ViewportScale=WidgetTree->ConstructWidget<UScaleBox>();ViewportScale->SetStretch(EStretch::ScaleToFit);
@@ -249,12 +258,62 @@ void UMCHubWidget::BuildPresentationTree()
         auto* ButtonSlot=FooterBody->AddChildToHorizontalBox(Button);ButtonSlot->SetVerticalAlignment(VAlign_Center);ButtonSlot->SetPadding(FMargin(8,0));
     }
     BindStyle(TEXT("HubReadinessPanel"),EMCUIColorToken::Marine,EMCUIStyleTarget::Background);
+    // Saved defaults intentionally follow the shared palette. Removing an explicit
+    // binding in Designer lets an artist give that control an independent style.
+    BindStyle(TEXT("HubOpenSelection"),EMCUIColorToken::Button,EMCUIStyleTarget::Button);
+    BindStyle(TEXT("HubLaunch"),EMCUIColorToken::Accent,EMCUIStyleTarget::Button);
+    BindStyle(TEXT("HubReturn"),EMCUIColorToken::Button,EMCUIStyleTarget::Button);
+    for(const TCHAR* Name:{TEXT("HubOpenSelectionLabel"),TEXT("HubLaunchLabel"),TEXT("HubReturnLabel")})
+        BindStyle(Name,EMCUIColorToken::ButtonText,EMCUIStyleTarget::Text,18,true);
+    BindPresentationTree();
     ApplyTheme();
+}
+
+void UMCHubWidget::BindPresentationTree()
+{
+    if(!WidgetTree || BoundPresentationRoot.Get()==WidgetTree->RootWidget) return;
+    if(BoundPresentationRoot.Get()!=WidgetTree->RootWidget) ResetSelectionPresentation();
+    RootCanvas=Cast<UCanvasPanel>(WidgetTree->FindWidget(TEXT("HubCanvas")));
+    PresentationHost=Cast<UOverlay>(WidgetTree->FindWidget(TEXT("HubMouthPresentation")));
+    ReadinessPanel=Cast<UBorder>(WidgetTree->FindWidget(TEXT("HubReadinessPanel")));
+    SelectionPanel=Cast<UBorder>(WidgetTree->FindWidget(TEXT("HubSelectionFooter")));
+    ReadinessTitle=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubReadinessTitle")));
+    ReadinessCount=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubReadinessCount")));
+    PlayerNames=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubPlayerNames")));
+    ReadinessHint=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubReadinessHint")));
+    SelectionTitle=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubSelectionTitle")));
+    SelectionStatus=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubSelectionStatus")));
+    OpenButton=Cast<UMCHubActionButton>(WidgetTree->FindWidget(TEXT("HubOpenSelection")));
+    LaunchButton=Cast<UMCHubActionButton>(WidgetTree->FindWidget(TEXT("HubLaunch")));
+    ReturnButton=Cast<UMCHubActionButton>(WidgetTree->FindWidget(TEXT("HubReturn")));
+    if(OpenButton) OpenButton->Configure(this,EMCHubMenuAction::OpenSelection);
+    if(LaunchButton) LaunchButton->Configure(this,EMCHubMenuAction::Launch);
+    if(ReturnButton) ReturnButton->Configure(this,EMCHubMenuAction::Return);
+    // Named labels may be nested inside arbitrary Designer content. Keep the
+    // original direct TextBlock content compatible with an older authored tree.
+    auto Label=[this](const TCHAR* Name,UMCHubActionButton* Button)
+    {
+        auto* Text=Cast<UTextBlock>(WidgetTree->FindWidget(FName(Name)));
+        return Text?Text:Button?Cast<UTextBlock>(Button->GetContent()):nullptr;
+    };
+    OpenButtonLabel=Label(TEXT("HubOpenSelectionLabel"),OpenButton);
+    LaunchButtonLabel=Label(TEXT("HubLaunchLabel"),LaunchButton);
+    ReturnButtonLabel=Label(TEXT("HubReturnLabel"),ReturnButton);
+    MouthHitAreas.Reset();
+    for(int32 Index=1;Index<=3;++Index)
+        if(auto* HitArea=Cast<UMCHubActionButton>(WidgetTree->FindWidget(FName(*FString::Printf(TEXT("HubMouthHit%d"),Index)))))
+        {
+            HitArea->Configure(this,EMCHubMenuAction::SelectDay,Index,false);
+            MouthHitAreas.Add(HitArea);
+        }
+    BoundPresentationRoot=WidgetTree->RootWidget;
+    LastStateSignature.Reset();
 }
 
 void UMCHubWidget::ApplyTheme()
 {
     Super::ApplyTheme();
+    if(bAuthoredPresentation) return;
     const auto* ThemeData=GetResolvedTheme();if(!ThemeData) return;
     TArray<UMCHubActionButton*> Buttons={OpenButton,LaunchButton,ReturnButton};
     for(auto* Button:Buttons) if(Button)
@@ -280,6 +339,7 @@ FText UMCHubWidget::Format(FName Key,const FText& Fallback,const FFormatNamedArg
 }
 void UMCHubWidget::RefreshFromState()
 {
+    if(IsDesignTime()) {ApplyEditorPreview(PreviewTime);return;}
     if(bRefreshingState) return;
     TGuardValue<bool> Guard(bRefreshingState,true);
     BuildPresentationTree();if(!ReadinessTitle) return;
@@ -296,9 +356,9 @@ void UMCHubWidget::RefreshFromState()
     const bool bTravelling=Hub && Hub->Phase==EMCHubPhase::Travelling;
     const bool bHost=IsLocalHost();
     const int32 Ready=Hub?Hub->GetReadyCount():0,Total=Hub?Hub->GetParticipantCount():0;
-    ReadinessTitle->SetText(Localized(bTravelling && !bSelecting?TEXT("hub.loading.selection"):TEXT("hub.title"),
+    MCHubPresentation::SetText(ReadinessTitle,Localized(bTravelling && !bSelecting?TEXT("hub.loading.selection"):TEXT("hub.title"),
         bTravelling && !bSelecting?LOCTEXT("OpeningSelection","ОТКРЫВАЕМ ВЫБОР ДНЯ…"):LOCTEXT("Title","СБОР КОМАНДЫ")));
-    ReadinessCount->SetText(Format(bSelecting?TEXT("hub.loading.count"):TEXT("hub.ready.count"),
+    MCHubPresentation::SetText(ReadinessCount,Format(bSelecting?TEXT("hub.loading.count"):TEXT("hub.ready.count"),
         bSelecting?LOCTEXT("LoadedCount","ВЫБОР ДНЯ · {Ready} / {Total}"):LOCTEXT("ReadyCount","ГОТОВЫ · {Ready} / {Total}"),
         {{TEXT("Ready"),bSelecting && Hub?Hub->Players.FilterByPredicate([](const FMCHubPlayerReadiness& Player){return Player.bLoaded;}).Num():Ready},{TEXT("Total"),Total}}));
     FText Names;
@@ -310,15 +370,18 @@ void UMCHubWidget::RefreshFromState()
         Names=Names.IsEmpty()?Line:FText::Join(FText::FromString(TEXT("\n")),Names,Line);
     }
     MCHubPresentation::SetText(PlayerNames,Names);
-    ReadinessHint->SetText(bTravelling?Localized(TEXT("hub.loading.players"),LOCTEXT("TransitionWaiting","Ждём загрузку игроков…")):
+    MCHubPresentation::SetText(ReadinessHint,bTravelling?Localized(TEXT("hub.loading.players"),LOCTEXT("TransitionWaiting","Ждём загрузку игроков…")):
         Localized(bSelecting?TEXT("hub.team_view"):TEXT("hub.ready.enter"),
             bSelecting?LOCTEXT("TeamViewHint","Вся команда видит выбранный хостом день."):LOCTEXT("GatherHint","Соберитесь в зоне готовности, чтобы выбрать день.")));
-    OpenButton->SetVisibility(Hub && Hub->Phase==EMCHubPhase::Gathering && bHost?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
-    OpenButton->SetIsEnabled(Hub && Hub->AreAllReady());
-    CastChecked<UTextBlock>(OpenButton->GetContent())->SetText(Localized(TEXT("hub.open_selection"),LOCTEXT("OpenSelection","ENTER · ВЫБРАТЬ ДЕНЬ")));
-    SelectionPanel->SetVisibility(bSelecting?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
-    ReadinessPanel->SetVisibility(bSelecting?ESlateVisibility::Collapsed:ESlateVisibility::Visible);
-    PresentationHost->SetVisibility(bSelecting?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    if(OpenButton)
+    {
+        OpenButton->SetVisibility(Hub && Hub->Phase==EMCHubPhase::Gathering && bHost?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+        OpenButton->SetIsEnabled(Hub && Hub->AreAllReady());
+    }
+    MCHubPresentation::SetText(OpenButtonLabel,Localized(TEXT("hub.open_selection"),LOCTEXT("OpenSelection","ENTER · ВЫБРАТЬ ДЕНЬ")));
+    if(SelectionPanel) SelectionPanel->SetVisibility(bSelecting?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+    if(ReadinessPanel) ReadinessPanel->SetVisibility(bSelecting?ESlateVisibility::Collapsed:ESlateVisibility::Visible);
+    if(PresentationHost) PresentationHost->SetVisibility(bSelecting?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     if(bSelecting)
     {
         EnsureSelectionPresentation();
@@ -326,12 +389,15 @@ void UMCHubWidget::RefreshFromState()
         const FText Name=Destination?Localized(Destination->DisplayNameKey,Destination->DisplayName):FText::AsNumber(Hub->SelectedDay);
         const int32 Loaded=Hub->Players.FilterByPredicate([](const FMCHubPlayerReadiness& Player){return Player.bLoaded;}).Num();
         const FText Loading=Format(TEXT("hub.loading.count"),LOCTEXT("FooterLoaded","ЗАГРУЗИЛИСЬ · {Ready} / {Total}"),{{TEXT("Ready"),Loaded},{TEXT("Total"),Total}});
-        SelectionTitle->SetText(FText::Join(FText::AsCultureInvariant(TEXT(" · ")),Name,Loading));
-        LaunchButton->SetVisibility(bHost?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
-        LaunchButton->SetIsEnabled(bHost && !bTravelling && Destination && Destination->bEnabled && Destination->HasValidMapPath() && Hub->AreAllLoaded() && IsSceneReady());
-        CastChecked<UTextBlock>(LaunchButton->GetContent())->SetText(Localized(TEXT("hub.selection.start"),LOCTEXT("Launch","ENTER · НАЧАТЬ")));
-        ReturnButton->SetVisibility(bHost?ESlateVisibility::Visible:ESlateVisibility::Collapsed);ReturnButton->SetIsEnabled(!bTravelling);
-        CastChecked<UTextBlock>(ReturnButton->GetContent())->SetText(Localized(TEXT("hub.selection.cancel"),LOCTEXT("Return","ESC · ВЕРНУТЬСЯ В ХАБ")));
+        MCHubPresentation::SetText(SelectionTitle,FText::Join(FText::AsCultureInvariant(TEXT(" · ")),Name,Loading));
+        if(LaunchButton)
+        {
+            LaunchButton->SetVisibility(bHost?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+            LaunchButton->SetIsEnabled(bHost && !bTravelling && Destination && Destination->bEnabled && Destination->HasValidMapPath() && Hub->AreAllLoaded() && IsSceneReady());
+        }
+        MCHubPresentation::SetText(LaunchButtonLabel,Localized(TEXT("hub.selection.start"),LOCTEXT("Launch","ENTER · НАЧАТЬ")));
+        if(ReturnButton) {ReturnButton->SetVisibility(bHost?ESlateVisibility::Visible:ESlateVisibility::Collapsed);ReturnButton->SetIsEnabled(!bTravelling);}
+        MCHubPresentation::SetText(ReturnButtonLabel,Localized(TEXT("hub.selection.cancel"),LOCTEXT("Return","ESC · ВЕРНУТЬСЯ В ХАБ")));
         FText Status;
         if(bTravelling) Status=Localized(TEXT("hub.loading"),LOCTEXT("Travelling","ЗАГРУЖАЕМ ДЕНЬ…"));
         else if(bPresentationFailed) Status=Localized(TEXT("hub.presentation.unavailable"),LOCTEXT("PresentationUnavailable","Не удалось открыть сцену выбора. Вернитесь в хаб."));
@@ -341,6 +407,41 @@ void UMCHubWidget::RefreshFromState()
         MCHubPresentation::SetText(SelectionStatus,Hub->Notice.IsEmpty()?Status:Hub->Notice);
     }
     UpdateMouthHitAreas();
+    ApplyTheme();
+}
+
+void UMCHubWidget::ApplyEditorPreview(float Time)
+{
+    if(!IsDesignTime()) return;
+    PreviewTime=FMath::IsFinite(Time)?FMath::Max(0.f,Time):0.f;
+    BuildPresentationTree();
+    const bool Selecting=PreviewState==TEXT("Selecting") || PreviewState==TEXT("Selection")
+        || PreviewState==TEXT("Travelling") || PreviewScenario==EMCGameplayUIPreviewScenario::Selected;
+    const bool Waiting=PreviewScenario==EMCGameplayUIPreviewScenario::Waiting;
+    const bool Travelling=PreviewState==TEXT("Travelling");
+    const bool Guest=PreviewState==TEXT("Guest");
+    const int32 Ready=Waiting?3:4;
+    if(ReadinessPanel) ReadinessPanel->SetVisibility(Selecting?ESlateVisibility::Collapsed:ESlateVisibility::Visible);
+    if(SelectionPanel) SelectionPanel->SetVisibility(Selecting?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+    // Preview only the widget presentation. It never creates gameplay state,
+    // starts travel, or runs the actor-driving Blueprint mouth stage.
+    if(PresentationHost) PresentationHost->SetVisibility(ESlateVisibility::Collapsed);
+    for(const auto& HitArea:MouthHitAreas) if(HitArea) HitArea->SetVisibility(ESlateVisibility::Collapsed);
+    MCHubPresentation::SetText(ReadinessTitle,Localized(TEXT("hub.title"),LOCTEXT("Title","СБОР КОМАНДЫ")));
+    MCHubPresentation::SetText(ReadinessCount,Format(TEXT("hub.ready.count"),LOCTEXT("ReadyCount","ГОТОВЫ · {Ready} / {Total}"),{{TEXT("Ready"),Ready},{TEXT("Total"),4}}));
+    MCHubPresentation::SetText(PlayerNames,FText::AsCultureInvariant(Waiting?TEXT("✓ Player 1\n✓ Player 2\n✓ Player 3\n… Player 4"):TEXT("✓ Player 1\n✓ Player 2\n✓ Player 3\n✓ Player 4")));
+    MCHubPresentation::SetText(ReadinessHint,Localized(TEXT("hub.ready.enter"),LOCTEXT("GatherHint","Соберитесь в зоне готовности, чтобы выбрать день.")));
+    MCHubPresentation::SetText(OpenButtonLabel,Localized(TEXT("hub.open_selection"),LOCTEXT("OpenSelection","ENTER · ВЫБРАТЬ ДЕНЬ")));
+    MCHubPresentation::SetText(LaunchButtonLabel,Localized(TEXT("hub.selection.start"),LOCTEXT("Launch","ENTER · НАЧАТЬ")));
+    MCHubPresentation::SetText(ReturnButtonLabel,Localized(TEXT("hub.selection.cancel"),LOCTEXT("Return","ESC · ВЕРНУТЬСЯ В ХАБ")));
+    MCHubPresentation::SetText(SelectionTitle,Format(TEXT("hub.loading.count"),LOCTEXT("FooterLoaded","ЗАГРУЗИЛИСЬ · {Ready} / {Total}"),{{TEXT("Ready"),Ready},{TEXT("Total"),4}}));
+    const FText Hint=Travelling?Localized(TEXT("hub.loading"),LOCTEXT("Travelling","ЗАГРУЖАЕМ ДЕНЬ…")):
+        Waiting?Localized(TEXT("hub.loading.players"),LOCTEXT("WaitingForLoad","Ждём загрузку остальных игроков…")):
+        Localized(Guest?TEXT("hub.guest.hint"):TEXT("hub.selection.hint"),Guest?LOCTEXT("WaitingForHost","Хост выбирает день. ESC — меню."):LOCTEXT("HostSelectHint","Выберите день. Запуск — Enter, возврат — Esc."));
+    MCHubPresentation::SetText(SelectionStatus,Hint);
+    if(OpenButton) {OpenButton->SetVisibility(Guest?ESlateVisibility::Collapsed:ESlateVisibility::Visible);OpenButton->SetIsEnabled(!Waiting);}
+    if(LaunchButton) {LaunchButton->SetVisibility(Guest?ESlateVisibility::Collapsed:ESlateVisibility::Visible);LaunchButton->SetIsEnabled(!Waiting && !Travelling);}
+    if(ReturnButton) {ReturnButton->SetVisibility(Guest?ESlateVisibility::Collapsed:ESlateVisibility::Visible);ReturnButton->SetIsEnabled(!Travelling);}
     ApplyTheme();
 }
 

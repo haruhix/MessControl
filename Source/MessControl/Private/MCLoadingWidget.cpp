@@ -31,18 +31,12 @@ void UMCLoadingWidget::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
     SetIsFocusable(true);
-    LocalizationTable=UMCUIDataLibrary::GetDefaultLocalizationTable();
 }
 
-TSharedRef<SWidget> UMCLoadingWidget::RebuildWidget()
+void UMCLoadingWidget::BuildPresentationTree()
 {
-    BuildTree();
-    return Super::RebuildWidget();
-}
-
-void UMCLoadingWidget::BuildTree()
-{
-    if(!WidgetTree || WidgetTree->RootWidget) return;
+    if(!WidgetTree) return;
+    if(WidgetTree->RootWidget) {BindPresentationTree();return;}
     auto* Canvas=WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(),TEXT("LoadingRoot"));
     WidgetTree->RootWidget=Canvas;
     auto* Backdrop=WidgetTree->ConstructWidget<UBorder>();
@@ -59,7 +53,7 @@ void UMCLoadingWidget::BuildTree()
     auto* Column=WidgetTree->ConstructWidget<UVerticalBox>();Panel->AddChild(Column);
     auto MakeText=[&](const TCHAR* Name,int32 FontSize,FLinearColor Color,float Bottom) {
         auto* Label=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);
-        Label->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),FontSize));
+        Label->SetFont(GetResolvedTheme()->MakeGameplayFont(FontSize));
         Label->SetColorAndOpacity(Color);Label->SetAutoWrapText(true);
         Column->AddChildToVerticalBox(Label)->SetPadding(FMargin(0,0,0,Bottom));return Label;
     };
@@ -69,7 +63,7 @@ void UMCLoadingWidget::BuildTree()
     Status=MakeText(TEXT("LoadingStatus"),18,FLinearColor(.80f,.91f,.92f),10.f);
     Detail=MakeText(TEXT("LoadingDetail"),14,FLinearColor(.60f,.75f,.78f),20.f);
     ProgressLabel=MakeText(TEXT("LoadingAssetLabel"),13,FLinearColor(.67f,.87f,.87f),8.f);
-    AssetProgress=WidgetTree->ConstructWidget<UProgressBar>();
+    AssetProgress=WidgetTree->ConstructWidget<UProgressBar>(UProgressBar::StaticClass(),TEXT("LoadingAssetProgress"));
     FProgressBarStyle ProgressStyle;
     ProgressStyle.SetBackgroundImage(FSlateRoundedBoxBrush(FLinearColor(.012f,.035f,.045f),4.f));
     ProgressStyle.SetFillImage(FSlateRoundedBoxBrush(FLinearColor::White,4.f));
@@ -85,22 +79,39 @@ void UMCLoadingWidget::BuildTree()
         Style.SetHovered(FSlateRoundedBoxBrush(FLinearColor(.08f,.30f,.32f),8.f,FLinearColor(.50f,.94f,.85f),1.f));
         Style.SetPressed(FSlateRoundedBoxBrush(FLinearColor(.035f,.13f,.16f),8.f));
         Style.SetNormalPadding(FMargin(16,10));Style.SetPressedPadding(FMargin(16,10));Button->SetStyle(Style);
-        OutLabel=WidgetTree->ConstructWidget<UTextBlock>();
-        OutLabel->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),15));
+        OutLabel=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),FName(*(FString(Name)+TEXT("Label"))));
+        OutLabel->SetFont(GetResolvedTheme()->MakeGameplayFont(15));
         OutLabel->SetColorAndOpacity(FLinearColor(.91f,.98f,.97f));Button->AddChild(OutLabel);
         Actions->AddChildToHorizontalBox(Button)->SetPadding(FMargin(0,0,12.f,0));return Button;
     };
     UTextBlock* RetryText=nullptr;RetryButton=MakeButton(TEXT("RetryLoading"),RetryText);RetryLabel=RetryText;
     UTextBlock* ReturnText=nullptr;ReturnButton=MakeButton(TEXT("LeaveLoading"),ReturnText);ReturnLabel=ReturnText;
-    RetryButton->OnClicked.AddUniqueDynamic(this,&UMCLoadingWidget::RetryPreparation);
-    ReturnButton->OnClicked.AddUniqueDynamic(this,&UMCLoadingWidget::ReturnToMenu);
+    BindPresentationTree();
     RefreshPresentation();
+}
+
+void UMCLoadingWidget::BindPresentationTree()
+{
+    if(!WidgetTree || !WidgetTree->RootWidget || BoundPresentationRoot.Get()==WidgetTree->RootWidget) return;
+    BoundPresentationRoot=WidgetTree->RootWidget;
+    Title=WidgetTree->FindWidget<UTextBlock>(TEXT("LoadingTitle"));
+    Status=WidgetTree->FindWidget<UTextBlock>(TEXT("LoadingStatus"));
+    Detail=WidgetTree->FindWidget<UTextBlock>(TEXT("LoadingDetail"));
+    ProgressLabel=WidgetTree->FindWidget<UTextBlock>(TEXT("LoadingAssetLabel"));
+    AssetProgress=WidgetTree->FindWidget<UProgressBar>(TEXT("LoadingAssetProgress"));
+    RetryButton=WidgetTree->FindWidget<UButton>(TEXT("RetryLoading"));
+    ReturnButton=WidgetTree->FindWidget<UButton>(TEXT("LeaveLoading"));
+    RetryLabel=WidgetTree->FindWidget<UTextBlock>(TEXT("RetryLoadingLabel"));
+    ReturnLabel=WidgetTree->FindWidget<UTextBlock>(TEXT("LeaveLoadingLabel"));
+    if(RetryButton) RetryButton->OnClicked.AddUniqueDynamic(this,&UMCLoadingWidget::RetryPreparation);
+    if(ReturnButton) ReturnButton->OnClicked.AddUniqueDynamic(this,&UMCLoadingWidget::ReturnToMenu);
 }
 
 FText UMCLoadingWidget::Text(FName Key,const FText& Russian,const FText& English) const
 {
-    const bool RussianCulture=FInternationalization::Get().GetCurrentLanguage()->GetTwoLetterISOLanguageName()==TEXT("ru");
-    return UMCUIDataLibrary::ResolveText(LocalizationTable,Key,RussianCulture?Russian:English);
+    const FString Culture=IsDesignTime()?PreviewCulture:FInternationalization::Get().GetCurrentLanguage()->GetName();
+    const bool RussianCulture=Culture.StartsWith(TEXT("ru"),ESearchCase::IgnoreCase);
+    return UMCUIDataLibrary::ResolveText(GetResolvedTranslationTable(),Key,RussianCulture?Russian:English,IsDesignTime()?PreviewCulture:FString());
 }
 
 void UMCLoadingWidget::SetPreparation(UMCWorldPreloadSubsystem* Value) {Preparation=Value;RefreshPresentation();}
@@ -109,40 +120,64 @@ void UMCLoadingWidget::SetWaitingDetail(const FText& Value) {WaitingDetail=Value
 
 void UMCLoadingWidget::RefreshPresentation()
 {
-    if(!Title) return;
-    const bool Failed=Preparation && Preparation->HasFailed();
-    Title->SetText(Failed?Text(TEXT("loading.failed"),LOCTEXT("FailedRu","Не удалось загрузить локацию"),LOCTEXT("FailedEn","Unable to prepare this location"))
-        :bWaitingForPlayers?Text(TEXT("loading.waiting"),LOCTEXT("WaitingRu","Ждём остальных игроков"),LOCTEXT("WaitingEn","Waiting for the other players"))
+    BindPresentationTree();
+    const bool Preview=IsDesignTime();
+    const bool Failed=Preview?PreviewState==TEXT("Failed"):Preparation && Preparation->HasFailed();
+    const bool Waiting=Preview?(PreviewState==TEXT("Waiting") || PreviewScenario==EMCGameplayUIPreviewScenario::Waiting):bWaitingForPlayers;
+    if(Title) Title->SetText(Failed?Text(TEXT("loading.failed"),LOCTEXT("FailedRu","Не удалось загрузить локацию"),LOCTEXT("FailedEn","Unable to prepare this location"))
+        :Waiting?Text(TEXT("loading.waiting"),LOCTEXT("WaitingRu","Ждём остальных игроков"),LOCTEXT("WaitingEn","Waiting for the other players"))
         :Text(TEXT("loading.title"),LOCTEXT("TitleRu","Подготавливаем локацию"),LOCTEXT("TitleEn","Preparing the location")));
-    Status->SetText(bWaitingForPlayers
+    if(Status) Status->SetText(Waiting
         ?Text(TEXT("loading.localready"),LOCTEXT("LocalReadyRu","У тебя всё готово."),LOCTEXT("LocalReadyEn","Everything is ready on your side."))
         :Preparation?Preparation->GetStatusText():Text(TEXT("loading.starting"),LOCTEXT("StartingRu","Начинаем загрузку…"),LOCTEXT("StartingEn","Starting preparation…")));
-    Detail->SetText(bWaitingForPlayers?WaitingDetail:Preparation?Preparation->GetDetailText():FText::GetEmpty());
-    const float RawProgress=Preparation?Preparation->GetAssetProgress():0.f;
+    if(Detail) Detail->SetText(Waiting?WaitingDetail:Preparation?Preparation->GetDetailText():FText::GetEmpty());
+    const float RawProgress=Preview?.62f:Preparation?Preparation->GetAssetProgress():0.f;
     const float Progress=FMath::IsFinite(RawProgress)?FMath::Clamp(RawProgress,0.f,1.f):0.f;
-    AssetProgress->SetPercent(Progress);
-    AssetProgress->SetVisibility(Failed || bWaitingForPlayers?ESlateVisibility::Collapsed:ESlateVisibility::Visible);
-    ProgressLabel->SetVisibility(Failed || bWaitingForPlayers?ESlateVisibility::Collapsed:ESlateVisibility::Visible);
+    if(AssetProgress) {
+        AssetProgress->SetPercent(Progress);
+        AssetProgress->SetVisibility(Failed || Waiting?ESlateVisibility::Collapsed:ESlateVisibility::Visible);
+    }
+    if(ProgressLabel) ProgressLabel->SetVisibility(Failed || Waiting?ESlateVisibility::Collapsed:ESlateVisibility::Visible);
     FFormatNamedArguments Arguments;Arguments.Add(TEXT("Percent"),FMath::RoundToInt(Progress*100.f));
-    ProgressLabel->SetText(UMCUIDataLibrary::FormatTextForCulture(Text(TEXT("loading.assets"),
-        LOCTEXT("AssetsRu","Ресурсы: {Percent}%"),LOCTEXT("AssetsEn","Assets: {Percent}%")),Arguments));
-    RetryLabel->SetText(Text(TEXT("loading.retry"),LOCTEXT("RetryRu","Повторить"),LOCTEXT("RetryEn","Retry")));
-    ReturnLabel->SetText(Text(TEXT("loading.return"),LOCTEXT("ReturnRu","В главное меню"),LOCTEXT("ReturnEn","Return to main menu")));
-    RetryButton->SetVisibility(Failed?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+    if(ProgressLabel) ProgressLabel->SetText(UMCUIDataLibrary::FormatTextForCulture(Text(TEXT("loading.assets"),
+        LOCTEXT("AssetsRu","Ресурсы: {Percent}%"),LOCTEXT("AssetsEn","Assets: {Percent}%")),Arguments,IsDesignTime()?PreviewCulture:FString()));
+    if(RetryLabel) RetryLabel->SetText(Text(TEXT("loading.retry"),LOCTEXT("RetryRu","Повторить"),LOCTEXT("RetryEn","Retry")));
+    if(ReturnLabel) ReturnLabel->SetText(Text(TEXT("loading.return"),LOCTEXT("ReturnRu","В главное меню"),LOCTEXT("ReturnEn","Return to main menu")));
+    if(RetryButton) RetryButton->SetVisibility(Failed?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+    const FString Signature=FString::Printf(TEXT("%.4f|%d|%d|%s|%s|%s"),Progress,Failed,Waiting,
+        Title?*Title->GetText().ToString():TEXT(""),Status?*Status->GetText().ToString():TEXT(""),Detail?*Detail->GetText().ToString():TEXT(""));
+    if(Signature!=LastPresentationSignature) {
+        LastPresentationSignature=Signature;
+        OnLoadingPresentationChanged(Progress,Failed,Waiting);
+    }
+}
+
+void UMCLoadingWidget::ApplyEditorPreview(float Time)
+{
+    Super::ApplyEditorPreview(Time);
+    RefreshPresentation();
+}
+
+void UMCLoadingWidget::OnLocalizationChanged()
+{
+    Super::OnLocalizationChanged();
+    RefreshPresentation();
 }
 
 UWidget* UMCLoadingWidget::GetFocusTarget() const
 {
-    return Preparation && Preparation->HasFailed()?static_cast<UWidget*>(RetryButton):const_cast<UMCLoadingWidget*>(this);
+    return Preparation && Preparation->HasFailed() && RetryButton?static_cast<UWidget*>(RetryButton):const_cast<UMCLoadingWidget*>(this);
 }
 
 void UMCLoadingWidget::RetryPreparation()
 {
+    if(IsDesignTime()) return;
     if(Preparation && Preparation->HasFailed()) {bWaitingForPlayers=false;Preparation->Retry();RefreshPresentation();}
 }
 
 void UMCLoadingWidget::ReturnToMenu()
 {
+    if(IsDesignTime()) return;
     if(auto* Player=GetOwningPlayer<AMCPlayerController>()) {Player->ReturnToMainMenu();return;}
     if(auto* Instance=GetGameInstance()) if(auto* Steam=Instance->GetSubsystem<UMCSteamSessionSubsystem>()) {Steam->LeaveRoom();return;}
     UGameplayStatics::OpenLevel(this,TEXT("/Game/Maps/L_MainMenu"));

@@ -2,6 +2,9 @@
 
 #include "MCGameplayUIPreview.h"
 #include "MCGameplayUIWidget.h"
+#include "MCGameplayHUD.h"
+#include "MCMainMenuWidget.h"
+#include "MCHubWidget.h"
 #include "MCUIDataLibrary.h"
 #include "MCThroatVortex.h"
 #include "MCFoodActor.h"
@@ -10,17 +13,30 @@
 #include "MCNutBoss.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Blueprint/WidgetBlueprintGeneratedClass.h"
+#include "WidgetBlueprint.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Button.h"
+#include "Components/CanvasPanel.h"
+#include "Components/CanvasPanelSlot.h"
 #include "Components/Border.h"
 #include "Components/ComboBoxString.h"
 #include "Components/TextBlock.h"
+#include "Components/VerticalBox.h"
+#include "Components/VerticalBoxSlot.h"
+#include "Components/WidgetSwitcher.h"
 #include "Components/ProgressBar.h"
 #include "Components/Image.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Materials/MaterialInstanceConstant.h"
 #include "Materials/Material.h"
+#include "FileHelpers.h"
+#include "ObjectTools.h"
+#include "UObject/Package.h"
 #include "Editor.h"
 #include "Kismet2/KismetEditorUtilities.h"
+#include "Kismet2/BlueprintEditorUtils.h"
+#include "EdGraph/EdGraph.h"
+#include "EdGraph/EdGraphSchema.h"
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
 #include "Misc/PackageName.h"
@@ -48,6 +64,126 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Rendering/SlateRenderer.h"
 #include "UObject/UnrealType.h"
+
+namespace
+{
+void RegisterMissingDesignerGuids(UWidgetBlueprint* Blueprint)
+{
+    // Match the Designer's add-widget path. The compiler only seeds every GUID
+    // for an entirely empty map; appending to an existing WBP needs explicit IDs.
+    Blueprint->WidgetTree->ForEachWidget([Blueprint](UWidget* Widget) {
+        if(!Blueprint->WidgetVariableNameToGuidMap.Contains(Widget->GetFName()))
+            Blueprint->OnVariableAdded(Widget->GetFName());
+    });
+}
+
+bool HasDirtyDesignerPackages()
+{
+    TArray<UPackage*> Dirty;FEditorFileUtils::GetDirtyContentPackages(Dirty);
+    for(const auto* Package:Dirty)
+        if(Package && Package->GetName().StartsWith(TEXT("/Game/Gameplay/UI/"))) {
+            UE_LOG(LogTemp,Error,TEXT("MC_UI_SNAPSHOT Unsaved UI package preserved: %s"),*Package->GetName());
+            return true;
+        }
+    return false;
+}
+
+/** Per-operation snapshots; artist MICs and unrelated/dirty packages are never overwritten. */
+struct FDesignerMaterialSnapshots
+{
+    UWidgetBlueprint* Blueprint;
+    UEditorAssetSubsystem* Assets;
+    const UObject* NamingRoot;
+    TMap<UMaterialInstanceDynamic*,UMaterialInstanceConstant*> BySource;
+    TArray<TStrongObjectPtr<UMaterialInstanceConstant>> Pending;
+    bool bFailed=false;
+
+    FDesignerMaterialSnapshots(UWidgetBlueprint* InBlueprint,UEditorAssetSubsystem* InAssets,const UObject* InNamingRoot=nullptr)
+        :Blueprint(InBlueprint),Assets(InAssets),NamingRoot(InNamingRoot?InNamingRoot:InBlueprint->WidgetTree.Get()) {}
+
+    bool Brush(FSlateBrush& Value,const UWidget* Widget,const TCHAR* Role)
+    {
+        auto* Dynamic=Cast<UMaterialInstanceDynamic>(Value.GetResourceObject());
+        if(!Dynamic) return true;
+        if(bFailed) return false;
+        if(auto* Existing=BySource.Find(Dynamic)) {Value.SetResourceObject(*Existing);return true;}
+        UMaterialInterface* Parent=Dynamic->Parent;
+        while(auto* ParentMID=Cast<UMaterialInstanceDynamic>(Parent)) Parent=ParentMID->Parent;
+        if(!Parent || !Parent->IsAsset() || Parent->GetPackage()->IsDirty()
+            || !Parent->GetPathName().StartsWith(TEXT("/Game/Gameplay/UI/Materials/")) || !Parent->IsUIMaterial()) {
+            UE_LOG(LogTemp,Error,TEXT("MC_UI_SNAPSHOT Unsupported or unsaved material parent on %s/%s; no lossy fallback"),*Widget->GetName(),Role);
+            bFailed=true;return false;
+        }
+        // A uniform snapshot must not serialize a transient render target or another
+        // runtime-only resource into a saved UI asset. Phase1 surfaces use no textures.
+        TArray<FMaterialParameterInfo> Infos;TArray<FGuid> IDs;
+        Dynamic->GetAllTextureParameterInfo(Infos,IDs);
+        for(const auto& Info:Infos) {
+            UTexture* Texture=nullptr;
+            if(Dynamic->GetTextureParameterValue(FHashedMaterialParameterInfo(Info),Texture) && Texture
+                && (!Texture->IsAsset() || Texture->GetPackage()->IsDirty())) {
+                UE_LOG(LogTemp,Error,TEXT("MC_UI_SNAPSHOT Runtime/unsaved texture on %s/%s: %s"),*Widget->GetName(),Role,*Texture->GetPathName());
+                bFailed=true;return false;
+            }
+        }
+        const FString Identity=ObjectTools::SanitizeObjectName(Widget->GetPathName(NamingRoot));
+        const FString Name=FString::Printf(TEXT("MI_%s_%s"),*Identity,Role);
+        const FString PackagePath=TEXT("/Game/Gameplay/UI/Materials/DesignerSnapshots/")+Blueprint->GetName()+TEXT("/")+Name;
+        const FString ObjectPath=PackagePath+TEXT(".")+Name;
+        if(FindPackage(nullptr,*PackagePath) || FindObject<UObject>(nullptr,*ObjectPath) || Assets->DoesAssetExist(PackagePath)) {
+            UE_LOG(LogTemp,Error,TEXT("MC_UI_SNAPSHOT Existing snapshot collision preserved; inspect before retry: %s"),*PackagePath);
+            bFailed=true;return false;
+        }
+        auto* Package=CreatePackage(*PackagePath);
+        auto* Material=NewObject<UMaterialInstanceConstant>(Package,FName(Name),RF_Public|RF_Standalone|RF_Transactional);
+        Pending.Emplace(Material);
+        Material->SetParentEditorOnly(Parent);
+        // The engine copies effective scalar/vector/texture values through the
+        // MID parent chain. Keeping only GetMaterial() would lose the palette.
+        Material->CopyMaterialUniformParametersEditorOnly(Dynamic,false);
+        Material->PostEditChange();Material->MarkPackageDirty();
+        BySource.Add(Dynamic,Material);Value.SetResourceObject(Material);
+        return true;
+    }
+
+    bool Save()
+    {
+        if(bFailed) return false;
+        for(const auto& Material:Pending) {
+            FAssetRegistryModule::AssetCreated(Material.Get());
+            if(!Assets->SaveLoadedAsset(Material.Get(),false)) {
+                UE_LOG(LogTemp,Error,TEXT("MC_UI_SNAPSHOT Cannot save owned snapshot: %s"),*Material->GetPathName());
+                return false;
+            }
+            UE_LOG(LogTemp,Display,TEXT("MC_UI_SNAPSHOT Saved editable material parameters: %s"),*Material->GetPathName());
+        }
+        return true;
+    }
+};
+
+bool SanitizeAppendedDesignerWidget(UWidget* Widget,UObject* SourceOwner,FDesignerMaterialSnapshots& Snapshots)
+{
+    Widget->ClearFlags(RF_Transient);Widget->SetFlags(RF_Transactional);Widget->bIsVariable=false;
+    if(auto* Button=Cast<UButton>(Widget)) {
+        Button->OnClicked.RemoveAll(SourceOwner);
+        auto Style=Button->GetStyle();
+        if(!Snapshots.Brush(Style.Normal,Widget,TEXT("Normal")) || !Snapshots.Brush(Style.Hovered,Widget,TEXT("Hovered"))
+            || !Snapshots.Brush(Style.Pressed,Widget,TEXT("Pressed")) || !Snapshots.Brush(Style.Disabled,Widget,TEXT("Disabled"))) return false;
+        Button->SetStyle(Style);
+    }
+    if(auto* Border=Cast<UBorder>(Widget)) {auto Value=Border->Background;if(!Snapshots.Brush(Value,Widget,TEXT("Background"))) return false;Border->SetBrush(Value);}
+    if(auto* Image=Cast<UImage>(Widget)) {auto Value=Image->GetBrush();if(!Snapshots.Brush(Value,Widget,TEXT("Image"))) return false;Image->SetBrush(Value);}
+    if(auto* Bar=Cast<UProgressBar>(Widget)) {
+        auto Style=Bar->GetWidgetStyle();
+        if(!Snapshots.Brush(Style.BackgroundImage,Widget,TEXT("Background")) || !Snapshots.Brush(Style.FillImage,Widget,TEXT("Fill"))
+            || !Snapshots.Brush(Style.MarqueeImage,Widget,TEXT("Marquee"))) return false;
+        Bar->SetWidgetStyle(Style);
+    }
+    if(auto* Picker=Cast<UComboBoxString>(Widget);Picker && Picker->OnGenerateWidgetEvent.GetUObject()==SourceOwner)
+        Picker->OnGenerateWidgetEvent.Unbind();
+    return true;
+}
+}
 
 bool UMCGameplayUIEditorLibrary::ReadPIEThroatVortex(UWorld* World,AMCThroatVortex* Vortex,
     TArray<AMCFoodActor*>& OutSources,double& OutStartedAt,float& OutDuration)
@@ -193,9 +329,6 @@ bool UMCGameplayUIEditorLibrary::RenderGameplayUIPreview(TSubclassOf<UMCGameplay
     BeginCleanup(Renderer);
     return bSaved;
 }
-#include "UObject/Package.h"
-#include "WidgetBlueprint.h"
-
 void UMCGameplayUIEditorLibrary::EnsureGameplayUIPreviewRegistered()
 {
     MCGameplayUIPreview::EnsureRegistered();
@@ -209,7 +342,7 @@ void UMCGameplayUIEditorLibrary::OpenGameplayUITheme(UMCGameplayUITheme* Theme)
 
 UWidgetBlueprint* UMCGameplayUIEditorLibrary::CreateEditableGameplayWidget(const FString& AssetPath,TSubclassOf<UMCGameplayUIWidget> ParentClass)
 {
-    if (!GEditor || GEditor->PlayWorld || IsRunningCommandlet() || !ParentClass
+    if (!GEditor || GEditor->PlayWorld || IsRunningCommandlet() || !ParentClass || HasDirtyDesignerPackages()
         || ParentClass->HasAnyClassFlags(CLASS_Abstract | CLASS_Deprecated | CLASS_NewerVersionExists)
         || !AssetPath.StartsWith(TEXT("/Game/Gameplay/UI/")) || !FPackageName::IsValidLongPackageName(AssetPath))
     {
@@ -223,7 +356,7 @@ UWidgetBlueprint* UMCGameplayUIEditorLibrary::CreateEditableGameplayWidget(const
     if (LoadedExisting || Assets->DoesAssetExist(AssetPath))
     {
         auto* Existing=Cast<UWidgetBlueprint>(LoadedExisting?LoadedExisting:Assets->LoadAsset(AssetPath));
-        if (!Existing || !Existing->ParentClass || !Existing->ParentClass->IsChildOf(UMCGameplayUIWidget::StaticClass()))
+        if (!Existing || !Existing->ParentClass || !Existing->ParentClass->IsChildOf(ParentClass))
         {
             UE_LOG(LogTemp,Error,TEXT("MC_UI_AUTHOR Existing unrelated asset preserved: %s"),*AssetPath);
             return nullptr;
@@ -256,41 +389,12 @@ UWidgetBlueprint* UMCGameplayUIEditorLibrary::CreateEditableGameplayWidget(const
     Blueprint->WidgetTree=DuplicateObject<UWidgetTree>(Source->WidgetTree,Blueprint,TEXT("WidgetTree"));
     Blueprint->WidgetTree->ClearFlags(RF_Transient);
     Blueprint->WidgetTree->SetFlags(RF_Transactional);
-    Blueprint->WidgetTree->ForEachWidget([SourceWidget=Source.Get()](UWidget* Widget)
+    FDesignerMaterialSnapshots Snapshots(Blueprint,Assets);
+    Blueprint->WidgetTree->ForEachWidget([SourceWidget=Source.Get(),&Snapshots](UWidget* Widget)
     {
-        Widget->ClearFlags(RF_Transient);
-        Widget->SetFlags(RF_Transactional);
-        // Native classes resolve named controls themselves. A generated field
-        // with the same name as a native cache would be a Blueprint collision.
-        Widget->bIsVariable=false;
-        // Callbacks to the temporary native owner are rebound by each runtime
-        // instance. Saving that owner would leave transient external references.
-        if(auto* Button=Cast<UButton>(Widget)) Button->OnClicked.RemoveAll(SourceWidget);
-        if(auto* Picker=Cast<UComboBoxString>(Widget);Picker && Picker->OnGenerateWidgetEvent.GetUObject()==SourceWidget)
-            Picker->OnGenerateWidgetEvent.Unbind();
-        if(auto* Bar=Cast<UProgressBar>(Widget))
-        {
-            auto Style=Bar->GetWidgetStyle();
-            for(FSlateBrush* Brush:{&Style.FillImage,&Style.BackgroundImage})
-                if(auto* Dynamic=Cast<UMaterialInstanceDynamic>(Brush->GetResourceObject())) Brush->SetResourceObject(Dynamic->GetMaterial());
-            Bar->SetWidgetStyle(Style);
-        }
-        if(auto* Image=Cast<UImage>(Widget))
-            if(auto* Dynamic=Cast<UMaterialInstanceDynamic>(Image->GetBrush().GetResourceObject()))
-                Image->SetBrushFromMaterial(Dynamic->GetMaterial());
-        if(auto* Border=Cast<UBorder>(Widget))
-        {
-            auto Brush=Border->Background;
-            if(auto* Dynamic=Cast<UMaterialInstanceDynamic>(Brush.GetResourceObject())) {Brush.SetResourceObject(Dynamic->GetMaterial());Border->SetBrush(Brush);}
-        }
-        if(auto* Button=Cast<UButton>(Widget))
-        {
-            auto Style=Button->GetStyle();
-            for(FSlateBrush* Brush:{&Style.Normal,&Style.Hovered,&Style.Pressed,&Style.Disabled})
-                if(auto* Dynamic=Cast<UMaterialInstanceDynamic>(Brush->GetResourceObject())) Brush->SetResourceObject(Dynamic->GetMaterial());
-            Button->SetStyle(Style);
-        }
+        if(!SanitizeAppendedDesignerWidget(Widget,SourceWidget,Snapshots)) Snapshots.bFailed=true;
     });
+    if(Snapshots.bFailed) return nullptr;
     FKismetEditorUtilities::CompileBlueprint(Blueprint);
     if (Blueprint->Status==BS_Error || !Blueprint->GeneratedClass)
     {
@@ -300,10 +404,13 @@ UWidgetBlueprint* UMCGameplayUIEditorLibrary::CreateEditableGameplayWidget(const
     if (auto* Defaults=Cast<UMCGameplayUIWidget>(Blueprint->GeneratedClass->GetDefaultObject()))
     {
         Defaults->StyleBindings=Source->StyleBindings;
+        Defaults->TextBindings=Source->TextBindings;
+        Defaults->TranslationTable=Source->TranslationTable;
         // Native defaults changed after compilation: refresh the optimized
         // initializer so newly created instances receive those defaults too.
         CastChecked<UWidgetBlueprintGeneratedClass>(Blueprint->GeneratedClass)->UpdateCustomPropertyListForPostConstruction();
     }
+    if(!Snapshots.Save()) return nullptr;
     FAssetRegistryModule::AssetCreated(Blueprint);
     Blueprint->MarkPackageDirty();
     if (!Assets->SaveLoadedAsset(Blueprint,false))
@@ -313,6 +420,287 @@ UWidgetBlueprint* UMCGameplayUIEditorLibrary::CreateEditableGameplayWidget(const
     }
     UE_LOG(LogTemp,Display,TEXT("MC_UI_AUTHOR Saved editable gameplay widget: %s"),*AssetPath);
     return Blueprint;
+}
+
+bool UMCGameplayUIEditorLibrary::AddMissingGameplayHUDPresentation(UWidgetBlueprint* Blueprint)
+{
+    if(!GEditor || GEditor->PlayWorld || IsRunningCommandlet() || !IsValid(Blueprint) || HasDirtyDesignerPackages()
+        || !Blueprint->ParentClass || !Blueprint->ParentClass->IsChildOf(UMCGameplayHUD::StaticClass())
+        || !Blueprint->GetPathName().StartsWith(TEXT("/Game/Gameplay/UI/"))
+        || Blueprint->GetPackage()->IsDirty() || !Blueprint->WidgetTree) return false;
+    auto* TargetCanvas=Blueprint->WidgetTree->FindWidget<UCanvasPanel>(TEXT("HUDRoot"));
+    if(!TargetCanvas) return false;
+    const FName Names[]={TEXT("DirectorMonitor"),TEXT("DirectorCandidates"),TEXT("DirectorLogButton"),TEXT("BoosterWidget"),TEXT("GameplayAlerts")};
+    TArray<FName> Missing;
+    for(FName Name:Names) if(!Blueprint->WidgetTree->FindWidget(Name)) Missing.Add(Name);
+    if(Missing.IsEmpty()) return true;
+
+    TStrongObjectPtr<UMCGameplayHUD> Source(NewObject<UMCGameplayHUD>(GetTransientPackage()));
+    Source->SetDesignerFlags(EWidgetDesignFlags::Designing);
+    Source->Initialize();Source->BuildPresentationTree();
+    // Duplicate the whole tree first: UMG children are outered to the tree,
+    // so duplicating a single panel alone would retain source-owned children.
+    TStrongObjectPtr<UWidgetTree> Copy(DuplicateObject<UWidgetTree>(Source->WidgetTree,GetTransientPackage(),
+        MakeUniqueObjectName(GetTransientPackage(),UWidgetTree::StaticClass(),TEXT("HUDDesignerSeed"))));
+    if(!Copy.IsValid()) return false;
+    TArray<UWidget*> Roots;
+    for(FName Name:Missing) {
+        UWidget* Root=Copy->FindWidget(Name);
+        if(!Root || !Cast<UCanvasPanelSlot>(Root->Slot)) return false;
+        bool Safe=StaticFindObjectFast(UObject::StaticClass(),Blueprint->WidgetTree,Root->GetFName())==nullptr;
+        UWidgetTree::ForWidgetAndChildren(Root,[&](UWidget* Widget) {
+            if(StaticFindObjectFast(UObject::StaticClass(),Blueprint->WidgetTree,Widget->GetFName())) Safe=false;
+        });
+        if(!Safe) return false;
+        Roots.Add(Root);
+    }
+    auto* Assets=GEditor->GetEditorSubsystem<UEditorAssetSubsystem>();if(!Assets) return false;
+    FDesignerMaterialSnapshots Snapshots(Blueprint,Assets);
+    Blueprint->Modify();Blueprint->WidgetTree->Modify();TargetCanvas->Modify();
+    for(UWidget* Root:Roots) {
+        const auto* SourceSlot=CastChecked<UCanvasPanelSlot>(Root->Slot);
+        const FAnchorData Layout=SourceSlot->GetLayout();
+        const bool AutoSize=SourceSlot->GetAutoSize();const int32 ZOrder=SourceSlot->GetZOrder();
+        TArray<UWidget*> Children={Root};
+        UWidgetTree::ForWidgetAndChildren(Root,[&](UWidget* Widget) {Children.Add(Widget);});
+        Root->RemoveFromParent();
+        for(UWidget* Widget:Children) {
+            if(!UWidgetTree::TryMoveWidgetToNewTree(Widget,Blueprint->WidgetTree)) return false;
+            if(!SanitizeAppendedDesignerWidget(Widget,Source.Get(),Snapshots)) return false;
+            if(auto* UserWidget=Cast<UUserWidget>(Widget);UserWidget && UserWidget->WidgetTree)
+                UserWidget->WidgetTree->ForEachWidgetAndDescendants([&](UWidget* Child) {
+                    if(!SanitizeAppendedDesignerWidget(Child,Source.Get(),Snapshots)) Snapshots.bFailed=true;
+                });
+            if(Snapshots.bFailed) return false;
+        }
+        auto* Slot=TargetCanvas->AddChildToCanvas(Root);
+        Slot->SetLayout(Layout);Slot->SetAutoSize(AutoSize);Slot->SetZOrder(ZOrder);
+    }
+    RegisterMissingDesignerGuids(Blueprint);
+    FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
+    FKismetEditorUtilities::CompileBlueprint(Blueprint);
+    if(Blueprint->Status==BS_Error) return false;
+    return Snapshots.Save() && Assets->SaveLoadedAsset(Blueprint,false);
+}
+
+bool UMCGameplayUIEditorLibrary::RepairEditableHubMaterialSnapshots(UWidgetBlueprint* Blueprint)
+{
+    if(!IsInGameThread() || !GEditor || GEditor->PlayWorld || IsRunningCommandlet() || !IsValid(Blueprint)
+        || Blueprint->GetPathName()!=TEXT("/Game/Gameplay/UI/WBP_Hub.WBP_Hub")
+        || Blueprint->ParentClass!=UMCHubWidget::StaticClass() || Blueprint->GetPackage()->IsDirty()
+        || !Blueprint->WidgetTree || HasDirtyDesignerPackages()) return false;
+    auto* Assets=GEditor->GetEditorSubsystem<UEditorAssetSubsystem>();if(!Assets) return false;
+    TStrongObjectPtr<UMCHubWidget> Source(NewObject<UMCHubWidget>(GetTransientPackage()));
+    Source->SetDesignerFlags(EWidgetDesignFlags::Designing);Source->Initialize();Source->BuildPresentationTree();
+    if(!Source->WidgetTree || !Source->WidgetTree->RootWidget) return false;
+    FDesignerMaterialSnapshots Snapshots(Blueprint,Assets);
+    TArray<TFunction<void()>> ApplyRepairs;
+    auto Repair=[&](const FSlateBrush& Native,FSlateBrush& Saved,const UWidget* Widget,const TCHAR* Role)
+    {
+        auto* Dynamic=Cast<UMaterialInstanceDynamic>(Native.GetResourceObject());
+        // Only the exact lossy migration signature is eligible. A designer's
+        // MIC, alternate material, tint, image size and rounded brush stay intact.
+        if(!Dynamic || Saved.GetResourceObject()!=Dynamic->GetMaterial()) return false;
+        FSlateBrush Captured=Native;
+        if(!Snapshots.Brush(Captured,Widget,Role)) return false;
+        Saved.SetResourceObject(Captured.GetResourceObject());return true;
+    };
+    Blueprint->WidgetTree->ForEachWidget([&](UWidget* Widget)
+    {
+        auto* Native=Source->WidgetTree->FindWidget(Widget->GetFName());if(!Native) return;
+        if(auto* Button=Cast<UButton>(Widget)) {
+            const auto* NativeButton=Cast<UButton>(Native);if(!NativeButton) return;
+            auto Style=Button->GetStyle();const auto& NativeStyle=NativeButton->GetStyle();
+            bool Changed=Repair(NativeStyle.Normal,Style.Normal,Widget,TEXT("Normal"));
+            Changed|=Repair(NativeStyle.Hovered,Style.Hovered,Widget,TEXT("Hovered"));
+            Changed|=Repair(NativeStyle.Pressed,Style.Pressed,Widget,TEXT("Pressed"));
+            Changed|=Repair(NativeStyle.Disabled,Style.Disabled,Widget,TEXT("Disabled"));
+            if(Changed) ApplyRepairs.Add([Button,Style] {Button->Modify();Button->SetStyle(Style);});
+        }
+        if(auto* Border=Cast<UBorder>(Widget)) {
+            const auto* NativeBorder=Cast<UBorder>(Native);if(!NativeBorder) return;
+            auto Brush=Border->Background;
+            if(Repair(NativeBorder->Background,Brush,Widget,TEXT("Background")))
+                ApplyRepairs.Add([Border,Brush] {Border->Modify();Border->SetBrush(Brush);});
+        }
+        if(auto* Image=Cast<UImage>(Widget)) {
+            const auto* NativeImage=Cast<UImage>(Native);if(!NativeImage) return;
+            auto Brush=Image->GetBrush();
+            if(Repair(NativeImage->GetBrush(),Brush,Widget,TEXT("Image")))
+                ApplyRepairs.Add([Image,Brush] {Image->Modify();Image->SetBrush(Brush);});
+        }
+    });
+    if(Snapshots.bFailed) return false;
+    const auto* ExistingDefaults=Blueprint->GeneratedClass?Cast<UMCGameplayUIWidget>(Blueprint->GeneratedClass->GetDefaultObject()):nullptr;
+    if(!ExistingDefaults) return false;
+    TArray<FMCUIStyleBinding> MissingBindings;
+    for(const auto& Binding:Source->StyleBindings)
+        if(!ExistingDefaults->StyleBindings.ContainsByPredicate([&Binding](const FMCUIStyleBinding& Existing)
+            {return Existing.WidgetName==Binding.WidgetName && Existing.Target==Binding.Target;})) MissingBindings.Add(Binding);
+    if(ApplyRepairs.IsEmpty() && MissingBindings.IsEmpty()) return true;
+    // No target mutation occurs until every snapshot and collision check passes.
+    if(!Snapshots.Save()) return false;
+    Blueprint->Modify();Blueprint->WidgetTree->Modify();
+    for(auto& Apply:ApplyRepairs) Apply();
+    FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
+    FKismetEditorUtilities::CompileBlueprint(Blueprint);
+    if(Blueprint->Status==BS_Error) return false;
+    auto* Defaults=Cast<UMCGameplayUIWidget>(Blueprint->GeneratedClass->GetDefaultObject());
+    if(!Defaults) return false;
+    Defaults->Modify();Defaults->StyleBindings.Append(MissingBindings);
+    CastChecked<UWidgetBlueprintGeneratedClass>(Blueprint->GeneratedClass)->UpdateCustomPropertyListForPostConstruction();
+    UE_LOG(LogTemp,Display,TEXT("MC_UI_SNAPSHOT Repaired %d Hub controls and added %d missing palette bindings; existing bindings preserved"),ApplyRepairs.Num(),MissingBindings.Num());
+    return Assets->SaveLoadedAsset(Blueprint,false);
+}
+
+bool UMCGameplayUIEditorLibrary::RefreshMainMenuSettingsPresentation(UWidgetBlueprint* Blueprint)
+{
+    if(!IsInGameThread() || !GEditor || GEditor->PlayWorld || IsRunningCommandlet() || !IsValid(Blueprint)
+        || Blueprint->GetPathName()!=TEXT("/Game/Gameplay/UI/WBP_MainMenu.WBP_MainMenu")
+        || !Blueprint->ParentClass || !Blueprint->ParentClass->IsChildOf(UMCMainMenuWidget::StaticClass())
+        || Blueprint->GetPackage()->IsDirty() || !Blueprint->WidgetTree || HasDirtyDesignerPackages()) return false;
+    auto* Page=Blueprint->WidgetTree->FindWidget<UVerticalBox>(TEXT("MenuSettings_Page"));
+    if(!Page) return false;
+    const FName Marker(TEXT("MenuSettings_Sections"));
+    if(auto* Existing=Blueprint->WidgetTree->FindWidget(Marker)) {
+        int32 Index=INDEX_NONE;
+        return Cast<UWidgetSwitcher>(Existing) && UWidgetTree::FindWidgetChild(Page,Marker,Index)==Existing;
+    }
+    auto* Assets=GEditor->GetEditorSubsystem<UEditorAssetSubsystem>();if(!Assets) return false;
+    TStrongObjectPtr<UMCMainMenuWidget> Source(NewObject<UMCMainMenuWidget>(GetTransientPackage()));
+    Source->SetDesignerFlags(EWidgetDesignFlags::Designing);Source->Initialize();Source->BuildPresentationTree();
+    TStrongObjectPtr<UWidgetTree> Copy(DuplicateObject<UWidgetTree>(Source->WidgetTree,GetTransientPackage(),
+        MakeUniqueObjectName(GetTransientPackage(),UWidgetTree::StaticClass(),TEXT("MainMenuSettingsSeed"))));
+    auto* SourcePage=Copy->FindWidget<UVerticalBox>(TEXT("MenuSettings_Page"));
+    if(!SourcePage || !Copy->FindWidget<UWidgetSwitcher>(Marker)) return false;
+    const TCHAR* Tabs[]={TEXT("MenuSettings_TabGraphics"),TEXT("MenuSettings_TabAudio"),TEXT("MenuSettings_TabLanguage"),TEXT("MenuSettings_TabControls")};
+    for(const TCHAR* Tab:Tabs) if(!Copy->FindWidget(Tab)) return false;
+
+    struct FChild
+    {
+        UWidget* Root;
+        FMargin Padding;
+        FSlateChildSize Size;
+        EHorizontalAlignment Horizontal;
+        EVerticalAlignment Vertical;
+    };
+    TArray<FChild> OldChildren,NewChildren;
+    TArray<UWidget*> OldWidgets,NewWidgets;
+    auto Collect=[](UVerticalBox* From,TArray<FChild>& Children,TArray<UWidget*>& Widgets)
+    {
+        for(UWidget* Root:From->GetAllChildren()) {
+            const auto* Slot=Cast<UVerticalBoxSlot>(Root->Slot);if(!Slot) return false;
+            Children.Add({Root,Slot->GetPadding(),Slot->GetSize(),Slot->GetHorizontalAlignment(),Slot->GetVerticalAlignment()});
+            Widgets.AddUnique(Root);
+            UWidgetTree::ForWidgetAndChildren(Root,[&Widgets](UWidget* Widget) {Widgets.AddUnique(Widget);});
+        }
+        return true;
+    };
+    if(!Collect(Page,OldChildren,OldWidgets) || !Collect(SourcePage,NewChildren,NewWidgets) || NewChildren.IsEmpty()) return false;
+    for(UWidget* Widget:OldWidgets) if(Widget->GetOuter()!=Blueprint->WidgetTree) return false;
+    // Native anonymous wrappers share class-counter names with other pages.
+    // Namespace only the copied, unbound wrappers before any target preflight.
+    // Explicit presenter/binding names always retain their exact identity.
+    for(UWidget* Widget:NewWidgets) {
+        if(Widget->GetOuter()!=Copy.Get()) return false;
+        const FName OldName=Widget->GetFName();
+        if(OldName.ToString().StartsWith(TEXT("MenuSettings_"))) continue;
+        if(Source->TextBindings.Contains(OldName) || Source->StyleBindings.ContainsByPredicate(
+            [OldName](const FMCUIStyleBinding& Binding) {return Binding.WidgetName==OldName;})) {
+            UE_LOG(LogTemp,Error,TEXT("MC_UI_SETTINGS Anonymous wrapper has a binding; preserve its name: %s"),*OldName.ToString());return false;
+        }
+        const FString NewName=TEXT("MenuSettings_Seed_")+OldName.ToString();
+        if(StaticFindObjectFast(UObject::StaticClass(),Copy.Get(),FName(NewName))
+            || !Widget->Rename(*NewName,Copy.Get(),REN_DontCreateRedirectors|REN_NonTransactional)) return false;
+    }
+    for(UWidget* Widget:NewWidgets) {
+        if(Widget->GetOuter()!=Copy.Get()) return false;
+        auto* Existing=StaticFindObjectFast(UObject::StaticClass(),Blueprint->WidgetTree,Widget->GetFName());
+        if(Existing && !OldWidgets.Contains(Cast<UWidget>(Existing))) {
+            UE_LOG(LogTemp,Error,TEXT("MC_UI_SETTINGS Unrelated named object preserved: %s"),*Existing->GetPathName());return false;
+        }
+    }
+    // Snapshot resources and sanitize only the new subtree while the target is
+    // untouched. Name/material collisions therefore fail before page mutation.
+    FDesignerMaterialSnapshots Snapshots(Blueprint,Assets,Copy.Get());
+    for(UWidget* Widget:NewWidgets) if(!SanitizeAppendedDesignerWidget(Widget,Source.Get(),Snapshots)) return false;
+    TStrongObjectPtr<UWidgetTree> Retired(NewObject<UWidgetTree>(GetTransientPackage(),NAME_None,RF_Transient));
+    auto* Holder=Retired->ConstructWidget<UVerticalBox>();Retired->RootWidget=Holder;
+    auto Attach=[](UVerticalBox* Parent,const TArray<FChild>& Children)
+    {
+        for(const auto& Child:Children) {
+            Child.Root->RemoveFromParent();
+            auto* Slot=Parent->AddChildToVerticalBox(Child.Root);
+            Slot->SetPadding(Child.Padding);Slot->SetSize(Child.Size);
+            Slot->SetHorizontalAlignment(Child.Horizontal);Slot->SetVerticalAlignment(Child.Vertical);
+        }
+    };
+    const auto PreviousGuids=Blueprint->WidgetVariableNameToGuidMap;
+    auto RollBack=[&]
+    {
+        Page->ClearChildren();
+        for(UWidget* Widget:NewWidgets)
+            if(Widget->GetOuter()==Blueprint->WidgetTree) UWidgetTree::TryMoveWidgetToNewTree(Widget,Copy.Get());
+        Attach(SourcePage,NewChildren);
+        for(UWidget* Widget:OldWidgets)
+            if(Widget->GetOuter()==Retired.Get()) UWidgetTree::TryMoveWidgetToNewTree(Widget,Blueprint->WidgetTree);
+        Attach(Page,OldChildren);
+        Blueprint->WidgetVariableNameToGuidMap=PreviousGuids;
+        UE_LOG(LogTemp,Error,TEXT("MC_UI_SETTINGS Restored original Settings children after failed migration; no WBP saved"));
+    };
+    Blueprint->Modify();Blueprint->WidgetTree->Modify();Page->Modify();
+    Page->ClearChildren();
+    // Retire the old root AND descendants before reusing stable widget names.
+    for(UWidget* Widget:OldWidgets)
+        if(!UWidgetTree::TryMoveWidgetToNewTree(Widget,Retired.Get())) {RollBack();return false;}
+    for(const auto& Child:OldChildren) Holder->AddChild(Child.Root);
+    for(const auto& Child:NewChildren) Child.Root->RemoveFromParent();
+    for(UWidget* Widget:NewWidgets)
+        if(!UWidgetTree::TryMoveWidgetToNewTree(Widget,Blueprint->WidgetTree)) {RollBack();return false;}
+    Attach(Page,NewChildren);
+    RegisterMissingDesignerGuids(Blueprint);
+    FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);FKismetEditorUtilities::CompileBlueprint(Blueprint);
+    if(Blueprint->Status==BS_Error || !Blueprint->GeneratedClass) {RollBack();return false;}
+    auto* Defaults=Cast<UMCGameplayUIWidget>(Blueprint->GeneratedClass->GetDefaultObject());
+    if(!Defaults) {RollBack();return false;}
+    Defaults->Modify();
+    for(const auto& Entry:Source->TextBindings)
+        if(Entry.Key.ToString().StartsWith(TEXT("MenuSettings_")) && !Defaults->TextBindings.Contains(Entry.Key))
+            Defaults->TextBindings.Add(Entry.Key,Entry.Value);
+    for(const auto& Binding:Source->StyleBindings)
+        if(Binding.WidgetName.ToString().StartsWith(TEXT("MenuSettings_"))
+            && !Defaults->StyleBindings.ContainsByPredicate([&Binding](const FMCUIStyleBinding& Existing)
+                {return Existing.WidgetName==Binding.WidgetName && Existing.Target==Binding.Target;})) Defaults->StyleBindings.Add(Binding);
+    CastChecked<UWidgetBlueprintGeneratedClass>(Blueprint->GeneratedClass)->UpdateCustomPropertyListForPostConstruction();
+    if(!Snapshots.Save()) {RollBack();return false;}
+    UE_LOG(LogTemp,Display,TEXT("MC_UI_SETTINGS Replaced Settings children only; retained page, slot and all other menu pages"));
+    return Assets->SaveLoadedAsset(Blueprint,false);
+}
+
+bool UMCGameplayUIEditorLibrary::UseAuthoredMainMenu(UWidgetBlueprint* Host,TSubclassOf<UMCMainMenuWidget> MenuClass)
+{
+    if(!GEditor || GEditor->PlayWorld || IsRunningCommandlet() || !IsValid(Host) || !MenuClass
+        || Host->GetPathName()!=TEXT("/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D")
+        || Host->GetPackage()->IsDirty()) return false;
+    TArray<UEdGraph*> Graphs;Host->GetAllGraphs(Graphs);
+    TArray<UEdGraphPin*> Pins;bool AlreadyAuthored=false;
+    for(UEdGraph* Graph:Graphs) for(UEdGraphNode* Node:Graph->Nodes)
+        if(Node && Node->GetClass()->GetFName()==TEXT("K2Node_CreateWidget"))
+            if(auto* Pin=Node->FindPin(TEXT("Class"));Pin && Pin->LinkedTo.IsEmpty()) {
+                if(Pin->DefaultObject==UMCMainMenuWidget::StaticClass()) Pins.Add(Pin);
+                else if(Pin->DefaultObject==MenuClass.Get()) AlreadyAuthored=true;
+            }
+    if(Pins.IsEmpty()) return AlreadyAuthored;
+    Host->Modify();
+    for(UEdGraphPin* Pin:Pins) {
+        Pin->GetOwningNode()->Modify();
+        Pin->GetSchema()->TrySetDefaultObject(*Pin,MenuClass.Get());
+        if(Pin->DefaultObject!=MenuClass.Get()) return false;
+    }
+    FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Host);
+    FKismetEditorUtilities::CompileBlueprint(Host);
+    if(Host->Status==BS_Error) return false;
+    return GEditor->GetEditorSubsystem<UEditorAssetSubsystem>()->SaveLoadedAsset(Host,false);
 }
 
 bool UMCGameplayUIEditorLibrary::ValidateGameplayUILocalization(TArray<FString>& OutReport)

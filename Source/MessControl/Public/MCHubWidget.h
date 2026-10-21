@@ -50,6 +50,7 @@ public:
     void TickPresentation(float DeltaSeconds);
     void HandleAction(EMCHubMenuAction Action, int32 Day=0);
     virtual void BuildPresentationTree() override;
+    virtual void ApplyEditorPreview(float Time) override;
     virtual void ApplyTheme() override;
 
     UPROPERTY(EditDefaultsOnly, Category="Hub|Presentation")
@@ -73,6 +74,7 @@ private:
     void SelectRelative(int32 Direction);
     FText Format(FName Key,const FText& Fallback,const FFormatNamedArguments& Arguments) const;
     UTextBlock* AddLabel(UVerticalBox* Parent,FName Name,int32 Size,bool bBold=false);
+    void BindPresentationTree();
     UMCHubActionButton* MakeAction(FName Name,EMCHubMenuAction Action,int32 Day=0);
     UMCHubActionButton* AddAction(UVerticalBox* Parent,FName Name,EMCHubMenuAction Action,int32 Day=0);
 
@@ -89,9 +91,14 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMCHubActionButton> OpenButton;
     UPROPERTY(Transient) TObjectPtr<UMCHubActionButton> LaunchButton;
     UPROPERTY(Transient) TObjectPtr<UMCHubActionButton> ReturnButton;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> OpenButtonLabel;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> LaunchButtonLabel;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> ReturnButtonLabel;
     UPROPERTY(Transient) TArray<TObjectPtr<UMCHubActionButton>> MouthHitAreas;
     UPROPERTY(Transient) TObjectPtr<UUserWidget> SelectionPresentation;
     TWeakObjectPtr<AMCHubGameState> BoundState;
+    TWeakObjectPtr<UWidget> BoundPresentationRoot;
+    bool bAuthoredPresentation=false;
     int32 PresentedDay=INDEX_NONE;
     bool bPresentationReady=false;
     bool bPresentationFailed=false;

@@ -1,0 +1,645 @@
+{
+  "producer": "MessControlEditableUI_20261021",
+  "scope": "Actual game-window PNG recordings from owned local solo PIE checks",
+  "expected_clips": [
+    "Settings",
+    "LoadingMouth",
+    "Hub"
+  ],
+  "all_clips_complete": true,
+  "clips": [
+    {
+      "video": "Settings.mp4",
+      "contact_sheet": "Settings_ContactSheet.png",
+      "sha256": "56dca54f1a490b40668b1cfb23ce0c1248790a0497d1b3284ece8fccb890959e",
+      "contact_sheet_sha256": "3655ef9d94a7ed7ff7bc9cb651ae71a619fc9a2cf8b146700b2fd25b48a8162b",
+      "source_report": "E:\\CodexWork\\MessControlEditableUI_20261020\\SettingsSolo\\Report.json",
+      "source_report_sha256": "ad14d227d8ece2e4e75cb73e92a0f4d01f601d8915a24390f8a89598f3b5efc3",
+      "source_frames": 26,
+      "source_size_variants": [
+        [
+          1286,
+          760
+        ],
+        [
+          1600,
+          900
+        ]
+      ],
+      "output_size": [
+        1600,
+        900
+      ],
+      "source_clock": "capture_request_wall_seconds",
+      "source_start_wall_seconds": 3.39000000001397,
+      "source_end_wall_seconds": 10.734000000054948,
+      "last_frame_hold_seconds": 0.03333333333333333,
+      "expected_duration_seconds": 7.377333333374311,
+      "encoded_duration_seconds": 7.366667,
+      "median_capture_interval_seconds": 0.25,
+      "maximum_capture_gap_seconds": 1.2660000000614673,
+      "output_fps": 30,
+      "frames_interpolated": false,
+      "silent": true,
+      "spatial_processing": "Native screenshot pixels retained, centered black padding to common even envelope; no cropping or upscaling",
+      "temporal_processing": "Hold each sampled PNG until the next recorded request; no speed-up, invented transitions or motion interpolation. Last sample held only through its recorded capture completion (minimum one output frame).",
+      "scope": "Exercise the saved settings WBP in one owned solo PIE; restore local preferences.\n\nNormal menu callbacks and UMG controls are used, not physical mouse/key injection.\nNo network, cook, gameplay overrides, cache clearing or asset saves. Screenshots\nare real game-window captures. Launch via the owned Editor harness with -MCHubOwned.\n",
+      "checks": {
+        "authored_menu_class": true,
+        "populated_ResolutionPicker": true,
+        "populated_WindowModePicker": true,
+        "populated_QualityPicker": true,
+        "populated_FrameRatePicker": true,
+        "audio_stays_pending_before_apply": true,
+        "ten_language_choices": true,
+        "audio_pending_survives_tab_switches": true,
+        "applied_master_volume": true,
+        "applied_music_volume": true,
+        "applied_ambience_volume": true,
+        "applied_sfx_volume": true,
+        "applied_mouse_sensitivity": true,
+        "applied_gamepad_sensitivity": true,
+        "applied_invert_y": true,
+        "applied_language": true,
+        "absolute_music_gain": true,
+        "absolute_ambience_gain": true,
+        "absolute_sfx_gain": true,
+        "saved_settings_reload": true,
+        "reopened_saved_music": true,
+        "back_discards_unapplied_edit": true
+      },
+      "limitations": [
+        "Local solo PIE; no packaged game or multiplayer.",
+        "Normal callbacks/control setters are used; physical input is not injected.",
+        "Audio routing/gains are checked; this silent capture is not a listening test.",
+        "Display resolution and mode are kept unchanged; rollback is covered by native tests."
+      ],
+      "contact_tiles": [
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\SettingsSolo\\frames\\00000.png",
+          "video_wall_seconds": 0.0,
+          "phase": "observe_preparation",
+          "sha256": "82dd0731c96b6a31f977c51c17529334cf6b6155ec91d9d0d109415bd8e198c6"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\SettingsSolo\\screenshots\\01_graphics.png",
+          "video_wall_seconds": 1.687999999965541,
+          "phase": "settings_tabs",
+          "sha256": "ac3654889858e5c888415935fda0fef22f99987c84f94020711c2452189033aa"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\SettingsSolo\\screenshots\\02_audio.png",
+          "video_wall_seconds": 2.702999999979511,
+          "phase": "settings_tabs",
+          "sha256": "b6c6a9dd977e30ead375efbeb8ef7db8dc335bf8361106b18634fb748fd75838"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\SettingsSolo\\screenshots\\03_controls.png",
+          "video_wall_seconds": 3.687999999965541,
+          "phase": "settings_tabs",
+          "sha256": "7e52fd8d0d2c8085ab1cf0ff2b52f58e38061d3f14b52c146bcbdc593661ce21"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\SettingsSolo\\screenshots\\04_language.png",
+          "video_wall_seconds": 4.672000000020489,
+          "phase": "settings_tabs",
+          "sha256": "7a61400f28b5cb2832ebaa07106a1cba82a6874fa1452e1fbb81c0c9942ed83e"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\SettingsSolo\\screenshots\\05_applied.png",
+          "video_wall_seconds": 5.85999999998603,
+          "phase": "settings_tabs",
+          "sha256": "dcb0a8a5428a589f63d46b53f6645878cedf4edee6a366c00e1845adc7d07297"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\SettingsSolo\\screenshots\\06_reopened_saved_settings.png",
+          "video_wall_seconds": 6.890999999945052,
+          "phase": "settings_tabs",
+          "sha256": "9bdc09d157a72edcedde3df53fdfa9fdbc2958d0a26ddf50d569c98aec591765"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\SettingsSolo\\frames\\00025.png",
+          "video_wall_seconds": 7.344000000040978,
+          "phase": "capture_flush",
+          "sha256": "9bdc09d157a72edcedde3df53fdfa9fdbc2958d0a26ddf50d569c98aec591765"
+        }
+      ],
+      "visual_review_pending": false,
+      "work_folder": "E:\\CodexWork\\MessControlEditableUI_20261020\\Media\\20261021T043735282970Z\\Settings",
+      "probe": {
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+            "profile": "High",
+            "codec_type": "video",
+            "codec_tag_string": "avc1",
+            "codec_tag": "0x31637661",
+            "width": 1600,
+            "height": 900,
+            "coded_width": 1600,
+            "coded_height": 900,
+            "has_b_frames": 2,
+            "sample_aspect_ratio": "1:1",
+            "display_aspect_ratio": "16:9",
+            "pix_fmt": "yuv420p",
+            "level": 40,
+            "chroma_location": "left",
+            "field_order": "progressive",
+            "refs": 1,
+            "is_avc": "true",
+            "nal_length_size": "4",
+            "id": "0x1",
+            "r_frame_rate": "30/1",
+            "avg_frame_rate": "30/1",
+            "time_base": "1/15360",
+            "start_pts": 0,
+            "start_time": "0.000000",
+            "duration_ts": 113152,
+            "duration": "7.366667",
+            "bit_rate": "110300",
+            "bits_per_raw_sample": "8",
+            "nb_frames": "221",
+            "extradata_size": 48,
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0,
+              "non_diegetic": 0,
+              "captions": 0,
+              "descriptions": 0,
+              "metadata": 0,
+              "dependent": 0,
+              "still_image": 0,
+              "multilayer": 0
+            },
+            "tags": {
+              "language": "und",
+              "handler_name": "VideoHandler",
+              "encoder": "Lavc62.21.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "filename": "E:\\CodexWork\\MessControlEditableUI_20261020\\Media\\20261021T043735282970Z\\Settings\\Settings.mp4",
+          "nb_streams": 1,
+          "nb_programs": 0,
+          "nb_stream_groups": 0,
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+          "format_long_name": "QuickTime / MOV",
+          "start_time": "0.000000",
+          "duration": "7.366667",
+          "size": "105092",
+          "bit_rate": "114127",
+          "probe_score": 100,
+          "tags": {
+            "major_brand": "isom",
+            "minor_version": "512",
+            "compatible_brands": "isomiso2avc1mp41",
+            "encoder": "Lavf62.6.103"
+          }
+        }
+      },
+      "reviewed_by": [
+        "root",
+        "ui_review_continuation"
+      ]
+    },
+    {
+      "video": "LoadingMouth.mp4",
+      "contact_sheet": "LoadingMouth_ContactSheet.png",
+      "sha256": "614684d83b48915efd1de8e1cb05df914b0b1c409ab6c4299c0ce31db3808324",
+      "contact_sheet_sha256": "22d2f5a5054c2da36ccd1c21c949298241a0e41b20cc3aa3776fe255aa62cc07",
+      "source_report": "E:\\CodexWork\\MessControlEditableUI_20261020\\LoadingMouthFinal\\Report.json",
+      "source_report_sha256": "d8c4948b7a63115e19c8dfa10e30ebc0cf401cd8febb04c69256061b120252fe",
+      "source_frames": 82,
+      "source_size_variants": [
+        [
+          1286,
+          760
+        ]
+      ],
+      "output_size": [
+        1286,
+        760
+      ],
+      "source_clock": "capture_request_wall_seconds",
+      "source_start_wall_seconds": 5.281000000075437,
+      "source_end_wall_seconds": 27.0,
+      "last_frame_hold_seconds": 0.125,
+      "expected_duration_seconds": 21.843999999924563,
+      "encoded_duration_seconds": 21.833333,
+      "median_capture_interval_seconds": 0.26500000001396984,
+      "maximum_capture_gap_seconds": 0.625,
+      "output_fps": 30,
+      "frames_interpolated": false,
+      "silent": true,
+      "spatial_processing": "Native screenshot pixels retained, centered black padding to common even envelope; no cropping or upscaling",
+      "temporal_processing": "Hold each sampled PNG until the next recorded request; no speed-up, invented transitions or motion interpolation. Last sample held only through its recorded capture completion (minimum one output frame).",
+      "scope": "Observe the real resource barrier in one owned standalone PIE session.\n\nRun only in an idle, saved MessControl Editor launched with -MCHubOwned (the\nexisting -MCFirstRelaxOwned wrapper is accepted). Requires the new Editor DLL.\nOptional globals: MC_RESOURCE_LOADING_OUTPUT (fresh E: folder),\nMC_RESOURCE_LOADING_MAP ('L_Mouth', 'Hub' or 'L_MainMenu'),\nMC_RESOURCE_LOADING_CAPTURE_HZ (0..8, default 4),\nMC_RESOURCE_LOADING_SELECT_PERK (default True, L_Mouth only).\n\nThe L_Mouth case observes actual subsystem phases, the opaque loading widget,\nthe Training barrier, and its removal before the ordinary first perk. It can\nthen invoke the normal ChooseRewardPerk(0) callback and wait for naturally\nserved first food. No profiles, state, actors, camera or clock are overridden.\nOther maps observe local preparation and normal UI reveal, without travel.\nThe first-Relax helper supplies the established owned-editor, settings/map\nrestoration and cancellation safety. No previous probe is executed.\nCaptures are actual game-window PNGs with wall timings, not synthetic frames.\nCancel only this probe: builtins.mc_resource_loading_solo.cancel().\n",
+      "checks": {
+        "first_perk_visible_after_loading_cover_removed": true,
+        "food_starts_normally_only_after_preparation": true,
+        "observed_real_loading_overlay": true,
+        "observed_nonready_then_ready": true,
+        "director_remains_training_until_ready": true,
+        "readiness_matches_native_phase": true
+      },
+      "limitations": [
+        "One local authority PIE; no multiplayer, packaged game, cold driver cache or cook verification.",
+        "An already warm editor can finish too early to observe every phase. Unobserved phases are not invented.",
+        "A visible widget/component flag does not establish visual quality; review the actual PNGs/video.",
+        "The optional perk selection uses the normal PlayerController callback, not physical input delivery.",
+        "No forced compilation, cache deletion, profile edits, teleports, fixtures, camera changes or fixed-step simulation."
+      ],
+      "contact_tiles": [
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\LoadingMouthFinal\\frames\\00000.png",
+          "video_wall_seconds": 0.0,
+          "phase": "observe_preparation",
+          "sha256": "ac9f365ac8c8386eefbdf1029751ca077e99d896ab66cf0e992e284b4e812f10"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\LoadingMouthFinal\\screenshots\\01_real_loading_screen.png",
+          "video_wall_seconds": 0.06299999996554106,
+          "phase": "observe_preparation",
+          "sha256": "ac9f365ac8c8386eefbdf1029751ca077e99d896ab66cf0e992e284b4e812f10"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\LoadingMouthFinal\\frames\\00005.png",
+          "video_wall_seconds": 1.25,
+          "phase": "observe_preparation",
+          "sha256": "b58cea91da91b6c072d3e9e719bbe24eac276b2731f96c5a2281e3df2ffda104"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\LoadingMouthFinal\\frames\\00011.png",
+          "video_wall_seconds": 2.8589999999385327,
+          "phase": "observe_preparation",
+          "sha256": "1c24b9e0ac28a143c961e67e06593a4648cb11fecb2f48319ec62959e7b78e64"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\LoadingMouthFinal\\frames\\00016.png",
+          "video_wall_seconds": 4.218999999924563,
+          "phase": "observe_preparation",
+          "sha256": "1c24b9e0ac28a143c961e67e06593a4648cb11fecb2f48319ec62959e7b78e64"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\LoadingMouthFinal\\screenshots\\02_first_perk_uncovered.png",
+          "video_wall_seconds": 15.937999999965541,
+          "phase": "observe_preparation",
+          "sha256": "9d8b4a0cc9c911703fe0ad457ccfd6c62fe2aac4d4ef93ab980587957d25f2dd"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\LoadingMouthFinal\\screenshots\\03_natural_food_after_ready.png",
+          "video_wall_seconds": 21.29700000002049,
+          "phase": "await_natural_food",
+          "sha256": "0bbfcffb49b33a4abb7d28a54eed76edc52d47237b74e3778f1b7ee678c82a78"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\LoadingMouthFinal\\frames\\00081.png",
+          "video_wall_seconds": 21.718999999924563,
+          "phase": "capture_flush",
+          "sha256": "dab35bf54b66d548b151b121c7886d8f351285583ad0c4d647441084d2f08b56"
+        }
+      ],
+      "visual_review_pending": false,
+      "work_folder": "E:\\CodexWork\\MessControlEditableUI_20261020\\Media\\20261021T043735282970Z\\LoadingMouth",
+      "probe": {
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+            "profile": "High",
+            "codec_type": "video",
+            "codec_tag_string": "avc1",
+            "codec_tag": "0x31637661",
+            "width": 1286,
+            "height": 760,
+            "coded_width": 1286,
+            "coded_height": 760,
+            "has_b_frames": 2,
+            "sample_aspect_ratio": "1:1",
+            "display_aspect_ratio": "643:380",
+            "pix_fmt": "yuv420p",
+            "level": 32,
+            "chroma_location": "left",
+            "field_order": "progressive",
+            "refs": 1,
+            "is_avc": "true",
+            "nal_length_size": "4",
+            "id": "0x1",
+            "r_frame_rate": "30/1",
+            "avg_frame_rate": "30/1",
+            "time_base": "1/15360",
+            "start_pts": 0,
+            "start_time": "0.000000",
+            "duration_ts": 335360,
+            "duration": "21.833333",
+            "bit_rate": "176102",
+            "bits_per_raw_sample": "8",
+            "nb_frames": "655",
+            "extradata_size": 48,
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0,
+              "non_diegetic": 0,
+              "captions": 0,
+              "descriptions": 0,
+              "metadata": 0,
+              "dependent": 0,
+              "still_image": 0,
+              "multilayer": 0
+            },
+            "tags": {
+              "language": "und",
+              "handler_name": "VideoHandler",
+              "encoder": "Lavc62.21.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "filename": "E:\\CodexWork\\MessControlEditableUI_20261020\\Media\\20261021T043735282970Z\\LoadingMouth\\LoadingMouth.mp4",
+          "nb_streams": 1,
+          "nb_programs": 0,
+          "nb_stream_groups": 0,
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+          "format_long_name": "QuickTime / MOV",
+          "start_time": "0.000000",
+          "duration": "21.833333",
+          "size": "489341",
+          "bit_rate": "179300",
+          "probe_score": 100,
+          "tags": {
+            "major_brand": "isom",
+            "minor_version": "512",
+            "compatible_brands": "isomiso2avc1mp41",
+            "encoder": "Lavf62.6.103"
+          }
+        }
+      },
+      "reviewed_by": [
+        "root",
+        "ui_review_continuation"
+      ]
+    },
+    {
+      "video": "Hub.mp4",
+      "contact_sheet": "Hub_ContactSheet.png",
+      "sha256": "b1f4294c3abe7e0a519ec179e7f87e16fc86dc82b1d7bf507ca7f0b52b4eaad0",
+      "contact_sheet_sha256": "a6a50d13fb4952ecaa6e95d8d205b3d79d0644c6e864c13f4758e820fe173c75",
+      "source_report": "E:\\CodexWork\\MessControlEditableUI_20261020\\HubFinal\\Report.json",
+      "source_report_sha256": "e7ce32e18651fa050c305f835ee5d75730ece1cbe276c813f18bee864fbdfe41",
+      "source_frames": 293,
+      "source_size_variants": [
+        [
+          1286,
+          760
+        ]
+      ],
+      "output_size": [
+        1286,
+        760
+      ],
+      "source_clock": "capture_request_wall_seconds",
+      "source_start_wall_seconds": 7.407000000006519,
+      "source_end_wall_seconds": 87.39100000006147,
+      "last_frame_hold_seconds": 0.10899999993853271,
+      "expected_duration_seconds": 80.09299999999348,
+      "encoded_duration_seconds": 80.1,
+      "median_capture_interval_seconds": 0.25,
+      "maximum_capture_gap_seconds": 3.2660000000614673,
+      "output_fps": 30,
+      "frames_interpolated": false,
+      "silent": true,
+      "spatial_processing": "Native screenshot pixels retained, centered black padding to common even envelope; no cropping or upscaling",
+      "temporal_processing": "Hold each sampled PNG until the next recorded request; no speed-up, invented transitions or motion interpolation. Last sample held only through its recorded capture completion (minimum one output frame).",
+      "scope": "One owned standalone PIE using actual ready-zone walking, Hub RPCs, normal seamless travel and first-perk selection",
+      "checks": {
+        "one_authored_ready_zone": true,
+        "hub_uses_separate_game_state": true,
+        "one_real_participant": true,
+        "no_authored_preview_pawns_at_hub_start": true,
+        "spawn_outside_ready_zone": true,
+        "walking_enters_ready_zone": true,
+        "hub_camera_follows_at_distant_corner": true,
+        "walking_exit_clears_ready": true,
+        "walking_reentry_restores_ready": true,
+        "normal_hub_to_selector_travel": true,
+        "mouth_click_regions_have_ordered_visible_rectangles": true,
+        "day2_unavailable_definition": true,
+        "day2_authoritative_visual_mirror": true,
+        "unavailable_launch_rejected_without_scene_change": true,
+        "day3_authoritative_visual_mirror": true,
+        "return_to_hub_resets_ready": true,
+        "no_authored_preview_pawns_after_return": true,
+        "normal_level_auto_exits_hub_ack_barrier": true,
+        "normal_first_perk_has_three_visible_cards": true,
+        "normal_gameplay_alive_four_seconds": true
+      },
+      "limitations": [
+        "Movement is supplied through Pawn.AddMovementInput; physical WASD delivery is not simulated.",
+        "Selection and launch use PlayerController request/RPC paths; no mouse-click or network-peer proof.",
+        "Unavailable launch rejection is observed through unchanged world/phase and server notice; UWorld.NextURL is not exposed to Python.",
+        "Screenshots require subsequent visual review; successful PNG output is not visual approval.",
+        "No cook/package, multiplayer, bots, actor fixtures, readiness forcing or director tuning."
+      ],
+      "contact_tiles": [
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\HubFinal\\frames\\00000.png",
+          "video_wall_seconds": 0.0,
+          "phase": "await_hub",
+          "sha256": "0486a8325a0db02ed83aba624eebc92454ee7001d4d2cccb1cb9fe6221eaf374"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\HubFinal\\screenshots\\01_hub_before_ready.png",
+          "video_wall_seconds": 4.405999999959022,
+          "phase": "await_hub",
+          "sha256": "9869ec4306757ed34da4b6bc99339c827f3b798a1cf43039bc99266d882ae5d7"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\HubFinal\\screenshots\\02_hub_ready.png",
+          "video_wall_seconds": 19.18700000003446,
+          "phase": "ready_1",
+          "sha256": "eb53c4e528157391db3e784cdeaba2b41e13b55560c0ddc18f5ca54b35f8bb36"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\HubFinal\\screenshots\\03_hub_exit_clears_ready.png",
+          "video_wall_seconds": 22.07799999997951,
+          "phase": "outside_1",
+          "sha256": "9bce9159516e21ab1d76e8cb1c2656e07c267ee3f410566c679ee48f0cbded87"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\HubFinal\\screenshots\\04_selector_day1_initial.png",
+          "video_wall_seconds": 31.20299999997951,
+          "phase": "selector_initial_settle",
+          "sha256": "709b1610495cacc42010694316b90ab9491a5f2bebd9d7fe252f696731998abb"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\HubFinal\\screenshots\\05_selector_day2.png",
+          "video_wall_seconds": 32.32799999997951,
+          "phase": "select_day2",
+          "sha256": "5884dc0e86ab1dd928af948337b4793e7d7523a422d9e17e03f7574000df47ad"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\HubFinal\\screenshots\\06_selector_day3.png",
+          "video_wall_seconds": 34.43700000003446,
+          "phase": "select_day3",
+          "sha256": "39074d3cf19aa07c478157c201603863e73f9dec14790dad302dda438d5821ff"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\HubFinal\\screenshots\\07_hub_return_ready_reset.png",
+          "video_wall_seconds": 35.95299999997951,
+          "phase": "travel_hub_return",
+          "sha256": "9869ec4306757ed34da4b6bc99339c827f3b798a1cf43039bc99266d882ae5d7"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\HubFinal\\screenshots\\08_selector_day1_launch.png",
+          "video_wall_seconds": 52.84299999999348,
+          "phase": "select_day1_final",
+          "sha256": "914914b70c7a00af91049f08437b831d4ff39f1b72d827a4de8f1520eddc4826"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\HubFinal\\screenshots\\09_normal_first_perk.png",
+          "video_wall_seconds": 67.25,
+          "phase": "travel_gameplay",
+          "sha256": "48ebe13d163ce9de3163d29471d350eac61dacb420d1b13b1aec0e6c128ff2e3"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\HubFinal\\screenshots\\10_normal_gameplay.png",
+          "video_wall_seconds": 79.56200000003446,
+          "phase": "normal_gameplay",
+          "sha256": "90fd544689e4ec07843f58e5e1344008cd2c187f5c7b5bbac6c5665a9efff3ea"
+        },
+        {
+          "file": "E:\\CodexWork\\MessControlEditableUI_20261020\\HubFinal\\frames\\00292.png",
+          "video_wall_seconds": 79.98400000005495,
+          "phase": "capture_flush",
+          "sha256": "0efe06c92df62759de20bb75c5bfab9d0a1e4630233a59cc4407de4470247a0a"
+        }
+      ],
+      "visual_review_pending": false,
+      "work_folder": "E:\\CodexWork\\MessControlEditableUI_20261020\\Media\\20261021T043735282970Z\\Hub",
+      "probe": {
+        "streams": [
+          {
+            "index": 0,
+            "codec_name": "h264",
+            "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+            "profile": "High",
+            "codec_type": "video",
+            "codec_tag_string": "avc1",
+            "codec_tag": "0x31637661",
+            "width": 1286,
+            "height": 760,
+            "coded_width": 1286,
+            "coded_height": 760,
+            "has_b_frames": 2,
+            "sample_aspect_ratio": "1:1",
+            "display_aspect_ratio": "643:380",
+            "pix_fmt": "yuv420p",
+            "level": 32,
+            "chroma_location": "left",
+            "field_order": "progressive",
+            "refs": 1,
+            "is_avc": "true",
+            "nal_length_size": "4",
+            "id": "0x1",
+            "r_frame_rate": "30/1",
+            "avg_frame_rate": "30/1",
+            "time_base": "1/15360",
+            "start_pts": 0,
+            "start_time": "0.000000",
+            "duration_ts": 1230336,
+            "duration": "80.100000",
+            "bit_rate": "445071",
+            "bits_per_raw_sample": "8",
+            "nb_frames": "2403",
+            "extradata_size": 48,
+            "disposition": {
+              "default": 1,
+              "dub": 0,
+              "original": 0,
+              "comment": 0,
+              "lyrics": 0,
+              "karaoke": 0,
+              "forced": 0,
+              "hearing_impaired": 0,
+              "visual_impaired": 0,
+              "clean_effects": 0,
+              "attached_pic": 0,
+              "timed_thumbnails": 0,
+              "non_diegetic": 0,
+              "captions": 0,
+              "descriptions": 0,
+              "metadata": 0,
+              "dependent": 0,
+              "still_image": 0,
+              "multilayer": 0
+            },
+            "tags": {
+              "language": "und",
+              "handler_name": "VideoHandler",
+              "encoder": "Lavc62.21.100 libx264"
+            }
+          }
+        ],
+        "format": {
+          "filename": "E:\\CodexWork\\MessControlEditableUI_20261020\\Media\\20261021T043735282970Z\\Hub\\Hub.mp4",
+          "nb_streams": 1,
+          "nb_programs": 0,
+          "nb_stream_groups": 0,
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+          "format_long_name": "QuickTime / MOV",
+          "start_time": "0.000000",
+          "duration": "80.100000",
+          "size": "4486037",
+          "bit_rate": "448043",
+          "probe_score": 100,
+          "tags": {
+            "major_brand": "isom",
+            "minor_version": "512",
+            "compatible_brands": "isomiso2avc1mp41",
+            "encoder": "Lavf62.6.103"
+          }
+        }
+      },
+      "reviewed_by": [
+        "root",
+        "ui_review_continuation"
+      ]
+    }
+  ],
+  "audio_recorded": false,
+  "listening_test": false,
+  "multiplayer_test": false,
+  "packaged_game_test": false,
+  "cold_cache_test": false,
+  "technical_movieplayer_travel_cover_test": false,
+  "note": "Root and independent agent reviewed all three contact sheets and selected full-size real captures. No blocking migrated UI layout issues. Sampled silent video; no physical-input, listening, packaged or network proof.",
+  "evidence_notes": [
+    "Hub named 09_normal_first_perk.png still shows loading/wait cover. The visible first-perk panel is demonstrated in LoadingMouth captures, not that Hub checkpoint.",
+    "Existing world-space Ready-zone text has missing Cyrillic glyphs outside the migrated UMG shell.",
+    "LoadingMouth briefly shows a dark trapezoid before the naturally spawned dirt patch settles; diagnosis recorded separately, no whole-game visual pass is claimed."
+  ]
+}
