@@ -1,0 +1,9 @@
+{
+  "shader_compile_errors": [],
+  "used_with_instanced_static_meshes": true,
+  "blend": "Additive",
+  "depth_test": true,
+  "intensity": 3.0,
+  "material_sha256": "3712319e538346b58e7b395893e7e7b3c0da60469f3721673fee50c24001f546",
+  "verified_shader_saved": true
+}

@@ -507,6 +507,7 @@ void UMCHubWidget::RefreshFromState()
     TGuardValue<bool> Guard(bRefreshingState,true);
     BuildPresentationTree();if(!ReadinessTitle) return;
     auto* Hub=State();
+    const auto* PC=GetOwningPlayer<AMCPlayerController>();
     const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
     const auto* Identity=GetOwningPlayer()?GetOwningPlayer()->GetPlayerState<AMCPlayerState>():nullptr;
     if(FishingPanel) FishingPanel->SetVisibility(Hub && Hub->Phase==EMCHubPhase::Gathering?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);

@@ -1,0 +1,927 @@
+{
+  "source_report": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\Report.json",
+  "source_report_sha256": "6924bb66493784c3a6d28ee58c7f37d95025c324f2ef2a00fa6eb60120d9d783",
+  "source_helper_sha256": "9f2ec1f67d3030b9d4e2be9d8ab85b9472a5997ecc3ff4d604525da0277983ff",
+  "native_report_passed": true,
+  "checks": {
+    "wardrobe_fixture_on_walkable_floor": true,
+    "wardrobe_available_at_actual_bounds": true,
+    "authored_wardrobe_wbp": true,
+    "wardrobe_blocks_move_and_look": true,
+    "wardrobe_six_skin_slots": true,
+    "wardrobe_default_only_enabled": true,
+    "individual_rgb_controls_removed": true,
+    "configure_preserves_authoritative_linear_color": true,
+    "preview_cancel_draft_changes": true,
+    "preview_cancel_bag_mid_matches_draft": true,
+    "preview_cancel_replicated_color_unchanged": true,
+    "preview_cancel_player_state_unchanged": true,
+    "preview_cancel_saved_flag_unchanged": true,
+    "preview_cancel_saved_color_unchanged": true,
+    "preview_cancel_palette_hue_strip_synchronized": true,
+    "preview_cancel_palette_reaches_selected_hsv": true,
+    "cancel_closes_wardrobe": true,
+    "cancel_restores_actual_mid": true,
+    "cancel_leaves_authority_unchanged": true,
+    "cancel_releases_move_and_look": true,
+    "reopen_discards_cancelled_draft": true,
+    "preview_apply_draft_changes": true,
+    "preview_apply_bag_mid_matches_draft": true,
+    "preview_apply_replicated_color_unchanged": true,
+    "preview_apply_player_state_unchanged": true,
+    "preview_apply_saved_flag_unchanged": true,
+    "preview_apply_saved_color_unchanged": true,
+    "preview_apply_palette_hue_strip_synchronized": true,
+    "preview_apply_palette_reaches_selected_hsv": true,
+    "apply_closes_wardrobe": true,
+    "apply_updates_authoritative_pawn": true,
+    "apply_updates_player_state": true,
+    "apply_updates_visible_mid": true,
+    "apply_saves_custom_flag": true,
+    "apply_saves_rgb": true,
+    "saved_rgb_survives_settings_reload": true,
+    "coalescing_keeps_final_pawn_rgb": true,
+    "coalescing_keeps_final_state_rgb": true,
+    "shop_fixture_on_walkable_floor": true,
+    "shop_available_at_actual_bounds": true,
+    "authored_shop_wbp": true,
+    "shop_six_disabled_empty_slots": true,
+    "shop_empty_copy_present": true,
+    "shop_no_economy_controls": true,
+    "shop_blocks_move_and_look": true,
+    "shop_has_focus_before_escape": true,
+    "escape_closes_shop_not_pie": true,
+    "shop_close_releases_move_and_look": true,
+    "normal_movement_resumes_after_shop": true,
+    "both_clips_have_native_frames": true,
+    "original_custom_flag_restored": true,
+    "original_saved_rgb_restored": true
+  },
+  "limitations": [
+    "One local authority PIE; no multiplayer, packaged game, cook or performance benchmark.",
+    "The actual player is temporarily placed at collision-checked station bounds; no walking approach or discoverability proof.",
+    "E uses the normal held-input callback; palette pointer-selection/button controls are exercised without physical mouse hardware.",
+    "Escape uses engine Slate key delivery to the focused real widget; operating-system keyboard delivery is not tested.",
+    "The shop is intentionally empty. No currency, price, purchase or future merchandise is invented.",
+    "Native PNG capture is requested at the reported cadence; repeated video frames are not an FPS benchmark.",
+    "Screenshots and any subsequently encoded clips await root visual review."
+  ],
+  "review_fixtures": [
+    {
+      "kind": "Player placement ONLY in owned PIE",
+      "reason": "Isolate existing station UI; not a walking approach/discoverability proof",
+      "station": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.MCHubWardrobeStation_0",
+      "before_cm": [
+        -1004.1896,
+        1371.5651,
+        10.18502597925236
+      ],
+      "after_cm": [
+        1650.0002143918073,
+        1505.0001254732854,
+        10.068865932543702
+      ],
+      "bounds_center_cm": [
+        1650.0,
+        1505.0000000000002,
+        160.0
+      ],
+      "bounds_half_extent_cm": [
+        320.0,
+        180.0,
+        210.0
+      ],
+      "floor_checks": [
+        {
+          "local_fraction_xy": [
+            0,
+            0
+          ],
+          "blocking": true,
+          "actor": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_101",
+          "impact_point_cm": [
+            1650.0002143918073,
+            1505.0001254732854,
+            -50.9311340674563
+          ],
+          "normal": [
+            -2.0706695508133868e-05,
+            0.017452394297812115,
+            0.9998476951538703
+          ],
+          "clearance_blocked": false
+        }
+      ]
+    },
+    {
+      "kind": "Optional two immediate direct ServerSetPlayerColor RPCs",
+      "reason": "Coalescing regression only; not a normal wardrobe button workflow",
+      "colors": [
+        [
+          0.3100000023841858,
+          0.6200000047683716,
+          0.20999999344348907,
+          1.0
+        ],
+        [
+          0.800000011920929,
+          0.15000000596046448,
+          0.550000011920929,
+          1.0
+        ]
+      ],
+      "game_seconds": 16.415922489017248
+    },
+    {
+      "kind": "Player placement ONLY in owned PIE",
+      "reason": "Isolate existing station UI; not a walking approach/discoverability proof",
+      "station": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.MCHubShopStation_0",
+      "before_cm": [
+        1650.0002143918073,
+        1505.0001254732854,
+        9.224032558520264
+      ],
+      "after_cm": [
+        548.9504099526289,
+        655.6506649050531,
+        40.92269135870947
+      ],
+      "bounds_center_cm": [
+        548.9503853999273,
+        655.6506283598253,
+        140.0
+      ],
+      "bounds_half_extent_cm": [
+        170.0,
+        180.0,
+        180.0
+      ],
+      "floor_checks": [
+        {
+          "local_fraction_xy": [
+            0,
+            0
+          ],
+          "blocking": true,
+          "actor": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_8",
+          "impact_point_cm": [
+            548.950409952629,
+            655.6506649050531,
+            -20.07730864129053
+          ],
+          "normal": [
+            -5.188761669300079e-17,
+            6.434179723811479e-17,
+            1.0
+          ],
+          "clearance_blocked": false
+        }
+      ]
+    }
+  ],
+  "input_requests": [
+    {
+      "method": "MCToothCharacter.SetHandleInputHeld true/false",
+      "meaning": "Normal E interaction callback; no direct TryOpenWardrobe/TryOpenHubShop call",
+      "game_seconds": 3.705057006329298
+    },
+    {
+      "method": "Actual UButton.OnClicked.broadcast",
+      "control": "WardrobeCancel",
+      "game_seconds": 9.740629758685827
+    },
+    {
+      "method": "MCToothCharacter.SetHandleInputHeld true/false",
+      "meaning": "Normal E interaction callback; no direct TryOpenWardrobe/TryOpenHubShop call",
+      "game_seconds": 10.448492344468832
+    },
+    {
+      "method": "Actual UButton.OnClicked.broadcast",
+      "control": "WardrobeApply",
+      "game_seconds": 15.47006769105792
+    },
+    {
+      "method": "MCToothCharacter.SetHandleInputHeld true/false",
+      "meaning": "Normal E interaction callback; no direct TryOpenWardrobe/TryOpenHubShop call",
+      "game_seconds": 19.28658039495349
+    },
+    {
+      "method": "USlateInspectorToolset.PressKey",
+      "key": "Escape",
+      "target": "/Engine/Transient.UnrealEdEngine_0:GameInstance_7.WBP_HubShop_C_0",
+      "game_seconds": 22.09536235779524
+    }
+  ],
+  "original_preferences_restored": true,
+  "original_config_bytes_restored": true,
+  "source_capture_hz": 8.0,
+  "timing": "Separate real game-time windows; source frames repeated for 30 fps without temporal interpolation or time scaling.",
+  "final_hold": "The shared encoder adds one median capture interval to present the final native still; it is not an extra gameplay sample.",
+  "visual_review": "Pending root review. Successful encoding and gameplay assertions do not certify visual quality.",
+  "performance": "This native PNG review capture is not an FPS or rendering-cost benchmark.",
+  "windows": {
+    "WardrobeRGB": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\HubWardrobeShop_20261023\\Final\\WardrobePalette.mp4",
+      "concat_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\HubWardrobeShop_20261023\\Final\\WardrobePalette.ffconcat",
+      "requested": 94,
+      "available": 94,
+      "missing_requests": [],
+      "source_start_game_seconds": 3.7282929085195065,
+      "source_end_game_seconds": 18.582296293228865,
+      "source_intervals_preserved_seconds": 14.854003384709358,
+      "final_image_hold_seconds": 0.15035000443458557,
+      "final_hold_policy": "Median requested capture interval; a presentation hold, not a source timestamp.",
+      "target_presentation_duration_seconds": 15.004353389143944,
+      "duration_quantization_seconds": -0.004353389143943787,
+      "requested_missing_initial_seconds": 0.0,
+      "requested_missing_final_seconds": 0.0,
+      "encoded_duration_seconds": 15.0,
+      "encoded_frame_count": 450,
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "full_decode": "PASS",
+      "posters": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubWardrobeShop_20261023\\Final\\WardrobePaletteStart.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00000.png",
+          "game_seconds": 3.7282929085195065
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubWardrobeShop_20261023\\Final\\WardrobePaletteMidway.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00047.png",
+          "game_seconds": 11.478506844490767
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubWardrobeShop_20261023\\Final\\WardrobePaletteComplete.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00093.png",
+          "game_seconds": 18.582296293228865
+        }
+      ],
+      "source_sequence": [
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00000.png",
+          "game_seconds": 3.7282929085195065,
+          "held_duration_seconds": 0.4000000059604645
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00001.png",
+          "game_seconds": 4.128292914479971,
+          "held_duration_seconds": 0.14804770052433014
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00002.png",
+          "game_seconds": 4.276340615004301,
+          "held_duration_seconds": 0.14786618947982788
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00003.png",
+          "game_seconds": 4.424206804484129,
+          "held_duration_seconds": 0.13862299919128418
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00004.png",
+          "game_seconds": 4.562829803675413,
+          "held_duration_seconds": 0.1359941065311432
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00005.png",
+          "game_seconds": 4.698823910206556,
+          "held_duration_seconds": 0.13992290198802948
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00006.png",
+          "game_seconds": 4.838746812194586,
+          "held_duration_seconds": 0.1402394026517868
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00007.png",
+          "game_seconds": 4.978986214846373,
+          "held_duration_seconds": 0.15667489171028137
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00008.png",
+          "game_seconds": 5.135661106556654,
+          "held_duration_seconds": 0.13695889711380005
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00009.png",
+          "game_seconds": 5.272620003670454,
+          "held_duration_seconds": 0.1523682028055191
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00010.png",
+          "game_seconds": 5.424988206475973,
+          "held_duration_seconds": 0.17649869620800018
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00011.png",
+          "game_seconds": 5.601486902683973,
+          "held_duration_seconds": 0.16968870162963867
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00012.png",
+          "game_seconds": 5.771175604313612,
+          "held_duration_seconds": 0.1695781946182251
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00013.png",
+          "game_seconds": 5.940753798931837,
+          "held_duration_seconds": 0.16651690006256104
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00014.png",
+          "game_seconds": 6.107270698994398,
+          "held_duration_seconds": 0.16679400205612183
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00015.png",
+          "game_seconds": 6.27406470105052,
+          "held_duration_seconds": 0.16116739809513092
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00016.png",
+          "game_seconds": 6.435232099145651,
+          "held_duration_seconds": 0.1611699014902115
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00017.png",
+          "game_seconds": 6.596402000635862,
+          "held_duration_seconds": 0.16551969945430756
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00018.png",
+          "game_seconds": 6.76192170009017,
+          "held_duration_seconds": 0.1662696897983551
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00019.png",
+          "game_seconds": 6.928191389888525,
+          "held_duration_seconds": 0.1585478037595749
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00020.png",
+          "game_seconds": 7.0867391936481,
+          "held_duration_seconds": 0.17535829544067383
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00021.png",
+          "game_seconds": 7.262097489088774,
+          "held_duration_seconds": 0.15676020085811615
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00022.png",
+          "game_seconds": 7.41885768994689,
+          "held_duration_seconds": 0.17753100395202637
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00023.png",
+          "game_seconds": 7.596388693898916,
+          "held_duration_seconds": 0.16447989642620087
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00024.png",
+          "game_seconds": 7.760868590325117,
+          "held_duration_seconds": 0.16823740303516388
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00025.png",
+          "game_seconds": 7.929105993360281,
+          "held_duration_seconds": 0.1710370033979416
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00026.png",
+          "game_seconds": 8.100142996758223,
+          "held_duration_seconds": 0.17177189886569977
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00027.png",
+          "game_seconds": 8.271914895623922,
+          "held_duration_seconds": 0.15583710372447968
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00028.png",
+          "game_seconds": 8.427751999348402,
+          "held_duration_seconds": 0.3224527835845947
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00029.png",
+          "game_seconds": 8.750204782932997,
+          "held_duration_seconds": 0.16449019312858582
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00030.png",
+          "game_seconds": 8.914694976061583,
+          "held_duration_seconds": 0.14862950146198273
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00031.png",
+          "game_seconds": 9.063324477523565,
+          "held_duration_seconds": 0.14272329211235046
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00032.png",
+          "game_seconds": 9.206047769635916,
+          "held_duration_seconds": 0.13841059803962708
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00033.png",
+          "game_seconds": 9.344458367675543,
+          "held_duration_seconds": 0.13614249229431152
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00034.png",
+          "game_seconds": 9.480600859969854,
+          "held_duration_seconds": 0.1323940008878708
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00035.png",
+          "game_seconds": 9.612994860857725,
+          "held_duration_seconds": 0.1276348978281021
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00036.png",
+          "game_seconds": 9.740629758685827,
+          "held_duration_seconds": 0.13823460042476654
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00037.png",
+          "game_seconds": 9.878864359110594,
+          "held_duration_seconds": 0.1466071903705597
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00038.png",
+          "game_seconds": 10.025471549481153,
+          "held_duration_seconds": 0.14012859761714935
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00039.png",
+          "game_seconds": 10.165600147098303,
+          "held_duration_seconds": 0.14058110117912292
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00040.png",
+          "game_seconds": 10.306181248277426,
+          "held_duration_seconds": 0.14231109619140625
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00041.png",
+          "game_seconds": 10.448492344468832,
+          "held_duration_seconds": 0.28041890263557434
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00042.png",
+          "game_seconds": 10.728911247104406,
+          "held_duration_seconds": 0.15413439273834229
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00043.png",
+          "game_seconds": 10.883045639842749,
+          "held_duration_seconds": 0.13813529908657074
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00044.png",
+          "game_seconds": 11.02118093892932,
+          "held_duration_seconds": 0.12684570252895355
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00045.png",
+          "game_seconds": 11.148026641458273,
+          "held_duration_seconds": 0.17604780197143555
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00046.png",
+          "game_seconds": 11.324074443429708,
+          "held_duration_seconds": 0.15443240106105804
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00047.png",
+          "game_seconds": 11.478506844490767,
+          "held_duration_seconds": 0.14965640008449554
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00048.png",
+          "game_seconds": 11.628163244575262,
+          "held_duration_seconds": 0.14546729624271393
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00049.png",
+          "game_seconds": 11.773630540817976,
+          "held_duration_seconds": 0.15246069431304932
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00050.png",
+          "game_seconds": 11.926091235131025,
+          "held_duration_seconds": 0.16059279441833496
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00051.png",
+          "game_seconds": 12.08668402954936,
+          "held_duration_seconds": 0.1508129984140396
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00052.png",
+          "game_seconds": 12.2374970279634,
+          "held_duration_seconds": 0.15807870030403137
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00053.png",
+          "game_seconds": 12.395575728267431,
+          "held_duration_seconds": 0.15305949747562408
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00054.png",
+          "game_seconds": 12.548635225743055,
+          "held_duration_seconds": 0.13818219304084778
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00055.png",
+          "game_seconds": 12.686817418783903,
+          "held_duration_seconds": 0.13797970116138458
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00056.png",
+          "game_seconds": 12.824797119945288,
+          "held_duration_seconds": 0.14292959868907928
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00057.png",
+          "game_seconds": 12.967726718634367,
+          "held_duration_seconds": 0.14904719591140747
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00058.png",
+          "game_seconds": 13.116773914545774,
+          "held_duration_seconds": 0.1516588032245636
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00059.png",
+          "game_seconds": 13.268432717770338,
+          "held_duration_seconds": 0.14838850498199463
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00060.png",
+          "game_seconds": 13.416821222752333,
+          "held_duration_seconds": 0.1563439965248108
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00061.png",
+          "game_seconds": 13.573165219277143,
+          "held_duration_seconds": 0.1731387972831726
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00062.png",
+          "game_seconds": 13.746304016560316,
+          "held_duration_seconds": 0.1602640002965927
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00063.png",
+          "game_seconds": 13.906568016856909,
+          "held_duration_seconds": 0.146779403090477
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00064.png",
+          "game_seconds": 14.053347419947386,
+          "held_duration_seconds": 0.15289179980754852
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00065.png",
+          "game_seconds": 14.206239219754934,
+          "held_duration_seconds": 0.3026689887046814
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00066.png",
+          "game_seconds": 14.508908208459616,
+          "held_duration_seconds": 0.14798690378665924
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00067.png",
+          "game_seconds": 14.656895112246275,
+          "held_duration_seconds": 0.14210669696331024
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00068.png",
+          "game_seconds": 14.799001809209585,
+          "held_duration_seconds": 0.14363409578800201
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00069.png",
+          "game_seconds": 14.942635904997587,
+          "held_duration_seconds": 0.13546109199523926
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00070.png",
+          "game_seconds": 15.078096996992826,
+          "held_duration_seconds": 0.11895419657230377
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00071.png",
+          "game_seconds": 15.19705119356513,
+          "held_duration_seconds": 0.1456546038389206
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00072.png",
+          "game_seconds": 15.34270579740405,
+          "held_duration_seconds": 0.12736189365386963
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00073.png",
+          "game_seconds": 15.47006769105792,
+          "held_duration_seconds": 0.1587522029876709
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00074.png",
+          "game_seconds": 15.628819894045591,
+          "held_duration_seconds": 0.16379040479660034
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00075.png",
+          "game_seconds": 15.792610298842192,
+          "held_duration_seconds": 0.14832930266857147
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00076.png",
+          "game_seconds": 15.940939601510763,
+          "held_duration_seconds": 0.1673389971256256
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00077.png",
+          "game_seconds": 16.10827859863639,
+          "held_duration_seconds": 0.15322789549827576
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00078.png",
+          "game_seconds": 16.261506494134665,
+          "held_duration_seconds": 0.15441599488258362
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00079.png",
+          "game_seconds": 16.415922489017248,
+          "held_duration_seconds": 0.2949340045452118
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00080.png",
+          "game_seconds": 16.71085649356246,
+          "held_duration_seconds": 0.15035000443458557
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00081.png",
+          "game_seconds": 16.861206497997046,
+          "held_duration_seconds": 0.14321479201316833
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00082.png",
+          "game_seconds": 17.004421290010214,
+          "held_duration_seconds": 0.14081810414791107
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00083.png",
+          "game_seconds": 17.145239394158125,
+          "held_duration_seconds": 0.14196959137916565
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00084.png",
+          "game_seconds": 17.28720898553729,
+          "held_duration_seconds": 0.13992120325565338
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00085.png",
+          "game_seconds": 17.427130188792944,
+          "held_duration_seconds": 0.14405520260334015
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00086.png",
+          "game_seconds": 17.571185391396284,
+          "held_duration_seconds": 0.14192429184913635
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00087.png",
+          "game_seconds": 17.71310968324542,
+          "held_duration_seconds": 0.13949990272521973
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00088.png",
+          "game_seconds": 17.85260958597064,
+          "held_duration_seconds": 0.13897369801998138
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00089.png",
+          "game_seconds": 17.99158328399062,
+          "held_duration_seconds": 0.14162370562553406
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00090.png",
+          "game_seconds": 18.133206989616156,
+          "held_duration_seconds": 0.15052279829978943
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00091.png",
+          "game_seconds": 18.283729787915945,
+          "held_duration_seconds": 0.15223020315170288
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00092.png",
+          "game_seconds": 18.435959991067648,
+          "held_duration_seconds": 0.14633630216121674
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00093.png",
+          "game_seconds": 18.582296293228865,
+          "held_duration_seconds": 0.15035000443458557
+        }
+      ],
+      "capture_report_key": "WardrobeRGB",
+      "video_sha256": "0af7395d4b4c57b2f9bd956abedbd26be9fd3aca13f04c36bf9925276d7c1f6c",
+      "observed_median_game_interval_seconds": 0.15035000443458557,
+      "observed_median_game_capture_hz": 6.651147126737073,
+      "source_frames_unchanged": true
+    },
+    "EmptyShop": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\HubWardrobeShop_20261023\\Final\\EmptyShop.mp4",
+      "concat_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\HubWardrobeShop_20261023\\Final\\EmptyShop.ffconcat",
+      "requested": 28,
+      "available": 28,
+      "missing_requests": [],
+      "source_start_game_seconds": 19.306500993669033,
+      "source_end_game_seconds": 23.38926723599434,
+      "source_intervals_preserved_seconds": 4.082766242325306,
+      "final_image_hold_seconds": 0.13897819817066193,
+      "final_hold_policy": "Median requested capture interval; a presentation hold, not a source timestamp.",
+      "target_presentation_duration_seconds": 4.221744440495968,
+      "duration_quantization_seconds": 0.011588559504032148,
+      "requested_missing_initial_seconds": 0.0,
+      "requested_missing_final_seconds": 0.0,
+      "encoded_duration_seconds": 4.233333,
+      "encoded_frame_count": 127,
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "full_decode": "PASS",
+      "posters": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubWardrobeShop_20261023\\Final\\EmptyShopStart.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00094.png",
+          "game_seconds": 19.306500993669033
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubWardrobeShop_20261023\\Final\\EmptyShopMidway.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00108.png",
+          "game_seconds": 21.553815476596355
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubWardrobeShop_20261023\\Final\\EmptyShopComplete.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00121.png",
+          "game_seconds": 23.38926723599434
+        }
+      ],
+      "source_sequence": [
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00094.png",
+          "game_seconds": 19.306500993669033,
+          "held_duration_seconds": 0.4000000059604645
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00095.png",
+          "game_seconds": 19.706500999629498,
+          "held_duration_seconds": 0.1494278907775879
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00096.png",
+          "game_seconds": 19.855928890407085,
+          "held_duration_seconds": 0.1478341966867447
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00097.png",
+          "game_seconds": 20.00376308709383,
+          "held_duration_seconds": 0.14215940237045288
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00098.png",
+          "game_seconds": 20.145922489464283,
+          "held_duration_seconds": 0.1393059939146042
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00099.png",
+          "game_seconds": 20.285228483378887,
+          "held_duration_seconds": 0.13362260162830353
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00100.png",
+          "game_seconds": 20.41885108500719,
+          "held_duration_seconds": 0.13473430275917053
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00101.png",
+          "game_seconds": 20.55358538776636,
+          "held_duration_seconds": 0.14379669725894928
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00102.png",
+          "game_seconds": 20.69738208502531,
+          "held_duration_seconds": 0.13897819817066193
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00103.png",
+          "game_seconds": 20.836360283195972,
+          "held_duration_seconds": 0.13242849707603455
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00104.png",
+          "game_seconds": 20.968788780272007,
+          "held_duration_seconds": 0.14637300372123718
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00105.png",
+          "game_seconds": 21.115161783993244,
+          "held_duration_seconds": 0.1440121978521347
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00106.png",
+          "game_seconds": 21.25917398184538,
+          "held_duration_seconds": 0.14700719714164734
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00107.png",
+          "game_seconds": 21.406181178987026,
+          "held_duration_seconds": 0.14763429760932922
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00108.png",
+          "game_seconds": 21.553815476596355,
+          "held_duration_seconds": 0.13993869721889496
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00109.png",
+          "game_seconds": 21.69375417381525,
+          "held_duration_seconds": 0.13258439302444458
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00110.png",
+          "game_seconds": 21.826338566839695,
+          "held_duration_seconds": 0.1351121962070465
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00111.png",
+          "game_seconds": 21.96145076304674,
+          "held_duration_seconds": 0.133911594748497
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00112.png",
+          "game_seconds": 22.09536235779524,
+          "held_duration_seconds": 0.13170099258422852
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00113.png",
+          "game_seconds": 22.227063350379467,
+          "held_duration_seconds": 0.1319034993648529
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00114.png",
+          "game_seconds": 22.35896684974432,
+          "held_duration_seconds": 0.13040480017662048
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00115.png",
+          "game_seconds": 22.48937164992094,
+          "held_duration_seconds": 0.14042949676513672
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00116.png",
+          "game_seconds": 22.629801146686077,
+          "held_duration_seconds": 0.2530252933502197
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00117.png",
+          "game_seconds": 22.882826440036297,
+          "held_duration_seconds": 0.13486790657043457
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00118.png",
+          "game_seconds": 23.01769434660673,
+          "held_duration_seconds": 0.12745419144630432
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00119.png",
+          "game_seconds": 23.145148538053036,
+          "held_duration_seconds": 0.12073030322790146
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00120.png",
+          "game_seconds": 23.265878841280937,
+          "held_duration_seconds": 0.1233883947134018
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00121.png",
+          "game_seconds": 23.38926723599434,
+          "held_duration_seconds": 0.13897819817066193
+        }
+      ],
+      "capture_report_key": "EmptyShop",
+      "video_sha256": "25d8496d332e0944ff8802172fc537b0eb6a186f5c5cf266e0fd4b7f0f14a14e",
+      "observed_median_game_interval_seconds": 0.13897819817066193,
+      "observed_median_game_capture_hz": 7.195373182000991,
+      "source_frames_unchanged": true
+    }
+  },
+  "decode_passed": true
+}

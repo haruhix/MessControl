@@ -7,6 +7,7 @@
 #include "MCMainMenuWidget.h"
 #include "MCVoiceSettingsWidget.h"
 #include "MCHubWidget.h"
+#include "MCHubWardrobeWidget.h"
 #include "MCUIDataLibrary.h"
 #include "MCThroatVortex.h"
 #include "MCFoodActor.h"
@@ -432,6 +433,53 @@ UWidgetBlueprint* UMCGameplayUIEditorLibrary::CreateEditableGameplayWidget(const
     }
     UE_LOG(LogTemp,Display,TEXT("MC_UI_AUTHOR Saved editable gameplay widget: %s"),*AssetPath);
     return Blueprint;
+}
+
+bool UMCGameplayUIEditorLibrary::RefreshHubWardrobePalettePresentation(UWidgetBlueprint* Blueprint)
+{
+    if(!GEditor || GEditor->PlayWorld || IsRunningCommandlet() || !IsValid(Blueprint) || HasDirtyDesignerPackages()
+        || Blueprint->GetPathName()!=TEXT("/Game/Gameplay/UI/WBP_HubWardrobe.WBP_HubWardrobe")
+        || Blueprint->ParentClass!=UMCHubWardrobeWidget::StaticClass() || !Blueprint->WidgetTree) return false;
+    if(Blueprint->WidgetTree->FindWidget(TEXT("WardrobeColorPalette"))) return true;
+    // Only the known generated RGB layout may be replaced. A later artist tree
+    // without these controls requires its own explicit migration.
+    for(const TCHAR* Name:{TEXT("WardrobeRSlider"),TEXT("WardrobeGSlider"),TEXT("WardrobeBSlider")})
+        if(!Blueprint->WidgetTree->FindWidget(Name)) return false;
+    auto* Assets=GEditor->GetEditorSubsystem<UEditorAssetSubsystem>();if(!Assets) return false;
+    TStrongObjectPtr<UMCHubWardrobeWidget> Source(NewObject<UMCHubWardrobeWidget>(GetTransientPackage()));
+    Source->SetDesignerFlags(EWidgetDesignFlags::Designing);Source->Initialize();Source->BuildPresentationTree();
+    if(!Source->WidgetTree || !Source->WidgetTree->FindWidget(TEXT("WardrobeColorPalette"))) return false;
+    TStrongObjectPtr<UWidgetBlueprint> Guard(Blueprint);
+    TStrongObjectPtr<UWidgetTree> PreviousTree(Blueprint->WidgetTree.Get());
+    Blueprint->Modify();
+    Blueprint->WidgetTree->Rename(nullptr,GetTransientPackage(),REN_DontCreateRedirectors | REN_NonTransactional);
+    Blueprint->WidgetTree=DuplicateObject<UWidgetTree>(Source->WidgetTree,Blueprint,TEXT("WidgetTree"));
+    Blueprint->WidgetTree->ClearFlags(RF_Transient);Blueprint->WidgetTree->SetFlags(RF_Transactional);
+    FDesignerMaterialSnapshots Snapshots(Blueprint,Assets);
+    Blueprint->WidgetTree->ForEachWidget([SourceWidget=Source.Get(),OldTree=PreviousTree.Get(),&Snapshots](UWidget* Widget) {
+        // Keep the existing editable MIC snapshots and artist button styles.
+        // Creating a second snapshot under the same package would collide.
+        if(auto* Old=OldTree->FindWidget(Widget->GetFName())) {
+            if(auto* Border=Cast<UBorder>(Widget)) if(auto* OldBorder=Cast<UBorder>(Old)) Border->SetBrush(OldBorder->Background);
+            if(auto* Button=Cast<UButton>(Widget)) if(auto* OldButton=Cast<UButton>(Old)) Button->SetStyle(OldButton->GetStyle());
+            if(auto* Image=Cast<UImage>(Widget)) if(auto* OldImage=Cast<UImage>(Old)) Image->SetBrush(OldImage->GetBrush());
+        }
+        if(!SanitizeAppendedDesignerWidget(Widget,SourceWidget,Snapshots)) Snapshots.bFailed=true;
+    });
+    if(Snapshots.bFailed) return false;
+    RegisterMissingDesignerGuids(Blueprint);
+    FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
+    FKismetEditorUtilities::CompileBlueprint(Blueprint);
+    if(Blueprint->Status==BS_Error || !Blueprint->GeneratedClass) return false;
+    auto* Defaults=Cast<UMCGameplayUIWidget>(Blueprint->GeneratedClass->GetDefaultObject());
+    if(!Defaults) return false;
+    Defaults->bUseNativeLayout=false;
+    Defaults->StyleBindings=Source->StyleBindings;Defaults->TextBindings=Source->TextBindings;
+    Defaults->TranslationTable=Source->TranslationTable;
+    CastChecked<UWidgetBlueprintGeneratedClass>(Blueprint->GeneratedClass)->UpdateCustomPropertyListForPostConstruction();
+    if(!Snapshots.Save()) return false;
+    Blueprint->MarkPackageDirty();
+    return Assets->SaveLoadedAsset(Blueprint,false);
 }
 
 bool UMCGameplayUIEditorLibrary::AddMissingGameplayHUDPresentation(UWidgetBlueprint* Blueprint)

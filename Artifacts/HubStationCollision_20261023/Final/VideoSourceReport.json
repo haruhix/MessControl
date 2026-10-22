@@ -1,0 +1,1291 @@
+{
+  "mode": "Full",
+  "source_report": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\Report.json",
+  "source_report_sha256": "ee1c6aee03ae1c83e9cb870cf533e30c0fc81a1c0769cbd9d94e70ce4ac03b1f",
+  "native_full_report_passed": true,
+  "native_full_report_status": "passed",
+  "native_full_report_error": null,
+  "all_native_checks": {
+    "Cabin1Door_approach_has_actual_walkable_floor": true,
+    "Cabin1Door_approach_capsule_is_clear": true,
+    "Cabin1Door_swept_capsule_hits_exact_prop_front": true,
+    "Cabin1Door_starts_outside_surface": true,
+    "Cabin1Door_reaches_the_actual_surface": true,
+    "Cabin1Door_blocks_capsule_not_pass_through": true,
+    "Cabin1Door_can_back_away": true,
+    "Cabin2Door_approach_has_actual_walkable_floor": true,
+    "Cabin2Door_approach_capsule_is_clear": true,
+    "Cabin2Door_swept_capsule_hits_exact_prop_front": true,
+    "Cabin2Door_starts_outside_surface": true,
+    "Cabin2Door_reaches_the_actual_surface": true,
+    "Cabin2Door_blocks_capsule_not_pass_through": true,
+    "Cabin2Door_can_back_away": true,
+    "Cabin3Door_approach_has_actual_walkable_floor": true,
+    "Cabin3Door_approach_capsule_is_clear": true,
+    "Cabin3Door_swept_capsule_hits_exact_prop_front": true,
+    "Cabin3Door_starts_outside_surface": true,
+    "Cabin3Door_reaches_the_actual_surface": true,
+    "Cabin3Door_blocks_capsule_not_pass_through": true,
+    "Cabin3Door_can_back_away": true,
+    "Cabin4Door_approach_has_actual_walkable_floor": true,
+    "Cabin4Door_approach_capsule_is_clear": true,
+    "Cabin4Door_swept_capsule_hits_exact_prop_front": true,
+    "Cabin4Door_starts_outside_surface": true,
+    "Cabin4Door_reaches_the_actual_surface": true,
+    "Cabin4Door_blocks_capsule_not_pass_through": true,
+    "Cabin4Door_can_back_away": true,
+    "VendingBody_approach_has_actual_walkable_floor": true,
+    "VendingBody_approach_capsule_is_clear": true,
+    "VendingBody_swept_capsule_hits_exact_prop_front": true,
+    "VendingBody_starts_outside_surface": true,
+    "VendingBody_reaches_the_actual_surface": true,
+    "VendingBody_blocks_capsule_not_pass_through": true,
+    "VendingBody_can_back_away": true
+  },
+  "teleports": false,
+  "encoded_completed_cases": [
+    "Cabin1Door",
+    "Cabin2Door",
+    "Cabin3Door",
+    "Cabin4Door",
+    "VendingBody"
+  ],
+  "tests": [
+    {
+      "name": "Cabin1Door",
+      "actor": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_108",
+      "mesh": "/Game/Gameplay/Hub/Collision/SM_HubCabinDoor_Collision.SM_HubCabinDoor_Collision",
+      "front_axis": "Y",
+      "front_sign": 1,
+      "face_center_cm": [
+        1838.0923185238867,
+        1308.9160081948858,
+        100.4779986859474
+      ],
+      "outward_xy": [
+        -0.9993351429829109,
+        0.036459182647516075,
+        0.0
+      ],
+      "approach_xy_cm": [
+        1649.2179765001165,
+        1315.8067937152664
+      ],
+      "pawn_response": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "review_camera": {
+        "method": "normal ApplyCameraOrbitInput",
+        "yaw_target": -2.0894203659908896,
+        "pitch_target": -18.0,
+        "look_input_ignored": false
+      },
+      "approach_floor": {
+        "blocking": true,
+        "walkable": true,
+        "floor_distance_cm": 2.1204938888549805,
+        "actor": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_101",
+        "component": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_101.StaticMeshComponent0",
+        "impact_point_cm": [
+          1617.453124383654,
+          1312.0500813213723,
+          -47.56385497463674
+        ],
+        "normal": [
+          -2.0706695508188044e-05,
+          0.017452394297857776,
+          0.9998476951564862
+        ]
+      },
+      "approach_clearance": {
+        "center_cm": [
+          1617.45235149913,
+          1312.6433888066015,
+          15.55144161489627
+        ],
+        "radius_cm": 34.0,
+        "half_height_cm": 58.0,
+        "profile": "Custom",
+        "raised_query_cm": 3.0,
+        "blocking": false,
+        "actor": null
+      },
+      "contact_query": {
+        "blocking": true,
+        "initial_overlap": false,
+        "actor": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_108",
+        "component": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_108.StaticMeshComponent0",
+        "capsule_center_at_hit_cm": [
+          1803.9824142659759,
+          1305.8381306552974,
+          15.55144161489627
+        ],
+        "impact_point_cm": [
+          1837.9597951556568,
+          1304.5985211882553,
+          39.56537731969131
+        ],
+        "impact_normal": [
+          -0.9993351409584345,
+          0.03645909911719247,
+          -0.0004099432969148775
+        ],
+        "outward_dot_xy": 0.9999999949314222,
+        "expected_signed_capsule_distance_cm": 33.97500914933014,
+        "complex_query": false
+      },
+      "push_start_cm": [
+        1617.45235149913,
+        1312.6433888066015,
+        12.55144161489627
+      ],
+      "contact_cm": [
+        1803.8834422879113,
+        1305.8417390481263,
+        12.666683872449516
+      ],
+      "approach_movement_cm": 186.55515895549425,
+      "end_signed_distance_cm": 34.07404688423382,
+      "minimum_signed_distance_cm": 34.07404688423382,
+      "capsule_radius_cm": 34.0
+    },
+    {
+      "name": "Cabin2Door",
+      "actor": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_111",
+      "mesh": "/Game/Gameplay/Hub/Collision/SM_HubCabinDoor_Collision.SM_HubCabinDoor_Collision",
+      "front_axis": "Y",
+      "front_sign": 1,
+      "face_center_cm": [
+        1843.502913497855,
+        1438.9611210688513,
+        99.01578633484282
+      ],
+      "outward_xy": [
+        -0.9993351429829193,
+        0.03645918264728901,
+        0.0
+      ],
+      "approach_xy_cm": [
+        1654.6285714740832,
+        1445.851906589189
+      ],
+      "pawn_response": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "review_camera": {
+        "method": "normal ApplyCameraOrbitInput",
+        "yaw_target": -2.089420365977871,
+        "pitch_target": -18.0,
+        "look_input_ignored": false
+      },
+      "approach_floor": {
+        "blocking": true,
+        "walkable": true,
+        "floor_distance_cm": 2.113137722015381,
+        "actor": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_101",
+        "component": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_101.StaticMeshComponent0",
+        "impact_point_cm": [
+          1660.8640274597956,
+          1411.8608780883108,
+          -49.30515862462502
+        ],
+        "normal": [
+          -2.0706695508188044e-05,
+          0.017452394297857776,
+          0.9998476951564862
+        ]
+      },
+      "approach_clearance": {
+        "center_cm": [
+          1660.863184928289,
+          1412.4540107092243,
+          13.802799118988482
+        ],
+        "radius_cm": 34.0,
+        "half_height_cm": 58.0,
+        "profile": "Custom",
+        "raised_query_cm": 3.0,
+        "blocking": false,
+        "actor": null
+      },
+      "contact_query": {
+        "blocking": true,
+        "initial_overlap": false,
+        "actor": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_111",
+        "component": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_111.StaticMeshComponent0",
+        "capsule_center_at_hit_cm": [
+          1808.342054837546,
+          1407.0734743672444,
+          13.802799118988482
+        ],
+        "impact_point_cm": [
+          1842.3194303799694,
+          1405.833859466814,
+          37.81673914450252
+        ],
+        "impact_normal": [
+          -0.9993351409584345,
+          0.03645909911719247,
+          -0.0004099432969148775
+        ],
+        "outward_dot_xy": 0.9999999949314222,
+        "expected_signed_capsule_distance_cm": 33.97488418141603,
+        "complex_query": false
+      },
+      "push_start_cm": [
+        1660.863184928289,
+        1412.4540107092243,
+        10.802799118988482
+      ],
+      "contact_cm": [
+        1808.242947122758,
+        1407.0770848889306,
+        10.88608571936642
+      ],
+      "approach_movement_cm": 147.47783756359124,
+      "end_signed_distance_cm": 34.07405764041382,
+      "minimum_signed_distance_cm": 34.07405764041382,
+      "capsule_radius_cm": 34.0
+    },
+    {
+      "name": "Cabin3Door",
+      "actor": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_114",
+      "mesh": "/Game/Gameplay/Hub/Collision/SM_HubCabinDoor_Collision.SM_HubCabinDoor_Collision",
+      "front_axis": "Y",
+      "front_sign": 1,
+      "face_center_cm": [
+        1847.712927001546,
+        1575.5166113912376,
+        97.48037204554123
+      ],
+      "outward_xy": [
+        -0.9993351429829193,
+        0.03645918264728901,
+        0.0
+      ],
+      "approach_xy_cm": [
+        1658.8385849777742,
+        1582.4073969115752
+      ],
+      "pawn_response": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "review_camera": {
+        "method": "normal ApplyCameraOrbitInput",
+        "yaw_target": -2.089420365977871,
+        "pitch_target": -18.0,
+        "look_input_ignored": false
+      },
+      "approach_floor": {
+        "blocking": true,
+        "walkable": true,
+        "floor_distance_cm": 2.099524974822998,
+        "actor": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_101",
+        "component": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_101.StaticMeshComponent0",
+        "impact_point_cm": [
+          1665.5216978067388,
+          1548.632779055434,
+          -51.69242287361266
+        ],
+        "normal": [
+          -2.0706695508188044e-05,
+          0.017452394297857776,
+          0.9998476951564862
+        ]
+      },
+      "approach_clearance": {
+        "center_cm": [
+          1665.5208906923765,
+          1549.225890125224,
+          11.401915048945856
+        ],
+        "radius_cm": 34.0,
+        "half_height_cm": 58.0,
+        "profile": "Custom",
+        "raised_query_cm": 3.0,
+        "blocking": false,
+        "actor": null
+      },
+      "contact_query": {
+        "blocking": true,
+        "initial_overlap": false,
+        "actor": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_114",
+        "component": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_114.StaticMeshComponent0",
+        "capsule_center_at_hit_cm": [
+          1812.560889493496,
+          1543.8613653105103,
+          11.401915048945856
+        ],
+        "impact_point_cm": [
+          1846.538277579314,
+          1542.6217479837362,
+          35.41585284544279
+        ],
+        "impact_normal": [
+          -0.9993351409584345,
+          0.03645909911719247,
+          -0.0004099432969148775
+        ],
+        "outward_dot_xy": 0.9999999949314222,
+        "expected_signed_capsule_distance_cm": 33.974542030645914,
+        "complex_query": false
+      },
+      "push_start_cm": [
+        1665.5208906923765,
+        1549.225890125224,
+        8.401915048945856
+      ],
+      "contact_cm": [
+        1812.4615656837286,
+        1543.8649848336138,
+        8.486961126359251
+      ],
+      "approach_movement_cm": 147.03845927271908,
+      "end_signed_distance_cm": 34.07393176913534,
+      "minimum_signed_distance_cm": 34.07393176913534,
+      "capsule_radius_cm": 34.0
+    },
+    {
+      "name": "Cabin4Door",
+      "actor": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_115",
+      "mesh": "/Game/Gameplay/Hub/Collision/SM_HubCabinDoor_Collision.SM_HubCabinDoor_Collision",
+      "front_axis": "Y",
+      "front_sign": 1,
+      "face_center_cm": [
+        1853.1235215193715,
+        1705.5617245302305,
+        96.01815969145677
+      ],
+      "outward_xy": [
+        -0.9993351429829193,
+        0.03645918264728901,
+        0.0
+      ],
+      "approach_xy_cm": [
+        1664.2491794955997,
+        1712.4525100505682
+      ],
+      "pawn_response": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "review_camera": {
+        "method": "normal ApplyCameraOrbitInput",
+        "yaw_target": -2.089420365977871,
+        "pitch_target": -18.0,
+        "look_input_ignored": false
+      },
+      "approach_floor": {
+        "blocking": true,
+        "walkable": true,
+        "floor_distance_cm": 2.087953567504883,
+        "actor": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_101",
+        "component": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_101.StaticMeshComponent0",
+        "impact_point_cm": [
+          1670.0825862967577,
+          1677.8773860505833,
+          -53.94829981560616
+        ],
+        "normal": [
+          -2.0706695508188044e-05,
+          0.017452394297857776,
+          0.9998476951564862
+        ]
+      },
+      "approach_clearance": {
+        "center_cm": [
+          1670.0817874191312,
+          1678.470463447804,
+          9.13446672383709
+        ],
+        "radius_cm": 34.0,
+        "half_height_cm": 58.0,
+        "profile": "Custom",
+        "raised_query_cm": 3.0,
+        "blocking": false,
+        "actor": null
+      },
+      "contact_query": {
+        "blocking": true,
+        "initial_overlap": false,
+        "actor": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_115",
+        "component": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_115.StaticMeshComponent0",
+        "capsule_center_at_hit_cm": [
+          1817.9415108003072,
+          1673.0760322614447,
+          9.13446672383709
+        ],
+        "impact_point_cm": [
+          1851.9188896597714,
+          1671.8364142514124,
+          33.14840466481445
+        ],
+        "impact_normal": [
+          -0.9993351409584345,
+          0.03645909911719247,
+          -0.0004099432969148775
+        ],
+        "outward_dot_xy": 0.9999999949314222,
+        "expected_signed_capsule_distance_cm": 33.974217924511365,
+        "complex_query": false
+      },
+      "push_start_cm": [
+        1670.0817874191312,
+        1678.470463447804,
+        6.1344667238370905
+      ],
+      "contact_cm": [
+        1817.8422790961627,
+        1673.07964753731,
+        6.218150033757958
+      ],
+      "approach_movement_cm": 147.85882050021667,
+      "end_signed_distance_cm": 34.07351546376423,
+      "minimum_signed_distance_cm": 34.07351546376423,
+      "capsule_radius_cm": 34.0
+    },
+    {
+      "name": "VendingBody",
+      "actor": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_103",
+      "mesh": "/Game/FromBlender11/SM_BusterShop.SM_BusterShop",
+      "front_axis": "Y",
+      "front_sign": 1,
+      "face_center_cm": [
+        643.0704522543522,
+        543.4827005508572,
+        140.04961395263666
+      ],
+      "outward_xy": [
+        -0.6427876096865535,
+        0.7660444431189662,
+        0.0
+      ],
+      "approach_xy_cm": [
+        521.5835940235936,
+        688.2651003003418
+      ],
+      "pawn_response": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "review_camera": {
+        "method": "normal ApplyCameraOrbitInput",
+        "yaw_target": -49.99999999999894,
+        "pitch_target": -18.0,
+        "look_input_ignored": false
+      },
+      "approach_floor": {
+        "blocking": true,
+        "walkable": true,
+        "floor_distance_cm": 2.1499805450439453,
+        "actor": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_8",
+        "component": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_8.StaticMeshComponent0",
+        "impact_point_cm": [
+          538.9737502870121,
+          672.1512651509413,
+          -21.07218168816553
+        ],
+        "normal": [
+          -0.23841725100976763,
+          0.29498702456966885,
+          0.9252782653102911
+        ]
+      },
+      "approach_clearance": {
+        "center_cm": [
+          530.8675482007943,
+          682.1808347259343,
+          39.53727240052952
+        ],
+        "radius_cm": 34.0,
+        "half_height_cm": 58.0,
+        "profile": "Custom",
+        "raised_query_cm": 3.0,
+        "blocking": false,
+        "actor": null
+      },
+      "contact_query": {
+        "blocking": true,
+        "initial_overlap": false,
+        "actor": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_103",
+        "component": "/Game/Maps/UEDPIE_0_Hub.Hub:PersistentLevel.StaticMeshActor_103.StaticMeshComponent0",
+        "capsule_center_at_hit_cm": [
+          623.6955176163312,
+          571.552768681747,
+          39.53727240052952
+        ],
+        "impact_point_cm": [
+          645.585607770322,
+          545.5369295083265,
+          57.814285278320256
+        ],
+        "impact_normal": [
+          -0.6438261953384649,
+          0.7651717649067801,
+          0.0
+        ],
+        "outward_dot_xy": 0.9999990796935707,
+        "expected_signed_capsule_distance_cm": 33.956887633445604,
+        "complex_query": false
+      },
+      "push_start_cm": [
+        530.8675482007943,
+        682.1808347259343,
+        36.53727240052952
+      ],
+      "contact_cm": [
+        623.2069199557903,
+        571.2729059301564,
+        40.0726977669235
+      ],
+      "approach_movement_cm": 144.35936920892266,
+      "end_signed_distance_cm": 34.056564850071176,
+      "minimum_signed_distance_cm": 34.056564850071176,
+      "capsule_radius_cm": 34.0
+    }
+  ],
+  "review_fixtures": [],
+  "limitations": [
+    "Actual pawn AddMovementInput tests collision against scene props; no physical WASD input is simulated.",
+    "Four fronts test the individual real closed doors; the fifth tests the existing vending complex collision.",
+    "Cabin side/back/top faces are not reached by this short route; their simple-shape inspection is separate evidence.",
+    "No wardrobe/shop E action, networking, cook/package or broad level test.",
+    "Videos repeat actual native captures at the reported cadence; successful assertions are not art approval."
+  ],
+  "capture_hz": 3.0,
+  "windows": {
+    "Cabin1Door": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin1Door.mp4",
+      "concat_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin1Door.ffconcat",
+      "requested": 32,
+      "available": 32,
+      "missing_requests": [],
+      "source_start_game_seconds": 2.834124807268381,
+      "source_end_game_seconds": 13.493702799081802,
+      "source_intervals_preserved_seconds": 10.659577991813421,
+      "final_image_hold_seconds": 0.34428949654102325,
+      "final_hold_policy": "Median requested capture interval; a presentation hold, not a source timestamp.",
+      "target_presentation_duration_seconds": 11.003867488354445,
+      "duration_quantization_seconds": -0.003867488354444504,
+      "requested_missing_initial_seconds": 0.0,
+      "requested_missing_final_seconds": 0.0,
+      "encoded_duration_seconds": 11.0,
+      "encoded_frame_count": 330,
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "full_decode": "PASS",
+      "posters": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin1DoorStart.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00002.png",
+          "game_seconds": 2.834124807268381
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin1DoorMidway.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00018.png",
+          "game_seconds": 8.332095608115196
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin1DoorComplete.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00033.png",
+          "game_seconds": 13.493702799081802
+        }
+      ],
+      "source_sequence": [
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00002.png",
+          "game_seconds": 2.834124807268381,
+          "held_duration_seconds": 0.347776897251606
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00003.png",
+          "game_seconds": 3.181901704519987,
+          "held_duration_seconds": 0.34218500554561615
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00004.png",
+          "game_seconds": 3.5240867100656033,
+          "held_duration_seconds": 0.344538401812315
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00005.png",
+          "game_seconds": 3.8686251118779182,
+          "held_duration_seconds": 0.33921540528535843
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00006.png",
+          "game_seconds": 4.207840517163277,
+          "held_duration_seconds": 0.34308359771966934
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00007.png",
+          "game_seconds": 4.550924114882946,
+          "held_duration_seconds": 0.34976059943437576
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00008.png",
+          "game_seconds": 4.900684714317322,
+          "held_duration_seconds": 0.3364325053989887
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00009.png",
+          "game_seconds": 5.2371172197163105,
+          "held_duration_seconds": 0.34282949194312096
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00010.png",
+          "game_seconds": 5.5799467116594315,
+          "held_duration_seconds": 0.34952400624752045
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00011.png",
+          "game_seconds": 5.929470717906952,
+          "held_duration_seconds": 0.334830392152071
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00012.png",
+          "game_seconds": 6.264301110059023,
+          "held_duration_seconds": 0.3453124016523361
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00013.png",
+          "game_seconds": 6.609613511711359,
+          "held_duration_seconds": 0.34093499928712845
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00014.png",
+          "game_seconds": 6.9505485109984875,
+          "held_duration_seconds": 0.35298000276088715
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00015.png",
+          "game_seconds": 7.303528513759375,
+          "held_duration_seconds": 0.34687090292572975
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00016.png",
+          "game_seconds": 7.650399416685104,
+          "held_duration_seconds": 0.33059049397706985
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00017.png",
+          "game_seconds": 7.980989910662174,
+          "held_duration_seconds": 0.351105697453022
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00018.png",
+          "game_seconds": 8.332095608115196,
+          "held_duration_seconds": 0.3498973995447159
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00019.png",
+          "game_seconds": 8.681993007659912,
+          "held_duration_seconds": 0.3443694971501827
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00020.png",
+          "game_seconds": 9.026362504810095,
+          "held_duration_seconds": 0.3347186967730522
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00021.png",
+          "game_seconds": 9.361081201583147,
+          "held_duration_seconds": 0.3458710014820099
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00022.png",
+          "game_seconds": 9.706952203065157,
+          "held_duration_seconds": 0.34953680261969566
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00023.png",
+          "game_seconds": 10.056489005684853,
+          "held_duration_seconds": 0.33992260694503784
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00024.png",
+          "game_seconds": 10.39641161262989,
+          "held_duration_seconds": 0.3380885012447834
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00025.png",
+          "game_seconds": 10.734500113874674,
+          "held_duration_seconds": 0.34874119237065315
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00026.png",
+          "game_seconds": 11.083241306245327,
+          "held_duration_seconds": 0.3364473059773445
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00027.png",
+          "game_seconds": 11.419688612222672,
+          "held_duration_seconds": 0.35574669018387794
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00028.png",
+          "game_seconds": 11.77543530240655,
+          "held_duration_seconds": 0.344192698597908
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00029.png",
+          "game_seconds": 12.119628001004457,
+          "held_duration_seconds": 0.3387785963714123
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00030.png",
+          "game_seconds": 12.45840659737587,
+          "held_duration_seconds": 0.34428949654102325
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00031.png",
+          "game_seconds": 12.802696093916893,
+          "held_duration_seconds": 0.3395633064210415
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00032.png",
+          "game_seconds": 13.142259400337934,
+          "held_duration_seconds": 0.3514433987438679
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00033.png",
+          "game_seconds": 13.493702799081802,
+          "held_duration_seconds": 0.34428949654102325
+        }
+      ],
+      "video_sha256": "0b0baa59de14453e4f52c8cfea79714f4b28832a11e773c1c44cd014b243b28a",
+      "source_frames_unchanged": true
+    },
+    "Cabin2Door": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin2Door.mp4",
+      "concat_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin2Door.ffconcat",
+      "requested": 10,
+      "available": 10,
+      "missing_requests": [],
+      "source_start_game_seconds": 13.826592102646828,
+      "source_end_game_seconds": 16.92491488531232,
+      "source_intervals_preserved_seconds": 3.098322782665491,
+      "final_image_hold_seconds": 0.34068189933896065,
+      "final_hold_policy": "Median requested capture interval; a presentation hold, not a source timestamp.",
+      "target_presentation_duration_seconds": 3.4390046820044518,
+      "duration_quantization_seconds": -0.0056716820044515615,
+      "requested_missing_initial_seconds": 0.0,
+      "requested_missing_final_seconds": 0.0,
+      "encoded_duration_seconds": 3.433333,
+      "encoded_frame_count": 103,
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "full_decode": "PASS",
+      "posters": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin2DoorStart.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00034.png",
+          "game_seconds": 13.826592102646828
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin2DoorMidway.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00039.png",
+          "game_seconds": 15.556137096136808
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin2DoorComplete.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00043.png",
+          "game_seconds": 16.92491488531232
+        }
+      ],
+      "source_sequence": [
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00034.png",
+          "game_seconds": 13.826592102646828,
+          "held_duration_seconds": 0.35038240253925323
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00035.png",
+          "game_seconds": 14.176974505186081,
+          "held_duration_seconds": 0.3388979025185108
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00036.png",
+          "game_seconds": 14.515872407704592,
+          "held_duration_seconds": 0.3544289991259575
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00037.png",
+          "game_seconds": 14.87030140683055,
+          "held_duration_seconds": 0.3351486958563328
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00038.png",
+          "game_seconds": 15.205450102686882,
+          "held_duration_seconds": 0.3506869934499264
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00039.png",
+          "game_seconds": 15.556137096136808,
+          "held_duration_seconds": 0.34012050181627274
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00040.png",
+          "game_seconds": 15.896257597953081,
+          "held_duration_seconds": 0.33972690254449844
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00041.png",
+          "game_seconds": 16.23598450049758,
+          "held_duration_seconds": 0.3482484854757786
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00042.png",
+          "game_seconds": 16.584232985973358,
+          "held_duration_seconds": 0.34068189933896065
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00043.png",
+          "game_seconds": 16.92491488531232,
+          "held_duration_seconds": 0.34068189933896065
+        }
+      ],
+      "video_sha256": "e003f95835a3d43010012c76fafe308b121167a3bdf0ba6c5e8d6c932bbf2be8",
+      "source_frames_unchanged": true
+    },
+    "Cabin3Door": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin3Door.mp4",
+      "concat_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin3Door.ffconcat",
+      "requested": 10,
+      "available": 10,
+      "missing_requests": [],
+      "source_start_game_seconds": 17.267147690057755,
+      "source_end_game_seconds": 20.397013291716576,
+      "source_intervals_preserved_seconds": 3.129865601658821,
+      "final_image_hold_seconds": 0.34544600173830986,
+      "final_hold_policy": "Median requested capture interval; a presentation hold, not a source timestamp.",
+      "target_presentation_duration_seconds": 3.475311603397131,
+      "duration_quantization_seconds": -0.008644603397130801,
+      "requested_missing_initial_seconds": 0.0,
+      "requested_missing_final_seconds": 0.0,
+      "encoded_duration_seconds": 3.466667,
+      "encoded_frame_count": 104,
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "full_decode": "PASS",
+      "posters": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin3DoorStart.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00044.png",
+          "game_seconds": 17.267147690057755
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin3DoorMidway.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00049.png",
+          "game_seconds": 18.98548448085785
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin3DoorComplete.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00053.png",
+          "game_seconds": 20.397013291716576
+        }
+      ],
+      "source_sequence": [
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00044.png",
+          "game_seconds": 17.267147690057755,
+          "held_duration_seconds": 0.3489827923476696
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00045.png",
+          "game_seconds": 17.616130482405424,
+          "held_duration_seconds": 0.34544600173830986
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00046.png",
+          "game_seconds": 17.961576484143734,
+          "held_duration_seconds": 0.34348540008068085
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00047.png",
+          "game_seconds": 18.305061884224415,
+          "held_duration_seconds": 0.3402868025004864
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00048.png",
+          "game_seconds": 18.6453486867249,
+          "held_duration_seconds": 0.3401357941329479
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00049.png",
+          "game_seconds": 18.98548448085785,
+          "held_duration_seconds": 0.34938760846853256
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00050.png",
+          "game_seconds": 19.33487208932638,
+          "held_duration_seconds": 0.3385990969836712
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00051.png",
+          "game_seconds": 19.673471186310053,
+          "held_duration_seconds": 0.36837970465421677
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00052.png",
+          "game_seconds": 20.04185089096427,
+          "held_duration_seconds": 0.355162400752306
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00053.png",
+          "game_seconds": 20.397013291716576,
+          "held_duration_seconds": 0.34544600173830986
+        }
+      ],
+      "video_sha256": "9ffb288c34cdde7c27d41f7647621ee82daac2fe85ff8e79270e00911fb5cdf0",
+      "source_frames_unchanged": true
+    },
+    "Cabin4Door": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin4Door.mp4",
+      "concat_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin4Door.ffconcat",
+      "requested": 10,
+      "available": 10,
+      "missing_requests": [],
+      "source_start_game_seconds": 20.734828397631645,
+      "source_end_game_seconds": 23.82790097594261,
+      "source_intervals_preserved_seconds": 3.0930725783109665,
+      "final_image_hold_seconds": 0.3432382047176361,
+      "final_hold_policy": "Median requested capture interval; a presentation hold, not a source timestamp.",
+      "target_presentation_duration_seconds": 3.4363107830286026,
+      "duration_quantization_seconds": -0.00297778302860241,
+      "requested_missing_initial_seconds": 0.0,
+      "requested_missing_final_seconds": 0.0,
+      "encoded_duration_seconds": 3.433333,
+      "encoded_frame_count": 103,
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "full_decode": "PASS",
+      "posters": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin4DoorStart.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00054.png",
+          "game_seconds": 20.734828397631645
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin4DoorMidway.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00059.png",
+          "game_seconds": 22.456741586327553
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\Cabin4DoorComplete.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00063.png",
+          "game_seconds": 23.82790097594261
+        }
+      ],
+      "source_sequence": [
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00054.png",
+          "game_seconds": 20.734828397631645,
+          "held_duration_seconds": 0.3470877930521965
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00055.png",
+          "game_seconds": 21.08191619068384,
+          "held_duration_seconds": 0.3359156996011734
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00056.png",
+          "game_seconds": 21.417831890285015,
+          "held_duration_seconds": 0.3576284907758236
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00057.png",
+          "game_seconds": 21.77546038106084,
+          "held_duration_seconds": 0.33323390036821365
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00058.png",
+          "game_seconds": 22.108694281429052,
+          "held_duration_seconds": 0.34804730489850044
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00059.png",
+          "game_seconds": 22.456741586327553,
+          "held_duration_seconds": 0.35011639818549156
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00060.png",
+          "game_seconds": 22.806857984513044,
+          "held_duration_seconds": 0.34077389538288116
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00061.png",
+          "game_seconds": 23.147631879895926,
+          "held_duration_seconds": 0.33703089132905006
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00062.png",
+          "game_seconds": 23.484662771224976,
+          "held_duration_seconds": 0.3432382047176361
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00063.png",
+          "game_seconds": 23.82790097594261,
+          "held_duration_seconds": 0.3432382047176361
+        }
+      ],
+      "video_sha256": "dbfcbfb32602f836072448ada4cf258cb87f8a27aaf45c17592582a559c75595",
+      "source_frames_unchanged": true
+    },
+    "VendingBody": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\VendingBody.mp4",
+      "concat_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\VendingBody.ffconcat",
+      "requested": 37,
+      "available": 37,
+      "missing_requests": [],
+      "source_start_game_seconds": 24.179226279258728,
+      "source_end_game_seconds": 36.55527716502547,
+      "source_intervals_preserved_seconds": 12.376050885766745,
+      "final_image_hold_seconds": 0.3436018992215395,
+      "final_hold_policy": "Median requested capture interval; a presentation hold, not a source timestamp.",
+      "target_presentation_duration_seconds": 12.719652784988284,
+      "duration_quantization_seconds": 0.013680215011715902,
+      "requested_missing_initial_seconds": 0.0,
+      "requested_missing_final_seconds": 0.0,
+      "encoded_duration_seconds": 12.733333,
+      "encoded_frame_count": 382,
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "full_decode": "PASS",
+      "posters": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\VendingBodyStart.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00064.png",
+          "game_seconds": 24.179226279258728
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\VendingBodyMidway.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00082.png",
+          "game_seconds": 30.364547979086637
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\VendingBodyComplete.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00100.png",
+          "game_seconds": 36.55527716502547
+        }
+      ],
+      "source_sequence": [
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00064.png",
+          "game_seconds": 24.179226279258728,
+          "held_duration_seconds": 0.3409563936293125
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00065.png",
+          "game_seconds": 24.52018267288804,
+          "held_duration_seconds": 0.34114110097289085
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00066.png",
+          "game_seconds": 24.86132377386093,
+          "held_duration_seconds": 0.34372759610414505
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00067.png",
+          "game_seconds": 25.205051369965076,
+          "held_duration_seconds": 0.34093180298805237
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00068.png",
+          "game_seconds": 25.54598317295313,
+          "held_duration_seconds": 0.34709399938583374
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00069.png",
+          "game_seconds": 25.893077172338963,
+          "held_duration_seconds": 0.33869629353284836
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00070.png",
+          "game_seconds": 26.23177346587181,
+          "held_duration_seconds": 0.3523862063884735
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00071.png",
+          "game_seconds": 26.584159672260284,
+          "held_duration_seconds": 0.3380603976547718
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00072.png",
+          "game_seconds": 26.922220069915056,
+          "held_duration_seconds": 0.3493869975209236
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00073.png",
+          "game_seconds": 27.27160706743598,
+          "held_duration_seconds": 0.3401475064456463
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00074.png",
+          "game_seconds": 27.611754573881626,
+          "held_duration_seconds": 0.345600001513958
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00075.png",
+          "game_seconds": 27.957354575395584,
+          "held_duration_seconds": 0.3455468975007534
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00076.png",
+          "game_seconds": 28.302901472896338,
+          "held_duration_seconds": 0.34084489941596985
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00077.png",
+          "game_seconds": 28.643746372312307,
+          "held_duration_seconds": 0.3446199931204319
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00078.png",
+          "game_seconds": 28.98836636543274,
+          "held_duration_seconds": 0.34269940480589867
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00079.png",
+          "game_seconds": 29.331065770238638,
+          "held_duration_seconds": 0.3466671071946621
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00080.png",
+          "game_seconds": 29.6777328774333,
+          "held_duration_seconds": 0.34333889931440353
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00081.png",
+          "game_seconds": 30.021071776747704,
+          "held_duration_seconds": 0.34347620233893394
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00082.png",
+          "game_seconds": 30.364547979086637,
+          "held_duration_seconds": 0.3408687934279442
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00083.png",
+          "game_seconds": 30.70541677251458,
+          "held_duration_seconds": 0.3462007939815521
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00084.png",
+          "game_seconds": 31.051617566496134,
+          "held_duration_seconds": 0.3372743986546993
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00085.png",
+          "game_seconds": 31.388891965150833,
+          "held_duration_seconds": 0.34666749462485313
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00086.png",
+          "game_seconds": 31.735559459775686,
+          "held_duration_seconds": 0.34141159802675247
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00087.png",
+          "game_seconds": 32.07697105780244,
+          "held_duration_seconds": 0.34870720282197
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00088.png",
+          "game_seconds": 32.42567826062441,
+          "held_duration_seconds": 0.34951209649443626
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00089.png",
+          "game_seconds": 32.775190357118845,
+          "held_duration_seconds": 0.3318195007741451
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00090.png",
+          "game_seconds": 33.10700985789299,
+          "held_duration_seconds": 0.3459196016192436
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00091.png",
+          "game_seconds": 33.452929459512234,
+          "held_duration_seconds": 0.3498961068689823
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00092.png",
+          "game_seconds": 33.802825566381216,
+          "held_duration_seconds": 0.34773530811071396
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00093.png",
+          "game_seconds": 34.15056087449193,
+          "held_duration_seconds": 0.33891019225120544
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00094.png",
+          "game_seconds": 34.489471066743135,
+          "held_duration_seconds": 0.3414653092622757
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00095.png",
+          "game_seconds": 34.83093637600541,
+          "held_duration_seconds": 0.3461291901767254
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00096.png",
+          "game_seconds": 35.17706556618214,
+          "held_duration_seconds": 0.33928630501031876
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00097.png",
+          "game_seconds": 35.516351871192455,
+          "held_duration_seconds": 0.3480926975607872
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00098.png",
+          "game_seconds": 35.86444456875324,
+          "held_duration_seconds": 0.3432021029293537
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00099.png",
+          "game_seconds": 36.207646671682596,
+          "held_duration_seconds": 0.34763049334287643
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\frames\\00100.png",
+          "game_seconds": 36.55527716502547,
+          "held_duration_seconds": 0.3436018992215395
+        }
+      ],
+      "video_sha256": "810502453fbd08f7ef8696ef840aefdfd2e90af701012bc8b12a99d6000cf972",
+      "source_frames_unchanged": true
+    }
+  },
+  "timing": "Real game-time windows; native captures repeated for 30fps, no interpolation/time scaling.",
+  "visual_review": "Completed door contact stills reviewed; videos retain the original scene/UI. No art quality claim.",
+  "exact_contact_stills": [
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\01_Cabin1Door_Blocked.png",
+      "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\screenshots\\01_Cabin1Door_Blocked.png",
+      "sha256": "590ebad073d4899b5b0f6c5d0159d0e9c0b9fa262c6e6015cf4866c3222e662b",
+      "time": 12.986127894371748
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\02_Cabin2Door_Blocked.png",
+      "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\screenshots\\02_Cabin2Door_Blocked.png",
+      "sha256": "f23d5454efa17aceb46302ed955495e70bad3307dfa04a8b59cc6cb5742065b4",
+      "time": 16.438208494335413
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\03_Cabin3Door_Blocked.png",
+      "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\screenshots\\03_Cabin3Door_Blocked.png",
+      "sha256": "3768fd5ec04828ea17048c8446b1052f20a1d77c4539f177fc53f83d34b604b3",
+      "time": 19.86779199168086
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\04_Cabin4Door_Blocked.png",
+      "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\screenshots\\04_Cabin4Door_Blocked.png",
+      "sha256": "e8d44794c263f95c192910b842ee55f4bfd94faf0683e9a3dc3887482a6af313",
+      "time": 23.34823377430439
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\05_VendingBody_Blocked.png",
+      "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\screenshots\\05_VendingBody_Blocked.png",
+      "sha256": "2cdd89e090267d20d38c2d1bc400280e0fc8412398f3da80c73188500a0dd4bd",
+      "time": 35.99980627000332
+    }
+  ],
+  "decode_passed": true
+}

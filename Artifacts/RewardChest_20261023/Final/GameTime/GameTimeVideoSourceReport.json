@@ -1,0 +1,562 @@
+{
+  "source_report": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\Report.json",
+  "source_report_sha256": "9e1052f714883874d44510f49bd1a56f60fa38d4578695772256c9cde6588fa9",
+  "cleanup_report": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\Cleanup.json",
+  "cleanup_report_sha256": "b8d6f21c35c008ab51247c37600ba201f9dee4955f73bbdbde571719659f63e5",
+  "native_report_passed": true,
+  "material_comparison_enabled": false,
+  "encoder_helper_sha256": "62aae8eb31c975c3b043e5b3a9e714603b24bd55d3e4a9f3c2afc9f6d3d78ecc",
+  "speed": "Original GAME timestamps, without temporal scaling, pose interpolation or extrapolation. Synchronous capture stalls are not game time.",
+  "cadence": "Native source requests capped at 24 per game second; encoded at 30 fps by repeating native images. This is not a native 30 fps render.",
+  "selection": "Arrival: first falling sample through the 0.65 s landing spring, before approach. Claim: first exhausted sample through actual actor removal, after the paused card UI.",
+  "final_hold": "One median recorded game-frame interval presents the last still; no additional source pose is generated.",
+  "visual_review": "Root reviewed readable gold stars, no black squares and squash; accepted as bounded functional VFX for user review. User art approval remains pending.",
+  "performance": "This capture is not a runtime FPS or GPU-cost benchmark.",
+  "windows": {
+    "Arrival_GameTime": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\RewardChest_20261023\\Final\\GameTime\\Arrival_GameTime.mp4",
+      "concat_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\RewardChest_20261023\\Final\\GameTime\\Arrival_GameTime.ffconcat",
+      "requested": 38,
+      "available": 38,
+      "missing_requests": [],
+      "source_start_game_seconds": 2.5000001303851604,
+      "source_end_game_seconds": 4.350000226870179,
+      "source_intervals_preserved_seconds": 1.8500000964850187,
+      "final_image_hold_seconds": 0.05000000260770321,
+      "final_hold_policy": "Median requested capture interval; a presentation hold, not a source timestamp.",
+      "target_presentation_duration_seconds": 1.900000099092722,
+      "duration_quantization_seconds": -9.909272202790476e-08,
+      "requested_missing_initial_seconds": 0.0,
+      "requested_missing_final_seconds": 0.0,
+      "encoded_duration_seconds": 1.9,
+      "encoded_frame_count": 57,
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "full_decode": "PASS",
+      "posters": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\RewardChest_20261023\\Final\\GameTime\\Arrival_GameTimeStart.png",
+          "source_file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00000.png",
+          "game_seconds": 2.5000001303851604
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\RewardChest_20261023\\Final\\GameTime\\Arrival_GameTimeMidway.png",
+          "source_file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00019.png",
+          "game_seconds": 3.4500001799315214
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\RewardChest_20261023\\Final\\GameTime\\Arrival_GameTimeComplete.png",
+          "source_file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00037.png",
+          "game_seconds": 4.350000226870179
+        }
+      ],
+      "source_sequence": [
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00000.png",
+          "game_seconds": 2.5000001303851604,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 4.312000000150874,
+          "phase": "spawned_drop",
+          "sha256": "e8ba78967fe4cfe56dbd277d6213c781276c2e5b73ae4adcfa7067cd6c716ebc"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00001.png",
+          "game_seconds": 2.5500001329928637,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 4.516000000061467,
+          "phase": "spawned_drop",
+          "sha256": "a73d322729c752b7c116448bf977d744bdfbaaf9eb9aba578a0946318696cc97"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00002.png",
+          "game_seconds": 2.600000135600567,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 4.734000000171363,
+          "phase": "spawned_drop",
+          "sha256": "bd61cfee093a64dab2986bf6214b643730013a35081870a18eb41588c9ed38c6"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00003.png",
+          "game_seconds": 2.65000013820827,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 4.984000000171363,
+          "phase": "spawned_drop",
+          "sha256": "e9edd89e589aea7a68c8fcf0e01479c25ace7a580d03de98004c2e83c0f443e4"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00004.png",
+          "game_seconds": 2.7000001408159733,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 5.202999999979511,
+          "phase": "spawned_drop",
+          "sha256": "7087627f81aba3e5c932ec79b20ad0bf1498dae677f671810c0ff285310c0a30"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00005.png",
+          "game_seconds": 2.7500001434236765,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 5.405999999959022,
+          "phase": "spawned_drop",
+          "sha256": "6f90d98ad9b073a06e8119bee4e43d7b21996500a31ee0deb0b65b33ed525317"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00006.png",
+          "game_seconds": 2.8000001460313797,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 5.609000000171363,
+          "phase": "spawned_drop",
+          "sha256": "40c06c4e9a0aaff2e35eb2f7be4d4f97a8260281507dd5d5a36d89b01556008c"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00007.png",
+          "game_seconds": 2.850000148639083,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 5.812000000150874,
+          "phase": "spawned_drop",
+          "sha256": "8742e82437cfc597306bf7bc1d53e1b054129e4bdc4de265a74618a327df99d3"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00008.png",
+          "game_seconds": 2.900000151246786,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 6.030999999959022,
+          "phase": "spawned_drop",
+          "sha256": "3528a5b15f09f570a05e9baf7d2c232565db5745e5a113056a137191e30a4973"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00009.png",
+          "game_seconds": 2.9500001538544893,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 6.234000000171363,
+          "phase": "spawned_drop",
+          "sha256": "222f6505e0ee886ab5ed17e434342f2beafb32fa9831eb36bc82600669bc9727"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00010.png",
+          "game_seconds": 3.0000001564621925,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 6.437000000150874,
+          "phase": "spawned_drop",
+          "sha256": "bbe16c770a8cdfbe6bf42d5db615b02717ef98c50b49370bf36073dca6aa4fef"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00011.png",
+          "game_seconds": 3.0500001590698957,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 6.655999999959022,
+          "phase": "spawned_drop",
+          "sha256": "6d82dc507fb2edfb469471adceffc590a03fbfa0db9c4179bb7eb4040135c64b"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00012.png",
+          "game_seconds": 3.100000161677599,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 6.875,
+          "phase": "spawned_drop",
+          "sha256": "df17ccc1c891a6a3635a29d995414b1fe9424157b65468421850b0dceee19d14"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00013.png",
+          "game_seconds": 3.150000164285302,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 7.077999999979511,
+          "phase": "spawned_drop",
+          "sha256": "db238acdeca277337b62325c00bb1047b8cde12565a07cc230960496654304b3"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00014.png",
+          "game_seconds": 3.2000001668930054,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 7.297000000020489,
+          "phase": "spawned_drop",
+          "sha256": "570411c9206f86b9ffc3deb7273640e4389206ae81bec6d6aa9aa5eb395a195d"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00015.png",
+          "game_seconds": 3.2500001695007086,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 7.516000000061467,
+          "phase": "spawned_drop",
+          "sha256": "2835269fc850f22f7c911ffb1ce1f25afdff20d266b791abb0a2a2e4bbdb92ac"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00016.png",
+          "game_seconds": 3.300000172108412,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 7.734000000171363,
+          "phase": "spawned_drop",
+          "sha256": "db531ebc9d319bb52bdefeeacdb16b9706b47f5b0a4fd9394b4c02b08aa25794"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00017.png",
+          "game_seconds": 3.350000174716115,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 7.952999999979511,
+          "phase": "spawned_drop",
+          "sha256": "8739b74bbf507688ccdc623de59ea9b7b847084ffd034738adf9c99fbcd0da68"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00018.png",
+          "game_seconds": 3.400000177323818,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 8.172000000020489,
+          "phase": "spawned_drop",
+          "sha256": "cd2b688d6b7acf12b8962b58b1df5823caaf98950227188c4b62b298d5f8c44a"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00019.png",
+          "game_seconds": 3.4500001799315214,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 8.405999999959022,
+          "phase": "spawned_drop",
+          "sha256": "d8e4183a35088fb05d371302224b1e03bdb1e9c85387ea8b64ec4abf99465931"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00020.png",
+          "game_seconds": 3.5000001825392246,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 8.625,
+          "phase": "spawned_drop",
+          "sha256": "4b5f56365deba2abdac4d5b57dce5766a348a8aa08a9149b33793b6ec930f20c"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00021.png",
+          "game_seconds": 3.550000185146928,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 8.844000000040978,
+          "phase": "spawned_drop",
+          "sha256": "edcae088a1667acbadb6f84b8aa2a10f2d85f3f3bd77d570d00ebd363e39e06d"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00022.png",
+          "game_seconds": 3.600000187754631,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 9.062000000150874,
+          "phase": "spawned_drop",
+          "sha256": "736858c06a397c84f273fd4a2b45017608b0ef1280b3062aa1bf07931f554ea4"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00023.png",
+          "game_seconds": 3.6500001903623343,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 9.266000000061467,
+          "phase": "spawned_drop",
+          "sha256": "21bc1ae8e65feea7d3e6559ca49080df3e0724cce9f50ec45f9a1d9b4888c3d1"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00024.png",
+          "game_seconds": 3.7000001929700375,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 9.484000000171363,
+          "phase": "spawned_drop",
+          "sha256": "43e8b5a510f951d370207d68470890cedb4b15aa6479f44ec976e20d7f747d7b"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00025.png",
+          "game_seconds": 3.7500001955777407,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 9.672000000020489,
+          "phase": "spawned_drop",
+          "sha256": "b11bed7bb9f4166ef059fa028327fee2e066acb4a39b603632aa0269816c9242"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00026.png",
+          "game_seconds": 3.800000198185444,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 9.891000000061467,
+          "phase": "spawned_drop",
+          "sha256": "6e6e71beb9a640cf0a9ced56a2eb5e3c15162e5a3be0563d9e83b180a8888a89"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00027.png",
+          "game_seconds": 3.850000200793147,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 10.094000000040978,
+          "phase": "spawned_drop",
+          "sha256": "b094c9a6a653485fdd8875cf900609a4cae2f33270c4dc0d9bb4220df0f98783"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00028.png",
+          "game_seconds": 3.9000002034008503,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 10.344000000040978,
+          "phase": "spawned_drop",
+          "sha256": "a0f52f906c7302fa14b54b096a8bab3ed3930e56571ac409baca298603f1c797"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00029.png",
+          "game_seconds": 3.9500002060085535,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 10.547000000020489,
+          "phase": "spawned_drop",
+          "sha256": "3743baa8be086274b336bc25de028d0c1e8b1ebd68c5af007031b67f2cfef3a2"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00030.png",
+          "game_seconds": 4.000000208616257,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 10.75,
+          "phase": "spawned_drop",
+          "sha256": "730a020ebb8a29627f58467dbb9dc0418e32cbd38a78c800a83973698480842c"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00031.png",
+          "game_seconds": 4.05000021122396,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 10.952999999979511,
+          "phase": "spawned_drop",
+          "sha256": "15e28db5da2939ea0837f94b332dc7f6baede78f95cb59f29cf658947f39c551"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00032.png",
+          "game_seconds": 4.100000213831663,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 11.172000000020489,
+          "phase": "spawned_drop",
+          "sha256": "d109eade004fe195ab102738508dda5d75a68897ed76565d04cc46d6e26dfdf8"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00033.png",
+          "game_seconds": 4.150000216439366,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 11.375,
+          "phase": "spawned_drop",
+          "sha256": "90b841932a288aeee2bff601d4e78cd5d34e7c64f76d3b9da1a52a512c9d2405"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00034.png",
+          "game_seconds": 4.2000002190470695,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 11.609000000171363,
+          "phase": "spawned_drop",
+          "sha256": "ee3332fdfc282368a977ad93a496f3c5b23df99befa1eecf761815fcc7f4e204"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00035.png",
+          "game_seconds": 4.250000221654773,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 11.812000000150874,
+          "phase": "spawned_drop",
+          "sha256": "168ccd9d4f2d42a78d547fdc2edbf1de9b6b8c8119add10144ecf9b9950aa964"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00036.png",
+          "game_seconds": 4.300000224262476,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 12.030999999959022,
+          "phase": "spawned_drop",
+          "sha256": "8aa442524ee381b46b6d5cc4892d823cc6eddbfd6abf725d9a1452c7ac0875ce"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00037.png",
+          "game_seconds": 4.350000226870179,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 12.25,
+          "phase": "spawned_drop",
+          "sha256": "920456c4ba4ae871a71992a04b08ccaecb3dd57c193d34c3ddfb0f1942ac41ba"
+        }
+      ],
+      "video_sha256": "933c4187085ead2458abb93def119cf4f2501d778cf75f1a35b3e1dc3c7b0e51",
+      "source_frames_unchanged": true,
+      "requested_game_window_seconds": [
+        2.5000001303851604,
+        4.38333352804184
+      ],
+      "equal_game_timestamp_frames_omitted": [],
+      "duplicate_policy": "At the same game time keep the last actual source image; no new time or image is invented."
+    },
+    "Claim_GameTime": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\RewardChest_20261023\\Final\\GameTime\\Claim_GameTime.mp4",
+      "concat_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\RewardChest_20261023\\Final\\GameTime\\Claim_GameTime.ffconcat",
+      "requested": 17,
+      "available": 17,
+      "missing_requests": [],
+      "source_start_game_seconds": 5.483333619311452,
+      "source_end_game_seconds": 6.283333661034703,
+      "source_intervals_preserved_seconds": 0.8000000417232513,
+      "final_image_hold_seconds": 0.05000000260770321,
+      "final_hold_policy": "Median requested capture interval; a presentation hold, not a source timestamp.",
+      "target_presentation_duration_seconds": 0.8500000443309546,
+      "duration_quantization_seconds": 0.016666955669045413,
+      "requested_missing_initial_seconds": 0.0,
+      "requested_missing_final_seconds": 0.0,
+      "encoded_duration_seconds": 0.866667,
+      "encoded_frame_count": 26,
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "full_decode": "PASS",
+      "posters": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\RewardChest_20261023\\Final\\GameTime\\Claim_GameTimeStart.png",
+          "source_file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00060.png",
+          "game_seconds": 5.483333619311452
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\RewardChest_20261023\\Final\\GameTime\\Claim_GameTimeMidway.png",
+          "source_file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00068.png",
+          "game_seconds": 5.883333640173078
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\RewardChest_20261023\\Final\\GameTime\\Claim_GameTimeComplete.png",
+          "source_file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00076.png",
+          "game_seconds": 6.283333661034703
+        }
+      ],
+      "source_sequence": [
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00060.png",
+          "game_seconds": 5.483333619311452,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 17.641000000061467,
+          "phase": "spawned_drop",
+          "sha256": "0dad1243ca48df97e7ceda1acbc2c9c70efe0bce7c148dc9c79dcea0723a3333"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00061.png",
+          "game_seconds": 5.533333621919155,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 17.844000000040978,
+          "phase": "spawned_drop",
+          "sha256": "23ff1a4f3adb0c41fa57db70582126917c83c2df2745d357efcc035c23bca743"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00062.png",
+          "game_seconds": 5.583333624526858,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 18.04700000002049,
+          "phase": "spawned_drop",
+          "sha256": "332d133c9349294374330d05aebf6edc7517b6f402e572c3c164fa29f4f8d8a3"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00063.png",
+          "game_seconds": 5.6333336271345615,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 18.266000000061467,
+          "phase": "spawned_drop",
+          "sha256": "86310044c57c7890fef5c0426f2f2a30d20b520327ac3d13ccb680583054a464"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00064.png",
+          "game_seconds": 5.683333629742265,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 18.469000000040978,
+          "phase": "spawned_drop",
+          "sha256": "4659814c5192bf99a54efd4249c14e0be9752a59cd8380327224fde9eef9732b"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00065.png",
+          "game_seconds": 5.733333632349968,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 18.67200000002049,
+          "phase": "spawned_drop",
+          "sha256": "63e634ec0973c10f37cd258e6dbd448c98af63cdde0eb4925981044a9cc0394d"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00066.png",
+          "game_seconds": 5.783333634957671,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 18.859000000171363,
+          "phase": "spawned_drop",
+          "sha256": "8415660bf8c20ff285a57c719670ac90980924728958bece56bce892d633183b"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00067.png",
+          "game_seconds": 5.833333637565374,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 19.062000000150874,
+          "phase": "spawned_drop",
+          "sha256": "d3313cb6e2912a69b2307a7ce813a7d207b75337c4fd328546dee26b7d2c45e3"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00068.png",
+          "game_seconds": 5.883333640173078,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 19.25,
+          "phase": "spawned_drop",
+          "sha256": "5daf09b9560650e2a987b6ef158b9f68b77b7e89d23536c17d35c99abd85a98e"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00069.png",
+          "game_seconds": 5.933333642780781,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 19.437000000150874,
+          "phase": "spawned_drop",
+          "sha256": "a68f71b7a1a79fde961f569abd062fb3a09afbe102317b019b5b5969e6a42ee1"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00070.png",
+          "game_seconds": 5.983333645388484,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 19.625,
+          "phase": "spawned_drop",
+          "sha256": "1031c632c3ba6c4cc41053af1bd264d69e4b38730437e0ad0ee2c42cbe6cb246"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00071.png",
+          "game_seconds": 6.033333647996187,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 19.82799999997951,
+          "phase": "spawned_drop",
+          "sha256": "4fc9edf6aee8a8d5132d26898a543aa2a5c3eee0f50e501c142c316e60f391e8"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00072.png",
+          "game_seconds": 6.08333365060389,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 20.030999999959022,
+          "phase": "spawned_drop",
+          "sha256": "c8d222095c48bc2f956b71bc02a5ce392e7470bccb410fcdfe8239ff612900ce"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00073.png",
+          "game_seconds": 6.133333653211594,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 20.234000000171363,
+          "phase": "spawned_drop",
+          "sha256": "2ecda55f227baa3a60e7d056ff02732b0228078cc3f56db430e0600297fab3f3"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00074.png",
+          "game_seconds": 6.183333655819297,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 20.42200000002049,
+          "phase": "spawned_drop",
+          "sha256": "4d5ed9b102a0be6c3a32a3d67230635f3e4ffa66ff841915aaf995bb2e8ae799"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00075.png",
+          "game_seconds": 6.233333658427,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 20.625,
+          "phase": "spawned_drop",
+          "sha256": "fd9983b181cdf46fe86e95d1d834e87f07ff9219bc0fde5d8c913f4633188409"
+        },
+        {
+          "file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00076.png",
+          "game_seconds": 6.283333661034703,
+          "held_duration_seconds": 0.05000000260770321,
+          "capture_request_wall_seconds": 20.79700000002049,
+          "phase": "spawned_drop",
+          "sha256": "b1c8f517d6613f3f9ad17767bdd51d21136ebf784fe06906f881ff2b85a9c824"
+        }
+      ],
+      "video_sha256": "3fb02615425be895403e6e270a05a4baeb0917c468c73785e667c2fb01ae50c5",
+      "source_frames_unchanged": true,
+      "requested_game_window_seconds": [
+        5.45000028423965,
+        6.283333661034703
+      ],
+      "equal_game_timestamp_frames_omitted": [],
+      "duplicate_policy": "At the same game time keep the last actual source image; no new time or image is invented."
+    }
+  },
+  "decode_passed": true,
+  "source_capture_game_hz_cap": 24.0,
+  "source_capture_wall_hz_cap": 12.0,
+  "observed_median_game_capture_hz": 19.99999895691877,
+  "observed_median_game_interval_seconds": 0.05000000260770321,
+  "native_cadence_limitation": "Configured cap24gameHz quantized to approximately20gameHz at this fixed timestep; output30fps repeats native PNGs and is not native30fps rendering.",
+  "final_source_capture": "ChestSolo05"
+}

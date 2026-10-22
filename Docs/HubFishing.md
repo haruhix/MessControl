@@ -6,8 +6,12 @@ packed occlusion/roughness/metallic textures are connected to `M_FishingRod`.
 The source FBX is preserved. The line is generated at runtime.
 
 `UMCFishingRodComponent` belongs to the player character and presents the rod
-only in the Hub. The default is equipped. Key **5** toggles it; selecting an
-ordinary tool with **1–4** stows it. The rod temporarily disappears while
+only in the Hub. Players spawn without the rod. Entering an enabled
+`AMCHubFishingZone` on the pier equips it automatically; leaving all pier boxes
+stows it and cancels the cast, pending bite and retrieval. Key **5** toggles it
+only while inside a pier zone; selecting an ordinary tool with **1–4** stows it
+until it is manually re-equipped there or the player enters the pier again.
+The rod temporarily disappears while
 swimming, climbing, carrying another object, using a chest, emoting or ragdolling.
 The existing basketball interaction has priority over reeling near the ball.
 
@@ -25,6 +29,21 @@ casts into the pond. Holding **E** reels in the line and rotates the independent
 reel mesh in the corrected direction. Starting to walk cancels fishing and
 restores the carry pose and short hanging line. Finishing reeling also clears
 the fishing pose.
+
+The pier access box and pond water serve separate purposes. Move/rotate/scale
+`AMCHubFishingZone` in the editor to match the walkable pier. The server checks
+the pawn center in the actual oriented boxes every 0.1 seconds and at fishing
+RPCs, using their union so overlapping boxes do not retrigger equipment.
+Initial overlap, teleport and hub recovery are handled without stored overlap
+counters. An uninterruptible tool action delays automatic equipping until tool
+switching is safe. Clients receive the authoritative access/equipment state.
+
+`Tools/Unreal/Hub/author_hub_fishing_zone.py` prepares the box from an explicitly
+selected pier actor. Its default plan is read-only; apply backs up the Hub on
+E:, preserves existing designer placement, and saves only the Hub map.
+This new entry/exit behavior needs the zone authoring and a fresh runtime
+check after changing its placement; the older standalone reports below describe
+the previous manual flow.
 
 The existing `Hub_SwimmingWater` PhysicsVolume is tagged `FishingPond`. Casts
 require this tagged water, actual open water below the destination, and a clear
@@ -92,3 +111,25 @@ delays were 5.12 and 7.65 seconds. The counter was visually reviewed in the game
 window. The completed report, screenshot and backups are in
 `Saved/HubFishing_20261022/Catches`. The Editor compile passed; multiplayer and
 packaging were not run.
+
+## Automatic pier access verification — 2026-10-22
+
+The saved `Hub_PierFishingZone` follows the actual `Cube_006_003` pier mesh;
+the older `SM_pirs` level actor has no mesh. Spawned characters start with the
+rod stowed. The GameMode and owning camera face the nearest enabled Ready zone.
+The movable access box is independent of pond cast validation.
+
+The Editor compile and 19 focused standalone checks passed in
+`E:/CodexWork/HubWardrobeRewards_20261022/PierSolo01/Report.json`. The player
+walked onto/off the real pier with normal movement input. Entry equipped the
+rod; exit stowed it, cleared fishing state, and blocked Five outside. Five and
+the regular tool action worked inside; reentry equipped the rod again.
+Input actions were injected through Enhanced Input, rather than physical keys.
+The source gameplay check did not teleport the player or bypass zone checks.
+
+Five videos and a contact sheet are in `Artifacts/HubPierFishing_20261022`.
+Capture cadence was approximately 6 Hz; encoded 30 FPS repeats these native
+frames without interpolation. This check does not repeat a catch, multiplayer,
+cook/package, or a full level. The initial camera pitch was subsequently
+adjusted from -25 to -12 degrees for a clearer view of Ready; the yaw and access
+logic are unchanged.

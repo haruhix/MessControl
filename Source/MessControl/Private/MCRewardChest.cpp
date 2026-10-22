@@ -19,6 +19,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Camera/PlayerCameraManager.h"
+#include "GameFramework/PlayerController.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/DataTable.h"
 #include "Engine/World.h"
@@ -57,19 +59,26 @@ AMCRewardChest::AMCRewardChest()
 {
     bReplicates=true; SetReplicateMovement(false); PrimaryActorTick.bCanEverTick=true;
     Scene=CreateDefaultSubobject<USceneComponent>(TEXT("RewardRoot")); SetRootComponent(Scene);
+    PresentationPivot=CreateDefaultSubobject<USceneComponent>(TEXT("ChestPresentation")); PresentationPivot->SetupAttachment(Scene);
     Solid=CreateDefaultSubobject<UBoxComponent>(TEXT("ChestCollision")); Solid->SetupAttachment(Scene);
     Solid->SetCollisionObjectType(ECC_WorldDynamic); Solid->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     Solid->SetCollisionResponseToAllChannels(ECR_Block); Solid->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
-    Body=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ChestBottom")); Body->SetupAttachment(Scene);
-    LidPivot=CreateDefaultSubobject<USceneComponent>(TEXT("LidHinge")); LidPivot->SetupAttachment(Scene);
+    Body=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ChestBottom")); Body->SetupAttachment(PresentationPivot);
+    LidPivot=CreateDefaultSubobject<USceneComponent>(TEXT("LidHinge")); LidPivot->SetupAttachment(PresentationPivot);
     Lid=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ChestTop")); Lid->SetupAttachment(LidPivot);
     Body->SetCollisionEnabled(ECollisionEnabled::NoCollision); Lid->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    static ConstructorHelpers::FObjectFinder<UStaticMesh> BottomMesh(TEXT("/Game/FromBlender6/SM_Chest_Bot.SM_Chest_Bot"));
-    static ConstructorHelpers::FObjectFinder<UStaticMesh> TopMesh(TEXT("/Game/FromBlender6/SM_Chest_Top.SM_Chest_Top"));
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> BottomMesh(TEXT("/Game/FromBlender/SM_Chest_Bot.SM_Chest_Bot"));
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> TopMesh(TEXT("/Game/FromBlender/SM_Chest_Top.SM_Chest_Top"));
     static ConstructorHelpers::FObjectFinder<UMaterialInterface> ChestMaterial(TEXT("/Game/Art/Materials/Buster/MI_Chest.MI_Chest"));
     if(BottomMesh.Succeeded()) Body->SetStaticMesh(BottomMesh.Object);
     if(TopMesh.Succeeded()) Lid->SetStaticMesh(TopMesh.Object);
-    if(ChestMaterial.Succeeded()) { Body->SetMaterial(0,ChestMaterial.Object); Lid->SetMaterial(0,ChestMaterial.Object); }
+    if(ChestMaterial.Succeeded()) for(auto* Part:{Body.Get(),Lid.Get()}) {
+        // Preserve a Blueprint/component archetype's authored surface. The
+        // imported meshes have a WorldGrid default, which alone needs fallback.
+        const auto* Authored=Part->GetMaterial(0);
+        if(!Authored || Authored->GetPathName().Contains(TEXT("WorldGridMaterial")))
+            Part->SetMaterial(0,ChestMaterial.Object);
+    }
     MimicMouth=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MimicMouth")); MimicMouth->SetupAttachment(Body);
     MimicLowerTeeth=CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("MimicLowerTeeth")); MimicLowerTeeth->SetupAttachment(Body);
     MimicUpperTeeth=CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("MimicUpperTeeth")); MimicUpperTeeth->SetupAttachment(Lid);
@@ -82,11 +91,11 @@ AMCRewardChest::AMCRewardChest()
     }
     Telegraph=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LandingTelegraph")); Telegraph->SetupAttachment(Scene);
     Telegraph->SetAbsolute(true,true,true); Telegraph->SetCollisionEnabled(ECollisionEnabled::NoCollision); Telegraph->SetCastShadow(false);
-    static ConstructorHelpers::FObjectFinder<UStaticMesh> Disc(TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
     static ConstructorHelpers::FObjectFinder<UMaterialInterface> MarkerMaterial(TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
-    if(Disc.Succeeded()) Telegraph->SetStaticMesh(Disc.Object);
+    // Retain the named subobject for saved Blueprint compatibility, but no
+    // solid ground marker or fallback primitive is part of this presentation.
+    Telegraph->SetVisibility(false);Telegraph->SetHiddenInGame(true);
     if(MarkerMaterial.Succeeded()) {
-        Telegraph->SetMaterial(0,MarkerMaterial.Object);
         MimicMouth->SetMaterial(0,MarkerMaterial.Object);
         MimicLowerTeeth->SetMaterial(0,MarkerMaterial.Object); MimicUpperTeeth->SetMaterial(0,MarkerMaterial.Object);
     }
@@ -97,12 +106,31 @@ AMCRewardChest::AMCRewardChest()
     RogueLabel->SetRelativeLocation(FVector(0,0,160));RogueLabel->SetWorldSize(22);
     RogueLabel->SetHorizontalAlignment(EHTA_Center);RogueLabel->SetVerticalAlignment(EVRTA_TextCenter);
     RogueLabel->SetCollisionEnabled(ECollisionEnabled::NoCollision);RogueLabel->SetCastShadow(false);
+    ClaimRing=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ClaimRing")); ClaimRing->SetupAttachment(Scene);
+    ClaimSparks=CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("ClaimSparks")); ClaimSparks->SetupAttachment(Scene);
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> EffectPlane(TEXT("/Engine/BasicShapes/Plane.Plane"));
+    if(EffectPlane.Succeeded()) {ClaimRing->SetStaticMesh(EffectPlane.Object);ClaimSparks->SetStaticMesh(EffectPlane.Object);}
+    for(auto* Effect:{ClaimRing.Get(),static_cast<UStaticMeshComponent*>(ClaimSparks.Get())}) {
+        Effect->SetCollisionEnabled(ECollisionEnabled::NoCollision); Effect->SetGenerateOverlapEvents(false);
+        Effect->SetCastShadow(false); Effect->SetVisibility(false); Effect->SetReceivesDecals(false);
+    }
+    static ConstructorHelpers::FObjectFinder<UMaterialInterface> RingMaterial(TEXT("/Game/Gameplay/VFX/RewardChest/M_RewardChest_ClaimRing.M_RewardChest_ClaimRing"));
+    static ConstructorHelpers::FObjectFinder<UMaterialInterface> SparkMaterial(TEXT("/Game/Gameplay/VFX/RewardChest/M_RewardChest_ClaimSpark.M_RewardChest_ClaimSpark"));
+    if(RingMaterial.Succeeded()) ClaimRing->SetMaterial(0,RingMaterial.Object);
+    if(SparkMaterial.Succeeded()) ClaimSparks->SetMaterial(0,SparkMaterial.Object);
     PerkTable=TSoftObjectPtr<UDataTable>(FSoftObjectPath(TEXT("/Game/Gameplay/Roguelike/DT_Perks.DT_Perks")));
     ConfigureGeometry();
 }
 
 void AMCRewardChest::ConfigureGeometry()
 {
+    // Saved Blueprint component templates can retain the former RewardRoot
+    // attachment. Keep the new cosmetic pivot effective after their construction.
+    for(auto* Part:{static_cast<USceneComponent*>(Body.Get()),LidPivot.Get()})
+        if(Part->GetAttachParent()!=PresentationPivot) {
+            if(Part->IsRegistered()) Part->AttachToComponent(PresentationPivot,FAttachmentTransformRules::KeepRelativeTransform);
+            else Part->SetupAttachment(PresentationPivot);
+        }
     if(!Body->GetStaticMesh() || !Lid->GetStaticMesh()) return;
     const float Scale=FMath::IsFinite(ModelScale)?FMath::Clamp(ModelScale,.05f,2.f):.35f;
     const FBox Bottom=Body->GetStaticMesh()->GetBoundingBox(),Top=Lid->GetStaticMesh()->GetBoundingBox();
@@ -320,11 +348,19 @@ void AMCRewardChest::InitializeReward(FVector Landing,FVector Start,int32 Seed,U
     LandingPoint=Landing; FallStart=Start; RollSeed=Seed; RewardTable=Table; SelectionPolicy=Policy; DropZone=Zone;
     RollMimic();
     bRewardInitialized=true; Stage=EMCRewardChestStage::Telegraph; StageStartedAt=ServerNow();
+    LandingPresentationStartedAt=-1.; LastPresentationStage=EMCRewardChestStage::Telegraph;
+    ResetPresentationDeformation();
 }
 
 void AMCRewardChest::BeginPlay()
 {
     Super::BeginPlay(); ConfigureGeometry();
+    if(SurfaceMaterialOverride) for(auto* Part:{Body.Get(),Lid.Get()}) Part->SetMaterial(0,SurfaceMaterialOverride);
+    ClaimRingMaterial=ClaimRing->CreateDynamicMaterialInstance(0);
+    ClaimSparkMaterial=ClaimSparks->CreateDynamicMaterialInstance(0);
+    // Fixed small burst: twelve planes, one shared material, no physics or tick-spawned actors.
+    ClaimSparks->ClearInstances();
+    for(int32 I=0;I<12;++I) ClaimSparks->AddInstance(FTransform(FVector::ZeroVector));
     CacheRewardEffectsVisibility();
     if(HasAuthority() && bPlacedReward && !bRewardInitialized) {
         RewardTable=PerkTable.LoadSynchronous(); LandingPoint=FallStart=GetActorLocation();
@@ -337,7 +373,6 @@ void AMCRewardChest::BeginPlay()
         bRewardInitialized=true; Stage=EMCRewardChestStage::Landed; StageStartedAt=ServerNow();
         if(!DropZone) UE_LOG(LogTemp,Warning,TEXT("MC_REWARD_PLACED: %s needs an authored PlacedDropZone"),*GetName());
     }
-    if(auto* MID=Telegraph->CreateDynamicMaterialInstance(0)) MID->SetVectorParameterValue(TEXT("Color"),FLinearColor(1,.68f,.05f));
     // The character cavity uses a masked face texture. Primitive cube UVs need
     // an opaque interior, and explicit ivory teeth must survive BP construction.
     if(auto* Material=LoadObject<UMaterialInterface>(nullptr,TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"))) {
@@ -364,35 +399,126 @@ void AMCRewardChest::CacheRewardEffectsVisibility()
 void AMCRewardChest::UpdateRewardEffectsVisibility(bool Suppressed)
 {
     for(const auto& Effect:RewardEffectsVisibility)
-        if(auto* Component=Effect.Key.Get()) Component->SetVisibility(!Suppressed && Effect.Value);
+        if(auto* Component=Effect.Key.Get()) Component->SetVisibility(!Suppressed && !bTeamStageBooster && Effect.Value);
 }
 
 void AMCRewardChest::RefreshPresentation()
 {
+    if(Stage==EMCRewardChestStage::Landed && LastPresentationStage==EMCRewardChestStage::Falling)
+        LandingPresentationStartedAt=StageStartedAt;
+    if(Stage==EMCRewardChestStage::Telegraph) LandingPresentationStartedAt=-1.;
+    LastPresentationStage=Stage;
     if(RogueLabel) {
         RogueLabel->SetText(FText::FromString(RogueKind==EMCRogueRewardKind::CursedContract?TEXT("ПРОКЛЯТЫЙ ДОГОВОР"):RogueKind==EMCRogueRewardKind::RiskyAltar?TEXT("СИЛА С ЦЕНОЙ"):TEXT("")));
         RogueLabel->SetTextRenderColor(RogueKind==EMCRogueRewardKind::CursedContract?FColor(255,80,120):FColor(255,175,60));
         RogueLabel->SetVisibility(Stage!=EMCRewardChestStage::Exhausted);
     }
     SetActorHiddenInGame(!bRewardInitialized);
-    const bool Landed=bRewardInitialized && Stage>=EMCRewardChestStage::Landed;
+    const bool Exhausted=Stage==EMCRewardChestStage::Exhausted;
+    const bool Landed=bRewardInitialized && Stage>=EMCRewardChestStage::Landed && !Exhausted;
     Solid->SetCollisionEnabled(Landed?ECollisionEnabled::QueryAndPhysics:ECollisionEnabled::NoCollision);
     Approach->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    Telegraph->SetVisibility(bRewardInitialized && (Stage==EMCRewardChestStage::Telegraph || Stage==EMCRewardChestStage::Falling));
-    Telegraph->SetWorldLocation(LandingPoint+FVector(0,0,2));
+    // No floor disc/ring/halo: the accelerating chest and brief airborne
+    // touchdown sparks provide the arrival cue without painting the arena.
+    Telegraph->SetVisibility(false);Telegraph->SetHiddenInGame(true);
     const bool Revealed=bRewardInitialized && bMimic && (Stage==EMCRewardChestStage::Opening || IsMimicActive());
-    UpdateRewardEffectsVisibility(Revealed || (bRewardInitialized && bMimic && Stage==EMCRewardChestStage::Exhausted));
+    UpdateRewardEffectsVisibility(Revealed || Exhausted);
     MimicMouth->SetVisibility(Revealed); MimicLowerTeeth->SetVisibility(Revealed); MimicUpperTeeth->SetVisibility(Revealed);
-    const bool Animated=bRewardInitialized && (Stage==EMCRewardChestStage::Telegraph || Stage==EMCRewardChestStage::Falling || Stage==EMCRewardChestStage::Lockpicking || Stage==EMCRewardChestStage::Opening || IsMimicActive());
+    const bool LandingBounce=LandingPresentationStartedAt>=0 && ServerNow()-LandingPresentationStartedAt<.65;
+    const bool Animated=bRewardInitialized && (Stage==EMCRewardChestStage::Telegraph || Stage==EMCRewardChestStage::Falling || Stage==EMCRewardChestStage::Lockpicking || Stage==EMCRewardChestStage::Opening || Exhausted || LandingBounce || IsMimicActive());
     SetActorTickEnabled(Animated);
+    ResetPresentationDeformation();
     if(!IsMimicActive()) {
         Body->SetRelativeLocation(BodyRestLocation); Body->SetRelativeRotation(FRotator::ZeroRotator); Body->SetRelativeScale3D(BodyRestScale);
         LidPivot->SetRelativeLocation(LidRestLocation);
+    }
+    if(bRewardInitialized && Stage==EMCRewardChestStage::Landed) SetActorLocation(LandingPoint);
+    if(bRewardInitialized && Stage==EMCRewardChestStage::Falling) {
+        const float Alpha=FMath::Clamp(float((ServerNow()-StageStartedAt)/FMath::Max(.1f,FallSeconds)),0.f,1.f);
+        // FinishSpawning applies its input transform after deferred initialization.
+        // Restore the airborne pose before first presentation, without a floor blink.
+        SetActorLocation(FMath::Lerp(FallStart,LandingPoint,Alpha*Alpha));
     }
     if(bRewardInitialized && !Animated) {
         SetActorLocation(LandingPoint);
         LidPivot->SetRelativeRotation(FRotator(Stage>=EMCRewardChestStage::Open?105.f:0.f,0,0));
     }
+    if(Exhausted) {
+        SetActorLocation(LandingPoint);
+        UpdateClaimPresentation(float(FMath::Max(0.,ServerNow()-StageStartedAt)));
+    }
+}
+
+void AMCRewardChest::ResetPresentationDeformation()
+{
+    PresentationPivot->SetRelativeTransform(FTransform::Identity);
+    ClaimRing->SetVisibility(false); ClaimSparks->SetVisibility(false);
+}
+
+void AMCRewardChest::UpdateArrivalPresentation(float Age)
+{
+    // An underdamped spring at a bottom-centred visual pivot. XY compensates Z
+    // so the authored silhouette retains its volume; Solid never deforms.
+    const float T=FMath::Clamp(Age,0.f,.65f);
+    const float Z=Age<.65f?1.f-.34f*FMath::Exp(-7.f*T)*FMath::Cos(23.f*T):1.f;
+    const float XY=1.f/FMath::Sqrt(FMath::Max(.5f,Z));
+    PresentationPivot->SetRelativeScale3D(FVector(XY,XY,Z));
+    PresentationPivot->SetRelativeLocation(FVector(0,0,FMath::Max(0.f,Z-1.f)*25.f));
+    const float Burst=FMath::Clamp(Age/.42f,0.f,1.f);
+    const float Fade=FMath::Square(1.f-Burst)*FMath::Clamp(Age/.025f,0.f,1.f);
+    const float Width=FMath::Max(50.f,float(Solid->GetUnscaledBoxExtent().GetMax())*1.3f);
+    UpdateSparkPresentation(Burst,Fade*.7f,Width,true);
+}
+
+void AMCRewardChest::UpdateClaimPresentation(float Age)
+{
+    constexpr float Duration=.78f;
+    const auto Smooth=[](float Value) {const float T=FMath::Clamp(Value,0.f,1.f);return T*T*(3.f-2.f*T);};
+    if(Age>=Duration) {
+        // Placed chests remain rearmable by ResetPlacedReward, but never leave a
+        // visible or collidable exhausted shell. Spawned rewards are destroyed.
+        SetActorHiddenInGame(true); SetActorTickEnabled(false);
+        ClaimRing->SetVisibility(false); ClaimSparks->SetVisibility(false);
+        return;
+    }
+    const float Anticipation=Smooth(Age/.10f),Stretch=Smooth((Age-.10f)/.12f);
+    const float Z=FMath::Lerp(FMath::Lerp(1.f,.76f,Anticipation),1.2f,Stretch);
+    const float Collapse=1.f-Smooth((Age-.20f)/.18f);
+    const float XY=1.f/FMath::Sqrt(Z);
+    PresentationPivot->SetRelativeScale3D(FVector(XY,XY,Z)*FMath::Max(.001f,Collapse));
+    PresentationPivot->SetRelativeLocation(FVector(0,0,Smooth((Age-.14f)/.24f)*44.f));
+    const float Burst=FMath::Clamp((Age-.26f)/.52f,0.f,1.f);
+    const float Fade=FMath::Square(1.f-Burst)*Smooth((Age-.26f)/.035f);
+    const bool Visible=Age>=.26f && Burst<1.f;
+    ClaimRing->SetVisibility(false); ClaimSparks->SetVisibility(Visible);
+    const float Width=FMath::Max(50.f,float(Solid->GetUnscaledBoxExtent().GetMax())*1.5f);
+    UpdateSparkPresentation(Burst,Visible?Fade:0.f,Width,false);
+}
+
+void AMCRewardChest::UpdateSparkPresentation(float Progress,float Opacity,float Width,bool bTouchdown)
+{
+    const float Burst=FMath::Clamp(Progress,0.f,1.f);
+    ClaimSparks->SetVisibility(Opacity>.001f && Burst<1.f);
+    if(ClaimSparkMaterial) ClaimSparkMaterial->SetScalarParameterValue(TEXT("BurstOpacity"),Opacity);
+    FQuat Facing=FQuat::Identity;
+    if(const auto* PC=GetWorld()->GetFirstPlayerController();PC && PC->PlayerCameraManager)
+        Facing=FRotationMatrix::MakeFromZ(PC->PlayerCameraManager->GetCameraRotation().Vector()*-1.f).ToQuat();
+    // World-facing planes share one transform update / render-state update.
+    const FQuat LocalFacing=GetActorQuat().Inverse()*Facing;
+    for(int32 I=0;I<12;++I) {
+        const float Angle=I*UE_TWO_PI/12.f+.21f;
+        // Width is 1.3 times the largest half-extent on touchdown. Its 1.4
+        // multiplier clears even the diagonal of the maximally squashed body
+        // (sqrt(2)/1.3/sqrt(.66) < 1.34), rather than hiding bright sparks
+        // inside opaque geometry until their opacity is almost zero.
+        const float Radial=Width*((bTouchdown?1.4f:.6f)+Burst*(.30f+.08f*(I%3)));
+        const float Lift=bTouchdown?14.f+Width*(Burst*(.48f+.10f*(I%4))-.32f*Burst*Burst)
+            :35.f+Width*(Burst*(.65f+.12f*(I%4))-.38f*Burst*Burst);
+        const float Size=(.14f+.03f*(I%3))*(1.f-.45f*Burst);
+        ClaimSparks->UpdateInstanceTransform(I,FTransform(LocalFacing,
+            FVector(FMath::Cos(Angle)*Radial,FMath::Sin(Angle)*Radial,Lift),FVector(Size)),false,false,true);
+    }
+    ClaimSparks->MarkRenderStateDirty();
 }
 
 void AMCRewardChest::SetStage(EMCRewardChestStage Next)
@@ -409,6 +535,8 @@ void AMCRewardChest::Tick(float Dt)
 {
     Super::Tick(Dt); if(!bRewardInitialized) return;
     const double Age=FMath::Max(0.,ServerNow()-StageStartedAt);
+    if(Stage==EMCRewardChestStage::Exhausted) {UpdateClaimPresentation(float(Age));return;}
+    if(LandingPresentationStartedAt>=0) UpdateArrivalPresentation(float(ServerNow()-LandingPresentationStartedAt));
     if(IsMimicActive()) {
         if(HasAuthority()) {
             const auto* State=GetWorld()->GetGameState<AMCGameState>();
@@ -436,6 +564,8 @@ void AMCRewardChest::Tick(float Dt)
     } else if(Stage==EMCRewardChestStage::Falling) {
         const float Alpha=FMath::Clamp(float(Age/FMath::Max(.1f,FallSeconds)),0.f,1.f);
         SetActorLocation(FMath::Lerp(FallStart,LandingPoint,Alpha*Alpha));
+        const float Z=1.f+.16f*Alpha*Alpha;
+        PresentationPivot->SetRelativeScale3D(FVector(1.f/FMath::Sqrt(Z),1.f/FMath::Sqrt(Z),Z));
     } else if(Stage==EMCRewardChestStage::Opening) {
         const float Alpha=FMath::Clamp(float(Age/FMath::Max(.1f,OpeningSeconds)),0.f,1.f);
         LidPivot->SetRelativeRotation(FRotator(105.f*(Alpha*Alpha*(3-2*Alpha)),0,0));
@@ -447,6 +577,11 @@ void AMCRewardChest::Tick(float Dt)
             else if(IsValid(OpeningPlayer)) if(auto* PC=Cast<AMCPlayerController>(OpeningPlayer->GetController()))
                 PC->ClientShowPerkChoices(this,LootIDs,Polarity,bTeamStageBooster);
         }
+    }
+    if((Stage==EMCRewardChestStage::Landed || Stage==EMCRewardChestStage::Open)
+        && LandingPresentationStartedAt>=0 && ServerNow()-LandingPresentationStartedAt>=.65) {
+        PresentationPivot->SetRelativeTransform(FTransform::Identity);
+        SetActorTickEnabled(false);
     }
 }
 
@@ -624,7 +759,9 @@ void AMCRewardChest::FinishReward(bool bRequeue)
     if(bTeamStageBooster) if(auto* Director=Cast<AMCSingleDayDirector>(GetOwner())) Director->NotifyStageRewardFinished(this,bRequeue);
     ReleaseCaptive(); ReleaseOpener();
     SetStage(EMCRewardChestStage::Exhausted);
-    if(!bPlacedReward) SetLifeSpan(bRequeue?.1f:2.f);
+    // Keep the actor for the short claim burst, then remove spawned chests.
+    // Authored placed rewards stay hidden and can be reset on a future run.
+    if(!bPlacedReward) SetLifeSpan(bRequeue?.1f:.85f);
 }
 
 void AMCRewardChest::ResetPlacedReward()

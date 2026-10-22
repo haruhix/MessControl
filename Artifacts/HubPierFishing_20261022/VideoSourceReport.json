@@ -1,0 +1,770 @@
+{
+  "source_report": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\Report.json",
+  "source_report_sha256": "b969a3709d5f7275f73631c8f7af2fc2a8efefddb9296b8a8cd40ce965acd4e5",
+  "native_report_passed": true,
+  "checks": {
+    "spawn_outside_pier": true,
+    "spawn_rod_stowed": true,
+    "spawn_faces_ready": true,
+    "initial_camera_faces_ready": true,
+    "input_1_Five": true,
+    "five_cannot_equip_outside_pier": true,
+    "walking_entry_grants_access": true,
+    "walking_entry_auto_equips": true,
+    "rod_visual_visible": true,
+    "input_2_Five": true,
+    "input_3_Five": true,
+    "input_4_One": true,
+    "input_5_Five": true,
+    "walking_exit_revokes_access": true,
+    "walking_exit_stows_rod": true,
+    "walking_exit_clears_fishing": true,
+    "input_6_Five": true,
+    "walking_reentry_auto_equips": true,
+    "each_requested_clip_has_two_native_frames": true
+  },
+  "limitations": [
+    "Movement enters the real zone through AddMovementInput; no physical WASD delivery is tested.",
+    "Five/One use active Enhanced Input actions, not physical keyboard hardware or viewport focus.",
+    "The first observed game-window capture is timestamped; it is not a claim to capture the render engine first frame.",
+    "PNG capture cadence is reported; video repeats native frames without synthesizing motion.",
+    "Wardrobe, Shop, fishing catch, multiplayer, cook/package and a full level are outside this check.",
+    "Screenshots and encoded videos await visual review; assertions do not certify art quality."
+  ],
+  "capture_hz": 6.0,
+  "timing": "Separate genuine game-time windows; native frames repeated for 30 fps, no temporal interpolation or time scaling.",
+  "visual_review": "Pending root review; successful encoding and gameplay assertions do not certify visual quality.",
+  "windows": {
+    "SpawnReady": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\SpawnReady.mp4",
+      "concat_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\SpawnReady.ffconcat",
+      "requested": 9,
+      "available": 9,
+      "missing_requests": [],
+      "source_start_game_seconds": 6.509120304137468,
+      "source_end_game_seconds": 7.935928490012884,
+      "source_intervals_preserved_seconds": 1.4268081858754158,
+      "final_image_hold_seconds": 0.18018099665641785,
+      "final_hold_policy": "Median requested capture interval; a presentation hold, not a source timestamp.",
+      "target_presentation_duration_seconds": 1.6069891825318336,
+      "duration_quantization_seconds": -0.00698918253183356,
+      "requested_missing_initial_seconds": 0.0,
+      "requested_missing_final_seconds": 0.0,
+      "encoded_duration_seconds": 1.6,
+      "encoded_frame_count": 48,
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "full_decode": "PASS",
+      "posters": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\SpawnReadyStart.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00000.png",
+          "game_seconds": 6.509120304137468
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\SpawnReadyMidway.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00004.png",
+          "game_seconds": 7.248837094753981
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\SpawnReadyComplete.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00008.png",
+          "game_seconds": 7.935928490012884
+        }
+      ],
+      "source_sequence": [
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00000.png",
+          "game_seconds": 6.509120304137468,
+          "held_duration_seconds": 0.19011539220809937
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00001.png",
+          "game_seconds": 6.699235696345568,
+          "held_duration_seconds": 0.18923940509557724
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00002.png",
+          "game_seconds": 6.888475101441145,
+          "held_duration_seconds": 0.18186839669942856
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00003.png",
+          "game_seconds": 7.0703434981405735,
+          "held_duration_seconds": 0.17849359661340714
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00004.png",
+          "game_seconds": 7.248837094753981,
+          "held_duration_seconds": 0.1640462949872017
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00005.png",
+          "game_seconds": 7.412883389741182,
+          "held_duration_seconds": 0.1682785041630268
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00006.png",
+          "game_seconds": 7.581161893904209,
+          "held_duration_seconds": 0.18435359746217728
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00007.png",
+          "game_seconds": 7.765515491366386,
+          "held_duration_seconds": 0.17041299864649773
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00008.png",
+          "game_seconds": 7.935928490012884,
+          "held_duration_seconds": 0.18018099665641785
+        }
+      ],
+      "video_sha256": "3fd58e26be66653f014f19df4225632f3ac4425cc8b296a207d6ca9b68113d94",
+      "source_frames_unchanged": true
+    },
+    "PierAutoEquip": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierAutoEquip.mp4",
+      "concat_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierAutoEquip.ffconcat",
+      "requested": 30,
+      "available": 30,
+      "missing_requests": [],
+      "source_start_game_seconds": 8.103492394089699,
+      "source_end_game_seconds": 13.114888712763786,
+      "source_intervals_preserved_seconds": 5.0113963186740875,
+      "final_image_hold_seconds": 0.17365680634975433,
+      "final_hold_policy": "Median requested capture interval; a presentation hold, not a source timestamp.",
+      "target_presentation_duration_seconds": 5.185053125023842,
+      "duration_quantization_seconds": 0.01494687497615832,
+      "requested_missing_initial_seconds": 0.0,
+      "requested_missing_final_seconds": 0.0,
+      "encoded_duration_seconds": 5.2,
+      "encoded_frame_count": 156,
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "full_decode": "PASS",
+      "posters": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierAutoEquipStart.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00009.png",
+          "game_seconds": 8.103492394089699
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierAutoEquipMidway.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00024.png",
+          "game_seconds": 10.685308996587992
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierAutoEquipComplete.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00038.png",
+          "game_seconds": 13.114888712763786
+        }
+      ],
+      "source_sequence": [
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00009.png",
+          "game_seconds": 8.103492394089699,
+          "held_duration_seconds": 0.17365680634975433
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00010.png",
+          "game_seconds": 8.277149200439453,
+          "held_duration_seconds": 0.17066039890050888
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00011.png",
+          "game_seconds": 8.447809599339962,
+          "held_duration_seconds": 0.17107680067420006
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00012.png",
+          "game_seconds": 8.618886400014162,
+          "held_duration_seconds": 0.1692339964210987
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00013.png",
+          "game_seconds": 8.78812039643526,
+          "held_duration_seconds": 0.17711610347032547
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00014.png",
+          "game_seconds": 8.965236499905586,
+          "held_duration_seconds": 0.17383430153131485
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00015.png",
+          "game_seconds": 9.139070801436901,
+          "held_duration_seconds": 0.15619559586048126
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00016.png",
+          "game_seconds": 9.295266397297382,
+          "held_duration_seconds": 0.18754679709672928
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00017.png",
+          "game_seconds": 9.482813194394112,
+          "held_duration_seconds": 0.16611779853701591
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00018.png",
+          "game_seconds": 9.648930992931128,
+          "held_duration_seconds": 0.1652921922504902
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00019.png",
+          "game_seconds": 9.814223185181618,
+          "held_duration_seconds": 0.17803670465946198
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00020.png",
+          "game_seconds": 9.99225988984108,
+          "held_duration_seconds": 0.17259570583701134
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00021.png",
+          "game_seconds": 10.164855595678091,
+          "held_duration_seconds": 0.1743657924234867
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00022.png",
+          "game_seconds": 10.339221388101578,
+          "held_duration_seconds": 0.17109300196170807
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00023.png",
+          "game_seconds": 10.510314390063286,
+          "held_duration_seconds": 0.1749946065247059
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00024.png",
+          "game_seconds": 10.685308996587992,
+          "held_duration_seconds": 0.16022969782352448
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00025.png",
+          "game_seconds": 10.845538694411516,
+          "held_duration_seconds": 0.17472990229725838
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00026.png",
+          "game_seconds": 11.020268596708775,
+          "held_duration_seconds": 0.17646830528974533
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00027.png",
+          "game_seconds": 11.19673690199852,
+          "held_duration_seconds": 0.15535560250282288
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00028.png",
+          "game_seconds": 11.352092504501343,
+          "held_duration_seconds": 0.19236140325665474
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00029.png",
+          "game_seconds": 11.544453907757998,
+          "held_duration_seconds": 0.15998969972133636
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00030.png",
+          "game_seconds": 11.704443607479334,
+          "held_duration_seconds": 0.1818252056837082
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00031.png",
+          "game_seconds": 11.886268813163042,
+          "held_duration_seconds": 0.17875640094280243
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00032.png",
+          "game_seconds": 12.065025214105844,
+          "held_duration_seconds": 0.18710529804229736
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00033.png",
+          "game_seconds": 12.252130512148142,
+          "held_duration_seconds": 0.16859939694404602
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00034.png",
+          "game_seconds": 12.420729909092188,
+          "held_duration_seconds": 0.18563850224018097
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00035.png",
+          "game_seconds": 12.606368411332369,
+          "held_duration_seconds": 0.1616990976035595
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00036.png",
+          "game_seconds": 12.768067508935928,
+          "held_duration_seconds": 0.1718905009329319
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00037.png",
+          "game_seconds": 12.93995800986886,
+          "held_duration_seconds": 0.17493070289492607
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00038.png",
+          "game_seconds": 13.114888712763786,
+          "held_duration_seconds": 0.17365680634975433
+        }
+      ],
+      "video_sha256": "3c7fe9665279f40d4e7124db7d05060808c941cbaf5f539901edeb210571de36",
+      "source_frames_unchanged": true
+    },
+    "PierKeyToggle": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierKeyToggle.mp4",
+      "concat_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierKeyToggle.ffconcat",
+      "requested": 34,
+      "available": 34,
+      "missing_requests": [],
+      "source_start_game_seconds": 13.443445324897766,
+      "source_end_game_seconds": 19.206553604453802,
+      "source_intervals_preserved_seconds": 5.763108279556036,
+      "final_image_hold_seconds": 0.1738692969083786,
+      "final_hold_policy": "Median requested capture interval; a presentation hold, not a source timestamp.",
+      "target_presentation_duration_seconds": 5.936977576464415,
+      "duration_quantization_seconds": -0.0036445764644144063,
+      "requested_missing_initial_seconds": 0.0,
+      "requested_missing_final_seconds": 0.0,
+      "encoded_duration_seconds": 5.933333,
+      "encoded_frame_count": 178,
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "full_decode": "PASS",
+      "posters": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierKeyToggleStart.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00039.png",
+          "game_seconds": 13.443445324897766
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierKeyToggleMidway.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00056.png",
+          "game_seconds": 16.36225112527609
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierKeyToggleComplete.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00072.png",
+          "game_seconds": 19.206553604453802
+        }
+      ],
+      "source_sequence": [
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00039.png",
+          "game_seconds": 13.443445324897766,
+          "held_duration_seconds": 0.17325450107455254
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00040.png",
+          "game_seconds": 13.616699825972319,
+          "held_duration_seconds": 0.16704730689525604
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00041.png",
+          "game_seconds": 13.783747132867575,
+          "held_duration_seconds": 0.17621099203824997
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00042.png",
+          "game_seconds": 13.959958124905825,
+          "held_duration_seconds": 0.17293789237737656
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00043.png",
+          "game_seconds": 14.132896017283201,
+          "held_duration_seconds": 0.17465350776910782
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00044.png",
+          "game_seconds": 14.307549525052309,
+          "held_duration_seconds": 0.16919079795479774
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00045.png",
+          "game_seconds": 14.476740323007107,
+          "held_duration_seconds": 0.1757533960044384
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00046.png",
+          "game_seconds": 14.652493719011545,
+          "held_duration_seconds": 0.16317399591207504
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00047.png",
+          "game_seconds": 14.81566771492362,
+          "held_duration_seconds": 0.17759910970926285
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00048.png",
+          "game_seconds": 14.993266824632883,
+          "held_duration_seconds": 0.1674617975950241
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00049.png",
+          "game_seconds": 15.160728622227907,
+          "held_duration_seconds": 0.17616410925984383
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00050.png",
+          "game_seconds": 15.336892731487751,
+          "held_duration_seconds": 0.16669799759984016
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00051.png",
+          "game_seconds": 15.503590729087591,
+          "held_duration_seconds": 0.1686294935643673
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00052.png",
+          "game_seconds": 15.672220222651958,
+          "held_duration_seconds": 0.18447290360927582
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00053.png",
+          "game_seconds": 15.856693126261234,
+          "held_duration_seconds": 0.17223180830478668
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00054.png",
+          "game_seconds": 16.02892493456602,
+          "held_duration_seconds": 0.1687832921743393
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00055.png",
+          "game_seconds": 16.19770822674036,
+          "held_duration_seconds": 0.16454289853572845
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00056.png",
+          "game_seconds": 16.36225112527609,
+          "held_duration_seconds": 0.1745603047311306
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00057.png",
+          "game_seconds": 16.53681143000722,
+          "held_duration_seconds": 0.18012399226427078
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00058.png",
+          "game_seconds": 16.71693542227149,
+          "held_duration_seconds": 0.17140179872512817
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00059.png",
+          "game_seconds": 16.88833722099662,
+          "held_duration_seconds": 0.1728653907775879
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00060.png",
+          "game_seconds": 17.061202611774206,
+          "held_duration_seconds": 0.1847124993801117
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00061.png",
+          "game_seconds": 17.245915111154318,
+          "held_duration_seconds": 0.18976891040802002
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00062.png",
+          "game_seconds": 17.435684021562338,
+          "held_duration_seconds": 0.1840468943119049
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00063.png",
+          "game_seconds": 17.619730915874243,
+          "held_duration_seconds": 0.17825180292129517
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00064.png",
+          "game_seconds": 17.797982718795538,
+          "held_duration_seconds": 0.1746021956205368
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00065.png",
+          "game_seconds": 17.972584914416075,
+          "held_duration_seconds": 0.1738692969083786
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00066.png",
+          "game_seconds": 18.146454211324453,
+          "held_duration_seconds": 0.1747564971446991
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00067.png",
+          "game_seconds": 18.321210708469152,
+          "held_duration_seconds": 0.17366760969161987
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00068.png",
+          "game_seconds": 18.494878318160772,
+          "held_duration_seconds": 0.1829814910888672
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00069.png",
+          "game_seconds": 18.67785980924964,
+          "held_duration_seconds": 0.1886034905910492
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00070.png",
+          "game_seconds": 18.86646329984069,
+          "held_duration_seconds": 0.16779710352420807
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00071.png",
+          "game_seconds": 19.034260403364897,
+          "held_duration_seconds": 0.17229320108890533
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00072.png",
+          "game_seconds": 19.206553604453802,
+          "held_duration_seconds": 0.1738692969083786
+        }
+      ],
+      "video_sha256": "3a89eab3681051ef6cf9666c293b8b4aa24fb7547f3254724ba2a95d32af60ef",
+      "source_frames_unchanged": true
+    },
+    "PierExitAndGate": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierExitAndGate.mp4",
+      "concat_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierExitAndGate.ffconcat",
+      "requested": 15,
+      "available": 15,
+      "missing_requests": [],
+      "source_start_game_seconds": 19.513256397098303,
+      "source_end_game_seconds": 22.045987103134394,
+      "source_intervals_preserved_seconds": 2.532730706036091,
+      "final_image_hold_seconds": 0.17113349586725235,
+      "final_hold_policy": "Median requested capture interval; a presentation hold, not a source timestamp.",
+      "target_presentation_duration_seconds": 2.703864201903343,
+      "duration_quantization_seconds": -0.003864201903343023,
+      "requested_missing_initial_seconds": 0.0,
+      "requested_missing_final_seconds": 0.0,
+      "encoded_duration_seconds": 2.7,
+      "encoded_frame_count": 81,
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "full_decode": "PASS",
+      "posters": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierExitAndGateStart.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00073.png",
+          "game_seconds": 19.513256397098303
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierExitAndGateMidway.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00080.png",
+          "game_seconds": 20.71833599731326
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierExitAndGateComplete.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00087.png",
+          "game_seconds": 22.045987103134394
+        }
+      ],
+      "source_sequence": [
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00073.png",
+          "game_seconds": 19.513256397098303,
+          "held_duration_seconds": 0.18484560027718544
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00074.png",
+          "game_seconds": 19.69810199737549,
+          "held_duration_seconds": 0.173021599650383
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00075.png",
+          "game_seconds": 19.87112359702587,
+          "held_duration_seconds": 0.16890399158000946
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00076.png",
+          "game_seconds": 20.04002758860588,
+          "held_duration_seconds": 0.17249049246311188
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00077.png",
+          "game_seconds": 20.212518081068993,
+          "held_duration_seconds": 0.1655120998620987
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00078.png",
+          "game_seconds": 20.37803018093109,
+          "held_duration_seconds": 0.17078270763158798
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00079.png",
+          "game_seconds": 20.54881288856268,
+          "held_duration_seconds": 0.16952310875058174
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00080.png",
+          "game_seconds": 20.71833599731326,
+          "held_duration_seconds": 0.18662189319729805
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00081.png",
+          "game_seconds": 20.90495789051056,
+          "held_duration_seconds": 0.17145809903740883
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00082.png",
+          "game_seconds": 21.076415989547968,
+          "held_duration_seconds": 0.17080889269709587
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00083.png",
+          "game_seconds": 21.247224882245064,
+          "held_duration_seconds": 0.16760050132870674
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00084.png",
+          "game_seconds": 21.41482538357377,
+          "held_duration_seconds": 0.17325709760189056
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00085.png",
+          "game_seconds": 21.58808248117566,
+          "held_duration_seconds": 0.2902721166610718
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00086.png",
+          "game_seconds": 21.878354597836733,
+          "held_duration_seconds": 0.16763250529766083
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00087.png",
+          "game_seconds": 22.045987103134394,
+          "held_duration_seconds": 0.17113349586725235
+        }
+      ],
+      "video_sha256": "ed7e36c415d1f92279aa21ba02691c7d79d99efbffac63fb8bed263ff3e162a5",
+      "source_frames_unchanged": true
+    },
+    "PierReentry": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierReentry.mp4",
+      "concat_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierReentry.ffconcat",
+      "requested": 15,
+      "available": 15,
+      "missing_requests": [],
+      "source_start_game_seconds": 22.37654209509492,
+      "source_end_game_seconds": 24.83144348114729,
+      "source_intervals_preserved_seconds": 2.45490138605237,
+      "final_image_hold_seconds": 0.17464765161275864,
+      "final_hold_policy": "Median requested capture interval; a presentation hold, not a source timestamp.",
+      "target_presentation_duration_seconds": 2.6295490376651287,
+      "duration_quantization_seconds": 0.003783962334871216,
+      "requested_missing_initial_seconds": 0.0,
+      "requested_missing_final_seconds": 0.0,
+      "encoded_duration_seconds": 2.633333,
+      "encoded_frame_count": 79,
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "full_decode": "PASS",
+      "posters": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierReentryStart.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00088.png",
+          "game_seconds": 22.37654209509492
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierReentryMidway.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00095.png",
+          "game_seconds": 23.591729287058115
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierReentryComplete.png",
+          "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00102.png",
+          "game_seconds": 24.83144348114729
+        }
+      ],
+      "source_sequence": [
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00088.png",
+          "game_seconds": 22.37654209509492,
+          "held_duration_seconds": 0.1615609973669052
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00089.png",
+          "game_seconds": 22.538103092461824,
+          "held_duration_seconds": 0.17364880442619324
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00090.png",
+          "game_seconds": 22.711751896888018,
+          "held_duration_seconds": 0.1874517984688282
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00091.png",
+          "game_seconds": 22.899203695356846,
+          "held_duration_seconds": 0.16610649228096008
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00092.png",
+          "game_seconds": 23.065310187637806,
+          "held_duration_seconds": 0.1732075996696949
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00093.png",
+          "game_seconds": 23.2385177873075,
+          "held_duration_seconds": 0.17743659391999245
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00094.png",
+          "game_seconds": 23.415954381227493,
+          "held_duration_seconds": 0.17577490583062172
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00095.png",
+          "game_seconds": 23.591729287058115,
+          "held_duration_seconds": 0.1613558977842331
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00096.png",
+          "game_seconds": 23.753085184842348,
+          "held_duration_seconds": 0.19490700960159302
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00097.png",
+          "game_seconds": 23.94799219444394,
+          "held_duration_seconds": 0.17256559431552887
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00098.png",
+          "game_seconds": 24.12055778875947,
+          "held_duration_seconds": 0.18082359433174133
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00099.png",
+          "game_seconds": 24.30138138309121,
+          "held_duration_seconds": 0.17564649879932404
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00100.png",
+          "game_seconds": 24.477027881890535,
+          "held_duration_seconds": 0.17202100157737732
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00101.png",
+          "game_seconds": 24.649048883467913,
+          "held_duration_seconds": 0.1823945976793766
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00102.png",
+          "game_seconds": 24.83144348114729,
+          "held_duration_seconds": 0.17464765161275864
+        }
+      ],
+      "video_sha256": "b3fa7b00ab11aac0e3ae3cf421199ea4e286dcd148129c72a7dd70c16dd657a7",
+      "source_frames_unchanged": true
+    }
+  },
+  "decode_passed": true
+}

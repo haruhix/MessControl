@@ -57,6 +57,7 @@ private:
     void InitializeHubPlayer(APlayerController* Player, bool bPreserveAppearance);
     void RecoverPlayers();
     void RemoveOrphanedStartupPawns();
+    float ArrivalYaw(const FVector& SpawnLocation, float FallbackYaw) const;
     bool IsParticipant(const APlayerController* Player) const;
     bool IsHostRequest(const APlayerController* Player) const;
     bool TravelTo(const FString& URL, EMCHubPhase RestorePhase);

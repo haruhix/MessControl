@@ -45,6 +45,8 @@
 #include "MCHubGameState.h"
 #include "MCHubWidget.h"
 #include "MCLoadingWidget.h"
+#include "MCHubWardrobeWidget.h"
+#include "MCHubShopWidget.h"
 #include "MCVoiceChatSubsystem.h"
 #include "Framework/Application/SlateApplication.h"
 
@@ -102,7 +104,7 @@ bool AMCPlayerController::InputKey(const FInputKeyEventArgs& Params)
 }
 void AMCPlayerController::ShowScoreboard()
 {
-    if (!IsLocalController() || IsRewardInteractionActive() || bBossIntroPlaying || bLoadingInputBlocked
+    if (!IsLocalController() || IsWardrobeOpen() || IsHubShopOpen() || IsRewardInteractionActive() || bBossIntroPlaying || bLoadingInputBlocked
         || bLobbyUIOpen || bPauseMenuOpen || bConnectionMenuOpen || bTutorialMenuInput || bHubMenuInput
         || (DevPanel && DevPanel->IsVisible()) || (EmoteWidget && EmoteWidget->IsVisible())
         || (PrototypeWidget && PrototypeWidget->IsPanelOpen())) return;
@@ -126,11 +128,12 @@ void AMCPlayerController::Tick(float DeltaSeconds)
     // Drive the cosmetic mouth stage before its skeletal components update.
     if(IsLocalController()) {RefreshLoadingPresentation();RefreshHubPresentation(DeltaSeconds);}
     Super::Tick(DeltaSeconds);
-    if(HasAuthority()) RefreshPerkChoiceWorld();
+    if(HasAuthority()) {RefreshPerkChoiceWorld();FlushPlayerColor();}
     if (HasAuthority() && GetWorld()->GetRealTimeSeconds()>=NextPerkTeamCheck) {
         NextPerkTeamCheck=GetWorld()->GetRealTimeSeconds()+.1;RefreshPerkChoiceTeamState();
     }
     if (!IsLocalController()) return;
+    RefreshWardrobe();
     if(GetWorld()->GetRealTimeSeconds()>=NextBackgroundAudioAt) {
         NextBackgroundAudioAt=GetWorld()->GetRealTimeSeconds()+.5;
         RefreshBackgroundAudio();
@@ -209,7 +212,15 @@ void AMCPlayerController::CalcCamera(float DeltaTime,FMinimalViewInfo& OutResult
             SpectatorDistance,DeltaTime,SpectatorCameraView,OutResult);
         return;
     }
-    if(GetPawn()) { GetPawn()->CalcCamera(DeltaTime,OutResult); return; }
+    if(GetPawn()) {
+        GetPawn()->CalcCamera(DeltaTime,OutResult);
+        if(IsWardrobeOpen()) if(const auto* Hero=Cast<AMCToothCharacter>(GetPawn())) {
+            // Keep the avatar to the left of the editable wardrobe panel.
+            const FVector Target=Hero->GetCameraFocusLocation()+OutResult.Rotation.Quaternion().GetRightVector()*120.f;
+            OutResult.Rotation=(Target-OutResult.Location).Rotation();
+        }
+        return;
+    }
     Super::CalcCamera(DeltaTime,OutResult);
 }
 void AMCPlayerController::NotifyLoadedWorld(FName WorldPackageName,bool bFinalDest)
@@ -224,6 +235,9 @@ void AMCPlayerController::PostSeamlessTravel()
 }
 void AMCPlayerController::ResetWorldPresentation()
 {
+    CloseWardrobe();WardrobeWidget=nullptr;NearbyWardrobe.Reset();
+    CloseHubShop();HubShopWidget=nullptr;NearbyShop.Reset();
+    HubArrivalYaw.Reset();HubArrivalViewPawn.Reset();SavedAppearancePawn.Reset();NextWardrobeCheck=0;
     ResetLoadingPresentation();
     ResetHubPresentation();
     RefreshPerkChoiceWorld();
@@ -360,10 +374,9 @@ void AMCPlayerController::ServerSendAlarm_Implementation(EMCPlayerAlarm Alarm)
 void AMCPlayerController::ServerSetPlayerColor_Implementation(FLinearColor Color)
 {
     if (!FMath::IsFinite(Color.R) || !FMath::IsFinite(Color.G) || !FMath::IsFinite(Color.B) || !FMath::IsFinite(Color.A)) return;
-    const double Now=GetWorld()->GetTimeSeconds(); if (Now<NextColorAt) return; NextColorAt=Now+.2;
     Color=Color.GetClamped(0,1); Color.A=1;
-    if (auto* State=GetPlayerState<AMCPlayerState>()) { State->PlayerColor=Color; State->ForceNetUpdate(); }
-    if (auto* Hero=Cast<AMCToothCharacter>(GetPawn())) Hero->ApplyPlayerColor(Color);
+    // Coalesce rapid changes, preserving the final confirmed RGB value.
+    PendingPlayerColor=Color;FlushPlayerColor();
 }
 void AMCPlayerController::ToggleDevPanel()
 {
@@ -471,6 +484,17 @@ void AMCPlayerController::UpdateInputMode()
         || (DevPanel && DevPanel->IsVisible()) || (EmoteWidget && EmoteWidget->IsVisible())
         || (PrototypeWidget && PrototypeWidget->IsPanelOpen()))) ScoreboardWidget->SetVisibility(ESlateVisibility::Collapsed);
     if(bLoadingInputBlocked) {ApplyLoadingInputMode();return;}
+    if(IsWardrobeOpen()) {
+        bShowMouseCursor=true;ResetIgnoreMoveInput();SetIgnoreMoveInput(true);
+        ResetIgnoreLookInput();SetIgnoreLookInput(true);
+        FInputModeUIOnly Mode;Mode.SetWidgetToFocus(WardrobeWidget->TakeWidget());SetInputMode(Mode);
+        return;
+    }
+    if(IsHubShopOpen()) {
+        bShowMouseCursor=true;ResetIgnoreMoveInput();SetIgnoreMoveInput(true);
+        ResetIgnoreLookInput();SetIgnoreLookInput(true);
+        FInputModeUIOnly Mode;Mode.SetWidgetToFocus(HubShopWidget->TakeWidget());SetInputMode(Mode);return;
+    }
     if (bLobbyUIOpen || bPauseMenuOpen || bConnectionMenuOpen || bTutorialMenuInput)
     {
         bShowMouseCursor=true;
@@ -872,6 +896,12 @@ void AMCPlayerController::CloseRewardUI(bool bRestoreInput)
 
 void AMCPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    if(auto* Hero=WardrobePawn.Get()) Hero->PreviewBagColor(Hero->GetPlayerColor());
+    WardrobePawn.Reset();NearbyWardrobe.Reset();
+    if(WardrobeWidget) WardrobeWidget->RemoveFromParent();
+    WardrobeWidget=nullptr;
+    if(HubShopWidget) HubShopWidget->RemoveFromParent();
+    HubShopWidget=nullptr;NearbyShop.Reset();
     if(IsLocalController() && GetGameInstance())
         if(auto* Voice=GetGameInstance()->GetSubsystem<UMCVoiceChatSubsystem>()) Voice->SuspendLocalInput();
     ResetLoadingPresentation();
@@ -915,6 +945,8 @@ void AMCPlayerController::ReturnToMainMenu()
 }
 void AMCPlayerController::TogglePauseMenu()
 {
+    if(IsWardrobeOpen()) {CloseWardrobe();return;}
+    if(IsHubShopOpen()) {CloseHubShop();return;}
     if (!IsLocalController() || bLobbyUIOpen || IsRewardInteractionActive() || bBossIntroPlaying) return;
     bPauseMenuOpen=!bPauseMenuOpen;
     if (bPauseMenuOpen)

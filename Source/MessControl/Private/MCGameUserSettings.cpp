@@ -37,6 +37,11 @@ float UMCGameUserSettings::GetEffectiveMusicVolume() const { return Volume(Maste
 float UMCGameUserSettings::GetEffectiveAmbienceVolume() const { return Volume(MasterVolume)*Volume(AmbienceVolume); }
 void UMCGameUserSettings::SetMouseSensitivity(float Value) { MouseSensitivity=Sensitivity(Value); }
 void UMCGameUserSettings::SetGamepadSensitivity(float Value) { GamepadSensitivity=Sensitivity(Value); }
+void UMCGameUserSettings::SetSavedBagColor(FLinearColor Value)
+{
+    if(!FMath::IsFinite(Value.R) || !FMath::IsFinite(Value.G) || !FMath::IsFinite(Value.B) || !FMath::IsFinite(Value.A)) return;
+    SavedBagColor=Value.GetClamped(0.f,1.f);SavedBagColor.A=1.f;bHasCustomBagColor=true;
+}
 void UMCGameUserSettings::SetVoiceInputMode(EMCVoiceInputMode Value)
 { VoiceInputMode=Value==EMCVoiceInputMode::OpenMic?Value:EMCVoiceInputMode::PushToTalk; }
 bool UMCGameUserSettings::SetPushToTalkKey(FKey Value)
@@ -86,6 +91,11 @@ void UMCGameUserSettings::NormalizePreferences()
     MasterVolume=Volume(MasterVolume);MusicVolume=Volume(MusicVolume);
     AmbienceVolume=Volume(AmbienceVolume);SFXVolume=Volume(SFXVolume);
     MouseSensitivity=Sensitivity(MouseSensitivity);GamepadSensitivity=Sensitivity(GamepadSensitivity);
+    if(!FMath::IsFinite(SavedBagColor.R) || !FMath::IsFinite(SavedBagColor.G)
+        || !FMath::IsFinite(SavedBagColor.B) || !FMath::IsFinite(SavedBagColor.A)) {
+        SavedBagColor=FLinearColor(.24f,.65f,1.f);bHasCustomBagColor=false;
+    }
+    else {SavedBagColor=SavedBagColor.GetClamped(0.f,1.f);SavedBagColor.A=1.f;}
     SetMicrophoneGain(MicrophoneGain);SetVoiceActivationThreshold(VoiceActivationThreshold);SetVoiceVolume(VoiceVolume);
     SetVoiceInputMode(VoiceInputMode);
     if(!SetPushToTalkKey(PushToTalkKey)) PushToTalkKey=EKeys::V;
@@ -98,6 +108,7 @@ void UMCGameUserSettings::SetToDefaults()
     Super::SetToDefaults();
     MasterVolume=MusicVolume=AmbienceVolume=SFXVolume=1.f;
     MouseSensitivity=GamepadSensitivity=1.f;bInvertY=false;LanguageCode.Reset();
+    bHasCustomBagColor=false;SavedBagColor=FLinearColor(.24f,.65f,1.f);
     bVoiceEnabled=true;VoiceInputMode=EMCVoiceInputMode::PushToTalk;PushToTalkKey=EKeys::V;
     MicrophoneGain=1.f;VoiceActivationThreshold=.08f;VoiceVolume=1.f;bSelfMuted=false;MutedVoicePlayerIds.Reset();
 }

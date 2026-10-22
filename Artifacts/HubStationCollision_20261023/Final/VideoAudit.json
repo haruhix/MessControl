@@ -1,0 +1,51 @@
+{
+  "status": "passed",
+  "basis": "Fresh Solo02 full five-case walk, 35 checks; prior evidence preserved.",
+  "source_report_sha256": "ee1c6aee03ae1c83e9cb870cf533e30c0fc81a1c0769cbd9d94e70ce4ac03b1f",
+  "windows": {
+    "Cabin1Door": {
+      "native_frames": 32,
+      "cfr_frames": 330,
+      "duration_seconds": 11.0,
+      "full_decode": "PASS",
+      "source_mapping_and_hashes": "PASS",
+      "video_sha256": "0b0baa59de14453e4f52c8cfea79714f4b28832a11e773c1c44cd014b243b28a"
+    },
+    "Cabin2Door": {
+      "native_frames": 10,
+      "cfr_frames": 103,
+      "duration_seconds": 3.433333,
+      "full_decode": "PASS",
+      "source_mapping_and_hashes": "PASS",
+      "video_sha256": "e003f95835a3d43010012c76fafe308b121167a3bdf0ba6c5e8d6c932bbf2be8"
+    },
+    "Cabin3Door": {
+      "native_frames": 10,
+      "cfr_frames": 104,
+      "duration_seconds": 3.466667,
+      "full_decode": "PASS",
+      "source_mapping_and_hashes": "PASS",
+      "video_sha256": "9ffb288c34cdde7c27d41f7647621ee82daac2fe85ff8e79270e00911fb5cdf0"
+    },
+    "Cabin4Door": {
+      "native_frames": 10,
+      "cfr_frames": 103,
+      "duration_seconds": 3.433333,
+      "full_decode": "PASS",
+      "source_mapping_and_hashes": "PASS",
+      "video_sha256": "dbfcbfb32602f836072448ada4cf258cb87f8a27aaf45c17592582a559c75595"
+    },
+    "VendingBody": {
+      "native_frames": 37,
+      "cfr_frames": 382,
+      "duration_seconds": 12.733333,
+      "full_decode": "PASS",
+      "source_mapping_and_hashes": "PASS",
+      "video_sha256": "810502453fbd08f7ef8696ef840aefdfd2e90af701012bc8b12a99d6000cf972"
+    }
+  },
+  "total_native_frames": 99,
+  "total_cfr_frames": 1022,
+  "total_seconds": 34.066666,
+  "exact_contact_stills": 5
+}

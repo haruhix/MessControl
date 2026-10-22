@@ -40,3 +40,16 @@ Artifacts/CoffeeSlimeV2_20261015/**/*.json -text whitespace=blank-at-eol,blank-a
 Artifacts/CoffeeSlimeV2_20261015/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 Artifacts/CoffeeSurfaceFit_20261015/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 Artifacts/CataclysmInflow_20261014/*.log -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+# Preserve current authored logo sources and review evidence hashes.
+ArtSource/Brand/Branch9/CleanWordmark_20261022/** -text whitespace=cr-at-eol
+ArtSource/ChestGameplay_20261022/*.json -text whitespace=cr-at-eol
+Artifacts/Branch9CleanIntro_20261022/ANOverlap_Red9/**/*.json -text whitespace=cr-at-eol
+Artifacts/Branch9CleanIntro_20261022/ANOverlap_Red9/*.json -text whitespace=cr-at-eol
+Artifacts/HubPierFishing_20261022/**/*.json -text whitespace=cr-at-eol
+Artifacts/HubPierFishing_20261022/*.json -text whitespace=cr-at-eol
+Artifacts/HubWardrobeShop_20261023/Final/**/*.json -text whitespace=cr-at-eol
+Artifacts/HubWardrobeShop_20261023/Final/*.json -text whitespace=cr-at-eol
+Artifacts/HubStationCollision_20261023/Final/**/*.json -text whitespace=cr-at-eol
+Artifacts/HubStationCollision_20261023/Final/*.json -text whitespace=cr-at-eol
+Artifacts/RewardChest_20261023/Final/**/*.json -text whitespace=cr-at-eol
+Artifacts/RewardChest_20261023/Final/*.json -text whitespace=cr-at-eol

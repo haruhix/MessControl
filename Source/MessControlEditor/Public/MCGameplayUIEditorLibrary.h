@@ -68,6 +68,10 @@ public:
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static UWidgetBlueprint* CreateEditableGameplayWidget(const FString& AssetPath, TSubclassOf<UMCGameplayUIWidget> ParentClass);
 
+    /** One-time migration of the task-owned wardrobe RGB tree to the editable color palette. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
+    static bool RefreshHubWardrobePalettePresentation(UWidgetBlueprint* Blueprint);
+
     /** Append only missing named HUD controls, preserving the saved Designer layout and graph. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static bool AddMissingGameplayHUDPresentation(UWidgetBlueprint* Blueprint);

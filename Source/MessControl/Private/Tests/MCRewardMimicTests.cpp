@@ -230,6 +230,14 @@ bool FMCMimicRescue::RunTest(const FString&)
     TestTrue(TEXT("A complete teammate hold releases the captive"),!Captive->IsMimicCaptured() && !Chest->GetCapturedPlayer() && !Helper->MimicRescueTarget);
     TestTrue(TEXT("Cooperative rescue restores movement, collision and work"),Captive->CanWork() && Captive->GetCharacterMovement()->MovementMode!=MOVE_None && Captive->GetCapsuleComponent()->GetCollisionEnabled()!=ECollisionEnabled::NoCollision && Captive->GetMesh()->IsVisible());
     TestEqual(TEXT("The rescued mimic cannot immediately swallow a second player"),Chest->Stage,EMCRewardChestStage::Exhausted);
+    TestEqual(TEXT("A spent placed mimic no longer blocks players"),Chest->Solid->GetCollisionEnabled(),ECollisionEnabled::NoCollision);
+    W.Step(.85f);
+    TestTrue(TEXT("The spent placed chest disappears but remains available for a future run reset"),IsValid(Chest) && Chest->IsHidden());
+    Chest->ResetPlacedReward(); W.Step(.05f);
+    TestTrue(TEXT("Reset rearms the same authored chest with visible geometry and stable collision"),
+        !Chest->IsHidden() && Chest->Stage==EMCRewardChestStage::Landed
+        && Chest->Solid->GetCollisionEnabled()==ECollisionEnabled::QueryAndPhysics
+        && Chest->PresentationPivot->GetRelativeScale3D().Equals(FVector::OneVector,.001f));
     return true;
 }
 

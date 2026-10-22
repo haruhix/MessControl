@@ -26,6 +26,10 @@ class UMCSceneAudioComponent;
 class UMCGameplayMenuWidget;
 class UMCHubWidget;
 class UMCLoadingWidget;
+class UMCHubWardrobeWidget;
+class AMCHubWardrobeStation;
+class UMCHubShopWidget;
+class AMCHubShopStation;
 
 UCLASS()
 class MESSCONTROL_API AMCPlayerController : public APlayerController
@@ -86,6 +90,14 @@ public:
     void UnregisterGameplayHUD(UMCGameplayHUD* HUD);
     UFUNCTION(Server, Reliable) void ServerSendAlarm(EMCPlayerAlarm Alarm);
     UFUNCTION(Server, Reliable) void ServerSetPlayerColor(FLinearColor Color);
+    /** A hub spawn/recovery supplies yaw once; later camera input remains entirely local. */
+    UFUNCTION(Client, Reliable) void ClientSetHubArrivalView(float Yaw);
+    UFUNCTION(BlueprintCallable,Category="Hub|Wardrobe") bool TryOpenWardrobe();
+    UFUNCTION(BlueprintPure,Category="Hub|Wardrobe") bool IsWardrobeOpen() const;
+    UFUNCTION(BlueprintPure,Category="Hub|Wardrobe") bool IsWardrobeAvailable() const;
+    UFUNCTION(BlueprintCallable,Category="Hub|Shop") bool TryOpenHubShop();
+    UFUNCTION(BlueprintPure,Category="Hub|Shop") bool IsHubShopOpen() const;
+    UFUNCTION(BlueprintPure,Category="Hub|Shop") bool IsHubShopAvailable() const;
     UFUNCTION(BlueprintCallable, Category="Multiplayer") void HostGame();
     UFUNCTION(BlueprintCallable, Category="Multiplayer") void JoinGame(const FString& Address);
     UFUNCTION(BlueprintCallable, Category="Shift") void RequestRestart();
@@ -127,6 +139,25 @@ public:
     UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCPerkChoiceWidget> PerkChoiceWidget;
     UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCBossHealthWidget> BossHealthWidget;
 private:
+    void RefreshWardrobe();
+    void FlushPlayerColor();
+    TOptional<FLinearColor> PendingPlayerColor;
+    void CloseWardrobe(bool bRestoreColor=true);
+    UFUNCTION() void PreviewWardrobeColor(FLinearColor Color);
+    UFUNCTION() void ApplyWardrobeColor(FLinearColor Color);
+    UFUNCTION() void CancelWardrobe();
+    UPROPERTY(Transient) TObjectPtr<UMCHubWardrobeWidget> WardrobeWidget;
+    UPROPERTY(Transient) TObjectPtr<UMCHubShopWidget> HubShopWidget;
+    TWeakObjectPtr<AMCHubShopStation> NearbyShop;
+    UFUNCTION() void CloseHubShop();
+    TWeakObjectPtr<AMCHubWardrobeStation> NearbyWardrobe;
+    TWeakObjectPtr<AMCToothCharacter> WardrobePawn;
+    TWeakObjectPtr<APawn> SavedAppearancePawn;
+    TWeakObjectPtr<APawn> HubArrivalViewPawn;
+    TOptional<float> HubArrivalYaw;
+    double NextWardrobeCheck=0,ApplySavedAppearanceAt=0;
+    bool bSavedAppearanceApplied=false;
+    float WardrobePreviousYaw=0,WardrobePreviousPitch=-30,WardrobePreviousDistance=1000;
     void RefreshLoadingPresentation();
     void ResetLoadingPresentation();
     void ApplyLoadingInputMode();

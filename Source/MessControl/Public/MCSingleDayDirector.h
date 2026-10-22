@@ -113,6 +113,8 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Opening") int32 MealPortionSpawned=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") bool bStageRewardPending=false;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") TObjectPtr<AMCRewardChest> StageRewardChest;
+    /** Reuse the authored booster chest, including its presentation components. */
+    UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards") TSubclassOf<AMCRewardChest> StageRewardChestClass;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") FName StageRewardCompletionId;
 private:
     friend class FMCStageRewardPortionGateTest;

@@ -6,6 +6,7 @@
 #include "MCExpressionComponent.h"
 #include "MCGripComponent.h"
 #include "MCHubBasketball.h"
+#include "MCHubFishingZone.h"
 #include "MCRewardChest.h"
 #include "MCPlayerState.h"
 #include "Components/StaticMeshComponent.h"
@@ -44,6 +45,11 @@ void UMCFishingRodComponent::BeginPlay()
     AddTickPrerequisiteComponent(Hero->GetCharacterMovement());
     Hero->GetMesh()->AddTickPrerequisiteComponent(this);
     CreateVisuals();
+    if(Hero->HasAuthority()) {
+        // Override old Blueprint defaults as well: ownership begins at the pier.
+        bEquipped=false;
+        RefreshFishingZone();
+    }
 }
 
 bool UMCFishingRodComponent::IsHub() const
@@ -53,7 +59,7 @@ bool UMCFishingRodComponent::IsHub() const
 
 bool UMCFishingRodComponent::IsPresented() const
 {
-    if(!Hero || !bEquipped || !IsHub() || !Hero->ToothPhysics->CanAct() || Hero->IsSeatedOnRaft()
+    if(!Hero || !bEquipped || !bInsideFishingZone || !IsHub() || !Hero->ToothPhysics->CanAct() || Hero->IsSeatedOnRaft()
         || Hero->HeldFood || Hero->FoodCollection->bCollecting || AMCHubBasketball::HeldBy(Hero)
         || Hero->OrderJumpTarget || Hero->SwallowedBy || Hero->MimicCaptor || Hero->IsYawning()) return false;
     const auto* Move=Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement());
@@ -65,6 +71,44 @@ bool UMCFishingRodComponent::IsPresented() const
 }
 
 void UMCFishingRodComponent::ToggleEquipped() {ServerSetEquipped(!bEquipped);}
+
+bool UMCFishingRodComponent::IsWithinFishingZone() const
+{
+    if(!Hero || !IsHub()) return false;
+    for(TActorIterator<AMCHubFishingZone> Zone(GetWorld());Zone;++Zone)
+        if(Zone->ContainsPawn(Hero)) return true;
+    return false;
+}
+
+void UMCFishingRodComponent::SetEquippedState(bool Equipped)
+{
+    if(!Hero || !Hero->HasAuthority()) return;
+    if(Equipped) Hero->CancelGameplayInput();
+    bEquipped=Equipped;
+    CancelFishing();
+}
+
+void UMCFishingRodComponent::RefreshFishingZone()
+{
+    if(!Hero) Hero=Cast<AMCToothCharacter>(GetOwner());
+    if(!Hero || !Hero->HasAuthority()) return;
+    const bool Inside=IsWithinFishingZone();
+    if(Inside!=bInsideFishingZone) {
+        bInsideFishingZone=Inside;
+        // A single union test permits overlapping pier volumes without repeated
+        // equips. After manually stowing, re-entering the pier grants it again.
+        bPendingFishingZoneEquip=Inside;
+        if(!Inside) SetEquippedState(false);
+        Hero->ForceNetUpdate();
+    }
+    if(bPendingFishingZoneEquip && Inside && Hero->CanSwitchTool()) {
+        // Clear before cancelling old inputs, whose release callbacks can
+        // re-enter this authority check. Do not interrupt an uninterruptible use.
+        bPendingFishingZoneEquip=false;
+        SetEquippedState(true);
+    }
+}
+
 bool UMCFishingRodComponent::PondSurfaceAt(const APhysicsVolume* Pond,FVector Point,FVector& Surface) const
 {
     if(!IsValid(Pond) || !Pond->bWaterVolume || !Pond->ActorHasTag(TEXT("FishingPond"))) return false;
@@ -140,25 +184,30 @@ void UMCFishingRodComponent::UpdateFishingCatch()
 void UMCFishingRodComponent::ServerSetEquipped_Implementation(bool Equipped)
 {
     if(!Hero) Hero=Cast<AMCToothCharacter>(GetOwner());
-    if(!IsHub() || !Hero || (Equipped && !Hero->CanSwitchTool())) return;
-    if(Equipped) Hero->CancelGameplayInput();
-    bEquipped=Equipped;CancelFishing();
+    if(!IsHub() || !Hero) return;
+    RefreshFishingZone();
+    if(Equipped && (!bInsideFishingZone || !Hero->CanSwitchTool())) return;
+    bPendingFishingZoneEquip=false;
+    SetEquippedState(Equipped);
 }
 void UMCFishingRodComponent::ServerSetFishingPose_Implementation(bool Raised)
 {
     if(!Hero) Hero=Cast<AMCToothCharacter>(GetOwner());
     if(!Hero) return;
+    RefreshFishingZone();
     if(!Raised || (IsPresented() && Hero->GetVelocity().SizeSquared2D()<=FMath::Square(20.f) && (bLineOut || CanCastLine()))) {bFishingPose=Raised;Hero->ForceNetUpdate();}
 }
 void UMCFishingRodComponent::ServerSetReeling_Implementation(bool Reeling)
 {
     if(!Hero) Hero=Cast<AMCToothCharacter>(GetOwner());
     if(!Hero) return;
+    RefreshFishingZone();
     if(!Reeling && bFishHooked) return; // A hooked catch is retrieved automatically.
     if(!Reeling || (IsPresented() && bLineOut)) {bReeling=Reeling;Hero->ForceNetUpdate();}
 }
 void UMCFishingRodComponent::CastLine_Implementation()
 {
+    RefreshFishingZone();
     if(!IsPresented() || !RodFrame || bLineOut || Hero->GetVelocity().SizeSquared2D()>FMath::Square(20.f)) return;
     APhysicsVolume* Pond=nullptr;
     if(!FindPondCast(CastOrigin,CastTarget,CastVelocity,CastFlightDuration,Pond)) return;
@@ -316,6 +365,10 @@ void UMCFishingRodComponent::DrawLine()
 void UMCFishingRodComponent::TickComponent(float Dt,ELevelTick Tick,FActorComponentTickFunction* Function)
 {
     Super::TickComponent(Dt,Tick,Function);
+    if(Hero && Hero->HasAuthority() && GetWorld()->GetTimeSeconds()>=NextFishingZoneCheckAt) {
+        NextFishingZoneCheckAt=GetWorld()->GetTimeSeconds()+.1;
+        RefreshFishingZone();
+    }
     if(!RodFrame || !RodVisual || !LineVisual || Dt<=0) return;
     const bool Visible=IsPresented();
     const bool Walking=Hero->GetVelocity().SizeSquared2D()>FMath::Square(20.f);
@@ -400,6 +453,7 @@ void UMCFishingRodComponent::BuildHandPose(TArray<FTransform>& Pose,const FRefer
 void UMCFishingRodComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    DOREPLIFETIME(UMCFishingRodComponent,bInsideFishingZone);
     DOREPLIFETIME(UMCFishingRodComponent,bEquipped);DOREPLIFETIME(UMCFishingRodComponent,bFishingPose);
     DOREPLIFETIME(UMCFishingRodComponent,bReeling);DOREPLIFETIME(UMCFishingRodComponent,bLineOut);
     DOREPLIFETIME(UMCFishingRodComponent,CastSerial);DOREPLIFETIME(UMCFishingRodComponent,CastOrigin);DOREPLIFETIME(UMCFishingRodComponent,CastVelocity);

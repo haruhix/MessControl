@@ -352,6 +352,13 @@ void AMCToothCharacter::ApplyPlayerColor(FLinearColor Color)
     if (auto* Identity=GetPlayerState<AMCPlayerState>()) { Identity->PlayerColor=BagColor; Identity->ForceNetUpdate(); }
     OnRep_BagColor(); ForceNetUpdate();
 }
+void AMCToothCharacter::PreviewBagColor(FLinearColor Color)
+{
+    if(!IsLocallyControlled() || !BagMaterial || !FMath::IsFinite(Color.R) || !FMath::IsFinite(Color.G) || !FMath::IsFinite(Color.B)) return;
+    Color=Color.GetClamped(0,1);Color.A=1;
+    BagMaterial->SetScalarParameterValue(TEXT("Saturate"),1.f);
+    BagMaterial->SetVectorParameterValue(TEXT("Albedo Color"),Color);
+}
 float AMCToothCharacter::GetStamina() const { return CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->GetStamina(); }
 float AMCToothCharacter::GetMaxStamina() const { return CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->GetMaxStamina(); }
 float AMCToothCharacter::GetStaminaNormalized() const { return GetStamina()/GetMaxStamina(); }
@@ -711,6 +718,7 @@ void AMCToothCharacter::StartHandle()
     StopRowing();
     if(!CanWork() || Inventory->IsChainsawRunning()) return;
     if(const auto* PC=Cast<APlayerController>(Controller);PC && PC->IsMoveInputIgnored()) return;
+    if(auto* PC=Cast<AMCPlayerController>(Controller);PC && (PC->TryOpenHubShop() || PC->TryOpenWardrobe())) return;
     if(AMCHubBasketball::HeldBy(this) || AMCHubBasketball::PickupCandidate(this)) {ServerInteractBasketball();return;}
     if(FishingRod && FishingRod->IsPresented()) {FishingRod->ServerSetReeling(true);return;}
     AMCRewardChest* Rescue=nullptr; double RescueDistance=TNumericLimits<double>::Max();

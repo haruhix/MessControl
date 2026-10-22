@@ -1,0 +1,802 @@
+{
+  "canvas": [
+    2048,
+    768
+  ],
+  "atlas_size": [
+    2048,
+    1024
+  ],
+  "atlas_tile_size": [
+    512,
+    512
+  ],
+  "glyphs": [
+    {
+      "name": "B",
+      "bbox": [
+        104,
+        258,
+        369,
+        543
+      ],
+      "center": [
+        236.5,
+        400.5
+      ],
+      "atlas_center": [
+        255.5,
+        254.5
+      ],
+      "atlas_bbox": [
+        123,
+        112,
+        388,
+        397
+      ],
+      "width": 265,
+      "height": 285,
+      "alpha_support_bbox": [
+        100,
+        254,
+        374,
+        549
+      ],
+      "atlas_support_bbox": [
+        119,
+        108,
+        393,
+        403
+      ],
+      "atlas_tile_origin": [
+        0,
+        0
+      ],
+      "atlas_tile_center": [
+        256,
+        256
+      ],
+      "full_to_atlas_pixel_offset": [
+        19,
+        -146
+      ],
+      "source_bbox": [
+        93,
+        333,
+        307,
+        563
+      ],
+      "source_component_ids": [
+        2
+      ],
+      "source_solid_pixels": 43125,
+      "reference_component_solid_pixels": 43125,
+      "reference_source_bbox": [
+        93,
+        333,
+        307,
+        563
+      ],
+      "source_translation": [
+        0,
+        0
+      ],
+      "silhouette_origin": "Unchanged supplied coverage and source position",
+      "color_srgb": "#FFFFFF",
+      "svg_closed_loops": 3,
+      "logical_cell_x": [
+        104.0,
+        373.75
+      ],
+      "ideal_uniform_bbox": [
+        104.0,
+        257.7861466039004,
+        368.8016139878951,
+        542.3860121049091
+      ],
+      "raster_bbox_rounding_delta": [
+        0.0,
+        0.2138533960995801,
+        0.1983860121048906,
+        0.6139878950908724
+      ]
+    },
+    {
+      "name": "R",
+      "bbox": [
+        374,
+        258,
+        648,
+        543
+      ],
+      "center": [
+        511.0,
+        400.5
+      ],
+      "atlas_center": [
+        769.0,
+        254.5
+      ],
+      "atlas_bbox": [
+        632,
+        112,
+        906,
+        397
+      ],
+      "width": 274,
+      "height": 285,
+      "alpha_support_bbox": [
+        367,
+        254,
+        653,
+        549
+      ],
+      "atlas_support_bbox": [
+        625,
+        108,
+        911,
+        403
+      ],
+      "atlas_tile_origin": [
+        512,
+        0
+      ],
+      "atlas_tile_center": [
+        768,
+        256
+      ],
+      "full_to_atlas_pixel_offset": [
+        258,
+        -146
+      ],
+      "source_bbox": [
+        311,
+        333,
+        533,
+        563
+      ],
+      "source_component_ids": [
+        3
+      ],
+      "source_solid_pixels": 39991,
+      "reference_component_solid_pixels": 39991,
+      "reference_source_bbox": [
+        311,
+        333,
+        533,
+        563
+      ],
+      "source_translation": [
+        0,
+        0
+      ],
+      "silhouette_origin": "Unchanged supplied coverage and source position",
+      "color_srgb": "#FFFFFF",
+      "svg_closed_loops": 2,
+      "logical_cell_x": [
+        373.75,
+        639.75
+      ],
+      "ideal_uniform_bbox": [
+        373.7511768661735,
+        257.7861466039004,
+        648.4519166106254,
+        542.3860121049091
+      ],
+      "raster_bbox_rounding_delta": [
+        0.2488231338264768,
+        0.2138533960995801,
+        -0.45191661062540334,
+        0.6139878950908724
+      ]
+    },
+    {
+      "name": "A",
+      "bbox": [
+        606,
+        258,
+        931,
+        543
+      ],
+      "center": [
+        768.5,
+        400.5
+      ],
+      "atlas_center": [
+        1279.5,
+        254.5
+      ],
+      "atlas_bbox": [
+        1117,
+        112,
+        1442,
+        397
+      ],
+      "width": 325,
+      "height": 285,
+      "alpha_support_bbox": [
+        600,
+        254,
+        937,
+        549
+      ],
+      "atlas_support_bbox": [
+        1111,
+        108,
+        1448,
+        403
+      ],
+      "atlas_tile_origin": [
+        1024,
+        0
+      ],
+      "atlas_tile_center": [
+        1280,
+        256
+      ],
+      "full_to_atlas_pixel_offset": [
+        511,
+        -146
+      ],
+      "source_bbox": [
+        499,
+        333,
+        762,
+        563
+      ],
+      "source_component_ids": [
+        4
+      ],
+      "source_solid_pixels": 35026,
+      "reference_component_solid_pixels": 35026,
+      "reference_source_bbox": [
+        499,
+        333,
+        762,
+        563
+      ],
+      "source_translation": [
+        0,
+        0
+      ],
+      "silhouette_origin": "Unchanged supplied coverage and source position",
+      "color_srgb": "#FFFFFF",
+      "svg_closed_loops": 2,
+      "logical_cell_x": [
+        639.75,
+        895.75
+      ],
+      "ideal_uniform_bbox": [
+        606.3806321452589,
+        257.7861466039004,
+        931.8143913920646,
+        542.3860121049091
+      ],
+      "raster_bbox_rounding_delta": [
+        -0.38063214525891453,
+        0.2138533960995801,
+        -0.8143913920646355,
+        0.6139878950908724
+      ]
+    },
+    {
+      "name": "N",
+      "bbox": [
+        873,
+        258,
+        1173,
+        543
+      ],
+      "center": [
+        1023.0,
+        400.5
+      ],
+      "atlas_center": [
+        1792.0,
+        255.5
+      ],
+      "atlas_bbox": [
+        1642,
+        113,
+        1942,
+        398
+      ],
+      "width": 300,
+      "height": 285,
+      "alpha_support_bbox": [
+        869,
+        255,
+        1176,
+        547
+      ],
+      "atlas_support_bbox": [
+        1638,
+        110,
+        1945,
+        402
+      ],
+      "atlas_tile_origin": [
+        1536,
+        0
+      ],
+      "atlas_tile_center": [
+        1792,
+        256
+      ],
+      "full_to_atlas_pixel_offset": [
+        769,
+        -145
+      ],
+      "source_bbox": [
+        714,
+        333,
+        957,
+        563
+      ],
+      "source_component_ids": [],
+      "source_solid_pixels": 41875,
+      "reference_component_solid_pixels": 41410,
+      "reference_source_bbox": [
+        714,
+        333,
+        957,
+        563
+      ],
+      "source_translation": [
+        0,
+        0
+      ],
+      "silhouette_origin": "Eleven-vertex fitted source N; upper left vertical; original A separator cut retained",
+      "color_srgb": "#FFFFFF",
+      "source_polygon": [
+        [
+          714.51556,
+          333.42857
+        ],
+        [
+          800.6648549878855,
+          333.42857
+        ],
+        [
+          881.1375,
+          446.0324590002352
+        ],
+        [
+          881.1375,
+          333.42857
+        ],
+        [
+          956.92188,
+          333.42857
+        ],
+        [
+          956.92188,
+          563.07101
+        ],
+        [
+          872.6396623914759,
+          563.07101
+        ],
+        [
+          790.229725,
+          442.832095986712
+        ],
+        [
+          790.229725,
+          563.07101
+        ],
+        [
+          776.8072963818058,
+          563.07101
+        ],
+        [
+          714.51556,
+          423.12298504780125
+        ]
+      ],
+      "A_overlap_cut_source_line": [
+        [
+          725.5436166,
+          447.8992207
+        ],
+        [
+          776.8072964,
+          563.07101
+        ]
+      ],
+      "vertical_left_A_cut_intersection_source": [
+        714.51556,
+        423.12298504780125
+      ],
+      "svg_closed_loops": 1,
+      "logical_cell_x": [
+        895.75,
+        1158.75
+      ],
+      "ideal_uniform_bbox": [
+        872.4196368527237,
+        257.7861466039004,
+        1173.1055817081372,
+        542.3860121049091
+      ],
+      "raster_bbox_rounding_delta": [
+        0.58036314727633,
+        0.2138533960995801,
+        -0.10558170813715151,
+        0.6139878950908724
+      ]
+    },
+    {
+      "name": "C",
+      "bbox": [
+        1187,
+        258,
+        1402,
+        543
+      ],
+      "center": [
+        1294.5,
+        400.5
+      ],
+      "atlas_center": [
+        256.5,
+        766.5
+      ],
+      "atlas_bbox": [
+        149,
+        624,
+        364,
+        909
+      ],
+      "width": 215,
+      "height": 285,
+      "alpha_support_bbox": [
+        1182,
+        254,
+        1406,
+        549
+      ],
+      "atlas_support_bbox": [
+        144,
+        620,
+        368,
+        915
+      ],
+      "atlas_tile_origin": [
+        0,
+        512
+      ],
+      "atlas_tile_center": [
+        256,
+        768
+      ],
+      "full_to_atlas_pixel_offset": [
+        -1038,
+        366
+      ],
+      "source_bbox": [
+        968,
+        333,
+        1142,
+        563
+      ],
+      "source_component_ids": [
+        6
+      ],
+      "source_solid_pixels": 28582,
+      "reference_component_solid_pixels": 28582,
+      "reference_source_bbox": [
+        968,
+        333,
+        1142,
+        563
+      ],
+      "source_translation": [
+        0,
+        0
+      ],
+      "silhouette_origin": "Unchanged supplied coverage and source position",
+      "color_srgb": "#FFFFFF",
+      "svg_closed_loops": 1,
+      "logical_cell_x": [
+        1158.75,
+        1420.25
+      ],
+      "ideal_uniform_bbox": [
+        1186.716879623403,
+        257.7861466039004,
+        1402.0228648285138,
+        542.3860121049091
+      ],
+      "raster_bbox_rounding_delta": [
+        0.2831203765970258,
+        0.2138533960995801,
+        -0.022864828513775137,
+        0.6139878950908724
+      ]
+    },
+    {
+      "name": "H",
+      "bbox": [
+        1416,
+        258,
+        1676,
+        543
+      ],
+      "center": [
+        1546.0,
+        400.5
+      ],
+      "atlas_center": [
+        768.0,
+        766.5
+      ],
+      "atlas_bbox": [
+        638,
+        624,
+        898,
+        909
+      ],
+      "width": 260,
+      "height": 285,
+      "alpha_support_bbox": [
+        1409,
+        254,
+        1682,
+        549
+      ],
+      "atlas_support_bbox": [
+        631,
+        620,
+        904,
+        915
+      ],
+      "atlas_tile_origin": [
+        512,
+        512
+      ],
+      "atlas_tile_center": [
+        768,
+        768
+      ],
+      "full_to_atlas_pixel_offset": [
+        -778,
+        366
+      ],
+      "source_bbox": [
+        1153,
+        333,
+        1363,
+        563
+      ],
+      "source_component_ids": [
+        7
+      ],
+      "source_solid_pixels": 37669,
+      "reference_component_solid_pixels": 37669,
+      "reference_source_bbox": [
+        1153,
+        333,
+        1363,
+        563
+      ],
+      "source_translation": [
+        0,
+        0
+      ],
+      "silhouette_origin": "Unchanged supplied coverage and source position",
+      "color_srgb": "#FFFFFF",
+      "svg_closed_loops": 1,
+      "logical_cell_x": [
+        1420.25,
+        1677.25
+      ],
+      "ideal_uniform_bbox": [
+        1415.6341627437794,
+        257.7861466039004,
+        1675.486213853396,
+        542.3860121049091
+      ],
+      "raster_bbox_rounding_delta": [
+        0.36583725622062957,
+        0.2138533960995801,
+        0.513786146603934,
+        0.6139878950908724
+      ]
+    },
+    {
+      "name": "9",
+      "bbox": [
+        1673,
+        226,
+        1944,
+        543
+      ],
+      "center": [
+        1808.5,
+        384.5
+      ],
+      "atlas_center": [
+        1280.5,
+        767.5
+      ],
+      "atlas_bbox": [
+        1145,
+        609,
+        1416,
+        926
+      ],
+      "width": 271,
+      "height": 317,
+      "alpha_support_bbox": [
+        1668,
+        220,
+        1948,
+        549
+      ],
+      "atlas_support_bbox": [
+        1140,
+        603,
+        1420,
+        932
+      ],
+      "atlas_tile_origin": [
+        1024,
+        512
+      ],
+      "atlas_tile_center": [
+        1280,
+        768
+      ],
+      "full_to_atlas_pixel_offset": [
+        -528,
+        383
+      ],
+      "source_bbox": [
+        1361,
+        307,
+        1580,
+        563
+      ],
+      "source_component_ids": [
+        1
+      ],
+      "source_solid_pixels": 36451,
+      "reference_component_solid_pixels": 36451,
+      "reference_source_bbox": [
+        1361,
+        307,
+        1580,
+        563
+      ],
+      "source_translation": [
+        0,
+        0
+      ],
+      "silhouette_origin": "Unchanged supplied coverage and source position",
+      "color_srgb": "#E32636",
+      "svg_closed_loops": 1,
+      "logical_cell_x": [
+        1677.25,
+        1944.0
+      ],
+      "ideal_uniform_bbox": [
+        1673.011432414257,
+        225.6139878950908,
+        1944.0,
+        542.3860121049091
+      ],
+      "raster_bbox_rounding_delta": [
+        -0.011432414256887569,
+        0.3860121049092129,
+        0.0,
+        0.6139878950908724
+      ]
+    }
+  ],
+  "logo_width_requested": 1840.0,
+  "source_sha256": "dcffd5038af4c2191359879e4a4e74ee80e7bcb81c163c364b2857ff37d272c2",
+  "source_size": [
+    1672,
+    941
+  ],
+  "source_bbox": [
+    93,
+    307,
+    1580,
+    563
+  ],
+  "uniform_transform": {
+    "scale": 1.2373907195696032,
+    "translate": [
+      -11.077336919973106,
+      -154.26496301277743
+    ]
+  },
+  "mapping": "atlasPixel = fullCanvasPixel - glyph.center + glyph.atlas_center; use atlas_support_bbox for AA-safe sampling.",
+  "png_format": "straight-alpha RGBA; six white glyphs and sRGB #E32636 nine; nearest glyph RGB extends into transparent edges",
+  "validation": {
+    "source_cleanup_iou": 1.0,
+    "source_roundtrip_iou": 0.9998858130302557,
+    "svg_source_iou": 0.998627715583601,
+    "atlas_identity_pixel_equal": true,
+    "source_bbox": [
+      93,
+      307,
+      1580,
+      563
+    ],
+    "target_bbox": [
+      104,
+      226,
+      1944,
+      543
+    ],
+    "atlas_visible_rgba_identity_pixel_equal": true,
+    "nine_full_and_atlas_coverage_rgb_equal": true,
+    "nine_nonopaque_coverage_pixels": 50587,
+    "uniform_scale": 1.2373907195696032,
+    "target_ideal_bbox": [
+      104.0,
+      225.6139878950908,
+      1944.0,
+      542.3860121049091
+    ],
+    "source_bbox_aspect_ratio": 5.80859375,
+    "target_integer_bbox_aspect_ratio": 5.804416403785489,
+    "integer_bbox_aspect_rounding_percent": -0.07191665305411599,
+    "source_size": [
+      1672,
+      941
+    ],
+    "glyph_count": 7,
+    "retained_source_coverage_pixel_equal": {
+      "B": true,
+      "R": true,
+      "A": true,
+      "C": true,
+      "H": true,
+      "9": true
+    },
+    "n_visible_upper_left_source_x": 714.51556,
+    "n_polygon_vertex_count": 11,
+    "n_vertical_left_A_cut_intersection_source": [
+      714.51556,
+      423.12298504780125
+    ],
+    "nine_srgb": "#E32636",
+    "nine_alpha_unchanged_before_uniform_scale": true,
+    "global_uniform_scale_change_percent": 0.0,
+    "user_revision": "Original kerning/source positions/scale restored; N upper left edge vertical until existing A separator cut; 9 recoloured #E32636.",
+    "cleanup": "Keep original luminance coverage within three source pixels of seven solid glyphs; remove luminance below 4. Half-coverage silhouette unchanged.",
+    "limitations": [
+      "Supplied raster, not a recovered original master vector.",
+      "Only N contour cleanup and red 9 intentionally differ from the supplied reference; no source letter positions or kerning are shifted.",
+      "Other six PNG silhouettes retain supplied coverage; their SVG represents the interpolated 127.5 contour only.",
+      "Resampling uses one identical X/Y scale; measured integer bounds can round by one pixel.",
+      "Bounding boxes overlap for slanted/interlocking letters. Use atlas ownership, never x-cell clipping."
+    ]
+  },
+  "files": {
+    "Reference_Original.png": {
+      "sha256": "dcffd5038af4c2191359879e4a4e74ee80e7bcb81c163c364b2857ff37d272c2",
+      "bytes": 652969
+    },
+    "T_Branch9_CleanWordmark.png": {
+      "sha256": "744e7bbf25e0bfbe55c0ba46800a61fe1ce0401e4d43aca876a22dcffac0b455",
+      "bytes": 158631
+    },
+    "T_Branch9_CleanGlyphAtlas.png": {
+      "sha256": "b1d61823197ae2de97f6da6b0e2c3bf476ce2c7ff0d9d81b4ab205606924d83b",
+      "bytes": 171076
+    },
+    "T_Branch9_Transparent.png": {
+      "sha256": "1827d7f083780363ba4bb221f77058a261673389757b256921e08f010b55285d",
+      "bytes": 93
+    },
+    "Branch9_CleanWordmark.svg": {
+      "sha256": "cdcff0210432e97d8fe77801813bb7f6401a0d892903615cd839a3ed8fe2c4ce",
+      "bytes": 153307
+    }
+  }
+}

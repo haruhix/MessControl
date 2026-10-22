@@ -20,6 +20,8 @@
 #include "MCArenaTooth.h"
 #include "MCMouthSurface.h"
 #include "MCTongue.h"
+#include "MCRewardChest.h"
+#include "UObject/ConstructorHelpers.h"
 #include "MCDayPlan.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -79,6 +81,8 @@ UMCSingleDayProfile::UMCSingleDayProfile()
 }
 AMCSingleDayDirector::AMCSingleDayDirector()
 {
+    static ConstructorHelpers::FClassFinder<AMCRewardChest> AuthoredReward(TEXT("/Game/Gameplay/Roguelike/BP_RewardChest"));
+    StageRewardChestClass=AuthoredReward.Succeeded()?AuthoredReward.Class.Get():AMCRewardChest::StaticClass();
     bReplicates=true; bAlwaysRelevant=true;
     PrimaryActorTick.bCanEverTick=true; PrimaryActorTick.TickInterval=.1f;
 }

@@ -63,7 +63,9 @@ void AMCSingleDayDirector::TrySpawnStageReward()
     const int32 Seed=(Game?Game->RunSeed:41)^int32(GetTypeHash(StageRewardCompletionId));
     FRandomStream Random(Seed+(StageRewardPlacementAttempts-1)*7919);
     constexpr float FallHeight=450;
-    const FVector Extent=GetDefault<AMCRewardChest>()->GetPlacementHalfExtent();
+    UClass* RewardClass=StageRewardChestClass?StageRewardChestClass.Get():AMCRewardChest::StaticClass();
+    if(RewardClass->HasAnyClassFlags(CLASS_Abstract|CLASS_Deprecated|CLASS_NewerVersionExists)) RewardClass=AMCRewardChest::StaticClass();
+    const FVector Extent=RewardClass->GetDefaultObject<AMCRewardChest>()->GetPlacementHalfExtent();
     FVector Landing,Normal;
     const TArray<AActor*> Ignored;
     bool Found=false;
@@ -75,7 +77,7 @@ void AMCSingleDayDirector::TrySpawnStageReward()
     }
     const FRotator Rotation=FRotationMatrix::MakeFromXZ(FVector::ForwardVector,Normal).Rotator();
     const FTransform Pose(Rotation,Landing);
-    auto* Chest=GetWorld()->SpawnActorDeferred<AMCRewardChest>(AMCRewardChest::StaticClass(),Pose,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+    auto* Chest=GetWorld()->SpawnActorDeferred<AMCRewardChest>(RewardClass,Pose,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
     if(!Chest) return;
     Chest->InitializeTeamStageReward(Landing,Landing+FVector(0,0,FallHeight),Seed,Table,StageRewardZone);
     StageRewardChest=Chest;

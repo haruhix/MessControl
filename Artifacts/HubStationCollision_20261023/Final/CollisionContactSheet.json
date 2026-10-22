@@ -1,0 +1,36 @@
+{
+  "image": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\CollisionContactSheet.png",
+  "source_contact_stills": [
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\01_Cabin1Door_Blocked.png",
+      "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\screenshots\\01_Cabin1Door_Blocked.png",
+      "sha256": "590ebad073d4899b5b0f6c5d0159d0e9c0b9fa262c6e6015cf4866c3222e662b",
+      "time": 12.986127894371748
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\02_Cabin2Door_Blocked.png",
+      "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\screenshots\\02_Cabin2Door_Blocked.png",
+      "sha256": "f23d5454efa17aceb46302ed955495e70bad3307dfa04a8b59cc6cb5742065b4",
+      "time": 16.438208494335413
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\03_Cabin3Door_Blocked.png",
+      "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\screenshots\\03_Cabin3Door_Blocked.png",
+      "sha256": "3768fd5ec04828ea17048c8446b1052f20a1d77c4539f177fc53f83d34b604b3",
+      "time": 19.86779199168086
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\04_Cabin4Door_Blocked.png",
+      "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\screenshots\\04_Cabin4Door_Blocked.png",
+      "sha256": "e8d44794c263f95c192910b842ee55f4bfd94faf0683e9a3dc3887482a6af313",
+      "time": 23.34823377430439
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Artifacts\\HubStationCollision_20261023\\Final\\05_VendingBody_Blocked.png",
+      "source_file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\StationCollision\\Solo02\\screenshots\\05_VendingBody_Blocked.png",
+      "sha256": "2cdd89e090267d20d38c2d1bc400280e0fc8412398f3da80c73188500a0dd4bd",
+      "time": 35.99980627000332
+    }
+  ],
+  "scope": "Final Solo02; one full run, all 35 checks passed, no teleport or fixture."
+}

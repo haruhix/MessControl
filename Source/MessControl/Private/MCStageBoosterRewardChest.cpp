@@ -18,6 +18,12 @@ void AMCRewardChest::InitializeTeamStageReward(FVector Landing,FVector Start,int
     if(!HasAuthority()) return;
     bTeamStageBooster=true; bAlwaysRelevant=true; MimicChance=0; RogueKind=EMCRogueRewardKind::Ordinary;
     InitializeReward(Landing,Start,Seed,Table,EMCRewardSelectionPolicy::ChooseOne,Zone);
+    // A completed stage rewards the group immediately; keep the ordinary
+    // future-map chest telegraph timing in InitializeReward unchanged.
+    Stage=EMCRewardChestStage::Falling;StageStartedAt=ServerNow();
+    LastPresentationStage=EMCRewardChestStage::Falling;
+    SetActorLocation(FallStart);
+    if(HasActorBegunPlay()) RefreshPresentation();
     ForceNetUpdate();
 }
 

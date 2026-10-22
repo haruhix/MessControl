@@ -145,7 +145,36 @@ bool AMCHubGameMode::PlayerCanRestart_Implementation(APlayerController* Player)
 
 void AMCHubGameMode::RestartPlayer(AController* Player)
 {
-    if (!bSelectionScene && !bTravelPending) Super::RestartPlayer(Player);
+    if (bSelectionScene || bTravelPending) return;
+    Super::RestartPlayer(Player);
+    APawn* Pawn = IsValid(Player) ? Player->GetPawn() : nullptr;
+    if (!Pawn) return;
+    // RestartPlayer finishes possession with the PlayerStart rotation. Apply
+    // the current movable Ready target afterwards, including recovery spawns.
+    const float Yaw = ArrivalYaw(Pawn->GetActorLocation(), Pawn->GetActorRotation().Yaw);
+    Pawn->SetActorRotation(FRotator(0.f, Yaw, 0.f));
+    Player->SetControlRotation(FRotator(0.f, Yaw, 0.f));
+    Pawn->ForceNetUpdate();
+    if (auto* Controller = Cast<AMCPlayerController>(Player)) Controller->ClientSetHubArrivalView(Yaw);
+}
+
+float AMCHubGameMode::ArrivalYaw(const FVector& SpawnLocation, float FallbackYaw) const
+{
+    const AMCHubReadyZone* Target = nullptr;
+    double NearestDistance = TNumericLimits<double>::Max();
+    for (TActorIterator<AMCHubReadyZone> Zone(GetWorld()); Zone; ++Zone)
+    {
+        if (!Zone->bEnabled) continue;
+        const double Distance = FVector::DistSquared2D(SpawnLocation, Zone->GetActorLocation());
+        if (Distance < UE_SMALL_NUMBER) continue;
+        if (Distance < NearestDistance || (FMath::IsNearlyEqual(Distance, NearestDistance)
+            && Target && Zone->GetName() < Target->GetName()))
+        {
+            Target = *Zone;
+            NearestDistance = Distance;
+        }
+    }
+    return Target ? (Target->GetActorLocation() - SpawnLocation).Rotation().Yaw : FallbackYaw;
 }
 
 APawn* AMCHubGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* Player, const FTransform& SpawnTransform)
@@ -153,6 +182,7 @@ APawn* AMCHubGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* P
     if (bSelectionScene || bTravelPending) return nullptr;
     FTransform Safe = SpawnTransform;
     Safe.AddToTranslation(FVector(0, 0, 35.f));
+    Safe.SetRotation(FRotator(0.f, ArrivalYaw(Safe.GetLocation(), Safe.Rotator().Yaw), 0.f).Quaternion());
     APawn* Pawn = Super::SpawnDefaultPawnAtTransform_Implementation(Player, Safe);
     if (Pawn) Pawn->Tags.AddUnique(TEXT("MC.Hub.PlayerPawn"));
     if (auto* Hero = Cast<AMCToothCharacter>(Pawn))

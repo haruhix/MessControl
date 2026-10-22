@@ -1,0 +1,12 @@
+{
+  "world": "/Game/Maps/UEDPIE_0_L_MainMenu.L_MainMenu",
+  "before_game_seconds": 102.65696892142296,
+  "original_allow_throttling": 1,
+  "state": "complete",
+  "elapsed_wall": 2.7030000002123415,
+  "advanced_game_seconds": 2.7161923944950104,
+  "allow_throttling": 1,
+  "reason": "Restored original editor cvar",
+  "dirty_content": [],
+  "dirty_maps": []
+}

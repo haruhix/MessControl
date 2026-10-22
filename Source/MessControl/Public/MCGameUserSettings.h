@@ -41,6 +41,10 @@ public:
     UFUNCTION(BlueprintCallable, Category="Settings|Controls") void SetMouseSensitivity(float Value);
     UFUNCTION(BlueprintCallable, Category="Settings|Controls") void SetGamepadSensitivity(float Value);
     UFUNCTION(BlueprintCallable, Category="Settings|Controls") void SetInvertY(bool Value) { bInvertY=Value; }
+    UFUNCTION(BlueprintPure, Category="Settings|Appearance") bool HasCustomBagColor() const { return bHasCustomBagColor; }
+    UFUNCTION(BlueprintPure, Category="Settings|Appearance") FLinearColor GetSavedBagColor() const { return SavedBagColor; }
+    /** Updates local preferences in memory; the explicit confirmation owner saves them. */
+    UFUNCTION(BlueprintCallable, Category="Settings|Appearance") void SetSavedBagColor(FLinearColor Value);
     UFUNCTION(BlueprintPure,Category="Settings|Voice") bool GetVoiceEnabled() const { return bVoiceEnabled; }
     UFUNCTION(BlueprintCallable,Category="Settings|Voice") void SetVoiceEnabled(bool Value) { bVoiceEnabled=Value; }
     UFUNCTION(BlueprintPure,Category="Settings|Voice") EMCVoiceInputMode GetVoiceInputMode() const { return VoiceInputMode; }
@@ -82,6 +86,8 @@ private:
     UPROPERTY(Config) float MouseSensitivity=1.f;
     UPROPERTY(Config) float GamepadSensitivity=1.f;
     UPROPERTY(Config) bool bInvertY=false;
+    UPROPERTY(Config) bool bHasCustomBagColor=false;
+    UPROPERTY(Config) FLinearColor SavedBagColor=FLinearColor(.24f,.65f,1.f);
     UPROPERTY(Config) bool bVoiceEnabled=true;
     UPROPERTY(Config) EMCVoiceInputMode VoiceInputMode=EMCVoiceInputMode::PushToTalk;
     UPROPERTY(Config) FKey PushToTalkKey=EKeys::V;

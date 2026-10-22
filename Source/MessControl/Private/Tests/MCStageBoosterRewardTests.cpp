@@ -12,6 +12,8 @@
 #include "MCNutEnemy.h"
 #include "MCMouthSurface.h"
 #include "MCDayPlan.h"
+#include "Components/BoxComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/DataTable.h"
 #include "Engine/Engine.h"
@@ -65,6 +67,25 @@ struct FStageRewardWorld
 };
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCStageRewardImmediateFallTest,"MessControl.Rewards.StageBooster.ImmediateAirborneArrival",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCStageRewardImmediateFallTest::RunTest(const FString&)
+{
+    FStageRewardWorld W;
+    const FVector Landing(0,0,10000),Start=Landing+FVector(0,0,450);
+    const FTransform Pose(Landing);
+    auto* Chest=W.World->SpawnActorDeferred<AMCRewardChest>(AMCRewardChest::StaticClass(),Pose,
+        nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+    Chest->InitializeTeamStageReward(Landing,Start,31,W.Table,nullptr);
+    TestEqual(TEXT("A stage reward skips the ordinary telegraph delay"),Chest->Stage,EMCRewardChestStage::Falling);
+    Chest->FinishSpawning(Pose);
+    TestEqual(TEXT("BeginPlay preserves the immediate falling state"),Chest->Stage,EMCRewardChestStage::Falling);
+    TestTrue(TEXT("FinishSpawning cannot leave a first-frame chest on the floor"),Chest->GetActorLocation().Equals(Start,.01));
+    TestFalse(TEXT("The removed ground marker is never shown"),Chest->Telegraph->GetVisibleFlag());
+    TestFalse(TEXT("No claim floor ring is shown"),Chest->ClaimRing->GetVisibleFlag());
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCStageRewardSharedEffectTest,"MessControl.Rewards.StageBooster.SharedImmediateEffects",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCStageRewardSharedEffectTest::RunTest(const FString&)
@@ -107,6 +128,8 @@ bool FMCStageRewardClaimTest::RunTest(const FString&)
     TestEqual(TEXT("The opener advances chest reward history without XP"),A->GetPlayerState<AMCPlayerState>()->PersonalChoicesTaken,1);
     TestEqual(TEXT("A living teammate also advances chest reward history"),B->GetPlayerState<AMCPlayerState>()->PersonalChoicesTaken,1);
     TestEqual(TEXT("The shared chest is exhausted"),Chest->Stage,EMCRewardChestStage::Exhausted);
+    TestEqual(TEXT("A claimed stage chest immediately releases its gameplay collision"),Chest->Solid->GetCollisionEnabled(),ECollisionEnabled::NoCollision);
+    TestTrue(TEXT("A spawned claimed chest is scheduled for removal after its short cosmetic burst"),Chest->GetLifeSpan()>0.f && Chest->GetLifeSpan()<1.f);
     W.Perks(A)->bGrenadeArmed=W.Perks(B)->bGrenadeArmed=false;
     TestFalse(TEXT("Duplicate RPC cannot replay the team effect"),Chest->TryChooseCard(A,2));
     TestFalse(TEXT("A duplicate request leaves effects unchanged"),W.Perks(A)->bGrenadeArmed || W.Perks(B)->bGrenadeArmed);

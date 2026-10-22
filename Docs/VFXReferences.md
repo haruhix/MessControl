@@ -1188,3 +1188,99 @@ frames: approximately 0.91–1.01 mm clearance, with no sampled penetration.
 Combined scene/UI framing was inspected at 1280x720, 1200x900 and 2100x900.
 The preview has not replaced the startup menu, and packaged/network/GPU-profile
 validation has not been performed.
+
+## BRANCH9 clean wordmark ident — 2026-10-22
+
+The user supplied a new geometric BRANCH9 logo without the branch/leaf motif.
+The source is preserved under `ArtSource/Brand/Branch9/CleanWordmark_20261022`.
+Its seven connected component masks form an independent glyph atlas; no font
+substitution or kerning reconstruction is used. The SVG traces the supplied
+raster outline and is not an original vector master.
+
+Reused Epic's [Animating UMG Widgets](https://dev.epicgames.com/documentation/en-us/unreal-engine/animating-umg-widgets-in-unreal-engine)
+timing/editability guidance and reviewed [Custom Material Expressions](https://dev.epicgames.com/documentation/en-us/unreal-engine/custom-material-expressions-in-unreal-engine)
+for deterministic texture sampling and HLSL inputs. Adapted a restrained
+left-to-right glyph assembly, a six-degree/25-pixel maximum 9 entrance, a
+short faint directional trace and a motionless reading hold. There are no
+particles, scene capture, media decoder, global shader Time dependency, bloom
+or full-screen flash. This is UI motion, not a gameplay effect.
+
+The existing native `Reveal` easing supplies a normalized clock to
+`M_Branch9_Kinetic`. The hold switches to the exact full source texture. A
+uniform branch uses the full texture during the hold; the animation samples
+independent atlas masks. Both legacy layer fields receive explicit blank
+textures, preventing the native null-reference fallback from loading the old
+branch/leaf artwork. The existing three-second native completion and preload
+barrier remain in place. A material-only `ReducedMotion` parameter offers a
+fade-only authoring variant; it is not connected to an automatic game setting.
+
+Validation: material compiled without errors; WBP compiled/saved successfully;
+180 actual 1920x1080 UMG samples exported at 60 fps; 30 fps encode and contact
+sheet reviewed; 4:3 and ultrawide holds checked for framing. All hold frames
+from 1.133 through 2.617 s are identical. A normal solo PIE startup observed
+the new saved widget/assets for 3.00 s and reached the menu through native
+resource readiness; twelve assertions passed with settings restored and no
+dirty packages. Evidence: `Artifacts/Branch9CleanIntro_20261022`, including
+the separate live startup screenshots/report. The smooth video is an actual
+UMG timeline render, not realtime PIE footage. User art acceptance, sound,
+packaged-game and GPU-profile validation remain deferred. C++ was not changed.
+
+Current user revision preserves the original
+positions, 1840/1487 common fit, diagonal separator and A-over-N occlusion.
+Only N's own upper left edge is made vertical, meeting the retained A-cut at
+source y423.122985. A/N now share the same entrance timing and translation,
+preserving their relationship in motion. The 9 is sRGB `#E32636`, with unchanged
+alpha geometry. The other six final glyph masks match their original coverage
+pixel for pixel. Current evidence is under `ANOverlap_Red9`: 180 actual UMG
+frames, stable hold, 30/60 fps encodes and a fresh solo PIE startup observing
+3.03 seconds of ident and the normal native readiness/menu handoff. All twelve
+assertions passed, and no packages were left dirty. The hidden editor's Slate
+throttle was temporarily disabled for this check; no runtime readiness logic
+or project configuration was changed. Earlier passes remain review history.
+
+## Team-stage reward chest arrival and consume — 2026-10-23
+
+Reviewed [Ashif Ali / CGHOW: Fireworks](https://cghow.com/ue4-niagara-firework/)
+for event-triggered bursts, radial motion and short particle tails, and
+[Epic: Niagara Quick Start](https://dev.epicgames.com/documentation/en-us/unreal-engine/quick-start-for-niagara-effects-in-unreal-engine)
+for layering simple transient shapes and lifetime-driven opacity/size. Adapted
+the timing and burst structure using the existing additive analytic spark
+material; this implementation does not author a Niagara system.
+
+A completed team stage starts the chest's accelerating fall immediately.
+There is no ground marker, floor ring/halo or persistent beam/highlight on the
+team chest. Touchdown combines a 0.65-second grounded squash/stretch spring
+with twelve airborne spark planes fading over 0.42 seconds. Claim contracts
+and lifts the chest, then releases a short spark burst within the 0.78-second
+exit. Collision stays fixed and releases immediately on claim; cosmetic motion
+uses the server-stage clock. The existing split chest meshes remain unchanged,
+with the reviewed gold surface selected through an explicit editable override.
+
+Readability refinement moves the twelve sparks outside the expanded silhouette,
+uses 14/17/20 cm initial planes and widens the analytic diamond/cross mask.
+`BurstIntensity=3` supplies a warm emissive core; depth testing remains enabled.
+The material explicitly enables instanced-static-mesh usage. A diagnostic pass
+that omitted this usage flag rendered default-material black squares and was
+rejected; it remains separate as `Diagnostic04`, not final footage.
+
+Status: Editor build and fresh owning-agent ChestSolo05 passed; fifteen native
+assertions cover immediate airborne arrival, explicit gold surface, no ground
+marker, normal shared-card claim, spawned removal and placed rearm. PIE shutdown,
+restored settings and clean packages were verified. Evidence is under
+`Artifacts/RewardChest_20261023/Final`: two game-clock motion clips, separate
+wall-clock captures, state contact sheet and final `MaterialAudit.json` with
+no shader errors. The clean capture performs no old/new material experiment.
+Wall-clock footage includes slower synchronous screenshot intervals and is not
+an animation-speed/FPS benchmark. `GameTime/Arrival_GameTime.mp4` and
+`GameTime/Claim_GameTime.mp4` use
+the original game timestamps for intended-speed motion review, with paused card
+selection outside these windows. Capture requested at most 24 game Hz / 12 wall
+Hz; fixed-timestep quantization produced about 20 native images per game second.
+Their 30 fps output repeats genuine images; no poses are interpolated or
+extrapolated and no native 30 fps rendering claim is made. Both chests are
+disclosed ownerless fixtures, not recorded natural portion completion. Subsequent
+natural food partially obstructs the placed-reset view; lifecycle assertions
+confirm the reset. Root reviewed the readable gold stars and squash as bounded
+functional VFX; user art approval remains pending. Ordinary future-map timing and
+mimic disguise/reset behavior remain unchanged. No GPU-cost profile, network
+check or packaged-game validation has been performed for this revision.

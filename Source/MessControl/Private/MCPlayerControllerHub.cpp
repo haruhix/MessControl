@@ -50,6 +50,8 @@ void AMCPlayerController::RefreshHubPresentation(float DeltaSeconds)
     }
     if(!HubWidget) return;
     HubWidget->TickPresentation(DeltaSeconds);
+    HubWidget->SetVisibility(IsWardrobeOpen() || IsHubShopOpen()
+        ? ESlateVisibility::Collapsed : ESlateVisibility::SelfHitTestInvisible);
     if(State->Phase!=EMCHubPhase::Gathering && !HubSceneCamera.IsValid()) {
         for(TActorIterator<AActor> It(GetWorld());It;++It)
             if(It->ActorHasTag(TEXT("Menu3D_Camera")) && It->FindComponentByClass<UCameraComponent>()) {

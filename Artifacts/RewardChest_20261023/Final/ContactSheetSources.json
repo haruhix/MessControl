@@ -1,0 +1,89 @@
+{
+  "source_report": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\Report.json",
+  "capture": "ChestSolo05 only",
+  "method": "Native PNGs downsampled into a labeled state grid. Actual minimum deformation sample and visible peak-burst frames selected; original PNGs unchanged.",
+  "minimum_landing_scale_sample": {
+    "time": 3.7500001955777407,
+    "phase": "spawned_drop",
+    "state": "LANDED",
+    "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_RewardChest_C_0",
+    "location_cm": [
+      -154.32245055570348,
+      -61.68714858255257,
+      106.63843830866153
+    ],
+    "visual_scale": [
+      1.1790034770965576,
+      1.1790034770965576,
+      0.7193990349769592
+    ],
+    "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+    "hidden": false,
+    "claim_mask": 0
+  },
+  "frames": [
+    {
+      "label": "Visible accelerating fall",
+      "source_file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00020.png",
+      "game_seconds": 3.5000001825392246,
+      "capture_request_wall_seconds": 8.625,
+      "source_sha256": "4b5f56365deba2abdac4d5b57dce5766a348a8aa08a9149b33793b6ec930f20c"
+    },
+    {
+      "label": "Recorded minimum squash Z 0.719",
+      "source_file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00025.png",
+      "game_seconds": 3.7500001955777407,
+      "capture_request_wall_seconds": 9.672000000020489,
+      "source_sha256": "b11bed7bb9f4166ef059fa028327fee2e066acb4a39b603632aa0269816c9242"
+    },
+    {
+      "label": "Visible airborne sparkle burst",
+      "source_file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00026.png",
+      "game_seconds": 3.800000198185444,
+      "capture_request_wall_seconds": 9.891000000061467,
+      "source_sha256": "6e6e71beb9a640cf0a9ced56a2eb5e3c15162e5a3be0563d9e83b180a8888a89"
+    },
+    {
+      "label": "Settled authored gold surface",
+      "source_file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00040.png",
+      "game_seconds": 4.500000234693289,
+      "capture_request_wall_seconds": 12.937000000150874,
+      "source_sha256": "979d5b4f865100463a1878e6148758cbff7234f65f5e2f13c2f116e6fb0c734f"
+    },
+    {
+      "label": "Opening lid",
+      "source_file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00056.png",
+      "game_seconds": 5.30000027641654,
+      "capture_request_wall_seconds": 16.344000000040978,
+      "source_sha256": "5fcd215e32bee27c2f0732118a84decd6233b73bf12ee0469b235cfa1f4e3308"
+    },
+    {
+      "label": "Normal shared-card UI",
+      "source_file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00059.png",
+      "game_seconds": 5.433333616703749,
+      "capture_request_wall_seconds": 16.969000000040978,
+      "source_sha256": "429375c92f7e9bfdade588b89dd8e34fb6f69d4942ca0d8a2c400e721d7acc72"
+    },
+    {
+      "label": "Shrink / lift / short spark exit",
+      "source_file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00065.png",
+      "game_seconds": 5.733333632349968,
+      "capture_request_wall_seconds": 18.67200000002049,
+      "source_sha256": "63e634ec0973c10f37cd258e6dbd448c98af63cdde0eb4925981044a9cc0394d"
+    },
+    {
+      "label": "Spawned chest actually removed",
+      "source_file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00076.png",
+      "game_seconds": 6.283333661034703,
+      "capture_request_wall_seconds": 20.79700000002049,
+      "source_sha256": "b1c8f517d6613f3f9ad17767bdd51d21136ebf784fe06906f881ff2b85a9c824"
+    },
+    {
+      "label": "Placed reset asserted; food occludes camera",
+      "source_file": "E:\\CodexWork\\HubChestWardrobe_20261022\\ChestSolo05\\frames\\00165.png",
+      "game_seconds": 10.700000558048487,
+      "capture_request_wall_seconds": 39.45299999997951,
+      "source_sha256": "5499a913c3bc6832e84ed1ca1c098e0ab0648a9daa2011ffaf0acfcc2e068a99"
+    }
+  ]
+}

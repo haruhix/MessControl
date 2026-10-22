@@ -1,0 +1,90 @@
+{
+  "contact_sheet": "E:\\DEVGAME\\MessControl\\Artifacts\\HubPierFishing_20261022\\PierInputStatesContactSheet.png",
+  "source_rows": [
+    {
+      "input": {
+        "key": "Five",
+        "expected_equipped": false,
+        "actual_equipped": false,
+        "inside": false,
+        "game_seconds": 8.08510659262538,
+        "after": "walk_to_pier"
+      },
+      "frame": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00009.png",
+      "frame_game_seconds": 8.103492394089699,
+      "time_difference_seconds": 0.01838580146431923,
+      "source_sha256": "bf3e617f9f66e77edbc61d11eb10fa179b94c9e5228c77b096522d7f487f9042"
+    },
+    {
+      "input": {
+        "key": "Five",
+        "expected_equipped": false,
+        "actual_equipped": false,
+        "inside": true,
+        "game_seconds": 14.617009721696377,
+        "after": "next_toggle"
+      },
+      "frame": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00046.png",
+      "frame_game_seconds": 14.652493719011545,
+      "time_difference_seconds": 0.03548399731516838,
+      "source_sha256": "73b5170596b1cb776d0c186b9be453458b38f0476878be0b7ce0483f679d21e8"
+    },
+    {
+      "input": {
+        "key": "Five",
+        "expected_equipped": true,
+        "actual_equipped": true,
+        "inside": true,
+        "game_seconds": 15.82041572779417,
+        "after": "next_toggle"
+      },
+      "frame": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00053.png",
+      "frame_game_seconds": 15.856693126261234,
+      "time_difference_seconds": 0.036277398467063904,
+      "source_sha256": "9411c841879ff2198ed843bfbf96d4542cd4f4ea9d739efba99283ad362f2eb3"
+    },
+    {
+      "input": {
+        "key": "One",
+        "expected_equipped": false,
+        "actual_equipped": false,
+        "inside": true,
+        "game_seconds": 17.061202611774206,
+        "after": "next_toggle"
+      },
+      "frame": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00060.png",
+      "frame_game_seconds": 17.061202611774206,
+      "time_difference_seconds": 0.0,
+      "source_sha256": "2f9036083ed0d734702427eb2e6a11a2388a6d19cf9d3df3833771d31859def9"
+    },
+    {
+      "input": {
+        "key": "Five",
+        "expected_equipped": true,
+        "actual_equipped": true,
+        "inside": true,
+        "game_seconds": 18.494878318160772,
+        "after": "next_toggle"
+      },
+      "frame": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00068.png",
+      "frame_game_seconds": 18.494878318160772,
+      "time_difference_seconds": 0.0,
+      "source_sha256": "2a70594db3aeff1fbc0aa7658883601df5a4edfc0d8dc0116c0c9d532179de33"
+    },
+    {
+      "input": {
+        "key": "Five",
+        "expected_equipped": false,
+        "actual_equipped": false,
+        "inside": false,
+        "game_seconds": 22.20346600189805,
+        "after": "walk_reentry"
+      },
+      "frame": "E:\\CodexWork\\HubWardrobeRewards_20261022\\PierSolo01\\frames\\00087.png",
+      "frame_game_seconds": 22.045987103134394,
+      "time_difference_seconds": 0.15747889876365662,
+      "source_sha256": "ce6efcfb999f951c165bc574631c5648e374bc5a260dbab940d6ef4887883a6e"
+    }
+  ],
+  "note": "Each cell is a resized genuine native PNG, selected nearest to its completed live input check. No gameplay content was changed."
+}

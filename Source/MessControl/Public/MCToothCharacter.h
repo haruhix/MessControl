@@ -173,6 +173,7 @@ public:
     void UpdateMouthCamera(float Dt);
     UFUNCTION(BlueprintCallable,Category="Camera") void ApplyCameraOrbitInput(FVector2D Delta);
     UFUNCTION(BlueprintCallable,Category="Camera") void ZoomCamera(float ScrollDelta);
+    void SetCameraOrbitView(float Yaw,float Pitch,float Distance);
     void NotifyCameraImpact(float ImpactSpeed,const FVector& Direction);
     void NotifyGroundImpact(float Strength,const FVector& Source);
     FVector CameraMoveDirection(bool Right) const;
@@ -188,6 +189,8 @@ public:
     UPROPERTY(ReplicatedUsing=OnRep_BagColor, BlueprintReadOnly, Category="Visuals") FLinearColor BagColor=FLinearColor::White;
     UFUNCTION(BlueprintPure, Category="Visuals") FLinearColor GetPlayerColor() const { return BagColor; }
     void ApplyPlayerColor(FLinearColor Color);
+    /** Local wardrobe draft only: does not change replicated identity or save preferences. */
+    UFUNCTION(BlueprintCallable,Category="Visuals") void PreviewBagColor(FLinearColor Color);
     UFUNCTION(BlueprintPure, Category="Locomotion|Stamina") float GetStamina() const;
     UFUNCTION(BlueprintPure, Category="Locomotion|Stamina") float GetMaxStamina() const;
     UFUNCTION(BlueprintPure, Category="Locomotion|Stamina") float GetStaminaNormalized() const;

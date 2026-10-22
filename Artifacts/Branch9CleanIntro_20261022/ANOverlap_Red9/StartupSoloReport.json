@@ -1,0 +1,739 @@
+{
+  "passed": true,
+  "status": "passed",
+  "project": "E:\\DEVGAME\\MessControl",
+  "scope": "Short solo check of the saved ident and its normal preload/menu handoff.",
+  "network": false,
+  "package_saves": false,
+  "gameplay_overrides": false,
+  "checks": {
+    "saved_studio_widget": true,
+    "three_second_authored_duration": true,
+    "actual_new_wordmark": true,
+    "actual_kinetic_material": true,
+    "branch_texture_disabled_with_blank": true,
+    "leaves_texture_disabled_with_blank": true,
+    "splash_ended_through_native_timeline": true,
+    "approximately_three_real_seconds": true,
+    "loading_barrier_not_bypassed": true,
+    "menu_cursor_restored": true,
+    "menu_visible_after_intro": true,
+    "intro_stays_removed": true
+  },
+  "requests": [],
+  "stages": [
+    {
+      "name": "observe_startup",
+      "wall_seconds": 2.234999999869615,
+      "game_seconds": 0.0,
+      "world": null
+    },
+    {
+      "name": "observe_menu",
+      "wall_seconds": 5.8439999998081475,
+      "game_seconds": 3.6706303246319294,
+      "world": "/Game/Maps/UEDPIE_0_L_MainMenu.L_MainMenu"
+    },
+    {
+      "name": "ending_pie",
+      "wall_seconds": 6.859999999869615,
+      "game_seconds": 4.793438229709864,
+      "world": "/Game/Maps/UEDPIE_0_L_MainMenu.L_MainMenu"
+    }
+  ],
+  "samples": [],
+  "screenshots": [
+    {
+      "file": "E:\\CodexWork\\Branch9CleanIntro_20261022\\StartupSolo03_ANOverlapRed9\\screenshots\\01_new_branch9_live.png",
+      "phase": "observe_startup",
+      "world": "/Game/Maps/UEDPIE_0_L_MainMenu.L_MainMenu",
+      "map": "L_MainMenu",
+      "game_seconds": 2.0006674230098724,
+      "capture_request_wall_seconds": 4.062999999849126,
+      "capture_completed_wall_seconds": 4.109999999869615,
+      "width": 1286,
+      "height": 760,
+      "bytes": 92672,
+      "sha256": "e8a4168d84c03fdf619de7f33b945d1620313160b23e4a825e8604977f9ac5e5"
+    },
+    {
+      "file": "E:\\CodexWork\\Branch9CleanIntro_20261022\\StartupSolo03_ANOverlapRed9\\screenshots\\02_main_menu_after_ident.png",
+      "phase": "observe_startup",
+      "world": "/Game/Maps/UEDPIE_0_L_MainMenu.L_MainMenu",
+      "map": "L_MainMenu",
+      "game_seconds": 3.6706303246319294,
+      "capture_request_wall_seconds": 5.734999999869615,
+      "capture_completed_wall_seconds": 5.8439999998081475,
+      "width": 1286,
+      "height": 760,
+      "bytes": 932256,
+      "sha256": "3c5b6df5649405cdab643b5db4fcf3b4d49bfec237acccacd4523ecc91db2993"
+    }
+  ],
+  "frames": [],
+  "cleanup": {
+    "owned_pie_end_requested": true,
+    "owned_pie_stopped": true,
+    "original_map_restored": true
+  },
+  "original_editor_map": "/Game/Maps/L_MainMenu",
+  "observe_seconds": null,
+  "source_sha256": "ec66752649b469e9ea5ddbc6decab0c7563df4a82f9148f2e9c9bdc15275cba7",
+  "limitations": [
+    "One normal solo PIE startup; no travel, multiplayer, cook/package or cold cache performance test.",
+    "Actual live captures verify integration and handoff. Separate deterministic 60fps UMG render verifies motion."
+  ],
+  "microphone_test": false,
+  "return_to_menu_requested": true,
+  "native_preparation_timeout_seconds": 120.0,
+  "observation_readiness_budget_seconds": 130.0,
+  "worlds": [
+    {
+      "world": "/Game/Maps/UEDPIE_0_L_MainMenu.L_MainMenu",
+      "map": "L_MainMenu",
+      "game_instance": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6",
+      "wall_seconds": 2.656999999890104
+    }
+  ],
+  "readiness_samples": [
+    {
+      "wall_seconds": 2.6879999998491257,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.LOADING_ASSETS: 1>",
+      "ready": false,
+      "loading_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_Loading_C_0",
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 2.797000000020489,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.LOADING_ASSETS: 1>",
+      "ready": false,
+      "loading_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_Loading_C_0",
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 2.9379999998491257,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.PREPARING_RENDERING: 2>",
+      "ready": false,
+      "loading_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_Loading_C_0",
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 3.0939999998081475,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.PREPARING_RENDERING: 2>",
+      "ready": false,
+      "loading_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_Loading_C_0",
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 3.25,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.PREPARING_RENDERING: 2>",
+      "ready": false,
+      "loading_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_Loading_C_0",
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 3.359999999869615,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.PREPARING_RENDERING: 2>",
+      "ready": false,
+      "loading_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_Loading_C_0",
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 3.5,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.PREPARING_RENDERING: 2>",
+      "ready": false,
+      "loading_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_Loading_C_0",
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 3.6409999998286366,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.PREPARING_RENDERING: 2>",
+      "ready": false,
+      "loading_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_Loading_C_0",
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 3.7659999998286366,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.PREPARING_RENDERING: 2>",
+      "ready": false,
+      "loading_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_Loading_C_0",
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 3.8909999998286366,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.PREPARING_RENDERING: 2>",
+      "ready": false,
+      "loading_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_Loading_C_0",
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 4.015999999828637,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.WAITING_FOR_STREAMING: 3>",
+      "ready": false,
+      "loading_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_Loading_C_0",
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 4.140999999828637,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 4.281999999890104,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 4.390999999828637,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 4.5,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 4.640999999828637,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 4.765999999828637,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 4.875,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 5.0,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 5.125,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 5.25,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 5.375,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 5.5,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 5.640999999828637,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "mouse_cursor": false
+    },
+    {
+      "wall_seconds": 5.890999999828637,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": null,
+      "mouse_cursor": true
+    },
+    {
+      "wall_seconds": 6.0,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": null,
+      "mouse_cursor": true
+    },
+    {
+      "wall_seconds": 6.125,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": null,
+      "mouse_cursor": true
+    },
+    {
+      "wall_seconds": 6.281999999890104,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": null,
+      "mouse_cursor": true
+    },
+    {
+      "wall_seconds": 6.422000000020489,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": null,
+      "mouse_cursor": true
+    },
+    {
+      "wall_seconds": 6.531999999890104,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": null,
+      "mouse_cursor": true
+    },
+    {
+      "wall_seconds": 6.672000000020489,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": null,
+      "mouse_cursor": true
+    },
+    {
+      "wall_seconds": 6.812999999849126,
+      "map": "L_MainMenu",
+      "phase": "<MCWorldPreloadPhase.READY: 4>",
+      "ready": true,
+      "loading_widget": null,
+      "splash_widget": null,
+      "mouse_cursor": true
+    }
+  ],
+  "splash_samples": [
+    {
+      "wall_seconds": 2.703999999910593,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 2.75,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 2.797000000020489,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 2.8439999998081475,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 2.8909999998286366,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 2.9379999998491257,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.0,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.047000000020489,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.0939999998081475,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.156999999890104,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.203999999910593,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.25,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.3129999998491257,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.359999999869615,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.406999999890104,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.453999999910593,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.5,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.547000000020489,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.5939999998081475,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.6409999998286366,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.6879999998491257,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.734999999869615,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.781999999890104,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.828999999910593,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.859999999869615,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.906999999890104,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.9379999998491257,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 3.984999999869615,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.015999999828637,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.062999999849126,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.140999999828637,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.187999999849126,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.234999999869615,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.281999999890104,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.3439999998081475,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.390999999828637,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.437999999849126,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.5,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.547000000020489,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.5939999998081475,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.640999999828637,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.687999999849126,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.734999999869615,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.765999999828637,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.797000000020489,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.8439999998081475,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.875,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.922000000020489,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 4.953999999910593,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 5.0,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 5.031999999890104,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 5.078999999910593,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 5.125,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 5.172000000020489,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 5.2189999998081475,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 5.25,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 5.297000000020489,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 5.3439999998081475,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 5.375,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 5.422000000020489,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 5.4689999998081475,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 5.515999999828637,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 5.547000000020489,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 5.5939999998081475,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 5.640999999828637,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    },
+    {
+      "wall_seconds": 5.687999999849126,
+      "widget": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6.WBP_StudioSplash_C_0",
+      "finished": false
+    }
+  ],
+  "phase": "ending_pie",
+  "wall_seconds": 7.140999999828637,
+  "pie_request_wall_seconds": 2.234999999869615,
+  "owned_game_instance": "/Engine/Transient.UnrealEdEngine_0:GameInstance_6",
+  "splash_first_seen_wall_seconds": 2.703999999910593,
+  "ident_captured": true,
+  "splash_timing": {
+    "first_seen_wall_seconds": 2.703999999910593,
+    "last_seen_wall_seconds": 5.687999999849126,
+    "first_absent_wall_seconds": 5.734999999869615,
+    "observed_visible_span_seconds": 3.030999999959022,
+    "max_sample_gap_seconds": 0.0779999999795109,
+    "limitation": "First/last frame observations bound visibility; not an instrumented exact creation timestamp."
+  },
+  "error": null,
+  "restored_settings": true,
+  "restore_errors": [],
+  "capture_total_bytes": 0,
+  "dirty_after": []
+}

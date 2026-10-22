@@ -46,6 +46,15 @@ void AMCToothCharacter::InitializeCameraOrbit()
     bManualCameraOrbit=true; bMouthCameraInitialized=true;
 }
 
+void AMCToothCharacter::SetCameraOrbitView(float Yaw,float Pitch,float Distance)
+{
+    if(!FMath::IsFinite(Yaw) || !FMath::IsFinite(Pitch) || !FMath::IsFinite(Distance)) return;
+    CameraOrbitYaw=FRotator::NormalizeAxis(Yaw);
+    CameraOrbitPitch=FMath::Clamp(Pitch,-85.f,85.f);
+    CameraOrbitDistance=FMath::Clamp(Distance,250.f,1600.f);
+    bManualCameraOrbit=true;bMouthCameraInitialized=false;
+}
+
 void AMCToothCharacter::ApplyCameraOrbitInput(FVector2D Delta)
 {
     const auto* PC=Cast<APlayerController>(GetController());

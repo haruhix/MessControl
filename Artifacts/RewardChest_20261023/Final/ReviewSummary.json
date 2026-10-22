@@ -1,0 +1,16 @@
+{
+  "capture": "ChestSolo05",
+  "source_report_sha256": "9e1052f714883874d44510f49bd1a56f60fa38d4578695772256c9cde6588fa9",
+  "cleanup_sha256": "b8d6f21c35c008ab51247c37600ba201f9dee4955f73bbdbde571719659f63e5",
+  "material_audit_sha256": "535efab5462d1809a8ffe1dfc5f272fd6d7d86e987743f5d5cdc6553b2b4cb41",
+  "material_package_sha256": "3712319e538346b58e7b395893e7e7b3c0da60469f3721673fee50c24001f546",
+  "capture_cap_game_hz": 24.0,
+  "capture_cap_wall_hz": 12.0,
+  "observed_median_game_interval_seconds": 0.05000000260770321,
+  "observed_median_game_hz": 19.99999895691877,
+  "output_frame_rate_explanation": "30 fps presentation repeats native captured images; no 30 fps native-render claim or interpolation.",
+  "native_assertions_passed": 15,
+  "material_comparison_enabled": false,
+  "fixtures": "Two disclosed ownerless review fixtures; no natural portion completion or director forcing.",
+  "visual_review": "Root reviewed gold stars, no black quads, visible squash. Accepted as bounded functional VFX for user review; no AAA quality claim. User art approval remains pending."
+}

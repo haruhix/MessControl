@@ -1,0 +1,135 @@
+{
+  "native_report": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\Report.json",
+  "native_report_sha256": "6924bb66493784c3a6d28ee58c7f37d95025c324f2ef2a00fa6eb60120d9d783",
+  "copied_solo_report_sha256": "6924bb66493784c3a6d28ee58c7f37d95025c324f2ef2a00fa6eb60120d9d783",
+  "native_passed": true,
+  "owned_pie_stopped": true,
+  "original_appearance_preferences_restored": true,
+  "original_config_bytes_restored": true,
+  "requested_capture_hz": 8.0,
+  "timing": "Actual game-time intervals, 30 fps repeated-frame presentation; no interpolation or speed-up.",
+  "quality_review": "Root confirmed actual palette/body/bag visibility before encoding. New contact sheets await root review.",
+  "no_network_or_packaged_game_validation": true,
+  "no_fps_benchmark": true,
+  "windows": {
+    "WardrobePalette": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\HubWardrobeShop_20261023\\Final\\WardrobePalette.mp4",
+      "video_sha256": "0af7395d4b4c57b2f9bd956abedbd26be9fd3aca13f04c36bf9925276d7c1f6c",
+      "width": 1280,
+      "height": 720,
+      "video_codec": "h264",
+      "full_decode": "PASS",
+      "native_frame_count": 94,
+      "source_png_sequence_hash": "0cb2bc88c3611e1a0a1af965c896e8de5660b2f822a267382fa63cca79f611ab",
+      "source_start_game_seconds": 3.7282929085195065,
+      "source_end_game_seconds": 18.582296293228865,
+      "target_presentation_duration_seconds": 15.004353389143944,
+      "encoded_duration_seconds": 15.0,
+      "duration_error_seconds": -0.004353389143943787,
+      "duration_within_one_30fps_frame": true,
+      "encoded_frame_count": 450,
+      "final_native_image_hold_seconds": 0.15035000443458557,
+      "observed_median_game_capture_hz": 6.651147126737073,
+      "contact_sheet": "E:\\DEVGAME\\MessControl\\Artifacts\\HubWardrobeShop_20261023\\Final\\WardrobePalette_ContactSheet.png",
+      "contact_sheet_sha256": "9615982b8b5c620bb32e4909f628e8a67e3c698390ed080c487d10711b344d9a",
+      "contact_sheet_cells": [
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00000.png",
+          "native_sha256": "08f12b92d40326839700df410554509b488592f72305fd8101e909705b83bf8a",
+          "game_seconds": 3.7282929085195065,
+          "phase": "wardrobe_open_wait"
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00019.png",
+          "native_sha256": "a708cec0b34ffed1a023b508f24ed1cb9c5e6e4143b62f4a6b11f6f9c3f82032",
+          "game_seconds": 6.928191389888525,
+          "phase": "wardrobe_palette_preview"
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00037.png",
+          "native_sha256": "82c4a2917ec2ea09d82d9c758d754aa94dbc557e4cc616260fe45829d5ebc443",
+          "game_seconds": 9.878864359110594,
+          "phase": "wardrobe_cancelled"
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00056.png",
+          "native_sha256": "875e39c21eb911356ef93f79f72cad9e1dcf83c8ecd6012a75dbf773653f4886",
+          "game_seconds": 12.824797119945288,
+          "phase": "wardrobe_palette_commit"
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00074.png",
+          "native_sha256": "59898050bb874a838460ef3f8d65ba52f67b505288f12328224c9639586a5f8f",
+          "game_seconds": 15.628819894045591,
+          "phase": "wardrobe_applied"
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00093.png",
+          "native_sha256": "53b8c922e0cfc45c89ba181344ae6c02f9dd241cfb81f8fcea2e525d7aba1fa0",
+          "game_seconds": 18.582296293228865,
+          "phase": "wardrobe_finish_hold"
+        }
+      ]
+    },
+    "EmptyShop": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\HubWardrobeShop_20261023\\Final\\EmptyShop.mp4",
+      "video_sha256": "25d8496d332e0944ff8802172fc537b0eb6a186f5c5cf266e0fd4b7f0f14a14e",
+      "width": 1280,
+      "height": 720,
+      "video_codec": "h264",
+      "full_decode": "PASS",
+      "native_frame_count": 28,
+      "source_png_sequence_hash": "96739a7a1d2abbf00a2beb07dbe1351ff06b9e2cf5c543804bb40d4adeab3f52",
+      "source_start_game_seconds": 19.306500993669033,
+      "source_end_game_seconds": 23.38926723599434,
+      "target_presentation_duration_seconds": 4.221744440495968,
+      "encoded_duration_seconds": 4.233333,
+      "duration_error_seconds": 0.011588559504032148,
+      "duration_within_one_30fps_frame": true,
+      "encoded_frame_count": 127,
+      "final_native_image_hold_seconds": 0.13897819817066193,
+      "observed_median_game_capture_hz": 7.195373182000991,
+      "contact_sheet": "E:\\DEVGAME\\MessControl\\Artifacts\\HubWardrobeShop_20261023\\Final\\EmptyShop_ContactSheet.png",
+      "contact_sheet_sha256": "37cd90c3caca92622d509be5905c3ea0e084427b2599639d09f1c8d079dbb301",
+      "contact_sheet_cells": [
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00094.png",
+          "native_sha256": "45720e38a5be512d1b8dcf57aaacb04c86e478031b68722b17f65a414cb0a5d4",
+          "game_seconds": 19.306500993669033,
+          "phase": "shop_open_wait"
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00099.png",
+          "native_sha256": "56c9721c393301ed46d511f0b6a976f224cd5c76d200e83d667625c352f709d0",
+          "game_seconds": 20.285228483378887,
+          "phase": "shop_hold"
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00105.png",
+          "native_sha256": "ddc61c6aef60e14a0d3bcaa989b5cf00917c89af6fa080dc414c6b38e8fb7039",
+          "game_seconds": 21.115161783993244,
+          "phase": "shop_hold"
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00110.png",
+          "native_sha256": "3ccc1358d6326d4ba9da8ef755c3779743ce1f92628548bb3a1aed3d957f1ec8",
+          "game_seconds": 21.826338566839695,
+          "phase": "shop_hold"
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00116.png",
+          "native_sha256": "fa4761b7809f17e5e3d1332e221a5a664687ac3e980db46d7e657d37973a14ba",
+          "game_seconds": 22.629801146686077,
+          "phase": "shop_escape_wait"
+        },
+        {
+          "file": "E:\\CodexWork\\HubWardrobeRewards_20261022\\WardrobeShopSolo07\\frames\\00121.png",
+          "native_sha256": "04ba4c2cdbc8a1cd99b68a62d409fda6249cb024363da368f02ff0136af1e1ee",
+          "game_seconds": 23.38926723599434,
+          "phase": "shop_movement_restored"
+        }
+      ]
+    }
+  },
+  "media_manifest_sha256": "0772ff756b62a07759357d114cce426341d3832e9aa5f3a5e8a577b979ed6234"
+}

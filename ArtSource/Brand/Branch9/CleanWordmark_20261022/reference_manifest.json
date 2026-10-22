@@ -1,0 +1,31 @@
+{
+  "source": "Reference_Original.png",
+  "source_sha256": "dcffd5038af4c2191359879e4a4e74ee80e7bcb81c163c364b2857ff37d272c2",
+  "role": "Unmodified user-supplied reference; local N edge cleanup/red-9 revision is recorded separately",
+  "source_size": [
+    1672,
+    941
+  ],
+  "expected_glyphs": [
+    "B",
+    "R",
+    "A",
+    "N",
+    "C",
+    "H",
+    "9"
+  ],
+  "target_canvas": [
+    2048,
+    768
+  ],
+  "target_mark_width": 1840.0,
+  "uniform_scaling": true,
+  "gates": {
+    "exact_source_copy": true,
+    "glyph_count": 7,
+    "source_cleanup_silhouette_iou": 1.0,
+    "source_roundtrip_iou_min": 0.995,
+    "svg_silhouette_iou_min": 0.995
+  }
+}

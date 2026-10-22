@@ -1,5 +1,31 @@
 # Branch9 studio mark
 
+**Current runtime ident, 2026-10-22:** the user's new clean geometric BRANCH9
+wordmark supersedes the earlier branch/leaf designs. Source, traced SVG,
+independent glyph atlas and a reproducible builder are in
+`CleanWordmark_20261022/`. The saved `WBP_StudioSplash` now references
+`/Game/Gameplay/UI/Brand/Branch9Clean` and its kinetic UI material. Seven
+source-derived glyphs assemble in sequence, the 9 finishes with a small angled
+settle, and the exact full source holds motionless before a stationary fade.
+Duration remains three seconds. Old branch/leaf layers have explicit blank
+texture overrides so native fallback loading cannot reintroduce them.
+
+Current user revision: the original A-over-N motif, diagonal separator and
+letter positions are restored. Only N's visible upper outer edge is made
+vertical; the diagonal cut beneath A remains part of the original motif.
+A/N enter together during the motion. The 9 is red (`#E32636`) in static art
+and motion. Current evidence is in
+`Artifacts/Branch9CleanIntro_20261022/ANOverlap_Red9`. The separate full N in
+`VerticalN_Red9` was rejected because it changed the interlocking wordmark.
+
+Actual 1080p/60fps UMG renders, a 30fps encode and a contact sheet are in
+`Artifacts/Branch9CleanIntro_20261022`. A short ordinary solo PIE startup
+observed the new saved assets for 3.00 seconds and completed the native
+loading/menu handoff. C++ rebuild, cook/package, sound design and GPU profiling
+were not performed. Motion is awaiting the user's visual feedback; source
+silhouettes and kerning were checked against the supplied image. The older
+notes below describe superseded artwork, not the current runtime ident.
+
 **Current fidelity status, 2026-10-21:** the user rejected the geometric V2 interpretation below because it differs from the supplied mark. The source-matched replacement is in `ReferenceMatch_v3/`: it preserves the reference silhouette, including the large descending 9, irregular letter edges and curved branch. Root reviewed `validation/Original_Old_New.png` and `validation/front_overlay_reference.png`. `Branch9_2048x768.svg` contains traced paths; `Branch9_ExactAlpha_Source.png` retains the screenshot half-tones. The source is only 485×227, so this is not a recovered high-resolution master.
 
 The top-level V2 PNGs and SVG remain the legacy inputs currently used by the existing intro studies/runtime packages. **V3 has not been imported into Unreal and the intro animation has not been updated.** Do not describe the legacy V2 mark as source-faithful or user-approved. The historical “approved V2” statements below refer only to the earlier internal review. Do not run `BuildBranch9.py` to overwrite V3: it reconstructs the superseded geometric design. V3 is reproduced by `ReferenceMatch_v3/BuildReferenceMatch.py`.

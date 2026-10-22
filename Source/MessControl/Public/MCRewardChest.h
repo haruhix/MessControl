@@ -16,6 +16,8 @@ class AMCRewardDropZone;
 class AMCPerkPickup;
 class AMCToothCharacter;
 class UMCPerkComponent;
+class UMaterialInstanceDynamic;
+class UMaterialInterface;
 
 UENUM(BlueprintType)
 enum class EMCRewardSelectionPolicy : uint8 { ChooseOne, CollectAll };
@@ -38,6 +40,7 @@ public:
     void InitializeReward(FVector Landing,FVector Start,int32 Seed,UDataTable* Table,
         EMCRewardSelectionPolicy Policy,AMCRewardDropZone* Zone);
     /** Authored stage reward: one shared immediate booster, never a mimic or a personal perk. */
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Rewards")
     void InitializeTeamStageReward(FVector Landing,FVector Start,int32 Seed,UDataTable* Table,AMCRewardDropZone* Zone);
     UPROPERTY(ReplicatedUsing=RefreshPresentation,BlueprintReadOnly,Category="Rewards") bool bTeamStageBooster=false;
     FVector GetPlacementHalfExtent() const;
@@ -74,16 +77,22 @@ public:
     bool TryClaim(AMCPerkPickup* Pickup,AMCToothCharacter* Player);
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Rewards") void ResetPlacedReward();
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<USceneComponent> Scene;
+    /** Grounded cosmetic deformation; gameplay collision remains on RewardRoot. */
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Rewards|Presentation") TObjectPtr<USceneComponent> PresentationPivot;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UBoxComponent> Solid;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Body;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<USceneComponent> LidPivot;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Lid;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Telegraph;
+    /** Explicit authored surface survives native/BP component-template reconstruction. Null preserves existing materials. */
+    UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rewards|Presentation") TObjectPtr<UMaterialInterface> SurfaceMaterialOverride;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> MimicMouth;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UInstancedStaticMeshComponent> MimicLowerTeeth;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UInstancedStaticMeshComponent> MimicUpperTeeth;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<USphereComponent> Approach;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UTextRenderComponent> RogueLabel;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Rewards|Presentation") TObjectPtr<UStaticMeshComponent> ClaimRing;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Rewards|Presentation") TObjectPtr<UInstancedStaticMeshComponent> ClaimSparks;
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards",meta=(ClampMin="0.05",ClampMax="2")) float ModelScale=.35f;
     /** Lid seating adjustment in mesh units, applied before ModelScale. */
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rewards") float LidSeatOffset=0.f;
@@ -121,6 +130,10 @@ private:
     void ConfigureGeometry();
     void CacheRewardEffectsVisibility();
     void UpdateRewardEffectsVisibility(bool Suppressed);
+    void UpdateArrivalPresentation(float Age);
+    void UpdateClaimPresentation(float Age);
+    void UpdateSparkPresentation(float Progress,float Opacity,float Width,bool bTouchdown);
+    void ResetPresentationDeformation();
     void PollApproach();
     void ReleaseOpener();
     void CancelOpening();
@@ -151,5 +164,9 @@ private:
     UPROPERTY(Replicated) FVector CapturedEntryLocation=FVector::ZeroVector;
     FVector BodyRestLocation=FVector::ZeroVector,LidRestLocation=FVector::ZeroVector;
     FVector BodyRestScale=FVector::OneVector;
+    double LandingPresentationStartedAt=-1.;
+    EMCRewardChestStage LastPresentationStage=EMCRewardChestStage::Telegraph;
+    UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> ClaimRingMaterial;
+    UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> ClaimSparkMaterial;
     TMap<TWeakObjectPtr<USceneComponent>,bool> RewardEffectsVisibility;
 };
