@@ -1,0 +1,49 @@
+{
+  "source_identity_revision": 2,
+  "kind": "Offline source-layer compositing studies; not Unreal runtime footage",
+  "output": {
+    "resolution": [1920, 1080],
+    "logo_canvas": [1440, 540],
+    "fps": 60,
+    "frames": 180,
+    "duration_seconds": 3.0,
+    "audio": false,
+    "background": "#060708"
+  },
+  "easing": {
+    "E(v)": "1-(1-clamp(v,0,1))^3",
+    "S(v)": "clamp(v,0,1)^2 * (3-2*clamp(v,0,1))"
+  },
+  "A": {
+    "name": "WordThenBranch",
+    "file": "01_Branch9_WordThenBranch.mp4",
+    "word": "left-to-right wipe E((t-.10)/.42), 51px soft edge",
+    "branch": "left-to-right wipe E((t-.29)/.36),33px soft edge; offset(-12,+4.5)*(1-E((t-.29)/.42))px",
+    "leaves": "opacity S((t-.43)/.30), rotation1.6*(1-E((t-.43)/.42))degrees about(.66,.52)",
+    "whole_mark": "uniform scale1+.012*(1-E((t-.10)/.58)); exitopacity1-S((t-2.61)/.37), exitX27*S((t-2.61)/.37)px",
+    "static_reading_hold": [0.85, 2.61],
+    "integration": "Matches the approved editable native timeline; optional velocity echo omitted"
+  },
+  "B": {
+    "name": "BranchLeads",
+    "file": "02_Branch9_BranchLeads.mp4",
+    "word": "left-to-right wipe E((t-.34)/.52),42px soft edge; rigid vertical offset13.5*(1-E((t-.34)/.54))px",
+    "branch": "left-to-right wipe E((t-.08)/.36),25px soft edge, visible alone before the word",
+    "leaves": "opacity S((t-.29)/.27), no rotation",
+    "whole_mark": "scale1; exitopacity1-S((t-2.61)/.37), exitX-18*S((t-2.61)/.37)px",
+    "static_reading_hold": [0.98, 2.61],
+    "integration": "Alternative ordering and transforms; not currently the native runtime default"
+  },
+  "C": {
+    "name": "GraphicCut",
+    "file": "03_Branch9_GraphicCut.mp4",
+    "word": "diagonal band mask S((420*E((t-.16)/.16)-abs(y-(-.393*x+600.5)))/16), opacityS((t-.15)/.10)",
+    "branch": "one quick left-to-right wipe E((t-.07)/.20),14px soft edge",
+    "leaves": "opacity S((t-.23)/.12), no rotation",
+    "whole_mark": "stationary scale1; exitopacity1-S((t-2.84)/.13)",
+    "static_reading_hold": [0.40, 2.68],
+    "integration": "Alternative diagonal opening mask, fastest resolution; not currently the native runtime default"
+  },
+  "approval": "All three require root visual review before user delivery",
+  "validation": "Each source hold is byte-identical. Real H264 decoded holds, full decode, dimensions, frame count, duration and no-audio stream are checked by BuildIntroVariants.py. Per-variant validation lives in the E: task workspace."
+}

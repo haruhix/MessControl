@@ -21,6 +21,7 @@ bool UMCValidationSubsystem::IsTickableWhenPaused() const
 #include "MCMainMenuWidget.h"
 #include "MCEmoteWidget.h"
 #include "MCPerkChoiceWidget.h"
+#include "MCRewardChest.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -40,6 +41,8 @@ void MCTickGamepadValidation(UWorld* World)
         float Yaw=0,Pitch=0;
         FVector Start=FVector::ZeroVector;
         FName Chosen;
+        TWeakObjectPtr<AMCRewardChest> Chest;
+        TArray<FName> ChestCards;
     };
     static FRun R;
     const double Now=FPlatformTime::Seconds();
@@ -147,17 +150,28 @@ void MCTickGamepadValidation(UWorld* World)
         UIKey(EKeys::Gamepad_FaceButton_Right);Advance(13);
     } else if(R.Stage==13 && Now-R.At>.2) {
         if(PC->EmoteWidget->IsVisible() || PC->IsMoveInputIgnored()) {Finish(false,TEXT("B returns to gameplay"));return;}
-        PS->QueueChoicesThroughLevel(2);PC->RefreshLevelPerkChoices();Advance(14);
+        // Isolate gamepad presentation/selection of an actual authoritative
+        // chest. Placement/approach/lockpicking are covered by chest checks;
+        // no retired XP queue may manufacture the reward panel.
+        const FVector At=Hero->GetActorLocation()+FVector(150,0,0);
+        auto* Chest=World->SpawnActor<AMCRewardChest>(At,FRotator::ZeroRotator);
+        if(!Chest || !PS->Perks->BuildRogueOffer(EMCPerkPolarity::Positive,41,R.ChestCards)) {Finish(false,TEXT("chest fixture offer"));return;}
+        Chest->InitializeReward(At,At,41,PS->Perks->GetPerkTable(),EMCRewardSelectionPolicy::ChooseOne,nullptr);
+        Chest->ForceMimicForTest(false);Chest->LootIDs=R.ChestCards;Chest->OpeningPlayer=Hero;
+        Hero->RewardInteraction=Chest;Chest->Stage=EMCRewardChestStage::Open;R.Chest=Chest;
+        PC->ClientShowPerkChoices(Chest,R.ChestCards,EMCPerkPolarity::Positive);Advance(14);
     } else if(R.Stage==14 && Now-R.At>.2) {
         if(!PC->IsRewardMenuOpen()) {Finish(false,TEXT("reward panel"));return;}
         UIKey(EKeys::Gamepad_FaceButton_Top);Advance(15);
     } else if(R.Stage==15 && Now-R.At>.2) {
-        if(!PS->bRogueRerollSpent || !PS->LevelUpOffer.PerkIDs.IsValidIndex(1)) {Finish(false,TEXT("Y reroll"));return;}
-        R.Chosen=PS->LevelUpOffer.PerkIDs[1];R.StackBefore=PS->Perks->GetStacks(R.Chosen);
+        if(!R.Chest.IsValid() || R.Chest->LootIDs!=R.ChestCards || PS->bRogueRerollSpent
+            || PS->LevelUpOffer.IsValid() || !PC->IsRewardMenuOpen()) {Finish(false,TEXT("Y cannot invoke removed level reroll on chest cards"));return;}
+        R.Chosen=R.ChestCards[1];R.StackBefore=PS->Perks->GetStacks(R.Chosen);
         UIKey(EKeys::Gamepad_DPad_Right);UIKey(EKeys::Gamepad_FaceButton_Bottom);Advance(16);
     } else if(R.Stage==16 && Now-R.At>.25) {
-        const bool Pass=PS->PersonalChoicesTaken==1 && PS->PendingLevelChoices==0 && PS->Perks->GetStacks(R.Chosen)>R.StackBefore && !PC->IsRewardMenuOpen();
-        Finish(Pass,TEXT("movement, camera, dead zone, tools, RT, LT, booster, pause, emotes, reward reroll and choice"));
+        const bool Pass=R.Chest.IsValid() && R.Chest->ClaimedMask==7 && R.Chest->Stage==EMCRewardChestStage::Exhausted
+            && PS->PendingLevelChoices==0 && PS->Perks->GetStacks(R.Chosen)>R.StackBefore && !PC->IsRewardMenuOpen();
+        Finish(Pass,TEXT("movement, camera, dead zone, tools, RT, LT, booster, pause, emotes, physical chest choice without XP/reroll"));
     }
 }
 #endif

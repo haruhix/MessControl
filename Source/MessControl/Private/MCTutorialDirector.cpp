@@ -477,7 +477,7 @@ void AMCTutorialDirector::EnterStage(EMCTutorialStage NewStage)
         if(Stage==EMCTutorialStage::ToothpickPull) Title=LOCTEXT("ShortToothpickPullTitle","04 · ЗУБОЧИСТКА В ЯЗЫКЕ");
         if(Stage==EMCTutorialStage::ToothpickBreak) Title=LOCTEXT("ShortToothpickBreakTitle","05 · СЛОМАТЬ ЗУБОЧИСТКУ");
         if(Stage==EMCTutorialStage::ToothpickHeal) Title=LOCTEXT("ShortToothpickHealTitle","06 · ВЫЛЕЧИТЬ РАНУ");
-        if(Stage==EMCTutorialStage::Complete) {FairyLine=LOCTEXT("ShortCompleteFairy","Обучение пройдено! Переходим на основную карту: там каждый выберет первый перк.");Instruction=LOCTEXT("ShortCompleteHint","После готовности команды загрузится основная карта.");}
+        if(Stage==EMCTutorialStage::Complete) {FairyLine=LOCTEXT("ShortCompleteFairy","Обучение пройдено! Переходим на основную карту. Награды ждут в сундуках за выполненные этапы.");Instruction=LOCTEXT("ShortCompleteHint","После готовности команды загрузится основная карта.");}
     }
     DefaultFairyLine=FairyLine; EnsureLessonTargets(); OnRep_Presentation(); ForceNetUpdate();
     UE_LOG(LogTemp,Display,TEXT("MC_TUTORIAL_STAGE %d %s"),static_cast<int32>(Stage),*Title.ToString());

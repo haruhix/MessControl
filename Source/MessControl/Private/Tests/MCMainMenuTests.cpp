@@ -149,14 +149,14 @@ bool FMCMainMenuNavigation::RunTest(const FString&)
     FMenuWorld Test;
     UMCMainMenuWidget* Menu=Test.NewMenu();
     if (!TestNotNull(TEXT("Production native menu initializes"),Menu) || !TestNotNull(TEXT("Native menu builds its widget tree"),Menu->WidgetTree->RootWidget.Get())) return false;
-    for (const TCHAR* Label:{TEXT("Tutorial"),TEXT("Create Lobby"),TEXT("Join Lobby"),TEXT("Settings"),TEXT("Credits"),TEXT("Exit")})
+    for (const TCHAR* Label:{TEXT("Tutorial"),TEXT("Play"),TEXT("Join Lobby"),TEXT("Settings"),TEXT("Credits"),TEXT("Exit")})
         TestTrue(*FString::Printf(TEXT("Main menu exposes %s"),Label),HasText(Menu,Label));
 
     Menu->HandleAction(EMCMainMenuAction::Settings);
     TestTrue(TEXT("Settings exposes a real apply action"),HasAction(Menu,EMCMainMenuAction::ApplySettings));
     TestFalse(TEXT("Settings does not retain main menu actions"),HasText(Menu,TEXT("Tutorial")));
     Menu->HandleAction(EMCMainMenuAction::Back);
-    TestTrue(TEXT("Settings Back returns to the main menu"),HasText(Menu,TEXT("Create Lobby")));
+    TestTrue(TEXT("Settings Back returns to the main menu"),HasText(Menu,TEXT("Play")));
     Menu->HandleAction(EMCMainMenuAction::Credits);
     TestTrue(TEXT("Credits page opens"),HasText(Menu,TEXT("CREDITS")));
     Menu->HandleAction(EMCMainMenuAction::Back);
@@ -168,6 +168,17 @@ bool FMCMainMenuNavigation::RunTest(const FString&)
     TestEqual(TEXT("Tutorial launches the dedicated tutorial map"),Tutorial.Map,FString(TEXT("/Game/Maps/L_Tutorial")));
     TestTrue(TEXT("Tutorial explicitly opts in"),Tutorial.HasOption(TEXT("MCTutorial=1")));
     TestFalse(TEXT("Tutorial launch remains standalone"),Tutorial.HasOption(TEXT("listen")));
+    Context.TravelURL.Reset();
+    Menu->HandleAction(EMCMainMenuAction::CreateLobby);
+    FURL Play(nullptr,*Context.TravelURL,TRAVEL_Absolute);
+    TestEqual(TEXT("Play directly loads the shared Hub without an intermediate page"),Play.Map,FString(TEXT("/Game/Maps/Hub")));
+    TestTrue(TEXT("Play creates a local listen Hub for incoming players"),Play.HasOption(TEXT("listen")));
+    TestEqual(TEXT("Play selects the isolated Hub mode"),FString(Play.GetOption(TEXT("game="),TEXT(""))),FString(TEXT("/Script/MessControl.MCHubGameMode")));
+    TestTrue(TEXT("Play does not open the former host page"),HasText(Menu,TEXT("Play")));
+    const FString PendingHub=Context.TravelURL;
+    TestFalse(TEXT("A second Play cannot schedule another Hub/session during the pending travel tick"),UMCMainMenuWidget::PlayToHub(Menu));
+    TestEqual(TEXT("A duplicate click preserves the first queued destination"),Context.TravelURL,PendingHub);
+    TestFalse(TEXT("A null world context never starts a room"),UMCMainMenuWidget::PlayToHub(nullptr));
     Context.TravelURL.Reset();
     Menu->HandleAction(EMCMainMenuAction::Host);
     FURL Host(nullptr,*Context.TravelURL,TRAVEL_Absolute);

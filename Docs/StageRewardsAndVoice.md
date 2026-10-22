@@ -10,7 +10,7 @@ or a multiplayer session.
 capsule. The initial spawn checks the tongue and the whole capsule corridor;
 low ceilings shorten the drop. A replicated hold, also reapplied after client
 restart, prevents the drop from finishing behind loading. The existing team
-loading/first-perk barrier releases it. Tutorial readiness is independent of the
+loading/team-readiness barrier releases it. Tutorial readiness is independent of the
 ordinary day director's Training stage. Tooth-reserve respawns retain their
 existing 30 cm settling clearance.
 
@@ -33,8 +33,8 @@ waits until this reward resolves. Completion IDs prevent duplicate rewards.
 Occupied landing positions retry instead of silently losing the chest.
 
 The first eligible nearby human opens the existing three-card interface.
-Outstanding personal level choices retain priority. The choice uses the existing
-pause lease and retained carried-food path. Disconnection releases the opener.
+The choice uses the existing pause lease and retained carried-food path.
+Disconnection releases the opener.
 All-bot diagnostic sessions resolve a choice without inventing a human RPC;
 bots cannot take the choice away from a participating human, including a dead
 human waiting to recover.
@@ -81,6 +81,10 @@ catalog migration, with Russian and English entries.
 
 ## Validation performed on 2026-10-21
 
+The receipts below describe revision `531073620`, before the subsequent removal
+of XP and the free starting perk. They do not validate the pending chest-only
+and bot delivery changes described below.
+
 The approved MessControlEditor build succeeded. All 47 focused native checks
 passed: spawn clearance/hold/tutorial release, knight pressure/shield stun and
 animation timing, shared chest claims/effects and sequence continuation, and
@@ -107,3 +111,57 @@ No multiplayer, microphone capture, cook or packaging test was run. Real Steam
 voice transmission, the overhead indicator with actual speech, peer muting and
 travel require a separately authorized multiplayer check. Physical input rebinding
 and the optional local microphone test also remain unverified.
+
+## Chest-only rewards and bot delivery update
+
+Experience and team level progression are disabled, including task/food/event
+XP and the initial perk award. A loaded team enters the opening meal pause
+directly. The XP HUD and obsolete tutorial hints are removed. Saved Blueprint
+component/property identities remain compatible; legacy XP/choice calls cannot
+create offers, grant a perk or pause gameplay. Old level offers are discarded
+on synchronization/reconnect while existing chest perks are preserved. Task
+contribution points are separate from XP and retain their scoreboard behavior.
+XP-only perk modifiers are excluded from chest offers. Completed chest choices
+now advance the optional reward pool's early-run history, so future contract
+and risky chests no longer depend on earning removed levels.
+
+Bots batch nearby fragments within their carry limit (normally six), with
+a bounded pickup window and a short last-piece fallback. A delivery keeps its
+selected stance while unloading. Separate lateral lanes and 210 cm stance
+reservations reduce crowding. Stance selection validates a complete path and
+predicts the tower's rotated launch pose; the final Q uses the same trajectory
+and physical food as a human throw. Successful detachment, rather than an
+attempted input, advances delivery progress. Human throwing, capacity and throat
+geometry are unchanged.
+
+Source/static validation is separate from gameplay validation. New focused
+tests cover retired XP/starting offers, retained chest pause behavior, hidden
+legacy XP widgets, full towers and partial last batches. The full-tower fixture
+starts at a supported throw stance; navigation on the saved arena requires a
+separate short solo check. Editor rebuild, revised localization DataTable save
+and those gameplay checks were approved and performed. The Editor build passed
+after correcting two C++ pointer deductions in the new code/tests. All 63 focused
+native tests passed (57 namespace-filtered tests plus six separately selected
+leaf tests; the initial filter omitted those six, without any test failure).
+The localization DataTable was validated and saved with only eight revised rows.
+
+The first natural saved-arena solo run passed all eight checks: no starting
+perk or XP, three ordinary AI teammates, real pickup, Q release, throat intake
+and movement. Observed towers reached 5/3/4 pieces; 13 accepted manual throws
+produced 13 swallowed fragments. After cleanup, the first stage chest naturally
+landed. The stationary human did not approach or claim that chest; actual claims
+and retained food are covered by the focused native tests. A six-piece tower
+and the final two-piece batch passed the separate physical intake fixtures.
+The latest solo Editor process exited normally and restored its settings.
+
+The first video framing did not show the throat well enough. A second short
+capture with ordinary player-camera input is retained separately from the first
+run; its own report is authoritative for the delivered preview. No full-level,
+multiplayer or packaged-game validation is implied.
+
+The second run also passed all eight solo checks and exited normally: 13 real
+manual throws and 13 swallowed fragments, with natural tower maxima 5/1/3.
+Both natural runs reached the first landed chest without a free starting perk
+or XP. The delivered 16.4-second video and receipts are in
+`Artifacts/ChestOnlyBots_20261021/Preview.md`; the root reviewed its contact sheet
+and confirmed that the revised camera shows the throat and airborne food.

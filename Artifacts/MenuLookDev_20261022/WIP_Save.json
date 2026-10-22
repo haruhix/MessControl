@@ -1,0 +1,331 @@
+{
+  "status": "WIP_saved",
+  "look": "Round2/B_NarrowReflection",
+  "changed_existing_files": [
+    "Content\\UI\\MenuShowcase\\AnatomyV2\\L_MenuAnatomyV2.umap",
+    "Content\\UI\\MenuShowcase\\AnatomyV2\\Materials\\MI_MenuHeroBody.uasset",
+    "Content\\UI\\MenuShowcase\\AnatomyV2\\Materials\\M_MenuCoffeeEnamel.uasset"
+  ],
+  "dirty_packages": [],
+  "actor_transforms_unchanged": true,
+  "scope": "Private menu preview materials, light values/channels and camera postprocess. Startup routing unchanged.",
+  "validation": "Two rounds of same-pose native solo PIE PNGs; material graph compilation passed. Saved-look reload, motion polish, build/package and multiplayer checks pending.",
+  "remaining": "About6-6.5/10 subjective reference correspondence; face/hand geometry and final light/material polish remain work in progress.",
+  "profile": {
+    "camera_pp": {
+      "override_auto_exposure_bias": true,
+      "auto_exposure_bias": -0.5,
+      "override_color_saturation": true,
+      "color_saturation": {
+        "type": "Vector4",
+        "value": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "override_color_contrast": true,
+      "color_contrast": {
+        "type": "Vector4",
+        "value": [
+          1.04,
+          1.04,
+          1.04,
+          1.0
+        ]
+      },
+      "override_color_gain_shadows": true,
+      "color_gain_shadows": {
+        "type": "Vector4",
+        "value": [
+          0.96,
+          0.99,
+          1.04,
+          1.0
+        ]
+      },
+      "override_color_gain_midtones": true,
+      "color_gain_midtones": {
+        "type": "Vector4",
+        "value": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "override_color_gain_highlights": true,
+      "color_gain_highlights": {
+        "type": "Vector4",
+        "value": [
+          1.0,
+          1.0,
+          0.99,
+          1.0
+        ]
+      },
+      "override_color_saturation_shadows": true,
+      "color_saturation_shadows": {
+        "type": "Vector4",
+        "value": [
+          0.84,
+          0.84,
+          0.84,
+          1.0
+        ]
+      },
+      "override_ambient_occlusion_intensity": true,
+      "ambient_occlusion_intensity": 0.3199999928474426,
+      "override_ambient_occlusion_radius": true,
+      "ambient_occlusion_radius": 12.0,
+      "override_ambient_occlusion_power": true,
+      "ambient_occlusion_power": 1.0,
+      "override_bloom_intensity": true,
+      "bloom_intensity": 0.11999999731779099,
+      "override_bloom_threshold": true,
+      "bloom_threshold": 1.5,
+      "override_vignette_intensity": true,
+      "vignette_intensity": 0.18000000715255737,
+      "override_film_slope": false,
+      "film_slope": 0.8799999952316284,
+      "override_film_toe": false,
+      "film_toe": 0.550000011920929,
+      "override_film_shoulder": false,
+      "film_shoulder": 0.25999999046325684,
+      "override_white_temp": false,
+      "white_temp": 6500.0,
+      "override_white_tint": false,
+      "white_tint": 0.0,
+      "override_depth_of_field_focal_distance": true,
+      "depth_of_field_focal_distance": 435.0,
+      "override_depth_of_field_fstop": true,
+      "depth_of_field_fstop": 1.600000023841858,
+      "override_depth_of_field_sensor_width": true,
+      "depth_of_field_sensor_width": 100.0
+    },
+    "lights": {
+      "MENU V2 | soft ambient": {
+        "intensity": 0.12999999523162842,
+        "light_color": {
+          "type": "Color",
+          "value": [
+            229,
+            240,
+            255,
+            255
+          ]
+        },
+        "cast_shadows": false
+      },
+      "MENU V2 | Warm entrance": {
+        "intensity": 0.8500000238418579,
+        "light_color": {
+          "type": "Color",
+          "value": [
+            204,
+            217,
+            237,
+            255
+          ]
+        },
+        "source_radius": 65.0,
+        "soft_source_radius": 30.0,
+        "specular_scale": 0.05999999865889549,
+        "diffuse_scale": 1.0,
+        "cast_shadows": false,
+        "lighting_channels": {
+          "type": "LightingChannels",
+          "value": [
+            true,
+            false,
+            false
+          ]
+        }
+      },
+      "MENU V2 | Cream key": {
+        "intensity": 0.4000000059604645,
+        "light_color": {
+          "type": "Color",
+          "value": [
+            255,
+            230,
+            219,
+            255
+          ]
+        },
+        "source_radius": 55.0,
+        "soft_source_radius": 25.0,
+        "specular_scale": 0.05999999865889549,
+        "diffuse_scale": 1.0,
+        "cast_shadows": false,
+        "lighting_channels": {
+          "type": "LightingChannels",
+          "value": [
+            true,
+            false,
+            false
+          ]
+        }
+      },
+      "MENU V2 | Throat depth": {
+        "intensity": 3.299999952316284,
+        "light_color": {
+          "type": "Color",
+          "value": [
+            230,
+            219,
+            235,
+            255
+          ]
+        },
+        "source_radius": 60.0,
+        "soft_source_radius": 25.0,
+        "specular_scale": 0.0,
+        "diffuse_scale": 1.0,
+        "cast_shadows": false,
+        "lighting_channels": {
+          "type": "LightingChannels",
+          "value": [
+            true,
+            false,
+            false
+          ]
+        }
+      },
+      "MENU V2 | Mint edge": {
+        "intensity": 0.20000000298023224,
+        "light_color": {
+          "type": "Color",
+          "value": [
+            143,
+            199,
+            214,
+            255
+          ]
+        },
+        "source_radius": 35.0,
+        "soft_source_radius": 15.0,
+        "specular_scale": 0.07999999821186066,
+        "diffuse_scale": 1.0,
+        "cast_shadows": false,
+        "lighting_channels": {
+          "type": "LightingChannels",
+          "value": [
+            true,
+            false,
+            false
+          ]
+        }
+      },
+      "MENU V2 | Directed cream key": {
+        "intensity": 8.5,
+        "light_color": {
+          "type": "Color",
+          "value": [
+            255,
+            245,
+            230,
+            255
+          ]
+        },
+        "source_radius": 60.0,
+        "soft_source_radius": 45.0,
+        "specular_scale": 0.550000011920929,
+        "diffuse_scale": 1.0,
+        "cast_shadows": true,
+        "lighting_channels": {
+          "type": "LightingChannels",
+          "value": [
+            true,
+            true,
+            false
+          ]
+        }
+      },
+      "MENU V2 | Mint shoulder rim": {
+        "intensity": 9.0,
+        "light_color": {
+          "type": "Color",
+          "value": [
+            255,
+            199,
+            148,
+            255
+          ]
+        },
+        "source_radius": 60.0,
+        "soft_source_radius": 45.0,
+        "specular_scale": 0.800000011920929,
+        "diffuse_scale": 1.0,
+        "cast_shadows": false,
+        "lighting_channels": {
+          "type": "LightingChannels",
+          "value": [
+            false,
+            true,
+            false
+          ]
+        }
+      },
+      "MENU V2 | Enamel reflection card": {
+        "intensity": 100.0,
+        "light_color": {
+          "type": "Color",
+          "value": [
+            255,
+            240,
+            219,
+            255
+          ]
+        },
+        "specular_scale": 0.699999988079071,
+        "diffuse_scale": 0.0,
+        "source_width": 60.0,
+        "source_height": 220.0,
+        "cast_shadows": false,
+        "lighting_channels": {
+          "type": "LightingChannels",
+          "value": [
+            false,
+            true,
+            false
+          ]
+        }
+      }
+    },
+    "hero_scalar": {
+      "Normal Strength": 0.30000001192092896,
+      "Roughness Strength": 0.44999998807907104,
+      "Spec": 0.5
+    },
+    "hero_vector": {
+      "Albedo Color": {
+        "type": "LinearColor",
+        "value": [
+          0.9800000190734863,
+          0.9700000286102295,
+          0.9399999976158142,
+          1.0
+        ]
+      }
+    },
+    "tongue_scalar": {
+      "Source Normal Strength": 0.6000000238418579,
+      "Wet Roughness": 0.3449999988079071,
+      "Wet Roughness Variation": 0.05000000074505806,
+      "Wet Dielectric Specular": 0.41999998688697815
+    },
+    "tongue_vector": {
+      "Tissue Coral": {
+        "type": "LinearColor",
+        "value": [
+          0.4300000071525574,
+          0.09000000357627869,
+          0.11500000208616257,
+          1.0
+        ]
+      }
+    }
+  }
+}

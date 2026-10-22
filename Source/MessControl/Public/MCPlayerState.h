@@ -40,13 +40,15 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Perks") TObjectPtr<UMCPerkComponent> Perks;
     void AddPoints(int32 Amount);
     void ResetMatchScore();
-    /** Queue all unclaimed team levels; repeated synchronization cannot duplicate choices. */
+    /** Count completed chest choices for the optional reward pool's early-run gate. */
+    void RecordChestRewardChoice();
+    /** Legacy entry points discard retired XP offers; only chests create rewards. */
     void QueueChoicesThroughLevel(int32 TeamLevel);
     void RefreshLevelUpOffer();
     bool TryChooseLevelUpPerk(const FGuid& OfferId,int32 ChoiceIndex);
     bool TryRerollLevelPerks(const FGuid& OfferId);
     void ResetLevelUpChoices();
-    UFUNCTION(BlueprintPure,Category="Progression") bool HasPendingLevelChoices() const { return PendingLevelChoices>0; }
+    UFUNCTION(BlueprintPure,Category="Progression") bool HasPendingLevelChoices() const { return false; }
     UPROPERTY(ReplicatedUsing=OnRep_LevelUpOffer,BlueprintReadOnly,Category="Progression") FMCLevelUpOffer LevelUpOffer;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Progression") int32 PendingLevelChoices=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Progression") int32 PersonalChoicesTaken=0;

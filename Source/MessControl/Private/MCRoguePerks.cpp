@@ -179,10 +179,9 @@ void UMCPerkComponent::NotifyFoodDelivered()
 }
 int32 UMCPerkComponent::FoodExperienceBonus(int32 Base)
 {
-    if(!HasAuthority() || Base<=0) return 0;
-    DeliveryXPResidual+=Base*(RogueValue(EMCRogueStat::DeliveryXP)-1);
-    const int32 Bonus=FMath::FloorToInt(DeliveryXPResidual+1.e-6);DeliveryXPResidual-=Bonus;return FMath::Max(0,Bonus);
+    return 0; // Saved perk definitions cannot re-enable the retired XP economy.
 }
+
 void UMCPerkComponent::TryWaterRicochet(AActor* First,float BaseDamage,FVector HitPoint)
 {
     if(!HasAuthority() || bRogueExtraHit || GetStacks(TEXT("P12"))<=0 || RogueNow(GetWorld())<NextRicochetAt) return;

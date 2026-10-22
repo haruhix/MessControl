@@ -1,0 +1,9 @@
+[
+  {"Name":"UI.MainMenu.Action.PlayHub","RU":"Играть","EN":"Play","Context":"Play immediately creates a room and enters the Hub."},
+  {"Name":"UI.MainMenu.HubFlowHint","RU":"Играть — сразу в хаб. Пригласите друзей и встаньте вместе в READY-зону, чтобы начать игру.","EN":"Play takes you straight to the Hub. Invite friends and gather in the READY zone to begin.","Context":"Native main-menu flow help."},
+  {"Name":"hub.ready.flow","RU":"Чтобы начать игру, всей командой встаньте в подсвеченную READY-зону. Затем хост нажимает Enter и выбирает локацию.","EN":"To start, everyone enters the highlighted READY zone. The host then presses Enter to choose a location.","Context":"Hub onboarding; world marker follows the editor-movable ReadyZone."},
+  {"Name":"hub.ready.waypoint","RU":"READY · {Metres} м","EN":"READY · {Metres} m","Context":"Projected or edge-clamped waypoint to the nearest active ReadyZone."},
+  {"Name":"hub.invite","RU":"ПРИГЛАСИТЬ ДРУЗЕЙ","EN":"INVITE FRIENDS","Context":"Opens the existing Steam room invitation overlay."},
+  {"Name":"hub.invite.steam","RU":"ESC — меню и приглашения · Shift+Tab — друзья Steam","EN":"ESC — menu and invites · Shift+Tab — Steam friends","Context":"Gathering HUD instruction for inviting friends from the Hub."},
+  {"Name":"hub.invite.local","RU":"Локальный хаб · друзья могут подключиться по IP","EN":"Local Hub · friends can join by IP address","Context":"Offline/editor fallback uses the same Hub without Steam."}
+]

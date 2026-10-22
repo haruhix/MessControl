@@ -60,84 +60,74 @@ struct FProgressionWorld
 };
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSharedLevelsTest,"MessControl.Progression.SharedExperienceAndIndependentChoices",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSharedLevelsTest,"MessControl.Progression.ExperienceCannotCreateRewards",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCSharedLevelsTest::RunTest(const FString& Parameters)
 {
     FProgressionWorld W;
     auto* A=W.Player(11); auto* B=W.Player(22);
-    TestFalse(TEXT("A new run has no pending choices"),W.Progression->HasPendingChoices());
-    TestEqual(TEXT("One reward crosses three thresholds"),W.Progression->AddExperience(250),3);
-    TestEqual(TEXT("The shared team level advances"),W.Progression->TeamLevel,4);
-    TestEqual(TEXT("Excess experience remains available"),W.Progression->ExperienceInLevel,int64(25));
-    TestEqual(TEXT("Total earned experience is preserved"),W.Progression->TotalExperience,int64(250));
-    TestEqual(TEXT("First player receives all three levels"),A->PendingLevelChoices,3);
-    TestEqual(TEXT("Second player independently receives all three levels"),B->PendingLevelChoices,3);
-    if (!TestTrue(TEXT("Each player receives exactly three cards"),A->LevelUpOffer.IsValid() && B->LevelUpOffer.IsValid())) return false;
-    TestTrue(TEXT("Cards in an offer are distinct"),A->LevelUpOffer.PerkIDs[0]!=A->LevelUpOffer.PerkIDs[1]
-        && A->LevelUpOffer.PerkIDs[1]!=A->LevelUpOffer.PerkIDs[2] && A->LevelUpOffer.PerkIDs[0]!=A->LevelUpOffer.PerkIDs[2]);
-    const FGuid FirstOffer=A->LevelUpOffer.OfferId;
-    const FName FirstPerk=A->LevelUpOffer.PerkIDs[0];
-    TestFalse(TEXT("Another player's offer cannot authorize a choice"),A->TryChooseLevelUpPerk(B->LevelUpOffer.OfferId,0));
-    TestFalse(TEXT("Out of range index cannot authorize a choice"),A->TryChooseLevelUpPerk(FirstOffer,3));
-    TestTrue(TEXT("The offered card grants its personal perk"),A->TryChooseLevelUpPerk(FirstOffer,0));
-    TestEqual(TEXT("The perk is granted once"),A->Perks->GetStacks(FirstPerk),1);
-    TestFalse(TEXT("A consumed offer cannot be replayed"),A->TryChooseLevelUpPerk(FirstOffer,0));
-    TestEqual(TEXT("One choice consumes one level"),A->PendingLevelChoices,2);
-    TestEqual(TEXT("A teammate's queue remains untouched"),B->PendingLevelChoices,3);
-    TestEqual(TEXT("Next offer retains the earned level order"),A->LevelUpOffer.TeamLevel,3);
-    W.Progression->SynchronizePlayer(A);
-    TestEqual(TEXT("Repeated synchronization adds no duplicate choices"),A->PendingLevelChoices,2);
-    auto* Late=W.Player(33);
-    TestEqual(TEXT("Late team join receives the earned personal choices"),Late->PendingLevelChoices,3);
-
-    auto* PC=Cast<APlayerController>(A->GetOwner());
-    auto* OldPawn=W.World->SpawnActor<APawn>(); PC->Possess(OldPawn);
-    const FGuid PendingOffer=A->LevelUpOffer.OfferId;
-    PC->UnPossess(); OldPawn->Destroy(); PC->Possess(W.World->SpawnActor<APawn>());
-    TestTrue(TEXT("Pawn replacement preserves the current personal offer"),A->LevelUpOffer.OfferId==PendingOffer);
-    TestEqual(TEXT("Pawn replacement preserves active perks"),A->Perks->GetStacks(FirstPerk),1);
-    auto* Reconnected=W.Player(44); A->CopyProperties(Reconnected);
-    W.Progression->SynchronizePlayer(Reconnected);
-    TestTrue(TEXT("PlayerState handoff preserves the authoritative offer"),Reconnected->LevelUpOffer.OfferId==PendingOffer);
-    TestEqual(TEXT("PlayerState handoff preserves unclaimed levels without duplication"),Reconnected->PendingLevelChoices,2);
-    TestEqual(TEXT("PlayerState handoff preserves already selected perks"),Reconnected->Perks->GetStacks(FirstPerk),1);
-    TestTrue(TEXT("Pending team choices gate the next event"),W.Progression->HasPendingChoices());
-    W.Progression->ResetProgression();
-    TestEqual(TEXT("Run restart clears team experience"),W.Progression->TotalExperience,int64(0));
-    TestFalse(TEXT("Run restart clears every pending choice"),W.Progression->HasPendingChoices());
-    TestFalse(TEXT("Restart invalidates outstanding offer tokens"),A->TryChooseLevelUpPerk(PendingOffer,0));
-
     auto* Bot=W.Player(55); Bot->SetIsABot(true);
-    TMap<FName,int32> BeforeBotAward;
-    for (const auto& Active:A->Perks->ActivePerks) BeforeBotAward.Add(Active.PerkID,Active.Stacks);
-    W.Progression->AddExperience(W.Progression->GetExperienceToNextLevel());
-    TestEqual(TEXT("A bot claims its first earned choice without a widget"),Bot->PendingLevelChoices,0);
-    if (!TestEqual(TEXT("A bot receives exactly one personal perk"),Bot->Perks->ActivePerks.Num(),1)) return false;
-    TestEqual(TEXT("A bot choice leaves the human's earned choice pending"),A->PendingLevelChoices,1);
-    const FGuid HumanOffer=A->LevelUpOffer.OfferId;
-    const FName BotPerk=Bot->Perks->ActivePerks[0].PerkID;
-    W.Progression->SynchronizePlayer(Bot);
-    TestTrue(TEXT("Bot synchronization preserves the human's exact offer"),A->LevelUpOffer.OfferId==HumanOffer);
-    TestEqual(TEXT("A bot's personal choice is not shared with its teammate"),A->Perks->GetStacks(BotPerk),BeforeBotAward.FindRef(BotPerk));
+    A->AddPoints(17);
+    for(int32 Amount:{-1,0,250,MAX_int32})
+        TestEqual(TEXT("Legacy XP awards never generate levels"),W.Progression->AddExperience(Amount),0);
+    TestEqual(TEXT("The compatibility level never advances"),W.Progression->TeamLevel,1);
+    TestEqual(TEXT("There is no retained level XP"),W.Progression->ExperienceInLevel,int64(0));
+    TestEqual(TEXT("There is no earned XP economy"),W.Progression->TotalExperience,int64(0));
+    TestEqual(TEXT("There is no next XP threshold"),W.Progression->GetExperienceToNextLevel(),0);
+    TestEqual(TEXT("Ordinary task score remains independent of XP"),A->Points,17);
+    for(auto* Player:{A,B,Bot}) {
+        Player->QueueChoicesThroughLevel(1000);
+        W.Progression->SynchronizePlayer(Player);
+        TestEqual(TEXT("A saved level-queue caller cannot create choices"),Player->PendingLevelChoices,0);
+        TestFalse(TEXT("A human or bot receives no automatic cards"),Player->LevelUpOffer.IsValid());
+        TestTrue(TEXT("A human or bot receives no automatic perk"),Player->Perks->ActivePerks.IsEmpty());
+    }
+    auto* Late=W.Player(33);
+    TestEqual(TEXT("Late joining cannot backfill removed level choices"),Late->PendingLevelChoices,0);
+    TestTrue(TEXT("Late joining grants no initial perk"),Late->Perks->ActivePerks.IsEmpty());
+    TestFalse(TEXT("XP cannot hold the next event behind a choice"),W.Progression->HasPendingChoices());
+    W.Progression->ResetProgression();
+    TestEqual(TEXT("Run restart retains zero XP"),W.Progression->TotalExperience,int64(0));
+    TestEqual(TEXT("Removing XP does not erase ordinary score"),A->Points,17);
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPersonalLegendaryTest,"MessControl.Progression.LegendaryLevelChoiceIsPersonal",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPersonalLegendaryTest,"MessControl.Progression.LegacyOffersRejectedWithoutErasingChestRewards",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCPersonalLegendaryTest::RunTest(const FString& Parameters)
 {
     FProgressionWorld W(true); auto* A=W.Player(11); auto* B=W.Player(22);
-    W.Progression->AddExperience(W.Progression->GetExperienceToNextLevel());
-    if (!TestTrue(TEXT("First earned level offers three legendary cards to everyone"),A->LevelUpOffer.IsValid() && B->LevelUpOffer.IsValid())) return false;
-    const FName Selected=A->LevelUpOffer.PerkIDs[0];
-    TestTrue(TEXT("Legendary level selection succeeds"),A->TryChooseLevelUpPerk(A->LevelUpOffer.OfferId,0));
-    TestEqual(TEXT("The selected legendary belongs to the selecting player"),A->Perks->GetStacks(Selected),1);
-    TestEqual(TEXT("The teammate does not inherit the legendary"),B->Perks->GetStacks(Selected),0);
-    TestEqual(TEXT("Personal choices do not set the shared tool unlock mask"),int32(W.State->TeamToolUpgrades),0);
-    const int32 OtherIndex=B->LevelUpOffer.PerkIDs.IndexOfByKey(Selected);
-    TestTrue(TEXT("The teammate may independently choose the same legendary"),B->TryChooseLevelUpPerk(B->LevelUpOffer.OfferId,OtherIndex));
-    TestFalse(TEXT("Both independent choices finish without a physical chest"),W.Progression->HasPendingChoices());
+    const FName Reward(TEXT("LevelFixture0"));
+    TestTrue(TEXT("An explicitly awarded fixture perk still works"),A->Perks->ServerGrantPerk(Reward));
+    A->PersonalChoicesTaken=4;A->bRogueRerollSpent=true;
+    auto StaleOffer=[&]() {
+        A->LevelUpOffer.OfferId=FGuid::NewGuid();A->LevelUpOffer.TeamLevel=2;
+        A->LevelUpOffer.PerkIDs={TEXT("LevelFixture0"),TEXT("LevelFixture1"),TEXT("LevelFixture2")};
+        A->PendingLevelChoices=3;return A->LevelUpOffer.OfferId;
+    };
+    const FGuid OldToken=StaleOffer();
+    TestFalse(TEXT("A stale replicated offer cannot authorize another grant"),A->TryChooseLevelUpPerk(OldToken,0));
+    TestFalse(TEXT("A stale replicated offer cannot be rerolled into new cards"),A->TryRerollLevelPerks(OldToken));
+    TestFalse(TEXT("A stale payload cannot resurrect a progression gate"),A->HasPendingLevelChoices());
+    W.Progression->SynchronizePlayer(A);
+    TestFalse(TEXT("Synchronization removes the stale payload"),A->LevelUpOffer.IsValid());
+    TestEqual(TEXT("Synchronization removes the stale counter"),A->PendingLevelChoices,0);
+    TestEqual(TEXT("Removing stale XP preserves already awarded perks"),A->Perks->GetStacks(Reward),1);
+    TestEqual(TEXT("Removing stale XP preserves chest reward history"),A->PersonalChoicesTaken,4);
+    TestTrue(TEXT("Removing stale XP preserves the spent reroll marker"),A->bRogueRerollSpent);
+
+    auto* PC=Cast<APlayerController>(A->GetOwner());
+    auto* OldPawn=W.World->SpawnActor<APawn>();PC->Possess(OldPawn);
+    PC->UnPossess();OldPawn->Destroy();PC->Possess(W.World->SpawnActor<APawn>());
+    TestEqual(TEXT("Pawn replacement preserves existing rewards"),A->Perks->GetStacks(Reward),1);
+    StaleOffer();A->CopyProperties(B);
+    TestFalse(TEXT("PlayerState handoff does not revive removed level cards"),B->LevelUpOffer.IsValid());
+    TestEqual(TEXT("PlayerState handoff does not revive a level queue"),B->PendingLevelChoices,0);
+    TestEqual(TEXT("PlayerState handoff preserves already awarded perks"),B->Perks->GetStacks(Reward),1);
+    TestEqual(TEXT("PlayerState handoff preserves chest reward history"),B->PersonalChoicesTaken,4);
+    W.Progression->SynchronizePlayer(B);
+    TestEqual(TEXT("Repeated synchronization leaves chest rewards intact"),B->Perks->GetStacks(Reward),1);
+    TestFalse(TEXT("Compatibility state cannot block a chest-only run"),W.Progression->HasPendingChoices());
     return true;
 }
 

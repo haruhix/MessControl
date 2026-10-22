@@ -46,9 +46,6 @@ bool AMCPlayerController::IsWaitingForWorldStart() const
         const auto* Tutorial=AMCTutorialDirector::Find(GetWorld());
         return !Tutorial || Tutorial->Stage==EMCTutorialStage::Loading;
     }
-    // A durable personal offer is also proof that the server passed the team
-    // barrier. It may replicate before the director actor's changed stage.
-    if(State->bSingleDayLoop && HasAuthoritativePerkChoice()) return false;
     if(State->bLobbyWaiting) {
         // The old manual lobby needs its Start button. Hub runs auto-start
         // after the same ACK barrier, so only those keep the waiting cover.

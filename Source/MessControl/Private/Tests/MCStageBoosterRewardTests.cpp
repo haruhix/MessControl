@@ -104,10 +104,13 @@ bool FMCStageRewardClaimTest::RunTest(const FString&)
     TestFalse(TEXT("An invalid card index cannot consume the reward"),Chest->TryChooseCard(A,3));
     TestTrue(TEXT("The designated opener activates the shared booster"),Chest->TryChooseCard(A,2));
     TestTrue(TEXT("Both teammates receive the choice"),W.Perks(A)->bGrenadeArmed && W.Perks(B)->bGrenadeArmed);
+    TestEqual(TEXT("The opener advances chest reward history without XP"),A->GetPlayerState<AMCPlayerState>()->PersonalChoicesTaken,1);
+    TestEqual(TEXT("A living teammate also advances chest reward history"),B->GetPlayerState<AMCPlayerState>()->PersonalChoicesTaken,1);
     TestEqual(TEXT("The shared chest is exhausted"),Chest->Stage,EMCRewardChestStage::Exhausted);
     W.Perks(A)->bGrenadeArmed=W.Perks(B)->bGrenadeArmed=false;
     TestFalse(TEXT("Duplicate RPC cannot replay the team effect"),Chest->TryChooseCard(A,2));
     TestFalse(TEXT("A duplicate request leaves effects unchanged"),W.Perks(A)->bGrenadeArmed || W.Perks(B)->bGrenadeArmed);
+    TestEqual(TEXT("A duplicate request cannot advance chest history"),A->GetPlayerState<AMCPlayerState>()->PersonalChoicesTaken,1);
     TestFalse(TEXT("The opener's authoritative interaction is released"),IsValid(A->RewardInteraction));
     return true;
 }

@@ -102,7 +102,7 @@ namespace MCPlaytestBotsTestsPrivate
             Tongue->SetActorTickEnabled(false);
             Mode->bUseSingleDayLoop=true;
             Mode->RestartShift();
-            // An ordinary arena starts at the loading/first-perk bootstrap.
+            // An ordinary arena starts at the loading/team-readiness bootstrap.
             // The separate tutorial is now explicitly selected by its map/URL.
             return IsValid(State->SingleDayDirector) && !State->bTutorialActive;
         }
@@ -234,7 +234,7 @@ bool FMCPlaytestObserverTest::RunTest(const FString&)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPlaytestSingleDayObserveTest,"MessControl.PlaytestBots.SingleDayObserveLaunchAndPersonalOffers",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPlaytestSingleDayObserveTest,"MessControl.PlaytestBots.SingleDayObserveLaunchWithoutInitialRewards",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCPlaytestSingleDayObserveTest::RunTest(const FString&)
 {
@@ -245,7 +245,7 @@ bool FMCPlaytestSingleDayObserveTest::RunTest(const FString&)
     if(!TestNotNull(TEXT("Normal human identity exists"),Observer)
         || !TestNotNull(TEXT("Playtest session exists"),Session)
         || !TestTrue(TEXT("An ordinary restart creates the single-day bootstrap"),Fixture.StartSingleDayRun())) return false;
-    TestEqual(TEXT("Normal launch waits at the first-perk bootstrap"),Fixture.State->SingleDayDirector->Stage,EMCSingleDayStage::Training);
+    TestEqual(TEXT("Normal launch waits at the loading bootstrap"),Fixture.State->SingleDayDirector->Stage,EMCSingleDayStage::Training);
     FString Error;
     if(!TestTrue(TEXT("Observe can launch four actual AI participants from the arena"),
         Session->StartSession(4,EMCPlaytestBotSkill::Skilled,true,41,Error)))
@@ -253,12 +253,11 @@ bool FMCPlaytestSingleDayObserveTest::RunTest(const FString&)
     TestFalse(TEXT("Diagnostic reset releases tutorial safety"),Fixture.State->bTutorialActive);
     TestNull(TEXT("Diagnostic reset stops the old lesson director"),Fixture.Mode->TutorialDirector.Get());
     TestTrue(TEXT("The human is registered as an observer"),Session->IsObserver(Human));
-    TestTrue(TEXT("Observer identity is excluded before initial XP"),Observer->IsOnlyASpectator());
+    TestTrue(TEXT("Observer identity is excluded from gameplay readiness"),Observer->IsOnlyASpectator());
     TestEqual(TEXT("Observer receives no personal level choice"),Observer->PendingLevelChoices,0);
     TestEqual(TEXT("Observer receives no perk"),MCPlaytestBotsTestsPrivate::PerkStacks(Observer),0);
-    TestEqual(TEXT("Initial experience creates exactly the first team level"),Fixture.State->Progression->TeamLevel,2);
-    TestEqual(TEXT("Initial XP is awarded once for the complete team"),Fixture.State->Progression->TotalExperience,
-        int64(Fixture.State->Progression->FirstLevelExperience));
+    TestEqual(TEXT("Launching observation cannot create a team level"),Fixture.State->Progression->TeamLevel,1);
+    TestEqual(TEXT("Launching observation awards no XP"),Fixture.State->Progression->TotalExperience,int64(0));
     const auto Bots=Fixture.Bots();
     if(!TestEqual(TEXT("The session has four real AI controllers"),Bots.Num(),4)) return false;
     TSet<AMCPlayerState*> Identities;
@@ -270,13 +269,13 @@ bool FMCPlaytestSingleDayObserveTest::RunTest(const FString&)
         Identities.Add(Player);
         TestTrue(TEXT("Every AI participates in the replicated roster"),Fixture.State->PlayerArray.Contains(Player));
         TestTrue(TEXT("Every AI is identified as a bot"),Player->IsABot());
-        TestEqual(TEXT("Each AI claims its initial personal choice"),Player->PendingLevelChoices,0);
-        TestFalse(TEXT("Claimed AI card payload is cleared"),Player->LevelUpOffer.IsValid());
-        TestEqual(TEXT("Each AI owns exactly one initial perk stack"),MCPlaytestBotsTestsPrivate::PerkStacks(Player),1);
+        TestEqual(TEXT("Each AI starts without pending level choices"),Player->PendingLevelChoices,0);
+        TestFalse(TEXT("No initial AI card payload exists"),Player->LevelUpOffer.IsValid());
+        TestEqual(TEXT("Each AI starts without a free perk stack"),MCPlaytestBotsTestsPrivate::PerkStacks(Player),0);
     }
     TestEqual(TEXT("All four AI identities remain distinct"),Identities.Num(),4);
-    TestEqual(TEXT("Personal bot choices create no shared tool mask"),Fixture.State->TeamToolUpgrades,uint8(0));
-    TestFalse(TEXT("No bot or observer blocks the first-card gate"),Fixture.State->Progression->HasPendingChoices());
+    TestEqual(TEXT("Launching observation grants no tool unlocks"),Fixture.State->TeamToolUpgrades,uint8(0));
+    TestFalse(TEXT("No bot or observer waits behind removed level cards"),Fixture.State->Progression->HasPendingChoices());
     Fixture.Step(.35f);
     auto* Loop=Fixture.State->SingleDayDirector.Get();
     TestEqual(TEXT("The autonomous team enters the opening Relax pause"),Loop->Stage,EMCSingleDayStage::OpeningPause);
@@ -305,7 +304,7 @@ bool FMCPlaytestSingleDayObserveTest::RunTest(const FString&)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPlaytestSingleDayCoopTest,"MessControl.PlaytestBots.SingleDayCoopPersonalGateAndQueuedChoices",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPlaytestSingleDayCoopTest,"MessControl.PlaytestBots.SingleDayCoopStartsWithoutXPOrCards",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCPlaytestSingleDayCoopTest::RunTest(const FString&)
 {
@@ -328,41 +327,27 @@ bool FMCPlaytestSingleDayCoopTest::RunTest(const FString&)
     TestFalse(TEXT("Coop human remains a gameplay participant"),Player->IsOnlyASpectator());
     TestFalse(TEXT("Coop human is never registered as an observer"),Session->IsObserver(Human));
     TestFalse(TEXT("Diagnostic coop reset releases tutorial safety"),Fixture.State->bTutorialActive);
-    TestEqual(TEXT("Coop initial XP earns the shared first level"),Fixture.State->Progression->TeamLevel,2);
-    if(!TestTrue(TEXT("Human gets an independent three-card offer"),Player->LevelUpOffer.IsValid())) return false;
-    TestEqual(TEXT("Human still has one unclaimed choice"),Player->PendingLevelChoices,1);
-    TestEqual(TEXT("The actual AI claims its own first card"),BotPlayer->PendingLevelChoices,0);
-    TestEqual(TEXT("Bot grant belongs to the bot"),MCPlaytestBotsTestsPrivate::PerkStacks(BotPlayer),1);
-    TestEqual(TEXT("Bot selection grants nothing to the human"),MCPlaytestBotsTestsPrivate::PerkStacks(Player),0);
-    const FGuid FirstHumanOffer=Player->LevelUpOffer.OfferId;
-    const TArray<FName> FirstHumanCards=Player->LevelUpOffer.PerkIDs;
+    TestEqual(TEXT("Coop starts with the compatibility level unchanged"),Fixture.State->Progression->TeamLevel,1);
+    TestFalse(TEXT("Coop human has no free starting cards"),Player->LevelUpOffer.IsValid());
+    TestEqual(TEXT("Coop human has no starting level queue"),Player->PendingLevelChoices,0);
+    TestEqual(TEXT("Coop AI has no starting level queue"),BotPlayer->PendingLevelChoices,0);
+    TestEqual(TEXT("Coop AI has no free starting perk"),MCPlaytestBotsTestsPrivate::PerkStacks(BotPlayer),0);
+    TestEqual(TEXT("Coop human has no free starting perk"),MCPlaytestBotsTestsPrivate::PerkStacks(Player),0);
     Fixture.Step(.35f);
-    TestEqual(TEXT("The pending human card holds the real first-perk stage"),Fixture.State->SingleDayDirector->Stage,EMCSingleDayStage::FirstPerk);
-    TestNull(TEXT("No rain launches before the human chooses"),Fixture.State->SingleDayDirector->NutEvent.Get());
+    TestEqual(TEXT("Human and bot readiness starts the opening pause without cards"),Fixture.State->SingleDayDirector->Stage,EMCSingleDayStage::OpeningPause);
+    TestNull(TEXT("Normal coop still begins with food before rain"),Fixture.State->SingleDayDirector->NutEvent.Get());
 
     auto* Progression=Fixture.State->Progression.Get();
-    const int32 NextThreshold=Progression->GetExperienceToNextLevel();
-    TestEqual(TEXT("A shared award can earn two additional levels at once"),
-        Progression->AddExperience(NextThreshold*2+Progression->ExperienceGrowthPerLevel),2);
-    TestEqual(TEXT("Human retains all three independently queued choices"),Player->PendingLevelChoices,3);
-    TestTrue(TEXT("More XP preserves the human's current offer token"),Player->LevelUpOffer.OfferId==FirstHumanOffer);
-    TestTrue(TEXT("More XP preserves the human's current three cards"),Player->LevelUpOffer.PerkIDs==FirstHumanCards);
-    TestEqual(TEXT("Immediate bot synchronization consumes only one queued level"),BotPlayer->PendingLevelChoices,1);
+    TestEqual(TEXT("A legacy large XP award cannot resurrect level rewards"),Progression->AddExperience(MAX_int32),0);
+    Player->QueueChoicesThroughLevel(4);BotPlayer->QueueChoicesThroughLevel(4);
     Fixture.Step(.6f);
-    TestEqual(TEXT("Real progression timer drains the bot's remaining queued level"),BotPlayer->PendingLevelChoices,0);
-    TestFalse(TEXT("Bot has no stale choice after its queue drains"),BotPlayer->LevelUpOffer.IsValid());
-    TestEqual(TEXT("Bot owns one personal perk stack for each earned level"),MCPlaytestBotsTestsPrivate::PerkStacks(BotPlayer),3);
-    TestEqual(TEXT("Bot automation never consumes the human's queue"),Player->PendingLevelChoices,3);
-    TestEqual(TEXT("Human choice still gates the main event"),Fixture.State->SingleDayDirector->Stage,EMCSingleDayStage::FirstPerk);
-    TestEqual(TEXT("Personal AI grants keep the team mask clear"),Fixture.State->TeamToolUpgrades,uint8(0));
-
-    for(int32 Index=0;Index<3;++Index)
-        if(!TestTrue(TEXT("Human chooses each personal level independently"),
-            Player->TryChooseLevelUpPerk(Player->LevelUpOffer.OfferId,0))) return false;
-    TestFalse(TEXT("The complete coop team has released the card gate"),Progression->HasPendingChoices());
-    TestEqual(TEXT("The human owns exactly its three selected stacks"),MCPlaytestBotsTestsPrivate::PerkStacks(Player),3);
-    Fixture.Step(.2f);
-    TestEqual(TEXT("The last human choice starts the opening Relax pause"),Fixture.State->SingleDayDirector->Stage,EMCSingleDayStage::OpeningPause);
+    TestEqual(TEXT("Real bot decisions create no removed level queue"),BotPlayer->PendingLevelChoices,0);
+    TestFalse(TEXT("Bot decisions create no removed offer payload"),BotPlayer->LevelUpOffer.IsValid());
+    TestEqual(TEXT("Bot automation cannot grant itself a perk without a chest"),MCPlaytestBotsTestsPrivate::PerkStacks(BotPlayer),0);
+    TestEqual(TEXT("Old queue calls cannot create a human reward"),MCPlaytestBotsTestsPrivate::PerkStacks(Player),0);
+    TestFalse(TEXT("No legacy choice can interrupt the opening meal"),Progression->HasPendingChoices());
+    TestEqual(TEXT("No hidden start reward changes the shared tool mask"),Fixture.State->TeamToolUpgrades,uint8(0));
+    TestEqual(TEXT("The opening pause proceeds without accepting any cards"),Fixture.State->SingleDayDirector->Stage,EMCSingleDayStage::OpeningPause);
     TestNull(TEXT("Coop cannot bypass the opening meals to reach nuts"),Fixture.State->SingleDayDirector->NutEvent.Get());
     const auto* Profile=Fixture.State->SingleDayDirector->GetRunProfile();
     if(!TestNotNull(TEXT("Coop keeps the authored opening profile"),Profile)) return false;
@@ -468,7 +453,7 @@ bool FMCPlaytestLiveTeamBarrierTest::RunTest(const FString&)
     if(!TestNotNull(TEXT("The AI owns its ordinary worker"),Pawn)) return false;
     TestTrue(TEXT("The complete live roster satisfies the sequence barrier"),Session->IsReadyToBeginSequence());
     Bots[0]->UnPossess();
-    TestFalse(TEXT("An AI identity without its worker cannot release initial XP"),Session->IsReadyToBeginSequence());
+    TestFalse(TEXT("An AI identity without its worker cannot release the opening sequence"),Session->IsReadyToBeginSequence());
     Bots[0]->Possess(Pawn);
     TestTrue(TEXT("Normal possession restores the complete roster"),Session->IsReadyToBeginSequence());
     Pawn->Status->Damage(Pawn->Status->State.MaxHealth);
@@ -484,10 +469,8 @@ bool FMCPlaytestTongueSpawnClearanceTest::RunTest(const FString&)
     MCPlaytestBotsTestsPrivate::FWorldFixture Fixture;
     Fixture.AddHuman();
     if(!TestTrue(TEXT("The fixture owns real authored tongue geometry"),Fixture.StartSingleDayRun())) return false;
-    // Isolate initial placement before the first level offer: a legitimate
-    // MaxHealth perk raises the maximum without healing the new worker. The
-    // spawn path is shared with legacy runs, so retain the real tongue and
-    // normal session restart while omitting the unrelated single-day XP grant.
+    // Isolate placement using the shared legacy spawn path while retaining real
+    // tongue geometry and the normal session restart. No XP or perk is injected.
     Fixture.Mode->bUseSingleDayLoop=false;
     TArray<APlayerStart*> Starts;
     for(TActorIterator<APlayerStart> It(Fixture.World);It;++It) Starts.Add(*It);

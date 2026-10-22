@@ -48,10 +48,17 @@ void AMCPlayerState::CopyProperties(APlayerState* Target)
         State->Points=Points; State->PlayerColor=PlayerColor; State->bSessionHost=bSessionHost;
         State->ConsumedRecoveryStacks=ConsumedRecoveryStacks;
         if (Perks) Perks->CopyPerksTo(State->Perks);
-        State->PendingLevels=PendingLevels; State->LastQueuedTeamLevel=LastQueuedTeamLevel;
-        State->LevelUpOffer=LevelUpOffer; State->PendingLevelChoices=PendingLevelChoices;
+        // Travel/reconnect preserves chest perks, never an obsolete level offer.
+        State->PendingLevels.Reset(); State->LastQueuedTeamLevel=1;
+        State->LevelUpOffer=FMCLevelUpOffer(); State->PendingLevelChoices=0;
         State->PersonalChoicesTaken=PersonalChoicesTaken;State->bRogueRerollSpent=bRogueRerollSpent;State->RecentRogueOffers=RecentRogueOffers;
     }
+}
+void AMCPlayerState::RecordChestRewardChoice()
+{
+    if (!HasAuthority()) return;
+    PersonalChoicesTaken=FMath::Min(PersonalChoicesTaken,MAX_int32-1)+1;
+    ForceNetUpdate();
 }
 void AMCPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -66,90 +73,32 @@ void AMCPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 
 void AMCPlayerState::QueueChoicesThroughLevel(int32 TeamLevel)
 {
-    if (!HasAuthority()) return;
-    const int32 Target=FMath::Clamp(TeamLevel,1,1000);
-    const bool Added=Target>LastQueuedTeamLevel;
-    for (int32 Level=LastQueuedTeamLevel+1;Level<=Target;++Level) PendingLevels.Add(Level);
-    LastQueuedTeamLevel=FMath::Max(LastQueuedTeamLevel,Target);
-    PendingLevelChoices=PendingLevels.Num();
-    if (Added) ForceNetUpdate();
     RefreshLevelUpOffer();
 }
 
 void AMCPlayerState::RefreshLevelUpOffer()
 {
-    if (!HasAuthority() || !Perks || PendingLevels.IsEmpty() || bChoosingLevelPerk) return;
-    if (LevelUpOffer.IsValid())
-    {
-        bool Usable=true;
-        for (FName ID:LevelUpOffer.PerkIDs) Usable&=Perks->CanGrantPerk(ID);
-        if (Usable) return;
-        LevelUpOffer=FMCLevelUpOffer();
-    }
-    CreateRogueLevelOffer(false);
+    if (!HasAuthority()) return;
+    const bool HadOffer=!PendingLevels.IsEmpty() || PendingLevelChoices!=0 || LevelUpOffer.OfferId.IsValid();
+    PendingLevels.Reset(); LastQueuedTeamLevel=1; PendingLevelChoices=0; LevelUpOffer=FMCLevelUpOffer();
+    if (HadOffer) { ForceNetUpdate(); OnRep_LevelUpOffer(); }
 }
 
 bool AMCPlayerState::CreateRogueLevelOffer(bool Reroll)
 {
-    if(!HasAuthority() || !Perks || PendingLevels.IsEmpty()) return false;
-    const auto* Game=GetWorld()->GetGameState<AMCGameState>();
-    const int32 Seed=int32(HashCombine(GetTypeHash(Game?Game->RunSeed:0),HashCombine(GetTypeHash(GetPlayerId()),GetTypeHash(PendingLevels[0]))))^(Reroll?0x5245524F:0);
-    TArray<FName> Excluded;for(const auto& Recent:RecentRogueOffers) Excluded.Append(Recent.IDs);
-    if(Reroll) Excluded.Append(LevelUpOffer.PerkIDs);
-    FMCLevelUpOffer Offer;Offer.OfferId=FGuid::NewGuid();Offer.TeamLevel=PendingLevels[0];
-    const bool Early=PersonalChoicesTaken<2,GuaranteedRare=(PersonalChoicesTaken+1)%5==0;
-    if(!Perks->BuildRogueOffer(EMCPerkPolarity::Positive,Seed,Offer.PerkIDs,Early,false,GuaranteedRare,Excluded)) {
-        // Consumable charges remain useful after every permanent branch reaches its cap.
-        for(FName ID:{FName(TEXT("Fallback_Mouthwash")),FName(TEXT("Fallback_BrushFury")),FName(TEXT("Fallback_Grenade"))})
-            if(Perks->CanGrantPerk(ID)) Offer.PerkIDs.Add(ID);
-        Offer.bBoosterFallback=true;
-        if(Offer.PerkIDs.Num()!=3) {if(!bWarnedEmptyLevelPool) UE_LOG(LogTemp,Warning,TEXT("MC_ROGUE_WAIT insufficient eligible cards; earned level preserved"));bWarnedEmptyLevelPool=true;return false;}
-    }
-    if(!Early && !Offer.bBoosterFallback) {
-        FRandomStream Random(Seed^0x5249534B);TArray<FName> Risky;
-        if(Random.FRand()<.25f && Perks->BuildRogueOffer(EMCPerkPolarity::Risky,Seed^0x5249534B,Risky,false,false,false,Excluded)) {
-            for(FName ID:Risky) {
-                const auto* Candidate=Perks->FindDefinition(ID);bool Valid=true;
-                for(int32 I=0;I<2;++I) {
-                    const auto* Existing=Perks->FindDefinition(Offer.PerkIDs[I]);
-                    if(Existing->ChoiceFamily==Candidate->ChoiceFamily || (Existing->Rarity==EMCPerkRarity::Legendary && Candidate->Rarity==EMCPerkRarity::Legendary)) Valid=false;
-                }
-                if(Valid) {Offer.PerkIDs[2]=ID;break;}
-            }
-        }
-    }
-    if(Reroll && !Offer.PerkIDs.ContainsByPredicate([this](FName ID){return !LevelUpOffer.PerkIDs.Contains(ID);})) return false;
-    if(Reroll) bRogueRerollSpent=true;
-    bWarnedEmptyLevelPool=false;LevelUpOffer=MoveTemp(Offer);ForceNetUpdate();OnRep_LevelUpOffer();return true;
+    return false;
 }
+
 bool AMCPlayerState::TryRerollLevelPerks(const FGuid& OfferId)
 {
-    const auto* Hero=Cast<AMCToothCharacter>(GetPawn());
-    if(!HasAuthority() || bRogueRerollSpent || bChoosingLevelPerk || !LevelUpOffer.IsValid() || OfferId!=LevelUpOffer.OfferId
-        || !Hero || !Hero->Status->IsAlive()) return false;
-    return CreateRogueLevelOffer(true);
+    RefreshLevelUpOffer();
+    return false;
 }
 
 bool AMCPlayerState::TryChooseLevelUpPerk(const FGuid& OfferId,int32 ChoiceIndex)
 {
-    if (!HasAuthority() || bChoosingLevelPerk || !LevelUpOffer.IsValid() || LevelUpOffer.OfferId!=OfferId
-        || !LevelUpOffer.PerkIDs.IsValidIndex(ChoiceIndex) || PendingLevels.IsEmpty()
-        || PendingLevels[0]!=LevelUpOffer.TeamLevel || !Perks) return false;
-    const FName ID=LevelUpOffer.PerkIDs[ChoiceIndex];
-    const auto* Row=Perks->FindDefinition(ID);
-    if (!Row || !Row->bAvailableForLevelChoice || Row->Polarity==EMCPerkPolarity::Negative || !FMath::IsFinite(Row->Weight)
-        || Row->Weight<=0 || !Perks->CanGrantPerk(ID)) { RefreshLevelUpOffer(); return false; }
-    {
-        TGuardValue<bool> Guard(bChoosingLevelPerk,true);
-        // A personal level never calls the chest API that shares legendary tools.
-        if (!Perks->ServerGrantPerk(ID)) return false;
-        FMCRogueRecentOffer Recent;Recent.IDs=LevelUpOffer.PerkIDs;Recent.IDs.Remove(ID);RecentRogueOffers.Add(Recent);
-        if(RecentRogueOffers.Num()>2) RecentRogueOffers.RemoveAt(0);
-        ++PersonalChoicesTaken;
-        PendingLevels.RemoveAt(0); PendingLevelChoices=PendingLevels.Num(); LevelUpOffer=FMCLevelUpOffer();
-    }
-    UE_LOG(LogTemp,Display,TEXT("MC_LEVEL_CHOICE player=%s perk=%s remaining=%d"),*GetPlayerName(),*ID.ToString(),PendingLevelChoices);
-    RefreshLevelUpOffer(); ForceNetUpdate(); OnRep_LevelUpOffer(); return true;
+    RefreshLevelUpOffer();
+    return false;
 }
 
 void AMCPlayerState::ResetLevelUpChoices()

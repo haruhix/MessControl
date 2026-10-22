@@ -6,7 +6,7 @@
 
 class AMCPlayerState;
 
-/** Shared task experience; every earned level gives each player their own choice. */
+/** Inert saved-asset compatibility shell. Runtime rewards come only from chests. */
 UCLASS(ClassGroup=(MessControl), meta=(BlueprintSpawnableComponent))
 class MESSCONTROL_API UMCProgressionComponent : public UActorComponent
 {
@@ -25,21 +25,20 @@ public:
     bool HasPendingChoices() const;
     void SynchronizePlayer(AMCPlayerState* Player);
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Progression", meta=(ClampMin="1"))
+    // Serialized legacy tuning only; intentionally absent from designer controls.
+    UPROPERTY(BlueprintReadOnly, Category="Legacy")
     int32 FirstLevelExperience=50;
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Progression", meta=(ClampMin="0"))
+    UPROPERTY(BlueprintReadOnly, Category="Legacy")
     int32 ExperienceGrowthPerLevel=25;
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Progression", meta=(ClampMin="2",ClampMax="1000"))
+    UPROPERTY(BlueprintReadOnly, Category="Legacy")
     int32 MaxTeamLevel=100;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Progression") int32 TeamLevel=1;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Progression") int64 ExperienceInLevel=0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Progression") int64 TotalExperience=0;
-    UPROPERTY(Replicated, BlueprintReadOnly, Category="Progression") int32 ExperienceToNextLevel=50;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Progression") int32 ExperienceToNextLevel=0;
 
 protected:
     virtual void BeginPlay() override;
-    virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 private:
     void SynchronizePlayers();
-    FTimerHandle SynchronizeTimer;
 };

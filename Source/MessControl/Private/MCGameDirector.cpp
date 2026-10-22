@@ -671,14 +671,14 @@ void AMCGameDirector::Publish(const FMCGameDirectorState& Seen,const FString& Re
 {
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); if(!GS) return;
     GS->DirectorState=Seen; auto& S=GS->DirectorState; S.CurrentTitle=CurrentTitle; S.DecisionReason=Reason;
-    S.Instruction=TEXT("Разбивайте еду ради опыта, чистите пятна и зубы. Перец выбрасывайте.");
+    S.Instruction=TEXT("Разбивайте еду и доставляйте фрагменты в глотку, чистите пятна и зубы. Перец выбрасывайте.");
     if(Pacing==EMCGameDirectorPacing::FinalCleanup) S.Instruction=TEXT("Разбейте оставшуюся еду, уберите перец и закончите уборку.");
     if(Seen.Fires>0) S.Instruction=TEXT("Сначала потушите огонь. Новые события ждут.");
     else if(Seen.Ulcers>0) S.Instruction=TEXT("Вылечите язвы: они остаются задачей после удаления еды.");
     else if(Seen.bUrgent) S.Instruction=TEXT("Сначала решите срочную угрозу: уберите перец, помогите пленнику или закончите бой.");
     else if(Seen.Ice>0) S.Instruction=TEXT("Разбейте лёд киркой, затем возвращайтесь к еде и уборке.");
     else if(Seen.bGlobalMovement) S.Instruction=TEXT("Заканчивается движение или глотание. Новые помехи ждут.");
-    else if(Seen.CleaningTasks>0) S.Instruction=TEXT("Очистите зубы и пятна. Еду разбивайте ради опыта; перец выбрасывайте.");
+    else if(Seen.CleaningTasks>0) S.Instruction=TEXT("Очистите зубы и пятна. Еду разбивайте и доставляйте в глотку; перец выбрасывайте.");
     if(const auto* Encounter=AMCCataclysmEvent::FindActive(GetWorld())) {
         S.CurrentTitle=Encounter->Title();S.Instruction=Encounter->Instruction();
     }

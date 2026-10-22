@@ -285,7 +285,7 @@ void UMCTutorialWidget::RefreshState()
     const auto* Personal=Director->GetPlayerProgress(PC?PC->GetPlayerState<APlayerState>():nullptr);
     const int32 Required=Personal?Personal->StageRequired:0,Done=Personal?FMath::Clamp(Personal->StageProgress,0,Required):0;const bool Ready=Personal && Personal->bReady;
     FText PersonalText;
-    if(Complete) PersonalText=Director->UsesShortFlow()?Copy(TEXT("UI.Tutorial.ShortComplete"),LOCTEXT("ShortComplete","Обучение пройдено. Получаем первый личный перк")):
+    if(Complete) PersonalText=Director->UsesShortFlow()?Copy(TEXT("UI.Tutorial.ShortComplete"),LOCTEXT("ShortComplete","Обучение пройдено. Начинаем завтрак")):
         Ready?Copy(TEXT("UI.Tutorial.CompleteReady"),LOCTEXT("CompleteReady","Ты готов. Ждём команду")):Copy(TEXT("UI.Tutorial.CompleteNotReady"),LOCTEXT("CompleteNotReady","Обучение пройдено. Подтверди готовность"));
     else if(Required>0) PersonalText=Format(Done>=Required?TEXT("UI.Tutorial.PersonalCompleteWaiting"):TEXT("UI.Tutorial.PersonalProgress"),
         Done>=Required?LOCTEXT("PersonalWaiting","Твой прогресс: {Current}/{Required} · Ждём команду"):LOCTEXT("PersonalProgress","Твой прогресс: {Current}/{Required}"),{{TEXT("Current"),Done},{TEXT("Required"),Required}});
@@ -412,7 +412,7 @@ void UMCTutorialWidget::ApplyEditorPreview(float Time)
     FText InstructionText=Copy(TEXT("UI.Tutorial.Copy.BrushHint"),LOCTEXT("FixtureHint","1 — щётка. Держи ЛКМ у своего подсвеченного зуба до полной очистки. Без таймера."));
     if(bFixtureComplete) {
         TitleText=Copy(TEXT("UI.Tutorial.Copy.CompleteTitle"),LOCTEXT("FixtureCompleteTitle","ОБУЧЕНИЕ ПРОЙДЕНО"));
-        DialogueText=Short?Copy(TEXT("UI.Tutorial.Copy.ShortCompleteFairy"),LOCTEXT("FixtureShortDialogue","Обучение пройдено! Переходим на основную карту: там каждый выберет первый перк.")):
+        DialogueText=Short?Copy(TEXT("UI.Tutorial.Copy.ShortCompleteFairy"),LOCTEXT("FixtureShortDialogue","Обучение пройдено! Переходим на основную карту. Награды ждут в сундуках за выполненные этапы.")):
             Copy(TEXT("UI.Tutorial.Copy.CompleteFairy"),LOCTEXT("FixtureFullDialogue","Он просыпается — скоро настоящий завтрак. Когда вся команда готова, начинаем день 1."));
         InstructionText=Short?Copy(TEXT("UI.Tutorial.Copy.ShortCompleteHint"),LOCTEXT("FixtureShortHint","После готовности команды загрузится основная карта.")):
             Copy(TEXT("UI.Tutorial.Copy.CompleteHint"),LOCTEXT("FixtureFullHint","Нажми «Готов к дню 1». Переход начнётся после готовности всей команды."));
@@ -423,7 +423,7 @@ void UMCTutorialWidget::ApplyEditorPreview(float Time)
     if(StageTitle) StageTitle->SetText(Format(TEXT("UI.Tutorial.StageHeading"),LOCTEXT("FixtureHeading","Обучение · Зубная фея · {StageTitle}"),{{TEXT("StageTitle"),TitleText}}));
     if(Dialogue) {Dialogue->SetText(DialogueText);Dialogue->SetToolTipText(DialogueText);}
     if(Action) Action->SetText(InstructionText);
-    if(OwnProgress) OwnProgress->SetText(bFixtureComplete?(Short?Copy(TEXT("UI.Tutorial.ShortComplete"),LOCTEXT("FixtureShort","Обучение пройдено. Получаем первый личный перк")):Ready?Copy(TEXT("UI.Tutorial.CompleteReady"),LOCTEXT("FixtureReady","Ты готов. Ждём команду")):Copy(TEXT("UI.Tutorial.CompleteNotReady"),LOCTEXT("FixtureNotReady","Обучение пройдено. Подтверди готовность"))):
+    if(OwnProgress) OwnProgress->SetText(bFixtureComplete?(Short?Copy(TEXT("UI.Tutorial.ShortComplete"),LOCTEXT("FixtureShort","Обучение пройдено. Начинаем завтрак")):Ready?Copy(TEXT("UI.Tutorial.CompleteReady"),LOCTEXT("FixtureReady","Ты готов. Ждём команду")):Copy(TEXT("UI.Tutorial.CompleteNotReady"),LOCTEXT("FixtureNotReady","Обучение пройдено. Подтверди готовность"))):
         Format(TEXT("UI.Tutorial.PersonalProgress"),LOCTEXT("FixtureProgress","Твой прогресс: {Current}/{Required}"),{{TEXT("Current"),PreviewCurrent},{TEXT("Required"),PreviewRequired}}));
     if(TeamProgress) TeamProgress->SetText(Format(TEXT("UI.Tutorial.TeamReady"),LOCTEXT("FixtureTeam","Готовы: {Current}/{Total}"),{{TEXT("Current"),2},{TEXT("Total"),4}}));
     if(Progress){Progress->SetPercent(bFixtureComplete?1:PreviewRequired>0?FMath::Clamp(float(PreviewCurrent)/PreviewRequired,0.f,1.f):0);Progress->SetVisibility(ESlateVisibility::HitTestInvisible);}

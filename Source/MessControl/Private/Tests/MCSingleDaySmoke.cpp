@@ -54,12 +54,12 @@ void MCTickSingleDayValidation(UWorld* World)
         TWeakObjectPtr<AMCToothCharacter> Pawn;
         TWeakObjectPtr<ACameraActor> Camera;
         EMCTutorialStage Lesson=EMCTutorialStage::Finished;
-        double StartedWall=0,LessonAt=0,PerkAt=0,EnemiesAt=0,DirectorAt=0,BossAt=0,WonAt=0,NextPullDebugAt=0,SupportCheckAt=0,SupportFinishAt=0;
+        double StartedWall=0,LessonAt=0,EnemiesAt=0,DirectorAt=0,BossAt=0,WonAt=0,NextPullDebugAt=0,SupportCheckAt=0,SupportFinishAt=0;
         int64 TrainingExperience=0;
         int32 TrainingPoints=0,Checks=0,EnemyHitBaseline=0,ImpactSerial=0;
         float EnemyHealthBaseline=0;
         uint32 Shots=0;
-        bool Failed=false,Finished=false,Initialized=false,FirstChoice=false,SawRain=false,SawAttack=false,SawEnemies=false,SawDirector=false,BossDefeated=false,SawFalling=false,ImpactChecked=false,ExtractionChecked=false,HandleAttempted=false;
+        bool Failed=false,Finished=false,Initialized=false,HandoffChecked=false,SawRain=false,SawAttack=false,SawEnemies=false,SawDirector=false,BossDefeated=false,SawFalling=false,ImpactChecked=false,ExtractionChecked=false,HandleAttempted=false;
         FString Report;
     };
     static FRun R;
@@ -72,7 +72,7 @@ void MCTickSingleDayValidation(UWorld* World)
     };
     auto Finish=[&]() {
         R.Finished=true;
-        const FString Result=FString::Printf(TEXT("MC_SINGLE_DAY_TEST_%s checks=%d scope=scripted_saved_arena_training_personal_choice_directed_nuts_real_tool_boss_combat_support_before_next_key_event"),R.Failed?TEXT("FAIL"):TEXT("PASS"),R.Checks);
+        const FString Result=FString::Printf(TEXT("MC_SINGLE_DAY_TEST_%s checks=%d scope=legacy_training_handoff_without_starting_rewards_directed_nuts_real_tool_boss_combat_support_before_next_key_event"),R.Failed?TEXT("FAIL"):TEXT("PASS"),R.Checks);
         UE_LOG(LogTemp,Display,TEXT("%s"),*Result);
         IFileManager::Get().MakeDirectory(*(FPaths::ProjectSavedDir()/TEXT("SingleDaySmoke")),true);
         FFileHelper::SaveStringToFile(R.Report+Result+TEXT("\n"),*(FPaths::ProjectSavedDir()/TEXT("SingleDaySmoke/Validation.txt")));
@@ -109,8 +109,10 @@ void MCTickSingleDayValidation(UWorld* World)
     };
     if(!R.Initialized) {
         R.Initialized=true;R.Pawn=Hero;R.TrainingExperience=GS->Progression->TotalExperience;R.TrainingPoints=PS->Points;
-        Check(GS->bSingleDayLoop && GS->bTutorialActive,TEXT("Saved arena starts in the new training sequence"));
-        Check(GS->Progression->TeamLevel==1,TEXT("The team starts at level one"));
+        Check(GS->bSingleDayLoop,TEXT("Saved arena owns its single-day sequence"));
+        Check(GS->Progression->TeamLevel==1 && GS->Progression->TotalExperience==0
+            && PS->PendingLevelChoices==0 && !PS->LevelUpOffer.IsValid() && PS->Perks->ActivePerks.IsEmpty(),
+            TEXT("The run starts without experience, automatic choices or a free perk"));
         if(R.Failed) {Finish();return;}
     }
     if(GS->Phase==EMCShiftPhase::Lost) {Check(false,TEXT("The ordered arena sequence entered a losing state"));Finish();return;}
@@ -198,28 +200,20 @@ void MCTickSingleDayValidation(UWorld* World)
         }
         return;
     }
-    if(GS->SingleDayDirector->Stage==EMCSingleDayStage::FirstPerk) {
-        Hero->SetPrimaryInputHeld(false);Hero->SetHandleInputHeld(false);
-        if(R.PerkAt==0) {
-            R.PerkAt=Now;Check(R.Pawn.Get()==Hero,TEXT("Tutorial handoff preserves the same pawn"));
-            Check(GS->Progression->TeamLevel==2 && PS->LevelUpOffer.PerkIDs.Num()==3 && PS->PendingLevelChoices==1,TEXT("Training grants one common level and three personal choices"));
-        }
-        if(Now-R.PerkAt>.7) {
-            TArray<UUserWidget*> Widgets;UWidgetBlueprintLibrary::GetAllWidgetsOfClass(World,Widgets,UMCPerkChoiceWidget::StaticClass(),false);
-            if(Widgets.IsEmpty()) return;
-            Shot(3,TEXT("04_First_Personal_Perk"),FVector::ZeroVector,false);
-        }
-        if(Now-R.PerkAt>2) {
-            for(TActorIterator<AMCPlayerState> It(World);It;++It) if(It->HasPendingLevelChoices() && It->LevelUpOffer.IsValid())
-                Check(It->TryChooseLevelUpPerk(It->LevelUpOffer.OfferId,0),TEXT("A personal choice claims its offered perk"));
-            R.FirstChoice=true;
-        }
-        return;
+    if(!R.HandoffChecked) {
+        R.HandoffChecked=true;R.Pawn=Hero;
+        Check(GS->SingleDayDirector->Stage!=EMCSingleDayStage::FirstPerk
+            && GS->Progression->TotalExperience==0 && PS->PendingLevelChoices==0 && !PS->LevelUpOffer.IsValid()
+            && PS->Perks->ActivePerks.IsEmpty(),TEXT("The ready team enters its ordinary sequence without a starting perk"));
+        if(R.Failed) {Finish();return;}
+    }
+    if(GS->Progression->TotalExperience!=0 || PS->PendingLevelChoices!=0 || PS->LevelUpOffer.IsValid()) {
+        Check(false,TEXT("Only physical chests may offer rewards; no XP choice may appear during the run"));Finish();return;
     }
     auto* Nuts=GS->SingleDayDirector->NutEvent.Get();
     if(GS->SingleDayDirector->Stage==EMCSingleDayStage::Nuts && Nuts) {
         if(!R.SawRain && Nuts->Stage==EMCNutRainStage::Rainfall && Nuts->NutsSpawned>3) {
-            R.SawRain=true;Check(R.FirstChoice && R.Pawn.Get()==Hero && !PS->Perks->ActivePerks.IsEmpty(),TEXT("Nuts begin after the first choice with the pawn and perk preserved"));
+            R.SawRain=true;Check(R.HandoffChecked && R.Pawn.Get()==Hero && !PS->LevelUpOffer.IsValid(),TEXT("Nuts retain the ready pawn without a removed level-choice gate"));
         }
         if(R.SawRain && Nuts->Stage==EMCNutRainStage::Rainfall && (R.Shots&(1u<<4))==0) {
             AMCNutLandingShadow* Warning=nullptr;float Strength=0;
@@ -269,11 +263,9 @@ void MCTickSingleDayValidation(UWorld* World)
             R.SupportFinishAt=Deadline>Now?FMath::Min(R.SupportCheckAt+1.,Deadline-.1):Now+35.;
             Check(R.SawAttack,TEXT("Nut enemies actually attacked the player"));
             Check(Hero->ConfirmedHitCount>R.EnemyHitBaseline,TEXT("Normal tool swings defeated the nut enemies"));
-            Check(GS->Day==1 && R.Pawn.Get()==Hero && !PS->Perks->ActivePerks.IsEmpty(),TEXT("The director interval retains the same day, pawn and perk"));
+            Check(GS->Day==1 && R.Pawn.Get()==Hero && GS->Progression->TotalExperience==0,TEXT("The director interval retains the same day and pawn without XP rewards"));
         }
         Place(Tongue->Surface->Bounds.Origin+FVector(-350,250,0));
-        for(TActorIterator<AMCPlayerState> It(World);It;++It) if(It->HasPendingLevelChoices() && It->LevelUpOffer.IsValid())
-            Check(It->TryChooseLevelUpPerk(It->LevelUpOffer.OfferId,0),TEXT("Earned completion XP grants another personal choice"));
         if(Now>=R.SupportCheckAt) {
           if(R.WonAt==0) {
             R.WonAt=Now;

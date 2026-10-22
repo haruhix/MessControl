@@ -90,6 +90,8 @@ void AMCPlaytestBotController::Configure(EMCPlaytestBotSkill InSkill,int32 BotIn
 {
     Skill=InSkill; Tuning=FMCPlaytestBotTuning::ForSkill(Skill);
     NutFlankSide=BotIndex%2==0?1:-1;
+    static constexpr float DeliveryLanes[]={0.f,-270.f,270.f,-540.f,540.f};
+    PreferredDeliveryLane=DeliveryLanes[FMath::Abs(BotIndex%int32(UE_ARRAY_COUNT(DeliveryLanes)))];
     Random.Initialize(int32(uint32(Seed)^((uint32(BotIndex)+1u)*2654435761u)));
     AimError=Random.FRandRange(-Tuning.AimErrorDegrees,Tuning.AimErrorDegrees);
     bConfigured=true;
@@ -112,6 +114,7 @@ void AMCPlaytestBotController::OnPossess(APawn* InPawn)
     NutFlankTarget.Reset(); NutFlankPoints.Reset(); NutFlankPointIndex=0; NutFlankUntil=NextNutFlankAt=0;
     bNutBossCare=false;
     NextPrimaryAt=PrimaryReleaseAt=NextThrowAt=CollectStartedAt=0;bSeekingWarmth=false;
+    LastCollectedAt=DeliveryPoseReadyAt=0;LastFoodLoadCount=0;bDeliveringTower=false;
     CoffeeThreat.Reset();bCoffeeSurvival=bCoffeeHasSafePoint=bCoffeeWasWet=false;NextCoffeePlanAt=0;
     if(Hero) {
         Hero->GetCharacterMovement()->GetNavMovementProperties()->bUseAccelerationForPaths=true;
@@ -271,7 +274,10 @@ bool AMCPlaytestBotController::IsKnownMealFood(const AMCFoodActor* Food) const
 bool AMCPlaytestBotController::IsTaskValid() const
 {
     AActor* Actor=Target.Get(); if(!IsValid(Actor)) return false;
-    if(Goal==EMCPlaytestBotGoal::Deliver) return Hero && IsValid(CarriedFood());
+    if(Goal==EMCPlaytestBotGoal::Deliver) {
+        const auto* Food=CarriedFood();const auto* Zone=Cast<AMCFoodDisposal>(Actor);
+        return Food && Zone && Zone->bBrushBin==NeedsDiscard(Food);
+    }
     if(Goal==EMCPlaytestBotGoal::RescueIce) {const auto* Player=Cast<AMCToothCharacter>(Actor);return Player && Player->Status->IsAlive() && Player->HasFrozenLegs();}
     if(Goal==EMCPlaytestBotGoal::Clean || Goal==EMCPlaytestBotGoal::Repair) {
         if(const auto* Surface=Cast<AMCMouthSurface>(Actor);Surface && Goal==EMCPlaytestBotGoal::Clean) return !Surface->bUlcer && !Surface->IsClean();
@@ -322,6 +328,7 @@ void AMCPlaytestBotController::ChooseTask()
     if(const AMCFoodActor* Piece=CarriedFood()) {
         for(TActorIterator<AMCFoodDisposal> It(GetWorld());It;++It)
             if(It->bBrushBin==NeedsDiscard(Piece) && (It->bBrushBin || Cast<AMCThroat>(*It) || It->bEnableLegacyDeliveryZone)) Consider(*It,EMCPlaytestBotGoal::Deliver,3000,true);
+        if(Goal==EMCPlaytestBotGoal::Deliver) bDeliveringTower=true;
     } else {
         if(Hero->Status->NeedsCare(false)) Consider(Hero,EMCPlaytestBotGoal::Repair,1800);
         if(Hero->Status->NeedsCare(true)) Consider(Hero,EMCPlaytestBotGoal::Clean,850);
@@ -1094,6 +1101,7 @@ void AMCPlaytestBotController::Decide()
     if(RescueFrozenLegs()) return;
     if(ReactToHazard()) return;
     const double Now=GetWorld()->GetTimeSeconds();
+    RefreshFoodLoadProgress();
     bool LiveNutBoss=false;
     for(TActorIterator<AMCNutBoss> It(GetWorld());It;++It) if(It->IsEncounterAlive()) {LiveNutBoss=true;break;}
     if(LiveNutBoss && Hero->Status->Settings.bAllowSelfCare && Hero->Status->NeedsCare(false)
@@ -1126,12 +1134,12 @@ void AMCPlaytestBotController::Decide()
     }
     if(HandleEventWork()) return;
     const bool FightingNut=Goal==EMCPlaytestBotGoal::Fight && Cast<AMCNutEnemy>(Target.Get()) && IsTaskValid();
-    if(Goal==EMCPlaytestBotGoal::CollectFood && Hero->FoodCollection->bCollecting && Now-CollectStartedAt<1.6
-        && Hero->FoodCollection->Pieces.Num()<Hero->FoodCollection->EffectiveCapacity() && Hero->FoodCollection->HasCandidate()) return;
+    if(ContinueFoodCollection()) return;
     const auto* Load=CarriedFood();
     const bool ReadyToDeliver=Load && Load->Phase!=EMCFoodPhase::Stuck && Goal!=EMCPlaytestBotGoal::Deliver && !FightingNut;
     const bool KeepNutFight=FightingNut && IsNutEncounterActive();
-    if(ReadyToDeliver || !IsTaskValid() || (!KeepNutFight && Now>=NextTaskAt && !Hero->IsPrimaryHeld() && !Hero->bHandling)) {
+    const bool KeepDelivery=Goal==EMCPlaytestBotGoal::Deliver && IsTaskValid();
+    if(ReadyToDeliver || !IsTaskValid() || (!KeepNutFight && !KeepDelivery && Now>=NextTaskAt && !Hero->IsPrimaryHeld() && !Hero->bHandling)) {
         if(Now<NextHesitationAt) return;
         if(Random.FRand()<Tuning.HesitationChance) { ReleaseInputs(); StopMovement(); NextHesitationAt=Now+Tuning.DecisionSeconds*2; return; }
         ChooseTask();

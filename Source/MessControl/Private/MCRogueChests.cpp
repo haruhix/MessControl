@@ -39,7 +39,7 @@ bool AMCRewardChest::ConfirmRogueContract(AMCToothCharacter* Player)
     TGuardValue<bool> Guard(bClaimInProgress,true);
     // One validated batch: callbacks see both final stacks and cannot apply half a deal.
     if(!PS->Perks->ServerGrantPerks({ContractCurse,ContractReward})) return false;
-    ClaimedMask=7;ForceNetUpdate();FinishReward(false);return true;
+    ClaimedMask=7;PS->RecordChestRewardChoice();ForceNetUpdate();FinishReward(false);return true;
 }
 bool AMCRewardChest::DeclineRogueReward(AMCToothCharacter* Player)
 {

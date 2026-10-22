@@ -17,6 +17,7 @@ import builtins
 import csv
 import hashlib
 import json
+import os
 import re
 import time
 import traceback
@@ -76,6 +77,23 @@ def dirty():
         + list(u.EditorLoadingAndSavingUtils.get_dirty_map_packages()))
 
 
+def exact_task_worker_owned(command_line, requested):
+    """One explicit task worker may opt in; ordinary probes keep flag guards."""
+    approved = Path('E:/CodexWork/MessControlMenuShowcase_20261021/EditorWorker.py')
+    if requested is None or Path(requested).resolve() != approved.resolve():
+        return False
+    match = re.search(r'(?:^|\s)-ExecutePythonScript=(?:"([^"]+)"|([^\s]+))', command_line, re.IGNORECASE)
+    if not match or Path(match.group(1) or match.group(2)).resolve() != approved.resolve():
+        return False
+    try:
+        evidence = json.loads((approved.parent / 'Ready.json').read_text(encoding='utf-8-sig'))
+        return (approved.is_file() and evidence.get('ready') is True
+                and evidence.get('pid') == os.getpid()
+                and Path(evidence.get('project', '')).resolve() == ROOT.resolve())
+    except (OSError, ValueError, TypeError):
+        return False
+
+
 def has_outer(obj, root):
     for _ in range(20):
         if not valid(obj):
@@ -117,7 +135,8 @@ def owned_gameplay_hud(controller):
 class FirstRelaxSolo:
     def __init__(self):
         command_line = u.SystemLibrary.get_command_line()
-        require('-MCFirstRelaxOwned' in command_line or '-MCHubOwned' in command_line,
+        require('-MCFirstRelaxOwned' in command_line or '-MCHubOwned' in command_line
+            or exact_task_worker_owned(command_line, getattr(self, 'task_owned_editor_worker', None)),
             'Explicit owned-editor launch flag required')
         require(Path(u.Paths.project_dir()).resolve() == ROOT.resolve(), 'Wrong project checkout')
         require(OUT.drive.upper() == 'E:', 'All outputs must remain on E:')

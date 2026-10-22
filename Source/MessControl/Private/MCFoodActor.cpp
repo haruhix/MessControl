@@ -1,7 +1,6 @@
 ﻿#include "MCFoodActor.h"
 #include "MCToothCharacter.h"
 #include "MCPerkComponent.h"
-#include "MCProgressionComponent.h"
 #include "MCGameMode.h"
 #include "MCPlayerState.h"
 #include "MCTutorialDirector.h"
@@ -411,14 +410,12 @@ void AMCFoodActor::AwardDelivery()
     bDeliveryScored=true;
     if (auto* Tutorial=AMCTutorialDirector::Find(GetWorld()))
         if (LastHandledBy) Tutorial->NotifyAction(Cast<AMCToothCharacter>(LastHandledBy->GetPawn()),EMCTutorialAction::FoodDelivered,this);
-    // Encounter debris can be cleared, but neither the nut nor its pieces grant XP.
+    // Encounter debris can be cleared without awarding ordinary task credit.
     if(ActorHasTag(TEXT("MCNutRain"))) return;
     if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) {
         Mode->AwardTaskToPlayerState(LastHandledBy,EMCScoreTask::Food);
         if(auto* Perks=UMCPerkComponent::ForActor(LastHandledBy);Perks && FoodData.Kind!=EMCFoodKind::ForeignObject) {
             Perks->NotifyFoodDelivered();
-            if(auto* GS=GetWorld()->GetGameState<AMCGameState>();GS && GS->bSingleDayLoop && !GS->bTutorialActive && !GS->bLobbyWaiting && GS->Progression)
-                GS->Progression->AddExperience(Perks->FoodExperienceBonus(Mode->ScoreRewards.ForTask(EMCScoreTask::Food)));
         }
     }
 }
@@ -644,7 +641,7 @@ void AMCFoodActor::Tick(float Dt)
     FString Caption=Phase==EMCFoodPhase::Stuck?FString::Printf(TEXT("LMB + MOVE TO CENTRE\nPULL %.0f%% | %d GRIPS"),PullProgress*100,Holders.Num()):Phase==EMCFoodPhase::Carried?TEXT("RELEASE LMB: DROP | Q: THROW"):TEXT("HOLD LMB: PICK UP / DRAG");
     if (!UsesLegacyGrip()) Caption=StackCarrier?TEXT("LMB: DROP STACK | Q: THROW"):
         (ActorHasTag(TEXT("MCNutRain")) || Cast<AMCNutRainEvent>(GetOwner()))?(IsHardFood()?TEXT("PICKAXE: BREAK"):TEXT("KNIFE: BREAK")):
-        IsHardFood()?TEXT("PICKAXE: BREAK FOR XP"):TEXT("KNIFE: BREAK FOR XP");
+        IsHardFood()?TEXT("PICKAXE: BREAK FOOD"):TEXT("KNIFE: CUT FOOD");
     if (!ItemName.IsNone()) Caption=FString::Printf(TEXT("%s | HP %.0f | %.1f kg\n%s | %s"),*FoodData.Label.ToString(),Health,Settings.Mass,*Caption,bSpoiled?TEXT("SPOILED"):FoodData.Kind==EMCFoodKind::Spicy?*FString::Printf(TEXT("%.1fs %s"),FuseRemaining(),bFusePaused?TEXT("PAUSED"):TEXT("THROW INTO THROAT")):FoodData.Kind==EMCFoodKind::ForeignObject?TEXT("FOREIGN OBJECT"):*FString::Printf(TEXT("SPOIL %.0fs"),FMath::Max(0.,SpoilAt-(GetWorld()->GetGameState()?GetWorld()->GetGameState()->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds()))));
     if (bBrushTool) Caption=TEXT("LMB: PICK UP BRUSH\nQ: THROW OVERBOARD");
     if(FoodData.Kind==EMCFoodKind::Spicy) {

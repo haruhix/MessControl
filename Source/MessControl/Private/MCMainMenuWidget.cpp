@@ -1,6 +1,7 @@
 #include "MCMainMenuWidget.h"
 
 #include "MCGameState.h"
+#include "MCHubGameState.h"
 #include "MCPlayerController.h"
 #include "MCSteamSessionSubsystem.h"
 #include "MCUIDataLibrary.h"
@@ -26,6 +27,7 @@
 #include "Components/VerticalBoxSlot.h"
 #include "Components/WidgetSwitcher.h"
 #include "Engine/GameInstance.h"
+#include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "GameFramework/GameUserSettings.h"
 #include "GameFramework/PlayerState.h"
@@ -321,6 +323,7 @@ UMCMainMenuActionButton* UMCMainMenuWidget::AddButton(const FString& Text, EMCMa
     static const TCHAR* ActionNames[]={TEXT("Tutorial"),TEXT("CreateLobby"),TEXT("JoinLobby"),TEXT("Settings"),TEXT("Credits"),TEXT("Exit"),TEXT("Back"),TEXT("Host"),TEXT("FindRooms"),TEXT("JoinRoom"),TEXT("JoinAddress"),TEXT("ApplySettings"),TEXT("KeepSettings"),TEXT("RevertSettings"),TEXT("StartLobby"),TEXT("Invite"),TEXT("LeaveLobby"),TEXT("ConfirmLeave"),TEXT("ConfirmExit"),TEXT("Resume"),TEXT("Emotes")};
     static_assert(UE_ARRAY_COUNT(ActionNames)==int32(EMCMainMenuAction::Emotes)+1,"Keep action keys aligned with the existing menu actions");
     FName Key(*(FString(TEXT("UI.MainMenu.Action."))+ActionNames[FMath::Clamp(int32(Action),0,int32(UE_ARRAY_COUNT(ActionNames))-1)]));
+    if(Action==EMCMainMenuAction::CreateLobby) Key=TEXT("UI.MainMenu.Action.PlayHub");
     if(Action==EMCMainMenuAction::Back && (Page==EPage::Exit || Page==EPage::Leave)) Key=TEXT("UI.MainMenu.Action.Cancel");
     if(Action==EMCMainMenuAction::LeaveLobby && Page==EPage::Pause) Key=TEXT("UI.MainMenu.Action.ReturnToMenu");
     if(Page==EPage::Settings && Action==EMCMainMenuAction::ApplySettings) Key=TEXT("UI.Settings.Apply");
@@ -633,12 +636,12 @@ void UMCMainMenuWidget::BuildPageContents()
     case EPage::Main:
         AddText(LocalizedCopy(TEXT("UI.MainMenu.Tagline"),TEXT("Четыре маленьких зуба. Один рот. Семь дней хаоса.")),16);
         AddButton(TEXT("Tutorial"),EMCMainMenuAction::Tutorial);
-        AddButton(TEXT("Create Lobby"),EMCMainMenuAction::CreateLobby);
+        AddButton(TEXT("Play"),EMCMainMenuAction::CreateLobby);
         AddButton(TEXT("Join Lobby"),EMCMainMenuAction::JoinLobby);
         AddButton(TEXT("Settings"),EMCMainMenuAction::Settings);
         AddButton(TEXT("Credits"),EMCMainMenuAction::Credits);
         AddButton(TEXT("Exit"),EMCMainMenuAction::Exit);
-        AddText(LocalizedCopy(TEXT("UI.MainMenu.ModeHint"),TEXT("Tutorial — отдельная учебная смена. Create Lobby — обычная игра с друзьями.")),14);
+        AddText(LocalizedCopy(TEXT("UI.MainMenu.HubFlowHint"),TEXT("Play — сразу в хаб. Пригласите друзей и встаньте вместе в Ready-зону, чтобы начать игру.")),14);
         break;
     case EPage::Host:
         AddText(LocalizedCopy(TEXT("UI.MainMenu.HostHeading"),TEXT("CREATE LOBBY")),24);
@@ -716,6 +719,7 @@ void UMCMainMenuWidget::BuildPageContents()
     case EPage::Pause:
         AddText(LocalizedCopy(TEXT("UI.MainMenu.PauseHeading"),TEXT("MENU")),24);
         AddButton(TEXT("Resume"),EMCMainMenuAction::Resume);
+        OnlineButtons.Add(AddButton(TEXT("Invite Steam Friends"),EMCMainMenuAction::Invite));
         AddButton(TEXT("Emotes / Сигналы"),EMCMainMenuAction::Emotes);
         AddButton(TEXT("Settings"),EMCMainMenuAction::Settings);
         AddButton(TEXT("Credits"),EMCMainMenuAction::Credits);
@@ -753,11 +757,26 @@ void UMCMainMenuWidget::CachePageControls()
     StartButton=nullptr;
     auto* ActiveRoot=GetActiveMenuPageRoot();
     if (!ActiveRoot) return;
+    // Earlier saved Pause shells predate Hub invitations. Add only the missing
+    // action, leaving every artist-owned child and layout otherwise in place.
+    const FString InviteSuffix=FString::Printf(TEXT("Action%d"),int32(EMCMainMenuAction::Invite));
+    if(Page==EPage::Pause && Content && !Find(*InviteSuffix))
+    {
+        AddButton(TEXT("Invite Steam Friends"),EMCMainMenuAction::Invite);
+        Buttons.Reset();OnlineButtons.Reset();GamepadTargets.Reset();
+    }
     UWidgetTree::ForWidgetAndChildren(ActiveRoot,[this](UWidget* Widget)
     {
         if (auto* Button=Cast<UMCMainMenuActionButton>(Widget))
         {
             Button->Configure(this,Button->Action);
+            if(Button->Action==EMCMainMenuAction::CreateLobby)
+                UWidgetTree::ForWidgetAndChildren(Button,[this](UWidget* Child) {
+                    if(auto* Label=Cast<UTextBlock>(Child)) {
+                        TextBindings.Add(Label->GetFName(),TEXT("UI.MainMenu.Action.PlayHub"));
+                        Label->SetText(FText::FromString(LocalizedCopy(TEXT("UI.MainMenu.Action.PlayHub"),TEXT("Play"))));
+                    }
+                });
             Buttons.Add(Button);GamepadTargets.Add(Button);
             switch(Button->Action)
             {
@@ -864,6 +883,8 @@ void UMCMainMenuWidget::RefreshPageData(bool bResetSettings)
     case EPage::Settings: if (bResetSettings) RefreshSettingsControls(); break;
     case EPage::Lobby:
         ActionVisible(EMCMainMenuAction::Invite,bSteam);Visible(TEXT("LocalHint"),!bSteam);RefreshLobby();break;
+    case EPage::Pause:
+        ActionVisible(EMCMainMenuAction::Invite,bSteam && Steam->HasRoom() && GetWorld() && GetWorld()->GetGameState<AMCHubGameState>());break;
     case EPage::Leave:
         Copy(TEXT("ModeBody"),GetOwningPlayer() && GetOwningPlayer()->HasAuthority()?
             LocalizedCopy(TEXT("UI.Menu.LeaveHostBody"),TEXT("Ты — хост. При выходе соединение остальных игроков с комнатой закроется.")):
@@ -1249,7 +1270,8 @@ void UMCMainMenuWidget::NativeTick(const FGeometry& Geometry, float DeltaSeconds
     if (Steam)
     {
         for (UButton* Button:OnlineButtons) if (Button) Button->SetIsEnabled(!Steam->IsBusy());
-        if ((Page==EPage::Host || Page==EPage::Join) && Steam->GetStatus()!=LastSessionStatus)
+        if ((Page==EPage::Host || Page==EPage::Join || Page==EPage::Main || Page==EPage::Connection || Page==EPage::Pause)
+            && Steam->GetStatus()!=LastSessionStatus)
         {
             LastSessionStatus=Steam->GetStatus();
             SetStatus(LastSessionStatus);
@@ -1300,12 +1322,26 @@ FReply UMCMainMenuWidget::NativeOnAnalogValueChanged(const FGeometry& Geometry,c
     return Super::NativeOnAnalogValueChanged(Geometry,Event);
 }
 
+bool UMCMainMenuWidget::PlayToHub(const UObject* WorldContextObject)
+{
+    UWorld* World=GEngine?GEngine->GetWorldFromContextObject(WorldContextObject,EGetWorldErrorMode::ReturnNull):nullptr;
+    if(!World || !World->IsGameWorld() || World->GetNetMode()==NM_Client) return false;
+    if(UGameInstance* Instance=World->GetGameInstance())
+        if(auto* Sessions=Instance->GetSubsystem<UMCSteamSessionSubsystem>()) return Sessions->EnterHub();
+    // Isolated native/menu fixtures do not initialize instance subsystems.
+    // Keep their offline path equivalent, without accessing an online backend.
+    const FWorldContext* Context=GEngine->GetWorldContextFromWorld(World);
+    if((Context && !Context->TravelURL.IsEmpty()) || World->GetMapName().EndsWith(TEXT("Hub"),ESearchCase::IgnoreCase)) return false;
+    UGameplayStatics::OpenLevel(World,FName(TEXT("/Game/Maps/Hub")),true,TEXT("listen?game=/Script/MessControl.MCHubGameMode"));
+    return true;
+}
+
 void UMCMainMenuWidget::HandleAction(EMCMainMenuAction Action)
 {
     if (bEmbeddedCloseRequested) return;
     auto* Steam=MCMainMenuPrivate::Sessions(this);
     auto* PC=GetOwningPlayer();
-    const bool bLaunchAction=Action==EMCMainMenuAction::Tutorial || Action==EMCMainMenuAction::CreateLobby
+    const bool bLaunchAction=Action==EMCMainMenuAction::Tutorial
         || Action==EMCMainMenuAction::JoinLobby || Action==EMCMainMenuAction::Host
         || Action==EMCMainMenuAction::FindRooms || Action==EMCMainMenuAction::JoinRoom
         || Action==EMCMainMenuAction::JoinAddress || Action==EMCMainMenuAction::StartLobby;
@@ -1325,7 +1361,7 @@ void UMCMainMenuWidget::HandleAction(EMCMainMenuAction Action)
         if (Steam && Steam->IsBusy()) { SetStatus(LocalizedCopy(TEXT("UI.MainMenu.ConnectionBusy"),TEXT("Дождись завершения подключения."))); break; }
         UGameplayStatics::OpenLevel(this,MCMainMenuPrivate::TutorialMap,true,TEXT("MCTutorial=1"));
         break;
-    case EMCMainMenuAction::CreateLobby: ShowPage(EPage::Host); break;
+    case EMCMainMenuAction::CreateLobby: PlayToHub(this); break;
     case EMCMainMenuAction::JoinLobby: ShowPage(EPage::Join); break;
     case EMCMainMenuAction::Settings: ShowPage(EPage::Settings); break;
     case EMCMainMenuAction::Credits: ShowPage(EPage::Credits); break;

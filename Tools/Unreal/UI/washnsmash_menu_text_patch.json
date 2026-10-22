@@ -1,0 +1,73 @@
+[
+  {
+    "Name": "UI.MainMenu.BrandTitle",
+    "SourceText": "Wash n Smash",
+    "RU": "Wash n Smash", "EN": "Wash n Smash", "DE": "Wash n Smash",
+    "FR": "Wash n Smash", "ES": "Wash n Smash", "PT_BR": "Wash n Smash",
+    "ZH_HANS": "Wash n Smash", "ZH_HANT": "Wash n Smash", "JA": "Wash n Smash", "KO": "Wash n Smash"
+  },
+  {
+    "Name": "UI.WashMenu.JoinFriends",
+    "SourceText": "Join friends",
+    "Context": "Main-menu label only; uses the existing JoinLobby action and connection flow.",
+    "RU": "Играть с друзьями", "EN": "Join friends", "DE": "Freunden beitreten",
+    "FR": "Rejoindre des amis", "ES": "Unirse a amigos", "PT_BR": "Entrar com amigos",
+    "ZH_HANS": "加入好友", "ZH_HANT": "加入好友", "JA": "フレンドに参加", "KO": "친구와 함께하기"
+  },
+  {
+    "Name": "UI.WashMenu.Play", "SourceText": "Play",
+    "Context": "Wash n Smash saved main-menu Play label; existing CreateLobby action enters the Hub.",
+    "RU": "Играть", "EN": "Play", "DE": "Spielen", "FR": "Jouer", "ES": "Jugar",
+    "PT_BR": "Jogar", "ZH_HANS": "开始游戏", "ZH_HANT": "開始遊戲", "JA": "プレイ", "KO": "플레이"
+  },
+  {
+    "Name": "UI.MainMenu.Action.PlayHub", "SourceText": "Играть",
+    "Context": "Play immediately creates a room and enters the Hub.",
+    "RU": "Играть", "EN": "Play", "DE": "Spielen", "FR": "Jouer", "ES": "Jugar",
+    "PT_BR": "Jogar", "ZH_HANS": "开始游戏", "ZH_HANT": "開始遊戲", "JA": "プレイ", "KO": "플레이"
+  },
+  {
+    "Name": "UI.MainMenu.Action.Tutorial", "SourceText": "Tutorial",
+    "RU": "Обучение", "EN": "Tutorial", "DE": "Einführung", "FR": "Tutoriel", "ES": "Tutorial",
+    "PT_BR": "Tutorial", "ZH_HANS": "教程", "ZH_HANT": "教學", "JA": "チュートリアル", "KO": "튜토리얼"
+  },
+  {
+    "Name": "UI.MainMenu.Action.Settings", "SourceText": "Settings",
+    "RU": "Настройки", "EN": "Settings", "DE": "Einstellungen", "FR": "Paramètres", "ES": "Ajustes",
+    "PT_BR": "Configurações", "ZH_HANS": "设置", "ZH_HANT": "設定", "JA": "設定", "KO": "설정"
+  },
+  {
+    "Name": "UI.MainMenu.Action.Credits", "SourceText": "Credits",
+    "RU": "Авторы", "EN": "Credits", "DE": "Mitwirkende", "FR": "Crédits", "ES": "Créditos",
+    "PT_BR": "Créditos", "ZH_HANS": "制作人员", "ZH_HANT": "製作人員", "JA": "クレジット", "KO": "제작진"
+  },
+  {
+    "Name": "UI.MainMenu.Action.Exit", "SourceText": "Exit",
+    "RU": "Выход", "EN": "Exit", "DE": "Beenden", "FR": "Quitter", "ES": "Salir",
+    "PT_BR": "Sair", "ZH_HANS": "退出", "ZH_HANT": "離開", "JA": "終了", "KO": "종료"
+  },
+  {
+    "Name": "UI.MainMenu.Tagline", "SourceText": "Четыре маленьких зуба. Один рот. Семь дней хаоса.",
+    "RU": "Четыре маленьких зуба. Один рот. Семь дней хаоса.",
+    "EN": "Four little teeth. One mouth. Seven days of chaos.",
+    "DE": "Vier kleine Zähne. Ein Mund. Sieben Tage Chaos.",
+    "FR": "Quatre petites dents. Une bouche. Sept jours de chaos.",
+    "ES": "Cuatro dientecitos. Una boca. Siete días de caos.",
+    "PT_BR": "Quatro dentinhos. Uma boca. Sete dias de caos.",
+    "ZH_HANS": "四颗小牙。一张嘴。七天大混乱。", "ZH_HANT": "四顆小牙。一張嘴。七天大混亂。",
+    "JA": "小さな歯が4本。口はひとつ。混乱の7日間。", "KO": "작은 이빨 넷. 입 하나. 혼돈의 7일."
+  },
+  {
+    "Name": "UI.MainMenu.NavigationHint", "SourceText": "Мышь / ↑↓ / D-pad · Enter / A — выбрать · Esc / B — назад",
+    "RU": "Мышь / ↑↓ / D-pad · Enter / A — выбрать · Esc / B — назад",
+    "EN": "Mouse / ↑↓ / D-pad · Enter / A — select · Esc / B — back",
+    "DE": "Maus / ↑↓ / Steuerkreuz · Enter / A — wählen · Esc / B — zurück",
+    "FR": "Souris / ↑↓ / croix · Entrée / A — choisir · Échap / B — retour",
+    "ES": "Ratón / ↑↓ / cruceta · Enter / A — elegir · Esc / B — volver",
+    "PT_BR": "Mouse / ↑↓ / direcional · Enter / A — escolher · Esc / B — voltar",
+    "ZH_HANS": "鼠标 / ↑↓ / 方向键 · Enter / A — 选择 · Esc / B — 返回",
+    "ZH_HANT": "滑鼠 / ↑↓ / 方向鍵 · Enter / A — 選擇 · Esc / B — 返回",
+    "JA": "マウス / ↑↓ / 方向キー · Enter / A：選択 · Esc / B：戻る",
+    "KO": "마우스 / ↑↓ / 십자키 · Enter / A — 선택 · Esc / B — 뒤로"
+  }
+]

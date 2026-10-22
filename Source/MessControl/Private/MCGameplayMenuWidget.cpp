@@ -3,6 +3,7 @@
 #include "MCSteamSessionSubsystem.h"
 #include "MCUIDataLibrary.h"
 #include "MCGameplayHUD.h"
+#include "MCHubGameState.h"
 #include "MCUIVisualStyle.h"
 #include "Blueprint/WidgetTree.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
@@ -22,6 +23,7 @@
 #include "Components/VerticalBoxSlot.h"
 #include "Components/WidgetSwitcher.h"
 #include "Engine/GameInstance.h"
+#include "Engine/World.h"
 #include "GameFramework/GameUserSettings.h"
 #include "GameFramework/PlayerController.h"
 #include "InputCoreTypes.h"
@@ -132,6 +134,7 @@ void UMCGameplayMenuWidget::BuildPresentationTree()
     auto MakePage=[&](const TCHAR* Name){auto* Panel=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),Name);Pages->AddChild(Panel);return Panel;};
     auto* Pause=MakePage(TEXT("MenuPausePage"));
     AddButton(Pause,TEXT("MenuResume"),FText::GetEmpty(),EMCGameplayMenuAction::Resume);
+    AddButton(Pause,TEXT("MenuPauseInvite"),FText::GetEmpty(),EMCGameplayMenuAction::Invite);
     AddButton(Pause,TEXT("MenuEmotes"),FText::GetEmpty(),EMCGameplayMenuAction::Emotes);
     AddButton(Pause,TEXT("MenuSettings"),FText::GetEmpty(),EMCGameplayMenuAction::Settings);
     AddButton(Pause,TEXT("MenuCredits"),FText::GetEmpty(),EMCGameplayMenuAction::Credits);
@@ -192,6 +195,11 @@ void UMCGameplayMenuWidget::BindPresentationTree()
     Status=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("GameplayMenuStatus")));
     Hint=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("GameplayMenuHint")));
     Pages=Cast<UWidgetSwitcher>(WidgetTree->FindWidget(TEXT("GameplayMenuPages")));
+    // Preserve the saved pause layout; the Hub invitation is one appended
+    // Designer-editable branch when an older WBP has not been migrated yet.
+    if(!WidgetTree->FindWidget(TEXT("MenuPauseInvite")))
+        if(auto* Pause=Cast<UVerticalBox>(WidgetTree->FindWidget(TEXT("MenuPausePage"))))
+            AddButton(Pause,TEXT("MenuPauseInvite"),FText::GetEmpty(),EMCGameplayMenuAction::Invite);
     ResolutionPicker=Cast<UComboBoxString>(WidgetTree->FindWidget(TEXT("MenuResolutionPicker")));
     ModePicker=Cast<UComboBoxString>(WidgetTree->FindWidget(TEXT("MenuModePicker")));
     QualityPicker=Cast<UComboBoxString>(WidgetTree->FindWidget(TEXT("MenuQualityPicker")));
@@ -323,6 +331,14 @@ void UMCGameplayMenuWidget::UpdatePageCopy()
     if(!WidgetTree) return;
     auto Set=[&](const TCHAR* Name,FName Key,const FText& Fallback){if(auto* Label=Cast<UTextBlock>(WidgetTree->FindWidget(Name))) Label->SetText(Copy(Key,Fallback));};
     Set(TEXT("MenuResumeLabel"),TEXT("UI.Menu.Resume"),LOCTEXT("Resume","Продолжить"));
+    Set(TEXT("MenuPauseInviteLabel"),TEXT("hub.invite"),LOCTEXT("HubInvite","ПРИГЛАСИТЬ ДРУЗЕЙ"));
+    if(auto* Invite=WidgetTree->FindWidget(TEXT("MenuPauseInvite"))) {
+        auto* Sessions=IsPreviewing()?nullptr:MCGameplayMenuPrivate::Sessions(this);
+        const bool Available=IsPreviewing()?bPreviewSteamAvailable
+            :Sessions && Sessions->CanUseSteam() && Sessions->HasRoom() && GetWorld() && GetWorld()->GetGameState<AMCHubGameState>();
+        Invite->SetVisibility(Available?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+        Invite->SetIsEnabled(Available && (!Sessions || !Sessions->IsBusy()));
+    }
     Set(TEXT("MenuEmotesLabel"),TEXT("UI.Menu.Emotes"),LOCTEXT("Emotes","Эмоции и сигналы"));
     Set(TEXT("MenuSettingsLabel"),TEXT("UI.Menu.Settings"),LOCTEXT("Settings","Настройки"));
     Set(TEXT("MenuCreditsLabel"),TEXT("UI.Menu.Credits"),LOCTEXT("Credits","Авторы"));
@@ -639,6 +655,7 @@ void UMCGameplayMenuWidget::NativeTick(const FGeometry& Geometry,float DeltaSeco
     }
     RefreshAccumulator+=DeltaSeconds;if(RefreshAccumulator<.2f) return;RefreshAccumulator=0;
     if(Page==EPage::Connection) RefreshConnection();
+    if(Page==EPage::Pause) UpdatePageCopy();
 }
 FReply UMCGameplayMenuWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
 {

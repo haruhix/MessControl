@@ -3,6 +3,7 @@
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
 #include "MCFoodCollectionComponent.h"
+#include "MCNutEnemy.h"
 #include "MCThroat.h"
 #include "MCTongue.h"
 #include "MCIceEvent.h"
@@ -21,6 +22,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
 #include "NavigationSystem.h"
+#include "NavigationPath.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "HAL/IConsoleManager.h"
 
@@ -137,6 +139,9 @@ bool AMCPlaytestBotController::HandleCoffeeSurvival(float DeltaSeconds)
 
 namespace
 {
+bool NeedsBotFoodDiscard(const AMCFoodActor* Food)
+{ return IsValid(Food) && (Food->bSpoiled || Food->IsWrongIngredient() || Food->FoodData.Kind==EMCFoodKind::Spicy); }
+
 TAutoConsoleVariable<int32> FoodThrowDebug(TEXT("mc.Bots.ThrowDebug"),0,
     TEXT("Log at most one AI food trajectory result per worker every two game seconds (0 off, 1 on)."));
 
@@ -157,10 +162,9 @@ void LogFoodArc(AMCToothCharacter* Hero,AMCFoodActor* Food,bool HighArc,FVector 
         Block?*Block->ImpactPoint.ToString():TEXT("none"),Block && Block->bStartPenetrating?1:0);
 }
 
-bool IsFoodBoxFlightClear(AMCToothCharacter* Hero,AMCFoodActor* Food,FVector Launch,FVector Aim,FVector Velocity,float FlightSeconds,bool HighArc)
+bool IsFoodBoxFlightClear(AMCToothCharacter* Hero,AMCFoodActor* Food,FVector Launch,FVector Aim,FVector Velocity,float FlightSeconds,bool HighArc,const FQuat& Initial)
 {
     const FVector HalfExtent=Food->Body->GetScaledBoxExtent();
-    const FQuat Initial=Food->Body->GetComponentQuat();
     const double Gravity=Hero->GetWorld()->GetGravityZ();
     // Match LaunchManualThrow's world-space spin and damping. A sphere around
     // the box diagonal falsely touches the tongue for wide, flat food pieces.
@@ -175,7 +179,11 @@ bool IsFoodBoxFlightClear(AMCToothCharacter* Hero,AMCFoodActor* Food,FVector Lau
     for(const auto& Piece:Hero->FoodCollection->Pieces) if(IsValid(Piece)) Query.AddIgnoredActor(Piece.Get());
     if(IsValid(Hero->HeldFood)) Query.AddIgnoredActor(Hero->HeldFood.Get());
     if(Hero->Grip && IsValid(Hero->Grip->Secondary.Food)) Query.AddIgnoredActor(Hero->Grip->Secondary.Food.Get());
-    const FCollisionResponseParams Response(Food->Body->GetCollisionResponseToChannels());
+    FCollisionResponseParams Response(Food->Body->GetCollisionResponseToChannels());
+    // OnRep_Phase restores these two blocking responses as Q releases a
+    // tower slot. Forecast the free projectile, not its kinematic pickup state.
+    Response.CollisionResponse.SetResponse(ECC_PhysicsBody,ECR_Block);
+    Response.CollisionResponse.SetResponse(AMCFoodActor::FragmentCollisionChannel,ECR_Block);
     const int32 Steps=FMath::Clamp(FMath::CeilToInt(FlightSeconds*30.f),1,300);
     for(int32 Index=0;Index<Steps;++Index) {
         const double Before=FlightSeconds*double(Index)/Steps,After=FlightSeconds*double(Index+1)/Steps;
@@ -194,7 +202,7 @@ bool IsFoodBoxFlightClear(AMCToothCharacter* Hero,AMCFoodActor* Food,FVector Lau
     LogFoodArc(Hero,Food,HighArc,Launch,Aim,Velocity,HalfExtent,Initial,FlightSeconds,nullptr);return true;
 }
 
-bool SolveClearFoodArc(AMCToothCharacter* Hero,AMCFoodActor* Food,FVector Launch,FVector Aim,FVector& Velocity)
+bool SolveClearFoodArc(AMCToothCharacter* Hero,AMCFoodActor* Food,FVector Launch,FVector Aim,FVector& Velocity,const FQuat* PredictedRotation=nullptr)
 {
     if(!IsValid(Hero) || !IsValid(Food) || !Food->Body || !Hero->FoodCollection) return false;
     for(const bool HighArc:{false,true}) {
@@ -204,7 +212,8 @@ bool SolveClearFoodArc(AMCToothCharacter* Hero,AMCFoodActor* Food,FVector Launch
         const float FlightSeconds=FVector::Dist2D(Launch,Aim)/Velocity.Size2D();
         if(!FMath::IsFinite(FlightSeconds) || FlightSeconds<=0 || FlightSeconds>10) continue;
         // Throat tissue, gums, teeth and containment remain in the query.
-        if(IsFoodBoxFlightClear(Hero,Food,Launch,Aim,Velocity,FlightSeconds,HighArc)) return true;
+        if(IsFoodBoxFlightClear(Hero,Food,Launch,Aim,Velocity,FlightSeconds,HighArc,
+            PredictedRotation?*PredictedRotation:Food->Body->GetComponentQuat())) return true;
     }
     return false;
 }
@@ -216,6 +225,71 @@ AMCFoodActor* AMCPlaytestBotController::CarriedFood() const
     if(Hero->FoodCollection) for(int32 Index=Hero->FoodCollection->Pieces.Num()-1;Index>=0;--Index)
         if(IsValid(Hero->FoodCollection->Pieces[Index])) return Hero->FoodCollection->Pieces[Index];
     return IsValid(Hero->HeldFood)?Hero->HeldFood.Get():nullptr;
+}
+
+void AMCPlaytestBotController::RefreshFoodLoadProgress()
+{
+    const int32 Count=Hero->FoodCollection->Pieces.Num();
+    const double Now=GetWorld()->GetTimeSeconds();
+    if(Count>LastFoodLoadCount) {
+        if(LastFoodLoadCount==0) {CollectionOrigin=Hero->GetActorLocation();CollectStartedAt=Now;}
+        LastCollectedAt=Now;LastWorkProgressAt=Now;
+    }
+    if(Count==0 && !IsValid(Hero->HeldFood)) {bDeliveringTower=false;CollectStartedAt=LastCollectedAt=0;}
+    LastFoodLoadCount=Count;
+}
+
+bool AMCPlaytestBotController::ContinueFoodCollection()
+{
+    auto* Collection=Hero->FoodCollection.Get();
+    auto* Top=CarriedFood();
+    if(!Top || Collection->Pieces.IsEmpty() || bDeliveringTower || Top->UsesLegacyGrip()
+        || (Goal==EMCPlaytestBotGoal::Fight && Cast<AMCNutEnemy>(Target.Get()))) return false;
+    const double Now=GetWorld()->GetTimeSeconds();
+    const int32 Capacity=FMath::Clamp(FMath::Min(Collection->EffectiveCapacity(),Collection->MaxPieces),1,8);
+    // Build a useful tower through the ordinary E pickup cadence. A bounded
+    // search/age budget still delivers the last piece and food close to spoiling.
+    if(Collection->Pieces.Num()>=Capacity || Now-CollectStartedAt>=10. || Now-LastCollectedAt>=2.5) return false;
+    for(const auto& Piece:Collection->Pieces)
+        if(IsValid(Piece) && Piece->SpoilAt>Now && Piece->SpoilAt<Now+12.) return false;
+    AMCFoodActor* Best=nullptr;double BestScore=DBL_MAX;
+    for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) {
+        auto* Food=*It;
+        if(!Food->bFragment || Food->bBrushTool || Food->UsesLegacyGrip() || Food->IsDisposed()
+            || Food->StackCarrier || !Food->Holders.IsEmpty() || NeedsBotFoodDiscard(Food)!=NeedsBotFoodDiscard(Top)
+            || (Food->Phase!=EMCFoodPhase::Free && Food->Phase!=EMCFoodPhase::Falling)) continue;
+        const double Distance=FVector::DistSquared2D(Food->GetActorLocation(),Hero->GetActorLocation());
+        if(Distance>FMath::Square(700.f) || FVector::DistSquared2D(Food->GetActorLocation(),CollectionOrigin)>FMath::Square(950.f)
+            || (!IsKnownMealFood(Food) && !Collection->CanCollect(Food) && !CanObserve(Food))) continue;
+        if(const double* Retry=FailedTargets.Find(Food);Retry && Now<*Retry) continue;
+        bool Claimed=false;
+        for(TActorIterator<AMCPlaytestBotController> Other(GetWorld());Other;++Other)
+            if(*Other!=this && Other->Goal==EMCPlaytestBotGoal::CollectFood && Other->Target.Get()==Food
+                && IsValid(Other->Hero) && FVector::DistSquared2D(Other->Hero->GetActorLocation(),Food->GetActorLocation())<FMath::Square(700.f)) {Claimed=true;break;}
+        if(Claimed) continue;
+        if(Distance<BestScore) {Best=Food;BestScore=Distance;}
+    }
+    if(!Best) {
+        if(Now-LastCollectedAt>.8) return false;
+        ReleaseInputs();StopMovement();return true; // Allow the last pickup animation to settle.
+    }
+    if(Target.Get()!=Best || Goal!=EMCPlaytestBotGoal::CollectFood) {
+        ReleaseInputs();ResetApproach();Target=Best;Goal=EMCPlaytestBotGoal::CollectFood;NextMoveAt=0;
+        LastWorkProgressAt=Now;LastTargetProgress=TargetProgress();
+    }
+    // WorkAtTarget holds the same E collection action as a player and walks to
+    // the next nearby fragment; it never attaches, teleports or invents pieces.
+    WorkAtTarget();return true;
+}
+
+bool AMCPlaytestBotController::IsDeliveryStandReserved(FVector Stand) const
+{
+    for(TActorIterator<AMCPlaytestBotController> Other(GetWorld());Other;++Other) {
+        if(*Other==this || Other->Goal!=EMCPlaytestBotGoal::Deliver || !Other->bHasWorkApproach
+            || !IsValid(Other->Hero) || !Other->Hero->CanWork() || !Other->CarriedFood()) continue;
+        if(FVector::DistSquared2D(Stand,Other->WorkStand)<FMath::Square(210.f)) return true;
+    }
+    return false;
 }
 
 void AMCPlaytestBotController::PulsePrimary()
@@ -269,7 +343,7 @@ bool AMCPlaytestBotController::WorkFoodDelivery(AMCFoodDisposal* Zone)
         }
         // Stand on tissue, before the aperture/front edge, and toss from range.
         // Walking inside the old green delivery strip is lethal at the throat.
-        if(bHasWorkApproach && !IsApproachPositionClear(WorkStand)) ResetApproach(true);
+        if(bHasWorkApproach && (!IsApproachPositionClear(WorkStand) || IsDeliveryStandReserved(WorkStand))) ResetApproach(true);
         if(!bHasWorkApproach) {
             const FVector Base=Throat?Aim:FrontLip;
             const FVector Side=FVector::CrossProduct(FVector::UpVector,Direction);
@@ -277,27 +351,47 @@ bool AMCPlaytestBotController::WorkFoodDelivery(AMCFoodDisposal* Zone)
             // Already standing on exposed tissue with a clear ordinary arc:
             // throw there instead of taking an unnecessary trip to the lip.
             FHitResult CurrentFloor;FVector CurrentVelocity;
-            if(DiscardTongue && DiscardTongue->InteriorSurfacePoint(Hero->GetActorLocation(),
+            FCollisionQueryParams FloorQuery(SCENE_QUERY_STAT(MCBotDeliveryFloor),false,Hero);
+            for(const auto& Piece:Hero->FoodCollection->Pieces) FloorQuery.AddIgnoredActor(Piece.Get());
+            const FVector Position=Hero->GetActorLocation();
+            const float Height=Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+            const float BackDistance=float(FVector::DotProduct(Aim-Position,Direction));
+            const bool Supported=DiscardTongue?DiscardTongue->InteriorSurfacePoint(Position,
                 Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()+20.f,CurrentFloor)
+                :GetWorld()->LineTraceSingleByChannel(CurrentFloor,Position,Position-FVector(0,0,Height+40.f),ECC_Visibility,FloorQuery)
+                    && CurrentFloor.ImpactNormal.Z>=Hero->GetCharacterMovement()->GetWalkableFloorZ()
+                    && !Cast<APawn>(CurrentFloor.GetActor()) && !Cast<AMCFoodActor>(CurrentFloor.GetActor());
+            if(Supported && (!Throat || (BackDistance>=400.f && BackDistance<=1800.f))
                 && FMath::Abs(Hero->GetActorLocation().Z-Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()-CurrentFloor.ImpactPoint.Z)<30.f
+                && !IsDeliveryStandReserved(Position)
                 && IsApproachPositionClear(Hero->GetActorLocation())
                 && SolveClearFoodArc(Hero,Food,Food->GetActorLocation(),Aim,CurrentVelocity)) {Best=0;Chosen=Hero->GetActorLocation();}
             // A tall real stack needs distance to descend through the aperture;
             // a close downward throw can hit the tissue above the opening.
-            for(float Back:{500.f,700.f,350.f,1000.f,1300.f,1600.f}) for(float Lateral:{0.f,-180.f,180.f}) {
+            for(float Back:{700.f,1000.f,500.f,1300.f,1600.f,350.f}) for(float Lateral:{PreferredDeliveryLane,0.f,-270.f,270.f,-540.f,540.f}) {
                 FVector Stand;
                 if(!ProjectStandingPosition(Base-Direction*Back+Side*Lateral,Stand)) continue;
-                if(Throat && Throat->ContainsDeliveryPosition(Stand)) continue;
+                if((Throat && Throat->ContainsDeliveryPosition(Stand)) || IsDeliveryStandReserved(Stand)) continue;
                 FHitResult Floor;
                 if(DiscardTongue && (!DiscardTongue->InteriorSurfacePoint(Stand,Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()+20.f,Floor)
                     || FMath::Abs(Stand.Z-Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()-Floor.ImpactPoint.Z)>35.f)) continue;
                 bool Failed=false;for(const auto& Bad:FailedApproaches) if(FVector::DistSquared2D(Bad.Key,Stand)<FMath::Square(80.f)) {Failed=true;break;}
                 if(Failed) continue;
-                const float Distance=FVector::DistSquared2D(Hero->GetActorLocation(),Stand);
-                if(Distance>=Best) continue;
-                const FVector Launch=Stand+(Food->GetActorLocation()-Hero->GetActorLocation());
-                FVector Velocity;if(!SolveClearFoodArc(Hero,Food,Launch,Aim,Velocity)) continue;
-                if(Distance<Best) {Best=Distance;Chosen=Stand;}
+                const double Distance=FVector::DistSquared2D(Hero->GetActorLocation(),Stand);
+                const double Score=Distance+FMath::Square(Lateral-PreferredDeliveryLane)*.25;
+                if(Score>=Best) continue;
+                // Turning at the destination rotates the hand and every tower
+                // slot. Predict that pose, not the old world-space hand offset.
+                const FQuat Facing=FRotator(0,(Aim-Stand).Rotation().Yaw,0).Quaternion();
+                const FQuat Turn=Facing*Hero->GetActorQuat().Inverse();
+                const FVector Launch=Stand+Turn.RotateVector(Food->GetActorLocation()-Hero->GetActorLocation());
+                const FQuat FoodRotation=(Turn*Food->Body->GetComponentQuat()).GetNormalized();
+                FVector Velocity;if(!SolveClearFoodArc(Hero,Food,Launch,Aim,Velocity,&FoodRotation)) continue;
+                if(Distance>FMath::Square(45.f)) {
+                    const auto* Path=UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(),Hero->GetActorLocation(),Stand,this);
+                    if(!Path || !Path->IsValid() || Path->IsPartial()) continue;
+                }
+                Best=Score;Chosen=Stand;
             }
             if(Best==DBL_MAX) {FailPath();return true;}
             WorkStand=Chosen;WorkAim=Aim;bHasWorkApproach=true;
@@ -309,7 +403,9 @@ bool AMCPlaytestBotController::WorkFoodDelivery(AMCFoodDisposal* Zone)
         if(!IsValid(Hero->HeldFood)) {Hero->SetPrimaryInputHeld(false);Hero->SetHandleInputHeld(false);}
         Hero->SetBraceInputHeld(false);Hero->SetSelfCareInput(false);
         const FRotator Facing=(Aim-Hero->GetActorLocation()).Rotation();SetControlRotation(Facing);
+        if(FMath::Abs(FMath::FindDeltaAngleDegrees(Hero->GetActorRotation().Yaw,Facing.Yaw))>3.f) DeliveryPoseReadyAt=Now+.15;
         Hero->SetActorRotation(FRotator(0,Facing.Yaw,0));
+        if(Now<DeliveryPoseReadyAt || Food->IsStackPickupActive()) return true;
         if(Now>=NextThrowAt) {
             // Feed the same direction RPC as Q. The player's camera reticle
             // belongs to a local PlayerController, so an AI solves its arc to
@@ -319,7 +415,15 @@ bool AMCPlaytestBotController::WorkFoodDelivery(AMCFoodDisposal* Zone)
                 ResetApproach(true);NextMoveAt=0;NextThrowAt=Now+.3;return true;
             }
             Hero->ServerSetThrowHeld(true,Velocity.GetSafeNormal());Hero->ServerSetThrowHeld(false,Velocity.GetSafeNormal());
-            NextThrowAt=Now+Hero->FoodCollection->ThrowIntervalSeconds()+.15;LastWorkProgressAt=Now;
+            NextThrowAt=Now+Hero->FoodCollection->ThrowIntervalSeconds()+.08;
+            const bool Released=Food->StackCarrier!=Hero && Hero->HeldFood!=Food && !Hero->FoodCollection->Contains(Food);
+            if(Released) {
+                LastWorkProgressAt=Now;
+                if(FoodThrowDebug.GetValueOnGameThread()) UE_LOG(LogTemp,Display,
+                    TEXT("MC_BOT_THROW_RELEASE hero=%s food=%s remaining=%d manual=%d time=%.3f"),
+                    *Hero->GetPathName(),*Food->GetPathName(),Hero->FoodCollection->Pieces.Num(),Food->WasManuallyThrown()?1:0,Now);
+            }
+            else if(Now-LastWorkProgressAt>3.) {ResetApproach(true);NextMoveAt=0;}
         }
         return true;
     }

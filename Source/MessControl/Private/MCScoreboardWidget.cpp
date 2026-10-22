@@ -4,6 +4,9 @@
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCUIDataLibrary.h"
+#include "MCVoiceChatSubsystem.h"
+#include "MCGameUserSettings.h"
+#include "MCPlayerController.h"
 #include "Blueprint/WidgetTree.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Components/Border.h"
@@ -18,24 +21,41 @@
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
 #include "GameFramework/GameStateBase.h"
+#include "Engine/GameInstance.h"
+#include "Engine/World.h"
+#include "InputCoreTypes.h"
 
 #define LOCTEXT_NAMESPACE "MCScoreboard"
 
 namespace MCScoreboardPrivate
 {
-    USizeBox* Width(UWidgetTree* Tree,UWidget* Child,float Value)
+    USizeBox* Width(UWidgetTree* Tree,UWidget* Child,float Value,FName Name=NAME_None)
     {
-        auto* Result=Tree->ConstructWidget<USizeBox>();Result->SetWidthOverride(Value);Result->SetContent(Child);return Result;
+        auto* Result=Tree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),Name);Result->SetWidthOverride(Value);Result->SetContent(Child);return Result;
     }
+}
+void UMCScoreboardMuteButton::Configure(UMCScoreboardWidget* Scoreboard,APlayerState* Player)
+{
+    OwnerScoreboard=Scoreboard;TargetPlayer=Player;
+    OnPressed.AddUniqueDynamic(this,&ThisClass::Pressed);
+    OnClicked.AddUniqueDynamic(this,&ThisClass::Clicked);
+}
+void UMCScoreboardMuteButton::Pressed() {PressedPlayer=TargetPlayer;bPressedTarget=true;}
+APlayerState* UMCScoreboardMuteButton::GetActionTarget() const
+{ return bPressedTarget?PressedPlayer.Get():TargetPlayer.Get(); }
+void UMCScoreboardMuteButton::Clicked()
+{
+    APlayerState* Target=GetActionTarget();bPressedTarget=false;PressedPlayer.Reset();
+    if(OwnerScoreboard.IsValid()) OwnerScoreboard->TogglePlayerVoice(Target);
 }
 void UMCScoreboardWidget::NativeOnInitialized()
 {
-    Super::NativeOnInitialized();SetVisibility(ESlateVisibility::HitTestInvisible);BuildPresentationTree();
+    Super::NativeOnInitialized();SetIsFocusable(true);SetVisibility(ESlateVisibility::SelfHitTestInvisible);BuildPresentationTree();
 }
 void UMCScoreboardWidget::BuildPresentationTree()
 {
     if(!WidgetTree || Players) return;
-    if(WidgetTree->RootWidget) {Players=Cast<UVerticalBox>(WidgetTree->FindWidget(TEXT("ScorePlayers")));RebuildRows(4);return;}
+    if(WidgetTree->RootWidget) {Players=Cast<UVerticalBox>(WidgetTree->FindWidget(TEXT("ScorePlayers")));RebuildRows(4);EnsureVoiceControls();return;}
     auto* Root=WidgetTree->ConstructWidget<UCanvasPanel>(); WidgetTree->RootWidget=Root;
     auto* Background=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("ScoreFrame"));
     Background->SetPadding(FMargin(18));
@@ -59,14 +79,115 @@ void UMCScoreboardWidget::BuildPresentationTree()
     Header->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,WidgetTree->ConstructWidget<UTextBlock>(),60));
     Header->AddChildToHorizontalBox(Label(TEXT("ScorePlayerHeader"),Localized(TEXT("UI.Scoreboard.Player"),LOCTEXT("Player","Игрок")),20,EMCUIColorToken::Ink))->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
     auto* PointsHeader=Label(TEXT("ScorePointsHeader"),Localized(TEXT("UI.Scoreboard.Points"),LOCTEXT("Points","Очки")),20,EMCUIColorToken::Ink);PointsHeader->SetJustification(ETextJustify::Center);
-    Header->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,PointsHeader,180));
+    Header->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,PointsHeader,120));
     auto* PingHeader=Label(TEXT("ScorePingHeader"),FText::AsCultureInvariant(TEXT("PING")),20,EMCUIColorToken::Ink);PingHeader->SetJustification(ETextJustify::Center);
-    Header->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,PingHeader,172));
+    Header->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,PingHeader,128));
     auto* Scroll=WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(),TEXT("ScoreScroll"));Scroll->SetScrollBarVisibility(ESlateVisibility::Collapsed);Scroll->SetConsumeMouseWheel(EConsumeMouseWheel::Never);Box->AddChildToVerticalBox(Scroll)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
     Players=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("ScorePlayers"));Scroll->AddChild(Players);
     auto* Footer=Label(TEXT("ScoreFooterText"),Localized(TEXT("UI.Scoreboard.Footer"),LOCTEXT("Footer","Корона — хост комнаты · Отпусти TAB, чтобы закрыть")),16,EMCUIColorToken::Ink);
     auto* FooterFrame=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("ScoreFooterFrame"));FooterFrame->SetPadding(FMargin(16,10));FooterFrame->SetContent(Footer);BindStyle(TEXT("ScoreFooterFrame"),EMCUIColorToken::Cream,EMCUIStyleTarget::Background);
-    Box->AddChildToVerticalBox(FooterFrame)->SetPadding(FMargin(0,8,0,0));RebuildRows(4);ApplyTheme();
+    Box->AddChildToVerticalBox(FooterFrame)->SetPadding(FMargin(0,8,0,0));RebuildRows(4);EnsureVoiceControls();ApplyTheme();
+}
+void UMCScoreboardWidget::EnsureVoiceControls()
+{
+    if(!WidgetTree || !Players) return;
+    // Migrate the saved artist tree by appending one column, retaining its widgets,
+    // materials and layout. This is idempotent and never clears/rebuilds the tree.
+    auto AllowChildren=[](UWidget* Widget)
+    {
+        if(Widget && Widget->GetVisibility()==ESlateVisibility::HitTestInvisible)
+            Widget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+    };
+    AllowChildren(this);
+    for(UWidget* Parent=Players;Parent;Parent=Parent->GetParent()) AllowChildren(Parent);
+    auto* HeaderFrame=Cast<UBorder>(WidgetTree->FindWidget(TEXT("ScoreColumnsFrame")));
+    auto* Header=HeaderFrame?Cast<UHorizontalBox>(HeaderFrame->GetContent()):nullptr;
+    // The saved v10 presentation predates ScoreColumnsFrame. Resolve its
+    // actual header row from the stable ping label rather than requiring the
+    // newer native wrapper or guessing an automatically generated row name.
+    if(!Header) for(UWidget* Parent=WidgetTree->FindWidget(TEXT("ScorePingHeader"));Parent;Parent=Parent->GetParent())
+        if((Header=Cast<UHorizontalBox>(Parent))) break;
+    if(Header && !WidgetTree->FindWidget(TEXT("ScoreVoiceHeader")))
+    {
+        auto* Label=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("ScoreVoiceHeader"));
+        Label->SetText(Localized(TEXT("UI.Scoreboard.Voice"),LOCTEXT("Voice","Голос")));
+        Label->SetJustification(ETextJustify::Center);Label->SetAutoWrapText(true);
+        Header->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,Label,148,TEXT("ScoreVoiceColumn")));
+        BindStyle(TEXT("ScoreVoiceHeader"),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,20,true);
+    }
+    for(int32 Index=0;Index<Rows.Num();++Index)
+    {
+        auto& Controls=Rows[Index];if(!Controls.Background) continue;
+        const FString Prefix=FString::Printf(TEXT("ScorePlayer%d"),Index+1);
+        Controls.MuteButton=Cast<UMCScoreboardMuteButton>(WidgetTree->FindWidget(FName(Prefix+TEXT("Mute"))));
+        Controls.MuteLabel=Cast<UTextBlock>(WidgetTree->FindWidget(FName(Prefix+TEXT("MuteLabel"))));
+        auto* Row=Cast<UHorizontalBox>(Controls.Background->GetContent());
+        if(!Controls.MuteButton && Row)
+        {
+            Controls.MuteButton=WidgetTree->ConstructWidget<UMCScoreboardMuteButton>(UMCScoreboardMuteButton::StaticClass(),FName(Prefix+TEXT("Mute")));
+            Controls.MuteLabel=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),FName(Prefix+TEXT("MuteLabel")));
+            Controls.MuteLabel->SetAutoWrapText(true);Controls.MuteLabel->SetJustification(ETextJustify::Center);
+            Controls.MuteButton->SetContent(Controls.MuteLabel);
+            auto* VoiceSlot=Row->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,Controls.MuteButton,148,FName(Prefix+TEXT("VoiceColumn"))));
+            VoiceSlot->SetVerticalAlignment(VAlign_Center);VoiceSlot->SetPadding(FMargin(8,0,0,0));
+        }
+        if(Controls.MuteButton)
+        {
+            Controls.MuteButton->Configure(this,nullptr);
+            for(UWidget* Parent=Controls.MuteButton;Parent;Parent=Parent->GetParent()) AllowChildren(Parent);
+            BindStyle(Controls.MuteButton->GetFName(),EMCUIColorToken::Button,EMCUIStyleTarget::Button);
+        }
+        if(Controls.MuteLabel) BindStyle(Controls.MuteLabel->GetFName(),EMCUIColorToken::ButtonText,EMCUIStyleTarget::Text,16,true);
+    }
+}
+bool UMCScoreboardWidget::CanControlPlayerVoice(const APlayerState* Player,bool bLocalPlayer)
+{ return IsValid(Player) && !Player->IsABot() && (bLocalPlayer || Player->GetUniqueId().IsValid()); }
+void UMCScoreboardWidget::TogglePlayerVoice(APlayerState* Player)
+{
+    if(IsDesignTime() || !IsValid(Player) || !GetWorld() || !GetWorld()->IsGameWorld() || !GetGameInstance()) return;
+    const auto* State=GetWorld()->GetGameState();
+    if(!State || !State->PlayerArray.Contains(Player)) return; // Disconnected/removed press target is never retargeted.
+    const auto* Controller=GetOwningPlayer();
+    const bool bLocal=Controller && Controller->PlayerState==Player;
+    if(!CanControlPlayerVoice(Player,bLocal)) return;
+    auto* Voice=GetGameInstance()->GetSubsystem<UMCVoiceChatSubsystem>();
+    const auto* Settings=UMCGameUserSettings::Get();if(!Voice || !Settings) return;
+    // Use the individual preference, not global voice enable: a disabled channel
+    // must not turn every row into an impossible-to-unmute state.
+    const bool bMuted=bLocal?Settings->GetSelfMuted():Settings->IsVoicePlayerMuted(Player->GetUniqueId()->ToString());
+    Voice->SetPlayerMuted(Player,!bMuted);Refresh();
+}
+void UMCScoreboardWidget::FocusVoiceControls()
+{
+    for(const auto& Row:Rows) if(Row.MuteButton && Row.Background && Row.Background->IsVisible() && Row.MuteButton->GetIsEnabled())
+    {Row.MuteButton->SetUserFocus(GetOwningPlayer());return;}
+    SetUserFocus(GetOwningPlayer());
+}
+void UMCScoreboardWidget::MoveVoiceFocus(int32 Direction)
+{
+    TArray<UMCScoreboardMuteButton*> Buttons;int32 Current=INDEX_NONE;
+    for(const auto& Row:Rows) if(Row.MuteButton && Row.Background && Row.Background->IsVisible() && Row.MuteButton->GetIsEnabled())
+    {if(Row.MuteButton->HasUserFocus(GetOwningPlayer())) Current=Buttons.Num();Buttons.Add(Row.MuteButton);}
+    if(Buttons.IsEmpty()) return;
+    const int32 Next=Current==INDEX_NONE?0:(Current+Direction+Buttons.Num())%Buttons.Num();
+    Buttons[Next]->SetUserFocus(GetOwningPlayer());
+    if(auto* Scroll=Cast<UScrollBox>(WidgetTree->FindWidget(TEXT("ScoreScroll")))) Scroll->ScrollWidgetIntoView(Buttons[Next],true,EDescendantScrollDestination::IntoView);
+}
+FReply UMCScoreboardWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
+{
+    const FKey Key=Event.GetKey();
+    if(Key==EKeys::Tab || Key==EKeys::Gamepad_Special_Left) return FReply::Handled();
+    if(Key==EKeys::Down || Key==EKeys::Up || Key==EKeys::Gamepad_DPad_Down || Key==EKeys::Gamepad_DPad_Up)
+    {MoveVoiceFocus(Key==EKeys::Up || Key==EKeys::Gamepad_DPad_Up?-1:1);return FReply::Handled();}
+    if(Key==EKeys::Escape || Key==EKeys::Gamepad_FaceButton_Right)
+    {if(auto* Controller=GetOwningPlayer<AMCPlayerController>()) Controller->HideScoreboard();return FReply::Handled();}
+    return Super::NativeOnPreviewKeyDown(Geometry,Event);
+}
+FReply UMCScoreboardWidget::NativeOnKeyUp(const FGeometry& Geometry,const FKeyEvent& Event)
+{
+    if(Event.GetKey()==EKeys::Tab || Event.GetKey()==EKeys::Gamepad_Special_Left)
+    {if(auto* Controller=GetOwningPlayer<AMCPlayerController>()) Controller->HideScoreboard();return FReply::Handled();}
+    return Super::NativeOnKeyUp(Geometry,Event);
 }
 void UMCScoreboardWidget::NativeTick(const FGeometry& Geometry,float Dt)
 {
@@ -95,14 +216,17 @@ void UMCScoreboardWidget::RebuildRows(int32 Count)
         Controls.Name=Label(TEXT("Name"),22);Controls.Name->SetTextOverflowPolicy(ETextOverflowPolicy::Ellipsis);Controls.Name->SetClipping(EWidgetClipping::ClipToBounds);
         auto* NameSlot=Row->AddChildToHorizontalBox(Controls.Name);NameSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));NameSlot->SetVerticalAlignment(VAlign_Center);
         Controls.Points=Label(TEXT("Points"),24);Controls.Points->SetJustification(ETextJustify::Center);
-        Row->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,Controls.Points,180))->SetVerticalAlignment(VAlign_Center);
+        Row->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,Controls.Points,120))->SetVerticalAlignment(VAlign_Center);
         Controls.Ping=Label(TEXT("Ping"),22);Controls.Ping->SetJustification(ETextJustify::Center);
-        Row->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,Controls.Ping,172))->SetVerticalAlignment(VAlign_Center);
+        Row->AddChildToHorizontalBox(MCScoreboardPrivate::Width(WidgetTree,Controls.Ping,128))->SetVerticalAlignment(VAlign_Center);
     }
 }
 void UMCScoreboardWidget::Refresh()
 {
-    if(IsDesignTime()) return;BuildPresentationTree();
+    if(IsDesignTime()) return;if(!Players) BuildPresentationTree();
+    TWeakObjectPtr<APlayerState> FocusedPlayer;
+    for(const auto& Row:Rows) if(Row.MuteButton && Row.MuteButton->HasUserFocus(GetOwningPlayer()))
+        FocusedPlayer=Row.MuteButton->GetActionTarget();
     PlayerEntries.Reset();
     const auto* GS=GetWorld()?GetWorld()->GetGameState():nullptr;
     if(GS)
@@ -115,7 +239,7 @@ void UMCScoreboardWidget::Refresh()
             const int32 LP=Left?Left->Points:FMath::RoundToInt(A.GetScore()),RP=Right?Right->Points:FMath::RoundToInt(B.GetScore());
             return LP!=RP?LP>RP:A.GetPlayerId()<B.GetPlayerId();
         });
-        for(const APlayerState* State:States)
+        for(APlayerState* State:States)
         {
             FMCScoreboardEntry& Entry=PlayerEntries.AddDefaulted_GetRef();
             const auto* Player=Cast<AMCPlayerState>(State);const auto* Hero=Cast<AMCToothCharacter>(State->GetPawn());
@@ -124,9 +248,24 @@ void UMCScoreboardWidget::Refresh()
             Entry.bHost=Player && Player->bSessionHost;
             Entry.PlayerColor=Player?Player->PlayerColor:Hero?Hero->GetPlayerColor():FLinearColor::White;
             Entry.bSpectating=!Hero || !Hero->Status || !Hero->Status->IsAlive();
+            Entry.PlayerState=State;
+            Entry.bLocalPlayer=GetOwningPlayer() && GetOwningPlayer()->PlayerState==State;
+            Entry.bVoiceControlEnabled=CanControlPlayerVoice(State,Entry.bLocalPlayer) && GetGameInstance() && GetGameInstance()->GetSubsystem<UMCVoiceChatSubsystem>();
+            if(const auto* Settings=UMCGameUserSettings::Get())
+                Entry.bVoiceMuted=Entry.bLocalPlayer?Settings->GetSelfMuted():State->GetUniqueId().IsValid() && Settings->IsVoicePlayerMuted(State->GetUniqueId()->ToString());
         }
     }
-    RebuildRows(PlayerEntries.Num());ApplyTheme();OnScoreboardUpdated();
+    const int32 PreviousRows=Rows.Num();RebuildRows(PlayerEntries.Num());
+    if(Rows.Num()!=PreviousRows) EnsureVoiceControls();
+    ApplyTheme();OnScoreboardUpdated();
+    if(FocusedPlayer.IsValid()) for(int32 Index=0;Index<PlayerEntries.Num() && Index<Rows.Num();++Index)
+        if(PlayerEntries[Index].PlayerState==FocusedPlayer.Get() && Rows[Index].MuteButton && Rows[Index].MuteButton->GetIsEnabled()
+            && !Rows[Index].MuteButton->HasUserFocus(GetOwningPlayer()))
+        {
+            Rows[Index].MuteButton->SetUserFocus(GetOwningPlayer());
+            if(auto* Scroll=Cast<UScrollBox>(WidgetTree->FindWidget(TEXT("ScoreScroll")))) Scroll->ScrollWidgetIntoView(Rows[Index].MuteButton,true,EDescendantScrollDestination::IntoView);
+            break;
+        }
 }
 void UMCScoreboardWidget::PresentEntries()
 {
@@ -134,8 +273,8 @@ void UMCScoreboardWidget::PresentEntries()
     for(int32 Index=0;Index<Rows.Num();++Index)
     {
         auto& Controls=Rows[Index];const bool Available=PlayerEntries.IsValidIndex(Index);
-        if(Controls.Background) Controls.Background->SetVisibility(Available?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
-        if(!Available) continue;
+        if(Controls.Background) Controls.Background->SetVisibility(Available?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
+        if(!Available) {if(Controls.MuteButton) Controls.MuteButton->Configure(this,nullptr);continue;}
         const FMCScoreboardEntry& Entry=PlayerEntries[Index];FMCScoreboardRow& Row=Rows[Index];
         if(Row.Background) BindStyle(Row.Background->GetFName(),Entry.bHost?EMCUIColorToken::Mint:Index%2==0?EMCUIColorToken::Surface:EMCUIColorToken::SurfaceAlt,EMCUIStyleTarget::Background);
         const FText Name=FText::AsCultureInvariant(Entry.Nickname);
@@ -143,6 +282,17 @@ void UMCScoreboardWidget::PresentEntries()
         if(Row.Points) Row.Points->SetText(UMCUIDataLibrary::NumberForCulture(Entry.Points,Culture));
         if(Row.Ping) Row.Ping->SetText(UMCUIDataLibrary::FormatTextForCulture(Localized(TEXT("UI.Scoreboard.PingValue"),LOCTEXT("PingValue","{Ping} мс")),FFormatNamedArguments{{TEXT("Ping"),UMCUIDataLibrary::NumberForCulture(Entry.bHost?0:FMath::RoundToInt(Entry.PingMilliseconds),Culture)}},Culture));
         if(Row.Icon) {Row.Icon->Tint=Entry.PlayerColor;Row.Icon->InkTint=Palette.Ink;Row.Icon->EmptyTint=Palette.Muted;Row.Icon->HostTint=Palette.Warning;Row.Icon->bHost=Entry.bHost;Row.Icon->bDead=Entry.bSpectating;Row.Icon->InvalidateLayoutAndVolatility();}
+        if(Row.MuteButton)
+        {
+            Row.MuteButton->Configure(this,Entry.PlayerState);Row.MuteButton->SetIsEnabled(Entry.bVoiceControlEnabled);
+            Row.MuteButton->SetToolTipText(Entry.bLocalPlayer?
+                Localized(TEXT("UI.Scoreboard.SelfMuteHint"),LOCTEXT("SelfMuteHint","Включить или выключить свой микрофон")):
+                Localized(TEXT("UI.Scoreboard.MuteHint"),LOCTEXT("MuteHint","Отключить голос этого игрока только для себя")));
+        }
+        if(Row.MuteLabel) Row.MuteLabel->SetText(!Entry.bVoiceControlEnabled?
+            Localized(TEXT("UI.Scoreboard.NoVoice"),LOCTEXT("NoVoice","—")):
+            Entry.bLocalPlayer?(Entry.bVoiceMuted?Localized(TEXT("UI.Scoreboard.SelfUnmute"),LOCTEXT("SelfUnmute","Микрофон ВКЛ")):Localized(TEXT("UI.Scoreboard.SelfMute"),LOCTEXT("SelfMute","Микрофон ВЫКЛ"))):
+            Entry.bVoiceMuted?Localized(TEXT("UI.Scoreboard.Unmute"),LOCTEXT("Unmute","Включить")):Localized(TEXT("UI.Scoreboard.Mute"),LOCTEXT("Mute","Отключить")));
     }
 }
 void UMCScoreboardWidget::UpdatePresentationLayout(FVector2D Area)
@@ -159,13 +309,20 @@ void UMCScoreboardWidget::UpdatePresentationLayout(FVector2D Area)
     LastLayoutArea=Area;
     const float Width=FMath::Min(1060.f,FMath::Max(620.f,float(Area.X)-48.f));
     Size->SetWidthOverride(Width);
-    for(const TCHAR* Name:{TEXT("ScoreTitle"),TEXT("ScoreFooterText"),TEXT("ScorePlayerHeader"),TEXT("ScorePointsHeader"),TEXT("ScorePingHeader")})
+    for(const TCHAR* Name:{TEXT("ScoreTitle"),TEXT("ScoreFooterText"),TEXT("ScorePlayerHeader"),TEXT("ScorePointsHeader"),TEXT("ScorePingHeader"),TEXT("ScoreVoiceHeader")})
         if(auto* Label=Cast<UTextBlock>(WidgetTree->FindWidget(Name))) {
             const FName LabelName=Label->GetFName();
             const float Wrap=LabelName==TEXT("ScoreTitle")?Width-196.f:LabelName==TEXT("ScoreFooterText")?Width-68.f:
-                LabelName==TEXT("ScorePointsHeader")?180.f:LabelName==TEXT("ScorePingHeader")?172.f:Width-472.f;
+                LabelName==TEXT("ScorePointsHeader")?120.f:LabelName==TEXT("ScorePingHeader")?128.f:LabelName==TEXT("ScoreVoiceHeader")?148.f:Width-524.f;
             Label->SetAutoWrapText(true);Label->SetWrapTextAt(FMath::Max(90.f,Wrap));Label->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
         }
+    // Existing saved rows retain their widgets; only the opt-in native layout
+    // gives the points/ping columns room for the newly appended voice controls.
+    auto ColumnWidth=[](UWidget* Widget,float Value)
+    {if(Widget) if(auto* Parent=Cast<USizeBox>(Widget->GetParent())) Parent->SetWidthOverride(Value);};
+    ColumnWidth(WidgetTree->FindWidget(TEXT("ScorePointsHeader")),120);
+    ColumnWidth(WidgetTree->FindWidget(TEXT("ScorePingHeader")),128);
+    for(const auto& Row:Rows) {ColumnWidth(Row.Points,120);ColumnWidth(Row.Ping,128);}
     Scroll->SetAllowOverscroll(false);
     Column->ForceLayoutPrepass();Players->ForceLayoutPrepass();
     float RowsHeight=0;
@@ -195,7 +352,7 @@ void UMCScoreboardWidget::ApplyTheme()
     BindStyle(TEXT("ScoreHeading"),EMCUIColorToken::Cream,EMCUIStyleTarget::Background);
     BindStyle(TEXT("ScoreFooterFrame"),EMCUIColorToken::Cream,EMCUIStyleTarget::Background);
     BindStyle(TEXT("ScoreTitle"),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,30,true);
-    for(const auto* HeaderName:{TEXT("ScorePlayerHeader"),TEXT("ScorePointsHeader"),TEXT("ScorePingHeader")}) BindStyle(HeaderName,WidgetTree->FindWidget(TEXT("ScoreColumnsFrame"))?EMCUIColorToken::Ink:EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,20,true);
+    for(const auto* HeaderName:{TEXT("ScorePlayerHeader"),TEXT("ScorePointsHeader"),TEXT("ScorePingHeader"),TEXT("ScoreVoiceHeader")}) BindStyle(HeaderName,WidgetTree->FindWidget(TEXT("ScoreColumnsFrame"))?EMCUIColorToken::Ink:EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,20,true);
     for(auto& Row:Rows) {
         if(Row.Name) BindStyle(Row.Name->GetFName(),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,22,true);
         if(Row.Points) BindStyle(Row.Points->GetFName(),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,24,true);
@@ -211,14 +368,15 @@ void UMCScoreboardWidget::ApplyTheme()
     Copy(TEXT("ScoreTitle"),TEXT("UI.Scoreboard.Title"),LOCTEXT("Title","КОМАНДА"));
     Copy(TEXT("ScorePlayerHeader"),TEXT("UI.Scoreboard.Player"),LOCTEXT("Player","Игрок"));
     Copy(TEXT("ScorePointsHeader"),TEXT("UI.Scoreboard.Points"),LOCTEXT("Points","Очки"));
-    Copy(TEXT("ScoreFooterText"),TEXT("UI.Scoreboard.Footer"),LOCTEXT("Footer","Корона — хост комнаты · Отпусти TAB, чтобы закрыть"));
+    Copy(TEXT("ScoreVoiceHeader"),TEXT("UI.Scoreboard.Voice"),LOCTEXT("Voice","Голос"));
+    Copy(TEXT("ScoreFooterText"),TEXT("UI.Scoreboard.VoiceFooter"),LOCTEXT("VoiceFooter","TAB — держать · ↑/↓ — участник · Enter/A — голос · Отпусти TAB, чтобы закрыть"));
     bLayoutDirty=true;UpdatePresentationLayout();
 }
 void UMCScoreboardWidget::ApplyEditorPreview(float Time)
 {
     PreviewTime=FMath::Max(0.f,Time);BuildPresentationTree();PlayerEntries.Reset();
     if(PreviewScenario!=EMCGameplayUIPreviewScenario::Empty) for(int32 Index=0;Index<4;++Index) {
-        auto& Entry=PlayerEntries.AddDefaulted_GetRef();Entry.Nickname=PreviewScenario==EMCGameplayUIPreviewScenario::LongText?TEXT("Очень_длинное_имя_игрока_для_проверки_вёрстки"):FString::Printf(TEXT("P%d"),Index+1);Entry.Points=920-Index*180;Entry.PingMilliseconds=Index==0?47.f:28.f+Index*14.f;Entry.bHost=Index==0;Entry.bSpectating=Index==3;Entry.PlayerColor=Index==2?GetResolvedTheme()->Palette.BossHealth:GetResolvedTheme()->Palette.Accent;
+        auto& Entry=PlayerEntries.AddDefaulted_GetRef();Entry.Nickname=PreviewScenario==EMCGameplayUIPreviewScenario::LongText?TEXT("Очень_длинное_имя_игрока_для_проверки_вёрстки"):FString::Printf(TEXT("P%d"),Index+1);Entry.Points=920-Index*180;Entry.PingMilliseconds=Index==0?47.f:28.f+Index*14.f;Entry.bHost=Index==0;Entry.bSpectating=Index==3;Entry.PlayerColor=Index==2?GetResolvedTheme()->Palette.BossHealth:GetResolvedTheme()->Palette.Accent;Entry.bLocalPlayer=Index==0;Entry.bVoiceControlEnabled=Index<3;Entry.bVoiceMuted=Index==2;
     }
     RebuildRows(4);ApplyTheme();
 }

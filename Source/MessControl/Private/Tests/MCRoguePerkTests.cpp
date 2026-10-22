@@ -109,9 +109,11 @@ bool FMCRogueMechanicsTest::RunTest(const FString&)
     W.P->ResetPerks();W.P->ServerGrantPerks({TEXT("P18"),TEXT("P18")});
     TestEqual(TEXT("Warm perk preserves real twelve-second base"),W.P->RogueValue(EMCRogueStat::WarmDuration,12),14.f);
     W.P->ServerGrantPerk(TEXT("X07"));TestTrue(TEXT("Risky warmth cost applied"),FMath::IsNearlyEqual(W.P->RogueValue(EMCRogueStat::WarmDuration,12),8.4f,.001f));
-    W.P->ResetPerks();W.P->ServerGrantPerks({TEXT("P24"),TEXT("P24")});
+    W.P->ResetPerks();
+    TestFalse(TEXT("An XP-only perk is excluded from every live reward pool"),W.P->CanGrantPerk(TEXT("P24")));
+    TestFalse(TEXT("A saved XP perk cannot be granted after retiring experience"),W.P->ServerGrantPerk(TEXT("P24")));
     int32 Bonus=0;for(int32 I=0;I<10;++I) Bonus+=W.P->FoodExperienceBonus(1);
-    TestEqual(TEXT("Fractional XP preserved without inflation"),Bonus,2);
+    TestEqual(TEXT("Legacy food XP bonus calls cannot restore experience"),Bonus,0);
     W.P->ResetPerks();W.Hero->Status->Initialize(100);W.Hero->Status->Damage(20);
     W.P->ServerGrantPerks({TEXT("P30"),TEXT("P17")});W.P->NotifyCleaned(W.Hero->GetActorLocation());W.P->NotifyCleaned(W.Hero->GetActorLocation());
     TestEqual(TEXT("Cleaning heals once per cooldown"),W.Hero->Status->State.Health,83.f);
@@ -123,7 +125,7 @@ bool FMCRogueMechanicsTest::RunTest(const FString&)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCRogueOffersTest,"MessControl.Rogue.ChoiceHistoryRerollAndRarities",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCRogueOffersTest,"MessControl.Rogue.ChestOfferExclusionsAndRarities",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCRogueOffersTest::RunTest(const FString&)
 {
     FRogueWorld W;
@@ -134,20 +136,24 @@ bool FMCRogueOffersTest::RunTest(const FString&)
         TestEqual(TEXT("Distinct families"),Families.Num(),3);TestTrue(TEXT("At most one legendary"),Legendary<=1);
         if(Seed%5==0) TestTrue(TEXT("Fifth choice contains rare positive"),Rare>=1);
     }
-    W.PS->QueueChoicesThroughLevel(4);const auto Old=W.PS->LevelUpOffer;
-    for(FName ID:Old.PerkIDs) {const auto* R=W.P->FindDefinition(ID);TestTrue(TEXT("First offer universal standard positive"),R->bEarlyChoice && R->Rarity==EMCPerkRarity::Standard && R->Polarity==EMCPerkPolarity::Positive);}
-    TestTrue(TEXT("Free reroll succeeds"),W.PS->TryRerollLevelPerks(Old.OfferId));
-    TestTrue(TEXT("Reroll adds a new card"),W.PS->LevelUpOffer.PerkIDs.ContainsByPredicate([&](FName ID){return !Old.PerkIDs.Contains(ID);}));
-    TestFalse(TEXT("Consumed free reroll cannot repeat"),W.PS->TryRerollLevelPerks(W.PS->LevelUpOffer.OfferId));
-    TestFalse(TEXT("Old offer token cannot claim"),W.PS->TryChooseLevelUpPerk(Old.OfferId,0));
-    const auto First=W.PS->LevelUpOffer;TestTrue(TEXT("Choose one succeeds"),W.PS->TryChooseLevelUpPerk(First.OfferId,0));
-    TestEqual(TEXT("Exactly one card granted"),W.P->ActivePerks.Num(),1);
-    const auto Second=W.PS->LevelUpOffer;
-    for(int32 I=1;I<3;++I) TestFalse(TEXT("Rejected card absent from next offer"),Second.PerkIDs.Contains(First.PerkIDs[I]));
-    for(FName ID:Second.PerkIDs) TestTrue(TEXT("Second offer still universal standard"),W.P->FindDefinition(ID)->bEarlyChoice && W.P->FindDefinition(ID)->Rarity==EMCPerkRarity::Standard);
-    W.PS->TryChooseLevelUpPerk(Second.OfferId,0);
-    for(int32 I=1;I<3;++I) TestFalse(TEXT("Rejected card absent for two offers"),W.PS->LevelUpOffer.PerkIDs.Contains(First.PerkIDs[I]));
-    W.PS->ResetLevelUpChoices();TestFalse(TEXT("New run restores free reroll"),W.PS->bRogueRerollSpent);
+    // The reusable offer builder still validates deterministic families and
+    // caller-supplied history. It no longer needs an XP queue or a free card UI.
+    TArray<FName> First,Repeated,Second,Third;
+    if(!TestTrue(TEXT("An explicit early offer has three cards"),W.P->BuildRogueOffer(EMCPerkPolarity::Positive,101,First,true))) return false;
+    W.P->BuildRogueOffer(EMCPerkPolarity::Positive,101,Repeated,true);
+    TestTrue(TEXT("The same seed produces the same authored offer"),First==Repeated);
+    for(FName ID:First) {const auto* Row=W.P->FindDefinition(ID);TestTrue(TEXT("Explicit early cards remain universal standard positive"),
+        Row->bEarlyChoice && Row->Rarity==EMCPerkRarity::Standard && Row->Polarity==EMCPerkPolarity::Positive);}
+    TArray<FName> Excluded={First[1],First[2]};
+    if(!TestTrue(TEXT("An explicit next offer respects supplied rejected cards"),W.P->BuildRogueOffer(EMCPerkPolarity::Positive,102,Second,true,false,false,Excluded))) return false;
+    for(FName ID:Excluded) TestFalse(TEXT("Rejected cards are absent from the next offer"),Second.Contains(ID));
+    Excluded.Append({Second[1],Second[2]});
+    if(!TestTrue(TEXT("An explicit third offer accepts two history entries"),W.P->BuildRogueOffer(EMCPerkPolarity::Positive,103,Third,true,false,false,Excluded))) return false;
+    for(int32 I=1;I<3;++I) TestFalse(TEXT("First rejected cards remain absent across two explicit offers"),Third.Contains(First[I]));
+    W.PS->QueueChoicesThroughLevel(4);
+    TestFalse(TEXT("A legacy queue call cannot open automatic cards"),W.PS->LevelUpOffer.IsValid());
+    TestFalse(TEXT("There is no free level reroll outside a chest"),W.PS->TryRerollLevelPerks(FGuid::NewGuid()));
+    TestTrue(TEXT("Building a preview never grants a perk"),W.P->ActivePerks.IsEmpty());
     W.P->ResetPerks();
     TestTrue(TEXT("Three risky perks allowed"),W.P->ServerGrantPerks({TEXT("X01"),TEXT("X02"),TEXT("X04")}));
     TestFalse(TEXT("Fourth risky perk blocked"),W.P->ServerGrantPerk(TEXT("X11")));
@@ -156,10 +162,14 @@ bool FMCRogueOffersTest::RunTest(const FString&)
     for(FName ID:W.P->GetPerkTable()->GetRowNames()) if(const auto* Row=W.P->FindDefinition(ID);Row && Row->Polarity==EMCPerkPolarity::Positive && !Row->bConsumableBooster) {
         FMCActivePerk Active;Active.PerkID=ID;Active.Stacks=Row->MaxStacks;W.P->ActivePerks.Add(Active);
     }
-    W.PS->PersonalChoicesTaken=20;W.PS->QueueChoicesThroughLevel(2);
-    TestTrue(TEXT("Exhaustion preserves earned level as three booster charges"),W.PS->LevelUpOffer.IsValid() && W.PS->LevelUpOffer.bBoosterFallback);
-    TestTrue(TEXT("Fallback charge can be selected"),W.PS->TryChooseLevelUpPerk(W.PS->LevelUpOffer.OfferId,0));
-    TestEqual(TEXT("Fallback choice queues one charge without activation"),W.P->BoosterQueue.Num(),1);
+    W.PS->PersonalChoicesTaken=20;
+    auto* Fallback=W.Chest(EMCRogueRewardKind::Ordinary,104);
+    if(!TestTrue(TEXT("An exhausted pool still opens an actual reward chest"),Fallback->BeginLockpicking(W.Hero))) return false;
+    TestEqual(TEXT("Only the three useful fallback charges remain"),Fallback->LootIDs.Num(),3);
+    for(FName ID:Fallback->LootIDs) TestTrue(TEXT("Each exhaustion fallback is a consumable"),W.P->FindDefinition(ID)->bConsumableBooster);
+    Fallback->Stage=EMCRewardChestStage::Open;
+    TestTrue(TEXT("A fallback charge must be selected from its chest"),Fallback->TryChooseCard(W.Hero,0));
+    TestEqual(TEXT("A chest fallback queues one charge without activation"),W.P->BoosterQueue.Num(),1);
     return true;
 }
 

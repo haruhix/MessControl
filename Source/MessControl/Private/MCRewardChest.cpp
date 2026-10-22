@@ -609,6 +609,7 @@ bool AMCRewardChest::TryChooseCard(AMCToothCharacter* Player,int32 Index)
     TGuardValue<bool> Guard(bClaimInProgress,true);
     if(!PS->Perks->ServerGrantReward(ChosenID)) return false;
     ClaimedMask=7;
+    PS->RecordChestRewardChoice();
     ForceNetUpdate();
     UE_LOG(LogTemp,Display,TEXT("MC_REWARD_CARD player=%s perk=%s"),*PS->GetPlayerName(),*ChosenID.ToString());
     FinishReward(false);

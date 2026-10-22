@@ -15,7 +15,7 @@ class UVerticalBox;
 class UMCHubWidget;
 
 UENUM()
-enum class EMCHubMenuAction : uint8 { OpenSelection, SelectDay, Launch, Return };
+enum class EMCHubMenuAction : uint8 { OpenSelection, SelectDay, Launch, Return, InviteFriends };
 
 /** Native controls are the only interactive part of the shared mouth selector. */
 UCLASS()
@@ -77,6 +77,8 @@ private:
     FText Format(FName Key,const FText& Fallback,const FFormatNamedArguments& Arguments) const;
     UTextBlock* AddLabel(UVerticalBox* Parent,FName Name,int32 Size,bool bBold=false);
     void BindPresentationTree();
+    void EnsureGatheringGuidance();
+    void UpdateReadyWaypoint();
     UMCHubActionButton* MakeAction(FName Name,EMCHubMenuAction Action,int32 Day=0);
     UMCHubActionButton* AddAction(UVerticalBox* Parent,FName Name,EMCHubMenuAction Action,int32 Day=0);
 
@@ -88,6 +90,12 @@ private:
     UPROPERTY(Transient) TObjectPtr<UTextBlock> ReadinessCount;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> PlayerNames;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> ReadinessHint;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> InviteHint;
+    UPROPERTY(Transient) TObjectPtr<UMCHubActionButton> InviteButton;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> InviteButtonLabel;
+    UPROPERTY(Transient) TObjectPtr<UBorder> ReadyWaypoint;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> ReadyWaypointLabel;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> ReadyWaypointArrow;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> BasketballHint;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> BasketballReticle;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> SelectionTitle;
@@ -112,4 +120,5 @@ private:
     FString LastStateSignature;
     TArray<FVector> BasketballTrajectory;
     double NextBasketballPreviewAt=0.;
+    double NextReadyWaypointAt=0.;
 };

@@ -71,9 +71,6 @@ private:
     UPROPERTY(Transient) TObjectPtr<UTextBlock> DirectorCandidatesText;
     UPROPERTY(Transient) TObjectPtr<UButton> DirectorLogButton;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> DirectorLogButtonText;
-    UPROPERTY(Transient) TObjectPtr<UBorder> ProgressionPanel;
-    UPROPERTY(Transient) TObjectPtr<UTextBlock> ProgressionText;
-    UPROPERTY(Transient) TObjectPtr<UProgressBar> ProgressionBar;
     UPROPERTY(Transient) TObjectPtr<UBorder> CataclysmPanel;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> CataclysmInstruction;
     UPROPERTY(Transient) TMap<FName,TObjectPtr<UWidget>> Widgets;
@@ -100,7 +97,8 @@ private:
     void EnsureAlertWidget();
     void RefreshGameplayAlerts();
     void EnsureDirectorMonitor();
-    void EnsureProgressionPanel();
+    /** Preserve authored trees while retiring their former experience display. */
+    void HideLegacyProgressionPresentation();
     void EnsureCataclysmPanel();
     void RefreshDirectorMonitor(const FMCGameDirectorState& State);
     UFUNCTION() void OpenDirectorLog();

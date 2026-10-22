@@ -53,10 +53,10 @@ FName NextRogueEvent(const UWorld* World)
 bool UMCPerkComponent::HasRunEvent(FName Event) const
 {
     if(Event.IsNone() || Event==TEXT("Any")) return true;
+    if(Event==TEXT("Progression")) return false; // XP/level mechanics have been retired.
     const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;if(!GS) return false;
     if(GS->RogueOptionalEvents.Contains(Event)) return true;
     if(Event==TEXT("Food")) return GS->DayPlan!=nullptr;
-    if(Event==TEXT("Progression")) return GS->bSingleDayLoop && GS->Progression && HasRunEvent(TEXT("Food"));
     if(Event==TEXT("Mimic")) {
         for(TActorIterator<AMCRoguelikeDirector> It(GetWorld());It;++It) if(It->ChestClass && It->ChestClass.GetDefaultObject()->MimicChance>0) return true;
         for(TActorIterator<AMCRewardChest> It(GetWorld());It;++It) if(It->IsMimicActive() || It->MimicChance>0) return true;
@@ -120,6 +120,11 @@ bool UMCPerkComponent::HasMeaningfulRogueChange(FName ID) const
 bool UMCPerkComponent::IsRogueEligible(FName ID) const
 {
     const auto* Row=FindDefinition(ID);if(!Row) return false;
+    // Keep old DataTable rows compatible, but never offer XP-only modifiers
+    // through a chest after removing the experience economy.
+    if(Row->Modifiers.ContainsByPredicate([](const FMCRogueModifier& Modifier) {
+        return Modifier.Stat==EMCRogueStat::DeliveryXP;
+    })) return false;
     if(!Row->bRoguePerk) {
         const auto* PS=Cast<AMCPlayerState>(GetOwner());const auto* Hero=PS?Cast<AMCToothCharacter>(PS->GetPawn()):nullptr;
         const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;

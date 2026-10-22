@@ -4,7 +4,6 @@
 #include "MCPlayerState.h"
 #include "MCPlaytestBotController.h"
 #include "MCGameState.h"
-#include "MCProgressionComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCInventoryComponent.h"
@@ -24,11 +23,10 @@ void AMCRewardChest::InitializeTeamStageReward(FVector Landing,FVector Start,int
 
 void AMCRewardChest::PollTeamBoosterApproach()
 {
-    // Earned personal offers finish first. This reward never manufactures another
-    // level offer, and cannot replace a teammate's outstanding modal.
+    // Stage rewards are the progression source. No XP/personal-level offer can
+    // block a chest after a completed portion.
     const auto* State=GetWorld()->GetGameState<AMCGameState>();
-    if(!State || State->bLobbyWaiting || State->Phase==EMCShiftPhase::Lost || State->Phase==EMCShiftPhase::Won
-        || (State->Progression && State->Progression->HasPendingChoices())) return;
+    if(!State || State->bLobbyWaiting || State->Phase==EMCShiftPhase::Lost || State->Phase==EMCShiftPhase::Won) return;
     TArray<AMCToothCharacter*> Nearby;
     bool HasHumanParticipant=false;
     for(TActorIterator<AMCPlayerController> It(GetWorld());It;++It) {
@@ -67,9 +65,9 @@ bool AMCRewardChest::BeginTeamBoosterChoice(AMCToothCharacter* Player)
     auto* PC=Cast<AMCPlayerController>(Player->GetController());
     const auto* PS=Player->GetPlayerState<AMCPlayerState>();
     const auto* Game=GetWorld()->GetGameState<AMCGameState>();
-    if(!PC || PC->IsRewardInteractionActive() || !PS || !PS->Perks || PS->LevelUpOffer.IsValid()
+    if(!PC || PC->IsRewardInteractionActive() || !PS || !PS->Perks
         || PS->Perks->IsFuryActive() || !Game || Game->bLobbyWaiting || Game->Phase==EMCShiftPhase::Lost
-        || Game->Phase==EMCShiftPhase::Won || (Game->Progression && Game->Progression->HasPendingChoices())
+        || Game->Phase==EMCShiftPhase::Won
         || !RewardTable || RewardTable->GetRowStruct()!=FMCPerkDefinition::StaticStruct()
         || PS->Perks->GetPerkTable()!=RewardTable) return false;
     FCollisionQueryParams Query(SCENE_QUERY_STAT(MCStageRewardApproach),true,this); Query.AddIgnoredActor(Player);
@@ -125,6 +123,15 @@ bool AMCRewardChest::ApplyTeamBoosterOnce(UMCPerkComponent* Perks,FName ID)
     // apply this shared reward a second time.
     ClaimedMask=7;
     if(!Perks->ActivateTeamStageBooster(ID)) {ClaimedMask=0;return false;}
+    // Every living recipient actually earned this chest, including teammates
+    // who did not click the card. Future optional pools use chest history now.
+    for(TActorIterator<AMCPlayerState> It(GetWorld());It;++It) {
+        auto* Hero=Cast<AMCToothCharacter>(It->GetPawn());
+        if(!It->IsActorBeingDestroyed() && !It->IsSpectator() && !It->IsOnlyASpectator() && It->Perks
+            && IsValid(Hero) && !Hero->IsActorBeingDestroyed() && Hero->GetController()
+            && !Hero->GetController()->IsActorBeingDestroyed() && Hero->GetPlayerState<AMCPlayerState>()==*It
+            && Hero->Status && Hero->Status->IsAlive()) It->RecordChestRewardChoice();
+    }
     ForceNetUpdate();
     FinishReward(false);
     return true;

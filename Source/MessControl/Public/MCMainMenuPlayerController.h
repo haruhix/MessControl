@@ -8,6 +8,7 @@ class UMCMainMenuWidget;
 class UMCSoundPalette;
 class UMCSceneAudioComponent;
 class UMCLoadingWidget;
+class UMCStudioSplashWidget;
 
 UCLASS()
 class MESSCONTROL_API AMCMainMenuPlayerController : public APlayerController
@@ -23,7 +24,11 @@ protected:
 private:
     UPROPERTY(Transient) TObjectPtr<UMCMainMenuWidget> MenuWidget;
     UPROPERTY(Transient) TObjectPtr<UMCLoadingWidget> LoadingWidget;
+    UPROPERTY(Transient) TObjectPtr<UMCStudioSplashWidget> StudioSplash;
     bool bPreparationReleased=false;
     bool bPreparationFailureFocused=false;
+    bool bLoadingFocused=false;
     void RefreshPreparation();
+    void FocusPreparedMenu();
+    UFUNCTION() void FinishStudioSplash();
 };

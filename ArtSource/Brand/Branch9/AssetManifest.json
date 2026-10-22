@@ -1,0 +1,121 @@
+{
+  "asset": "Branch9StudioWordmark",
+  "date": "2026-10-21",
+  "status": "superseded: user rejected reference mismatch; legacy runtime/study inputs retained pending migration",
+  "creator": "Codex bespoke SVG path construction",
+  "reference": "User-provided Branch9 reference, copied only to task working folder",
+  "font_dependencies": [],
+  "downloaded_art_dependencies": [],
+  "canvas": [
+    2048,
+    768
+  ],
+  "anchor": [
+    0.5,
+    0.5
+  ],
+  "palette": {
+    "foreground": "#FFFFFF",
+    "splash_background": "#060708"
+  },
+  "layers": [
+    {
+      "id": "T_Branch9_Wordmark",
+      "file": "T_Branch9_Wordmark.png",
+      "size": [
+        2048,
+        768
+      ],
+      "alpha_bbox": [
+        199,
+        182,
+        1867,
+        551
+      ],
+      "sha256": "f70a097fa20e3e76e52a4720ad22eae4a60b5e4ffa6d7145d7e9905b966df2d9"
+    },
+    {
+      "id": "T_Branch9_Branch",
+      "file": "T_Branch9_Branch.png",
+      "size": [
+        2048,
+        768
+      ],
+      "alpha_bbox": [
+        600,
+        158,
+        1693,
+        603
+      ],
+      "sha256": "818cf6f85b84d47f5e401817d32f832fb2f5659574bd8b9a5c676c018ec60b45"
+    },
+    {
+      "id": "T_Branch9_Leaves",
+      "file": "T_Branch9_Leaves.png",
+      "size": [
+        2048,
+        768
+      ],
+      "alpha_bbox": [
+        691,
+        126,
+        1739,
+        581
+      ],
+      "sha256": "63b3b8bb5b5c78ec5a7dfb062f9924489f9dde629c98f58765a75bc7fd967bcb"
+    },
+    {
+      "id": "T_Branch9_Logo",
+      "file": "T_Branch9_Logo.png",
+      "size": [
+        2048,
+        768
+      ],
+      "alpha_bbox": [
+        199,
+        126,
+        1867,
+        603
+      ],
+      "sha256": "fa72aee89c74eb8151e691e1585420c20337fccf04679735153126e51893077f"
+    },
+    {
+      "id": "T_Branch9_SolidWordmark",
+      "file": "T_Branch9_SolidWordmark.png",
+      "size": [
+        2048,
+        768
+      ],
+      "alpha_bbox": [
+        199,
+        182,
+        1867,
+        551
+      ],
+      "sha256": "d903b67bdac05773d3c5ac10fe2e1d012625695d889c6a9b73e6c77454df49f4"
+    },
+    {
+      "id": "T_Branch9_RevealMask",
+      "file": "T_Branch9_RevealMask.png",
+      "size": [
+        2048,
+        768
+      ],
+      "alpha_bbox": [
+        649,
+        165,
+        1642,
+        584
+      ],
+      "sha256": "d28b83c22a4d25c09871ff1699cddeb3ba590b94479ec503855487c7031760c6"
+    }
+  ],
+  "revision": 2,
+  "review_notes": [
+    "Root reviewed v1 at 512/320px and requested a clearer N and narrower branch cut.",
+    "v2 removes the leaf that distorted N and narrows the negative-space branch cut.",
+    "Root approved v2 static mark for integration."
+  ],
+  "replacement_source": "ReferenceMatch_v3/Branch9_2048x768.svg",
+  "replacement_runtime_status": "not imported into Unreal; animation unchanged"
+}

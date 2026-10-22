@@ -115,6 +115,24 @@ void UMCSteamSessionSubsystem::HostRoom(bool bWaitForLobby,bool bWithTutorial)
     else CreateRoom();
 }
 
+bool UMCSteamSessionSubsystem::EnterHub()
+{
+    UWorld* World=GetWorld();
+    if(!World || !World->IsGameWorld() || World->GetNetMode()==NM_Client || IsBusy()) return false;
+    // OpenLevel queues travel for the next engine tick. Guard that gap as well
+    // as Steam's asynchronous operation, so repeated Play never creates two rooms.
+    const FWorldContext* Context=GEngine?GEngine->GetWorldContextFromWorld(World):nullptr;
+    if((Context && !Context->TravelURL.IsEmpty()) || World->GetMapName().EndsWith(TEXT("Hub"),ESearchCase::IgnoreCase)) return false;
+    if(CanUseSteam()) {
+        HostRoom(false,false);
+        return !HadFailure();
+    }
+    SetStatus(TEXT("Загружаем хаб…"));
+    UGameplayStatics::OpenLevel(GetGameInstance(),FName(TEXT("/Game/Maps/Hub")),true,
+        TEXT("listen?game=/Script/MessControl.MCHubGameMode"));
+    return true;
+}
+
 void UMCSteamSessionSubsystem::CreateRoom()
 {
     Operation=EOperation::Creating;

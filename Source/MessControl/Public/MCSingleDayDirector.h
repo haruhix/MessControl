@@ -36,7 +36,7 @@ struct MESSCONTROL_API FMCSingleDayKeyEvent
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Sequence") FName EventId=TEXT("NutEncounter");
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Sequence") EMCSingleDayKeyEventKind Kind=EMCSingleDayKeyEventKind::NutEncounter;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Sequence") TArray<TSoftObjectPtr<UMCNutRainProfile>> NutRainVariants;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Sequence",meta=(ClampMin="0")) int32 CompletionExperience=25;
+    UPROPERTY(BlueprintReadWrite,Category="Legacy") int32 CompletionExperience=0; // Serialized legacy compatibility; XP is disabled.
     /** Support after this slot, when another authored slot exists. It never ends the run. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Sequence",meta=(ClampMin="5",ClampMax="600",Units="s")) float DirectorSupportSeconds=120;
 };
@@ -71,7 +71,7 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Legacy") bool bLegacyTimedFinale=false;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sequence") TArray<TSoftObjectPtr<UMCNutRainProfile>> NutRainVariants;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Legacy", meta=(ClampMin="5", ClampMax="300", Units="s")) float DirectorSeconds=30;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Legacy", meta=(ClampMin="0")) int32 NutEventExperience=25;
+    UPROPERTY(BlueprintReadWrite,Category="Legacy") int32 NutEventExperience=0; // Serialized legacy compatibility; XP is disabled.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Legacy") TSoftClassPtr<AMCBossCharacter> FinalBossClass;
 };
 

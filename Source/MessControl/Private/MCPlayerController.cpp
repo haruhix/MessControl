@@ -46,6 +46,7 @@
 #include "MCHubWidget.h"
 #include "MCLoadingWidget.h"
 #include "MCVoiceChatSubsystem.h"
+#include "Framework/Application/SlateApplication.h"
 
 void AMCPlayerController::BeginPlay()
 {
@@ -92,21 +93,34 @@ bool AMCPlayerController::InputKey(const FInputKeyEventArgs& Params)
     // Ignore stick drift and release events when choosing the visible control hints.
     if (Params.Event==IE_Pressed || (Params.Event==IE_Axis && FMath::Abs(Params.AmountDepressed)>.25f))
         bUsingGamepad=Params.Key.IsGamepadKey();
+    // GameAndUI retains the held TAB key and its release. Unhandled clicks or
+    // sticks over empty parts of the table must not activate weapons/gameplay.
+    // Releases still reach PlayerInput so keys released in the panel cannot stick.
+    if(ScoreboardWidget && ScoreboardWidget->IsVisible() && Params.Key!=EKeys::Tab && Params.Key!=EKeys::Gamepad_Special_Left
+        && Params.Event!=IE_Released) return true;
     return Super::InputKey(Params);
 }
 void AMCPlayerController::ShowScoreboard()
 {
-    if (!IsLocalController() || IsRewardInteractionActive() || bBossIntroPlaying) return;
+    if (!IsLocalController() || IsRewardInteractionActive() || bBossIntroPlaying || bLoadingInputBlocked
+        || bLobbyUIOpen || bPauseMenuOpen || bConnectionMenuOpen || bTutorialMenuInput || bHubMenuInput
+        || (DevPanel && DevPanel->IsVisible()) || (EmoteWidget && EmoteWidget->IsVisible())
+        || (PrototypeWidget && PrototypeWidget->IsPanelOpen())) return;
     if (!ScoreboardWidget)
     {
         ScoreboardWidget=CreateWidget<UMCScoreboardWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("Scoreboard"),UMCScoreboardWidget::StaticClass()));
         if (!ScoreboardWidget) return;
         ScoreboardWidget->AddToViewport(12);
     }
-    ScoreboardWidget->SetVisibility(ESlateVisibility::HitTestInvisible); ScoreboardWidget->Refresh();
+    ScoreboardWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible); ScoreboardWidget->Refresh();
+    UpdateInputMode();ScoreboardWidget->FocusVoiceControls();
 }
 void AMCPlayerController::HideScoreboard()
-{ if (ScoreboardWidget) ScoreboardWidget->SetVisibility(ESlateVisibility::Collapsed); }
+{
+    if(!ScoreboardWidget || !ScoreboardWidget->IsVisible()) return;
+    ScoreboardWidget->SetVisibility(ESlateVisibility::Collapsed);
+    if(IsLocalController() && GetWorld() && !GetWorld()->bIsTearingDown) UpdateInputMode();
+}
 void AMCPlayerController::Tick(float DeltaSeconds)
 {
     // Drive the cosmetic mouth stage before its skeletal components update.
@@ -134,7 +148,9 @@ void AMCPlayerController::Tick(float DeltaSeconds)
     }
     if (bBossIntroPlaying) return;
     // UI input mode can swallow the release event when a menu opens while Tab is held.
-    if (ScoreboardWidget && ScoreboardWidget->IsVisible() && !IsInputKeyDown(EKeys::Tab) && !IsInputKeyDown(EKeys::Gamepad_Special_Left)) HideScoreboard();
+    if (ScoreboardWidget && ScoreboardWidget->IsVisible()
+        && ((!IsInputKeyDown(EKeys::Tab) && !IsInputKeyDown(EKeys::Gamepad_Special_Left))
+            || (FSlateApplication::IsInitialized() && !FSlateApplication::Get().IsActive()))) HideScoreboard();
     const double Now=GetWorld()->GetTimeSeconds();
     if (Now>=NextSpectatorCheck) { NextSpectatorCheck=Now+.1; UpdateDeathSpectating(); }
     if(bDeathSpectating && SpectatorTarget.IsValid() && !bShowMouseCursor && !IsLookInputIgnored()) {
@@ -448,6 +464,12 @@ void AMCPlayerController::JoinFromGameplayMenu(const FString& Address)
 void AMCPlayerController::UpdateInputMode()
 {
     UpdatePerkChoicePause();
+    // A modal owns focus over the held overlay; hiding directly here avoids
+    // recursively re-entering this input-mode resolver during a transition.
+    if(ScoreboardWidget && ScoreboardWidget->IsVisible() && (bLoadingInputBlocked || bLobbyUIOpen || bPauseMenuOpen
+        || bConnectionMenuOpen || bTutorialMenuInput || bHubMenuInput || bBossIntroPlaying || IsRewardInteractionActive()
+        || (DevPanel && DevPanel->IsVisible()) || (EmoteWidget && EmoteWidget->IsVisible())
+        || (PrototypeWidget && PrototypeWidget->IsPanelOpen()))) ScoreboardWidget->SetVisibility(ESlateVisibility::Collapsed);
     if(bLoadingInputBlocked) {ApplyLoadingInputMode();return;}
     if (bLobbyUIOpen || bPauseMenuOpen || bConnectionMenuOpen || bTutorialMenuInput)
     {
@@ -483,6 +505,16 @@ void AMCPlayerController::UpdateInputMode()
         ResetIgnoreLookInput(); SetIgnoreLookInput(true);
         SetInputMode(FInputModeGameOnly());
         return;
+    }
+    if(ScoreboardWidget && ScoreboardWidget->IsVisible())
+    {
+        bShowMouseCursor=true;
+        ResetIgnoreMoveInput();SetIgnoreMoveInput(true);
+        ResetIgnoreLookInput();SetIgnoreLookInput(true);
+        if(auto* Hero=Cast<AMCToothCharacter>(GetPawn())) Hero->CancelGameplayInput();
+        FInputModeGameAndUI Mode;Mode.SetWidgetToFocus(ScoreboardWidget->TakeWidget());
+        Mode.SetHideCursorDuringCapture(false);Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+        SetInputMode(Mode);return;
     }
     const bool bReward=IsRewardMenuOpen();
     const bool bOpening=IsRewardInteractionActive() && !bReward;
@@ -536,7 +568,7 @@ bool AMCPlayerController::HasAuthoritativePerkChoice() const
     if(IsValid(Chest) && Chest->OpeningPlayer==Hero) return Chest->Stage==EMCRewardChestStage::Open;
     if(!bPerkChoicePauseRequested) if(const auto* Director=AMCGameDirector::Find(GetWorld());Director && Director->IsManagingEvents()
         && !Director->CanStartRewardInteraction()) return false;
-    return State->LevelUpOffer.IsValid();
+    return false; // Only an open, server-owned chest can pause for a choice.
 }
 
 bool AMCPlayerController::IsPerkChoiceParticipant() const
@@ -659,11 +691,7 @@ void AMCPlayerController::ServerSetPerkChoicePause_Implementation(bool bOpen)
 
 bool AMCPlayerController::IsRewardInteractionActive() const
 {
-    const auto* ProgressPlayer=GetPlayerState<AMCPlayerState>();
-    const auto* Hero=Cast<AMCToothCharacter>(GetPawn());
-    const bool SawRunning=Hero && Hero->Inventory && Hero->Inventory->bChainsawRunning;
-    return ActiveLevelOfferId.IsValid() || (HasAuthority() && !SawRunning && ProgressPlayer && ProgressPlayer->LevelUpOffer.IsValid())
-        || (ActiveRewardChest.IsValid() && RewardPawn.Get()==GetPawn());
+    return ActiveRewardChest.IsValid() && RewardPawn.Get()==GetPawn();
 }
 
 bool AMCPlayerController::PrepareRewardInteraction(AMCRewardChest* Chest)
@@ -789,50 +817,9 @@ void AMCPlayerController::ClientClosePerkChoices_Implementation(AMCRewardChest* 
 
 void AMCPlayerController::RefreshLevelPerkChoices()
 {
-    if (!IsLocalController()) return;
-    if(IsWaitingForPerkTeam()) {RefreshPerkChoiceWaiting();return;}
-    // Keep earned choices queued until the unstoppable saw run has ended.
-    // Opening its menu would otherwise cancel the tool and halt the player.
-    if(const auto* Hero=Cast<AMCToothCharacter>(GetPawn());Hero && Hero->Inventory->bChainsawRunning) return;
-    if(const auto* PS=GetPlayerState<AMCPlayerState>();PS && PS->Perks && PS->Perks->IsFuryActive()) return;
-    if(const auto* Hero=Cast<AMCToothCharacter>(GetPawn());!Hero || !Hero->Status->IsAlive()) {
-        if (ActiveLevelOfferId.IsValid()) CloseRewardUI();
-        return;
-    }
-    if(const auto* Hero=Cast<AMCToothCharacter>(GetPawn());Hero->HasFrozenLegs()
-        || Hero->IsMimicCaptured() || !Hero->ToothPhysics->CanAct()) return;
-    if(!ActiveLevelOfferId.IsValid()) if(const auto* Director=AMCGameDirector::Find(GetWorld());Director && Director->IsManagingEvents()
-        && !Director->CanStartRewardInteraction()) return;
-    const auto* ProgressPlayer=GetPlayerState<AMCPlayerState>();
-    const auto* Game=GetWorld()->GetGameState<AMCGameState>();
-    const bool CanShow=ProgressPlayer && ProgressPlayer->LevelUpOffer.IsValid() && ProgressPlayer->LevelUpOffer.OfferId!=AcceptedLevelOfferId && Game && !Game->bLobbyWaiting
-        && !Game->bTutorialActive && !bPauseMenuOpen && !bConnectionMenuOpen && !bTutorialMenuInput && !bBossIntroPlaying;
-    if (!CanShow)
-    {
-        if (ActiveLevelOfferId.IsValid()) CloseRewardUI();
-        return;
-    }
-    // The lobby flag and the offer can arrive before the next front-end poll.
-    // Remove the old lobby before giving the cards focus and pausing the world.
-    if (bLobbyUIOpen) RefreshFrontEnd();
-    if (ActiveRewardChest.IsValid()) return; // Finish an existing chest before presenting queued levels.
-    const auto& Offer=ProgressPlayer->LevelUpOffer;
-    if (ActiveLevelOfferId==Offer.OfferId && IsRewardMenuOpen()) {
-        PerkChoiceWidget->UpdateLevelChoiceHeader(Offer.TeamLevel,ProgressPlayer->PendingLevelChoices);
-        return;
-    }
-    if (!PerkChoiceWidget) PerkChoiceWidget=CreateWidget<UMCPerkChoiceWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("PerkChoice"),UMCPerkChoiceWidget::StaticClass()));
-    if (!PerkChoiceWidget) return;
-    ActiveLevelOfferId=Offer.OfferId; bRewardChoicePending=false;
-    if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed);
-    if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed);
-    if (PrototypeWidget) PrototypeWidget->ClosePanels();
-    HideScoreboard();
-    if (auto* Hero=Cast<AMCToothCharacter>(GetPawn())) Hero->CancelGameplayInput();
-    if (!PerkChoiceWidget->IsInViewport()) PerkChoiceWidget->AddToViewport(30);
-    PerkChoiceWidget->SetVisibility(ESlateVisibility::Visible);
-    PerkChoiceWidget->ShowLevelChoices(Offer.PerkIDs,Offer.TeamLevel,ProgressPlayer->PendingLevelChoices);
-    UpdateInputMode(); PerkChoiceWidget->SetUserFocus(this);
+    // Old replicated/saved offers cannot open a free perk modal. Do not close
+    // the independent chest UI when its PlayerState updates.
+    if (IsLocalController() && ActiveLevelOfferId.IsValid()) CloseRewardUI();
 }
 
 void AMCPlayerController::ServerChooseLevelPerk_Implementation(FGuid OfferId,int32 ChoiceIndex)

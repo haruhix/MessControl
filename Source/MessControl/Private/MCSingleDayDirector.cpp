@@ -163,11 +163,11 @@ void AMCSingleDayDirector::Record(const FString& Decision)
 }
 void AMCSingleDayDirector::BeginFirstPerk()
 {
-    if(!HasAuthority() || Stage!=EMCSingleDayStage::Training || bStopped) return;
-    Stage=EMCSingleDayStage::FirstPerk;
-    Record(TEXT("Обучение завершено: каждый участник выбирает личный перк"));
-    Publish(TEXT("ПЕРВОЕ УСИЛЕНИЕ"),TEXT("Задания дают общий опыт. Каждый выбирает свой перк: 1 / 2 / 3."));
-    ForceNetUpdate();
+    if(!HasAuthority() || !Settings || Stage!=EMCSingleDayStage::Training || bStopped) return;
+    // Retain the old entry point for saved/native callers, without entering
+    // the retired first-perk stage or manufacturing a reward.
+    Record(TEXT("Команда готова: старт без начального перка, награды только из сундуков"));
+    if(IsLegacyTimedFinale()) BeginKeyEvent(); else BeginOpeningPause();
 }
 void AMCSingleDayDirector::Publish(const FString& Title,const FString& Instruction,int32 Left,int32 Total)
 {
@@ -206,7 +206,7 @@ void AMCSingleDayDirector::BeginOpeningPause(bool bAfterMeal)
     const float Seconds=FMath::IsFinite(Configured)?FMath::Clamp(Configured,0.f,30.f):(bAfterMeal?4.f:5.f);
     StageEndsAt=GS->GetServerWorldTimeSeconds()+Seconds;
     Record(bAfterMeal?TEXT("Приём пищи завершён: короткая передышка перед орехами"):
-        TEXT("Первый перк выбран: короткая передышка после обучения"));
+        TEXT("Команда готова: короткая передышка перед первой порцией"));
     Publish(TEXT("ПЕРЕДЫШКА"),bAfterMeal?TEXT("Приготовьтесь уворачиваться от падающих орехов."):
         TEXT("Обычная еда скоро появится. Подготовьте нож, кирку и щётку."));
     ForceNetUpdate();
@@ -418,7 +418,7 @@ void AMCSingleDayDirector::BeginNuts()
     UMCNutRainProfile* Variant=Variants.IsValidIndex(VariantIndex)?Variants[VariantIndex].LoadSynchronous():nullptr;
     Record(FString::Printf(TEXT("Ключевое событие %d: ореховый катаклизм, Рыцарь и его превращение в Колдуна; обычные события приостановлены"),KeyEventIndex+1));
     NutEvent->Start(Mechanics,Variant);
-    Publish(TEXT("ОРЕХОГЕДДОН"),TEXT("Уклоняйтесь от красных зон падения, затем победите Рыцаря и Колдуна. Разбитые орехи уменьшают будущий призыв; XP за них не начисляется."));
+    Publish(TEXT("ОРЕХОГЕДДОН"),TEXT("Уклоняйтесь от красных зон падения, затем победите Рыцаря и Колдуна. Разбитые орехи уменьшают будущий призыв. После события вас ждёт командный сундук."));
     UE_LOG(LogTemp,Display,TEXT("MC_SINGLE_DAY NUTS variant=%d"),VariantIndex);
     ForceNetUpdate();
 }
@@ -470,7 +470,6 @@ void AMCSingleDayDirector::BeginDirector()
     auto* GS=GetWorld()->GetGameState<AMCGameState>();
     const bool Legacy=IsLegacyTimedFinale();
     const auto* CompletedSlot=Settings->KeyEvents.IsValidIndex(KeyEventIndex)?&Settings->KeyEvents[KeyEventIndex]:nullptr;
-    if(GS->Progression && (Legacy || CompletedSlot)) GS->Progression->AddExperience(FMath::Max(0,Legacy?Settings->NutEventExperience:CompletedSlot->CompletionExperience));
     if(IsValid(IceEvent)) {
         // A completed event has already cleared gameplay. Let its short local
         // shatter finish while removing the replicated event for the next slot.
@@ -519,7 +518,7 @@ void AMCSingleDayDirector::BeginBoss()
     FinalBoss=GetWorld()->SpawnActor<AMCBossCharacter>(BossClass,Point,FRotator(0,180,0),Params);
     if(FinalBoss) FinalBoss->ActivateBoss();
     else { Fail(TEXT("Не удалось создать финального босса.")); return; }
-    Publish(TEXT("ФИНАЛЬНЫЙ БОСС"),TEXT("Победите босса. Ваши личные перки и общий уровень сохраняются."),1,1);
+    Publish(TEXT("ФИНАЛЬНЫЙ БОСС"),TEXT("Победите босса. Усиления из сундуков сохраняются."),1,1);
     UE_LOG(LogTemp,Display,TEXT("MC_SINGLE_DAY BOSS")); ForceNetUpdate();
 }
 void AMCSingleDayDirector::Tick(float Dt)
@@ -528,7 +527,7 @@ void AMCSingleDayDirector::Tick(float Dt)
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); if(!GS) return;
     if(GS->Phase==EMCShiftPhase::Lost) {Stop();return;}
     if(bStageRewardPending) {TickStageReward();return;}
-    if(Stage==EMCSingleDayStage::FirstPerk && GS->Progression && !GS->Progression->HasPendingChoices()) {
+    if(Stage==EMCSingleDayStage::FirstPerk) {
         if(IsLegacyTimedFinale()) BeginKeyEvent(); else BeginOpeningPause();
     }
     else if(Stage==EMCSingleDayStage::OpeningPause && GS->GetServerWorldTimeSeconds()>=StageEndsAt) BeginFirstMeal();
@@ -538,10 +537,7 @@ void AMCSingleDayDirector::Tick(float Dt)
     else if(Stage==EMCSingleDayStage::PostNutMeal) TickPostNutMeal();
     else if(Stage==EMCSingleDayStage::PostNutMint) TickSmallMint();
     else if(Stage==EMCSingleDayStage::Jellies) TickJellies();
-    else if(Stage==EMCSingleDayStage::MealRest && GS->GetServerWorldTimeSeconds()>=StageEndsAt) {
-        if(!GS->Progression || !GS->Progression->HasPendingChoices()) BeginKeyEvent();
-        else Publish(TEXT("ПЕРВОЕ УСИЛЕНИЕ"),TEXT("Выберите личный перк перед ореховым событием: 1 / 2 / 3."));
-    }
+    else if(Stage==EMCSingleDayStage::MealRest && GS->GetServerWorldTimeSeconds()>=StageEndsAt) BeginKeyEvent();
     else if(Stage==EMCSingleDayStage::Ice && IsValid(IceEvent)) {
         if(IceEvent->bFailed) {Fail(TEXT("Не удалось запустить ледяное событие. Проверьте поверхность языка."));return;}
         if(IceEvent->IsComplete()) {

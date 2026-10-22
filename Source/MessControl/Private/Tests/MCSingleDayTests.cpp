@@ -15,6 +15,7 @@
 #include "Engine/GameInstance.h"
 #include "Engine/DataTable.h"
 #include "Engine/World.h"
+#include "GameFramework/PlayerStart.h"
 
 namespace MCSingleDayTestsPrivate
 {
@@ -36,11 +37,13 @@ struct FWorldFixture
     ~FWorldFixture() {World->EndPlay(EEndPlayReason::Quit);GEngine->DestroyWorldContext(World);World->DestroyWorld(false);}
 };
 }
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayHandoffTest,"MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayHandoffTest,"MessControl.SingleDay.TutorialHandoffHasNoStartingPerk",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCSingleDayHandoffTest::RunTest(const FString&)
 {
     MCSingleDayTestsPrivate::FWorldFixture F;
+    F.World->SpawnActor<APlayerStart>(FVector(0,5000,130),FRotator::ZeroRotator);
+    F.Mode->DefaultPawnClass=AMCToothCharacter::StaticClass();
     auto* PC=F.World->SpawnActor<AMCPlayerController>();
     auto* Player=PC->GetPlayerState<AMCPlayerState>();
     if(!Player) {
@@ -57,15 +60,19 @@ bool FMCSingleDayHandoffTest::RunTest(const FString&)
     TestEqual(TEXT("Practice tasks award no run XP"),F.State->Progression->TotalExperience,int64(0));
     F.Mode->FinishTutorial();
     TestFalse(TEXT("Finished lesson releases tutorial safety"),F.State->bTutorialActive);
-    TestTrue(TEXT("The taught player keeps their original pawn"),PC->GetPawn()==Hero);
-    TestEqual(TEXT("The first XP grants a shared level"),F.State->Progression->TeamLevel,2);
-    TestTrue(TEXT("The first level offers personal cards"),Player->LevelUpOffer.IsValid());
+    TestNotNull(TEXT("The restarted normal run supplies a worker"),Cast<AMCToothCharacter>(PC->GetPawn()));
+    TestEqual(TEXT("Tutorial completion awards no XP"),F.State->Progression->TotalExperience,int64(0));
+    TestEqual(TEXT("Tutorial completion never advances a compatibility level"),F.State->Progression->TeamLevel,1);
+    TestFalse(TEXT("Tutorial completion grants no initial cards"),Player->LevelUpOffer.IsValid());
+    TestTrue(TEXT("Tutorial completion grants no initial perk"),Player->Perks->ActivePerks.IsEmpty());
     TestEqual(TEXT("New run is configured as one day"),F.State->RunSettings.DaysToSurvive,1);
-    TestEqual(TEXT("Main sequence waits for the first choice"),F.State->SingleDayDirector->Stage,EMCSingleDayStage::FirstPerk);
-    F.State->SingleDayDirector->Tick(.1f);
-    TestEqual(TEXT("Pending personal cards gate nut rain"),F.State->SingleDayDirector->Stage,EMCSingleDayStage::FirstPerk);
-    TestTrue(TEXT("An independent choice consumes the first offer"),Player->TryChooseLevelUpPerk(Player->LevelUpOffer.OfferId,0));
-    TestFalse(TEXT("The team is ready after its choice"),F.State->Progression->HasPendingChoices());
+    TestEqual(TEXT("The restarted run retains its ordinary loading barrier"),F.State->SingleDayDirector->Stage,EMCSingleDayStage::Training);
+    APawn* ReadyPawn=PC->GetPawn().Get();
+    F.State->SingleDayDirector->BeginFirstPerk();
+    TestEqual(TEXT("The compatibility entry point starts the opening pause directly"),F.State->SingleDayDirector->Stage,EMCSingleDayStage::OpeningPause);
+    TestTrue(TEXT("Beginning the actual sequence preserves its ready pawn"),PC->GetPawn()==ReadyPawn);
+    TestNull(TEXT("The opening meals cannot be bypassed by a removed perk stage"),F.State->SingleDayDirector->NutEvent.Get());
+    TestFalse(TEXT("No removed XP choice can block the first meal"),F.State->Progression->HasPendingChoices());
     return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayBossEndTest,"MessControl.SingleDay.LegacyFinalBossDeathEndsRun",

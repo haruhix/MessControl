@@ -16,6 +16,20 @@ class UWidgetSwitcher;
 class USlider;
 class UMCMainMenuWidget;
 
+/** Small editable front-end status, visible only while creating a room or after an actual failure. */
+UCLASS(Blueprintable)
+class MESSCONTROL_API UMCHubPlayStatusWidget : public UMCGameplayUIWidget
+{
+    GENERATED_BODY()
+public:
+    virtual void BuildPresentationTree() override;
+    virtual void ApplyEditorPreview(float Time) override;
+protected:
+    virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
+private:
+    float RefreshElapsed=0.f;
+};
+
 /** Presentation used only when an authored front end embeds this widget. */
 USTRUCT(BlueprintType)
 struct MESSCONTROL_API FMCEmbeddedMenuStyle
@@ -135,6 +149,9 @@ public:
     /** Normalize a local IPv4/DNS endpoint into an unambiguous Unreal network URL. */
     static bool NormalizeJoinAddress(const FString& Input, FString& OutAddress);
     UFUNCTION(BlueprintCallable, Category="Front End") void HandleAction(EMCMainMenuAction Action);
+    /** Shared entry point for the native and authored 3D Play buttons. No day/menu/lobby page is opened. */
+    UFUNCTION(BlueprintCallable, Category="Front End", meta=(WorldContext="WorldContextObject"))
+    static bool PlayToHub(const UObject* WorldContextObject);
 protected:
     virtual void NativeOnInitialized() override;
     virtual void NativeConstruct() override;

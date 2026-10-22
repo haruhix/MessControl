@@ -1,0 +1,11 @@
+[
+  {"Name":"UI.Scoreboard.Voice","RU":"Голос","EN":"Voice","Context":"Held Tab panel voice column."},
+  {"Name":"UI.Scoreboard.Mute","RU":"Отключить","EN":"Mute","Context":"Mute this participant only for the local listener."},
+  {"Name":"UI.Scoreboard.Unmute","RU":"Включить","EN":"Unmute","Context":"Unmute this participant for the local listener."},
+  {"Name":"UI.Scoreboard.SelfMute","RU":"Микрофон ВЫКЛ","EN":"Mute mic","Context":"Action: disable own microphone."},
+  {"Name":"UI.Scoreboard.SelfUnmute","RU":"Микрофон ВКЛ","EN":"Unmute mic","Context":"Action: enable own microphone, respecting the configured PTT/open-mic mode."},
+  {"Name":"UI.Scoreboard.NoVoice","RU":"—","EN":"—","Context":"Bot or participant whose online identity is not ready."},
+  {"Name":"UI.Scoreboard.MuteHint","RU":"Отключить голос этого игрока только для себя","EN":"Mute this player's voice only for yourself","Context":"Individual voice preference persists by online identity."},
+  {"Name":"UI.Scoreboard.SelfMuteHint","RU":"Включить или выключить свой микрофон","EN":"Mute or unmute your microphone","Context":"Own row controls self mute, not the global voice channel."},
+  {"Name":"UI.Scoreboard.VoiceFooter","RU":"TAB — держать · ↑/↓ — участник · Enter/A — голос · Отпусти TAB, чтобы закрыть","EN":"Hold TAB · ↑/↓: player · Enter/A: voice · Release TAB to close","Context":"Held scoreboard controls; gamepad View/Select also opens the panel."}
+]

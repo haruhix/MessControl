@@ -210,7 +210,7 @@ void AMCGameMode::FinishRestartPlayer(AController* NewPlayer,const FRotator& Sta
     auto* Hero=NewPlayer?Cast<AMCToothCharacter>(NewPlayer->GetPawn()):nullptr;
     if(SettleFreshPlayerAboveTongue(Hero,ArenaArrivalHeight)) {
         // Loading only blocks input. Hold gravity too, otherwise the entire
-        // arrival finishes behind the loading screen or first perk selection.
+        // arrival finishes behind the loading screen.
         Hero->SetArenaArrivalHeld(true);
         PendingArenaArrivals.AddUnique(Hero);Hero->ForceNetUpdate();
     }
@@ -228,7 +228,6 @@ void AMCGameMode::ReleaseReadyArenaArrivals()
     if(State->bSingleDayLoop && !State->bTutorialActive && !State->bDevManualEvents
         && (!IsValid(State->SingleDayDirector) || State->SingleDayDirector->Stage==EMCSingleDayStage::Training
             || State->SingleDayDirector->Stage==EMCSingleDayStage::FirstPerk)) return;
-    if(State->Progression && State->Progression->HasPendingChoices()) return;
     // The existing gameplay ACK is sent after local preheat. No extra world
     // clock or director delay is introduced by the arrival presentation.
     const FString Map=UGameplayStatics::GetCurrentLevelName(this,true);
@@ -272,8 +271,6 @@ void AMCGameMode::AwardTaskToPlayerState(AMCPlayerState* Worker, EMCScoreTask Ki
     if (!HasAuthority() || !IsValid(Worker) || Worker->GetWorld()!=GetWorld()) return;
     if (const auto* GS=GetGameState<AMCGameState>(); GS && (GS->bTutorialActive || GS->bLobbyWaiting)) return;
     Worker->AddPoints(ScoreRewards.ForTask(Kind));
-    if(auto* GS=GetGameState<AMCGameState>(); GS && GS->bSingleDayLoop && GS->Progression)
-        GS->Progression->AddExperience(ScoreRewards.ForTask(Kind));
 }
 void AMCGameMode::NotifyObjectiveCompleted(FName CompletionId)
 {
@@ -429,9 +426,8 @@ void AMCGameMode::BeginSingleDaySequence()
     if (!HasAuthority() || !GS || !GS->bSingleDayLoop || !IsValid(GS->SingleDayDirector)
         || GS->SingleDayDirector->Stage!=EMCSingleDayStage::Training) return;
     GS->bTutorialActive=false;
-    // The complete team must exist before XP is awarded: every participant gets
-    // their own offer, while observers have already been excluded from the run.
-    if (GS->Progression) GS->Progression->AddExperience(GS->Progression->GetExperienceToNextLevel());
+    // Readiness starts the meal sequence directly. There is no free starting
+    // perk or XP grant; rewards must be earned through the stage chests.
     GS->SingleDayDirector->BeginFirstPerk();
     GS->ForceNetUpdate();
 }
@@ -469,7 +465,7 @@ void AMCGameMode::Tick(float DeltaSeconds)
         }
         return;
     }
-    // The normal map starts the existing perk/day sequence once the team has
+    // The normal map starts the day sequence once the team has
     // loaded, without silently entering the tutorial again.
     if(State && State->bSingleDayLoop && IsValid(State->SingleDayDirector)
         && State->SingleDayDirector->Stage==EMCSingleDayStage::Training

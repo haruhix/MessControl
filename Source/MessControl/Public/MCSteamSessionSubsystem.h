@@ -23,6 +23,8 @@ public:
     const TArray<FString>& GetRoomLabels() const { return RoomLabels; }
     int32 GetSearchRevision() const { return SearchRevision; }
     void HostRoom(bool bWaitForLobby=false,bool bWithTutorial=false);
+    /** One Play action creates a Steam room and enters Hub; PIE/offline uses the same listen Hub locally. */
+    UFUNCTION(BlueprintCallable, Category="Front End") bool EnterHub();
     /** Close the online room (when present), then return this local player to the menu. */
     void LeaveRoom();
     void FindRooms();

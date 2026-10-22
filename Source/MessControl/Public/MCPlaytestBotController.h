@@ -67,6 +67,9 @@ private:
     void ReactToGroundWaves();
     void PulsePrimary();
     bool WorkFoodDelivery(AMCFoodDisposal* Zone);
+    bool ContinueFoodCollection();
+    void RefreshFoodLoadProgress();
+    bool IsDeliveryStandReserved(FVector Stand) const;
     AMCFoodActor* CarriedFood() const;
     double TargetProgress() const;
     UPROPERTY(Transient) TObjectPtr<AMCToothCharacter> Hero;
@@ -104,6 +107,11 @@ private:
     int32 NutFlankPointIndex=0;
     double NutFlankUntil=0,NextNutFlankAt=0;
     double NextPrimaryAt=0,PrimaryReleaseAt=0,NextThrowAt=0,CollectStartedAt=0;
+    FVector CollectionOrigin=FVector::ZeroVector;
+    double LastCollectedAt=0,DeliveryPoseReadyAt=0;
+    float PreferredDeliveryLane=0;
+    int32 LastFoodLoadCount=0;
+    bool bDeliveringTower=false;
     bool bSeekingWarmth=false;
     TWeakObjectPtr<AMCSingleDayDirector> MealObjectiveDirector;
     TSet<int32> KnownMealBatches;

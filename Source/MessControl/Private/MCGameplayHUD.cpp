@@ -18,7 +18,6 @@
 #include "MCPlayerController.h"
 #include "MCGameState.h"
 #include "MCSingleDayDirector.h"
-#include "MCProgressionComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothMovementComponent.h"
 #include "MCGripComponent.h"
@@ -317,9 +316,7 @@ void UMCGameplayHUD::BindAuthoredPresentation()
     if(!LocalizationTable) {
         const auto* T=GetResolvedTheme();LocalizationTable=!T->LocalizationTable.IsNull()?T->LocalizationTable.LoadSynchronous():UMCUIDataLibrary::GetDefaultLocalizationTable();
     }
-    if(auto* Panel=Cast<UBorder>(WidgetTree->FindWidget(TEXT("TeamProgression"))))
-        if(auto* Label=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("ProgressionText"))))
-            if(auto* Bar=Cast<UProgressBar>(WidgetTree->FindWidget(TEXT("ProgressionBar")))) {ProgressionPanel=Panel;ProgressionText=Label;ProgressionBar=Bar;}
+    HideLegacyProgressionPresentation();
     if(auto* Panel=Cast<UBorder>(WidgetTree->FindWidget(TEXT("CataclysmPanel")))) {
         CataclysmPanel=Panel;CataclysmInstruction=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("CataclysmInstruction")));
     }
@@ -396,12 +393,7 @@ void UMCGameplayHUD::BuildPresentationTree()
     Box(TEXT("TimerDivider"),Timer,{154,8},{1,58},EMCUIColorToken::LCDInk);
     auto* TimerTrack=Bar(TEXT("TimerProgress"),Timer,{12,64},{132,3},EMCUIColorToken::LCDInk);TimerTrack->SetVisibility(ESlateVisibility::Collapsed);
 
-    auto* XP=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("TeamProgression"));XP->SetPadding(FMargin(10,6));Place(Root,XP,{-326,20},{304,40},{1,0});
-    auto* XPColumn=WidgetTree->ConstructWidget<UVerticalBox>();XP->SetContent(XPColumn);
-    XPColumn->AddChildToVerticalBox(WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("ProgressionText")));
-    XPColumn->AddChildToVerticalBox(WidgetTree->ConstructWidget<UProgressBar>(UProgressBar::StaticClass(),TEXT("ProgressionBar")));
-    BindStyle(TEXT("ProgressionText"),EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,13,true);BindStyle(TEXT("ProgressionBar"),EMCUIColorToken::Accent,EMCUIStyleTarget::Progress);
-    auto* Players=Panel(TEXT("PlayersPanel"),Root,{-326,65},{304,116},{1,0});
+    auto* Players=Panel(TEXT("PlayersPanel"),Root,{-326,20},{304,116},{1,0});
     Box(TEXT("PlayersBG"),Players,{0,0},{304,116},EMCUIColorToken::Marine);
     for(int32 Index=0;Index<4;++Index) {
         const FString N=FString::Printf(TEXT("Player%d"),Index+1);auto* Card=Panel(FName(N),Players,{76.f*Index,0},{76,110});
@@ -412,7 +404,7 @@ void UMCGameplayHUD::BuildPresentationTree()
         auto* Name=Text(FName(N+TEXT("Name")),Card,{6,76},{64,20},FText::AsCultureInvariant(FString::Printf(TEXT("P%d"),Index+1)),12,EMCUIColorToken::Accent);Name->SetJustification(ETextJustify::Center);
         Bar(FName(N+TEXT("Health")),Card,{10,99},{56,10},EMCUIColorToken::Accent);
     }
-    auto* Events=Panel(TEXT("EventsPanel"),Root,{-282,173},{260,164},{1,0});
+    auto* Events=Panel(TEXT("EventsPanel"),Root,{-282,148},{260,164},{1,0});
     for(int32 Index=0;Index<3;++Index) {
         const FString N=FString::Printf(TEXT("Timeline%d"),Index);auto* Card=Panel(FName(N),Events,{0,54.f*Index},{260,49});
         Box(FName(N+TEXT("BG")),Card,{0,0},{260,49},EMCUIColorToken::Marine);Bar(FName(N+TEXT("Fill")),Card,{0,46},{260,3},EMCUIColorToken::Mint);
@@ -459,9 +451,6 @@ void UMCGameplayHUD::ApplyTheme()
     if(auto* Image=Cast<UImage>(Find(TEXT("TimerBG")))) Image->SetColorAndOpacity(P.LCDBackground);
     for(FName Name:{FName(TEXT("ReserveLabel")),FName(TEXT("CleanLabel")),FName(TEXT("ToolTitle")),FName(TEXT("ActionHint")),FName(TEXT("ResultDetail")),FName(TEXT("PreviewResourceValue"))})
         if(auto* Label=Cast<UTextBlock>(Find(Name))) {Label->SetFont(T->MakeGameplayFont(Name==TEXT("ToolTitle")?14:13));Label->SetColorAndOpacity(P.OnMarine);}
-    if(ProgressionPanel) {ProgressionPanel->SetBrush(FSlateRoundedBoxBrush(P.Marine,T->CornerRadius,P.Border,T->OutlineWidth));ProgressionPanel->SetBrushColor(FLinearColor::White);}
-    if(ProgressionText) {ProgressionText->SetFont(T->MakeGameplayFont(13));ProgressionText->SetColorAndOpacity(P.OnMarine);}
-    if(ProgressionBar) ProgressionBar->SetFillColorAndOpacity(P.Accent);
     if(CataclysmPanel) {CataclysmPanel->SetBrush(FSlateRoundedBoxBrush(P.Marine,T->CornerRadius,P.Border,T->OutlineWidth));CataclysmPanel->SetBrushColor(FLinearColor::White);}
     if(CataclysmInstruction) {CataclysmInstruction->SetFont(T->MakeGameplayFont(13,false));CataclysmInstruction->SetColorAndOpacity(P.OnMarine);}
     for(int32 Index=1;Index<=4;++Index) {
@@ -477,8 +466,7 @@ void UMCGameplayHUD::ApplyTheme()
     if(EncounterPreviewWidget) EncounterPreviewWidget->ApplyTheme();
     ApplyResourceTheme(StaminaWidget);ApplyResourceTheme(SwimEnergyWidget);
     Super::ApplyTheme();
-    if(ProgressionPanel) MCUIVisualStyle::Panel(ProgressionPanel,T,P.Marine);
-    if(ProgressionBar) MCUIVisualStyle::Progress(ProgressionBar,T,P.Accent);
+    HideLegacyProgressionPresentation();
     if(CataclysmPanel) MCUIVisualStyle::Panel(CataclysmPanel,T,P.Marine);
     for(int32 Index=1;Index<=4;++Index)
     {
@@ -515,7 +503,6 @@ void UMCGameplayHUD::UpdatePhase1Layout()
     FString Signature=FString::Printf(TEXT("%.0f|scale%.4f|players%d"),LayoutLogicalWidth,LayoutScale,DisplayedPlayerCount);
     for(FName Name:{FName(TEXT("ReserveLabel")),FName(TEXT("CleanLabel")),FName(TEXT("TimerLabel")),FName(TEXT("TaskLabel")),FName(TEXT("ToolTitle")),FName(TEXT("ActionHint")),FName(TEXT("ResultTitle")),FName(TEXT("ResultDetail"))})
         if(const auto* Label=Cast<UTextBlock>(Find(Name))) Signature+=TEXT("\x1f")+Label->GetText().ToString();
-    if(ProgressionText) Signature+=ProgressionText->GetText().ToString();
     for(int32 Index=0;Index<3;++Index)
         for(const TCHAR* Suffix:{TEXT("Label"),TEXT("Title")})
             if(const auto* Label=Cast<UTextBlock>(Find(FName(*FString::Printf(TEXT("Timeline%d%s"),Index,Suffix))))) Signature+=TEXT("\x1f")+Label->GetText().ToString();
@@ -581,17 +568,11 @@ void UMCGameplayHUD::UpdatePhase1Layout()
     const float HintTextHeight=TextHeight(TEXT("ActionHint"),HintWidth-60.f,24),HintHeight=FMath::Max(52.f,HintTextHeight+22.f);
     Place(TEXT("HintPanel"),{252,-(HintHeight+22)},{HintWidth,HintHeight});Place(TEXT("HintBG"),{0,0},{HintWidth,HintHeight});
     Place(TEXT("ActionHint"),{45,10},{HintWidth-60,HintTextHeight});Place(TEXT("ContactProgress"),{45,HintHeight-9},{HintWidth-60,5});
-    if(ProgressionText && ProgressionPanel)
-    {
-        ProgressionText->SetAutoWrapText(false);ProgressionText->SetWrapTextAt(284);ProgressionText->TakeWidget()->MarkPrepassAsDirty();ProgressionText->TakeWidget()->SlatePrepass(LayoutScale);
-        const float Height=FMath::Max(40.f,ProgressionText->GetDesiredSize().Y+22.f);
-        const float PlayersWidth=76.f*FMath::Clamp(DisplayedPlayerCount,1,4);
-        Place(TEXT("TeamProgression"),{-326,20},{304,Height});
-        Place(TEXT("PlayersPanel"),{-22-PlayersWidth,20+Height+5},{PlayersWidth,116});
-        Place(TEXT("PlayersBG"),{0,0},{PlayersWidth,116});
-        if(auto* Strip=Find(TEXT("PlayersPanel"))) Strip->SetRenderTranslation(FVector2D::ZeroVector);
-        Place(TEXT("EventsPanel"),{-282,20+Height+5+116+12},{260,164});
-    }
+    const float PlayersWidth=76.f*FMath::Clamp(DisplayedPlayerCount,1,4);
+    Place(TEXT("PlayersPanel"),{-22-PlayersWidth,20},{PlayersWidth,116});
+    Place(TEXT("PlayersBG"),{0,0},{PlayersWidth,116});
+    if(auto* Strip=Find(TEXT("PlayersPanel"))) Strip->SetRenderTranslation(FVector2D::ZeroVector);
+    Place(TEXT("EventsPanel"),{-282,20+116+12},{260,164});
     // Event names and their status captions may take several lines in another
     // language. Keep the progress at the bottom of each measured row.
     float EventY=0.f;
@@ -679,8 +660,7 @@ void UMCGameplayHUD::ApplyEditorPreview(float Time)
     SetCopy(TEXT("TimerLabel"),Copy(TEXT("UI.HUD.UntilEvent"),LOCTEXT("UntilEvent","ДО СОБЫТИЯ")));
     SetCopy(TEXT("ToolTitle"),Copy(TEXT("UI.HUD.Tool.Brush"),LOCTEXT("Brush","ЩЁТКА")));
     SetCopy(TEXT("ActionHint"),Long?Copy(TEXT("UI.HUD.Preview.LongHint"),LOCTEXT("LongHint","Удерживай E · вытащить товарища из мимика и помочь вернуться к команде")):Copy(TEXT("UI.HUD.BrushAction"),LOCTEXT("BrushAction","ЛКМ · ЧИСТИТЬ")));
-    if(ProgressionText) ProgressionText->SetText(Copy(TEXT("UI.HUD.Preview.TeamXP"),LOCTEXT("PreviewTeamXP","Ур. 2 · 35 / 75 XP")));
-    if(ProgressionBar) ProgressionBar->SetPercent(35.f/75.f);
+    HideLegacyProgressionPresentation();
     auto Bar=[&](FName Name,float Value){if(auto* B=Cast<UProgressBar>(Find(Name))) B->SetPercent(Value);};
     Bar(TEXT("CleanProgress"),Empty?0.f:Low?.15f:.9f);Bar(TEXT("TaskProgress"),Empty?0.f:420.f/1440.f);Bar(TEXT("TimerProgress"),.45f);
     if(StaminaWidget) {StaminaWidget->PreviewCulture=PreviewCulture;StaminaWidget->PreviewScenario=Empty?EMCGameplayUIPreviewScenario::Empty:Low?EMCGameplayUIPreviewScenario::LowResources:PreviewScenario;StaminaWidget->ApplyEditorPreview(Time);}
@@ -754,7 +734,7 @@ void UMCGameplayHUD::NativeOnInitialized()
             }
         }
     EnsureDirectorMonitor();
-    EnsureProgressionPanel();
+    HideLegacyProgressionPresentation();
     EnsureCataclysmPanel();
     EnsureAlertWidget();
     EnsureBoosterWidget();
@@ -901,29 +881,17 @@ void UMCGameplayHUD::EnsureCataclysmPanel()
     auto* CataclysmSlot=Root->AddChildToCanvas(CataclysmPanel);
     CataclysmSlot->SetPosition(FVector2D(22,338)); CataclysmSlot->SetSize(FVector2D(304,128));
 }
-void UMCGameplayHUD::EnsureProgressionPanel()
+void UMCGameplayHUD::HideLegacyProgressionPresentation()
 {
-    if(ProgressionPanel || !WidgetTree) return;
-    if(auto* Existing=WidgetTree->FindWidget(TEXT("TeamProgression"))) {
-        ProgressionPanel=Cast<UBorder>(Existing);
-        ProgressionText=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("ProgressionText")));
-        ProgressionBar=Cast<UProgressBar>(WidgetTree->FindWidget(TEXT("ProgressionBar")));
-        return;
-    }
-    auto* Root=Cast<UCanvasPanel>(WidgetTree->FindWidget(TEXT("HUDRoot")));
-    if(!Root) Root=Cast<UCanvasPanel>(WidgetTree->RootWidget);
-    if(!Root) return;
-    ProgressionPanel=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("TeamProgression"));
-    ProgressionPanel->SetPadding(FMargin(14,8)); ProgressionPanel->SetBrushColor(MCGameplayHUDPrivate::Ink);
-    ProgressionPanel->SetVisibility(ESlateVisibility::Collapsed);
-    auto* Column=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("ProgressionColumn")); ProgressionPanel->SetContent(Column);
-    ProgressionText=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("ProgressionText"));
-    ProgressionText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),14));
-    ProgressionText->SetColorAndOpacity(FSlateColor(MCGameplayHUDPrivate::White)); Column->AddChildToVerticalBox(ProgressionText);
-    ProgressionBar=WidgetTree->ConstructWidget<UProgressBar>(UProgressBar::StaticClass(),TEXT("ProgressionBar")); ProgressionBar->SetFillColorAndOpacity(MCGameplayHUDPrivate::Mint);
-    Column->AddChildToVerticalBox(ProgressionBar);
-    auto* XPPanelSlot=Root->AddChildToCanvas(ProgressionPanel); XPPanelSlot->SetAnchors(FAnchors(.5f,0));
-    XPPanelSlot->SetAlignment(FVector2D(.5f,0)); XPPanelSlot->SetPosition(FVector2D(0,116)); XPPanelSlot->SetSize(FVector2D(330,58));
+    if(!WidgetTree) return;
+    // Saved artist WBP trees may still contain the former panel. Keep the
+    // widgets and their bindings intact, but never recreate or reveal them.
+    for(const TCHAR* Name:{TEXT("TeamProgression"),TEXT("ProgressionPanel"),TEXT("ProgressionText"),TEXT("ProgressionBar"),TEXT("XPPanel"),TEXT("XPText"),TEXT("XPBar")})
+        if(auto* Widget=WidgetTree->FindWidget(FName(Name))) {
+            Widget->SetVisibility(ESlateVisibility::Collapsed);
+            if(auto* Label=Cast<UTextBlock>(Widget)) Label->SetText(FText::GetEmpty());
+            if(auto* Bar=Cast<UProgressBar>(Widget)) Bar->SetPercent(0.f);
+        }
 }
 void UMCGameplayHUD::EnsureDirectorMonitor()
 {
@@ -1180,18 +1148,7 @@ void UMCGameplayHUD::RefreshState()
     auto Show=[&](FName Name,bool Visible) { if(auto* W=Find(Name)) W->SetVisibility(Visible?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed); };
     auto Color=[&](FName Name,FLinearColor Value) { if(auto* I=Cast<UImage>(Find(Name))) I->SetColorAndOpacity(Value); };
     const double Now=GS->GetServerWorldTimeSeconds();
-    EnsureProgressionPanel();
-    if(ProgressionPanel) {
-        ProgressionPanel->SetVisibility(GS->bSingleDayLoop && !GS->bTutorialActive?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
-        if(GS->Progression && ProgressionText && ProgressionBar) {
-            const auto* XP=GS->Progression.Get();
-            ProgressionText->SetText(UMCUIDataLibrary::FormatTextForCulture(XP->ExperienceToNextLevel>0
-                ? Copy(TEXT("UI.HUD.TeamXP"),LOCTEXT("TeamXP","Ур. {Level} · {Current} / {Required} XP"))
-                : Copy(TEXT("UI.HUD.TeamXPMaximum"),LOCTEXT("TeamXPMaximum","Ур. {Level} · МАКСИМУМ")),
-                FFormatNamedArguments{{TEXT("Level"),FText::AsNumber(XP->TeamLevel)},{TEXT("Current"),FText::AsNumber(XP->ExperienceInLevel)},{TEXT("Required"),FText::AsNumber(XP->ExperienceToNextLevel)}}));
-            ProgressionBar->SetPercent(XP->ExperienceToNextLevel>0?FMath::Clamp(float(XP->ExperienceInLevel)/XP->ExperienceToNextLevel,0.f,1.f):1.f);
-        }
-    }
+    HideLegacyProgressionPresentation();
     const auto& Director=GS->DirectorState;const bool Directed=Director.bEnabled;
     RefreshDirectorMonitor(Director);
     const bool HasStep=!Directed && GS->DayPlan && GS->DayPlan->Steps.IsValidIndex(GS->StepIndex);
@@ -1256,7 +1213,7 @@ void UMCGameplayHUD::RefreshState()
     const float Progress=Directed && GS->Phase==EMCShiftPhase::Working?FMath::Clamp(Director.DayProgress,0.f,1.f)
         :Timed?FMath::Clamp(1-Remaining/Duration,0.f,1.f):Done;
     Text(TEXT("TimerValue"),Timed?FString::Printf(TEXT("%02d:%02d"),Seconds/60,Seconds%60):TEXT("--:--"));
-    SetCopy(TEXT("TimerLabel"),Finished?Copy(TEXT("UI.HUD.RunResults"),LOCTEXT("RunResults","ИТОГИ ЗАБЕГА")):GS->bSingleDayLoop?Timed?Copy(TEXT("UI.HUD.UntilEvent"),LOCTEXT("UntilEvent","ДО СОБЫТИЯ")):Copy(TEXT("UI.HUD.Endure"),LOCTEXT("Endure","ПРОДЕРЖИСЬ И ПРОКАЧАЙСЯ")):Timed?Directed?GS->Phase==EMCShiftPhase::Working?Copy(TEXT("UI.HUD.UntilRunEnd"),LOCTEXT("UntilRunEnd","ДО КОНЦА ЗАБЕГА")):Copy(TEXT("UI.HUD.UntilStart"),LOCTEXT("UntilStart","ДО НАЧАЛА")):Copy(TEXT("UI.HUD.UntilEvent"),LOCTEXT("UntilEvent","ДО СОБЫТИЯ")):Copy(TEXT("UI.HUD.NoTimeLimit"),LOCTEXT("NoTimeLimit","БЕЗ ЛИМИТА ВРЕМЕНИ"))); Bar(TEXT("TimerProgress"),Finished?1:Progress);
+    SetCopy(TEXT("TimerLabel"),Finished?Copy(TEXT("UI.HUD.RunResults"),LOCTEXT("RunResults","ИТОГИ ЗАБЕГА")):GS->bSingleDayLoop?Timed?Copy(TEXT("UI.HUD.UntilEvent"),LOCTEXT("UntilEvent","ДО СОБЫТИЯ")):Copy(TEXT("UI.HUD.Endure"),LOCTEXT("Endure","ВЫПОЛНИ ЗАДАЧУ")):Timed?Directed?GS->Phase==EMCShiftPhase::Working?Copy(TEXT("UI.HUD.UntilRunEnd"),LOCTEXT("UntilRunEnd","ДО КОНЦА ЗАБЕГА")):Copy(TEXT("UI.HUD.UntilStart"),LOCTEXT("UntilStart","ДО НАЧАЛА")):Copy(TEXT("UI.HUD.UntilEvent"),LOCTEXT("UntilEvent","ДО СОБЫТИЯ")):Copy(TEXT("UI.HUD.NoTimeLimit"),LOCTEXT("NoTimeLimit","БЕЗ ЛИМИТА ВРЕМЕНИ"))); Bar(TEXT("TimerProgress"),Finished?1:Progress);
     if(auto* T=Cast<UTextBlock>(Find(TEXT("TimerValue")))) T->SetColorAndOpacity(FSlateColor(Timed && Seconds<10?Palette.Warning:Palette.LCDInk));
     TArray<APlayerState*> Players;
     for(const auto& Player:GS->PlayerArray)
@@ -1337,11 +1294,11 @@ void UMCGameplayHUD::RefreshState()
         const float Cool=Inv->SpraySecondsLeft(); Show(TEXT("SprayCooldown"),Automatic || Cool>0);
         SetCopy(TEXT("CooldownValue"),Automatic?(Inv->bWaterReloading?Format(TEXT("UI.HUD.CooldownSeconds"),LOCTEXT("CooldownSeconds","{Seconds} с"),{{TEXT("Seconds"),Decimal(Cool)}}):Format(TEXT("UI.HUD.AmmoCount"),LOCTEXT("AmmoCount","{Current}/{Maximum}"),{{TEXT("Current"),Inv->WaterAmmo},{TEXT("Maximum"),Inv->WaterMagazineCapacity()}})):Decimal(Cool));
         Bar(TEXT("CooldownProgress"),Automatic && !Inv->bWaterReloading?float(Inv->WaterAmmo)/Inv->WaterMagazineCapacity():1-Cool/Inv->CooldownSeconds());
-        FText Hint=Inv->Selected==EMCToolSlot::Pickaxe?Copy(TEXT("UI.HUD.Hint.Pickaxe"),LOCTEXT("HintPickaxe","ЛКМ · ДРОБИТЬ · ЕДА → XP")):Inv->Selected==EMCToolSlot::Knife?Copy(TEXT("UI.HUD.Hint.Knife"),LOCTEXT("HintKnife","ЛКМ · РАЗБИТЬ ЕДУ → XP")):Inv->Selected==EMCToolSlot::Spray?Copy(TEXT("UI.HUD.Hint.Spray"),LOCTEXT("HintSpray","УДЕРЖИВАЙ ЛКМ · ЛЕЧИТЬ ЯЗВУ")):Copy(TEXT("UI.HUD.BrushAction"),LOCTEXT("BrushAction","ЛКМ · ЧИСТИТЬ"));
+        FText Hint=Inv->Selected==EMCToolSlot::Pickaxe?Copy(TEXT("UI.HUD.Hint.Pickaxe"),LOCTEXT("HintPickaxe","ЛКМ · ДРОБИТЬ ЕДУ")):Inv->Selected==EMCToolSlot::Knife?Copy(TEXT("UI.HUD.Hint.Knife"),LOCTEXT("HintKnife","ЛКМ · РАЗРЕЗАТЬ ЕДУ")):Inv->Selected==EMCToolSlot::Spray?Copy(TEXT("UI.HUD.Hint.Spray"),LOCTEXT("HintSpray","УДЕРЖИВАЙ ЛКМ · ЛЕЧИТЬ ЯЗВУ")):Copy(TEXT("UI.HUD.BrushAction"),LOCTEXT("BrushAction","ЛКМ · ЧИСТИТЬ"));
         if(Inv->Selected==EMCToolSlot::Pickaxe || Inv->Selected==EMCToolSlot::Knife) {
             for(TActorIterator<AMCNutRainEvent> It(GetWorld());It;++It) {
                 if(It->Settings.bBossEncounter && It->Stage!=EMCNutRainStage::Idle && It->Stage!=EMCNutRainStage::Complete) {
-                    Hint=Copy(TEXT("UI.HUD.Hint.NutsNoXP"),LOCTEXT("HintNutsNoXP","ЛКМ · ДРОБИТЬ · ОРЕХИ БЕЗ XP"));
+                    Hint=Copy(TEXT("UI.HUD.Hint.Nuts"),LOCTEXT("HintNuts","ЛКМ · ДРОБИТЬ ОРЕХИ"));
                     break;
                 }
             }

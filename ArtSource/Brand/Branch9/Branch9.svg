@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="768" viewBox="0 0 2048 768" role="img" aria-labelledby="title desc">
+<title id="title">Branch9 studio</title>
+<desc id="desc">Original geometric white Branch9 wordmark intersected by an ascending organic branch and seven leaves. Editable vector paths; transparent background.</desc>
+<defs><mask id="branch-carve" maskUnits="userSpaceOnUse" x="0" y="0" width="2048" height="768"><rect width="2048" height="768" fill="white"/><path d="M650 581 L845 505 L1006 443 L1138 397 L1285 343 L1400 288 L1509 238 L1639 167 L1605 211 L1520 266 L1413 319 L1300 370 L1151 420 L1017 462 L852 520 Z" fill="black"/></mask></defs>
+<g id="Wordmark" fill="white" fill-rule="evenodd" mask="url(#branch-carve)">
+<path id="letter-B" transform="translate(210 290) matrix(1 0 -0.035 1 0 0)" d="M0 0 L133 0 C181 0 200 22 200 60 C200 84 190 102 173 113 C196 122 208 143 208 171 C208 217 180 246 132 246 L0 246 Z M57 49 L57 94 L124 94 C141 94 149 86 149 72 C149 56 140 49 124 49 Z M57 143 L57 196 L129 196 C147 196 156 186 156 169 C156 152 147 143 129 143 Z"/>
+<path id="letter-R" transform="translate(442 290) matrix(1 0 -0.035 1 0 0)" d="M0 0 L132 0 C184 0 208 29 208 78 C208 113 193 138 166 149 L218 246 L151 246 L107 159 L57 159 L57 246 L0 246 Z M57 49 L57 110 L124 110 C144 110 153 100 153 79 C153 59 144 49 124 49 Z"/>
+<path id="letter-A" transform="translate(680 290) matrix(1 0 -0.035 1 0 0)" d="M82 0 L142 0 L231 246 L170 246 L154 197 L69 197 L53 246 L-7 246 Z M111 66 L83 149 L139 149 Z"/>
+<path id="letter-N" transform="translate(932 290) matrix(1 0 -0.035 1 0 0)" d="M0 0 L55 0 L154 153 L154 0 L211 0 L211 246 L155 246 L57 94 L57 246 L0 246 Z"/>
+<path id="letter-C" transform="translate(1170 290) matrix(1 0 -0.035 1 0 0)" d="M208 33 L174 75 C156 56 140 48 116 48 C77 48 56 75 56 123 C56 171 78 199 117 199 C142 199 160 189 177 169 L211 208 C188 237 157 251 115 251 C43 251 0 202 0 123 C0 45 44 -5 116 -5 C155 -5 185 8 208 33 Z"/>
+<path id="letter-H" transform="translate(1405 290) matrix(1 0 -0.035 1 0 0)" d="M0 0 L57 0 L57 94 L151 94 L151 0 L208 0 L208 246 L151 246 L151 146 L57 146 L57 246 L0 246 Z"/>
+<path id="number-9" d="M1640 309 C1640 230 1683 185 1751 185 C1823 185 1864 231 1864 298 C1864 338 1850 372 1827 409 L1737 548 L1657 548 L1748 414 C1739 417 1727 419 1718 418 C1668 413 1640 369 1640 309 Z M1701 302 C1701 337 1718 356 1751 356 C1784 356 1803 336 1803 302 C1803 268 1785 247 1752 247 C1719 247 1701 269 1701 302 Z"/>
+</g>
+<g id="Branch" fill="white">
+<path id="branch-0" d="M601 600 C753 545 868 491 1007 446 C1150 401 1289 352 1406 300 C1514 252 1586 204 1651 160 C1612 202 1520 270 1410 312 C1288 365 1155 411 1013 455 C864 500 755 550 601 600 Z"/>
+<path id="branch-1" d="M790 529 C775 536 757 546 741 557 C754 541 771 533 790 529 Z"/>
+<path id="branch-2" d="M1132 413 C1148 380 1167 350 1189 328 C1166 366 1156 390 1150 408 Z"/>
+<path id="branch-3" d="M1287 359 C1290 313 1307 270 1333 244 C1310 284 1306 322 1304 352 Z"/>
+<path id="branch-4" d="M1392 312 C1432 321 1467 317 1499 303 C1475 324 1432 334 1400 323 Z"/>
+<path id="branch-5" d="M1504 265 C1502 223 1511 191 1530 165 C1516 203 1516 230 1518 256 Z"/>
+<path id="branch-6" d="M1582 215 C1627 216 1665 197 1690 170 C1665 207 1628 227 1596 229 Z"/>
+<path id="branch-7" d="M890 503 C867 497 846 491 822 491 C845 483 866 483 909 496 Z"/>
+</g>
+<g id="Leaves" fill="white">
+<path id="leaf-1" d="M746 550 C736 573 715 583 693 577 C702 554 722 543 746 550 Z"/>
+<path id="leaf-2" d="M1186 332 C1194 307 1215 293 1239 297 C1231 321 1210 337 1186 332 Z"/>
+<path id="leaf-3" d="M1333 250 C1308 232 1300 203 1307 181 C1338 190 1356 219 1333 250 Z"/>
+<path id="leaf-4" d="M1495 306 C1512 280 1534 272 1558 279 C1542 304 1520 316 1495 306 Z"/>
+<path id="leaf-5" d="M1527 173 C1540 150 1562 134 1587 137 C1580 163 1556 182 1527 173 Z"/>
+<path id="leaf-6" d="M1683 178 C1689 151 1706 131 1736 128 C1730 156 1712 180 1683 178 Z"/>
+<path id="leaf-7" d="M825 493 C810 512 790 522 768 515 C777 491 798 480 825 493 Z"/>
+</g>
+</svg>

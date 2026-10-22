@@ -1117,3 +1117,74 @@ Implemented in `/Game/Art/Materials`: `M_Water_Stylized`, `MF_Water_StylizedFoam
 Editable controls include `Foam Threshold`, `Foam Shading`, `Foam Color`, `Foam Shore Width`, `Water Albedo`, `Scattering`, `Absorption`, normal scale/strength and roughness. The three authoring scripts are `Tools/Unreal/author_stylized_water.py`, `add_stylized_water_mesh_foam.py`, and `finish_stylized_water_foam_color.py`.
 
 Status: all four packages saved, final master compilation returned zero errors, and the Plane variant was visually checked on the user's selected plane in the Hub lighting. The temporary material assignment, viewport camera and actor selection were restored. Evidence: `Saved/StylizedWater_20261021/final_verification.json`, `preview_before.json`, and `preview_final.png`. The main instance's Water Body/Gerstner integration, gameplay PIE, GPU cost, multiplayer and packaged builds were not tested. No permanent level integration was made.
+
+## Branch9 studio ident — 2026-10-21
+
+References reviewed: the user's supplied monochrome Branch9 wordmark; Epic's
+[Animating UMG Widgets](https://dev.epicgames.com/documentation/en-us/unreal-engine/animating-umg-widgets-in-unreal-engine)
+and [UMG Optimization Guidelines](https://dev.epicgames.com/documentation/unreal-engine/optimization-guidelines-for-umg-in-unreal-engine?lang=en-US).
+Adapted separate art layers, bounded easing and a texture-space material wipe.
+The logo remains rigid; the branch has a short directional settle, leaves a
+small rotation, and the complete mark holds for reading before the exit.
+
+Editable SVG paths, aligned transparent wordmark/branch/leaf layers, provenance
+and a reproducible three-second timing contract are in `ArtSource/Brand/Branch9`.
+The optional velocity echo in the offline motion study is omitted from the
+native version. The runtime uses three logo quads, a simple translucent UI
+material and one fullscreen solid backdrop; no Niagara, scene capture or
+permanent gameplay tick is needed. CPU/GPU cost has not yet been profiled.
+
+Status: V2 static art reviewed at 512 and 320 pixels; the first pass was rejected
+because a leaf made N resemble R. Three 1080p/60fps motion studies and their
+eight-beat contact sheets were reviewed; A is currently integrated. The actual
+UI material compiled without errors, three textures use the UI group with no
+streaming, and `WBP_StudioSplash` retains hard art/material references and the
+editable layers. Eight actual UMG frames were reviewed. The final solo check
+observed approximately 2.95 seconds of startup presentation, real saved Play
+button -> Hub, native loading readiness, Ready guidance and same-session return
+without replay. Eleven distinct native tests and sixteen solo assertions passed.
+
+Evidence is in `Artifacts/Branch9Intro_20261021`: three offline motion studies,
+`Native_UMG_Keyframes.png`, sparse actual `Runtime_SoloFlow_Check.mp4` and
+`Verification.json`. Offline compositing is explicitly not Unreal footage; the
+runtime check video shortens loading and uses sparse captures. No packaged-game,
+network, physical held-Tab or GPU profiling check was performed. One completed
+authoring session crashed during Editor shutdown with `SemanticSearch.dll` at
+the top of the stack. That plugin issue remains unresolved; the final owned
+solo process disabled it locally and exited cleanly. Project plugin settings
+were preserved.
+
+## Menu cleaning contact look development — 2026-10-22 (working preview)
+
+Sources reviewed for the menu-only foam/contact refinement:
+
+- Lush's original [real-time soap-suds approach](https://realtimevfx.com/t/real-time-foam-soap-suds-shader/9919): opaque low-contrast foam, cellular material variation and controlled mesh deformation. Adapted the opaque geometry approach and restrained scale animation; cellular microshading is still deferred.
+- Adriyan Tandia's [Beer Foam breakdown](https://adriyantandia.com/beerfoam): separate fine foam mass from larger bubbles. This is an offline RenderMan example, not an Unreal implementation. Adapted the layered scale/readability idea; its glass/refraction shader was not copied or implemented.
+- Epic's [Decal Materials](https://dev.epicgames.com/documentation/en-us/unreal-engine/decal-materials-in-unreal-engine): small projected soft contact masks under the two rounded tooth roots. Uses a Deferred Decal / Translucent material and bounded projection; gameplay materials and collision remain unchanged.
+
+Own preview namespace: `/Game/UI/MenuShowcase/AnatomyV2`. The contact geometry is a 5,710-triangle closed mesh in three small instances around the existing circular brush head. It uses one opaque subsurface material and native Sequencer scale tracks. The original gameplay `NS_BrushFoam`, care materials and character skeleton remain unchanged. A menu-only stateless sprite reduction was tried but rejected for insufficient visible coverage at the grazing camera angle; the inactive candidate remains local to the preview namespace.
+
+The coffee material now samples the existing `T_PlaqueReference` once and reveals a narrow cleaning trail along the exported bristle trajectory using a native material parameter track. This is presentation logic for a looping menu scene, not a gameplay cleaning replacement. Broad roof geometry, foam microbubble detail, the end-of-loop stain reset and the final combined composition still require visual acceptance. No packaged-game, network or GPU profile pass is claimed.
+
+Evidence: `Artifacts/MenuSceneV2_20261022/Environment`, Blender source/exports under `ArtSource/UI/MenuSceneV2_20261022`. Native frames, isolated UMG fixtures and Blender geometry previews are labelled separately. Success compiling or exporting an asset does not mean the reference look was achieved.
+
+V6 review: a camera-local colour/depth pass and one non-shadowing specular-only
+RectLight were retained after native A/B review. The key and lower bounce were
+reduced to recover a stronger value hierarchy; the excessive defocus was reduced
+so the mouth arch stays legible. All project renderer settings remain unchanged.
+The separate camera-only screen-space GI experiment was rejected for insufficient
+visual gain and is not saved in the scene. Its SM5 feasibility and source evidence
+are recorded in `Artifacts/MenuSceneV2_20261022/Environment/SSGI_ReadOnlyAcceptance.json`.
+
+The current art assessment is approximately 6/10 against the concept, up from
+5.5/10, and remains a working preview. The upper mitten, facial acting, tissue
+richness, foam microdetail, hero specular aliasing and late-loop stain return
+still need art refinement. A native 12-second / 288-frame Sequencer capture,
+semantic contact sheet, numerical frame-difference report and before/after
+comparison are in `Artifacts/MenuSceneV2_20261022/Video/NativeV6Settled`.
+These captures are not an FPS benchmark. The lower sole samples were checked
+against actual tongue triangles plus the authored WPO across all 289 source
+frames: approximately 0.91–1.01 mm clearance, with no sampled penetration.
+Combined scene/UI framing was inspected at 1280x720, 1200x900 and 2100x900.
+The preview has not replaced the startup menu, and packaged/network/GPU-profile
+validation has not been performed.
