@@ -98,6 +98,8 @@ private:
     UPROPERTY(Transient) TObjectPtr<UTextBlock> ReadyWaypointArrow;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> BasketballHint;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> BasketballReticle;
+    UPROPERTY(Transient) TObjectPtr<UBorder> FishingPanel;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> FishingCount;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> SelectionTitle;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> SelectionStatus;
     UPROPERTY(Transient) TObjectPtr<UMCHubActionButton> OpenButton;

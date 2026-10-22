@@ -28,6 +28,7 @@
 #include "MCGameMode.h"
 #include "MCHubGameMode.h"
 #include "MCHubBasketball.h"
+#include "MCFishingRodComponent.h"
 #include "MCHubGameState.h"
 #include "MCTutorialDirector.h"
 #include "MCToothpick.h"
@@ -113,6 +114,7 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     BrushContact=CreateDefaultSubobject<UMCBrushContactComponent>(TEXT("BrushContact"));
     Gaze=CreateDefaultSubobject<UMCGazeComponent>(TEXT("Gaze"));
     Grip=CreateDefaultSubobject<UMCGripComponent>(TEXT("Grip"));
+    FishingRod=CreateDefaultSubobject<UMCFishingRodComponent>(TEXT("FishingRod"));
     FoodCollection=CreateDefaultSubobject<UMCFoodCollectionComponent>(TEXT("FoodCollection"));
     Expression=CreateDefaultSubobject<UMCExpressionComponent>(TEXT("Expression"));
     Inventory=CreateDefaultSubobject<UMCInventoryComponent>(TEXT("Inventory"));
@@ -369,6 +371,8 @@ void AMCToothCharacter::BuildInput()
     HandleAction = Action(EInputActionValueType::Boolean); PanelAction = Action(EInputActionValueType::Boolean);
     ConnectionAction = Action(EInputActionValueType::Boolean); RestartAction = Action(EInputActionValueType::Boolean);
     SwingAction=Action(EInputActionValueType::Boolean);
+    FishingAction=Action(EInputActionValueType::Boolean);
+    InputMap->MapKey(FishingAction,EKeys::Five);
     BraceAction=Action(EInputActionValueType::Boolean);
     OrbitXAction=Action(EInputActionValueType::Axis1D); OrbitYAction=Action(EInputActionValueType::Axis1D);
     GamepadLookXAction=Action(EInputActionValueType::Axis1D); GamepadLookYAction=Action(EInputActionValueType::Axis1D);
@@ -464,6 +468,7 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(ToolActions[1],ETriggerEvent::Started,this,&AMCToothCharacter::SelectPickaxe);
     Input->BindAction(ToolActions[2],ETriggerEvent::Started,this,&AMCToothCharacter::SelectKnife);
     Input->BindAction(ToolActions[3],ETriggerEvent::Started,this,&AMCToothCharacter::SelectSpray);
+    Input->BindAction(FishingAction,ETriggerEvent::Started,FishingRod.Get(),&UMCFishingRodComponent::ToggleEquipped);
     Input->BindAction(ForwardAction,ETriggerEvent::Completed,this,&AMCToothCharacter::MoveForward);
     Input->BindAction(RightAction,ETriggerEvent::Completed,this,&AMCToothCharacter::MoveRight);
     Input->BindAction(ForwardAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::MoveForward);
@@ -707,6 +712,7 @@ void AMCToothCharacter::StartHandle()
     if(!CanWork() || Inventory->IsChainsawRunning()) return;
     if(const auto* PC=Cast<APlayerController>(Controller);PC && PC->IsMoveInputIgnored()) return;
     if(AMCHubBasketball::HeldBy(this) || AMCHubBasketball::PickupCandidate(this)) {ServerInteractBasketball();return;}
+    if(FishingRod && FishingRod->IsPresented()) {FishingRod->ServerSetReeling(true);return;}
     AMCRewardChest* Rescue=nullptr; double RescueDistance=TNumericLimits<double>::Max();
     for(TActorIterator<AMCRewardChest> It(GetWorld());It;++It) if(It->CanRescue(this)) {
         const double Distance=FVector::DistSquared(GetActorLocation(),It->GetActorLocation());
@@ -769,13 +775,14 @@ void AMCToothCharacter::StopMimicRescue()
     bMimicRescueInputHeld=false;
     if(HasAuthority() || IsLocallyControlled()) ServerSetMimicRescueHeld(nullptr,false);
 }
-void AMCToothCharacter::StopHandle() { StopMimicRescue(); CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(false); ServerSetWorking(false,false); }
+void AMCToothCharacter::StopHandle() { if(FishingRod) FishingRod->ServerSetReeling(false); StopMimicRescue(); CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(false); ServerSetWorking(false,false); }
 void AMCToothCharacter::StartPrimary()
 {
     if(IsMimicCaptured()) return;
     if (!Status->IsAlive()) { if (auto* PC=Cast<AMCPlayerController>(Controller)) PC->NextSpectator(); return; }
     if(IsSeatedOnRaft()) return; // WASD owns the paddle; primary use does not start a second action.
     if(AMCHubBasketball::HeldBy(this)) {ThrowItem();return;}
+    if(FishingRod && FishingRod->IsPresented()) {FishingRod->CastLine();return;}
     StopRowing();
     Inventory->UpdateSprayAim(true);
     ServerSetPrimary(true);
@@ -789,10 +796,10 @@ void AMCToothCharacter::ServerToggleFoodCollection_Implementation()
     Grip->ReleaseBrace();
     FoodCollection->Toggle(); ForceNetUpdate();
 }
-void AMCToothCharacter::SelectBrush() { Inventory->ServerSelect(EMCToolSlot::Brush); }
-void AMCToothCharacter::SelectPickaxe() { Inventory->ServerSelect(EMCToolSlot::Pickaxe); }
-void AMCToothCharacter::SelectKnife() { Inventory->ServerSelect(EMCToolSlot::Knife); }
-void AMCToothCharacter::SelectSpray() { Inventory->ServerSelect(EMCToolSlot::Spray); }
+void AMCToothCharacter::SelectBrush() { FishingRod->ServerSetEquipped(false); Inventory->ServerSelect(EMCToolSlot::Brush); }
+void AMCToothCharacter::SelectPickaxe() { FishingRod->ServerSetEquipped(false); Inventory->ServerSelect(EMCToolSlot::Pickaxe); }
+void AMCToothCharacter::SelectKnife() { FishingRod->ServerSetEquipped(false); Inventory->ServerSelect(EMCToolSlot::Knife); }
+void AMCToothCharacter::SelectSpray() { FishingRod->ServerSetEquipped(false); Inventory->ServerSelect(EMCToolSlot::Spray); }
 bool AMCToothCharacter::CanSwitchTool() const {if(IsSeatedOnRaft()) return false; const auto* Perks=UMCPerkComponent::ForActor(this);return !Inventory->IsChainsawRunning() && (!Perks || !Perks->IsFuryActive()) && GetWorld()->GetTimeSeconds()>=NextSwingTime;}
 void AMCToothCharacter::NotifyTaskFeedback(bool Success,FVector Point)
 {
@@ -804,6 +811,10 @@ void AMCToothCharacter::NotifyTaskFeedback(bool Success,FVector Point)
 void AMCToothCharacter::StopPrimary() { StopRowing(); Inventory->UpdateSprayAim(true); ServerSetPrimary(false); }
 void AMCToothCharacter::SetPrimaryInputHeld(bool Held)
 {
+    if(FishingRod && FishingRod->IsPresented()) {
+        if(Held && !bSharedPrimaryInputHeld) FishingRod->CastLine();
+        bSharedPrimaryInputHeld=Held;return;
+    }
     if ((!HasAuthority() && !IsLocallyControlled()) || (Held && !CanWork())) return;
     // Swimming/cling uses the ordinary RPC even while work is unavailable.
     // A release must also clear that actual action state after leaving water.
@@ -842,11 +853,13 @@ void AMCToothCharacter::StartBrace()
     if(!CanWork() || Inventory->IsChainsawRunning()) return;
     if(const auto* PC=Cast<APlayerController>(Controller); PC && PC->IsMoveInputIgnored()) return;
     if(auto* Ball=AMCHubBasketball::HeldBy(this)) {Ball->SetAimHeld(true);return;}
+    if(FishingRod && FishingRod->IsPresented()) {FishingRod->ServerSetFishingPose(true);return;}
     StopPrimary(); StopHandle(); FoodCollection->Stop();
     CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->CancelDash();
     Grip->SetBraceHeld(true);
 }
 void AMCToothCharacter::StopBrace() {
+    if(FishingRod) FishingRod->ServerSetFishingPose(false);
     if(auto* Ball=AMCHubBasketball::HeldBy(this)) Ball->SetAimHeld(false);
     Grip->SetBraceHeld(false);
 }

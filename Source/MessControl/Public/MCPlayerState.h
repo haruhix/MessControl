@@ -33,6 +33,8 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     virtual void CopyProperties(APlayerState* Target) override;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Score") int32 Points=0;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Fishing") int32 FishCaught=0;
+    void AddCaughtFish();
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Multiplayer") bool bSessionHost=false;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Appearance") FLinearColor PlayerColor=FLinearColor(.24f,.65f,1.f);
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Alarms") EMCPlayerAlarm Alarm=EMCPlayerAlarm::None;

@@ -10,6 +10,7 @@
 #include "MCGripComponent.h"
 #include "MCFoodCollectionComponent.h"
 #include "MCHubBasketball.h"
+#include "MCFishingRodComponent.h"
 #include "MCBrushContactComponent.h"
 #include "MCExpressionComponent.h"
 #include "MCRewardChest.h"
@@ -1139,6 +1140,7 @@ public:
         }
         DashLungePose(Tooth,Ref);
         ChestLockpickPose(Tooth,Ref,Dt);
+        if(Tooth->FishingRod) Tooth->FishingRod->BuildHandPose(Pose,Ref,Dt);
         if (Tooth->Expression) Tooth->Expression->BuildSocialPose(Pose,Ref);
         if (Tooth->ToothPhysics) Tooth->ToothPhysics->SubmitAnimationTargets(Pose,Ref,Dt);
         if (Tooth->Expression) Tooth->Expression->BuildFacePose(Pose,Ref,Dt);
