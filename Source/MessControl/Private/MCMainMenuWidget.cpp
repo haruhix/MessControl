@@ -1338,6 +1338,7 @@ bool UMCMainMenuWidget::PlayToHub(const UObject* WorldContextObject)
 
 void UMCMainMenuWidget::HandleAction(EMCMainMenuAction Action)
 {
+    if (IsDesignTime()) return; // Preview pages never launch travel, sessions or settings changes.
     if (bEmbeddedCloseRequested) return;
     auto* Steam=MCMainMenuPrivate::Sessions(this);
     auto* PC=GetOwningPlayer();

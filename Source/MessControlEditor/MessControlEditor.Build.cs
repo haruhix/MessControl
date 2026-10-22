@@ -10,8 +10,9 @@ public class MessControlEditor : ModuleRules
             "MessControl", "UnrealEd", "NavigationSystem", "AIModule",
             "AssetRegistry", "PhysicsCore", "PhysicsUtilities", "MeshDescription",
             "StaticMeshDescription", "Chaos", "ChaosCore",
-            "UMG", "UMGEditor", "Slate", "SlateCore", "RenderCore", "RHI", "ImageCore", "PropertyEditor", "Kismet", "MovieScene",
-            "GraphEditor", "BlueprintGraph", "KismetWidgets", "Merge", "SourceControl"
+            "UMG", "UMGEditor", "Slate", "SlateCore", "InputCore", "RenderCore", "RHI", "ImageCore", "PropertyEditor", "Kismet", "MovieScene",
+            "GraphEditor", "BlueprintGraph", "KismetWidgets", "Merge", "SourceControl",
+            "LevelEditor", "ToolMenus", "WorkspaceMenuStructure", "LevelSequence"
         });
     }
 }

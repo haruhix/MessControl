@@ -2,6 +2,7 @@
 
 #include "MCGameplayUITheme.h"
 #include "MCGameplayUIWidget.h"
+#include "MCMainMenuWidget.h"
 #include "AssetRegistry/AssetData.h"
 #include "Blueprint/WidgetTree.h"
 #include "Containers/Ticker.h"
@@ -11,12 +12,16 @@
 #include "DetailWidgetRow.h"
 #include "DetailsViewArgs.h"
 #include "Editor.h"
+#include "Framework/Commands/UIAction.h"
 #include "Framework/Docking/TabManager.h"
+#include "Framework/MultiBox/MultiBoxBuilder.h"
 #include "IDetailsView.h"
 #include "Modules/ModuleManager.h"
 #include "PropertyCustomizationHelpers.h"
 #include "PropertyEditorModule.h"
+#include "Textures/SlateIcon.h"
 #include "Subsystems/EditorAssetSubsystem.h"
+#include "Subsystems/AssetEditorSubsystem.h"
 #include "UMGEditorModule.h"
 #include "UObject/StrongObjectPtr.h"
 #include "UObject/UObjectGlobals.h"
@@ -25,6 +30,7 @@
 #include "WidgetBlueprintEditor.h"
 #include "Widgets/Docking/SDockTab.h"
 #include "Widgets/Input/SButton.h"
+#include "Widgets/Input/SComboButton.h"
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Layout/SSplitter.h"
@@ -38,11 +44,58 @@ namespace
 {
     const FName ThemeTabName(TEXT("MCGameplayUITheme"));
 
+    struct FMainMenuPreviewChoice
+    {
+        const TCHAR* State;
+        const TCHAR* Label;
+        EMCMainMenuPage Page;
+        int32 SettingsTab=0;
+    };
+
+    const FMainMenuPreviewChoice MainMenuPreviewChoices[]={
+        {TEXT("Main"),TEXT("Main menu"),EMCMainMenuPage::Main},
+        {TEXT("Join"),TEXT("Join friends"),EMCMainMenuPage::Join},
+        {TEXT("Settings"),TEXT("Settings / Graphics"),EMCMainMenuPage::Settings,0},
+        {TEXT("SettingsAudio"),TEXT("Settings / Audio"),EMCMainMenuPage::Settings,1},
+        {TEXT("SettingsLanguage"),TEXT("Settings / Language"),EMCMainMenuPage::Settings,2},
+        {TEXT("SettingsControls"),TEXT("Settings / Controls"),EMCMainMenuPage::Settings,3},
+        {TEXT("SettingsVoice"),TEXT("Settings / Voice"),EMCMainMenuPage::Settings,4},
+        {TEXT("Credits"),TEXT("Credits"),EMCMainMenuPage::Credits},
+        {TEXT("Exit"),TEXT("Quit confirmation"),EMCMainMenuPage::Exit},
+        {TEXT("Host"),TEXT("Create lobby"),EMCMainMenuPage::Host},
+        {TEXT("Lobby"),TEXT("Lobby"),EMCMainMenuPage::Lobby},
+        {TEXT("Leave"),TEXT("Leave confirmation"),EMCMainMenuPage::Leave},
+        {TEXT("VideoConfirm"),TEXT("Display confirmation"),EMCMainMenuPage::VideoConfirm},
+        {TEXT("Pause"),TEXT("Pause"),EMCMainMenuPage::Pause},
+        {TEXT("Connection"),TEXT("Connection"),EMCMainMenuPage::Connection}
+    };
+
+    struct FMainMenuPreviewCulture {const TCHAR* Code;const TCHAR* Label;};
+    const FMainMenuPreviewCulture MainMenuPreviewCultures[]={
+        {TEXT(""),TEXT("Current editor language")},
+        {TEXT("ru"),TEXT("Russian (ru)")},{TEXT("en"),TEXT("English (en)")},
+        {TEXT("de"),TEXT("German (de)")},{TEXT("fr"),TEXT("French (fr)")},
+        {TEXT("es"),TEXT("Spanish (es)")},{TEXT("pt-BR"),TEXT("Portuguese (pt-BR)")},
+        {TEXT("zh-Hans"),TEXT("Chinese simplified (zh-Hans)")},
+        {TEXT("zh-Hant"),TEXT("Chinese traditional (zh-Hant)")},
+        {TEXT("ja"),TEXT("Japanese (ja)")},{TEXT("ko"),TEXT("Korean (ko)")}
+    };
+
+    bool IsMainMenuEditor(const TSharedPtr<FWidgetBlueprintEditor>& Editor)
+    {
+        const auto* Blueprint=Editor?Editor->GetWidgetBlueprintObj():nullptr;
+        return Blueprint && Blueprint->ParentClass
+            && Blueprint->ParentClass->IsChildOf(UMCMainMenuWidget::StaticClass());
+    }
+
     bool IsGameplayEditor(const TSharedPtr<FWidgetBlueprintEditor>& Editor)
     {
         const auto* Blueprint=Editor?Editor->GetWidgetBlueprintObj():nullptr;
-        return Blueprint && Blueprint->GetOutermost()->GetName().StartsWith(TEXT("/Game/Gameplay/UI/"))
-            && Blueprint->ParentClass && Blueprint->ParentClass->IsChildOf(UMCGameplayUIWidget::StaticClass());
+        if (!Blueprint || !Blueprint->ParentClass
+            || !Blueprint->ParentClass->IsChildOf(UMCGameplayUIWidget::StaticClass())) return false;
+        const FString Package=Blueprint->GetOutermost()->GetName();
+        return Package.StartsWith(TEXT("/Game/Gameplay/UI/"))
+            || (Package.StartsWith(TEXT("/Game/UI/")) && IsMainMenuEditor(Editor));
     }
 
     UMCGameplayUIWidget* GetGameplayPreview(const TSharedPtr<FWidgetBlueprintEditor>& Editor)
@@ -173,6 +226,10 @@ namespace
         FDelegateHandle RebuildHandle;
         float Time=0.f;
         bool bPlaying=false;
+        // Session-only state: never written to the Blueprint CDO or saved tree.
+        FName MenuState=TEXT("Main");
+        FString MenuCulture;
+        bool bHasMenuSelection=false;
     };
 
     class FGameplayPreviewExtender final : public IBlueprintWidgetCustomizationExtender
@@ -183,6 +240,7 @@ namespace
             Ticker=FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateRaw(this,&FGameplayPreviewExtender::Tick));
             PropertyHandle=FCoreUObjectDelegates::OnObjectPropertyChanged.AddRaw(this,&FGameplayPreviewExtender::OnPropertyChanged);
             UndoHandle=FEditorDelegates::PostUndoRedo.AddRaw(this,&FGameplayPreviewExtender::OnUndoRedo);
+            ObserveAssetEditors();
         }
 
         void StopAll()
@@ -190,6 +248,8 @@ namespace
             FTSTicker::GetCoreTicker().RemoveTicker(Ticker);
             FCoreUObjectDelegates::OnObjectPropertyChanged.Remove(PropertyHandle);
             FEditorDelegates::PostUndoRedo.Remove(UndoHandle);
+            if (auto* Assets=ObservedAssetEditors.Get()) Assets->OnAssetOpenedInEditor().Remove(AssetOpenedHandle);
+            ObservedAssetEditors.Reset();
             for (auto& Session:Sessions)
                 if (auto Editor=Session.Editor.Pin()) Editor->OnWidgetPreviewReady.Remove(Session.RebuildHandle);
             Sessions.Reset();
@@ -236,6 +296,28 @@ namespace
                     })
                 ]
             ];
+            if (IsMainMenuEditor(Editor))
+            {
+                Category.AddCustomRow(LOCTEXT("MainMenuPreviewSearch","Main menu page language screen size DPI"))
+                .WholeRowContent()
+                [
+                    SNew(SVerticalBox)
+                    + SVerticalBox::Slot().AutoHeight().Padding(0,6,0,2)
+                    [SNew(STextBlock).Text(LOCTEXT("MainMenuPage","Menu page (preview only)"))]
+                    + SVerticalBox::Slot().AutoHeight()
+                    [MakeMenuSelector(WeakSelf,WeakEditor,false)]
+                    + SVerticalBox::Slot().AutoHeight().Padding(0,6,0,2)
+                    [SNew(STextBlock).Text(LOCTEXT("MainMenuCulture","Language (preview only)"))]
+                    + SVerticalBox::Slot().AutoHeight()
+                    [MakeMenuSelector(WeakSelf,WeakEditor,true)]
+                    + SVerticalBox::Slot().AutoHeight().Padding(0,6,0,0)
+                    [
+                        SNew(STextBlock).Text(LOCTEXT("MainMenuPreviewHelp",
+                            "Edit the real widgets in Hierarchy. Use Designer Screen Size and DPI for different displays. Page and language choices stay in this editor session; they do not change the game's settings."))
+                        .AutoWrapText(true)
+                    ]
+                ];
+            }
         }
 
         TSharedRef<SDockTab> SpawnThemeTab(const FSpawnTabArgs&)
@@ -255,6 +337,158 @@ namespace
         }
 
     private:
+        void ObserveAssetEditors()
+        {
+            if (ObservedAssetEditors.IsValid() || !GEditor) return;
+            auto* Assets=GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
+            if (!Assets) return;
+            ObservedAssetEditors=Assets;
+            AssetOpenedHandle=Assets->OnAssetOpenedInEditor().AddRaw(this,&FGameplayPreviewExtender::OnAssetOpened);
+            // Live Coding can register us after the menu Designer is already open.
+            for (UObject* Asset:Assets->GetAllEditedAssets())
+                OnAssetOpened(Asset,Assets->FindEditorForAsset(Asset,false));
+        }
+
+        void OnAssetOpened(UObject* Asset,IAssetEditorInstance* Instance)
+        {
+            const auto* Blueprint=Cast<UWidgetBlueprint>(Asset);
+            if (!Blueprint || !Blueprint->ParentClass || !Blueprint->ParentClass->IsChildOf(UMCMainMenuWidget::StaticClass())
+                || !Instance || Instance->GetEditorName()!=FName(TEXT("WidgetBlueprintEditor"))) return;
+            // UE's WidgetBlueprintEditor toolkit owns this concrete editor. Register
+            // before Details has a selection so its first ready tree is synchronized.
+            auto Editor=StaticCastSharedRef<FWidgetBlueprintEditor>(static_cast<FWidgetBlueprintEditor*>(Instance)->AsShared());
+            if (!IsGameplayEditor(Editor)) return;
+            auto& Session=SessionFor(Editor);
+            if (auto* Widget=GetGameplayPreview(Editor))
+            {
+                Session.Preview=Widget;
+                CaptureMenuSelection(Session,Widget);
+                RestoreMenuSelection(Session,Widget);
+                Widget->ApplyEditorPreview(Session.Time);
+                MCGameplayUIPreview::SynchronizeFixtureTree(Widget);
+                Widget->InvalidateLayoutAndVolatility();
+            }
+        }
+
+        static FName InitialMenuState(const UMCMainMenuWidget* Menu)
+        {
+            EMCMainMenuPage Page=Menu->PreviewPage;
+            const FString State=Menu->PreviewState.ToString();
+            const int64 StatePage=StaticEnum<EMCMainMenuPage>()->GetValueByNameString(State);
+            if (State.StartsWith(TEXT("Settings"))) Page=EMCMainMenuPage::Settings;
+            else if (StatePage>=0 && StatePage<=int64(EMCMainMenuPage::Connection)) Page=EMCMainMenuPage(StatePage);
+            int32 Tab=FMath::Clamp(Menu->PreviewSettingsTab,0,4);
+            if (State==TEXT("SettingsAudio")) Tab=1;
+            else if (State==TEXT("SettingsLanguage")) Tab=2;
+            else if (State==TEXT("SettingsControls")) Tab=3;
+            else if (State==TEXT("SettingsVoice")) Tab=4;
+            for (const auto& Choice:MainMenuPreviewChoices)
+                if (Choice.Page==Page && (Page!=EMCMainMenuPage::Settings || Choice.SettingsTab==Tab)) return FName(Choice.State);
+            return TEXT("Main");
+        }
+
+        static void CaptureMenuSelection(FPreviewSession& Session,UMCGameplayUIWidget* Widget)
+        {
+            if (Session.bHasMenuSelection) return;
+            if (const auto* Menu=Cast<UMCMainMenuWidget>(Widget))
+            {
+                Session.MenuState=InitialMenuState(Menu);
+                Session.MenuCulture=Menu->PreviewCulture;
+                Session.bHasMenuSelection=true;
+            }
+        }
+
+        static void RestoreMenuSelection(const FPreviewSession& Session,UMCGameplayUIWidget* Widget)
+        {
+            auto* Menu=Cast<UMCMainMenuWidget>(Widget);
+            if (!Menu || !Session.bHasMenuSelection || !Menu->IsDesignTime()
+                || Menu->HasAnyFlags(RF_ClassDefaultObject | RF_ArchetypeObject)) return;
+            for (const auto& Choice:MainMenuPreviewChoices)
+                if (Session.MenuState==FName(Choice.State))
+                {
+                    Menu->PreviewState=Session.MenuState;
+                    Menu->PreviewPage=Choice.Page;
+                    Menu->PreviewSettingsTab=Choice.SettingsTab;
+                    Menu->PreviewCulture=Session.MenuCulture;
+                    return;
+                }
+        }
+
+        FPreviewSession* FindSession(const TSharedPtr<FWidgetBlueprintEditor>& Editor)
+        {
+            if (!Editor) return nullptr;
+            for (auto& Session:Sessions) if (Session.Editor.Pin()==Editor) return &Session;
+            return nullptr;
+        }
+
+        FText MenuSelectionLabel(const TSharedPtr<FWidgetBlueprintEditor>& Editor,bool bCulture)
+        {
+            const auto* Session=FindSession(Editor);
+            const auto* Menu=Cast<UMCMainMenuWidget>(GetGameplayPreview(Editor));
+            if (bCulture)
+            {
+                const FString Culture=Session && Session->bHasMenuSelection?Session->MenuCulture:Menu?Menu->PreviewCulture:FString();
+                for (const auto& Choice:MainMenuPreviewCultures)
+                    if (Culture==Choice.Code) return FText::FromString(Choice.Label);
+                return FText::FromString(Culture);
+            }
+            const FName State=Session && Session->bHasMenuSelection?Session->MenuState:Menu?InitialMenuState(Menu):FName(TEXT("Main"));
+            for (const auto& Choice:MainMenuPreviewChoices)
+                if (State==FName(Choice.State)) return FText::FromString(Choice.Label);
+            return FText::FromName(State);
+        }
+
+        void SelectMenuPreview(const TSharedPtr<FWidgetBlueprintEditor>& Editor,FName State,const FString& Culture,bool bCulture)
+        {
+            auto* Menu=Cast<UMCMainMenuWidget>(GetGameplayPreview(Editor));
+            if (!Menu) return;
+            auto& Session=SessionFor(Editor.ToSharedRef());
+            CaptureMenuSelection(Session,Menu);
+            if (bCulture) Session.MenuCulture=Culture;
+            else Session.MenuState=State;
+            RestoreMenuSelection(Session,Menu);
+            Menu->ApplyEditorPreview(Session.Time);
+            MCGameplayUIPreview::SynchronizeFixtureTree(Menu);
+            Menu->InvalidateLayoutAndVolatility();
+        }
+
+        static TSharedRef<SWidget> MakeMenuSelector(TWeakPtr<FGameplayPreviewExtender> WeakSelf,TWeakPtr<FWidgetBlueprintEditor> WeakEditor,bool bCulture)
+        {
+            return SNew(SComboButton)
+                .IsEnabled_Lambda([WeakEditor]{return Cast<UMCMainMenuWidget>(GetGameplayPreview(WeakEditor.Pin()))!=nullptr;})
+                .OnGetMenuContent_Lambda([WeakSelf,WeakEditor,bCulture]() -> TSharedRef<SWidget>
+                {
+                    FMenuBuilder Menu(true,nullptr);
+                    auto AddChoice=[&](const FText& Label,FName State,const FString& Culture)
+                    {
+                        Menu.AddMenuEntry(Label,LOCTEXT("MainMenuChoiceHelp","Changes only this transient Designer preview."),FSlateIcon(),
+                            FUIAction(FExecuteAction::CreateLambda([WeakSelf,WeakEditor,State,Culture,bCulture]
+                            {
+                                if (auto Self=WeakSelf.Pin()) Self->SelectMenuPreview(WeakEditor.Pin(),State,Culture,bCulture);
+                            }),FCanExecuteAction(),FIsActionChecked::CreateLambda([WeakSelf,WeakEditor,State,Culture,bCulture]
+                            {
+                                if (auto Self=WeakSelf.Pin())
+                                    if (const auto* Session=Self->FindSession(WeakEditor.Pin()))
+                                        return Session->bHasMenuSelection && (bCulture?Session->MenuCulture==Culture:Session->MenuState==State);
+                                return false;
+                            })),NAME_None,EUserInterfaceActionType::RadioButton);
+                    };
+                    if (bCulture)
+                        for (const auto& Choice:MainMenuPreviewCultures) AddChoice(FText::FromString(Choice.Label),NAME_None,Choice.Code);
+                    else
+                        for (const auto& Choice:MainMenuPreviewChoices) AddChoice(FText::FromString(Choice.Label),FName(Choice.State),FString());
+                    return Menu.MakeWidget();
+                })
+                .ButtonContent()
+                [
+                    SNew(STextBlock).Text_Lambda([WeakSelf,WeakEditor,bCulture]
+                    {
+                        if (auto Self=WeakSelf.Pin()) return Self->MenuSelectionLabel(WeakEditor.Pin(),bCulture);
+                        return FText::GetEmpty();
+                    })
+                ];
+        }
+
         static TSharedRef<SWidget> MakeButton(const FText& Label,TWeakPtr<FGameplayPreviewExtender> WeakSelf,TWeakPtr<FWidgetBlueprintEditor> Editor,int32 Action)
         {
             return SNew(SButton).Text(Label)
@@ -272,6 +506,7 @@ namespace
             auto& Session=Sessions.AddDefaulted_GetRef();
             Session.Editor=Editor;
             Session.Preview=GetGameplayPreview(Editor);
+            CaptureMenuSelection(Session,Session.Preview.Get());
             const TWeakPtr<FGameplayPreviewExtender> WeakSelf=StaticCastSharedRef<FGameplayPreviewExtender>(AsShared());
             const TWeakPtr<FWidgetBlueprintEditor> WeakEditor=Editor;
             Session.RebuildHandle=Editor->OnWidgetPreviewReady.AddLambda([WeakSelf,WeakEditor]
@@ -285,6 +520,8 @@ namespace
                         Current.Preview=GetGameplayPreview(CurrentEditor);
                         if (Current.Preview.IsValid())
                         {
+                            CaptureMenuSelection(Current,Current.Preview.Get());
+                            RestoreMenuSelection(Current,Current.Preview.Get());
                             Current.Preview->ApplyEditorPreview(0.f);
                             MCGameplayUIPreview::SynchronizeFixtureTree(Current.Preview.Get());
                         }
@@ -299,6 +536,8 @@ namespace
             if (!Widget) return;
             auto& Session=SessionFor(Editor.ToSharedRef());
             Session.Preview=Widget;
+            CaptureMenuSelection(Session,Widget);
+            RestoreMenuSelection(Session,Widget);
             Session.bPlaying=Action==1;
             if (Action==2) return;
             Session.Time=Action==0?FMath::Max(0.f,Widget->PreviewTime):0.f;
@@ -322,6 +561,8 @@ namespace
 
         bool Tick(float DeltaTime)
         {
+            // The module may initialize before GEditor/subsystems are available.
+            ObserveAssetEditors();
             for (int32 Index=Sessions.Num()-1;Index>=0;--Index)
             {
                 auto& Session=Sessions[Index];
@@ -338,6 +579,14 @@ namespace
                     Session.bPlaying=false;
                     Session.Time=0.f;
                     Session.Preview=Widget;
+                    CaptureMenuSelection(Session,Widget);
+                    RestoreMenuSelection(Session,Widget);
+                    if (Widget && Session.bHasMenuSelection)
+                    {
+                        Widget->ApplyEditorPreview(0.f);
+                        MCGameplayUIPreview::SynchronizeFixtureTree(Widget);
+                        Widget->InvalidateLayoutAndVolatility();
+                    }
                 }
                 if (!Session.bPlaying || !Widget) continue;
                 Session.Time=FMath::Fmod(Session.Time+FMath::Clamp(DeltaTime,0.f,.1f),FMath::Max(.1f,Widget->PreviewDuration));
@@ -382,6 +631,8 @@ namespace
         TArray<FPreviewSession> Sessions;
         FTSTicker::FDelegateHandle Ticker;
         FDelegateHandle PropertyHandle,UndoHandle;
+        FDelegateHandle AssetOpenedHandle;
+        TWeakObjectPtr<UAssetEditorSubsystem> ObservedAssetEditors;
         TSharedPtr<SGameplayUIThemePanel> ThemePanel;
         TWeakPtr<SDockTab> ThemeTab;
         TWeakObjectPtr<UMCGameplayUITheme> RequestedTheme;

@@ -1,6 +1,7 @@
 #include "MCGameplayUIEditorLibrary.h"
 
 #include "MCGameplayUIPreview.h"
+#include "MCMainMenuPreview.h"
 #include "MCGameplayUIWidget.h"
 #include "MCGameplayHUD.h"
 #include "MCMainMenuWidget.h"
@@ -188,6 +189,13 @@ bool SanitizeAppendedDesignerWidget(UWidget* Widget,UObject* SourceOwner,FDesign
     return true;
 }
 }
+
+void UMCGameplayUIEditorLibrary::OpenMainMenuPreview() {MCMainMenuPreview::Open();}
+void UMCGameplayUIEditorLibrary::CloseMainMenuPreview() {MCMainMenuPreview::Close();}
+void UMCGameplayUIEditorLibrary::RefreshMainMenuPreview() {MCMainMenuPreview::Refresh();}
+void UMCGameplayUIEditorLibrary::SetMainMenuPreviewState(FName State,const FString& Culture) {MCMainMenuPreview::SetState(State,Culture);}
+UMCMainMenuWidget* UMCGameplayUIEditorLibrary::GetMainMenuPreviewWidget() {return MCMainMenuPreview::GetPreviewWidget();}
+bool UMCGameplayUIEditorLibrary::IsMainMenuPreviewActive() {return MCMainMenuPreview::IsActive();}
 
 bool UMCGameplayUIEditorLibrary::ReadPIEThroatVortex(UWorld* World,AMCThroatVortex* Vortex,
     TArray<AMCFoodActor*>& OutSources,double& OutStartedAt,float& OutDuration)

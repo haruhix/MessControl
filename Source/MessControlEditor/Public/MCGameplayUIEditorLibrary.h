@@ -44,6 +44,26 @@ public:
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static void OpenGameplayUITheme(UMCGameplayUITheme* Theme = nullptr);
 
+    /** Open editor-only controls for the actual MainMenu role and its scene overlay; never starts PIE. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Main Menu Preview|Editor")
+    static void OpenMainMenuPreview();
+
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Main Menu Preview|Editor")
+    static void CloseMainMenuPreview();
+
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Main Menu Preview|Editor")
+    static void RefreshMainMenuPreview();
+
+    /** Changes only the transient editor sample, preserving authored defaults and the player's culture. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Main Menu Preview|Editor")
+    static void SetMainMenuPreviewState(FName State, const FString& Culture=TEXT("ru"));
+
+    UFUNCTION(BlueprintPure, Category="Mess Control|Main Menu Preview|Editor")
+    static UMCMainMenuWidget* GetMainMenuPreviewWidget();
+
+    UFUNCTION(BlueprintPure, Category="Mess Control|Main Menu Preview|Editor")
+    static bool IsMainMenuPreviewActive();
+
     /** Saves a new editable tree and parameter-preserving material snapshots; existing assets are never replaced. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static UWidgetBlueprint* CreateEditableGameplayWidget(const FString& AssetPath, TSubclassOf<UMCGameplayUIWidget> ParentClass);

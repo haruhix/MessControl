@@ -1,5 +1,6 @@
 #include "MCFoodCollisionEditorLibrary.h"
 #include "MCGameplayUIPreview.h"
+#include "MCMainMenuPreview.h"
 
 #include "MCFoodCollisionBaker.h"
 #include "MCFoodCollisionData.h"
@@ -9,12 +10,15 @@
 #include "Editor.h"
 #include "Engine/StaticMesh.h"
 #include "Features/IModularFeatures.h"
+#include "Framework/Commands/UIAction.h"
 #include "IPIEAuthorizer.h"
 #include "Misc/CommandLine.h"
 #include "Misc/FeedbackContext.h"
 #include "Misc/PackageName.h"
 #include "Misc/Parse.h"
 #include "Modules/ModuleManager.h"
+#include "ToolMenus.h"
+#include "Textures/SlateIcon.h"
 #include "Subsystems/ImportSubsystem.h"
 #include "UObject/ObjectSaveContext.h"
 #include "UObject/Package.h"
@@ -113,6 +117,9 @@ public:
     {
         if(!IsEditorAuthoringSession()) return;
         MCGameplayUIPreview::EnsureRegistered();
+        MCMainMenuPreview::Register();
+        if(!IsRunningCommandlet()) UToolMenus::RegisterStartupCallback(
+            FSimpleMulticastDelegate::FDelegate::CreateRaw(this,&FMessControlEditorModule::RegisterMainMenuTools));
         SaveHandle=FCoreUObjectDelegates::OnObjectPreSave.AddRaw(this,&FMessControlEditorModule::OnObjectPreSave);
         // Export/audit commandlets never author assets implicitly. Explicit library calls still work.
         if(IsRunningCommandlet() || !IsAutomaticBakingEnabled()) return;
@@ -134,6 +141,9 @@ public:
 
     virtual void ShutdownModule() override
     {
+        UToolMenus::UnRegisterStartupCallback(this);
+        UToolMenus::UnregisterOwner(this);
+        MCMainMenuPreview::Unregister();
         MCGameplayUIPreview::Unregister();
         FTSTicker::GetCoreTicker().RemoveTicker(DebounceTicker);
         FTSTicker::GetCoreTicker().RemoveTicker(InitialLoadTicker);
@@ -149,6 +159,17 @@ public:
     }
 
 private:
+    void RegisterMainMenuTools()
+    {
+        FToolMenuOwnerScoped Owner(this);
+        UToolMenu* Menu=UToolMenus::Get()->ExtendMenu(TEXT("LevelEditor.MainMenu.Tools"));
+        auto& Section=Menu->FindOrAddSection(TEXT("MessControl"),NSLOCTEXT("MCMainMenuPreview","ToolsSection","Wash n Smash"));
+        Section.AddMenuEntry(TEXT("MCMainMenuPreview"),
+            NSLOCTEXT("MCMainMenuPreview","ToolsEntry","Main Menu Preview"),
+            NSLOCTEXT("MCMainMenuPreview","ToolsHint","Edit the active menu widget and preview it over the main-menu camera without starting the game."),
+            FSlateIcon(),FUIAction(FExecuteAction::CreateStatic(&MCMainMenuPreview::Open)));
+    }
+
     void QueueMenu(UDataTable* Menu)
     {
         if(!bAuthoringCollision && IsFoodMenu(Menu)) Pending.Add(Menu,FPlatformTime::Seconds()+.25);
