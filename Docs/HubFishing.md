@@ -11,6 +11,13 @@ ordinary tool with **1–4** stows it. The rod temporarily disappears while
 swimming, climbing, carrying another object, using a chest, emoting or ragdolling.
 The existing basketball interaction has priority over reeling near the ball.
 
+After pulling the native fishing changes, rebuild `MessControlEditor` before
+testing. A pre-fishing DLL has neither the component nor its Five binding; the
+log then reports `MCFishingRodComponent ... does not exist in memory`. The
+current integration also uses the specific `FishingSimulationStep` constant
+name so unity builds do not collide with other source files' local `Step`
+variables. The fixed simulation interval remains `1.f/120.f`.
+
 The resting/walking pose holds the handle with the right hand and the upper reel
 with the left, matching the supplied references. Near the pond and facing its
 water, **right mouse** blends into the lower fishing pose and **left mouse**

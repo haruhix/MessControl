@@ -18,7 +18,7 @@
 #include "Net/UnrealNetwork.h"
 #include "UObject/ConstructorHelpers.h"
 
-namespace { constexpr int32 LineSegments=24; constexpr float Step=1.f/120.f; }
+namespace { constexpr int32 LineSegments=24; constexpr float FishingSimulationStep=1.f/120.f; }
 
 UMCFishingRodComponent::UMCFishingRodComponent()
 {
@@ -218,19 +218,19 @@ void UMCFishingRodComponent::SimulateLine(float Dt,FVector Tip)
     if(bReeling) FreeLineLength=FMath::Max(HangingLength,FreeLineLength-Dt*320);
     Accumulator+=FMath::Min(Dt,.05f);
     FCollisionQueryParams Query(SCENE_QUERY_STAT(MCFishingLure),false,Hero);
-    while(Accumulator>=Step) {
-        Accumulator-=Step;
+    while(Accumulator>=FishingSimulationStep) {
+        Accumulator-=FishingSimulationStep;
         const FVector OldEnd=Points.Last();
         if(bReeling || !bLineOut) bCastFlight=bLureInWater=false;
         if(bCastFlight) {
-            CastAge+=Step;
+            CastAge+=FishingSimulationStep;
             if(CastAge>=CastFlightDuration) {bCastFlight=false;bLureInWater=true;WaterAnchor=CastTarget;}
         }
         const bool PinLure=bLineOut && !bReeling && (bCastFlight || bLureInWater);
         const FVector Pinned=bCastFlight?CastOrigin+CastVelocity*CastAge+FVector(0,0,-490)*CastAge*CastAge:WaterAnchor;
         for(int32 I=1;I<=LineSegments;++I) {
             const FVector Current=Points[I];
-            Points[I]+=(Points[I]-PreviousPoints[I])*(I==LineSegments?.998f:.987f)+FVector(0,0,-980)*Step*Step;
+            Points[I]+=(Points[I]-PreviousPoints[I])*(I==LineSegments?.998f:.987f)+FVector(0,0,-980)*FishingSimulationStep*FishingSimulationStep;
             PreviousPoints[I]=Current;
         }
         if(PinLure) {Points.Last()=Pinned;PreviousPoints.Last()=OldEnd;}
@@ -257,18 +257,18 @@ void UMCFishingRodComponent::SimulateLine(float Dt,FVector Tip)
         FHitResult Hit;
         if(!PinLure && GetWorld()->SweepSingleByChannel(Hit,OldEnd,Points.Last(),FQuat::Identity,ECC_Visibility,FCollisionShape::MakeSphere(4),Query)) {
             Points.Last()=Hit.Location+Hit.Normal*.5f;
-            const FVector Velocity=(Points.Last()-PreviousPoints.Last())/Step;
-            PreviousPoints.Last()=Points.Last()-FVector::VectorPlaneProject(Velocity,Hit.Normal)*Step*.75f;
+            const FVector Velocity=(Points.Last()-PreviousPoints.Last())/FishingSimulationStep;
+            PreviousPoints.Last()=Points.Last()-FVector::VectorPlaneProject(Velocity,Hit.Normal)*FishingSimulationStep*.75f;
         }
         // A fast turn can move the tip farther than an iterative chain settles
         // in one step. The lure still cannot travel beyond the paid-out length.
         const FVector Radius=Points.Last()-Tip;
         if(Radius.SizeSquared()>FMath::Square(FreeLineLength)) {
             const FVector Direction=Radius.GetSafeNormal();
-            FVector Velocity=(Points.Last()-PreviousPoints.Last())/Step;
+            FVector Velocity=(Points.Last()-PreviousPoints.Last())/FishingSimulationStep;
             Velocity-=Direction*FMath::Max(0.,FVector::DotProduct(Velocity,Direction));
             Points.Last()=Tip+Direction*FreeLineLength;
-            PreviousPoints.Last()=Points.Last()-Velocity*Step;
+            PreviousPoints.Last()=Points.Last()-Velocity*FishingSimulationStep;
         }
         if(bLineOut && !bReeling && !bCastFlight && !bLureInWater && CastPond && Points.Last().Z<=CastTarget.Z) {
             FVector Surface;
