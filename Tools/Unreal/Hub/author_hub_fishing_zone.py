@@ -135,12 +135,12 @@ def run(action='plan', *, pier_actor=None, pier_component=None,
     original = {actor.get_name(): record(actor) for actor in actors if actor not in owned}
     placement = report['placement']
     zone = owned[0] if owned else editor.spawn_actor_from_class(native, u.Vector(*placement['location']),
-                                                                u.Rotator(0., placement['yaw'], 0.))
+                                                                u.Rotator(pitch=0., yaw=placement['yaw'], roll=0.))
     require(zone, 'Could not create the fishing zone')
     if not owned or fit_existing_to_pier:
         zone.modify()
         zone.set_actor_location(u.Vector(*placement['location']), False, True)
-        zone.set_actor_rotation(u.Rotator(0., placement['yaw'], 0.), True)
+        zone.set_actor_rotation(u.Rotator(pitch=0., yaw=placement['yaw'], roll=0.), True)
         zone.set_actor_scale3d(u.Vector(1., 1., 1.))
         zone.set_zone_extent(u.Vector(*placement['half_extent']))
     if not owned:
