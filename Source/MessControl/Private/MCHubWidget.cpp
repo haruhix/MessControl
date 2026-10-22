@@ -2,6 +2,7 @@
 
 #include "MCHubGameState.h"
 #include "MCHubBasketball.h"
+#include "MCFishingRodComponent.h"
 #include "MCToothCharacter.h"
 #include "MCHubTypes.h"
 #include "MCPlayerController.h"
@@ -323,6 +324,22 @@ void UMCHubWidget::BindPresentationTree()
     };
     BasketballHint=BallLabel(TEXT("HubBasketballHint"),20,true);
     BasketballReticle=BallLabel(TEXT("HubBasketballReticle"),24,false);
+    FishingPanel=Cast<UBorder>(WidgetTree->FindWidget(TEXT("HubFishingPanel")));
+    FishingCount=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubFishingCount")));
+    if(!FishingCount && RootCanvas) {
+        if(!FishingPanel) {
+            FishingPanel=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("HubFishingPanel"));
+            FishingPanel->SetPadding(FMargin(16,10));FishingPanel->SetBrushColor(FLinearColor(.02f,.1f,.16f,.94f));
+            auto* CountSlot=RootCanvas->AddChildToCanvas(FishingPanel);
+            CountSlot->SetAnchors(FAnchors(1,0));CountSlot->SetAlignment(FVector2D(1,0));
+            CountSlot->SetPosition(FVector2D(-24,24));CountSlot->SetAutoSize(true);CountSlot->SetZOrder(4);
+            BindStyle(TEXT("HubFishingPanel"),EMCUIColorToken::Marine,EMCUIStyleTarget::Background);
+        }
+        FishingCount=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("HubFishingCount"));
+        FishingCount->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),22));
+        FishingCount->SetColorAndOpacity(FSlateColor(FLinearColor::White));FishingPanel->SetContent(FishingCount);
+        BindStyle(TEXT("HubFishingCount"),EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,22,true);
+    }
     SelectionTitle=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubSelectionTitle")));
     SelectionStatus=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubSelectionStatus")));
     OpenButton=Cast<UMCHubActionButton>(WidgetTree->FindWidget(TEXT("HubOpenSelection")));
@@ -387,15 +404,26 @@ void UMCHubWidget::RefreshFromState()
     BuildPresentationTree();if(!ReadinessTitle) return;
     auto* Hub=State();
     const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
+    const auto* Identity=GetOwningPlayer()?GetOwningPlayer()->GetPlayerState<AMCPlayerState>():nullptr;
+    if(FishingPanel) FishingPanel->SetVisibility(Hub && Hub->Phase==EMCHubPhase::Gathering?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    MCHubPresentation::SetText(FishingCount,Format(TEXT("hub.fishing.count"),LOCTEXT("FishingCount","Рыба: {Count}"),{{TEXT("Count"),Identity?Identity->FishCaught:0}}));
     const auto* HeldBall=Hero?AMCHubBasketball::HeldBy(Hero):nullptr;
     const bool BallHeld=HeldBall!=nullptr;
     const bool ShowBall=Hub && Hub->Phase==EMCHubPhase::Gathering && Hero && Hero->CanWork()
         && (BallHeld || AMCHubBasketball::PickupCandidate(Hero));
-    if(BasketballHint) BasketballHint->SetVisibility(ShowBall?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    const bool ShowFishing=Hub && Hub->Phase==EMCHubPhase::Gathering && Hero && Hero->FishingRod && Hero->FishingRod->IsPresented();
+    if(BasketballHint) BasketballHint->SetVisibility(ShowBall || ShowFishing?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     if(BasketballReticle) BasketballReticle->SetVisibility(ShowBall && HeldBall && HeldBall->IsAiming()?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     if(BasketballHint) BasketballHint->SetText(BallHeld
         ? LOCTEXT("BasketballAimThrow","ПКМ — прицел   ·   ЛКМ / Q — бросить   ·   E — отпустить\nГеймпад: LB — прицел   ·   RT / Y — бросить   ·   X — отпустить")
         : LOCTEXT("BasketballPickup","E — подобрать мяч   |   Геймпад: X — подобрать"));
+    if(BasketballHint && ShowFishing && !ShowBall) BasketballHint->SetText(Hero->FishingRod->bLineOut || Hero->FishingRod->CanCastLine()
+        ? LOCTEXT("FishingPondControls","ПКМ — поза рыбалки   ·   ЛКМ — заброс в пруд   ·   удерживать E — подмотка\nХодьба — закончить рыбалку   ·   5 — убрать удочку   ·   1–4 — инструменты")
+        : LOCTEXT("FishingPondRequired","Для заброса подойди к пруду и повернись к воде\n5 — убрать удочку   ·   1–4 — инструменты"));
+    if(BasketballHint && ShowFishing && !ShowBall && Hero->FishingRod->bLineOut && !Hero->FishingRod->bReeling)
+        BasketballHint->SetText(LOCTEXT("FishingWaiting","Ждём поклёвку…\nРыба вытянется автоматически   ·   ходьба — закончить рыбалку"));
+    if(BasketballHint && ShowFishing && !ShowBall && Hero->FishingRod->bFishHooked)
+        BasketballHint->SetText(LOCTEXT("FishingHooked","Рыба на крючке! Вытягиваем…\nПосле подбора рыба добавится к улову"));
     FString Signature=FString::Printf(TEXT("%p:%d:%d:%d:%d:%d:%s"),Hub,Hub?int32(Hub->Phase):-1,
         Hub?Hub->SelectedDay:0,IsLocalHost(),IsSceneReady(),bPresentationFailed,Hub?*Hub->Notice.ToString():TEXT(""));
     if(Hub) for(const auto& Player:Hub->Players)

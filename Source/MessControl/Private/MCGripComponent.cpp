@@ -1,5 +1,6 @@
 ﻿#include "MCGripComponent.h"
 #include "MCToothCharacter.h"
+#include "MCFishingRodComponent.h"
 #include "MCBrushContactComponent.h"
 #include "MCToothMovementComponent.h"
 #include "MCCataclysmRaft.h"
@@ -933,7 +934,8 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
     // Animated lock contact owns both visible wrists. SetGripArms already
     // settles the hidden limbs for .18s before easing physics back on release.
     const bool Rowing=Tooth->IsRowing() && Tooth->ToothPhysics->CanAct();
-    const bool PreciseBoth=Basketball || Rowing || Lockpicking || Emote || Swimming || ToolSwing || UpgradeHeld || TaskCheer
+    const bool Fishing=Tooth->FishingRod && Tooth->FishingRod->IsPresented();
+    const bool PreciseBoth=Fishing || Basketball || Rowing || Lockpicking || Emote || Swimming || ToolSwing || UpgradeHeld || TaskCheer
         || (Tooth->FoodCollection && Tooth->FoodCollection->bCollecting);
     const bool PreciseLeft=PreciseBoth || SprayDefence;
     const bool PreciseRight=PreciseBoth || Pickaxe || Spraying || (Tooth->BrushContact && Tooth->BrushContact->IsPresenting());

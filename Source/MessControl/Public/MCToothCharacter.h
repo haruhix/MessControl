@@ -14,6 +14,7 @@ class UMCToothStatusComponent;
 class UMCCombatFeedbackComponent;
 class UMCGazeComponent;
 class UMCGripComponent;
+class UMCFishingRodComponent;
 class UMCExpressionComponent;
 class UMCExperimentalAudioComponent;
 class AMCFoodActor;
@@ -59,6 +60,7 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Care") TObjectPtr<class UMCBrushContactComponent> BrushContact;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Gaze") TObjectPtr<UMCGazeComponent> Gaze;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Grip") TObjectPtr<UMCGripComponent> Grip;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Fishing") TObjectPtr<UMCFishingRodComponent> FishingRod;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Food") TObjectPtr<class UMCFoodCollectionComponent> FoodCollection;
     UPROPERTY(ReplicatedUsing=OnRep_Yawn,BlueprintReadOnly,Category="Yawn") double YawnEndsAt=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Yawn") TObjectPtr<class AMCTongue> YawnTongue;
@@ -367,6 +369,7 @@ private:
     UPROPERTY() TObjectPtr<UInputAction> ZoomAction;
     UPROPERTY() TObjectPtr<UInputAction> SelfCareAction;
     UPROPERTY() TObjectPtr<UInputAction> ThrowAction;
+    UPROPERTY() TObjectPtr<UInputAction> FishingAction;
     UPROPERTY() TArray<TObjectPtr<UInputAction>> ToolActions;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> StatusMaterial;
     UPROPERTY() TArray<TObjectPtr<UMaterialInstanceDynamic>> FaceMaterials;

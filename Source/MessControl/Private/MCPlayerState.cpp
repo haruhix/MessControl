@@ -40,12 +40,19 @@ void AMCPlayerState::ResetMatchScore()
     ResetLevelUpChoices();
     ForceNetUpdate();
 }
+void AMCPlayerState::AddCaughtFish()
+{
+    if(!HasAuthority()) return;
+    FishCaught=int32(FMath::Min<int64>(int64(FishCaught)+1,MAX_int32));
+    ForceNetUpdate();
+}
 void AMCPlayerState::CopyProperties(APlayerState* Target)
 {
     Super::CopyProperties(Target);
     if (auto* State=Cast<AMCPlayerState>(Target))
     {
         State->Points=Points; State->PlayerColor=PlayerColor; State->bSessionHost=bSessionHost;
+        State->FishCaught=FishCaught;
         State->ConsumedRecoveryStacks=ConsumedRecoveryStacks;
         if (Perks) Perks->CopyPerksTo(State->Perks);
         State->PendingLevels=PendingLevels; State->LastQueuedTeamLevel=LastQueuedTeamLevel;
@@ -57,6 +64,7 @@ void AMCPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCPlayerState,Points); DOREPLIFETIME(AMCPlayerState,bSessionHost);
+    DOREPLIFETIME(AMCPlayerState,FishCaught);
     DOREPLIFETIME(AMCPlayerState,PlayerColor); DOREPLIFETIME(AMCPlayerState,Alarm); DOREPLIFETIME(AMCPlayerState,AlarmUntil);
     DOREPLIFETIME_CONDITION(AMCPlayerState,LevelUpOffer,COND_OwnerOnly);
     DOREPLIFETIME_CONDITION(AMCPlayerState,PendingLevelChoices,COND_OwnerOnly);

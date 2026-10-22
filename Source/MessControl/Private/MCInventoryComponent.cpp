@@ -2,6 +2,7 @@
 #include "MCPerkComponent.h"
 #include "MCToothCharacter.h"
 #include "MCHubBasketball.h"
+#include "MCFishingRodComponent.h"
 #include "MCMeleeCombo.h"
 #include "MCWeaponTrailComponent.h"
 #include "MCToothMovementComponent.h"
@@ -89,6 +90,7 @@ void UMCInventoryComponent::BeginPlay()
 void UMCInventoryComponent::ServerSelect_Implementation(EMCToolSlot Slot)
 {
     if(uint8(Slot)>uint8(EMCToolSlot::Spray) || !Hero || !Hero->CanWork() || !Hero->CanSwitchTool()) return;
+    if(Hero->FishingRod && Hero->FishingRod->bEquipped) Hero->FishingRod->ServerSetEquipped(false);
     if(Selected==Slot) {
         if(Slot==EMCToolSlot::Spray && HasUpgrade(EMCToolUpgrade::Watergun)) {
             CancelUpgradeUse();Hero->ServerSetPrimary(false);bPressureMode=!bPressureMode;
@@ -180,6 +182,7 @@ FVector UMCInventoryComponent::SwingOffset(EMCToolSlot Slot,float T)
 }
 bool UMCInventoryComponent::ShouldPresentTool() const
 {
+    if(Hero && Hero->FishingRod && Hero->FishingRod->IsPresented()) return false;
     if(!Hero || !Hero->Status->IsAlive() || Hero->IsRowing() || Hero->HeldFood || Hero->FoodCollection->bCollecting || AMCHubBasketball::HeldBy(Hero) || Hero->OrderJumpTarget || Hero->SwallowedBy || Hero->MimicCaptor) return false;
     if(Hero->RewardInteraction && (Hero->RewardInteraction->Stage==EMCRewardChestStage::Lockpicking
         || Hero->RewardInteraction->Stage==EMCRewardChestStage::Opening)) return false;
