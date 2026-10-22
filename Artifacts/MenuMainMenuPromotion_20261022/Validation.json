@@ -1,0 +1,86 @@
+{
+  "status": "passed",
+  "passed": true,
+  "checks": {
+    "saved_studio_widget": true,
+    "three_second_authored_duration": true,
+    "splash_ended_through_native_timeline": true,
+    "approximately_three_real_seconds": true,
+    "loading_barrier_not_bypassed": true,
+    "menu_cursor_restored_after_native_ready": true,
+    "saved_washnsmash_menu_is_live": true,
+    "six_authored_actions_visible_and_enabled": true,
+    "actual_brand_and_play_localized": true,
+    "promoted_animation_is_actually_playing": true,
+    "new_scene_camera_is_actual_view_target": true,
+    "actual_page_settings": true,
+    "actual_page_back_from_settings": true,
+    "actual_page_credits": true,
+    "actual_page_back_from_credits": true,
+    "actual_page_join_friends": true,
+    "actual_page_back_from_join": true,
+    "actual_page_exit_confirmation": true,
+    "actual_page_back_from_exit": true,
+    "real_play_routes_directly_to_hub": true,
+    "same_game_instance_after_play": true,
+    "hub_native_loading_barrier_completed": true,
+    "studio_not_replayed_in_hub": true,
+    "hub_ready_instruction_visible": true,
+    "hub_ready_waypoint_visible": true,
+    "hub_ready_waypoint_has_native_position": true,
+    "hub_has_one_real_participant": true,
+    "studio_once_per_game_instance_runtime": true,
+    "menu_returns_normally_same_game_instance": true
+  },
+  "runtime_bindings": [
+    {
+      "binding": "MenuCoffeeMaterialV2",
+      "object": "/Game/Maps/UEDPIE_0_L_MainMenu.L_MainMenu:PersistentLevel.StaticMeshActor_26.StaticMeshComponent0"
+    },
+    {
+      "binding": "MenuFrothRimTop",
+      "object": "/Game/Maps/UEDPIE_0_L_MainMenu.L_MainMenu:PersistentLevel.StaticMeshActor_35"
+    },
+    {
+      "binding": "MENU V2 | camera",
+      "object": "/Game/Maps/UEDPIE_0_L_MainMenu.L_MainMenu:PersistentLevel.CameraActor_0"
+    },
+    {
+      "binding": "MENU V2 | Brush",
+      "object": "/Game/Maps/UEDPIE_0_L_MainMenu.L_MainMenu:PersistentLevel.StaticMeshActor_33"
+    },
+    {
+      "binding": "MENU V2 | Cleaner",
+      "object": "/Game/Maps/UEDPIE_0_L_MainMenu.L_MainMenu:PersistentLevel.SkeletalMeshActor_1"
+    },
+    {
+      "binding": "MenuCoffeeSurfaceV2",
+      "object": "/Game/Maps/UEDPIE_0_L_MainMenu.L_MainMenu:PersistentLevel.StaticMeshActor_26"
+    },
+    {
+      "binding": "MenuContactFoamV2",
+      "object": "/Game/Maps/UEDPIE_0_L_MainMenu.L_MainMenu:PersistentLevel.StaticMeshActor_34"
+    },
+    {
+      "binding": "MenuFrothRimLower",
+      "object": "/Game/Maps/UEDPIE_0_L_MainMenu.L_MainMenu:PersistentLevel.StaticMeshActor_36"
+    }
+  ],
+  "animation_summary": {
+    "distinct_brush_positions": 27,
+    "clean_min": 0.0633879229426384,
+    "clean_max": 1.0
+  },
+  "cleanup": {
+    "owned_pie_end_requested": true,
+    "owned_pie_stopped": true,
+    "original_map_restored": true,
+    "task_worker_kept_alive": true
+  },
+  "limitations": [
+    "Solo PIE with existing Editor DLL; no fresh C++ build after the colleague merge.",
+    "No packaged-game, cold-cache or multiplayer verification.",
+    "Buttons exercised through their real OnClicked delegates; physical pointer/gamepad delivery not tested.",
+    "Art remains WIP; this is an integration promotion, not final visual approval."
+  ]
+}
