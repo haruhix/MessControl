@@ -2,6 +2,7 @@
 
 #include "MCToothCharacter.h"
 #include "MCCharacterCosmeticsComponent.h"
+#include "MCCosmeticDeformation.h"
 #include "MCFoodActor.h"
 #include "MCFoodCollectionComponent.h"
 #include "Camera/CameraTypes.h"
@@ -12,6 +13,7 @@
 #include "Components/WidgetComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/SkeletalMesh.h"
+#include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
@@ -87,7 +89,7 @@ bool AMCWardrobePreviewActor::Prepare(APlayerController* Controller,AMCToothChar
         Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
         Part->SetCollisionResponseToAllChannels(ECR_Ignore);Part->SetGenerateOverlapEvents(false);
         Part->SetCanEverAffectNavigation(false);Part->SetSimulatePhysics(false);Part->SetIsReplicated(false);
-        Part->SetOnlyOwnerSee(true);Part->bCastHiddenShadow=false;
+        Part->SetOnlyOwnerSee(true);Part->bCastHiddenShadow=false;Part->bUseAttachParentBound=false;
         Part->SetupAttachment(Body,Row->AttachBone);
         FTransform Fit=Row->LocalTransform;
         if(Row->bMeshSpaceFit) {
@@ -100,6 +102,7 @@ bool AMCWardrobePreviewActor::Prepare(APlayerController* Controller,AMCToothChar
         Part->SetRelativeTransform(Fit);
         for(int32 Index=0;Index<Row->Materials.Num();++Index) if(Row->Materials[Index]) Part->SetMaterial(Index,Row->Materials[Index]);
         Part->SetVisibility(false);AddInstanceComponent(Part);Part->RegisterComponent();
+        MCCosmeticDeformation::Update(Part,Body);
         AccessoryParts.Add(ItemId,Part);
     }
     SetDraftColor(Source->GetPlayerColor());
@@ -185,6 +188,7 @@ void AMCWardrobePreviewActor::SetDraftLoadout(const FMCCharacterCosmeticLoadout&
     auto* Catalog=Source && Source->Cosmetics?Source->Cosmetics->GetCatalog():nullptr;
     FText Error;if(!Catalog || !UMCCosmeticCatalog::ValidateLoadout(Catalog,Loadout,Error)) return;
     for(auto& Entry:AccessoryParts) if(Entry.Value) {
+        MCCosmeticDeformation::Update(Entry.Value,Body);
         const auto* Row=UMCCosmeticCatalog::Find(Catalog,Entry.Key);
         Entry.Value->SetVisibility(Row && Loadout.ItemForSlot(Row->Slot)==Entry.Key);
     }
@@ -251,6 +255,7 @@ void AMCWardrobePreviewActor::Tick(float DeltaSeconds)
     if(!SourceCharacter.IsValid() || !LocalController.IsValid() || LocalController->GetPawn()!=SourceCharacter.Get()) {EndPresentation();return;}
     PoseSettleAge+=DeltaSeconds;
     if(!bSettledPoseCopied && PoseSettleAge>=.28f) {CopyDisplayPose();bSettledPoseCopied=true;}
+    for(auto& Entry:AccessoryParts) MCCosmeticDeformation::Update(Entry.Value,Body);
     // Four players are cheap to scan; do it before every draw so a late join or newly attached tool cannot flash in the fitting view.
     HideRealPlayersForThisView();
 }
@@ -261,7 +266,26 @@ void AMCWardrobePreviewActor::CalcCamera(float DeltaTime,FMinimalViewInfo& OutRe
     if(const auto* Controller=LocalController.Get()) Controller->GetViewportSize(Width,Height);
     const float Aspect=Height>0?FMath::Clamp(float(Width)/Height,.7f,3.f):16.f/9.f;
     const float HalfTan=FMath::Tan(FMath::DegreesToRadians(HorizontalFieldOfView*.5f));
-    const FBoxSphereBounds Bounds=Body->CalcBounds(Body->GetComponentTransform());
+    FBox VisualBox=Body->CalcBounds(Body->GetComponentTransform()).GetBox();
+    // Fit tall headwear without letting its padded shader-culling bounds push
+    // the camera far away. Include its actual deformed geometry envelope.
+    float Stretch=0.f;
+    if(const auto* Material=Body->GetMaterial(0))
+        Material->GetScalarParameterValue(FMaterialParameterInfo(TEXT("BodyStretch")),Stretch);
+    const float StretchHeight=FMath::Clamp(1.f+Stretch,.65f,1.4f),StretchWidth=FMath::InvSqrt(StretchHeight);
+    const FTransform& BodyFrame=Body->GetComponentTransform();
+    for(const auto& Entry:AccessoryParts) if(const auto* Part=Entry.Value.Get();Part && Part->IsVisible()) {
+        if(const UStaticMesh* Mesh=Part->GetStaticMesh()) {
+            FBox Local=Mesh->GetBoundingBox();
+            Local.Min+=Mesh->GetNegativeBoundsExtension();Local.Max-=Mesh->GetPositiveBoundsExtension();
+            for(int32 Corner=0;Corner<8;++Corner) {
+                const FVector P((Corner&1)?Local.Max.X:Local.Min.X,(Corner&2)?Local.Max.Y:Local.Min.Y,(Corner&4)?Local.Max.Z:Local.Min.Z);
+                const FVector InBody=BodyFrame.InverseTransformPosition(Part->GetComponentTransform().TransformPosition(P));
+                VisualBox+=BodyFrame.TransformPosition(InBody*FVector(StretchWidth,StretchWidth,StretchHeight));
+            }
+        }
+    }
+    const FBoxSphereBounds Bounds(VisualBox);
     // Hub avatars are scaled down. World-centimetre floors such as 80/250 would put the camera inside scenery.
     const float ModelHeight=FMath::Max(.5f,float(Bounds.BoxExtent.Z*2));
     const float HorizontalRadius=float(FMath::Abs(CameraFront.Y)*Bounds.BoxExtent.X+FMath::Abs(CameraFront.X)*Bounds.BoxExtent.Y);

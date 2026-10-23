@@ -1,0 +1,21 @@
+{
+  "mesh": "/Game/Gameplay/CharacterCurrent/SK_CharacterGameplay.SK_CharacterGameplay",
+  "bone": "head_x",
+  "translation": [
+    -3.3429803461898435e-07,
+    -6.170932696254262,
+    47.34800910202288
+  ],
+  "rotation": [
+    0.7071070671081543,
+    -6.159853985394925e-13,
+    -4.682836556675271e-14,
+    -0.7071065306663513
+  ],
+  "scale": [
+    1.0,
+    0.9999999403953552,
+    0.9999999403953552
+  ],
+  "squash_stretch_morphs": []
+}

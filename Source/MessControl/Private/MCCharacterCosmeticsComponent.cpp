@@ -1,4 +1,5 @@
 #include "MCCharacterCosmeticsComponent.h"
+#include "MCCosmeticDeformation.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/Character.h"
@@ -10,7 +11,7 @@ UMCCharacterCosmeticsComponent::UMCCharacterCosmeticsComponent()
     SetIsReplicatedByDefault(true);
     PrimaryComponentTick.bCanEverTick=true;
     PrimaryComponentTick.bStartWithTickEnabled=false;
-    PrimaryComponentTick.TickGroup=TG_PostPhysics;
+    PrimaryComponentTick.TickGroup=TG_PostUpdateWork;
 }
 
 void UMCCharacterCosmeticsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -27,7 +28,12 @@ UDataTable* UMCCharacterCosmeticsComponent::GetCatalog()
 
 void UMCCharacterCosmeticsComponent::BeginPlay()
 {
-    Super::BeginPlay();RefreshPresentation();
+    Super::BeginPlay();
+    if(const auto* Character=Cast<ACharacter>(GetOwner())) {
+        AddTickPrerequisiteActor(GetOwner());
+        AddTickPrerequisiteComponent(Character->GetMesh());
+    }
+    RefreshPresentation();
 }
 
 void UMCCharacterCosmeticsComponent::EndPlay(const EEndPlayReason::Type Reason)
@@ -91,7 +97,8 @@ void UMCCharacterCosmeticsComponent::RefreshPresentation()
         Part->SetCanEverAffectNavigation(false);
         Part->SetSimulatePhysics(false);
         Part->SetIsReplicated(false);
-        Part->bUseAttachParentBound=true;
+        // Authored bounds include the shader displacement and tall headwear.
+        Part->bUseAttachParentBound=false;
         Part->SetupAttachment(Target,Row->AttachBone);
         FTransform Fit=Row->LocalTransform;
         if(Row->bMeshSpaceFit) {
@@ -103,9 +110,9 @@ void UMCCharacterCosmeticsComponent::RefreshPresentation()
         }
         Part->SetRelativeTransform(Fit);
         for(int32 Index=0;Index<Row->Materials.Num();++Index) if(Row->Materials[Index]) Part->SetMaterial(Index,Row->Materials[Index]);
-        Part->RegisterComponent();Parts.Add(Part);
+        Part->RegisterComponent();MCCosmeticDeformation::Update(Part,Target);Parts.Add(Part);
     }
-    SetComponentTickEnabled(!Parts.IsEmpty());SyncVisibility();
+    SetTickGroup(TG_PostUpdateWork);SetComponentTickEnabled(!Parts.IsEmpty());SyncVisibility();
 }
 
 void UMCCharacterCosmeticsComponent::SyncVisibility()
@@ -119,6 +126,9 @@ void UMCCharacterCosmeticsComponent::SyncVisibility()
 void UMCCharacterCosmeticsComponent::TickComponent(float Dt,ELevelTick TickType,FActorComponentTickFunction* TickFunction)
 {
     Super::TickComponent(Dt,TickType,TickFunction);SyncVisibility();
+    const auto* Character=Cast<ACharacter>(GetOwner());
+    const auto* Body=Character?Character->GetMesh():nullptr;
+    for(UStaticMeshComponent* Part:Parts) MCCosmeticDeformation::Update(Part,Body);
 }
 
 TArray<UStaticMeshComponent*> UMCCharacterCosmeticsComponent::GetAccessoryParts() const

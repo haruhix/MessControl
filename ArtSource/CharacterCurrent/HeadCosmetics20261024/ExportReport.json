@@ -1,0 +1,367 @@
+{
+  "source": "D:\\PROJECT\\GAME\\TEETH CONTROL\\teeth\\head_cosmetic.blend",
+  "source_sha256": "b9e4674ab292716caae2127e1c281bbeef91aeb2f0d94b4cb4c79213d69a581b",
+  "reference_head": {
+    "mesh": "/Game/Gameplay/CharacterCurrent/SK_CharacterGameplay.SK_CharacterGameplay",
+    "bone": "head_x",
+    "translation": [
+      -3.3429803461898435e-07,
+      -6.170932696254262,
+      47.34800910202288
+    ],
+    "rotation": [
+      0.7071070671081543,
+      -6.159853985394925e-13,
+      -4.682836556675271e-14,
+      -0.7071065306663513
+    ],
+    "scale": [
+      1.0,
+      0.9999999403953552,
+      0.9999999403953552
+    ],
+    "squash_stretch_morphs": []
+  },
+  "items": [
+    {
+      "source_object": "Cube.001",
+      "slug": "CowboyHat",
+      "id": "Hat_Head_CowboyHat",
+      "slot": "Hat",
+      "label_ru": "Ковбойская шляпа",
+      "label_en": "Cowboy hat",
+      "mesh": "SM_HeadCosmetic_CowboyHat",
+      "fbx": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\ArtSource\\CharacterCurrent\\HeadCosmetics20261024\\SM_HeadCosmetic_CowboyHat.fbx",
+      "fbx_sha256": "21e8478cbaca241a4c5160317af8d67f88fd956c5ed3f21af5f0d52e21d48652",
+      "vertices": 122,
+      "triangles": 232,
+      "bounds_blender_cm": [
+        [
+          -47.522956132888794,
+          53.940677642822266,
+          -44.56351399421692
+        ],
+        [
+          46.22662365436554,
+          94.60304975509644,
+          58.703404664993286
+        ]
+      ],
+      "bounds_unreal_cm": [
+        [
+          -47.522956132888794,
+          -94.60304975509644,
+          -44.56351399421692
+        ],
+        [
+          46.22662365436554,
+          -53.940677642822266,
+          58.703404664993286
+        ]
+      ],
+      "geometry_space": "UE reference head_x bone space",
+      "restored_translation_m": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "material_role": "Neutral",
+      "original_materials": [],
+      "max_source_vertex_error_m": 2.4027411739639535e-07,
+      "icon": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\ArtSource\\CharacterCurrent\\HeadCosmetics20261024\\Icons\\Hat_Head_CowboyHat.png"
+    },
+    {
+      "source_object": "glass_1",
+      "slug": "SquareGlasses",
+      "id": "Face_Head_SquareGlasses",
+      "slot": "Face",
+      "label_ru": "Прямоугольные очки",
+      "label_en": "Square glasses",
+      "mesh": "SM_HeadCosmetic_SquareGlasses",
+      "fbx": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\ArtSource\\CharacterCurrent\\HeadCosmetics20261024\\SM_HeadCosmetic_SquareGlasses.fbx",
+      "fbx_sha256": "b6cde4e1f0d229d14874f9212fb4d0c20802f2c3b3ca45cf8d55237d28e612b4",
+      "vertices": 196,
+      "triangles": 380,
+      "bounds_blender_cm": [
+        [
+          -45.351749658584595,
+          12.763015925884247,
+          -30.30928671360016
+        ],
+        [
+          47.35082983970642,
+          45.17893195152283,
+          42.60011315345764
+        ]
+      ],
+      "bounds_unreal_cm": [
+        [
+          -45.351749658584595,
+          -45.17893195152283,
+          -30.30928671360016
+        ],
+        [
+          47.35082983970642,
+          -12.763015925884247,
+          42.60011315345764
+        ]
+      ],
+      "geometry_space": "UE reference head_x bone space",
+      "restored_translation_m": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "material_role": "Black",
+      "original_materials": [
+        "Material.005"
+      ],
+      "max_source_vertex_error_m": 1.3328003749250113e-07,
+      "icon": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\ArtSource\\CharacterCurrent\\HeadCosmetics20261024\\Icons\\Face_Head_SquareGlasses.png"
+    },
+    {
+      "source_object": "Plane",
+      "slug": "Feather",
+      "id": "Hat_Head_Feather",
+      "slot": "Hat",
+      "label_ru": "Перо",
+      "label_en": "Feather",
+      "mesh": "SM_HeadCosmetic_Feather",
+      "fbx": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\ArtSource\\CharacterCurrent\\HeadCosmetics20261024\\SM_HeadCosmetic_Feather.fbx",
+      "fbx_sha256": "8c0f04acfbf20bc11625b70418a8969bd5349d71a811fbdb2a535d467e5c6c92",
+      "vertices": 12,
+      "triangles": 12,
+      "bounds_blender_cm": [
+        [
+          8.71255248785019,
+          52.012187242507935,
+          3.7657037377357483
+        ],
+        [
+          43.36318373680115,
+          123.08269739151001,
+          16.846561431884766
+        ]
+      ],
+      "bounds_unreal_cm": [
+        [
+          8.71255248785019,
+          -123.08269739151001,
+          3.7657037377357483
+        ],
+        [
+          43.36318373680115,
+          -52.012187242507935,
+          16.846561431884766
+        ]
+      ],
+      "geometry_space": "UE reference head_x bone space",
+      "restored_translation_m": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "material_role": "Neutral",
+      "original_materials": [],
+      "max_source_vertex_error_m": 2.388837865275353e-07,
+      "icon": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\ArtSource\\CharacterCurrent\\HeadCosmetics20261024\\Icons\\Hat_Head_Feather.png"
+    },
+    {
+      "source_object": "SM_Character.001",
+      "slug": "Brows",
+      "id": "Face_Head_Brows",
+      "slot": "Face",
+      "label_ru": "Ресницы",
+      "label_en": "Eyelashes",
+      "mesh": "SM_HeadCosmetic_Brows",
+      "fbx": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\ArtSource\\CharacterCurrent\\HeadCosmetics20261024\\SM_HeadCosmetic_Brows.fbx",
+      "fbx_sha256": "6bc70d0641c321289e346f657e622976fa28736c2ce00ecf4459c01b45e7f88f",
+      "vertices": 86,
+      "triangles": 80,
+      "bounds_blender_cm": [
+        [
+          -36.21748685836792,
+          36.17415130138397,
+          32.55749046802521
+        ],
+        [
+          37.50704228878021,
+          46.57235145568848,
+          45.270946621894836
+        ]
+      ],
+      "bounds_unreal_cm": [
+        [
+          -36.21748685836792,
+          -46.57235145568848,
+          32.55749046802521
+        ],
+        [
+          37.50704228878021,
+          -36.17415130138397,
+          45.270946621894836
+        ]
+      ],
+      "geometry_space": "UE reference head_x bone space",
+      "restored_translation_m": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "material_role": "Brows",
+      "original_materials": [
+        "Material.002",
+        "Material.004"
+      ],
+      "max_source_vertex_error_m": 1.1920928955078125e-07,
+      "icon": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\ArtSource\\CharacterCurrent\\HeadCosmetics20261024\\Icons\\Face_Head_Brows.png"
+    },
+    {
+      "source_object": "Sphere",
+      "slug": "ConeHat",
+      "id": "Hat_Head_ConeHat",
+      "slot": "Hat",
+      "label_ru": "Коническая шляпа",
+      "label_en": "Conical hat",
+      "mesh": "SM_HeadCosmetic_ConeHat",
+      "fbx": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\ArtSource\\CharacterCurrent\\HeadCosmetics20261024\\SM_HeadCosmetic_ConeHat.fbx",
+      "fbx_sha256": "b5cb6f3c79f0423d53e93cc4d5fac2eb3b03dbe43ce21474abe8b37a546dec2d",
+      "vertices": 46,
+      "triangles": 75,
+      "bounds_blender_cm": [
+        [
+          -68.346107006073,
+          44.72328722476959,
+          -62.551701068878174
+        ],
+        [
+          68.34611296653748,
+          99.5278000831604,
+          73.39172959327698
+        ]
+      ],
+      "bounds_unreal_cm": [
+        [
+          -68.346107006073,
+          -99.5278000831604,
+          -62.551701068878174
+        ],
+        [
+          68.34611296653748,
+          -44.72328722476959,
+          73.39172959327698
+        ]
+      ],
+      "geometry_space": "UE reference head_x bone space",
+      "restored_translation_m": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "material_role": "Neutral",
+      "original_materials": [],
+      "max_source_vertex_error_m": 1.2377834115800373e-07,
+      "icon": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\ArtSource\\CharacterCurrent\\HeadCosmetics20261024\\Icons\\Hat_Head_ConeHat.png"
+    },
+    {
+      "source_object": "Sphere.001",
+      "slug": "ArtistCap",
+      "id": "Hat_Head_ArtistCap",
+      "slot": "Hat",
+      "label_ru": "Авторская кепка",
+      "label_en": "Artist cap",
+      "mesh": "SM_HeadCosmetic_ArtistCap",
+      "fbx": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\ArtSource\\CharacterCurrent\\HeadCosmetics20261024\\SM_HeadCosmetic_ArtistCap.fbx",
+      "fbx_sha256": "b4fceebf837f2d1b992246d741a6622170ea8f906a486004317048eab0b3badc",
+      "vertices": 1042,
+      "triangles": 2076,
+      "bounds_blender_cm": [
+        [
+          -19.724631309509277,
+          62.8706157207489,
+          -52.17418670654297
+        ],
+        [
+          19.39384788274765,
+          81.12345933914185,
+          25.133758783340454
+        ]
+      ],
+      "bounds_unreal_cm": [
+        [
+          -19.724631309509277,
+          -81.12345933914185,
+          -52.17418670654297
+        ],
+        [
+          19.39384788274765,
+          -62.8706157207489,
+          25.133758783340454
+        ]
+      ],
+      "geometry_space": "UE reference head_x bone space",
+      "restored_translation_m": [
+        2.3286690711975098,
+        -0.10154873132705688,
+        0.00786447525024414
+      ],
+      "material_role": "Neutral",
+      "original_materials": [],
+      "max_source_vertex_error_m": 2.4027400458748785e-07,
+      "icon": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\ArtSource\\CharacterCurrent\\HeadCosmetics20261024\\Icons\\Hat_Head_ArtistCap.png"
+    },
+    {
+      "source_object": "Sphere.002",
+      "slug": "FootballHelmet",
+      "id": "Hat_Head_FootballHelmet",
+      "slot": "Hat",
+      "label_ru": "Спортивный шлем",
+      "label_en": "Football helmet",
+      "mesh": "SM_HeadCosmetic_FootballHelmet",
+      "fbx": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\ArtSource\\CharacterCurrent\\HeadCosmetics20261024\\SM_HeadCosmetic_FootballHelmet.fbx",
+      "fbx_sha256": "ce7ee6ea693726bcfb1959b13f6a996affebbd0ae28f5b173525a4f041ca27a9",
+      "vertices": 622,
+      "triangles": 1192,
+      "bounds_blender_cm": [
+        [
+          -49.62032735347748,
+          -7.617013901472092,
+          -52.99903154373169
+        ],
+        [
+          49.62033033370972,
+          93.59539747238159,
+          62.62316703796387
+        ]
+      ],
+      "bounds_unreal_cm": [
+        [
+          -49.62032735347748,
+          -93.59539747238159,
+          -52.99903154373169
+        ],
+        [
+          49.62033033370972,
+          7.617013901472092,
+          62.62316703796387
+        ]
+      ],
+      "geometry_space": "UE reference head_x bone space",
+      "restored_translation_m": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "material_role": "Neutral",
+      "original_materials": [],
+      "max_source_vertex_error_m": 2.4027400458748785e-07,
+      "icon": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\ArtSource\\CharacterCurrent\\HeadCosmetics20261024\\Icons\\Hat_Head_FootballHelmet.png"
+    }
+  ],
+  "notes": [
+    "Seven authored objects from character1.003, excluding controls and reference meshes.",
+    "Geometry is baked into actual UE head_x reference-bone space; identity attachment preserves rotated nonuniform head scale.",
+    "The parked cap is translated back to the verified original cap fit without changing its shape.",
+    "Unassigned materials use neutral source default grey; authored black glasses remain black."
+  ]
+}

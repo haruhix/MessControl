@@ -76,7 +76,9 @@ void UMCCosmeticItemWidget::Refresh()
         if(auto* DescriptionBox=CosmeticDescription->GetParent()) DescriptionBox->SetVisibility(ItemSlot.IsNone()?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
     }
     if(CosmeticButton) CosmeticButton->SetToolTipText(Description);
-    if(CosmeticPrice) CosmeticPrice->SetText(CatalogId.IsNone()?FText::GetEmpty():FText::Format(Localized(TEXT("UI.Product.Coins"),LOCTEXT("Coins","{0} монет")),FText::AsNumber(Price)));
+    if(CosmeticPrice) CosmeticPrice->SetText(CatalogId.IsNone()?FText::GetEmpty():Price==0
+        ?Localized(TEXT("UI.Product.Free"),LOCTEXT("Free","Бесплатно"))
+        :FText::Format(Localized(TEXT("UI.Product.Coins"),LOCTEXT("Coins","{0} монет")),FText::AsNumber(Price)));
     FText Rarity;
     switch(ProductRarity) {
     case EMCHubItemRarity::Rare:Rarity=Localized(TEXT("UI.Product.Rare"),LOCTEXT("Rare","Редкое"));break;
@@ -93,7 +95,9 @@ void UMCCosmeticItemWidget::Refresh()
     const bool ShowBuy=bPurchaseVisible && !bOwned && !CatalogId.IsNone();
     if(auto* BuySize=WidgetTree?WidgetTree->FindWidget(TEXT("CosmeticBuySize")):nullptr) BuySize->SetVisibility(ShowBuy?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
     if(CosmeticBuy) {CosmeticBuy->SetIsEnabled(bAffordable);CosmeticBuy->SetVisibility(ShowBuy?ESlateVisibility::Visible:ESlateVisibility::Collapsed);}
-    if(CosmeticBuyLabel) CosmeticBuyLabel->SetText(bAffordable?Localized(TEXT("UI.Product.Buy"),LOCTEXT("Buy","Купить")):Localized(TEXT("UI.Product.Insufficient"),LOCTEXT("Insufficient","Мало монет")));
+    if(CosmeticBuyLabel) CosmeticBuyLabel->SetText(bAffordable
+        ?(Price==0?Localized(TEXT("UI.Product.Get"),LOCTEXT("Get","Получить")):Localized(TEXT("UI.Product.Buy"),LOCTEXT("Buy","Купить")))
+        :Localized(TEXT("UI.Product.Insufficient"),LOCTEXT("Insufficient","Мало монет")));
     if(CosmeticThumbnail) {
         CosmeticThumbnail->SetBrushFromTexture(ProductIcon);
         if(ProductIcon) if(const auto* Region=ThumbnailUVRegions.Find(ProductIcon->GetFName())) {
