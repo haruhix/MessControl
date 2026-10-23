@@ -246,6 +246,15 @@ def repair_menu_layout(asset, left_padding, report):
     bindings['MenuMain_Text1'] = 'UI.MainMenu.Tagline'
     bindings['MenuNavigationHint'] = 'UI.MainMenu.NavigationHint'
     defaults.set_editor_property('text_bindings', bindings)
+    # Retain stable names/localization, but do not reserve space for retired copy.
+    for name in ('MenuMain_Text1', 'MenuNavigationHint'):
+        retired = controls.get(name)
+        if isinstance(retired, u.TextBlock):
+            retired.modify()
+            retired.set_visibility(enum(u.SlateVisibility, 'Collapsed'))
+            if isinstance(retired.slot, u.VerticalBoxSlot):
+                retired.slot.modify()
+                retired.slot.set_padding(u.Margin(0., 0., 0., 0.))
     style = list(defaults.get_editor_property('style_bindings'))
     updated = set()
     for binding in style:
@@ -341,6 +350,8 @@ def run(action='plan', *, output='E:/CodexWork/MessControlWashNSmashMenu_2026102
         if controls.get('MenuMain_Text2'):
             controls['MenuMain_Text2'].set_visibility(enum(u.SlateVisibility, 'Collapsed'))
         if subtitle:
+            subtitle.set_visibility(enum(u.SlateVisibility, 'Collapsed'))
+            subtitle.slot.set_padding(u.Margin(0., 0., 0., 0.))
             subtitle.set_render_opacity(.76)
             subtitle.set_editor_property('wrap_text_at', panel_width)
         for index, button in enumerate(ordered):

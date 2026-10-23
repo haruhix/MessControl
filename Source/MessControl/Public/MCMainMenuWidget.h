@@ -168,6 +168,7 @@ private:
     void ShowPage(EPage NewPage);
     void BuildPageContents();
     void CacheRootControls();
+    void CollapseRetiredMainMenuCopy();
     void CachePageControls();
     void RefreshPageData(bool bResetSettings=true);
     void RefreshSettingsControls();

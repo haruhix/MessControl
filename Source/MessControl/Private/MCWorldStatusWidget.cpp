@@ -332,8 +332,35 @@ void UMCWorldStatusWidget::PresentAtTime(float VisualSeconds)
     LossAge=T;VisibilityAge=T;TimerAge=T;SpoilAge=T;RefreshVisuals();
 }
 
+void UMCWorldStatusWidget::RefreshStatusLayout()
+{
+    UWidget* HealthHost=WidgetTree?WidgetTree->FindWidget(TEXT("StatusHealthSize")):nullptr;
+    auto* TimerLayout=StatusTimer?Cast<UHorizontalBoxSlot>(StatusTimer->Slot):nullptr;
+    if(LayoutHealthHost.Get()!=HealthHost || LayoutTimerSlot.Get()!=TimerLayout) {
+        LayoutHealthHost=HealthHost;LayoutTimerSlot=TimerLayout;bTimerOnlyLayout=false;
+    }
+    const bool bTimerOnly=!Current.bShowHealth;
+    if(bTimerOnly==bTimerOnlyLayout) return;
+    if(bTimerOnly) {
+        // Preserve the actual Designer tree. Collapsing the size host removes
+        // its HP frame, bars, skin and width from Slate's desired-size layout.
+        if(HealthHost) {HealthHostVisibility=HealthHost->GetVisibility();HealthHost->SetVisibility(ESlateVisibility::Collapsed);}
+        if(TimerLayout) {
+            TimerPaddingWithHealth=TimerLayout->GetPadding();
+            TimerLayout->SetPadding(FMargin(0,TimerPaddingWithHealth.Top,0,TimerPaddingWithHealth.Bottom));
+        }
+    } else {
+        // Restore the authored gap/visibility when reusing a Designer preview;
+        // whole food and enemy snapshots otherwise never change their layout.
+        if(HealthHost) HealthHost->SetVisibility(HealthHostVisibility);
+        if(TimerLayout) TimerLayout->SetPadding(TimerPaddingWithHealth);
+    }
+    bTimerOnlyLayout=bTimerOnly;
+}
+
 void UMCWorldStatusWidget::RefreshVisuals()
 {
+    RefreshStatusLayout();
     const float LossT=FMath::Clamp((LossAge-.04f)/FMath::Max(.05f,LossSeconds-.04f),0.f,1.f);
     TrailValue=FMath::Lerp(TrailFrom,Current.HealthFraction,FMath::SmoothStep(0.f,1.f,LossT));
     if(StatusHealth && !FMath::IsNearlyEqual(StatusHealth->GetPercent(),Current.HealthFraction)) StatusHealth->SetPercent(Current.HealthFraction);
@@ -377,15 +404,16 @@ void UMCWorldStatusWidget::ApplyEditorPreview(float Time)
     PreviewTime=FMath::Max(0.f,Time);BuildPresentationTree();ApplyTheme();
     bTargetVisible=false;VisibilityFrom=VisibilityValue=VisibilityAge=0;
     FMCWorldStatusSnapshot Value;Value.HealthFraction=.72f;Value.TimerFraction=.32f;
+    Value.bShowHealth=PreviewState!=TEXT("FragmentFresh") && PreviewState!=TEXT("FragmentSpoiled");
     if(PreviewState==TEXT("FoodFill0")) Value.TimerFraction=0.f;
     else if(PreviewState==TEXT("FoodFill25")) Value.TimerFraction=.25f;
     else if(PreviewState==TEXT("FoodFill50")) Value.TimerFraction=.5f;
     else if(PreviewState==TEXT("FoodFill75")) Value.TimerFraction=.75f;
-    else if(PreviewState==TEXT("FoodFill100")) Value.TimerFraction=1.f;
+    else if(PreviewState==TEXT("FoodFill100") || PreviewState==TEXT("FragmentSpoiled")) Value.TimerFraction=1.f;
     else if(PreviewState==TEXT("TimerFill")) Value.TimerFraction=FMath::Clamp(PreviewTime/2.f,0.f,1.f);
     else if(PreviewState==TEXT("SpoilTransition")) Value.TimerFraction=1.f;
     Value.bHasTimer=PreviewState!=TEXT("Enemy") && PreviewState!=TEXT("EnemyDamaged");
-    Value.bSpoiled=PreviewState==TEXT("FoodSpoiled");
+    Value.bSpoiled=PreviewState==TEXT("FoodSpoiled") || PreviewState==TEXT("FragmentSpoiled");
     bHasSnapshot=false;SetSnapshot(Value);SetDisplayActive(true);
     if(PreviewState==TEXT("SpoilTransition")) {Value.bSpoiled=true;SetSnapshot(Value);}
     if(PreviewState==TEXT("Loss") || PreviewState==TEXT("EnemyDamaged")) {Value.HealthFraction=.39f;SetSnapshot(Value);}

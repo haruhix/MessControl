@@ -8,6 +8,7 @@
 class UBorder;
 class UProgressBar;
 class USizeBox;
+class UHorizontalBoxSlot;
 
 /** Small analytic pie filling 0 -> 1; expiry becomes a permanent spoiled-food pictogram. */
 UCLASS(BlueprintType)
@@ -52,9 +53,11 @@ struct MESSCONTROL_API FMCWorldStatusSnapshot
     UPROPERTY(EditAnywhere,BlueprintReadWrite) float TimerFraction=0.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite) bool bHasTimer=false;
     UPROPERTY(EditAnywhere,BlueprintReadWrite) bool bSpoiled=false;
+    /** Presentation only: food fragments retain gameplay health but hide the entire HP host. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite) bool bShowHealth=true;
 };
 
-/** Editable Designer tree: horizontal HP + optional adjacent pie. No gameplay writes. */
+/** Editable Designer tree: HP + adjacent pie, or a centred standalone fragment timer. No gameplay writes. */
 UCLASS(Blueprintable)
 class MESSCONTROL_API UMCWorldStatusWidget : public UMCGameplayUIWidget
 {
@@ -87,5 +90,11 @@ private:
     float TrailFrom=1.f,TrailValue=1.f,LossAge=1.f,VisibilityAge=0.f,VisibilityFrom=0.f,VisibilityValue=0.f;
     float TimerFrom=0.f,TimerValue=0.f,TimerAge=1.f,SpoilFrom=0.f,SpoilValue=0.f,SpoilAge=1.f;
     bool bHasSnapshot=false,bTargetVisible=false;
+    TWeakObjectPtr<UWidget> LayoutHealthHost;
+    TWeakObjectPtr<UHorizontalBoxSlot> LayoutTimerSlot;
+    FMargin TimerPaddingWithHealth=FMargin(0);
+    ESlateVisibility HealthHostVisibility=ESlateVisibility::Visible;
+    bool bTimerOnlyLayout=false;
+    void RefreshStatusLayout();
     void RefreshVisuals();
 };

@@ -63,7 +63,11 @@ bool UMCWorldStatusComponent::ReadSnapshot(FMCWorldStatusSnapshot& Value,FVector
             || Food->Phase==EMCFoodPhase::Absorbing || Food->Phase==EMCFoodPhase::Swallowing
             || Food->Phase==EMCFoodPhase::Equipped || Food->Phase==EMCFoodPhase::Carried || Food->StackCarrier) return false;
         Value.HealthFraction=Food->Health/FMath::Max(1.f,Food->FoodData.Health);
+        Value.bShowHealth=!Food->bFragment;
         Value.bHasTimer=Food->FoodData.Kind==EMCFoodKind::Food || Food->FoodData.Kind==EMCFoodKind::Spicy;
+        // Foreign-object fragments have neither a spoil/fuse timer nor a visible
+        // HP treatment. Do not create/show an empty status widget for them.
+        if(!Value.bShowHealth && !Value.bHasTimer) return false;
         Value.bSpoiled=Food->bSpoiled;
         if(Food->FoodData.Kind==EMCFoodKind::Food) {
             // Carrier preservation perks move the replicated deadline itself.

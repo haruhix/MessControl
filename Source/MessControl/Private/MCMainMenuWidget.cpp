@@ -165,6 +165,27 @@ void UMCMainMenuWidget::CacheRootControls()
     StatusText=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("MenuStatus")));
     HintText=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("MenuNavigationHint")));
     Pages=Cast<UWidgetSwitcher>(WidgetTree->FindWidget(TEXT("MenuPages")));
+    CollapseRetiredMainMenuCopy();
+}
+
+void UMCMainMenuWidget::CollapseRetiredMainMenuCopy()
+{
+    if (!WidgetTree) return;
+    const FName TaglineKey(TEXT("UI.MainMenu.Tagline"));
+    const FName NavigationKey(TEXT("UI.MainMenu.NavigationHint"));
+    WidgetTree->ForEachWidget([this,TaglineKey,NavigationKey](UWidget* Widget)
+    {
+        auto* Text=Cast<UTextBlock>(Widget);
+        if (!Text) return;
+        const FName* Binding=TextBindings.Find(Text->GetFName());
+        const bool bRetiredBinding=Binding && (*Binding==TaglineKey || *Binding==NavigationKey);
+        // Keep stable template names, and preserve artist copy explicitly rebound to another key.
+        const bool bRetiredUnbound=!Binding && (Text->GetFName()==TEXT("MenuMain_Text1") ||
+            Text->GetFName()==TEXT("MenuNavigationHint"));
+        if (!bRetiredBinding && !bRetiredUnbound) return;
+        Text->SetVisibility(ESlateVisibility::Collapsed);
+        if (auto* Slot=Cast<UVerticalBoxSlot>(Text->Slot)) Slot->SetPadding(FMargin(0));
+    });
 }
 
 void UMCMainMenuWidget::BuildPresentationTree()
@@ -228,6 +249,7 @@ void UMCMainMenuWidget::BuildPresentationTree()
     Pages->SetActiveWidgetIndex(int32(Page));
     Content=Cast<UVerticalBox>(Pages->GetActiveWidget());
     Buttons.Reset();OnlineButtons.Reset();GamepadTargets.Reset();
+    CollapseRetiredMainMenuCopy();
 }
 
 UWidget* UMCMainMenuWidget::GetActiveMenuPageRoot() const
@@ -455,6 +477,7 @@ void UMCMainMenuWidget::ApplyEmbeddedDesignerStyle(bool bEmbedded)
 
 void UMCMainMenuWidget::ApplyPresentation()
 {
+    CollapseRetiredMainMenuCopy();
     const bool bEmbedded=EmbeddedRoot!=EEmbeddedRoot::None;
     // Settings share the project's theme rather than inheriting the old
     // embedded menu's independent palette. Authored bindings stay opt-in.
@@ -634,6 +657,7 @@ void UMCMainMenuWidget::BuildPageContents()
         AddButton(TEXT("Back"),EMCMainMenuAction::Back);
         break;
     case EPage::Main:
+        // Retain Text1 identity for saved Designer trees; collapse its copy and slot after construction.
         AddText(LocalizedCopy(TEXT("UI.MainMenu.Tagline"),TEXT("Четыре маленьких зуба. Один рот. Семь дней хаоса.")),16);
         AddButton(TEXT("Tutorial"),EMCMainMenuAction::Tutorial);
         AddButton(TEXT("Play"),EMCMainMenuAction::CreateLobby);

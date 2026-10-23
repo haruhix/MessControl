@@ -282,7 +282,20 @@ def run(action='plan', *, output='E:/CodexWork/MessControlMenuAnimation_20261022
             authored.append(style(obj.get_name(), token, target, font, target == 'Text'))
             if isinstance(obj, u.Image):
                 obj.set_color_and_opacity(theme.get_color(enum(u.MCUIColorToken, token)))
-    for name in ('MenuMain_Text1', 'MenuStatus', 'MenuNavigationHint'):
+    # Retired copy stays in the editable tree without blank layout slots.
+    # Do not hide a control that an artist explicitly rebound to other copy.
+    for name, key in (('MenuMain_Text1', 'UI.MainMenu.Tagline'),
+                      ('MenuNavigationHint', 'UI.MainMenu.NavigationHint')):
+        obj = widgets.get(name)
+        binding = next((str(value) for widget_name, value in old_text_bindings.items()
+                        if str(widget_name) == name), None)
+        if isinstance(obj, u.TextBlock) and binding in (None, key):
+            obj.modify()
+            obj.set_visibility(enum(u.SlateVisibility, 'Collapsed'))
+            if isinstance(obj.slot, u.VerticalBoxSlot):
+                obj.slot.modify()
+                obj.slot.set_padding(u.Margin(0., 0., 0., 0.))
+    for name in ('MenuStatus',):
         obj = widgets.get(name)
         if isinstance(obj, u.TextBlock):
             replaced.add(name)
