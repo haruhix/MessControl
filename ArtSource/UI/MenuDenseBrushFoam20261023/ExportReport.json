@@ -1,0 +1,37 @@
+{
+  "source": "D:\\PROJECT\\GAME\\TEETH CONTROL\\teeth\\MENU\\CHARACTER_MENU.blend",
+  "source_sha256": "99c2efaf286f6c0bb54acbdb07494fe8dad86d81e7440a74f729b5edda5aff75",
+  "fbx": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\ArtSource\\UI\\MenuDenseBrushFoam20261023\\SM_MenuDenseBrushFoam.fbx",
+  "fbx_sha256": "46823a5b946c8f209ec281bb00a3d8ea3b5be1d4c1766ea96f59c148c5924533",
+  "vertices": 15090,
+  "triangles": 30176,
+  "bubble_caps": 185,
+  "radii_cm": [
+    22.291282653808594,
+    23.829896926879883
+  ],
+  "normal_in_bone": [
+    -0.7809144854545593,
+    0.03704199939966202,
+    0.6235386729240417
+  ],
+  "center_in_bone_cm": [
+    -7.558661460876465,
+    4.475475788116455,
+    5.263482570648193
+  ],
+  "bristle_tip_normal_cm": 16.869930267333984,
+  "bone_attachment_scale": 0.01,
+  "bounds_unreal_cm": [
+    [
+      -29.958641529083252,
+      -20.829389989376068,
+      -16.99073314666748
+    ],
+    [
+      12.362547218799591,
+      30.060213804244995,
+      27.786684036254883
+    ]
+  ]
+}

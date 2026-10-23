@@ -1,0 +1,42 @@
+{
+  "mesh": "/Game/UI/MenuShowcase/CharacterMenu20261023/SK_CharacterMenu.SK_CharacterMenu",
+  "skeleton": "/Game/UI/MenuShowcase/CharacterMenu20261023/SK_CharacterMenu_Skeleton.SK_CharacterMenu_Skeleton",
+  "clip": "/Game/UI/MenuShowcase/CharacterMenu20261023/A_CharacterMenu_Cleaning_Loop.A_CharacterMenu_Cleaning_Loop",
+  "duration": 9.125,
+  "bounds": "<Struct 'BoxSphereBounds' (0x00000198FCA37BC0) {origin: {x: 19.297359, y: -10.131773, z: 75.142308}, box_extent: {x: 102.689030, y: 46.519384, z: 75.771251}, sphere_radius: 135.832148}>",
+  "materials": [
+    "/Game/UI/MenuShowcase/AnatomyV2/Materials/MI_MenuHeroBody",
+    "/Game/UI/MenuShowcase/AnatomyV2/Materials/MI_MenuHeroBag",
+    "/Game/Art/Materials/Equipment/MI_MegaBrush"
+  ],
+  "morphs": [
+    "Mouth_A",
+    "Mouth_E",
+    "Mouth_I",
+    "Mouth_O",
+    "Mouth_U",
+    "Mouth_FV",
+    "Mouth_L",
+    "Mouth_TH",
+    "Mouth_CH",
+    "Mouth_S",
+    "Mouth_D",
+    "Mouth_Happy",
+    "Mouth_Sad",
+    "Mouth_Angry",
+    "Mouth_Pain",
+    "Mouth_Surprise",
+    "Mouth_Effort",
+    "Eyes_Blink",
+    "Eyes_Scary",
+    "Eyes_delight"
+  ],
+  "curves": [
+    "Mouth_Happy",
+    "Mouth_Effort",
+    "Eyes_Blink"
+  ],
+  "imported_paths": [
+    "/Game/UI/MenuShowcase/CharacterMenu20261023/SK_CharacterMenu.SK_CharacterMenu"
+  ]
+}
