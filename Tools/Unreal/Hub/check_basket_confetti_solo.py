@@ -5,14 +5,17 @@ import unreal as u
 import builtins,json,time,traceback
 from pathlib import Path
 
-OUT=Path(u.Paths.project_saved_dir())/'HubBasketballConfetti_20261021'
+OUT=Path(globals().get('MC_BASKET_CONFETTI_OUTPUT',str(Path(u.Paths.project_saved_dir())/'HubBasketballConfetti_20261021'))).resolve()
+assert OUT.drive.upper()=='E:','Store probe output on E:'
+OUT.mkdir(parents=True,exist_ok=True)
 def xyz(v):return [v.x,v.y,v.z]
 def norm(a):return (a+180)%360-180
 
 class Probe:
     def __init__(self):
         assert not u.get_editor_subsystem(u.LevelEditorSubsystem).is_in_play_in_editor()
-        assert u.get_default_object(u.MCHubBasketball).get_editor_property('BasketConfetti')
+        # The native CDO must not deserialize the cooked stateless system before Niagara startup.
+        assert u.get_default_object(u.MCHubBasketball).get_editor_property('BasketConfetti') is None
         self.play=u.load_object(None,'/Script/UnrealEd.Default__LevelEditorPlaySettings')
         settings=dict(playNetMode='PIE_Standalone',playNumberOfClients=1,runUnderOneProcess=True,bLaunchSeparateServer=False,newWindowWidth=1280,newWindowHeight=720)
         self.old=json.loads(u.ToolsetLibrary.get_object_properties(self.play,list(settings)))
@@ -21,7 +24,8 @@ class Probe:
         self.throttle=self.perf.get_editor_property('bThrottleCPUWhenNotForeground')
         self.perf.set_editor_property('bThrottleCPUWhenNotForeground',False)
         self.start=time.monotonic();self.phase='loading';self.world=None;self.frames=[];self.shots=[]
-        self.report={'passed':False,'checks':{},'scope':'One solo PIE, real held-ball primary throw and Chaos; runtime fixtures for direction/miss checks.'}
+        self.report={'passed':False,'checks':{'native_cdo_effect_unassigned':True},'scope':'One solo PIE, real held-ball primary throw and Chaos; runtime fixtures for direction/miss checks.',
+                     'native_cdo_effect':None,'output':str(OUT)}
         self.callback=u.register_slate_post_tick_callback(self.tick)
         self.request=u.ToolsetRegistry.execute_tool('EditorToolset.EditorAppToolset','StartPIE',json.dumps({'options':{'bSimulate':False,'playMode':'PlayMode_InEditorFloating','warmupSeconds':0}}))
 
@@ -51,9 +55,13 @@ class Probe:
                 self.check('solo_world',len(worlds)==1);self.world=worlds[0]
                 self.hero=u.GameplayStatics.get_player_character(self.world,0)
                 if not self.hero or u.GameplayStatics.get_time_seconds(self.world)<2:return
+                pc=u.GameplayStatics.get_player_controller(self.world,0)
+                if not pc or not pc.is_world_presentation_ready():return
+                self.report['ready_game_time']=u.GameplayStatics.get_time_seconds(self.world)
                 balls=u.GameplayStatics.get_all_actors_of_class(self.world,u.MCHubBasketball)
                 self.check('one_ball',len(balls)==1);self.ball=balls[0]
                 self.check('effect_assigned',bool(self.ball.get_editor_property('BasketConfetti')))
+                self.report['effect_after_begin_play']=self.ball.get_editor_property('BasketConfetti').get_path_name()
                 self.center=u.MathLibrary.transform_location(self.ball.hoop.get_actor_transform(),self.ball.local_rim_center)
                 self.up=self.ball.hoop.get_actor_up_vector()
                 self.hero.set_actor_location(self.ball.get_actor_location()+u.Vector(-160,0,10),False,True)

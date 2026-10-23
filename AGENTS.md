@@ -31,6 +31,12 @@ Implement and integrate small mechanics promptly. By default, validate changes w
 
 Every commit description and pull request description must include a concise changelog of what was added or changed. State the resulting behavior, new animations/assets/tools and the validation actually performed. Identify previews awaiting approval and deferred integration or validation explicitly. Update descriptions when the final scope changes; do not describe abandoned work as delivered.
 
+# Resource readiness
+
+- Every new or changed runtime material, material instance, texture, mesh, Niagara effect and widget brush must be reachable by the loading/prewarm manifest for each location that uses it. Prefer reflected references in the relevant map actors, data tables/assets or shared UI theme; register lazy native-only roots explicitly in `MCPreloadManifest` or the per-map preload settings.
+- Create and retain required dynamic material variants before that location's readiness barrier completes. Do not compile or first-load a known gameplay visual from its first interaction when it can be prepared during loading.
+- For changed visuals, check manifest coverage and the first visible use in a short local run. Report late shader/streaming work and distinguish Editor shader compilation from packaged PSO/resource preparation; a warm local cache alone is not proof of a clean first launch.
+
 # VFX research and authoring
 
 - For new or substantially improved VFX, research practical tutorials and original artist breakdowns before authoring. Prefer original creators and official Unreal documentation; reuse already reviewed references when they still fit the task.

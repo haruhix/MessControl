@@ -8,6 +8,7 @@
 #include "MCVoiceSettingsWidget.h"
 #include "MCHubWidget.h"
 #include "MCHubWardrobeWidget.h"
+#include "MCHubShopWidget.h"
 #include "MCUIDataLibrary.h"
 #include "MCThroatVortex.h"
 #include "MCFoodActor.h"
@@ -28,6 +29,7 @@
 #include "Components/VerticalBoxSlot.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
+#include "Components/UniformGridPanel.h"
 #include "Components/ScrollBox.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/ProgressBar.h"
@@ -70,6 +72,8 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Rendering/SlateRenderer.h"
 #include "UObject/UnrealType.h"
+#include "GameFramework/PlayerController.h"
+#include "Camera/PlayerCameraManager.h"
 
 namespace
 {
@@ -238,6 +242,24 @@ AMCNutBoss* UMCGameplayUIEditorLibrary::SpawnPIEMageForSummon(UWorld* World,AMCT
     return Mage;
 }
 
+FString UMCGameplayUIEditorLibrary::InspectPlayerView(APlayerController* PlayerController)
+{
+    const UWorld* World=IsValid(PlayerController)?PlayerController->GetWorld():nullptr;
+    if(!IsInGameThread() || !GEditor || !IsValid(World) || World->WorldType!=EWorldType::PIE)
+        return TEXT("{\"Valid\":false,\"Error\":\"Expected a controller from a live PIE world\"}");
+    auto QuotedPath=[](const UObject* Object)->FString {
+        if(!IsValid(Object)) return TEXT("null");
+        const FString Escaped=Object->GetPathName().Replace(TEXT("\\"),TEXT("\\\\")).Replace(TEXT("\""),TEXT("\\\""))
+            .Replace(TEXT("\n"),TEXT("\\n")).Replace(TEXT("\r"),TEXT("\\r")).Replace(TEXT("\t"),TEXT("\\t"));
+        return FString::Printf(TEXT("\"%s\""),*Escaped);
+    };
+    TArray<FString> Hidden;
+    for(const AActor* Actor:PlayerController->HiddenActors) if(IsValid(Actor)) Hidden.Add(QuotedPath(Actor));
+    return FString::Printf(TEXT("{\"Valid\":true,\"PlayerController\":%s,\"World\":%s,\"HiddenActors\":[%s],\"ViewTarget\":%s,\"AutoManage\":%s}"),
+        *QuotedPath(PlayerController),*QuotedPath(World),*FString::Join(Hidden,TEXT(",")),
+        *QuotedPath(PlayerController->GetViewTarget()),PlayerController->bAutoManageActiveCameraTarget?TEXT("true"):TEXT("false"));
+}
+
 bool UMCGameplayUIEditorLibrary::CapturePIEGameWindow(UWorld* World,const FString& OutputFile)
 {
     FString Path=FPaths::ConvertRelativePathToFull(OutputFile);FPaths::NormalizeFilename(Path);
@@ -261,11 +283,12 @@ bool UMCGameplayUIEditorLibrary::CapturePIEGameWindow(UWorld* World,const FStrin
 }
 
 bool UMCGameplayUIEditorLibrary::RenderGameplayUIPreview(TSubclassOf<UMCGameplayUIWidget> WidgetClass,
-    const FString& OutputFile,FIntPoint DrawSize,const FString& State,const FString& Culture,float Time)
+    const FString& OutputFile,FIntPoint DrawSize,const FString& State,const FString& Culture,float Time,float RenderScale)
 {
     FString Path=FPaths::ConvertRelativePathToFull(OutputFile);FPaths::NormalizeFilename(Path);
     if (!GEditor || GEditor->PlayWorld || !WidgetClass || !Path.StartsWith(TEXT("E:/"),ESearchCase::IgnoreCase)
-        || !Path.EndsWith(TEXT(".png"),ESearchCase::IgnoreCase) || DrawSize.X<1 || DrawSize.Y<1 || DrawSize.X>4096 || DrawSize.Y>4096) return false;
+        || !Path.EndsWith(TEXT(".png"),ESearchCase::IgnoreCase) || DrawSize.X<1 || DrawSize.Y<1 || DrawSize.X>4096 || DrawSize.Y>4096
+        || !FMath::IsFinite(RenderScale) || RenderScale<.25f || RenderScale>8.f) return false;
     if(auto* Generated=Cast<UWidgetBlueprintGeneratedClass>(WidgetClass.Get()))
         Generated->UpdateCustomPropertyListForPostConstruction();
     TStrongObjectPtr<UMCGameplayUIWidget> Widget(NewObject<UMCGameplayUIWidget>(GetTransientPackage(),WidgetClass,NAME_None,RF_Transient));
@@ -301,7 +324,9 @@ bool UMCGameplayUIEditorLibrary::RenderGameplayUIPreview(TSubclassOf<UMCGameplay
         if(auto* Text=Cast<UTextBlock>(Widget->GetWidgetFromName(Name)))
             UE_LOG(LogTemp,Display,TEXT("MC_UI_RENDER_FONT %s valid=%d value=%s"),*Name.ToString(),Text->GetFont().HasValidFont(),*Text->GetText().ToString());
     const float DPIScale=DrawSize.X>=1000 && DrawSize.Y>=600?GetDefault<UUserInterfaceSettings>()->GetDPIScaleBasedOnSize(DrawSize):1.f;
-    const TSharedRef<SWidget> PreviewSurface=SNew(SDPIScaler).DPIScale(DPIScale)[SlateWidget];
+    // Keep the logical layout at a denser native vector rasterization for art
+    // review. Existing callers retain scale 1; this never upscales an old PNG.
+    const TSharedRef<SWidget> PreviewSurface=SNew(SDPIScaler).DPIScale(DPIScale*RenderScale)[SlateWidget];
     // Render linear colors into a float target, then encode sRGB exactly once.
     // An sRGB target plus Slate gamma correction otherwise brightens PNG previews twice.
     auto* Renderer=new FWidgetRenderer(false,true);
@@ -480,6 +505,83 @@ bool UMCGameplayUIEditorLibrary::RefreshHubWardrobePalettePresentation(UWidgetBl
     if(!Snapshots.Save()) return false;
     Blueprint->MarkPackageDirty();
     return Assets->SaveLoadedAsset(Blueprint,false);
+}
+
+bool UMCGameplayUIEditorLibrary::RefreshHubShopCatalogPresentation(UWidgetBlueprint* Blueprint)
+{
+    if(!IsInGameThread() || !GEditor || GEditor->PlayWorld || IsRunningCommandlet() || !IsValid(Blueprint)
+        || Blueprint->GetPathName()!=TEXT("/Game/Gameplay/UI/WBP_HubShop.WBP_HubShop")
+        || !Blueprint->ParentClass || !Blueprint->ParentClass->IsChildOf(UMCHubShopWidget::StaticClass())
+        || Blueprint->GetPackage()->IsDirty() || !Blueprint->WidgetTree || HasDirtyDesignerPackages()) return false;
+    const FName Required[]={TEXT("ShopCatalogHost"),TEXT("ShopCatalogScroll"),TEXT("ShopCatalogGrid"),
+        TEXT("ShopBalance"),TEXT("ShopSelectedName"),TEXT("ShopSelectedDescription"),TEXT("ShopTransactionMessage"),TEXT("ShopBuy")};
+    if(Blueprint->WidgetTree->FindWidget(TEXT("ShopCatalogGrid"))) {
+        for(FName Name:Required) if(!Blueprint->WidgetTree->FindWidget(Name)) return false;
+        return true;
+    }
+    auto* Content=Blueprint->WidgetTree->FindWidget<UVerticalBox>(TEXT("ShopContent"));
+    auto* PreviousGrid=Blueprint->WidgetTree->FindWidget<UUniformGridPanel>(TEXT("ShopEmptySlots"));
+    if(!Content || !PreviousGrid || PreviousGrid->GetParent()!=Content) return false;
+    for(FName Name:Required) if(Blueprint->WidgetTree->FindWidget(Name)) return false;
+    TSet<FName> RemovedPlaceholderNames;
+    RemovedPlaceholderNames.Add(PreviousGrid->GetFName());
+    UWidgetTree::ForWidgetAndChildren(PreviousGrid,[&RemovedPlaceholderNames](UWidget* Widget) {
+        RemovedPlaceholderNames.Add(Widget->GetFName());
+    });
+    auto* Assets=GEditor->GetEditorSubsystem<UEditorAssetSubsystem>();if(!Assets) return false;
+    auto* SavedDefaults=Cast<UMCHubShopWidget>(Blueprint->GeneratedClass?Blueprint->GeneratedClass->GetDefaultObject():nullptr);
+    if(!SavedDefaults) return false;
+
+    TStrongObjectPtr<UWidgetBlueprint> Guard(Blueprint);
+    TStrongObjectPtr<UMCHubShopWidget> Source(NewObject<UMCHubShopWidget>(GetTransientPackage()));
+    Source->SetDesignerFlags(EWidgetDesignFlags::Designing);Source->Initialize();
+    Source->Theme=SavedDefaults->Theme;Source->TranslationTable=SavedDefaults->TranslationTable;
+    Source->StyleBindings=SavedDefaults->StyleBindings;Source->TextBindings=SavedDefaults->TextBindings;
+    Source->bUseNativeLayout=SavedDefaults->bUseNativeLayout;
+    if(Source->WidgetTree) Source->WidgetTree->Rename(nullptr,GetTransientPackage(),REN_DontCreateRedirectors|REN_NonTransactional);
+    // Start with the ACTUAL saved tree, never the native default layout. Only
+    // EnsureCatalogPresentation's known ShopEmptySlots migration may change it.
+    Source->WidgetTree=DuplicateObject<UWidgetTree>(Blueprint->WidgetTree,Source.Get(),TEXT("WidgetTree"));
+    if(!Source->WidgetTree) return false;
+    Source->BuildPresentationTree();
+    for(FName Name:Required) if(!Source->WidgetTree->FindWidget(Name)) return false;
+    if(Source->WidgetTree->FindWidget(TEXT("ShopEmptySlots"))) return false;
+
+    TStrongObjectPtr<UWidgetTree> Prepared(DuplicateObject<UWidgetTree>(Source->WidgetTree,GetTransientPackage(),
+        MakeUniqueObjectName(GetTransientPackage(),UWidgetTree::StaticClass(),TEXT("ShopCatalogDesignerSeed"))));
+    if(!Prepared.IsValid()) return false;
+    FDesignerMaterialSnapshots Snapshots(Blueprint,Assets,Prepared.Get());
+    Prepared->ForEachWidget([SourceWidget=Source.Get(),OldTree=Blueprint->WidgetTree.Get(),&Snapshots](UWidget* Widget) {
+        const auto* Previous=OldTree->FindWidget(Widget->GetFName());
+        const bool bWasVariable=Previous && Previous->bIsVariable;
+        if(!SanitizeAppendedDesignerWidget(Widget,SourceWidget,Snapshots)) Snapshots.bFailed=true;
+        // Existing artist variables/graph bindings are part of the saved shell.
+        if(Previous) Widget->bIsVariable=bWasVariable;
+    });
+    if(Snapshots.bFailed) return false;
+
+    TStrongObjectPtr<UWidgetTree> PreviousTree(Blueprint->WidgetTree.Get());
+    Blueprint->Modify();
+    PreviousTree->Rename(nullptr,GetTransientPackage(),REN_DontCreateRedirectors|REN_NonTransactional);
+    Blueprint->WidgetTree=DuplicateObject<UWidgetTree>(Prepared.Get(),Blueprint,TEXT("WidgetTree"));
+    Blueprint->WidgetTree->ClearFlags(RF_Transient);Blueprint->WidgetTree->SetFlags(RF_Transactional);
+    // Match the Designer's delete-widget bookkeeping. Only names from the
+    // removed placeholder subtree are eligible; keep every surviving widget's
+    // GUID and all artist graphs/layout/animation metadata intact.
+    const TArray<UWidget*> SourceWidgets=Blueprint->GetAllSourceWidgets();
+    for(FName Name:RemovedPlaceholderNames) {
+        const bool bStillPresent=SourceWidgets.ContainsByPredicate([Name](const UWidget* Widget) {return Widget->GetFName()==Name;});
+        if(!bStillPresent && Blueprint->WidgetVariableNameToGuidMap.Contains(Name)) Blueprint->OnVariableRemoved(Name);
+    }
+    RegisterMissingDesignerGuids(Blueprint);
+    FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);FKismetEditorUtilities::CompileBlueprint(Blueprint);
+    if(Blueprint->Status==BS_Error || !Blueprint->GeneratedClass) return false;
+    auto* Defaults=Cast<UMCHubShopWidget>(Blueprint->GeneratedClass->GetDefaultObject());if(!Defaults) return false;
+    Defaults->StyleBindings=Source->StyleBindings;Defaults->TextBindings=Source->TextBindings;
+    Defaults->TranslationTable=Source->TranslationTable;
+    CastChecked<UWidgetBlueprintGeneratedClass>(Blueprint->GeneratedClass)->UpdateCustomPropertyListForPostConstruction();
+    if(!Snapshots.Save()) return false;
+    Blueprint->MarkPackageDirty();return Assets->SaveLoadedAsset(Blueprint,false);
 }
 
 bool UMCGameplayUIEditorLibrary::AddMissingGameplayHUDPresentation(UWidgetBlueprint* Blueprint)

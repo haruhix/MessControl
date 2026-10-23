@@ -293,6 +293,11 @@ void AMCGameMode::RestartShift()
     if (IsValid(TutorialDirector)) { TutorialDirector->OnTutorialFinished.RemoveAll(this); TutorialDirector->Stop(); TutorialDirector->Destroy(); }
     TutorialDirector=nullptr;
     State->bTutorialActive=bTutorialRequested;
+    // Autostart is a one-shot lobby flag; the URL retains this run's Hub origin
+    // after loading, including a host-requested restart of the finished run.
+    const bool bHubOriginRun=UGameplayStatics::GetIntOption(OptionsString,TEXT("MCHubRun"),0)!=0;
+    HubBoosterRunId=bHubOriginRun && !bTutorialRequested && !bRestartingForPlaytest
+        && UGameplayStatics::GetCurrentLevelName(this,true)!=TEXT("L_Tutorial")?FGuid::NewGuid():FGuid();
     State->bLobbyWaiting=bLobbyRequested;
     State->LobbyLoadedPlayers=0;
     if (IsValid(GameDirector)) { GameDirector->Stop(); GameDirector->Destroy(); } GameDirector=nullptr;

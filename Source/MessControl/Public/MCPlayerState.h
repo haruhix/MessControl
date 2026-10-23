@@ -7,6 +7,7 @@
 #include "MCPlayerState.generated.h"
 
 class UMCPerkComponent;
+class UMCHubEconomyComponent;
 
 UENUM(BlueprintType)
 enum class EMCScoreTask : uint8 { Coffee, Repair, Food, Ulcer, Ice };
@@ -40,6 +41,9 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Alarms") EMCPlayerAlarm Alarm=EMCPlayerAlarm::None;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Alarms") double AlarmUntil=0;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Perks") TObjectPtr<UMCPerkComponent> Perks;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Economy") TObjectPtr<UMCHubEconomyComponent> Economy;
+    /** Session/travel marker; never supplied by clients or written to the profile. */
+    bool bHubProfileLoaded=false;
     void AddPoints(int32 Amount);
     void ResetMatchScore();
     /** Count completed chest choices for the optional reward pool's early-run gate. */

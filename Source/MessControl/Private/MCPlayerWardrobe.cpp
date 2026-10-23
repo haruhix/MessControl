@@ -10,12 +10,22 @@
 #include "MCGameUserSettings.h"
 #include "MCGameplayUIFactory.h"
 #include "MCFishingRodComponent.h"
+#include "MCCharacterCosmeticsComponent.h"
+#include "MCHubEconomyComponent.h"
+#include "MCWardrobePreviewActor.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "EngineUtils.h"
 #include "Engine/World.h"
 
 bool AMCPlayerController::IsWardrobeOpen() const
 {
     return WardrobeWidget && WardrobeWidget->IsInViewport() && WardrobeWidget->IsVisible();
+}
+
+bool AMCPlayerController::HasPreparedWardrobePresentation() const
+{
+    return IsValid(WardrobePreviewActor) && WardrobePreviewActor->IsPreparedFor(Cast<AMCToothCharacter>(GetPawn()))
+        && WardrobeWidget && HubShopWidget && WardrobeWarmSlate.IsValid() && HubShopWarmSlate.IsValid();
 }
 
 bool AMCPlayerController::IsWardrobeAvailable() const
@@ -48,6 +58,7 @@ bool AMCPlayerController::TryOpenHubShop()
             UMCGameplayUIFactory::ResolveClass(TEXT("Shop"),UMCHubShopWidget::StaticClass()));
         if(!HubShopWidget) return false;
         HubShopWidget->OnClose.AddDynamic(this,&ThisClass::CloseHubShop);
+        HubShopWidget->OnPurchaseRequested.AddDynamic(this,&ThisClass::PurchaseHubItem);
     }
     // The two hub modals are mutually exclusive and share this saved orbit.
     WardrobePreviousYaw=Hero->CameraOrbitYaw;WardrobePreviousPitch=Hero->CameraOrbitPitch;
@@ -55,6 +66,7 @@ bool AMCPlayerController::TryOpenHubShop()
     WardrobePawn=Hero;
     Hero->CancelGameplayInput();
     Hero->SetCameraOrbitView(float(NearbyShop->GetActorRotation().Yaw),-12.f,900.f);
+    if(auto* State=GetPlayerState<AMCPlayerState>()) HubShopWidget->Configure(State->Economy);
     HubShopWidget->SetVisibility(ESlateVisibility::Visible);HubShopWidget->AddToViewport(90);
     HideScoreboard();UpdateInputMode();HubShopWidget->SetUserFocus(this);return true;
 }
@@ -100,7 +112,9 @@ void AMCPlayerController::RefreshWardrobe()
         if(!Hero || WardrobePawn.Get()!=Hero || !Hub || Hub->Phase!=EMCHubPhase::Gathering
             || bLoadingInputBlocked || !NearbyWardrobe.IsValid() || !NearbyWardrobe->ContainsPawn(Hero)
             || !Hero->Status || !Hero->Status->IsAlive()) {CloseWardrobe();return;}
-        Hero->PreviewBagColor(WardrobeWidget->GetDraftColor());
+        if(!IsValid(WardrobePreviewActor) || !WardrobePreviewActor->IsPreparedFor(Hero)
+            || !WardrobePreviewActor->IsPresenting()) {CloseWardrobe();return;}
+        WardrobePreviewActor->SetDraftColor(WardrobeWidget->GetDraftColor());
     }
     if(IsHubShopOpen() && (!Hero || !Hub || Hub->Phase!=EMCHubPhase::Gathering || bLoadingInputBlocked
         || !NearbyShop.IsValid() || !NearbyShop->ContainsPawn(Hero))) CloseHubShop();
@@ -129,6 +143,52 @@ void AMCPlayerController::RefreshWardrobe()
     if(NearbyShop.IsValid()) NearbyShop->SetLocalPromptVisible(this,ShowPrompt);
 }
 
+void AMCPlayerController::PrepareWardrobePreview()
+{
+    if(!IsLocalController() || !GetWorld() || GetWorld()->bIsTearingDown) return;
+    auto* Hero=Cast<AMCToothCharacter>(GetPawn());
+    const bool bHub=IsHubWorld();
+    if(IsValid(WardrobePreviewActor) && (!bHub || !WardrobePreviewActor->IsPreparedFor(Hero))) {
+        CloseWardrobe();WardrobePreviewActor->Destroy();WardrobePreviewActor=nullptr;
+    }
+    if(!bHub || !Hero || !Hero->GetMesh() || !Hero->GetMesh()->GetSkeletalMeshAsset()) return;
+    if(!WardrobePreviewActor) {
+        FActorSpawnParameters Params;Params.Owner=this;Params.ObjectFlags|=RF_Transient;
+        Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+        WardrobePreviewActor=GetWorld()->SpawnActor<AMCWardrobePreviewActor>(AMCWardrobePreviewActor::StaticClass(),Hero->GetActorTransform(),Params);
+        if(WardrobePreviewActor && !WardrobePreviewActor->Prepare(this,Hero)) {
+            WardrobePreviewActor->Destroy();WardrobePreviewActor=nullptr;
+        }
+    }
+    const auto* State=GetPlayerState<AMCPlayerState>();
+    if(!State || !State->Economy) return;
+    // Build required UI material instances while the Hub is still behind loading.
+    // TakeWidget creates the presentation tree without opening a modal or changing input/camera.
+    if(!WardrobeWidget) {
+        WardrobeWidget=CreateWidget<UMCHubWardrobeWidget>(this,
+            UMCGameplayUIFactory::ResolveClass(TEXT("Wardrobe"),UMCHubWardrobeWidget::StaticClass()));
+        if(WardrobeWidget) {
+            WardrobeWidget->OnDraftChanged.AddDynamic(this,&ThisClass::PreviewWardrobeColor);
+            WardrobeWidget->OnApply.AddDynamic(this,&ThisClass::ApplyWardrobeColor);
+            WardrobeWidget->OnCancel.AddDynamic(this,&ThisClass::CancelWardrobe);
+            WardrobeWidget->OnCosmeticDraftChanged.AddDynamic(this,&ThisClass::PreviewWardrobeCosmetics);
+            WardrobeWidget->OnPurchaseRequested.AddDynamic(this,&ThisClass::PurchaseHubItem);
+            WardrobeWidget->Configure(Hero->GetPlayerColor());WardrobeWidget->ConfigureCosmetics(State->Economy);
+            WardrobeWidget->SetVisibility(ESlateVisibility::Collapsed);WardrobeWarmSlate=WardrobeWidget->TakeWidget();
+        }
+    }
+    if(!HubShopWidget) {
+        HubShopWidget=CreateWidget<UMCHubShopWidget>(this,
+            UMCGameplayUIFactory::ResolveClass(TEXT("Shop"),UMCHubShopWidget::StaticClass()));
+        if(HubShopWidget) {
+            HubShopWidget->OnClose.AddDynamic(this,&ThisClass::CloseHubShop);
+            HubShopWidget->OnPurchaseRequested.AddDynamic(this,&ThisClass::PurchaseHubItem);
+            HubShopWidget->Configure(State->Economy);HubShopWidget->SetVisibility(ESlateVisibility::Collapsed);
+            HubShopWarmSlate=HubShopWidget->TakeWidget();
+        }
+    }
+}
+
 bool AMCPlayerController::TryOpenWardrobe()
 {
     if(!IsLocalController() || !IsHubWorld() || bLoadingInputBlocked || bHubMenuInput || bPauseMenuOpen
@@ -144,16 +204,21 @@ bool AMCPlayerController::TryOpenWardrobe()
         WardrobeWidget->OnDraftChanged.AddDynamic(this,&ThisClass::PreviewWardrobeColor);
         WardrobeWidget->OnApply.AddDynamic(this,&ThisClass::ApplyWardrobeColor);
         WardrobeWidget->OnCancel.AddDynamic(this,&ThisClass::CancelWardrobe);
+        WardrobeWidget->OnCosmeticDraftChanged.AddDynamic(this,&ThisClass::PreviewWardrobeCosmetics);
+        WardrobeWidget->OnPurchaseRequested.AddDynamic(this,&ThisClass::PurchaseHubItem);
     }
+    PrepareWardrobePreview();
+    if(!IsValid(WardrobePreviewActor) || !WardrobePreviewActor->IsPreparedFor(Hero)) return false;
     WardrobePawn=Hero;
     WardrobePreviousYaw=Hero->CameraOrbitYaw;WardrobePreviousPitch=Hero->CameraOrbitPitch;
     WardrobePreviousDistance=Hero->CameraOrbitDistance;
     Hero->CancelGameplayInput();
     if(Hero->FishingRod && Hero->FishingRod->IsPresented()) Hero->FishingRod->ServerSetEquipped(false);
-    // Look toward the booth from its open approach, so the camera cannot be
-    // pushed into the character by the booth collision. Keep the bag in view.
-    Hero->SetCameraOrbitView(float(NearbyWardrobe->GetActorRotation().Yaw)-90.f,-10.f,650.f);
     WardrobeWidget->Configure(Hero->GetPlayerColor());
+    if(auto* State=GetPlayerState<AMCPlayerState>()) WardrobeWidget->ConfigureCosmetics(State->Economy);
+    WardrobePreviewActor->SetDraftColor(WardrobeWidget->GetDraftColor());
+    WardrobePreviewActor->SetDraftLoadout(WardrobeWidget->GetDraftLoadout());
+    if(!WardrobePreviewActor->BeginPresentation(NearbyWardrobe.Get())) {WardrobePawn.Reset();return false;}
     WardrobeWidget->SetVisibility(ESlateVisibility::Visible);WardrobeWidget->AddToViewport(90);
     HideScoreboard();UpdateInputMode();WardrobeWidget->SetUserFocus(this);
     return true;
@@ -161,7 +226,12 @@ bool AMCPlayerController::TryOpenWardrobe()
 
 void AMCPlayerController::PreviewWardrobeColor(FLinearColor Color)
 {
-    if(IsWardrobeOpen()) if(auto* Hero=WardrobePawn.Get()) Hero->PreviewBagColor(Color);
+    if(IsWardrobeOpen() && IsValid(WardrobePreviewActor)) WardrobePreviewActor->SetDraftColor(Color);
+}
+
+void AMCPlayerController::PreviewWardrobeCosmetics(FMCCharacterCosmeticLoadout Loadout)
+{
+    if(IsWardrobeOpen() && IsValid(WardrobePreviewActor)) WardrobePreviewActor->SetDraftLoadout(Loadout);
 }
 
 void AMCPlayerController::ApplyWardrobeColor(FLinearColor Color)
@@ -172,6 +242,7 @@ void AMCPlayerController::ApplyWardrobeColor(FLinearColor Color)
     Color=Color.GetClamped(0,1);Color.A=1;
     // One authoritative commit, not one reliable RPC per slider tick.
     ServerSetPlayerColor(Color);
+    ServerEquipHubCosmetics(WardrobeWidget->GetApplicableLoadout());
     if(auto* Settings=UMCGameUserSettings::Get()) {Settings->SetSavedBagColor(Color);Settings->SaveSettings();}
     CloseWardrobe(false);
 }
@@ -192,11 +263,10 @@ void AMCPlayerController::FlushPlayerColor()
 
 void AMCPlayerController::CloseWardrobe(bool bRestoreColor)
 {
-    if(auto* Hero=WardrobePawn.Get()) {
-        if(bRestoreColor) Hero->PreviewBagColor(Hero->GetPlayerColor());
-        Hero->SetCameraOrbitView(WardrobePreviousYaw,WardrobePreviousPitch,WardrobePreviousDistance);
-    }
-    WardrobePawn.Reset();
+    // Fitting drafts never changed the replicated hero. Only the private display and this view need restoration.
+    const bool bWasOpen=IsWardrobeOpen() || (IsValid(WardrobePreviewActor) && WardrobePreviewActor->IsPresenting());
+    if(IsValid(WardrobePreviewActor)) WardrobePreviewActor->EndPresentation();
+    if(bWasOpen) WardrobePawn.Reset();
     if(WardrobeWidget) WardrobeWidget->RemoveFromParent();
     if(IsLocalController() && GetWorld() && !GetWorld()->bIsTearingDown) UpdateInputMode();
 }

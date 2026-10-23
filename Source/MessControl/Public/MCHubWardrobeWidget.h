@@ -3,10 +3,16 @@
 #include "CoreMinimal.h"
 #include "Components/Widget.h"
 #include "MCGameplayUIWidget.h"
+#include "MCCosmeticCatalog.h"
 #include "MCHubWardrobeWidget.generated.h"
 
 class UBorder;
 class UButton;
+class UUniformGridPanel;
+class UTextBlock;
+class UWidgetTree;
+class UMCHubEconomyComponent;
+class UMCCosmeticItemWidget;
 
 UENUM(BlueprintType)
 enum class EMCWardrobePaletteMode : uint8 { SaturationValue, Hue };
@@ -41,6 +47,8 @@ private:
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMCWardrobeColorDraft,FLinearColor,Color);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMCWardrobeCancel);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMCWardrobeCosmeticDraft,FMCCharacterCosmeticLoadout,Loadout);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMCWardrobePurchase,FName,CatalogId);
 
 /** Presentation only: the owning controller handles preview, confirmation and closing. */
 UCLASS(Blueprintable)
@@ -50,6 +58,16 @@ class MESSCONTROL_API UMCHubWardrobeWidget : public UMCGameplayUIWidget
 public:
     UFUNCTION(BlueprintCallable, Category="Wardrobe") void Configure(FLinearColor Color);
     UFUNCTION(BlueprintPure, Category="Wardrobe") FLinearColor GetDraftColor() const {return DraftColor;}
+    UFUNCTION(BlueprintCallable,Category="Wardrobe") void ConfigureCosmetics(UMCHubEconomyComponent* Economy);
+    UFUNCTION(BlueprintCallable,Category="Wardrobe") void SetTransactionMessage(const FText& Message);
+    UFUNCTION(BlueprintPure,Category="Wardrobe") FMCCharacterCosmeticLoadout GetDraftLoadout() const {return DraftLoadout;}
+    /** The local draft may contain unowned try-on items; only this sanitized loadout may be equipped. */
+    UFUNCTION(BlueprintPure,Category="Wardrobe") FMCCharacterCosmeticLoadout GetApplicableLoadout() const;
+    UPROPERTY(BlueprintAssignable,Category="Wardrobe") FMCWardrobeCosmeticDraft OnCosmeticDraftChanged;
+    UPROPERTY(BlueprintAssignable,Category="Wardrobe") FMCWardrobePurchase OnPurchaseRequested;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Wardrobe") TSubclassOf<UMCCosmeticItemWidget> CosmeticTileClass;
+    /** Narrow tree migration shared by the runtime fallback and explicit Editor authoring. */
+    static bool AddCosmeticsPresentation(UWidgetTree* Tree);
     UPROPERTY(BlueprintAssignable, Category="Wardrobe") FMCWardrobeColorDraft OnDraftChanged;
     UPROPERTY(BlueprintAssignable, Category="Wardrobe") FMCWardrobeColorDraft OnApply;
     UPROPERTY(BlueprintAssignable, Category="Wardrobe") FMCWardrobeCancel OnCancel;
@@ -73,6 +91,10 @@ protected:
     UPROPERTY(meta=(BindWidgetOptional)) TObjectPtr<UMCWardrobeColorPalette> WardrobeHueStrip;
     UPROPERTY(meta=(BindWidgetOptional)) TObjectPtr<UButton> WardrobeApply;
     UPROPERTY(meta=(BindWidgetOptional)) TObjectPtr<UButton> WardrobeCancel;
+    UPROPERTY(meta=(BindWidgetOptional)) TObjectPtr<UUniformGridPanel> WardrobeFaceItems;
+    UPROPERTY(meta=(BindWidgetOptional)) TObjectPtr<UUniformGridPanel> WardrobeHatItems;
+    UPROPERTY(meta=(BindWidgetOptional)) TObjectPtr<UTextBlock> WardrobeCoins;
+    UPROPERTY(meta=(BindWidgetOptional)) TObjectPtr<UTextBlock> WardrobeTransactionMessage;
 private:
     void ResolveControls();
     void BindControls();
@@ -82,6 +104,12 @@ private:
     UFUNCTION() void PaletteChanged(FVector HSV);
     UFUNCTION() void ApplyClicked();
     UFUNCTION() void CancelClicked();
+    UFUNCTION() void RefreshCosmetics();
+    UFUNCTION() void CosmeticPressed(FName InSlot,FName ItemId,FName CatalogId);
+    UFUNCTION() void PurchasePressed(FName CatalogId);
+    UPROPERTY(Transient) TObjectPtr<UMCHubEconomyComponent> CosmeticEconomy;
+    UPROPERTY(Transient) TArray<TObjectPtr<UMCCosmeticItemWidget>> CosmeticTiles;
+    FMCCharacterCosmeticLoadout DraftLoadout;
     FLinearColor DraftColor=FLinearColor(.24f,.65f,1.f);
     FVector DraftHSV=FVector(0,0,1);
     bool bSynchronizing=false;

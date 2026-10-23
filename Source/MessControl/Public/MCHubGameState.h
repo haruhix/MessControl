@@ -22,6 +22,8 @@ public:
 
     UPROPERTY(ReplicatedUsing=OnRep_HubState, BlueprintReadOnly, Category="Hub")
     EMCHubPhase Phase = EMCHubPhase::Gathering;
+    /** A scene ACK belongs to one presentation transition, even without map travel. */
+    UPROPERTY(ReplicatedUsing=OnRep_HubState, BlueprintReadOnly, Category="Hub") int32 SceneGeneration = 1;
     UPROPERTY(ReplicatedUsing=OnRep_HubState, BlueprintReadOnly, Category="Hub") int32 SelectedDay = 1;
     UPROPERTY(ReplicatedUsing=OnRep_HubState, BlueprintReadOnly, Category="Hub") TArray<FMCHubPlayerReadiness> Players;
     UPROPERTY(ReplicatedUsing=OnRep_HubState, BlueprintReadOnly, Category="Hub") FText Notice;

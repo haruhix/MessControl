@@ -6,6 +6,7 @@
 #include "MCPerkTypes.h"
 #include "Components/SlateWrapperTypes.h"
 #include "MCPlayerCameraComponent.h"
+#include "MCCosmeticCatalog.h"
 #include "MCPlayerController.generated.h"
 class UMCPrototypeWidget;
 class UMCDevPanelWidget;
@@ -30,6 +31,7 @@ class UMCHubWardrobeWidget;
 class AMCHubWardrobeStation;
 class UMCHubShopWidget;
 class AMCHubShopStation;
+class AMCWardrobePreviewActor;
 
 UCLASS()
 class MESSCONTROL_API AMCPlayerController : public APlayerController
@@ -69,7 +71,7 @@ public:
     UFUNCTION(Server,Reliable) void ServerHubSelectDay(int32 Day);
     UFUNCTION(Server,Reliable) void ServerHubLaunch();
     UFUNCTION(Server,Reliable) void ServerHubReturn();
-    UFUNCTION(Server,Reliable) void ServerHubSceneLoaded();
+    UFUNCTION(Server,Reliable) void ServerHubSceneLoaded(int32 Generation);
     UFUNCTION(Server, Reliable) void ServerSetTutorialReady(bool bReady);
     bool HasAcknowledgedGameplay() const { return bGameplayLoaded; }
     /** Local asset/render preparation; remote server controllers use their client's ACK. */
@@ -95,9 +97,22 @@ public:
     UFUNCTION(BlueprintCallable,Category="Hub|Wardrobe") bool TryOpenWardrobe();
     UFUNCTION(BlueprintPure,Category="Hub|Wardrobe") bool IsWardrobeOpen() const;
     UFUNCTION(BlueprintPure,Category="Hub|Wardrobe") bool IsWardrobeAvailable() const;
+    /** Local display and its UI were constructed before releasing the Hub loading barrier. */
+    UFUNCTION(BlueprintPure,Category="Hub|Wardrobe") bool HasPreparedWardrobePresentation() const;
     UFUNCTION(BlueprintCallable,Category="Hub|Shop") bool TryOpenHubShop();
     UFUNCTION(BlueprintPure,Category="Hub|Shop") bool IsHubShopOpen() const;
     UFUNCTION(BlueprintPure,Category="Hub|Shop") bool IsHubShopAvailable() const;
+    UFUNCTION(BlueprintCallable,Category="Hub|Grill") bool TryInteractHubGrill();
+    UFUNCTION(Server,Reliable) void ServerInteractHubGrill(class AMCHubGrillStation* Station);
+    UFUNCTION() void PurchaseHubItem(FName ItemID);
+    UFUNCTION(Server,Reliable) void ServerPurchaseHubItem(FName ItemID);
+    UFUNCTION(Client,Reliable) void ClientHubTransactionFeedback(const FText& Message);
+    UFUNCTION() void PreviewWardrobeCosmetics(FMCCharacterCosmeticLoadout Loadout);
+    UFUNCTION(Server,Reliable) void ServerEquipHubCosmetics(FMCCharacterCosmeticLoadout Loadout);
+    UFUNCTION(BlueprintCallable,Category="Consumables") void UseCalciumGrenade();
+    UFUNCTION(Server,Reliable) void ServerUseCalciumGrenade();
+    void RefreshHubEconomy();
+    double NextHubProfileSaveAt=0;
     UFUNCTION(BlueprintCallable, Category="Multiplayer") void HostGame();
     UFUNCTION(BlueprintCallable, Category="Multiplayer") void JoinGame(const FString& Address);
     UFUNCTION(BlueprintCallable, Category="Shift") void RequestRestart();
@@ -139,6 +154,7 @@ public:
     UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCPerkChoiceWidget> PerkChoiceWidget;
     UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCBossHealthWidget> BossHealthWidget;
 private:
+    void PrepareWardrobePreview();
     void RefreshWardrobe();
     void FlushPlayerColor();
     TOptional<FLinearColor> PendingPlayerColor;
@@ -147,6 +163,9 @@ private:
     UFUNCTION() void ApplyWardrobeColor(FLinearColor Color);
     UFUNCTION() void CancelWardrobe();
     UPROPERTY(Transient) TObjectPtr<UMCHubWardrobeWidget> WardrobeWidget;
+    UPROPERTY(Transient) TObjectPtr<AMCWardrobePreviewActor> WardrobePreviewActor;
+    TSharedPtr<SWidget> WardrobeWarmSlate;
+    TSharedPtr<SWidget> HubShopWarmSlate;
     UPROPERTY(Transient) TObjectPtr<UMCHubShopWidget> HubShopWidget;
     TWeakObjectPtr<AMCHubShopStation> NearbyShop;
     UFUNCTION() void CloseHubShop();
@@ -171,12 +190,19 @@ private:
     bool bLoadingFailureFocused=false;
     void RefreshHubPresentation(float DeltaSeconds);
     void ResetHubPresentation();
+    void RestoreHubGameplayView();
     void HandleHubStartInput();
     UPROPERTY(Transient) TObjectPtr<UMCHubWidget> HubWidget;
     TWeakObjectPtr<AActor> HubSceneCamera;
+    TWeakObjectPtr<AActor> HubGameplayViewTarget;
+    TWeakObjectPtr<APawn> HubGameplayViewPawn;
+    FRotator HubGameplayControlRotation=FRotator::ZeroRotator;
+    bool bHubGameplayAutoManageCamera=true;
+    bool bHubSceneViewActive=false;
     bool bHubMenuInput=false;
     bool bHubStagePrerequisitesAdded=false;
     double NextHubLoadAckAt=0;
+    int32 LastHubLoadAckGeneration=INDEX_NONE;
     bool bUsingGamepad=false;
     void ResetWorldPresentation();
     void RefreshFrontEnd();

@@ -46,6 +46,9 @@ public:
     UFUNCTION(Server,Reliable) void ServerThrow(FVector_NetQuantize Velocity);
 
 private:
+    // Keep the default discoverable by cook and the loading manifest without
+    // loading a stateless emitter while native class defaults are constructed.
+    UPROPERTY() TSoftObjectPtr<UNiagaraSystem> DefaultBasketConfettiAsset;
     UFUNCTION() void OnRep_Holder();
     void UpdateHeldPosition();
     void CheckBasket();

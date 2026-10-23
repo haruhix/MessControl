@@ -58,6 +58,13 @@ public:
     /** Recheck the real pier footprint on the server; clients cannot grant themselves access. */
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Fishing") void RefreshFishingZone();
     UFUNCTION(BlueprintPure,Category="Fishing") bool CanCastLine() const;
+    /** E equips in the real pier area; facing and trajectory are checked when casting. */
+    UFUNCTION(BlueprintPure,Category="Fishing") bool CanBeginFishing() const;
+    UFUNCTION(BlueprintPure,Category="Fishing") FVector GetInteractionPoint() const;
+    /** Handle the normal E dispatch: begin fishing or reel an already active line. */
+    UFUNCTION(BlueprintCallable,Category="Fishing") bool TryInteract();
+    UFUNCTION(Server,Reliable,BlueprintCallable,Category="Fishing") void ServerBeginFishing();
+    /** Legacy tool-five binding only stows; starting fishing belongs to E. */
     UFUNCTION(BlueprintCallable,Category="Fishing") void ToggleEquipped();
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Fishing") void ServerSetEquipped(bool Equipped);
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Fishing") void ServerSetFishingPose(bool Raised);
@@ -74,7 +81,8 @@ private:
     FVector BentPoint(FVector Point) const;
     bool PondSurfaceAt(const APhysicsVolume* Pond,FVector Point,FVector& Surface) const;
     bool FindPondCast(FVector& Origin,FVector& Target,FVector& Velocity,float& Duration,APhysicsVolume*& Pond) const;
-    void CancelFishing();
+    void CancelFishing(bool bRecoverHookedCatch=false);
+    void CompleteHookedCatch();
     void UpdateFishingCatch();
     bool IsWithinFishingZone() const;
     void SetEquippedState(bool Equipped);
@@ -99,5 +107,4 @@ private:
     FVector WaterAnchor=FVector::ZeroVector;
     double BiteAt=-1;
     double NextFishingZoneCheckAt=0;
-    bool bPendingFishingZoneEquip=false;
 };

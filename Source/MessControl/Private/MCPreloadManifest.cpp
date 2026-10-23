@@ -5,7 +5,10 @@
 #include "MCGameState.h"
 #include "MCHubGameState.h"
 #include "MCSingleDayDirector.h"
+#include "Blueprint/WidgetBlueprintGeneratedClass.h"
+#include "Blueprint/WidgetTree.h"
 #include "Components/ActorComponent.h"
+#include "Components/Widget.h"
 #include "Engine/DataAsset.h"
 #include "Engine/DataTable.h"
 #include "Engine/Level.h"
@@ -42,7 +45,15 @@ public:
         Visited.Add(Value);
         if(auto* Class=Cast<UClass>(Value)) {
             // Inspect authored defaults without constructing any gameplay actors.
-            Object(Class->GetDefaultObject(),Depth+1); return;
+            Object(Class->GetDefaultObject(),Depth+1);
+            // A generated UMG class stores its Designer brushes/fonts in the
+            // archetype tree, not in its user-widget CDO. Walk only that authored
+            // tree; do not traverse transient live-widget/Slate object graphs.
+            if(auto* WidgetClass=Cast<UWidgetBlueprintGeneratedClass>(Class))
+                if(auto* TreeClass=WidgetClass->FindWidgetTreeOwningClass())
+                    if(const auto* Tree=TreeClass->GetWidgetTreeArchetype())
+                        Tree->ForEachWidget([this,Depth](UWidget* Widget) {Object(Widget,Depth+1);});
+            return;
         }
         if(auto* Table=Cast<UDataTable>(Value)) {
             if(const auto* RowStruct=Table->GetRowStruct())
@@ -116,6 +127,19 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
     for(const auto& Entry:Settings->Maps) if(Entry.Map==Map)
         for(const auto& Path:Entry.Assets) AddPath(Path,OutPaths);
     AddAsset(TEXT("/Engine/BasicShapes/Plane"),OutPaths);
+    // The factory soft-loads this shared theme in Hub/menu as well as the arena.
+    // Its role map is the finite root for future settings/reward/pause widgets.
+    AddAsset(TEXT("/Game/Gameplay/UI/Theme/DA_GameplayUITheme"),OutPaths);
+    // MCUIVisualStyle chooses these shared surfaces by native path rather than
+    // a saved Designer brush. Include them before shop/wardrobe cards are built.
+    for(const TCHAR* Root:{TEXT("/Game/Gameplay/UI/Materials/M_UI_Phase1Panel"),
+        TEXT("/Game/Gameplay/UI/Materials/M_UI_Phase1Fill"),
+        TEXT("/Game/Gameplay/UI/Materials/M_UI_Phase1Tool")}) AddAsset(Root,OutPaths);
+    // Hub purchases and equipped accessories continue into the following arena.
+    // Their tables are finite roots, including items not yet equipped at load time.
+    for(const TCHAR* Root:{TEXT("/Game/Gameplay/Hub/Economy/DT_HubCatalog"),
+        TEXT("/Game/Gameplay/Hub/Economy/DT_GrillRewards"),TEXT("/Game/Gameplay/Hub/Economy/DT_HubEconomyRules"),
+        TEXT("/Game/Data/DT_CharacterCosmetics")}) AddAsset(Root,OutPaths);
 
     // The actual saved actors/components also capture artist overrides in the current map.
     FMCVisualReferenceCollector Collector(OutPaths);
@@ -140,10 +164,21 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
     else AddAsset(TEXT("/Game/Gameplay/CoreLoop/DA_SingleDay"),OutPaths);
     for(const TCHAR* Root:{
         TEXT("/Game/Gameplay/CoreLoop/DA_SingleDayDirector"),
+        TEXT("/Game/Gameplay/CoreLoop/DA_NutRain"),
         TEXT("/Game/Data/DA_PlayerAppearance"),TEXT("/Game/Data/DA_Equipment"),
-        TEXT("/Game/Gameplay/UI/Theme/DA_GameplayUITheme"),
         TEXT("/Game/Data/DA_ToothAnimation"),TEXT("/Game/Data/DA_ArenaTooth"),
         TEXT("/Game/Data/DA_CoffeeWater"),TEXT("/Game/Data/DA_ColdCola"),
+        TEXT("/Game/Data/DA_ColdColaLiquid"),
+        // These are assigned in event BeginPlay rather than reflected defaults.
+        TEXT("/Game/Gameplay/CoreLoop/M_NutEnemyEyes"),
+        TEXT("/Game/Gameplay/VFX/M_Reaction"),TEXT("/Game/Gameplay/VFX/M_ReactionSoft"),
+        TEXT("/Game/Gameplay/VFX/M_ReactionFire"),TEXT("/Game/Gameplay/VFX/M_ReactionSmoke"),
+        TEXT("/Game/Gameplay/Cold/Frost/M_TongueFrost"),
+        TEXT("/Game/Gameplay/Cold/VFX/M_IcePhasePowder"),TEXT("/Game/Gameplay/Cold/VFX/NS_IcePhasePowder"),
+        TEXT("/Game/Gameplay/Cold/VFX/MI_IcePowderLow"),TEXT("/Game/Gameplay/Cold/VFX/MI_IcePowderBody"),
+        TEXT("/Game/Gameplay/Cold/VFX/MI_IcePowderHigh"),
+        // Loaded on the character but activated only on later cleaning contact.
+        TEXT("/Game/Gameplay/VFX/NS_BrushFoam"),
         TEXT("/Game/Gameplay/Liquid/River/MI_RiverCoffee"),TEXT("/Game/Gameplay/Liquid/River/MI_RiverCola"),
         TEXT("/Game/Gameplay/Liquid/River/MI_RiverWater"),TEXT("/Game/Cataclysm/Storm/MI_StormCoffee"),
         TEXT("/Game/Cataclysm/Storm/MI_StormCola"),TEXT("/Game/Cataclysm/Storm/M_StormSpray"),
@@ -151,6 +186,7 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
     }) AddAsset(Root,OutPaths);
     // Native classes contain additional constructor-defined meshes/clips used by this day's events.
     for(const TCHAR* Class:{TEXT("MCNutBoss"),TEXT("MCIceEvent"),TEXT("MCCataclysmJelly"),TEXT("MCToothCharacter"),
-        TEXT("MCSmallMintCandy"),TEXT("MCHazardWave")})
+        TEXT("MCSmallMintCandy"),TEXT("MCHazardWave"),TEXT("MCNutKamikaze"),TEXT("MCNutLandingShadow"),
+        TEXT("MCFogBrawlEvent"),TEXT("MCCataclysmDebris"),TEXT("MCRewardChest"),TEXT("MCIceEventVFX")})
         AddPath(FSoftObjectPath(FString(TEXT("/Script/MessControl."))+Class),OutPaths);
 }

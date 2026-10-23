@@ -40,11 +40,12 @@ class MESSCONTROL_API UMCHubWidget : public UMCGameplayUIWidget
     GENERATED_BODY()
 public:
     UMCHubWidget();
+    void ShowInteractionFeedback(const FText& Message,float Seconds=2.5f);
     void Init(AMCHubGameState* State);
     UFUNCTION(BlueprintCallable, Category="Hub|Presentation") void RefreshFromState();
     UFUNCTION(BlueprintPure, Category="Hub|Presentation") bool RequiresMenuInput() const;
     UFUNCTION(BlueprintPure, Category="Hub|Presentation") UWidget* GetFocusTarget() const;
-    /** Selecting ACK requires an actually constructed presentation and scene camera. */
+    /** Initial Hub and Selecting ACKs require the same preconstructed, ready stage. */
     UFUNCTION(BlueprintPure, Category="Hub|Presentation") bool IsSceneReady() const;
     /** Call once from the local PlayerController tick, before skeletal stage ticks. */
     void TickPresentation(float DeltaSeconds);
@@ -68,6 +69,8 @@ protected:
 
 private:
     bool IsLocalHost() const;
+    FText InteractionFeedback;
+    double InteractionFeedbackUntil=0;
     AMCHubGameState* State() const;
     bool EnsureSelectionPresentation();
     void ResetSelectionPresentation();

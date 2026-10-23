@@ -1,5 +1,6 @@
 ﻿#include "MCFoodActor.h"
 #include "MCToothCharacter.h"
+#include "MCWorldStatusComponent.h"
 #include "MCPerkComponent.h"
 #include "MCGameMode.h"
 #include "MCPlayerState.h"
@@ -68,6 +69,7 @@ AMCFoodActor::AMCFoodActor()
     Label=CreateDefaultSubobject<UTextRenderComponent>(TEXT("FoodInstruction")); Label->SetupAttachment(Body);
     Label->SetRelativeLocation(FVector(0,0,75)); Label->SetHorizontalAlignment(EHTA_Center); Label->SetWorldSize(17);
     Label->SetCollisionEnabled(ECollisionEnabled::NoCollision); Label->SetTextRenderColor(FColor(255,215,110));
+    WorldStatus=CreateDefaultSubobject<UMCWorldStatusComponent>(TEXT("WorldStatus"));
     Profile=TSoftObjectPtr<UMCFoodProfile>(FSoftObjectPath(TEXT("/Game/Data/DA_FoodPhysics.DA_FoodPhysics")));
 }
 void AMCFoodActor::BeginPlay()

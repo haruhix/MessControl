@@ -88,6 +88,7 @@ void AMCHubGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCHubGameState, Phase);
+    DOREPLIFETIME(AMCHubGameState, SceneGeneration);
     DOREPLIFETIME(AMCHubGameState, SelectedDay);
     DOREPLIFETIME(AMCHubGameState, Players);
     DOREPLIFETIME(AMCHubGameState, Notice);
@@ -189,6 +190,8 @@ void AMCHubGameState::SetPhase(EMCHubPhase NewPhase)
 {
     if (!HasAuthority() || Phase == NewPhase) return;
     Phase = NewPhase;
+    SceneGeneration = SceneGeneration == MAX_int32 ? 1 : SceneGeneration + 1;
+    for (FMCHubPlayerReadiness& Player : Players) Player.bLoaded = false;
     NotifyChanged();
 }
 

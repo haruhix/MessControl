@@ -1284,3 +1284,51 @@ confirm the reset. Root reviewed the readable gold stars and squash as bounded
 functional VFX; user art approval remains pending. Ordinary future-map timing and
 mimic disguise/reset behavior remain unchanged. No GPU-cost profile, network
 check or packaged-game validation has been performed for this revision.
+
+## Grill result hologram and calcium consumable — 2026-10-23
+
+Reviewed [Epic's video scanline material breakdown](https://dev.epicgames.com/documentation/en-us/unreal-engine/post-process-material-example?application_version=4.27)
+for slowly panning scanlines, small horizontal distortion and layered noise,
+and [the current material-domain guidance](https://dev.epicgames.com/documentation/unreal-engine/post-process-materials-in-unreal-engine)
+before authoring. The grill adapts those operations inside three UI material
+quads, with bounded RGB separation, gentle scanlines and low-amplitude noise.
+It does not add a full-screen post-process pass or scene capture. The source
+is the exact existing reel atlas, and its UV center follows the same clock
+and angles as the physical reels. Winning symbols and rewards share one
+authoritative receipt; the hologram never rolls its own result.
+
+The underfoot calcium consumable reuses the reviewed existing NS_SprayMist
+system for a short white treatment puff, following a 0.45-second capsule toss.
+It heals only its living owner within reach and does not change spray healing.
+New materials and the known native consumable class are explicit preload
+roots; the Hub creates the three hologram MIDs before its readiness barrier.
+
+Status: Editor compilation and bounded solo checks passed. The real grill
+accepts one fish through the normal E dispatcher; its lid and attached reels
+move together, and three preconstructed UI material instances show the same
+authoritative symbol tuple. Calibration uses the existing mesh's 22-facet,
+padded UV strip and the measured lid-window center, rather than assuming a
+uniform full-texture cylinder. Final calibrated native capture
+GrillNativeMotion05 passed: root reviewed the physical cherry/lemon/watermelon
+centers against the hologram both with the lid closed and reopened. Matching
+numeric angles alone was not accepted as visible-alignment evidence. The
+review is bounded to the observed gameplay camera/combination; perspective
+and adjacent glyph fragments can vary at other view angles.
+
+Native game-window samples show the roll and calcium puff evolving. Playback
+uses original game-clock timestamps; synchronous screenshot acquisition is
+slower than playback and is not a performance benchmark. The GDI recordings
+returned stale D3D frames and were rejected. Calcium checks use disclosed
+temporary health/charges and a moved third grenade for the distance case;
+they verify owner healing, capping, full-health refusal and charge accounting,
+not ally/network behavior or approval of a bespoke final particle effect.
+
+New material residency and the three hologram instances were observed before
+Hub Ready. A late first-use shader request from the older MM_Standart_SSS was
+also observed during a subsequent natural-food session. An experiment that
+requested complete shader maps for all known base resources expanded into
+mass compilation: two Hub checks exceeded their 120-second wait. That
+experiment was rejected and removed, preserving the prior loading barrier;
+the older SSS first-use case remains an explicit limitation. No cold-cache,
+packaged game, network or GPU/transparency-cost validation is claimed for
+this batch.

@@ -1,5 +1,8 @@
 #include "MCHubShopWidget.h"
 
+#include "MCHubEconomyComponent.h"
+#include "MCCosmeticItemWidget.h"
+#include "MCPlayerState.h"
 #include "MCUIVisualStyle.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Border.h"
@@ -8,6 +11,7 @@
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/ScaleBox.h"
+#include "Components/ScrollBox.h"
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
 #include "Components/UniformGridPanel.h"
@@ -22,7 +26,7 @@
 void UMCHubShopWidget::BuildPresentationTree()
 {
     if(!WidgetTree) return;
-    if(WidgetTree->RootWidget) {ResolveControls();return;}
+    if(WidgetTree->RootWidget) {ResolveControls();EnsureCatalogPresentation();return;}
     auto* Scale=WidgetTree->ConstructWidget<UScaleBox>(UScaleBox::StaticClass(),TEXT("ShopScale"));
     Scale->SetStretch(EStretch::ScaleToFit);WidgetTree->RootWidget=Scale;
     auto* Size=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("ShopDesignSize"));
@@ -62,7 +66,127 @@ void UMCHubShopWidget::BuildPresentationTree()
     }
     auto* CloseSize=WidgetTree->ConstructWidget<USizeBox>();CloseSize->SetHeightOverride(44);CloseSize->SetContent(ShopClose);
     Content->AddChildToVerticalBox(CloseSize);
-    ResolveControls();ApplyTheme();
+    ResolveControls();EnsureCatalogPresentation();ApplyTheme();
+}
+
+void UMCHubShopItemButton::Configure(UMCHubShopWidget* Owner,FName ID)
+{
+    OwnerWidget=Owner;ItemID=ID;OnClicked.AddUniqueDynamic(this,&ThisClass::Clicked);
+}
+void UMCHubShopItemButton::Clicked() { if(OwnerWidget.IsValid()) OwnerWidget->SelectCatalogItem(ItemID); }
+
+void UMCHubShopWidget::EnsureCatalogPresentation()
+{
+    if(!WidgetTree || ShopCatalogGrid) return;
+    auto* Content=Cast<UVerticalBox>(WidgetTree->FindWidget(TEXT("ShopContent")));
+    auto* Previous=Cast<UUniformGridPanel>(WidgetTree->FindWidget(TEXT("ShopEmptySlots")));
+    // Migrate only the known empty placeholder. An artist-authored catalog host
+    // remains untouched, and all other panel/close-button layout is preserved.
+    if(!Content || !Previous || Previous->GetParent()!=Content) return;
+    int32 Index=Content->GetChildIndex(Previous); Previous->RemoveFromParent();
+    ShopBalance=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("ShopBalance"));
+    ShopBalance->SetText(LOCTEXT("BalancePlaceholder","Монеты: 0"));
+    if(auto* RowSlot=Cast<UVerticalBoxSlot>(Content->InsertChildAt(Index++,ShopBalance))) RowSlot->SetPadding(FMargin(0,0,0,8));
+    auto* Size=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("ShopCatalogHost"));Size->SetHeightOverride(308);
+    auto* Scroll=WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(),TEXT("ShopCatalogScroll"));Size->SetContent(Scroll);
+    ShopCatalogGrid=WidgetTree->ConstructWidget<UUniformGridPanel>(UUniformGridPanel::StaticClass(),TEXT("ShopCatalogGrid"));
+    ShopCatalogGrid->SetMinDesiredSlotWidth(184);ShopCatalogGrid->SetMinDesiredSlotHeight(180);ShopCatalogGrid->SetSlotPadding(FMargin(4));
+    Scroll->AddChild(ShopCatalogGrid);
+    if(auto* RowSlot=Cast<UVerticalBoxSlot>(Content->InsertChildAt(Index++,Size))) RowSlot->SetPadding(FMargin(-3,0,-3,8));
+    auto AddText=[this,Content,&Index](FName Name,int32 Height)->UTextBlock* {
+        auto* Text=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);Text->SetAutoWrapText(true);
+        auto* Box=WidgetTree->ConstructWidget<USizeBox>();Box->SetHeightOverride(Height);Box->SetClipping(EWidgetClipping::ClipToBounds);Box->SetContent(Text);
+        Content->InsertChildAt(Index++,Box);return Text;
+    };
+    ShopSelectedName=AddText(TEXT("ShopSelectedName"),26);
+    ShopSelectedDescription=AddText(TEXT("ShopSelectedDescription"),44);
+    ShopTransactionMessage=AddText(TEXT("ShopTransactionMessage"),24);
+    ShopBuy=WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(),TEXT("ShopBuy"));
+    auto* Label=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("ShopBuyLabel"));
+    Label->SetText(LOCTEXT("Buy","Купить"));Label->SetJustification(ETextJustify::Center);ShopBuy->SetContent(Label);
+    auto* BuySize=WidgetTree->ConstructWidget<USizeBox>();BuySize->SetHeightOverride(42);BuySize->SetContent(ShopBuy);
+    if(auto* RowSlot=Cast<UVerticalBoxSlot>(Content->InsertChildAt(Index++,BuySize))) RowSlot->SetPadding(FMargin(0,0,0,8));
+    if(auto* Footer=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("ShopFooterSpace")))) Footer->SetMinDesiredHeight(0);
+    if(auto* Hint=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("ShopEmptyMessage")))) {
+        Hint->SetText(LOCTEXT("NextRunHint","Бустеры — на следующий забег"));
+        TextBindings.Add(Hint->GetFName(),TEXT("UI.Shop.NextRunHint"));
+        if(auto* RowSlot=Cast<UVerticalBoxSlot>(Hint->Slot)) RowSlot->SetPadding(FMargin(0,0,0,8));
+    }
+    ResolveControls();
+}
+
+void UMCHubShopWidget::Configure(UMCHubEconomyComponent* Economy)
+{
+    if(auto* Previous=ObservedEconomy.Get()) Previous->OnEconomyChanged.RemoveAll(this);
+    ObservedEconomy=Economy;SelectedItemID=NAME_None;
+    if(Economy) Economy->OnEconomyChanged.AddUniqueDynamic(this,&ThisClass::RefreshEconomy);
+    if(WidgetTree && WidgetTree->RootWidget) RefreshEconomy();
+}
+void UMCHubShopWidget::SelectCatalogItem(FName ItemID)
+{
+    if(bEditorFixture || IsDesignTime()) return;
+    auto* Economy=ObservedEconomy.Get();
+    if(!Economy || !Economy->FindCatalogItem(ItemID)) return;
+    SelectedItemID=ItemID;SetTransactionMessage(FText::GetEmpty());RefreshEconomy();
+}
+void UMCHubShopWidget::SetTransactionMessage(const FText& Message)
+{
+    if(ShopTransactionMessage) ShopTransactionMessage->SetText(Message);
+}
+void UMCHubShopWidget::RefreshEconomy()
+{
+    ResolveControls();if(!ShopCatalogGrid) return;
+    auto* Economy=ObservedEconomy.Get();
+    const bool Preview=bEditorFixture || IsDesignTime();
+    auto Entries=Economy?Economy->GetCatalog():TArray<FMCHubEconomyCatalogEntry>();
+    Entries.RemoveAll([](const FMCHubEconomyCatalogEntry& Entry) {return Entry.Definition.Kind==EMCHubCatalogKind::Cosmetic || !Entry.Definition.bEnabled || !Entry.Definition.bInShop;});
+    if(Preview && Entries.IsEmpty()) {
+        const TCHAR* Names[]={TEXT("Суперщётка"),TEXT("Запас сил"),TEXT("Быстрые ноги"),TEXT("Сильные руки")};
+        for(int32 I=0;I<4;++I) {FMCHubEconomyCatalogEntry Entry;Entry.ItemID=FName(*FString::Printf(TEXT("Preview%d"),I));
+            Entry.Definition.DisplayName=FText::FromString(Names[I]);Entry.Definition.Description=LOCTEXT("PreviewCardDescription","Улучшение на следующий забег.");Entry.Definition.Price=12+I*4;
+            Entry.Definition.Rarity=I==0?EMCHubItemRarity::Rare:EMCHubItemRarity::Common;Entries.Add(Entry);}
+    }
+    bool Rebuild=CatalogCards.Num()!=Entries.Num() || !CatalogButtons.IsEmpty();
+    for(int32 I=0;!Rebuild && I<Entries.Num();++I) Rebuild=!CatalogCards[I] || CatalogCards[I]->GetCatalogId()!=Entries[I].ItemID;
+    if(Rebuild) {ShopCatalogGrid->ClearChildren();CatalogButtons.Reset();CatalogCards.Reset();}
+    if(!Entries.ContainsByPredicate([this](const FMCHubEconomyCatalogEntry& E) {return E.ItemID==SelectedItemID;})) SelectedItemID=Entries.IsEmpty()?NAME_None:Entries[0].ItemID;
+    if(ShopBalance) ShopBalance->SetText(FText::Format(Localized(TEXT("UI.Shop.Balance"),LOCTEXT("Balance","Монеты: {0}")),FText::AsNumber(Economy?Economy->Coins:Preview?80:0)));
+    TSubclassOf<UMCCosmeticItemWidget> CardClass=ProductCardClass;
+    if(!CardClass) CardClass=LoadClass<UMCCosmeticItemWidget>(nullptr,TEXT("/Game/Gameplay/UI/WBP_WardrobeCosmeticTile.WBP_WardrobeCosmeticTile_C"));
+    if(!CardClass) CardClass=UMCCosmeticItemWidget::StaticClass();
+    for(int32 I=0;I<Entries.Num();++I) {
+        const auto& Entry=Entries[I];
+        auto* Card=Rebuild?CreateWidget<UMCCosmeticItemWidget>(this,CardClass):CatalogCards[I].Get();if(!Card) continue;
+        Card->Theme=GetResolvedTheme();Card->SetTranslationTable(GetResolvedTranslationTable());
+        const int32 Queued=Economy?Economy->QueuedStacks(Entry.ItemID):0;
+        const bool Affordable=Preview || (Economy && Economy->Coins>=Entry.Definition.Price);
+        FText Status=Queued>0?FText::Format(Localized(TEXT("UI.Shop.Queued"),LOCTEXT("Queued","На следующий забег: {0}")),FText::AsNumber(Queued)):
+            Entry.ItemID==SelectedItemID?Localized(TEXT("UI.Product.Selected"),LOCTEXT("SelectedCard","Выбрано")):
+            !Affordable?Localized(TEXT("UI.Product.Insufficient"),LOCTEXT("InsufficientCard","Мало монет")):Localized(TEXT("UI.Product.Details"),LOCTEXT("DetailsCard","Подробнее"));
+        Card->Configure(NAME_None,Entry.ItemID,Entry.ItemID,Localized(Entry.Definition.DisplayNameKey,Entry.Definition.DisplayName),Queued>0,Entry.ItemID==SelectedItemID,Entry.Definition.Price,Affordable);
+        Card->SetProductPresentation(Entry.Definition.Icon.Get(),Localized(Entry.Definition.DescriptionKey,Entry.Definition.Description),Entry.Definition.Rarity,false,Status);
+        Card->OnPressed.AddUniqueDynamic(this,&ThisClass::CardSelected);
+        if(Rebuild) {auto* S=ShopCatalogGrid->AddChildToUniformGrid(Card,I/2,I%2);S->SetHorizontalAlignment(HAlign_Fill);S->SetVerticalAlignment(VAlign_Fill);CatalogCards.Add(Card);}
+    }
+    const FMCHubCatalogRow* Selected=Economy?Economy->FindCatalogItem(SelectedItemID):nullptr;
+    if(ShopSelectedName) ShopSelectedName->SetText(Selected?Localized(Selected->DisplayNameKey,Selected->DisplayName):Preview?LOCTEXT("PreviewSelected","Суперщётка"):
+        Localized(TEXT("UI.Shop.NoItems"),LOCTEXT("NoItems","Ассортимент пока недоступен")));
+    if(ShopSelectedDescription) ShopSelectedDescription->SetText(Selected?Localized(Selected->DescriptionKey,Selected->Description):Preview?LOCTEXT("PreviewDescription","Покупка действует в следующем забеге."):FText::GetEmpty());
+    FText Error;const bool CanBuy=Economy && Selected && Economy->CanPurchase(SelectedItemID,Error);
+    if(ShopBuy) ShopBuy->SetIsEnabled(CanBuy || Preview);
+    if(auto* Label=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("ShopBuyLabel"))))
+        Label->SetText(Selected && Economy && Economy->Coins<Selected->Price?Localized(TEXT("UI.Product.Insufficient"),LOCTEXT("BuyInsufficient","Мало монет")):
+            Selected?FText::Format(Localized(TEXT("UI.Shop.BuyPrice"),LOCTEXT("BuyPrice","Купить · {0}")),FText::AsNumber(Selected->Price)):
+            Localized(TEXT("UI.Shop.Buy"),LOCTEXT("Buy","Купить")));
+    ApplyTheme();
+}
+void UMCHubShopWidget::CardSelected(FName InSlot,FName ItemID,FName CatalogID) {SelectCatalogItem(CatalogID);}
+void UMCHubShopWidget::BuyClicked()
+{
+    if(bEditorFixture || IsDesignTime()) return;
+    FText Error;auto* Economy=ObservedEconomy.Get();
+    if(!Economy || !Economy->CanPurchase(SelectedItemID,Error)) {SetTransactionMessage(Error);return;}
+    OnPurchaseRequested.Broadcast(SelectedItemID);
 }
 
 void UMCHubShopWidget::ResolveControls()
@@ -70,6 +194,12 @@ void UMCHubShopWidget::ResolveControls()
     if(!WidgetTree) return;
     ShopPanel=Cast<UBorder>(WidgetTree->FindWidget(TEXT("ShopPanel")));
     ShopClose=Cast<UButton>(WidgetTree->FindWidget(TEXT("ShopClose")));
+    ShopBuy=Cast<UButton>(WidgetTree->FindWidget(TEXT("ShopBuy")));
+    ShopBalance=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("ShopBalance")));
+    ShopSelectedName=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("ShopSelectedName")));
+    ShopSelectedDescription=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("ShopSelectedDescription")));
+    ShopTransactionMessage=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("ShopTransactionMessage")));
+    ShopCatalogGrid=Cast<UUniformGridPanel>(WidgetTree->FindWidget(TEXT("ShopCatalogGrid")));
 }
 
 void UMCHubShopWidget::NativeOnInitialized() {Super::NativeOnInitialized();SetIsFocusable(true);}
@@ -77,10 +207,16 @@ void UMCHubShopWidget::NativeConstruct()
 {
     Super::NativeConstruct();ResolveControls();
     if(ShopClose) ShopClose->OnClicked.AddUniqueDynamic(this,&ThisClass::CloseClicked);
+    if(ShopBuy) ShopBuy->OnClicked.AddUniqueDynamic(this,&ThisClass::BuyClicked);
+    if(!ObservedEconomy.IsValid()) if(auto* Player=GetOwningPlayerState<AMCPlayerState>()) ObservedEconomy=Player->FindComponentByClass<UMCHubEconomyComponent>();
+    if(auto* Economy=ObservedEconomy.Get()) Economy->OnEconomyChanged.AddUniqueDynamic(this,&ThisClass::RefreshEconomy);
+    RefreshEconomy();
 }
 void UMCHubShopWidget::NativeDestruct()
 {
     if(ShopClose) ShopClose->OnClicked.RemoveAll(this);
+    if(ShopBuy) ShopBuy->OnClicked.RemoveAll(this);
+    if(auto* Economy=ObservedEconomy.Get()) Economy->OnEconomyChanged.RemoveAll(this);
     Super::NativeDestruct();
 }
 void UMCHubShopWidget::CloseClicked() {if(!bEditorFixture && !IsDesignTime()) OnClose.Broadcast();}
@@ -102,7 +238,9 @@ void UMCHubShopWidget::ApplyTheme()
             Label->SetFont(Style->MakeGameplayFont(Size,Bold));Label->SetColorAndOpacity(Color);
         }
     };
-    Text(TEXT("ShopTitle"),40,P.Cream);Text(TEXT("ShopEmptyMessage"),19,P.OnMarine,false);
+    Text(TEXT("ShopTitle"),30,P.Cream);Text(TEXT("ShopEmptyMessage"),15,P.OnMarine,false);
+    Text(TEXT("ShopBalance"),18,P.Mint);Text(TEXT("ShopSelectedName"),18,P.Cream);
+    Text(TEXT("ShopSelectedDescription"),14,P.OnMarine,false);Text(TEXT("ShopTransactionMessage"),13,P.Cream,false);
     for(int32 Index=0;Index<6;++Index) {
         if(auto* Card=Cast<UBorder>(WidgetTree->FindWidget(FName(*FString::Printf(TEXT("ShopEmptySlot%d"),Index))))) {
             MCUIVisualStyle::Panel(Card,Style,P.Marine.CopyWithNewOpacity(.45f));Card->SetIsEnabled(false);
@@ -110,10 +248,12 @@ void UMCHubShopWidget::ApplyTheme()
         Text(FName(*FString::Printf(TEXT("ShopEmptyLabel%d"),Index)),14,P.OnMarine,false);
     }
     MCUIVisualStyle::Button(ShopClose,Style,P.Mint);Text(TEXT("ShopCloseLabel"),18,P.ButtonText);
+    MCUIVisualStyle::Button(ShopBuy,Style,P.Accent);Text(TEXT("ShopBuyLabel"),17,P.ButtonText);
+    for(UMCCosmeticItemWidget* Card:CatalogCards) if(Card) Card->ApplyTheme();
 }
 void UMCHubShopWidget::ApplyEditorPreview(float Time)
 {
-    bEditorFixture=true;BuildPresentationTree();Super::ApplyEditorPreview(Time);
+    bEditorFixture=true;BuildPresentationTree();Super::ApplyEditorPreview(Time);RefreshEconomy();
 }
 void UMCHubShopWidget::ResetEditorPreview() {Super::ResetEditorPreview();}
 

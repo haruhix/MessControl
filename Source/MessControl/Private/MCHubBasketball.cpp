@@ -38,13 +38,17 @@ AMCHubBasketball::AMCHubBasketball()
     Visual->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Sphere(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
     if(Sphere.Succeeded()) Visual->SetStaticMesh(Sphere.Object);
-    static ConstructorHelpers::FObjectFinder<UNiagaraSystem> Confetti(TEXT("/Game/Hub/VFX/NS_BasketConfetti.NS_BasketConfetti"));
-    if(Confetti.Succeeded()) BasketConfetti=Confetti.Object;
+    DefaultBasketConfettiAsset=FSoftObjectPath(TEXT("/Game/Hub/VFX/NS_BasketConfetti.NS_BasketConfetti"));
 }
 
 void AMCHubBasketball::BeginPlay()
 {
     Super::BeginPlay(); Home=GetActorLocation();
+    // Niagara's stateless template module table is initialized during module
+    // startup. CDO-time hard loading can deserialize cooked null modules before
+    // that table exists. Resolve before Hub readiness, never on the first goal.
+    if(!BasketConfetti && GetNetMode()!=NM_DedicatedServer)
+        BasketConfetti=DefaultBasketConfettiAsset.LoadSynchronous();
     Body->SetSphereRadius(FMath::Clamp(Radius,10.f,80.f));
     Visual->SetRelativeScale3D(FVector(Body->GetUnscaledSphereRadius()/50.f));
     Rubber=NewObject<UPhysicalMaterial>(this);

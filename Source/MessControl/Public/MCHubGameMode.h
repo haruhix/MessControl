@@ -32,7 +32,7 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Hub") bool RequestSelectDay(APlayerController* Requester, int32 Day);
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Hub") bool RequestLaunch(APlayerController* Requester);
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Hub") bool RequestReturnToHub(APlayerController* Requester);
-    void AcknowledgeSceneLoaded(APlayerController* Player);
+    void AcknowledgeSceneLoaded(APlayerController* Player, int32 Generation);
     /** Queue safe recovery outside the character's physics/FellOutOfWorld callback. */
     bool RecoverPlayer(AMCToothCharacter* Player);
     void RefreshReadiness();
@@ -49,12 +49,22 @@ private:
     bool bSelectionScene = false;
     bool bTravelPending = false;
     int32 InitialSelectedDay = 1;
-    TSet<TWeakObjectPtr<APlayerController>> LoadedPlayers;
+    TMap<TWeakObjectPtr<APlayerController>, int32> LoadedPlayers;
     TMap<TWeakObjectPtr<APlayerController>, double> LastSelectionAt;
     TMap<TWeakObjectPtr<APlayerController>, double> RecoveryAt;
     TSet<TWeakObjectPtr<APlayerController>> ForcedRecovery;
+    struct FSelectionPawnMovement
+    {
+        TWeakObjectPtr<AMCToothCharacter> Pawn;
+        uint8 MovementMode = 0;
+        uint8 CustomMovementMode = 0;
+    };
+    TMap<TWeakObjectPtr<APlayerController>, FSelectionPawnMovement> SelectionPawnMovement;
 
     void InitializeHubPlayer(APlayerController* Player, bool bPreserveAppearance);
+    void SetHubPhase(EMCHubPhase NewPhase);
+    void ApplySelectionPawnLock(APlayerController* Player);
+    void RestoreSelectionPawnMovement();
     void RecoverPlayers();
     void RemoveOrphanedStartupPawns();
     float ArrivalYaw(const FVector& SpawnLocation, float FallbackYaw) const;

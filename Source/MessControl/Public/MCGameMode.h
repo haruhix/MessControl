@@ -51,6 +51,7 @@ public:
     void UpdateObjectives();
     void ProcessRespawns();
     UFUNCTION(BlueprintCallable, Category="Shift") void RestartShift();
+    const FGuid& GetHubBoosterRunId() const { return HubBoosterRunId; }
     /** Start a fresh diagnostic run; single-day bot tests skip the human tutorial once. */
     void RestartShiftForPlaytest(int32 Seed);
     /** Release the first personal perk only after the diagnostic team has been spawned. */
@@ -79,6 +80,7 @@ public:
     UPROPERTY() TObjectPtr<AMCTutorialDirector> TutorialDirector;
     UPROPERTY(VisibleInstanceOnly,BlueprintReadOnly,Category="Roguelike") TObjectPtr<class AMCRoguelikeDirector> RoguelikeDirector;
 private:
+    FGuid HubBoosterRunId;
     bool bTutorialRequested=false;
     bool bAutoStartHubRun=false;
     bool bLobbyRequested=false;

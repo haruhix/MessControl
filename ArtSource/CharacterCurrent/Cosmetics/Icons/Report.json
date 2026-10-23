@@ -1,0 +1,90 @@
+[
+  {
+    "item": "Hat_WorkCap",
+    "mesh": "SM_Cosmetic_WorkCap",
+    "materials": [
+      "WorkTeal",
+      "DeepMarine"
+    ],
+    "source_vertices": 1042,
+    "png": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterCurrent\\Cosmetics\\Icons\\Hat_WorkCap.png",
+    "base_color_linear": [
+      0.025,
+      0.47,
+      0.56
+    ],
+    "roughness": 0.52,
+    "metallic": 0.05,
+    "alpha_bounds_px": [
+      45,
+      181,
+      467,
+      331
+    ],
+    "padded_bounds_px": [
+      37,
+      173,
+      475,
+      339
+    ],
+    "crop_uv": [
+      0.072265625,
+      0.337890625,
+      0.927734375,
+      0.662109375
+    ],
+    "render_png": "E:\\CodexWork\\HubWardrobePolish_20261023\\CapIconRepair\\Hat_WorkCap.png",
+    "source_sha256": "7ea4547128dd70633fcecae6ff51f06fbc78e94e7f26b08ac4117df035581ae5",
+    "png_sha256": "dfdac452d541237b7320aee3cdb7c4771d3e24b7e2a8b735fcac8d49a32f22c6",
+    "render_script": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterCurrent\\Cosmetics\\Icons\\RenderIcons.py"
+  },
+  {
+    "item": "Hat_WorkCapRed",
+    "mesh": "SM_Cosmetic_WorkCap",
+    "materials": [
+      "WorkCoral",
+      "DeepMarine"
+    ],
+    "source_vertices": 1042,
+    "png": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterCurrent\\Cosmetics\\Icons\\Hat_WorkCapRed.png",
+    "base_color_linear": [
+      0.66,
+      0.055,
+      0.035
+    ],
+    "roughness": 0.52,
+    "metallic": 0.03,
+    "alpha_bounds_px": [
+      45,
+      181,
+      467,
+      331
+    ],
+    "padded_bounds_px": [
+      37,
+      173,
+      475,
+      339
+    ],
+    "crop_uv": [
+      0.072265625,
+      0.337890625,
+      0.927734375,
+      0.662109375
+    ],
+    "render_png": "E:\\CodexWork\\HubWardrobePolish_20261023\\CapIconRepair\\Hat_WorkCapRed.png",
+    "source_sha256": "7ea4547128dd70633fcecae6ff51f06fbc78e94e7f26b08ac4117df035581ae5",
+    "png_sha256": "312b6ae7f9e03c06414d75b259f28cbf2ccbdc8f67e574a6ba9a76b8137accbd",
+    "render_script": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterCurrent\\Cosmetics\\Icons\\RenderIcons.py"
+  },
+  {
+    "item": "Face_SportGlasses",
+    "mesh": "SM_Cosmetic_SportGlasses",
+    "materials": [
+      "DeepMarine",
+      "CreamGold"
+    ],
+    "source_vertices": 872,
+    "png": "E:\\CodexWork\\HubWardrobePolish_20261023\\Icons\\Face_SportGlasses.png"
+  }
+]

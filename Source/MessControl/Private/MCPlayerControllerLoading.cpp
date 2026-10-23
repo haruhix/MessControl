@@ -3,7 +3,6 @@
 #include "MCGameState.h"
 #include "MCHubGameState.h"
 #include "MCHubWidget.h"
-#include "MCHubWidget.h"
 #include "MCLoadingWidget.h"
 #include "MCGameplayUIFactory.h"
 #include "MCPlayerState.h"
@@ -37,7 +36,9 @@ bool AMCPlayerController::IsWorldPresentationReady() const
 bool AMCPlayerController::IsWaitingForWorldStart() const
 {
     if(const auto* Hub=GetWorld()->GetGameState<AMCHubGameState>())
-        return !Hub->AreAllLoaded() || Hub->Phase==EMCHubPhase::Travelling;
+        // Scene-generation ACKs also run on open/return. Those updates must
+        // never bring the initial world-loading cover back over the selector.
+        return !bLoadingPresentationReleased && (!Hub->AreAllLoaded() || Hub->Phase==EMCHubPhase::Travelling);
     const auto* State=GetWorld()->GetGameState<AMCGameState>();
     if(!State || !GetPlayerState<AMCPlayerState>() || !GetPawn()
         || GetPawn()->GetWorld()!=GetWorld() || !bGameplayLoadAckSent) return true;
@@ -73,6 +74,7 @@ void AMCPlayerController::RefreshLoadingPresentation()
         PresentationConstructed=Hub && (Hub->Phase!=EMCHubPhase::Gathering
             || (GetPawn() && GetPawn()->GetWorld()==GetWorld()));
     }
+    PresentationConstructed &= !IsHubWorld() || HasPreparedWardrobePresentation();
     if(Preparation) {
         Preparation->SetPresentationReady(PresentationConstructed);
         Preparation->BeginPreparation(this);

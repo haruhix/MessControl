@@ -1,5 +1,6 @@
 #include "MCPlayerState.h"
 #include "MCPerkComponent.h"
+#include "MCHubEconomyComponent.h"
 #include "MCGameState.h"
 #include "MCPlayerController.h"
 #include "MCToothCharacter.h"
@@ -11,6 +12,7 @@
 AMCPlayerState::AMCPlayerState()
 {
     Perks = CreateDefaultSubobject<UMCPerkComponent>(TEXT("Perks"));
+    Economy = CreateDefaultSubobject<UMCHubEconomyComponent>(TEXT("HubEconomy"));
 }
 
 int32 FMCScoreRewards::ForTask(EMCScoreTask Task) const
@@ -53,6 +55,8 @@ void AMCPlayerState::CopyProperties(APlayerState* Target)
     {
         State->Points=Points; State->PlayerColor=PlayerColor; State->bSessionHost=bSessionHost;
         State->FishCaught=FishCaught;
+        if(Economy) Economy->CopyTo(State->Economy);
+        State->bHubProfileLoaded=bHubProfileLoaded;
         State->ConsumedRecoveryStacks=ConsumedRecoveryStacks;
         if (Perks) Perks->CopyPerksTo(State->Perks);
         // Travel/reconnect preserves chest perks, never an obsolete level offer.

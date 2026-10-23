@@ -13,6 +13,7 @@ class UStaticMeshComponent;
 class UTextRenderComponent;
 class UStaticMesh;
 class UMCCombatFeedbackComponent;
+class UMCWorldStatusComponent;
 
 /** Small server-driven enemy supported directly by the live, deforming tongue. */
 UCLASS(Blueprintable)
@@ -37,6 +38,7 @@ public:
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> LeftEye;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> RightEye;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UTextRenderComponent> Label;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="UI") TObjectPtr<UMCWorldStatusComponent> WorldStatus;
     UPROPERTY(ReplicatedUsing=RefreshPresentation, BlueprintReadOnly) TObjectPtr<UStaticMesh> NutMesh;
     UPROPERTY(ReplicatedUsing=RefreshPresentation, BlueprintReadOnly) FVector MeshScale=FVector::OneVector;
     UPROPERTY(ReplicatedUsing=RefreshPresentation, BlueprintReadOnly) FMCNutEnemySettings Settings;

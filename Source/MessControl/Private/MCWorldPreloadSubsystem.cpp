@@ -23,6 +23,7 @@
 #include "Internationalization/Internationalization.h"
 #include "Materials/Material.h"
 #include "Materials/MaterialInterface.h"
+#include "Kismet/GameplayStatics.h"
 #include "Misc/App.h"
 #include "RenderCommandFence.h"
 #include "ShaderPipelineCache.h"
@@ -30,7 +31,10 @@
 
 #if WITH_EDITOR
 #include "AssetCompilingManager.h"
+#include "IAssetCompilingManager.h"
 #include "ShaderCompiler.h"
+#include "MaterialShared.h"
+#include "RHIGlobals.h"
 #endif
 
 DEFINE_LOG_CATEGORY_STATIC(LogMCWorldPreload, Log, All);
@@ -41,6 +45,10 @@ constexpr int32 MaxDependencyWaves = 32;
 constexpr int32 MaxManifestPaths = 4096;
 constexpr int32 WarmupRequestsPerTick = 4;
 constexpr int32 RequiredStableRenderFrames = 3;
+#if WITH_EDITOR
+constexpr double RequiredEditorQuietSeconds = 1.;
+constexpr double LateCompilationWatchSeconds = 60.;
+#endif
 
 FText LoadingText(const TCHAR* Key, const TCHAR* Russian, const TCHAR* English)
 {
@@ -85,15 +93,27 @@ bool UMCWorldPreloadSubsystem::IsPreparing() const
 
 bool UMCWorldPreloadSubsystem::IsTickable() const
 {
-    return IsInitialized() && IsPreparing() && !IsTemplate();
+    if (!IsInitialized() || IsTemplate()) return false;
+#if WITH_EDITOR
+    if (IsReady() && FPlatformTime::Seconds() < LateCompilationWatchUntil) return true;
+#endif
+    return IsPreparing();
+}
+
+void UMCWorldPreloadSubsystem::ResetRenderReadiness()
+{
+    StableRenderFrames = 0;
+    ReadinessFence.Reset();
+#if WITH_EDITOR
+    RenderQuietSince = 0;
+#endif
 }
 
 void UMCWorldPreloadSubsystem::SetPhase(EMCWorldPreloadPhase NewPhase)
 {
     if (Phase == NewPhase) return;
     Phase = NewPhase;
-    StableRenderFrames = 0;
-    ReadinessFence.Reset();
+    ResetRenderReadiness();
     UE_LOG(LogMCWorldPreload, Log, TEXT("MC_PRELOAD_PHASE world=%s phase=%s elapsed=%.2f assets=%d/%d"),
         *GetNameSafe(GetWorld()), PhaseName(Phase), FPlatformTime::Seconds() - StartedAt,
         CompletedPaths, SeenPaths.Num());
@@ -134,6 +154,13 @@ void UMCWorldPreloadSubsystem::ResetPreparation()
     ReadyStreamingTargets = 0;
     StableRenderFrames = 0;
     StableWorldFrames = 0;
+#if WITH_EDITOR
+    RenderQuietSince = 0;
+    EditorFirstUseMaterial.Reset();
+    LateCompilationWatchUntil = 0;
+    NextLateCompilationCheckAt = 0;
+    NextLateCompilationLogAt = 0;
+#endif
     ObservedWorldActors = -1;
     ObservedWorldPrimitives = -1;
     ObservedWorldLevels = -1;
@@ -262,11 +289,14 @@ void UMCWorldPreloadSubsystem::FinishLoadWave()
 int32 UMCWorldPreloadSubsystem::GetPendingCompilationCount() const
 {
 #if WITH_EDITOR
-    if (GIsEditor)
-        return FMath::Max(FAssetCompilingManager::Get().GetNumRemainingAssets(),
-            GShaderCompilingManager ? GShaderCompilingManager->GetNumRemainingJobs() : 0);
-#endif
+    // The aggregate includes shader-map finalization, not just worker jobs.
+    // Editor executables running -game also need this barrier (GIsEditor=false).
+    const int32 ShaderWork = GShaderCompilingManager
+        ? FMath::Max(GShaderCompilingManager->GetNumRemainingJobs(), GShaderCompilingManager->IsCompiling() ? 1 : 0) : 0;
+    return FMath::Max(FAssetCompilingManager::Get().GetNumRemainingAssets(), ShaderWork);
+#else
     return 0;
+#endif
 }
 
 uint32 UMCWorldPreloadSubsystem::GetPendingPipelineCount() const
@@ -353,6 +383,39 @@ void UMCWorldPreloadSubsystem::BuildRenderingWork()
     }
     UE_LOG(LogMCWorldPreload, Log, TEXT("MC_PRELOAD_RENDER_WORK world=%s primitives=%d previewComponents=%d materials=%d"),
         *GetNameSafe(GetWorld()), WorldPrimitives.Num(), WarmupRequests.Num(), Materials.Num());
+#if WITH_EDITOR
+    // The food SSS base was observed requesting its deferred shader map only at
+    // the first meal. Hidden warmup components do not take the normal draw path
+    // that submits this work in an Editor executable. Submit just that observed
+    // resource, at the same priority as FMaterialRenderProxy's first draw, while
+    // the loading barrier is still active. Do not walk all MI parents: that
+    // would compile many unused full maps and stall Editor loading for minutes.
+    const FString Map = UGameplayStatics::GetCurrentLevelName(GetWorld(), true);
+    if (Map == TEXT("L_Mouth") || Map == TEXT("L_Tutorial"))
+    {
+        const EShaderPlatform Platform = GetFeatureLevelShaderPlatform(GetWorld()->GetFeatureLevel());
+        for (const TWeakObjectPtr<UMaterialInterface>& WeakMaterial : Materials)
+        {
+            UMaterialInterface* Material = WeakMaterial.Get();
+            if (!Material || Material->GetPathName() != TEXT("/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS")) continue;
+            EditorFirstUseMaterial = Material;
+            FMaterialResource* Resource = Material->GetMaterialResource(Platform);
+            const bool bNeedsSubmission = Resource && !Resource->IsGameThreadShaderMapComplete();
+            const int32 PendingBefore = GetPendingCompilationCount();
+            if (bNeedsSubmission) Resource->SubmitCompileJobs_GameThread(EShaderCompileJobPriority::Normal);
+            // A request is not proof that jobs were queued: the public engine API
+            // returns void. Log both compiler state and actual map completeness;
+            // the barrier below also checks this specific resource, so a no-op
+            // cannot be mistaken for completed preparation.
+            UE_LOG(LogMCWorldPreload, Log, TEXT("MC_PRELOAD_EDITOR_FIRST_USE world=%s asset=%s resource=%d hasShaderMap=%d complete=%d requested=%d pendingBefore=%d pendingAfter=%d platform=%d"),
+                *GetNameSafe(GetWorld()), *Material->GetPathName(), Resource ? 1 : 0,
+                Resource && Resource->GetGameThreadShaderMap() ? 1 : 0,
+                Resource && Resource->IsGameThreadShaderMapComplete() ? 1 : 0,
+                bNeedsSubmission ? 1 : 0, PendingBefore, GetPendingCompilationCount(), int32(Platform));
+            break; // This targeted preparation is bounded to one actual resource.
+        }
+    }
+#endif
 }
 
 void UMCWorldPreloadSubsystem::ProcessRenderingWork()
@@ -503,6 +566,11 @@ bool UMCWorldPreloadSubsystem::CheckStreamingTargets()
 
 void UMCWorldPreloadSubsystem::CompletePreparation()
 {
+#if WITH_EDITOR
+    if (EditorFirstUseMaterial.IsValid())
+        UE_LOG(LogMCWorldPreload, Log, TEXT("MC_PRELOAD_EDITOR_FIRST_USE_READY world=%s asset=%s complete=%d"),
+            *GetNameSafe(GetWorld()), *EditorFirstUseMaterial->GetPathName(), IsEditorFirstUseMaterialReady() ? 1 : 0);
+#endif
     // These transient components only supplied vertex-factory/material data for
     // precaching. Compiled PSOs are engine/driver cached; no hidden actors or
     // extra scene primitives need to survive after preparation completes.
@@ -514,7 +582,45 @@ void UMCWorldPreloadSubsystem::CompletePreparation()
         *GetNameSafe(GetWorld()), RetainedAssets.Num(), ReadyStreamingTargets,
         StreamingTargets.Num(), FPlatformTime::Seconds() - StartedAt);
     SetPhase(EMCWorldPreloadPhase::Ready);
+#if WITH_EDITOR
+    LateCompilationWatchUntil = FPlatformTime::Seconds() + LateCompilationWatchSeconds;
+#endif
 }
+
+#if WITH_EDITOR
+bool UMCWorldPreloadSubsystem::IsEditorFirstUseMaterialReady() const
+{
+    if (!EditorFirstUseMaterial.IsValid()) return true;
+    const EShaderPlatform Platform = GetFeatureLevelShaderPlatform(GetWorld()->GetFeatureLevel());
+    const FMaterialResource* Resource = EditorFirstUseMaterial->GetMaterialResource(Platform);
+    return Resource && Resource->IsGameThreadShaderMapComplete();
+}
+
+void UMCWorldPreloadSubsystem::DiagnoseLateCompilation(double Now)
+{
+    if (Now < NextLateCompilationCheckAt || Now >= LateCompilationWatchUntil) return;
+    NextLateCompilationCheckAt = Now + .5;
+    const int32 Compilation = GetPendingCompilationCount();
+    const uint32 Pipelines = GetPendingPipelineCount();
+    if ((Compilation == 0 && Pipelines == 0) || Now < NextLateCompilationLogAt) return;
+    NextLateCompilationLogAt = Now + 5.;
+    // Compilation managers are editor-wide: another editor tab can cause work.
+    // This observes only; never cover active gameplay with another loading screen.
+    UE_LOG(LogMCWorldPreload, Warning, TEXT("MC_PRELOAD_LATE_WORK world=%s afterReady=%.2f compilation=%d pipelines=%u editorGlobal=1"),
+        *GetNameSafe(GetWorld()), Now - (LateCompilationWatchUntil - LateCompilationWatchSeconds), Compilation, Pipelines);
+    for (IAssetCompilingManager* Manager : FAssetCompilingManager::Get().GetRegisteredManagers())
+        if (Manager && Manager->GetNumRemainingAssets() > 0)
+            UE_LOG(LogMCWorldPreload, Warning, TEXT("MC_PRELOAD_LATE_CATEGORY type=%s remaining=%d"),
+                *Manager->GetAssetTypeName().ToString(), Manager->GetNumRemainingAssets());
+    int32 Reported = 0;
+    for (const TWeakObjectPtr<UMaterialInterface>& Material : Materials)
+        if (Material.IsValid() && Material->IsCompiling())
+        {
+            UE_LOG(LogMCWorldPreload, Warning, TEXT("MC_PRELOAD_LATE_MATERIAL asset=%s"), *Material->GetPathName());
+            if (++Reported >= 8) break;
+        }
+}
+#endif
 
 bool UMCWorldPreloadSubsystem::IsWorldStreamingReady() const
 {
@@ -534,8 +640,7 @@ bool UMCWorldPreloadSubsystem::SettleWorldAndRefreshManifest()
     if (!IsWorldStreamingReady())
     {
         StableWorldFrames = 0;
-        StableRenderFrames = 0;
-        ReadinessFence.Reset();
+        ResetRenderReadiness();
         return false;
     }
     int32 Actors = 0;
@@ -554,7 +659,7 @@ bool UMCWorldPreloadSubsystem::SettleWorldAndRefreshManifest()
         ObservedWorldPrimitives = Primitives;
         ObservedWorldLevels = Levels;
         StableWorldFrames = 0;
-        StableRenderFrames = 0;
+        ResetRenderReadiness();
         if (bRenderingWorkBuilt)
         {
             ReleaseWarmupComponents();
@@ -585,8 +690,11 @@ bool UMCWorldPreloadSubsystem::SettleWorldAndRefreshManifest()
 
 void UMCWorldPreloadSubsystem::TickRenderReadiness()
 {
-    if (!bPresentationReady) return;
-    if (!SettleWorldAndRefreshManifest()) return;
+    if (!bPresentationReady || !SettleWorldAndRefreshManifest())
+    {
+        ResetRenderReadiness();
+        return;
+    }
     if (!FApp::CanEverRender())
     {
         // NullRHI/commandlet automation can exercise the asset barrier but cannot
@@ -596,21 +704,18 @@ void UMCWorldPreloadSubsystem::TickRenderReadiness()
         return;
     }
 #if WITH_EDITOR
-    if (GIsEditor)
-    {
-        FAssetCompilingManager::Get().ProcessAsyncTasks(true);
-        if (GShaderCompilingManager) GShaderCompilingManager->ProcessAsyncResults(true, false);
-    }
+    FAssetCompilingManager::Get().ProcessAsyncTasks(true);
+    if (GShaderCompilingManager) GShaderCompilingManager->ProcessAsyncResults(true, false);
 #endif
     if (GetPendingCompilationCount() > 0)
     {
-        StableRenderFrames = 0;
-        ReadinessFence.Reset();
+        ResetRenderReadiness();
         return;
     }
     if (!bRenderingWorkBuilt) BuildRenderingWork();
     if (NextWarmupRequest < WarmupRequests.Num())
     {
+        ResetRenderReadiness();
         ProcessRenderingWork();
         return;
     }
@@ -624,13 +729,22 @@ void UMCWorldPreloadSubsystem::TickRenderReadiness()
         if (Component.IsValid() && Component->IsPSOPrecaching()) bComponentsReady = false;
     for (const UPrimitiveComponent* Component : WarmupComponents)
         if (IsValid(Component) && Component->IsPSOPrecaching()) bComponentsReady = false;
+#if WITH_EDITOR
+    bComponentsReady &= IsEditorFirstUseMaterialReady();
+#endif
     const bool bStreamingReady = CheckStreamingTargets();
     if (!bComponentsReady || !bStreamingReady || GetPendingPipelineCount() > 0 || GetPendingCompilationCount() > 0)
     {
-        StableRenderFrames = 0;
-        ReadinessFence.Reset();
+        ResetRenderReadiness();
         return;
     }
+#if WITH_EDITOR
+    // Texture/mesh completion callbacks can enqueue another shader wave a few
+    // frames later. Require sustained quiet as well as the existing RHI fences.
+    const double Now = FPlatformTime::Seconds();
+    if (RenderQuietSince == 0) RenderQuietSince = Now;
+    if (Now - RenderQuietSince < RequiredEditorQuietSeconds) return;
+#endif
     if (!ReadinessFence.IsValid())
     {
         ReadinessFence = MakeShared<FRenderCommandFence>();
@@ -648,8 +762,16 @@ void UMCWorldPreloadSubsystem::TickRenderReadiness()
 
 void UMCWorldPreloadSubsystem::Tick(float DeltaSeconds)
 {
-    if (!IsPreparing() || !GetWorld() || GetWorld()->bIsTearingDown) return;
+    if (!GetWorld() || GetWorld()->bIsTearingDown) return;
     const double Now = FPlatformTime::Seconds();
+#if WITH_EDITOR
+    if (IsReady())
+    {
+        DiagnoseLateCompilation(Now);
+        return;
+    }
+#endif
+    if (!IsPreparing()) return;
     if (Now - StartedAt > TimeoutSeconds)
     {
         Fail(LoadingText(TEXT("loading.error.timeout"), TEXT("Подготовка локации заняла слишком много времени. Повтори попытку."), TEXT("Preparing the level took too long. Try again.")),

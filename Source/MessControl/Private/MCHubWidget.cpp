@@ -16,6 +16,7 @@
 #include "Brushes/SlateNoResource.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Camera/CameraActor.h"
+#include "Camera/CameraComponent.h"
 #include "Components/Border.h"
 #include "Components/ButtonSlot.h"
 #include "Components/CanvasPanel.h"
@@ -40,10 +41,42 @@
 
 namespace MCHubPresentation
 {
-    bool IsSelectorWorld(const UWorld* World)
+    // The selector can be an always-loaded sublevel of Hub. Its saved actors,
+    // rather than the persistent map name, are the presentation contract.
+    bool HasSavedStage(const UWorld* World)
     {
-        return World && World->GetMapName().EndsWith(TEXT("L_HubSelection"),ESearchCase::IgnoreCase);
+        uint8 Days=0;
+        bool bCamera=false;
+        if(World) for(TActorIterator<AActor> It(World);It;++It)
+        {
+            bCamera|=It->ActorHasTag(TEXT("Menu3D_Camera")) && It->FindComponentByClass<UCameraComponent>()!=nullptr;
+            for(int32 Day=1;Day<=7;++Day)
+                if(It->ActorHasTag(FName(*FString::Printf(TEXT("Menu3D_DAY%02d"),Day)))) Days|=uint8(1u<<(Day-1));
+        }
+        return bCamera && Days==0x7f;
     }
+
+    // Blueprint Construct/ShowPage may select their old front-end camera.
+    // Constructing this hidden cosmetic widget must never change Hub gameplay.
+    struct FPreservePlayerView
+    {
+        APlayerController* Player;
+        TWeakObjectPtr<APawn> Pawn;
+        TWeakObjectPtr<AActor> Target;
+        FRotator Rotation;
+        bool bAutoManage;
+        explicit FPreservePlayerView(APlayerController* InPlayer)
+            :Player(InPlayer),Pawn(InPlayer->GetPawn()),Target(InPlayer->GetViewTarget()),
+             Rotation(InPlayer->GetControlRotation()),bAutoManage(InPlayer->bAutoManageActiveCameraTarget) {}
+        ~FPreservePlayerView()
+        {
+            if(!IsValid(Player)) return;
+            Player->bAutoManageActiveCameraTarget=bAutoManage;
+            AActor* Restore=Target.IsValid()?Target.Get():Pawn.Get();
+            if(IsValid(Restore) && Player->GetViewTarget()!=Restore) Player->SetViewTarget(Restore);
+            if(!Player->GetControlRotation().Equals(Rotation)) Player->SetControlRotation(Rotation);
+        }
+    };
 
     bool SetNumber(UObject* Object,FName Name,double Value)
     {
@@ -104,8 +137,8 @@ namespace MCHubPresentation
 
     bool HasCamera(const UWorld* World)
     {
-        if(World) for(TActorIterator<ACameraActor> It(World);It;++It)
-            if(It->ActorHasTag(TEXT("Menu3D_Camera"))) return true;
+        if(World) for(TActorIterator<AActor> It(World);It;++It)
+            if(It->ActorHasTag(TEXT("Menu3D_Camera")) && It->FindComponentByClass<UCameraComponent>()) return true;
         return false;
     }
 
@@ -540,15 +573,15 @@ void UMCHubWidget::RefreshFromState()
         BasketballHint->SetText(LOCTEXT("FishingWaiting","Ждём поклёвку…\nРыба вытянется автоматически   ·   ходьба — закончить рыбалку"));
     if(BasketballHint && ShowFishing && !ShowBall && Hero->FishingRod->bFishHooked)
         BasketballHint->SetText(LOCTEXT("FishingHooked","Рыба на крючке! Вытягиваем…\nПосле подбора рыба добавится к улову"));
-    FString Signature=FString::Printf(TEXT("%p:%d:%d:%d:%d:%d:%d:%s"),Hub,Hub?int32(Hub->Phase):-1,
-        Hub?Hub->SelectedDay:0,IsLocalHost(),IsSceneReady(),bPresentationFailed,bCanInvite,Hub?*Hub->Notice.ToString():TEXT(""));
+    FString Signature=FString::Printf(TEXT("%p:%d:%d:%d:%d:%d:%d:%d:%s"),Hub,Hub?int32(Hub->Phase):-1,
+        Hub?Hub->SceneGeneration:0,Hub?Hub->SelectedDay:0,IsLocalHost(),IsSceneReady(),bPresentationFailed,bCanInvite,Hub?*Hub->Notice.ToString():TEXT(""));
     if(Hub) for(const auto& Player:Hub->Players)
         Signature+=FString::Printf(TEXT("|%p:%d:%d:%s"),Player.Player.Get(),Player.bReady,Player.bLoaded,
             IsValid(Player.Player)?*Player.Player->GetPlayerName():TEXT(""));
+    Signature+=GetWorld() && GetWorld()->GetRealTimeSeconds()<InteractionFeedbackUntil?TEXT("|Feedback"):TEXT("|Guidance");
     if(Signature==LastStateSignature) return;
     LastStateSignature=MoveTemp(Signature);
-    const bool bSelecting=Hub && (Hub->Phase==EMCHubPhase::Selecting
-        || (Hub->Phase==EMCHubPhase::Travelling && MCHubPresentation::IsSelectorWorld(GetWorld())));
+    const bool bSelecting=Hub && Hub->Phase!=EMCHubPhase::Gathering;
     const bool bTravelling=Hub && Hub->Phase==EMCHubPhase::Travelling;
     const bool bHost=IsLocalHost();
     const int32 Ready=Hub?Hub->GetReadyCount():0,Total=Hub?Hub->GetParticipantCount():0;
@@ -566,7 +599,8 @@ void UMCHubWidget::RefreshFromState()
         Names=Names.IsEmpty()?Line:FText::Join(FText::FromString(TEXT("\n")),Names,Line);
     }
     MCHubPresentation::SetText(PlayerNames,Names);
-    MCHubPresentation::SetText(ReadinessHint,bTravelling?Localized(TEXT("hub.loading.players"),LOCTEXT("TransitionWaiting","Ждём загрузку игроков…")):
+    MCHubPresentation::SetText(ReadinessHint,GetWorld() && GetWorld()->GetRealTimeSeconds()<InteractionFeedbackUntil?InteractionFeedback:
+        bTravelling?Localized(TEXT("hub.loading.players"),LOCTEXT("TransitionWaiting","Ждём загрузку игроков…")):
         Localized(bSelecting?TEXT("hub.team_view"):TEXT("hub.ready.flow"),
             bSelecting?LOCTEXT("TeamViewHint","Вся команда видит выбранный хостом день."):
                 LOCTEXT("GatherFlowHint","Чтобы начать игру, всей командой встаньте в подсвеченную READY-зону. Затем хост нажимает Enter и выбирает локацию.")));
@@ -649,7 +683,8 @@ void UMCHubWidget::ApplyEditorPreview(float Time)
 bool UMCHubWidget::EnsureSelectionPresentation()
 {
     if(SelectionPresentation) return true;
-    if(bPresentationFailed || IsDesignTime() || !PresentationHost || !GetOwningPlayer() || !MCHubPresentation::IsSelectorWorld(GetWorld())) return false;
+    if(bPresentationFailed || IsDesignTime() || !PresentationHost || !GetOwningPlayer() || !MCHubPresentation::HasSavedStage(GetWorld())) return false;
+    MCHubPresentation::FPreservePlayerView PreserveView(GetOwningPlayer());
     UClass* Class=SelectionPresentationClass.LoadSynchronous();
     if(!Class || !Class->IsChildOf(UUserWidget::StaticClass()) || Class->HasAnyClassFlags(CLASS_Abstract)) {bPresentationFailed=true;return false;}
     SelectionPresentation=CreateWidget<UUserWidget>(GetOwningPlayer(),Class);
@@ -675,7 +710,8 @@ void UMCHubWidget::ResetSelectionPresentation()
 void UMCHubWidget::AdvanceSelectionPresentation()
 {
     const auto* Hub=State();
-    if(!Hub || Hub->Phase==EMCHubPhase::Gathering || !MCHubPresentation::IsSelectorWorld(GetWorld()) || !EnsureSelectionPresentation()) return;
+    if(!Hub || !GetOwningPlayer() || !EnsureSelectionPresentation()) return;
+    MCHubPresentation::FPreservePlayerView PreserveView(GetOwningPlayer());
     const int32 Day=FMath::Clamp(Hub->SelectedDay,1,7);
     if(PresentedDay!=Day)
     {
@@ -695,10 +731,21 @@ void UMCHubWidget::AdvanceSelectionPresentation()
     bValid&=MCHubPresentation::SetFlag(SelectionPresentation,TEXT("HasPointerMotion"),false);
     bValid&=MCHubPresentation::Call(SelectionPresentation,TEXT("UpdateStage"));
     MCHubPresentation::HideLegacyControls(SelectionPresentation);
-    bPresentationReady=bValid && MCHubPresentation::HasStageActors(SelectionPresentation,Day)
-        && MCHubPresentation::HasCamera(GetWorld());
+    // UpdateStage drives every authored day, including its lazy material
+    // instances, while the overlay is collapsed during Gathering. Preload can
+    // therefore snapshot the finished stage before the Hub cover is released.
+    for(int32 StageDay=1;StageDay<=7;++StageDay)
+        bValid&=MCHubPresentation::HasStageActors(SelectionPresentation,StageDay);
+    bPresentationReady=bValid && MCHubPresentation::HasCamera(GetWorld());
     if(!bValid) bPresentationFailed=true;
 }
+void UMCHubWidget::ShowInteractionFeedback(const FText& Message,float Seconds)
+{
+    InteractionFeedback=Message;
+    InteractionFeedbackUntil=(GetWorld()?GetWorld()->GetRealTimeSeconds():0)+FMath::Clamp(Seconds,.5f,8.f);
+    LastStateSignature.Reset();RefreshFromState();
+}
+
 void UMCHubWidget::TickPresentation(float DeltaSeconds)
 {
     if(DeltaSeconds>=0.f) AdvanceSelectionPresentation();
@@ -826,7 +873,6 @@ bool UMCHubWidget::IsSceneReady() const
 {
     const auto* Hub=State();
     if(!Hub || !RootCanvas || !GetCachedWidget().IsValid()) return false;
-    if(Hub->Phase==EMCHubPhase::Gathering) return true;
     return SelectionPresentation && SelectionPresentation->GetCachedWidget().IsValid()
         && bPresentationReady && !bPresentationFailed && MCHubPresentation::HasCamera(GetWorld());
 }

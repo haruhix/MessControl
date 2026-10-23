@@ -4,6 +4,7 @@
 #include "MCCoffeeFlood.h"
 #include "MCCataclysmRaft.h"
 #include "MCGameState.h"
+#include "MCHubGameState.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCInventoryComponent.h"
@@ -133,8 +134,28 @@ void UMCToothMovementComponent::SetFrozenLegs(bool Frozen)
         ?MOVE_Falling:IcePreviousMovementMode;
     Super::SetMovementMode(Restored);
 }
+void UMCToothMovementComponent::SetHubSelectionMovementLocked(bool bLocked)
+{
+    if(bLocked) {
+        if(!bHubSelectionMovementLocked) {
+            HubPreviousMovementMode=MovementMode;
+            HubPreviousCustomMovementMode=CustomMovementMode;
+            bHubSelectionMovementLocked=true;
+        }
+        CancelDash(); StopMovementImmediately();
+        bWantsToSprint=false;bSprintActive=false;bWantsToClimb=false;
+        Super::SetMovementMode(MOVE_None);
+    }
+    else if(bHubSelectionMovementLocked) {
+        bHubSelectionMovementLocked=false;
+        StopMovementImmediately();
+        SetMovementMode(HubPreviousMovementMode,HubPreviousCustomMovementMode);
+    }
+}
+
 void UMCToothMovementComponent::SetMovementMode(EMovementMode NewMode,uint8 NewCustomMode)
 {
+    if(bHubSelectionMovementLocked) {Super::SetMovementMode(MOVE_None);return;}
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
     if(Hero && Hero->HasFrozenLegs() && Hero->ToothPhysics && Hero->ToothPhysics->CanAct()
         && !Hero->SwallowedBy && !Hero->IsMimicCaptured())
@@ -894,6 +915,10 @@ bool UMCToothMovementComponent::TryBoardRaft()
 }
 void UMCToothMovementComponent::UpdateCharacterStateBeforeMovement(float Dt)
 {
+    if(const auto* Hub=GetWorld()->GetGameState<AMCHubGameState>(); Hub && Hub->Phase!=EMCHubPhase::Gathering) {
+        SetHubSelectionMovementLocked(true);return;
+    }
+    SetHubSelectionMovementLocked(false);
     if(const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);Hero && Hero->IsSeatedOnRaft()) {
         CancelDash(); StopMovementImmediately(); SetMovementMode(MOVE_None); return;
     }
@@ -935,6 +960,11 @@ void UMCToothMovementComponent::PerformMovement(float Dt)
 {
     bStaminaSprintRequested=false; bStaminaDashCharged=false;
     bSwimDeepSample=bSwimRecoverySample=false; SwimEffortSample=0.f;
+    if(const auto* Hub=GetWorld()->GetGameState<AMCHubGameState>(); Hub && Hub->Phase!=EMCHubPhase::Gathering) {
+        SetHubSelectionMovementLocked(true);
+        Super::PerformMovement(Dt); bHasBraceSample=false; return;
+    }
+    SetHubSelectionMovementLocked(false);
     if(const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);Hero && Hero->IsSeatedOnRaft()) {
         // Includes authority handling a late pre-boarding movement packet. Neither
         // that packet nor owner replay may turn a reserved slot into deck walking.

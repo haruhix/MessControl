@@ -29,6 +29,8 @@
 #include "MCHubGameMode.h"
 #include "MCHubBasketball.h"
 #include "MCFishingRodComponent.h"
+#include "MCCharacterCosmeticsComponent.h"
+#include "MCHubEconomyComponent.h"
 #include "MCHubGameState.h"
 #include "MCTutorialDirector.h"
 #include "MCToothpick.h"
@@ -115,6 +117,7 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     Gaze=CreateDefaultSubobject<UMCGazeComponent>(TEXT("Gaze"));
     Grip=CreateDefaultSubobject<UMCGripComponent>(TEXT("Grip"));
     FishingRod=CreateDefaultSubobject<UMCFishingRodComponent>(TEXT("FishingRod"));
+    Cosmetics=CreateDefaultSubobject<UMCCharacterCosmeticsComponent>(TEXT("Cosmetics"));
     FoodCollection=CreateDefaultSubobject<UMCFoodCollectionComponent>(TEXT("FoodCollection"));
     Expression=CreateDefaultSubobject<UMCExpressionComponent>(TEXT("Expression"));
     Inventory=CreateDefaultSubobject<UMCInventoryComponent>(TEXT("Inventory"));
@@ -190,6 +193,7 @@ void AMCToothCharacter::ApplyAppearance()
     for (int32 I=Ref.FindBoneIndex(RigBone(TEXT("hand_r")));I>=0;I=Ref.GetParentIndex(I)) Hand=Hand*Ref.GetRefBonePose()[I];
     FTransform BrushGrip=Appearance->BrushTransform; BrushGrip.AddToTranslation(Hand.GetLocation());
     BrushPivot->SetRelativeTransform(BrushGrip.GetRelativeTransform(Hand));
+    if(Cosmetics) Cosmetics->RefreshPresentation();
 }
 void AMCToothCharacter::BeginPlay()
 {
@@ -344,6 +348,8 @@ void AMCToothCharacter::PossessedBy(AController* NewController)
 {
     Super::PossessedBy(NewController);
     if (const auto* Identity=GetPlayerState<AMCPlayerState>()) ApplyPlayerColor(Identity->PlayerColor);
+    if(const auto* Identity=GetPlayerState<AMCPlayerState>();Identity && Identity->Economy && Cosmetics)
+        Cosmetics->SetEquippedLoadout(Identity->Economy->EquippedLoadout);
 }
 void AMCToothCharacter::ApplyPlayerColor(FLinearColor Color)
 {
@@ -719,7 +725,9 @@ void AMCToothCharacter::StartHandle()
     if(!CanWork() || Inventory->IsChainsawRunning()) return;
     if(const auto* PC=Cast<APlayerController>(Controller);PC && PC->IsMoveInputIgnored()) return;
     if(auto* PC=Cast<AMCPlayerController>(Controller);PC && (PC->TryOpenHubShop() || PC->TryOpenWardrobe())) return;
+    if(auto* PC=Cast<AMCPlayerController>(Controller);PC && PC->TryInteractHubGrill()) return;
     if(AMCHubBasketball::HeldBy(this) || AMCHubBasketball::PickupCandidate(this)) {ServerInteractBasketball();return;}
+    if(FishingRod && FishingRod->TryInteract()) return;
     if(FishingRod && FishingRod->IsPresented()) {FishingRod->ServerSetReeling(true);return;}
     AMCRewardChest* Rescue=nullptr; double RescueDistance=TNumericLimits<double>::Max();
     for(TActorIterator<AMCRewardChest> It(GetWorld());It;++It) if(It->CanRescue(this)) {
@@ -1818,6 +1826,7 @@ void AMCToothCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 bool AMCToothCharacter::CanWork() const
 {
     if(IsFreezingToDeath()) return false;
+    if(const auto* Hub=GetWorld()->GetGameState<AMCHubGameState>(); Hub && Hub->Phase!=EMCHubPhase::Gathering) return false;
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     const auto* Player=Cast<AMCPlayerController>(GetController());
     return (!Player || (!Player->IsBossIntroPlaying() && !Player->IsRewardInteractionActive())) && !IsValid(RewardInteraction) && !IsMimicCaptured() && !SwallowedBy && Status->IsAlive() && ToothPhysics->CanAct() && (!GS || (!GS->bLobbyWaiting && GS->Phase!=EMCShiftPhase::Won && GS->Phase!=EMCShiftPhase::Lost));

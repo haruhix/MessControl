@@ -84,6 +84,7 @@ private:
 
     void ResetPreparation();
     void ReleaseWarmupComponents();
+    void ResetRenderReadiness();
     void SetPhase(EMCWorldPreloadPhase NewPhase);
     void Fail(const FText& Reason, const FString& TechnicalReason);
     void StartLoadWave(TArray<FSoftObjectPath> Paths);
@@ -98,6 +99,15 @@ private:
     int32 GetPendingCompilationCount() const;
     uint32 GetPendingPipelineCount() const;
     void TickRenderReadiness();
+#if WITH_EDITOR
+    void DiagnoseLateCompilation(double Now);
+    bool IsEditorFirstUseMaterialReady() const;
+    TWeakObjectPtr<UMaterialInterface> EditorFirstUseMaterial;
+    double RenderQuietSince = 0;
+    double LateCompilationWatchUntil = 0;
+    double NextLateCompilationCheckAt = 0;
+    double NextLateCompilationLogAt = 0;
+#endif
 
     UPROPERTY(Transient)
     TArray<TObjectPtr<UObject>> RetainedAssets;

@@ -1,0 +1,78 @@
+{
+  "blender": "5.1.0",
+  "source": "E:\\CodexWork\\HubSystems_20261023\\Cosmetics\\Character_Source.blend",
+  "source_sha256": "447104b76a6d109ec3db6f82cb2602fb300fa3707fa383e1c24a5b81db477529",
+  "runtime_rig_source": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterCurrent\\CharacterGameplay.blend",
+  "runtime_rig_sha256": "6d835c6a7ec3a1d44a7ed24b9bcdb4a2ebde01c1fcce35501847bac5266f144c",
+  "runtime_vertices_unchanged": 4006,
+  "runtime_bones_unchanged": 107,
+  "bone": "head_x",
+  "mesh_space_fit": true,
+  "notes": [
+    "Source file format is 502.45 (newer than available isolated Blender 5.1.0). Only the verified static cap topology is reused; original source never saved.",
+    "The test glasses have open lenses, keeping pupils, blink and mouth readable.",
+    "Accessory meshes are reference mesh space. Runtime converts via actual UE reference bone matrix, avoiding a guessed socket rotation.",
+    "Wardrobe palette/body skin/rig/expression shapes are not modified.",
+    "The cap preserves source world vertices, polygon smooth flags and rear-facing brim with uniform1.0; the artist/runtime crown width and top agree. Source shape proof: E:\\CodexWork\\HubWardrobePolish_20261023\\CapRepair\\ShapeProof.json"
+  ],
+  "items": [
+    {
+      "mesh": "SM_Cosmetic_WorkCap",
+      "ids": [
+        "Hat_WorkCap",
+        "Hat_WorkCapRed"
+      ],
+      "vertices": 1042,
+      "triangles": 2076,
+      "bounds_cm": [
+        [
+          -19.72462385892868,
+          -18.96287500858307,
+          110.21864414215088
+        ],
+        [
+          19.39387321472168,
+          58.34506154060364,
+          128.47145795822144
+        ]
+      ],
+      "materials": [
+        "Cosmetics_WorkTeal",
+        "Cosmetics_DeepMarine"
+      ]
+    },
+    {
+      "mesh": "SM_Cosmetic_SportGlasses",
+      "ids": [
+        "Face_SportGlasses"
+      ],
+      "vertices": 872,
+      "triangles": 1732,
+      "bounds_cm": [
+        [
+          -43.58994960784912,
+          -38.600000739097595,
+          65.79555869102478
+        ],
+        [
+          43.58994960784912,
+          15.153998136520386,
+          94.59556937217712
+        ]
+      ],
+      "materials": [
+        "Cosmetics_DeepMarine",
+        "Cosmetics_CreamGold"
+      ]
+    }
+  ],
+  "preview_poses": [
+    "front",
+    "profile",
+    "three_quarter",
+    "smile",
+    "blink",
+    "head_turn"
+  ],
+  "cap_source_shape_proof": "E:\\CodexWork\\HubWardrobePolish_20261023\\CapRepair\\ShapeProof.json"
+}

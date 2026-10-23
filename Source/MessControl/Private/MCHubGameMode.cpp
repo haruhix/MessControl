@@ -4,7 +4,9 @@
 #include "MCPlayerController.h"
 #include "MCPlayerState.h"
 #include "MCToothCharacter.h"
+#include "MCToothMovementComponent.h"
 #include "MCToothStatusComponent.h"
+#include "MCFishingRodComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -57,7 +59,7 @@ void AMCHubGameMode::InitGameState()
     Super::InitGameState();
     if (auto* State = GetGameState<AMCHubGameState>())
     {
-        State->SetPhase(bSelectionScene ? EMCHubPhase::Selecting : EMCHubPhase::Gathering);
+        SetHubPhase(bSelectionScene ? EMCHubPhase::Selecting : EMCHubPhase::Gathering);
         State->SetSelectedDay(InitialSelectedDay);
     }
 }
@@ -67,7 +69,7 @@ void AMCHubGameMode::BeginPlay()
     Super::BeginPlay();
     if (auto* State = GetGameState<AMCHubGameState>())
     {
-        State->SetPhase(bSelectionScene ? EMCHubPhase::Selecting : EMCHubPhase::Gathering);
+        SetHubPhase(bSelectionScene ? EMCHubPhase::Selecting : EMCHubPhase::Gathering);
         State->SetSelectedDay(InitialSelectedDay);
     }
     RemoveOrphanedStartupPawns();
@@ -111,6 +113,7 @@ void AMCHubGameMode::InitializeHubPlayer(APlayerController* Player, bool bPreser
         State->ForceNetUpdate();
         if (auto* Hero = Cast<AMCToothCharacter>(Player->GetPawn())) Hero->ApplyPlayerColor(State->PlayerColor);
     }
+    ApplySelectionPawnLock(Player);
 }
 
 void AMCHubGameMode::PostLogin(APlayerController* NewPlayer)
@@ -136,6 +139,7 @@ void AMCHubGameMode::HandleStartingNewPlayer_Implementation(APlayerController* N
         NewPlayer->UnPossess();
         Pawn->Destroy();
     }
+    ApplySelectionPawnLock(NewPlayer);
 }
 
 bool AMCHubGameMode::PlayerCanRestart_Implementation(APlayerController* Player)
@@ -156,6 +160,7 @@ void AMCHubGameMode::RestartPlayer(AController* Player)
     Player->SetControlRotation(FRotator(0.f, Yaw, 0.f));
     Pawn->ForceNetUpdate();
     if (auto* Controller = Cast<AMCPlayerController>(Player)) Controller->ClientSetHubArrivalView(Yaw);
+    ApplySelectionPawnLock(Cast<APlayerController>(Player));
 }
 
 float AMCHubGameMode::ArrivalYaw(const FVector& SpawnLocation, float FallbackYaw) const
@@ -198,18 +203,89 @@ void AMCHubGameMode::Logout(AController* Exiting)
         LastSelectionAt.Remove(Player);
         RecoveryAt.Remove(Player);
         ForcedRecovery.Remove(Player);
+        SelectionPawnMovement.Remove(Player);
     }
     Super::Logout(Exiting);
     RefreshReadiness();
 }
 
-void AMCHubGameMode::AcknowledgeSceneLoaded(APlayerController* Player)
+void AMCHubGameMode::AcknowledgeSceneLoaded(APlayerController* Player, int32 Generation)
 {
     if (!HasAuthority() || bTravelPending || !IsParticipant(Player)) return;
+    const auto* State = GetGameState<AMCHubGameState>();
+    if (!State || Generation != State->SceneGeneration) return;
     if (!Player->IsLocalController() && !Player->HasClientLoadedCurrentWorld()) return;
     if (!bSelectionScene && !Player->GetPawn()) return;
-    LoadedPlayers.Add(Player);
+    LoadedPlayers.Add(Player, Generation);
     RefreshReadiness();
+}
+
+void AMCHubGameMode::SetHubPhase(EMCHubPhase NewPhase)
+{
+    auto* State = GetGameState<AMCHubGameState>();
+    if (!HasAuthority() || !State || State->Phase == NewPhase) return;
+    LoadedPlayers.Reset();
+    State->SetPhase(NewPhase);
+    if (NewPhase == EMCHubPhase::Gathering) RestoreSelectionPawnMovement();
+    else if (NewPhase == EMCHubPhase::Selecting)
+        for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+            ApplySelectionPawnLock(It->Get());
+    RefreshReadiness();
+}
+
+void AMCHubGameMode::ApplySelectionPawnLock(APlayerController* Player)
+{
+    const auto* State = GetGameState<AMCHubGameState>();
+    if (!HasAuthority() || !State || State->Phase != EMCHubPhase::Selecting || !IsParticipant(Player)) return;
+    auto* Hero = Cast<AMCToothCharacter>(Player->GetPawn());
+    auto* Movement = Hero ? Hero->GetCharacterMovement() : nullptr;
+    if (!Movement) return;
+    FSelectionPawnMovement* Existing = SelectionPawnMovement.Find(Player);
+    const bool bNewLock = !Existing || Existing->Pawn.Get() != Hero;
+    const bool bModeChanged = Movement->MovementMode != MOVE_None;
+    auto* HubMovement = Cast<UMCToothMovementComponent>(Movement);
+    if (bNewLock)
+    {
+        // Save before CancelGameplayInput: stopping a dash/grip can change mode.
+        FSelectionPawnMovement Saved;
+        Saved.Pawn = Hero;
+        Saved.MovementMode = uint8(Movement->MovementMode.GetValue());
+        Saved.CustomMovementMode = Movement->CustomMovementMode;
+        SelectionPawnMovement.Add(Player, Saved);
+        // The movement component owns the first snapshot for both authority
+        // and autonomous prediction, including a lock before this GM tick.
+        if (HubMovement) HubMovement->SetHubSelectionMovementLocked(true);
+        Hero->CancelGameplayInput();
+        if (Hero->FishingRod) Hero->FishingRod->ServerSetEquipped(false);
+    }
+    if (HubMovement) HubMovement->SetHubSelectionMovementLocked(true);
+    else
+    {
+        Movement->StopMovementImmediately();
+        if (Movement->MovementMode != MOVE_None) Movement->DisableMovement();
+    }
+    if (bNewLock || bModeChanged) Hero->ForceNetUpdate();
+}
+
+void AMCHubGameMode::RestoreSelectionPawnMovement()
+{
+    for (const auto& Pair : SelectionPawnMovement)
+    {
+        APlayerController* Player = Pair.Key.Get();
+        AMCToothCharacter* Hero = Pair.Value.Pawn.Get();
+        if (!IsValid(Player) || !IsValid(Hero) || Player->GetPawn() != Hero) continue;
+        if (auto* Movement = Hero->GetCharacterMovement())
+        {
+            if (auto* HubMovement = Cast<UMCToothMovementComponent>(Movement)) HubMovement->SetHubSelectionMovementLocked(false);
+            else
+            {
+                Movement->StopMovementImmediately();
+                Movement->SetMovementMode(EMovementMode(Pair.Value.MovementMode), Pair.Value.CustomMovementMode);
+            }
+            Hero->ForceNetUpdate();
+        }
+    }
+    SelectionPawnMovement.Reset();
 }
 
 bool AMCHubGameMode::RecoverPlayer(AMCToothCharacter* Hero)
@@ -234,8 +310,8 @@ void AMCHubGameMode::RefreshReadiness()
         Connected.Add(Player);
         FMCHubPlayerReadiness Entry;
         Entry.Player = Player->PlayerState;
-        Entry.bLoaded = LoadedPlayers.Contains(Player);
-        if (bSelectionScene) Entry.bReady = true;
+        Entry.bLoaded = LoadedPlayers.FindRef(Player) == State->SceneGeneration;
+        if (bSelectionScene || State->Phase == EMCHubPhase::Selecting) Entry.bReady = true;
         else if (const auto* Hero = Cast<AMCToothCharacter>(Player->GetPawn()); Hero && Hero->Status && Hero->Status->IsAlive())
         {
             for (TActorIterator<AMCHubReadyZone> Zone(GetWorld()); Zone; ++Zone)
@@ -245,7 +321,8 @@ void AMCHubGameMode::RefreshReadiness()
     }
     // Stable UI ordering across a disconnect/reconnect; no stale overlap leases are stored.
     Snapshot.Sort([](const auto& A, const auto& B) { return A.Player->GetPlayerId() < B.Player->GetPlayerId(); });
-    for (auto It = LoadedPlayers.CreateIterator(); It; ++It) if (!Connected.Contains(*It)) It.RemoveCurrent();
+    for (auto It = LoadedPlayers.CreateIterator(); It; ++It) if (!Connected.Contains(It.Key())) It.RemoveCurrent();
+    for (auto It = SelectionPawnMovement.CreateIterator(); It; ++It) if (!Connected.Contains(It.Key())) It.RemoveCurrent();
     State->SetReadiness(Snapshot);
 }
 
@@ -285,6 +362,9 @@ void AMCHubGameMode::Tick(float DeltaSeconds)
     if (!HasAuthority() || bTravelPending) return;
     RemoveOrphanedStartupPawns();
     RecoverPlayers();
+    if (const auto* State = GetGameState<AMCHubGameState>(); State && State->Phase == EMCHubPhase::Selecting)
+        for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+            ApplySelectionPawnLock(It->Get());
     RefreshReadiness();
 }
 
@@ -320,14 +400,14 @@ bool AMCHubGameMode::TravelTo(const FString& URL, EMCHubPhase RestorePhase)
     if (!HasAuthority() || bTravelPending || !State || !GetWorld()) return false;
     bTravelPending = true;
     State->SetNotice(FText::GetEmpty());
-    State->SetPhase(EMCHubPhase::Travelling);
+    SetHubPhase(EMCHubPhase::Travelling);
     if (GetWorld()->ServerTravel(URL, true))
     {
         UE_LOG(LogTemp, Display, TEXT("MC_HUB_TRAVEL destination=%s participants=%d"), *URL, State->GetParticipantCount());
         return true;
     }
     bTravelPending = false;
-    State->SetPhase(RestorePhase);
+    SetHubPhase(RestorePhase);
     State->SetNotice(LOCTEXT("TravelFailed", "Не удалось открыть локацию. Попробуй ещё раз."));
     return false;
 }
@@ -342,10 +422,9 @@ bool AMCHubGameMode::RequestOpenSelection(APlayerController* Requester)
         State->SetNotice(LOCTEXT("NeedAllReady", "Вся команда должна загрузиться и встать в зону готовности."));
         return false;
     }
-    const FString Package = ExistingMapPackage(SelectionMap);
-    if (Package.IsEmpty()) { State->SetNotice(LOCTEXT("SelectionMapMissing", "Локация выбора пока недоступна.")); return false; }
-    return TravelTo(FString::Printf(TEXT("%s?game=/Script/MessControl.MCHubGameMode?MCHubSelection=1?MCHubDay=%d"),
-        *Package, State->SelectedDay), EMCHubPhase::Gathering);
+    State->SetNotice(FText::GetEmpty());
+    SetHubPhase(EMCHubPhase::Selecting);
+    return true;
 }
 
 bool AMCHubGameMode::RequestSelectDay(APlayerController* Requester, int32 Day)
@@ -390,6 +469,12 @@ bool AMCHubGameMode::RequestReturnToHub(APlayerController* Requester)
 {
     auto* State = GetGameState<AMCHubGameState>();
     if (!IsHostRequest(Requester) || !State || State->Phase != EMCHubPhase::Selecting) return false;
+    if (!bSelectionScene)
+    {
+        State->SetNotice(FText::GetEmpty());
+        SetHubPhase(EMCHubPhase::Gathering);
+        return true;
+    }
     RefreshReadiness();
     // Back is also the recovery route for a failed selector UI. Require the
     // actual network world to be ready, not successful cosmetic/UI ACKs.

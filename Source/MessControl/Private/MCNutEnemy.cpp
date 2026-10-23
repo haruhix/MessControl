@@ -1,5 +1,6 @@
 #include "MCNutEnemy.h"
 #include "MCDevCommands.h"
+#include "MCWorldStatusComponent.h"
 #include "MCPerkComponent.h"
 
 #include "MCFoodActor.h"
@@ -45,6 +46,7 @@ AMCNutEnemy::AMCNutEnemy()
     Label=CreateDefaultSubobject<UTextRenderComponent>(TEXT("Health")); Label->SetupAttachment(Body);
     Label->SetHorizontalAlignment(EHTA_Center); Label->SetWorldSize(19);
     Label->SetCollisionEnabled(ECollisionEnabled::NoCollision); Label->SetTextRenderColor(FColor(255,110,65));
+    WorldStatus=CreateDefaultSubobject<UMCWorldStatusComponent>(TEXT("WorldStatus"));
 }
 
 void AMCNutEnemy::BeginPlay()

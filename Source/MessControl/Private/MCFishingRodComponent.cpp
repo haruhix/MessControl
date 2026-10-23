@@ -59,7 +59,8 @@ bool UMCFishingRodComponent::IsHub() const
 
 bool UMCFishingRodComponent::IsPresented() const
 {
-    if(!Hero || !bEquipped || !bInsideFishingZone || !IsHub() || !Hero->ToothPhysics->CanAct() || Hero->IsSeatedOnRaft()
+    if(!Hero || !bEquipped || !bInsideFishingZone || !IsWithinFishingZone() || !IsHub() || !Hero->CanWork()
+        || !Hero->ToothPhysics->CanAct() || Hero->IsSeatedOnRaft()
         || Hero->HeldFood || Hero->FoodCollection->bCollecting || AMCHubBasketball::HeldBy(Hero)
         || Hero->OrderJumpTarget || Hero->SwallowedBy || Hero->MimicCaptor || Hero->IsYawning()) return false;
     const auto* Move=Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement());
@@ -70,7 +71,45 @@ bool UMCFishingRodComponent::IsPresented() const
         && !Hero->Grip->GrabbedPlayer && Hero->Grip->Blend()<.05f;
 }
 
-void UMCFishingRodComponent::ToggleEquipped() {ServerSetEquipped(!bEquipped);}
+void UMCFishingRodComponent::ToggleEquipped() {if(bEquipped) ServerSetEquipped(false);}
+
+bool UMCFishingRodComponent::CanBeginFishing() const
+{
+    if(!Hero || bEquipped || !IsHub() || !IsWithinFishingZone() || !Hero->CanWork() || !Hero->CanSwitchTool()
+        || Hero->IsSeatedOnRaft() || Hero->HeldFood || Hero->FoodCollection->bCollecting || AMCHubBasketball::HeldBy(Hero)
+        || Hero->OrderJumpTarget || Hero->SwallowedBy || Hero->MimicCaptor || Hero->IsYawning()
+        || Hero->Expression->BodyAlpha()>=.001f || Hero->Grip->Frame.Food || Hero->Grip->Secondary.Food
+        || Hero->Grip->GrabbedPlayer || Hero->Grip->Blend()>=.05f) return false;
+    const auto* Move=Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement());
+    if(Move && (Move->IsSwimming() || Move->IsClimbing())) return false;
+    // Picking up the rod belongs to the authored pier interaction area.
+    // Actual water-facing aim and ballistic clearance are checked by
+    // CanCastLine/CastLine after equip, never by the hidden stowed pose.
+    return true;
+}
+
+FVector UMCFishingRodComponent::GetInteractionPoint() const
+{
+    if(Hero) for(TActorIterator<AMCHubFishingZone> Zone(GetWorld());Zone;++Zone)
+        if(Zone->ContainsPawn(Hero)) return Zone->GetActorLocation()+FVector(0,0,130);
+    return Hero?Hero->GetActorLocation()+FVector(0,0,130):FVector::ZeroVector;
+}
+
+bool UMCFishingRodComponent::TryInteract()
+{
+    if(IsPresented()) {ServerSetReeling(true);return true;}
+    if(!CanBeginFishing()) return false;
+    ServerBeginFishing();return true;
+}
+
+void UMCFishingRodComponent::ServerBeginFishing_Implementation()
+{
+    if(!Hero) Hero=Cast<AMCToothCharacter>(GetOwner());
+    RefreshFishingZone();
+    // Re-evaluate the actual server position and water path; the client only
+    // requests an interaction and cannot grant itself pier access.
+    if(CanBeginFishing()) SetEquippedState(true);
+}
 
 bool UMCFishingRodComponent::IsWithinFishingZone() const
 {
@@ -85,7 +124,7 @@ void UMCFishingRodComponent::SetEquippedState(bool Equipped)
     if(!Hero || !Hero->HasAuthority()) return;
     if(Equipped) Hero->CancelGameplayInput();
     bEquipped=Equipped;
-    CancelFishing();
+    CancelFishing(!Equipped);
 }
 
 void UMCFishingRodComponent::RefreshFishingZone()
@@ -95,17 +134,10 @@ void UMCFishingRodComponent::RefreshFishingZone()
     const bool Inside=IsWithinFishingZone();
     if(Inside!=bInsideFishingZone) {
         bInsideFishingZone=Inside;
-        // A single union test permits overlapping pier volumes without repeated
-        // equips. After manually stowing, re-entering the pier grants it again.
-        bPendingFishingZoneEquip=Inside;
+        // Entering grants access only. E starts fishing; overlapping pier
+        // volumes form one access area and never auto-equip the rod.
         if(!Inside) SetEquippedState(false);
         Hero->ForceNetUpdate();
-    }
-    if(bPendingFishingZoneEquip && Inside && Hero->CanSwitchTool()) {
-        // Clear before cancelling old inputs, whose release callbacks can
-        // re-enter this authority check. Do not interrupt an uninterruptible use.
-        bPendingFishingZoneEquip=false;
-        SetEquippedState(true);
     }
 }
 
@@ -115,17 +147,18 @@ bool UMCFishingRodComponent::PondSurfaceAt(const APhysicsVolume* Pond,FVector Po
     const FBox Bounds=Pond->GetComponentsBoundingBox(true);
     if(!Bounds.IsValid || !Pond->EncompassesPoint(FVector(Point.X,Point.Y,Bounds.Max.Z-1))) return false;
     Surface=FVector(Point.X,Point.Y,Bounds.Max.Z+4);
-    // The swimming brush also covers the banks. Reject dry land and the pier
-    // using the actual scene collision above the pond surface.
+    // The swimming brush also covers the banks. Probe near the water level to
+    // reject the shore and pier, rather than treating a high canopy as dry
+    // ground. FindPondCast still sweeps the actual flight against all blockers.
     FHitResult Floor;FCollisionQueryParams Query(SCENE_QUERY_STAT(MCFishingWater),false,Hero);
-    return !GetWorld()->LineTraceSingleByChannel(Floor,Surface+FVector(0,0,1500),Surface-FVector(0,0,220),ECC_Visibility,Query)
+    return !GetWorld()->LineTraceSingleByChannel(Floor,Surface+FVector(0,0,200),Surface-FVector(0,0,220),ECC_Visibility,Query)
         || Floor.ImpactPoint.Z<Bounds.Max.Z-12;
 }
 
 bool UMCFishingRodComponent::FindPondCast(FVector& Origin,FVector& Target,FVector& Velocity,float& Duration,APhysicsVolume*& Pond) const
 {
     if(!Hero || !IsHub()) return false;
-    const FTransform Frame=RodFrame?RodFrame->GetComponentTransform():CarryPose*Hero->GetActorTransform();
+    const FTransform Frame=RodFrame && bEquipped?RodFrame->GetComponentTransform():CarryPose*Hero->GetActorTransform();
     Origin=Frame.TransformPosition(BentPoint(FVector(294.5,0,-9.5)));
     const FVector Forward=Hero->GetActorForwardVector().GetSafeNormal2D();
     const FVector Gravity(0,0,-980);
@@ -158,10 +191,22 @@ bool UMCFishingRodComponent::CanCastLine() const
     return FindPondCast(Origin,Target,Velocity,Duration,Pond);
 }
 
-void UMCFishingRodComponent::CancelFishing()
+void UMCFishingRodComponent::CompleteHookedCatch()
 {
+    if(!Hero || !Hero->HasAuthority() || !bFishHooked) return;
+    // Clear before awarding so later exit, input-release and retrieval paths
+    // cannot count the same already-hooked fish twice. A pending bite is not a catch.
+    bFishHooked=false;
+    if(auto* Identity=Hero->GetPlayerState<AMCPlayerState>()) Identity->AddCaughtFish();
+}
+
+void UMCFishingRodComponent::CancelFishing(bool bRecoverHookedCatch)
+{
+    if(bRecoverHookedCatch) CompleteHookedCatch();
     bFishingPose=bReeling=bLineOut=false;CastPond=nullptr;
     bFishHooked=false;BiteAt=-1;
+    bCastFlight=bLureInWater=false;CastAge=0;WaterAnchor=FVector::ZeroVector;
+    FreeLineLength=HangingLength;Accumulator=0;
     if(Hero) Hero->ForceNetUpdate();
 }
 
@@ -186,9 +231,10 @@ void UMCFishingRodComponent::ServerSetEquipped_Implementation(bool Equipped)
     if(!Hero) Hero=Cast<AMCToothCharacter>(GetOwner());
     if(!IsHub() || !Hero) return;
     RefreshFishingZone();
-    if(Equipped && (!bInsideFishingZone || !Hero->CanSwitchTool())) return;
-    bPendingFishingZoneEquip=false;
-    SetEquippedState(Equipped);
+    // Keep legacy tool bindings able to stow, but do not permit a tool-five
+    // RPC (or old Blueprint) to bypass the water-side E interaction.
+    if(Equipped) return;
+    SetEquippedState(false);
 }
 void UMCFishingRodComponent::ServerSetFishingPose_Implementation(bool Raised)
 {
@@ -224,7 +270,8 @@ void UMCFishingRodComponent::CreateVisuals()
     RodFrame->SetupAttachment(Hero->GetRootComponent());RodFrame->RegisterComponent();
     auto Configure=[&](UPrimitiveComponent* Part) {
         Part->SetupAttachment(RodFrame);Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-        Part->SetGenerateOverlapEvents(false);Part->SetCanEverAffectNavigation(false);Part->RegisterComponent();
+        Part->SetGenerateOverlapEvents(false);Part->SetCanEverAffectNavigation(false);
+        Part->SetVisibility(false);Part->RegisterComponent();
     };
     RodVisual=NewObject<UProceduralMeshComponent>(Hero,TEXT("FishingRodVisual"));Configure(RodVisual);
     UKismetProceduralMeshLibrary::GetSectionFromStaticMesh(RodMesh,0,0,RestVertices,Triangles,RestNormals,UVs,RestTangents);
@@ -326,7 +373,7 @@ void UMCFishingRodComponent::SimulateLine(float Dt,FVector Tip)
     }
     LastAnchor=Tip;LurePoint=Points.Last();
     if(Hero->HasAuthority() && bReeling && FreeLineLength<=HangingLength+.1f) {
-        if(bFishHooked) if(auto* Identity=Hero->GetPlayerState<AMCPlayerState>()) Identity->AddCaughtFish();
+        CompleteHookedCatch();
         CancelFishing();
     }
 }
@@ -365,18 +412,21 @@ void UMCFishingRodComponent::DrawLine()
 void UMCFishingRodComponent::TickComponent(float Dt,ELevelTick Tick,FActorComponentTickFunction* Function)
 {
     Super::TickComponent(Dt,Tick,Function);
-    if(Hero && Hero->HasAuthority() && GetWorld()->GetTimeSeconds()>=NextFishingZoneCheckAt) {
+    if(Hero && Hero->HasAuthority() && ((bEquipped && !IsWithinFishingZone())
+        || GetWorld()->GetTimeSeconds()>=NextFishingZoneCheckAt)) {
         NextFishingZoneCheckAt=GetWorld()->GetTimeSeconds()+.1;
         RefreshFishingZone();
     }
     if(!RodFrame || !RodVisual || !LineVisual || Dt<=0) return;
     const bool Visible=IsPresented();
     const bool Walking=Hero->GetVelocity().SizeSquared2D()>FMath::Square(20.f);
-    if(Hero->HasAuthority() && Walking && (bFishingPose || bReeling || bLineOut)) CancelFishing();
+    if(Hero->HasAuthority() && Walking && (bFishingPose || bReeling || bLineOut)) CancelFishing(true);
     RodFrame->SetVisibility(Visible,true);
     if(!Visible) {
-        bWasVisible=false;HandsAlpha=0;
-        if(Hero->HasAuthority() && (bFishingPose || bReeling || bLineOut)) CancelFishing();
+        bWasVisible=false;bWasLineOut=false;HandsAlpha=PoseAlpha=0;
+        bCastFlight=bLureInWater=false;CastAge=0;Accumulator=0;FreeLineLength=HangingLength;
+        if(FishVisual) FishVisual->SetVisibility(false);
+        if(Hero->HasAuthority() && (bFishingPose || bReeling || bLineOut)) CancelFishing(true);
         return;
     }
     PoseAlpha=FMath::FInterpTo(PoseAlpha,!Walking && (bFishingPose || bLineOut)?1.f:0.f,Dt,7.f);

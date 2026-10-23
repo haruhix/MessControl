@@ -8,6 +8,7 @@
 class UBoxComponent;
 class UStaticMeshComponent;
 class UTextRenderComponent;
+class UMCWorldStatusComponent;
 class AMCToothCharacter;
 DECLARE_MULTICAST_DELEGATE_OneParam(FMCFoodEntryLanding,const FHitResult&);
 
@@ -164,6 +165,7 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Visual;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> GripSurface;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UTextRenderComponent> Label;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="UI") TObjectPtr<UMCWorldStatusComponent> WorldStatus;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Food") TSoftObjectPtr<UMCFoodProfile> Profile;
     UPROPERTY(Replicated, BlueprintReadOnly) FMCFoodSettings Settings;
     UPROPERTY(ReplicatedUsing=OnRep_Phase, BlueprintReadOnly) EMCFoodPhase Phase=EMCFoodPhase::Falling;

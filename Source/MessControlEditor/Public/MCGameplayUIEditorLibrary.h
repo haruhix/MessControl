@@ -16,6 +16,7 @@ class AMCTongue;
 class AMCNutRainEvent;
 class AMCNutBoss;
 class UMCMainMenuWidget;
+class APlayerController;
 
 /** Explicit editor authoring for the approved UI; existing artist trees are preserved unless a narrow repair is requested. */
 UCLASS()
@@ -26,6 +27,10 @@ public:
     /** Save only the specified live PIE world's game window, including HUD, to an E: PNG. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static bool CapturePIEGameWindow(UWorld* World, const FString& OutputFile);
+
+    /** Read-only live PIE view state for QA. This editor-only API never exposes gameplay mutators or changes property visibility. */
+    UFUNCTION(BlueprintPure, Category="Mess Control|Gameplay UI|Editor")
+    static FString InspectPlayerView(APlayerController* PlayerController);
 
     /** Read-only QA telemetry for this live PIE world's vortex; never changes gameplay or property visibility. */
     UFUNCTION(BlueprintPure, Category="Mess Control|Gameplay UI|Editor")
@@ -72,6 +77,10 @@ public:
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static bool RefreshHubWardrobePalettePresentation(UWidgetBlueprint* Blueprint);
 
+    /** Migrate only the known empty shop grid, preserving the saved surrounding Designer tree. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
+    static bool RefreshHubShopCatalogPresentation(UWidgetBlueprint* Blueprint);
+
     /** Append only missing named HUD controls, preserving the saved Designer layout and graph. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static bool AddMissingGameplayHUDPresentation(UWidgetBlueprint* Blueprint);
@@ -99,7 +108,7 @@ public:
     /** Draw the actual editable Slate tree to PNG on E: without PIE or gameplay actors. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static bool RenderGameplayUIPreview(TSubclassOf<UMCGameplayUIWidget> WidgetClass, const FString& OutputFile,
-        FIntPoint DrawSize, const FString& State, const FString& Culture, float Time=0.f);
+        FIntPoint DrawSize, const FString& State, const FString& Culture, float Time=0.f, float RenderScale=1.f);
 
     /** Adds the task-owned CJK sub-typeface; preserves default Latin/Cyrillic and other sub-typefaces. Does not save. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
