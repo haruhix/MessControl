@@ -1,0 +1,24 @@
+{
+  "mesh": "/Game/UI/MenuShowcase/CharacterMenu20261023/SK_CharacterMenu.SK_CharacterMenu",
+  "animation_data": "<Struct 'SingleAnimationPlayData' (0x00000198EB4E0B30) {anim_to_play: \"/Script/Engine.AnimSequence'/Game/UI/MenuShowcase/CharacterMenu20261023/A_CharacterMenu_Cleaning_Loop.A_CharacterMenu_Cleaning_Loop'\", saved_looping: True, saved_playing: True, saved_position: 0.000000, saved_play_rate: 1.000000}>",
+  "hero_transform": "<Struct 'Transform' (0x0000019920DA2B20) {rotation: {x: 0.000000, y: -0.000000, z: 0.866025, w: 0.500000}, translation: {x: -650.000000, y: 250.000000, z: 3.525917}, scale3d: {x: 1.000000, y: 1.000000, z: 1.000000}}>",
+  "sequence": "/Game/UI/MenuShowcase/AnatomyV2/LS_MainMenuCleaningV2.LS_MainMenuCleaningV2",
+  "frames": [
+    0,
+    219
+  ],
+  "duration": 9.125,
+  "infinite_loop": true,
+  "bindings": [
+    "MenuCoffeeMaterialV2",
+    "MenuFrothRimTop",
+    "MENU V2 | camera",
+    "MENU V2 | Cleaner",
+    "MenuCoffeeSurfaceV2",
+    "MenuContactFoamV2",
+    "MenuFrothRimLower"
+  ],
+  "preload": "Mesh, animation and three materials have reflected references on the saved menu component; the active LevelSequence also references the animation.",
+  "sole_contacts": "Projected onto the saved tongue geometry at 4.627722 and 2.424113cm",
+  "old_brush_hidden": true
+}

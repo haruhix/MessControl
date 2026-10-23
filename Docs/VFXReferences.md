@@ -1332,3 +1332,88 @@ experiment was rejected and removed, preserving the prior loading barrier;
 the older SSS first-use case remains an explicit limitation. No cold-cache,
 packaged game, network or GPU/transparency-cost validation is claimed for
 this batch.
+
+## Dense foam on the current menu brush — 2026-10-23
+
+Reused and reviewed the original [Lush soap-suds advice](https://realtimevfx.com/t/real-time-foam-soap-suds-shader/9919)
+and [Adriyan Tandia Beer Foam breakdown](https://adriyantandia.com/beerfoam)
+listed above. This pass adapts the opaque mass with low color contrast, plus
+separate fine and medium bubble scales. No creator geometry, texture or glass
+shader is copied.
+
+The current animated menu brush gets one closed opaque cap fitted from its
+actual bristle vertices. A continuous cream base and 185 embedded bubble caps
+are voxel joined and reduced to 30,176 triangles in one static mesh/component.
+The saved menu material copies the earlier opaque subsurface foam, with subtle
+vertex color variation and restrained wet highlights. It uses no new textures,
+particle cards or refraction. The cap follows `MenuBrush_brush` through a native
+skeletal attachment; local scale 0.01 compensates its imported 100x bone scale.
+The scene camera, lights, postprocess and existing actor placement are preserved.
+Runtime assets: `/Game/UI/MenuShowcase/DenseBrushFoam20261023`.
+Evidence and before map: `Saved/MenuDenseBrushFoam20261023`.
+
+
+Final menu brush foam validation: the dense closed coating is visible around
+the bristles and head perimeter in the actual menu camera. Solo PIE reached
+ready with 302 resources and 132 streaming targets, and completed one natural
+cleaning wrap with no foam-to-bone attachment drift. The cap has no collision
+or actor tick. The final scene and resources are saved; play preferences were
+restored. Earlier thin front-cap placements were superseded by the thick
+wrapping geometry. This is a warm Editor check; cold packaged first-use,
+build/cook/package, network and GPU profiling were not performed.
+Recipes: `Tools/Blender/export_menu_dense_brush_foam_20261023.py`,
+`Tools/Unreal/UI/add_dense_menu_brush_foam_20261023.py` and
+`Tools/Unreal/UI/check_dense_menu_brush_foam_20261023.py`.
+
+## Gameplay Niagara bubbles in the menu — 2026-10-23
+
+The artist rejected and removed the geometry foam above. That actor remains
+absent. The current menu uses a copy of the actual gameplay `NS_BrushFoam`
+under `/Game/UI/MenuShowcase/NiagaraBrushFoam20261023/NS_MenuBrushFoam_Dense`.
+Both original emitters, contact foam and floating bubbles, retain their game
+materials, sprite renderers, fading curves and module types. The menu preset
+raises contact foam to 480/s and bubbles to 1000/s, with smaller varied sprites
+and a wider bristle-sized emission plane. Rate times mean lifetime estimates
+about 221 foam particles plus 1650 bubbles; these are estimates rather than
+measured GPU particle counts. The original game system and materials retain
+their file hashes and reflected values.
+
+The Niagara actor follows `MenuBrush_brush` with its plane aligned to the
+bristles and local +Z away from enamel, as in the native brush-contact effect.
+The imported 100x bone scale is compensated to leave the Niagara component at
+unit world scale. The normal map preload collector sees the saved system and
+its existing material dependencies. Scene lights, camera and postprocess are
+preserved. No new material or rendering technique is introduced; the existing
+foam reference study above remains applicable.
+
+Recipes: `Tools/Unreal/UI/add_menu_gameplay_niagara_foam_20261023.py` and
+`check_menu_gameplay_niagara_foam_20261023.py`. Before map, saved/reloaded emitter
+snapshots, original package hashes and native preview are under
+`Saved/MenuNiagaraBubbles20261023`.
+
+Final solo check passed: active Niagara system, a natural cleaning wrap, dense
+bubble rings in the native camera and attachment error below 0.000001 cm.
+All original system/material hashes matched. Preload reached 303 resources
+and 131 streaming targets. This is warm Editor validation; GPU profiling,
+cold packaged first-use, build/cook/package and network checks were not run.
+
+Menu attachment correction: the Niagara component now uses absolute world
+rotation. Its origin still follows the animated brush socket, including the
+artist's current relative offset, while the effect orientation stays fixed.
+The artist's adjusted scale and all emission settings are preserved.
+`Tools/Unreal/UI/fix_menu_niagara_rotation_20261023.py` applies this correction;
+the solo check also compares effect rotation against the moving brush rotation.
+
+Synchronization correction — 2026-10-24: keep the origin on the fitted bristle
+contact and use `ForceTickLast`, after Sequencer and parallel skeletal pose
+evaluation. The cleaner always refreshes its bones, including when occluded.
+The effect retains absolute world rotation, the artist scale and both emission
+profiles. The project already uses immediate GPU translucent data; no system,
+material, lighting or postprocess settings were changed for this correction.
+The regular solo check samples attachment alignment every frame. The additional
+`check_menu_niagara_animation_phase_20261024.py` compares the live origin with
+the compressed source animation evaluated independently at the current sequence
+frame, across a complete natural wrap. Evidence: `SyncPoseValidation.json` in
+`Saved/MenuNiagaraBubbles20261023`. Apply with
+`Tools/Unreal/UI/fix_menu_niagara_sync_20261024.py`.
+
