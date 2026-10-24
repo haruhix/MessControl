@@ -1,0 +1,5975 @@
+{
+  "version": 1,
+  "title": "MessControl Audio Desk",
+  "audited_at": "2026-10-24",
+  "project_root": "${PROJECT_ROOT}",
+  "palette_asset": "/Game/Data/DA_MouthSounds",
+  "notes": [
+    "wired означает существующий вызов в просмотренном native-коде, а не доказанную слышимость/сохранённое назначение.",
+    "needs_hook — рекомендация нового вызова; звук из профиля сначала нужно интегрировать.",
+    "События — строковые FName в UMCSoundPalette, не C++ enum и не DataTable.",
+    "Актуальные назначения пакетов и Blueprint-аудио уточняются отдельным saved/live audit."
+  ],
+  "groups": [
+    {
+      "id": "player",
+      "label": "Персонаж и движение"
+    },
+    {
+      "id": "tools",
+      "label": "Инструменты и контакт"
+    },
+    {
+      "id": "food",
+      "label": "Еда и доставка"
+    },
+    {
+      "id": "care",
+      "label": "Уход за зубами"
+    },
+    {
+      "id": "fishing",
+      "label": "Рыбалка"
+    },
+    {
+      "id": "hub",
+      "label": "Хаб, магазин и гардероб"
+    },
+    {
+      "id": "rewards",
+      "label": "Сундук и награды"
+    },
+    {
+      "id": "ui",
+      "label": "Интерфейс и сигналы"
+    },
+    {
+      "id": "fog",
+      "label": "Туман"
+    },
+    {
+      "id": "ice",
+      "label": "Лёд и холод"
+    },
+    {
+      "id": "nuts",
+      "label": "Ореховые боссы"
+    },
+    {
+      "id": "arena",
+      "label": "Другие события арены"
+    },
+    {
+      "id": "music",
+      "label": "Музыка по сценам"
+    },
+    {
+      "id": "ambience",
+      "label": "Атмосфера по сценам"
+    },
+    {
+      "id": "piano",
+      "label": "Зубное пианино"
+    }
+  ],
+  "slots": [
+    {
+      "id": "event.Step",
+      "label": "Шаги",
+      "group": "player",
+      "description": "Короткий мягкий шаг; 4–8 вариантов, без длинного хвоста. Зависит от темпа походки.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "palette_event",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "Step",
+        "hook": "UMCSoundPalette::PlayWithParameters"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCToothCharacter.cpp:1406"
+      ],
+      "suggested_variants": 6,
+      "search_keywords": {
+        "positive": [
+          "footstep",
+          "step",
+          "wet",
+          "squish"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.04,
+        "max_duration": 0.65
+      },
+      "current_assignment": {
+        "sounds": [
+          {
+            "refPath": "/Game/Audio/S_Step.S_Step"
+          }
+        ],
+        "volume": 0.2199999988079071,
+        "pitchMin": 0.9200000166893005,
+        "pitchMax": 1.0800000429153442,
+        "source_files": [
+          {
+            "file_id": "f8fe1f4de8be404fc14115b6",
+            "name": "Step.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/Step.wav",
+            "unreal_asset": "/Game/Audio/S_Step.S_Step",
+            "source_matches_import_md5": true,
+            "gain_db": -13.152
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      },
+      "timing_policy": {
+        "min_duration": 0.04,
+        "max_duration": 0.65,
+        "ideal_min": 0.12,
+        "ideal_max": 0.45,
+        "reason": "Один шаг; короткий хвост. В игре есть кулдаун 0,13 с.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "event.Jump",
+      "label": "Приземление",
+      "group": "player",
+      "description": "Текущий ключ Jump фактически вызывается в Landed, кроме приземления на зубное пианино. Для отталкивания нужен отдельный hook.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "palette_event",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "Jump",
+        "hook": "UMCSoundPalette::PlayWithParameters"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCToothCharacter.cpp:1242"
+      ],
+      "suggested_variants": 4,
+      "search_keywords": {
+        "positive": [
+          "land",
+          "jump",
+          "thud"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.05,
+        "max_duration": 1.2
+      },
+      "current_assignment": {
+        "sounds": [
+          {
+            "refPath": "/Game/Audio/S_Jump.S_Jump"
+          }
+        ],
+        "volume": 0.6000000238418579,
+        "pitchMin": 0.9200000166893005,
+        "pitchMax": 1.0800000429153442,
+        "source_files": [
+          {
+            "file_id": "ca4385a0322d8f994ca99815",
+            "name": "Jump.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/Jump.wav",
+            "unreal_asset": "/Game/Audio/S_Jump.S_Jump",
+            "source_matches_import_md5": true,
+            "gain_db": -4.437
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      },
+      "timing_policy": {
+        "min_duration": 0.05,
+        "max_duration": 1.2,
+        "ideal_min": 0.12,
+        "ideal_max": 0.65,
+        "reason": "Один контакт приземления, без длинного падения.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "event.Fall",
+      "label": "Падение в ragdoll",
+      "group": "player",
+      "description": "Удар/комичный срыв при падении персонажа; не озвучивать как обычное приземление.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "palette_event",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "Fall",
+        "hook": "UMCSoundPalette::PlayWithParameters"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCToothPhysicsComponent.cpp:312"
+      ],
+      "suggested_variants": 4,
+      "search_keywords": {
+        "positive": [
+          "fall",
+          "thud",
+          "impact",
+          "body",
+          "punch"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.08,
+        "max_duration": 2.5
+      },
+      "current_assignment": {
+        "sounds": [
+          {
+            "refPath": "/Game/Audio/S_Fall.S_Fall"
+          }
+        ],
+        "volume": 0.6000000238418579,
+        "pitchMin": 0.9200000166893005,
+        "pitchMax": 1.0800000429153442,
+        "source_files": [
+          {
+            "file_id": "98b3d794bd421db432ee76f7",
+            "name": "Fall.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/Fall.wav",
+            "unreal_asset": "/Game/Audio/S_Fall.S_Fall",
+            "source_matches_import_md5": true,
+            "gain_db": -4.437
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      },
+      "timing_policy": {
+        "min_duration": 0.08,
+        "max_duration": 2.5,
+        "ideal_min": 0.2,
+        "ideal_max": 1.2,
+        "reason": "Удар тела и короткий хвост падения в ragdoll.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "event.StandUp",
+      "label": "Подъём после падения",
+      "group": "player",
+      "description": "Короткий подъём/возвращение контроля.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "palette_event",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "StandUp",
+        "hook": "UMCSoundPalette::PlayWithParameters"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCToothPhysicsComponent.cpp:429"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "cloth",
+          "rustle",
+          "creak",
+          "equip"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.08,
+        "max_duration": 1.8
+      },
+      "current_assignment": {
+        "sounds": [
+          {
+            "refPath": "/Game/Audio/S_StandUp.S_StandUp"
+          }
+        ],
+        "volume": 0.6000000238418579,
+        "pitchMin": 0.9200000166893005,
+        "pitchMax": 1.0800000429153442,
+        "source_files": [
+          {
+            "file_id": "b02ff163c10374f4e0dac05e",
+            "name": "StandUp.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/StandUp.wav",
+            "unreal_asset": "/Game/Audio/S_StandUp.S_StandUp",
+            "source_matches_import_md5": true,
+            "gain_db": -4.437
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      },
+      "timing_policy": {
+        "min_duration": 0.08,
+        "max_duration": 1.8,
+        "ideal_min": 0.2,
+        "ideal_max": 0.9,
+        "reason": "Короткое усилие подъёма, не серия движений.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "event.Brush",
+      "label": "Рабочий контакт щётки",
+      "group": "tools",
+      "description": "Повтор коротких штрихов только при рабочем контакте. Сейчас этот же ключ переиспользуется спреем.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "palette_event",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "Brush",
+        "hook": "UMCSoundPalette::PlayWithParameters"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCToothCharacter.cpp:1419"
+      ],
+      "suggested_variants": 6,
+      "search_keywords": {
+        "positive": [
+          "broom",
+          "sweep",
+          "brush",
+          "scrub",
+          "friction"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.03,
+        "max_duration": 0.4
+      },
+      "current_assignment": {
+        "sounds": [
+          {
+            "refPath": "/Game/Audio/S_Brush.S_Brush"
+          }
+        ],
+        "volume": 0.2199999988079071,
+        "pitchMin": 0.9200000166893005,
+        "pitchMax": 1.0800000429153442,
+        "source_files": [
+          {
+            "file_id": "970a2183f32671fd6dd0abc0",
+            "name": "Brush.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/Brush.wav",
+            "unreal_asset": "/Game/Audio/S_Brush.S_Brush",
+            "source_matches_import_md5": true,
+            "gain_db": -13.152
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      },
+      "timing_policy": {
+        "min_duration": 0.03,
+        "max_duration": 0.4,
+        "ideal_min": 0.08,
+        "ideal_max": 0.25,
+        "reason": "Один штрих щётки; повтор в коде каждые 0,14–0,56 с.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "event.Pull",
+      "label": "Тянуть / чинить руками",
+      "group": "tools",
+      "description": "Короткий повтор усилия через 0.28 с при bHandling; общий для перетаскивания и ручного ремонта.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "palette_event",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "Pull",
+        "hook": "UMCSoundPalette::PlayWithParameters"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCToothCharacter.cpp:1426"
+      ],
+      "suggested_variants": 4,
+      "search_keywords": {
+        "positive": [
+          "squelch",
+          "stretch",
+          "squish",
+          "creak"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.03,
+        "max_duration": 0.45
+      },
+      "current_assignment": {
+        "sounds": [
+          {
+            "refPath": "/Game/Audio/S_Pull.S_Pull"
+          }
+        ],
+        "volume": 0.2199999988079071,
+        "pitchMin": 0.9200000166893005,
+        "pitchMax": 1.0800000429153442,
+        "source_files": [
+          {
+            "file_id": "1bc1244119cf3117c3eddd4a",
+            "name": "Pull.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/Pull.wav",
+            "unreal_asset": "/Game/Audio/S_Pull.S_Pull",
+            "source_matches_import_md5": true,
+            "gain_db": -13.152
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      },
+      "timing_policy": {
+        "min_duration": 0.03,
+        "max_duration": 0.45,
+        "ideal_min": 0.08,
+        "ideal_max": 0.25,
+        "reason": "Короткое усилие; существующий звук повторяется через 0,28 с.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "event.Whoosh",
+      "label": "Общий взмах",
+      "group": "tools",
+      "description": "Общий взмах и fallback для KnifeSwing/PickaxeSwing, если собственного ключа нет.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "palette_event",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "Whoosh",
+        "hook": "UMCSoundPalette::PlayWithParameters"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCToothCharacter.cpp:1468"
+      ],
+      "suggested_variants": 4,
+      "search_keywords": {
+        "positive": [
+          "whoosh",
+          "swipe",
+          "swoosh"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.04,
+        "max_duration": 0.9
+      },
+      "current_assignment": {
+        "sounds": [
+          {
+            "refPath": "/Game/Audio/S_Whoosh.S_Whoosh"
+          }
+        ],
+        "volume": 0.6000000238418579,
+        "pitchMin": 0.9200000166893005,
+        "pitchMax": 1.0800000429153442,
+        "source_files": [
+          {
+            "file_id": "d9282e1ba64b0d544119a611",
+            "name": "Whoosh.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/Whoosh.wav",
+            "unreal_asset": "/Game/Audio/S_Whoosh.S_Whoosh",
+            "source_matches_import_md5": true,
+            "gain_db": -4.437
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      },
+      "timing_policy": {
+        "min_duration": 0.04,
+        "max_duration": 0.9,
+        "ideal_min": 0.1,
+        "ideal_max": 0.4,
+        "reason": "Один взмах, быстрый читаемый проход без длинного хвоста.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "event.Hit",
+      "label": "Общий удар",
+      "group": "tools",
+      "description": "Общий подтверждённый контакт и fallback для KnifeHit/PickaxeHit.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "palette_event",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "Hit",
+        "hook": "UMCSoundPalette::PlayWithParameters"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCToothCharacter.cpp:1476"
+      ],
+      "suggested_variants": 5,
+      "search_keywords": {
+        "positive": [
+          "impact",
+          "punch",
+          "slap"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.05,
+        "max_duration": 1.5
+      },
+      "current_assignment": {
+        "sounds": [
+          {
+            "refPath": "/Game/Audio/S_Hit.S_Hit"
+          }
+        ],
+        "volume": 0.6000000238418579,
+        "pitchMin": 0.9200000166893005,
+        "pitchMax": 1.0800000429153442,
+        "source_files": [
+          {
+            "file_id": "6fa1cf16de02de434fe26a50",
+            "name": "Hit.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/Hit.wav",
+            "unreal_asset": "/Game/Audio/S_Hit.S_Hit",
+            "source_matches_import_md5": true,
+            "gain_db": -4.437
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      },
+      "timing_policy": {
+        "min_duration": 0.05,
+        "max_duration": 1.5,
+        "ideal_min": 0.1,
+        "ideal_max": 0.6,
+        "reason": "Один подтверждённый удар, короткая атака и затухание.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "event.KnifeSwing",
+      "label": "Взмах ножа",
+      "group": "tools",
+      "description": "Лёгкий режущий свист. Отдельный существующий ключ; отсутствие использует Whoosh.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "palette_event",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "KnifeSwing",
+        "hook": "UMCSoundPalette::PlayWithParameters"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCToothCharacter.cpp:1468"
+      ],
+      "suggested_variants": 4,
+      "search_keywords": {
+        "positive": [
+          "whoosh",
+          "swipe",
+          "swing"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.03,
+        "max_duration": 0.65
+      },
+      "timing_policy": {
+        "min_duration": 0.03,
+        "max_duration": 0.65,
+        "ideal_min": 0.07,
+        "ideal_max": 0.3,
+        "reason": "Быстрый одиночный взмах ножа.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "event.KnifeHit",
+      "label": "Попадание ножом",
+      "group": "tools",
+      "description": "Хруст/мягкий удар для подтверждённого контакта ножа. Сейчас материал цели не различается.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "palette_event",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "KnifeHit",
+        "hook": "UMCSoundPalette::PlayWithParameters"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCToothCharacter.cpp:1476"
+      ],
+      "suggested_variants": 6,
+      "search_keywords": {
+        "positive": [
+          "slice",
+          "cut",
+          "chop",
+          "crunch",
+          "splat"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.04,
+        "max_duration": 1.0
+      },
+      "timing_policy": {
+        "min_duration": 0.04,
+        "max_duration": 1.0,
+        "ideal_min": 0.08,
+        "ideal_max": 0.45,
+        "reason": "Короткий контакт ножа; не длинная последовательность рубки.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "event.PickaxeSwing",
+      "label": "Взмах кирки",
+      "group": "tools",
+      "description": "Более тяжёлый свист кирки. Отсутствие использует Whoosh.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "palette_event",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "PickaxeSwing",
+        "hook": "UMCSoundPalette::PlayWithParameters"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCToothCharacter.cpp:1468"
+      ],
+      "suggested_variants": 4,
+      "search_keywords": {
+        "positive": [
+          "whoosh",
+          "swing",
+          "heavy"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.05,
+        "max_duration": 1.2
+      },
+      "timing_policy": {
+        "min_duration": 0.05,
+        "max_duration": 1.2,
+        "ideal_min": 0.15,
+        "ideal_max": 0.65,
+        "reason": "Более тяжёлый, но одиночный взмах кирки.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "event.PickaxeHit",
+      "label": "Попадание киркой",
+      "group": "tools",
+      "description": "Тяжёлый скол для кирки. Сейчас лёд, налёт, орехи и боссы делят один ключ.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "palette_event",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "PickaxeHit",
+        "hook": "UMCSoundPalette::PlayWithParameters"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCToothCharacter.cpp:1476"
+      ],
+      "suggested_variants": 6,
+      "search_keywords": {
+        "positive": [
+          "crack",
+          "stone",
+          "impact",
+          "metal"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.06,
+        "max_duration": 1.8
+      },
+      "timing_policy": {
+        "min_duration": 0.06,
+        "max_duration": 1.8,
+        "ideal_min": 0.15,
+        "ideal_max": 0.9,
+        "reason": "Удар и скол кирки; допустим небольшой материальный хвост.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "event.Complete",
+      "label": "Завершение старого task-актора",
+      "group": "ui",
+      "description": "Подключено в AMCTaskActor::MulticastComplete; не считать универсальным подтверждением всех современных задач.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "palette_event",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "Complete",
+        "hook": "UMCSoundPalette::PlayWithParameters"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCTaskActor.cpp:64"
+      ],
+      "suggested_variants": 2,
+      "search_keywords": {
+        "positive": [
+          "chime",
+          "positive",
+          "complete",
+          "collect"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.08,
+        "max_duration": 2.5
+      },
+      "current_assignment": {
+        "sounds": [
+          {
+            "refPath": "/Game/Audio/S_Complete.S_Complete"
+          }
+        ],
+        "volume": 0.6000000238418579,
+        "pitchMin": 0.9200000166893005,
+        "pitchMax": 1.0800000429153442,
+        "source_files": [
+          {
+            "file_id": "c434dacf17eb4523cfbc45cf",
+            "name": "Complete.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/Complete.wav",
+            "unreal_asset": "/Game/Audio/S_Complete.S_Complete",
+            "source_matches_import_md5": true,
+            "gain_db": -4.437
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      },
+      "timing_policy": {
+        "min_duration": 0.08,
+        "max_duration": 2.5,
+        "ideal_min": 0.25,
+        "ideal_max": 1.2,
+        "reason": "Короткое подтверждение завершённой задачи.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "event.DayStart",
+      "label": "Старт рабочей фазы",
+      "group": "ui",
+      "description": "Существующий сигнал фазы Working в PrototypeWidget.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "palette_event",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "DayStart",
+        "hook": "UMCSoundPalette::PlayWithParameters"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCPrototypeWidget.cpp:293"
+      ],
+      "suggested_variants": 1,
+      "search_keywords": {
+        "positive": [
+          "level_start",
+          "start",
+          "chime"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.15,
+        "max_duration": 5
+      },
+      "current_assignment": {
+        "sounds": [
+          {
+            "refPath": "/Game/Audio/S_DayStart.S_DayStart"
+          }
+        ],
+        "volume": 0.6000000238418579,
+        "pitchMin": 0.9200000166893005,
+        "pitchMax": 1.0800000429153442,
+        "source_files": [
+          {
+            "file_id": "17f28cdd7a3c851c24851933",
+            "name": "DayStart.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/DayStart.wav",
+            "unreal_asset": "/Game/Audio/S_DayStart.S_DayStart",
+            "source_matches_import_md5": true,
+            "gain_db": -4.437
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      },
+      "timing_policy": {
+        "min_duration": 0.15,
+        "max_duration": 5,
+        "ideal_min": 0.5,
+        "ideal_max": 2.5,
+        "reason": "Сигнал начала фазы; допускается короткий музыкальный акцент.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "event.Win",
+      "label": "Победа",
+      "group": "ui",
+      "description": "Существующий сигнал Won в PrototypeWidget. Учебник также напрямую загружает /Game/Audio/S_Win.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "palette_event",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "Win",
+        "hook": "UMCSoundPalette::PlayWithParameters"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCPrototypeWidget.cpp:293"
+      ],
+      "suggested_variants": 1,
+      "search_keywords": {
+        "positive": [
+          "level_complete",
+          "victory",
+          "success",
+          "positive"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.3,
+        "max_duration": 8
+      },
+      "current_assignment": {
+        "sounds": [
+          {
+            "refPath": "/Game/Audio/S_Win.S_Win"
+          }
+        ],
+        "volume": 0.6000000238418579,
+        "pitchMin": 0.9200000166893005,
+        "pitchMax": 1.0800000429153442,
+        "source_files": [
+          {
+            "file_id": "d907a42b7a98fd4d9be40c6b",
+            "name": "Win.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/Win.wav",
+            "unreal_asset": "/Game/Audio/S_Win.S_Win",
+            "source_matches_import_md5": true,
+            "gain_db": -4.437
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      },
+      "timing_policy": {
+        "min_duration": 0.3,
+        "max_duration": 8,
+        "ideal_min": 1.5,
+        "ideal_max": 4,
+        "reason": "Победная отбивка; это не фоновый музыкальный трек.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "event.Lose",
+      "label": "Поражение",
+      "group": "ui",
+      "description": "Существующий сигнал Lost в PrototypeWidget.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "palette_event",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "Lose",
+        "hook": "UMCSoundPalette::PlayWithParameters"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCPrototypeWidget.cpp:293"
+      ],
+      "suggested_variants": 1,
+      "search_keywords": {
+        "positive": [
+          "defeated",
+          "failure",
+          "negative"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.3,
+        "max_duration": 8
+      },
+      "current_assignment": {
+        "sounds": [
+          {
+            "refPath": "/Game/Audio/S_Lose.S_Lose"
+          }
+        ],
+        "volume": 0.6000000238418579,
+        "pitchMin": 0.9200000166893005,
+        "pitchMax": 1.0800000429153442,
+        "source_files": [
+          {
+            "file_id": "b521d221fc54871f61a78c07",
+            "name": "Lose.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/Lose.wav",
+            "unreal_asset": "/Game/Audio/S_Lose.S_Lose",
+            "source_matches_import_md5": true,
+            "gain_db": -4.437
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      },
+      "timing_policy": {
+        "min_duration": 0.3,
+        "max_duration": 8,
+        "ideal_min": 1,
+        "ideal_max": 4,
+        "reason": "Отбивка поражения с допустимым выразительным хвостом.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "scene.MainMenu.Music",
+      "label": "Музыка: Главное меню",
+      "group": "music",
+      "description": "Экран главного меню после студийного splash. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "music",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "MainMenu",
+        "layer": "Music",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:97",
+        "Source/MessControl/Private/MCMainMenuPlayerController.cpp:19"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Leave empty if no actual music track is available; musical stings are not background tracks.",
+      "search_keywords": {
+        "positive": [
+          "music",
+          "soundtrack",
+          "theme",
+          "bgm"
+        ],
+        "negative": [
+          "chime",
+          "sting",
+          "jingle",
+          "level_start",
+          "level_complete",
+          "negative",
+          "positive",
+          "sfx",
+          "ui"
+        ],
+        "min_duration": 30,
+        "max_duration": 1800
+      },
+      "current_assignment": {
+        "sound": "/Game/Audio/Ambient_7_-_Guitars_Fun_Preview_-_Crop__2.Ambient_7_-_Guitars_Fun_Preview_-_Crop__2",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: дружелюбная, чуть странная и игрушечная тема, интенсивность 2/5. Лёгкая перкуссия, тёплая мелодия, узнаваемый короткий мотив. Длина 1–3 минуты, спокойное развитие и бесшовный цикл. Без вокала, резких ударов и длинного громкого вступления; клики меню должны оставаться ясными.",
+      "timing_policy": {
+        "min_duration": 30,
+        "max_duration": 1800,
+        "ideal_min": 60,
+        "ideal_max": 300,
+        "reason": "Полноценный фоновый трек; короткие джинглы не подходят.",
+        "mode": "music"
+      }
+    },
+    {
+      "id": "scene.MainMenu.Ambience",
+      "label": "Атмосфера: Главное меню",
+      "group": "ambience",
+      "description": "Экран главного меню после студийного splash. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "ambience",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "MainMenu",
+        "layer": "Ambience",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:98",
+        "Source/MessControl/Private/MCMainMenuPlayerController.cpp:19"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Only a sustained environmental bed or authored loop; leave empty when unsuitable.",
+      "search_keywords": {
+        "positive": [
+          "ambient",
+          "room"
+        ],
+        "negative": [
+          "chime",
+          "jingle",
+          "gun",
+          "sword",
+          "footstep"
+        ],
+        "min_duration": 3,
+        "max_duration": 900
+      },
+      "current_assignment": {
+        "sound": "None",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: едва заметный живой фон, интенсивность 1/5; мягкий room tone или деликатные органические пузырьки, только если подходят картинке меню. Петля 30–90 секунд, без узнаваемого повторяющегося одиночного звука. Без голосов и заметной мелодии; допустима осознанная тишина.",
+      "timing_policy": {
+        "min_duration": 3,
+        "max_duration": 900,
+        "ideal_min": 10,
+        "ideal_max": 120,
+        "reason": "Устойчивый атмосферный слой или авторская петля; длина не доказывает бесшовность.",
+        "mode": "loop"
+      }
+    },
+    {
+      "id": "scene.Hub.Music",
+      "label": "Музыка: Хаб",
+      "group": "music",
+      "description": "Основное пространство хаба: рыбалка, магазин, гардероб, гриль. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "music",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "Hub",
+        "layer": "Music",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:97",
+        "Source/MessControl/Private/MCPlayerController.cpp:187"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Leave empty if no actual music track is available; musical stings are not background tracks.",
+      "search_keywords": {
+        "positive": [
+          "music",
+          "soundtrack",
+          "theme",
+          "bgm"
+        ],
+        "negative": [
+          "chime",
+          "sting",
+          "jingle",
+          "level_start",
+          "level_complete",
+          "negative",
+          "positive",
+          "sfx",
+          "ui"
+        ],
+        "min_duration": 30,
+        "max_duration": 1800
+      },
+      "current_assignment": {
+        "sound": "None",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: уютный отдых между забегами, интенсивность 1–2/5. Ненавязчивый игривый грув, мягкие щипковые/клавишные тембры; не усыпляющая и не боевая музыка. Длина 2–4 минуты с бесшовным циклом. Без вокала; оставить место воде, рыбалке, грилю, покупкам и голосам игроков.",
+      "timing_policy": {
+        "min_duration": 30,
+        "max_duration": 1800,
+        "ideal_min": 60,
+        "ideal_max": 300,
+        "reason": "Полноценный фоновый трек; короткие джинглы не подходят.",
+        "mode": "music"
+      }
+    },
+    {
+      "id": "scene.Hub.Ambience",
+      "label": "Атмосфера: Хаб",
+      "group": "ambience",
+      "description": "Основное пространство хаба: рыбалка, магазин, гардероб, гриль. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "ambience",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "Hub",
+        "layer": "Ambience",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:98",
+        "Source/MessControl/Private/MCPlayerController.cpp:187"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Only a sustained environmental bed or authored loop; leave empty when unsuitable.",
+      "search_keywords": {
+        "positive": [
+          "water_babbling_loop",
+          "water",
+          "birds",
+          "ambient"
+        ],
+        "negative": [
+          "chime",
+          "jingle",
+          "gun",
+          "sword",
+          "footstep"
+        ],
+        "min_duration": 3,
+        "max_duration": 900
+      },
+      "current_assignment": {
+        "sound": "None",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: спокойное общее пространство хаба, интенсивность 1/5. Воздух, тихая вода и редкие мягкие детали, согласованные с локацией. Петля 45–120 секунд, ровная громкость, без резкого начала. Не делать весь хаб похожим на громкий пруд; локальная вода и огонь гриля могут иметь отдельные источники.",
+      "timing_policy": {
+        "min_duration": 3,
+        "max_duration": 900,
+        "ideal_min": 10,
+        "ideal_max": 120,
+        "reason": "Устойчивый атмосферный слой или авторская петля; длина не доказывает бесшовность.",
+        "mode": "loop"
+      }
+    },
+    {
+      "id": "scene.Relax.Music",
+      "label": "Музыка: Передышка",
+      "group": "music",
+      "description": "Ожидание лобби, нерабочая фаза, отдых директора, cleanup катаклизма. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "music",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "Relax",
+        "layer": "Music",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:97",
+        "Source/MessControl/Private/MCPlayerController.cpp:192"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Leave empty if no actual music track is available; musical stings are not background tracks.",
+      "search_keywords": {
+        "positive": [
+          "music",
+          "soundtrack",
+          "theme",
+          "bgm"
+        ],
+        "negative": [
+          "chime",
+          "sting",
+          "jingle",
+          "level_start",
+          "level_complete",
+          "negative",
+          "positive",
+          "sfx",
+          "ui"
+        ],
+        "min_duration": 30,
+        "max_duration": 1800
+      },
+      "current_assignment": {
+        "sound": "/Game/Audio/Relax.Relax",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: облегчение и короткая передышка, интенсивность 1/5. Более редкая аранжировка той же игровой темы, минимум басового давления и ударных. Длина 1–3 минуты, бесшовный цикл и мягкий вход за 1–2 секунды. Без вокала и сигнала победы; старт следующего события должен читаться сразу.",
+      "timing_policy": {
+        "min_duration": 30,
+        "max_duration": 1800,
+        "ideal_min": 60,
+        "ideal_max": 300,
+        "reason": "Полноценный фоновый трек; короткие джинглы не подходят.",
+        "mode": "music"
+      }
+    },
+    {
+      "id": "scene.Relax.Ambience",
+      "label": "Атмосфера: Передышка",
+      "group": "ambience",
+      "description": "Ожидание лобби, нерабочая фаза, отдых директора, cleanup катаклизма. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "ambience",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "Relax",
+        "layer": "Ambience",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:98",
+        "Source/MessControl/Private/MCPlayerController.cpp:192"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Only a sustained environmental bed or authored loop; leave empty when unsuitable.",
+      "search_keywords": {
+        "positive": [
+          "ambient",
+          "wind",
+          "room"
+        ],
+        "negative": [
+          "chime",
+          "jingle",
+          "gun",
+          "sword",
+          "footstep"
+        ],
+        "min_duration": 3,
+        "max_duration": 900
+      },
+      "current_assignment": {
+        "sound": "None",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: тихая живая ротовая среда, интенсивность 1/5. Очень мягкое движение воздуха/жидкости без натуралистичных неприятных крупных звуков. Петля 30–90 секунд. Не сохранять тревожный шум завершившегося события; шаги, работа инструментов и общение важнее фона.",
+      "timing_policy": {
+        "min_duration": 3,
+        "max_duration": 900,
+        "ideal_min": 10,
+        "ideal_max": 120,
+        "reason": "Устойчивый атмосферный слой или авторская петля; длина не доказывает бесшовность.",
+        "mode": "loop"
+      }
+    },
+    {
+      "id": "scene.Gameplay.Music",
+      "label": "Музыка: Обычная работа",
+      "group": "music",
+      "description": "Основной рабочий цикл арены, когда приоритетные события не активны. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "music",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "Gameplay",
+        "layer": "Music",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:97",
+        "Source/MessControl/Private/MCPlayerController.cpp:203"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Leave empty if no actual music track is available; musical stings are not background tracks.",
+      "search_keywords": {
+        "positive": [
+          "music",
+          "soundtrack",
+          "theme",
+          "bgm"
+        ],
+        "negative": [
+          "chime",
+          "sting",
+          "jingle",
+          "level_start",
+          "level_complete",
+          "negative",
+          "positive",
+          "sfx",
+          "ui"
+        ],
+        "min_duration": 30,
+        "max_duration": 1800
+      },
+      "current_assignment": {
+        "sound": "/Game/Audio/Relax.Relax",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: бодрая совместная работа с комичным напряжением, интенсивность 2–3/5. Чёткий лёгкий ритм и немного озорства, без ощущения финальной битвы. Длина 2–4 минуты, бесшовный цикл без обязательного кульминационного финала. Без вокала; щётка, удары, урон и предупреждения должны оставаться разборчивыми.",
+      "timing_policy": {
+        "min_duration": 30,
+        "max_duration": 1800,
+        "ideal_min": 60,
+        "ideal_max": 300,
+        "reason": "Полноценный фоновый трек; короткие джинглы не подходят.",
+        "mode": "music"
+      }
+    },
+    {
+      "id": "scene.Gameplay.Ambience",
+      "label": "Атмосфера: Обычная работа",
+      "group": "ambience",
+      "description": "Основной рабочий цикл арены, когда приоритетные события не активны. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "ambience",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "Gameplay",
+        "layer": "Ambience",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:98",
+        "Source/MessControl/Private/MCPlayerController.cpp:203"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Only a sustained environmental bed or authored loop; leave empty when unsuitable.",
+      "search_keywords": {
+        "positive": [
+          "ambient",
+          "gurgle",
+          "mouth"
+        ],
+        "negative": [
+          "chime",
+          "jingle",
+          "gun",
+          "sword",
+          "footstep"
+        ],
+        "min_duration": 3,
+        "max_duration": 900
+      },
+      "current_assignment": {
+        "sound": "None",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: сдержанная органическая атмосфера арены, интенсивность 1/5. Мягкий влажный room tone, редкое движение жидкости; избегать постоянного чавканья. Петля 45–120 секунд. Не включать в фон звуки, похожие на попадания, поклёвку, тревогу или подтверждение задачи.",
+      "timing_policy": {
+        "min_duration": 3,
+        "max_duration": 900,
+        "ideal_min": 10,
+        "ideal_max": 120,
+        "reason": "Устойчивый атмосферный слой или авторская петля; длина не доказывает бесшовность.",
+        "mode": "loop"
+      }
+    },
+    {
+      "id": "scene.NutEncounter.Music",
+      "label": "Музыка: Ореховое столкновение",
+      "group": "music",
+      "description": "Сцена дождя орехов и ореховых боссов. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "music",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "NutEncounter",
+        "layer": "Music",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:97",
+        "Source/MessControl/Private/MCPlayerController.cpp:198"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Leave empty if no actual music track is available; musical stings are not background tracks.",
+      "search_keywords": {
+        "positive": [
+          "music",
+          "soundtrack",
+          "theme",
+          "bgm"
+        ],
+        "negative": [
+          "chime",
+          "sting",
+          "jingle",
+          "level_start",
+          "level_complete",
+          "negative",
+          "positive",
+          "sfx",
+          "ui"
+        ],
+        "min_duration": 30,
+        "max_duration": 1800
+      },
+      "current_assignment": {
+        "sound": "/Game/Audio/Dark_Souls_III_OST_10_-_Vordt_of_the_Boreal_Valley_-_Games_Music_01.Dark_Souls_III_OST_10_-_Vordt_of_the_Boreal_Valley_-_Games_Music_01",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: упругая, тяжеловатая и хитрая тема орехового столкновения, интенсивность 3/5. Деревянная/сухая перкуссия и комичный напор, пригодный и танку, и магу. Длина 1.5–3 минуты, бесшовный цикл. Без вокала; не заглушать подготовку атаки, щит, перекат и телепорт.",
+      "timing_policy": {
+        "min_duration": 30,
+        "max_duration": 1800,
+        "ideal_min": 60,
+        "ideal_max": 300,
+        "reason": "Полноценный фоновый трек; короткие джинглы не подходят.",
+        "mode": "music"
+      }
+    },
+    {
+      "id": "scene.NutEncounter.Ambience",
+      "label": "Атмосфера: Ореховое столкновение",
+      "group": "ambience",
+      "description": "Сцена дождя орехов и ореховых боссов. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "ambience",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "NutEncounter",
+        "layer": "Ambience",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:98",
+        "Source/MessControl/Private/MCPlayerController.cpp:198"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Only a sustained environmental bed or authored loop; leave empty when unsuitable.",
+      "search_keywords": {
+        "positive": [
+          "ambient",
+          "wind",
+          "rumble"
+        ],
+        "negative": [
+          "chime",
+          "jingle",
+          "gun",
+          "sword",
+          "footstep"
+        ],
+        "min_duration": 3,
+        "max_duration": 900
+      },
+      "current_assignment": {
+        "sound": "None",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: лёгкое напряжение воздуха и пространства, интенсивность 1–2/5. Редкое сухое шуршание допустимо, но падения орехов и удары должны приходить из реальных событий. Петля 30–90 секунд без ритмичных стуков, которые можно спутать с атакой.",
+      "timing_policy": {
+        "min_duration": 3,
+        "max_duration": 900,
+        "ideal_min": 10,
+        "ideal_max": 120,
+        "reason": "Устойчивый атмосферный слой или авторская петля; длина не доказывает бесшовность.",
+        "mode": "loop"
+      }
+    },
+    {
+      "id": "scene.IceEvent.Music",
+      "label": "Музыка: Ледяное событие",
+      "group": "music",
+      "description": "Активное ледяное событие и конфетный босс. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "music",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "IceEvent",
+        "layer": "Music",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:97",
+        "Source/MessControl/Private/MCPlayerController.cpp:195"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Leave empty if no actual music track is available; musical stings are not background tracks.",
+      "search_keywords": {
+        "positive": [
+          "music",
+          "soundtrack",
+          "theme",
+          "bgm"
+        ],
+        "negative": [
+          "chime",
+          "sting",
+          "jingle",
+          "level_start",
+          "level_complete",
+          "negative",
+          "positive",
+          "sfx",
+          "ui"
+        ],
+        "min_duration": 30,
+        "max_duration": 1800
+      },
+      "current_assignment": {
+        "sound": "None",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: холодная игрушечная угроза, интенсивность 3/5. Прозрачные колокольчики/кристаллические тембры на сдержанном пульсе, без звенящей стены высоких частот. Длина 1.5–3 минуты, бесшовный цикл. Без вокала; сохранить контраст для предупреждения новы, сосулек, заморозки и спасения союзника.",
+      "timing_policy": {
+        "min_duration": 30,
+        "max_duration": 1800,
+        "ideal_min": 60,
+        "ideal_max": 300,
+        "reason": "Полноценный фоновый трек; короткие джинглы не подходят.",
+        "mode": "music"
+      }
+    },
+    {
+      "id": "scene.IceEvent.Ambience",
+      "label": "Атмосфера: Ледяное событие",
+      "group": "ambience",
+      "description": "Активное ледяное событие и конфетный босс. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "ambience",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "IceEvent",
+        "layer": "Ambience",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:98",
+        "Source/MessControl/Private/MCPlayerController.cpp:195"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Only a sustained environmental bed or authored loop; leave empty when unsuitable.",
+      "search_keywords": {
+        "positive": [
+          "ambient_wind",
+          "wind",
+          "ice"
+        ],
+        "negative": [
+          "chime",
+          "jingle",
+          "gun",
+          "sword",
+          "footstep"
+        ],
+        "min_duration": 3,
+        "max_duration": 900
+      },
+      "current_assignment": {
+        "sound": "None",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: тихий холодный воздух и лёгкая кристаллическая фактура, интенсивность 1–2/5. Петля 30–90 секунд с плавным швом; избегать громких порывов и случайного треска, похожего на разрушение блока. Предупреждения атак должны быть заметно ближе и громче фона.",
+      "timing_policy": {
+        "min_duration": 3,
+        "max_duration": 900,
+        "ideal_min": 10,
+        "ideal_max": 120,
+        "reason": "Устойчивый атмосферный слой или авторская петля; длина не доказывает бесшовность.",
+        "mode": "loop"
+      }
+    },
+    {
+      "id": "scene.FogBrawl.Music",
+      "label": "Музыка: Туманная драка",
+      "group": "music",
+      "description": "Атмосфера без маскировки важных пространственных стуков. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "music",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "FogBrawl",
+        "layer": "Music",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:97",
+        "Source/MessControl/Private/MCPlayerController.cpp:196"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Leave empty if no actual music track is available; musical stings are not background tracks.",
+      "search_keywords": {
+        "positive": [
+          "music",
+          "soundtrack",
+          "theme",
+          "bgm"
+        ],
+        "negative": [
+          "chime",
+          "sting",
+          "jingle",
+          "level_start",
+          "level_complete",
+          "negative",
+          "positive",
+          "sfx",
+          "ui"
+        ],
+        "min_duration": 30,
+        "max_duration": 1800
+      },
+      "current_assignment": {
+        "sound": "None",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: осторожное напряжение с большим количеством пауз, интенсивность 1–2/5. Низкая плотность аранжировки, редкий пульс вместо яркой перкуссии. Длина 1.5–3 минуты, бесшовный цикл. Без вокала и стуков в музыке: пространственный KnockSound, маяк и последнее предупреждение — основные игровые ориентиры.",
+      "timing_policy": {
+        "min_duration": 30,
+        "max_duration": 1800,
+        "ideal_min": 60,
+        "ideal_max": 300,
+        "reason": "Полноценный фоновый трек; короткие джинглы не подходят.",
+        "mode": "music"
+      }
+    },
+    {
+      "id": "scene.FogBrawl.Ambience",
+      "label": "Атмосфера: Туманная драка",
+      "group": "ambience",
+      "description": "Атмосфера без маскировки важных пространственных стуков. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "ambience",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "FogBrawl",
+        "layer": "Ambience",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:98",
+        "Source/MessControl/Private/MCPlayerController.cpp:196"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Only a sustained environmental bed or authored loop; leave empty when unsuitable.",
+      "search_keywords": {
+        "positive": [
+          "ambient_wind",
+          "wind",
+          "fog"
+        ],
+        "negative": [
+          "chime",
+          "jingle",
+          "gun",
+          "sword",
+          "footstep"
+        ],
+        "min_duration": 3,
+        "max_duration": 900
+      },
+      "current_assignment": {
+        "sound": "None",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: мягкий непрерывный туман/воздух, интенсивность 1/5. Петля 45–120 секунд, узкая динамика, без порывов, шагов и случайных ударов. Проверять особенно тихо: фон не должен маскировать направление и частоту стука цели. Тишина предпочтительна неподходящему шуму.",
+      "timing_policy": {
+        "min_duration": 3,
+        "max_duration": 900,
+        "ideal_min": 10,
+        "ideal_max": 120,
+        "reason": "Устойчивый атмосферный слой или авторская петля; длина не доказывает бесшовность.",
+        "mode": "loop"
+      }
+    },
+    {
+      "id": "scene.CataclysmRafts.Music",
+      "label": "Музыка: Катаклизм: плоты",
+      "group": "music",
+      "description": "Жидкость, плоты, гребля и опасность. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "music",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "CataclysmRafts",
+        "layer": "Music",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:97",
+        "Source/MessControl/Private/MCPlayerController.cpp:193"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Leave empty if no actual music track is available; musical stings are not background tracks.",
+      "search_keywords": {
+        "positive": [
+          "music",
+          "soundtrack",
+          "theme",
+          "bgm"
+        ],
+        "negative": [
+          "chime",
+          "sting",
+          "jingle",
+          "level_start",
+          "level_complete",
+          "negative",
+          "positive",
+          "sfx",
+          "ui"
+        ],
+        "min_duration": 30,
+        "max_duration": 1800
+      },
+      "current_assignment": {
+        "sound": "None",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: движение, шаткость и кооперативная суета на плотах, интенсивность 3/5. Подвижный ритм без тяжёлого постоянного баса; допускается комичный приключенческий мотив. Длина 2–4 минуты, бесшовный цикл. Без вокала; вода, гребки, столкновения и сигналы опасности должны оставаться ясными.",
+      "timing_policy": {
+        "min_duration": 30,
+        "max_duration": 1800,
+        "ideal_min": 60,
+        "ideal_max": 300,
+        "reason": "Полноценный фоновый трек; короткие джинглы не подходят.",
+        "mode": "music"
+      }
+    },
+    {
+      "id": "scene.CataclysmRafts.Ambience",
+      "label": "Атмосфера: Катаклизм: плоты",
+      "group": "ambience",
+      "description": "Жидкость, плоты, гребля и опасность. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "ambience",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "CataclysmRafts",
+        "layer": "Ambience",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:98",
+        "Source/MessControl/Private/MCPlayerController.cpp:193"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Only a sustained environmental bed or authored loop; leave empty when unsuitable.",
+      "search_keywords": {
+        "positive": [
+          "water_babbling_loop",
+          "water",
+          "river"
+        ],
+        "negative": [
+          "chime",
+          "jingle",
+          "gun",
+          "sword",
+          "footstep"
+        ],
+        "min_duration": 3,
+        "max_duration": 900
+      },
+      "current_assignment": {
+        "sound": "None",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: непрерывная текущая жидкость, интенсивность 2/5. Петля 30–90 секунд, ровный поток с естественным швом, без крупных ударов волн на каждом повторе. Не прятать в фоне гребки и всплески игроков; им нужны отдельные короткие акценты.",
+      "timing_policy": {
+        "min_duration": 3,
+        "max_duration": 900,
+        "ideal_min": 10,
+        "ideal_max": 120,
+        "reason": "Устойчивый атмосферный слой или авторская петля; длина не доказывает бесшовность.",
+        "mode": "loop"
+      }
+    },
+    {
+      "id": "scene.CataclysmJellies.Music",
+      "label": "Музыка: Катаклизм: желе",
+      "group": "music",
+      "description": "Отдельная звуковая тема варианта Jellies. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "music",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "CataclysmJellies",
+        "layer": "Music",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:97",
+        "Source/MessControl/Private/MCPlayerController.cpp:193"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Leave empty if no actual music track is available; musical stings are not background tracks.",
+      "search_keywords": {
+        "positive": [
+          "music",
+          "soundtrack",
+          "theme",
+          "bgm"
+        ],
+        "negative": [
+          "chime",
+          "sting",
+          "jingle",
+          "level_start",
+          "level_complete",
+          "negative",
+          "positive",
+          "sfx",
+          "ui"
+        ],
+        "min_duration": 30,
+        "max_duration": 1800
+      },
+      "current_assignment": {
+        "sound": "None",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: вязкий, пружинистый и немного хаотичный вариант катаклизма, интенсивность 3/5. Эластичные синтезаторные/щипковые тембры, лёгкая синкопа, узнаваемая связь с общей темой игры. Длина 1.5–3 минуты, бесшовный цикл. Без вокала и постоянного чавканья; удары и опасные действия различимы.",
+      "timing_policy": {
+        "min_duration": 30,
+        "max_duration": 1800,
+        "ideal_min": 60,
+        "ideal_max": 300,
+        "reason": "Полноценный фоновый трек; короткие джинглы не подходят.",
+        "mode": "music"
+      }
+    },
+    {
+      "id": "scene.CataclysmJellies.Ambience",
+      "label": "Атмосфера: Катаклизм: желе",
+      "group": "ambience",
+      "description": "Отдельная звуковая тема варианта Jellies. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "ambience",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "CataclysmJellies",
+        "layer": "Ambience",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:98",
+        "Source/MessControl/Private/MCPlayerController.cpp:193"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Only a sustained environmental bed or authored loop; leave empty when unsuitable.",
+      "search_keywords": {
+        "positive": [
+          "water",
+          "bubble",
+          "slime",
+          "ambient"
+        ],
+        "negative": [
+          "chime",
+          "jingle",
+          "gun",
+          "sword",
+          "footstep"
+        ],
+        "min_duration": 3,
+        "max_duration": 900
+      },
+      "current_assignment": {
+        "sound": "None",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: мягкая пузырьковая/желейная среда, интенсивность 1–2/5. Петля 30–90 секунд без чётко повторяющегося громкого plop. Не брать набор отдельных slime-попаданий как готовый фон: нужен непрерывный bed либо специально собранная петля.",
+      "timing_policy": {
+        "min_duration": 3,
+        "max_duration": 900,
+        "ideal_min": 10,
+        "ideal_max": 120,
+        "reason": "Устойчивый атмосферный слой или авторская петля; длина не доказывает бесшовность.",
+        "mode": "loop"
+      }
+    },
+    {
+      "id": "scene.ColdCola.Music",
+      "label": "Музыка: Холодная кола",
+      "group": "music",
+      "description": "Холодная кола и ледяные блоки; поддерживаемая сцена, доступность зависит от контента. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "music",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "ColdCola",
+        "layer": "Music",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:97",
+        "Source/MessControl/Private/MCPlayerController.cpp:199"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Leave empty if no actual music track is available; musical stings are not background tracks.",
+      "search_keywords": {
+        "positive": [
+          "music",
+          "soundtrack",
+          "theme",
+          "bgm"
+        ],
+        "negative": [
+          "chime",
+          "sting",
+          "jingle",
+          "level_start",
+          "level_complete",
+          "negative",
+          "positive",
+          "sfx",
+          "ui"
+        ],
+        "min_duration": 30,
+        "max_duration": 1800
+      },
+      "current_assignment": {
+        "sound": "None",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: шипучая холодная тревога, интенсивность 2–3/5. Лёгкий пульс, прохладные тембры и упругая энергия; по характеру легче полноценного IceEvent-босса. Длина 1–3 минуты, бесшовный цикл. Без вокала; хруст ледяных блоков и действия кирки должны оставаться разборчивыми. Сцена поддерживается кодом, участие в текущем маршруте нужно уточнять.",
+      "timing_policy": {
+        "min_duration": 30,
+        "max_duration": 1800,
+        "ideal_min": 60,
+        "ideal_max": 300,
+        "reason": "Полноценный фоновый трек; короткие джинглы не подходят.",
+        "mode": "music"
+      }
+    },
+    {
+      "id": "scene.ColdCola.Ambience",
+      "label": "Атмосфера: Холодная кола",
+      "group": "ambience",
+      "description": "Холодная кола и ледяные блоки; поддерживаемая сцена, доступность зависит от контента. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "ambience",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "ColdCola",
+        "layer": "Ambience",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:98",
+        "Source/MessControl/Private/MCPlayerController.cpp:199"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Only a sustained environmental bed or authored loop; leave empty when unsuitable.",
+      "search_keywords": {
+        "positive": [
+          "water",
+          "bubble",
+          "ice"
+        ],
+        "negative": [
+          "chime",
+          "jingle",
+          "gun",
+          "sword",
+          "footstep"
+        ],
+        "min_duration": 3,
+        "max_duration": 900
+      },
+      "current_assignment": {
+        "sound": "None",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: тихое шипение газировки и мелкие пузырьки, интенсивность 1–2/5. Петля 30–90 секунд, без резкого открытия банки и крупных всплесков внутри bed. Ограничить высокочастотный hiss, чтобы не утомлял и не закрывал щётку/спрей.",
+      "timing_policy": {
+        "min_duration": 3,
+        "max_duration": 900,
+        "ideal_min": 10,
+        "ideal_max": 120,
+        "reason": "Устойчивый атмосферный слой или авторская петля; длина не доказывает бесшовность.",
+        "mode": "loop"
+      }
+    },
+    {
+      "id": "scene.FinalBoss.Music",
+      "label": "Музыка: Финальный босс",
+      "group": "music",
+      "description": "Сцена живого финального босса; наличие выбора в коде не означает обязательность в текущем day loop. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "music",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "FinalBoss",
+        "layer": "Music",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:97",
+        "Source/MessControl/Private/MCPlayerController.cpp:190"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Leave empty if no actual music track is available; musical stings are not background tracks.",
+      "search_keywords": {
+        "positive": [
+          "music",
+          "soundtrack",
+          "theme",
+          "bgm"
+        ],
+        "negative": [
+          "chime",
+          "sting",
+          "jingle",
+          "level_start",
+          "level_complete",
+          "negative",
+          "positive",
+          "sfx",
+          "ui"
+        ],
+        "min_duration": 30,
+        "max_duration": 1800
+      },
+      "current_assignment": {
+        "sound": "None",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: самая напряжённая тема текущего набора, интенсивность 4/5, с сохранением мультяшного характера игры. Ясный пульс и смена фраз без постоянного максимума громкости. Длина 2–4 минуты, бесшовный цикл; отдельный финал пока не обязателен. Без вокала; подготовка и попадания атак должны проходить поверх музыки. Кодовый слот не доказывает обязательность боя в текущем day loop.",
+      "timing_policy": {
+        "min_duration": 30,
+        "max_duration": 1800,
+        "ideal_min": 60,
+        "ideal_max": 300,
+        "reason": "Полноценный фоновый трек; короткие джинглы не подходят.",
+        "mode": "music"
+      }
+    },
+    {
+      "id": "scene.FinalBoss.Ambience",
+      "label": "Атмосфера: Финальный босс",
+      "group": "ambience",
+      "description": "Сцена живого финального босса; наличие выбора в коде не означает обязательность в текущем day loop. Существующий независимый 2D-слой; пустая ссылка означает тишину.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "ambience",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "scene_layer",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Scenes",
+        "key": "FinalBoss",
+        "layer": "Ambience",
+        "sound_property": "Sound",
+        "hook": "UMCSceneAudioComponent::SetScene"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCDataAssets.cpp:17",
+        "Source/MessControl/Public/MCDataAssets.h:98",
+        "Source/MessControl/Private/MCPlayerController.cpp:190"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Only a sustained environmental bed or authored loop; leave empty when unsuitable.",
+      "search_keywords": {
+        "positive": [
+          "rumble",
+          "ambient",
+          "wind"
+        ],
+        "negative": [
+          "chime",
+          "jingle",
+          "gun",
+          "sword",
+          "footstep"
+        ],
+        "min_duration": 3,
+        "max_duration": 900
+      },
+      "current_assignment": {
+        "sound": "None",
+        "volume": 0.3499999940395355,
+        "bRepeatOnFinish": true,
+        "fadeInSeconds": 1,
+        "fadeOutSeconds": 1
+      },
+      "audition_brief": "Предложение для подбора: сдержанное давление пространства, интенсивность 1–2/5; мягкий низкий гул/органическая среда с минимумом среднего диапазона. Петля 45–120 секунд, без громких ударов, дыхания и рыков, похожих на телеграф атаки. Если музыкальная тема уже плотная, оставить слой почти неслышным или пустым.",
+      "timing_policy": {
+        "min_duration": 3,
+        "max_duration": 900,
+        "ideal_min": 10,
+        "ideal_max": 120,
+        "reason": "Устойчивый атмосферный слой или авторская петля; длина не доказывает бесшовность.",
+        "mode": "loop"
+      }
+    },
+    {
+      "id": "direct.fog.WindupSound",
+      "label": "Нарастание перед поиском",
+      "group": "fog",
+      "description": "Уже вызывается отдельным presentation-компонентом. Поле не EditAnywhere: для замены сохранить совместимый asset path либо сначала открыть поле для авторинга.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": false,
+      "target": {
+        "type": "asset_replace",
+        "asset": "/Game/Audio/FogBrawl/S_FogWindup",
+        "owner_class": "UMCFogBrawlPresentationComponent",
+        "property": "WindupSound",
+        "hook": "UMCFogBrawlPresentationComponent::UpdateAudio"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCFogBrawlPresentationComponent.cpp:227",
+        "Source/MessControl/Private/MCFogBrawlPresentationComponent.cpp:52"
+      ],
+      "suggested_variants": 1,
+      "search_keywords": {
+        "positive": [
+          "wind",
+          "riser",
+          "windup",
+          "air_burst"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.15,
+        "max_duration": 7
+      },
+      "timing_policy": {
+        "min_duration": 0.15,
+        "max_duration": 7,
+        "ideal_min": 0.7,
+        "ideal_max": 3,
+        "reason": "Нарастание перед поиском; базовый поиск 2 с, выбор цели 7 с.",
+        "mode": "one_shot"
+      },
+      "current_assignment": {
+        "source_files": [
+          {
+            "file_id": "9d13405ed468205afe156d03",
+            "name": "S_FogWindup.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/S_FogWindup.wav",
+            "unreal_asset": "/Game/Audio/FogBrawl/S_FogWindup",
+            "source_matches_import_md5": true,
+            "gain_db": 0.0
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      }
+    },
+    {
+      "id": "direct.fog.KnockSound",
+      "label": "Пространственный стук цели",
+      "group": "fog",
+      "description": "Уже вызывается отдельным presentation-компонентом. Поле не EditAnywhere: для замены сохранить совместимый asset path либо сначала открыть поле для авторинга.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "asset_replace",
+        "asset": "/Game/Audio/FogBrawl/S_FogKnock",
+        "owner_class": "UMCFogBrawlPresentationComponent",
+        "property": "KnockSound",
+        "hook": "UMCFogBrawlPresentationComponent::UpdateAudio"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCFogBrawlPresentationComponent.cpp:227",
+        "Source/MessControl/Private/MCFogBrawlPresentationComponent.cpp:53"
+      ],
+      "suggested_variants": 1,
+      "search_keywords": {
+        "positive": [
+          "knock",
+          "wood",
+          "tap"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.03,
+        "max_duration": 0.65
+      },
+      "timing_policy": {
+        "min_duration": 0.03,
+        "max_duration": 0.65,
+        "ideal_min": 0.06,
+        "ideal_max": 0.25,
+        "reason": "Один пространственный стук; к финалу повтор ускоряется до 0,23 с.",
+        "mode": "one_shot"
+      },
+      "current_assignment": {
+        "source_files": [
+          {
+            "file_id": "cee1feee4f03498a5b889eb2",
+            "name": "S_FogKnock.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/S_FogKnock.wav",
+            "unreal_asset": "/Game/Audio/FogBrawl/S_FogKnock",
+            "source_matches_import_md5": true,
+            "gain_db": 0.0
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      }
+    },
+    {
+      "id": "direct.fog.FinalSound",
+      "label": "Последнее предупреждение",
+      "group": "fog",
+      "description": "Уже вызывается отдельным presentation-компонентом. Поле не EditAnywhere: для замены сохранить совместимый asset path либо сначала открыть поле для авторинга.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": false,
+      "target": {
+        "type": "asset_replace",
+        "asset": "/Game/Audio/FogBrawl/S_FogFinal",
+        "owner_class": "UMCFogBrawlPresentationComponent",
+        "property": "FinalSound",
+        "hook": "UMCFogBrawlPresentationComponent::UpdateAudio"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCFogBrawlPresentationComponent.cpp:227",
+        "Source/MessControl/Private/MCFogBrawlPresentationComponent.cpp:54"
+      ],
+      "suggested_variants": 1,
+      "search_keywords": {
+        "positive": [
+          "alarm",
+          "warning",
+          "alert",
+          "negative"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.08,
+        "max_duration": 1.5
+      },
+      "timing_policy": {
+        "min_duration": 0.08,
+        "max_duration": 1.5,
+        "ideal_min": 0.2,
+        "ideal_max": 1,
+        "reason": "Финальное предупреждение: базовое окно угрозы 1,5 с.",
+        "mode": "one_shot"
+      },
+      "current_assignment": {
+        "source_files": [
+          {
+            "file_id": "306cd4f4caee057cfd4fa24b",
+            "name": "S_FogFinal.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/S_FogFinal.wav",
+            "unreal_asset": "/Game/Audio/FogBrawl/S_FogFinal",
+            "source_matches_import_md5": true,
+            "gain_db": 0.0
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      }
+    },
+    {
+      "id": "direct.fog.BeaconSound",
+      "label": "Цель отмечена",
+      "group": "fog",
+      "description": "Уже вызывается отдельным presentation-компонентом. Поле не EditAnywhere: для замены сохранить совместимый asset path либо сначала открыть поле для авторинга.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": false,
+      "target": {
+        "type": "asset_replace",
+        "asset": "/Game/Audio/FogBrawl/S_FogBeacon",
+        "owner_class": "UMCFogBrawlPresentationComponent",
+        "property": "BeaconSound",
+        "hook": "UMCFogBrawlPresentationComponent::UpdateAudio"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCFogBrawlPresentationComponent.cpp:227",
+        "Source/MessControl/Private/MCFogBrawlPresentationComponent.cpp:55"
+      ],
+      "suggested_variants": 1,
+      "search_keywords": {
+        "positive": [
+          "chime",
+          "positive",
+          "beacon",
+          "ping"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.06,
+        "max_duration": 2
+      },
+      "timing_policy": {
+        "min_duration": 0.06,
+        "max_duration": 2,
+        "ideal_min": 0.2,
+        "ideal_max": 0.9,
+        "reason": "Короткое подтверждение метки; не маскировать пространственные стуки.",
+        "mode": "one_shot"
+      },
+      "current_assignment": {
+        "source_files": [
+          {
+            "file_id": "5ea04609d88b5d2510c14407",
+            "name": "S_FogBeacon.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/S_FogBeacon.wav",
+            "unreal_asset": "/Game/Audio/FogBrawl/S_FogBeacon",
+            "source_matches_import_md5": true,
+            "gain_db": 0.0
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      }
+    },
+    {
+      "id": "direct.fog.ImpactSound",
+      "label": "Удар тумана",
+      "group": "fog",
+      "description": "Уже вызывается отдельным presentation-компонентом. Поле не EditAnywhere: для замены сохранить совместимый asset path либо сначала открыть поле для авторинга.",
+      "status": "wired",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": false,
+      "target": {
+        "type": "asset_replace",
+        "asset": "/Game/Audio/FogBrawl/S_FogImpact",
+        "owner_class": "UMCFogBrawlPresentationComponent",
+        "property": "ImpactSound",
+        "hook": "UMCFogBrawlPresentationComponent::UpdateAudio"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCFogBrawlPresentationComponent.cpp:227",
+        "Source/MessControl/Private/MCFogBrawlPresentationComponent.cpp:56"
+      ],
+      "suggested_variants": 1,
+      "search_keywords": {
+        "positive": [
+          "impact",
+          "thud",
+          "heavy",
+          "slam"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.1,
+        "max_duration": 3.5
+      },
+      "timing_policy": {
+        "min_duration": 0.1,
+        "max_duration": 3.5,
+        "ideal_min": 0.3,
+        "ideal_max": 1.8,
+        "reason": "Однократный удар тумана с коротким тяжёлым хвостом.",
+        "mode": "one_shot"
+      },
+      "current_assignment": {
+        "source_files": [
+          {
+            "file_id": "d538a39c59405c008e44bec2",
+            "name": "S_FogImpact.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/S_FogImpact.wav",
+            "unreal_asset": "/Game/Audio/FogBrawl/S_FogImpact",
+            "source_matches_import_md5": true,
+            "gain_db": 0.0
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      }
+    },
+    {
+      "id": "direct.throat.IntakeSound",
+      "label": "Начало втягивания",
+      "group": "food",
+      "description": "Существующее отдельное поле AMCThroatVortex. Airflow воспроизводится по огибающей силы и повторяет короткие клипы; нужно проверить стыки и длину после интеграции.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": false,
+      "target": {
+        "type": "class_property",
+        "asset": "/Game/Audio/S_Whoosh",
+        "owner_class": "AMCThroatVortex",
+        "property": "IntakeSound",
+        "hook": "AMCThroatVortex::BeginPlay"
+      },
+      "evidence": [
+        "Source/MessControl/Public/MCThroatVortex.h:40",
+        "Source/MessControl/Private/MCThroatVortex.cpp:119"
+      ],
+      "suggested_variants": 1,
+      "search_keywords": {
+        "positive": [
+          "whoosh",
+          "suction",
+          "air_burst"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.05,
+        "max_duration": 1.8
+      },
+      "timing_policy": {
+        "min_duration": 0.05,
+        "max_duration": 1.8,
+        "ideal_min": 0.2,
+        "ideal_max": 0.9,
+        "reason": "Один стартовый акцент; поток воздуха озвучивается отдельным слоем.",
+        "mode": "one_shot"
+      },
+      "current_assignment": {
+        "source_files": [
+          {
+            "file_id": "d9282e1ba64b0d544119a611",
+            "name": "Whoosh.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/Whoosh.wav",
+            "unreal_asset": "/Game/Audio/S_Whoosh",
+            "source_matches_import_md5": true,
+            "gain_db": 0.0
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      }
+    },
+    {
+      "id": "direct.throat.AirflowSound",
+      "label": "Поток воздуха при проглатывании",
+      "group": "food",
+      "description": "Существующее отдельное поле AMCThroatVortex. Airflow воспроизводится по огибающей силы и повторяет короткие клипы; нужно проверить стыки и длину после интеграции.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": true,
+      "spatial": false,
+      "target": {
+        "type": "class_property",
+        "asset": "/Game/Audio/S_FoodSuctionWind",
+        "owner_class": "AMCThroatVortex",
+        "property": "AirflowSound",
+        "hook": "AMCThroatVortex::BeginPlay"
+      },
+      "evidence": [
+        "Source/MessControl/Public/MCThroatVortex.h:41",
+        "Source/MessControl/Private/MCThroatVortex.cpp:120"
+      ],
+      "suggested_variants": 1,
+      "search_keywords": {
+        "positive": [
+          "ambient_wind",
+          "wind",
+          "suction",
+          "air"
+        ],
+        "negative": [
+          "music",
+          "chime",
+          "jingle"
+        ],
+        "min_duration": 0.3,
+        "max_duration": 30
+      },
+      "timing_policy": {
+        "min_duration": 0.3,
+        "max_duration": 30,
+        "ideal_min": 2,
+        "ideal_max": 8,
+        "reason": "Поток под огибающую; движок также умеет повторять короткие клипы.",
+        "mode": "loop"
+      },
+      "current_assignment": {
+        "source_files": [
+          {
+            "file_id": "0e431ddfdedef1640b8397b0",
+            "name": "FoodSuctionWind.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/FoodSuctionWind.wav",
+            "unreal_asset": "/Game/Audio/S_FoodSuctionWind",
+            "source_matches_import_md5": true,
+            "gain_db": 0.0
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      }
+    },
+    {
+      "id": "direct.piano.C4",
+      "label": "Пианино: образец C4",
+      "group": "piano",
+      "description": "Точная нота C, без случайного pitch. Игра транспонирует внутри октавы в мажорный ряд; нужны согласованные тембр, атака и громкость четырёх октав.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "class_property",
+        "asset": "/Game/Audio/S_ToothPianoC4",
+        "owner_class": "AMCArenaTooth",
+        "property": "PianoSound",
+        "hook": "AMCArenaTooth::OnRep_Piano"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCArenaTooth.cpp:60",
+        "Source/MessControl/Private/MCArenaTooth.cpp:133"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Requires one calibrated C note in the stated octave; do not substitute a melody/jingle.",
+      "search_keywords": {
+        "positive": [
+          "piano_c4",
+          "piano-c4",
+          "note_c4"
+        ],
+        "negative": [
+          "chime",
+          "inn",
+          "level",
+          "positive",
+          "negative",
+          "defeated"
+        ],
+        "min_duration": 0.15,
+        "max_duration": 10
+      },
+      "timing_policy": {
+        "min_duration": 0.15,
+        "max_duration": 10,
+        "ideal_min": 0.5,
+        "ideal_max": 4,
+        "reason": "Одна точная нота C с естественным затуханием, не мелодия.",
+        "mode": "one_shot"
+      },
+      "current_assignment": {
+        "source_files": [
+          {
+            "file_id": "bf27e38616cad489b94b584b",
+            "name": "ToothPianoC4.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/ToothPianoC4.wav",
+            "unreal_asset": "/Game/Audio/S_ToothPianoC4",
+            "source_matches_import_md5": true,
+            "gain_db": 0.0
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      }
+    },
+    {
+      "id": "direct.piano.C5",
+      "label": "Пианино: образец C5",
+      "group": "piano",
+      "description": "Точная нота C, без случайного pitch. Игра транспонирует внутри октавы в мажорный ряд; нужны согласованные тембр, атака и громкость четырёх октав.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "class_property",
+        "asset": "/Game/Audio/S_ToothPianoC5",
+        "owner_class": "AMCArenaTooth",
+        "property": "PianoUpperOctaves[0]",
+        "hook": "AMCArenaTooth::OnRep_Piano"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCArenaTooth.cpp:62",
+        "Source/MessControl/Private/MCArenaTooth.cpp:133"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Requires one calibrated C note in the stated octave; do not substitute a melody/jingle.",
+      "search_keywords": {
+        "positive": [
+          "piano_c5",
+          "piano-c5",
+          "note_c5"
+        ],
+        "negative": [
+          "chime",
+          "inn",
+          "level",
+          "positive",
+          "negative",
+          "defeated"
+        ],
+        "min_duration": 0.15,
+        "max_duration": 10
+      },
+      "timing_policy": {
+        "min_duration": 0.15,
+        "max_duration": 10,
+        "ideal_min": 0.5,
+        "ideal_max": 4,
+        "reason": "Одна точная нота C с естественным затуханием, не мелодия.",
+        "mode": "one_shot"
+      },
+      "current_assignment": {
+        "source_files": [
+          {
+            "file_id": "fa1c968c847729bdcc5aec7a",
+            "name": "ToothPianoC5.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/ToothPianoC5.wav",
+            "unreal_asset": "/Game/Audio/S_ToothPianoC5",
+            "source_matches_import_md5": true,
+            "gain_db": 0.0
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      }
+    },
+    {
+      "id": "direct.piano.C6",
+      "label": "Пианино: образец C6",
+      "group": "piano",
+      "description": "Точная нота C, без случайного pitch. Игра транспонирует внутри октавы в мажорный ряд; нужны согласованные тембр, атака и громкость четырёх октав.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "class_property",
+        "asset": "/Game/Audio/S_ToothPianoC6",
+        "owner_class": "AMCArenaTooth",
+        "property": "PianoUpperOctaves[1]",
+        "hook": "AMCArenaTooth::OnRep_Piano"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCArenaTooth.cpp:63",
+        "Source/MessControl/Private/MCArenaTooth.cpp:133"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Requires one calibrated C note in the stated octave; do not substitute a melody/jingle.",
+      "search_keywords": {
+        "positive": [
+          "piano_c6",
+          "piano-c6",
+          "note_c6"
+        ],
+        "negative": [
+          "chime",
+          "inn",
+          "level",
+          "positive",
+          "negative",
+          "defeated"
+        ],
+        "min_duration": 0.15,
+        "max_duration": 10
+      },
+      "timing_policy": {
+        "min_duration": 0.15,
+        "max_duration": 10,
+        "ideal_min": 0.5,
+        "ideal_max": 4,
+        "reason": "Одна точная нота C с естественным затуханием, не мелодия.",
+        "mode": "one_shot"
+      },
+      "current_assignment": {
+        "source_files": [
+          {
+            "file_id": "9b9f88c8f7ab2385eaeee598",
+            "name": "ToothPianoC6.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/ToothPianoC6.wav",
+            "unreal_asset": "/Game/Audio/S_ToothPianoC6",
+            "source_matches_import_md5": true,
+            "gain_db": 0.0
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      }
+    },
+    {
+      "id": "direct.piano.C7",
+      "label": "Пианино: образец C7",
+      "group": "piano",
+      "description": "Точная нота C, без случайного pitch. Игра транспонирует внутри октавы в мажорный ряд; нужны согласованные тембр, атака и громкость четырёх октав.",
+      "status": "wired",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "class_property",
+        "asset": "/Game/Audio/S_ToothPianoC7",
+        "owner_class": "AMCArenaTooth",
+        "property": "PianoUpperOctaves[2]",
+        "hook": "AMCArenaTooth::OnRep_Piano"
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCArenaTooth.cpp:64",
+        "Source/MessControl/Private/MCArenaTooth.cpp:133"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Requires one calibrated C note in the stated octave; do not substitute a melody/jingle.",
+      "search_keywords": {
+        "positive": [
+          "piano_c7",
+          "piano-c7",
+          "note_c7"
+        ],
+        "negative": [
+          "chime",
+          "inn",
+          "level",
+          "positive",
+          "negative",
+          "defeated"
+        ],
+        "min_duration": 0.15,
+        "max_duration": 10
+      },
+      "timing_policy": {
+        "min_duration": 0.15,
+        "max_duration": 10,
+        "ideal_min": 0.5,
+        "ideal_max": 4,
+        "reason": "Одна точная нота C с естественным затуханием, не мелодия.",
+        "mode": "one_shot"
+      },
+      "current_assignment": {
+        "source_files": [
+          {
+            "file_id": "7af039f4c15d20a680c93e1f",
+            "name": "ToothPianoC7.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/ToothPianoC7.wav",
+            "unreal_asset": "/Game/Audio/S_ToothPianoC7",
+            "source_matches_import_md5": true,
+            "gain_db": 0.0
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      }
+    },
+    {
+      "id": "new.Repair",
+      "label": "Отдельный ручной ремонт",
+      "group": "care",
+      "description": "Ключ Repair упомянут в комментарии палитры, но прямой runtime-вызов в просмотренном native-коде не найден; сейчас слышен общий Pull. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "Repair",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "Repair",
+        "owner_hook": "UMCToothStatusComponent::CareContact",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCToothStatusComponent.cpp:137"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "squish",
+          "creak",
+          "click",
+          "rubber"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.03,
+        "max_duration": 0.45
+      },
+      "current_assignment": {
+        "sounds": [
+          {
+            "refPath": "/Game/Audio/S_Repair.S_Repair"
+          }
+        ],
+        "volume": 0.6000000238418579,
+        "pitchMin": 0.9200000166893005,
+        "pitchMax": 1.0800000429153442,
+        "source_files": [
+          {
+            "file_id": "e37929622a8711f9557926c2",
+            "name": "Repair.wav",
+            "path": "${APP_ROOT}/library/MessControl_Current/Repair.wav",
+            "unreal_asset": "/Game/Audio/S_Repair.S_Repair",
+            "source_matches_import_md5": true,
+            "gain_db": -4.437
+          }
+        ],
+        "source_evidence": "Original source metadata checked when the catalog was prepared."
+      },
+      "timing_policy": {
+        "min_duration": 0.03,
+        "max_duration": 0.45,
+        "ideal_min": 0.08,
+        "ideal_max": 0.25,
+        "reason": "Короткое повторяемое усилие ремонта; текущий общий Pull идёт через 0,28 с.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.CareComplete",
+      "label": "Зуб очищен / восстановлен",
+      "group": "care",
+      "description": "Небольшое подтверждение завершённого ухода; разделить от старого Complete task-актора. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "CareComplete",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "CareComplete",
+        "owner_hook": "UMCToothStatusComponent::CareContact",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCToothStatusComponent.cpp:137"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "chime",
+          "positive",
+          "clean",
+          "complete"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.08,
+        "max_duration": 2
+      },
+      "timing_policy": {
+        "min_duration": 0.08,
+        "max_duration": 2,
+        "ideal_min": 0.2,
+        "ideal_max": 0.9,
+        "reason": "Короткое подтверждение очистки; не маскировать следующие действия.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.PlayerHurt",
+      "label": "Игрок получил урон",
+      "group": "player",
+      "description": "Короткий читаемый урон, ограничить частоту при damage-over-time. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "PlayerHurt",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "PlayerHurt",
+        "owner_hook": "UMCToothStatusComponent::Damage",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCToothStatusComponent.cpp:84"
+      ],
+      "suggested_variants": 5,
+      "search_keywords": {
+        "positive": [
+          "hurt",
+          "pain",
+          "punch",
+          "body",
+          "slap"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.05,
+        "max_duration": 1.3
+      },
+      "timing_policy": {
+        "min_duration": 0.05,
+        "max_duration": 1.3,
+        "ideal_min": 0.12,
+        "ideal_max": 0.6,
+        "reason": "Быстрая реакция на урон; длинная реплика создаёт наложения.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.PlayerDeath",
+      "label": "Гибель / переход к наблюдению",
+      "group": "player",
+      "description": "Отдельный сигнал нулевого здоровья; не повторять сигнал падения ragdoll. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "PlayerDeath",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "PlayerDeath",
+        "owner_hook": "UMCToothStatusComponent::Damage",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCToothStatusComponent.cpp:84"
+      ],
+      "suggested_variants": 2,
+      "search_keywords": {
+        "positive": [
+          "defeated",
+          "death",
+          "fall"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.15,
+        "max_duration": 4
+      },
+      "timing_policy": {
+        "min_duration": 0.15,
+        "max_duration": 4,
+        "ideal_min": 0.5,
+        "ideal_max": 2,
+        "reason": "Одиночный акцент гибели, отдельный от обычного удара.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.JumpTakeoff",
+      "label": "Отталкивание при прыжке",
+      "group": "player",
+      "description": "Существующий Jump используется на приземлении; отталкиванию нужен отдельный триггер. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "JumpTakeoff",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "JumpTakeoff",
+        "owner_hook": "AMCToothCharacter::StartJump",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCToothCharacter.cpp:452"
+      ],
+      "suggested_variants": 4,
+      "search_keywords": {
+        "positive": [
+          "jump",
+          "boing",
+          "whoosh"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.04,
+        "max_duration": 0.8
+      },
+      "timing_policy": {
+        "min_duration": 0.04,
+        "max_duration": 0.8,
+        "ideal_min": 0.1,
+        "ideal_max": 0.4,
+        "reason": "Мгновенное усилие отталкивания.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.SwimStroke",
+      "label": "Гребок при плавании",
+      "group": "player",
+      "description": "Мягкие водные гребки с ограничением частоты; общий Step в воде отключён. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "SwimStroke",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "SwimStroke",
+        "owner_hook": "!Swimming",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCToothCharacter.cpp:1401"
+      ],
+      "suggested_variants": 5,
+      "search_keywords": {
+        "positive": [
+          "water",
+          "splash",
+          "swim"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.05,
+        "max_duration": 1.1
+      },
+      "timing_policy": {
+        "min_duration": 0.05,
+        "max_duration": 1.1,
+        "ideal_min": 0.15,
+        "ideal_max": 0.6,
+        "reason": "Один гребок и мягкое затухание воды.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.WaterEnterExit",
+      "label": "Вход / выход из воды",
+      "group": "player",
+      "description": "Короткий всплеск при смене состояния плавания, не постоянный loop. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "WaterEnterExit",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "WaterEnterExit",
+        "owner_hook": "!Swimming",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCToothCharacter.cpp:1401"
+      ],
+      "suggested_variants": 4,
+      "search_keywords": {
+        "positive": [
+          "water_splash",
+          "splash",
+          "plop"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.08,
+        "max_duration": 2
+      },
+      "timing_policy": {
+        "min_duration": 0.08,
+        "max_duration": 2,
+        "ideal_min": 0.25,
+        "ideal_max": 1.1,
+        "reason": "Один всплеск при переходе между водой и сушей.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.ToolSelect",
+      "label": "Смена инструмента",
+      "group": "tools",
+      "description": "Короткий щелчок локального переключения инструмента. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": false,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "ToolSelect",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "ToolSelect",
+        "owner_hook": "UMCInventoryComponent::ServerSelect",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCInventoryComponent.cpp:90"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "item_equip",
+          "equip",
+          "click"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.02,
+        "max_duration": 0.6
+      },
+      "timing_policy": {
+        "min_duration": 0.02,
+        "max_duration": 0.6,
+        "ideal_min": 0.05,
+        "ideal_max": 0.25,
+        "reason": "Быстрый щелчок переключения инструмента.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.Spray",
+      "label": "Струя спрея",
+      "group": "tools",
+      "description": "Отдельная воздушная струя: сейчас спрей периодически использует Brush. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "Spray",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "Spray",
+        "owner_hook": "LastSprayAt",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCInventoryComponent.cpp:585"
+      ],
+      "suggested_variants": 4,
+      "search_keywords": {
+        "positive": [
+          "spray",
+          "hiss",
+          "air_burst",
+          "water"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.04,
+        "max_duration": 0.8
+      },
+      "timing_policy": {
+        "min_duration": 0.04,
+        "max_duration": 0.8,
+        "ideal_min": 0.1,
+        "ideal_max": 0.4,
+        "reason": "Короткий воздушный импульс; текущий Brush переиспользуется спреем.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.ChainsawLoop",
+      "label": "Бензопила: работа",
+      "group": "tools",
+      "description": "Состояние start/run/stop лучше одним управляемым компонентом; выбор здесь — основная рабочая петля. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": true,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "ChainsawLoop",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "ChainsawLoop",
+        "owner_hook": "UMCInventoryComponent::TickChainsaw",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCInventoryUpgrades.cpp:205"
+      ],
+      "suggested_variants": 1,
+      "search_keywords": {
+        "positive": [
+          "chainsaw",
+          "motor",
+          "engine",
+          "saw"
+        ],
+        "negative": [
+          "music",
+          "chime",
+          "jingle"
+        ],
+        "min_duration": 2,
+        "max_duration": 120
+      },
+      "timing_policy": {
+        "min_duration": 2,
+        "max_duration": 120,
+        "ideal_min": 3,
+        "ideal_max": 20,
+        "reason": "Устойчивая рабочая петля двигателя; проверить бесшовность.",
+        "mode": "loop"
+      }
+    },
+    {
+      "id": "new.WatergunShot",
+      "label": "Выстрел водяной пушки",
+      "group": "tools",
+      "description": "Короткая водная пульсация для FireWaterShot; ограничить суммарное число голосов. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "WatergunShot",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "WatergunShot",
+        "owner_hook": "UMCInventoryComponent::FireWaterShot",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCInventoryUpgrades.cpp:331"
+      ],
+      "suggested_variants": 5,
+      "search_keywords": {
+        "positive": [
+          "water",
+          "squirt",
+          "splash",
+          "shoot"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.02,
+        "max_duration": 0.3
+      },
+      "timing_policy": {
+        "min_duration": 0.02,
+        "max_duration": 0.3,
+        "ideal_min": 0.04,
+        "ideal_max": 0.15,
+        "reason": "Короткий водный импульс: базовый интервал выстрела в коде 0,1 с.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.FoodPickup",
+      "label": "Взять еду в стопку",
+      "group": "food",
+      "description": "Короткое упругое взятие с вариативностью и ограничением для серии подборов. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "FoodPickup",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "FoodPickup",
+        "owner_hook": "UMCFoodCollectionComponent::Collect",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCFoodCollectionComponent.cpp:100"
+      ],
+      "suggested_variants": 5,
+      "search_keywords": {
+        "positive": [
+          "squish",
+          "squelch",
+          "grab",
+          "pickup"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.03,
+        "max_duration": 0.65
+      },
+      "timing_policy": {
+        "min_duration": 0.03,
+        "max_duration": 0.65,
+        "ideal_min": 0.08,
+        "ideal_max": 0.35,
+        "reason": "Один подбор; серия подхватов не должна создавать длинный шлейф.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.FoodThrow",
+      "label": "Бросить еду",
+      "group": "food",
+      "description": "Отрыв/свист при ThrowOne; отделить от удара ножа. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "FoodThrow",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "FoodThrow",
+        "owner_hook": "UMCFoodCollectionComponent::ThrowOne",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCFoodCollectionComponent.cpp:176"
+      ],
+      "suggested_variants": 4,
+      "search_keywords": {
+        "positive": [
+          "swipe",
+          "whoosh",
+          "throw"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.04,
+        "max_duration": 0.7
+      },
+      "timing_policy": {
+        "min_duration": 0.04,
+        "max_duration": 0.7,
+        "ideal_min": 0.1,
+        "ideal_max": 0.35,
+        "reason": "Короткий отрыв или свист одного броска.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.FoodSpill",
+      "label": "Рассыпалась стопка",
+      "group": "food",
+      "description": "Один акцент события вместо отдельного громкого звука каждого куска. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "FoodSpill",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "FoodSpill",
+        "owner_hook": "UMCFoodCollectionComponent::Spill",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCFoodCollectionComponent.cpp:203"
+      ],
+      "suggested_variants": 4,
+      "search_keywords": {
+        "positive": [
+          "splat",
+          "squish",
+          "drop"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.08,
+        "max_duration": 2
+      },
+      "timing_policy": {
+        "min_duration": 0.08,
+        "max_duration": 2,
+        "ideal_min": 0.2,
+        "ideal_max": 1,
+        "reason": "Один акцент рассыпания всей стопки, не бесконечная серия.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.FoodImpact",
+      "label": "Еда столкнулась с поверхностью",
+      "group": "food",
+      "description": "Мягкие удары по силе и материалу; лимит голоса/кулдаун для куч еды. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "FoodImpact",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "FoodImpact",
+        "owner_hook": "AMCFoodActor::OnHit",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCFoodActor.cpp:83"
+      ],
+      "suggested_variants": 6,
+      "search_keywords": {
+        "positive": [
+          "splat",
+          "squish",
+          "slime",
+          "thud"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.04,
+        "max_duration": 1
+      },
+      "timing_policy": {
+        "min_duration": 0.04,
+        "max_duration": 1,
+        "ideal_min": 0.08,
+        "ideal_max": 0.5,
+        "reason": "Короткий мягкий контакт для частых столкновений еды.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.FoodDelivery",
+      "label": "Еда доставлена",
+      "group": "food",
+      "description": "Подтверждение AcceptedDelivery; локальная награда либо аккуратный 3D-акцент. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "FoodDelivery",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "FoodDelivery",
+        "owner_hook": "AMCFoodDisposal::AcceptDelivery",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCFoodActor.cpp:846"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "gurgle",
+          "gulp",
+          "bubble",
+          "collect"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.08,
+        "max_duration": 2.5
+      },
+      "timing_policy": {
+        "min_duration": 0.08,
+        "max_duration": 2.5,
+        "ideal_min": 0.3,
+        "ideal_max": 1.3,
+        "reason": "Различимое подтверждение доставки с коротким хвостом.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.FishEquip",
+      "label": "Взять / убрать удочку",
+      "group": "fishing",
+      "description": "Тихое шуршание/щёлк удочки при E-взаимодействии у воды. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "FishEquip",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "FishEquip",
+        "owner_hook": "UMCFishingRodComponent::SetEquippedState",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCFishingRodComponent.cpp:122"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "item_equip",
+          "equip",
+          "reel"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.04,
+        "max_duration": 1
+      },
+      "timing_policy": {
+        "min_duration": 0.04,
+        "max_duration": 1,
+        "ideal_min": 0.1,
+        "ideal_max": 0.5,
+        "reason": "Одно взятие или убирание удочки.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.FishCast",
+      "label": "Заброс лески",
+      "group": "fishing",
+      "description": "Свист заброса по CastSerial, один раз на заброс. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "FishCast",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "FishCast",
+        "owner_hook": "UMCFishingRodComponent::CastLine_Implementation",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCFishingRodComponent.cpp:254"
+      ],
+      "suggested_variants": 4,
+      "search_keywords": {
+        "positive": [
+          "whoosh",
+          "swipe",
+          "cast"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.08,
+        "max_duration": 1.5
+      },
+      "timing_policy": {
+        "min_duration": 0.08,
+        "max_duration": 1.5,
+        "ideal_min": 0.2,
+        "ideal_max": 0.8,
+        "reason": "Один свист заброса; всплеск поплавка озвучивается отдельно.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.FishSplash",
+      "label": "Поплавок коснулся воды",
+      "group": "fishing",
+      "description": "Короткий водный plop в момент bLureInWater, без покадрового повтора. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "FishSplash",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "FishSplash",
+        "owner_hook": "if(CastAge>=CastFlightDuration)",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCFishingRodComponent.cpp:323"
+      ],
+      "suggested_variants": 4,
+      "search_keywords": {
+        "positive": [
+          "water_drop",
+          "water",
+          "plop",
+          "splash"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.04,
+        "max_duration": 1.2
+      },
+      "timing_policy": {
+        "min_duration": 0.04,
+        "max_duration": 1.2,
+        "ideal_min": 0.1,
+        "ideal_max": 0.65,
+        "reason": "Небольшой единичный plop поплавка.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.FishBite",
+      "label": "Поклёвка",
+      "group": "fishing",
+      "description": "Отчётливый всплеск/сигнал, когда bFishHooked становится true. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "FishBite",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "FishBite",
+        "owner_hook": "UMCFishingRodComponent::UpdateFishingCatch",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCFishingRodComponent.cpp:213"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "water_drop",
+          "splash",
+          "plop",
+          "bubble"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.05,
+        "max_duration": 1.5
+      },
+      "timing_policy": {
+        "min_duration": 0.05,
+        "max_duration": 1.5,
+        "ideal_min": 0.15,
+        "ideal_max": 0.8,
+        "reason": "Чёткий короткий сигнал поклёвки.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.FishReel",
+      "label": "Подмотка катушки",
+      "group": "fishing",
+      "description": "Петля катушки только пока bReeling; плавно прекращать при выходе/отмене. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": true,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "FishReel",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "FishReel",
+        "owner_hook": "UMCFishingRodComponent::ServerSetReeling_Implementation",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCFishingRodComponent.cpp:246"
+      ],
+      "suggested_variants": 1,
+      "search_keywords": {
+        "positive": [
+          "reel",
+          "ratchet",
+          "crank",
+          "wheel"
+        ],
+        "negative": [
+          "music",
+          "chime",
+          "jingle"
+        ],
+        "min_duration": 2,
+        "max_duration": 120
+      },
+      "timing_policy": {
+        "min_duration": 2,
+        "max_duration": 120,
+        "ideal_min": 3,
+        "ideal_max": 15,
+        "reason": "Непрерывная петля катушки, управляемая состоянием подмотки.",
+        "mode": "loop"
+      }
+    },
+    {
+      "id": "new.FishCaught",
+      "label": "Рыба поймана",
+      "group": "fishing",
+      "description": "Сигнал только после CompleteHookedCatch и начисления улова. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": false,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "FishCaught",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "FishCaught",
+        "owner_hook": "UMCFishingRodComponent::CompleteHookedCatch",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCFishingRodComponent.cpp:194"
+      ],
+      "suggested_variants": 2,
+      "search_keywords": {
+        "positive": [
+          "chime",
+          "positive",
+          "collect"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.15,
+        "max_duration": 4
+      },
+      "timing_policy": {
+        "min_duration": 0.15,
+        "max_duration": 4,
+        "ideal_min": 0.4,
+        "ideal_max": 1.8,
+        "reason": "Наградный акцент после подтверждённого улова.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.ShopOpenClose",
+      "label": "Магазин: открыть / закрыть",
+      "group": "hub",
+      "description": "Лёгкая транзиция панели у станции. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": false,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "ShopOpenClose",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "ShopOpenClose",
+        "owner_hook": "AMCPlayerController::TryOpenHubShop",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCPlayerWardrobe.cpp:48"
+      ],
+      "suggested_variants": 2,
+      "search_keywords": {
+        "positive": [
+          "menu",
+          "open",
+          "close",
+          "click"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.03,
+        "max_duration": 0.8
+      },
+      "timing_policy": {
+        "min_duration": 0.03,
+        "max_duration": 0.8,
+        "ideal_min": 0.08,
+        "ideal_max": 0.4,
+        "reason": "Короткий переход панели магазина.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.PurchaseSuccess",
+      "label": "Покупка успешна",
+      "group": "hub",
+      "description": "Короткий звук монет/подтверждения только по успешному результату покупки. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": false,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "PurchaseSuccess",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "PurchaseSuccess",
+        "owner_hook": "UMCHubEconomyComponent::TryPurchase",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCHubEconomyComponent.cpp:151"
+      ],
+      "suggested_variants": 2,
+      "search_keywords": {
+        "positive": [
+          "coin_collect",
+          "coin",
+          "jingle",
+          "positive"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.08,
+        "max_duration": 2
+      },
+      "timing_policy": {
+        "min_duration": 0.08,
+        "max_duration": 2,
+        "ideal_min": 0.2,
+        "ideal_max": 1,
+        "reason": "Короткий акцент успешной покупки.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.PurchaseDenied",
+      "label": "Покупка недоступна",
+      "group": "hub",
+      "description": "Мягкий отказ при недостатке денег/лимите, без раздражающего длинного сигнала. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": false,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "PurchaseDenied",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "PurchaseDenied",
+        "owner_hook": "UMCHubShopWidget::BuyClicked",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCHubShopWidget.cpp:184"
+      ],
+      "suggested_variants": 2,
+      "search_keywords": {
+        "positive": [
+          "negative",
+          "denied",
+          "error",
+          "cancel"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.03,
+        "max_duration": 1
+      },
+      "timing_policy": {
+        "min_duration": 0.03,
+        "max_duration": 1,
+        "ideal_min": 0.1,
+        "ideal_max": 0.5,
+        "reason": "Мягкий быстрый отказ, без длинного тревожного сигнала.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.WardrobeOpenClose",
+      "label": "Гардероб: открыть / закрыть",
+      "group": "hub",
+      "description": "Переход к примерке персонажа. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": false,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "WardrobeOpenClose",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "WardrobeOpenClose",
+        "owner_hook": "AMCPlayerController::TryOpenWardrobe",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCPlayerWardrobe.cpp:192"
+      ],
+      "suggested_variants": 2,
+      "search_keywords": {
+        "positive": [
+          "zipper",
+          "cloth",
+          "open"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.03,
+        "max_duration": 0.9
+      },
+      "timing_policy": {
+        "min_duration": 0.03,
+        "max_duration": 0.9,
+        "ideal_min": 0.1,
+        "ideal_max": 0.45,
+        "reason": "Короткая транзиция гардероба.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.WardrobePreview",
+      "label": "Примерить / сменить цвет",
+      "group": "hub",
+      "description": "Тихий тактильный акцент на изменении выбора; цветовой slider должен быть throttled. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": false,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "WardrobePreview",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "WardrobePreview",
+        "owner_hook": "UMCHubWardrobeWidget::CosmeticPressed",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCHubWardrobeWidget.cpp:367"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "cloth",
+          "rustle",
+          "click",
+          "select"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.02,
+        "max_duration": 0.5
+      },
+      "timing_policy": {
+        "min_duration": 0.02,
+        "max_duration": 0.5,
+        "ideal_min": 0.04,
+        "ideal_max": 0.2,
+        "reason": "Тихое частое изменение выбора; длинный звук мешает примерке.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.WardrobeApply",
+      "label": "Применить внешний вид",
+      "group": "hub",
+      "description": "Отдельное локальное подтверждение успешного применения. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": false,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "WardrobeApply",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "WardrobeApply",
+        "owner_hook": "UMCHubWardrobeWidget::ApplyClicked",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCHubWardrobeWidget.cpp:441"
+      ],
+      "suggested_variants": 2,
+      "search_keywords": {
+        "positive": [
+          "positive",
+          "chime",
+          "confirm"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.06,
+        "max_duration": 1.5
+      },
+      "timing_policy": {
+        "min_duration": 0.06,
+        "max_duration": 1.5,
+        "ideal_min": 0.2,
+        "ideal_max": 0.75,
+        "reason": "Короткое подтверждение применения.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.HubSelectDay",
+      "label": "Выбор направления",
+      "group": "hub",
+      "description": "Щелчок подтверждённой смены дня/локации. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": false,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "HubSelectDay",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "HubSelectDay",
+        "owner_hook": "AMCHubGameMode::RequestSelectDay",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCHubGameMode.cpp:430"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "select",
+          "click",
+          "confirm"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.03,
+        "max_duration": 0.8
+      },
+      "timing_policy": {
+        "min_duration": 0.03,
+        "max_duration": 0.8,
+        "ideal_min": 0.08,
+        "ideal_max": 0.35,
+        "reason": "Быстрое подтверждение выбора направления.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.HubLaunch",
+      "label": "Запуск забега",
+      "group": "hub",
+      "description": "Короткий переход/launch-акцент после принятого RequestLaunch. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": false,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "HubLaunch",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "HubLaunch",
+        "owner_hook": "AMCHubGameMode::RequestLaunch",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCHubGameMode.cpp:442"
+      ],
+      "suggested_variants": 1,
+      "search_keywords": {
+        "positive": [
+          "level_start",
+          "start",
+          "whoosh"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.15,
+        "max_duration": 5
+      },
+      "timing_policy": {
+        "min_duration": 0.15,
+        "max_duration": 5,
+        "ideal_min": 0.5,
+        "ideal_max": 2.5,
+        "reason": "Однократный переход в забег; допустим короткий launch-акцент.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.GrillStart",
+      "label": "Гриль: начало",
+      "group": "hub",
+      "description": "Начало интеракции рыбой/экономической наградой. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "GrillStart",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "GrillStart",
+        "owner_hook": "AMCHubGrillStation::TryStartRoll",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCHubGrillStation.cpp:103"
+      ],
+      "suggested_variants": 2,
+      "search_keywords": {
+        "positive": [
+          "fire_lighting",
+          "ignite",
+          "lever",
+          "click"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.08,
+        "max_duration": 2
+      },
+      "timing_policy": {
+        "min_duration": 0.08,
+        "max_duration": 2,
+        "ideal_min": 0.2,
+        "ideal_max": 1,
+        "reason": "Отдельный запуск гриля; рабочий огонь и барабаны имеют свои петли.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.GrillReels",
+      "label": "Гриль: вращение барабанов",
+      "group": "hub",
+      "description": "Управляемая петля/тики с изменением скорости по стадии, ограничить голоса. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": true,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "GrillReels",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "GrillReels",
+        "owner_hook": "UMCHubGrillPresentationComponent::TickComponent",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCHubGrillPresentationComponent.cpp:179"
+      ],
+      "suggested_variants": 1,
+      "search_keywords": {
+        "positive": [
+          "reel",
+          "wheel",
+          "spin",
+          "clock_tick"
+        ],
+        "negative": [
+          "music",
+          "chime",
+          "jingle"
+        ],
+        "min_duration": 2,
+        "max_duration": 120
+      },
+      "timing_policy": {
+        "min_duration": 2,
+        "max_duration": 120,
+        "ideal_min": 3,
+        "ideal_max": 12,
+        "reason": "Управляемая петля вращения; не случайный одиночный щелчок.",
+        "mode": "loop"
+      }
+    },
+    {
+      "id": "new.GrillReward",
+      "label": "Гриль: награда",
+      "group": "hub",
+      "description": "Акцент результата после CompleteGrillRoll. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "GrillReward",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "GrillReward",
+        "owner_hook": "UMCHubEconomyComponent::CompleteGrillRoll",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCHubEconomyComponent.cpp:224"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "coin",
+          "jingle",
+          "positive",
+          "collect"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.15,
+        "max_duration": 4
+      },
+      "timing_policy": {
+        "min_duration": 0.15,
+        "max_duration": 4,
+        "ideal_min": 0.5,
+        "ideal_max": 2,
+        "reason": "Отбивка награды после остановки барабанов.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.ChestArrive",
+      "label": "Сундук: появление / посадка",
+      "group": "rewards",
+      "description": "Пространственный акцент приземления сундука. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "ChestArrive",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "ChestArrive",
+        "owner_hook": "AMCRewardChest::UpdateArrivalPresentation",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCRewardChest.cpp:458"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "thud",
+          "wood",
+          "impact"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.08,
+        "max_duration": 2.5
+      },
+      "timing_policy": {
+        "min_duration": 0.08,
+        "max_duration": 2.5,
+        "ideal_min": 0.25,
+        "ideal_max": 1.2,
+        "reason": "Посадка сундука: один удар и небольшой тяжёлый хвост.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.ChestLockpick",
+      "label": "Сундук: взлом замка",
+      "group": "rewards",
+      "description": "Негромкая петля/тики работы; стоп при CancelOpening. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": true,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "ChestLockpick",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "ChestLockpick",
+        "owner_hook": "AMCRewardChest::BeginLockpicking",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCRewardChest.cpp:644"
+      ],
+      "suggested_variants": 1,
+      "search_keywords": {
+        "positive": [
+          "lock",
+          "clock_tick",
+          "click"
+        ],
+        "negative": [
+          "music",
+          "chime",
+          "jingle"
+        ],
+        "min_duration": 2,
+        "max_duration": 120
+      },
+      "timing_policy": {
+        "min_duration": 2,
+        "max_duration": 120,
+        "ideal_min": 3,
+        "ideal_max": 12,
+        "reason": "Тихая рабочая петля замка со стопом при отмене.",
+        "mode": "loop"
+      }
+    },
+    {
+      "id": "new.ChestOpen",
+      "label": "Сундук: открытие",
+      "group": "rewards",
+      "description": "Замок, крышка и наградный shimmer как короткая последовательность. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "ChestOpen",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "ChestOpen",
+        "owner_hook": "AMCRewardChest::SetStage",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCRewardChest.cpp:524"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "lock_unlock",
+          "creaky_door",
+          "open",
+          "chest"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.15,
+        "max_duration": 4
+      },
+      "timing_policy": {
+        "min_duration": 0.15,
+        "max_duration": 4,
+        "ideal_min": 0.5,
+        "ideal_max": 2,
+        "reason": "Короткая последовательность замка, крышки и наградного акцента.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.PerkChoose",
+      "label": "Выбрана карточка улучшения",
+      "group": "rewards",
+      "description": "Только после успешного TryChooseCard, локально получателю. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": false,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "PerkChoose",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "PerkChoose",
+        "owner_hook": "AMCRewardChest::TryChooseCard",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCRewardChest.cpp:728"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "card",
+          "chime",
+          "positive",
+          "collect"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.06,
+        "max_duration": 1.8
+      },
+      "timing_policy": {
+        "min_duration": 0.06,
+        "max_duration": 1.8,
+        "ideal_min": 0.2,
+        "ideal_max": 0.9,
+        "reason": "Тактильное короткое подтверждение выбранной карточки.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.MimicSnap",
+      "label": "Мимик: захват",
+      "group": "rewards",
+      "description": "Читаемая атака мимика/щелчок пасти. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "MimicSnap",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "MimicSnap",
+        "owner_hook": "AMCRewardChest::CaptureOpener",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCRewardChest.cpp:245"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "bite",
+          "snap",
+          "crunch",
+          "chomp"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.05,
+        "max_duration": 1.5
+      },
+      "timing_policy": {
+        "min_duration": 0.05,
+        "max_duration": 1.5,
+        "ideal_min": 0.15,
+        "ideal_max": 0.7,
+        "reason": "Быстрый читаемый захват или щелчок пасти.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.MimicRescue",
+      "label": "Мимик: союзник освобождён",
+      "group": "rewards",
+      "description": "Подтверждение освобождения пленника. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "MimicRescue",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "MimicRescue",
+        "owner_hook": "AMCRewardChest::ReleaseCaptive",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCRewardChest.cpp:318"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "release",
+          "positive",
+          "unlock",
+          "squelch"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.1,
+        "max_duration": 2
+      },
+      "timing_policy": {
+        "min_duration": 0.1,
+        "max_duration": 2,
+        "ideal_min": 0.3,
+        "ideal_max": 1,
+        "reason": "Короткий акцент освобождения союзника.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.UIHover",
+      "label": "UI: наведение / фокус",
+      "group": "ui",
+      "description": "Единый очень тихий звук фокуса мышью и геймпадом; не на каждом tick. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": false,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "UIHover",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "UIHover",
+        "owner_hook": "UMCGameplayUIWidget::",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCGameplayUIWidget.cpp:31"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "hover",
+          "select",
+          "tick"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.02,
+        "max_duration": 0.3
+      },
+      "timing_policy": {
+        "min_duration": 0.02,
+        "max_duration": 0.3,
+        "ideal_min": 0.03,
+        "ideal_max": 0.12,
+        "reason": "Очень короткий тихий фокус; повторяется при навигации.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.UIConfirm",
+      "label": "UI: подтвердить",
+      "group": "ui",
+      "description": "Единый короткий клик кнопок; не дублировать специализированную покупку. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": false,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "UIConfirm",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "UIConfirm",
+        "owner_hook": "UMCGameplayUIWidget::",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCGameplayUIWidget.cpp:31"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "confirm",
+          "click",
+          "select",
+          "button"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.02,
+        "max_duration": 0.6
+      },
+      "timing_policy": {
+        "min_duration": 0.02,
+        "max_duration": 0.6,
+        "ideal_min": 0.05,
+        "ideal_max": 0.25,
+        "reason": "Быстрый клик подтверждения интерфейса.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.UIBack",
+      "label": "UI: назад / закрыть",
+      "group": "ui",
+      "description": "Единая обратная навигация меню/паузы. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": false,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "UIBack",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "UIBack",
+        "owner_hook": "AMCPlayerController::TogglePauseMenu",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCPlayerController.cpp:83"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "back",
+          "cancel",
+          "close"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.03,
+        "max_duration": 0.8
+      },
+      "timing_policy": {
+        "min_duration": 0.03,
+        "max_duration": 0.8,
+        "ideal_min": 0.08,
+        "ideal_max": 0.35,
+        "reason": "Короткая обратная навигация или закрытие панели.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.IceTelegraph",
+      "label": "Лёд: предупреждение атаки",
+      "group": "ice",
+      "description": "Читаемая подготовка бомбы/новы/крика; для разных паттернов позже разделить варианты по attack kind. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "IceTelegraph",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "IceTelegraph",
+        "owner_hook": "AMCIceEvent::BeginBossAttack",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCIceEvent.cpp:822"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "ice",
+          "magic",
+          "charge",
+          "warning"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.15,
+        "max_duration": 3
+      },
+      "timing_policy": {
+        "min_duration": 0.15,
+        "max_duration": 3,
+        "ideal_min": 0.5,
+        "ideal_max": 2.5,
+        "reason": "Короткий cue угрозы; в source предупреждения льда около 2–2,5 с.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.IceNova",
+      "label": "Лёд: взрыв новы",
+      "group": "ice",
+      "description": "Сильный ледяной удар в ResolveNova. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "IceNova",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "IceNova",
+        "owner_hook": "AMCIceEvent::ResolveNova",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCIceEvent.cpp:761"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "ice",
+          "glass",
+          "shatter",
+          "burst"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.1,
+        "max_duration": 3.5
+      },
+      "timing_policy": {
+        "min_duration": 0.1,
+        "max_duration": 3.5,
+        "ideal_min": 0.4,
+        "ideal_max": 1.8,
+        "reason": "Сильный ледяной взрыв с коротким читаемым затуханием.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.IceIcicle",
+      "label": "Лёд: падение сосульки",
+      "group": "ice",
+      "description": "Пробивающий удар кристалла по земле/цели. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "IceIcicle",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "IceIcicle",
+        "owner_hook": "AMCIceEvent::ResolveIcicle",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCIceEvent.cpp:1077"
+      ],
+      "suggested_variants": 4,
+      "search_keywords": {
+        "positive": [
+          "glass",
+          "ice",
+          "crack",
+          "impact"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.06,
+        "max_duration": 2
+      },
+      "timing_policy": {
+        "min_duration": 0.06,
+        "max_duration": 2,
+        "ideal_min": 0.2,
+        "ideal_max": 1,
+        "reason": "Один удар кристалла; не непрерывный дождь.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.IceShatter",
+      "label": "Лёд: разрушение блока",
+      "group": "ice",
+      "description": "Отдельный хруст разрушения; PickaxeHit уже покрывает сам удар кирки. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "IceShatter",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "IceShatter",
+        "owner_hook": "AMCIceBlock::Shatter_Implementation",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCColdCola.cpp:70"
+      ],
+      "suggested_variants": 5,
+      "search_keywords": {
+        "positive": [
+          "glass",
+          "shatter",
+          "crack"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.08,
+        "max_duration": 2.5
+      },
+      "timing_policy": {
+        "min_duration": 0.08,
+        "max_duration": 2.5,
+        "ideal_min": 0.25,
+        "ideal_max": 1.2,
+        "reason": "Разрушение блока; допустим короткий осколочный хвост.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.IceFreeze",
+      "label": "Игрок замёрз / освобождён",
+      "group": "ice",
+      "description": "Короткие состояния льда, не спутать с ударом; затем можно разделить на два ключа. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "IceFreeze",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "IceFreeze",
+        "owner_hook": "AMCIceEvent::UpdateFreeze",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCIceEvent.cpp:661"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "ice",
+          "freeze",
+          "glass",
+          "magic"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.08,
+        "max_duration": 2
+      },
+      "timing_policy": {
+        "min_duration": 0.08,
+        "max_duration": 2,
+        "ideal_min": 0.25,
+        "ideal_max": 1,
+        "reason": "Короткий переход замерзания или освобождения, не весь период статуса.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.NutTelegraph",
+      "label": "Ореховый босс: подготовка атаки",
+      "group": "nuts",
+      "description": "Чёткая опасность перед BeginAttack; разные атаки требуют узнаваемых мотивов. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "NutTelegraph",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "NutTelegraph",
+        "owner_hook": "AMCNutBoss::BeginAttack",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCNutBoss.cpp:1060"
+      ],
+      "suggested_variants": 4,
+      "search_keywords": {
+        "positive": [
+          "charge",
+          "warning",
+          "creak",
+          "growl"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.1,
+        "max_duration": 3
+      },
+      "timing_policy": {
+        "min_duration": 0.1,
+        "max_duration": 3,
+        "ideal_min": 0.3,
+        "ideal_max": 1.5,
+        "reason": "Сигнал подготовки; точная синхронизация зависит от вида атаки.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.NutShieldCounter",
+      "label": "Ореховый танк: контрудар щитом",
+      "group": "nuts",
+      "description": "Сигнал накопленного давления и контратаки щитом. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "NutShieldCounter",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "NutShieldCounter",
+        "owner_hook": "AMCNutBoss::TryBeginTankCounter",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCNutBoss.cpp:784"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "metal",
+          "shield",
+          "slam",
+          "impact"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.06,
+        "max_duration": 2
+      },
+      "timing_policy": {
+        "min_duration": 0.06,
+        "max_duration": 2,
+        "ideal_min": 0.2,
+        "ideal_max": 1,
+        "reason": "Один контрудар щитом с материальным хвостом.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.NutTeleport",
+      "label": "Ореховый маг: телепорт",
+      "group": "nuts",
+      "description": "Короткий магический уход/появление. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "NutTeleport",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "NutTeleport",
+        "owner_hook": "AMCNutBoss::BeginTeleport",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCNutBoss.cpp:1007"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "magic",
+          "teleport",
+          "whoosh"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.1,
+        "max_duration": 2.5
+      },
+      "timing_policy": {
+        "min_duration": 0.1,
+        "max_duration": 2.5,
+        "ideal_min": 0.25,
+        "ideal_max": 1.2,
+        "reason": "Короткий магический уход или появление.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.NutTransform",
+      "label": "Ореховый босс: превращение",
+      "group": "nuts",
+      "description": "Выразительная смена фазы танк→маг. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "NutTransform",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "NutTransform",
+        "owner_hook": "AMCNutBoss::BeginMageTransformation",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCNutBoss.cpp:1715"
+      ],
+      "suggested_variants": 1,
+      "search_keywords": {
+        "positive": [
+          "magic",
+          "charge",
+          "crack",
+          "riser"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.2,
+        "max_duration": 4
+      },
+      "timing_policy": {
+        "min_duration": 0.2,
+        "max_duration": 4,
+        "ideal_min": 0.8,
+        "ideal_max": 2.4,
+        "reason": "Акцент смены фазы; базовая MagePhaseSeconds в source равна 2,4 с.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.NutDefeat",
+      "label": "Ореховый босс побеждён",
+      "group": "nuts",
+      "description": "Короткое завершение столкновения, отличается от победы всего дня. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "NutDefeat",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "NutDefeat",
+        "owner_hook": "AMCNutBoss::Defeat",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCNutBoss.cpp:1701"
+      ],
+      "suggested_variants": 2,
+      "search_keywords": {
+        "positive": [
+          "crunch",
+          "crack",
+          "defeated"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.15,
+        "max_duration": 5
+      },
+      "timing_policy": {
+        "min_duration": 0.15,
+        "max_duration": 5,
+        "ideal_min": 0.5,
+        "ideal_max": 2.5,
+        "reason": "Завершение одного столкновения, не полная музыкальная композиция.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.BossAttackTelegraph",
+      "label": "Финальный босс: предупреждение",
+      "group": "arena",
+      "description": "Сигнал перед атакой; музыкальная сцена FinalBoss не заменяет cue опасности. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "BossAttackTelegraph",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "BossAttackTelegraph",
+        "owner_hook": "AMCBossCharacter::BeginAttack",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCBossCharacter.cpp:315"
+      ],
+      "suggested_variants": 3,
+      "search_keywords": {
+        "positive": [
+          "growl",
+          "charge",
+          "warning",
+          "riser"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.1,
+        "max_duration": 4
+      },
+      "timing_policy": {
+        "min_duration": 0.1,
+        "max_duration": 4,
+        "ideal_min": 0.3,
+        "ideal_max": 2,
+        "reason": "Сигнал опасности; длительность windup задаётся конкретной атакой.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.BossAttackImpact",
+      "label": "Финальный босс: попадание атаки",
+      "group": "arena",
+      "description": "3D-акцент ударного события по attack ID. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "BossAttackImpact",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "BossAttackImpact",
+        "owner_hook": "AMCBossCharacter::MulticastAttackImpact_Implementation",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCBossCharacter.cpp:567"
+      ],
+      "suggested_variants": 4,
+      "search_keywords": {
+        "positive": [
+          "impact",
+          "heavy",
+          "slam"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.1,
+        "max_duration": 3.5
+      },
+      "timing_policy": {
+        "min_duration": 0.1,
+        "max_duration": 3.5,
+        "ideal_min": 0.3,
+        "ideal_max": 1.8,
+        "reason": "Один тяжёлый акцент атаки финального босса.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.CataclysmStart",
+      "label": "Катаклизм: начало угрозы",
+      "group": "arena",
+      "description": "Предупреждение о смене игрового режима/жидкости. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "essential",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "CataclysmStart",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "CataclysmStart",
+        "owner_hook": "AMCCataclysmEvent::Start",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCCataclysmEvent.cpp:48"
+      ],
+      "suggested_variants": 2,
+      "search_keywords": {
+        "positive": [
+          "rumble",
+          "warning",
+          "water",
+          "splash"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.25,
+        "max_duration": 8
+      },
+      "timing_policy": {
+        "min_duration": 0.25,
+        "max_duration": 8,
+        "ideal_min": 1,
+        "ideal_max": 4,
+        "reason": "Разовый масштабный переход игрового режима.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.RaftRow",
+      "label": "Гребля на плоту",
+      "group": "arena",
+      "description": "Всплеск весла по фактическому гребку, с ограничением частоты. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "sfx",
+      "loop": false,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "RaftRow",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "RaftRow",
+        "owner_hook": "AMCCataclysmRaft::",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCCataclysmRaft.cpp:95"
+      ],
+      "suggested_variants": 5,
+      "search_keywords": {
+        "positive": [
+          "water",
+          "splash",
+          "paddle"
+        ],
+        "negative": [
+          "music",
+          "loop",
+          "ambient"
+        ],
+        "min_duration": 0.05,
+        "max_duration": 1.5
+      },
+      "timing_policy": {
+        "min_duration": 0.05,
+        "max_duration": 1.5,
+        "ideal_min": 0.2,
+        "ideal_max": 0.8,
+        "reason": "Один всплеск весла, повторяемый по фактическому гребку.",
+        "mode": "one_shot"
+      }
+    },
+    {
+      "id": "new.HubPondLocal",
+      "label": "Локальный пруд",
+      "group": "hub",
+      "description": "Необязательная 3D-петля воды у пирса; отдельна от общей Hub Ambience. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "ambience",
+      "loop": true,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "HubPondLocal",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "HubPondLocal",
+        "owner_hook": "AMCHubFishingZone::BeginPlay",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCHubFishingZone.cpp:39"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Only a sustained environmental bed or authored loop; leave empty when unsuitable.",
+      "search_keywords": {
+        "positive": [
+          "water_babbling_loop",
+          "water",
+          "pond",
+          "stream"
+        ],
+        "negative": [
+          "chime",
+          "jingle",
+          "gun",
+          "sword",
+          "footstep"
+        ],
+        "min_duration": 2,
+        "max_duration": 300
+      },
+      "timing_policy": {
+        "min_duration": 2,
+        "max_duration": 300,
+        "ideal_min": 5,
+        "ideal_max": 60,
+        "reason": "Устойчивая водная петля у пруда; проверить шов и отсутствие резких всплесков.",
+        "mode": "loop"
+      }
+    },
+    {
+      "id": "new.GrillFireLocal",
+      "label": "Локальный огонь гриля",
+      "group": "hub",
+      "description": "Необязательная тихая 3D-петля потрескивания возле гриля. Рекомендованный новый hook; назначение в профиле само по себе пока не создаёт воспроизведение.",
+      "status": "needs_hook",
+      "priority": "supporting",
+      "kind": "ambience",
+      "loop": true,
+      "spatial": true,
+      "target": {
+        "type": "new_hook",
+        "suggested_event": "GrillFireLocal",
+        "asset": "/Game/Data/DA_MouthSounds",
+        "property": "Events",
+        "key": "GrillFireLocal",
+        "owner_hook": "AMCHubGrillStation::BeginPlay",
+        "implementation_required": true
+      },
+      "evidence": [
+        "Source/MessControl/Private/MCHubGrillStation.cpp:42"
+      ],
+      "suggested_variants": 1,
+      "candidate_policy": "Only a sustained environmental bed or authored loop; leave empty when unsuitable.",
+      "search_keywords": {
+        "positive": [
+          "fire_loop",
+          "fire",
+          "crackle"
+        ],
+        "negative": [
+          "chime",
+          "jingle",
+          "gun",
+          "sword",
+          "footstep"
+        ],
+        "min_duration": 2,
+        "max_duration": 180
+      },
+      "timing_policy": {
+        "min_duration": 2,
+        "max_duration": 180,
+        "ideal_min": 5,
+        "ideal_max": 45,
+        "reason": "Тихая устойчивая петля огня рядом с грилем.",
+        "mode": "loop"
+      }
+    }
+  ],
+  "source_snapshot": {
+    "captured_at_utc": "2026-10-23T17:14:38.197146+00:00",
+    "scope": "Only source files cited by the catalog and saved palette package; no build or runtime validation.",
+    "asset_assignment_evidence": "asset_audit.json: live Unreal MCP; palette is_dirty=false at audit time",
+    "files": [
+      {
+        "path": "Content/Data/DA_MouthSounds.uasset",
+        "bytes": 7781,
+        "sha256": "9e3940aa97f1ed22beb2426e30730faa89a4dffc09a5639a2a4f721d1446083c"
+      },
+      {
+        "path": "Source/MessControl/Private/MCArenaTooth.cpp",
+        "bytes": 17987,
+        "sha256": "e041d64f17bca07c8817b2939bd47fc592093ad4838ad116d48d0fda32246507"
+      },
+      {
+        "path": "Source/MessControl/Private/MCBossCharacter.cpp",
+        "bytes": 28896,
+        "sha256": "0a95cc678a9ab7f2f8285cd1f7f277a42b9d3c432d51fe3613f963bc4f1d36bd"
+      },
+      {
+        "path": "Source/MessControl/Private/MCCataclysmEvent.cpp",
+        "bytes": 36227,
+        "sha256": "1911b48347cfe976df7954b9495f878fcf4675561147e367ec7eefbe00cc5b31"
+      },
+      {
+        "path": "Source/MessControl/Private/MCCataclysmRaft.cpp",
+        "bytes": 47495,
+        "sha256": "144f096c59bbc862958dcc7847c6ac7d3fd85d8b07d1c96b710d65c18dafb68b"
+      },
+      {
+        "path": "Source/MessControl/Private/MCColdCola.cpp",
+        "bytes": 10703,
+        "sha256": "3821573da1d49fbb4b9c4a68c9cefa8abe83988c3d0eabdd0300262c2e0de3c5"
+      },
+      {
+        "path": "Source/MessControl/Private/MCDataAssets.cpp",
+        "bytes": 4266,
+        "sha256": "faa8f43b822c3f1823c9af8b09ea731be196fe6ac37110b5e4bc51b0ee44d43b"
+      },
+      {
+        "path": "Source/MessControl/Private/MCFishingRodComponent.cpp",
+        "bytes": 28047,
+        "sha256": "dbe6bef779e5c4ace7448696507008bd6e0f59925b03830b98f62886bb3803d5"
+      },
+      {
+        "path": "Source/MessControl/Private/MCFogBrawlPresentationComponent.cpp",
+        "bytes": 18316,
+        "sha256": "7f67ec18b17706f89faaf3b33b133572dae4d1dcdb8f2c552ffdc027508267e3"
+      },
+      {
+        "path": "Source/MessControl/Private/MCFoodActor.cpp",
+        "bytes": 71452,
+        "sha256": "bc4ff9682f08df37509f34bd13432581dbcacc300d55a663e705e0ad74f83655"
+      },
+      {
+        "path": "Source/MessControl/Private/MCFoodCollectionComponent.cpp",
+        "bytes": 23049,
+        "sha256": "2ccad9242f114f33d5cf3d040eb67ac6e6ab97c2a72696c07398484112e00eab"
+      },
+      {
+        "path": "Source/MessControl/Private/MCGameplayUIWidget.cpp",
+        "bytes": 21407,
+        "sha256": "28a938d202a4abc5757e7741c5cc70cdce02c9df2847e9862e7db876639fd649"
+      },
+      {
+        "path": "Source/MessControl/Private/MCHubEconomyComponent.cpp",
+        "bytes": 20635,
+        "sha256": "e3c4eb4cbb19e028278254cca36f0df177b587f3b428db11cf95bdf57a51f5ac"
+      },
+      {
+        "path": "Source/MessControl/Private/MCHubFishingZone.cpp",
+        "bytes": 3644,
+        "sha256": "359f678185941a1570b27a1da8a84d662aff3ea5ebf00b9d4c41327b44e0eeb0"
+      },
+      {
+        "path": "Source/MessControl/Private/MCHubGameMode.cpp",
+        "bytes": 21670,
+        "sha256": "21909f0d40893f77b94e4b9f1433a8407212a09121035de11c437a0ec8b03eb5"
+      },
+      {
+        "path": "Source/MessControl/Private/MCHubGrillPresentationComponent.cpp",
+        "bytes": 14179,
+        "sha256": "e46d2abe9b884c4f81b4cf109391c09afb710b87d61738059f761f5998c24ad3"
+      },
+      {
+        "path": "Source/MessControl/Private/MCHubGrillStation.cpp",
+        "bytes": 12668,
+        "sha256": "fac22209b17c3aeb50816a5cf664f0c98255238439899ef7c2d26bcc08449dbd"
+      },
+      {
+        "path": "Source/MessControl/Private/MCHubShopWidget.cpp",
+        "bytes": 18552,
+        "sha256": "984635f865ce2006a888b8aa6f23845a46a9717d3cfb23471b43e0369be66045"
+      },
+      {
+        "path": "Source/MessControl/Private/MCHubWardrobeWidget.cpp",
+        "bytes": 32669,
+        "sha256": "0e329602ac1143239566fe8d8588cefd7cc75b54c055951360eb32f4c988ec58"
+      },
+      {
+        "path": "Source/MessControl/Private/MCIceEvent.cpp",
+        "bytes": 102839,
+        "sha256": "c4565c41d4e9bd6d5d99544dddf206317bdf4d676cfcfbd34780614969d46604"
+      },
+      {
+        "path": "Source/MessControl/Private/MCInventoryComponent.cpp",
+        "bytes": 39963,
+        "sha256": "a2e4388eb37e27a0379c771b3a552d6c6db0a46ad4cedfe871794238b9d76b19"
+      },
+      {
+        "path": "Source/MessControl/Private/MCInventoryUpgrades.cpp",
+        "bytes": 23359,
+        "sha256": "da4719b4c29c06ec359ebbd04607253b4528fc6416da32c6685cba3585e2bd01"
+      },
+      {
+        "path": "Source/MessControl/Private/MCMainMenuPlayerController.cpp",
+        "bytes": 4662,
+        "sha256": "26c589dfbf5f5b0922c5550761b6c478dddc1b8271de64b12c5fe49fa7f8c371"
+      },
+      {
+        "path": "Source/MessControl/Private/MCNutBoss.cpp",
+        "bytes": 109503,
+        "sha256": "6b1a0961169b7535e7b3f51a40a1bba3db76cc4b3c152d7d1079c186c5c655ef"
+      },
+      {
+        "path": "Source/MessControl/Private/MCPlayerController.cpp",
+        "bytes": 62468,
+        "sha256": "46a7438b23ed6095073916e26298786f441d93d0eb38b939f817bbaa2dd5a8b5"
+      },
+      {
+        "path": "Source/MessControl/Private/MCPlayerWardrobe.cpp",
+        "bytes": 14817,
+        "sha256": "46174bcfef4715fcfc822fee498ecb2de3c285282a58a5048910707cffa15e7f"
+      },
+      {
+        "path": "Source/MessControl/Private/MCPrototypeWidget.cpp",
+        "bytes": 32472,
+        "sha256": "667f03ade3c6446f5c5d8422e9238a8f4d5484fc3a37652c2e12c2be3517108a"
+      },
+      {
+        "path": "Source/MessControl/Private/MCRewardChest.cpp",
+        "bytes": 48280,
+        "sha256": "19a02b38c7da49cb30b97293dddbf2b76311a22dae2349be51b454b7a21f998f"
+      },
+      {
+        "path": "Source/MessControl/Private/MCTaskActor.cpp",
+        "bytes": 4641,
+        "sha256": "29a14bb9940e0556405ed0d9dca28f5647d491081cf4445af88ddf08d52dce0d"
+      },
+      {
+        "path": "Source/MessControl/Private/MCThroatVortex.cpp",
+        "bytes": 20734,
+        "sha256": "65d16ad375f51f55d21e681912073a024ff9308a69e18ebb96114a89d2c48fc2"
+      },
+      {
+        "path": "Source/MessControl/Private/MCToothCharacter.cpp",
+        "bytes": 132328,
+        "sha256": "8cf176790087ceaf7c23eb164c2226efdd458dfbe293c6e366c07a6e1d14c9d1"
+      },
+      {
+        "path": "Source/MessControl/Private/MCToothPhysicsComponent.cpp",
+        "bytes": 38845,
+        "sha256": "b2fe1cb9b047fa6fc200f0ba793ff57faf4a10d88486e00215e5016c1ebf29b0"
+      },
+      {
+        "path": "Source/MessControl/Private/MCToothStatusComponent.cpp",
+        "bytes": 9672,
+        "sha256": "9c80f28f273818a11735dd00c0433c092525061b27c8d3d7752cd8b998ce857a"
+      },
+      {
+        "path": "Source/MessControl/Public/MCDataAssets.h",
+        "bytes": 7838,
+        "sha256": "37580004c241deef0f883f1907ed2f6a61af122ca9dbd32c1c718669604dce9b"
+      },
+      {
+        "path": "Source/MessControl/Public/MCThroatVortex.h",
+        "bytes": 2639,
+        "sha256": "42eca8ff782fd823153d26faa1cbcb291d69786acfcad53b51b7bccb1da84743"
+      }
+    ]
+  },
+  "distribution": {
+    "kind": "portable-public-cc0",
+    "audio_files": 550,
+    "note": "Public starter library: 527 CC0 files plus 23 project-authored originals. Creator-licensed raw packs are not redistributed."
+  }
+}

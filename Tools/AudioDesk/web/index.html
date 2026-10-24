@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MessControl · Audio Desk</title><link rel="stylesheet" href="/style.css"></head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/" aria-label="Audio Desk"><span class="brand-icon">mc</span><span>MESSCONTROL<small>AUDIO DESK <b>LOCAL</b></small></span></a>
+  <div class="profile-control"><span class="tiny-label">ПРОФИЛЬ</span><select id="profiles" aria-label="Сохранённый профиль"><option>Новый профиль</option></select><span id="save-state" class="save-state">Загрузка…</span></div>
+  <div class="top-actions"><button id="open-audit" class="quiet">О звуковых слотах</button><button id="save-profile">Сохранить как…</button><button id="export" class="primary">↓ Экспорт профиля</button></div>
+</header>
+<div class="workspace">
+<aside class="sidebar">
+  <div class="tiny-label">ЗВУКОВАЯ КАРТА</div><button id="all-groups" class="nav-item active"><span>Все события</span><b id="all-count">0</b></button><nav id="groups"></nav>
+  <div class="sidebar-bottom"><div class="tiny-label">ТВОЙ ПРОГРЕСС</div><div class="progress-track"><i id="progress"></i></div><div id="progress-label">0 из 0 одобрено</div><p>Сначала послушай.<br>Затем дай звуку место.</p><span class="local-dot">Данные рядом с приложением</span></div>
+</aside>
+<main class="main">
+  <section class="page-heading"><div><div class="eyebrow">SOUND DIRECTION / MESSCONTROL</div><h1>У каждого действия — свой звук<span>.</span></h1><p>Слушай библиотеку, перетаскивай в события и одобряй подбор.</p></div><div class="heading-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></section>
+  <div class="stats"><button data-filter="all"><strong id="stat-total">—</strong><span>звуковых слотов</span></button><button data-filter="suggested"><strong id="stat-suggested">—</strong><span><i class="dot orange"></i>на прослушивание</span></button><button data-filter="approved"><strong id="stat-approved">—</strong><span><i class="dot teal"></i>одобрено</span></button><button data-filter="empty"><strong id="stat-empty">—</strong><span><i class="dot muted"></i>без кандидата</span></button></div>
+  <div class="panels">
+  <section class="library panel" aria-label="Библиотека звуков">
+    <div class="panel-title"><div><span class="panel-number">01</span><h2>Библиотека</h2><span id="library-count" class="counter">0</span></div><button id="add-files" class="icon-btn" title="Добавить звуки" aria-label="Добавить звуки">＋</button></div>
+    <div class="search-box"><span>⌕</span><input id="library-search" placeholder="Название, пак, папка…" aria-label="Поиск звуков"><kbd>/</kbd></div>
+    <div class="library-filters"><select id="pack-filter" aria-label="Аудиопак"><option value="">Все паки</option></select><select id="duration-filter" aria-label="Длительность"><option value="">Любая длина</option><option value="short">До 2 сек</option><option value="medium">2–15 сек</option><option value="long">От 15 сек</option></select></div>
+    <div class="slot-context" id="slot-context"><div class="context-controls"><label><input id="smart-candidates" type="checkbox" checked> Кандидаты для события</label><button id="reset-library" class="text-btn">Сбросить поиск</button></div><strong id="candidate-slot">Выбери событие справа</strong><p id="candidate-rule">Контекст и допустимая длина изменятся вместе с событием.</p><span id="candidate-count"></span></div>
+    <div class="library-tools"><span>Перетащи звук в событие →</span><button id="scan-folder" class="text-btn">Открыть папку</button></div>
+    <div id="file-list" class="file-list" role="list"></div>
+    <div id="upload-zone" class="upload-zone" tabindex="0" role="button" aria-label="Перетащите аудиофайлы или выберите их"><span>＋</span><div>Брось сюда свои звуки<small>WAV · OGG · MP3 · FLAC · AIFF · M4A</small></div></div>
+  </section>
+  <section class="events panel" aria-label="Игровые события">
+    <div class="panel-title"><div><span class="panel-number">02</span><h2 id="events-title">Игровые события</h2><span id="events-count" class="counter">0</span></div><button id="next-review" class="text-btn">Следующий на проверку ↗</button></div>
+    <div class="event-toolbar"><div class="search-box"><span>⌕</span><input id="event-search" placeholder="Найти механику или событие…" aria-label="Поиск событий"></div><select id="status-filter" aria-label="Статус одобрения"><option value="all">Все статусы</option><option value="suggested">На проверку</option><option value="approved">Одобрено</option><option value="empty">Не назначено</option><option value="rejected">Отклонено</option></select></div>
+    <div class="event-subfilters"><label><input type="checkbox" id="gaps-only"> Только новые точки подключения</label><span id="scope-label">SFX / MUSIC / AMBIENCE</span></div>
+    <div id="event-list" class="event-list"></div>
+  </section>
+  </div>
+</main>
+</div>
+<footer class="player" id="player">
+  <button id="play-toggle" class="play-main" aria-label="Воспроизвести" title="Пробел">▶</button><div class="now-playing"><span class="tiny-label">ПРОСЛУШИВАНИЕ</span><strong id="now-name">Выбери звук из библиотеки</strong><span id="now-meta">Кандидаты ждут твоего одобрения</span></div>
+  <div class="timeline"><div id="waveform" class="waveform" tabindex="0" role="slider" aria-label="Позиция воспроизведения" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><svg viewBox="0 0 700 48" preserveAspectRatio="none"><path id="wave-base"/><path id="wave-played"/></svg><span id="playhead"></span></div><div class="timeline-times"><span id="current-time">0:00</span><span id="total-time">0:00</span></div></div>
+  <div class="player-controls"><button id="loop" class="icon-btn" title="Повтор" aria-label="Повтор" aria-pressed="false">↻</button><label class="volume-label">VOL <input id="volume" type="range" min="0" max="100" value="70" aria-label="Общая громкость"></label><select id="rate" aria-label="Скорость прослушивания"><option value="1">1×</option><option value="0.75">0.75×</option><option value="1.25">1.25×</option></select><button id="stop" class="icon-btn" title="Остановить" aria-label="Остановить">■</button></div><audio id="audio" preload="metadata"></audio>
+</footer>
+<input id="file-input" type="file" multiple accept="audio/*,.wav,.ogg,.mp3,.flac,.aif,.aiff,.m4a" hidden><input id="profile-input" type="file" accept=".json" hidden>
+<div id="toast" role="status" aria-live="polite"></div>
+<dialog id="modal"><div class="modal-head"><h2 id="modal-title"></h2><button id="close-modal" class="icon-btn" aria-label="Закрыть">×</button></div><div id="modal-body"></div></dialog>
+<script src="/candidates.js"></script><script src="/app.js"></script>
+</body></html>

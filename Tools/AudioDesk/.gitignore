@@ -1,0 +1,13 @@
+data/
+.runtime/
+.build/
+library/
+__pycache__/
+*.pyc
+*.tmp
+.extract-*/
+.library-*/
+.runtime.stage.*/
+.runtime.previous.*/
+.library.stage.*/
+.library.previous.*/

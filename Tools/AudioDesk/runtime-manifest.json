@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "archive": "runtime.zip",
+  "sha256": "55f6afe457f338ed3e231ac0b9d05f2baf70f8475569f571dac6934ce0619388",
+  "bytes": 95975612,
+  "app_relative_path": "AudioDesk/AudioDesk.exe",
+  "version": "1.1.0",
+  "platform": "windows-x64",
+  "download_url": "https://media.githubusercontent.com/media/haruhix/MessControl/main/Tools/AudioDesk/runtime.zip"
+}

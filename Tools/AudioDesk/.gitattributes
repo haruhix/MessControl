@@ -1,0 +1,7 @@
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+runtime.zip filter=lfs diff=lfs merge=lfs -text
+library.zip filter=lfs diff=lfs merge=lfs -text
+ThirdParty/*.tar.gz filter=lfs diff=lfs merge=lfs -text
+# Preserve upstream license formatting verbatim.
+ThirdParty/*.txt -whitespace

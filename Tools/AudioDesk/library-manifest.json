@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "archive": "library.zip",
+  "sha256": "a095ab269de879d6fae8264a1373b298ad66c11e69c9ca91dd4a5585f5539fb2",
+  "bytes": 54217778,
+  "audio_files": 550,
+  "cc0_files": 527,
+  "project_originals": 23,
+  "extracted_directory": "library",
+  "source": "Public CC0 starter plus project-authored audio",
+  "license_notice": "THIRD_PARTY_AUDIO.md",
+  "download_url": "https://media.githubusercontent.com/media/haruhix/MessControl/main/Tools/AudioDesk/library.zip"
+}

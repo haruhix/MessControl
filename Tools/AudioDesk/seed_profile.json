@@ -1,0 +1,1669 @@
+{
+  "schema_version": 1,
+  "name": "MessControl - portable CC0 starter",
+  "assignments": {
+    "scene.MainMenu.Music": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В этом SFX-паке не подтверждён полноценный музыкальный трек. Сохранить текущую музыку либо добавить отдельную библиотеку.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "scene.MainMenu.Ambience": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "scene.Hub.Music": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В этом SFX-паке не подтверждён полноценный музыкальный трек. Сохранить текущую музыку либо добавить отдельную библиотеку.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "scene.Relax.Music": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В этом SFX-паке не подтверждён полноценный музыкальный трек. Сохранить текущую музыку либо добавить отдельную библиотеку.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "scene.Relax.Ambience": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "scene.Gameplay.Music": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В этом SFX-паке не подтверждён полноценный музыкальный трек. Сохранить текущую музыку либо добавить отдельную библиотеку.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "scene.Gameplay.Ambience": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "scene.NutEncounter.Music": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В этом SFX-паке не подтверждён полноценный музыкальный трек. Сохранить текущую музыку либо добавить отдельную библиотеку.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "scene.NutEncounter.Ambience": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "scene.IceEvent.Music": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В этом SFX-паке не подтверждён полноценный музыкальный трек. Сохранить текущую музыку либо добавить отдельную библиотеку.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "scene.IceEvent.Ambience": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "scene.FogBrawl.Music": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В этом SFX-паке не подтверждён полноценный музыкальный трек. Сохранить текущую музыку либо добавить отдельную библиотеку.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "scene.FogBrawl.Ambience": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "scene.CataclysmRafts.Music": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В этом SFX-паке не подтверждён полноценный музыкальный трек. Сохранить текущую музыку либо добавить отдельную библиотеку.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "scene.CataclysmJellies.Music": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В этом SFX-паке не подтверждён полноценный музыкальный трек. Сохранить текущую музыку либо добавить отдельную библиотеку.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "scene.ColdCola.Music": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В этом SFX-паке не подтверждён полноценный музыкальный трек. Сохранить текущую музыку либо добавить отдельную библиотеку.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "scene.FinalBoss.Music": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В этом SFX-паке не подтверждён полноценный музыкальный трек. Сохранить текущую музыку либо добавить отдельную библиотеку.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "scene.FinalBoss.Ambience": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "direct.fog.FinalSound": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "direct.piano.C4": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "bf27e38616cad489b94b584b",
+          "gain_db": 0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "reason": "Сохранить точный текущий образец ноты: исходник совпадает с импортом по MD5. Прослушать и одобрить сохранение текущего звука.",
+      "selection_method": "portable_cc0_seed",
+      "confidence": 1,
+      "note": ""
+    },
+    "direct.piano.C5": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "fa1c968c847729bdcc5aec7a",
+          "gain_db": 0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "reason": "Сохранить точный текущий образец ноты: исходник совпадает с импортом по MD5. Прослушать и одобрить сохранение текущего звука.",
+      "selection_method": "portable_cc0_seed",
+      "confidence": 1,
+      "note": ""
+    },
+    "direct.piano.C6": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "9b9f88c8f7ab2385eaeee598",
+          "gain_db": 0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "reason": "Сохранить точный текущий образец ноты: исходник совпадает с импортом по MD5. Прослушать и одобрить сохранение текущего звука.",
+      "selection_method": "portable_cc0_seed",
+      "confidence": 1,
+      "note": ""
+    },
+    "direct.piano.C7": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "7af039f4c15d20a680c93e1f",
+          "gain_db": 0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "reason": "Сохранить точный текущий образец ноты: исходник совпадает с импортом по MD5. Прослушать и одобрить сохранение текущего звука.",
+      "selection_method": "portable_cc0_seed",
+      "confidence": 1,
+      "note": ""
+    },
+    "new.PlayerHurt": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "new.PlayerDeath": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "new.ChainsawLoop": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "Не найдена подтверждённая рабочая петля нужного механизма. Не повторять случайный click/one-shot как loop.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "new.FishReel": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "Не найдена подтверждённая рабочая петля нужного механизма. Не повторять случайный click/one-shot как loop.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "new.GrillReels": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "Не найдена подтверждённая рабочая петля нужного механизма. Не повторять случайный click/one-shot как loop.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "new.ChestLockpick": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "Не найдена подтверждённая рабочая петля нужного механизма. Не повторять случайный click/one-shot как loop.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "new.IceTelegraph": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "new.IceNova": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "new.IceIcicle": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "new.IceShatter": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "new.IceFreeze": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "new.NutTelegraph": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "new.NutShieldCounter": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "new.NutTeleport": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "new.NutTransform": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "new.NutDefeat": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "new.BossAttackTelegraph": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "new.BossAttackImpact": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "new.CataclysmStart": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "new.GrillFireLocal": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "reason": "В библиотеке не выбран достаточно подходящий источник; оставлено для ручного подбора.",
+      "selection_method": "portable_cc0_seed",
+      "note": ""
+    },
+    "event.Step": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "f8fe1f4de8be404fc14115b6",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "79264dd16f33a84adbf50953",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "cdaf8a8efb687c43ff7d2dfe",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "34c448a71be3419603eccd67",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "event.Jump": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "ca4385a0322d8f994ca99815",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "event.Fall": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "98b3d794bd421db432ee76f7",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "d538a39c59405c008e44bec2",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "1b40eccbc25643c8150f9b92",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "9011aea1c419006420cc2be4",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "event.StandUp": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "b02ff163c10374f4e0dac05e",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "9f801475527cdf06cb87fc19",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "61e1fdaa3db4657fa8154a2c",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "6f3597dbee62d19fe7eeb460",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "event.Brush": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "970a2183f32671fd6dd0abc0",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "event.Pull": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "1bc1244119cf3117c3eddd4a",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "34c448a71be3419603eccd67",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "176ad9783013299a331df4c4",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "fc1c31e89ee332683f9431f7",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "event.Whoosh": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "d9282e1ba64b0d544119a611",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "event.KnifeSwing": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "d9282e1ba64b0d544119a611",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "event.PickaxeSwing": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "d9282e1ba64b0d544119a611",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.FishCast": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "d9282e1ba64b0d544119a611",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.FoodThrow": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "d9282e1ba64b0d544119a611",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "event.Hit": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "6fa1cf16de02de434fe26a50",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "d538a39c59405c008e44bec2",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "event.KnifeHit": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "9a994f5735047b51150daa73",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "b3f378824801786e193a1077",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "4da5df0ae0ed757009836021",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "2a58a71afefce4f99b65e722",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "event.PickaxeHit": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "d538a39c59405c008e44bec2",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "event.Complete": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "c434dacf17eb4523cfbc45cf",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.CareComplete": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "c434dacf17eb4523cfbc45cf",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.FishCaught": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "note": "",
+      "reason": "В публичном комплекте не найден подходящий короткий источник. Подключи исходный пак или добавь свой звук.",
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.WardrobeApply": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "note": "",
+      "reason": "В публичном комплекте не найден подходящий короткий источник. Подключи исходный пак или добавь свой звук.",
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.PerkChoose": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "note": "",
+      "reason": "В публичном комплекте не найден подходящий короткий источник. Подключи исходный пак или добавь свой звук.",
+      "selection_method": "portable_cc0_seed"
+    },
+    "event.DayStart": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "17f28cdd7a3c851c24851933",
+          "gain_db": -9.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "event.Win": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "d907a42b7a98fd4d9be40c6b",
+          "gain_db": -9.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "event.Lose": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "b521d221fc54871f61a78c07",
+          "gain_db": -9.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "direct.fog.KnockSound": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "cee1feee4f03498a5b889eb2",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "direct.fog.WindupSound": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "9d13405ed468205afe156d03",
+          "gain_db": -9.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "0e431ddfdedef1640b8397b0",
+          "gain_db": -9.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "direct.fog.BeaconSound": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "5ea04609d88b5d2510c14407",
+          "gain_db": -9.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "fc8abf8df34a9ec2c5f2867d",
+          "gain_db": -9.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "direct.fog.ImpactSound": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "d538a39c59405c008e44bec2",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "1b40eccbc25643c8150f9b92",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "9011aea1c419006420cc2be4",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "direct.throat.IntakeSound": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "d9282e1ba64b0d544119a611",
+          "gain_db": -9.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "direct.throat.AirflowSound": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "0e431ddfdedef1640b8397b0",
+          "gain_db": -14.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "9d13405ed468205afe156d03",
+          "gain_db": -14.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.JumpTakeoff": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "ca4385a0322d8f994ca99815",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "d9282e1ba64b0d544119a611",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.ToolSelect": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "note": "",
+      "reason": "В публичном комплекте не найден подходящий короткий источник. Подключи исходный пак или добавь свой звук.",
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.Spray": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "f8282d5320cf5c2cdad925a6",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "dd00e3e8a1fd5433f33df1f4",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "421c7a3684c71e0b6894ae07",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "fab8a1b1cac65ddd4f386ccd",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.FoodPickup": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "b98da102458c3a11a0d33f7c",
+          "gain_db": -10.0,
+          "trim_start": 0.0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "ff2bb82031fb6bb9abecbb98",
+          "gain_db": -10,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Вязкая короткая фактура; будущий hook, пока не подключено. Кандидат по назначению и метаданным; требует прослушивания.",
+      "confidence": 0.65,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.Repair": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "b98da102458c3a11a0d33f7c",
+          "gain_db": -10.0,
+          "trim_start": 0.0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "note": "",
+      "reason": "Вязкая короткая фактура; будущий hook, пока не подключено. Кандидат по назначению и метаданным; требует прослушивания.",
+      "confidence": 0.65,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.FoodSpill": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "79264dd16f33a84adbf50953",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "1295e76159667847e8c378fc",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "dd8af5b85e7c2005322ae380",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "c7218a74b81cb7f20fe8cd78",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.FoodImpact": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "4d86fc00fd92e274ee05c07c",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "fa5147e4d57286bdd97e1384",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "663b38fa929590551a02134a",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "d55f7932a8e52fb8658c3990",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.FoodDelivery": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "421c7a3684c71e0b6894ae07",
+          "gain_db": -8.0,
+          "trim_start": 0.0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "note": "",
+      "reason": "Булькающий телесный акцент доставки еды. Кандидат по назначению и метаданным; требует прослушивания.",
+      "confidence": 0.65,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.FishEquip": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "note": "",
+      "reason": "В публичном комплекте не найден подходящий короткий источник. Подключи исходный пак или добавь свой звук.",
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.FishSplash": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "e1be76c6ed666078e68b5269",
+          "gain_db": -10.0,
+          "trim_start": 0.0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "df3bcc3627dce55b18ddf7a7",
+          "gain_db": -10,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "72f6bf1b0e6b5ee36e3df055",
+          "gain_db": -10,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Короткие настоящие водные всплески; масштаб уточняется прослушиванием. Кандидат по назначению и метаданным; требует прослушивания.",
+      "confidence": 0.65,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.FishBite": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "e1be76c6ed666078e68b5269",
+          "gain_db": -10.0,
+          "trim_start": 0.0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "df3bcc3627dce55b18ddf7a7",
+          "gain_db": -10,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "72f6bf1b0e6b5ee36e3df055",
+          "gain_db": -10,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Короткие настоящие водные всплески; масштаб уточняется прослушиванием. Кандидат по назначению и метаданным; требует прослушивания.",
+      "confidence": 0.65,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.WaterEnterExit": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "e1be76c6ed666078e68b5269",
+          "gain_db": -10.0,
+          "trim_start": 0.0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "df3bcc3627dce55b18ddf7a7",
+          "gain_db": -10,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "72f6bf1b0e6b5ee36e3df055",
+          "gain_db": -10,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Короткие настоящие водные всплески; масштаб уточняется прослушиванием. Кандидат по назначению и метаданным; требует прослушивания.",
+      "confidence": 0.65,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.SwimStroke": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "e1be76c6ed666078e68b5269",
+          "gain_db": -10.0,
+          "trim_start": 0.0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "df3bcc3627dce55b18ddf7a7",
+          "gain_db": -10,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "72f6bf1b0e6b5ee36e3df055",
+          "gain_db": -10,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Короткие настоящие водные всплески; масштаб уточняется прослушиванием. Кандидат по назначению и метаданным; требует прослушивания.",
+      "confidence": 0.65,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.RaftRow": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "e1be76c6ed666078e68b5269",
+          "gain_db": -10.0,
+          "trim_start": 0.0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "df3bcc3627dce55b18ddf7a7",
+          "gain_db": -10,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "72f6bf1b0e6b5ee36e3df055",
+          "gain_db": -10,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Короткие настоящие водные всплески; масштаб уточняется прослушиванием. Кандидат по назначению и метаданным; требует прослушивания.",
+      "confidence": 0.65,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.WatergunShot": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "0792c639cdece00c3254287a",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "4d86fc00fd92e274ee05c07c",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "fa5147e4d57286bdd97e1384",
+          "gain_db": -10.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.ShopOpenClose": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "note": "",
+      "reason": "В публичном комплекте не найден подходящий короткий источник. Подключи исходный пак или добавь свой звук.",
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.PurchaseSuccess": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "note": "",
+      "reason": "В публичном комплекте не найден подходящий короткий источник. Подключи исходный пак или добавь свой звук.",
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.PurchaseDenied": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "note": "",
+      "reason": "В публичном комплекте не найден подходящий короткий источник. Подключи исходный пак или добавь свой звук.",
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.WardrobeOpenClose": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "95bf28006b7c1ed80cb4381b",
+          "gain_db": -12.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "35c0e0213b02df75de759ffa",
+          "gain_db": -12.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.WardrobePreview": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "35c0e0213b02df75de759ffa",
+          "gain_db": -15.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.HubSelectDay": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "note": "",
+      "reason": "В публичном комплекте не найден подходящий короткий источник. Подключи исходный пак или добавь свой звук.",
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.HubLaunch": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "17f28cdd7a3c851c24851933",
+          "gain_db": -9.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "d9282e1ba64b0d544119a611",
+          "gain_db": -9.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.GrillStart": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "note": "",
+      "reason": "В публичном комплекте не найден подходящий короткий источник. Подключи исходный пак или добавь свой звук.",
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.GrillReward": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "note": "",
+      "reason": "В публичном комплекте не найден подходящий короткий источник. Подключи исходный пак или добавь свой звук.",
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.ChestArrive": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "d538a39c59405c008e44bec2",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "1b40eccbc25643c8150f9b92",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "9011aea1c419006420cc2be4",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.ChestOpen": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "note": "",
+      "reason": "В публичном комплекте не найден подходящий короткий источник. Подключи исходный пак или добавь свой звук.",
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.MimicSnap": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "9195d30f6c7dd879837d8731",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "e253c7c2275c1161777930d6",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "9a994f5735047b51150daa73",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "b3f378824801786e193a1077",
+          "gain_db": -6.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.MimicRescue": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "note": "",
+      "reason": "В публичном комплекте не найден подходящий короткий источник. Подключи исходный пак или добавь свой звук.",
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.UIHover": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "note": "",
+      "reason": "В публичном комплекте не найден подходящий короткий источник. Подключи исходный пак или добавь свой звук.",
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.UIConfirm": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "note": "",
+      "reason": "В публичном комплекте не найден подходящий короткий источник. Подключи исходный пак или добавь свой звук.",
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.UIBack": {
+      "status": "empty",
+      "clips": [],
+      "alternatives": [],
+      "note": "",
+      "reason": "В публичном комплекте не найден подходящий короткий источник. Подключи исходный пак или добавь свой звук.",
+      "selection_method": "portable_cc0_seed"
+    },
+    "scene.Hub.Ambience": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "be2f4508570b9e01e0e8b9fc",
+          "gain_db": -20.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "34091179797d498c5dc789fb",
+          "gain_db": -20.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "1ebd4bff4579a48fc4a8e543",
+          "gain_db": -20.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "ec04b873af13fe895fa39cc2",
+          "gain_db": -20.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    },
+    "scene.CataclysmRafts.Ambience": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "34091179797d498c5dc789fb",
+          "gain_db": -17.0,
+          "trim_start": 0.0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [],
+      "note": "",
+      "reason": "Явно обозначенные водные loops для режима плотов. Кандидат по назначению и метаданным; требует прослушивания.",
+      "confidence": 0.65,
+      "selection_method": "portable_cc0_seed"
+    },
+    "scene.CataclysmJellies.Ambience": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "ec04b873af13fe895fa39cc2",
+          "gain_db": -18.0,
+          "trim_start": 0.0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "70fd9a7459f813de6a9d56b9",
+          "gain_db": -18,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Пузырьковая петля для жидкой/желейной среды. Кандидат по назначению и метаданным; требует прослушивания.",
+      "confidence": 0.65,
+      "selection_method": "portable_cc0_seed"
+    },
+    "scene.ColdCola.Ambience": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "ec04b873af13fe895fa39cc2",
+          "gain_db": -18.0,
+          "trim_start": 0.0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "70fd9a7459f813de6a9d56b9",
+          "gain_db": -18,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Пузырьковый фон газировки. Кандидат по назначению и метаданным; требует прослушивания.",
+      "confidence": 0.65,
+      "selection_method": "portable_cc0_seed"
+    },
+    "new.HubPondLocal": {
+      "status": "suggested",
+      "clips": [
+        {
+          "file_id": "be2f4508570b9e01e0e8b9fc",
+          "gain_db": -17.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "alternatives": [
+        {
+          "file_id": "34091179797d498c5dc789fb",
+          "gain_db": -17.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "1ebd4bff4579a48fc4a8e543",
+          "gain_db": -17.0,
+          "trim_start": 0,
+          "trim_end": null
+        },
+        {
+          "file_id": "ec04b873af13fe895fa39cc2",
+          "gain_db": -17.0,
+          "trim_start": 0,
+          "trim_end": null
+        }
+      ],
+      "note": "",
+      "reason": "Кандидат из публичного CC0-комплекта или текущих оригиналов; подходит по контексту и длительности. Требует прослушивания и одобрения.",
+      "confidence": 0.5,
+      "selection_method": "portable_cc0_seed"
+    }
+  },
+  "created_at": "2026-10-23T17:00:48Z",
+  "updated_at": "2026-10-23T17:06:31Z",
+  "catalog_version": 1,
+  "distribution": {
+    "kind": "portable-public-cc0",
+    "audio_files": 550,
+    "note": "Public starter library: 527 CC0 files plus 23 project-authored originals. Creator-licensed raw packs are not redistributed."
+  }
+}
