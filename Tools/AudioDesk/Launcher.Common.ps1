@@ -81,6 +81,9 @@ function Resolve-DeskArchive {
             try {
                 Write-Host "Downloading $($Manifest.archive)..."
                 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+                # Windows PowerShell 5.1 progress updates make large downloads
+                # needlessly slow, including when the launcher output is piped.
+                $ProgressPreference = 'SilentlyContinue'
                 Invoke-WebRequest -Uri $Manifest.download_url -OutFile $temporary -UseBasicParsing -TimeoutSec 300
                 $downloadHash = Get-DeskFileSha256 $temporary
                 if ($downloadHash -ne $Manifest.sha256) { throw "SHA256 mismatch for downloaded $($Manifest.archive)." }
