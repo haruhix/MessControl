@@ -13,6 +13,7 @@
 #include "MCCoffeeWipe.h"
 #include "MCArenaToothSocket.h"
 #include "MCToothStatusComponent.h"
+#include "MCPerkComponent.h"
 #include "MCFoodActor.h"
 #include "MCFoodBodyComponent.h"
 #include "MCFoodCollectionComponent.h"
@@ -207,12 +208,16 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCThroatRiskTest,"MessControl.Throat.Decorativ
 bool FMCThroatRiskTest::RunTest(const FString&)
 {
     FTestMouth M;auto* Throat=M.World->SpawnActor<AMCThroat>(FVector(5000,0,200),FRotator::ZeroRotator);
+    // This retained fixture exercises automatic delivery. Production defaults
+    // now require a manually thrown item through the aperture instead.
+    Throat->bManualIntake=false;Throat->RebuildAppearance();
     const FVector P=Throat->GetActorTransform().TransformPosition(Throat->ZoneCenter);
     auto* H=M.Worker();H->SetActorLocation(P+FVector(0,0,60));
     TestFalse(TEXT("No uvula jump offer or server launch"),Throat->CanOrderJump(H) || Throat->LaunchToUvula(H));
     TestEqual(TEXT("Decorative uvula has no landing collision"),Throat->UvulaLanding->GetCollisionEnabled(),ECollisionEnabled::NoCollision);
     auto* F=M.GripCube();F->Body->SetSimulatePhysics(false);F->Phase=EMCFoodPhase::Free;F->SetActorLocation(P+FVector(0,0,45));
     Throat->Tick(.01f);TestNull(TEXT("Automatic intake never captures nearby players"),H->SwallowedBy.Get());
+    if(!TestEqual(TEXT("The automatic-delivery fixture actually accepts its loose ingredient"),F->Phase,EMCFoodPhase::Swallowing)) return false;
     Throat->PhaseStartedAt-=Throat->AnticipationSeconds+.01;Throat->Tick(.01f);
     Throat->PhaseStartedAt-=Throat->SwallowSeconds+.01;Throat->Tick(.01f);
     TestTrue(TEXT("Food succeeds with a player standing in the zone"),F->IsDisposed() && Throat->SpasmCount==0 && H->CanWork());
@@ -653,11 +658,16 @@ bool FMCRespawnTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("An already complete task cannot award twice"),Player->Points,13);
     Mouth.Mode->AwardTask(A,EMCScoreTask::Repair);
     TestEqual(TEXT("Different task kinds have different rewards"),Player->Points,34);
+    const int32 InitialReserves=Mouth.State->AvailableArenaTeeth();
     Mouth.State->ArenaTeeth[0]->ReceiveArenaHit(100,FVector::ForwardVector);
-    auto* Source=Mouth.State->ArenaTeeth[1].Get(); Source->SetCoffee(1); Source->ReceiveArenaHit(25,FVector::ForwardVector);
+    auto* Source=Mouth.State->ArenaTeeth[1].Get(); Source->SetCoffee(1); Source->ReceiveArenaHit(75,FVector::ForwardVector);
+    TestTrue(TEXT("Reserve fixture is dirty, damaged and loose"),Source->Status->State.CoffeeLeft>0 && Source->Status->IsLoose());
+    TestFalse(TEXT("Fresh replacements do not inherit reserve status by default"),A->Status->Settings.bInheritReserveStatus);
+    TestTrue(TEXT("Maximum-health perk is granted before replacement"),Player->Perks->ServerGrantPerk(TEXT("P25")));
+    TestEqual(TEXT("Granting maximum health does not heal the current body"),A->Status->State.Health,100.f);
     A->ToothPhysics->SetActiveRagdollMode(EMCActiveRagdollMode::Firm);
     B->ToothPhysics->SetActiveRagdollMode(EMCActiveRagdollMode::Off);
-    A->Status->Damage(100); B->Status->Damage(100);
+    A->Status->Damage(A->Status->State.MaxHealth,FVector::ForwardVector,nullptr,EMCRogueDamageKind::Ordinary,false); B->Status->Damage(100);
     TestTrue(TEXT("Death schedules the requested five-second wait"),FMath::IsNearlyEqual(A->RespawnAt-Mouth.State->GetServerWorldTimeSeconds(),5.,.01));
     Mouth.Mode->ProcessRespawns(); TestTrue(TEXT("Pawn stays dead until the delay expires"),PC1->GetPawn()==A);
     A->RespawnAt=-1; B->RespawnAt=-1;
@@ -669,16 +679,23 @@ bool FMCRespawnTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Respawn restores the chosen soft profile after original comparison"),NewB->ToothPhysics->GetActiveRagdollMode(),EMCActiveRagdollMode::Soft);
     TestEqual(TEXT("Destroyed reserve is skipped"),NewA->RespawnSourceId,2);
     TestEqual(TEXT("Second death consumes another tooth"),NewB->RespawnSourceId,3);
-    TestEqual(TEXT("Seven reserves minus two respawns"),Mouth.State->AvailableArenaTeeth(),5);
+    TestEqual(TEXT("One destroyed reserve and two replacements are charged"),Mouth.State->AvailableArenaTeeth(),InitialReserves-3);
     TestTrue(TEXT("Spent tooth leaves a visible and physical gap"),Source->State.bConsumed && Source->IsHidden() && Source->Body->GetCollisionEnabled()==ECollisionEnabled::NoCollision);
-    TestEqual(TEXT("Inherited damage"),NewA->Status->State.Health,75.f);
-    TestEqual(TEXT("Inherited coffee"),NewA->Status->State.CoffeeLeft,4);
+    TestEqual(TEXT("Replacement keeps the owner's maximum-health perk"),NewA->Status->State.MaxHealth,115.f);
+    TestEqual(TEXT("Damaged reserve produces a fully healthy replacement"),NewA->Status->State.Health,NewA->Status->State.MaxHealth);
+    TestEqual(TEXT("Dirty reserve produces a clean replacement"),NewA->Status->State.CoffeeLeft,0);
+    TestEqual(TEXT("Loose reserve does not transfer repair work"),NewA->Status->State.RepairLeft,0);
+    TestFalse(TEXT("Replacement is not loose"),NewA->Status->IsLoose());
+    Player->Perks->RefreshRogueTuning(); Player->Perks->RefreshRogueTuning();
+    TestEqual(TEXT("Repeated perk refresh does not compound the maximum"),NewA->Status->State.MaxHealth,115.f);
+    TestEqual(TEXT("Repeated perk refresh preserves full health"),NewA->Status->State.Health,NewA->Status->State.MaxHealth);
     TestTrue(TEXT("Score identity survives replacement pawn"),NewA->GetPlayerState()==Player && Player->Points==34);
     TestFalse(TEXT("Spent tooth cannot be consumed again"),Source->ConsumeForRespawn());
-    Mouth.Mode->ProcessRespawns(); TestEqual(TEXT("Queue does not charge twice"),Mouth.State->AvailableArenaTeeth(),5);
+    Mouth.Mode->ProcessRespawns(); TestEqual(TEXT("Queue does not charge twice"),Mouth.State->AvailableArenaTeeth(),InitialReserves-3);
     for (AMCArenaTooth* Tooth:Mouth.State->ArenaTeeth) if (Tooth->IsAvailable()) Tooth->ConsumeForRespawn();
     Mouth.Mode->Tick(.01f); TestTrue(TEXT("Zero reserves with living players is playable"),Mouth.State->Phase!=EMCShiftPhase::Lost);
-    NewA->Status->Damage(100); NewB->Status->Damage(100); Mouth.Mode->Tick(.01f);
+    NewA->Status->Damage(NewA->Status->State.MaxHealth,FVector::ForwardVector,nullptr,EMCRogueDamageKind::Ordinary,false);
+    NewB->Status->Damage(NewB->Status->State.MaxHealth,FVector::ForwardVector,nullptr,EMCRogueDamageKind::Ordinary,false); Mouth.Mode->Tick(.01f);
     TestEqual(TEXT("No players and no reserves loses"),Mouth.State->Phase,EMCShiftPhase::Lost);
     return true;
 }

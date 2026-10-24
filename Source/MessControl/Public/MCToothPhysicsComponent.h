@@ -63,6 +63,7 @@ private:
     float SendAccumulator = 0.f;
     float LastHitTime = -10.f;
     float RecoveryInvulnerableUntil = 0.f;
+    float BlockedRecoveryStartedAt = -1.f;
     bool bGripLeft=false,bGripRight=false;
     bool bPhysicalGripLeft=false,bPhysicalGripRight=false;
     float StandingPhysicsWeight=1;

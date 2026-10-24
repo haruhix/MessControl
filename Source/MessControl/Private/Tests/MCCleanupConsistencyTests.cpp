@@ -235,4 +235,78 @@ bool FMCCleanupBothSurfaceKindsTest::RunTest(const FString&)
     TestEqual(TEXT("Legacy cleanup uses the same remaining outer teeth"),Legacy->CountDirt(),4);
     return true;
 }
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCCleanupOrdinaryRecoveryTest,"MessControl.Cleanup.UnsupportedOrdinaryStainReturnsWithoutCompletingWork",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCCleanupOrdinaryRecoveryTest::RunTest(const FString&)
+{
+    MCCleanupConsistencyTests::FFixture F;
+    constexpr int32 Batch=43123;
+    // A stain loaded/created off the tissue never acquires TongueAnchor. Merely
+    // moving an already bound stain would exercise its old follow code instead.
+    const FVector Outside(25000,17000,-500);
+    const FTransform Pose(Outside);
+    auto* Owner=F.World->SpawnActor<AActor>();
+    auto* Patch=F.World->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose,Owner);
+    Patch->bRandomizeLiquidSize=false;Patch->LiquidHalfSize=20;Patch->Batch=Batch;
+    Patch->Tags.Add(TEXT("MCFoodServedDirt"));Patch->FinishSpawning(Pose);Patch->Status->ApplyCoffee(1.f);
+    TestNull(TEXT("The unsupported existing stain has no tissue anchor"),Patch->GetTongue());
+    // Retain genuine partial work rather than turning recovery into a new full
+    // stain or an implicit completion. The rest of its real mask stays dirty.
+    for(int32 Y=30;Y<=33;++Y) for(int32 X=30;X<=33;++X) Patch->WipeMask[Y*FMCCoffeeWipe::Size+X]=0;
+    const auto Mask=Patch->WipeMask,Deposit=Patch->LiquidDepositMask;
+    const auto Care=Patch->Status->State;
+    const float Remaining=Patch->RemainingLiquid();
+    const int32 Seed=Patch->LiquidSeed;
+    TestTrue(TEXT("The fixture retains partially cleaned outstanding dirt"),Remaining>0 && Remaining<1 && !Patch->IsClean());
+    TestEqual(TEXT("The unsupported stain initially holds its real cleanup gate"),MCCountDirectedFoodDirt(F.World,Batch),1);
+    for(int32 I=0;I<40;++I) {++GFrameCounter;F.World->Tick(LEVELTICK_All,.1f);}
+    FHitResult Floor;
+    TestTrue(TEXT("Real actor ticks return the existing stain to a valid whole footprint"),
+        MCDirtPlacement::FindSurface(F.Tongue,Patch->GetActorLocation(),Patch->LiquidHalfSize*1.415f,Floor));
+    TestTrue(TEXT("Recovery places the visible blob on the actual tissue"),
+        Patch->GetActorLocation().Equals(Floor.ImpactPoint+Floor.ImpactNormal*5,.1f));
+    TestEqual(TEXT("Recovery binds the actual tongue"),Patch->GetTongue(),F.Tongue);
+    TestTrue(TEXT("Recovery preserves every wiped and deposited byte"),Patch->WipeMask==Mask && Patch->LiquidDepositMask==Deposit);
+    TestEqual(TEXT("Recovery preserves the remaining coverage fraction"),Patch->RemainingLiquid(),Remaining);
+    TestEqual(TEXT("Recovery preserves coffee work"),Patch->Status->State.CoffeeLeft,Care.CoffeeLeft);
+    TestEqual(TEXT("Recovery preserves health"),Patch->Status->State.Health,Care.Health);
+    TestEqual(TEXT("Recovery preserves repair work"),Patch->Status->State.RepairLeft,Care.RepairLeft);
+    TestEqual(TEXT("Recovery preserves its batch"),Patch->Batch,Batch);
+    TestEqual(TEXT("Recovery preserves its producer"),Patch->GetOwner(),Owner);
+    TestEqual(TEXT("Recovery preserves its outline seed"),Patch->LiquidSeed,Seed);
+    TestEqual(TEXT("Relocation never awards cleanup or releases the portion gate"),MCCountDirectedFoodDirt(F.World,Batch),1);
+    // A later forced displacement of this bound instance must return safely too.
+    Patch->SetActorLocation(Outside);
+    for(int32 I=0;I<40;++I) {++GFrameCounter;F.World->Tick(LEVELTICK_All,.1f);}
+    TestTrue(TEXT("A forced displacement of the recovered stain cannot strand it off the arena"),
+        MCDirtPlacement::FindSurface(F.Tongue,Patch->GetActorLocation(),Patch->LiquidHalfSize*1.415f,Floor));
+    TestTrue(TEXT("A repeated return still retains the original cleaning work"),Patch->WipeMask==Mask && !Patch->IsClean());
+    TestEqual(TEXT("The repeated return leaves the same single cleanup task"),MCCountDirectedFoodDirt(F.World,Batch),1);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCCleanupValidOrdinaryStainTest,"MessControl.Cleanup.AccessibleOrdinaryStainNeverMovesOrAutoCompletes",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCCleanupValidOrdinaryStainTest::RunTest(const FString&)
+{
+    MCCleanupConsistencyTests::FFixture F;
+    const FTransform Pose(FVector(0,0,5));
+    auto* Patch=F.World->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose);
+    Patch->bRandomizeLiquidSize=false;Patch->LiquidHalfSize=20;Patch->Batch=43124;
+    Patch->Tags.Add(TEXT("MCFoodServedDirt"));Patch->FinishSpawning(Pose);Patch->Status->ApplyCoffee(1.f);
+    FHitResult Floor;
+    TestTrue(TEXT("The unchanged stain starts in a valid whole work footprint"),
+        MCDirtPlacement::FindSurface(F.Tongue,Patch->GetActorLocation(),Patch->LiquidHalfSize*1.415f,Floor));
+    const FTransform Before=Patch->GetActorTransform();
+    const auto Mask=Patch->WipeMask;
+    const int32 Contacts=Patch->Status->State.CoffeeLeft;
+    // No worker touches this stain. Inactivity must never erase real work.
+    for(int32 I=0;I<100;++I) {++GFrameCounter;F.World->Tick(LEVELTICK_All,.1f);}
+    TestTrue(TEXT("A valid idle stain keeps its position, heading and size"),Patch->GetActorTransform().Equals(Before,.001f));
+    TestTrue(TEXT("An accessible stain retains every dirty byte"),Patch->WipeMask==Mask && !Patch->IsClean());
+    TestEqual(TEXT("The care counter is not silently completed"),Patch->Status->State.CoffeeLeft,Contacts);
+    TestEqual(TEXT("The cleanup gate still requires the player's brush"),MCCountDirectedFoodDirt(F.World,Patch->Batch),1);
+    return true;
+}
 #endif

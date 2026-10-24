@@ -5,6 +5,7 @@
 #include "MCTravelLoadingSubsystem.generated.h"
 
 struct FWorldContext;
+class UTexture2D;
 
 /** Native Slate fallback can animate while a normal map load blocks the game thread. */
 UCLASS()
@@ -16,5 +17,7 @@ public:
     virtual void Deinitialize() override;
 private:
     void BeforeMapLoad(const FWorldContext& Context,const FString& MapName);
+    /** Resolved on the game thread at instance startup, before a blocking travel can begin. */
+    UPROPERTY(Transient) TObjectPtr<UTexture2D> LoadingArtwork;
     FDelegateHandle BeforeLoadHandle;
 };

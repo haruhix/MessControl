@@ -175,10 +175,28 @@ void UMCMainMenuWidget::CollapseRetiredMainMenuCopy()
     const FName NavigationKey(TEXT("UI.MainMenu.NavigationHint"));
     WidgetTree->ForEachWidget([this,TaglineKey,NavigationKey](UWidget* Widget)
     {
+        if(auto* Button=Cast<UMCMainMenuActionButton>(Widget))
+        {
+            if(Button->Action==EMCMainMenuAction::Tutorial)
+            {
+                Button->SetVisibility(ESlateVisibility::Collapsed);
+                if(auto* ButtonSlot=Cast<UVerticalBoxSlot>(Button->Slot)) ButtonSlot->SetPadding(FMargin(0));
+            }
+            else if(Button->Action==EMCMainMenuAction::Credits) Button->SetIsEnabled(false);
+            return;
+        }
+        if(Widget->GetFName()==TEXT("MenuHost_TutorialCheck"))
+        {
+            Widget->SetVisibility(ESlateVisibility::Collapsed);
+            Widget->SetIsEnabled(false);
+            if(auto* CheckSlot=Cast<UVerticalBoxSlot>(Widget->Slot)) CheckSlot->SetPadding(FMargin(0));
+            return;
+        }
         auto* Text=Cast<UTextBlock>(Widget);
         if (!Text) return;
         const FName* Binding=TextBindings.Find(Text->GetFName());
-        const bool bRetiredBinding=Binding && (*Binding==TaglineKey || *Binding==NavigationKey);
+        const bool bRetiredBinding=Binding && (*Binding==TaglineKey || *Binding==NavigationKey
+            || *Binding==TEXT("UI.MainMenu.TutorialOptionHint"));
         // Keep stable template names, and preserve artist copy explicitly rebound to another key.
         const bool bRetiredUnbound=!Binding && (Text->GetFName()==TEXT("MenuMain_Text1") ||
             Text->GetFName()==TEXT("MenuNavigationHint"));
@@ -854,6 +872,8 @@ void UMCMainMenuWidget::CachePageControls()
 
 void UMCMainMenuWidget::ShowPage(EPage NewPage)
 {
+    if(NewPage==EPage::Credits && !IsDesignTime())
+        NewPage=bLobby?EPage::Lobby:bPauseMenu?EPage::Pause:EPage::Main;
     if(VoiceSettings && NewPage!=EPage::Settings) VoiceSettings->StopInteraction();
     Page=NewPage;
     BuildPresentationTree();
@@ -1199,7 +1219,7 @@ void UMCMainMenuWidget::RefreshSettingsOptionLabels(int32 WindowModeIndex,int32 
 
 void UMCMainMenuWidget::HostTutorialChanged(bool bChecked)
 {
-    bHostStartWithTutorial=bChecked;
+    bHostStartWithTutorial=IsDesignTime() && bChecked;
 }
 
 void UMCMainMenuWidget::ApplySettings()
@@ -1363,6 +1383,7 @@ bool UMCMainMenuWidget::PlayToHub(const UObject* WorldContextObject)
 void UMCMainMenuWidget::HandleAction(EMCMainMenuAction Action)
 {
     if (IsDesignTime()) return; // Preview pages never launch travel, sessions or settings changes.
+    if(Action==EMCMainMenuAction::Tutorial || Action==EMCMainMenuAction::Credits) return;
     if (bEmbeddedCloseRequested) return;
     auto* Steam=MCMainMenuPrivate::Sessions(this);
     auto* PC=GetOwningPlayer();
@@ -1383,13 +1404,11 @@ void UMCMainMenuWidget::HandleAction(EMCMainMenuAction Action)
     case EMCMainMenuAction::SettingsControls: SwitchSettingsTab(3);break;
     case EMCMainMenuAction::SettingsVoice: SwitchSettingsTab(4);break;
     case EMCMainMenuAction::Tutorial:
-        if (Steam && Steam->IsBusy()) { SetStatus(LocalizedCopy(TEXT("UI.MainMenu.ConnectionBusy"),TEXT("Дождись завершения подключения."))); break; }
-        UGameplayStatics::OpenLevel(this,MCMainMenuPrivate::TutorialMap,true,TEXT("MCTutorial=1"));
         break;
     case EMCMainMenuAction::CreateLobby: PlayToHub(this); break;
     case EMCMainMenuAction::JoinLobby: ShowPage(EPage::Join); break;
     case EMCMainMenuAction::Settings: ShowPage(EPage::Settings); break;
-    case EMCMainMenuAction::Credits: ShowPage(EPage::Credits); break;
+    case EMCMainMenuAction::Credits: break;
     case EMCMainMenuAction::Exit: ShowPage(EPage::Exit); break;
     case EMCMainMenuAction::Back:
         if (bVideoConfirmationPending) { RevertVideoSettings(); ShowPage(EPage::Settings); }
@@ -1415,6 +1434,7 @@ void UMCMainMenuWidget::HandleAction(EMCMainMenuAction Action)
         break;
     case EMCMainMenuAction::Host:
         if (Steam && Steam->IsBusy()) break;
+        bHostStartWithTutorial=false;
         if (Steam && Steam->CanUseSteam()) Steam->HostRoom(true,bHostStartWithTutorial);
         else UGameplayStatics::OpenLevel(this,bHostStartWithTutorial?MCMainMenuPrivate::TutorialMap:FName(TEXT("/Game/Maps/Hub")),
             true,bHostStartWithTutorial?TEXT("listen?MCLobby=1?MCTutorial=1?MCHubAfterTutorial=1"):TEXT("listen?game=/Script/MessControl.MCHubGameMode"));

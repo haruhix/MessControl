@@ -44,6 +44,29 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "TimerManager.h"
 #include "Math/RotationMatrix.h"
+#include "Engine/World.h"
+#include "HAL/IConsoleManager.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
+
+namespace MCDeveloperUIPrivate
+{
+#if !UE_BUILD_SHIPPING
+    TAutoConsoleVariable<int32> Enabled(TEXT("MC.DevUI"),0,
+        TEXT("Opt in to development panels and shortcuts. Disabled for ordinary playtests."),ECVF_Cheat);
+#endif
+}
+
+bool MCDeveloperUIEnabled(const UWorld* World)
+{
+#if UE_BUILD_SHIPPING
+    return false;
+#else
+    if(!World || !World->IsGameWorld()) return false;
+    static const bool bCommandLineEnabled=FParse::Param(FCommandLine::Get(),TEXT("MCDevUI"));
+    return bCommandLineEnabled || MCDeveloperUIPrivate::Enabled.GetValueOnGameThread()!=0;
+#endif
+}
 
 namespace
 {

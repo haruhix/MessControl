@@ -5,7 +5,9 @@
 #include "MCLoadingWidget.generated.h"
 
 class UButton;
+class UBorder;
 class UHorizontalBox;
+class UImage;
 class UMCWorldPreloadSubsystem;
 class UProgressBar;
 class UTextBlock;
@@ -24,12 +26,18 @@ public:
     virtual void BuildPresentationTree() override;
     virtual void ApplyEditorPreview(float Time) override;
 
+    /** PreviewState: Assets, Graphics, Streaming, Waiting, Failed or Connecting. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview", meta=(ClampMin="0",ClampMax=".99"))
+    float PreviewLoadingProgress=.62f;
+
     /** Retry and exit controls can also be wired from an authored Blueprint. */
     UFUNCTION(BlueprintCallable, Category="Loading") void RetryPreparation();
     UFUNCTION(BlueprintCallable, Category="Loading") void ReturnToMenu();
 
 protected:
     virtual void NativeOnInitialized() override;
+    virtual void NativeConstruct() override;
+    virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
     virtual FReply NativeOnKeyDown(const FGeometry& Geometry,const FKeyEvent& Event) override;
     virtual void OnLocalizationChanged() override;
 
@@ -46,12 +54,19 @@ private:
     UPROPERTY(Transient) TObjectPtr<UTextBlock> Detail;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> ProgressLabel;
     UPROPERTY(Transient) TObjectPtr<UProgressBar> AssetProgress;
+    UPROPERTY(Transient) TObjectPtr<UImage> Artwork;
+    UPROPERTY(Transient) TObjectPtr<UBorder> Footer;
     UPROPERTY(Transient) TObjectPtr<UButton> RetryButton;
     UPROPERTY(Transient) TObjectPtr<UButton> ReturnButton;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> RetryLabel;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> ReturnLabel;
     FText WaitingDetail;
     bool bWaitingForPlayers=false;
+    float TargetProgress=0.f;
+    float DisplayedProgress=0.f;
+    float FooterOpacity=1.f;
+    int32 LastProgressStage=-1;
+    bool bHasMeasuredProgress=false;
     FString LastPresentationSignature;
     TWeakObjectPtr<UWidget> BoundPresentationRoot;
 };

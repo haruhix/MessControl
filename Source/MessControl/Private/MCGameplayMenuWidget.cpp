@@ -329,6 +329,11 @@ void UMCGameplayMenuWidget::UpdatePresentationLayout(FVector2D Area)
 void UMCGameplayMenuWidget::UpdatePageCopy()
 {
     if(!WidgetTree) return;
+    // Keep the authored Credits page for later design work, but do not expose
+    // the unfinished page to playtesters through an older saved pause shell.
+    for(UMCGameplayMenuActionButton* Button:Buttons)
+        if(Button && Button->MenuAction==EMCGameplayMenuAction::Credits) Button->SetIsEnabled(false);
+    if(auto* CreditsButton=WidgetTree->FindWidget(TEXT("MenuCredits"))) CreditsButton->SetIsEnabled(false);
     auto Set=[&](const TCHAR* Name,FName Key,const FText& Fallback){if(auto* Label=Cast<UTextBlock>(WidgetTree->FindWidget(Name))) Label->SetText(Copy(Key,Fallback));};
     Set(TEXT("MenuResumeLabel"),TEXT("UI.Menu.Resume"),LOCTEXT("Resume","Продолжить"));
     Set(TEXT("MenuPauseInviteLabel"),TEXT("hub.invite"),LOCTEXT("HubInvite","ПРИГЛАСИТЬ ДРУЗЕЙ"));
@@ -391,6 +396,7 @@ void UMCGameplayMenuWidget::UpdatePageCopy()
 
 void UMCGameplayMenuWidget::ShowPage(EPage NewPage)
 {
+    if(NewPage==EPage::Credits && !IsPreviewing()) NewPage=EPage::Pause;
     BuildPresentationTree();Page=NewPage;NextStickNavigationAt=0;SetStatus(FText::GetEmpty());
     if(Pages) {
         const TCHAR* Names[]={TEXT("MenuPausePage"),TEXT("MenuSettingsPage"),TEXT("MenuCreditsPage"),TEXT("MenuLeavePage"),TEXT("MenuExitPage"),TEXT("MenuVideoConfirmPage"),TEXT("MenuConnectionPage")};
@@ -582,7 +588,7 @@ void UMCGameplayMenuWidget::HandleAction(EMCGameplayMenuAction Action)
     case EMCGameplayMenuAction::Resume:bCloseRequested=true;OnResumeRequested.Broadcast();break;
     case EMCGameplayMenuAction::Emotes:bCloseRequested=true;OnEmotesRequested.Broadcast();break;
     case EMCGameplayMenuAction::Settings:ShowPage(EPage::Settings);break;
-    case EMCGameplayMenuAction::Credits:ShowPage(EPage::Credits);break;
+    case EMCGameplayMenuAction::Credits:break; // Reserved for later; explicit Designer previews remain available.
     case EMCGameplayMenuAction::Leave:ShowPage(EPage::Leave);break;
     case EMCGameplayMenuAction::Exit:ShowPage(EPage::Exit);break;
     case EMCGameplayMenuAction::Back:RequestBack();break;
@@ -796,6 +802,7 @@ void UMCGameplayMenuWidget::ResetEditorPreview()
 {
     bEditorFixture=false;bCloseRequested=false;SetRenderOpacity(1);
     for(UMCGameplayMenuActionButton* Button:Buttons) if(Button) Button->SetIsEnabled(true);
+    UpdatePageCopy();
 }
 
 #undef LOCTEXT_NAMESPACE

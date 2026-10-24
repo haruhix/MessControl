@@ -1,6 +1,7 @@
 #include "MCMouthSurface.h"
 #include "MCCoffeeWipe.h"
 #include "MCTongue.h"
+#include "MCDirtPlacement.h"
 #include "MCGameState.h"
 #include "MCGameMode.h"
 #include "MCPlayerState.h"
@@ -22,6 +23,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "EngineUtils.h"
+#include "Engine/World.h"
 #include "Camera/PlayerCameraManager.h"
 #include "GameFramework/PlayerController.h"
 #include "Net/UnrealNetwork.h"
@@ -152,10 +154,98 @@ bool AMCMouthSurface::Treat(AMCToothCharacter* Worker,float Seconds,float Power)
     }
     ForceNetUpdate(); return true;
 }
+void AMCMouthSurface::OnRep_SurfaceAnchor()
+{
+    // Old triangle bindings describe the previous location even if the tongue
+    // actor itself is unchanged. Rebuild them on peers as well as authority.
+    if(auto* Previous=BoundTongue.Get();Previous && Previous!=Tongue) RemoveTickPrerequisiteActor(Previous);
+    LiquidVertices.Reset();SurfaceBindings.Reset();BoundTongue.Reset();
+    PreviousBrush.Reset();BrushCenters.Reset();BrushAt=-100;
+}
+void AMCMouthSurface::RecoverUnsupportedFloorStain(float Dt)
+{
+    // Paint canvases have their own clipped support masks. Moving a canvas
+    // would move unrelated coverage, so this recovery owns ordinary blobs only.
+    if(!HasAuthority() || bUlcer || bPaintTile || IsClean() || !FMath::IsFinite(Dt) || Dt<=0) return;
+    const auto* State=GetWorld()->GetGameState<AMCGameState>();
+    if(State && (State->bDayOneComplete || State->Phase==EMCShiftPhase::Won || State->Phase==EMCShiftPhase::Lost)) return;
+    if(Tongue && !IsValid(Tongue)) {
+        Tongue=nullptr;OnRep_SurfaceAnchor();ForceNetUpdate();
+    }
+    FloorAccessElapsed+=Dt;
+    if(FloorAccessElapsed<1.f) return;
+    const float Interval=FloorAccessElapsed;FloorAccessElapsed=0;
+    // A temporary pain wave or yawn is not proof that a sound anchor is bad.
+    if(IsValid(Tongue) && (Tongue->IsMotionActive() || Tongue->IsYawnActive())) {
+        UnsupportedFloorSeconds=0;return;
+    }
+    const float Radius=LiquidHalfSize*1.415f;
+    if(!FMath::IsFinite(Radius) || Radius<=0) return;
+    const FVector OldPosition=GetActorLocation();
+    TArray<AMCTongue*> Available;
+    FHitResult Floor;
+    for(TActorIterator<AMCTongue> It(GetWorld());It;++It) {
+        if(It->IsActorBeingDestroyed() || !It->Surface || !It->Surface->IsRegistered()
+            || It->CurrentVertices().IsEmpty() || It->IsMotionActive() || It->IsYawnActive()) continue;
+        Available.Add(*It);
+        if(MCDirtPlacement::FindSurface(*It,OldPosition,Radius,Floor)
+            && FVector::DistSquared(OldPosition,Floor.ImpactPoint+Floor.ImpactNormal*5)<FMath::Square(35.f)) {
+            UnsupportedFloorSeconds=0;
+            // A loaded stain can already be in a good place but have lost its
+            // tissue reference. Rebind without moving or resetting its work.
+            if(Tongue!=*It) {
+                if(IsValid(Tongue)) RemoveTickPrerequisiteActor(Tongue);
+                Tongue=*It;TongueAnchor=Tongue->GetActorTransform().InverseTransformPosition(OldPosition);
+                OnRep_SurfaceAnchor();ForceNetUpdate();
+            }
+            return;
+        }
+    }
+    if(Available.IsEmpty()) return; // Loading/streaming is not a completed cleanup task.
+    UnsupportedFloorSeconds+=Interval;
+    if(UnsupportedFloorSeconds<2.5f) return;
+    UnsupportedFloorSeconds=0;
+    FRandomStream Random(HashCombine(GetUniqueID(),++FloorRecoveryAttempts));
+    AMCTongue* Destination=nullptr;
+    for(AMCTongue* CandidateTongue:Available) {
+        const FBox Bounds=MCDirtPlacement::WorkBounds(CandidateTongue,Radius+65.f);
+        if(!Bounds.IsValid) continue;
+        // Try a nearby supported return first, then a bounded seeded search.
+        for(int32 Attempt=0;Attempt<66;++Attempt) {
+            FVector Point=Bounds.GetCenter();
+            if(Attempt==0 && !OldPosition.ContainsNaN()) Point=Bounds.GetClosestPointTo(OldPosition);
+            else if(Attempt>1) Point=FVector(Random.FRandRange(Bounds.Min.X,Bounds.Max.X),
+                Random.FRandRange(Bounds.Min.Y,Bounds.Max.Y),Bounds.GetCenter().Z);
+            if(MCDirtPlacement::FindSurface(CandidateTongue,Point,Radius,Floor)) {Destination=CandidateTongue;break;}
+        }
+        if(Destination) break;
+    }
+    if(!Destination) {
+        const double Now=GetWorld()->GetTimeSeconds();
+        if(Now>=NextFloorRecoveryWarningAt) {
+            NextFloorRecoveryWarningAt=Now+30;
+            UE_LOG(LogTemp,Warning,TEXT("MC_DIRT_RECOVERY no supported footprint stain=%s batch=%d half=%.1f; cleanup remains outstanding"),
+                *GetName(),Batch,LiquidHalfSize);
+        }
+        return;
+    }
+    if(IsValid(Tongue)) RemoveTickPrerequisiteActor(Tongue);
+    Tongue=Destination;
+    const FVector Position=Floor.ImpactPoint+Floor.ImpactNormal*5;
+    TongueAnchor=Tongue->GetActorTransform().InverseTransformPosition(Position);
+    SetActorLocationAndRotation(Position,FRotationMatrix::MakeFromZX(Floor.ImpactNormal,FVector::ForwardVector).Rotator());
+    AddTickPrerequisiteActor(Tongue);
+    // UV masks, fractional work, care counters, Batch and Owner deliberately
+    // survive. Only world-space contact history and old triangle bindings expire.
+    OnRep_SurfaceAnchor();
+    ForceNetUpdate();
+    UE_LOG(LogTemp,Display,TEXT("MC_DIRT_RECOVERY relocated stain=%s batch=%d from=%s to=%s remaining=%.6f"),
+        *GetName(),Batch,*OldPosition.ToString(),*Position.ToString(),RemainingLiquid());
+}
 void AMCMouthSurface::Tick(float Dt)
 {
     Super::Tick(Dt);
-    if (Tongue)
+    if (IsValid(Tongue))
     {
         AddTickPrerequisiteActor(Tongue);
         FHitResult Hit;
@@ -169,6 +259,7 @@ void AMCMouthSurface::Tick(float Dt)
             SetActorLocationAndRotation(Position,Rotation);
         }
     }
+    RecoverUnsupportedFloorStain(Dt);
     const auto* State=GetWorld()->GetGameState<AMCGameState>();
     if (HasAuthority() && bUlcer && !IsHealed() && State && !State->bDayOneComplete && State->Phase!=EMCShiftPhase::Won && State->Phase!=EMCShiftPhase::Lost)
     {

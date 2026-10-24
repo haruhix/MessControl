@@ -808,6 +808,26 @@ float UMCWorldPreloadSubsystem::GetAssetProgress() const
     return FMath::Clamp((CompletedPaths + WaveProgress) / SeenPaths.Num(), 0.f, 1.f);
 }
 
+bool UMCWorldPreloadSubsystem::HasMeasuredPhaseProgress() const
+{
+    if (!bPresentationReady || HasFailed()) return false;
+    if (Phase == EMCWorldPreloadPhase::LoadingAssets)
+        return !SeenPaths.IsEmpty() && ActiveHandle.IsValid();
+    if (Phase == EMCWorldPreloadPhase::WaitingForStreaming)
+        return bStreamingTargetsBuilt && !StreamingTargets.IsEmpty();
+    return false;
+}
+
+float UMCWorldPreloadSubsystem::GetMeasuredPhaseProgress() const
+{
+    if (!HasMeasuredPhaseProgress()) return 0.f;
+    const float Progress = Phase == EMCWorldPreloadPhase::LoadingAssets ? GetAssetProgress()
+        : float(ReadyStreamingTargets) / StreamingTargets.Num();
+    // Completion of a discovered batch is not completion of dependency discovery,
+    // render fences or the multiplayer barrier. These stages remain explicitly named.
+    return FMath::IsFinite(Progress) ? FMath::Clamp(Progress,0.f,.99f) : 0.f;
+}
+
 FText UMCWorldPreloadSubsystem::GetStatusText() const
 {
     if (IsPreparing() && !bPresentationReady)

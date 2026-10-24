@@ -19,7 +19,7 @@ struct FMCToothCareSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player", meta=(ClampMin="1")) float PlayerHealth=100.f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player") bool bAllowSelfCare=true;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Respawn", meta=(ClampMin="0.1")) float RespawnSeconds=3.f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Respawn") bool bInheritReserveStatus=true;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Respawn") bool bInheritReserveStatus=false;
     void Sanitize();
 };
 

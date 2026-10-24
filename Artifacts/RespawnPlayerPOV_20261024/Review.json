@@ -1,0 +1,24 @@
+{
+  "review": "ready_for_user_motion_review",
+  "production_integration": false,
+  "source_packages_unchanged": true,
+  "rejected_attempts": [
+    "Poses01: lateral view and premature visible floating body",
+    "Poses02: reserve occluded initial death; body intersected withdrawing crown"
+  ],
+  "final_attempt": "Poses03 and actual-player-PIE Video01",
+  "clear_beats": [
+    "Back of the dying player",
+    "Death/fall",
+    "The selected row tooth withdraws, leaving a visible gap",
+    "Replacement emerges from measured gum surface and jumps inward",
+    "Squash/rebound at contact",
+    "Same player viewpoint settles behind replacement"
+  ],
+  "limitations": [
+    "Neutral sandbox GameModeBase. This clip does not execute native death, reserve consumption, five-second respawn delay or possession.",
+    "Rendered from actual local PlayerController; collision/reveal for arbitrary production camera starts is not integrated.",
+    "Silent; exported crop removes only OS window chrome.",
+    "Current scene lighting/background remain sandbox art."
+  ]
+}

@@ -1,76 +1,193 @@
-# Системы прототипа
+# Архитектура MessControl
 
-`AMCGameMode` исполняется на сервере и запускает `AMCDayDirector` для [первого дня](Day01.md). Director читает `DA_Day01`, переключает события внутри одного дня, создаёт щётки/пятна/еду и запускает кофе. У этапов собственные сроки; 240 секунд остаются ориентиром. После первых трёх пунктов день останавливается перед будущей пенной вечеринкой. Старый случайный семидневный цикл сохранён только как стенд `-MCLegacyDays`. `?Seed=123` фиксирует выбор блюд и вариантов моделей.
+Актуализировано **23.10.2026** по текущему C++, `.uproject`, конфигурации и исходникам инструментов. Полный файловый каталог — [SourceCatalog.md](SourceCatalog.md), выводы аудита — [ProjectAudit.md](ProjectAudit.md), ресурсы и авторинг — [ContentAndTools.md](ContentAndTools.md).
 
-`DA_RunRules` хранит максимум/начальное здоровье, число дней, лимит игроков и начальное число зубов арены. При `RestartShift` сервер копирует настройки в `AMCGameState::RunSettings`, проверяет допустимые значения и использует эту копию до следующего старта. HUD читает ту же реплицируемую копию. По умолчанию: 100 здоровья, семь дней, четыре игрока, восемь конкретных зубов арены. Подробный разбор — [разработка по шагам](DevelopmentSteps.md).
+В этом срезе 578 файлов `Source` / 123291 строка, 3538 `.uasset` и 21 `.umap`. Подсчёт отражает состав, а не готовность каждой механики. Saved asset snapshot от 21.10 устарел: `build_current=false`, все 1343 подробных снимка имеют `schema_changed`. Значения сохранённых Blueprint/CDO/DataTable не подменяются нативными defaults. Runtime, builds, tests, PIE и cook в документационном аудите не запускались.
 
-`AMCArenaTooth` — большой зуб рта в боковом ряду, реплицируемый актор с ID, HP, параметром кофейного налёта и признаком потери. `AMCArenaToothSocket` задаёт в карте его модель, ID и transform. При старте сервер создаёт игровой зуб точно вместо редакторского предпросмотра, который скрыт на всех машинах; дополнительного внутреннего ряда нет. В `L_Mouth` восемь таких мест, по четыре с каждой стороны. Смена дня сохраняет акторы. `AMCGameState::ArenaTeeth` содержит ссылки, `AvailableArenaTeeth()` считает действительные непотерянные зубы. Отдельного убывающего счётчика жизней нет. Урон/налёт меняет только сервер; щётка проверяет дистанцию, направление и видимость. Физические удары используют импульс контакта с порогом и защитой от частого срабатывания.
+## Движок, targets и модули
 
-`DA_ArenaTooth` задаёт прочность и реакцию. Визуальный дочерний mesh сжимается и качается локально по серверной метке удара; коробка коллизии сохраняет размер. На нуле HP после короткой подготовки корневая коробка становится физической, её движение реплицируется штатным механизмом Actor. Материал использует локальные координаты, поэтому пятна следуют за вращением зуба. Состояние хранится в реплицируемых полях, а не только в одноразовых визуальных сообщениях. F1 содержит предпросмотр налёта и настройку трёх параметров анимации хостом на текущую сессию.
+Association проекта — **5.8**; локальный `E:/UE/UE_5.8/Engine/Build/Build.version` содержит **5.8.1, CL 56057345**. Оба target используют `BuildSettingsVersion.V7` и include order `Unreal5_8`.
 
-`AMCArenaDemo` включается только аргументом `-MCArenaDemo` в отдельном Development-запуске. Это сохранённая демонстрация шага 2, в обычном Play не создаётся. Новая проверка `AMCCoreScenario` включается флагом `-MCCore`: четыре процесса выполняют чистку, уход, падение еды, возрождение и переноску через настоящие игровые действия.
-
-`AMCGameState` реплицирует день, фазу, здоровье рта, количество заданий, текущий DA события, seed и серверное время завершения. HUD вычисляет таймер относительно синхронизированного `GetServerWorldTimeSeconds`.
-
-`AMCToothCharacter` использует стандартное сетевое движение CharacterMovement и Enhanced Input. Клиент отправляет только начало/конец действия через RPC принадлежащего ему персонажа. Сервер самостоятельно выбирает ближайшую подходящую цель, проверяет дистанцию, высоту, направление и видимость. Клиент не передаёт произвольную величину прогресса. Несколько игроков ускоряют одну задачу сложением вклада.
-
-`UMCToothStatusComponent` хранит реплицируемые HP, остаток кофейных контактов и ремонта. `DA_ToothCare` задаёт правила. `AMCToothCharacter` на сервере проверяет непрерывный контакт с ближайшей допустимой поверхностью; каждый участник имеет собственный таймер. Полный контакт вызывает один дискретный результат. `AMCArenaTooth::State` сохраняет совместимую проекцию HP/кофе для старого демонстратора; изменять игровые значения следует только через компонент статусов.
-
-`AMCGameMode::Objectives` содержит ссылки на настоящие зубы и физическую еду. Событие кофе покрывает живые зубы, расшатывание выбирает цели, еда создаёт физические акторы. Смена дня не удаляет последствия. Старый `AMCTaskActor` и `BP_MouthTask` оставлены для совместимости прежних ассетов, обычные события их больше не создают; их `WorkSeconds` не управляет новой контактной чисткой.
-
-При смерти персонаж остаётся у своего Controller до обработки серверной очереди. Новый pawn появляется только при наличии доступного большого зуба и свободного места; успешное появление атомарно расходует один ID. Статус зуба может переноситься на героя. После possess старые привязки ввода снимаются, труп удаляется с задержкой. Отдельного запаса жизней нет.
-
-`AMCFoodActor` — физическая коробка с заменяемым визуальным мешем. Chaos работает на сервере, клиенты получают движение и состояния Falling / Stuck / Free / Disposed. Хват хранит персонажей и ограниченные точки пружины; сервер проверяет дальность, состояние и направление извлечения. Попадание защищено cooldown на пару предмет–цель. `AMCFoodDisposal` принимает свободную еду у горла. Настройки — `DA_FoodPhysics`. Подробнее и правила тестирования — [четыре системы](FirstFourSystems.md).
-
-`UMCPrototypeWidget` — нативный UMG HUD, F1 Tooth Lab, F2 подключение. `UMCAnimationProfile` хранит параметры пластики, `UMCPhysicsProfile` — физику, `UMCSoundPalette` — наборы звуков по именам событий, `UMCDayEvent` — настройки челленджа. Их можно редактировать без изменения C++.
-
-### Звуки персонажа
-
-Источник игровых шагов, щётки, взмахов и попаданий — `SoundPalette` персонажа; в `BP_PlayerCharacter` и `BP_ToothCharacter` назначен `/Game/Data/DA_MouthSounds`. В `Events` выбираются WAV (`SoundWave`), `SoundCue` или `MetaSoundSource`, громкость и диапазон высоты тона. Из нескольких действительных ссылок звук выбирается случайно; пустые ссылки пропускаются. MetaSound получает параметры `Intensity` и `Speed` в диапазоне 0–1.
-
-| Игровое действие | Ключ в DA |
+| Слой | Состав и граница |
 | --- | --- |
-| Шаг | `Step` |
-| Контакт щётки | `Brush` |
-| Взмах ножа / кирки | `KnifeSwing` / `PickaxeSwing`; если ключ отсутствует — `Whoosh` |
-| Попадание ножа / кирки | `KnifeHit` / `PickaxeHit`; если ключ отсутствует — `Hit` |
+| `MessControl` Game target | Runtime-модуль `MessControl`, игровая логика, UMG, Chaos/Physics Control, Niagara, online/voice, MoviePlayer, sequence и procedural mesh |
+| `MessControlEditor` Editor target | `MessControl` + `MessControlEditor`: редакторские представления, коллизия/authoring, Blueprint/graph/menu интеграции |
+| `MessControlProjectIndex` plugin | Editor-only commandlet для чтения сохранённых пакетов; не сохраняет source assets и исключён из game target |
+| `KawaiiPhysics` plugin | Runtime, Runtime Sequencer и UncookedOnly editor-модули; optional upstream test module не включён |
+| `StylizedDynamics` | Optional локальный provider; `Build.cs` проверяет наличие source и определяет `WITH_MC_STYLIZED_DYNAMICS`. В версионируемый набор не включён |
 
-Существующие общие `Whoosh` и `Hit` продолжают работать без добавления новых записей. Если отдельный ключ добавлен, его пустой список означает намеренную тишину, а не возврат к общему звуку. `Pull`, `Jump`, `Fall`, `StandUp`, `Complete`, `DayStart`, `Win` и `Lose` также используют палитру. Пианино, звуки горла и Fog Brawl имеют собственные настройки.
+Фактические зависимости перечислены в `MessControl.Build.cs`, `MessControlEditor.Build.cs` и `.uplugin`; каталог [SourceCatalog.md](SourceCatalog.md) даёт навигацию по ним. Engine plugins Python/EditorScripting/SequencerScripting/MCP разрешены для Editor; их наличие не означает Python runtime в packaged игре или подключённый live MCP.
 
-`mc.Audio.Status` в PIE показывает назначенную палитру и ссылки для событий. `mc.Audio.Compare KnifeHit` явно сравнивает два звука из DA с двумя экспериментальными; ссылки `ExperimentalAudio.Sounds` используются этим сравнением. `mc.Audio.Experiments` сохранён для совместимости и не переключает источник игровой озвучки.
+## Владение состоянием
 
-Замена файла в `ArtSource/Audio` сама по себе не меняет импортированный `SoundWave`: нужно сделать **Reimport** соответствующего `S_*` в Content Browser и сохранить его, либо назначить другой импортированный ассет в DA. Массовый `bootstrap_content.py` для такой замены не нужен: он пересоздаёт настройки палитры. Если в событии несколько вариантов, заменять нужно нужные ссылки в его `Sounds`.
+Проект использует стандартный `UGameInstance`: `GameInstanceClass=/Script/Engine.GameInstance`. Долгоживущие службы выделены в subsystems; игровые сущности и реплицируемые состояния принадлежат текущему World.
 
-### Фоновая музыка и амбиенты
+| Владелец | Ответственность |
+| --- | --- |
+| `AMCGameMode` | Серверные правила арены, выбор ветки director, старт/рестарт, участники, objectives, смерть/respawn |
+| `AMCGameState` | Репликация run settings snapshot, фаз/времени/здоровья рта, objectives, director state/history, single-day director, командных tool upgrades и живых больших зубов |
+| `AMCHubGameMode` | Серверные membership/readiness, phase generation, host requests, безопасный выбор назначения и travel |
+| `AMCHubGameState` | Реплицируемые `Gathering/Selecting/Travelling`, выбранный день, loaded/ready roster и notice; определения направлений из DataTable |
+| `AMCPlayerState` | Персональный score, perks/reward choices, hub economy, fish и переносимое состояние участника; `CopyProperties` для замены PlayerState |
+| `AMCToothCharacter` | Pawn, действия, удерживаемые цели, физическое/визуальное состояние героя и компоненты |
+| `AMCPlayerController` | Локальный UI/input/focus/camera context; принадлежащие игроку RPC, ready acknowledgements, hub interactions и scene audio |
+| Main menu GameMode/Controller | Изолированное меню, intro, UI, локальная подготовка сцены и вызовы session subsystem |
+| Data Assets / DataTables | Авторские правила и ссылки; не замена серверному mutable runtime state |
 
-В том же `DA_MouthSounds`, в `Scenes`, каждый профиль имеет два независимых слоя: `Music` и `Ambience`. У слоя есть ссылка `Sound` (WAV, SoundCue или MetaSound), `Volume`, `Repeat On Finish`, `Fade In Seconds` и `Fade Out Seconds`. Пустая ссылка означает тишину. В отличие от SFX, отсутствующая сцена не подставляет звук из другого профиля.
+Десять project subsystems имеют отдельную область жизни:
 
-Предусмотрены пустые места `MainMenu`, `Hub`, `Relax`, `Gameplay`, `NutEncounter`, `IceEvent`, `FogBrawl`, `CataclysmRafts`, `CataclysmJellies`, `ColdCola`, `FinalBoss`. Музыкальные записи пока не назначены. Главное меню выбирает `MainMenu`; игровой локальный контроллер выбирает профиль действующего события, а в ожидании, между сменами и при паузе Director Rest — `Relax`. Босс имеет приоритет над обычными событиями. Уборка последствий катаклизма тоже возвращает `Relax`. Обычная работа использует `Gameplay`.
+| Subsystem | Scope | Назначение |
+| --- | --- | --- |
+| `UMCSteamSessionSubsystem` | GameInstance | Session operations, поиск/инвайты, вход в Hub, подключения и возврат в меню |
+| `UMCVoiceChatSubsystem` | GameInstance | OSS voice, talkers, PTT/open mic, mute, input level, offline mic test; переживает travel |
+| `UMCHubProfileSubsystem` | GameInstance | Серверное чтение/запись персональных hub profiles, cache и защита повреждённых saves |
+| `UMCTravelLoadingSubsystem` | GameInstance | Asset-free Slate/MoviePlayer экран при блокирующем map load; сам по себе не доказывает visual readiness |
+| `UMCStudioSplashSubsystem` | GameInstance | Помечает startup ident показанным в этой сессии; возврат из Hub/game не запускает его заново |
+| `UMCWorldPreloadSubsystem` | Tickable World | Локальный loading/rendering/streaming barrier конкретного game/PIE World |
+| `UMCGroundImpactSubsystem` | Tickable World | Серверные приземления тяжёлых props и связь с реакциями ткани, независимо от попадания по игроку |
+| `UMCAnimationComparisonSubsystem` | World | Локальное сравнение Native/Kawaii/optional StylizedDynamics, samples; не меняет authoritative movement/damage |
+| `UMCValidationSubsystem` | Tickable World | Development harness и capture/smoke fixtures, отключённые в Shipping |
+| `UMCFrontEndValidationSubsystem` | Tickable World | Отдельный opt-in harness меню/обучения, не обычный gameplay service |
 
-Для будущего хаба или нового события вызовите `SetBackgroundAudioContext("Hub")` у игрового контроллера; `None` возвращает автоматический выбор. Можно добавить собственный ключ в DA. `BackgroundSoundPalette` контроллера позволяет назначить другой DA, а `SceneAudio.SetScene`/`RefreshScene`/`StopScene` — управлять слоями из Blueprint. Компонент проигрывает 2D звук локально, плавно меняет слои и ограничивает переходы четырьмя голосами. Повторный выбор неизменённого профиля не запускает трек заново.
+## Вход, Hub и выбор назначения
 
-`Repeat On Finish` повторно запускает конечный источник после завершения. Бесшовный цикл следует настроить в самом SoundWave/SoundCue/MetaSound; выключение `Repeat On Finish` не отключает цикл, уже заданный в источнике. SFX в `Events` сохраняют прежние назначения.
+Конфигурация разделяет `EditorStartupMap=/Game/Maps/L_Mouth` и `GameDefaultMap=/Game/Maps/L_MainMenu`; global default GameMode — `/Game/Blueprints/BP_MouthGameMode.BP_MouthGameMode_C`. World Settings и travel options могут назначать другой GameMode.
 
-Проверка: сборка Editor, `MessControl.Audio.PaletteRouting` и восемь solo-проверок
-двух слоёв прошли. Конечные технические WAV повторялись по настоящему завершению;
-неизменная сцена не перезапускалась, переходы ограничены четырьмя голосами,
-пустая сцена/StopScene/EndPlay освобождают их. Запись микшера содержит звук.
-Автовыбор `CataclysmRafts` проверен во время гребли. Холодная асинхронная загрузка,
-сеть и художественный подбор фоновых треков отдельно не проверялись; пустые
-профили в сохранённом DA ожидают назначения музыки и амбиентов.
+```mermaid
+flowchart LR
+    A[L_MainMenu] -->|EnterHub| B[Hub: Gathering]
+    B -->|вся команда ready и loaded| C[Hub: Selecting]
+    C -->|RequestLaunch хоста| D[Travelling]
+    D --> E[Карта назначения: local preload]
+    E -->|ACK всей команды| F[Запуск выбранного режима арены]
+    C -->|Back| B
+```
 
-`UMCToothPhysicsComponent` управляет состояниями Standing / Ragdoll / Recovering, серверной симуляцией и передачей позы. `UMCToothAnimInstance` создаёт процедурные позы через proxy; Physics Control даёт следование конечностей за позой. Детали и ограничения — в [Physics.md](Physics.md).
+`EnterHub` через Steam создаёт комнату; fallback открывает `Hub?listen?game=/Script/MessControl.MCHubGameMode`. Сервер считает физических участников и ready volumes. Подтверждение загрузки связано с `SceneGeneration`: устаревшее подтверждение не относится к новой презентации.
 
-## Карта
+`RequestOpenSelection` проверяет хоста, Gathering, `AreAllReady()` и `AreAllLoaded()`, после чего меняет фазу на **Selecting в том же Hub**. Контроллер/представитель выбора блокирует движение и восстанавливает его при закрытии. Обычный маршрут не путешествует в `L_HubSelection`; отдельный вход/совместимость этой карты сохраняется.
 
-`L_Mouth`: отдельная визуальная поверхность языка, пять простых блокирующих объёмов, четыре PlayerStart, ряды зубов и свет. Декоративная геометрия отключена от collision. Игровой пол плоский на Z=30 см, пища падает сверху. Камера направлена вдоль +X, движение W — вглубь рта. Дальнейшие декорации не должны пересекать маршруты к зубам и зоне утилизации.
+`FMCHubDestinationRow` задаёт день 1–7, локализованные title/description, `bEnabled`, soft `Map` и `SingleDayProfile`. Таблица: `/Game/Gameplay/Hub/DT_HubDestinations`. Нативные fallback-строки включают только день 1 → `L_Mouth`; дни 2–7 выключены. Узкое live-чтение clean таблицы подтвердило Day01/L_Mouth/DA_SingleDay и выключенные Day02–07 без map/profile. Дубликат дня отключается с диагностикой. Fresh disk exporter всего каталога не выполнялся.
 
-## Сеть
+`RequestSelectDay` изменяет выбранный день по запросу хоста. `RequestLaunch` читает `State->SelectedDay`, проверяет host/phase/all loaded, разрешение строки и существование `/Game`-карты. URL составляет сервер: `?MCLobby=1?MCHubRun=1?MCHubDay=N`; для `L_Mouth` добавляет BP GameMode override. Произвольный travel URL от клиента не является контрактом API. Подробности — [HubLobby.md](HubLobby.md).
 
-Listen server, максимум четыре игрока. `UMCSteamSessionSubsystem` в GameInstance создаёт и ищет лобби Steam, фильтрует App ID 480 по `MC_GAME=MessControl_Coop_v1`, принимает приглашения и выполняет ClientTravel. GameNetDriver использует SteamSockets с резервным IpNetDriver. В PIE и с `-nosteam` сохраняется подключение по IP (UDP 7777 или VPN для внешней сети). Настройка и сборка описаны в [SteamTesting](SteamTesting.md). Отключение хоста завершает сессию; F2 сообщает об ошибке и позволяет повторное подключение. Миграция хоста и reconnect/resume не реализованы. Поздний вход получает актуальный GameState и существующие задания. Профили анимации локальны и не влияют на правила игры.
+## Режим забега и directors
 
-## Расширение
+Нативные defaults `AMCGameMode`: `bUseSingleDayLoop=false`, `bUseDayOnePlan=true`, `bUseAdaptiveDirector=true`. Прочитанный live clean CDO `BP_MouthGameMode` имел SingleDay=true и DA_SingleDay; это editor-loaded state, а не проверка нынешнего несобранного C++. В `BeginPlay` hub-origin run разрешает направление и включает single-day при enabled строке с совпадающей картой и непустым `SingleDayProfile`. `-MCSingleDay` включает его явно. `-MCLegacyDays`, `-MCCore`, `-MCDayOne` отключают single-day; legacy дополнительно отключает DayOne/adaptive, Core/DayOne — adaptive. Источники и ограничения live-чтения — в [ProjectAudit](ProjectAudit.md).
 
-Создать новый `DA_MCDayEvent` и добавить в EventPool класса GameMode; новый тип механики потребует расширить enum и реализацию задания. Созданные `BP_ToothCharacter`, `BP_MouthTask`, `BP_MouthGameMode` — исходные точки для дизайнерских расширений. По умолчанию конфигурация использует нативные классы. Для собственного BP персонажа назначить его Default Pawn Class в BP GameMode и выбрать GameMode в World Settings.
+| Уровень | Роль |
+| --- | --- |
+| `AMCSingleDayDirector` + `UMCSingleDayProfile` | Авторенная последовательность этапов/встреч; после последнего слота bAuthoredFragmentComplete и бессрочная поддержка. Победа через zombie boss — только отдельный legacy finale |
+| `AMCGameDirector` + `UMCGameDirectorProfile` | Адаптивное планирование и давление, telemetry/decision log, pacing в разрешённой ветке |
+| `AMCDayDirector` + `UMCDayPlan` | Ранний авторский DayOne flow; не тождествен single-day sequence |
+| `AMCTutorialDirector` | Отдельное обучение на `L_Tutorial` / `MCTutorial` |
+| Legacy EventPool | Старый случайный цикл Coffee/Food/LooseTooth, сохранённый для совместимости и diagnostics |
+| `AMCRoguelikeDirector` | Контекст roguelike-встреч/предложений в связке с run/event state |
 
-Официальные справочные материалы: [GameMode / GameState](https://dev.epicgames.com/documentation/unreal-engine/game-mode-and-game-state-in-unreal-engine), [Data Assets](https://dev.epicgames.com/documentation/unreal-engine/data-assets-in-unreal-engine).
+`RestartShift` переносит проверенные run rules в реплицируемый `RunSettings`; клиентский HUD читает серверную копию. Таймеры используют серверные timestamps, а не независимые клиентские countdown. `?Seed=` и отдельные playtest seeds позволяют воспроизводить выбор. В dev sandbox deadlines/transitions могут подавляться, тогда как физика/урон продолжают работать.
+
+Read-only live-чтение clean `DA_RunRules` показало HP=100, Days=7, MaxPlayers=4 и **InitialArenaTeeth=12**; нативное исходное значение числа зубов — 8. Это различие авторских данных и native default, а не пересчёт реальных socket actors карты.
+
+Clean `DA_SingleDay` в загруженном редакторе содержит Nuts → Jellies → Ice → Fog, `DirectorSupportSeconds=120`, `OpeningMealPortions=[3,5,8]`, `AfterNutMealPortions=[5,8,9]`, `bLegacyTimedFinale=false`. Это узкие наблюдения loaded assets при выключенном PIE на `L_MainMenu`, не сертификация несобранного текущего source или полного игрового прохождения; общий saved exporter остаётся устаревшим.
+
+Семь слотов выбора, `TotalDays` и legacy цикл не являются доказательством семи завершённых кампаний. Детали реализованных последовательностей — [SingleDay.md](SingleDay.md), [Day01.md](Day01.md), [Day00.md](Day00.md); целевое расширение — [GDD.md](GDD.md).
+
+## Персонаж, движение и анимация
+
+`AMCToothCharacter` — `ACharacter` с заменёнными movement/mesh default subobjects. Он создаёт runtime Enhanced Input mapping; мышь и правый стик вращают orbit-камеру. `UMCOrbitSpringArmComponent` и `UMCPlayerCameraComponent` отвечают за камеру, а не за серверное положение персонажа.
+
+| Компонент | Область |
+| --- | --- |
+| `UMCToothMovementComponent` | CharacterMovement prediction, sprint/dash, stamina, отдельная swim energy, current/wind/root motion, surface response и selection movement lock |
+| `UMCToothMeshComponent` / anim instance / secondary solver | Обновление визуального skeletal pose, процедурные движения/контакты и сравниваемая secondary animation |
+| `UMCToothPhysicsComponent` + `UPhysicsControlComponent` | Standing/ragdoll/recovery, попадания, физическое следование и серверная передача состояния/позы |
+| `UMCToothStatusComponent` | HP, загрязнение, лечение/уход и связанные дискретные результаты |
+| `UMCInventoryComponent` | Выбранный инструмент, допустимость/поза/контакты, upgrades, cooldown и взаимодействие с типами целей |
+| `UMCBrushContactComponent`, `UMCGripComponent` | Контакт щетины и процедурный хват/опорные точки |
+| `UMCFoodCollectionComponent`, `UMCFishingRodComponent` | Переноска/stack еды и рыболовное состояние |
+| `UMCGazeComponent`, `UMCExpressionComponent` | Взгляд, facial/morph expressions, эмоции и локальное представление |
+| `UMCCombatFeedbackComponent` | Реакции/подсказки попаданий и результата действия |
+| `UMCCharacterCosmeticsComponent` | Отображение аксессуаров/персональной внешности |
+| Name, audio и tool scene components | Подписи игроков, звуковая обратная связь и видимые инструменты |
+
+Movement snapshots привязаны к подтверждённому movement timestamp. Stamina и swim energy учитываются отдельно и восстанавливаются при prediction replay/correction. Нажатие sprint сразу запрашивает dash, удержание — sprint; отмена ввода снимает pending intent. Лёд ног ограничивает locomotion, сохраняя допустимые инструментальные действия.
+
+Плавание, ragdoll, посадка/гребля на плоту, захват горлом/mimic, perk UI и смерть задают дополнительные запреты/режимы. Анимация не является самостоятельным источником игровых HP, collision или движения. KawaiiPhysics добавляет secondary motion выбранным костям; Physics Control решает другую задачу физического следования. См. [Locomotion.md](Locomotion.md), [Physics.md](Physics.md), [AnimationComparison.md](AnimationComparison.md).
+
+## Уход, зубы арены и возрождение
+
+Инструментальные действия проходят через принадлежащего игроку pawn/controller. Сервер проверяет состояние, дистанцию, угол/видимость, тип инструмента и cooldown; клиент не задаёт произвольный итоговый прогресс. Контактная уборка, self-care, помощь союзнику, лечение и ледяные ограничения имеют отдельные ветки.
+
+`AMCArenaTooth` — конкретный реплицируемый большой зуб с HP/загрязнением/состоянием; `AMCArenaToothSocket` задаёт авторское место/ID/mesh. `AMCGameState::ArenaTeeth` хранит ссылки. Наличие доступных зубов используется для respawn; отдельного независимого счётчика жизней, уменьшаемого параллельно списку, нет. Сохранённое расположение карты этим source audit заново не измерялось.
+
+При смерти GameMode ведёт очередь и ищет пригодный зуб/безопасное место появления. Персональные PlayerState-перки переживают смену pawn; pawn-side состояние и bindings пересоздаются. Успешный respawn расходует конкретный ресурс арены. Удар инструментом по союзнику в проверенных ветках вызывает `ToothPhysics->ApplyHit`, без прямого уменьшения HP именно там; hazards/enemies используют собственные damage paths.
+
+Чистка изменяет локальные пятна/маски, загрязнение героя и налёт; calculus/tooth damage имеют свои компоненты/материалы. Удаление декоративного mesh не удаляет автоматически серверную задачу. Основные профили — `DA_ToothCare`, `DA_ArenaTooth`, `DA_Equipment`; [BrushCleaning.md](BrushCleaning.md), [CareAndHandling.md](CareAndHandling.md), [ToothDamage.md](ToothDamage.md).
+
+## Еда, ткани, жидкости и события
+
+`AMCFoodActor` владеет серверной физикой и food state; visual mesh, collision/body и presentation разделены. DataTable задаёт whole/fragment варианты, массу, тип, HP и сроки. При разрушении используются подготовленные `FragmentMeshes`, а не runtime slicing произвольных треугольников. Общая стоимость/масса и состояние фрагментов обрабатываются игровыми правилами.
+
+Порча определяется абсолютным `SpoilAt` и реплицируемым `bSpoiled`; переноска сама по себе не обнуляет часы. Существуют modifiers сохранности. `MCFoodAbsorption.cpp` сохраняет совместимые поля/API, но поиск absorption floor возвращает false, прогресс 0, завершение пустое: обычная еда не растворяется в ткани и не создаёт язвы через старую absorption систему.
+
+Хват, извлечение, stack, бросок/наведение, приём еды горлом и неправильный front discard — отдельные проверки. `AMCFoodDisposal`/`AMCThroat` и зоны доставки владеют соответствующим результатом. Показ HP, freshness и danger не заменяет серверное правило допустимой утилизации. См. [FoodRework.md](FoodRework.md), [FoodStackHolding.md](FoodStackHolding.md), [FoodCollisionAutomation.md](FoodCollisionAutomation.md).
+
+`AMCTongue` объединяет видимую деформацию, опору/коллизию, давление, следы и реакции; профиль `DA_Tongue` и pressure presets задают параметры. `UMCGroundImpactSubsystem` передаёт удары тяжёлых props. Глотка, язвы, stuck food и утилизация используют отдельные actors/контакты; описание — [Tongue.md](Tongue.md), [TonguePressure.md](TonguePressure.md), [LivingThroat.md](LivingThroat.md).
+
+Кофе/flood/puddles, cold cola, лёд и mint/Frost Nova, Fog Brawl, катаклизм с плотами/желе, vomiting и окружение создаются своими event actors. Directors выбирают и завершают события; GameState/HUD отражают ход. Состояния/случайные выборы на сервере, косметические материалы/particles — в клиентском представлении. Это набор отдельных игровых моделей, а не универсальный fluid solver. См. [CoffeeWater.md](CoffeeWater.md), [IceEvent.md](IceEvent.md), [FogBrawl.md](FogBrawl.md), [Cataclysm.md](Cataclysm.md).
+
+## Противники, награды и экономика
+
+Акторы/код Cataclysm Rafts сохранены, но `IsVariantEnabled(Rafts)` возвращает false: плоты не являются доступным вариантом live-события. Описание сохранённой реализации плотов не означает её включение в обычную смену.
+
+Ореховые enemies/bosses, общий boss character и фазовые встречи разделяют health/state, AI/attacks, weapon-contact validation и animation/presentation. Профили задают состав/тайминг/меши, а не заменяют native authority. Конкретные анимационные ревизии и integration gates сохраняются отдельно. См. [BossAI.md](BossAI.md), [NutSequentialPhases_20261017.md](NutSequentialPhases_20261017.md), [IceBossStages_20261013.md](IceBossStages_20261013.md).
+
+`AMCRewardChest`, mimic и reward offers являются источником текущих наград; `UMCPerkComponent` на PlayerState хранит stack/effects/tool upgrades и участвует в контекстной фильтрации. Team upgrades реплицируются через GameState и применяются к новым pawn/участникам по правилам забега.
+
+`UMCProgressionComponent` намеренно инертен: `AddExperience()` возвращает 0, `HasPendingChoices()` — false, XP/level fields удерживаются для совместимости saved assets. Старые Blueprint-вызовы не должны порождать level cards. Buffer/перфоратор исключён из допустимых definitions и `HasToolUpgrade`; сохранившийся код поз/контактов не делает его доступным игроку. См. [Roguelike.md](Roguelike.md), [Boosters.md](Boosters.md).
+
+Хаб использует персональный `UMCHubEconomyComponent`: кошелёк, ownership/equipment, очередь boosters для следующего arena run и grill receipts. Рыба обменивается на результат гриля; shop purchase, примерка и применение купленного — разные операции. Wardrobe fitting actor независим и не реплицируется; private hide/restore относится к представлению открывшего клиента. Рыбалка/баскетбол/ready zones — самостоятельные hub actors/components, не задачи arena director.
+
+`UMCHubProfileSubsystem` сохраняет данные **на сервере**, в `Saved/HubProfiles/PIE` или `Saved/HubProfiles/Players`. Имя `.sav` — SHA1 от authenticated UniqueId; для локального controller без ID используется `LocalProfile`. У unauthenticated remote guest есть session inventory, но нет persistent wallet по display name. `-MCHubTransientProfile` отключает путь сохранения.
+
+Внешний `UMCHubProfileSave` и economy save data имеют Version 1. Restore защищает нечитаемые/неподдерживаемые профили от перезаписи; Store не фиксирует незавершённый grill roll без explicit settlement. Запись идёт в `.tmp`, затем `IFileManager::Move`; cache обновляется только при успешной записи/замене. Это локальная host-side persistence, а не облачная синхронизация или account recovery.
+
+## UI, локализация и подготовка ресурсов
+
+Нативные widget roles и `UMCGameplayUITheme` связывают HUD/меню/карточки/диалоги с редактируемыми UMG-классами. Тема содержит palette tokens, fonts, soft widget classes, art и DataTables; resolver проверяет совместимость класса с ролью. Существующие `_Phase1`, `_v10` и reference виджеты выбираются ссылками темы, а не максимальным номером имени.
+
+`MCUIDataLibrary` разрешает локализованные ключи/таблицы с culture fallback и форматированием; native culture — `ru`. `UMCGameUserSettings` хранит пользовательские graphics/audio/input/voice/language preferences. `MCWorldStatusComponent`, player-name/voice indicators и HUD показывают runtime-состояния. Текущие saved assignments тем/переводов не сертифицированы stale snapshot. См. [InventoryAndHUD.md](InventoryAndHUD.md).
+
+`UMCWorldPreloadSubsystem`: Idle → LoadingAssets → PreparingRendering → WaitingForStreaming → Ready либо Failed. Он собирает отражаемые ссылки карты/компонентов, DA/DT, выбранных профилей и native manifest/settings roots, загружает dependency waves и удерживает handles/objects до deinitialize World.
+
+Затем готовятся реальные bindings и временные скрытые proxies, ожидаются Editor compilation либо packaged PSO work, streaming targets и render fences. Proxies не участвуют в collision/navigation/gameplay. Только Ready разрешает локальный loaded ACK; существующий серверный team barrier отдельно решает, когда запускать director. Failed/timeout не дают ACK, предусмотрен Retry/return flow.
+
+`UMCTravelLoadingSubsystem` закрывает блокирующий packaged map load отдельным Slate/MoviePlayer экраном; в PIE он не служит visual proof. Процент assets отражает обнаруженные requests, а не всю будущую GPU-работу. NullRHI выдаёт assets-only evidence. Новые runtime visuals/variants требуют reflected либо explicit manifest root, удержания до barrier и cook coverage. Подробности и ограничения — [ResourceLoading.md](ResourceLoading.md).
+
+## Сеть и голос
+
+Authority — listen server до четырёх игроков. CharacterMovement использует prediction/replay; мир/еда и опасности разрешаются сервером. Reliable RPC обслуживают дискретные принадлежащие игроку requests; частые input/aim/paddle updates имеют отдельные ограниченные пути. Состояние для позднего входа реплицируется через actors/components/GameState, а не только одноразовыми visual events.
+
+`UMCSteamSessionSubsystem` использует AppID 480 и фильтр `MC_GAME=MessControl_Coop_v1`, lobby/presence/invites и ClientTravel. GameNetDriver — SteamSockets с IpNetDriver fallback. PIE/`-nosteam` оставляют IP-подключение, внешняя сеть требует доступности UDP/маршрута. Ошибки session/travel возвращаются в UI. Host migration и полное reconnect/resume не реализованы; текущая Steam/WAN-работоспособность отдельной новой проверкой не подтверждена.
+
+`UMCVoiceChatSubsystem` использует OSS voice transport/codec и реальные `UVOIPTalker` playback/envelope callbacks. PTT по умолчанию V, доступен OpenMic, self/player mute, input gain/threshold/level и отдельный offline mic test. Focus loss, travel, rebind/text input снимают/подавляют PTT. Test audio не отправляется в комнату.
+
+`CanSelectInputDevice()` возвращает false: доступна системная настройка входа, не подтверждён игровой выбор устройства. `UMCVoiceSoundClass` — независимый root, поэтому SFX volume не должен менять принятую речь. Voice UI/preferences не означают сетевой end-to-end аудиопрогон.
+
+## Событийный звук и сцены
+
+`UMCSoundPalette::Events` содержит варианты SoundWave/SoundCue/MetaSound, громкость и pitch; выбирается действительная ссылка. Для отсутствующих `KnifeSwing/PickaxeSwing` применяется `Whoosh`, для отсутствующих `KnifeHit/PickaxeHit` — `Hit`. Наличие отдельного ключа с пустыми Sounds означает тишину; оно не равно отсутствию ключа. MetaSound получает Intensity/Speed.
+
+`UMCSceneAudioComponent` проигрывает локально два независимых слоя Music/Ambience. У каждого не более одного current и одного fading voice, всего максимум четыре. Неизменный слой не перезапускается; missing scene/empty layer переходят в тишину, revision защищает от устаревшей async load. RepeatOnFinish повторяет конечный источник, но бесшовный loop задаётся в самом sound asset.
+
+Main menu/Hub/gameplay controller выбирают scene context; события/босс и явный override задают соответствующий профиль. Источник — палитра/Scenes; наличие и художественный подбор сохранённых tracks в этом аудите не подтверждены. Reimport source WAV либо замена ссылки меняет импортированный звук; простое редактирование `ArtSource/Audio` не обновляет SoundWave автоматически.
+
+## Авторинг, проверки и незакрытые границы
+
+`Tools/Blender`, `Tools/Unreal`, `Tools/Art` и compact `ArtSource` packets сохраняют отдельные воспроизводимые handoffs; общего безопасного bootstrap всех поздних ревизий нет. `MessControlEditor` и проектный index plugin отделены от packaged gameplay. Saved export, live editor, native source, DCC render и actual gameplay — разные evidence layers; [ProjectIndex.md](ProjectIndex.md) описывает freshness и coverage.
+
+Automation inventory: 389 macro declarations в 78 source files; `Private/Tests` — 123 `.cpp`, 6 `.h`. Это не свежий test result. Старый `Tools/Test.ps1` Unit-порог 36 и legacy fixtures не доказывают полный проход текущих систем. Для небольших изменений принят короткий solo PIE; network и Windows build/cook/package требуют отдельного запроса.
+
+Последний [Hub checkpoint 23.10](HubSystemsCheckpoint_20261023.md) исторически фиксирует узкие успешные проверки, но Stage04 предшествует profile-save Move fix. Packaged first-use wardrobe/shop/basketball и полный release pass не закрыты. В наблюдавшемся arena run были 15 graphics PSO misses после Ready; отдельный Editor GPU PageFault нерешён. Current main-menu look — [WIP](MenuLookDevWIP_20261022.md); семь законченных дней и финальный 1:1 artwork не заявлены.
+
+Все новые outputs/caches/temp должны быть на E:. Изменения этого обновления относятся только к документации; сохранённые ресурсы, пользовательские code changes и работающие приложения не менялись.

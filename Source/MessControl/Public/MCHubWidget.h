@@ -13,6 +13,21 @@ class UOverlay;
 class UTextBlock;
 class UVerticalBox;
 class UMCHubWidget;
+class UMCHUDIcon;
+
+/** Small editable vector glyph; no material/texture load or font-dependent symbols. */
+UCLASS(Blueprintable)
+class MESSCONTROL_API UMCHubCurrencyIcon : public UUserWidget
+{
+    GENERATED_BODY()
+public:
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Icon") bool bFish=false;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Icon") FLinearColor Tint=FLinearColor::White;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Icon",meta=(ClampMin="1",ClampMax="4")) float LineWidth=2.1f;
+protected:
+    virtual int32 NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
+        FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const override;
+};
 
 UENUM()
 enum class EMCHubMenuAction : uint8 { OpenSelection, SelectDay, Launch, Return, InviteFriends };
@@ -56,6 +71,10 @@ public:
 
     UPROPERTY(EditDefaultsOnly, Category="Hub|Presentation")
     TSoftClassPtr<UUserWidget> SelectionPresentationClass;
+    /** Soft native defaults can be disabled when the complete bar is styled in Designer. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hub|Bottom Bar") bool bUseSoftBottomBar=true;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hub|Bottom Bar",meta=(ClampMin="0",ClampMax="64")) float BottomBarCornerRadius=28.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hub|Bottom Bar",meta=(ClampMin="0",ClampMax="1")) float BottomBarOpacity=.82f;
 
 protected:
     virtual void NativeConstruct() override;
@@ -81,6 +100,8 @@ private:
     UTextBlock* AddLabel(UVerticalBox* Parent,FName Name,int32 Size,bool bBold=false);
     void BindPresentationTree();
     void EnsureGatheringGuidance();
+    void EnsureBottomBar();
+    void RefreshBottomBar();
     void UpdateReadyWaypoint();
     UMCHubActionButton* MakeAction(FName Name,EMCHubMenuAction Action,int32 Day=0);
     UMCHubActionButton* AddAction(UVerticalBox* Parent,FName Name,EMCHubMenuAction Action,int32 Day=0);
@@ -103,6 +124,14 @@ private:
     UPROPERTY(Transient) TObjectPtr<UTextBlock> BasketballReticle;
     UPROPERTY(Transient) TObjectPtr<UBorder> FishingPanel;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> FishingCount;
+    UPROPERTY(Transient) TObjectPtr<UHorizontalBox> BottomBar;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> WalletCount;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> BottomFishCount;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> ProfileName;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> PartyHint;
+    UPROPERTY(Transient) TObjectPtr<UMCHUDIcon> ProfilePortrait;
+    UPROPERTY(Transient) TObjectPtr<UMCHubCurrencyIcon> CoinIcon;
+    UPROPERTY(Transient) TObjectPtr<UMCHubCurrencyIcon> FishIcon;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> SelectionTitle;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> SelectionStatus;
     UPROPERTY(Transient) TObjectPtr<UMCHubActionButton> OpenButton;

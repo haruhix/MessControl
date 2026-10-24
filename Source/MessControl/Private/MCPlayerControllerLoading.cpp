@@ -115,6 +115,7 @@ void AMCPlayerController::RefreshLoadingPresentation()
                 FMath::Max(State->LobbyLoadedPlayers,State->PlayerArray.Num()));
         LoadingWidget->SetWaitingDetail(Detail);
         LoadingWidget->RefreshPresentation();
+        if(NewWidget) LoadingWidget->ForceLayoutPrepass();
     }
     const bool NewPawn=GetPawn() && LoadingCancelledPawn.Get()!=GetPawn();
     const bool Failed=Preparation && Preparation->HasFailed();

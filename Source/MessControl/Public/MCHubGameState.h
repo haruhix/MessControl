@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameStateBase.h"
 #include "MCHubTypes.h"
+#include "MCSessionTypes.h"
 #include "MCHubGameState.generated.h"
 
 class APlayerController;
@@ -27,6 +28,12 @@ public:
     UPROPERTY(ReplicatedUsing=OnRep_HubState, BlueprintReadOnly, Category="Hub") int32 SelectedDay = 1;
     UPROPERTY(ReplicatedUsing=OnRep_HubState, BlueprintReadOnly, Category="Hub") TArray<FMCHubPlayerReadiness> Players;
     UPROPERTY(ReplicatedUsing=OnRep_HubState, BlueprintReadOnly, Category="Hub") FText Notice;
+    UPROPERTY(ReplicatedUsing=OnRep_HubState, BlueprintReadOnly, Category="Hub|Room")
+    EMCRoomPrivacy RoomPrivacy = EMCRoomPrivacy::FriendsOnly;
+    /** False for local/IP hubs and after an online update whose result cannot be confirmed. */
+    UPROPERTY(ReplicatedUsing=OnRep_HubState, BlueprintReadOnly, Category="Hub|Room") bool bRoomPrivacyKnown = false;
+    UPROPERTY(ReplicatedUsing=OnRep_HubState, BlueprintReadOnly, Category="Hub|Room") bool bRoomPrivacyUpdatePending = false;
+    UPROPERTY(ReplicatedUsing=OnRep_HubState, BlueprintReadOnly, Category="Hub|Room") FText RoomPrivacyNotice;
     UPROPERTY(EditAnywhere, ReplicatedUsing=OnRep_DestinationTable, BlueprintReadOnly, Category="Hub")
     TSoftObjectPtr<UDataTable> DestinationTable;
     UPROPERTY(BlueprintAssignable, Category="Hub") FMCOnHubStateChanged OnHubStateChanged;
@@ -50,6 +57,7 @@ public:
     void SetSelectedDay(int32 Day);
     void SetReadiness(const TArray<FMCHubPlayerReadiness>& NewPlayers);
     void SetNotice(const FText& NewNotice);
+    void SetRoomPrivacyState(EMCRoomPrivacy Privacy, bool bKnown, bool bPending, const FText& NewNotice);
 
 private:
     UPROPERTY(Transient) TObjectPtr<UDataTable> LoadedDestinationTable;

@@ -65,6 +65,14 @@ public:
     UFUNCTION(BlueprintPure, Category="Loading")
     float GetAssetProgress() const;
 
+    /** Only finite, observable work has a percentage. Shader/PSO preparation has no reliable denominator. */
+    UFUNCTION(BlueprintPure, Category="Loading")
+    bool HasMeasuredPhaseProgress() const;
+
+    /** Progress within the current resource stage, never an estimate of total time or readiness. */
+    UFUNCTION(BlueprintPure, Category="Loading")
+    float GetMeasuredPhaseProgress() const;
+
 protected:
     virtual bool DoesSupportWorldType(EWorldType::Type WorldType) const override;
 

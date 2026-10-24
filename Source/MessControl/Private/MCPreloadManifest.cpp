@@ -123,6 +123,8 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
     if(!World) return;
     const FName Map(*UGameplayStatics::GetCurrentLevelName(World,true));
     const auto* Settings=GetDefault<UMCPreloadSettings>();
+    // The same resident artwork covers blocking travel and the local readiness barrier.
+    AddPath(Settings->LoadingScreenArt.ToSoftObjectPath(),OutPaths);
     for(const auto& Path:Settings->CommonAssets) AddPath(Path,OutPaths);
     for(const auto& Entry:Settings->Maps) if(Entry.Map==Map)
         for(const auto& Path:Entry.Assets) AddPath(Path,OutPaths);

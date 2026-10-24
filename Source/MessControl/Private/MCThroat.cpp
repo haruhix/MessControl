@@ -2,6 +2,7 @@
 #include "MCGameDirector.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
+#include "MCToothPhysicsComponent.h"
 #include "MCTongue.h"
 #include "MCMouthSurface.h"
 #include "MCVomitBurst.h"
@@ -603,21 +604,48 @@ void AMCThroat::ReactToWaterTickle(AMCToothCharacter* Source,FVector Impact)
 
 void AMCThroat::CheckOpenThroatPlayers()
 {
-    if(!HasAuthority() || OpenAmount()<.65f || AMCTutorialDirector::IsSafeTutorial(GetWorld())) return;
+    if(!HasAuthority()) return;
+    if(OpenAmount()<.65f || AMCTutorialDirector::IsSafeTutorial(GetWorld())) {
+        PreviousPlayerPositions.Reset();return;
+    }
+    const double Now=ServerNow();
     const FVector Inlet=VacuumInlet(),Forward=GetActorForwardVector().GetSafeNormal2D(),Side=GetActorRightVector().GetSafeNormal2D();
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) {
-        if(!It->Status || !It->Status->IsAlive() || It->SwallowedBy || It->IsMimicCaptured()) continue;
-        const FVector Offset=It->GetActorLocation()-Inlet;
+        const TWeakObjectPtr<AMCToothCharacter> Key(*It);
+        if(!It->Status || !It->Status->IsAlive() || It->SwallowedBy || It->IsMimicCaptured()) {
+            PreviousPlayerPositions.Remove(Key);continue;
+        }
+        const bool Ragdoll=It->ToothPhysics && It->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll;
+        // The detached body advances in Chaos before the capsule is recentered
+        // in PostPhysics. The body is the player, including during a boss hit.
+        const FVector Point=Ragdoll?It->ToothPhysics->PhysicalLocation():It->GetActorLocation();
+        if(Point.ContainsNaN()) {PreviousPlayerPositions.Remove(Key);continue;}
+        const double Speed=Ragdoll?It->GetMesh()->GetPhysicsLinearVelocity(It->RigBone(TEXT("body"))).Size():It->GetVelocity().Size();
+        bool Crossed=false;
+        if(bManualIntake) if(const auto* Previous=PreviousPlayerPositions.Find(Key)) {
+            const double Elapsed=Now-Previous->At;
+            // Do not turn a distant spawn/reset/teleport into a lethal flight
+            // through the intervening mouth. A real knockback, even across a
+            // slow frame, stays within its physical movement budget.
+            const double TravelBudget=FMath::Max(200.,FMath::Max(1400.,FMath::Max(Speed,Previous->Speed))*FMath::Clamp(Elapsed,0.,.5)*2.);
+            if(Elapsed>=0 && Elapsed<=.5 && FVector::DistSquared(Previous->Point,Point)<=FMath::Square(TravelBudget))
+                Crossed=CrossesIntakeAperture(Previous->Point,Point);
+        }
+        PreviousPlayerPositions.Add(Key,{Point,Now,Speed});
+        const FVector Offset=Point-Inlet;
         const float Depth=FVector::DotProduct(Offset,Forward);
         // Crossing the aperture plane is lethal; the green delivery strip in
         // front of it remains usable. Waves and suction can push a player across.
-        const bool Entered=bManualIntake?IsInsideIntakeAperture(It->GetActorLocation())
+        const bool Entered=bManualIntake?(IsInsideIntakeAperture(Point) || Crossed)
             :Depth>=-15 && Depth<500 && FMath::Abs(FVector::DotProduct(Offset,Side))<GateSize.X*.78f && FMath::Abs(Offset.Z)<GateSize.Y*.8f;
         if(Entered) {
+            PreviousPlayerPositions.Remove(Key);
             It->DropFood();
             It->Status->Damage(It->Status->State.MaxHealth*2,Forward,this);
         }
     }
+    for(auto Entry=PreviousPlayerPositions.CreateIterator();Entry;++Entry)
+        if(!Entry.Key().IsValid()) Entry.RemoveCurrent();
 }
 bool AMCThroat::ContainsPlayer(const AMCToothCharacter* Hero) const
 {
@@ -856,7 +884,7 @@ void AMCThroat::ResetSwallow()
         Food->SetActorLocation(Piece.Start,false,nullptr,ETeleportType::TeleportPhysics);
         Food->CancelSwallow();Food->ResumeFuse(this);
     }
-    ManualIntakes.Reset();
+    ManualIntakes.Reset();PreviousPlayerPositions.Reset();
     if(ActiveVomit.IsValid()) ActiveVomit->Destroy(); ActiveVomit.Reset();
     SpitOut(true);
     for(const auto& Piece:PendingMeal) if(auto* Food=Piece.Food.Get();IsValid(Food) && !Food->IsDisposed()) {Food->CancelSwallow();Food->ResumeFuse(this);}

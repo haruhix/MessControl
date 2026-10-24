@@ -14,6 +14,8 @@
 #include "Components/CanvasPanelSlot.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
+#include "Components/ScaleBox.h"
+#include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
@@ -136,11 +138,53 @@ bool UMCHubFrontEndEditorLibrary::AddHubGuidancePresentation(UWidgetBlueprint* B
     UWidgetTree* Target=Blueprint->WidgetTree;
     auto* Defaults=Cast<UMCGameplayUIWidget>(Blueprint->GeneratedClass->GetDefaultObject());
     if(!Defaults) return false;
-    const TArray<FName> Branches=Scoreboard?TArray<FName>{TEXT("ScoreVoiceHeader"),TEXT("ScorePlayer1Mute"),TEXT("ScorePlayer2Mute"),TEXT("ScorePlayer3Mute"),TEXT("ScorePlayer4Mute")}
-        :Hub?TArray<FName>{TEXT("HubInviteFriends"),TEXT("HubInviteHint"),TEXT("HubReadyWaypoint")}
+    bool HubViewportChanged=false;
+    if(Hub) {
+        auto* Canvas=Cast<UCanvasPanel>(Target->FindWidget(TEXT("HubCanvas")));
+        auto* Viewport=Cast<UCanvasPanel>(Target->FindWidget(TEXT("HubViewportCanvas")));
+        auto* LegacyRoot=Cast<UScaleBox>(Target->RootWidget);
+        auto* DesignFrame=LegacyRoot?Cast<USizeBox>(LegacyRoot->GetContent()):nullptr;
+        auto* Backdrop=Cast<UBorder>(Target->FindWidget(TEXT("HubFooterBackdrop")));
+        auto* Row=Cast<UHorizontalBox>(Target->FindWidget(TEXT("HubBottomBar")));
+        const bool KnownLegacy=Canvas && DesignFrame && DesignFrame->GetContent()==Canvas
+            && FMath::IsNearlyEqual(DesignFrame->GetWidthOverride(),1600.f) && FMath::IsNearlyEqual(DesignFrame->GetHeightOverride(),900.f);
+        if(!Canvas || (Viewport && Target->RootWidget!=Viewport) || (!Viewport && (!KnownLegacy || Target->FindWidget(TEXT("HubViewportCanvas"))))) {
+            UE_LOG(LogTemp,Error,TEXT("MC_HUB_VIEWPORT_GUARD Unknown artist root; preserved %s"),*Blueprint->GetPathName());return false;
+        }
+        for(UWidget* Item:{static_cast<UWidget*>(Backdrop),static_cast<UWidget*>(Row)})
+            if(Item && Item->GetParent()!=Canvas && Item->GetParent()!=Viewport) {
+                UE_LOG(LogTemp,Error,TEXT("MC_HUB_VIEWPORT_GUARD Preserve custom footer parent: %s"),*Item->GetPathName());return false;
+            }
+        if(!Viewport) {
+            Blueprint->Modify();Target->Modify();LegacyRoot->Modify();
+            Viewport=Target->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(),TEXT("HubViewportCanvas"));
+            Viewport->SetFlags(RF_Transactional);Viewport->bIsVariable=false;Target->RootWidget=Viewport;
+            auto* LegacySlot=Viewport->AddChildToCanvas(LegacyRoot);
+            LegacySlot->SetAnchors(FAnchors(0,0,1,1));LegacySlot->SetOffsets(FMargin(0));LegacySlot->SetZOrder(0);
+            if(!Blueprint->WidgetVariableNameToGuidMap.Contains(Viewport->GetFName())) Blueprint->OnVariableAdded(Viewport->GetFName());
+            HubViewportChanged=true;
+        }
+        for(UWidget* Item:{static_cast<UWidget*>(Backdrop),static_cast<UWidget*>(Row)})
+            if(Item && Item->GetParent()==Canvas) {
+                Blueprint->Modify();Target->Modify();Item->Modify();Item->RemoveFromParent();
+                auto* FooterSlot=Viewport->AddChildToCanvas(Item);
+                FooterSlot->SetAnchors(FAnchors(0,1,1,1));FooterSlot->SetAutoSize(false);
+                FooterSlot->SetOffsets(Item==Backdrop?FMargin(0,-88,0,88):FMargin(24,-76,24,64));FooterSlot->SetZOrder(Item==Backdrop?4:5);
+                HubViewportChanged=true;
+            }
+    }
+    const TArray<FName> Branches=Scoreboard?TArray<FName>{TEXT("ScoreVoiceHeader"),TEXT("ScorePlayer1Mute"),TEXT("ScorePlayer2Mute"),TEXT("ScorePlayer3Mute"),TEXT("ScorePlayer4Mute"),TEXT("HubPartyControls")}
+        :Hub?TArray<FName>{TEXT("HubInviteFriends"),TEXT("HubInviteHint"),TEXT("HubReadyWaypoint"),TEXT("HubBottomBar"),TEXT("HubFooterBackdrop")}
         :Pause?TArray<FName>{TEXT("MenuPauseInvite")}:TArray<FName>{TEXT("MenuPause_Action15")};
     bool Complete=true;for(FName Name:Branches) Complete&=Target->FindWidget(Name)!=nullptr;
-    if(Complete) return true;
+    if(Complete) {
+        if(HubViewportChanged) {
+            FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);FKismetEditorUtilities::CompileBlueprint(Blueprint);
+            if(Blueprint->Status==BS_Error || !Blueprint->GeneratedClass) return false;
+            CastChecked<UWidgetBlueprintGeneratedClass>(Blueprint->GeneratedClass)->UpdateCustomPropertyListForPostConstruction();Blueprint->MarkPackageDirty();
+        }
+        return true;
+    }
     TStrongObjectPtr<UMCGameplayUIWidget> Source(NewObject<UMCGameplayUIWidget>(GetTransientPackage(),
         Scoreboard?UMCScoreboardWidget::StaticClass():Hub?UMCHubWidget::StaticClass():Pause?UMCGameplayMenuWidget::StaticClass():UMCMainMenuWidget::StaticClass(),NAME_None,RF_Transient));
     Source->Theme=Defaults->Theme;Source->TranslationTable=Defaults->TranslationTable;
@@ -158,7 +202,8 @@ bool UMCHubFrontEndEditorLibrary::AddHubGuidancePresentation(UWidgetBlueprint* B
     if(Pause) CastChecked<UMCGameplayMenuWidget>(Source.Get())->ShowPause();
     struct FBranch {UWidget* Root;UPanelWidget* Parent;bool Canvas;FMargin Padding;FVector2D Position,Alignment;int32 Z;
         bool Horizontal=false;FSlateChildSize ChildSize=FSlateChildSize(ESlateSizeRule::Automatic);
-        EHorizontalAlignment HAlign=HAlign_Fill;EVerticalAlignment VAlign=VAlign_Fill;};
+        EHorizontalAlignment HAlign=HAlign_Fill;EVerticalAlignment VAlign=VAlign_Fill;
+        FAnchors Anchors;FMargin CanvasOffsets;bool bCanvasAutoSize=true;int32 ChildIndex=INDEX_NONE;};
     TArray<FBranch> Missing;TArray<UWidget*> NewWidgets;
     for(FName Name:Branches)
     {
@@ -174,8 +219,10 @@ bool UMCHubFrontEndEditorLibrary::AddHubGuidancePresentation(UWidgetBlueprint* B
             return false;
         }
         FBranch Branch{Root,Destination,false,FMargin(0,4),FVector2D::ZeroVector,FVector2D::ZeroVector,0};
+        Branch.ChildIndex=Parent->GetChildIndex(Root);
         if(const auto* Slot=Cast<UCanvasPanelSlot>(Root->Slot)) {
             Branch.Canvas=true;Branch.Position=Slot->GetPosition();Branch.Alignment=Slot->GetAlignment();Branch.Z=Slot->GetZOrder();
+            Branch.Anchors=Slot->GetAnchors();Branch.CanvasOffsets=Slot->GetOffsets();Branch.bCanvasAutoSize=Slot->GetAutoSize();
         }
         if(const auto* Slot=Cast<UVerticalBoxSlot>(Root->Slot)) Branch.Padding=Slot->GetPadding();
         if(const auto* Slot=Cast<UHorizontalBoxSlot>(Root->Slot)) {
@@ -236,12 +283,16 @@ bool UMCHubFrontEndEditorLibrary::AddHubGuidancePresentation(UWidgetBlueprint* B
         Branch.Parent->Modify();
         if(Branch.Canvas) {
             auto* Slot=CastChecked<UCanvasPanel>(Branch.Parent)->AddChildToCanvas(Branch.Root);
-            Slot->SetAutoSize(true);Slot->SetPosition(Branch.Position);Slot->SetAlignment(Branch.Alignment);Slot->SetZOrder(Branch.Z);
+            Slot->SetAnchors(Branch.Anchors);Slot->SetOffsets(Branch.CanvasOffsets);Slot->SetAutoSize(Branch.bCanvasAutoSize);
+            Slot->SetAlignment(Branch.Alignment);Slot->SetZOrder(Branch.Z);
         } else if(Branch.Horizontal) {
             auto* Slot=CastChecked<UHorizontalBox>(Branch.Parent)->AddChildToHorizontalBox(Branch.Root);
             Slot->SetPadding(Branch.Padding);Slot->SetSize(Branch.ChildSize);
             Slot->SetHorizontalAlignment(Branch.HAlign);Slot->SetVerticalAlignment(Branch.VAlign);
-        } else CastChecked<UVerticalBox>(Branch.Parent)->AddChildToVerticalBox(Branch.Root)->SetPadding(Branch.Padding);
+        } else {
+            CastChecked<UVerticalBox>(Branch.Parent)->AddChildToVerticalBox(Branch.Root)->SetPadding(Branch.Padding);
+            if(Branch.ChildIndex!=INDEX_NONE) Branch.Parent->ShiftChild(Branch.ChildIndex,Branch.Root);
+        }
     }
     for(UWidget* Widget:NewWidgets) if(!Blueprint->WidgetVariableNameToGuidMap.Contains(Widget->GetFName())) Blueprint->OnVariableAdded(Widget->GetFName());
     FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);FKismetEditorUtilities::CompileBlueprint(Blueprint);
@@ -262,6 +313,12 @@ bool UMCHubFrontEndEditorLibrary::AddHubGuidancePresentation(UWidgetBlueprint* B
 
 // Public narrow name for the same append-only, rollback-capable migration.
 bool UMCHubFrontEndEditorLibrary::AddScoreboardVoicePresentation(UWidgetBlueprint* Blueprint)
+{
+    return Blueprint && Blueprint->ParentClass && Blueprint->ParentClass->IsChildOf(UMCScoreboardWidget::StaticClass())
+        && AddHubGuidancePresentation(Blueprint);
+}
+
+bool UMCHubFrontEndEditorLibrary::AddScoreboardHubPartyPresentation(UWidgetBlueprint* Blueprint)
 {
     return Blueprint && Blueprint->ParentClass && Blueprint->ParentClass->IsChildOf(UMCScoreboardWidget::StaticClass())
         && AddHubGuidancePresentation(Blueprint);

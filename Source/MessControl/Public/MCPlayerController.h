@@ -7,6 +7,7 @@
 #include "Components/SlateWrapperTypes.h"
 #include "MCPlayerCameraComponent.h"
 #include "MCCosmeticCatalog.h"
+#include "MCSessionTypes.h"
 #include "MCPlayerController.generated.h"
 class UMCPrototypeWidget;
 class UMCDevPanelWidget;
@@ -78,6 +79,10 @@ public:
     UFUNCTION(BlueprintPure,Category="Loading") bool IsWorldPresentationReady() const;
     void ShowScoreboard();
     void HideScoreboard();
+    /** Hub uses a toggled party panel; arena scoreboards retain held-Tab behavior. */
+    UFUNCTION(BlueprintPure,Category="Hub|Party") bool IsHubPartyPanelOpen() const;
+    UFUNCTION(BlueprintCallable,Category="Hub|Party") void RequestHubRoomPrivacy(EMCRoomPrivacy Privacy);
+    UFUNCTION(Server,Reliable) void ServerSetHubRoomPrivacy(EMCRoomPrivacy Privacy);
     void NextSpectator();
     void PreviousSpectator();
     UFUNCTION(BlueprintPure, Category="Spectating") bool IsSpectating() const { return bDeathSpectating; }
@@ -204,6 +209,9 @@ private:
     double NextHubLoadAckAt=0;
     int32 LastHubLoadAckGeneration=INDEX_NONE;
     bool bUsingGamepad=false;
+    void HandleScoreboardPressed();
+    void HandleScoreboardReleased();
+    void PrepareHubPartyPresentation();
     void ResetWorldPresentation();
     void RefreshFrontEnd();
     UFUNCTION(Server, Reliable) void ServerGameplayLoaded();

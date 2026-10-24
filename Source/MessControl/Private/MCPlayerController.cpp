@@ -44,6 +44,7 @@
 #include "MCColdCola.h"
 #include "InputKeyEventArgs.h"
 #include "MCHubGameState.h"
+#include "MCHubGameMode.h"
 #include "MCHubWidget.h"
 #include "MCLoadingWidget.h"
 #include "MCHubWardrobeWidget.h"
@@ -81,14 +82,14 @@ void AMCPlayerController::SetupInputComponent()
     InputComponent->BindKey(EKeys::H,IE_Pressed,this,&AMCPlayerController::UseCalciumGrenade);
     InputComponent->BindKey(EKeys::T,IE_Pressed,this,&AMCPlayerController::ToggleEmotes);
     InputComponent->BindKey(EKeys::Escape,IE_Pressed,this,&AMCPlayerController::TogglePauseMenu);
-    InputComponent->BindKey(EKeys::Tab,IE_Pressed,this,&AMCPlayerController::ShowScoreboard);
-    InputComponent->BindKey(EKeys::Tab,IE_Released,this,&AMCPlayerController::HideScoreboard);
+    InputComponent->BindKey(EKeys::Tab,IE_Pressed,this,&AMCPlayerController::HandleScoreboardPressed);
+    InputComponent->BindKey(EKeys::Tab,IE_Released,this,&AMCPlayerController::HandleScoreboardReleased);
     InputComponent->BindKey(EKeys::Right,IE_Pressed,this,&AMCPlayerController::NextSpectator);
     InputComponent->BindKey(EKeys::Left,IE_Pressed,this,&AMCPlayerController::PreviousSpectator);
     InputComponent->BindKey(EKeys::Gamepad_Special_Right,IE_Pressed,this,&AMCPlayerController::TogglePauseMenu);
     InputComponent->BindKey(EKeys::Gamepad_FaceButton_Right,IE_Pressed,this,&AMCPlayerController::ActivateRogueBooster);
-    InputComponent->BindKey(EKeys::Gamepad_Special_Left,IE_Pressed,this,&AMCPlayerController::ShowScoreboard);
-    InputComponent->BindKey(EKeys::Gamepad_Special_Left,IE_Released,this,&AMCPlayerController::HideScoreboard);
+    InputComponent->BindKey(EKeys::Gamepad_Special_Left,IE_Pressed,this,&AMCPlayerController::HandleScoreboardPressed);
+    InputComponent->BindKey(EKeys::Gamepad_Special_Left,IE_Released,this,&AMCPlayerController::HandleScoreboardReleased);
 #if !UE_BUILD_SHIPPING
     InputComponent->BindKey(EKeys::F3,IE_Pressed,this,&AMCPlayerController::ToggleDevPanel);
 #endif
@@ -111,14 +112,39 @@ void AMCPlayerController::ShowScoreboard()
         || bLobbyUIOpen || bPauseMenuOpen || bConnectionMenuOpen || bTutorialMenuInput || bHubMenuInput
         || (DevPanel && DevPanel->IsVisible()) || (EmoteWidget && EmoteWidget->IsVisible())
         || (PrototypeWidget && PrototypeWidget->IsPanelOpen())) return;
+    if(IsHubWorld()) {
+        const auto* Hub=GetWorld()->GetGameState<AMCHubGameState>();
+        if(!Hub || Hub->Phase!=EMCHubPhase::Gathering) return;
+    }
     if (!ScoreboardWidget)
     {
         ScoreboardWidget=CreateWidget<UMCScoreboardWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("Scoreboard"),UMCScoreboardWidget::StaticClass()));
         if (!ScoreboardWidget) return;
-        ScoreboardWidget->AddToViewport(12);
+        ScoreboardWidget->AddToViewport(IsHubWorld()?35:12);
     }
     ScoreboardWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible); ScoreboardWidget->Refresh();
-    UpdateInputMode();ScoreboardWidget->FocusVoiceControls();
+    ScoreboardWidget->BeginHubPartyPresentation();UpdateInputMode();ScoreboardWidget->FocusVoiceControls();
+}
+void AMCPlayerController::HandleScoreboardPressed()
+{
+    if(IsHubPartyPanelOpen()) HideScoreboard();
+    else ShowScoreboard();
+}
+void AMCPlayerController::HandleScoreboardReleased()
+{
+    if(!IsHubWorld()) HideScoreboard();
+}
+bool AMCPlayerController::IsHubPartyPanelOpen() const
+{ return IsHubWorld() && ScoreboardWidget && ScoreboardWidget->IsVisible(); }
+void AMCPlayerController::RequestHubRoomPrivacy(EMCRoomPrivacy Privacy)
+{
+    const auto* Hub=GetWorld()?GetWorld()->GetGameState<AMCHubGameState>():nullptr;
+    if(IsLocalController() && IsHubWorld() && Hub && Hub->IsHost(this) && Hub->Phase==EMCHubPhase::Gathering)
+        ServerSetHubRoomPrivacy(Privacy);
+}
+void AMCPlayerController::ServerSetHubRoomPrivacy_Implementation(EMCRoomPrivacy Privacy)
+{
+    if(auto* Hub=GetWorld()?GetWorld()->GetAuthGameMode<AMCHubGameMode>():nullptr) Hub->RequestSetRoomPrivacy(this,Privacy);
 }
 void AMCPlayerController::HideScoreboard()
 {
@@ -126,10 +152,20 @@ void AMCPlayerController::HideScoreboard()
     ScoreboardWidget->SetVisibility(ESlateVisibility::Collapsed);
     if(IsLocalController() && GetWorld() && !GetWorld()->bIsTearingDown) UpdateInputMode();
 }
+void AMCPlayerController::PrepareHubPartyPresentation()
+{
+    if(!IsLocalController() || !IsHubWorld() || ScoreboardWidget) return;
+    // The editable class, its brushes and portrait glyph are constructed while
+    // the initial Hub cover is active, rather than at the first Tab press.
+    ScoreboardWidget=CreateWidget<UMCScoreboardWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("Scoreboard"),UMCScoreboardWidget::StaticClass()));
+    if(!ScoreboardWidget) return;
+    ScoreboardWidget->SetVisibility(ESlateVisibility::Collapsed);ScoreboardWidget->AddToViewport(35);
+    ScoreboardWidget->TakeWidget();ScoreboardWidget->ForceLayoutPrepass();
+}
 void AMCPlayerController::Tick(float DeltaSeconds)
 {
     // Drive the cosmetic mouth stage before its skeletal components update.
-    if(IsLocalController()) {PrepareWardrobePreview();RefreshLoadingPresentation();RefreshHubPresentation(DeltaSeconds);}
+    if(IsLocalController()) {PrepareHubPartyPresentation();PrepareWardrobePreview();RefreshLoadingPresentation();RefreshHubPresentation(DeltaSeconds);}
     Super::Tick(DeltaSeconds);
     if(HasAuthority()) RefreshHubEconomy();
     if(HasAuthority()) {RefreshPerkChoiceWorld();FlushPlayerColor();}
@@ -137,6 +173,11 @@ void AMCPlayerController::Tick(float DeltaSeconds)
         NextPerkTeamCheck=GetWorld()->GetRealTimeSeconds()+.1;RefreshPerkChoiceTeamState();
     }
     if (!IsLocalController()) return;
+    if(!MCDeveloperUIEnabled(GetWorld())) {
+        bool Changed=false;
+        if(PrototypeWidget && PrototypeWidget->IsTuningOpen()) {PrototypeWidget->ClosePanels();Changed=true;}
+        if(Changed) UpdateInputMode();
+    }
     RefreshWardrobe();
     if(GetWorld()->GetRealTimeSeconds()>=NextBackgroundAudioAt) {
         NextBackgroundAudioAt=GetWorld()->GetRealTimeSeconds()+.5;
@@ -155,7 +196,7 @@ void AMCPlayerController::Tick(float DeltaSeconds)
     }
     if (bBossIntroPlaying) return;
     // UI input mode can swallow the release event when a menu opens while Tab is held.
-    if (ScoreboardWidget && ScoreboardWidget->IsVisible()
+    if (!IsHubWorld() && ScoreboardWidget && ScoreboardWidget->IsVisible()
         && ((!IsInputKeyDown(EKeys::Tab) && !IsInputKeyDown(EKeys::Gamepad_Special_Left))
             || (FSlateApplication::IsInitialized() && !FSlateApplication::Get().IsActive()))) HideScoreboard();
     const double Now=GetWorld()->GetTimeSeconds();
@@ -384,6 +425,8 @@ void AMCPlayerController::ServerSetPlayerColor_Implementation(FLinearColor Color
 void AMCPlayerController::ToggleDevPanel()
 {
 #if !UE_BUILD_SHIPPING
+    // F3 is the explicit, undisclosed playtest entry point. Opening this panel
+    // must not enable the global developer HUD or the F1 tuning tools.
     if (!IsLocalController() || IsRewardInteractionActive() || bBossIntroPlaying) return;
     if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed);
     if (!DevPanel)
@@ -405,6 +448,7 @@ bool AMCPlayerController::CanUseDevPanel() const
 }
 void AMCPlayerController::RequestDevAction(EMCDevAction Action,int32 StepIndex)
 {
+    if(!MCDeveloperUIEnabled(GetWorld()) && !(DevPanel && DevPanel->IsVisible())) return;
     if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>())
     {
         const FText Result=Mode->ExecuteDevAction(this,Action,StepIndex);
@@ -428,7 +472,7 @@ void AMCPlayerController::ToggleEmotes()
     EmoteWidget->SetVisibility(Open?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
     if (Open) EmoteWidget->Refresh(); UpdateInputMode();
 }
-void AMCPlayerController::ToggleTuning() { if (IsRewardInteractionActive() || bBossIntroPlaying) return; if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleTuning(); UpdateInputMode(); } }
+void AMCPlayerController::ToggleTuning() { if (!MCDeveloperUIEnabled(GetWorld()) || IsRewardInteractionActive() || bBossIntroPlaying) return; if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleTuning(); UpdateInputMode(); } }
 void AMCPlayerController::ToggleConnection()
 {
     if (!IsLocalController() || bLobbyUIOpen || IsRewardInteractionActive() || bBossIntroPlaying) return;
@@ -482,7 +526,7 @@ void AMCPlayerController::UpdateInputMode()
     UpdatePerkChoicePause();
     // A modal owns focus over the held overlay; hiding directly here avoids
     // recursively re-entering this input-mode resolver during a transition.
-    if(ScoreboardWidget && ScoreboardWidget->IsVisible() && (bLoadingInputBlocked || bLobbyUIOpen || bPauseMenuOpen
+    if(ScoreboardWidget && ScoreboardWidget->IsVisible() && (bLoadingInputBlocked || bLobbyUIOpen || bPauseMenuOpen || IsWardrobeOpen() || IsHubShopOpen()
         || bConnectionMenuOpen || bTutorialMenuInput || bHubMenuInput || bBossIntroPlaying || IsRewardInteractionActive()
         || (DevPanel && DevPanel->IsVisible()) || (EmoteWidget && EmoteWidget->IsVisible())
         || (PrototypeWidget && PrototypeWidget->IsPanelOpen()))) ScoreboardWidget->SetVisibility(ESlateVisibility::Collapsed);
@@ -950,6 +994,7 @@ void AMCPlayerController::ReturnToMainMenu()
 }
 void AMCPlayerController::TogglePauseMenu()
 {
+    if(IsHubPartyPanelOpen()) {HideScoreboard();return;}
     if(IsWardrobeOpen()) {CloseWardrobe();return;}
     if(IsHubShopOpen()) {CloseHubShop();return;}
     if (!IsLocalController() || bLobbyUIOpen || IsRewardInteractionActive() || bBossIntroPlaying) return;

@@ -27,4 +27,8 @@ public:
     /** Persist only the missing voice header/mute-column branches in the existing authored Scoreboard. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Hub|Editor")
     static bool AddScoreboardVoicePresentation(UWidgetBlueprint* Blueprint);
+
+    /** Persist only missing Hub party invitation/privacy controls in the existing Scoreboard tree. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Hub|Editor")
+    static bool AddScoreboardHubPartyPresentation(UWidgetBlueprint* Blueprint);
 };

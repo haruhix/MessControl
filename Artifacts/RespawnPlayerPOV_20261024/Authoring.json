@@ -1,0 +1,509 @@
+{
+  "status": "authored_pending_runtime_and_visual_review",
+  "map": "/Game/Tests/RespawnReplacement/L_RespawnPlayerPOV",
+  "sequence": "/Game/Tests/RespawnReplacement/LS_ReplacementPlayerPOV",
+  "report_directory": "E:\\CodexWork\\RespawnPlayerPOV_20261024\\Author_20261024T104412757600Z",
+  "duration_seconds": 6.0,
+  "gameplay_integration": false,
+  "native_respawn_changed": false,
+  "source_packages_saved": false,
+  "source_hashes_unchanged": true,
+  "network_tested": false,
+  "actual_pie_window_recorded": false,
+  "local_view_route": "Player0 auto-activated camera plus locally evaluated Sequencer camera cut",
+  "controlled_pawn": "Neutral GameModeBase default pawn; animated replacement bodies remain SkeletalMeshActors",
+  "final_camera": "Matches source free-orbit framing behind the new body; not a possession/input handoff",
+  "gameplay_camera_defaults": {
+    "pitch": -30.0,
+    "distance": 1000.0,
+    "orbit_height": 100.0,
+    "capsule_half_height": 58.0,
+    "fov": 55.0,
+    "actor_scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "native_source": "E:\\DEVGAME\\MessControl\\Source\\MessControl\\Public\\MCToothCharacter.h",
+    "actual_blueprint_defaults": "/Game/Blueprints/BP_PlayerCharacter.Default__BP_PlayerCharacter_C"
+  },
+  "camera_geometry": {
+    "start_eye": [
+      249.99999999999994,
+      -1101.0254037844388,
+      748.884521484375
+    ],
+    "end_eye": [
+      74.99999999999994,
+      -1116.0254037844388,
+      752.1418685913086
+    ],
+    "total_eye_translation_cm": 175.67188252584717,
+    "standing_pivot_above_skeletal_root_cm": 158.0,
+    "shot_yaw": 90.0,
+    "reserve_focus": [
+      75.0,
+      170.0,
+      47.281134304480815
+    ],
+    "facing_evidence": "Owned old yaw+180, new turns yaw180-to0 after landing; view from inner tongue -Y"
+  },
+  "real_background": {
+    "mapping": {
+      "source_map": "/Game/Maps/L_Mouth.L_Mouth",
+      "stage_map": "/Game/Tests/RespawnReplacement/L_RespawnReplacementStage.L_RespawnReplacementStage",
+      "source_tooth_id": 5,
+      "neighbor_ids": [
+        3,
+        7
+      ],
+      "source_anchor": [
+        -1835.7958711032609,
+        -1837.6176648799644,
+        34.45071934538301
+      ],
+      "target_anchor": [
+        75.0,
+        170.0,
+        34.45071934538301
+      ],
+      "source_tongue_centre": [
+        -154.32245055570348,
+        -61.68696155001794,
+        -127.59772745584758
+      ],
+      "yaw_offset_degrees": -136.56494802262347,
+      "source_inward": [
+        0.6875318805409439,
+        0.7261541938457927,
+        0.0
+      ],
+      "target_inward": [
+        -1.6653345369377348e-16,
+        -0.9999999999999999,
+        0.0
+      ],
+      "source_z_retained": true,
+      "scales_retained": true,
+      "actors": [
+        {
+          "role": "ActualGum",
+          "source_actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_6",
+          "source_component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_6.StaticMeshComponent0",
+          "target_actor": "/Game/Tests/RespawnReplacement/L_RespawnReplacementStage.L_RespawnReplacementStage:PersistentLevel.StaticMeshActor_7",
+          "mesh": "/Game/Gameplay/Arena/ManualIntake/SM_Gum_Bot_Contact.SM_Gum_Bot_Contact",
+          "materials": [
+            "/Game/Gameplay/Arena/V10/Edges/MI_TissueV10_EdgeFade.MI_TissueV10_EdgeFade"
+          ],
+          "source_transform": {
+            "translation": [
+              -1469.926108045576,
+              -49.23865529523755,
+              -462.49323092704157
+            ],
+            "quaternion_xyzw": [
+              -2.5654911911988974e-16,
+              -5.746937261686478e-17,
+              -0.7071067811865409,
+              0.7071067811865543
+            ],
+            "scale": [
+              1.532170523680686,
+              1.258139404106058,
+              1.73218283542692
+            ]
+          },
+          "target_transform": {
+            "translation": [
+              1038.8897207340335,
+              -1380.1860442238544,
+              -462.49323092704157
+            ],
+            "quaternion_xyzw": [
+              1.48321275667554e-16,
+              -2.1707366781822198e-16,
+              0.9185673376893101,
+              0.39526452677969076
+            ],
+            "scale": [
+              1.532170523680686,
+              1.258139404106058,
+              1.73218283542692
+            ]
+          },
+          "reused_actor": true
+        },
+        {
+          "role": "ActualTongue",
+          "source_actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCTongue_1",
+          "source_component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCTongue_1.TongueSurface",
+          "target_actor": "/Game/Tests/RespawnReplacement/L_RespawnReplacementStage.L_RespawnReplacementStage:PersistentLevel.StaticMeshActor_8",
+          "mesh": "/Game/Gameplay/Arena/V10/SM_TongueSurface.SM_TongueSurface",
+          "materials": [
+            "/Game/Gameplay/Arena/Pressure/MI_Pressure_Soft.MI_Pressure_Soft"
+          ],
+          "source_transform": {
+            "translation": [
+              -154.32245055570348,
+              -61.68696155001794,
+              -127.59772745584758
+            ],
+            "quaternion_xyzw": [
+              -2.5654911911988984e-16,
+              -5.746937261686481e-17,
+              -0.7071067811865409,
+              0.7071067811865543
+            ],
+            "scale": [
+              1.532170523680686,
+              1.258139404106058,
+              1.2696753090583406
+            ]
+          },
+          "target_transform": {
+            "translation": [
+              74.99999999999977,
+              -2275.6661111112244,
+              -127.59772745584758
+            ],
+            "quaternion_xyzw": [
+              1.48321275667554e-16,
+              -2.1707366781822198e-16,
+              0.9185673376893101,
+              0.39526452677969076
+            ],
+            "scale": [
+              1.532170523680686,
+              1.258139404106058,
+              1.2696753090583406
+            ]
+          },
+          "reused_actor": true
+        },
+        {
+          "role": "ReserveNeighbor_0",
+          "source_actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_9",
+          "source_component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_9.ToothPlacement",
+          "target_actor": "/Game/Tests/RespawnReplacement/L_RespawnReplacementStage.L_RespawnReplacementStage:PersistentLevel.StaticMeshActor_4",
+          "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_02.SM_Teeth_L_02",
+          "materials": [
+            "/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth"
+          ],
+          "source_transform": {
+            "translation": [
+              -2322.1102168338402,
+              -1633.186995732214,
+              -36.01833785622516
+            ],
+            "quaternion_xyzw": [
+              -2.5654911911988984e-16,
+              -5.746937261686481e-17,
+              -0.7071067811865409,
+              0.7071067811865543
+            ],
+            "scale": [
+              1.532170523680686,
+              1.258139404106058,
+              1.73218283542692
+            ]
+          },
+          "target_transform": {
+            "translation": [
+              568.6918040790295,
+              355.9084289018432,
+              -36.01833785622517
+            ],
+            "quaternion_xyzw": [
+              1.48321275667554e-16,
+              -2.1707366781822198e-16,
+              0.9185673376893101,
+              0.39526452677969076
+            ],
+            "scale": [
+              1.532170523680686,
+              1.258139404106058,
+              1.73218283542692
+            ]
+          },
+          "reused_actor": true
+        },
+        {
+          "role": "ActualReserve",
+          "source_actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_10",
+          "source_component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_10.ToothPlacement",
+          "target_actor": "/Game/Tests/RespawnReplacement/L_RespawnReplacementStage.L_RespawnReplacementStage:PersistentLevel.StaticMeshActor_6",
+          "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_03.SM_Teeth_L_03",
+          "materials": [
+            "/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth"
+          ],
+          "source_transform": {
+            "translation": [
+              -1835.7958711032609,
+              -1837.6176648799644,
+              34.45071934538301
+            ],
+            "quaternion_xyzw": [
+              -2.5654911911988984e-16,
+              -5.746937261686481e-17,
+              -0.7071067811865409,
+              0.7071067811865543
+            ],
+            "scale": [
+              1.532170523680686,
+              1.258139404106058,
+              1.73218283542692
+            ]
+          },
+          "target_transform": {
+            "translation": [
+              75.0,
+              170.0,
+              34.45071934538299
+            ],
+            "quaternion_xyzw": [
+              1.48321275667554e-16,
+              -2.1707366781822198e-16,
+              0.9185673376893101,
+              0.39526452677969076
+            ],
+            "scale": [
+              1.532170523680686,
+              1.258139404106058,
+              1.73218283542692
+            ]
+          },
+          "reused_actor": true
+        },
+        {
+          "role": "ReserveNeighbor_1",
+          "source_actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_11",
+          "source_component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_11.ToothPlacement",
+          "target_actor": "/Game/Tests/RespawnReplacement/L_RespawnReplacementStage.L_RespawnReplacementStage:PersistentLevel.StaticMeshActor_5",
+          "mesh": "/Game/Gameplay/Arena/V10/SM_Teeth_L_04.SM_Teeth_L_04",
+          "materials": [
+            "/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth"
+          ],
+          "source_transform": {
+            "translation": [
+              -1279.7865620588814,
+              -1983.4822745137205,
+              29.178657436380167
+            ],
+            "quaternion_xyzw": [
+              -2.5654911911988984e-16,
+              -5.746937261686481e-17,
+              -0.7071067811865409,
+              0.7071067811865543
+            ],
+            "scale": [
+              1.532170523680686,
+              1.258139404106058,
+              1.73218283542692
+            ]
+          },
+          "target_transform": {
+            "translation": [
+              -429.0350609457447,
+              -106.35392782632164,
+              29.178657436380178
+            ],
+            "quaternion_xyzw": [
+              1.48321275667554e-16,
+              -2.1707366781822198e-16,
+              0.9185673376893101,
+              0.39526452677969076
+            ],
+            "scale": [
+              1.532170523680686,
+              1.258139404106058,
+              1.73218283542692
+            ]
+          },
+          "reused_actor": true
+        }
+      ],
+      "saved_packages": [],
+      "production_rules_changed": false,
+      "limitation": "Static rest-shape tissue proxies; no native tongue deformation or gameplay."
+    },
+    "walls": [
+      {
+        "source_actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_53",
+        "source_component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_53.StaticMeshComponent0",
+        "mesh": "/Game/Gameplay/Arena/V10/Edges/SM_Wall_L.SM_Wall_L",
+        "materials": [
+          "/Game/Gameplay/Arena/V10/Edges/MI_TissueV10_EdgeFade.MI_TissueV10_EdgeFade"
+        ],
+        "location": [
+          1621.0102087722155,
+          -1601.6040991663147,
+          477.9258728027269
+        ],
+        "quaternion": [
+          -0.10782563404571725,
+          -0.08227071166532793,
+          -0.6009878539170561,
+          0.7876666567075764
+        ],
+        "scale": [
+          1.8225000030898477,
+          2.6628512874106627,
+          1.422015
+        ]
+      },
+      {
+        "source_actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_54",
+        "source_component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_54.StaticMeshComponent0",
+        "mesh": "/Game/Gameplay/Arena/V10/Edges/SM_Wall_R.SM_Wall_R",
+        "materials": [
+          "/Game/Gameplay/Arena/V10/Edges/MI_TissueV10_EdgeFade.MI_TissueV10_EdgeFade"
+        ],
+        "location": [
+          1564.1207384775512,
+          1679.5607648197656,
+          545.1946563720619
+        ],
+        "quaternion": [
+          0.005555380368059982,
+          -0.0034745272044722562,
+          -0.847814450830127,
+          0.530252508125404
+        ],
+        "scale": [
+          1.8225000030898475,
+          2.6628512874106627,
+          1.422015
+        ]
+      }
+    ]
+  },
+  "owned_motion": {
+    "actual_gum_height": -102.71886569551918,
+    "new_root_z_keys": [
+      [
+        0,
+        -282.7188656955192
+      ],
+      [
+        37,
+        -282.7188656955192
+      ],
+      [
+        39,
+        -237.71886569551918
+      ],
+      [
+        41,
+        -192.71886569551918
+      ],
+      [
+        44,
+        -122.71886569551918
+      ],
+      [
+        48,
+        -22.718865695519185
+      ],
+      [
+        52,
+        267.5643005371094
+      ],
+      [
+        57,
+        221.3643005371094
+      ],
+      [
+        61,
+        156.80328369140625
+      ],
+      [
+        65,
+        102.56430053710938
+      ],
+      [
+        68,
+        103.34214782714844
+      ],
+      [
+        73,
+        102.00277709960938
+      ],
+      [
+        79,
+        99.82884979248047
+      ],
+      [
+        90,
+        95.68737030029297
+      ],
+      [
+        104,
+        94.1418685913086
+      ],
+      [
+        179,
+        94.1418685913086
+      ]
+    ],
+    "source_reserve_withdrawal_restored": true,
+    "old_yaw_add_degrees": 180,
+    "new_yaw_keys": [
+      [
+        0,
+        180
+      ],
+      [
+        79,
+        180
+      ],
+      [
+        90,
+        90
+      ],
+      [
+        104,
+        0
+      ],
+      [
+        179,
+        0
+      ]
+    ],
+    "bridge_note": "Frame57 Z connects the lower new apex to unchanged frame61/landing; source frame57 exceeded the new apex."
+  },
+  "existing_fill_adjusted": {
+    "position": [
+      162.49999999999994,
+      -1188.5254037844388,
+      800.5131950378418
+    ],
+    "intensity_lumens": 20000,
+    "width_cm": 900,
+    "height_cm": 650
+  },
+  "existing_key_lumens": 64000,
+  "existing_rim_lumens": 40000,
+  "required_visual_review_frames": [
+    0,
+    30,
+    45,
+    65,
+    90
+  ],
+  "readability_departures": [
+    "Frames 5-18 lower aim with the fallen body instead of retaining the upright orbit pivot.",
+    "Frames 21-38 pan/tilt toward this specific reserve while eye position remains near the deceased.",
+    "Frames 38-96 translate the eye only between the old and new ordinary orbit positions.",
+    "Frames 39-73 track the visible jump center; frames 73-104 restore the upright gameplay pivot.",
+    "View remains on inner tongue -Y, yaw90. Old display yaw gains180; new turns180-to0 after landing so both endpoints show a back.",
+    "Launch is rebuilt from sampled actual gum height, not the former crown-height approximation.",
+    "Fast reserve withdrawal is restored from the SOURCE each invocation; no late-withdrawal keys accumulate.",
+    "Distances/pitch/FOV are gameplay-style framing, not a claim of the current automatic map view.",
+    "End pauses on the new third-person framing so the neutral offstage default pawn never replaces the preview view."
+  ],
+  "limitations": [
+    "No native death event, five-second respawn delay, reserve consumption or possession is driven here.",
+    "Camera collision/reveal and arbitrary player orbit starts require later production integration.",
+    "Runtime camera ownership, material appearance and occlusion still require actual PIE window review."
+  ]
+}

@@ -92,6 +92,10 @@ void AMCHubGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(AMCHubGameState, SelectedDay);
     DOREPLIFETIME(AMCHubGameState, Players);
     DOREPLIFETIME(AMCHubGameState, Notice);
+    DOREPLIFETIME(AMCHubGameState, RoomPrivacy);
+    DOREPLIFETIME(AMCHubGameState, bRoomPrivacyKnown);
+    DOREPLIFETIME(AMCHubGameState, bRoomPrivacyUpdatePending);
+    DOREPLIFETIME(AMCHubGameState, RoomPrivacyNotice);
     DOREPLIFETIME(AMCHubGameState, DestinationTable);
 }
 
@@ -213,6 +217,17 @@ void AMCHubGameState::SetNotice(const FText& NewNotice)
 {
     if (!HasAuthority() || Notice.EqualTo(NewNotice)) return;
     Notice = NewNotice;
+    NotifyChanged();
+}
+
+void AMCHubGameState::SetRoomPrivacyState(EMCRoomPrivacy Privacy, bool bKnown, bool bPending, const FText& NewNotice)
+{
+    if (!HasAuthority() || (RoomPrivacy == Privacy && bRoomPrivacyKnown == bKnown
+        && bRoomPrivacyUpdatePending == bPending && RoomPrivacyNotice.EqualTo(NewNotice))) return;
+    RoomPrivacy = Privacy;
+    bRoomPrivacyKnown = bKnown;
+    bRoomPrivacyUpdatePending = bPending;
+    RoomPrivacyNotice = NewNotice;
     NotifyChanged();
 }
 

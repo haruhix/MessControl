@@ -8,6 +8,8 @@
 #include "MCHubTypes.h"
 #include "MCPlayerController.h"
 #include "MCPlayerState.h"
+#include "MCHubEconomyComponent.h"
+#include "MCGameplayHUD.h"
 #include "MCUIDataLibrary.h"
 #include "MCUIVisualStyle.h"
 #include "MCSteamSessionSubsystem.h"
@@ -38,6 +40,30 @@
 #include "UObject/UnrealType.h"
 
 #define LOCTEXT_NAMESPACE "MCHub"
+
+int32 UMCHubCurrencyIcon::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
+    FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const
+{
+    const int32 Base=Super::NativePaint(Args,Geometry,CullingRect,Elements,Layer,Style,ParentEnabled);
+    const FVector2D Size=Geometry.GetLocalSize();const float Unit=FMath::Min(Size.X,Size.Y);
+    auto Point=[&](double X,double Y) {return FVector2D(Size.X*.5+(X-.5)*Unit,Size.Y*.5+(Y-.5)*Unit);};
+    const FLinearColor Color=Tint*Style.GetColorAndOpacityTint();
+    auto Stroke=[&](const TArray<FVector2D>& Points,float Width) {
+        FSlateDrawElement::MakeLines(Elements,Base+1,Geometry.ToPaintGeometry(),Points,ESlateDrawEffect::None,Color,true,Width);
+    };
+    auto Circle=[&](double X,double Y,double RX,double RY) {
+        TArray<FVector2D> Points;for(int32 I=0;I<=32;++I) {const double A=I*2.*PI/32.;Points.Add(Point(X+RX*FMath::Cos(A),Y+RY*FMath::Sin(A)));}Stroke(Points,LineWidth);
+    };
+    if(bFish) {
+        // Rounded body, small eye and a clear fork-like tail remain legible at 28 px.
+        Circle(.57,.5,.28,.21);Stroke({Point(.31,.49),Point(.1,.27),Point(.1,.73),Point(.31,.51)},LineWidth);
+        Circle(.69,.45,.018,.018);Stroke({Point(.49,.34),Point(.43,.24),Point(.62,.3)},LineWidth*.8f);
+    } else {
+        Circle(.5,.5,.37,.37);Circle(.5,.5,.26,.26);
+        Stroke({Point(.5,.35),Point(.5,.65)},LineWidth);Stroke({Point(.43,.39),Point(.5,.35)},LineWidth);
+    }
+    return Base+1;
+}
 
 namespace MCHubPresentation
 {
@@ -275,7 +301,7 @@ void UMCHubWidget::BuildPresentationTree()
     BasketballHint->SetShadowColorAndOpacity(FLinearColor::Black);BasketballHint->SetShadowOffset(FVector2D(1,1));
     auto* BallHintSlot=RootCanvas->AddChildToCanvas(BasketballHint);
     BallHintSlot->SetAnchors(FAnchors(.5f,1.f));BallHintSlot->SetAlignment(FVector2D(.5f,1.f));
-    BallHintSlot->SetPosition(FVector2D(0,-36));BallHintSlot->SetAutoSize(true);BallHintSlot->SetZOrder(3);
+    BallHintSlot->SetPosition(FVector2D(0,-116));BallHintSlot->SetAutoSize(true);BallHintSlot->SetZOrder(3);
     BasketballReticle=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("HubBasketballReticle"));
     BasketballReticle->SetText(FText::AsCultureInvariant(TEXT("+")));
     BasketballReticle->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),24));
@@ -446,6 +472,134 @@ void UMCHubWidget::EnsureGatheringGuidance()
     ReadyWaypointArrow=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubReadyWaypointArrow")));
     ReadyWaypointLabel=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubReadyWaypointLabel")));
     if(ReadyWaypoint) ReadyWaypoint->SetVisibility(ESlateVisibility::Collapsed);
+    EnsureBottomBar();
+}
+
+void UMCHubWidget::EnsureBottomBar()
+{
+    if(!WidgetTree || !RootCanvas) return;
+    auto* ViewportCanvas=Cast<UCanvasPanel>(WidgetTree->FindWidget(TEXT("HubViewportCanvas")));
+    if(!ViewportCanvas && !WidgetTree->FindWidget(TEXT("HubViewportCanvas"))) {
+        // Keep the mouth stage's authored 1600x900 fit intact. Only the social
+        // footer belongs to the full viewport, including ultrawide side space.
+        auto* LegacyRoot=Cast<UScaleBox>(WidgetTree->RootWidget);
+        auto* DesignFrame=LegacyRoot?Cast<USizeBox>(LegacyRoot->GetContent()):nullptr;
+        if(DesignFrame && DesignFrame->GetContent()==RootCanvas && FMath::IsNearlyEqual(DesignFrame->GetWidthOverride(),1600.f)
+            && FMath::IsNearlyEqual(DesignFrame->GetHeightOverride(),900.f)) {
+            ViewportCanvas=WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(),TEXT("HubViewportCanvas"));
+            WidgetTree->RootWidget=ViewportCanvas;
+            auto* LegacySlot=ViewportCanvas->AddChildToCanvas(LegacyRoot);
+            LegacySlot->SetAnchors(FAnchors(0,0,1,1));LegacySlot->SetOffsets(FMargin(0));LegacySlot->SetZOrder(0);
+        }
+    }
+    UCanvasPanel* FooterCanvas=ViewportCanvas && WidgetTree->RootWidget==ViewportCanvas?ViewportCanvas:RootCanvas.Get();
+    // One full-width footer joins the currency and profile groups. Its own
+    // named branch is additive: existing artist widgets keep their parents.
+    auto* Backdrop=Cast<UBorder>(WidgetTree->FindWidget(TEXT("HubFooterBackdrop")));
+    if(!Backdrop) {
+        Backdrop=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("HubFooterBackdrop"));
+        Backdrop->SetPadding(FMargin(0));Backdrop->SetVisibility(ESlateVisibility::HitTestInvisible);
+        auto* FooterSlot=FooterCanvas->AddChildToCanvas(Backdrop);
+        FooterSlot->SetAnchors(FAnchors(0,1,1,1));FooterSlot->SetOffsets(FMargin(0,-88,0,88));FooterSlot->SetZOrder(4);
+    }
+    BottomBar=Cast<UHorizontalBox>(WidgetTree->FindWidget(TEXT("HubBottomBar")));
+    if(!BottomBar) {
+        BottomBar=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("HubBottomBar"));
+        auto* BarSlot=FooterCanvas->AddChildToCanvas(BottomBar);
+        BarSlot->SetAnchors(FAnchors(0,1,1,1));BarSlot->SetOffsets(FMargin(24,-76,24,64));BarSlot->SetZOrder(5);
+        auto Label=[&](FName Name,int32 Size,EMCUIColorToken Token)->UTextBlock* {
+            auto* Text=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);
+            Text->SetAutoWrapText(false);BindStyle(Name,Token,EMCUIStyleTarget::Text,Size,true);return Text;
+        };
+        auto Card=[&](FName Name,UWidget* Content)->UBorder* {
+            auto* Frame=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),Name);
+            Frame->SetPadding(FMargin(18,12));Frame->SetContent(Content);
+            Frame->SetBrush(FSlateRoundedBoxBrush(FLinearColor::White,BottomBarCornerRadius));
+            return Frame;
+        };
+        auto Currency=[&](FName RowName,FName IconName,FName TextName,bool Fish)->UHorizontalBox* {
+            auto* Row=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),RowName);
+            auto* Icon=WidgetTree->ConstructWidget<UMCHubCurrencyIcon>(UMCHubCurrencyIcon::StaticClass(),IconName);Icon->bFish=Fish;
+            auto* IconSize=WidgetTree->ConstructWidget<USizeBox>();IconSize->SetWidthOverride(30);IconSize->SetHeightOverride(30);IconSize->SetContent(Icon);
+            Row->AddChildToHorizontalBox(IconSize)->SetVerticalAlignment(VAlign_Center);
+            auto* TextSlot=Row->AddChildToHorizontalBox(Label(TextName,22,EMCUIColorToken::Ink));TextSlot->SetVerticalAlignment(VAlign_Center);TextSlot->SetPadding(FMargin(9,0,0,0));
+            return Row;
+        };
+        auto* Wallet=Card(TEXT("HubWalletCard"),Currency(TEXT("HubWalletRow"),TEXT("HubCoinIcon"),TEXT("HubWalletCount"),false));
+        BottomBar->AddChildToHorizontalBox(Wallet)->SetPadding(FMargin(0,0,10,0));
+        auto* Fish=Card(TEXT("HubFishCard"),Currency(TEXT("HubFishRow"),TEXT("HubFishIcon"),TEXT("HubBottomFishCount"),true));
+        BottomBar->AddChildToHorizontalBox(Fish)->SetPadding(FMargin(0,0,10,0));
+        BottomBar->AddChildToHorizontalBox(WidgetTree->ConstructWidget<UHorizontalBox>())->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+        auto* Profile=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("HubProfileRow"));
+        auto* Portrait=WidgetTree->ConstructWidget<UMCHUDIcon>(UMCHUDIcon::StaticClass(),TEXT("HubProfilePortrait"));
+        Portrait->bTooth=true;Portrait->bHappy=true;
+        auto* PortraitSize=WidgetTree->ConstructWidget<USizeBox>();PortraitSize->SetWidthOverride(40);PortraitSize->SetHeightOverride(44);PortraitSize->SetContent(Portrait);
+        Profile->AddChildToHorizontalBox(PortraitSize)->SetPadding(FMargin(0,0,12,0));
+        auto* Name=Label(TEXT("HubProfileName"),20,EMCUIColorToken::Ink);Name->SetTextOverflowPolicy(ETextOverflowPolicy::Ellipsis);Name->SetClipping(EWidgetClipping::ClipToBounds);
+        auto* NameSize=WidgetTree->ConstructWidget<USizeBox>();NameSize->SetWidthOverride(190);NameSize->SetContent(Name);
+        auto* NameSlot=Profile->AddChildToHorizontalBox(NameSize);NameSlot->SetVerticalAlignment(VAlign_Center);NameSlot->SetPadding(FMargin(0,0,12,0));
+        Profile->AddChildToHorizontalBox(Label(TEXT("HubPartyHint"),21,EMCUIColorToken::Ink))->SetVerticalAlignment(VAlign_Center);
+        BottomBar->AddChildToHorizontalBox(Card(TEXT("HubProfileCard"),Profile));
+    }
+    WalletCount=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubWalletCount")));
+    BottomFishCount=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubBottomFishCount")));
+    ProfileName=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubProfileName")));
+    PartyHint=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubPartyHint")));
+    ProfilePortrait=Cast<UMCHUDIcon>(WidgetTree->FindWidget(TEXT("HubProfilePortrait")));
+    CoinIcon=Cast<UMCHubCurrencyIcon>(WidgetTree->FindWidget(TEXT("HubCoinIcon")));
+    FishIcon=Cast<UMCHubCurrencyIcon>(WidgetTree->FindWidget(TEXT("HubFishIcon")));
+    if(FooterCanvas!=RootCanvas) {
+        for(UWidget* Item:{static_cast<UWidget*>(Backdrop),static_cast<UWidget*>(BottomBar.Get())})
+            if(Item && Item->GetParent()==RootCanvas) {
+                Item->RemoveFromParent();auto* FooterSlot=FooterCanvas->AddChildToCanvas(Item);
+                FooterSlot->SetAnchors(FAnchors(0,1,1,1));FooterSlot->SetAutoSize(false);
+                FooterSlot->SetOffsets(Item==Backdrop?FMargin(0,-88,0,88):FMargin(24,-76,24,64));FooterSlot->SetZOrder(Item==Backdrop?4:5);
+            }
+    }
+    if(bUseNativeLayout) if(auto* RowSlot=Cast<UCanvasPanelSlot>(BottomBar->Slot)) {
+        RowSlot->SetAnchors(FAnchors(0,1,1,1));RowSlot->SetOffsets(FMargin(24,-76,24,64));RowSlot->SetZOrder(5);
+    }
+}
+void UMCHubWidget::RefreshBottomBar()
+{
+    const auto* Hub=State();
+    const bool Preview=IsDesignTime();
+    const bool Gathering=Preview?PreviewState!=TEXT("Selecting") && PreviewState!=TEXT("Selection") && PreviewState!=TEXT("Travelling")
+        :Hub && Hub->Phase==EMCHubPhase::Gathering;
+    if(BottomBar) BottomBar->SetVisibility(Gathering?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    if(auto* Backdrop=WidgetTree?Cast<UBorder>(WidgetTree->FindWidget(TEXT("HubFooterBackdrop"))):nullptr)
+        Backdrop->SetVisibility(Gathering?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    // The social bar replaces the floating fish counter and duplicate roster.
+    // Keep their authored widgets so designers can recover/reposition them.
+    if(FishingPanel) FishingPanel->SetVisibility(ESlateVisibility::Collapsed);
+    if(InviteButton) InviteButton->SetVisibility(ESlateVisibility::Collapsed);
+    if(InviteHint) InviteHint->SetVisibility(ESlateVisibility::Collapsed);
+    if(PlayerNames) PlayerNames->SetVisibility(ESlateVisibility::Collapsed);
+    const auto* Identity=GetOwningPlayer()?GetOwningPlayer()->GetPlayerState<AMCPlayerState>():nullptr;
+    const int32 Coins=Preview?125:Identity && Identity->Economy?Identity->Economy->Coins:0;
+    const int32 Fish=Preview?3:Identity?Identity->FishCaught:0;
+    MCHubPresentation::SetText(WalletCount,UMCUIDataLibrary::NumberForCulture(Coins,Preview?PreviewCulture:FString()));
+    MCHubPresentation::SetText(BottomFishCount,UMCUIDataLibrary::NumberForCulture(Fish,Preview?PreviewCulture:FString()));
+    if(WalletCount) WalletCount->SetToolTipText(Localized(TEXT("hub.bottom.coins"),LOCTEXT("BottomCoins","Монеты")));
+    if(BottomFishCount) BottomFishCount->SetToolTipText(Localized(TEXT("hub.bottom.fish"),LOCTEXT("BottomFish","Рыба для гриля")));
+    const auto& BottomPalette=GetResolvedTheme()->Palette;
+    if(CoinIcon) CoinIcon->Tint=bUseSoftBottomBar?FMath::Lerp(BottomPalette.Warning,BottomPalette.Ink,.2f):BottomPalette.Warning;
+    if(FishIcon) FishIcon->Tint=bUseSoftBottomBar?FMath::Lerp(BottomPalette.Mint,BottomPalette.Ink,.4f):BottomPalette.Mint;
+    const FText Name=Preview?FText::AsCultureInvariant(TEXT("Player 1")):Identity?FText::AsCultureInvariant(Identity->GetPlayerName()):FText::GetEmpty();
+    MCHubPresentation::SetText(ProfileName,Name);
+    if(ProfileName) ProfileName->SetToolTipText(Name);
+    const auto* PC=GetOwningPlayer<AMCPlayerController>();
+    const FText Key=FText::AsCultureInvariant(PC && PC->IsUsingGamepad()?TEXT("[View]"):TEXT("[Tab]"));
+    MCHubPresentation::SetText(PartyHint,Format(TEXT("hub.bottom.party"),LOCTEXT("BottomParty","Команда {Count}/4 · {Key}"),
+        {{TEXT("Count"),Preview?4:Hub?Hub->GetParticipantCount():0},{TEXT("Key"),Key}}));
+    if(ProfilePortrait) {
+        const auto& Palette=GetResolvedTheme()->Palette;
+        ProfilePortrait->Tint=Preview?Palette.Accent:Identity?Identity->PlayerColor:Palette.Accent;
+        ProfilePortrait->InkTint=Palette.Ink;ProfilePortrait->EmptyTint=Palette.Muted;
+        ProfilePortrait->HostTint=Palette.Warning;ProfilePortrait->bHost=Preview || (Identity && Identity->bSessionHost);
+        ProfilePortrait->InvalidateLayoutAndVolatility();
+    }
+    if(bUseNativeLayout && BasketballHint) if(auto* HintSlot=Cast<UCanvasPanelSlot>(BasketballHint->Slot)) HintSlot->SetPosition(FVector2D(0,-116));
 }
 
 void UMCHubWidget::UpdateReadyWaypoint()
@@ -509,6 +663,21 @@ void UMCHubWidget::UpdateReadyWaypoint()
 void UMCHubWidget::ApplyTheme()
 {
     Super::ApplyTheme();
+    if(bUseSoftBottomBar && WidgetTree) {
+        const auto& Palette=GetResolvedTheme()->Palette;
+        FLinearColor FooterColor=Palette.Cream;FooterColor.A=.95f;
+        if(auto* Backdrop=Cast<UBorder>(WidgetTree->FindWidget(TEXT("HubFooterBackdrop")))) {
+            Backdrop->SetBrush(FSlateRoundedBoxBrush(FooterColor,0.f));Backdrop->SetBrushColor(FLinearColor::White);
+        }
+        for(FName Name:{FName(TEXT("HubWalletCard")),FName(TEXT("HubFishCard")),FName(TEXT("HubProfileCard"))})
+            if(auto* Card=Cast<UBorder>(WidgetTree->FindWidget(Name))) {
+                FLinearColor Color=Name==TEXT("HubProfileCard")?Palette.SurfaceAlt:Palette.Surface;
+                Color.A=FMath::Clamp(BottomBarOpacity,0.f,1.f);
+                Card->SetBrush(FSlateRoundedBoxBrush(Color,FMath::Min(24.f,BottomBarCornerRadius)));Card->SetBrushColor(FLinearColor::White);
+            }
+        for(FName Name:{FName(TEXT("HubWalletCount")),FName(TEXT("HubBottomFishCount")),FName(TEXT("HubProfileName")),FName(TEXT("HubPartyHint"))})
+            if(auto* Text=Cast<UTextBlock>(WidgetTree->FindWidget(Name))) Text->SetColorAndOpacity(Palette.Ink);
+    }
     if(bAuthoredPresentation) return;
     const auto* ThemeData=GetResolvedTheme();if(!ThemeData) return;
     TArray<UMCHubActionButton*> Buttons={OpenButton,LaunchButton,ReturnButton,InviteButton};
@@ -550,10 +719,7 @@ void UMCHubWidget::RefreshFromState()
     const auto* Instance=GetGameInstance();
     auto* Sessions=Instance?Instance->GetSubsystem<UMCSteamSessionSubsystem>():nullptr;
     const bool bCanInvite=Sessions && Sessions->CanUseSteam() && Sessions->HasRoom();
-    if(InviteButton) {
-        InviteButton->SetVisibility(Hub && Hub->Phase==EMCHubPhase::Gathering && bCanInvite?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
-        InviteButton->SetIsEnabled(bCanInvite && !Sessions->IsBusy());
-    }
+    RefreshBottomBar();
     MCHubPresentation::SetText(InviteButtonLabel,Localized(TEXT("hub.invite"),LOCTEXT("InviteFriends","ПРИГЛАСИТЬ ДРУЗЕЙ")));
     MCHubPresentation::SetText(InviteHint,Localized(bCanInvite?TEXT("hub.invite.steam"):TEXT("hub.invite.local"),
         bCanInvite?LOCTEXT("InviteSteam","ESC — меню и приглашения · Shift+Tab — друзья Steam"):
@@ -677,6 +843,7 @@ void UMCHubWidget::ApplyEditorPreview(float Time)
     if(OpenButton) {OpenButton->SetVisibility(Guest?ESlateVisibility::Collapsed:ESlateVisibility::Visible);OpenButton->SetIsEnabled(!Waiting);}
     if(LaunchButton) {LaunchButton->SetVisibility(Guest?ESlateVisibility::Collapsed:ESlateVisibility::Visible);LaunchButton->SetIsEnabled(!Waiting && !Travelling);}
     if(ReturnButton) {ReturnButton->SetVisibility(Guest?ESlateVisibility::Collapsed:ESlateVisibility::Visible);ReturnButton->SetIsEnabled(!Travelling);}
+    RefreshBottomBar();
     ApplyTheme();
 }
 

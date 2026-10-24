@@ -160,6 +160,8 @@ private:
     double NextIntakeAt=0;
     TWeakObjectPtr<class AMCThroatVortex> ActiveVortex;
     TMap<TWeakObjectPtr<AMCFoodActor>,FVector> PreviousThrownPositions;
+    struct FPlayerIntakeSample { FVector Point; double At,Speed; };
+    TMap<TWeakObjectPtr<AMCToothCharacter>,FPlayerIntakeSample> PreviousPlayerPositions;
     struct FSwallowedPlayer { TWeakObjectPtr<AMCToothCharacter> Hero; FVector Start; };
     TArray<FSwallowedPlayer> SwallowedPlayers;
     TWeakObjectPtr<class AMCVomitBurst> ActiveVomit;

@@ -86,9 +86,15 @@ private:
     UFUNCTION() void OnRep_Wipe();
     UFUNCTION() void OnRep_LiquidSize();
     UFUNCTION() void OnRep_LiquidMaterial();
+    UFUNCTION() void OnRep_SurfaceAnchor();
     void BuildLiquid();
     void UpdateLiquid(float Dt);
     void UploadWipe();
+    // Relocate only proven unsupported ordinary stains; never award cleanup.
+    void RecoverUnsupportedFloorStain(float Dt);
+    float FloorAccessElapsed=0,UnsupportedFloorSeconds=0;
+    uint32 FloorRecoveryAttempts=0;
+    double NextFloorRecoveryWarningAt=0;
     // The paint mesh is clipped to upward tissue triangles. Its gameplay mask
     // must have the same support, including tiles crossing a tongue edge.
     bool EnsurePaintSupport();
@@ -121,8 +127,8 @@ private:
     mutable bool bRemainingLiquidDirty=true;
     mutable float CachedRemainingLiquid=0;
     bool bPaintDepositPending=false;
-    UPROPERTY(Replicated) TObjectPtr<class AMCTongue> Tongue;
-    UPROPERTY(Replicated) FVector TongueAnchor=FVector::ZeroVector;
+    UPROPERTY(ReplicatedUsing=OnRep_SurfaceAnchor) TObjectPtr<class AMCTongue> Tongue;
+    UPROPERTY(ReplicatedUsing=OnRep_SurfaceAnchor) FVector TongueAnchor=FVector::ZeroVector;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> Material;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> UlcerMID;
     float ContactCooldown=0;

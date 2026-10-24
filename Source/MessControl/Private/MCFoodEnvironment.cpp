@@ -93,6 +93,8 @@ bool AMCFoodActor::SpawnFragments(FVector Direction)
     const FBox ParentBounds=Body->CalcBounds(Body->GetComponentTransform()).GetBox()
         +Visual->CalcBounds(Visual->GetComponentTransform()).GetBox();
     const FVector Center=ParentBounds.GetCenter();
+    AMCTongue* RecoveryTongue=nullptr;
+    for(TActorIterator<AMCTongue> It(GetWorld());It;++It) {RecoveryTongue=*It;break;}
     const auto* Perks=UMCPerkComponent::ForActor(LastHandledBy);
     const float ScatterFactor=Perks?Perks->RogueValue(EMCRogueStat::FoodScatter):1.f;
     const int32 Count=FoodData.FragmentCount();
@@ -118,6 +120,16 @@ bool AMCFoodActor::SpawnFragments(FVector Direction)
         }
         Piece->bSpoiled=bSpoiled;Piece->SpoilAt=SpoilAt;
         Piece->EntryRecoveryLanding=Center;
+        if(RecoveryTongue) {
+            // Keep a valid local cut point first. An airborne/outside cut must
+            // retain its parent's safe landing instead of losing that route.
+            const float Margin=FMath::Max(35.f,float(Piece->Body->GetScaledBoxExtent().Size2D())+15);
+            FHitResult Floor;
+            for(const auto& Point:{TOptional<FVector>(Center),LastAccessiblePosition,EntryRecoveryLanding})
+                if(Point.IsSet() && RecoveryTongue->GameplaySpawnFootprint(Point.GetValue(),Margin,Floor)) {
+                    Piece->EntryRecoveryLanding=Floor.ImpactPoint;break;
+                }
+        }
         // Configure the actual variant before choosing positions: different
         // imported meshes/scales do not have one universal fragment diameter.
         const FBox Envelope=Piece->Body->CalcBounds(Piece->Body->GetComponentTransform()).GetBox()
@@ -221,8 +233,7 @@ void AMCFoodActor::RecoverUnreachableFood(float Dt)
     for(const auto& Point:{LastAccessiblePosition,EntryRecoveryLanding})
         if(Point.IsSet() && Tongue->GameplaySpawnFootprint(Point.GetValue(),Margin,Floor)) {Found=true;break;}
     if(!Found && bFragment && EntryRecoveryLanding.IsSet()) {
-        // A cut piece may settle over an edge. Recover close to its parent,
-        // never at an unrelated random point elsewhere on the tongue.
+        // Prefer a nearby return for a cut piece that settled over an edge.
         for(float Radius:{25.f,50.f,100.f,150.f}) {
             for(int32 I=0;I<8 && !Found;++I) {
                 const float Angle=I*PI*.25f;
@@ -232,7 +243,10 @@ void AMCFoodActor::RecoverUnreachableFood(float Dt)
             if(Found) break;
         }
     }
-    if(!Found && !bFragment) {
+    if(!Found) {
+        // A piece cut outside the arena may never have had a usable local
+        // anchor. Only after the unreachable timeout and local search fail,
+        // return it to a verified tongue point without scoring a delivery.
         FRandomStream Random(HashCombine(GetTypeHash(GetActorLocation()),GetTypeHash(GetWorld()->GetTimeSeconds())));
         Found=Tongue->RandomGameplaySpawnPoint(Random,Margin,Margin*2,TConstArrayView<FVector>(),Floor);
     }

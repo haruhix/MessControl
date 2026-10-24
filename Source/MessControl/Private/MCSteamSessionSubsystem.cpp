@@ -1,5 +1,6 @@
 #include "MCSteamSessionSubsystem.h"
 #include "MCGameState.h"
+#include "MCHubGameState.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
@@ -11,10 +12,27 @@
 #include "OnlineSubsystem.h"
 #include "OnlineSubsystemUtils.h"
 
+#define LOCTEXT_NAMESPACE "MCSession"
+
 namespace
 {
     const FName GameKey(TEXT("MC_GAME"));
     const FString GameValue(TEXT("MessControl_Coop_v1"));
+    bool IsValidPrivacy(EMCRoomPrivacy Privacy)
+    {
+        return Privacy == EMCRoomPrivacy::Public || Privacy == EMCRoomPrivacy::FriendsOnly
+            || Privacy == EMCRoomPrivacy::InviteOnly;
+    }
+
+    void ApplyPrivacy(FOnlineSessionSettings& Settings, EMCRoomPrivacy Privacy)
+    {
+        // UE 5.8 Steam BuildLobbyType uses the friends-only flag before presence.
+        // Private + invites remains joinable through invitations, not public search/presence.
+        Settings.bShouldAdvertise = Privacy != EMCRoomPrivacy::InviteOnly;
+        Settings.bAllowInvites = true;
+        Settings.bAllowJoinViaPresence = Privacy != EMCRoomPrivacy::InviteOnly;
+        Settings.bAllowJoinViaPresenceFriendsOnly = Privacy == EMCRoomPrivacy::FriendsOnly;
+    }
     IOnlineSubsystem* SteamFor(const UMCSteamSessionSubsystem* Self)
     {
         const UWorld* World=Self->GetWorld();
@@ -45,6 +63,7 @@ void UMCSteamSessionSubsystem::Deinitialize()
         Sessions->ClearOnJoinSessionCompleteDelegate_Handle(JoinHandle);
         Sessions->ClearOnDestroySessionCompleteDelegate_Handle(DestroyHandle);
         Sessions->ClearOnSessionUserInviteAcceptedDelegate_Handle(InviteHandle);
+        Sessions->ClearOnUpdateSessionCompleteDelegate_Handle(UpdateHandle);
     }
     if (GEngine)
     {
@@ -135,6 +154,10 @@ bool UMCSteamSessionSubsystem::EnterHub()
 
 void UMCSteamSessionSubsystem::CreateRoom()
 {
+    ClearPrivacyUpdate();
+    RoomPrivacy=EMCRoomPrivacy::FriendsOnly;
+    bRoomPrivacyKnown=false;
+    RoomPrivacyNotice=FText::GetEmpty();
     Operation=EOperation::Creating;
     SetStatus(TEXT("Создаём комнату Steam…"));
     FOnlineSessionSettings Settings;
@@ -142,12 +165,10 @@ void UMCSteamSessionSubsystem::CreateRoom()
     Settings.NumPublicConnections=State?FMath::Clamp(State->RunSettings.MaxPlayers,2,4):4;
     Settings.bIsLANMatch=false;
     Settings.bIsDedicated=false;
-    Settings.bShouldAdvertise=true;
     Settings.bAllowJoinInProgress=true;
-    Settings.bAllowInvites=true;
     Settings.bUsesPresence=true;
     Settings.bUseLobbiesIfAvailable=true;
-    Settings.bAllowJoinViaPresence=true;
+    ApplyPrivacy(Settings,RoomPrivacy);
     Settings.Set(GameKey,GameValue,EOnlineDataAdvertisementType::ViaOnlineService);
     CreateHandle=Sessions->AddOnCreateSessionCompleteDelegate_Handle(
         FOnCreateSessionCompleteDelegate::CreateUObject(this,&ThisClass::Created));
@@ -162,6 +183,7 @@ void UMCSteamSessionSubsystem::Created(FName Name, bool Success)
     Operation=EOperation::Idle;
     if (bReturnToMenuPending) { LeaveRoom(); return; }
     if (!Success) { SetStatus(TEXT("Не удалось создать комнату. Проверь подключение Steam и попробуй снова."),true); return; }
+    bRoomPrivacyKnown=true;
     SetStatus(TEXT("Комната создана. Друг может найти её по твоему имени Steam или принять приглашение."));
     UE_LOG(LogTemp,Display,TEXT("MC_STEAM_ROOM_CREATED"));
     FString Options=TEXT("listen");
@@ -226,6 +248,7 @@ void UMCSteamSessionSubsystem::BeginJoin(const FOnlineSessionSearchResult& Resul
     PendingJoin=Result;
     if (HasRoom()) { DestroyFor(EOperation::DestroyForJoin); return; }
     Operation=EOperation::Joining;
+    bRoomPrivacyKnown=false;
     SetStatus(TEXT("Подключаемся к другу…"));
     JoinHandle=Sessions->AddOnJoinSessionCompleteDelegate_Handle(
         FOnJoinSessionCompleteDelegate::CreateUObject(this,&ThisClass::Joined));
@@ -260,6 +283,10 @@ void UMCSteamSessionSubsystem::Joined(FName Name, EOnJoinSessionCompleteResult::
 
 void UMCSteamSessionSubsystem::DestroyFor(EOperation Next)
 {
+    // A privacy request never owns the room lifecycle. Stop observing it before
+    // a destroy; its eventual Steam callback must not roll back a newer room.
+    ClearPrivacyUpdate();
+    bRoomPrivacyKnown=false;
     Operation=Next;
     SetStatus(TEXT("Выходим из предыдущей комнаты…"));
     DestroyHandle=Sessions->AddOnDestroySessionCompleteDelegate_Handle(
@@ -309,9 +336,104 @@ void UMCSteamSessionSubsystem::InviteFriends()
 {
     IOnlineSubsystem* OSS=SteamFor(this);
     const IOnlineExternalUIPtr UI=OSS?OSS->GetExternalUIInterface():nullptr;
-    if (!HasRoom()) { SetStatus(TEXT("Сначала создай комнату."),true); return; }
+    if (!CanInviteFriends()) { SetStatus(TEXT("Приглашения доступны в комнате Steam во время сбора команды в хабе."),true); return; }
     if (!UI || !UI->ShowInviteUI(0,NAME_GameSession))
         SetStatus(TEXT("Открой друзей Steam через Shift+Tab и отправь приглашение."));
+}
+
+bool UMCSteamSessionSubsystem::CanInviteFriends() const
+{
+    const UWorld* World=GetWorld();
+    const auto* Hub=World?World->GetGameState<AMCHubGameState>():nullptr;
+    return CanUseSteam() && HasRoom() && !IsBusy() && Hub && Hub->Phase==EMCHubPhase::Gathering;
+}
+
+bool UMCSteamSessionSubsystem::CanChangeRoomPrivacy() const
+{
+    const UWorld* World=GetWorld();
+    const auto* Hub=World?World->GetGameState<AMCHubGameState>():nullptr;
+    const auto* Player=GetGameInstance()?GetGameInstance()->GetFirstLocalPlayerController():nullptr;
+    const auto* Named=Sessions?Sessions->GetNamedSession(NAME_GameSession):nullptr;
+    const FWorldContext* Context=World && GEngine?GEngine->GetWorldContextFromWorld(World):nullptr;
+    return CanUseSteam() && Named && Named->bHosting && !IsBusy() && !bPrivacyUpdatePending
+        && Hub && Hub->Phase==EMCHubPhase::Gathering && Hub->IsHost(Player)
+        && (!Context || Context->TravelURL.IsEmpty()) && !World->IsInSeamlessTravel();
+}
+
+void UMCSteamSessionSubsystem::RefreshHubRoomState()
+{
+    auto* Hub=GetWorld()?GetWorld()->GetGameState<AMCHubGameState>():nullptr;
+    if (Hub && Hub->HasAuthority())
+        Hub->SetRoomPrivacyState(RoomPrivacy,bRoomPrivacyKnown,bPrivacyUpdatePending,RoomPrivacyNotice);
+}
+
+bool UMCSteamSessionSubsystem::RequestRoomPrivacy(EMCRoomPrivacy Privacy)
+{
+    if (!IsValidPrivacy(Privacy) || !CanChangeRoomPrivacy()) return false;
+    if (bRoomPrivacyKnown && RoomPrivacy==Privacy) return true;
+    auto* Named=Sessions->GetNamedSession(NAME_GameSession);
+    PreviousPrivacySettings=MakeUnique<FOnlineSessionSettings>(Named->SessionSettings);
+    bPreviousPrivacyKnown=bRoomPrivacyKnown;
+    PendingRoomPrivacy=Privacy;
+    bPrivacyRollback=false;
+    bPrivacyUpdatePending=true;
+    RoomPrivacyNotice=LOCTEXT("PrivacyUpdating","Меняем доступ к комнате…");
+    RefreshHubRoomState();
+    FOnlineSessionSettings Updated=Named->SessionSettings;
+    ApplyPrivacy(Updated,Privacy);
+    UpdateHandle=Sessions->AddOnUpdateSessionCompleteDelegate_Handle(
+        FOnUpdateSessionCompleteDelegate::CreateUObject(this,&ThisClass::PrivacyUpdated));
+    if (!Sessions->UpdateSession(NAME_GameSession,Updated,true) && bPrivacyUpdatePending)
+        PrivacyUpdated(NAME_GameSession,false);
+    return bPrivacyUpdatePending || (bRoomPrivacyKnown && RoomPrivacy==Privacy);
+}
+
+void UMCSteamSessionSubsystem::ClearPrivacyUpdate()
+{
+    if (Sessions) Sessions->ClearOnUpdateSessionCompleteDelegate_Handle(UpdateHandle);
+    UpdateHandle.Reset();
+    PreviousPrivacySettings.Reset();
+    bPrivacyUpdatePending=false;
+    bPrivacyRollback=false;
+}
+
+void UMCSteamSessionSubsystem::FinishPrivacyUpdate(bool Success, bool bPrivacyKnown, const FText& Notice)
+{
+    if (Success) RoomPrivacy=PendingRoomPrivacy;
+    bRoomPrivacyKnown=bPrivacyKnown;
+    RoomPrivacyNotice=Notice;
+    ClearPrivacyUpdate();
+    RefreshHubRoomState();
+    SetStatus(Notice.ToString(),!Success);
+    UE_LOG(LogTemp,Display,TEXT("MC_STEAM_PRIVACY_RESULT success=%d known=%d mode=%d"),
+        Success,bRoomPrivacyKnown,static_cast<int32>(RoomPrivacy));
+}
+
+void UMCSteamSessionSubsystem::PrivacyUpdated(FName Name, bool Success)
+{
+    if (Name!=NAME_GameSession || !bPrivacyUpdatePending) return;
+    if (Success)
+    {
+        if (bPrivacyRollback)
+            FinishPrivacyUpdate(false,bPreviousPrivacyKnown,
+                LOCTEXT("PrivacyRestored","Не удалось изменить доступ. Предыдущие настройки восстановлены."));
+        else FinishPrivacyUpdate(true,true,LOCTEXT("PrivacyUpdated","Доступ к комнате изменён."));
+        return;
+    }
+    // Steam can apply SetLobbyType, then fail while writing metadata. Do not
+    // pretend the previous mode is confirmed until the rollback also succeeds.
+    auto* Named=Sessions?Sessions->GetNamedSession(NAME_GameSession):nullptr;
+    if (!bPrivacyRollback && PreviousPrivacySettings && Named && Named->bHosting)
+    {
+        bPrivacyRollback=true;
+        RoomPrivacyNotice=LOCTEXT("PrivacyRestoring","Steam не подтвердил изменение. Восстанавливаем доступ…");
+        RefreshHubRoomState();
+        if (!Sessions->UpdateSession(NAME_GameSession,*PreviousPrivacySettings,true) && bPrivacyUpdatePending)
+            PrivacyUpdated(NAME_GameSession,false);
+        return;
+    }
+    FinishPrivacyUpdate(false,false,
+        LOCTEXT("PrivacyUnconfirmed","Steam не подтвердил доступ к комнате. Повтори выбор после восстановления соединения."));
 }
 
 void UMCSteamSessionSubsystem::NetworkFailed(UWorld* World, UNetDriver* Driver, ENetworkFailure::Type Type, const FString& Error)
@@ -325,3 +447,5 @@ void UMCSteamSessionSubsystem::TravelFailed(UWorld* World, ETravelFailure::Type 
     if (!World || World->GetGameInstance()!=GetGameInstance() || !CanUseSteam()) return;
     SetStatus(TEXT("Не удалось загрузить комнату. Проверь одинаковую версию игры на обоих ПК."),true);
 }
+
+#undef LOCTEXT_NAMESPACE

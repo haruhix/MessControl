@@ -24,6 +24,8 @@ enum class EMCDevAction : uint8
 
 /** Session-only host debug mode; never active in Shipping. */
 MESSCONTROL_API bool MCDevOneHitKillEnabled(const UWorld* World);
+/** Interactive development UI is opt-in via -MCDevUI or MC.DevUI 1; never active in Shipping. */
+MESSCONTROL_API bool MCDeveloperUIEnabled(const UWorld* World);
 /** Applied only by enemy damage receivers, after ordinary contact validation. */
 MESSCONTROL_API float MCDevEnemyHitDamage(float Damage,float Health,const AActor* Source);
 

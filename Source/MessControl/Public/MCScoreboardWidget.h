@@ -10,6 +10,7 @@ class UMCHUDIcon;
 class UBorder;
 class APlayerState;
 class UMCScoreboardWidget;
+class UHorizontalBox;
 
 /** Keeps its target by identity, even when the table is reordered by score. */
 UCLASS()
@@ -58,13 +59,20 @@ struct FMCScoreboardRow
     UPROPERTY(Transient) TObjectPtr<UTextBlock> MuteLabel;
 };
 
-/** Held Tab team panel; mute preferences affect only the local player's voice. */
+/** Toggled Hub party panel; held Tab scoreboard in arenas. Mute is local only. */
 UCLASS(Blueprintable)
 class MESSCONTROL_API UMCScoreboardWidget : public UMCGameplayUIWidget
 {
     GENERATED_BODY()
 public:
     UFUNCTION(BlueprintCallable,Category="Scoreboard") void Refresh();
+    void BeginHubPartyPresentation();
+    /** Disable for a completely artist-authored party card and animation. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hub Party|Style") bool bUseSoftPartyPresentation=true;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hub Party|Style",meta=(ClampMin="0",ClampMax="64")) float PartyCornerRadius=24.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hub Party|Style",meta=(ClampMin="0",ClampMax="1")) float PartyPanelOpacity=.92f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hub Party|Motion",meta=(ClampMin="0",ClampMax="1")) float PartyFadeSeconds=.18f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hub Party|Motion",meta=(ClampMin="0",ClampMax="1")) float PartyHoverSeconds=.12f;
     void FocusVoiceControls();
     void TogglePlayerVoice(APlayerState* Player);
     static bool CanControlPlayerVoice(const APlayerState* Player,bool bLocalPlayer);
@@ -84,6 +92,26 @@ private:
     float RefreshElapsed=.25f;
     void RebuildRows(int32 Count);
     void EnsureVoiceControls();
+    void EnsureHubPartyControls();
+    void RefreshHubPartyControls();
+    void RefreshSoftPartySurfaces(float Dt);
+    float PartyOpenElapsed=1.f;
+    TMap<TWeakObjectPtr<UButton>,float> PartyHoverAmounts;
+    bool IsHubPartyPresentation() const;
+    UFUNCTION() void InviteHubFriends();
+    UFUNCTION() void SetPublicRoom();
+    UFUNCTION() void SetFriendsRoom();
+    UFUNCTION() void SetInviteRoom();
+    UFUNCTION() void ClosePartyPanel();
+    UPROPERTY(Transient) TObjectPtr<UVerticalBox> HubPartyControls;
+    UPROPERTY(Transient) TObjectPtr<UHorizontalBox> HubPrivacyControls;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> HubPartySummary;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> HubPartyStatus;
+    UPROPERTY(Transient) TObjectPtr<UButton> HubInviteButton;
+    UPROPERTY(Transient) TObjectPtr<UButton> HubPublicButton;
+    UPROPERTY(Transient) TObjectPtr<UButton> HubFriendsButton;
+    UPROPERTY(Transient) TObjectPtr<UButton> HubInviteOnlyButton;
+    UPROPERTY(Transient) TObjectPtr<UButton> HubCloseButton;
     void MoveVoiceFocus(int32 Direction);
     void PresentEntries();
     void UpdatePresentationLayout(FVector2D Area=FVector2D::ZeroVector);

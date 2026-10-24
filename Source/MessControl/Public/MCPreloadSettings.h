@@ -4,6 +4,8 @@
 #include "Engine/DeveloperSettings.h"
 #include "MCPreloadSettings.generated.h"
 
+class UTexture2D;
+
 USTRUCT()
 struct FMCMapPreloadAssets
 {
@@ -21,6 +23,9 @@ class MESSCONTROL_API UMCPreloadSettings : public UDeveloperSettings
     GENERATED_BODY()
 public:
     virtual FName GetCategoryName() const override { return TEXT("Game"); }
+    /** Shared with blocking-travel Slate. Import as a resident UI texture; text stays in widgets. */
+    UPROPERTY(EditAnywhere, Config, Category="Loading screen")
+    TSoftObjectPtr<UTexture2D> LoadingScreenArt = TSoftObjectPtr<UTexture2D>(FSoftObjectPath(TEXT("/Game/Gameplay/UI/Loading/T_LoadingScreen_WashNSmash.T_LoadingScreen_WashNSmash")));
     UPROPERTY(EditAnywhere, Config, Category="Assets") TArray<FSoftObjectPath> CommonAssets;
     UPROPERTY(EditAnywhere, Config, Category="Assets") TArray<FMCMapPreloadAssets> Maps;
     UPROPERTY(EditAnywhere, Config, Category="Budgets", meta=(ClampMin="15", ClampMax="600", Units="s")) float TimeoutSeconds=120.f;

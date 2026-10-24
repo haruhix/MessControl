@@ -1,4 +1,5 @@
 #include "MCPrototypeWidget.h"
+#include "MCDevCommands.h"
 #include "MCToothCharacter.h"
 #include "MCGripComponent.h"
 #include "MCGameplayHUD.h"
@@ -90,11 +91,9 @@ void UMCPrototypeWidget::NativeOnInitialized()
     UBorder* FooterBorder; auto* Footer = Panel(FVector2D(0,-22),FVector2D(1080,75),FAnchors(0.5f,1),FVector2D(0.5f,1),FooterBorder);
     ControlsPanel=FooterBorder; SetPlayerOverlayVisible(bPlayerOverlayVisible);
     AddText(Footer,TEXT("WASD MOVE   SHIFT DASH / RUN   SPACE HOP   LMB INTERACT   RMB HOLD ON   F BONK   Q THROW   MOUSE LOOK"),15,Cream);
-#if !UE_BUILD_SHIPPING
-    AddText(Footer,TEXT("T  EMOTES      C / R-STICK  SELF CARE      F1  TOOTH LAB      F2  FRIENDS      F3  DEV EVENTS"),12,Mint);
-#else
-    AddText(Footer,TEXT("T  EMOTES      C / R-STICK  SELF CARE      F1  TOOTH LAB      F2  FRIENDS"),12,Mint);
-#endif
+    AddText(Footer,MCDeveloperUIEnabled(GetWorld())
+        ?TEXT("T  EMOTES      C / R-STICK  SELF CARE      F1  TOOTH LAB      F2  FRIENDS      F3  DEV EVENTS")
+        :TEXT("T  EMOTES      C / R-STICK  SELF CARE      F2  FRIENDS"),12,Mint);
     UBorder* TuningBorder; auto* Tuning = Panel(FVector2D(-28,174),FVector2D(360,710),FAnchors(1,0),FVector2D(1,0),TuningBorder); TuningPanel = TuningBorder;
     TuningScroll=WidgetTree->ConstructWidget<UScrollBox>(); TuningBorder->SetContent(TuningScroll); TuningScroll->AddChild(Tuning);
     AddText(Tuning,TEXT("TOOTH LAB"),23,Mint);
@@ -197,6 +196,10 @@ void UMCPrototypeWidget::SetPlayerOverlayVisible(bool Visible)
 void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
     Super::NativeTick(Geometry,DeltaSeconds);
+    if(TuningPanel && !MCDeveloperUIEnabled(GetWorld())) {
+        TuningPanel->SetVisibility(ESlateVisibility::Collapsed);
+        TuningPanel->SetIsEnabled(false);
+    }
     if (ConnectionStatus && ConnectionPanel->IsVisible())
     {
         if (auto* Steam=GetGameInstance()->GetSubsystem<UMCSteamSessionSubsystem>())
@@ -298,7 +301,12 @@ bool UMCPrototypeWidget::IsPanelOpen() const { return (TuningPanel && TuningPane
 bool UMCPrototypeWidget::IsTuningOpen() const { return TuningPanel && TuningPanel->IsVisible(); }
 void UMCPrototypeWidget::ClosePanels() { TuningPanel->SetVisibility(ESlateVisibility::Collapsed); ConnectionPanel->SetVisibility(ESlateVisibility::Collapsed); }
 void UMCPrototypeWidget::ScrollToPhysics() { if (TuningScroll) TuningScroll->ScrollToEnd(); }
-void UMCPrototypeWidget::ToggleTuning() { TuningPanel->SetVisibility(TuningPanel->IsVisible() ? ESlateVisibility::Collapsed : ESlateVisibility::Visible); ConnectionPanel->SetVisibility(ESlateVisibility::Collapsed); RefreshSliders(); }
+void UMCPrototypeWidget::ToggleTuning() {
+    if(!MCDeveloperUIEnabled(GetWorld()) || !TuningPanel) return;
+    TuningPanel->SetIsEnabled(true);
+    TuningPanel->SetVisibility(TuningPanel->IsVisible() ? ESlateVisibility::Collapsed : ESlateVisibility::Visible);
+    ConnectionPanel->SetVisibility(ESlateVisibility::Collapsed); RefreshSliders();
+}
 void UMCPrototypeWidget::ToggleConnection() { ConnectionPanel->SetVisibility(ConnectionPanel->IsVisible() ? ESlateVisibility::Collapsed : ESlateVisibility::Visible); TuningPanel->SetVisibility(ESlateVisibility::Collapsed); }
 FReply UMCPrototypeWidget::NativeOnKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
 {

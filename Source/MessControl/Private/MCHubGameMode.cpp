@@ -1,5 +1,6 @@
 #include "MCHubGameMode.h"
 #include "MCHubGameState.h"
+#include "MCSteamSessionSubsystem.h"
 #include "MCHubReadyZone.h"
 #include "MCPlayerController.h"
 #include "MCPlayerState.h"
@@ -9,6 +10,7 @@
 #include "MCFishingRodComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/World.h"
+#include "Engine/GameInstance.h"
 #include "EngineUtils.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -74,6 +76,8 @@ void AMCHubGameMode::BeginPlay()
     }
     RemoveOrphanedStartupPawns();
     RefreshReadiness();
+    if (auto* Instance = GetGameInstance())
+        if (auto* Sessions = Instance->GetSubsystem<UMCSteamSessionSubsystem>()) Sessions->RefreshHubRoomState();
 }
 
 bool AMCHubGameMode::IsParticipant(const APlayerController* Player) const
@@ -425,6 +429,15 @@ bool AMCHubGameMode::RequestOpenSelection(APlayerController* Requester)
     State->SetNotice(FText::GetEmpty());
     SetHubPhase(EMCHubPhase::Selecting);
     return true;
+}
+
+bool AMCHubGameMode::RequestSetRoomPrivacy(APlayerController* Requester, EMCRoomPrivacy Privacy)
+{
+    const auto* State=GetGameState<AMCHubGameState>();
+    if (!IsHostRequest(Requester) || !State || State->Phase!=EMCHubPhase::Gathering) return false;
+    auto* Instance=GetGameInstance();
+    auto* Sessions=Instance?Instance->GetSubsystem<UMCSteamSessionSubsystem>():nullptr;
+    return Sessions && Sessions->RequestRoomPrivacy(Privacy);
 }
 
 bool AMCHubGameMode::RequestSelectDay(APlayerController* Requester, int32 Day)

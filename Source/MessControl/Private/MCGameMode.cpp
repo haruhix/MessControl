@@ -22,6 +22,7 @@
 #include "MCBossCharacter.h"
 #include "MCInventoryComponent.h"
 #include "MCToothStatusComponent.h"
+#include "MCPerkComponent.h"
 #include "MCFoodActor.h"
 #include "MCCoreScenario.h"
 #include "MCDayOneScenario.h"
@@ -731,6 +732,14 @@ void AMCGameMode::ProcessRespawns()
         NewHero->Inventory->SprayReadyAt=Old->Inventory->SprayReadyAt;
         for (auto& O:Objectives) if (!O.bCompleted && (O.Target==Old || O.Target==Reserve)) O.Target=NewHero;
         AController* Controller=Old->GetController(); Controller->Possess(NewHero);
+        if (!Old->Status->Settings.bInheritReserveStatus)
+        {
+            // Possession makes the existing PlayerState perks resolve this new
+            // body. Apply its real maximum before filling a fresh replacement.
+            // Ordinary max-health perk grants must still never heal a player.
+            if (auto* Perks=UMCPerkComponent::ForActor(NewHero)) Perks->RefreshRogueTuning();
+            NewHero->Status->Heal(NewHero->Status->State.MaxHealth);
+        }
         SettleFreshPlayerAboveTongue(NewHero);
         Old->RespawnAt=0; Old->SetLifeSpan(3); NewHero->ForceNetUpdate();
         PendingRespawns.RemoveAt(I); GS->ForceNetUpdate();

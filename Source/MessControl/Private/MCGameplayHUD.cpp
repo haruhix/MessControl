@@ -16,6 +16,7 @@
 #include "MCPlayerState.h"
 #include "MCPerkComponent.h"
 #include "MCPlayerController.h"
+#include "MCDevCommands.h"
 #include "MCGameState.h"
 #include "MCSingleDayDirector.h"
 #include "MCToothCharacter.h"
@@ -351,6 +352,11 @@ void UMCGameplayHUD::BindDirectorPresentation()
         if(auto* Size=Cast<USizeBox>(DirectorCandidatesPanel->GetContent())) DirectorCandidatesText=Cast<UTextBlock>(Size->GetContent());
     if(!DirectorLogButtonText && DirectorLogButton) DirectorLogButtonText=Cast<UTextBlock>(DirectorLogButton->GetContent());
     if(DirectorLogButton) DirectorLogButton->OnClicked.AddUniqueDynamic(this,&ThisClass::OpenDirectorLog);
+    if(!IsDesignTime() && !MCDeveloperUIEnabled(GetWorld())) {
+        if(DirectorPanel) DirectorPanel->SetVisibility(ESlateVisibility::Collapsed);
+        if(DirectorCandidatesPanel) DirectorCandidatesPanel->SetVisibility(ESlateVisibility::Collapsed);
+        if(DirectorLogButton) {DirectorLogButton->SetVisibility(ESlateVisibility::Collapsed);DirectorLogButton->SetIsEnabled(false);}
+    }
 }
 void UMCGameplayHUD::BuildPresentationTree()
 {
@@ -926,6 +932,8 @@ void UMCGameplayHUD::EnsureDirectorMonitor()
     if(!DirectorCandidatesPanel && !WidgetTree->FindWidget(TEXT("DirectorCandidates"))) AddPanel(TEXT("DirectorCandidates"),DirectorCandidatesPanel,DirectorCandidatesText,306,-362,144);
     if (!DirectorLogButton && !WidgetTree->FindWidget(TEXT("DirectorLogButton"))) {
         DirectorLogButton=WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(),TEXT("DirectorLogButton"));
+        DirectorLogButton->SetVisibility(ESlateVisibility::Collapsed);
+        DirectorLogButton->SetIsEnabled(false);
         DirectorLogButton->SetBackgroundColor(MCGameplayHUDPrivate::Ink);
         DirectorLogButton->SetToolTipText(FText::FromString(TEXT("Открыть общий журнал забега и решения директора. F3 доступен также с клавиатуры.")));
         DirectorLogButtonText=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("DirectorLogButtonText"));
@@ -942,21 +950,27 @@ void UMCGameplayHUD::EnsureDirectorMonitor()
 }
 void UMCGameplayHUD::OpenDirectorLog()
 {
+    if(!MCDeveloperUIEnabled(GetWorld())) return;
     if (auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->ToggleDevPanel();
 }
 void UMCGameplayHUD::RefreshDirectorMonitor(const FMCGameDirectorState& State)
 {
     EnsureDirectorMonitor();
     const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
+    if(!MCDeveloperUIEnabled(GetWorld())) {
+        if(DirectorPanel) DirectorPanel->SetVisibility(ESlateVisibility::Collapsed);
+        if(DirectorCandidatesPanel) DirectorCandidatesPanel->SetVisibility(ESlateVisibility::Collapsed);
+        if(DirectorLogButton) {DirectorLogButton->SetVisibility(ESlateVisibility::Collapsed);DirectorLogButton->SetIsEnabled(false);}
+        if(auto* Events=Find(TEXT("EventsPanel")))
+            Events->SetVisibility(GS && GS->bTutorialActive?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);
+        return;
+    }
     const bool Debug=(State.bEnabled || (GS && !GS->DirectorDecisionLog.IsEmpty())) && MCGameplayHUDPrivate::DirectorDebug.GetValueOnGameThread()>0;
     if (DirectorLogButton) {
-#if UE_BUILD_SHIPPING
+        // Keep the developer entry off the playtest HUD, including sessions
+        // explicitly launched with -MCDevUI. F3 still opens the panel.
+        DirectorLogButton->SetIsEnabled(false);
         DirectorLogButton->SetVisibility(ESlateVisibility::Collapsed);
-#else
-        DirectorLogButton->SetVisibility(ESlateVisibility::Visible);
-#endif
-        const bool FragmentComplete=GS && GS->SingleDayDirector && GS->SingleDayDirector->bAuthoredFragmentComplete;
-        if(DirectorLogButtonText) DirectorLogButtonText->SetText(FText::FromString(FragmentComplete?TEXT("ФРАГМЕНТ ГОТОВ · F3 / ЖУРНАЛ"):TEXT("F3 · ЖУРНАЛ ДИРЕКТОРА")));
     }
     if(!DirectorPanel || !DirectorText) return;
     DirectorPanel->SetVisibility(State.bEnabled || Debug?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
@@ -1462,7 +1476,7 @@ void UMCGameplayHUD::RefreshState()
         SetCopy(TEXT("ActionHint"),InputController && InputController->IsUsingGamepad()?FText::AsCultureInvariant(MCGamepadHints::Adapt(Hint.ToString())):Hint); Show(TEXT("ContactProgress"),Contact>0); Bar(TEXT("ContactProgress"),Contact);
     }
     if(auto* Results=Find(TEXT("ResultsPanel")))
-        Results->SetRenderTranslation(FVector2D(Directed && HUD::DirectorDebug.GetValueOnGameThread()>0?-186.f:0.f,0));
+        Results->SetRenderTranslation(FVector2D(MCDeveloperUIEnabled(GetWorld()) && Directed && HUD::DirectorDebug.GetValueOnGameThread()>0?-186.f:0.f,0));
     Show(TEXT("ResultsPanel"),Finished); Text(TEXT("ResultTitle"),Title);
     SetCopy(TEXT("ResultDetail"),UMCUIDataLibrary::FormatTextForCulture(Copy(TEXT("UI.HUD.RunResultDetail"),LOCTEXT("RunResultDetail","Незавершённых событий: {Failed} · R — новый забег")),FFormatNamedArguments{{TEXT("Failed"),FText::AsNumber(GS->FailedEvents)}}));
     // Keep the actual equipped tools and controls during the lesson; its own

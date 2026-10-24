@@ -7,6 +7,8 @@
 #include "MCVoiceChatSubsystem.h"
 #include "MCGameUserSettings.h"
 #include "MCPlayerController.h"
+#include "MCHubGameState.h"
+#include "MCSteamSessionSubsystem.h"
 #include "Blueprint/WidgetTree.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Components/Border.h"
@@ -55,7 +57,7 @@ void UMCScoreboardWidget::NativeOnInitialized()
 void UMCScoreboardWidget::BuildPresentationTree()
 {
     if(!WidgetTree || Players) return;
-    if(WidgetTree->RootWidget) {Players=Cast<UVerticalBox>(WidgetTree->FindWidget(TEXT("ScorePlayers")));RebuildRows(4);EnsureVoiceControls();return;}
+    if(WidgetTree->RootWidget) {Players=Cast<UVerticalBox>(WidgetTree->FindWidget(TEXT("ScorePlayers")));RebuildRows(4);EnsureVoiceControls();EnsureHubPartyControls();return;}
     auto* Root=WidgetTree->ConstructWidget<UCanvasPanel>(); WidgetTree->RootWidget=Root;
     auto* Background=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("ScoreFrame"));
     Background->SetPadding(FMargin(18));
@@ -86,7 +88,7 @@ void UMCScoreboardWidget::BuildPresentationTree()
     Players=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("ScorePlayers"));Scroll->AddChild(Players);
     auto* Footer=Label(TEXT("ScoreFooterText"),Localized(TEXT("UI.Scoreboard.Footer"),LOCTEXT("Footer","Корона — хост комнаты · Отпусти TAB, чтобы закрыть")),16,EMCUIColorToken::Ink);
     auto* FooterFrame=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("ScoreFooterFrame"));FooterFrame->SetPadding(FMargin(16,10));FooterFrame->SetContent(Footer);BindStyle(TEXT("ScoreFooterFrame"),EMCUIColorToken::Cream,EMCUIStyleTarget::Background);
-    Box->AddChildToVerticalBox(FooterFrame)->SetPadding(FMargin(0,8,0,0));RebuildRows(4);EnsureVoiceControls();ApplyTheme();
+    Box->AddChildToVerticalBox(FooterFrame)->SetPadding(FMargin(0,8,0,0));RebuildRows(4);EnsureVoiceControls();EnsureHubPartyControls();ApplyTheme();
 }
 void UMCScoreboardWidget::EnsureVoiceControls()
 {
@@ -159,6 +161,8 @@ void UMCScoreboardWidget::TogglePlayerVoice(APlayerState* Player)
 }
 void UMCScoreboardWidget::FocusVoiceControls()
 {
+    if(IsHubPartyPresentation() && HubInviteButton && HubInviteButton->GetIsEnabled())
+    {HubInviteButton->SetUserFocus(GetOwningPlayer());return;}
     for(const auto& Row:Rows) if(Row.MuteButton && Row.Background && Row.Background->IsVisible() && Row.MuteButton->GetIsEnabled())
     {Row.MuteButton->SetUserFocus(GetOwningPlayer());return;}
     SetUserFocus(GetOwningPlayer());
@@ -176,22 +180,235 @@ void UMCScoreboardWidget::MoveVoiceFocus(int32 Direction)
 FReply UMCScoreboardWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
 {
     const FKey Key=Event.GetKey();
-    if(Key==EKeys::Tab || Key==EKeys::Gamepad_Special_Left) return FReply::Handled();
+    if(Key==EKeys::Tab || Key==EKeys::Gamepad_Special_Left) {
+        if(IsHubPartyPresentation() && !Event.IsRepeat()) ClosePartyPanel();
+        return FReply::Handled();
+    }
+    // Hub uses ordinary UMG directional focus across invitations, privacy and
+    // mute controls. Arena keeps its existing participant-only navigation.
+    if(IsHubPartyPresentation()) {
+        if(Key==EKeys::Escape || Key==EKeys::Gamepad_FaceButton_Right) {ClosePartyPanel();return FReply::Handled();}
+        return Super::NativeOnPreviewKeyDown(Geometry,Event);
+    }
     if(Key==EKeys::Down || Key==EKeys::Up || Key==EKeys::Gamepad_DPad_Down || Key==EKeys::Gamepad_DPad_Up)
     {MoveVoiceFocus(Key==EKeys::Up || Key==EKeys::Gamepad_DPad_Up?-1:1);return FReply::Handled();}
     if(Key==EKeys::Escape || Key==EKeys::Gamepad_FaceButton_Right)
-    {if(auto* Controller=GetOwningPlayer<AMCPlayerController>()) Controller->HideScoreboard();return FReply::Handled();}
+    {if(!IsHubPartyPresentation()) ClosePartyPanel();return FReply::Handled();}
     return Super::NativeOnPreviewKeyDown(Geometry,Event);
 }
 FReply UMCScoreboardWidget::NativeOnKeyUp(const FGeometry& Geometry,const FKeyEvent& Event)
 {
     if(Event.GetKey()==EKeys::Tab || Event.GetKey()==EKeys::Gamepad_Special_Left)
-    {if(auto* Controller=GetOwningPlayer<AMCPlayerController>()) Controller->HideScoreboard();return FReply::Handled();}
+    {if(!IsHubPartyPresentation()) ClosePartyPanel();return FReply::Handled();}
     return Super::NativeOnKeyUp(Geometry,Event);
+}
+bool UMCScoreboardWidget::IsHubPartyPresentation() const
+{
+    if(IsDesignTime()) return PreviewState.ToString().StartsWith(TEXT("Hub"));
+    const auto* PC=GetOwningPlayer<AMCPlayerController>();return PC && PC->IsHubWorld();
+}
+void UMCScoreboardWidget::EnsureHubPartyControls()
+{
+    if(!WidgetTree) return;
+    HubPartyControls=Cast<UVerticalBox>(WidgetTree->FindWidget(TEXT("HubPartyControls")));
+    if(!HubPartyControls) {
+        // Add one named branch to the existing artist column. No existing
+        // labels, rows, brushes or slots are replaced by this migration.
+        auto* Heading=WidgetTree->FindWidget(TEXT("ScoreHeading"));
+        auto* Column=Heading?Cast<UVerticalBox>(Heading->GetParent()):nullptr;
+        if(!Column) for(UWidget* Parent=WidgetTree->FindWidget(TEXT("ScoreTitle"));Parent;Parent=Parent->GetParent())
+            if((Column=Cast<UVerticalBox>(Parent))) break;
+        if(!Column) return;
+        HubPartyControls=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("HubPartyControls"));
+        Column->AddChildToVerticalBox(HubPartyControls)->SetPadding(FMargin(0,4,0,10));
+        Column->ShiftChild(Heading?Column->GetChildIndex(Heading)+1:0,HubPartyControls);
+        auto Label=[&](FName Name,int32 Size,EMCUIColorToken Color)->UTextBlock* {
+            auto* Text=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);
+            Text->SetAutoWrapText(true);HubPartyControls->AddChildToVerticalBox(Text)->SetPadding(FMargin(4,3));
+            BindStyle(Name,Color,EMCUIStyleTarget::Text,Size,true);return Text;
+        };
+        Label(TEXT("HubPartySummary"),20,EMCUIColorToken::OnMarine);
+        auto Button=[&](FName Name,FName LabelName)->UButton* {
+            auto* Result=WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(),Name);
+            auto* Text=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),LabelName);
+            Text->SetAutoWrapText(true);Text->SetJustification(ETextJustify::Center);Result->SetContent(Text);
+            BindStyle(Name,EMCUIColorToken::Button,EMCUIStyleTarget::Button);
+            BindStyle(LabelName,EMCUIColorToken::ButtonText,EMCUIStyleTarget::Text,18,true);return Result;
+        };
+        HubPartyControls->AddChildToVerticalBox(Button(TEXT("HubPartyInvite"),TEXT("HubPartyInviteLabel")))->SetPadding(FMargin(0,6));
+        Label(TEXT("HubPartyPrivacyTitle"),17,EMCUIColorToken::OnMarine);
+        auto* Privacy=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("HubPartyPrivacy"));
+        HubPartyControls->AddChildToVerticalBox(Privacy)->SetPadding(FMargin(0,4));
+        for(const auto& Name:TArray<FName>{TEXT("HubPartyPublic"),TEXT("HubPartyFriends"),TEXT("HubPartyInviteOnly")}) {
+            auto* Entry=Privacy->AddChildToHorizontalBox(Button(Name,FName(Name.ToString()+TEXT("Label"))));
+            Entry->SetSize(FSlateChildSize(ESlateSizeRule::Fill));Entry->SetPadding(FMargin(3,0));
+        }
+        Label(TEXT("HubPartyStatus"),16,EMCUIColorToken::OnMarine);
+        HubPartyControls->AddChildToVerticalBox(Button(TEXT("HubPartyClose"),TEXT("HubPartyCloseLabel")))->SetPadding(FMargin(0,6,0,0));
+    }
+    HubPartySummary=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubPartySummary")));
+    HubPartyStatus=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubPartyStatus")));
+    HubPrivacyControls=Cast<UHorizontalBox>(WidgetTree->FindWidget(TEXT("HubPartyPrivacy")));
+    HubInviteButton=Cast<UButton>(WidgetTree->FindWidget(TEXT("HubPartyInvite")));
+    HubPublicButton=Cast<UButton>(WidgetTree->FindWidget(TEXT("HubPartyPublic")));
+    HubFriendsButton=Cast<UButton>(WidgetTree->FindWidget(TEXT("HubPartyFriends")));
+    HubInviteOnlyButton=Cast<UButton>(WidgetTree->FindWidget(TEXT("HubPartyInviteOnly")));
+    HubCloseButton=Cast<UButton>(WidgetTree->FindWidget(TEXT("HubPartyClose")));
+    if(HubInviteButton) HubInviteButton->OnClicked.AddUniqueDynamic(this,&ThisClass::InviteHubFriends);
+    if(HubPublicButton) HubPublicButton->OnClicked.AddUniqueDynamic(this,&ThisClass::SetPublicRoom);
+    if(HubFriendsButton) HubFriendsButton->OnClicked.AddUniqueDynamic(this,&ThisClass::SetFriendsRoom);
+    if(HubInviteOnlyButton) HubInviteOnlyButton->OnClicked.AddUniqueDynamic(this,&ThisClass::SetInviteRoom);
+    if(HubCloseButton) HubCloseButton->OnClicked.AddUniqueDynamic(this,&ThisClass::ClosePartyPanel);
+}
+void UMCScoreboardWidget::RefreshHubPartyControls()
+{
+    if(!HubPartyControls) return;
+    const bool Hub=IsHubPartyPresentation();
+    HubPartyControls->SetVisibility(Hub?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
+    // Points have no meaning in a social Hub. Retain the existing columns for
+    // arena scoreboards and avoid introducing any experience/level system.
+    auto PointsColumn=[](UWidget* Widget,bool Show) {
+        if(!Widget) return;
+        UWidget* Host=Cast<USizeBox>(Widget->GetParent())?Widget->GetParent():Widget;
+        Host->SetVisibility(Show?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
+    };
+    PointsColumn(WidgetTree->FindWidget(TEXT("ScorePointsHeader")),!Hub);
+    for(const auto& Row:Rows) PointsColumn(Row.Points,!Hub);
+    if(!Hub) return;
+    const auto* PC=GetOwningPlayer<AMCPlayerController>();
+    const auto* State=GetWorld()?GetWorld()->GetGameState<AMCHubGameState>():nullptr;
+    auto* Sessions=GetGameInstance()?GetGameInstance()->GetSubsystem<UMCSteamSessionSubsystem>():nullptr;
+    const bool Preview=IsDesignTime();
+    const bool Host=Preview?PreviewState!=TEXT("HubGuest"):State && State->IsHost(PC);
+    const bool Known=Preview?PreviewState!=TEXT("HubLocal"):State && State->bRoomPrivacyKnown;
+    const bool Online=Preview?Known:Sessions && Sessions->CanUseSteam() && Sessions->HasRoom();
+    const bool Pending=Preview?PreviewScenario==EMCGameplayUIPreviewScenario::Pending:State && State->bRoomPrivacyUpdatePending;
+    const EMCRoomPrivacy Privacy=Preview?EMCRoomPrivacy::FriendsOnly:State?State->RoomPrivacy:EMCRoomPrivacy::FriendsOnly;
+    FText HostName;
+    for(const auto& Entry:PlayerEntries) if(Entry.bHost) {HostName=FText::AsCultureInvariant(Entry.Nickname);break;}
+    if(HostName.IsEmpty()) HostName=Localized(TEXT("hub.party.host_pending"),LOCTEXT("PartyHostPending","Подключение…"));
+    const FText Summary=FText::Format(Localized(TEXT("hub.party.summary"),LOCTEXT("PartySummary","Хост: {Host}  ·  Игроки: {Count} / 4")),
+        FFormatNamedArguments{{TEXT("Host"),HostName},{TEXT("Count"),PlayerEntries.Num()}});
+    if(HubPartySummary) HubPartySummary->SetText(Summary);
+    auto Copy=[&](FName Name,FName Key,const FText& Fallback) {
+        if(auto* Text=Cast<UTextBlock>(WidgetTree->FindWidget(Name))) Text->SetText(Localized(Key,Fallback));
+    };
+    Copy(TEXT("HubPartyInviteLabel"),TEXT("hub.party.invite"),LOCTEXT("PartyInvite","Пригласить друзей"));
+    Copy(TEXT("HubPartyPublicLabel"),TEXT("hub.privacy.public"),LOCTEXT("RoomPublic","Открытая"));
+    Copy(TEXT("HubPartyFriendsLabel"),TEXT("hub.privacy.friends"),LOCTEXT("RoomFriends","Только друзья"));
+    Copy(TEXT("HubPartyInviteOnlyLabel"),TEXT("hub.privacy.invite"),LOCTEXT("RoomInvite","По приглашению"));
+    Copy(TEXT("HubPartyCloseLabel"),TEXT("hub.party.close"),LOCTEXT("PartyClose","Вернуться в хаб"));
+    Copy(TEXT("HubPartyPrivacyTitle"),Online?TEXT("hub.party.privacy_title"):TEXT("hub.party.local_title"),
+        Online?LOCTEXT("PartyPrivacyTitle","Доступ в комнату"):LOCTEXT("PartyLocalTitle","Локальный хаб"));
+    if(Known) if(auto* Title=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("HubPartyPrivacyTitle")))) {
+        const FText Mode=Privacy==EMCRoomPrivacy::Public?Localized(TEXT("hub.privacy.public"),LOCTEXT("RoomPublic","Открытая")):
+            Privacy==EMCRoomPrivacy::FriendsOnly?Localized(TEXT("hub.privacy.friends"),LOCTEXT("RoomFriends","Только друзья")):
+            Localized(TEXT("hub.privacy.invite"),LOCTEXT("RoomInvite","По приглашению"));
+        Title->SetText(FText::Format(Localized(TEXT("hub.party.privacy_value"),LOCTEXT("PartyPrivacyValue","Доступ: {Mode}")),FFormatNamedArguments{{TEXT("Mode"),Mode}}));
+    }
+    if(HubPrivacyControls) HubPrivacyControls->SetVisibility(Host && Online?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
+    const bool CanChange=Host && Online && !Pending && (Preview || (Sessions && Sessions->CanChangeRoomPrivacy()));
+    for(const auto& Entry:TArray<TPair<UButton*,EMCRoomPrivacy>>{{HubPublicButton,EMCRoomPrivacy::Public},{HubFriendsButton,EMCRoomPrivacy::FriendsOnly},{HubInviteOnlyButton,EMCRoomPrivacy::InviteOnly}})
+        if(Entry.Key) {
+            Entry.Key->SetIsEnabled(CanChange);
+            BindStyle(Entry.Key->GetFName(),Known && Entry.Value==Privacy?EMCUIColorToken::Mint:EMCUIColorToken::Button,EMCUIStyleTarget::Button);
+        }
+    if(HubInviteButton) HubInviteButton->SetIsEnabled(PlayerEntries.Num()<4 && !Pending && (Preview?Known:Sessions && Sessions->CanInviteFriends()));
+    FText Notice;
+    if(Pending) Notice=Localized(TEXT("hub.party.updating"),LOCTEXT("PartyUpdating","Меняем доступ…"));
+    else if(Online && !Known) Notice=Localized(TEXT("hub.party.privacy_unknown"),LOCTEXT("PartyPrivacyUnknown","Не удалось подтвердить доступ в комнату. Хост может повторно выбрать режим."));
+    else if(!Online) Notice=Localized(TEXT("hub.party.local_notice"),LOCTEXT("PartyLocalNotice","Приглашения доступны в Steam. К локальному хабу можно подключиться по IP."));
+    else if(PlayerEntries.Num()>=4) Notice=Localized(TEXT("hub.party.full"),LOCTEXT("PartyFull","Команда в сборе · свободных мест нет"));
+    else Notice=Localized(Privacy==EMCRoomPrivacy::Public?TEXT("hub.party.public_notice"):Privacy==EMCRoomPrivacy::FriendsOnly?TEXT("hub.party.friends_notice"):TEXT("hub.party.invite_notice"),
+        Privacy==EMCRoomPrivacy::Public?LOCTEXT("PartyPublicNotice","Открытая комната · игроки могут найти ваш хаб"):
+        Privacy==EMCRoomPrivacy::FriendsOnly?LOCTEXT("PartyFriendsNotice","Друзья могут подключаться сами или по приглашению"):
+        LOCTEXT("PartyInviteNotice","Вход в хаб только по приглашению"));
+    if(State && !State->RoomPrivacyNotice.IsEmpty()) {
+        Notice=State->RoomPrivacyNotice;
+        // Authority replicates semantic FText identity; each client resolves its
+        // own language rather than receiving the host's translated display copy.
+        if(const TOptional<FString> Key=FTextInspector::GetKey(Notice);Key.IsSet()) {
+            const TPair<const TCHAR*,const TCHAR*> Keys[]={
+                {TEXT("PrivacyUpdating"),TEXT("hub.privacy.status.updating")},
+                {TEXT("PrivacyUpdated"),TEXT("hub.privacy.status.updated")},
+                {TEXT("PrivacyRestoring"),TEXT("hub.privacy.status.restoring")},
+                {TEXT("PrivacyRestored"),TEXT("hub.privacy.status.restored")},
+                {TEXT("PrivacyUnconfirmed"),TEXT("hub.privacy.status.unconfirmed")}};
+            for(const auto& Entry:Keys) if(Key.GetValue()==Entry.Key) {Notice=Localized(FName(Entry.Value),Notice);break;}
+        }
+    }
+    if(HubPartyStatus) HubPartyStatus->SetText(Notice);
+}
+void UMCScoreboardWidget::InviteHubFriends()
+{
+    if(IsDesignTime()) return;
+    if(auto* Sessions=GetGameInstance()?GetGameInstance()->GetSubsystem<UMCSteamSessionSubsystem>():nullptr;Sessions && Sessions->CanInviteFriends()) Sessions->InviteFriends();
+    Refresh();
+}
+void UMCScoreboardWidget::SetPublicRoom() {if(!IsDesignTime()) if(auto* PC=GetOwningPlayer<AMCPlayerController>()) PC->RequestHubRoomPrivacy(EMCRoomPrivacy::Public);}
+void UMCScoreboardWidget::SetFriendsRoom() {if(!IsDesignTime()) if(auto* PC=GetOwningPlayer<AMCPlayerController>()) PC->RequestHubRoomPrivacy(EMCRoomPrivacy::FriendsOnly);}
+void UMCScoreboardWidget::SetInviteRoom() {if(!IsDesignTime()) if(auto* PC=GetOwningPlayer<AMCPlayerController>()) PC->RequestHubRoomPrivacy(EMCRoomPrivacy::InviteOnly);}
+void UMCScoreboardWidget::ClosePartyPanel() {if(auto* PC=GetOwningPlayer<AMCPlayerController>()) PC->HideScoreboard();}
+void UMCScoreboardWidget::BeginHubPartyPresentation()
+{
+    PartyOpenElapsed=0;
+    if(IsHubPartyPresentation() && bUseSoftPartyPresentation) {SetRenderOpacity(PartyFadeSeconds>0?0.f:1.f);SetRenderTranslation(FVector2D(0,PartyFadeSeconds>0?8.f:0.f));}
+    else {SetRenderOpacity(1);SetRenderTranslation(FVector2D::ZeroVector);}
+}
+void UMCScoreboardWidget::RefreshSoftPartySurfaces(float Dt)
+{
+    if(!bUseSoftPartyPresentation || !IsHubPartyPresentation() || !WidgetTree) return;
+    const auto& P=GetResolvedTheme()->Palette;
+    auto Panel=[&](FName Name,FLinearColor Color,float Radius) {
+        if(auto* Frame=Cast<UBorder>(WidgetTree->FindWidget(Name))) {Frame->SetBrush(FSlateRoundedBoxBrush(Color,Radius));Frame->SetBrushColor(FLinearColor::White);}
+    };
+    FLinearColor Background=P.Marine;Background.A=FMath::Clamp(PartyPanelOpacity,0.f,1.f);
+    Panel(TEXT("ScoreFrame"),Background,PartyCornerRadius);
+    Panel(TEXT("ScoreHeading"),P.Cream,PartyCornerRadius*.65f);
+    Panel(TEXT("ScoreTabBadge"),P.Mint,PartyCornerRadius*.65f);
+    if(auto* Badge=Cast<UBorder>(WidgetTree->FindWidget(TEXT("ScoreTabBadge")))) {
+        Badge->SetPadding(FMargin(12,6));
+        if(bUseNativeLayout) if(auto* BadgeSlot=Cast<UHorizontalBoxSlot>(Badge->Slot)) BadgeSlot->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));
+    }
+    if(auto* Key=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("ScoreTabKey")))) {
+        Key->SetAutoWrapText(false);Key->SetWrapTextAt(0.f);Key->SetColorAndOpacity(P.Ink);
+    }
+    Panel(TEXT("ScoreColumnsFrame"),P.SurfaceAlt,PartyCornerRadius*.5f);
+    Panel(TEXT("ScoreFooterFrame"),P.Cream,PartyCornerRadius*.5f);
+    for(int32 Index=0;Index<Rows.Num();++Index) if(Rows[Index].Background) {
+        const bool Host=PlayerEntries.IsValidIndex(Index) && PlayerEntries[Index].bHost;
+        Panel(Rows[Index].Background->GetFName(),Host?P.Mint:Index%2==0?P.Surface:P.SurfaceAlt,PartyCornerRadius*.65f);
+    }
+    TArray<UButton*> Buttons={HubInviteButton,HubPublicButton,HubFriendsButton,HubInviteOnlyButton,HubCloseButton};
+    for(const auto& Row:Rows) if(Row.MuteButton) Buttons.Add(Row.MuteButton);
+    const auto* State=GetWorld()?GetWorld()->GetGameState<AMCHubGameState>():nullptr;
+    const EMCRoomPrivacy Privacy=IsDesignTime()?EMCRoomPrivacy::FriendsOnly:State?State->RoomPrivacy:EMCRoomPrivacy::FriendsOnly;
+    const bool Known=IsDesignTime()?PreviewState!=TEXT("HubLocal"):State && State->bRoomPrivacyKnown;
+    for(UButton* Button:Buttons) if(Button) {
+        const bool Selected=Known && ((Button==HubPublicButton && Privacy==EMCRoomPrivacy::Public)
+            || (Button==HubFriendsButton && Privacy==EMCRoomPrivacy::FriendsOnly) || (Button==HubInviteOnlyButton && Privacy==EMCRoomPrivacy::InviteOnly));
+        const bool Highlight=Button==HubInviteButton || Selected;
+        float& Hover=PartyHoverAmounts.FindOrAdd(Button);
+        const float Target=Button->IsHovered() || Button->HasUserFocus(GetOwningPlayer())?1.f:0.f;
+        Hover=PartyHoverSeconds>0?FMath::FInterpConstantTo(Hover,Target,Dt,1.f/PartyHoverSeconds):Target;
+        const FLinearColor Base=!Button->GetIsEnabled() && !Selected?P.ButtonDisabled:Highlight?P.Mint:P.Button;
+        const FLinearColor Tint=Button->IsPressed()?P.ButtonPressed:FMath::Lerp(Base,P.ButtonHover,Hover);
+        const FSlateRoundedBoxBrush Shape(FLinearColor::White,PartyCornerRadius);
+        auto Style=Button->GetStyle();Style.SetNormal(Shape);Style.SetHovered(Shape);Style.SetPressed(Shape);Style.SetDisabled(Shape);
+        Style.SetNormalPadding(FMargin(14,10));Style.SetPressedPadding(FMargin(14,10));
+        Button->SetStyle(Style);Button->SetBackgroundColor(Tint);
+        if(auto* Label=Cast<UTextBlock>(Button->GetContent())) Label->SetColorAndOpacity(Highlight?P.Ink:P.ButtonText);
+    }
 }
 void UMCScoreboardWidget::NativeTick(const FGeometry& Geometry,float Dt)
 {
     Super::NativeTick(Geometry,Dt);UpdatePresentationLayout(Geometry.GetLocalSize());if(IsDesignTime() || !IsVisible()) return;RefreshElapsed+=Dt;
+    if(IsHubPartyPresentation() && bUseSoftPartyPresentation) {
+        PartyOpenElapsed+=Dt;
+        const float Alpha=PartyFadeSeconds>0?FMath::Clamp(PartyOpenElapsed/PartyFadeSeconds,0.f,1.f):1.f;
+        const float Ease=1.f-FMath::Pow(1.f-Alpha,3.f);SetRenderOpacity(Ease);
+        SetRenderTranslation(FVector2D(0,8.f*(1.f-Ease)));RefreshSoftPartySurfaces(Dt);
+    }
     if(RefreshElapsed>=.25f) {RefreshElapsed=0;Refresh();}
 }
 void UMCScoreboardWidget::RebuildRows(int32 Count)
@@ -302,6 +519,12 @@ void UMCScoreboardWidget::UpdatePresentationLayout(FVector2D Area)
     auto* Frame=Cast<UBorder>(WidgetTree->FindWidget(TEXT("ScoreFrame")));
     auto* Column=Frame?Cast<UVerticalBox>(Frame->GetContent()):nullptr;
     auto* Scroll=Cast<UScrollBox>(WidgetTree->FindWidget(TEXT("ScoreScroll")));
+    // The saved v10 tree predates these stable native wrapper names. Its
+    // actual ancestors are the contract, while artist opt-out still wins.
+    if(!Size) for(UWidget* Parent=Frame?Frame->GetParent():nullptr;Parent;Parent=Parent->GetParent())
+        if((Size=Cast<USizeBox>(Parent))) break;
+    if(!Scroll) for(UWidget* Parent=Players->GetParent();Parent;Parent=Parent->GetParent())
+        if((Scroll=Cast<UScrollBox>(Parent))) break;
     if(!Size || !Column || !Scroll) return;
     if(Area.IsNearlyZero()) Area=GetCachedGeometry().GetLocalSize();
     if(Area.X<=1 || Area.Y<=1) Area=FVector2D(1920,1080);
@@ -323,6 +546,8 @@ void UMCScoreboardWidget::UpdatePresentationLayout(FVector2D Area)
     ColumnWidth(WidgetTree->FindWidget(TEXT("ScorePointsHeader")),120);
     ColumnWidth(WidgetTree->FindWidget(TEXT("ScorePingHeader")),128);
     for(const auto& Row:Rows) {ColumnWidth(Row.Points,120);ColumnWidth(Row.Ping,128);}
+    for(FName Name:{FName(TEXT("HubPartySummary")),FName(TEXT("HubPartyStatus"))})
+        if(auto* Label=Cast<UTextBlock>(WidgetTree->FindWidget(Name))) Label->SetWrapTextAt(Width-84.f);
     Scroll->SetAllowOverscroll(false);
     Column->ForceLayoutPrepass();Players->ForceLayoutPrepass();
     float RowsHeight=0;
@@ -338,15 +563,18 @@ void UMCScoreboardWidget::UpdatePresentationLayout(FVector2D Area)
         Height+=(Child==Scroll?RowsHeight:Child->GetDesiredSize().Y)+(ChildSlot?ChildSlot->GetPadding().GetDesiredSize().Y:0.f);
     }
     const float MaximumHeight=FMath::Max(220.f,float(Area.Y)-48.f);
-    Size->SetHeightOverride(FMath::Clamp(FMath::CeilToFloat(Height),220.f,MaximumHeight));
+    bool CanScale=false;
+    for(UWidget* Parent=Size->GetParent();Parent;Parent=Parent->GetParent()) if(Cast<UScaleBox>(Parent)) {CanScale=true;break;}
+    const bool FitWholeParty=IsHubPartyPresentation() && CanScale;
+    Size->SetHeightOverride(FitWholeParty?FMath::Max(220.f,FMath::CeilToFloat(Height)):FMath::Clamp(FMath::CeilToFloat(Height),220.f,MaximumHeight));
     // TAB is a held overlay. Keeping the ordinary four rows fully visible is
     // preferable to a permanently allocated blank fifth row.
-    Scroll->SetScrollBarVisibility(Height>MaximumHeight?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+    Scroll->SetScrollBarVisibility(!FitWholeParty && Height>MaximumHeight?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
     bLayoutDirty=false;
 }
 void UMCScoreboardWidget::ApplyTheme()
 {
-    if(!WidgetTree) return;PresentEntries();
+    if(!WidgetTree) return;PresentEntries();RefreshHubPartyControls();
     BindStyle(TEXT("ScoreFrame"),EMCUIColorToken::Marine,EMCUIStyleTarget::Background);
     BindStyle(TEXT("ScoreColumnsFrame"),EMCUIColorToken::SurfaceAlt,EMCUIStyleTarget::Background);
     BindStyle(TEXT("ScoreHeading"),EMCUIColorToken::Cream,EMCUIStyleTarget::Background);
@@ -359,7 +587,13 @@ void UMCScoreboardWidget::ApplyTheme()
         if(Row.Ping) BindStyle(Row.Ping->GetFName(),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,22,true);
     }
     BindStyle(TEXT("ScoreFooterText"),WidgetTree->FindWidget(TEXT("ScoreFooterFrame"))?EMCUIColorToken::Ink:EMCUIColorToken::OnMarine,EMCUIStyleTarget::Text,16);
-    Super::ApplyTheme();
+    if(IsHubPartyPresentation() && bUseSoftPartyPresentation) {
+        // These surfaces are analytic rounded brushes. Do not allocate Phase1
+        // material instances only to replace them immediately below every .25s.
+        TArray<FMCUIStyleBinding> AllBindings=StyleBindings;
+        StyleBindings.RemoveAll([](const FMCUIStyleBinding& Binding) {return Binding.Target==EMCUIStyleTarget::Background || Binding.Target==EMCUIStyleTarget::Button;});
+        Super::ApplyTheme();StyleBindings=MoveTemp(AllBindings);
+    } else Super::ApplyTheme();
     // Entry-specific semantic colors must survive the shared text bindings.
     const auto& Palette=GetResolvedTheme()->Palette;
     for(int32 Index=0;Index<Rows.Num();++Index) if(PlayerEntries.IsValidIndex(Index) && Rows[Index].Name) Rows[Index].Name->SetColorAndOpacity(PlayerEntries[Index].bSpectating?Palette.Muted:Palette.Ink);
@@ -369,8 +603,14 @@ void UMCScoreboardWidget::ApplyTheme()
     Copy(TEXT("ScorePlayerHeader"),TEXT("UI.Scoreboard.Player"),LOCTEXT("Player","Игрок"));
     Copy(TEXT("ScorePointsHeader"),TEXT("UI.Scoreboard.Points"),LOCTEXT("Points","Очки"));
     Copy(TEXT("ScoreVoiceHeader"),TEXT("UI.Scoreboard.Voice"),LOCTEXT("Voice","Голос"));
-    Copy(TEXT("ScoreFooterText"),TEXT("UI.Scoreboard.VoiceFooter"),LOCTEXT("VoiceFooter","TAB — держать · ↑/↓ — участник · Enter/A — голос · Отпусти TAB, чтобы закрыть"));
-    bLayoutDirty=true;UpdatePresentationLayout();
+    if(IsHubPartyPresentation()) {
+        Copy(TEXT("ScoreFooterText"),TEXT("hub.party.footer"),LOCTEXT("PartyFooter","TAB / ESC — закрыть · Голос отключается только для вас"));
+        if(auto* Key=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("ScoreTabKey")))) Key->SetText(FText::AsCultureInvariant(TEXT("TAB / ESC")));
+    } else {
+        Copy(TEXT("ScoreFooterText"),TEXT("UI.Scoreboard.VoiceFooter"),LOCTEXT("VoiceFooter","TAB — держать · ↑/↓ — участник · Enter/A — голос · Отпусти TAB, чтобы закрыть"));
+        if(auto* Key=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("ScoreTabKey")))) Key->SetText(FText::AsCultureInvariant(TEXT("TAB")));
+    }
+    RefreshSoftPartySurfaces(0.f);bLayoutDirty=true;UpdatePresentationLayout();
 }
 void UMCScoreboardWidget::ApplyEditorPreview(float Time)
 {

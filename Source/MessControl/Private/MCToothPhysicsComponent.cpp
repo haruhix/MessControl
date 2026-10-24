@@ -282,6 +282,7 @@ void UMCToothPhysicsComponent::SaveTuning() const
 void UMCToothPhysicsComponent::ResetTuning() { SetTuning(Profile?Profile->Settings:FMCPhysicsSettings()); }
 void UMCToothPhysicsComponent::SetState(EMCBodyState NewState)
 {
+    BlockedRecoveryStartedAt=-1.f;
     Frame.State=NewState; ++Frame.Revision; Frame.StateStartedAt=ServerTime(); LocalState=NewState;
     Tooth->ForceNetUpdate();
 }
@@ -313,7 +314,7 @@ void UMCToothPhysicsComponent::EnterRagdoll()
 }
 void UMCToothPhysicsComponent::ApplyHit(FVector VelocityChange,FVector HitLocation)
 {
-    if (!Tooth || !Tooth->HasAuthority() || Tooth->IsMimicCaptured() || LocalState==EMCBodyState::Recovering || ServerTime()<RecoveryInvulnerableUntil) return;
+    if (!Tooth || !Tooth->HasAuthority() || Tooth->SwallowedBy || Tooth->IsMimicCaptured() || LocalState==EMCBodyState::Recovering || ServerTime()<RecoveryInvulnerableUntil) return;
     if (VelocityChange.ContainsNaN() || HitLocation.ContainsNaN()) return;
     VelocityChange=VelocityChange.GetClampedToMaxSize(1400.f);
     Tooth->NotifyCameraImpact(float(VelocityChange.Size()),VelocityChange);
@@ -356,7 +357,7 @@ void UMCToothPhysicsComponent::CaptureFrame()
 }
 bool UMCToothPhysicsComponent::TryRecover()
 {
-    if (!Tooth || !Tooth->Status->IsAlive() || !Tooth->HasAuthority() || LocalState!=EMCBodyState::Ragdoll) return false;
+    if (!Tooth || !Tooth->Status->IsAlive() || !Tooth->HasAuthority() || Tooth->SwallowedBy || Tooth->IsMimicCaptured() || LocalState!=EMCBodyState::Ragdoll) return false;
     FCollisionQueryParams Params(SCENE_QUERY_STAT(MCGetUp),false,Tooth);
     const FVector Center=PhysicalLocation();
     auto* Movement=Cast<UMCToothMovementComponent>(Tooth->GetCharacterMovement());
@@ -571,7 +572,21 @@ void UMCToothPhysicsComponent::TickComponent(float Dt,ELevelTick TickType,FActor
             const float TotalAge=ServerTime()-Frame.StateStartedAt;
             // Repeated contacts may move the body but must not restart the stun forever.
             const float RecoveryDelay=EffectiveRecoverySeconds(Settings.RagdollSeconds);
-            if ((Age>=RecoveryDelay && (Tooth->bInCoffee || Tooth->GetMesh()->GetPhysicsLinearVelocity(Tooth->RigBone(TEXT("body"))).Size()<160)) || TotalAge>=RecoveryDelay+3) TryRecover();
+            if (Tooth->Status->IsAlive() && ((Age>=RecoveryDelay && (Tooth->bInCoffee || Tooth->GetMesh()->GetPhysicsLinearVelocity(Tooth->RigBone(TEXT("body"))).Size()<160)) || TotalAge>=RecoveryDelay+3))
+            {
+                if (!TryRecover())
+                {
+                    const float Now=ServerTime();
+                    if (BlockedRecoveryStartedAt<0.f) BlockedRecoveryStartedAt=Now;
+                    // A body wedged on an unwalkable throat wall can have neither
+                    // a clear get-up pose nor enough room to fall below the arena.
+                    // Allow six seconds of normal retries, then use the ordinary
+                    // death/reserve path. Contacts cannot restart this deadline.
+                    constexpr float BlockedRecoverySeconds=6.f;
+                    if (Now-BlockedRecoveryStartedAt>=BlockedRecoverySeconds)
+                        Tooth->Status->Damage(Tooth->Status->State.MaxHealth,FVector::ForwardVector,nullptr,EMCRogueDamageKind::Ordinary,false);
+                }
+            }
             // Falling out of the mouth is a real death, using the same reserve as impact deaths.
             if (Center.Z<-250)
             {

@@ -12,6 +12,7 @@
 #include "Engine/GameInstance.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #if WITH_EDITOR
 #include "StaticMeshCompiler.h"
@@ -51,7 +52,7 @@ struct FFixture
         Hero->GetCharacterMovement()->DisableMovement();Hero->SetActorTickEnabled(false);
     }
     ~FFixture() {World->EndPlay(EEndPlayReason::Quit);GEngine->DestroyWorldContext(World);World->DestroyWorld(false);}
-    AMCFoodActor* Food(bool Fragment,bool Spoiled,EMCFoodKind Kind=EMCFoodKind::Food)
+    AMCFoodActor* Food(bool Fragment,bool Spoiled,EMCFoodKind Kind=EMCFoodKind::Food,bool RecordSafePoint=true)
     {
         FMCFoodRow Row;Row.Kind=Kind;Row.WholeMeshes={Cube};Row.FragmentMeshes={Cube};Row.Scale=Row.FragmentScale=FVector(.2);Row.SpoilSeconds=300;
         const FTransform Pose(Hero->GetActorLocation()+FVector(100,0,-60));
@@ -59,7 +60,7 @@ struct FFixture
         FRandomStream Random(17);Food->ConfigureItem(TEXT("FrontDiscardFixture"),Row,Random,Fragment);
         Food->Batch=NextBatch++;Food->bSpoiled=Spoiled;Food->FinishSpawning(Pose);
         Food->Body->SetEnableGravity(false);Food->Body->SetPhysicsLinearVelocity(FVector::ZeroVector);
-        Food->Tick(.76f); // Record its real accessible recovery point before Q.
+        if(RecordSafePoint) Food->Tick(.76f); // Record its real accessible recovery point before Q.
         return Food;
     }
     FVector FrontPoint() const
@@ -137,6 +138,52 @@ bool FMCFrontDiscardScope::RunTest(const FString&)
     Held->MarkManualThrow(F.Hero); // Model a stale throw marker while already held.
     Held->SetActorLocation(F.FrontPoint());Held->Tick(.76f);
     TestTrue(TEXT("A held stack is never discarded by an overboard position check"),!Held->IsDisposed() && Held->StackCarrier==F.Hero && F.Hero->FoodCollection->Contains(Held));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCLostCutFragmentRecovery,"MessControl.Food.Recovery.OutsideCutRetainsOutstandingFragments",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCLostCutFragmentRecovery::RunTest(const FString&)
+{
+    for(bool Authored:{false,true}) for(int32 Anchor=0;Anchor<3;++Anchor) {
+        MCFoodFrontDiscardTests::FFixture F(Authored);
+        FRandomStream Random(91);FHitResult SafeFloor;
+        if(!TestTrue(TEXT("The actual tongue has a reachable recovery footprint"),
+            F.Tongue->RandomGameplaySpawnPoint(Random,35,70,TConstArrayView<FVector>(),SafeFloor))) return false;
+        // No access tick before the cut unless this case deliberately records
+        // the parent's last safe point. The other anchor is an entry landing.
+        auto* Whole=F.Food(false,false,EMCFoodKind::Food,false);
+        if(Anchor==1) {
+            Whole->SetActorLocation(SafeFloor.ImpactPoint+FVector(0,0,30),false,nullptr,ETeleportType::TeleportPhysics);
+            Whole->Tick(.76f);
+        } else if(Anchor==2)
+            Whole->BeginMouthEntry(FVector(100,0,50),0,SafeFloor.ImpactPoint);
+        const FBox Bounds=F.Tongue->Surface->Bounds.GetBox();
+        const FVector Outside(Bounds.GetCenter().X,Bounds.Max.Y+700,Bounds.GetCenter().Z+80);
+        Whole->SetActorLocation(Outside,false,nullptr,ETeleportType::TeleportPhysics);
+        const int32 Batch=Whole->Batch,Expected=Whole->FoodData.FragmentCount();
+        if(!TestTrue(TEXT("Cutting outside the arena creates the normal delivery fragments"),
+            Whole->HitFood(100000,FVector::ForwardVector,F.Hero))) return false;
+        TArray<AMCFoodActor*> Pieces;
+        for(TActorIterator<AMCFoodActor> It(F.World);It;++It)
+            if(It->Batch==Batch && It->bFragment && !It->IsDisposed()) Pieces.Add(*It);
+        if(!TestEqual(TEXT("The cut preserves the configured fragment count"),Pieces.Num(),Expected)) return false;
+        for(AMCFoodActor* Piece:Pieces) {
+            Piece->Body->SetEnableGravity(false);Piece->Body->SetPhysicsLinearVelocity(FVector::ZeroVector);
+            FHitResult Floor;
+            const float Margin=FMath::Max(35.f,float(Piece->Body->GetScaledBoxExtent().Size2D())+15);
+            TestFalse(TEXT("Fragments initially remain at the cut, beyond the local recovery radius"),
+                F.Tongue->GameplaySpawnFootprint(Piece->GetActorLocation(),Margin,Floor));
+            for(int32 I=0;I<3;++I) Piece->Tick(.76f);
+            TestTrue(TEXT("A lost cut fragment returns to an accessible real tongue footprint"),
+                F.Tongue->GameplaySpawnFootprint(Piece->GetActorLocation(),Margin,Floor));
+            TestFalse(TEXT("Recovery never counts as disposal"),Piece->IsDisposed());
+            if(Anchor>0) TestTrue(TEXT("A parent's valid landing is retained instead of choosing an unrelated return"),
+                FVector::Dist2D(Piece->GetActorLocation(),SafeFloor.ImpactPoint)<1);
+        }
+        TestEqual(TEXT("Recovered fragments still require delivery to complete the meal"),
+            MCMeasureFoodPipeline(F.World,Batch).OutstandingActors,Expected);
+    }
     return true;
 }
 #endif

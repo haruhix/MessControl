@@ -1,4 +1,94 @@
-# Hub and shared destination selection
+# Хаб, экономика и профили игроков
+
+Обновлено **2026-10-23** по текущим исходникам. [Архитектура](Architecture.md) · [HUD и окна](InventoryAndHUD.md) · [Загрузка](ResourceLoading.md) · [Аудит](ProjectAudit.md).
+
+## Текущий маршрут
+
+`UMCSteamSessionSubsystem::EnterHub` открывает `/Game/Maps/Hub`: через создание Steam room при доступном Steam или локально с `listen?game=/Script/MessControl.MCHubGameMode`. Повторный запрос блокируется на время операции/travel. В хабе используются `AMCHubGameMode`, `AMCHubGameState`, обычные `AMCPlayerController`, `AMCPlayerState` и player character; arena Director и задачи смены не принадлежат HubGameMode.
+
+Состояния — Gathering, Selecting, Travelling. Для открытия выбора вся текущая команда должна загрузиться и находиться в Ready-зоне. Сервер определяет участников и готовность; спектаторы, неактивные PlayerState и боты исключаются из списка участников хаба. Хост переводит мир в Selecting. **Обычный выбор теперь происходит внутри Hub**: движение персонажей временно блокируется и восстанавливается при выходе. Автоматический переход всей комнаты в `L_HubSelection` из прежнего описания ниже больше не является текущим обычным маршрутом.
+
+`RequestSelectDay` принимает день только от хоста в Selecting и ограничивает частоту запросов. `RequestLaunch` повторно проверяет loaded barrier, доступность направления, синтаксис и существование карты. Итоговый серверный URL содержит `MCLobby=1?MCHubRun=1?MCHubDay=N`; для `L_Mouth` добавляется `BP_MouthGameMode`. При загрузке арены этот URL позволяет выбрать SingleDayProfile из направления, если оно включено, карта совпадает и профиль задан. На арене действует собственный ACK/readiness barrier.
+
+`L_HubSelection` остаётся сохранённым, включённым в cook и поддерживаемым отдельным путём. Возврат из такого мира и из обычного Selecting различается: в текущем Hub отмена возвращает Gathering без travel. Наличие этого пакета не означает, что каждый выбор дня должен его открывать.
+
+## Направления и готовность
+
+`/Game/Gameplay/Hub/DT_HubDestinations` использует `FMCHubDestinationRow`:
+
+| Поле | Контракт |
+|---|---|
+| Day | 1–7; сервер выбирает авторенную строку, а не произвольный client URL |
+| DisplayNameKey / DescriptionKey, fallback text | Отображение через общий localization catalog |
+| bEnabled | Разрешает запуск направления |
+| Map | Soft reference на `/Game` world; сервер проверяет существование |
+| SingleDayProfile | Профиль сценария при запуске из хаба |
+
+Нативный fallback создаёт семь позиций и включает только Day 1 → `/Game/Maps/L_Mouth`. Дополнительное read-only live-чтение `DT_HubDestinations` подтвердило Day01 enabled=true, L_Mouth и DA_SingleDay; Day02–07 отключены, Map/Profile=None. Пакет был clean. Это узкое чтение загруженной таблицы в Editor; свежий disk exporter и полные World Settings не проверены. Границы — в [ProjectAudit](ProjectAudit.md).
+
+`AMCHubReadyZone` — редактируемый actor/trigger с ReadyVolume и отдельным presentation, а не проверка жёстко заданной координаты. Перемещение/поворот/half extent задаются в редакторе. Ранние координаты авторинга в исторической части ниже относятся к прежнему осмотру карты. Не использовать размеры декоративной сцены как walkable bounds. Server loaded state, local presentation generation и факт нахождения в Ready-зоне — разные условия.
+
+## Рыбалка, магазин, гриль и баскетбол
+
+| Система | Ответственность |
+|---|---|
+| `AMCHubFishingZone`, `UMCFishingRodComponent` | Вход в допустимую зону показывает взаимодействие; рыбалка начинается по E. Выход завершает casting/retrieval и не должен отнимать уже принятый catch |
+| `AMCHubShopStation`, `UMCHubShopWidget` | Открытие персонального магазина, карточки, покупка и очередь бустеров следующего arena run |
+| `AMCHubGrillStation`, presentation component | Расход рыбы, серверная квитанция результата, стадии Closing/Rolling/Reveal/Opening, физические барабаны и согласованное отображение символов |
+| `AMCHubWardrobeStation`, wardrobe widget | Примерка, отдельная покупка и применение owned cosmetics, палитра сумки/пояса |
+| `AMCHubBasketball` | Отдельная мини-игра и confetti visuals; ресурсы подготавливаются до Hub readiness |
+
+Экономику обслуживает `UMCHubEconomyComponent` на PlayerState. Default soft paths: `/Game/Gameplay/Hub/Economy/DT_HubCatalog`, `DT_GrillRewards`, `DT_HubEconomyRules`. В них находятся ассортимент, ограничения, стоимость, веса/символы наград и тайминги. Эти значения нельзя восстанавливать по старым ценам на скриншотах: текущие saved rows требуют проверки в Unreal.
+
+Покупка и выдача проверяются сервером. PendingBoosters — персональная очередь, применение привязано к реальному arena run и RunID; Tutorial и сам Hub не должны расходовать её как боевой забег. `bCalciumEnabled=false` — нативный default, последний checkpoint также фиксирует приостановку Calcium. Существующие сохранённые заряды/очередь сохраняются; выключенный элемент не должен блокировать обработку других бустеров. Buffer/perforator исключён из доступных upgrades в текущем perk/economy коде.
+
+## Экономика: ограниченный live-срез
+
+Read-only snapshot **2026-10-23 13:29:49 UTC** получен через `DataTableTools.list_rows/get_rows`; `AssetTools.is_dirty` вернул **false** для `DT_HubEconomyRules`, `DT_HubCatalog` и `DT_GrillRewards` в `/Game/Gameplay/Hub/Economy`. Это чтение загруженных clean таблиц в Editor, не полный disk export, gameplay-проверка покупки или свежая сборка. Общие границы — [ProjectAudit](ProjectAudit.md).
+
+`DT_HubEconomyRules.Default`:
+
+| Поле | Live-значение |
+|---|---:|
+| `bCalciumEnabled` | false |
+| `MaximumCoins` | 1 000 000 |
+| `MaximumPendingBoosters` | 32 |
+| `MaximumOwnedCosmetics` | 256 |
+| `LidCloseSeconds` / `RollSeconds` / `RevealSeconds` / `LidOpenSeconds` | 0,4 / 2 / 1,2 / 0,4 с |
+
+`DT_HubCatalog` содержит **12 строк**, у всех `bEnabled=true` и `bInShop=true`: **8 NextRunBooster, 3 Cosmetic, 1 Consumable**. Цены: Speed/Stamina — 18, Recovery — 20, Damage/BrushPower — 24, BrushWidth/Health — 22, SuperBrush — 60; WorkCap — 35, WorkCapRed — 45, SportGlasses — 40; CalciumSelfGrenade — 12. `MaximumQueuedStacks` — 1–3 в зависимости от строки.
+
+`DT_GrillRewards` содержит **15 строк**, у всех `bEnabled=true`: **3 Coins и 12 CatalogItem**, исходная сумма весов — **100**. Монетные варианты: NoPrize_Mixed — 0 монет/вес 35, Coins_Medium — 12–20/вес 18, Coins_Large — 30–45/вес 8. Строка Loot_CalciumSelfGrenade включена флагом таблицы и имеет вес 5.
+
+**Флаги таблиц не равны фактической доступности.** В [IsCatalogUsable](../Source/MessControl/Private/MCHubEconomyComponent.cpp) Calcium исключается при `bCalciumEnabled=false`; тот же eligibility-фильтр применяется к наградам гриля. Поэтому raw counts 12/15 не означают 12 доступных покупок и 15 допустимых наград. Остальные perk/cosmetic eligibility в live-срезе не исполнялись. Значения и веса выше нельзя переносить в вероятности итогового отфильтрованного пула без этой проверки. Ничего не покупалось, не выдавалось и не сохранялось.
+
+## Примерка и локальная презентация
+
+Косметика разделена на Face/Headwear, loadout хранится в economy state. Каталог и thumbnails определяют доступные предметы; чужой rig/тело не следует деформировать ради посадки аксессуара. Текущая примерка использует независимый нереплицируемый `AMCWardrobePreviewActor`. Локальный controller управляет камерой, видимостью, UI и восстановлением представления при закрытии. Примерка, покупка и применение уже купленного предмета — отдельные действия.
+
+Наличие реализации локального preview не заменяет сетевую проверку приватности камеры/видимости. Ограниченный двухклиентный прогон описан в старом checkpoint; в этом обновлении документации он не повторялся. Текущие widget packages и материалы также не переэкспортировались.
+
+## Постоянный профиль
+
+`UMCHubProfileSubsystem` живёт в стандартном GameInstance. Формат `UMCHubProfileSave` Version=1 содержит economy save Version=1 и Fish. Economy сохраняет Coins, OwnedCosmetics, PendingBoosters, EquippedLoadout, LastAppliedRunId, RunCalciumCharges и PendingGrillReward.
+
+Пишет авторитетная сторона, с разделением `Saved/HubProfiles/PIE` и `Saved/HubProfiles/Players`. Имя `.sav` — SHA1 от UniqueId; для локального игрока без него используется LocalProfile. Неаутентифицированный удалённый гость остаётся с session state и не получает постоянный профиль по отображаемому имени. Это host-side профиль, не облачное сохранение и не гарантированный перенос кошелька к другому хосту.
+
+`Restore` загружает bytes/cache, проверяет тип/версию и импортирует economy. Нечитаемый/неподдерживаемый файл защищается от перезаписи. `Store` пропускает неизменившиеся bytes и незавершённый grill roll без settle; пишет `.tmp`, выполняет Move и обновляет cache только при успехе. Флаг `-MCHubTransientProfile` отключает постоянный путь для диагностических запусков. Не удалять пользовательские profiles для обычной проверки UI.
+
+Локальные камера, язык, звук, голос и цвет сумки имеют отдельный слой `UMCGameUserSettings`. PlayerState CopyProperties переносит игровое состояние через поддерживаемый travel. Полное сохранение/восстановление текущей смены этим не реализовано.
+
+## Ресурсы и статус проверки
+
+Preview actors, shop/wardrobe widgets, thumbnails, theme, dynamic materials и native-only VFX должны входить в preload и cook. Confetti default у basketball разрешается после module startup в BeginPlay, а не hard-load stateless Niagara в native CDO. `Config/DefaultGame.ini` отдельно включает Hub/VFX и UI/MainMenu3D. Все новые визуальные зависимости проверяются по [ResourceLoading](ResourceLoading.md).
+
+В этом обновлении выполнен **статический анализ**, без сборки, PIE, package или сетевых прогонов. [HubSystemsCheckpoint_20261023](HubSystemsCheckpoint_20261023.md) — исторический отчёт: там есть ограниченные solo/два-клиента проверки, Build10 и PackageStage04. Он прямо фиксирует, что **Stage04 предшествует исправлению boolean-result Move в сохранении профиля**; packaged save/reload после исправления и часть first-use interactions ещё требуют отдельной проверки. Там же остаются PSO misses и невыясненный GPU PageFault. Не распространять Stage04 как окончательную исправленную версию на основании этого документа.
+
+Источники: [MCHubGameMode.cpp](../Source/MessControl/Private/MCHubGameMode.cpp), [MCHubGameState.cpp](../Source/MessControl/Private/MCHubGameState.cpp), [MCHubTypes.h](../Source/MessControl/Public/MCHubTypes.h), [MCHubEconomyComponent.cpp](../Source/MessControl/Private/MCHubEconomyComponent.cpp), [MCHubProfileSubsystem.cpp](../Source/MessControl/Private/MCHubProfileSubsystem.cpp), [MCSteamSessionSubsystem.cpp](../Source/MessControl/Private/MCSteamSessionSubsystem.cpp), [MCGameUserSettings.h](../Source/MessControl/Public/MCGameUserSettings.h).
+
+## Исторические инструкции предыдущего этапа
+
+**Материал ниже сохранён для контекста прежнего авторинга. При противоречии текущему коду и разделам выше он не является актуальным runtime контрактом. В частности, обязательный travel в отдельный L_HubSelection заменён выбором внутри Hub. Прежние координаты/размеры и сохранённые проверки не перепроверялись 2026-10-23.**
 
 ## Intended flow
 

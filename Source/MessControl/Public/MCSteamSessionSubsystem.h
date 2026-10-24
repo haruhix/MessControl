@@ -4,6 +4,7 @@
 #include "Engine/EngineBaseTypes.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "OnlineSessionSettings.h"
+#include "MCSessionTypes.h"
 #include "MCSteamSessionSubsystem.generated.h"
 
 /** Steam rooms survive map travel; editor/local tests keep the existing IP path. */
@@ -30,6 +31,14 @@ public:
     void FindRooms();
     void JoinRoom(int32 Index);
     void InviteFriends();
+    bool CanInviteFriends() const;
+    bool CanChangeRoomPrivacy() const;
+    bool RequestRoomPrivacy(EMCRoomPrivacy Privacy);
+    EMCRoomPrivacy GetRoomPrivacy() const { return RoomPrivacy; }
+    bool IsRoomPrivacyKnown() const { return bRoomPrivacyKnown; }
+    bool IsRoomPrivacyUpdatePending() const { return bPrivacyUpdatePending; }
+    /** Refresh the current authority Hub snapshot without making an online request. */
+    void RefreshHubRoomState();
     void RefreshAvailability();
     static bool IsMessControlRoom(const FOnlineSessionSearchResult& Result);
 private:
@@ -43,6 +52,9 @@ private:
     void Found(bool Success);
     void Joined(FName Name, EOnJoinSessionCompleteResult::Type Result);
     void Destroyed(FName Name, bool Success);
+    void PrivacyUpdated(FName Name, bool Success);
+    void FinishPrivacyUpdate(bool Success, bool bPrivacyKnown, const FText& Notice);
+    void ClearPrivacyUpdate();
     void OpenMainMenu();
     void InviteAccepted(bool Success, int32 ControllerId, FUniqueNetIdPtr UserId, const FOnlineSessionSearchResult& Result);
     void NetworkFailed(UWorld* World, class UNetDriver* Driver, ENetworkFailure::Type Type, const FString& Error);
@@ -52,7 +64,7 @@ private:
     TArray<FOnlineSessionSearchResult> Rooms;
     TArray<FString> RoomLabels;
     FOnlineSessionSearchResult PendingJoin;
-    FDelegateHandle CreateHandle, FindHandle, JoinHandle, DestroyHandle, InviteHandle;
+    FDelegateHandle CreateHandle, FindHandle, JoinHandle, DestroyHandle, InviteHandle, UpdateHandle;
     FDelegateHandle NetworkHandle, TravelHandle;
     EOperation Operation=EOperation::Idle;
     FString Status;
@@ -61,4 +73,12 @@ private:
     bool bHostWaitsForLobby=false;
     bool bHostStartsWithTutorial=false;
     bool bReturnToMenuPending=false;
+    EMCRoomPrivacy RoomPrivacy=EMCRoomPrivacy::FriendsOnly;
+    EMCRoomPrivacy PendingRoomPrivacy=EMCRoomPrivacy::FriendsOnly;
+    bool bRoomPrivacyKnown=false;
+    bool bPrivacyUpdatePending=false;
+    bool bPrivacyRollback=false;
+    bool bPreviousPrivacyKnown=false;
+    TUniquePtr<FOnlineSessionSettings> PreviousPrivacySettings;
+    FText RoomPrivacyNotice;
 };

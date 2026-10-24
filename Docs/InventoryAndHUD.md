@@ -1,330 +1,172 @@
-# Инструменты и игровой HUD
+# Инвентарь, HUD и пользовательский интерфейс
+
+Актуализация: **2026-10-23**, по исходникам рабочего дерева. Native defaults ниже могут быть переопределены сохранёнными DA/DT/Blueprint. Asset index устарел (`build_current=false`); полного свежего экспорта package properties нет. Отдельное ограниченное read-only чтение clean loaded CDO/DA и таблиц Hub описано в [ProjectAudit](ProjectAudit.md); оно не подтверждает остальные package properties или актуальность binaries. В этом аудите код и ассеты не менялись, сборки/PIE/сетевые тесты не запускались. Изменения документации описывают код на диске, включая существующие пользовательские правки.
+
+## Где находится логика
+
+| Область | Источник и ответственность |
+|---|---|
+| Инвентарь | [MCInventoryComponent](../Source/MessControl/Private/MCInventoryComponent.cpp), [header/profile](../Source/MessControl/Public/MCInventoryComponent.h): выбор слота, tool meshes, spray/treatment, реплицируемое состояние |
+| Улучшения | [MCInventoryUpgrades](../Source/MessControl/Private/MCInventoryUpgrades.cpp): MeshaBrush, Chainsaw, Watergun, retained Buffer code |
+| Прицел | [MCInventoryAim](../Source/MessControl/Private/MCInventoryAim.cpp): camera ray, muzzle occlusion, сетевые view snapshots |
+| Действия персонажа | [MCToothCharacter](../Source/MessControl/Private/MCToothCharacter.cpp): Enhanced Input, primary/brace/throw, server swing/contact, физические реакции |
+| Комбо | [MCMeleeCombo](../Source/MessControl/Private/MCMeleeCombo.cpp): три combat-удара и отдельная food-chop поза |
+| HUD | [MCGameplayHUD](../Source/MessControl/Private/MCGameplayHUD.cpp): чтение game/player/director state и локальная presentation |
+| Индикаторы мира | [MCWorldStatusComponent](../Source/MessControl/Private/MCWorldStatusComponent.cpp), [MCWorldStatusWidget](../Source/MessControl/Private/MCWorldStatusWidget.cpp): HP и spoil/fuse без записи в gameplay state |
+| Меню и фокус | [MCPlayerController](../Source/MessControl/Private/MCPlayerController.cpp), [MCMainMenuWidget](../Source/MessControl/Private/MCMainMenuWidget.cpp), [MCGameplayMenuWidget](../Source/MessControl/Private/MCGameplayMenuWidget.cpp) |
+| Стиль и копирайт | [MCGameplayUIFactory](../Source/MessControl/Private/MCGameplayUIFactory.cpp), [MCGameplayUIWidget](../Source/MessControl/Private/MCGameplayUIWidget.cpp), [MCUIDataLibrary](../Source/MessControl/Private/MCUIDataLibrary.cpp) |
 
 ## Управление
 
-| Слот | Инструмент | Назначение |
+Mapping context и Input Actions создаются программно в `AMCToothCharacter::BuildInput`. При `PawnClientRestart` context добавляется в Enhanced Input subsystem локального игрока; прежние mappings других pawn этого игрока удаляются. Это не набор обязательных IMC/IA ассетов в Content.
+
+| Ввод | Действие |
+|---|---|
+| WASD / левый stick | Движение; конкретный режим учитывает плавание/лазание/плот |
+| Space / gamepad нижняя кнопка | Прыжок и контекстное действие |
+| Shift / левый stick click | Sprint |
+| ЛКМ / RB / RT | Primary выбранного инструмента |
+| F / LT | Удар/применение выбранного инструмента; у щётки физический комедийный удар |
+| E / gamepad левая кнопка | Handle/взаимодействие: еда, pickup, спасение и другие контекстные действия |
+| ПКМ / LB | Brace: удерживаться за еду, игрока или мировую опору; также контекстная защита/плот |
+| Q / gamepad верхняя кнопка | Бросок; удержание поддерживает текущую механику выдачи предметов/стопки |
+| C / правый stick click | Режим ухода за собой |
+| 1 / D-pad left | Щётка |
+| 2 / D-pad up | Кирка |
+| 3 / D-pad right | Нож |
+| 4 / D-pad down | Спрей; повторный выбор с Watergun меняет режим |
+| 5 | Экипировать/убрать удочку |
+| Мышь / правый stick, колесо | Orbit camera, zoom |
+| F1, F2, F3 | Tuning/settings panel, подключение, developer panel; F3 исключён из Shipping |
+| Escape / Start | Игровое pause menu |
+| Tab / gamepad Special Left, удержание | Scoreboard |
+| T | Emotes |
+| G / gamepad правая кнопка | Rogue booster |
+| H | Calcium grenade при наличии заряда/разрешении правил |
+| Enter | Открытие Hub selector при готовой команде |
+| R | Restart текущего забега через серверный путь |
+
+Имена gamepad-кнопок описаны по Unreal keys; подсказки HUD адаптируются через `MCGamepadHints`. Реальное действие зависит от состояния: меню, loading, смерть, интро, reward interaction и удержание предметов могут блокировать инструмент. Отпускание/отмена primary и других held inputs обрабатывается явно. Подробнее: [Gamepad](Gamepad.md), [Grip](Grip.md), [FoodStackHolding](FoodStackHolding.md), [FoodThrow](FoodThrow_20261017.md), [HubFishing](HubFishing.md).
+
+## Инструменты и улучшения
+
+`UMCInventoryComponent` реплицируется; по умолчанию грузит `/Game/Data/DA_Equipment`. При отсутствии профиля создаёт native fallback. Физическую щётку в сценариях, где она требуется, нужно подобрать; доступность проверяется через `HasBrush` и правила текущего режима.
+
+| Слот | Базовая механика | Улучшение |
 |---|---|---|
-| 1 / D-pad влево | Щётка | Текущая контактная чистка зубов и языка; C — уход за собой |
-| 2 / D-pad вверх | Кирка | Твёрдая еда и зубной камень; удар через 0,24 с |
-| 3 / D-pad вправо | Нож | Мягкая еда; размашистый удар сверху вниз через 0,28 с |
-| 4 / D-pad вниз | Спрей | Удерживать ЛКМ для лечения язвы перед игроком |
+| Brush | Контактная чистка зубов, языка и допустимых целей; self-care | `MeshaBrush`: native ×2 cleaning speed и изменённая contact/radius геометрия с rogue modifiers |
+| Pickaxe | Hard food, calculus, лёд, допустимые противники | `Buffer` код/pose/profile сохранены, **но апгрейд отключён** в reward eligibility и `HasToolUpgrade` |
+| Knife | Soft food и допустимые противники | `Chainsaw`: включаемое primary движение/контакт, сохраняет running после отпускания, останавливается по collision/state rules |
+| Spray | Удерживаемое лечение язвы, тушение огня и ремонт доступного зуба | `Watergun`: care mode и automatic pressure fire; повторный выбор слота 4 переключает режим |
 
-ЛКМ / RB использует выбранный инструмент. E / X удерживает еду, позволяет
-тащить её и подбирать физические щётки. Q бросает удерживаемый предмет.
-**ПКМ / LB — удерживаться за ближайшую еду, стену или игрока.** Отпускание кнопки освобождает хват. **F / LT** использует выбранный инструмент; у щётки сохранён комедийный удар. ЛКМ по-прежнему использует инструмент выбранного слота.
-Движение мыши вращает камеру; колесо меняет дистанцию.
-Переключение во время замаха блокируется до его окончания, чтобы инструмент
-попадания совпадал с инструментом в руке. Выбор другого слота прекращает чистку.
+Источник доступных улучшений — perks на PlayerState и team upgrade mask в GameState, а не локальный HUD. Rare/legendary выдача проходит серверные проверки. `UMCPerkComponent::IsDefinitionUsable` и `HasToolUpgrade` явно исключают Buffer; наличие его модели/кода не означает доступность игроку. См. [MCPerkComponent](../Source/MessControl/Private/MCPerkComponent.cpp), [PerkEffects](PerkEffects.md), [Boosters](Boosters.md).
 
-Удар ножом длится 0,70 с: рука уходит назад и над головой, проходит через
-точку попадания и продолжает движение вниз. Корпус и свободная рука
-поддерживают замах; после удара нож возвращается в исходное положение.
+Отдельный `bWaterJetUnlocked` и authority-only `UnlockWaterJet` сохранены как compatibility hook первого слота. Они не равны Watergun четвёртого слота и не доказывают наличие отдельной законченной механики струи или магазина WaterJet.
 
-Полный цикл кирки занимает 0,65 с; удержание ЛКМ повторяет удары.
-Замах, контактная поза у зубного камня, отдача и возвращение руки используют
-один темп. Серверное попадание через 0,235 с совпадает с движением острия.
+Native defaults профиля: PickaxeDamage=40, KnifeDamage=25, SprayReach=235 см; WatergunCareReach=1000 см, fire interval=0,1 с, magazine=30, reload=2 с, shot damage=0,5. Фактические значения DA могут отличаться, rogue attack rate меняет частоту/тайминги. Pressure shot ограничен 1400 см и muzzle sweep; это не promise попадания сквозь препятствия.
 
-Правила физической щётки первого дня сохранены: её сначала нужно подобрать.
-Кирка, нож и спрей доступны сразу. Действия, попадания и кулдауны считает сервер.
+Watergun стреляет сразу на press edge и продолжает при удержании. Сервер ограниченно догоняет cadence на медленном кадре; после последнего патрона начинает reload. Reload завершается после отпускания или смены слота, удерживаемая primary возобновляет огонь после него. Legacy charged-attack поля/API сохранены для загрузки старых данных, `WaterChargeFraction` возвращает 0.
 
-## Удары по игрокам
+Смена инструмента проверяет `CanWork`/`CanSwitchTool`, отменяет upgrade use, food collection/комбо/primary/contact/self-care. Выбранный слот, targets лечения/огня, pressure mode, ammo, reload deadlines и view state реплицируются; dedicated server не создаёт визуальные tool/Niagara компоненты.
 
-Щётка (включая первый слот после апгрейда WaterJet), кирка и нож повреждают
-других живых игроков перед персонажем. Щётка снимает 25 HP; кирка и нож
-используют `PickaxeDamage` и `KnifeDamage` из `DA_Equipment` (сейчас 40 и 25 HP).
-Спрей не наносит урон игрокам и сохраняет лечение язв и тушение огня.
+## Удары и контакт
 
-Попадание проверяет сервер: горизонтальная дальность 180 см, перепад высоты
-до 120 см, свободный луч к цели и завершённый кулдаун. Сам персонаж,
-погибшие игроки и игроки в процессе подъёма не становятся целью удара.
-Удар сохраняет физическое отбрасывание и сбрасывает еду из рук пострадавшего.
-Один замах повреждает одну цель один раз; окно дополнительных проверок ножа
-продолжается только после промаха. При попадании киркой или ножом по еде
-или льду этот замах расходуется на предмет.
+Базовые knife/pickaxe поддерживают combat-combo из трёх ударов; отдельный food chop не продолжает combat-chain. Native длительности combo: нож 0,58/0,62/0,78 с, кирка 0,60/0,64/0,80 с, с поправкой rogue attack rate. Поэтому прежнее описание одного фиксированного удара ножом 0,70 с или киркой 0,65 с не описывает все нынешние режимы. Подробности: [PlayerMeleeCombo](PlayerMeleeCombo.md), [EnemyWeaponContacts](EnemyWeaponContacts.md), [FoodKnifeHits](FoodKnifeHits.md).
 
-## Настройки и меши
+`CanBreak` различает Hard/Soft food; Chainsaw имеет свой допуск. Food resistance хранится в данных, fragments наследуют правила своего происхождения. Текущие сохранённые настройки моркови и прочие DT overrides не подтверждались этим аудитом.
 
-`Content/Data/DA_Equipment` содержит меши и их положение в руке, урон
-и дальность спрея (235 см). Время лечения задаёт `DA_Day01 → UlcerHealSeconds` (7 с).
-Используется `Art/Meshes/Equipments/SM_Pick` коллеги. Нож и спрей пока состоят
-из простых форм; назначение их мешей в DA заменяет эти заглушки.
+**Попадания по товарищам в текущем коде дают физическое отбрасывание.** В player-ветке `AMCToothCharacter::ResolveSwing` вызывается `ToothPhysics->ApplyHit`, счётчик подтверждённых попаданий и звук; снятия HP в этой ветке нет. Аналогично player contact у Chainsaw и Watergun pressure shot использует физическую реакцию. Старое утверждение этого документа о PvP уроне 25/40/25 HP больше не соответствует этим путям исходников.
 
-Первый слот поддерживает `WaterJetMesh` / `WaterJetTransform` и серверный
-`Inventory.UnlockWaterJet()`. Пока модель не назначена, остаётся щётка.
-Это точка подключения апгрейда; магазин и отдельная механика струи сюда не входят.
+Обычный melee player target проверяет базовую дальность 180 см с возможным rogue reach, перепад высоты 120 см, переднюю область, Visibility trace, живое состояние и отсутствие Recovering. Self исключён. После предмета/врага замах заканчивается; knife contact window повторяется только после промаха. Другие системы повреждения описаны в [PlayerDamage](PlayerDamage.md).
 
-`FMCFoodRow.Resistance` в таблице еды: `Soft`, `Hard` или `Automatic`.
-Для существующих строк Automatic считает Carrot, Nut, Crust и Tartar твёрдыми,
-остальные мягкими. Фрагменты сохраняют тип родительской еды.
-Для строки Carrot в DT_BreakfastMenu явно задано Soft: целая морковь и её кусочки
-режутся ножом. Скрипт `Tools/Unreal/set_carrot_knife_resistance.py` меняет только
-это поле и сохраняет остальные настройки меню.
-Проверка 2026-10-03: все три сохранённых меша моркови принимают три удара ножом
-с расстояний 40 и 130 см, здоровье уменьшается 75 → 50 → 25 → 0, появляются пять
-фрагментов с тем же Soft. Отчёт: `Saved/CarrotKnifeVerification.json`.
-Все четыре проверки ножа и выбора инструмента прошли:
-`Saved/TestReports/CarrotKnife/index.json`.
-Неподходящий инструмент не повреждает еду. Застрявшую еду сначала нужно вытащить.
+## Спрей, прицел и визуальное оснащение
 
-## Спрей и язвы
+Camera-centre ray определяет точку под прицелом. Для care targets без physical collision дополнительно проверяется видимая область язвы/огня на этом же луче; затем направление сходится от сопла к выбранной точке. Отдельный muzzle trace сохраняет стены, range и первый физический контакт ремонта зуба.
 
-Обычная еда и её фрагменты, оставленные на языке на `SpoilSeconds`,
-впитываются за `AbsorbSeconds` и превращаются в язву на своём месте.
-Подбор, удержание, отпускание и удар обновляют отсчёт. Во время впитывания
-видимую часть еды ещё можно подобрать. Перец и посторонние предметы сохраняют свои механики.
+View snapshots передаются периодически (не чаще 0,05 с, unreliable) и надёжно перед primary press/release. Сервер ограничивает допустимые данные, получает направление сопла; локальный и удалённый показ используют общий aim contract. Это реализация сетевого обмена, не результат свежего multiplayer-теста.
 
-Спрей требует живого игрока, наведения на язву и свободного луча от сопла к цели.
-Удерживание ЛКМ лечит её за 6–8 с; отпускание сохраняет прогресс.
-Несколько игроков делят один прогресс и не ускоряют время лечения.
-Кулдаун прежнего одноразового обезболивания убран. Пока идёт лечение,
-язва не наносит урон и не выпускает волны. Без спрея она не заживает сама.
-При активации рука вытягивается вперёд на уровне лица. Эта поза работает
-и без цели; после отпускания кнопки рука плавно опускается. При плавании,
-лазании и удержании еды руки сохраняют соответствующую позу.
-Над язвой расположен UMG-виджет `MCUlcerProgressWidget`: круг и процент лечения.
+Обычный спрей работает от held input без прежнего одноразового cooldown. `SprayReadyAt` и старые profile поля сохранены для совместимости. Authority tick выбирает fire/healing/tooth repair; Watergun care применяет повышенную эффективность. Детальные ulcer treatment rules: [CareAndHandling](CareAndHandling.md), [BacklogUlcerRework](BacklogUlcerRework.md) — последняя содержит планы и не является подтверждением доставки.
 
-Материал `Gameplay/Care/M_UlcerBlend`: параметры `Frozen` и `FrostColor`
-управляют ледяным голубым оттенком и влажным блеском во время лечения.
+Tool meshes/attachment/idle/work/support grips задаёт `UMCEquipmentProfile`. При отсутствии мешей есть native fallback формы; сохранённый `SM_Pick` используется как fallback кирки. Художественные материалы имеют приоритет, neutral upgrade fallback применяется к WorldGridMaterial. Инструмент скрывается при ряде traversal/grip/held/reward состояний; это общий `ShouldPresentTool` для рук и визуала.
 
-Спрей и оба режима Watergun показывают голубой прицел в центре экрана своего
-игрока. Камера при выборе этих инструментов плавно смещается за плечо, открывая
-центр экрана. Луч камеры выбирает точку под прицелом; струя, рабочая поза рук и
-напорный выстрел направлены от сопла к этой точке. Корпус во время применения плавно
-поворачивается к прицелу, в том числе при ходьбе. Язвы и огонь выбираются в направлении
-струи, без перенаведения на ближайшую цель. Проверка от сопла сохраняет препятствия
-и дальность инструмента; дальность напорного выстрела — до 14 метров.
-Камера передаётся серверу при наведении и перед нажатием/отпусканием ЛКМ,
-а остальным игрокам реплицируется для показа рук и струи.
-Во втором режиме Watergun зажатая ЛКМ даёт автоматическую стрельбу:
-10 выстрелов в секунду, 0,5 урона за выстрел, 30 патронов в магазине.
-Первый выстрел происходит сразу при нажатии; отпускание ЛКМ прекращает огонь.
-После 30-го выстрела автоматически начинается перезарядка на 2 секунды.
-Если ЛКМ остаётся зажатой, после перезарядки стрельба возобновляется.
-Перезарядка продолжается после отпускания кнопки или смены инструмента.
-HUD показывает остаток патронов и время перезарядки; внешнее кольцо прицела
-показывает заполнение магазина или ход перезарядки. Заряженной атаки больше нет.
-Прицел скрывается при выборе другого инструмента, открытии меню и недоступности
-инструмента. Он учитывает масштаб интерфейса и область экрана своего игрока.
+Niagara spray/water mist создаётся один раз на персонаже и включается по состоянию. Brush contact foam имеет отдельный retained Niagara component и следует фактическому контакту; details и исторический motion review см. [BrushCleaning](BrushCleaning.md), [VFXReferences](VFXReferences.md). Из наличия компонента нельзя вывести актуальный renderer/rate/material сохранённого Niagara asset.
 
-В `DT_BreakfastMenu` размеры независимы: `Scale` задаёт целую еду,
-`FragmentScale` задаёт фрагменты по X/Y/Z. Оба применяются к мешу и коллизии;
-масса фрагментов по-прежнему делится между кусками отдельно от размера.
+Все runtime meshes/materials/Niagara/widget brushes должны входить в [ResourceLoading](ResourceLoading.md) manifest через equipment/theme/world references либо явные native roots; dynamic variants создаются до readiness. `LoadSynchronous` в presentation/refresh коде остаётся, поэтому отсутствие позднего hitch надо подтверждать по фактическому первому применению.
 
-## HUD
+## Камера и visual first use
 
-`Content/Gameplay/UI/WBP_GameplayHUD` — полноценный Widget Blueprint,
-созданный через встроенный Unreal MCP / UMG Toolset. Раскладка, фоны,
-TextBlock и ProgressBar доступны в UMG Designer. Основные группы:
-ObjectivesPanel, TimerPanel, PlayersPanel, EventsPanel, InventoryPanel,
-HintPanel и ResultsPanel. ScaleBox сохраняет пропорции макета 1536×864.
+[MCToothCharacter camera defaults](../Source/MessControl/Public/MCToothCharacter.h) и [MCMouthCamera](../Source/MessControl/Private/MCMouthCamera.cpp) разделяют первоначальный обзор и свободный orbit. Native обзор: FollowDistance=900 см, FollowHeight=500 см, FOV=55°, CameraFocusOffset=(80,0,−140), dead zone=(110,80,90), FollowSpeed=7. Orbit ограничивает pitch диапазоном −85…85°, дистанцию 250–1600 см; высота pivot по умолчанию 100 см, wheel step=100 см. User settings отдельно масштабируют mouse/gamepad look и inversion.
 
-`MCGameplayHUD` обновляет значения из состояния игры 10 раз в секунду;
-сохраняйте имена динамических элементов при изменении дизайна. Размеры,
-позиции, шрифты и оформление задаются самим Blueprint. `MCHUDIcon` — отдельный
-виджет векторной иконки: размер, цвет, инструмент и эмоцию можно менять в Designer.
-Портреты анимируются независимо от частоты обновления данных.
+В Hub камера начинает свободный orbit; в arena исходный follow использует помеченные `MCCameraBounds` объёмы. Spray/Watergun плавно сдвигает локальную камеру за плечо. Видимый avatar/ракурс остаются локальной presentation; aim передаётся по отдельному inventory protocol.
 
-`Tools/Unreal/create_gameplay_hud_mcp.py` создаёт отсутствующий Blueprint
-через MCP работающего редактора и сохраняет существующий при повторном запуске.
+SpringArm использует Camera channel и сферический probe 24 см. Совместимые wall materials могут открыть круг вокруг focus через `CameraRevealEnabled` и Custom Primitive Data 20–27; native radius=500 см, feather=0,25. Требуется совместимость **всех material slots**: прочие стены сохраняют обычную camera collision. Отключение reveal/cleanup восстанавливает прежний Camera response; pawn/physics collision сохраняется. См. [MCCameraWallReveal](../Source/MessControl/Private/MCCameraWallReveal.cpp). Наличие шейдерных параметров/коллизии в сохранённой оболочке карты в этом аудите не проверялось.
 
-- Слева сверху — день, текущая задача, чистота и здоровье рта.
-- По центру — реальное время до окончания события. Для этапа без дедлайна
-  показано `--:--` и «без лимита времени».
-- Справа — до четырёх подключённых игроков с цветами, здоровьем и эмоциями.
-  Успех вызывает радость, провал — грусть; погибший портрет серый с X вместо глаз.
-- Под игроками — прошлое, текущее и будущее событие. На первом этапе отображаются
-  текущее и два следующих. Заполнение идёт слева направо; провал помечен отдельно.
-- Крест инструментов — снизу слева, краткая контекстная подсказка — снизу по центру.
+Управление обзором блокируется общим input-mode resolver. Spectator view использует отдельное локальное состояние. Материалы radial reveal, tools и first-use VFX должны оставаться достижимыми из preload roots; обычный успешный frame после прогрева не доказывает отсутствие первого shader/streaming hitch.
 
-HUD использует реплицируемое состояние и масштабируется по размеру окна.
-Настройки F1, подключение F2 и панель разработчика F3 сохранены.
-Неудача задачи не останавливает забег, пока остаётся здоровье рта.
+## HUD: состояние и раскладка
 
-## Камера и VFX
+`UMCGameplayHUD` читает GameState, PlayerState/perks, inventory и event/director state. Обычные данные обновляются примерно 10 раз в секунду; reticle, portraits и переходы могут обновляться каждый кадр. Таймеры берутся из server world time/deadlines. Чистота вычисляется по доступным care surfaces; при оставшейся грязи процент не округляется до 100%.
 
-Двигай мышью: камера поворачивается вокруг персонажа на 360°,
-с наклоном от −85° до +85° и инвертированной вертикальной осью мыши. Можно смотреть
-вверх, вниз и вдоль горизонта. Выбранный ракурс сохраняется после отпускания;
-камера вращается независимо от корпуса.
-При взгляде выше горизонта камера остаётся на поднятой высоте за персонажем,
-а направление взгляда свободно поднимается вверх.
-В этом режиме WASD и плавание направлены относительно камеры. Стены и другие
-объекты, блокирующие канал Camera, сжимают SpringArm: сферический пробник 24 см
-проверяет весь отрезок от персонажа до камеры. Когда препятствие исчезает,
-камера возвращается на выбранную дистанцию.
-Еда, её фрагменты, персонажи (капсула и скелетный меш, включая падение),
-игровые зубы и размещённые в L_Mouth меши зубов/дёсен игнорируют канал Camera.
-Прямые проверки мешей еды и зубов не сжимают камеру. Физические столкновения,
-захват, чистка и попадания сохраняются; у SpringArm включён Do Collision Test
-с Probe Channel = Camera. Потолок/стены рта сохраняют свою проверку камеры.
-Направление взгляда хранится отдельно от луча коллизии: поправки пола при ходьбе
-не изменяют углы камеры. После препятствия дистанция возвращается плавно;
-при появлении ближней преграды камера сразу остаётся перед ней.
-`CameraOrbitSensitivity` задаёт чувствительность мыши. Колесо вперёд приближает камеру, назад отдаляет;
-дистанция ограничена 250–1600 см, плавность задаёт FollowSpeed, шаг — CameraZoomStep.
-`CameraOrbitHeight` в `Camera / Orbit` задаёт высоту опорной точки над персонажем:
-по умолчанию 100 см вместо прежних 30 см. Начальный обзор также поднят на 70 см.
-В меню вращение и зум отключаются; при проглатывании обзор
-остаётся в рту до выброса персонажа. В кооперативе каждый игрок меняет свой ракурс.
-Импортированная оболочка `/Game/FromBlender3/SM_Plane_001` использует коллизию
-Complex As Simple с двусторонней геометрией, чтобы камера учитывала вогнутые стены.
-На стенах с материалом MI_Roof_0 перекрытие обзора открывает круг вокруг персонажа
-с плавной прозрачной кромкой. Камера сохраняет дистанцию; коллизия персонажа
-и предметов сохраняется. Дальние стены и область за пределами круга остаются
-видимыми. После исчезновения перекрытия стена плавно восстанавливает покрытие.
-Параметры `Camera / Walls`: CameraWallReveal, CameraWallRevealRadius (500 см
-на дистанции персонажа, диапазон 60–500 см), CameraWallRevealFeather. Данные локальной камеры
-используют Custom Primitive Data 20–27; остальные материалы сохраняют обычную
-проверку SpringArm. При отключении эффекта или удалении игрока канал Camera
-восстанавливается. Скрипт материала: `Tools/Unreal/add_camera_radial_reveal.py`.
+Тема выбирает Widget Blueprint для роли GameplayHUD; native fallback умеет построить дерево. Native layout сохраняет стабильные имена динамических элементов, чтобы Blueprint Designer мог менять представление. `UpdatePhase1Layout` учитывает ширину, scale, число игроков и измеренную высоту локализованного текста; старое описание исключительно фиксированного ScaleBox 1536×864 больше не универсально.
 
-До первого вращения сохраняется исходная обзорная камера с настройками ниже.
+Основные области:
 
-Параметры персонажа `Camera / Mouth`: FollowDistance, FollowHeight, FollowFOV,
-CameraFocusOffset, FollowSpeed и CameraDeadZone. Обзор по умолчанию: дистанция
-900 см, базовая высота 500 см плюс подъём 70 см, FOV 55°, базовая точка взгляда
-смещена на (80, 0, −140) см и получает тот же подъём.
-Камера подана вперёд при прежнем угле обзора; точка взгляда следует за игроком.
-Камера следует за игроком, плавно смещаясь после
-выхода из dead zone (по умолчанию 110 × 80 × 90 см от отслеживаемой точки).
-В карте `CAMERA | Follow bounds` задаёт допустимый объём камеры. Выдели этот
-TriggerBox и измени положение, поворот или `Collision Component → Box Extent`.
-Его тег `MCCameraBounds` связывает объём с камерой; коллизия объёма отключена.
-При достижении границы движение камеры останавливается, поворот продолжает
-удерживать персонажа в кадре. Вертикальный угол обзора сохраняется при смене
-формата окна; проверка столкновений с оболочкой включена.
-У передней границы высота сохраняется; предел объёма камеры сдвинут за передние
-зубы, чтобы камера не приближалась к персонажу при старте.
+- слева сверху — здоровье/доступность восьми arena teeth, чистота, event timer и task progress;
+- справа — до четырёх player portraits/HP и timeline; значения приходят из актуального режима;
+- снизу слева — четыре tools, выбранное имя, pressure ammo/reload, context hint и contact progress;
+- снизу по центру — stamina, отдельная swim energy;
+- encounter/boss widget, очередь gameplay alerts, booster widget и cataclysm instruction — отдельные составные presentation;
+- результаты и debug director monitor показываются по состоянию; legacy XP/progression widgets принудительно collapsed и очищаются.
 
-При чистке CharacterMovement плавно разворачивает корпус к выбранному пятну.
-При выборе пятна проверяется достижимость после поворота: грязь сбоку не требует
-ручного разворота. Контакт сохраняется во время поворота, а маска стирается
-только после реального касания щетиной.
-Свежий контакт сохраняется до разворота корпуса, чтобы узкие новые коронки
-не сбрасывали цель до следующего кадра движения.
-Рука и пена начинают работу после разворота. Пятна за спиной не выбираются;
-при развороте или движении от пятна маска грязи перестаёт стираться.
+Tutorial сохраняет инструменты и HUD controls, скрывая обычный day overview; objective подаёт tutorial UI. Lobby скрывает обычный gameplay UI. Spray/Watergun reticle рисуется в geometry HUD своего игрока, скрывается при меню, spectating и недоступном инструменте. В pressure mode кольцо показывает ammo/reload; отдельный food-throw reticle появляется по контексту.
 
-`Content/Gameplay/VFX/NS_BrushFoam` переавторится редакторским
-`MCVFXAssetBuilder.RefineBrushFoam` как два stateless-эмиттера со sprite renderer.
-Их базовые параметры:
+Сохранённые WBP деревья и theme role mappings в этом аудите не экспортировались заново. Для Designer/contracts см. [Phase1GameplayUI](UI/Phase1GameplayUI_20261017.md), [GameplayUIStyleSystem](UI/GameplayUIStyleSystem_20261016.md), [MultibossHUDContract](UI/MultibossHUDContract_20261016.md), [TeethHealthHUDContract](UI/TeethHealthHUDContract_20261016.md). Документы с Plan в названии сохраняют проектные намерения; реализацию следует сверять с source/packages.
 
-| Эмиттер | Частота | Жизнь | Базовый размер спрайта | Область появления |
-|---|---|---|---|---|
-| ContactFoam | 48/с | 0,35–0,55 с | 4–8 см | Плоскость 14×7 см, initial Z +3 см |
-| FloatingBubbles | 18/с | 0,55–0,95 с | 5–9 см | Плоскость 10×6 см, initial Z +5 см |
+## Индикаторы мира и текущие пользовательские изменения
 
-Компонент расположен на 3 см над контактом, его локальная ось Z совпадает
-с нормалью поверхности; initial Z эмиттеров добавляет ещё одно смещение
-вдоль этой нормали. Пена движется в локальном конусе со скоростью 3–9 см/с,
-пузырьки получают скорость 12–24 см/с в конусе вокруг мировой оси вверх.
-Оба эмиттера симулируются локально и следуют за перемещением и поворотом
-контакта. FloatingBubbles создаёт поднимающийся слой рядом со щёткой;
-отдельного свободного хвоста в мировом пространстве здесь нет.
+`UMCWorldStatusComponent` — **локальная нереплицируемая presentation**, использующая реплицированные health/deadlines еды/обычных nut enemies. На dedicated server отключается; boss исключён. Использует первого локального PlayerController, screen-space widget component, distance/frustum/Visibility culling. Native MaxDistance=2600 см, PollSeconds=0,12 с; видимый anchor следует физике каждый кадр, скрытый индикатор только периодически проверяет возможность появления.
 
-`M_BrushFoam` рисует три мягкие доли с синтетическим полусферическим светом.
-`M_BrushBubble` рисует тонкую прозрачную кромку, две дуги блика и холодный
-оттенок плёнки. Оба материала — Unlit Translucent, без текстурных ассетов,
-выборки SceneColor и refraction. Нормализованный возраст поступает через
-`DynamicMaterialParameter0.x`; возраст и alpha `ParticleColor` управляют
-затуханием, `DepthFade` с default 4 см смягчает пересечение с поверхностью.
-Спрайты обращены к камере и сортируются по глубине. Частота и максимальная
-жизнь дают около 44 одновременно живых частиц при непрерывной эмиссии
-вместо прежних примерно 51; это расчёт количества, а не замер GPU-времени.
-Стоимость новых шейдеров ещё не измерена.
+У еды индикатор скрыт при disposed/dead, carried/equipped/stack-carried, absorbing/swallowing и brush-tool состояниях. Spoil timer показывает **израсходованную долю** срока, spicy — израсходованную долю fuse; deadline читается в server time, без изменения food state. Для физической еды верх anchor уточняется по сохранённым convex collision hulls, без чтения render CPU mesh. У armed kamikaze показывается fuse timer.
 
-C++ сохраняет один Niagara-компонент на персонажа, включает эмиссию у
-фактического контакта щетины и останавливает её при отпускании, смене
-инструмента или потере контакта. Оставшиеся частицы завершают свою жизнь.
-VFX использует опубликованный контакт, а авторитетная готовность к чистке
-проверяется отдельно через `IsWorkReady`. Dedicated server не создаёт
-компонент пены. Частицы не создаются и не перемещаются в цикле C++ через
-InstancedStaticMesh.
+Нынешняя незакоммиченная правка добавляет `FMCWorldStatusSnapshot::bShowHealth`:
 
-`Tools/Unreal/create_inventory_assets.py` создаёт DA и Niagara после сборки,
-добавляет параметр заморозки в материал язвы. Повторный запуск сохраняет
-существующие настройки DA и Niagara. Ассеты включены в проект; обычный запуск
-игры не требует повторной генерации.
+- fragments сохраняют gameplay health, но целиком скрывают `StatusHealthSize`, включая HP frame/bars/skin/занимаемую ширину;
+- fragments Food/Spicy оставляют центрированный timer; fragments foreign objects без timer не создают пустой indicator;
+- при возврате к whole-food/enemy preview восстанавливаются исходные Designer visibility/padding;
+- добавлены preview states `FragmentFresh` и `FragmentSpoiled`.
 
-`CreateBrushFoam` также сохраняет существующую систему. Для явного обновления
-пены используется `Tools/Unreal/refine_brush_foam.py` после сборки редактора,
-с остановленным PIE. Из корня проекта:
-`python Tools/Unreal/remote_python.py Tools/Unreal/refine_brush_foam.py`.
-Скрипт отказывается перезаписывать несохранённые целевые пакеты, копирует
-исходные пакеты двух материалов и Niagara в
-`Saved/FoamReview/MaterialBackups/<UTC timestamp>`, затем переавторит графы
-материалов, вызывает `RefineBrushFoam`, компилирует и сохраняет ассеты.
-Отчёт записывается в `Saved/FoamReview/MaterialBuild.json`; доступные счётчики
-компилятора не заменяют измерение GPU-времени и overdraw.
+Timer и pill health рисуются Slate vector skin с темой, loss trail, сглаженным timer follow и переходом в spoiled pictogram. Они не требуют новых texture/UI material shader variants. Важные имена: `StatusTimer`, `StatusHealthSize`, `StatusHealthFrame`, `StatusHealthLayers`, `StatusHealth`, `StatusLossTrail`, `StatusHealthPresentation`.
 
-Визуальные правки проверяются в редакторе Unreal. Сборка и упаковка Windows
-выполняются отдельной задачей по запросу пользователя.
+Эти изменения подтверждены только source diff; их компиляция, актуальность сохранённого WBP и игровой вид в этом аудите не проверялись. Использование PlayerController 0 также не является доказательством поддержки всех split-screen views.
 
-## Проверка
+## Главное меню, настройки и модальные окна
 
-- `Tools/Test.ps1 -Mode Unit` — прежние проверки и тесты инвентаря/спрея/Niagara.
-- `Tools/TestInventory.ps1` — одиночный игровой прогон, попадания, кулдаун,
-  заживление, размах кисти кирки и кадры HUD в `Artifacts/Inventory`.
-- `Tools/TestInventoryNetwork.ps1` — хост и клиент, выбор всех слотов,
-  репликация обезболивания и кулдауна, задержка 75 мс и потери пакетов 2%.
-- `MessControl.Inventory.PlayerHits` — все слоты при 30/60/120 FPS,
-  однократный урон, отбрасывание, стены, дальность, высота, погибшая цель
-  и позднее попадание ножом.
-- `Tools/TestWeaponPlayerNetwork.ps1` — хост и три клиента: удалённый игрок
-  бьёт другого клиента каждым инструментом; все четыре участника проверяют
-  здоровье цели и отсутствие урона от спрея. По умолчанию задержка 75 мс
-  и потери пакетов 2%; отчёты: `Saved/Logs/WeaponPvP0.log` … `WeaponPvP3.log`.
-  Проверка 2026-10-03 прошла на всех четырёх участниках; десять проверок
-  попаданий, ножа, спрея, льда и ограничений действий также прошли.
-  Отчёт автоматизации: `Saved/TestReports/WeaponPlayerHits/index.json`.
-- `Tools/TestCamera.ps1 -Capture` — 13 позиций и непрерывный маршрут из 9 точек,
-  проверка целого персонажа в кадре, следования, dead zone и границ камеры.
-  `-Width` / `-Height` задают
-  формат окна; `-LowLoad -FrameLimit 15` уменьшают нагрузку при фоновом прогоне.
-- `Tools/TestOrbitCamera.ps1 -Capture` — свободное вращение мышью и зум колесом
-  в проекте Unreal, полный оборот, коллизия, сохранение ракурса, блокировка
-  камеры в меню и удар коротким кликом. `MessControl.Camera.OrbitAndWallCollision`
-  также проверяет сжатие и восстановление дистанции на отдельной тестовой стене.
-  `-RadialReveal -Capture` проверяет круглую прозрачность и сохраняет сравнение
-  `Saved/CameraReveal/Before.png` / `After.png`. Автотест
-  `MessControl.Camera.RadialWallReveal` проверяет дистанцию, восстановление покрытия
-  и сохранение физической коллизии.
-  `-BuildRoot <Windows>` запускает такую же проверку уже упакованной игры.
-- `Tools/TestBrushFacing.ps1 -Capture` — оба ряда и язык: поворот к пятну,
-  разворот на 180°, прекращение чистки при отходе. Кадры: `Artifacts/BrushFacing`.
-- `Tools/TestBrush.ps1 -Solo -Capture` — контактная чистка, пена и стабильность кистей.
-  Проверяет появление частиц Niagara и их исчезновение после отпускания.
+Native main menu имеет страницы Main/Host/Join/Settings/Credits/Exit/Lobby/Leave/VideoConfirm/Pause/Connection. Основное Play направляет через `UMCSteamSessionSubsystem::EnterHub`; offline fallback открывает Hub listen с MCHubGameMode. Tutorial — отдельный travel. Steam room/address join/host имеют существующие guards; embedded day launch допускается только для подключённого дня.
 
-## Проверка обновлённой пены, 2026-10-04
+Настройки включают Graphics, Audio, Language, Controls, Voice. Resolution/window mode используют 15-секундное подтверждение с rollback; остальные preferences применяются через `UMCGameUserSettings`. Preview/Designer не запускает travel/session/settings changes.
 
-`NS_BrushFoam` использует два sprite renderer вместо прежних mesh particles.
-Пена имеет мягкое объёмное затенение; прозрачные пузырьки — усиленный тонкий
-контур, два блика и небольшой оттенок плёнки. Количество и размеры частиц
-после правки читаемости не увеличены.
+В существующем пользовательском diff `CollapseRetiredMainMenuCopy` сворачивает retired tagline/navigation copy по binding keys `UI.MainMenu.Tagline`, `UI.MainMenu.NavigationHint` либо стабильным именам unbound template controls. Имена сохранены; явно переназначенный другой localization key не скрывается; vertical slot padding обнуляется. Это описание несобранного рабочего изменения, не результат визуального smoke.
 
-Editor build и существующая `MessControl.VFX.SavedParticleMeshSlots` прошли.
-Проверка mesh slots теперь охватывает только mesh-эффекты спрея и льда;
-новых unit-тестов не добавлено. Финальный запуск генератора материалов:
-`Saved/FoamReview/MaterialFinal.log`, 0 ошибок; оба материала скомпилированы
-без ошибок. SM5: foam/bubble pixel instructions 164/161, vertex instructions
-349, по одному pixel texture sample для DepthFade. Это счётчики компилятора,
-а не сравнительный замер GPU-времени/FPS.
+Pause/Connection во время gameplay используют `UMCGameplayMenuWidget`, который контроллер создаёт через роли PauseMenu/ConnectionMenu. `UpdateInputMode` определяет приоритеты: loading → wardrobe/shop → lobby/pause/connection/tutorial → Hub selector → boss intro → scoreboard → reward/emote/dev/tuning → gameplay. Открытие модального UI отменяет удерживаемые действия pawn. Scoreboard release дополнительно отслеживается в tick на случай потери release event/фокуса. Игровое pause menu само по себе не означает остановку multiplayer world; perk choice имеет отдельный team pause protocol.
 
-Обычный rendered solo smoke в редакторе прошёл:
-`Saved/FoamReview/EditorSoloFinal.log`. Наблюдалось 45 живых частиц в пике
-и 0 после отпускания. Расчёт по rate × lifetime даёт около 44;
-дискретный спаун округляет число вверх. Свободная кисть 0,336 см,
-рабочая 8,179 см, контакт 15,67 см, запястье 1,000.
+Сброс presentation при travel и readiness перед ACK описаны в [ResourceLoading](ResourceLoading.md); Hub scene camera/menu — в [HubLobby](HubLobby.md), [HubSystemsCheckpoint](HubSystemsCheckpoint_20261023.md). Startup splash может прикрывать preload, но завершение splash не означает готовность ресурсов.
 
-Видео: `Artifacts/FoamReview_20261004/After.mp4`, 1280×900, 30 FPS, 13,97 с,
-327 свежих исходных кадров с их реальными игровыми интервалами.
-`Preview.png` показывает работу, `Released.png` — прекращение эмиссии.
-`Before.mp4` — прежний эффект из записи чистки, с более широким ракурсом;
-это визуальный ориентир, а не одинаковые условия для сравнения GPU-времени.
-Сценарий крупного плана `EditorCaptureFinal.log` остаётся FAIL из-за прежнего
-шага свободной кисти 2,681 см при пороге 1,5 см; частицы в нём тоже 45/0.
-Видео не считается прошедшей проверкой плавности свободной кисти.
+## Общая тема, локализация и сохранение
 
-MCP refresh с editor build завершён: 1163/1163 пакетов,
-`build_current=true`, без ошибок экспорта. Windows cook/package остановлен
-по просьбе пользователя; отдельный Windows-билд этой правки не предоставляется.
+`UMCGameplayUIFactory::GetMasterTheme` удерживает `/Game/Gameplay/UI/Theme/DA_GameplayUITheme` сильной ссылкой. `ResolveClass(Role, NativeFallback)` допускает только пригодного потомка native role и иначе возвращает fallback. [Theme](../Source/MessControl/Public/MCGameplayUITheme.h) хранит palette, fonts, soft widget class map, boss portraits и UI tables.
+
+Widget theme берётся из собственного override, родительского UI widget или master. TranslationTable override наследуется отдельно; далее используются theme table и `/Game/Gameplay/UI/Data/DT_UI_Localization`. Виджеты подписываются на смену культуры/таблицы/темы и обновляют составные экраны.
+
+`UMCGameUserSettings` предлагает `ru`, `en`, `de`, `fr`, `es`, `pt-BR`, `zh-Hans`, `zh-Hant`, `ja`, `ko`; наличие кодов не доказывает полноту перевода каждой строки. `MCUIDataLibrary` нормализует culture, использует fallback chain и explicit-culture numeric/plural formatting. PreviewCulture позволяет проверять Designer без смены глобального языка. См. [LocalizationEditing](UI/LocalizationEditing.md), [LocalizationContract](UI/LocalizationContract_20261016.md).
+
+Настройки звука/управления/языка/voice и bag color относятся к local GameUserSettings. Покупки, косметика и pending next-run boosters принадлежат Hub economy/profile. Контроллер восстанавливает профиль на authority, переносит equipped cosmetics на pawn и применяет pending boosters по RunId: повтор того же RunId не выдаёт их снова; при неудачной batch grant покупки остаются. Эти источники не следует заменять сохранением UI полей. См. [MCPlayerHubEconomy](../Source/MessControl/Private/MCPlayerHubEconomy.cpp), [MCHubEconomyComponent](../Source/MessControl/Private/MCHubEconomyComponent.cpp), [HubLobby](HubLobby.md).
+
+## Проверка и исторические свидетельства
+
+Аудит 2026-10-23: graph-first exploration, затем actual source и существующий git diff; coverage проверен для ключевых путей. Индекс отмечает `metadata_changed`, reflection headers частично разобраны. Graph resolver может давать совпадения по общим именам; отсутствие/наличие edge не заменяет source.
+
+Прежний документ фиксировал solo/Editor/network прогоны 2026-10-03 и foam review 2026-10-04. Из этих путей сейчас доступны `Saved/FoamReview/MaterialFinal.log` и `Saved/FoamReview/EditorSoloFinal.log`; `Saved/CarrotKnifeVerification.json` и `Saved/TestReports/WeaponPlayerHits/index.json` по прежним адресам не найдены. Старые pass-claims не подтверждают текущие source changes и особенно изменившийся teammate damage contract.
+
+Существующие helpers/tests остаются средствами проверки, а не отчётом об их запуске: `Tools/TestInventory.ps1`, `Tools/TestCamera.ps1`, `Tools/TestOrbitCamera.ps1`, `Tools/TestBrush.ps1`, `MCInventoryTests`, localization/menu/no-experience HUD tests. Network helpers запускаются только по отдельному запросу пользователя; Windows build/cook/package — отдельная задача.
+
+Текущие пробелы: свежая компиляция user UI changes, saved WBP/schema alignment, solo first-use visuals, fragment timer layout и меню в реальной камере, повторный travel/input restoration, полный cold packaged start и отдельно авторизованный multiplayer. Никакой новый PASS этим документом не заявляется.
