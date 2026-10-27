@@ -30,7 +30,7 @@ protected:
 };
 
 UENUM()
-enum class EMCHubMenuAction : uint8 { OpenSelection, SelectDay, Launch, Return, InviteFriends };
+enum class EMCHubMenuAction : uint8 { OpenSelection, SelectDay, Launch, Return, InviteFriends, EnterDestination };
 
 /** Native controls are the only interactive part of the shared mouth selector. */
 UCLASS()
@@ -95,6 +95,7 @@ private:
     void ResetSelectionPresentation();
     void AdvanceSelectionPresentation();
     void UpdateMouthHitAreas();
+    bool CanLaunchSelectedDestination() const;
     void SelectRelative(int32 Direction);
     FText Format(FName Key,const FText& Fallback,const FFormatNamedArguments& Arguments) const;
     UTextBlock* AddLabel(UVerticalBox* Parent,FName Name,int32 Size,bool bBold=false);

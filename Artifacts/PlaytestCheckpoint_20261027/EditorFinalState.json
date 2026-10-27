@@ -1,0 +1,12 @@
+{
+  "world": "/Game/Maps/L_Mouth.L_Mouth",
+  "pie": false,
+  "dirty": [],
+  "slip_debug": 0,
+  "audio": {
+    "EnableGameSound": false
+  },
+  "background_audio": {
+    "bAllowBackgroundAudio": false
+  }
+}

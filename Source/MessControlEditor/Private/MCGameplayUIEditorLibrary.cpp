@@ -4,6 +4,8 @@
 #include "MCMainMenuPreview.h"
 #include "MCGameplayUIWidget.h"
 #include "MCGameplayHUD.h"
+#include "MCPlayerController.h"
+#include "EngineUtils.h"
 #include "MCMainMenuWidget.h"
 #include "MCVoiceSettingsWidget.h"
 #include "MCHubWidget.h"
@@ -15,6 +17,28 @@
 #include "MCTongue.h"
 #include "MCNutRainEvent.h"
 #include "MCNutBoss.h"
+#include "MCSingleDayDirector.h"
+#include "MCGameState.h"
+#include "MCToothCharacter.h"
+#include "MCToothStatusComponent.h"
+#include "MCCoffeeFlood.h"
+#include "MCDayPlan.h"
+#include "MCGameDirectorProfile.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
+
+bool UMCGameplayUIEditorLibrary::TogglePIEPauseMenu(UWorld* World)
+{
+    if(!World || World->WorldType!=EWorldType::PIE || World->bIsTearingDown) return false;
+    AMCPlayerController* LocalController=nullptr;
+    for(TActorIterator<AMCPlayerController> It(World);It;++It) if(It->HasLocalPresentationOwner()) {
+        if(LocalController) return false;
+        LocalController=*It;
+    }
+    if(!LocalController) return false;
+    LocalController->TogglePauseMenu();
+    return true;
+}
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Blueprint/WidgetBlueprintGeneratedClass.h"
 #include "WidgetBlueprint.h"
@@ -240,6 +264,50 @@ AMCNutBoss* UMCGameplayUIEditorLibrary::SpawnPIEMageForSummon(UWorld* World,AMCT
     Mage->FinishSpawning(AirbornePose);
     Event->Bosses.Add(Mage);Event->RegisterEncounterEnemy(Mage);
     return Mage;
+}
+
+bool UMCGameplayUIEditorLibrary::StartPostNutRelaxPreview(AMCPlayerController* PlayerController)
+{
+    UWorld* World=IsValid(PlayerController)?PlayerController->GetWorld():nullptr;
+    if(!IsInGameThread() || !GEditor || !IsValid(World) || World->WorldType!=EWorldType::PIE
+        || World->bIsTearingDown || World->GetNetMode()!=NM_Standalone || World->IsPaused()
+        || !FParse::Param(FCommandLine::Get(),TEXT("MCHubTransientProfile"))
+        || PlayerController->IsActorBeingDestroyed() || !PlayerController->HasAuthority()
+        || !PlayerController->IsLocalController() || !PlayerController->HasLocalPresentationOwner()
+        || !PlayerController->IsWorldPresentationReady()) return false;
+    const FWorldContext* Context=GEditor->GetWorldContextFromWorld(World);
+    if(!Context || Context->WorldType!=EWorldType::PIE || GEditor->PlayWorld!=World) return false;
+    auto* Player=Cast<AMCToothCharacter>(PlayerController->GetPawn());
+    auto* State=World->GetGameState<AMCGameState>();
+    auto* Loop=State?State->SingleDayDirector.Get():nullptr;
+    if(!IsValid(State) || !IsValid(Player) || Player->IsActorBeingDestroyed() || Player->GetWorld()!=World
+        || !Player->Status || !Player->Status->IsAlive() || Player->IsArenaArrivalHeld()
+        || !State->bSingleDayLoop || State->bLobbyWaiting || State->bTutorialActive
+        || State->bDayOneComplete || State->bDevManualEvents || State->Phase!=EMCShiftPhase::Working
+        || !IsValid(Loop) || Loop->IsActorBeingDestroyed() || Loop->GetWorld()!=World
+        || !Loop->HasAuthority() || Loop->bStageRewardPending || !IsValid(Loop->Mechanics)
+        || !IsValid(Loop->Settings) || Loop->IsLegacyTimedFinale()) return false;
+    // This fixture is only meaningful for the authored Nuts -> Relax -> Jellies
+    // route. It does not manufacture or reorder slots in a custom run.
+    const auto& Slots=Loop->Settings->KeyEvents;
+    if(Slots.Num()<2 || Slots[0].Kind!=EMCSingleDayKeyEventKind::NutEncounter
+        || Slots[1].Kind!=EMCSingleDayKeyEventKind::Jellies) return false;
+    UMCDayPlan* Mechanics=Loop->Mechanics;
+    UMCGameDirectorProfile* Support=Loop->DirectorProfile;
+    // Initialize duplicates settings into the loop. Snapshot outside that outer
+    // first, so repeated explicit previews cannot collide with its old settings.
+    const FName SnapshotName=MakeUniqueObjectName(GetTransientPackage(),UMCSingleDayProfile::StaticClass(),TEXT("PostNutRelaxPreviewProfile"));
+    TStrongObjectPtr<UMCSingleDayProfile> Profile(DuplicateObject<UMCSingleDayProfile>(Loop->Settings,GetTransientPackage(),SnapshotName));
+    if(!Profile.IsValid()) return false;
+    UE_LOG(LogTemp,Display,TEXT("MC_POST_NUT_RELAX_PREVIEW_SETUP explicit_initial_stage_fixture=1 full_run_or_nut_completion_claim=0 world=%s controller=%s mechanics=%s coffee_to_food=%.2f"),
+        *World->GetPathName(),*PlayerController->GetPathName(),*Mechanics->GetPathName(),Profile->AfterNutCoffeeToFoodSeconds);
+    // Ordinary lifecycle owns all cleanup and restart work. No timer, food
+    // count, completion, player status or economy value is assigned here.
+    Loop->Stop();
+    Loop->Initialize(Mechanics,Profile.Get(),Support);
+    Loop->BeginPostNutMeal();
+    return !Loop->bStopped && Loop->Stage==EMCSingleDayStage::PostNutCoffee
+        && IsValid(Loop->OpeningCoffee) && Loop->OpeningCoffee->IsActive();
 }
 
 FString UMCGameplayUIEditorLibrary::InspectPlayerView(APlayerController* PlayerController)

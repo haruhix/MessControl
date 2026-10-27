@@ -1,0 +1,5762 @@
+{
+  "status": "completed",
+  "passed": true,
+  "phase": "observing_native_coffee_interval_and_food",
+  "output": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Run_20261026T230358Z_7cbc1b",
+  "record_gate": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Run_20261026T230358Z_7cbc1b\\Record.gate",
+  "owned_world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth",
+  "owned_director": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCSingleDayDirector_0",
+  "samples": [
+    {
+      "wall_since_capture": 0.014999999999417923,
+      "game_seconds": 389.6399385035038,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 0.1709999999984575,
+      "game_seconds": 389.6917015053332,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 0.3280000000013388,
+      "game_seconds": 389.8487186022103,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 0.4680000000007567,
+      "game_seconds": 389.99300730600953,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 0.625,
+      "game_seconds": 390.1375671066344,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 0.7649999999994179,
+      "game_seconds": 390.2914292998612,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 0.9059999999990396,
+      "game_seconds": 390.44012330845,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 1.0620000000017171,
+      "game_seconds": 390.5848488993943,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 1.2030000000013388,
+      "game_seconds": 390.72691770270467,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 1.3430000000007567,
+      "game_seconds": 390.87116749957204,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 1.5,
+      "game_seconds": 391.0124017037451,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 1.639999999999418,
+      "game_seconds": 391.1697773076594,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 1.7959999999984575,
+      "game_seconds": 391.3173549063504,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 1.9530000000013388,
+      "game_seconds": 391.4715638048947,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 2.1090000000003783,
+      "game_seconds": 391.6238936968148,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 2.264999999999418,
+      "game_seconds": 391.7761354930699,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 2.4530000000013388,
+      "game_seconds": 391.9311976917088,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 2.625,
+      "game_seconds": 392.12763679400086,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 2.812000000001717,
+      "game_seconds": 392.28954139724374,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 2.9840000000003783,
+      "game_seconds": 392.4774635024369,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 3.1559999999990396,
+      "game_seconds": 392.65716210380197,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 3.3430000000007567,
+      "game_seconds": 392.83008790388703,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 3.5,
+      "game_seconds": 393.0106601007283,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 3.639999999999418,
+      "game_seconds": 393.17218880727887,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 3.7959999999984575,
+      "game_seconds": 393.3201662041247,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 3.937000000001717,
+      "game_seconds": 393.4666938073933,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 4.093000000000757,
+      "game_seconds": 393.6139447130263,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 4.234000000000378,
+      "game_seconds": 393.76126340404153,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 4.375,
+      "game_seconds": 393.902918998152,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 4.514999999999418,
+      "game_seconds": 394.0451941974461,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 4.65599999999904,
+      "game_seconds": 394.18580900505185,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 4.7959999999984575,
+      "game_seconds": 394.3290700055659,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 4.953000000001339,
+      "game_seconds": 394.47267949953675,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 5.093000000000757,
+      "game_seconds": 394.61966839805245,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 5.25,
+      "game_seconds": 394.768680293113,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 5.40599999999904,
+      "game_seconds": 394.9229295887053,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 5.562000000001717,
+      "game_seconds": 395.07500778511167,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 5.718000000000757,
+      "game_seconds": 395.2349251843989,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 5.875,
+      "game_seconds": 395.3922470845282,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 6.03099999999904,
+      "game_seconds": 395.5513499863446,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 6.1709999999984575,
+      "game_seconds": 395.70002238824964,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 6.312000000001717,
+      "game_seconds": 395.84114058688283,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 6.453000000001339,
+      "game_seconds": 395.98558079078794,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 6.609000000000378,
+      "game_seconds": 396.130693692714,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 6.75,
+      "game_seconds": 396.273963291198,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 6.9209999999984575,
+      "game_seconds": 396.42225888743997,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 7.078000000001339,
+      "game_seconds": 396.5867502875626,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 7.25,
+      "game_seconds": 396.75445779040456,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 7.389999999999418,
+      "game_seconds": 396.92152159288526,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 7.53099999999904,
+      "game_seconds": 397.063791397959,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 7.687000000001717,
+      "game_seconds": 397.20870200172067,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 7.828000000001339,
+      "game_seconds": 397.35411079600453,
+      "stage": "POSTNUTCOFFEE",
+      "stage_ends_at": 0.0,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCoffeeFlood_1",
+          "active": true,
+          "started_at": 389.6399385035038,
+          "cycles": 1
+        }
+      ],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 7.968000000000757,
+      "game_seconds": 397.4977162964642,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 8.109000000000378,
+      "game_seconds": 397.6404773928225,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 8.25,
+      "game_seconds": 397.7799458988011,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 8.389999999999418,
+      "game_seconds": 397.9190171994269,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 8.514999999999418,
+      "game_seconds": 398.055906701833,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 8.65599999999904,
+      "game_seconds": 398.1940391995013,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 8.795999999998457,
+      "game_seconds": 398.3329332061112,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 8.937000000001717,
+      "game_seconds": 398.4692847020924,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 9.062000000001717,
+      "game_seconds": 398.60275940969586,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 9.203000000001339,
+      "game_seconds": 398.7401340045035,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 9.359000000000378,
+      "game_seconds": 398.8813855983317,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 9.484000000000378,
+      "game_seconds": 399.02389499917626,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 9.625,
+      "game_seconds": 399.16261029616,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 9.78099999999904,
+      "game_seconds": 399.30416979268193,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 9.953000000001339,
+      "game_seconds": 399.4485939927399,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 10.109000000000378,
+      "game_seconds": 399.62288569286466,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 10.28099999999904,
+      "game_seconds": 399.7818110920489,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 10.40599999999904,
+      "game_seconds": 399.94911888614297,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 10.545999999998457,
+      "game_seconds": 400.08491218462586,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 10.687000000001717,
+      "game_seconds": 400.22372699156404,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 10.828000000001339,
+      "game_seconds": 400.36124508455396,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 10.968000000000757,
+      "game_seconds": 400.4992536790669,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 11.109000000000378,
+      "game_seconds": 400.63701478019357,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 11.234000000000378,
+      "game_seconds": 400.7746877707541,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 11.375,
+      "game_seconds": 400.9121937789023,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 11.53099999999904,
+      "game_seconds": 401.05244717374444,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 11.670999999998457,
+      "game_seconds": 401.19580157473683,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 11.812000000001717,
+      "game_seconds": 401.34077287092805,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 11.968000000000757,
+      "game_seconds": 401.48931627348065,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 12.109000000000378,
+      "game_seconds": 401.63558397069573,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 12.25,
+      "game_seconds": 401.78290477767587,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 12.389999999999418,
+      "game_seconds": 401.92453548684716,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 12.545999999998457,
+      "game_seconds": 402.0694370903075,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 12.687000000001717,
+      "game_seconds": 402.2153375931084,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 12.843000000000757,
+      "game_seconds": 402.36054039373994,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 12.968000000000757,
+      "game_seconds": 402.50854209437966,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 13.125,
+      "game_seconds": 402.64950769022107,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 13.264999999999418,
+      "game_seconds": 402.7893725819886,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 13.40599999999904,
+      "game_seconds": 402.92941537871957,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 13.562000000001717,
+      "game_seconds": 403.0697324760258,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 13.718000000000757,
+      "game_seconds": 403.232413072139,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 13.889999999999418,
+      "game_seconds": 403.39526707306504,
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "stage_ends_at": 403.4977162964642,
+      "portion_number": 0,
+      "portion_count": 1,
+      "portion_target": 0,
+      "portion_spawned": 0,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 14.045999999998457,
+      "game_seconds": 403.5579650737345,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 1,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FALLING",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 14.203000000001339,
+      "game_seconds": 403.7329387702048,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 1,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FALLING",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 14.343000000000757,
+      "game_seconds": 403.873726580292,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 1,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FALLING",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 14.484000000000378,
+      "game_seconds": 404.0143679715693,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 1,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FALLING",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 14.625,
+      "game_seconds": 404.1582795716822,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 1,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FALLING",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 14.764999999999418,
+      "game_seconds": 404.29846896603703,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 1,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FALLING",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 14.90599999999904,
+      "game_seconds": 404.4391363747418,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 1,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FALLING",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 15.062000000001717,
+      "game_seconds": 404.58334067836404,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 2,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FALLING",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FALLING",
+          "item_name": "Tomato",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 15.218000000000757,
+      "game_seconds": 404.7404072768986,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 2,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FALLING",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FALLING",
+          "item_name": "Tomato",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 15.359000000000378,
+      "game_seconds": 404.8867672868073,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 2,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FALLING",
+          "item_name": "Tomato",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 15.5,
+      "game_seconds": 405.0333728827536,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 2,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FALLING",
+          "item_name": "Tomato",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 15.639999999999418,
+      "game_seconds": 405.1727711893618,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 2,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FALLING",
+          "item_name": "Tomato",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 15.78099999999904,
+      "game_seconds": 405.309462685138,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 2,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FALLING",
+          "item_name": "Tomato",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 15.920999999998457,
+      "game_seconds": 405.4461141861975,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 2,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FALLING",
+          "item_name": "Tomato",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 16.093000000000757,
+      "game_seconds": 405.60053319111466,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 3,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FALLING",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FALLING",
+          "item_name": "Carrot",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 16.264999999999418,
+      "game_seconds": 405.77127088978887,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 3,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FALLING",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FALLING",
+          "item_name": "Carrot",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 16.420999999998457,
+      "game_seconds": 405.93321058526635,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 3,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FALLING",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FALLING",
+          "item_name": "Carrot",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 16.57800000000134,
+      "game_seconds": 406.1001445837319,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 3,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FALLING",
+          "item_name": "Carrot",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 16.718000000000757,
+      "game_seconds": 406.24571888521314,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 3,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FALLING",
+          "item_name": "Carrot",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 16.85900000000038,
+      "game_seconds": 406.38705288246274,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 3,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FALLING",
+          "item_name": "Carrot",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 17.0,
+      "game_seconds": 406.5310981757939,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 3,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FALLING",
+          "item_name": "Carrot",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 17.15599999999904,
+      "game_seconds": 406.67567567899823,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 4,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FALLING",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 17.312000000001717,
+      "game_seconds": 406.8269673772156,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 4,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FALLING",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 17.468000000000757,
+      "game_seconds": 406.9792811758816,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 4,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 17.625,
+      "game_seconds": 407.1445864774287,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 4,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 17.78099999999904,
+      "game_seconds": 407.30062878504395,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 4,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 17.937000000001717,
+      "game_seconds": 407.4588874913752,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 4,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 18.093000000000757,
+      "game_seconds": 407.61444579437375,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 4,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 18.25,
+      "game_seconds": 407.76293489709496,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 5,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FALLING",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 18.40599999999904,
+      "game_seconds": 407.9182187952101,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 5,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FALLING",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 18.57800000000134,
+      "game_seconds": 408.0827258862555,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 5,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FALLING",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 18.718000000000757,
+      "game_seconds": 408.2415336854756,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 5,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FALLING",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 18.85900000000038,
+      "game_seconds": 408.38456838205457,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 5,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FALLING",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 19.0,
+      "game_seconds": 408.5287339873612,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 5,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FALLING",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 19.139999999999418,
+      "game_seconds": 408.6696375794709,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 5,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FALLING",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 19.28099999999904,
+      "game_seconds": 408.8104167766869,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 6,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FALLING",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 19.437000000001717,
+      "game_seconds": 408.96169267967343,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 6,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FALLING",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 19.57800000000134,
+      "game_seconds": 409.1055225767195,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 6,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FALLING",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 19.718000000000757,
+      "game_seconds": 409.24778527393937,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 6,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 19.85900000000038,
+      "game_seconds": 409.3919910825789,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 6,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 20.0,
+      "game_seconds": 409.5337351895869,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 6,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 20.139999999999418,
+      "game_seconds": 409.673873398453,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 6,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 20.295999999998457,
+      "game_seconds": 409.8183662928641,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 7,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FALLING",
+          "item_name": "Apple",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 20.45300000000134,
+      "game_seconds": 409.97052939608693,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 7,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FALLING",
+          "item_name": "Apple",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 20.625,
+      "game_seconds": 410.1253145970404,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 7,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FALLING",
+          "item_name": "Apple",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 20.764999999999418,
+      "game_seconds": 410.291293296963,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 7,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FALLING",
+          "item_name": "Apple",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 20.920999999998457,
+      "game_seconds": 410.4430744983256,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 7,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FALLING",
+          "item_name": "Apple",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 21.07800000000134,
+      "game_seconds": 410.5977267958224,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 7,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FALLING",
+          "item_name": "Apple",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 21.25,
+      "game_seconds": 410.75109619274735,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 7,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FALLING",
+          "item_name": "Apple",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 21.420999999998457,
+      "game_seconds": 410.91710029914975,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 8,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FALLING",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 21.60900000000038,
+      "game_seconds": 411.09490690007806,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 8,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FALLING",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 21.795999999998457,
+      "game_seconds": 411.28411430493,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 8,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FALLING",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 21.95300000000134,
+      "game_seconds": 411.4661248959601,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 8,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FALLING",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 22.093000000000757,
+      "game_seconds": 411.62473640218377,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 8,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FALLING",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 22.25,
+      "game_seconds": 411.77132019773126,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 8,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FALLING",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 22.40599999999904,
+      "game_seconds": 411.9207033999264,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 9,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FALLING",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 22.545999999998457,
+      "game_seconds": 412.0716099925339,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 9,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FALLING",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 22.70300000000134,
+      "game_seconds": 412.22440000250936,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 9,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FALLING",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 22.843000000000757,
+      "game_seconds": 412.37246810272336,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 9,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FALLING",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 23.0,
+      "game_seconds": 412.5207947976887,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 9,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FREE",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 23.15599999999904,
+      "game_seconds": 412.6718592979014,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 9,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FREE",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 23.295999999998457,
+      "game_seconds": 412.82269509509206,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 9,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FREE",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 23.468000000000757,
+      "game_seconds": 412.97319189086556,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 10,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FREE",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_24",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 23.625,
+      "game_seconds": 413.1378438808024,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 10,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FREE",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_24",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 23.812000000001717,
+      "game_seconds": 413.30339678004384,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 10,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FREE",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_24",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 24.03099999999904,
+      "game_seconds": 413.48103188350797,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 10,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FREE",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_24",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 24.218000000000757,
+      "game_seconds": 413.7090931870043,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 10,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FREE",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_24",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 24.40599999999904,
+      "game_seconds": 413.88975078240037,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 10,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FREE",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_24",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 24.593000000000757,
+      "game_seconds": 414.07781038060784,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 10,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FREE",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_24",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 24.764999999999418,
+      "game_seconds": 414.2726305760443,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 10,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FREE",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FALLING",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_24",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 24.920999999998457,
+      "game_seconds": 414.4437796808779,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 10,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FREE",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_24",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 25.07800000000134,
+      "game_seconds": 414.5997564829886,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 10,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FREE",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_24",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 25.25,
+      "game_seconds": 414.7583583779633,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 10,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FREE",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_24",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 25.389999999999418,
+      "game_seconds": 414.9181036837399,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 10,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FREE",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_24",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    },
+    {
+      "wall_since_capture": 25.5,
+      "game_seconds": 415.0552425868809,
+      "stage": "POSTNUTMEAL",
+      "stage_ends_at": 0.0,
+      "portion_number": 1,
+      "portion_count": 1,
+      "portion_target": 10,
+      "portion_spawned": 10,
+      "stage_reward_pending": false,
+      "phase": "WORKING",
+      "coffee": [],
+      "food": [
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+          "phase": "FREE",
+          "item_name": "Strawberry",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+          "phase": "FREE",
+          "item_name": "Tomato",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+          "phase": "FREE",
+          "item_name": "Carrot",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+          "phase": "FREE",
+          "item_name": "Broccoli",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+          "phase": "FREE",
+          "item_name": "Bacon",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+          "phase": "FREE",
+          "item_name": "Apple",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+          "phase": "FREE",
+          "item_name": "Fibre",
+          "batch": 4116290
+        },
+        {
+          "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_24",
+          "phase": "FALLING",
+          "item_name": "Bacon",
+          "batch": 4116290
+        }
+      ],
+      "hero_alive": true
+    }
+  ],
+  "transitions": [
+    {
+      "stage": "POSTNUTCOFFEE",
+      "game_seconds": 389.6399385035038,
+      "wall_since_capture": 0.014999999999417923,
+      "portion_spawned": 0
+    },
+    {
+      "stage": "POSTNUTCOFFEEPAUSE",
+      "game_seconds": 397.4977162964642,
+      "wall_since_capture": 7.968000000000757,
+      "portion_spawned": 0
+    },
+    {
+      "stage": "POSTNUTMEAL",
+      "game_seconds": 403.5579650737345,
+      "wall_since_capture": 14.045999999998457,
+      "portion_spawned": 1
+    }
+  ],
+  "checks": {
+    "native_hook_once": true,
+    "actual_coffee_active_seen": true,
+    "single_cycle_settings_observed": true,
+    "full_wave_ended_before_pause": true,
+    "six_second_deadline_bracketed": true,
+    "no_food_before_interval": true,
+    "ten_whole_food_actors_observed": true,
+    "no_eleventh_item_after_hold": true,
+    "no_reward_between_drink_and_food": true,
+    "unresolved_work_not_auto_completed": true
+  },
+  "fixture_calls": 1,
+  "engine_command_line": "-NoSplash -NoHMD -MCHubTransientProfile -DDC=InstalledNoZenLocalFallback -LocalDataCachePath=E:/DEVGAME/MessControl/DerivedDataCache -abslog=E:/CodexWork/Batch6_20261027/EditorFinal.log",
+  "fixture": "One explicit Editor-only StartPostNutRelaxPreview initial-stage setup; ordinary Stop/Initialize/BeginPostNutMeal using actual run config",
+  "limitations": [
+    "Does not claim a played nut fight, full run, cleanup completion or reward claim.",
+    "No gameplay stage/deadline/count/HP/economy writes; only one authorized native initial-stage fixture call.",
+    "One standalone PIE; transient profile; no persistence/network/packaged PSO claim.",
+    "Actual owned SWindow frames include capture overhead; Frames.json stores measured wall and genuine game timestamps.",
+    "Player/camera/input are not manipulated; root owns the existing gameplay view and PIE teardown."
+  ],
+  "source_sha256": {
+    "Source/MessControl/Private/MCSingleDayDirectorPostNut.cpp": "1b5812ed34797efe3dbb84c0f6fc8900cda01064612a00c36b447b784eaed545",
+    "Source/MessControl/Public/MCSingleDayDirector.h": "440c39e4a260d107a1c3e8a8f569eb4fc71a7d2663a62b48152b9e5b33ba7682",
+    "Source/MessControlEditor/Private/MCGameplayUIEditorLibrary.cpp": "c19f5d9c15dba4db13ff9448d51a403261fd0fdf5407e0e9e5f23d37995c5030"
+  },
+  "observer_schema_preflight": {
+    "passed": true,
+    "director": [
+      "stage",
+      "stage_ends_at",
+      "meal_portion_number",
+      "meal_portion_count",
+      "meal_portion_target",
+      "meal_portion_spawned",
+      "stage_reward_pending"
+    ],
+    "coffee": [
+      "bActive"
+    ],
+    "food": [
+      "bBrushTool",
+      "bFragment",
+      "FoodData.Kind"
+    ],
+    "state": [
+      "Phase"
+    ],
+    "omitted_non_python_coffee_fields": [
+      "Seconds",
+      "Waves"
+    ],
+    "note": "Required Blueprint-visible reads checked before the single native fixture; nonessential telemetry is optional."
+  },
+  "frames_json": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Run_20261026T230358Z_7cbc1b\\Frames\\Frames.json",
+  "native_hook_started_game": 389.6399385035038,
+  "native_hook_started_wall": 21.85900000000038,
+  "observed_whole_foods": [
+    {
+      "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_15",
+      "phase": "FALLING",
+      "item_name": "Strawberry",
+      "batch": 4116290,
+      "first_seen_game": 403.5579650737345
+    },
+    {
+      "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_16",
+      "phase": "FALLING",
+      "item_name": "Tomato",
+      "batch": 4116290,
+      "first_seen_game": 404.58334067836404
+    },
+    {
+      "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_17",
+      "phase": "FALLING",
+      "item_name": "Carrot",
+      "batch": 4116290,
+      "first_seen_game": 405.60053319111466
+    },
+    {
+      "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+      "phase": "FALLING",
+      "item_name": "Fibre",
+      "batch": 4116290,
+      "first_seen_game": 406.67567567899823
+    },
+    {
+      "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+      "phase": "FALLING",
+      "item_name": "Broccoli",
+      "batch": 4116290,
+      "first_seen_game": 407.76293489709496
+    },
+    {
+      "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20",
+      "phase": "FALLING",
+      "item_name": "Bacon",
+      "batch": 4116290,
+      "first_seen_game": 408.8104167766869
+    },
+    {
+      "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_21",
+      "phase": "FALLING",
+      "item_name": "Apple",
+      "batch": 4116290,
+      "first_seen_game": 409.8183662928641
+    },
+    {
+      "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_22",
+      "phase": "FALLING",
+      "item_name": "Fibre",
+      "batch": 4116290,
+      "first_seen_game": 410.91710029914975
+    },
+    {
+      "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_23",
+      "phase": "FALLING",
+      "item_name": "Fibre",
+      "batch": 4116290,
+      "first_seen_game": 411.9207033999264
+    },
+    {
+      "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_24",
+      "phase": "FALLING",
+      "item_name": "Bacon",
+      "batch": 4116290,
+      "first_seen_game": 412.97319189086556
+    }
+  ],
+  "first_food_game": 403.5579650737345,
+  "pause_deadline_game": 403.4977162964642,
+  "error": null,
+  "elapsed_wall": 47.34400000000096,
+  "cleanup": "Observer/owned native capture callbacks stopped. Existing PIE, player, input, camera and gameplay retained for root teardown."
+}

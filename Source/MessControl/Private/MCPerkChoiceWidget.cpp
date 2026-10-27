@@ -22,6 +22,8 @@
 #include "Internationalization/Internationalization.h"
 #include "Internationalization/Culture.h"
 #include "InputCoreTypes.h"
+#include "Engine/World.h"
+#include "GameFramework/GameStateBase.h"
 
 #define LOCTEXT_NAMESPACE "MCPerkChoice"
 
@@ -121,7 +123,9 @@ void UMCPerkChoiceWidget::BuildPresentationTree()
         if(auto* Size=Cast<USizeBox>(WidgetTree->FindWidget(TEXT("RewardPanelSize")))) {Size->SetWidthOverride(1040);Size->SetHeightOverride(680);}
         if(Title) Title->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
         if(Subtitle) Subtitle->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+        EnsureStageChoiceCountdown();
         NormalizePresentationLayout();
+        ApplyTheme();
         return;
     }
     auto* Backdrop=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("RewardBackdrop"));WidgetTree->RootWidget=Backdrop;
@@ -146,7 +150,68 @@ void UMCPerkChoiceWidget::BuildPresentationTree()
     Actions=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("RewardActions"));
     auto* ActionSlot=Main->AddChildToVerticalBox(Actions);ActionSlot->SetPadding(FMargin(0,12,0,0));ActionSlot->SetHorizontalAlignment(HAlign_Center);
     Hint=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("RewardHint"));Hint->SetAutoWrapText(true);Hint->SetJustification(ETextJustify::Center);
-    Main->AddChildToVerticalBox(Hint)->SetPadding(FMargin(6,9,6,0));ApplyTheme();
+    Main->AddChildToVerticalBox(Hint)->SetPadding(FMargin(6,9,6,0));
+    EnsureStageChoiceCountdown();ApplyTheme();
+}
+
+void UMCPerkChoiceWidget::EnsureStageChoiceCountdown()
+{
+    if(!WidgetTree || StageCountdownBorder) return;
+    StageCountdownBorder=Cast<UBorder>(WidgetTree->FindWidget(TEXT("RewardStageCountdown")));
+    StageCountdownText=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("RewardStageCountdownText")));
+    if(!StageCountdownBorder) {
+        auto* HeaderRow=Cast<UHorizontalBox>(WidgetTree->FindWidget(TEXT("RewardHeaderRow")));
+        auto* Column=Cast<UVerticalBox>(WidgetTree->FindWidget(TEXT("RewardColumn")));
+        if(!HeaderRow && !Column) return;
+        StageCountdownBorder=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("RewardStageCountdown"));
+        StageCountdownBorder->SetPadding(FMargin(12,6));
+        StageCountdownText=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("RewardStageCountdownText"));
+        StageCountdownText->SetJustification(ETextJustify::Center);
+        StageCountdownText->SetMinDesiredWidth(185);
+        StageCountdownBorder->SetContent(StageCountdownText);
+        if(HeaderRow) {
+            auto* CountdownSlot=HeaderRow->AddChildToHorizontalBox(StageCountdownBorder);
+            CountdownSlot->SetPadding(FMargin(10,0,0,0));CountdownSlot->SetVerticalAlignment(VAlign_Center);
+        } else {
+            auto* CountdownSlot=Column->AddChildToVerticalBox(StageCountdownBorder);
+            CountdownSlot->SetPadding(FMargin(6,8,6,0));CountdownSlot->SetHorizontalAlignment(HAlign_Center);
+        }
+    }
+    StageCountdownBorder->SetVisibility(ESlateVisibility::Collapsed);
+    // Construct and style with the rest of the modal, including during UI
+    // prewarm. Showing the timer needs no new material or texture load.
+    BindStyle(TEXT("RewardStageCountdown"),EMCUIColorToken::Mint,EMCUIStyleTarget::Background);
+    BindStyle(TEXT("RewardStageCountdownText"),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,17,true);
+}
+
+void UMCPerkChoiceWidget::SetStageChoiceDeadline(double ServerEndsAt)
+{
+    StageChoiceDeadline=FMath::IsFinite(ServerEndsAt) && ServerEndsAt>0?ServerEndsAt:0;
+    LastStageChoiceSecond=INDEX_NONE;
+    UpdateStageChoiceCountdown();
+}
+
+void UMCPerkChoiceWidget::UpdateStageChoiceCountdown()
+{
+    if(!StageCountdownBorder || !StageCountdownText) return;
+    const bool Visible=bTeamBooster && bShowingChoices && !bWaitingForTeam && StageChoiceDeadline>0;
+    StageCountdownBorder->SetVisibility(Visible?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
+    if(!Visible) return;
+    const auto* World=GetWorld();const auto* State=World?World->GetGameState<AGameStateBase>():nullptr;
+    const double Now=State?State->GetServerWorldTimeSeconds():World?World->GetTimeSeconds():0;
+    const int32 Seconds=FMath::CeilToInt(FMath::Clamp(StageChoiceDeadline-Now,0.,40.));
+    if(Seconds==LastStageChoiceSecond) return;
+    LastStageChoiceSecond=Seconds;
+    const bool English=DisplayCulture().StartsWith(TEXT("en"));
+    if(Seconds==0) StageCountdownText->SetText(English?LOCTEXT("StageAutoChoicePendingEN","Auto-picking…"):LOCTEXT("StageAutoChoicePendingRU","Автовыбор…"));
+    else StageCountdownText->SetText(Format(English?LOCTEXT("StageAutoChoiceInEN","Auto-pick in {Seconds}s"):LOCTEXT("StageAutoChoiceInRU","Автовыбор через: {Seconds}с"),
+        FFormatNamedArguments{{TEXT("Seconds"),FText::AsNumber(Seconds)}}));
+}
+
+void UMCPerkChoiceWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
+{
+    Super::NativeTick(Geometry,DeltaSeconds);
+    UpdateStageChoiceCountdown();
 }
 
 void UMCPerkChoiceWidget::NormalizePresentationLayout()
@@ -201,8 +266,8 @@ void UMCPerkChoiceWidget::ShowChoices(const TArray<FName>& IDs,EMCPerkPolarity P
 void UMCPerkChoiceWidget::SetTeamBoosterHeader()
 {
     bTeamBooster=true;
-    if(Title) Title->SetText(Copy(TEXT("UI.Reward.TeamBoosterTitle"),LOCTEXT("TeamBoosterTitle","КОМАНДНЫЙ БУСТЕР")));
-    if(Subtitle) Subtitle->SetText(Copy(TEXT("UI.Reward.TeamBoosterSubtitle"),LOCTEXT("TeamBoosterSubtitle","Один выбор — эффект сразу для всей команды")));
+    if(Title) Title->SetText(Copy(TEXT("UI.Reward.TeamBoosterTitle"),LOCTEXT("PersonalStageBoosterTitle","ТВОЯ НАГРАДА ЗА ЭТАП")));
+    if(Subtitle) Subtitle->SetText(Copy(TEXT("UI.Reward.TeamBoosterSubtitle"),LOCTEXT("PersonalStageBoosterSubtitle","Выбери свой бустер. У каждого игрока отдельный выбор.")));
     auto* PC=GetOwningPlayer<AMCPlayerController>();
     for(int32 Index=0;Index<CardWidgets.Num();++Index)
         if(CardWidgets[Index] && CurrentChoiceIDs.IsValidIndex(Index) && CurrentDefinitions.IsValidIndex(Index))
@@ -251,11 +316,11 @@ FMCPerkCardPresentation UMCPerkChoiceWidget::MakePresentation(FName ID,const FMC
     }
     if(bTeamBooster)
     {
-        Data.Badge=Copy(TEXT("UI.Reward.TeamBoosterBadge"),LOCTEXT("TeamBoosterBadge","ВСЕЙ КОМАНДЕ · СРАЗУ"));
+        Data.Badge=Copy(TEXT("UI.Reward.TeamBoosterBadge"),LOCTEXT("PersonalStageBoosterBadge","ТВОЙ БУСТЕР · СРАЗУ"));
         Data.StackPreview=FText::GetEmpty();Data.BenefitTokens.Reset();Data.CostTokens.Reset();
-        if(ID==TEXT("Fallback_Mouthwash")) Data.Description=Copy(TEXT("UI.Reward.TeamMouthwash"),LOCTEXT("TeamMouthwash","Мгновенная волна вокруг каждого живого союзника: убирает грязь и наносит урон врагам. Общие цели получают эффект один раз."));
-        else if(ID==TEXT("Fallback_BrushFury")) Data.Description=Copy(TEXT("UI.Reward.TeamFury"),LOCTEXT("TeamFury","Все живые союзники сразу входят в ярость щётки на 5 секунд."));
-        else if(ID==TEXT("Fallback_Grenade")) Data.Description=Copy(TEXT("UI.Reward.TeamGrenade"),LOCTEXT("TeamGrenade","Сразу вооружает каждого живого союзника. Его следующий нокдаун вызывает взрыв."));
+        if(ID==TEXT("Fallback_Mouthwash")) Data.Description=Copy(TEXT("UI.Reward.TeamMouthwash"),LOCTEXT("PersonalStageMouthwash","Мгновенная волна вокруг тебя: убирает грязь и наносит урон врагам."));
+        else if(ID==TEXT("Fallback_BrushFury")) Data.Description=Copy(TEXT("UI.Reward.TeamFury"),LOCTEXT("PersonalStageFury","Ты сразу входишь в ярость щётки на 5 секунд."));
+        else if(ID==TEXT("Fallback_Grenade")) Data.Description=Copy(TEXT("UI.Reward.TeamGrenade"),LOCTEXT("PersonalStageGrenade","Вооружает тебя. Твой следующий нокдаун вызывает взрыв."));
     }
     return Data;
 }
@@ -263,6 +328,7 @@ void UMCPerkChoiceWidget::BuildChoices(const TArray<FName>& IDs,EMCPerkPolarity 
 {
     BuildPresentationTree();if(!Cards || !Actions || !Title || !Subtitle || !Hint) return;
     bShowingChoices=true;bSelectionPending=false;bWaitingForTeam=false;bTeamBooster=false;bLevelPanel=bPersonal;bOptionalReward=false;bConfirming=false;
+    SetStageChoiceDeadline(0);
     CurrentChoiceIDs.Reset();CurrentDefinitions.Reset();
     Actions->SetVisibility(ESlateVisibility::Visible);
     NormalizePresentationLayout();
@@ -350,6 +416,7 @@ void UMCPerkChoiceWidget::ShowTeamWaiting(int32 Ready,int32 Total)
     CurrentReady=Ready;CurrentTotal=Total;
     BuildPresentationTree();
     bShowingChoices=false;bSelectionPending=false;bWaitingForTeam=true;
+    SetStageChoiceDeadline(0);
     bLevelPanel=bOptionalReward=bConfirming=false;
     for(const auto& Button:Buttons) if(Button) {Button->SetIsEnabled(false);Button->SetInteractionAllowed(false);}
     if(Cards) Cards->SetVisibility(ESlateVisibility::Collapsed);
@@ -408,6 +475,7 @@ void UMCPerkChoiceWidget::ResetEditorPreview() {bHasPreviewFixture=false;SetRend
 void UMCPerkChoiceWidget::OnLocalizationChanged()
 {
     bHasPreviewFixture=false;
+    LastStageChoiceSecond=INDEX_NONE;
     CacheDataTables();
     if (IsDesignTime() || bApplyingPreview)
     {
@@ -451,6 +519,7 @@ void UMCPerkChoiceWidget::OnLocalizationChanged()
     }
     if (bSelectionPending) SetSelectionPending(true);
     ApplyTheme();
+    UpdateStageChoiceCountdown();
 }
 void UMCPerkChoiceWidget::NativeDestruct()
 {

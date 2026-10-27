@@ -26,11 +26,19 @@ struct FMCStaminaPredictionState
     bool Exhausted=false;
 };
 
+/** Exactly two independently recovering charges; part of the movement ledger. */
+struct FMCDashPredictionState
+{
+    static constexpr int32 Capacity=2;
+    float Remaining[Capacity]={0.f,0.f};
+};
+
 /** Resource snapshots belong to the acknowledged movement timestamp. */
 struct FMCStaminaMoveResponse final : public FCharacterMoveResponseDataContainer
 {
     FMCStaminaPredictionState Stamina;
     FMCSwimPredictionState Swim;
+    FMCDashPredictionState Dash;
     bool bSwimUsesMoveLedger=true;
     virtual void ServerFillResponseData(const UCharacterMovementComponent& Movement,const FClientAdjustment& Adjustment) override;
     virtual bool Serialize(UCharacterMovementComponent& Movement,FArchive& Ar,UPackageMap* Map) override;
@@ -103,7 +111,7 @@ public:
     bool IsReplayingAuthoritativeStamina() const { return bReplayingAuthoritativeStamina; }
     bool LastMoveRequestedSprint() const { return bStaminaSprintRequested; }
     bool LastMoveChargedDash() const { return bStaminaDashCharged; }
-    void RestoreReplayDashCharge(bool Charge) { bReplayDashCharge=Charge; }
+    void RestoreReplayDashCharge(bool Charge,float RechargeSeconds) { bReplayDashCharge=Charge; ReplayDashRechargeSeconds=RechargeSeconds; }
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Swimming",meta=(ClampMin="1")) float MaxSwimEnergy=100.f;
     // Idle floating must not outlast the default 35-second flood hold.
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Swimming",meta=(ClampMin="0")) float SwimEnergyPerSecond=3.5f;
@@ -133,7 +141,7 @@ public:
     void RestoreRaftBoardingCooldown(float Value) { RaftBoardingCooldown=FMath::IsFinite(Value)?FMath::Max(0.f,Value):0.f; }
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Dash",meta=(ClampMin="500",ClampMax="1600")) float DashSpeed=1000;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Dash",meta=(ClampMin="0.2",ClampMax="0.65")) float DashDuration=.42f;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Dash",meta=(ClampMin="0.5",ClampMax="3")) float DashCooldown=1.1f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Dash",meta=(ClampMin="0.5",ClampMax="3")) float DashCooldown=3.f;
     UPROPERTY(ReplicatedUsing=OnRep_DashStartedAt,BlueprintReadOnly,Category="Locomotion|Dash") double DashStartedAt=-100;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Locomotion|Dash") FVector_NetQuantizeNormal DashDirection=FVector::ForwardVector;
     UFUNCTION(BlueprintCallable,Category="Locomotion|Dash") void RequestDash() { bWantsDash=true; }
@@ -144,9 +152,16 @@ public:
     bool WantsDash() const { return bWantsDash; }
     void SetWantsDash(bool Enabled) { bWantsDash=Enabled; }
     void CancelDash();
-    float GetDashCooldownRemaining() const { return DashCooldownRemaining; }
+    UFUNCTION(BlueprintPure,Category="Locomotion|Dash") int32 GetDashCharges() const;
+    UFUNCTION(BlueprintPure,Category="Locomotion|Dash") float GetDashChargeCooldownRemaining(int32 ChargeIndex) const;
+    /** Zero while any charge is ready; otherwise the next charge's remaining time. */
+    UFUNCTION(BlueprintPure,Category="Locomotion|Dash") float GetDashCooldownRemaining() const;
     float EffectiveDashCooldown() const;
-    void RestoreDashPrediction(float Cooldown) { DashCooldownRemaining=Cooldown; }
+    const FMCDashPredictionState& GetDashPrediction() const { return DashState; }
+    const FMCDashPredictionState& GetDashResponseSnapshot() const { return ServerDashSnapshot; }
+    void RestoreDashPrediction(const FMCDashPredictionState& State);
+    void AdvanceDashPrediction(float Dt,bool Charged=false,float RechargeSeconds=0.f);
+    float LastMoveDashRechargeSeconds() const { return DashMoveRechargeSeconds; }
     FVector CaptureSuctionForMove();
     void RestoreSuctionForMove(FVector Sample);
     FVector CaptureRiverForMove();
@@ -181,6 +196,7 @@ private:
     bool bIceMovementLocked=false;
     EMovementMode IcePreviousMovementMode=MOVE_Walking;
     FMCStaminaPredictionState StaminaState,ServerStaminaSnapshot,PendingStaminaCorrection;
+    FMCDashPredictionState DashState,ServerDashSnapshot,PendingDashCorrection;
     FMCSwimPredictionState SwimState,ServerSwimSnapshot,PendingSwimCorrection;
     bool bServerSwimUsesMoveLedger=true,bPendingSwimCorrection=false,bReplayingAuthoritativeSwim=false;
     UPROPERTY(ReplicatedUsing=OnRep_SwimState) FMCSwimPredictionState ReplicatedSwimState;
@@ -208,12 +224,14 @@ private:
     FVector PendingRiver=FVector::ZeroVector;
     FMCBraceMovementState BraceMovement;
     bool bHasBraceSample=false;
-    float DashCooldownRemaining=0;
+    float DashMoveRechargeSeconds=0.f,ReplayDashRechargeSeconds=0.f;
+    bool SpendDashCharge(float RechargeSeconds);
     mutable double DashPresentationStartedAt=-100;
     double LastPresentedDashStartedAt=-100;
     UFUNCTION() void OnRep_DashStartedAt();
     bool CanDashAction() const;
-    void StartDash();
+    bool CanSpendDash() const;
+    bool StartDash();
     void UpdateAmbientSuction();
     void UpdateRiverCurrent();
     float ClimbCooldown=0;

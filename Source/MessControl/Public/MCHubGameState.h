@@ -40,6 +40,8 @@ public:
 
     UFUNCTION(BlueprintPure, Category="Hub") int32 GetReadyCount() const;
     UFUNCTION(BlueprintPure, Category="Hub") int32 GetParticipantCount() const;
+    UFUNCTION(BlueprintPure, Category="Hub") int32 GetLoadedCount() const;
+    UFUNCTION(BlueprintPure, Category="Hub") bool HasLoadedScene(const APlayerState* Player) const;
     UFUNCTION(BlueprintPure, Category="Hub") bool AreAllReady() const;
     UFUNCTION(BlueprintPure, Category="Hub") bool AreAllLoaded() const;
     UFUNCTION(BlueprintPure, Category="Hub") bool IsHost(const APlayerController* Player) const;

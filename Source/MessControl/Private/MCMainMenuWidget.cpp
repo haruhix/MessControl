@@ -27,6 +27,7 @@
 #include "Components/VerticalBoxSlot.h"
 #include "Components/WidgetSwitcher.h"
 #include "Engine/GameInstance.h"
+#include "Engine/LocalPlayer.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "GameFramework/GameUserSettings.h"
@@ -38,9 +39,27 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Styling/CoreStyle.h"
 #include "UObject/UnrealType.h"
+#include "Widgets/SWidget.h"
 
 namespace MCMainMenuPrivate
 {
+    bool HasLocalFocusOwner(const UUserWidget* Menu)
+    {
+        auto* Player=Menu?Menu->GetOwningPlayer():nullptr;
+        const auto* Local=Player?Player->GetLocalPlayer():nullptr;
+        if(!IsValid(Player) || Player->IsActorBeingDestroyed() || !Player->IsLocalController() || !Local
+            || !Menu->GetWorld() || Menu->GetWorld()->bIsTearingDown || Local->GetPlayerController(Menu->GetWorld())!=Player) return false;
+        const auto* Gameplay=Cast<AMCPlayerController>(Player);
+        return !Gameplay || Gameplay->HasLocalPresentationOwner();
+    }
+
+    bool CanFocus(const UWidget* Widget)
+    {
+        if(!IsValid(Widget) || !Widget->GetIsEnabled() || !Widget->IsVisible()) return false;
+        const auto Slate=Widget->GetCachedWidget();
+        return Slate.IsValid() && Slate->SupportsKeyboardFocus() && Slate->IsEnabled() && Slate->GetVisibility().IsVisible();
+    }
+
     FSlateFontInfo Font(FName Style,int32 Size)
     {
         // The saved runtime composite contains its CJK face in packaged games.
@@ -418,12 +437,14 @@ UWidget* UMCMainMenuWidget::GeneratePickerItem(FString Item)
 
 void UMCMainMenuWidget::FocusFirst()
 {
-    if (!GetOwningPlayer()) return;
-    for (UButton* Button:Buttons)
+    if (!MCMainMenuPrivate::HasLocalFocusOwner(this)) return;
+    // This list already excludes inactive settings sections. A visible UMG
+    // button can still be deliberately nonfocusable in its saved Slate tree.
+    for (const auto& Entry:GamepadTargets)
     {
-        if (Button && Button->GetIsEnabled() && Button->IsVisible()) { Button->SetUserFocus(GetOwningPlayer()); return; }
+        if(auto* Target=Entry.Get();MCMainMenuPrivate::CanFocus(Target)) {Target->SetUserFocus(GetOwningPlayer());return;}
     }
-    SetUserFocus(GetOwningPlayer());
+    if(MCMainMenuPrivate::CanFocus(this)) SetUserFocus(GetOwningPlayer());
 }
 
 void UMCMainMenuWidget::FocusMenu()
@@ -573,7 +594,7 @@ void UMCMainMenuWidget::RequestBack()
 
 bool UMCMainMenuWidget::MoveGamepadFocus(int32 Direction)
 {
-    if(GamepadTargets.IsEmpty()) return false;
+    if(GamepadTargets.IsEmpty() || !MCMainMenuPrivate::HasLocalFocusOwner(this)) return false;
     auto* PC=GetOwningPlayer();
     int32 Current=GamepadTargets.IndexOfByPredicate([&](const auto& Target){return Target && (Target->HasUserFocus(PC) || Target->HasFocusedDescendants());});
     if(GamepadTargets.IsValidIndex(Current))
@@ -581,7 +602,7 @@ bool UMCMainMenuWidget::MoveGamepadFocus(int32 Direction)
     for(int32 Attempt=0;Attempt<GamepadTargets.Num();++Attempt) {
         Current=(Current+Direction+GamepadTargets.Num())%GamepadTargets.Num();
         auto* Target=GamepadTargets[Current].Get();
-        if(Target && Target->GetIsEnabled() && Target->IsVisible()) {Target->SetUserFocus(GetOwningPlayer());return true;}
+        if(MCMainMenuPrivate::CanFocus(Target)) {Target->SetUserFocus(PC);return true;}
     }
     return true;
 }
@@ -1006,6 +1027,7 @@ void UMCMainMenuWidget::BuildSettings()
     for(int32 Index=0;Index<6;++Index)
         Picker(FName(*(FString(TEXT("UI.Settings."))+GroupKeys[Index])),GroupCopy[Index],MCMainMenuPrivate::QualityControlNames[Index])->SetPresentationOptions(Levels,2);
     VSyncCheck=AddSettingsCheck(TEXT("UI.Menu.VSync"),TEXT("VSync"),TEXT("VSyncCheck"));
+    CameraSmoothingCheck=AddSettingsCheck(TEXT("UI.Settings.CameraSmoothing"),TEXT("Сглаживание камеры"),TEXT("CameraSmoothingCheck"));
     Content=Bodies[1];
     AddSettingsSlider(TEXT("UI.Settings.Master"),TEXT("Общая громкость"),TEXT("MasterSlider"),0,1,.01f,1);
     AddSettingsSlider(TEXT("UI.Settings.Music"),TEXT("Музыка"),TEXT("MusicSlider"),0,1,.01f,1);
@@ -1058,6 +1080,15 @@ void UMCMainMenuWidget::CacheSettingsControls()
     if(!WidgetTree || Page!=EPage::Settings) return;
     SettingsSections=Cast<UWidgetSwitcher>(WidgetTree->FindWidget(PageWidgetName(TEXT("Sections"))));
     EnsureVoiceSettingsPresentation();
+    CameraSmoothingCheck=WidgetTree->FindWidget<UCheckBox>(PageWidgetName(TEXT("CameraSmoothingCheck")));
+    if(!CameraSmoothingCheck) {
+        auto* Graphics=WidgetTree->FindWidget<UVerticalBox>(PageWidgetName(TEXT("GraphicsSectionBody")));
+        if(Graphics) {
+            auto* PreviousContent=Content.Get();Content=Graphics;
+            CameraSmoothingCheck=AddSettingsCheck(TEXT("UI.Settings.CameraSmoothing"),TEXT("Сглаживание камеры"),TEXT("CameraSmoothingCheck"));
+            Content=PreviousContent;
+        }
+    }
     SettingsPickers.Reset();SettingsSliders.Reset();
     for(const TCHAR* Name:{TEXT("FrameRatePicker"),TEXT("LanguagePicker"),TEXT("TexturePicker"),TEXT("ShadowPicker"),TEXT("EffectsPicker"),TEXT("PostProcessPicker"),TEXT("AAPicker"),TEXT("ViewDistancePicker")})
         if(auto* Picker=Cast<UComboBoxString>(WidgetTree->FindWidget(PageWidgetName(Name)))) SettingsPickers.Add(FName(Name),Picker);
@@ -1189,6 +1220,7 @@ void UMCMainMenuWidget::RefreshSettingsControls()
         const float Values[]={Preferences->GetMasterVolume(),Preferences->GetMusicVolume(),Preferences->GetAmbienceVolume(),Preferences->GetSFXVolume(),Preferences->GetMouseSensitivity(),Preferences->GetGamepadSensitivity()};
         for(int32 Index=0;Index<6;++Index) if(auto* Slider=SettingsSliders.FindRef(FName(Names[Index])).Get()) Slider->SetValue(Values[Index]);
         if(InvertYCheck) InvertYCheck->SetIsChecked(Preferences->GetInvertY());
+        if(CameraSmoothingCheck) CameraSmoothingCheck->SetIsChecked(Preferences->GetCameraSmoothingEnabled());
         if(auto* Picker=SettingsPickers.FindRef(TEXT("LanguagePicker")).Get())
         {
             const auto Codes=MCMainMenuPrivate::LanguageCodes();
@@ -1255,6 +1287,7 @@ void UMCMainMenuWidget::ApplySettings()
         Preferences->SetMouseSensitivity(Value(TEXT("MouseSlider"),Preferences->GetMouseSensitivity()));
         Preferences->SetGamepadSensitivity(Value(TEXT("GamepadSlider"),Preferences->GetGamepadSensitivity()));
         if(InvertYCheck) Preferences->SetInvertY(InvertYCheck->IsChecked());
+        if(CameraSmoothingCheck) Preferences->SetCameraSmoothingEnabled(CameraSmoothingCheck->IsChecked());
         const auto Codes=MCMainMenuPrivate::LanguageCodes();const int32 Language=Selected(TEXT("LanguagePicker"));
         if(Codes.IsValidIndex(Language)) Preferences->SetLanguageCode(Codes[Language]);
     }

@@ -1,8 +1,14 @@
 #include "MCTravelLoadingSubsystem.h"
 
 #include "MCPreloadSettings.h"
+#include "MCLoadingTips.h"
+#include "MCGameplayUIFactory.h"
+#include "MCGameplayUITheme.h"
+#include "MCUIDataLibrary.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
+#include "Engine/DataTable.h"
 #include "Engine/Texture2D.h"
+#include "HAL/PlatformTime.h"
 #include "UObject/GCObject.h"
 #include "Widgets/Images/SImage.h"
 #include "Widgets/Layout/SScaleBox.h"
@@ -29,7 +35,7 @@ class SMCTravelLoadingScreen : public SCompoundWidget, public FGCObject
 {
 public:
     SLATE_BEGIN_ARGS(SMCTravelLoadingScreen) {} SLATE_END_ARGS()
-    void Construct(const FArguments&,UTexture2D* Texture,const FText& Title)
+    void Construct(const FArguments&,UTexture2D* Texture,const FText& Title,const TArray<FText>& Tips,const FText& TipHeading)
     {
         check(IsInGameThread());
         ArtworkTexture=Texture;
@@ -37,6 +43,8 @@ public:
         ArtworkBrush.ImageSize=FVector2D(1920,1080);
         ArtworkBrush.DrawAs=Texture?ESlateBrushDrawType::Image:ESlateBrushDrawType::NoDrawType;
         FooterBrush=FSlateRoundedBoxBrush(FLinearColor(.012f,.027f,.034f,.84f),18.f);
+        TipBrush=FSlateRoundedBoxBrush(FLinearColor(.012f,.027f,.034f,.76f),18.f);
+        TipTexts=Tips;
         ChildSlot
         [SNew(SOverlay)
             +SOverlay::Slot()
@@ -58,7 +66,34 @@ public:
                         ]
                     ]
                 ]
+            +SOverlay::Slot().Padding(32.f)
+                [SNew(SScaleBox).Stretch(EStretch::ScaleToFit).StretchDirection(EStretchDirection::DownOnly)
+                    [SNew(SBox).WidthOverride(760.f).MinDesiredHeight(128.f)
+                        [SNew(SBorder).BorderImage(&TipBrush).Padding(FMargin(24.f,16.f)).Visibility(EVisibility::HitTestInvisible)
+                            [SNew(SVerticalBox)
+                                +SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0,0,0,9.f)
+                                    [SNew(STextBlock).Text(TipHeading).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),14))
+                                        .ColorAndOpacity(FLinearColor(.65f,.91f,.83f))]
+                                +SVerticalBox::Slot().FillHeight(1.f)
+                                    [SNew(SOverlay)
+                                        +SOverlay::Slot().HAlign(HAlign_Fill).VAlign(VAlign_Center)
+                                            [SAssignNew(TipCurrent,STextBlock).WrapTextAt(712.f).Justification(ETextJustify::Center)
+                                                .Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),20)).ColorAndOpacity(FLinearColor(.93f,.98f,.96f))]
+                                        +SOverlay::Slot().HAlign(HAlign_Fill).VAlign(VAlign_Center)
+                                            [SAssignNew(TipNext,STextBlock).WrapTextAt(712.f).Justification(ETextJustify::Center)
+                                                .Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),20)).ColorAndOpacity(FLinearColor(.93f,.98f,.96f))]
+                                    ]
+                            ]
+                        ]
+                    ]
+                ]
         ];
+        UpdateTips();
+    }
+    virtual void Tick(const FGeometry& Geometry,const double CurrentTime,const float DeltaTime) override
+    {
+        SCompoundWidget::Tick(Geometry,CurrentTime,DeltaTime);
+        UpdateTips();
     }
     virtual void AddReferencedObjects(FReferenceCollector& Collector) override
     {
@@ -66,17 +101,38 @@ public:
     }
     virtual FString GetReferencerName() const override {return TEXT("SMCTravelLoadingScreen");}
 private:
+    void UpdateTips()
+    {
+        // Loading-thread work is limited to immutable text values and Slate.
+        // No UObject access, table lookup, asset loading or gameplay clock here.
+        const auto Frame=MCLoadingTips::Evaluate(FPlatformTime::Seconds(),TipTexts.Num());
+        if(TipCurrent && TipTexts.IsValidIndex(Frame.Current)) {
+            if(LastTipCurrent!=Frame.Current) {TipCurrent->SetText(TipTexts[Frame.Current]);LastTipCurrent=Frame.Current;}
+            TipCurrent->SetRenderOpacity(Frame.CurrentOpacity);
+        }
+        if(TipNext && TipTexts.IsValidIndex(Frame.Next)) {
+            if(LastTipNext!=Frame.Next) {TipNext->SetText(TipTexts[Frame.Next]);LastTipNext=Frame.Next;}
+            TipNext->SetRenderOpacity(Frame.NextOpacity);
+        }
+    }
     TObjectPtr<UTexture2D> ArtworkTexture;
     FSlateBrush ArtworkBrush;
     FSlateBrush FooterBrush;
+    FSlateBrush TipBrush;
+    TArray<FText> TipTexts;
+    TSharedPtr<STextBlock> TipCurrent,TipNext;
+    int32 LastTipCurrent=INDEX_NONE,LastTipNext=INDEX_NONE;
 };
 }
 
 void UMCTravelLoadingSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
-    if(!IsRunningDedicatedServer() && FApp::CanEverRender())
+    if(!IsRunningDedicatedServer() && FApp::CanEverRender()) {
         LoadingArtwork=GetDefault<UMCPreloadSettings>()->LoadingScreenArt.LoadSynchronous();
+        if(const auto* Theme=UMCGameplayUIFactory::GetMasterTheme()) LoadingTipTable=Theme->LocalizationTable.LoadSynchronous();
+        if(!LoadingTipTable) LoadingTipTable=UMCUIDataLibrary::GetDefaultLocalizationTable();
+    }
     BeforeLoadHandle=FCoreUObjectDelegates::PreLoadMapWithContext.AddUObject(this,&UMCTravelLoadingSubsystem::BeforeMapLoad);
 }
 
@@ -104,6 +160,9 @@ void UMCTravelLoadingSubsystem::BeforeMapLoad(const FWorldContext& Context,const
     // Blocking OpenLevel has no reliable total-progress denominator. A throbber
     // remains honest here; phase-specific percentages resume after the map exists.
     // No bound attribute performs UObject work while the game thread is blocked.
-    Screen.WidgetLoadingScreen=SNew(SMCTravelLoadingScreen,LoadingArtwork.Get(),Title);
+    const FString Culture=FInternationalization::Get().GetCurrentLanguage()->GetName();
+    const TArray<FText> Tips=MCLoadingTips::Resolve(LoadingTipTable.Get(),Culture);
+    const FText TipHeading=MCLoadingTips::Heading(LoadingTipTable.Get(),Culture);
+    Screen.WidgetLoadingScreen=SNew(SMCTravelLoadingScreen,LoadingArtwork.Get(),Title,Tips,TipHeading);
     Player->SetupLoadingScreen(Screen);
 }

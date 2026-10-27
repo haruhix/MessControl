@@ -78,6 +78,7 @@ void UMCToothMovementComponent::BeginPlay()
 {
     Super::BeginPlay();
     StaminaState.Value=GetMaxStamina(); ServerStaminaSnapshot=StaminaState;
+    DashState={}; ServerDashSnapshot=DashState;
     SwimState.Value=GetMaxSwimEnergy(); ServerSwimSnapshot=ReplicatedSwimState=SwimState;
 }
 void UMCToothMovementComponent::TickComponent(float Dt,ELevelTick TickType,FActorComponentTickFunction* TickFunction)
@@ -157,6 +158,7 @@ void UMCToothMovementComponent::SetMovementMode(EMovementMode NewMode,uint8 NewC
 {
     if(bHubSelectionMovementLocked) {Super::SetMovementMode(MOVE_None);return;}
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    if(Hero && Hero->ToothPhysics && Hero->ToothPhysics->IsSlipping()) {Super::SetMovementMode(MOVE_None);return;}
     if(Hero && Hero->HasFrozenLegs() && Hero->ToothPhysics && Hero->ToothPhysics->CanAct()
         && !Hero->SwallowedBy && !Hero->IsMimicCaptured())
     {
@@ -174,6 +176,7 @@ void FMCStaminaMoveResponse::ServerFillResponseData(const UCharacterMovementComp
     FCharacterMoveResponseDataContainer::ServerFillResponseData(Movement,Adjustment);
     Stamina=CastChecked<UMCToothMovementComponent>(&Movement)->GetStaminaResponseSnapshot();
     Swim=CastChecked<UMCToothMovementComponent>(&Movement)->GetSwimResponseSnapshot();
+    Dash=CastChecked<UMCToothMovementComponent>(&Movement)->GetDashResponseSnapshot();
     bSwimUsesMoveLedger=CastChecked<UMCToothMovementComponent>(&Movement)->SwimResponseUsesMoveLedger();
 }
 bool FMCStaminaMoveResponse::Serialize(UCharacterMovementComponent& Movement,FArchive& Ar,UPackageMap* Map)
@@ -182,8 +185,10 @@ bool FMCStaminaMoveResponse::Serialize(UCharacterMovementComponent& Movement,FAr
     Ar<<Stamina.Value<<Stamina.RecoveryDelay<<Stamina.Exhausted;
     Ar<<Swim.Value<<Swim.DrowningElapsed<<Swim.bInDeepWater;
     Ar<<bSwimUsesMoveLedger;
+    for(float& Remaining:Dash.Remaining) Ar<<Remaining;
     return !Ar.IsError() && FMath::IsFinite(Stamina.Value) && FMath::IsFinite(Stamina.RecoveryDelay)
-        && FMath::IsFinite(Swim.Value) && FMath::IsFinite(Swim.DrowningElapsed);
+        && FMath::IsFinite(Swim.Value) && FMath::IsFinite(Swim.DrowningElapsed)
+        && FMath::IsFinite(Dash.Remaining[0]) && FMath::IsFinite(Dash.Remaining[1]);
 }
 void UMCToothMovementComponent::RestoreStaminaPrediction(const FMCStaminaPredictionState& State)
 {
@@ -334,7 +339,8 @@ namespace
     public:
         using Super=FSavedMove_Character;
         bool Sprint=false,Climb=false,Dash=false;
-        float DashCooldown=0;
+        FMCDashPredictionState DashBefore,DashAfter;
+        float DashRechargeSeconds=0.f;
         float RaftCooldown=0;
         FMCStaminaPredictionState StaminaBefore,StaminaAfter;
         FMCSwimPredictionState SwimBefore,SwimAfter;
@@ -345,7 +351,7 @@ namespace
         FVector Suction=FVector::ZeroVector;
         FVector River=FVector::ZeroVector;
         FMCBraceMovementState BraceState;
-        virtual void Clear() override { Super::Clear(); Sprint=Climb=Dash=false;DashCooldown=RaftCooldown=0;Suction=River=FVector::ZeroVector;BraceState={};StaminaBefore=StaminaAfter={};SwimBefore=SwimAfter={};SprintRequested=DashCharged=SwimDeep=SwimRecover=bSwimUsesMoveLedger=false;SwimEffort=0; }
+        virtual void Clear() override { Super::Clear(); Sprint=Climb=Dash=false;DashBefore=DashAfter={};DashRechargeSeconds=RaftCooldown=0;Suction=River=FVector::ZeroVector;BraceState={};StaminaBefore=StaminaAfter={};SwimBefore=SwimAfter={};SprintRequested=DashCharged=SwimDeep=SwimRecover=bSwimUsesMoveLedger=false;SwimEffort=0; }
         virtual uint8 GetCompressedFlags() const override { return Super::GetCompressedFlags() | (Sprint?FLAG_Custom_0:0) | (Climb?FLAG_Custom_1:0) | (Dash?FLAG_Custom_2:0); }
         virtual bool CanCombineWith(const FSavedMovePtr& Move,ACharacter* Hero,float MaxDelta) const override
         {
@@ -364,7 +370,7 @@ namespace
         {
             Super::SetMoveFor(Hero,Dt,Accel,Data);
             auto* M=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement());
-            Sprint=M->WantsToSprint();Climb=M->WantsClimb();Dash=M->WantsDash();DashCooldown=M->GetDashCooldownRemaining();
+            Sprint=M->WantsToSprint();Climb=M->WantsClimb();Dash=M->WantsDash();DashBefore=M->GetDashPrediction();
             StaminaBefore=M->GetStaminaPrediction();
             SwimBefore=M->GetSwimPrediction(); RaftCooldown=M->GetRaftBoardingCooldown();
             bSwimUsesMoveLedger=M->UsesSwimMoveLedger();
@@ -379,21 +385,24 @@ namespace
         {
             Super::PrepMoveFor(Hero);
             auto* M=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement());
-            M->SetSprinting(Sprint);M->SetWantsClimb(Climb);M->SetWantsDash(Dash);M->RestoreDashPrediction(DashCooldown);M->RestoreSuctionForMove(Suction);
+            M->SetSprinting(Sprint);M->SetWantsClimb(Climb);M->SetWantsDash(Dash);M->RestoreSuctionForMove(Suction);
             M->RestoreRiverForMove(River);
             M->RestoreBraceForMove(BraceState);
             M->RestoreRaftBoardingCooldown(RaftCooldown);
             if (!M->IsReplayingAuthoritativeStamina()) M->RestoreStaminaPrediction(StaminaBefore);
             else StaminaBefore=M->GetStaminaPrediction();
+            if (!M->IsReplayingAuthoritativeStamina()) M->RestoreDashPrediction(DashBefore);
+            else DashBefore=M->GetDashPrediction();
             if(bSwimUsesMoveLedger && M->UsesSwimMoveLedger() && !M->IsReplayingAuthoritativeSwim()) M->RestoreSwimPrediction(SwimBefore);
             else SwimBefore=M->GetSwimPrediction();
-            M->RestoreReplayDashCharge(DashCharged);
+            M->RestoreReplayDashCharge(DashCharged,DashRechargeSeconds);
         }
         virtual void PostUpdate(ACharacter* Hero,EPostUpdateMode Mode) override
         {
             Super::PostUpdate(Hero,Mode);
             const auto* M=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement());
             StaminaAfter=M->GetStaminaPrediction(); SprintRequested=M->LastMoveRequestedSprint(); DashCharged=M->LastMoveChargedDash();
+            DashAfter=M->GetDashPrediction(); DashRechargeSeconds=M->LastMoveDashRechargeSeconds();
             SwimAfter=M->GetSwimPrediction(); SwimDeep=M->LastMoveWasDeepWater(); SwimRecover=M->LastMoveCouldRecoverSwim(); SwimEffort=M->LastMoveSwimEffort();
             bSwimUsesMoveLedger=M->UsesSwimMoveLedger();
         }
@@ -402,9 +411,9 @@ namespace
             Super::CombineWith(OldMove,Hero,PC,OldStart);
             const auto* Previous=static_cast<const FMCStrideMove*>(OldMove);
             auto* M=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement());
-            StaminaBefore=Previous->StaminaBefore; DashCooldown=Previous->DashCooldown;
+            StaminaBefore=Previous->StaminaBefore; DashBefore=Previous->DashBefore;
             SwimBefore=Previous->SwimBefore; RaftCooldown=Previous->RaftCooldown;
-            M->RestoreStaminaPrediction(StaminaBefore); M->RestoreDashPrediction(DashCooldown);
+            M->RestoreStaminaPrediction(StaminaBefore); M->RestoreDashPrediction(DashBefore);
             if(bSwimUsesMoveLedger && M->UsesSwimMoveLedger()) M->RestoreSwimPrediction(SwimBefore);
             M->RestoreRaftBoardingCooldown(RaftCooldown);
         }
@@ -430,6 +439,7 @@ bool UMCToothMovementComponent::ClientUpdatePositionAfterServerUpdate()
     if (bPendingStaminaCorrection)
     {
         RestoreStaminaPrediction(PendingStaminaCorrection);
+        RestoreDashPrediction(PendingDashCorrection);
         if(bReplayingAuthoritativeSwim) RestoreSwimPrediction(PendingSwimCorrection);
         bReplayingAuthoritativeStamina=true;
     }
@@ -446,7 +456,7 @@ void UMCToothMovementComponent::ServerMoveHandleClientError(float TimeStamp,floa
     // A throttled correction may still describe an older move. Capture only
     // when the engine updates that adjustment, rather than at response send.
     if (GetPredictionData_Server_Character()->PendingAdjustment.TimeStamp==TimeStamp) {
-        ServerStaminaSnapshot=StaminaState; ServerSwimSnapshot=SwimState;
+        ServerStaminaSnapshot=StaminaState; ServerSwimSnapshot=SwimState; ServerDashSnapshot=DashState;
         bServerSwimUsesMoveLedger=UsesSwimMoveLedger();
     }
 }
@@ -458,19 +468,22 @@ void UMCToothMovementComponent::ClientHandleMoveResponse(const FCharacterMoveRes
     if (!Recognized || !Data->LastAckedMove.IsValid() || Data->LastAckedMove->TimeStamp!=Response.ClientAdjustment.TimeStamp) return;
     const auto& State=static_cast<const FMCStaminaMoveResponse&>(Response).Stamina;
     const auto& Swim=static_cast<const FMCStaminaMoveResponse&>(Response).Swim;
+    const auto& Dash=static_cast<const FMCStaminaMoveResponse&>(Response).Dash;
     const bool ReconcileSwim=UsesSwimMoveLedger() && static_cast<const FMCStaminaMoveResponse&>(Response).bSwimUsesMoveLedger;
     static_cast<FMCStrideMove*>(Data->LastAckedMove.Get())->StaminaAfter=State;
+    static_cast<FMCStrideMove*>(Data->LastAckedMove.Get())->DashAfter=Dash;
     if(ReconcileSwim) static_cast<FMCStrideMove*>(Data->LastAckedMove.Get())->SwimAfter=Swim;
     if (Data->bUpdatePosition)
     {
-        PendingStaminaCorrection=State; bPendingStaminaCorrection=true;
+        PendingStaminaCorrection=State; PendingDashCorrection=Dash; bPendingStaminaCorrection=true;
         bPendingSwimCorrection=ReconcileSwim;
         if(ReconcileSwim) PendingSwimCorrection=Swim;
         return;
     }
-    // Good acknowledgements also reconcile stamina. Replay only the resource
+    // Good acknowledgements also reconcile stamina and both dash charges. Replay only the resource
     // ledger of newer moves; position/root motion remain on the normal CMC path.
     RestoreStaminaPrediction(State);
+    RestoreDashPrediction(Dash);
     if(ReconcileSwim) RestoreSwimPrediction(Swim);
     for (const auto& Saved:Data->SavedMoves)
     {
@@ -478,6 +491,9 @@ void UMCToothMovementComponent::ClientHandleMoveResponse(const FCharacterMoveRes
         Move->StaminaBefore=StaminaState;
         AdvanceStaminaPrediction(Move->DeltaTime,Move->SprintRequested,Move->DashCharged);
         Move->StaminaAfter=StaminaState;
+        Move->DashBefore=DashState;
+        AdvanceDashPrediction(Move->DeltaTime,Move->DashCharged,Move->DashRechargeSeconds);
+        Move->DashAfter=DashState;
         if(ReconcileSwim && Move->bSwimUsesMoveLedger) {
             Move->SwimBefore=SwimState;
             AdvanceSwimPrediction(Move->DeltaTime,Move->SwimDeep,Move->SwimRecover,Move->SwimEffort);
@@ -518,11 +534,12 @@ bool UMCToothMovementComponent::CanDashAction() const
         && (!UMCPerkComponent::ForActor(Hero) || !UMCPerkComponent::ForActor(Hero)->IsFuryActive())
         && Incoming<=.1f && !Hero->Grip->IsBracing() && !bWantsToClimb && !IsSwimming() && !IsClimbing() && (IsMovingOnGround() || IsFalling());
 }
-bool UMCToothMovementComponent::CanDash() const
+bool UMCToothMovementComponent::CanSpendDash() const
 {
     const float Cost=FMath::IsFinite(DashStaminaCost)?FMath::Max(0.f,DashStaminaCost):22.f;
-    return IsMovingOnGround() && CanDashAction() && DashCooldownRemaining<=0 && !IsDashing() && GetStamina()>=Cost;
+    return IsMovingOnGround() && CanDashAction() && GetDashCharges()>0 && GetStamina()>=Cost;
 }
+bool UMCToothMovementComponent::CanDash() const { return CanSpendDash() && !IsDashing(); }
 bool UMCToothMovementComponent::IsDashing() const
 {
     if(CharacterOwner && CharacterOwner->GetLocalRole()==ROLE_SimulatedProxy) {
@@ -557,13 +574,54 @@ void UMCToothMovementComponent::OnRep_DashStartedAt()
 float UMCToothMovementComponent::EffectiveDashCooldown() const
 {
     const auto* Perks=UMCPerkComponent::ForActor(CharacterOwner);
-    return FMath::Max(GetDashDuration(),FMath::Clamp(Perks?Perks->RogueValue(EMCRogueStat::DashCooldown,DashCooldown):DashCooldown,.5f,4.8f));
+    const float Base=FMath::IsFinite(DashCooldown)?DashCooldown:3.f;
+    const float Modified=Perks?Perks->RogueValue(EMCRogueStat::DashCooldown,Base):Base;
+    return FMath::Max(GetDashDuration(),FMath::Clamp(FMath::IsFinite(Modified)?Modified:3.f,.5f,4.8f));
 }
-void UMCToothMovementComponent::StartDash()
+int32 UMCToothMovementComponent::GetDashCharges() const
 {
+    int32 Ready=0;
+    for(float Remaining:DashState.Remaining) if(Remaining<=0.f) ++Ready;
+    return Ready;
+}
+float UMCToothMovementComponent::GetDashChargeCooldownRemaining(int32 ChargeIndex) const
+{
+    return ChargeIndex>=0 && ChargeIndex<FMCDashPredictionState::Capacity?DashState.Remaining[ChargeIndex]:0.f;
+}
+float UMCToothMovementComponent::GetDashCooldownRemaining() const
+{
+    return FMath::Min(DashState.Remaining[0],DashState.Remaining[1]);
+}
+void UMCToothMovementComponent::RestoreDashPrediction(const FMCDashPredictionState& State)
+{
+    for(int32 Index=0;Index<FMCDashPredictionState::Capacity;++Index)
+        DashState.Remaining[Index]=FMath::IsFinite(State.Remaining[Index])?FMath::Clamp(State.Remaining[Index],0.f,4.8f):0.f;
+}
+void UMCToothMovementComponent::AdvanceDashPrediction(float Dt,bool Charged,float RechargeSeconds)
+{
+    if(!FMath::IsFinite(Dt) || Dt<=0.f) return;
+    for(float& Remaining:DashState.Remaining) Remaining=FMath::Max(0.f,Remaining-Dt);
+    if(Charged) SpendDashCharge(RechargeSeconds);
+}
+bool UMCToothMovementComponent::SpendDashCharge(float RechargeSeconds)
+{
+    for(float& Remaining:DashState.Remaining) if(Remaining<=0.f) {
+        // Capture this use's perk-adjusted duration. A later use or perk change
+        // must not restart or retime another charge already recovering.
+        Remaining=FMath::IsFinite(RechargeSeconds) && RechargeSeconds>0.f?FMath::Clamp(RechargeSeconds,.5f,4.8f):EffectiveDashCooldown();
+        DashMoveRechargeSeconds=Remaining;
+        return true;
+    }
+    return false;
+}
+bool UMCToothMovementComponent::StartDash()
+{
+    const float Recharge=CharacterOwner->bClientUpdating && bReplayDashCharge && ReplayDashRechargeSeconds>0.f
+        ?ReplayDashRechargeSeconds:EffectiveDashCooldown();
+    if(!SpendDashCharge(Recharge)) return false;
     FVector Direction=Acceleration.GetSafeNormal2D();
     if(Direction.IsNearlyZero()) Direction=CharacterOwner->GetActorForwardVector().GetSafeNormal2D();
-    DashDirection=Direction;DashStartedAt=MovementServerTime(GetWorld());DashCooldownRemaining=EffectiveDashCooldown();
+    DashDirection=Direction;DashStartedAt=MovementServerTime(GetWorld());
     bWantsToSprint=false;bSprintActive=false;
     auto Source=MakeShared<FMCLocomotionRootMotionSource>();
     Source->InstanceName=DashSourceName;Source->Priority=500;Source->AccumulateMode=ERootMotionAccumulateMode::Override;
@@ -572,6 +630,7 @@ void UMCToothMovementComponent::StartDash()
     Source->FinishVelocityParams.Mode=ERootMotionFinishVelocityMode::ClampVelocity;Source->FinishVelocityParams.ClampVelocity=WalkSpeed;
     ApplyRootMotionSource(Source);
     if(CharacterOwner->HasAuthority()) CharacterOwner->ForceNetUpdate();
+    return true;
 }
 void UMCToothMovementComponent::CancelDash()
 {
@@ -919,6 +978,9 @@ void UMCToothMovementComponent::UpdateCharacterStateBeforeMovement(float Dt)
         SetHubSelectionMovementLocked(true);return;
     }
     SetHubSelectionMovementLocked(false);
+    if(const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);Hero && Hero->ToothPhysics && Hero->ToothPhysics->IsSlipping()) {
+        CancelDash();StopMovementImmediately();SetMovementMode(MOVE_None);return;
+    }
     if(const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);Hero && Hero->IsSeatedOnRaft()) {
         CancelDash(); StopMovementImmediately(); SetMovementMode(MOVE_None); return;
     }
@@ -958,7 +1020,10 @@ void UMCToothMovementComponent::UpdateCharacterStateBeforeMovement(float Dt)
 }
 void UMCToothMovementComponent::PerformMovement(float Dt)
 {
-    bStaminaSprintRequested=false; bStaminaDashCharged=false;
+    bStaminaSprintRequested=false; bStaminaDashCharged=false; DashMoveRechargeSeconds=0.f;
+    // Recharge also during ice, raft and selection movement locks. Remote owners
+    // advance on their received CMC move timestamps, never a second server tick.
+    if(CharacterOwner && CharacterOwner->GetLocalRole()!=ROLE_SimulatedProxy) AdvanceDashPrediction(Dt);
     bSwimDeepSample=bSwimRecoverySample=false; SwimEffortSample=0.f;
     if(const auto* Hub=GetWorld()->GetGameState<AMCHubGameState>(); Hub && Hub->Phase!=EMCHubPhase::Gathering) {
         SetHubSelectionMovementLocked(true);
@@ -983,15 +1048,16 @@ void UMCToothMovementComponent::PerformMovement(float Dt)
     }
     if(CharacterOwner && CharacterOwner->GetLocalRole()!=ROLE_SimulatedProxy) {
         if(!bHasBraceSample) CaptureBraceForMove();
-        DashCooldownRemaining=FMath::Max(0.f,DashCooldownRemaining-Dt);
         if(bWantsDash) {
             bWantsDash=false;
-            if(CanDash() && !DeepWaterAt(CharacterOwner->GetActorLocation())) { StartDash(); bStaminaDashCharged=true; }
+            if(CanDash() && !DeepWaterAt(CharacterOwner->GetActorLocation())) bStaminaDashCharged=StartDash();
             // Saved root motion already restored the source on correction replay.
             else if(IsDashing()) {
-                const auto Source=GetRootMotionSource(DashSourceName);
-                if(Source.IsValid()) DashCooldownRemaining=FMath::Max(DashCooldownRemaining,EffectiveDashCooldown()-Source->GetTime());
-                if (CharacterOwner->bClientUpdating && bReplayDashCharge) bStaminaDashCharged=true;
+                if(CharacterOwner->bClientUpdating && bReplayDashCharge) {
+                    if(CanSpendDash() && !DeepWaterAt(CharacterOwner->GetActorLocation()))
+                        bStaminaDashCharged=SpendDashCharge(ReplayDashRechargeSeconds);
+                    else CancelDash(); // A corrected resource/action denial cannot retain a free predicted RMS.
+                }
             }
         }
         bReplayDashCharge=false;

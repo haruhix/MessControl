@@ -1,0 +1,11 @@
+{
+  "mode": "tools",
+  "report": "E:\\CodexWork\\Checkpoint_20261027\\ToolsCleanup\\Runs\\Run_20261026T212946Z_5341dd\\Report.json",
+  "status": "passed",
+  "passed": true,
+  "record": {
+    "native_frames": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff",
+    "no_desktop_capture": true
+  },
+  "error": null
+}

@@ -1,4 +1,5 @@
 #include "MCSingleDayDirector.h"
+#include "MCGameMode.h"
 #include "MCRewardChest.h"
 #include "MCRewardDropZone.h"
 #include "MCPerkComponent.h"
@@ -6,6 +7,7 @@
 #include "MCGameState.h"
 #include "MCDayDirector.h"
 #include "MCTongue.h"
+#include "MCToothCharacter.h"
 #include "Components/BoxComponent.h"
 #include "Engine/DataTable.h"
 #include "Engine/World.h"
@@ -17,9 +19,12 @@ bool AMCSingleDayDirector::BeginStageReward(FName CompletionId,EMCSingleDayRewar
         || CompletedStageRewards.Contains(CompletionId)) return false;
     if(bStageRewardPending) return true;
     bStageRewardPending=true; StageRewardCompletionId=CompletionId; StageRewardContinuation=Continuation;
+    // The shared work is finished now. Placement/choice retries are cosmetics
+    // and perk flow, not extra coin objectives or a legacy chest queue signal.
+    if(auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->AwardObjectiveCoinsOnce(CompletionId);
     StageRewardPlacementAttempts=0; NextStageRewardAttemptAt=0;
-    Record(FString::Printf(TEXT("Этап %s завершён: общий сундук с бустером; следующая подача ждёт выбора"),*CompletionId.ToString()));
-    Publish(TEXT("КОМАНДНЫЙ БУСТЕР"),TEXT("Подойдите к сундуку в центре языка. Первый подошедший выбирает один бустер: он сразу активируется у всей команды."));
+    Record(FString::Printf(TEXT("Этап %s завершён: каждый игрок выбирает свой бустер; следующая подача ждёт выбора"),*CompletionId.ToString()));
+    Publish(TEXT("ВЫБЕРИ СВОЙ БУСТЕР"),TEXT("Откройте сундук в центре языка. Каждый игрок выбирает один бустер для себя."));
     TrySpawnStageReward(); ForceNetUpdate(); return true;
 }
 
@@ -67,10 +72,25 @@ void AMCSingleDayDirector::TrySpawnStageReward()
     if(RewardClass->HasAnyClassFlags(CLASS_Abstract|CLASS_Deprecated|CLASS_NewerVersionExists)) RewardClass=AMCRewardChest::StaticClass();
     const FVector Extent=RewardClass->GetDefaultObject<AMCRewardChest>()->GetPlacementHalfExtent();
     FVector Landing,Normal;
-    const TArray<AActor*> Ignored;
+    // A stage reward is scripted and cannot hurt or displace players. Waiting
+    // in its central arrival area must not postpone/requeue the finished stage.
+    // Static geometry, food and other obstacles still use the full validator.
+    TArray<AActor*> Ignored;
+    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) Ignored.Add(*It);
+    const float ZoneHeight=StageRewardZone->Area->GetUnscaledBoxExtent().Z;
+    StageRewardZone->Area->SetBoxExtent(FVector(340,340,ZoneHeight));
     bool Found=false;
     for(int32 I=0;I<24 && !Found;++I)
         Found=StageRewardZone->FindLanding(Random,Extent,FallHeight,Ignored,Landing,Normal);
+    if(!Found) {
+        // Grounded workers can dent the small middle of the living tongue.
+        // Search nearby supported tissue in this same completion frame, with
+        // every slope, floor-variation, obstacle and fall-corridor check intact.
+        // Keep this footprint on the private zone for the touchdown recheck.
+        StageRewardZone->Area->SetBoxExtent(FVector(650,650,ZoneHeight));
+        for(int32 I=0;I<24 && !Found;++I)
+            Found=StageRewardZone->FindLanding(Random,Extent,FallHeight,Ignored,Landing,Normal);
+    }
     if(!Found) {
         ReportWait(TEXT("central_landing_occupied"));
         return;
@@ -103,13 +123,13 @@ void AMCSingleDayDirector::TickStageReward()
     if(!bStageRewardPending) return;
     if(!CompletedStageRewards.Contains(StageRewardCompletionId)) {
         TrySpawnStageReward();
-        Publish(TEXT("КОМАНДНЫЙ БУСТЕР"),TEXT("Подойдите к сундуку в центре языка. Один выбор сразу активирует бустер у всей команды; остальные ждут завершения выбора."));
+        Publish(TEXT("ВЫБЕРИ СВОЙ БУСТЕР"),TEXT("Откройте сундук в центре языка. Каждый игрок выбирает один бустер для себя; следующая подача начнётся после всех выборов."));
         return;
     }
     const auto Next=StageRewardContinuation;
     bStageRewardPending=false;
     if(IsValid(StageRewardZone)) StageRewardZone->Destroy(); StageRewardZone=nullptr;
-    Record(FString::Printf(TEXT("Общий бустер %s выбран: продолжается последовательность"),*StageRewardCompletionId.ToString()));
+    Record(FString::Printf(TEXT("Личные бустеры %s выбраны: продолжается последовательность"),*StageRewardCompletionId.ToString()));
     ForceNetUpdate();
     switch(Next) {
     case EMCSingleDayRewardContinuation::OpeningCoffee:BeginMealCoffeeWave();break;

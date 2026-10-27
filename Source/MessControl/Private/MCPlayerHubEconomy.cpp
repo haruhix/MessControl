@@ -40,7 +40,7 @@ void AMCPlayerController::RefreshHubEconomy()
 bool AMCPlayerController::TryInteractHubGrill()
 {
     auto* Hero=Cast<AMCToothCharacter>(GetPawn());
-    if(!IsLocalController() || !IsHubWorld() || !Hero || !Hero->CanWork()
+    if(!HasLocalPresentationOwner() || !IsHubWorld() || !Hero || !Hero->CanWork()
         || bLoadingInputBlocked || bHubMenuInput || bPauseMenuOpen || IsWardrobeOpen() || IsHubShopOpen()) return false;
     AMCHubGrillStation* Nearest=nullptr;double Distance=TNumericLimits<double>::Max();
     for(TActorIterator<AMCHubGrillStation> It(GetWorld());It;++It) if(It->ContainsPawn(Hero)) {
@@ -59,7 +59,7 @@ void AMCPlayerController::ServerInteractHubGrill_Implementation(AMCHubGrillStati
 }
 void AMCPlayerController::PurchaseHubItem(FName ItemID)
 {
-    if(IsLocalController() && (IsHubShopOpen() || IsWardrobeOpen())) ServerPurchaseHubItem(ItemID);
+    if(HasLocalPresentationOwner() && (IsHubShopOpen() || IsWardrobeOpen())) ServerPurchaseHubItem(ItemID);
 }
 void AMCPlayerController::ServerPurchaseHubItem_Implementation(FName ItemID)
 {
@@ -78,6 +78,7 @@ void AMCPlayerController::ServerPurchaseHubItem_Implementation(FName ItemID)
 }
 void AMCPlayerController::ClientHubTransactionFeedback_Implementation(const FText& Message)
 {
+    if(!HasLocalPresentationOwner()) return;
     if(IsHubShopOpen() && HubShopWidget) HubShopWidget->SetTransactionMessage(Message);
     else if(IsWardrobeOpen() && WardrobeWidget) WardrobeWidget->SetTransactionMessage(Message);
     else if(HubWidget) HubWidget->ShowInteractionFeedback(Message);
@@ -86,7 +87,7 @@ void AMCPlayerController::UseCalciumGrenade()
 {
     const auto* State=GetPlayerState<AMCPlayerState>();
     if(!State || !State->Economy || !State->Economy->IsCalciumEnabled()
-        || !IsLocalController() || IsHubWorld() || bLoadingInputBlocked || bPauseMenuOpen || bHubMenuInput
+        || !HasLocalPresentationOwner() || IsHubWorld() || bLoadingInputBlocked || bPauseMenuOpen || bHubMenuInput
         || IsRewardInteractionActive() || IsWardrobeOpen() || IsHubShopOpen()) return;
     auto* Hero=Cast<AMCToothCharacter>(GetPawn());
     if(Hero && Hero->CanWork() && !IsMoveInputIgnored()) ServerUseCalciumGrenade();

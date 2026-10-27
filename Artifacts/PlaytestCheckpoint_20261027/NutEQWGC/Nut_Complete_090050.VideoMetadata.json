@@ -1,0 +1,43 @@
+{
+  "video": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Nut_Complete_090050.mp4",
+  "metadata": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Nut_Complete_090050.VideoMetadata.json",
+  "raw_ffprobe": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Nut_Complete_090050.VideoMetadata.ffprobe.json",
+  "measured_utc": "2026-10-27T00:02:21.219043+00:00",
+  "width": 1286,
+  "height": 760,
+  "decoded_frame_count": 131,
+  "timestamped_frame_count": 131,
+  "first_pts_seconds": 0.0,
+  "last_pts_seconds": 4.8,
+  "measured_pts_span_seconds": 4.8,
+  "measured_average_fps": 27.083333333333336,
+  "measured_median_gap_seconds": 0.03333300000000006,
+  "measured_max_gap_seconds": 0.13333300000000037,
+  "measured_min_gap_seconds": 0.033332999999999835,
+  "gaps_over_100ms": 2,
+  "gaps_over_250ms": 0,
+  "format_duration_seconds": 4.833333,
+  "stream_reported_avg_frame_rate": "786/29",
+  "stream_reported_nominal_frame_rate": "30/1",
+  "timestamps_strictly_increasing": true,
+  "capture_metadata": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Nut_Complete_090050.Capture.json",
+  "final_recorder_progress": {
+    "frame": "131",
+    "fps": "26.97",
+    "stream_0_0_q": "18.0",
+    "bitrate": "2558.0kbits/s",
+    "total_size": "1545473",
+    "out_time_us": "4833333",
+    "out_time_ms": "4833333",
+    "out_time": "00:00:04.833333",
+    "dup_frames": "0",
+    "drop_frames": "0",
+    "speed": "0.995x",
+    "progress": "end"
+  },
+  "method": "Decoded frame best_effort_timestamp_time gaps, not nominal frame rate or configured capture cap",
+  "limitations": [
+    "This measures encoded frame timestamps, not the native simulation FPS or whether every rendered frame changed.",
+    "Visual content and synchronization with gameplay telemetry require separate review."
+  ]
+}

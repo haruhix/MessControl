@@ -3,19 +3,25 @@
 #include "MCHubGameMode.h"
 #include "MCHubGameState.h"
 #include "MCHubReadyZone.h"
+#include "MCHubWidget.h"
 #include "MCGameMode.h"
 #include "MCPlayerController.h"
 #include "MCPlayerState.h"
 #include "MCToothCharacter.h"
 #include "Components/BoxComponent.h"
+#include "Blueprint/WidgetTree.h"
 #include "Engine/DataTable.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
+#include "Engine/GameViewportClient.h"
+#include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
 #include "GameFramework/DefaultPawn.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerState.h"
+#include "GameFramework/WorldSettings.h"
+#include "UObject/StrongObjectPtr.h"
 
 namespace
 {
@@ -50,6 +56,37 @@ FMCHubPlayerReadiness Entry(APlayerState* Player, bool bReady, bool bLoaded)
     Result.bLoaded = bLoaded;
     return Result;
 }
+
+struct FHubMouthWorld : FHubRulesWorld
+{
+    AMCPlayerController* Player=nullptr;
+    AMCPlayerState* Identity=nullptr;
+    TStrongObjectPtr<ULocalPlayer> Local;
+    TStrongObjectPtr<UGameViewportClient> Viewport;
+    FHubMouthWorld() : FHubRulesWorld(true)
+    {
+        // Match the saved Hub's world settings as well as its actual rules.
+        World->GetWorldSettings()->DefaultGameMode=AMCHubGameMode::StaticClass();
+        Player=World->SpawnActor<AMCPlayerController>();
+        Identity=World->SpawnActor<AMCPlayerState>();Player->SetPlayerState(Identity);
+        Local.Reset(NewObject<ULocalPlayer>(GEngine));Player->SetPlayer(Local.Get());
+        Viewport.Reset(NewObject<UGameViewportClient>(GEngine));
+        Viewport->Init(GEngine->GetWorldContextFromWorldChecked(World),World->GetGameInstance(),false);
+        // Attach after SetPlayer so ReceivedPlayer cannot create an unrelated
+        // front end. This real viewport/world pair satisfies presentation ownership.
+        Local->ViewportClient=Viewport.Get();
+    }
+    ~FHubMouthWorld()
+    {
+        Local->ViewportClient=nullptr;Local->PlayerController=nullptr;Player->Player=nullptr;
+    }
+    TStrongObjectPtr<UMCHubWidget> MakeWidget()
+    {
+        TStrongObjectPtr<UMCHubWidget> Widget(CreateWidget<UMCHubWidget>(Player));
+        if(Widget.IsValid()) Widget->BuildPresentationTree();
+        return Widget;
+    }
+};
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCHubReadinessRulesTest, "MessControl.Hub.ReadinessRequiresEveryLoadedParticipant",
@@ -146,7 +183,7 @@ bool FMCHubHostSelectionRulesTest::RunTest(const FString&)
     TestFalse(TEXT("A participant without host identity cannot return the team"), Mode->RequestReturnToHub(Player));
     Identity->bSessionHost = true;
     TestTrue(TEXT("The fixture explicitly represents a local session host"), State->IsHost(Player));
-    Mode->AcknowledgeSceneLoaded(Player,State->SceneGeneration);
+    Mode->AcknowledgeSceneLoaded(Player,State,State->SceneGeneration);
     TestTrue(TEXT("The selector accepts a scene ACK from the fixture host"), State->AreAllLoaded());
     TestTrue(TEXT("A loaded local host can preview unavailable future locations"), Mode->RequestSelectDay(Player,7));
     TestEqual(TEXT("The shared day records the preview, without changing world"), State->SelectedDay, 7);
@@ -157,6 +194,94 @@ bool FMCHubHostSelectionRulesTest::RunTest(const FString&)
     TestFalse(TEXT("Selection cannot change under an ongoing transition"), Mode->RequestSelectDay(Player,1));
     TestFalse(TEXT("Back cannot compete with an ongoing transition"), Mode->RequestReturnToHub(Player));
     TestTrue(TEXT("Rejected requests never schedule ServerTravel"), Fixture.World->NextURL.IsEmpty());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCHubMouthEntryRulesTest,"MessControl.Hub.MouthEntryUsesLaunchGuards",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FMCHubMouthEntryRulesTest::RunTest(const FString&)
+{
+    FHubMouthWorld Fixture;
+    auto* Mode=Fixture.World->GetAuthGameMode<AMCHubGameMode>();
+    auto* State=Fixture.World->GetGameState<AMCHubGameState>();
+    auto Widget=Fixture.MakeWidget();
+    if(!TestNotNull(TEXT("The selector has authoritative Hub rules"),Mode)
+        || !TestNotNull(TEXT("The selector has shared Hub state"),State)
+        || !TestNotNull(TEXT("A real local player owns the widget"),Widget.Get())) return false;
+    TestTrue(TEXT("Local ownership includes its actual viewport/world pair"),Fixture.Player->HasLocalPresentationOwner());
+    TestTrue(TEXT("The actual world and rules have begun play"),Fixture.World->HasBegunPlay() && Mode->HasActorBegunPlay());
+    Fixture.Identity->bSessionHost=false;
+    Mode->RefreshReadiness();
+    Widget->HandleAction(EMCHubMenuAction::EnterDestination,2);
+    TestEqual(TEXT("A guest mouth click cannot change the shared selection"),State->SelectedDay,1);
+
+    Fixture.Identity->bSessionHost=true;
+    Mode->AcknowledgeSceneLoaded(Fixture.Player,State,State->SceneGeneration);
+    if(!TestTrue(TEXT("The actual Hub accepts this local host's scene ACK"),State->AreAllLoaded())) return false;
+    Widget->HandleAction(EMCHubMenuAction::EnterDestination,2);
+    TestEqual(TEXT("Clicking another mouth selects it through the authoritative request"),State->SelectedDay,2);
+    TestTrue(TEXT("Selecting a future preview does not request travel"),Fixture.World->NextURL.IsEmpty());
+    const FText Sentinel=FText::AsCultureInvariant(TEXT("Do not reselect the active mouth"));
+    State->SetNotice(Sentinel);
+    Fixture.World->TimeSeconds+=.1f;
+    Widget->HandleAction(EMCHubMenuAction::EnterDestination,2);
+    TestTrue(TEXT("Clicking the selected unavailable mouth enters the guarded Launch path instead of reselecting"),State->Notice.EqualTo(Sentinel));
+    TestTrue(TEXT("An unavailable mouth cannot request travel"),Fixture.World->NextURL.IsEmpty());
+    Widget->HandleAction(EMCHubMenuAction::EnterDestination,8);
+    TestEqual(TEXT("An out-of-range hit region cannot select a different day"),State->SelectedDay,2);
+
+    State->SetSelectedDay(1);
+    TestFalse(TEXT("This isolated rules world has no ready authored mouth stage"),Widget->IsSceneReady());
+    Widget->HandleAction(EMCHubMenuAction::EnterDestination,1);
+    Widget->HandleAction(EMCHubMenuAction::Launch);
+    TestTrue(TEXT("Both entry actions preserve the missing-scene readiness barrier"),Fixture.World->NextURL.IsEmpty());
+    TestTrue(TEXT("The selected available mouth is never reselected while waiting for its stage"),State->Notice.EqualTo(Sentinel));
+    State->SetPhase(EMCHubPhase::Gathering);
+    Widget->HandleAction(EMCHubMenuAction::EnterDestination,2);
+    TestEqual(TEXT("A stale mouth action cannot select in Gathering"),State->SelectedDay,1);
+    State->SetPhase(EMCHubPhase::Travelling);
+    Widget->HandleAction(EMCHubMenuAction::EnterDestination,2);
+    Widget->HandleAction(EMCHubMenuAction::Launch);
+    TestEqual(TEXT("Repeated entry cannot change selection during a transition"),State->SelectedDay,1);
+    TestTrue(TEXT("Rejected repeated actions cannot queue a second transition"),Fixture.World->NextURL.IsEmpty());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCHubSavedMouthBindingTest,"MessControl.Hub.SavedMouthBindingUpgradesToEntry",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FMCHubSavedMouthBindingTest::RunTest(const FString&)
+{
+    FHubMouthWorld Fixture;
+    auto* Mode=Fixture.World->GetAuthGameMode<AMCHubGameMode>();
+    auto* State=Fixture.World->GetGameState<AMCHubGameState>();
+    auto Source=Fixture.MakeWidget();
+    if(!TestNotNull(TEXT("The selector has rules"),Mode) || !TestNotNull(TEXT("The selector has state"),State)
+        || !TestNotNull(TEXT("The native seed builds"),Source.Get())) return false;
+    // Model the old editable tree's select-only action, then bind it to a new
+    // runtime owner exactly as a saved WBP instance does, without saving assets.
+    for(int32 Day=1;Day<=3;++Day)
+        if(auto* Mouth=Source->WidgetTree->FindWidget<UMCHubActionButton>(FName(*FString::Printf(TEXT("HubMouthHit%d"),Day))))
+            Mouth->Configure(Source.Get(),EMCHubMenuAction::SelectDay,Day,false);
+    TStrongObjectPtr<UMCHubWidget> Widget(CreateWidget<UMCHubWidget>(Fixture.Player));
+    Widget->WidgetTree=DuplicateObject<UWidgetTree>(Source->WidgetTree,Widget.Get(),TEXT("LegacyWidgetTree"));
+    Widget->BuildPresentationTree();Widget->BuildPresentationTree();
+    auto* Mouth=Widget->WidgetTree->FindWidget<UMCHubActionButton>(TEXT("HubMouthHit1"));
+    auto* Launch=Widget->WidgetTree->FindWidget<UMCHubActionButton>(TEXT("HubLaunch"));
+    if(!TestNotNull(TEXT("The authored mouth control survives rebinding"),Mouth)
+        || !TestNotNull(TEXT("The existing Start control survives rebinding"),Launch)) return false;
+    TestEqual(TEXT("Rebinding never appends duplicate mouth callbacks"),Mouth->OnClicked.GetAllObjects().Num(),1);
+    Fixture.Identity->bSessionHost=true;
+    Mode->AcknowledgeSceneLoaded(Fixture.Player,State,State->SceneGeneration);
+    if(!TestTrue(TEXT("The rebound fixture is a loaded local host"),State->AreAllLoaded())) return false;
+    const FText Sentinel=FText::AsCultureInvariant(TEXT("An entry click must not send SelectDay"));
+    State->SetNotice(Sentinel);
+    // Exercise the real native OnClicked binding. No viewport pointer event or
+    // successful travel is claimed by this deliberately stage-less fixture.
+    Mouth->OnClicked.Broadcast();
+    TestTrue(TEXT("The legacy selected mouth now routes to Launch rather than clearing notice through SelectDay"),State->Notice.EqualTo(Sentinel));
+    TestTrue(TEXT("The upgraded binding cannot bypass stage readiness"),Fixture.World->NextURL.IsEmpty());
+    Launch->OnClicked.Broadcast();
+    TestTrue(TEXT("The unchanged Start control uses the same stage barrier"),Fixture.World->NextURL.IsEmpty());
     return true;
 }
 
@@ -184,7 +309,7 @@ bool FMCHubEmbeddedSelectionRulesTest::RunTest(const FString&)
     Movement->SetMovementMode(MOVE_Flying);
     Movement->Velocity = FVector(120,0,0);
     const int32 GatheringGeneration = State->SceneGeneration;
-    Mode->AcknowledgeSceneLoaded(Player,GatheringGeneration);
+    Mode->AcknowledgeSceneLoaded(Player,State,GatheringGeneration);
     if (!TestTrue(TEXT("An actually loaded player inside the ready volume can open selection"),State->AreAllReady())) return false;
     TestTrue(TEXT("Host opens embedded selection"),Mode->RequestOpenSelection(Player));
     TestEqual(TEXT("The shared phase changes without replacing the world"),State->Phase,EMCHubPhase::Selecting);
@@ -194,10 +319,10 @@ bool FMCHubEmbeddedSelectionRulesTest::RunTest(const FString&)
     TestEqual(TEXT("The server disables the pawn's movement while selecting"),Movement->MovementMode.GetValue(),MOVE_None);
     TestTrue(TEXT("Residual locomotion is stopped before the camera switches"),Movement->Velocity.IsNearlyZero());
     TestFalse(TEXT("Opening the selector invalidates gathering ACKs"),State->AreAllLoaded());
-    Mode->AcknowledgeSceneLoaded(Player,GatheringGeneration);
+    Mode->AcknowledgeSceneLoaded(Player,State,GatheringGeneration);
     TestFalse(TEXT("An old queued gathering ACK cannot release the selector barrier"),State->AreAllLoaded());
     const int32 SelectionGeneration = State->SceneGeneration;
-    Mode->AcknowledgeSceneLoaded(Player,SelectionGeneration);
+    Mode->AcknowledgeSceneLoaded(Player,State,SelectionGeneration);
     TestTrue(TEXT("The current selector ACK releases its own barrier"),State->AreAllLoaded());
 
     // Represent a newly possessed participant while the same world is selecting.
@@ -212,7 +337,7 @@ bool FMCHubEmbeddedSelectionRulesTest::RunTest(const FString&)
     TestEqual(TEXT("A participant possessed during selection is also frozen"),LateHero->GetCharacterMovement()->MovementMode.GetValue(),MOVE_None);
     TestEqual(TEXT("Joining does not destroy the original pawn"),Player->GetPawn().Get(),static_cast<APawn*>(Hero));
     TestFalse(TEXT("The new participant must acknowledge the current selector"),State->AreAllLoaded());
-    Mode->AcknowledgeSceneLoaded(LatePlayer,SelectionGeneration);
+    Mode->AcknowledgeSceneLoaded(LatePlayer,State,SelectionGeneration);
     TestTrue(TEXT("Both current-generation participant ACKs release the barrier"),State->AreAllLoaded());
     TestTrue(TEXT("Host returns to the same hub world"),Mode->RequestReturnToHub(Player));
     TestEqual(TEXT("Return restores Gathering"),State->Phase,EMCHubPhase::Gathering);
@@ -221,11 +346,11 @@ bool FMCHubEmbeddedSelectionRulesTest::RunTest(const FString&)
     TestEqual(TEXT("The original movement mode is restored"),Movement->MovementMode.GetValue(),MOVE_Flying);
     TestEqual(TEXT("The late player's own original mode is restored"),LateHero->GetCharacterMovement()->MovementMode.GetValue(),MOVE_Falling);
     TestFalse(TEXT("Return requires a fresh Gathering ACK"),State->AreAllLoaded());
-    Mode->AcknowledgeSceneLoaded(Player,SelectionGeneration);
-    Mode->AcknowledgeSceneLoaded(LatePlayer,SelectionGeneration);
+    Mode->AcknowledgeSceneLoaded(Player,State,SelectionGeneration);
+    Mode->AcknowledgeSceneLoaded(LatePlayer,State,SelectionGeneration);
     TestFalse(TEXT("Queued selector ACKs cannot release the returned hub"),State->AreAllLoaded());
-    Mode->AcknowledgeSceneLoaded(Player,State->SceneGeneration);
-    Mode->AcknowledgeSceneLoaded(LatePlayer,State->SceneGeneration);
+    Mode->AcknowledgeSceneLoaded(Player,State,State->SceneGeneration);
+    Mode->AcknowledgeSceneLoaded(LatePlayer,State,State->SceneGeneration);
     TestTrue(TEXT("Fresh returned-hub ACKs work for the same pawns"),State->AreAllLoaded());
     const int32 ReturnedGeneration = State->SceneGeneration;
     TestTrue(TEXT("The same team can reopen selection without another map"),Mode->RequestOpenSelection(Player));

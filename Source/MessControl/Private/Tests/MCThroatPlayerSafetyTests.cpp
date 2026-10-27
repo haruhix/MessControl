@@ -119,6 +119,11 @@ bool FMCThroatPlayerBoundaryTest::RunTest(const FString&)
     auto* Inside=F.Player(F.Inlet+F.Inward*30);
     F.Throat->Tick(1.f/120);
     TestFalse(TEXT("A player actually inside the aperture still dies immediately"),Inside->Status->IsAlive());
+    auto* FrozenInside=F.Player(F.Inlet+F.Inward*30);
+    if(TestTrue(TEXT("The real freezing cinematic begins inside the physical opening"),FrozenInside->BeginFreezeDeath())) {
+        F.Throat->Tick(1.f/120);
+        TestFalse(TEXT("A damage-hold cinematic cannot let a player survive the lethal aperture"),FrozenInside->Status->IsAlive());
+    }
     return true;
 }
 #endif

@@ -1,5 +1,7 @@
 #include "MCWorldStatusComponent.h"
 #include "MCFoodActor.h"
+#include "MCArenaTooth.h"
+#include "MCToothStatusComponent.h"
 #include "MCFoodBodyComponent.h"
 #include "MCNutEnemy.h"
 #include "MCNutBoss.h"
@@ -25,7 +27,7 @@ UMCWorldStatusComponent::UMCWorldStatusComponent()
 
 bool UMCWorldStatusComponent::SupportsOwner() const
 {
-    return IsValid(GetOwner()) && (Cast<AMCFoodActor>(GetOwner())
+    return IsValid(GetOwner()) && (Cast<AMCFoodActor>(GetOwner()) || Cast<AMCArenaTooth>(GetOwner())
         || (Cast<AMCNutEnemy>(GetOwner()) && !GetOwner()->IsA<AMCNutBoss>()));
 }
 
@@ -36,6 +38,7 @@ void UMCWorldStatusComponent::BeginPlay()
     // The polling component stays alive when its UMG root is collapsed. It can
     // wake it after distance/occlusion changes without hidden widget ticking.
     HideLegacyLabel();
+    if(Cast<AMCArenaTooth>(GetOwner())) EnsureWidget();
 }
 
 void UMCWorldStatusComponent::EndPlay(const EEndPlayReason::Type Reason)
@@ -65,6 +68,7 @@ bool UMCWorldStatusComponent::ReadSnapshot(FMCWorldStatusSnapshot& Value,FVector
         Value.HealthFraction=Food->Health/FMath::Max(1.f,Food->FoodData.Health);
         Value.bShowHealth=!Food->bFragment;
         Value.bHasTimer=Food->FoodData.Kind==EMCFoodKind::Food || Food->FoodData.Kind==EMCFoodKind::Spicy;
+        Value.bDrainTimer=Food->FoodData.Kind==EMCFoodKind::Food;
         // Foreign-object fragments have neither a spoil/fuse timer nor a visible
         // HP treatment. Do not create/show an empty status widget for them.
         if(!Value.bShowHealth && !Value.bHasTimer) return false;
@@ -106,6 +110,16 @@ bool UMCWorldStatusComponent::ReadSnapshot(FMCWorldStatusSnapshot& Value,FVector
                 if(bHasPoint) Anchor.Z=TopZ+HeightPadding;
             }
         }
+        return true;
+    }
+    if(const auto* Tooth=Cast<AMCArenaTooth>(GetOwner())) {
+        if(!Tooth->IsAvailable() || !Tooth->Status) return false;
+        const auto& Health=Tooth->Status->State;
+        if(Health.Health<=0 || Health.Health>=Health.MaxHealth-KINDA_SMALL_NUMBER) return false;
+        Value.HealthFraction=FMath::Clamp(Health.Health/FMath::Max(1.f,Health.MaxHealth),0.f,1.f);
+        Value.bShowHealth=true;Value.bHasTimer=false;
+        Anchor=Tooth->Visual?Tooth->Visual->Bounds.Origin+FVector(0,0,Tooth->Visual->Bounds.BoxExtent.Z+HeightPadding)
+            :Tooth->GetActorLocation()+FVector(0,0,120.f+HeightPadding);
         return true;
     }
     if(const auto* Enemy=Cast<AMCNutEnemy>(GetOwner())) {
@@ -154,6 +168,8 @@ void UMCWorldStatusComponent::EnsureWidget()
 void UMCWorldStatusComponent::TickComponent(float Dt,ELevelTick Tick,FActorComponentTickFunction* Function)
 {
     Super::TickComponent(Dt,Tick,Function);if(!SupportsOwner()) return;
+    // Prepare the HP root under loading even while every arena tooth is healthy.
+    if(Cast<AMCArenaTooth>(GetOwner())) EnsureWidget();
     const double Now=GetWorld()->GetTimeSeconds();
     if(Now>=NextPollAt) {
         NextPollAt=Now+FMath::Clamp(PollSeconds,.05f,1.f);HideLegacyLabel();

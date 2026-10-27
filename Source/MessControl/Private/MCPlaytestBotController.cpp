@@ -64,6 +64,7 @@ bool NeedsDiscard(const AMCFoodActor* Food)
 bool IsMealWorkStage(EMCSingleDayStage Stage)
 {
     return Stage==EMCSingleDayStage::FirstMeal || Stage==EMCSingleDayStage::PostNutMeal
+        || Stage==EMCSingleDayStage::PostNutCoffee || Stage==EMCSingleDayStage::PostNutCoffeePause
         || Stage==EMCSingleDayStage::MealRest || Stage==EMCSingleDayStage::MealCoffeeWave
         || Stage==EMCSingleDayStage::BetweenMealsPause;
 }

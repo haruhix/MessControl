@@ -52,7 +52,7 @@ bool FMCInventoryRouting::RunTest(const FString&) {
     TestTrue(TEXT("Pickaxe accepts hard food"),I->CanBreak(Hard)); TestFalse(TEXT("Pickaxe rejects soft food"),I->CanBreak(Soft));
     I->ServerSelect(EMCToolSlot::Knife); TestTrue(TEXT("Knife accepts soft food"),I->CanBreak(Soft)); TestFalse(TEXT("Knife rejects hard food"),I->CanBreak(Hard));
     I->ServerSelect(static_cast<EMCToolSlot>(99)); TestEqual(TEXT("Invalid slot ignored"),I->Selected,EMCToolSlot::Knife);
-    T.H->SwingBrush(); I->ServerSelect(EMCToolSlot::Spray); TestEqual(TEXT("Cannot swap the damage tool during a swing"),I->Selected,EMCToolSlot::Knife);
+    T.H->SwingBrush(); I->ServerSelect(EMCToolSlot::Spray); TestEqual(TEXT("Tool selection interrupts a swing without waiting for its attack cooldown"),I->Selected,EMCToolSlot::Spray);
     const float PickaxePlayRate=UMCInventoryComponent::SwingPlayRate(EMCToolSlot::Pickaxe);
     TestTrue(TEXT("Pickaxe lifts overhead then swings down"),UMCInventoryComponent::SwingAngle(EMCToolSlot::Pickaxe,.30f/PickaxePlayRate)>100 && UMCInventoryComponent::SwingAngle(EMCToolSlot::Pickaxe,.44f/PickaxePlayRate)<-100);
     I->UnlockWaterJet(); TestTrue(TEXT("Upgrade is retained in slot one"),I->bWaterJetUnlocked);

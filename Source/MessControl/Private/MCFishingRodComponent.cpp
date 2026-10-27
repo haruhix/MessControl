@@ -9,6 +9,7 @@
 #include "MCHubFishingZone.h"
 #include "MCRewardChest.h"
 #include "MCPlayerState.h"
+#include "MCPlayerController.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/StaticMesh.h"
@@ -36,6 +37,12 @@ UMCFishingRodComponent::UMCFishingRodComponent()
     static ConstructorHelpers::FObjectFinder<UMaterialInterface> CatchMaterial(TEXT("/Game/Hub/Fishing/Materials/M_FishingCatch"));
     RodMesh=Rod.Object;ReelMesh=Reel.Object;LureMesh=Lure.Object;LineMaterial=Line.Object;
     FishMesh=Fish.Object;FishMaterial=CatchMaterial.Object;
+    CatchRewards={
+        {EMCHubItemRarity::Common,70.f,1},
+        {EMCHubItemRarity::Rare,22.f,2},
+        {EMCHubItemRarity::Epic,7.f,5},
+        {EMCHubItemRarity::Legendary,1.f,10}
+    };
 }
 
 void UMCFishingRodComponent::BeginPlay()
@@ -191,20 +198,51 @@ bool UMCFishingRodComponent::CanCastLine() const
     return FindPondCast(Origin,Target,Velocity,Duration,Pond);
 }
 
+bool UMCFishingRodComponent::SelectCatchReward(float UnitRoll,FMCFishingCatchReward& Reward) const
+{
+    Reward=FMCFishingCatchReward();
+    if(!FMath::IsFinite(UnitRoll) || UnitRoll<0 || UnitRoll>1) return false;
+    const auto Valid=[](const FMCFishingCatchReward& Row) {
+        return uint8(Row.Rarity)<=uint8(EMCHubItemRarity::Legendary)
+            && FMath::IsFinite(Row.Weight) && Row.Weight>0 && Row.Weight<=1000000.f
+            && Row.FishCoins>0 && Row.FishCoins<=1000;
+    };
+    double Total=0;
+    for(const auto& Row:CatchRewards) if(Valid(Row)) Total+=Row.Weight;
+    if(Total<=0) return false;
+    double Remaining=double(UnitRoll)*Total;
+    const FMCFishingCatchReward* Last=nullptr;
+    for(const auto& Row:CatchRewards) if(Valid(Row)) {
+        Last=&Row;
+        if(Remaining<Row.Weight) {Reward=Row;return true;}
+        Remaining-=Row.Weight;
+    }
+    // FRand is normally below 1; an exact endpoint still resolves the last valid row.
+    if(Last) {Reward=*Last;return true;}
+    return false;
+}
+
 void UMCFishingRodComponent::CompleteHookedCatch()
 {
     if(!Hero || !Hero->HasAuthority() || !bFishHooked) return;
     // Clear before awarding so later exit, input-release and retrieval paths
     // cannot count the same already-hooked fish twice. A pending bite is not a catch.
-    bFishHooked=false;
-    if(auto* Identity=Hero->GetPlayerState<AMCPlayerState>()) Identity->AddCaughtFish();
+    const FMCFishingCatchReward Reward=HookedCatch;
+    bFishHooked=false;HookedCatch=FMCFishingCatchReward();
+    if(uint8(Reward.Rarity)>uint8(EMCHubItemRarity::Legendary) || Reward.FishCoins<=0 || Reward.FishCoins>1000) return;
+    if(auto* Identity=Hero->GetPlayerState<AMCPlayerState>()) {
+        const int32 Credited=Identity->AddCaughtFish(Reward.FishCoins);
+        // A real catch still needs feedback when its otherwise valid wallet is full.
+        if(auto* PC=Cast<AMCPlayerController>(Hero->GetController()))
+            PC->ClientFishingCatch(Reward.Rarity,Credited,Identity->FishCaught);
+    }
 }
 
 void UMCFishingRodComponent::CancelFishing(bool bRecoverHookedCatch)
 {
     if(bRecoverHookedCatch) CompleteHookedCatch();
     bFishingPose=bReeling=bLineOut=false;CastPond=nullptr;
-    bFishHooked=false;BiteAt=-1;
+    bFishHooked=false;HookedCatch=FMCFishingCatchReward();BiteAt=-1;
     bCastFlight=bLureInWater=false;CastAge=0;WaterAnchor=FVector::ZeroVector;
     FreeLineLength=HangingLength;Accumulator=0;
     if(Hero) Hero->ForceNetUpdate();
@@ -223,6 +261,7 @@ void UMCFishingRodComponent::UpdateFishingCatch()
     if(Now<BiteAt) return;
     FVector Surface;
     if(!PondSurfaceAt(CastPond,LurePoint,Surface)) {CancelFishing();return;}
+    if(!SelectCatchReward(FMath::FRand(),HookedCatch)) {CancelFishing();return;}
     bFishHooked=true;bReeling=true;BiteAt=-1;Hero->ForceNetUpdate();
 }
 
@@ -259,7 +298,7 @@ void UMCFishingRodComponent::CastLine_Implementation()
     if(!FindPondCast(CastOrigin,CastTarget,CastVelocity,CastFlightDuration,Pond)) return;
     CastPond=Pond;
     bLineOut=true;bFishingPose=true;
-    bFishHooked=false;BiteAt=-1;
+    bFishHooked=false;HookedCatch=FMCFishingCatchReward();BiteAt=-1;
     ++CastSerial;Hero->ForceNetUpdate();
 }
 
@@ -509,4 +548,5 @@ void UMCFishingRodComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
     DOREPLIFETIME(UMCFishingRodComponent,CastSerial);DOREPLIFETIME(UMCFishingRodComponent,CastOrigin);DOREPLIFETIME(UMCFishingRodComponent,CastVelocity);
     DOREPLIFETIME(UMCFishingRodComponent,CastTarget);DOREPLIFETIME(UMCFishingRodComponent,CastFlightDuration);DOREPLIFETIME(UMCFishingRodComponent,CastPond);
     DOREPLIFETIME(UMCFishingRodComponent,bFishHooked);
+    DOREPLIFETIME(UMCFishingRodComponent,HookedCatch);
 }

@@ -1,0 +1,80 @@
+{
+  "curated_utc": "2026-10-27T00:06:32.495554+00:00",
+  "files": [
+    {
+      "source": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Run_20261027T000304Z_6ee458\\Report.json",
+      "copy": "E:\\DEVGAME\\MessControl\\Artifacts\\PlaytestCheckpoint_20261027\\RelaxWGC\\Report.json",
+      "bytes": 227765,
+      "sha256": "6b2917fd60f69393aa0a045b1556b37c009c59b55b2278150893c2d52206f45b"
+    },
+    {
+      "source": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Run_20261027T000304Z_6ee458\\Ready.json",
+      "copy": "E:\\DEVGAME\\MessControl\\Artifacts\\PlaytestCheckpoint_20261027\\RelaxWGC\\Ready.json",
+      "bytes": 678,
+      "sha256": "727dfb459141da3163d9e3dad9510411736608e07f86fec2b91a03837267baa3"
+    },
+    {
+      "source": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Run_20261027T000304Z_6ee458\\ReadyView_00.png",
+      "copy": "E:\\DEVGAME\\MessControl\\Artifacts\\PlaytestCheckpoint_20261027\\RelaxWGC\\ReadyView.png",
+      "bytes": 1162293,
+      "sha256": "8dfbe4539c215e619deeb89ab38655e2d787cba119d06cf807e9233ba74f9866"
+    },
+    {
+      "source": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Auto_090258.json",
+      "copy": "E:\\DEVGAME\\MessControl\\Artifacts\\PlaytestCheckpoint_20261027\\RelaxWGC\\Orchestration.json",
+      "bytes": 3403,
+      "sha256": "ec756c31c8e68cde30664dcb6de37e567b53a8b682eaaad00349eb35241fc6a9"
+    },
+    {
+      "source": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Relax_Complete_090258.mp4",
+      "copy": "E:\\DEVGAME\\MessControl\\Artifacts\\PlaytestCheckpoint_20261027\\RelaxWGC\\Coffee_6Seconds_10Foods.mp4",
+      "bytes": 8856220,
+      "sha256": "c59284385d56703eccf6b24c5c9200565865e618465d2358a75debd3e6a8ee9b"
+    },
+    {
+      "source": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Relax_Complete_090258.Capture.json",
+      "copy": "E:\\DEVGAME\\MessControl\\Artifacts\\PlaytestCheckpoint_20261027\\RelaxWGC\\Capture.json",
+      "bytes": 2548,
+      "sha256": "af9d6557b2826ff70d93507b49f3e70eada92217b86fa49d712b7183083a2add"
+    },
+    {
+      "source": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Relax_Complete_090258.VideoMetadata.json",
+      "copy": "E:\\DEVGAME\\MessControl\\Artifacts\\PlaytestCheckpoint_20261027\\RelaxWGC\\VideoMetadata.json",
+      "bytes": 1873,
+      "sha256": "72d4936d9e18f4770b74d02a97fc9c81108736e53848c6c210b6a8d9b1b0270c"
+    },
+    {
+      "source": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Relax_Complete_090258.VideoMetadata.ffprobe.json",
+      "copy": "E:\\DEVGAME\\MessControl\\Artifacts\\PlaytestCheckpoint_20261027\\RelaxWGC\\DecodedFrameTimestamps.json",
+      "bytes": 67169,
+      "sha256": "63e9a22e290f115344e2ee5880863cdd155478eb8bb34483560345be3091bb3d"
+    },
+    {
+      "source": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Relax_Complete_090258_ContactSheet.jpg",
+      "copy": "E:\\DEVGAME\\MessControl\\Artifacts\\PlaytestCheckpoint_20261027\\RelaxWGC\\ContactSheet.jpg",
+      "bytes": 109468,
+      "sha256": "1f2c59a5b933d25b19f4583fdf6ed8aab50362c6fd6854d50131460b8011622c"
+    },
+    {
+      "source": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Relax_Complete_090258.progress.log",
+      "copy": "E:\\DEVGAME\\MessControl\\Artifacts\\PlaytestCheckpoint_20261027\\RelaxWGC\\RecorderProgress.log",
+      "bytes": 33151,
+      "sha256": "76911c9886ec4a7d563561b1611cc97ede1a5e30db71323000e60cd3176f0e55"
+    }
+  ],
+  "generated_documents": [
+    {
+      "path": "README.md",
+      "kind": "Policy-edited generated document, not a source copy",
+      "bytes": 2064,
+      "sha256": "ebde5149f1988eac4f2d7eaa71a86002281fab4260f8a8d98ffdefbdf4d7a346",
+      "policy_edited_generated_document": true,
+      "policy_edit": "Policy-edited generated document: local media retained, excluded from Git; filenames replace media links. Original source-copy claims/hashes are not reassigned to this edited document.",
+      "prior_document_record": {
+        "path": "README.md",
+        "kind": "Policy-edited generated document, not a source copy"
+      }
+    }
+  ],
+  "media_storage_policy": "Verification media is local-only and excluded from Git; files[] source-copy hashes/provenance remain unchanged."
+}

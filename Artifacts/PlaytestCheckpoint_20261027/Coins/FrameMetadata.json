@@ -1,0 +1,233 @@
+{
+  "frames": [
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00000.png",
+      "wall_seconds": 0.014999999999417923,
+      "game_seconds": 14.330652706325054
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00001.png",
+      "wall_seconds": 0.13999999999941792,
+      "game_seconds": 14.44633550196886
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00002.png",
+      "wall_seconds": 0.25,
+      "game_seconds": 14.568415701389313
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00003.png",
+      "wall_seconds": 0.375,
+      "game_seconds": 14.688762500882149
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00004.png",
+      "wall_seconds": 0.5,
+      "game_seconds": 14.810754999518394
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00005.png",
+      "wall_seconds": 0.625,
+      "game_seconds": 14.929778695106506
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00006.png",
+      "wall_seconds": 0.75,
+      "game_seconds": 15.05055969953537
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00007.png",
+      "wall_seconds": 0.875,
+      "game_seconds": 15.17633929848671
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00008.png",
+      "wall_seconds": 0.9840000000003783,
+      "game_seconds": 15.298856399953365
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00009.png",
+      "wall_seconds": 1.1090000000003783,
+      "game_seconds": 15.418208695948124
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00010.png",
+      "wall_seconds": 1.2340000000003783,
+      "game_seconds": 15.537592090666294
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00011.png",
+      "wall_seconds": 1.3590000000003783,
+      "game_seconds": 15.663968093693256
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00012.png",
+      "wall_seconds": 1.5310000000026776,
+      "game_seconds": 15.826145984232426
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00013.png",
+      "wall_seconds": 1.639999999999418,
+      "game_seconds": 15.826145984232426
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00014.png",
+      "wall_seconds": 1.764999999999418,
+      "game_seconds": 15.936175882816315
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00015.png",
+      "wall_seconds": 1.889999999999418,
+      "game_seconds": 16.06788468360901
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00016.png",
+      "wall_seconds": 2.014999999999418,
+      "game_seconds": 16.190609082579613
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00017.png",
+      "wall_seconds": 2.1560000000026776,
+      "game_seconds": 16.315281584858894
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00018.png",
+      "wall_seconds": 2.264999999999418,
+      "game_seconds": 16.44083908200264
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00019.png",
+      "wall_seconds": 2.4060000000026776,
+      "game_seconds": 16.57055377960205
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00020.png",
+      "wall_seconds": 2.5310000000026776,
+      "game_seconds": 16.69620268046856
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00021.png",
+      "wall_seconds": 2.639999999999418,
+      "game_seconds": 16.81664738059044
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00022.png",
+      "wall_seconds": 2.7810000000026776,
+      "game_seconds": 16.944799572229385
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00023.png",
+      "wall_seconds": 2.9060000000026776,
+      "game_seconds": 17.076397866010666
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00024.png",
+      "wall_seconds": 3.0310000000026776,
+      "game_seconds": 17.205345064401627
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00025.png",
+      "wall_seconds": 3.172000000002299,
+      "game_seconds": 17.334617465734482
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00026.png",
+      "wall_seconds": 3.297000000002299,
+      "game_seconds": 17.459052465856075
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00027.png",
+      "wall_seconds": 3.422000000002299,
+      "game_seconds": 17.585661970078945
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00028.png",
+      "wall_seconds": 3.547000000002299,
+      "game_seconds": 17.71276707202196
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00029.png",
+      "wall_seconds": 3.672000000002299,
+      "game_seconds": 17.836352072656155
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00030.png",
+      "wall_seconds": 3.797000000002299,
+      "game_seconds": 17.965196274220943
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00031.png",
+      "wall_seconds": 3.922000000002299,
+      "game_seconds": 18.094154380261898
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00032.png",
+      "wall_seconds": 4.047000000002299,
+      "game_seconds": 18.21888668090105
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00033.png",
+      "wall_seconds": 4.187000000001717,
+      "game_seconds": 18.350129686295986
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00034.png",
+      "wall_seconds": 4.312000000001717,
+      "game_seconds": 18.47664988785982
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00035.png",
+      "wall_seconds": 4.437000000001717,
+      "game_seconds": 18.605634190142155
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00036.png",
+      "wall_seconds": 4.578000000001339,
+      "game_seconds": 18.740205191075802
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00037.png",
+      "wall_seconds": 4.703000000001339,
+      "game_seconds": 18.869834683835506
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00038.png",
+      "wall_seconds": 4.828000000001339,
+      "game_seconds": 19.0002323910594
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00039.png",
+      "wall_seconds": 4.953000000001339,
+      "game_seconds": 19.1276560947299
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00040.png",
+      "wall_seconds": 5.109000000000378,
+      "game_seconds": 19.278039194643497
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00041.png",
+      "wall_seconds": 5.264999999999418,
+      "game_seconds": 19.42942499369383
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00042.png",
+      "wall_seconds": 5.4060000000026776,
+      "game_seconds": 19.57716428488493
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00043.png",
+      "wall_seconds": 5.547000000002299,
+      "game_seconds": 19.722289688885212
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\00044.png",
+      "wall_seconds": 5.672000000002299,
+      "game_seconds": 19.84884387999773
+    }
+  ],
+  "error": null,
+  "wall_duration": 5.96900000000096,
+  "requested_hz": 20,
+  "method": "Actual owned PIE SWindow screenshot each frame; measured wall PTS, real simulation time; capture overhead retained"
+}

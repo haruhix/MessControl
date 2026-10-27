@@ -3,6 +3,7 @@
 #include "MCFoodActor.h"
 #include "MCNutEnemy.h"
 #include "MCNutBoss.h"
+#include "MCNutCombatEffect.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "MCNutRainEvent.h"
@@ -21,6 +22,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "UObject/GarbageCollection.h"
 #include "UObject/StrongObjectPtr.h"
+#include "UObject/Package.h"
 #include <limits>
 #if WITH_EDITOR
 #include "StaticMeshCompiler.h"
@@ -102,6 +104,8 @@ struct FNutRainWorld
     // The fixture owns both objects across Event::Stop and a second Start.
     TStrongObjectPtr<UMCNutRainProfile> Profile;
     TStrongObjectPtr<UDataTable> Menu;
+    TStrongObjectPtr<UStaticMesh> CPUAccessMesh;
+    bool HadCPUAccess=false,HadPackageDirty=false;
     FNutRainWorld()
     {
         GEngine->CreateNewWorldContext(EWorldType::Game).SetCurrentWorld(World);
@@ -112,6 +116,8 @@ struct FNutRainWorld
 #if WITH_EDITOR
         FStaticMeshCompilingManager::Get().FinishCompilation({Cube});
 #endif
+        CPUAccessMesh.Reset(Cube);HadCPUAccess=Cube->bAllowCPUAccess;HadPackageDirty=Cube->GetOutermost()->IsDirty();
+        Cube->bAllowCPUAccess=true; // Required by the procedural tongue fixture; never save the engine asset.
         const FTransform Pose(FRotator::ZeroRotator,FVector::ZeroVector,FVector(24,16,.2));
         Tongue=World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),Pose,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         Tongue->SourceMesh=Cube; Tongue->bAutomaticYawns=false; Tongue->FinishSpawning(Pose); Tongue->SetActorTickEnabled(false);
@@ -127,7 +133,10 @@ struct FNutRainWorld
         Event=World->SpawnActor<AMCNutRainEvent>();
     }
     ~FNutRainWorld()
-    { World->EndPlay(EEndPlayReason::Quit); GEngine->DestroyWorldContext(World); World->DestroyWorld(false); }
+    {
+        World->EndPlay(EEndPlayReason::Quit);GEngine->DestroyWorldContext(World);World->DestroyWorld(false);
+        if(auto* Mesh=CPUAccessMesh.Get()) {Mesh->bAllowCPUAccess=HadCPUAccess;Mesh->GetOutermost()->SetDirtyFlag(HadPackageDirty);}
+    }
     void Step(float Seconds)
     { for(int32 I=0;I<FMath::CeilToInt(Seconds*60);++I) { ++GFrameCounter; World->Tick(LEVELTICK_All,1.f/60); } }
 };
@@ -280,6 +289,8 @@ bool FMCNutDirectedEncounter::RunTest(const FString&)
     T.Event->GetAvailableRainNuts(Available);
     TestFalse(TEXT("Active mouth entry remains ineligible even near the supporting floor"),Available.Contains(RestingNut));
     auto* SpareCreep=T.World->SpawnActor<AMCNutEnemy>();
+    SpareCreep->ConfigureEnemy(T.Tongue,Cube,FVector(.5),T.Event->Settings.Enemy);
+    const TWeakObjectPtr<AMCNutEnemy> SpareCreepLifetime=SpareCreep;
     T.Event->RegisterEncounterEnemy(SpareCreep);
     TestTrue(TEXT("A newly registered ordinary enemy is initially alive"),SpareCreep->IsEncounterAlive());
     const float KnightHealth=Boss->Health;
@@ -290,6 +301,7 @@ bool FMCNutDirectedEncounter::RunTest(const FString&)
     T.Step(.1f);
     TestEqual(TEXT("Lethal knight hit starts the head split"),Boss->State,EMCNutBossState::Transforming);
     TestFalse(TEXT("The phase change does not count as a final defeat"),Boss->bDefeated);
+    TestTrue(TEXT("The zero-health knight remains alive for its pending wizard phase"),Boss->Health==0 && Boss->IsEncounterAlive());
     TestFalse(TEXT("The encounter cannot finish in the gap between forms"),T.Event->IsComplete());
     TestEqual(TEXT("The transitioning actor still owns the live encounter"),T.Event->BossesLeft,1);
     TestEqual(TEXT("Repeated lethal damage is ignored during transformation"),Boss->ReceiveToolDamage(100000,nullptr),0.f);
@@ -301,14 +313,58 @@ bool FMCNutDirectedEncounter::RunTest(const FString&)
     TestTrue(TEXT("Wizard can be fought after the split"),Boss->CanReceiveToolHit());
     TestEqual(TEXT("The wizard has no knight shield"),Boss->ShieldHealth,0.f);
     TestFalse(TEXT("A living wizard still blocks event completion"),T.Event->IsComplete());
+    TestTrue(TEXT("A real supported summon remains alive before the final boss defeat"),SpareCreepLifetime.IsValid() && SpareCreepLifetime->IsEncounterAlive());
     Boss->ReceiveToolDamage(100000,nullptr);
-    T.Step(Boss->BossSettings.DeathSeconds+.1f);
-    TestTrue(TEXT("Defeating the wizard unlocks the encounter without a leftover summon gate"),T.Event->IsComplete());
-    TestTrue(TEXT("Remaining summons are removed when both bosses are defeated"),!IsValid(SpareCreep) || SpareCreep->IsActorBeingDestroyed());
+    const TWeakObjectPtr<AMCNutBoss> BossLifetime=Boss;
+    const float DeathSeconds=Boss->BossSettings.DeathSeconds;
+    T.Step(.1f);
+    CollectGarbage(RF_NoFlags); // Exercise removed actors after GC, not only their pending-destroy state.
+    TestTrue(TEXT("The next event tick unlocks the reward without waiting for the wizard death clip"),T.Event->IsComplete());
+    if(!TestTrue(TEXT("Completion preserves the wizard's pending authored death performance"),BossLifetime.IsValid() && BossLifetime->bDefeated && BossLifetime->GetLifeSpan()>0.f)) return false;
+    TestFalse(TEXT("Remaining summons are removed when both bosses are defeated"),SpareCreepLifetime.IsValid());
     T.Event->Stop();
     int32 Left=0; for(TActorIterator<AMCFoodActor> It(T.World);It;++It) if(It->Batch==Batch) ++Left;
     TestEqual(TEXT("Encounter reset also removes cracked walnut fragments"),Left,0);
     TestEqual(TEXT("Encounter reset releases boss handles"),T.Event->Bosses.Num(),0);
+    if(!TestTrue(TEXT("Successful cleanup releases the visible corpse instead of cutting off its death clip"),BossLifetime.IsValid())) return false;
+    TestNull(TEXT("The completed corpse no longer owns the event actor"),BossLifetime->GetOwner());
+    TestNull(TEXT("The completed corpse cannot access the retired encounter"),BossLifetime->EncounterOwner.Get());
+    T.Event->Stop(); // A later EndPlay/Stop must not destroy the released corpse.
+    TestTrue(TEXT("Repeated cleanup preserves the same bounded death presentation"),BossLifetime.IsValid());
+    T.Step(DeathSeconds+.1f);
+    CollectGarbage(RF_NoFlags);
+    TestFalse(TEXT("The released corpse expires through its own existing lifespan"),BossLifetime.IsValid());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutDeathCleanupBounds,"MessControl.CoreLoop.NutRain.CleanupRetainsOnlyBoundedCompletedCorpses",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutDeathCleanupBounds::RunTest(const FString&)
+{
+    for(bool CancelBeforeCompletion:{false,true}) {
+        FNutRainWorld T;T.Event->Settings.bBossEncounter=true;T.Event->Stage=EMCNutRainStage::Enemies;
+        const FTransform Pose(FVector(0,0,150));
+        auto* Boss=T.World->SpawnActorDeferred<AMCNutBoss>(AMCNutBoss::StaticClass(),Pose,T.Event,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+        Boss->BossRole=EMCNutBossRole::Mage;Boss->State=EMCNutBossState::Idle;
+        Boss->EncounterOwner=T.Event;Boss->Tongue=T.Tongue;Boss->FinishSpawning(Pose);Boss->SetActorTickEnabled(false);
+        T.Event->Bosses.Add(Boss);T.Event->RegisterEncounterEnemy(Boss);
+        auto* Creep=T.World->SpawnActor<AMCNutEnemy>();Creep->SetOwner(T.Event);T.Event->RegisterEncounterEnemy(Creep);
+        Boss->ReceiveToolDamage(100000,nullptr);
+        if(!TestTrue(TEXT("A real final defeat has an authored death lifespan"),Boss->bDefeated && Boss->GetLifeSpan()>0)) return false;
+        const TWeakObjectPtr<AMCNutBoss> BossLifetime=Boss;
+        const TWeakObjectPtr<AMCNutEnemy> CreepLifetime=Creep;
+        if(!CancelBeforeCompletion) {
+            T.Event->Stage=EMCNutRainStage::Complete;
+            Boss->SetLifeSpan(0); // An unbounded corpse must never escape cleanup.
+        }
+        T.Event->Stop();
+        TestFalse(TEXT("Cancellation and an unbounded corpse are both cleaned immediately"),BossLifetime.IsValid());
+        TestFalse(TEXT("Active minions are always cleaned"),CreepLifetime.IsValid());
+        int32 Effects=0;
+        for(TActorIterator<AMCNutCombatEffect> It(T.World);It;++It)
+            if(It->GetOwner()==T.Event && !It->IsActorBeingDestroyed()) ++Effects;
+        TestEqual(TEXT("Event cleanup cannot leave owned combat effects running"),Effects,0);
+        TestTrue(TEXT("Every cleanup path releases all public enemy handles"),T.Event->Enemies.IsEmpty() && T.Event->Bosses.IsEmpty());
+    }
     return true;
 }
 
@@ -349,7 +405,9 @@ bool FMCNutRainDebrisGate::RunTest(const FString&)
         T.Profile->Settings.bBossEncounter=true;
         auto* Cube=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"));
         T.Profile->Settings.Boss.WholeMesh=Cube; T.Profile->Settings.Boss.ShellMesh=Cube; T.Profile->Settings.Boss.KernelMesh=Cube;
-        T.Event->Start(nullptr,T.Profile.Get()); T.Step(19);
+        T.Event->Start(nullptr,T.Profile.Get());
+        if(!TestEqual(TEXT("Recovery fixture begins during actual rain, before any boss gate"),T.Event->Stage,EMCNutRainStage::Rainfall)) return false;
+        TestEqual(TEXT("No boss exists before the stalled flight fixture"),T.Event->Bosses.Num(),0);
         if(!TestTrue(TEXT("The real rain provides a food actor for the recovery fixture"),!T.Event->Nuts.IsEmpty())) return false;
         AMCFoodActor* Orphan=T.Event->Nuts[0];
         Orphan->SetActorLocation(FVector(5000,5000,-1000),false,nullptr,ETeleportType::TeleportPhysics);
@@ -360,12 +418,18 @@ bool FMCNutRainDebrisGate::RunTest(const FString&)
             if(!TestTrue(TEXT("The stalled fixture retains a real active mouth-entry flight"),Orphan->IsMouthEntryActive())) return false;
         }
         Orphan->SetActorTickEnabled(false);
+        // Synchronize with the real two-pattern schedule. A fixed 19-second
+        // delay created this fixture after the shortened rain had already
+        // spawned its knight, so it never exercised the entry gate at all.
+        for(int32 Wait=0;Wait<400 && T.Event->Stage==EMCNutRainStage::Rainfall;++Wait) T.Step(.05f);
+        if(!TestEqual(TEXT("All actual launches reach the native settling gate"),T.Event->Stage,EMCNutRainStage::Settling)) return false;
+        TestEqual(TEXT("The final real mouth-entry flight still precedes the knight"),T.Event->Bosses.Num(),0);
         for(AMCFoodActor* Food:T.Event->Nuts) if(IsValid(Food) && Food!=Orphan) Food->Dispose();
-        T.Step(7);
+        T.Step(T.Event->Settings.Entry.FlightSeconds+.25f);
         if(StaleFlight) {
             TestEqual(TEXT("An actual pending flight is allowed to finish before the knight"),T.Event->Bosses.Num(),0);
             TestFalse(TEXT("Waiting for an actual flight is not event failure"),T.Event->bFailed);
-            T.Step(8);
+            T.Step(10.5f); // Exceed only the existing final-flight + 10-second stale-entry deadline.
             TestTrue(TEXT("Only the stale entry is retired by bounded recovery"),Orphan->IsDisposed());
         } else TestFalse(TEXT("An off-surface loose nut is retained rather than consumed by the gate"),Orphan->IsDisposed());
         TestFalse(TEXT("Unresolved debris never cancels the mandatory boss fight"),T.Event->bFailed);

@@ -1,0 +1,82 @@
+{
+  "copied_files": [
+    {
+      "path": "Report.json",
+      "source": "E:\\CodexWork\\Batch6_20261027\\Glide\\RuntimeCapture\\Runs\\Run_20261026T235812Z_0f4c42\\Report.json",
+      "bytes": 263093,
+      "source_sha256": "013d378bf0b6324110b8655ac01675745e8a3a303a38025ebebc6f8d0c1bfbf2",
+      "copied_sha256": "013d378bf0b6324110b8655ac01675745e8a3a303a38025ebebc6f8d0c1bfbf2",
+      "verified": true
+    },
+    {
+      "path": "Auto.json",
+      "source": "E:\\CodexWork\\Batch6_20261027\\Glide\\RuntimeCapture\\Auto_085812.json",
+      "bytes": 3224,
+      "source_sha256": "5e3f14807368bd5379fbb5213444ae2e2e9c49de98ac28b55e24c2506d3d20c9",
+      "copied_sha256": "5e3f14807368bd5379fbb5213444ae2e2e9c49de98ac28b55e24c2506d3d20c9",
+      "verified": true
+    },
+    {
+      "path": "ActualWindow.mp4",
+      "source": "E:\\CodexWork\\Batch6_20261027\\Glide\\RuntimeCapture\\Glide_Complete_085812.mp4",
+      "bytes": 5032911,
+      "source_sha256": "2bbcf922abcbc3c0ed245f79ed279a082636b97e7a19adcc9becf2165fbafc47",
+      "copied_sha256": "2bbcf922abcbc3c0ed245f79ed279a082636b97e7a19adcc9becf2165fbafc47",
+      "verified": true
+    },
+    {
+      "path": "VideoMetadata.json",
+      "source": "E:\\CodexWork\\Batch6_20261027\\Glide\\RuntimeCapture\\Glide_Complete_085812.VideoMetadata.json",
+      "bytes": 1858,
+      "source_sha256": "29b42ed55dbd369c0ec0934907ce7f1fc8f5c2613521aa68455ff58dfcae3c98",
+      "copied_sha256": "29b42ed55dbd369c0ec0934907ce7f1fc8f5c2613521aa68455ff58dfcae3c98",
+      "verified": true
+    },
+    {
+      "path": "EncodedFramePTS.json",
+      "source": "E:\\CodexWork\\Batch6_20261027\\Glide\\RuntimeCapture\\Glide_Complete_085812.VideoMetadata.ffprobe.json",
+      "bytes": 29462,
+      "source_sha256": "64ae2b007eac314e681d9c2ae1181095c70da1473ce1e49207441fa97c1ba1d0",
+      "copied_sha256": "64ae2b007eac314e681d9c2ae1181095c70da1473ce1e49207441fa97c1ba1d0",
+      "verified": true
+    },
+    {
+      "path": "CaptureLaunch.json",
+      "source": "E:\\CodexWork\\Batch6_20261027\\Glide\\RuntimeCapture\\Glide_Complete_085812.Capture.json",
+      "bytes": 2550,
+      "source_sha256": "7a2b6dbd8ad72f9f07c85070c711e1e9ca5a38c3f1ca8c89ddeb0797d73aeaa4",
+      "copied_sha256": "7a2b6dbd8ad72f9f07c85070c711e1e9ca5a38c3f1ca8c89ddeb0797d73aeaa4",
+      "verified": true
+    },
+    {
+      "path": "ContactSheet.jpg",
+      "source": "E:\\CodexWork\\Batch6_20261027\\Glide\\RuntimeCapture\\Glide_Complete_085812_Sheet.jpg",
+      "bytes": 111366,
+      "source_sha256": "c70efd7d4bdfba9331a332e5e78767e6178fd2c94a721ac18eef477d7d909eac",
+      "copied_sha256": "c70efd7d4bdfba9331a332e5e78767e6178fd2c94a721ac18eef477d7d909eac",
+      "verified": true
+    }
+  ],
+  "generated_files": [
+    {
+      "path": "README.md",
+      "bytes": 1949,
+      "sha256": "1e8b8e1a51c5dedb9cda98563b041cdf841167b301d0d4394bd4be66b35e2722",
+      "policy_edited_generated_document": true,
+      "policy_edit": "Policy-edited generated document: local media retained, excluded from Git; filenames replace media links. Original source-copy claims/hashes are not reassigned to this edited document.",
+      "prior_document_record": {
+        "path": "README.md",
+        "bytes": 1655,
+        "sha256": "464018aacd8ad47691f67f1a99696e961aa98960b5b7533b614944d47f07da0d"
+      }
+    },
+    {
+      "path": "ReviewScope.json",
+      "bytes": 278,
+      "sha256": "f66e86ab7a4470f102af9f8c91fc675512544d5028d90b8f5c48d5a48afced0b"
+    }
+  ],
+  "all_copies_verified": true,
+  "accepted_scope": "Limited standalone gameplay chain and visual readability; not full art/performance approval",
+  "media_storage_policy": "Verification media is local-only and excluded from Git; existing source hashes/provenance describe preserved local files."
+}

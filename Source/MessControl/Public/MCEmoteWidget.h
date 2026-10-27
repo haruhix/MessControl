@@ -34,12 +34,15 @@ public:
     void Configure(AMCPlayerController* Player,FName Emote);
     void ConfigureAlarm(AMCPlayerController* Player,EMCPlayerAlarm Value);
     void ConfigureColor(AMCPlayerController* Player,FLinearColor Value);
+    void ActivateChoice();
+    int32 ChoiceIndex=INDEX_NONE;
     FName Id;
     EMCPlayerAlarm Alarm=EMCPlayerAlarm::None;
     bool bColorChoice=false;
 private:
     FLinearColor PlayerColor=FLinearColor::White;
     UFUNCTION() void Clicked();
+    UFUNCTION() void Hovered();
     UPROPERTY() TObjectPtr<AMCPlayerController> Controller;
 };
 UCLASS()
@@ -48,6 +51,9 @@ class MESSCONTROL_API UMCEmoteWidget : public UMCGameplayUIWidget
     GENERATED_BODY()
 public:
     void Refresh();
+    void BeginSelection(bool bHeld);
+    void SelectChoice(int32 Index);
+    bool ConfirmSelection();
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Emotes") TSoftObjectPtr<UMCEmoteLibrary> PreviewLibrary = TSoftObjectPtr<UMCEmoteLibrary>(FSoftObjectPath(TEXT("/Game/Data/DA_Emotes.DA_Emotes")));
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Emotes", meta=(ClampMin="0",ClampMax="2")) int32 PreviewCategory=0;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Emotes") bool bPreviewActionsAvailable=true;
@@ -60,6 +66,8 @@ protected:
     virtual void NativeConstruct() override;
     virtual void NativeTick(const FGeometry& Geometry,float Dt) override;
     virtual FReply NativeOnKeyDown(const FGeometry& Geometry,const FKeyEvent& Event) override;
+    virtual FReply NativeOnKeyUp(const FGeometry& Geometry,const FKeyEvent& Event) override;
+    virtual void NativeOnFocusLost(const FFocusEvent& Event) override;
     virtual FReply NativeOnMouseButtonDown(const FGeometry& Geometry,const FPointerEvent& Event) override;
     virtual int32 NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
         FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const override;

@@ -1,5 +1,6 @@
 ﻿#include "MCToothCharacter.h"
 #include "MCInventoryComponent.h"
+#include "MCToolScrollInput.h"
 #include "MCGameUserSettings.h"
 #include "MCPerkComponent.h"
 #include "MCBossCharacter.h"
@@ -69,11 +70,36 @@
 #include "InputAction.h"
 #include "InputMappingContext.h"
 #include "InputModifiers.h"
+#include "InputTriggers.h"
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Misc/ConfigCacheIni.h"
 #include "UObject/ConstructorHelpers.h"
+
+bool MCToolScrollInput::Handle(AMCToothCharacter& Hero,float Delta,FCursor& Cursor)
+{
+    const auto* PC=Cast<APlayerController>(Hero.GetController());
+    const auto* Player=Cast<AMCPlayerController>(PC);
+    if(!FMath::IsFinite(Delta) || FMath::IsNearlyZero(Delta)) return false;
+    if(!Hero.IsLocallyControlled() || !Hero.Inventory || !Hero.CanWork() || !Hero.CanSwitchTool() || Hero.IsArenaArrivalHeld()
+        || (PC && (PC->bShowMouseCursor || PC->IsMoveInputIgnored() || PC->IsLookInputIgnored()))
+        || (Player && (Player->IsRewardInteractionActive() || Player->IsWardrobeOpen() || Player->IsHubShopOpen()))
+        || (Hero.Grip && (Hero.Grip->IsBracing() || Hero.Grip->GrabbedPlayer || Hero.Grip->Frame.Food || Hero.Grip->Secondary.Food))) {
+        Cursor.Reset();return false;
+    }
+    constexpr int32 Count=int32(EMCToolSlot::Spray)+1;
+    // Share the owner-visible intent with 1–4. A separate timed wheel cursor
+    // would stay stale after rejection or a direct slot request.
+    const int32 Current=FMath::Clamp(int32(Hero.Inventory->Selected),0,Count-1);
+    const double Notches=FMath::Max(1.,FMath::FloorToDouble(FMath::Abs(double(Delta))+.5));
+    const int32 Steps=int32(FMath::Fmod(Notches,double(Count)))*(Delta>0?1:-1);
+    const int32 Next=(Current+Steps+Count)%Count;
+    if(Next==Current) return false; // A full revolution must not toggle spray mode.
+    // The existing authority RPC validates action state and stows an equipped
+    // rod while preserving an already hooked catch, just like direct selection.
+    return Hero.Inventory->RequestSelect(EMCToolSlot(Next));
+}
 
 AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer)
     :Super(ObjectInitializer.SetDefaultSubobjectClass<UMCToothMovementComponent>(ACharacter::CharacterMovementComponentName).SetDefaultSubobjectClass<UMCToothMeshComponent>(ACharacter::MeshComponentName))
@@ -389,7 +415,7 @@ void AMCToothCharacter::BuildInput()
     BraceAction=Action(EInputActionValueType::Boolean);
     OrbitXAction=Action(EInputActionValueType::Axis1D); OrbitYAction=Action(EInputActionValueType::Axis1D);
     GamepadLookXAction=Action(EInputActionValueType::Axis1D); GamepadLookYAction=Action(EInputActionValueType::Axis1D);
-    ZoomAction=Action(EInputActionValueType::Axis1D);
+    ZoomAction=NewObject<UInputAction>(this,TEXT("ToolScrollAction"));ZoomAction->ValueType=EInputActionValueType::Axis1D;
     SelfCareAction=Action(EInputActionValueType::Boolean);
     ThrowAction=Action(EInputActionValueType::Boolean);
     SprintAction=Action(EInputActionValueType::Boolean);
@@ -401,6 +427,10 @@ void AMCToothCharacter::BuildInput()
     InputMap->MapKey(OrbitXAction,EKeys::MouseX); InputMap->MapKey(OrbitYAction,EKeys::MouseY);
     MapStick(GamepadLookXAction,EKeys::Gamepad_RightX); MapStick(GamepadLookYAction,EKeys::Gamepad_RightY);
     InputMap->MapKey(ZoomAction,EKeys::MouseWheelAxis);
+    auto* BracketZoom=NewObject<UInputAction>(this,TEXT("BracketZoomAction"));BracketZoom->ValueType=EInputActionValueType::Axis1D;
+    BracketZoom->Triggers.Add(NewObject<UInputTriggerPressed>(this));
+    InputMap->MapKey(BracketZoom,EKeys::RightBracket);
+    InputMap->MapKey(BracketZoom,EKeys::LeftBracket).Modifiers.Add(NewObject<UInputModifierNegate>(this));
     InputMap->MapKey(ForwardAction, EKeys::W);
     InputMap->MapKey(ForwardAction, EKeys::S).Modifiers.Add(NewObject<UInputModifierNegate>(this));
     MapStick(ForwardAction,EKeys::Gamepad_LeftY);
@@ -472,15 +502,21 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(OrbitYAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::OrbitMouseY);
     Input->BindAction(GamepadLookXAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::OrbitGamepadX);
     Input->BindAction(GamepadLookYAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::OrbitGamepadY);
-    Input->BindAction(ZoomAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::CameraMouseWheel);
+    const auto ToolScrollCursor=MakeShared<MCToolScrollInput::FCursor>();
+    Input->BindActionValueLambda(ZoomAction,ETriggerEvent::Triggered,[this,ToolScrollCursor](const FInputActionValue& Value) {
+        MCToolScrollInput::Handle(*this,Value.Get<float>(),*ToolScrollCursor);
+    });
+    for(const auto& Mapping:InputMap->GetMappings()) if(Mapping.Key==EKeys::RightBracket) {
+        Input->BindAction(Mapping.Action,ETriggerEvent::Triggered,this,&AMCToothCharacter::CameraMouseWheel);break;
+    }
     Input->BindAction(SelfCareAction,ETriggerEvent::Started,this,&AMCToothCharacter::ToggleSelfCare);
     Input->BindAction(ThrowAction,ETriggerEvent::Started,this,&AMCToothCharacter::StartThrowItem);
     Input->BindAction(ThrowAction,ETriggerEvent::Completed,this,&AMCToothCharacter::StopThrowItem);
     Input->BindAction(ThrowAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::StopThrowItem);
-    Input->BindAction(ToolActions[0],ETriggerEvent::Started,this,&AMCToothCharacter::SelectBrush);
-    Input->BindAction(ToolActions[1],ETriggerEvent::Started,this,&AMCToothCharacter::SelectPickaxe);
-    Input->BindAction(ToolActions[2],ETriggerEvent::Started,this,&AMCToothCharacter::SelectKnife);
-    Input->BindAction(ToolActions[3],ETriggerEvent::Started,this,&AMCToothCharacter::SelectSpray);
+    Input->BindActionValueLambda(ToolActions[0],ETriggerEvent::Started,[this,ToolScrollCursor](const FInputActionValue&) {ToolScrollCursor->Reset();SelectBrush();});
+    Input->BindActionValueLambda(ToolActions[1],ETriggerEvent::Started,[this,ToolScrollCursor](const FInputActionValue&) {ToolScrollCursor->Reset();SelectPickaxe();});
+    Input->BindActionValueLambda(ToolActions[2],ETriggerEvent::Started,[this,ToolScrollCursor](const FInputActionValue&) {ToolScrollCursor->Reset();SelectKnife();});
+    Input->BindActionValueLambda(ToolActions[3],ETriggerEvent::Started,[this,ToolScrollCursor](const FInputActionValue&) {ToolScrollCursor->Reset();SelectSpray();});
     Input->BindAction(FishingAction,ETriggerEvent::Started,FishingRod.Get(),&UMCFishingRodComponent::ToggleEquipped);
     Input->BindAction(ForwardAction,ETriggerEvent::Completed,this,&AMCToothCharacter::MoveForward);
     Input->BindAction(RightAction,ETriggerEvent::Completed,this,&AMCToothCharacter::MoveRight);
@@ -812,11 +848,11 @@ void AMCToothCharacter::ServerToggleFoodCollection_Implementation()
     Grip->ReleaseBrace();
     FoodCollection->Toggle(); ForceNetUpdate();
 }
-void AMCToothCharacter::SelectBrush() { FishingRod->ServerSetEquipped(false); Inventory->ServerSelect(EMCToolSlot::Brush); }
-void AMCToothCharacter::SelectPickaxe() { FishingRod->ServerSetEquipped(false); Inventory->ServerSelect(EMCToolSlot::Pickaxe); }
-void AMCToothCharacter::SelectKnife() { FishingRod->ServerSetEquipped(false); Inventory->ServerSelect(EMCToolSlot::Knife); }
-void AMCToothCharacter::SelectSpray() { FishingRod->ServerSetEquipped(false); Inventory->ServerSelect(EMCToolSlot::Spray); }
-bool AMCToothCharacter::CanSwitchTool() const {if(IsSeatedOnRaft()) return false; const auto* Perks=UMCPerkComponent::ForActor(this);return !Inventory->IsChainsawRunning() && (!Perks || !Perks->IsFuryActive()) && GetWorld()->GetTimeSeconds()>=NextSwingTime;}
+void AMCToothCharacter::SelectBrush() { Inventory->RequestSelect(EMCToolSlot::Brush); }
+void AMCToothCharacter::SelectPickaxe() { Inventory->RequestSelect(EMCToolSlot::Pickaxe); }
+void AMCToothCharacter::SelectKnife() { Inventory->RequestSelect(EMCToolSlot::Knife); }
+void AMCToothCharacter::SelectSpray() { Inventory->RequestSelect(EMCToolSlot::Spray); }
+bool AMCToothCharacter::CanSwitchTool() const {if(IsSeatedOnRaft()) return false; const auto* Perks=UMCPerkComponent::ForActor(this);return !Inventory->IsChainsawRunning() && (!Perks || !Perks->IsFuryActive());}
 void AMCToothCharacter::NotifyTaskFeedback(bool Success,FVector Point)
 {
     if(!HasAuthority()) return;
@@ -1273,6 +1309,7 @@ void AMCToothCharacter::FindWork(float DeltaSeconds)
 void AMCToothCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    UpdateArenaBoundary();
     UpdateThrowInput(DeltaSeconds);
     if(MCMeleeCombo::ConsumeBufferedPress(this)) ServerSwingBrush();
     UpdateRowing(DeltaSeconds);
@@ -1328,8 +1365,6 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     {
         if (GetWorld()->GetTimeSeconds()-LastPaddleAt>.3) PaddleInput=FVector2D::ZeroVector;
         FindWork(FMath::Min(DeltaSeconds,0.1f));
-        if (!GetWorld()->GetGameState<AMCHubGameState>() && !SwallowedBy && !IsMimicCaptured()
-            && Status->IsAlive() && GetActorLocation().Z < -300) Status->Damage(Status->State.MaxHealth);
     }
     if (IsLocallyControlled() && IsPlayerControlled() && bInCoffee)
     { PaddleSendElapsed+=DeltaSeconds; if (PaddleSendElapsed>=.05f) { ServerPaddle(WorldPaddleInput()); PaddleSendElapsed=0; } }
@@ -1461,6 +1496,7 @@ void AMCToothCharacter::ServerSwingBrush_Implementation()
 }
 void AMCToothCharacter::MulticastSwing_Implementation(double StartedAt,AMCArenaTooth* AimTooth,FVector LocalPoint,FVector LocalNormal,uint8 ToolSlot)
 {
+    if(Inventory && Inventory->IsSelectionPresentationFenced()) return;
     MCMeleeCombo::PresentSwing(this,ToolSlot&15,ToolSlot>>4);
     ToolSlot&=15;
     MCWeaponImpact::BeginSwing(this);
@@ -1841,7 +1877,7 @@ bool AMCToothCharacter::ShouldPreserveFoodForPerkChoice() const
         || (Move && Move->IsClimbing()) || (GS && (GS->bLobbyWaiting || GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost))) return false;
     const auto* Chest=RewardInteraction.Get();
     return Player->IsRewardInteractionActive() || Player->IsWaitingForPerkTeam()
-        || (IsValid(Chest) && Chest->OpeningPlayer==this && (Chest->Stage==EMCRewardChestStage::Lockpicking
+        || (IsValid(Chest) && (Chest->OpeningPlayer==this || (Chest->bTeamStageBooster && Chest->HasStageChoiceFor(this))) && (Chest->Stage==EMCRewardChestStage::Lockpicking
             || Chest->Stage==EMCRewardChestStage::Opening || Chest->Stage==EMCRewardChestStage::Open));
 }
 void AMCToothCharacter::ToggleSelfCare() { StopRowing(); ServerToggleSelfCare(); }
@@ -1923,13 +1959,13 @@ void AMCToothCharacter::AdvanceCare(float Dt)
     if (!FMath::IsFinite(Dt) || Dt<=0) return;
     if (bBrushing) if (auto* Surface=Cast<AMCMouthSurface>(Target->GetOwner())) {
         if(!Surface->BrushLiquid(this,FMath::Min(Dt,.1f))) ResetContact();
-        else { ContactProgress=1-Surface->RemainingLiquid(); if(Surface->IsClean()) NotifyTaskFeedback(true,Surface->GetActorLocation()); }
+        else { ContactProgress=1-Surface->RemainingLiquid(); if(Surface->IsClean() && Surface->ShouldShowCleaningCompletionFeedback()) NotifyTaskFeedback(true,Surface->GetActorLocation()); }
         return;
     }
     if (bBrushing) if (auto* Arena=Cast<AMCArenaTooth>(Target->GetOwner()))
     {
         if (!Arena->BrushGrime(this,FMath::Min(Dt,.1f))) ResetContact();
-        else { ContactProgress=1-Arena->RemainingGrime(); if(!Target->NeedsCare(true)) NotifyTaskFeedback(true,Arena->GetActorLocation()); }
+        else { ContactProgress=1-Arena->RemainingGrime(); if(!Target->NeedsCare(true) && Arena->IsGrimeRewardEligible()) NotifyTaskFeedback(true,Arena->GetActorLocation()); }
         return;
     }
     if (bBrushing) if (const auto* Player=Cast<AMCToothCharacter>(Target->GetOwner()); Player && Player!=this)
@@ -2030,7 +2066,7 @@ void AMCToothCharacter::FellOutOfWorld(const UDamageType&)
         GetCharacterMovement()->Velocity=FVector::ZeroVector;
         return;
     }
-    Status->Damage(Status->State.MaxHealth);
+    Status->KillFromArenaBoundary();
 }
 void AMCToothCharacter::EndPlay(const EEndPlayReason::Type Reason)
 {
@@ -2101,8 +2137,12 @@ FVector AMCToothCharacter::CameraThrowDirection() const
     if(FVector::DotProduct(Target-Launch,Forward)>25
         && UGameplayStatics::SuggestProjectileVelocity(Arc,Velocity))
         return Velocity.GetSafeNormal();
-    // Unreachable/distant aim still produces a short upward toss under gravity.
-    return (Forward*Speed+FVector(0,0,260)).GetSafeNormal();
+    // An out-of-range throat/wall keeps a visible upward arc at the shortened
+    // range. A downward orbit vector plus a small Z bias would instead drive
+    // this fallback into the floor directly beside the worker.
+    FVector Horizontal=Forward.GetSafeNormal2D();
+    if(Horizontal.IsNearlyZero()) Horizontal=GetActorForwardVector().GetSafeNormal2D();
+    return (Horizontal+FVector::UpVector).GetSafeNormal();
 }
 void AMCToothCharacter::ThrowItem()
 {

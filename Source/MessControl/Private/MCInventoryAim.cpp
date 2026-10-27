@@ -79,7 +79,7 @@ bool UMCInventoryComponent::SprayTargetDistance(AActor* Target,FVector Point,flo
     FHitResult Hit;FCollisionQueryParams Query(SCENE_QUERY_STAT(MCSprayTreatment),true,Hero);Query.AddIgnoredActor(Target);
     return !GetWorld()->LineTraceSingleByChannel(Hit,Origin,Point,ECC_Visibility,Query);
 }
-AMCArenaTooth* UMCInventoryComponent::FindToothRepairTarget() const
+AMCArenaTooth* UMCInventoryComponent::FindToothRepairTarget(FHitResult* Contact) const
 {
     if (!Hero || !Hero->IsPrimaryHeld() || !ShouldPresentTool() || !Hero->CanWork() || Hero->bInCoffee
         || Selected!=EMCToolSlot::Spray || (bPressureMode && HasUpgrade(EMCToolUpgrade::Watergun))) return nullptr;
@@ -88,5 +88,7 @@ AMCArenaTooth* UMCInventoryComponent::FindToothRepairTarget() const
     const FVector Origin=SprayOrigin();
     if (!GetWorld()->LineTraceSingleByChannel(Hit,Origin,Origin+SprayDirection()*SprayReach(),ECC_Visibility,Query)) return nullptr;
     auto* Tooth=Cast<AMCArenaTooth>(Hit.GetActor());
-    return Tooth && Tooth->IsAvailable() && Tooth->Status->NeedsCare(false)?Tooth:nullptr;
+    if(!Tooth || !Tooth->IsAvailable() || !Tooth->Status->NeedsCare(false)) return nullptr;
+    if(Contact) *Contact=Hit;
+    return Tooth;
 }

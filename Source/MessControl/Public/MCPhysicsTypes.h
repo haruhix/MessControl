@@ -5,7 +5,7 @@
 #include "MCPhysicsTypes.generated.h"
 
 UENUM(BlueprintType)
-enum class EMCBodyState : uint8 { Standing, Ragdoll, Recovering };
+enum class EMCBodyState : uint8 { Standing, Ragdoll, Recovering, Slipping };
 
 // Opt-in comparisons; existing profiles keep the current presentation by default.
 UENUM(BlueprintType)
@@ -61,5 +61,9 @@ struct FMCRagdollFrame
     UPROPERTY() FRotator MeshRotation = FRotator::ZeroRotator;
     UPROPERTY() FVector_NetQuantize10 CapsuleLocation = FVector::ZeroVector;
     UPROPERTY() float CapsuleYaw = 0.f;
+    UPROPERTY() bool bFromSlipperyFall=false;
+    UPROPERTY() bool bAuthoredSlipRecovery=false;
+    UPROPERTY() FVector_NetQuantizeNormal SlipFloorNormal=FVector::UpVector;
+    UPROPERTY() FVector_NetQuantize10 SlipFloorPoint=FVector::ZeroVector;
     UPROPERTY() TArray<FMCNetBonePose> Bones;
 };

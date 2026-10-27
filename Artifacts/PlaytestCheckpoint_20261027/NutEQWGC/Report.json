@@ -1,0 +1,2451 @@
+{
+  "passed": true,
+  "status": "passed",
+  "project": "E:\\DEVGAME\\MessControl",
+  "scope": "Root-run owned solo: real F3 nut event, normal cutting, E one hand piece, Q boss shot.\n\nInert on import. Reuses FirstRelaxSolo's owned-editor/standalone PIE lifecycle,\nactual game-window capture and settings/map restoration. Never adopts an existing\nPIE. Root must review CaptureReady.json's early PNG and write CaptureApproved.json\nwith {\"approved\": true} in that run directory. No saves, network, HP/counter edits,\nHitFood/Collect/ThrowOne/ReceiveToolDamage calls, or clock jumps.\n\nDisclosed PIE fixtures: F3 NutEncounter skips normal progression; the naturally\narrived knight's actor tick is briefly paused; player/one real nut/one native cut\npiece receive supported placement; whole-nut/player placement is refreshed once\nafter root's review wait with native physics continuing; a real camera targets the shot.\nThe selected native cut fragment is temporarily kinematic during pickup setup;\nnative E owns its hand state and native Q must restore physical flight.\nAll Two/LMB/E/Q events use actual mapped Enhanced Input actions via vector injection.\nThe original boss tick and view target are restored before the owned PIE ends.\n",
+  "network": false,
+  "package_saves": false,
+  "gameplay_overrides": true,
+  "checks": {
+    "actual_ready_without_obsolete_first_offer": true,
+    "root_capture_gate_approved": true,
+    "normal_input_generated_native_fragments": true,
+    "e_one_piece_no_tower": true,
+    "q_native_physics_reenabled": true,
+    "q_real_boss_shield_or_health_damage": true,
+    "q_empties_hand_without_tower_refill": true
+  },
+  "requests": [
+    {
+      "route": "ToggleDevPanel(open) → RequestDevAction(NUT_ENCOUNTER,-1) → ToggleDevPanel(close)",
+      "event": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutRainEvent_0",
+      "time": 5.820217210799456
+    }
+  ],
+  "stages": [
+    {
+      "name": "await_first_perk",
+      "wall_seconds": 3.4069999999992433,
+      "game_seconds": 0.0,
+      "world": null
+    },
+    {
+      "name": "await_presentation",
+      "wall_seconds": 3.4069999999992433,
+      "game_seconds": 0.0,
+      "world": null
+    },
+    {
+      "name": "await_offer_close",
+      "wall_seconds": 9.187999999998283,
+      "game_seconds": 5.656679410487413,
+      "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth"
+    },
+    {
+      "name": "await_native_knight",
+      "wall_seconds": 9.312999999998283,
+      "game_seconds": 5.820217210799456,
+      "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth"
+    },
+    {
+      "name": "capture_gate",
+      "wall_seconds": 21.59400000000096,
+      "game_seconds": 18.1710372120142,
+      "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth"
+    },
+    {
+      "name": "normal_cut",
+      "wall_seconds": 23.84400000000096,
+      "game_seconds": 20.43804781511426,
+      "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth"
+    },
+    {
+      "name": "settle_pickup",
+      "wall_seconds": 25.92199999999866,
+      "game_seconds": 22.515138313174248,
+      "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth"
+    },
+    {
+      "name": "one_hand",
+      "wall_seconds": 26.34400000000096,
+      "game_seconds": 22.937563713639975,
+      "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth"
+    },
+    {
+      "name": "actual_q_flight",
+      "wall_seconds": 27.4529999999977,
+      "game_seconds": 23.94074161350727,
+      "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth"
+    },
+    {
+      "name": "capture_flush",
+      "wall_seconds": 27.8279999999977,
+      "game_seconds": 24.297982312738895,
+      "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth"
+    },
+    {
+      "name": "ending_pie",
+      "wall_seconds": 28.360000000000582,
+      "game_seconds": 24.904321808367968,
+      "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth"
+    }
+  ],
+  "samples": [
+    {
+      "phase": "await_presentation",
+      "game_seconds": 0.4000000059604645,
+      "wall_seconds": 4.156999999999243,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        569.2803853371213
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_presentation",
+      "game_seconds": 1.0833187103271484,
+      "wall_seconds": 4.485000000000582,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        569.2803853371213
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_presentation",
+      "game_seconds": 1.3956222124397755,
+      "wall_seconds": 4.796999999998661,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        569.2803853371213
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_presentation",
+      "game_seconds": 1.7294295094907284,
+      "wall_seconds": 5.125,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        569.2803853371213
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_presentation",
+      "game_seconds": 2.0464639104902744,
+      "wall_seconds": 5.437999999998283,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        569.2803853371213
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_presentation",
+      "game_seconds": 2.3665985092520714,
+      "wall_seconds": 5.765999999999622,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        569.2803853371213
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_presentation",
+      "game_seconds": 2.7049213126301765,
+      "wall_seconds": 6.110000000000582,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        569.2803853371213
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_presentation",
+      "game_seconds": 3.0306463092565536,
+      "wall_seconds": 6.437999999998283,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        569.2803853371213
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_presentation",
+      "game_seconds": 3.3681790120899677,
+      "wall_seconds": 6.765999999999622,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        569.2803853371213
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_presentation",
+      "game_seconds": 3.690251812338829,
+      "wall_seconds": 7.077999999997701,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        569.2803853371213
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_presentation",
+      "game_seconds": 4.008514609187841,
+      "wall_seconds": 7.406999999999243,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        569.2803853371213
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_presentation",
+      "game_seconds": 4.341611411422491,
+      "wall_seconds": 7.735000000000582,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        569.2803853371213
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_presentation",
+      "game_seconds": 4.6456159092485905,
+      "wall_seconds": 8.046999999998661,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        569.2803853371213
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_presentation",
+      "game_seconds": 4.980462409555912,
+      "wall_seconds": 8.375,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        569.2803853371213
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_presentation",
+      "game_seconds": 5.292568311095238,
+      "wall_seconds": 8.687999999998283,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        569.2803853371213
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_presentation",
+      "game_seconds": 5.598119311034679,
+      "wall_seconds": 9.0,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        552.3675621553558
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 5.9466655142605305,
+      "wall_seconds": 9.375,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        572.8084767677854
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 6.291885815560818,
+      "wall_seconds": 9.687999999998283,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        479.35362973673506
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 6.603438414633274,
+      "wall_seconds": 10.0,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        234.6095381291499
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 6.9170460142195225,
+      "wall_seconds": 10.312999999998283,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        145.20538725152485
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 7.234427016228437,
+      "wall_seconds": 10.625,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        143.80715322039455
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 7.544997915625572,
+      "wall_seconds": 10.937999999998283,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        142.69690085653744
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 7.858768913894892,
+      "wall_seconds": 11.25,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        141.91269829736783
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 8.174086913466454,
+      "wall_seconds": 11.562999999998283,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        141.46986282580784
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 8.479293011128902,
+      "wall_seconds": 11.875,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        141.5724247930054
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 8.803203709423542,
+      "wall_seconds": 12.2029999999977,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        142.21491646988292
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 9.133442211896181,
+      "wall_seconds": 12.531999999999243,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        143.352174382112
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 9.444679409265518,
+      "wall_seconds": 12.84400000000096,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        144.71871340009082
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 9.76686691120267,
+      "wall_seconds": 13.156999999999243,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        146.2292165515777
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 10.08132940903306,
+      "wall_seconds": 13.485000000000582,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        147.5820989533456
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 10.406762909144163,
+      "wall_seconds": 13.812999999998283,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        148.64652666537935
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 10.732955612242222,
+      "wall_seconds": 14.125,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        149.18906055640505
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 11.037929710000753,
+      "wall_seconds": 14.437999999998283,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        149.20610972839975
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 11.366535112261772,
+      "wall_seconds": 14.75,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        148.69558880985514
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 11.674805510789156,
+      "wall_seconds": 15.0779999999977,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        147.66586979337328
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 12.008719108998775,
+      "wall_seconds": 15.406999999999243,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        146.3085598345086
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 12.334856409579515,
+      "wall_seconds": 15.735000000000582,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        144.90492419205017
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 12.660343710333109,
+      "wall_seconds": 16.04699999999866,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        143.741678053779
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 12.975486312061548,
+      "wall_seconds": 16.375,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        142.81857219647682
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 13.302399311214685,
+      "wall_seconds": 16.7029999999977,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        142.45067263800277
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 13.61607901006937,
+      "wall_seconds": 17.01599999999962,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        142.6466336530519
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 13.94351290911436,
+      "wall_seconds": 17.34400000000096,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        143.39459407992942
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 14.269835509359837,
+      "wall_seconds": 17.67199999999866,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        144.57157062008818
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 14.581037010997534,
+      "wall_seconds": 17.985000000000582,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        145.918822528692
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 14.884939711540937,
+      "wall_seconds": 18.29699999999866,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        147.25026633182708
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 15.202814109623432,
+      "wall_seconds": 18.610000000000582,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        148.4513059823374
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 15.527490209788084,
+      "wall_seconds": 18.92199999999866,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        149.23721755890998
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 15.84789901226759,
+      "wall_seconds": 19.25,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        149.58448218500624
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 16.172204710543156,
+      "wall_seconds": 19.5779999999977,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        149.31285286802412
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 16.49422750994563,
+      "wall_seconds": 19.89099999999962,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        148.59148600221388
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 16.816393710672855,
+      "wall_seconds": 20.21900000000096,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        147.31895387538046
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 17.143083311617374,
+      "wall_seconds": 20.54699999999866,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        145.90030358448453
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 17.47796531021595,
+      "wall_seconds": 20.875,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        144.47687729261204
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 17.794284012168646,
+      "wall_seconds": 21.187999999998283,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        143.4536763203565
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "await_native_knight",
+      "game_seconds": 18.117307409644127,
+      "wall_seconds": 21.51599999999962,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        -720.0,
+        -80.0,
+        142.70133157145276
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false
+    },
+    {
+      "phase": "capture_gate",
+      "game_seconds": 18.433818709105253,
+      "wall_seconds": 21.8279999999977,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        780.597748699756,
+        948.6093227669621,
+        188.90905334215904
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 500.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        921.5726486011447,
+        951.3943669190278,
+        219.75850140729887
+      ],
+      "parent_health": 90.0,
+      "parent_phase": "FREE",
+      "parent_velocity": [
+        -17.116043090820312,
+        9.620476722717285,
+        -0.5851160883903503
+      ],
+      "parent_distance_cm": 144.33768502736652
+    },
+    {
+      "phase": "capture_gate",
+      "game_seconds": 18.834374014288187,
+      "wall_seconds": 22.25,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        780.597748699756,
+        948.6093227669621,
+        189.09372539459173
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 500.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        919.4598200894161,
+        952.6058694744146,
+        219.90054962768056
+      ],
+      "parent_health": 90.0,
+      "parent_phase": "FREE",
+      "parent_velocity": [
+        17.185951232910156,
+        4.568088054656982,
+        5.427784442901611
+      ],
+      "parent_distance_cm": 142.29444007247903
+    },
+    {
+      "phase": "capture_gate",
+      "game_seconds": 19.159457113593817,
+      "wall_seconds": 22.562999999998283,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        780.597748699756,
+        948.6093227669621,
+        189.6285968322029
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 500.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        920.3147108925535,
+        949.9671350937787,
+        220.41883152317592
+      ],
+      "parent_health": 90.0,
+      "parent_phase": "FREE",
+      "parent_velocity": [
+        -9.532103538513184,
+        -0.8281036615371704,
+        -0.7638331651687622
+      ],
+      "parent_distance_cm": 143.075895003399
+    },
+    {
+      "phase": "capture_gate",
+      "game_seconds": 19.48090961575508,
+      "wall_seconds": 22.875,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        780.597748699756,
+        948.6093227669621,
+        190.22829269384863
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 500.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        918.7787333492423,
+        955.5984946077494,
+        221.1210763039733
+      ],
+      "parent_health": 90.0,
+      "parent_phase": "FREE",
+      "parent_velocity": [
+        4.9093403816223145,
+        12.666326522827148,
+        2.199892520904541
+      ],
+      "parent_distance_cm": 141.76458345053467
+    },
+    {
+      "phase": "capture_gate",
+      "game_seconds": 19.80291821435094,
+      "wall_seconds": 23.2029999999977,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        780.597748699756,
+        948.6093227669621,
+        190.8010720515881
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 500.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        918.3348904521714,
+        954.3555644964127,
+        221.50361274830988
+      ],
+      "parent_health": 90.0,
+      "parent_phase": "FREE",
+      "parent_velocity": [
+        0.4381204843521118,
+        -14.539841651916504,
+        0.8708275556564331
+      ],
+      "parent_distance_cm": 141.2345054063351
+    },
+    {
+      "phase": "capture_gate",
+      "game_seconds": 20.132378812879324,
+      "wall_seconds": 23.531999999999243,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        780.597748699756,
+        948.6093227669621,
+        191.22974231732428
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 500.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        919.6896588070892,
+        950.3529157772646,
+        221.81015519426185
+      ],
+      "parent_health": 90.0,
+      "parent_phase": "FREE",
+      "parent_velocity": [
+        -6.805356502532959,
+        1.7003690004348755,
+        -1.1317079067230225
+      ],
+      "parent_distance_cm": 142.4245808335626
+    },
+    {
+      "phase": "capture_gate",
+      "game_seconds": 20.43804781511426,
+      "wall_seconds": 23.84400000000096,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        780.597748699756,
+        948.6093227669621,
+        191.5061298682167
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 500.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        918.8346790350987,
+        956.3401227761399,
+        222.322310066288
+      ],
+      "parent_health": 90.0,
+      "parent_phase": "FREE",
+      "parent_velocity": [
+        0.9998659491539001,
+        14.121232986450195,
+        2.4730660915374756
+      ],
+      "parent_distance_cm": 141.8409360492248
+    },
+    {
+      "phase": "normal_cut",
+      "game_seconds": 20.765157513320446,
+      "wall_seconds": 24.156999999999243,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        780.597748699756,
+        948.6093227669621,
+        191.57019759875084
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 500.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        920.0057956793543,
+        953.3090565439973,
+        222.16519927158515
+      ],
+      "parent_health": 90.0,
+      "parent_phase": "FREE",
+      "parent_velocity": [
+        -21.876985549926758,
+        9.358163833618164,
+        -1.7595264911651611
+      ],
+      "parent_distance_cm": 142.8031693892037
+    },
+    {
+      "phase": "normal_cut",
+      "game_seconds": 21.078265815973282,
+      "wall_seconds": 24.485000000000582,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        780.597748699756,
+        948.6093227669621,
+        191.35378729808076
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 500.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        941.3321025787104,
+        955.7183864577254,
+        222.2392111753569
+      ],
+      "parent_health": 50.0,
+      "parent_phase": "FREE",
+      "parent_velocity": [
+        95.03197479248047,
+        -5.049130916595459,
+        9.357501983642578
+      ],
+      "parent_distance_cm": 163.82912046252122
+    },
+    {
+      "phase": "normal_cut",
+      "game_seconds": 21.40072101354599,
+      "wall_seconds": 24.79699999999866,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        780.597748699756,
+        948.6093227669621,
+        190.94789335483256
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 500.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        966.1562833358689,
+        950.9015529956661,
+        225.1124827143514
+      ],
+      "parent_health": 50.0,
+      "parent_phase": "FREE",
+      "parent_velocity": [
+        42.24174118041992,
+        -27.979684829711914,
+        3.451903820037842
+      ],
+      "parent_distance_cm": 188.69139689404878
+    },
+    {
+      "phase": "normal_cut",
+      "game_seconds": 21.702840615063906,
+      "wall_seconds": 25.110000000000582,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        780.597748699756,
+        948.6093227669621,
+        190.44793914770605
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 500.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        971.6927910191823,
+        942.8818915551332,
+        225.47842214220532
+      ],
+      "parent_health": 10.0,
+      "parent_phase": "FREE",
+      "parent_velocity": [
+        -6.638641834259033,
+        -13.752191543579102,
+        -0.2150706648826599
+      ],
+      "parent_distance_cm": 194.3637142220159
+    },
+    {
+      "phase": "normal_cut",
+      "game_seconds": 22.036311212927103,
+      "wall_seconds": 25.437999999998283,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        780.597748699756,
+        948.6093227669621,
+        189.84136161070785
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 500.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        1006.5068560475505,
+        940.3282516058214,
+        226.12275970500127
+      ],
+      "parent_health": 10.0,
+      "parent_phase": "FREE",
+      "parent_velocity": [
+        67.91673278808594,
+        0.655402660369873,
+        2.3074305057525635
+      ],
+      "parent_distance_cm": 228.9537961465802
+    },
+    {
+      "phase": "normal_cut",
+      "game_seconds": 22.35840431600809,
+      "wall_seconds": 25.75,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        780.597748699756,
+        948.6093227669621,
+        189.3369518371751
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 500.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        1028.9555268668405,
+        943.7144652675828,
+        224.26640895336791
+      ],
+      "parent_health": 10.0,
+      "parent_phase": "FREE",
+      "parent_velocity": [
+        61.74876022338867,
+        17.569805145263672,
+        -1.1494125127792358
+      ],
+      "parent_distance_cm": 250.84978090574828
+    },
+    {
+      "phase": "settle_pickup",
+      "game_seconds": 22.67954471334815,
+      "wall_seconds": 26.0779999999977,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        970.9783409285001,
+        488.9899149957062,
+        182.48219348100565
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 500.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        1040.00175160768,
+        945.7548618698106,
+        222.55239097075662
+      ],
+      "parent_health": 0.0,
+      "parent_phase": "DISPOSED",
+      "parent_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent_distance_cm": 463.68531208305245,
+      "piece": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+      "piece_cm": [
+        1048.7600868590202,
+        566.7716609262264,
+        168.6336482384263
+      ],
+      "piece_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "piece_phase": "FALLING"
+    },
+    {
+      "phase": "one_hand",
+      "game_seconds": 23.002877116203308,
+      "wall_seconds": 26.406999999999243,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        970.9783409285001,
+        488.9899149957062,
+        181.5014704361961
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [
+        "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18"
+      ],
+      "collecting": true,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 500.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        1040.00175160768,
+        945.7548618698106,
+        222.55239097075662
+      ],
+      "parent_health": 0.0,
+      "parent_phase": "DISPOSED",
+      "parent_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent_distance_cm": 463.7710922334691,
+      "piece": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+      "piece_cm": [
+        1048.7600868590202,
+        566.7716609262264,
+        168.6336482384263
+      ],
+      "piece_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "piece_phase": "FREE"
+    },
+    {
+      "phase": "one_hand",
+      "game_seconds": 23.327270414680243,
+      "wall_seconds": 26.71900000000096,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        970.9783409285001,
+        488.9899149957062,
+        181.53916729108232
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [
+        "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18"
+      ],
+      "collecting": true,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 500.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        1040.00175160768,
+        945.7548618698106,
+        222.55239097075662
+      ],
+      "parent_health": 0.0,
+      "parent_phase": "DISPOSED",
+      "parent_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent_distance_cm": 463.7677569983592,
+      "piece": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+      "piece_cm": [
+        1043.7558473220433,
+        501.0084807580819,
+        216.19911599443319
+      ],
+      "piece_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "piece_phase": "FREE"
+    },
+    {
+      "phase": "one_hand",
+      "game_seconds": 23.63426961377263,
+      "wall_seconds": 27.031999999999243,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        970.9783409285001,
+        488.9899149957062,
+        181.95273135564776
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [
+        "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18"
+      ],
+      "collecting": true,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 500.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        1040.00175160768,
+        945.7548618698106,
+        222.55239097075662
+      ],
+      "parent_health": 0.0,
+      "parent_phase": "DISPOSED",
+      "parent_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent_distance_cm": 463.7313664995639,
+      "piece": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+      "piece_cm": [
+        1043.7985260652295,
+        501.28105233324203,
+        216.6103863435019
+      ],
+      "piece_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "piece_phase": "FREE"
+    },
+    {
+      "phase": "one_hand",
+      "game_seconds": 23.94074161350727,
+      "wall_seconds": 27.34400000000096,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        970.9783409285001,
+        488.9899149957062,
+        182.61544346932305
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [
+        "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18"
+      ],
+      "collecting": true,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 500.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        1040.00175160768,
+        945.7548618698106,
+        222.55239097075662
+      ],
+      "parent_health": 0.0,
+      "parent_phase": "DISPOSED",
+      "parent_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent_distance_cm": 463.6738160500573,
+      "piece": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+      "piece_cm": [
+        1043.9392727159316,
+        501.1482276865459,
+        217.27618543022024
+      ],
+      "piece_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "piece_phase": "FREE"
+    },
+    {
+      "phase": "actual_q_flight",
+      "game_seconds": 24.272864513099194,
+      "wall_seconds": 27.67199999999866,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        970.9783409285001,
+        488.9899149957062,
+        183.52045243581915
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 500.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        1040.00175160768,
+        945.7548618698106,
+        222.55239097075662
+      ],
+      "parent_health": 0.0,
+      "parent_phase": "DISPOSED",
+      "parent_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent_distance_cm": 463.5967430218695,
+      "piece": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+      "piece_cm": [
+        1305.2795414266136,
+        826.8336607891495,
+        346.254648261178
+      ],
+      "piece_velocity": [
+        1417.4725341796875,
+        1770.1600341796875,
+        604.6427612304688
+      ],
+      "piece_phase": "FREE"
+    },
+    {
+      "phase": "capture_flush",
+      "game_seconds": 24.526879709213972,
+      "wall_seconds": 27.985000000000582,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        970.9783409285001,
+        488.9899149957062,
+        184.2499471756214
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 482.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        1040.00175160768,
+        945.7548618698106,
+        222.55239097075662
+      ],
+      "parent_health": 0.0,
+      "parent_phase": "DISPOSED",
+      "parent_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent_distance_cm": 463.53589409599084,
+      "piece": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+      "piece_cm": [
+        1196.3863770165672,
+        725.0842116881009,
+        340.94011885181067
+      ],
+      "piece_velocity": [
+        -295.2698669433594,
+        -245.63006591796875,
+        -103.08674621582031
+      ],
+      "piece_phase": "FREE"
+    },
+    {
+      "phase": "capture_flush",
+      "game_seconds": 24.85168420895934,
+      "wall_seconds": 28.312999999998283,
+      "hero": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "hero_cm": [
+        970.9783409285001,
+        488.9899149957062,
+        185.10217854305256
+      ],
+      "health": 100.0,
+      "body": "STANDING",
+      "held": [],
+      "collecting": false,
+      "boss": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutBoss_0",
+      "boss_health": 1400.0,
+      "shield": 482.0,
+      "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "parent_cm": [
+        1040.00175160768,
+        945.7548618698106,
+        222.55239097075662
+      ],
+      "parent_health": 0.0,
+      "parent_phase": "DISPOSED",
+      "parent_velocity": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent_distance_cm": 463.4662515497437,
+      "piece": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+      "piece_cm": [
+        1111.0550161627532,
+        653.2498708856624,
+        263.5201935711737
+      ],
+      "piece_velocity": [
+        -235.0808563232422,
+        -195.55982971191406,
+        -365.9566955566406
+      ],
+      "piece_phase": "FREE"
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Runs\\20261027T000051Z_cf9639c7\\screenshots\\00_actual_ready_without_offer.png",
+      "phase": "await_presentation",
+      "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth",
+      "game_seconds": 5.656679410487413,
+      "capture_request_wall_seconds": 9.062999999998283,
+      "capture_completed_wall_seconds": 9.187999999998283,
+      "width": 1286,
+      "height": 760,
+      "bytes": 1109471,
+      "sha256": "def159c57bef80841e90dce5aca8dc8dbd9243b917d160bc0eacdceb3c214bcf"
+    },
+    {
+      "file": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Runs\\20261027T000051Z_cf9639c7\\screenshots\\01_capture_review_gate.png",
+      "phase": "capture_gate",
+      "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth",
+      "game_seconds": 18.68310711160302,
+      "capture_request_wall_seconds": 22.0779999999977,
+      "capture_completed_wall_seconds": 22.2029999999977,
+      "width": 1286,
+      "height": 760,
+      "bytes": 1140821,
+      "sha256": "286e25e7e49f7ebbf53c33432c79ebcd7a780ed9da751ad8261201791a352d91"
+    },
+    {
+      "file": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Runs\\20261027T000051Z_cf9639c7\\screenshots\\02_one_nut_in_hand.png",
+      "phase": "one_hand",
+      "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth",
+      "game_seconds": 23.94074161350727,
+      "capture_request_wall_seconds": 27.34400000000096,
+      "capture_completed_wall_seconds": 27.4529999999977,
+      "width": 1286,
+      "height": 760,
+      "bytes": 1156791,
+      "sha256": "d6169a5a5c046b8e2acb7ce162264ed9c94073b8348581706cb11a78050e275d"
+    },
+    {
+      "file": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Runs\\20261027T000051Z_cf9639c7\\screenshots\\03_actual_boss_hit.png",
+      "phase": "actual_q_flight",
+      "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth",
+      "game_seconds": 24.297982312738895,
+      "capture_request_wall_seconds": 27.7029999999977,
+      "capture_completed_wall_seconds": 27.8279999999977,
+      "width": 1286,
+      "height": 760,
+      "bytes": 1163935,
+      "sha256": "3e1d3680ad2f1d707c42451ccaa2c02a30fff101282471e1991a7a72dc134070"
+    }
+  ],
+  "frames": [],
+  "cleanup": {
+    "static_fragment_fixture": "Owned PIE teardown; native E/Q owns later hand/physics state",
+    "owned_pie_end_requested": true,
+    "owned_pie_stopped": true,
+    "original_map_restored": true
+  },
+  "original_editor_map": "/Game/Maps/L_Mouth",
+  "root_explicit_ownership": true,
+  "source_sha256": "f316a564187ce19aac064023889ec78020abb2c4d409abee4646bf4d712b6acd",
+  "run_directory": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Runs\\20261027T000051Z_cf9639c7",
+  "limits": "One disclosed local fixture and one shot; no complete fight, hardware keyboard, network or cold packaged launch claim.",
+  "fixture_changes": [
+    "Native F3 NutEncounter initial fixture",
+    "Supported player/nut/fragment placement only; no HP or expected-state writes",
+    "Refresh supported whole-nut/player placement once at gate approval; zero velocities, native physics continues",
+    "Selected native cut fragment is kinematic only for initial E pickup setup; collisions unchanged; native Q must reenable physics",
+    "Pause the naturally arrived knight actor tick during this focused shot",
+    "Temporary live PIE CameraActor view target"
+  ],
+  "input_events": [
+    {
+      "action": "tool",
+      "game_seconds": 18.1710372120142,
+      "duration": 0.6,
+      "api": "InjectInputVectorForAction"
+    },
+    {
+      "action": "pickup",
+      "game_seconds": 22.937563713639975,
+      "duration": 0.6,
+      "api": "InjectInputVectorForAction"
+    },
+    {
+      "action": "shoot",
+      "game_seconds": 23.94074161350727,
+      "duration": 0.6,
+      "api": "InjectInputVectorForAction"
+    }
+  ],
+  "ready_samples": [
+    {
+      "time": 0.4000000059604645,
+      "controller_ready": false,
+      "loading": [
+        "/Engine/Transient.UnrealEdEngine_0:GameInstance_7.WBP_Loading_C_0"
+      ],
+      "standing": true,
+      "reward_menu": false
+    },
+    {
+      "time": 0.800000011920929,
+      "controller_ready": false,
+      "loading": [
+        "/Engine/Transient.UnrealEdEngine_0:GameInstance_7.WBP_Loading_C_0"
+      ],
+      "standing": true,
+      "reward_menu": false
+    },
+    {
+      "time": 1.1137152090668678,
+      "controller_ready": false,
+      "loading": [
+        "/Engine/Transient.UnrealEdEngine_0:GameInstance_7.WBP_Loading_C_0"
+      ],
+      "standing": true,
+      "reward_menu": false
+    },
+    {
+      "time": 1.435640711337328,
+      "controller_ready": false,
+      "loading": [
+        "/Engine/Transient.UnrealEdEngine_0:GameInstance_7.WBP_Loading_C_0"
+      ],
+      "standing": true,
+      "reward_menu": false
+    },
+    {
+      "time": 1.7605412118136883,
+      "controller_ready": false,
+      "loading": [
+        "/Engine/Transient.UnrealEdEngine_0:GameInstance_7.WBP_Loading_C_0"
+      ],
+      "standing": true,
+      "reward_menu": false
+    },
+    {
+      "time": 2.076020009815693,
+      "controller_ready": false,
+      "loading": [
+        "/Engine/Transient.UnrealEdEngine_0:GameInstance_7.WBP_Loading_C_0"
+      ],
+      "standing": true,
+      "reward_menu": false
+    },
+    {
+      "time": 2.396265212446451,
+      "controller_ready": false,
+      "loading": [
+        "/Engine/Transient.UnrealEdEngine_0:GameInstance_7.WBP_Loading_C_0"
+      ],
+      "standing": true,
+      "reward_menu": false
+    },
+    {
+      "time": 2.7049213126301765,
+      "controller_ready": false,
+      "loading": [
+        "/Engine/Transient.UnrealEdEngine_0:GameInstance_7.WBP_Loading_C_0"
+      ],
+      "standing": true,
+      "reward_menu": false
+    },
+    {
+      "time": 3.0306463092565536,
+      "controller_ready": false,
+      "loading": [
+        "/Engine/Transient.UnrealEdEngine_0:GameInstance_7.WBP_Loading_C_0"
+      ],
+      "standing": true,
+      "reward_menu": false
+    },
+    {
+      "time": 3.339133609086275,
+      "controller_ready": false,
+      "loading": [
+        "/Engine/Transient.UnrealEdEngine_0:GameInstance_7.WBP_Loading_C_0"
+      ],
+      "standing": true,
+      "reward_menu": false
+    },
+    {
+      "time": 3.6620807126164436,
+      "controller_ready": false,
+      "loading": [
+        "/Engine/Transient.UnrealEdEngine_0:GameInstance_7.WBP_Loading_C_0"
+      ],
+      "standing": true,
+      "reward_menu": false
+    },
+    {
+      "time": 3.9808379113674164,
+      "controller_ready": false,
+      "loading": [
+        "/Engine/Transient.UnrealEdEngine_0:GameInstance_7.WBP_Loading_C_0"
+      ],
+      "standing": true,
+      "reward_menu": false
+    },
+    {
+      "time": 4.2840656116604805,
+      "controller_ready": false,
+      "loading": [
+        "/Engine/Transient.UnrealEdEngine_0:GameInstance_7.WBP_Loading_C_0"
+      ],
+      "standing": true,
+      "reward_menu": false
+    },
+    {
+      "time": 4.589242212474346,
+      "controller_ready": false,
+      "loading": [
+        "/Engine/Transient.UnrealEdEngine_0:GameInstance_7.WBP_Loading_C_0"
+      ],
+      "standing": true,
+      "reward_menu": false
+    },
+    {
+      "time": 4.8963032104074955,
+      "controller_ready": false,
+      "loading": [
+        "/Engine/Transient.UnrealEdEngine_0:GameInstance_7.WBP_Loading_C_0"
+      ],
+      "standing": true,
+      "reward_menu": false
+    },
+    {
+      "time": 5.208345711231232,
+      "controller_ready": false,
+      "loading": [
+        "/Engine/Transient.UnrealEdEngine_0:GameInstance_7.WBP_Loading_C_0"
+      ],
+      "standing": true,
+      "reward_menu": false
+    },
+    {
+      "time": 5.5373057089746,
+      "controller_ready": true,
+      "loading": [],
+      "standing": true,
+      "reward_menu": false
+    }
+  ],
+  "shots": [],
+  "piece_samples": [
+    {
+      "game_seconds": 24.121121913194656,
+      "simulating": true,
+      "velocity": [
+        1417.4725341796875,
+        1770.1600341796875,
+        753.3505249023438
+      ],
+      "speed_cm_s": 2389.609161585102,
+      "position_cm": [
+        1090.6414929251746,
+        559.1858144126011,
+        243.04483321158546
+      ]
+    },
+    {
+      "game_seconds": 24.149083614349365,
+      "simulating": true,
+      "velocity": [
+        1417.4725341796875,
+        1770.1600341796875,
+        725.9479370117188
+      ],
+      "speed_cm_s": 2381.112206304522,
+      "position_cm": [
+        1130.178459157269,
+        608.4972693551678,
+        263.7452368865936
+      ]
+    },
+    {
+      "game_seconds": 24.1732024140656,
+      "simulating": true,
+      "velocity": [
+        1417.4725341796875,
+        1770.1600341796875,
+        702.3115844726562
+      ],
+      "speed_cm_s": 2374.0127407925406,
+      "position_cm": [
+        1164.2868352779337,
+        651.0342635777537,
+        280.9797020689849
+      ]
+    },
+    {
+      "game_seconds": 24.19734501466155,
+      "simulating": true,
+      "velocity": [
+        1417.4725341796875,
+        1770.1600341796875,
+        678.6517944335938
+      ],
+      "speed_cm_s": 2367.121287523889,
+      "position_cm": [
+        1198.4337367240698,
+        693.6159168383307,
+        297.666329761744
+      ]
+    },
+    {
+      "game_seconds": 24.222942613065243,
+      "simulating": true,
+      "velocity": [
+        1417.4725341796875,
+        1770.1600341796875,
+        653.5661010742188
+      ],
+      "speed_cm_s": 2360.0516054175964,
+      "position_cm": [
+        1234.6439636663645,
+        738.7670019602677,
+        314.7618939253531
+      ]
+    },
+    {
+      "game_seconds": 24.249754313379526,
+      "simulating": true,
+      "velocity": [
+        1417.4725341796875,
+        1770.1600341796875,
+        627.2907104492188
+      ],
+      "speed_cm_s": 2352.910658562433,
+      "position_cm": [
+        1272.577712593131,
+        786.0634205932259,
+        331.98262257161275
+      ]
+    },
+    {
+      "game_seconds": 24.272864513099194,
+      "simulating": true,
+      "velocity": [
+        1417.4725341796875,
+        1770.1600341796875,
+        604.6427612304688
+      ],
+      "speed_cm_s": 2346.9741797619386,
+      "position_cm": [
+        1305.2795414266136,
+        826.8336607891495,
+        346.254648261178
+      ]
+    },
+    {
+      "game_seconds": 24.297982312738895,
+      "simulating": true,
+      "velocity": [
+        -346.7369079589844,
+        -288.4447326660156,
+        121.61397552490234
+      ],
+      "speed_cm_s": 467.13681741722945,
+      "position_cm": [
+        1269.9029788905311,
+        786.7197046732969,
+        338.77507536337663
+      ]
+    }
+  ],
+  "sequence_capture_policy": {
+    "phases": [
+      "actual_q_flight",
+      "capture_flush",
+      "normal_cut",
+      "one_hand",
+      "settle_pickup"
+    ],
+    "capture_hz": 6.0,
+    "gate_screenshot_retained": true,
+    "waiting_and_review_gate_frames": false,
+    "timing": "Actual capture request/completion wall times and native game times; no fixed-step override"
+  },
+  "phase": "ending_pie",
+  "wall_seconds": 28.92199999999866,
+  "owned_world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth",
+  "owned_game_instance": "/Engine/Transient.UnrealEdEngine_0:GameInstance_7",
+  "observed_pawns": [
+    "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+    "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2"
+  ],
+  "native_initial_fixture": "ToggleDevPanel(open) → RequestDevAction(NUT_ENCOUNTER,-1) → ToggleDevPanel(close)",
+  "whole_cut_placements": [
+    {
+      "reason": "initial_review_fixture",
+      "game_seconds": 18.1710372120142,
+      "wall_seconds": 21.5779999999977,
+      "hero_before_cm": [
+        -720.0,
+        -80.0,
+        142.63920795858607
+      ],
+      "parent_before_cm": [
+        1441.0878594670542,
+        504.8045295510585,
+        198.00072243430785
+      ],
+      "parent_health_before": 90.0,
+      "parent_phase_before": "FREE",
+      "parent_velocity_before": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "physics_disabled": false,
+      "hero_after_cm": [
+        780.597748699756,
+        948.6093227669621,
+        195.41850694203958
+      ],
+      "parent_after_cm": [
+        923.3729811521389,
+        948.6093227669621,
+        228.31872876668558
+      ],
+      "parent_health_after": 90.0,
+      "parent_phase_after": "FREE",
+      "parent_velocity_after": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "reason": "refresh_once_after_root_review_wait",
+      "game_seconds": 20.43804781511426,
+      "wall_seconds": 23.84400000000096,
+      "hero_before_cm": [
+        780.597748699756,
+        948.6093227669621,
+        191.5061298682167
+      ],
+      "parent_before_cm": [
+        918.8346790350987,
+        956.3401227761399,
+        222.322310066288
+      ],
+      "parent_health_before": 90.0,
+      "parent_phase_before": "FREE",
+      "parent_velocity_before": [
+        0.9998659491539001,
+        14.121232986450195,
+        2.4730660915374756
+      ],
+      "physics_disabled": false,
+      "hero_after_cm": [
+        780.597748699756,
+        948.6093227669621,
+        193.34283479238138
+      ],
+      "parent_after_cm": [
+        923.3729811521389,
+        948.6093227669621,
+        227.31361564183817
+      ],
+      "parent_health_after": 90.0,
+      "parent_phase_after": "FREE",
+      "parent_velocity_after": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "native_parent": {
+    "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+    "batch": 118191,
+    "health_at_first_fixture": 90.0,
+    "item": "Walnut",
+    "mesh": "/Game/Gameplay/CoreLoop/SM_Walnut_Whole.SM_Walnut_Whole",
+    "health_before_cut": 90.0,
+    "position_before_cut_cm": [
+      923.3729811521389,
+      948.6093227669621,
+      227.31361564183817
+    ]
+  },
+  "input_route": {
+    "api": "InjectInputVectorForAction",
+    "subsystem": "/Engine/Transient.UnrealEdEngine_0:LocalPlayer_7.EnhancedInputLocalPlayerSubsystem_0",
+    "mappings": [
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_21",
+        "keys": [
+          "Four",
+          "Gamepad_DPad_Down"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_20",
+        "keys": [
+          "Gamepad_DPad_Right",
+          "Three"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_19",
+        "keys": [
+          "Gamepad_DPad_Up",
+          "Two"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_18",
+        "keys": [
+          "Gamepad_DPad_Left",
+          "One"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.BracketZoomAction",
+        "keys": [
+          "LeftBracket",
+          "RightBracket"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_17",
+        "keys": [
+          "Gamepad_LeftThumbstick",
+          "LeftShift"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_16",
+        "keys": [
+          "Gamepad_FaceButton_Top",
+          "Q"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_15",
+        "keys": [
+          "C",
+          "Gamepad_RightThumbstick"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.ToolScrollAction",
+        "keys": [
+          "MouseWheelAxis"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_14",
+        "keys": [
+          "Gamepad_RightY"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_13",
+        "keys": [
+          "Gamepad_RightX"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_12",
+        "keys": [
+          "MouseY"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_11",
+        "keys": [
+          "MouseX"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_10",
+        "keys": [
+          "Gamepad_LeftShoulder",
+          "RightMouseButton"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_9",
+        "keys": [
+          "Five"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_8",
+        "keys": [
+          "F",
+          "Gamepad_LeftTrigger"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_7",
+        "keys": [
+          "R"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_6",
+        "keys": [
+          "F2"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_5",
+        "keys": [
+          "F1"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_4",
+        "keys": [
+          "E",
+          "Gamepad_FaceButton_Left"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_3",
+        "keys": [
+          "Gamepad_RightShoulder",
+          "Gamepad_RightTrigger",
+          "LeftMouseButton"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_2",
+        "keys": [
+          "Gamepad_FaceButton_Bottom",
+          "SpaceBar"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_1",
+        "keys": [
+          "A",
+          "D",
+          "Gamepad_LeftX"
+        ]
+      },
+      {
+        "action": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.InputAction_0",
+        "keys": [
+          "Gamepad_LeftY",
+          "S",
+          "W"
+        ]
+      }
+    ],
+    "hardware_keyboard": false
+  },
+  "external_capture": "Independent HWND Windows Graphics Capture; periodic SWindow sequence disabled; named evidence PNGs retained",
+  "first_parent_contact": {
+    "game_seconds": 20.897816814482212,
+    "actual_parent_health": 50.0,
+    "parent_cm": [
+      917.5788691106817,
+      954.4981826549342,
+      222.290880034829
+    ],
+    "hero_cm": [
+      780.597748699756,
+      948.6093227669621,
+      191.5197418769203
+    ]
+  },
+  "supported_shot_fixture": {
+    "hero_cm": [
+      970.9783409285001,
+      488.9899149957062,
+      189.2812550880967
+    ],
+    "forward": [
+      0.7071067811865476,
+      0.7071067811865476,
+      0.0
+    ],
+    "visibility_corridor_clear": true
+  },
+  "static_fragment_fixture": {
+    "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+    "original_simulating": true,
+    "simulating_after_setup": false,
+    "collision_before": "QUERYANDPHYSICS",
+    "collision_after": "QUERYANDPHYSICS",
+    "health": 25.0,
+    "phase": "FALLING",
+    "desired_cm": [
+      1048.7600868590202,
+      566.7716609262264,
+      168.6336482384263
+    ],
+    "actual_cm": [
+      1048.7600868590202,
+      566.7716609262264,
+      168.6336482384263
+    ],
+    "body_origin_cm": [
+      1048.7600868590202,
+      566.7716609262264,
+      168.6336482384263
+    ],
+    "scaled_box_extent_cm": [
+      14.661648874270583,
+      27.559855842687913,
+      35.0
+    ],
+    "rotation_degrees": [
+      -45.738333676362544,
+      28.755474955415696,
+      -17.84279556926673
+    ],
+    "actual_distance_to_player_cm": 111.92105998702188,
+    "game_seconds": 22.515138313174248,
+    "scope": "Disclosed initial static fragment fixture; no natural loose-fragment physics claim. E/Q and collision gates unchanged.",
+    "distance_at_e_cm": 110.75565162020855
+  },
+  "generated_fragments": [
+    "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+    "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_19",
+    "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_20"
+  ],
+  "shot_before": {
+    "piece": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+    "boss_health": 1400.0,
+    "shield": 500.0,
+    "time": 23.94074161350727
+  },
+  "native_q_first_physical_flight": {
+    "game_seconds": 24.121121913194656,
+    "simulating": true,
+    "velocity": [
+      1417.4725341796875,
+      1770.1600341796875,
+      753.3505249023438
+    ],
+    "speed_cm_s": 2389.609161585102,
+    "position_cm": [
+      1090.6414929251746,
+      559.1858144126011,
+      243.04483321158546
+    ]
+  },
+  "shot_after": {
+    "boss_health": 1400.0,
+    "shield": 482.0,
+    "time": 24.297982312738895,
+    "piece": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18"
+  },
+  "error": null,
+  "restored_settings": true,
+  "restore_errors": [],
+  "capture_total_bytes": 0,
+  "dirty_after": []
+}

@@ -2,9 +2,16 @@
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodCollectionComponent.h"
+#include "MCGameplayUIFactory.h"
+#include "MCHubGameState.h"
+#include "MCHubGrillStation.h"
+#include "MCHubInteractionPromptWidget.h"
+#include "MCInventoryComponent.h"
+#include "MCPlayerController.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -21,6 +28,7 @@ AMCHubBasketball::AMCHubBasketball()
     bReplicates=true; SetReplicateMovement(true);
     SetNetUpdateFrequency(60.f); SetMinNetUpdateFrequency(15.f);
     PrimaryActorTick.bCanEverTick=true;
+    PrimaryActorTick.bTickEvenWhenPaused=true;
     PrimaryActorTick.TickGroup=TG_PostPhysics;
     Body=CreateDefaultSubobject<USphereComponent>(TEXT("BallPhysics")); SetRootComponent(Body);
     Body->InitSphereRadius(Radius);
@@ -36,6 +44,18 @@ AMCHubBasketball::AMCHubBasketball()
     Body->SetSimulatePhysics(true);
     Visual=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BallVisual")); Visual->SetupAttachment(Body);
     Visual->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    InteractionPrompt=CreateDefaultSubobject<UWidgetComponent>(TEXT("BasketballInteractionPrompt"));
+    InteractionPrompt->SetupAttachment(Body);
+    // The ball spins under Chaos; its keycap stays upright and above its center.
+    InteractionPrompt->SetAbsolute(true,true,true);
+    InteractionPrompt->SetWidgetSpace(EWidgetSpace::Screen);
+    InteractionPrompt->SetWidgetClass(UMCHubInteractionPromptWidget::StaticClass());
+    InteractionPrompt->SetDrawSize(FVector2D(64,66));InteractionPrompt->SetDrawAtDesiredSize(true);
+    InteractionPrompt->SetPivot(FVector2D(.5f,1.f));
+    InteractionPrompt->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    InteractionPrompt->SetGenerateOverlapEvents(false);InteractionPrompt->SetCanEverAffectNavigation(false);
+    InteractionPrompt->SetCastShadow(false);InteractionPrompt->SetVisibility(false);InteractionPrompt->SetHiddenInGame(true);
+    InteractionPrompt->PrimaryComponentTick.bStartWithTickEnabled=false;
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Sphere(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
     if(Sphere.Succeeded()) Visual->SetStaticMesh(Sphere.Object);
     DefaultBasketConfettiAsset=FSoftObjectPath(TEXT("/Game/Hub/VFX/NS_BasketConfetti.NS_BasketConfetti"));
@@ -58,6 +78,17 @@ void AMCHubBasketball::BeginPlay()
     Rubber->RestitutionCombineMode=EFrictionCombineMode::Max;
     Body->SetPhysMaterialOverride(Rubber);
     Body->SetMassOverrideInKg(NAME_None,.62f,true);
+    if(GetNetMode()!=NM_DedicatedServer) {
+        if(InteractionPrompt->GetWidgetClass()==UMCHubInteractionPromptWidget::StaticClass())
+            InteractionPrompt->SetWidgetClass(UMCGameplayUIFactory::ResolveClass(TEXT("HubInteractionPrompt"),UMCHubInteractionPromptWidget::StaticClass()));
+        // The shared theme/class are manifest roots; construct their resources
+        // behind Hub readiness rather than at the first pickup interaction.
+        InteractionPrompt->InitWidget();
+        if(auto* Widget=InteractionPrompt->GetUserWidgetObject()) {
+            Widget->TakeWidget();
+            Widget->SetVisibility(ESlateVisibility::Collapsed);
+        }
+    }
     OnRep_Holder();
 }
 
@@ -84,6 +115,48 @@ AMCHubBasketball* AMCHubBasketball::PickupCandidate(const AMCToothCharacter* Her
         Nearest=Distance;Best=*It;
     }
     return Best;
+}
+
+AMCHubBasketball* AMCHubBasketball::LocalHintBall(const AMCToothCharacter* Hero)
+{
+    if(!IsValid(Hero) || !Hero->CanWork()) return nullptr;
+    const auto* PC=Cast<APlayerController>(Hero->GetController());
+    const auto* Hub=Hero->GetWorld()->GetGameState<AMCHubGameState>();
+    if(!PC || !PC->IsLocalController() || PC->GetPawn()!=Hero || !Hub || Hub->Phase!=EMCHubPhase::Gathering
+        || Hero->GetWorld()->IsPaused() || PC->IsMoveInputIgnored() || PC->IsLookInputIgnored() || PC->bShowMouseCursor) return nullptr;
+    // Q throws only the ball this player actually owns. Another player's ball
+    // never supplies either hint, even if it is in pickup range.
+    if(auto* Ball=HeldBy(Hero)) return Ball;
+    if(Hero->IsSeatedOnRaft() || !Hero->Inventory || Hero->Inventory->IsChainsawRunning()) return nullptr;
+    // StartHandle gives these E interactions priority over basketball pickup.
+    if(const auto* Player=Cast<AMCPlayerController>(PC); Player &&
+        (Player->IsHubShopAvailable() || Player->IsWardrobeAvailable() || Player->IsHubShopOpen() || Player->IsWardrobeOpen())) return nullptr;
+    for(TActorIterator<AMCHubGrillStation> It(Hero->GetWorld());It;++It)
+        if(It->ContainsPawn(Hero)) return nullptr;
+    return PickupCandidate(Hero);
+}
+
+void AMCHubBasketball::UpdateInteractionPrompt()
+{
+    if(GetNetMode()==NM_DedicatedServer) return;
+    auto* PC=UGameplayStatics::GetPlayerController(this,0);
+    const auto* Hero=PC?Cast<AMCToothCharacter>(PC->GetPawn()):nullptr;
+    const bool Show=PC && PC->GetLocalPlayer() && LocalHintBall(Hero)==this;
+    if(Show) {
+        InteractionPrompt->SetOwnerPlayer(PC->GetLocalPlayer());
+        InteractionPrompt->SetWorldLocation(GetActorLocation()+FVector(0,0,Body->GetScaledSphereRadius()+35.f));
+        if(auto* Widget=Cast<UMCHubInteractionPromptWidget>(InteractionPrompt->GetUserWidgetObject())) {
+            if(Widget->GetOwningPlayer()!=PC) Widget->SetOwningPlayer(PC);
+            const auto* Player=Cast<AMCPlayerController>(PC);
+            const bool Gamepad=Player && Player->IsUsingGamepad();
+            const FText Key=FText::AsCultureInvariant(Holder==Hero?(Gamepad?TEXT("Y"):TEXT("Q")):(Gamepad?TEXT("X"):TEXT("E")));
+            if(!Widget->KeyLabel.EqualTo(Key)) {Widget->KeyLabel=Key;Widget->BuildPresentationTree();}
+        }
+    }
+    if(auto* Widget=InteractionPrompt->GetUserWidgetObject())
+        Widget->SetVisibility(Show?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    InteractionPrompt->SetVisibility(Show);InteractionPrompt->SetHiddenInGame(!Show);
+    InteractionPrompt->SetComponentTickEnabled(Show);
 }
 
 bool AMCHubBasketball::TryPickup(AMCToothCharacter* Hero)
@@ -239,6 +312,8 @@ TArray<FVector> AMCHubBasketball::PredictThrowTrajectory() const
 void AMCHubBasketball::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    // A paused menu still clears local keycaps; ball gameplay stays frozen.
+    if(GetWorld()->IsPaused()) {UpdateInteractionPrompt();return;}
     if(IsValid(Holder)) {
         if(HasAuthority() && (!Holder->Status->IsAlive() || !Holder->GetController())) Release(FVector::ZeroVector);
         else UpdateHeldPosition();
@@ -273,6 +348,7 @@ void AMCHubBasketball::Tick(float DeltaSeconds)
         }
     }
     CheckBasket();
+    UpdateInteractionPrompt();
 }
 
 void AMCHubBasketball::CheckBasket()

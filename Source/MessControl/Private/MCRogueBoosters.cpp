@@ -46,6 +46,48 @@ bool UMCPerkComponent::IsTeamStageBoosterID(FName ID)
     return ID==TEXT("Fallback_Mouthwash") || ID==TEXT("Fallback_BrushFury") || ID==TEXT("Fallback_Grenade");
 }
 
+bool UMCPerkComponent::ActivatePersonalStageBooster(FName ID)
+{
+    auto* Hero=BoosterHero(this);
+    const auto* Definition=FindDefinition(ID);
+    const auto* Game=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
+    if(!HasAuthority() || !IsTeamStageBoosterID(ID) || !Definition || !Definition->bConsumableBooster
+        || !Game || Game->bLobbyWaiting || Game->Phase==EMCShiftPhase::Lost || Game->Phase==EMCShiftPhase::Won
+        || !IsValid(Hero) || Hero->IsActorBeingDestroyed() || !Hero->Status || !Hero->Status->IsAlive()
+        || !Hero->ToothPhysics->CanAct() || Hero->HasFrozenLegs() || Hero->IsMimicCaptured() || Hero->SwallowedBy
+        || !Hero->Inventory || Hero->Inventory->bChainsawRunning || IsFuryActive()) return false;
+    if(ID==TEXT("Fallback_Mouthwash")) {
+        // An area effect may touch nearby world objects, but originates only
+        // from the player who chose it. It never arms or activates teammates.
+        RogueBurst(false,{Hero});
+    } else if(ID==TEXT("Fallback_Grenade")) bGrenadeArmed=true;
+    else {
+        Hero->CancelGameplayInput();
+        FuryUntil=BoosterNow(GetWorld())+5;
+        FuryDirection=Hero->GetActorForwardVector().GetSafeNormal2D();
+        CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement())->CancelDash();
+    }
+    GetOwner()->ForceNetUpdate();
+    UE_LOG(LogTemp,Display,TEXT("MC_STAGE_PERSONAL_BOOSTER player=%s booster=%s"),*GetOwner()->GetName(),*ID.ToString());
+    return true;
+}
+
+bool UMCPerkComponent::AcceptTimedStageBooster(FName ID)
+{
+    auto* Game=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
+    const auto* Definition=FindDefinition(ID);
+    if(!HasAuthority() || !IsTeamStageBoosterID(ID) || !Definition || !Definition->bConsumableBooster
+        || Definition->Polarity!=EMCPerkPolarity::Positive || !Game || Game->bLobbyWaiting
+        || Game->Phase==EMCShiftPhase::Lost || Game->Phase==EMCShiftPhase::Won) return false;
+    if(ActivatePersonalStageBooster(ID)) return true;
+    // The reward belongs to PlayerState. Do not hold the whole stage hostage to
+    // an absent/recovering pawn, or force an effect onto a frozen/ragdoll body.
+    if(PendingStageGame.Get()!=Game || PendingStageLoadId!=Game->GameplayLoadId) PendingStageBoosters.Reset();
+    PendingStageGame=Game;PendingStageLoadId=Game->GameplayLoadId;
+    PendingStageBoosters.Add(ID);
+    return true;
+}
+
 bool UMCPerkComponent::ActivateTeamStageBooster(FName ID)
 {
     if(!HasAuthority() || !IsTeamStageBoosterID(ID)) return false;
@@ -121,6 +163,16 @@ void UMCPerkComponent::OnRogueKnockdown()
 }
 void UMCPerkComponent::TickRogueBoosters(float Dt)
 {
+    if(HasAuthority() && !PendingStageBoosters.IsEmpty()) {
+        const auto* Game=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
+        if(!Game || PendingStageGame.Get()!=Game || PendingStageLoadId!=Game->GameplayLoadId || Game->bLobbyWaiting
+            || Game->Phase==EMCShiftPhase::Lost || Game->Phase==EMCShiftPhase::Won) {
+            PendingStageBoosters.Reset();PendingStageGame.Reset();PendingStageLoadId.Invalidate();
+        } else if(ActivatePersonalStageBooster(PendingStageBoosters[0])) {
+            PendingStageBoosters.RemoveAt(0);
+            if(PendingStageBoosters.IsEmpty()) {PendingStageGame.Reset();PendingStageLoadId.Invalidate();}
+        }
+    }
     auto* Hero=BoosterHero(this);
     if(GetNetMode()!=NM_DedicatedServer && Hero && Hero->Status->IsAlive() && bGrenadeArmed) {
         if(!GrenadeCue.IsValid() || GrenadeCue->GetOwner()!=Hero) {

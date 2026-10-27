@@ -60,6 +60,8 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Artist Clips") TObjectPtr<UAnimSequence> GrabRight;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Artist Clips") TObjectPtr<UAnimSequence> Push;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Artist Clips") TObjectPtr<UAnimSequence> Tired;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Artist Clips") TObjectPtr<UAnimSequence> Glide;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Artist Clips") TObjectPtr<UAnimSequence> GlideStrong;
 };
 
 USTRUCT(BlueprintType)

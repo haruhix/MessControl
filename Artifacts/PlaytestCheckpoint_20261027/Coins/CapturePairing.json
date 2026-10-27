@@ -1,0 +1,11 @@
+{
+  "mode": "coins",
+  "report": "E:\\CodexWork\\Checkpoint_20261027\\Coins\\Lifecycle\\Run_20261026T231602Z_3a9c1e\\Report.json",
+  "status": "passed",
+  "passed": true,
+  "record": {
+    "native_frames": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939",
+    "no_desktop_capture": true
+  },
+  "error": null
+}

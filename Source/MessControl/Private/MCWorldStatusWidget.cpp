@@ -158,7 +158,8 @@ public:
         Paint.Pill(Center-Recess,Center+Recess,MCStatusShade(Data->Surface,.23f),MCStatusShade(Data->Surface,.44f));
         const float SpoilBlend=FMath::Clamp(Data->SpoiledAlpha,0.f,1.f);
         const float PieOpacity=1.f-SpoilBlend;
-        Paint.Pie(Center,Radius-3.5f,FMath::Clamp(Data->Fraction,0.f,1.f),
+        const float Consumed=FMath::Clamp(Data->Fraction,0.f,1.f);
+        Paint.Pie(Center,Radius-3.5f,Data->bDrainTimer?1.f-Consumed:Consumed,
             FMath::Lerp(Data->Fill,Cream,.03f).CopyWithNewOpacity(PieOpacity),
             (Data->Fill*.88f).CopyWithNewOpacity(PieOpacity));
         if(SpoilBlend>.001f) {
@@ -378,8 +379,9 @@ void UMCWorldStatusWidget::RefreshVisuals()
     SpoilValue=FMath::Lerp(SpoilFrom,Current.bSpoiled?1.f:0.f,SpoilT);
     if(StatusTimer) {
         const bool Changed=!FMath::IsNearlyEqual(StatusTimer->Fraction,TimerValue) || StatusTimer->bSpoiled!=Current.bSpoiled
-            || !FMath::IsNearlyEqual(StatusTimer->SpoiledAlpha,SpoilValue);
+            || StatusTimer->bDrainTimer!=Current.bDrainTimer || !FMath::IsNearlyEqual(StatusTimer->SpoiledAlpha,SpoilValue);
         StatusTimer->Fraction=TimerValue;StatusTimer->bSpoiled=Current.bSpoiled;StatusTimer->SpoiledAlpha=SpoilValue;
+        StatusTimer->bDrainTimer=Current.bDrainTimer;
         StatusTimer->SetVisibility(Current.bHasTimer?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
         if(Changed) StatusTimer->InvalidateLayoutAndVolatility();
     }
@@ -404,8 +406,9 @@ void UMCWorldStatusWidget::ApplyEditorPreview(float Time)
     PreviewTime=FMath::Max(0.f,Time);BuildPresentationTree();ApplyTheme();
     bTargetVisible=false;VisibilityFrom=VisibilityValue=VisibilityAge=0;
     FMCWorldStatusSnapshot Value;Value.HealthFraction=.72f;Value.TimerFraction=.32f;
+    Value.bDrainTimer=PreviewState!=TEXT("Enemy") && PreviewState!=TEXT("EnemyDamaged");
     Value.bShowHealth=PreviewState!=TEXT("FragmentFresh") && PreviewState!=TEXT("FragmentSpoiled");
-    if(PreviewState==TEXT("FoodFill0")) Value.TimerFraction=0.f;
+    if(PreviewState==TEXT("FoodFill0") || PreviewState==TEXT("FragmentFresh")) Value.TimerFraction=0.f;
     else if(PreviewState==TEXT("FoodFill25")) Value.TimerFraction=.25f;
     else if(PreviewState==TEXT("FoodFill50")) Value.TimerFraction=.5f;
     else if(PreviewState==TEXT("FoodFill75")) Value.TimerFraction=.75f;

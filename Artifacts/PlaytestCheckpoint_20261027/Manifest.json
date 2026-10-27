@@ -1,0 +1,564 @@
+{
+  "scope": "Limited accepted prior solo captures, GlideWGC gameplay/readability, NutEQWGC fixture sequence, RelaxWGC wave/timing diagnostics only; CoinsAudio nonzero signal without audition; old rejected Relax/static Glide excluded",
+  "copied_files": [
+    {
+      "path": "Tools/Report.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\ToolsCleanup\\Runs\\Run_20261026T212946Z_5341dd\\Report.json",
+      "bytes": 128370,
+      "source_sha256": "dc79b3eb8f042c309246191703fde9f83ebd639e9fd44d94db2590f6d7964235",
+      "copied_sha256": "dc79b3eb8f042c309246191703fde9f83ebd639e9fd44d94db2590f6d7964235",
+      "verified": true
+    },
+    {
+      "path": "Tools/CapturePairing.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\CaptureControl\\062945_547eff\\result.json",
+      "bytes": 344,
+      "source_sha256": "e11cfae535cfc12b965bded17ab22459965f178cf2270f82050c2aeebbe407ae",
+      "copied_sha256": "e11cfae535cfc12b965bded17ab22459965f178cf2270f82050c2aeebbe407ae",
+      "verified": true
+    },
+    {
+      "path": "Tools/FrameMetadata.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\Frames.json",
+      "bytes": 25182,
+      "source_sha256": "d4a72077cf297e0d57bb6413eeaf215a0992cd12ad3840da5e05dd90163bdf1e",
+      "copied_sha256": "d4a72077cf297e0d57bb6413eeaf215a0992cd12ad3840da5e05dd90163bdf1e",
+      "verified": true
+    },
+    {
+      "path": "Tools/VideoMetadata.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\OutputMeta.json",
+      "bytes": 3559,
+      "source_sha256": "d90dc074d7c1e44f65de9fd73505f976451e819fb87b935aec12ac2c70aea20a",
+      "copied_sha256": "d90dc074d7c1e44f65de9fd73505f976451e819fb87b935aec12ac2c70aea20a",
+      "verified": true
+    },
+    {
+      "path": "Tools/EncodedFramePTS.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\EncodedProbe.json",
+      "bytes": 8433,
+      "source_sha256": "f58044e7aae087228cb9765caec76ebe5534fd8bb5d6ad651f71ccc257fd5bb4",
+      "copied_sha256": "f58044e7aae087228cb9765caec76ebe5534fd8bb5d6ad651f71ccc257fd5bb4",
+      "verified": true
+    },
+    {
+      "path": "Tools/ActualWindow.mp4",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\NativeWindow_ActualCadence.mp4",
+      "bytes": 4804521,
+      "source_sha256": "4aca341bc15601278ac6d3bece61566d20d5bf922722b53eb3204dcad5300cb6",
+      "copied_sha256": "4aca341bc15601278ac6d3bece61566d20d5bf922722b53eb3204dcad5300cb6",
+      "verified": true
+    },
+    {
+      "path": "Tools/ContactSheet.jpg",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\ContactSheet_2_5_10_15s.jpg",
+      "bytes": 248741,
+      "source_sha256": "0d3ccb417e382835aae61a1ce14c3d88141a05f4b59edaa335350b0a22367e91",
+      "copied_sha256": "0d3ccb417e382835aae61a1ce14c3d88141a05f4b59edaa335350b0a22367e91",
+      "verified": true
+    },
+    {
+      "path": "Cleanup/Report.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\ToolsCleanup\\Runs\\Run_20261026T213037Z_e889a9\\Report.json",
+      "bytes": 151517,
+      "source_sha256": "f2d9b3b25c7f0be10aa78bb569bfe042115c0d9da9fac1792ea7bbd0d46973e9",
+      "copied_sha256": "f2d9b3b25c7f0be10aa78bb569bfe042115c0d9da9fac1792ea7bbd0d46973e9",
+      "verified": true
+    },
+    {
+      "path": "Cleanup/CapturePairing.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\CaptureControl\\063036_d9c14c\\result.json",
+      "bytes": 348,
+      "source_sha256": "ce05a2f4124061ed4f545511197f8f719ea20d850ec113da5d82855cd081d809",
+      "copied_sha256": "ce05a2f4124061ed4f545511197f8f719ea20d850ec113da5d82855cd081d809",
+      "verified": true
+    },
+    {
+      "path": "Cleanup/FrameMetadata.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\Frames.json",
+      "bytes": 23036,
+      "source_sha256": "668d19fd4e8e99d9b4b63210decbaf2bfa085b4e7926d4a39f0820664f6743fc",
+      "copied_sha256": "668d19fd4e8e99d9b4b63210decbaf2bfa085b4e7926d4a39f0820664f6743fc",
+      "verified": true
+    },
+    {
+      "path": "Cleanup/VideoMetadata.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\OutputMeta.json",
+      "bytes": 3566,
+      "source_sha256": "bfa3325b4f44455c6ac982626d325532dc228783a7529cf25bfbd38bc5a64a32",
+      "copied_sha256": "bfa3325b4f44455c6ac982626d325532dc228783a7529cf25bfbd38bc5a64a32",
+      "verified": true
+    },
+    {
+      "path": "Cleanup/EncodedFramePTS.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\EncodedProbe.json",
+      "bytes": 7669,
+      "source_sha256": "811ad62c8d74db480de248b9ca284b2ef8d1d74a86d4cf18a9bb30a5a06c5a0e",
+      "copied_sha256": "811ad62c8d74db480de248b9ca284b2ef8d1d74a86d4cf18a9bb30a5a06c5a0e",
+      "verified": true
+    },
+    {
+      "path": "Cleanup/ActualWindow.mp4",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\NativeWindow_ActualCadence.mp4",
+      "bytes": 3991400,
+      "source_sha256": "ac5b594ad0828fe1f4ef7ee6c0168d46235640700e87afc302ab1371b8b491f4",
+      "copied_sha256": "ac5b594ad0828fe1f4ef7ee6c0168d46235640700e87afc302ab1371b8b491f4",
+      "verified": true
+    },
+    {
+      "path": "Cleanup/ContactSheet.jpg",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\ContactSheet_2_5_10_15s.jpg",
+      "bytes": 263933,
+      "source_sha256": "0f228cdb6f8b460f2f7974a8b60d8986fdd6bfb98b54253376ef0e4dc83d76e8",
+      "copied_sha256": "0f228cdb6f8b460f2f7974a8b60d8986fdd6bfb98b54253376ef0e4dc83d76e8",
+      "verified": true
+    },
+    {
+      "path": "Boundary/Report.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\Boundary\\Solo\\Run_20261026T213143Z_3157a4\\Report.json",
+      "bytes": 310004,
+      "source_sha256": "a09c5c40c578a695c3a49c1eae403e93de5a2646aab1fa9312f30d6c85900ad6",
+      "copied_sha256": "a09c5c40c578a695c3a49c1eae403e93de5a2646aab1fa9312f30d6c85900ad6",
+      "verified": true
+    },
+    {
+      "path": "Boundary/CapturePairing.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\CaptureControl\\063142_f4aff5\\result.json",
+      "bytes": 346,
+      "source_sha256": "0308eb5e49e0107b2899c323171f5dabb1103b189dfe1ebca8a91882046a611a",
+      "copied_sha256": "0308eb5e49e0107b2899c323171f5dabb1103b189dfe1ebca8a91882046a611a",
+      "verified": true
+    },
+    {
+      "path": "Boundary/FrameMetadata.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\boundary_063142_f4aff5\\Frames.json",
+      "bytes": 30694,
+      "source_sha256": "14acc4b2ba32e0778a9582e9d5c518df7a0abdf0073d31339c7c92da3fab2ce4",
+      "copied_sha256": "14acc4b2ba32e0778a9582e9d5c518df7a0abdf0073d31339c7c92da3fab2ce4",
+      "verified": true
+    },
+    {
+      "path": "Boundary/VideoMetadata.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\boundary_063142_f4aff5\\OutputMeta.json",
+      "bytes": 3586,
+      "source_sha256": "d8c314e153495f39a045f29b7d4ba23fe7bf4f55c135dac7863867ce3d1c273a",
+      "copied_sha256": "d8c314e153495f39a045f29b7d4ba23fe7bf4f55c135dac7863867ce3d1c273a",
+      "verified": true
+    },
+    {
+      "path": "Boundary/EncodedFramePTS.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\boundary_063142_f4aff5\\EncodedProbe.json",
+      "bytes": 10089,
+      "source_sha256": "686bef3a9adc0d1da6f6e733263d090d4d3bbb9d1d018222327073911b7355b8",
+      "copied_sha256": "686bef3a9adc0d1da6f6e733263d090d4d3bbb9d1d018222327073911b7355b8",
+      "verified": true
+    },
+    {
+      "path": "Boundary/ActualWindow.mp4",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\boundary_063142_f4aff5\\NativeWindow_ActualCadence.mp4",
+      "bytes": 3482536,
+      "source_sha256": "b1c05575d73a164190a6fe61e18644f1290ecdf32f0d6c767eab5e37e69ccbeb",
+      "copied_sha256": "b1c05575d73a164190a6fe61e18644f1290ecdf32f0d6c767eab5e37e69ccbeb",
+      "verified": true
+    },
+    {
+      "path": "Boundary/ContactSheet.jpg",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\boundary_063142_f4aff5\\ContactSheet_2_5_10_15s.jpg",
+      "bytes": 242144,
+      "source_sha256": "058215d6aed2263b08d5cf24ffa0a1b2edc470707456a4711df1a57703b51296",
+      "copied_sha256": "058215d6aed2263b08d5cf24ffa0a1b2edc470707456a4711df1a57703b51296",
+      "verified": true
+    },
+    {
+      "path": "Coins/Report.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\Coins\\Run_20261026T231608Z_0f04b2\\Report.json",
+      "bytes": 78531,
+      "source_sha256": "28265527105d5c791e1f76b02498268a588b8804108de266784e3334cc219191",
+      "copied_sha256": "28265527105d5c791e1f76b02498268a588b8804108de266784e3334cc219191",
+      "verified": true
+    },
+    {
+      "path": "Coins/CapturePairing.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\CaptureControl\\081601_567939\\result.json",
+      "bytes": 342,
+      "source_sha256": "57eba0ca8af1cf8f09a389dc01f3197265797bef1cd3b94a5f0cd5a001e01c35",
+      "copied_sha256": "57eba0ca8af1cf8f09a389dc01f3197265797bef1cd3b94a5f0cd5a001e01c35",
+      "verified": true
+    },
+    {
+      "path": "Coins/FrameMetadata.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\Frames.json",
+      "bytes": 9066,
+      "source_sha256": "011d84897a75bc56ba085d8388bbfb3dfc33d20805262704229ec893681f8af5",
+      "copied_sha256": "011d84897a75bc56ba085d8388bbfb3dfc33d20805262704229ec893681f8af5",
+      "verified": true
+    },
+    {
+      "path": "Coins/VideoMetadata.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\OutputMeta.json",
+      "bytes": 3535,
+      "source_sha256": "8c8cdbbe9ccf96d7d6572b0d13be1e19280e07a4a6a03418c6539e5f3911b7da",
+      "copied_sha256": "8c8cdbbe9ccf96d7d6572b0d13be1e19280e07a4a6a03418c6539e5f3911b7da",
+      "verified": true
+    },
+    {
+      "path": "Coins/EncodedFramePTS.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\EncodedProbe.json",
+      "bytes": 3198,
+      "source_sha256": "5ef3fd2a0d1dee5e6b17f5b7c3ddf0787001f8fe53537907d95caf2003cc0aaf",
+      "copied_sha256": "5ef3fd2a0d1dee5e6b17f5b7c3ddf0787001f8fe53537907d95caf2003cc0aaf",
+      "verified": true
+    },
+    {
+      "path": "Coins/ActualWindow.mp4",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\NativeWindow_ActualCadence.mp4",
+      "bytes": 699034,
+      "source_sha256": "daf4d11ac6febca654d88dbc0b68aff943fc1181b230877ef240f07ed874fbea",
+      "copied_sha256": "daf4d11ac6febca654d88dbc0b68aff943fc1181b230877ef240f07ed874fbea",
+      "verified": true
+    },
+    {
+      "path": "Coins/ContactSheet.jpg",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939\\ContactSheet_2_5_10_15s.jpg",
+      "bytes": 227506,
+      "source_sha256": "101763e5f6b255d902f86346312ab43978f411b9068d59bde5404ce9966c66d5",
+      "copied_sha256": "101763e5f6b255d902f86346312ab43978f411b9068d59bde5404ce9966c66d5",
+      "verified": true
+    },
+    {
+      "path": "Coins/LifecycleReport.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\Coins\\Lifecycle\\Run_20261026T231602Z_3a9c1e\\Report.json",
+      "bytes": 2259,
+      "source_sha256": "e7d6206673933c8e13eb41e9a9993bb475dcb4e266f1ff5bbf103fb2dc53eb9d",
+      "copied_sha256": "e7d6206673933c8e13eb41e9a9993bb475dcb4e266f1ff5bbf103fb2dc53eb9d",
+      "verified": true
+    },
+    {
+      "path": "Coins/Audio_Unaccepted_Silent.wav",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\Coins\\Run_20261026T231608Z_0f04b2\\Audio\\TaskCoins_ActualGameOutput.wav",
+      "bytes": 1065004,
+      "source_sha256": "29e325de57f474180ec8e5d5c7667a2fc68d829250b29c864e2695cccb0dea7a",
+      "copied_sha256": "29e325de57f474180ec8e5d5c7667a2fc68d829250b29c864e2695cccb0dea7a",
+      "verified": true
+    },
+    {
+      "path": "NativeCheckpoint26Summary.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFinalSummary.json",
+      "bytes": 72,
+      "source_sha256": "13828d01bc0a2718a9a2c9f61810e0e828cc5e0f9ad70a08b6a092688ba3ff16",
+      "copied_sha256": "13828d01bc0a2718a9a2c9f61810e0e828cc5e0f9ad70a08b6a092688ba3ff16",
+      "verified": true
+    },
+    {
+      "path": "RelaxFunctionalOnly/Report.json",
+      "source": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Run_20261026T230358Z_7cbc1b\\Report.json",
+      "bytes": 177104,
+      "source_sha256": "e55fdb068765aa8d945488e18c75f8c732738a6ef2fd5389ca81b1dbd5eafd65",
+      "copied_sha256": "e55fdb068765aa8d945488e18c75f8c732738a6ef2fd5389ca81b1dbd5eafd65",
+      "verified": true
+    },
+    {
+      "path": "CoinsAudio/Report.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\Coins\\Run_20261026T233332Z_314f6b\\Report.json",
+      "bytes": 76612,
+      "source_sha256": "1406b459afcd6ada8e761a68a0da10d788ea4e384acbef1381b70578f183b0df",
+      "copied_sha256": "1406b459afcd6ada8e761a68a0da10d788ea4e384acbef1381b70578f183b0df",
+      "verified": true
+    },
+    {
+      "path": "CoinsAudio/LifecycleReport.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\Coins\\Lifecycle\\Run_20261026T233327Z_fc40cb\\Report.json",
+      "bytes": 3299,
+      "source_sha256": "1439958f1afc7e954ad36e3a152e81a5cc7298ab3c0457cf1b8424a47fb95602",
+      "copied_sha256": "1439958f1afc7e954ad36e3a152e81a5cc7298ab3c0457cf1b8424a47fb95602",
+      "verified": true
+    },
+    {
+      "path": "CoinsAudio/CapturePairing.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\CaptureControl\\083326_634ffb\\result.json",
+      "bytes": 342,
+      "source_sha256": "08591144153a18cdaa9fc7bff4fb299f6e60abe695afb86cdf70b23976491594",
+      "copied_sha256": "08591144153a18cdaa9fc7bff4fb299f6e60abe695afb86cdf70b23976491594",
+      "verified": true
+    },
+    {
+      "path": "CoinsAudio/FrameMetadata.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_083326_634ffb\\Frames.json",
+      "bytes": 8709,
+      "source_sha256": "e728778bebc52f01b0f66e90f9e589ed75c61c112f03add76c3fea386aa892d2",
+      "copied_sha256": "e728778bebc52f01b0f66e90f9e589ed75c61c112f03add76c3fea386aa892d2",
+      "verified": true
+    },
+    {
+      "path": "CoinsAudio/VideoMetadata.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_083326_634ffb\\OutputMeta.json",
+      "bytes": 3534,
+      "source_sha256": "b07bccfc0191c3bb7fb9c6a172b9a5c844227659203b69dd602eb6761f1886ab",
+      "copied_sha256": "b07bccfc0191c3bb7fb9c6a172b9a5c844227659203b69dd602eb6761f1886ab",
+      "verified": true
+    },
+    {
+      "path": "CoinsAudio/EncodedFramePTS.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_083326_634ffb\\EncodedProbe.json",
+      "bytes": 3072,
+      "source_sha256": "f779c96496b8be107e670dd68b10e7d848a39ecc65713ef196052b57017416a2",
+      "copied_sha256": "f779c96496b8be107e670dd68b10e7d848a39ecc65713ef196052b57017416a2",
+      "verified": true
+    },
+    {
+      "path": "CoinsAudio/ActualWindow.mp4",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_083326_634ffb\\NativeWindow_ActualCadence.mp4",
+      "bytes": 744990,
+      "source_sha256": "04313b5d85f54b77db0ad24981374008dec6e8affb41385e7b534c68bded64fe",
+      "copied_sha256": "04313b5d85f54b77db0ad24981374008dec6e8affb41385e7b534c68bded64fe",
+      "verified": true
+    },
+    {
+      "path": "CoinsAudio/ContactSheet.jpg",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_083326_634ffb\\ContactSheet_2_5_10_15s.jpg",
+      "bytes": 238377,
+      "source_sha256": "98173cf2c80b7da8a80b763c4bdb0e58c31416cc70021e0cd1bcce790234fe0b",
+      "copied_sha256": "98173cf2c80b7da8a80b763c4bdb0e58c31416cc70021e0cd1bcce790234fe0b",
+      "verified": true
+    },
+    {
+      "path": "CoinsAudio/Audio_ActualGameOutput.wav",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\Coins\\Run_20261026T233332Z_314f6b\\Audio\\TaskCoins_ActualGameOutput.wav",
+      "bytes": 1044524,
+      "source_sha256": "22f3ca61567d2f2d2b4f29ec1b907a495068ab5e05bb45b4f1c6662e604ebd82",
+      "copied_sha256": "22f3ca61567d2f2d2b4f29ec1b907a495068ab5e05bb45b4f1c6662e604ebd82",
+      "verified": true
+    },
+    {
+      "path": "GlideWGC/Report.json",
+      "source": "E:\\CodexWork\\Batch6_20261027\\Glide\\RuntimeCapture\\Runs\\Run_20261026T235812Z_0f4c42\\Report.json",
+      "bytes": 263093,
+      "source_sha256": "013d378bf0b6324110b8655ac01675745e8a3a303a38025ebebc6f8d0c1bfbf2",
+      "copied_sha256": "013d378bf0b6324110b8655ac01675745e8a3a303a38025ebebc6f8d0c1bfbf2",
+      "verified": true
+    },
+    {
+      "path": "GlideWGC/Auto.json",
+      "source": "E:\\CodexWork\\Batch6_20261027\\Glide\\RuntimeCapture\\Auto_085812.json",
+      "bytes": 3224,
+      "source_sha256": "5e3f14807368bd5379fbb5213444ae2e2e9c49de98ac28b55e24c2506d3d20c9",
+      "copied_sha256": "5e3f14807368bd5379fbb5213444ae2e2e9c49de98ac28b55e24c2506d3d20c9",
+      "verified": true
+    },
+    {
+      "path": "GlideWGC/ActualWindow.mp4",
+      "source": "E:\\CodexWork\\Batch6_20261027\\Glide\\RuntimeCapture\\Glide_Complete_085812.mp4",
+      "bytes": 5032911,
+      "source_sha256": "2bbcf922abcbc3c0ed245f79ed279a082636b97e7a19adcc9becf2165fbafc47",
+      "copied_sha256": "2bbcf922abcbc3c0ed245f79ed279a082636b97e7a19adcc9becf2165fbafc47",
+      "verified": true
+    },
+    {
+      "path": "GlideWGC/VideoMetadata.json",
+      "source": "E:\\CodexWork\\Batch6_20261027\\Glide\\RuntimeCapture\\Glide_Complete_085812.VideoMetadata.json",
+      "bytes": 1858,
+      "source_sha256": "29b42ed55dbd369c0ec0934907ce7f1fc8f5c2613521aa68455ff58dfcae3c98",
+      "copied_sha256": "29b42ed55dbd369c0ec0934907ce7f1fc8f5c2613521aa68455ff58dfcae3c98",
+      "verified": true
+    },
+    {
+      "path": "GlideWGC/EncodedFramePTS.json",
+      "source": "E:\\CodexWork\\Batch6_20261027\\Glide\\RuntimeCapture\\Glide_Complete_085812.VideoMetadata.ffprobe.json",
+      "bytes": 29462,
+      "source_sha256": "64ae2b007eac314e681d9c2ae1181095c70da1473ce1e49207441fa97c1ba1d0",
+      "copied_sha256": "64ae2b007eac314e681d9c2ae1181095c70da1473ce1e49207441fa97c1ba1d0",
+      "verified": true
+    },
+    {
+      "path": "GlideWGC/CaptureLaunch.json",
+      "source": "E:\\CodexWork\\Batch6_20261027\\Glide\\RuntimeCapture\\Glide_Complete_085812.Capture.json",
+      "bytes": 2550,
+      "source_sha256": "7a2b6dbd8ad72f9f07c85070c711e1e9ca5a38c3f1ca8c89ddeb0797d73aeaa4",
+      "copied_sha256": "7a2b6dbd8ad72f9f07c85070c711e1e9ca5a38c3f1ca8c89ddeb0797d73aeaa4",
+      "verified": true
+    },
+    {
+      "path": "GlideWGC/ContactSheet.jpg",
+      "source": "E:\\CodexWork\\Batch6_20261027\\Glide\\RuntimeCapture\\Glide_Complete_085812_Sheet.jpg",
+      "bytes": 111366,
+      "source_sha256": "c70efd7d4bdfba9331a332e5e78767e6178fd2c94a721ac18eef477d7d909eac",
+      "copied_sha256": "c70efd7d4bdfba9331a332e5e78767e6178fd2c94a721ac18eef477d7d909eac",
+      "verified": true
+    },
+    {
+      "path": "NativeSupportFinal54.json",
+      "source": "E:\\CodexWork\\Batch6_20261027\\NativeSupportFinal\\index.json",
+      "bytes": 37771,
+      "source_sha256": "746ec297f710744e69367fd34abd3e70984bcf9cc3381ec153ac4acd5af4a778",
+      "copied_sha256": "746ec297f710744e69367fd34abd3e70984bcf9cc3381ec153ac4acd5af4a778",
+      "verified": true
+    },
+    {
+      "path": "EditorFinalState.json",
+      "source": "E:\\CodexWork\\Batch6_20261027\\EditorFinalState.json",
+      "bytes": 215,
+      "source_sha256": "ffeb8690ac8f3cb7afbb956c8802ff62a6fcc0c9962aa079068d51adb01393c7",
+      "copied_sha256": "ffeb8690ac8f3cb7afbb956c8802ff62a6fcc0c9962aa079068d51adb01393c7",
+      "verified": true
+    }
+  ],
+  "generated_files": [
+    {
+      "path": "README.md",
+      "bytes": 11679,
+      "sha256": "52ef025195aabff6ecb85af59214f7cc5ea4e743dd5182ac3a06a09e29bdfb01",
+      "policy_edited_generated_document": true,
+      "policy_edit": "Policy-edited generated document: local media retained, excluded from Git; filenames replace media links. Original source-copy claims/hashes are not reassigned to this edited document.",
+      "prior_document_record": {
+        "path": "README.md",
+        "bytes": 11294,
+        "sha256": "d21476ec47bfa0e37068c41c7696a6f505482e03b501bd466ad2e1bfdbc6ffb0"
+      }
+    },
+    {
+      "path": "Coins/AudioVerification.json",
+      "bytes": 929,
+      "sha256": "bd34727dfb46302fa89de197bb28e2552036bed0e077f52f6c360dc3b61669d3"
+    },
+    {
+      "path": "RelaxFunctionalOnly/ReviewScope.json",
+      "bytes": 556,
+      "sha256": "d8cc701618205c94e3a7d391c2be07b5686897056b08bc2a8787146685835c76"
+    },
+    {
+      "path": "CoinsAudio/AudioVerification.json",
+      "bytes": 2178,
+      "sha256": "ac1629351da878d3a8306260e3a4e6b7356966392a0a18104183c1f2e12841d2"
+    },
+    {
+      "path": "CoinsAudio/ReviewScope.json",
+      "bytes": 1595,
+      "sha256": "3bb6e95f25072c5fc6ba516c10ab277a3bcc6ae8e1ce054a92edf3325bc4ed5f"
+    },
+    {
+      "path": "CoinsAudio/README.md",
+      "bytes": 2132,
+      "sha256": "c34b4af48ce06e7d23a1cf36d7ee3e1f3a544cd74209fd4087c88c75a715ab8b",
+      "policy_edited_generated_document": true,
+      "policy_edit": "Policy-edited generated document: local media retained, excluded from Git; filenames replace media links. Original source-copy claims/hashes are not reassigned to this edited document.",
+      "prior_document_record": {
+        "path": "CoinsAudio/README.md",
+        "bytes": 1825,
+        "sha256": "4b2ab9500ca203d7db755d3290ddd26e75f463c15ac99b043cdf2e728135edf5"
+      }
+    },
+    {
+      "path": "CoinsAudio/Manifest.json",
+      "bytes": 4879,
+      "sha256": "6fd322b23b537c4a953723fc8241028e367d2c99548a10966d1a8172f93dd14b",
+      "policy_edited_generated_document": true,
+      "prior_document_record": {
+        "path": "CoinsAudio/Manifest.json",
+        "bytes": 4284,
+        "sha256": "806d02ea4d9500fa4fe6c962abe0c22e38fd050f160da45f347b2c8b2ea89848"
+      },
+      "policy_edit": "Nested artifact metadata updated for local-only media policy; source-copy entries retained unchanged."
+    },
+    {
+      "path": "GlideWGC/README.md",
+      "bytes": 1949,
+      "sha256": "1e8b8e1a51c5dedb9cda98563b041cdf841167b301d0d4394bd4be66b35e2722",
+      "policy_edited_generated_document": true,
+      "policy_edit": "Policy-edited generated document: local media retained, excluded from Git; filenames replace media links. Original source-copy claims/hashes are not reassigned to this edited document.",
+      "prior_document_record": {
+        "path": "GlideWGC/README.md",
+        "bytes": 1655,
+        "sha256": "464018aacd8ad47691f67f1a99696e961aa98960b5b7533b614944d47f07da0d"
+      }
+    },
+    {
+      "path": "GlideWGC/ReviewScope.json",
+      "bytes": 278,
+      "sha256": "f66e86ab7a4470f102af9f8c91fc675512544d5028d90b8f5c48d5a48afced0b"
+    },
+    {
+      "path": "GlideWGC/Manifest.json",
+      "bytes": 3843,
+      "sha256": "3b801ff34429113bd6d99f44667191f333137404676e76f29193e254203d4ede",
+      "policy_edited_generated_document": true,
+      "prior_document_record": {
+        "path": "GlideWGC/Manifest.json",
+        "bytes": 3248,
+        "sha256": "d206f7bbac4302198a8a54d2e881d6760f339d35e2037b5cc9a13b1452f9a408"
+      },
+      "policy_edit": "Nested artifact metadata updated for local-only media policy; source-copy entries retained unchanged."
+    },
+    {
+      "path": "NativeSupportFinal54Summary.json",
+      "bytes": 352,
+      "sha256": "e273994d3526e07fec337394e918885ab5db3059cd0cf80ce608850d3619b51d"
+    }
+  ],
+  "all_copies_verified": true,
+  "raw_png_sequences_copied": false,
+  "desktop_captures_copied": false,
+  "failed_captures_copied": false,
+  "audio_listened_to": false,
+  "audio_has_nonzero_signal": true,
+  "audio_accepted": false,
+  "captures": [
+    {
+      "name": "Tools",
+      "frames": 127,
+      "encoded_frames": 128,
+      "seconds": 20.734001,
+      "cadence_hz": 6.2173097799270876,
+      "width": 1286,
+      "height": 760,
+      "source_report": "E:\\CodexWork\\Checkpoint_20261027\\ToolsCleanup\\Runs\\Run_20261026T212946Z_5341dd\\Report.json",
+      "source_capture": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff"
+    },
+    {
+      "name": "Cleanup",
+      "frames": 115,
+      "encoded_frames": 116,
+      "seconds": 19.485001,
+      "cadence_hz": 6.004740584672501,
+      "width": 1286,
+      "height": 760,
+      "source_report": "E:\\CodexWork\\Checkpoint_20261027\\ToolsCleanup\\Runs\\Run_20261026T213037Z_e889a9\\Report.json",
+      "source_capture": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c"
+    },
+    {
+      "name": "Boundary",
+      "frames": 153,
+      "encoded_frames": 154,
+      "seconds": 22.500001,
+      "cadence_hz": 6.860444123487729,
+      "width": 1286,
+      "height": 760,
+      "source_report": "E:\\CodexWork\\Checkpoint_20261027\\Boundary\\Solo\\Run_20261026T213143Z_3157a4\\Report.json",
+      "source_capture": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\boundary_063142_f4aff5"
+    },
+    {
+      "name": "Coins",
+      "frames": 45,
+      "encoded_frames": 46,
+      "seconds": 5.954001,
+      "cadence_hz": 7.777974191263494,
+      "width": 1286,
+      "height": 760,
+      "source_report": "E:\\CodexWork\\Checkpoint_20261027\\Coins\\Run_20261026T231608Z_0f04b2\\Report.json",
+      "source_capture": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_081601_567939"
+    },
+    {
+      "name": "CoinsAudio",
+      "frames": 43,
+      "encoded_frames": 44,
+      "seconds": 5.922001,
+      "cadence_hz": 7.529580494804107,
+      "width": 1286,
+      "height": 760,
+      "source_report": "E:\\CodexWork\\Checkpoint_20261027\\Coins\\Run_20261026T233332Z_314f6b\\Report.json",
+      "source_capture": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_083326_634ffb",
+      "visual_review_pending": true
+    }
+  ],
+  "audio_scope": "Earlier Coins WAV remains all-zero/unaccepted; CoinsAudio rerun confirms nonzero native PCM without audition acceptance.",
+  "media_storage_policy": "Verification media is local-only and excluded from Git; copied_files hashes retain unchanged local-source evidence. Generated README policy edits are recorded separately."
+}

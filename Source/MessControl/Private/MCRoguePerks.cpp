@@ -224,6 +224,7 @@ void UMCPerkComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
 }
 void UMCPerkComponent::ClearRogueRuntime()
 {
+    PendingStageBoosters.Reset();PendingStageGame.Reset();PendingStageLoadId.Invalidate();
     if(GrenadeCue.IsValid()) GrenadeCue->DestroyComponent();GrenadeCue.Reset();
     if(auto* Hero=HeroFor(this);Hero && bFuryMotion) Hero->GetCharacterMovement()->RemoveRootMotionSourceByID(FuryMotionID);
     bFuryMotion=false;FuryUntil=-100;bGrenadeArmed=false;BoosterQueue.Reset();

@@ -1,0 +1,9 @@
+{
+  "functional_pass": true,
+  "limited_visual_readability_accepted_by_root": true,
+  "full_art_approval": false,
+  "performance_approval": false,
+  "no_obvious_penetration_in_selected_frames": true,
+  "old_static_capture_excluded": true,
+  "settings_restored": true
+}

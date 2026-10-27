@@ -34,8 +34,10 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     virtual void CopyProperties(APlayerState* Target) override;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Score") int32 Points=0;
+    /** Existing saved fish-wallet field; kept stable for old profiles and grill receipts. */
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Fishing") int32 FishCaught=0;
-    void AddCaughtFish();
+    /** Authority only; returns the actual credit after the persisted wallet's safety cap. */
+    int32 AddCaughtFish(int32 Amount=1);
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Multiplayer") bool bSessionHost=false;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Appearance") FLinearColor PlayerColor=FLinearColor(.24f,.65f,1.f);
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Alarms") EMCPlayerAlarm Alarm=EMCPlayerAlarm::None;

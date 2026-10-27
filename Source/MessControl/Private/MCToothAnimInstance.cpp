@@ -6,6 +6,7 @@
 #include "MCMeleeCombo.h"
 #include "MCInventoryComponent.h"
 #include "MCToothPhysicsComponent.h"
+#include "MCToothStatusComponent.h"
 #include "MCGazeComponent.h"
 #include "MCGripComponent.h"
 #include "MCFoodCollectionComponent.h"
@@ -57,6 +58,8 @@ public:
     FVector PreviousMeshLocation=FVector::ZeroVector;
     float ArtistHandAlpha[2]={0,0};
     float ArtistPushAlpha=0,ArtistTiredAlpha=0;
+    FMCGlideAnimationState Glide;
+    float PreviousGlideSpeed=0;
     TWeakObjectPtr<AMCThroat> BraceThroat;
     FMCFootContactDebug Feet[2];
     FVector WallContacts[4]={};
@@ -80,6 +83,68 @@ public:
     FVector RowingForward=FVector::ForwardVector,RowingRight=FVector::RightVector,RowingUp=FVector::UpVector;
     float RowingLean=0,RowingTwist=0,RowingSideDip=0,RowingCrouch=0,RowingReach=0;
 private:
+    void UpdateGlide(UMCToothAnimInstance* Instance,const AMCToothCharacter* Tooth,float Dt)
+    {
+        float FallTime=0,FallAlpha=0;
+        if(Tooth->ToothPhysics && Tooth->ToothPhysics->GetAuthoredSlipSample(FallTime,FallAlpha)) {
+            Glide=FMCGlideAnimationState();Glide.Sample={FallAlpha,FallTime,true};
+            if(Instance) Instance->AuthoredGlide=Glide.Sample;return;
+        }
+        const auto* Move=Cast<UMCToothMovementComponent>(Tooth->GetCharacterMovement());
+        const auto* Profile=Tooth->AnimationProfile.Get();
+        const FVector Velocity=Tooth->GetVelocity(); const float Speed=Velocity.Size2D();
+        const float Deceleration=FMath::Max(0.f,PreviousGlideSpeed-Speed)/FMath::Max(.008f,Dt);
+        PreviousGlideSpeed=Speed;
+        const FVector Intent=Move?Move->Intent().GetSafeNormal2D():FVector::ZeroVector;
+        const FVector Direction=Velocity.GetSafeNormal2D();
+        const float Side=Speed>1.f?FMath::Abs(FVector::DotProduct(Direction,Tooth->GetActorRightVector())):0.f;
+        const float Counter=Intent.IsNearlyZero()?0.f:1-FMath::Max(0.f,FVector::DotProduct(Direction,Intent));
+        const bool Contact=Tooth->bBrushing || Tooth->IsPrimaryHeld()
+            || (Tooth->FishingRod && Tooth->FishingRod->IsPresented())
+            || (Tooth->RewardInteraction && (Tooth->RewardInteraction->Stage==EMCRewardChestStage::Lockpicking
+                || Tooth->RewardInteraction->Stage==EMCRewardChestStage::Opening));
+        const bool Allowed=Move && Move->IsMovingOnGround() && Tooth->ToothPhysics && Tooth->ToothPhysics->CanAct()
+            && Tooth->Status && Tooth->Status->IsAlive() && Tooth->Status->PainAlpha()<.01f
+            && !Tooth->HasFrozenLegs() && !Tooth->IsFreezingToDeath() && !Tooth->SwallowedBy && !Tooth->MimicCaptor
+            && !Tooth->IsDashing() && !Tooth->IsYawning() && !Tooth->IsRowing() && !Contact
+            && Tooth->AnimationClimb<.01f && Tooth->AnimationSwim<.01f
+            && Tooth->AnimationOrderPrepare<.01f && Tooth->AnimationOrderFlight<.01f && Tooth->AnimationOrderPress<.01f
+            && (!Tooth->Expression || Tooth->Expression->BodyAlpha()<.01f);
+        Glide.Update(Dt,Allowed,Move && Move->GroundSurface==EMCGroundSurface::Slippery,Speed,FMath::Max(Side,Counter),Deceleration,
+            Profile && Profile->Glide?Profile->Glide->GetPlayLength():0.f);
+        if(Instance) Instance->AuthoredGlide=Glide.Sample;
+    }
+    void ArtistGlidePose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref)
+    {
+        // Full falls/recovery are owned by the replicated body state below.
+        if(Glide.Sample.bStrong) return;
+        const auto* Profile=Tooth->AnimationProfile.Get();
+        UAnimSequence* Clip=Profile?Profile->Glide.Get():nullptr;
+        if(!Clip || !Clip->GetSkeleton() || Glide.Sample.Alpha<.001f) return;
+        FAnimExtractContext Context(Glide.Sample.Time,false);
+        const auto& Source=Clip->GetSkeleton()->GetReferenceSkeleton();
+        const bool Tool=Tooth->Inventory && Tooth->Inventory->ShouldPresentTool();
+        const bool Carry=Tooth->HeldFood || (Tooth->FoodCollection && Tooth->FoodCollection->bCollecting) || AMCHubBasketball::HeldBy(Tooth);
+        const int32 ProtectedArms[]={
+            Carry || (Tooth->Grip && Tooth->Grip->HandOccupied(true))?Ref.FindBoneIndex(Tooth->RigBone(TEXT("arm_l"))):INDEX_NONE,
+            Tool || Carry || (Tooth->Grip && Tooth->Grip->HandOccupied(false))?Ref.FindBoneIndex(Tooth->RigBone(TEXT("arm_r"))):INDEX_NONE};
+        for(int32 I=0;I<Pose.Num();++I)
+        {
+            const FName Name=Ref.GetBoneName(I); const FString Bone=Name.ToString();
+            // Gaze, repaired eyelids and mouth morphs retain their existing owners.
+            if(Bone.StartsWith(TEXT("c_")) && !Bone.Contains(TEXT("index")) && !Bone.Contains(TEXT("thumb"))
+                && !Bone.Contains(TEXT("middle")) && !Bone.Contains(TEXT("ring")) && !Bone.Contains(TEXT("pinky"))) continue;
+            bool Occupied=false;
+            for(int32 Parent=I;Parent>=0;Parent=Ref.GetParentIndex(Parent))
+                if(Parent==ProtectedArms[0] || Parent==ProtectedArms[1]) {Occupied=true;break;}
+            if(Occupied) continue;
+            const int32 Index=Source.FindBoneIndex(Name);if(Index<0) continue;
+            FTransform Sample,Blended;Clip->GetBoneTransform(Sample,FSkeletonPoseBoneIndex(Index),Context,false);
+            // Retain locomotion/capsule placement, including the visual body-root height.
+            if(Ref.GetParentIndex(I)<0 || Name==Tooth->RigBone(TEXT("body"))) Sample.SetTranslation(Pose[I].GetTranslation());
+            Blended.Blend(Pose[I],Sample,Glide.Sample.Alpha);Pose[I]=Blended;
+        }
+    }
     // Не активное, но будет использовано в будущем в других механиках.
     // Reserved full shoulder roll; the normal dash calls DashLungePose only.
     void FutureShoulderRollPose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref)
@@ -917,6 +982,7 @@ public:
         const auto* Mesh=Instance->GetSkelMeshComponent()->GetSkeletalMeshAsset();
         if (!Tooth || !Mesh) return;
         const auto& Ref=Mesh->GetRefSkeleton();
+        UpdateGlide(Cast<UMCToothAnimInstance>(Instance),Tooth,Dt);
         SecondaryMotion.PreUpdate(Instance,*this,Dt,{Tooth->RigBone(TEXT("body")),Tooth->RigBone(TEXT("gaze_head"))},
             !Tooth->ToothPhysics || Tooth->ToothPhysics->CanAct());
         if(auto* Comparison=Instance->GetWorld()->GetSubsystem<UMCAnimationComparisonSubsystem>())
@@ -1043,6 +1109,7 @@ public:
             }
             for (int32 I=0;I<Pose.Num();++I) { FTransform Blended; Blended.Blend(Ground[I],Pose[I],Tooth->AnimationSwim); Pose[I]=Blended; }
         }
+        ArtistGlidePose(Tooth,Ref);
         if (Tooth->Expression) Tooth->Expression->BuildBodyPose(Pose,Ref);
         ArtistWorkPose(Tooth,Ref,Dt);
         if(Tooth->AnimationClimb>.001f) {
@@ -1074,7 +1141,7 @@ public:
         if (Tooth->Grip) Tooth->Grip->BuildPose(Pose,Ref,Dt);
         if (Tooth->BrushContact) Tooth->BrushContact->BuildPose(Pose,Ref,Dt);
         PlaceFeet(Tooth,Ref,Dt);
-        if (Tooth->ToothPhysics) Tooth->ToothPhysics->BuildPresentationPose(Pose);
+        if (Tooth->ToothPhysics && !Tooth->ToothPhysics->IsSlipping()) Tooth->ToothPhysics->BuildPresentationPose(Pose);
         TraversalContacts(Tooth,Ref,Dt);
         SprayTreatment(Tooth,Ref,Dt);
         ChainsawPose(Tooth,Ref,Dt);
@@ -1145,6 +1212,7 @@ public:
         if (Tooth->ToothPhysics) Tooth->ToothPhysics->SubmitAnimationTargets(Pose,Ref,Dt);
         if (Tooth->Expression) Tooth->Expression->BuildFacePose(Pose,Ref,Dt);
         if (Tooth->Gaze) Tooth->Gaze->BuildPose(Pose,Ref,Dt);
+        if(Tooth->ToothPhysics && Tooth->ToothPhysics->IsSlipping()) Tooth->ToothPhysics->BuildPresentationPose(Pose);
         if (auto* Diagnostics=Cast<UMCToothAnimInstance>(Instance); Diagnostics && Diagnostics->bRecordMotion)
         {
             Diagnostics->FootContacts[0]=Feet[0]; Diagnostics->FootContacts[1]=Feet[1];

@@ -1,0 +1,43 @@
+{
+  "order": [
+    "Ambient 1 - Guitars Medium Jingle Preview.wav",
+    "Ambient 2 - Synths and Guitars Preview.wav",
+    "Ambient 3 - Guitars Calm Preview.wav"
+  ],
+  "volume": 0.5,
+  "repeat": true,
+  "duration": 281.3280029296875,
+  "combined_pcm_sha256": "51d19008a372c654de464b7cd1422154caf3e7c7f01fd55ec1463dd04f0eb2a0",
+  "tracks": [
+    {
+      "index": 1,
+      "name": "Ambient 1 - Guitars Medium Jingle Preview.wav",
+      "source_sha256": "32bf0da50c02a9aa1938e10c7852690be4e907c530202cc580c75599897576f4",
+      "pcm_sha256": "183070fcfb435e53a7e0ef31051dacf69aa55e05bc108f5f604d9690aab7ff54",
+      "byte_offset": 0,
+      "pcm_bytes": 21592040,
+      "start_seconds": 0.0,
+      "duration": 61.20192743764172
+    },
+    {
+      "index": 2,
+      "name": "Ambient 2 - Synths and Guitars Preview.wav",
+      "source_sha256": "a176ef3fe04195c440cea03338f56080dc058c626d4e1f0db1afcf2c1353fec3",
+      "pcm_sha256": "6a20a86662040f07d6074315f313a91cb7bbd1cb1afefa906d51eb4977f92fe0",
+      "byte_offset": 21592040,
+      "pcm_bytes": 32536000,
+      "start_seconds": 61.20192743764172,
+      "duration": 92.22222222222223
+    },
+    {
+      "index": 3,
+      "name": "Ambient 3 - Guitars Calm Preview.wav",
+      "source_sha256": "d8bc9cc9c0015c56c166c1226441c6afbcb93090de2933f65b17bb968294e35e",
+      "pcm_sha256": "e521d3dc61e855b99050b2971eb336df97ae64535ac880dd24ee49a84c1a1458",
+      "byte_offset": 54128040,
+      "pcm_bytes": 45124480,
+      "start_seconds": 153.42414965986396,
+      "duration": 127.90385487528344
+    }
+  ]
+}

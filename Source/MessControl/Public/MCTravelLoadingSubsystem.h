@@ -6,6 +6,7 @@
 
 struct FWorldContext;
 class UTexture2D;
+class UDataTable;
 
 /** Native Slate fallback can animate while a normal map load blocks the game thread. */
 UCLASS()
@@ -19,5 +20,7 @@ private:
     void BeforeMapLoad(const FWorldContext& Context,const FString& MapName);
     /** Resolved on the game thread at instance startup, before a blocking travel can begin. */
     UPROPERTY(Transient) TObjectPtr<UTexture2D> LoadingArtwork;
+    /** Existing theme-localization asset retained before travel; Slate receives value snapshots only. */
+    UPROPERTY(Transient) TObjectPtr<UDataTable> LoadingTipTable;
     FDelegateHandle BeforeLoadHandle;
 };

@@ -4,6 +4,10 @@
 #include "MCHubGameState.h"
 #include "MCHubWidget.h"
 #include "MCLoadingWidget.h"
+#include "MCPerkChoiceWidget.h"
+#include "MCGameplayMenuWidget.h"
+#include "MCFishingRewardWidget.h"
+#include "MCTaskCoinPresentationComponent.h"
 #include "MCGameplayUIFactory.h"
 #include "MCPlayerState.h"
 #include "MCSingleDayDirector.h"
@@ -20,7 +24,7 @@
 bool AMCPlayerController::NeedsWorldPreparation() const
 {
     const UWorld* World=GetWorld();
-    if(!IsLocalController() || !World || World->GetNetMode()==NM_DedicatedServer
+    if(!HasLocalPresentationOwner() || !World || World->GetNetMode()==NM_DedicatedServer
         || (World->WorldType!=EWorldType::Game && World->WorldType!=EWorldType::PIE)) return false;
     const FString Map=UGameplayStatics::GetCurrentLevelName(this,true);
     return Map==TEXT("L_Mouth") || Map==TEXT("L_Tutorial") || IsHubWorld();
@@ -28,6 +32,9 @@ bool AMCPlayerController::NeedsWorldPreparation() const
 
 bool AMCPlayerController::IsWorldPresentationReady() const
 {
+    // Seamless travel can retain a locally designated controller before its
+    // ULocalPlayer is attached to this destination world. That is not ready UI.
+    if(IsLocalController() && !HasLocalPresentationOwner()) return false;
     if(!NeedsWorldPreparation()) return true;
     const auto* Preparation=GetWorld()->GetSubsystem<UMCWorldPreloadSubsystem>();
     return Preparation && Preparation->IsReady();
@@ -38,10 +45,13 @@ bool AMCPlayerController::IsWaitingForWorldStart() const
     if(const auto* Hub=GetWorld()->GetGameState<AMCHubGameState>())
         // Scene-generation ACKs also run on open/return. Those updates must
         // never bring the initial world-loading cover back over the selector.
-        return !bLoadingPresentationReleased && (!Hub->AreAllLoaded() || Hub->Phase==EMCHubPhase::Travelling);
+        // A partial replicated roster may initially contain only the host.
+        // Require this local player in the acknowledged snapshot as well.
+        return !bLoadingPresentationReleased && (!Hub->HasLoadedScene(GetPlayerState<AMCPlayerState>())
+            || !Hub->AreAllLoaded() || Hub->Phase==EMCHubPhase::Travelling);
     const auto* State=GetWorld()->GetGameState<AMCGameState>();
     if(!State || !GetPlayerState<AMCPlayerState>() || !GetPawn()
-        || GetPawn()->GetWorld()!=GetWorld() || !bGameplayLoadAckSent) return true;
+        || GetPawn()->GetWorld()!=GetWorld() || !HasAcknowledgedGameplay()) return true;
     if(State->bDevManualEvents) return false;
     if(State->bTutorialActive) {
         const auto* Tutorial=AMCTutorialDirector::Find(GetWorld());
@@ -59,22 +69,46 @@ bool AMCPlayerController::IsWaitingForWorldStart() const
 
 void AMCPlayerController::RefreshLoadingPresentation()
 {
-    if(!IsLocalController()) return;
+    if(!HasLocalPresentationOwner()) {ResetLoadingPresentation();return;}
     if(!NeedsWorldPreparation()) {ResetLoadingPresentation();return;}
     if(LoadingPresentationWorld.Get()!=GetWorld()) {
         ResetLoadingPresentation();LoadingPresentationWorld=GetWorld();
     }
     auto* Preparation=GetWorld()->GetSubsystem<UMCWorldPreloadSubsystem>();
+    if(IsHubWorld()) PrepareFishingRewardPresentation();
+    else PrepareTaskCoinPresentation();
+    if(!PauseWidget) {
+        if(auto* Menu=EnsureGameplayMenu(false)) {
+            Menu->SetVisibility(ESlateVisibility::Collapsed);Menu->AddToViewport(50);
+            Menu->TakeWidget();Menu->ForceLayoutPrepass();
+        }
+    }
     // The selector creates its material instances while constructing and
     // advancing its 3D presentation. Discover those only after that setup;
     // IsSceneReady does not depend on our ACK or the team's loaded count.
-    bool PresentationConstructed=!IsHubWorld();
+    if(!IsHubWorld() && !PerkChoiceWidget) {
+        // Native widget trees are not executed by the saved-asset manifest.
+        // Retain this modal and its dynamic brushes behind the loading cover,
+        // including the stage countdown, before the first reward interaction.
+        PerkChoiceWidget=CreateWidget<UMCPerkChoiceWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("PerkChoice"),UMCPerkChoiceWidget::StaticClass()));
+        if(PerkChoiceWidget) {
+            PerkChoiceWidget->SetVisibility(ESlateVisibility::Collapsed);
+            PerkChoiceWidget->AddToViewport(30);
+            PerkChoiceWidget->TakeWidget();PerkChoiceWidget->ForceLayoutPrepass();
+        }
+    }
+    // A collapsed/detached modal need not retain a Slate wrapper. Its UObject
+    // tree and material instances remain owned by the controller across closes.
+    bool PresentationConstructed=!IsHubWorld() && PerkChoiceWidget && PerkChoiceWidget->GetRootWidget();
     if(IsHubWorld() && HubWidget && HubWidget->IsSceneReady()) {
         const auto* Hub=GetWorld()->GetGameState<AMCHubGameState>();
         PresentationConstructed=Hub && (Hub->Phase!=EMCHubPhase::Gathering
             || (GetPawn() && GetPawn()->GetWorld()==GetWorld()));
     }
     PresentationConstructed &= !IsHubWorld() || HasPreparedWardrobePresentation();
+    PresentationConstructed &= !IsHubWorld() || (FishingRewardWidget && FishingRewardWidget->HasPreparedPresentation());
+    PresentationConstructed &= IsHubWorld() || (TaskCoinPresentation && TaskCoinPresentation->HasPreparedPresentation());
+    PresentationConstructed &= PauseWidget && PauseWidget->GetRootWidget();
     if(Preparation) {
         Preparation->SetPresentationReady(PresentationConstructed);
         Preparation->BeginPreparation(this);
@@ -101,18 +135,14 @@ void AMCPlayerController::RefreshLoadingPresentation()
         const bool Russian=FInternationalization::Get().GetCurrentLanguage()->GetTwoLetterISOLanguageName()==TEXT("ru");
         FText Detail=Russian?LOCTEXT("WaitingStartRu","Локация откроется, когда команда будет готова.")
             :LOCTEXT("WaitingStart","The location will open when the team is ready.");
-        const FText CountPattern=Russian?LOCTEXT("WaitingCountRu","Готовы: {0} / {1}")
-            :LOCTEXT("WaitingCount","Players ready: {0} / {1}");
+        const FText CountPattern=Russian?LOCTEXT("WaitingLoadedCountRu","Загрузились: {0} / {1}")
+            :LOCTEXT("WaitingLoadedCount","Players loaded: {0} / {1}");
         if(const auto* Hub=GetWorld()->GetGameState<AMCHubGameState>()) {
-            const int32 Loaded=Hub->Players.FilterByPredicate([](const FMCHubPlayerReadiness& Entry) {
-                return Entry.bLoaded && IsValid(Entry.Player) && !Entry.Player->IsOnlyASpectator()
-                    && !Entry.Player->IsInactive() && !Entry.Player->IsABot();
-            }).Num();
-            Detail=FText::Format(CountPattern,Loaded,Hub->GetParticipantCount());
+            Detail=FText::Format(CountPattern,Hub->GetLoadedCount(),Hub->GetParticipantCount());
         }
         else if(const auto* State=GetWorld()->GetGameState<AMCGameState>();State && State->bLobbyWaiting)
             Detail=FText::Format(CountPattern,State->LobbyLoadedPlayers,
-                FMath::Max(State->LobbyLoadedPlayers,State->PlayerArray.Num()));
+                State->LobbyParticipantPlayers);
         LoadingWidget->SetWaitingDetail(Detail);
         LoadingWidget->RefreshPresentation();
         if(NewWidget) LoadingWidget->ForceLayoutPrepass();
@@ -125,7 +155,7 @@ void AMCPlayerController::RefreshLoadingPresentation()
 
 void AMCPlayerController::ApplyLoadingInputMode()
 {
-    if(!IsLocalController() || !bLoadingInputBlocked) return;
+    if(!HasLocalPresentationOwner() || !bLoadingInputBlocked) return;
     bShowMouseCursor=true;
     ResetIgnoreMoveInput();SetIgnoreMoveInput(true);
     ResetIgnoreLookInput();SetIgnoreLookInput(true);
@@ -147,7 +177,7 @@ void AMCPlayerController::ResetLoadingPresentation()
     if(LoadingWidget) LoadingWidget->RemoveFromParent();LoadingWidget=nullptr;
     LoadingPresentationWorld.Reset();LoadingCancelledPawn.Reset();
     bLoadingInputBlocked=false;bLoadingPresentationReleased=false;bLoadingFailureFocused=false;
-    if(WasBlocked && IsLocalController()) {
+    if(WasBlocked && HasLocalPresentationOwner()) {
         ResetIgnoreMoveInput();ResetIgnoreLookInput();
         SetInputMode(FInputModeGameOnly());bShowMouseCursor=false;
     }

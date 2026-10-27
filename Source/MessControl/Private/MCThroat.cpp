@@ -641,7 +641,7 @@ void AMCThroat::CheckOpenThroatPlayers()
         if(Entered) {
             PreviousPlayerPositions.Remove(Key);
             It->DropFood();
-            It->Status->Damage(It->Status->State.MaxHealth*2,Forward,this);
+            It->Status->KillFromArenaBoundary();
         }
     }
     for(auto Entry=PreviousPlayerPositions.CreateIterator();Entry;++Entry)

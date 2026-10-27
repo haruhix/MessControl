@@ -39,6 +39,8 @@ class MESSCONTROL_API UMCPerkChoiceWidget : public UMCGameplayUIWidget
 public:
     void ShowChoices(const TArray<FName>& IDs, EMCPerkPolarity Polarity);
     void SetTeamBoosterHeader();
+    /** Presentation of an authority timestamp; only the server resolves an expired choice. */
+    void SetStageChoiceDeadline(double ServerEndsAt);
     void ShowLevelChoices(const TArray<FName>& IDs,int32 TeamLevel,int32 PendingChoices);
     void ShowRogueChoices(const FMCRogueChestOffer& Offer);
     void UpdateLevelChoiceHeader(int32 TeamLevel,int32 PendingChoices);
@@ -56,6 +58,7 @@ protected:
     virtual void NativeDestruct() override;
     virtual void BeginDestroy() override;
     virtual void NativeOnInitialized() override;
+    virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
     virtual void BuildPresentationTree() override;
     virtual void ApplyTheme() override;
     virtual void ApplyEditorPreview(float Time) override;
@@ -78,8 +81,12 @@ private:
     void CacheDataTables();
     void UnobserveCardTable();
     void NormalizePresentationLayout();
+    void EnsureStageChoiceCountdown();
+    void UpdateStageChoiceCountdown();
     UPROPERTY(Transient) TObjectPtr<UBorder> PanelBorder;
     UPROPERTY(Transient) TObjectPtr<UBorder> HeaderBorder;
+    UPROPERTY(Transient) TObjectPtr<UBorder> StageCountdownBorder;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> StageCountdownText;
     UPROPERTY() TObjectPtr<UTextBlock> Title;
     UPROPERTY() TObjectPtr<UTextBlock> Subtitle;
     UPROPERTY() TObjectPtr<UHorizontalBox> Cards;
@@ -95,6 +102,8 @@ private:
     UPROPERTY(Transient) TArray<FButtonStyle> ButtonStyles;
     int32 GamepadSelection=0;
     double NextStickNavigationAt=0;
+    double StageChoiceDeadline=0;
+    int32 LastStageChoiceSecond=INDEX_NONE;
     bool bShowingChoices = false;
     bool bNavigationHighlight=false;
     bool bSelectionPending = false;

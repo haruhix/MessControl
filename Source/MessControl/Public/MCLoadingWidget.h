@@ -11,6 +11,7 @@ class UImage;
 class UMCWorldPreloadSubsystem;
 class UProgressBar;
 class UTextBlock;
+class USizeBox;
 
 /** Designer-authored loading screen with a native fallback, shared by gameplay and the front end. */
 UCLASS(Blueprintable)
@@ -47,6 +48,8 @@ protected:
 
 private:
     void BindPresentationTree();
+    void EnsureTipPresentation();
+    void RefreshTips(double ClockSeconds,bool bForceCopy=false);
     FText Text(FName Key,const FText& Russian,const FText& English) const;
     UPROPERTY(Transient) TObjectPtr<UMCWorldPreloadSubsystem> Preparation;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> Title;
@@ -60,6 +63,15 @@ private:
     UPROPERTY(Transient) TObjectPtr<UButton> ReturnButton;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> RetryLabel;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> ReturnLabel;
+    UPROPERTY(Transient) TObjectPtr<UBorder> TipPanel;
+    UPROPERTY(Transient) TObjectPtr<USizeBox> TipWidth;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> TipHeading;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> TipCurrent;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> TipNext;
+    TArray<FText> TipTexts;
+    TWeakObjectPtr<UDataTable> TipTable;
+    FString TipCulture;
+    int32 LastTipCurrent=INDEX_NONE,LastTipNext=INDEX_NONE;
     FText WaitingDetail;
     bool bWaitingForPlayers=false;
     float TargetProgress=0.f;

@@ -425,7 +425,7 @@ void UMCGameplayHUD::BuildPresentationTree()
         const FString N=FString::Printf(TEXT("Tool%d"),Index+1);auto* Card=Panel(FName(N),Tools,Positions[Index],{62,62});
         Box(FName(N+TEXT("Frame")),Card,{0,0},{62,62},EMCUIColorToken::Marine);
         auto* ToolIcon=WidgetTree->ConstructWidget<UMCHUDIcon>(UMCHUDIcon::StaticClass(),FName(N+TEXT("Icon")));ToolIcon->ToolSlot=Index;Place(Card,ToolIcon,{7,6},{48,48});
-        Box(FName(N+TEXT("KeyBG")),Card,{0,0},{18,19},EMCUIColorToken::Cream);Text(FName(N+TEXT("Key")),Card,{4,1},{17,18},FText::AsCultureInvariant(FString::FromInt(Index+1)),11,EMCUIColorToken::Ink);
+        Box(FName(N+TEXT("KeyBG")),Card,{0,0},{18,19},EMCUIColorToken::Cream);Text(FName(N+TEXT("Key")),Card,{4,1},{17,18},FText::AsCultureInvariant(TEXT("↕")),11,EMCUIColorToken::Ink);
     }
     auto* Cooldown=Panel(TEXT("SprayCooldown"),Tools,{136,177},{82,40});Box(TEXT("CooldownBG"),Cooldown,{0,0},{82,29},EMCUIColorToken::Marine);
     Text(TEXT("CooldownValue"),Cooldown,{6,3},{76,24},FText::GetEmpty(),13,EMCUIColorToken::OnMarine);Bar(TEXT("CooldownProgress"),Cooldown,{1,32},{80,4},EMCUIColorToken::Accent);
@@ -1292,10 +1292,14 @@ void UMCGameplayHUD::RefreshState()
         case EMCToolSlot::Spray: ToolName=Inv->HasUpgrade(EMCToolUpgrade::Watergun)?(Inv->bPressureMode?Copy(TEXT("UI.HUD.Tool.WatergunShoot"),LOCTEXT("ToolWatergunShoot","ВОДЯНОЙ ПИСТОЛЕТ · ВЫСТРЕЛ")):Copy(TEXT("UI.HUD.Tool.WatergunHeal"),LOCTEXT("ToolWatergunHeal","ВОДЯНОЙ ПИСТОЛЕТ · ЛЕЧЕНИЕ"))):Copy(TEXT("UI.HUD.Tool.Spray"),LOCTEXT("Spray","СПРЕЙ"));break;
         default: ToolName=Inv->HasUpgrade(EMCToolUpgrade::MeshaBrush)?Copy(TEXT("UI.HUD.Tool.MegaBrush"),LOCTEXT("ToolMegaBrush","МЕГАЩЁТКА")):Inv->bWaterJetUnlocked?Copy(TEXT("UI.HUD.Tool.WaterJet"),LOCTEXT("ToolWaterJet","ВОДОМЁТ")):Copy(TEXT("UI.HUD.Tool.Brush"),LOCTEXT("Brush","ЩЁТКА"));break;
         }
-        SetCopy(TEXT("ToolTitle"),ToolName);
+        const bool ToolGamepad=InputController && InputController->IsUsingGamepad();
+        SetCopy(TEXT("ToolTitle"),ToolGamepad?ToolName:Format(TEXT("UI.HUD.ToolWheelTitle"),LOCTEXT("ToolWheelTitle","КОЛЕСО · {Tool}"),{{TEXT("Tool"),ToolName}}));
         SelectedToolIndex=static_cast<int32>(Inv->Selected);
         for(int32 I=0;I<4;++I) {
             const FString N=FString::Printf(TEXT("Tool%d"),I+1); const bool Selected=uint8(Inv->Selected)==I;
+            static const TCHAR* PadKeys[]={TEXT("←"),TEXT("↑"),TEXT("→"),TEXT("↓")};
+            SetCopy(FName(N+TEXT("Key")),FText::AsCultureInvariant(ToolGamepad?PadKeys[I]:TEXT("↕")));
+            Show(FName(N+TEXT("KeyBG")),ToolGamepad || Selected);Show(FName(N+TEXT("Key")),ToolGamepad || Selected);
             if(auto* Frame=Cast<UImage>(Find(FName(N+TEXT("Frame"))))) MCUIVisualStyle::Image(Frame,GetResolvedTheme(),Palette.Marine,true,Selected);
             if(auto* Key=Cast<UImage>(Find(FName(N+TEXT("KeyBG"))))) MCUIVisualStyle::Image(Key,GetResolvedTheme(),Selected?Palette.Mint:Palette.Cream);
             if(auto* Icon=Cast<UMCHUDIcon>(Find(FName(N+TEXT("Icon")))))
@@ -1317,7 +1321,7 @@ void UMCGameplayHUD::RefreshState()
                 }
             }
         }
-        if(Inv->Selected==EMCToolSlot::Knife && Inv->HasUpgrade(EMCToolUpgrade::Chainsaw)) Hint=Inv->IsChainsawRunning()?Copy(TEXT("UI.HUD.Hint.ChainsawRunning"),LOCTEXT("HintChainsawRunning","БЕНЗОПИЛА ТЯНЕТ ВПЕРЁД · СТЕНА ОСТАНОВИТ · 30 УРОНА")):Copy(TEXT("UI.HUD.Hint.ChainsawStart"),LOCTEXT("HintChainsawStart","ЛКМ · ЗАПУСТИТЬ · ОСТАНОВКА ТОЛЬКО ОБ СТЕНУ"));
+        if(Inv->Selected==EMCToolSlot::Knife && Inv->HasUpgrade(EMCToolUpgrade::Chainsaw)) Hint=Inv->IsChainsawRunning()?Copy(TEXT("UI.HUD.Hint.ChainsawRunning"),LOCTEXT("HintChainsawRunning","БЕНЗОПИЛА ТЯНЕТ ВПЕРЁД · СТЕНА ОСТАНОВИТ")):Copy(TEXT("UI.HUD.Hint.ChainsawStart"),LOCTEXT("HintChainsawStart","ЛКМ · ЗАПУСТИТЬ · ОСТАНОВКА ТОЛЬКО ОБ СТЕНУ"));
         if(Inv->Selected==EMCToolSlot::Spray && Inv->HasUpgrade(EMCToolUpgrade::Watergun)) Hint=Inv->bPressureMode?(Inv->bWaterReloading?Copy(TEXT("UI.HUD.Hint.WatergunReload"),LOCTEXT("HintWatergunReload","ПЕРЕЗАРЯДКА · УДЕРЖИВАЙ ЛКМ ДЛЯ ПРОДОЛЖЕНИЯ     4 · РЕЖИМ")):Copy(TEXT("UI.HUD.Hint.WatergunShoot"),LOCTEXT("HintWatergunShoot","УДЕРЖИВАЙ ЛКМ · АВТОМАТИЧЕСКАЯ СТРЕЛЬБА     4 · РЕЖИМ"))):Copy(TEXT("UI.HUD.Hint.WatergunHeal"),LOCTEXT("HintWatergunHeal","УДЕРЖИВАЙ ЛКМ · ТУШИТЬ И ЛЕЧИТЬ     4 · РЕЖИМ"));
         if(!Inv->IsChainsawRunning()) Hint=Format(TEXT("UI.HUD.Hint.WithBrace"),LOCTEXT("HintWithBrace","{Action}     ПКМ · ДЕРЖАТЬСЯ"),{{TEXT("Action"),Hint}});
         const auto IsFreshOrdinaryFood=[](const AMCFoodActor* Food) {
@@ -1331,12 +1335,14 @@ void UMCGameplayHUD::RefreshState()
         const bool ExplicitFoodTransport=GS->bSingleDayLoop
             ?!HeldNeedsExit && !HasExitPieces && (IsFreshOrdinaryFood(Hero->HeldFood) || Hero->FoodCollection->bCollecting || HasOrdinaryPieces)
             :IsValid(Hero->HeldFood) || Hero->FoodCollection->bCollecting || !Hero->FoodCollection->Pieces.IsEmpty();
-        if(Hero->FoodCollection->bCollecting)
+        if(Hero->FoodCollection->HasNutAmmunition())
+            Hint=Copy(TEXT("UI.HUD.Hint.NutAmmo"),LOCTEXT("HintNutAmmo","ОРЕХ В РУКЕ · ЦЕЛЬСЯ В БОССА · Q — ВЫСТРЕЛ · E — ПОЛОЖИТЬ"));
+        else if(Hero->FoodCollection->bCollecting)
         {
             bool HasWrong=GS->bSingleDayLoop && HasExitPieces;
             for(const auto& Piece:Hero->FoodCollection->Pieces) if(IsValid(Piece) && Piece->IsWrongIngredient()) { HasWrong=true; break; }
-            Hint=HasWrong?Format(TEXT("UI.HUD.Hint.WasteStack"),LOCTEXT("HintWasteStack","СТОПКА {Current}/{Maximum} · МУСОР ЗА БОРТ · Q ПО ОДНОМУ"),{{TEXT("Current"),Hero->FoodCollection->Pieces.Num()},{TEXT("Maximum"),Hero->FoodCollection->EffectiveCapacity()}})
-                :Format(TEXT("UI.HUD.Hint.FoodStack"),LOCTEXT("HintFoodStack","СТОПКА {Current}/{Maximum} · ЦЕЛЬСЯ В ГЛОТКУ · Q ПО ОДНОМУ"),{{TEXT("Current"),Hero->FoodCollection->Pieces.Num()},{TEXT("Maximum"),Hero->FoodCollection->EffectiveCapacity()}});
+            Hint=HasWrong?Format(TEXT("UI.HUD.Hint.WasteStack"),LOCTEXT("HintWasteStack","СТОПКА {Current}/{Maximum} · МУСОР ЗА БОРТ · Q — БРОСИТЬ · УДЕРЖИВАЙ Q — СЕРИЯ"),{{TEXT("Current"),Hero->FoodCollection->Pieces.Num()},{TEXT("Maximum"),Hero->FoodCollection->EffectiveCapacity()}})
+                :Format(TEXT("UI.HUD.Hint.FoodStack"),LOCTEXT("HintFoodStack","СТОПКА {Current}/{Maximum} · ЦЕЛЬСЯ В ГЛОТКУ · Q — БРОСИТЬ · УДЕРЖИВАЙ Q — СЕРИЯ"),{{TEXT("Current"),Hero->FoodCollection->Pieces.Num()},{TEXT("Maximum"),Hero->FoodCollection->EffectiveCapacity()}});
         }
         if(Hero->IsYawning()) Hint=Copy(TEXT("UI.HUD.Hint.Yawn"),LOCTEXT("HintYawn","ЗЕВАНИЕ · WASD + SHIFT · БЕГИ ПРОТИВ ПОТОКА"));
         if(Hero->HeldFood) Hint=GS->bSingleDayLoop && Hero->HeldFood->FoodData.Kind==EMCFoodKind::Spicy?Copy(TEXT("UI.HUD.Hint.PepperThrow"),LOCTEXT("HintPepperThrow","ПЕРЕЦ · Q БРОСИТЬ ЗА БОРТ"))
@@ -1438,7 +1444,8 @@ void UMCGameplayHUD::RefreshState()
         if(Hero->HasFrozenLegs() && Hero->CanWork()) {
             Hint=Inv->Selected==EMCToolSlot::Pickaxe
                 ?Copy(TEXT("UI.HUD.Hint.FrozenLegsPickaxe"),LOCTEXT("HintFrozenLegsPickaxe","НОГИ ВО ЛЬДУ · УДЕРЖИВАЙ ЛКМ КИРКОЙ"))
-                :Copy(TEXT("UI.HUD.Hint.FrozenLegsSwitch"),LOCTEXT("HintFrozenLegsSwitch","НОГИ ВО ЛЬДУ · 2 — КИРКА · УДЕРЖИВАЙ ЛКМ"));
+                :ToolGamepad?Copy(TEXT("UI.HUD.Hint.FrozenLegsSwitchGamepad"),LOCTEXT("HintFrozenLegsSwitchGamepad","НОГИ ВО ЛЬДУ · ↑ — КИРКА · УДЕРЖИВАЙ RT"))
+                    :Copy(TEXT("UI.HUD.Hint.FrozenLegsSwitch"),LOCTEXT("HintFrozenLegsSwitch","НОГИ ВО ЛЬДУ · КОЛЕСО — ВЫБЕРИ КИРКУ · УДЕРЖИВАЙ ЛКМ"));
             double PrisonImpactAt=MAX_dbl;
             for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It)
                 for(const auto& Strike:It->Strikes)

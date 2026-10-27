@@ -55,3 +55,11 @@ Artifacts/HubStationCollision_20261023/Final/**/*.json -text whitespace=cr-at-eo
 Artifacts/HubStationCollision_20261023/Final/*.json -text whitespace=cr-at-eol
 Artifacts/RewardChest_20261023/Final/**/*.json -text whitespace=cr-at-eol
 Artifacts/RewardChest_20261023/Final/*.json -text whitespace=cr-at-eol
+# Preserve byte-exact hashes of curated playtest evidence and animation sources.
+Artifacts/HubFeedback_Batch3_20261026/** -text whitespace=cr-at-eol
+Artifacts/PlaytestBatch4_20261026/** -text whitespace=cr-at-eol
+Artifacts/PlaytestCheckpoint_20261027/** -text whitespace=cr-at-eol
+ArtSource/CharacterAnimation/Glide_20261027/** -text whitespace=cr-at-eol
+ArtSource/Audio/Hub/*.json -text whitespace=cr-at-eol
+ArtSource/Audio/Rewards/** -text whitespace=cr-at-eol
+ArtSource/VFX/TaskCoins_20261026/*.json -text whitespace=cr-at-eol

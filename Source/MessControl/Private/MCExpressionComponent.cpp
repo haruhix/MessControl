@@ -1,5 +1,6 @@
 ﻿#include "MCExpressionComponent.h"
 #include "MCToothCharacter.h"
+#include "MCToothAnimInstance.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCGripComponent.h"
@@ -58,9 +59,11 @@ bool UMCExpressionComponent::CanPlay(const FMCEmoteEntry& Entry) const
 }
 void UMCExpressionComponent::ServerPlayEmote_Implementation(FName Id)
 {
-    if (!Library || Now()<NextEmoteAt) return;
+    if (!Library || (Id==State.Id && Now()<NextEmoteAt)) return;
     const auto* Entry=Library->Entries.FindByPredicate([&](const FMCEmoteEntry& E){return E.Id==Id;});
-    if (!Entry || !CanPlay(*Entry) || (!State.Id.IsNone() && EmoteAlpha()>.01f)) return;
+    if (!Entry || !CanPlay(*Entry)) return;
+    // A valid new selection replaces the current state immediately. Keep only
+    // the short same-ID repeat guard; a looping dance must not lock this menu.
     State.Id=Id; State.StartedAt=Now(); State.StoppedAt=-1; ++State.Serial; NextEmoteAt=Now()+.4;
     Tooth->ForceNetUpdate();
 }
@@ -215,14 +218,24 @@ bool UMCExpressionComponent::UpdateMouthShapes(float Dt,float EmotionStrength,bo
     const float Suction=!bPain?FoodSuctionReaction*.82f:0.f;
     const float Social=!bPain?FMath::Max(SocialDisgust*.38f,SprayReaction*.68f)*(1-Suction):0.f;
     const float MoodWeight=FMath::Clamp(EmotionStrength,0.f,1.f)*(1-SpeechWeight)*(1-Suction-Social);
+    const auto* Anim=Cast<UMCToothAnimInstance>(Mesh->GetAnimInstance());
+    const auto* GlideProfile=Tooth->AnimationProfile.Get();
+    const auto Glide=Anim?Anim->AuthoredGlide:FMCGlideAnimationSample();
+    const UAnimSequence* GlideClip=GlideProfile?(Glide.bStrong?GlideProfile->GlideStrong.Get():GlideProfile->Glide.Get()):nullptr;
+    const float GlideAlpha=!bPain && GlideClip?Glide.Alpha*(1-Suction-Social):0.f;
+    FAnimExtractContext GlideContext(Glide.Time,false);
     const float Alpha=1-FMath::Exp(-18.f*FMath::Max(0.f,Dt));
     // These are complete poses, so convex blending preserves the shared mouth contour.
     // A common smoothing factor preserves sum(weights) <= 1 during every transition.
     for (FName Name:MouthShapes())
     {
         const float Reaction=Name==TEXT("Mouth_Surprise")?FoodSuctionFlinch:Name==TEXT("Mouth_Effort")?1-FoodSuctionFlinch:0.f;
-        const float Target=(Name==Speech?SpeechWeight:0.f)+(Name==Mood?MoodWeight:0.f)
+        const float BaseTarget=(Name==Speech?SpeechWeight:0.f)+(Name==Mood?MoodWeight:0.f)
             +(Reaction*Suction+(Name==TEXT("Mouth_Angry")?Social:0.f))*(1-SpeechWeight);
+        const FName Curve(*(TEXT("MCSlide_")+Name.ToString()));
+        const float Authored=GlideAlpha>.001f?FMath::Clamp(GlideClip->EvaluateCurveData(Curve,GlideContext,false),0.f,1.f):0.f;
+        // The authored reaction occupies only the mouth weight left by speech.
+        const float Target=FMath::Lerp(BaseTarget,(Name==Speech?SpeechWeight:0.f)+Authored*(1-SpeechWeight),GlideAlpha);
         float& Weight=MouthWeights.FindOrAdd(Name); Weight=FMath::Lerp(Weight,Target,Alpha);
         if (Weight<.0001f) Weight=0;
         if (Mesh->GetSkeletalMeshAsset()->FindMorphTarget(Name)) Mesh->SetMorphTarget(Name,Weight);

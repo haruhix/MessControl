@@ -1,0 +1,16 @@
+{
+  "source": "Original deterministic synthesis authored for MessControl",
+  "sample_rate": 48000,
+  "channels": 1,
+  "seconds": 1.15,
+  "first_clink_seconds": 0.4,
+  "clink_offsets": [
+    0.4,
+    0.48,
+    0.56
+  ],
+  "peak_dbfs": -5.036239459875991,
+  "rms_dbfs": -22.81021184972844,
+  "sha256": "5ae0b3897d84aa77156973e31e12e9ea2f3fc4eddc96512ccccd8f32873523aa",
+  "audition_status": "Candidate; listen in gameplay at the common checkpoint before artistic acceptance"
+}

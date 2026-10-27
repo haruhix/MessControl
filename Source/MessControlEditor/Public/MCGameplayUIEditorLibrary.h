@@ -17,6 +17,7 @@ class AMCNutRainEvent;
 class AMCNutBoss;
 class UMCMainMenuWidget;
 class APlayerController;
+class AMCPlayerController;
 
 /** Explicit editor authoring for the approved UI; existing artist trees are preserved unless a narrow repair is requested. */
 UCLASS()
@@ -27,6 +28,10 @@ public:
     /** Save only the specified live PIE world's game window, including HUD, to an E: PNG. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static bool CapturePIEGameWindow(UWorld* World, const FString& OutputFile);
+
+    /** Owned PIE UI fixture: invokes the same controller handler bound to Escape/Menu, without the Editor StopPIE shortcut. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
+    static bool TogglePIEPauseMenu(UWorld* World);
 
     /** Read-only live PIE view state for QA. This editor-only API never exposes gameplay mutators or changes property visibility. */
     UFUNCTION(BlueprintPure, Category="Mess Control|Gameplay UI|Editor")
@@ -41,6 +46,13 @@ public:
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static AMCNutBoss* SpawnPIEMageForSummon(UWorld* World, AMCTongue* Tongue,
         AMCNutRainEvent* Event, FVector NearFloor, int32 Seed=137);
+
+    /** Explicit standalone-PIE initial-stage fixture for recording coffee -> interval -> food.
+     * Requires -MCHubTransientProfile and a ready living local player. Reuses the
+     * current native run configuration; never claims a played/completed nut fight.
+     */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
+    static bool StartPostNutRelaxPreview(AMCPlayerController* PlayerController);
 
     /** Idempotent entry point after Live Coding; refreshes open gameplay widget Details. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")

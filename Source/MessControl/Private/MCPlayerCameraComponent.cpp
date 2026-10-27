@@ -1,5 +1,6 @@
 #include "MCPlayerCameraComponent.h"
 #include "MCToothCharacter.h"
+#include "MCGameUserSettings.h"
 #include "MCToothStatusComponent.h"
 #include "MCRewardChest.h"
 #include "Engine/World.h"
@@ -97,10 +98,12 @@ void UMCPlayerCameraComponent::GetSpectatorView(const AMCToothCharacter* Target,
     const bool Reset=!State.bInitialized || FVector::DistSquared(Position,State.Focus)>FMath::Square(1400.f);
     const float Dt=FMath::Max(0.f,DeltaTime);
     const float Speed=FMath::Clamp(Target->FollowSpeed,1.f,20.f);
-    const float Blend=1.f-FMath::Exp(-Speed*Dt);
+    const auto* Preferences=UMCGameUserSettings::Get();
+    const bool bSmoothCamera=Preferences && Preferences->GetCameraSmoothingEnabled();
+    const float Blend=bSmoothCamera?1.f-FMath::Exp(-Speed*Dt):1.f;
     State.Focus=Reset?Position:FMath::Lerp(State.Focus,Position,Blend);
     Orbit.Pitch=FMath::Clamp(Orbit.Pitch,-85.,85.); Orbit.Roll=0;
-    State.Rotation=Reset?Orbit:FMath::RInterpTo(State.Rotation,Orbit,Dt,Speed);
+    State.Rotation=Reset || !bSmoothCamera?Orbit:FMath::RInterpTo(State.Rotation,Orbit,Dt,Speed);
     Distance=FMath::Clamp(Distance,250.f,1600.f);
     State.Distance=Reset?Distance:FMath::Lerp(State.Distance,Distance,Blend);
     // Match the ordinary free orbit: upward looking never swings the eye below the floor.
@@ -121,7 +124,7 @@ void UMCPlayerCameraComponent::GetSpectatorView(const AMCToothCharacter* Target,
             FCollisionShape::MakeSphere(Radius),Query)) Safe=Hit.Location;
     }
     const float Limit=float(FVector::Distance(Origin,Safe));
-    if(Reset || State.SafeArmLength<0.f) State.SafeArmLength=Limit;
+    if(!bSmoothCamera || Reset || State.SafeArmLength<0.f) State.SafeArmLength=Limit;
     // Retract immediately; only outward travel is smoothed, as on the ordinary camera arm.
     State.SafeArmLength=FMath::Min(Limit,FMath::Lerp(State.SafeArmLength,Limit,1.f-FMath::Exp(-12.f*Dt)));
     View=FMinimalViewInfo();

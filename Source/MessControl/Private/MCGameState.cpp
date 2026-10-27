@@ -46,6 +46,8 @@ void AMCGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
     DOREPLIFETIME(AMCGameState,bLobbyWaiting);
     DOREPLIFETIME(AMCGameState,bTutorialActive);
     DOREPLIFETIME(AMCGameState,LobbyLoadedPlayers);
+    DOREPLIFETIME(AMCGameState,LobbyParticipantPlayers);
+    DOREPLIFETIME(AMCGameState,GameplayLoadId);
     DOREPLIFETIME(AMCGameState, RunSettings);
     DOREPLIFETIME(AMCGameState,StepStartedAt); DOREPLIFETIME(AMCGameState,PreviousStepFailed);
     DOREPLIFETIME(AMCGameState, bDevManualEvents);

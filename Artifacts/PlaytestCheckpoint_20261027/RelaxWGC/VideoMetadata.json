@@ -1,0 +1,43 @@
+{
+  "video": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Relax_Complete_090258.mp4",
+  "metadata": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Relax_Complete_090258.VideoMetadata.json",
+  "raw_ffprobe": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Relax_Complete_090258.VideoMetadata.ffprobe.json",
+  "measured_utc": "2026-10-27T00:06:12.988775+00:00",
+  "width": 1286,
+  "height": 760,
+  "decoded_frame_count": 857,
+  "timestamped_frame_count": 857,
+  "first_pts_seconds": 0.0,
+  "last_pts_seconds": 33.933333,
+  "measured_pts_span_seconds": 33.933333,
+  "measured_average_fps": 25.225933450156518,
+  "measured_median_gap_seconds": 0.03333300000000072,
+  "measured_max_gap_seconds": 0.16666599999999976,
+  "measured_min_gap_seconds": 0.03333299999999895,
+  "gaps_over_100ms": 5,
+  "gaps_over_250ms": 0,
+  "format_duration_seconds": 33.966667,
+  "stream_reported_avg_frame_rate": "25710/1019",
+  "stream_reported_nominal_frame_rate": "30/1",
+  "timestamps_strictly_increasing": true,
+  "capture_metadata": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Relax_Complete_090258.Capture.json",
+  "final_recorder_progress": {
+    "frame": "857",
+    "fps": "25.18",
+    "stream_0_0_q": "18.0",
+    "bitrate": "2085.9kbits/s",
+    "total_size": "8856220",
+    "out_time_us": "33966667",
+    "out_time_ms": "33966667",
+    "out_time": "00:00:33.966667",
+    "dup_frames": "0",
+    "drop_frames": "0",
+    "speed": "0.998x",
+    "progress": "end"
+  },
+  "method": "Decoded frame best_effort_timestamp_time gaps, not nominal frame rate or configured capture cap",
+  "limitations": [
+    "This measures encoded frame timestamps, not the native simulation FPS or whether every rendered frame changed.",
+    "Visual content and synchronization with gameplay telemetry require separate review."
+  ]
+}

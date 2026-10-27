@@ -16,3 +16,26 @@ Artifacts/Logs/
 # Local encoder manifests reference untracked frames under Saved/.
 Artifacts/*/Frames.ffconcat
 *.log
+
+# Generated validation media remain local on E:. Keep concise reports in Git.
+/Artifacts/**/*.[pP][nN][gG]
+/Artifacts/**/*.[jJ][pP][gG]
+/Artifacts/**/*.[jJ][pP][eE][gG]
+/Artifacts/**/*.[wW][eE][bB][pP]
+/Artifacts/**/*.[gG][iI][fF]
+/Artifacts/**/*.[bB][mM][pP]
+/Artifacts/**/*.[tT][gG][aA]
+/Artifacts/**/*.[eE][xX][rR]
+/Artifacts/**/*.[mM][pP]4
+/Artifacts/**/*.[mM][oO][vV]
+/Artifacts/**/*.[mM][kK][vV]
+/Artifacts/**/*.[wW][eE][bB][mM]
+/Artifacts/**/*.[aA][vV][iI]
+/Artifacts/**/*.[wW][aA][vV]
+/Artifacts/**/*.[mM][pP]3
+/Artifacts/**/*.[fF][lL][aA][cC]
+/Artifacts/**/*.[oO][gG][gG]
+/Artifacts/**/*.[aA][aA][cC]
+/Artifacts/**/*.[zZ][iI][pP]
+/Artifacts/**/*.7z
+/Artifacts/**/*.ffconcat

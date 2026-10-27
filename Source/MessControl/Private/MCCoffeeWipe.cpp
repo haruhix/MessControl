@@ -1,4 +1,5 @@
 #include "MCCoffeeWipe.h"
+#include "MCBrushCleaningBalance.h"
 
 bool FMCCoffeeWipe::WetAt(const TArray<uint8>& Mask,FVector2D UV,int32 Seed,bool bTile,uint8 Threshold)
 {
@@ -76,7 +77,7 @@ bool FMCCoffeeWipe::Stroke(TArray<uint8>& Mask,FVector2D From,FVector2D To,float
     const FVector2D Segment=To-From;
     const double Length=Segment.SizeSquared();
     const float Exposure=FMath::Min(Seconds,.1f)*FMath::Clamp(Rate,1.f,2.f);
-    const float Strength=1-FMath::Exp(-12*Exposure);
+    const float Strength=1-FMath::Exp(-MCBrushCleaningBalance::PuddleDissolvePerSecond*Exposure);
     bool Changed=false;
     for (int32 Y=0;Y<Size;++Y) for (int32 X=0;X<Size;++X)
     {
@@ -90,7 +91,7 @@ bool FMCCoffeeWipe::Stroke(TArray<uint8>& Mask,FVector2D From,FVector2D To,float
         // Keep sub-byte coverage on the server. Rounding every rendered frame
         // otherwise erases the same contact faster at a higher packaged FPS.
         const float Coverage=Value+(Fractional?(*Fractional)[Index]:0.f);
-        const float Reduced=Fractional?Coverage*FMath::Exp(-12*Exposure*Weight):Coverage*(1-Strength*Weight);
+        const float Reduced=Fractional?Coverage*FMath::Exp(-MCBrushCleaningBalance::PuddleDissolvePerSecond*Exposure*Weight):Coverage*(1-Strength*Weight);
         const uint8 Next=FMath::Clamp(FMath::FloorToInt(Reduced),0,255);
         if(Fractional) (*Fractional)[Index]=Reduced-Next;
         Changed|=Value!=Next; Value=Next;

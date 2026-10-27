@@ -1,0 +1,50 @@
+{
+  "source": "E:\\CodexWork\\Checkpoint_20261027\\Coins\\Run_20261026T233332Z_314f6b\\Audio\\TaskCoins_ActualGameOutput.wav",
+  "sha256": "22f3ca61567d2f2d2b4f29ec1b907a495068ab5e05bb45b4f1c6662e604ebd82",
+  "riff_wave_header_valid": true,
+  "compression": "NONE",
+  "channels": 2,
+  "sample_rate_hz": 48000,
+  "bits_per_sample": 16,
+  "frames": 261120,
+  "seconds": 5.44,
+  "sample_count": 522240,
+  "nonzero_samples": 521151,
+  "nonzero_sample_fraction": 0.9979147518382353,
+  "normalized_rms": 0.016209645851123132,
+  "rms_dbfs": -35.80452947055981,
+  "normalized_peak": 0.098480224609375,
+  "peak_dbfs": -20.13301939111626,
+  "clipped_samples": 0,
+  "channel_normalized_rms": [
+    0.014292734916363459,
+    0.017922694157080057
+  ],
+  "has_nonzero_signal": true,
+  "signal_verification_passed": true,
+  "listened_to": false,
+  "audio_accepted": false,
+  "claim": "Native game master output has nonzero PCM. No audition, coin-SFX identity, mix-quality or exact audiovisual synchronization acceptance is claimed.",
+  "microphone": "No microphone recording requested; native AudioMixer master-output recording per source and runtime report.",
+  "audio_settings_original": {
+    "EnableGameSound": false,
+    "bAllowBackgroundAudio": false
+  },
+  "audio_settings_enabled": {
+    "EnableGameSound": true,
+    "bAllowBackgroundAudio": true
+  },
+  "audio_settings_restored": {
+    "EnableGameSound": false,
+    "bAllowBackgroundAudio": false
+  },
+  "exact_audio_settings_restoration_verified": true,
+  "muxed": false,
+  "mux_reason": "Original WAV retained separately. No common absolute wall-clock recording anchor was stored; no sample-accurate alignment is invented.",
+  "first_captured_game_seconds": 14.217300303280354,
+  "audio_start_game_seconds": 14.34320130199194,
+  "audio_start_minus_first_capture_game_seconds": 0.125900998711586,
+  "game_time_offset_is_not_sample_accurate_wall_alignment": true,
+  "prior_silent_wav": "E:\\DEVGAME\\MessControl\\Artifacts\\PlaytestCheckpoint_20261027\\Coins\\Audio_Unaccepted_Silent.wav",
+  "prior_silent_sha256": "29e325de57f474180ec8e5d5c7667a2fc68d829250b29c864e2695cccb0dea7a"
+}

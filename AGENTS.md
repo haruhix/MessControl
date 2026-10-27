@@ -43,3 +43,10 @@ Every commit description and pull request description must include a concise cha
 - Choose techniques that can be reproduced in this project's Unreal version with available tools and assets. Explain which visual elements to adapt, the required assets, and any deferred parts.
 - Keep a reusable reference library in `Docs/VFXReferences.md`: source links, applicable effects, implementation notes, and the status of techniques actually tried in MessControl.
 - Evaluate effects in the gameplay camera and lighting, including clear danger cues, material identity, timing and particle/transparency cost. Use short preview videos when motion is important and recording is practical.
+
+# Versioned validation evidence
+
+- Store new recordings, screenshots, frame sequences, renders and intermediate validation media under `E:/CodexWork/MessControl/Validation/<task>/` or another explicit task directory on `E:`. Commit concise Markdown/JSON results and source recipes instead of generated media.
+- New media under `Artifacts/` is ignored. Version selected review media only when the user explicitly asks to include those media files in Git; a request to record a preview alone is not a request to version its output.
+- Keep required game resources in `Content/` and necessary editable masters in their source folders. Do not classify runtime assets as disposable without source and saved-asset reference checks.
+- Preserve local files when excluding generated media from an unpublished commit. Existing tracked media and published LFS history are a separate migration; do not rewrite or purge them during an ordinary commit/push.

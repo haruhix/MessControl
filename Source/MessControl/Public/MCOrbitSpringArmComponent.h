@@ -5,7 +5,7 @@
 
 class UMeshComponent;
 
-/** Retract before blocking geometry; ease back out after the obstruction clears. */
+/** Retract before blocking geometry; optional outward easing follows local camera preferences. */
 UCLASS()
 class MESSCONTROL_API UMCOrbitSpringArmComponent : public USpringArmComponent
 {
@@ -14,6 +14,7 @@ public:
     void SetWallProbeActive(bool bActive) { bWallProbeActive=bActive; }
     void SetIgnoredViewActor(AActor* Actor) { IgnoredViewActor=Actor; }
     AActor* GetIgnoredViewActor() const { return IgnoredViewActor.Get(); }
+    void SetRecoverySmoothingEnabled(bool bEnabled) { bRecoverySmoothingEnabled=bEnabled; }
     // The wall aperture may bypass a view-ray obstruction, but never the camera's own volume.
     void SetRevealedWall(UMeshComponent* Wall, bool bReveal);
 protected:
@@ -22,6 +23,7 @@ private:
     float SafeArmLength=-1.f;
     FVector LastOrigin=FVector::ZeroVector;
     bool bWallProbeActive=false;
+    bool bRecoverySmoothingEnabled=false;
     TArray<TWeakObjectPtr<UMeshComponent>> RevealedWalls;
     TWeakObjectPtr<AActor> IgnoredViewActor;
 };

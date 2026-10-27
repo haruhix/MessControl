@@ -1,6 +1,7 @@
 #include "MCInventoryComponent.h"
 #include "MCPerkComponent.h"
 #include "MCToothCharacter.h"
+#include "MCPlayerController.h"
 #include "MCHubBasketball.h"
 #include "MCFishingRodComponent.h"
 #include "MCMeleeCombo.h"
@@ -38,6 +39,7 @@
 #include "Net/UnrealNetwork.h"
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
+#include "TimerManager.h"
 
 UMCInventoryComponent::UMCInventoryComponent()
 {
@@ -62,7 +64,11 @@ void UMCInventoryComponent::BeginPlay()
     if(Hero && (!Hero->Inventory || Hero->Inventory->GetOwner()!=Hero)) Hero->Inventory=this;
     Settings=Profile.LoadSynchronous();
     if(!Settings) Settings=NewObject<UMCEquipmentProfile>(this);
-    if(GetOwner()->HasAuthority()) WaterAmmo=WaterMagazineCapacity();
+    if(GetOwner()->HasAuthority()) {
+        WaterAmmo=WaterMagazineCapacity();
+        SelectionReceipt.Slot=Selected;SelectionReceipt.Revision=1;
+    }
+    if(!SelectionPrediction.bHasReceipt) SelectionPrediction.AuthoritativeSlot=Selected;
     if(Hero) {OriginalBrushMesh=Hero->Brush->GetStaticMesh();OriginalBrushTransform=Hero->Brush->GetRelativeTransform();}
     // Socket data also belongs to authority-only servers without a visual Tool.
     if(!Settings->SprayMesh.IsNull()) Settings->SprayMesh.LoadSynchronous();
@@ -89,7 +95,91 @@ void UMCInventoryComponent::BeginPlay()
 }
 void UMCInventoryComponent::ServerSelect_Implementation(EMCToolSlot Slot)
 {
-    if(uint8(Slot)>uint8(EMCToolSlot::Spray) || !Hero || !Hero->CanWork() || !Hero->CanSwitchTool()) return;
+    ApplyAuthoritySelection(Slot);
+    // Preserve the last processed request even if an authority/Blueprint
+    // selection coalesces into the same replication update as its response.
+    PublishSelectionReceipt(LastProcessedSelectionRequest);
+}
+bool UMCInventoryComponent::CanRequestSelection() const
+{
+    if(!Hero || !Hero->IsLocallyControlled() || !Hero->CanWork() || !Hero->CanSwitchTool() || Hero->IsArenaArrivalHeld()) return false;
+    const auto* PC=Cast<APlayerController>(Hero->GetController());
+    const auto* Player=Cast<AMCPlayerController>(PC);
+    return !(PC && (PC->bShowMouseCursor || PC->IsMoveInputIgnored() || PC->IsLookInputIgnored()))
+        && !(Player && (Player->IsRewardInteractionActive() || Player->IsWardrobeOpen() || Player->IsHubShopOpen()));
+}
+bool UMCInventoryComponent::RequestSelect(EMCToolSlot Slot)
+{
+    if(uint8(Slot)>uint8(EMCToolSlot::Spray) || !CanRequestSelection()) return false;
+    if(Hero->HasAuthority()) {ServerSelect(Slot);return true;}
+    const uint32 RequestId=SelectionPrediction.Request(Slot);
+    if(Selected!=Slot) {
+        // Client cancellation is cosmetic/input-only. Damage, inventory drops,
+        // rod recovery and every attack/reload deadline stay on authority.
+        CancelPreviousSwingForSelection();Hero->bPrimaryHeld=false;
+        Hero->bBrushing=false;Hero->bHandling=false;Hero->bSelfCare=false;
+        Selected=Slot;RefreshMesh();
+    }
+    ServerRequestSelection(Slot,RequestId);return true;
+}
+void UMCInventoryComponent::ServerRequestSelection_Implementation(EMCToolSlot Slot,uint32 RequestId)
+{
+    if(RequestId && (!LastProcessedSelectionRequest || FMCToolSelectionPrediction::IsNewer(RequestId,LastProcessedSelectionRequest))) {
+        LastProcessedSelectionRequest=RequestId;ApplyAuthoritySelection(Slot);
+    }
+    // Rejection also acknowledges the actual slot; same-slot state alone would
+    // never correct an optimistic owner. Revision makes every response visible.
+    PublishSelectionReceipt(LastProcessedSelectionRequest);
+}
+void UMCInventoryComponent::PublishSelectionReceipt(uint32 RequestId)
+{
+    if(!GetOwner() || !GetOwner()->HasAuthority()) return;
+    SelectionReceipt.Slot=Selected;SelectionReceipt.RequestId=RequestId;++SelectionReceipt.Revision;
+    // This component and Hero's reliable swing multicast share one actor
+    // channel. The ordered ACK fences old swings, including an A -> B -> A.
+    if(GetOwner()->GetNetConnection()) ClientConfirmSelection(SelectionReceipt);
+    GetOwner()->ForceNetUpdate();
+}
+void UMCInventoryComponent::OnRep_SelectionReceipt()
+{
+    ApplySelectionReceipt(SelectionReceipt);
+}
+void UMCInventoryComponent::ClientConfirmSelection_Implementation(const FMCToolSelectionReceipt& Receipt)
+{
+    ApplySelectionReceipt(Receipt);
+    // A property may already have applied this revision. Only this reliable
+    // callback can retire the swing fence, even after local menu/death cancel.
+    if(uint8(Receipt.Slot)<=uint8(EMCToolSlot::Spray)) SelectionPrediction.AcknowledgeOrdered(Receipt.RequestId);
+}
+bool UMCInventoryComponent::IsSelectionPresentationFenced() const
+{
+    return Hero && !Hero->HasAuthority() && Hero->IsLocallyControlled() && SelectionPrediction.OutstandingSwingFence;
+}
+void UMCInventoryComponent::ApplySelectionReceipt(const FMCToolSelectionReceipt& Receipt)
+{
+    EMCToolSlot Visible=Selected;
+    if(!SelectionPrediction.Receive(Receipt,Visible)) return;
+    if(!Hero || !Hero->IsLocallyControlled()) {
+        // Initial owner data can precede Controller/BeginPlay. A former owner's
+        // late ACK must likewise never overwrite a current observer's Selected.
+        bDeferredSelectionReceipt=true;return;
+    }
+    bDeferredSelectionReceipt=false;
+    if(Visible!=Selected) {
+        CancelPreviousSwingForSelection();Selected=Visible;RefreshMesh();
+    }
+}
+void UMCInventoryComponent::CancelPreviousSwingForSelection()
+{
+    if(!Hero) return;
+    MCMeleeCombo::Reset(Hero);
+    Hero->GetWorldTimerManager().ClearTimer(Hero->SwingTimer);
+    Hero->SwingContactEndsAt=0;Hero->SwingStartedAt=-100;Hero->CalculusTarget=nullptr;
+    // Deliberately keep NextSwingTime: swapping cannot buy an earlier attack.
+}
+void UMCInventoryComponent::ApplyAuthoritySelection(EMCToolSlot Slot)
+{
+    if(uint8(Slot)>uint8(EMCToolSlot::Spray) || !Hero || !Hero->CanWork() || !Hero->CanSwitchTool() || Hero->IsArenaArrivalHeld()) return;
     if(Hero->FishingRod && Hero->FishingRod->bEquipped) Hero->FishingRod->ServerSetEquipped(false);
     if(Selected==Slot) {
         if(Slot==EMCToolSlot::Spray && HasUpgrade(EMCToolUpgrade::Watergun)) {
@@ -100,9 +190,9 @@ void UMCInventoryComponent::ServerSelect_Implementation(EMCToolSlot Slot)
     }
     CancelUpgradeUse();
     Hero->FoodCollection->Stop();
-    MCMeleeCombo::Reset(Hero);
+    CancelPreviousSwingForSelection();
     Hero->ServerSetPrimary(false); Hero->ResetContact(); Hero->bSelfCare=false;
-    Selected=Slot; GetOwner()->ForceNetUpdate();
+    Selected=Slot;RefreshMesh();GetOwner()->ForceNetUpdate();
 }
 void UMCInventoryComponent::UnlockWaterJet()
 { if(GetOwner()->HasAuthority()) { bWaterJetUnlocked=true; GetOwner()->ForceNetUpdate(); } }
@@ -577,6 +667,23 @@ void UMCInventoryComponent::RefreshMesh()
 void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* Tick)
 {
     Super::TickComponent(Dt,Type,Tick);
+    if(Hero && !Hero->HasAuthority()) {
+        if(!Hero->IsLocallyControlled()) {
+            // Selected now belongs to observer replication. Never overwrite a
+            // newly received slot with this former owner's cached receipt.
+            SelectionPrediction.ForgetOwnership();
+        } else {
+            if(bDeferredSelectionReceipt) {
+                bDeferredSelectionReceipt=false;
+                const EMCToolSlot Visible=SelectionPrediction.PendingRequestId?SelectionPrediction.RequestedSlot:SelectionPrediction.AuthoritativeSlot;
+                if(Visible!=Selected) {CancelPreviousSwingForSelection();Selected=Visible;RefreshMesh();}
+            }
+            if(SelectionPrediction.PendingRequestId && !CanRequestSelection()) {
+                EMCToolSlot Visible=Selected;SelectionPrediction.Cancel(Visible);
+                if(Visible!=Selected) {CancelPreviousSwingForSelection();Selected=Visible;RefreshMesh();}
+            }
+        }
+    }
     UpdateSprayAim();
     TickUpgrades(Dt);
     if(Hero && GetOwner()->HasAuthority()) {
@@ -589,11 +696,13 @@ void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorCompone
             if(Now()-LastSprayAt>.8 && Hero->SoundPalette) Hero->SoundPalette->Play(this,TEXT("Brush"),Target->GetActorLocation());
             LastSprayAt=Now(); SprayReadyAt=0;
         }
-        if (!Fire && !Target)
-            if (auto* Tooth=FindToothRepairTarget(); Tooth && Tooth->Status->RepairWithTool(
-                    FMath::Clamp(Dt,0.f,.1f)*25.f*(HasUpgrade(EMCToolUpgrade::Watergun)?3.f:1.f),Hero)) {
+        if (!Fire && !Target) {
+            FHitResult ToothContact;
+            if (auto* Tooth=FindToothRepairTarget(&ToothContact); Tooth && Tooth->Status->RepairWithTool(
+                    FMath::Clamp(Dt,0.f,.1f)*25.f*(HasUpgrade(EMCToolUpgrade::Watergun)?3.f:1.f),Hero,&ToothContact)) {
                 LastSprayAt=Now(); SprayReadyAt=0;
             }
+        }
         ReactPlayersToSpray();
     }
     if(!Hero || !Tool) return;
@@ -623,7 +732,9 @@ void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorCompone
 }
 void UMCInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-    Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(UMCInventoryComponent,Selected);
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    DOREPLIFETIME_CONDITION(UMCInventoryComponent,Selected,COND_SkipOwner);
+    DOREPLIFETIME_CONDITION(UMCInventoryComponent,SelectionReceipt,COND_OwnerOnly);
     DOREPLIFETIME(UMCInventoryComponent,bChainsawRunning);
     DOREPLIFETIME(UMCInventoryComponent,bWaterJetUnlocked); DOREPLIFETIME(UMCInventoryComponent,SprayReadyAt); DOREPLIFETIME(UMCInventoryComponent,LastSprayAt);
     DOREPLIFETIME(UMCInventoryComponent,HealingTarget);DOREPLIFETIME(UMCInventoryComponent,FireTarget);

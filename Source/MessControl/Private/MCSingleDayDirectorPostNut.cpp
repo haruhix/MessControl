@@ -1,4 +1,5 @@
 #include "MCSingleDayDirector.h"
+#include "MCCoffeeFlood.h"
 #include "MCCataclysmEvent.h"
 #include "MCNutRainEvent.h"
 #include "MCGameDirector.h"
@@ -36,8 +37,47 @@ void AMCSingleDayDirector::BeginPostNutMeal()
     if(!MealServices) {Fail(TEXT("Не удалось начать приём пищи после орехового события."));return;}
     MealServices->SetOwner(this);MealServices->InitializeEventServices(Mechanics,GS?GS->RunSeed:41);
     InterludeEndsAt=StageEndsAt=0;
-    Record(TEXT("Ореховый бой завершён: второй Relax, порции 5 → 8 → 9; без кофе и случайных опасных событий"));
+    MealPortionNumber=MealPortionTarget=MealPortionSpawned=0;
+    Stage=EMCSingleDayStage::PostNutCoffee;
+    OpeningCoffee=GetWorld()->SpawnActor<AMCCoffeeFlood>();
+    if(!OpeningCoffee) {Fail(TEXT("Не удалось создать кофейную волну второго Relax."));return;}
+    OpeningCoffee->SetOwner(this);OpeningCoffee->ResidueBatch=PostNutMealBatch;
+    OpeningCoffee->Start(Mechanics);
+    if(!OpeningCoffee->IsActive()) {Fail(TEXT("Не удалось запустить кофейную волну второго Relax."));return;}
+    // Keep the saved visual profile; limit only this drink's runtime copy.
+    OpeningCoffee->WaterSettings.Cycles=1;OpeningCoffee->Waves=1;
+    OpeningCoffee->Seconds=OpeningCoffee->WaterSettings.CycleSeconds();
+    OpeningCoffee->ForceNetUpdate();
+    Record(FString::Printf(TEXT("Второй Relax: одна кофейная волна; через %.1f с после её конца начинается подача еды. Грязь остаётся для совместной уборки"),Settings->AfterNutCoffeeToFoodSeconds));
+    Publish(TEXT("КОФЕЙНАЯ ВОЛНА"),TEXT("Держитесь за опору. После волны и короткого интервала начнётся подача еды; очищать язык и зубы можно во время приёма пищи."));
+    ForceNetUpdate();
+}
+
+void AMCSingleDayDirector::TickPostNutCoffee()
+{
+    if(!IsValid(OpeningCoffee)) {Fail(TEXT("Кофейная волна второго Relax исчезла до завершения."));return;}
+    // The wave's own Tick commits residue and its terminal signal. The nominal
+    // deadline alone never releases food or clears any resulting cleanup debt.
+    if(OpeningCoffee->IsActive()) return;
+    OpeningCoffee->Destroy();OpeningCoffee=nullptr;
+    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    Stage=EMCSingleDayStage::PostNutCoffeePause;StageEndsAt=Now+Settings->AfterNutCoffeeToFoodSeconds;
+    Record(FString::Printf(TEXT("Кофейная волна завершена: интервал до еды %.1f с; уборка доступна и не задерживает подачу"),Settings->AfterNutCoffeeToFoodSeconds));
+    Publish(TEXT("СКОРО ПРИЁМ ПИЩИ"),TEXT("Кофе закончился. После короткого интервала начнёт падать еда. Грязь можно очищать во время приёма пищи."));
+    ForceNetUpdate();
+    TickPostNutCoffeePause();
+}
+
+void AMCSingleDayDirector::TickPostNutCoffeePause()
+{
+    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    if(Now<StageEndsAt) return;
     BeginPostNutPortion(0);
+    // The first ingredient is due when this interval ends. Subsequent drops
+    // retain their existing interval and ordinary pipeline safety admission.
+    if(!bStopped && Stage==EMCSingleDayStage::PostNutMeal) TickPostNutMeal();
 }
 
 void AMCSingleDayDirector::BeginPostNutPortion(int32 Portion)
@@ -61,7 +101,7 @@ void AMCSingleDayDirector::TickPostNutMeal()
     const auto CurrentFood=MCMeasureFoodPipeline(GetWorld());
     int32 Workers=0;
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->GetController() && It->Status && It->Status->IsAlive()) ++Workers;
-    const int32 WholeLimit=FMath::Clamp(6+2*(FMath::Max(1,Workers)-1),6,12);
+    const int32 WholeLimit=FMath::Max(MealPortionTarget,FMath::Clamp(6+2*(FMath::Max(1,Workers)-1),6,12));
     if(MealPortionSpawned<MealPortionTarget && Time>=NextMealDropAt && CurrentFood.Whole<WholeLimit
         && CurrentFood.Fragments<48 && !CurrentFood.bThroatBusy) {
         const FName Row=ChooseOpeningFood();++MealAttempts;
@@ -73,9 +113,10 @@ void AMCSingleDayDirector::TickPostNutMeal()
     }
     const bool Final=MealPortionNumber>=MealPortionCount;
     const auto Food=MCMeasureFoodPipeline(GetWorld(),Final?INDEX_NONE:PostNutMealBatch);
+    const int32 DisposalDebt=Food.bThroatBusy || Food.ThroatQueued>0?1:0;
     const int32 Dirt=MCSingleDayDirectorPrivate::CountDirtyFloorSurfaces(GetWorld());
     const int32 Teeth=MCSingleDayDirectorPrivate::CountDirtyAvailableArenaTeeth(GetWorld());
-    if(MealPortionSpawned>=MealPortionTarget && Food.OutstandingActors==0 && Food.UnresolvedHazards==0) {
+    if(MealPortionSpawned>=MealPortionTarget && Food.OutstandingActors==0 && Food.UnresolvedHazards==0 && DisposalDebt==0) {
         if(Dirt==0 && Teeth==0) {
             BeginStageReward(FName(*FString::Printf(TEXT("PostNutPortion_%d"),MealPortionNumber)),
                 Final?EMCSingleDayRewardContinuation::PostNutMint:EMCSingleDayRewardContinuation::PostNutPortion);
@@ -83,16 +124,16 @@ void AMCSingleDayDirector::TickPostNutMeal()
         }
     }
     const int32 Pending=FMath::Max(0,MealPortionTarget-MealPortionSpawned);
-    const int32 Left=Pending+Food.OutstandingActors+Food.UnresolvedHazards+Dirt+Teeth;
+    const int32 Left=Pending+Food.OutstandingActors+Food.UnresolvedHazards+Dirt+Teeth+DisposalDebt;
     Publish(TEXT("ПЕРЕДЫШКА ПОСЛЕ ОРЕХОВ"),FString::Printf(
-        TEXT("Порция %d/%d · подано %d/%d. Еда: %d · пятна: %d · грязные зубы: %d. Q — закинуть фрагмент в глотку.%s"),
-        MealPortionNumber,MealPortionCount,MealPortionSpawned,MealPortionTarget,Food.OutstandingActors,Dirt,Teeth,
+        TEXT("Порция %d/%d · подано %d/%d. Еда: %d · пятна: %d · грязные зубы: %d · глотка: %d. Q — закинуть фрагмент в глотку.%s"),
+        MealPortionNumber,MealPortionCount,MealPortionSpawned,MealPortionTarget,Food.OutstandingActors,Dirt,Teeth,DisposalDebt,
         TEXT(" Очистите язык и зубы: после завершённой порции появится общий сундук с бустером.")),
         Left,FMath::Max(GS->TasksTotal,Left));
     if(Time>=NextMealDiagnosticAt) {
         NextMealDiagnosticAt=Time+10;
-        UE_LOG(LogTemp,Display,TEXT("MC_POST_NUT_MEAL portion=%d/%d served=%d/%d food=%d hazards=%d floor=%d teeth=%d"),
-            MealPortionNumber,MealPortionCount,MealPortionSpawned,MealPortionTarget,Food.OutstandingActors,Food.UnresolvedHazards,Dirt,Teeth);
+        UE_LOG(LogTemp,Display,TEXT("MC_POST_NUT_MEAL portion=%d/%d served=%d/%d food=%d hazards=%d floor=%d teeth=%d throat_queued=%d throat_busy=%d"),
+            MealPortionNumber,MealPortionCount,MealPortionSpawned,MealPortionTarget,Food.OutstandingActors,Food.UnresolvedHazards,Dirt,Teeth,Food.ThroatQueued,Food.bThroatBusy);
     }
 }
 

@@ -151,6 +151,21 @@ int32 AMCHubGameState::GetReadyCount() const
     return Count;
 }
 
+int32 AMCHubGameState::GetLoadedCount() const
+{
+    int32 Count = 0;
+    for (const auto& Entry : Players) Count += IsParticipant(Entry.Player) && Entry.bLoaded ? 1 : 0;
+    return Count;
+}
+
+bool AMCHubGameState::HasLoadedScene(const APlayerState* Player) const
+{
+    return IsParticipant(Player) && Players.ContainsByPredicate([Player](const FMCHubPlayerReadiness& Entry)
+    {
+        return Entry.Player == Player && Entry.bLoaded;
+    });
+}
+
 bool AMCHubGameState::AreAllReady() const
 {
     const int32 Count = GetParticipantCount();

@@ -20,6 +20,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCTutorialDirector.h"
+#include "MCThroat.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -181,13 +182,16 @@ struct FFixture
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPostNutRelaxDefaultsTest,
-    "MessControl.SingleDay.PostNutRelax.PreservesOpeningAndUsesFiveEightNine",
+    "MessControl.SingleDay.PostNutRelax.FiveThenCoffeeIntervalAndTen",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCPostNutRelaxDefaultsTest::RunTest(const FString&)
 {
     const auto* Profile=GetDefault<UMCSingleDayProfile>();
-    TestTrue(TEXT("The existing opening contract remains 3/5/8"),Profile->OpeningMealPortions==TArray<int32>({3,5,8}));
-    TestTrue(TEXT("Post-nut servings are whole ingredient portions 5/8/9"),Profile->AfterNutMealPortions==TArray<int32>({5,8,9}));
+    TestTrue(TEXT("The opening contains five whole items in one meal"),Profile->OpeningMealPortions==TArray<int32>({5}));
+    TestTrue(TEXT("Post-nut serving contains ten whole items in one meal"),Profile->AfterNutMealPortions==TArray<int32>({10}));
+    TestEqual(TEXT("The coffee-to-food interval defaults to six seconds"),Profile->AfterNutCoffeeToFoodSeconds,6.f);
+    TestEqual(TEXT("Individual drops retain the existing one-second cadence"),Profile->AfterNutMealDropSeconds,1.f);
+    TestEqual(TEXT("Appending coffee stages preserves the serialized Jellies value"),int32(EMCSingleDayStage::Jellies),15);
     if(!TestTrue(TEXT("The explicit jelly slot follows the nut encounter"),Profile->KeyEvents.Num()>=2)) return false;
     TestEqual(TEXT("First key event remains nuts"),Profile->KeyEvents[0].Kind,EMCSingleDayKeyEventKind::NutEncounter);
     TestEqual(TEXT("Jellies own the next event slot"),Profile->KeyEvents[1].Kind,EMCSingleDayKeyEventKind::Jellies);
@@ -202,41 +206,77 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPostNutRelaxFoodAndCleanupGateTest,
 bool FMCPostNutRelaxFoodAndCleanupGateTest::RunTest(const FString&)
 {
     using namespace MCPostNutRelaxTestsPrivate;
-    FFixture F;F.CompleteNuts();
-    if(!TestEqual(TEXT("The real nut-completion handoff starts its meal"),F.Loop->Stage,EMCSingleDayStage::PostNutMeal)) return false;
+    FFixture F;
+    auto* SavedCoffee=NewObject<UMCCoffeeProfile>(F.World);
+    SavedCoffee->Settings.Cycles=4;F.Plan->CoffeeProfile=SavedCoffee;
+    F.CompleteNuts();
+    if(!TestEqual(TEXT("Nut completion starts its drink before any food"),F.Loop->Stage,EMCSingleDayStage::PostNutCoffee)) return false;
     TestNull(TEXT("Adaptive support cannot inject hazards into this explicit Relax"),F.Mode->GameDirector.Get());
-    TSet<uint32> Issued;int32 Batch=0;
-    for(int32 Portion=0;Portion<3;++Portion) {
-        const int32 Target=F.Profile->AfterNutMealPortions[Portion];
-        TestEqual(TEXT("The serving target follows its authored portion"),F.Loop->MealPortionTarget,Target);
-        const int32 Before=Issued.Num();
-        for(int32 Attempt=0;Attempt<Target+3 && F.Loop->MealPortionSpawned<Target;++Attempt) {
-            F.Clock(F.World->GetTimeSeconds()+F.Profile->AfterNutMealDropSeconds+.02f);F.Loop->Tick(.1f);
-            for(TActorIterator<AMCFoodActor> It(F.World);It;++It) if(It->GetOwner()==F.Loop && !It->IsActorBeingDestroyed()) {
-                Issued.Add(It->GetUniqueID());Batch=It->Batch;
-                // External chop/delivery mechanics have separate tests. Supply
-                // their terminal removal to the actual food-pipeline census.
-                It->Destroy();
+    TestFalse(TEXT("The prior nut reward has finished before the drink"),F.Loop->bStageRewardPending);
+    AMCCoffeeFlood* Coffee=nullptr;
+    for(TActorIterator<AMCCoffeeFlood> It(F.World);It;++It)
+        if(It->GetOwner()==F.Loop && !It->IsActorBeingDestroyed()) {Coffee=*It;break;}
+    if(!TestNotNull(TEXT("The actual native coffee wave is running"),Coffee)) return false;
+    TestTrue(TEXT("The drink uses the ordinary river wave"),Coffee->bRiverFlood && !Coffee->IsCataclysmStorm());
+    TestEqual(TEXT("Only one physical coffee wave runs"),Coffee->Waves,1);
+    TestEqual(TEXT("Its replicated settings contain one cycle"),Coffee->WaterSettings.Cycles,1);
+    TestEqual(TEXT("The saved coffee profile is preserved"),SavedCoffee->Settings.Cycles,4);
+    TestEqual(TEXT("Clients retain their existing coffee visual profile"),Coffee->Profile.Get(),SavedCoffee);
+    TestEqual(TEXT("No meal starts during coffee"),F.Loop->MealPortionSpawned,0);
+    F.Clock(F.World->GetTimeSeconds()+Coffee->Seconds+20);
+    F.Loop->Tick(.1f);
+    TestEqual(TEXT("The nominal deadline cannot bypass a still-active wave"),F.Loop->Stage,EMCSingleDayStage::PostNutCoffee);
+    TestEqual(TEXT("The coffee-to-food interval has not started while water is active"),F.Loop->StageEndsAt,0.);
+    Coffee->Tick(.1f);
+    if(!TestFalse(TEXT("The coffee's actual update reaches its terminal state"),Coffee->IsActive())) return false;
+    // Retain visible cleaning debt even if this test floor has no painted tile.
+    auto* CoffeeDirt=F.World->SpawnActor<AMCMouthSurface>();
+    CoffeeDirt->Batch=Coffee->ResidueBatch;CoffeeDirt->Status->ApplyCoffee(.4f);
+    CoffeeDirt->SetActorTickEnabled(false);
+    const double WaveEnd=F.State->GetServerWorldTimeSeconds();
+    F.Loop->Tick(.1f);
+    if(!TestEqual(TEXT("The real wave end starts its authored interval"),F.Loop->Stage,EMCSingleDayStage::PostNutCoffeePause)) return false;
+    TestEqual(TEXT("The interval is exactly six seconds from observed full wave completion"),F.Loop->StageEndsAt-WaveEnd,6.);
+    TestEqual(TEXT("No food appears at wave completion"),F.Loop->MealPortionSpawned,0);
+    TestFalse(TEXT("There is no reward between the drink and food"),F.Loop->bStageRewardPending);
+    F.Clock(F.Loop->StageEndsAt-.01);F.Loop->Tick(.1f);
+    TestEqual(TEXT("Food cannot fall during the six-second post-wave interval"),F.Loop->MealPortionSpawned,0);
+    F.Clock(F.Loop->StageEndsAt+.01);F.Loop->Tick(.1f);
+    if(!TestEqual(TEXT("Interval expiry starts the ordinary food stage"),F.Loop->Stage,EMCSingleDayStage::PostNutMeal)) return false;
+    TestEqual(TEXT("The first item is served on that expiry tick"),F.Loop->MealPortionSpawned,1);
+    TestFalse(TEXT("Coffee residue is retained when food begins"),CoffeeDirt->IsClean());
+    TestFalse(TEXT("Dirty residue does not add a reward or cleanliness gate before food"),F.Loop->bStageRewardPending);
+    TestEqual(TEXT("There is one post-nut serving"),F.Loop->MealPortionCount,1);
+    TestEqual(TEXT("That serving targets exactly ten whole ingredients"),F.Loop->MealPortionTarget,10);
+    TArray<AMCFoodActor*> Issued;
+    auto Capture=[&]() {
+        for(TActorIterator<AMCFoodActor> It(F.World);It;++It)
+            if(It->GetOwner()==F.Loop && !It->IsActorBeingDestroyed() && !Issued.Contains(*It)) {
+                Issued.Add(*It);FFixture::Freeze(*It);
             }
-        }
-        if(!TestEqual(TEXT("Every authored whole ingredient is actually issued"),F.Loop->MealPortionSpawned,Target)) return false;
-        TestEqual(TEXT("Back-pressure does not lose ingredients above the six-whole limit"),Issued.Num()-Before,Target);
-        TestEqual(TEXT("Finishing issuance does not invent delivery completion"),F.Loop->Stage,EMCSingleDayStage::PostNutMeal);
-        if(Portion<2) {
-            auto* Held=F.World->SpawnActor<AMCFoodActor>();Held->Batch=Batch;Held->bFragment=true;Held->Phase=EMCFoodPhase::Carried;
-            F.Loop->Tick(.1f);
-            TestEqual(TEXT("A carried piece blocks the next serving"),F.Loop->MealPortionNumber,Portion+1);
-            Held->Destroy();F.Loop->Tick(.1f);
-            TestEqual(TEXT("Delivered food still waits for this portion's real cleanup"),F.Loop->MealPortionNumber,Portion+1);
-            TestTrue(TEXT("Intermediate portions retain cleanup debt before their reward"),F.DirtyFloor()>0);
-            F.ClearFloor();F.Loop->Tick(.1f);
-            TestTrue(TEXT("Every completed intermediate portion opens a shared reward"),F.Loop->bStageRewardPending);
-            F.ResolveStageReward();
-            TestEqual(TEXT("Delivering that piece releases only the next portion"),F.Loop->MealPortionNumber,Portion+2);
-        }
+    };
+    Capture();
+    F.Clock(F.World->GetTimeSeconds()+F.Profile->AfterNutMealDropSeconds-.02f);F.Loop->Tick(.1f);
+    TestEqual(TEXT("The next ingredient still respects its existing individual drop interval"),F.Loop->MealPortionSpawned,1);
+    for(int32 Attempt=0;Attempt<20 && F.Loop->MealPortionSpawned<10;++Attempt) {
+        F.Clock(F.World->GetTimeSeconds()+F.Profile->AfterNutMealDropSeconds+.02f);
+        F.Loop->Tick(.1f);Capture();
     }
-    TestEqual(TEXT("All three native portions issue 22 distinct ingredients"),Issued.Num(),22);
+    if(!TestEqual(TEXT("The real serving path issues all ten ingredients"),Issued.Num(),10)) return false;
+    TestEqual(TEXT("A six-whole solo cap no longer splits this ten-item authored meal"),F.Loop->MealPortionSpawned,10);
+    F.Clock(F.World->GetTimeSeconds()+60);F.Loop->Tick(.1f);Capture();
+    TestEqual(TEXT("Time cannot issue an eleventh item"),Issued.Num(),10);
+    TestFalse(TEXT("Time cannot reward undelivered food"),F.Loop->bStageRewardPending);
+    for(auto* Food:Issued) Food->Destroy();
+    F.Loop->Tick(.1f);
+    TestFalse(TEXT("Finishing food still waits for actual coffee and food dirt"),F.Loop->bStageRewardPending);
     F.ClearFloor();
+    // The real drink can stain the world's fallback teeth as well. Resolve
+    // those before introducing the single controlled tooth debt below.
+    for(TActorIterator<AMCArenaTooth> It(F.World);It;++It) if(It->IsAvailable() && It->Status) {
+        const int32 Layers=It->Status->State.CoffeeLeft;
+        for(int32 Layer=0;Layer<Layers;++Layer) It->Status->CareContact(true,nullptr);
+    }
     auto* Fragment=F.World->SpawnActor<AMCFoodActor>();Fragment->Batch=991234;Fragment->bFragment=true;Fragment->Phase=EMCFoodPhase::Carried;
     auto* Dirt=F.World->SpawnActor<AMCMouthSurface>();Dirt->Batch=997777;Dirt->Status->ApplyCoffee(.4f);Dirt->SetActorTickEnabled(false);
     const FTransform ToothPose(FVector(1100,0,70));
@@ -254,13 +294,23 @@ bool FMCPostNutRelaxFoodAndCleanupGateTest::RunTest(const FString&)
     const int32 Contacts=Tooth->Status->State.CoffeeLeft;
     for(int32 Index=0;Index<Contacts;++Index)
         if(!TestTrue(TEXT("Real tooth care clears its remaining layer"),Tooth->Status->CareContact(true,nullptr))) return false;
+    auto* Throat=F.World->SpawnActor<AMCThroat>();FFixture::Freeze(Throat);
+    Throat->QueuedFoodCount=1;Throat->ThroatPhase=EMCThroatPhase::Collecting;
     F.Loop->Tick(.1f);
-    TestTrue(TEXT("Final cleanup opens the final portion's shared booster"),F.Loop->bStageRewardPending);
+    TestFalse(TEXT("Queued disposal work still prevents a completion reward"),F.Loop->bStageRewardPending);
+    Throat->QueuedFoodCount=0;Throat->ThroatPhase=EMCThroatPhase::Recovering;
+    F.Loop->Tick(.1f);
+    TestFalse(TEXT("The last disposal recovery must actually finish"),F.Loop->bStageRewardPending);
+    Throat->ThroatPhase=EMCThroatPhase::Collecting;
+    F.Loop->Tick(.1f);
+    TestTrue(TEXT("All real work opens one food-segment reward"),F.Loop->bStageRewardPending);
+    TestEqual(TEXT("Coffee and ten foods share a single completion identity"),F.Loop->StageRewardCompletionId,FName(TEXT("PostNutPortion_1")));
     F.ResolveStageReward();
-    if(!TestEqual(TEXT("Actual shared cleanup releases mint without a timer shortcut"),F.Loop->Stage,EMCSingleDayStage::PostNutMint)) return false;
+    if(!TestEqual(TEXT("The completed meal retains the authored small-mint stage"),F.Loop->Stage,EMCSingleDayStage::PostNutMint)) return false;
     if(!TestNotNull(TEXT("The real small-mint actor was started"),F.Loop->SmallMint.Get())) return false;
     TestEqual(TEXT("Mint must land before it can pulse"),F.Loop->SmallMint->Stage,EMCSmallMintStage::Falling);
-    for(TActorIterator<AMCCoffeeFlood> It(F.World);It;++It) TestFalse(TEXT("No coffee is inserted into this Relax"),It->IsActive());
+    for(TActorIterator<AMCCoffeeFlood> It(F.World);It;++It)
+        TestFalse(TEXT("The single opening drink has finished"),It->IsActive());
     return true;
 }
 

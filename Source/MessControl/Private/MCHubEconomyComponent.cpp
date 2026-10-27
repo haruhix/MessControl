@@ -221,6 +221,17 @@ void UMCHubEconomyComponent::AddCoinsClamped(int32 Amount)
 {
     Coins=int32(FMath::Clamp<int64>(int64(Coins)+FMath::Max(0,Amount),0,FMath::Clamp(GetRules().MaximumCoins,1,MAX_int32)));
 }
+int32 UMCHubEconomyComponent::CreditObjectiveCoins(int32 Amount)
+{
+    if(!IsAuthority() || bMutating || Amount<=0 || Amount>1000 || !LoadTables()) return 0;
+    if(Coins>=FMath::Clamp(GetRules().MaximumCoins,1,MAX_int32)) return 0;
+    TGuardValue<bool> Guard(bMutating,true);
+    const int32 Before=Coins;
+    AddCoinsClamped(Amount);
+    const int32 Credited=Coins-Before;
+    if(Credited>0) NotifyChanged();
+    return Credited;
+}
 bool UMCHubEconomyComponent::CompleteGrillRoll(const FGuid& Receipt)
 {
     if (!IsAuthority() || bMutating || !Receipt.IsValid() || PendingRoll.RollID!=Receipt) return false;

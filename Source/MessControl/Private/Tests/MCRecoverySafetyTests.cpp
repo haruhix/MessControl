@@ -41,6 +41,9 @@ struct FWorld
             for(TActorIterator<AMCThroat> It(World);It;++It) { It->SetActorTickEnabled(false); It->SetActorEnableCollision(false); }
         }
         Hero=World->SpawnActor<AMCToothCharacter>(FVector(10000,0,2000),FRotator::ZeroRotator);
+        // This enclosure deliberately lives outside the authored arena. Test
+        // the component's recovery deadline, independently of map-boundary death.
+        Hero->SetActorTickEnabled(false);
         Hero->GetCharacterMovement()->DisableMovement();
         FloorZ=2000-Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
         Box(FVector(10000,0,FloorZ-10),FVector(2000,2000,10));

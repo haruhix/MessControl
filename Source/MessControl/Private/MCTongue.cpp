@@ -504,6 +504,7 @@ void AMCTongue::Tick(float Dt)
         const bool KeyEvent=Loop && (Loop->Stage==EMCSingleDayStage::Nuts || Loop->Stage==EMCSingleDayStage::Ice || Loop->Stage==EMCSingleDayStage::FogBrawl || Loop->Stage==EMCSingleDayStage::FirstPerk || Loop->Stage==EMCSingleDayStage::OpeningPause
             || Loop->Stage==EMCSingleDayStage::FirstMeal || Loop->Stage==EMCSingleDayStage::MealRest
             || Loop->Stage==EMCSingleDayStage::MealCoffeeWave || Loop->Stage==EMCSingleDayStage::BetweenMealsPause
+            || Loop->Stage==EMCSingleDayStage::PostNutCoffee || Loop->Stage==EMCSingleDayStage::PostNutCoffeePause
             || Loop->Stage==EMCSingleDayStage::PostNutMeal || Loop->Stage==EMCSingleDayStage::PostNutMint || Loop->Stage==EMCSingleDayStage::Jellies);
         bool FogActive=false;
         for(TActorIterator<AMCFogBrawlEvent> It(GetWorld());It;++It)

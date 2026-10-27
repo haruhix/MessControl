@@ -1,0 +1,28 @@
+{
+  "asset": "/Game/Gameplay/Rewards/M_TaskCoin",
+  "material": {
+    "refPath": "/Game/Gameplay/Rewards/M_TaskCoin.M_TaskCoin"
+  },
+  "nodes": {
+    "color": {
+      "refPath": "/Game/Gameplay/Rewards/M_TaskCoin.M_TaskCoin:MaterialExpressionVertexColor_0"
+    },
+    "metal": {
+      "refPath": "/Game/Gameplay/Rewards/M_TaskCoin.M_TaskCoin:MaterialExpressionConstant_0"
+    },
+    "rough": {
+      "refPath": "/Game/Gameplay/Rewards/M_TaskCoin.M_TaskCoin:MaterialExpressionConstant_1"
+    }
+  },
+  "base_color": "VertexColor RGB",
+  "shading": "DefaultLit",
+  "blend": "Opaque",
+  "metallic": 0.55,
+  "roughness": 0.28,
+  "two_sided": false,
+  "runtime_mids": 0,
+  "depth_test": true,
+  "authoring": "Native Epic MCP MaterialTools/ObjectTools/AssetTools",
+  "prewarm": "Explicit arena MCPreloadManifest root + retained procedural coin pool before presentation readiness",
+  "visual_approval": "Pending gameplay checkpoint and video; graph authoring is not visual acceptance"
+}

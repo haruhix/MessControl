@@ -1,0 +1,368 @@
+{
+  "frames": [
+    {
+      "best_effort_timestamp_time": "0.000000",
+      "side_data_list": [
+        {}
+      ]
+    },
+    {
+      "best_effort_timestamp_time": "0.360000"
+    },
+    {
+      "best_effort_timestamp_time": "0.563000"
+    },
+    {
+      "best_effort_timestamp_time": "0.782000"
+    },
+    {
+      "best_effort_timestamp_time": "1.047000"
+    },
+    {
+      "best_effort_timestamp_time": "1.219000"
+    },
+    {
+      "best_effort_timestamp_time": "1.375000"
+    },
+    {
+      "best_effort_timestamp_time": "1.532000"
+    },
+    {
+      "best_effort_timestamp_time": "1.703000"
+    },
+    {
+      "best_effort_timestamp_time": "1.875000"
+    },
+    {
+      "best_effort_timestamp_time": "2.047000"
+    },
+    {
+      "best_effort_timestamp_time": "2.219000"
+    },
+    {
+      "best_effort_timestamp_time": "2.391000"
+    },
+    {
+      "best_effort_timestamp_time": "2.563000"
+    },
+    {
+      "best_effort_timestamp_time": "2.735000"
+    },
+    {
+      "best_effort_timestamp_time": "2.891000"
+    },
+    {
+      "best_effort_timestamp_time": "3.063000"
+    },
+    {
+      "best_effort_timestamp_time": "3.203000"
+    },
+    {
+      "best_effort_timestamp_time": "3.360000"
+    },
+    {
+      "best_effort_timestamp_time": "3.516000"
+    },
+    {
+      "best_effort_timestamp_time": "3.672000"
+    },
+    {
+      "best_effort_timestamp_time": "3.844000"
+    },
+    {
+      "best_effort_timestamp_time": "3.985000"
+    },
+    {
+      "best_effort_timestamp_time": "4.282000"
+    },
+    {
+      "best_effort_timestamp_time": "4.438000"
+    },
+    {
+      "best_effort_timestamp_time": "4.594000"
+    },
+    {
+      "best_effort_timestamp_time": "4.750000"
+    },
+    {
+      "best_effort_timestamp_time": "4.907000"
+    },
+    {
+      "best_effort_timestamp_time": "5.078000"
+    },
+    {
+      "best_effort_timestamp_time": "5.235000"
+    },
+    {
+      "best_effort_timestamp_time": "5.391000"
+    },
+    {
+      "best_effort_timestamp_time": "5.547000"
+    },
+    {
+      "best_effort_timestamp_time": "5.703000"
+    },
+    {
+      "best_effort_timestamp_time": "5.875000"
+    },
+    {
+      "best_effort_timestamp_time": "6.032000"
+    },
+    {
+      "best_effort_timestamp_time": "6.203000"
+    },
+    {
+      "best_effort_timestamp_time": "6.360000"
+    },
+    {
+      "best_effort_timestamp_time": "6.516000"
+    },
+    {
+      "best_effort_timestamp_time": "6.688000"
+    },
+    {
+      "best_effort_timestamp_time": "6.844000"
+    },
+    {
+      "best_effort_timestamp_time": "7.016000"
+    },
+    {
+      "best_effort_timestamp_time": "7.188000"
+    },
+    {
+      "best_effort_timestamp_time": "7.344000"
+    },
+    {
+      "best_effort_timestamp_time": "7.516000"
+    },
+    {
+      "best_effort_timestamp_time": "7.672000"
+    },
+    {
+      "best_effort_timestamp_time": "7.828000"
+    },
+    {
+      "best_effort_timestamp_time": "7.985000"
+    },
+    {
+      "best_effort_timestamp_time": "8.141000"
+    },
+    {
+      "best_effort_timestamp_time": "8.453000"
+    },
+    {
+      "best_effort_timestamp_time": "8.610000"
+    },
+    {
+      "best_effort_timestamp_time": "8.766000"
+    },
+    {
+      "best_effort_timestamp_time": "8.922000"
+    },
+    {
+      "best_effort_timestamp_time": "9.094000"
+    },
+    {
+      "best_effort_timestamp_time": "9.250000"
+    },
+    {
+      "best_effort_timestamp_time": "9.407000"
+    },
+    {
+      "best_effort_timestamp_time": "9.563000"
+    },
+    {
+      "best_effort_timestamp_time": "9.719000"
+    },
+    {
+      "best_effort_timestamp_time": "9.875000"
+    },
+    {
+      "best_effort_timestamp_time": "10.032000"
+    },
+    {
+      "best_effort_timestamp_time": "10.188000"
+    },
+    {
+      "best_effort_timestamp_time": "10.344000"
+    },
+    {
+      "best_effort_timestamp_time": "10.500000"
+    },
+    {
+      "best_effort_timestamp_time": "10.657000"
+    },
+    {
+      "best_effort_timestamp_time": "10.813000"
+    },
+    {
+      "best_effort_timestamp_time": "10.969000"
+    },
+    {
+      "best_effort_timestamp_time": "11.125000"
+    },
+    {
+      "best_effort_timestamp_time": "11.282000"
+    },
+    {
+      "best_effort_timestamp_time": "11.422000"
+    },
+    {
+      "best_effort_timestamp_time": "11.578000"
+    },
+    {
+      "best_effort_timestamp_time": "11.735000"
+    },
+    {
+      "best_effort_timestamp_time": "11.891000"
+    },
+    {
+      "best_effort_timestamp_time": "12.047000"
+    },
+    {
+      "best_effort_timestamp_time": "12.188000"
+    },
+    {
+      "best_effort_timestamp_time": "12.485000"
+    },
+    {
+      "best_effort_timestamp_time": "12.641000"
+    },
+    {
+      "best_effort_timestamp_time": "12.797000"
+    },
+    {
+      "best_effort_timestamp_time": "12.953000"
+    },
+    {
+      "best_effort_timestamp_time": "13.110000"
+    },
+    {
+      "best_effort_timestamp_time": "13.266000"
+    },
+    {
+      "best_effort_timestamp_time": "13.422000"
+    },
+    {
+      "best_effort_timestamp_time": "13.578000"
+    },
+    {
+      "best_effort_timestamp_time": "13.735000"
+    },
+    {
+      "best_effort_timestamp_time": "13.891000"
+    },
+    {
+      "best_effort_timestamp_time": "14.032000"
+    },
+    {
+      "best_effort_timestamp_time": "14.188000"
+    },
+    {
+      "best_effort_timestamp_time": "14.344000"
+    },
+    {
+      "best_effort_timestamp_time": "14.500000"
+    },
+    {
+      "best_effort_timestamp_time": "14.657000"
+    },
+    {
+      "best_effort_timestamp_time": "14.813000"
+    },
+    {
+      "best_effort_timestamp_time": "14.969000"
+    },
+    {
+      "best_effort_timestamp_time": "15.110000"
+    },
+    {
+      "best_effort_timestamp_time": "15.266000"
+    },
+    {
+      "best_effort_timestamp_time": "15.422000"
+    },
+    {
+      "best_effort_timestamp_time": "15.578000"
+    },
+    {
+      "best_effort_timestamp_time": "15.735000"
+    },
+    {
+      "best_effort_timestamp_time": "15.891000"
+    },
+    {
+      "best_effort_timestamp_time": "16.047000"
+    },
+    {
+      "best_effort_timestamp_time": "16.203000"
+    },
+    {
+      "best_effort_timestamp_time": "16.485000"
+    },
+    {
+      "best_effort_timestamp_time": "16.641000"
+    },
+    {
+      "best_effort_timestamp_time": "16.797000"
+    },
+    {
+      "best_effort_timestamp_time": "16.953000"
+    },
+    {
+      "best_effort_timestamp_time": "17.110000"
+    },
+    {
+      "best_effort_timestamp_time": "17.266000"
+    },
+    {
+      "best_effort_timestamp_time": "17.422000"
+    },
+    {
+      "best_effort_timestamp_time": "17.578000"
+    },
+    {
+      "best_effort_timestamp_time": "17.735000"
+    },
+    {
+      "best_effort_timestamp_time": "17.891000"
+    },
+    {
+      "best_effort_timestamp_time": "18.047000"
+    },
+    {
+      "best_effort_timestamp_time": "18.203000"
+    },
+    {
+      "best_effort_timestamp_time": "18.360000"
+    },
+    {
+      "best_effort_timestamp_time": "18.500000"
+    },
+    {
+      "best_effort_timestamp_time": "18.657000"
+    },
+    {
+      "best_effort_timestamp_time": "18.828000"
+    },
+    {
+      "best_effort_timestamp_time": "18.985000"
+    },
+    {
+      "best_effort_timestamp_time": "19.485000"
+    }
+  ],
+  "programs": [],
+  "stream_groups": [],
+  "streams": [
+    {
+      "width": 1286,
+      "height": 760,
+      "duration": "19.485001",
+      "nb_frames": "116"
+    }
+  ],
+  "format": {
+    "duration": "19.485001"
+  }
+}

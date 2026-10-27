@@ -54,6 +54,9 @@ public:
     bool CanPurchase(FName ItemID, FText& Error) const;
     /** Authority only; the controller must also validate the actual nearby shop. */
     bool TryPurchase(FName ItemID, FText& Error);
+    /** Server objective payout, usable during the arena. No client RPC or purchase-context requirement.
+     * Returns the actual increase after the wallet cap; zero never creates a cosmetic reward. */
+    int32 CreditObjectiveCoins(int32 Amount);
     bool TryEquipLoadout(const FMCCharacterCosmeticLoadout& Loadout, FText& Error);
     /** Fish is reserved once; the server chooses and stores the result before accepting the attempt. */
     bool BeginGrillRoll(FGuid& Receipt, FMCGrillReward& Preview, FText& Error);

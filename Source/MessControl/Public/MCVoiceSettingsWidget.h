@@ -26,6 +26,8 @@ public:
     UFUNCTION(BlueprintCallable,Category="Voice") void LoadPendingSettings();
     UFUNCTION(BlueprintCallable,Category="Voice") void ApplyPendingSettings();
     UFUNCTION(BlueprintCallable,Category="Voice") void StopInteraction();
+    /** Gameplay ESC applies and saves each deliberate edit; main menu retains its Apply button. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Voice") bool bApplyChangesImmediately=false;
     bool RouteRebindKey(FKey Key);
     bool IsRebinding() const { return bAwaitingKey; }
     void GetFocusableControls(TArray<UWidget*>& Out) const;
@@ -49,6 +51,10 @@ private:
     UFUNCTION() void DeviceClicked();
     UFUNCTION() void PlayerChanged(FString Item,ESelectInfo::Type SelectionType);
     UFUNCTION() void PlayerMuteChanged(bool Muted);
+    UFUNCTION() void PreferenceToggleChanged(bool Value);
+    UFUNCTION() void PreferenceModeChanged(FString Item,ESelectInfo::Type SelectionType);
+    UFUNCTION() void PreferenceValueChanged(float Value);
+    void CommitImmediatePreferences();
     UPROPERTY(Transient) TObjectPtr<UCheckBox> EnabledCheck;
     UPROPERTY(Transient) TObjectPtr<UCheckBox> SelfMuteCheck;
     UPROPERTY(Transient) TObjectPtr<UCheckBox> PlayerMuteCheck;

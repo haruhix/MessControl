@@ -12,6 +12,7 @@ bool FMCPreferencesGainAndLookTest::RunTest(const FString& Parameters)
 {
     auto* Settings=NewObject<UMCGameUserSettings>();
     Settings->SetToDefaults();
+    TestFalse(TEXT("Camera smoothing is opt-in by default"),Settings->GetCameraSmoothingEnabled());
     TestEqual(TEXT("Default preferences preserve mouse deltas"),Settings->ScaleLookInput(FVector2D(2,-3),false),FVector2D(2,-3));
     TestEqual(TEXT("Default preferences preserve gamepad deltas"),Settings->ScaleLookInput(FVector2D(2,-3),true),FVector2D(2,-3));
     Settings->SetMasterVolume(.5f);Settings->SetMusicVolume(.4f);
@@ -41,6 +42,7 @@ bool FMCPreferencesConfigRoundtripTest::RunTest(const FString& Parameters)
     auto* Written=NewObject<UMCGameUserSettings>();Written->SetToDefaults();
     Written->SetMasterVolume(.63f);Written->SetMusicVolume(.27f);Written->SetAmbienceVolume(.41f);Written->SetSFXVolume(.82f);
     Written->SetMouseSensitivity(1.7f);Written->SetGamepadSensitivity(.8f);Written->SetInvertY(true);
+    Written->SetCameraSmoothingEnabled(true);
     TestTrue(TEXT("Table language code accepted"),Written->SetLanguageCode(TEXT("ZH_hans")));
     TestEqual(TEXT("Language canonicalized"),Written->GetLanguageCode(),FString(TEXT("zh-Hans")));
     TestFalse(TEXT("Unsupported language does not erase selected code"),Written->SetLanguageCode(TEXT("invalid-language")));
@@ -58,6 +60,7 @@ bool FMCPreferencesConfigRoundtripTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Mouse persists"),Read->GetMouseSensitivity(),Written->GetMouseSensitivity());
     TestEqual(TEXT("Gamepad persists"),Read->GetGamepadSensitivity(),Written->GetGamepadSensitivity());
     TestEqual(TEXT("Invert persists"),Read->GetInvertY(),Written->GetInvertY());
+    TestTrue(TEXT("Camera smoothing preference persists"),Read->GetCameraSmoothingEnabled());
     TestEqual(TEXT("Language persists"),Read->GetLanguageCode(),Written->GetLanguageCode());
     TestEqual(TEXT("Config roundtrip does not switch Designer/editor language"),FInternationalization::Get().GetCurrentLanguage()->GetName(),Before);
     IFileManager::Get().Delete(*Filename);

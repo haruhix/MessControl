@@ -6,7 +6,7 @@ class AMCFoodActor;
 struct FMCFoodStackSettings;
 class AMCToothCharacter;
 
-/** A held stack sways as one load and returns to Chaos when released or hit. */
+/** Food stacks sway as one load; boss nut ammunition uses a single retained hand slot. */
 UCLASS(ClassGroup=(Food),meta=(BlueprintSpawnableComponent))
 class MESSCONTROL_API UMCFoodCollectionComponent : public UActorComponent
 {
@@ -18,6 +18,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     bool CanCollect(const AMCFoodActor* Food) const;
     bool HasCandidate() const;
+    bool HasNutAmmunition() const;
     void Toggle();
     void Stop(bool Throw=false);
     /** Server-only: launch the uppermost piece, retaining every other stack slot. */
@@ -42,6 +43,8 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite) float CollectionReach=180;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Collection|Throw",meta=(ClampMin="0.15",ClampMax="1")) float ThrowInterval=.3f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Collection|Throw",meta=(ClampMin="400",ClampMax="2400",Units="cm/s")) float ThrowSpeed=1800;
+    /** Boss nut fragments are aimed shots; ordinary food keeps its shorter delivery arc. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Collection|Nuts",meta=(ClampMin="400",ClampMax="4800",Units="cm/s")) float NutShotSpeed=2400;
     /** Minimum normal contact impulse (kg cm/s). A resting overlap has no impact strength. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Collection|Collision",meta=(ClampMin="1")) float SpillContactImpulse=600;
     int32 FallenPieces=0;

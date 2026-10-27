@@ -1,11 +1,13 @@
 #include "MCPlayerState.h"
 #include "MCPerkComponent.h"
 #include "MCHubEconomyComponent.h"
+#include "MCHubProfileSubsystem.h"
 #include "MCGameState.h"
 #include "MCPlayerController.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "Engine/DataTable.h"
+#include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "Net/UnrealNetwork.h"
 
@@ -42,11 +44,17 @@ void AMCPlayerState::ResetMatchScore()
     ResetLevelUpChoices();
     ForceNetUpdate();
 }
-void AMCPlayerState::AddCaughtFish()
+int32 AMCPlayerState::AddCaughtFish(int32 Amount)
 {
-    if(!HasAuthority()) return;
-    FishCaught=int32(FMath::Min<int64>(int64(FishCaught)+1,MAX_int32));
+    constexpr int32 MaximumFishWallet=1000000; // The existing v1 profile restore cap.
+    constexpr int32 MaximumCatchValue=1000;
+    if(!HasAuthority() || Amount<=0 || Amount>MaximumCatchValue || FishCaught>=MaximumFishWallet) return 0;
+    const int32 Previous=FMath::Max(0,FishCaught);
+    FishCaught=int32(FMath::Min<int64>(int64(Previous)+Amount,MaximumFishWallet));
     ForceNetUpdate();
+    if(auto* PC=Cast<APlayerController>(GetOwner());PC && GetGameInstance())
+        if(auto* Profiles=GetGameInstance()->GetSubsystem<UMCHubProfileSubsystem>()) Profiles->Store(this,PC);
+    return FishCaught-Previous;
 }
 void AMCPlayerState::CopyProperties(APlayerState* Target)
 {

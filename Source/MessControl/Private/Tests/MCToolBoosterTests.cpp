@@ -198,7 +198,8 @@ bool FMCToolBrushRates::RunTest(const FString&) {
         const FVector At=FVector(8,8,8)/15.;const int32 I=FMCSurfaceWipe::Index(8,8,8);
         FMCSurfaceWipe::Stroke(Normal,At,At,FVector(200),36,Dt,&PN,1);
         FMCSurfaceWipe::Stroke(Fast,At,At,FVector(200),36,Dt,&PF,2);
-        TestTrue(TEXT("Actual tooth mask receives double cleaning even at ten FPS"),FMath::IsNearlyEqual(255-PF[I],2*(255-PN[I]),.001f));
+        TestTrue(TEXT("Actual tooth mask receives doubled work, bounded by a fully clean cell even at ten FPS"),
+            FMath::IsNearlyEqual(255-PF[I],FMath::Min(255.f,2*(255-PN[I])),.001f));
         FMCCoffeeWipe::Reset(Normal);FMCCoffeeWipe::Reset(Fast);PN.Reset();PF.Reset();const FVector2D UV(.5,.5);const int32 J=32*64+32;
         FMCCoffeeWipe::Stroke(Normal,UV,UV,.5f,Dt,&PN,1);FMCCoffeeWipe::Stroke(Fast,UV,UV,.5f,Dt,&PF,2);
         const float N=(Normal[J]+PN[J])/255.f,F=(Fast[J]+PF[J])/255.f;

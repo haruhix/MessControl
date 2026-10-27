@@ -1,0 +1,36 @@
+{
+  "mesh": "/Game/Gameplay/CharacterCurrent/SK_CharacterGameplay.SK_CharacterGameplay",
+  "skeleton": "/Game/Art/Meshes/Character/SM_Teeth_rig_Skeleton.SM_Teeth_rig_Skeleton",
+  "saved": [
+    "/Game/Gameplay/CharacterCurrent/Animations/Glide/A_Teeth_Glide1.A_Teeth_Glide1",
+    "/Game/Gameplay/CharacterCurrent/Animations/Glide/A_Teeth_Glide2.A_Teeth_Glide2",
+    "/Game/Data/DA_ToothAnimation.DA_ToothAnimation"
+  ],
+  "clips": [
+    {
+      "asset": "/Game/Gameplay/CharacterCurrent/Animations/Glide/A_Teeth_Glide1.A_Teeth_Glide1",
+      "duration": 1.5833333730697632,
+      "curves": [
+        "Mouth_Frown",
+        "Mouth_Pain"
+      ],
+      "source_timeline": [
+        115,
+        153
+      ]
+    },
+    {
+      "asset": "/Game/Gameplay/CharacterCurrent/Animations/Glide/A_Teeth_Glide2.A_Teeth_Glide2",
+      "duration": 1.7083333730697632,
+      "curves": [
+        "Mouth_Frown",
+        "Mouth_Pain",
+        "Mouth_Surprise"
+      ],
+      "source_timeline": [
+        60,
+        101
+      ]
+    }
+  ]
+}

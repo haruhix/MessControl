@@ -1,0 +1,107 @@
+{
+  "copied_files": [
+    {
+      "path": "Report.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\Coins\\Run_20261026T233332Z_314f6b\\Report.json",
+      "bytes": 76612,
+      "source_sha256": "1406b459afcd6ada8e761a68a0da10d788ea4e384acbef1381b70578f183b0df",
+      "copied_sha256": "1406b459afcd6ada8e761a68a0da10d788ea4e384acbef1381b70578f183b0df",
+      "verified": true
+    },
+    {
+      "path": "LifecycleReport.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\Coins\\Lifecycle\\Run_20261026T233327Z_fc40cb\\Report.json",
+      "bytes": 3299,
+      "source_sha256": "1439958f1afc7e954ad36e3a152e81a5cc7298ab3c0457cf1b8424a47fb95602",
+      "copied_sha256": "1439958f1afc7e954ad36e3a152e81a5cc7298ab3c0457cf1b8424a47fb95602",
+      "verified": true
+    },
+    {
+      "path": "CapturePairing.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\CaptureControl\\083326_634ffb\\result.json",
+      "bytes": 342,
+      "source_sha256": "08591144153a18cdaa9fc7bff4fb299f6e60abe695afb86cdf70b23976491594",
+      "copied_sha256": "08591144153a18cdaa9fc7bff4fb299f6e60abe695afb86cdf70b23976491594",
+      "verified": true
+    },
+    {
+      "path": "FrameMetadata.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_083326_634ffb\\Frames.json",
+      "bytes": 8709,
+      "source_sha256": "e728778bebc52f01b0f66e90f9e589ed75c61c112f03add76c3fea386aa892d2",
+      "copied_sha256": "e728778bebc52f01b0f66e90f9e589ed75c61c112f03add76c3fea386aa892d2",
+      "verified": true
+    },
+    {
+      "path": "VideoMetadata.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_083326_634ffb\\OutputMeta.json",
+      "bytes": 3534,
+      "source_sha256": "b07bccfc0191c3bb7fb9c6a172b9a5c844227659203b69dd602eb6761f1886ab",
+      "copied_sha256": "b07bccfc0191c3bb7fb9c6a172b9a5c844227659203b69dd602eb6761f1886ab",
+      "verified": true
+    },
+    {
+      "path": "EncodedFramePTS.json",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_083326_634ffb\\EncodedProbe.json",
+      "bytes": 3072,
+      "source_sha256": "f779c96496b8be107e670dd68b10e7d848a39ecc65713ef196052b57017416a2",
+      "copied_sha256": "f779c96496b8be107e670dd68b10e7d848a39ecc65713ef196052b57017416a2",
+      "verified": true
+    },
+    {
+      "path": "ActualWindow.mp4",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_083326_634ffb\\NativeWindow_ActualCadence.mp4",
+      "bytes": 744990,
+      "source_sha256": "04313b5d85f54b77db0ad24981374008dec6e8affb41385e7b534c68bded64fe",
+      "copied_sha256": "04313b5d85f54b77db0ad24981374008dec6e8affb41385e7b534c68bded64fe",
+      "verified": true
+    },
+    {
+      "path": "ContactSheet.jpg",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\coins_083326_634ffb\\ContactSheet_2_5_10_15s.jpg",
+      "bytes": 238377,
+      "source_sha256": "98173cf2c80b7da8a80b763c4bdb0e58c31416cc70021e0cd1bcce790234fe0b",
+      "copied_sha256": "98173cf2c80b7da8a80b763c4bdb0e58c31416cc70021e0cd1bcce790234fe0b",
+      "verified": true
+    },
+    {
+      "path": "Audio_ActualGameOutput.wav",
+      "source": "E:\\CodexWork\\Checkpoint_20261027\\Coins\\Run_20261026T233332Z_314f6b\\Audio\\TaskCoins_ActualGameOutput.wav",
+      "bytes": 1044524,
+      "source_sha256": "22f3ca61567d2f2d2b4f29ec1b907a495068ab5e05bb45b4f1c6662e604ebd82",
+      "copied_sha256": "22f3ca61567d2f2d2b4f29ec1b907a495068ab5e05bb45b4f1c6662e604ebd82",
+      "verified": true
+    }
+  ],
+  "generated_files": [
+    {
+      "path": "AudioVerification.json",
+      "bytes": 2178,
+      "sha256": "ac1629351da878d3a8306260e3a4e6b7356966392a0a18104183c1f2e12841d2"
+    },
+    {
+      "path": "ReviewScope.json",
+      "bytes": 1595,
+      "sha256": "3bb6e95f25072c5fc6ba516c10ab277a3bcc6ae8e1ce054a92edf3325bc4ed5f"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2132,
+      "sha256": "c34b4af48ce06e7d23a1cf36d7ee3e1f3a544cd74209fd4087c88c75a715ab8b",
+      "policy_edited_generated_document": true,
+      "policy_edit": "Policy-edited generated document: local media retained, excluded from Git; filenames replace media links. Original source-copy claims/hashes are not reassigned to this edited document.",
+      "prior_document_record": {
+        "path": "README.md",
+        "bytes": 1825,
+        "sha256": "4b2ab9500ca203d7db755d3290ddd26e75f463c15ac99b043cdf2e728135edf5"
+      }
+    }
+  ],
+  "all_copies_verified": true,
+  "audio_nonzero_signal": true,
+  "audio_listened_to": false,
+  "audio_accepted": false,
+  "visual_review_pending": true,
+  "prior_silent_evidence_preserved": true,
+  "media_storage_policy": "Verification media is local-only and excluded from Git; existing source hashes/provenance describe preserved local files."
+}

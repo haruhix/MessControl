@@ -1417,3 +1417,171 @@ frame, across a complete natural wrap. Evidence: `SyncPoseValidation.json` in
 `Saved/MenuNiagaraBubbles20261023`. Apply with
 `Tools/Unreal/UI/fix_menu_niagara_sync_20261024.py`.
 
+## Tooth cleaning and staged repair — 2026-10-26 (bounded gameplay/visual checkpoint passed)
+
+Reviewed before authoring, using the existing foam library and primary sources:
+
+- [Lush: real-time foam/soap-suds approach](https://realtimevfx.com/t/real-time-foam-soap-suds-shader/9919): restrained tonal contrast, convex shading and a few departing bubbles. Reused the layering idea; no creator texture, geometry or refractive shader is copied.
+- [Ashif Ali / CGHOW: Healing Pulse AOE tutorial](https://dev.epicgames.com/community/learning/tutorials/KWDx/unreal-engine-5-niagara-create-epic-healing-pulse-aoe-tutorial): separate overlapping layers and scale/lifetime phases. The reviewed creator description informs the short completion accent; the large floor rings are deliberately not adapted to a tooth contact.
+- [Epic: Niagara scalability and best practices](https://dev.epicgames.com/documentation/unreal-engine/scalability-and-best-practices-for-niagara): retain presentation resources and bound instance/particle work rather than allocating a new effect every contact tick. This implementation uses the existing procedural-mesh module for a small native presenter; it is not a new Niagara emitter.
+
+The existing `NS_BrushFoam` remains tied to actual bristle contact. An arena
+tooth's new presenter receives only accepted mask/HP work, in the actual enamel
+contact frame. Cream cleaning pearls and mint repair drops use short 3D outward
+trajectories; separate transparent bubble arcs and four-point glints have
+staggered lifetimes. Completion adds one restrained surface-projected sheen.
+Applying coffee, loading replicated health or a raw damage-stage mesh change
+does not emit an accent. Accepted repair crossing Broken to Chipped does publish
+one cosmetic milestone accent, separately from the full-health completion and
+gameplay award. Slime-only cleaning can still look clean
+without inheriting the old gold/currency success cue.
+
+`/Game/Gameplay/Care/M_ToothCarePearl` is one shared immutable translucent,
+depth-tested unlit material. Its custom shader uses UV0 for analytic shape,
+UV1.x for pearl/bubble/glint/sheen selection, and vertex RGB/alpha for tint and
+smooth lifetime. Convex pearl shading, a separate upper highlight and low
+opacity bubble film avoid a uniformly filled flat disc. UE's default VertexColor
+output is RGB: the saved graph explicitly appends VertexColor.A before passing
+the float4 to the custom node. No runtime MID variants or new textures are used.
+The parent authored, compiled and saved this material through native Epic MCP,
+using editor Python only for the CustomInput array rejected by the bridge's
+array delta editor. Portable shader/recipe are in `ArtSource/VFX/ToothCare_20261026`;
+authoring evidence is under `E:/CodexWork/Batch4_20261026`.
+
+Budget: one preallocated 64-quad section (256 vertices/128 triangles) and one
+material per tooth, at most 56 live particles plus one sheen; contact receipts
+are coalesced to at most about 11 Hz, while completion is retained independently.
+Idle presentation tick stops. The material and hidden primitive are prepared
+in BeginPlay, under the location readiness barrier; the arena manifest includes
+the native lazy material root. The existing HP widget is also constructed while
+the tooth is still healthy, so first damage does not create a new brush variant.
+
+The broken-tooth duration multiplier and local presentation are separate:
+accepted repair begun at <=40% HP takes five times as long through its entire
+return to full HP, including after the mesh becomes chipped. Chipped-only care,
+player healing and lost/consumed teeth keep their existing contracts. The small
+HP pill reuses the ordinary-enemy status presentation and is shown only for a
+living available tooth with incomplete HP, never for dirt alone at full HP.
+
+Status: Editor built; the common22 native tests passed and the three care tests
+passed again after polish. Actual solo spray treatment restored30 to100 HP in
+14.02s (~4.99 HP/s);19 conditions passed, including retained material before work,
+real HP gain, visible effect, HP hiding and idle cleanup. The first video was
+rejected for weak contrast/finish and food occlusion. Revised mint, larger staged
+glints, a longer/wider sheen and a clear diagnostic shot passed root/independent
+selected-frame review. The independent reviewer inspected10 frames and PTS,
+not the entire clip:701 frames/24s (~29.19 FPS), maximum gap66.67ms, none>100ms.
+The shot temporarily holds only day-director Tick; ordinary time, input, HP and
+resource barriers remain active. It is labelled in
+`Artifacts/PlaytestBatch4_20261026/README.md`.
+
+This is acceptance of the bounded cleanliness effect for the checkpoint, not
+blanket production art approval. Existing topology swaps remain discrete and
+the old spray stream remains dense. Whole-surface brush completion, hardware
+input, actual GPU/transparency profiling, network and cold packaged first use
+remain unverified. The now actually exercised repair effect also covers task31;
+it was not counted closed from source presence alone.
+
+## Hub fishing receipt — 2026-10-26
+
+References reviewed before authoring:
+
+- [Epic: Animating UMG Widgets](https://dev.epicgames.com/documentation/en-us/unreal-engine/animating-umg-widgets-in-unreal-engine): layer short scale and opacity changes for legible UI response.
+- [Epic: UMG Optimization Guidelines](https://dev.epicgames.com/documentation/en-us/unreal-engine/optimization-guidelines-for-umg-in-unreal-engine): prepare response UI in advance; restrict per-frame work to the active presentation and invalidate paint rather than the full layout.
+- [Martin Jonasson and Petri Purho: Juicy Breakout source and original talk links](https://github.com/grapefrukt/juicy-breakout): reviewed the original creators' repository/README. Adapt restrained easing, a readable trajectory and a small arrival response. The linked GDC video was unavailable during this review; no claim of having watched it or copying its assets/code.
+
+Implementation prepared: a cream receipt above the local hero, 0.18-second soft
+pop, brief hold, 0.65-second curved flight to the actual footer fish icon, then a
+0.22-second counter pulse. Six small fading dots reinforce the trajectory.
+The counter stays authoritative; visual receipts cannot grant currency. A full
+wallet shows its own message without a flight. Menus suppress and pause the
+presentation. No camera motion is added.
+
+Required assets: existing shared UI theme, gameplay font and native vector fish;
+cached analytic rounded brushes only. No new textures, materials, MIDs or Niagara
+systems. The controller retains and primes this widget, localized font metrics
+and brushes before the Hub presentation readiness barrier can complete.
+
+Status: source implementation and localization prepared. Native build, first
+visible use, gameplay-camera/lighting assessment, responsive captures and motion
+preview are pending. A warm Editor run will not establish cold packaged PSO or
+first-launch readiness.
+
+### Mobile reward revision after visual review — 2026-10-26
+
+The initial real-time capture was readable and technically smooth but was
+rejected as flat. The revision treats the fish currency as a toy medal with
+thickness, rim, bevel, embossed filled fish, soft contact shadow and glint.
+The receipt frame, numeral and medal have separate entrances. The medal has
+compression, lift, overshoot and a short pullback before launch. Larger values
+use at most three staggered visual medals; their count never controls credit.
+The target briefly compresses and stretches around its centre, then restores
+its original scale and pivot. No camera shake, time dilation or input lock.
+
+Additional creator references reviewed:
+
+- [Amulya Jonnala: Stacking Up](https://dribbble.com/shots/26071279-Stacking-Up-Coin-Drop-Animation-for-Rewards-App): original reward coin-drop presentation and the creator's timing/bounce description. Adapt stagger and weighted landing; no art copied.
+- [Thiago Monteverde: Farming Life — UI & Game Feel](https://thiagosilva3d.artstation.com/projects/6LgrY6?album_id=14512488): original casual-mobile UI/reward-system project and authorship description. Search-index text was accessible; the full page and embedded clips were not, so this is contextual reference rather than a claimed video study.
+
+The existing reviewed Juicy Breakout reference and the game-feel motion recipes
+inform anticipation, separate masses, overshoot and a localised payoff. The
+implementation uses cached native rounded boxes/lines, existing theme display
+and heading fonts, render transforms and fixed-duration curves. No new texture,
+material or Niagara asset is required. `MCFishingRewardArt::Prime` and all new
+font sizes run under the retained Hub response widget's readiness barrier.
+Status: rebuilt and recorded in real time in 1280×720. Root inspected the final
+compact-footer frame; an independent review checked ten actual video frames,
+motion telemetry and capture timestamps. A separate natural-catch solo run passed
+17 conditions and recorded the real wallet feedback. Common/Rare/full-wallet
+visual demonstrations do not change the wallet and are labelled accordingly in
+`Artifacts/HubFeedback_Batch3_20261026/README.md`. Earlier flat-version captures
+are retained as before evidence. Final mobile gameplay at wide aspect ratios,
+cold packaged PSO readiness and broader coverage remain for the next checkpoint;
+a warm Editor cache is not proof of a clean first launch.
+
+## Objective purchase coins — Batch 5, 2026-10-26
+
+Source preparation reuses the already reviewed original coin-drop reference by
+[Amulya Jonnala](https://dribbble.com/shots/26071279-Stacking-Up-Coin-Drop-Animation-for-Rewards-App)
+and the casual reward context of
+[Thiago Monteverde](https://thiagosilva3d.artstation.com/projects/6LgrY6?album_id=14512488)
+listed above. The latter remains contextual: its full embedded video was not
+available during the earlier review. No third-party artwork, mesh or sound was
+copied. Adapt weighted landing, small stagger, a clear rim and one short payoff.
+
+Technique prepared for this project's UE 5.8: a local retained procedural mesh
+containing at most five closed coins, each with real thickness, bevel, raised rim
+and tooth emboss. An opaque DefaultLit shared vertex-colour material uses
+Metallic .55 and Roughness .28. There is no emissive floor marker, beam, alpha
+decal or per-reward material instance. A transient local visual host is prepared
+under loading because PlayerController itself is hidden by engine default.
+
+Motion candidate: initial spread/drop, one small bounce on an actual traced
+surface, then an eased collection arc to the current pawn. Five bounded initial
+traces ignore player capsules; no Chaos bodies or traces during every frame.
+The idle component does not tick. Visibility is limited to the owning player;
+death, loss of view/ownership or a modal can cancel cosmetics without losing the
+server-credited money. Per-objective credit is independent of visual coin count.
+
+Required resources: `/Game/Gameplay/Rewards/M_TaskCoin` (authored and saved through
+Epic MaterialTools/ObjectTools/AssetTools MCP), plus
+`/Game/Audio/Rewards/S_TaskCoins` (original deterministic inharmonic clinks,
+1.15 seconds, ForceInline). The native MCP AssetTools exposed here has no audio
+import operation, so the SoundWave was imported with a narrow editor-Python
+AssetImportTask. The shared SFX sound-class mix applies settings; it is not
+multiplied again on the audio component. Material, cue and the fixed pool are
+retained before arena presentation readiness and have explicit manifest roots.
+
+Source recipe: `ArtSource/VFX/TaskCoins_20261026/MaterialRecipe.json`.
+Original audio source/generator and measured peak/RMS:
+`ArtSource/Audio/Rewards/create_task_coins.py`, `TaskCoins_Original.wav/json`.
+Authoring readback: `E:/CodexWork/Batch5_20261026/CoinMaterialAuthoring.json` and
+`CoinAudioAuthoring.json`. A material connection tool returned void and an audio
+report initially encountered an Unreal Array JSON conversion; owned graph/audio
+readback recovered those diagnostic errors without replacing unrelated assets.
+
+Status: source and resources prepared; gameplay rendering, audible balance,
+motion evaluation and first-visible-use readiness still await the common
+checkpoint. No new gameplay video or artistic acceptance is claimed. Cold
+packaged PSO readiness remains unverified.
+

@@ -1,0 +1,2365 @@
+{
+  "status": "completed",
+  "passed": true,
+  "phase": "reward_motion_and_wallet_hold",
+  "checks": {
+    "native_nozzle_first_contact_in_range_before_input": true,
+    "native_task_completion_credited_expected_wallet": true,
+    "wallet_does_not_repeat_on_next_ticks": true,
+    "prepared_coin_presenter_actually_animated": true
+  },
+  "samples": [
+    {
+      "game_seconds": 13.554718803614378,
+      "wall_since_script": 8.875,
+      "phase": "waiting_root_record_gate",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": false,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCTongue_1",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCTongue_1.TongueSurface",
+        "contact_distance_cm": 116.7024154663086,
+        "impact_cm": [
+          -2436.5455513926763,
+          943.9909654607002,
+          14.137318930871373
+        ],
+        "nozzle_cm": [
+          -2478.140211437606,
+          1030.5153190517801,
+          80.49191959200539
+        ],
+        "native_aim_cm": [
+          -2436.5457955332995,
+          943.9911485661546,
+          14.137318930871373
+        ],
+        "camera_eye_cm": [
+          -1824.9999988230113,
+          244.19303220065274,
+          642.646307321171
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0DBE0) {pitch: -34.069822, yaw: 131.149852, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 13.623868901282549,
+      "wall_since_script": 8.953000000001339,
+      "phase": "waiting_root_record_gate",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 29.012615203857422,
+        "impact_cm": [
+          -2504.356211353342,
+          1025.822408250534,
+          89.6072035870279
+        ],
+        "nozzle_cm": [
+          -2480.071833057402,
+          1031.9324113617404,
+          74.95560862901712
+        ],
+        "native_aim_cm": [
+          -2628.7620892483133,
+          994.5215201822803,
+          164.66557350019107
+        ],
+        "camera_eye_cm": [
+          -1984.346893901641,
+          134.013306518558,
+          703.8722740130361
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0DBE0) {pitch: -26.636581, yaw: 126.828712, roll: 0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 13.689630303531885,
+      "wall_since_script": 9.015999999999622,
+      "phase": "waiting_root_record_gate",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 25.240802764892578,
+        "impact_cm": [
+          -2504.3562113616345,
+          1026.06466930338,
+          80.6421642944292
+        ],
+        "nozzle_cm": [
+          -2483.9269656562415,
+          1030.7736078151975,
+          66.58618769279667
+        ],
+        "native_aim_cm": [
+          -2641.20241631749,
+          994.521519756466,
+          174.79682227531944
+        ],
+        "camera_eye_cm": [
+          -2133.260637606414,
+          85.19553207122794,
+          766.3323350012703
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0DBE0) {pitch: -29.593285, yaw: 119.187355, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 13.754353001713753,
+      "wall_since_script": 9.078000000001339,
+      "phase": "waiting_root_record_gate",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 21.501407623291016,
+        "impact_cm": [
+          -2504.356211290801,
+          1023.995246301784,
+          73.21566791089481
+        ],
+        "nozzle_cm": [
+          -2487.5195751940605,
+          1027.536977030856,
+          60.3201349189775
+        ],
+        "native_aim_cm": [
+          -2644.4673856025365,
+          994.5215196447109,
+          180.52986201835805
+        ],
+        "camera_eye_cm": [
+          -2225.148224810205,
+          74.42550421746762,
+          808.9847247720928
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0DBE0) {pitch: -31.862219, yaw: 114.500374, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 13.821977004408836,
+      "wall_since_script": 9.140999999999622,
+      "phase": "waiting_root_record_gate",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 19.06180191040039,
+        "impact_cm": [
+          -2504.3562112212194,
+          1021.9623930832827,
+          68.84905216317446
+        ],
+        "nozzle_cm": [
+          -2489.708522685032,
+          1024.8055293715795,
+          56.98673873111803
+        ],
+        "native_aim_cm": [
+          -2645.729328087871,
+          994.5215196015165,
+          183.33906691392386
+        ],
+        "camera_eye_cm": [
+          -2274.650021740191,
+          75.60512697369086,
+          835.0252480775861
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0DBE0) {pitch: -33.328754, yaw: 111.989975, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 13.88829630240798,
+      "wall_since_script": 9.21900000000096,
+      "phase": "waiting_root_record_gate",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 18.56510353088379,
+        "impact_cm": [
+          -2504.356211202393,
+          1021.4123565876796,
+          67.98208651288166
+        ],
+        "nozzle_cm": [
+          -2490.1703983380635,
+          1024.1045696609365,
+          56.31254705493218
+        ],
+        "native_aim_cm": [
+          -2646.048583980157,
+          994.5215195905888,
+          184.5412595255282
+        ],
+        "camera_eye_cm": [
+          -2299.839700193733,
+          78.75388118809587,
+          849.825148579744
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0DBE0) {pitch: -34.197552, yaw: 110.709259, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 13.93831280246377,
+      "wall_since_script": 9.265999999999622,
+      "phase": "waiting_root_record_gate",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 19.239858627319336,
+        "impact_cm": [
+          -2504.3562112216305,
+          1021.9743948487089,
+          69.1098489845185
+        ],
+        "nozzle_cm": [
+          -2489.6216917250345,
+          1024.8275864883017,
+          57.07133707481694
+        ],
+        "native_aim_cm": [
+          -2646.1281780688946,
+          994.5215195878645,
+          184.94161312496718
+        ],
+        "camera_eye_cm": [
+          -2309.8817265378125,
+          80.65994081768531,
+          856.236857795248
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0DBE0) {pitch: -34.581841, yaw: 110.200600, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 13.992730602622032,
+      "wall_since_script": 9.31300000000192,
+      "phase": "waiting_root_record_gate",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 20.597164154052734,
+        "impact_cm": [
+          -2504.3562112591876,
+          1023.0716395997968,
+          71.48024499819891
+        ],
+        "nozzle_cm": [
+          -2488.4776297518256,
+          1026.2677829781896,
+          58.75629703298706
+        ],
+        "native_aim_cm": [
+          -2646.193730699497,
+          994.5215195856206,
+          185.13870182642236
+        ],
+        "camera_eye_cm": [
+          -2315.6343115420295,
+          81.98245306498143,
+          860.1442069442109
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0DBE0) {pitch: -34.817711, yaw: 109.912483, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 14.060620002448559,
+      "wall_since_script": 9.390999999999622,
+      "phase": "waiting_root_record_gate",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 22.53569984436035,
+        "impact_cm": [
+          -2504.356211305009,
+          1024.4103303873098,
+          75.0478540218937
+        ],
+        "nozzle_cm": [
+          -2486.80090172543,
+          1028.1095285613808,
+          61.410213477825494
+        ],
+        "native_aim_cm": [
+          -2646.1990945936923,
+          994.5215195854371,
+          185.23697165852857
+        ],
+        "camera_eye_cm": [
+          -2319.549412438698,
+          83.04802390227644,
+          862.9646186256738
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0DBE0) {pitch: -34.990486, yaw: 109.716431, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 14.124262001365423,
+      "wall_since_script": 9.453000000001339,
+      "phase": "waiting_root_record_gate",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 23.99915885925293,
+        "impact_cm": [
+          -2504.356211332661,
+          1025.2182048856441,
+          77.84083392304555
+        ],
+        "nozzle_cm": [
+          -2485.5034624029877,
+          1029.2983317336386,
+          63.561949502455384
+        ],
+        "native_aim_cm": [
+          -2646.1935871853057,
+          994.5215195856258,
+          185.26714555220977
+        ],
+        "camera_eye_cm": [
+          -2321.3221037237286,
+          83.59407331082912,
+          864.3127245695704
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0DBE0) {pitch: -35.073776, yaw: 109.628174, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 14.189354304224253,
+      "wall_since_script": 9.515999999999622,
+      "phase": "waiting_root_record_gate",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 24.810274124145508,
+        "impact_cm": [
+          -2504.356211344842,
+          1025.5740644605137,
+          79.33632990712945
+        ],
+        "nozzle_cm": [
+          -2484.7774641235706,
+          1029.8603956726254,
+          64.71271321714653
+        ],
+        "native_aim_cm": [
+          -2646.194876625675,
+          994.5215195855817,
+          185.27753329373107
+        ],
+        "camera_eye_cm": [
+          -2322.123790899237,
+          83.85738218557594,
+          864.9449069427989
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0DBE0) {pitch: -35.112846, yaw: 109.588730, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 14.34320130199194,
+      "wall_since_script": 9.78099999999904,
+      "phase": "waiting_root_record_gate",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 24.209604263305664,
+        "impact_cm": [
+          -2504.3562113321227,
+          1025.2024706084726,
+          77.76723119014835
+        ],
+        "nozzle_cm": [
+          -2485.341938742848,
+          1029.3143146498953,
+          63.35697180675607
+        ],
+        "native_aim_cm": [
+          -2646.2325913067502,
+          994.5215195842907,
+          185.2905253276182
+        ],
+        "camera_eye_cm": [
+          -2322.3812316405765,
+          83.9193888701285,
+          865.1405754635896
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0DF50) {pitch: -35.123775, yaw: 109.577690, roll: 0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 14.476412899792194,
+      "wall_since_script": 9.9220000000023,
+      "phase": "before_native_repair",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 22.933483123779297,
+        "impact_cm": [
+          -2504.356211302854,
+          1024.3473715993832,
+          75.33809346270402
+        ],
+        "nozzle_cm": [
+          -2486.4748230019013,
+          1028.1067000545872,
+          61.47921461176042
+        ],
+        "native_aim_cm": [
+          -2646.2233695177174,
+          994.5215195846064,
+          185.29161282666465
+        ],
+        "camera_eye_cm": [
+          -2322.483651741018,
+          83.95065071892645,
+          865.2116900924385
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EFE0) {pitch: -35.128418, yaw: 109.572075, roll: 0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 14.606351397931576,
+      "wall_since_script": 10.0470000000023,
+      "phase": "before_native_repair",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 22.840116500854492,
+        "impact_cm": [
+          -2504.3562112977415,
+          1024.198007179642,
+          75.2183263545509
+        ],
+        "nozzle_cm": [
+          -2486.5526614701853,
+          1027.922406644802,
+          61.40406606104892
+        ],
+        "native_aim_cm": [
+          -2646.216512824615,
+          994.521519584841,
+          185.2917087343566
+        ],
+        "camera_eye_cm": [
+          -2322.560880942725,
+          83.9770410502914,
+          865.2692234329182
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EFE0) {pitch: -35.132175, yaw: 109.567902, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 14.738649003207684,
+      "wall_since_script": 10.1720000000023,
+      "phase": "before_native_repair",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 23.535476684570312,
+        "impact_cm": [
+          -2504.356211310127,
+          1024.5598609226818,
+          76.49379356855485
+        ],
+        "nozzle_cm": [
+          -2485.939117806125,
+          1028.459728280682,
+          62.368609460600446
+        ],
+        "native_aim_cm": [
+          -2646.2114296292284,
+          994.521519585015,
+          185.2912473101085
+        ],
+        "camera_eye_cm": [
+          -2322.6190334930607,
+          83.9989640459529,
+          865.3155109618788
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EFE0) {pitch: -35.135197, yaw: 109.564804, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 14.866404794156551,
+      "wall_since_script": 10.31300000000192,
+      "phase": "before_native_repair",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 24.02486228942871,
+        "impact_cm": [
+          -2504.3562113176035,
+          1024.7782861595813,
+          77.31059689858594
+        ],
+        "nozzle_cm": [
+          -2485.509250090911,
+          1028.7983061538373,
+          62.9639598076652
+        ],
+        "native_aim_cm": [
+          -2646.207668279566,
+          994.5215195851437,
+          185.29050643167332
+        ],
+        "camera_eye_cm": [
+          -2322.6627689165543,
+          84.01695700526909,
+          865.3525394259644
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EFE0) {pitch: -35.137611, yaw: 109.562508, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 14.99593149870634,
+      "wall_since_script": 10.43800000000192,
+      "phase": "before_native_repair",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 24.014896392822266,
+        "impact_cm": [
+          -2504.356211315847,
+          1024.7269581400892,
+          77.19388318365301
+        ],
+        "nozzle_cm": [
+          -2485.523526847935,
+          1028.737197285193,
+          62.84244930263154
+        ],
+        "native_aim_cm": [
+          -2646.204879237685,
+          994.5215195852392,
+          185.28965563765578
+        ],
+        "camera_eye_cm": [
+          -2322.695641637134,
+          84.03162397648839,
+          865.3819470264448
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EFE0) {pitch: -35.139530, yaw: 109.560806, roll: 0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 15.12270649522543,
+      "wall_since_script": 10.5470000000023,
+      "phase": "before_native_repair",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 23.784317016601562,
+        "impact_cm": [
+          -2504.3562113110293,
+          1024.5862106570462,
+          76.75033004921298
+        ],
+        "nozzle_cm": [
+          -2485.729323003146,
+          1028.5342031636037,
+          62.49738085355031
+        ],
+        "native_aim_cm": [
+          -2646.202791019664,
+          994.5215195853104,
+          185.28879669741676
+        ],
+        "camera_eye_cm": [
+          -2322.7204630707756,
+          84.04356730338623,
+          865.4052105010813
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EFE0) {pitch: -35.141052, yaw: 109.559540, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 15.244187094271183,
+      "wall_since_script": 10.68800000000192,
+      "phase": "before_native_repair",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 23.64580535888672,
+        "impact_cm": [
+          -2504.356211309341,
+          1024.5368930856175,
+          76.54851181050185
+        ],
+        "nozzle_cm": [
+          -2485.8493581092916,
+          1028.453051740353,
+          62.36102938142901
+        ],
+        "native_aim_cm": [
+          -2646.2012572714902,
+          994.5215195853632,
+          185.28800839987903
+        ],
+        "camera_eye_cm": [
+          -2322.7390926562084,
+          84.05304982513246,
+          865.4235893498441
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EFE0) {pitch: -35.142250, yaw: 109.558601, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 15.372094489634037,
+      "wall_since_script": 10.81300000000192,
+      "phase": "before_native_repair",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 4
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 23.629806518554688,
+        "impact_cm": [
+          -2504.356211310992,
+          1024.5851269394566,
+          76.58647117596342
+        ],
+        "nozzle_cm": [
+          -2485.860385606517,
+          1028.5052732900544,
+          62.412371704499584
+        ],
+        "native_aim_cm": [
+          -2646.2001082241964,
+          994.5215195854024,
+          185.2872850144877
+        ],
+        "camera_eye_cm": [
+          -2322.7530933063026,
+          84.0607196938023,
+          865.4379712256689
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EFE0) {pitch: -35.143192, yaw: 109.557907, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 15.49987829476595,
+      "wall_since_script": 10.953000000001339,
+      "phase": "native_repair",
+      "coins": 0,
+      "task_left": 1,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 134.7125701904297,
+        "impact_cm": [
+          -2646.199125668085,
+          994.5215195854361,
+          185.2866037625051
+        ],
+        "nozzle_cm": [
+          -2528.0851147926223,
+          983.1498985089911,
+          121.51166041947835
+        ],
+        "native_aim_cm": [
+          -2646.199265706907,
+          994.5215195854314,
+          185.28668205299712
+        ],
+        "camera_eye_cm": [
+          -2322.763653770173,
+          84.06668335510676,
+          865.4492931125608
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B954B0) {pitch: -35.143929, yaw: 109.557388, roll: 0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 15.638429693877697,
+      "wall_since_script": 11.09400000000096,
+      "phase": "native_repair",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 128.4331512451172,
+        "impact_cm": [
+          -2646.1985423430256,
+          994.5215195854561,
+          185.28609468188372
+        ],
+        "nozzle_cm": [
+          -2535.7802396105235,
+          979.5895119958583,
+          121.41192960461439
+        ],
+        "native_aim_cm": [
+          -2646.1986406139267,
+          994.5215195854526,
+          185.28615439754802
+        ],
+        "camera_eye_cm": [
+          -2322.7715500154745,
+          84.07145380024906,
+          865.458120209125
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B954B0) {pitch: -35.144505, yaw: 109.557007, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": true,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 15.757675789296627,
+      "wall_since_script": 11.34400000000096,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 22.94023323059082,
+        "impact_cm": [
+          -2504.3562113436906,
+          1025.5404256498566,
+          86.2377598500633
+        ],
+        "nozzle_cm": [
+          -2485.8430163992816,
+          1029.5890054349466,
+          73.31006211272503
+        ],
+        "native_aim_cm": [
+          -2646.1977145367036,
+          994.5215195854844,
+          185.28526234403253
+        ],
+        "camera_eye_cm": [
+          -2322.7834098146586,
+          84.07900525484627,
+          865.4719108222254
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.145405, yaw: 109.556442, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": true,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 15.896868295967579,
+      "wall_since_script": 11.485000000000582,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 22.78403091430664,
+        "impact_cm": [
+          -2504.356211344609,
+          1025.5672616733032,
+          86.03262329207581
+        ],
+        "nozzle_cm": [
+          -2485.9816563882114,
+          1029.5890054349466,
+          73.17517984047184
+        ],
+        "native_aim_cm": [
+          -2646.197491516438,
+          994.521519585492,
+          185.28498002959444
+        ],
+        "camera_eye_cm": [
+          -2322.78639674875,
+          84.08112336020474,
+          865.4757205145091
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.145653, yaw: 109.556305, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": true,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 16.026920802891254,
+      "wall_since_script": 11.610000000000582,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 22.65524673461914,
+        "impact_cm": [
+          -2504.356211345367,
+          1025.5893985827213,
+          85.8634106919092
+        ],
+        "nozzle_cm": [
+          -2486.095838101858,
+          1029.5890054349466,
+          73.0640929231598
+        ],
+        "native_aim_cm": [
+          -2646.197316846456,
+          994.521519585498,
+          185.28476445662457
+        ],
+        "camera_eye_cm": [
+          -2322.7887135850933,
+          84.08275637876329,
+          865.4786449239349
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.145844, yaw: 109.556198, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": true,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 16.155770801007748,
+      "wall_since_script": 11.735000000000582,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 22.547710418701172,
+        "impact_cm": [
+          -2504.356211346,
+          1025.6078904159333,
+          85.72206209984404
+        ],
+        "nozzle_cm": [
+          -2486.1910917009595,
+          1029.5890054349463,
+          72.97142109026188
+        ],
+        "native_aim_cm": [
+          -2646.1971868554206,
+          994.5215195855025,
+          185.2845776244516
+        ],
+        "camera_eye_cm": [
+          -2322.7904194011335,
+          84.08408093456228,
+          865.4808989260933
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.145992, yaw: 109.556122, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": true,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 16.28355959802866,
+      "wall_since_script": 11.860000000000582,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 22.468589782714844,
+        "impact_cm": [
+          -2504.3562113464654,
+          1025.621500277178,
+          85.6180310684222
+        ],
+        "nozzle_cm": [
+          -2486.2611253584364,
+          1029.5890054349463,
+          72.90328563434014
+        ],
+        "native_aim_cm": [
+          -2646.197090158159,
+          994.5215195855058,
+          185.28444414453966
+        ],
+        "camera_eye_cm": [
+          -2322.791759583328,
+          84.08505116304491,
+          865.4826694675434
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146107, yaw: 109.556061, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": true,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 16.41436020284891,
+      "wall_since_script": 12.0,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 22.421340942382812,
+        "impact_cm": [
+          -2504.3562113467437,
+          1025.6296319083733,
+          85.55589295202955
+        ],
+        "nozzle_cm": [
+          -2486.302930516809,
+          1029.5890054349463,
+          72.86261356853376
+        ],
+        "native_aim_cm": [
+          -2646.1971056433013,
+          994.5215195855053,
+          185.28445560841422
+        ],
+        "camera_eye_cm": [
+          -2322.791742716071,
+          84.08496008598934,
+          865.4827489762015
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146107, yaw: 109.556061, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": true,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 16.544853694736958,
+      "wall_since_script": 12.125,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 22.411951065063477,
+        "impact_cm": [
+          -2504.356211346799,
+          1025.6312425315816,
+          85.54353860503633
+        ],
+        "nozzle_cm": [
+          -2486.311229533459,
+          1029.5890054349466,
+          72.8545394895333
+        ],
+        "native_aim_cm": [
+          -2646.196941227232,
+          994.5215195855109,
+          185.28420688710438
+        ],
+        "camera_eye_cm": [
+          -2322.793685133156,
+          84.08666330019832,
+          865.4852994840511
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146282, yaw: 109.555977, roll: 0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": true,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 16.67655999213457,
+      "wall_since_script": 12.265999999999622,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 22.441213607788086,
+        "impact_cm": [
+          -2504.3562113466264,
+          1025.6262066931881,
+          85.58202492110613
+        ],
+        "nozzle_cm": [
+          -2486.2853421057926,
+          1029.5890054349466,
+          72.87972526092155
+        ],
+        "native_aim_cm": [
+          -2646.1969567123624,
+          994.5215195855104,
+          185.28421835096938
+        ],
+        "camera_eye_cm": [
+          -2322.793668266104,
+          84.08657222332931,
+          865.4853789929672
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146282, yaw: 109.555977, roll: 0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": true,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 16.807284481823444,
+      "wall_since_script": 12.390999999999622,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 22.506546020507812,
+        "impact_cm": [
+          -2504.3562113462417,
+          1025.6149650610728,
+          85.66793524107936
+        ],
+        "nozzle_cm": [
+          -2486.227525100499,
+          1029.5890054349466,
+          72.9359751864232
+        ],
+        "native_aim_cm": [
+          -2646.1969721974924,
+          994.5215195855099,
+          185.28422981483462
+        ],
+        "camera_eye_cm": [
+          -2322.793651399051,
+          84.08648114646087,
+          865.4854585018833
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146282, yaw: 109.555977, roll: 0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": true,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 16.93949518352747,
+      "wall_since_script": 12.515999999999622,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 23.030532836914062,
+        "impact_cm": [
+          -2504.3562112179156,
+          1021.8658692217359,
+          68.77102532183955
+        ],
+        "nozzle_cm": [
+          -2486.754196103417,
+          1025.2592078165217,
+          54.31211097128725
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": true,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 17.070165283977985,
+      "wall_since_script": 12.65599999999904,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 23.203784942626953,
+        "impact_cm": [
+          -2504.3562113437893,
+          1025.543308212339,
+          85.94056306521043
+        ],
+        "nozzle_cm": [
+          -2485.648189464396,
+          1029.6348995541275,
+          72.83770347677003
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": true,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 17.199589379131794,
+      "wall_since_script": 12.78099999999904,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 21.90815544128418,
+        "impact_cm": [
+          -2504.356211336392,
+          1025.327197746499,
+          89.23558337058182
+        ],
+        "nozzle_cm": [
+          -2486.502220239291,
+          1029.2048025657643,
+          77.14563220321534
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": true,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 17.32611807435751,
+      "wall_since_script": 12.90599999999904,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 22.596965789794922,
+        "impact_cm": [
+          -2504.3562113305293,
+          1025.15591670819,
+          78.34752472698088
+        ],
+        "nozzle_cm": [
+          -2486.5751108204736,
+          1028.9962190466927,
+          64.94200930859604
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 17.45779138058424,
+      "wall_since_script": 13.0470000000023,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 22.69253921508789,
+        "impact_cm": [
+          -2504.356211250883,
+          1022.8290262755492,
+          71.06729590713596
+        ],
+        "nozzle_cm": [
+          -2486.8913603251794,
+          1026.3145156582007,
+          57.00379290005076
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 17.589524887502193,
+      "wall_since_script": 13.1720000000023,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 23.272878646850586,
+        "impact_cm": [
+          -2504.356211271265,
+          1023.4244883236344,
+          72.64424364416047
+        ],
+        "nozzle_cm": [
+          -2486.358756539244,
+          1027.0918259976843,
+          58.351954043370235
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 17.719889886677265,
+      "wall_since_script": 13.2970000000023,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 23.657230377197266,
+        "impact_cm": [
+          -2504.356211318765,
+          1024.8122230399222,
+          77.21766400453805
+        ],
+        "nozzle_cm": [
+          -2485.804075294984,
+          1028.774098068735,
+          63.083068801626354
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 17.850604183971882,
+      "wall_since_script": 13.43800000000192,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 23.689739227294922,
+        "impact_cm": [
+          -2504.356211330768,
+          1025.1628984736926,
+          78.8996318142726
+        ],
+        "nozzle_cm": [
+          -2485.681478128557,
+          1029.1971245723796,
+          64.89307921719964
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 17.98438147455454,
+      "wall_since_script": 13.56300000000192,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 23.711612701416016,
+        "impact_cm": [
+          -2504.3562113185967,
+          1024.8073024295418,
+          77.4663205435013
+        ],
+        "nozzle_cm": [
+          -2485.7460688945957,
+          1028.7809193731196,
+          63.32015594804889
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 18.11611507087946,
+      "wall_since_script": 13.703000000001339,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 23.731433868408203,
+        "impact_cm": [
+          -2504.3562113042694,
+          1024.388728665543,
+          76.05531529170767
+        ],
+        "nozzle_cm": [
+          -2485.8101443453793,
+          1028.2939345370244,
+          61.77336374776812
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 18.24819677323103,
+      "wall_since_script": 13.828000000001339,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 23.77466583251953,
+        "impact_cm": [
+          -2504.35621130442,
+          1024.3931258634934,
+          76.09648824808946
+        ],
+        "nozzle_cm": [
+          -2485.7738956046114,
+          1028.306540654333,
+          61.79201625777848
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 18.378567166626453,
+      "wall_since_script": 13.96900000000096,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 23.78162384033203,
+        "impact_cm": [
+          -2504.356211311822,
+          1024.6093674153585,
+          76.79669856655411
+        ],
+        "nozzle_cm": [
+          -2485.7289779818243,
+          1028.5606397779427,
+          62.54960452862776
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 18.514351569116116,
+      "wall_since_script": 14.110000000000582,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 23.716211318969727,
+        "impact_cm": [
+          -2504.3562113155726,
+          1024.7189487126645,
+          77.0644502813411
+        ],
+        "nozzle_cm": [
+          -2485.765632959558,
+          1028.676808118599,
+          62.8804852229981
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 18.65267827361822,
+      "wall_since_script": 14.235000000000582,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 23.59705924987793,
+        "impact_cm": [
+          -2504.3562113141625,
+          1024.6777581964157,
+          76.70295331559765
+        ],
+        "nozzle_cm": [
+          -2485.8804308790054,
+          1028.6058121289393,
+          62.55948756498161
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 18.785941667854786,
+      "wall_since_script": 14.375,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 23.45459747314453,
+        "impact_cm": [
+          -2504.3562113124217,
+          1024.626896992053,
+          76.26066043601594
+        ],
+        "nozzle_cm": [
+          -2486.017990086874,
+          1028.5191292414916,
+          62.16531535660162
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 18.9201365634799,
+      "wall_since_script": 14.5,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 23.294578552246094,
+        "impact_cm": [
+          -2504.356211312868,
+          1024.6399272386793,
+          76.03435852502318
+        ],
+        "nozzle_cm": [
+          -2486.156971268688,
+          1028.504332917031,
+          62.01680268137849
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 19.052284263074398,
+      "wall_since_script": 14.65599999999904,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 23.139150619506836,
+        "impact_cm": [
+          -2504.356211314768,
+          1024.6954459763444,
+          75.94031235128256
+        ],
+        "nozzle_cm": [
+          -2486.284953867062,
+          1028.539749255017,
+          62.00935033058766
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 19.1979875639081,
+      "wall_since_script": 14.7970000000023,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 22.974899291992188,
+        "impact_cm": [
+          -2504.3562113159924,
+          1024.7312213583468,
+          75.78835866314031
+        ],
+        "nozzle_cm": [
+          -2486.422855658345,
+          1028.550711831343,
+          61.94449195477248
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 19.34916966408491,
+      "wall_since_script": 14.953000000001339,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 22.834529876708984,
+        "impact_cm": [
+          -2504.3562113165517,
+          1024.7475588219015,
+          75.55760197227252
+        ],
+        "nozzle_cm": [
+          -2486.5463245255382,
+          1028.5428038614964,
+          61.780074201101336
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 19.49427566677332,
+      "wall_since_script": 15.09400000000096,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 22.71097755432129,
+        "impact_cm": [
+          -2504.3562113168273,
+          1024.75561384171,
+          75.35568707876715
+        ],
+        "nozzle_cm": [
+          -2486.6546860665308,
+          1028.5287724558045,
+          61.636787951978874
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    },
+    {
+      "game_seconds": 19.6422875598073,
+      "wall_since_script": 15.235000000000582,
+      "phase": "reward_motion_and_wallet_hold",
+      "coins": 10,
+      "task_left": 0,
+      "target": {
+        "hp": 100.0,
+        "maximum": 100.0,
+        "repair": 0
+      },
+      "spray_contact": {
+        "ready": true,
+        "blocking": true,
+        "hit_actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+        "hit_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+        "contact_distance_cm": 22.615039825439453,
+        "impact_cm": [
+          -2504.3562113169755,
+          1024.759942200821,
+          75.23578963372304
+        ],
+        "nozzle_cm": [
+          -2486.7365471645157,
+          1028.5161893647655,
+          61.56544008031482
+        ],
+        "native_aim_cm": [
+          -2646.1968392398344,
+          994.5215195855144,
+          185.28401544563624
+        ],
+        "camera_eye_cm": [
+          -2322.7952577198225,
+          84.08791835145735,
+          865.4876329838054
+        ],
+        "camera_rotation": "<Struct 'Rotator' (0x00000229B4B0EBD0) {pitch: -35.146431, yaw: 109.555908, roll: -0.000000}>",
+        "reach_cm": 235.0
+      },
+      "coin_motion_active": false,
+      "coin_mesh_present": true
+    }
+  ],
+  "fixtures": [
+    "Unsaved temporary BP_MouthGameMode CDO workload configured by owning lifecycle before PIE; restored after PIE closes",
+    "PIE inherits transient legacy LooseTooth event, one objective, 120s duration; child makes no configuration writes",
+    "Ordinary RestartShift; current target/phase/reward/readiness are observed, never assigned",
+    "One supported initial placement and movement lock during native spray contact",
+    "Native Inventory.ServerSelect(Spray), ordinary ApplyCameraOrbitInput and SetPrimaryInputHeld"
+  ],
+  "limitations": [
+    "Legacy completion path fixture, not a full SingleDay run.",
+    "No direct reward, heal, completion, readiness or economy writes.",
+    "External root recording supplies actual realtime video/audio; script records no microphone.",
+    "Transient profile intentionally excludes persistent save/reload.",
+    "Hub purchase/spend must be checked separately through its real shop context.",
+    "No network or packaged first-launch PSO claim."
+  ],
+  "video_phases": [
+    {
+      "phase": "waiting_native_workload",
+      "wall_since_script": 0.875,
+      "game_seconds": 5.5251131020486355
+    },
+    {
+      "phase": "waiting_root_record_gate",
+      "wall_since_script": 8.860000000000582,
+      "game_seconds": 13.532145701348782
+    },
+    {
+      "phase": "before_native_repair",
+      "wall_since_script": 9.78099999999904,
+      "game_seconds": 14.34320130199194
+    },
+    {
+      "phase": "native_repair",
+      "wall_since_script": 10.81300000000192,
+      "game_seconds": 15.372094489634037
+    },
+    {
+      "phase": "reward_motion_and_wallet_hold",
+      "wall_since_script": 11.09400000000096,
+      "game_seconds": 15.638429693877697
+    }
+  ],
+  "engine_command_line": "-nosplash -nohmd -mchubtransientprofile -ddc=installednozenlocalfallback -localdatacachepath=e:/devgame/messcontrol/deriveddatacache -abslog=e:/codexwork/batch6_20261027/editorgate.log",
+  "source_sha256": {
+    "Source/MessControl/Private/MCGameMode.cpp": "f480ca259a0bfb2aed0b766a5b6ea81e3da06237a83fce298b78641e2385234f",
+    "Source/MessControl/Private/MCTaskCoinPresentationComponent.cpp": "38d9c69f4b6ac7dbaa6973f0b95aae9da023367e3b8e226a7a2df3a11ab73ab0",
+    "Source/MessControl/Private/MCToothStatusComponent.cpp": "f71d81b14770e1a356c48596bf90955226fce5bffd0f50eb235ef9c65ad14397"
+  },
+  "floor_trace_query": "TRACE_TYPE_QUERY1",
+  "fixture": {
+    "attempts": 1,
+    "target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13",
+    "placement_cm": [
+      -2484.6226456617987,
+      957.913023211829,
+      72.64630635762919
+    ],
+    "before": {
+      "hp": 100.0,
+      "maximum": 100.0,
+      "repair": 4
+    },
+    "wallet_before": 0,
+    "expected_reward": 10,
+    "prepared_before_first_task": true,
+    "collision_body": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_13.PhysicalBody",
+    "body_origin_cm": [
+      -2718.633111172618,
+      1198.442790033425,
+      -164.36783676226926
+    ],
+    "body_extent_cm": [
+      214.2768999807851,
+      203.92128187930743,
+      358.7230243171086
+    ],
+    "body_gap_cm": 40.0,
+    "aim_target_cm": [
+      -2718.633111172618,
+      1198.442790033425,
+      32.92982661214046
+    ],
+    "contact_reach_cm": 235.0,
+    "approach_reference": "Batch4_20261026/probe_care_checkpoint.py; actual held native spray healed 30->100HP in14.0182s",
+    "contact_policy": "Read-only native WatergunAimPoint and actual nozzle Visibility trace must hit this PhysicalBody within235cm before primary is pressed"
+  },
+  "record_gate": {
+    "path": "E:\\CodexWork\\Checkpoint_20261027\\CaptureControl\\083326_634ffb\\record.gate",
+    "policy": "Root creates this fresh file after external game-window capture is running; no gameplay clocks are paused.",
+    "observed_game_seconds": 14.34320130199194,
+    "observed_wall_since_script": 9.78099999999904
+  },
+  "audio": {
+    "method": "Native master output recording, no microphone",
+    "started_game_seconds": 14.34320130199194,
+    "started_wall_since_script": 9.78099999999904,
+    "planned_wav": "E:\\CodexWork\\Checkpoint_20261027\\Coins\\Run_20261026T233332Z_314f6b\\Audio\\TaskCoins_ActualGameOutput.wav",
+    "volumes_modified": false,
+    "actual_audibility": "Root must listen to resulting WAV; recording call is not audio acceptance.",
+    "stop_game_seconds": 19.6422875598073,
+    "stop_wall_since_script": 15.235000000000582,
+    "export_status": "Export requested; root verifies file and signal after asynchronous write."
+  },
+  "completion": {
+    "game_seconds": 15.638429693877697,
+    "repair_elapsed": 0.26633520424366,
+    "wallet_after": 10,
+    "target": {
+      "hp": 100.0,
+      "maximum": 100.0,
+      "repair": 0
+    }
+  },
+  "error": null,
+  "elapsed_wall_seconds": 15.235000000000582,
+  "cleanup": "Native input released and movement restored. Root retains this explicitly owned PIE for video/teardown."
+}

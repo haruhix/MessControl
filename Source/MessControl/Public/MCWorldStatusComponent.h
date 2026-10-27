@@ -27,6 +27,7 @@ public:
     UPROPERTY(Transient,VisibleInstanceOnly,BlueprintReadOnly,Category="Status") TObjectPtr<UMCWorldStatusWidget> StatusWidget;
     UFUNCTION(BlueprintPure,Category="Status") bool SupportsOwner() const;
 private:
+    friend class FMCToothHPStatusSourceTest;
     bool ReadSnapshot(FMCWorldStatusSnapshot& Value,FVector& Anchor) const;
     bool CanSee(FVector Anchor) const;
     void EnsureWidget();

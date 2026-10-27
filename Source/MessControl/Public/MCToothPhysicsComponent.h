@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "MCPhysicsTypes.h"
+#include "MCGlideAnimation.h"
 #include "PhysicsEngine/ConstraintInstance.h"
 #include "MCToothPhysicsComponent.generated.h"
 class AMCToothCharacter;
@@ -22,6 +23,9 @@ public:
     UPROPERTY(ReplicatedUsing=OnRep_Settings,BlueprintReadOnly,Category="Physics") FMCPhysicsSettings Settings;
     UFUNCTION(BlueprintPure,Category="Physics") EMCBodyState GetBodyState() const { return LocalState; }
     bool CanAct() const;
+    UFUNCTION(BlueprintPure,Category="Physics|Slippery") bool IsSlipping() const { return LocalState==EMCBodyState::Slipping; }
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Physics|Slippery") bool BeginSlipperyFall();
+    bool GetAuthoredSlipSample(float& Time,float& Alpha) const;
     void EnterDeath();
     void SetThroatCaptured(bool Captured);
     void ApplyHit(FVector VelocityChange,FVector HitLocation);
@@ -44,6 +48,11 @@ private:
     void EnterRagdoll();
     void EnterRecovery();
     void EnterStanding();
+    void EnterSlipping();
+    void UpdateSlipperyFallGate(float Dt);
+    void TickSlipping(float Dt);
+    void SlipToRagdoll();
+    void BuildSlippingPose(TArray<FTransform>& Pose) const;
     void SetState(EMCBodyState NewState);
     void CaptureFrame();
     void SetMuscles(bool bEnable);
@@ -77,4 +86,7 @@ private:
     struct FGripJoint { FName Name,Role; FConstraintProfileProperties Profile; };
     TArray<FGripJoint> GripJoints;
     FName HandControls[2];
+    FMCSlipperyFallGate SlipGate;
+    float PreviousSlipSpeed=0.f,SlipSendAccumulator=0.f;
+    FVector SlipVelocity=FVector::ZeroVector;
 };

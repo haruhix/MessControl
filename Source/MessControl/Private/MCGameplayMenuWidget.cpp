@@ -5,6 +5,9 @@
 #include "MCGameplayHUD.h"
 #include "MCHubGameState.h"
 #include "MCUIVisualStyle.h"
+#include "MCGameUserSettings.h"
+#include "MCVoiceSettingsWidget.h"
+#include "MCGameplayUIFactory.h"
 #include "Blueprint/WidgetTree.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Components/Border.h"
@@ -18,6 +21,7 @@
 #include "Components/ScaleBox.h"
 #include "Components/ScrollBox.h"
 #include "Components/SizeBox.h"
+#include "Components/Slider.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
@@ -44,7 +48,10 @@ namespace MCGameplayMenuPrivate
         const UWidget* Current=Target;
         while(Current && Current!=Pages->GetActiveWidget()) {
             if(!Current->IsVisible()) return false;
-            Current=Current->GetParent();
+            const UWidget* Parent=Current->GetParent();
+            // A composed voice panel has its own WidgetTree. Traverse its
+            // owning UserWidget before continuing through the active page.
+            Current=Parent?Parent:Current->GetTypedOuter<UUserWidget>();
         }
         return Current==Pages->GetActiveWidget();
     }
@@ -68,6 +75,7 @@ void UMCGameplayMenuWidget::NativeConstruct()
 }
 void UMCGameplayMenuWidget::NativeDestruct()
 {
+    if(VoiceSettings) VoiceSettings->StopInteraction();
     if(bVideoConfirmationPending) RevertVideoSettings();
     GeneratedPickerLabels.Reset();
     Super::NativeDestruct();
@@ -204,14 +212,16 @@ void UMCGameplayMenuWidget::BindPresentationTree()
     ModePicker=Cast<UComboBoxString>(WidgetTree->FindWidget(TEXT("MenuModePicker")));
     QualityPicker=Cast<UComboBoxString>(WidgetTree->FindWidget(TEXT("MenuQualityPicker")));
     VSyncCheck=Cast<UCheckBox>(WidgetTree->FindWidget(TEXT("MenuVSync")));
+    EnsureSettingsAdditions();
     RoomPicker=Cast<UComboBoxString>(WidgetTree->FindWidget(TEXT("MenuRoomPicker")));
     AddressBox=Cast<UEditableTextBox>(WidgetTree->FindWidget(TEXT("MenuAddress")));
     Buttons.Reset();FocusTargets.Reset();TArray<UWidget*> Widgets;WidgetTree->GetAllWidgets(Widgets);
     for(auto* Widget:Widgets) {
         if(auto* Button=Cast<UMCGameplayMenuActionButton>(Widget)) {Button->Configure(this);Buttons.Add(Button);FocusTargets.Add(Button);}
         else if(auto* Picker=Cast<UComboBoxString>(Widget)) {Picker->OnGenerateWidgetEvent.BindDynamic(this,&ThisClass::GeneratePickerItem);FocusTargets.Add(Picker);}
-        else if(Cast<UCheckBox>(Widget) || Cast<UEditableTextBox>(Widget)) FocusTargets.Add(Widget);
+        else if(Cast<UCheckBox>(Widget) || Cast<UEditableTextBox>(Widget) || Cast<USlider>(Widget)) FocusTargets.Add(Widget);
     }
+    if(VoiceSettings) {TArray<UWidget*> VoiceControls;VoiceSettings->GetFocusableControls(VoiceControls);for(UWidget* Control:VoiceControls) FocusTargets.AddUnique(Control);}
     if(auto* Scroll=Cast<UScrollBox>(WidgetTree->FindWidget(TEXT("GameplayMenuScroll")))) {Scroll->SetScrollWhenFocusChanges(EScrollWhenFocusChanges::AnimatedScroll);Scroll->SetNavigationDestination(EDescendantScrollDestination::IntoView);}
     // The multiplayer note belongs above the persistent navigation footer.
     // Keeping it in the scrolling page can hide its second translated line.
@@ -257,6 +267,115 @@ void UMCGameplayMenuWidget::NormalizePresentationLayout()
     bLayoutDirty=true;
 }
 
+USlider* UMCGameplayMenuWidget::AddVolumeSlider(UVerticalBox* Parent,FName Name,FName LabelName)
+{
+    auto* Frame=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),FName(*(Name.ToString()+TEXT("Frame"))));
+    Frame->SetPadding(FMargin(16,10));BindStyle(Frame->GetFName(),EMCUIColorToken::Surface,EMCUIStyleTarget::Background);
+    auto* Column=WidgetTree->ConstructWidget<UVerticalBox>();Frame->SetContent(Column);
+    auto* Label=AddText(Column,LabelName,FText::GetEmpty(),18);
+    BindStyle(Label->GetFName(),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,18,true);
+    auto* Slider=WidgetTree->ConstructWidget<USlider>(USlider::StaticClass(),Name);
+    Slider->SetMinValue(0);Slider->SetMaxValue(1);Slider->SetStepSize(.01f);Slider->SetValue(1);
+    Column->AddChildToVerticalBox(Slider)->SetPadding(FMargin(2,3,2,4));
+    BindStyle(Name,EMCUIColorToken::Accent,EMCUIStyleTarget::Slider);
+    Parent->AddChildToVerticalBox(Frame)->SetPadding(FMargin(0,0,0,10));return Slider;
+}
+
+void UMCGameplayMenuWidget::EnsureSettingsAdditions()
+{
+    auto* Settings=WidgetTree?Cast<UVerticalBox>(WidgetTree->FindWidget(TEXT("MenuSettingsPage"))):nullptr;
+    if(!Settings || !Pages) return;
+    CameraSmoothingCheck=WidgetTree->FindWidget<UCheckBox>(TEXT("MenuCameraSmoothing"));
+    if(!CameraSmoothingCheck || !WidgetTree->FindWidget(TEXT("MenuAudioSettings"))) {
+        // Insert the two known additions before the existing action tail while
+        // keeping an older authored WBP's settings hierarchy intact.
+        TArray<UWidget*> Tail;
+        UWidget* Action=WidgetTree->FindWidget(TEXT("MenuApply"));
+        while(Action && Action->GetParent()!=Settings) Action=Action->GetParent();
+        const int32 Start=Action?Settings->GetChildIndex(Action):Settings->GetChildrenCount();
+        for(int32 Index=Start;Index<Settings->GetChildrenCount();++Index) Tail.Add(Settings->GetChildAt(Index));
+        for(UWidget* Child:Tail) Child->RemoveFromParent();
+        if(!CameraSmoothingCheck) {
+            auto* Frame=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("MenuCameraSmoothingFrame"));Frame->SetPadding(FMargin(16,10));
+            BindStyle(Frame->GetFName(),EMCUIColorToken::Surface,EMCUIStyleTarget::Background);
+            CameraSmoothingCheck=WidgetTree->ConstructWidget<UCheckBox>(UCheckBox::StaticClass(),TEXT("MenuCameraSmoothing"));
+            auto* Label=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("MenuCameraSmoothingLabel"));
+            Label->SetAutoWrapText(true);CameraSmoothingCheck->SetContent(Label);Frame->SetContent(CameraSmoothingCheck);
+            BindStyle(Label->GetFName(),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,18,true);
+            Settings->AddChildToVerticalBox(Frame)->SetPadding(FMargin(0,0,0,10));
+        }
+        if(!WidgetTree->FindWidget(TEXT("MenuAudioSettings")))
+            AddButton(Settings,TEXT("MenuAudioSettings"),FText::GetEmpty(),EMCGameplayMenuAction::AudioSettings);
+        for(UWidget* Child:Tail) Settings->AddChildToVerticalBox(Child)->SetPadding(FMargin(0,8,0,4));
+    }
+    if(CameraSmoothingCheck && !IsPreviewing()) CameraSmoothingCheck->OnCheckStateChanged.AddUniqueDynamic(this,&ThisClass::CameraSmoothingChanged);
+    auto* Audio=WidgetTree->FindWidget<UVerticalBox>(TEXT("MenuAudioPage"));
+    if(!Audio) {
+        Audio=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("MenuAudioPage"));Pages->AddChild(Audio);
+        AddText(Audio,TEXT("MenuAudioImmediateHint"),FText::GetEmpty(),16);
+        const TCHAR* Names[]={TEXT("MenuMasterSlider"),TEXT("MenuMusicSlider"),TEXT("MenuAmbienceSlider"),TEXT("MenuSFXSlider")};
+        for(const TCHAR* Name:Names) AddVolumeSlider(Audio,Name,FName(*(FString(Name)+TEXT("Label"))));
+        AddText(Audio,TEXT("MenuVoiceHeading"),FText::GetEmpty(),22);
+        VoiceSettings=WidgetTree->ConstructWidget<UMCVoiceSettingsWidget>(UMCGameplayUIFactory::ResolveClass(TEXT("VoiceSettings"),UMCVoiceSettingsWidget::StaticClass()),TEXT("MenuVoicePanel"));
+        if(VoiceSettings) {
+            VoiceSettings->Theme=GetResolvedTheme();VoiceSettings->bApplyChangesImmediately=!IsPreviewing();
+            Audio->AddChildToVerticalBox(VoiceSettings);VoiceSettings->BuildPresentationTree();VoiceSettings->ApplyTheme();
+        }
+        AddButton(Audio,TEXT("MenuAudioBack"),FText::GetEmpty(),EMCGameplayMenuAction::Back);
+    } else VoiceSettings=WidgetTree->FindWidget<UMCVoiceSettingsWidget>(TEXT("MenuVoicePanel"));
+    if(VoiceSettings) VoiceSettings->bApplyChangesImmediately=!IsPreviewing();
+    AudioSliders.Reset();
+    for(const TCHAR* Name:{TEXT("MenuMasterSlider"),TEXT("MenuMusicSlider"),TEXT("MenuAmbienceSlider"),TEXT("MenuSFXSlider")})
+        if(auto* Slider=WidgetTree->FindWidget<USlider>(Name)) {
+            AudioSliders.Add(Name,Slider);
+            if(!IsPreviewing()) Slider->OnValueChanged.AddUniqueDynamic(this,&ThisClass::AudioValueChanged);
+        }
+}
+
+void UMCGameplayMenuWidget::PopulateAudioSettings()
+{
+    TGuardValue<bool> Guard(bLoadingSettings,true);
+    const auto* Preferences=IsPreviewing()?nullptr:UMCGameUserSettings::Get();
+    const TCHAR* Names[]={TEXT("MenuMasterSlider"),TEXT("MenuMusicSlider"),TEXT("MenuAmbienceSlider"),TEXT("MenuSFXSlider")};
+    const float Values[]={Preferences?Preferences->GetMasterVolume():1,Preferences?Preferences->GetMusicVolume():1,
+        Preferences?Preferences->GetAmbienceVolume():1,Preferences?Preferences->GetSFXVolume():1};
+    for(int32 Index=0;Index<4;++Index) if(auto* Slider=AudioSliders.FindRef(Names[Index]).Get()) Slider->SetValue(Values[Index]);
+    if(VoiceSettings && !IsPreviewing()) VoiceSettings->LoadPendingSettings();
+    RefreshAudioValues();
+}
+
+void UMCGameplayMenuWidget::RefreshAudioValues()
+{
+    const TCHAR* Names[]={TEXT("MenuMasterSlider"),TEXT("MenuMusicSlider"),TEXT("MenuAmbienceSlider"),TEXT("MenuSFXSlider")};
+    const TCHAR* Keys[]={TEXT("UI.Settings.Master"),TEXT("UI.Settings.Music"),TEXT("UI.Settings.Ambience"),TEXT("UI.Settings.SFX")};
+    const TCHAR* Fallbacks[]={TEXT("Общая громкость"),TEXT("Музыка"),TEXT("Окружение"),TEXT("Звуковые эффекты")};
+    for(int32 Index=0;Index<4;++Index)
+        if(auto* Slider=AudioSliders.FindRef(Names[Index]).Get())
+            if(auto* Label=WidgetTree->FindWidget<UTextBlock>(FName(*(FString(Names[Index])+TEXT("Label")))))
+                Label->SetText(FText::Format(LOCTEXT("AudioVolumeValue","{Label}: {Value}%"),FFormatNamedArguments{
+                    {TEXT("Label"),Copy(Keys[Index],FText::AsCultureInvariant(Fallbacks[Index]))},
+                    {TEXT("Value"),UMCUIDataLibrary::NumberForCulture(FMath::RoundToInt(Slider->GetValue()*100),IsPreviewing()?PreviewCulture:FString())}}));
+}
+
+void UMCGameplayMenuWidget::AudioValueChanged(float)
+{
+    RefreshAudioValues();if(bLoadingSettings || IsPreviewing()) return;
+    if(auto* Preferences=UMCGameUserSettings::Get()) {
+        auto Value=[&](FName Name,float Fallback) {const auto* Slider=AudioSliders.FindRef(Name).Get();return Slider?Slider->GetValue():Fallback;};
+        Preferences->SetMasterVolume(Value(TEXT("MenuMasterSlider"),Preferences->GetMasterVolume()));
+        Preferences->SetMusicVolume(Value(TEXT("MenuMusicSlider"),Preferences->GetMusicVolume()));
+        Preferences->SetAmbienceVolume(Value(TEXT("MenuAmbienceSlider"),Preferences->GetAmbienceVolume()));
+        Preferences->SetSFXVolume(Value(TEXT("MenuSFXSlider"),Preferences->GetSFXVolume()));
+        Preferences->ApplyGameplaySettings();Preferences->SaveSettings();
+    }
+}
+
+void UMCGameplayMenuWidget::CameraSmoothingChanged(bool Enabled)
+{
+    if(bLoadingSettings || IsPreviewing()) return;
+    if(auto* Preferences=UMCGameUserSettings::Get()) {Preferences->SetCameraSmoothingEnabled(Enabled);Preferences->SaveSettings();}
+}
+
 void UMCGameplayMenuWidget::UpdatePresentationLayout(FVector2D Area)
 {
     if(!bUseNativeLayout) return;
@@ -268,7 +387,7 @@ void UMCGameplayMenuWidget::UpdatePresentationLayout(FVector2D Area)
     if(!Size || !Column || !Scroll || !ActivePage) return;
     if(Area.IsNearlyZero()) Area=GetCachedGeometry().GetLocalSize();
     if(Area.X<=1 || Area.Y<=1) Area=FVector2D(1920,1080);
-    const float PreferredWidth=Page==EPage::Settings?840.f:Page==EPage::Credits?760.f:Page==EPage::Pause?500.f:640.f;
+    const float PreferredWidth=Page==EPage::Settings || Page==EPage::Audio?840.f:Page==EPage::Credits?760.f:Page==EPage::Pause?500.f:640.f;
     const float Width=FMath::Min(PreferredWidth,FMath::Max(280.f,float(Area.X)-56.f));
     const float MaximumHeight=FMath::Max(240.f,float(Area.Y)-56.f);
     const FVector2D ArrangedSize=Size->GetCachedGeometry().GetLocalSize();
@@ -354,8 +473,13 @@ void UMCGameplayMenuWidget::UpdatePageCopy()
     Set(TEXT("MenuModeLabel"),TEXT("UI.Menu.WindowMode"),LOCTEXT("WindowMode","Режим экрана"));
     Set(TEXT("MenuQualityLabel"),TEXT("UI.Menu.Quality"),LOCTEXT("Quality","Качество графики"));
     Set(TEXT("MenuVSyncLabel"),TEXT("UI.Menu.VSync"),LOCTEXT("VSync","VSync"));
+    Set(TEXT("MenuCameraSmoothingLabel"),TEXT("UI.Settings.CameraSmoothing"),LOCTEXT("CameraSmoothing","Сглаживание камеры"));
+    Set(TEXT("MenuAudioSettingsLabel"),TEXT("UI.Menu.AudioSettings"),LOCTEXT("AudioSettings","Звук и микрофон"));
+    Set(TEXT("MenuAudioImmediateHint"),TEXT("UI.Menu.AudioImmediate"),LOCTEXT("AudioImmediate","Изменения звука и микрофона применяются и сохраняются сразу."));
+    Set(TEXT("MenuVoiceHeading"),TEXT("UI.Settings.Tab.Voice"),LOCTEXT("VoiceHeading","Голос"));
+    RefreshAudioValues();
     Set(TEXT("MenuApplyLabel"),TEXT("UI.Menu.Apply"),LOCTEXT("Apply","Применить и сохранить"));
-    for(const TCHAR* Name:{TEXT("MenuSettingsBackLabel"),TEXT("MenuCreditsBackLabel"),TEXT("MenuConnectionBackLabel")})
+    for(const TCHAR* Name:{TEXT("MenuSettingsBackLabel"),TEXT("MenuCreditsBackLabel"),TEXT("MenuConnectionBackLabel"),TEXT("MenuAudioBackLabel")})
         Set(Name,TEXT("UI.Common.Back"),LOCTEXT("Back","Назад"));
     for(const TCHAR* Name:{TEXT("MenuLeaveCancelLabel"),TEXT("MenuExitCancelLabel")})
         Set(Name,TEXT("UI.Common.Cancel"),LOCTEXT("Cancel","Отмена"));
@@ -381,6 +505,7 @@ void UMCGameplayMenuWidget::UpdatePageCopy()
     if(Heading) {
         switch(Page) {
         case EPage::Settings: Heading->SetText(Copy(TEXT("UI.Menu.Settings"),LOCTEXT("Settings","Настройки")));break;
+        case EPage::Audio: Heading->SetText(Copy(TEXT("UI.Menu.AudioSettings"),LOCTEXT("AudioSettings","Звук и микрофон")));break;
         case EPage::Credits: Heading->SetText(Copy(TEXT("UI.Menu.Credits"),LOCTEXT("Credits","Авторы")));break;
         case EPage::Leave: Heading->SetText(Copy(TEXT("UI.Menu.LeaveHeading"),LOCTEXT("LeaveHeading","Выйти из комнаты?")));break;
         case EPage::Exit: Heading->SetText(Copy(TEXT("UI.Menu.ExitHeading"),LOCTEXT("ExitHeading","Выйти из игры?")));break;
@@ -397,22 +522,27 @@ void UMCGameplayMenuWidget::UpdatePageCopy()
 void UMCGameplayMenuWidget::ShowPage(EPage NewPage)
 {
     if(NewPage==EPage::Credits && !IsPreviewing()) NewPage=EPage::Pause;
+    const EPage PreviousPage=Page;
+    if(VoiceSettings && NewPage!=EPage::Audio) VoiceSettings->StopInteraction();
     BuildPresentationTree();Page=NewPage;NextStickNavigationAt=0;SetStatus(FText::GetEmpty());
     if(Pages) {
-        const TCHAR* Names[]={TEXT("MenuPausePage"),TEXT("MenuSettingsPage"),TEXT("MenuCreditsPage"),TEXT("MenuLeavePage"),TEXT("MenuExitPage"),TEXT("MenuVideoConfirmPage"),TEXT("MenuConnectionPage")};
+        const TCHAR* Names[]={TEXT("MenuPausePage"),TEXT("MenuSettingsPage"),TEXT("MenuCreditsPage"),TEXT("MenuLeavePage"),TEXT("MenuExitPage"),TEXT("MenuVideoConfirmPage"),TEXT("MenuConnectionPage"),TEXT("MenuAudioPage")};
         if(auto* Panel=WidgetTree->FindWidget(Names[static_cast<int32>(Page)])) Pages->SetActiveWidget(Panel);
     }
     UpdatePageCopy();
-    if(Page==EPage::Settings) PopulateSettings();
+    if(Page==EPage::Settings && PreviousPage!=EPage::Audio) PopulateSettings();
+    if(Page==EPage::Audio) PopulateAudioSettings();
     if(Page==EPage::Connection) {LastSearchRevision=INDEX_NONE;RefreshConnection();}
     ApplyTheme();if(!IsPreviewing()) FocusMenu();
 }
 void UMCGameplayMenuWidget::ShowPause()
 {
+    SetVisibility(ESlateVisibility::Visible);
     if(bVideoConfirmationPending) RevertVideoSettings();bConnectionRoot=false;bCloseRequested=false;ShowPage(EPage::Pause);
 }
 void UMCGameplayMenuWidget::ShowConnection()
 {
+    SetVisibility(ESlateVisibility::Visible);
     if(bVideoConfirmationPending) RevertVideoSettings();bConnectionRoot=true;bCloseRequested=false;ShowPage(EPage::Connection);
 }
 void UMCGameplayMenuWidget::SetStatus(const FText& Text)
@@ -461,6 +591,7 @@ bool UMCGameplayMenuWidget::SteamAvailable() const
 
 void UMCGameplayMenuWidget::PopulateSettings()
 {
+    TGuardValue<bool> Guard(bLoadingSettings,true);
     if(!ResolutionPicker || !ModePicker || !QualityPicker || !VSyncCheck) return;
     auto* Settings=IsPreviewing()?nullptr:UGameUserSettings::GetGameUserSettings();
     if(!Settings && !IsPreviewing()) {
@@ -481,6 +612,7 @@ void UMCGameplayMenuWidget::PopulateSettings()
     const int32 Quality=Settings?Settings->GetOverallScalabilityLevel():3;
     RefreshSettingsChoiceCopy(Settings?static_cast<int32>(Settings->GetFullscreenMode()):1,Quality<0?5:FMath::Clamp(Quality,0,4),Quality<0);
     VSyncCheck->SetIsChecked(Settings?Settings->IsVSyncEnabled():true);
+    if(CameraSmoothingCheck) CameraSmoothingCheck->SetIsChecked(!IsPreviewing() && UMCGameUserSettings::Get()?UMCGameUserSettings::Get()->GetCameraSmoothingEnabled():false);
 }
 void UMCGameplayMenuWidget::RefreshSettingsChoiceCopy(int32 Mode,int32 Quality,bool bIncludeCustom)
 {
@@ -588,6 +720,7 @@ void UMCGameplayMenuWidget::HandleAction(EMCGameplayMenuAction Action)
     case EMCGameplayMenuAction::Resume:bCloseRequested=true;OnResumeRequested.Broadcast();break;
     case EMCGameplayMenuAction::Emotes:bCloseRequested=true;OnEmotesRequested.Broadcast();break;
     case EMCGameplayMenuAction::Settings:ShowPage(EPage::Settings);break;
+    case EMCGameplayMenuAction::AudioSettings:ShowPage(EPage::Audio);break;
     case EMCGameplayMenuAction::Credits:break; // Reserved for later; explicit Designer previews remain available.
     case EMCGameplayMenuAction::Leave:ShowPage(EPage::Leave);break;
     case EMCGameplayMenuAction::Exit:ShowPage(EPage::Exit);break;
@@ -618,6 +751,7 @@ void UMCGameplayMenuWidget::HandleAction(EMCGameplayMenuAction Action)
 void UMCGameplayMenuWidget::RequestBack()
 {
     if(IsPreviewing() || bCloseRequested) return;
+    if(Page==EPage::Audio) {ShowPage(EPage::Settings);return;}
     if(bVideoConfirmationPending) {RevertVideoSettings();ShowPage(EPage::Settings);return;}
     const EPage Root=bConnectionRoot?EPage::Connection:EPage::Pause;
     if(Page!=Root) {ShowPage(Root);return;}
@@ -626,7 +760,7 @@ void UMCGameplayMenuWidget::RequestBack()
 }
 void UMCGameplayMenuWidget::FocusMenu()
 {
-    if(IsPreviewing() || bCloseRequested || !GetOwningPlayer()) return;
+    if(IsPreviewing() || bCloseRequested || !GetOwningPlayer() || !IsInViewport() || !IsVisible()) return;
     for(UWidget* Target:FocusTargets) if(MCGameplayMenuPrivate::WithinActivePage(Target,Pages)) {Target->SetUserFocus(GetOwningPlayer());if(auto* Scroll=Cast<UScrollBox>(WidgetTree->FindWidget(TEXT("GameplayMenuScroll")))) Scroll->ScrollWidgetIntoView(Target,false,EDescendantScrollDestination::IntoView,8);return;}
     SetUserFocus(GetOwningPlayer());
 }
@@ -666,6 +800,7 @@ void UMCGameplayMenuWidget::NativeTick(const FGeometry& Geometry,float DeltaSeco
 FReply UMCGameplayMenuWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
 {
     if(IsPreviewing()) return Super::NativeOnPreviewKeyDown(Geometry,Event);
+    if(VoiceSettings && VoiceSettings->RouteRebindKey(Event.GetKey())) return FReply::Handled();
     const FKey Key=Event.GetKey();
     if(Key==EKeys::Escape || Key==EKeys::Gamepad_FaceButton_Right || (bConnectionRoot && Key==EKeys::F2) || (!bConnectionRoot && Key==EKeys::Gamepad_Special_Right)) {
         if(!Event.IsRepeat()) RequestBack();return FReply::Handled();
@@ -706,7 +841,7 @@ void UMCGameplayMenuWidget::ApplyTheme()
     BindStyle(TEXT("GameplayMenuCard"),EMCUIColorToken::Marine,EMCUIStyleTarget::Background);
     BindStyle(TEXT("GameplayMenuHeader"),EMCUIColorToken::Cream,EMCUIStyleTarget::Background);
     if(Card) Card->SetPadding(FMargin(20,18));
-    const float PanelWidth=Page==EPage::Settings?840:Page==EPage::Credits?760:Page==EPage::Pause?500:640;
+    const float PanelWidth=Page==EPage::Settings || Page==EPage::Audio?840:Page==EPage::Credits?760:Page==EPage::Pause?500:640;
     if(auto* Note=WidgetTree->FindWidget(TEXT("MenuNetworkNote"))) Note->SetVisibility(Page==EPage::Pause?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     UpdatePageCopy();TArray<UWidget*> Widgets;WidgetTree->GetAllWidgets(Widgets);
     for(auto* Widget:Widgets) {
@@ -784,6 +919,7 @@ void UMCGameplayMenuWidget::ApplyEditorPreview(float Time)
     BuildPresentationTree();for(UMCGameplayMenuActionButton* Button:Buttons) if(Button) Button->SetIsEnabled(true);
     EPage Fixture=EPage::Pause;bConnectionRoot=false;
     if(PreviewState==TEXT("Settings")) Fixture=EPage::Settings;
+    else if(PreviewState==TEXT("SettingsAudio")) Fixture=EPage::Audio;
     else if(PreviewState==TEXT("Credits") || PreviewScenario==EMCGameplayUIPreviewScenario::LongText) Fixture=EPage::Credits;
     else if(PreviewState==TEXT("Leave")) Fixture=EPage::Leave;
     else if(PreviewState==TEXT("Exit")) Fixture=EPage::Exit;

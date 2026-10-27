@@ -5,6 +5,7 @@
 #include "MCRogueTypes.h"
 #include "MCToothStatusComponent.generated.h"
 class AMCToothCharacter;
+struct FHitResult;
 
 USTRUCT(BlueprintType)
 struct FMCToothCareSettings
@@ -15,6 +16,8 @@ struct FMCToothCareSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Coffee", meta=(ClampMin="1")) int32 CoffeeContacts=4;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Care", meta=(ClampMin="1")) int32 RepairContacts=4;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Care", meta=(ClampMin="1")) float HealPerContact=25.f;
+    /** A repair begun at Broken (<=40% HP) keeps this duration multiplier until fully restored. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Care", meta=(ClampMin="1",ClampMax="30")) float BrokenRepairDurationMultiplier=5.f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Care", meta=(ClampMin="0",ClampMax="1")) float LooseHealthFraction=0.4f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player", meta=(ClampMin="1")) float PlayerHealth=100.f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player") bool bAllowSelfCare=true;
@@ -40,6 +43,7 @@ struct FMCToothStatus
     UPROPERTY(BlueprintReadOnly) int32 CoffeeLeft=0;
     UPROPERTY(BlueprintReadOnly) int32 CoffeeTotal=4;
     UPROPERTY(BlueprintReadOnly) int32 RepairLeft=0;
+    UPROPERTY(BlueprintReadOnly) bool bBrokenRepairCycle=false;
     UPROPERTY(BlueprintReadOnly) double ReactionAt=-100.;
     UPROPERTY(BlueprintReadOnly) double DamageAt=-100.;
     UPROPERTY(BlueprintReadOnly) bool bCareReaction=false;
@@ -67,6 +71,8 @@ public:
     void Loosen();
     /** Fixed health-fraction attacks may bypass perk scaling while retaining normal hit validation and feedback. */
     bool Damage(float Amount,FVector Direction=FVector::ForwardVector,AActor* Source=nullptr,EMCRogueDamageKind Kind=EMCRogueDamageKind::Ordinary,bool bScaleWithPerks=true);
+    /** Server boundary failure, not combat damage: armor/cinematic damage gates cannot leave a live body outside the arena. */
+    bool KillFromArenaBoundary();
     void Heal(float Amount);
     void ClearCoffeeForBooster();
     void SetPerkMaxHealth(float Maximum);
@@ -76,7 +82,7 @@ public:
     // Called only after the worker validates a complete continuous tool contact on the server.
     bool CareContact(bool bBrush, AMCToothCharacter* Worker=nullptr);
     // Inventory validates nozzle range, sight and held input before applying continuous treatment.
-    bool RepairWithTool(float Amount, AMCToothCharacter* Worker);
+    bool RepairWithTool(float Amount, AMCToothCharacter* Worker,const FHitResult* Contact=nullptr);
     FString Summary() const;
     FVector LastDamageDirection=FVector::ForwardVector;
 private:

@@ -1,0 +1,40 @@
+{
+  "functional_runtime_pass": true,
+  "audio_nonzero_signal_verified": true,
+  "audio_listened_to": false,
+  "audio_accepted": false,
+  "visual_review": "Pending root review of this rerun; earlier coin visual PASS remains separate.",
+  "temporary_audio_fixture": {
+    "play_cdo": "/Script/UnrealEd.Default__LevelEditorPlaySettings",
+    "misc_cdo": "/Script/UnrealEd.Default__LevelEditorMiscSettings",
+    "original": {
+      "EnableGameSound": false,
+      "bAllowBackgroundAudio": false
+    },
+    "enabled": {
+      "EnableGameSound": true,
+      "bAllowBackgroundAudio": true
+    },
+    "restored": true,
+    "notify_mode": "NEVER",
+    "save_config_called": false,
+    "packages_saved": false,
+    "master_volume_changed": false,
+    "restoration_policy": "Exact originals after owned PIE closes and Base.finish completes; active/replacement PIE is preserved",
+    "enabled_before_base_start": true,
+    "dirty_packages_after_enable": [],
+    "restored_values": {
+      "EnableGameSound": false,
+      "bAllowBackgroundAudio": false
+    },
+    "restored_after_pie_closed": true,
+    "restoration_errors": [],
+    "dirty_packages_after_restore": [],
+    "base_finish_returned": true,
+    "restoration_attempted_after_base_finish": true
+  },
+  "scope": "One disclosed transient legacy LooseTooth objective, actual Spray repair and wallet reward; not full SingleDay, hardware input, Hub spend, save/reload, network or cold packaged first use.",
+  "prior_silent_evidence_preserved": true,
+  "raw_png_copied": false,
+  "desktop_capture_copied": false
+}

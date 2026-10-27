@@ -41,6 +41,9 @@ public:
     UFUNCTION(BlueprintCallable, Category="Settings|Controls") void SetMouseSensitivity(float Value);
     UFUNCTION(BlueprintCallable, Category="Settings|Controls") void SetGamepadSensitivity(float Value);
     UFUNCTION(BlueprintCallable, Category="Settings|Controls") void SetInvertY(bool Value) { bInvertY=Value; }
+    /** Local follow/orbit/zoom interpolation; collision still retracts immediately. */
+    UFUNCTION(BlueprintPure, Category="Settings|Graphics") bool GetCameraSmoothingEnabled() const { return bCameraSmoothingEnabled; }
+    UFUNCTION(BlueprintCallable, Category="Settings|Graphics") void SetCameraSmoothingEnabled(bool Value) { bCameraSmoothingEnabled=Value; }
     UFUNCTION(BlueprintPure, Category="Settings|Appearance") bool HasCustomBagColor() const { return bHasCustomBagColor; }
     UFUNCTION(BlueprintPure, Category="Settings|Appearance") FLinearColor GetSavedBagColor() const { return SavedBagColor; }
     /** Updates local preferences in memory; the explicit confirmation owner saves them. */
@@ -86,6 +89,7 @@ private:
     UPROPERTY(Config) float MouseSensitivity=1.f;
     UPROPERTY(Config) float GamepadSensitivity=1.f;
     UPROPERTY(Config) bool bInvertY=false;
+    UPROPERTY(Config) bool bCameraSmoothingEnabled=false;
     UPROPERTY(Config) bool bHasCustomBagColor=false;
     UPROPERTY(Config) FLinearColor SavedBagColor=FLinearColor(.24f,.65f,1.f);
     UPROPERTY(Config) bool bVoiceEnabled=true;

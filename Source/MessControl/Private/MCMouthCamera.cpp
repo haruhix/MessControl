@@ -1,5 +1,6 @@
 #include "MCToothCharacter.h"
 #include "MCGameState.h"
+#include "MCGameUserSettings.h"
 #include "MCHubGameState.h"
 #include "MCToothStatusComponent.h"
 #include "MCTongue.h"
@@ -20,6 +21,8 @@ namespace {
     // Looking above the horizon lifts the view without swinging the eye into
     // the floor and retracting the arm against the avatar.
     FVector OrbitEyeAxis(const FRotator& View) {return FRotator(FMath::Min(View.Pitch,0.),View.Yaw,0).Vector();}
+    FVector ToolShoulderInWorld(const FVector& LocalOffset,const FRotator& View)
+    {return View.RotateVector(FVector::RightVector)*LocalOffset.Y+FVector::UpVector*LocalOffset.Z;}
 }
 
 FVector AMCToothCharacter::OrbitCameraPivot() const
@@ -36,7 +39,7 @@ void AMCToothCharacter::InitializeCameraOrbit()
     if (bManualCameraOrbit) return;
     const FVector Eye=Camera->GetComponentLocation();
     const FRotator View=Camera->GetComponentRotation();
-    const FVector Pivot=OrbitCameraPivot()+SprayCameraOffset;
+    const FVector Pivot=OrbitCameraPivot()+ToolShoulderInWorld(SprayCameraOffset,View);
     CameraOrbitYaw=float(View.Yaw); CameraOrbitPitch=FMath::Clamp(float(View.Pitch),-OrbitPitchLimit,OrbitPitchLimit);
     CameraOrbitDistance=FMath::Clamp(float(FVector::Dist(Eye,GetActorLocation()+Pivot)),250.f,1600.f);
     CameraOrbitViewDistance=CameraOrbitDistance;
@@ -81,6 +84,8 @@ FVector AMCToothCharacter::CameraMoveDirection(bool Right) const
 
 void AMCToothCharacter::UpdateMouthCamera(float Dt)
 {
+    const auto* Preferences=UMCGameUserSettings::Get();
+    const bool bSmoothCamera=Preferences && Preferences->GetCameraSmoothingEnabled();
     APlayerController* Viewer=nullptr;
     for(auto It=GetWorld()->GetPlayerControllerIterator();It;++It)
         if(auto* PC=It->Get();PC && PC->IsLocalController()) {
@@ -91,6 +96,10 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
     if (auto* Arm=Cast<UMCOrbitSpringArmComponent>(CameraBoom)) {
         Arm->SetWallProbeActive(Viewer!=nullptr);
         Arm->SetIgnoredViewActor(Viewer?MimicCaptor.Get():nullptr);
+        Arm->SetRecoverySmoothingEnabled(bSmoothCamera);
+        // All gameplay easing is controlled below; do not stack an authored
+        // spring-arm lag on top of it, especially after a settings toggle.
+        Arm->bEnableCameraLag=false;Arm->bEnableCameraRotationLag=false;
     }
     if(!Viewer) { ClearCameraWallReveal(); return; }
     if(!bManualCameraOrbit && GetWorld()->GetGameState<AMCHubGameState>())
@@ -102,10 +111,12 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
         InitializeCameraOrbit();
     }
     const bool Aiming=Inventory && Inventory->Selected==EMCToolSlot::Spray && CanWork() && !bInCoffee && Inventory->ShouldPresentTool();
-    // Keep the centre ray beside the avatar, with the ordinary collision sweep
-    // still beginning at the avatar instead of beyond the shoulder offset.
-    const FVector Shoulder=Camera->GetRightVector()*140+FVector::UpVector*75;
-    SprayCameraOffset=FMath::VInterpTo(SprayCameraOffset,Aiming?Shoulder:FVector::ZeroVector,Dt,8.f);
+    // Blend the tool's local shoulder/lift separately from follow/input lag.
+    // Retarget from the current amount when scrolling rapidly. Keeping this
+    // history view-local lets a mouse turn change the basis immediately.
+    const FVector Shoulder=Aiming?FVector(0,140,75):FVector::ZeroVector;
+    SprayCameraOffset=FMath::Lerp(SprayCameraOffset,Shoulder,1.f-FMath::Exp(-12.f*FMath::Max(0.f,Dt)));
+    if(SprayCameraOffset.Equals(Shoulder,.01f)) SprayCameraOffset=Shoulder;
     const FVector P=GetActorLocation();
     float Suction=0;
     for(TActorIterator<AMCThroat> It(GetWorld());It;++It)
@@ -117,9 +128,9 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
     Camera->FieldOfView=FMath::Clamp(FollowFOV,45.f,95.f)+Suction*(2.4f+.35f*FMath::Sin(float(Now*10)));
     if(IsValid(MimicCaptor)) {
         const FVector Focus=GetCameraFocusLocation();
-        const float Blend=1-FMath::Exp(-FMath::Max(1.f,FollowSpeed)*FMath::Max(0.f,Dt));
+        const float Blend=bSmoothCamera?1-FMath::Exp(-FMath::Max(1.f,FollowSpeed)*FMath::Max(0.f,Dt)):1.f;
         const FRotator Wanted=bManualCameraOrbit?FRotator(CameraOrbitPitch,CameraOrbitYaw,0):MimicCameraRotation;
-        const FRotator View=FMath::RInterpTo(Camera->GetComponentRotation(),Wanted,Dt,FollowSpeed);
+        const FRotator View=bSmoothCamera?FMath::RInterpTo(Camera->GetComponentRotation(),Wanted,Dt,FollowSpeed):Wanted;
         const float Distance=bManualCameraOrbit?CameraOrbitDistance:MimicCameraDistance;
         MouthCameraEye=Focus-View.Vector()*FMath::Clamp(Distance,400.f,1600.f);
         MouthCameraFocus=Focus-OrbitPivotOffset;
@@ -150,10 +161,10 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
     if (bManualCameraOrbit)
     {
         const bool Reset=!bMouthCameraInitialized || FVector::DistSquared(P,MouthCameraFocus)>FMath::Square(1400.f);
-        const float Blend=1-FMath::Exp(-FMath::Max(1.f,FollowSpeed)*FMath::Max(0.f,Dt));
+        const float Blend=bSmoothCamera?1-FMath::Exp(-FMath::Max(1.f,FollowSpeed)*FMath::Max(0.f,Dt)):1.f;
         MouthCameraFocus=Reset?P:FMath::Lerp(MouthCameraFocus,P,Blend);
         const FRotator Wanted(CameraOrbitPitch,CameraOrbitYaw,0);
-        const FRotator View=Reset?Wanted:FMath::RInterpTo(CameraOrbitViewRotation,Wanted,Dt,FollowSpeed);
+        const FRotator View=Reset || !bSmoothCamera?Wanted:FMath::RInterpTo(CameraOrbitViewRotation,Wanted,Dt,FollowSpeed);
         CameraOrbitViewRotation=View;
         // The arm aims its sweep from the actual pawn to the filtered eye.
         // Its rotation contains raw floor motion and must not steer the view.
@@ -161,7 +172,7 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
         CameraBoom->bEnableCameraLag=false;
         CameraBoom->bDoCollisionTest=true; CameraBoom->ProbeChannel=ECC_Camera;
         CameraOrbitViewDistance=Reset?CameraOrbitDistance:FMath::Lerp(CameraOrbitViewDistance,CameraOrbitDistance,Blend);
-        MouthCameraEye=MouthCameraFocus+OrbitCameraPivot()+SprayCameraOffset-OrbitEyeAxis(View)*CameraOrbitViewDistance;
+        MouthCameraEye=MouthCameraFocus+OrbitCameraPivot()+ToolShoulderInWorld(SprayCameraOffset,View)-OrbitEyeAxis(View)*CameraOrbitViewDistance;
         // Trace from the actual pawn, so follow lag cannot put the sweep origin inside a wall at a corner.
         const FVector Arm=P+OrbitPivotOffset-MouthCameraEye;
         CameraBoom->TargetOffset=OrbitPivotOffset;
@@ -194,28 +205,29 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
         return Value.BoundToBox(ArenaCenter-ArenaExtent,ArenaCenter+ArenaExtent);
     };
     const bool Reset=!bMouthCameraInitialized || FVector::DistSquared(TrackedP,MouthCameraFocus)>FMath::Square(1400.f);
-    if(Reset) MouthCameraFocus=TrackedP;
+    if(Reset || !bSmoothCamera) MouthCameraFocus=TrackedP;
     else for(int32 Axis=0;Axis<3;++Axis) {
         const double Delta=TrackedP[Axis]-MouthCameraFocus[Axis],Zone=FMath::Max(0.,CameraDeadZone[Axis]);
         MouthCameraFocus[Axis]+=Delta-FMath::Clamp(Delta,-Zone,Zone);
     }
     const float ViewLift=OrbitCameraPivot().Z-OrbitPivotOffset.Z;
-    const FVector Focus=MouthCameraFocus+CameraFocusOffset+SprayCameraOffset+FVector(0,0,ViewLift);
+    const FVector BaseFocus=MouthCameraFocus+CameraFocusOffset+FVector(0,0,ViewLift);
     const FVector Offset(-FMath::Clamp(FollowDistance,400.f,1600.f),(CenterY-MouthCameraFocus.Y)*.70,0);
     FVector WantedEye=ClampEye(MouthCameraFocus+Offset+FVector(0,0,FMath::Clamp(FollowHeight,150.f,700.f)+ViewLift));
     // At the front rim preserve the view height; shrinking height with distance
     // caused the camera to collapse into the player when translation was clamped.
     WantedEye.Z=MouthCameraFocus.Z+FMath::Clamp(FollowHeight,150.f,700.f)+ViewLift;
     WantedEye=ClampEye(WantedEye);
-    const float Blend=1-FMath::Exp(-FMath::Max(1.f,FollowSpeed)*FMath::Max(0.f,Dt));
+    const float Blend=bSmoothCamera?1-FMath::Exp(-FMath::Max(1.f,FollowSpeed)*FMath::Max(0.f,Dt)):1.f;
     MouthCameraEye=ClampEye(Reset?WantedEye:FMath::Lerp(MouthCameraEye,WantedEye,Blend));
     const FVector Eye=MouthCameraEye;
+    const FVector Focus=BaseFocus+ToolShoulderInWorld(SprayCameraOffset,(BaseFocus-Eye).Rotation());
     Camera->AspectRatio=16.f/9.f;
     Camera->bOverrideAspectRatioAxisConstraint=true;
     Camera->SetAspectRatioAxisConstraint(AspectRatio_MaintainYFOV);
     CameraBoom->bEnableCameraLag=false;
     FRotator Rotation=(Focus-Eye).Rotation();
-    if(!Reset) Rotation=FMath::RInterpTo(Camera->GetComponentRotation(),Rotation,Dt,FollowSpeed);
+    if(!Reset && bSmoothCamera) Rotation=FMath::RInterpTo(Camera->GetComponentRotation(),Rotation,Dt,FollowSpeed);
 
     // At the arena boundary translation stops. Pan/tilt still keeps the whole
     // avatar in the viewport, including jumps and narrower aspect ratios.

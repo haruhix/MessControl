@@ -117,6 +117,9 @@ bool FMCSpawnZoneAuthoredTest::RunTest(const FString&)
     if(!TestTrue(TEXT("Authored tongue provides a real collision floor"),T.Tongue->SurfacePoint(T.AtDepth(.4),Hit))) return false;
     const FBox Bounds=T.Tongue->Surface->Bounds.GetBox();
     auto* Cap=T.World->SpawnActor<AMCFoodDisposal>(FVector(Bounds.Max.X-150,Bounds.GetCenter().Y,Bounds.Max.Z+50),FRotator::ZeroRotator);
+    // This compatibility fixture deliberately exercises retired curved caps;
+    // ordinary gameplay keeps the legacy delivery zones disabled by default.
+    Cap->bEnableLegacyDeliveryZone=true;
     Cap->Volume->SetBoxExtent(FVector(Bounds.GetSize().X*.3,Bounds.GetSize().Y,500));Cap->SetActorTickEnabled(false);
     TArray<FVector> Outer,Inner;
     if(!TestTrue(TEXT("Delivery exclusion uses the tongue's real curved cap outline"),Cap->GetDeliveryZoneOutline(Outer,Inner))) return false;
@@ -128,6 +131,7 @@ bool FMCSpawnZoneAuthoredTest::RunTest(const FString&)
     TestFalse(TEXT("Stuck food still cannot overlap the throat cap"),T.Tongue->GameplayStuckFoodFootprint(Floor.ImpactPoint,70,Hit));
 
     auto* BrushCap=T.World->SpawnActor<AMCFoodDisposal>(FVector(Bounds.Min.X+150,Bounds.GetCenter().Y,Bounds.Max.Z+50),FRotator::ZeroRotator);
+    BrushCap->bEnableLegacyDeliveryZone=true;
     BrushCap->bBrushBin=true;
     BrushCap->Volume->SetBoxExtent(FVector(Bounds.GetSize().X*.3,Bounds.GetSize().Y,500));BrushCap->SetActorTickEnabled(false);
     TArray<FVector> BrushOuter,BrushInner;

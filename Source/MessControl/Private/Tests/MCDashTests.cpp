@@ -75,10 +75,12 @@ bool FMCDashTapHold::RunTest(const FString&)
         const float Distance=T.Hero->GetActorLocation().X-Start.X;
         TestTrue(*FString::Printf(TEXT("Dash covers its short configured distance at %.0f FPS (%.1f cm)"),1/Dt,Distance),Distance>380 && Distance<510);
         TestFalse(TEXT("Dash exits after one dash pose"),T.Hero->IsDashing());
-        T.Tap(Dt);TestFalse(TEXT("Repeated taps cannot bypass the cooldown"),T.Hero->IsDashing());
-        T.Step(.8f,Dt);T.Tap(Dt);TestTrue(TEXT("Dash becomes available after cooldown"),T.Hero->IsDashing());
+        T.Tap(Dt);TestTrue(TEXT("The second independent charge permits a second dash"),T.Hero->IsDashing());
+        TestEqual(TEXT("Exactly two charges are spent"),T.Move->GetDashCharges(),0);
+        T.Step(.45f,Dt);T.Tap(Dt);TestFalse(TEXT("A third tap cannot bypass two recovering charges"),T.Hero->IsDashing());
+        T.Step(2.2f,Dt);T.Tap(Dt);TestTrue(TEXT("Dash becomes available when the first charge recovers"),T.Hero->IsDashing());
         T.Hero->CancelGameplayInput();TestFalse(TEXT("Cancel stops an active dash immediately"),T.Hero->IsDashing());
-        T.Step(1.2f,Dt);T.Hero->SetSprintInputHeld(true);T.Step(.08f,Dt);
+        T.Step(3.1f,Dt);T.Hero->SetSprintInputHeld(true);T.Step(.08f,Dt);
         T.Hero->CancelGameplayInput();T.Step(.05f,Dt);
         TestFalse(TEXT("Input cancellation stops the press dash without restarting it"),T.Hero->IsDashing());
         const float BeforeSprint=T.Hero->GetStamina();
@@ -88,6 +90,7 @@ bool FMCDashTapHold::RunTest(const FString&)
         T.Hero->SetSprintInputHeld(false);T.Step(Dt,Dt);
         TestFalse(TEXT("Releasing a long hold never triggers a dash"),T.Hero->IsDashing());
         TestFalse(TEXT("Releasing Shift clears sprint intent"),T.Move->WantsToSprint());
+        T.Step(2.1f,Dt);
         T.Hero->SetSprintInputHeld(true);T.Hero->AddMovementInput(FVector::RightVector);T.Step(Dt,Dt);
         TestTrue(TEXT("Repressing Shift after sprint starts a new dash immediately"),T.Hero->IsDashing());
         TestTrue(TEXT("Dash uses this frame's direction even when input arrives after the press"),FVector::DotProduct(T.Hero->GetDashDirection(),FVector::RightVector)>.99);
@@ -98,7 +101,7 @@ bool FMCDashTapHold::RunTest(const FString&)
     TestTrue(TEXT("A frame longer than the hold threshold still starts the dash on press"),T.Hero->IsDashing());
     T.Step(1.2f);
     TestFalse(TEXT("Holding past the cooldown does not automatically repeat the dash"),T.Hero->IsDashing());
-    TestTrue(TEXT("The cooldown has elapsed before release"),T.Move->CanDash());
+    TestTrue(TEXT("The second charge remains ready while the first recovers"),T.Move->CanDash());
     T.Hero->SetSprintInputHeld(false);T.Step(1.f/60);
     TestFalse(TEXT("Release never starts a second dash after cooldown"),T.Hero->IsDashing());
     T.Hero->SetSprintInputHeld(true);T.Hero->CancelGameplayInput();T.Step(1.f/60);
@@ -115,6 +118,128 @@ bool FMCDashTapHold::RunTest(const FString&)
     TestTrue(TEXT("Stamina recovers through the delay and resumes held sprint without another press"),T.Hero->GetStamina()>0 && T.Move->bSprintActive);
     T.Hero->SetSprintInputHeld(false);T.Step(6.f);
     TestTrue(TEXT("Released sprint recovers to the configured maximum"),FMath::IsNearlyEqual(T.Hero->GetStamina(),T.Hero->GetMaxStamina(),.01f));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCDashIndependentCharges,"MessControl.Dash.TwoChargesRecoverIndependently",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCDashIndependentCharges::RunTest(const FString&)
+{
+    for(float Dt:{1.f/30,1.f/60,1.f/120}) {
+        FDashWorld T;
+        if(!TestTrue(TEXT("Independent-charge fixture begins on its real floor"),T.Ready())) return false;
+        TestEqual(TEXT("A fresh body has exactly two dash charges"),T.Move->GetDashCharges(),2);
+        TestEqual(TEXT("Default recharge is three seconds before perk modifiers"),T.Move->EffectiveDashCooldown(),3.f);
+        T.Tap(Dt);
+        TestEqual(TEXT("First real press spends one charge"),T.Move->GetDashCharges(),1);
+        TestTrue(TEXT("First recharge starts at the press rather than the end of motion"),T.Move->GetDashChargeCooldownRemaining(0)>2.9f);
+        T.Step(.65f,Dt);
+        const float FirstBefore=T.Move->GetDashChargeCooldownRemaining(0);
+        const float StaminaBefore=T.Hero->GetStamina();
+        T.Tap(Dt);
+        TestTrue(TEXT("Second press uses the remaining charge"),T.Hero->IsDashing() && T.Move->GetDashCharges()==0);
+        TestTrue(TEXT("Second press leaves the older timer advancing without restart"),FMath::IsNearlyEqual(T.Move->GetDashChargeCooldownRemaining(0),FirstBefore-2*Dt,.015f));
+        TestTrue(TEXT("The second charge has its own fresh three-second timer"),FMath::IsNearlyEqual(T.Move->GetDashChargeCooldownRemaining(1),3.f-Dt,.015f));
+        TestTrue(TEXT("Each accepted dash still spends stamina exactly once"),FMath::IsNearlyEqual(T.Hero->GetStamina(),StaminaBefore-T.Move->DashStaminaCost,.01f));
+        T.Step(.45f,Dt);
+        const float OldTimer=T.Move->GetDashChargeCooldownRemaining(0),NewTimer=T.Move->GetDashChargeCooldownRemaining(1);
+        T.Tap(Dt);
+        TestFalse(TEXT("A third real press is rejected"),T.Hero->IsDashing());
+        TestTrue(TEXT("Rejected press neither restarts nor consumes either recharge"),FMath::IsNearlyEqual(T.Move->GetDashChargeCooldownRemaining(0),OldTimer-2*Dt,.015f)
+            && FMath::IsNearlyEqual(T.Move->GetDashChargeCooldownRemaining(1),NewTimer-2*Dt,.015f));
+        const float UntilFirst=T.Move->GetDashChargeCooldownRemaining(0);
+        T.Step(UntilFirst+.02f,Dt);
+        TestEqual(TEXT("Only the earlier charge is restored at its own deadline"),T.Move->GetDashCharges(),1);
+        TestTrue(TEXT("Later charge still has the gap between the two presses to recover"),T.Move->GetDashChargeCooldownRemaining(1)>.55f);
+        T.Step(T.Move->GetDashChargeCooldownRemaining(1)+.02f,Dt);
+        TestEqual(TEXT("Both charges recover independently without further input"),T.Move->GetDashCharges(),2);
+    }
+    FDashWorld T;
+    if(!TestTrue(TEXT("Cancellation fixture begins actionable"),T.Ready())) return false;
+    T.Tap();T.Hero->CancelGameplayInput();
+    TestEqual(TEXT("Cancelling a dash does not refund its spent charge"),T.Move->GetDashCharges(),1);
+    const float Running=T.Move->GetDashChargeCooldownRemaining(0);
+    T.Move->DashCooldown=1.5f;
+    T.Step(.5f);
+    TestTrue(TEXT("A tuning/perk change does not retime an already spent charge"),FMath::IsNearlyEqual(T.Move->GetDashChargeCooldownRemaining(0),Running-.5f,.02f));
+    T.Tap();
+    TestTrue(TEXT("A later dash captures its own newly adjusted duration"),FMath::IsNearlyEqual(T.Move->GetDashChargeCooldownRemaining(1),1.5f-1.f/60,.02f));
+    T.Hero->CancelGameplayInput();T.Move->DisableMovement();T.Step(.5f);
+    TestTrue(TEXT("Disabling locomotion continues both recharge clocks"),T.Move->GetDashChargeCooldownRemaining(0)<Running-1.f
+        && T.Move->GetDashChargeCooldownRemaining(1)<1.1f);
+    T.Hero->Status->Damage(1000);T.Step(.05f);
+    TestFalse(TEXT("A dead body cannot use its remaining charges"),T.Move->CanDash());
+    auto* Replacement=T.World->SpawnActor<AMCToothCharacter>(FVector(-1000,0,10080),FRotator::ZeroRotator);
+    auto* ReplacementMove=CastChecked<UMCToothMovementComponent>(Replacement->GetCharacterMovement());
+    T.Hero->GetController()->Possess(Replacement);
+    TestEqual(TEXT("Replacement begins with two charges rather than inheriting corpse timers"),ReplacementMove->GetDashCharges(),2);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCDashResourceReconciliation,"MessControl.Dash.ChargeSnapshotsSavedMovesAndAcknowledgements",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCDashResourceReconciliation::RunTest(const FString&)
+{
+    FDashWorld T;
+    if(!TestTrue(TEXT("Resource-ledger fixture begins on its actual floor"),T.Ready())) return false;
+    auto* Prediction=T.Move->GetPredictionData_Client_Character();
+    Prediction->SavedMoves.Reset();Prediction->LastAckedMove.Reset();Prediction->PendingMove.Reset();Prediction->bUpdatePosition=false;
+    auto Record=[&](float TimeStamp,bool Dash) {
+        if(Dash) T.Move->RequestDash();
+        FSavedMovePtr Saved=Prediction->AllocateNewMove();
+        Saved->SetMoveFor(T.Hero,.1f,FVector::ZeroVector,*Prediction);Saved->TimeStamp=TimeStamp;
+        T.Move->PerformMovement(.1f);
+        Saved->PostUpdate(T.Hero,FSavedMove_Character::PostUpdate_Record);
+        Prediction->SavedMoves.Add(Saved);
+        return Saved;
+    };
+    const FSavedMovePtr Acked=Record(1.f,false);
+    const FSavedMovePtr Spent=Record(1.1f,true);
+    Record(1.2f,false);
+    TestEqual(TEXT("The predicted spend uses one charge before its acknowledgement"),T.Move->GetDashCharges(),1);
+    FMCStaminaMoveResponse Written;
+    Written.ClientAdjustment.bAckGoodMove=true;Written.ClientAdjustment.TimeStamp=1.f;
+    Written.Stamina=T.Move->GetStaminaPrediction();Written.Stamina.Value=T.Hero->GetMaxStamina();Written.Stamina.RecoveryDelay=0.f;
+    // The authoritative timestamp includes an earlier use unknown to this owner.
+    Written.Dash.Remaining[0]=2.7f;Written.Dash.Remaining[1]=0.f;
+    TArray<uint8> Bytes;FMemoryWriter Writer(Bytes);
+    TestTrue(TEXT("A good movement acknowledgement serializes both charge clocks"),Written.Serialize(*T.Move,Writer,nullptr));
+    FMCStaminaMoveResponse Read;FMemoryReader Reader(Bytes);
+    TestTrue(TEXT("Charge clocks deserialize with the acknowledged movement timestamp"),Read.Serialize(*T.Move,Reader,nullptr));
+    TestEqual(TEXT("First authoritative clock survives serialization"),Read.Dash.Remaining[0],2.7f);
+    TestEqual(TEXT("Second authoritative clock remains separately ready"),Read.Dash.Remaining[1],0.f);
+    const FVector Before=T.Hero->GetActorLocation();
+    T.Move->ClientHandleMoveResponse(Read);
+    TestTrue(TEXT("Good ACK restores the server state then replays newer movement time and one spend"),FMath::IsNearlyEqual(T.Move->GetDashChargeCooldownRemaining(0),2.5f,.001f)
+        && FMath::IsNearlyEqual(T.Move->GetDashChargeCooldownRemaining(1),2.9f,.001f));
+    TestTrue(TEXT("Resource-only acknowledgement does not move the capsule"),T.Hero->GetActorLocation().Equals(Before,.001));
+    TestTrue(TEXT("The correct saved move was acknowledged"),Prediction->LastAckedMove==Acked && Prediction->SavedMoves.Num()==2);
+    // Prep/replay is the same saved-move path used by CMC corrections; it must
+    // retain the updated server baseline rather than the old one-charge snapshot.
+    Spent->PrepMoveFor(T.Hero);
+    TestTrue(TEXT("Saved move prep retains the corrected two-clock baseline"),FMath::IsNearlyEqual(T.Move->GetDashChargeCooldownRemaining(0),2.7f,.001f)
+        && T.Move->GetDashChargeCooldownRemaining(1)==0.f);
+    T.Hero->bClientUpdating=true;
+    T.Move->PerformMovement(.1f);
+    TestTrue(TEXT("Restored root motion charges the replayed dash exactly once"),FMath::IsNearlyEqual(T.Move->GetDashChargeCooldownRemaining(0),2.6f,.001f)
+        && FMath::IsNearlyEqual(T.Move->GetDashChargeCooldownRemaining(1),3.f,.001f));
+    T.Move->DashCooldown=1.5f;
+    Spent->PrepMoveFor(T.Hero);T.Move->PerformMovement(.1f);
+    TestTrue(TEXT("Repeated correction replay preserves the original per-use duration"),FMath::IsNearlyEqual(T.Move->GetDashChargeCooldownRemaining(0),2.6f,.001f)
+        && FMath::IsNearlyEqual(T.Move->GetDashChargeCooldownRemaining(1),3.f,.001f));
+    for(bool ChargesDenied:{true,false}) {
+        Spent->PrepMoveFor(T.Hero);
+        if(ChargesDenied) {
+            FMCDashPredictionState Authoritative;Authoritative.Remaining[0]=2.f;Authoritative.Remaining[1]=2.5f;
+            T.Move->RestoreDashPrediction(Authoritative);
+        } else {
+            FMCStaminaPredictionState Exhausted;Exhausted.Value=0.f;Exhausted.Exhausted=true;Exhausted.RecoveryDelay=.65f;
+            T.Move->RestoreStaminaPrediction(Exhausted);
+        }
+        T.Move->PerformMovement(.1f);
+        TestFalse(TEXT("Corrected charge or stamina denial removes the restored predicted dash source"),T.Move->IsDashing());
+        TestFalse(TEXT("Rejected correction replay does not spend stamina again"),T.Move->LastMoveChargedDash());
+    }
+    T.Hero->bClientUpdating=false;
+    T.Move->CancelDash();
     return true;
 }
 

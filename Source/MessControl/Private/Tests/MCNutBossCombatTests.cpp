@@ -24,6 +24,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "ProceduralMeshComponent.h"
+#include "UObject/Package.h"
+#include "UObject/StrongObjectPtr.h"
 #include <limits>
 #if WITH_EDITOR
 #include "StaticMeshCompiler.h"
@@ -38,6 +40,8 @@ struct FFixture
     AMCNutRainEvent* Event=nullptr;
     AMCNutBoss* Boss=nullptr;
     UStaticMesh* Cube=nullptr;
+    TStrongObjectPtr<UStaticMesh> CPUAccessMesh;
+    bool HadCPUAccess=false,HadPackageDirty=false;
     FFixture()
     {
         GEngine->CreateNewWorldContext(EWorldType::Game).SetCurrentWorld(World);
@@ -48,6 +52,8 @@ struct FFixture
 #if WITH_EDITOR
         FStaticMeshCompilingManager::Get().FinishCompilation({Cube});
 #endif
+        CPUAccessMesh.Reset(Cube);HadCPUAccess=Cube->bAllowCPUAccess;HadPackageDirty=Cube->GetOutermost()->IsDirty();
+        Cube->bAllowCPUAccess=true; // Fixture-only procedural copy; restore the engine asset after teardown.
         const FTransform Pose(FRotator::ZeroRotator,FVector::ZeroVector,FVector(32,24,.2));
         Tongue=World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),Pose,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         Tongue->SourceMesh=Cube; Tongue->bAutomaticYawns=false; Tongue->FinishSpawning(Pose); Tongue->SetActorTickEnabled(false);
@@ -56,6 +62,7 @@ struct FFixture
     ~FFixture()
     {
         World->EndPlay(EEndPlayReason::Quit); GEngine->DestroyWorldContext(World); World->DestroyWorld(false);
+        if(auto* Mesh=CPUAccessMesh.Get()) {Mesh->bAllowCPUAccess=HadCPUAccess;Mesh->GetOutermost()->SetDirtyFlag(HadPackageDirty);}
     }
     void Step(float Seconds)
     {
@@ -389,12 +396,17 @@ bool FMCNutWizardPressureTest::RunTest(const FString&)
         T.WaitFor(EMCNutBossAttack::Fireball,EMCNutBossState::Telegraph,4))) return false;
     TestTrue(TEXT("Fire-nut waits until the complete teleport exit and blend have played"),
         T.Boss->StateStartedAt-Arrival>=T.Boss->BossSettings.MageTeleportAnimationSeconds*(1-T.Boss->BossSettings.MageCastReleaseFraction)+T.Boss->BossSettings.AnimationBlendSeconds-.05);
+    const TWeakObjectPtr<AMCNutBoss> BossLifetime=T.Boss;
     T.Boss->ReceiveToolDamage(100000,Hero);
-    T.Step(3.2f);
-    TestTrue(TEXT("The final boss remains visible through its full death performance"),IsValid(T.Boss));
-    TestEqual(TEXT("Victory cleanup waits for the death clip instead of destroying it early"),T.Event->Stage,EMCNutRainStage::Enemies);
+    T.Step(.1f);
+    TestEqual(TEXT("Final boss defeat immediately unlocks the director reward"),T.Event->Stage,EMCNutRainStage::Complete);
+    T.Event->Stop();
+    if(!TestTrue(TEXT("Successful cleanup retains the completed corpse"),BossLifetime.IsValid())) return false;
+    TestNull(TEXT("A completed corpse is detached from the retired encounter"),BossLifetime->EncounterOwner.Get());
+    T.Step(3.1f);
+    TestTrue(TEXT("The final boss remains visible through its full death performance"),BossLifetime.IsValid());
     T.Step(.5f);
-    TestEqual(TEXT("The encounter completes after the finished death pose and fade"),T.Event->Stage,EMCNutRainStage::Complete);
+    TestFalse(TEXT("Its own lifespan removes the corpse after the finished death pose and fade"),BossLifetime.IsValid());
     return true;
 }
 
@@ -529,8 +541,9 @@ bool FMCNutBossSummonTest::RunTest(const FString&)
         if(It->SourceActor==T.Boss && !It->IsActorBeingDestroyed() && It->Cue.Type!=EMCNutCombatCue::DeathBurst) ++Attacks;
     for(TActorIterator<AMCNutSpellProjectile> It(T.World);It;++It) if(It->SourceActor==T.Boss && !It->IsActorBeingDestroyed()) ++Attacks;
     TestEqual(TEXT("Defeat cancels owned attacks while retaining its cosmetic death burst"),Attacks,0);
+    const TWeakObjectPtr<AMCNutEnemy> RemainingLifetime=Remaining;
     T.Event->Stop();
-    TestTrue(TEXT("An explicit event reset destroys the surviving creep"),Remaining->IsActorBeingDestroyed());
+    TestFalse(TEXT("An explicit event reset destroys the surviving creep"),RemainingLifetime.IsValid());
     return true;
 }
 
@@ -623,9 +636,10 @@ bool FMCNutFireUlcerTest::RunTest(const FString&)
     Shoot(OtherPoint+FVector(0,0,500),OtherPoint-FVector(0,0,100));T.Step(.5f);
     TestEqual(TEXT("A hit near an existing ulcer preserves deduplication"),CountUlcers(),2);
     TestNull(TEXT("The projectile never adopts a pre-existing unowned ulcer"),Existing->GetOwner());
+    const TWeakObjectPtr<AMCMouthSurface> UlcerLifetime=Ulcer,ExistingLifetime=Existing;
     T.Event->Stop();
-    TestTrue(TEXT("Stopping the event removes its fire-nut ulcer"),!IsValid(Ulcer) || Ulcer->IsActorBeingDestroyed());
-    TestTrue(TEXT("Stopping the event preserves the unrelated ulcer"),IsValid(Existing) && !Existing->IsActorBeingDestroyed());
+    TestFalse(TEXT("Stopping the event removes its fire-nut ulcer"),UlcerLifetime.IsValid());
+    TestTrue(TEXT("Stopping the event preserves the unrelated ulcer"),ExistingLifetime.IsValid());
     return true;
 }
 

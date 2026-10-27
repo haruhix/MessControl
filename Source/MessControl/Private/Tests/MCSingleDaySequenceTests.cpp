@@ -289,14 +289,14 @@ bool FMCSingleDayOpeningMealArenaTeethTest::RunTest(const FString&)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayOpeningRelaxTest,"MessControl.SingleDay.Sequence.OpeningRelaxPortionsWaveEndAndSharedCleanup",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayOpeningRelaxTest,"MessControl.SingleDay.Sequence.CustomOpeningPortionsWaveEndAndSharedCleanup",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCSingleDayOpeningRelaxTest::RunTest(const FString&)
 {
     MCSingleDaySequenceTestsPrivate::FSequenceWorld F;F.AddWorkerAndFoodGeometry(30.f,true);
-    TestTrue(TEXT("The authored default serves three team portions: 3, 5 and 8"),F.Sequence->OpeningMealPortions==TArray<int32>({3,5,8}));
-    // Keep the first two portion fixtures short; the final eight-item portion
-    // exercises the real six-whole-ingredient solo admission limit.
+    TestTrue(TEXT("The current opening default serves one five-item meal"),F.Sequence->OpeningMealPortions==TArray<int32>({5}));
+    // Explicit custom multi-portion authoring remains supported. It is not the
+    // current day's opening contract; test its compatibility route separately.
     F.Sequence->OpeningMealPortions={1,1,8};
     F.Sequence->OpeningMealItems=20;F.Sequence->bOpeningCoffeeWave=true;
     F.Sequence->AfterTrainingPauseSeconds=F.Sequence->BeforeNutsPauseSeconds=0;
@@ -430,6 +430,40 @@ bool FMCSingleDayOpeningRelaxTest::RunTest(const FString&)
     TestTrue(TEXT("Stop removes the shared batch's leftover dirt"),OwnedDirt->IsActorBeingDestroyed());
     TestFalse(TEXT("Stop preserves unrelated food"),Unrelated->IsActorBeingDestroyed());
     TestFalse(TEXT("Stop preserves unrelated floor dirt"),OutsideBatch->IsActorBeingDestroyed());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayOpeningFiveTest,"MessControl.SingleDay.Sequence.OpeningRelaxExactlyFiveAndOneCompletionReward",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSingleDayOpeningFiveTest::RunTest(const FString&)
+{
+    MCSingleDaySequenceTestsPrivate::FSequenceWorld F;F.AddWorkerAndFoodGeometry(30.f,true);
+    F.Sequence->AfterTrainingPauseSeconds=F.Sequence->BeforeNutsPauseSeconds=0;
+    F.Loop->Initialize(F.Plan,F.Sequence,F.Support);
+    F.RestoreTongueCollision();F.Loop->BeginFirstPerk();F.Loop->Tick(.1f);
+    TArray<AMCFoodActor*> Served;
+    for(int32 Index=0;Index<5;++Index) {
+        F.Loop->Tick(.1f);
+        for(TActorIterator<AMCFoodActor> It(F.World);It;++It)
+            if(!It->IsActorBeingDestroyed() && It->GetOwner()==F.Loop && !Served.Contains(*It)) {
+                Served.Add(*It);It->SetActorTickEnabled(false);It->SetActorEnableCollision(false);
+            }
+        F.AdvanceClockTo(float(F.World->GetTimeSeconds())+F.Sequence->OpeningMealDropSeconds+.01f);
+    }
+    if(!TestEqual(TEXT("The native opening actually issues exactly five whole items"),Served.Num(),5)) return false;
+    TestEqual(TEXT("Only one meal is authored for the opening"),F.Loop->MealPortionCount,1);
+    TestEqual(TEXT("No timer can complete live food"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
+    for(auto* Food:Served) Food->Destroy();
+    F.Loop->Tick(.1f);
+    TestFalse(TEXT("Disposal without actual floor cleanup cannot create a reward"),F.Loop->bStageRewardPending);
+    for(TActorIterator<AMCMouthSurface> It(F.World);It;++It) if(!It->bUlcer) It->ClearLiquidForBooster();
+    F.Loop->Tick(.1f);
+    TestTrue(TEXT("The complete clean five-item meal requests its one reward"),F.Loop->bStageRewardPending);
+    TestEqual(TEXT("The completed opening has one stable reward identity"),F.Loop->StageRewardCompletionId,FName(TEXT("OpeningPortion_1")));
+    F.ResolveStageReward();
+    TestEqual(TEXT("Its reward proceeds to the nut preparation stage"),F.Loop->Stage,EMCSingleDayStage::MealRest);
+    for(TActorIterator<AMCCoffeeFlood> It(F.World);It;++It)
+        TestFalse(TEXT("No opening coffee is inserted into the five-item meal"),It->IsActive());
     return true;
 }
 

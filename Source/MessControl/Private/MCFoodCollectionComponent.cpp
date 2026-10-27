@@ -48,6 +48,9 @@ bool UMCFoodCollectionComponent::CanCollect(const AMCFoodActor* F) const
     const auto* H=Cast<AMCToothCharacter>(GetOwner());
     if(!H || !IsValid(F) || !H->CanWork() || F->UsesLegacyGrip() || F->StackCarrier || F->IsDisposed()
         || (F->Phase!=EMCFoodPhase::Free && F->Phase!=EMCFoodPhase::Falling) || !F->Holders.IsEmpty()) return false;
+    // Boss debris is one piece in the hand for Q. It cannot join a food tower,
+    // nor can automatic collection build a tower on top of held ammunition.
+    if(HasNutAmmunition() || (F->IsNutEncounterFragment() && !Pieces.IsEmpty())) return false;
     // Large whole vegetables must be cut first. No shrinking of their physics body at pickup.
     if(!F->bFragment && (F->Body->GetScaledBoxExtent().GetMax()>55 || F->Visual->Bounds.SphereRadius>85)) return false;
     const double* Drop=DroppedAt.Find(F); if(Drop && GetWorld()->GetTimeSeconds()-*Drop<2) return false;
@@ -68,11 +71,25 @@ bool UMCFoodCollectionComponent::HasCandidate() const
     for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(CanCollect(*It)) return true;
     return false;
 }
+bool UMCFoodCollectionComponent::HasNutAmmunition() const
+{
+    return Pieces.ContainsByPredicate([](const auto& Piece) {
+        return IsValid(Piece) && Piece->IsNutEncounterFragment();
+    });
+}
 void UMCFoodCollectionComponent::Toggle()
 {
     if(!GetOwner()->HasAuthority()) return;
     if(bCollecting) {Stop();return;}
     bCollecting=true; bHasHand=false; SwayAngle=SwayVelocity=FVector2D::ZeroVector; NextCollectAt=0; GetOwner()->ForceNetUpdate();
+    // E picks one nearby boss nut immediately. The same replicated hand pose,
+    // aim and Q launch are reused without starting a repeated stack pickup.
+    AMCFoodActor* Ammunition=nullptr;double Nearest=DBL_MAX;
+    for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(It->IsNutEncounterFragment() && CanCollect(*It)) {
+        const double Distance=FVector::DistSquared(It->GetActorLocation(),GetOwner()->GetActorLocation());
+        if(Distance<Nearest) {Nearest=Distance;Ammunition=*It;}
+    }
+    if(Ammunition) Collect(Ammunition);
 }
 FQuat UMCFoodCollectionComponent::StackRotation() const
 { return GetOwner()->GetActorQuat()*FRotator(SwayAngle.X,0,SwayAngle.Y).Quaternion(); }
@@ -94,6 +111,7 @@ void UMCFoodCollectionComponent::RebuildStackLayout()
 }
 int32 UMCFoodCollectionComponent::EffectiveCapacity() const
 {
+    if(HasNutAmmunition()) return 1;
     const auto* Perks=UMCPerkComponent::ForActor(GetOwner());
     return FMath::RoundToInt(Perks?Perks->RogueValue(EMCRogueStat::CarryCapacity,MaxPieces):FMath::Clamp(float(MaxPieces),1.f,10.f));
 }
@@ -171,7 +189,16 @@ float UMCFoodCollectionComponent::EffectiveThrowSpeed() const
 {
     const float Speed=FMath::IsFinite(ThrowSpeed)?FMath::Clamp(ThrowSpeed,400.f,2400.f):1800.f;
     const auto* Perks=UMCPerkComponent::ForActor(GetOwner());
-    return FMath::Clamp(Speed*(Perks?Perks->RogueValue(EMCRogueStat::ThrowImpulse):1.f),400.f,4800.f);
+    if(HasNutAmmunition()) {
+        const float Shot=FMath::IsFinite(NutShotSpeed)?FMath::Clamp(NutShotSpeed,400.f,4800.f):2400.f;
+        return FMath::Clamp(Shot*(Perks?Perks->RogueValue(EMCRogueStat::ThrowImpulse):1.f),400.f,4800.f);
+    }
+    const float AuthoredSpeed=FMath::Clamp(Speed*(Perks?Perks->RogueValue(EMCRogueStat::ThrowImpulse):1.f),400.f,4800.f);
+    // Same-height ballistic range scales with v^2, not v. Keep the camera's
+    // existing gravity/arc solve and perk ratios while approximately halving
+    // range (slightly above half for elevated stack releases). LaunchManualThrow
+    // and CameraThrowDirection both use this value; their speed must agree.
+    return FMath::Max(400.f,AuthoredSpeed*FMath::Sqrt(.5f));
 }
 bool UMCFoodCollectionComponent::ThrowOne(FVector AimDirection)
 {
@@ -187,11 +214,12 @@ bool UMCFoodCollectionComponent::ThrowOne(FVector AimDirection)
     if(Now+KINDA_SMALL_NUMBER<NextThrowAt) return false;
     AMCFoodActor* Food=Pieces.Last();
     if(!IsValid(Food) || Food->IsDisposed() || Food->StackCarrier!=Hero) return false;
+    const float LaunchSpeed=EffectiveThrowSpeed();
     // Remove just the top slot. Lower pieces retain their layout, pickup cues,
     // sway and collision ignores instead of being released/recollected.
     ReleaseFrom(Pieces.Num()-1);
     Food->ProtectPlayersOnStackRelease(true);
-    Food->LaunchManualThrow(Hero,AimDirection,EffectiveThrowSpeed());
+    Food->LaunchManualThrow(Hero,AimDirection,LaunchSpeed);
     NextThrowAt=Now+ThrowIntervalSeconds();
     // Emptying a tower beside a pile must not vacuum a replacement into each
     // released slot. Holding Q continually extends this short pickup pause.
@@ -358,7 +386,7 @@ void UMCFoodCollectionComponent::TickComponent(float Dt,ELevelTick Type,FActorCo
         FVector Axis; double Angle; Delta.ToAxisAndAngle(Axis,Angle);
         Motion.Angular=(Axis*Angle/FMath::Max(Dt,.001f)).GetClampedToMaxSize(6);
     }
-    if(Now>=NextCollectAt && Pieces.Num()<FMath::Clamp(MaxPieces,1,8)) {
+    if(!HasNutAmmunition() && Now>=NextCollectAt && Pieces.Num()<FMath::Clamp(MaxPieces,1,8)) {
         for(auto It=DroppedAt.CreateIterator();It;++It) if(!It.Key().IsValid() || Now-It.Value()>2) It.RemoveCurrent();
         NextCollectAt=Now+.55/FMCStackPickup::PlayRate;
         AMCFoodActor* Best=nullptr; double Distance=DBL_MAX;

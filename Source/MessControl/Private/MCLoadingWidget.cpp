@@ -2,6 +2,7 @@
 
 #include "MCPlayerController.h"
 #include "MCPreloadSettings.h"
+#include "MCLoadingTips.h"
 #include "MCSteamSessionSubsystem.h"
 #include "MCUIDataLibrary.h"
 #include "MCWorldPreloadSubsystem.h"
@@ -15,6 +16,8 @@
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/Image.h"
+#include "Components/Overlay.h"
+#include "Components/OverlaySlot.h"
 #include "Components/ProgressBar.h"
 #include "Components/ScaleBox.h"
 #include "Components/SizeBox.h"
@@ -24,6 +27,7 @@
 #include "Components/VerticalBoxSlot.h"
 #include "Engine/GameInstance.h"
 #include "Engine/Texture2D.h"
+#include "HAL/PlatformTime.h"
 #include "Internationalization/Internationalization.h"
 #include "Internationalization/Culture.h"
 #include "InputCoreTypes.h"
@@ -50,6 +54,15 @@ void UMCLoadingWidget::NativeConstruct()
 void UMCLoadingWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
     Super::NativeTick(Geometry,DeltaSeconds);
+    if(!IsDesignTime()) RefreshTips(FPlatformTime::Seconds());
+    if(TipWidth && Geometry.GetLocalSize().X>0.f) {
+        const float Width=FMath::Clamp(float(Geometry.GetLocalSize().X)*.64f,260.f,760.f);
+        if(!FMath::IsNearlyEqual(TipWidth->GetWidthOverride(),Width,.5f)) {
+            TipWidth->SetWidthOverride(Width);
+            for(UTextBlock* Label:{TipCurrent.Get(),TipNext.Get()}) if(Label) Label->SetWrapTextAt(Width-48.f);
+            TipWidth->ForceLayoutPrepass();
+        }
+    }
     // ScaleToFit normalizes against the previous allotted area. A newly sized
     // PIE/travel window can therefore crop the first frame. This full-screen
     // art has a known extent: compute its uniform fit from this frame's actual
@@ -153,6 +166,7 @@ void UMCLoadingWidget::BindPresentationTree()
 {
     if(!WidgetTree || !WidgetTree->RootWidget || BoundPresentationRoot.Get()==WidgetTree->RootWidget) return;
     BoundPresentationRoot=WidgetTree->RootWidget;
+    EnsureTipPresentation();
     Footer=WidgetTree->FindWidget<UBorder>(TEXT("LoadingFooterPanel"));
     Artwork=WidgetTree->FindWidget<UImage>(TEXT("LoadingArtwork"));
     if(Artwork) {
@@ -182,6 +196,72 @@ void UMCLoadingWidget::BindPresentationTree()
     ReturnLabel=WidgetTree->FindWidget<UTextBlock>(TEXT("LeaveLoadingLabel"));
     if(RetryButton) RetryButton->OnClicked.AddUniqueDynamic(this,&UMCLoadingWidget::RetryPreparation);
     if(ReturnButton) ReturnButton->OnClicked.AddUniqueDynamic(this,&UMCLoadingWidget::ReturnToMenu);
+    RefreshTips(IsDesignTime()?PreviewTime:FPlatformTime::Seconds(),true);
+}
+
+void UMCLoadingWidget::EnsureTipPresentation()
+{
+    if(!WidgetTree || !WidgetTree->RootWidget) return;
+    TipPanel=WidgetTree->FindWidget<UBorder>(TEXT("LoadingTipPanel"));
+    TipWidth=WidgetTree->FindWidget<USizeBox>(TEXT("LoadingTipWidth"));
+    TipHeading=WidgetTree->FindWidget<UTextBlock>(TEXT("LoadingTipHeading"));
+    TipCurrent=WidgetTree->FindWidget<UTextBlock>(TEXT("LoadingTipCurrent"));
+    TipNext=WidgetTree->FindWidget<UTextBlock>(TEXT("LoadingTipNext"));
+    if(TipPanel) {
+        if(TipWidth) if(auto* TipSlot=Cast<UCanvasPanelSlot>(TipWidth->Slot)) TipSlot->SetZOrder(3);
+        return;
+    }
+    TipWidth=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("LoadingTipWidth"));
+    TipWidth->SetWidthOverride(760.f);TipWidth->SetMinDesiredHeight(128.f);
+    TipPanel=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("LoadingTipPanel"));
+    TipPanel->SetVisibility(ESlateVisibility::HitTestInvisible);
+    TipPanel->SetBrush(FSlateRoundedBoxBrush(FLinearColor(.012f,.027f,.034f,.76f),18.f));
+    TipPanel->SetPadding(FMargin(24.f,16.f));TipWidth->SetContent(TipPanel);
+    auto* Column=WidgetTree->ConstructWidget<UVerticalBox>();TipPanel->SetContent(Column);
+    TipHeading=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("LoadingTipHeading"));
+    TipHeading->SetFont(GetResolvedTheme()->MakeGameplayFont(15,true));TipHeading->SetJustification(ETextJustify::Center);
+    TipHeading->SetColorAndOpacity(FLinearColor(.65f,.91f,.83f));
+    Column->AddChildToVerticalBox(TipHeading)->SetPadding(FMargin(0,0,0,9));
+    auto* Layers=WidgetTree->ConstructWidget<UOverlay>();Column->AddChildToVerticalBox(Layers)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+    auto Layer=[&](const TCHAR* Name) {
+        auto* Label=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);
+        Label->SetFont(GetResolvedTheme()->MakeGameplayFont(22));Label->SetColorAndOpacity(FLinearColor(.93f,.98f,.96f));
+        Label->SetJustification(ETextJustify::Center);Label->SetAutoWrapText(false);Label->SetWrapTextAt(712.f);
+        Label->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+        auto* LayerSlot=Layers->AddChildToOverlay(Label);LayerSlot->SetHorizontalAlignment(HAlign_Fill);LayerSlot->SetVerticalAlignment(VAlign_Center);
+        return Label;
+    };
+    TipCurrent=Layer(TEXT("LoadingTipCurrent"));TipNext=Layer(TEXT("LoadingTipNext"));
+    if(auto* Canvas=Cast<UCanvasPanel>(WidgetTree->RootWidget)) {
+        auto* TipSlot=Canvas->AddChildToCanvas(TipWidth);TipSlot->SetAnchors(FAnchors(.5f,.5f));
+        TipSlot->SetAlignment(FVector2D(.5f,.5f));TipSlot->SetPosition(FVector2D::ZeroVector);TipSlot->SetAutoSize(true);
+        // The saved editable art is Z=1; appended native tips must paint above it.
+        TipSlot->SetZOrder(3);
+    } else {
+        // An older authored root is kept whole. This runs while the native tree
+        // is built, before Slate adopts its root, and adds only a named overlay.
+        UWidget* Original=WidgetTree->RootWidget;
+        auto* Root=WidgetTree->ConstructWidget<UOverlay>(UOverlay::StaticClass(),TEXT("LoadingTipsOverlay"));
+        WidgetTree->RootWidget=Root;Root->AddChildToOverlay(Original);
+        auto* TipSlot=Root->AddChildToOverlay(TipWidth);TipSlot->SetHorizontalAlignment(HAlign_Center);TipSlot->SetVerticalAlignment(VAlign_Center);
+    }
+    BoundPresentationRoot=WidgetTree->RootWidget;
+}
+
+void UMCLoadingWidget::RefreshTips(double ClockSeconds,bool bForceCopy)
+{
+    if(!TipCurrent || !TipNext) return;
+    const FString Culture=IsDesignTime()?PreviewCulture:FInternationalization::Get().GetCurrentLanguage()->GetName();
+    UDataTable* Table=GetResolvedTranslationTable();
+    if(bForceCopy || TipTexts.IsEmpty() || Culture!=TipCulture || TipTable.Get()!=Table) {
+        TipTexts=MCLoadingTips::Resolve(Table,Culture);TipCulture=Culture;TipTable=Table;
+        LastTipCurrent=LastTipNext=INDEX_NONE;
+        if(TipHeading) TipHeading->SetText(MCLoadingTips::Heading(Table,Culture));
+    }
+    const auto Frame=MCLoadingTips::Evaluate(ClockSeconds,TipTexts.Num());
+    if(TipTexts.IsValidIndex(Frame.Current) && LastTipCurrent!=Frame.Current) {TipCurrent->SetText(TipTexts[Frame.Current]);LastTipCurrent=Frame.Current;}
+    if(TipTexts.IsValidIndex(Frame.Next) && LastTipNext!=Frame.Next) {TipNext->SetText(TipTexts[Frame.Next]);LastTipNext=Frame.Next;}
+    TipCurrent->SetRenderOpacity(Frame.CurrentOpacity);TipNext->SetRenderOpacity(Frame.NextOpacity);
 }
 
 FText UMCLoadingWidget::Text(FName Key,const FText& Russian,const FText& English) const
@@ -200,6 +280,7 @@ void UMCLoadingWidget::RefreshPresentation()
     BindPresentationTree();
     const bool Preview=IsDesignTime();
     const bool Failed=Preview?PreviewState==TEXT("Failed"):Preparation && Preparation->HasFailed();
+    if(TipPanel) TipPanel->SetVisibility(Failed?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);
     const bool Waiting=Preview?(PreviewState==TEXT("Waiting") || PreviewScenario==EMCGameplayUIPreviewScenario::Waiting):bWaitingForPlayers;
     const EMCWorldPreloadPhase Phase=Preview
         ?PreviewState==TEXT("Graphics")?EMCWorldPreloadPhase::PreparingRendering
@@ -276,12 +357,14 @@ void UMCLoadingWidget::ApplyEditorPreview(float Time)
 {
     Super::ApplyEditorPreview(Time);
     RefreshPresentation();
+    RefreshTips(FMath::Max(0.f,Time));
 }
 
 void UMCLoadingWidget::OnLocalizationChanged()
 {
     Super::OnLocalizationChanged();
     RefreshPresentation();
+    RefreshTips(IsDesignTime()?PreviewTime:FPlatformTime::Seconds(),true);
 }
 
 UWidget* UMCLoadingWidget::GetFocusTarget() const

@@ -1,0 +1,95 @@
+{
+  "status": "passed",
+  "passed": true,
+  "screenshots": [],
+  "assertions": [],
+  "samples": [],
+  "boundaries": [],
+  "phase": "waiting_pie",
+  "previous_play_settings": {
+    "playNetMode": "PIE_Standalone",
+    "playNumberOfClients": 1,
+    "runUnderOneProcess": true,
+    "bLaunchSeparateServer": false,
+    "newWindowWidth": 1280,
+    "newWindowHeight": 720,
+    "clientFixedFPS": [
+      0
+    ],
+    "serverFixedFPS": 0
+  },
+  "editor_world": "/Game/Maps/L_Mouth.L_Mouth",
+  "network_tested": false,
+  "microphone_used": false,
+  "package_save_requested": false,
+  "fixtures": [
+    "Unsaved BP_MouthGameMode CDO workload fixture: three director booleans and EventPool only; retained during owned PIE, restored after PIE closes",
+    "Transient one-target LooseTooth event; ordinary RestartShift creates objectives/readiness; native held Spray earns reward"
+  ],
+  "limitations": [
+    "Legacy task completion fixture, not full SingleDay progression, physical mouse delivery, multiplayer, Hub UI spending, persistent save/reload or clean packaged PSO validation."
+  ],
+  "audio_settings_fixture": {
+    "play_cdo": "/Script/UnrealEd.Default__LevelEditorPlaySettings",
+    "misc_cdo": "/Script/UnrealEd.Default__LevelEditorMiscSettings",
+    "original": {
+      "EnableGameSound": false,
+      "bAllowBackgroundAudio": false
+    },
+    "enabled": {
+      "EnableGameSound": true,
+      "bAllowBackgroundAudio": true
+    },
+    "restored": true,
+    "notify_mode": "NEVER",
+    "save_config_called": false,
+    "packages_saved": false,
+    "master_volume_changed": false,
+    "restoration_policy": "Exact originals after owned PIE closes and Base.finish completes; active/replacement PIE is preserved",
+    "enabled_before_base_start": true,
+    "dirty_packages_after_enable": [],
+    "restored_values": {
+      "EnableGameSound": false,
+      "bAllowBackgroundAudio": false
+    },
+    "restored_after_pie_closed": true,
+    "restoration_errors": [],
+    "dirty_packages_after_restore": [],
+    "base_finish_returned": true,
+    "restoration_attempted_after_base_finish": true
+  },
+  "cdo_fixture": {
+    "cdo": "/Game/Blueprints/BP_MouthGameMode.Default__BP_MouthGameMode_C",
+    "event": "/Engine/Transient.MCDayEvent_0",
+    "fields": [
+      "bUseSingleDayLoop",
+      "bUseDayOnePlan",
+      "bUseAdaptiveDirector",
+      "EventPool"
+    ],
+    "notify_mode": "NEVER",
+    "saved": false,
+    "original": {
+      "bUseSingleDayLoop": true,
+      "bUseDayOnePlan": true,
+      "bUseAdaptiveDirector": true,
+      "EventPool": [
+        "/Game/Data/DA_Coffee.DA_Coffee",
+        "/Game/Data/DA_Food.DA_Food",
+        "/Game/Data/DA_LooseTooth.DA_LooseTooth"
+      ]
+    },
+    "restoration_policy": "After owned PIE closes; Python CDO setters propagate to inheriting instances even with NEVER",
+    "restored": true,
+    "dirty_packages_after": []
+  },
+  "child_report": "E:\\CodexWork\\Checkpoint_20261027\\Coins\\Run_20261026T233332Z_314f6b\\Report.json",
+  "owned_pie_stop_requested": true,
+  "fixture_cleanup_errors": [],
+  "temporary_actor_count": 0,
+  "paused_actor_count": 0,
+  "error": null,
+  "restoration_errors": [],
+  "restored_settings": true,
+  "wall_seconds": 20.45300000000134
+}

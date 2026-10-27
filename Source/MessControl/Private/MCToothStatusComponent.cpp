@@ -1,6 +1,7 @@
 #include "MCToothStatusComponent.h"
 #include "MCPerkComponent.h"
 #include "MCArenaTooth.h"
+#include "MCToothCareFeedbackComponent.h"
 #include "MCToothCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "MCFoodCollectionComponent.h"
@@ -18,6 +19,7 @@ void FMCToothCareSettings::Sanitize()
     ContactSeconds=Safe(ContactSeconds,.5f,.1f,10); Reach=Safe(Reach,115,10,250);
     CoffeeContacts=FMath::Clamp(CoffeeContacts,1,100); RepairContacts=FMath::Clamp(RepairContacts,1,100);
     HealPerContact=Safe(HealPerContact,25,1,10000); PlayerHealth=Safe(PlayerHealth,100,1,10000);
+    BrokenRepairDurationMultiplier=Safe(BrokenRepairDurationMultiplier,5.f,1.f,30.f);
     LooseHealthFraction=Safe(LooseHealthFraction,.4f,0,1); RespawnSeconds=Safe(RespawnSeconds,3,.1f,60);
 }
 UMCToothStatusComponent::UMCToothStatusComponent()
@@ -47,6 +49,8 @@ void UMCToothStatusComponent::Restore(const FMCToothStatus& Source)
     if (!GetOwner()->HasAuthority()) return;
     State.Health=FMath::Clamp(Source.Health/FMath::Max(1.f,Source.MaxHealth)*State.MaxHealth,1.f,State.MaxHealth);
     State.CoffeeLeft=Source.CoffeeLeft; State.CoffeeTotal=Source.CoffeeTotal; State.RepairLeft=Source.RepairLeft;
+    State.bBrokenRepairCycle=Cast<AMCArenaTooth>(GetOwner()) && State.Health<State.MaxHealth
+        && (Source.bBrokenRepairCycle || State.Health<=State.MaxHealth*.4f);
     Changed(true);
 }
 void UMCToothStatusComponent::Changed(bool bCare)
@@ -109,17 +113,40 @@ bool UMCToothStatusComponent::Damage(float Amount,FVector Direction,AActor* Sour
     if (State.Health<=State.MaxHealth*Settings.LooseHealthFraction) State.RepairLeft=FMath::Max(State.RepairLeft,Settings.RepairContacts);
     Changed(false); return true;
 }
+bool UMCToothStatusComponent::KillFromArenaBoundary()
+{
+    // Keep the existing safe tutorial/startup contract. This narrow path is
+    // used only by physical arena boundaries, never ordinary combat hits.
+    if(!GetOwner()->HasAuthority() || !IsAlive() || !Cast<AMCToothCharacter>(GetOwner())
+        || AMCTutorialDirector::IsSafeTutorial(GetWorld())) return false;
+    const auto* Game=GetWorld()->GetGameState<AMCGameState>();
+    if(Game && (Game->bTutorialActive || Game->bLobbyWaiting)) return false;
+    if(auto* Hero=Cast<AMCToothCharacter>(GetOwner());Hero->FoodCollection)
+        Hero->FoodCollection->Spill(FVector(0,0,230));
+    State.Health=0;
+    LastDamageDirection=FVector::UpVector;
+    State.DamageAt=Game?Game->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    State.RepairLeft=FMath::Max(State.RepairLeft,Settings.RepairContacts);
+    // Changed drives the ordinary StatusChanged -> PlayerDied/reserve path.
+    // Its IsAlive/bDeathReported guards also make repeated boundary samples inert.
+    Changed(false);
+    return true;
+}
 void UMCToothStatusComponent::Heal(float Amount)
 {
     if(!GetOwner()->HasAuthority() || !IsAlive() || !FMath::IsFinite(Amount) || Amount<=0) return;
-    State.Health=FMath::Min(State.MaxHealth,State.Health+Amount);Changed(true);
+    State.Health=FMath::Min(State.MaxHealth,State.Health+Amount);
+    if(State.Health>=State.MaxHealth-KINDA_SMALL_NUMBER) State.bBrokenRepairCycle=false;
+    Changed(true);
 }
 void UMCToothStatusComponent::ClearCoffeeForBooster()
 {if(GetOwner()->HasAuthority()) {State.CoffeeLeft=0;Changed(true);}}
 void UMCToothStatusComponent::SetPerkMaxHealth(float Maximum)
 {
     if(!GetOwner()->HasAuthority() || !bInitialized || !FMath::IsFinite(Maximum) || FMath::IsNearlyEqual(Maximum,State.MaxHealth)) return;
-    State.MaxHealth=FMath::Max(1.f,Maximum);State.Health=FMath::Min(State.Health,State.MaxHealth);Changed(true);
+    State.MaxHealth=FMath::Max(1.f,Maximum);State.Health=FMath::Min(State.Health,State.MaxHealth);
+    if(State.Health>=State.MaxHealth-KINDA_SMALL_NUMBER) State.bBrokenRepairCycle=false;
+    Changed(true);
 }
 float UMCToothStatusComponent::PersonalCoffeeCareRate() const
 {
@@ -149,19 +176,30 @@ bool UMCToothStatusComponent::CareContact(bool bBrush, AMCToothCharacter* Worker
     }
     return true;
 }
-bool UMCToothStatusComponent::RepairWithTool(float Amount, AMCToothCharacter* Worker)
+bool UMCToothStatusComponent::RepairWithTool(float Amount, AMCToothCharacter* Worker,const FHitResult* Contact)
 {
     const auto* Arena=Cast<AMCArenaTooth>(GetOwner());
     if (!Arena || !Arena->HasAuthority() || !Arena->IsAvailable() || !IsValid(Worker)
         || Worker->GetWorld()!=GetWorld() || !Worker->CanWork() || !NeedsCare(false)
         || !FMath::IsFinite(Amount) || Amount<=0) return false;
+    // Remember the whole restoration cycle, not just the currently displayed
+    // broken mesh. Crossing back into Chipped must not accelerate the same job.
+    const bool WasBroken=State.Health<=State.MaxHealth*.4f;
+    if(WasBroken) State.bBrokenRepairCycle=true;
+    if(State.bBrokenRepairCycle) Amount/=FMath::Max(1.f,Settings.BrokenRepairDurationMultiplier);
     State.Health=FMath::Min(State.MaxHealth,State.Health+Amount);
     if (State.Health>=State.MaxHealth-KINDA_SMALL_NUMBER) {
-        State.Health=State.MaxHealth; State.RepairLeft=0;
+        State.Health=State.MaxHealth; State.RepairLeft=0;State.bBrokenRepairCycle=false;
     } else if (State.RepairLeft>0) {
         State.RepairLeft=FMath::Min(State.RepairLeft,FMath::CeilToInt(Settings.RepairContacts*(1-State.Health/State.MaxHealth)));
     }
     Changed(true);
+    // The crown regrowing from Broken to Chipped gets a cosmetic milestone.
+    // This is not task completion or an award; the original full-HP gate below remains authoritative.
+    const bool RegrewCrown=WasBroken && State.Health>State.MaxHealth*.4f;
+    if(Arena->CareFeedback && Contact && Contact->GetActor()==Arena)
+        Arena->CareFeedback->ReportAccepted(EMCToothCareFeedbackKind::Repair,
+            Contact->ImpactPoint,Contact->ImpactNormal,RegrewCrown || !NeedsCare(false));
     if (!NeedsCare(false))
         if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->AwardTask(Worker,EMCScoreTask::Repair);
     return true;

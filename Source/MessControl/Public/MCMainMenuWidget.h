@@ -228,6 +228,7 @@ private:
     UPROPERTY(Transient) TObjectPtr<UComboBoxString> WindowModePicker;
     UPROPERTY(Transient) TObjectPtr<UComboBoxString> QualityPicker;
     UPROPERTY(Transient) TObjectPtr<UCheckBox> VSyncCheck;
+    UPROPERTY(Transient) TObjectPtr<UCheckBox> CameraSmoothingCheck;
     UPROPERTY(Transient) TObjectPtr<UWidgetSwitcher> SettingsSections;
     UPROPERTY(Transient) TObjectPtr<class UMCVoiceSettingsWidget> VoiceSettings;
     UPROPERTY(Transient) TMap<FName,TObjectPtr<UComboBoxString>> SettingsPickers;

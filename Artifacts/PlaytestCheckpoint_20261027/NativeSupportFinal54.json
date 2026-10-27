@@ -1,0 +1,1187 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "WINDOWS-Q8HM2VG",
+			"instance": "0442B30F449F7C023595B0820609474E",
+			"instanceName": "WINDOWS-Q8HM2VG-44700",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9168] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 3080",
+			"cPUModel": "AMD Ryzen 9 5950X 16-Core Processor            ",
+			"rAMInGB": 32,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.26-23.37.13",
+	"succeeded": 42,
+	"succeededWithWarnings": 12,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 31.020782470703125,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "BlockedAttemptCanRetryAfterClearance",
+			"fullTestPath": "MessControl.Animation.AuthoredGlide.Runtime.BlockedAttemptCanRetryAfterClearance",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 1.7668795585632324,
+			"dateTime": "2026.10.26-23.36.41",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CurvedSupportKeepsObstaclesAndSupportLoss",
+			"fullTestPath": "MessControl.Animation.AuthoredGlide.Runtime.CurvedSupportKeepsObstaclesAndSupportLoss",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.30125468969345093,
+			"dateTime": "2026.10.26-23.36.43",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SupportedFallLifecycleAndGuards",
+			"fullTestPath": "MessControl.Animation.AuthoredGlide.Runtime.SupportedFallLifecycleAndGuards",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.33256909251213074,
+			"dateTime": "2026.10.26-23.36.43",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SupportLossAndDeathCannotStand",
+			"fullTestPath": "MessControl.Animation.AuthoredGlide.Runtime.SupportLossAndDeathCannotStand",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.76572889089584351,
+			"dateTime": "2026.10.26-23.36.44",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AuthoritativeFallGate",
+			"fullTestPath": "MessControl.Animation.AuthoredGlide.AuthoritativeFallGate",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.0084923990070819855,
+			"dateTime": "2026.10.26-23.36.44",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "OnsetsAndCooldown",
+			"fullTestPath": "MessControl.Animation.AuthoredGlide.OnsetsAndCooldown",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.0076640024781227112,
+			"dateTime": "2026.10.26-23.36.45",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ReleaseAndMissingAssets",
+			"fullTestPath": "MessControl.Animation.AuthoredGlide.ReleaseAndMissingAssets",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.0080998986959457397,
+			"dateTime": "2026.10.26-23.36.45",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ComboGroundHitAndTwoSecondRecovery",
+			"fullTestPath": "MessControl.CoreLoop.NutBoss.ComboGroundHitAndTwoSecondRecovery",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 1.9767471551895142,
+			"dateTime": "2026.10.26-23.36.45",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "DropAndShieldFirstHealth",
+			"fullTestPath": "MessControl.CoreLoop.NutBoss.DropAndShieldFirstHealth",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.6609807014465332,
+			"dateTime": "2026.10.26-23.36.47",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "EdgeTargetStillCastsRealRain",
+			"fullTestPath": "MessControl.CoreLoop.NutBoss.EdgeTargetStillCastsRealRain",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.64938032627105713,
+			"dateTime": "2026.10.26-23.36.47",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "FireNutTongueImpactCreatesPainUlcer",
+			"fullTestPath": "MessControl.CoreLoop.NutBoss.FireNutTongueImpactCreatesPainUlcer",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.12481169402599335,
+			"dateTime": "2026.10.26-23.36.48",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "FireNutTracksUntilReleaseWithoutGroundMarker",
+			"fullTestPath": "MessControl.CoreLoop.NutBoss.FireNutTracksUntilReleaseWithoutGroundMarker",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.67875468730926514,
+			"dateTime": "2026.10.26-23.36.48",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "JumpAreaHitsOnceAndAllowsEscape",
+			"fullTestPath": "MessControl.CoreLoop.NutBoss.JumpAreaHitsOnceAndAllowsEscape",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 1.2709671258926392,
+			"dateTime": "2026.10.26-23.36.49",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PressureGapResetsTeamChain",
+			"fullTestPath": "MessControl.CoreLoop.NutBoss.PressureGapResetsTeamChain",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 1.1598746776580811,
+			"dateTime": "2026.10.26-23.36.50",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RollCollisionDamagesArenaTeeth",
+			"fullTestPath": "MessControl.CoreLoop.NutBoss.RollCollisionDamagesArenaTeeth",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.56649100780487061,
+			"dateTime": "2026.10.26-23.36.51",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RollDurationAndPredictableSteering",
+			"fullTestPath": "MessControl.CoreLoop.NutBoss.RollDurationAndPredictableSteering",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 2.2528994083404541,
+			"dateTime": "2026.10.26-23.36.52",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RollSpeedAndExpandedDamageRadius",
+			"fullTestPath": "MessControl.CoreLoop.NutBoss.RollSpeedAndExpandedDamageRadius",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.21102949976921082,
+			"dateTime": "2026.10.26-23.36.54",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SafeSettingsAndPartyHealth",
+			"fullTestPath": "MessControl.CoreLoop.NutBoss.SafeSettingsAndPartyHealth",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.0079290010035037994,
+			"dateTime": "2026.10.26-23.36.54",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SummonsRemainAfterDefeatAndResetCleansChildren",
+			"fullTestPath": "MessControl.CoreLoop.NutBoss.SummonsRemainAfterDefeatAndResetCleansChildren",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.78290677070617676,
+			"dateTime": "2026.10.26-23.36.54",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "TeamPressureCounterAndShieldPriority",
+			"fullTestPath": "MessControl.CoreLoop.NutBoss.TeamPressureCounterAndShieldPriority",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 1.4972890615463257,
+			"dateTime": "2026.10.26-23.36.55",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "WizardPressureWaitsForFullCastAndTurnsSmoothly",
+			"fullTestPath": "MessControl.CoreLoop.NutBoss.WizardPressureWaitsForFullCastAndTurnsSmoothly",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 1.9311224222183228,
+			"dateTime": "2026.10.26-23.36.56",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "BossPlacementSurvivesUnavailableBand",
+			"fullTestPath": "MessControl.CoreLoop.NutRain.BossPlacementSurvivesUnavailableBand",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 2.1513457298278809,
+			"dateTime": "2026.10.26-23.36.58",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CleanupRetainsOnlyBoundedCompletedCorpses",
+			"fullTestPath": "MessControl.CoreLoop.NutRain.CleanupRetainsOnlyBoundedCompletedCorpses",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.03067459911108017,
+			"dateTime": "2026.10.26-23.37.01",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "DirectedSeriesAndGuaranteedBossGate",
+			"fullTestPath": "MessControl.CoreLoop.NutRain.DirectedSeriesAndGuaranteedBossGate",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 1.6698613166809082,
+			"dateTime": "2026.10.26-23.37.01",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "GroundSpacingAndExplicitSpellFallback",
+			"fullTestPath": "MessControl.CoreLoop.NutRain.GroundSpacingAndExplicitSpellFallback",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.049579501152038574,
+			"dateTime": "2026.10.26-23.37.02",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "LiveTargetsAndInterruptibleBites",
+			"fullTestPath": "MessControl.CoreLoop.NutRain.LiveTargetsAndInterruptibleBites",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.69982057809829712,
+			"dateTime": "2026.10.26-23.37.02",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "LooseDebrisNeverCancelsBossGate",
+			"fullTestPath": "MessControl.CoreLoop.NutRain.LooseDebrisNeverCancelsBossGate",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 2.4220409393310547,
+			"dateTime": "2026.10.26-23.37.03",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogTemp: MC_NUT_RAIN_RECOVER stale_flights=1; continuing to knight",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.05"
+				}
+			],
+			"warnings": 1,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RainThenHostilesAndReset",
+			"fullTestPath": "MessControl.CoreLoop.NutRain.RainThenHostilesAndReset",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.54551142454147339,
+			"dateTime": "2026.10.26-23.37.05",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SafeCountsAndCadence",
+			"fullTestPath": "MessControl.CoreLoop.NutRain.SafeCountsAndCadence",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.0083964020013809204,
+			"dateTime": "2026.10.26-23.37.06",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "TwoPatternsAndHitchSafeCadence",
+			"fullTestPath": "MessControl.CoreLoop.NutRain.TwoPatternsAndHitchSafeCadence",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.0079894028604030609,
+			"dateTime": "2026.10.26-23.37.06",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ContextHintsFollowActionAvailability",
+			"fullTestPath": "MessControl.Hub.Basketball.ContextHintsFollowActionAvailability",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.27959668636322021,
+			"dateTime": "2026.10.26-23.37.06",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "BossShieldOwnsShot",
+			"fullTestPath": "MessControl.Nuts.FragmentThrow.BossShieldOwnsShot",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.29257661104202271,
+			"dateTime": "2026.10.26-23.37.06",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PickupHitsOneEnemy",
+			"fullTestPath": "MessControl.Nuts.FragmentThrow.PickupHitsOneEnemy",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.3884429931640625,
+			"dateTime": "2026.10.26-23.37.07",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RequiresDeliberateNutLaunch",
+			"fullTestPath": "MessControl.Nuts.FragmentThrow.RequiresDeliberateNutLaunch",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.18417990207672119,
+			"dateTime": "2026.10.26-23.37.07",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RequiresSameActiveEncounter",
+			"fullTestPath": "MessControl.Nuts.FragmentThrow.RequiresSameActiveEncounter",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.3138481080532074,
+			"dateTime": "2026.10.26-23.37.07",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SceneryBlocksHit",
+			"fullTestPath": "MessControl.Nuts.FragmentThrow.SceneryBlocksHit",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.067281603813171387,
+			"dateTime": "2026.10.26-23.37.07",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SingleHandPreservesFoodStacks",
+			"fullTestPath": "MessControl.Nuts.FragmentThrow.SingleHandPreservesFoodStacks",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.18848350644111633,
+			"dateTime": "2026.10.26-23.37.08",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ExactPortionsAndSharedCleanupGate",
+			"fullTestPath": "MessControl.SingleDay.PostNutRelax.ExactPortionsAndSharedCleanupGate",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 1.4102294445037842,
+			"dateTime": "2026.10.26-23.37.08",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.08"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.08"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogTemp: MC_DIRT_SPAWN no interior tongue footprint for patch 0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.09"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogTemp: MC_DIRT_SPAWN no interior tongue footprint for patch 0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.09"
+				}
+			],
+			"warnings": 4,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "FiveThenCoffeeIntervalAndTen",
+			"fullTestPath": "MessControl.SingleDay.PostNutRelax.FiveThenCoffeeIntervalAndTen",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.0033980011940002441,
+			"dateTime": "2026.10.26-23.37.09",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "MintRepeatsJumpableHarmlessFrontsUntilBroken",
+			"fullTestPath": "MessControl.SingleDay.PostNutRelax.MintRepeatsJumpableHarmlessFrontsUntilBroken",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 1.057426929473877,
+			"dateTime": "2026.10.26-23.37.09",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.09"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.09"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CompletedFogSlotOpensSupportWithoutFinalBoss",
+			"fullTestPath": "MessControl.SingleDay.Sequence.CompletedFogSlotOpensSupportWithoutFinalBoss",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.15173810720443726,
+			"dateTime": "2026.10.26-23.37.10",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CustomOpeningPortionsWaveEndAndSharedCleanup",
+			"fullTestPath": "MessControl.SingleDay.Sequence.CustomOpeningPortionsWaveEndAndSharedCleanup",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 1.0660127401351929,
+			"dateTime": "2026.10.26-23.37.10",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.10"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.10"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogTemp: MC_DIRT_SPAWN no interior tongue footprint for patch 0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.11"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogTemp: MC_DIRT_SPAWN no interior tongue footprint for patch 0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.11"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogTemp: MC_DIRT_SPAWN no interior tongue footprint for patch 0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.11"
+				}
+			],
+			"warnings": 5,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "FailedFogSetupTerminatesAndCleansEvent",
+			"fullTestPath": "MessControl.SingleDay.Sequence.FailedFogSetupTerminatesAndCleansEvent",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.092901900410652161,
+			"dateTime": "2026.10.26-23.37.12",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "FailedIceSetupTerminatesAndCleansEvent",
+			"fullTestPath": "MessControl.SingleDay.Sequence.FailedIceSetupTerminatesAndCleansEvent",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.055648300796747208,
+			"dateTime": "2026.10.26-23.37.12",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "IceIntervalDispatchesFogAndStopsSupport",
+			"fullTestPath": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.071118801832199097,
+			"dateTime": "2026.10.26-23.37.12",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.12"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.12"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "NutIntervalDispatchesIceAndStopsSupport",
+			"fullTestPath": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.17531029880046844,
+			"dateTime": "2026.10.26-23.37.12",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.12"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.12"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "OpeningMealExplainsItsActualRemainingWork",
+			"fullTestPath": "MessControl.SingleDay.Sequence.OpeningMealExplainsItsActualRemainingWork",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.068577699363231659,
+			"dateTime": "2026.10.26-23.37.12",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.12"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.12"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "OpeningMealWaitsForAvailableDirtyArenaTeeth",
+			"fullTestPath": "MessControl.SingleDay.Sequence.OpeningMealWaitsForAvailableDirtyArenaTeeth",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.068731598556041718,
+			"dateTime": "2026.10.26-23.37.12",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.12"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.12"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "OpeningRelaxExactlyFiveAndOneCompletionReward",
+			"fullTestPath": "MessControl.SingleDay.Sequence.OpeningRelaxExactlyFiveAndOneCompletionReward",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.083516299724578857,
+			"dateTime": "2026.10.26-23.37.12",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.12"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.12"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+			"fullTestPath": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.064125999808311462,
+			"dateTime": "2026.10.26-23.37.12",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.12"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.12"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+			"fullTestPath": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.12377090007066727,
+			"dateTime": "2026.10.26-23.37.12",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.13"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.13"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SharedHistoryIsBoundedAndSurvivesKeyEventPublish",
+			"fullTestPath": "MessControl.SingleDay.Sequence.SharedHistoryIsBoundedAndSurvivesKeyEventPublish",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.079945698380470276,
+			"dateTime": "2026.10.26-23.37.13",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+			"fullTestPath": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.10128989815711975,
+			"dateTime": "2026.10.26-23.37.13",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.13"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.26-23.37.13"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SupportSurvivesOldFinaleDayAndRunTargets",
+			"fullTestPath": "MessControl.SingleDay.Sequence.SupportSurvivesOldFinaleDayAndRunTargets",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0442B30F449F7C023595B0820609474E"
+			],
+			"duration": 0.085540600121021271,
+			"dateTime": "2026.10.26-23.37.13",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

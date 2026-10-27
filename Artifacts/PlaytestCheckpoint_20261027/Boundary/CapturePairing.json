@@ -1,0 +1,11 @@
+{
+  "mode": "boundary",
+  "report": "E:\\CodexWork\\Checkpoint_20261027\\Boundary\\Solo\\Run_20261026T213143Z_3157a4\\Report.json",
+  "status": "passed",
+  "passed": true,
+  "record": {
+    "native_frames": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\boundary_063142_f4aff5",
+    "no_desktop_capture": true
+  },
+  "error": null
+}

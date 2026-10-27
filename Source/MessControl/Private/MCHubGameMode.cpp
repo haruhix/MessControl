@@ -213,13 +213,15 @@ void AMCHubGameMode::Logout(AController* Exiting)
     RefreshReadiness();
 }
 
-void AMCHubGameMode::AcknowledgeSceneLoaded(APlayerController* Player, int32 Generation)
+void AMCHubGameMode::AcknowledgeSceneLoaded(APlayerController* Player, const AMCHubGameState* LoadedHub, int32 Generation)
 {
     if (!HasAuthority() || bTravelPending || !IsParticipant(Player)) return;
     const auto* State = GetGameState<AMCHubGameState>();
-    if (!State || Generation != State->SceneGeneration) return;
+    // Scene numbers restart in a new hub world. An ACK queued before travel
+    // must never acknowledge a different world's scene with the same number.
+    if (!State || LoadedHub != State || Generation != State->SceneGeneration) return;
     if (!Player->IsLocalController() && !Player->HasClientLoadedCurrentWorld()) return;
-    if (!bSelectionScene && !Player->GetPawn()) return;
+    if (!bSelectionScene && (!IsValid(Player->GetPawn()) || Player->GetPawn()->GetWorld() != GetWorld())) return;
     LoadedPlayers.Add(Player, Generation);
     RefreshReadiness();
 }
@@ -314,7 +316,8 @@ void AMCHubGameMode::RefreshReadiness()
         Connected.Add(Player);
         FMCHubPlayerReadiness Entry;
         Entry.Player = Player->PlayerState;
-        Entry.bLoaded = LoadedPlayers.FindRef(Player) == State->SceneGeneration;
+        const int32* LoadedGeneration = LoadedPlayers.Find(Player);
+        Entry.bLoaded = LoadedGeneration && *LoadedGeneration == State->SceneGeneration;
         if (bSelectionScene || State->Phase == EMCHubPhase::Selecting) Entry.bReady = true;
         else if (const auto* Hero = Cast<AMCToothCharacter>(Player->GetPawn()); Hero && Hero->Status && Hero->Status->IsAlive())
         {

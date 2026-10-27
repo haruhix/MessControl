@@ -438,7 +438,7 @@ void AMCCataclysmEvent::DepositDeathPaint(FVector Center,float Radius)
             // A hit on the target crown is allowed only at the contacted surface,
             // never through its opposite side or an intervening tooth/wall.
             return Block.GetActor()==Tooth && FVector::DistSquared(Block.ImpactPoint,Point)<FMath::Square(24.f);
-        });
+        },false);
         // A rejected deposit leaves a clean tooth's unused volume cells intact.
         // Only newly increased samples that the real brush can acquire belong
         // to this event; raw bounding-volume voxels are not work targets.

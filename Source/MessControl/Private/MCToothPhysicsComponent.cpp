@@ -4,6 +4,10 @@
 #include "MCCoffeeFlood.h"
 #include "MCGazeComponent.h"
 #include "MCGripComponent.h"
+#include "MCInventoryComponent.h"
+#include "MCExpressionComponent.h"
+#include "MCFishingRodComponent.h"
+#include "MCRewardChest.h"
 #include "MCToothCharacter.h"
 #include "MCFoodCollectionComponent.h"
 #include "MCFoodActor.h"
@@ -11,6 +15,10 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/SkeletalMesh.h"
+#include "Animation/AnimSequence.h"
+#include "Animation/Skeleton.h"
+#include "Engine/OverlapResult.h"
+#include "HAL/IConsoleManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameStateBase.h"
 #include "PhysicsControlComponent.h"
@@ -21,6 +29,12 @@
 #include "Misc/ConfigCacheIni.h"
 #include "TimerManager.h"
 #include "UObject/ConstructorHelpers.h"
+
+namespace
+{
+TAutoConsoleVariable<int32> CVarMCSlipDebug(TEXT("MC.Slip.Debug"),0,
+    TEXT("Log native slippery-fall gate masks, candidates and clearance rejections."),ECVF_Default);
+}
 
 UMCToothPhysicsComponent::UMCToothPhysicsComponent()
 {
@@ -283,8 +297,190 @@ void UMCToothPhysicsComponent::ResetTuning() { SetTuning(Profile?Profile->Settin
 void UMCToothPhysicsComponent::SetState(EMCBodyState NewState)
 {
     BlockedRecoveryStartedAt=-1.f;
+    if(NewState==EMCBodyState::Ragdoll) {Frame.bFromSlipperyFall=false;Frame.bAuthoredSlipRecovery=false;}
     Frame.State=NewState; ++Frame.Revision; Frame.StateStartedAt=ServerTime(); LocalState=NewState;
     Tooth->ForceNetUpdate();
+}
+void UMCToothPhysicsComponent::UpdateSlipperyFallGate(float Dt)
+{
+    if(!Tooth || !Tooth->HasAuthority()) return;
+    const auto* Move=Cast<UMCToothMovementComponent>(Tooth->GetCharacterMovement());
+    const float Speed=Tooth->GetVelocity().Size2D();
+    const float Deceleration=FMath::Max(0.f,PreviousSlipSpeed-Speed)/FMath::Max(.008f,Dt);PreviousSlipSpeed=Speed;
+    const FVector Direction=Tooth->GetVelocity().GetSafeNormal2D();
+    const FVector Intent=Move?Move->Intent().GetSafeNormal2D():FVector::ZeroVector;
+    const float Side=FMath::Abs(FVector::DotProduct(Direction,Tooth->GetActorRightVector()));
+    const float Counter=Intent.IsNearlyZero()?0.f:1-FMath::Max(0.f,FVector::DotProduct(Direction,Intent));
+    const bool Contact=Tooth->bBrushing || Tooth->IsPrimaryHeld() || Tooth->IsRowing() || Tooth->IsYawning()
+        || Tooth->IsDashing() || Tooth->OrderJumpTarget || Tooth->ClingTooth
+        || (Tooth->FishingRod && Tooth->FishingRod->IsPresented()) || IsValid(Tooth->RewardInteraction)
+        || (Tooth->Expression && Tooth->Expression->BodyAlpha()>.01f);
+    const bool Allowed=CanAct() && Tooth->GetController() && Move && Move->IsMovingOnGround()
+        && !Tooth->HasFrozenLegs() && !Tooth->IsFreezingToDeath() && Tooth->Status->PainAlpha()<.01f
+        && Tooth->AnimationSwim<.01f && Tooth->AnimationClimb<.01f && !Contact
+        && Tooth->AnimationProfile && Tooth->AnimationProfile->Glide && Tooth->AnimationProfile->GlideStrong;
+    const bool Slippery=Move && Move->GroundSurface==EMCGroundSurface::Slippery;
+    const bool Candidate=SlipGate.Update(Dt,Allowed,Slippery,Speed,FMath::Max(Side,Counter),Deceleration);
+    if(CVarMCSlipDebug.GetValueOnGameThread()!=0 && Slippery && Speed>120.f) {
+        const uint32 Exclusions=(!CanAct()?1u:0u)|(!Tooth->GetController()?2u:0u)|(!Move?4u:0u)
+            |(Move && !Move->IsMovingOnGround()?8u:0u)|(Tooth->HasFrozenLegs()?16u:0u)|(Tooth->IsFreezingToDeath()?32u:0u)
+            |(Tooth->Status->PainAlpha()>=.01f?64u:0u)|(Tooth->AnimationSwim>=.01f?128u:0u)|(Tooth->AnimationClimb>=.01f?256u:0u)
+            |(Contact?512u:0u)|(!Tooth->AnimationProfile || !Tooth->AnimationProfile->Glide?1024u:0u)
+            |(!Tooth->AnimationProfile || !Tooth->AnimationProfile->GlideStrong?2048u:0u);
+        const uint32 ContactMask=(Tooth->bBrushing?1u:0u)|(Tooth->IsPrimaryHeld()?2u:0u)|(Tooth->IsRowing()?4u:0u)|(Tooth->IsYawning()?8u:0u)
+            |(Tooth->IsDashing()?16u:0u)|(Tooth->OrderJumpTarget?32u:0u)|(Tooth->ClingTooth?64u:0u)
+            |(Tooth->FishingRod && Tooth->FishingRod->IsPresented()?128u:0u)|(IsValid(Tooth->RewardInteraction)?256u:0u)
+            |(Tooth->Expression && Tooth->Expression->BodyAlpha()>.01f?512u:0u);
+        UE_LOG(LogTemp,Display,TEXT("MC_SLIP_GATE pawn=%s time=%.3f dt=%.3f allowed=%d mask=0x%08x contact=0x%08x speed=%.1f side=%.3f counter=%.3f decel=%.1f balance=%.3f severe=%.3f cooldown=%.3f candidate=%d"),
+            *GetNameSafe(Tooth),ServerTime(),Dt,Allowed,Exclusions,ContactMask,Speed,Side,Counter,Deceleration,SlipGate.BalanceAge,SlipGate.SevereAge,SlipGate.Cooldown,Candidate);
+    }
+    if(Candidate && !BeginSlipperyFall()) {
+        // A blocked attempt did not spend an actual fall. Preparation was reset
+        // by the candidate and still bounds retries; do not lock them for 6.5s.
+        SlipGate.Cooldown=0.f;
+        if(CVarMCSlipDebug.GetValueOnGameThread()!=0) UE_LOG(LogTemp,Display,TEXT("MC_SLIP_RETRY pawn=%s time=%.3f rejected_candidate_cooldown_cleared=1"),*GetNameSafe(Tooth),ServerTime());
+    }
+}
+bool UMCToothPhysicsComponent::BeginSlipperyFall()
+{
+    const auto* Move=Tooth?Cast<UMCToothMovementComponent>(Tooth->GetCharacterMovement()):nullptr;
+    const auto* Clip=Tooth && Tooth->AnimationProfile?Tooth->AnimationProfile->GlideStrong.Get():nullptr;
+    const auto* Mesh=Tooth?Tooth->GetMesh()->GetSkeletalMeshAsset():nullptr;
+    const float ClipLength=Clip?float(Clip->GetPlayLength()):0.f;
+    const uint32 RejectMask=(!Tooth?1u:0u)|(Tooth && !Tooth->HasAuthority()?2u:0u)|(Tooth && !Tooth->GetController()?4u:0u)
+        |(!CanAct()?8u:0u)|(!Move?16u:0u)|(Move && !Move->IsMovingOnGround()?32u:0u)
+        |(Move && Move->GroundSurface!=EMCGroundSurface::Slippery?64u:0u)|(!Clip?128u:0u)
+        |(!FMath::IsFinite(ClipLength) || ClipLength<.5f || ClipLength>3.f?256u:0u)|(!Mesh?512u:0u)
+        |(Clip && Mesh && Clip->GetSkeleton()!=Mesh->GetSkeleton()?1024u:0u)|(Tooth && Tooth->HasFrozenLegs()?2048u:0u)
+        |(Tooth && Tooth->IsFreezingToDeath()?4096u:0u)|(Tooth && Tooth->SwallowedBy?8192u:0u)|(Tooth && Tooth->MimicCaptor?16384u:0u);
+    if(RejectMask) {
+        if(CVarMCSlipDebug.GetValueOnGameThread()!=0) UE_LOG(LogTemp,Display,TEXT("MC_SLIP_REJECT pawn=%s phase=entry mask=0x%08x clip_seconds=%.3f"),*GetNameSafe(Tooth),RejectMask,ClipLength);
+        return false;
+    }
+    // The unchanged capsule is conservative vertically but narrower than the
+    // reclined mesh. Reject a fall where the complete authored footprint cannot fit.
+    const float Scale=Tooth->GetActorScale3D().GetAbsMax();
+    const FVector FloorNormal=Move->CurrentFloor.HitResult.ImpactNormal.GetSafeNormal();
+    const FVector FloorPoint=Move->CurrentFloor.HitResult.ImpactPoint;
+    const FQuat FloorRotation=FQuat::FindBetweenNormals(FVector::UpVector,FloorNormal.IsNearlyZero()?FVector::UpVector:FloorNormal)*Tooth->GetActorQuat();
+    FCollisionQueryParams ClearanceParams(SCENE_QUERY_STAT(MCSlipClearance),false,Tooth);
+    // A curved supporting surface can enter its own tangent footprint. Ignore
+    // only that walkable component here; floor queries and capsule motion retain it.
+    if(Move->IsWalkable(Move->CurrentFloor.HitResult)) ClearanceParams.AddIgnoredComponent(Move->CurrentFloor.HitResult.GetComponent());
+    const auto* Capsule=Tooth->GetCapsuleComponent();
+    const FVector ClearanceCenter=FloorPoint+FloorNormal*70.f*Scale;
+    const FCollisionShape ClearanceShape=FCollisionShape::MakeBox(FVector(100,100,68)*Scale);
+    const FCollisionResponseParams Responses(Capsule->GetCollisionResponseToChannels());
+    bool Blocked=false;
+    if(CVarMCSlipDebug.GetValueOnGameThread()!=0) {
+        TArray<FOverlapResult> Overlaps;
+        Blocked=GetWorld()->OverlapMultiByChannel(Overlaps,ClearanceCenter,FloorRotation,Capsule->GetCollisionObjectType(),ClearanceShape,ClearanceParams,Responses);
+        if(Blocked) for(const auto& Hit:Overlaps) if(Hit.bBlockingHit)
+            UE_LOG(LogTemp,Display,TEXT("MC_SLIP_REJECT pawn=%s phase=clearance actor=%s component=%s support_component=%s same_support=%d center=%s floor=%s normal=%s"),
+                *GetNameSafe(Tooth),*GetNameSafe(Hit.GetActor()),*GetNameSafe(Hit.GetComponent()),*GetNameSafe(Move->CurrentFloor.HitResult.GetComponent()),
+                Hit.GetComponent()==Move->CurrentFloor.HitResult.GetComponent(),*ClearanceCenter.ToString(),*FloorPoint.ToString(),*FloorNormal.ToString());
+    } else Blocked=GetWorld()->OverlapBlockingTestByChannel(ClearanceCenter,FloorRotation,Capsule->GetCollisionObjectType(),ClearanceShape,ClearanceParams,Responses);
+    if(Blocked) return false;
+    SlipVelocity=Tooth->GetVelocity().GetClampedToMaxSize2D(460.f);SlipVelocity.Z=0;
+    Frame.CapsuleLocation=Tooth->GetActorLocation();Frame.CapsuleYaw=Tooth->GetActorRotation().Yaw;
+    Frame.Bones.Reset();Frame.bFromSlipperyFall=true;Frame.bAuthoredSlipRecovery=true;
+    Frame.SlipFloorNormal=Move->CurrentFloor.HitResult.ImpactNormal.GetSafeNormal();
+    if(FVector(Frame.SlipFloorNormal).IsNearlyZero()) Frame.SlipFloorNormal=FVector::UpVector;
+    Frame.SlipFloorPoint=Move->CurrentFloor.HitResult.ImpactPoint;
+    SlipGate.Cooldown=6.5f;SetState(EMCBodyState::Slipping);EnterSlipping();return true;
+}
+void UMCToothPhysicsComponent::EnterSlipping()
+{
+    // The existing release path owns food and grip handoffs; no items are spawned or consumed.
+    if(Tooth->HasAuthority()) {Tooth->CancelGameplayInput();Tooth->FoodCollection->Stop(false);Tooth->DropFood();Tooth->ResetContact();}
+    Tooth->bBrushing=false;Tooth->bHandling=false;
+    Tooth->GetCharacterMovement()->StopMovementImmediately();Tooth->GetCharacterMovement()->DisableMovement();
+    SetMuscles(false);auto* Mesh=Tooth->GetMesh();Mesh->SetAllBodiesSimulatePhysics(false);Mesh->SetAllBodiesPhysicsBlendWeight(0.f);
+    Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    Tooth->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    Tooth->SetReplicateMovement(true);SlipSendAccumulator=0;
+}
+bool UMCToothPhysicsComponent::GetAuthoredSlipSample(float& Time,float& Alpha) const
+{
+    const auto* Clip=Tooth && Tooth->AnimationProfile?Tooth->AnimationProfile->GlideStrong.Get():nullptr;
+    if(!Clip || !Frame.bAuthoredSlipRecovery) return false;
+    if(LocalState==EMCBodyState::Slipping) {Time=FMath::Clamp(ServerTime()-Frame.StateStartedAt,0.f,Clip->GetPlayLength());Alpha=FMath::SmoothStep(0.f,.1f,Time);return true;}
+    if(LocalState==EMCBodyState::Recovering) {Time=Clip->GetPlayLength();Alpha=1-RecoveryAlpha();return true;}
+    return false;
+}
+void UMCToothPhysicsComponent::BuildSlippingPose(TArray<FTransform>& Pose) const
+{
+    float Time=0,Alpha=0;if(!GetAuthoredSlipSample(Time,Alpha) || LocalState!=EMCBodyState::Slipping) return;
+    const auto* Clip=Tooth->AnimationProfile->GlideStrong.Get();const auto* Mesh=Tooth->GetMesh();
+    const auto& Ref=Mesh->GetSkeletalMeshAsset()->GetRefSkeleton();const auto& Source=Clip->GetSkeleton()->GetReferenceSkeleton();
+    FAnimExtractContext Context(Time,false);
+    for(int32 I=0;I<Pose.Num();++I) {
+        const FName Name=Ref.GetBoneName(I);const FString Bone=Name.ToString();
+        if(Bone.StartsWith(TEXT("c_")) && !Bone.Contains(TEXT("index")) && !Bone.Contains(TEXT("thumb"))) continue;
+        const int32 Index=Source.FindBoneIndex(Name);if(Index<0) continue;
+        FTransform Sample,Blended;Clip->GetBoneTransform(Sample,FSkeletonPoseBoneIndex(Index),Context,false);
+        Blended.Blend(Pose[I],Sample,Alpha);Pose[I]=Blended;
+    }
+    const int32 Body=Ref.FindBoneIndex(Tooth->RigBone(TEXT("body")));if(Body<0) return;
+    const FTransform World=Mesh->GetComponentTransform();
+    const float Lift=FMath::Max(0.f,Clip->EvaluateCurveData(TEXT("MCSlide_ClearanceCm"),Context,false));
+    Pose[Body].AddToTranslation(World.InverseTransformVectorNoScale(FVector(0,0,Lift)));
+    const FVector Normal=FVector(Frame.SlipFloorNormal).GetSafeNormal();
+    if(!Normal.IsNearlyZero()) {
+        FTransform Parent=FTransform::Identity;
+        for(int32 I=Ref.GetParentIndex(Body);I>=0;I=Ref.GetParentIndex(I)) Parent=Parent*Pose[I];
+        FTransform BodyWorld=Pose[Body]*Parent*World;
+        const FQuat Tilt=FQuat::FindBetweenNormals(FVector::UpVector,Normal);
+        const FVector Pivot=Frame.SlipFloorPoint;
+        BodyWorld.SetLocation(Pivot+Tilt.RotateVector(BodyWorld.GetLocation()-Pivot));
+        BodyWorld.SetRotation((Tilt*BodyWorld.GetRotation()).GetNormalized());
+        Pose[Body]=BodyWorld.GetRelativeTransform(Parent*World);
+    }
+}
+void UMCToothPhysicsComponent::SlipToRagdoll()
+{
+    const FVector Momentum=SlipVelocity;SetState(EMCBodyState::Ragdoll);Frame.bFromSlipperyFall=true;EnterRagdoll();
+    Tooth->GetMesh()->SetAllPhysicsLinearVelocity(Momentum);LastHitTime=ServerTime();CaptureFrame();Tooth->ForceNetUpdate();
+}
+void UMCToothPhysicsComponent::TickSlipping(float Dt)
+{
+    if(!Tooth->HasAuthority()) return;
+    if(!Tooth->Status->IsAlive()) {EnterDeath();return;}
+    if(!Tooth->GetController()) {SlipToRagdoll();return;}
+    if(Tooth->HasFrozenLegs() || Tooth->IsFreezingToDeath()) {
+        Frame.bFromSlipperyFall=false;Frame.bAuthoredSlipRecovery=false;SetState(EMCBodyState::Standing);EnterStanding();
+        if(Tooth->IsFreezingToDeath()) {Tooth->GetCharacterMovement()->DisableMovement();SetMuscles(false);Tooth->GetMesh()->SetAllBodiesSimulatePhysics(false);}
+        return;
+    }
+    auto* Move=Tooth->GetCharacterMovement();const auto* Capsule=Tooth->GetCapsuleComponent();
+    FHitResult Floor;FCollisionQueryParams Params(SCENE_QUERY_STAT(MCSlipFloor),false,Tooth);
+    const FVector P=Tooth->GetActorLocation();
+    const bool Supported=GetWorld()->LineTraceSingleByObjectType(Floor,P,P-FVector(0,0,Capsule->GetScaledCapsuleHalfHeight()+55.f),FCollisionObjectQueryParams(ECC_WorldStatic),Params)
+        && Move->IsWalkable(Floor);
+    if(!Supported) {SlipToRagdoll();return;}
+    Frame.SlipFloorNormal=Floor.ImpactNormal;Frame.SlipFloorPoint=Floor.ImpactPoint;
+    FVector Delta=FVector::VectorPlaneProject(SlipVelocity,Floor.ImpactNormal)*FMath::Max(0.f,Dt);
+    const float Scale=Tooth->GetActorScale3D().GetAbsMax();
+    const FVector Footprint=Floor.ImpactPoint+Floor.ImpactNormal*70.f*Scale;
+    const FQuat FootprintRotation=FQuat::FindBetweenNormals(FVector::UpVector,Floor.ImpactNormal)*Tooth->GetActorQuat();
+    FCollisionQueryParams ClearanceParams=Params;ClearanceParams.AddIgnoredComponent(Floor.GetComponent());
+    FHitResult Clearance;
+    if(!Delta.IsNearlyZero() && GetWorld()->SweepSingleByChannel(Clearance,Footprint,Footprint+Delta,FootprintRotation,Capsule->GetCollisionObjectType(),
+        FCollisionShape::MakeBox(FVector(100,100,68)*Scale),ClearanceParams,FCollisionResponseParams(Capsule->GetCollisionResponseToChannels()))) {
+        Delta*=FMath::Max(0.f,Clearance.Time-.02f);SlipVelocity=FVector::ZeroVector;
+    }
+    FHitResult Hit;Move->SafeMoveUpdatedComponent(Delta,Tooth->GetActorQuat(),true,Hit);
+    if(Hit.IsValidBlockingHit()) SlipVelocity=FVector::VectorPlaneProject(SlipVelocity,Hit.Normal)*.35f;
+    SlipVelocity*=FMath::Exp(-3.f*FMath::Max(0.f,Dt));
+    SlipSendAccumulator+=Dt;
+    if(SlipSendAccumulator>=.05f) {SlipSendAccumulator=0;Frame.CapsuleLocation=Tooth->GetActorLocation();Tooth->ForceNetUpdate();}
+    const auto* Clip=Tooth->AnimationProfile?Tooth->AnimationProfile->GlideStrong.Get():nullptr;
+    const float Duration=Clip?Clip->GetPlayLength():1.708333f;
+    if(ServerTime()-Frame.StateStartedAt>=Duration+.2f) {
+        const auto& Ref=Tooth->GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();TArray<FTransform> Final=Ref.GetRefBonePose();BuildSlippingPose(Final);
+        Frame.Bones.SetNum(Final.Num());for(int32 I=0;I<Final.Num();++I) {Frame.Bones[I].Position=Final[I].GetLocation();Frame.Bones[I].Rotation=Final[I].Rotator();}
+        Frame.CapsuleLocation=Tooth->GetActorLocation();SetState(EMCBodyState::Recovering);EnterRecovery();
+    }
 }
 void UMCToothPhysicsComponent::EnterRagdoll()
 {
@@ -357,7 +553,8 @@ void UMCToothPhysicsComponent::CaptureFrame()
 }
 bool UMCToothPhysicsComponent::TryRecover()
 {
-    if (!Tooth || !Tooth->Status->IsAlive() || !Tooth->HasAuthority() || Tooth->SwallowedBy || Tooth->IsMimicCaptured() || LocalState!=EMCBodyState::Ragdoll) return false;
+    if (!Tooth || !Tooth->Status->IsAlive() || !Tooth->HasAuthority() || Tooth->SwallowedBy || Tooth->IsMimicCaptured() || LocalState!=EMCBodyState::Ragdoll
+        || (Frame.bFromSlipperyFall && !Tooth->GetController())) return false;
     FCollisionQueryParams Params(SCENE_QUERY_STAT(MCGetUp),false,Tooth);
     const FVector Center=PhysicalLocation();
     auto* Movement=Cast<UMCToothMovementComponent>(Tooth->GetCharacterMovement());
@@ -421,7 +618,7 @@ void UMCToothPhysicsComponent::EnterRecovery()
     ++RecoveryCount;
     auto* Mesh=Tooth->GetMesh(); SetMuscles(false); Mesh->SetAllBodiesSimulatePhysics(false); Mesh->SetAllBodiesPhysicsBlendWeight(0.f);
     Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    Tooth->SetActorLocationAndRotation(Frame.CapsuleLocation,FRotator(0,Frame.CapsuleYaw,0),false,nullptr,ETeleportType::TeleportPhysics);
+    if(!Frame.bAuthoredSlipRecovery) Tooth->SetActorLocationAndRotation(Frame.CapsuleLocation,FRotator(0,Frame.CapsuleYaw,0),false,nullptr,ETeleportType::TeleportPhysics);
     Mesh->AttachToComponent(Tooth->GetCapsuleComponent(),FAttachmentTransformRules::KeepWorldTransform);
     Mesh->SetRelativeTransform(Tooth->StandingMeshTransform());
     DisplayPose.Reset(); for (const auto& Bone:Frame.Bones) DisplayPose.Add(Bone.Transform());
@@ -531,9 +728,14 @@ void UMCToothPhysicsComponent::SetGripArms(bool Left,bool Right,bool PhysicalLef
 }
 float UMCToothPhysicsComponent::EffectiveRecoverySeconds(float Base) const
 {const auto* Perks=UMCPerkComponent::ForActor(GetOwner());return Perks?Perks->RogueValue(EMCRogueStat::RagdollDuration,Base):Base;}
-float UMCToothPhysicsComponent::RecoveryAlpha() const { return FMath::Clamp((ServerTime()-Frame.StateStartedAt)/EffectiveRecoverySeconds(Settings.GetUpSeconds),0.f,1.f); }
+float UMCToothPhysicsComponent::RecoveryAlpha() const
+{
+    const float Duration=Frame.bFromSlipperyFall?FMath::Clamp(EffectiveRecoverySeconds(Settings.GetUpSeconds),.35f,1.25f):EffectiveRecoverySeconds(Settings.GetUpSeconds);
+    return FMath::Clamp((ServerTime()-Frame.StateStartedAt)/Duration,0.f,1.f);
+}
 void UMCToothPhysicsComponent::BuildPresentationPose(TArray<FTransform>& Pose) const
 {
+    if(LocalState==EMCBodyState::Slipping) {BuildSlippingPose(Pose);return;}
     if (DisplayPose.Num()!=Pose.Num()) return;
     if (LocalState==EMCBodyState::Ragdoll && !Tooth->HasAuthority()) Pose=DisplayPose;
     else if (LocalState==EMCBodyState::Recovering)
@@ -548,11 +750,12 @@ void UMCToothPhysicsComponent::OnRep_Frame()
     if (LocalState!=Frame.State)
     {
         LocalState=Frame.State;
-        if (LocalState==EMCBodyState::Ragdoll) { EnterRagdoll(); DisplayPose.Reset(); }
+        if (LocalState==EMCBodyState::Slipping) EnterSlipping();
+        else if (LocalState==EMCBodyState::Ragdoll) { EnterRagdoll(); DisplayPose.Reset(); }
         else if (LocalState==EMCBodyState::Recovering) EnterRecovery();
         else
         {
-            Tooth->SetActorLocationAndRotation(Frame.CapsuleLocation,FRotator(0,Frame.CapsuleYaw,0),false,nullptr,ETeleportType::TeleportPhysics);
+            if(!Frame.bAuthoredSlipRecovery) Tooth->SetActorLocationAndRotation(Frame.CapsuleLocation,FRotator(0,Frame.CapsuleYaw,0),false,nullptr,ETeleportType::TeleportPhysics);
             EnterStanding();
         }
     }
@@ -560,6 +763,12 @@ void UMCToothPhysicsComponent::OnRep_Frame()
 void UMCToothPhysicsComponent::TickComponent(float Dt,ELevelTick TickType,FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(Dt,TickType,ThisTickFunction); if (!Tooth || Tooth->SwallowedBy || Tooth->MimicCaptor) return;
+    UpdateSlipperyFallGate(Dt);
+    if(LocalState==EMCBodyState::Slipping) {TickSlipping(Dt);return;}
+    if(LocalState==EMCBodyState::Recovering && Frame.bFromSlipperyFall && Tooth->HasAuthority()) {
+        if(!Tooth->Status->IsAlive()) {EnterDeath();return;}
+        if(!Tooth->GetController()) {SlipToRagdoll();return;}
+    }
     if (LocalState==EMCBodyState::Ragdoll)
     {
         if (Tooth->HasAuthority())
@@ -572,7 +781,7 @@ void UMCToothPhysicsComponent::TickComponent(float Dt,ELevelTick TickType,FActor
             const float TotalAge=ServerTime()-Frame.StateStartedAt;
             // Repeated contacts may move the body but must not restart the stun forever.
             const float RecoveryDelay=EffectiveRecoverySeconds(Settings.RagdollSeconds);
-            if (Tooth->Status->IsAlive() && ((Age>=RecoveryDelay && (Tooth->bInCoffee || Tooth->GetMesh()->GetPhysicsLinearVelocity(Tooth->RigBone(TEXT("body"))).Size()<160)) || TotalAge>=RecoveryDelay+3))
+            if (Tooth->Status->IsAlive() && (!Frame.bFromSlipperyFall || Tooth->GetController()) && ((Age>=RecoveryDelay && (Tooth->bInCoffee || Tooth->GetMesh()->GetPhysicsLinearVelocity(Tooth->RigBone(TEXT("body"))).Size()<160)) || TotalAge>=RecoveryDelay+3))
             {
                 if (!TryRecover())
                 {
@@ -587,11 +796,9 @@ void UMCToothPhysicsComponent::TickComponent(float Dt,ELevelTick TickType,FActor
                         Tooth->Status->Damage(Tooth->Status->State.MaxHealth,FVector::ForwardVector,nullptr,EMCRogueDamageKind::Ordinary,false);
                 }
             }
-            // Falling out of the mouth is a real death, using the same reserve as impact deaths.
-            if (Center.Z<-250)
-            {
-                Tooth->Status->Damage(Tooth->Status->State.MaxHealth);
-            }
+            // The character's shared arena boundary samples PhysicalLocation
+            // in every body state. A world-Z ragdoll-only plane could kill on a
+            // lowered tongue and miss standing players outside the mouth.
         }
         else
         {
@@ -602,7 +809,8 @@ void UMCToothPhysicsComponent::TickComponent(float Dt,ELevelTick TickType,FActor
             else for (int32 I=0;I<DisplayPose.Num();++I) { FTransform Result; Result.Blend(DisplayPose[I],Frame.Bones[I].Transform(),Alpha); DisplayPose[I]=Result; }
         }
     }
-    else if (LocalState==EMCBodyState::Recovering && Tooth->HasAuthority() && RecoveryAlpha()>=1)
+    else if (LocalState==EMCBodyState::Recovering && Tooth->HasAuthority() && Tooth->Status->IsAlive()
+        && (!Frame.bFromSlipperyFall || Tooth->GetController()) && RecoveryAlpha()>=1)
     {
         Frame.CapsuleLocation=Tooth->GetActorLocation(); Frame.Bones.Reset(); SetState(EMCBodyState::Standing); EnterStanding();
     }
@@ -614,6 +822,7 @@ bool UMCToothPhysicsComponent::CanAct() const
 void UMCToothPhysicsComponent::SetThroatCaptured(bool Captured)
 {
     if(!Tooth) return;
+    Frame.bFromSlipperyFall=false;Frame.bAuthoredSlipRecovery=false;
     if(Tooth->HasAuthority()) {
         Frame.CapsuleLocation=Tooth->GetActorLocation(); Frame.Bones.Reset(); SetState(EMCBodyState::Standing);
     } else LocalState=EMCBodyState::Standing;

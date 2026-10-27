@@ -103,6 +103,21 @@ void UMCVoiceSettingsWidget::BindControls()
     if(DeviceButton) DeviceButton->OnClicked.AddUniqueDynamic(this,&ThisClass::DeviceClicked);
     if(PlayerPicker) PlayerPicker->OnSelectionChanged.AddUniqueDynamic(this,&ThisClass::PlayerChanged);
     if(PlayerMuteCheck) PlayerMuteCheck->OnCheckStateChanged.AddUniqueDynamic(this,&ThisClass::PlayerMuteChanged);
+    if(EnabledCheck) EnabledCheck->OnCheckStateChanged.AddUniqueDynamic(this,&ThisClass::PreferenceToggleChanged);
+    if(SelfMuteCheck) SelfMuteCheck->OnCheckStateChanged.AddUniqueDynamic(this,&ThisClass::PreferenceToggleChanged);
+    if(ModePicker) ModePicker->OnSelectionChanged.AddUniqueDynamic(this,&ThisClass::PreferenceModeChanged);
+    for(USlider* Slider:{GainSlider.Get(),ThresholdSlider.Get(),VolumeSlider.Get()})
+        if(Slider) Slider->OnValueChanged.AddUniqueDynamic(this,&ThisClass::PreferenceValueChanged);
+}
+void UMCVoiceSettingsWidget::PreferenceToggleChanged(bool) {CommitImmediatePreferences();}
+void UMCVoiceSettingsWidget::PreferenceModeChanged(FString,ESelectInfo::Type) {CommitImmediatePreferences();}
+void UMCVoiceSettingsWidget::PreferenceValueChanged(float) {CommitImmediatePreferences();}
+void UMCVoiceSettingsWidget::CommitImmediatePreferences()
+{
+    if(!bApplyChangesImmediately || bUpdating || !bDraftLoaded || IsDesignTime()) return;
+    ApplyPendingSettings();
+    if(auto* Settings=UMCGameUserSettings::Get()) {Settings->ApplyGameplaySettings();Settings->SaveSettings();}
+    RefreshLive();
 }
 void UMCVoiceSettingsWidget::NativeConstruct()
 {
@@ -149,7 +164,7 @@ bool UMCVoiceSettingsWidget::RouteRebindKey(FKey Key)
     if(!bAwaitingKey) return false;
     if(Key.IsModifierKey() || Key.IsAnalog()) return true;
     if(Key!=EKeys::Escape && Key.IsValid()) PendingKey=Key;
-    bAwaitingKey=false;if(auto* Backend=Voice()) {Backend->SetInputSuppressed(false);Backend->ReleasePushToTalk();}RefreshLive();return true;
+    bAwaitingKey=false;if(auto* Backend=Voice()) {Backend->SetInputSuppressed(false);Backend->ReleasePushToTalk();}CommitImmediatePreferences();RefreshLive();return true;
 }
 FReply UMCVoiceSettingsWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
 {
@@ -161,6 +176,7 @@ FReply UMCVoiceSettingsWidget::NativeOnPreviewMouseButtonDown(const FGeometry& G
 }
 void UMCVoiceSettingsWidget::OnLocalizationChanged()
 {
+    TGuardValue<bool> Guard(bUpdating,true);
     BuildPresentationTree();
     if(auto* Picker=Cast<UMCMainMenuPicker>(ModePicker))
     {

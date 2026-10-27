@@ -10,13 +10,15 @@ class UProgressBar;
 class USizeBox;
 class UHorizontalBoxSlot;
 
-/** Small analytic pie filling 0 -> 1; expiry becomes a permanent spoiled-food pictogram. */
+/** Analytic timer: consumed budget remains 0 -> 1; food reveals the empty face as it spoils. */
 UCLASS(BlueprintType)
 class MESSCONTROL_API UMCStatusTimerWidget : public UWidget
 {
     GENERATED_BODY()
 public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Status") float Fraction=0.f;
+    /** Invert only the painted sector; fuse timers retain their existing increasing danger cue. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Status") bool bDrainTimer=false;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Status") bool bSpoiled=false;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Status",meta=(ClampMin="0",ClampMax="1")) float SpoiledAlpha=0.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Style") FVector2D DesiredSize=FVector2D(30,30);
@@ -51,6 +53,8 @@ struct MESSCONTROL_API FMCWorldStatusSnapshot
     UPROPERTY(EditAnywhere,BlueprintReadWrite) float HealthFraction=1.f;
     /** Consumed spoil/fuse budget: fresh/unarmed=0, expiry=1. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite) float TimerFraction=0.f;
+    /** Food freshness drains the coloured sector; replicated timer/deadline semantics are unchanged. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite) bool bDrainTimer=false;
     UPROPERTY(EditAnywhere,BlueprintReadWrite) bool bHasTimer=false;
     UPROPERTY(EditAnywhere,BlueprintReadWrite) bool bSpoiled=false;
     /** Presentation only: food fragments retain gameplay health but hide the entire HP host. */

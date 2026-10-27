@@ -11,6 +11,157 @@ bool UMCValidationSubsystem::IsTickableWhenPaused() const
 #endif
 }
 
+#if WITH_DEV_AUTOMATION_TESTS
+#include <limits>
+#include "Misc/AutomationTest.h"
+#include "MCToolScrollInput.h"
+#include "MCToothCharacter.h"
+#include "MCToothStatusComponent.h"
+#include "MCInventoryComponent.h"
+#include "MCPlayerController.h"
+#include "MCPlayerState.h"
+#include "MCGameState.h"
+#include "MCGripComponent.h"
+#include "EnhancedInputComponent.h"
+#include "InputAction.h"
+#include "InputMappingContext.h"
+#include "InputModifiers.h"
+#include "InputTriggers.h"
+#include "UObject/UObjectIterator.h"
+#include "Engine/Engine.h"
+#include "Engine/GameInstance.h"
+#include "Engine/LocalPlayer.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
+namespace MCToolScrollTests
+{
+    struct FWorld
+    {
+        UWorld* World=UWorld::CreateWorld(EWorldType::Game,false);
+        AMCPlayerController* Controller=nullptr;
+        AMCToothCharacter* Hero=nullptr;
+        FWorld()
+        {
+            GEngine->CreateNewWorldContext(EWorldType::Game).SetCurrentWorld(World);
+            World->SetGameInstance(NewObject<UGameInstance>(GEngine));
+            FURL URL;URL.AddOption(TEXT("game=/Script/Engine.GameModeBase"));
+            World->SetGameMode(URL);World->InitializeActorsForPlay(URL);World->BeginPlay();
+            auto* State=World->SpawnActor<AMCGameState>();World->SetGameState(State);
+            State->Phase=EMCShiftPhase::Working;State->bLobbyWaiting=false;
+            Controller=World->SpawnActor<AMCPlayerController>();
+            // A standalone controller without ULocalPlayer is intentionally
+            // nonlocal in this engine, as are remote listen-server controllers.
+            Controller->SetPlayer(NewObject<ULocalPlayer>(GEngine));
+            auto* Identity=World->SpawnActor<AMCPlayerState>();Controller->SetPlayerState(Identity);
+            Hero=World->SpawnActor<AMCToothCharacter>(FVector(0,0,10000),FRotator::ZeroRotator);
+            Controller->Possess(Hero);Hero->Status->Initialize(100);Hero->GetCharacterMovement()->DisableMovement();
+            Hero->SetCameraOrbitView(0,-30,1000);
+        }
+        ~FWorld() {World->EndPlay(EEndPlayReason::Quit);GEngine->DestroyWorldContext(World);World->DestroyWorld(false);}
+    };
+
+    struct FTriggeredValue : FInputActionInstance
+    {
+        FTriggeredValue(const UInputAction* Action,float Amount):FInputActionInstance(Action)
+        {Value=FInputActionValue(Amount);TriggerEvent=ETriggerEvent::Triggered;}
+    };
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCToolWheelCycleTest,"MessControl.Input.Tools.WheelCyclesWithoutZoom",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCToolWheelCycleTest::RunTest(const FString&)
+{
+    MCToolScrollTests::FWorld W;MCToolScrollInput::FCursor Cursor;
+    if(!TestTrue(TEXT("The local input fixture dispatched pawn and inventory BeginPlay"),W.Hero->HasActorBegunPlay() && W.Hero->Inventory->HasBegunPlay() && W.Hero->IsLocallyControlled())) return false;
+    const float Distance=W.Hero->CameraOrbitDistance;
+    TestTrue(TEXT("Wheel up selects the next valid tool"),MCToolScrollInput::Handle(*W.Hero,1.f,Cursor));
+    TestEqual(TEXT("Brush advances to pickaxe"),W.Hero->Inventory->Selected,EMCToolSlot::Pickaxe);
+    MCToolScrollInput::Handle(*W.Hero,2.f,Cursor);
+    TestEqual(TEXT("Two more notches select spray"),W.Hero->Inventory->Selected,EMCToolSlot::Spray);
+    MCToolScrollInput::Handle(*W.Hero,1.f,Cursor);
+    TestEqual(TEXT("The last tool wraps to brush"),W.Hero->Inventory->Selected,EMCToolSlot::Brush);
+    MCToolScrollInput::Handle(*W.Hero,-1.f,Cursor);
+    TestEqual(TEXT("Reverse scrolling wraps back to spray"),W.Hero->Inventory->Selected,EMCToolSlot::Spray);
+    TestFalse(TEXT("A full revolution is not a same-slot mode toggle"),MCToolScrollInput::Handle(*W.Hero,4.f,Cursor));
+    TestEqual(TEXT("Every wheel request leaves camera distance untouched"),W.Hero->CameraOrbitDistance,Distance);
+    TestFalse(TEXT("Nonfinite wheel values are rejected"),MCToolScrollInput::Handle(*W.Hero,std::numeric_limits<float>::quiet_NaN(),Cursor));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCToolWheelGuardTest,"MessControl.Input.Tools.WheelRespectsModalAndActionLocks",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCToolWheelGuardTest::RunTest(const FString&)
+{
+    MCToolScrollTests::FWorld W;MCToolScrollInput::FCursor Cursor;
+    if(!TestTrue(TEXT("The lock fixture dispatched pawn and inventory BeginPlay"),W.Hero->HasActorBegunPlay() && W.Hero->Inventory->HasBegunPlay() && W.Hero->IsLocallyControlled())) return false;
+    W.Controller->bShowMouseCursor=true;
+    TestFalse(TEXT("Scrolling a modal cannot select gameplay tools"),MCToolScrollInput::Handle(*W.Hero,1.f,Cursor));
+    W.Controller->bShowMouseCursor=false;W.Controller->SetIgnoreMoveInput(true);
+    TestFalse(TEXT("Loading/movement input barriers block tool scrolling"),MCToolScrollInput::Handle(*W.Hero,1.f,Cursor));
+    W.Controller->SetIgnoreMoveInput(false);
+    W.World->GetGameState<AMCGameState>()->TeamToolUpgrades|=1<<(uint8(EMCToolUpgrade::Chainsaw)-1);
+    W.Hero->Inventory->ServerSelect(EMCToolSlot::Knife);W.Hero->Inventory->bChainsawRunning=true;
+    if(!TestTrue(TEXT("The fixture has a selected, upgraded, actively running chainsaw"),W.Hero->Inventory->IsChainsawRunning())) return false;
+    TestFalse(TEXT("An active chainsaw retains the existing tool lock"),MCToolScrollInput::Handle(*W.Hero,1.f,Cursor));
+    W.Hero->Inventory->bChainsawRunning=false;W.Hero->Inventory->ServerSelect(EMCToolSlot::Brush);Cursor.Reset();
+    auto* Other=W.World->SpawnActor<AMCToothCharacter>(FVector(1000,0,10000),FRotator::ZeroRotator);
+    W.Hero->Grip->GrabbedPlayer=Other;
+    TestFalse(TEXT("An incompatible player grip blocks scroll selection"),MCToolScrollInput::Handle(*W.Hero,1.f,Cursor));
+    W.Hero->Grip->GrabbedPlayer=nullptr;W.Hero->Status->State.Health=0;
+    TestFalse(TEXT("A dead body cannot change tools"),MCToolScrollInput::Handle(*W.Hero,1.f,Cursor));
+    TestEqual(TEXT("Rejected requests never changed the authoritative slot"),W.Hero->Inventory->Selected,EMCToolSlot::Brush);
+    W.Hero->Status->Initialize(100);
+    TestTrue(TEXT("Normal scrolling resumes after those locks are removed"),MCToolScrollInput::Handle(*W.Hero,1.f,Cursor));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCToolWheelBindingsTest,"MessControl.Input.Tools.WheelAndBracketBindingsAreSeparate",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCToolWheelBindingsTest::RunTest(const FString&)
+{
+    MCToolScrollTests::FWorld W;
+    if(!TestTrue(TEXT("The binding fixture dispatched pawn and inventory BeginPlay"),W.Hero->HasActorBegunPlay() && W.Hero->Inventory->HasBegunPlay() && W.Hero->IsLocallyControlled())) return false;
+    auto* Input=NewObject<UEnhancedInputComponent>(W.Hero);W.Hero->SetupPlayerInputComponent(Input);
+    const auto* Wheel=FindObject<UInputAction>(W.Hero,TEXT("ToolScrollAction"));
+    const auto* Brackets=FindObject<UInputAction>(W.Hero,TEXT("BracketZoomAction"));
+    if(!TestNotNull(TEXT("Wheel has its own tool action"),Wheel) || !TestNotNull(TEXT("Brackets have a separate zoom action"),Brackets)) return false;
+    TestTrue(TEXT("The two inputs never share an action"),Wheel!=Brackets);
+    TestTrue(TEXT("Holding a bracket does not repeat a zoom step each frame"),Brackets->Triggers.ContainsByPredicate([](const auto& Trigger) {return Trigger && Trigger->IsA<UInputTriggerPressed>();}));
+    const UInputMappingContext* Context=nullptr;
+    for(TObjectIterator<UInputMappingContext> It;It;++It) if(It->GetOuter()==W.Hero) {Context=*It;break;}
+    if(!TestNotNull(TEXT("The character owns a real Enhanced Input mapping"),Context)) return false;
+    int32 Digits=0;bool WheelMapped=false,LeftMapped=false,RightMapped=false;
+    for(const auto& Mapping:Context->GetMappings()) {
+        if(Mapping.Key==EKeys::MouseWheelAxis) {WheelMapped=true;TestTrue(TEXT("Wheel maps to tool selection only"),Mapping.Action==Wheel);}
+        if(Mapping.Key==EKeys::RightBracket) {RightMapped=true;TestTrue(TEXT("Right bracket maps to zoom"),Mapping.Action==Brackets);}
+        if(Mapping.Key==EKeys::LeftBracket) {
+            LeftMapped=true;TestTrue(TEXT("Left bracket shares only the bracket zoom action"),Mapping.Action==Brackets);
+            TestTrue(TEXT("Left bracket reverses the zoom direction"),Mapping.Modifiers.ContainsByPredicate([](const auto& Modifier) {return Modifier && Modifier->IsA<UInputModifierNegate>();}));
+        }
+        if(Mapping.Key==EKeys::One || Mapping.Key==EKeys::Two || Mapping.Key==EKeys::Three || Mapping.Key==EKeys::Four) ++Digits;
+    }
+    TestTrue(TEXT("Wheel and both camera zoom keys are mapped"),WheelMapped && LeftMapped && RightMapped);
+    TestEqual(TEXT("Four direct tool shortcuts remain available as secondary input"),Digits,4);
+    const float Distance=W.Hero->CameraOrbitDistance;
+    int32 WheelBindings=0,ZoomBindings=0;
+    for(const auto& Binding:Input->GetActionEventBindings()) {
+        if(Binding->GetAction()==Wheel && Binding->GetTriggerEvent()==ETriggerEvent::Triggered) {
+            ++WheelBindings;Binding->Execute(MCToolScrollTests::FTriggeredValue(Wheel,1.f));
+        }
+    }
+    TestEqual(TEXT("One wheel event invokes one production selection route"),WheelBindings,1);
+    TestEqual(TEXT("The bound wheel action selected the next tool"),W.Hero->Inventory->Selected,EMCToolSlot::Pickaxe);
+    TestEqual(TEXT("The bound wheel action did not zoom"),W.Hero->CameraOrbitDistance,Distance);
+    for(const auto& Binding:Input->GetActionEventBindings()) if(Binding->GetAction()==Brackets) {
+        ++ZoomBindings;Binding->Execute(MCToolScrollTests::FTriggeredValue(Brackets,1.f));
+    }
+    TestEqual(TEXT("The bracket action has one zoom handler"),ZoomBindings,1);
+    TestTrue(TEXT("Right bracket zooms in through the existing camera route"),W.Hero->CameraOrbitDistance<Distance);
+    TestEqual(TEXT("Bracket zoom does not select a tool"),W.Hero->Inventory->Selected,EMCToolSlot::Pickaxe);
+    return true;
+}
+#endif
+
 #if !UE_BUILD_SHIPPING
 #include "MCToothCharacter.h"
 #include "MCPlayerController.h"

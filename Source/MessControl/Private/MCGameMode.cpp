@@ -1,4 +1,7 @@
 #include "MCGameMode.h"
+#include "MCHubEconomyComponent.h"
+#include "MCHubProfileSubsystem.h"
+#include "Engine/GameInstance.h"
 #include "MCSingleDayDirector.h"
 #include "MCProgressionComponent.h"
 #include "MCGameDirector.h"
@@ -61,7 +64,7 @@ bool FindFreshPlayerAboveTongue(UWorld* World,const ACharacter* Character,FVecto
     FVector Base=Requested;bool Supported=false;
     for(TActorIterator<AMCTongue> It(World);It;++It) {
         FHitResult Floor;
-        if(It->SurfacePoint(Requested,Floor) && Floor.ImpactNormal.Z>=.65f) {
+        if(It->InteriorSurfacePoint(Requested,Capsule->GetScaledCapsuleRadius()+4.f,Floor)) {
             const double Z=Floor.ImpactPoint.Z+Capsule->GetScaledCapsuleHalfHeight()+30.f;
             if(!Supported || Z>Base.Z) Base.Z=Z;
             Supported=true;
@@ -78,6 +81,9 @@ bool FindFreshPlayerAboveTongue(UWorld* World,const ACharacter* Character,FVecto
     FHitResult Ceiling;
     if(World->SweepSingleByChannel(Ceiling,Base,Position,FQuat::Identity,Capsule->GetCollisionObjectType(),Shape,Query,Response)) {
         if(Ceiling.bStartPenetrating) return false;
+        // Another arrival is not a ceiling. Stacking workers in one vertical
+        // corridor can exhaust the remaining height and strand the last joiner.
+        if(Ceiling.GetActor() && Ceiling.GetActor()->IsA<APawn>()) return false;
         Position.Z=FMath::Max(Base.Z,Ceiling.Location.Z-4.f);
     }
     return !World->OverlapBlockingTestByChannel(Position,FQuat::Identity,Capsule->GetCollisionObjectType(),Shape,Query,Response);
@@ -191,17 +197,57 @@ void AMCGameMode::PreLogin(const FString& Options, const FString& Address, const
 APawn* AMCGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer,const FTransform& SpawnTransform)
 {
     FTransform SafeTransform=SpawnTransform;
-    FVector Position=SafeTransform.GetLocation()+FVector(0,0,30);
-    const UClass* PawnType=GetDefaultPawnClassForController(NewPlayer);
+    const FVector Requested=SafeTransform.GetLocation()+FVector(0,0,30);
+    UClass* PawnType=GetDefaultPawnClassForController(NewPlayer);
     const auto* Character=PawnType?Cast<ACharacter>(PawnType->GetDefaultObject()):nullptr;
-    // PlayerStart can be authored at tissue height. Resolve the authoritative
-    // capsule center before replication, rather than correcting a falling pawn.
-    FVector Arrival;
-    if(FindFreshPlayerAboveTongue(GetWorld(),Character,Position,ArenaArrivalHeight,Arrival)) Position=Arrival;
-    SafeTransform.SetLocation(Position);
-    APawn* Pawn=Super::SpawnDefaultPawnAtTransform_Implementation(NewPlayer,SafeTransform);
-    SettleFreshPlayerAboveTongue(Cast<ACharacter>(Pawn),ArenaArrivalHeight);
-    return Pawn;
+    bool HasTongue=false;
+    TArray<FVector,TInlineAllocator<2>> Origins;
+    Origins.Add(Requested);
+    for(TActorIterator<AMCTongue> It(GetWorld());It;++It)
+        if(!It->IsActorBeingDestroyed() && It->Surface && It->Surface->IsRegistered()) {
+            HasTongue=true;
+            // A moved/replaced arena may leave an authored start outside the
+            // tissue. Its real visible center is a second supported search root.
+            Origins.Add(It->Surface->Bounds.Origin);
+        }
+    if(!Character || !HasTongue) {
+        // Generic test/legacy maps without tissue retain the engine's ordinary
+        // spawn policy. A real tongue map must never fall back below its floor.
+        SafeTransform.SetLocation(Requested);
+        APawn* Pawn=Super::SpawnDefaultPawnAtTransform_Implementation(NewPlayer,SafeTransform);
+        if(Pawn) FailedInitialSpawnTransforms.Remove(NewPlayer);
+        else if(IsValid(NewPlayer)) FailedInitialSpawnTransforms.Add(NewPlayer,SpawnTransform);
+        return Pawn;
+    }
+    const float Spacing=FMath::Max(96.f,Character->GetCapsuleComponent()->GetScaledCapsuleRadius()*2.f+24.f);
+    constexpr int32 SamplesPerRing=12,SearchRings=6;
+    for(const FVector& Origin:Origins) for(int32 Sample=0;Sample<=SamplesPerRing*SearchRings;++Sample) {
+        FVector Candidate=Origin;
+        if(Sample>0) {
+            const int32 Ring=(Sample-1)/SamplesPerRing+1;
+            const float Angle=UE_TWO_PI*float((Sample-1)%SamplesPerRing)/SamplesPerRing;
+            Candidate+=FVector(FMath::Cos(Angle),FMath::Sin(Angle),0)*Spacing*Ring;
+        }
+        FVector Arrival;
+        if(!FindFreshPlayerAboveTongue(GetWorld(),Character,Candidate,ArenaArrivalHeight,Arrival)) continue;
+        SafeTransform.SetLocation(Arrival);
+        // Match GameModeBase's transient/instigator contract, but never let an
+        // automatic encroachment adjustment move this validated capsule off tissue.
+        FActorSpawnParameters Params;
+        Params.Instigator=GetInstigator();Params.ObjectFlags|=RF_Transient;
+        Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::DontSpawnIfColliding;
+        APawn* Pawn=GetWorld()->SpawnActor<APawn>(PawnType,SafeTransform,Params);
+        if(!Pawn) continue;
+        if(!SettleFreshPlayerAboveTongue(Cast<ACharacter>(Pawn),ArenaArrivalHeight)) {Pawn->Destroy();continue;}
+        FailedInitialSpawnTransforms.Remove(NewPlayer);
+        if(Sample>0 || Origin!=Requested) UE_LOG(LogTemp,Display,TEXT("MC_PLAYER_ARRIVAL_ALTERNATE controller=%s requested=%s arrival=%s sample=%d"),
+            *GetNameSafe(NewPlayer),*Requested.ToString(),*Pawn->GetActorLocation().ToString(),Sample);
+        return Pawn;
+    }
+    UE_LOG(LogTemp,Warning,TEXT("MC_PLAYER_ARRIVAL_BLOCKED controller=%s requested=%s candidates=%d"),
+        *GetNameSafe(NewPlayer),*Requested.ToString(),Origins.Num()*(SamplesPerRing*SearchRings+1));
+    if(IsValid(NewPlayer)) FailedInitialSpawnTransforms.Add(NewPlayer,SpawnTransform);
+    return nullptr;
 }
 void AMCGameMode::FinishRestartPlayer(AController* NewPlayer,const FRotator& StartRotation)
 {
@@ -273,8 +319,38 @@ void AMCGameMode::AwardTaskToPlayerState(AMCPlayerState* Worker, EMCScoreTask Ki
     if (const auto* GS=GetGameState<AMCGameState>(); GS && (GS->bTutorialActive || GS->bLobbyWaiting)) return;
     Worker->AddPoints(ScoreRewards.ForTask(Kind));
 }
+bool AMCGameMode::AwardObjectiveCoinsOnce(FName CompletionId)
+{
+    const auto* State=GetGameState<AMCGameState>();
+    if(!HasAuthority() || !GetWorld() || GetWorld()->bIsTearingDown || GetWorld()->GetAuthGameMode()!=this || CompletionId.IsNone()
+        || !State || State->Phase!=EMCShiftPhase::Working || State->bTutorialActive || State->bLobbyWaiting
+        || State->bDevManualEvents || GetWorld()->GetGameState<AMCHubGameState>()
+        || CoinRewardedObjectives.Contains(CompletionId)) return false;
+    if(const auto* Session=AMCPlaytestSession::Find(GetWorld());Session && Session->IsActive()) return false;
+    // Seal the objective before any profile/economy callbacks. Chest placement,
+    // choice retries, death and cosmetic collection must never mint it again.
+    CoinRewardedObjectives.Add(CompletionId);
+    const int32 Amount=FMath::Clamp(ObjectiveCoinReward,0,1000);
+    if(Amount==0) return true;
+    auto* Profiles=GetGameInstance()?GetGameInstance()->GetSubsystem<UMCHubProfileSubsystem>():nullptr;
+    for(FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It) {
+        auto* PC=Cast<AMCPlayerController>(It->Get());
+        if(!IsGameplayParticipant(PC)) continue;
+        auto* Player=PC->GetPlayerState<AMCPlayerState>();
+        if(!IsValid(Player) || Player->GetOwner()!=PC || !Player->Economy) continue;
+        // Load before credit so an arena award can never be overwritten by a
+        // delayed first profile restore. Anonymous remote guests remain session-only.
+        if(!Player->bHubProfileLoaded && (!Profiles || !Profiles->Restore(Player,PC))) continue;
+        const int32 Credited=Player->Economy->CreditObjectiveCoins(Amount);
+        if(Credited<=0) continue;
+        if(Profiles) Profiles->Store(Player,PC);
+        PC->ClientObjectiveCoins(Credited,Player->Economy->Coins);
+    }
+    return true;
+}
 void AMCGameMode::NotifyObjectiveCompleted(FName CompletionId)
 {
+    AwardObjectiveCoinsOnce(CompletionId);
     if (!HasAuthority() || CompletionId.IsNone() || !IsValid(RoguelikeDirector)) return;
     if (const auto* GS=GetGameState<AMCGameState>(); GS && (GS->bTutorialActive || GS->bLobbyWaiting)) return;
     RoguelikeDirector->NotifyTaskCompleted(CompletionId);
@@ -301,6 +377,9 @@ void AMCGameMode::RestartShift()
         && UGameplayStatics::GetCurrentLevelName(this,true)!=TEXT("L_Tutorial")?FGuid::NewGuid():FGuid();
     State->bLobbyWaiting=bLobbyRequested;
     State->LobbyLoadedPlayers=0;
+    State->LobbyParticipantPlayers=0;
+    State->GameplayLoadId=FGuid::NewGuid();
+    CoinRewardedObjectives.Reset();
     if (IsValid(GameDirector)) { GameDirector->Stop(); GameDirector->Destroy(); } GameDirector=nullptr;
     State->DirectorState=FMCGameDirectorState();
     State->DirectorDecisionLog.Reset();
@@ -318,6 +397,7 @@ void AMCGameMode::RestartShift()
     State->TeamToolUpgrades=0;
     ClearTasks();
     Objectives.Empty(); PendingRespawns.Empty();
+    FailedInitialSpawnTransforms.Reset();NextInitialSpawnRetryAt=0;
     TArray<AMCFoodActor*> OldFood;
     for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) OldFood.Add(*It);
     for (auto* Food:OldFood) Food->Destroy();
@@ -440,8 +520,28 @@ void AMCGameMode::BeginSingleDaySequence()
 void AMCGameMode::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
-    ReleaseReadyArenaArrivals();
     AMCGameState* State = GetGameState<AMCGameState>();
+    const bool Startup=State && State->Phase!=EMCShiftPhase::Won && State->Phase!=EMCShiftPhase::Lost && (State->bLobbyWaiting
+        || (State->bTutorialActive && (!IsValid(TutorialDirector) || TutorialDirector->Stage==EMCTutorialStage::Loading))
+        || (State->bSingleDayLoop && IsValid(State->SingleDayDirector) && State->SingleDayDirector->Stage==EMCSingleDayStage::Training));
+    if(HasAuthority() && Startup && GetWorld()->GetRealTimeSeconds()>=NextInitialSpawnRetryAt) {
+        NextInitialSpawnRetryAt=GetWorld()->GetRealTimeSeconds()+.5;
+        // Engine FailedToRestartPlayer leaves the controller Inactive and does
+        // not retry it. A transient blocked start must not hold loading forever.
+        // Only controllers whose initial spawn actually failed enter this ledger.
+        // Dead workers and ordinary reserve respawns can never acquire an entry.
+        TArray<TWeakObjectPtr<AController>> RetryPlayers;
+        FailedInitialSpawnTransforms.GetKeys(RetryPlayers);
+        for(const auto& Entry:RetryPlayers) {
+            auto* Controller=Entry.Get();
+            if(!IsGameplayParticipant(Controller) || IsValid(Controller->GetPawn())) {
+                FailedInitialSpawnTransforms.Remove(Entry);continue;
+            }
+            const FTransform Requested=FailedInitialSpawnTransforms.FindRef(Entry);
+            RestartPlayerAtTransform(Controller,Requested);
+        }
+    }
+    ReleaseReadyArenaArrivals();
     if (State && State->bLobbyWaiting)
     {
         int32 Loaded=0,Participants=0; APlayerController* Host=nullptr;
@@ -451,7 +551,9 @@ void AMCGameMode::Tick(float DeltaSeconds)
                 if(PC->HasAcknowledgedGameplay() && PC->GetPawn()) ++Loaded;
                 if(PC->IsLocalController() && GetNetMode()!=NM_DedicatedServer) Host=PC;
             }
-        if (State->LobbyLoadedPlayers!=Loaded) { State->LobbyLoadedPlayers=Loaded; State->ForceNetUpdate(); }
+        if (State->LobbyLoadedPlayers!=Loaded || State->LobbyParticipantPlayers!=Participants) {
+            State->LobbyLoadedPlayers=Loaded; State->LobbyParticipantPlayers=Participants; State->ForceNetUpdate();
+        }
         if(bAutoStartHubRun && Participants>0 && Loaded==Participants && Host) {
             StartLobby(Host);
             if(!State->bLobbyWaiting) bAutoStartHubRun=false;
@@ -679,7 +781,7 @@ bool AMCGameMode::IsGameplayParticipant(const AController* Controller)
     if (!IsValid(Controller) || Controller->IsActorBeingDestroyed()) return false;
     if (!Cast<APlayerController>(Controller) && !Cast<AMCPlaytestBotController>(Controller)) return false;
     const APlayerState* Identity=Controller->GetPlayerState<APlayerState>();
-    return Identity && !Identity->IsSpectator() && !Identity->IsOnlyASpectator();
+    return IsValid(Identity) && !Identity->IsInactive() && !Identity->IsSpectator() && !Identity->IsOnlyASpectator();
 }
 int32 AMCGameMode::GetGameplayParticipantCount() const
 {

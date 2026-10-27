@@ -335,7 +335,7 @@ void UMCInventoryComponent::FireWaterShot()
     const FVector Direction=SprayDirection();
     const FVector Origin=SprayOrigin();FVector End;FHitResult Hit;
     if(TraceWaterShot(Origin,End,Hit)) {
-        if(auto* Tooth=Cast<AMCArenaTooth>(Hit.GetActor())) Tooth->Status->RepairWithTool(5.f,Hero);
+        if(auto* Tooth=Cast<AMCArenaTooth>(Hit.GetActor())) Tooth->Status->RepairWithTool(5.f,Hero,&Hit);
         else if(auto* Food=Cast<AMCFoodActor>(Hit.GetActor())) Food->HitFood(Power,Direction,Hero);
         else if(auto* Nut=Cast<AMCNutEnemy>(Hit.GetActor())) Nut->ReceiveToolDamage(Power,Hero);
         else if(auto* Boss=Cast<AMCBossCharacter>(Hit.GetActor())) Boss->ReceiveBossDamage(Power,Hero);

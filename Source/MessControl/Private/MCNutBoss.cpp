@@ -3,6 +3,7 @@
 #include "MCGameDirector.h"
 #include "MCNutBossAnimInstance.h"
 #include "MCCombatFeedbackComponent.h"
+#include "MCDevCommands.h"
 
 #include "MCNutCombatEffect.h"
 #include "MCNutSpellProjectile.h"
@@ -262,6 +263,9 @@ void AMCNutBoss::RefreshPresentation()
         FString::Printf(TEXT("NUT MAGE  %d"),FMath::CeilToInt(Health))));
     Label->SetTextRenderColor(BossRole==EMCNutBossRole::Tank?FColor(240,185,85):FColor(225,115,255));
     Label->SetRelativeLocation(FVector(0,0,(BossRole==EMCNutBossRole::Tank?BossSettings.TankHeight:BossSettings.MageHeight)*.5f+38));
+    // The encounter's player-facing health lives in MCBossHealthWidget.
+    // Keep this legacy numerical/state readout available only to diagnostics.
+    Label->SetVisibility(!bDefeated && MCDeveloperUIEnabled(GetWorld()));
     PresentTankModel(Now());
 }
 
@@ -1534,6 +1538,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
 void AMCNutBoss::Tick(float Dt)
 {
     AActor::Tick(Dt); TickClientPresentation(Dt); const double Time=Now(); TickPresentation(Time); PresentTankModel(Time);
+    Label->SetVisibility(!bDefeated && MCDeveloperUIEnabled(GetWorld()));
     AMCNutCombatEffect::UpdateShieldDamageVisual(this);
     if(!HasAuthority() || bDefeated) return;
     const auto* Game=GetWorld()->GetGameState<AMCGameState>();

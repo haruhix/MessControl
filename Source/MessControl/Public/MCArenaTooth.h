@@ -118,7 +118,9 @@ public:
     void SetAppearance(UStaticMesh* Mesh,FVector Scale,UMaterialInterface* GameplayMaterial=nullptr);
     void StatusChanged();
     void ResetGrime();
-    bool DepositLiquidGrime(TFunctionRef<bool(FVector)> IsWet);
+    bool DepositLiquidGrime(TFunctionRef<bool(FVector)> IsWet,bool bRewardEligible=true);
+    /** Authority-side completion provenance; retained until the next new coating. */
+    bool IsGrimeRewardEligible() const {return bGrimeRewardEligible;}
     bool BrushGrime(class AMCToothCharacter* Worker,float Seconds);
     bool FindDirtyContact(class AMCToothCharacter* Worker,FVector& Point,FVector& Normal,int32 Preferred=INDEX_NONE);
     // Remaining surface geometry for planning; never advances cleaning or selects a worker contact.
@@ -151,6 +153,8 @@ public:
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> BrushSurface;
     UPROPERTY(VisibleAnywhere) TObjectPtr<class UProceduralMeshComponent> GrimeRelief;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Care") TObjectPtr<UMCToothCalculusComponent> Calculus;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Care") TObjectPtr<class UMCWorldStatusComponent> WorldStatus;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Care") TObjectPtr<class UMCToothCareFeedbackComponent> CareFeedback;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UTextRenderComponent> Label;
 private:
     UFUNCTION() void OnRep_Piano();
@@ -179,6 +183,7 @@ private:
     int32 SelectedSample=INDEX_NONE;
     float GrimeFinish=1,GrimeUploadElapsed=0;
     bool bGrimeDirty=true;
+    bool bGrimeRewardEligible=true;
     FVector MeshBaseLocation=FVector::ZeroVector;
     FVector MeshBaseScale=FVector::OneVector;
     double LastPhysicsHit=-100;

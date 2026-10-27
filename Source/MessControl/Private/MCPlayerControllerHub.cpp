@@ -26,6 +26,7 @@ bool AMCPlayerController::IsHubWorld() const
 
 void AMCPlayerController::ResetHubPresentation()
 {
+    ResetFishingRewardPresentation();
     RestoreHubGameplayView();
     if(HubWidget) HubWidget->RemoveFromParent();
     HubWidget=nullptr;
@@ -40,14 +41,16 @@ void AMCPlayerController::RestoreHubGameplayView()
     AActor* Target=HubGameplayViewTarget.Get();
     if(!IsValid(Target) || Target->GetWorld()!=GetWorld()) Target=HubGameplayViewPawn.Get();
     if(!IsValid(Target) || Target->GetWorld()!=GetWorld()) Target=GetPawn();
-    if(IsValid(Target)) SetViewTarget(Target);
-    SetControlRotation(HubGameplayControlRotation);
+    if(HasLocalPresentationOwner()) {
+        if(IsValid(Target)) SetViewTarget(Target);
+        SetControlRotation(HubGameplayControlRotation);
+    }
     HubGameplayViewTarget.Reset();HubGameplayViewPawn.Reset();bHubSceneViewActive=false;
 }
 
 void AMCPlayerController::RefreshHubPresentation(float DeltaSeconds)
 {
-    if(!IsLocalController()) return;
+    if(!HasLocalPresentationOwner()) {ResetHubPresentation();return;}
     if(!IsHubWorld()) {
         if(HubWidget) {ResetHubPresentation(); UpdateInputMode();}
         return;
@@ -92,9 +95,7 @@ void AMCPlayerController::RefreshHubPresentation(float DeltaSeconds)
     const bool NeedsMenu=HubWidget->RequiresMenuInput();
     if(NeedsMenu!=bHubMenuInput) {bHubMenuInput=NeedsMenu; UpdateInputMode();}
     const auto* LocalPlayerState=GetPlayerState<AMCPlayerState>();
-    const bool Loaded=State->Players.ContainsByPredicate([LocalPlayerState](const FMCHubPlayerReadiness& Entry) {
-        return Entry.Player==LocalPlayerState && Entry.bLoaded;
-    });
+    const bool Loaded=State->HasLoadedScene(LocalPlayerState);
     const bool HasScene=State->Phase==EMCHubPhase::Gathering
         ? GetPawn() && GetPawn()->GetWorld()==GetWorld() : bHubSceneViewActive && HubSceneCamera.IsValid();
     const bool NewGeneration=LastHubLoadAckGeneration!=State->SceneGeneration;
@@ -102,20 +103,21 @@ void AMCPlayerController::RefreshHubPresentation(float DeltaSeconds)
         && State->Phase!=EMCHubPhase::Travelling && (!Loaded || NewGeneration)
         && (NewGeneration || GetWorld()->GetRealTimeSeconds()>=NextHubLoadAckAt)) {
         LastHubLoadAckGeneration=State->SceneGeneration;
-        NextHubLoadAckAt=GetWorld()->GetRealTimeSeconds()+1.;ServerHubSceneLoaded(State->SceneGeneration);
+        NextHubLoadAckAt=GetWorld()->GetRealTimeSeconds()+1.;ServerHubSceneLoaded(State,State->SceneGeneration);
     }
 }
 
 void AMCPlayerController::HandleHubStartInput()
 {
+    if(!HasLocalPresentationOwner()) return;
     if(const auto* State=GetWorld()->GetGameState<AMCHubGameState>();
         State && State->Phase==EMCHubPhase::Gathering && State->AreAllReady()) RequestHubOpenSelection();
 }
 
-void AMCPlayerController::RequestHubOpenSelection() {if(IsLocalController() && IsHubWorld()) ServerHubOpenSelection();}
-void AMCPlayerController::RequestHubSelectDay(int32 Day) {if(IsLocalController() && IsHubWorld()) ServerHubSelectDay(Day);}
-void AMCPlayerController::RequestHubLaunch() {if(IsLocalController() && IsHubWorld()) ServerHubLaunch();}
-void AMCPlayerController::RequestHubReturn() {if(IsLocalController() && IsHubWorld()) ServerHubReturn();}
+void AMCPlayerController::RequestHubOpenSelection() {if(HasLocalPresentationOwner() && IsHubWorld()) ServerHubOpenSelection();}
+void AMCPlayerController::RequestHubSelectDay(int32 Day) {if(HasLocalPresentationOwner() && IsHubWorld()) ServerHubSelectDay(Day);}
+void AMCPlayerController::RequestHubLaunch() {if(HasLocalPresentationOwner() && IsHubWorld()) ServerHubLaunch();}
+void AMCPlayerController::RequestHubReturn() {if(HasLocalPresentationOwner() && IsHubWorld()) ServerHubReturn();}
 void AMCPlayerController::ServerHubOpenSelection_Implementation()
 {if(auto* Mode=GetWorld()->GetAuthGameMode<AMCHubGameMode>()) Mode->RequestOpenSelection(this);}
 void AMCPlayerController::ServerHubSelectDay_Implementation(int32 Day)
@@ -124,5 +126,5 @@ void AMCPlayerController::ServerHubLaunch_Implementation()
 {if(auto* Mode=GetWorld()->GetAuthGameMode<AMCHubGameMode>()) Mode->RequestLaunch(this);}
 void AMCPlayerController::ServerHubReturn_Implementation()
 {if(auto* Mode=GetWorld()->GetAuthGameMode<AMCHubGameMode>()) Mode->RequestReturnToHub(this);}
-void AMCPlayerController::ServerHubSceneLoaded_Implementation(int32 Generation)
-{if(auto* Mode=GetWorld()->GetAuthGameMode<AMCHubGameMode>()) Mode->AcknowledgeSceneLoaded(this,Generation);}
+void AMCPlayerController::ServerHubSceneLoaded_Implementation(AMCHubGameState* LoadedHub,int32 Generation)
+{if(auto* Mode=GetWorld()->GetAuthGameMode<AMCHubGameMode>()) Mode->AcknowledgeSceneLoaded(this,LoadedHub,Generation);}

@@ -160,6 +160,24 @@ class CatalogPreservationTests(unittest.TestCase):
         with self.assertRaisesRegex(CatalogError, 'Unsupported structured'):
             text_source('LOCTABLE("Table", "Key")')
 
+    def test_unreal_apostrophe_escape_preserves_backslashes_quotes_newlines_and_identity(self):
+        literal = r'''NSLOCTEXT("Ns", "Key", "It\'s \"fresh\".\nC:\\new\\file\\n\\\'tail")'''
+        expected = 'It\'s "fresh".\n' + r"C:\new\file\n\'tail"
+        self.assertEqual(text_source(literal), expected)
+        # A literal backslash followed by an ordinary apostrophe is a distinct
+        # source value from Unreal's escaped apostrophe, and must survive too.
+        self.assertEqual(text_source(r'''INVTEXT("slash\\'apostrophe")'''), "slash\\'apostrophe")
+        row = migrate_localization_row(dict(Name='UI.Escapes', SourceText=literal,
+                                           EN=literal, Localizations={}))
+        spreadsheet, baseline = export_spreadsheet([row])
+        self.assertEqual(next(csv.DictReader(io.StringIO(spreadsheet)))['EN'], expected)
+        merged, report = merge_spreadsheet([row], spreadsheet, baseline)
+        self.assertEqual(merged, [row])
+        self.assertEqual(merged[0]['SourceText'], literal)
+        self.assertFalse(report['changes'])
+        with self.assertRaisesRegex(CatalogError, 'Unsupported FText literal escape'):
+            text_source(r'''INVTEXT("Unknown\qescape")''')
+
     def test_actual_project_seed_migration_has_expected_card_and_booster_coverage(self):
         here = Path(__file__).resolve().parent
         source = [json.loads((here / name).read_text(encoding='utf-8-sig')) for name in

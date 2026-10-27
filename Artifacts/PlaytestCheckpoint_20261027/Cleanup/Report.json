@@ -1,0 +1,4238 @@
+{
+  "status": "passed",
+  "passed": true,
+  "screenshots": [
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\ToolsCleanup\\Runs\\Run_20261026T213037Z_e889a9\\00_before.png",
+      "game_seconds": 6.200529910624027,
+      "shot_seconds": 0.0,
+      "wall_seconds": 6.828000000001339,
+      "width": 1286,
+      "height": 760,
+      "sha256": "37859b0ad9be8567127b772bb06c090bfe3607dec79241c0bfb093f0df8890ec",
+      "method": "Actual owned PIE SWindow/HUD"
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\ToolsCleanup\\Runs\\Run_20261026T213037Z_e889a9\\01_during.png",
+      "game_seconds": 10.252009771764278,
+      "shot_seconds": 4.051479861140251,
+      "wall_seconds": 10.828000000001339,
+      "width": 1286,
+      "height": 760,
+      "sha256": "ec26a7ded2c139bfa500387bff2b021b1c61a091d476c80fc84c51ca27b517a2",
+      "method": "Actual owned PIE SWindow/HUD"
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\ToolsCleanup\\Runs\\Run_20261026T213037Z_e889a9\\02_during.png",
+      "game_seconds": 14.40661146491766,
+      "shot_seconds": 8.206081554293633,
+      "wall_seconds": 14.985000000000582,
+      "width": 1286,
+      "height": 760,
+      "sha256": "090f1552cba652a03bfa8bb8f70b03338bd8f57c38c1378690e23325fe518bae",
+      "method": "Actual owned PIE SWindow/HUD"
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\ToolsCleanup\\Runs\\Run_20261026T213037Z_e889a9\\03_during.png",
+      "game_seconds": 18.452812187373638,
+      "shot_seconds": 12.252282276749611,
+      "wall_seconds": 19.03100000000086,
+      "width": 1286,
+      "height": 760,
+      "sha256": "d66ed0f2261ad2e14b238e1843c6c0261d19cafb7f605a8185434fd7e9d5d86b",
+      "method": "Actual owned PIE SWindow/HUD"
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\ToolsCleanup\\Runs\\Run_20261026T213037Z_e889a9\\04_during.png",
+      "game_seconds": 22.462538681924343,
+      "shot_seconds": 16.262008771300316,
+      "wall_seconds": 23.03100000000086,
+      "width": 1286,
+      "height": 760,
+      "sha256": "ed8160f5a5026b3caa0fd187d7c030e7bc2a2b4c2a7cdfc05d5b2145888d83d1",
+      "method": "Actual owned PIE SWindow/HUD"
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\ToolsCleanup\\Runs\\Run_20261026T213037Z_e889a9\\99_after.png",
+      "game_seconds": 25.242523573338985,
+      "shot_seconds": 19.041993662714958,
+      "wall_seconds": 25.82800000000134,
+      "width": 1286,
+      "height": 760,
+      "sha256": "77f34f9aad907db98f1b1f9631fba4c19f847604cc6b34280bde44690532c6a4",
+      "method": "Actual owned PIE SWindow/HUD"
+    }
+  ],
+  "assertions": [],
+  "samples": [
+    {
+      "game_seconds": 6.200529910624027,
+      "wall_seconds": 6.84400000000096,
+      "shot_seconds": 0.0,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        173.99436061342598
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        743.9943909941143
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA0D80) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 1044480,
+        "removed_bytes": 0,
+        "dry_threshold_crossings": 0,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 6.5540623143315315,
+      "wall_seconds": 7.063000000000102,
+      "shot_seconds": 0.3535324037075043,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        172.98378373130862
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        742.9838141119969
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA3800) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 1044480,
+        "removed_bytes": 0,
+        "dry_threshold_crossings": 0,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 6.766985006630421,
+      "wall_seconds": 7.266000000001441,
+      "shot_seconds": 0.5664550960063934,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        172.26406988630063
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        742.2641002669889
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA3580) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 1044480,
+        "removed_bytes": 0,
+        "dry_threshold_crossings": 0,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 6.976042903959751,
+      "wall_seconds": 7.5,
+      "shot_seconds": 0.7755129933357239,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        171.53488033328483
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        741.5349107139731
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA38A0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 1044480,
+        "removed_bytes": 0,
+        "dry_threshold_crossings": 0,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 7.204260908067226,
+      "wall_seconds": 7.766000000001441,
+      "shot_seconds": 1.0037309974431992,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        170.77256394921434
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        740.7725943299026
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020C974B78A0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 1044480,
+        "removed_bytes": 0,
+        "dry_threshold_crossings": 0,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 7.4695223197340965,
+      "wall_seconds": 7.92200000000048,
+      "shot_seconds": 1.2689924091100693,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        170.01050696455792
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        740.0105373452461
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020C974B7260) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 1044480,
+        "removed_bytes": 0,
+        "dry_threshold_crossings": 0,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 7.628547810018063,
+      "wall_seconds": 8.078000000001339,
+      "shot_seconds": 1.4280178993940353,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.65120571720618
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.6512360978944
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020C974B7030) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 1044480,
+        "removed_bytes": 0,
+        "dry_threshold_crossings": 0,
+        "care_target": "None",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 7.786613307893276,
+      "wall_seconds": 8.235000000000582,
+      "shot_seconds": 1.586083397269249,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.38441850794038
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.3844488886286
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020C974B5C80) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 1044480,
+        "removed_bytes": 0,
+        "dry_threshold_crossings": 0,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 7.951013810932636,
+      "wall_seconds": 8.406000000000859,
+      "shot_seconds": 1.750483900308609,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.21379218734646
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.2138225680347
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020C974B7FD0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 1044480,
+        "removed_bytes": 0,
+        "dry_threshold_crossings": 0,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 8.121589712798595,
+      "wall_seconds": 8.59400000000096,
+      "shot_seconds": 1.9210598021745682,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.13906735601034
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.1390977366987
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020C974B7A80) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 1036136,
+        "removed_bytes": 8344,
+        "dry_threshold_crossings": 24,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 8.301006309688091,
+      "wall_seconds": 8.76600000000144,
+      "shot_seconds": 2.100476399064064,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.21697619166642
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.2170065723546
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020C974B7490) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 1031205,
+        "removed_bytes": 13275,
+        "dry_threshold_crossings": 45,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 8.471862711012363,
+      "wall_seconds": 8.938000000000102,
+      "shot_seconds": 2.271332800388336,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.42101417771312
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.4210445584014
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020C974B5AA0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 1025416,
+        "removed_bytes": 19064,
+        "dry_threshold_crossings": 65,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 8.645737908780575,
+      "wall_seconds": 9.110000000000582,
+      "shot_seconds": 2.4452079981565475,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.66602201239263
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.6660523930809
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020C974B7580) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 1022602,
+        "removed_bytes": 21878,
+        "dry_threshold_crossings": 78,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 8.819742612540722,
+      "wall_seconds": 9.281000000000859,
+      "shot_seconds": 2.6192127019166946,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        170.00218585293152
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        740.0022162336197
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020C974B59B0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 1018635,
+        "removed_bytes": 25845,
+        "dry_threshold_crossings": 91,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 8.995009504258633,
+      "wall_seconds": 9.453000000001339,
+      "shot_seconds": 2.7944795936346054,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        170.47253548448603
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        740.4725658651743
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020C974B5D20) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 1013445,
+        "removed_bytes": 31035,
+        "dry_threshold_crossings": 108,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 9.156760402023792,
+      "wall_seconds": 9.610000000000582,
+      "shot_seconds": 2.956230491399765,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        170.99581785529836
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        740.9958482359866
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020C974B5690) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 1011105,
+        "removed_bytes": 33375,
+        "dry_threshold_crossings": 120,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 9.31273589283228,
+      "wall_seconds": 9.76600000000144,
+      "shot_seconds": 3.112205982208252,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        171.50390247220443
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        741.5039328528927
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020C974B4970) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 1007007,
+        "removed_bytes": 37473,
+        "dry_threshold_crossings": 131,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 9.46886608749628,
+      "wall_seconds": 9.92200000000048,
+      "shot_seconds": 3.2683361768722534,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        172.01682412524332
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        742.0168545059316
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020C974B57D0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 1002229,
+        "removed_bytes": 42251,
+        "dry_threshold_crossings": 150,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 9.623571686446667,
+      "wall_seconds": 10.078000000001339,
+      "shot_seconds": 3.4230417758226395,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        172.52338286324314
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        742.5234132439314
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020C974B7F30) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 998982,
+        "removed_bytes": 45498,
+        "dry_threshold_crossings": 162,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 9.779676578938961,
+      "wall_seconds": 10.235000000000582,
+      "shot_seconds": 3.5791466683149338,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        173.00146870085234
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        743.0014990815406
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020C974B73F0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 994623,
+        "removed_bytes": 49857,
+        "dry_threshold_crossings": 176,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 9.935896076261997,
+      "wall_seconds": 10.39100000000144,
+      "shot_seconds": 3.73536616563797,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        173.43280160877404
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        743.4328319894623
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020C974B6F90) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 990954,
+        "removed_bytes": 53526,
+        "dry_threshold_crossings": 194,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 10.095189176499844,
+      "wall_seconds": 10.54700000000048,
+      "shot_seconds": 3.8946592658758163,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        173.81350585458637
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        743.8135362352746
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F5FD00) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 987673,
+        "removed_bytes": 56807,
+        "dry_threshold_crossings": 207,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 10.252009771764278,
+      "wall_seconds": 10.703000000001339,
+      "shot_seconds": 4.051479861140251,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.10833363555494
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.1083640162432
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA33A0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 987673,
+        "removed_bytes": 56807,
+        "dry_threshold_crossings": 207,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 10.53786437958479,
+      "wall_seconds": 10.985000000000582,
+      "shot_seconds": 4.337334468960762,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.38662088917977
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.386651269868
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBB3F0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 987673,
+        "removed_bytes": 56807,
+        "dry_threshold_crossings": 207,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 10.696254976093769,
+      "wall_seconds": 11.14100000000144,
+      "shot_seconds": 4.495725065469742,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.3933779914374
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.3934083721257
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBBBC0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 983525,
+        "removed_bytes": 60955,
+        "dry_threshold_crossings": 222,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 10.85094278305769,
+      "wall_seconds": 11.29700000000048,
+      "shot_seconds": 4.650412872433662,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.29903035736692
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.2990607380552
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBA310) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 983525,
+        "removed_bytes": 60955,
+        "dry_threshold_crossings": 222,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 11.004372589290142,
+      "wall_seconds": 11.453000000001339,
+      "shot_seconds": 4.803842678666115,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.10629405142143
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.1063244321097
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBACC0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 983525,
+        "removed_bytes": 60955,
+        "dry_threshold_crossings": 222,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 11.165924288332462,
+      "wall_seconds": 11.625,
+      "shot_seconds": 4.965394377708435,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        173.7698962464525
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        743.7699266271408
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBB120) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 983525,
+        "removed_bytes": 60955,
+        "dry_threshold_crossings": 222,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 11.330181784927845,
+      "wall_seconds": 11.781000000000859,
+      "shot_seconds": 5.129651874303818,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        173.35702139070233
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        743.3570517713906
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBA0E0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 978839,
+        "removed_bytes": 65641,
+        "dry_threshold_crossings": 238,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 11.48679218441248,
+      "wall_seconds": 11.938000000000102,
+      "shot_seconds": 5.286262273788452,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        172.91646709159278
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        742.916497472281
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBBE40) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 973325,
+        "removed_bytes": 71155,
+        "dry_threshold_crossings": 259,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 11.647726081311703,
+      "wall_seconds": 12.09400000000096,
+      "shot_seconds": 5.4471961706876755,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        172.41280244092073
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        742.412832821609
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBA770) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 969538,
+        "removed_bytes": 74942,
+        "dry_threshold_crossings": 273,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 11.805824480950832,
+      "wall_seconds": 12.26600000000144,
+      "shot_seconds": 5.605294570326805,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        171.87578207735805
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        741.8758124580463
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBA900) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 964802,
+        "removed_bytes": 79678,
+        "dry_threshold_crossings": 290,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 11.967888377606869,
+      "wall_seconds": 12.42200000000048,
+      "shot_seconds": 5.7673584669828415,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        171.31900158195944
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        741.3190319626477
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBAD60) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 961202,
+        "removed_bytes": 83278,
+        "dry_threshold_crossings": 303,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 12.13378307968378,
+      "wall_seconds": 12.59400000000096,
+      "shot_seconds": 5.933253169059753,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        170.7660968189827
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        740.766127199671
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBAF90) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 957184,
+        "removed_bytes": 87296,
+        "dry_threshold_crossings": 319,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 12.295572273433208,
+      "wall_seconds": 12.75,
+      "shot_seconds": 6.095042362809181,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        170.27331168491222
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        740.2733420656004
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBA8B0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 952011,
+        "removed_bytes": 92469,
+        "dry_threshold_crossings": 338,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 12.457314975559711,
+      "wall_seconds": 12.906000000000859,
+      "shot_seconds": 6.256785064935684,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.84101239068548
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.8410427713737
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBB6C0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 948436,
+        "removed_bytes": 96044,
+        "dry_threshold_crossings": 351,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 12.619214065372944,
+      "wall_seconds": 13.063000000000102,
+      "shot_seconds": 6.418684154748917,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.4881961286853
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.4882265093736
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBAB30) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 944237,
+        "removed_bytes": 100243,
+        "dry_threshold_crossings": 367,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 12.778876967728138,
+      "wall_seconds": 13.235000000000582,
+      "shot_seconds": 6.578347057104111,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.23100669773982
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.231037078428
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBBB70) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 939456,
+        "removed_bytes": 105024,
+        "dry_threshold_crossings": 386,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 12.938968069851398,
+      "wall_seconds": 13.39100000000144,
+      "shot_seconds": 6.738438159227371,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.07495252070058
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.0749829013888
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBAD10) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 935529,
+        "removed_bytes": 108951,
+        "dry_threshold_crossings": 400,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 13.102924965322018,
+      "wall_seconds": 13.563000000000102,
+      "shot_seconds": 6.90239505469799,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.0279681678801
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.0279985485683
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBB990) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 933202,
+        "removed_bytes": 111278,
+        "dry_threshold_crossings": 410,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 13.26735956221819,
+      "wall_seconds": 13.735000000000582,
+      "shot_seconds": 7.066829651594162,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.09794243322366
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.097972813912
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBA4A0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 930703,
+        "removed_bytes": 113777,
+        "dry_threshold_crossings": 418,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 13.438693471252918,
+      "wall_seconds": 13.89100000000144,
+      "shot_seconds": 7.238163560628891,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.29291669856724
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.2929470792556
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBB0D0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 926710,
+        "removed_bytes": 117770,
+        "dry_threshold_crossings": 433,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 13.604882873594761,
+      "wall_seconds": 14.063000000000102,
+      "shot_seconds": 7.404352962970734,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.5928409150827
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.5928712957709
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBA680) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 925091,
+        "removed_bytes": 119389,
+        "dry_threshold_crossings": 438,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 13.765396974980831,
+      "wall_seconds": 14.21900000000096,
+      "shot_seconds": 7.564867064356804,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.97406395972314
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.9740943404114
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBB300) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 922845,
+        "removed_bytes": 121635,
+        "dry_threshold_crossings": 447,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 13.929807372391224,
+      "wall_seconds": 14.375,
+      "shot_seconds": 7.729277461767197,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        170.4360059985042
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        740.4360363791925
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBB3A0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 918181,
+        "removed_bytes": 126299,
+        "dry_threshold_crossings": 464,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 14.088424272835255,
+      "wall_seconds": 14.531000000000859,
+      "shot_seconds": 7.887894362211227,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        170.93780399431654
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        740.9378343750047
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBBE90) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 916223,
+        "removed_bytes": 128257,
+        "dry_threshold_crossings": 473,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 14.246861167252064,
+      "wall_seconds": 14.703000000001339,
+      "shot_seconds": 8.046331256628036,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        171.45939263954293
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        741.4594230202312
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBBF30) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 912738,
+        "removed_bytes": 131742,
+        "dry_threshold_crossings": 486,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 14.40661146491766,
+      "wall_seconds": 14.860000000000582,
+      "shot_seconds": 8.206081554293633,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        172.000680381449
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        742.0007107621373
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BCBA6D0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 908115,
+        "removed_bytes": 136365,
+        "dry_threshold_crossings": 503,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 14.70179357379675,
+      "wall_seconds": 15.156000000000859,
+      "shot_seconds": 8.501263663172722,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        172.96903111163633
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        742.9690614923246
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0AE50) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 904961,
+        "removed_bytes": 139519,
+        "dry_threshold_crossings": 516,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 14.86373396962881,
+      "wall_seconds": 15.313000000000102,
+      "shot_seconds": 8.663204059004784,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        173.4288521787377
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        743.428882559426
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0B300) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 901279,
+        "removed_bytes": 143201,
+        "dry_threshold_crossings": 532,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 15.022583775222301,
+      "wall_seconds": 15.46900000000096,
+      "shot_seconds": 8.822053864598274,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        173.84152358763598
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        743.8415539683242
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0B6C0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 897740,
+        "removed_bytes": 146740,
+        "dry_threshold_crossings": 546,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 15.183591671288013,
+      "wall_seconds": 15.64100000000144,
+      "shot_seconds": 8.983061760663986,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.14497258442486
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.1450029651131
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0B710) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 895195,
+        "removed_bytes": 149285,
+        "dry_threshold_crossings": 554,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 15.344471164047718,
+      "wall_seconds": 15.79700000000048,
+      "shot_seconds": 9.14394125342369,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.3396721915653
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.3397025722536
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0B1C0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 891962,
+        "removed_bytes": 152518,
+        "dry_threshold_crossings": 565,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 15.501902960240841,
+      "wall_seconds": 15.953000000001339,
+      "shot_seconds": 9.301373049616814,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.43607467956514
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.4361050602533
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0B030) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 889835,
+        "removed_bytes": 154645,
+        "dry_threshold_crossings": 579,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 15.663571156561375,
+      "wall_seconds": 16.110000000000582,
+      "shot_seconds": 9.463041245937347,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.45729711385403
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.4573274945423
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0B8A0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 888228,
+        "removed_bytes": 156252,
+        "dry_threshold_crossings": 584,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 15.819717057049274,
+      "wall_seconds": 16.26600000000144,
+      "shot_seconds": 9.619187146425247,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.36909877177573
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.369129152464
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0B350) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 883757,
+        "removed_bytes": 160723,
+        "dry_threshold_crossings": 600,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 15.978536255657673,
+      "wall_seconds": 16.42200000000048,
+      "shot_seconds": 9.778006345033646,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.1376051416115
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.1376355222998
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0B580) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 881396,
+        "removed_bytes": 163084,
+        "dry_threshold_crossings": 611,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 16.13597486168146,
+      "wall_seconds": 16.57800000000134,
+      "shot_seconds": 9.935444951057434,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        173.8075855104707
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        743.807615891159
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0B7B0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 879515,
+        "removed_bytes": 164965,
+        "dry_threshold_crossings": 616,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 16.290594466030598,
+      "wall_seconds": 16.735000000000582,
+      "shot_seconds": 10.09006455540657,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        173.4293481058924
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        743.4293784865806
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0B8F0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 875044,
+        "removed_bytes": 169436,
+        "dry_threshold_crossings": 634,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 16.44764766842127,
+      "wall_seconds": 16.90600000000086,
+      "shot_seconds": 10.247117757797241,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        172.96795030092346
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        742.9679806816117
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0B5D0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 875044,
+        "removed_bytes": 169436,
+        "dry_threshold_crossings": 634,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 16.60790377110243,
+      "wall_seconds": 17.04700000000048,
+      "shot_seconds": 10.407373860478401,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        172.44074133872797
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        742.4407717194163
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0AD60) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 875044,
+        "removed_bytes": 169436,
+        "dry_threshold_crossings": 634,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 16.76240596920252,
+      "wall_seconds": 17.20300000000134,
+      "shot_seconds": 10.561876058578491,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        171.93210232282155
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        741.9321327035098
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0BAD0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 875044,
+        "removed_bytes": 169436,
+        "dry_threshold_crossings": 634,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 16.916161872446537,
+      "wall_seconds": 17.360000000000582,
+      "shot_seconds": 10.71563196182251,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        171.41209550906356
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        741.4121258897518
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0B850) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 871844,
+        "removed_bytes": 172636,
+        "dry_threshold_crossings": 651,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 17.074337176978588,
+      "wall_seconds": 17.51600000000144,
+      "shot_seconds": 10.87380726635456,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        170.89340095116495
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        740.8934313318532
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0AE00) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 868433,
+        "removed_bytes": 176047,
+        "dry_threshold_crossings": 663,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 17.22813967615366,
+      "wall_seconds": 17.67200000000048,
+      "shot_seconds": 11.027609765529633,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        170.4152489958054
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        740.4152793764937
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0B9E0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 864557,
+        "removed_bytes": 179923,
+        "dry_threshold_crossings": 678,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 17.382939971983433,
+      "wall_seconds": 17.82800000000134,
+      "shot_seconds": 11.182410061359406,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.98174425724272
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.981774637931
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F09A00) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 862751,
+        "removed_bytes": 181729,
+        "dry_threshold_crossings": 685,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 17.535922668874264,
+      "wall_seconds": 17.985000000000582,
+      "shot_seconds": 11.335392758250237,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.60654335168786
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.6065737323761
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0ADB0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 859794,
+        "removed_bytes": 184686,
+        "dry_threshold_crossings": 696,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 17.68872617930174,
+      "wall_seconds": 18.125,
+      "shot_seconds": 11.488196268677711,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.28967679671894
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.2897071774072
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0BF80) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 859794,
+        "removed_bytes": 184686,
+        "dry_threshold_crossings": 696,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 17.841946683824062,
+      "wall_seconds": 18.28100000000086,
+      "shot_seconds": 11.641416773200035,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.0688490601094
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.0688794407977
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F09C80) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 859794,
+        "removed_bytes": 184686,
+        "dry_threshold_crossings": 696,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 17.995203383266926,
+      "wall_seconds": 18.438000000000102,
+      "shot_seconds": 11.794673472642899,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        168.85737496119515
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        738.8574053418834
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0B800) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 859794,
+        "removed_bytes": 184686,
+        "dry_threshold_crossings": 696,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 18.14848568290472,
+      "wall_seconds": 18.59400000000096,
+      "shot_seconds": 11.947955772280693,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        168.81576170212466
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        738.8157920828129
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F09B90) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 855258,
+        "removed_bytes": 189222,
+        "dry_threshold_crossings": 714,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 18.30031578987837,
+      "wall_seconds": 18.75,
+      "shot_seconds": 12.099785879254341,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        168.89569995672605
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        738.8957303374143
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0BDF0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 852480,
+        "removed_bytes": 192000,
+        "dry_threshold_crossings": 724,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 18.452812187373638,
+      "wall_seconds": 18.90600000000086,
+      "shot_seconds": 12.252282276749611,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.07646828945244
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.0764986701407
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99F0BEE0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 847896,
+        "removed_bytes": 196584,
+        "dry_threshold_crossings": 741,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 18.738371901214123,
+      "wall_seconds": 19.188000000000102,
+      "shot_seconds": 12.537841990590096,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.63360991319445
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.6336402938828
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3FDF0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 842578,
+        "removed_bytes": 201902,
+        "dry_threshold_crossings": 762,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 18.89756230264902,
+      "wall_seconds": 19.34400000000096,
+      "shot_seconds": 12.697032392024994,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        170.06826923713177
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        740.06829961782
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3F9E0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 839224,
+        "removed_bytes": 205256,
+        "dry_threshold_crossings": 777,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 19.054703198373318,
+      "wall_seconds": 19.5,
+      "shot_seconds": 12.85417328774929,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        170.53848153958472
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        740.538511920273
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3D8C0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 833611,
+        "removed_bytes": 210869,
+        "dry_threshold_crossings": 794,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 19.209644503891468,
+      "wall_seconds": 19.65600000000086,
+      "shot_seconds": 13.00911459326744,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        171.06093993578767
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        741.060970316476
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3E4F0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 830176,
+        "removed_bytes": 214304,
+        "dry_threshold_crossings": 808,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 19.364161796867847,
+      "wall_seconds": 19.813000000000102,
+      "shot_seconds": 13.16363188624382,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        171.60891102730312
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        741.6089414079913
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3D1E0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 827184,
+        "removed_bytes": 217296,
+        "dry_threshold_crossings": 820,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 19.52156289666891,
+      "wall_seconds": 19.96900000000096,
+      "shot_seconds": 13.321032986044884,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        172.16828043424826
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        742.1683108149365
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3FEE0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 821958,
+        "removed_bytes": 222522,
+        "dry_threshold_crossings": 839,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 19.676423095166683,
+      "wall_seconds": 20.125,
+      "shot_seconds": 13.475893184542656,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        172.69714752185746
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        742.6971779025457
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3D320) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 819588,
+        "removed_bytes": 224892,
+        "dry_threshold_crossings": 851,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 19.829148299992085,
+      "wall_seconds": 20.28100000000086,
+      "shot_seconds": 13.628618389368057,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        173.18136739266978
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        743.1813977733581
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3E2C0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 817809,
+        "removed_bytes": 226671,
+        "dry_threshold_crossings": 859,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 19.987512700259686,
+      "wall_seconds": 20.438000000000102,
+      "shot_seconds": 13.786982789635658,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        173.62405283965398
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        743.6240832203423
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3E090) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 814155,
+        "removed_bytes": 230325,
+        "dry_threshold_crossings": 877,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 20.142152704298496,
+      "wall_seconds": 20.59400000000096,
+      "shot_seconds": 13.941622793674469,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        173.98350159230225
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        743.9835319729905
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3D730) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 811509,
+        "removed_bytes": 232971,
+        "dry_threshold_crossings": 885,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 20.295481003820896,
+      "wall_seconds": 20.735000000000582,
+      "shot_seconds": 14.094951093196869,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.25586843577082
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.2558988164591
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3C830) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "<Object '/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0' (0x0000020D0F9ABE00) Class 'MCMouthSurface'>",
+        "brushing": true
+      }
+    },
+    {
+      "game_seconds": 20.450767807662487,
+      "wall_seconds": 20.89100000000144,
+      "shot_seconds": 14.25023789703846,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.43344768158315
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.4334780622714
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3FF80) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 20.604894004762173,
+      "wall_seconds": 21.04700000000048,
+      "shot_seconds": 14.404364094138145,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.50743500845016
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.5074653891384
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3F580) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 20.759861804544926,
+      "wall_seconds": 21.20300000000134,
+      "shot_seconds": 14.559331893920898,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.47555685680155
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.4755872374898
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3C100) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 20.913106597959995,
+      "wall_seconds": 21.360000000000582,
+      "shot_seconds": 14.712576687335968,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.34118541902012
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.3412157997084
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3CEC0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 21.068479292094707,
+      "wall_seconds": 21.51600000000144,
+      "shot_seconds": 14.86794938147068,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.1063501140512
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.1063804947395
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3EB80) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 21.221579186618328,
+      "wall_seconds": 21.67200000000048,
+      "shot_seconds": 15.0210492759943,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        173.78711844677758
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        743.7871488274659
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3F6C0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 21.374821789562702,
+      "wall_seconds": 21.813000000000102,
+      "shot_seconds": 15.174291878938675,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        173.39278301973835
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        743.3928134004266
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3FA80) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 21.527441583573818,
+      "wall_seconds": 21.96900000000096,
+      "shot_seconds": 15.326911672949791,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        172.94067781730848
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        742.9407081979967
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3E720) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 21.684343583881855,
+      "wall_seconds": 22.125,
+      "shot_seconds": 15.483813673257828,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        172.43211509534737
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        742.4321454760357
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3D910) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 21.836935080587864,
+      "wall_seconds": 22.28100000000086,
+      "shot_seconds": 15.636405169963837,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        171.91403088901126
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        741.9140612696995
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3EA90) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 21.994183979928493,
+      "wall_seconds": 22.45300000000134,
+      "shot_seconds": 15.793654069304466,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        171.37662905572202
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        741.3766594364103
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3DA00) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 22.15509758144617,
+      "wall_seconds": 22.59400000000096,
+      "shot_seconds": 15.954567670822144,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        170.8451171150109
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        740.8451474956992
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3D140) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 22.31004958599806,
+      "wall_seconds": 22.75,
+      "shot_seconds": 16.10951967537403,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        170.3713444321123
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        740.3713748128006
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3D460) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 22.462538681924343,
+      "wall_seconds": 22.90600000000086,
+      "shot_seconds": 16.262008771300316,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.95962924433087
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.9596596250192
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B9BC3C240) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 22.743688993155956,
+      "wall_seconds": 23.188000000000102,
+      "shot_seconds": 16.54315908253193,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.39239647842444
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.3924268591127
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA22C0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 22.900388292968273,
+      "wall_seconds": 23.34400000000096,
+      "shot_seconds": 16.699858382344246,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.20622145177583
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.2062518324641
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA27C0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 23.058160595595837,
+      "wall_seconds": 23.5,
+      "shot_seconds": 16.85763068497181,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.12330265071316
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.1233330314014
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA26D0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 23.211785100400448,
+      "wall_seconds": 23.65600000000086,
+      "shot_seconds": 17.01125518977642,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.14672235062704
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.1467527313152
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA2090) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 23.366489492356777,
+      "wall_seconds": 23.813000000000102,
+      "shot_seconds": 17.16595958173275,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.27356612280656
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.2735965034948
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA2EF0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 23.522123984992504,
+      "wall_seconds": 23.96900000000096,
+      "shot_seconds": 17.321594074368477,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.5011026440095
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.5011330246978
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA2A90) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 23.677993677556515,
+      "wall_seconds": 24.125,
+      "shot_seconds": 17.477463766932487,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        169.82100061540777
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        739.821030996096
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA1500) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 23.834284774959087,
+      "wall_seconds": 24.28100000000086,
+      "shot_seconds": 17.63375486433506,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        170.22212112098572
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        740.222151501674
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA18C0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 23.989950768649578,
+      "wall_seconds": 24.438000000000102,
+      "shot_seconds": 17.78942085802555,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        170.68653508359492
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        740.6865654642831
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA3260) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 24.146180771291256,
+      "wall_seconds": 24.59400000000096,
+      "shot_seconds": 17.94565086066723,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        171.2000670881963
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        741.2000974688846
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA2400) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 24.30038107186556,
+      "wall_seconds": 24.75,
+      "shot_seconds": 18.09985116124153,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        171.7344731162352
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        741.7345034969235
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA2F90) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 24.454716973006725,
+      "wall_seconds": 24.90600000000086,
+      "shot_seconds": 18.254187062382698,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        172.27675267943033
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        742.2767830601185
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA38A0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 24.613140664994717,
+      "wall_seconds": 25.063000000000102,
+      "shot_seconds": 18.41261075437069,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        172.81993251118016
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        742.8199628918684
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA0740) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 24.766195468604565,
+      "wall_seconds": 25.21900000000096,
+      "shot_seconds": 18.565665557980537,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        173.31193436441436
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        743.3119647451026
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA33F0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 24.923476971685886,
+      "wall_seconds": 25.375,
+      "shot_seconds": 18.72294706106186,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        173.76476690612512
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        743.7647972868134
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA32B0) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 25.082472674548626,
+      "wall_seconds": 25.53100000000086,
+      "shot_seconds": 18.8819427639246,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.15050655232807
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.1505369330164
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA3A80) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 25.242523573338985,
+      "wall_seconds": 25.70300000000134,
+      "shot_seconds": 19.041993662714958,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.45032395732008
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.4503543380083
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA3850) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    },
+    {
+      "game_seconds": 25.242523573338985,
+      "wall_seconds": 25.70300000000134,
+      "shot_seconds": 19.041993662714958,
+      "selected": "<MCToolSlot.BRUSH: 0>",
+      "pawn": [
+        968.1259279732619,
+        -169.649311402647,
+        174.45032395732008
+      ],
+      "camera": [
+        68.12587733878195,
+        -94.07566265836053,
+        744.4503543380083
+      ],
+      "rotation": "<Struct 'Rotator' (0x0000020B99EA2E50) {pitch: -33.069278, yaw: -4.409692, roll: -0.000000}>",
+      "fov": 55.0,
+      "alive": true,
+      "swing_started": null,
+      "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "input_state": {
+        "show_mouse_cursor": false,
+        "is_move_input_ignored": false,
+        "is_look_input_ignored": false,
+        "is_local_player_controller": true
+      },
+      "patch": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+        "mask_sum": 809268,
+        "removed_bytes": 235212,
+        "dry_threshold_crossings": 896,
+        "care_target": "None",
+        "brushing": false
+      }
+    }
+  ],
+  "boundaries": [],
+  "phase": "record_cleanup",
+  "previous_play_settings": {
+    "playNetMode": "PIE_Standalone",
+    "playNumberOfClients": 1,
+    "runUnderOneProcess": true,
+    "bLaunchSeparateServer": false,
+    "newWindowWidth": 1280,
+    "newWindowHeight": 720,
+    "clientFixedFPS": [
+      0
+    ],
+    "serverFixedFPS": 0
+  },
+  "editor_world": "/Game/Maps/L_Mouth.L_Mouth",
+  "network_tested": false,
+  "microphone_used": false,
+  "package_save_requested": false,
+  "fixtures": [
+    {
+      "action": "Existing native F3 CoffeeDirt before input; one supported pawn position/facing",
+      "patch": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_0",
+      "foot": [
+        968.1259279732619,
+        -169.649311402647,
+        119.8874089996948
+      ],
+      "yaw": 0.0,
+      "mask_initial_sum": 1044480,
+      "no_mask_health_state_readiness_or_camera_writes": true
+    }
+  ],
+  "limitations": [
+    "One local authority PIE; no client latency or multiplayer claim.",
+    "Wheel uses native Enhanced Input injection, not a physical hardware wheel.",
+    "Direct slots use RequestSelect, the shared 1-4 endpoint; physical keyboard mapping remains a separate root check.",
+    "Cleanup reports actual native mask changes; the exact 0.6 accepted-contact ratio belongs to MessControl.Cleanup.BrushBalance native tests.",
+    "No camera override, fixed time step, accelerated world time, forged readiness or saved-package writes.",
+    "Sparse SWindow PNG captures can stall a frame and are not advertised as 30 FPS video."
+  ],
+  "mode": "cleanup",
+  "actions": [
+    {
+      "game_seconds": 6.200529910624027,
+      "shot_seconds": 0.0,
+      "kind": "select",
+      "value": "<MCToolSlot.BRUSH: 0>",
+      "before": "<MCToolSlot.BRUSH: 0>",
+      "accepted": true,
+      "immediate_after": "<MCToolSlot.BRUSH: 0>",
+      "planned_shot_seconds": 0.0
+    },
+    {
+      "game_seconds": 7.628547810018063,
+      "shot_seconds": 1.4280178993940353,
+      "kind": "primary",
+      "value": "True",
+      "before": "<MCToolSlot.BRUSH: 0>",
+      "immediate_after": "<MCToolSlot.BRUSH: 0>",
+      "planned_shot_seconds": 1.3
+    },
+    {
+      "game_seconds": 21.527441583573818,
+      "shot_seconds": 15.326911672949791,
+      "kind": "primary",
+      "value": "False",
+      "before": "<MCToolSlot.BRUSH: 0>",
+      "immediate_after": "<MCToolSlot.BRUSH: 0>",
+      "planned_shot_seconds": 15.3
+    }
+  ],
+  "checks": {
+    "actual_mask_cleaned": true,
+    "exact_40_percent_not_claimed": true
+  },
+  "reward_choices": [],
+  "source_sha256": {
+    "E:\\CodexWork\\Checkpoint_20261027\\ToolsCleanup\\probe_tools_cleanup.py": "61c4b433e347f8fae52c047be7c1d3b51f4a376fd801522244c95af932673df5"
+  },
+  "native_balance_tests": [
+    "MessControl.Cleanup.BrushBalance.SamePathNeedsLessContactTime",
+    "MessControl.Cleanup.BrushBalance.LocalityFrameRateAndToolCap"
+  ],
+  "real_time_world": true,
+  "fixed_step": false,
+  "record_gate_path": "E:\\CodexWork\\Checkpoint_20261027\\CaptureControl\\063036_d9c14c\\record.gate",
+  "record_gate_required": true,
+  "wheel_enabled": true,
+  "parent_support": "E:\\DEVGAME\\MessControl\\Tools\\Unreal\\probe_playtest_recovery_solo.py",
+  "setup_completed": {
+    "game_seconds": 5.498454809188843,
+    "wall_seconds": 5.813000000000102
+  },
+  "shot_started": {
+    "game_seconds": 6.200529910624027,
+    "wall_seconds": 6.703000000001339,
+    "utc": "2026-10-26T21:30:43.935627+00:00",
+    "duration_seconds": 19.0
+  },
+  "perks_not_reset": true,
+  "gameplay_duration_seconds": 19.041993662714958,
+  "fixture_cleanup_errors": [],
+  "temporary_actor_count": 0,
+  "paused_actor_count": 0,
+  "owned_pie_stop_requested": true,
+  "error": null,
+  "restoration_errors": [],
+  "restored_settings": true,
+  "wall_seconds": 25.82800000000134
+}

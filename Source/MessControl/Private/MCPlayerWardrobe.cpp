@@ -24,14 +24,14 @@ bool AMCPlayerController::IsWardrobeOpen() const
 
 bool AMCPlayerController::HasPreparedWardrobePresentation() const
 {
-    return IsValid(WardrobePreviewActor) && WardrobePreviewActor->IsPreparedFor(Cast<AMCToothCharacter>(GetPawn()))
+    return HasLocalPresentationOwner() && IsValid(WardrobePreviewActor) && WardrobePreviewActor->IsPreparedFor(Cast<AMCToothCharacter>(GetPawn()))
         && WardrobeWidget && HubShopWidget && WardrobeWarmSlate.IsValid() && HubShopWarmSlate.IsValid();
 }
 
 bool AMCPlayerController::IsWardrobeAvailable() const
 {
     const auto* Hub=GetWorld()?GetWorld()->GetGameState<AMCHubGameState>():nullptr;
-    return IsLocalController() && Hub && Hub->Phase==EMCHubPhase::Gathering
+    return HasLocalPresentationOwner() && Hub && Hub->Phase==EMCHubPhase::Gathering
         && !IsWardrobeOpen() && !IsHubShopOpen() && NearbyWardrobe.IsValid() && NearbyWardrobe->ContainsPawn(GetPawn());
 }
 
@@ -41,13 +41,13 @@ bool AMCPlayerController::IsHubShopOpen() const
 bool AMCPlayerController::IsHubShopAvailable() const
 {
     const auto* Hub=GetWorld()?GetWorld()->GetGameState<AMCHubGameState>():nullptr;
-    return IsLocalController() && Hub && Hub->Phase==EMCHubPhase::Gathering && !IsWardrobeOpen() && !IsHubShopOpen()
+    return HasLocalPresentationOwner() && Hub && Hub->Phase==EMCHubPhase::Gathering && !IsWardrobeOpen() && !IsHubShopOpen()
         && NearbyShop.IsValid() && NearbyShop->ContainsPawn(GetPawn());
 }
 
 bool AMCPlayerController::TryOpenHubShop()
 {
-    if(!IsLocalController() || !IsHubWorld() || bLoadingInputBlocked || bHubMenuInput || bPauseMenuOpen
+    if(!HasLocalPresentationOwner() || !IsHubWorld() || bLoadingInputBlocked || bHubMenuInput || bPauseMenuOpen
         || bConnectionMenuOpen || bLobbyUIOpen || bBossIntroPlaying || IsRewardInteractionActive() || IsWardrobeOpen()) return false;
     if(IsHubShopOpen()) return true;
     NextWardrobeCheck=0;RefreshWardrobe();
@@ -73,11 +73,11 @@ bool AMCPlayerController::TryOpenHubShop()
 
 void AMCPlayerController::CloseHubShop()
 {
-    if(IsHubShopOpen()) if(auto* Hero=WardrobePawn.Get();Hero && Hero==GetPawn())
+    if(HasLocalPresentationOwner() && IsHubShopOpen()) if(auto* Hero=WardrobePawn.Get();Hero && Hero==GetPawn())
         Hero->SetCameraOrbitView(WardrobePreviousYaw,WardrobePreviousPitch,WardrobePreviousDistance);
     if(IsHubShopOpen()) WardrobePawn.Reset();
     if(HubShopWidget) HubShopWidget->RemoveFromParent();
-    if(IsLocalController() && GetWorld() && !GetWorld()->bIsTearingDown) UpdateInputMode();
+    if(HasLocalPresentationOwner()) UpdateInputMode();
 }
 
 void AMCPlayerController::ClientSetHubArrivalView_Implementation(float Yaw)
@@ -91,7 +91,7 @@ void AMCPlayerController::ClientSetHubArrivalView_Implementation(float Yaw)
 
 void AMCPlayerController::RefreshWardrobe()
 {
-    if(!IsLocalController() || !GetWorld()) return;
+    if(!HasLocalPresentationOwner()) return;
     auto* Hero=Cast<AMCToothCharacter>(GetPawn());
     const auto* Hub=GetWorld()->GetGameState<AMCHubGameState>();
     if(Hero && Hub && !IsWardrobeOpen() && !IsHubShopOpen() && HubArrivalViewPawn.Get()!=Hero) {
@@ -145,7 +145,7 @@ void AMCPlayerController::RefreshWardrobe()
 
 void AMCPlayerController::PrepareWardrobePreview()
 {
-    if(!IsLocalController() || !GetWorld() || GetWorld()->bIsTearingDown) return;
+    if(!HasLocalPresentationOwner()) return;
     auto* Hero=Cast<AMCToothCharacter>(GetPawn());
     const bool bHub=IsHubWorld();
     if(IsValid(WardrobePreviewActor) && (!bHub || !WardrobePreviewActor->IsPreparedFor(Hero))) {
@@ -191,7 +191,7 @@ void AMCPlayerController::PrepareWardrobePreview()
 
 bool AMCPlayerController::TryOpenWardrobe()
 {
-    if(!IsLocalController() || !IsHubWorld() || bLoadingInputBlocked || bHubMenuInput || bPauseMenuOpen
+    if(!HasLocalPresentationOwner() || !IsHubWorld() || bLoadingInputBlocked || bHubMenuInput || bPauseMenuOpen
         || bConnectionMenuOpen || bLobbyUIOpen || bBossIntroPlaying || IsRewardInteractionActive() || IsHubShopOpen()) return false;
     if(IsWardrobeOpen()) return true;
     NextWardrobeCheck=0;RefreshWardrobe();
@@ -226,18 +226,18 @@ bool AMCPlayerController::TryOpenWardrobe()
 
 void AMCPlayerController::PreviewWardrobeColor(FLinearColor Color)
 {
-    if(IsWardrobeOpen() && IsValid(WardrobePreviewActor)) WardrobePreviewActor->SetDraftColor(Color);
+    if(HasLocalPresentationOwner() && IsWardrobeOpen() && IsValid(WardrobePreviewActor)) WardrobePreviewActor->SetDraftColor(Color);
 }
 
 void AMCPlayerController::PreviewWardrobeCosmetics(FMCCharacterCosmeticLoadout Loadout)
 {
-    if(IsWardrobeOpen() && IsValid(WardrobePreviewActor)) WardrobePreviewActor->SetDraftLoadout(Loadout);
+    if(HasLocalPresentationOwner() && IsWardrobeOpen() && IsValid(WardrobePreviewActor)) WardrobePreviewActor->SetDraftLoadout(Loadout);
 }
 
 void AMCPlayerController::ApplyWardrobeColor(FLinearColor Color)
 {
     auto* Hero=WardrobePawn.Get();
-    if(!IsWardrobeOpen() || !Hero || !NearbyWardrobe.IsValid() || !NearbyWardrobe->ContainsPawn(Hero)) return;
+    if(!HasLocalPresentationOwner() || !IsWardrobeOpen() || !Hero || !NearbyWardrobe.IsValid() || !NearbyWardrobe->ContainsPawn(Hero)) return;
     if(!FMath::IsFinite(Color.R) || !FMath::IsFinite(Color.G) || !FMath::IsFinite(Color.B)) return;
     Color=Color.GetClamped(0,1);Color.A=1;
     // One authoritative commit, not one reliable RPC per slider tick.
@@ -268,5 +268,5 @@ void AMCPlayerController::CloseWardrobe(bool bRestoreColor)
     if(IsValid(WardrobePreviewActor)) WardrobePreviewActor->EndPresentation();
     if(bWasOpen) WardrobePawn.Reset();
     if(WardrobeWidget) WardrobeWidget->RemoveFromParent();
-    if(IsLocalController() && GetWorld() && !GetWorld()->bIsTearingDown) UpdateInputMode();
+    if(HasLocalPresentationOwner()) UpdateInputMode();
 }

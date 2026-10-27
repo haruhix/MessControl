@@ -23,7 +23,7 @@ struct FMCFoodPipelineLoad;
 enum class EMCSingleDayRewardContinuation : uint8 { OpeningCoffee, OpeningRest, PostNutPortion, PostNutMint, NextKeyEvent, EventSupport };
 
 UENUM(BlueprintType)
-enum class EMCSingleDayStage : uint8 { Training, FirstPerk, Nuts, Director, Boss, Complete, OpeningPause, FirstMeal, MealRest, Ice, FogBrawl, MealCoffeeWave, BetweenMealsPause, PostNutMeal, PostNutMint, Jellies };
+enum class EMCSingleDayStage : uint8 { Training, FirstPerk, Nuts, Director, Boss, Complete, OpeningPause, FirstMeal, MealRest, Ice, FogBrawl, MealCoffeeWave, BetweenMealsPause, PostNutMeal, PostNutMint, Jellies, PostNutCoffee, PostNutCoffeePause };
 
 UENUM(BlueprintType)
 enum class EMCSingleDayKeyEventKind : uint8 { NutEncounter, IceEvent, FogBrawl, Jellies };
@@ -52,8 +52,8 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Sequence",meta=(ClampMin="1",ClampMax="120",Units="min")) float RunTargetMinMinutes=25;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Sequence",meta=(ClampMin="1",ClampMax="120",Units="min")) float RunTargetMaxMinutes=35;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="0",ClampMax="30",Units="s")) float AfterTrainingPauseSeconds=5;
-    /** Whole ordinary ingredients for the team, served one portion at a time. */
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="1",ClampMax="30")) TArray<int32> OpeningMealPortions={3,5,8};
+    /** Opening Relax: five whole ordinary ingredients for the team. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="1",ClampMax="30")) TArray<int32> OpeningMealPortions={5};
     /** The next portion's pause starts only after the preceding coffee wave ends. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="0",ClampMax="30",Units="s")) float BetweenMealPauseMinSeconds=5.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="0",ClampMax="30",Units="s")) float BetweenMealPauseMaxSeconds=10.f;
@@ -63,8 +63,10 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening|Legacy",meta=(ClampMin="1",ClampMax="30")) int32 OpeningMealItems=12;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin=".5",ClampMax="5",Units="s")) float OpeningMealDropSeconds=1.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="0",ClampMax="30",Units="s")) float BeforeNutsPauseSeconds=4;
-    /** Explicit second Relax; no random support hazards or coffee between these portions. */
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="After Nuts",meta=(ClampMin="1",ClampMax="30")) TArray<int32> AfterNutMealPortions={5,8,9};
+    /** Second Relax: one drink wave, a short authored interval, then ten whole ingredients. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="After Nuts",meta=(ClampMin="1",ClampMax="30")) TArray<int32> AfterNutMealPortions={10};
+    /** Starts when the actual coffee wave ends; zero permits serving in that same tick. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="After Nuts",meta=(ClampMin="0",ClampMax="15",Units="s")) float AfterNutCoffeeToFoodSeconds=6.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="After Nuts",meta=(ClampMin=".5",ClampMax="5",Units="s")) float AfterNutMealDropSeconds=1.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="After Nuts") FMCSmallMintCandySettings SmallMint;
     /** Explicit compatibility for the old short prototype, never enabled by new fragment authoring. */
@@ -117,6 +119,9 @@ public:
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards") TSubclassOf<AMCRewardChest> StageRewardChestClass;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") FName StageRewardCompletionId;
 private:
+#if WITH_EDITOR
+    friend class UMCGameplayUIEditorLibrary;
+#endif
     friend class FMCStageRewardPortionGateTest;
     bool BeginStageReward(FName CompletionId,EMCSingleDayRewardContinuation Continuation);
     void TickStageReward();
@@ -136,6 +141,8 @@ private:
     void BeginIce();
     void BeginFogBrawl();
     void BeginPostNutMeal();
+    void TickPostNutCoffee();
+    void TickPostNutCoffeePause();
     void BeginPostNutPortion(int32 Portion);
     void TickPostNutMeal();
     void BeginSmallMint();

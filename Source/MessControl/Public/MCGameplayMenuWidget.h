@@ -12,6 +12,8 @@ class UEditableTextBox;
 class UTextBlock;
 class UVerticalBox;
 class UWidgetSwitcher;
+class USlider;
+class UMCVoiceSettingsWidget;
 class UMCGameplayMenuWidget;
 
 UENUM(BlueprintType)
@@ -19,7 +21,7 @@ enum class EMCGameplayMenuAction : uint8
 {
     Resume, Emotes, Settings, Credits, Leave, Exit, Back,
     ApplySettings, KeepSettings, RevertSettings, ConfirmLeave, ConfirmExit,
-    Host, FindRooms, JoinRoom, JoinAddress, Invite
+    Host, FindRooms, JoinRoom, JoinAddress, Invite, AudioSettings
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMCGameplayMenuRequest);
@@ -78,12 +80,18 @@ protected:
     virtual FReply NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event) override;
     virtual FReply NativeOnAnalogValueChanged(const FGeometry& Geometry,const FAnalogInputEvent& Event) override;
 private:
-    enum class EPage:uint8 { Pause,Settings,Credits,Leave,Exit,VideoConfirm,Connection };
+    enum class EPage:uint8 { Pause,Settings,Credits,Leave,Exit,VideoConfirm,Connection,Audio };
     void BindPresentationTree();
     void NormalizePresentationLayout();
     void UpdatePresentationLayout(FVector2D Area=FVector2D::ZeroVector);
     void ShowPage(EPage NewPage);
     void PopulateSettings();
+    void EnsureSettingsAdditions();
+    void PopulateAudioSettings();
+    void RefreshAudioValues();
+    USlider* AddVolumeSlider(UVerticalBox* Parent,FName Name,FName LabelName);
+    UFUNCTION() void AudioValueChanged(float Value);
+    UFUNCTION() void CameraSmoothingChanged(bool Enabled);
     void RefreshSettingsChoiceCopy(int32 Mode,int32 Quality,bool bIncludeCustom);
     void ApplySettings();
     void RevertVideoSettings();
@@ -111,6 +119,9 @@ private:
     UPROPERTY(Transient) TObjectPtr<UComboBoxString> ModePicker;
     UPROPERTY(Transient) TObjectPtr<UComboBoxString> QualityPicker;
     UPROPERTY(Transient) TObjectPtr<UCheckBox> VSyncCheck;
+    UPROPERTY(Transient) TObjectPtr<UCheckBox> CameraSmoothingCheck;
+    UPROPERTY(Transient) TObjectPtr<UMCVoiceSettingsWidget> VoiceSettings;
+    UPROPERTY(Transient) TMap<FName,TObjectPtr<USlider>> AudioSliders;
     UPROPERTY(Transient) TObjectPtr<UComboBoxString> RoomPicker;
     UPROPERTY(Transient) TObjectPtr<UEditableTextBox> AddressBox;
     UPROPERTY(Transient) TArray<TObjectPtr<UMCGameplayMenuActionButton>> Buttons;
@@ -121,6 +132,7 @@ private:
     EPage Page=EPage::Pause;
     bool bConnectionRoot=false;
     bool bEditorFixture=false;
+    bool bLoadingSettings=false;
     bool bCloseRequested=false;
     bool bVideoConfirmationPending=false;
     FIntPoint PreviousResolution=FIntPoint::ZeroValue;

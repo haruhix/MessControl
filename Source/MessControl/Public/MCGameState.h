@@ -33,6 +33,9 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Front End") bool bLobbyWaiting=false;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Tutorial") bool bTutorialActive=false;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Front End") int32 LobbyLoadedPlayers=0;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Front End") int32 LobbyParticipantPlayers=0;
+    /** Unique readiness epoch: old-world and previous-run receipts cannot release this barrier. */
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Front End") FGuid GameplayLoadId;
     // Snapshot for this run. Clients display the server's settings, not their local asset.
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") FMCRunSettings RunSettings;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") int32 Day = 0;

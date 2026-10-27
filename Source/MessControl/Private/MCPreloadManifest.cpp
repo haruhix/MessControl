@@ -132,6 +132,8 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
     // The factory soft-loads this shared theme in Hub/menu as well as the arena.
     // Its role map is the finite root for future settings/reward/pause widgets.
     AddAsset(TEXT("/Game/Gameplay/UI/Theme/DA_GameplayUITheme"),OutPaths);
+    // Late-spawned Hub players use the same authored locomotion and face clips.
+    AddAsset(TEXT("/Game/Data/DA_ToothAnimation"),OutPaths);
     // MCUIVisualStyle chooses these shared surfaces by native path rather than
     // a saved Designer brush. Include them before shop/wardrobe cards are built.
     for(const TCHAR* Root:{TEXT("/Game/Gameplay/UI/Materials/M_UI_Phase1Panel"),
@@ -181,6 +183,11 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
         TEXT("/Game/Gameplay/Cold/VFX/MI_IcePowderHigh"),
         // Loaded on the character but activated only on later cleaning contact.
         TEXT("/Game/Gameplay/VFX/NS_BrushFoam"),
+        // Tooth care retains its vertex-driven pearl/bubble/glint material under loading.
+        TEXT("/Game/Gameplay/Care/M_ToothCarePearl"),
+        // Objective coin pool, opaque material and inline short SFX are retained
+        // before arena presentation readiness, never loaded by the reward RPC.
+        TEXT("/Game/Gameplay/Rewards/M_TaskCoin"),TEXT("/Game/Audio/Rewards/S_TaskCoins"),
         TEXT("/Game/Gameplay/Liquid/River/MI_RiverCoffee"),TEXT("/Game/Gameplay/Liquid/River/MI_RiverCola"),
         TEXT("/Game/Gameplay/Liquid/River/MI_RiverWater"),TEXT("/Game/Cataclysm/Storm/MI_StormCoffee"),
         TEXT("/Game/Cataclysm/Storm/MI_StormCola"),TEXT("/Game/Cataclysm/Storm/M_StormSpray"),

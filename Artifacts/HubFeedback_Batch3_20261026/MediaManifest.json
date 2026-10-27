@@ -1,0 +1,38 @@
+[
+  {
+    "file": "01_Fishing_Natural.mp4",
+    "source": "E:\\CodexWork\\Batch3_20261026\\SettingsSolo_20261026T105640\\NaturalWGC\\Fishing_ACTUAL_GAMEPLAY_REALTIME.mp4",
+    "sha256": "7881cef236b6f0699bdeb9e43bed3e94ba2df9c10c2f1ffa967d06cbd47e90ac",
+    "identical": true
+  },
+  {
+    "file": "02_MobileReward_Demo.mp4",
+    "source": "E:\\CodexWork\\Batch3_20261026\\FishingRealtime_20261026T105438\\1280x720_ru\\FishingVisual_20261026T105438\\RealtimeVideo\\FishingFeedback_VISUAL_RECEIPTS_REALTIME.mp4",
+    "sha256": "ef668c35c34ac4a4b1c35104a84ae18b7daf856113eb75b2299e160b5d9f3eb0",
+    "identical": true
+  },
+  {
+    "file": "03_Mouth_to_Arena.mp4",
+    "source": "E:\\CodexWork\\Batch3_20261026\\SettingsSolo_20261026T105941\\MouthEntryWGC\\Fishing_ACTUAL_GAMEPLAY_REALTIME.mp4",
+    "sha256": "4273e3759d29a3a67d528faf7a175085cfc61552521580f80f9d2481dd1329d4",
+    "identical": true
+  },
+  {
+    "file": "CompactFooter.png",
+    "source": "E:\\CodexWork\\Batch3_20261026\\RootReview\\CompactFooterFinal.png",
+    "sha256": "a0850206a84b7bdcfe30234bff15480cddd9d379e837159add01609d805ff706",
+    "identical": true
+  },
+  {
+    "file": "Loading_RU_720p_Preview.png",
+    "source": "E:\\CodexWork\\Batch3_20261026\\LoadingOfficialPreview_20261026T105941\\PREVIEW_Loading_ru_1280x720.png",
+    "sha256": "61d92099cf4feff2023f6bc12f27e7345cd99bfa6d300c463313975a79601ea5",
+    "identical": true
+  },
+  {
+    "file": "Loading_EN_Wide_Preview.png",
+    "source": "E:\\CodexWork\\Batch3_20261026\\LoadingOfficialPreview_20261026T105941\\PREVIEW_Loading_en_1920x810.png",
+    "sha256": "7e2ccbcd58930205e5506367d22aaf74897971739df80303a11ca0353a07d927",
+    "identical": true
+  }
+]

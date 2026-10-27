@@ -196,7 +196,16 @@ void UMCHubGrillPresentationComponent::TickComponent(float Dt,ELevelTick Type,FA
         }
     }
     auto* PC=UGameplayStatics::GetPlayerController(this,0);APawn* Pawn=PC?PC->GetPawn().Get():nullptr;
-    const bool Show=PC && PC->IsLocalController() && Pawn && FVector::DistSquared(Pawn->GetActorLocation(),Grill->GetActorLocation())<FMath::Square(FMath::Clamp(VisibleDistance,300.f,5000.f));
+    const bool HasOwner=IsValid(PC) && PC->IsLocalController() && PC->GetLocalPlayer() && IsValid(Pawn);
+    // A visible hologram can still be fading when its player loses/replaces a
+    // Pawn. Do not carry that visibility into the distance/owner updates below.
+    if(!HasOwner) {
+        VisibilityAlpha=0.f;
+        Display->SetVisibility(false);Display->SetHiddenInGame(true);Display->SetComponentTickEnabled(false);
+        Grill->SetLocalPromptVisible(PC,false);
+        return;
+    }
+    const bool Show=FVector::DistSquared(Pawn->GetActorLocation(),Grill->GetActorLocation())<FMath::Square(FMath::Clamp(VisibleDistance,300.f,5000.f));
     VisibilityAlpha=FMath::FInterpTo(VisibilityAlpha,Show?1.f:0.f,Dt,12.f);
     const bool Visible=VisibilityAlpha>.01f;
     Display->SetVisibility(Visible);Display->SetHiddenInGame(!Visible);Display->SetComponentTickEnabled(Visible);

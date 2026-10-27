@@ -10,6 +10,7 @@ class USphereComponent;
 class UStaticMeshComponent;
 class UPhysicalMaterial;
 class UNiagaraSystem;
+class UWidgetComponent;
 
 /** A freely simulated hub prop. Holding is explicit; flight always uses Chaos. */
 UCLASS()
@@ -24,6 +25,7 @@ public:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Basketball") TObjectPtr<USphereComponent> Body;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Basketball") TObjectPtr<UStaticMeshComponent> Visual;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Basketball|Prompt") TObjectPtr<UWidgetComponent> InteractionPrompt;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Basketball", meta=(ClampMin="10",ClampMax="80")) float Radius=50.f;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Basketball") float PickupReach=220.f;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Basketball") float ThrowSpeed=2100.f;
@@ -36,6 +38,8 @@ public:
 
     static AMCHubBasketball* HeldBy(const AMCToothCharacter* Hero);
     static AMCHubBasketball* PickupCandidate(const AMCToothCharacter* Hero);
+    /** Local-only contextual target: pickup uses the real E priority; held ball uses Q. */
+    static AMCHubBasketball* LocalHintBall(const AMCToothCharacter* Hero);
     bool TryPickup(AMCToothCharacter* Hero);
     UFUNCTION(BlueprintCallable, Category="Basketball") void Release(FVector Velocity);
     UFUNCTION(BlueprintPure, Category="Basketball") FVector LaunchVelocity() const;
@@ -51,6 +55,7 @@ private:
     UPROPERTY() TSoftObjectPtr<UNiagaraSystem> DefaultBasketConfettiAsset;
     UFUNCTION() void OnRep_Holder();
     void UpdateHeldPosition();
+    void UpdateInteractionPrompt();
     void CheckBasket();
     UFUNCTION(NetMulticast, Reliable) void CelebrateBasket(FVector_NetQuantize Location, FVector_NetQuantizeNormal Up);
     UPROPERTY(Transient) TObjectPtr<UPhysicalMaterial> Rubber;

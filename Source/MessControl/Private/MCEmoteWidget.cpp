@@ -107,6 +107,7 @@ UMCEmoteButton::UMCEmoteButton() {InitIsFocusable(false);}
 void UMCEmoteButton::Configure(AMCPlayerController* Player,FName Emote)
 {
     Controller=Player;Id=Emote;OnClicked.AddUniqueDynamic(this,&UMCEmoteButton::Clicked);
+    OnHovered.AddUniqueDynamic(this,&UMCEmoteButton::Hovered);
 }
 void UMCEmoteButton::ConfigureAlarm(AMCPlayerController* Player,EMCPlayerAlarm Value)
 {
@@ -118,11 +119,24 @@ void UMCEmoteButton::ConfigureColor(AMCPlayerController* Player,FLinearColor Val
 }
 void UMCEmoteButton::Clicked()
 {
-    if(!Controller) return;
+    if(!Controller || !GetIsEnabled()) return;
+    if(!bColorChoice) if(auto* Menu=GetTypedOuter<UMCEmoteWidget>()) {
+        Menu->SelectChoice(ChoiceIndex);
+        if(Controller->IsHoldingEmoteSelection()) return;
+    }
+    ActivateChoice();
+    if(!bColorChoice) Controller->CloseEmotes();
+}
+void UMCEmoteButton::Hovered()
+{
+    if(!bColorChoice && GetIsEnabled()) if(auto* Menu=GetTypedOuter<UMCEmoteWidget>()) Menu->SelectChoice(ChoiceIndex);
+}
+void UMCEmoteButton::ActivateChoice()
+{
+    if(!Controller || !GetIsEnabled()) return;
     if(bColorChoice) {Controller->ServerSetPlayerColor(PlayerColor);return;}
     if(Alarm!=EMCPlayerAlarm::None) Controller->ServerSendAlarm(Alarm);
     else if(auto* Hero=Cast<AMCToothCharacter>(Controller->GetPawn());Hero && Hero->Expression) Hero->Expression->ServerPlayEmote(Id);
-    Controller->ToggleEmotes();
 }
 
 void UMCEmoteWidget::NativeOnInitialized() {Super::NativeOnInitialized();SetIsFocusable(true);}
@@ -195,6 +209,23 @@ FText UMCEmoteWidget::CategoryCopy(int32 Index) const
     return Copy(TEXT("UI.Emote.Category.Face"),LOCTEXT("Face","Мимика"));
 }
 void UMCEmoteWidget::SelectCategory(int32 Value) {Category=FMath::Clamp(Value,0,2);KeyboardChoice=0;Refresh();InvalidateLayoutAndVolatility();}
+void UMCEmoteWidget::BeginSelection(bool bHeld)
+{
+    Refresh();
+    // A quick tap without choosing should not send the first emote by accident.
+    KeyboardChoice=bHeld?INDEX_NONE:0;RefreshAvailability();
+}
+void UMCEmoteWidget::SelectChoice(int32 Index)
+{
+    if(!Buttons.IsValidIndex(Index) || KeyboardChoice==Index) return;
+    KeyboardChoice=Index;RefreshAvailability();
+}
+bool UMCEmoteWidget::ConfirmSelection()
+{
+    RefreshAvailability();
+    if(!Buttons.IsValidIndex(KeyboardChoice) || !Buttons[KeyboardChoice]->GetIsEnabled()) return false;
+    Buttons[KeyboardChoice]->ActivateChoice();return true;
+}
 void UMCEmoteWidget::Refresh()
 {
     BuildPresentationTree();if(!Items) return;Items->ClearChildren();Buttons.Reset();
@@ -203,6 +234,7 @@ void UMCEmoteWidget::Refresh()
     for(int32 Index=0;Index<ColorButtons.Num();++Index) if(ColorButtons[Index]) ColorButtons[Index]->ConfigureColor(Player,MCEmotePrivate::PlayerColors[Index]);
     auto Add=[&](FName Id,const FText& Label,EMCPlayerAlarm Alarm) {
         auto* Button=WidgetTree->ConstructWidget<UMCEmoteButton>(UMCEmoteButton::StaticClass(),FName(*FString::Printf(TEXT("EmoteItem%d"),Buttons.Num())));
+        Button->ChoiceIndex=Buttons.Num();
         if(Alarm==EMCPlayerAlarm::None) Button->Configure(Player,Id);else Button->ConfigureAlarm(Player,Alarm);
         Button->SetContent(MCEmotePrivate::Label(WidgetTree,Label,17));Items->AddChildToVerticalBox(Button)->SetPadding(FMargin(0,5));Buttons.Add(Button);
     };
@@ -227,7 +259,7 @@ void UMCEmoteWidget::RefreshAvailability()
         if(!IsPreviewing() && Button->Alarm==EMCPlayerAlarm::None) {
             const auto* Library=Hero && Hero->Expression?Hero->Expression->Library.Get():nullptr;
             const auto* Entry=Library?Library->Entries.FindByPredicate([&](const FMCEmoteEntry& Value){return Value.Id==Button->Id;}):nullptr;
-            Enabled=Entry && Hero->Expression->CanPlay(*Entry) && Hero->Expression->EmoteAlpha()<.01f;
+            Enabled=Entry && Hero->Expression->CanPlay(*Entry);
         }
         if(IsPreviewing() && (PreviewScenario==EMCGameplayUIPreviewScenario::Disabled || PreviewState==TEXT("Disabled"))) Enabled=false;
         Button->SetIsEnabled(Enabled);
@@ -253,7 +285,12 @@ void UMCEmoteWidget::ApplyTheme()
         SectorLabels[Index]->SetWrapTextAt(190);SectorLabels[Index]->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
     }
     if(ColorHeading) ColorHeading->SetText(Copy(TEXT("UI.Emote.PlayerColor"),LOCTEXT("PlayerColor","Цвет игрока")));
-    if(Footer) Footer->SetText(Copy(TEXT("UI.Emote.Controls"),LOCTEXT("Controls","1 / 2 / 3 — раздел    ↑ / ↓ — выбор    Enter — отправить    T / Esc — закрыть")));
+    if(Footer) {
+        const auto* PC=GetOwningPlayer<AMCPlayerController>();
+        Footer->SetText(!IsPreviewing() && PC && !PC->IsHoldingEmoteSelection()
+            ?Copy(TEXT("UI.Emote.Controls.Menu"),LOCTEXT("MenuControls","1 / 2 / 3 — раздел · ↑ / ↓ — выбор · Enter — подтвердить · Esc — отмена"))
+            :Copy(TEXT("UI.Emote.Controls.Hold"),LOCTEXT("HoldControls","Удерживай T — выбор · Отпусти T — подтвердить · 1 / 2 / 3 — раздел · ↑ / ↓ — выбор · Esc — отмена")));
+    }
     const FText ColorNames[]={Copy(TEXT("UI.Emote.Color.Blue"),LOCTEXT("Blue","Синий")),Copy(TEXT("UI.Emote.Color.Coral"),LOCTEXT("Coral","Коралл")),
         Copy(TEXT("UI.Emote.Color.Mint"),LOCTEXT("Mint","Мята")),Copy(TEXT("UI.Emote.Color.Lilac"),LOCTEXT("Lilac","Сирень"))};
     for(int32 Index=0;Index<Buttons.Num();++Index) if(auto* Button=Buttons[Index].Get()) {
@@ -331,15 +368,19 @@ FReply UMCEmoteWidget::NativeOnKeyDown(const FGeometry& Geometry,const FKeyEvent
     {
         if(auto* PC=Cast<AMCPlayerController>(GetOwningPlayer()))
         {
-            PC->ToggleEmotes();
+            PC->CloseEmotes();
             PC->InputKey(FInputKeyEventArgs(nullptr,Event.GetInputDeviceId(),Key,IE_Pressed,Event.GetEventTimestamp()));
             PC->ShowScoreboard();
         }
         return FReply::Handled();
     }
-    if(Key==EKeys::T || Key==EKeys::Escape || Key==EKeys::Gamepad_FaceButton_Right || Key==EKeys::Gamepad_Special_Right)
+    if(Key==EKeys::T) {
+        if(auto* PC=Cast<AMCPlayerController>(GetOwningPlayer());PC && !PC->IsHoldingEmoteSelection() && !Event.IsRepeat()) PC->BeginEmoteSelection();
+        return FReply::Handled();
+    }
+    if(Key==EKeys::Escape || Key==EKeys::Gamepad_FaceButton_Right || Key==EKeys::Gamepad_Special_Right)
     {
-        if(auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->ToggleEmotes();return FReply::Handled();
+        if(auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->CloseEmotes();return FReply::Handled();
     }
     if(Key==EKeys::One || Key==EKeys::Two || Key==EKeys::Three)
     {SelectCategory(Key==EKeys::One?0:Key==EKeys::Two?1:2);return FReply::Handled();}
@@ -347,15 +388,29 @@ FReply UMCEmoteWidget::NativeOnKeyDown(const FGeometry& Geometry,const FKeyEvent
     {SelectCategory((Category+(Key==EKeys::Left || Key==EKeys::Gamepad_DPad_Left?2:1))%3);return FReply::Handled();}
     if(Key==EKeys::Up || Key==EKeys::Down || Key==EKeys::Gamepad_DPad_Up || Key==EKeys::Gamepad_DPad_Down)
     {
-        if(!Buttons.IsEmpty()) KeyboardChoice=(KeyboardChoice+Buttons.Num()+(Key==EKeys::Up || Key==EKeys::Gamepad_DPad_Up?-1:1))%Buttons.Num();
+        const bool Previous=Key==EKeys::Up || Key==EKeys::Gamepad_DPad_Up;
+        if(!Buttons.IsEmpty()) KeyboardChoice=KeyboardChoice==INDEX_NONE?(Previous?Buttons.Num()-1:0):(KeyboardChoice+Buttons.Num()+(Previous?-1:1))%Buttons.Num();
         RefreshAvailability();if(Buttons.IsValidIndex(KeyboardChoice)) if(auto* Scroll=Cast<UScrollBox>(WidgetTree->FindWidget(TEXT("EmoteListScroll")))) Scroll->ScrollWidgetIntoView(Buttons[KeyboardChoice],true,EDescendantScrollDestination::IntoView,8);return FReply::Handled();
     }
     if(Key==EKeys::Enter || Key==EKeys::SpaceBar || Key==EKeys::Gamepad_FaceButton_Bottom)
     {
-        if(Buttons.IsValidIndex(KeyboardChoice) && Buttons[KeyboardChoice]->GetIsEnabled()) Buttons[KeyboardChoice]->OnClicked.Broadcast();
+        if(auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->CloseEmotes(true);
         return FReply::Handled();
     }
     return Super::NativeOnKeyDown(Geometry,Event);
+}
+FReply UMCEmoteWidget::NativeOnKeyUp(const FGeometry& Geometry,const FKeyEvent& Event)
+{
+    if(!IsPreviewing() && Event.GetKey()==EKeys::T) {
+        if(auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->EndEmoteSelection();
+        return FReply::Handled();
+    }
+    return Super::NativeOnKeyUp(Geometry,Event);
+}
+void UMCEmoteWidget::NativeOnFocusLost(const FFocusEvent& Event)
+{
+    Super::NativeOnFocusLost(Event);
+    if(!IsPreviewing()) if(auto* PC=GetOwningPlayer<AMCPlayerController>()) PC->CloseEmotes();
 }
 FReply UMCEmoteWidget::NativeOnMouseButtonDown(const FGeometry& Geometry,const FPointerEvent& Event)
 {

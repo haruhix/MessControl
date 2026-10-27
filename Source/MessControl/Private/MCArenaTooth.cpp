@@ -1,6 +1,8 @@
 #include "MCArenaTooth.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothCalculusComponent.h"
+#include "MCWorldStatusComponent.h"
+#include "MCToothCareFeedbackComponent.h"
 #include "MCFoodActor.h"
 #include "MCToothCharacter.h"
 #include "MCGameState.h"
@@ -52,6 +54,8 @@ AMCArenaTooth::AMCArenaTooth()
     GrimeRelief->SetCollisionEnabled(ECollisionEnabled::NoCollision); GrimeRelief->SetCastShadow(false);
     GrimeRelief->SetCanEverAffectNavigation(false);
     Calculus=CreateDefaultSubobject<UMCToothCalculusComponent>(TEXT("DentalCalculus"));
+    WorldStatus=CreateDefaultSubobject<UMCWorldStatusComponent>(TEXT("WorldStatus"));
+    CareFeedback=CreateDefaultSubobject<UMCToothCareFeedbackComponent>(TEXT("CareFeedback"));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Art/Meshes/SM_ToothProp"));
     if (Mesh.Succeeded()) { Visual->SetStaticMesh(Mesh.Object); Appearance.Mesh=Mesh.Object; }
     Label=CreateDefaultSubobject<UTextRenderComponent>(TEXT("ToothIdentity")); Label->SetupAttachment(Body);

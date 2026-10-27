@@ -1,0 +1,11 @@
+{
+  "mode": "cleanup",
+  "report": "E:\\CodexWork\\Checkpoint_20261027\\ToolsCleanup\\Runs\\Run_20261026T213037Z_e889a9\\Report.json",
+  "status": "passed",
+  "passed": true,
+  "record": {
+    "native_frames": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c",
+    "no_desktop_capture": true
+  },
+  "error": null
+}

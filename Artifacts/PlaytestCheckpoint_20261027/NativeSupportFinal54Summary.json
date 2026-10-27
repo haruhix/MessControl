@@ -1,0 +1,12 @@
+{
+  "source": "E:\\CodexWork\\Batch6_20261027\\NativeSupportFinal\\index.json",
+  "total": 54,
+  "passed": 54,
+  "clean_passed": 42,
+  "passed_with_fixture_warnings": 12,
+  "failed": 0,
+  "not_run": 0,
+  "full_project_suite": false,
+  "build": "E:/CodexWork/Batch6_20261027/BuildSupportFinal.log",
+  "exact_support_filter_included": true
+}

@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "MCHubEconomyTypes.h"
 #include "ProceduralMeshComponent.h"
 #include "MCFishingRodComponent.generated.h"
 
@@ -11,6 +12,16 @@ class UStaticMesh;
 class UMaterialInterface;
 class APhysicsVolume;
 struct FReferenceSkeleton;
+
+/** A server-weighted catch credits only the existing fish wallet used by the grill. */
+USTRUCT(BlueprintType)
+struct MESSCONTROL_API FMCFishingCatchReward
+{
+    GENERATED_BODY()
+    UPROPERTY(EditAnywhere,BlueprintReadWrite) EMCHubItemRarity Rarity=EMCHubItemRarity::Common;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(ClampMin="0",ClampMax="1000000")) float Weight=1;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(ClampMin="1",ClampMax="1000")) int32 FishCoins=1;
+};
 
 /** Hub rod: the artist's three meshes, two hand grips and a light Verlet line. */
 UCLASS(ClassGroup=(Hub),meta=(BlueprintSpawnableComponent))
@@ -31,7 +42,11 @@ public:
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Fishing|Catch") TObjectPtr<UMaterialInterface> FishMaterial;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Fishing|Catch",meta=(ClampMin="0.1",ClampMax="60")) float MinBiteDelay=4;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Fishing|Catch",meta=(ClampMin="0.1",ClampMax="60")) float MaxBiteDelay=9;
+    /** Relative weights and fish-wallet value; no booster or shop-coin rewards belong to fishing. */
+    UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Fishing|Rewards") TArray<FMCFishingCatchReward> CatchRewards;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Fishing|Catch") bool bFishHooked=false;
+    /** Frozen at the bite, so stowing or leaving the pier cannot reroll the result. */
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Fishing|Catch") FMCFishingCatchReward HookedCatch;
     UPROPERTY(VisibleInstanceOnly,BlueprintReadOnly,Transient,Category="Fishing|Catch") float LastBiteDelay=0;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Fishing|Pose") FTransform CarryPose;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Fishing|Pose") FTransform FishingPoseTransform;
@@ -70,6 +85,8 @@ public:
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Fishing") void ServerSetFishingPose(bool Raised);
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Fishing") void ServerSetReeling(bool Reeling);
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Fishing") void CastLine();
+    /** Native rules helper; the server supplies the random fraction, never a client reward amount. */
+    bool SelectCatchReward(float UnitRoll,FMCFishingCatchReward& Reward) const;
     void BuildHandPose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt);
 
 private:

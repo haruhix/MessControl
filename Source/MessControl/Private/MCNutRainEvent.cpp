@@ -516,12 +516,9 @@ void AMCNutRainEvent::Tick(float Dt)
             if(Settings.bBossEncounter) for(AMCNutEnemy* Enemy:Enemies)
                 if(IsValid(Enemy) && !Cast<AMCNutBoss>(Enemy)) Enemy->Destroy();
             EnemiesLeft=0;
-            // Keep the encounter open through the final authored death pose.
-            // The director otherwise stops the event and destroys this actor
-            // immediately when its health reaches zero.
-            if(Settings.bBossEncounter && Bosses.ContainsByPredicate([](const auto& Boss) {
-                return IsValid(Boss.Get()) && Boss->bDefeated && Boss->GetLifeSpan()>0.f;
-            })) return;
+            // The final defeat unlocks the reward now. Transforming knights
+            // remain IsEncounterAlive() until the wizard phase is defeated;
+            // completed corpses finish their own death lifespan during Stop.
             Record(TEXT("Орехи: Рыцарь и его вторая форма Колдун побеждены; директор снова управляет промежутком"));
             Enter(EMCNutRainStage::Complete); SetActorTickEnabled(false);
         }
@@ -532,8 +529,25 @@ void AMCNutRainEvent::Stop()
 {
     if(!HasAuthority()) return;
     SetActorTickEnabled(false);
-    for(AMCNutEnemy* Enemy:Enemies) if(IsValid(Enemy)) Enemy->Destroy();
-    for(AActor* Actor:EncounterActors) if(IsValid(Actor) && !Actor->IsActorBeingDestroyed()) Actor->Destroy();
+    const bool CompletedBossEncounter=Stage==EMCNutRainStage::Complete && Settings.bBossEncounter && !bFailed;
+    // Bosses are also present in Enemies/EncounterActors. Visit each actor once
+    // so releasing a completed corpse cannot be undone by the next array.
+    TSet<AActor*> Cleanup;
+    for(AMCNutEnemy* Enemy:Enemies) if(IsValid(Enemy)) Cleanup.Add(Enemy);
+    for(AMCNutBoss* Boss:Bosses) if(IsValid(Boss)) Cleanup.Add(Boss);
+    for(AActor* Actor:EncounterActors) if(IsValid(Actor)) Cleanup.Add(Actor);
+    for(AActor* Actor:Cleanup) {
+        if(Actor->IsActorBeingDestroyed()) continue;
+        auto* Boss=Cast<AMCNutBoss>(Actor);
+        const float Remaining=Boss?Boss->GetLifeSpan():0.f;
+        if(CompletedBossEncounter && Boss && Boss->bDefeated && Boss->State==EMCNutBossState::Defeated
+            && FMath::IsFinite(Remaining) && Remaining>0.f) {
+            // This actor is cosmetic now: its tick returns before any encounter
+            // AI and its existing lifespan still owns final destruction.
+            Boss->EncounterOwner=nullptr;Boss->SetOwner(nullptr);Boss->Target=nullptr;
+            Boss->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);Boss->ForceNetUpdate();
+        } else Actor->Destroy();
+    }
     for(AMCNutLandingShadow* Shadow:LandingShadows) if(IsValid(Shadow)) Shadow->Destroy();
     // Broken whole nuts spawn ordinary AMCFoodActor fragments with the same Batch.
     // Track that batch as well as the original actors so retries cannot leak food.

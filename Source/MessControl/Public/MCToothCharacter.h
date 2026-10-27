@@ -259,6 +259,9 @@ protected:
     virtual void BeginPlay() override;
 private:
     friend class UMCInventoryComponent;
+#if WITH_DEV_AUTOMATION_TESTS
+    friend class FMCToolSelectionLateSwingTest;
+#endif
     friend class UMCValidationSubsystem;
     friend class AMCCoreScenario;
     friend class AMCDayOneScenario;
@@ -396,6 +399,12 @@ private:
     float BrushAngle = 0.f;
     bool bLoadedLocalTuning = false;
     bool bDeathReported=false;
+    void UpdateArenaBoundary();
+    TWeakObjectPtr<class AMCTongue> BoundaryTongue;
+    TArray<FIntPoint> BoundaryTongueEdges;
+    int32 BoundaryIndexCount=INDEX_NONE,BoundaryVertexCount=INDEX_NONE;
+    TMap<TWeakObjectPtr<AMCArenaTooth>,FBox2D> BoundaryRowFootprints;
+    double OutsideMouthStartedAt=-1;
     UFUNCTION() void OnRep_FreezeDeath();
     UPROPERTY(Transient) TObjectPtr<class AMCFreezeDeathVFX> FreezeDeathVisual;
     bool bLastContactBrush=false;

@@ -107,7 +107,7 @@ void UMCGameUserSettings::SetToDefaults()
 {
     Super::SetToDefaults();
     MasterVolume=MusicVolume=AmbienceVolume=SFXVolume=1.f;
-    MouseSensitivity=GamepadSensitivity=1.f;bInvertY=false;LanguageCode.Reset();
+    MouseSensitivity=GamepadSensitivity=1.f;bInvertY=false;bCameraSmoothingEnabled=false;LanguageCode.Reset();
     bHasCustomBagColor=false;SavedBagColor=FLinearColor(.24f,.65f,1.f);
     bVoiceEnabled=true;VoiceInputMode=EMCVoiceInputMode::PushToTalk;PushToTalkKey=EKeys::V;
     MicrophoneGain=1.f;VoiceActivationThreshold=.08f;VoiceVolume=1.f;bSelfMuted=false;MutedVoicePlayerIds.Reset();

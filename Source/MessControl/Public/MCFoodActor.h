@@ -108,6 +108,8 @@ public:
     FVector WorkPosition() const { return bMouthEntry && MouthEntryLanding.IsSet()?MouthEntryLanding.GetValue():GetActorLocation(); }
     // Cut fragments use the retained hand stack. Tools and hazards retain the old grip.
     bool UsesLegacyGrip() const { return bBrushTool || FoodData.Kind!=EMCFoodKind::Food; }
+    /** Broken boss-encounter nuts use one hand slot as ammunition, never a food tower. */
+    bool IsNutEncounterFragment() const;
     // Config/DefaultEngine.ini: distinguish fragments from player ragdoll PhysicsBody shapes.
     static constexpr ECollisionChannel FragmentCollisionChannel=ECC_GameTraceChannel2;
     static AMCFoodActor* FindNearbySpoiledFood(UWorld* World,FVector Point,float Radius=280);
@@ -225,6 +227,10 @@ private:
     FVector PrePhysicsVelocity=FVector::ZeroVector;
     FVector PreviousPhysicsLocation=FVector::ZeroVector;
     bool bManualThrowInFlight=false;
+    TWeakObjectPtr<AMCToothCharacter> ManualThrower;
+    FVector NutThrowSweepStart=FVector::ZeroVector;
+    /** Query-only nut enemies need a sweep along the real server physics travel. */
+    void UpdateNutFragmentThrowImpact();
     void EndManualThrowFlight();
     bool bMouthEntry=false;
     bool bEntryImpactManaged=false;

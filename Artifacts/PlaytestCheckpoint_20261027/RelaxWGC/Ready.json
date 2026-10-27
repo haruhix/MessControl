@@ -1,0 +1,11 @@
+{
+  "status": "ready",
+  "output": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Run_20261027T000304Z_6ee458",
+  "gate": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Run_20261027T000304Z_6ee458\\Record.gate",
+  "owned_world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth",
+  "controller": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_0",
+  "game_seconds": 7.007721804082394,
+  "preview_png": "E:\\CodexWork\\Batch6_20261027\\Relax\\RuntimeCapture\\Run_20261027T000304Z_6ee458\\ReadyView_00.png",
+  "framing_review_required": true,
+  "setup": "No wave fixture call yet. Inspect preview_png before releasing the recording gate."
+}

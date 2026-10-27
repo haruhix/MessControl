@@ -22,10 +22,20 @@ LANGUAGE_FIELDS = {culture.casefold(): column for column, culture in LANGUAGE_CU
 EXTRA_PREFIX = 'Language:'
 _QUOTED = re.compile(r'"(?:[^"\\]|\\.)*"')
 _TEXT_LITERAL = re.compile(r'^(NSLOCTEXT|LOCTEXT|INVTEXT)\s*\((.*)\)$', re.DOTALL)
+_ESCAPED_CHARACTER = re.compile(r'\\(.)', re.DOTALL)
 
 
 class CatalogError(ValueError):
     """The requested operation would lose or ambiguously select existing copy."""
+
+
+def _decode_ue_quoted_string(value):
+    # FString::ReplaceCharWithEscapedChar adds \' as well as JSON-compatible
+    # escapes. Consume escape pairs once so a literal \\ before an apostrophe
+    # is preserved; a global replace would silently remove that backslash.
+    normalized = _ESCAPED_CHARACTER.sub(
+        lambda match: "'" if match.group(1) == "'" else match.group(0), value)
+    return json.loads(normalized)
 
 
 def text_source(value):
@@ -46,7 +56,7 @@ def text_source(value):
         if len(arguments) != expected or residue:
             raise CatalogError('Unsupported FText export literal: ' + value[:100])
         try:
-            return json.loads(arguments[-1])
+            return _decode_ue_quoted_string(arguments[-1])
         except json.JSONDecodeError as exc:
             raise CatalogError('Unsupported FText literal escape: ' + value[:100]) from exc
     if re.match(r'^(?:NSLOCTEXT|LOCTEXT|INVTEXT|LOCTABLE|LOCGEN_[A-Z_]+)\s*\(', value.strip()):

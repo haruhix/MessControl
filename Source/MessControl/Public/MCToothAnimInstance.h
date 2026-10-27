@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "MCGlideAnimation.h"
 #include "MCToothAnimInstance.generated.h"
 
 struct FMCFootContactDebug
@@ -16,6 +17,11 @@ class MESSCONTROL_API UMCToothAnimInstance : public UAnimInstance
 {
     GENERATED_BODY()
 public:
+    // Published by the game-thread proxy before the expression owner samples its curves.
+    FMCGlideAnimationSample AuthoredGlide;
+    UFUNCTION(BlueprintPure,Category="Animation|Glide") float GetAuthoredGlideAlpha() const { return AuthoredGlide.Alpha; }
+    UFUNCTION(BlueprintPure,Category="Animation|Glide") float GetAuthoredGlideTime() const { return AuthoredGlide.Time; }
+    UFUNCTION(BlueprintPure,Category="Animation|Glide") bool IsAuthoredGlideStrong() const { return AuthoredGlide.Alpha>0.f && AuthoredGlide.bStrong; }
     // Populated only when the optional motion recorder requests pre-physics poses.
     bool bRecordMotion=false;
     TArray<FTransform> DiagnosticPose;

@@ -34,6 +34,9 @@
 #include "Components/VerticalBoxSlot.h"
 #include "EngineUtils.h"
 #include "Engine/GameInstance.h"
+#include "Engine/LocalPlayer.h"
+#include "Framework/Application/SlateApplication.h"
+#include "Framework/Application/SlateUser.h"
 #include "InputCoreTypes.h"
 #include "Rendering/DrawElements.h"
 #include "UObject/StructOnScope.h"
@@ -104,6 +107,44 @@ namespace MCHubPresentation
         }
     };
 
+    // The embedded Blueprint still runs its old Construct/ShowPage keyboard
+    // focus nodes. Keep those temporary requests out of the real Hub/loading
+    // input, including a deferred focus reply when Slate has no path yet.
+    struct FPreservePlayerFocus
+    {
+        TWeakObjectPtr<ULocalPlayer> LocalPlayer;
+        TMap<uint32,TWeakPtr<SWidget>> PreviousFocus;
+        FReply PreviousOperations=FReply::Unhandled();
+        bool bCapturedOperations=false;
+        explicit FPreservePlayerFocus(APlayerController* Player)
+            :LocalPlayer(Player?Player->GetLocalPlayer():nullptr)
+        {
+            auto* Local=LocalPlayer.Get();
+            if(!Local || !FSlateApplication::IsInitialized()) return;
+            PreviousOperations=Local->GetSlateOperations();
+            bCapturedOperations=true;
+            auto& Slate=FSlateApplication::Get();
+            const int32 KeyboardUser=Slate.GetUserIndexForKeyboard();
+            if(KeyboardUser>=0) PreviousFocus.Add(uint32(KeyboardUser),Slate.GetUserFocusedWidget(KeyboardUser));
+            if(const auto User=Local->GetSlateUser())
+                PreviousFocus.Add(uint32(User->GetUserIndex()),Slate.GetUserFocusedWidget(User->GetUserIndex()));
+        }
+        ~FPreservePlayerFocus()
+        {
+            if(FSlateApplication::IsInitialized()) {
+                auto& Slate=FSlateApplication::Get();
+                for(const auto& Entry:PreviousFocus) {
+                    const auto Focus=Entry.Value.Pin();
+                    if(Slate.GetUserFocusedWidget(Entry.Key)==Focus) continue;
+                    if(Focus.IsValid() && Focus->SupportsKeyboardFocus() && Focus->IsEnabled() && Focus->GetVisibility().IsVisible())
+                        Slate.SetUserFocus(Entry.Key,Focus,EFocusCause::SetDirectly);
+                    else Slate.ClearUserFocus(Entry.Key,EFocusCause::SetDirectly);
+                }
+            }
+            if(bCapturedOperations) if(auto* Local=LocalPlayer.Get()) Local->GetSlateOperations()=PreviousOperations;
+        }
+    };
+
     bool SetNumber(UObject* Object,FName Name,double Value)
     {
         if(!Object) return false;
@@ -121,6 +162,17 @@ namespace MCHubPresentation
         auto* Property=Object?FindFProperty<FBoolProperty>(Object->GetClass(),Name):nullptr;
         if(!Property) return false;
         Property->SetPropertyValue_InContainer(Object,Value);return true;
+    }
+
+    void SetLegacyButtonFocusable(UButton* Button,bool bFocusable)
+    {
+        if(!Button) return;
+        // The reflection flag prepares the known Construct targets before
+        // Slate exists. Afterwards these visual-only legacy buttons are
+        // disabled through UMG's public API, which updates the live Slate tree
+        // and prevents navigation without touching protected SButton state.
+        SetFlag(Button,TEXT("IsFocusable"),bFocusable);
+        Button->SetIsEnabled(bFocusable);
     }
 
     bool Call(UObject* Object,FName Name)
@@ -183,7 +235,7 @@ namespace MCHubPresentation
             {
                 // InitIsFocusable is protected in UE 5.8. Set its reflected
                 // instance value before the authored Slate buttons are built.
-                if(auto* Button=Cast<UButton>(Child)) SetFlag(Button,TEXT("IsFocusable"),false);
+                if(auto* Button=Cast<UButton>(Child)) SetLegacyButtonFocusable(Button,false);
                 if(auto* UserWidget=Cast<UUserWidget>(Child)) UserWidget->SetIsFocusable(false);
             });
         Widget->SetVisibility(ESlateVisibility::HitTestInvisible);
@@ -318,7 +370,7 @@ void UMCHubWidget::BuildPresentationTree()
     for(int32 Index=0;Index<3;++Index)
     {
         auto* HitArea=WidgetTree->ConstructWidget<UMCHubActionButton>(UMCHubActionButton::StaticClass(),FName(*FString::Printf(TEXT("HubMouthHit%d"),Index+1)));
-        HitArea->Configure(this,EMCHubMenuAction::SelectDay,Index+1,false);
+        HitArea->Configure(this,EMCHubMenuAction::EnterDestination,Index+1,false);
         FButtonStyle Transparent;
         Transparent.SetNormal(FSlateNoResource());Transparent.SetHovered(FSlateNoResource());
         Transparent.SetPressed(FSlateNoResource());Transparent.SetDisabled(FSlateNoResource());
@@ -427,7 +479,9 @@ void UMCHubWidget::BindPresentationTree()
     for(int32 Index=1;Index<=3;++Index)
         if(auto* HitArea=Cast<UMCHubActionButton>(WidgetTree->FindWidget(FName(*FString::Printf(TEXT("HubMouthHit%d"),Index)))))
         {
-            HitArea->Configure(this,EMCHubMenuAction::SelectDay,Index,false);
+            // Saved Hub trees still contain the older select-only binding.
+            // Upgrade the named mouth controls without rebuilding their layout.
+            HitArea->Configure(this,EMCHubMenuAction::EnterDestination,Index,false);
             MouthHitAreas.Add(HitArea);
         }
     BoundPresentationRoot=WidgetTree->RootWidget;
@@ -478,6 +532,8 @@ void UMCHubWidget::EnsureGatheringGuidance()
 void UMCHubWidget::EnsureBottomBar()
 {
     if(!WidgetTree || !RootCanvas) return;
+    const FMargin FooterOffsets=bUseSoftBottomBar?FMargin(0,-44,0,44):FMargin(0,-88,0,88);
+    const FMargin RowOffsets=bUseSoftBottomBar?FMargin(16,-40,16,36):FMargin(24,-76,24,64);
     auto* ViewportCanvas=Cast<UCanvasPanel>(WidgetTree->FindWidget(TEXT("HubViewportCanvas")));
     if(!ViewportCanvas && !WidgetTree->FindWidget(TEXT("HubViewportCanvas"))) {
         // Keep the mouth stage's authored 1600x900 fit intact. Only the social
@@ -500,13 +556,13 @@ void UMCHubWidget::EnsureBottomBar()
         Backdrop=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("HubFooterBackdrop"));
         Backdrop->SetPadding(FMargin(0));Backdrop->SetVisibility(ESlateVisibility::HitTestInvisible);
         auto* FooterSlot=FooterCanvas->AddChildToCanvas(Backdrop);
-        FooterSlot->SetAnchors(FAnchors(0,1,1,1));FooterSlot->SetOffsets(FMargin(0,-88,0,88));FooterSlot->SetZOrder(4);
+        FooterSlot->SetAnchors(FAnchors(0,1,1,1));FooterSlot->SetOffsets(FooterOffsets);FooterSlot->SetZOrder(4);
     }
     BottomBar=Cast<UHorizontalBox>(WidgetTree->FindWidget(TEXT("HubBottomBar")));
     if(!BottomBar) {
         BottomBar=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("HubBottomBar"));
         auto* BarSlot=FooterCanvas->AddChildToCanvas(BottomBar);
-        BarSlot->SetAnchors(FAnchors(0,1,1,1));BarSlot->SetOffsets(FMargin(24,-76,24,64));BarSlot->SetZOrder(5);
+        BarSlot->SetAnchors(FAnchors(0,1,1,1));BarSlot->SetOffsets(RowOffsets);BarSlot->SetZOrder(5);
         auto Label=[&](FName Name,int32 Size,EMCUIColorToken Token)->UTextBlock* {
             auto* Text=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);
             Text->SetAutoWrapText(false);BindStyle(Name,Token,EMCUIStyleTarget::Text,Size,true);return Text;
@@ -553,11 +609,47 @@ void UMCHubWidget::EnsureBottomBar()
             if(Item && Item->GetParent()==RootCanvas) {
                 Item->RemoveFromParent();auto* FooterSlot=FooterCanvas->AddChildToCanvas(Item);
                 FooterSlot->SetAnchors(FAnchors(0,1,1,1));FooterSlot->SetAutoSize(false);
-                FooterSlot->SetOffsets(Item==Backdrop?FMargin(0,-88,0,88):FMargin(24,-76,24,64));FooterSlot->SetZOrder(Item==Backdrop?4:5);
+                FooterSlot->SetOffsets(Item==Backdrop?FooterOffsets:RowOffsets);FooterSlot->SetZOrder(Item==Backdrop?4:5);
             }
     }
     if(bUseNativeLayout) if(auto* RowSlot=Cast<UCanvasPanelSlot>(BottomBar->Slot)) {
-        RowSlot->SetAnchors(FAnchors(0,1,1,1));RowSlot->SetOffsets(FMargin(24,-76,24,64));RowSlot->SetZOrder(5);
+        RowSlot->SetAnchors(FAnchors(0,1,1,1));RowSlot->SetOffsets(RowOffsets);RowSlot->SetZOrder(5);
+    }
+    if(bUseSoftBottomBar) {
+        // The named saved WBP branch uses this same compact viewport footer.
+        // Keep the text sizes intact; reclaim height from padding and icons.
+        if(auto* FooterSlot=Cast<UCanvasPanelSlot>(Backdrop->Slot)) {
+            FooterSlot->SetAnchors(FAnchors(0,1,1,1));FooterSlot->SetAutoSize(false);
+            FooterSlot->SetOffsets(FooterOffsets);FooterSlot->SetZOrder(4);
+        }
+        if(auto* RowSlot=Cast<UCanvasPanelSlot>(BottomBar->Slot)) {
+            RowSlot->SetAnchors(FAnchors(0,1,1,1));RowSlot->SetAutoSize(false);
+            RowSlot->SetOffsets(RowOffsets);RowSlot->SetZOrder(5);
+        }
+        for(FName Name:{FName(TEXT("HubWalletCard")),FName(TEXT("HubFishCard")),FName(TEXT("HubProfileCard"))})
+            if(auto* Frame=Cast<UBorder>(WidgetTree->FindWidget(Name))) {
+                Frame->SetPadding(FMargin(14,3));Frame->SetVerticalAlignment(VAlign_Center);
+                if(auto* CardSlot=Cast<UHorizontalBoxSlot>(Frame->Slot)) CardSlot->SetVerticalAlignment(VAlign_Center);
+            }
+        for(UWidget* Icon:{static_cast<UWidget*>(CoinIcon.Get()),static_cast<UWidget*>(FishIcon.Get())})
+            if(Icon) if(auto* IconSize=Cast<USizeBox>(Icon->GetParent())) {
+                IconSize->SetWidthOverride(22);IconSize->SetHeightOverride(22);
+            }
+        for(UTextBlock* Count:{WalletCount.Get(),BottomFishCount.Get()})
+            if(Count) if(auto* CountSlot=Cast<UHorizontalBoxSlot>(Count->Slot)) {
+                CountSlot->SetPadding(FMargin(6,0,0,0));CountSlot->SetVerticalAlignment(VAlign_Center);
+            }
+        if(ProfilePortrait) if(auto* PortraitSize=Cast<USizeBox>(ProfilePortrait->GetParent())) {
+            PortraitSize->SetWidthOverride(24);PortraitSize->SetHeightOverride(24);
+            if(auto* PortraitSlot=Cast<UHorizontalBoxSlot>(PortraitSize->Slot)) {
+                PortraitSlot->SetPadding(FMargin(0,0,8,0));PortraitSlot->SetVerticalAlignment(VAlign_Center);
+            }
+        }
+        if(ProfileName) if(auto* NameSize=Cast<USizeBox>(ProfileName->GetParent()))
+            if(auto* NameSlot=Cast<UHorizontalBoxSlot>(NameSize->Slot)) {
+                NameSlot->SetPadding(FMargin(0,0,8,0));NameSlot->SetVerticalAlignment(VAlign_Center);
+            }
+        if(PartyHint) if(auto* PartySlot=Cast<UHorizontalBoxSlot>(PartyHint->Slot)) PartySlot->SetVerticalAlignment(VAlign_Center);
     }
 }
 void UMCHubWidget::RefreshBottomBar()
@@ -581,7 +673,7 @@ void UMCHubWidget::RefreshBottomBar()
     MCHubPresentation::SetText(WalletCount,UMCUIDataLibrary::NumberForCulture(Coins,Preview?PreviewCulture:FString()));
     MCHubPresentation::SetText(BottomFishCount,UMCUIDataLibrary::NumberForCulture(Fish,Preview?PreviewCulture:FString()));
     if(WalletCount) WalletCount->SetToolTipText(Localized(TEXT("hub.bottom.coins"),LOCTEXT("BottomCoins","Монеты")));
-    if(BottomFishCount) BottomFishCount->SetToolTipText(Localized(TEXT("hub.bottom.fish"),LOCTEXT("BottomFish","Рыба для гриля")));
+    if(BottomFishCount) BottomFishCount->SetToolTipText(Localized(TEXT("hub.bottom.fish"),LOCTEXT("BottomFish","Рыбные монеты для гриля")));
     const auto& BottomPalette=GetResolvedTheme()->Palette;
     if(CoinIcon) CoinIcon->Tint=bUseSoftBottomBar?FMath::Lerp(BottomPalette.Warning,BottomPalette.Ink,.2f):BottomPalette.Warning;
     if(FishIcon) FishIcon->Tint=bUseSoftBottomBar?FMath::Lerp(BottomPalette.Mint,BottomPalette.Ink,.4f):BottomPalette.Mint;
@@ -713,7 +805,7 @@ void UMCHubWidget::RefreshFromState()
     const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
     const auto* Identity=GetOwningPlayer()?GetOwningPlayer()->GetPlayerState<AMCPlayerState>():nullptr;
     if(FishingPanel) FishingPanel->SetVisibility(Hub && Hub->Phase==EMCHubPhase::Gathering?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
-    MCHubPresentation::SetText(FishingCount,Format(TEXT("hub.fishing.count"),LOCTEXT("FishingCount","Рыба: {Count}"),{{TEXT("Count"),Identity?Identity->FishCaught:0}}));
+    MCHubPresentation::SetText(FishingCount,Format(TEXT("hub.fishing.count"),LOCTEXT("FishingCount","Рыбные монеты: {Count}"),{{TEXT("Count"),Identity?Identity->FishCaught:0}}));
     const auto* HeldBall=Hero?AMCHubBasketball::HeldBy(Hero):nullptr;
     const bool BallHeld=HeldBall!=nullptr;
     const auto* Instance=GetGameInstance();
@@ -724,23 +816,30 @@ void UMCHubWidget::RefreshFromState()
     MCHubPresentation::SetText(InviteHint,Localized(bCanInvite?TEXT("hub.invite.steam"):TEXT("hub.invite.local"),
         bCanInvite?LOCTEXT("InviteSteam","ESC — меню и приглашения · Shift+Tab — друзья Steam"):
             LOCTEXT("InviteLocal","Локальный хаб · друзья могут подключиться по IP")));
-    const bool ShowBall=Hub && Hub->Phase==EMCHubPhase::Gathering && Hero && Hero->CanWork()
-        && (BallHeld || AMCHubBasketball::PickupCandidate(Hero));
+    const bool ShowBall=AMCHubBasketball::LocalHintBall(Hero)!=nullptr;
     const bool ShowFishing=Hub && Hub->Phase==EMCHubPhase::Gathering && Hero && Hero->FishingRod && Hero->FishingRod->IsPresented();
     if(BasketballHint) BasketballHint->SetVisibility(ShowBall || ShowFishing?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     if(BasketballReticle) BasketballReticle->SetVisibility(ShowBall && HeldBall && HeldBall->IsAiming()?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    const bool Gamepad=PC && PC->IsUsingGamepad();
     if(BasketballHint) BasketballHint->SetText(BallHeld
-        ? LOCTEXT("BasketballAimThrow","ПКМ — прицел   ·   ЛКМ / Q — бросить   ·   E — отпустить\nГеймпад: LB — прицел   ·   RT / Y — бросить   ·   X — отпустить")
-        : LOCTEXT("BasketballPickup","E — подобрать мяч   |   Геймпад: X — подобрать"));
+        ? Localized(Gamepad?TEXT("hub.basketball.controls.gamepad"):TEXT("hub.basketball.controls"),Gamepad
+            ?LOCTEXT("BasketballAimThrowGamepad","LB — прицел · RT / Y — бросить · X — отпустить")
+            :LOCTEXT("BasketballAimThrow","ПКМ — прицел · ЛКМ / Q — бросить · E — отпустить"))
+        : Localized(Gamepad?TEXT("hub.basketball.pickup.gamepad"):TEXT("hub.basketball.pickup"),Gamepad
+            ?LOCTEXT("BasketballPickupGamepad","X — подобрать мяч"):LOCTEXT("BasketballPickup","E — подобрать мяч")));
     if(BasketballHint && ShowFishing && !ShowBall) BasketballHint->SetText(Hero->FishingRod->bLineOut || Hero->FishingRod->CanCastLine()
-        ? LOCTEXT("FishingPondControls","ПКМ — поза рыбалки   ·   ЛКМ — заброс в пруд   ·   удерживать E — подмотка\nХодьба — закончить рыбалку   ·   5 — убрать удочку   ·   1–4 — инструменты")
-        : LOCTEXT("FishingPondRequired","Для заброса подойди к пруду и повернись к воде\n5 — убрать удочку   ·   1–4 — инструменты"));
+        ? Localized(Gamepad?TEXT("hub.fishing.controls.gamepad"):TEXT("hub.fishing.controls"),Gamepad
+            ?LOCTEXT("FishingPondControlsGamepad","Удерживай LB — поза · RT — заброс · удерживай X — подмотка\nХодьба — прервать заброс · D-pad — инструменты")
+            :LOCTEXT("FishingPondControls","Удерживай ПКМ — поза · ЛКМ — заброс · удерживай E — подмотка\nХодьба — прервать заброс · 5 — убрать удочку · колесо — инструменты"))
+        : Localized(Gamepad?TEXT("hub.fishing.water_required.gamepad"):TEXT("hub.fishing.water_required"),Gamepad
+            ?LOCTEXT("FishingPondRequiredGamepad","Остановись на пирсе и повернись к воде\nD-pad — инструменты")
+            :LOCTEXT("FishingPondRequired","Остановись на пирсе и повернись к воде\n5 — убрать удочку · колесо — инструменты")));
     if(BasketballHint && ShowFishing && !ShowBall && Hero->FishingRod->bLineOut && !Hero->FishingRod->bReeling)
-        BasketballHint->SetText(LOCTEXT("FishingWaiting","Ждём поклёвку…\nРыба вытянется автоматически   ·   ходьба — закончить рыбалку"));
+        BasketballHint->SetText(Localized(TEXT("hub.fishing.waiting"),LOCTEXT("FishingWaiting","Ждём поклёвку…\nПосле поклёвки рыба вытянется автоматически · ходьба — прервать заброс")));
     if(BasketballHint && ShowFishing && !ShowBall && Hero->FishingRod->bFishHooked)
-        BasketballHint->SetText(LOCTEXT("FishingHooked","Рыба на крючке! Вытягиваем…\nПосле подбора рыба добавится к улову"));
-    FString Signature=FString::Printf(TEXT("%p:%d:%d:%d:%d:%d:%d:%d:%s"),Hub,Hub?int32(Hub->Phase):-1,
-        Hub?Hub->SceneGeneration:0,Hub?Hub->SelectedDay:0,IsLocalHost(),IsSceneReady(),bPresentationFailed,bCanInvite,Hub?*Hub->Notice.ToString():TEXT(""));
+        BasketballHint->SetText(Localized(TEXT("hub.fishing.hooked"),LOCTEXT("FishingHooked","Рыба на крючке! Вытягиваем…\nУлов автоматически пополнит запас рыбы")));
+    FString Signature=FString::Printf(TEXT("%p:%d:%d:%d:%d:%d:%d:%d:%d:%s"),Hub,Hub?int32(Hub->Phase):-1,
+        Hub?Hub->SceneGeneration:0,Hub?Hub->SelectedDay:0,PresentedDay,IsLocalHost(),IsSceneReady(),bPresentationFailed,bCanInvite,Hub?*Hub->Notice.ToString():TEXT(""));
     if(Hub) for(const auto& Player:Hub->Players)
         Signature+=FString::Printf(TEXT("|%p:%d:%d:%s"),Player.Player.Get(),Player.bReady,Player.bLoaded,
             IsValid(Player.Player)?*Player.Player->GetPlayerName():TEXT(""));
@@ -790,7 +889,7 @@ void UMCHubWidget::RefreshFromState()
         if(LaunchButton)
         {
             LaunchButton->SetVisibility(bHost?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
-            LaunchButton->SetIsEnabled(bHost && !bTravelling && Destination && Destination->bEnabled && Destination->HasValidMapPath() && Hub->AreAllLoaded() && IsSceneReady());
+            LaunchButton->SetIsEnabled(CanLaunchSelectedDestination());
         }
         MCHubPresentation::SetText(LaunchButtonLabel,Localized(TEXT("hub.selection.start"),LOCTEXT("Launch","ENTER · НАЧАТЬ")));
         if(ReturnButton) {ReturnButton->SetVisibility(bHost?ESlateVisibility::Visible:ESlateVisibility::Collapsed);ReturnButton->SetIsEnabled(!bTravelling);}
@@ -800,7 +899,7 @@ void UMCHubWidget::RefreshFromState()
         else if(bPresentationFailed) Status=Localized(TEXT("hub.presentation.unavailable"),LOCTEXT("PresentationUnavailable","Не удалось открыть сцену выбора. Вернитесь в хаб."));
         else if(!Hub->AreAllLoaded()) Status=Localized(TEXT("hub.loading.players"),LOCTEXT("WaitingForLoad","Ждём загрузку остальных игроков…"));
         else if(!Destination || !Destination->bEnabled || !Destination->HasValidMapPath()) Status=Localized(TEXT("hub.selection.unavailable"),LOCTEXT("DayUnavailable","Этот день ещё не подключён."));
-        else Status=Localized(bHost?TEXT("hub.selection.hint"):TEXT("hub.guest.hint"),bHost?LOCTEXT("HostSelectHint","Выберите день. Запуск — Enter, возврат — Esc."):LOCTEXT("WaitingForHost","Хост выбирает день. ESC — меню."));
+        else Status=Localized(bHost?TEXT("hub.selection.hint"):TEXT("hub.guest.hint"),bHost?LOCTEXT("HostSelectHint","Выберите локацию. Вход — клик по выбранному рту или Enter. Назад — Esc."):LOCTEXT("WaitingForHost","Хост выбирает день. ESC — меню."));
         MCHubPresentation::SetText(SelectionStatus,Hub->Notice.IsEmpty()?Status:Hub->Notice);
     }
     UpdateMouthHitAreas();
@@ -838,7 +937,7 @@ void UMCHubWidget::ApplyEditorPreview(float Time)
     MCHubPresentation::SetText(SelectionTitle,Format(TEXT("hub.loading.count"),LOCTEXT("FooterLoaded","ЗАГРУЗИЛИСЬ · {Ready} / {Total}"),{{TEXT("Ready"),Ready},{TEXT("Total"),4}}));
     const FText Hint=Travelling?Localized(TEXT("hub.loading"),LOCTEXT("Travelling","ЗАГРУЖАЕМ ДЕНЬ…")):
         Waiting?Localized(TEXT("hub.loading.players"),LOCTEXT("WaitingForLoad","Ждём загрузку остальных игроков…")):
-        Localized(Guest?TEXT("hub.guest.hint"):TEXT("hub.selection.hint"),Guest?LOCTEXT("WaitingForHost","Хост выбирает день. ESC — меню."):LOCTEXT("HostSelectHint","Выберите день. Запуск — Enter, возврат — Esc."));
+        Localized(Guest?TEXT("hub.guest.hint"):TEXT("hub.selection.hint"),Guest?LOCTEXT("WaitingForHost","Хост выбирает день. ESC — меню."):LOCTEXT("HostSelectHint","Выберите локацию. Вход — клик по выбранному рту или Enter. Назад — Esc."));
     MCHubPresentation::SetText(SelectionStatus,Hint);
     if(OpenButton) {OpenButton->SetVisibility(Guest?ESlateVisibility::Collapsed:ESlateVisibility::Visible);OpenButton->SetIsEnabled(!Waiting);}
     if(LaunchButton) {LaunchButton->SetVisibility(Guest?ESlateVisibility::Collapsed:ESlateVisibility::Visible);LaunchButton->SetIsEnabled(!Waiting && !Travelling);}
@@ -851,14 +950,24 @@ bool UMCHubWidget::EnsureSelectionPresentation()
 {
     if(SelectionPresentation) return true;
     if(bPresentationFailed || IsDesignTime() || !PresentationHost || !GetOwningPlayer() || !MCHubPresentation::HasSavedStage(GetWorld())) return false;
-    MCHubPresentation::FPreservePlayerView PreserveView(GetOwningPlayer());
+    auto* Player=GetOwningPlayer<AMCPlayerController>();
+    if(!Player || !Player->HasLocalPresentationOwner()) return false;
+    MCHubPresentation::FPreservePlayerView PreserveView(Player);
+    MCHubPresentation::FPreservePlayerFocus PreserveFocus(Player);
     UClass* Class=SelectionPresentationClass.LoadSynchronous();
     if(!Class || !Class->IsChildOf(UUserWidget::StaticClass()) || Class->HasAnyClassFlags(CLASS_Abstract)) {bPresentationFailed=true;return false;}
     SelectionPresentation=CreateWidget<UUserWidget>(GetOwningPlayer(),Class);
     if(!SelectionPresentation) {bPresentationFailed=true;return false;}
-    SelectionPresentation->SetIsFocusable(false);
+    // These are the two known targets of the saved Blueprint's Construct and
+    // ShowPage(1), rather than the Hub's interactive controls. Allow their
+    // synchronous setup, then remove all legacy focus and restore the real UI.
+    SelectionPresentation->SetIsFocusable(true);
+    if(SelectionPresentation->WidgetTree)
+        for(FName Name:{FName(TEXT("PlayButton")),FName(TEXT("Day3Button"))})
+            if(auto* Button=Cast<UButton>(SelectionPresentation->WidgetTree->FindWidget(Name)))
+                MCHubPresentation::SetLegacyButtonFocusable(Button,true);
     if(!MCHubPresentation::DisableAutonomousTick(SelectionPresentation)) {ResetSelectionPresentation();bPresentationFailed=true;return false;}
-    MCHubPresentation::HideLegacyControls(SelectionPresentation,true);
+    MCHubPresentation::HideLegacyControls(SelectionPresentation);
     auto* PresentationSlot=PresentationHost->AddChildToOverlay(SelectionPresentation);PresentationSlot->SetHorizontalAlignment(HAlign_Fill);PresentationSlot->SetVerticalAlignment(VAlign_Fill);
     SelectionPresentation->TakeWidget(); // Blueprint Construct finishes before our authoritative setup.
     SelectionPresentation->SetVisibility(ESlateVisibility::HitTestInvisible);
@@ -866,6 +975,7 @@ bool UMCHubWidget::EnsureSelectionPresentation()
         || !MCHubPresentation::CallInt(SelectionPresentation,TEXT("ShowPage"),TEXT("Index"),1))
     {ResetSelectionPresentation();bPresentationFailed=true;return false;}
     MCHubPresentation::HideLegacyControls(SelectionPresentation,true);
+    SelectionPresentation->SetIsFocusable(false);
     PresentedDay=INDEX_NONE;
     return true;
 }
@@ -989,18 +1099,24 @@ void UMCHubWidget::UpdateMouthHitAreas()
 {
     const auto* Hub=State();
     const bool bCanChoose=Hub && Hub->Phase==EMCHubPhase::Selecting && IsLocalHost()
-        && SelectionPresentation && RootCanvas && SelectionPresentation->WidgetTree;
+        && IsSceneReady() && SelectionPresentation && RootCanvas && SelectionPresentation->WidgetTree;
+    const auto HideHitAreas=[this]()
+    {
+        for(const auto& HitArea:MouthHitAreas) if(HitArea) {
+            HitArea->SetIsEnabled(false);HitArea->SetVisibility(ESlateVisibility::Collapsed);
+        }
+    };
     if(!bCanChoose)
     {
-        for(const auto& HitArea:MouthHitAreas) if(HitArea) HitArea->SetVisibility(ESlateVisibility::Collapsed);
+        HideHitAreas();
         return;
     }
     auto* Scroll=SelectionPresentation->WidgetTree->FindWidget(TEXT("DayScroll"));
     const auto* FirstDay=FindFProperty<FIntProperty>(SelectionPresentation->GetClass(),TEXT("WindowFirstDay"));
-    if(!Scroll || !FirstDay) return;
+    if(!Scroll || !FirstDay) {HideHitAreas();return;}
     const FGeometry& CanvasGeometry=RootCanvas->GetCachedGeometry();
     const FGeometry& ClipGeometry=Scroll->GetCachedGeometry();
-    if(CanvasGeometry.GetLocalSize().X<=0 || ClipGeometry.GetLocalSize().Y<=0) return;
+    if(CanvasGeometry.GetLocalSize().X<=0 || ClipGeometry.GetLocalSize().Y<=0) {HideHitAreas();return;}
     const FVector2D ClipMin=CanvasGeometry.AbsoluteToLocal(ClipGeometry.LocalToAbsolute(FVector2D::ZeroVector));
     const FVector2D ClipMax=CanvasGeometry.AbsoluteToLocal(ClipGeometry.LocalToAbsolute(ClipGeometry.GetLocalSize()));
     const int32 First=FMath::Clamp(FirstDay->GetPropertyValue_InContainer(SelectionPresentation),1,5);
@@ -1016,16 +1132,20 @@ void UMCHubWidget::UpdateMouthHitAreas()
         const FVector2D Min(FMath::Max(RowMin.X,ClipMin.X),FMath::Max(RowMin.Y,ClipMin.Y));
         const FVector2D Max(FMath::Min(RowMax.X,ClipMax.X),FMath::Min(RowMax.Y,ClipMax.Y));
         const FVector2D Size=Max-Min;
-        HitArea->Configure(this,EMCHubMenuAction::SelectDay,Day,false);
+        HitArea->Configure(this,EMCHubMenuAction::EnterDestination,Day,false);
         if(auto* LayoutSlot=Cast<UCanvasPanelSlot>(HitArea->Slot))
         {
             const FVector2D SafeSize=Size.ComponentMax(FVector2D::ZeroVector);
             if(!LayoutSlot->GetPosition().Equals(Min,.01)) LayoutSlot->SetPosition(Min);
             if(!LayoutSlot->GetSize().Equals(SafeSize,.01)) LayoutSlot->SetSize(SafeSize);
         }
-        HitArea->SetIsEnabled(Hub->FindDestination(Day)!=nullptr);
+        const auto* Destination=Hub->FindDestination(Day);
+        // Future locked mouths may still be selected for preview. A selected
+        // mouth is an entry action and shares the exact Start-button barrier.
+        HitArea->SetIsEnabled(Destination && (Day!=Hub->SelectedDay || CanLaunchSelectedDestination()));
+        HitArea->SetCursor(HitArea->GetIsEnabled()?EMouseCursor::Hand:EMouseCursor::Default);
         HitArea->SetVisibility(Size.X>0 && Size.Y>0?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
-        if(const auto* Destination=Hub->FindDestination(Day))
+        if(Destination)
         {
             const FText Tip=Localized(Destination->DescriptionKey,Destination->Description);
             if(!HitArea->GetToolTipText().EqualTo(Tip)) HitArea->SetToolTipText(Tip);
@@ -1042,6 +1162,14 @@ bool UMCHubWidget::IsSceneReady() const
     if(!Hub || !RootCanvas || !GetCachedWidget().IsValid()) return false;
     return SelectionPresentation && SelectionPresentation->GetCachedWidget().IsValid()
         && bPresentationReady && !bPresentationFailed && MCHubPresentation::HasCamera(GetWorld());
+}
+bool UMCHubWidget::CanLaunchSelectedDestination() const
+{
+    const auto* Hub=State();
+    const auto* Destination=Hub?Hub->FindDestination(Hub->SelectedDay):nullptr;
+    return !IsDesignTime() && IsLocalHost() && Hub && Hub->Phase==EMCHubPhase::Selecting
+        && Destination && Destination->bEnabled && Destination->HasValidMapPath() && Hub->AreAllLoaded()
+        && PresentedDay==Hub->SelectedDay && IsSceneReady();
 }
 UWidget* UMCHubWidget::GetFocusTarget() const
 {
@@ -1074,8 +1202,15 @@ void UMCHubWidget::HandleAction(EMCHubMenuAction Action,int32 Day)
         }
         break;
     case EMCHubMenuAction::Launch:
-        if(const auto* Destination=Hub->FindDestination(Hub->SelectedDay);Hub->Phase==EMCHubPhase::Selecting
-            && Destination && Destination->bEnabled && Destination->HasValidMapPath() && Hub->AreAllLoaded() && IsSceneReady()) PC->RequestHubLaunch();
+        if(CanLaunchSelectedDestination()) PC->RequestHubLaunch();
+        break;
+    case EMCHubMenuAction::EnterDestination:
+        if(Hub->Phase==EMCHubPhase::Selecting && Hub->FindDestination(Day))
+        {
+            // Selection is authoritative. Never launch the previous day while
+            // a different clicked mouth's selection request is still in flight.
+            HandleAction(Day==Hub->SelectedDay?EMCHubMenuAction::Launch:EMCHubMenuAction::SelectDay,Day);
+        }
         break;
     case EMCHubMenuAction::Return:if(Hub->Phase==EMCHubPhase::Selecting) PC->RequestHubReturn();break;
     }

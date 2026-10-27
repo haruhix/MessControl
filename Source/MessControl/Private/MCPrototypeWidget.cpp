@@ -188,13 +188,16 @@ void UMCPrototypeWidget::NativeOnInitialized()
 }
 void UMCPrototypeWidget::SetPlayerOverlayVisible(bool Visible)
 {
-    bPlayerOverlayVisible=Visible;
-    const auto PanelVisibility=Visible?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed;
+    // Legacy interaction copy describes the retired LMB pickup/drop flow.
+    // Ordinary play uses the localized contextual GameplayHUD instead.
+    bPlayerOverlayVisible=Visible && MCDeveloperUIEnabled(GetWorld());
+    const auto PanelVisibility=bPlayerOverlayVisible?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed;
     if (CarePanel) CarePanel->SetVisibility(PanelVisibility);
     if (ControlsPanel) ControlsPanel->SetVisibility(PanelVisibility);
 }
 void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
+    if(bPlayerOverlayVisible && !MCDeveloperUIEnabled(GetWorld())) SetPlayerOverlayVisible(false);
     Super::NativeTick(Geometry,DeltaSeconds);
     if(TuningPanel && !MCDeveloperUIEnabled(GetWorld())) {
         TuningPanel->SetVisibility(ESlateVisibility::Collapsed);

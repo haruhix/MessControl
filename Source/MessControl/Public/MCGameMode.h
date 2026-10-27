@@ -43,6 +43,10 @@ public:
     void AwardTaskToPlayerState(AMCPlayerState* Worker, EMCScoreTask Kind);
     /** One shared reward for a completed objective, independent of per-item score awards. */
     void NotifyObjectiveCompleted(FName CompletionId);
+    /** Accept a shared completion once per run, crediting each current human participant's personal wallet.
+     * Returns true when the ID is newly accepted, even if wallets are full or rewards are disabled. */
+    bool AwardObjectiveCoinsOnce(FName CompletionId);
+    UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Economy",meta=(ClampMin="0",ClampMax="1000")) int32 ObjectiveCoinReward=10;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Score") FMCScoreRewards ScoreRewards;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Respawn", meta=(ClampMin="0.1")) float RespawnDelay=5.f;
     /** Initial arrival only: clearance below the capsule. Low ceilings shorten the drop. */
@@ -81,6 +85,7 @@ public:
     UPROPERTY(VisibleInstanceOnly,BlueprintReadOnly,Category="Roguelike") TObjectPtr<class AMCRoguelikeDirector> RoguelikeDirector;
 private:
     FGuid HubBoosterRunId;
+    TSet<FName> CoinRewardedObjectives;
     bool bTutorialRequested=false;
     bool bAutoStartHubRun=false;
     bool bLobbyRequested=false;
@@ -98,5 +103,8 @@ private:
     UPROPERTY() TArray<FMCEventObjective> Objectives;
     UPROPERTY() TArray<TObjectPtr<AMCToothCharacter>> PendingRespawns;
     TArray<TWeakObjectPtr<AMCToothCharacter>> PendingArenaArrivals;
+    /** Failed initial spawns retry only behind the existing startup barrier. */
+    double NextInitialSpawnRetryAt=0;
+    TMap<TWeakObjectPtr<AController>,FTransform> FailedInitialSpawnTransforms;
     UPROPERTY() TObjectPtr<AMCFoodDisposal> Throat;
 };

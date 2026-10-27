@@ -1,0 +1,38 @@
+[
+  {
+    "file": "Repair_Tooth_Polished.mp4",
+    "path": "E:\\DEVGAME\\MessControl\\Artifacts\\PlaytestBatch4_20261026\\Repair_Tooth_Polished.mp4",
+    "source": "E:\\CodexWork\\Batch4_20261026\\SettingsSolo_20261026T141239\\CareRealtime\\Fishing_ACTUAL_GAMEPLAY_REALTIME.mp4",
+    "sha256": "abd39c99fd3dcb89d2d4e8bed4912bdc29450d7a39fab8dfa92994389c9f3b38"
+  },
+  {
+    "file": "Repair_Broken.png",
+    "path": "E:\\DEVGAME\\MessControl\\Artifacts\\PlaytestBatch4_20261026\\Repair_Broken.png",
+    "source": "E:\\CodexWork\\Batch4_20261026\\CareVisualReviewPolish\\Frame_0.5.png",
+    "sha256": "78ac8df3d00810b70724455c0c9e345971227849fe64d0f60ac19846675aaf53"
+  },
+  {
+    "file": "Repair_Finish.png",
+    "path": "E:\\DEVGAME\\MessControl\\Artifacts\\PlaytestBatch4_20261026\\Repair_Finish.png",
+    "source": "E:\\CodexWork\\Batch4_20261026\\CareVisualReviewPolish\\Frame_14.8.png",
+    "sha256": "6475e04f588c4c51d4432ef5afef181d87b8d4ff48d58c9605c873e5166bfe40"
+  },
+  {
+    "file": "Freshness_Fresh.png",
+    "path": "E:\\DEVGAME\\MessControl\\Artifacts\\PlaytestBatch4_20261026\\Freshness_Fresh.png",
+    "source": "E:\\CodexWork\\Batch4_20261026\\WidgetPreparation\\FoodFill0.png",
+    "sha256": "86651001151cd17c2288e70eb112f5fbf6c3ec0f5afb9d5354029bddf6fa3b4c"
+  },
+  {
+    "file": "Freshness_75PercentSpoiled.png",
+    "path": "E:\\DEVGAME\\MessControl\\Artifacts\\PlaytestBatch4_20261026\\Freshness_75PercentSpoiled.png",
+    "source": "E:\\CodexWork\\Batch4_20261026\\WidgetPreparation\\FoodFill75.png",
+    "sha256": "6c12c300f8cf544b372ffd4e313aeea738f566dde0abdb1e9505cd3e8eb74921"
+  },
+  {
+    "file": "Fragment_Spoiled.png",
+    "path": "E:\\DEVGAME\\MessControl\\Artifacts\\PlaytestBatch4_20261026\\Fragment_Spoiled.png",
+    "source": "E:\\CodexWork\\Batch4_20261026\\WidgetPreparation\\FragmentSpoiled.png",
+    "sha256": "630a809cd112a11d9314a705331f751f35f6f51b9ba3e7436a9dc78e933c07ae"
+  }
+]

@@ -8,6 +8,7 @@
 #include "MCPlayerCameraComponent.h"
 #include "MCCosmeticCatalog.h"
 #include "MCSessionTypes.h"
+#include "MCHubEconomyTypes.h"
 #include "MCPlayerController.generated.h"
 class UMCPrototypeWidget;
 class UMCDevPanelWidget;
@@ -28,11 +29,15 @@ class UMCSceneAudioComponent;
 class UMCGameplayMenuWidget;
 class UMCHubWidget;
 class UMCLoadingWidget;
+class UMCFishingRewardWidget;
+class UMCTaskCoinPresentationComponent;
 class UMCHubWardrobeWidget;
 class AMCHubWardrobeStation;
 class UMCHubShopWidget;
 class AMCHubShopStation;
 class AMCWardrobePreviewActor;
+class AMCGameState;
+class AMCHubGameState;
 
 UCLASS()
 class MESSCONTROL_API AMCPlayerController : public APlayerController
@@ -48,13 +53,20 @@ public:
     virtual void SetupInputComponent() override;
     virtual bool InputKey(const FInputKeyEventArgs& Params) override;
     bool IsUsingGamepad() const { return bUsingGamepad; }
+    /** Local UMG/input needs an attached LocalPlayer that owns this controller in this world. */
+    bool HasLocalPresentationOwner() const;
     virtual void Tick(float DeltaSeconds) override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     virtual void CalcCamera(float DeltaTime,FMinimalViewInfo& OutResult) override;
     virtual void NotifyLoadedWorld(FName WorldPackageName,bool bFinalDest) override;
     virtual void PostSeamlessTravel() override;
     UFUNCTION(BlueprintCallable,Category="Debug") void ToggleDevPanel();
     void ToggleEmotes();
+    UFUNCTION(BlueprintCallable,Category="Emotes") void BeginEmoteSelection();
+    UFUNCTION(BlueprintCallable,Category="Emotes") void EndEmoteSelection();
+    UFUNCTION(BlueprintCallable,Category="Emotes") void CloseEmotes(bool bConfirm=false);
+    UFUNCTION(BlueprintPure,Category="Emotes") bool IsHoldingEmoteSelection() const { return bEmoteSelectionHeld; }
     bool CanUseDevPanel() const;
     UFUNCTION(BlueprintCallable, Category="Debug") void RequestDevAction(EMCDevAction Action,int32 StepIndex=-1);
     void ToggleTuning();
@@ -72,9 +84,11 @@ public:
     UFUNCTION(Server,Reliable) void ServerHubSelectDay(int32 Day);
     UFUNCTION(Server,Reliable) void ServerHubLaunch();
     UFUNCTION(Server,Reliable) void ServerHubReturn();
-    UFUNCTION(Server,Reliable) void ServerHubSceneLoaded(int32 Generation);
+    UFUNCTION(Server,Reliable) void ServerHubSceneLoaded(AMCHubGameState* LoadedHub,int32 Generation);
     UFUNCTION(Server, Reliable) void ServerSetTutorialReady(bool bReady);
-    bool HasAcknowledgedGameplay() const { return bGameplayLoaded; }
+    bool HasAcknowledgedGameplay() const;
+    /** Server accepts only the current location's preparation receipt after possession. */
+    bool AcknowledgeGameplayLoaded(AMCGameState* LoadedState,FGuid LoadId);
     /** Local asset/render preparation; remote server controllers use their client's ACK. */
     UFUNCTION(BlueprintPure,Category="Loading") bool IsWorldPresentationReady() const;
     void ShowScoreboard();
@@ -112,6 +126,10 @@ public:
     UFUNCTION() void PurchaseHubItem(FName ItemID);
     UFUNCTION(Server,Reliable) void ServerPurchaseHubItem(FName ItemID);
     UFUNCTION(Client,Reliable) void ClientHubTransactionFeedback(const FText& Message);
+    /** Authority-confirmed catch receipt; this local presentation never grants currency. */
+    UFUNCTION(Client,Reliable) void ClientFishingCatch(EMCHubItemRarity Rarity,int32 FishCoins,int32 WalletAfter);
+    /** Cosmetic receipt only. The authority has already credited the personal shop wallet. */
+    UFUNCTION(Client,Reliable) void ClientObjectiveCoins(int32 Amount,int32 WalletAfter);
     UFUNCTION() void PreviewWardrobeCosmetics(FMCCharacterCosmeticLoadout Loadout);
     UFUNCTION(Server,Reliable) void ServerEquipHubCosmetics(FMCCharacterCosmeticLoadout Loadout);
     UFUNCTION(BlueprintCallable,Category="Consumables") void UseCalciumGrenade();
@@ -122,10 +140,11 @@ public:
     UFUNCTION(BlueprintCallable, Category="Multiplayer") void JoinGame(const FString& Address);
     UFUNCTION(BlueprintCallable, Category="Shift") void RequestRestart();
     UFUNCTION(Client, Reliable) void ClientShowRewardOpening(AMCRewardChest* Chest, double ServerEndsAt);
-    UFUNCTION(Client, Reliable) void ClientShowPerkChoices(AMCRewardChest* Chest, const TArray<FName>& IDs, EMCPerkPolarity Polarity,bool bTeamBooster=false);
+    UFUNCTION(Client, Reliable) void ClientShowPerkChoices(AMCRewardChest* Chest, const TArray<FName>& IDs, EMCPerkPolarity Polarity,bool bTeamBooster=false,double StageChoiceEndsAt=0);
     UFUNCTION(Client,Reliable) void ClientShowRogueChoices(AMCRewardChest* Chest,const FMCRogueChestOffer& Offer);
     UFUNCTION(Server,Reliable) void ServerConfirmRogueReward(AMCRewardChest* Chest,bool Accept);
     UFUNCTION(Server, Reliable) void ServerChooseRewardPerk(AMCRewardChest* Chest, int32 ChoiceIndex);
+    UFUNCTION(Server, Reliable) void ServerStageChoicePresented(AMCRewardChest* Chest,AMCToothCharacter* ChoicePawn);
     UFUNCTION(Client, Reliable) void ClientClosePerkChoices(AMCRewardChest* Chest);
     UFUNCTION(BlueprintCallable, Category="Rewards") void ChooseRewardPerk(int32 ChoiceIndex);
     void RerollLevelPerks();
@@ -159,6 +178,9 @@ public:
     UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCPerkChoiceWidget> PerkChoiceWidget;
     UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCBossHealthWidget> BossHealthWidget;
 private:
+    void EnsureLocalPresentation();
+    TWeakObjectPtr<UWorld> LocalPresentationWorld;
+    bool bResettingWorldPresentation=false;
     void PrepareWardrobePreview();
     void RefreshWardrobe();
     void FlushPlayerColor();
@@ -198,6 +220,12 @@ private:
     void RestoreHubGameplayView();
     void HandleHubStartInput();
     UPROPERTY(Transient) TObjectPtr<UMCHubWidget> HubWidget;
+    void PrepareFishingRewardPresentation();
+    void ResetFishingRewardPresentation();
+    UPROPERTY(Transient) TObjectPtr<UMCFishingRewardWidget> FishingRewardWidget;
+    void PrepareTaskCoinPresentation();
+    void ResetTaskCoinPresentation();
+    UPROPERTY(Transient) TObjectPtr<UMCTaskCoinPresentationComponent> TaskCoinPresentation;
     TWeakObjectPtr<AActor> HubSceneCamera;
     TWeakObjectPtr<AActor> HubGameplayViewTarget;
     TWeakObjectPtr<APawn> HubGameplayViewPawn;
@@ -209,12 +237,17 @@ private:
     double NextHubLoadAckAt=0;
     int32 LastHubLoadAckGeneration=INDEX_NONE;
     bool bUsingGamepad=false;
+    bool CanOpenEmotes() const;
+    void OpenEmotes(bool bHeld);
+    void MaintainEmoteSelection();
+    bool bEmoteSelectionHeld=false;
+    TWeakObjectPtr<APawn> EmoteSelectionPawn;
     void HandleScoreboardPressed();
     void HandleScoreboardReleased();
     void PrepareHubPartyPresentation();
     void ResetWorldPresentation();
     void RefreshFrontEnd();
-    UFUNCTION(Server, Reliable) void ServerGameplayLoaded();
+    UFUNCTION(Server, Reliable) void ServerGameplayLoaded(AMCGameState* LoadedState,FGuid LoadId);
     UFUNCTION(Server, Reliable) void ServerTutorialLoaded();
     UPROPERTY(Transient) TObjectPtr<UMCMainMenuWidget> FrontEndWidget;
     UPROPERTY(Transient) TObjectPtr<UMCGameplayMenuWidget> PauseWidget;
@@ -230,8 +263,8 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMCTutorialWidget> TutorialWidget;
     TWeakObjectPtr<AMCTutorialDirector> AcknowledgedTutorial;
     double NextFrontEndCheck=0;
-    bool bGameplayLoaded=false;
-    bool bGameplayLoadAckSent=false;
+    UPROPERTY(Replicated) FGuid AcknowledgedGameplayLoadId;
+    double NextGameplayLoadAckAt=0;
     bool bPauseMenuOpen=false;
     bool bLobbyUIOpen=false;
     bool bTutorialMenuInput=false;

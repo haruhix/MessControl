@@ -7,6 +7,7 @@
 
 class UMCPerkEffect;
 class AMCToothCharacter;
+class AMCGameState;
 class UPointLightComponent;
 class UTextRenderComponent;
 
@@ -45,6 +46,10 @@ public:
     bool ActivateBooster();
     /** Stage chest only: apply one supported booster immediately to the current team. No charges or perk stacks. */
     bool ActivateTeamStageBooster(FName ID);
+    /** Stage reward personal choice: activate on this recipient; no team fan-out or stored charge. */
+    bool ActivatePersonalStageBooster(FName ID);
+    /** Timeout awards are sealed immediately; an incapacitated recipient activates on recovery in this run. */
+    bool AcceptTimedStageBooster(FName ID);
     static bool IsTeamStageBoosterID(FName ID);
     void OnRogueKnockdown();
     bool IsFuryActive() const;
@@ -130,6 +135,9 @@ private:
     TWeakObjectPtr<AMCToothCharacter> TunedHero;
     TWeakObjectPtr<UPointLightComponent> NightLight;
     TWeakObjectPtr<UTextRenderComponent> GrenadeCue;
+    TArray<FName> PendingStageBoosters;
+    TWeakObjectPtr<AMCGameState> PendingStageGame;
+    FGuid PendingStageLoadId;
     TMap<TWeakObjectPtr<AActor>,double> RecentWeaponHits;
     TArray<TWeakObjectPtr<AActor>> RogueActors;
     double NextCounterAt=-100,NextTeamStrikeAt=-100,NextCleanHealAt=-100,NextFoamAt=-100;

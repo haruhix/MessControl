@@ -433,6 +433,8 @@ void AMCFoodActor::EndPlay(const EEndPlayReason::Type Reason)
 }
 void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit)
 {
+    // Resolve query-only enemies before a later solid contact ends this flight.
+    if(HasAuthority()) UpdateNutFragmentThrowImpact();
     if(HasAuthority() && Hit.bBlockingHit) EndManualThrowFlight();
     // Fragments remain physical against scenery and food, but never attack a player.
     if(bFragment && Cast<AMCToothCharacter>(Other)) return;
@@ -542,6 +544,7 @@ void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent*
 }
 void AMCFoodActor::Tick(float Dt)
 {
+    UpdateNutFragmentThrowImpact();
     if(HasAuthority()) PreviousPhysicsLocation=GetActorLocation();
     Super::Tick(Dt);
     if (bMouthEntry && (GetWorld()->GetTimeSeconds()>=MouthEntryEndsAt || !Body->IsSimulatingPhysics()
@@ -641,7 +644,7 @@ void AMCFoodActor::Tick(float Dt)
     }
     if(GetNetMode()==NM_DedicatedServer) return;
     FString Caption=Phase==EMCFoodPhase::Stuck?FString::Printf(TEXT("LMB + MOVE TO CENTRE\nPULL %.0f%% | %d GRIPS"),PullProgress*100,Holders.Num()):Phase==EMCFoodPhase::Carried?TEXT("RELEASE LMB: DROP | Q: THROW"):TEXT("HOLD LMB: PICK UP / DRAG");
-    if (!UsesLegacyGrip()) Caption=StackCarrier?TEXT("LMB: DROP STACK | Q: THROW"):
+    if (!UsesLegacyGrip()) Caption=IsNutEncounterFragment()?(StackCarrier?TEXT("E: DROP NUT | Q: SHOOT"):TEXT("E: PICK UP NUT | Q: SHOOT")):StackCarrier?TEXT("LMB: DROP STACK | Q: THROW"):
         (ActorHasTag(TEXT("MCNutRain")) || Cast<AMCNutRainEvent>(GetOwner()))?(IsHardFood()?TEXT("PICKAXE: BREAK"):TEXT("KNIFE: BREAK")):
         IsHardFood()?TEXT("PICKAXE: BREAK FOOD"):TEXT("KNIFE: CUT FOOD");
     if (!ItemName.IsNone()) Caption=FString::Printf(TEXT("%s | HP %.0f | %.1f kg\n%s | %s"),*FoodData.Label.ToString(),Health,Settings.Mass,*Caption,bSpoiled?TEXT("SPOILED"):FoodData.Kind==EMCFoodKind::Spicy?*FString::Printf(TEXT("%.1fs %s"),FuseRemaining(),bFusePaused?TEXT("PAUSED"):TEXT("THROW INTO THROAT")):FoodData.Kind==EMCFoodKind::ForeignObject?TEXT("FOREIGN OBJECT"):*FString::Printf(TEXT("SPOIL %.0fs"),FMath::Max(0.,SpoilAt-(GetWorld()->GetGameState()?GetWorld()->GetGameState()->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds()))));
@@ -1058,12 +1061,14 @@ void AMCFoodActor::LaunchManualThrow(AMCToothCharacter* Hero,FVector Direction,f
     if(!HasAuthority() || !IsValid(Hero) || Hero->GetWorld()!=GetWorld() || IsDisposed()
         || StackCarrier || !Holders.IsEmpty() || !Body->IsSimulatingPhysics()
         || Direction.ContainsNaN() || Direction.IsNearlyZero() || !FMath::IsFinite(Speed)) return;
-    MarkManualThrow(Hero);bManualThrowInFlight=true;
+    MarkManualThrow(Hero);bManualThrowInFlight=true;ManualThrower=Hero;
+    NutThrowSweepStart=GetActorLocation();
     PreviousPhysicsLocation=GetActorLocation();
     Body->SetEnableGravity(true);Body->SetLinearDamping(0);Body->SetAngularDamping(.12f);
     // CameraThrowDirection already solves the ballistic arc. Adding carrier
     // velocity again would move its endpoint sideways while the player walks.
-    Body->SetPhysicsLinearVelocity(Direction.GetSafeNormal()*FMath::Clamp(Speed,400.f,4800.f));
+    PrePhysicsVelocity=Direction.GetSafeNormal()*FMath::Clamp(Speed,400.f,4800.f);
+    Body->SetPhysicsLinearVelocity(PrePhysicsVelocity);
     const FVector Right=FVector::CrossProduct(FVector::UpVector,Direction).GetSafeNormal();
     Body->SetPhysicsAngularVelocityInRadians(Right*1.6f+FVector::UpVector*.55f);
     Body->WakeAllRigidBodies();ForceNetUpdate();

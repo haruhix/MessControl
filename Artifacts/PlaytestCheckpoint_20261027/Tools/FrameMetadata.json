@@ -1,0 +1,643 @@
+{
+  "frames": [
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00000.png",
+      "wall_seconds": 0.01599999999962165,
+      "game_seconds": 5.948006007820368
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00001.png",
+      "wall_seconds": 0.1720000000004802,
+      "game_seconds": 6.093898210674524
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00002.png",
+      "wall_seconds": 0.4539999999997235,
+      "game_seconds": 6.380664620548487
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00003.png",
+      "wall_seconds": 0.6100000000005821,
+      "game_seconds": 6.533673230558634
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00004.png",
+      "wall_seconds": 0.75,
+      "game_seconds": 6.682077530771494
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00005.png",
+      "wall_seconds": 0.9069999999992433,
+      "game_seconds": 6.832597631961107
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00006.png",
+      "wall_seconds": 1.0630000000001019,
+      "game_seconds": 6.983494032174349
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00007.png",
+      "wall_seconds": 1.2039999999997235,
+      "game_seconds": 7.134991634637117
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00008.png",
+      "wall_seconds": 1.360000000000582,
+      "game_seconds": 7.2861198373138905
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00009.png",
+      "wall_seconds": 1.5159999999996217,
+      "game_seconds": 7.436263043433428
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00010.png",
+      "wall_seconds": 1.6720000000004802,
+      "game_seconds": 7.590963650494814
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00011.png",
+      "wall_seconds": 1.8130000000001019,
+      "game_seconds": 7.7439186461269855
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00012.png",
+      "wall_seconds": 1.9689999999991414,
+      "game_seconds": 7.900672648102045
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00013.png",
+      "wall_seconds": 2.125,
+      "game_seconds": 8.047886345535517
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00014.png",
+      "wall_seconds": 2.2659999999996217,
+      "game_seconds": 8.19754434004426
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00015.png",
+      "wall_seconds": 2.42200000000048,
+      "game_seconds": 8.350586045533419
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00016.png",
+      "wall_seconds": 2.5789999999997235,
+      "game_seconds": 8.502055544406176
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00017.png",
+      "wall_seconds": 2.735000000000582,
+      "game_seconds": 8.660645235329866
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00018.png",
+      "wall_seconds": 2.8909999999996217,
+      "game_seconds": 8.82195833697915
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00019.png",
+      "wall_seconds": 3.04700000000048,
+      "game_seconds": 8.9780801422894
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00020.png",
+      "wall_seconds": 3.2039999999997235,
+      "game_seconds": 9.129107732325792
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00021.png",
+      "wall_seconds": 3.360000000000582,
+      "game_seconds": 9.27793513610959
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00022.png",
+      "wall_seconds": 3.5,
+      "game_seconds": 9.428931433707476
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00023.png",
+      "wall_seconds": 3.6569999999992433,
+      "game_seconds": 9.58109562471509
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00024.png",
+      "wall_seconds": 3.813000000000102,
+      "game_seconds": 9.732595924288034
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00025.png",
+      "wall_seconds": 3.9539999999997235,
+      "game_seconds": 9.887237820774317
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00026.png",
+      "wall_seconds": 4.110000000000582,
+      "game_seconds": 10.035626519471407
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00027.png",
+      "wall_seconds": 4.265999999999622,
+      "game_seconds": 10.192089010030031
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00028.png",
+      "wall_seconds": 4.54700000000048,
+      "game_seconds": 10.471074003726244
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00029.png",
+      "wall_seconds": 4.7039999999997235,
+      "game_seconds": 10.622540298849344
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00030.png",
+      "wall_seconds": 4.843999999999141,
+      "game_seconds": 10.770470205694437
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00031.png",
+      "wall_seconds": 5.0,
+      "game_seconds": 10.923375699669123
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00032.png",
+      "wall_seconds": 5.156999999999243,
+      "game_seconds": 11.074206594377756
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00033.png",
+      "wall_seconds": 5.313000000000102,
+      "game_seconds": 11.231826487928629
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00034.png",
+      "wall_seconds": 5.4539999999997235,
+      "game_seconds": 11.385391984134912
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00035.png",
+      "wall_seconds": 5.610000000000582,
+      "game_seconds": 11.539345894008875
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00036.png",
+      "wall_seconds": 5.765999999999622,
+      "game_seconds": 11.6969052888453
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00037.png",
+      "wall_seconds": 5.92200000000048,
+      "game_seconds": 11.850485283881426
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00038.png",
+      "wall_seconds": 6.0789999999997235,
+      "game_seconds": 12.003843177109957
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00039.png",
+      "wall_seconds": 6.235000000000582,
+      "game_seconds": 12.158165279775858
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00040.png",
+      "wall_seconds": 6.390999999999622,
+      "game_seconds": 12.317246276885271
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00041.png",
+      "wall_seconds": 6.54700000000048,
+      "game_seconds": 12.47372118011117
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00042.png",
+      "wall_seconds": 6.7039999999997235,
+      "game_seconds": 12.628699976950884
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00043.png",
+      "wall_seconds": 6.875,
+      "game_seconds": 12.791804570704699
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00044.png",
+      "wall_seconds": 7.031999999999243,
+      "game_seconds": 12.954096276313066
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00045.png",
+      "wall_seconds": 7.188000000000102,
+      "game_seconds": 13.113890279084444
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00046.png",
+      "wall_seconds": 7.343999999999141,
+      "game_seconds": 13.269038368016481
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00047.png",
+      "wall_seconds": 7.5,
+      "game_seconds": 13.426497671753168
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00048.png",
+      "wall_seconds": 7.67200000000048,
+      "game_seconds": 13.588321078568697
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00049.png",
+      "wall_seconds": 7.8289999999997235,
+      "game_seconds": 13.748777378350496
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00050.png",
+      "wall_seconds": 8.0,
+      "game_seconds": 13.922763381153345
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00051.png",
+      "wall_seconds": 8.17200000000048,
+      "game_seconds": 14.096323374658823
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00052.png",
+      "wall_seconds": 8.343999999999141,
+      "game_seconds": 14.265843782573938
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00053.png",
+      "wall_seconds": 8.656999999999243,
+      "game_seconds": 14.568376991897821
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00054.png",
+      "wall_seconds": 8.813000000000102,
+      "game_seconds": 14.729884300380945
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00055.png",
+      "wall_seconds": 8.968999999999141,
+      "game_seconds": 14.889526698738337
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00056.png",
+      "wall_seconds": 9.125,
+      "game_seconds": 15.048880103975534
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00057.png",
+      "wall_seconds": 9.29700000000048,
+      "game_seconds": 15.210960302501917
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00058.png",
+      "wall_seconds": 9.453999999999724,
+      "game_seconds": 15.376127202063799
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00059.png",
+      "wall_seconds": 9.625,
+      "game_seconds": 15.547254208475351
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00060.png",
+      "wall_seconds": 9.79700000000048,
+      "game_seconds": 15.714182306081057
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00061.png",
+      "wall_seconds": 9.953999999999724,
+      "game_seconds": 15.870803702622652
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00062.png",
+      "wall_seconds": 10.093999999999141,
+      "game_seconds": 16.02485479786992
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00063.png",
+      "wall_seconds": 10.265999999999622,
+      "game_seconds": 16.180701199918985
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00064.png",
+      "wall_seconds": 10.42200000000048,
+      "game_seconds": 16.337822694331408
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00065.png",
+      "wall_seconds": 10.563000000000102,
+      "game_seconds": 16.493563789874315
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00066.png",
+      "wall_seconds": 10.735000000000582,
+      "game_seconds": 16.65219408646226
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00067.png",
+      "wall_seconds": 10.890999999999622,
+      "game_seconds": 16.810552079230547
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00068.png",
+      "wall_seconds": 11.04700000000048,
+      "game_seconds": 16.970244381576777
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00069.png",
+      "wall_seconds": 11.203999999999724,
+      "game_seconds": 17.129576180130243
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00070.png",
+      "wall_seconds": 11.360000000000582,
+      "game_seconds": 17.283852372318506
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00071.png",
+      "wall_seconds": 11.515999999999622,
+      "game_seconds": 17.44162817671895
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00072.png",
+      "wall_seconds": 11.67200000000048,
+      "game_seconds": 17.597802985459566
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00073.png",
+      "wall_seconds": 11.828999999999724,
+      "game_seconds": 17.753566790372133
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00074.png",
+      "wall_seconds": 11.985000000000582,
+      "game_seconds": 17.908855695277452
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00075.png",
+      "wall_seconds": 12.140999999999622,
+      "game_seconds": 18.064486999064684
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00076.png",
+      "wall_seconds": 12.29700000000048,
+      "game_seconds": 18.223762903362513
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00077.png",
+      "wall_seconds": 12.453999999999724,
+      "game_seconds": 18.38188100233674
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00078.png",
+      "wall_seconds": 12.765999999999622,
+      "game_seconds": 18.68159321323037
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00079.png",
+      "wall_seconds": 12.92200000000048,
+      "game_seconds": 18.845199216157198
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00080.png",
+      "wall_seconds": 13.078999999999724,
+      "game_seconds": 19.003120113164186
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00081.png",
+      "wall_seconds": 13.235000000000582,
+      "game_seconds": 19.155633214861155
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00082.png",
+      "wall_seconds": 13.390999999999622,
+      "game_seconds": 19.311158511787653
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00083.png",
+      "wall_seconds": 13.54700000000048,
+      "game_seconds": 19.466992307454348
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00084.png",
+      "wall_seconds": 13.703999999999724,
+      "game_seconds": 19.62301230803132
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00085.png",
+      "wall_seconds": 13.860000000000582,
+      "game_seconds": 19.777196798473597
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00086.png",
+      "wall_seconds": 14.0,
+      "game_seconds": 19.930400792509317
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00087.png",
+      "wall_seconds": 14.156999999999243,
+      "game_seconds": 20.083296287804842
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00088.png",
+      "wall_seconds": 14.313000000000102,
+      "game_seconds": 20.23652659729123
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00089.png",
+      "wall_seconds": 14.468999999999141,
+      "game_seconds": 20.389142502099276
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00090.png",
+      "wall_seconds": 14.625,
+      "game_seconds": 20.542998004704714
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00091.png",
+      "wall_seconds": 14.765999999999622,
+      "game_seconds": 20.695583511143923
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00092.png",
+      "wall_seconds": 14.92200000000048,
+      "game_seconds": 20.8485423065722
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00093.png",
+      "wall_seconds": 15.078999999999724,
+      "game_seconds": 21.000477615743876
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00094.png",
+      "wall_seconds": 15.218999999999141,
+      "game_seconds": 21.15177671983838
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00095.png",
+      "wall_seconds": 15.375,
+      "game_seconds": 21.306002218276262
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00096.png",
+      "wall_seconds": 15.531999999999243,
+      "game_seconds": 21.457450319081545
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00097.png",
+      "wall_seconds": 15.688000000000102,
+      "game_seconds": 21.609520319849253
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00098.png",
+      "wall_seconds": 15.843999999999141,
+      "game_seconds": 21.765172217041254
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00099.png",
+      "wall_seconds": 16.0,
+      "game_seconds": 21.921392623335123
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00100.png",
+      "wall_seconds": 16.156999999999243,
+      "game_seconds": 22.073644626885653
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00101.png",
+      "wall_seconds": 16.29700000000048,
+      "game_seconds": 22.230403620749712
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00102.png",
+      "wall_seconds": 16.453999999999724,
+      "game_seconds": 22.378580529242754
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00103.png",
+      "wall_seconds": 16.610000000000582,
+      "game_seconds": 22.533561024814844
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00104.png",
+      "wall_seconds": 16.89099999999962,
+      "game_seconds": 22.816042337566614
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00105.png",
+      "wall_seconds": 17.04700000000048,
+      "game_seconds": 22.970832739025354
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00106.png",
+      "wall_seconds": 17.203999999999724,
+      "game_seconds": 23.12218164280057
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00107.png",
+      "wall_seconds": 17.34399999999914,
+      "game_seconds": 23.273543242365122
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00108.png",
+      "wall_seconds": 17.5,
+      "game_seconds": 23.425552133470774
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00109.png",
+      "wall_seconds": 17.656999999999243,
+      "game_seconds": 23.577540639787912
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00110.png",
+      "wall_seconds": 17.813000000000102,
+      "game_seconds": 23.73087403550744
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00111.png",
+      "wall_seconds": 17.953999999999724,
+      "game_seconds": 23.886319939047098
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00112.png",
+      "wall_seconds": 18.110000000000582,
+      "game_seconds": 24.040605131536722
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00113.png",
+      "wall_seconds": 18.26599999999962,
+      "game_seconds": 24.196814436465502
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00114.png",
+      "wall_seconds": 18.42200000000048,
+      "game_seconds": 24.350796330720186
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00115.png",
+      "wall_seconds": 18.578999999999724,
+      "game_seconds": 24.507214728742838
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00116.png",
+      "wall_seconds": 18.735000000000582,
+      "game_seconds": 24.664283726364374
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00117.png",
+      "wall_seconds": 18.906999999999243,
+      "game_seconds": 24.82223803177476
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00118.png",
+      "wall_seconds": 19.04700000000048,
+      "game_seconds": 24.97848593071103
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00119.png",
+      "wall_seconds": 19.203999999999724,
+      "game_seconds": 25.128837529569864
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00120.png",
+      "wall_seconds": 19.360000000000582,
+      "game_seconds": 25.285914231091738
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00121.png",
+      "wall_seconds": 19.51599999999962,
+      "game_seconds": 25.43922323361039
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00122.png",
+      "wall_seconds": 19.656999999999243,
+      "game_seconds": 25.589870531111956
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00123.png",
+      "wall_seconds": 19.813000000000102,
+      "game_seconds": 25.74109213426709
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00124.png",
+      "wall_seconds": 19.96899999999914,
+      "game_seconds": 25.89755203202367
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00125.png",
+      "wall_seconds": 20.125,
+      "game_seconds": 26.0548873282969
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\tools_062945_547eff\\00126.png",
+      "wall_seconds": 20.281999999999243,
+      "game_seconds": 26.2036351300776
+    }
+  ],
+  "error": null,
+  "wall_duration": 20.75,
+  "requested_hz": 20,
+  "method": "Actual owned PIE SWindow screenshot each frame; measured wall PTS, real simulation time; capture overhead retained"
+}

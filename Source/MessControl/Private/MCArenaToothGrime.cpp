@@ -4,6 +4,7 @@
 #include "MCInventoryComponent.h"
 #include "MCToothCharacter.h"
 #include "MCBrushContactComponent.h"
+#include "MCToothCareFeedbackComponent.h"
 #include "MCToothStatusComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
@@ -330,13 +331,14 @@ void AMCArenaTooth::BuildGrimeRelief()
 void AMCArenaTooth::ResetGrime()
 {
     if (!HasAuthority()) return;
+    bGrimeRewardEligible=true;
     FMCSurfaceWipe::Reset(GrimeMask); PreciseGrimeMask.Reset(); BrushHistory.Reset(); BrushAt=-100;
     GrimeAmount=Status->CoffeeAmount(); GrimeFinish=GrimeAmount>0?0:1;
     OnRep_Grime(); ForceNetUpdate();
 }
 void AMCArenaTooth::OnRep_Grime() { bGrimeDirty=true; }
 
-bool AMCArenaTooth::DepositLiquidGrime(TFunctionRef<bool(FVector)> IsWet)
+bool AMCArenaTooth::DepositLiquidGrime(TFunctionRef<bool(FVector)> IsWet,bool bRewardEligible)
 {
     if (!HasAuthority() || !IsAvailable() || !Visual->GetStaticMesh()) return false;
     if (!bGrimeReliefBuilt) BuildGrimeRelief();
@@ -359,7 +361,11 @@ bool AMCArenaTooth::DepositLiquidGrime(TFunctionRef<bool(FVector)> IsWet)
     for (const auto& Sample:GrimeSamples)
         if (Sample.Weight>.1f && FMCSurfaceWipe::Sample(Deposited,Sample.UV)>.25f) { Brushable=true; break; }
     if (!Brushable) return false;
+    // ApplyCoffee calls ResetGrime. Preserve provenance across that reset, then
+    // keep it through the final texel/Changed callback for the completion gate.
+    const bool RewardEligible=Status->NeedsCare(true)?bGrimeRewardEligible || bRewardEligible:bRewardEligible;
     Status->ApplyCoffee(1.f);
+    bGrimeRewardEligible=RewardEligible;
     GrimeMask=MoveTemp(Deposited); PreciseGrimeMask.Reset();
     OnRep_Grime(); ForceNetUpdate();
     return true;
@@ -480,7 +486,8 @@ bool AMCArenaTooth::BrushGrime(AMCToothCharacter* Worker,float Seconds)
     const float CoverageScale=FMath::Max(1.f,float(Dimensions.GetMax())/500.f);
     const float DirtRadius=54.f;
     const float Radius=Worker->Inventory->CleaningRadius(DirtRadius)*CoverageScale*1.25f;
-    if(FMCSurfaceWipe::Stroke(GrimeMask,Continuous?History.UV:UV,UV,Dimensions,Radius,Seconds*2.f,&PreciseGrimeMask,Worker->Inventory->CleaningSpeedMultiplier())) {
+    const bool AcceptedStroke=FMCSurfaceWipe::Stroke(GrimeMask,Continuous?History.UV:UV,UV,Dimensions,Radius,Seconds*2.f,&PreciseGrimeMask,Worker->Inventory->CleaningSpeedMultiplier());
+    if(AcceptedStroke) {
         OnRep_Grime();if(auto* Perks=UMCPerkComponent::ForActor(Worker)) Perks->NotifyCleaned(Hit.ImpactPoint);
     }
     History.UV=UV; History.At=Now; BrushAt=Now;
@@ -490,6 +497,8 @@ bool AMCArenaTooth::BrushGrime(AMCToothCharacter* Worker,float Seconds)
     // A surface fraction gives the same finish tolerance at every tooth size.
     const int32 RemainingLayers=Left<.06f?0:FMath::Max(1,FMath::CeilToInt(Left*Status->State.CoffeeTotal));
     while(Status->State.CoffeeLeft>RemainingLayers) { Status->CareContact(true,Worker); ++Worker->SuccessfulBrushContacts; }
+    if(AcceptedStroke && CareFeedback) CareFeedback->ReportAccepted(EMCToothCareFeedbackKind::Cleaning,
+        Hit.ImpactPoint,Hit.ImpactNormal,!Status->NeedsCare(true));
     return true;
 }
 

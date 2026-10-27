@@ -4,6 +4,8 @@
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCGameState.h"
+#include "CollisionQueryParams.h"
+#include "CollisionShape.h"
 #include "MCTongue.h"
 #include "MCTutorialDirector.h"
 #include "Components/CapsuleComponent.h"
@@ -18,6 +20,79 @@
 #if WITH_EDITOR
 #include "StaticMeshCompiler.h"
 #endif
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPlayerSharedArrivalSearchTest,"MessControl.Spawn.FourWorkersShareStartAndRetryBlockedArrival",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCPlayerSharedArrivalSearchTest::RunTest(const FString&)
+{
+    UWorld* World=UWorld::CreateWorld(EWorldType::Game,false);
+    GEngine->CreateNewWorldContext(EWorldType::Game).SetCurrentWorld(World);
+    World->SetGameInstance(NewObject<UGameInstance>(GEngine));
+    FURL URL;URL.AddOption(TEXT("game=/Script/MessControl.MCGameMode"));World->SetGameMode(URL);
+    auto* Mode=World->GetAuthGameMode<AMCGameMode>();
+    Mode->bUseDayOnePlan=false;Mode->bUseAdaptiveDirector=false;
+    World->InitializeActorsForPlay(URL);World->BeginPlay();
+    auto* Plane=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Plane.Plane"));
+#if WITH_EDITOR
+    if(Plane) FStaticMeshCompilingManager::Get().FinishCompilation({Plane});
+#endif
+    if(!TestNotNull(TEXT("The shared-arrival fixture has a real tissue mesh"),Plane)) {
+        World->EndPlay(EEndPlayReason::Quit);GEngine->DestroyWorldContext(World);World->DestroyWorld(false);return false;
+    }
+    const FTransform TissuePose(FQuat::Identity,FVector(10000,0,1500),FVector(20,20,1));
+    auto* Tongue=World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),TissuePose);
+    Tongue->SourceMesh=Plane;Tongue->FinishSpawning(TissuePose);Tongue->SetActorTickEnabled(false);
+    Mode->DefaultPawnClass=AMCToothCharacter::StaticClass();
+    auto* State=World->GetGameState<AMCGameState>();State->bLobbyWaiting=true;
+    const FTransform AuthoredStart(FVector(10000,0,1450));
+    TArray<APlayerController*> Controllers;
+    TArray<AMCToothCharacter*> Workers;
+    for(int32 Index=0;Index<4;++Index) {
+        auto* PC=World->SpawnActor<APlayerController>();PC->SetPlayer(NewObject<ULocalPlayer>(GEngine));
+        Controllers.Add(PC);Mode->RestartPlayerAtTransform(PC,AuthoredStart);
+        auto* Hero=Cast<AMCToothCharacter>(PC->GetPawn());
+        if(!TestNotNull(FString::Printf(TEXT("Worker %d spawns from the same authored start"),Index+1),Hero)) continue;
+        Workers.Add(Hero);
+        FHitResult Floor;
+        TestTrue(TEXT("Every full capsule footprint is supported by actual tissue"),
+            Tongue->InteriorSurfacePoint(Hero->GetActorLocation(),Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()+4.f,Floor));
+        const auto* Capsule=Hero->GetCapsuleComponent();
+        FCollisionQueryParams Query(SCENE_QUERY_STAT(MCSharedArrivalTest),false,Hero);
+        const FCollisionResponseParams Response(Capsule->GetCollisionResponseToChannels());
+        const FCollisionShape Shape=FCollisionShape::MakeCapsule(Capsule->GetScaledCapsuleRadius(),Capsule->GetScaledCapsuleHalfHeight());
+        TestFalse(TEXT("An arrival never overlaps world geometry or another worker"),
+            World->OverlapBlockingTestByChannel(Hero->GetActorLocation(),FQuat::Identity,Capsule->GetCollisionObjectType(),Shape,Query,Response));
+        for(auto* Other:Workers) if(Other!=Hero)
+            TestTrue(TEXT("Workers spread horizontally instead of stacking in one column"),
+                FVector::Dist2D(Hero->GetActorLocation(),Other->GetActorLocation())
+                    >=Capsule->GetScaledCapsuleRadius()+Other->GetCapsuleComponent()->GetScaledCapsuleRadius());
+    }
+    TestEqual(TEXT("All four arrivals succeed before anyone can move out of the way"),Workers.Num(),4);
+    for(auto* PC:Controllers) {if(APawn* Pawn=PC->GetPawn()) {PC->UnPossess();Pawn->Destroy();}PC->Destroy();}
+
+    auto* Obstruction=World->SpawnActor<AActor>();
+    auto* Block=NewObject<UBoxComponent>(Obstruction);Obstruction->SetRootComponent(Block);
+    Block->SetBoxExtent(FVector(1200,1200,500));Block->SetCollisionProfileName(TEXT("BlockAll"));Block->RegisterComponent();
+    Obstruction->SetActorLocation(FVector(10000,0,1950));
+    auto* Delayed=World->SpawnActor<APlayerController>();Delayed->SetPlayer(NewObject<ULocalPlayer>(GEngine));
+    AddExpectedMessage(TEXT("MC_PLAYER_ARRIVAL_BLOCKED"),ELogVerbosity::Warning,EAutomationExpectedMessageFlags::Contains,0);
+    Mode->RestartPlayerAtTransform(Delayed,AuthoredStart);
+    TestNull(TEXT("Fully blocked tissue never falls back to the buried raw start"),Delayed->GetPawn().Get());
+    Mode->Tick(.01f);
+    TestNull(TEXT("A retry still refuses genuinely blocked collision"),Delayed->GetPawn().Get());
+    Obstruction->Destroy();
+    for(int32 Tick=0;Tick<40;++Tick) {++GFrameCounter;World->Tick(LEVELTICK_All,1.f/60.f);}
+    auto* Recovered=Cast<AMCToothCharacter>(Delayed->GetPawn());
+    TestNotNull(TEXT("Removing a transient blocker automatically completes the initial spawn"),Recovered);
+    if(Recovered) {
+        TestTrue(TEXT("A retried initial arrival still waits behind the existing loading barrier"),Recovered->IsArenaArrivalHeld());
+        Delayed->UnPossess();Recovered->Destroy();
+        for(int32 Tick=0;Tick<40;++Tick) {++GFrameCounter;World->Tick(LEVELTICK_All,1.f/60.f);}
+        TestNull(TEXT("Successful admission removes retry eligibility; a later missing pawn cannot mint a free life"),Delayed->GetPawn().Get());
+    }
+    World->EndPlay(EEndPlayReason::Quit);GEngine->DestroyWorldContext(World);World->DestroyWorld(false);
+    return true;
+}
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPlayerSpawnClearanceTest,"MessControl.Spawn.PlayerCapsuleClearsTongue",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)

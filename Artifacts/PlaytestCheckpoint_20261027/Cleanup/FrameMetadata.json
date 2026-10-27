@@ -1,0 +1,583 @@
+{
+  "frames": [
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00000.png",
+      "wall_seconds": 0.07800000000133878,
+      "game_seconds": 6.200529910624027
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00001.png",
+      "wall_seconds": 0.43800000000010186,
+      "game_seconds": 6.5540623143315315
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00002.png",
+      "wall_seconds": 0.6410000000014406,
+      "game_seconds": 6.766985006630421
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00003.png",
+      "wall_seconds": 0.8600000000005821,
+      "game_seconds": 6.976042903959751
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00004.png",
+      "wall_seconds": 1.125,
+      "game_seconds": 7.204260908067226
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00005.png",
+      "wall_seconds": 1.2970000000004802,
+      "game_seconds": 7.4695223197340965
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00006.png",
+      "wall_seconds": 1.4530000000013388,
+      "game_seconds": 7.628547810018063
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00007.png",
+      "wall_seconds": 1.610000000000582,
+      "game_seconds": 7.786613307893276
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00008.png",
+      "wall_seconds": 1.7810000000008586,
+      "game_seconds": 7.951013810932636
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00009.png",
+      "wall_seconds": 1.9530000000013388,
+      "game_seconds": 8.121589712798595
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00010.png",
+      "wall_seconds": 2.125,
+      "game_seconds": 8.301006309688091
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00011.png",
+      "wall_seconds": 2.29700000000048,
+      "game_seconds": 8.471862711012363
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00012.png",
+      "wall_seconds": 2.4690000000009604,
+      "game_seconds": 8.645737908780575
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00013.png",
+      "wall_seconds": 2.6410000000014406,
+      "game_seconds": 8.819742612540722
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00014.png",
+      "wall_seconds": 2.813000000000102,
+      "game_seconds": 8.995009504258633
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00015.png",
+      "wall_seconds": 2.9690000000009604,
+      "game_seconds": 9.156760402023792
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00016.png",
+      "wall_seconds": 3.1410000000014406,
+      "game_seconds": 9.31273589283228
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00017.png",
+      "wall_seconds": 3.2810000000008586,
+      "game_seconds": 9.46886608749628
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00018.png",
+      "wall_seconds": 3.438000000000102,
+      "game_seconds": 9.623571686446667
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00019.png",
+      "wall_seconds": 3.5940000000009604,
+      "game_seconds": 9.779676578938961
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00020.png",
+      "wall_seconds": 3.75,
+      "game_seconds": 9.935896076261997
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00021.png",
+      "wall_seconds": 3.92200000000048,
+      "game_seconds": 10.095189176499844
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00022.png",
+      "wall_seconds": 4.063000000000102,
+      "game_seconds": 10.252009771764278
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00023.png",
+      "wall_seconds": 4.360000000000582,
+      "game_seconds": 10.53786437958479
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00024.png",
+      "wall_seconds": 4.516000000001441,
+      "game_seconds": 10.696254976093769
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00025.png",
+      "wall_seconds": 4.67200000000048,
+      "game_seconds": 10.85094278305769
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00026.png",
+      "wall_seconds": 4.828000000001339,
+      "game_seconds": 11.004372589290142
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00027.png",
+      "wall_seconds": 4.985000000000582,
+      "game_seconds": 11.165924288332462
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00028.png",
+      "wall_seconds": 5.156000000000859,
+      "game_seconds": 11.330181784927845
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00029.png",
+      "wall_seconds": 5.313000000000102,
+      "game_seconds": 11.48679218441248
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00030.png",
+      "wall_seconds": 5.46900000000096,
+      "game_seconds": 11.647726081311703
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00031.png",
+      "wall_seconds": 5.625,
+      "game_seconds": 11.805824480950832
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00032.png",
+      "wall_seconds": 5.781000000000859,
+      "game_seconds": 11.967888377606869
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00033.png",
+      "wall_seconds": 5.953000000001339,
+      "game_seconds": 12.13378307968378
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00034.png",
+      "wall_seconds": 6.110000000000582,
+      "game_seconds": 12.295572273433208
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00035.png",
+      "wall_seconds": 6.281000000000859,
+      "game_seconds": 12.457314975559711
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00036.png",
+      "wall_seconds": 6.438000000000102,
+      "game_seconds": 12.619214065372944
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00037.png",
+      "wall_seconds": 6.59400000000096,
+      "game_seconds": 12.778876967728138
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00038.png",
+      "wall_seconds": 6.766000000001441,
+      "game_seconds": 12.938968069851398
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00039.png",
+      "wall_seconds": 6.92200000000048,
+      "game_seconds": 13.102924965322018
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00040.png",
+      "wall_seconds": 7.09400000000096,
+      "game_seconds": 13.26735956221819
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00041.png",
+      "wall_seconds": 7.266000000001441,
+      "game_seconds": 13.438693471252918
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00042.png",
+      "wall_seconds": 7.42200000000048,
+      "game_seconds": 13.604882873594761
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00043.png",
+      "wall_seconds": 7.59400000000096,
+      "game_seconds": 13.765396974980831
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00044.png",
+      "wall_seconds": 7.75,
+      "game_seconds": 13.929807372391224
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00045.png",
+      "wall_seconds": 7.906000000000859,
+      "game_seconds": 14.088424272835255
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00046.png",
+      "wall_seconds": 8.063000000000102,
+      "game_seconds": 14.246861167252064
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00047.png",
+      "wall_seconds": 8.21900000000096,
+      "game_seconds": 14.40661146491766
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00048.png",
+      "wall_seconds": 8.531000000000859,
+      "game_seconds": 14.70179357379675
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00049.png",
+      "wall_seconds": 8.688000000000102,
+      "game_seconds": 14.86373396962881
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00050.png",
+      "wall_seconds": 8.84400000000096,
+      "game_seconds": 15.022583775222301
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00051.png",
+      "wall_seconds": 9.0,
+      "game_seconds": 15.183591671288013
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00052.png",
+      "wall_seconds": 9.17200000000048,
+      "game_seconds": 15.344471164047718
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00053.png",
+      "wall_seconds": 9.328000000001339,
+      "game_seconds": 15.501902960240841
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00054.png",
+      "wall_seconds": 9.485000000000582,
+      "game_seconds": 15.663571156561375
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00055.png",
+      "wall_seconds": 9.64100000000144,
+      "game_seconds": 15.819717057049274
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00056.png",
+      "wall_seconds": 9.79700000000048,
+      "game_seconds": 15.978536255657673
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00057.png",
+      "wall_seconds": 9.953000000001339,
+      "game_seconds": 16.13597486168146
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00058.png",
+      "wall_seconds": 10.110000000000582,
+      "game_seconds": 16.290594466030598
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00059.png",
+      "wall_seconds": 10.26600000000144,
+      "game_seconds": 16.44764766842127
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00060.png",
+      "wall_seconds": 10.42200000000048,
+      "game_seconds": 16.60790377110243
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00061.png",
+      "wall_seconds": 10.578000000001339,
+      "game_seconds": 16.76240596920252
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00062.png",
+      "wall_seconds": 10.735000000000582,
+      "game_seconds": 16.916161872446537
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00063.png",
+      "wall_seconds": 10.89100000000144,
+      "game_seconds": 17.074337176978588
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00064.png",
+      "wall_seconds": 11.04700000000048,
+      "game_seconds": 17.22813967615366
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00065.png",
+      "wall_seconds": 11.203000000001339,
+      "game_seconds": 17.382939971983433
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00066.png",
+      "wall_seconds": 11.360000000000582,
+      "game_seconds": 17.535922668874264
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00067.png",
+      "wall_seconds": 11.5,
+      "game_seconds": 17.68872617930174
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00068.png",
+      "wall_seconds": 11.656000000000859,
+      "game_seconds": 17.841946683824062
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00069.png",
+      "wall_seconds": 11.813000000000102,
+      "game_seconds": 17.995203383266926
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00070.png",
+      "wall_seconds": 11.96900000000096,
+      "game_seconds": 18.14848568290472
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00071.png",
+      "wall_seconds": 12.125,
+      "game_seconds": 18.30031578987837
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00072.png",
+      "wall_seconds": 12.26600000000144,
+      "game_seconds": 18.452812187373638
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00073.png",
+      "wall_seconds": 12.563000000000102,
+      "game_seconds": 18.738371901214123
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00074.png",
+      "wall_seconds": 12.71900000000096,
+      "game_seconds": 18.89756230264902
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00075.png",
+      "wall_seconds": 12.875,
+      "game_seconds": 19.054703198373318
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00076.png",
+      "wall_seconds": 13.031000000000859,
+      "game_seconds": 19.209644503891468
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00077.png",
+      "wall_seconds": 13.188000000000102,
+      "game_seconds": 19.364161796867847
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00078.png",
+      "wall_seconds": 13.34400000000096,
+      "game_seconds": 19.52156289666891
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00079.png",
+      "wall_seconds": 13.5,
+      "game_seconds": 19.676423095166683
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00080.png",
+      "wall_seconds": 13.656000000000859,
+      "game_seconds": 19.829148299992085
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00081.png",
+      "wall_seconds": 13.813000000000102,
+      "game_seconds": 19.987512700259686
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00082.png",
+      "wall_seconds": 13.96900000000096,
+      "game_seconds": 20.142152704298496
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00083.png",
+      "wall_seconds": 14.110000000000582,
+      "game_seconds": 20.295481003820896
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00084.png",
+      "wall_seconds": 14.26600000000144,
+      "game_seconds": 20.450767807662487
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00085.png",
+      "wall_seconds": 14.42200000000048,
+      "game_seconds": 20.604894004762173
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00086.png",
+      "wall_seconds": 14.578000000001339,
+      "game_seconds": 20.759861804544926
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00087.png",
+      "wall_seconds": 14.735000000000582,
+      "game_seconds": 20.913106597959995
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00088.png",
+      "wall_seconds": 14.89100000000144,
+      "game_seconds": 21.068479292094707
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00089.png",
+      "wall_seconds": 15.04700000000048,
+      "game_seconds": 21.221579186618328
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00090.png",
+      "wall_seconds": 15.188000000000102,
+      "game_seconds": 21.374821789562702
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00091.png",
+      "wall_seconds": 15.34400000000096,
+      "game_seconds": 21.527441583573818
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00092.png",
+      "wall_seconds": 15.5,
+      "game_seconds": 21.684343583881855
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00093.png",
+      "wall_seconds": 15.656000000000859,
+      "game_seconds": 21.836935080587864
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00094.png",
+      "wall_seconds": 15.813000000000102,
+      "game_seconds": 21.994183979928493
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00095.png",
+      "wall_seconds": 15.96900000000096,
+      "game_seconds": 22.15509758144617
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00096.png",
+      "wall_seconds": 16.125,
+      "game_seconds": 22.31004958599806
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00097.png",
+      "wall_seconds": 16.28100000000086,
+      "game_seconds": 22.462538681924343
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00098.png",
+      "wall_seconds": 16.563000000000102,
+      "game_seconds": 22.743688993155956
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00099.png",
+      "wall_seconds": 16.71900000000096,
+      "game_seconds": 22.900388292968273
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00100.png",
+      "wall_seconds": 16.875,
+      "game_seconds": 23.058160595595837
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00101.png",
+      "wall_seconds": 17.03100000000086,
+      "game_seconds": 23.211785100400448
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00102.png",
+      "wall_seconds": 17.188000000000102,
+      "game_seconds": 23.366489492356777
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00103.png",
+      "wall_seconds": 17.34400000000096,
+      "game_seconds": 23.522123984992504
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00104.png",
+      "wall_seconds": 17.5,
+      "game_seconds": 23.677993677556515
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00105.png",
+      "wall_seconds": 17.65600000000086,
+      "game_seconds": 23.834284774959087
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00106.png",
+      "wall_seconds": 17.813000000000102,
+      "game_seconds": 23.989950768649578
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00107.png",
+      "wall_seconds": 17.96900000000096,
+      "game_seconds": 24.146180771291256
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00108.png",
+      "wall_seconds": 18.125,
+      "game_seconds": 24.30038107186556
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00109.png",
+      "wall_seconds": 18.28100000000086,
+      "game_seconds": 24.454716973006725
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00110.png",
+      "wall_seconds": 18.438000000000102,
+      "game_seconds": 24.613140664994717
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00111.png",
+      "wall_seconds": 18.57800000000134,
+      "game_seconds": 24.766195468604565
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00112.png",
+      "wall_seconds": 18.735000000000582,
+      "game_seconds": 24.923476971685886
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00113.png",
+      "wall_seconds": 18.90600000000086,
+      "game_seconds": 25.082472674548626
+    },
+    {
+      "path": "E:\\CodexWork\\Checkpoint_20261027\\NativeFrames\\cleanup_063036_d9c14c\\00114.png",
+      "wall_seconds": 19.063000000000102,
+      "game_seconds": 25.242523573338985
+    }
+  ],
+  "error": null,
+  "wall_duration": 19.563000000000102,
+  "requested_hz": 20,
+  "method": "Actual owned PIE SWindow screenshot each frame; measured wall PTS, real simulation time; capture overhead retained"
+}

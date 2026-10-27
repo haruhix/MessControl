@@ -15,6 +15,7 @@ class UTextRenderComponent;
 class AMCRewardDropZone;
 class AMCPerkPickup;
 class AMCToothCharacter;
+class AMCPlayerState;
 class UMCPerkComponent;
 class UMaterialInstanceDynamic;
 class UMaterialInterface;
@@ -39,7 +40,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void InitializeReward(FVector Landing,FVector Start,int32 Seed,UDataTable* Table,
         EMCRewardSelectionPolicy Policy,AMCRewardDropZone* Zone);
-    /** Authored stage reward: one shared immediate booster, never a mimic or a personal perk. */
+    /** One stage chest, with an independent immediate booster choice for each participant. */
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Rewards")
     void InitializeTeamStageReward(FVector Landing,FVector Start,int32 Seed,UDataTable* Table,AMCRewardDropZone* Zone);
     UPROPERTY(ReplicatedUsing=RefreshPresentation,BlueprintReadOnly,Category="Rewards") bool bTeamStageBooster=false;
@@ -51,6 +52,13 @@ public:
     static EMCPerkRarity RollToolRarity(int32 Seed,float LegendaryPercent,float RarePercent);
     bool BeginLockpicking(AMCToothCharacter* Player);
     bool TryChooseCard(AMCToothCharacter* Player,int32 Index);
+    /** Authority-side entitlement/interaction query; the ledger is keyed by PlayerState, not pawn. */
+    bool HasStageChoiceFor(const AMCToothCharacter* Player) const;
+    /** Re-send only this player's outstanding stage offer, e.g. after a rejected/stale choice RPC. */
+    bool PublishStageChoiceFor(AMCToothCharacter* Player);
+    bool ConfirmStageChoicePresented(AMCToothCharacter* Player);
+    /** Authority clock for a captured recipient: retries and replacement never extend the Open-stage deadline. */
+    double GetStageChoiceDeadline(const AMCPlayerState* PlayerState) const;
     bool ConfirmRogueContract(AMCToothCharacter* Player);
     bool DeclineRogueReward(AMCToothCharacter* Player);
     FMCRogueChestOffer GetRogueOffer() const;
@@ -126,6 +134,11 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards|Mimic") double RescueStartedAt=0;
 private:
     friend class FMCStageRewardBotSelectionTest;
+    friend class FMCStageRewardIndividualClaimTest;
+    friend class FMCStageRewardReplacementTest;
+    friend class FMCStageRewardTerminalDeathTest;
+    friend class FMCStageRewardArrivalOverlapTest;
+    friend class FMCStageRewardTimeoutTest;
     UFUNCTION() void RefreshPresentation();
     void ConfigureGeometry();
     void CacheRewardEffectsVisibility();
@@ -147,7 +160,13 @@ private:
     bool TryChooseTeamBooster(AMCToothCharacter* Player,int32 Index);
     void PollTeamBoosterApproach();
     bool BuildTeamBoosterOffer(const UMCPerkComponent* Perks);
-    bool ApplyTeamBoosterOnce(UMCPerkComponent* Perks,FName ID);
+    bool ApplyStageBoosterOnce(AMCPlayerState* PlayerState,FName ID,bool bAllowDeferred=false);
+    bool ResolveExpiredStageChoice(AMCPlayerState* PlayerState);
+    void CaptureStageRecipients();
+    bool CanReceiveStageChoice(const AMCToothCharacter* Player) const;
+    void ReleaseStageChoice(AMCPlayerState* PlayerState);
+    void ReleaseStageChoices();
+    bool AreStageChoicesResolved() const;
     void CaptureOpener();
     void ReleaseCaptive(bool FindClearFloor=true);
     void UpdateMimicPresentation(float Age);
@@ -159,6 +178,12 @@ private:
     FTimerHandle ApproachTimer;
     int32 RollSeed=0;
     bool bClaimInProgress=false;
+    bool bStageRecipientsCaptured=false;
+    TSet<TWeakObjectPtr<AMCPlayerState>> StageRecipients;
+    TSet<TWeakObjectPtr<AMCPlayerState>> StageClaims;
+    TSet<TWeakObjectPtr<AMCPlayerState>> StageChoicePresented;
+    TMap<TWeakObjectPtr<AMCPlayerState>,double> StageChoiceLastSent;
+    TMap<TWeakObjectPtr<AMCPlayerState>,TWeakObjectPtr<AMCToothCharacter>> StageChoicePawns;
     bool bReported=false;
     int8 MimicTestOverride=-1;
     UPROPERTY(Replicated) FVector CapturedEntryLocation=FVector::ZeroVector;

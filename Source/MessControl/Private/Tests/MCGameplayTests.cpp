@@ -8,6 +8,8 @@
 #include "MCGameState.h"
 #include "MCTaskActor.h"
 #include "MCToothCharacter.h"
+#include "MCOrbitSpringArmComponent.h"
+#include "MCOrbitSpringArmComponent.h"
 #include "MCArenaTooth.h"
 #include "MCSurfaceWipe.h"
 #include "MCCoffeeWipe.h"
@@ -2298,7 +2300,11 @@ bool FMCCameraStabilityTest::RunTest(const FString&)
     auto* PC=Mouth.World->SpawnActor<APlayerController>(); PC->SetAsLocalPlayerController();
     auto* H=Mouth.Worker(); PC->Possess(H); H->SetActorLocation(FVector(0,0,2000));
     H->bManualCameraOrbit=true; H->CameraOrbitYaw=0; H->CameraOrbitPitch=-30; H->CameraOrbitDistance=900;
-    auto View=[&](float Dt) { H->UpdateMouthCamera(Dt); H->CameraBoom->TickComponent(Dt,LEVELTICK_All,nullptr); };
+    // This regression specifically exercises the opt-in soft wall recovery.
+    // The default user preference now disables that easing.
+    auto View=[&](float Dt) { H->UpdateMouthCamera(Dt);
+        CastChecked<UMCOrbitSpringArmComponent>(H->CameraBoom)->SetRecoverySmoothingEnabled(true);
+        H->CameraBoom->TickComponent(Dt,LEVELTICK_All,nullptr); };
     View(1.f);
     const FRotator Wanted=H->Camera->GetComponentRotation();
     float MaxDrift=0; FVector P=H->GetActorLocation();

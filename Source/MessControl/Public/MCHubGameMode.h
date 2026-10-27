@@ -35,7 +35,7 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Hub") bool RequestReturnToHub(APlayerController* Requester);
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Hub|Room")
     bool RequestSetRoomPrivacy(APlayerController* Requester, EMCRoomPrivacy Privacy);
-    void AcknowledgeSceneLoaded(APlayerController* Player, int32 Generation);
+    void AcknowledgeSceneLoaded(APlayerController* Player, const AMCHubGameState* LoadedHub, int32 Generation);
     /** Queue safe recovery outside the character's physics/FellOutOfWorld callback. */
     bool RecoverPlayer(AMCToothCharacter* Player);
     void RefreshReadiness();

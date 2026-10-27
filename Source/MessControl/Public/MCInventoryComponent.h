@@ -15,6 +15,43 @@ class UNiagaraComponent;
 UENUM(BlueprintType)
 enum class EMCToolSlot : uint8 { Brush, Pickaxe, Knife, Spray };
 
+/** Owner receipt changes for rejection or A -> B -> A, where Slot alone may not. */
+USTRUCT()
+struct FMCToolSelectionReceipt
+{
+    GENERATED_BODY()
+    UPROPERTY() EMCToolSlot Slot=EMCToolSlot::Brush;
+    UPROPERTY() uint32 RequestId=0;
+    UPROPERTY() uint32 Revision=0;
+};
+
+/** Owner presentation only; never authorizes attacks or changes their clocks. */
+struct FMCToolSelectionPrediction
+{
+    EMCToolSlot AuthoritativeSlot=EMCToolSlot::Brush;
+    EMCToolSlot RequestedSlot=EMCToolSlot::Brush;
+    uint32 NextRequestId=0,PendingRequestId=0,OutstandingSwingFence=0,LastRevision=0;
+    bool bHasReceipt=false;
+    static bool IsNewer(uint32 Value,uint32 Previous) {return Value!=Previous && uint32(Value-Previous)<0x80000000u;}
+    uint32 Request(EMCToolSlot Slot) {
+        if(++NextRequestId==0) ++NextRequestId;
+        PendingRequestId=OutstandingSwingFence=NextRequestId;RequestedSlot=Slot;return PendingRequestId;
+    }
+    bool Receive(const FMCToolSelectionReceipt& Receipt,EMCToolSlot& VisibleSlot) {
+        if(uint8(Receipt.Slot)>uint8(EMCToolSlot::Spray) || (bHasReceipt && !IsNewer(Receipt.Revision,LastRevision))) return false;
+        bHasReceipt=true;LastRevision=Receipt.Revision;AuthoritativeSlot=Receipt.Slot;
+        if(Receipt.RequestId && (!NextRequestId || IsNewer(Receipt.RequestId,NextRequestId))) NextRequestId=Receipt.RequestId;
+        if(PendingRequestId && Receipt.RequestId && (Receipt.RequestId==PendingRequestId || IsNewer(Receipt.RequestId,PendingRequestId))) PendingRequestId=0;
+        VisibleSlot=PendingRequestId?RequestedSlot:AuthoritativeSlot;return true;
+    }
+    // Property delivery is not an ordering barrier for reliable actor RPCs.
+    void AcknowledgeOrdered(uint32 RequestId) {
+        if(OutstandingSwingFence && RequestId && (RequestId==OutstandingSwingFence || IsNewer(RequestId,OutstandingSwingFence))) OutstandingSwingFence=0;
+    }
+    void Cancel(EMCToolSlot& VisibleSlot) {PendingRequestId=0;VisibleSlot=AuthoritativeSlot;}
+    void ForgetOwnership() {PendingRequestId=OutstandingSwingFence=0;}
+};
+
 /** Artist-replaceable equipment; slot one keeps its cleaning contract after an upgrade. */
 UCLASS(BlueprintType)
 class MESSCONTROL_API UMCEquipmentProfile : public UPrimaryDataAsset
@@ -95,6 +132,7 @@ class MESSCONTROL_API UMCInventoryComponent : public UActorComponent
 #if WITH_DEV_AUTOMATION_TESTS
     friend class FMCToolBoosterMechanics;
     friend class FMCSprayProtection;
+    friend class FMCToolSelectionLateSwingTest;
 #endif
 public:
     UMCInventoryComponent();
@@ -151,6 +189,10 @@ public:
     void UpdateWatergunInput();
     UFUNCTION(BlueprintPure,Category="Tools") FVector SprayAim() const;
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Tools") void ServerSelect(EMCToolSlot Slot);
+    /** Local input: immediate owner presentation, with authority receipt/rollback. */
+    UFUNCTION(BlueprintCallable,Category="Tools") bool RequestSelect(EMCToolSlot Slot);
+    /** Cosmetic guard; all attack authority and deadlines remain server-owned. */
+    bool IsSelectionPresentationFenced() const;
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Tools") void ServerSpray();
     // Called by the authoritative upgrade/shop system. Clients cannot grant upgrades.
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Tools") void UnlockWaterJet();
@@ -176,6 +218,18 @@ public:
     bool ResolveBufferContact();
     FString ToolName() const;
 private:
+    bool CanRequestSelection() const;
+    void ApplyAuthoritySelection(EMCToolSlot Slot);
+    void CancelPreviousSwingForSelection();
+    void PublishSelectionReceipt(uint32 RequestId);
+    void ApplySelectionReceipt(const FMCToolSelectionReceipt& Receipt);
+    UFUNCTION(Server,Reliable) void ServerRequestSelection(EMCToolSlot Slot,uint32 RequestId);
+    UFUNCTION(Client,Reliable) void ClientConfirmSelection(const FMCToolSelectionReceipt& Receipt);
+    UFUNCTION() void OnRep_SelectionReceipt();
+    UPROPERTY(ReplicatedUsing=OnRep_SelectionReceipt) FMCToolSelectionReceipt SelectionReceipt;
+    FMCToolSelectionPrediction SelectionPrediction;
+    bool bDeferredSelectionReceipt=false;
+    uint32 LastProcessedSelectionRequest=0;
     friend class AMCVFXLabToolStation;
     double Now() const;
     UPROPERTY() TObjectPtr<AMCToothCharacter> Hero;
@@ -224,7 +278,7 @@ private:
     FVector BufferPulseCenter=FVector::ZeroVector;
     float BufferPulseRadius=65;
     AMCMouthSurface* FindSprayTarget() const;
-    class AMCArenaTooth* FindToothRepairTarget() const;
+    class AMCArenaTooth* FindToothRepairTarget(FHitResult* Contact=nullptr) const;
     class AMCFirePatch* FindFireTarget() const;
     FVector SprayOrigin() const;
     FVector SprayDirection() const;

@@ -344,7 +344,8 @@ void AMCRewardChest::InitializeReward(FVector Landing,FVector Start,int32 Seed,U
     EMCRewardSelectionPolicy Policy,AMCRewardDropZone* Zone)
 {
     if(!HasAuthority()) return;
-    ReleaseCaptive(); ReleaseOpener(); LootIDs.Reset(); ClaimedMask=0; bReported=false; bClaimInProgress=false;
+    ReleaseCaptive(); ReleaseStageChoices(); ReleaseOpener(); LootIDs.Reset(); ClaimedMask=0; bReported=false; bClaimInProgress=false;
+    StageRecipients.Reset();StageClaims.Reset();bStageRecipientsCaptured=false;
     LandingPoint=Landing; FallStart=Start; RollSeed=Seed; RewardTable=Table; SelectionPolicy=Policy; DropZone=Zone;
     RollMimic();
     bRewardInitialized=true; Stage=EMCRewardChestStage::Telegraph; StageStartedAt=ServerNow();
@@ -417,6 +418,8 @@ void AMCRewardChest::RefreshPresentation()
     const bool Exhausted=Stage==EMCRewardChestStage::Exhausted;
     const bool Landed=bRewardInitialized && Stage>=EMCRewardChestStage::Landed && !Exhausted;
     Solid->SetCollisionEnabled(Landed?ECollisionEnabled::QueryAndPhysics:ECollisionEnabled::NoCollision);
+    Solid->SetCollisionResponseToChannel(ECC_Pawn,bTeamStageBooster?ECR_Ignore:ECR_Block);
+    Solid->SetCollisionResponseToChannel(ECC_PhysicsBody,bTeamStageBooster?ECR_Ignore:ECR_Block);
     Approach->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     // No floor disc/ring/halo: the accelerating chest and brief airborne
     // touchdown sparks provide the arrival cue without painting the arena.
@@ -573,7 +576,11 @@ void AMCRewardChest::Tick(float Dt)
             if(bMimic) { CaptureOpener(); return; }
             SetStage(EMCRewardChestStage::Open);
             if(IsValid(OpeningPlayer) && OpeningPlayer->Expression) OpeningPlayer->Expression->PlayChestCelebration();
-            if(RogueKind!=EMCRogueRewardKind::Ordinary) PublishRogueOffer();
+            if(bTeamStageBooster) {
+                if(IsValid(OpeningPlayer)) PublishStageChoiceFor(OpeningPlayer);
+                PollTeamBoosterApproach();
+            }
+            else if(RogueKind!=EMCRogueRewardKind::Ordinary) PublishRogueOffer();
             else if(IsValid(OpeningPlayer)) if(auto* PC=Cast<AMCPlayerController>(OpeningPlayer->GetController()))
                 PC->ClientShowPerkChoices(this,LootIDs,Polarity,bTeamStageBooster);
         }
@@ -589,6 +596,7 @@ bool AMCRewardChest::HasClearLanding() const
 {
     if(!IsValid(DropZone) || !DropZone->ContainsFootprint(LandingPoint,GetPlacementHalfExtent())) return false;
     FCollisionQueryParams Query(SCENE_QUERY_STAT(RewardTouchdown),true,this);
+    if(bTeamStageBooster) for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) Query.AddIgnoredActor(*It);
     FHitResult Floor;
     if(!GetWorld()->LineTraceSingleByChannel(Floor,LandingPoint+FVector(0,0,30),LandingPoint-FVector(0,0,30),ECC_Visibility,Query)
         || !DropZone->AcceptsFloor(Floor) || FMath::Abs(Floor.ImpactPoint.Z-LandingPoint.Z)>15) return false;
@@ -617,7 +625,8 @@ bool AMCRewardChest::HasValidLoot(UDataTable* Table,const UMCPerkComponent* Reci
 void AMCRewardChest::PollApproach()
 {
     if(!HasAuthority() || !bRewardInitialized) return;
-    if(bTeamStageBooster && Stage==EMCRewardChestStage::Landed) {PollTeamBoosterApproach();return;}
+    if(bTeamStageBooster && (Stage==EMCRewardChestStage::Landed || Stage==EMCRewardChestStage::Opening
+        || Stage==EMCRewardChestStage::Open)) {PollTeamBoosterApproach();return;}
     if(Stage==EMCRewardChestStage::Falling) {
         const double Age=ServerNow()-StageStartedAt;
         if(Age>=FMath::Max(.1f,FallSeconds)) {
@@ -757,7 +766,7 @@ void AMCRewardChest::FinishReward(bool bRequeue)
     bReported=true; GetWorldTimerManager().ClearTimer(ApproachTimer);
     if(auto* Director=Cast<AMCRoguelikeDirector>(GetOwner())) Director->NotifyChestFinished(this,bRequeue);
     if(bTeamStageBooster) if(auto* Director=Cast<AMCSingleDayDirector>(GetOwner())) Director->NotifyStageRewardFinished(this,bRequeue);
-    ReleaseCaptive(); ReleaseOpener();
+    ReleaseCaptive(); ReleaseStageChoices(); ReleaseOpener();
     SetStage(EMCRewardChestStage::Exhausted);
     // Keep the actor for the short claim burst, then remove spawned chests.
     // Authored placed rewards stay hidden and can be reset on a future run.
@@ -782,7 +791,7 @@ void AMCRewardChest::EndPlay(const EEndPlayReason::Type Reason)
 {
     GetWorldTimerManager().ClearAllTimersForObject(this);
     if(HasAuthority()) {
-        ReleaseCaptive(Reason==EEndPlayReason::Destroyed); ReleaseOpener();
+        ReleaseCaptive(Reason==EEndPlayReason::Destroyed); ReleaseStageChoices(); ReleaseOpener();
         if(!bReported && Reason==EEndPlayReason::Destroyed)
             if(auto* Director=Cast<AMCRoguelikeDirector>(GetOwner())) Director->NotifyChestFinished(this,!bMimic && ClaimedMask==0);
         if(bTeamStageBooster && !bReported && Reason==EEndPlayReason::Destroyed)

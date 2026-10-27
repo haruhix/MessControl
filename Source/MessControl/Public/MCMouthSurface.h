@@ -60,6 +60,8 @@ public:
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ulcer") float PulseRadius=260;
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ulcer") float PulseDamage=12;
     bool IsClean() const;
+    /** Event paint still cleans/counts normally; it does not send the currency-like success burst. */
+    bool ShouldShowCleaningCompletionFeedback() const { return !ActorHasTag(TEXT("MCCataclysmDirt")); }
     AMCTongue* GetTongue() const { return Tongue; }
     void Disturb();
     void ResetLiquid();

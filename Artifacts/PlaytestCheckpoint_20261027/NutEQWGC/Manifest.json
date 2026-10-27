@@ -1,0 +1,225 @@
+{
+  "created_utc": "2026-10-27T00:03:05.0284427Z",
+  "source_run": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Runs\\20261027T000051Z_cf9639c7",
+  "scope": "One focused native F3 nut encounter fixture: normal cutting, E one fragment, Q actual boss shot.",
+  "native_report_passed": true,
+  "visual_review_status": "Pending root video/contact-sheet review; early capture gate approval is not final acceptance.",
+  "checks": {
+    "actual_ready_without_obsolete_first_offer": true,
+    "root_capture_gate_approved": true,
+    "normal_input_generated_native_fragments": true,
+    "e_one_piece_no_tower": true,
+    "q_native_physics_reenabled": true,
+    "q_real_boss_shield_or_health_damage": true,
+    "q_empties_hand_without_tower_refill": true
+  },
+  "shot_before": {
+    "piece": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+    "boss_health": 1400.0,
+    "shield": 500.0,
+    "time": 23.94074161350727
+  },
+  "shot_after": {
+    "boss_health": 1400.0,
+    "shield": 482.0,
+    "time": 24.297982312738895,
+    "piece": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18"
+  },
+  "native_q_first_physical_flight": {
+    "game_seconds": 24.121121913194656,
+    "simulating": true,
+    "velocity": [
+      1417.4725341796875,
+      1770.1600341796875,
+      753.3505249023438
+    ],
+    "speed_cm_s": 2389.609161585102,
+    "position_cm": [
+      1090.6414929251746,
+      559.1858144126011,
+      243.04483321158546
+    ]
+  },
+  "static_fragment_fixture": {
+    "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_18",
+    "original_simulating": true,
+    "simulating_after_setup": false,
+    "collision_before": "QUERYANDPHYSICS",
+    "collision_after": "QUERYANDPHYSICS",
+    "health": 25.0,
+    "phase": "FALLING",
+    "desired_cm": [
+      1048.7600868590202,
+      566.7716609262264,
+      168.6336482384263
+    ],
+    "actual_cm": [
+      1048.7600868590202,
+      566.7716609262264,
+      168.6336482384263
+    ],
+    "body_origin_cm": [
+      1048.7600868590202,
+      566.7716609262264,
+      168.6336482384263
+    ],
+    "scaled_box_extent_cm": [
+      14.661648874270583,
+      27.559855842687913,
+      35.0
+    ],
+    "rotation_degrees": [
+      -45.738333676362544,
+      28.755474955415696,
+      -17.84279556926673
+    ],
+    "actual_distance_to_player_cm": 111.92105998702188,
+    "game_seconds": 22.515138313174248,
+    "scope": "Disclosed initial static fragment fixture; no natural loose-fragment physics claim. E/Q and collision gates unchanged.",
+    "distance_at_e_cm": 110.75565162020855
+  },
+  "fixture_changes": [
+    "Native F3 NutEncounter initial fixture",
+    "Supported player/nut/fragment placement only; no HP or expected-state writes",
+    "Refresh supported whole-nut/player placement once at gate approval; zero velocities, native physics continues",
+    "Selected native cut fragment is kinematic only for initial E pickup setup; collisions unchanged; native Q must reenable physics",
+    "Pause the naturally arrived knight actor tick during this focused shot",
+    "Temporary live PIE CameraActor view target"
+  ],
+  "measured_video": {
+    "width": 1286,
+    "height": 760,
+    "decoded_frames": 131,
+    "duration_seconds": 4.833333,
+    "average_fps": 27.083333333333336,
+    "maximum_frame_gap_seconds": 0.13333300000000037,
+    "gaps_over_100ms": 2,
+    "gaps_over_250ms": 0,
+    "timestamps_strictly_increasing": true,
+    "audio": "None (-an)",
+    "timing": "Independent Windows Graphics Capture of explicit PIE HWND, VFR source timestamps; no interpolation or timewarp."
+  },
+  "copied_file_count": 10,
+  "all_copy_hashes_verified": true,
+  "copied_files": [
+    {
+      "relative_path": "Report.json",
+      "source": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Runs\\20261027T000051Z_cf9639c7\\Report.json",
+      "bytes": 72934,
+      "sha256": "e7edc25fafb5d0a9360b1d1a1c1288ecc1be8c25c51d61371950c6761cafaca9",
+      "source_hash_matches": true
+    },
+    {
+      "relative_path": "Nut_Complete_090050.mp4",
+      "source": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Nut_Complete_090050.mp4",
+      "bytes": 1545473,
+      "sha256": "8d6185098cf59125fd4c7a8b33e83f4779cf413d339513712c654edf0eef93cf",
+      "source_hash_matches": true
+    },
+    {
+      "relative_path": "Auto_090050.json",
+      "source": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Auto_090050.json",
+      "bytes": 3323,
+      "sha256": "7d69537cc637a9de07aeb12b4ffcf130d0f5053fb47cb1e43cbbed76b6ca7edb",
+      "source_hash_matches": true
+    },
+    {
+      "relative_path": "Nut_Complete_090050.Capture.json",
+      "source": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Nut_Complete_090050.Capture.json",
+      "bytes": 2557,
+      "sha256": "798e7d28e26131c3d08c0b4993514e614e08ee138022e7f8b0b875b85e3dd1a1",
+      "source_hash_matches": true
+    },
+    {
+      "relative_path": "Nut_Complete_090050.VideoMetadata.json",
+      "source": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Nut_Complete_090050.VideoMetadata.json",
+      "bytes": 1859,
+      "sha256": "dac116c50d3dc6f1a0db5a94131ede1edf37763442ff9823af18ec0c32cf2994",
+      "source_hash_matches": true
+    },
+    {
+      "relative_path": "Nut_Complete_090050.VideoMetadata.ffprobe.json",
+      "source": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Nut_Complete_090050.VideoMetadata.ffprobe.json",
+      "bytes": 10659,
+      "sha256": "91c1613f035b3954bafe668bc0c6c9e70f6ae5a0b9822ab1cadfec37336853b4",
+      "source_hash_matches": true
+    },
+    {
+      "relative_path": "screenshots/00_actual_ready_without_offer.png",
+      "source": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Runs\\20261027T000051Z_cf9639c7\\screenshots\\00_actual_ready_without_offer.png",
+      "bytes": 1109471,
+      "sha256": "def159c57bef80841e90dce5aca8dc8dbd9243b917d160bc0eacdceb3c214bcf",
+      "source_hash_matches": true
+    },
+    {
+      "relative_path": "screenshots/01_capture_review_gate.png",
+      "source": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Runs\\20261027T000051Z_cf9639c7\\screenshots\\01_capture_review_gate.png",
+      "bytes": 1140821,
+      "sha256": "286e25e7e49f7ebbf53c33432c79ebcd7a780ed9da751ad8261201791a352d91",
+      "source_hash_matches": true
+    },
+    {
+      "relative_path": "screenshots/02_one_nut_in_hand.png",
+      "source": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Runs\\20261027T000051Z_cf9639c7\\screenshots\\02_one_nut_in_hand.png",
+      "bytes": 1156791,
+      "sha256": "d6169a5a5c046b8e2acb7ce162264ed9c94073b8348581706cb11a78050e275d",
+      "source_hash_matches": true
+    },
+    {
+      "relative_path": "screenshots/03_actual_boss_hit.png",
+      "source": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Runs\\20261027T000051Z_cf9639c7\\screenshots\\03_actual_boss_hit.png",
+      "bytes": 1163935,
+      "sha256": "3e1d3680ad2f1d707c42451ccaa2c02a30fff101282471e1991a7a72dc134070",
+      "source_hash_matches": true
+    }
+  ],
+  "generated_files": [
+    {
+      "relative_path": "ContactSheet.png",
+      "bytes": 2242754,
+      "sha256": "3863e9002312c0db499aa1ba71ff08c59b6ac8dca3baff27caea890e41941b9c",
+      "kind": "Parent-generated video contact-sheet evidence"
+    },
+    {
+      "relative_path": "ActionContactSheet.png",
+      "bytes": 2527579,
+      "sha256": "55a4f6a6a0d612f27d8ccf7a1486808fa478217e6789fba668b8c81f0c9e5af8",
+      "kind": "Parent-generated video contact-sheet evidence"
+    },
+    {
+      "relative_path": "ContactSheetTiming.json",
+      "bytes": 531,
+      "sha256": "9aa1006f05115b0378780864a43d735fc099104aa1351d573df8553b2e98dcf1",
+      "kind": "Parent-generated video contact-sheet evidence"
+    },
+    {
+      "relative_path": "README.md",
+      "kind": "Policy-edited generated document, not a source copy",
+      "bytes": 3254,
+      "sha256": "1a952a7e70af04a43312d3b08419553ac3cfbdfe116880a8b8f64d0337f84833",
+      "policy_edited_generated_document": true,
+      "policy_edit": "Policy-edited generated document: local media retained, excluded from Git; filenames replace media links. Original source-copy claims/hashes are not reassigned to this edited document.",
+      "prior_document_record": {
+        "relative_path": "README.md",
+        "kind": "Policy-edited generated document, not a source copy"
+      }
+    }
+  ],
+  "limitations": [
+    "Selected native cut fragment was made static only for initial E pickup setup via SetSimulatePhysics(false); collisions unchanged. No HP, phase or held-state writes.",
+    "Native Q reenabled physics and emptied the hand; collision/damage path remained native.",
+    "Native F3 event, supported placement, paused knight actor tick and temporary CameraActor are disclosed fixtures.",
+    "One shot only: no full fight, chest timing, natural loose-fragment pickup, physical keyboard, network or packaged cold-start validation.",
+    "Exact shield and HP values are native telemetry, not a claim that screenshot HUD text visibly resolves the small shield delta.",
+    "Capture metadata status is the recorder launch snapshot; final frame count, timestamp gaps and end progress are in measured video metadata."
+  ],
+  "agent_visual_review": {
+    "reviewed": true,
+    "reviewer": "/root/batch6_nut_throw",
+    "evidence": "ActionContactSheet.png",
+    "finding": "One held shell and Q prompt, followed by projectile flight and visible BLOCK impact in final row.",
+    "root_visual_review": "Accepted limited static-piece/frozen-boss local-input sequence: cut, held shell/Q hint, flight/BLOCK; no full fight/chest acceptance"
+  },
+  "root_limited_visual_acceptance": true,
+  "media_storage_policy": "Verification media is local-only and excluded from Git; existing source hashes/provenance describe preserved local files."
+}

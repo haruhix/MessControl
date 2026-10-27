@@ -1,0 +1,16 @@
+{
+  "source_video": "E:\\CodexWork\\Batch6_20261027\\NutThrow\\RuntimeCapture\\Nut_Complete_090050.mp4",
+  "ContactSheet": {
+    "start_seconds": 0,
+    "sampling_fps": 2,
+    "tile": "3x3",
+    "order": "Left to right, then top to bottom"
+  },
+  "ActionContactSheet": {
+    "start_seconds": 2.4,
+    "sampling_fps": 5,
+    "tile": "4x3",
+    "order": "Left to right, then top to bottom"
+  },
+  "method": "FFmpeg extracts original recorded frames and scales/tiles them; no generated or interpolated action frames."
+}
