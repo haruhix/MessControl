@@ -38,7 +38,9 @@ float UMCInventoryComponent::CleaningSpeedMultiplier() const
 float UMCInventoryComponent::CleaningRadius(float DirtRadius) const
 {
     const auto* Perks=UMCPerkComponent::ForActor(GetOwner());
-    return (HasUpgrade(EMCToolUpgrade::MeshaBrush)?FMath::Clamp(DirtRadius,36.f,240.f):36.f)*(Perks?Perks->RogueValue(EMCRogueStat::BrushWidth):1.f);
+    const float AuthoredRadius=Settings?Settings->BrushCleaningRadius:MCBrushCleaningBalance::OrdinaryBrushRadiusCm;
+    const float BaseRadius=FMath::IsFinite(AuthoredRadius)?FMath::Clamp(AuthoredRadius,1.f,120.f):MCBrushCleaningBalance::OrdinaryBrushRadiusCm;
+    return (HasUpgrade(EMCToolUpgrade::MeshaBrush)?FMath::Clamp(DirtRadius,BaseRadius,240.f):BaseRadius)*(Perks?Perks->RogueValue(EMCRogueStat::BrushWidth):1.f);
 }
 FVector UMCInventoryComponent::BrushContactLocal() const
 {

@@ -1,6 +1,6 @@
 # MessControl Unreal project context
 
-*Engine association: UE 5.8 · Local engine: 5.8.1 · Updated: 2026-10-27 (skills/economy refresh; other sections retain the 2026-10-23 audit)*
+*Engine association: UE 5.8 · Local engine: 5.8.1 · Updated: 2026-10-28 (brush footprint validation; skills/economy retain the 2026-10-27 refresh, other sections the 2026-10-23 audit)*
 
 This context is derived from the current checkout. Current source and saved Unreal packages are authoritative; indexes are derived evidence. For the human-facing Russian documentation, start with [Docs/README.md](../Docs/README.md) and [Docs/Architecture.md](../Docs/Architecture.md).
 
@@ -110,3 +110,9 @@ Unverified beyond the bounded live reads in the audit: remaining Blueprint defau
 ## Roguelike foundation validation — 2026-10-27
 
 Normal Editor builds succeeded. The targeted native run completed 31 tests (30 clean, one with warnings, zero failures); the warnings concern CPU access on the test Plane fixture. Owned solo PIE checked four slots, nine coexisting passives, charge use, independent cooldown, personal chest choice, full-slot confirmation and actual replacement. A separate owned Hub PIE checked E/open, exact price debit, next-run preparation, close/reopen and stable stock. All use transient profiles and explicit diagnostic grants/wallet/player placement, not an earned full run. Evidence is on E:/CodexWork/MessControl/RoguelikeFoundation_20261027; network, microphone, packaged run and a real-file legacy-profile restart were not checked. Full pre-refactor saved export covered 3618 current assets out of 3619; the old EUB_SnapToActor editor utility failed compilation and is excluded. Post-refactor refreshes are scoped to the relevant tables/WBP/maps; do not assume all other cached snapshots are current.
+
+## Brush footprint validation — 2026-10-28
+
+Ordinary floor/enamel cleaning now uses a 60cm mask radius, replacing36cm. `UMCEquipmentProfile.BrushCleaningRadius` is the authored value (finite1–120cm, shared60cm fallback). `UMCInventoryComponent::CleaningRadius` retains Mesha/perk scaling; it does not alter brush contact acquisition reach, the existing5/3dose or fivefold broken-tooth repair duration. New default is verified on both the loaded saved DA_Equipment and the native CDO. No visual resources or source packages changed. The editor-only equipment review API swaps cached profiles only for the local pawn in the active standalone PIE; it does not mutate source assets or gameplay masks/readiness.
+
+Final Editor build and17 focused native tests passed (3 test-Plane warning successes). Complete, matched gameplay pairs including native clean status and natural liquid hiding measured9.72→6.87s,16.27→11.69s,83.78→38.96s (28–54% shorter, not a universal40%). Use `E:/CodexWork/MessControl/BrushCleanupRegression_20261028/Results.json` and the latest Docs/Validation.md entry for exact accepted cases. The initial narrow footprint test and overpacked synthetic spawn plane were corrected without changing runtime spawn rules. Earlier harness failures remain failed; H's large baseline exceeded60s and was repeated successfully in J at120s. All scenarios are disclosed local fixtures with ordinary primary/movement input, not hardware/network/full-run certification. Media stays local on E:, outside Git.

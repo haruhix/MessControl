@@ -879,7 +879,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCLiquidSpawnFloorTest,"MessControl.Liquid.Spa
 bool FMCLiquidSpawnFloorTest::RunTest(const FString&)
 {
     FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false);
-    const FTransform FloorTransform(FQuat::Identity,FVector::ZeroVector,FVector(30,30,1));
+    const FTransform FloorTransform(FQuat::Identity,FVector::ZeroVector,FVector(50,50,1));
     auto* Tongue=Mouth.World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),FloorTransform);
     Tongue->SourceMesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Plane.Plane"));
     Tongue->FinishSpawning(FloorTransform);

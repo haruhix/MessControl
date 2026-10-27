@@ -4,6 +4,7 @@
 #include "Engine/DataAsset.h"
 #include "Engine/NetSerialization.h"
 #include "MCPerkTypes.h"
+#include "MCBrushCleaningBalance.h"
 #include "MCInventoryComponent.generated.h"
 
 class AMCToothCharacter;
@@ -58,6 +59,9 @@ class MESSCONTROL_API UMCEquipmentProfile : public UPrimaryDataAsset
 {
     GENERATED_BODY()
 public:
+    /** Cleaning footprint on floor/enamel stains; does not extend contact acquisition reach. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Brush",meta=(ClampMin="1",ClampMax="120",Units="cm"))
+    float BrushCleaningRadius=MCBrushCleaningBalance::OrdinaryBrushRadiusCm;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tools") TSoftObjectPtr<UStaticMesh> PickaxeMesh;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tools") FTransform PickaxeTransform;
     // Current artist pick: handle along +X, striking point along +Z.

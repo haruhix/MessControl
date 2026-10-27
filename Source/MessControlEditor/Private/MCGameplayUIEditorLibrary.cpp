@@ -20,12 +20,46 @@
 #include "MCSingleDayDirector.h"
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
+#include "MCInventoryComponent.h"
+#include "Editor.h"
+#include "UObject/UnrealType.h"
 #include "MCToothStatusComponent.h"
 #include "MCCoffeeFlood.h"
 #include "MCDayPlan.h"
 #include "MCGameDirectorProfile.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
+
+namespace
+{
+UMCInventoryComponent* EquipmentReviewInventory(AMCToothCharacter* Hero)
+{
+    if(!IsInGameThread() || !GEditor || !IsValid(Hero) || !Hero->HasAuthority()) return nullptr;
+    UWorld* World=Hero->GetWorld();
+    if(!World || World->WorldType!=EWorldType::PIE || World->GetNetMode()!=NM_Standalone
+        || World->bIsTearingDown || GEditor->PlayWorld!=World || !World->GetFirstPlayerController()
+        || World->GetFirstPlayerController()->GetPawn()!=Hero || !IsValid(Hero->Inventory)
+        || Hero->Inventory->GetOwner()!=Hero) return nullptr;
+    return Hero->Inventory;
+}
+}
+
+UMCEquipmentProfile* UMCGameplayUIEditorLibrary::GetPIEEquipmentProfile(AMCToothCharacter* Hero)
+{
+    auto* Inventory=EquipmentReviewInventory(Hero);
+    const auto* Property=FindFProperty<FObjectPropertyBase>(UMCInventoryComponent::StaticClass(),TEXT("Settings"));
+    return Inventory && Property?Cast<UMCEquipmentProfile>(Property->GetObjectPropertyValue_InContainer(Inventory)):nullptr;
+}
+
+bool UMCGameplayUIEditorLibrary::SetPIEEquipmentProfile(AMCToothCharacter* Hero, UMCEquipmentProfile* Profile)
+{
+    auto* Inventory=EquipmentReviewInventory(Hero);
+    const auto* Property=FindFProperty<FObjectPropertyBase>(UMCInventoryComponent::StaticClass(),TEXT("Settings"));
+    if(!Inventory || !Property || !IsValid(Profile) || !FMath::IsFinite(Profile->BrushCleaningRadius)
+        || Profile->BrushCleaningRadius<1.f || Profile->BrushCleaningRadius>120.f) return false;
+    Property->SetObjectPropertyValue_InContainer(Inventory,Profile);
+    return GetPIEEquipmentProfile(Hero)==Profile;
+}
 
 bool UMCGameplayUIEditorLibrary::TogglePIEPauseMenu(UWorld* World)
 {

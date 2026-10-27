@@ -106,8 +106,12 @@ bool FMCCoffeeContactTest::RunTest(const FString&)
     World->GetAuthGameMode<AMCGameMode>()->bUseAdaptiveDirector=false;
     World->InitializeActorsForPlay(URL); World->BeginPlay();
     auto* GS=World->GetGameState<AMCGameState>(); GS->Phase=EMCShiftPhase::Working; GS->bPhysicalBrushes=false;
-    auto* Patch=World->SpawnActor<AMCMouthSurface>(FVector(300,0,5),FRotator::ZeroRotator);
-    Patch->LiquidHalfSize=92; Patch->Status->ApplyCoffee();
+    // A normal-sized stain tests locality after a sustained contact. The old
+    // 92cm half-size was almost covered by the widened60cm brush in one pass.
+    const FTransform PatchPose(FVector(300,0,5));
+    auto* Patch=World->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),PatchPose);
+    Patch->bRandomizeLiquidSize=false;Patch->LiquidHalfSize=240;
+    Patch->FinishSpawning(PatchPose);Patch->Status->ApplyCoffee();
     auto* A=World->SpawnActor<AMCToothCharacter>(FVector(235,0,80),FRotator::ZeroRotator);
     auto* B=World->SpawnActor<AMCToothCharacter>(FVector(365,0,80),FRotator(0,180,0));
     for (auto* Worker:{A,B}) { Worker->SetActorTickEnabled(false); Worker->GetCharacterMovement()->DisableMovement(); Worker->bBrushing=true; }
@@ -117,12 +121,30 @@ bool FMCCoffeeContactTest::RunTest(const FString&)
     for (int32 I=0;I<8;++I) { ++GFrameCounter; World->Tick(LEVELTICK_TimeOnly,.1f); A->AdvanceCare(.1f); }
     TestTrue(TEXT("Held brush makes a persistent local trail"),FMCCoffeeWipe::Remaining(Patch->WipeMask)<.99f);
     TestTrue(TEXT("A local trail leaves the rest of the stain dirty"),Patch->Status->State.CoffeeLeft>0);
+    TestTrue(TEXT("One local contact cannot complete the whole normal-sized visible stain"),!Patch->IsClean() && Patch->RemainingLiquid()>=.025f);
     const auto Mask=Patch->WipeMask;
     A->SetActorLocation(FVector(2000,0,80)); A->AdvanceCare(.1f);
     TestTrue(TEXT("Out of reach preserves trail"),Mask==Patch->WipeMask);
     A->SetActorLocation(FVector(235,0,80)); Patch->Status->ApplyCoffee(); A->ResetContact(); B->ResetContact();
     TestEqual(TEXT("Reapplying same amount resets old trail"),FMCCoffeeWipe::Remaining(Patch->WipeMask),1.f);
-    for (int32 I=0;I<240 && !Patch->IsClean();++I) { ++GFrameCounter; World->Tick(LEVELTICK_TimeOnly,.1f); A->AdvanceCare(.1f); B->AdvanceCare(.1f); }
+    for (int32 I=0;I<240 && !Patch->IsClean();++I) {
+        // Disabled pawn ticks do not perform the ordinary body turn, and the
+        // TimeOnly fixture skips contact-component ticks. Follow the same
+        // proven fixture policy as MCCleanupConsistency without bypassing
+        // approach time, reach, visibility or the real mask-completion gate.
+        for(auto* Worker:{A,B}) {
+            FVector Point,Normal;
+            if(Patch->FindDirtyContact(Worker,Point,Normal)) {
+                const FVector Facing=(Point-Worker->GetActorLocation()).GetSafeNormal2D();
+                if(!Facing.IsNearlyZero()) Worker->SetActorRotation(Facing.Rotation());
+            }
+        }
+        ++GFrameCounter;World->Tick(LEVELTICK_TimeOnly,.1f);
+        for(auto* Worker:{A,B}) {
+            Worker->AdvanceCare(.1f);
+            Worker->BrushContact->TickComponent(.1f,LEVELTICK_All,nullptr);
+        }
+    }
     TestTrue(TEXT("Two stationary workers seek and clean the remaining visible dirt"),Patch->IsClean());
     TestTrue(TEXT("Completion follows actual visible coverage"),Patch->RemainingLiquid()<.025f);
     Patch->Status->ApplyCoffee(); GS->bPhysicalBrushes=true; A->Inventory->ServerSelect(EMCToolSlot::Pickaxe); A->bBrushing=true;

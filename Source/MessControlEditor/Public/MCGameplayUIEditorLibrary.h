@@ -18,6 +18,8 @@ class AMCNutBoss;
 class UMCMainMenuWidget;
 class APlayerController;
 class AMCPlayerController;
+class AMCToothCharacter;
+class UMCEquipmentProfile;
 
 /** Explicit editor authoring for the approved UI; existing artist trees are preserved unless a narrow repair is requested. */
 UCLASS()
@@ -25,6 +27,14 @@ class MESSCONTROLEDITOR_API UMCGameplayUIEditorLibrary : public UBlueprintFuncti
 {
     GENERATED_BODY()
 public:
+    /** Read the cached equipment of the one local standalone PIE pawn for isolated profile comparisons. */
+    UFUNCTION(BlueprintPure, Category="Mess Control|Gameplay UI|Editor")
+    static UMCEquipmentProfile* GetPIEEquipmentProfile(AMCToothCharacter* Hero);
+
+    /** Swap only that PIE pawn's cached profile; never edits a source asset, mask, health or contact state. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
+    static bool SetPIEEquipmentProfile(AMCToothCharacter* Hero, UMCEquipmentProfile* Profile);
+
     /** Save only the specified live PIE world's game window, including HUD, to an E: PNG. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static bool CapturePIEGameWindow(UWorld* World, const FString& OutputFile);
