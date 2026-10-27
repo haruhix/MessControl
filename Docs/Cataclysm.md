@@ -67,7 +67,7 @@ solo PIE подтвердил 22 проверки: движение, ходьб�
 эти швы отсутствуют. За пределами видимой воды native getter возвращает сухую
 высоту; полностью скрытые вершины GPU остаются на гладкой подложке.
 
-[Видео: приход, горло, камера игрока](E:/DEVGAME/MessControl/Artifacts/CataclysmInflow_20261014/inflow_preview.mp4)
+Видео: приход, горло, камера игрока (медиа локально: `Artifacts/CataclysmInflow_20261014/inflow_preview.mp4`; [отчёт](../Artifacts/CataclysmInflow_20261014/Report.json))
 длится 11,67 с. Проверены хэши 142 настоящих PNG; в видео вошёл 141 кадр.
 Один снимок окна Editor исключён с сохранением исходного отчёта и временного
 промежутка. Это повторение снимков примерно 12 Гц на 30 fps, без интерполяции.
@@ -413,10 +413,10 @@ Status не предоставляет отражённый last-source actor: �
 
 | Видео финального прохода | Длительность | Настоящие исходные кадры |
 | --- | ---: | ---: |
-| [Погружение и возврат плота](E:/DEVGAME/MessControl/Artifacts/CataclysmGameplay_20261014/raft_sink_return.mp4) | 2,83 с | 22 |
-| [Подъём из воды на палубу](E:/DEVGAME/MessControl/Artifacts/CataclysmGameplay_20261014/raft_boarding.mp4) | 7,90 с | 60 |
-| [Попадания, раздувание и разрыв желе](E:/DEVGAME/MessControl/Artifacts/CataclysmGameplay_20261014/jelly_rupture.mp4) | 15,63 с | 117 |
-| [Отсчёт утопления](E:/DEVGAME/MessControl/Artifacts/CataclysmGameplay_20261014/drowning_countdown.mp4) | 5,87 с | 36 |
+| Погружение и возврат плота ([локальное медиа](../Artifacts/README.md#local-media): `Artifacts/CataclysmGameplay_20261014/raft_sink_return.mp4`) | 2,83 с | 22 |
+| Подъём из воды на палубу ([локальное медиа](../Artifacts/README.md#local-media): `Artifacts/CataclysmGameplay_20261014/raft_boarding.mp4`) | 7,90 с | 60 |
+| Попадания, раздувание и разрыв желе ([локальное медиа](../Artifacts/README.md#local-media): `Artifacts/CataclysmGameplay_20261014/jelly_rupture.mp4`) | 15,63 с | 117 |
+| Отсчёт утопления ([локальное медиа](../Artifacts/README.md#local-media): `Artifacts/CataclysmGameplay_20261014/drowning_countdown.mp4`) | 5,87 с | 36 |
 
 Видео — 1280×720 H.264, 30 fps с повторением записанных кадров по игровым
 временным меткам, без сгенерированного движения. Контактные листы плота и желе
@@ -484,9 +484,9 @@ Cook/package в эту задачу не входили. Новый Editor по�
 
 | Новое видео | Длительность | Настоящие исходные кадры |
 | --- | ---: | ---: |
-| [Шторм и гребля щётками](E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/storm_brush_rowing.mp4) | 7,20 с | 44 |
-| [Удар обломка: держимся за борт](E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/debris_rail.mp4) | 5,87 с | 36 |
-| [Удар обломка без захвата борта](E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/debris_unbraced.mp4) | 5,87 с | 36 |
+| Шторм и гребля щётками ([локальное медиа](../Artifacts/README.md#local-media): `Artifacts/CataclysmStorm_20261014/storm_brush_rowing.mp4`) | 7,20 с | 44 |
+| Удар обломка: держимся за борт ([локальное медиа](../Artifacts/README.md#local-media): `Artifacts/CataclysmStorm_20261014/debris_rail.mp4`) | 5,87 с | 36 |
+| Удар обломка без захвата борта ([локальное медиа](../Artifacts/README.md#local-media): `Artifacts/CataclysmStorm_20261014/debris_unbraced.mp4`) | 5,87 с | 36 |
 
 Экспорт — 1280×720 H.264, 30 fps с повторением настоящих кадров по игровым
 меткам времени; движение не интерполировалось. Хэши, кадры и погрешности камеры
@@ -527,7 +527,7 @@ cook/package не запускались. Исторические пять пр
 Это подтверждает штатный отсчёт и летальный переход. Источник урона напрямую
 не прочитан: Status не экспортирует last-source actor. Параметры PIE восстановлены.
 
-[Новый отсчёт утопления](E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/drowning_countdown.mp4)
+Новый отсчёт утопления ([локальное медиа](../Artifacts/README.md#local-media): `Artifacts/CataclysmStorm_20261014/drowning_countdown.mp4`)
 — 5,87 с, 36 настоящих кадров, 1280×720. Его контактный лист просмотрен:
 центральное предупреждение и красный ETA читаются на фоне бурной воды.
 Максимальное отклонение камеры — 1,44 см. Полная неподвижная попытка,
@@ -582,8 +582,8 @@ PIE и несохранённых пакетов. MessControl Editor остав�
 
 | Видео | Длительность | Настоящие исходные кадры |
 | --- | ---: | ---: |
-| [Анимация, ходьба и два гребца](E:/DEVGAME/MessControl/Artifacts/RowingAnimation_20261014/storm_brush_rowing.mp4) | 10,87 с | 128 |
-| [Встречные гребки меняют вращение](E:/DEVGAME/MessControl/Artifacts/RowingAnimation_20261014/rowing_point_torque.mp4) | 6,70 с | 81 |
+| Анимация, ходьба и два гребца (медиа локально: `Artifacts/RowingAnimation_20261014/storm_brush_rowing.mp4`; [отчёт](../Artifacts/RowingAnimation_20261014/Report.json)) | 10,87 с | 128 |
+| Встречные гребки меняют вращение (медиа локально: `Artifacts/RowingAnimation_20261014/rowing_point_torque.mp4`; [отчёт](../Artifacts/RowingAnimation_20261014/Report.json)) | 6,70 с | 81 |
 
 Экспорт — 1280×720 H.264, 30 fps с повторением настоящих снимков, захваченных
 примерно с частотой 12 Гц, по игровым меткам; движение не интерполировалось.
@@ -658,9 +658,9 @@ FOV 60 в штатном освещении рта: задние и перекр
 установившимся хватом. Недоступные нативные поля эмоции/взгляда и голос отмечены
 в отчёте отдельно; читаемые величины сохраняются независимо от них.
 
-[Обновлённое видео лиц и рук](E:/DEVGAME/MessControl/Artifacts/RowingPolish_20261014/storm_brush_rowing.mp4)
+Обновлённое видео лиц и рук (медиа локально: `Artifacts/RowingPolish_20261014/storm_brush_rowing.mp4`; [отчёт](../Artifacts/RowingPolish_20261014/Report.json))
 — 10,87 с, 128 настоящих кадров;
-[смена вращения](E:/DEVGAME/MessControl/Artifacts/RowingPolish_20261014/rowing_point_torque.mp4)
+смена вращения (медиа локально: `Artifacts/RowingPolish_20261014/rowing_point_torque.mp4`; [отчёт](../Artifacts/RowingPolish_20261014/Report.json))
 — 6,70 с, 81 кадр. Все 209 кадров прошли проверку хэшей и размеров, без исключений.
 Контактные листы и крупный фронтальный кадр просмотрены: хват, плавный поворот
 щётки, переход через палубу, мимика, моргание и отпускание читаются.
@@ -703,8 +703,8 @@ PhysicsControl о незаведённых контролах неподвижн
 | [Вода](E:/DEVGAME/MessControl/Artifacts/CataclysmFullWidth_20261015/ValidationSummary.json) | PASS, 12 проверок | Восемь секунд Holding; обе стороны полностью мокрые, течение направлено к горлу; ширина ленты 3811,07 см совпадает с ртом |
 | [Рисующее желе](E:/DEVGAME/MessControl/Artifacts/JellyPaint_20261015/ValidationSummary.json) | PASS, 9 проверок | За 12 с наблюдения желе прошло 22,22 м, сменило 12 целей; проверенные середины дорожки мокрые; один разрыв добавил 643 мокрые клетки; щётка стёрла 26 исходно мокрых клеток, пока второй слайм продолжал рисовать |
 
-[Видео желе](E:/DEVGAME/MessControl/Artifacts/JellyPaint_20261015/jelly_paint_preview.mp4)
-— 23,70 с; [широкая вода](E:/DEVGAME/MessControl/Artifacts/CataclysmFullWidth_20261015/inflow_preview.mp4)
+Видео желе ([локальное медиа](../Artifacts/README.md#local-media): `Artifacts/JellyPaint_20261015/jelly_paint_preview.mp4`)
+— 23,70 с; широкая вода ([локальное медиа](../Artifacts/README.md#local-media): `Artifacts/CataclysmFullWidth_20261015/inflow_preview.mp4`)
 — 11,67 с. Для желе приняты 179 настоящих кадров, для воды — 141. Неверные
 захваты другого окна явно исключены и перечислены в ExportManifest; хэши и
 временные метки исходных кадров сохранены. Оконная рамка обрезана, снимки

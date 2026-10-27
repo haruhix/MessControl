@@ -2,15 +2,15 @@
 
 Сундук: **E** рядом → 5 секунд вскрытия → три карточки в HUD → щелчок или **1 / 2 / 3**. Выбирается один перк; все текущие эффекты остаются пустыми плейсхолдерами.
 
-![Карточки HUD](Choices.png)
+Карточки HUD ([локальное изображение](../README.md#local-media): `Artifacts/ChestBossReview_20261004/Choices.png`)
 
-![Пять секунд вскрытия](ChestOpening.png)
+Пять секунд вскрытия ([локальное изображение](../README.md#local-media): `Artifacts/ChestBossReview_20261004/ChestOpening.png`)
 
 Босс отсутствует в обычной карте. **F3** предоставляет spawn, отдельное включение AI/боя, stop/reset, remove и семь анимаций: idle, походка, левая/правая рука, пинок, hurt, death. Просмотр отдельных клипов отключает AI и урон. Перезапуск дня убирает тестового босса.
 
-![Zombie в игровом режиме редактора](BossInEditorRuntime.png)
+Zombie в игровом режиме редактора ([локальное изображение](../README.md#local-media): `Artifacts/ChestBossReview_20261004/BossInEditorRuntime.png`)
 
-[Видео семи анимаций Blender](ZombieBossAnimationReview.mp4).
+Видео семи анимаций Blender ([локальное медиа](../README.md#local-media): `Artifacts/ChestBossReview_20261004/ZombieBossAnimationReview.mp4`).
 
 [Вскрытие щёткой — видео и Blender для аппрува](../ChestLockpickReview_20261004/README.md). Клип персонажа/щётки пока не импортирован в Unreal, согласно запросу сначала согласовать его. Сейчас в игре реализованы взаимодействие, таймер, крышка и карточки.
 

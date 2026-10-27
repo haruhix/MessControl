@@ -1,0 +1,56 @@
+{
+  "task": "Safe current-tree Artifacts cleanup",
+  "date": "2026-10-28",
+  "source_commit": "cd5658f196a851a7a3a40660acb92bcb0ce3fbc0",
+  "summary": {
+    "files": 10638,
+    "historical_payload_bytes": 9057029806,
+    "actual_local_bytes_preserved": 8369384557,
+    "local_kinds": {
+      "hydrated": 9709,
+      "regular_crlf": 12,
+      "existing_lfs_pointer": 876,
+      "regular": 41
+    },
+    "generated_media_files": 10493,
+    "named_binary_backup_files": 145,
+    "retained_artifact_files": 1464,
+    "retained_artifact_payload_bytes": 193933083,
+    "local_deletion": false,
+    "network_download": false,
+    "history_rewrite": false
+  },
+  "keep_media": [
+    "Artifacts/NutVFXPolish_20261013/NutFireNutStart.png"
+  ],
+  "manifest_sha256": "f2c66be3891c9d6ca1439e14d31f4f5be90c391bb92f10ede57a476de9a6a18e",
+  "local_manifest": "E:\\CodexWork\\MessControl\\CloudCleanup_20261028\\RemovalManifest.json",
+  "preserved_scope": [
+    "all reports and JSON inputs",
+    "source recipes",
+    "blend/fbx masters",
+    "pyd dependencies",
+    "uncertain recovery map",
+    "Content and ArtSource unchanged"
+  ],
+  "validation": {
+    "before": "all selected paths validated against HEAD content or exact LFS pointers; local SHA256 captured",
+    "after": {
+      "local_paths_hashed": 10638,
+      "all_hashes_unchanged": true,
+      "all_removed_paths_ignored": true,
+      "retained_nonmarkdown_payloads_unchanged": true,
+      "markdown_links_migrated": 151,
+      "markdown_documents_updated": 27,
+      "links_to_removed_paths_remaining": 0
+    },
+    "runtime": "not required; no gameplay or runtime-resource changes"
+  },
+  "not_performed": [
+    "local filesystem deletion",
+    "LFS payload download for existing pointers",
+    "history rewrite",
+    "remote LFS purge",
+    "build or gameplay testing"
+  ]
+}

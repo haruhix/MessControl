@@ -1,6 +1,6 @@
 # Верхнее крепление интерактивного язычка
 
-[Посмотреть видео](UvulaAttachment.mp4) · [Манифест](PreviewManifest.json) · [Изменение карты](Changes.json)
+Посмотреть видео ([локальное медиа](../README.md#local-media): `Artifacts/UvulaAttachment_20261018/UvulaAttachment.mp4`) · [Манифест](PreviewManifest.json) · [Изменение карты](Changes.json)
 
 В игре используется один видимый `SM_InteractiveUvula` — существующая рабочая
 копия `SM_MiniTong`. Старое декоративное представление не используется.

@@ -6,8 +6,8 @@ The shop opens with **E in front of the existing blue vending machine**. Its six
 
 Final videos:
 
-- [WardrobePalette.mp4](WardrobePalette.mp4) — 15.00 seconds: palette preview, Cancel, reopen and Apply.
-- [EmptyShop.mp4](EmptyShop.mp4) — 4.23 seconds: the vending-machine shop, Escape and restored movement.
+- WardrobePalette.mp4 ([локальное медиа](../../README.md#local-media): `Artifacts/HubWardrobeShop_20261023/Final/WardrobePalette.mp4`) — 15.00 seconds: palette preview, Cancel, reopen and Apply.
+- EmptyShop.mp4 ([локальное медиа](../../README.md#local-media): `Artifacts/HubWardrobeShop_20261023/Final/EmptyShop.mp4`) — 4.23 seconds: the vending-machine shop, Escape and restored movement.
 - `WardrobePalette_ContactSheet.png` and `EmptyShop_ContactSheet.png` contain six genuine timestamped source samples each.
 
 The root agent ran a short owned standalone PIE against the saved Hub and WBP assets. Solo07 passed **52 checks**, including authored widget classes, default plus five empty skin slots, removal of separate RGB controls, palette/hue synchronization, local-only draft, Cancel restoration, Apply agreement between pawn and PlayerState, saved preference reload, preservation of the final color in the optional coalescing fixture, empty shop, Escape keeping PIE alive, and resumed movement. The original custom-color flag was false and was restored to false; original generated INI bytes were restored. See `SoloReport.json`.

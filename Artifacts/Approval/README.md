@@ -16,24 +16,24 @@
 
 | Пункт | Видео | Проверка запуска | Запись |
 | --- | --- | --- | --- |
-| Материалы ротовой области | [21.2 с](Materials.mp4) | [PASS](Materials_Validation.txt) | SHA256 совпадают; 2026-10-01 03:52:33 UTC+9 |
-| Лазание по игровому зубу | [9.83 с](Climb.mp4) | [PASS](Climb_Validation.txt) | SHA256 совпадают; 2026-10-01 03:41:42 UTC+9 |
-| Кофе и управляемое плавание | [14.2 с](Coffee.mp4) | [PASS](Coffee_Validation.txt) | SHA256 совпадают; 2026-10-01 03:44:54 UTC+9 |
-| Следящая камера и передняя граница | [15.2 с](Camera.mp4) | [PASS](Camera_Validation.txt) | SHA256 совпадают; 2026-10-01 03:39:50 UTC+9 |
-| Кирка рядом с поверхностями | [16.2 с](Pickaxe.mp4) | [PASS](Pickaxe_Validation.txt) | SHA256 совпадают; 2026-10-01 03:49:38 UTC+9 |
-| Холодная кола, иней и лёд | [32.8 с](Cola.mp4) | [PASS](Cola_Validation.txt) | SHA256 совпадают; 2026-10-01 03:46:31 UTC+9 |
-| Два перезапуска смены и новый таймер | [28.77 с](ShiftReset.mp4) | [PASS](ShiftReset_Validation.txt) | SHA256 совпадают; 2026-10-01 03:55:58 UTC+9 |
-| Чистка и направление персонажа | [21.13 с](Brush.mp4) | [PASS](Brush_Validation.txt) | SHA256 совпадают; 2026-10-01 04:00:38 UTC+9 |
-| Четыре слота и работа инструментов | [18.47 с](Tools.mp4) | [PASS](Tools_Validation.txt) | SHA256 совпадают; 2026-10-01 03:58:46 UTC+9 |
-| Еда впитывается → язва → лечение | [16.07 с](Ulcer.mp4) | [PASS](Ulcer_Validation.txt) | SHA256 совпадают; 2026-10-01 03:43:04 UTC+9 |
-| Спрей без цели: нажатие и отпускание по сети | [15.37 с](SprayNetwork.mp4) | [PASS](SprayNetwork_Validation.txt) | SHA256 совпадают; 2026-10-01 03:51:25 UTC+9 |
-| Захват, перенос, тяга и толкание | [27.27 с](Grip.mp4) | [PASS](Grip_Validation.txt) | SHA256 совпадают; 2026-10-01 03:54:46 UTC+9 |
-| Функциональная увула и проглатывание | [13.0 с](Uvula.mp4) | [PASS](Throat_Validation.txt) | SHA256 совпадают; 2026-10-01 04:04:15 UTC+9 |
-| Рвота и возврат партии | [13.1 с](Vomit.mp4) | [PASS](Throat_Validation.txt) | SHA256 совпадают; 2026-10-01 04:04:15 UTC+9 |
-| Дыхание рта | [5.1 с](Breathing.mp4) | [PASS](Materials_Validation.txt) | SHA256 совпадают; 2026-10-01 03:52:33 UTC+9 |
-| Прыжок через волну язвы | [1.47 с](Dodge.mp4) | [PASS](Hazards_Validation.txt) | SHA256 совпадают; 2026-10-01 04:02:43 UTC+9 |
-| Перец: предупреждение и детонация | [8.87 с](Pepper.mp4) | [PASS](Hazards_Validation.txt) | SHA256 совпадают; 2026-10-01 04:02:43 UTC+9 |
-| Эмоции портрета игрока | [7.9 с](Portraits.mp4) | [PASS](Tools_Validation.txt) | SHA256 совпадают; 2026-10-01 03:58:46 UTC+9 |
+| Материалы ротовой области | 21.2 с (медиа локально: `Artifacts/Approval/Materials.mp4`; [отчёт](Materials_Validation.txt)) | [PASS](Materials_Validation.txt) | SHA256 совпадают; 2026-10-01 03:52:33 UTC+9 |
+| Лазание по игровому зубу | 9.83 с (медиа локально: `Artifacts/Approval/Climb.mp4`; [отчёт](Climb_Validation.txt)) | [PASS](Climb_Validation.txt) | SHA256 совпадают; 2026-10-01 03:41:42 UTC+9 |
+| Кофе и управляемое плавание | 14.2 с (медиа локально: `Artifacts/Approval/Coffee.mp4`; [отчёт](Coffee_Validation.txt)) | [PASS](Coffee_Validation.txt) | SHA256 совпадают; 2026-10-01 03:44:54 UTC+9 |
+| Следящая камера и передняя граница | 15.2 с (медиа локально: `Artifacts/Approval/Camera.mp4`; [отчёт](Camera_Validation.txt)) | [PASS](Camera_Validation.txt) | SHA256 совпадают; 2026-10-01 03:39:50 UTC+9 |
+| Кирка рядом с поверхностями | 16.2 с (медиа локально: `Artifacts/Approval/Pickaxe.mp4`; [отчёт](Pickaxe_Validation.txt)) | [PASS](Pickaxe_Validation.txt) | SHA256 совпадают; 2026-10-01 03:49:38 UTC+9 |
+| Холодная кола, иней и лёд | 32.8 с (медиа локально: `Artifacts/Approval/Cola.mp4`; [отчёт](Cola_Validation.txt)) | [PASS](Cola_Validation.txt) | SHA256 совпадают; 2026-10-01 03:46:31 UTC+9 |
+| Два перезапуска смены и новый таймер | 28.77 с (медиа локально: `Artifacts/Approval/ShiftReset.mp4`; [отчёт](ShiftReset_Validation.txt)) | [PASS](ShiftReset_Validation.txt) | SHA256 совпадают; 2026-10-01 03:55:58 UTC+9 |
+| Чистка и направление персонажа | 21.13 с (медиа локально: `Artifacts/Approval/Brush.mp4`; [отчёт](Brush_Validation.txt)) | [PASS](Brush_Validation.txt) | SHA256 совпадают; 2026-10-01 04:00:38 UTC+9 |
+| Четыре слота и работа инструментов | 18.47 с (медиа локально: `Artifacts/Approval/Tools.mp4`; [отчёт](Tools_Validation.txt)) | [PASS](Tools_Validation.txt) | SHA256 совпадают; 2026-10-01 03:58:46 UTC+9 |
+| Еда впитывается → язва → лечение | 16.07 с (медиа локально: `Artifacts/Approval/Ulcer.mp4`; [отчёт](Ulcer_Validation.txt)) | [PASS](Ulcer_Validation.txt) | SHA256 совпадают; 2026-10-01 03:43:04 UTC+9 |
+| Спрей без цели: нажатие и отпускание по сети | 15.37 с (медиа локально: `Artifacts/Approval/SprayNetwork.mp4`; [отчёт](SprayNetwork_Validation.txt)) | [PASS](SprayNetwork_Validation.txt) | SHA256 совпадают; 2026-10-01 03:51:25 UTC+9 |
+| Захват, перенос, тяга и толкание | 27.27 с (медиа локально: `Artifacts/Approval/Grip.mp4`; [отчёт](Grip_Validation.txt)) | [PASS](Grip_Validation.txt) | SHA256 совпадают; 2026-10-01 03:54:46 UTC+9 |
+| Функциональная увула и проглатывание | 13.0 с (медиа локально: `Artifacts/Approval/Uvula.mp4`; [отчёт](Uvula_Recording.json)) | [PASS](Throat_Validation.txt) | SHA256 совпадают; 2026-10-01 04:04:15 UTC+9 |
+| Рвота и возврат партии | 13.1 с (медиа локально: `Artifacts/Approval/Vomit.mp4`; [отчёт](Vomit_Recording.json)) | [PASS](Throat_Validation.txt) | SHA256 совпадают; 2026-10-01 04:04:15 UTC+9 |
+| Дыхание рта | 5.1 с (медиа локально: `Artifacts/Approval/Breathing.mp4`; [отчёт](Breathing_Recording.json)) | [PASS](Materials_Validation.txt) | SHA256 совпадают; 2026-10-01 03:52:33 UTC+9 |
+| Прыжок через волну язвы | 1.47 с (медиа локально: `Artifacts/Approval/Dodge.mp4`; [отчёт](Dodge_Recording.json)) | [PASS](Hazards_Validation.txt) | SHA256 совпадают; 2026-10-01 04:02:43 UTC+9 |
+| Перец: предупреждение и детонация | 8.87 с (медиа локально: `Artifacts/Approval/Pepper.mp4`; [отчёт](Pepper_Recording.json)) | [PASS](Hazards_Validation.txt) | SHA256 совпадают; 2026-10-01 04:02:43 UTC+9 |
+| Эмоции портрета игрока | 7.9 с (медиа локально: `Artifacts/Approval/Portraits.mp4`; [отчёт](Portraits_Recording.json)) | [PASS](Tools_Validation.txt) | SHA256 совпадают; 2026-10-01 03:58:46 UTC+9 |
 
 Версия каждого нового запуска фиксируется до старта Unreal: SHA256 Editor DLL, исходников Source/MessControl и сохранённых пакетов Content. При сборке галереи эти значения сравниваются с файлами проекта; главы наследуют сведения исходного ролика. У старых записей без fingerprint версия не установлена. Художественное качество и соответствие референсу требуют визуальной оценки.
 

@@ -8,23 +8,23 @@
 
 | Видео | Что показано / граница проверки |
 |---|---|
-| [разрушение, стан и урон по HP](Previews/05_knight_shield_break.mp4) | Настоящие удары: щит → разрушение → стан 5 с → урон HP; диагностическая настройка щита на два удара. |
-| [настоящее меню F3](Previews/Feedback6_10/Feedback6_10_06_f3_without_raft_action.mp4) | Проверка настоящего F3: действие плотов отсутствует. |
-| [случайный катаклизм без плотов](Previews/Feedback6_10/Feedback6_10_06_random_jellies_without_rafts.mp4) | Реальный случайный катаклизм: два желе, ноль плотов. |
-| [след большого](Previews/CentralDirt/Jelly/07_jelly_large_trail.mp4) | Настоящий непрерывный след большого желе; первый серый кадр прогрева сохранён. |
-| [деление большого](Previews/CentralDirt/Jelly/07_jelly_large_split_pop.mp4) | Большой → три средних, грязный разлив и отталкивание без стана. |
-| [след среднего](Previews/CentralDirt/Jelly/07_jelly_medium_trail.mp4) | Настоящий след среднего желе. |
-| [деление среднего](Previews/CentralDirt/Jelly/07_jelly_medium_split_pop.mp4) | Средний → три мелких, разлив и отталкивание без стана. |
-| [след маленького](Previews/CentralDirt/Jelly/07_jelly_small_trail.mp4) | Настоящий след мелкого желе. |
-| [детонация маленького](Previews/CentralDirt/Jelly/07_jelly_small_split_pop.mp4) | Детонация мелкого без деления; разлив и отталкивание без стана. |
-| [окончательный разброс, вариант A](Previews/DirtScatter/ScatterA_08_central_floor_placement.mp4) | Только окончательное размещение, отдельный обзор A; уборка не проверяется. |
-| [вариант B](Previews/DirtScatter/ScatterB_08_central_floor_placement.mp4) | Только окончательное размещение, отдельный обзор B; другой ракурс, не статистическое доказательство случайности. |
-| [обычная щётка и обычное пятно](Previews/CentralDirt/Cleanup/08_08_default_brush_ordinary.mp4) | Обычная щётка уменьшает реальное обычное пятно. |
-| [обычная щётка и след волны](Previews/CentralDirt/Cleanup/08_08_default_brush_painted_wave.mp4) | Обычная щётка уменьшает настоящую paint-маску следа волны. |
-| [автоматический переход в передышку](Previews/CentralDirt/Cleanup/08_08_cleanup_completion.mp4) | Остаток очищен реальным контактом F3 MeshaBrush; native FIRST_MEAL → MEAL_REST. Все зубы не объявляются чистыми. |
-| [зазор над языком и сохранённый резерв](Previews/09_safe_player_spawn.mp4) | Принятый подпункт появления: зазор 30 см и резерв 12; весь комбинированный исходный запуск partial из-за последующей ошибки F3. |
-| [реальные броски и процедурная воронка](Previews/Feedback6_10/Feedback6_10_10_delivery_procedural_vortex.mp4) | Реальные броски Q и индивидуальные траектории к глотке; очередь засчитывается native. |
-| [выбор → ожидание 1/2 → продолжение](Previews/11_perk_team_wait.mp4) | Выбор → ожидание 1/2 → продолжение; два серверных контроллера в одном solo, без сетевых клиентов. |
-| [каст колдуна и последовательные детонации](Previews/Kamikaze/Kamikaze_mage_native_cast_and_sequential_pops.mp4) | Отдельный диагностический fixture: editor-only helper создал дополнительного Mage при живом Tank; в сцене два босса. Видео показывает настоящий каст SummonCreeps, преследование и последовательные детонации. Штатный переход Tank → Mage после смерти Tank этим видео НЕ показан и НЕ проверен. |
+| разрушение, стан и урон по HP ([локальное медиа](../README.md#local-media): `Artifacts/Feedback5_11_20261018/Previews/05_knight_shield_break.mp4`) | Настоящие удары: щит → разрушение → стан 5 с → урон HP; диагностическая настройка щита на два удара. |
+| настоящее меню F3 ([локальное медиа](../README.md#local-media): `Artifacts/Feedback5_11_20261018/Previews/Feedback6_10/Feedback6_10_06_f3_without_raft_action.mp4`) | Проверка настоящего F3: действие плотов отсутствует. |
+| случайный катаклизм без плотов ([локальное медиа](../README.md#local-media): `Artifacts/Feedback5_11_20261018/Previews/Feedback6_10/Feedback6_10_06_random_jellies_without_rafts.mp4`) | Реальный случайный катаклизм: два желе, ноль плотов. |
+| след большого ([локальное медиа](../README.md#local-media): `Artifacts/Feedback5_11_20261018/Previews/CentralDirt/Jelly/07_jelly_large_trail.mp4`) | Настоящий непрерывный след большого желе; первый серый кадр прогрева сохранён. |
+| деление большого ([локальное медиа](../README.md#local-media): `Artifacts/Feedback5_11_20261018/Previews/CentralDirt/Jelly/07_jelly_large_split_pop.mp4`) | Большой → три средних, грязный разлив и отталкивание без стана. |
+| след среднего ([локальное медиа](../README.md#local-media): `Artifacts/Feedback5_11_20261018/Previews/CentralDirt/Jelly/07_jelly_medium_trail.mp4`) | Настоящий след среднего желе. |
+| деление среднего ([локальное медиа](../README.md#local-media): `Artifacts/Feedback5_11_20261018/Previews/CentralDirt/Jelly/07_jelly_medium_split_pop.mp4`) | Средний → три мелких, разлив и отталкивание без стана. |
+| след маленького ([локальное медиа](../README.md#local-media): `Artifacts/Feedback5_11_20261018/Previews/CentralDirt/Jelly/07_jelly_small_trail.mp4`) | Настоящий след мелкого желе. |
+| детонация маленького ([локальное медиа](../README.md#local-media): `Artifacts/Feedback5_11_20261018/Previews/CentralDirt/Jelly/07_jelly_small_split_pop.mp4`) | Детонация мелкого без деления; разлив и отталкивание без стана. |
+| окончательный разброс, вариант A ([локальное медиа](../README.md#local-media): `Artifacts/Feedback5_11_20261018/Previews/DirtScatter/ScatterA_08_central_floor_placement.mp4`) | Только окончательное размещение, отдельный обзор A; уборка не проверяется. |
+| вариант B ([локальное медиа](../README.md#local-media): `Artifacts/Feedback5_11_20261018/Previews/DirtScatter/ScatterB_08_central_floor_placement.mp4`) | Только окончательное размещение, отдельный обзор B; другой ракурс, не статистическое доказательство случайности. |
+| обычная щётка и обычное пятно ([локальное медиа](../README.md#local-media): `Artifacts/Feedback5_11_20261018/Previews/CentralDirt/Cleanup/08_08_default_brush_ordinary.mp4`) | Обычная щётка уменьшает реальное обычное пятно. |
+| обычная щётка и след волны ([локальное медиа](../README.md#local-media): `Artifacts/Feedback5_11_20261018/Previews/CentralDirt/Cleanup/08_08_default_brush_painted_wave.mp4`) | Обычная щётка уменьшает настоящую paint-маску следа волны. |
+| автоматический переход в передышку ([локальное медиа](../README.md#local-media): `Artifacts/Feedback5_11_20261018/Previews/CentralDirt/Cleanup/08_08_cleanup_completion.mp4`) | Остаток очищен реальным контактом F3 MeshaBrush; native FIRST_MEAL → MEAL_REST. Все зубы не объявляются чистыми. |
+| зазор над языком и сохранённый резерв ([локальное медиа](../README.md#local-media): `Artifacts/Feedback5_11_20261018/Previews/09_safe_player_spawn.mp4`) | Принятый подпункт появления: зазор 30 см и резерв 12; весь комбинированный исходный запуск partial из-за последующей ошибки F3. |
+| реальные броски и процедурная воронка ([локальное медиа](../README.md#local-media): `Artifacts/Feedback5_11_20261018/Previews/Feedback6_10/Feedback6_10_10_delivery_procedural_vortex.mp4`) | Реальные броски Q и индивидуальные траектории к глотке; очередь засчитывается native. |
+| выбор → ожидание 1/2 → продолжение ([локальное медиа](../README.md#local-media): `Artifacts/Feedback5_11_20261018/Previews/11_perk_team_wait.mp4`) | Выбор → ожидание 1/2 → продолжение; два серверных контроллера в одном solo, без сетевых клиентов. |
+| каст колдуна и последовательные детонации ([локальное медиа](../README.md#local-media): `Artifacts/Feedback5_11_20261018/Previews/Kamikaze/Kamikaze_mage_native_cast_and_sequential_pops.mp4`) | Отдельный диагностический fixture: editor-only helper создал дополнительного Mage при живом Tank; в сцене два босса. Видео показывает настоящий каст SummonCreeps, преследование и последовательные детонации. Штатный переход Tank → Mage после смерти Tank этим видео НЕ показан и НЕ проверен. |
 
 **Сырьё остаётся локально.** `local_raw_evidence.original_report_path` и `original_export_manifest_path` в манифесте — непереносимые пути локальных отчётов/сырьевых кадров; они не являются ссылками на файлы в этом bundle. Raw PNG, логи, concat-файлы, постеры и старые версии сюда не включены и не коммитятся. Исходный `source_report_sha256` сохранён из ExportManifest; публикуются только 18 MP4 и эти два компактных документа.

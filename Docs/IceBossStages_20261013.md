@@ -119,7 +119,7 @@ HUD показывает центральные предупреждения о 
 
 ## Превью и границы проверки
 
-[IceBossStages.mp4](E:/DEVGAME/MessControl/Artifacts/IceBossStages_20261013/IceBossStages.mp4)
+IceBossStages.mp4 (медиа локально: `Artifacts/IceBossStages_20261013/IceBossStages.mp4`; [отчёт](../Artifacts/IceBossStages_20261013/IceBossStages.json))
 показывает переход фазы, согревание и освобождение киркой: 11,900 с, 1280×720
 H.264, 70 настоящих кадров Unreal с частотой захвата 6 Гц. Полное декодирование
 и визуальная проверка прошли; центральная тревога, лёд на ногах и отсчёт до
@@ -137,7 +137,7 @@ Solo-проверка изолирована: таймеры бомбы и во�
 бомба/волна и наказание оставшегося в тюрьме игрока подтверждены отдельными
 нативными сценариями, а не этим коротким видео.
 
-[IceBossAttacks.mp4](E:/DEVGAME/MessControl/Artifacts/IceBossStages_20261013/IceBossAttacks.mp4)
+IceBossAttacks.mp4 (медиа локально: `Artifacts/IceBossStages_20261013/IceBossAttacks.mp4`; [отчёт](../Artifacts/IceBossStages_20261013/IceBossAttacks.json))
 показывает босса, полёт/взрыв бомбы, отталкивание игрока и гребень наземной волны:
 13,733 с, 1280×720 H.264, 82 настоящих кадра Unreal с частотой захвата 6 Гц.
 Все кадры имели стабильный размер окна и вошли в ролик. Полное декодирование
@@ -202,7 +202,7 @@ HP в проверяемой первой фазе не изменился.
 здоровье не подменялось. В PIE временно менялись позиции игрока/камеры и
 готовность атак для читаемости; сохранения ассетов прогон не выполнял.
 
-[PhaseOneIceAndFrost.mp4](E:/DEVGAME/MessControl/Artifacts/IceVisualSplit_20261013/PhaseOneIceAndFrost.mp4)
+PhaseOneIceAndFrost.mp4 (медиа локально: `Artifacts/IceVisualSplit_20261013/PhaseOneIceAndFrost.mp4`; [отчёт](../Artifacts/IceVisualSplit_20261013/PhaseOneIceAndFrost.json))
 показывает **новый внешний вид только фазы I**: 9,067 с, 1280×720 H.264,
 54 настоящих кадра Unreal с частотой захвата 6 Гц, без исключённых кадров.
 Полное декодирование и визуальная проверка прошли: стены остались розовыми,
@@ -308,9 +308,9 @@ HP в проверяемой первой фазе не изменился.
 
 Новые короткие ролики финального прохода:
 
-- [Распространение инея](E:/DEVGAME/MessControl/Artifacts/IcePhaseTransition_20261013/IcePhaseExpansion.mp4)
+- Распространение инея (медиа локально: `Artifacts/IcePhaseTransition_20261013/IcePhaseExpansion.mp4`; [отчёт](../Artifacts/IcePhaseTransition_20261013/IcePhaseExpansion.json))
   — 7,067 с, 1280×720 H.264, 42 настоящих исходных кадра с частотой 6 Гц.
-- [Возврат к локальной ауре](E:/DEVGAME/MessControl/Artifacts/IcePhaseTransition_20261013/IcePhaseReturn.mp4)
+- Возврат к локальной ауре (медиа локально: `Artifacts/IcePhaseTransition_20261013/IcePhaseReturn.mp4`; [отчёт](../Artifacts/IcePhaseTransition_20261013/IcePhaseReturn.json))
   — 6,533 с, 1280×720 H.264, 38 настоящих исходных кадров с частотой 6 Гц.
 
 Оба видео полностью декодированы и визуально проверены, включая середину
@@ -350,9 +350,9 @@ Live Coding применил изменения к текущему MessControl 
 MCP отдельно подтвердил, что фронт использует `M_IcePhasePowder`, а фоновый ветер —
 `M_IceWindWisp`; сохранён `Saved/Checks/KenneySnowPowder_20261013/RuntimeMaterialBindings.json`.
 
-- [Расширение со снежной пылью](E:/DEVGAME/MessControl/Artifacts/KenneySnowPowder_20261013/KenneySnowExpansion.mp4)
+- Расширение со снежной пылью ([локальное медиа](../Artifacts/README.md#local-media): `Artifacts/KenneySnowPowder_20261013/KenneySnowExpansion.mp4`)
   — 7,167 с, 42 из 42 настоящих исходных кадров.
-- [Возврат со снежной пылью](E:/DEVGAME/MessControl/Artifacts/KenneySnowPowder_20261013/KenneySnowReturn.mp4)
+- Возврат со снежной пылью ([локальное медиа](../Artifacts/README.md#local-media): `Artifacts/KenneySnowPowder_20261013/KenneySnowReturn.mp4`)
   — 6,633 с, 38 записанных исходных кадров из 40 запросов.
 
 Оба ролика 1280×720 H.264 полностью декодированы; пропуски двух запросов отмечены
@@ -396,9 +396,9 @@ Live Coding применён успешно. Финальная solo PIE про�
 локального инея/глобального льда. MCP подтвердил три разных материала слоёв
 и прежний материал фонового ветра.
 
-- [Расширение с объёмной пылью](E:/DEVGAME/MessControl/Artifacts/KenneySnowVolume_20261013/KenneySnowExpansion.mp4)
+- Расширение с объёмной пылью ([локальное медиа](../Artifacts/README.md#local-media): `Artifacts/KenneySnowVolume_20261013/KenneySnowExpansion.mp4`)
   — 7 с, 42 из 42 исходных кадров.
-- [Возврат с объёмной пылью](E:/DEVGAME/MessControl/Artifacts/KenneySnowVolume_20261013/KenneySnowReturn.mp4)
+- Возврат с объёмной пылью ([локальное медиа](../Artifacts/README.md#local-media): `Artifacts/KenneySnowVolume_20261013/KenneySnowReturn.mp4`)
   — 6,5 с, 38 записанных исходных кадров из 40 запросов.
 
 Ракурс совпадает с прежним обзором, эффект визуально проверен; оба ролика
@@ -424,9 +424,9 @@ Live Coding применён успешно. Финальная solo PIE про�
 
 Актуальные ролики для итогового поведения:
 
-- [Расширение с облаками](E:/DEVGAME/MessControl/Artifacts/IceBossFinal_20261013/KenneySnowExpansion.mp4)
+- Расширение с облаками ([локальное медиа](../Artifacts/README.md#local-media): `Artifacts/IceBossFinal_20261013/KenneySnowExpansion.mp4`)
   — 7 с, 42 настоящих исходных кадра.
-- [Возврат без облаков](E:/DEVGAME/MessControl/Artifacts/IceBossFinal_20261013/KenneySnowReturn.mp4)
+- Возврат без облаков ([локальное медиа](../Artifacts/README.md#local-media): `Artifacts/IceBossFinal_20261013/KenneySnowReturn.mp4`)
   — 6,5 с, 38 записанных исходных кадров из 40 запросов.
 
 Оба видео 1280×720 H.264 полностью декодированы; манифест отмечает два пропущенных

@@ -21,11 +21,11 @@
 
 | Кадр | Стадия |
 | --- | --- |
-| [00_Gag.png](00_Gag.png) | Сокращение глотки |
-| [01_Airborne.png](01_Airborne.png), [02_Stream.png](02_Stream.png) | Масса и капли в воздухе |
-| [03_Impact.png](03_Impact.png), [04_Splashes.png](04_Splashes.png) | Попадание, брызги и растекание |
-| [05_Residue.png](05_Residue.png) | Грязь после исчезновения выброса |
-| [06_BrushTrack.png](06_BrushTrack.png), [07_Clean.png](07_Clean.png) | След щётки и очищенное пятно |
+| 00_Gag.png ([локальное медиа](../README.md#local-media): `Artifacts/Vomit/00_Gag.png`) | Сокращение глотки |
+| 01_Airborne.png ([локальное медиа](../README.md#local-media): `Artifacts/Vomit/01_Airborne.png`), 02_Stream.png ([локальное медиа](../README.md#local-media): `Artifacts/Vomit/02_Stream.png`) | Масса и капли в воздухе |
+| 03_Impact.png ([локальное медиа](../README.md#local-media): `Artifacts/Vomit/03_Impact.png`), 04_Splashes.png ([локальное медиа](../README.md#local-media): `Artifacts/Vomit/04_Splashes.png`) | Попадание, брызги и растекание |
+| 05_Residue.png ([локальное медиа](../README.md#local-media): `Artifacts/Vomit/05_Residue.png`) | Грязь после исчезновения выброса |
+| 06_BrushTrack.png ([локальное медиа](../README.md#local-media): `Artifacts/Vomit/06_BrushTrack.png`), 07_Clean.png ([локальное медиа](../README.md#local-media): `Artifacts/Vomit/07_Clean.png`) | След щётки и очищенное пятно |
 
 Полные логи и JSON Automation находятся в `Saved/VomitValidation`. Повторить сетевой сценарий: `Tools/TestVomit.ps1`; снять стадии и очистку: `Tools/TestVomit.ps1 -Solo -Review`. Визуальный прогон использует фиксированный шаг времени, чтобы загрузка шейдеров и сохранение кадров не пропускали короткие стадии.
 

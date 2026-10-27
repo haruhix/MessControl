@@ -39,3 +39,12 @@ Artifacts/*/Frames.ffconcat
 /Artifacts/**/*.[zZ][iI][pP]
 /Artifacts/**/*.7z
 /Artifacts/**/*.ffconcat
+
+# Rollback copies belong locally, not in the validation-report checkout.
+# Runtime packages in Content/ and editable masters in ArtSource/ are unaffected.
+/Artifacts/**/*.[uU][aA][sS][sS][eE][tT]
+/Artifacts/**/*.[uU][mM][aA][pP]
+/Artifacts/**/*.[dD][lL][lL]
+
+# Intentional source-reference exception, consumed by the raft art contract.
+!/Artifacts/NutVFXPolish_20261013/NutFireNutStart.png

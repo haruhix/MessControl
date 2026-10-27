@@ -1,8 +1,8 @@
 # Relax, resource preparation and mint previews — 2026-10-20
 
-- [Frost Nova](FrostNova.mp4): final controlled L_Mouth solo mint fixture. Ordinary first perk, real mint fall and repeat clocks, held-pickaxe self-rescue, successful jump, normal mint destruction and front cleanup. Final 113 sampled frames preserve their actual wall timing; not a complete 5/8/9 playthrough. Root and independent visual review accepted this pass.
-- [Initial loading](LoadingInitial.mp4): real initial preparation overlay, normal perk and naturally issued food. Captured before the later mint addition; it does not demonstrate the complete menu/Hub/shared-selector travel chain or a packaged cold start.
-- [Opening Relax](FirstRelax.mp4): normal start and first three-food portion. It does not depict a manually completed 3/5/8 run.
+- Frost Nova (медиа локально: `Artifacts/RelaxLoading_20261020/FrostNova.mp4`; [отчёт](Validation.json)): final controlled L_Mouth solo mint fixture. Ordinary first perk, real mint fall and repeat clocks, held-pickaxe self-rescue, successful jump, normal mint destruction and front cleanup. Final 113 sampled frames preserve their actual wall timing; not a complete 5/8/9 playthrough. Root and independent visual review accepted this pass.
+- Initial loading (медиа локально: `Artifacts/RelaxLoading_20261020/LoadingInitial.mp4`; [отчёт](Validation.json)): real initial preparation overlay, normal perk and naturally issued food. Captured before the later mint addition; it does not demonstrate the complete menu/Hub/shared-selector travel chain or a packaged cold start.
+- Opening Relax (медиа локально: `Artifacts/RelaxLoading_20261020/FirstRelax.mp4`; [отчёт](Validation.json)): normal start and first three-food portion. It does not depict a manually completed 3/5/8 run.
 
 Clips are silent sampled captures; physical input delivery, audio quality and frame-time performance are not certified. Raw frames and full local reports remain on E: outside the repository.
 
