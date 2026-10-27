@@ -1,6 +1,6 @@
 # MessControl Unreal project context
 
-*Engine association: UE 5.8 · Local engine: 5.8.1 · Updated: 2026-10-23*
+*Engine association: UE 5.8 · Local engine: 5.8.1 · Updated: 2026-10-27 (skills/economy refresh; other sections retain the 2026-10-23 audit)*
 
 This context is derived from the current checkout. Current source and saved Unreal packages are authoritative; indexes are derived evidence. For the human-facing Russian documentation, start with [Docs/README.md](../Docs/README.md) and [Docs/Architecture.md](../Docs/Architecture.md).
 
@@ -58,14 +58,14 @@ Clean live DA_SingleDay: Nuts → Jellies → Ice → Fog, support 120s per slot
 
 - GameInstance: `UMCSteamSessionSubsystem`, `UMCTravelLoadingSubsystem`, `UMCHubProfileSubsystem`, `UMCVoiceChatSubsystem`, `UMCStudioSplashSubsystem` (one-session startup ident gate, declared in MCStudioSplashWidget.h).
 - World: `UMCWorldPreloadSubsystem` (tickable), `UMCGroundImpactSubsystem` (tickable), `UMCAnimationComparisonSubsystem`; validation/front-end validation tickable fixtures are diagnostic.
-- PlayerState owns Perks and Economy plus score/fish/appearance/session state. CopyProperties handles state carried through travel. `UMCProgressionComponent` remains an inert compatibility shell, not a live XP loop.
+- PlayerState owns Perks and Economy plus score/fish/appearance/session state. `UMCPerkComponent` owns four active/consumable slots (instance identity, charges and cooldown), separate unique passive IDs without an eight-item cap, and separate tool upgrades. `ActivePerks`/`BoosterQueue` are compatibility projections. CopyProperties carries the canonical loadout and remaining cooldown through pawn/travel handoff; run finalization clears runtime skills while retaining coins. `UMCProgressionComponent` remains an inert compatibility shell, not a live XP loop. Current contract and extension hooks: [Docs/RoguelikeCore.md](../Docs/RoguelikeCore.md).
 - Character owns movement/physics/status, brush contact, grip, fishing, cosmetics, collection, expression, inventory, gaze, feedback and camera components.
 
 ## Networking, input and AI
 
 - Authoritative server gameplay, actor/property replication, owned character/controller RPCs, custom CharacterMovement prediction and corrections for stamina/swimming. No Iris/ReplicationGraph configuration was identified in the inspected project configs; the entire engine default stack was not audited.
 - Listen-server/Steam room contract up to four players; Steam App ID 480, `MC_GAME=MessControl_Coop_v1`, SteamSockets with IpNetDriver fallback. Steam subsystem path is excluded in PIE/commandlets. No complete host-migration/reconnect guarantee.
-- EnhancedInput default PlayerInput/InputComponent. The character creates/binds its input actions and mapping in C++; do not assume a required authored IMC asset. Mouse/right-stick orbit and zoom exist.
+- EnhancedInput default PlayerInput/InputComponent. The character creates/binds its input actions and mapping in C++; do not assume a required authored IMC asset. Keyboard 1–4 activate skill slots; mouse wheel switches tools, while the existing D-pad tool bindings remain. Mouse/right-stick orbit and zoom exist. The old G/B FIFO activation bindings are retired; a gamepad active-skill layout was not validated by this iteration.
 - Voice: Voice/OSS + UVOIPTalker, PTT V by default, OpenMic, mute/levels/test; separate MCVoiceSoundClass. Input device selection API returns false; system input settings are available.
 - AI: custom BossAIController and PlaytestBotController, navigation via AIModule/NavigationSystem. Configured Recast agents Default (35 radius /144 height) and Boss (60/220). No assumption of BehaviorTree/StateTree/Mass ownership from module availability.
 - GAS: GameplayAbilities is not explicitly enabled or linked in the inspected project descriptor/Build.cs. Perks/status/economy use project-specific components; no verified ASC/AttributeSet setup.
@@ -74,14 +74,15 @@ Clean live DA_SingleDay: Nuts → Jellies → Ice → Fog, support 120s per slot
 
 - UMG/native + editable widget packages; shared `UMCGameplayUITheme`, UI data/localization and factories. No explicit CommonUI/MVVM dependency in inspected project module definitions.
 - Main menu, StudioSplash, loading overlay, gameplay HUD, hub selection/shop/wardrobe and actor-attached indicators are distinct presentation owners. WorldStatus uses a screen-space WidgetComponent, not world-space rendering. User edits in current source may differ from existing binaries.
+- The stable `/Game/Gameplay/Roguelike/DT_Perks` is the canonical skill definition table: Kind, metadata/translation keys/icon, rarity, initial charges, cooldown and activation hooks/adapters. Chest, shop and `UMCSkillLoadoutWidget` resolve stable IDs there; the latter is a functional current-theme HUD, not the future final art.
 - Presentation owners create UI/dynamic material variants; `UMCWorldPreloadSubsystem`, `MCPreloadManifest` and per-map settings discover/retain their resources and wait for readiness. Controller ACK/barriers gate play. Every changed runtime visual must be reachable and cooked. Editor shader quietness is not proof of packaged PSO completeness.
 - Palette SFX and scene Music/Ambience use UMCSoundPalette / UMCSceneAudioComponent. Two current/fading layers cap scene voices at four. Current saved sound assignments are not established by source alone.
 
 ## Saves and local preferences
 
-- `UMCHubProfileSave` Version=1 wraps economy save Version=1 and fish count. Authoritative host saves in `Saved/HubProfiles/PIE` or `Saved/HubProfiles/Players` under SHA1(identity). Authenticated UniqueId or local LocalProfile is used; unauthenticated remote guests do not get a persistent wallet by name.
+- `UMCHubProfileSave` Version=1 wraps economy save Version=2 (v1 is accepted for migration) and fish count. Authoritative host saves in `Saved/HubProfiles/PIE` or `Saved/HubProfiles/Players` under SHA1(identity). Authenticated UniqueId or local LocalProfile is used; unauthenticated remote guests do not get a persistent wallet by name.
 - `-MCHubTransientProfile` disables persistent-profile paths for diagnostics. Unreadable/version-mismatched saves are protected from overwrite. Store uses `.tmp` then Move and caches only success.
-- Economy contains coins, owned/equipped cosmetics, pending boosters, last applied run ID, calcium charges and pending grill reward. Native calcium rule is false; saved values still need preservation.
+- Economy contains coins, owned/equipped cosmetics, pending next-run purchases with slot/instance/charge data, exact retained legacy booster entries, per-run shop stock IDs/epoch/seed, last applied run ID, calcium charges and pending grill reward. One weighted assortment persists for a run; at most four passive positions is a storefront cap, not an ownership cap. New grill rolls pay coins only. Known legacy item receipts convert by authored DuplicateCoins; unknown receipts/purchases are retained with a notice. v1 originals get a byte-exact backup before overwrite; backup/import failure protects the original. Native calcium remains disabled.
 - `UMCGameUserSettings` holds local graphics/audio/language/camera/voice/bag-color preferences. This is separate from authoritative economy and not a complete saved campaign/run-resume system.
 
 ## Rendering and cook configuration
@@ -105,3 +106,7 @@ All agent-created files/temp/cache/media go to E:, with explicit process TEMP/TM
 For VFX, research and retain reusable sources in Docs/VFXReferences.md before new/substantial authoring. Resource readiness applies to all runtime visuals, including widgets and dynamic materials. See AGENTS.md for the complete project rules.
 
 Unverified beyond the bounded live reads in the audit: remaining Blueprint defaults/DataTable contents/graphs, complete material preload coverage, first-use runtime behavior of dirty source, full campaign, current network/WAN state, release PSO coverage, packaged save/reload after the latest fix, shipping certification and complete engine-plugin maturity/use. HubSystemsCheckpoint_20261023 retains unfinished packaged validation and PSO/GPU issues.
+
+## Roguelike foundation validation — 2026-10-27
+
+Normal Editor builds succeeded. The targeted native run completed 31 tests (30 clean, one with warnings, zero failures); the warnings concern CPU access on the test Plane fixture. Owned solo PIE checked four slots, nine coexisting passives, charge use, independent cooldown, personal chest choice, full-slot confirmation and actual replacement. A separate owned Hub PIE checked E/open, exact price debit, next-run preparation, close/reopen and stable stock. All use transient profiles and explicit diagnostic grants/wallet/player placement, not an earned full run. Evidence is on E:/CodexWork/MessControl/RoguelikeFoundation_20261027; network, microphone, packaged run and a real-file legacy-profile restart were not checked. Full pre-refactor saved export covered 3618 current assets out of 3619; the old EUB_SnapToActor editor utility failed compilation and is excluded. Post-refactor refreshes are scoped to the relevant tables/WBP/maps; do not assume all other cached snapshots are current.

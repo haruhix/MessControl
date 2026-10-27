@@ -12,17 +12,17 @@ bool AMCRewardChest::PrepareRogueLoot(UMCPerkComponent* Perks)
     const int32 Seed=RollSeed^GetTypeHash(PS->GetPlayerId());
     if(RogueKind==EMCRogueRewardKind::RiskyAltar) {
         Polarity=EMCPerkPolarity::Risky;
-        return Perks->BuildRogueOffer(Polarity,Seed,LootIDs);
+        Perks->BuildRogueOffer(Polarity,Seed,LootIDs,false,false,false,TArray<FName>(),false);return true;
     }
     if(RogueKind!=EMCRogueRewardKind::CursedContract) return false;
-    if(!Perks->BuildRogueOffer(EMCPerkPolarity::Negative,Seed,ContractCurses)
-        || !Perks->BuildRogueOffer(EMCPerkPolarity::Positive,Seed^0x52455744,ContractRewards,false,true)) return false;
+    if(!Perks->BuildRogueOffer(EMCPerkPolarity::Negative,Seed,ContractCurses,false,false,false,TArray<FName>(),false,true)
+        || !Perks->BuildRogueOffer(EMCPerkPolarity::Positive,Seed^0x52455744,ContractRewards,false,true,false,TArray<FName>(),false,true)) {ContractCurses.Reset();ContractRewards.Reset();}
     ContractCurse=ContractReward=NAME_None;ContractStep=0;LootIDs=ContractCurses;Polarity=EMCPerkPolarity::Negative;
     return true;
 }
 FMCRogueChestOffer AMCRewardChest::GetRogueOffer() const
 {
-    FMCRogueChestOffer Offer;Offer.Kind=RogueKind;Offer.IDs=LootIDs;Offer.RewardIDs=ContractRewards;
+    FMCRogueChestOffer Offer;Offer.OfferID=OpeningOfferID;Offer.Kind=RogueKind;Offer.IDs=LootIDs;Offer.RewardIDs=ContractRewards;
     Offer.Curse=ContractCurse;Offer.Reward=ContractReward;Offer.Step=ContractStep;return Offer;
 }
 void AMCRewardChest::PublishRogueOffer()
@@ -36,6 +36,8 @@ bool AMCRewardChest::ConfirmRogueContract(AMCToothCharacter* Player)
         || ContractStep!=2 || Player!=OpeningPlayer || !OpenerCanContinue()) return false;
     auto* PS=Player->GetPlayerState<AMCPlayerState>();
     if(!PS || !PS->Perks || !ContractCurses.Contains(ContractCurse) || !ContractRewards.Contains(ContractReward)) return false;
+    if(PS->Perks->GetPerkKind(ContractCurse)!=EMCPerkKind::Passive
+        || PS->Perks->GetPerkKind(ContractReward)!=EMCPerkKind::Passive) return false;
     TGuardValue<bool> Guard(bClaimInProgress,true);
     // One validated batch: callbacks see both final stacks and cannot apply half a deal.
     if(!PS->Perks->ServerGrantPerks({ContractCurse,ContractReward})) return false;

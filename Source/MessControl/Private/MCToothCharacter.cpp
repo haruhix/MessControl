@@ -1,4 +1,4 @@
-﻿#include "MCToothCharacter.h"
+#include "MCToothCharacter.h"
 #include "MCInventoryComponent.h"
 #include "MCToolScrollInput.h"
 #include "MCGameUserSettings.h"
@@ -443,7 +443,8 @@ void AMCToothCharacter::BuildInput()
     InputMap->MapKey(HandleAction, EKeys::E); InputMap->MapKey(HandleAction, EKeys::Gamepad_FaceButton_Left);
     const FKey Keys[]={EKeys::One,EKeys::Two,EKeys::Three,EKeys::Four};
     const FKey Pad[]={EKeys::Gamepad_DPad_Left,EKeys::Gamepad_DPad_Up,EKeys::Gamepad_DPad_Right,EKeys::Gamepad_DPad_Down};
-    for(int32 I=0;I<4;++I) { auto* ToolAction=Action(EInputActionValueType::Boolean); ToolActions.Add(ToolAction); InputMap->MapKey(ToolAction,Keys[I]); InputMap->MapKey(ToolAction,Pad[I]); }
+    for(int32 I=0;I<4;++I) { auto* ToolAction=Action(EInputActionValueType::Boolean); ToolActions.Add(ToolAction); InputMap->MapKey(ToolAction,Pad[I]);
+        auto* SkillAction=Action(EInputActionValueType::Boolean);SkillActions.Add(SkillAction);InputMap->MapKey(SkillAction,Keys[I]); }
     InputMap->MapKey(PanelAction, EKeys::F1); InputMap->MapKey(ConnectionAction, EKeys::F2); InputMap->MapKey(RestartAction, EKeys::R);
 }
 void AMCToothCharacter::PawnClientRestart()
@@ -517,6 +518,10 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindActionValueLambda(ToolActions[1],ETriggerEvent::Started,[this,ToolScrollCursor](const FInputActionValue&) {ToolScrollCursor->Reset();SelectPickaxe();});
     Input->BindActionValueLambda(ToolActions[2],ETriggerEvent::Started,[this,ToolScrollCursor](const FInputActionValue&) {ToolScrollCursor->Reset();SelectKnife();});
     Input->BindActionValueLambda(ToolActions[3],ETriggerEvent::Started,[this,ToolScrollCursor](const FInputActionValue&) {ToolScrollCursor->Reset();SelectSpray();});
+    for(int32 Index=0;Index<SkillActions.Num();++Index)
+        Input->BindActionValueLambda(SkillActions[Index],ETriggerEvent::Started,[this,Index](const FInputActionValue&) {
+            if(auto* PC=Cast<AMCPlayerController>(Controller)) PC->ActivateSkillSlot(Index);
+        });
     Input->BindAction(FishingAction,ETriggerEvent::Started,FishingRod.Get(),&UMCFishingRodComponent::ToggleEquipped);
     Input->BindAction(ForwardAction,ETriggerEvent::Completed,this,&AMCToothCharacter::MoveForward);
     Input->BindAction(RightAction,ETriggerEvent::Completed,this,&AMCToothCharacter::MoveRight);
@@ -1232,6 +1237,7 @@ void AMCToothCharacter::ResolvePrimaryAction(bool bNewPress)
 }
 void AMCToothCharacter::CancelGameplayInput()
 {
+    if(HasAuthority()) if(auto* Perks=UMCPerkComponent::ForActor(this)) Perks->CancelSkillPreparations();
     StopRowing();
     StopThrowItem();
     if(Inventory) Inventory->CancelUpgradeUse();

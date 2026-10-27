@@ -42,6 +42,7 @@ USTRUCT(BlueprintType)
 struct MESSCONTROL_API FMCRogueChestOffer
 {
     GENERATED_BODY()
+    UPROPERTY(BlueprintReadOnly) FGuid OfferID;
     UPROPERTY(BlueprintReadOnly) EMCRogueRewardKind Kind=EMCRogueRewardKind::Ordinary;
     UPROPERTY(BlueprintReadOnly) TArray<FName> IDs;
     UPROPERTY(BlueprintReadOnly) TArray<FName> RewardIDs;
@@ -49,4 +50,13 @@ struct MESSCONTROL_API FMCRogueChestOffer
     UPROPERTY(BlueprintReadOnly) FName Reward;
     /** 0: curse, 1: reward, 2: final confirmation. */
     UPROPERTY(BlueprintReadOnly) uint8 Step=0;
+};
+
+/** Server-only personal receipt. Presentation is sent only to that recipient. */
+USTRUCT()
+struct MESSCONTROL_API FMCPersonalRewardOffer
+{
+    GENERATED_BODY()
+    UPROPERTY() FGuid OfferID;
+    UPROPERTY() TArray<FName> IDs;
 };

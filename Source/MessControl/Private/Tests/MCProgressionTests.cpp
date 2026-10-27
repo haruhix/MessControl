@@ -3,6 +3,7 @@
 #include "MCProgressionComponent.h"
 #include "MCGameState.h"
 #include "MCPlayerState.h"
+#include "MCPlayerController.h"
 #include "MCPerkComponent.h"
 #include "MCRecoveryPerkEffect.h"
 #include "MCToothCharacter.h"
@@ -29,7 +30,7 @@ struct FProgressionWorld
         FURL URL; URL.AddOption(TEXT("game=/Script/Engine.GameModeBase"));
         World->SetGameMode(URL); World->InitializeActorsForPlay(URL); World->BeginPlay();
         State=World->SpawnActor<AMCGameState>(); State->Phase=EMCShiftPhase::Working; State->RunSeed=41;
-        World->SetGameState(State);
+        World->SetGameState(State);State->bLobbyWaiting=false;
         Progression=State->FindComponentByClass<UMCProgressionComponent>();
         if (!Progression)
         {
@@ -51,10 +52,10 @@ struct FProgressionWorld
     { World->EndPlay(EEndPlayReason::Quit); GEngine->DestroyWorldContext(World); World->DestroyWorld(false); }
     AMCPlayerState* Player(int32 ID)
     {
-        auto* PC=World->SpawnActor<APlayerController>();
+        auto* PC=World->SpawnActor<AMCPlayerController>();
         const FTransform Pose;
         auto* PS=World->SpawnActorDeferred<AMCPlayerState>(AMCPlayerState::StaticClass(),Pose,PC);
-        PS->Perks->PerkTable=Table; PS->SetPlayerId(ID); PS->FinishSpawning(Pose); PC->SetPlayerState(PS);
+        PS->Perks->PerkTable=Table; PS->SetPlayerId(ID); PS->FinishSpawning(Pose); PC->SetPlayerState(PS);PS->SetOwner(PC);PC->bShowMouseCursor=false;
         State->AddPlayerState(PS); Progression->SynchronizePlayer(PS); return PS;
     }
 };
@@ -131,41 +132,50 @@ bool FMCPersonalLegendaryTest::RunTest(const FString& Parameters)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCRecoveryChoiceTest,"MessControl.Progression.RecoveryStacksApplyOnceAndSurviveHandoff",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCRecoveryChoiceTest,"MessControl.Progression.RecoverySlotsApplyOnceAndSurviveHandoff",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCRecoveryChoiceTest::RunTest(const FString& Parameters)
 {
-    FProgressionWorld W; auto* Player=W.Player(11);
-    for (FName ID:{FName(TEXT("RecoverySelfHeal")),FName(TEXT("RecoveryMouthHeal")),FName(TEXT("RecoveryCleanse"))})
-    {
-        FMCPerkDefinition Row; Row.MaxStacks=100; Row.EffectClass=UMCRecoveryPerkEffect::StaticClass();
+    FProgressionWorld W;auto* Player=W.Player(11);
+    for(FName ID:{FName(TEXT("RecoverySelfHeal")),FName(TEXT("RecoveryMouthHeal")),FName(TEXT("RecoveryCleanse"))}) {
+        FMCPerkDefinition Row;Row.Kind=EMCPerkKind::Consumable;Row.MaxStacks=1;
+        Row.InitialCharges=ID==TEXT("RecoverySelfHeal")?2:1;Row.EffectClass=UMCRecoveryPerkEffect::StaticClass();
         W.Table->AddRow(ID,Row);
     }
     auto* PC=Cast<APlayerController>(Player->GetOwner());
-    auto* Hero=W.World->SpawnActor<AMCToothCharacter>(); PC->Possess(Hero);
-    Hero->Status->Initialize(100); Hero->Status->Damage(70);
-    TestTrue(TEXT("An instant healing stack can be granted"),Player->Perks->ServerGrantPerk(TEXT("RecoverySelfHeal")));
-    TestEqual(TEXT("First stack restores exactly 25 health"),Hero->Status->State.Health,55.f);
-    TestTrue(TEXT("A second stack is independently useful"),Player->Perks->ServerGrantPerk(TEXT("RecoverySelfHeal")));
-    TestEqual(TEXT("Second stack applies once rather than replaying prior stacks"),Hero->Status->State.Health,80.f);
+    auto* Hero=W.World->SpawnActor<AMCToothCharacter>();PC->Possess(Hero);
+    Hero->Status->Initialize(100);Hero->Status->Damage(70);
+    TestTrue(TEXT("Healing item is stored"),Player->Perks->ServerGrantPerk(TEXT("RecoverySelfHeal")));
+    TestEqual(TEXT("Acquisition never auto-heals"),Hero->Status->State.Health,30.f);
+    TestFalse(TEXT("An owned recovery ID does not stack"),Player->Perks->ServerGrantPerk(TEXT("RecoverySelfHeal")));
+    const FGuid Heal=Player->Perks->ActiveSkillSlots[0].InstanceID;
+    TestTrue(TEXT("Explicit use heals once"),Player->Perks->ActivateSkillSlot(0,Heal));
+    TestEqual(TEXT("Known recovery amount stays 25"),Hero->Status->State.Health,55.f);
+    TestEqual(TEXT("One remaining charge is retained"),Player->Perks->ActiveSkillSlots[0].Charges,1);
 
-    Hero->Status->ApplyCoffee(); Hero->Status->Loosen();
-    Player->Perks->ServerGrantPerk(TEXT("RecoveryCleanse"));
+    Hero->Status->ApplyCoffee();Hero->Status->Loosen();
+    TestTrue(TEXT("Cleanse item is stored"),Player->Perks->ServerGrantPerk(TEXT("RecoveryCleanse")));
+    TestTrue(TEXT("Explicit cleanse succeeds"),Player->Perks->ActivateSkillSlot(1,Player->Perks->ActiveSkillSlots[1].InstanceID));
     TestEqual(TEXT("Cleanse removes personal coffee"),Hero->Status->State.CoffeeLeft,0);
-    TestEqual(TEXT("Cleanse removes the loose/repair condition"),Hero->Status->State.RepairLeft,0);
-    TestEqual(TEXT("Recovery does not farm task points"),Player->Points,0);
+    TestEqual(TEXT("Cleanse removes the repair condition"),Hero->Status->State.RepairLeft,0);
+    TestEqual(TEXT("Recovery cannot farm task points"),Player->Points,0);
     W.State->MouthHealth=50;
-    Player->Perks->ServerGrantPerk(TEXT("RecoveryMouthHeal"));
+    TestTrue(TEXT("Mouth recovery stored in freed slot"),Player->Perks->ServerGrantPerk(TEXT("RecoveryMouthHeal")));
+    TestEqual(TEXT("Stored mouth recovery does not apply immediately"),W.State->MouthHealth,50.f);
+    TestTrue(TEXT("Explicit mouth recovery succeeds"),Player->Perks->ActivateSkillSlot(1,Player->Perks->ActiveSkillSlots[1].InstanceID));
     TestEqual(TEXT("Mouth recovery restores ten shared health"),W.State->MouthHealth,60.f);
 
-    auto* Target=W.Player(22); auto* TargetPC=Cast<APlayerController>(Target->GetOwner());
-    auto* NewHero=W.World->SpawnActor<AMCToothCharacter>(); TargetPC->Possess(NewHero);
-    NewHero->Status->Initialize(100); NewHero->Status->Damage(70);
+    auto* Target=W.Player(22);auto* TargetPC=Cast<APlayerController>(Target->GetOwner());
+    auto* NewHero=W.World->SpawnActor<AMCToothCharacter>();TargetPC->Possess(NewHero);
+    NewHero->Status->Initialize(100);NewHero->Status->Damage(70);
     Player->CopyProperties(Target);
-    TestEqual(TEXT("PlayerState handoff cannot replay already consumed healing"),NewHero->Status->State.Health,30.f);
-    TestEqual(TEXT("PlayerState handoff cannot replay shared mouth recovery"),W.State->MouthHealth,60.f);
-    Target->Perks->ServerGrantPerk(TEXT("RecoverySelfHeal"));
-    TestEqual(TEXT("A newly earned stack still applies after handoff"),NewHero->Status->State.Health,55.f);
+    TestEqual(TEXT("Handoff never replays prior healing"),NewHero->Status->State.Health,30.f);
+    TestEqual(TEXT("Handoff never replays mouth recovery"),W.State->MouthHealth,60.f);
+    TestEqual(TEXT("Handoff preserves the one unspent charge"),Target->Perks->ActiveSkillSlots[0].Charges,1);
+    TestTrue(TEXT("Handoff preserves slot identity"),Target->Perks->ActiveSkillSlots[0].InstanceID==Heal);
+    TestTrue(TEXT("The unspent charge remains usable"),Target->Perks->ActivateSkillSlot(0,Heal));
+    TestEqual(TEXT("Only explicitly used remaining charge heals"),NewHero->Status->State.Health,55.f);
+    TestTrue(TEXT("Fully spent ID may be acquired again"),Target->Perks->CanAcquirePerk(TEXT("RecoverySelfHeal")));
     return true;
 }
 #endif

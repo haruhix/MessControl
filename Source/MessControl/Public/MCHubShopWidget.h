@@ -10,12 +10,27 @@ class UButton;
 class UTextBlock;
 class UScrollBox;
 class UUniformGridPanel;
+class UHorizontalBox;
 class UMCHubEconomyComponent;
 class UMCHubShopWidget;
 class UMCCosmeticItemWidget;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMCHubShopClosed);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMCHubPurchaseRequested,FName,ItemID);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FMCHubPurchaseSlotRequested,FName,ItemID,int32,DestinationSlot,FName,ExpectedReplacedID,FGuid,ExpectedInstanceID);
+
+/** A planned next-run slot, separate from the current runtime skill inventory. */
+UCLASS()
+class MESSCONTROL_API UMCHubShopSlotButton : public UButton
+{
+    GENERATED_BODY()
+public:
+    void Configure(UMCHubShopWidget* Owner,int32 Slot);
+private:
+    UFUNCTION() void Clicked();
+    TWeakObjectPtr<UMCHubShopWidget> OwnerWidget;
+    int32 DestinationSlot=INDEX_NONE;
+};
 
 /** A data-bound entry; its parent validates the selected ID before requesting a purchase. */
 UCLASS()
@@ -39,8 +54,10 @@ class MESSCONTROL_API UMCHubShopWidget : public UMCGameplayUIWidget
 public:
     UPROPERTY(BlueprintAssignable, Category="Shop") FMCHubShopClosed OnClose;
     UPROPERTY(BlueprintAssignable, Category="Shop") FMCHubPurchaseRequested OnPurchaseRequested;
+    UPROPERTY(BlueprintAssignable, Category="Shop") FMCHubPurchaseSlotRequested OnPurchaseSlotRequested;
     UFUNCTION(BlueprintCallable, Category="Shop") void Configure(UMCHubEconomyComponent* Economy);
     UFUNCTION(BlueprintCallable, Category="Shop") void SelectCatalogItem(FName ItemID);
+    UFUNCTION(BlueprintCallable, Category="Shop") void SelectReplacementSlot(int32 SlotIndex);
     UFUNCTION(BlueprintCallable, Category="Shop") void SetTransactionMessage(const FText& Message);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Shop") TSubclassOf<UMCCosmeticItemWidget> ProductCardClass;
     virtual void BuildPresentationTree() override;
@@ -63,6 +80,8 @@ protected:
 private:
     void ResolveControls();
     void EnsureCatalogPresentation();
+    void EnsureReplacementPresentation();
+    void RequestPurchase(int32 Slot,FName ExpectedID,const FGuid& ExpectedInstance);
     UFUNCTION() void RefreshEconomy();
     UFUNCTION() void BuyClicked();
     UFUNCTION() void CloseClicked();
@@ -70,6 +89,9 @@ private:
     TWeakObjectPtr<UMCHubEconomyComponent> ObservedEconomy;
     UPROPERTY(Transient) TArray<TObjectPtr<UMCHubShopItemButton>> CatalogButtons;
     UPROPERTY(Transient) TArray<TObjectPtr<UMCCosmeticItemWidget>> CatalogCards;
+    UPROPERTY(Transient) TObjectPtr<UHorizontalBox> ReplacementSlots;
+    UPROPERTY(Transient) TArray<TObjectPtr<UMCHubShopSlotButton>> ReplacementButtons;
     FName SelectedItemID;
+    bool bChoosingReplacement=false;
     bool bEditorFixture=false;
 };

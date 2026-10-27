@@ -27,6 +27,7 @@ void AMCPlayerController::RefreshHubEconomy()
     if(!HasAuthority() || !State || !State->Economy || !GetGameInstance() || !GetWorld()->GetGameState()) return;
     auto* Profiles=GetGameInstance()->GetSubsystem<UMCHubProfileSubsystem>();
     if(Profiles && !Profiles->Restore(State,this)) return;
+    if(Profiles && GetWorld()->GetGameState<AMCHubGameState>()) Profiles->EnsureShopStockForPlayer(State);
     if(auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>();Mode && Mode->GetHubBoosterRunId().IsValid()) {
         FText Error;State->Economy->ApplyPendingBoostersForRun(Mode->GetHubBoosterRunId(),Error);
     }
@@ -75,6 +76,24 @@ void AMCPlayerController::ServerPurchaseHubItem_Implementation(FName ItemID)
     FText Error;
     if(!State->Economy->TryPurchase(ItemID,Error)) {if(!Error.IsEmpty()) ClientHubTransactionFeedback(Error);}
     else ClientHubTransactionFeedback(NSLOCTEXT("MCHubEconomy","Purchased","Покупка сохранена."));
+}
+void AMCPlayerController::PurchaseHubItemInSlot(FName ItemID,int32 DestinationSlot,FName ExpectedReplacedID,FGuid ExpectedInstanceID)
+{
+    const auto* State=GetPlayerState<AMCPlayerState>();
+    if(HasLocalPresentationOwner() && IsHubShopOpen() && State && State->Economy)
+        ServerPurchaseHubItemInSlot(ItemID,DestinationSlot,ExpectedReplacedID,ExpectedInstanceID,State->Economy->ShopRotationId);
+}
+void AMCPlayerController::ServerPurchaseHubItemInSlot_Implementation(FName ItemID,int32 DestinationSlot,FName ExpectedReplacedID,FGuid ExpectedInstanceID,FGuid ExpectedShopRotationID)
+{
+    auto* State=GetPlayerState<AMCPlayerState>();const auto* Hero=Cast<AMCToothCharacter>(GetPawn());
+    const auto* Hub=GetWorld()->GetGameState<AMCHubGameState>();
+    if(!State || !State->Economy || !Hero || !Hero->CanWork() || !Hub || Hub->Phase!=EMCHubPhase::Gathering
+        || !ExpectedShopRotationID.IsValid() || ExpectedShopRotationID!=State->Economy->ShopRotationId) return;
+    bool Nearby=false;for(TActorIterator<AMCHubShopStation> It(GetWorld());It;++It) if(It->ContainsPawn(Hero)) {Nearby=true;break;}
+    if(!Nearby) return;
+    FText Error;if(!State->Economy->TryPurchaseForSlot(ItemID,DestinationSlot,ExpectedReplacedID,ExpectedInstanceID,Error)) {
+        if(!Error.IsEmpty()) ClientHubTransactionFeedback(Error);
+    } else ClientHubTransactionFeedback(NSLOCTEXT("MCHubEconomy","Purchased","Покупка сохранена."));
 }
 void AMCPlayerController::ClientHubTransactionFeedback_Implementation(const FText& Message)
 {

@@ -39,6 +39,8 @@ class MESSCONTROL_API UMCPerkChoiceWidget : public UMCGameplayUIWidget
 public:
     void ShowChoices(const TArray<FName>& IDs, EMCPerkPolarity Polarity);
     void SetTeamBoosterHeader();
+    void ShowReplacementSlots();
+    void CancelReplacementSlots();
     /** Presentation of an authority timestamp; only the server resolves an expired choice. */
     void SetStageChoiceDeadline(double ServerEndsAt);
     void ShowLevelChoices(const TArray<FName>& IDs,int32 TeamLevel,int32 PendingChoices);
@@ -105,6 +107,7 @@ private:
     double StageChoiceDeadline=0;
     int32 LastStageChoiceSecond=INDEX_NONE;
     bool bShowingChoices = false;
+    bool bChoosingReplacement=false;
     bool bNavigationHighlight=false;
     bool bSelectionPending = false;
     bool bWaitingForTeam=false;

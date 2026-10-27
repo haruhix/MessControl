@@ -143,7 +143,7 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
     // Their tables are finite roots, including items not yet equipped at load time.
     for(const TCHAR* Root:{TEXT("/Game/Gameplay/Hub/Economy/DT_HubCatalog"),
         TEXT("/Game/Gameplay/Hub/Economy/DT_GrillRewards"),TEXT("/Game/Gameplay/Hub/Economy/DT_HubEconomyRules"),
-        TEXT("/Game/Data/DT_CharacterCosmetics")}) AddAsset(Root,OutPaths);
+        TEXT("/Game/Data/DT_CharacterCosmetics"),TEXT("/Game/Gameplay/Roguelike/DT_Perks")}) AddAsset(Root,OutPaths);
 
     // The actual saved actors/components also capture artist overrides in the current map.
     FMCVisualReferenceCollector Collector(OutPaths);

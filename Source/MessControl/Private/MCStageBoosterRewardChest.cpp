@@ -41,9 +41,11 @@ void AMCRewardChest::InitializeTeamStageReward(FVector Landing,FVector Start,int
 
 void AMCRewardChest::CaptureStageRecipients()
 {
-    if(bStageRecipientsCaptured) return;
-    for(TActorIterator<AMCPlayerState> It(GetWorld());It;++It)
-        if(IsStageParticipant(*It)) StageRecipients.Add(*It);
+    if(!HasAuthority() || bStageRecipientsCaptured) return;
+    for(TActorIterator<AMCPlayerState> It(GetWorld());It;++It) if(IsStageParticipant(*It)) {
+        StageRecipients.Add(*It);
+        BuildTeamBoosterOffer(It->Perks);
+    }
     bStageRecipientsCaptured=!StageRecipients.IsEmpty();
 }
 
@@ -117,7 +119,7 @@ void AMCRewardChest::PollTeamBoosterApproach()
             && Game->AvailableArenaTeeth()==0;
         if(!IsStageParticipant(State) || NoReplacement) {
             if(State) ReleaseStageChoice(State);
-            StageClaims.Remove(*It);It.RemoveCurrent();
+            StageClaims.Remove(*It);StageOffers.Remove(*It);It.RemoveCurrent();
         }
     }
     TArray<TWeakObjectPtr<AMCPlayerState>> Showing;
@@ -142,7 +144,16 @@ void AMCRewardChest::PollTeamBoosterApproach()
             }
             auto* Hero=Cast<AMCToothCharacter>(State->GetPawn());
             if(!CanReceiveStageChoice(Hero)) continue;
-            if(Cast<AMCPlaytestBotController>(Hero->GetController())) ApplyStageBoosterOnce(State,LootIDs[0]);
+            BuildTeamBoosterOffer(State->Perks);
+            const auto* Offer=StageOffers.Find(State);
+            if(!Offer || Offer->IDs.IsEmpty()) {ResolveStageSkip(State);continue;}
+            if(Cast<AMCPlaytestBotController>(Hero->GetController())) {
+                bool Granted=false;
+                for(FName ID:Offer->IDs) if(State->Perks->CanAcquirePerk(ID,INDEX_NONE)) {
+                    Granted=ApplyStageRewardOnce(State,ID,INDEX_NONE,NAME_None,FGuid());break;
+                }
+                if(!Granted) ResolveStageSkip(State);
+            }
             else if(!StageChoicePawns.Contains(Recipient)
                 || (!StageChoicePresented.Contains(Recipient) && ServerNow()-StageChoiceLastSent.FindRef(Recipient)>=1.))
                 PublishStageChoiceFor(Hero);
@@ -204,31 +215,34 @@ bool AMCRewardChest::BeginTeamBoosterChoice(AMCToothCharacter* Player)
 
 bool AMCRewardChest::BuildTeamBoosterOffer(const UMCPerkComponent* Perks)
 {
-    if(!Perks || Perks->GetPerkTable()!=RewardTable || !RewardTable
+    auto* State=Perks?Cast<AMCPlayerState>(Perks->GetOwner()):nullptr;
+    if(!HasAuthority() || !State || Perks->GetPerkTable()!=RewardTable || !RewardTable
         || RewardTable->GetRowStruct()!=FMCPerkDefinition::StaticStruct()) return false;
-    TArray<FName> Offers={TEXT("Fallback_Mouthwash"),TEXT("Fallback_BrushFury"),TEXT("Fallback_Grenade")};
-    for(FName ID:Offers) {
-        const auto* Row=RewardTable->FindRow<FMCPerkDefinition>(ID,TEXT("Personal stage booster"),false);
-        if(!Row || !Row->bConsumableBooster || Row->Polarity!=EMCPerkPolarity::Positive) return false;
-    }
-    FRandomStream Roll(RollSeed);
-    for(int32 I=Offers.Num()-1;I>0;--I) Offers.Swap(I,Roll.RandRange(0,I));
-    LootIDs=MoveTemp(Offers);Polarity=EMCPerkPolarity::Positive;
+    if(StageOffers.Contains(State)) return true;
+    FMCPersonalRewardOffer Offer;Offer.OfferID=FGuid::NewGuid();
+    const uint32 Identity=HashCombineFast(GetTypeHash(State->GetPlayerId()),GetTypeHash(State->GetFName()));
+    const int32 Seed=int32(HashCombineFast(uint32(RollSeed)^0x534B494Cu,Identity));
+    Perks->BuildRogueOffer(EMCPerkPolarity::Positive,Seed,Offer.IDs,false,false,false,TArray<FName>(),false);
+    // An empty eligible pool is a real receipt too. It is resolved as a skip,
+    // never repopulated with fixed fallback IDs or rerolled on reopen/death.
+    StageOffers.Add(State,MoveTemp(Offer));Polarity=EMCPerkPolarity::Positive;
     return true;
 }
 
 bool AMCRewardChest::PublishStageChoiceFor(AMCToothCharacter* Player)
 {
     if(!HasAuthority() || !bTeamStageBooster || bReported || Stage!=EMCRewardChestStage::Open
-        || LootIDs.Num()!=3 || !CanReceiveStageChoice(Player)) return false;
+        || !CanReceiveStageChoice(Player)) return false;
     auto* State=Player->GetPlayerState<AMCPlayerState>();
     auto* PC=Cast<AMCPlayerController>(Player->GetController());
-    if(!PC || !StageRecipients.Contains(State) || StageClaims.Contains(State)) return false;
+    if(!PC || !StageRecipients.Contains(State) || StageClaims.Contains(State)
+        || !BuildTeamBoosterOffer(State->Perks)) return false;
+    const auto* Offer=StageOffers.Find(State);
+    if(!Offer || Offer->IDs.IsEmpty()) return ResolveStageSkip(State);
     Player->RewardInteraction=this;Player->ForceNetUpdate();
-    StageChoicePawns.Add(State,Player);
-    StageChoiceLastSent.Add(State,ServerNow());
+    StageChoicePawns.Add(State,Player);StageChoiceLastSent.Add(State,ServerNow());
     Player->CancelGameplayInput();
-    PC->ClientShowPerkChoices(this,LootIDs,Polarity,true,GetStageChoiceDeadline(State));
+    PC->ClientShowPerkChoices(this,Offer->IDs,Polarity,true,GetStageChoiceDeadline(State),Offer->OfferID);
     return true;
 }
 
@@ -245,13 +259,18 @@ double AMCRewardChest::GetStageChoiceDeadline(const AMCPlayerState* State) const
 bool AMCRewardChest::ResolveExpiredStageChoice(AMCPlayerState* State)
 {
     const double Deadline=GetStageChoiceDeadline(State);
-    if(Deadline<=0. || ServerNow()<Deadline || LootIDs.Num()!=3) return false;
-    // Independent per-recipient draw from exactly the issued cards. A late
-    // button RPC, repeated polling or replaced body cannot reroll this choice.
+    if(Deadline<=0. || ServerNow()<Deadline) return false;
+    const auto* Offer=StageOffers.Find(State);
+    TArray<FName> Safe;
+    if(State && State->Perks && Offer) for(FName ID:Offer->IDs)
+        if(State->Perks->CanAcquirePerk(ID,INDEX_NONE)) Safe.Add(ID);
+    if(Safe.IsEmpty()) return ResolveStageSkip(State);
+    // Only an issued reward that fits without replacement is safe for AFK
+    // resolution. Passive rewards remain available even with four full slots.
     FRandomStream Roll(int32(HashCombineFast(uint32(RollSeed)^0x4155544Fu,GetTypeHash(State->GetPlayerId()))));
-    const FName ID=LootIDs[Roll.RandRange(0,LootIDs.Num()-1)];
-    if(!ApplyStageBoosterOnce(State,ID,true)) return false;
-    UE_LOG(LogTemp,Display,TEXT("MC_STAGE_REWARD_AUTO_CHOICE chest=%s player=%s booster=%s deadline=%.2f"),
+    const FName ID=Safe[Roll.RandRange(0,Safe.Num()-1)];
+    if(!ApplyStageRewardOnce(State,ID,INDEX_NONE,NAME_None,FGuid())) return ResolveStageSkip(State);
+    UE_LOG(LogTemp,Display,TEXT("MC_STAGE_REWARD_AUTO_CHOICE chest=%s player=%s skill=%s deadline=%.2f"),
         *GetName(),*State->GetPlayerName(),*ID.ToString(),Deadline);
     return true;
 }
@@ -265,38 +284,78 @@ bool AMCRewardChest::ConfirmStageChoicePresented(AMCToothCharacter* Player)
     return true;
 }
 
-bool AMCRewardChest::TryChooseTeamBooster(AMCToothCharacter* Player,int32 Index)
+bool AMCRewardChest::TryChooseTeamBooster(AMCToothCharacter* Player,int32 Index,int32 DestinationSlot,
+    FName ExpectedReplacedID,FGuid ExpectedSlotInstance)
 {
-    if(!HasStageChoiceFor(Player) || bClaimInProgress || Stage!=EMCRewardChestStage::Open
-        || LootIDs.Num()!=3 || !LootIDs.IsValidIndex(Index)) return false;
+    if(!HasStageChoiceFor(Player) || bClaimInProgress || Stage!=EMCRewardChestStage::Open) return false;
     auto* State=Player->GetPlayerState<AMCPlayerState>();
+    const auto* Offer=StageOffers.Find(State);
+    if(!Offer || !Offer->IDs.IsValidIndex(Index)) return false;
     if(ServerNow()>=GetStageChoiceDeadline(State)) {
         const bool Resolved=ResolveExpiredStageChoice(State);
         if(AreStageChoicesResolved()) {ClaimedMask=7;ForceNetUpdate();FinishReward(false);}
         return Resolved;
     }
-    const FName ID=LootIDs[Index];
-    if(!ApplyStageBoosterOnce(State,ID)) return false;
-    UE_LOG(LogTemp,Display,TEXT("MC_STAGE_REWARD_CLAIM chest=%s player=%s booster=%s claimed=%d/%d"),
-        *GetName(),*State->GetPlayerName(),*ID.ToString(),StageClaims.Num(),StageRecipients.Num());
+    const FName ID=Offer->IDs[Index];
+    if(!ApplyStageRewardOnce(State,ID,DestinationSlot,ExpectedReplacedID,ExpectedSlotInstance)) return false;
+    UE_LOG(LogTemp,Display,TEXT("MC_STAGE_REWARD_CLAIM chest=%s player=%s skill=%s slot=%d resolved=%d/%d"),
+        *GetName(),*State->GetPlayerName(),*ID.ToString(),DestinationSlot,StageClaims.Num(),StageRecipients.Num());
     if(AreStageChoicesResolved()) {ClaimedMask=7;ForceNetUpdate();FinishReward(false);}
     return true;
 }
 
-bool AMCRewardChest::ApplyStageBoosterOnce(AMCPlayerState* State,FName ID,bool bAllowDeferred)
+bool AMCRewardChest::ApplyStageRewardOnce(AMCPlayerState* State,FName ID,int32 DestinationSlot,
+    FName ExpectedReplacedID,FGuid ExpectedSlotInstance)
 {
-    if(!HasAuthority() || !bTeamStageBooster || bReported || bClaimInProgress || !IsStageParticipant(State)
-        || !StageRecipients.Contains(State) || StageClaims.Contains(State) || !State->Perks
-        || State->Perks->GetPerkTable()!=RewardTable || !LootIDs.Contains(ID) || !UMCPerkComponent::IsTeamStageBoosterID(ID)) return false;
+    const auto* Offer=StageOffers.Find(State);
+    if(!HasAuthority() || !bTeamStageBooster || bReported || bClaimInProgress || Stage!=EMCRewardChestStage::Open || !IsStageParticipant(State)
+        || !StageRecipients.Contains(State) || StageClaims.Contains(State) || !State->Perks || !Offer
+        || State->Perks->GetPerkTable()!=RewardTable || !Offer->IDs.Contains(ID)) return false;
     TGuardValue<bool> Guard(bClaimInProgress,true);
-    // Seal by stable recipient before callbacks: repeated RPCs cannot replay an
-    // effect, even after that player's pawn has been replaced.
     StageClaims.Add(State);
-    const bool Accepted=bAllowDeferred?State->Perks->AcceptTimedStageBooster(ID):State->Perks->ActivatePersonalStageBooster(ID);
+    const bool Accepted=State->Perks->GetPerkKind(ID)==EMCPerkKind::ToolUpgrade?
+        State->Perks->ServerGrantReward(ID):
+        State->Perks->TryAcquirePerk(ID,DestinationSlot,ExpectedReplacedID,ExpectedSlotInstance);
     if(!Accepted) {StageClaims.Remove(State);return false;}
-    ClaimedMask=1; // An unexpected destruction must not reissue a real grant.
-    State->RecordChestRewardChoice();
-    ReleaseStageChoice(State);
-    ForceNetUpdate();
+    ClaimedMask=1;State->RecordChestRewardChoice();ReleaseStageChoice(State);ForceNetUpdate();
     return true;
+}
+
+bool AMCRewardChest::ResolveStageSkip(AMCPlayerState* State)
+{
+    if(!HasAuthority() || !bTeamStageBooster || bReported || bClaimInProgress || Stage!=EMCRewardChestStage::Open || !State
+        || !StageRecipients.Contains(State) || StageClaims.Contains(State)) return false;
+    StageClaims.Add(State);ClaimedMask=1;
+    ReleaseStageChoice(State);ForceNetUpdate();
+    UE_LOG(LogTemp,Display,TEXT("MC_STAGE_REWARD_SKIP chest=%s player=%s"),*GetName(),*State->GetPlayerName());
+    return true;
+}
+
+TArray<FName> AMCRewardChest::GetStageOfferIDs(const AMCPlayerState* State) const
+{
+    if(const auto* Offer=StageOffers.Find(const_cast<AMCPlayerState*>(State))) return Offer->IDs;
+    return TArray<FName>();
+}
+
+FGuid AMCRewardChest::GetChoiceOfferID(const AMCPlayerState* State) const
+{
+    if(!HasAuthority()) return FGuid();
+    if(bTeamStageBooster) {
+        if(const auto* Offer=StageOffers.Find(const_cast<AMCPlayerState*>(State))) return Offer->OfferID;
+        return FGuid();
+    }
+    return IsValid(OpeningPlayer) && OpeningPlayer->GetPlayerState<AMCPlayerState>()==State?OpeningOfferID:FGuid();
+}
+
+bool AMCRewardChest::ValidateChoiceOffer(const AMCToothCharacter* Player,FGuid OfferID,FName ExpectedSkillID,int32 Index) const
+{
+    if(!HasAuthority() || !IsValid(Player) || Stage!=EMCRewardChestStage::Open || !OfferID.IsValid()
+        || ExpectedSkillID.IsNone()) return false;
+    const auto* State=Player->GetPlayerState<AMCPlayerState>();
+    if(GetChoiceOfferID(State)!=OfferID) return false;
+    if(bTeamStageBooster) {
+        const auto* Offer=StageOffers.Find(const_cast<AMCPlayerState*>(State));
+        return HasStageChoiceFor(Player) && Offer && Offer->IDs.IsValidIndex(Index) && Offer->IDs[Index]==ExpectedSkillID;
+    }
+    return OpeningPlayer==Player && OpenerCanContinue() && LootIDs.IsValidIndex(Index) && LootIDs[Index]==ExpectedSkillID;
 }

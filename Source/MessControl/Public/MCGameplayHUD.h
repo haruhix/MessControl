@@ -5,6 +5,7 @@
 class UMCStaminaWidget;
 class UMCGameplayAlertWidget;
 class UMCBoosterWidget;
+class UMCSkillLoadoutWidget;
 class UMCReserveToothWidget;
 class UMCHUDIcon;
 class UMaterialInstanceDynamic;
@@ -52,6 +53,7 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMCStaminaWidget> SwimEnergyWidget;
     UPROPERTY(Transient) TObjectPtr<UMCGameplayAlertWidget> AlertWidget;
     UPROPERTY(Transient) TObjectPtr<UMCBoosterWidget> BoosterWidget;
+    UPROPERTY(Transient) TObjectPtr<UMCSkillLoadoutWidget> SkillLoadoutWidget;
     UPROPERTY(Transient) TObjectPtr<UMCGameplayUIWidget> EncounterPreviewWidget;
     UPROPERTY(Transient) TArray<TObjectPtr<UMCReserveToothWidget>> ReserveTeeth;
     UPROPERTY(Transient) TObjectPtr<UDataTable> LocalizationTable;

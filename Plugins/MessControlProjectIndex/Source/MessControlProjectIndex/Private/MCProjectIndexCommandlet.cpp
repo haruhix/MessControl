@@ -45,6 +45,14 @@ FString ObjectPath(const UObject* Object) { return Object ? Object->GetPathName(
 // UObject references remain paths: recursively serializing them would follow cycles and load the whole engine.
 TSharedPtr<FJsonValue> ExportSpecialProperty(FProperty* Property, const void* Value)
 {
+    // JSON has no Infinity/NaN number literals. Retain the native value as
+    // text instead of writing an unreadable snapshot (Niagara curve LUTs can
+    // legitimately contain an infinite inverse time range).
+    if (const auto* Number = CastField<FNumericProperty>(Property); Number && Number->IsFloatingPoint())
+    {
+        const double NumericValue = Number->GetFloatingPointPropertyValue(Value);
+        if (!FMath::IsFinite(NumericValue)) return String(LexToString(NumericValue));
+    }
     if (const auto* SoftProperty = CastField<FSoftObjectProperty>(Property))
         return String(SoftProperty->GetPropertyValue(Value).ToSoftObjectPath().ToString());
     if (const auto* ObjectProperty = CastField<FObjectPropertyBase>(Property))
@@ -265,6 +273,16 @@ int32 UMCProjectIndexCommandlet::Main(const FString& Params)
         if (!Object)
         {
             Errors.Add(String(Path + TEXT(": could not load asset")));
+            continue;
+        }
+        // A Blueprint may load its package while compilation still fails. Do
+        // not publish its generated defaults as a current, trustworthy snapshot.
+        // Returning the documented partial-export code also retains the exact
+        // failing asset instead of turning all unrelated exports into a global
+        // commandlet failure caused by the compiler's logged errors.
+        if (const auto* Blueprint = Cast<UBlueprint>(Object); Blueprint && Blueprint->Status == BS_Error)
+        {
+            Errors.Add(String(Path + TEXT(": Blueprint compilation failed; snapshot not refreshed")));
             continue;
         }
         auto Snapshot = MakeShared<FJsonObject>();

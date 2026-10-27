@@ -104,7 +104,7 @@ void AMCPlayerController::SetupInputComponent()
 {
     Super::SetupInputComponent();
     InputComponent->BindKey(EKeys::Enter,IE_Pressed,this,&AMCPlayerController::HandleHubStartInput);
-    InputComponent->BindKey(EKeys::G,IE_Pressed,this,&AMCPlayerController::ActivateRogueBooster);
+
     InputComponent->BindKey(EKeys::H,IE_Pressed,this,&AMCPlayerController::UseCalciumGrenade);
     InputComponent->BindKey(EKeys::T,IE_Pressed,this,&AMCPlayerController::BeginEmoteSelection);
     InputComponent->BindKey(EKeys::T,IE_Released,this,&AMCPlayerController::EndEmoteSelection);
@@ -114,7 +114,7 @@ void AMCPlayerController::SetupInputComponent()
     InputComponent->BindKey(EKeys::Right,IE_Pressed,this,&AMCPlayerController::NextSpectator);
     InputComponent->BindKey(EKeys::Left,IE_Pressed,this,&AMCPlayerController::PreviousSpectator);
     InputComponent->BindKey(EKeys::Gamepad_Special_Right,IE_Pressed,this,&AMCPlayerController::TogglePauseMenu);
-    InputComponent->BindKey(EKeys::Gamepad_FaceButton_Right,IE_Pressed,this,&AMCPlayerController::ActivateRogueBooster);
+
     InputComponent->BindKey(EKeys::Gamepad_Special_Left,IE_Pressed,this,&AMCPlayerController::HandleScoreboardPressed);
     InputComponent->BindKey(EKeys::Gamepad_Special_Left,IE_Released,this,&AMCPlayerController::HandleScoreboardReleased);
 #if !UE_BUILD_SHIPPING
@@ -889,11 +889,13 @@ void AMCPlayerController::ClientShowRewardOpening_Implementation(AMCRewardChest*
     CheckRewardUI();
 }
 
-void AMCPlayerController::ClientShowPerkChoices_Implementation(AMCRewardChest* Chest,const TArray<FName>& IDs,EMCPerkPolarity Polarity,bool bTeamBooster,double StageChoiceEndsAt)
+void AMCPlayerController::ClientShowPerkChoices_Implementation(AMCRewardChest* Chest,const TArray<FName>& IDs,EMCPerkPolarity Polarity,bool bTeamBooster,double StageChoiceEndsAt,FGuid OfferID)
 {
-    if (IDs.Num()!=3 || IDs.Contains(NAME_None) || IDs[0]==IDs[1] || IDs[1]==IDs[2] || IDs[0]==IDs[2]
+    TSet<FName> UniqueIDs;for(FName ID:IDs) UniqueIDs.Add(ID);
+    if (IDs.IsEmpty() || IDs.Num()>3 || IDs.Contains(NAME_None) || UniqueIDs.Num()!=IDs.Num() || !OfferID.IsValid()
         || uint8(Polarity)>uint8(EMCPerkPolarity::Negative) || !PrepareRewardUI(Chest)) return;
     // Render the reliable payload directly; actor replication may still be one frame behind this RPC.
+    ActiveRewardOfferID=OfferID;ActiveRewardIDs=IDs;PendingRewardChoice=INDEX_NONE;RewardReplacementSlots.Reset();
     PerkChoiceWidget->ShowChoices(IDs,Polarity);
     if(bTeamBooster) {
         PerkChoiceWidget->SetTeamBoosterHeader();
@@ -912,18 +914,54 @@ void AMCPlayerController::ServerStageChoicePresented_Implementation(AMCRewardChe
 
 void AMCPlayerController::ChooseRewardPerk(int32 ChoiceIndex)
 {
-    if (!IsLocalController() || !IsRewardMenuOpen() || !PerkChoiceWidget->IsShowingChoices()
-        || bRewardChoicePending || ChoiceIndex<0 || ChoiceIndex>=3) return;
-    if (ActiveLevelOfferId.IsValid())
-    {
-        bRewardChoicePending=true; PerkChoiceWidget->SetSelectionPending(true);
-        ServerChooseLevelPerk(ActiveLevelOfferId,ChoiceIndex); return;
+    if(!IsLocalController() || !IsRewardMenuOpen() || !PerkChoiceWidget->IsShowingChoices()
+        || bRewardChoicePending || PendingRewardChoice!=INDEX_NONE) return;
+    if(ActiveLevelOfferId.IsValid()) {
+        if(ChoiceIndex<0 || ChoiceIndex>=3) return;
+        bRewardChoicePending=true;PerkChoiceWidget->SetSelectionPending(true);ServerChooseLevelPerk(ActiveLevelOfferId,ChoiceIndex);return;
     }
-    auto* Chest=ActiveRewardChest.Get();
-    if (!IsValid(Chest)) { CloseRewardUI(); return; }
-    bRewardChoicePending=true;
-    PerkChoiceWidget->SetSelectionPending(true);
-    ServerChooseRewardPerk(Chest,ChoiceIndex);
+    if(!ActiveRewardIDs.IsValidIndex(ChoiceIndex)) return;
+    auto* State=GetPlayerState<AMCPlayerState>();auto* Perks=State?State->Perks.Get():nullptr;
+    auto* Chest=ActiveRewardChest.Get();if(!IsValid(Chest) || !Perks) {CloseRewardUI();return;}
+    const FName ID=ActiveRewardIDs[ChoiceIndex];const auto Kind=Perks->GetPerkKind(ID);
+    if((Kind==EMCPerkKind::Active || Kind==EMCPerkKind::Consumable) && Perks->FindFreeActiveSlot()==INDEX_NONE) {
+        PendingRewardChoice=ChoiceIndex;RewardReplacementSlots=Perks->ActiveSkillSlots;
+        PerkChoiceWidget->ShowReplacementSlots();return;
+    }
+    bRewardChoicePending=true;PerkChoiceWidget->SetSelectionPending(true);
+    ServerChooseRewardPerkInSlot(Chest,ChoiceIndex,ID,ActiveRewardOfferID,INDEX_NONE,NAME_None,FGuid());
+}
+void AMCPlayerController::ChooseRewardSlot(int32 SlotIndex)
+{
+    if(!IsLocalController() || bRewardChoicePending || !IsRewardMenuOpen() || !ActiveRewardIDs.IsValidIndex(PendingRewardChoice)
+        || !RewardReplacementSlots.IsValidIndex(SlotIndex)) return;
+    const auto& Old=RewardReplacementSlots[SlotIndex];bRewardChoicePending=true;PerkChoiceWidget->SetSelectionPending(true);
+    ServerChooseRewardPerkInSlot(ActiveRewardChest.Get(),PendingRewardChoice,ActiveRewardIDs[PendingRewardChoice],ActiveRewardOfferID,SlotIndex,Old.PerkID,Old.InstanceID);
+}
+void AMCPlayerController::CancelRewardReplacement()
+{
+    if(bRewardChoicePending || !IsRewardMenuOpen()) return;
+    PendingRewardChoice=INDEX_NONE;RewardReplacementSlots.Reset();PerkChoiceWidget->CancelReplacementSlots();
+}
+void AMCPlayerController::SkipRewardPerk()
+{
+    if(!IsLocalController() || bRewardChoicePending || !IsRewardMenuOpen() || !ActiveRewardOfferID.IsValid()) return;
+    bRewardChoicePending=true;PerkChoiceWidget->SetSelectionPending(true);ServerSkipRewardPerk(ActiveRewardChest.Get(),ActiveRewardOfferID);
+}
+void AMCPlayerController::ActivateSkillSlot(int32 SlotIndex)
+{
+    if(!IsLocalController() || bShowMouseCursor || bLoadingInputBlocked || bPauseMenuOpen || IsRewardInteractionActive()) return;
+    const auto* State=GetPlayerState<AMCPlayerState>();const auto* Hero=Cast<AMCToothCharacter>(GetPawn());
+    if(!State || !State->Perks || !Hero || !Hero->CanWork() || !State->Perks->ActiveSkillSlots.IsValidIndex(SlotIndex)) return;
+    ServerActivateSkillSlot(SlotIndex,State->Perks->ActiveSkillSlots[SlotIndex].InstanceID);
+}
+void AMCPlayerController::ServerActivateSkillSlot_Implementation(int32 SlotIndex,FGuid ExpectedInstanceID)
+{
+    const auto* Hero=Cast<AMCToothCharacter>(GetPawn());auto* State=GetPlayerState<AMCPlayerState>();
+    const auto* Game=GetWorld()->GetGameState<AMCGameState>();
+    if(!Hero || !Hero->CanWork() || !State || !State->Perks || !Game || Game->bLobbyWaiting || Game->bTutorialActive
+        || UGameplayStatics::IsGamePaused(GetWorld()) || Game->Phase!=EMCShiftPhase::Working || !ExpectedInstanceID.IsValid()) return;
+    State->Perks->ActivateSkillSlot(SlotIndex,ExpectedInstanceID);
 }
 
 void AMCPlayerController::RerollLevelPerks()
@@ -932,9 +970,9 @@ void AMCPlayerController::RerollLevelPerks()
     bRewardChoicePending=true;if(PerkChoiceWidget) PerkChoiceWidget->SetSelectionPending(true);
     ServerRerollLevelPerks(ActiveLevelOfferId);
 }
-void AMCPlayerController::ActivateRogueBooster() {if(IsLocalController() && !IsRewardMenuOpen()) ServerActivateRogueBooster();}
+void AMCPlayerController::ActivateRogueBooster() {ActivateSkillSlot(0);}
 void AMCPlayerController::ServerActivateRogueBooster_Implementation()
-{if(auto* PS=GetPlayerState<AMCPlayerState>();PS && PS->Perks) PS->Perks->ActivateBooster();}
+{if(auto* PS=GetPlayerState<AMCPlayerState>();PS && PS->Perks && PS->Perks->ActiveSkillSlots.IsValidIndex(0)) ServerActivateSkillSlot_Implementation(0,PS->Perks->ActiveSkillSlots[0].InstanceID);}
 void AMCPlayerController::ServerRerollLevelPerks_Implementation(FGuid OfferId)
 {
     auto* PS=GetPlayerState<AMCPlayerState>();
@@ -944,40 +982,58 @@ void AMCPlayerController::ConfirmRogueReward(bool Accept)
 {
     if(!IsLocalController() || !ActiveRewardChest.IsValid() || bRewardChoicePending) return;
     bRewardChoicePending=true;if(PerkChoiceWidget) PerkChoiceWidget->SetSelectionPending(true);
-    ServerConfirmRogueReward(ActiveRewardChest.Get(),Accept);
+    ServerConfirmRogueReward(ActiveRewardChest.Get(),Accept,ActiveRewardOfferID);
 }
-void AMCPlayerController::ServerConfirmRogueReward_Implementation(AMCRewardChest* Chest,bool Accept)
+void AMCPlayerController::ServerConfirmRogueReward_Implementation(AMCRewardChest* Chest,bool Accept,FGuid OfferID)
 {
     auto* Hero=Cast<AMCToothCharacter>(GetPawn());
-    if(!IsValid(Chest) || !Hero) return;
+    if(!IsValid(Chest) || !Hero || !OfferID.IsValid() || Chest->GetChoiceOfferID(Hero->GetPlayerState<AMCPlayerState>())!=OfferID) {RepublishRewardOffer(Chest);return;}
     const bool Done=Accept?Chest->ConfirmRogueContract(Hero):Chest->DeclineRogueReward(Hero);
     if(!Done && Chest->Stage==EMCRewardChestStage::Open && Chest->OpeningPlayer==Hero) Chest->PublishRogueOffer();
     RefreshPerkChoiceTeamState();
 }
 void AMCPlayerController::ClientShowRogueChoices_Implementation(AMCRewardChest* Chest,const FMCRogueChestOffer& Offer)
 {
-    if(!IsValid(Chest) || !PrepareRewardUI(Chest) || Offer.Kind==EMCRogueRewardKind::Ordinary
-        || (Offer.Step<2 && Offer.IDs.Num()!=3)) return;
+    TSet<FName> UniqueIDs;for(FName ID:Offer.IDs) UniqueIDs.Add(ID);
+    const bool Choosing=Offer.Step<2;
+    if(!IsValid(Chest) || !Offer.OfferID.IsValid() || Offer.Kind==EMCRogueRewardKind::Ordinary
+        || (Choosing && (Offer.IDs.IsEmpty() || Offer.IDs.Num()>3 || Offer.IDs.Contains(NAME_None) || UniqueIDs.Num()!=Offer.IDs.Num()))
+        || (!Choosing && (Offer.Curse.IsNone() || Offer.Reward.IsNone())) || !PrepareRewardUI(Chest)) return;
+    ActiveRewardOfferID=Offer.OfferID;ActiveRewardIDs=Offer.IDs;PendingRewardChoice=INDEX_NONE;RewardReplacementSlots.Reset();
     bRewardChoicePending=false;PerkChoiceWidget->ShowRogueChoices(Offer);
     UpdateInputMode();PerkChoiceWidget->SetUserFocus(this);
 }
 
 void AMCPlayerController::ServerChooseRewardPerk_Implementation(AMCRewardChest* Chest,int32 ChoiceIndex)
 {
+    // Compatibility endpoint deliberately cannot redeem a token-less client request.
+    if(IsValid(Chest)) ClientClosePerkChoices(Chest);
+}
+void AMCPlayerController::ServerChooseRewardPerkInSlot_Implementation(AMCRewardChest* Chest,int32 ChoiceIndex,FName ExpectedPerkID,FGuid OfferID,int32 DestinationSlot,FName ExpectedReplacedID,FGuid ExpectedInstanceID)
+{
     auto* Hero=Cast<AMCToothCharacter>(GetPawn());
-    if (!IsValid(Chest) || ChoiceIndex<0 || ChoiceIndex>=3 || !Hero || !Chest->TryChooseCard(Hero,ChoiceIndex))
-    {
-        if(IsValid(Chest) && Hero && Chest->bTeamStageBooster && Chest->HasStageChoiceFor(Hero))
-            Chest->PublishStageChoiceFor(Hero);
-        else if (IsValid(Chest) && Hero && Chest->Stage==EMCRewardChestStage::Open && Chest->OpeningPlayer==Hero) {
-            if(Chest->RogueKind!=EMCRogueRewardKind::Ordinary) Chest->PublishRogueOffer();
-            else ClientShowPerkChoices(Chest,Chest->LootIDs,Chest->Polarity,false);
-        }
-        else ClientClosePerkChoices(Chest);
-    }
+    const bool Valid=IsValid(Chest) && Hero && Chest->ValidateChoiceOffer(Hero,OfferID,ExpectedPerkID,ChoiceIndex);
+    if(!Valid || !Chest->TryChooseCard(Hero,ChoiceIndex,DestinationSlot,ExpectedReplacedID,ExpectedInstanceID)) RepublishRewardOffer(Chest);
+    RefreshPerkChoiceTeamState();
+}
+void AMCPlayerController::ServerSkipRewardPerk_Implementation(AMCRewardChest* Chest,FGuid OfferID)
+{
+    auto* Hero=Cast<AMCToothCharacter>(GetPawn());
+    const bool Done=IsValid(Chest) && Hero && OfferID.IsValid()
+        && Chest->GetChoiceOfferID(Hero->GetPlayerState<AMCPlayerState>())==OfferID && Chest->SkipChoice(Hero);
+    if(!Done) RepublishRewardOffer(Chest);
     RefreshPerkChoiceTeamState();
 }
 
+void AMCPlayerController::RepublishRewardOffer(AMCRewardChest* Chest)
+{
+    auto* Hero=Cast<AMCToothCharacter>(GetPawn());
+    if(IsValid(Chest) && Hero && Chest->bTeamStageBooster && Chest->HasStageChoiceFor(Hero)) Chest->PublishStageChoiceFor(Hero);
+    else if(IsValid(Chest) && Hero && Chest->Stage==EMCRewardChestStage::Open && Chest->OpeningPlayer==Hero) {
+        if(Chest->RogueKind!=EMCRogueRewardKind::Ordinary) Chest->PublishRogueOffer();
+        else ClientShowPerkChoices(Chest,Chest->LootIDs,Chest->Polarity,false,0,Chest->GetChoiceOfferID(Hero->GetPlayerState<AMCPlayerState>()));
+    } else ClientClosePerkChoices(Chest);
+}
 void AMCPlayerController::ClientClosePerkChoices_Implementation(AMCRewardChest* Chest)
 {
     if (ActiveLevelOfferId.IsValid()) return;
@@ -1029,6 +1085,7 @@ void AMCPlayerController::CloseRewardUI(bool bRestoreInput)
 {
     GetWorldTimerManager().ClearTimer(RewardUITimer);
     ActiveRewardChest.Reset();
+    ActiveRewardOfferID.Invalidate();ActiveRewardIDs.Reset();RewardReplacementSlots.Reset();PendingRewardChoice=INDEX_NONE;
     ActiveLevelOfferId.Invalidate();
     RewardPawn.Reset();
     bRewardChoicePending=false;
@@ -1107,6 +1164,10 @@ void AMCPlayerController::ServerStartLobby_Implementation()
 }
 void AMCPlayerController::ReturnToMainMenu()
 {
+    if(HasAuthority()) if(auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) {
+        const auto* Game=GetWorld()->GetGameState<AMCGameState>();
+        if(Game && !Game->bTutorialActive) Mode->FinalizeRunLoadout();
+    }
     if (!IsLocalController()) return;
     if (GetNetMode()==NM_Standalone) UGameplayStatics::SetGamePaused(this,false);
     if (auto* Steam=GetGameInstance()->GetSubsystem<UMCSteamSessionSubsystem>()) Steam->LeaveRoom();

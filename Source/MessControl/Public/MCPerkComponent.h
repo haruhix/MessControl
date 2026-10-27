@@ -39,16 +39,16 @@ public:
     bool HasNearbyAlly(float Radius) const;
     int32 RoguePolarityStacks(EMCPerkPolarity Polarity) const;
     bool BuildRogueOffer(EMCPerkPolarity Polarity,int32 Seed,TArray<FName>& Out,bool Early=false,bool RareOnly=false,
-        bool GuaranteeRare=false,const TArray<FName>& Excluded=TArray<FName>(),bool IncludeTools=true) const;
+        bool GuaranteeRare=false,const TArray<FName>& Excluded=TArray<FName>(),bool IncludeTools=true,bool PassiveOnly=false) const;
     FString RoguePreview(FName ID) const;
     bool GetFogNavigation(FVector& Point) const;
     void AddBoosterCharge(FName ID);
     bool ActivateBooster();
-    /** Stage chest only: apply one supported booster immediately to the current team. No charges or perk stacks. */
+    /** Legacy team grant adapter. Acquires a stored item for each eligible player; never auto-activates. */
     bool ActivateTeamStageBooster(FName ID);
-    /** Stage reward personal choice: activate on this recipient; no team fan-out or stored charge. */
+    /** Legacy personal grant adapter. Actual activation requires an owned skill slot. */
     bool ActivatePersonalStageBooster(FName ID);
-    /** Timeout awards are sealed immediately; an incapacitated recipient activates on recovery in this run. */
+    /** Legacy timed award adapter. Stores the item without forcing an incapacitated player to use it. */
     bool AcceptTimedStageBooster(FName ID);
     static bool IsTeamStageBoosterID(FName ID);
     void OnRogueKnockdown();
@@ -62,6 +62,29 @@ public:
     UPROPERTY(Replicated) double CleanSpeedUntil=-100;
     UPROPERTY(Replicated) double DeliverySlowUntil=-100;
 
+    static constexpr int32 ActiveSkillSlotCount=4;
+    static EMCPerkKind ResolvePerkKind(const FMCPerkDefinition& Definition,FName PerkID=NAME_None);
+    UFUNCTION(BlueprintPure,Category="Skills") EMCPerkKind GetPerkKind(FName PerkID) const;
+    UFUNCTION(BlueprintPure,Category="Skills") bool OwnsPerk(FName PerkID) const;
+    /** Offer eligibility ignores occupied active capacity, so full loadouts can choose replacement. */
+    UFUNCTION(BlueprintPure,Category="Skills") bool CanOfferPerk(FName PerkID) const;
+    UFUNCTION(BlueprintPure,Category="Skills") int32 FindFreeActiveSlot() const;
+    UFUNCTION(BlueprintPure,Category="Skills") bool CanAcquirePerk(FName PerkID,int32 DestinationSlot=-1) const;
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Skills")
+    bool TryAcquirePerk(FName PerkID,int32 DestinationSlot=-1,FName ExpectedReplacedID=NAME_None,FGuid ExpectedInstanceID=FGuid());
+    bool CanAcquirePerkBatch(const TArray<FMCPerkGrant>& Grants) const;
+    bool TryAcquirePerkBatch(const TArray<FMCPerkGrant>& Grants);
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Skills")
+    bool ActivateSkillSlot(int32 Slot,FGuid ExpectedInstanceID=FGuid());
+    UFUNCTION(BlueprintPure,Category="Skills") float GetSkillCooldownRemaining(int32 Slot) const;
+    /** Reversible preparation only; never refunds accepted charges or rewinds cooldowns. */
+    UFUNCTION(BlueprintCallable,Category="Skills") void CancelSkillPreparations();
+    UPROPERTY(ReplicatedUsing=OnRep_SkillLoadout,BlueprintReadOnly,Category="Skills") TArray<FMCActiveSkillSlot> ActiveSkillSlots;
+    UPROPERTY(ReplicatedUsing=OnRep_SkillLoadout,BlueprintReadOnly,Category="Skills") TArray<FName> PassivePerkIDs;
+    UPROPERTY(ReplicatedUsing=OnRep_SkillLoadout,BlueprintReadOnly,Category="Skills") TArray<FName> OwnedToolPerkIDs;
+    /** Old runtime charge overflow is retained explicitly; it is never silently equipped over a slot. */
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Skills|Migration") TArray<FName> LegacyUnappliedBoosterIDs;
+
     /** Authority-only API, intentionally not a client RPC. Reward actors validate claims first. */
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Perks")
     bool ServerGrantPerk(FName PerkID);
@@ -69,7 +92,7 @@ public:
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Perks") bool ServerGrantReward(FName PerkID);
     UFUNCTION(BlueprintPure,Category="Perks") bool HasToolUpgrade(EMCToolUpgrade Kind) const;
 
-    /** Validate every requested stack before changing state; a batch cannot partially apply. */
+    /** Atomic legacy batch adapter. Duplicate passive/tool IDs reject; old consumable units are grouped as charges. */
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Perks")
     bool ServerGrantPerks(const TArray<FName>& PerkIDs);
 
@@ -113,6 +136,17 @@ protected:
 private:
     UFUNCTION()
     void OnRep_ActivePerks();
+    UFUNCTION() void OnRep_SkillLoadout();
+    bool BuildAcquisitionPlan(const TArray<FMCPerkGrant>& Grants,TArray<FMCActiveSkillSlot>& Slots,TArray<FName>& Passives,TArray<FName>& Tools) const;
+    void RefreshLegacyProjection();
+    void MigrateLegacyOwnedState();
+    bool CanUseSkillActor() const;
+    bool CanExecuteSkill(FName PerkID,const FMCPerkDefinition& Definition) const;
+    bool ExecuteSkill(FName PerkID,const FMCPerkDefinition& Definition);
+    bool ExecuteLegacyBooster(FName ID);
+    double SkillNow() const;
+    bool bSkillMutation=false;
+    mutable const TArray<FName>* ValidationToolPerks=nullptr;
 
     void LoadDefinitions();
     void RebuildEffects();
@@ -135,9 +169,6 @@ private:
     TWeakObjectPtr<AMCToothCharacter> TunedHero;
     TWeakObjectPtr<UPointLightComponent> NightLight;
     TWeakObjectPtr<UTextRenderComponent> GrenadeCue;
-    TArray<FName> PendingStageBoosters;
-    TWeakObjectPtr<AMCGameState> PendingStageGame;
-    FGuid PendingStageLoadId;
     TMap<TWeakObjectPtr<AActor>,double> RecentWeaponHits;
     TArray<TWeakObjectPtr<AActor>> RogueActors;
     double NextCounterAt=-100,NextTeamStrikeAt=-100,NextCleanHealAt=-100,NextFoamAt=-100;

@@ -131,10 +131,10 @@ void AMCRoguelikeDirector::TrySpawnReward()
     TArray<FName> Scratch;
     bool CanContract=false,CanRisk=false;
     for(auto* Player:Players) if(auto* PS=Player->GetPlayerState<AMCPlayerState>();PS && PS->Perks && PS->PersonalChoicesTaken>=2) {
-        CanRisk|=PS->Perks->BuildRogueOffer(EMCPerkPolarity::Risky,int32(Random.GetCurrentSeed()),Scratch);
+        CanRisk|=PS->Perks->BuildRogueOffer(EMCPerkPolarity::Risky,int32(Random.GetCurrentSeed()),Scratch,false,false,false,TArray<FName>(),false);
         TArray<FName> Rewards;
-        CanContract|=PS->Perks->BuildRogueOffer(EMCPerkPolarity::Negative,int32(Random.GetCurrentSeed()),Scratch)
-            && PS->Perks->BuildRogueOffer(EMCPerkPolarity::Positive,int32(Random.GetCurrentSeed())^0x52455744,Rewards,false,true);
+        CanContract|=PS->Perks->BuildRogueOffer(EMCPerkPolarity::Negative,int32(Random.GetCurrentSeed()),Scratch,false,false,false,TArray<FName>(),false,true)
+            && PS->Perks->BuildRogueOffer(EMCPerkPolarity::Positive,int32(Random.GetCurrentSeed())^0x52455744,Rewards,false,true,false,TArray<FName>(),false,true);
     }
     const float KindRoll=Random.FRand();
     if(CanContract && KindRoll<.15f) Chest->RogueKind=EMCRogueRewardKind::CursedContract;

@@ -7,6 +7,7 @@
 
 UMCPerkComponent::UMCPerkComponent()
 {
+    ActiveSkillSlots.SetNum(ActiveSkillSlotCount);
     PrimaryComponentTick.bCanEverTick=true;PrimaryComponentTick.TickInterval=.1f;
     SetIsReplicatedByDefault(true);
     PerkTable = TSoftObjectPtr<UDataTable>(FSoftObjectPath(TEXT("/Game/Gameplay/Roguelike/DT_Perks.DT_Perks")));
@@ -16,6 +17,8 @@ void UMCPerkComponent::BeginPlay()
 {
     Super::BeginPlay();
     LoadDefinitions();
+    MigrateLegacyOwnedState();
+    RefreshLegacyProjection();
     RebuildEffects();
 }
 
@@ -41,7 +44,9 @@ bool UMCPerkComponent::HasAuthority() const
 bool UMCPerkComponent::IsDefinitionUsable(const FMCPerkDefinition& Definition)
 {
     // The perforator is retained for authored assets, but disabled in every reward pool.
-    return Definition.MaxStacks > 0 && Definition.ToolUpgrade!=EMCToolUpgrade::Buffer
+    return Definition.bEnabled && Definition.MaxStacks > 0 && uint8(Definition.Kind)<=uint8(EMCPerkKind::ToolUpgrade)
+        && FMath::IsFinite(Definition.CooldownSeconds) && Definition.CooldownSeconds>=0
+        && Definition.ToolUpgrade!=EMCToolUpgrade::Buffer
         && uint8(Definition.ToolUpgrade)<=uint8(EMCToolUpgrade::Watergun)
         && uint8(Definition.Polarity)<=uint8(EMCPerkPolarity::Risky)
         && (!Definition.EffectClass || !Definition.EffectClass->HasAnyClassFlags(CLASS_Abstract));
@@ -64,27 +69,11 @@ bool UMCPerkComponent::GetPerkDefinition(FName PerkID, FMCPerkDefinition& Defini
     return false;
 }
 
-int32 UMCPerkComponent::GetStacks(FName PerkID) const
-{
-    const FMCActivePerk* Active = ActivePerks.FindByPredicate([PerkID](const FMCActivePerk& Perk) { return Perk.PerkID == PerkID; });
-    return Active ? Active->Stacks : 0;
-}
-
-bool UMCPerkComponent::CanGrantPerk(FName PerkID) const
-{
-    const FMCPerkDefinition* Definition = FindDefinition(PerkID);
-    if(Definition && IsDefinitionUsable(*Definition) && Definition->ToolUpgrade!=EMCToolUpgrade::None) {
-        const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
-        if(GS && (GS->TeamToolUpgrades&(1<< (uint8(Definition->ToolUpgrade)-1)))) return false;
-        if(Definition->Rarity==EMCPerkRarity::Rare && HasToolUpgrade(Definition->ToolUpgrade)) return false;
-    }
-    return Definition && IsDefinitionUsable(*Definition) && IsRogueEligible(PerkID)
-        && GetStacks(PerkID) < FMath::Clamp(Definition->MaxStacks,1,Definition->bConsumableBooster?10000:100);
-}
-
 bool UMCPerkComponent::HasToolUpgrade(EMCToolUpgrade Kind) const
 {
     if(Kind==EMCToolUpgrade::None || Kind==EMCToolUpgrade::Buffer || uint8(Kind)>4) return false;
+    if(ValidationToolPerks) for(FName ID:*ValidationToolPerks)
+        if(const auto* Row=FindDefinition(ID);Row && Row->ToolUpgrade==Kind) return true;
     if(const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr)
         if(GS->TeamToolUpgrades&(1<<(uint8(Kind)-1))) return true;
     for(const auto& Active:ActivePerks) if(Active.Stacks>0)
@@ -114,78 +103,6 @@ bool UMCPerkComponent::ServerGrantReward(FName PerkID)
     GS->TeamToolUpgrades|=1<<(uint8(Row->ToolUpgrade)-1);GS->ForceNetUpdate();return true;
 }
 
-bool UMCPerkComponent::ServerGrantPerk(FName PerkID)
-{
-    return ServerGrantPerks({ PerkID });
-}
-
-bool UMCPerkComponent::ServerGrantPerks(const TArray<FName>& PerkIDs)
-{
-    if (!HasAuthority() || bRebuilding || PerkIDs.IsEmpty() || PerkIDs.Num() > 100) return false;
-    LoadDefinitions();
-    TMap<FName, int32> Requested;
-    int32 AddedNegative=0,AddedRisk=0;
-    for (FName ID : PerkIDs)
-    {
-        const FMCPerkDefinition* Definition = FindDefinition(ID);
-        if (!Definition || !IsDefinitionUsable(*Definition) || !CanGrantPerk(ID)) return false;
-        if(Definition->bRoguePerk) {
-            AddedNegative+=Definition->Polarity==EMCPerkPolarity::Negative;
-            AddedRisk+=Definition->Polarity==EMCPerkPolarity::Risky;
-        }
-        int32& Count = Requested.FindOrAdd(ID);
-        ++Count;
-        if (GetStacks(ID) + Count > FMath::Clamp(Definition->MaxStacks,1,Definition->bConsumableBooster?10000:100)) return false;
-    }
-    if(RoguePolarityStacks(EMCPerkPolarity::Negative)+AddedNegative>3 || RoguePolarityStacks(EMCPerkPolarity::Risky)+AddedRisk>3) return false;
-    for (const TPair<FName, int32>& Request : Requested)
-    {
-        FMCActivePerk* Active = ActivePerks.FindByPredicate([&Request](const FMCActivePerk& Perk) { return Perk.PerkID == Request.Key; });
-        if (Active) Active->Stacks += Request.Value;
-        else
-        {
-            FMCActivePerk NewPerk;
-            NewPerk.PerkID = Request.Key;
-            NewPerk.Stacks = Request.Value;
-            ActivePerks.Add(NewPerk);
-        }
-    }
-    ActivePerks.Sort([](const FMCActivePerk& A, const FMCActivePerk& B) { return A.PerkID.LexicalLess(B.PerkID); });
-    RebuildEffects();
-    GetOwner()->ForceNetUpdate();
-    return true;
-}
-
-bool UMCPerkComponent::RemovePerk(FName PerkID)
-{
-    if (!HasAuthority() || bRebuilding) return false;
-    if (!ActivePerks.RemoveAll([PerkID](const FMCActivePerk& Perk) { return Perk.PerkID == PerkID; })) return false;
-    RebuildEffects();
-    GetOwner()->ForceNetUpdate();
-    return true;
-}
-
-void UMCPerkComponent::ResetPerks()
-{
-    if (!HasAuthority() || bRebuilding) return;
-    ActivePerks.Reset();
-    ClearRogueRuntime();
-    RebuildEffects();
-    GetOwner()->ForceNetUpdate();
-}
-
-void UMCPerkComponent::CopyPerksTo(UMCPerkComponent* Target) const
-{
-    if (!HasAuthority() || !Target || !Target->HasAuthority() || Target == this || Target->bRebuilding) return;
-    Target->PerkTable = PerkTable;
-    Target->LoadedTable = LoadedTable;
-    Target->bDefinitionsLoaded = bDefinitionsLoaded;
-    Target->ActivePerks = ActivePerks;
-    Target->BoosterQueue=BoosterQueue;Target->bGrenadeArmed=bGrenadeArmed;Target->DeliveryXPResidual=DeliveryXPResidual;
-    Target->RebuildEffects();
-    Target->GetOwner()->ForceNetUpdate();
-}
-
 void UMCPerkComponent::RebuildEffects()
 {
     if (bRebuilding) return;
@@ -201,7 +118,7 @@ void UMCPerkComponent::RebuildEffects()
         const FMCPerkDefinition* Definition = FindDefinition(It.Key());
         if (GetStacks(It.Key()) <= 0 || !Definition || !IsDefinitionUsable(*Definition))
         {
-            if (HasAuthority() && It.Value()) It.Value()->OnRemoved(It.Key());
+            if (HasAuthority() && It.Value()) {It.Value()->CancelActivation();It.Value()->OnRemoved(It.Key());}
             AppliedStacks.Remove(It.Key());
             It.RemoveCurrent();
         }
@@ -241,6 +158,7 @@ void UMCPerkComponent::OnRep_ActivePerks()
 
 void UMCPerkComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    CancelSkillPreparations();
     ClearRogueRuntime();
     bRebuilding = true;
     if (HasAuthority())
@@ -255,6 +173,10 @@ void UMCPerkComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(UMCPerkComponent, ActivePerks);
+    DOREPLIFETIME(UMCPerkComponent,ActiveSkillSlots);
+    DOREPLIFETIME(UMCPerkComponent,PassivePerkIDs);
+    DOREPLIFETIME(UMCPerkComponent,OwnedToolPerkIDs);
+    DOREPLIFETIME_CONDITION(UMCPerkComponent,LegacyUnappliedBoosterIDs,COND_OwnerOnly);
     DOREPLIFETIME(UMCPerkComponent,CounterReadyUntil);
     DOREPLIFETIME(UMCPerkComponent,CleanSpeedUntil);
     DOREPLIFETIME(UMCPerkComponent,DeliverySlowUntil);

@@ -1,4 +1,5 @@
 #include "MCPerkCardWidget.h"
+#include "MCPerkComponent.h"
 
 #include "MCGameplayUITheme.h"
 #include "MCGameplayHUD.h"
@@ -85,7 +86,11 @@ void UMCPerkCardWidget::ApplyDefinitionMetadata(FMCPerkCardPresentation& Data,co
         Copy(TEXT("UI.Reward.Scope.Team"),LOCTEXT("Team","КОМАНДА")):Copy(TEXT("UI.Reward.Scope.Personal"),LOCTEXT("Personal","ВАМ"));
     Data.Badge=Format(Copy(TEXT("UI.Reward.BadgeFormat"),LOCTEXT("BadgeFormat","{Polarity} · {Rarity} · {Scope}")),FFormatNamedArguments{{TEXT("Polarity"),Polarity},{TEXT("Rarity"),Rarity},{TEXT("Scope"),Scope}});
     auto Number=[&](double V){return FText::AsNumber(V,nullptr,Culture);};
-    Data.StackPreview=Format(Copy(TEXT("UI.Reward.StackFormat"),LOCTEXT("StackFormat","Стак {Before} → {After} / {Maximum}")),FFormatNamedArguments{{TEXT("Before"),Number(Before)},{TEXT("After"),Number(Before+1)},{TEXT("Maximum"),Number(Definition.MaxStacks)}});
+    const auto Kind=UMCPerkComponent::ResolvePerkKind(Definition,Data.GameplayID);
+    if(Kind==EMCPerkKind::Active) Data.StackPreview=Copy(TEXT("UI.Skill.Kind.Active"),LOCTEXT("KindActive","Активный навык · слот 1–4"));
+    else if(Kind==EMCPerkKind::Consumable) Data.StackPreview=Format(Copy(TEXT("UI.Skill.Kind.Consumable"),LOCTEXT("KindConsumable","Расходник · {Charges} зар. · слот 1–4")),FFormatNamedArguments{{TEXT("Charges"),Number(Definition.InitialCharges)}});
+    else if(Kind==EMCPerkKind::ToolUpgrade) Data.StackPreview=Copy(TEXT("UI.Skill.Kind.Tool"),LOCTEXT("KindTool","Улучшение инструмента · без слота"));
+    else Data.StackPreview=Copy(TEXT("UI.Skill.Kind.Passive"),LOCTEXT("KindPassive","Пассивный навык · действует постоянно"));
     for(const auto& M:Definition.Modifiers) if(!FMath::IsNearlyZero(M.Value)) {
         const bool Benefit=(M.Value<0)==MCPerkCardPresentationPrivate::LowerIsBetter(M.Stat);
         // Percentage multiplication can produce 30.000002 from a float .3.

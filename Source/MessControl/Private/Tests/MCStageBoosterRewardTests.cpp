@@ -1,5 +1,6 @@
 #if WITH_DEV_AUTOMATION_TESTS
 #include "Misc/AutomationTest.h"
+#include "Algo/Count.h"
 #include "MCRewardChest.h"
 #include "MCRewardDropZone.h"
 #include "MCArenaTooth.h"
@@ -33,7 +34,7 @@ struct FStageRewardWorld
 {
     UWorld* World=UWorld::CreateWorld(EWorldType::Game,false);
     UDataTable* Table=nullptr;
-    FStageRewardWorld()
+    FStageRewardWorld(bool AddDefaults=true)
     {
         GEngine->CreateNewWorldContext(EWorldType::Game).SetCurrentWorld(World);
         World->SetGameInstance(NewObject<UGameInstance>(GEngine));
@@ -42,8 +43,8 @@ struct FStageRewardWorld
         auto* Game=World->SpawnActor<AMCGameState>();World->SetGameState(Game);
         Game->Phase=EMCShiftPhase::Working;Game->bLobbyWaiting=false;
         Table=NewObject<UDataTable>();Table->RowStruct=FMCPerkDefinition::StaticStruct();
-        for(FName ID:{FName(TEXT("Fallback_Mouthwash")),FName(TEXT("Fallback_BrushFury")),FName(TEXT("Fallback_Grenade"))}) {
-            FMCPerkDefinition Row;Row.bConsumableBooster=true;Row.MaxStacks=1000;
+        if(AddDefaults) for(FName ID:{FName(TEXT("Fallback_Mouthwash")),FName(TEXT("Fallback_BrushFury")),FName(TEXT("Fallback_Grenade"))}) {
+            FMCPerkDefinition Row;Row.Kind=EMCPerkKind::Consumable;Row.bConsumableBooster=true;Row.MaxStacks=1;Row.InitialCharges=3;
             Table->AddRow(ID,Row);
         }
     }
@@ -62,6 +63,25 @@ struct FStageRewardWorld
         return Hero;
     }
     UMCPerkComponent* Perks(AMCToothCharacter* Hero) const {return Hero->GetPlayerState<AMCPlayerState>()->Perks;}
+    void Add(FName ID,EMCPerkKind Kind,bool Available=true,int32 Charges=3)
+    {
+        FMCPerkDefinition Row;Row.Kind=Kind;Row.MaxStacks=1;Row.InitialCharges=Charges;
+        Row.bAvailableForLevelChoice=Available;Row.bConsumableBooster=Kind==EMCPerkKind::Consumable;Table->AddRow(ID,Row);
+    }
+    int32 Occupied(const UMCPerkComponent* Perks) const
+    {return Algo::CountIf(Perks->ActiveSkillSlots,[](const FMCActiveSkillSlot& Slot){return !Slot.PerkID.IsNone();});}
+    int32 Index(const AMCRewardChest* Chest,const AMCToothCharacter* Hero,FName ID) const
+    {return Chest->GetStageOfferIDs(Hero->GetPlayerState<AMCPlayerState>()).IndexOfByKey(ID);}
+    bool SameSlots(const UMCPerkComponent* Perks,const TArray<FMCActiveSkillSlot>& Before) const
+    {
+        if(Perks->ActiveSkillSlots.Num()!=Before.Num()) return false;
+        for(int32 I=0;I<Before.Num();++I) {
+            const auto& A=Perks->ActiveSkillSlots[I];const auto& B=Before[I];
+            if(A.PerkID!=B.PerkID || A.InstanceID!=B.InstanceID || A.Charges!=B.Charges || A.CooldownEndsAt!=B.CooldownEndsAt) return false;
+        }
+        return true;
+    }
+
     AMCRewardChest* Chest(AActor* Owner=nullptr)
     {
         const FTransform Pose(FVector(0,0,10000));
@@ -93,7 +113,7 @@ bool FMCStageRewardImmediateFallTest::RunTest(const FString&)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCStageRewardSharedEffectTest,"MessControl.Rewards.StageBooster.SharedImmediateEffects",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCStageRewardSharedEffectTest,"MessControl.Rewards.StageBooster.LegacyTeamGrantStoresSkills",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCStageRewardSharedEffectTest::RunTest(const FString&)
 {
@@ -102,17 +122,23 @@ bool FMCStageRewardSharedEffectTest::RunTest(const FString&)
     auto* Spectator=W.Player(FVector(2000,0,10000));Spectator->GetPlayerState<AMCPlayerState>()->SetIsSpectator(true);
     A->Status->ApplyCoffee();B->Status->ApplyCoffee();
     auto* Enemy=W.World->SpawnActor<AMCNutEnemy>(FVector(0,200,10000),FRotator::ZeroRotator);
-    TestTrue(TEXT("Mouthwash activates immediately"),W.Perks(A)->ActivateTeamStageBooster(TEXT("Fallback_Mouthwash")));
-    TestEqual(TEXT("Overlapping team radii damage the same enemy once"),Enemy->Health,55.f);
-    TestEqual(TEXT("First teammate is cleansed"),A->Status->State.CoffeeLeft,0);
-    TestEqual(TEXT("Second teammate is cleansed"),B->Status->State.CoffeeLeft,0);
-    TestTrue(TEXT("Team grenade arms immediately"),W.Perks(A)->ActivateTeamStageBooster(TEXT("Fallback_Grenade")));
-    TestTrue(TEXT("Both teammates receive the armed effect"),W.Perks(A)->bGrenadeArmed && W.Perks(B)->bGrenadeArmed);
-    TestFalse(TEXT("Spectators receive no team effect"),W.Perks(Spectator)->bGrenadeArmed);
-    TestTrue(TEXT("Team fury activates immediately"),W.Perks(A)->ActivateTeamStageBooster(TEXT("Fallback_BrushFury")));
-    TestTrue(TEXT("Both teammates enter the existing five-second effect"),W.Perks(A)->IsFuryActive() && W.Perks(B)->IsFuryActive());
-    TestTrue(TEXT("Immediate rewards add no consumable charges or permanent perk stacks"),W.Perks(A)->BoosterQueue.IsEmpty()
-        && W.Perks(B)->BoosterQueue.IsEmpty() && W.Perks(A)->ActivePerks.IsEmpty() && W.Perks(B)->ActivePerks.IsEmpty());
+    TestTrue(TEXT("Legacy team mouthwash grants stored skills"),W.Perks(A)->ActivateTeamStageBooster(TEXT("Fallback_Mouthwash")));
+    TestEqual(TEXT("Acquisition causes no burst damage"),Enemy->Health,90.f);
+    TestTrue(TEXT("Acquisition does not cleanse either teammate"),A->Status->State.CoffeeLeft>0 && B->Status->State.CoffeeLeft>0);
+    TestTrue(TEXT("Legacy team grenade grants stored skills"),W.Perks(A)->ActivateTeamStageBooster(TEXT("Fallback_Grenade")));
+    TestFalse(TEXT("Neither teammate is armed by acquisition"),W.Perks(A)->bGrenadeArmed || W.Perks(B)->bGrenadeArmed);
+    TestTrue(TEXT("Legacy team fury grants stored skills"),W.Perks(A)->ActivateTeamStageBooster(TEXT("Fallback_BrushFury")));
+    TestFalse(TEXT("Neither teammate starts fury during acquisition"),W.Perks(A)->IsFuryActive() || W.Perks(B)->IsFuryActive());
+    TestEqual(TEXT("Three unique grants occupy three slots per recipient"),W.Occupied(W.Perks(A))+W.Occupied(W.Perks(B)),6);
+    TestEqual(TEXT("Spectators receive no stored grant"),W.Occupied(W.Perks(Spectator)),0);
+    TestTrue(TEXT("Explicit slot activation runs mouthwash"),W.Perks(A)->ActivateSkillSlot(0,W.Perks(A)->ActiveSkillSlots[0].InstanceID));
+    TestEqual(TEXT("One activation consumes one authored charge"),W.Perks(A)->ActiveSkillSlots[0].Charges,2);
+    TestEqual(TEXT("The other recipient keeps all of its own charges"),W.Perks(B)->ActiveSkillSlots[0].Charges,3);
+    TestEqual(TEXT("The activated burst damages a nearby enemy once"),Enemy->Health,55.f);
+    TestTrue(TEXT("Explicit grenade activation succeeds"),W.Perks(A)->ActivateSkillSlot(1,W.Perks(A)->ActiveSkillSlots[1].InstanceID));
+    TestTrue(TEXT("Only the activating player is armed"),W.Perks(A)->bGrenadeArmed && !W.Perks(B)->bGrenadeArmed);
+    TestTrue(TEXT("Explicit fury activation succeeds"),W.Perks(A)->ActivateSkillSlot(2,W.Perks(A)->ActiveSkillSlots[2].InstanceID));
+    TestTrue(TEXT("Only the activating player starts fury"),W.Perks(A)->IsFuryActive() && !W.Perks(B)->IsFuryActive());
     TestFalse(TEXT("A client-supplied unsupported perk is rejected"),W.Perks(A)->ActivateTeamStageBooster(TEXT("P01")));
     return true;
 }
@@ -122,34 +148,39 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCStageRewardIndividualClaimTest,"MessControl.
 bool FMCStageRewardIndividualClaimTest::RunTest(const FString&)
 {
     FStageRewardWorld W;auto* A=W.Player(FVector(160,0,10060));auto* B=W.Player(FVector(-160,0,10060));
-    auto* Chest=W.Chest();
-    TestTrue(TEXT("Stage rewards use their distinct participant-ledger mode"),Chest->bTeamStageBooster);
-    TestFalse(TEXT("Even a chance-one chest cannot become a stage mimic"),Chest->bMimic);
-    Chest->ForceMimicForTest();TestFalse(TEXT("Debug mimic override cannot infect a stage reward"),Chest->bMimic);
-    Chest->LootIDs={TEXT("Fallback_Mouthwash"),TEXT("Fallback_BrushFury"),TEXT("Fallback_Grenade")};
-    Chest->CaptureStageRecipients();Chest->Stage=EMCRewardChestStage::Open;
-    TestFalse(TEXT("An entitled player must have an actual published interaction"),Chest->TryChooseCard(B,2));
-    TestTrue(TEXT("First player receives a personal offer"),Chest->PublishStageChoiceFor(A));
-    TestTrue(TEXT("A distant teammate also receives their own offer"),Chest->PublishStageChoiceFor(B));
-    TestTrue(TEXT("Presentation receipt accepts the current recipient pawn"),Chest->ConfirmStageChoicePresented(A));
-    TestTrue(TEXT("Confirmed cards remain acknowledged"),Chest->StageChoicePresented.Contains(A->GetPlayerState<AMCPlayerState>()));
-    TestFalse(TEXT("An invalid card index cannot consume the reward"),Chest->TryChooseCard(A,3));
-    TestTrue(TEXT("The first player activates their chosen booster"),Chest->TryChooseCard(A,2));
-    TestTrue(TEXT("Only the first player is armed"),W.Perks(A)->bGrenadeArmed && !W.Perks(B)->bGrenadeArmed);
-    TestEqual(TEXT("The opener advances chest reward history without XP"),A->GetPlayerState<AMCPlayerState>()->PersonalChoicesTaken,1);
-    TestEqual(TEXT("The unchosen teammate has not received a reward"),B->GetPlayerState<AMCPlayerState>()->PersonalChoicesTaken,0);
-    TestEqual(TEXT("The chest waits for the second player's independent choice"),Chest->Stage,EMCRewardChestStage::Open);
-    W.Perks(A)->bGrenadeArmed=false;
-    TestFalse(TEXT("Duplicate RPC cannot replay the first player's effect"),Chest->TryChooseCard(A,2));
-    TestFalse(TEXT("A duplicate request leaves effects unchanged"),W.Perks(A)->bGrenadeArmed);
-    TestEqual(TEXT("A duplicate request cannot advance chest history"),A->GetPlayerState<AMCPlayerState>()->PersonalChoicesTaken,1);
-    TestFalse(TEXT("The opener's authoritative interaction is released"),IsValid(A->RewardInteraction));
-    TestTrue(TEXT("The second player can choose a different booster"),Chest->TryChooseCard(B,1));
-    TestTrue(TEXT("Only the second player gets fury"),W.Perks(B)->IsFuryActive() && !W.Perks(A)->IsFuryActive());
-    TestEqual(TEXT("The second player records exactly their own reward"),B->GetPlayerState<AMCPlayerState>()->PersonalChoicesTaken,1);
-    TestEqual(TEXT("Only the final resolved choice exhausts the chest"),Chest->Stage,EMCRewardChestStage::Exhausted);
-    TestEqual(TEXT("The exhausted chest releases its gameplay collision"),Chest->Solid->GetCollisionEnabled(),ECollisionEnabled::NoCollision);
-    TestTrue(TEXT("Removal retains the existing short cosmetic burst"),Chest->GetLifeSpan()>0.f && Chest->GetLifeSpan()<1.f);
+    auto* Chest=W.Chest();Chest->CaptureStageRecipients();Chest->Stage=EMCRewardChestStage::Open;
+    TestTrue(TEXT("Stage rewards retain their participant-ledger mode"),Chest->bTeamStageBooster);
+    Chest->ForceMimicForTest();TestFalse(TEXT("A stage reward cannot become a mimic"),Chest->bMimic);
+    const int32 AIndex=W.Index(Chest,A,TEXT("Fallback_Grenade"));
+    const int32 BIndex=W.Index(Chest,B,TEXT("Fallback_BrushFury"));
+    TestTrue(TEXT("Each issued pool contains the available canonical rewards"),AIndex!=INDEX_NONE && BIndex!=INDEX_NONE);
+    TestFalse(TEXT("An entitlement alone does not authorize a claim before presentation"),Chest->TryChooseCard(B,BIndex));
+    TestTrue(TEXT("First recipient gets its personal offer"),Chest->PublishStageChoiceFor(A));
+    TestTrue(TEXT("Second recipient gets its personal offer"),Chest->PublishStageChoiceFor(B));
+    const auto* StateA=A->GetPlayerState<AMCPlayerState>();const auto* StateB=B->GetPlayerState<AMCPlayerState>();
+    const FGuid AOffer=Chest->GetChoiceOfferID(StateA),BOffer=Chest->GetChoiceOfferID(StateB);
+    TestTrue(TEXT("Receipts have distinct valid identities"),AOffer.IsValid() && BOffer.IsValid() && AOffer!=BOffer);
+    TestTrue(TEXT("Current token and card validate"),Chest->ValidateChoiceOffer(A,AOffer,TEXT("Fallback_Grenade"),AIndex));
+    TestFalse(TEXT("Another recipient token cannot authorize this card"),Chest->ValidateChoiceOffer(A,BOffer,TEXT("Fallback_Grenade"),AIndex));
+    TestFalse(TEXT("A changed offered ID is rejected"),Chest->ValidateChoiceOffer(A,AOffer,TEXT("NotIssued"),AIndex));
+    TestTrue(TEXT("Presentation acknowledgment is recipient-specific"),Chest->ConfirmStageChoicePresented(A));
+    TestFalse(TEXT("Invalid card index cannot consume the receipt"),Chest->TryChooseCard(A,99));
+    TestTrue(TEXT("First recipient acquires the selected item into a slot"),Chest->TryChooseCard(A,AIndex));
+    TestTrue(TEXT("Only the first recipient owns the selected canonical ID"),W.Perks(A)->OwnsPerk(TEXT("Fallback_Grenade")) && !W.Perks(B)->OwnsPerk(TEXT("Fallback_Grenade")));
+    TestEqual(TEXT("Acquisition stores the configured charges"),W.Perks(A)->ActiveSkillSlots[0].Charges,3);
+    TestFalse(TEXT("Granting a stored grenade does not arm it immediately"),W.Perks(A)->bGrenadeArmed);
+    TestEqual(TEXT("An actual acquisition advances only its recipient's history"),StateA->PersonalChoicesTaken,1);
+    TestEqual(TEXT("The other player is still waiting"),StateB->PersonalChoicesTaken,0);
+    TestEqual(TEXT("First selection does not close the other player's offer"),Chest->Stage,EMCRewardChestStage::Open);
+    const auto Slot=W.Perks(A)->ActiveSkillSlots[0];
+    TestFalse(TEXT("Repeated claim cannot replay the grant"),Chest->TryChooseCard(A,AIndex));
+    TestTrue(TEXT("Repeated claim does not replace/reset the stored instance"),W.Perks(A)->ActiveSkillSlots[0].InstanceID==Slot.InstanceID);
+    TestTrue(TEXT("Second player can acquire a different stored item"),Chest->TryChooseCard(B,BIndex));
+    TestFalse(TEXT("Stored fury does not activate on acquisition"),W.Perks(B)->IsFuryActive());
+    TestEqual(TEXT("Each personal acquisition uses one slot"),W.Occupied(W.Perks(B)),1);
+    TestEqual(TEXT("Only the final resolution exhausts the chest"),Chest->Stage,EMCRewardChestStage::Exhausted);
+    TestEqual(TEXT("Removal releases gameplay collision"),Chest->Solid->GetCollisionEnabled(),ECollisionEnabled::NoCollision);
+    TestTrue(TEXT("Removal keeps its short cosmetic burst"),Chest->GetLifeSpan()>0.f && Chest->GetLifeSpan()<1.f);
     return true;
 }
 
@@ -163,24 +194,25 @@ bool FMCStageRewardReplacementTest::RunTest(const FString&)
     auto* Leaving=W.Player(FVector(2000,0,10060));
     auto* PC=CastChecked<AMCPlayerController>(A->GetController());auto* State=A->GetPlayerState<AMCPlayerState>();
     auto* Chest=W.Chest();Chest->CaptureStageRecipients();Chest->Stage=EMCRewardChestStage::Open;
-    Chest->LootIDs={TEXT("Fallback_Mouthwash"),TEXT("Fallback_BrushFury"),TEXT("Fallback_Grenade")};
     Chest->PublishStageChoiceFor(A);Chest->PublishStageChoiceFor(B);Chest->PublishStageChoiceFor(Leaving);
+    const auto IDs=Chest->GetStageOfferIDs(State);const auto Receipt=Chest->GetChoiceOfferID(State);
     A->Status->State.Health=0;Chest->PollTeamBoosterApproach();
-    TestFalse(TEXT("Death releases the old pawn's reward lock"),IsValid(A->RewardInteraction));
-    TestTrue(TEXT("Death does not consume the stable recipient entitlement"),Chest->StageRecipients.Contains(State) && !Chest->StageClaims.Contains(State));
-    TestTrue(TEXT("Another player can resolve while recovery is pending"),Chest->TryChooseCard(B,2));
+    TestFalse(TEXT("Death releases the old body's modal interaction"),IsValid(A->RewardInteraction));
+    TestTrue(TEXT("A reserve keeps the original recipient entitlement"),Chest->StageRecipients.Contains(State) && !Chest->StageClaims.Contains(State));
+    TestTrue(TEXT("Another player may finish while replacement is pending"),Chest->TryChooseCard(B,W.Index(Chest,B,TEXT("Fallback_Grenade"))));
     Leaving->GetController()->Destroy();Chest->PollTeamBoosterApproach();
-    TestEqual(TEXT("A disconnected recipient no longer blocks completion"),Chest->StageRecipients.Num(),2);
+    TestEqual(TEXT("Disconnected recipients stop blocking"),Chest->StageRecipients.Num(),2);
     auto* Late=W.Player(FVector(2200,0,10060));
-    TestFalse(TEXT("A late join cannot silently enlarge an already issued reward"),Chest->PublishStageChoiceFor(Late));
-    PC->UnPossess();
-    auto* Replacement=W.World->SpawnActor<AMCToothCharacter>(FVector(160,0,10060),FRotator::ZeroRotator);
+    TestFalse(TEXT("A late join cannot enlarge an issued receipt group"),Chest->PublishStageChoiceFor(Late));
+    PC->UnPossess();auto* Replacement=W.World->SpawnActor<AMCToothCharacter>(FVector(160,0,10060),FRotator::ZeroRotator);
     PC->Possess(Replacement);Replacement->Status->Initialize(100);Replacement->GetCharacterMovement()->DisableMovement();
     Chest->PollTeamBoosterApproach();
-    TestTrue(TEXT("The replacement pawn receives the still-unclaimed offer"),Chest->HasStageChoiceFor(Replacement));
-    TestTrue(TEXT("The replacement can finish its own choice"),Chest->TryChooseCard(Replacement,2));
-    TestEqual(TEXT("A replacement earns one reward, not a new identity's extra reward"),State->PersonalChoicesTaken,1);
-    TestEqual(TEXT("No departed or old pawn keeps the chest stuck"),Chest->Stage,EMCRewardChestStage::Exhausted);
+    TestTrue(TEXT("The replacement gets the still-pending offer"),Chest->HasStageChoiceFor(Replacement));
+    TestTrue(TEXT("Death/reopen cannot reroll IDs"),Chest->GetStageOfferIDs(State)==IDs);
+    TestTrue(TEXT("Death/reopen preserves the receipt identity"),Chest->GetChoiceOfferID(State)==Receipt);
+    TestTrue(TEXT("Replacement completes its original choice"),Chest->TryChooseCard(Replacement,W.Index(Chest,Replacement,TEXT("Fallback_Grenade"))));
+    TestEqual(TEXT("Replacement is one reward identity"),State->PersonalChoicesTaken,1);
+    TestEqual(TEXT("No departed/old body leaves a deadlock"),Chest->Stage,EMCRewardChestStage::Exhausted);
     return true;
 }
 
@@ -189,19 +221,17 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCStageRewardTerminalDeathTest,"MessControl.Re
 bool FMCStageRewardTerminalDeathTest::RunTest(const FString&)
 {
     FStageRewardWorld W;auto* Survivor=W.Player(FVector(160,0,10060));auto* Dead=W.Player(FVector(2000,0,10060));
-    auto* DeadState=Dead->GetPlayerState<AMCPlayerState>();
-    auto* Chest=W.Chest();Chest->CaptureStageRecipients();Chest->Stage=EMCRewardChestStage::Open;
-    Chest->LootIDs={TEXT("Fallback_Mouthwash"),TEXT("Fallback_BrushFury"),TEXT("Fallback_Grenade")};
-    Chest->PublishStageChoiceFor(Survivor);Chest->PublishStageChoiceFor(Dead);
-    Dead->Status->State.Health=0;
-    TestEqual(TEXT("The fixture has no replacement tooth"),W.World->GetGameState<AMCGameState>()->AvailableArenaTeeth(),0);
+    auto* DeadState=Dead->GetPlayerState<AMCPlayerState>();auto* Chest=W.Chest();
+    Chest->CaptureStageRecipients();Chest->Stage=EMCRewardChestStage::Open;
+    Chest->PublishStageChoiceFor(Survivor);Chest->PublishStageChoiceFor(Dead);Dead->Status->State.Health=0;
+    TestEqual(TEXT("No reserve exists in this fixture"),W.World->GetGameState<AMCGameState>()->AvailableArenaTeeth(),0);
     Chest->PollTeamBoosterApproach();
-    TestEqual(TEXT("An unrecoverable dead participant cannot remain in the reward barrier"),Chest->StageRecipients.Num(),1);
-    TestFalse(TEXT("The dead player's input interaction is released"),IsValid(Dead->RewardInteraction));
-    TestEqual(TEXT("Waiving an impossible choice grants no phantom reward"),DeadState->PersonalChoicesTaken,0);
-    TestTrue(TEXT("The survivor can finish its own reward"),Chest->TryChooseCard(Survivor,2));
-    TestEqual(TEXT("The completed portion is not stuck on a player with no reserves"),Chest->Stage,EMCRewardChestStage::Exhausted);
-    return true;
+    TestEqual(TEXT("An unrecoverable recipient is waived"),Chest->StageRecipients.Num(),1);
+    TestFalse(TEXT("Waived bodies keep no input interaction"),IsValid(Dead->RewardInteraction));
+    TestFalse(TEXT("A waived receipt is no longer a valid token"),Chest->GetChoiceOfferID(DeadState).IsValid());
+    TestEqual(TEXT("Waiving grants no phantom acquisition"),DeadState->PersonalChoicesTaken,0);
+    TestTrue(TEXT("The survivor still finishes normally"),Chest->TryChooseCard(Survivor,W.Index(Chest,Survivor,TEXT("Fallback_Grenade"))));
+    TestEqual(TEXT("The barrier is not stuck"),Chest->Stage,EMCRewardChestStage::Exhausted);return true;
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCStageRewardBotSelectionTest,"MessControl.Rewards.StageBooster.BotsRespectHumanOwner",
@@ -227,82 +257,42 @@ bool FMCStageRewardTimeoutTest::RunTest(const FString&)
         FStageRewardWorld W;W.World->TimeSeconds=100.;
         auto* A=W.Player(FVector(160,0,10060));auto* B=W.Player(FVector(-160,0,10060));
         auto* StateA=A->GetPlayerState<AMCPlayerState>();auto* StateB=B->GetPlayerState<AMCPlayerState>();
-        StateA->SetPlayerId(101);StateB->SetPlayerId(102);
-        auto* Chest=W.Chest();Chest->CaptureStageRecipients();Chest->Stage=EMCRewardChestStage::Open;
-        Chest->StageStartedAt=Chest->ServerNow();
-        Chest->LootIDs={TEXT("Fallback_Mouthwash"),TEXT("Fallback_BrushFury"),TEXT("Fallback_Grenade")};
+        StateA->SetPlayerId(101);StateB->SetPlayerId(102);auto* Chest=W.Chest();
+        Chest->CaptureStageRecipients();Chest->Stage=EMCRewardChestStage::Open;Chest->StageStartedAt=100.;
         Chest->PublishStageChoiceFor(A);Chest->PublishStageChoiceFor(B);
-        const double Deadline=Chest->GetStageChoiceDeadline(StateA);
-        TestEqual(TEXT("The window is exactly forty server seconds from Open"),Deadline,140.);
-        TestEqual(TEXT("Every captured recipient has the same finite stage window"),Chest->GetStageChoiceDeadline(StateB),Deadline);
-        W.World->TimeSeconds=110.;
-        Chest->ConfirmStageChoicePresented(A);Chest->PublishStageChoiceFor(A);
-        TestEqual(TEXT("Acknowledgement and re-sending cards cannot extend the window"),Chest->GetStageChoiceDeadline(StateA),Deadline);
-        TestTrue(TEXT("A manual choice before expiry still applies normally"),Chest->TryChooseCard(A,2));
-        TestTrue(TEXT("The selected pre-deadline grenade is armed"),W.Perks(A)->bGrenadeArmed);
+        const auto Issued=Chest->GetStageOfferIDs(StateB);const auto Token=Chest->GetChoiceOfferID(StateB);
+        const double Deadline=Chest->GetStageChoiceDeadline(StateB);
+        TestEqual(TEXT("The window is Open plus forty server seconds"),Deadline,140.);
+        TestTrue(TEXT("A manual acquisition succeeds before expiry"),Chest->TryChooseCard(A,W.Index(Chest,A,TEXT("Fallback_Grenade"))));
         W.World->TimeSeconds=139.99;Chest->PollTeamBoosterApproach();
-        TestEqual(TEXT("A pending player is not chosen early"),StateB->PersonalChoicesTaken,0);
-        TestEqual(TEXT("The remaining deadline is not reset by the other player's choice"),Chest->GetStageChoiceDeadline(StateB),Deadline);
-        B->Status->ApplyCoffee();
-        W.World->TimeSeconds=140.;Chest->PollTeamBoosterApproach();
-        TestEqual(TEXT("Expiry resolves the AFK recipient without a button or presentation acknowledgement"),StateB->PersonalChoicesTaken,1);
-        const int32 Effects=int32(W.Perks(B)->bGrenadeArmed)+int32(W.Perks(B)->IsFuryActive())+int32(B->Status->State.CoffeeLeft==0);
-        TestEqual(TEXT("The server activates exactly one effect from the three offered cards"),Effects,1);
-        TestEqual(TEXT("The last timed selection exhausts the stage chest"),Chest->Stage,EMCRewardChestStage::Exhausted);
-        TestFalse(TEXT("A delayed manual request cannot replace or duplicate the automatic choice"),Chest->TryChooseCard(B,2));
-        Chest->PollTeamBoosterApproach();
-        TestEqual(TEXT("Repeated expiry polling never records another reward"),StateB->PersonalChoicesTaken,1);
+        TestEqual(TEXT("The other player is not auto-chosen early"),StateB->PersonalChoicesTaken,0);
+        TestEqual(TEXT("Another claim does not extend the deadline"),Chest->GetStageChoiceDeadline(StateB),Deadline);
+        B->Status->ApplyCoffee();W.World->TimeSeconds=140.;Chest->PollTeamBoosterApproach();
+        TestEqual(TEXT("Expiry safely resolves an unacknowledged UI"),StateB->PersonalChoicesTaken,1);
+        TestEqual(TEXT("Expiry stores exactly one skill instance"),W.Occupied(W.Perks(B)),1);
+        TestTrue(TEXT("The auto-acquired ID came from that player's issued cards"),Issued.Contains(W.Perks(B)->ActiveSkillSlots[0].PerkID));
+        TestTrue(TEXT("Receipt creation never activates/cleanses the player"),!W.Perks(B)->bGrenadeArmed && !W.Perks(B)->IsFuryActive() && B->Status->State.CoffeeLeft>0);
+        const auto Snapshot=W.Perks(B)->ActiveSkillSlots;
+        TestFalse(TEXT("An old receipt cannot authorize a late choice"),Chest->ValidateChoiceOffer(B,Token,Issued[0],0));
+        Chest->PollTeamBoosterApproach();TestTrue(TEXT("Repeated expiry does not reset charges or instance"),W.SameSlots(W.Perks(B),Snapshot));
+        TestEqual(TEXT("Final resolution exhausts the chest"),Chest->Stage,EMCRewardChestStage::Exhausted);
     }
     {
         FStageRewardWorld W;W.World->TimeSeconds=100.;
-        auto* Game=W.World->GetGameState<AMCGameState>();Game->GameplayLoadId=FGuid::NewGuid();
-        auto* Alive=W.Player(FVector(-160,0,10060));auto* Dead=W.Player(FVector(160,0,10060));
-        auto* State=Dead->GetPlayerState<AMCPlayerState>();auto* PC=CastChecked<AMCPlayerController>(Dead->GetController());
-        auto* Reserve=W.World->SpawnActor<AMCArenaTooth>(FVector(6000,0,10000),FRotator::ZeroRotator);
-        Game->ArenaTeeth.Add(Reserve);
-        auto* Chest=W.Chest();Chest->CaptureStageRecipients();Chest->Stage=EMCRewardChestStage::Open;
-        Chest->StageStartedAt=Chest->ServerNow();
-        Chest->LootIDs={TEXT("Fallback_Mouthwash"),TEXT("Fallback_BrushFury"),TEXT("Fallback_Grenade")};
-        Chest->PublishStageChoiceFor(Alive);Chest->PublishStageChoiceFor(Dead);
-        TestTrue(TEXT("The survivor resolves their normal personal choice"),Chest->TryChooseCard(Alive,2));
-        const double Deadline=Chest->GetStageChoiceDeadline(State);
-        W.World->TimeSeconds=110.;Dead->Status->State.Health=0;Chest->PollTeamBoosterApproach();
-        TestEqual(TEXT("Death does not restart the recipient's window"),Chest->GetStageChoiceDeadline(State),Deadline);
-        TestEqual(TEXT("Death before expiry does not itself choose a reward"),State->PersonalChoicesTaken,0);
-        PC->UnPossess();W.World->TimeSeconds=120.;
-        auto* EarlyReplacement=W.World->SpawnActor<AMCToothCharacter>(FVector(160,0,10060),FRotator::ZeroRotator);
-        PC->Possess(EarlyReplacement);EarlyReplacement->Status->Initialize(100);EarlyReplacement->GetCharacterMovement()->DisableMovement();
-        Chest->PollTeamBoosterApproach();
-        TestTrue(TEXT("A replacement before expiry receives the still-pending cards"),Chest->HasStageChoiceFor(EarlyReplacement));
-        TestEqual(TEXT("Replacement and its new presentation preserve the original deadline"),Chest->GetStageChoiceDeadline(State),Deadline);
-        EarlyReplacement->Status->State.Health=0;
+        auto* A=W.Player(FVector(160,0,10060));auto* Alive=W.Player(FVector(-160,0,10060));
+        auto* Reserve=W.World->SpawnActor<AMCArenaTooth>(FVector(6000,0,10000),FRotator::ZeroRotator);W.World->GetGameState<AMCGameState>()->ArenaTeeth.Add(Reserve);
+        auto* State=A->GetPlayerState<AMCPlayerState>();auto* PC=CastChecked<AMCPlayerController>(A->GetController());
+        auto* Chest=W.Chest();Chest->CaptureStageRecipients();Chest->Stage=EMCRewardChestStage::Open;Chest->StageStartedAt=100.;
+        Chest->PublishStageChoiceFor(A);Chest->PublishStageChoiceFor(Alive);A->Status->State.Health=0;Chest->PollTeamBoosterApproach();
+        TestTrue(TEXT("A survivor can finish during another replacement"),Chest->TryChooseCard(Alive,W.Index(Chest,Alive,TEXT("Fallback_Grenade"))));
         W.World->TimeSeconds=140.;Chest->PollTeamBoosterApproach();
-        TestEqual(TEXT("An expired dead player resolves the stage barrier immediately"),Chest->Stage,EMCRewardChestStage::Exhausted);
-        TestEqual(TEXT("The recovering player still receives exactly one selected reward"),State->PersonalChoicesTaken,1);
-        TestTrue(TEXT("The deferred choice is not put in the manual booster-charge queue"),State->Perks->BoosterQueue.IsEmpty());
-        PC->UnPossess();
-        auto* Replacement=W.World->SpawnActor<AMCToothCharacter>(FVector(160,0,10060),FRotator::ZeroRotator);
+        TestEqual(TEXT("A dead recipient's timeout stores a reward on PlayerState"),W.Occupied(State->Perks),1);
+        const auto Slots=State->Perks->ActiveSkillSlots;
+        PC->UnPossess();auto* Replacement=W.World->SpawnActor<AMCToothCharacter>(FVector(160,0,10060),FRotator::ZeroRotator);
         PC->Possess(Replacement);Replacement->Status->Initialize(100);Replacement->GetCharacterMovement()->DisableMovement();
-        Replacement->Status->ApplyCoffee();
-        auto* Perks=State->Perks.Get();Perks->TickRogueBoosters(.1f);
-        const int32 Effects=int32(Perks->bGrenadeArmed)+int32(Perks->IsFuryActive())+int32(Replacement->Status->State.CoffeeLeft==0);
-        TestEqual(TEXT("The selected effect automatically reaches the eligible replacement body"),Effects,1);
-        Perks->bGrenadeArmed=false;Perks->FuryUntil=-100;Replacement->Status->ApplyCoffee();
-        Perks->TickRogueBoosters(.1f);
-        TestTrue(TEXT("A deferred effect is consumed once rather than repeated each tick"),
-            !Perks->bGrenadeArmed && !Perks->IsFuryActive() && Replacement->Status->State.CoffeeLeft>0);
-    }
-    {
-        FStageRewardWorld W;auto* Hero=W.Player(FVector(160,0,10060));auto* Perks=W.Perks(Hero);
-        auto* Game=W.World->GetGameState<AMCGameState>();Game->GameplayLoadId=FGuid::NewGuid();
-        Hero->Status->State.Health=0;
-        TestTrue(TEXT("An unavailable body can retain an expired selection outside the chest lifetime"),Perks->AcceptTimedStageBooster(TEXT("Fallback_Grenade")));
-        Game->GameplayLoadId=FGuid::NewGuid();Hero->Status->Initialize(100);Perks->TickRogueBoosters(.1f);
-        TestFalse(TEXT("A deferred effect cannot leak into a different run epoch"),Perks->bGrenadeArmed);
-        Hero->Status->State.Health=0;
-        TestTrue(TEXT("Another valid deferred effect can be accepted"),Perks->AcceptTimedStageBooster(TEXT("Fallback_Grenade")));
-        Perks->ResetPerks();Hero->Status->Initialize(100);Perks->TickRogueBoosters(.1f);
-        TestFalse(TEXT("ResetPerks also discards unactivated stage effects"),Perks->bGrenadeArmed);
+        State->Perks->TickRogueBoosters(.1f);
+        TestTrue(TEXT("Recovery preserves the same stored charges and identity"),W.SameSlots(State->Perks,Slots));
+        TestTrue(TEXT("Recovery does not auto-activate the acquired item"),!State->Perks->bGrenadeArmed && !State->Perks->IsFuryActive());
     }
     return true;
 }
@@ -397,4 +387,82 @@ bool FMCStageRewardPortionGateTest::RunTest(const FString&)
     Director->ResetStageRewards();
     return true;
 }
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCStageRewardOfferPoolTest,"MessControl.Rewards.StageBooster.PersonalSmallPoolsAndReceipts",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCStageRewardOfferPoolTest::RunTest(const FString&)
+{
+    {
+        FStageRewardWorld W(false);W.Add(TEXT("PassiveA"),EMCPerkKind::Passive);W.Add(TEXT("PassiveB"),EMCPerkKind::Passive);
+        auto* A=W.Player(FVector(160,0,10060));auto* B=W.Player(FVector(-160,0,10060));
+        TestTrue(TEXT("The preexisting passive is acquired through the real core API"),W.Perks(A)->TryAcquirePerk(TEXT("PassiveA")));
+        auto* Chest=W.Chest();Chest->CaptureStageRecipients();Chest->Stage=EMCRewardChestStage::Open;
+        auto* StateA=A->GetPlayerState<AMCPlayerState>();auto* StateB=B->GetPlayerState<AMCPlayerState>();
+        const auto AIDs=Chest->GetStageOfferIDs(StateA),BIDs=Chest->GetStageOfferIDs(StateB);
+        TestEqual(TEXT("An owned passive leaves one valid card, not a padded duplicate"),AIDs.Num(),1);
+        TestTrue(TEXT("Owned IDs are excluded canonically"),AIDs.Contains(TEXT("PassiveB")) && !AIDs.Contains(TEXT("PassiveA")));
+        TestEqual(TEXT("Another player independently sees both available cards"),BIDs.Num(),2);
+        TestTrue(TEXT("One-card offers publish"),Chest->PublishStageChoiceFor(A));TestTrue(TEXT("Two-card offers publish"),Chest->PublishStageChoiceFor(B));
+        const auto Token=Chest->GetChoiceOfferID(StateA);Chest->PublishStageChoiceFor(A);
+        TestTrue(TEXT("Republishing cannot reroll cards or receipt"),Chest->GetStageOfferIDs(StateA)==AIDs && Chest->GetChoiceOfferID(StateA)==Token);
+        TestTrue(TEXT("A passive can be acquired without a numbered slot"),Chest->TryChooseCard(A,0));
+        TestEqual(TEXT("Passive acquisition does not fill the active hotbar"),W.Occupied(W.Perks(A)),0);
+        TestTrue(TEXT("Explicit skip resolves only the remaining recipient"),Chest->SkipChoice(B));
+        TestEqual(TEXT("Skipping grants no reward history"),StateB->PersonalChoicesTaken,0);
+        TestEqual(TEXT("Skip completes the team barrier"),Chest->Stage,EMCRewardChestStage::Exhausted);
+    }
+    {
+        FStageRewardWorld W(false);W.Add(TEXT("OnlyPassive"),EMCPerkKind::Passive);auto* A=W.Player(FVector(160,0,10060));
+        TestTrue(TEXT("The only catalog entry is already owned"),W.Perks(A)->TryAcquirePerk(TEXT("OnlyPassive")));
+        auto* Chest=W.Chest();Chest->CaptureStageRecipients();Chest->Stage=EMCRewardChestStage::Open;
+        TestTrue(TEXT("An empty pool has no fabricated fallback"),Chest->GetStageOfferIDs(A->GetPlayerState<AMCPlayerState>()).IsEmpty());
+        Chest->PollTeamBoosterApproach();
+        TestEqual(TEXT("Zero eligible cards cannot deadlock the stage"),Chest->Stage,EMCRewardChestStage::Exhausted);
+        TestEqual(TEXT("An empty pool grants no phantom reward"),A->GetPlayerState<AMCPlayerState>()->PersonalChoicesTaken,0);
+    }
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCStageRewardSlotTransactionTest,"MessControl.Rewards.StageBooster.FullSlotsSkipAndStaleReplacement",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCStageRewardSlotTransactionTest::RunTest(const FString&)
+{
+    auto Populate=[](FStageRewardWorld& W) {
+        for(FName ID:{FName(TEXT("ActiveA")),FName(TEXT("ActiveB")),FName(TEXT("ActiveC")),FName(TEXT("ActiveD")),FName(TEXT("Other"))}) W.Add(ID,EMCPerkKind::Active,false);
+        W.Add(TEXT("Offered"),EMCPerkKind::Active);
+    };
+    auto Fill=[this](UMCPerkComponent* Perks) {
+        for(FName ID:{FName(TEXT("ActiveA")),FName(TEXT("ActiveB")),FName(TEXT("ActiveC")),FName(TEXT("ActiveD"))})
+            TestTrue(TEXT("Four distinct active IDs acquire normally"),Perks->TryAcquirePerk(ID));
+    };
+    {
+        FStageRewardWorld W(false);Populate(W);W.World->TimeSeconds=100.;auto* A=W.Player(FVector(160,0,10060));auto* Perks=W.Perks(A);Fill(Perks);
+        const auto Before=Perks->ActiveSkillSlots;auto* Chest=W.Chest();Chest->CaptureStageRecipients();Chest->Stage=EMCRewardChestStage::Open;Chest->StageStartedAt=100.;
+        TestEqual(TEXT("Full capacity does not hide a replaceable offer"),Chest->GetStageOfferIDs(A->GetPlayerState<AMCPlayerState>()).Num(),1);
+        TestTrue(TEXT("A full-slot offer still publishes"),Chest->PublishStageChoiceFor(A));
+        W.World->TimeSeconds=140.;Chest->PollTeamBoosterApproach();
+        TestTrue(TEXT("Timeout never destructively swaps or resets a full loadout"),W.SameSlots(Perks,Before));
+        TestFalse(TEXT("The skipped skill was not granted"),Perks->OwnsPerk(TEXT("Offered")));
+        TestEqual(TEXT("Timeout skip resolves the stage"),Chest->Stage,EMCRewardChestStage::Exhausted);
+        TestEqual(TEXT("Timeout skip does not count as acquisition"),A->GetPlayerState<AMCPlayerState>()->PersonalChoicesTaken,0);
+    }
+    {
+        FStageRewardWorld W(false);Populate(W);auto* A=W.Player(FVector(160,0,10060));auto* Perks=W.Perks(A);Fill(Perks);
+        auto* Chest=W.Chest();Chest->CaptureStageRecipients();Chest->Stage=EMCRewardChestStage::Open;Chest->PublishStageChoiceFor(A);
+        const auto Old=Perks->ActiveSkillSlots[1];const auto Token=Chest->GetChoiceOfferID(A->GetPlayerState<AMCPlayerState>());
+        TestTrue(TEXT("A temporary replacement uses the real core transaction"),Perks->TryAcquirePerk(TEXT("Other"),1,Old.PerkID,Old.InstanceID));
+        const auto Middle=Perks->ActiveSkillSlots[1];
+        TestTrue(TEXT("The same ID can return after removal"),Perks->TryAcquirePerk(Old.PerkID,1,Middle.PerkID,Middle.InstanceID));
+        const auto Before=Perks->ActiveSkillSlots;
+        TestFalse(TEXT("An ABA-reused ID cannot satisfy a stale slot instance"),Chest->TryChooseCard(A,0,1,Old.PerkID,Old.InstanceID));
+        TestTrue(TEXT("A rejected replacement leaves every slot unchanged"),W.SameSlots(Perks,Before));
+        TestTrue(TEXT("Rejection does not reroll or consume the personal receipt"),Chest->GetChoiceOfferID(A->GetPlayerState<AMCPlayerState>())==Token && Chest->HasStageChoiceFor(A));
+        const auto Current=Perks->ActiveSkillSlots[1];
+        TestTrue(TEXT("Fresh slot identity authorizes the explicit replacement"),Chest->TryChooseCard(A,0,1,Current.PerkID,Current.InstanceID));
+        TestTrue(TEXT("Only the selected slot changed"),Perks->ActiveSkillSlots[1].PerkID==TEXT("Offered") && Perks->ActiveSkillSlots[0].InstanceID==Before[0].InstanceID && Perks->ActiveSkillSlots[2].InstanceID==Before[2].InstanceID && Perks->ActiveSkillSlots[3].InstanceID==Before[3].InstanceID);
+        TestFalse(TEXT("The replaced ID is no longer owned"),Perks->OwnsPerk(Old.PerkID));
+    }
+    return true;
+}
+
 #endif

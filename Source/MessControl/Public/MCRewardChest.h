@@ -40,7 +40,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void InitializeReward(FVector Landing,FVector Start,int32 Seed,UDataTable* Table,
         EMCRewardSelectionPolicy Policy,AMCRewardDropZone* Zone);
-    /** One stage chest, with an independent immediate booster choice for each participant. */
+    /** One stage chest, with an independent stored catalog reward for each participant. */
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Rewards")
     void InitializeTeamStageReward(FVector Landing,FVector Start,int32 Seed,UDataTable* Table,AMCRewardDropZone* Zone);
     UPROPERTY(ReplicatedUsing=RefreshPresentation,BlueprintReadOnly,Category="Rewards") bool bTeamStageBooster=false;
@@ -51,7 +51,14 @@ public:
     static bool HasValidLoot(UDataTable* Table,const UMCPerkComponent* Recipient=nullptr);
     static EMCPerkRarity RollToolRarity(int32 Seed,float LegendaryPercent,float RarePercent);
     bool BeginLockpicking(AMCToothCharacter* Player);
-    bool TryChooseCard(AMCToothCharacter* Player,int32 Index);
+    bool TryChooseCard(AMCToothCharacter* Player,int32 Index,int32 DestinationSlot=INDEX_NONE,
+        FName ExpectedReplacedID=NAME_None,FGuid ExpectedSlotInstance=FGuid());
+    /** Resolve an opportunity without granting or replacing anything. */
+    bool SkipChoice(AMCToothCharacter* Player);
+    /** Immutable personal receipt identity; the controller validates incoming client requests. */
+    UFUNCTION(BlueprintPure,BlueprintAuthorityOnly,Category="Rewards") FGuid GetChoiceOfferID(const AMCPlayerState* PlayerState) const;
+    UFUNCTION(BlueprintPure,BlueprintAuthorityOnly,Category="Rewards") TArray<FName> GetStageOfferIDs(const AMCPlayerState* PlayerState) const;
+    bool ValidateChoiceOffer(const AMCToothCharacter* Player,FGuid OfferID,FName ExpectedSkillID,int32 Index) const;
     /** Authority-side entitlement/interaction query; the ledger is keyed by PlayerState, not pawn. */
     bool HasStageChoiceFor(const AMCToothCharacter* Player) const;
     /** Re-send only this player's outstanding stage offer, e.g. after a rejected/stale choice RPC. */
@@ -139,6 +146,8 @@ private:
     friend class FMCStageRewardTerminalDeathTest;
     friend class FMCStageRewardArrivalOverlapTest;
     friend class FMCStageRewardTimeoutTest;
+    friend class FMCStageRewardOfferPoolTest;
+    friend class FMCStageRewardSlotTransactionTest;
     UFUNCTION() void RefreshPresentation();
     void ConfigureGeometry();
     void CacheRewardEffectsVisibility();
@@ -157,10 +166,13 @@ private:
     void FinishReward(bool bRequeue);
     void RollMimic();
     bool BeginTeamBoosterChoice(AMCToothCharacter* Player);
-    bool TryChooseTeamBooster(AMCToothCharacter* Player,int32 Index);
+    bool TryChooseTeamBooster(AMCToothCharacter* Player,int32 Index,int32 DestinationSlot,
+        FName ExpectedReplacedID,FGuid ExpectedSlotInstance);
     void PollTeamBoosterApproach();
     bool BuildTeamBoosterOffer(const UMCPerkComponent* Perks);
-    bool ApplyStageBoosterOnce(AMCPlayerState* PlayerState,FName ID,bool bAllowDeferred=false);
+    bool ApplyStageRewardOnce(AMCPlayerState* PlayerState,FName ID,int32 DestinationSlot,
+        FName ExpectedReplacedID,FGuid ExpectedSlotInstance);
+    bool ResolveStageSkip(AMCPlayerState* PlayerState);
     bool ResolveExpiredStageChoice(AMCPlayerState* PlayerState);
     void CaptureStageRecipients();
     bool CanReceiveStageChoice(const AMCToothCharacter* Player) const;
@@ -179,6 +191,8 @@ private:
     int32 RollSeed=0;
     bool bClaimInProgress=false;
     bool bStageRecipientsCaptured=false;
+    FGuid OpeningOfferID;
+    TMap<TWeakObjectPtr<AMCPlayerState>,FMCPersonalRewardOffer> StageOffers;
     TSet<TWeakObjectPtr<AMCPlayerState>> StageRecipients;
     TSet<TWeakObjectPtr<AMCPlayerState>> StageClaims;
     TSet<TWeakObjectPtr<AMCPlayerState>> StageChoicePresented;

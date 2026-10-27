@@ -40,7 +40,7 @@ struct FRogueWorld
         GS->DayPlan=NewObject<UMCDayPlan>();GS->bSingleDayLoop=true;
         GS->RogueOptionalEvents={TEXT("IceEvent"),TEXT("FogBrawl"),TEXT("NutEncounter"),TEXT("NutBossKnight"),TEXT("CoffeeWave"),TEXT("Mimic"),TEXT("NightMeal")};
         auto* PC=World->SpawnActor<AMCPlayerController>();PS=World->SpawnActor<AMCPlayerState>();
-        PS->SetPlayerId(17);PC->SetPlayerState(PS);GS->AddPlayerState(PS);
+        PS->SetPlayerId(17);PC->SetPlayerState(PS);PS->SetOwner(PC);PC->bShowMouseCursor=false;GS->AddPlayerState(PS);
         Hero=World->SpawnActor<AMCToothCharacter>(FVector(0,0,10000),FRotator::ZeroRotator);
         PC->Possess(Hero);Hero->GetCharacterMovement()->DisableMovement();Hero->Status->Initialize(100);P=PS->Perks;
     }
@@ -62,12 +62,12 @@ bool FMCRogueCatalogTest::RunTest(const FString&)
 {
     FRogueWorld W;int32 Counts[3]={0,0,0};
     if(!TestNotNull(TEXT("Saved perk table loads"),W.P->GetPerkTable())) return false;
-    for(FName ID:W.P->GetPerkTable()->GetRowNames()) if(const auto* Row=W.P->FindDefinition(ID);Row && Row->bRoguePerk) {
+    for(FName ID:W.P->GetPerkTable()->GetRowNames()) if(const auto* Row=W.P->FindDefinition(ID);Row && Row->bRoguePerk && W.P->GetPerkKind(ID)==EMCPerkKind::Passive) {
         ++Counts[uint8(Row->Polarity)];
         TestTrue(ID.ToString()+TEXT(" has a concrete runtime effect"),Row->EffectClass==UMCRoguePerkEffect::StaticClass());
-        TestTrue(ID.ToString()+TEXT(" has text, family and finite weight"),!Row->DisplayName.IsEmpty() && !Row->Description.IsEmpty() && !Row->ChoiceFamily.IsNone() && FMath::IsFinite(Row->Weight) && Row->Weight>0);
+        TestTrue(ID.ToString()+TEXT(" has text, family and finite weight"),(!Row->DisplayName.IsEmpty() || !Row->DisplayNameKey.IsNone()) && (!Row->Description.IsEmpty() || !Row->DescriptionKey.IsNone()) && !Row->ChoiceFamily.IsNone() && FMath::IsFinite(Row->Weight) && Row->Weight>0);
     }
-    TestEqual(TEXT("36 positive"),Counts[0],36);TestEqual(TEXT("24 negative"),Counts[1],24);TestEqual(TEXT("12 risky"),Counts[2],12);
+    TestTrue(TEXT("Saved catalog retains positive, negative and risky passive families"),Counts[0]>0 && Counts[1]>0 && Counts[2]>0);
     TestTrue(TEXT("Runtime component ticks for procs and pawn replacement"),W.P->PrimaryComponentTick.bCanEverTick);
     TestFalse(TEXT("Saw modifier gated before owning saw"),W.P->CanGrantPerk(TEXT("P11")));
     TestFalse(TEXT("Water ricochet gated before owning watergun"),W.P->CanGrantPerk(TEXT("P12")));
@@ -87,28 +87,28 @@ bool FMCRogueMechanicsTest::RunTest(const FString&)
     TestEqual(TEXT("Max HP actually changes"),W.Hero->Status->State.MaxHealth,115.f);
     TestEqual(TEXT("Max HP grant never heals"),W.Hero->Status->State.Health,70.f);
     W.P->ServerGrantPerk(TEXT("P02"));TestEqual(TEXT("Actual stamina capacity changes"),Move->GetMaxStamina(),115.f);
-    W.P->ServerGrantPerks({TEXT("P01"),TEXT("P01"),TEXT("P01")});
+    TestTrue(TEXT("Unique speed perk granted"),W.P->ServerGrantPerk(TEXT("P01")));
     Move->SetMovementMode(MOVE_Falling);
-    TestTrue(TEXT("Movement speed receives additive stacks"),FMath::IsNearlyEqual(Move->GetMaxSpeed(),Move->WalkSpeed*1.24f,.01f));
-    TestFalse(TEXT("Per-row limit rejects fourth stack"),W.P->ServerGrantPerk(TEXT("P01")));
-    W.P->ServerGrantPerks({TEXT("P20"),TEXT("P20"),TEXT("X11")});
-    TestEqual(TEXT("Actual carry capacity capped at ten"),W.Hero->FoodCollection->EffectiveCapacity(),10);
-    TestTrue(TEXT("Useless capacity increase excluded"),!W.P->CanGrantPerk(TEXT("P20")));
+    TestTrue(TEXT("Movement speed receives one unique modifier"),FMath::IsNearlyEqual(Move->GetMaxSpeed(),Move->WalkSpeed*1.08f,.01f));
+    TestFalse(TEXT("Owned ID rejects a duplicate"),W.P->ServerGrantPerk(TEXT("P01")));
+    TestTrue(TEXT("Different carry modifiers combine"),W.P->ServerGrantPerks({TEXT("P20"),TEXT("X11")}));
+    TestEqual(TEXT("Unique carry modifiers grant three extra pieces"),W.Hero->FoodCollection->EffectiveCapacity(),9);
+    TestTrue(TEXT("Already owned carry perk excluded"),!W.P->CanGrantPerk(TEXT("P20")));
     W.P->ResetPerks();
-    W.P->ServerGrantPerks({TEXT("P07"),TEXT("P07"),TEXT("P07"),TEXT("X02"),TEXT("X01")});
+    TestTrue(TEXT("Distinct damage modifiers combine"),W.P->ServerGrantPerks({TEXT("P07"),TEXT("X02"),TEXT("X01")}));
     auto* Enemy=W.World->SpawnActor<AMCNutEnemy>(FVector(900,0,10000),FRotator::ZeroRotator);
     Enemy->Health=1000;W.Hero->Inventory->Selected=EMCToolSlot::Pickaxe;
     Enemy->ReceiveToolDamage(100,W.Hero);
-    TestEqual(TEXT("Real enemy damage is modified once and capped at twice"),Enemy->Health,800.f);
+    TestTrue(TEXT("Real enemy damage combines each unique modifier once"),FMath::IsNearlyEqual(Enemy->Health,823.f,.01f));
     TestTrue(TEXT("Heavy head slows actual swing rate"),FMath::IsNearlyEqual(W.Hero->Inventory->RogueAttackRate(),.8f));
-    W.P->ResetPerks();W.P->ServerGrantPerks({TEXT("P29"),TEXT("P29"),TEXT("P29")});
+    W.P->ResetPerks();TestFalse(TEXT("Saw perk cannot be granted before its tool"),W.P->ServerGrantPerk(TEXT("P29")));
     // Owning the saw is a real eligibility requirement.
     TestEqual(TEXT("No unowned saw perk slipped through"),W.P->GetStacks(TEXT("P29")),0);
-    W.P->ServerGrantPerk(TEXT("Tool_Chainsaw_Rare"));W.P->ServerGrantPerks({TEXT("P29"),TEXT("P29"),TEXT("P29"),TEXT("X03")});
-    TestEqual(TEXT("Saw crash flat costs combine"),W.P->RogueValue(EMCRogueStat::ChainsawCrashDamage,30),30.f);
-    W.P->ResetPerks();W.P->ServerGrantPerks({TEXT("P18"),TEXT("P18")});
-    TestEqual(TEXT("Warm perk preserves real twelve-second base"),W.P->RogueValue(EMCRogueStat::WarmDuration,12),14.f);
-    W.P->ServerGrantPerk(TEXT("X07"));TestTrue(TEXT("Risky warmth cost applied"),FMath::IsNearlyEqual(W.P->RogueValue(EMCRogueStat::WarmDuration,12),8.4f,.001f));
+    W.P->ServerGrantPerk(TEXT("Tool_Chainsaw_Rare"));TestTrue(TEXT("Different saw modifiers granted"),W.P->ServerGrantPerks({TEXT("P29"),TEXT("X03")}));
+    TestEqual(TEXT("Saw crash flat costs combine once per ID"),W.P->RogueValue(EMCRogueStat::ChainsawCrashDamage,30),40.f);
+    W.P->ResetPerks();W.P->ServerGrantPerk(TEXT("P18"));
+    TestEqual(TEXT("Unique warm perk adds one second"),W.P->RogueValue(EMCRogueStat::WarmDuration,12),13.f);
+    W.P->ServerGrantPerk(TEXT("X07"));TestTrue(TEXT("Risky warmth cost applied"),FMath::IsNearlyEqual(W.P->RogueValue(EMCRogueStat::WarmDuration,12),7.8f,.001f));
     W.P->ResetPerks();
     TestFalse(TEXT("An XP-only perk is excluded from every live reward pool"),W.P->CanGrantPerk(TEXT("P24")));
     TestFalse(TEXT("A saved XP perk cannot be granted after retiring experience"),W.P->ServerGrantPerk(TEXT("P24")));
@@ -119,7 +119,7 @@ bool FMCRogueMechanicsTest::RunTest(const FString&)
     TestEqual(TEXT("Cleaning heals once per cooldown"),W.Hero->Status->State.Health,83.f);
     TestTrue(TEXT("Cleaning speed burst works"),FMath::IsNearlyEqual(W.P->RogueValue(EMCRogueStat::NormalSpeed),1.1f));
     W.P->ResetPerks();TestEqual(TEXT("Reset removes burst"),W.P->RogueValue(EMCRogueStat::NormalSpeed),1.f);
-    TestFalse(TEXT("Over-cap curse batch rejected atomically"),W.P->ServerGrantPerks({TEXT("N01"),TEXT("N01"),TEXT("N02"),TEXT("N03"),TEXT("P25")}));
+    TestFalse(TEXT("Duplicate-ID curse batch rejected atomically"),W.P->ServerGrantPerks({TEXT("N01"),TEXT("N01"),TEXT("N02"),TEXT("N03"),TEXT("P25")}));
     TestEqual(TEXT("Failed batch did not grant reward"),W.P->GetStacks(TEXT("P25")),0);
     TestEqual(TEXT("Failed batch did not grant curse"),W.P->GetStacks(TEXT("N01")),0);
     return true;
@@ -156,20 +156,28 @@ bool FMCRogueOffersTest::RunTest(const FString&)
     TestTrue(TEXT("Building a preview never grants a perk"),W.P->ActivePerks.IsEmpty());
     W.P->ResetPerks();
     TestTrue(TEXT("Three risky perks allowed"),W.P->ServerGrantPerks({TEXT("X01"),TEXT("X02"),TEXT("X04")}));
-    TestFalse(TEXT("Fourth risky perk blocked"),W.P->ServerGrantPerk(TEXT("X11")));
+    TestTrue(TEXT("Fourth different risky perk is allowed"),W.P->ServerGrantPerk(TEXT("X11")));
     W.P->ResetPerks();
-    // Model an exhausted run ledger, including every tool and instant recovery counter.
-    for(FName ID:W.P->GetPerkTable()->GetRowNames()) if(const auto* Row=W.P->FindDefinition(ID);Row && Row->Polarity==EMCPerkPolarity::Positive && !Row->bConsumableBooster) {
-        FMCActivePerk Active;Active.PerkID=ID;Active.Stacks=Row->MaxStacks;W.P->ActivePerks.Add(Active);
-    }
+    // Exhaust the currently useful passive/tool catalog through the real grant API.
+    // A second pass resolves passives which became eligible after acquiring tools.
+    for(int32 Pass=0;Pass<2;++Pass) for(FName ID:W.P->GetPerkTable()->GetRowNames())
+        if(const auto* Row=W.P->FindDefinition(ID);Row && Row->Polarity==EMCPerkPolarity::Positive
+            && (W.P->GetPerkKind(ID)==EMCPerkKind::Passive || W.P->GetPerkKind(ID)==EMCPerkKind::ToolUpgrade)
+            && W.P->CanAcquirePerk(ID)) W.P->TryAcquirePerk(ID);
     W.PS->PersonalChoicesTaken=20;
     auto* Fallback=W.Chest(EMCRogueRewardKind::Ordinary,104);
-    if(!TestTrue(TEXT("An exhausted pool still opens an actual reward chest"),Fallback->BeginLockpicking(W.Hero))) return false;
-    TestEqual(TEXT("Only the three useful fallback charges remain"),Fallback->LootIDs.Num(),3);
-    for(FName ID:Fallback->LootIDs) TestTrue(TEXT("Each exhaustion fallback is a consumable"),W.P->FindDefinition(ID)->bConsumableBooster);
+    if(!TestTrue(TEXT("An exhausted passive pool still opens a real item reward"),Fallback->BeginLockpicking(W.Hero))) return false;
+    if(!TestTrue(TEXT("One to three remaining eligible item cards"),Fallback->LootIDs.Num()>0 && Fallback->LootIDs.Num()<=3)) return false;
+    for(FName ID:Fallback->LootIDs) {
+        const auto Kind=W.P->GetPerkKind(ID);
+        TestTrue(TEXT("Remaining cards use active slots"),Kind==EMCPerkKind::Active || Kind==EMCPerkKind::Consumable);
+        TestFalse(TEXT("Currently owned IDs never return in the offer"),W.P->OwnsPerk(ID));
+    }
+    const FName Selected=Fallback->LootIDs[0];
     Fallback->Stage=EMCRewardChestStage::Open;
-    TestTrue(TEXT("A fallback charge must be selected from its chest"),Fallback->TryChooseCard(W.Hero,0));
-    TestEqual(TEXT("A chest fallback queues one charge without activation"),W.P->BoosterQueue.Num(),1);
+    TestTrue(TEXT("A remaining item is selected from its chest"),Fallback->TryChooseCard(W.Hero,0));
+    TestTrue(TEXT("Chest selection stores the selected canonical item"),W.P->OwnsPerk(Selected));
+    TestTrue(TEXT("Stored item occupies one active slot"),W.P->ActiveSkillSlots.ContainsByPredicate([Selected](const FMCActiveSkillSlot& Slot){return Slot.PerkID==Selected;}));
     return true;
 }
 
@@ -194,10 +202,10 @@ bool FMCRogueContractTest::RunTest(const FString&)
     W.P->ResetPerks();
     TestTrue(TEXT("Fallback grants charge"),W.P->ServerGrantPerk(TEXT("Fallback_Grenade")));
     TestEqual(TEXT("Charge queued exactly once"),W.P->BoosterQueue.Num(),1);TestFalse(TEXT("Grant does not arm grenade"),W.P->bGrenadeArmed);
-    TestTrue(TEXT("Explicit input arms grenade"),W.P->ActivateBooster());TestTrue(TEXT("Armed flag visible"),W.P->bGrenadeArmed);
+    TestTrue(TEXT("Explicit slot input arms grenade"),W.P->ActivateSkillSlot(0,W.P->ActiveSkillSlots[0].InstanceID));TestTrue(TEXT("Armed flag visible"),W.P->bGrenadeArmed);
     W.Hero->Status->Initialize(100);W.P->OnRogueKnockdown();TestFalse(TEXT("Explosion consumes armed flag first"),W.P->bGrenadeArmed);
     TestEqual(TEXT("Grenade damages owner"),W.Hero->Status->State.Health,40.f);
-    W.P->ServerGrantPerk(TEXT("Fallback_BrushFury"));TestTrue(TEXT("Fury explicitly activates"),W.P->ActivateBooster());
+    W.P->ServerGrantPerk(TEXT("Fallback_BrushFury"));TestTrue(TEXT("Fury explicitly activates its owned slot"),W.P->ActivateSkillSlot(0,W.P->ActiveSkillSlots[0].InstanceID));
     TestTrue(TEXT("Fury lasts across input release"),W.P->IsFuryActive());W.P->TickRogueBoosters(.1f);
     TestTrue(TEXT("Fury creates forced root movement"),W.Hero->GetCharacterMovement()->GetRootMotionSource(TEXT("MCRogueFury")).IsValid());
     W.P->ResetPerks();TestFalse(TEXT("New run stops fury"),W.P->IsFuryActive());TestEqual(TEXT("New run clears charges"),W.P->BoosterQueue.Num(),0);

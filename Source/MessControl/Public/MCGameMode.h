@@ -32,6 +32,7 @@ class MESSCONTROL_API AMCGameMode : public AGameModeBase
     GENERATED_BODY()
 public:
     AMCGameMode();
+    void FinalizeRunLoadout();
     virtual void BeginPlay() override;
     virtual APawn* SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer,const FTransform& SpawnTransform) override;
     virtual void FinishRestartPlayer(AController* NewPlayer,const FRotator& StartRotation) override;
@@ -85,6 +86,7 @@ public:
     UPROPERTY(VisibleInstanceOnly,BlueprintReadOnly,Category="Roguelike") TObjectPtr<class AMCRoguelikeDirector> RoguelikeDirector;
 private:
     FGuid HubBoosterRunId;
+    FGuid CompletedLoadoutRunId;
     TSet<FName> CoinRewardedObjectives;
     bool bTutorialRequested=false;
     bool bAutoStartHubRun=false;

@@ -124,6 +124,8 @@ public:
     UFUNCTION(BlueprintCallable,Category="Hub|Grill") bool TryInteractHubGrill();
     UFUNCTION(Server,Reliable) void ServerInteractHubGrill(class AMCHubGrillStation* Station);
     UFUNCTION() void PurchaseHubItem(FName ItemID);
+    UFUNCTION() void PurchaseHubItemInSlot(FName ItemID,int32 DestinationSlot,FName ExpectedReplacedID,FGuid ExpectedInstanceID);
+    UFUNCTION(Server,Reliable) void ServerPurchaseHubItemInSlot(FName ItemID,int32 DestinationSlot,FName ExpectedReplacedID,FGuid ExpectedInstanceID,FGuid ExpectedShopRotationID);
     UFUNCTION(Server,Reliable) void ServerPurchaseHubItem(FName ItemID);
     UFUNCTION(Client,Reliable) void ClientHubTransactionFeedback(const FText& Message);
     /** Authority-confirmed catch receipt; this local presentation never grants currency. */
@@ -140,13 +142,20 @@ public:
     UFUNCTION(BlueprintCallable, Category="Multiplayer") void JoinGame(const FString& Address);
     UFUNCTION(BlueprintCallable, Category="Shift") void RequestRestart();
     UFUNCTION(Client, Reliable) void ClientShowRewardOpening(AMCRewardChest* Chest, double ServerEndsAt);
-    UFUNCTION(Client, Reliable) void ClientShowPerkChoices(AMCRewardChest* Chest, const TArray<FName>& IDs, EMCPerkPolarity Polarity,bool bTeamBooster=false,double StageChoiceEndsAt=0);
+    UFUNCTION(Client, Reliable) void ClientShowPerkChoices(AMCRewardChest* Chest, const TArray<FName>& IDs, EMCPerkPolarity Polarity,bool bTeamBooster=false,double StageChoiceEndsAt=0,FGuid OfferID=FGuid());
     UFUNCTION(Client,Reliable) void ClientShowRogueChoices(AMCRewardChest* Chest,const FMCRogueChestOffer& Offer);
-    UFUNCTION(Server,Reliable) void ServerConfirmRogueReward(AMCRewardChest* Chest,bool Accept);
+    UFUNCTION(Server,Reliable) void ServerConfirmRogueReward(AMCRewardChest* Chest,bool Accept,FGuid OfferID);
     UFUNCTION(Server, Reliable) void ServerChooseRewardPerk(AMCRewardChest* Chest, int32 ChoiceIndex);
     UFUNCTION(Server, Reliable) void ServerStageChoicePresented(AMCRewardChest* Chest,AMCToothCharacter* ChoicePawn);
     UFUNCTION(Client, Reliable) void ClientClosePerkChoices(AMCRewardChest* Chest);
     UFUNCTION(BlueprintCallable, Category="Rewards") void ChooseRewardPerk(int32 ChoiceIndex);
+    UFUNCTION(BlueprintCallable,Category="Rewards") void ChooseRewardSlot(int32 SlotIndex);
+    UFUNCTION(BlueprintCallable,Category="Rewards") void CancelRewardReplacement();
+    UFUNCTION(BlueprintCallable,Category="Rewards") void SkipRewardPerk();
+    UFUNCTION(BlueprintCallable,Category="Skills") void ActivateSkillSlot(int32 SlotIndex);
+    UFUNCTION(Server,Reliable) void ServerActivateSkillSlot(int32 SlotIndex,FGuid ExpectedInstanceID);
+    UFUNCTION(Server,Reliable) void ServerChooseRewardPerkInSlot(AMCRewardChest* Chest,int32 ChoiceIndex,FName ExpectedPerkID,FGuid OfferID,int32 DestinationSlot,FName ExpectedReplacedID,FGuid ExpectedInstanceID);
+    UFUNCTION(Server,Reliable) void ServerSkipRewardPerk(AMCRewardChest* Chest,FGuid OfferID);
     void RerollLevelPerks();
     void ActivateRogueBooster();
     UFUNCTION(Server,Reliable) void ServerActivateRogueBooster();
@@ -304,6 +313,11 @@ private:
     FTimerHandle RewardUITimer;
     double RewardShownAt=0;
     bool bRewardChoicePending=false;
+    void RepublishRewardOffer(AMCRewardChest* Chest);
+    FGuid ActiveRewardOfferID;
+    TArray<FName> ActiveRewardIDs;
+    TArray<FMCActiveSkillSlot> RewardReplacementSlots;
+    int32 PendingRewardChoice=INDEX_NONE;
     FGuid ActiveLevelOfferId;
     FGuid AcceptedLevelOfferId;
     double NextLevelChoiceCheck=0;

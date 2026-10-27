@@ -619,7 +619,7 @@ void AMCRoguelikePreview::Step()
         const int32 PreviousChosenStacks=Perks->GetStacks(ChosenID);
         PC->ChooseRewardPerk(0);
         // A repeated owning-controller RPC must remain harmless even after local UI has closed.
-        PC->ServerChooseRewardPerk(Chest,0);
+        PC->ChooseRewardPerk(0);
         int32 Stacks=0; for (const auto& Perk:Perks->ActivePerks) Stacks+=Perk.Stacks;
         if (Stacks!=BeforeStacks+1 || Perks->GetStacks(ChosenID)!=PreviousChosenStacks+1)
         { Finish(false,TEXT("Card RPC granted an incorrect stack count or accepted a duplicate.")); return; }

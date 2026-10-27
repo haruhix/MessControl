@@ -1,5 +1,6 @@
 #include "MCGameplayHUD.h"
 #include "MCBoosterWidget.h"
+#include "MCSkillLoadoutWidget.h"
 #include "MCBossHealthWidget.h"
 #include "MCUIDataLibrary.h"
 #include "MCGameplayUIFactory.h"
@@ -442,7 +443,7 @@ void UMCGameplayHUD::BuildPresentationTree()
     auto* SwimHost=Place(Root,SwimEnergyWidget,{0,-98},{336,56},{.5f,1});SwimHost->SetAlignment(FVector2D(.5f,1));SwimHost->SetAutoSize(true);SwimEnergyWidget->SetVisibility(ESlateVisibility::Collapsed);
     // Seed late-added presentation in the initial tree too, so a newly authored
     // WBP exposes these controls to the Designer before it ever enters gameplay.
-    EnsureDirectorMonitor();EnsureBoosterWidget();EnsureAlertWidget();
+    EnsureDirectorMonitor();EnsureBoosterWidget();RefreshBooster(nullptr);EnsureAlertWidget();
     BindAuthoredPresentation();ApplyTheme();
 }
 
@@ -615,17 +616,22 @@ void UMCGameplayHUD::EnsureBoosterWidget()
 
 void UMCGameplayHUD::RefreshBooster(const AMCToothCharacter* Hero)
 {
-    EnsureBoosterWidget();if(!BoosterWidget) return;
+    EnsureBoosterWidget();if(BoosterWidget) BoosterWidget->SetVisibility(ESlateVisibility::Collapsed);
+    if(!SkillLoadoutWidget && WidgetTree) {
+        auto* Root=Cast<UCanvasPanel>(WidgetTree->FindWidget(TEXT("HUDRoot")));
+        if(!Root) Root=Cast<UCanvasPanel>(WidgetTree->RootWidget);
+        if(Root) {
+            SkillLoadoutWidget=WidgetTree->ConstructWidget<UMCSkillLoadoutWidget>(UMCSkillLoadoutWidget::StaticClass(),TEXT("SkillLoadoutWidget"));
+            SkillLoadoutWidget->BuildPresentationTree();
+            auto* Host=MCGameplayHUDPresentationPrivate::Place(Root,SkillLoadoutWidget,{-24,-110},{472,220},{1,1});
+            Host->SetAlignment(FVector2D(1,1));Host->SetAutoSize(true);
+        }
+    }
+    if(!SkillLoadoutWidget) return;
     const auto* PC=GetOwningPlayer<AMCPlayerController>();
     const bool Visible=Hero && Hero->Status && Hero->Status->IsAlive() && PC && !PC->bShowMouseCursor;
-    BoosterWidget->SetVisibility(Visible?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);if(!Visible) return;
-    FMCUIBoosterViewData Data;
-    if(const auto* Perks=UMCPerkComponent::ForActor(Hero)) {
-        Data.QueueCount=Perks->BoosterQueue.Num();Data.bFuryActive=Perks->IsFuryActive();Data.bGrenadeArmed=Perks->bGrenadeArmed;
-        for(FName ID:Perks->BoosterQueue) if(ID!=TEXT("Fallback_Grenade") || !Perks->bGrenadeArmed) {Data.GameplayPerkID=ID;break;}
-        Data.bActivationBlocked=!Hero->CanWork() || Hero->HasFrozenLegs() || (Hero->Inventory && Hero->Inventory->bChainsawRunning) || Data.bFuryActive || PC->IsRewardMenuOpen() || Data.GameplayPerkID.IsNone();
-    }
-    Data.ActivationInput=FText::AsCultureInvariant(PC->IsUsingGamepad()?TEXT("B"):TEXT("G"));BoosterWidget->ApplyPresentation(Data);
+    SkillLoadoutWidget->SetVisibility(Visible?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
+    if(Visible) SkillLoadoutWidget->Refresh(UMCPerkComponent::ForActor(Hero));
 }
 
 void UMCGameplayHUD::RefreshReserveTeeth(const AMCGameState& State)

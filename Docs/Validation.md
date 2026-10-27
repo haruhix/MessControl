@@ -1,5 +1,17 @@
 # Проверки и исторические отчёты
 
+## 2026-10-27 — Roguelike foundation: общий чекпоинт
+
+- Editor: `Build_FinalUI.log`, успешная нормальная Win64 Development Editor сборка. Сохранены DT_Perks, DT_HubCatalog, DT_HubEconomyRules, DT_GrillRewards и DT_UI_Localization; существующие reward/HUD/shop WBP перекомпилированы. Их неизменившиеся пакеты не пересохранялись ради бинарного шума.
+- Native: `E:/CodexWork/MessControl/RoguelikeFoundation_20261027/NativeProof/index.json` — 31 тест: 30 clean, 1 success with warnings, 0 failed/not run. Фильтры Skills, Hub.Economy, Hub.Grill.SharedTupleAnglesAndOrientedInteraction, Rewards.StageBooster, Rogue и Progression. Предупреждения — CPU access на test Plane в PortionCleanupAndDeduplication; это не доказательство packaged collision.
+- Arena solo: `Solo9/Report.json` — 14 проверок passed. Четыре слота, девять пассивок без cap8, расход 3→2, независимый cooldown; normal fall/approach personal chest; безопасный пропуск первой диагностической витрины; затем четыре занятых слота, отсутствие изменения до подтверждения, подтверждённая замена, доступность удалённого ID для будущих offers и сохранение соседних зарядов.
+- Hub solo: `HubShopSolo2/Report.json` — 10 проверок passed. Настоящий E/ESC, текущая сохранённая станция, 500→482 по цене18, подготовленная покупка без runtime-выдачи в хабе, тот же список витрины при покупке/переоткрытии и отсутствие повторной оплаты. Wallet500 и размещение внутри проверенного OBB — явные fixtures; transient profile оставляет пользовательские сохранения нетронутыми.
+- Media: `RoguelikeFoundationPreview.mp4` собран из 74 настоящих синхронных PNG игрового PIE-окна; sampling4Hz с фактическими wall timestamps, 30fps контейнер дублирует кадры. Это UI/состояния, не замер FPS/плавности и не earned full run. Скрины Solo9/screenshots и HubShopSolo2/screenshots. Ранние неудачные попытки диагностических Python API сохранены отдельно и не объявлены passed.
+- Readiness: DT_Perks добавлен в общие manifest roots, icon metadata восстановлена из существующего catalog, новых runtime материалов нет. Первый редакторский старт показал подготовку MM_Standart_SSS (56 shader jobs) за loading barrier; затем PRELOAD_READY до показа сцены. Это не подтверждает чистый packaged PSO/first launch.
+- Index: pre-refactor full export6afbaf146a804a0a8125837befb31028 complete3618/3619; старый NiagaraExamples/EUB_SnapToActor исключён с compilation error. Финальный scoped refresh70e4f83c3d844a44ad1d9bcdb74431b3 завершён, 15 релевантных tables/WBP/maps current. Остальные кешированные snapshots могут иметь schema_changed; отсутствие ссылок в них не доказывает отсутствие использования.
+- Ограничения: только standalone/owned PIE и локальные native fixtures. Реальная сеть, передача микрофона, cook/package, сохранение/перезапуск реального legacy-файла и полный новый набор эффектов не проверялись. Полная новая графика и раскладка активных навыков геймпада — отдельная работа.
+- Все видео/скрины/отчёты лежат на E:. Временная project-local UBT конфигурация восстановлена побайтно; task-owned managed UBT/UBA outputs перенесены на E с сохранением исходных путей через ссылки.
+
 ## Целевая проверка четырёх пунктов и новый дизайн-контракт — 27.10.2026
 
 Источник локальных результатов: `E:/CodexWork/MessControl/Validation/Acceptance_20261027/Results.md` и `Results.json`. Это текущие Editor-бинарники без новой сборки, cook/package, Computer Use, микрофона или внешних сетевых игроков. Видео без звуковой дорожки остаются на E: вне Git.

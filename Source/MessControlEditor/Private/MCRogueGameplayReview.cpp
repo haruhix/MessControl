@@ -52,13 +52,17 @@ FString UMCRoguelikeEditorLibrary::ReviewRogueGameplay(UWorld* World,FName Actio
         Chest->Stage=EMCRewardChestStage::Open;Chest->PublishRogueOffer();
     } else if(Action==TEXT("curse") || Action==TEXT("reward") || Action==TEXT("confirm") || Action==TEXT("decline")) {
         auto* Chest=Hero->RewardInteraction.Get();if(!Chest) return TEXT("REJECT: no active reward");
-        if(Action==TEXT("confirm") || Action==TEXT("decline")) PC->ServerConfirmRogueReward(Chest,Action==TEXT("confirm"));
-        else PC->ServerChooseRewardPerk(Chest,0);
+        if(Action==TEXT("confirm") || Action==TEXT("decline")) PC->ServerConfirmRogueReward(Chest,Action==TEXT("confirm"),Chest->GetChoiceOfferID(PS));
+        else PC->ChooseRewardPerk(0);
     } else if(Action==TEXT("boosters")) {
         PS->ResetLevelUpChoices();PC->RefreshLevelPerkChoices();PS->Perks->ResetPerks();
         Hero->Status->Initialize(100);Hero->Status->ApplyCoffee();
         PS->Perks->ServerGrantPerks({TEXT("Fallback_Mouthwash"),TEXT("Fallback_BrushFury"),TEXT("Fallback_Grenade")});
     } else if(Action==TEXT("activate")) PC->ActivateRogueBooster();
+    else if(Action==TEXT("skill1")) PC->ActivateSkillSlot(0);
+    else if(Action==TEXT("skill2")) PC->ActivateSkillSlot(1);
+    else if(Action==TEXT("skill3")) PC->ActivateSkillSlot(2);
+    else if(Action==TEXT("skill4")) PC->ActivateSkillSlot(3);
     else if(Action==TEXT("knockdown")) Hero->ToothPhysics->ApplyHit(FVector(1000,0,250),Hero->GetActorLocation());
     else if(Action==TEXT("saw")) {
         PS->ResetLevelUpChoices();PC->RefreshLevelPerkChoices();PS->Perks->ResetPerks();Hero->Status->Initialize(100);

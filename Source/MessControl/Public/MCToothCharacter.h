@@ -379,6 +379,7 @@ private:
     UPROPERTY() TObjectPtr<UInputAction> ThrowAction;
     UPROPERTY() TObjectPtr<UInputAction> FishingAction;
     UPROPERTY() TArray<TObjectPtr<UInputAction>> ToolActions;
+    UPROPERTY() TArray<TObjectPtr<UInputAction>> SkillActions;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> StatusMaterial;
     UPROPERTY() TArray<TObjectPtr<UMaterialInstanceDynamic>> FaceMaterials;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> BagMaterial;

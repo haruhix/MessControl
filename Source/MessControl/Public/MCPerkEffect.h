@@ -29,6 +29,15 @@ public:
     void OnRemoved(FName PerkID);
     virtual void OnRemoved_Implementation(FName PerkID);
 
+    /** Pure acceptance gate. Generic/placeholder active rows reject safely. */
+    UFUNCTION(BlueprintNativeEvent,Category="Skill") bool CanActivate(FName PerkID,const FMCPerkDefinition& Definition) const;
+    virtual bool CanActivate_Implementation(FName PerkID,const FMCPerkDefinition& Definition) const;
+    /** True means an irreversible action was accepted. False must leave gameplay unchanged. */
+    UFUNCTION(BlueprintNativeEvent,Category="Skill") bool OnActivate(FName PerkID,const FMCPerkDefinition& Definition);
+    virtual bool OnActivate_Implementation(FName PerkID,const FMCPerkDefinition& Definition);
+    UFUNCTION(BlueprintNativeEvent,Category="Skill") void CancelActivation();
+    virtual void CancelActivation_Implementation();
+
     UPROPERTY(Transient, BlueprintReadOnly, Category="Perk")
     TObjectPtr<UMCPerkComponent> OwnerComponent;
 };

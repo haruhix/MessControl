@@ -58,7 +58,7 @@ bool AMCPlayerController::TryOpenHubShop()
             UMCGameplayUIFactory::ResolveClass(TEXT("Shop"),UMCHubShopWidget::StaticClass()));
         if(!HubShopWidget) return false;
         HubShopWidget->OnClose.AddDynamic(this,&ThisClass::CloseHubShop);
-        HubShopWidget->OnPurchaseRequested.AddDynamic(this,&ThisClass::PurchaseHubItem);
+        HubShopWidget->OnPurchaseSlotRequested.AddDynamic(this,&ThisClass::PurchaseHubItemInSlot);
     }
     // The two hub modals are mutually exclusive and share this saved orbit.
     WardrobePreviousYaw=Hero->CameraOrbitYaw;WardrobePreviousPitch=Hero->CameraOrbitPitch;
@@ -182,7 +182,7 @@ void AMCPlayerController::PrepareWardrobePreview()
             UMCGameplayUIFactory::ResolveClass(TEXT("Shop"),UMCHubShopWidget::StaticClass()));
         if(HubShopWidget) {
             HubShopWidget->OnClose.AddDynamic(this,&ThisClass::CloseHubShop);
-            HubShopWidget->OnPurchaseRequested.AddDynamic(this,&ThisClass::PurchaseHubItem);
+            HubShopWidget->OnPurchaseSlotRequested.AddDynamic(this,&ThisClass::PurchaseHubItemInSlot);
             HubShopWidget->Configure(State->Economy);HubShopWidget->SetVisibility(ESlateVisibility::Collapsed);
             HubShopWarmSlate=HubShopWidget->TakeWidget();
         }

@@ -53,6 +53,15 @@ bool UMCHubProfileSubsystem::Restore(AMCPlayerState* State,APlayerController* Co
         UE_LOG(LogTemp,Warning,TEXT("Hub profile was not applied: %s"),*Error.ToString());
         return true;
     }
+    // Keep the original bytes before the first additive economy migration or quarantine save.
+    if(Save->Economy.Version<2 || !State->Economy->MigrationNotice.IsEmpty()) {
+        const FString Backup=Path+(Save->Economy.Version<2?TEXT(".pre-v2.bak"):TEXT(".quarantine.bak"));
+        if(!IFileManager::Get().FileExists(*Backup) && !FFileHelper::SaveArrayToFile(Bytes,*Backup)) {
+            ProtectedProfiles.Add(Path);
+            UE_LOG(LogTemp,Warning,TEXT("Hub profile migration backup failed; the original save is protected from overwrite."));
+        }
+    }
+    if(!Error.IsEmpty()) UE_LOG(LogTemp,Warning,TEXT("Hub profile retained compatibility data: %s"),*Error.ToString());
     State->FishCaught=FMath::Clamp(Save->Fish,0,1000000);State->ForceNetUpdate();
     CachedBytes.Add(Path,MoveTemp(Bytes));return true;
 }
@@ -74,4 +83,20 @@ void UMCHubProfileSubsystem::Store(AMCPlayerState* State,APlayerController* Cont
         UE_LOG(LogTemp,Warning,TEXT("Could not save the hub profile."));return;
     }
     CachedBytes.Add(Path,MoveTemp(Bytes));
+}
+
+bool UMCHubProfileSubsystem::EnsureShopStockForPlayer(AMCPlayerState* State)
+{
+    if(!State || !State->HasAuthority() || !State->bHubProfileLoaded || !State->Economy) return false;
+    if(!ShopRotationId.IsValid()) {
+        ShopRotationId=FGuid::NewGuid();
+        ShopRotationSeed=int32(ShopRotationId.A^ShopRotationId.B^ShopRotationId.C^ShopRotationId.D);
+    }
+    return State->Economy->EnsureShopStock(ShopRotationId,ShopRotationSeed);
+}
+
+void UMCHubProfileSubsystem::MarkShopRunCompleted(const FGuid& RunId)
+{
+    if(!GetWorld() || GetWorld()->GetNetMode()==NM_Client || !RunId.IsValid() || LastCompletedShopRunId==RunId) return;
+    LastCompletedShopRunId=RunId;ShopRotationId.Invalidate();ShopRotationSeed=0;
 }

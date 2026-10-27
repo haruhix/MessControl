@@ -27,8 +27,13 @@ class MESSCONTROL_API UMCHubProfileSubsystem : public UGameInstanceSubsystem
 public:
     bool Restore(AMCPlayerState* State,APlayerController* Controller);
     void Store(AMCPlayerState* State,APlayerController* Controller,bool bSettlePending=false);
+    bool EnsureShopStockForPlayer(AMCPlayerState* State);
+    void MarkShopRunCompleted(const FGuid& RunId);
 private:
     FString ProfilePath(const AMCPlayerState* State,const APlayerController* Controller) const;
     TMap<FString,TArray<uint8>> CachedBytes;
     TSet<FString> ProtectedProfiles;
+    FGuid ShopRotationId;
+    int32 ShopRotationSeed=0;
+    FGuid LastCompletedShopRunId;
 };

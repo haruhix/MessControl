@@ -15,6 +15,8 @@
 #include "MCRewardChest.h"
 #include "MCRoguelikeDirector.h"
 #include "EngineUtils.h"
+#include "Internationalization/Internationalization.h"
+#include "Internationalization/Culture.h"
 
 namespace
 {
@@ -119,98 +121,130 @@ bool UMCPerkComponent::HasMeaningfulRogueChange(FName ID) const
     }
     return false;
 }
+
 bool UMCPerkComponent::IsRogueEligible(FName ID) const
 {
     const auto* Row=FindDefinition(ID);if(!Row) return false;
-    // Keep old DataTable rows compatible, but never offer XP-only modifiers
-    // through a chest after removing the experience economy.
     if(Row->Modifiers.ContainsByPredicate([](const FMCRogueModifier& Modifier) {
         return Modifier.Stat==EMCRogueStat::DeliveryXP;
     })) return false;
-    if(!Row->bRoguePerk) {
-        const auto* PS=Cast<AMCPlayerState>(GetOwner());const auto* Hero=PS?Cast<AMCToothCharacter>(PS->GetPawn()):nullptr;
-        const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
-        if(ID==TEXT("RecoverySelfHeal")) return Hero && Hero->Status->IsAlive() && Hero->Status->State.Health<Hero->Status->State.MaxHealth;
-        if(ID==TEXT("RecoveryMouthHeal")) return GS && GS->MouthHealth<GS->RunSettings.MaxMouthHealth;
-        if(ID==TEXT("RecoveryCleanse")) return Hero && (Hero->Status->State.CoffeeLeft>0 || Hero->Status->State.RepairLeft>0);
-        return true;
-    }
     if(Row->RequiredTool!=EMCToolUpgrade::None && !HasToolUpgrade(Row->RequiredTool)) return false;
     if(Row->bRequiresTeam) {
-        const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;TSet<const AMCPlayerState*> Players;
-        if(GS) for(const auto& State:GS->PlayerArray) if(const auto* Player=Cast<AMCPlayerState>(State);Player && !Player->IsSpectator() && !Player->IsOnlyASpectator()) Players.Add(Player);
+        const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
+        TSet<const AMCPlayerState*> Players;
+        if(GS) for(const auto& State:GS->PlayerArray)
+            if(const auto* Player=Cast<AMCPlayerState>(State);Player && !Player->IsSpectator() && !Player->IsOnlyASpectator()) Players.Add(Player);
         if(Players.Num()<2) return false;
     }
     if(!Row->RequiredEvents.IsEmpty() && !Row->RequiredEvents.ContainsByPredicate([this](FName Event){return HasRunEvent(Event);})) return false;
-    if(Row->Polarity==EMCPerkPolarity::Negative && RoguePolarityStacks(Row->Polarity)>=3) return false;
-    if(Row->Polarity==EMCPerkPolarity::Risky && RoguePolarityStacks(Row->Polarity)>=3) return false;
+    // Acquiring an active/consumable stores it for later. Current HP, dirt or a
+    // stat modifier's current usefulness must not hide that future activation.
+    const auto Kind=GetPerkKind(ID);
+    if(Kind==EMCPerkKind::Active || Kind==EMCPerkKind::Consumable) return true;
+    // Explicit legacy instant passive recovery rows retain their old useful-now
+    // predicates; the catalog's stored recovery consumables took the branch above.
+    if(!Row->bRoguePerk) {
+        const auto* PS=Cast<AMCPlayerState>(GetOwner());
+        const auto* Hero=PS?Cast<AMCToothCharacter>(PS->GetPawn()):nullptr;
+        const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
+        if(ID==TEXT("RecoverySelfHeal")) return Hero && Hero->Status && Hero->Status->IsAlive()
+            && Hero->Status->State.Health<Hero->Status->State.MaxHealth;
+        if(ID==TEXT("RecoveryMouthHeal")) return GS && GS->MouthHealth<GS->RunSettings.MaxMouthHealth;
+        if(ID==TEXT("RecoveryCleanse")) return Hero && Hero->Status
+            && (Hero->Status->State.CoffeeLeft>0 || Hero->Status->State.RepairLeft>0);
+    }
+    // Passives are unique, not limited by the old three-curse/three-risk cap.
     return HasMeaningfulRogueChange(ID);
 }
-bool UMCPerkComponent::BuildRogueOffer(EMCPerkPolarity Polarity,int32 Seed,TArray<FName>& Out,bool Early,bool RareOnly,bool GuaranteeRare,const TArray<FName>& Excluded,bool IncludeTools) const
+
+bool UMCPerkComponent::BuildRogueOffer(EMCPerkPolarity Polarity,int32 Seed,TArray<FName>& Out,bool Early,bool RareOnly,
+    bool GuaranteeRare,const TArray<FName>& Excluded,bool IncludeTools,bool PassiveOnly) const
 {
     Out.Reset();if(!LoadedTable) return false;
-    const bool RogueCatalog=LoadedTable->GetRowNames().ContainsByPredicate([this](FName ID){const auto* Row=FindDefinition(ID);return Row && Row->bRoguePerk;});
+    const bool RogueCatalog=LoadedTable->GetRowNames().ContainsByPredicate([this](FName ID) {
+        const auto* Row=FindDefinition(ID);return Row && Row->bRoguePerk;
+    });
     TArray<FName> Full;
-    for(FName ID:LoadedTable->GetRowNames()) if(const auto* Row=FindDefinition(ID);Row && Row->Polarity==Polarity
-        && Row->bAvailableForLevelChoice && Row->Weight>0 && FMath::IsFinite(Row->Weight) && !Row->bConsumableBooster && CanGrantPerk(ID)) {
+    for(FName ID:LoadedTable->GetRowNames()) {
+        const auto* Row=FindDefinition(ID);
+        if(!Row || Row->Polarity!=Polarity || !Row->bAvailableForLevelChoice || Row->Weight<=0
+            || !FMath::IsFinite(Row->Weight) || !CanOfferPerk(ID)) continue;
+        const auto Kind=GetPerkKind(ID);
+        if(PassiveOnly && Kind!=EMCPerkKind::Passive) continue;
         if(Early && RogueCatalog && (!Row->bEarlyChoice || Row->Rarity!=EMCPerkRarity::Standard)) continue;
-        if(!IncludeTools && Row->ToolUpgrade!=EMCToolUpgrade::None) continue;
-        if(RareOnly && (!Row->bRoguePerk || Row->Rarity==EMCPerkRarity::Standard)) continue;
-        if(Row->ToolUpgrade!=EMCToolUpgrade::None && HasToolUpgrade(Row->ToolUpgrade)) continue;
+        if(!IncludeTools && Kind==EMCPerkKind::ToolUpgrade) continue;
+        if(RareOnly && Row->Rarity==EMCPerkRarity::Standard) continue;
         Full.Add(ID);
     }
     Full.Sort([](FName A,FName B){return A.LexicalLess(B);});
-    if(Full.Num()<3) return false;
-    auto Family=[this](FName ID){const auto* Row=FindDefinition(ID);return Row && !Row->ChoiceFamily.IsNone()?Row->ChoiceFamily:ID;};
-    for(int32 Attempt=0;Attempt<24;++Attempt) {
-        FRandomStream Random(Seed+Attempt*104729);TArray<FName> Pool=Full;
-        if(Attempt<12) Pool.RemoveAll([&](FName ID){return Excluded.Contains(ID);});
-        bool Legendary=false;Out.Reset();
-        for(int32 Card=0;Card<3;++Card) {
-            TArray<FName> Tiers[3];
-            for(FName ID:Pool) {const auto* Row=FindDefinition(ID);if(Row->Rarity!=EMCPerkRarity::Legendary || !Legendary) Tiers[uint8(Row->Rarity)].Add(ID);}
-            int32 Tier=0;
-            if(Card==0 && GuaranteeRare && !Tiers[1].IsEmpty()) Tier=1;
-            else {
-                const float Weights[3]={70,25,5};float Total=0;for(int32 I=0;I<3;++I) if(!Tiers[I].IsEmpty()) Total+=Weights[I];
-                if(Total<=0) break;
-                float Draw=Random.FRand()*Total;for(int32 I=0;I<3;++I) if(!Tiers[I].IsEmpty()) {Tier=I;Draw-=Weights[I];if(Draw<=0) break;}
-            }
-            if(Tiers[Tier].IsEmpty()) break;
-            auto Weight=[&](FName ID) {
-                const auto* Row=FindDefinition(ID);float Value=Row->Weight;
-                if(GetStacks(ID)>0 || (Row->RequiredTool!=EMCToolUpgrade::None && HasToolUpgrade(Row->RequiredTool))) Value*=1.5f;
-                const FName Next=NextRogueEvent(GetWorld());
-                if(!Next.IsNone() && Row->RequiredEvents.Contains(Next)) Value*=1.5f;
-                return Value;
-            };
-            float Total=0;for(FName ID:Tiers[Tier]) Total+=Weight(ID);
-            float Draw=Random.FRand()*Total;FName Chosen=Tiers[Tier].Last();
-            for(FName ID:Tiers[Tier]) {Draw-=Weight(ID);if(Draw<=0) {Chosen=ID;break;}}
-            Out.Add(Chosen);Legendary|=FindDefinition(Chosen)->Rarity==EMCPerkRarity::Legendary;
-            const FName SelectedFamily=Family(Chosen);Pool.RemoveAll([&](FName ID){return Family(ID)==SelectedFamily;});
+    if(Full.IsEmpty()) return false;
+    auto Family=[this](FName ID) {
+        const auto* Row=FindDefinition(ID);return Row && !Row->ChoiceFamily.IsNone()?Row->ChoiceFamily:ID;
+    };
+    // Recent, unselected cards are only a preference. They may return when the
+    // pool is small; currently owned canonical IDs never enter Full at all.
+    TArray<FName> Pool=Full;
+    Pool.RemoveAll([&](FName ID){return Excluded.Contains(ID);});
+    if(Pool.Num()<FMath::Min(3,Full.Num())) Pool=Full;
+    FRandomStream Random(Seed);bool Legendary=false;
+    const FName Next=NextRogueEvent(GetWorld());
+    for(int32 Card=0;Card<3 && !Pool.IsEmpty();++Card) {
+        TArray<FName> Tiers[3];
+        for(FName ID:Pool) {
+            const auto* Row=FindDefinition(ID);
+            const uint8 Tier=uint8(Row->Rarity);
+            if(Tier<3 && (Row->Rarity!=EMCPerkRarity::Legendary || !Legendary)) Tiers[Tier].Add(ID);
         }
-        if(Out.Num()==3) return true;
+        int32 Tier=0;
+        if(Card==0 && GuaranteeRare && !Tiers[1].IsEmpty()) Tier=1;
+        else {
+            const float Weights[3]={70,25,5};float Total=0;
+            for(int32 I=0;I<3;++I) if(!Tiers[I].IsEmpty()) Total+=Weights[I];
+            if(Total<=0) break;
+            float Draw=Random.FRand()*Total;
+            for(int32 I=0;I<3;++I) if(!Tiers[I].IsEmpty()) {Tier=I;Draw-=Weights[I];if(Draw<=0) break;}
+        }
+        if(Tiers[Tier].IsEmpty()) break;
+        auto Weight=[&](FName ID) {
+            const auto* Row=FindDefinition(ID);double Value=Row->Weight;
+            if(Row->RequiredTool!=EMCToolUpgrade::None && HasToolUpgrade(Row->RequiredTool)) Value*=1.5;
+            if(!Next.IsNone() && Row->RequiredEvents.Contains(Next)) Value*=1.5;
+            return Value;
+        };
+        double Total=0;for(FName ID:Tiers[Tier]) Total+=Weight(ID);
+        double Draw=double(Random.FRand())*Total;FName Chosen=Tiers[Tier].Last();
+        for(FName ID:Tiers[Tier]) {Draw-=Weight(ID);if(Draw<=0) {Chosen=ID;break;}}
+        Out.Add(Chosen);Legendary|=FindDefinition(Chosen)->Rarity==EMCPerkRarity::Legendary;
+        const FName SelectedFamily=Family(Chosen);
+        Pool.RemoveAll([&](FName ID){return Family(ID)==SelectedFamily;});
     }
-    Out.Reset();return false;
+    // Three is a maximum, not a prerequisite. One/two eligible cards remain a
+    // real reward; zero is handled by the chest's explicit skip resolution.
+    return !Out.IsEmpty();
 }
 FString UMCPerkComponent::RoguePreview(FName ID) const
 {
     const auto* Row=FindDefinition(ID);if(!Row) return FString();
-    FString Result=FString::Printf(TEXT("Стак %d → %d / %d"),GetStacks(ID),GetStacks(ID)+1,Row->MaxStacks);
+    const bool English=FInternationalization::Get().GetCurrentLanguage()->GetName().StartsWith(TEXT("en"));
+    if(OwnsPerk(ID)) return English?TEXT("Already acquired"):TEXT("Уже получен");
+    const auto Kind=GetPerkKind(ID);
+    FString Result=Kind==EMCPerkKind::Passive?(English?TEXT("Passive skill"):TEXT("Пассивный навык")):
+        Kind==EMCPerkKind::ToolUpgrade?(English?TEXT("Tool upgrade"):TEXT("Улучшение инструмента")):
+        FindFreeActiveSlot()==INDEX_NONE?(English?TEXT("Choose a slot to replace"):TEXT("Выберите слот для замены")):
+            (English?TEXT("Uses one of four slots"):TEXT("Займёт один из 4 слотов"));
     for(const auto& M:Row->Modifiers) if(M.Condition==EMCRogueActivation::Always) {
         float Base=1;FString Label;
         switch(M.Stat) {
-        case EMCRogueStat::NormalSpeed:Label=TEXT("Скорость");break;
+        case EMCRogueStat::NormalSpeed:Label=English?TEXT("Speed"):TEXT("Скорость");break;
         case EMCRogueStat::MaxHealth: {
-            Label=TEXT("Макс. HP");const auto* PS=Cast<AMCPlayerState>(GetOwner());
+            Label=English?TEXT("Max HP"):TEXT("Макс. HP");const auto* PS=Cast<AMCPlayerState>(GetOwner());
             const auto* Hero=PS?Cast<AMCToothCharacter>(PS->GetPawn()):nullptr;
             Base=Hero && Hero->Status?Hero->Status->GetBaseMaxHealth():100;break;
         }
-        case EMCRogueStat::PickaxeDamage:case EMCRogueStat::ChainsawDamage:case EMCRogueStat::WeaponDamage:Label=TEXT("Урон");break;
-        case EMCRogueStat::BrushPower:Label=TEXT("Чистка");break;
+        case EMCRogueStat::PickaxeDamage:case EMCRogueStat::ChainsawDamage:case EMCRogueStat::WeaponDamage:Label=English?TEXT("Damage"):TEXT("Урон");break;
+        case EMCRogueStat::BrushPower:Label=English?TEXT("Cleaning"):TEXT("Чистка");break;
         case EMCRogueStat::CarryCapacity: {
-            Label=TEXT("Куски");const auto* PS=Cast<AMCPlayerState>(GetOwner());
+            Label=English?TEXT("Food pieces"):TEXT("Куски");const auto* PS=Cast<AMCPlayerState>(GetOwner());
             const auto* Hero=PS?Cast<AMCToothCharacter>(PS->GetPawn()):nullptr;
             Base=Hero && Hero->FoodCollection?Hero->FoodCollection->MaxPieces:6;break;
         }

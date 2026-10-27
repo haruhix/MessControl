@@ -23,23 +23,15 @@ double BoosterNow(const UWorld* World) {return World->GetGameState()?World->GetG
 AMCToothCharacter* BoosterHero(const UMCPerkComponent* Perks) {const auto* State=Cast<AMCPlayerState>(Perks->GetOwner());return State?Cast<AMCToothCharacter>(State->GetPawn()):nullptr;}
 }
 void UMCPerkComponent::AddBoosterCharge(FName ID)
-{if(HasAuthority()) {BoosterQueue.Add(ID);GetOwner()->ForceNetUpdate();}}
+{if(HasAuthority() && !OwnsPerk(ID)) TryAcquirePerk(ID);}
 bool UMCPerkComponent::IsFuryActive() const {return GetWorld() && BoosterNow(GetWorld())<FuryUntil;}
 bool UMCPerkComponent::ActivateBooster()
 {
-    auto* Hero=BoosterHero(this);
-    if(!HasAuthority() || !Hero || !Hero->CanWork() || Hero->HasFrozenLegs() || Hero->Inventory->bChainsawRunning || IsFuryActive()) return false;
-    int32 Index=INDEX_NONE;
-    for(int32 I=0;I<BoosterQueue.Num();++I) if(BoosterQueue[I]!=TEXT("Fallback_Grenade") || !bGrenadeArmed) {Index=I;break;}
-    if(Index==INDEX_NONE) return false;
-    const FName ID=BoosterQueue[Index];BoosterQueue.RemoveAt(Index);
-    if(ID==TEXT("Fallback_Grenade")) bGrenadeArmed=true;
-    else if(ID==TEXT("Fallback_BrushFury")) {
-        Hero->CancelGameplayInput();
-        FuryUntil=BoosterNow(GetWorld())+5;FuryDirection=Hero->GetActorForwardVector().GetSafeNormal2D();
-        CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement())->CancelDash();
-    } else RogueBurst(false);
-    GetOwner()->ForceNetUpdate();return true;
+    // Compatibility command only; it cannot activate an unowned FIFO entry.
+    if(!HasAuthority()) return false;
+    for(int32 I=0;I<ActiveSkillSlots.Num();++I)
+        if(!ActiveSkillSlots[I].PerkID.IsNone() && ActivateSkillSlot(I,ActiveSkillSlots[I].InstanceID)) return true;
+    return false;
 }
 bool UMCPerkComponent::IsTeamStageBoosterID(FName ID)
 {
@@ -48,79 +40,33 @@ bool UMCPerkComponent::IsTeamStageBoosterID(FName ID)
 
 bool UMCPerkComponent::ActivatePersonalStageBooster(FName ID)
 {
-    auto* Hero=BoosterHero(this);
-    const auto* Definition=FindDefinition(ID);
-    const auto* Game=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
-    if(!HasAuthority() || !IsTeamStageBoosterID(ID) || !Definition || !Definition->bConsumableBooster
-        || !Game || Game->bLobbyWaiting || Game->Phase==EMCShiftPhase::Lost || Game->Phase==EMCShiftPhase::Won
-        || !IsValid(Hero) || Hero->IsActorBeingDestroyed() || !Hero->Status || !Hero->Status->IsAlive()
-        || !Hero->ToothPhysics->CanAct() || Hero->HasFrozenLegs() || Hero->IsMimicCaptured() || Hero->SwallowedBy
-        || !Hero->Inventory || Hero->Inventory->bChainsawRunning || IsFuryActive()) return false;
-    if(ID==TEXT("Fallback_Mouthwash")) {
-        // An area effect may touch nearby world objects, but originates only
-        // from the player who chose it. It never arms or activates teammates.
-        RogueBurst(false,{Hero});
-    } else if(ID==TEXT("Fallback_Grenade")) bGrenadeArmed=true;
-    else {
-        Hero->CancelGameplayInput();
-        FuryUntil=BoosterNow(GetWorld())+5;
-        FuryDirection=Hero->GetActorForwardVector().GetSafeNormal2D();
-        CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement())->CancelDash();
-    }
-    GetOwner()->ForceNetUpdate();
-    UE_LOG(LogTemp,Display,TEXT("MC_STAGE_PERSONAL_BOOSTER player=%s booster=%s"),*GetOwner()->GetName(),*ID.ToString());
-    return true;
+    // Old grant callers now acquire an item; actual use belongs to a validated slot.
+    return HasAuthority() && IsTeamStageBoosterID(ID) && TryAcquirePerk(ID);
 }
-
-bool UMCPerkComponent::AcceptTimedStageBooster(FName ID)
-{
-    auto* Game=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
-    const auto* Definition=FindDefinition(ID);
-    if(!HasAuthority() || !IsTeamStageBoosterID(ID) || !Definition || !Definition->bConsumableBooster
-        || Definition->Polarity!=EMCPerkPolarity::Positive || !Game || Game->bLobbyWaiting
-        || Game->Phase==EMCShiftPhase::Lost || Game->Phase==EMCShiftPhase::Won) return false;
-    if(ActivatePersonalStageBooster(ID)) return true;
-    // The reward belongs to PlayerState. Do not hold the whole stage hostage to
-    // an absent/recovering pawn, or force an effect onto a frozen/ragdoll body.
-    if(PendingStageGame.Get()!=Game || PendingStageLoadId!=Game->GameplayLoadId) PendingStageBoosters.Reset();
-    PendingStageGame=Game;PendingStageLoadId=Game->GameplayLoadId;
-    PendingStageBoosters.Add(ID);
-    return true;
-}
-
+bool UMCPerkComponent::AcceptTimedStageBooster(FName ID) {return ActivatePersonalStageBooster(ID);}
 bool UMCPerkComponent::ActivateTeamStageBooster(FName ID)
 {
     if(!HasAuthority() || !IsTeamStageBoosterID(ID)) return false;
-    const auto* Definition=FindDefinition(ID);
-    if(!Definition || !Definition->bConsumableBooster) return false;
-    const auto* Game=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
-    if(!Game || Game->bLobbyWaiting || Game->Phase==EMCShiftPhase::Lost || Game->Phase==EMCShiftPhase::Won) return false;
-    TArray<AMCToothCharacter*> Team;
-    TArray<UMCPerkComponent*> Recipients;
-    for(TActorIterator<AMCPlayerState> It(GetWorld());It;++It) {
-        auto* Hero=Cast<AMCToothCharacter>(It->GetPawn());
-        if(It->IsActorBeingDestroyed() || It->IsSpectator() || It->IsOnlyASpectator() || !It->Perks
-            || !IsValid(Hero) || Hero->IsActorBeingDestroyed() || !Hero->GetController() || !Hero->Status
-            || Hero->GetController()->IsActorBeingDestroyed() || Hero->GetPlayerState<AMCPlayerState>()!=*It
-            || !Hero->Status->IsAlive()) continue;
-        Team.Add(Hero); Recipients.Add(It->Perks);
-    }
-    if(Team.IsEmpty()) return false;
-    // The mouthwash's shared area effects run once over the union of team
-    // radii. Overlapping players do not multiply damage/cleaning/knockback.
-    if(ID==TEXT("Fallback_Mouthwash")) RogueBurst(false,Team);
-    else for(int32 I=0;I<Team.Num();++I) {
-        auto* Perks=Recipients[I]; auto* Hero=Team[I];
-        if(ID==TEXT("Fallback_Grenade")) Perks->bGrenadeArmed=true;
-        else {
-            Perks->FuryUntil=BoosterNow(GetWorld())+5;
-            Perks->FuryDirection=Hero->GetActorForwardVector().GetSafeNormal2D();
-            CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement())->CancelDash();
-        }
-        Perks->GetOwner()->ForceNetUpdate();
-    }
-    UE_LOG(LogTemp,Display,TEXT("MC_STAGE_BOOSTER_APPLY booster=%s recipients=%d"),*ID.ToString(),Team.Num());
-    return true;
+    bool Granted=false;
+    for(TActorIterator<AMCPlayerState> It(GetWorld());It;++It)
+        if(!It->IsSpectator() && !It->IsOnlyASpectator() && It->Perks && It->Perks->CanAcquirePerk(ID))
+            Granted|=It->Perks->TryAcquirePerk(ID);
+    return Granted;
+}
+bool UMCPerkComponent::ExecuteLegacyBooster(FName ID)
+{
+    auto* Hero=BoosterHero(this);const auto* Game=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
+    if(!HasAuthority() || !IsTeamStageBoosterID(ID) || !IsValid(Hero) || !Hero->Status || !Hero->Status->IsAlive()
+        || !Hero->ToothPhysics->CanAct() || Hero->HasFrozenLegs() || Hero->IsMimicCaptured() || Hero->SwallowedBy
+        || !Hero->Inventory || Hero->Inventory->bChainsawRunning || IsFuryActive() || !Game || Game->bLobbyWaiting
+        || Game->Phase==EMCShiftPhase::Lost || Game->Phase==EMCShiftPhase::Won) return false;
+    if(ID==TEXT("Fallback_Grenade")) {if(bGrenadeArmed) return false;bGrenadeArmed=true;}
+    else if(ID==TEXT("Fallback_BrushFury")) {
+        Hero->CancelGameplayInput();FuryUntil=BoosterNow(GetWorld())+5;
+        FuryDirection=Hero->GetActorForwardVector().GetSafeNormal2D();
+        CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement())->CancelDash();
+    } else RogueBurst(false);
+    GetOwner()->ForceNetUpdate();return true;
 }
 
 void UMCPerkComponent::RogueBurst(bool Grenade,const TArray<AMCToothCharacter*>& TeamOrigins)
@@ -163,16 +109,6 @@ void UMCPerkComponent::OnRogueKnockdown()
 }
 void UMCPerkComponent::TickRogueBoosters(float Dt)
 {
-    if(HasAuthority() && !PendingStageBoosters.IsEmpty()) {
-        const auto* Game=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
-        if(!Game || PendingStageGame.Get()!=Game || PendingStageLoadId!=Game->GameplayLoadId || Game->bLobbyWaiting
-            || Game->Phase==EMCShiftPhase::Lost || Game->Phase==EMCShiftPhase::Won) {
-            PendingStageBoosters.Reset();PendingStageGame.Reset();PendingStageLoadId.Invalidate();
-        } else if(ActivatePersonalStageBooster(PendingStageBoosters[0])) {
-            PendingStageBoosters.RemoveAt(0);
-            if(PendingStageBoosters.IsEmpty()) {PendingStageGame.Reset();PendingStageLoadId.Invalidate();}
-        }
-    }
     auto* Hero=BoosterHero(this);
     if(GetNetMode()!=NM_DedicatedServer && Hero && Hero->Status->IsAlive() && bGrenadeArmed) {
         if(!GrenadeCue.IsValid() || GrenadeCue->GetOwner()!=Hero) {

@@ -56,7 +56,10 @@ void UMCPerkCardButton::Configure(AMCPlayerController* Player,int32 Index)
 void UMCPerkCardButton::Choose()
 {
     if(IsDesignTime() || !bInteractionAllowed || !GetIsEnabled() || !Controller.IsValid()) return;
-    if(ChoiceIndex==-1) Controller->RerollLevelPerks();
+    if(ChoiceIndex>=100) Controller->ChooseRewardSlot(ChoiceIndex-100);
+    else if(ChoiceIndex==-4) Controller->SkipRewardPerk();
+    else if(ChoiceIndex==-5) Controller->CancelRewardReplacement();
+    else if(ChoiceIndex==-1) Controller->RerollLevelPerks();
     else if(ChoiceIndex==-2 || ChoiceIndex==-3) Controller->ConfirmRogueReward(ChoiceIndex==-3);
     else Controller->ChooseRewardPerk(ChoiceIndex);
 }
@@ -273,6 +276,35 @@ void UMCPerkChoiceWidget::SetTeamBoosterHeader()
         if(CardWidgets[Index] && CurrentChoiceIDs.IsValidIndex(Index) && CurrentDefinitions.IsValidIndex(Index))
             CardWidgets[Index]->Configure(MakePresentation(CurrentChoiceIDs[Index],CurrentDefinitions[Index],false),PC,Index,true,true);
 }
+void UMCPerkChoiceWidget::ShowReplacementSlots()
+{
+    auto* PC=GetOwningPlayer<AMCPlayerController>();auto* PS=PC?PC->GetPlayerState<AMCPlayerState>():nullptr;
+    if(!PS || !PS->Perks || !Cards || !Actions) return;
+    bChoosingReplacement=true;Cards->ClearChildren();Actions->ClearChildren();Buttons.Reset();ButtonStyles.Reset();CardWidgets.Reset();GamepadSelection=0;
+    for(int32 Index=0;Index<4 && PS->Perks->ActiveSkillSlots.IsValidIndex(Index);++Index) {
+        const auto& SkillSlot=PS->Perks->ActiveSkillSlots[Index];FMCPerkDefinition Definition;PS->Perks->GetPerkDefinition(SkillSlot.PerkID,Definition);
+        auto Data=MakePresentation(SkillSlot.PerkID,Definition,false);
+        Data.StackPreview=Format(Copy(TEXT("UI.Skill.ReplaceSlot"),LOCTEXT("ReplaceSlot","Заменить слот {Slot}")),FFormatNamedArguments{{TEXT("Slot"),FText::AsNumber(Index+1)}});
+        auto* Card=WidgetTree->ConstructWidget<UMCPerkCardWidget>(CardWidgetClass?CardWidgetClass.Get():UMCPerkCardWidget::StaticClass());
+        Card->Configure(Data,PC,100+Index,true);
+        auto* Host=Cards->AddChildToHorizontalBox(Card);Host->SetSize(FSlateChildSize(ESlateSizeRule::Fill));Host->SetPadding(FMargin(4,0));
+        CardWidgets.Add(Card);Buttons.Add(Card->GetChoiceButton());ButtonStyles.Add(Card->GetBaseButtonStyle());
+    }
+    AddAction(Copy(TEXT("UI.Skill.Back"),LOCTEXT("BackSkill","К НАГРАДАМ")),-5);
+    AddAction(Copy(TEXT("UI.Skill.Skip"),LOCTEXT("SkipSkill","ПРОПУСТИТЬ [ESC]")),-4);
+    if(Title) Title->SetText(Copy(TEXT("UI.Skill.ReplaceTitle"),LOCTEXT("ReplaceTitle","ЧЕТЫРЕ СЛОТА ЗАНЯТЫ")));
+    if(Subtitle) Subtitle->SetText(Copy(TEXT("UI.Skill.ReplaceSubtitle"),LOCTEXT("ReplaceSubtitle","Выберите навык для замены или пропустите награду. Таймер сохранит старый набор.")));
+    if(Hint) Hint->SetText(Copy(TEXT("UI.Skill.ReplaceHint"),LOCTEXT("ReplaceHint","Слот: 1 / 2 / 3 / 4 · отмена замены: Backspace · пропустить: Esc")));
+    RefreshGamepadSelection();ApplyTheme();
+}
+void UMCPerkChoiceWidget::CancelReplacementSlots()
+{
+    if(!bChoosingReplacement) return;
+    const auto IDs=CurrentChoiceIDs;const bool Team=bTeamBooster;const double Deadline=StageChoiceDeadline;
+    const auto Rogue=CurrentRogueOffer;const bool Optional=bOptionalReward;
+    if(Optional) ShowRogueChoices(Rogue);
+    else {ShowChoices(IDs,EMCPerkPolarity::Positive);if(Team) {SetTeamBoosterHeader();SetStageChoiceDeadline(Deadline);}}
+}
 void UMCPerkChoiceWidget::ShowLevelChoices(const TArray<FName>& IDs,int32 TeamLevel,int32 PendingChoices)
 {
     BuildChoices(IDs,EMCPerkPolarity::Positive,true);UpdateLevelChoiceHeader(TeamLevel,PendingChoices);
@@ -294,7 +326,10 @@ FMCPerkCardPresentation UMCPerkChoiceWidget::MakePresentation(FName ID,const FMC
     Data.Image=Content.bFound?Content.Image:Definition.Icon;
     if(Data.DisplayName.IsEmpty()) Data.DisplayName=FText::FromName(ID);
     const auto* PC=bApplyingPreview?nullptr:GetOwningPlayer<AMCPlayerController>();const auto* State=PC?PC->GetPlayerState<AMCPlayerState>():nullptr;const auto* Perks=State?State->Perks.Get():nullptr;
-    const int32 Before=PreviewStacks!=INDEX_NONE?PreviewStacks:Perks?Perks->GetStacks(ID):0;
+    const int32 Before=PreviewStacks!=INDEX_NONE?PreviewStacks:Perks && Perks->OwnsPerk(ID)?1:0;
+    Data.DisplayName=UMCUIDataLibrary::ResolveText(GetResolvedTranslationTable(),Definition.DisplayNameKey,Definition.DisplayName,DisplayCulture());
+    Data.Description=UMCUIDataLibrary::ResolveText(GetResolvedTranslationTable(),Definition.DescriptionKey,Definition.Description,DisplayCulture());
+    if(!Definition.Icon.IsNull()) Data.Image=Definition.Icon;
     const FCulturePtr Culture=FInternationalization::Get().GetCulture(DisplayCulture());
     UMCPerkCardWidget::ApplyDefinitionMetadata(Data,Definition,GetResolvedTranslationTable(),DisplayCulture(),bPersonal,Before);
     // These are the same optional before/after values as the existing gameplay preview.
@@ -314,20 +349,12 @@ FMCPerkCardPresentation UMCPerkChoiceWidget::MakePresentation(FName ID,const FMC
         const FText Delta=Format(Base==1?Copy(TEXT("UI.Reward.StatPercentFormat"),LOCTEXT("StatPercentFormat","{Stat} {Before}% → {After}%")):Copy(TEXT("UI.Reward.StatValueFormat"),LOCTEXT("StatValueFormat","{Stat} {Before} → {After}")),FFormatNamedArguments{{TEXT("Stat"),Stat},{TEXT("Before"),CurrentText},{TEXT("After"),NextText}});
         Data.StackPreview=Format(Copy(TEXT("UI.Reward.StackAndStat"),LOCTEXT("StackAndStat","{Stack}\n{Stat}")),FFormatNamedArguments{{TEXT("Stack"),Data.StackPreview},{TEXT("Stat"),Delta}});break;
     }
-    if(bTeamBooster)
-    {
-        Data.Badge=Copy(TEXT("UI.Reward.TeamBoosterBadge"),LOCTEXT("PersonalStageBoosterBadge","ТВОЙ БУСТЕР · СРАЗУ"));
-        Data.StackPreview=FText::GetEmpty();Data.BenefitTokens.Reset();Data.CostTokens.Reset();
-        if(ID==TEXT("Fallback_Mouthwash")) Data.Description=Copy(TEXT("UI.Reward.TeamMouthwash"),LOCTEXT("PersonalStageMouthwash","Мгновенная волна вокруг тебя: убирает грязь и наносит урон врагам."));
-        else if(ID==TEXT("Fallback_BrushFury")) Data.Description=Copy(TEXT("UI.Reward.TeamFury"),LOCTEXT("PersonalStageFury","Ты сразу входишь в ярость щётки на 5 секунд."));
-        else if(ID==TEXT("Fallback_Grenade")) Data.Description=Copy(TEXT("UI.Reward.TeamGrenade"),LOCTEXT("PersonalStageGrenade","Вооружает тебя. Твой следующий нокдаун вызывает взрыв."));
-    }
     return Data;
 }
 void UMCPerkChoiceWidget::BuildChoices(const TArray<FName>& IDs,EMCPerkPolarity Polarity,bool bPersonal,bool bReadOnly)
 {
     BuildPresentationTree();if(!Cards || !Actions || !Title || !Subtitle || !Hint) return;
-    bShowingChoices=true;bSelectionPending=false;bWaitingForTeam=false;bTeamBooster=false;bLevelPanel=bPersonal;bOptionalReward=false;bConfirming=false;
+    bChoosingReplacement=false;bShowingChoices=true;bSelectionPending=false;bWaitingForTeam=false;bTeamBooster=false;bLevelPanel=bPersonal;bOptionalReward=false;bConfirming=false;
     SetStageChoiceDeadline(0);
     CurrentChoiceIDs.Reset();CurrentDefinitions.Reset();
     Actions->SetVisibility(ESlateVisibility::Visible);
@@ -347,6 +374,7 @@ void UMCPerkChoiceWidget::BuildChoices(const TArray<FName>& IDs,EMCPerkPolarity 
         auto* CardSlot=Cards->AddChildToHorizontalBox(Card);CardSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));CardSlot->SetPadding(FMargin(6,0));CardSlot->SetVerticalAlignment(VAlign_Fill);
         CardWidgets.Add(Card);Buttons.Add(Card->GetChoiceButton());ButtonStyles.Add(Card->GetBaseButtonStyle());
     }
+    if(!bReadOnly) AddAction(Copy(TEXT("UI.Skill.Skip"),LOCTEXT("SkipSkill","ПРОПУСТИТЬ [ESC]")),-4);
     RefreshGamepadSelection();ApplyTheme();
 }
 void UMCPerkChoiceWidget::ShowRogueChoices(const FMCRogueChestOffer& Offer)
@@ -355,6 +383,8 @@ void UMCPerkChoiceWidget::ShowRogueChoices(const FMCRogueChestOffer& Offer)
     TArray<FName> IDs=Offer.IDs;if(Confirm) IDs={Offer.Curse,Offer.Reward};
     BuildChoices(IDs,Offer.Kind==EMCRogueRewardKind::RiskyAltar?EMCPerkPolarity::Risky:Offer.Step==0?EMCPerkPolarity::Negative:EMCPerkPolarity::Positive,false,Confirm);
     CurrentRogueOffer=Offer;bOptionalReward=true;bConfirming=Confirm;
+    if(Actions) Actions->ClearChildren();
+    while(Buttons.Num()>CardWidgets.Num()) {Buttons.Pop();ButtonStyles.Pop();}
     if(!Title || !Subtitle || !Hint) return;
     RefreshRogueCopy(Offer);
     if(Confirm) {
@@ -489,6 +519,7 @@ void UMCPerkChoiceWidget::OnLocalizationChanged()
         return;
     }
     if (!bShowingChoices) {ApplyTheme();return;}
+    if(bChoosingReplacement) {ShowReplacementSlots();return;}
     // Re-present the existing offer, retaining controls, selection and pending
     // authority state. Localization never requests a new gameplay offer.
     auto* PC=GetOwningPlayer<AMCPlayerController>();
@@ -568,6 +599,16 @@ FReply UMCPerkChoiceWidget::NativeOnKeyDown(const FGeometry& Geometry, const FKe
     if(IsDesignTime() || bApplyingPreview || !GetOwningPlayer<AMCPlayerController>()) return FReply::Handled();
     if(bWaitingForTeam) return FReply::Handled();
     const FKey Key=Event.GetKey();
+    if(bShowingChoices && !bSelectionPending && !Event.IsRepeat()) {
+        auto* PC=GetOwningPlayer<AMCPlayerController>();
+        if(Key==EKeys::Escape && !bOptionalReward) {PC->SkipRewardPerk();return FReply::Handled();}
+        if(bChoosingReplacement) {
+            if(Key==EKeys::BackSpace || Key==EKeys::Gamepad_FaceButton_Right) {PC->CancelRewardReplacement();return FReply::Handled();}
+            const FKey Keys[]={EKeys::One,EKeys::Two,EKeys::Three,EKeys::Four};
+            const FKey PadKeys[]={EKeys::NumPadOne,EKeys::NumPadTwo,EKeys::NumPadThree,EKeys::NumPadFour};
+            for(int32 Index=0;Index<4;++Index) if(Key==Keys[Index] || Key==PadKeys[Index]) {PC->ChooseRewardSlot(Index);return FReply::Handled();}
+        }
+    }
     if(bShowingChoices && !bSelectionPending && !bConfirming && !Event.IsRepeat() && (Key==EKeys::Enter || Key==EKeys::SpaceBar)) {
         if(Buttons.IsValidIndex(GamepadSelection) && Buttons[GamepadSelection]->GetIsEnabled()) Buttons[GamepadSelection]->OnClicked.Broadcast();
         return FReply::Handled();
@@ -592,6 +633,7 @@ FReply UMCPerkChoiceWidget::NativeOnKeyDown(const FGeometry& Geometry, const FKe
             if(Event.GetKey()==EKeys::Two || Event.GetKey()==EKeys::NumPadTwo) {GetOwningPlayer<AMCPlayerController>()->ConfirmRogueReward(false);return FReply::Handled();}
             return FReply::Handled();
         }
+        if(bChoosingReplacement) return FReply::Handled();
         int32 Index = INDEX_NONE;
         if (Event.GetKey() == EKeys::One || Event.GetKey() == EKeys::NumPadOne) Index = 0;
         else if (Event.GetKey() == EKeys::Two || Event.GetKey() == EKeys::NumPadTwo) Index = 1;

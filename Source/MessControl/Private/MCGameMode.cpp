@@ -521,6 +521,7 @@ void AMCGameMode::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
     AMCGameState* State = GetGameState<AMCGameState>();
+    if(State && (State->Phase==EMCShiftPhase::Won || State->Phase==EMCShiftPhase::Lost)) FinalizeRunLoadout();
     const bool Startup=State && State->Phase!=EMCShiftPhase::Won && State->Phase!=EMCShiftPhase::Lost && (State->bLobbyWaiting
         || (State->bTutorialActive && (!IsValid(TutorialDirector) || TutorialDirector->Stage==EMCTutorialStage::Loading))
         || (State->bSingleDayLoop && IsValid(State->SingleDayDirector) && State->SingleDayDirector->Stage==EMCSingleDayStage::Training));
@@ -846,4 +847,13 @@ void AMCGameMode::ProcessRespawns()
         Old->RespawnAt=0; Old->SetLifeSpan(3); NewHero->ForceNetUpdate();
         PendingRespawns.RemoveAt(I); GS->ForceNetUpdate();
     }
+}
+
+void AMCGameMode::FinalizeRunLoadout()
+{
+    auto* State=GetGameState<AMCGameState>();
+    if(!HasAuthority() || !State || !State->GameplayLoadId.IsValid() || CompletedLoadoutRunId==State->GameplayLoadId) return;
+    CompletedLoadoutRunId=State->GameplayLoadId;State->TeamToolUpgrades=0;State->ForceNetUpdate();
+    for(const auto& Player:State->PlayerArray) if(auto* PS=Cast<AMCPlayerState>(Player);PS && PS->Perks) PS->Perks->ResetPerks();
+    if(GetGameInstance()) if(auto* Profiles=GetGameInstance()->GetSubsystem<UMCHubProfileSubsystem>()) Profiles->MarkShopRunCompleted(CompletedLoadoutRunId);
 }

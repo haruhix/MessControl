@@ -110,7 +110,7 @@ float UMCPerkComponent::RogueValue(EMCRogueStat Stat,float Base,AActor* Target,F
                 (M.bFlat?Flat:Percent)+=M.Value*Stacks;
     };
     bool ExtraSeen=false;
-    for(const auto& Active:ActivePerks) {Add(Active.PerkID,Active.Stacks+(Active.PerkID==ExtraStack?1:0));ExtraSeen|=Active.PerkID==ExtraStack;}
+    for(const auto& Active:ActivePerks) {Add(Active.PerkID,1);ExtraSeen|=Active.PerkID==ExtraStack;}
     if(!ExtraStack.IsNone() && !ExtraSeen) Add(ExtraStack,1);
     if(Stat==EMCRogueStat::NormalSpeed) {
         if(GetStacks(TEXT("P17"))>0 && RogueNow(GetWorld())<CleanSpeedUntil) Percent+=.1f;
@@ -224,7 +224,6 @@ void UMCPerkComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
 }
 void UMCPerkComponent::ClearRogueRuntime()
 {
-    PendingStageBoosters.Reset();PendingStageGame.Reset();PendingStageLoadId.Invalidate();
     if(GrenadeCue.IsValid()) GrenadeCue->DestroyComponent();GrenadeCue.Reset();
     if(auto* Hero=HeroFor(this);Hero && bFuryMotion) Hero->GetCharacterMovement()->RemoveRootMotionSourceByID(FuryMotionID);
     bFuryMotion=false;FuryUntil=-100;bGrenadeArmed=false;BoosterQueue.Reset();

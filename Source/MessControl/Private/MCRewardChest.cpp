@@ -49,7 +49,7 @@ void EligibleRows(UDataTable* Table,const UMCPerkComponent* Recipient,TArray<FNa
     Names.Sort([](const FName& A,const FName& B) { return A.LexicalLess(B); });
     for(FName ID:Names) {
         const auto* Row=Table->FindRow<FMCPerkDefinition>(ID,TEXT("Reward loot"),false);
-        if(!ValidRow(Row) || Row->ToolUpgrade!=EMCToolUpgrade::None || (Recipient && !Recipient->CanGrantPerk(ID))) continue;
+        if(!ValidRow(Row) || Row->ToolUpgrade!=EMCToolUpgrade::None || !Row->bAvailableForLevelChoice || (Recipient && !Recipient->CanOfferPerk(ID))) continue;
         (Row->Polarity==EMCPerkPolarity::Positive?Positive:Negative).Add(ID);
     }
 }
@@ -345,7 +345,7 @@ void AMCRewardChest::InitializeReward(FVector Landing,FVector Start,int32 Seed,U
 {
     if(!HasAuthority()) return;
     ReleaseCaptive(); ReleaseStageChoices(); ReleaseOpener(); LootIDs.Reset(); ClaimedMask=0; bReported=false; bClaimInProgress=false;
-    StageRecipients.Reset();StageClaims.Reset();bStageRecipientsCaptured=false;
+    StageRecipients.Reset();StageClaims.Reset();StageOffers.Reset();OpeningOfferID.Invalidate();bStageRecipientsCaptured=false;
     LandingPoint=Landing; FallStart=Start; RollSeed=Seed; RewardTable=Table; SelectionPolicy=Policy; DropZone=Zone;
     RollMimic();
     bRewardInitialized=true; Stage=EMCRewardChestStage::Telegraph; StageStartedAt=ServerNow();
@@ -580,9 +580,10 @@ void AMCRewardChest::Tick(float Dt)
                 if(IsValid(OpeningPlayer)) PublishStageChoiceFor(OpeningPlayer);
                 PollTeamBoosterApproach();
             }
+            else if(LootIDs.IsEmpty()) {ClaimedMask=7;FinishReward(false);}
             else if(RogueKind!=EMCRogueRewardKind::Ordinary) PublishRogueOffer();
             else if(IsValid(OpeningPlayer)) if(auto* PC=Cast<AMCPlayerController>(OpeningPlayer->GetController()))
-                PC->ClientShowPerkChoices(this,LootIDs,Polarity,bTeamStageBooster);
+                PC->ClientShowPerkChoices(this,LootIDs,Polarity,bTeamStageBooster,0.,GetChoiceOfferID(PC->GetPlayerState<AMCPlayerState>()));
         }
     }
     if((Stage==EMCRewardChestStage::Landed || Stage==EMCRewardChestStage::Open)
@@ -619,7 +620,7 @@ bool AMCRewardChest::IsLivingPlayer(const AMCToothCharacter* Player) const
 bool AMCRewardChest::HasValidLoot(UDataTable* Table,const UMCPerkComponent* Recipient)
 {
     TArray<FName> Positive,Negative; EligibleRows(Table,Recipient,Positive,Negative);
-    return Positive.Num()>=3 || Negative.Num()>=3;
+    return !Positive.IsEmpty() || !Negative.IsEmpty();
 }
 
 void AMCRewardChest::PollApproach()
@@ -671,7 +672,7 @@ bool AMCRewardChest::BeginLockpicking(AMCToothCharacter* Player)
     }
     if(!bMimic && RogueKind==EMCRogueRewardKind::Ordinary) {
         TArray<FName> Positive,Negative; EligibleRows(RewardTable,PS->Perks,Positive,Negative);
-        if(Positive.Num()<3 && Negative.Num()<3) return false;
+        // A small or empty eligible pool is resolved safely, never padded with duplicates.
         FRandomStream Roll(RollSeed);
         // One independent, deterministic roll per chest. Cancellation cannot reroll rarity.
         FRandomStream ToolRoll(RollSeed^0x544F4F4C);
@@ -681,28 +682,26 @@ bool AMCRewardChest::BeginLockpicking(AMCToothCharacter* Player)
         if(Rarity!=EMCPerkRarity::Standard) {
             for(FName ID:RewardTable->GetRowNames()) if(const auto* Row=RewardTable->FindRow<FMCPerkDefinition>(ID,TEXT("Tool reward"),false))
                 if(ValidRow(Row) && Row->ToolUpgrade!=EMCToolUpgrade::None && Row->Rarity==Rarity && Row->Polarity==EMCPerkPolarity::Positive
-                    && PS->Perks->CanGrantPerk(ID)) Tools.Add(ID);
+                    && PS->Perks->CanOfferPerk(ID)) Tools.Add(ID);
             Tools.Sort([](FName A,FName B){return A.LexicalLess(B);});
         }
-        if(Positive.Num()<3) return false;
         Polarity=EMCPerkPolarity::Positive;
-        if(!Tools.IsEmpty() && Positive.Num()>=3) Polarity=EMCPerkPolarity::Positive;
-        if(!PS->Perks->BuildRogueOffer(EMCPerkPolarity::Positive,RollSeed,LootIDs,false,false,false,TArray<FName>(),false)) {
-            for(FName ID:{FName(TEXT("Fallback_Mouthwash")),FName(TEXT("Fallback_BrushFury")),FName(TEXT("Fallback_Grenade"))})
-                if(PS->Perks->CanGrantPerk(ID)) LootIDs.Add(ID);
-        }
-        if(!Tools.IsEmpty() && LootIDs.Num()==3) {
+        PS->Perks->BuildRogueOffer(EMCPerkPolarity::Positive,RollSeed,LootIDs,false,false,false,TArray<FName>(),false);
+        if(!Tools.IsEmpty()) {
             // Keep the chest's rare tool roll separate; replace an existing legendary if needed.
-            int32 Slot=ToolRoll.RandRange(0,2);
-            if(Rarity==EMCPerkRarity::Legendary) for(int32 I=0;I<3;++I)
-                if(PS->Perks->FindDefinition(LootIDs[I])->Rarity==EMCPerkRarity::Legendary) Slot=I;
-            LootIDs[Slot]=Tools[ToolRoll.RandRange(0,Tools.Num()-1)];
+            const FName ToolID=Tools[ToolRoll.RandRange(0,Tools.Num()-1)];
+            if(LootIDs.IsEmpty()) LootIDs.Add(ToolID);
+            else {
+                int32 Slot=ToolRoll.RandRange(0,LootIDs.Num()-1);
+                if(Rarity==EMCPerkRarity::Legendary) for(int32 I=0;I<LootIDs.Num();++I)
+                    if(PS->Perks->FindDefinition(LootIDs[I])->Rarity==EMCPerkRarity::Legendary) Slot=I;
+                LootIDs[Slot]=ToolID;
+            }
         }
         ForceNetUpdate();
-        if(LootIDs.Num()!=3) return false;
-        for(FName ID:LootIDs) if(!PS->Perks->CanGrantPerk(ID)) return false;
+        for(FName ID:LootIDs) if(!PS->Perks->CanOfferPerk(ID)) return false;
     }
-    OpeningPlayer=Player; Player->RewardInteraction=this;
+    OpeningOfferID=FGuid::NewGuid();OpeningPlayer=Player; Player->RewardInteraction=this;
     Player->GetCharacterMovement()->StopMovementImmediately(); Player->ForceNetUpdate();
     SetStage(EMCRewardChestStage::Lockpicking);
     Player->CancelGameplayInput();
@@ -729,35 +728,53 @@ void AMCRewardChest::ReleaseOpener()
 
 void AMCRewardChest::CancelOpening()
 {
-    ReleaseOpener(); LootIDs.Reset(); SetStage(EMCRewardChestStage::Landed);
+    ReleaseOpener(); LootIDs.Reset();OpeningOfferID.Invalidate(); SetStage(EMCRewardChestStage::Landed);
 }
 
 bool AMCRewardChest::TryClaim(AMCPerkPickup*,AMCToothCharacter*) { return false; }
 
-bool AMCRewardChest::TryChooseCard(AMCToothCharacter* Player,int32 Index)
+
+bool AMCRewardChest::TryChooseCard(AMCToothCharacter* Player,int32 Index,int32 DestinationSlot,
+    FName ExpectedReplacedID,FGuid ExpectedSlotInstance)
 {
-    if(bTeamStageBooster) return TryChooseTeamBooster(Player,Index);
+    if(bTeamStageBooster) return TryChooseTeamBooster(Player,Index,DestinationSlot,ExpectedReplacedID,ExpectedSlotInstance);
     if(!HasAuthority() || bClaimInProgress || Stage!=EMCRewardChestStage::Open || OpeningPlayer!=Player
-        || !OpenerCanContinue() || LootIDs.Num()!=3 || !LootIDs.IsValidIndex(Index) || ClaimedMask!=0) return false;
+        || !OpenerCanContinue() || !LootIDs.IsValidIndex(Index) || ClaimedMask!=0) return false;
     auto* PS=Player->GetPlayerState<AMCPlayerState>();
     if(!PS->Perks || PS->Perks->GetPerkTable()!=RewardTable) return false;
     const FName ChosenID=LootIDs[Index];
     const auto* Row=RewardTable->FindRow<FMCPerkDefinition>(ChosenID,TEXT("Reward card"),false);
-    if(!ValidRow(Row) || Row->Polarity!=Polarity) return false;
+    if(!ValidRow(Row) || Row->Polarity!=Polarity || !PS->Perks->CanOfferPerk(ChosenID)) return false;
     if(RogueKind==EMCRogueRewardKind::CursedContract) {
+        // Legacy contracts retain one atomic passive-only curse/reward batch.
+        // Mixed active-slot replacement contracts are outside this base.
+        if(PS->Perks->GetPerkKind(ChosenID)!=EMCPerkKind::Passive) return false;
         if(ContractStep==0) {ContractCurse=ChosenID;ContractStep=1;LootIDs=ContractRewards;Polarity=EMCPerkPolarity::Positive;}
         else if(ContractStep==1) {ContractReward=ChosenID;ContractStep=2;}
         else return false;
         ForceNetUpdate();PublishRogueOffer();return true;
     }
     TGuardValue<bool> Guard(bClaimInProgress,true);
-    if(!PS->Perks->ServerGrantReward(ChosenID)) return false;
-    ClaimedMask=7;
-    PS->RecordChestRewardChoice();
-    ForceNetUpdate();
-    UE_LOG(LogTemp,Display,TEXT("MC_REWARD_CARD player=%s perk=%s"),*PS->GetPlayerName(),*ChosenID.ToString());
-    FinishReward(false);
-    return true;
+    const bool Accepted=PS->Perks->GetPerkKind(ChosenID)==EMCPerkKind::ToolUpgrade?
+        PS->Perks->ServerGrantReward(ChosenID):
+        PS->Perks->TryAcquirePerk(ChosenID,DestinationSlot,ExpectedReplacedID,ExpectedSlotInstance);
+    if(!Accepted) return false;
+    ClaimedMask=7;PS->RecordChestRewardChoice();ForceNetUpdate();
+    UE_LOG(LogTemp,Display,TEXT("MC_REWARD_CARD player=%s skill=%s slot=%d"),*PS->GetPlayerName(),*ChosenID.ToString(),DestinationSlot);
+    FinishReward(false);return true;
+}
+
+bool AMCRewardChest::SkipChoice(AMCToothCharacter* Player)
+{
+    if(bTeamStageBooster) {
+        if(!HasStageChoiceFor(Player) || Stage!=EMCRewardChestStage::Open) return false;
+        const bool Resolved=ResolveStageSkip(Player->GetPlayerState<AMCPlayerState>());
+        if(Resolved && AreStageChoicesResolved()) {ClaimedMask=7;ForceNetUpdate();FinishReward(false);}
+        return Resolved;
+    }
+    if(!HasAuthority() || bReported || bClaimInProgress || Stage!=EMCRewardChestStage::Open
+        || OpeningPlayer!=Player || !OpenerCanContinue()) return false;
+    ClaimedMask=7;FinishReward(false);return true;
 }
 
 void AMCRewardChest::FinishReward(bool bRequeue)

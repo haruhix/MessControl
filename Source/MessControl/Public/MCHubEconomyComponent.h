@@ -12,11 +12,16 @@ USTRUCT(BlueprintType)
 struct MESSCONTROL_API FMCHubEconomySaveData
 {
     GENERATED_BODY()
-    UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 Version=1;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 Version=2;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 Coins=0;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) TArray<FName> OwnedCosmetics;
     /** Catalog IDs, one entry per purchased stack/charge, waiting for a real run. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite) TArray<FName> PendingBoosters;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite) TArray<FMCHubPendingPurchase> PendingPurchases;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite) FGuid ShopRotationId;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 ShopRotationSeed=0;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite) bool bShopStockGenerated=false;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite) TArray<FName> ShopStockIDs;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) FMCCharacterCosmeticLoadout EquippedLoadout;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) FGuid LastAppliedRunId;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 RunCalciumCharges=0;
@@ -36,6 +41,12 @@ public:
     UPROPERTY(ReplicatedUsing=OnRep_Economy, BlueprintReadOnly, Category="Economy") int32 Coins=0;
     UPROPERTY(ReplicatedUsing=OnRep_Economy, BlueprintReadOnly, Category="Economy") TArray<FName> OwnedCosmetics;
     UPROPERTY(ReplicatedUsing=OnRep_Economy, BlueprintReadOnly, Category="Economy") TArray<FName> PendingBoosters;
+    UPROPERTY(ReplicatedUsing=OnRep_Economy, BlueprintReadOnly, Category="Economy") TArray<FMCHubPendingPurchase> PendingPurchases;
+    UPROPERTY(ReplicatedUsing=OnRep_Economy, BlueprintReadOnly, Category="Economy") FGuid ShopRotationId;
+    UPROPERTY(ReplicatedUsing=OnRep_Economy, BlueprintReadOnly, Category="Economy") int32 ShopRotationSeed=0;
+    UPROPERTY(ReplicatedUsing=OnRep_Economy, BlueprintReadOnly, Category="Economy") bool bShopStockGenerated=false;
+    UPROPERTY(ReplicatedUsing=OnRep_Economy, BlueprintReadOnly, Category="Economy") TArray<FName> ShopStockIDs;
+    UPROPERTY(ReplicatedUsing=OnRep_Economy, BlueprintReadOnly, Category="Economy") FText MigrationNotice;
     UPROPERTY(ReplicatedUsing=OnRep_Economy, BlueprintReadOnly, Category="Economy") FMCCharacterCosmeticLoadout EquippedLoadout;
     UPROPERTY(ReplicatedUsing=OnRep_Economy, BlueprintReadOnly, Category="Economy") int32 RunCalciumCharges=0;
     UPROPERTY(ReplicatedUsing=OnRep_Economy, BlueprintReadOnly, Category="Economy") FMCGrillReward LastGrillReward;
@@ -45,6 +56,11 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Economy|Data") TSoftObjectPtr<UDataTable> GrillRewardsTable;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Economy|Data") TSoftObjectPtr<UDataTable> RulesTable;
     UFUNCTION(BlueprintPure, Category="Economy") TArray<FMCHubEconomyCatalogEntry> GetCatalog() const;
+    UFUNCTION(BlueprintPure, Category="Economy") TArray<FMCHubEconomyCatalogEntry> GetShopCatalog() const;
+    UFUNCTION(BlueprintPure, Category="Economy") TArray<FMCActiveSkillSlot> GetPendingActiveSlots() const;
+    UFUNCTION(BlueprintPure, Category="Economy") bool IsInShopStock(FName ItemID) const;
+    bool EnsureShopStock(const FGuid& RotationId,int32 Seed);
+    bool FindCatalogEntry(FName ItemID,FMCHubEconomyCatalogEntry& Entry) const;
     UFUNCTION(BlueprintPure, Category="Economy") bool OwnsCosmetic(FName CosmeticID) const;
     UFUNCTION(BlueprintPure, Category="Economy") int32 QueuedStacks(FName ItemID) const;
     UFUNCTION(BlueprintPure, Category="Economy") bool IsCalciumEnabled() const;
@@ -54,6 +70,8 @@ public:
     bool CanPurchase(FName ItemID, FText& Error) const;
     /** Authority only; the controller must also validate the actual nearby shop. */
     bool TryPurchase(FName ItemID, FText& Error);
+    bool CanPurchaseForSlot(FName ItemID,int32 DestinationSlot,FName ExpectedReplacedID,const FGuid& ExpectedInstanceID,FText& Error) const;
+    bool TryPurchaseForSlot(FName ItemID,int32 DestinationSlot,FName ExpectedReplacedID,const FGuid& ExpectedInstanceID,FText& Error);
     /** Server objective payout, usable during the arena. No client RPC or purchase-context requirement.
      * Returns the actual increase after the wallet cap; zero never creates a cosmetic reward. */
     int32 CreditObjectiveCoins(int32 Amount);
@@ -80,6 +98,9 @@ private:
     bool LoadTables() const;
     bool IsCatalogUsable(const FMCHubCatalogRow& Item, bool bIncludeSuspended=false) const;
     bool CanQueueItem(FName ItemID, const FMCHubCatalogRow& Item, int32 Stacks=1) const;
+    bool ResolvePerk(FName PerkID,FMCPerkDefinition& Definition) const;
+    TArray<FMCHubPendingPurchase> BuildPendingPlan(TArray<TArray<int32>>* LegacyIndices=nullptr) const;
+    void RefreshMigrationNotice();
     bool SelectGrillReward(FMCGrillReward& Reward, FText& Error) const;
     void NotifyChanged();
     void AddCoinsClamped(int32 Amount);
