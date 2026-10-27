@@ -1,5 +1,7 @@
 # Task rewards and perks
 
+> Дизайн следующей итерации и дальнейшие изменения правил ведутся в [RoguelikeCore.md](RoguelikeCore.md). Ниже сохранён технический справочник прежней реализации; он не подтверждает актуальность всего старого баланса, паузы, способов выдачи и состава каталога. Новый документ отдельно различает согласованные требования и ещё не выполненную интеграцию.
+
 Individual score awards still use `AMCGameMode::AwardTask` / `AwardTaskToPlayerState`. Completed objectives use `NotifyObjectiveCompleted` with a stable ID: successful legacy events and day-plan steps enqueue one shared reward. Food rain, failure and the Complete sentinel do not create rewards. Duplicate completion IDs are rejected until the next run; individual food, ice and cleaning score awards do not enqueue chests. The F3 developer panel's **RewardChest** action queues a reward directly for authoring review.
 
 ## Safe drops
