@@ -156,7 +156,7 @@ void UMCWorldPreloadSubsystem::ResetPreparation()
     StableWorldFrames = 0;
 #if WITH_EDITOR
     RenderQuietSince = 0;
-    EditorFirstUseMaterial.Reset();
+    EditorFirstUseMaterials.Reset();
     LateCompilationWatchUntil = 0;
     NextLateCompilationCheckAt = 0;
     NextLateCompilationLogAt = 0;
@@ -384,25 +384,43 @@ void UMCWorldPreloadSubsystem::BuildRenderingWork()
     UE_LOG(LogMCWorldPreload, Log, TEXT("MC_PRELOAD_RENDER_WORK world=%s primitives=%d previewComponents=%d materials=%d"),
         *GetNameSafe(GetWorld()), WorldPrimitives.Num(), WarmupRequests.Num(), Materials.Num());
 #if WITH_EDITOR
-    // The food SSS base was observed requesting its deferred shader map only at
-    // the first meal. Hidden warmup components do not take the normal draw path
-    // that submits this work in an Editor executable. Submit just that observed
-    // resource, at the same priority as FMaterialRenderProxy's first draw, while
-    // the loading barrier is still active. Do not walk all MI parents: that
-    // would compile many unused full maps and stall Editor loading for minutes.
+    // Hidden warmup components do not take the normal first-draw path that
+    // submits deferred Editor shader maps. Prepare only these finite known
+    // meal/hit/text/passive resources; do not walk arbitrary material parents.
+    EditorFirstUseMaterials.Reset();
     const FString Map = UGameplayStatics::GetCurrentLevelName(GetWorld(), true);
     if (Map == TEXT("L_Mouth") || Map == TEXT("L_Tutorial"))
     {
+        const FString FirstUsePaths[] = {
+            TEXT("/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS"),
+            TEXT("/Game/Gameplay/VFX/M_Reaction.M_Reaction"),
+            TEXT("/Game/Gameplay/VFX/M_ReactionSoft.M_ReactionSoft"),
+            TEXT("/Engine/EngineMaterials/DefaultTextMaterialOpaque.DefaultTextMaterialOpaque"),
+            TEXT("/Game/Gameplay/VFX/MI_PassiveGhost.MI_PassiveGhost"),
+            TEXT("/Game/Gameplay/VFX/MI_PassiveLightning.MI_PassiveLightning")
+        };
         const EShaderPlatform Platform = GetFeatureLevelShaderPlatform(GetWorld()->GetFeatureLevel());
+        TSet<FMaterialResource*> SubmittedResources;
         for (const TWeakObjectPtr<UMaterialInterface>& WeakMaterial : Materials)
         {
             UMaterialInterface* Material = WeakMaterial.Get();
-            if (!Material || Material->GetPathName() != TEXT("/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS")) continue;
-            EditorFirstUseMaterial = Material;
+            if (!Material) continue;
+            const FString Path = Material->GetPathName();
+            bool bTargeted = false;
+            for (const FString& FirstUsePath : FirstUsePaths) bTargeted |= Path == FirstUsePath;
+            if (!bTargeted) continue;
+            EditorFirstUseMaterials.AddUnique(Material);
             FMaterialResource* Resource = Material->GetMaterialResource(Platform);
             const bool bNeedsSubmission = Resource && !Resource->IsGameThreadShaderMapComplete();
             const int32 PendingBefore = GetPendingCompilationCount();
-            if (bNeedsSubmission) Resource->SubmitCompileJobs_GameThread(EShaderCompileJobPriority::Normal);
+            // Non-static MICs share their parent's resource. Submit that map
+            // once, while retaining/checking each known interface below.
+            const bool bRequested = bNeedsSubmission && !SubmittedResources.Contains(Resource);
+            if (bRequested)
+            {
+                SubmittedResources.Add(Resource);
+                Resource->SubmitCompileJobs_GameThread(EShaderCompileJobPriority::Normal);
+            }
             // A request is not proof that jobs were queued: the public engine API
             // returns void. Log both compiler state and actual map completeness;
             // the barrier below also checks this specific resource, so a no-op
@@ -411,8 +429,7 @@ void UMCWorldPreloadSubsystem::BuildRenderingWork()
                 *GetNameSafe(GetWorld()), *Material->GetPathName(), Resource ? 1 : 0,
                 Resource && Resource->GetGameThreadShaderMap() ? 1 : 0,
                 Resource && Resource->IsGameThreadShaderMapComplete() ? 1 : 0,
-                bNeedsSubmission ? 1 : 0, PendingBefore, GetPendingCompilationCount(), int32(Platform));
-            break; // This targeted preparation is bounded to one actual resource.
+                bRequested ? 1 : 0, PendingBefore, GetPendingCompilationCount(), int32(Platform));
         }
     }
 #endif
@@ -567,9 +584,10 @@ bool UMCWorldPreloadSubsystem::CheckStreamingTargets()
 void UMCWorldPreloadSubsystem::CompletePreparation()
 {
 #if WITH_EDITOR
-    if (EditorFirstUseMaterial.IsValid())
-        UE_LOG(LogMCWorldPreload, Log, TEXT("MC_PRELOAD_EDITOR_FIRST_USE_READY world=%s asset=%s complete=%d"),
-            *GetNameSafe(GetWorld()), *EditorFirstUseMaterial->GetPathName(), IsEditorFirstUseMaterialReady() ? 1 : 0);
+    for (const TWeakObjectPtr<UMaterialInterface>& Material : EditorFirstUseMaterials)
+        if (Material.IsValid())
+            UE_LOG(LogMCWorldPreload, Log, TEXT("MC_PRELOAD_EDITOR_FIRST_USE_READY world=%s asset=%s complete=%d"),
+                *GetNameSafe(GetWorld()), *Material->GetPathName(), IsEditorFirstUseMaterialReady() ? 1 : 0);
 #endif
     // These transient components only supplied vertex-factory/material data for
     // precaching. Compiled PSOs are engine/driver cached; no hidden actors or
@@ -590,10 +608,14 @@ void UMCWorldPreloadSubsystem::CompletePreparation()
 #if WITH_EDITOR
 bool UMCWorldPreloadSubsystem::IsEditorFirstUseMaterialReady() const
 {
-    if (!EditorFirstUseMaterial.IsValid()) return true;
     const EShaderPlatform Platform = GetFeatureLevelShaderPlatform(GetWorld()->GetFeatureLevel());
-    const FMaterialResource* Resource = EditorFirstUseMaterial->GetMaterialResource(Platform);
-    return Resource && Resource->IsGameThreadShaderMapComplete();
+    for (const TWeakObjectPtr<UMaterialInterface>& Material : EditorFirstUseMaterials)
+    {
+        if (!Material.IsValid()) return false;
+        const FMaterialResource* Resource = Material->GetMaterialResource(Platform);
+        if (!Resource || !Resource->IsGameThreadShaderMapComplete()) return false;
+    }
+    return true;
 }
 
 void UMCWorldPreloadSubsystem::DiagnoseLateCompilation(double Now)

@@ -110,7 +110,7 @@ private:
 #if WITH_EDITOR
     void DiagnoseLateCompilation(double Now);
     bool IsEditorFirstUseMaterialReady() const;
-    TWeakObjectPtr<UMaterialInterface> EditorFirstUseMaterial;
+    TArray<TWeakObjectPtr<UMaterialInterface>> EditorFirstUseMaterials;
     double RenderQuietSince = 0;
     double LateCompilationWatchUntil = 0;
     double NextLateCompilationCheckAt = 0;

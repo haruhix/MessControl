@@ -1,4 +1,5 @@
 #include "MCCataclysmJelly.h"
+#include "MCCombatPassiveSubsystem.h"
 
 #include "MCCataclysmEvent.h"
 #include "MCCombatFeedbackComponent.h"
@@ -624,6 +625,7 @@ void AMCCataclysmJelly::Tick(float DeltaSeconds)
         return;
     }
     if(!IsValid(Tongue) || Tongue->IsActorBeingDestroyed()) { Destroy(); return; }
+    if(UMCCombatPassiveSubsystem::TickBilliards(this,DeltaSeconds)) return;
     Target=nullptr;
     WanderOnTongue(Now);
     PaintTrail(Now,DeltaSeconds);

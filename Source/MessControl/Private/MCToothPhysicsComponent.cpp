@@ -838,7 +838,7 @@ void UMCToothPhysicsComponent::TickComponent(float Dt,ELevelTick TickType,FActor
                     // death/reserve path. Contacts cannot restart this deadline.
                     constexpr float BlockedRecoverySeconds=6.f;
                     if (Now-BlockedRecoveryStartedAt>=BlockedRecoverySeconds)
-                        Tooth->Status->Damage(Tooth->Status->State.MaxHealth,FVector::ForwardVector,nullptr,EMCRogueDamageKind::Ordinary,false);
+                        Tooth->Status->Damage(Tooth->Status->State.MaxHealth,FVector::ForwardVector,nullptr,EMCRogueDamageKind::System,false);
                 }
             }
             // The character's shared arena boundary samples PhysicalLocation

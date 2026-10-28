@@ -69,8 +69,12 @@ bool FMCDevPassivesGrantRemoveTest::RunTest(const FString&)
         || !TestNotNull(TEXT("The current saved canonical table is loaded"),Host.Perks->GetPerkTable())) return false;
     const TArray<FName> IDs=MCDevPassiveIDs(Host.Perks);
     const TArray<FName> Expected={HeavyHit,TEXT("B1_LightFoot"),DeepBreath,TEXT("B1_BigPortion"),TEXT("B1_ConfidentThrow"),
-        TEXT("B1_FreshDelivery"),TEXT("B1_GreedyHands"),TEXT("B1_WideBristles"),TEXT("B1_UnderPressure")};
-    if(!TestEqual(TEXT("F3 lists the nine current passives, including unowned ones"),int32(IDs.Num()),int32(Expected.Num()))) return false;
+        TEXT("B1_FreshDelivery"),TEXT("B1_GreedyHands"),TEXT("B1_WideBristles"),TEXT("B1_UnderPressure"),
+        TEXT("B2_ReturnTrip"),TEXT("B2_CleanBreath"),TEXT("B2_NeatFreak"),TEXT("B2_LastStroke"),TEXT("B2_CleanAcceleration"),TEXT("B2_RefreshingWork"),
+        TEXT("B2_ThickEnamel"),TEXT("B2_Shield"),TEXT("B2_SecondWind"),TEXT("B2_HoudiniDash"),TEXT("B2_MightyTooth"),
+        TEXT("B2_StartFromDash"),TEXT("B2_ThunderGod"),TEXT("B2_EchoSwing"),TEXT("B2_Billiards"),
+        TEXT("B2_Softener"),TEXT("B2_Antiseptic"),TEXT("B2_LastingFormula")};
+    if(!TestEqual(TEXT("F3 lists all current passives, including unowned ones"),int32(IDs.Num()),int32(Expected.Num()))) return false;
     TSet<int32> Tokens;
     for(int32 I=0;I<IDs.Num();++I) {
         const auto* Row=Host.Perks->FindDefinition(IDs[I]);

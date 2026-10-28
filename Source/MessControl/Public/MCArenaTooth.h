@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "GameFramework/Actor.h"
+#include "MCResultPassives.h"
 #include "MCArenaTooth.generated.h"
 
 class UBoxComponent;
@@ -122,6 +123,9 @@ public:
     /** Authority-side completion provenance; retained until the next new coating. */
     bool IsGrimeRewardEligible() const {return bGrimeRewardEligible;}
     bool BrushGrime(class AMCToothCharacter* Worker,float Seconds);
+    bool CleanGrimeAt(class AMCToothCharacter* Worker,FVector Point,float Radius,float Seconds,float Rate,
+        EMCStainCleanReason Reason=EMCStainCleanReason::Spray);
+    bool CleanGrimeFromPassive(class AMCToothCharacter* Worker);
     bool FindDirtyContact(class AMCToothCharacter* Worker,FVector& Point,FVector& Normal,int32 Preferred=INDEX_NONE);
     // Remaining surface geometry for planning; never advances cleaning or selects a worker contact.
     // Optional native mask coordinates stay tied to the original crown through damage stages.
@@ -168,6 +172,9 @@ private:
     void UpdateDamageVisual();
     UFUNCTION() void OnRep_Grime();
     void UpdateGrime(float Dt);
+    bool ApplyGrimeCleaning(class AMCToothCharacter* Worker,FVector From,FVector To,FVector Dimensions,FVector Point,
+        float Radius,float Seconds,float Rate,EMCStainCleanReason Reason);
+    void SyncGrimeCleaningLayers(class AMCToothCharacter* Worker,EMCStainCleanReason Reason);
     void BuildGrimeRelief();
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> ReliefMaterial;
     UPROPERTY() TObjectPtr<class UTexture2D> GrimeTexture;

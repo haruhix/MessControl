@@ -1,4 +1,6 @@
 #include "MCPerkComponent.h"
+#include "MCCombatPassiveSubsystem.h"
+#include "MCDefenseSprayPassives.h"
 #include "MCPerkEffect.h"
 #include "MCGameState.h"
 #include "MCPlayerState.h"
@@ -152,6 +154,10 @@ void UMCPerkComponent::RebuildEffects()
         }
         AppliedStacks.Add(Active.PerkID, Stacks);
     }
+    if(GetStacks(TEXT("B2_ReturnTrip"))<=0) DeliverySpeedUntil=-100;
+    if(GetStacks(TEXT("B2_CleanAcceleration"))<=0 && GetStacks(TEXT("P17"))<=0) CleanSpeedUntil=-100;
+    UMCCombatPassiveSubsystem::PruneOwner(this);
+    UMCDefenseSprayPassives::PruneOwner(this);
     OnPerksChanged.Broadcast();
 }
 
@@ -184,6 +190,7 @@ void UMCPerkComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
     DOREPLIFETIME(UMCPerkComponent,CounterReadyUntil);
     DOREPLIFETIME(UMCPerkComponent,CleanSpeedUntil);
     DOREPLIFETIME(UMCPerkComponent,DeliverySlowUntil);
+    DOREPLIFETIME(UMCPerkComponent,DeliverySpeedUntil);
     DOREPLIFETIME(UMCPerkComponent,BoosterQueue);DOREPLIFETIME(UMCPerkComponent,bGrenadeArmed);DOREPLIFETIME(UMCPerkComponent,FuryUntil);
     DOREPLIFETIME(UMCPerkComponent,FuryDirection);
 }

@@ -9,6 +9,7 @@
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
+#include <limits>
 
 namespace MCBatch1CatalogTests
 {
@@ -16,7 +17,11 @@ const TArray<FName>& ApprovedIDs()
 {
     static const TArray<FName> IDs={TEXT("B1_HeavyHit"),TEXT("B1_LightFoot"),TEXT("B1_DeepBreath"),
         TEXT("B1_BigPortion"),TEXT("B1_ConfidentThrow"),TEXT("B1_FreshDelivery"),TEXT("B1_GreedyHands"),
-        TEXT("B1_WideBristles"),TEXT("B1_UnderPressure")};
+        TEXT("B1_WideBristles"),TEXT("B1_UnderPressure"),
+        TEXT("B2_ReturnTrip"),TEXT("B2_CleanBreath"),TEXT("B2_NeatFreak"),TEXT("B2_LastStroke"),TEXT("B2_CleanAcceleration"),TEXT("B2_RefreshingWork"),
+        TEXT("B2_ThickEnamel"),TEXT("B2_Shield"),TEXT("B2_SecondWind"),TEXT("B2_HoudiniDash"),
+        TEXT("B2_MightyTooth"),TEXT("B2_StartFromDash"),TEXT("B2_ThunderGod"),TEXT("B2_EchoSwing"),TEXT("B2_Billiards"),
+        TEXT("B2_Softener"),TEXT("B2_Antiseptic"),TEXT("B2_LastingFormula")};
     return IDs;
 }
 
@@ -24,6 +29,7 @@ UDataTable* CanonicalTable()
 {
     return LoadObject<UDataTable>(nullptr,TEXT("/Game/Gameplay/Roguelike/DT_Perks.DT_Perks"));
 }
+
 
 FName OldID(const UDataTable* Table,EMCPerkKind Kind)
 {
@@ -80,7 +86,7 @@ FName CatalogIDFor(UDataTable* Table,FName PerkID)
 }
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCBatch1SavedCatalogTest,"MessControl.Passives.Batch1.Catalog.SavedExactNine",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCBatch1SavedCatalogTest,"MessControl.Passives.Batch1.Catalog.SavedCurrentCatalog",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCBatch1SavedCatalogTest::RunTest(const FString&)
 {
@@ -97,9 +103,12 @@ bool FMCBatch1SavedCatalogTest::RunTest(const FString&)
             TestTrue(TEXT("Each new passive participates in chest choices"),Row->bAvailableForLevelChoice);
             TestTrue(TEXT("Each new passive has a finite positive reward weight"),FMath::IsFinite(Row->Weight) && Row->Weight>0);
             TestTrue(TEXT("New definitions resolve as passive skills"),UMCPerkComponent::ResolvePerkKind(*Row,ID)==EMCPerkKind::Passive);
-            TestTrue(TEXT("Only positive new passives are enabled"),Row->Polarity==EMCPerkPolarity::Positive);
+            TestTrue(TEXT("The dangerous residual coating is negative; other current skills are positive"),
+                Row->Polarity==(ID==TEXT("B2_LastingFormula")?EMCPerkPolarity::Negative:EMCPerkPolarity::Positive));
             TestEqual(TEXT("New passives are unique rather than stack upgrades"),Row->MaxStacks,1);
-            TestTrue(TEXT("Every new passive uses authored rogue modifiers"),Row->bRoguePerk && !Row->Modifiers.IsEmpty());
+            TestTrue(TEXT("Current passives use authored modifiers or explicit event behavior"),Row->bRoguePerk
+                && (!Row->Modifiers.IsEmpty() || !Row->Parameters.IsEmpty() || ID==TEXT("B2_MightyTooth")));
+            for(const auto& Parameter:Row->Parameters) TestTrue(TEXT("Authored event parameters are finite"),FMath::IsFinite(Parameter.Value));
             TestTrue(TEXT("New passives do not replace an ordinary tool"),Row->ToolUpgrade==EMCToolUpgrade::None);
         } else {
             ++RetainedOld;
@@ -108,7 +117,7 @@ bool FMCBatch1SavedCatalogTest::RunTest(const FString&)
         }
         Enabled+=Row->bEnabled?1:0;
     }
-    TestEqual(TEXT("Exactly the approved nine production rows are enabled"),Enabled,ApprovedIDs().Num());
+    TestEqual(TEXT("Exactly the approved current production rows are enabled"),Enabled,ApprovedIDs().Num());
     TestTrue(TEXT("Legacy saved row identities remain available for migration"),RetainedOld>0);
     for(FName ID:ApprovedIDs()) TestNotNull(FString::Printf(TEXT("Approved row %s exists"),*ID.ToString()),
         Table->FindRow<FMCPerkDefinition>(ID,TEXT("Batch 1 approved IDs"),false));
@@ -120,7 +129,7 @@ bool FMCBatch1SavedCatalogTest::RunTest(const FString&)
         TestTrue(TEXT("The current gameplay assortment contains passives only"),Entry.PerkKind==EMCPerkKind::Passive);
         ShopPerks.Add(Entry.Definition.PerkID);
     }
-    TestEqual(TEXT("All nine new passives are available to shop rotation"),ShopPerks.Num(),ApprovedIDs().Num());
+    TestEqual(TEXT("All current passives are available to shop rotation"),ShopPerks.Num(),ApprovedIDs().Num());
     TestTrue(TEXT("Old rare tool rows cannot enter team tool rewards"),Player->Perks->GetToolRewardIDs().IsEmpty());
     return true;
 }
@@ -155,7 +164,7 @@ bool FMCBatch1OfferGrantTest::RunTest(const FString&)
     }
     for(FName ID:ApprovedIDs()) if(ID!=TEXT("B1_DeepBreath"))
         TestTrue(TEXT("Distinct passives may coexist beyond the eight-icon HUD estimate"),Perks->ServerGrantPerk(ID));
-    TestEqual(TEXT("All nine distinct passive sources are retained"),Perks->PassivePerkIDs.Num(),9);
+    TestEqual(TEXT("All current distinct passive sources are retained"),Perks->PassivePerkIDs.Num(),ApprovedIDs().Num());
     for(const auto& Slot:Perks->ActiveSkillSlots) TestTrue(TEXT("Passives never occupy a 1/2/3/4 active slot"),Slot.PerkID.IsNone());
     TArray<FName> Offer;
     TestFalse(TEXT("Exhausting this catalog creates no duplicate fallback reward"),Perks->BuildRogueOffer(EMCPerkPolarity::Positive,51,Offer));
@@ -293,11 +302,32 @@ bool FMCBatch1NoHardcodedGateTest::RunTest(const FString&)
     Table->AddRow(TEXT("Fixture_EnabledSkill"),Passive);
     auto* Perks=W.Player(Table)->Perks.Get();
     TArray<FName> Offer;
-    TestTrue(TEXT("The nine-ID policy is authored production data, not an engine-wide ID allowlist"),
+    TestTrue(TEXT("The current catalog is authored data, not an engine-wide ID allowlist"),
         Perks->BuildRogueOffer(EMCPerkPolarity::Positive,42,Offer));
     TestTrue(TEXT("An unrelated enabled definition participates in its own table"),Offer.Contains(TEXT("Fixture_EnabledSkill")));
     TestTrue(TEXT("A custom table retains the generic acquisition extension point"),Perks->ServerGrantPerk(TEXT("Fixture_EnabledSkill")));
     TestEqual(TEXT("Custom authored modifiers remain executable"),Perks->RogueValue(EMCRogueStat::NormalSpeed),1.05f,.0001f);
     return true;
 }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCEventPassiveParameterTest,"MessControl.Passives.Batch2.Catalog.ParameterFallbacks",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCEventPassiveParameterTest::RunTest(const FString&)
+{
+    using namespace MCBatch1CatalogTests;
+    FWorld World;
+    auto* Table=NewObject<UDataTable>(World.World);Table->RowStruct=FMCPerkDefinition::StaticStruct();
+    FMCPerkDefinition Row;Row.Kind=EMCPerkKind::Passive;Row.bRoguePerk=true;
+    Row.Parameters.Add(TEXT("Chance"),.47f);
+    Row.Parameters.Add(TEXT("Invalid"),std::numeric_limits<float>::quiet_NaN());
+    Table->AddRow(TEXT("PrivateParameterFixture"),Row);
+    Row.bEnabled=false;Table->AddRow(TEXT("DisabledParameterFixture"),Row);
+    auto* Perks=World.Player(Table)->Perks.Get();
+    TestEqual(TEXT("Event tuning comes from the current reflected row"),Perks->PerkParameter(TEXT("PrivateParameterFixture"),TEXT("Chance"),.2f),.47f);
+    TestEqual(TEXT("Missing key retains the explicit versioned fallback"),Perks->PerkParameter(TEXT("PrivateParameterFixture"),TEXT("Missing"),.2f),.2f);
+    TestEqual(TEXT("Nonfinite authored data never reaches gameplay arithmetic"),Perks->PerkParameter(TEXT("PrivateParameterFixture"),TEXT("Invalid"),.2f),.2f);
+    TestEqual(TEXT("Disabled definitions cannot supply live event tuning"),Perks->PerkParameter(TEXT("DisabledParameterFixture"),TEXT("Chance"),.2f),.2f);
+    TestEqual(TEXT("Missing row and nonfinite fallback are a finite zero"),Perks->PerkParameter(TEXT("Missing"),TEXT("Chance"),std::numeric_limits<float>::infinity()),0.f);
+    return true;
+}
+
 #endif

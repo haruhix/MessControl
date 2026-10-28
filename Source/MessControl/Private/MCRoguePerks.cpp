@@ -1,4 +1,6 @@
 #include "MCPerkComponent.h"
+#include "MCCombatPassiveSubsystem.h"
+#include "MCDefenseSprayPassives.h"
 #include "MCPlayerState.h"
 #include "MCGameState.h"
 #include "MCGameDirector.h"
@@ -100,6 +102,14 @@ bool UMCPerkComponent::ActivationMatches(EMCRogueActivation Condition,AActor* Ta
     }
     return false;
 }
+float UMCPerkComponent::PerkParameter(FName ID,FName Key,float Fallback) const
+{
+    Fallback=FMath::IsFinite(Fallback)?Fallback:0.f;
+    const auto* Row=FindDefinition(ID);
+    if(!Row || !IsDefinitionUsable(*Row)) return Fallback;
+    const float* Value=Row->Parameters.Find(Key);
+    return Value && FMath::IsFinite(*Value)?*Value:Fallback;
+}
 float UMCPerkComponent::RogueValue(EMCRogueStat Stat,float Base,AActor* Target,FName ExtraStack) const
 {
     if(!FMath::IsFinite(Base)) return 0;
@@ -113,6 +123,10 @@ float UMCPerkComponent::RogueValue(EMCRogueStat Stat,float Base,AActor* Target,F
     for(const auto& Active:ActivePerks) {Add(Active.PerkID,1);ExtraSeen|=Active.PerkID==ExtraStack;}
     if(!ExtraStack.IsNone() && !ExtraSeen) Add(ExtraStack,1);
     if(Stat==EMCRogueStat::NormalSpeed) {
+        if(GetStacks(TEXT("B2_CleanAcceleration"))>0 && RogueNow(GetWorld())<CleanSpeedUntil)
+            Percent+=FMath::Clamp(PerkParameter(TEXT("B2_CleanAcceleration"),TEXT("SpeedBonus"),.1f),0.f,.5f);
+        if(GetStacks(TEXT("B2_ReturnTrip"))>0 && RogueNow(GetWorld())<DeliverySpeedUntil)
+            Percent+=FMath::Clamp(PerkParameter(TEXT("B2_ReturnTrip"),TEXT("SpeedBonus"),.15f),0.f,.5f);
         if(GetStacks(TEXT("P17"))>0 && RogueNow(GetWorld())<CleanSpeedUntil) Percent+=.1f;
         if(GetStacks(TEXT("N24"))>0 && RogueNow(GetWorld())<DeliverySlowUntil) Percent-=.1f;
     }
@@ -131,11 +145,11 @@ float UMCPerkComponent::WeaponDamage(float Base,AActor* Target) const
         if(Hero->Inventory->Selected==EMCToolSlot::Pickaxe) Bonus+=RogueValue(EMCRogueStat::PickaxeDamage,1,Target)-1;
         if(Hero->Inventory->Selected==EMCToolSlot::Knife && Hero->Inventory->HasUpgrade(EMCToolUpgrade::Chainsaw)) Bonus+=RogueValue(EMCRogueStat::ChainsawDamage,1,Target)-1;
     }
-    return Base*FMath::Clamp(1+Bonus,.6f,2.f);
+    return UMCCombatPassiveSubsystem::ModifyWeaponDamage(this,Target,Base*FMath::Clamp(1+Bonus,.6f,2.f));
 }
 float UMCPerkComponent::IncomingDamage(float Base,EMCRogueDamageKind Kind) const
 {
-    if(Kind==EMCRogueDamageKind::Chainsaw) return Base;
+    if(Kind==EMCRogueDamageKind::Chainsaw || Kind==EMCRogueDamageKind::System) return Base;
     float Bonus=RogueValue(EMCRogueStat::IncomingDamage)-1;
     if(Kind==EMCRogueDamageKind::FallingNut) Bonus+=RogueValue(EMCRogueStat::FallingNutDamage)-1;
     if(Kind==EMCRogueDamageKind::Brace) Bonus+=RogueValue(EMCRogueStat::BraceDamage)-1;
@@ -144,6 +158,7 @@ float UMCPerkComponent::IncomingDamage(float Base,EMCRogueDamageKind Kind) const
 void UMCPerkComponent::NotifyWeaponHit(AActor* Target)
 {
     if(!HasAuthority() || bRogueExtraHit || !IsValid(Target)) return;
+    UMCCombatPassiveSubsystem::NotifyWeaponHit(this,Target);
     const bool Team=ActivationMatches(EMCRogueActivation::TeamStrikeReady,Target);
     RecentWeaponHits.Add(Target,RogueNow(GetWorld()));CounterReadyUntil=-100;
     if(Team && GetStacks(TEXT("P35"))>0) NextTeamStrikeAt=RogueNow(GetWorld())+3;
@@ -176,6 +191,13 @@ void UMCPerkComponent::NotifyCleaned(FVector Point)
 void UMCPerkComponent::NotifyFoodDelivered()
 {
     if(HasAuthority() && GetStacks(TEXT("N24"))>0) {DeliverySlowUntil=RogueNow(GetWorld())+3;GetOwner()->ForceNetUpdate();}
+    if(HasAuthority() && GetStacks(TEXT("B2_ReturnTrip"))>0) {
+        const auto* Hero=HeroFor(this);
+        if(Hero && Hero->Status && Hero->Status->IsAlive()) {
+            DeliverySpeedUntil=RogueNow(GetWorld())+FMath::Clamp(PerkParameter(TEXT("B2_ReturnTrip"),TEXT("Duration"),2.f),0.f,30.f);
+            GetOwner()->ForceNetUpdate();
+        }
+    }
 }
 int32 UMCPerkComponent::FoodExperienceBonus(int32 Base)
 {
@@ -224,12 +246,14 @@ void UMCPerkComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
 }
 void UMCPerkComponent::ClearRogueRuntime()
 {
+    UMCCombatPassiveSubsystem::ResetOwner(this);
+    UMCDefenseSprayPassives::ResetOwner(this);
     if(GrenadeCue.IsValid()) GrenadeCue->DestroyComponent();GrenadeCue.Reset();
     if(auto* Hero=HeroFor(this);Hero && bFuryMotion) Hero->GetCharacterMovement()->RemoveRootMotionSourceByID(FuryMotionID);
     bFuryMotion=false;FuryUntil=-100;bGrenadeArmed=false;BoosterQueue.Reset();
     if(NightLight.IsValid()) NightLight->DestroyComponent();NightLight.Reset();
     for(const auto& Actor:RogueActors) if(Actor.IsValid()) Actor->Destroy();RogueActors.Reset();RecentWeaponHits.Reset();
-    CounterReadyUntil=CleanSpeedUntil=DeliverySlowUntil=-100;
+    CounterReadyUntil=CleanSpeedUntil=DeliverySlowUntil=DeliverySpeedUntil=-100;
     NextCounterAt=NextTeamStrikeAt=NextCleanHealAt=NextFoamAt=NextRicochetAt=-100;
     DeliveryXPResidual=0;
 }

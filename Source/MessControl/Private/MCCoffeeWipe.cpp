@@ -68,7 +68,7 @@ bool FMCCoffeeWipe::Deposit(TArray<uint8>& Mask,TArray<uint8>& Deposited,FVector
 bool FMCCoffeeWipe::Stroke(TArray<uint8>& Mask,FVector2D From,FVector2D To,float Radius,float Seconds,TArray<float>* Fractional,float Rate)
 {
     if (From.ContainsNaN() || To.ContainsNaN() || !FMath::IsFinite(Radius) || Radius<=0 ||
-        !FMath::IsFinite(Seconds) || Seconds<=0 || !FMath::IsFinite(Rate)) return false;
+        !FMath::IsFinite(Seconds) || Seconds<=0 || !FMath::IsFinite(Rate) || Rate<=0) return false;
     Radius=FMath::Clamp(Radius,.01f,Rate>1.f?.5f:.35f);
     if (FMath::Max(From.X,To.X)<-Radius || FMath::Min(From.X,To.X)>1+Radius ||
         FMath::Max(From.Y,To.Y)<-Radius || FMath::Min(From.Y,To.Y)>1+Radius) return false;
@@ -76,7 +76,7 @@ bool FMCCoffeeWipe::Stroke(TArray<uint8>& Mask,FVector2D From,FVector2D To,float
     if(Fractional && Fractional->Num()!=Count) Fractional->Init(0,Count);
     const FVector2D Segment=To-From;
     const double Length=Segment.SizeSquared();
-    const float Exposure=FMath::Min(Seconds,.1f)*FMath::Clamp(Rate,1.f,2.f);
+    const float Exposure=FMath::Min(Seconds,.1f)*FMath::Clamp(Rate,0.f,16.f);
     const float Strength=1-FMath::Exp(-MCBrushCleaningBalance::PuddleDissolvePerSecond*Exposure);
     bool Changed=false;
     for (int32 Y=0;Y<Size;++Y) for (int32 X=0;X<Size;++X)

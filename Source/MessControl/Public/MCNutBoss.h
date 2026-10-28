@@ -97,6 +97,7 @@ protected:
 private:
     // A placed laboratory station schedules real attacks without the encounter AI.
     friend class AMCVFXLabBossStation;
+    friend class FMCEnamelContactLatchTest;
     TWeakObjectPtr<AMCVFXLabBossStation> LabStation;
     TWeakObjectPtr<AMCToothCharacter> LabTarget;
     int32 LabTelegraphs=0,LabExecutions=0,LabRecoveries=0;

@@ -14878,5 +14878,329 @@
     "RU": "Дальность спрея +25%. Ширина струи +20%.",
     "EN": "Spray range +25%. Spray width +20%.",
     "Context": "Batch1 current passive catalog"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_ReturnTrip.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Обратный рейс",
+    "RU": "Обратный рейс",
+    "EN": "Return trip",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_ReturnTrip.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "После доставки еды скорость +15% на 2 секунды. Повторная доставка обновляет время.",
+    "RU": "После доставки еды скорость +15% на 2 секунды. Повторная доставка обновляет время.",
+    "EN": "Delivering food grants +15% movement speed for 2 seconds. Another delivery refreshes the duration.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_CleanBreath.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Чистое дыхание",
+    "RU": "Чистое дыхание",
+    "EN": "Clean breath",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_CleanBreath.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Каждое полностью очищенное вами пятно восстанавливает 3 HP.",
+    "RU": "Каждое полностью очищенное вами пятно восстанавливает 3 HP.",
+    "EN": "Each stain you fully clean restores 3 HP.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_NeatFreak.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Чистюля",
+    "RU": "Чистюля",
+    "EN": "Neat freak",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_NeatFreak.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Полная очистка пятна с шансом 20% очищает одно соседнее пятно в радиусе 3 м. Цепная реакция не запускается.",
+    "RU": "Полная очистка пятна с шансом 20% очищает одно соседнее пятно в радиусе 3 м. Цепная реакция не запускается.",
+    "EN": "Fully cleaning a stain has a 20% chance to clean one neighboring stain within 3 m. It cannot start another chain.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_LastStroke.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Последний штрих",
+    "RU": "Последний штрих",
+    "EN": "Finishing touch",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_LastStroke.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Если осталось меньше 15% грязи, эффективность вашей очистки удваивается.",
+    "RU": "Если осталось меньше 15% грязи, эффективность вашей очистки удваивается.",
+    "EN": "Your cleaning efficiency doubles while less than 15% of a stain remains.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_CleanAcceleration.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Чистый разгон",
+    "RU": "Чистый разгон",
+    "EN": "Clean momentum",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_CleanAcceleration.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Полная очистка пятна повышает скорость на 10% на 3 секунды. Повторная очистка обновляет время.",
+    "RU": "Полная очистка пятна повышает скорость на 10% на 3 секунды. Повторная очистка обновляет время.",
+    "EN": "Fully cleaning a stain grants +10% movement speed for 3 seconds. Another completion refreshes the duration.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_RefreshingWork.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Освежающий труд",
+    "RU": "Освежающий труд",
+    "EN": "Refreshing work",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_RefreshingWork.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Когда рот полностью очищен, каждый живой игрок с этой пассивкой восстанавливает 20% максимального HP. Один раз за переход к полной чистоте.",
+    "RU": "Когда рот полностью очищен, каждый живой игрок с этой пассивкой восстанавливает 20% максимального HP. Один раз за переход к полной чистоте.",
+    "EN": "When the mouth becomes fully clean, each living owner restores 20% of their maximum HP. Triggers once per transition to complete cleanliness.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_ThickEnamel.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Толстая эмаль",
+    "RU": "Толстая эмаль",
+    "EN": "Thick enamel",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_ThickEnamel.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Шанс 20% полностью избежать обычного входящего урона. Не спасает от системной смерти и выхода за арену.",
+    "RU": "Шанс 20% полностью избежать обычного входящего урона. Не спасает от системной смерти и выхода за арену.",
+    "EN": "A 20% chance to avoid an ordinary incoming damage event. Does not prevent system deaths or arena-boundary deaths.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_Shield.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Щит",
+    "RU": "Щит",
+    "EN": "Shield",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_Shield.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Пока здоровье ниже 20%, входящий урон уменьшается на 50%. Удар, пересекающий порог, ещё не защищён.",
+    "RU": "Пока здоровье ниже 20%, входящий урон уменьшается на 50%. Удар, пересекающий порог, ещё не защищён.",
+    "EN": "While health is below 20%, incoming damage is reduced by 50%. The hit that first crosses the threshold is not protected.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_SecondWind.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Второе дыхание",
+    "RU": "Второе дыхание",
+    "EN": "Second wind",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_SecondWind.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Подтверждённое уклонение от атаки рывком восстанавливает 30% максимальной выносливости. Пустой рывок не даёт бонус.",
+    "RU": "Подтверждённое уклонение от атаки рывком восстанавливает 30% максимальной выносливости. Пустой рывок не даёт бонус.",
+    "EN": "A confirmed dash dodge restores 30% of maximum stamina. An unthreatened dash grants no bonus.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_HoudiniDash.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Рывок Гудини",
+    "RU": "Рывок Гудини",
+    "EN": "Houdini dash",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_HoudiniDash.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Во время рывка вы невидимы. Перезарядка каждого заряда рывка +20%. Невидимость не даёт дополнительной неуязвимости.",
+    "RU": "Во время рывка вы невидимы. Перезарядка каждого заряда рывка +20%. Невидимость не даёт дополнительной неуязвимости.",
+    "EN": "You are invisible during a dash. Each dash charge takes 20% longer to recharge. Invisibility grants no extra invulnerability.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_MightyTooth.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Могучий зуб",
+    "RU": "Могучий зуб",
+    "EN": "Mighty tooth",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_MightyTooth.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Обычный удар ближнего боя поражает несколько подходящих целей перед вами. Каждая цель получает удар один раз.",
+    "RU": "Обычный удар ближнего боя поражает несколько подходящих целей перед вами. Каждая цель получает удар один раз.",
+    "EN": "An ordinary melee swing can hit several eligible targets in front of you. Each target is hit once.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_StartFromDash.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "С места в карьер",
+    "RU": "С места в карьер",
+    "EN": "Flying start",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_StartFromDash.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Первый успешный удар в течение 2 секунд после рывка наносит +25% урона. Пустой замах бонус не тратит.",
+    "RU": "Первый успешный удар в течение 2 секунд после рывка наносит +25% урона. Пустой замах бонус не тратит.",
+    "EN": "Your first successful attack within 2 seconds of a dash deals +25% damage. An empty swing does not consume the bonus.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_ThunderGod.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Бог грома",
+    "RU": "Бог грома",
+    "EN": "Thunder god",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_ThunderGod.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Успешный удар с шансом 20% запускает молнию: до 3 дополнительных целей, по 3 м между ними, 30% урона по целой еде. Союзников отталкивает; боссов и владельца молния не поражает.",
+    "RU": "Успешный удар с шансом 20% запускает молнию: до 3 дополнительных целей, по 3 м между ними, 30% урона по целой еде. Союзников отталкивает; боссов и владельца молния не поражает.",
+    "EN": "A successful attack has a 20% chance to chain to up to 3 additional targets, within 3 m per jump. Whole food takes 30% damage; allies are knocked back. The chain excludes bosses and its owner.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_EchoSwing.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Эхо замаха",
+    "RU": "Эхо замаха",
+    "EN": "Echo swing",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_EchoSwing.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Через 0,5 секунды призрачный инструмент повторяет успешный удар ближнего боя на прежнем месте с 40% урона. Эхо не запускает другие боевые пассивки.",
+    "RU": "Через 0,5 секунды призрачный инструмент повторяет успешный удар ближнего боя на прежнем месте с 40% урона. Эхо не запускает другие боевые пассивки.",
+    "EN": "After 0.5 seconds, a ghost tool repeats a successful melee strike at its original location for 40% damage. Echoes cannot trigger other combat passives.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_Billiards.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Бильярд",
+    "RU": "Бильярд",
+    "EN": "Billiards",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_Billiards.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Удары отталкивают малых врагов. В течение 1 секунды столкновение такого врага с другим наносит 30% исходного урона, один раз каждой цели. Боссы не отталкиваются.",
+    "RU": "Удары отталкивают малых врагов. В течение 1 секунды столкновение такого врага с другим наносит 30% исходного урона, один раз каждой цели. Боссы не отталкиваются.",
+    "EN": "Your strikes launch small enemies. For 1 second, collisions deal 30% of the original damage once per target. Bosses cannot be launched.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_Softener.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Размягчитель",
+    "RU": "Размягчитель",
+    "EN": "Softener",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_Softener.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Обработанное спреем место в течение 5 секунд убирается щёткой на 40% быстрее. Повторная обработка обновляет время.",
+    "RU": "Обработанное спреем место в течение 5 секунд убирается щёткой на 40% быстрее. Повторная обработка обновляет время.",
+    "EN": "A sprayed spot can be brushed 40% faster for 5 seconds. Spraying it again refreshes the duration.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_Antiseptic.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Антисептик",
+    "RU": "Антисептик",
+    "EN": "Antiseptic",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_Antiseptic.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Спрей также удаляет грязь. Распыление до 1 секунды, затем перезарядка 10,4 секунды (+30% к базе 8 секунд). Досрочное отпускание не отменяет перезарядку.",
+    "RU": "Спрей также удаляет грязь. Распыление до 1 секунды, затем перезарядка 10,4 секунды (+30% к базе 8 секунд). Досрочное отпускание не отменяет перезарядку.",
+    "EN": "Spray also removes dirt. Spray for up to 1 second, then reload for 10.4 seconds (+30% over the 8-second base). Releasing early does not cancel the reload.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_LastingFormula.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Стойкая формула",
+    "RU": "Стойкая формула",
+    "EN": "Lasting formula",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B2_LastingFormula.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "ОПАСНОЕ ПОКРЫТИЕ. Состав продолжает чистить 3 секунды с эффективностью 30%. Покрытие остаётся всего 10 секунд от последнего нанесения и наносит 5 HP/сек обычным врагам и всем игрокам, включая владельца. Зубы и боссы не повреждаются.",
+    "RU": "ОПАСНОЕ ПОКРЫТИЕ. Состав продолжает чистить 3 секунды с эффективностью 30%. Покрытие остаётся всего 10 секунд от последнего нанесения и наносит 5 HP/сек обычным врагам и всем игрокам, включая владельца. Зубы и боссы не повреждаются.",
+    "EN": "DANGEROUS COATING. Residue cleans for 3 seconds at 30% efficiency. It remains for 10 seconds total after the last local application and deals 5 HP/sec to ordinary enemies and all players, including its owner. Teeth and bosses are unaffected.",
+    "Context": "Current event passives"
   }
 ]

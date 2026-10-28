@@ -1,7 +1,7 @@
 """Owned L_Mouth solo proof of the real F3 -> passive page -> grant/remove path.
 
 Run in the idle current Editor on saved L_Mouth after the
-matching native build and saved B1 tables. No Computer Use, network, microphone,
+matching native build and saved current tables. No Computer Use, network, microphone,
 package/profile/source edits or fabricated grants. The existing native 'level'
 review action is the disclosed director-stop/baseline fixture. No reward card
 is selected by this harness; unexpected reward UI is a bounded failure.
@@ -28,11 +28,12 @@ import unreal as u
 
 ROOT = Path(u.Paths.project_dir()).resolve()
 OUT = Path(globals().get('MC_F3_PASSIVES_OUTPUT',
-    'E:/CodexWork/MessControl/PassivesBatch1_20261028/F3SoloD')).resolve()
+    'E:/CodexWork/MessControl/PassivesRemaining_20261028/F3CurrentA')).resolve()
 KEY = 'mc_f3_passives_solo'
 IDS = ('B1_HeavyHit', 'B1_LightFoot', 'B1_DeepBreath', 'B1_BigPortion',
        'B1_ConfidentThrow', 'B1_FreshDelivery', 'B1_GreedyHands',
-       'B1_WideBristles', 'B1_UnderPressure')
+       'B1_WideBristles', 'B1_UnderPressure') + tuple(
+           spec['ID'] for spec in json.loads((ROOT/'Tools/Unreal/UI/passive_event_specs.json').read_text(encoding='utf8')))
 TARGET = 'B1_DeepBreath'
 assert ROOT.as_posix().lower() == 'e:/devgame/messcontrol'
 assert OUT.drive.upper() == 'E:'
@@ -71,7 +72,7 @@ class F3PassivesSolo(Base):
                 'One standalone authority player; no multiplayer/client-only access or microphone check.',
                 'Disclosed native director-stop/reset review fixture, not an earned run.',
                 'ToggleDevPanel tests the real F3-bound handler; hardware F3 opening is not asserted.',
-                'Only DeepBreath is granted/removed here; all nine page rows are inspected.',
+                'Only DeepBreath is granted/removed here; all current page rows are inspected.',
                 'Screenshots are exact PIE SWindow captures; their visual quality needs human/agent review.'])
         self.report.pop('fixture_tuning', None)
         self.report.pop('tuning_reason', None)
@@ -296,9 +297,9 @@ class F3PassivesSolo(Base):
                     self.check('Initially unowned row: '+ident, names[ident]['owned']=='Не получено')
                 rows = [widget for widget in u.ObjectIterator(u.Border)
                     if widget.get_name().startswith('PassiveRow_') and outer_contains(widget, self.panel())]
-                self.check('Exactly nine passive rows', len(rows)==9)
+                self.check('Exactly the current catalog passive rows', len(rows)==len(IDS))
                 self.report['page_rows'] = names
-                self.screenshot('03_nine_named_rows.png')
+                self.screenshot('03_current_named_rows.png')
                 self.control('PassiveScroll', u.ScrollBox).scroll_widget_into_view(
                     self.control('PassiveRow_'+TARGET, u.Border), False, u.DescendantScrollDestination.CENTER, 10.)
                 self.enter('deep_breath_visible')

@@ -106,6 +106,8 @@ public:
     /** The same perk-adjusted cost is used for eligibility and the movement ledger. */
     float EffectiveDashStaminaCost() const;
     float GetStamina() const { return FMath::Clamp(StaminaState.Value,0.f,GetMaxStamina()); }
+    /** Confirmed server outcomes may restore stamina without rewriting dash costs or cooldowns. */
+    void RestoreStaminaFraction(float Fraction);
     const FMCStaminaPredictionState& GetStaminaPrediction() const { return StaminaState; }
     const FMCStaminaPredictionState& GetStaminaResponseSnapshot() const { return ServerStaminaSnapshot; }
     void RestoreStaminaPrediction(const FMCStaminaPredictionState& State);
@@ -235,6 +237,7 @@ private:
     bool CanDashAction() const;
     bool CanSpendDash() const;
     bool StartDash();
+    friend class FMCDefenseDashTest;
     void UpdateAmbientSuction();
     void UpdateRiverCurrent();
     float ClimbCooldown=0;

@@ -136,7 +136,11 @@ bool UMCHubEconomyComponent::IsCatalogUsable(const FMCHubCatalogRow& Item,bool b
     if(!ResolvePerk(Item.PerkID,Perk)) return false;
     const EMCPerkKind Kind=UMCPerkComponent::ResolvePerkKind(Perk,Item.PerkID);
     const bool ValidKind=Kind==EMCPerkKind::Passive || Kind==EMCPerkKind::Active || Kind==EMCPerkKind::Consumable || Kind==EMCPerkKind::ToolUpgrade;
-    return ValidKind && Perk.bEnabled && Perk.MaxStacks>0 && Perk.Polarity==EMCPerkPolarity::Positive
+    // A deliberately authored negative passive may be sold with its explicit
+    // risk description. Its polarity still excludes ordinary positive chests.
+    const bool StorePolarity=Perk.Polarity==EMCPerkPolarity::Positive
+        || (Kind==EMCPerkKind::Passive && Perk.bRoguePerk && Perk.Polarity==EMCPerkPolarity::Negative);
+    return ValidKind && Perk.bEnabled && Perk.MaxStacks>0 && StorePolarity
         && FMath::IsFinite(Perk.CooldownSeconds) && Perk.CooldownSeconds>=0
         && Perk.ToolUpgrade!=EMCToolUpgrade::Buffer && uint8(Perk.ToolUpgrade)<=uint8(EMCToolUpgrade::Watergun)
         && ((Kind==EMCPerkKind::ToolUpgrade)==(Perk.ToolUpgrade!=EMCToolUpgrade::None))

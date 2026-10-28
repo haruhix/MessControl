@@ -1,5 +1,6 @@
 #include "MCArenaTooth.h"
 #include "MCPerkComponent.h"
+#include "MCDefenseSprayPassives.h"
 #include "MCSurfaceWipe.h"
 #include "MCInventoryComponent.h"
 #include "MCToothCharacter.h"
@@ -486,20 +487,66 @@ bool AMCArenaTooth::BrushGrime(AMCToothCharacter* Worker,float Seconds)
     const float CoverageScale=FMath::Max(1.f,float(Dimensions.GetMax())/500.f);
     const float DirtRadius=54.f;
     const float Radius=Worker->Inventory->CleaningRadius(DirtRadius)*CoverageScale*1.25f;
-    const bool AcceptedStroke=FMCSurfaceWipe::Stroke(GrimeMask,Continuous?History.UV:UV,UV,Dimensions,Radius,Seconds*2.f,&PreciseGrimeMask,Worker->Inventory->CleaningSpeedMultiplier());
-    if(AcceptedStroke) {
-        OnRep_Grime();if(auto* Perks=UMCPerkComponent::ForActor(Worker)) Perks->NotifyCleaned(Hit.ImpactPoint);
-    }
+    const bool AcceptedStroke=ApplyGrimeCleaning(Worker,Continuous?History.UV:UV,UV,Dimensions,Hit.ImpactPoint,
+        Radius,Seconds*2.f,Worker->Inventory->CleaningSpeedMultiplier()*UMCDefenseSprayPassives::BrushMultiplier(this,Hit.ImpactPoint),EMCStainCleanReason::Brush);
     History.UV=UV; History.At=Now; BrushAt=Now;
-    const float Left=RemainingGrime();
-    // Finish the thin residual rim with the existing short fade. Requiring the
-    // final few interpolated volume texels made large crowns stall on tiny tips.
-    // A surface fraction gives the same finish tolerance at every tooth size.
-    const int32 RemainingLayers=Left<.06f?0:FMath::Max(1,FMath::CeilToInt(Left*Status->State.CoffeeTotal));
-    while(Status->State.CoffeeLeft>RemainingLayers) { Status->CareContact(true,Worker); ++Worker->SuccessfulBrushContacts; }
     if(AcceptedStroke && CareFeedback) CareFeedback->ReportAccepted(EMCToothCareFeedbackKind::Cleaning,
         Hit.ImpactPoint,Hit.ImpactNormal,!Status->NeedsCare(true));
     return true;
+}
+
+void AMCArenaTooth::SyncGrimeCleaningLayers(AMCToothCharacter* Worker,EMCStainCleanReason Reason)
+{
+    const float Left=RemainingGrime();
+    const int32 RemainingLayers=Left<.06f?0:FMath::Max(1,FMath::CeilToInt(Left*Status->State.CoffeeTotal));
+    while(Status->State.CoffeeLeft>RemainingLayers) {
+        Status->CareContact(true,Worker);
+        if(Reason==EMCStainCleanReason::Brush) ++Worker->SuccessfulBrushContacts;
+    }
+}
+bool AMCArenaTooth::ApplyGrimeCleaning(AMCToothCharacter* Worker,FVector From,FVector To,FVector Dimensions,FVector Point,
+    float Radius,float Seconds,float Rate,EMCStainCleanReason Reason)
+{
+    const float Before=RemainingGrime();
+    Rate=UMCResultPassives::CleaningRate(Worker,Before,Rate);
+    if(Rate<=0) return false;
+    auto* Results=UMCResultPassives::ForWorld(this);
+    const auto Attempt=Results?Results->BeginCleaning(this):FMCStainCleaningAttempt();
+    const bool Changed=FMCSurfaceWipe::Stroke(GrimeMask,From,To,Dimensions,Radius,Seconds,&PreciseGrimeMask,Rate);
+    if(Changed) OnRep_Grime();
+    const bool Removed=Changed && RemainingGrime()<Before;
+    if(Removed) {
+        if(auto* Perks=UMCPerkComponent::ForActor(Worker)) Perks->NotifyCleaned(Point);
+        SyncGrimeCleaningLayers(Worker,Reason);
+    }
+    if(Results) Results->CompleteCleaning(Attempt,Worker,Reason,Removed);
+    if(Changed) ForceNetUpdate();
+    return Removed;
+}
+bool AMCArenaTooth::CleanGrimeAt(AMCToothCharacter* Worker,FVector Point,float Radius,float Seconds,float Rate,EMCStainCleanReason Reason)
+{
+    if(!HasAuthority() || !IsAvailable() || !Status->NeedsCare(true) || !IsValid(Worker) || Worker->GetWorld()!=GetWorld()
+        || !Worker->Status || !Worker->Status->IsAlive() || !Visual->GetStaticMesh() || Point.ContainsNaN()
+        || !FMath::IsFinite(Radius) || Radius<=0 || !FMath::IsFinite(Seconds) || Seconds<=0 || !FMath::IsFinite(Rate) || Rate<=0) return false;
+    if(!bGrimeReliefBuilt) BuildGrimeRelief();
+    if(GrimeSamples.IsEmpty()) return false;
+    const auto Bounds=Appearance.Mesh?Appearance.Mesh->GetBounds():Visual->GetStaticMesh()->GetBounds();
+    const FVector Size=Bounds.BoxExtent*2;
+    if(Size.GetMin()<=0) return false;
+    const FVector UV=(Visual->GetComponentTransform().InverseTransformPosition(Point)-(Bounds.Origin-Bounds.BoxExtent))/Size;
+    const FVector Dimensions=Size*Visual->GetComponentScale().GetAbs();
+    return ApplyGrimeCleaning(Worker,UV,UV,Dimensions,Point,Radius,FMath::Min(Seconds,.1f)*2.f,Rate,Reason);
+}
+bool AMCArenaTooth::CleanGrimeFromPassive(AMCToothCharacter* Worker)
+{
+    if(!HasAuthority() || !IsAvailable() || !Status->NeedsCare(true) || !IsValid(Worker) || Worker->GetWorld()!=GetWorld()
+        || !Worker->Status || !Worker->Status->IsAlive()) return false;
+    auto* Results=UMCResultPassives::ForWorld(this);if(!Results) return false;
+    const auto Attempt=Results->BeginCleaning(this);
+    GrimeMask.Init(0,FMCSurfaceWipe::Count);PreciseGrimeMask.Init(0,FMCSurfaceWipe::Count);OnRep_Grime();
+    while(Status->NeedsCare(true)) Status->CareContact(true,Worker);
+    ForceNetUpdate();
+    return Results->CompleteCleaning(Attempt,Worker,EMCStainCleanReason::NeatFreak,true);
 }
 
 void AMCArenaTooth::UpdateGrime(float Dt)

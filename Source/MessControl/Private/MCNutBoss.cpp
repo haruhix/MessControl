@@ -1,5 +1,7 @@
 #include "MCNutBoss.h"
+#include "MCCombatPassiveSubsystem.h"
 #include "MCPerkComponent.h"
+#include "MCDefenseSprayPassives.h"
 #include "MCGameDirector.h"
 #include "MCNutBossAnimInstance.h"
 #include "MCCombatFeedbackComponent.h"
@@ -11,6 +13,7 @@
 #include "MCNutKamikaze.h"
 #include "MCFoodActor.h"
 #include "MCGameState.h"
+#include "GameFramework/PlayerState.h"
 #include "MCArenaTooth.h"
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
@@ -804,6 +807,12 @@ bool AMCNutBoss::TryBeginTankCounter()
     // Clear cosmetic recoil as well as gameplay interruptions for this action.
     VisualHitAt=ShieldHitAt=-100;
     Enter(EMCNutBossState::Telegraph,BossSettings.TankCounterWindup);
+    if(const auto* Game=GetWorld()->GetGameState<AMCGameState>())
+        for(const auto& Player:Game->PlayerArray) if(auto* Hero=Player?Cast<AMCToothCharacter>(Player->GetPawn()):nullptr) {
+            FVector Escape;
+            if(IsPlayerInThreat(Hero,Escape) && HasLineOfSight(Hero,LockedStart+FVector(0,0,40)))
+                UMCDefenseSprayPassives::RegisterThreat(Hero,this,uint64(AttackSeed));
+        }
     TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::JumpTell,
         LockedStart,LockedStart,BossSettings.TankCounterRadius,BossSettings.TankCounterWindup,.1f,AttackSeed));
     return true;
@@ -813,7 +822,9 @@ float AMCNutBoss::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
 {
     if(!HasAuthority() || !CanReceiveToolHit() || !FMath::IsFinite(Damage) || Damage<=0
         || (Source && (Source->GetWorld()!=GetWorld() || !IsLiveTarget(Source)))) return 0;
-    const bool Shielded=IsShieldProtectingFrom(Source?Source->GetActorLocation():GetActorLocation());
+    FVector HitOrigin=Source?Source->GetActorLocation():GetActorLocation(),HitForward=FVector::ForwardVector;float HitReach=0;
+    UMCCombatPassiveSubsystem::GetSnapshotContact(Source,HitOrigin,HitForward,HitReach);
+    const bool Shielded=IsShieldProtectingFrom(HitOrigin);
     bLastToolHitBlocked=Shielded;
     auto* Perks=UMCPerkComponent::ForActor(Source);
     const bool CountTeamContact=IsValid(Source) && !(Perks && Perks->bRogueExtraHit);
@@ -823,7 +834,7 @@ float AMCNutBoss::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
     if(BossRole!=EMCNutBossRole::Mage) {if(!IsCounterShoving()) VisualHitAt=DamageTime;}
     else if(State==EMCNutBossState::Telegraph || State==EMCNutBossState::Executing || State==EMCNutBossState::Recovery) bMageHitQueued=true;
     else if(DamageTime-VisualHitAt>=BossSettings.MageHitAnimationSeconds+BossSettings.AnimationBlendSeconds) VisualHitAt=DamageTime;
-    VisualHitDirection=Source?(Source->GetActorLocation()-GetActorLocation()).GetSafeNormal2D():-GetActorForwardVector();
+    VisualHitDirection=Source?(HitOrigin-GetActorLocation()).GetSafeNormal2D():-GetActorForwardVector();
     if(Shielded) {
         // The entire hit belongs to the shield, including its breaking blow.
         // Excess durability damage is discarded; only later hits can remove HP.
@@ -1135,6 +1146,15 @@ void AMCNutBoss::BeginAttack(EMCNutBossAttack Next)
     const float Recovery=Next==EMCNutBossAttack::Jump?1.7f:Sustained?1.4f:Next==EMCNutBossAttack::Summon?1.2f:.9f;
     StartAttackCooldown(ResolveAt+(Sustained?ActiveSeconds:0.f)+RecoverySeconds(Recovery));
     Enter(EMCNutBossState::Telegraph,Windup);
+    // Only body attacks have a complete outcome here. Projectile/rain impacts
+    // belong to their spawned attack actors and never award on a cast finishing.
+    if(Next==EMCNutBossAttack::Melee || Next==EMCNutBossAttack::Jump || Next==EMCNutBossAttack::Charge || Next==EMCNutBossAttack::Roll)
+        if(const auto* Game=GetWorld()->GetGameState<AMCGameState>())
+            for(const auto& Player:Game->PlayerArray) if(auto* Hero=Player?Cast<AMCToothCharacter>(Player->GetPawn()):nullptr) {
+                FVector Escape;
+                if(IsPlayerInThreat(Hero,Escape) && HasLineOfSight(Hero,LockedStart+FVector(0,0,40)))
+                    UMCDefenseSprayPassives::RegisterThreat(Hero,this,uint64(AttackSeed));
+            }
     if(Next==EMCNutBossAttack::Fireball || Next==EMCNutBossAttack::Summon || Next==EMCNutBossAttack::NutRain)
         TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,Next==EMCNutBossAttack::Fireball?EMCNutCombatCue::CastCharge:EMCNutCombatCue::RitualCast,
             GetCastOrigin(),LockedTarget,Settings.BodyRadius,Windup,Next==EMCNutBossAttack::NutRain?ActiveSeconds:.25f,AttackSeed));
@@ -1168,8 +1188,8 @@ void AMCNutBoss::DamageArea(FVector Center,float Radius,float Damage,float Push,
         }
         if(!HasLineOfSight(Hero,Center+FVector(0,0,80))) continue;
         FVector Direction=Delta.GetSafeNormal2D(); if(Direction.IsNearlyZero()) Direction=AttackForward;
-        if(!Hero->Status->Damage(Damage,Direction,this,Attack==EMCNutBossAttack::NutRain?EMCRogueDamageKind::FallingNut:EMCRogueDamageKind::Ordinary)) continue;
         if(HitSet) HitSet->Add(Hero);
+        if(!Hero->Status->Damage(Damage,Direction,this,Attack==EMCNutBossAttack::NutRain?EMCRogueDamageKind::FallingNut:EMCRogueDamageKind::Ordinary)) continue;
         PushPlayer(Hero,Direction,Push);
     }
 }
@@ -1231,8 +1251,8 @@ void AMCNutBoss::DamageChargeSegment(FVector Start,FVector End)
         const float Reach=Settings.BodyRadius+Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()+15;
         if(FVector::DistSquared2D(Hero->GetActorLocation(),Closest)>FMath::Square(Reach)
             || FMath::Abs(Hero->GetActorLocation().Z-Closest.Z)>180 || !HasLineOfSight(Hero,Closest)) continue;
+        AttackHits.Add(Hero);
         if(Hero->Status->Damage(BossSettings.ChargeDamage,AttackForward,this)) {
-            AttackHits.Add(Hero);
             PushPlayer(Hero,AttackForward,BossSettings.TankChargePush);
         }
     }
@@ -1250,8 +1270,8 @@ void AMCNutBoss::DamageRollSegment(FVector Start,FVector End)
         const FVector Delta=Hero->GetActorLocation()-Closest;
         if(Delta.SizeSquared2D()>FMath::Square(Reach) || FMath::Abs(Delta.Z)>180 || !HasLineOfSight(Hero,Closest)) continue;
         FVector PushDirection=Delta.GetSafeNormal2D(); if(PushDirection.IsNearlyZero()) PushDirection=AttackForward;
-        if(!Hero->Status->Damage(BossSettings.RollDamage,PushDirection,this)) continue;
         RollHitAt.Add(Hero,Time);
+        if(!Hero->Status->Damage(BossSettings.RollDamage,PushDirection,this)) continue;
         PushPlayer(Hero,PushDirection,BossSettings.RollPush);
     }
 }
@@ -1345,6 +1365,7 @@ void AMCNutBoss::SummonCreeps()
 
 void AMCNutBoss::Recover(float Seconds)
 {
+    UMCDefenseSprayPassives::NotifyAttackFinished(this,uint64(AttackSeed));
     if(Attack!=EMCNutBossAttack::Melee && Attack!=EMCNutBossAttack::None) bMeleeBetweenAbilities=true;
     Seconds=RecoverySeconds(Seconds);
     StartAttackCooldown(Now()+Seconds);
@@ -1694,6 +1715,7 @@ bool AMCNutBoss::IsPlayerInThreat(const AMCToothCharacter* Hero,FVector& EscapeD
 void AMCNutBoss::CancelAttacks()
 {
     if(!HasAuthority()) return;
+    UMCDefenseSprayPassives::NotifyAttackFinished(this,uint64(AttackSeed),true);
     for(auto Weak:ActiveAttacks) if(AActor* Actor=Weak.Get()) {
         if(auto* Cue=Cast<AMCNutCombatEffect>(Actor)) Cue->Cancel();
         else if(auto* Projectile=Cast<AMCNutSpellProjectile>(Actor)) Projectile->Cancel();

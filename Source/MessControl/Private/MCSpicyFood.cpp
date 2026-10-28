@@ -67,8 +67,8 @@ void AMCFoodActor::Detonate()
         if(FVector::DistSquared(Center,P)>FMath::Square(BlastRadius)) continue;
         FVector Direction=(Center-P).GetSafeNormal2D();
         if(Direction.IsNearlyZero()) Direction=GetActorForwardVector();
-        Hero->Status->Damage(Pulse,Direction,this);
-        Hero->ToothPhysics->ApplyHit(Direction*340+FVector(0,0,150),P);
+        const bool Accepted=Pulse<=0 || Hero->Status->Damage(Pulse,Direction,this);
+        if(Accepted) Hero->ToothPhysics->ApplyHit(Direction*340+FVector(0,0,150),P);
         if(Wave) Wave->RegisterBlastVictim(Hero);
     }
     for(TActorIterator<AMCNutEnemy> It(GetWorld());It;++It) {

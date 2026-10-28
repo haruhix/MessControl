@@ -21,7 +21,7 @@ enum class EMCRogueActivation : uint8
     CounterReady, TeamStrikeReady, WatergunFiring, NearbyAlly, PickaxeSelected, WatergunSelected
 };
 UENUM(BlueprintType)
-enum class EMCRogueDamageKind : uint8 { Ordinary, FallingNut, Brace, Chainsaw };
+enum class EMCRogueDamageKind : uint8 { Ordinary, FallingNut, Brace, Chainsaw, System };
 UENUM(BlueprintType)
 enum class EMCRogueRewardKind : uint8 { Ordinary, CursedContract, RiskyAltar };
 USTRUCT(BlueprintType)

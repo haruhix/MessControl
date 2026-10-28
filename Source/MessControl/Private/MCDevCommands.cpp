@@ -952,7 +952,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if (It->Status->IsAlive()) It->Status->Loosen();
         break;
     case EMCDevAction::DamageSelf: if (Hero) Hero->Status->Damage(25,Hero->GetActorForwardVector()); break;
-    case EMCDevAction::KillSelf: if (Hero) Hero->Status->Damage(10000,FVector::UpVector); break;
+    case EMCDevAction::KillSelf: if (Hero) Hero->Status->Damage(10000,FVector::UpVector,nullptr,EMCRogueDamageKind::System,false); break;
     case EMCDevAction::Ragdoll:
         if (Hero) Hero->ToothPhysics->ApplyHit(Hero->GetActorForwardVector()*600+FVector(0,0,300),Hero->GetActorLocation());
         break;

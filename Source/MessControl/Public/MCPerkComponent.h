@@ -24,6 +24,8 @@ public:
     virtual void TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* Tick) override;
     static UMCPerkComponent* ForActor(const AActor* Actor);
     float RogueValue(EMCRogueStat Stat,float Base=1.f,AActor* Target=nullptr,FName ExtraStack=NAME_None) const;
+    /** Finite authored event parameter; mechanics clamp values to their safe domain. */
+    float PerkParameter(FName ID,FName Key,float Fallback) const;
     float WeaponDamage(float Base,AActor* Target) const;
     float IncomingDamage(float Base,EMCRogueDamageKind Kind) const;
     void NotifyWeaponHit(AActor* Target);
@@ -59,8 +61,9 @@ public:
     UPROPERTY(Replicated) double FuryUntil=-100;
     bool bRogueExtraHit=false;
     UPROPERTY(Replicated) double CounterReadyUntil=-100;
-    UPROPERTY(Replicated) double CleanSpeedUntil=-100;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Roguelike|Buffs") double CleanSpeedUntil=-100;
     UPROPERTY(Replicated) double DeliverySlowUntil=-100;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Roguelike|Buffs") double DeliverySpeedUntil=-100;
 
     static constexpr int32 ActiveSkillSlotCount=4;
     static EMCPerkKind ResolvePerkKind(const FMCPerkDefinition& Definition,FName PerkID=NAME_None);

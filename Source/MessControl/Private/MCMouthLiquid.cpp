@@ -1,5 +1,6 @@
 #include "MCMouthSurface.h"
 #include "MCPerkComponent.h"
+#include "MCDefenseSprayPassives.h"
 #include "MCCoffeeWipe.h"
 #include "MCPaintVisibility.h"
 #include "MCInventoryComponent.h"
@@ -338,20 +339,64 @@ bool AMCMouthSurface::BrushLiquid(AMCToothCharacter* Worker,float Seconds)
     const FVector2D From=Continuing?Previous->UV:UV;
     Worker->BrushContact->Contact(this,Point,Normal,&Base);
     if(!Worker->BrushContact->IsWorkReady()) return true;
-    if (FMCCoffeeWipe::Stroke(WipeMask,From,UV,Worker->Inventory->CleaningRadius(LiquidHalfSize)/(2*LiquidHalfSize),Seconds,&WipeFractional,Worker->Inventory->CleaningSpeedMultiplier())) {
-        OnRep_Wipe();if(auto* Perks=UMCPerkComponent::ForActor(Worker)) Perks->NotifyCleaned(Point);
-    }
+    ApplyLiquidCleaning(Worker,From,UV,Point,Worker->Inventory->CleaningRadius(LiquidHalfSize)/(2*LiquidHalfSize),Seconds,
+        Worker->Inventory->CleaningSpeedMultiplier()*UMCDefenseSprayPassives::BrushMultiplier(this,Point),EMCStainCleanReason::Brush);
     BrushDirection=(UV-From).IsNearlyZero()?Side:(UV-From).GetSafeNormal();
     BrushUV=UV;
     FBrushStroke& History=PreviousBrush.FindOrAdd(Worker);
     History.UV=UV;History.WorldPoint=Point;History.At=Now;History.ApproachStartedAt=Contact->ApproachStartedAt;
     BrushAt=Now;
+    return true;
+}
+
+void AMCMouthSurface::SyncLiquidCleaningLayers(AMCToothCharacter* Worker,EMCStainCleanReason Reason)
+{
     const float Left=RemainingLiquid();
     const bool Finished=bPaintTile?!FMCCoffeeWipe::HasWetCells(WipeMask):Left<.025f;
     const int32 RemainingLayers=Finished?0:FMath::Max(1,FMath::CeilToInt(Left*Status->State.CoffeeTotal));
-    while(Status->State.CoffeeLeft>RemainingLayers) { Status->CareContact(true,Worker); ++Worker->SuccessfulBrushContacts; }
-    return true;
+    while(Status->State.CoffeeLeft>RemainingLayers) {
+        Status->CareContact(true,Worker);
+        if(Reason==EMCStainCleanReason::Brush) ++Worker->SuccessfulBrushContacts;
+    }
 }
+bool AMCMouthSurface::ApplyLiquidCleaning(AMCToothCharacter* Worker,FVector2D From,FVector2D To,FVector Point,
+    float RadiusUV,float Seconds,float Rate,EMCStainCleanReason Reason)
+{
+    const float Before=RemainingLiquid();
+    Rate=UMCResultPassives::CleaningRate(Worker,Before,Rate);
+    if(Rate<=0) return false;
+    auto* Results=UMCResultPassives::ForWorld(this);
+    const auto Attempt=Results?Results->BeginCleaning(this):FMCStainCleaningAttempt();
+    const bool Changed=FMCCoffeeWipe::Stroke(WipeMask,From,To,RadiusUV,Seconds,&WipeFractional,Rate);
+    if(Changed) OnRep_Wipe();
+    const bool Removed=Changed && RemainingLiquid()<Before;
+    if(Removed) {
+        if(auto* Perks=UMCPerkComponent::ForActor(Worker)) Perks->NotifyCleaned(Point);
+        SyncLiquidCleaningLayers(Worker,Reason);
+    }
+    if(Results) Results->CompleteCleaning(Attempt,Worker,Reason,Removed);
+    if(Changed) ForceNetUpdate();
+    return Removed;
+}
+bool AMCMouthSurface::CleanLiquidAt(AMCToothCharacter* Worker,FVector Point,float Radius,float Seconds,float Rate,EMCStainCleanReason Reason)
+{
+    if(!HasAuthority() || bUlcer || IsClean() || !IsValid(Worker) || Worker->GetWorld()!=GetWorld()
+        || !Worker->Status || !Worker->Status->IsAlive() || Point.ContainsNaN() || !FMath::IsFinite(Radius)
+        || Radius<=0 || !FMath::IsFinite(Seconds) || Seconds<=0 || !FMath::IsFinite(Rate) || Rate<=0) return false;
+    const FVector2D UV=FVector2D(GetActorTransform().InverseTransformPosition(Point))/(2*LiquidHalfSize)+FVector2D(.5);
+    return ApplyLiquidCleaning(Worker,UV,UV,Point,Radius/(2*LiquidHalfSize),FMath::Min(Seconds,.1f),Rate,Reason);
+}
+bool AMCMouthSurface::CleanLiquidFromPassive(AMCToothCharacter* Worker)
+{
+    if(!HasAuthority() || bUlcer || IsClean() || !IsValid(Worker) || Worker->GetWorld()!=GetWorld()
+        || !Worker->Status || !Worker->Status->IsAlive()) return false;
+    auto* Results=UMCResultPassives::ForWorld(this);if(!Results) return false;
+    const auto Attempt=Results->BeginCleaning(this);
+    WipeMask.Init(0,FMCCoffeeWipe::Count);WipeFractional.Reset();OnRep_Wipe();
+    SyncLiquidCleaningLayers(Worker,EMCStainCleanReason::NeatFreak);ForceNetUpdate();
+    return Results->CompleteCleaning(Attempt,Worker,EMCStainCleanReason::NeatFreak,true);
+}
+
 
 void AMCMouthSurface::BuildLiquid()
 {

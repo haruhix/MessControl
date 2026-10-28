@@ -46,6 +46,9 @@ public:
     int32 KnockdownCount = 0;
     int32 RecoveryCount = 0;
 private:
+#if WITH_DEV_AUTOMATION_TESTS
+    friend class FMCCombatThunderAlly; // Read-only failure diagnostics for the actual ApplyHit gate.
+#endif
     void EnterRagdoll();
     void EnterRecovery();
     void EnterStanding();

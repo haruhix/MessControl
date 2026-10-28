@@ -1,5 +1,6 @@
 #include "MCInventoryComponent.h"
 #include "MCPerkComponent.h"
+#include "MCCombatPassiveSubsystem.h"
 #include "MCPlayerState.h"
 #include "MCToothCharacter.h"
 #include "MCToothMovementComponent.h"
@@ -253,6 +254,7 @@ void UMCInventoryComponent::HandleChainsawCollision(AActor* Other,const FHitResu
 }
 void UMCInventoryComponent::SawContact()
 {
+    FMCCombatAttackScope PassiveAttack(Hero,false);
     const FVector Origin=Hero->GetActorLocation(),Forward=Hero->GetActorForwardVector();
     auto RegisterEnemyHit=[&](AActor* Target,FVector Point)
     {
@@ -328,6 +330,7 @@ bool UMCInventoryComponent::TraceWaterShot(const FVector& Origin,FVector& End,FH
 void UMCInventoryComponent::FireWaterShot()
 {
     if(!Hero || !Hero->HasAuthority() || bWaterReloading || WaterAmmo<=0 || Now()<WaterShotReadyAt) return;
+    FMCCombatAttackScope PassiveAttack(Hero,false);
     const float Power=FMath::Max(.001f,Settings?Settings->WatergunShotDamage:.5f);
     const FVector Direction=SprayDirection();
     const FVector Origin=SprayOrigin();FVector End;FHitResult Hit;

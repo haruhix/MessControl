@@ -2,6 +2,8 @@
 #include "MCDevCommands.h"
 #include "MCWorldStatusComponent.h"
 #include "MCPerkComponent.h"
+#include "MCCombatPassiveSubsystem.h"
+#include "MCDefenseSprayPassives.h"
 
 #include "MCFoodActor.h"
 #include "MCGameState.h"
@@ -224,13 +226,17 @@ void AMCNutEnemy::Tick(float Dt)
     TickPresentation(Now);
     if(!HasAuthority() || bDefeated) return;
     if(GS && (GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost)) return;
+    if(UMCCombatPassiveSubsystem::TickBilliards(this,Dt)) return;
     if(!IsValid(Tongue) || Tongue->IsActorBeingDestroyed()) { Defeat(); return; }
     if(Now>=NextTargetAt || (Target && !IsLiveTarget(Target))) Retarget();
     if(bAttackPending && Now>=AttackStartedAt+Settings.WindupSeconds)
     {
         if(HasAttackContact(AttackTarget.Get()))
             AttackTarget->Status->Damage(Settings.AttackDamage,(AttackTarget->GetActorLocation()-GetActorLocation()).GetSafeNormal2D(),this);
-        else if(IsLiveTarget(AttackTarget.Get())) if(auto* Perks=UMCPerkComponent::ForActor(AttackTarget.Get())) Perks->NotifyDodgedAttack();
+        else if(IsLiveTarget(AttackTarget.Get())) {
+            UMCDefenseSprayPassives::NotifyDodgedAttack(AttackTarget.Get(),this,uint64(AttackStartedAt*1000000));
+            if(auto* Perks=UMCPerkComponent::ForActor(AttackTarget.Get())) Perks->NotifyDodgedAttack();
+        }
         bAttackPending=false; AttackTarget.Reset(); NextAttackAt=Now+Settings.AttackCooldown;
     }
     if(!IsLiveTarget(Target)) return;
@@ -239,6 +245,7 @@ void AMCNutEnemy::Tick(float Dt)
     if(!bAttackPending && Now>=NextAttackAt && HasAttackContact(Target))
     {
         bAttackPending=true; AttackTarget=Target; AttackStartedAt=Now; ForceNetUpdate();
+        UMCDefenseSprayPassives::RegisterThreat(AttackTarget.Get(),this,uint64(AttackStartedAt*1000000));
     }
     if(!bAttackPending)
     {

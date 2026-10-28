@@ -1,5 +1,6 @@
 #include "MCToothStatusComponent.h"
 #include "MCPerkComponent.h"
+#include "MCDefenseSprayPassives.h"
 #include "MCArenaTooth.h"
 #include "MCToothCareFeedbackComponent.h"
 #include "MCToothCharacter.h"
@@ -96,7 +97,13 @@ bool UMCToothStatusComponent::Damage(float Amount,FVector Direction,AActor* Sour
     // Native tools attribute hits to the wielder. Chili attributes damage to
     // its hazard actor, so its deliberate all-target exception still applies.
     if (const auto* Hero=Cast<AMCToothCharacter>(GetOwner()); Hero && Cast<AMCToothCharacter>(Source)) return false;
-    if(bScaleWithPerks) if(const auto* Perks=UMCPerkComponent::ForActor(GetOwner())) Amount=Perks->IncomingDamage(Amount,Kind);
+    if(Kind!=EMCRogueDamageKind::System) {
+        auto* Hero=Cast<AMCToothCharacter>(GetOwner());
+        UMCDefenseSprayPassives::NotifyIncomingHit(Hero,Source);
+        if(bScaleWithPerks) if(const auto* Perks=UMCPerkComponent::ForActor(GetOwner())) Amount=Perks->IncomingDamage(Amount,Kind);
+        Amount=UMCDefenseSprayPassives::ResolveIncomingDamage(Hero,Amount);
+        if(!FMath::IsFinite(Amount) || Amount<=0.f) return false;
+    }
     const float HealthBefore=State.Health;
     LastDamageDirection=Direction.GetSafeNormal(); State.Health=FMath::Max(0.f,State.Health-Amount);
     const auto* GS=GetWorld()->GetGameState();

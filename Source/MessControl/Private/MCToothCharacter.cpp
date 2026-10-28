@@ -3,6 +3,7 @@
 #include "MCToolScrollInput.h"
 #include "MCGameUserSettings.h"
 #include "MCPerkComponent.h"
+#include "MCCombatPassiveSubsystem.h"
 #include "MCBossCharacter.h"
 #include "MCRewardChest.h"
 #include "Components/BoxComponent.h"
@@ -1358,7 +1359,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
         ConsumeMovementInputVector();GetCharacterMovement()->StopMovementImmediately();
         UpdateMouthCamera(DeltaSeconds);
         if(HasAuthority() && Status->IsAlive() && FreezeDeathAge()>=FreezeDeathHoldSeconds)
-            Status->Damage(Status->State.MaxHealth,FVector::UpVector);
+            Status->Damage(Status->State.MaxHealth,FVector::UpVector,nullptr,EMCRogueDamageKind::System,false);
         return;
     }
     if(HasAuthority() && HasFrozenLegs() && (!Status->IsAlive() || IsMimicCaptured() || SwallowedBy)) ClearFrozenLegs();
@@ -1647,6 +1648,7 @@ bool AMCToothCharacter::WantsFoodChop() const
 void AMCToothCharacter::ResolveSwing()
 {
     if (!HasAuthority() || !CanWork() || Inventory->Selected==EMCToolSlot::Spray) return;
+    FMCCombatAttackScope PassiveAttack(this,true);
     if(Inventory->Selected==EMCToolSlot::Pickaxe && Inventory->HasUpgrade(EMCToolUpgrade::Buffer)) {Inventory->ResolveBufferContact();return;}
     const uint8 AudioTool=uint8(Inventory->Selected);
     const float HitIntensity=FMath::Clamp(Inventory->Damage()/60.f,.25f,1.f);
@@ -1788,6 +1790,7 @@ void AMCToothCharacter::ResolveSwing()
     }
     FVector Direction=(Target->GetActorLocation()-GetActorLocation()).GetSafeNormal2D(); if (Direction.IsNearlyZero()) Direction=GetActorForwardVector();
     Target->ToothPhysics->ApplyHit(Direction*ToothPhysics->Settings.Knockback+FVector(0,0,ToothPhysics->Settings.Lift),Target->GetActorLocation()+FVector(0,0,15));
+    UMCCombatPassiveSubsystem::NotifyPhysicalHit(this,Target,Inventory->Damage());
     ++ConfirmedHitCount;
     MulticastHitSound(Target->GetActorLocation(),AudioTool,HitIntensity);
 }

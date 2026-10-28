@@ -38,6 +38,8 @@ def read(path):
     return table,json.loads(u.DataTableFunctionLibrary.export_data_table_to_json_string(table))
 
 loaded={path:read(path) for path in [PERKS,CATALOG,TEXTS,RULES]}
+assert not any(row['Name'].startswith('B2_') for row in loaded[PERKS][1]), \
+    'Historical nine-passive recipe: use author_current_passives.py to preserve the expanded catalog'
 for path,(_,rows) in loaded.items():
     target=OUT/(path.rsplit('/',1)[-1]+'.before.json')
     if not target.exists():target.write_text(json.dumps(rows,ensure_ascii=False,indent=2),encoding='utf8')

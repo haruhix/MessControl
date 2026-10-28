@@ -1,4 +1,5 @@
 #include "MCNutKamikaze.h"
+#include "MCCombatPassiveSubsystem.h"
 
 #include "MCGameState.h"
 #include "MCNutCombatEffect.h"
@@ -327,6 +328,7 @@ void AMCNutKamikaze::Tick(float DeltaSeconds)
         || !IsValid(Tongue) || Tongue->IsActorBeingDestroyed()) {Defeat();return;}
     // Expiry is independent of contact and target presence. A lost target cannot stop or reset the fuse.
     if(IsDetonationDue(Time)) {Detonate();return;}
+    if(UMCCombatPassiveSubsystem::TickBilliards(this,DeltaSeconds)) return;
     if(Time>=NextNearestTargetAt || !IsLiveTarget(Target)) {
         Retarget(); NextNearestTargetAt=Time+.2;
     }

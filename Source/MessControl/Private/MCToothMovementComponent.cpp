@@ -1,5 +1,7 @@
 #include "MCToothMovementComponent.h"
 #include "MCPerkComponent.h"
+#include "MCDefenseSprayPassives.h"
+#include "MCCombatPassiveSubsystem.h"
 #include "MCFoodCollectionComponent.h"
 #include "MCCoffeeFlood.h"
 #include "MCCataclysmRaft.h"
@@ -85,6 +87,7 @@ void UMCToothMovementComponent::TickComponent(float Dt,ELevelTick TickType,FActo
 {
     Super::TickComponent(Dt,TickType,TickFunction);
     auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    UMCDefenseSprayPassives::UpdateDashVisibility(Hero);
     if(!Hero || !Hero->Status || !Hero->ToothPhysics || Hero->GetLocalRole()==ROLE_SimulatedProxy) return;
     const auto* Game=GetWorld()->GetGameState<AMCGameState>();
     if(!Hero->Status->IsAlive() || Hero->SwallowedBy || Hero->IsMimicCaptured()
@@ -195,6 +198,14 @@ void UMCToothMovementComponent::RestoreStaminaPrediction(const FMCStaminaPredict
     StaminaState=State;
     StaminaState.Value=FMath::IsFinite(State.Value)?FMath::Clamp(State.Value,0.f,GetMaxStamina()):0.f;
     StaminaState.RecoveryDelay=FMath::IsFinite(State.RecoveryDelay)?FMath::Max(0.f,State.RecoveryDelay):0.f;
+}
+void UMCToothMovementComponent::RestoreStaminaFraction(float Fraction)
+{
+    if(!CharacterOwner || !CharacterOwner->HasAuthority() || !FMath::IsFinite(Fraction) || Fraction<=0.f) return;
+    StaminaState.Value=FMath::Clamp(GetStamina()+GetMaxStamina()*FMath::Clamp(Fraction,0.f,1.f),0.f,GetMaxStamina());
+    if(StaminaState.Value>=GetMaxStamina()*.15f) StaminaState.Exhausted=false;
+    ServerStaminaSnapshot=StaminaState;
+    ForceClientAdjustment();CharacterOwner->ForceNetUpdate();
 }
 float UMCToothMovementComponent::StaminaCostMultiplier() const
 {
@@ -329,7 +340,7 @@ void UMCToothMovementComponent::ResolveDrowning()
         || Hero->SwallowedBy || Hero->IsMimicCaptured()) return;
     const FVector P=Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll?Hero->ToothPhysics->PhysicalLocation():Hero->GetActorLocation();
     // Recheck after movement: a successful last-second boarding saves them.
-    if(auto* Water=DeepWaterAt(P,true)) Hero->Status->Damage(Hero->Status->State.MaxHealth*2.f,-FVector::UpVector,Water);
+    if(auto* Water=DeepWaterAt(P,true)) Hero->Status->Damage(Hero->Status->State.MaxHealth*2.f,-FVector::UpVector,Water,EMCRogueDamageKind::System,false);
 }
 namespace
 {
@@ -588,7 +599,11 @@ float UMCToothMovementComponent::EffectiveDashCooldown() const
 {
     const auto* Perks=UMCPerkComponent::ForActor(CharacterOwner);
     const float Base=FMath::IsFinite(DashCooldown)?DashCooldown:3.f;
-    const float Modified=Perks?Perks->RogueValue(EMCRogueStat::DashCooldown,Base):Base;
+    float Modified=Perks?Perks->RogueValue(EMCRogueStat::DashCooldown,Base):Base;
+    if(Perks && Perks->GetStacks(TEXT("B2_HoudiniDash"))>0) {
+        const float Penalty=Perks->PerkParameter(TEXT("B2_HoudiniDash"),TEXT("CooldownPenalty"),.2f);
+        Modified*=1.f+FMath::Clamp(FMath::IsFinite(Penalty)?Penalty:.2f,0.f,.6f);
+    }
     return FMath::Max(GetDashDuration(),FMath::Clamp(FMath::IsFinite(Modified)?Modified:3.f,.5f,4.8f));
 }
 int32 UMCToothMovementComponent::GetDashCharges() const
@@ -642,7 +657,14 @@ bool UMCToothMovementComponent::StartDash()
     Source->Settings.SetFlag(ERootMotionSourceSettingsFlags::IgnoreZAccumulate);
     Source->FinishVelocityParams.Mode=ERootMotionFinishVelocityMode::ClampVelocity;Source->FinishVelocityParams.ClampVelocity=WalkSpeed;
     ApplyRootMotionSource(Source);
-    if(CharacterOwner->HasAuthority()) CharacterOwner->ForceNetUpdate();
+    if(CharacterOwner->HasAuthority()) {
+        if(auto* Hero=Cast<AMCToothCharacter>(CharacterOwner)) {
+            UMCDefenseSprayPassives::NotifyDashStarted(Hero);
+            UMCCombatPassiveSubsystem::NotifyDashStarted(Hero);
+        }
+        CharacterOwner->ForceNetUpdate();
+    }
+    UMCDefenseSprayPassives::UpdateDashVisibility(Cast<AMCToothCharacter>(CharacterOwner));
     return true;
 }
 void UMCToothMovementComponent::CancelDash()
@@ -651,6 +673,7 @@ void UMCToothMovementComponent::CancelDash()
     DashPresentationStartedAt=-100;
     RemoveRootMotionSource(DashSourceName);
     if(DashStartedAt>-100) { DashStartedAt=-100;if(CharacterOwner && CharacterOwner->HasAuthority()) CharacterOwner->ForceNetUpdate(); }
+    UMCDefenseSprayPassives::UpdateDashVisibility(Cast<AMCToothCharacter>(CharacterOwner));
 }
 FVector UMCToothMovementComponent::CaptureSuctionForMove()
 {

@@ -112,9 +112,11 @@ void AMCHazardWave::Tick(float Dt)
             FVector Direction=(P-GetActorLocation()).GetSafeNormal2D();
             if(Direction.IsNearlyZero()) Direction=FVector::ForwardVector;
             const auto* Lesion=Cast<AMCMouthSurface>(Source);
-            if(!Lesion || !Lesion->bTutorialLesion) {Hero->Status->Damage(Damage,Direction,Source);Hero->NotifyTaskFeedback(false);}
+            const bool NonDamagingTutorial=Lesion && Lesion->bTutorialLesion;
+            const bool Accepted=NonDamagingTutorial || Damage<=0 || Hero->Status->Damage(Damage,Direction,Source);
+            if(Accepted && !NonDamagingTutorial) Hero->NotifyTaskFeedback(false);
             ++HitCount;
-            Hero->ToothPhysics->ApplyHit(Direction*260+FVector(0,0,130),P);
+            if(Accepted) Hero->ToothPhysics->ApplyHit(Direction*260+FVector(0,0,130),P);
         }
         if(bSpicy && !bFreezeLegs) for(TActorIterator<AMCArenaTooth> It(GetWorld());It;++It)
         {

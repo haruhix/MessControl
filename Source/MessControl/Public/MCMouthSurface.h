@@ -3,6 +3,7 @@
 #include "GameFramework/Actor.h"
 #include "ProceduralMeshComponent.h"
 #include "MCLocomotionSurface.h"
+#include "MCResultPassives.h"
 #include "MCMouthSurface.generated.h"
 class UBoxComponent;
 class UStaticMeshComponent;
@@ -79,12 +80,19 @@ public:
     UFUNCTION(BlueprintPure,Category="Liquid") bool GetNearestPaintPoint(FVector Near,FVector& Point,FVector& Normal) const;
     // Called only after the character's authoritative reach/tool/occlusion checks.
     bool BrushLiquid(class AMCToothCharacter* Worker,float Seconds);
+    /** Spatial cleaning after the authoritative spray/residue reach and occlusion checks. */
+    bool CleanLiquidAt(class AMCToothCharacter* Worker,FVector Point,float Radius,float Seconds,float Rate,
+        EMCStainCleanReason Reason=EMCStainCleanReason::Spray);
+    bool CleanLiquidFromPassive(class AMCToothCharacter* Worker);
     bool FindDirtyContact(class AMCToothCharacter* Worker,FVector& Point,FVector& Normal) const;
     float RemainingLiquid() const;
     UPROPERTY(ReplicatedUsing=OnRep_Wipe,BlueprintReadOnly,Category="Liquid") TArray<uint8> WipeMask;
     UPROPERTY(ReplicatedUsing=OnRep_Wipe) TArray<uint8> LiquidDepositMask;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Liquid") int32 LiquidSeed=0;
 private:
+    bool ApplyLiquidCleaning(class AMCToothCharacter* Worker,FVector2D From,FVector2D To,FVector Point,
+        float RadiusUV,float Seconds,float Rate,EMCStainCleanReason Reason);
+    void SyncLiquidCleaningLayers(class AMCToothCharacter* Worker,EMCStainCleanReason Reason);
     UFUNCTION() void OnRep_Wipe();
     UFUNCTION() void OnRep_LiquidSize();
     UFUNCTION() void OnRep_LiquidMaterial();

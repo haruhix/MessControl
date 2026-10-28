@@ -72,6 +72,8 @@ struct MESSCONTROL_API FMCPerkDefinition : public FTableRowBase
     /** Any tag may match the active or still upcoming route. Empty means universal. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Roguelike") TArray<FName> RequiredEvents;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Roguelike") TArray<FMCRogueModifier> Modifiers;
+    /** Event-effect tuning in the canonical catalog. Percentages use fractions (0.2 = 20%). */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Roguelike|Parameters") TMap<FName,float> Parameters;
 };
 
 /** One owned active item. Empty IDs have no identity, charges or cooldown. */

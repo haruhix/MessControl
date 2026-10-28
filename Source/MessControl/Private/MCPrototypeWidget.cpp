@@ -391,7 +391,7 @@ void UMCPrototypeWidget::DropFoodClicked()
 }
 void UMCPrototypeWidget::RespawnClicked()
 {
-    if (auto* T=Cast<AMCToothCharacter>(GetOwningPlayerPawn())) T->Status->Damage(T->Status->State.MaxHealth);
+    if (auto* T=Cast<AMCToothCharacter>(GetOwningPlayerPawn())) T->Status->Damage(T->Status->State.MaxHealth,FVector::ZeroVector,nullptr,EMCRogueDamageKind::System,false);
 }
 void UMCPrototypeWidget::ArenaCleanClicked()
 {

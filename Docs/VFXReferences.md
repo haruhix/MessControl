@@ -1,5 +1,15 @@
 # Reproducible VFX reference library
 
+## Current passive cues — 2026-10-28
+
+Reviewed before the new native cues:
+
+- [Epic UE5.8: Beam Effect](https://dev.epicgames.com/documentation/en-us/unreal-engine/how-to-create-a-beam-effect-in-niagara-for-unreal-engine): fixed endpoints, short lifetime, tapered width and controlled jitter. Adapted as bounded procedural cyan/white links with saved `MI_PassiveLightning` on existing `M_Reaction`; this implementation does not create a new Niagara system or import the tutorial material.
+- [Epic: Using Transparency](https://dev.epicgames.com/documentation/en-us/unreal-engine/using-transparency-in-unreal-engine-materials): translucent opacity. The ghost copies the actual tool mesh and contact transform; saved `MI_PassiveGhost` on existing `M_ReactionSoft` reads per-component vertex alpha, so the cue creates no first-use dynamic material. A short windup/contact/follow-through aligns with the delayed gameplay hit.
+- [Lush's original foam discussion](https://realtimevfx.com/t/real-time-foam-soap-suds-shader/9919): simplify layered effects and avoid refraction. Only that cost discipline is reused; the suggested Worley material and opaque foam were **not** authored here. Dangerous residue uses a bounded amber procedural film/rim with the existing translucent vertex-color material, deliberately distinct from helpful cyan foam.
+
+Source implementation exists in `MCPassiveCombatCue`, `MCCombatPassiveSubsystem` and `MCDefenseSprayPassives`. Cue/coating CDO references and both saved MICs are explicit arena manifest roots. Shared parents remain unchanged; no new texture, shader graph, Niagara package or gameplay-time MID was added. Root reviewed real SoloDefenseSprayB and CombatSolo07 frames: rejected the initial orange disk/yellow ghost, softened the coating, then used dedicated color MICs after the first vertex-only correction made the ghost too faint. Native radius/HP tests and actual inside/outside movement agree; actual attacks/echo/chain/launch passed. These are accepted functional previews in the current theme; final art/icons remain separate. Shader logs recorded late Editor-global work including Reaction and DefaultTextMaterialOpaque; the bounded first-use readiness preparation now targets observed resources rather than claiming a quiet cache proves readiness. Final logs/limitations: [passive validation](Validation/PassivesRemaining_20261028.md). Dedicated-server exact ghost geometry is deferred because that inventory path does not instantiate visual tool components; solo/listen capture uses the real visible components. Packaged PSO validation is separate and unperformed.
+
 ## Player weapon swing trail — 2026-10-15
 
 The user supplied a yellow/orange attack-streak image with a pale hot center,

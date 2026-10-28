@@ -149,6 +149,7 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools|Chainsaw") bool bChainsawRunning=false;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") bool bWaterJetUnlocked=false;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") double SprayReadyAt=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") double SprayBurstUntil=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") double LastSprayAt=-100;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") TObjectPtr<AMCMouthSurface> HealingTarget;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") TObjectPtr<class AMCFirePatch> FireTarget;
@@ -208,6 +209,9 @@ public:
     float Damage() const;
     float CooldownSeconds() const;
     float SpraySecondsLeft() const;
+    bool UsesAntisepticCycle() const;
+    bool IsSprayCycleEmitting() const;
+    void ResetPassiveSprayCycle();
     float SwingDuration() const;
     float SwingContactTime() const;
     // Converts elapsed server seconds to the authored swing timeline.
@@ -246,6 +250,7 @@ private:
     UPROPERTY() TObjectPtr<UNiagaraComponent> SprayMist;
     UPROPERTY() TObjectPtr<UNiagaraComponent> WaterMist;
     bool bSprayEmitting=false;
+    bool TickPassiveSprayCycle();
     bool bWaterEmitting=false;
     float WorkingGripAlpha=0;
     double NextSocialSprayAt=0;

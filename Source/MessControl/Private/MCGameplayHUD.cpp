@@ -1121,8 +1121,10 @@ int32 UMCGameplayHUD::NativePaint(const FPaintArgs& Args,const FGeometry& Geomet
         || !Inv || Inv->Selected!=EMCToolSlot::Spray || !Hero->CanWork() || Hero->bInCoffee || !Inv->ShouldPresentTool()) return Top;
     const FVector2D Center=Geometry.GetLocalSize()*.5f;
     const bool Pressure=Inv->SelectedUpgrade()==EMCToolUpgrade::Watergun && Inv->bPressureMode;
-    const float Cool=Pressure?Inv->SpraySecondsLeft():0;
-    const FLinearColor Tint=Cool>0?Palette.Muted:Pressure?Palette.OnMarine:Palette.Accent;
+    const bool Antiseptic=Inv->UsesAntisepticCycle();
+    const float Cool=(Pressure || Antiseptic)?Inv->SpraySecondsLeft():0;
+    const bool Reloading=Cool>0 && (!Antiseptic || !Inv->IsSprayCycleEmitting());
+    const FLinearColor Tint=Reloading?Palette.Muted:Pressure?Palette.OnMarine:Palette.Accent;
     auto Stroke=[&](const TArray<FVector2D>& Points,FLinearColor Color,float Width=2.f) {
         FSlateDrawElement::MakeLines(Elements,Top+1,Geometry.ToPaintGeometry(),Points,ESlateDrawEffect::None,Palette.Ink.CopyWithNewOpacity(Palette.Ink.A*.8f),true,Width+2);
         FSlateDrawElement::MakeLines(Elements,Top+2,Geometry.ToPaintGeometry(),Points,ESlateDrawEffect::None,Color,true,Width);
@@ -1146,6 +1148,9 @@ int32 UMCGameplayHUD::NativePaint(const FPaintArgs& Args,const FGeometry& Geomet
     if(Pressure) {
         Arc(18,1,Palette.SurfaceAlt.CopyWithNewOpacity(Palette.SurfaceAlt.A*.65f));
         Arc(18,Inv->bWaterReloading?1-Cool/Inv->CooldownSeconds():float(Inv->WaterAmmo)/Inv->WaterMagazineCapacity(),Palette.Shield);
+    } else if(Antiseptic && Reloading) {
+        Arc(18,1,Palette.SurfaceAlt.CopyWithNewOpacity(Palette.SurfaceAlt.A*.65f));
+        Arc(18,FMath::Clamp(1-Cool/FMath::Max(.01f,Inv->CooldownSeconds()),0.f,1.f),Palette.Shield);
     }
     return Top+3;
 }

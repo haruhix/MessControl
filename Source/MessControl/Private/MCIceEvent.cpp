@@ -936,7 +936,7 @@ void AMCIceEvent::ResolveIceBomb()
         Query.AddIgnoredActor(Tongue); Query.AddIgnoredActor(Hero);
         if(GetWorld()->LineTraceSingleByChannel(Obstacle,Floor.ImpactPoint+Floor.ImpactNormal*80,Hero->GetActorLocation(),ECC_Visibility,Query)) continue;
         const FVector Out=(Hero->GetActorLocation()-Floor.ImpactPoint).GetSafeNormal2D(UE_SMALL_NUMBER,Hero->GetActorForwardVector());
-        Hero->Status->Damage(IceBombDamage,Out,this);
+        if(IceBombDamage>0 && !Hero->Status->Damage(IceBombDamage,Out,this)) continue;
         if(!Hero->Status->IsAlive()) continue;
         const FVector Impulse=Out*IceBombPush+Floor.ImpactNormal*180;
         if(Hero->ToothPhysics) Hero->ToothPhysics->ApplyHit(Impulse,Hero->GetActorLocation());
@@ -986,7 +986,7 @@ void AMCIceEvent::ResolveScream()
             Query.AddIgnoredActor(Tongue); Query.AddIgnoredActor(Hero);
             if(GetWorld()->LineTraceSingleByChannel(Obstacle,Floor.ImpactPoint+Floor.ImpactNormal*60,Hero->GetActorLocation(),ECC_Visibility,Query)) continue;
             const FVector Out=(Hero->GetActorLocation()-Floor.ImpactPoint).GetSafeNormal2D(UE_SMALL_NUMBER,FVector::ForwardVector);
-            Hero->Status->Damage(IcePrisonDamage,Out,this);
+            if(IcePrisonDamage>0 && !Hero->Status->Damage(IcePrisonDamage,Out,this)) continue;
             Hero->FreezeLegs(NovaFootHealth);
             if(!Hero->HasFrozenLegs()) continue;
             FrozenLegHeroes.AddUnique(Hero);

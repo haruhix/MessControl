@@ -5,6 +5,8 @@
 #include "MCGameState.h"
 #include "MCHubGameState.h"
 #include "MCSingleDayDirector.h"
+#include "MCPassiveCombatCue.h"
+#include "MCDefenseSprayPassives.h"
 #include "Blueprint/WidgetBlueprintGeneratedClass.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/ActorComponent.h"
@@ -154,6 +156,9 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
     }
     const bool Arena=Map==TEXT("L_Mouth") || Map==TEXT("L_Tutorial");
     if(!Arena) return;
+    // Late passive cues retain their reflected CDO resources before readiness.
+    Collector.Object(AMCPassiveCombatCue::StaticClass());
+    Collector.Object(AMCSprayCoating::StaticClass());
 
     // Match the run's authored profile, including a host-selected day, on clients as well.
     const auto* Mode=World->GetAuthGameMode<AMCGameMode>();
@@ -176,6 +181,8 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
         // These are assigned in event BeginPlay rather than reflected defaults.
         TEXT("/Game/Gameplay/CoreLoop/M_NutEnemyEyes"),
         TEXT("/Game/Gameplay/VFX/M_Reaction"),TEXT("/Game/Gameplay/VFX/M_ReactionSoft"),
+        TEXT("/Game/Gameplay/VFX/MI_PassiveGhost"),TEXT("/Game/Gameplay/VFX/MI_PassiveLightning"),
+        TEXT("/Engine/EngineMaterials/DefaultTextMaterialOpaque"),
         TEXT("/Game/Gameplay/VFX/M_ReactionFire"),TEXT("/Game/Gameplay/VFX/M_ReactionSmoke"),
         TEXT("/Game/Gameplay/Cold/Frost/M_TongueFrost"),
         TEXT("/Game/Gameplay/Cold/VFX/M_IcePhasePowder"),TEXT("/Game/Gameplay/Cold/VFX/NS_IcePhasePowder"),
