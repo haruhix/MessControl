@@ -10,7 +10,9 @@ enum class EMCRogueStat : uint8
     BrushWidth, BrushPower, DirtyDuration, WarmDuration, WarmRadius, CarryPenalty,
     CarryCapacity, ThrowImpulse, SpoilRate, FoodScatter, DeliveryXP, MaxHealth,
     FallingNutDamage, FreezeRate, LegIceHealth, ChainsawCrashDamage, BraceDamage,
-    RagdollDuration, RescueRate, WeaponDamage, IncomingDamage, ShieldDamage
+    RagdollDuration, RescueRate, WeaponDamage, IncomingDamage, ShieldDamage,
+    // Append only: saved modifier enum values must retain their meaning.
+    StaminaCost, FoodPickupRange, FoodThrowRange, SprayRange, SprayWidth
 };
 UENUM(BlueprintType)
 enum class EMCRogueActivation : uint8

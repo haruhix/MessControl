@@ -17,6 +17,8 @@ public:
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     bool CanCollect(const AMCFoodActor* Food) const;
+    /** Fragment-only passive reach; boss ammunition and other E interactions keep their baseline. */
+    float EffectiveCollectionReach(const AMCFoodActor* Food) const;
     bool HasCandidate() const;
     bool HasNutAmmunition() const;
     void Toggle();
@@ -39,7 +41,7 @@ public:
     FTransform StackPose(const AMCFoodActor* Food) const;
     UPROPERTY(Replicated,BlueprintReadOnly) bool bCollecting=false;
     UPROPERTY(Replicated,BlueprintReadOnly) TArray<TObjectPtr<AMCFoodActor>> Pieces;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite) int32 MaxPieces=6;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(ClampMin="1",ClampMax="10")) int32 MaxPieces=6;
     UPROPERTY(EditAnywhere,BlueprintReadWrite) float CollectionReach=180;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Collection|Throw",meta=(ClampMin="0.15",ClampMax="1")) float ThrowInterval=.3f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Collection|Throw",meta=(ClampMin="400",ClampMax="2400",Units="cm/s")) float ThrowSpeed=1800;

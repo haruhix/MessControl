@@ -315,6 +315,7 @@ bool AMCToothCharacter::HitFrozenLegsWithPickaxe(AMCToothCharacter* Worker,float
         FHitResult Block;
         if(GetWorld()->LineTraceSingleByChannel(Block,Worker->GetActorLocation(),GetActorLocation(),ECC_Visibility,Query)) return false;
     }
+    if(const auto* Perks=UMCPerkComponent::ForActor(Worker)) Damage=Perks->WeaponDamage(Damage,this);
     IceLegHealth=FMath::Max(0.f,IceLegHealth-Damage); OnRep_IceLegHealth(); ForceNetUpdate();
     if(!HasFrozenLegs()) {
         if(UWorld* World=GetWorld())
@@ -941,6 +942,9 @@ void AMCToothCharacter::StartBrace()
     if(const auto* PC=Cast<APlayerController>(Controller); PC && PC->IsMoveInputIgnored()) return;
     if(auto* Ball=AMCHubBasketball::HeldBy(this)) {Ball->SetAimHeld(true);return;}
     if(FishingRod && FishingRod->IsPresented()) {FishingRod->ServerSetFishingPose(true);return;}
+    // Carrying owns the hands. RMB must not drop the load and immediately
+    // select that same food as a new brace contact; Q/E release it explicitly.
+    if(HasFoodToThrow()) return;
     StopPrimary(); StopHandle(); FoodCollection->Stop();
     CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->CancelDash();
     Grip->SetBraceHeld(true);

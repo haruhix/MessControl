@@ -33,7 +33,8 @@ bool UMCPerkComponent::OwnsPerk(FName ID) const
     return PassivePerkIDs.Contains(ID) || OwnedToolPerkIDs.Contains(ID)
         || ActiveSkillSlots.ContainsByPredicate([ID](const FMCActiveSkillSlot& Slot){return Slot.PerkID==ID;});
 }
-int32 UMCPerkComponent::GetStacks(FName ID) const {return OwnsPerk(ID)?1:0;}
+int32 UMCPerkComponent::GetStacks(FName ID) const
+{ const auto* Row=FindDefinition(ID);return Row && IsDefinitionUsable(*Row) && OwnsPerk(ID)?1:0; }
 int32 UMCPerkComponent::FindFreeActiveSlot() const
 {
     for(int32 I=0;I<ActiveSkillSlotCount;++I)
@@ -152,6 +153,23 @@ bool UMCPerkComponent::ServerGrantPerks(const TArray<FName>& IDs)
 }
 void UMCPerkComponent::RefreshLegacyProjection()
 {
+    // Disabled entries remain explicit inert migration data, never live HUD/effects.
+    bool Pruned=false;
+    const auto Disabled=[&](FName ID) {
+        const auto* Row=FindDefinition(ID);
+        if(Row && IsDefinitionUsable(*Row)) return false;
+        if(!ID.IsNone()) LegacyUnappliedBoosterIDs.AddUnique(ID);
+        Pruned=true;return true;
+    };
+    PassivePerkIDs.RemoveAll(Disabled);OwnedToolPerkIDs.RemoveAll(Disabled);
+    for(auto& Slot:ActiveSkillSlots) if(!Slot.PerkID.IsNone()) {
+        const auto* Row=FindDefinition(Slot.PerkID);
+        if(Row && IsDefinitionUsable(*Row)) continue;
+        const int32 Units=Row && ResolvePerkKind(*Row,Slot.PerkID)==EMCPerkKind::Consumable?FMath::Clamp(Slot.Charges,1,MaximumSkillCharges):1;
+        for(int32 I=0;I<Units;++I) LegacyUnappliedBoosterIDs.Add(Slot.PerkID);
+        Slot=FMCActiveSkillSlot();Pruned=true;
+    }
+    if(Pruned) ClearRogueRuntime();
     ActivePerks.Reset();
     for(FName ID:PassivePerkIDs) {FMCActivePerk P;P.PerkID=ID;P.Stacks=1;ActivePerks.Add(P);}
     for(FName ID:OwnedToolPerkIDs) {FMCActivePerk P;P.PerkID=ID;P.Stacks=1;ActivePerks.Add(P);}
@@ -296,7 +314,12 @@ void UMCPerkComponent::CopyPerksTo(UMCPerkComponent* Target) const
         && !ActiveSkillSlots.ContainsByPredicate([](const FMCActiveSkillSlot& S){return !S.PerkID.IsNone();})) {
         Target->ActivePerks=ActivePerks;Target->BoosterQueue=BoosterQueue;Target->MigrateLegacyOwnedState();
     }
-    Target->bGrenadeArmed=bGrenadeArmed;Target->DeliveryXPResidual=DeliveryXPResidual;
+    bool GrenadeEnabled=false;
+    if(LoadedTable) for(FName ID:LoadedTable->GetRowNames()) {
+        const auto* Row=FindDefinition(ID);
+        if(Row && IsDefinitionUsable(*Row) && ActionID(ID,*Row)==TEXT("Fallback_Grenade")) {GrenadeEnabled=true;break;}
+    }
+    Target->bGrenadeArmed=bGrenadeArmed && GrenadeEnabled;Target->DeliveryXPResidual=DeliveryXPResidual;
     Target->RefreshLegacyProjection();Target->RebuildEffects();Target->GetOwner()->ForceNetUpdate();
 }
 void UMCPerkComponent::OnRep_SkillLoadout() {OnPerksChanged.Broadcast();}

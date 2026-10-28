@@ -183,6 +183,9 @@ public:
     float CleaningRadius(float DirtRadius=36.f) const;
     FVector BrushContactLocal() const;
     float SprayReach() const;
+    float SprayWidthMultiplier() const;
+    float SprayRadiusAtDistance(float Distance) const;
+    friend class FMCBatch1SprayCoverageTest;
     float RogueAttackRate() const;
     float MeleeReach(float Base=180.f) const;
     float LastRogueReach=1.f;

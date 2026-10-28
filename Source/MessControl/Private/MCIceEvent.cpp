@@ -615,6 +615,7 @@ bool AMCIceEvent::HitObstructionWithPickaxe(AMCToothCharacter* Hero,float Damage
 {
     if(!HasAuthority() || Stage!=EMCIceEventStage::Active || !IsValid(Hero) || !IsParticipant(Hero) || !Hero->CanWork()
         || !Hero->Inventory || Hero->Inventory->Selected!=EMCToolSlot::Pickaxe || !FMath::IsFinite(Damage) || Damage<=0) return false;
+    if(const auto* Perks=UMCPerkComponent::ForActor(Hero)) Damage=Perks->WeaponDamage(Damage,this);
     if(Hero->Inventory->HasUpgrade(EMCToolUpgrade::Buffer))
     {
         FVector Center; float Radius;

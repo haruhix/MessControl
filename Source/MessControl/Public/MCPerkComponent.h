@@ -112,6 +112,8 @@ public:
     bool GetPerkDefinition(FName PerkID, FMCPerkDefinition& Definition) const;
 
     const FMCPerkDefinition* FindDefinition(FName PerkID) const;
+    /** Shared validity policy for authored definitions, including diagnostic catalogs. */
+    static bool IsDefinitionUsable(const FMCPerkDefinition& Definition);
     /** Stable list shared by the host's F3 menu and its authoritative grant command. */
     TArray<FName> GetToolRewardIDs() const;
 
@@ -151,7 +153,6 @@ private:
     void LoadDefinitions();
     void RebuildEffects();
     bool HasAuthority() const;
-    static bool IsDefinitionUsable(const FMCPerkDefinition& Definition);
 
     UPROPERTY(Transient)
     TObjectPtr<UDataTable> LoadedTable;

@@ -26,6 +26,7 @@
 #include "Components/ScrollBox.h"
 #include "Components/CheckBox.h"
 #include "Components/ComboBoxString.h"
+#include "Components/WidgetSwitcher.h"
 #include "Styling/CoreStyle.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -63,10 +64,19 @@ void UMCDevPanelWidget::NativeOnInitialized()
     auto* Root=WidgetTree->ConstructWidget<UCanvasPanel>(); WidgetTree->RootWidget=Root;
     auto* Border=WidgetTree->ConstructWidget<UBorder>(); Border->SetBrushColor(FLinearColor(.016f,.036f,.045f,.98f)); Border->SetPadding(FMargin(24,16));
     auto* CanvasSlot=Root->AddChildToCanvas(Border); CanvasSlot->SetAnchors(FAnchors(.10f,.05f,.90f,.95f)); CanvasSlot->SetOffsets(FMargin(0));
-    auto* Main=WidgetTree->ConstructWidget<UVerticalBox>(); Border->SetContent(Main);
+    Pages=WidgetTree->ConstructWidget<UWidgetSwitcher>(UWidgetSwitcher::StaticClass(),TEXT("DevPanelPages")); Border->SetContent(Pages);
+    auto* Main=WidgetTree->ConstructWidget<UVerticalBox>(); Pages->AddChild(Main);
     AddText(Main,TEXT("DEV / ТЕСТ МЕХАНИК"),25)->SetColorAndOpacity(FSlateColor(DevMint));
     AddText(Main,TEXT("F3 / Esc — закрыть. Мир продолжает работать. Игровые команды доступны хосту; сравнение анимации — локально."),13);
     Status=AddText(Main,TEXT(""),14);
+    OpenPassivesButton=WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(),TEXT("OpenPassivesButton"));
+    OpenPassivesButton->SetBackgroundColor(FLinearColor(.055f,.22f,.22f));
+    auto* PassiveLink=WidgetTree->ConstructWidget<UTextBlock>();
+    PassiveLink->SetText(FText::FromString(TEXT("ПАССИВКИ  →")));
+    PassiveLink->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),16));PassiveLink->SetColorAndOpacity(FSlateColor(DevMint));
+    CastChecked<UButtonSlot>(OpenPassivesButton->AddChild(PassiveLink))->SetPadding(FMargin(14,8));
+    OpenPassivesButton->OnClicked.AddDynamic(this,&UMCDevPanelWidget::OpenPassivesClicked);
+    Main->AddChildToVerticalBox(OpenPassivesButton)->SetPadding(FMargin(0,3,0,10));
     PlayerOverlayCheck=WidgetTree->ConstructWidget<UCheckBox>();
     auto* OverlayLabel=WidgetTree->ConstructWidget<UTextBlock>();
     OverlayLabel->SetText(FText::FromString(TEXT("Показывать статус игрока и подсказки управления")));
@@ -163,10 +173,12 @@ void UMCDevPanelWidget::NativeOnInitialized()
     auto* Close=WidgetTree->ConstructWidget<UButton>();
     auto* CloseText=WidgetTree->ConstructWidget<UTextBlock>(); CloseText->SetText(FText::FromString(TEXT("ВЕРНУТЬСЯ В ИГРУ  [F3]"))); CloseText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),14));
     Close->SetContent(CloseText); Close->OnClicked.AddDynamic(this,&UMCDevPanelWidget::CloseClicked); Main->AddChildToVerticalBox(Close)->SetPadding(FMargin(0,8,0,0));
+    BuildPassivesPage();
     RefreshActions();
 }
 void UMCDevPanelWidget::RefreshActions()
 {
+    if(Pages) Pages->SetActiveWidgetIndex(0);
     RefreshAnimationComparison();
     if (!Steps || !Actions) return;
     if (const auto* PC=Cast<AMCPlayerController>(GetOwningPlayer()); PC && PC->PrototypeWidget && PlayerOverlayCheck)
@@ -303,7 +315,12 @@ void UMCDevPanelWidget::StartBotsClicked()
 }
 void UMCDevPanelWidget::StopBotsClicked() { if (auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->RequestDevAction(EMCDevAction::BotsStop); }
 void UMCDevPanelWidget::ReportBotsClicked() { if (auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->RequestDevAction(EMCDevAction::BotsReport); }
-void UMCDevPanelWidget::SetFeedback(const FText& Text) { if (Feedback) Feedback->SetText(Text); }
+void UMCDevPanelWidget::SetFeedback(const FText& Text)
+{
+    if(Feedback) Feedback->SetText(Text);
+    if(PassiveFeedback) PassiveFeedback->SetText(Text);
+    if(IsPassivesOpen()) RefreshPassives();
+}
 void UMCDevPanelWidget::DirectorOverlayChanged(bool Checked)
 {
     if (auto* Debug=IConsoleManager::Get().FindConsoleVariable(TEXT("MC.Director.Debug"))) Debug->Set(Checked?1:0,ECVF_SetByCode);
@@ -311,6 +328,11 @@ void UMCDevPanelWidget::DirectorOverlayChanged(bool Checked)
 void UMCDevPanelWidget::NativeTick(const FGeometry& Geometry,float Dt)
 {
     Super::NativeTick(Geometry,Dt); if (!Status || !IsVisible()) return;
+    if(IsPassivesOpen()) {
+        PassiveRefreshDelay-=Dt;
+        if(PassiveRefreshDelay<=0.f) {PassiveRefreshDelay=.2f;RefreshPassives();}
+        return;
+    }
     RefreshAnimationComparison();
     const auto* GS=GetWorld()->GetGameState<AMCGameState>(); if (!GS) return;
     if (DirectorLogText) {
@@ -398,6 +420,7 @@ FReply UMCDevPanelWidget::NativeOnKeyDown(const FGeometry& Geometry,const FKeyEv
 {
     if (auto* PC=Cast<AMCPlayerController>(GetOwningPlayer()))
     {
+        if(Event.GetKey()==EKeys::Escape && IsPassivesOpen()) {PassivesBackClicked();return FReply::Handled();}
         if (Event.GetKey()==EKeys::F3 || Event.GetKey()==EKeys::Escape) { PC->ToggleDevPanel(); return FReply::Handled(); }
         if (Event.GetKey()==EKeys::F1) { PC->ToggleTuning(); return FReply::Handled(); }
         if (Event.GetKey()==EKeys::F2) { PC->ToggleConnection(); return FReply::Handled(); }

@@ -236,6 +236,19 @@ FString UMCPerkComponent::RoguePreview(FName ID) const
         float Base=1;FString Label;
         switch(M.Stat) {
         case EMCRogueStat::NormalSpeed:Label=English?TEXT("Speed"):TEXT("Скорость");break;
+        case EMCRogueStat::StaminaCost:Label=English?TEXT("Stamina cost"):TEXT("Расход выносливости");break;
+        case EMCRogueStat::AttackRate:Label=English?TEXT("Attack frequency"):TEXT("Частота атак");break;
+        case EMCRogueStat::FoodPickupRange:Label=English?TEXT("Food pickup range"):TEXT("Дальность подбора еды");break;
+        case EMCRogueStat::FoodThrowRange:Label=English?TEXT("Throw reach"):TEXT("Дальность броска");break;
+        case EMCRogueStat::SpoilRate:Label=English?TEXT("Spoil rate"):TEXT("Скорость порчи");break;
+        case EMCRogueStat::BrushWidth:Label=English?TEXT("Brush width"):TEXT("Ширина щётки");break;
+        case EMCRogueStat::SprayRange:Label=English?TEXT("Spray range"):TEXT("Дальность спрея");break;
+        case EMCRogueStat::SprayWidth:Label=English?TEXT("Spray width"):TEXT("Ширина спрея");break;
+        case EMCRogueStat::MaxStamina: {
+            Label=English?TEXT("Max stamina"):TEXT("Макс. выносливость");const auto* PS=Cast<AMCPlayerState>(GetOwner());
+            const auto* Hero=PS?Cast<AMCToothCharacter>(PS->GetPawn()):nullptr;
+            Base=Hero?CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement())->MaxStamina:100;break;
+        }
         case EMCRogueStat::MaxHealth: {
             Label=English?TEXT("Max HP"):TEXT("Макс. HP");const auto* PS=Cast<AMCPlayerState>(GetOwner());
             const auto* Hero=PS?Cast<AMCToothCharacter>(PS->GetPawn()):nullptr;

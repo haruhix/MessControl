@@ -5,6 +5,7 @@
 #include "MCArenaTooth.h"
 #include "MCToothStatusComponent.h"
 #include "EngineUtils.h"
+#include "Components/BoxComponent.h"
 #include "GameFramework/PlayerController.h"
 
 bool UMCInventoryComponent::LocalSprayView(FVector& Origin,FVector& Direction) const
@@ -56,9 +57,15 @@ FVector UMCInventoryComponent::SprayAim() const
         // Care patches deliberately have no physical collision. Acquire their
         // visible area on the same camera ray before converging the muzzle.
         float Best=FVector::Distance(Origin,End);
+        const FVector Muzzle=SprayOrigin();
         auto CareArea=[&](FVector Point,float Radius) {
             const FVector Delta=Point-Origin;const float Along=FVector::DotProduct(Delta,Direction);
-            if(Along>0 && Along<Best && (Delta-Direction*Along).SizeSquared()<=FMath::Square(Radius)) {
+            // This is view acquisition, not a treatment range test: the
+            // camera may be well behind the player. Actual reach is checked
+            // from the muzzle by SprayTargetDistance/FindToothRepairTarget.
+            const float MuzzleDistance=FVector::DotProduct(Point-Muzzle,Direction);
+            const float Coverage=FMath::Max(0.f,Radius)+SprayRadiusAtDistance(MuzzleDistance);
+            if(Along>0 && Along<Best && (Delta-Direction*Along).SizeSquared()<=FMath::Square(Coverage)) {
                 Best=Along;End=Origin+Direction*Along;
             }
         };
@@ -75,7 +82,11 @@ bool UMCInventoryComponent::SprayTargetDistance(AActor* Target,FVector Point,flo
 {
     const FVector Origin=SprayOrigin(),Direction=SprayDirection(),Delta=Point-Origin;
     Distance=FVector::DotProduct(Delta,Direction);
-    if(Distance<=0 || Distance>SprayReach() || (Delta-Direction*Distance).SizeSquared()>FMath::Square(Radius)) return false;
+    if(!FMath::IsFinite(Radius) || Point.ContainsNaN() || Distance<=0 || Distance>SprayReach()) return false;
+    // Radius describes the target, not the spray. Only the beam's cone radius
+    // receives SprayWidth, so a broad target never grows with the passive.
+    const float Coverage=FMath::Max(0.f,Radius)+SprayRadiusAtDistance(Distance);
+    if((Delta-Direction*Distance).SizeSquared()>FMath::Square(Coverage)) return false;
     FHitResult Hit;FCollisionQueryParams Query(SCENE_QUERY_STAT(MCSprayTreatment),true,Hero);Query.AddIgnoredActor(Target);
     return !GetWorld()->LineTraceSingleByChannel(Hit,Origin,Point,ECC_Visibility,Query);
 }
@@ -83,12 +94,40 @@ AMCArenaTooth* UMCInventoryComponent::FindToothRepairTarget(FHitResult* Contact)
 {
     if (!Hero || !Hero->IsPrimaryHeld() || !ShouldPresentTool() || !Hero->CanWork() || Hero->bInCoffee
         || Selected!=EMCToolSlot::Spray || (bPressureMode && HasUpgrade(EMCToolUpgrade::Watergun))) return nullptr;
-    // Use the first physical contact, shared with aiming and water shots. Walls and other teeth occlude repair.
-    FHitResult Hit; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCToothSprayRepair),true,Hero);
-    const FVector Origin=SprayOrigin();
-    if (!GetWorld()->LineTraceSingleByChannel(Hit,Origin,Origin+SprayDirection()*SprayReach(),ECC_Visibility,Query)) return nullptr;
-    auto* Tooth=Cast<AMCArenaTooth>(Hit.GetActor());
-    if(!Tooth || !Tooth->IsAvailable() || !Tooth->Status->NeedsCare(false)) return nullptr;
-    if(Contact) *Contact=Hit;
-    return Tooth;
+    const FVector Origin=SprayOrigin(),Direction=SprayDirection();
+    const float Reach=SprayReach();
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCToothSprayRepair),true,Hero);
+    FHitResult CenterHit;
+    const bool CenterBlocked=GetWorld()->LineTraceSingleByChannel(CenterHit,Origin,Origin+Direction*Reach,ECC_Visibility,Query);
+    // Preserve first-contact selection. A healthy front tooth or a wall also
+    // caps side candidates, so a wider cone cannot repair something behind it.
+    const float Limit=CenterBlocked?FMath::Clamp(float(FVector::DotProduct(CenterHit.ImpactPoint-Origin,Direction)),0.f,Reach):Reach;
+    if(auto* Tooth=Cast<AMCArenaTooth>(CenterHit.GetActor());CenterBlocked && Tooth && Tooth->IsAvailable() && Tooth->Status->NeedsCare(false)) {
+        if(Contact) *Contact=CenterHit;
+        return Tooth;
+    }
+    AMCArenaTooth* Best=nullptr;FHitResult BestHit;float BestDistance=Limit;
+    int32 Checked=0;
+    for(TActorIterator<AMCArenaTooth> It(GetWorld());It && Checked<64;++It) {
+        auto* Tooth=*It;
+        if(!Tooth->IsAvailable() || !Tooth->Status->NeedsCare(false) || !Tooth->Body) continue;
+        ++Checked;
+        const float Along=FVector::DotProduct(Tooth->Body->Bounds.Origin-Origin,Direction);
+        const FVector AxisPoint=Origin+Direction*FMath::Clamp(Along,0.f,Limit);
+        FVector Point=AxisPoint;
+        if(Tooth->Body->GetClosestPointOnCollision(AxisPoint,Point)<0.f || Point.ContainsNaN()) continue;
+        const FVector Delta=Point-Origin;const float Distance=FVector::DotProduct(Delta,Direction);
+        if(Distance<=0 || Distance>BestDistance || (Delta-Direction*Distance).SizeSquared()>FMath::Square(SprayRadiusAtDistance(Distance))) continue;
+        FHitResult Hit;
+        // Trace to the real collision point, slightly inside its boundary to
+        // avoid an exact-endpoint miss. Never ignore walls or other teeth.
+        const FVector End=Point+(Point-Origin).GetSafeNormal()*2.f;
+        if(!GetWorld()->LineTraceSingleByChannel(Hit,Origin,End,ECC_Visibility,Query) || Hit.GetActor()!=Tooth) continue;
+        const float HitDistance=FVector::DotProduct(Hit.ImpactPoint-Origin,Direction);
+        if(HitDistance<=0 || HitDistance>BestDistance
+            || (Hit.ImpactPoint-Origin-Direction*HitDistance).SizeSquared()>FMath::Square(SprayRadiusAtDistance(HitDistance))) continue;
+        Best=Tooth;BestHit=Hit;BestDistance=HitDistance;
+    }
+    if(Best && Contact) *Contact=BestHit;
+    return Best;
 }

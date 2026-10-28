@@ -103,6 +103,8 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Stamina",meta=(ClampMin="0")) float StaminaRecoveryDelay=.65f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Stamina",meta=(ClampMin="0")) float DashStaminaCost=22.f;
     float GetMaxStamina() const;
+    /** The same perk-adjusted cost is used for eligibility and the movement ledger. */
+    float EffectiveDashStaminaCost() const;
     float GetStamina() const { return FMath::Clamp(StaminaState.Value,0.f,GetMaxStamina()); }
     const FMCStaminaPredictionState& GetStaminaPrediction() const { return StaminaState; }
     const FMCStaminaPredictionState& GetStaminaResponseSnapshot() const { return ServerStaminaSnapshot; }
@@ -215,6 +217,7 @@ private:
     bool bPendingStaminaCorrection=false,bReplayingAuthoritativeStamina=false;
     bool bStaminaSprintRequested=false,bStaminaDashCharged=false,bReplayDashCharge=false;
     bool CanSprintAction() const;
+    float StaminaCostMultiplier() const;
     bool bWantsToSprint=false;
     bool bWantsToClimb=false;
     bool bWantsDash=false;

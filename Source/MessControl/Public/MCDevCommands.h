@@ -19,8 +19,15 @@ enum class EMCDevAction : uint8
     SpineVFXTest, SpineVFXTestStop,
     HugeTongueStain=62,
     CataclysmRandom=63, CataclysmRafts=64, CataclysmJellies=65, CataclysmStop=66,
-    OneHitKill=67
+    OneHitKill=67,
+    GrantPassive=68, RemovePassive=69
 };
+
+class UMCPerkComponent;
+/** Current enabled, usable Passive rows, including already owned ones; stable lexical display order. */
+MESSCONTROL_API TArray<FName> MCDevPassiveIDs(const UMCPerkComponent* Perks);
+/** Stable typed-command payload. Never use a changing filtered-list index as reward identity. */
+MESSCONTROL_API int32 MCDevPassiveToken(FName PerkID);
 
 /** Session-only host debug mode; never active in Shipping. */
 MESSCONTROL_API bool MCDevOneHitKillEnabled(const UWorld* World);

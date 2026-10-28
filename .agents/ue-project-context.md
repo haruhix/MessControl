@@ -1,6 +1,6 @@
 # MessControl Unreal project context
 
-*Engine association: UE 5.8 · Local engine: 5.8.1 · Updated: 2026-10-28 (brush footprint validation; skills/economy retain the 2026-10-27 refresh, other sections the 2026-10-23 audit)*
+*Engine association: UE 5.8 · Local engine: 5.8.1 · Updated: 2026-10-28 (nine current passives, F3 passive page and brush footprint; other sections retain their dated audit scope)*
 
 This context is derived from the current checkout. Current source and saved Unreal packages are authoritative; indexes are derived evidence. For the human-facing Russian documentation, start with [Docs/README.md](../Docs/README.md) and [Docs/Architecture.md](../Docs/Architecture.md).
 
@@ -110,6 +110,16 @@ Unverified beyond the bounded live reads in the audit: remaining Blueprint defau
 ## Roguelike foundation validation — 2026-10-27
 
 Normal Editor builds succeeded. The targeted native run completed 31 tests (30 clean, one with warnings, zero failures); the warnings concern CPU access on the test Plane fixture. Owned solo PIE checked four slots, nine coexisting passives, charge use, independent cooldown, personal chest choice, full-slot confirmation and actual replacement. A separate owned Hub PIE checked E/open, exact price debit, next-run preparation, close/reopen and stable stock. All use transient profiles and explicit diagnostic grants/wallet/player placement, not an earned full run. Evidence is on E:/CodexWork/MessControl/RoguelikeFoundation_20261027; network, microphone, packaged run and a real-file legacy-profile restart were not checked. Full pre-refactor saved export covered 3618 current assets out of 3619; the old EUB_SnapToActor editor utility failed compilation and is excluded. Post-refactor refreshes are scoped to the relevant tables/WBP/maps; do not assume all other cached snapshots are current.
+
+## Current passives and F3 — 2026-10-28
+
+Production DT_Perks now has109 rows: only9 B1_* passives enabled, all100 previous definitions disabled. This deliberately disables old active/consumable/tool rewards; four active slots remain infrastructure and currently empty. Default tools and cosmetic purchases remain. Use Tools/Unreal/author_batch1_passives.py; historical catalog authoring recipes can re-enable retired content and must not be rerun blindly. Core contracts, exact IDs and remaining18 passive plans: Docs/RoguelikeCore.md sections8.6–8.7.
+
+New modifier stats are appended without changing old enum ordinals: StaminaCost, FoodPickupRange, FoodThrowRange, SprayRange, SprayWidth. CarryCapacity supports actual base6→8 (safety cap12); +20% food range uses the ballistic support plane, not a velocity multiplier. Ordinary spray treatment now shares the existing18deg visual cone; pressure increases reach/width independently and preserves blockers. Retired owned state is inert and quarantined; pending paid legacy purchases remain unapplied, never silently mapped/refunded. Shop repairs stale retired stock once in its existing run epoch; valid stock stays stable. Calcium remains disabled and grill rewards remain coins.
+
+F3 -> Passives opens a separate scroll page with current enabled usable Passive rows, descriptions, owned state and typed grant/remove buttons. Mutation uses existing local-host/non-Shipping AMCGameMode guard, no new RPC; Hub/client view is read-only. Stable row tokens reject stale/disabled/ambiguous commands. No director/day/wallet/purchase reset. Skill HUD is intentionally hidden with the cursor while F3 is open; confirm chip changes after closing it. Passives UI reuses master theme/fonts and procedural rounded Slate brushes, no new runtime assets.
+
+Build07 successful, Native04 all16 targeted tests passed without warnings. SoloD arena, HubShopB and F3SoloD passed using actual handlers/Slate clicks and disclosed transient diagnostic fixtures; root reviewed screenshots. F3 verified9 rows, real grant/remove and 100→120→100, HUD after closing, Back/F3/reopen without auto-grant. Remaining six individual perk icons/final art, full earned run, network, packaged/clean-cache validation and real legacy profile restart are deferred. See Docs/Validation/PassivesBatch1_20261028.md; media/reports live on E:/CodexWork/MessControl/PassivesBatch1_20261028. Four relevant saved tables are refreshed after the C++ batch; other snapshots remain stale rather than presumed current.
 
 ## Brush footprint validation — 2026-10-28
 

@@ -5,6 +5,7 @@
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
 #include "MCInventoryComponent.h"
+#include "MCPerkComponent.h"
 #include "MCToothStatusComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
@@ -130,6 +131,7 @@ bool AMCSmallMintCandy::HitWithPickaxe(AMCToothCharacter* Worker,float Damage)
         if(!Worker->Inventory->CanBufferContact(this,Point)) return false;
     }
     else if(!MCEnemyWeaponContact::CanHit(Worker,this,Point)) return false;
+    if(const auto* Perks=UMCPerkComponent::ForActor(Worker)) Damage=Perks->WeaponDamage(Damage,this);
     Health=FMath::Max(0.f,Health-Damage);
     if(Health<=0) {Stage=EMCSmallMintStage::Complete;Multicast_Shatter(Body->Bounds.Origin);Stop();}
     ForceNetUpdate();return true;

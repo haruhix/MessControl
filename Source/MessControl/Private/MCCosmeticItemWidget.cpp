@@ -134,6 +134,20 @@ void UMCCosmeticItemWidget::ApplyTheme()
     MCUIVisualStyle::Button(CosmeticBuy,Style,P.Mint);
     auto Text=[Style](UTextBlock* W,int32 Size,FLinearColor Color,bool Bold) {if(W) {W->SetFont(Style->MakeGameplayFont(Size,Bold));W->SetColorAndOpacity(Color);}};
     Text(CosmeticName,15,P.Cream,true);Text(CosmeticDescription,11,P.OnMarine.CopyWithNewOpacity(.88f),false);
+    // The shop reuses the saved wardrobe tile. Its old 20px title row cannot
+    // contain a wrapped name; reserve two lines before the description preview.
+    // Wardrobe cards always supply Face/Hat, including the no-accessory card.
+    const bool bShopProduct=ItemSlot.IsNone() && !ItemId.IsNone() && !CatalogId.IsNone();
+    if(bShopProduct && CosmeticName) {
+        CosmeticName->SetAutoWrapText(true);
+        if(auto* NameBox=Cast<USizeBox>(CosmeticName->GetParent())) {
+            NameBox->ClearHeightOverride();NameBox->SetMinDesiredHeight(44);
+            if(auto* NameRow=Cast<UVerticalBoxSlot>(NameBox->Slot)) NameRow->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));
+        }
+        if(auto* CardSize=WidgetTree->FindWidget<USizeBox>(TEXT("CosmeticCardSize"))) {
+            CardSize->ClearHeightOverride();CardSize->SetMinDesiredHeight(204);
+        }
+    }
     FLinearColor Rarity=P.OnMarine;
     if(ProductRarity==EMCHubItemRarity::Rare) Rarity=P.Accent;else if(ProductRarity==EMCHubItemRarity::Epic) Rarity=FMath::Lerp(P.Accent,P.Cost,.5f);else if(ProductRarity==EMCHubItemRarity::Legendary) Rarity=P.Warning;
     Text(CosmeticRarity,10,Rarity,true);Text(CosmeticPrice,11,bAffordable || bOwned?P.Cream:P.Warning,true);

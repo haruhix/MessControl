@@ -1,6 +1,9 @@
 #include "MCFoodActor.h"
 #include "MCPerkComponent.h"
 #include "MCToothCharacter.h"
+#include "MCFoodCollectionComponent.h"
+#include "MCGripComponent.h"
+#include "MCToothStatusComponent.h"
 
 #include "MCTutorialDirector.h"
 
@@ -19,8 +22,20 @@ void AMCFoodActor::UpdateAbsorption(float Dt)
     if (AMCTutorialDirector::IsSafeTutorial(GetWorld())) return;
     if(!HasAuthority() || bBrushTool || IsDisposed() || FoodData.Kind!=EMCFoodKind::Food || ItemName.IsNone()) return;
     if(SpoilAt<=0) SpoilAt=HazardNow()+FoodData.SpoilSeconds;
-    const AMCToothCharacter* Carrier=StackCarrier?StackCarrier.Get():EquippedBy?EquippedBy.Get():!Holders.IsEmpty()?Holders[0].Get():nullptr;
-    if(!bSpoiled && Carrier) if(const auto* Perks=UMCPerkComponent::ForActor(Carrier))
-        SpoilAt+=FMath::Max(0.f,Dt)*(1-Perks->RogueValue(EMCRogueStat::SpoilRate));
+    // A pickup after an already elapsed deadline cannot revive freshness by
+    // adding a fraction of this frame to the old timestamp.
+    if(!bSpoiled && HazardNow()>=SpoilAt) {Spoil();return;}
+    const auto Alive=[](const AMCToothCharacter* Hero) {
+        return IsValid(Hero) && Hero->Status && Hero->Status->IsAlive();
+    };
+    const AMCToothCharacter* Carrier=nullptr;
+    if(Alive(StackCarrier) && StackCarrier->FoodCollection && StackCarrier->FoodCollection->Contains(this)) Carrier=StackCarrier;
+    if(!Carrier) for(const auto& Holder:Holders) {
+        if(Alive(Holder) && Holder->Grip && Holder->Grip->Holds(this)) {Carrier=Holder;break;}
+    }
+    if(!bSpoiled && Carrier) if(const auto* Perks=UMCPerkComponent::ForActor(Carrier)) {
+        const float Step=FMath::IsFinite(Dt)?FMath::Max(0.f,Dt):0.f;
+        SpoilAt+=Step*(1-Perks->RogueValue(EMCRogueStat::SpoilRate));
+    }
     if(!bSpoiled && HazardNow()>=SpoilAt) Spoil();
 }

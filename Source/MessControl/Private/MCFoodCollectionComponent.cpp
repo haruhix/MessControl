@@ -2,6 +2,7 @@
 #include "MCPerkComponent.h"
 #include "MCFoodActor.h"
 #include "MCFoodStackSettings.h"
+#include "MCFoodPerkMath.h"
 #include "MCToothCharacter.h"
 #include "MCToothMovementComponent.h"
 #include "MCToothPhysicsComponent.h"
@@ -54,7 +55,7 @@ bool UMCFoodCollectionComponent::CanCollect(const AMCFoodActor* F) const
     // Large whole vegetables must be cut first. No shrinking of their physics body at pickup.
     if(!F->bFragment && (F->Body->GetScaledBoxExtent().GetMax()>55 || F->Visual->Bounds.SphereRadius>85)) return false;
     const double* Drop=DroppedAt.Find(F); if(Drop && GetWorld()->GetTimeSeconds()-*Drop<2) return false;
-    if(FVector::DistSquared(F->GetActorLocation(),H->GetActorLocation())>FMath::Square(CollectionReach)) return false;
+    if(FVector::DistSquared(F->GetActorLocation(),H->GetActorLocation())>FMath::Square(EffectiveCollectionReach(F))) return false;
     FHitResult Hit; FCollisionQueryParams Q(SCENE_QUERY_STAT(MCCollectFood),false,H); Q.AddIgnoredActor(F);
     for(const auto& Piece:Pieces) Q.AddIgnoredActor(Piece);
     // Nearby loose ingredients can hide one another in a heap. They do not
@@ -65,6 +66,14 @@ bool UMCFoodCollectionComponent::CanCollect(const AMCFoodActor* F) const
         Q.AddIgnoredActor(Hit.GetActor());
     }
     return false;
+}
+float UMCFoodCollectionComponent::EffectiveCollectionReach(const AMCFoodActor* Food) const
+{
+    const float Reach=FMath::IsFinite(CollectionReach)?FMath::Max(1.f,CollectionReach):180.f;
+    if(!IsValid(Food) || !Food->bFragment || Food->bBrushTool
+        || Food->FoodData.Kind!=EMCFoodKind::Food || Food->IsNutEncounterFragment()) return Reach;
+    const auto* Perks=UMCPerkComponent::ForActor(GetOwner());
+    return Perks?Perks->RogueValue(EMCRogueStat::FoodPickupRange,Reach):Reach;
 }
 bool UMCFoodCollectionComponent::HasCandidate() const
 {
@@ -113,7 +122,8 @@ int32 UMCFoodCollectionComponent::EffectiveCapacity() const
 {
     if(HasNutAmmunition()) return 1;
     const auto* Perks=UMCPerkComponent::ForActor(GetOwner());
-    return FMath::RoundToInt(Perks?Perks->RogueValue(EMCRogueStat::CarryCapacity,MaxPieces):FMath::Clamp(float(MaxPieces),1.f,10.f));
+    const float Base=FMath::Clamp(float(MaxPieces),1.f,10.f);
+    return FMath::Clamp(FMath::RoundToInt(Perks?Perks->RogueValue(EMCRogueStat::CarryCapacity,Base):Base),1,12);
 }
 bool UMCFoodCollectionComponent::Collect(AMCFoodActor* Food)
 {
@@ -198,7 +208,28 @@ float UMCFoodCollectionComponent::EffectiveThrowSpeed() const
     // existing gravity/arc solve and perk ratios while approximately halving
     // range (slightly above half for elevated stack releases). LaunchManualThrow
     // and CameraThrowDirection both use this value; their speed must agree.
-    return FMath::Max(400.f,AuthoredSpeed*FMath::Sqrt(.5f));
+    const float Baseline=FMath::Max(400.f,AuthoredSpeed*FMath::Sqrt(.5f));
+    const float RangeScale=Perks?Perks->RogueValue(EMCRogueStat::FoodThrowRange):1.f;
+    if(FMath::IsNearlyEqual(RangeScale,1.f)) return Baseline;
+    const auto* Hero=Cast<AMCToothCharacter>(GetOwner());
+    UWorld* World=GetWorld();
+    if(!Hero || !World) return Baseline;
+    const AMCFoodActor* Item=!Pieces.IsEmpty() && IsValid(Pieces.Last())?Pieces.Last().Get():Hero->HeldFood.Get();
+    if(!IsValid(Item) || Item->bBrushTool || Item->FoodData.Kind!=EMCFoodKind::Food || Item->IsNutEncounterFragment()) return Baseline;
+    const FVector Launch=Item->GetActorLocation();
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCFoodThrowRangeSupport),false,Hero);
+    for(const auto& Piece:Pieces) if(IsValid(Piece)) Query.AddIgnoredActor(Piece);
+    if(IsValid(Hero->HeldFood)) Query.AddIgnoredActor(Hero->HeldFood);
+    float Height=0;
+    // Loose food must not change calibration just because the hand is above a heap.
+    // The same result is used by camera aiming and the authoritative launch.
+    FHitResult Hit;
+    for(int32 Attempt=0;Attempt<64;++Attempt) {
+        if(!World->LineTraceSingleByChannel(Hit,Launch,Launch-FVector(0,0,10000),ECC_Visibility,Query)) break;
+        if(const auto* Food=Cast<AMCFoodActor>(Hit.GetActor())) {Query.AddIgnoredActor(Food);continue;}
+        Height=FMath::Max(0.f,float(Launch.Z-Hit.ImpactPoint.Z));break;
+    }
+    return FMath::Clamp(FMCFoodPerkMath::SpeedForRangeScale(Baseline,RangeScale,Height,FMath::Abs(World->GetGravityZ())),400.f,4800.f);
 }
 bool UMCFoodCollectionComponent::ThrowOne(FVector AimDirection)
 {
@@ -386,7 +417,7 @@ void UMCFoodCollectionComponent::TickComponent(float Dt,ELevelTick Type,FActorCo
         FVector Axis; double Angle; Delta.ToAxisAndAngle(Axis,Angle);
         Motion.Angular=(Axis*Angle/FMath::Max(Dt,.001f)).GetClampedToMaxSize(6);
     }
-    if(!HasNutAmmunition() && Now>=NextCollectAt && Pieces.Num()<FMath::Clamp(MaxPieces,1,8)) {
+    if(!HasNutAmmunition() && Now>=NextCollectAt && Pieces.Num()<EffectiveCapacity()) {
         for(auto It=DroppedAt.CreateIterator();It;++It) if(!It.Key().IsValid() || Now-It.Value()>2) It.RemoveCurrent();
         NextCollectAt=Now+.55/FMCStackPickup::PlayRate;
         AMCFoodActor* Best=nullptr; double Distance=DBL_MAX;

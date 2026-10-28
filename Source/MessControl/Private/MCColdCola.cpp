@@ -6,6 +6,7 @@
 #include "MCDayPlan.h"
 #include "MCToothCharacter.h"
 #include "MCInventoryComponent.h"
+#include "MCPerkComponent.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCGameMode.h"
 #include "MCPlayerState.h"
@@ -60,6 +61,7 @@ bool AMCIceBlock::HitWithPickaxe(AMCToothCharacter* Hero,float Damage)
     const FVector Offset=Point-Hero->GetActorLocation();
     if(Buffer) {if(!Hero->Inventory->CanBufferContact(this,Point)) return false;}
     else if(Offset.SizeSquared()>FMath::Square(180.f) || FVector::DotProduct(Offset.GetSafeNormal2D(),Hero->GetActorForwardVector())<.25f || !Hero->CanContact(this)) return false;
+    if(const auto* Perks=UMCPerkComponent::ForActor(Hero)) Damage=Perks->WeaponDamage(Damage,this);
     Health=FMath::Max(0.f,Health-Damage); bBroken=Health<=0; ForceNetUpdate();
     if(bBroken) {
         Shatter(Body->Bounds.Origin,Size.GetMax()); SetLifeSpan(3);

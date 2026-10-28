@@ -117,7 +117,7 @@ bool UMCHubEconomyComponent::ResolvePerk(FName PerkID,FMCPerkDefinition& Definit
     if(!Table && Perks) Table=Perks->PerkTable.LoadSynchronous();
     const auto* Row=Table && Table->GetRowStruct()==FMCPerkDefinition::StaticStruct() && !PerkID.IsNone()
         ?Table->FindRow<FMCPerkDefinition>(PerkID,TEXT("Hub canonical perk"),false):nullptr;
-    if(!Row) return false;
+    if(!Row || !Row->bEnabled) return false;
     Definition=*Row;return true;
 }
 bool UMCHubEconomyComponent::IsCalciumEnabled() const { return LoadTables() && GetRules().bCalciumEnabled; }
@@ -184,7 +184,14 @@ TArray<FMCHubEconomyCatalogEntry> UMCHubEconomyComponent::GetShopCatalog() const
 bool UMCHubEconomyComponent::EnsureShopStock(const FGuid& RotationId,int32 Seed)
 {
     if(!IsAuthority() || bMutating || !RotationId.IsValid() || !LoadTables()) return false;
-    if(bShopStockGenerated && ShopRotationId==RotationId) return true;
+    if(bShopStockGenerated && ShopRotationId==RotationId) {
+        // Repair an obsolete catalog once; purchases/reopening never reroll valid stock.
+        const bool Obsolete=ShopStockIDs.ContainsByPredicate([this](FName ID) {
+            FMCHubEconomyCatalogEntry Entry;
+            return !FindCatalogEntry(ID,Entry) || !Entry.Definition.bInShop || Entry.Definition.Kind==EMCHubCatalogKind::Cosmetic;
+        });
+        if(!Obsolete) return true;
+    }
     auto Candidates=GetCatalog();
     Candidates.Sort([](const FMCHubEconomyCatalogEntry& A,const FMCHubEconomyCatalogEntry& B){return A.ItemID.LexicalLess(B.ItemID);});
     const auto Rules=GetRules();

@@ -196,16 +196,29 @@ void UMCToothMovementComponent::RestoreStaminaPrediction(const FMCStaminaPredict
     StaminaState.Value=FMath::IsFinite(State.Value)?FMath::Clamp(State.Value,0.f,GetMaxStamina()):0.f;
     StaminaState.RecoveryDelay=FMath::IsFinite(State.RecoveryDelay)?FMath::Max(0.f,State.RecoveryDelay):0.f;
 }
+float UMCToothMovementComponent::StaminaCostMultiplier() const
+{
+    const auto* Perks=UMCPerkComponent::ForActor(CharacterOwner);
+    return Perks?Perks->RogueValue(EMCRogueStat::StaminaCost):1.f;
+}
+float UMCToothMovementComponent::EffectiveDashStaminaCost() const
+{
+    const float Base=FMath::IsFinite(DashStaminaCost)?FMath::Max(0.f,DashStaminaCost):22.f;
+    return Base*StaminaCostMultiplier();
+}
 void UMCToothMovementComponent::AdvanceStaminaPrediction(float Dt,bool SprintRequested,bool DashCharged)
 {
     if (!FMath::IsFinite(Dt) || Dt<=0) return;
+    // Capacity changes preserve the current amount, never refill it. Clamp the
+    // ledger as well as the HUD so a removed capacity perk cannot hide energy.
+    StaminaState.Value=FMath::IsFinite(StaminaState.Value)?FMath::Clamp(StaminaState.Value,0.f,GetMaxStamina()):0.f;
     const float Delay=FMath::IsFinite(StaminaRecoveryDelay)?FMath::Max(0.f,StaminaRecoveryDelay):.65f;
-    const float Cost=FMath::IsFinite(DashStaminaCost)?FMath::Max(0.f,DashStaminaCost):22.f;
+    const float Cost=EffectiveDashStaminaCost();
     if (DashCharged) { StaminaState.Value=FMath::Max(0.f,StaminaState.Value-Cost); StaminaState.RecoveryDelay=Delay; }
     if (StaminaState.Value<=0) StaminaState.Exhausted=true;
     if (SprintRequested && !StaminaState.Exhausted && StaminaState.Value>0)
     {
-        const float Drain=FMath::IsFinite(SprintStaminaPerSecond)?FMath::Max(0.f,SprintStaminaPerSecond):12.f;
+        const float Drain=(FMath::IsFinite(SprintStaminaPerSecond)?FMath::Max(0.f,SprintStaminaPerSecond):12.f)*StaminaCostMultiplier();
         StaminaState.Value=FMath::Max(0.f,StaminaState.Value-Drain*Dt);
         StaminaState.RecoveryDelay=Delay;
         if (StaminaState.Value<=0) StaminaState.Exhausted=true;
@@ -536,7 +549,7 @@ bool UMCToothMovementComponent::CanDashAction() const
 }
 bool UMCToothMovementComponent::CanSpendDash() const
 {
-    const float Cost=FMath::IsFinite(DashStaminaCost)?FMath::Max(0.f,DashStaminaCost):22.f;
+    const float Cost=EffectiveDashStaminaCost();
     return IsMovingOnGround() && CanDashAction() && GetDashCharges()>0 && GetStamina()>=Cost;
 }
 bool UMCToothMovementComponent::CanDash() const { return CanSpendDash() && !IsDashing(); }
@@ -798,7 +811,6 @@ float UMCToothMovementComponent::GetMaxSpeed() const
     if (Hero->ClingTooth) return 0;
     float Speed=bWantsToSprint && CanSprint()?SprintSpeed:WalkSpeed;
     const auto* Perks=UMCPerkComponent::ForActor(Hero);
-    if(Perks && !(Hero->Inventory && Hero->Inventory->IsChainsawRunning())) Speed*=Perks->RogueValue(EMCRogueStat::NormalSpeed);
     if (Hero->HeldFood && HasHeavyGrip()) Speed=FMath::Min(Speed,Hero->HeldFood->DragSpeed());
     if (Hero->Grip->GrabbedPlayer) Speed=FMath::Min(Speed,220.f);
     const float Load=bHasBraceSample?BraceMovement.LoadMass:Hero->Grip->LoadMass();
@@ -810,7 +822,11 @@ float UMCToothMovementComponent::GetMaxSpeed() const
         OwnFactor=WithoutFood*FMath::Max(.05f,1-(1-OwnFactor/WithoutFood)*Perks->RogueValue(EMCRogueStat::CarryPenalty));
     }
     Speed*=OwnFactor/FMath::Sqrt(1+Incoming/FMath::Max(3.f,Hero->ToothPhysics->Settings.Mass)*.75f);
-    return Speed*(IsMovingOnGround() && GroundSurface==EMCGroundSurface::Sticky?.58f:1.f)*(Hero->Inventory?Hero->Inventory->MovementMultiplier():1.f);
+    // Apply the voluntary walking/running modifier after load/tool caps so
+    // it still gives the same percentage while carrying, working or sawing.
+    // Dash impulses, climbing and the separate swim reserve are unchanged.
+    return Speed*(IsMovingOnGround() && GroundSurface==EMCGroundSurface::Sticky?.58f:1.f)
+        *(Hero->Inventory?Hero->Inventory->MovementMultiplier():1.f)*(Perks?Perks->RogueValue(EMCRogueStat::NormalSpeed):1.f);
 }
 float UMCToothMovementComponent::GetMaxAcceleration() const
 {

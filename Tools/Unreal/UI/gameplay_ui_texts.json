@@ -14716,5 +14716,167 @@
     "JA": "",
     "KO": "",
     "PT_BR": ""
+  },
+  {
+    "Name": "UI.Skill.Catalog.B1_HeavyHit.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Тяжёлый удар",
+    "RU": "Тяжёлый удар",
+    "EN": "Heavy hit",
+    "Context": "Batch1 current passive catalog"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B1_HeavyHit.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Урон оружия +40%. Частота атак −30%.",
+    "RU": "Урон оружия +40%. Частота атак −30%.",
+    "EN": "Weapon damage +40%. Attack frequency −30%.",
+    "Context": "Batch1 current passive catalog"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B1_LightFoot.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Лёгкая походка",
+    "RU": "Лёгкая походка",
+    "EN": "Light foot",
+    "Context": "Batch1 current passive catalog"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B1_LightFoot.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Скорость ходьбы и бега +8%. Расход выносливости +8%.",
+    "RU": "Скорость ходьбы и бега +8%. Расход выносливости +8%.",
+    "EN": "Walking and sprinting speed +8%. Stamina costs +8%.",
+    "Context": "Batch1 current passive catalog"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B1_DeepBreath.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Глубокий вдох",
+    "RU": "Глубокий вдох",
+    "EN": "Deep breath",
+    "Context": "Batch1 current passive catalog"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B1_DeepBreath.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Максимальная выносливость +20%. Текущий запас при получении не пополняется.",
+    "RU": "Максимальная выносливость +20%. Текущий запас при получении не пополняется.",
+    "EN": "Maximum stamina +20%. Acquisition does not refill current stamina.",
+    "Context": "Batch1 current passive catalog"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B1_BigPortion.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Большая порция",
+    "RU": "Большая порция",
+    "EN": "Big portion",
+    "Context": "Batch1 current passive catalog"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B1_BigPortion.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Два дополнительных места для переносимой еды.",
+    "RU": "Два дополнительных места для переносимой еды.",
+    "EN": "Two extra places for carried food.",
+    "Context": "Batch1 current passive catalog"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B1_ConfidentThrow.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Уверенный бросок",
+    "RU": "Уверенный бросок",
+    "EN": "Confident throw",
+    "Context": "Batch1 current passive catalog"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B1_ConfidentThrow.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Дальность броска еды +20%.",
+    "RU": "Дальность броска еды +20%.",
+    "EN": "Food throwing reach +20%.",
+    "Context": "Batch1 current passive catalog"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B1_FreshDelivery.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Свежая доставка",
+    "RU": "Свежая доставка",
+    "EN": "Fresh delivery",
+    "Context": "Batch1 current passive catalog"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B1_FreshDelivery.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Пока вы несёте еду, она портится на 10% медленнее.",
+    "RU": "Пока вы несёте еду, она портится на 10% медленнее.",
+    "EN": "Carried food spoils 10% more slowly.",
+    "Context": "Batch1 current passive catalog"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B1_GreedyHands.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Руки загребущие",
+    "RU": "Руки загребущие",
+    "EN": "Reaching hands",
+    "Context": "Batch1 current passive catalog"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B1_GreedyHands.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Дальность подбора пищевых фрагментов +30%.",
+    "RU": "Дальность подбора пищевых фрагментов +30%.",
+    "EN": "Food-fragment pickup range +30%.",
+    "Context": "Batch1 current passive catalog"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B1_WideBristles.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Широкая щетина",
+    "RU": "Широкая щетина",
+    "EN": "Wide bristles",
+    "Context": "Batch1 current passive catalog"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B1_WideBristles.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Рабочая ширина щётки +15%.",
+    "RU": "Рабочая ширина щётки +15%.",
+    "EN": "Brush cleaning width +15%.",
+    "Context": "Batch1 current passive catalog"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B1_UnderPressure.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Под давлением",
+    "RU": "Под давлением",
+    "EN": "Under pressure",
+    "Context": "Batch1 current passive catalog"
+  },
+  {
+    "Name": "UI.Skill.Catalog.B1_UnderPressure.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Дальность спрея +25%. Ширина струи +20%.",
+    "RU": "Дальность спрея +25%. Ширина струи +20%.",
+    "EN": "Spray range +25%. Spray width +20%.",
+    "Context": "Batch1 current passive catalog"
   }
 ]

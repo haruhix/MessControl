@@ -593,7 +593,6 @@ void UMCInventoryComponent::ReactPlayersToSpray()
     NextSocialSprayAt=Now()+.1;
     const FVector Origin=SprayOrigin(),Direction=SprayDirection();
     const float Reach=SprayReach();
-    const float Spread=FMath::Tan(FMath::DegreesToRadians(18.f));
     // A short nozzle cone and one sight query per candidate; no physical hit,
     // damage, care tick or network RPC per particle is needed for this reaction.
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) {
@@ -601,7 +600,7 @@ void UMCInventoryComponent::ReactPlayersToSpray()
         if(Other==Hero || !Other->Status->IsAlive() || !Other->Expression || Other->SwallowedBy || Other->MimicCaptor) continue;
         const FVector Point=Other->GetActorLocation()+FVector(0,0,20),Delta=Point-Origin;
         const float Along=FVector::DotProduct(Delta,Direction);
-        if(Along<=0 || Along>Reach || (Delta-Direction*Along).SizeSquared()>FMath::Square(24+Along*Spread)) continue;
+        if(Along<=0 || Along>Reach || (Delta-Direction*Along).SizeSquared()>FMath::Square(24+SprayRadiusAtDistance(Along))) continue;
         FCollisionQueryParams Q(SCENE_QUERY_STAT(MCSocialSpray),false,Hero); Q.AddIgnoredActor(Other);
         FHitResult Hit;
         if(GetWorld()->LineTraceSingleByChannel(Hit,Origin,Point,ECC_Visibility,Q)) continue;
@@ -720,7 +719,13 @@ void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorCompone
         || Hero->RewardInteraction->Stage==EMCRewardChestStage::Opening)) Hero->Brush->SetVisibility(true);
     if(SprayMist) {
         const bool Emit=Visible && Selected==EMCToolSlot::Spray && !HasUpgrade(EMCToolUpgrade::Watergun) && Hero->CanWork() && (HealingTarget || FireTarget || Hero->IsPrimaryHeld());
-        if(Emit) SprayMist->SetWorldLocationAndRotation(SprayOrigin(),FRotationMatrix::MakeFromZ(SprayDirection()).Rotator());
+        const float AuthoredReach=HasUpgrade(EMCToolUpgrade::Watergun)?(Settings?Settings->WatergunCareReach:1000.f):(Settings?Settings->SprayReach:235.f);
+        const float BaseReach=FMath::IsFinite(AuthoredReach)?FMath::Clamp(AuthoredReach,10.f,3000.f):235.f;
+        const float RangeScale=SprayReach()/BaseReach;
+        SprayMist->SetWorldScale3D(FVector(RangeScale*SprayWidthMultiplier(),RangeScale*SprayWidthMultiplier(),RangeScale));
+        if(Emit) {
+            SprayMist->SetWorldLocationAndRotation(SprayOrigin(),FRotationMatrix::MakeFromZ(SprayDirection()).Rotator());
+        }
         if(Emit!=bSprayEmitting) {if(Emit) SprayMist->Activate(true);else SprayMist->Deactivate();bSprayEmitting=Emit;}
     }
     if(WaterMist) {

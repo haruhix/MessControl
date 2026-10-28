@@ -73,11 +73,15 @@ bool UMCPerkComponent::HasToolUpgrade(EMCToolUpgrade Kind) const
 {
     if(Kind==EMCToolUpgrade::None || Kind==EMCToolUpgrade::Buffer || uint8(Kind)>4) return false;
     if(ValidationToolPerks) for(FName ID:*ValidationToolPerks)
-        if(const auto* Row=FindDefinition(ID);Row && Row->ToolUpgrade==Kind) return true;
+        if(const auto* Row=FindDefinition(ID);Row && IsDefinitionUsable(*Row) && Row->ToolUpgrade==Kind) return true;
     if(const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr)
-        if(GS->TeamToolUpgrades&(1<<(uint8(Kind)-1))) return true;
+        if((GS->TeamToolUpgrades&(1<<(uint8(Kind)-1))) && LoadedTable)
+            for(FName ID:LoadedTable->GetRowNames()) {
+                const auto* Row=FindDefinition(ID);
+                if(Row && IsDefinitionUsable(*Row) && Row->ToolUpgrade==Kind) return true;
+            }
     for(const auto& Active:ActivePerks) if(Active.Stacks>0)
-        if(const auto* Row=FindDefinition(Active.PerkID);Row && Row->ToolUpgrade==Kind) return true;
+        if(const auto* Row=FindDefinition(Active.PerkID);Row && IsDefinitionUsable(*Row) && Row->ToolUpgrade==Kind) return true;
     return false;
 }
 TArray<FName> UMCPerkComponent::GetToolRewardIDs() const

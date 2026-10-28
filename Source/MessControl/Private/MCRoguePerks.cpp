@@ -105,7 +105,7 @@ float UMCPerkComponent::RogueValue(EMCRogueStat Stat,float Base,AActor* Target,F
     if(!FMath::IsFinite(Base)) return 0;
     float Flat=0,Percent=0;
     auto Add=[&](FName ID,int32 Stacks) {
-        if(const auto* Row=FindDefinition(ID);Row && Row->bRoguePerk && Stacks>0)
+        if(const auto* Row=FindDefinition(ID);Row && IsDefinitionUsable(*Row) && Row->bRoguePerk && Stacks>0)
             for(const auto& M:Row->Modifiers) if(M.Stat==Stat && FMath::IsFinite(M.Value) && ActivationMatches(M.Condition,Target))
                 (M.bFlat?Flat:Percent)+=M.Value*Stacks;
     };
@@ -117,7 +117,7 @@ float UMCPerkComponent::RogueValue(EMCRogueStat Stat,float Base,AActor* Target,F
         if(GetStacks(TEXT("N24"))>0 && RogueNow(GetWorld())<DeliverySlowUntil) Percent-=.1f;
     }
     const float Result=(Base+Flat)*(1+Percent);
-    if(Stat==EMCRogueStat::CarryCapacity) return FMath::Clamp(Result,1.f,10.f);
+    if(Stat==EMCRogueStat::CarryCapacity) return FMath::Clamp(Result,1.f,12.f);
     if(Stat==EMCRogueStat::WarmDuration) return FMath::Clamp(Result,1.f,FMath::Max(6.f,Base+6.f));
     if(Stat==EMCRogueStat::ChainsawCrashDamage) return FMath::Max(10.f,Result);
     const auto Limits=StatLimits(Stat);

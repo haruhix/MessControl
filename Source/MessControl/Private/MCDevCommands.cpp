@@ -48,6 +48,25 @@
 #include "HAL/IConsoleManager.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
+#include "Misc/Crc.h"
+
+TArray<FName> MCDevPassiveIDs(const UMCPerkComponent* Perks)
+{
+    TArray<FName> IDs;
+    if(const auto* Table=Perks?Perks->GetPerkTable():nullptr)
+        for(FName ID:Table->GetRowNames()) {
+            const auto* Row=Perks->FindDefinition(ID);
+            if(Row && UMCPerkComponent::IsDefinitionUsable(*Row)
+                && UMCPerkComponent::ResolvePerkKind(*Row,ID)==EMCPerkKind::Passive) IDs.Add(ID);
+        }
+    IDs.Sort([](FName A,FName B){return A.LexicalLess(B);});
+    return IDs;
+}
+
+int32 MCDevPassiveToken(FName PerkID)
+{
+    return PerkID.IsNone()?INDEX_NONE:int32(FCrc::StrCrc32(*PerkID.ToString().ToLower())&MAX_int32);
+}
 
 namespace MCDeveloperUIPrivate
 {
@@ -333,6 +352,32 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     }
     if (BotSession && BotSession->IsActive())
         return FText::FromString(TEXT("Во время теста ботов ручные события отключены. Сначала нажми «Остановить ботов»."));
+    if(Action==EMCDevAction::GrantPassive || Action==EMCDevAction::RemovePassive)
+    {
+        auto* Player=Requester->GetPlayerState<AMCPlayerState>();
+        auto* Perks=Player?Player->Perks.Get():nullptr;
+        const auto* Table=Perks?Perks->GetPerkTable():nullptr;
+        if(!Table || StepIndex<0) return FText::FromString(TEXT("Пассивка недоступна: обнови панель."));
+        FName ID;
+        // Resolve against every row, including retired definitions. Removing or
+        // disabling a preceding row can never redirect a stale button to its
+        // neighbour. Even a CRC collision is rejected instead of choosing one.
+        for(FName Candidate:Table->GetRowNames()) if(MCDevPassiveToken(Candidate)==StepIndex) {
+            if(!ID.IsNone()) return FText::FromString(TEXT("Неоднозначная команда пассивки. Ничего не изменено."));
+            ID=Candidate;
+        }
+        const auto* Row=Perks->FindDefinition(ID);
+        if(!Row || !UMCPerkComponent::IsDefinitionUsable(*Row)
+            || UMCPerkComponent::ResolvePerkKind(*Row,ID)!=EMCPerkKind::Passive)
+            return FText::FromString(TEXT("Пассивка отключена или больше недоступна. Обнови панель."));
+        const bool Grant=Action==EMCDevAction::GrantPassive;
+        if(Grant && Perks->OwnsPerk(ID)) return FText::FromString(TEXT("Эта пассивка уже получена. Повторы не складываются."));
+        if(!Grant && !Perks->OwnsPerk(ID)) return FText::FromString(TEXT("Эта пассивка сейчас не получена."));
+        const bool Changed=Grant?Perks->TryAcquirePerk(ID):Perks->RemovePerk(ID);
+        if(!Changed) return FText::FromString(TEXT("Текущие условия не позволяют изменить пассивку."));
+        return FText::FromString(FString(Grant?TEXT("Пассивка выдана: "):TEXT("Пассивка снята: "))+Row->DisplayName.ToString()
+            +TEXT(". Только текущий ран; покупки следующего рана не изменены."));
+    }
     if(Action==EMCDevAction::OneHitKill)
     {
         const bool Enabled=!MCDevOneHitKillEnabled(GetWorld());

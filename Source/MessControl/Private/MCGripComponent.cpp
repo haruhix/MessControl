@@ -90,6 +90,7 @@ bool UMCGripComponent::CanBrace() const
 {
     const auto* Movement=Tooth?Cast<UMCToothMovementComponent>(Tooth->GetCharacterMovement()):nullptr;
     return Tooth && Tooth->CanWork() && !Tooth->SwallowedBy && !Tooth->OrderJumpTarget && !Tooth->ClingTooth
+        && !Tooth->HasFoodToThrow()
         && !Tooth->bBrushing && !Tooth->bHandling && !Tooth->HeldFood && !Frame.Food && !Secondary.Food && !GrabbedPlayer
         && Movement && !Movement->IsClimbing();
 }
@@ -290,6 +291,7 @@ bool UMCGripComponent::FindBraceContact(FMCBraceAnchor& Out) const
 void UMCGripComponent::SetBraceHeld(bool Held)
 {
     if (!Tooth || (!Tooth->HasAuthority() && !Tooth->IsLocallyControlled())) return;
+    if(Held && Tooth->HasFoodToThrow()) return;
     if (bLocalBraceHeld==Held && EffectiveBrace().bHeld==Held) return;
     bLocalBraceHeld=Held; ++LocalBraceRequestId;
     PredictedBrace=FMCBraceAnchor(); PredictedBrace.bHeld=Held; PredictedBrace.RequestId=LocalBraceRequestId;
@@ -314,6 +316,9 @@ void UMCGripComponent::ReleaseBrace()
 void UMCGripComponent::ServerSetBraceHeld_Implementation(bool Held,uint16 RequestId)
 {
     if (!Tooth || !Tooth->HasAuthority()) return;
+    // A delayed request may arrive after pickup. Acknowledge its serial as
+    // released without dropping food or allowing the owner to predict a grip.
+    Held=Held && !Tooth->HasFoodToThrow();
     if (Held && Tooth->CanWork())
     {
         Tooth->ServerSetPrimary(false);

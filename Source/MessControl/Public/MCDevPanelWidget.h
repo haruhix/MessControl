@@ -9,6 +9,9 @@ class UTextBlock;
 class UVerticalBox;
 class UCheckBox;
 class UComboBoxString;
+class UWidgetSwitcher;
+class UBorder;
+class UMCGameplayUITheme;
 
 // Each button carries a typed action; no console strings or arbitrary commands.
 UCLASS()
@@ -48,6 +51,26 @@ private:
     UFUNCTION() void StylizedAnimationClicked();
     UFUNCTION() void KawaiiAnimationClicked();
     void RefreshAnimationComparison();
+    void BuildPassivesPage();
+    void RefreshPassives();
+    bool IsPassivesOpen() const;
+    UFUNCTION() void OpenPassivesClicked();
+    UFUNCTION() void PassivesBackClicked();
+    UPROPERTY() TObjectPtr<UWidgetSwitcher> Pages;
+    UPROPERTY() TObjectPtr<UButton> OpenPassivesButton;
+    UPROPERTY() TObjectPtr<UButton> PassivesBackButton;
+    UPROPERTY() TObjectPtr<UVerticalBox> PassiveList;
+    UPROPERTY() TObjectPtr<UTextBlock> PassiveSummary;
+    UPROPERTY() TObjectPtr<UTextBlock> PassiveFeedback;
+    UPROPERTY() TObjectPtr<UMCGameplayUITheme> PassiveTheme;
+    UPROPERTY() TMap<FName,TObjectPtr<UBorder>> PassiveRows;
+    UPROPERTY() TMap<FName,TObjectPtr<UTextBlock>> PassiveNames;
+    UPROPERTY() TMap<FName,TObjectPtr<UTextBlock>> PassiveDescriptions;
+    UPROPERTY() TMap<FName,TObjectPtr<UTextBlock>> PassiveOwnedLabels;
+    UPROPERTY() TMap<FName,TObjectPtr<UButton>> PassiveGrantButtons;
+    UPROPERTY() TMap<FName,TObjectPtr<UButton>> PassiveRemoveButtons;
+    TArray<FName> DisplayedPassiveIDs;
+    float PassiveRefreshDelay=0.f;
     UPROPERTY() TObjectPtr<UButton> NativeAnimationButton;
     UPROPERTY() TObjectPtr<UButton> StylizedAnimationButton;
     UPROPERTY() TObjectPtr<UButton> KawaiiAnimationButton;

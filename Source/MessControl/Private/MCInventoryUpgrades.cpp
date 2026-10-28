@@ -46,11 +46,6 @@ FVector UMCInventoryComponent::BrushContactLocal() const
 {
     return HasUpgrade(EMCToolUpgrade::MeshaBrush) && Settings?Settings->MeshaBrushContact:FVector(72,0,-20);
 }
-float UMCInventoryComponent::SprayReach() const
-{
-    const float Reach=HasUpgrade(EMCToolUpgrade::Watergun)?(Settings?Settings->WatergunCareReach:1000.f):(Settings?Settings->SprayReach:235.f);
-    return FMath::IsFinite(Reach)?FMath::Clamp(Reach,10.f,3000.f):235.f;
-}
 bool UMCInventoryComponent::IsChainsawRunning() const
 {
     return bChainsawRunning && Hero && Selected==EMCToolSlot::Knife && HasUpgrade(EMCToolUpgrade::Chainsaw)
@@ -233,7 +228,7 @@ void UMCInventoryComponent::TickChainsaw(float Dt)
     if(SawStunEndsAt>0 && Now()>=SawStunEndsAt && Hero->Status->IsAlive()) {
         if(Hero->ToothPhysics->GetBodyState()!=EMCBodyState::Ragdoll || Hero->ToothPhysics->TryRecover()) SawStunEndsAt=-100;
     }
-    if(Run && Now()>=NextSawContactAt) {NextSawContactAt=Now()+.12;SawContact();}
+    if(Run && Now()>=NextSawContactAt) {NextSawContactAt=Now()+.12/RogueAttackRate();SawContact();}
 }
 void UMCInventoryComponent::HandleChainsawCollision(AActor* Other,const FHitResult& Hit)
 {
@@ -261,7 +256,7 @@ void UMCInventoryComponent::SawContact()
     const FVector Origin=Hero->GetActorLocation(),Forward=Hero->GetActorForwardVector();
     auto RegisterEnemyHit=[&](AActor* Target,FVector Point)
     {
-        SawContacts.Add(Target,Now()+.65);
+        SawContacts.Add(Target,Now()+.65/RogueAttackRate());
         ++Hero->ConfirmedHitCount;
         Hero->MulticastHitSound(Point,uint8(EMCToolSlot::Knife),FMath::Clamp(Damage()/60.f,.25f,1.f));
     };
@@ -281,7 +276,7 @@ void UMCInventoryComponent::SawContact()
     }
     if(Best) {
         // Health is the authored full-food health, rather than remaining health: exactly two clean contacts.
-        if(Best->HitFood(FMath::Max(1.f,Best->FoodData.Health*.5f),Forward,Hero)) SawContacts.Add(Best,Now()+.45);
+        if(Best->HitFood(FMath::Max(1.f,Best->FoodData.Health*.5f),Forward,Hero)) SawContacts.Add(Best,Now()+.45/RogueAttackRate());
     }
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) {
         auto* Other=*It;if(Other==Hero || !Other->Status->IsAlive() || Now()<SawContacts.FindRef(Other)) continue;
@@ -291,7 +286,7 @@ void UMCInventoryComponent::SawContact()
         FHitResult Block;FCollisionQueryParams Q(SCENE_QUERY_STAT(MCChainsawAlly),false,Hero);Q.AddIgnoredActor(Other);
         if(GetWorld()->LineTraceSingleByChannel(Block,Origin,Point,ECC_Visibility,Q)) continue;
         // Teammates keep the physical gag without losing health.
-        SawContacts.Add(Other,Now()+.65);
+        SawContacts.Add(Other,Now()+.65/RogueAttackRate());
         Other->ToothPhysics->ApplyHit(Forward*220+FVector(0,0,40),Point);
     }
     for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) {
