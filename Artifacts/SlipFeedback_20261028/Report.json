@@ -1,0 +1,102 @@
+{
+  "date": "2026-10-28",
+  "status": "passed targeted native, controlled realtime solo and actual Ice footing checks",
+  "default_empty_hands_mode": 1,
+  "legacy_mode": 0,
+  "native": {
+    "passed": 24,
+    "failed": 0,
+    "warnings": "6 known test Plane CPU-access warnings; no gameplay assets changed"
+  },
+  "solo": [
+    {
+      "case": "risk_straight_empty",
+      "falls": 2,
+      "seconds": 20.013858702033758,
+      "approximate_control_loss_seconds": 5.084191299974918,
+      "carried_at_start": 0,
+      "result": "completed_duration"
+    },
+    {
+      "case": "legacy_straight_empty",
+      "falls": 0,
+      "seconds": 10.007190600037575,
+      "approximate_control_loss_seconds": 0.0,
+      "carried_at_start": 0,
+      "result": "completed_duration"
+    },
+    {
+      "case": "legacy_sharp_turn_empty",
+      "falls": 1,
+      "seconds": 10.002938997000456,
+      "approximate_control_loss_seconds": 3.080273602157831,
+      "carried_at_start": 0,
+      "result": "completed_duration"
+    },
+    {
+      "case": "normal_ground_empty",
+      "falls": 0,
+      "seconds": 6.005864899605513,
+      "approximate_control_loss_seconds": 0.0,
+      "carried_at_start": 0,
+      "result": "completed_duration"
+    },
+    {
+      "case": "native_E_carry_on_slippery",
+      "falls": 1,
+      "seconds": 8.021785199642181,
+      "approximate_control_loss_seconds": 2.5984135009348392,
+      "carried_at_start": 1,
+      "result": "completed_duration"
+    }
+  ],
+  "real_ice": {
+    "passed": true,
+    "checks": {
+      "native_f3_ice_event_started": true,
+      "actual_overview_camera_confirmed": true,
+      "native_phase_one_local_frost_global_slick_ice": true,
+      "far_player_has_zero_freeze_and_slippery_ground": true,
+      "only_local_aura_builds_phase_one_freeze": true,
+      "retreat_stops_freeze_gain_without_disabling_slippery_floor": true,
+      "phase_one_review_health_unchanged": true,
+      "actual_warm_circle_native_normal_and_standing": true
+    },
+    "warm_circle": {
+      "floor_cm": [
+        -1849.0106553112028,
+        824.7173690482575,
+        46.416883073098234
+      ],
+      "placement_only": true,
+      "ground_override": false,
+      "movement_mode_override": false,
+      "ground": "<MCGroundSurface.NORMAL: 0>",
+      "body": "<MCBodyState.STANDING: 0>",
+      "safe": true
+    },
+    "fixture": "Existing F3 ColdThrone event, first-perk-independent diagnostic setup, ability timestamps postponed, point placement and fixed60fps; not a real-time movement or full-battle trial",
+    "prior_attempts": "First oldprobe expected obsoleteinitialperk; seconddirectrequestfailedclosedDevPanel guard; finalwrapperusesnativeToggleDevPanel andactualF3 event. No productionIce logic changed."
+  },
+  "source_sha256": {
+    "Source/MessControl/Public/MCSlipperyRisk.h": "8195423ddb1596dcb751c7f333ae3e6f98ccd8e1b69affa9695265b7eb46d2b6",
+    "Source/MessControl/Public/MCSlipperyFood.h": "557850d4db4b18572d6a0a301fec947171324613d0729fa1b72a5c553868b534",
+    "Source/MessControl/Private/MCSlipperyFood.cpp": "66b76232e1c78450d3a453d79f4e5b93f565d98f5ce2b7471b1776620c1a3502",
+    "Source/MessControl/Public/MCToothPhysicsComponent.h": "5168c895be5626f76e03cfb84afb23a4b85f9f80fb010ee0ceb9d9d28b424a68",
+    "Source/MessControl/Private/MCToothPhysicsComponent.cpp": "d1b5c9143fdfb4c036d95db239d5104a959d6cd7c857f6c9177d5eb4b06162b0",
+    "Source/MessControl/Private/Tests/MCSlipperyRiskTests.cpp": "aeb6c6184d419dce58574479f8e6739193007176b66d51a13af872a32186c7b8",
+    "Source/MessControl/Private/Tests/MCSlipperyFoodTests.cpp": "bfc7161142754a7ce0859894678d6b16ae866fd8d415f67ccd89f3536d450024",
+    "Source/MessControl/Private/Tests/MCSlipperyFallRuntimeTests.cpp": "056170febb12643c3bd637ecc09542d309efcdc50c5aff36ab5231f42162e592",
+    "Source/MessControl/Private/Tests/MCIceEventTests.cpp": "aa4bca5c79cfe49b97c05494253255880fbdb3bff9b4780b40363c16a192a1eb",
+    "Tools/Unreal/check_slippery_feedback_solo.py": "6692c40b4af13ed0a5df0da1b59002e3be6d33319e20d57ae01872ab57c0ae05"
+  },
+  "gamefeel_recommendation": "Prefer severe-skid agency for empty hands; keep guaranteed carried-food risk. Experimental chance remains selectable and currently default pending final choice.",
+  "limits": [
+    "Controlled solo inputs and diagnostic support/surface; not a complete battle or human multiplayer playtest",
+    "Current existing animation assets only; no updated file imported or final motion approval",
+    "2Hz state sampling makes control-loss duration approximate",
+    "No network, microphone or cook/package runs",
+    "One rejected native launcher attempt initialized the existing shared default DDC on C:. Later launches explicitly use E:; that shared cache was not moved because task-owned entries cannot be safely separated. UBT task traces were moved to E:."
+  ],
+  "evidence_root": "E:\\CodexWork\\MessControl\\SlipFeedback_20261028"
+}

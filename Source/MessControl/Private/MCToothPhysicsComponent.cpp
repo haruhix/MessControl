@@ -11,6 +11,8 @@
 #include "MCToothCharacter.h"
 #include "MCFoodCollectionComponent.h"
 #include "MCFoodActor.h"
+#include "MCSlipperyFood.h"
+#include "MCBrushContactComponent.h"
 #include "MCToothStatusComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -34,6 +36,14 @@ namespace
 {
 TAutoConsoleVariable<int32> CVarMCSlipDebug(TEXT("MC.Slip.Debug"),0,
     TEXT("Log native slippery-fall gate masks, candidates and clearance rejections."),ECVF_Default);
+TAutoConsoleVariable<int32> CVarMCSlipEmptyHandsMode(TEXT("MC.Slip.EmptyHandsMode"),1,
+    TEXT("Empty hands: 0=legacy severe skid, 1=moving exposure with one probability roll. Carried food always falls."),ECVF_Default);
+TAutoConsoleVariable<float> CVarMCSlipFirstRiskSeconds(TEXT("MC.Slip.FirstRiskSeconds"),1.5f,
+    TEXT("Moving slippery exposure before the first empty-hands probability check."),ECVF_Default);
+TAutoConsoleVariable<float> CVarMCSlipRepeatRiskSeconds(TEXT("MC.Slip.RepeatRiskSeconds"),3.f,
+    TEXT("New moving exposure required after an empty-hands probability check."),ECVF_Default);
+TAutoConsoleVariable<float> CVarMCSlipFallChance(TEXT("MC.Slip.FallChance"),.5f,
+    TEXT("Authority-only fall probability at an exposure boundary, not per tick."),ECVF_Default);
 }
 
 UMCToothPhysicsComponent::UMCToothPhysicsComponent()
@@ -311,33 +321,56 @@ void UMCToothPhysicsComponent::UpdateSlipperyFallGate(float Dt)
     const FVector Intent=Move?Move->Intent().GetSafeNormal2D():FVector::ZeroVector;
     const float Side=FMath::Abs(FVector::DotProduct(Direction,Tooth->GetActorRightVector()));
     const float Counter=Intent.IsNearlyZero()?0.f:1-FMath::Max(0.f,FVector::DotProduct(Direction,Intent));
-    const bool Contact=Tooth->bBrushing || Tooth->IsPrimaryHeld() || Tooth->IsRowing() || Tooth->IsYawning()
-        || Tooth->IsDashing() || Tooth->OrderJumpTarget || Tooth->ClingTooth
+    const bool Traversal=Tooth->IsRowing() || Tooth->IsYawning() || Tooth->IsDashing() || Tooth->OrderJumpTarget || Tooth->ClingTooth
         || (Tooth->FishingRod && Tooth->FishingRod->IsPresented()) || IsValid(Tooth->RewardInteraction)
+        || Tooth->SwallowedBy;
+    const bool LegacyContact=Tooth->bBrushing || Tooth->IsPrimaryHeld()
         || (Tooth->Expression && Tooth->Expression->BodyAlpha()>.01f);
-    const bool Allowed=CanAct() && Tooth->GetController() && Move && Move->IsMovingOnGround()
+    const bool Carrying=MCSlipperyFood::IsCarrying(Tooth);
+    const bool Supported=CanAct() && Tooth->GetController() && Move && Move->IsMovingOnGround()
         && !Tooth->HasFrozenLegs() && !Tooth->IsFreezingToDeath() && Tooth->Status->PainAlpha()<.01f
-        && Tooth->AnimationSwim<.01f && Tooth->AnimationClimb<.01f && !Contact
+        && Tooth->AnimationSwim<.01f && Tooth->AnimationClimb<.01f && !Traversal
         && Tooth->AnimationProfile && Tooth->AnimationProfile->Glide && Tooth->AnimationProfile->GlideStrong;
     const bool Slippery=Move && Move->GroundSurface==EMCGroundSurface::Slippery;
-    const bool Candidate=SlipGate.Update(Dt,Allowed,Slippery,Speed,FMath::Max(Side,Counter),Deceleration);
+    const bool RiskMode=CVarMCSlipEmptyHandsMode.GetValueOnGameThread()!=0;
+    // A genuine working brush contact is safe; holding LMB in empty space is not.
+    const bool Cleaning=!Carrying && Tooth->BrushContact && Tooth->BrushContact->IsWorkReady();
+    const bool Allowed=Supported && (Carrying || (RiskMode?!Cleaning:!LegacyContact));
+    bool Candidate=false,RollDue=false;
+    if(Carrying || RiskMode) {
+        // The legacy gate remains selectable without feeding it during risk mode.
+        SlipGate.Update(Dt,false,Slippery,Speed,FMath::Max(Side,Counter),Deceleration);
+        const auto Decision=SlipRisk.Update(Dt,Allowed,Slippery,Speed>20.f,Carrying,
+            CVarMCSlipFirstRiskSeconds.GetValueOnGameThread(),CVarMCSlipRepeatRiskSeconds.GetValueOnGameThread());
+        RollDue=Decision==EMCSlipperyDecision::Roll;
+        const float AuthoredChance=CVarMCSlipFallChance.GetValueOnGameThread();
+        const float Chance=FMath::IsFinite(AuthoredChance)?FMath::Clamp(AuthoredChance,0.f,1.f):.5f;
+        Candidate=Decision==EMCSlipperyDecision::CarryFall || (RollDue && (Chance>=1.f || (Chance>0.f && FMath::FRand()<Chance)));
+        if(RollDue && CVarMCSlipDebug.GetValueOnGameThread()!=0)
+            UE_LOG(LogTemp,Display,TEXT("MC_SLIP_ROLL pawn=%s time=%.3f chance=%.3f fall=%d next_moving_seconds=%.3f"),
+                *GetNameSafe(Tooth),ServerTime(),Chance,Candidate,CVarMCSlipRepeatRiskSeconds.GetValueOnGameThread());
+    } else {
+        SlipRisk.TickCooldown(Dt);SlipRisk.ResetExposure();
+        Candidate=SlipGate.Update(Dt,Allowed && SlipRisk.Cooldown<=0.f,Slippery,Speed,FMath::Max(Side,Counter),Deceleration);
+    }
     if(CVarMCSlipDebug.GetValueOnGameThread()!=0 && Slippery && Speed>120.f) {
         const uint32 Exclusions=(!CanAct()?1u:0u)|(!Tooth->GetController()?2u:0u)|(!Move?4u:0u)
             |(Move && !Move->IsMovingOnGround()?8u:0u)|(Tooth->HasFrozenLegs()?16u:0u)|(Tooth->IsFreezingToDeath()?32u:0u)
             |(Tooth->Status->PainAlpha()>=.01f?64u:0u)|(Tooth->AnimationSwim>=.01f?128u:0u)|(Tooth->AnimationClimb>=.01f?256u:0u)
-            |(Contact?512u:0u)|(!Tooth->AnimationProfile || !Tooth->AnimationProfile->Glide?1024u:0u)
+            |(!Allowed && Supported?512u:0u)|(!Tooth->AnimationProfile || !Tooth->AnimationProfile->Glide?1024u:0u)
             |(!Tooth->AnimationProfile || !Tooth->AnimationProfile->GlideStrong?2048u:0u);
         const uint32 ContactMask=(Tooth->bBrushing?1u:0u)|(Tooth->IsPrimaryHeld()?2u:0u)|(Tooth->IsRowing()?4u:0u)|(Tooth->IsYawning()?8u:0u)
             |(Tooth->IsDashing()?16u:0u)|(Tooth->OrderJumpTarget?32u:0u)|(Tooth->ClingTooth?64u:0u)
             |(Tooth->FishingRod && Tooth->FishingRod->IsPresented()?128u:0u)|(IsValid(Tooth->RewardInteraction)?256u:0u)
             |(Tooth->Expression && Tooth->Expression->BodyAlpha()>.01f?512u:0u);
-        UE_LOG(LogTemp,Display,TEXT("MC_SLIP_GATE pawn=%s time=%.3f dt=%.3f allowed=%d mask=0x%08x contact=0x%08x speed=%.1f side=%.3f counter=%.3f decel=%.1f balance=%.3f severe=%.3f cooldown=%.3f candidate=%d"),
-            *GetNameSafe(Tooth),ServerTime(),Dt,Allowed,Exclusions,ContactMask,Speed,Side,Counter,Deceleration,SlipGate.BalanceAge,SlipGate.SevereAge,SlipGate.Cooldown,Candidate);
+        UE_LOG(LogTemp,Display,TEXT("MC_SLIP_GATE pawn=%s time=%.3f dt=%.3f allowed=%d mask=0x%08x contact=0x%08x speed=%.1f side=%.3f counter=%.3f decel=%.1f balance=%.3f severe=%.3f cooldown=%.3f candidate=%d mode=%d carrying=%d exposure=%.3f risk_cooldown=%.3f"),
+            *GetNameSafe(Tooth),ServerTime(),Dt,Allowed,Exclusions,ContactMask,Speed,Side,Counter,Deceleration,SlipGate.BalanceAge,SlipGate.SevereAge,SlipGate.Cooldown,Candidate,RiskMode,Carrying,SlipRisk.Exposure,SlipRisk.Cooldown);
     }
     if(Candidate && !BeginSlipperyFall()) {
         // A blocked attempt did not spend an actual fall. Preparation was reset
         // by the candidate and still bounds retries; do not lock them for 6.5s.
         SlipGate.Cooldown=0.f;
+        if(Carrying) SlipRisk.OnBlockedCarry();
         if(CVarMCSlipDebug.GetValueOnGameThread()!=0) UE_LOG(LogTemp,Display,TEXT("MC_SLIP_RETRY pawn=%s time=%.3f rejected_candidate_cooldown_cleared=1"),*GetNameSafe(Tooth),ServerTime());
     }
 }
@@ -364,6 +397,14 @@ bool UMCToothPhysicsComponent::BeginSlipperyFall()
     const FVector FloorPoint=Move->CurrentFloor.HitResult.ImpactPoint;
     const FQuat FloorRotation=FQuat::FindBetweenNormals(FVector::UpVector,FloorNormal.IsNearlyZero()?FVector::UpVector:FloorNormal)*Tooth->GetActorQuat();
     FCollisionQueryParams ClearanceParams(SCENE_QUERY_STAT(MCSlipClearance),false,Tooth);
+    // The load is released by EnterSlipping. It must not block its own carrier's
+    // fall footprint before that release has happened.
+    const auto IgnoreCarried=[&](AMCFoodActor* Food) {
+        if(IsValid(Food) && (Food->StackCarrier==Tooth || Food->Holders.Contains(Tooth))) ClearanceParams.AddIgnoredActor(Food);
+    };
+    if(Tooth->FoodCollection) for(const auto& Food:Tooth->FoodCollection->Pieces) IgnoreCarried(Food);
+    IgnoreCarried(Tooth->HeldFood);
+    if(Tooth->Grip) { IgnoreCarried(Tooth->Grip->Frame.Food);IgnoreCarried(Tooth->Grip->Secondary.Food); }
     // A curved supporting surface can enter its own tangent footprint. Ignore
     // only that walkable component here; floor queries and capsule motion retain it.
     if(Move->IsWalkable(Move->CurrentFloor.HitResult)) ClearanceParams.AddIgnoredComponent(Move->CurrentFloor.HitResult.GetComponent());
@@ -387,12 +428,16 @@ bool UMCToothPhysicsComponent::BeginSlipperyFall()
     Frame.SlipFloorNormal=Move->CurrentFloor.HitResult.ImpactNormal.GetSafeNormal();
     if(FVector(Frame.SlipFloorNormal).IsNearlyZero()) Frame.SlipFloorNormal=FVector::UpVector;
     Frame.SlipFloorPoint=Move->CurrentFloor.HitResult.ImpactPoint;
-    SlipGate.Cooldown=6.5f;SetState(EMCBodyState::Slipping);EnterSlipping();return true;
+    SlipGate.Cooldown=6.5f;SlipRisk.OnFall();SetState(EMCBodyState::Slipping);EnterSlipping();return true;
 }
 void UMCToothPhysicsComponent::EnterSlipping()
 {
-    // The existing release path owns food and grip handoffs; no items are spawned or consumed.
-    if(Tooth->HasAuthority()) {Tooth->CancelGameplayInput();Tooth->FoodCollection->Stop(false);Tooth->DropFood();Tooth->ResetContact();}
+    // The cartoon release must precede CancelGameplayInput, which normally
+    // empties the collection. The same actors are released; none are spawned.
+    if(Tooth->HasAuthority()) {
+        MCSlipperyFood::ReleaseWithCartoonPop(Tooth);
+        Tooth->CancelGameplayInput();Tooth->FoodCollection->Stop(false);Tooth->DropFood();Tooth->ResetContact();
+    }
     Tooth->bBrushing=false;Tooth->bHandling=false;
     Tooth->GetCharacterMovement()->StopMovementImmediately();Tooth->GetCharacterMovement()->DisableMovement();
     SetMuscles(false);auto* Mesh=Tooth->GetMesh();Mesh->SetAllBodiesSimulatePhysics(false);Mesh->SetAllBodiesPhysicsBlendWeight(0.f);

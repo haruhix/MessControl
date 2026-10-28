@@ -19,6 +19,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/WorldSettings.h"
+#include "UObject/UnrealType.h"
 #include <limits>
 #if WITH_EDITOR
 #include "StaticMeshCompiler.h"
@@ -350,14 +351,31 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCIceCrystalSpawnTest,"MessControl.IceEvent.Ru
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCIceCrystalSpawnTest::RunTest(const FString&)
 {
-    MCIceEventTestsPrivate::FIceWorld F;F.Event->ZoneCrystalIntervalSeconds=5;F.StartActive();
-    const double ActiveAt=F.Event->StartedAt+F.Event->ArrivalSeconds;
-    F.Clock(ActiveAt+4.9);F.Event->Tick(.01f);
+    MCIceEventTestsPrivate::FIceWorld F;
+    // The current non-lab Cold Throne casts IceBombs, not periodic ZoneCrystals.
+    // bUseAnimatedBossAttacks=false does not opt out of that contract. This one
+    // historical test explicitly covers the retained native LAB crystal path.
+    auto* LabFlag=FindFProperty<FBoolProperty>(AMCIceEvent::StaticClass(),TEXT("bLabEvent"));
+    if(!TestNotNull(TEXT("The explicit lab fixture flag remains reflected"),LabFlag)) return false;
+    LabFlag->SetPropertyValue_InContainer(F.Event,true);
+    F.Event->Tongue=F.Tongue;F.Event->ZoneCrystalIntervalSeconds=5;F.StartActive();
+    AddInfo(TEXT("Scope: retained lab periodic ZoneCrystal spawn/flight/warm-zone blocking; not the current Cold Throne IceBomb attack."));
+    if(!TestFalse(TEXT("This fixture explicitly uses the lab rather than the Cold Throne contract"),F.Event->UsesColdThroneContract())) return false;
+    const double Due=F.Event->CircleStartedAt+F.Event->ZoneCrystalIntervalSeconds;
+    F.Clock(Due-.01);F.Event->Tick(.01f);
     TestEqual(TEXT("The initial zone starts usable without an immediate blocker"),F.Event->ZoneCrystals.Num(),0);
-    F.Clock(ActiveAt+5.01);F.Event->Tick(.01f);
+    constexpr float PollStep=.05f;
+    for(int32 Step=0;Step<4 && F.Event->ZoneCrystals.IsEmpty();++Step) {
+        F.Clock(Due+.01+Step*PollStep);F.Event->Tick(PollStep);
+    }
     if(!TestEqual(TEXT("The event creates an actual breakable crystal on its periodic clock"),F.Event->ZoneCrystals.Num(),1)) return false;
     const auto& Crystal=F.Event->ZoneCrystals[0];
     TestEqual(TEXT("The crystal belongs to the active zone"),Crystal.ZoneIndex,F.Event->CircleIndex);
+    TestFalse(TEXT("A crystal in flight does not prematurely block its warming zone"),F.Event->IsCircleBlocked(Crystal.ZoneIndex));
+    F.Clock(Crystal.ImpactAt-.01);F.Event->Tick(.01f);
+    TestFalse(TEXT("The real warning flight preserves warmth until impact"),F.Event->IsCircleBlocked(Crystal.ZoneIndex));
+    F.Clock(Crystal.ImpactAt+.01);F.Event->Tick(.02f);
+    TestTrue(TEXT("The production impact path lands the crystal without a fixture override"),Crystal.bLanded);
     TestTrue(TEXT("The live crystal disables warming in that zone"),F.Event->IsCircleBlocked(F.Event->CircleIndex));
     TestFalse(TEXT("Standing in the blocked zone does not count as warmth"),F.Event->IsSafePoint(F.FloorPoint(F.Event->SafeAnchor)));
     TestTrue(TEXT("The crystal spawns within the zone that it blocks"),

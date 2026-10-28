@@ -3,6 +3,7 @@
 #include "Components/ActorComponent.h"
 #include "MCPhysicsTypes.h"
 #include "MCGlideAnimation.h"
+#include "MCSlipperyRisk.h"
 #include "PhysicsEngine/ConstraintInstance.h"
 #include "MCToothPhysicsComponent.generated.h"
 class AMCToothCharacter;
@@ -87,6 +88,7 @@ private:
     TArray<FGripJoint> GripJoints;
     FName HandControls[2];
     FMCSlipperyFallGate SlipGate;
+    FMCSlipperyRisk SlipRisk;
     float PreviousSlipSpeed=0.f,SlipSendAccumulator=0.f;
     FVector SlipVelocity=FVector::ZeroVector;
 };

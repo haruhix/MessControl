@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-28",
+  "status": "passed native and recorded solo",
+  "native": {
+    "passed": 20,
+    "failed": 0
+  },
+  "solo_checks": {
+    "all_required_empty_hand_cases_completed": null,
+    "empty_hand_case_scope": "not_requested",
+    "all_required_cases_completed": true,
+    "requested_fixture_pickup_completed": true,
+    "carry_motion_evidence_complete": true,
+    "fixture_count_preserved": true,
+    "observed_upward_then_descending_then_settled": true,
+    "observed_native_slip_entries": 1,
+    "no_forced_body_or_movement_state": true,
+    "actual_ice_event_tested": false
+  },
+  "arcs": [
+    {
+      "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_0",
+      "observed_rise_cm": 110.11167095148764,
+      "peak_game_seconds": 29.121083315461874,
+      "max_observed_upward_cm_s": 518.0,
+      "final_cm": [
+        -791.4896634601945,
+        -111.33342602599507,
+        101.1046244346046
+      ],
+      "settled": true
+    },
+    {
+      "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_1",
+      "observed_rise_cm": 98.43342528381578,
+      "peak_game_seconds": 29.121083315461874,
+      "max_observed_upward_cm_s": 482.0,
+      "final_cm": [
+        -758.1036410366204,
+        -65.07950828281523,
+        100.63757791283452
+      ],
+      "settled": true
+    },
+    {
+      "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodActor_2",
+      "observed_rise_cm": 99.95120979846232,
+      "peak_game_seconds": 29.121083315461874,
+      "max_observed_upward_cm_s": 500.0,
+      "final_cm": [
+        -871.821533761242,
+        -55.088050240008315,
+        95.09746265422407
+      ],
+      "settled": true
+    }
+  ],
+  "actors_preserved": 3,
+  "samples": 52,
+  "physics": "Actual authoritative food actors, ordinary release/gravity/collision; no clones or Q/manual-throw semantics",
+  "source_sha256": {
+    "Source/MessControl/Private/MCSlipperyFood.cpp": "e68bdf3ecde9b90531a3220a0038ca4f9c808d2d93c50dd64b61afc7053cc169",
+    "Source/MessControl/Public/MCSlipperyFood.h": "835c83093d3ad07e3a2cc95d7c6a8cd8acd8f079ceacab08373e02d27687d3a8",
+    "Source/MessControl/Private/MCToothPhysicsComponent.cpp": "91824e2d37c1a079b70aa24b3393039cc94f50f1693f1ebdf68ebf510e3a0f6c",
+    "Source/MessControl/Private/MCFoodReaction.cpp": "47cbefc8ec02f3965763fe2d51ecd06d843f3bb1cca63aa9a5622f4e048d6d43",
+    "Source/MessControl/Public/MCFoodActor.h": "13dd01ca6a6e107ffce0dd718817da5bcaf33e59355ee8ec95bcdd95e94835aa",
+    "Source/MessControl/Private/Tests/MCSlipperyFoodPopTests.cpp": "de2715c9c0e8bb072ff0597a7aa418bb04846c334a125e397d77a5a746728388",
+    "Tools/Unreal/check_slippery_feedback_solo.py": "b0654796bdd75c7ce34521b872ccd8e6a4935108265c8db3c8974180079394ad"
+  },
+  "local_video": "E:\\CodexWork\\MessControl\\CartoonSpill_20261028\\Media\\CartoonFoodPop_Close.mp4",
+  "limits": [
+    "No network or cook/package tests",
+    "8Hz trajectory sampling; peak height approximate",
+    "Current yellow food labels remain visible; no UI or new animation assets were authored"
+  ]
+}

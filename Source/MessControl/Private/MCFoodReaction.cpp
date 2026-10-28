@@ -9,9 +9,10 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/StaticMesh.h"
 
-void AMCFoodActor::ProtectPlayersOnStackRelease(bool bThrown)
+void AMCFoodActor::ProtectPlayersOnStackRelease(bool bThrown,float GraceSeconds)
 {
-    if(HasAuthority()) StackReleaseSafeUntil=bThrown?-100:GetWorld()->GetTimeSeconds()+.75;
+    const float Duration=FMath::IsFinite(GraceSeconds)?FMath::Clamp(GraceSeconds,0.f,3.f):.75f;
+    if(HasAuthority()) StackReleaseSafeUntil=bThrown?-100:GetWorld()->GetTimeSeconds()+Duration;
 }
 void AMCFoodActor::SetStackCarrier(AMCToothCharacter* Hero)
 {

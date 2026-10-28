@@ -6,6 +6,12 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCLocomotionSurface.h"
+#include "MCSlipperyFood.h"
+#include "MCFoodActor.h"
+#include "MCFoodCollectionComponent.h"
+#include "MCBrushContactComponent.h"
+#include "MCInventoryComponent.h"
+#include "MCMouthSurface.h"
 #include "Animation/AnimSequence.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -13,14 +19,46 @@
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/SkeletalMesh.h"
+#include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
+#include "HAL/IConsoleManager.h"
 #include "ProceduralMeshComponent.h"
 #include "UObject/StrongObjectPtr.h"
 
 namespace MCSlipperyFallRuntimeTests
 {
 constexpr float StepSeconds=1.f/60.f;
+
+/** Only process-local values change; their original values/priority are restored on every exit. */
+struct FScopedSlipControls
+{
+    struct FValue { IConsoleVariable* Variable=nullptr;FString Original;EConsoleVariableFlags Priority=ECVF_SetByConstructor; };
+    TArray<FValue> Saved;
+    bool bApplied=true;
+    FScopedSlipControls(int32 EmptyHandsMode,float Chance)
+    {
+        Set(TEXT("MC.Slip.EmptyHandsMode"),FString::FromInt(EmptyHandsMode));
+        Set(TEXT("MC.Slip.FirstRiskSeconds"),TEXT("1.5"));
+        Set(TEXT("MC.Slip.RepeatRiskSeconds"),TEXT("3"));
+        Set(TEXT("MC.Slip.FallChance"),FString::SanitizeFloat(Chance));
+    }
+    ~FScopedSlipControls() {for(int32 I=Saved.Num()-1;I>=0;--I) Saved[I].Variable->Set(*Saved[I].Original,Saved[I].Priority);}
+    bool Ready() const {return Saved.Num()==4 && bApplied;}
+    bool Set(const TCHAR* Name,const FString& Value)
+    {
+        if(auto* Variable=IConsoleManager::Get().FindConsoleVariable(Name)) {
+            const auto Priority=static_cast<EConsoleVariableFlags>(Variable->GetFlags()&ECVF_SetByMask);
+            if(!Saved.ContainsByPredicate([Variable](const FValue& Old){return Old.Variable==Variable;})) Saved.Add({Variable,Variable->GetString(),Priority});
+            // UE 5.8 rejects an implicit ReplaceCurrent at constructor priority.
+            // Explicitly replace only the existing priority, then prove the effective value.
+            Variable->Set(*Value,Priority);
+            const bool Applied=FMath::IsNearlyEqual(Variable->GetFloat(),FCString::Atof(*Value),.00001f);
+            bApplied&=Applied;return Applied;
+        }
+        bApplied=false;return false;
+    }
+};
 
 struct FWorldFixture
 {
@@ -87,6 +125,30 @@ struct FWorldFixture
         // Exercise the production transition and real floor/capsule, independently of the pure skid gate tests.
         Move->GroundSurface=EMCGroundSurface::Slippery;Move->Velocity=FVector(320,0,0);
         return Hero->ToothPhysics->BeginSlipperyFall();
+    }
+    AMCLocomotionSurface* MakeSurface(EMCGroundSurface Kind,int32 Priority=5000)
+    {
+        auto* Surface=World->SpawnActor<AMCLocomotionSurface>(FVector(0,0,10020),FRotator::ZeroRotator);
+        Surface->HalfExtent=FVector(2800,2800,250);Surface->Surface=Kind;Surface->Priority=Priority;Surface->RefreshBounds();
+        return Surface;
+    }
+    bool DriveUntilFall(int32 Frames)
+    {
+        for(int32 I=0;I<Frames;++I) {
+            if(!Tick(1,true)) return false;
+            if(Hero->ToothPhysics->IsSlipping()) return true;
+        }
+        return false;
+    }
+    AMCFoodActor* MakeDeliveryFood()
+    {
+        const FTransform Pose(Hero->GetActorLocation()+FVector(95,0,-25));
+        auto* Food=World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),Pose,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+        FMCFoodRow Row;Row.Kind=EMCFoodKind::Food;
+        auto* Mesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"));
+        Row.WholeMeshes={Mesh};Row.FragmentMeshes={Mesh};Row.Scale=Row.FragmentScale=FVector(.24f);
+        Row.Mass=3.f;Row.SpoilSeconds=300.f;FRandomStream Random(27);
+        Food->ConfigureItem(TEXT("SlipRuntimeDelivery"),Row,Random,true);Food->FinishSpawning(Pose);return Food;
     }
 };
 }
@@ -180,6 +242,8 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSlipperyFallRejectedRetry,
 bool FMCSlipperyFallRejectedRetry::RunTest(const FString&)
 {
     using namespace MCSlipperyFallRuntimeTests;
+    FScopedSlipControls Controls(0,1.f);
+    if(!TestTrue(TEXT("Legacy severe-skid mode can be scoped independently of risk defaults"),Controls.Ready())) return false;
     FWorldFixture T;
     if(!TestTrue(TEXT("Retry fixture has the actual current hero and imported fall clip"),T.Ready())) return false;
     const float Health=T.Hero->Status->State.Health;
@@ -269,6 +333,148 @@ bool FMCSlipperyFallCurvedSupport::RunTest(const FString&)
     if(!TestTrue(TEXT("Removing the exact support still ticks the actual character"),T.Tick(2))) return false;
     TestEqual(TEXT("The original unfiltered floor query still detects support loss"),T.Hero->ToothPhysics->GetBodyState(),EMCBodyState::Ragdoll);
     TestTrue(TEXT("The curved support regression retains finite native motion"),T.bFiniteThroughout);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSlipperyMovingRisk,
+    "MessControl.Animation.AuthoredGlide.Runtime.StraightMotionUsesRiskAndRetainsLegacyMode",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSlipperyMovingRisk::RunTest(const FString&)
+{
+    using namespace MCSlipperyFallRuntimeTests;
+    {
+        FScopedSlipControls Controls(1,1.f);FWorldFixture T;
+        if(!TestTrue(TEXT("The native risk controls and real supported actor are available"),Controls.Ready() && T.Ready())) return false;
+        T.MakeSurface(EMCGroundSurface::Slippery);const double Started=T.World->GetTimeSeconds();
+        if(!TestTrue(TEXT("A real straight run advances before the first opportunity"),T.Tick(85,true))) return false;
+        TestEqual(TEXT("Movement discovers the actual slippery override"),T.Movement()->GroundSurface,EMCGroundSurface::Slippery);
+        TestTrue(TEXT("The runup is actual movement above the risk threshold"),T.Hero->GetVelocity().Size2D()>20.f);
+        TestFalse(TEXT("Empty collection state is not a food load"),MCSlipperyFood::IsCarrying(T.Hero.Get()));
+        TestEqual(TEXT("Risk never falls before the initial 1.5 moving seconds"),T.Hero->ToothPhysics->GetBodyState(),EMCBodyState::Standing);
+        if(!TestTrue(TEXT("Forced success takes the native fall transition during straight motion"),T.DriveUntilFall(90))) return false;
+        TestTrue(TEXT("The first real fall respects its minimum exposure"),T.World->GetTimeSeconds()-Started>=1.5-StepSeconds);
+        TestTrue(TEXT("The first real fall is not delayed behind the old severe-skid condition"),T.World->GetTimeSeconds()-Started<2.8);
+        TestTrue(TEXT("The actual risk path retains finite motion"),T.bFiniteThroughout);
+    }
+    {
+        FScopedSlipControls Controls(0,1.f);FWorldFixture T;
+        if(!TestTrue(TEXT("The comparison actor has the same real floor and clips"),Controls.Ready() && T.Ready())) return false;
+        T.MakeSurface(EMCGroundSurface::Slippery);
+        if(!TestTrue(TEXT("The selectable legacy mode runs the same straight input"),T.Tick(180,true))) return false;
+        TestEqual(TEXT("The comparison is still on a genuinely slippery surface"),T.Movement()->GroundSurface,EMCGroundSurface::Slippery);
+        TestTrue(TEXT("Legacy comparison is moving, rather than avoiding the candidate by stopping"),T.Hero->GetVelocity().Size2D()>20.f);
+        TestEqual(TEXT("Straight legacy motion has no severe skid and does not fall"),T.Hero->ToothPhysics->GetBodyState(),EMCBodyState::Standing);
+        TestTrue(TEXT("The legacy comparison remains actionable"),T.Hero->ToothPhysics->CanAct());
+    }
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSlipperyRepeatRisk,
+    "MessControl.Animation.AuthoredGlide.Runtime.FailedRiskWaitsForRepeatWindow",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSlipperyRepeatRisk::RunTest(const FString&)
+{
+    using namespace MCSlipperyFallRuntimeTests;
+    FScopedSlipControls Controls(1,0.f);FWorldFixture T;
+    if(!TestTrue(TEXT("Repeat risk fixture uses registered controls and the real actionable actor"),Controls.Ready() && T.Ready())) return false;
+    T.MakeSurface(EMCGroundSurface::Slippery);const float Health=T.Hero->Status->State.Health;
+    if(!TestTrue(TEXT("Zero chance crosses the first native risk window with actual movement"),T.Tick(108,true))) return false;
+    TestEqual(TEXT("A failed first opportunity preserves Standing"),T.Hero->ToothPhysics->GetBodyState(),EMCBodyState::Standing);
+    TestTrue(TEXT("The first risk window was spent while actually moving on slippery ground"),T.Movement()->GroundSurface==EMCGroundSurface::Slippery && T.Hero->GetVelocity().Size2D()>20.f);
+    if(!TestTrue(TEXT("The effective native chance really becomes one for the next opportunity"),Controls.Set(TEXT("MC.Slip.FallChance"),TEXT("1")))) return false;
+    if(!TestTrue(TEXT("Changing chance after a failed opportunity continues real movement"),T.Tick(120,true))) return false;
+    TestEqual(TEXT("The risk is not rerolled each frame after chance becomes one"),T.Hero->ToothPhysics->GetBodyState(),EMCBodyState::Standing);
+    if(!TestTrue(TEXT("The next native opportunity eventually accepts the forced-success outcome"),T.DriveUntilFall(100))) return false;
+    TestEqual(TEXT("Neither failed risk nor ordinary fall damages health"),T.Hero->Status->State.Health,Health);
+    TestTrue(TEXT("Repeat-window movement remains finite"),T.bFiniteThroughout);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSlipperyNormalFooting,
+    "MessControl.Animation.AuthoredGlide.Runtime.NormalFloorAndNormalOverrideDoNotProduceFalls",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSlipperyNormalFooting::RunTest(const FString&)
+{
+    using namespace MCSlipperyFallRuntimeTests;
+    FScopedSlipControls Controls(1,1.f);FWorldFixture T;
+    if(!TestTrue(TEXT("Normal footing fixture begins with a real walking actor"),Controls.Ready() && T.Ready())) return false;
+    if(!TestTrue(TEXT("Ordinary collision floor supports more than one first-risk window"),T.Tick(150,true))) return false;
+    TestEqual(TEXT("Native footing detection remains ordinary on the unmodified floor"),T.Movement()->GroundSurface,EMCGroundSurface::Normal);
+    TestEqual(TEXT("Ordinary walking never enters the actual fall"),T.Hero->ToothPhysics->GetBodyState(),EMCBodyState::Standing);
+    T.MakeSurface(EMCGroundSurface::Slippery);T.MakeSurface(EMCGroundSurface::Normal,6000);
+    if(!TestTrue(TEXT("A real authored normal override wins over the overlapping slippery volume"),T.Tick(150,true))) return false;
+    TestEqual(TEXT("Surface selection actually resolves the higher-priority normal volume"),T.Movement()->GroundSurface,EMCGroundSurface::Normal);
+    TestEqual(TEXT("Normal override movement produces no slippery fall"),T.Hero->ToothPhysics->GetBodyState(),EMCBodyState::Standing);
+    TestTrue(TEXT("Movement is real and actionable under the normal override"),T.Hero->GetVelocity().Size2D()>20.f && T.Hero->ToothPhysics->CanAct());
+    // This is the authored normal-volume contract; real IsSafePoint ice-circle
+    // geometry and its final footing override remain covered by MCIceEventTests.
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSlipperyCarriedDelivery,
+    "MessControl.Animation.AuthoredGlide.Runtime.CarriedDeliveryFallsDropsAndRecoversWithoutDamage",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSlipperyCarriedDelivery::RunTest(const FString&)
+{
+    using namespace MCSlipperyFallRuntimeTests;
+    FScopedSlipControls Controls(0,0.f);FWorldFixture T;
+    if(!TestTrue(TEXT("Carry fixture has the native standing actor"),Controls.Ready() && T.Ready())) return false;
+    auto* Food=T.MakeDeliveryFood();auto* Collection=T.Hero->FoodCollection.Get();Collection->bCollecting=true;
+    if(!TestTrue(TEXT("The real collection endpoint accepts an ordinary delivery fragment"),Collection->Collect(Food))) return false;
+    TestTrue(TEXT("Native pickup owns and classifies this actual food load"),Food->StackCarrier==T.Hero.Get() && MCSlipperyFood::IsCarrying(T.Hero.Get()));
+    const float Health=T.Hero->Status->State.Health;T.MakeSurface(EMCGroundSurface::Slippery);
+    if(!TestTrue(TEXT("A moving carrier takes the native fall even with zero random chance and legacy empty-hand mode"),T.DriveUntilFall(50))) return false;
+    TestTrue(TEXT("The fall clears the actual delivery collection"),Collection->Pieces.IsEmpty() && !Collection->bCollecting);
+    TestTrue(TEXT("The original food actor is physically released rather than erased"),IsValid(Food) && !Food->StackCarrier && Food->Phase==EMCFoodPhase::Free);
+    TestFalse(TEXT("A released food actor is no longer the hero's delivery load"),MCSlipperyFood::IsCarrying(T.Hero.Get()));
+    bool Recovered=false;
+    for(int32 I=0;I<360;++I) {
+        if(!T.Tick(1)) return TestTrue(TEXT("The actual carrier survives the full fall/recovery"),false);
+        if(T.Hero->ToothPhysics->GetBodyState()==EMCBodyState::Standing) {Recovered=true;break;}
+    }
+    TestTrue(TEXT("Actual carry failure returns control through the normal recovery"),Recovered && T.Hero->ToothPhysics->CanAct());
+    TestEqual(TEXT("Carried-food failure and recovery do not remove HP"),T.Hero->Status->State.Health,Health);
+    TestTrue(TEXT("The real fall, delivery release and recovery remain finite"),T.bFiniteThroughout);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSlipperyBrushReadiness,
+    "MessControl.Animation.AuthoredGlide.Runtime.WorkingBrushProtectsButEmptyPrimaryDoesNot",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSlipperyBrushReadiness::RunTest(const FString&)
+{
+    using namespace MCSlipperyFallRuntimeTests;
+    FScopedSlipControls Controls(1,1.f);FWorldFixture T;
+    if(!TestTrue(TEXT("Brush readiness fixture has the real current character"),Controls.Ready() && T.Ready())) return false;
+    T.MakeSurface(EMCGroundSurface::Slippery);
+    const FTransform Pose(FVector(0,0,10023));
+    auto* Patch=T.World->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose);
+    Patch->bRandomizeLiquidSize=false;Patch->LiquidHalfSize=1600;Patch->GroundResponse=EMCGroundSurface::Slippery;
+    Patch->FinishSpawning(Pose);Patch->Status->ApplyCoffee(1.f);
+    T.Hero->Inventory->ServerSelect(EMCToolSlot::Brush);T.Hero->SetPrimaryInputHeld(true);
+    const float Health=T.Hero->Status->State.Health,InitialWet=Patch->RemainingLiquid();
+    const FVector Started=T.Hero->GetActorLocation();int32 ReadyMovingFrames=0;
+    // A deliberately slow, real analog walk follows the acquired floor contact.
+    // Full 340cm/s movement outruns the native 180cm/s brush target interpolation,
+    // repeatedly putting the old point behind the wrist before its approach finishes.
+    for(int32 I=0;I<360 && ReadyMovingFrames<100;++I) {
+        T.Hero->AddMovementInput(FVector::ForwardVector,.18f);
+        if(!T.Tick(1)) return TestTrue(TEXT("The actual moving brush worker survives readiness"),false);
+        if(T.Hero->BrushContact->IsWorkReady() && T.Hero->GetVelocity().Size2D()>20.f) ++ReadyMovingFrames;
+        if(T.Hero->ToothPhysics->IsSlipping()) break;
+    }
+    AddInfo(FString::Printf(TEXT("Brush fixture: ready_moving_frames=%d travel_cm=%.1f speed=%.1f wet=%.5f/%.5f primary=%d brushing=%d slipping=%d"),
+        ReadyMovingFrames,FVector::Dist2D(Started,T.Hero->GetActorLocation()),T.Hero->GetVelocity().Size2D(),Patch->RemainingLiquid(),InitialWet,
+        T.Hero->IsPrimaryHeld(),T.Hero->bBrushing,T.Hero->ToothPhysics->IsSlipping()));
+    if(!TestTrue(TEXT("Protection is based on over 1.5 seconds of real IsWorkReady contact during movement"),ReadyMovingFrames>=100)) return false;
+    TestTrue(TEXT("The trajectory contains actual movement rather than a standing brush fixture"),FVector::Dist2D(Started,T.Hero->GetActorLocation())>20.f);
+    TestTrue(TEXT("Native working contacts genuinely remove dirt without clearing the complete test area"),Patch->RemainingLiquid()<InitialWet && Patch->RemainingLiquid()>0.f);
+    TestEqual(TEXT("Real working contact keeps a moving worker standing on slippery ground"),T.Hero->ToothPhysics->GetBodyState(),EMCBodyState::Standing);
+    Patch->ClearLiquidForBooster();
+    TestTrue(TEXT("The input remains held when its real dirty target is removed"),T.Hero->IsPrimaryHeld());
+    if(!TestTrue(TEXT("Holding primary in empty space does not prevent the next native risk fall"),T.DriveUntilFall(180))) return false;
+    TestEqual(TEXT("Neither working protection nor later empty-primary fall changes HP"),T.Hero->Status->State.Health,Health);
+    TestTrue(TEXT("The brush readiness regression retains finite native motion"),T.bFiniteThroughout);
     return true;
 }
 #endif

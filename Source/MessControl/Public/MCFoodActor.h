@@ -141,7 +141,7 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Food|Flood") bool bRiverSwept=false;
     void SetStackCarrier(AMCToothCharacter* Hero);
     /** A dropped stack settles without attacking players; deliberate throws remain dangerous. */
-    void ProtectPlayersOnStackRelease(bool bThrown);
+    void ProtectPlayersOnStackRelease(bool bThrown,float GraceSeconds=.75f);
     void BeginStackPickup(AMCToothCharacter* Hero,float SlotHeight);
     float PrepareHorizontalStackPose(const FMCFoodStackSettings* StackSettings,int32 Slot);
     FQuat StackRestRotation(const FQuat& BaseRotation) const;
