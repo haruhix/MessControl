@@ -176,7 +176,7 @@ void MCTickDashSuctionValidation(UWorld* World)
             R.VideoShot=Shot;
         }
     }
-    if(T>=1 && !R.TapPressed) {Own->MoveForward(FInputActionValue(1.f));Own->StartSprint();R.TapPressed=true;}
+    if(T>=1 && !R.TapPressed) {Own->MoveForward(FInputActionValue(1.f));Own->RequestDashInput();R.TapPressed=true;}
     if(T>=1.08 && !R.TapReleased) {Own->StopSprint();R.TapReleased=true;}
     if(T>=1 && T<1.65) Own->MoveForward(FInputActionValue(1.f));
     if(T>=1.65 && T<3) Own->MoveForward(FInputActionValue(0.f));
@@ -185,7 +185,7 @@ void MCTickDashSuctionValidation(UWorld* World)
     if(T>=4.2 && !R.HoldReleased) {Own->StopSprint();Own->MoveForward(FInputActionValue(0.f));R.HoldReleased=true;}
     // PNG readback can block rendering for longer than a short dash. Capture a
     // second real tap after the first dash's uninterrupted pose verification.
-    if(Capture && T>=4.75 && !R.CaptureTapPressed) {Own->StartSprint();R.CaptureTapPressed=true;}
+    if(Capture && T>=4.75 && !R.CaptureTapPressed) {Own->RequestDashInput();R.CaptureTapPressed=true;}
     if(Capture && T>=4.83 && !R.CaptureTapReleased) {Own->StopSprint();R.CaptureTapReleased=true;}
     if(Capture && T>4.83 && Own->IsDashing() && !R.CapturedDash && Own->GetDashProgress()>.43f) {
         FScreenshotRequest::RequestScreenshot(FPaths::ProjectDir()/TEXT("Artifacts/Unreal_Dash_Tumble.png"),false,false);R.CapturedDash=true;

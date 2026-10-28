@@ -180,6 +180,16 @@ TConstArrayView<FName> UMCExpressionComponent::MouthShapes()
         TEXT("Mouth_Smile"),TEXT("Mouth_Frown"),TEXT("Mouth_Angry"),TEXT("Mouth_Pain"),TEXT("Mouth_Surprise"),TEXT("Mouth_Effort")};
     return MakeArrayView(Names);
 }
+float UMCExpressionComponent::SlipperyFaceAlpha() const
+{
+    if(!Tooth || !CanReactSocially() || Tooth->Status->PainAlpha()>.01f
+        || (Tooth->Inventory && (Tooth->Inventory->IsChainsawRunning() || Tooth->Inventory->IsUsingWatergun()))
+        || (ActiveEntry() && EmoteAlpha()>.01f)) return 0.f;
+    const auto* Anim=Cast<UMCToothAnimInstance>(Tooth->GetMesh()->GetAnimInstance());
+    if(!Anim || !Tooth->AnimationProfile
+        || !(Anim->AuthoredGlide.bStrong?Tooth->AnimationProfile->GlideStrong:Tooth->AnimationProfile->Glide)) return 0.f;
+    return FMath::IsFinite(Anim->AuthoredGlide.Alpha)?FMath::Clamp(Anim->AuthoredGlide.Alpha,0.f,1.f):0.f;
+}
 bool UMCExpressionComponent::UpdateEyeShapes(float Dt,float EmotionStrength,bool bPain)
 {
     auto* Mesh=Tooth->GetMesh();
@@ -191,12 +201,15 @@ bool UMCExpressionComponent::UpdateEyeShapes(float Dt,float EmotionStrength,bool
     if (!Shape.IsNone()) EyeWeights.FindOrAdd(Shape);
     const FName SuctionShape=TEXT("Eyes_Scary");
     const float Suction=!bPain?FoodSuctionReaction*(.32f+.32f*FoodSuctionFlinch):0.f;
+    // The menu's Surprise has no separate eye morph. Frightened eyes belong
+    // only to the existing suction reaction or an explicitly chosen emote.
+    const float Fear=Suction;
     if (Asset->FindMorphTarget(SuctionShape)) EyeWeights.FindOrAdd(SuctionShape);
     const float Alpha=1-FMath::Exp(-18.f*FMath::Max(0.f,Dt));
     for (auto& Pair:EyeWeights)
     {
-        const float Target=(Pair.Key==Shape?FMath::Clamp(EmotionStrength,0.f,1.f)*(1-Suction):0.f)
-            +(Pair.Key==SuctionShape?Suction:0.f);
+        const float Target=(Pair.Key==Shape?FMath::Clamp(EmotionStrength,0.f,1.f)*(1-Fear):0.f)
+            +(Pair.Key==SuctionShape?Fear:0.f);
         Pair.Value=FMath::Lerp(Pair.Value,Target,Alpha);
         if (Pair.Value<.0001f) Pair.Value=0;
         Mesh->SetMorphTarget(Pair.Key,Pair.Value);
@@ -218,12 +231,6 @@ bool UMCExpressionComponent::UpdateMouthShapes(float Dt,float EmotionStrength,bo
     const float Suction=!bPain?FoodSuctionReaction*.82f:0.f;
     const float Social=!bPain?FMath::Max(SocialDisgust*.38f,SprayReaction*.68f)*(1-Suction):0.f;
     const float MoodWeight=FMath::Clamp(EmotionStrength,0.f,1.f)*(1-SpeechWeight)*(1-Suction-Social);
-    const auto* Anim=Cast<UMCToothAnimInstance>(Mesh->GetAnimInstance());
-    const auto* GlideProfile=Tooth->AnimationProfile.Get();
-    const auto Glide=Anim?Anim->AuthoredGlide:FMCGlideAnimationSample();
-    const UAnimSequence* GlideClip=GlideProfile?(Glide.bStrong?GlideProfile->GlideStrong.Get():GlideProfile->Glide.Get()):nullptr;
-    const float GlideAlpha=!bPain && GlideClip?Glide.Alpha*(1-Suction-Social):0.f;
-    FAnimExtractContext GlideContext(Glide.Time,false);
     const float Alpha=1-FMath::Exp(-18.f*FMath::Max(0.f,Dt));
     // These are complete poses, so convex blending preserves the shared mouth contour.
     // A common smoothing factor preserves sum(weights) <= 1 during every transition.
@@ -232,11 +239,9 @@ bool UMCExpressionComponent::UpdateMouthShapes(float Dt,float EmotionStrength,bo
         const float Reaction=Name==TEXT("Mouth_Surprise")?FoodSuctionFlinch:Name==TEXT("Mouth_Effort")?1-FoodSuctionFlinch:0.f;
         const float BaseTarget=(Name==Speech?SpeechWeight:0.f)+(Name==Mood?MoodWeight:0.f)
             +(Reaction*Suction+(Name==TEXT("Mouth_Angry")?Social:0.f))*(1-SpeechWeight);
-        const FName Curve(*(TEXT("MCSlide_")+Name.ToString()));
-        const float Authored=GlideAlpha>.001f?FMath::Clamp(GlideClip->EvaluateCurveData(Curve,GlideContext,false),0.f,1.f):0.f;
-        // The authored reaction occupies only the mouth weight left by speech.
-        const float Target=FMath::Lerp(BaseTarget,(Name==Speech?SpeechWeight:0.f)+Authored*(1-SpeechWeight),GlideAlpha);
-        float& Weight=MouthWeights.FindOrAdd(Name); Weight=FMath::Lerp(Weight,Target,Alpha);
+        // Glide clips own the body; both glide phases use the ordinary menu
+        // Surprise mouth rather than replacing it with MCSlide_Mouth curves.
+        float& Weight=MouthWeights.FindOrAdd(Name); Weight=FMath::Lerp(Weight,BaseTarget,Alpha);
         if (Weight<.0001f) Weight=0;
         if (Mesh->GetSkeletalMeshAsset()->FindMorphTarget(Name)) Mesh->SetMorphTarget(Name,Weight);
     }
@@ -356,6 +361,7 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
         else {CurrentEmotion=EMCEmotion::Effort;Strength=.65f+.35f*Tooth->YawnPoseAlpha();}
     }
     else if (const auto* Entry=ActiveEntry(); Entry && EmoteAlpha()>.01f) { CurrentEmotion=Entry->Emotion; Strength=EmoteAlpha(); }
+    else if (const float Slip=SlipperyFaceAlpha(); Slip>.001f) { CurrentEmotion=EMCEmotion::Surprise; Strength=Slip; }
     else if (Now()-Tooth->TaskFailureAt<2.5) { CurrentEmotion=EMCEmotion::Sad; }
     else if (Now()-Tooth->TaskSuccessAt<2.0) { CurrentEmotion=EMCEmotion::Happy; }
     else if (Tooth->HeldFood && !Tooth->Grip->InputDirection().IsNearlyZero()) { CurrentEmotion=EMCEmotion::Effort; Strength=FMath::Clamp(Tooth->HeldFood->Settings.Mass/28.f,.25f,1.f); }

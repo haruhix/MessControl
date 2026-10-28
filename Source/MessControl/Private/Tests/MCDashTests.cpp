@@ -52,7 +52,7 @@ struct FDashWorld
             ++GFrameCounter;World->Tick(LEVELTICK_All,Dt);
         }
     }
-    void Tap(float Dt=1.f/60) { Hero->SetSprintInputHeld(true);Step(Dt,Dt);Hero->SetSprintInputHeld(false);Step(Dt,Dt); }
+    void Tap(float Dt=1.f/60) { Hero->RequestDashInput();Step(Dt,Dt);Step(Dt,Dt); }
     bool Ready() const { return Hero->IsLocallyControlled() && Hero->CanWork() && Move->IsMovingOnGround() && Move->CanDash(); }
 };
 }
@@ -63,12 +63,21 @@ bool FMCDashTapHold::RunTest(const FString&)
     for(float Dt:{1.f/30,1.f/60,1.f/120}) {
         FDashWorld T;
         if(!TestTrue(TEXT("Fixture has a local actionable character standing on its collision floor"),T.Ready())) return false;
-        const FVector Start=T.Hero->GetActorLocation();
+        const int32 InitialCharges=T.Move->GetDashCharges();
+        const float InitialStamina=T.Hero->GetStamina();
         T.Hero->SetSprintInputHeld(true);T.Step(Dt,Dt);
-        TestTrue(TEXT("Shift starts the predicted dash on the first movement frame while still held"),T.Hero->IsDashing());
-        TestTrue(TEXT("A press dash charges stamina once on its first frame"),FMath::IsNearlyEqual(T.Hero->GetStamina(),T.Hero->GetMaxStamina()-T.Move->DashStaminaCost,.01f));
-        TestTrue(TEXT("Shift press immediately moves the capsule"),T.Hero->GetActorLocation().X-Start.X>5);
+        TestTrue(TEXT("Holding Shift requests sustained sprinting"),T.Move->WantsToSprint());
+        TestFalse(TEXT("Holding Shift never queues or starts a dash"),T.Move->WantsDash() || T.Hero->IsDashing());
+        TestEqual(TEXT("Holding Shift preserves both dash charges"),T.Move->GetDashCharges(),InitialCharges);
+        TestTrue(TEXT("Stationary Shift does not spend dash stamina"),FMath::IsNearlyEqual(T.Hero->GetStamina(),InitialStamina,.01f));
         T.Hero->SetSprintInputHeld(false);T.Step(Dt,Dt);
+        TestFalse(TEXT("Releasing Shift clears sprint intent without a dash"),T.Move->WantsToSprint() || T.Hero->IsDashing());
+        const FVector Start=T.Hero->GetActorLocation();
+        T.Hero->RequestDashInput();T.Step(Dt,Dt);
+        TestTrue(TEXT("Ctrl starts the predicted dash on the first movement frame"),T.Hero->IsDashing());
+        TestTrue(TEXT("A press dash charges stamina once on its first frame"),FMath::IsNearlyEqual(T.Hero->GetStamina(),T.Hero->GetMaxStamina()-T.Move->DashStaminaCost,.01f));
+        TestTrue(TEXT("Ctrl press immediately moves the capsule"),T.Hero->GetActorLocation().X-Start.X>5);
+        T.Step(Dt,Dt);
         TestTrue(TEXT("Dash has a measurable normalized animation phase"),T.Hero->GetDashProgress()>0 && T.Hero->GetDashProgress()<1);
         TestTrue(TEXT("Dash without direction uses the facing direction"),FVector::DotProduct(T.Hero->GetDashDirection(),FVector::ForwardVector)>.99);
         T.Step(.45f,Dt);
@@ -80,34 +89,34 @@ bool FMCDashTapHold::RunTest(const FString&)
         T.Step(.45f,Dt);T.Tap(Dt);TestFalse(TEXT("A third tap cannot bypass two recovering charges"),T.Hero->IsDashing());
         T.Step(2.2f,Dt);T.Tap(Dt);TestTrue(TEXT("Dash becomes available when the first charge recovers"),T.Hero->IsDashing());
         T.Hero->CancelGameplayInput();TestFalse(TEXT("Cancel stops an active dash immediately"),T.Hero->IsDashing());
-        T.Step(3.1f,Dt);T.Hero->SetSprintInputHeld(true);T.Step(.08f,Dt);
+        T.Step(3.1f,Dt);T.Hero->RequestDashInput();T.Step(.08f,Dt);
         T.Hero->CancelGameplayInput();T.Step(.05f,Dt);
         TestFalse(TEXT("Input cancellation stops the press dash without restarting it"),T.Hero->IsDashing());
         const float BeforeSprint=T.Hero->GetStamina();
         T.Hero->SetSprintInputHeld(true);T.Step(1.f,Dt,true);
-        TestTrue(TEXT("Holding Shift transitions into sustained sprinting"),T.Move->bSprintActive && T.Hero->GetVelocity().Size2D()>500);
+        TestTrue(TEXT("Holding Shift produces sustained sprinting without a dash"),T.Move->bSprintActive && T.Hero->GetVelocity().Size2D()>500 && !T.Hero->IsDashing());
         TestTrue(TEXT("Moving while holding Shift drains stamina"),T.Hero->GetStamina()<BeforeSprint-8.f);
         T.Hero->SetSprintInputHeld(false);T.Step(Dt,Dt);
         TestFalse(TEXT("Releasing a long hold never triggers a dash"),T.Hero->IsDashing());
         TestFalse(TEXT("Releasing Shift clears sprint intent"),T.Move->WantsToSprint());
         T.Step(2.1f,Dt);
-        T.Hero->SetSprintInputHeld(true);T.Hero->AddMovementInput(FVector::RightVector);T.Step(Dt,Dt);
-        TestTrue(TEXT("Repressing Shift after sprint starts a new dash immediately"),T.Hero->IsDashing());
+        T.Hero->SetSprintInputHeld(true);T.Hero->RequestDashInput();T.Hero->AddMovementInput(FVector::RightVector);T.Step(Dt,Dt);
+        TestTrue(TEXT("Ctrl can start a new dash while Shift is held"),T.Hero->IsDashing());
         TestTrue(TEXT("Dash uses this frame's direction even when input arrives after the press"),FVector::DotProduct(T.Hero->GetDashDirection(),FVector::RightVector)>.99);
         T.Hero->SetSprintInputHeld(false);
     }
     FDashWorld T;if(!TestTrue(TEXT("Press fixture starts with an available ground dash"),T.Ready())) return false;
-    T.Hero->SetSprintInputHeld(true);T.Step(.25f,.25f);
-    TestTrue(TEXT("A frame longer than the hold threshold still starts the dash on press"),T.Hero->IsDashing());
+    T.Hero->RequestDashInput();T.Step(.25f,.25f);
+    TestTrue(TEXT("A long movement frame still starts the dedicated dash request"),T.Hero->IsDashing());
     T.Step(1.2f);
-    TestFalse(TEXT("Holding past the cooldown does not automatically repeat the dash"),T.Hero->IsDashing());
+    TestFalse(TEXT("One dash request is not repeated by later movement frames"),T.Hero->IsDashing());
     TestTrue(TEXT("The second charge remains ready while the first recovers"),T.Move->CanDash());
     T.Hero->SetSprintInputHeld(false);T.Step(1.f/60);
     TestFalse(TEXT("Release never starts a second dash after cooldown"),T.Hero->IsDashing());
-    T.Hero->SetSprintInputHeld(true);T.Hero->CancelGameplayInput();T.Step(1.f/60);
+    T.Hero->RequestDashInput();T.Hero->CancelGameplayInput();T.Step(1.f/60);
     TestFalse(TEXT("Cancel before the next movement frame clears the queued dash"),T.Hero->IsDashing());
-    T.Hero->SetSprintInputHeld(true);T.Hero->SetSprintInputHeld(false);T.Step(1.f/60);
-    TestTrue(TEXT("Press and release within one frame still executes one dash"),T.Hero->IsDashing());
+    T.Hero->SetSprintInputHeld(true);T.Hero->RequestDashInput();T.Hero->SetSprintInputHeld(false);T.Step(1.f/60);
+    TestTrue(TEXT("Releasing Shift in the request frame does not discard the independent Ctrl dash"),T.Hero->IsDashing());
     T.Hero->CancelGameplayInput();
     FMCStaminaPredictionState Empty;Empty.Value=0;Empty.RecoveryDelay=T.Move->StaminaRecoveryDelay;Empty.Exhausted=true;
     T.Move->RestoreStaminaPrediction(Empty);

@@ -90,7 +90,7 @@ void UMCPrototypeWidget::NativeOnInitialized()
     ContactBar->SetWidgetStyle(ProgressStyle); HealthBar->SetWidgetStyle(ProgressStyle);
     UBorder* FooterBorder; auto* Footer = Panel(FVector2D(0,-22),FVector2D(1080,75),FAnchors(0.5f,1),FVector2D(0.5f,1),FooterBorder);
     ControlsPanel=FooterBorder; SetPlayerOverlayVisible(bPlayerOverlayVisible);
-    AddText(Footer,TEXT("WASD MOVE   SHIFT DASH / RUN   SPACE HOP   LMB INTERACT   RMB HOLD ON   F BONK   Q THROW   MOUSE LOOK"),15,Cream);
+    AddText(Footer,TEXT("WASD MOVE   HOLD SHIFT RUN   CTRL DASH   SPACE HOP   LMB INTERACT   RMB HOLD ON   F BONK   Q THROW   MOUSE LOOK"),15,Cream);
     AddText(Footer,MCDeveloperUIEnabled(GetWorld())
         ?TEXT("T  EMOTES      C / R-STICK  SELF CARE      F1  TOOTH LAB      F2  FRIENDS      F3  DEV EVENTS")
         :TEXT("T  EMOTES      C / R-STICK  SELF CARE      F2  FRIENDS"),12,Mint);
@@ -132,7 +132,7 @@ void UMCPrototypeWidget::NativeOnInitialized()
     Button(PhysicsBox,TEXT("LOOSEN ALL LIVING TEETH"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::LooseClicked);
     Button(PhysicsBox,TEXT("DROP STUCK FOOD AHEAD"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::DropFoodClicked);
     Button(PhysicsBox,TEXT("DIE / TEST RESPAWN COST"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::RespawnClicked);
-    AddText(PhysicsBox,TEXT("Host changes apply to teeth already in this room. Spawn a practice tooth, close F1, then F to bonk. Hold RMB near food, players or walls. Mouse: orbit; wheel: zoom."),12,Cream);
+    AddText(PhysicsBox,TEXT("Host changes apply to teeth already in this room. Spawn a practice tooth, close F1, then F to bonk. Hold RMB near food, players or walls. Mouse: orbit; wheel: tools; Shift + wheel: zoom."),12,Cream);
     Button(PhysicsBox,TEXT("SPAWN PRACTICE TOOTH"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::DummyClicked);
     Button(PhysicsBox,TEXT("TEST FALL"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::FallClicked);
     Button(PhysicsBox,TEXT("GET UP WHEN CLEAR"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::GetUpClicked);
@@ -226,7 +226,7 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
     {
         PlayerStatusLabel->SetText(FText::FromString(Hero->Status->Summary()));
         FString Hint=Hero->bSelfCare?TEXT("SELF CARE: hold LMB to clean / heal. C returns to others."):TEXT("Hold LMB near a target: pick up, clean or heal. C: self care.");
-        if (State->bPhysicalBrushes && !Hero->HasBrush()) Hint=TEXT("LMB: pick up a brush or food. RMB: hold on. F: hit. Mouse: camera. Wheel: zoom. Q: throw.");
+        if (State->bPhysicalBrushes && !Hero->HasBrush()) Hint=TEXT("LMB: pick up a brush or food. RMB: hold on. F: hit. Mouse: camera. Wheel: tools. Shift + wheel: zoom. Q: throw.");
         if (Hero->bInCoffee) Hint=Hero->ClingTooth?TEXT("ДЕРЖИ ЛКМ — удерживаться. Отпусти ЛКМ — отпустить зуб."):
             ActiveFlood && ActiveFlood->bRiverFlood?TEXT("ПОТОП | WASD + Shift — бежать. ПКМ у еды, стены или игрока — держаться."):
             TEXT("COFFEE | WASD: paddle. Hold LMB near arena teeth to cling.");

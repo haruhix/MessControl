@@ -16,6 +16,7 @@ bool UMCValidationSubsystem::IsTickableWhenPaused() const
 #include "Misc/AutomationTest.h"
 #include "MCToolScrollInput.h"
 #include "MCToothCharacter.h"
+#include "MCToothMovementComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCInventoryComponent.h"
 #include "MCPlayerController.h"
@@ -23,10 +24,13 @@ bool UMCValidationSubsystem::IsTickableWhenPaused() const
 #include "MCGameState.h"
 #include "MCGripComponent.h"
 #include "EnhancedInputComponent.h"
+#include "EnhancedPlayerInput.h"
 #include "InputAction.h"
 #include "InputMappingContext.h"
 #include "InputModifiers.h"
 #include "InputTriggers.h"
+#include "InputKeyEventArgs.h"
+#include "GenericPlatform/GenericPlatformInputDeviceMapper.h"
 #include "UObject/UObjectIterator.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
@@ -115,7 +119,7 @@ bool FMCToolWheelGuardTest::RunTest(const FString&)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCToolWheelBindingsTest,"MessControl.Input.Tools.WheelAndBracketBindingsAreSeparate",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCToolWheelBindingsTest,"MessControl.Input.Tools.ShiftWheelRoutesZoom",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCToolWheelBindingsTest::RunTest(const FString&)
 {
@@ -123,41 +127,95 @@ bool FMCToolWheelBindingsTest::RunTest(const FString&)
     if(!TestTrue(TEXT("The binding fixture dispatched pawn and inventory BeginPlay"),W.Hero->HasActorBegunPlay() && W.Hero->Inventory->HasBegunPlay() && W.Hero->IsLocallyControlled())) return false;
     auto* Input=NewObject<UEnhancedInputComponent>(W.Hero);W.Hero->SetupPlayerInputComponent(Input);
     const auto* Wheel=FindObject<UInputAction>(W.Hero,TEXT("ToolScrollAction"));
-    const auto* Brackets=FindObject<UInputAction>(W.Hero,TEXT("BracketZoomAction"));
-    if(!TestNotNull(TEXT("Wheel has its own tool action"),Wheel) || !TestNotNull(TEXT("Brackets have a separate zoom action"),Brackets)) return false;
-    TestTrue(TEXT("The two inputs never share an action"),Wheel!=Brackets);
-    TestTrue(TEXT("Holding a bracket does not repeat a zoom step each frame"),Brackets->Triggers.ContainsByPredicate([](const auto& Trigger) {return Trigger && Trigger->IsA<UInputTriggerPressed>();}));
+    if(!TestNotNull(TEXT("Wheel has one shared production routing action"),Wheel)) return false;
+    TestNull(TEXT("The removed bracket action is not created"),FindObject<UInputAction>(W.Hero,TEXT("BracketZoomAction")));
     const UInputMappingContext* Context=nullptr;
     for(TObjectIterator<UInputMappingContext> It;It;++It) if(It->GetOuter()==W.Hero) {Context=*It;break;}
     if(!TestNotNull(TEXT("The character owns a real Enhanced Input mapping"),Context)) return false;
-    int32 Digits=0;bool WheelMapped=false,LeftMapped=false,RightMapped=false;
+    int32 Digits=0,WheelMappings=0;bool LeftMapped=false,RightMapped=false;
+    const UInputAction* KeyboardSprint=nullptr;const UInputAction* ControlDash=nullptr;const UInputAction* StickSprint=nullptr;
     for(const auto& Mapping:Context->GetMappings()) {
-        if(Mapping.Key==EKeys::MouseWheelAxis) {WheelMapped=true;TestTrue(TEXT("Wheel maps to tool selection only"),Mapping.Action==Wheel);}
-        if(Mapping.Key==EKeys::RightBracket) {RightMapped=true;TestTrue(TEXT("Right bracket maps to zoom"),Mapping.Action==Brackets);}
-        if(Mapping.Key==EKeys::LeftBracket) {
-            LeftMapped=true;TestTrue(TEXT("Left bracket shares only the bracket zoom action"),Mapping.Action==Brackets);
-            TestTrue(TEXT("Left bracket reverses the zoom direction"),Mapping.Modifiers.ContainsByPredicate([](const auto& Modifier) {return Modifier && Modifier->IsA<UInputModifierNegate>();}));
-        }
+        if(Mapping.Key==EKeys::MouseWheelAxis) {++WheelMappings;TestTrue(TEXT("Wheel uses the shared routing action"),Mapping.Action==Wheel);}
+        if(Mapping.Key==EKeys::RightBracket) RightMapped=true;
+        if(Mapping.Key==EKeys::LeftBracket) LeftMapped=true;
+        if(Mapping.Key==EKeys::LeftShift) KeyboardSprint=Mapping.Action;
+        if(Mapping.Key==EKeys::RightShift) TestTrue(TEXT("Both Shift keys share sprint"),Mapping.Action==KeyboardSprint);
+        if(Mapping.Key==EKeys::LeftControl) ControlDash=Mapping.Action;
+        if(Mapping.Key==EKeys::RightControl) TestTrue(TEXT("Both Control keys share dash"),Mapping.Action==ControlDash);
+        if(Mapping.Key==EKeys::Gamepad_LeftThumbstick) StickSprint=Mapping.Action;
         if(Mapping.Key==EKeys::One || Mapping.Key==EKeys::Two || Mapping.Key==EKeys::Three || Mapping.Key==EKeys::Four) ++Digits;
     }
-    TestTrue(TEXT("Wheel and both camera zoom keys are mapped"),WheelMapped && LeftMapped && RightMapped);
-    TestEqual(TEXT("Four direct tool shortcuts remain available as secondary input"),Digits,4);
+    TestEqual(TEXT("There is only one wheel mapping, so a notch is not dispatched twice"),WheelMappings,1);
+    TestFalse(TEXT("Right bracket is no longer bound"),RightMapped);
+    TestFalse(TEXT("Left bracket is no longer bound"),LeftMapped);
+    TestEqual(TEXT("The four active-skill shortcuts remain mapped"),Digits,4);
     const float Distance=W.Hero->CameraOrbitDistance;
-    int32 WheelBindings=0,ZoomBindings=0;
+    int32 WheelBindings=0;FEnhancedInputActionEventBinding* WheelBinding=nullptr;
     for(const auto& Binding:Input->GetActionEventBindings()) {
         if(Binding->GetAction()==Wheel && Binding->GetTriggerEvent()==ETriggerEvent::Triggered) {
-            ++WheelBindings;Binding->Execute(MCToolScrollTests::FTriggeredValue(Wheel,1.f));
+            ++WheelBindings;WheelBinding=Binding.Get();
         }
     }
-    TestEqual(TEXT("One wheel event invokes one production selection route"),WheelBindings,1);
+    TestEqual(TEXT("One wheel event invokes one production routing handler"),WheelBindings,1);
+    if(!TestNotNull(TEXT("The real wheel binding is present"),WheelBinding)) return false;
+    auto Scroll=[&](float Amount) {WheelBinding->Execute(MCToolScrollTests::FTriggeredValue(Wheel,Amount));};
+    // Feed normal engine key events and process them. Never write FKeyState or
+    // a synthetic modifier flag: the production route reads IsInputKeyDown.
+    if(!W.Controller->PlayerInput) W.Controller->PlayerInput=NewObject<UEnhancedPlayerInput>(W.Controller);
+    auto Shift=[&](FKey Key,bool Down) {
+        auto Args=FInputKeyEventArgs::CreateSimulated(Key,Down?IE_Pressed:IE_Released,Down?1.f:0.f,1,
+            IPlatformInputDeviceMapper::Get().GetDefaultInputDevice());
+        Args.DeltaTime=1.f/60;W.Controller->InputKey(Args);
+        const TArray<UInputComponent*> EmptyStack;
+        W.Controller->PlayerInput->ProcessInputStack(EmptyStack,1.f/60,false);
+        TestEqual(TEXT("Controller observes the actual processed Shift key state"),W.Controller->IsInputKeyDown(Key),Down);
+    };
+    Scroll(1.f);
     TestEqual(TEXT("The bound wheel action selected the next tool"),W.Hero->Inventory->Selected,EMCToolSlot::Pickaxe);
     TestEqual(TEXT("The bound wheel action did not zoom"),W.Hero->CameraOrbitDistance,Distance);
-    for(const auto& Binding:Input->GetActionEventBindings()) if(Binding->GetAction()==Brackets) {
-        ++ZoomBindings;Binding->Execute(MCToolScrollTests::FTriggeredValue(Brackets,1.f));
+    for(const FKey Key:{EKeys::LeftShift,EKeys::RightShift}) {
+        const EMCToolSlot Before=W.Hero->Inventory->Selected;
+        Shift(Key,true);Scroll(1.f);
+        TestTrue(TEXT("Either Shift plus wheel up zooms in"),W.Hero->CameraOrbitDistance<Distance);
+        TestEqual(TEXT("Shift zoom does not change the selected tool"),W.Hero->Inventory->Selected,Before);
+        Scroll(-1.f);
+        TestTrue(TEXT("Either Shift plus wheel down restores the previous camera distance"),FMath::IsNearlyEqual(W.Hero->CameraOrbitDistance,Distance,.01f));
+        Shift(Key,false);Scroll(1.f);
+        const EMCToolSlot Next=EMCToolSlot((int32(Before)+1)%(int32(EMCToolSlot::Spray)+1));
+        TestEqual(TEXT("Releasing Shift immediately restores ordinary tool scrolling"),W.Hero->Inventory->Selected,Next);
+        TestTrue(TEXT("No zoom modifier remains latched after release"),FMath::IsNearlyEqual(W.Hero->CameraOrbitDistance,Distance,.01f));
     }
-    TestEqual(TEXT("The bracket action has one zoom handler"),ZoomBindings,1);
-    TestTrue(TEXT("Right bracket zooms in through the existing camera route"),W.Hero->CameraOrbitDistance<Distance);
-    TestEqual(TEXT("Bracket zoom does not select a tool"),W.Hero->Inventory->Selected,EMCToolSlot::Pickaxe);
+    const EMCToolSlot BeforeUI=W.Hero->Inventory->Selected;
+    W.Controller->bShowMouseCursor=true;Scroll(1.f);Shift(EKeys::LeftShift,true);Scroll(1.f);Shift(EKeys::LeftShift,false);
+    TestEqual(TEXT("Cursor UI blocks ordinary scrolling and Shift zoom tool changes"),W.Hero->Inventory->Selected,BeforeUI);
+    TestTrue(TEXT("Cursor UI blocks Shift zoom"),FMath::IsNearlyEqual(W.Hero->CameraOrbitDistance,Distance,.01f));
+    W.Controller->bShowMouseCursor=false;
+    W.Controller->SetIgnoreLookInput(true);Scroll(-1.f);Shift(EKeys::RightShift,true);Scroll(-1.f);Shift(EKeys::RightShift,false);
+    TestEqual(TEXT("A look-blocking modal preserves the selected tool"),W.Hero->Inventory->Selected,BeforeUI);
+    TestTrue(TEXT("A look-blocking modal preserves the camera distance"),FMath::IsNearlyEqual(W.Hero->CameraOrbitDistance,Distance,.01f));
+    W.Controller->SetIgnoreLookInput(false);
+    if(!TestNotNull(TEXT("Keyboard Shift has its sprint action"),KeyboardSprint)
+        || !TestNotNull(TEXT("Control has its dash action"),ControlDash)
+        || !TestNotNull(TEXT("Stick click keeps its separate gamepad gesture"),StickSprint)) return false;
+    TestTrue(TEXT("Keyboard sprint and dash have distinct actions"),KeyboardSprint!=ControlDash && KeyboardSprint!=StickSprint);
+    auto Trigger=[&](const UInputAction* Action,ETriggerEvent Event) {
+        int32 Count=0;
+        for(const auto& Binding:Input->GetActionEventBindings()) if(Binding->GetAction()==Action && Binding->GetTriggerEvent()==Event) {
+            ++Count;Binding->Execute(MCToolScrollTests::FTriggeredValue(Action,1.f));
+        }
+        TestEqual(TEXT("Each requested input has one production handler"),Count,1);
+    };
+    auto* Move=CastChecked<UMCToothMovementComponent>(W.Hero->GetCharacterMovement());
+    Trigger(KeyboardSprint,ETriggerEvent::Started);
+    TestTrue(TEXT("Holding Shift requests sprint"),Move->WantsToSprint());
+    TestFalse(TEXT("Holding Shift does not queue a dash"),Move->WantsDash());
+    Trigger(KeyboardSprint,ETriggerEvent::Completed);
+    TestFalse(TEXT("Releasing Shift stops sprint"),Move->WantsToSprint());
+    TestFalse(TEXT("Releasing Shift cannot turn zoom into a dash"),Move->WantsDash());
+    Trigger(ControlDash,ETriggerEvent::Started);
+    TestTrue(TEXT("The Control action queues the independent dash"),Move->WantsDash());
+    TestFalse(TEXT("Control alone does not start sprint"),Move->WantsToSprint());
+    W.Hero->CancelGameplayInput();
     return true;
 }
 #endif

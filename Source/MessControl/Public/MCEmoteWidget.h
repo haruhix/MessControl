@@ -87,6 +87,7 @@ private:
     int32 Category=0;
     int32 KeyboardChoice=0;
     float RefreshElapsed=.1f;
+    bool bCheckFocusAfterLoss=false;
     void SelectCategory(int32 Value);
     void RefreshAvailability();
     void EnsureWheelPresentation();

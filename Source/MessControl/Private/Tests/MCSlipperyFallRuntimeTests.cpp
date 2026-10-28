@@ -11,6 +11,9 @@
 #include "MCFoodCollectionComponent.h"
 #include "MCBrushContactComponent.h"
 #include "MCInventoryComponent.h"
+#include "MCExpressionComponent.h"
+#include "MCGazeComponent.h"
+#include "MCToothAnimInstance.h"
 #include "MCMouthSurface.h"
 #include "Animation/AnimSequence.h"
 #include "Components/BoxComponent.h"
@@ -475,6 +478,98 @@ bool FMCSlipperyBrushReadiness::RunTest(const FString&)
     if(!TestTrue(TEXT("Holding primary in empty space does not prevent the next native risk fall"),T.DriveUntilFall(180))) return false;
     TestEqual(TEXT("Neither working protection nor later empty-primary fall changes HP"),T.Hero->Status->State.Health,Health);
     TestTrue(TEXT("The brush readiness regression retains finite native motion"),T.bFiniteThroughout);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSlipFaceReactionTest,
+    "MessControl.Animation.AuthoredGlide.Runtime.SlipFaceMatchesManualSurpriseAndKeepsPriority",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSlipFaceReactionTest::RunTest(const FString&)
+{
+    MCSlipperyFallRuntimeTests::FWorldFixture T;
+    if(!TestTrue(TEXT("The real saved rig and both glide clips are ready"),T.Ready())) return false;
+    auto* Hero=T.Hero.Get();auto* Mesh=Hero->GetMesh();auto* Expression=Hero->Expression.Get();auto* Gaze=Hero->Gaze.Get();
+    auto* Anim=Cast<UMCToothAnimInstance>(Mesh->GetAnimInstance());
+    if(!TestNotNull(TEXT("The live character uses the native animation instance"),Anim)
+        || !TestNotNull(TEXT("The native attention/pupil owner is available"),Gaze)
+        || !TestNotNull(TEXT("The saved manual expression library is loaded"),Expression->Library.Get())) return false;
+    const auto* Surprise=Expression->Library->Entries.FindByPredicate([](const FMCEmoteEntry& E){return E.Id==TEXT("surprise");});
+    if(!TestNotNull(TEXT("The comparison uses the real manual Surprise preset"),Surprise)) return false;
+    TestEqual(TEXT("The selected manual preset uses the ordinary Surprise emotion"),Surprise->Emotion,EMCEmotion::Surprise);
+    TestTrue(TEXT("Manual Surprise does not use the separate frightened-eye morph"),Surprise->EyeMorph.IsNone());
+    const auto* Asset=Mesh->GetSkeletalMeshAsset();const auto& Ref=Asset->GetRefSkeleton();
+    if(!TestNotNull(TEXT("The saved character has the ordinary Surprise mouth"),Asset->FindMorphTarget(TEXT("Mouth_Surprise")))) return false;
+    struct FFaceSample {TArray<FTransform> Pose;TMap<FName,float> Mouth;float ScaryEyes=0,Pupil=0;};
+    const auto Face=[&](FMCGlideAnimationSample Sample,int32 Frames=80) {
+        FFaceSample Result;
+        // Isolate cosmetic samples on the existing fixture's standing body.
+        // No body/fall state, attention danger or emote RPC is manufactured.
+        // The same otherwise empty world/time is used for all three faces.
+        for(int32 I=0;I<Frames;++I) {
+            Anim->AuthoredGlide=Sample;Gaze->Target=FMCGazeTarget();
+            Result.Pose=Ref.GetRefBonePose();
+            Expression->BuildFacePose(Result.Pose,Ref,MCSlipperyFallRuntimeTests::StepSeconds);
+            Gaze->TickComponent(MCSlipperyFallRuntimeTests::StepSeconds,LEVELTICK_All,nullptr);
+        }
+        for(FName Shape:UMCExpressionComponent::MouthShapes()) Result.Mouth.Add(Shape,Mesh->GetMorphTarget(Shape));
+        Result.ScaryEyes=Mesh->GetMorphTarget(TEXT("Eyes_Scary"));Result.Pupil=Gaze->PupilScale;
+        return Result;
+    };
+    const auto Manual=[&](FName Id) {
+        Expression->State=FMCEmoteState();Expression->State.Id=Id;
+        // Age only the cosmetic request to its full-weight plateau; the actual
+        // saved entry supplies all expression parameters, not a copied pose.
+        Expression->State.StartedAt=T.World->GetTimeSeconds()-.3;
+    };
+    Manual(Surprise->Id);const FFaceSample Reference=Face({0.f,0.f,false});
+    TestEqual(TEXT("The actual manual reference resolves to Surprise"),Expression->CurrentEmotion,EMCEmotion::Surprise);
+    TestTrue(TEXT("The manual reference reaches its open-mouth plateau"),Reference.Mouth.FindChecked(TEXT("Mouth_Surprise"))>.99f);
+    TestTrue(TEXT("The manual reference contracts the pupils without danger attention"),Reference.Pupil<Gaze->VisualSettings().PupilRest-.05f);
+    TestEqual(TEXT("The reference has no unrelated attention trigger"),Gaze->Target.Interest,EMCGazeInterest::None);
+    Expression->State=FMCEmoteState();
+    const float FallTime=T.Profile->GlideStrong->GetPlayLength()*.5f;
+    for(const FMCGlideAnimationSample Sample:{FMCGlideAnimationSample{1.f,.4f,false},FMCGlideAnimationSample{1.f,FallTime,true}}) {
+        const FString Phase=Sample.bStrong?TEXT("full fall"):TEXT("balance");
+        const FFaceSample Actual=Face(Sample);
+        TestTrue(*FString::Printf(TEXT("%s uses the full automatic Surprise envelope"),*Phase),Expression->SlipperyFaceAlpha()>.99f);
+        TestEqual(*FString::Printf(TEXT("%s chooses the same ordinary emotion"),*Phase),Expression->CurrentEmotion,EMCEmotion::Surprise);
+        for(const auto& Pair:Reference.Mouth) TestTrue(*FString::Printf(TEXT("%s matches manual %s"),*Phase,*Pair.Key.ToString()),
+            FMath::Abs(Actual.Mouth.FindChecked(Pair.Key)-Pair.Value)<.001f);
+        TestTrue(*FString::Printf(TEXT("%s keeps frightened eyes equal to manual Surprise"),*Phase),
+            FMath::Abs(Actual.ScaryEyes-Reference.ScaryEyes)<.001f && Actual.ScaryEyes<.001f);
+        TestTrue(*FString::Printf(TEXT("%s matches the manual pupil response"),*Phase),FMath::Abs(Actual.Pupil-Reference.Pupil)<.001f);
+        TestEqual(TEXT("Automatic Surprise does not depend on a danger target"),Gaze->Target.Interest,EMCGazeInterest::None);
+        int32 BrowsCompared=0;
+        for(int32 I=0;I<Ref.GetNum();++I) if(Ref.GetBoneName(I).ToString().StartsWith(TEXT("c_eyebrow"))) {
+            ++BrowsCompared;TestTrue(*FString::Printf(TEXT("%s preserves the manual %s transform"),*Phase,*Ref.GetBoneName(I).ToString()),
+                Actual.Pose[I].Equals(Reference.Pose[I],.001f));
+        }
+        AddInfo(FString::Printf(TEXT("%s: compared %d eyebrow controls; manual pupil %.5f, automatic %.5f"),*Phase,BrowsCompared,Reference.Pupil,Actual.Pupil));
+    }
+    Expression->SetSpeechInput(1.f,MCViseme::Open);Face({1.f,.4f,false});
+    TestTrue(TEXT("Speech retains mouth priority while balancing"),Mesh->GetMorphTarget(TEXT("Mouth_A"))>.99f);
+    TestTrue(TEXT("Speech does not stack with an automatic Surprise mouth"),Mesh->GetMorphTarget(TEXT("Mouth_Surprise"))<.001f);
+    Face({1.f,FallTime,true});
+    TestTrue(TEXT("Speech retains mouth priority during the full fall"),Mesh->GetMorphTarget(TEXT("Mouth_A"))>.99f);
+    Expression->SetSpeechInput(0.f,MCViseme::Rest);
+    const auto* Happy=Expression->Library->Entries.FindByPredicate([](const FMCEmoteEntry& E){return E.Id==TEXT("happy");});
+    if(!TestNotNull(TEXT("The real manual smile is available for priority checking"),Happy)) return false;
+    Manual(Happy->Id);Face({1.f,.4f,false});
+    TestEqual(TEXT("An explicit facial emote retains priority over balance"),Expression->CurrentEmotion,Happy->Emotion);
+    TestEqual(TEXT("A manual emote suppresses the automatic envelope"),Expression->SlipperyFaceAlpha(),0.f);
+    Face({1.f,FallTime,true});
+    TestEqual(TEXT("An explicit facial emote retains priority over the full fall sample"),Expression->CurrentEmotion,Happy->Emotion);
+    Expression->State=FMCEmoteState();
+    TestTrue(TEXT("The pain priority check receives accepted damage"),Hero->Status->Damage(10));
+    for(const FMCGlideAnimationSample Sample:{FMCGlideAnimationSample{1.f,.4f,false},FMCGlideAnimationSample{1.f,FallTime,true}}) {
+        Face(Sample);
+        TestEqual(TEXT("Accepted damage retains the pain reaction in either glide"),Expression->CurrentEmotion,EMCEmotion::Pain);
+        TestTrue(TEXT("Pain replaces the automatic Surprise mouth"),Mesh->GetMorphTarget(TEXT("Mouth_Pain"))>.99f);
+    }
+    if(!T.Tick(75)) return false;
+    const FFaceSample Released=Face({0.f,0.f,false},240);
+    TestTrue(TEXT("The automatic Surprise mouth blends out after slipping"),Released.Mouth.FindChecked(TEXT("Mouth_Surprise"))<.001f);
+    TestTrue(TEXT("No frightened-eye pose remains latched"),Released.ScaryEyes<.001f);
+    TestTrue(TEXT("The pupils recover toward their ordinary rest size"),Released.Pupil>Reference.Pupil+.05f);
     return true;
 }
 #endif

@@ -70,7 +70,6 @@
 #include "InputAction.h"
 #include "InputMappingContext.h"
 #include "InputModifiers.h"
-#include "InputTriggers.h"
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
@@ -89,7 +88,7 @@ bool MCToolScrollInput::Handle(AMCToothCharacter& Hero,float Delta,FCursor& Curs
         Cursor.Reset();return false;
     }
     constexpr int32 Count=int32(EMCToolSlot::Spray)+1;
-    // Share the owner-visible intent with 1–4. A separate timed wheel cursor
+    // Share the owner-visible intent with direct slot selections. A separate timed wheel cursor
     // would stay stale after rejection or a direct slot request.
     const int32 Current=FMath::Clamp(int32(Hero.Inventory->Selected),0,Count-1);
     const double Notches=FMath::Max(1.,FMath::FloorToDouble(FMath::Abs(double(Delta))+.5));
@@ -419,7 +418,11 @@ void AMCToothCharacter::BuildInput()
     SelfCareAction=Action(EInputActionValueType::Boolean);
     ThrowAction=Action(EInputActionValueType::Boolean);
     SprintAction=Action(EInputActionValueType::Boolean);
-    InputMap->MapKey(SprintAction,EKeys::LeftShift); InputMap->MapKey(SprintAction,EKeys::Gamepad_LeftThumbstick);
+    GamepadSprintAction=Action(EInputActionValueType::Boolean);
+    DashAction=NewObject<UInputAction>(this,TEXT("DashAction"));DashAction->ValueType=EInputActionValueType::Boolean;
+    InputMap->MapKey(SprintAction,EKeys::LeftShift); InputMap->MapKey(SprintAction,EKeys::RightShift);
+    InputMap->MapKey(GamepadSprintAction,EKeys::Gamepad_LeftThumbstick);
+    InputMap->MapKey(DashAction,EKeys::LeftControl);InputMap->MapKey(DashAction,EKeys::RightControl);
     InputMap->MapKey(ThrowAction,EKeys::Q); InputMap->MapKey(ThrowAction,EKeys::Gamepad_FaceButton_Top);
     InputMap->MapKey(SelfCareAction,EKeys::C); InputMap->MapKey(SelfCareAction,EKeys::Gamepad_RightThumbstick);
     InputMap->MapKey(SwingAction,EKeys::F); InputMap->MapKey(SwingAction,EKeys::Gamepad_LeftTrigger);
@@ -427,10 +430,6 @@ void AMCToothCharacter::BuildInput()
     InputMap->MapKey(OrbitXAction,EKeys::MouseX); InputMap->MapKey(OrbitYAction,EKeys::MouseY);
     MapStick(GamepadLookXAction,EKeys::Gamepad_RightX); MapStick(GamepadLookYAction,EKeys::Gamepad_RightY);
     InputMap->MapKey(ZoomAction,EKeys::MouseWheelAxis);
-    auto* BracketZoom=NewObject<UInputAction>(this,TEXT("BracketZoomAction"));BracketZoom->ValueType=EInputActionValueType::Axis1D;
-    BracketZoom->Triggers.Add(NewObject<UInputTriggerPressed>(this));
-    InputMap->MapKey(BracketZoom,EKeys::RightBracket);
-    InputMap->MapKey(BracketZoom,EKeys::LeftBracket).Modifiers.Add(NewObject<UInputModifierNegate>(this));
     InputMap->MapKey(ForwardAction, EKeys::W);
     InputMap->MapKey(ForwardAction, EKeys::S).Modifiers.Add(NewObject<UInputModifierNegate>(this));
     MapStick(ForwardAction,EKeys::Gamepad_LeftY);
@@ -483,8 +482,21 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(JumpAction, ETriggerEvent::Started, this, &AMCToothCharacter::StartJump);
     Input->BindAction(JumpAction, ETriggerEvent::Completed, this, &AMCToothCharacter::StopJump);
     Input->BindAction(SprintAction,ETriggerEvent::Started,this,&AMCToothCharacter::StartSprint);
-    Input->BindAction(SprintAction,ETriggerEvent::Completed,this,&AMCToothCharacter::StopSprint);
+    Input->BindActionValueLambda(SprintAction,ETriggerEvent::Completed,[this](const FInputActionValue&) {
+        const auto* PC=Cast<APlayerController>(Controller);
+        if(!PC || !PC->IsInputKeyDown(EKeys::Gamepad_LeftThumbstick)) StopSprint();
+    });
     Input->BindAction(SprintAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::CancelSprintInput);
+    // Keep the existing stick-click gesture isolated from keyboard modifiers.
+    Input->BindActionValueLambda(GamepadSprintAction,ETriggerEvent::Started,[this](const FInputActionValue&) {
+        StartSprint();RequestDashInput();
+    });
+    Input->BindActionValueLambda(GamepadSprintAction,ETriggerEvent::Completed,[this](const FInputActionValue&) {
+        const auto* PC=Cast<APlayerController>(Controller);
+        if(!PC || (!PC->IsInputKeyDown(EKeys::LeftShift) && !PC->IsInputKeyDown(EKeys::RightShift))) StopSprint();
+    });
+    Input->BindAction(GamepadSprintAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::CancelSprintInput);
+    Input->BindAction(DashAction,ETriggerEvent::Started,this,&AMCToothCharacter::RequestDashInput);
     Input->BindAction(BrushAction, ETriggerEvent::Started, this, &AMCToothCharacter::StartPrimary);
     Input->BindAction(BrushAction, ETriggerEvent::Completed, this, &AMCToothCharacter::StopPrimary);
     Input->BindAction(BrushAction, ETriggerEvent::Canceled, this, &AMCToothCharacter::StopPrimary);
@@ -505,11 +517,20 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(GamepadLookYAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::OrbitGamepadY);
     const auto ToolScrollCursor=MakeShared<MCToolScrollInput::FCursor>();
     Input->BindActionValueLambda(ZoomAction,ETriggerEvent::Triggered,[this,ToolScrollCursor](const FInputActionValue& Value) {
+        const auto* PC=Cast<APlayerController>(GetController());
+        const auto* Player=Cast<AMCPlayerController>(PC);
+        // A wheel notch has exactly one owner. Read either modifier on this
+        // event, so releasing Shift cannot leave tool scrolling latched off.
+        if(!IsLocallyControlled() || !PC || IsArenaArrivalHeld() || PC->bShowMouseCursor
+            || PC->IsMoveInputIgnored() || PC->IsLookInputIgnored()
+            || (Player && (Player->IsRewardInteractionActive() || Player->IsWardrobeOpen() || Player->IsHubShopOpen()))) {
+            ToolScrollCursor->Reset();return;
+        }
+        if(PC->IsInputKeyDown(EKeys::LeftShift) || PC->IsInputKeyDown(EKeys::RightShift)) {
+            ToolScrollCursor->Reset();CameraMouseWheel(Value);return;
+        }
         MCToolScrollInput::Handle(*this,Value.Get<float>(),*ToolScrollCursor);
     });
-    for(const auto& Mapping:InputMap->GetMappings()) if(Mapping.Key==EKeys::RightBracket) {
-        Input->BindAction(Mapping.Action,ETriggerEvent::Triggered,this,&AMCToothCharacter::CameraMouseWheel);break;
-    }
     Input->BindAction(SelfCareAction,ETriggerEvent::Started,this,&AMCToothCharacter::ToggleSelfCare);
     Input->BindAction(ThrowAction,ETriggerEvent::Started,this,&AMCToothCharacter::StartThrowItem);
     Input->BindAction(ThrowAction,ETriggerEvent::Completed,this,&AMCToothCharacter::StopThrowItem);
@@ -738,9 +759,18 @@ void AMCToothCharacter::StartSprint()
     bSprintInputHeld=true;
     auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement());
     Move->SetSprinting(true);
-    // Start the predicted lunge on the press. Waiting for release makes the
-    // response depend on tap length and loses taps during slow frames.
-    Move->RequestDash();
+}
+void AMCToothCharacter::RequestDashInput()
+{
+    if(IsSeatedOnRaft()) return;
+    StopRowing();
+    const auto* PC=Cast<APlayerController>(Controller);
+    const auto* Player=Cast<AMCPlayerController>(PC);
+    if(!CanWork() || HasFrozenLegs() || IsArenaArrivalHeld()
+        || (PC && (PC->bShowMouseCursor || PC->IsMoveInputIgnored() || PC->IsLookInputIgnored()))
+        || (Player && (Player->IsRewardInteractionActive() || Player->IsWardrobeOpen() || Player->IsHubShopOpen()))) return;
+    // The movement component still owns prediction, charges and authority checks.
+    CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->RequestDash();
 }
 void AMCToothCharacter::StopSprint()
 {

@@ -211,6 +211,7 @@ FText UMCEmoteWidget::CategoryCopy(int32 Index) const
 void UMCEmoteWidget::SelectCategory(int32 Value) {Category=FMath::Clamp(Value,0,2);KeyboardChoice=0;Refresh();InvalidateLayoutAndVolatility();}
 void UMCEmoteWidget::BeginSelection(bool bHeld)
 {
+    bCheckFocusAfterLoss=false;
     Refresh();
     // A quick tap without choosing should not send the first emote by accident.
     KeyboardChoice=bHeld?INDEX_NONE:0;RefreshAvailability();
@@ -358,6 +359,12 @@ void UMCEmoteWidget::ResetEditorPreview() {bEditorFixture=false;SetRenderOpacity
 void UMCEmoteWidget::NativeTick(const FGeometry& Geometry,float Dt)
 {
     Super::NativeTick(Geometry,Dt);if(!IsVisible() || IsPreviewing()) return;
+    if(bCheckFocusAfterLoss) {
+        bCheckFocusAfterLoss=false;
+        if(auto* PC=GetOwningPlayer<AMCPlayerController>();PC && !HasUserFocus(PC) && !HasUserFocusedDescendants(PC)) {
+            PC->CloseEmotes();return;
+        }
+    }
     RefreshElapsed+=Dt;if(RefreshElapsed>=.1f) {RefreshElapsed=0;RefreshAvailability();}
 }
 FReply UMCEmoteWidget::NativeOnKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
@@ -410,7 +417,9 @@ FReply UMCEmoteWidget::NativeOnKeyUp(const FGeometry& Geometry,const FKeyEvent& 
 void UMCEmoteWidget::NativeOnFocusLost(const FFocusEvent& Event)
 {
     Super::NativeOnFocusLost(Event);
-    if(!IsPreviewing()) if(auto* PC=GetOwningPlayer<AMCPlayerController>()) PC->CloseEmotes();
+    // Slate sends this before the replacement focus path is settled. A wheel
+    // child taking focus must not cancel a held selection in the same event.
+    if(!IsPreviewing() && IsVisible()) bCheckFocusAfterLoss=true;
 }
 FReply UMCEmoteWidget::NativeOnMouseButtonDown(const FGeometry& Geometry,const FPointerEvent& Event)
 {

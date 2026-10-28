@@ -523,9 +523,9 @@ bool FMCIceSelfRescueTest::RunTest(const FString&)
     Move->SetMovementMode(MOVE_Walking);
     TestEqual(TEXT("A movement-mode request cannot bypass frozen feet"),uint8(Move->MovementMode),uint8(MOVE_None));
     TestFalse(TEXT("The root prevents jumping"),Move->CanAttemptJump());
-    F.Hero->SetSprintInputHeld(true);
+    F.Hero->RequestDashInput();
     TestFalse(TEXT("A dash request cannot bypass the root"),F.Hero->IsDashing());
-    F.Hero->SetSprintInputHeld(false);
+    TestFalse(TEXT("Frozen feet reject the dash instead of leaving it queued"),Move->WantsDash());
     F.Hero->Inventory->ServerSelect(EMCToolSlot::Knife);
     TestFalse(TEXT("The wrong tool cannot remove foot ice"),F.Hero->HitFrozenLegsWithPickaxe(F.Hero,PerHit));
     F.Hero->Inventory->ServerSelect(EMCToolSlot::Pickaxe);

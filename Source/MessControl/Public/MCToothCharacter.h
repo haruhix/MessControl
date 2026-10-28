@@ -144,13 +144,14 @@ public:
     void StatusChanged();
     void DropFood();
     void CancelGameplayInput();
-    // Retained for saved Blueprint compatibility; Shift now acts on press.
-    UPROPERTY(meta=(DeprecatedProperty,DeprecationMessage="Sprint and dash now start on Shift press.")) float SprintHoldSeconds=.18f;
+    // Retained for saved Blueprint compatibility; sprint and dash use separate inputs.
+    UPROPERTY(meta=(DeprecatedProperty,DeprecationMessage="Ctrl requests dash; holding Shift requests sprint.")) float SprintHoldSeconds=.18f;
     UFUNCTION(BlueprintPure,Category="Locomotion|Dash") bool IsDashing() const;
     UFUNCTION(BlueprintPure,Category="Locomotion|Dash") float GetDashProgress() const;
     UFUNCTION(BlueprintPure,Category="Locomotion|Dash") FVector GetDashDirection() const;
     UFUNCTION(BlueprintPure,Category="Locomotion|Dash") float GetDashDuration() const;
     UFUNCTION(BlueprintCallable,Category="Locomotion|Dash") void SetSprintInputHeld(bool Held);
+    UFUNCTION(BlueprintCallable,Category="Locomotion|Dash") void RequestDashInput();
     UFUNCTION(BlueprintCallable,Category="Grip") void SetBraceInputHeld(bool Held);
     UFUNCTION(BlueprintCallable,Category="Cataclysm|Rowing") void SetRowingInputHeld(bool Held);
     UFUNCTION(BlueprintPure,Category="Cataclysm|Rowing") bool IsRowing() const;
@@ -364,6 +365,8 @@ private:
     UPROPERTY() TObjectPtr<UInputAction> GamepadLookYAction;
     UPROPERTY() TObjectPtr<UInputAction> JumpAction;
     UPROPERTY() TObjectPtr<UInputAction> SprintAction;
+    UPROPERTY() TObjectPtr<UInputAction> GamepadSprintAction;
+    UPROPERTY() TObjectPtr<UInputAction> DashAction;
     UPROPERTY() TObjectPtr<UInputAction> BrushAction;
     UPROPERTY() TObjectPtr<UInputAction> HandleAction;
     UPROPERTY() TObjectPtr<UInputAction> PanelAction;

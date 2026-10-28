@@ -153,6 +153,9 @@ void UMCGazeComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
                 if (Entry->Emotion==EMCEmotion::Pain) Goal=FMath::Lerp(S.PupilRest,S.PupilPain,E->EmoteAlpha());
             }
         }
+        // Automatic slipping uses the same pupil response as the menu's
+        // Surprise, without starting or replacing a timed manual emote.
+        if (const auto* E=Tooth->Expression.Get()) Goal=FMath::Lerp(Goal,S.PupilDanger,E->SlipperyFaceAlpha());
         const float Pain=Tooth->Status->PainAlpha();
         if (Pain>.001f) Goal=FMath::Min(Goal,FMath::Lerp(S.PupilRest,S.PupilPain,Pain));
         if (Target.Interest==EMCGazeInterest::Danger || !Tooth->ToothPhysics->CanAct()

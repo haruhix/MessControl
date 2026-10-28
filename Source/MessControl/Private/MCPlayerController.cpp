@@ -136,6 +136,21 @@ bool AMCPlayerController::InputKey(const FInputKeyEventArgs& Params)
         && Params.Event!=IE_Released) return true;
     return Super::InputKey(Params);
 }
+void AMCPlayerController::FlushPressedKeys()
+{
+    if(bEmoteSelectionHeld) {
+        // GameViewportClient's global flush setting can request this after the
+        // deferred Slate focus transfer. The visible held wheel owns T until
+        // its real release; synthetic focus releases must not confirm/close it.
+        const bool Active=!FSlateApplication::IsInitialized() || FSlateApplication::Get().IsActive();
+        if(Active && EmoteWidget && EmoteWidget->IsVisible() && CanOpenEmotes()
+            && EmoteSelectionPawn.Get()==GetPawn()) return;
+        // Genuine cancellation clears the held state before flushing, so the
+        // generated release cannot accidentally confirm the selected emote.
+        CloseEmotes(false);return;
+    }
+    Super::FlushPressedKeys();
+}
 void AMCPlayerController::ShowScoreboard()
 {
     if (!HasLocalPresentationOwner() || IsWardrobeOpen() || IsHubShopOpen() || IsRewardInteractionActive() || bBossIntroPlaying || bLoadingInputBlocked
@@ -242,7 +257,8 @@ void AMCPlayerController::Tick(float DeltaSeconds)
         auto Stick=[](float Value){return FMath::Sign(Value)*FMath::Clamp((FMath::Abs(Value)-.2f)/.8f,0.f,1.f);};
         const FVector2D StickDelta=FVector2D(Stick(GetInputAnalogKeyState(EKeys::Gamepad_RightX)),Stick(GetInputAnalogKeyState(EKeys::Gamepad_RightY)))*Scale;
         ApplySpectatorOrbitInput(Settings?Settings->ScaleLookInput(StickDelta,true):StickDelta);
-        ZoomSpectatorCamera(GetInputAnalogKeyState(EKeys::MouseWheelAxis));
+        if(IsInputKeyDown(EKeys::LeftShift) || IsInputKeyDown(EKeys::RightShift))
+            ZoomSpectatorCamera(GetInputAnalogKeyState(EKeys::MouseWheelAxis));
     }
 }
 void AMCPlayerController::SetBackgroundAudioContext(FName Context)
@@ -528,6 +544,7 @@ void AMCPlayerController::EndEmoteSelection()
 }
 void AMCPlayerController::CloseEmotes(bool bConfirm)
 {
+    const bool WasHeld=bEmoteSelectionHeld;
     const bool WasOpen=EmoteWidget && EmoteWidget->IsVisible();
     const bool SamePawn=EmoteSelectionPawn.IsValid() && EmoteSelectionPawn.Get()==GetPawn();
     const bool Commit=bConfirm && WasOpen && SamePawn && CanOpenEmotes();
@@ -537,6 +554,9 @@ void AMCPlayerController::CloseEmotes(bool bConfirm)
         EmoteWidget->SetVisibility(ESlateVisibility::Collapsed);
     }
     if(WasOpen && HasLocalPresentationOwner()) UpdateInputMode();
+    // Key-up handled by the focused widget never reaches PlayerInput. Clear
+    // that raw T state as well as keys released while the held wheel owned UI.
+    if(WasHeld) Super::FlushPressedKeys();
 }
 void AMCPlayerController::MaintainEmoteSelection()
 {
@@ -673,7 +693,8 @@ void AMCPlayerController::UpdateInputMode()
     if(bEmote && !bReward && !bDev) {
         if(auto* Tooth=Cast<AMCToothCharacter>(GetPawn())) Tooth->CancelGameplayInput();
         FInputModeGameAndUI Mode;Mode.SetWidgetToFocus(EmoteWidget->TakeWidget());
-        Mode.SetHideCursorDuringCapture(false);Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);SetInputMode(Mode);
+        Mode.SetHideCursorDuringCapture(false);Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+        SetInputMode(Mode);
     }
     else if (bReward || bDev)
     {

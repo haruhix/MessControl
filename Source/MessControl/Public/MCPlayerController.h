@@ -52,6 +52,7 @@ public:
     virtual void BeginPlay() override;
     virtual void SetupInputComponent() override;
     virtual bool InputKey(const FInputKeyEventArgs& Params) override;
+    virtual void FlushPressedKeys() override;
     bool IsUsingGamepad() const { return bUsingGamepad; }
     /** Local UMG/input needs an attached LocalPlayer that owns this controller in this world. */
     bool HasLocalPresentationOwner() const;

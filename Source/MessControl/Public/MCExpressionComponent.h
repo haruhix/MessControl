@@ -99,6 +99,8 @@ public:
     // Envelope-only VOIP can use Open; a later lip-sync provider supplies actual visemes.
     UFUNCTION(BlueprintCallable,Category="Speech") void SetSpeechInput(float Envelope,MCViseme Viseme=MCViseme::Open);
     float SpeechAmount() const { return Voice; }
+    // Cosmetic weight for the same Surprise face used by the T menu, on both glide phases.
+    float SlipperyFaceAlpha() const;
     static FName VisemeShape(MCViseme Viseme);
     static TConstArrayView<FName> MouthShapes();
 private:

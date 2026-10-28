@@ -51,7 +51,7 @@ void MCTickOrbitCameraValidation(UWorld* World)
         Key(EKeys::MouseX,IE_Axis,80); Key(EKeys::MouseY,IE_Axis,35); Advance(1);
     } else if (R.Stage==1 && R.Age-R.At>.15f) {
         if(!H->bManualCameraOrbit) { Finish(false); return; }
-        R.ZoomBefore=H->CameraOrbitDistance; Key(EKeys::MouseWheelAxis,IE_Axis,1); Advance(2);
+        R.ZoomBefore=H->CameraOrbitDistance; Key(EKeys::RightShift,IE_Pressed,1); Key(EKeys::MouseWheelAxis,IE_Axis,1); Advance(2);
     } else if (R.Stage==2 && R.Age-R.At>.25f) {
         R.Invalid|=!FMath::IsNearlyEqual(H->CameraOrbitDistance,FMath::Max(250.f,R.ZoomBefore-H->CameraZoomStep),.1f);
         R.ZoomBefore=H->CameraOrbitDistance; Key(EKeys::MouseWheelAxis,IE_Axis,-1);
@@ -67,6 +67,7 @@ void MCTickOrbitCameraValidation(UWorld* World)
         if(R.Age-R.At>5) {
             R.Invalid|=FMath::IsNearlyEqual(H->CameraOrbitPitch,R.InitialPitch,.1f) || !H->GetActorRotation().Equals(R.Body,.1);
             R.Invalid|=!FMath::IsNearlyEqual(H->CameraOrbitDistance,FMath::Min(1600.f,R.ZoomBefore+H->CameraZoomStep),.1f);
+            Key(EKeys::RightShift,IE_Released,0);
             R.StoppedYaw=H->CameraOrbitYaw; Advance(4);
             if(FParse::Param(FCommandLine::Get(),TEXT("MCOrbitCameraCapture")))
                 FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("OrbitCamera.png"),true,false);
@@ -74,8 +75,9 @@ void MCTickOrbitCameraValidation(UWorld* World)
     } else if (R.Stage==4 && R.Age-R.At>1) {
         R.Invalid|=!FMath::IsNearlyEqual(H->CameraOrbitYaw,R.StoppedYaw,.1f) || H->ValidatedSwingCount!=0;
         PC->ToggleConnection(); R.MenuDistance=H->CameraOrbitDistance;
-        Key(EKeys::MouseX,IE_Axis,80); Key(EKeys::MouseWheelAxis,IE_Axis,-1); Advance(5);
+        Key(EKeys::MouseX,IE_Axis,80); Key(EKeys::RightShift,IE_Pressed,1); Key(EKeys::MouseWheelAxis,IE_Axis,-1); Advance(5);
     } else if (R.Stage==5 && R.Age-R.At>.2f) {
+        Key(EKeys::RightShift,IE_Released,0);
         R.Invalid|=!FMath::IsNearlyEqual(H->CameraOrbitYaw,R.StoppedYaw,.1f) || !FMath::IsNearlyEqual(H->CameraOrbitDistance,R.MenuDistance,.1f);
         PC->ToggleConnection(); Advance(6);
     } else if (R.Stage==6 && R.Age-R.At>.2f) {
