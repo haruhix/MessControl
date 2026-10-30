@@ -351,17 +351,22 @@ bool AMCMouthSurface::BrushLiquid(AMCToothCharacter* Worker,float Seconds)
 
 void AMCMouthSurface::SyncLiquidCleaningLayers(AMCToothCharacter* Worker,EMCStainCleanReason Reason)
 {
+    if(!IsValid(Status) || !Status->IsAlive()) return;
     const float Left=RemainingLiquid();
     const bool Finished=bPaintTile?!FMCCoffeeWipe::HasWetCells(WipeMask):Left<.025f;
     const int32 RemainingLayers=Finished?0:FMath::Max(1,FMath::CeilToInt(Left*Status->State.CoffeeTotal));
     while(Status->State.CoffeeLeft>RemainingLayers) {
-        Status->CareContact(true,Worker);
-        if(Reason==EMCStainCleanReason::Brush) ++Worker->SuccessfulBrushContacts;
+        const int32 Before=Status->State.CoffeeLeft;
+        // Native care can reject unavailable targets. Never retry an unchanged
+        // layer forever or count a brush contact that did not remove care.
+        if(!Status->CareContact(true,Worker) || Status->State.CoffeeLeft>=Before) break;
+        if(Reason==EMCStainCleanReason::Brush && IsValid(Worker)) ++Worker->SuccessfulBrushContacts;
     }
 }
 bool AMCMouthSurface::ApplyLiquidCleaning(AMCToothCharacter* Worker,FVector2D From,FVector2D To,FVector Point,
     float RadiusUV,float Seconds,float Rate,EMCStainCleanReason Reason)
 {
+    if(IsActorBeingDestroyed() || !IsValid(Status) || !Status->IsAlive()) return false;
     const float Before=RemainingLiquid();
     Rate=UMCResultPassives::CleaningRate(Worker,Before,Rate);
     if(Rate<=0) return false;
@@ -380,7 +385,8 @@ bool AMCMouthSurface::ApplyLiquidCleaning(AMCToothCharacter* Worker,FVector2D Fr
 }
 bool AMCMouthSurface::CleanLiquidAt(AMCToothCharacter* Worker,FVector Point,float Radius,float Seconds,float Rate,EMCStainCleanReason Reason)
 {
-    if(!HasAuthority() || bUlcer || IsClean() || !IsValid(Worker) || Worker->GetWorld()!=GetWorld()
+    if(!HasAuthority() || IsActorBeingDestroyed() || !IsValid(Status) || !Status->IsAlive()
+        || bUlcer || IsClean() || !IsValid(Worker) || Worker->GetWorld()!=GetWorld()
         || !Worker->Status || !Worker->Status->IsAlive() || Point.ContainsNaN() || !FMath::IsFinite(Radius)
         || Radius<=0 || !FMath::IsFinite(Seconds) || Seconds<=0 || !FMath::IsFinite(Rate) || Rate<=0) return false;
     const FVector2D UV=FVector2D(GetActorTransform().InverseTransformPosition(Point))/(2*LiquidHalfSize)+FVector2D(.5);
@@ -388,7 +394,8 @@ bool AMCMouthSurface::CleanLiquidAt(AMCToothCharacter* Worker,FVector Point,floa
 }
 bool AMCMouthSurface::CleanLiquidFromPassive(AMCToothCharacter* Worker)
 {
-    if(!HasAuthority() || bUlcer || IsClean() || !IsValid(Worker) || Worker->GetWorld()!=GetWorld()
+    if(!HasAuthority() || IsActorBeingDestroyed() || !IsValid(Status) || !Status->IsAlive()
+        || bUlcer || IsClean() || !IsValid(Worker) || Worker->GetWorld()!=GetWorld()
         || !Worker->Status || !Worker->Status->IsAlive()) return false;
     auto* Results=UMCResultPassives::ForWorld(this);if(!Results) return false;
     const auto Attempt=Results->BeginCleaning(this);

@@ -1,0 +1,768 @@
+{
+  "date": "2026-10-30",
+  "build": {
+    "target": "MessControlEditor Win64 Development",
+    "checkpoint": "Build20",
+    "status": "passed",
+    "command_override": "-DisablePlugin=Fab (installed plugin rules issue; project plugin configuration unchanged)"
+  },
+  "native": {
+    "tests": [
+      {
+        "name": "MessControl.ActiveSkills.Air.ExclusiveIdentityAndStaleRelease",
+        "state": "Success",
+        "duration": 0.031341299414634705,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Air.LastChargeNativeSuctionBlowAndOverflow",
+        "state": "Success",
+        "duration": 0.24197450280189514,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Air.StrictFoodFilterAndDestroyedContainerRecovery",
+        "state": "Success",
+        "duration": 0.04488980025053024,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Combat.ExternalOriginShieldAndEnemyFamilies",
+        "state": "Success",
+        "duration": 0.03918389976024628,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Combat.GrenadeLastChargeReleaseOverholdAndDeath",
+        "state": "Success",
+        "duration": 1.2139021158218384,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Combat.HazardFriendlyFirePreservesToolGuard",
+        "state": "Success",
+        "duration": 0.027358900755643845,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Combat.PreparedProjectilesAreInert",
+        "state": "Success",
+        "duration": 0.02740750089287758,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Combat.RocketMuzzleRejectAndNativeArenaDestruction",
+        "state": "Success",
+        "duration": 0.12801209092140198,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Combat.SnapshotDedupCoverAndFoodIdentity",
+        "state": "Success",
+        "duration": 0.031315602362155914,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Motion.DriverHandFramesPreserveRotationAndPositionOverrides",
+        "state": "Success",
+        "duration": 0.041287101805210114,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Motion.DriverOneHitPerContactEpisode",
+        "state": "Success",
+        "duration": 0.1611005961894989,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Motion.DriverThreeSecondsKeepsCollision",
+        "state": "Success",
+        "duration": 0.5486900806427002,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Motion.HookAllyAndWorldBlocker",
+        "state": "Success",
+        "duration": 0.6324208974838257,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Motion.HookBothBossFamiliesKeepsBossStationary",
+        "state": "Success",
+        "duration": 0.44917428493499756,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Motion.HookGroundPullFollowsSupportWithoutIgnoringSameComponentWalls",
+        "state": "Success",
+        "duration": 0.20900139212608337,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Motion.HookMissReturnsAndWindupCancelOwnsNoMotion",
+        "state": "Success",
+        "duration": 0.27860400080680847,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Motion.HookSupportFixtureOrdinaryWalkingControl",
+        "state": "Success",
+        "duration": 0.13801519572734833,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Motion.LateralSupportMTDUsesNearGeometricPlane",
+        "state": "Success",
+        "duration": 0.05463059991598129,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Motion.LeaseOwnsOnlyItsSourceAndMode",
+        "state": "Success",
+        "duration": 0.06308180093765259,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Motion.NativeMaskPathAndDiscontinuity",
+        "state": "Success",
+        "duration": 0.057858098298311234,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Motion.SpongeRepeatAndIndependentDeadline",
+        "state": "Success",
+        "duration": 0.32260259985923767,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Motion.SuperCarReusableSteeringAndIndependentBrushes",
+        "state": "Success",
+        "duration": 0.04091750085353851,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Motion.WalkableSupportLiftPreservesWalls",
+        "state": "Success",
+        "duration": 0.060534797608852386,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.Skills.Content.SavedCatalogBoundary",
+        "state": "Success",
+        "duration": 0.009627796709537506,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.Skills.Content.SavedCDOResourcesReachPreload",
+        "state": "Success",
+        "duration": 0.008903902024030685,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.Skills.Presentation.ScopedTickLease",
+        "state": "Success",
+        "duration": 0.025570198893547058,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.Skills.Protocol.CancelAndPreparationAtomicity",
+        "state": "Success",
+        "duration": 0.02596229687333107,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.Skills.Protocol.ConcurrentChargesRouteExactPress",
+        "state": "Success",
+        "duration": 0.02823369950056076,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.Skills.Protocol.FinishedPressReplayAndConsumableCooldown",
+        "state": "Success",
+        "duration": 0.04341709986329079,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.Skills.Protocol.LastChargeAndIdentity",
+        "state": "Success",
+        "duration": 0.02760550007224083,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.Skills.Protocol.OccupiedReplacementTargetsInstance",
+        "state": "Success",
+        "duration": 0.03112800046801567,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.Skills.Protocol.RepeatBeforeCooldown",
+        "state": "Success",
+        "duration": 0.03677529841661453,
+        "errors": [],
+        "warnings": []
+      }
+    ],
+    "passed": 32,
+    "failed": 0,
+    "skipped": 0,
+    "total": 32,
+    "duration": 5.080528259277344
+  },
+  "post_driver_catalog_native": {
+    "tests": [
+      {
+        "name": "MessControl.ActiveSkills.Motion.DriverHandFramesPreserveRotationAndPositionOverrides",
+        "state": "Success",
+        "duration": 0.04389920085668564,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.Skills.Content.SavedCatalogBoundary",
+        "state": "Success",
+        "duration": 0.00791729986667633,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.Skills.Content.SavedCDOResourcesReachPreload",
+        "state": "Success",
+        "duration": 0.007941201329231262,
+        "errors": [],
+        "warnings": []
+      }
+    ],
+    "passed": 3,
+    "failed": 0,
+    "skipped": 0,
+    "total": 3,
+    "duration": 0.05975770205259323
+  },
+  "solo": [
+    {
+      "case": "Driver",
+      "run": "PoseReviewDriver02",
+      "status": "passed",
+      "checks": {
+        "production_parameters_preserved_in_action": true,
+        "last_charge_slot_empty_while_original_action_live": true,
+        "native_action_observed": true,
+        "real_slot_handler_used": true,
+        "input_released": true,
+        "source_instance_preserved": true,
+        "native_identity_complete": true,
+        "source_player_state_preserved": true,
+        "actual_skill_niagara_observed": true,
+        "native_mask_changed": true,
+        "native_ride_moved": true,
+        "three_second_ride": true,
+        "native_ally_runover_damage": true,
+        "runover_feedback_attributed_to_action": true,
+        "supercar_nine_real_mesh_parts": true,
+        "supercar_all_part_pivots_stay_fixed": true,
+        "supercar_four_wheels_roll": true,
+        "supercar_four_independent_brushes_spin": true,
+        "supercar_native_steering_both_directions": true,
+        "supercar_front_axles_steer": true,
+        "supercar_rear_axles_remain_unsteered": true,
+        "driver_three_ordinary_input_legs": true,
+        "driver_actor_turned_during_travel": true
+      },
+      "report_sha256": "c83b865c3ce1a361f97da3fe30676dd1265fb2fa0d9c39e2c84e2cd508cb33e2",
+      "visual_review": {
+        "score": 5,
+        "status": "rework",
+        "comment": "Посадка больше не отстаёт от поворота машины; на реальных фронтальных/верхних контрольных кадрах обе ладони видны над бортом кабины. Исправлена сохранённая таблица, которая возвращала старые точки под капотом. Это временная поза с опорой на край кабины: рулевого колеса в модели нет. Материалы временные, внешние текстуры добавит художник; художественная часть ещё требует доработки."
+      },
+      "local_video": "E:\\CodexWork\\MessControl\\ActiveSkills_20261029\\Runs\\PoseReviewDriver02\\ActualWindow.mp4",
+      "local_gif": "E:\\CodexWork\\MessControl\\ActiveSkills_20261029\\Review\\PoseFixMedia18\\PoseReviewDriver02\\Preview.gif"
+    },
+    {
+      "case": "Sponge",
+      "run": "PoseReviewSponge01",
+      "status": "passed",
+      "checks": {
+        "production_parameters_preserved_in_action": true,
+        "native_action_observed": true,
+        "real_slot_handler_used": true,
+        "input_released": true,
+        "source_instance_preserved": true,
+        "native_identity_complete": true,
+        "source_player_state_preserved": true,
+        "actual_skill_niagara_observed": true,
+        "native_mask_changed": true,
+        "native_ride_moved": true,
+        "reusable_unlimited_charges": true,
+        "repeat_stopped_before_cooldown": true
+      },
+      "report_sha256": "205d8844e03a77c40e3b6eb81ba3209ef5ea6ba0ce76d835733e919cf28b20c8",
+      "visual_review": {
+        "score": 5,
+        "status": "rework",
+        "comment": "Зубик балансирует свободными руками, наклоняется во время поездки и возвращается в обычную позу. Проверены боковой и фронтальный ракурсы. Пена пока состоит из крупных повторяющихся комков, слои и затухание простые; до желаемого качества VFX не доведено."
+      },
+      "local_video": "E:\\CodexWork\\MessControl\\ActiveSkills_20261029\\Runs\\PoseReviewSponge01\\ActualWindow.mp4",
+      "local_gif": "E:\\CodexWork\\MessControl\\ActiveSkills_20261029\\Review\\PoseFixMedia18\\PoseReviewSponge01\\Preview.gif"
+    },
+    {
+      "case": "Hook",
+      "run": "PoseReviewHook01",
+      "status": "passed",
+      "checks": {
+        "production_parameters_preserved_in_action": true,
+        "native_action_observed": true,
+        "real_slot_handler_used": true,
+        "input_released": true,
+        "source_instance_preserved": true,
+        "native_identity_complete": true,
+        "source_player_state_preserved": true,
+        "actual_skill_niagara_observed": true,
+        "one_native_hook_cast": true,
+        "staged_hook_phase_order": true,
+        "windup_visible_before_flight": true,
+        "outbound_observed_before_contact": true,
+        "cast_head_separates_from_caster": true,
+        "source_not_pulled_before_contact": true,
+        "ally_not_pulled_before_contact": true,
+        "native_head_reels_back": true,
+        "actual_evaluated_wrist_motion": true,
+        "actual_wrist_stays_with_caster": true,
+        "actual_wrist_matches_tether_root": true,
+        "actual_loop_cable_endpoints_observed": true,
+        "actual_loop_follows_wrist_and_head": true,
+        "visible_hook_actor_follows_head": true,
+        "source_actual_outcome_face": true,
+        "actual_outcome_faces_return_to_baseline": true,
+        "native_hook_closed_distance": true,
+        "native_hook_target_identity": true,
+        "source_remained_near_start": true,
+        "full_ally_pull_reached_authored_stop_distance": true,
+        "ordinary_ally_pull_completed_without_early_physical_stop": true,
+        "caught_ally_actual_surprise_face": true
+      },
+      "report_sha256": "6a4405a6b0ce23553e17e6c236ce26a3f4c3f842fef1d06148474241f5182238",
+      "visual_review": {
+        "score": 6,
+        "status": "rework",
+        "comment": "Видимый крюк теперь удерживается за низ рукояти с авторским поворотом кисти; при полёте ориентируется вдоль движения, трос крепится к реальному хвосту модели. Замах, бросок и возврат видны. Крупные планы подтверждают базовый хват, но трос выглядит толстой прямой голубой полосой; захват нуждается в более выразительном эффекте. Полную свободу от пересечений при всех ракурсах/целях эти записи не доказывают."
+      },
+      "local_video": "E:\\CodexWork\\MessControl\\ActiveSkills_20261029\\Runs\\PoseReviewHook01\\ActualWindow.mp4",
+      "local_gif": "E:\\CodexWork\\MessControl\\ActiveSkills_20261029\\Review\\PoseFixMedia18\\PoseReviewHook01\\Preview.gif"
+    },
+    {
+      "case": "Grenade",
+      "run": "PoseReviewGrenade01",
+      "status": "passed",
+      "checks": {
+        "production_parameters_preserved_in_action": true,
+        "last_charge_slot_empty_while_original_action_live": true,
+        "native_action_observed": true,
+        "real_slot_handler_used": true,
+        "input_released": true,
+        "source_instance_preserved": true,
+        "native_identity_complete": true,
+        "source_player_state_preserved": true,
+        "actual_skill_niagara_observed": true,
+        "native_flight_or_overhold_drop_observed": true,
+        "one_detonation_per_action": true,
+        "native_enemy_damage": true,
+        "native_friendly_fire_damage": true,
+        "enemy_damage_attributed_to_native_action": true,
+        "friendly_damage_attributed_to_native_action": true,
+        "native_whole_food_destroyed": true,
+        "native_whole_food_fragmented": true,
+        "native_fragment_item_and_batch_retained": true
+      },
+      "report_sha256": "046e5acad0a0de5486eb5a7e36327710575e59d03f451704fca03eb82e7335fe",
+      "visual_review": {
+        "score": 5,
+        "status": "rework",
+        "comment": "Правой ладонью зубик удерживает корпус гранаты; после броска рука выполняет свободное завершение движения вместо следования за летящим предметом. Взрыв виден в обычной записи. Временные материалы и общий дым пока не передают характер предмета на нужном уровне; VFX остаётся на доработке."
+      },
+      "local_video": "E:\\CodexWork\\MessControl\\ActiveSkills_20261029\\Runs\\PoseReviewGrenade01\\ActualWindow.mp4",
+      "local_gif": "E:\\CodexWork\\MessControl\\ActiveSkills_20261029\\Review\\PoseFixMedia18\\PoseReviewGrenade01\\Preview.gif"
+    },
+    {
+      "case": "Air",
+      "run": "PoseReviewAir02",
+      "status": "passed",
+      "checks": {
+        "production_parameters_preserved_in_action": true,
+        "last_charge_slot_empty_while_original_action_live": true,
+        "native_action_observed": true,
+        "real_slot_handler_used": true,
+        "input_released": true,
+        "source_instance_preserved": true,
+        "native_identity_complete": true,
+        "source_player_state_preserved": true,
+        "actual_skill_niagara_observed": true,
+        "native_container_received_food": true,
+        "original_fragment_identities_retained": true,
+        "all_fragments_returned_without_container": true,
+        "all_requested_fragments_observed_contained": true,
+        "original_spoil_deadlines_retained": true,
+        "air_did_not_spawn_duplicate_food_actors": true,
+        "native_forward_blow_observed": true
+      },
+      "report_sha256": "95bbb065a925b1bdad04d624f37cbe8eac62905e6821c8f4a7b9fa583b93cab3",
+      "visual_review": {
+        "score": 4,
+        "status": "rework",
+        "comment": "Исправлены исходная посадка прибора, точки обеих кистей и направление сопла. Боковые/фронтальные кадры проверены, в основной записи видна работа контейнера. С обычной задней камеры прибор и поток слишком скрыты телом: читаемость действия и характер эффекта ещё слабые. Основной solo16/16; отдельный диагностический прогон15/16 не прошёл проверку удержания всех фрагментов при GPU readback и сохранён отдельно."
+      },
+      "local_video": "E:\\CodexWork\\MessControl\\ActiveSkills_20261029\\Runs\\PoseReviewAir02\\ActualWindow.mp4",
+      "local_gif": "E:\\CodexWork\\MessControl\\ActiveSkills_20261029\\Review\\PoseFixMedia18\\PoseReviewAir02\\Preview.gif"
+    },
+    {
+      "case": "Rocket",
+      "run": "PoseReviewRocket01",
+      "status": "passed",
+      "checks": {
+        "production_parameters_preserved_in_action": true,
+        "last_charge_slot_empty_while_original_action_live": true,
+        "native_action_observed": true,
+        "real_slot_handler_used": true,
+        "input_released": true,
+        "source_instance_preserved": true,
+        "native_identity_complete": true,
+        "source_player_state_preserved": true,
+        "actual_skill_niagara_observed": true,
+        "native_flight_or_overhold_drop_observed": true,
+        "one_detonation_per_action": true,
+        "native_enemy_damage": true,
+        "native_friendly_fire_damage": true,
+        "enemy_damage_attributed_to_native_action": true,
+        "friendly_damage_attributed_to_native_action": true,
+        "native_whole_food_destroyed": true,
+        "native_whole_food_fragmented": true,
+        "native_fragment_item_and_batch_retained": true,
+        "native_arena_tooth_destroyed": true
+      },
+      "report_sha256": "cd647b09bf47a335cee01c07a0ba24db959003a9c27a1e3f3b8f6ed6bb853097",
+      "visual_review": {
+        "score": 6,
+        "status": "rework",
+        "comment": "На боковом контрольном кадре обе ладони находятся у рукоятей; ракетница не исчезает одновременно с вылетом ракеты, есть подготовка и отдача. Проверены первые кадры и обычная игровая запись. Вспышка и дым читаются, но взрыв пока слишком общий; крупная модель заметно перекрывает голову в боковом силуэте. Это версия на ревью, художественного аппрува нет."
+      },
+      "local_video": "E:\\CodexWork\\MessControl\\ActiveSkills_20261029\\Runs\\PoseReviewRocket01\\ActualWindow.mp4",
+      "local_gif": "E:\\CodexWork\\MessControl\\ActiveSkills_20261029\\Review\\PoseFixMedia18\\PoseReviewRocket01\\Preview.gif"
+    }
+  ],
+  "solo_summary": {
+    "passed_checks": 118,
+    "cases": 6,
+    "scope": "Controlled native-input solo fixtures with real PIE window recordings; no Computer Use, network or microphone"
+  },
+  "separate_diagnostic_air": {
+    "run": "PoseFixAir02",
+    "status": "failed",
+    "checks": {
+      "production_parameters_preserved_in_action": true,
+      "last_charge_slot_empty_while_original_action_live": true,
+      "native_action_observed": true,
+      "real_slot_handler_used": true,
+      "input_released": true,
+      "source_instance_preserved": true,
+      "native_identity_complete": true,
+      "source_player_state_preserved": true,
+      "actual_skill_niagara_observed": true,
+      "native_container_received_food": true,
+      "original_fragment_identities_retained": true,
+      "all_fragments_returned_without_container": true,
+      "all_requested_fragments_observed_contained": false,
+      "original_spoil_deadlines_retained": true,
+      "air_did_not_spawn_duplicate_food_actors": true,
+      "native_forward_blow_observed": true
+    },
+    "limitation": "Synchronous GPU readback contact views changed fixture timing; normal PoseReviewAir02 passed16/16. Diagnostic failure retained separately."
+  },
+  "driver_table_patch": {
+    "rows": 133,
+    "changed_row": "Consumable_Driver",
+    "other_rows_unchanged": true,
+    "method": "Native targeted TMap patch; preserve other parameters and all other rows",
+    "changes": {
+      "LeftGripX": -22.319839,
+      "LeftGripY": -26.63493,
+      "LeftGripZ": 138.254333,
+      "RightGripX": -21.373074,
+      "RightGripY": 26.836048,
+      "RightGripZ": 138.610611
+    },
+    "parameters": {
+      "MaxLifetime": {
+        "Parameters": 15
+      },
+      "RideSpeed": {
+        "Parameters": 720
+      },
+      "TurnRate": {
+        "Parameters": 130
+      },
+      "RideHalfLength": {
+        "Parameters": 180
+      },
+      "RideHalfWidth": {
+        "Parameters": 135
+      },
+      "CleanForwardOffset": {
+        "Parameters": 136.775
+      },
+      "CleanRadius": {
+        "Parameters": 78.5
+      },
+      "CleanRate": {
+        "Parameters": 2
+      },
+      "HitRadius": {
+        "Parameters": 135
+      },
+      "AllyDamage": {
+        "Parameters": 8
+      },
+      "AllyKnockback": {
+        "Parameters": 320
+      },
+      "AllyLift": {
+        "Parameters": 150
+      },
+      "FrontWheelRadius": {
+        "Parameters": 33.9
+      },
+      "RearWheelRadius": {
+        "Parameters": 40.8
+      },
+      "BrushRPM": {
+        "Parameters": 180
+      },
+      "WheelSteeringAngle": {
+        "Parameters": 25
+      },
+      "WheelSteeringResponse": {
+        "Parameters": 10
+      },
+      "SeatX": {
+        "Parameters": -31.2295
+      },
+      "SeatY": {
+        "Parameters": 1.67359
+      },
+      "SeatZ": {
+        "Parameters": 98.5444
+      },
+      "LeftGripX": {
+        "Parameters": -22.3198
+      },
+      "LeftGripY": {
+        "Parameters": -26.6349
+      },
+      "LeftGripZ": {
+        "Parameters": 138.254
+      },
+      "RightGripX": {
+        "Parameters": -21.3731
+      },
+      "RightGripY": {
+        "Parameters": 26.836
+      },
+      "RightGripZ": {
+        "Parameters": 138.611
+      }
+    }
+  },
+  "editor_restoration": {
+    "passed": true,
+    "map": "/Game/Maps/L_Mouth.L_Mouth",
+    "protected_packages_match": true,
+    "viewport_restored": true
+  },
+  "review_media": {
+    "passed": true,
+    "variants": 6,
+    "media": [
+      {
+        "id": "active-driver-driver_pose20_corrected-video",
+        "status": 200,
+        "mime": "video/mp4",
+        "bytes": 2568815
+      },
+      {
+        "id": "active-driver-driver_pose20_corrected-gif",
+        "status": 200,
+        "mime": "image/gif",
+        "bytes": 10310432
+      },
+      {
+        "id": "active-driver-driver_pose20_corrected-contact-1",
+        "status": 200,
+        "mime": "image/png",
+        "bytes": 315909
+      },
+      {
+        "id": "active-driver-driver_pose20_corrected-contact-2",
+        "status": 200,
+        "mime": "image/png",
+        "bytes": 315909
+      },
+      {
+        "id": "active-sponge-sponge_pose20-video",
+        "status": 200,
+        "mime": "video/mp4",
+        "bytes": 1926940
+      },
+      {
+        "id": "active-sponge-sponge_pose20-gif",
+        "status": 200,
+        "mime": "image/gif",
+        "bytes": 7725374
+      },
+      {
+        "id": "active-sponge-sponge_pose20-contact-1",
+        "status": 200,
+        "mime": "image/png",
+        "bytes": 315909
+      },
+      {
+        "id": "active-sponge-sponge_pose20-contact-2",
+        "status": 200,
+        "mime": "image/png",
+        "bytes": 315909
+      },
+      {
+        "id": "active-hook-hook_pose20-video",
+        "status": 200,
+        "mime": "video/mp4",
+        "bytes": 786503
+      },
+      {
+        "id": "active-hook-hook_pose20-gif",
+        "status": 200,
+        "mime": "image/gif",
+        "bytes": 4693065
+      },
+      {
+        "id": "active-hook-hook_pose20-contact-1",
+        "status": 200,
+        "mime": "image/png",
+        "bytes": 315909
+      },
+      {
+        "id": "active-hook-hook_pose20-contact-2",
+        "status": 200,
+        "mime": "image/png",
+        "bytes": 315909
+      },
+      {
+        "id": "active-grenade-grenade_pose20-video",
+        "status": 200,
+        "mime": "video/mp4",
+        "bytes": 1138284
+      },
+      {
+        "id": "active-grenade-grenade_pose20-gif",
+        "status": 200,
+        "mime": "image/gif",
+        "bytes": 8144859
+      },
+      {
+        "id": "active-grenade-grenade_pose20-contact-1",
+        "status": 200,
+        "mime": "image/png",
+        "bytes": 315909
+      },
+      {
+        "id": "active-grenade-grenade_pose20-contact-2",
+        "status": 200,
+        "mime": "image/png",
+        "bytes": 315909
+      },
+      {
+        "id": "active-air-air_pose20-video",
+        "status": 200,
+        "mime": "video/mp4",
+        "bytes": 744647
+      },
+      {
+        "id": "active-air-air_pose20-gif",
+        "status": 200,
+        "mime": "image/gif",
+        "bytes": 5015504
+      },
+      {
+        "id": "active-air-air_pose20-contact-1",
+        "status": 200,
+        "mime": "image/png",
+        "bytes": 315909
+      },
+      {
+        "id": "active-air-air_pose20-contact-2",
+        "status": 200,
+        "mime": "image/png",
+        "bytes": 315909
+      },
+      {
+        "id": "active-rocket-rocket_pose20-video",
+        "status": 200,
+        "mime": "video/mp4",
+        "bytes": 939618
+      },
+      {
+        "id": "active-rocket-rocket_pose20-gif",
+        "status": 200,
+        "mime": "image/gif",
+        "bytes": 5134254
+      },
+      {
+        "id": "active-rocket-rocket_pose20-contact-1",
+        "status": 200,
+        "mime": "image/png",
+        "bytes": 315909
+      },
+      {
+        "id": "active-rocket-rocket_pose20-contact-2",
+        "status": 200,
+        "mime": "image/png",
+        "bytes": 439995
+      }
+    ],
+    "human_feedback_unchanged": true
+  },
+  "deferred": [
+    "All six artistic VFX remain rework (root4–6/10), awaiting user review.",
+    "SuperCar external PBR textures deferred to 3D artist; current materials are interim.",
+    "Network, full earned run, packaged/cold PSO launch and GPU/overdraw profiling not performed by this checkpoint.",
+    "Compact editable geometry masters are versioned in ArtSource/ActiveSkills. DCC import recipes still expect retained E:/CodexWork exports; automatic reauthoring paths are not portable. Committed Unreal runtime packages are self-contained.",
+    "Videos/GIFs/contact frames and human review history remain local to this project, outside Git."
+  ]
+}

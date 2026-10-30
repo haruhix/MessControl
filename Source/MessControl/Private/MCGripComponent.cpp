@@ -1,5 +1,6 @@
 ﻿#include "MCGripComponent.h"
 #include "MCToothCharacter.h"
+#include "MCHookSkillAction.h"
 #include "MCFishingRodComponent.h"
 #include "MCBrushContactComponent.h"
 #include "MCToothMovementComponent.h"
@@ -940,7 +941,11 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
     // settles the hidden limbs for .18s before easing physics back on release.
     const bool Rowing=Tooth->IsRowing() && Tooth->ToothPhysics->CanAct();
     const bool Fishing=Tooth->FishingRod && Tooth->FishingRod->IsPresented();
-    const bool PreciseBoth=Fishing || Basketball || Rowing || Lockpicking || Emote || Swimming || ToolSwing || UpgradeHeld || TaskCheer
+    // Every active presentation owns its glove pose (Sponge balances freely).
+    // SetGripArms retains the existing settle/release instead of allowing the
+    // physics blend to pull an authored wrist away from its actual prop anchor.
+    const bool ActiveSkill=Tooth->GetActiveSkillPresentation()!=nullptr;
+    const bool PreciseBoth=ActiveSkill || Fishing || Basketball || Rowing || Lockpicking || Emote || Swimming || ToolSwing || UpgradeHeld || TaskCheer
         || (Tooth->FoodCollection && Tooth->FoodCollection->bCollecting);
     const bool PreciseLeft=PreciseBoth || SprayDefence;
     const bool PreciseRight=PreciseBoth || Pickaxe || Spraying || (Tooth->BrushContact && Tooth->BrushContact->IsPresenting());

@@ -541,10 +541,17 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindActionValueLambda(ToolActions[1],ETriggerEvent::Started,[this,ToolScrollCursor](const FInputActionValue&) {ToolScrollCursor->Reset();SelectPickaxe();});
     Input->BindActionValueLambda(ToolActions[2],ETriggerEvent::Started,[this,ToolScrollCursor](const FInputActionValue&) {ToolScrollCursor->Reset();SelectKnife();});
     Input->BindActionValueLambda(ToolActions[3],ETriggerEvent::Started,[this,ToolScrollCursor](const FInputActionValue&) {ToolScrollCursor->Reset();SelectSpray();});
-    for(int32 Index=0;Index<SkillActions.Num();++Index)
+    for(int32 Index=0;Index<SkillActions.Num();++Index) {
         Input->BindActionValueLambda(SkillActions[Index],ETriggerEvent::Started,[this,Index](const FInputActionValue&) {
-            if(auto* PC=Cast<AMCPlayerController>(Controller)) PC->ActivateSkillSlot(Index);
+            if(auto* PC=Cast<AMCPlayerController>(Controller)) PC->BeginSkillInput(Index);
         });
+        Input->BindActionValueLambda(SkillActions[Index],ETriggerEvent::Completed,[this,Index](const FInputActionValue&) {
+            if(auto* PC=Cast<AMCPlayerController>(Controller)) PC->EndSkillInput(Index);
+        });
+        Input->BindActionValueLambda(SkillActions[Index],ETriggerEvent::Canceled,[this,Index](const FInputActionValue&) {
+            if(auto* PC=Cast<AMCPlayerController>(Controller)) PC->EndSkillInput(Index,true);
+        });
+    }
     Input->BindAction(FishingAction,ETriggerEvent::Started,FishingRod.Get(),&UMCFishingRodComponent::ToggleEquipped);
     Input->BindAction(ForwardAction,ETriggerEvent::Completed,this,&AMCToothCharacter::MoveForward);
     Input->BindAction(RightAction,ETriggerEvent::Completed,this,&AMCToothCharacter::MoveRight);
@@ -793,6 +800,7 @@ void AMCToothCharacter::StartBrush() { ServerSetWorking(true,true); }
 void AMCToothCharacter::StopBrush() { ServerSetWorking(true,false); }
 void AMCToothCharacter::StartHandle()
 {
+    if(GetActiveSkillPresentation()) return;
     if(IsSeatedOnRaft()) return;
     StopRowing();
     if(!CanWork() || Inventory->IsChainsawRunning()) return;
@@ -867,6 +875,7 @@ void AMCToothCharacter::StopMimicRescue()
 void AMCToothCharacter::StopHandle() { if(FishingRod) FishingRod->ServerSetReeling(false); StopMimicRescue(); CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(false); ServerSetWorking(false,false); }
 void AMCToothCharacter::StartPrimary()
 {
+    if(GetActiveSkillPresentation()) return;
     if(IsMimicCaptured()) return;
     if (!Status->IsAlive()) { if (auto* PC=Cast<AMCPlayerController>(Controller)) PC->NextSpectator(); return; }
     if(IsSeatedOnRaft()) return; // WASD owns the paddle; primary use does not start a second action.
@@ -889,7 +898,7 @@ void AMCToothCharacter::SelectBrush() { Inventory->RequestSelect(EMCToolSlot::Br
 void AMCToothCharacter::SelectPickaxe() { Inventory->RequestSelect(EMCToolSlot::Pickaxe); }
 void AMCToothCharacter::SelectKnife() { Inventory->RequestSelect(EMCToolSlot::Knife); }
 void AMCToothCharacter::SelectSpray() { Inventory->RequestSelect(EMCToolSlot::Spray); }
-bool AMCToothCharacter::CanSwitchTool() const {if(IsSeatedOnRaft()) return false; const auto* Perks=UMCPerkComponent::ForActor(this);return !Inventory->IsChainsawRunning() && (!Perks || !Perks->IsFuryActive());}
+bool AMCToothCharacter::CanSwitchTool() const {if(IsSeatedOnRaft() || GetActiveSkillPresentation()) return false; const auto* Perks=UMCPerkComponent::ForActor(this);return !Inventory->IsChainsawRunning() && (!Perks || !Perks->IsFuryActive());}
 void AMCToothCharacter::NotifyTaskFeedback(bool Success,FVector Point)
 {
     if(!HasAuthority()) return;
@@ -1149,6 +1158,7 @@ void AMCToothCharacter::ContinueFogGuard()
 }
 void AMCToothCharacter::ServerSetPrimary_Implementation(bool bActive)
 {
+    if(bActive && GetActiveSkillPresentation()) return;
     if(bActive) if(auto* Ball=AMCHubBasketball::HeldBy(this)) {
         Ball->ThrowFromView();
         return;
@@ -1272,6 +1282,7 @@ void AMCToothCharacter::ResolvePrimaryAction(bool bNewPress)
 }
 void AMCToothCharacter::CancelGameplayInput()
 {
+    if(auto* PC=Cast<AMCPlayerController>(Controller)) PC->CancelSkillInputs();
     if(HasAuthority()) if(auto* Perks=UMCPerkComponent::ForActor(this)) Perks->CancelSkillPreparations();
     StopRowing();
     StopThrowItem();
@@ -1288,6 +1299,7 @@ void AMCToothCharacter::ToggleConnection() { StopRowing(); StopBrace(); StopPrim
 void AMCToothCharacter::RestartRun() { if (auto* PC = Cast<AMCPlayerController>(Controller)) PC->RequestRestart(); }
 void AMCToothCharacter::ServerSetWorking_Implementation(bool bBrush, bool bActive)
 {
+    if(bActive && GetActiveSkillPresentation()) return;
     if(bActive && IsSeatedOnRaft()) return;
     if(bActive && bRowing) return;
     if(bActive && IsMimicCaptured()) return;
@@ -2198,6 +2210,7 @@ void AMCToothCharacter::StartThrowItem() { SetThrowInputHeld(true); }
 void AMCToothCharacter::StopThrowItem() { if(HasAuthority()) bThrowHeld=false; SetThrowInputHeld(false); }
 void AMCToothCharacter::SetThrowInputHeld(bool Held)
 {
+    if(Held && GetActiveSkillPresentation()) return;
     if((!HasAuthority() && !IsLocallyControlled()) || bThrowInputHeld==Held) return;
     bThrowInputHeld=Held;
     if(Held) if(auto* Ball=AMCHubBasketball::HeldBy(this)) {Ball->ThrowFromView();return;}
@@ -2207,6 +2220,7 @@ void AMCToothCharacter::SetThrowInputHeld(bool Held)
 void AMCToothCharacter::ServerSetThrowHeld_Implementation(bool Held,FVector_NetQuantizeNormal Direction)
 {
     if(!Held) { bThrowHeld=false; return; }
+    if(GetActiveSkillPresentation()) return;
     if(!CanWork() || bInCoffee || Direction.ContainsNaN() || Direction.IsNearlyZero()) return;
     ThrowAim=FVector(Direction).GetSafeNormal();
     if(bThrowHeld) return;
@@ -2242,7 +2256,7 @@ void AMCToothCharacter::ServerThrowItem_Implementation()
 }
 void AMCToothCharacter::PerformThrow(FVector Direction,bool StackOnly)
 {
-    if (!CanWork()) return;
+    if (!CanWork() || GetActiveSkillPresentation()) return;
     if(!StackOnly) if(auto* Ball=AMCHubBasketball::HeldBy(this)) {
         Ball->ThrowFromView();return;
     }

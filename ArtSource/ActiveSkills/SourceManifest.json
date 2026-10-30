@@ -1,0 +1,84 @@
+{
+  "date": "2026-10-30",
+  "purpose": "Selected compact editable geometry sources; raw holding-guide scenes and generated review media are deliberately not versioned.",
+  "files": [
+    {
+      "path": "ArtSource/ActiveSkills/Props/sponge/sponge.blend",
+      "source": "E:\\CodexWork\\MessControl\\BusterActivesAudit_20261029\\Exports\\sponge\\sponge.blend",
+      "bytes": 67923,
+      "sha256": "df43f9370a3bc97aa59f8a0dd12f8e5efc3c5c3a5146cb264677d3dcc27df941"
+    },
+    {
+      "path": "ArtSource/ActiveSkills/Props/sponge/sponge.fbx",
+      "source": "E:\\CodexWork\\MessControl\\BusterActivesAudit_20261029\\Exports\\sponge\\sponge.fbx",
+      "bytes": 22604,
+      "sha256": "96897f89e5f83c1b5a6a7c6569fb64041516b3e7c37c19d38cb291ea2650f205"
+    },
+    {
+      "path": "ArtSource/ActiveSkills/Props/hook/hook.blend",
+      "source": "E:\\CodexWork\\MessControl\\BusterActivesAudit_20261029\\Exports\\hook\\hook.blend",
+      "bytes": 73740,
+      "sha256": "6752393ec1eecd53af5d9c9986ff5702538db09ae9692d72127a9aa209d922ee"
+    },
+    {
+      "path": "ArtSource/ActiveSkills/Props/hook/hook.fbx",
+      "source": "E:\\CodexWork\\MessControl\\BusterActivesAudit_20261029\\Exports\\hook\\hook.fbx",
+      "bytes": 26748,
+      "sha256": "65b28bb9e458d65f55de337f715bb7a249872044af19eea6622c57f2a6f1f732"
+    },
+    {
+      "path": "ArtSource/ActiveSkills/Props/grenade/grenade.blend",
+      "source": "E:\\CodexWork\\MessControl\\BusterActivesAudit_20261029\\Exports\\grenade\\grenade.blend",
+      "bytes": 68790,
+      "sha256": "c6af51a6d645ee7444ac0e90be065f939300a6b92590f04c831e6a4b6693eb39"
+    },
+    {
+      "path": "ArtSource/ActiveSkills/Props/grenade/grenade.fbx",
+      "source": "E:\\CodexWork\\MessControl\\BusterActivesAudit_20261029\\Exports\\grenade\\grenade.fbx",
+      "bytes": 21612,
+      "sha256": "7cbe51a8e37eba4f8166d1bf79f0073eabd615591365c47ac71839f23e641495"
+    },
+    {
+      "path": "ArtSource/ActiveSkills/Props/air/air.blend",
+      "source": "E:\\CodexWork\\MessControl\\BusterActivesAudit_20261029\\Exports\\air\\air.blend",
+      "bytes": 96494,
+      "sha256": "4c61e1276b83d6778dd43ff085d393a63f8e92c26ebf2dcaefafe9157cf3f4bf"
+    },
+    {
+      "path": "ArtSource/ActiveSkills/Props/air/air.fbx",
+      "source": "E:\\CodexWork\\MessControl\\BusterActivesAudit_20261029\\Exports\\air\\air.fbx",
+      "bytes": 61964,
+      "sha256": "02c0ec87d7c4c7dedea5e5b63e0dc89882fa2d4308bb0e750328e61350f57c80"
+    },
+    {
+      "path": "ArtSource/ActiveSkills/Props/rocket/rocket.blend",
+      "source": "E:\\CodexWork\\MessControl\\BusterActivesAudit_20261029\\Exports\\rocket\\rocket.blend",
+      "bytes": 113900,
+      "sha256": "dfa364b263ee7fa0a8a2010bde27e00087b87fa26be9359570be94f3810a6536"
+    },
+    {
+      "path": "ArtSource/ActiveSkills/Props/rocket/rocket.fbx",
+      "source": "E:\\CodexWork\\MessControl\\BusterActivesAudit_20261029\\Exports\\rocket\\rocket.fbx",
+      "bytes": 77852,
+      "sha256": "21ffa7ac72e433f42bbcfb551b8f060fbe1c52b2b8ae0abfd937aba6a45edacd"
+    },
+    {
+      "path": "ArtSource/ActiveSkills/SuperCar/SuperCar_steering_assembly.blend",
+      "source": "E:\\CodexWork\\MessControl\\ActiveSkills_20261029\\SuperCarUpdate01\\IndividualWheels\\SuperCar_steering_assembly.blend",
+      "bytes": 230321,
+      "sha256": "92c298c0d7b1879c918ba5c8837c77cc806f6a59cf8fd3b5a83fc77d3ae9b58e"
+    },
+    {
+      "path": "ArtSource/ActiveSkills/SuperCar/assembly_handoff_9.json",
+      "source": "E:\\CodexWork\\MessControl\\ActiveSkills_20261029\\SuperCarUpdate01\\IndividualWheels\\assembly_handoff_9.json",
+      "bytes": 49471,
+      "sha256": "52eeb3acbe86f0231b1b6048ad719f51d5dac092c347ab06f33a66dc90d0778d"
+    },
+    {
+      "path": "ArtSource/ActiveSkills/SuperCar/fresh_import_validation_9.json",
+      "source": "E:\\CodexWork\\MessControl\\ActiveSkills_20261029\\SuperCarUpdate01\\IndividualWheels\\fresh_import_validation_9.json",
+      "bytes": 4813,
+      "sha256": "fe1771bf6658c68a62cfd0169812db0c5a34148edcab7476dccd9da347f6951e"
+    }
+  ]
+}

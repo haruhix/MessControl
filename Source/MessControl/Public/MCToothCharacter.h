@@ -22,6 +22,7 @@ class AMCFoodActor;
 class AMCArenaTooth;
 class AMCFogBrawlEvent;
 class AMCRewardChest;
+class AMCActiveSkillAction;
 class UMaterialInstanceDynamic;
 class UMeshComponent;
 class UEnhancedInputLocalPlayerSubsystem;
@@ -105,6 +106,11 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") double RespawnAt=0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") int32 RespawnSourceId=0;
     bool CanWork() const;
+    /** Local cosmetic lease follows the replicated skill actor; it never owns the gameplay action. */
+    AMCActiveSkillAction* GetActiveSkillPresentation() const;
+    void SetActiveSkillPresentation(AMCActiveSkillAction* Action);
+    void SuspendOrdinaryWorkForSkill();
+    UFUNCTION(BlueprintPure,Category="Skill|Presentation") bool ActiveSkillHandTarget(bool bLeft,FTransform& WorldPose) const;
     /** Keep the existing load through perk UI; this never permits new gameplay actions. */
     bool ShouldPreserveFoodForPerkChoice() const;
     // Fatal frost holds the visible pose in a glass cube before both fragment.
@@ -259,6 +265,7 @@ public:
 protected:
     virtual void BeginPlay() override;
 private:
+    TWeakObjectPtr<AMCActiveSkillAction> ActiveSkillPresentation;
     friend class UMCInventoryComponent;
 #if WITH_DEV_AUTOMATION_TESTS
     friend class FMCToolSelectionLateSwingTest;

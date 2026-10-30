@@ -4,6 +4,7 @@
 #include "MCDevCommands.h"
 #include "MCPresentationTypes.h"
 #include "MCPerkTypes.h"
+#include "MCActiveSkillAction.h"
 #include "Components/SlateWrapperTypes.h"
 #include "MCPlayerCameraComponent.h"
 #include "MCCosmeticCatalog.h"
@@ -154,6 +155,11 @@ public:
     UFUNCTION(BlueprintCallable,Category="Rewards") void CancelRewardReplacement();
     UFUNCTION(BlueprintCallable,Category="Rewards") void SkipRewardPerk();
     UFUNCTION(BlueprintCallable,Category="Skills") void ActivateSkillSlot(int32 SlotIndex);
+    UFUNCTION(BlueprintCallable,Category="Skills") void BeginSkillInput(int32 SlotIndex);
+    UFUNCTION(BlueprintCallable,Category="Skills") void EndSkillInput(int32 SlotIndex,bool bCanceled=false);
+    UFUNCTION(BlueprintCallable,Category="Skills") void CancelSkillInputs();
+    UFUNCTION(Server,Reliable) void ServerBeginSkillInput(FMCActiveSkillInputHandle Handle);
+    UFUNCTION(Server,Reliable) void ServerEndSkillInput(FMCActiveSkillInputHandle Handle,bool bCanceled);
     UFUNCTION(Server,Reliable) void ServerActivateSkillSlot(int32 SlotIndex,FGuid ExpectedInstanceID);
     UFUNCTION(Server,Reliable) void ServerChooseRewardPerkInSlot(AMCRewardChest* Chest,int32 ChoiceIndex,FName ExpectedPerkID,FGuid OfferID,int32 DestinationSlot,FName ExpectedReplacedID,FGuid ExpectedInstanceID);
     UFUNCTION(Server,Reliable) void ServerSkipRewardPerk(AMCRewardChest* Chest,FGuid OfferID);
@@ -318,6 +324,9 @@ private:
     FGuid ActiveRewardOfferID;
     TArray<FName> ActiveRewardIDs;
     TArray<FMCActiveSkillSlot> RewardReplacementSlots;
+    TMap<int32,FMCActiveSkillInputHandle> HeldSkillInputs;
+    uint32 NextSkillPressSequence=0;
+    uint32 LastServerSkillPressSequence=0;
     int32 PendingRewardChoice=INDEX_NONE;
     FGuid ActiveLevelOfferId;
     FGuid AcceptedLevelOfferId;

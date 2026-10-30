@@ -7,6 +7,7 @@
 #include "MCBossFaceComponent.h"
 #include "MCBossMouthAttackComponent.h"
 #include "MCToothCharacter.h"
+#include "MCPlayerState.h"
 #include "MCFoodActor.h"
 #include "MCToothStatusComponent.h"
 #include "MCCombatFeedbackComponent.h"
@@ -230,10 +231,24 @@ float AMCBossCharacter::ReceiveBossDamage(float Damage,AActor* DamageCauser)
     Damage=MCDevEnemyHitDamage(Damage,Runtime.Health,DamageCauser);
     const float Applied=FMath::Min(Runtime.Health,Damage);
     if(Perks && Applied>0) Perks->NotifyWeaponHit(this);
-    Runtime.Health-=Applied;
     AActor* Source=IsValid(DamageCauser)?DamageCauser->GetInstigator():nullptr;
     if(!IsValid(Source)) Source=IsValid(DamageCauser)?DamageCauser:nullptr;
     const FVector From=Source?Source->GetActorLocation():GetActorLocation()+GetActorForwardVector()*200;
+    return ApplyResolvedDamage(Applied,Source,From);
+}
+
+float AMCBossCharacter::ReceiveExternalImpact(float Damage,AActor* Causer,AMCPlayerState* SourcePS,FVector Origin)
+{
+    if(!HasAuthority() || IsActorBeingDestroyed() || !CanReceiveWeaponHit() || !FMath::IsFinite(Damage) || Damage<=0.f
+        || Origin.ContainsNaN() || !IsValid(Causer) || Causer->GetWorld()!=GetWorld()
+        || (IsValid(SourcePS) && SourcePS->GetWorld()!=GetWorld())) return 0.f;
+    LastExternalImpactSourcePS=IsValid(SourcePS)?SourcePS:nullptr;
+    return ApplyResolvedDamage(FMath::Min(Runtime.Health,Damage),Causer,Origin);
+}
+
+float AMCBossCharacter::ApplyResolvedDamage(float Applied,AActor* Source,FVector From)
+{
+    Runtime.Health-=Applied;
     Feedback->ReportAcceptedHit(Source,GetMeleeTargetPoint(From),(GetActorLocation()-From).GetSafeNormal2D(),Applied,0.f,false,Runtime.Health<=0.f);
     if (Runtime.Health<=0.f)
     {
@@ -574,4 +589,5 @@ void AMCBossCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCBossCharacter,Profile);
     DOREPLIFETIME(AMCBossCharacter,Runtime);
+    DOREPLIFETIME(AMCBossCharacter,LastExternalImpactSourcePS);
 }

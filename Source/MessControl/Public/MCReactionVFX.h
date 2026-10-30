@@ -33,6 +33,8 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Feedback") bool bLegacyCombatFeedback=false;
     /** Reuse the owned dust burst; reflected reference keeps it reachable by cooking. */
     UPROPERTY(EditDefaultsOnly,Category="Feedback") TSoftObjectPtr<class UNiagaraSystem> FoodBreakSystem;
+    /** Preloaded opaque lit vertex-color material for the closed NPC contact solids. */
+    UPROPERTY(EditDefaultsOnly,Category="Feedback") TObjectPtr<class UMaterialInterface> SolidMaterial;
 private:
     UPROPERTY() TObjectPtr<class UTextRenderComponent> DamageNumber;
     UPROPERTY() TObjectPtr<class UTextRenderComponent> DamageBackdrop;

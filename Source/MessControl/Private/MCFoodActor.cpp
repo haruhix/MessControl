@@ -266,7 +266,7 @@ void AMCFoodActor::OnRep_Phase()
 {
     if(HasAuthority() && (StackCarrier || !Holders.IsEmpty() || Phase!=EMCFoodPhase::Free)) EndManualThrowFlight();
     if (bMouthEntry && (Phase!=EMCFoodPhase::Falling || StackCarrier || !Holders.IsEmpty())) EndMouthEntry();
-    const bool bGone=IsDisposed() || Phase==EMCFoodPhase::Equipped;
+    const bool bGone=IsDisposed() || Phase==EMCFoodPhase::Equipped || IsInActiveContainer();
     const bool bSimulate=HasAuthority() && !StackCarrier && (Phase==EMCFoodPhase::Falling || Phase==EMCFoodPhase::Free || Phase==EMCFoodPhase::Carried);
     // Stop Chaos before disabling collision, including disposal while the item is still moving.
     if (!bSimulate) Body->SetSimulatePhysics(false);
@@ -350,7 +350,7 @@ bool AMCFoodActor::FindGripSurface(FVector From,FHitResult& Hit) const
 }
 bool AMCFoodActor::FindToolContact(const AMCToothCharacter* Hero,float Reach,FHitResult& Hit) const
 {
-    if (!IsValid(Hero) || !GripSurface || !GripSurface->GetStaticMesh() || Reach<=0) return false;
+    if (IsInActiveContainer() || !IsValid(Hero) || !GripSurface || !GripSurface->GetStaticMesh() || Reach<=0) return false;
     const FVector From=Hero->GetActorLocation(),Forward=Hero->GetActorForwardVector().GetSafeNormal2D();
     const FBox Bounds=Visual->Bounds.GetBox();
     if (FVector::DistSquared(From,Bounds.GetClosestPointTo(From))>FMath::Square(Reach)) return false;
@@ -403,6 +403,7 @@ void AMCFoodActor::Dispose()
     for (int32 I=Holders.Num()-1;I>=0;--I) Release(Holders[I]);
     if (IsValid(EquippedBy)) { EquippedBy->EquippedBrush=nullptr; EquippedBy->ForceNetUpdate(); } EquippedBy=nullptr;
     Phase=EMCFoodPhase::Disposed;
+    ActiveContainer=nullptr;ActiveContainerCarrier=nullptr;ActiveContainerClaim.Invalidate();
     FuseEndsAt=0; PausedFuse=0; bFusePaused=false; FuseOwner.Reset(); bLandingPending=false;
     OnRep_Phase(); ForceNetUpdate(); SetLifeSpan(IsHazardResolved()?3:0);
 }
@@ -559,6 +560,15 @@ void AMCFoodActor::Tick(float Dt)
         return;
     }
     UpdateAbsorption(Dt);
+    if(IsInActiveContainer()) {
+        Label->SetVisibility(false);
+        if(HasAuthority()) {
+            if(IsValid(ActiveContainer) && !ActiveContainer->IsActorBeingDestroyed())
+                SetActorLocation(ActiveContainer->GetActorLocation(),false,nullptr,ETeleportType::TeleportPhysics);
+            else ExitActiveContainer(ActiveContainer,ActiveContainerClaim,GetActorLocation()+FVector(0,0,20),FVector::UpVector,0,false);
+        }
+        return;
+    }
     RecoverUnreachableFood(Dt);
     if(IsDisposed()) return;
     if(Phase==EMCFoodPhase::Absorbing) { Label->SetVisibility(false); return; }
@@ -669,6 +679,7 @@ void AMCFoodActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
     DOREPLIFETIME(AMCFoodActor,ReplicatedActorScale);
     DOREPLIFETIME(AMCFoodActor,CarryPresentation);
     DOREPLIFETIME(AMCFoodActor,StackCarrier);DOREPLIFETIME(AMCFoodActor,StackPickup);DOREPLIFETIME(AMCFoodActor,ImpactAt);DOREPLIFETIME(AMCFoodActor,ImpactStrength);
+    DOREPLIFETIME(AMCFoodActor,ActiveContainer);DOREPLIFETIME(AMCFoodActor,ActiveContainerCarrier);
     DOREPLIFETIME(AMCFoodActor,PullProgress); DOREPLIFETIME(AMCFoodActor,PullDirection); DOREPLIFETIME(AMCFoodActor,Holders);
     DOREPLIFETIME(AMCFoodActor,ItemMesh); DOREPLIFETIME(AMCFoodActor,FoodData); DOREPLIFETIME(AMCFoodActor,ItemName); DOREPLIFETIME(AMCFoodActor,Health);
     DOREPLIFETIME(AMCFoodActor,bFragment); DOREPLIFETIME(AMCFoodActor,bBrushTool); DOREPLIFETIME(AMCFoodActor,bSpoiled); DOREPLIFETIME(AMCFoodActor,SpoilAt);
@@ -1082,9 +1093,18 @@ void AMCFoodActor::EndManualThrowFlight()
 }
 bool AMCFoodActor::HitFood(float Damage,FVector Direction,AMCToothCharacter* Worker)
 {
-    if (!HasAuthority() || bBrushTool || IsDisposed() || Phase==EMCFoodPhase::Swallowing || !FMath::IsFinite(Damage) || Damage<=0 || Direction.ContainsNaN()) return false;
+    return ApplyFoodDamage(Damage,Direction,Worker,nullptr,true);
+}
+bool AMCFoodActor::ReceiveActiveSkillImpact(float Damage,FVector Direction,AMCPlayerState* SourcePS)
+{
+    return ApplyFoodDamage(Damage,Direction,nullptr,SourcePS,false);
+}
+bool AMCFoodActor::ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharacter* Worker,AMCPlayerState* SourcePS,bool bWeaponPassives)
+{
+    if (!HasAuthority() || bBrushTool || IsDisposed() || IsInActiveContainer() || Phase==EMCFoodPhase::Swallowing || !FMath::IsFinite(Damage) || Damage<=0 || Direction.ContainsNaN()) return false;
     if(!IsValid(Worker) || Worker->GetWorld()!=GetWorld()) Worker=nullptr;
-    if(Worker) LastHandledBy=Worker->GetPlayerState<AMCPlayerState>();
+    if(IsValid(SourcePS) && SourcePS->GetWorld()==GetWorld()) LastHandledBy=SourcePS;
+    else if(Worker) LastHandledBy=Worker->GetPlayerState<AMCPlayerState>();
     EndMouthEntry();
     if(StackCarrier) StackCarrier->FoodCollection->Spill(Direction.GetSafeNormal()*180+FVector(0,0,60));
     if(Phase==EMCFoodPhase::Stuck) {Phase=EMCFoodPhase::Free;StuckTooth=nullptr;OnRep_Phase();}
@@ -1099,7 +1119,7 @@ bool AMCFoodActor::HitFood(float Damage,FVector Direction,AMCToothCharacter* Wor
         if(Body->IsSimulatingPhysics()) Body->AddImpulse(Direction.GetSafeNormal()*150+FVector(0,0,60),NAME_None,true);
         return true;
     }
-    auto* Perks=UMCPerkComponent::ForActor(Worker);
+    auto* Perks=bWeaponPassives?UMCPerkComponent::ForActor(Worker):nullptr;
     if(Perks) Damage=Perks->WeaponDamage(Damage,this);
     AttendFood(); Health=FMath::Max(0.f,Health-Damage); ForceNetUpdate();
     if(Perks) Perks->NotifyWeaponHit(this);
@@ -1109,10 +1129,10 @@ bool AMCFoodActor::HitFood(float Damage,FVector Direction,AMCToothCharacter* Wor
     const bool Fragmented=FoodData.Kind==EMCFoodKind::Food && !bFragment && SpawnFragments(Direction);
     if(FoodData.Kind==EMCFoodKind::Food && !bDeliveryScored && !Fragmented) {
         bDeliveryScored=true;
-        if(Worker) {
+        if(Worker || IsValid(SourcePS)) {
             if(auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>(); Mode && !ActorHasTag(TEXT("MCNutRain")))
-                Mode->AwardTaskToPlayerState(Worker->GetPlayerState<AMCPlayerState>(),EMCScoreTask::Food);
-            Worker->NotifyTaskFeedback(true,GetActorLocation());
+                Mode->AwardTaskToPlayerState(LastHandledBy,EMCScoreTask::Food);
+            if(Worker) Worker->NotifyTaskFeedback(true,GetActorLocation());
         }
     }
     if(FoodData.Kind==EMCFoodKind::Food)

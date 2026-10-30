@@ -1,6 +1,7 @@
 #include "MCDefenseSprayPassives.h"
 
 #include "MCPerkComponent.h"
+#include "MCPassiveFeedbackCue.h"
 #include "MCPlayerState.h"
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
@@ -110,9 +111,15 @@ bool UMCDefenseSprayPassives::IsTickable() const { return !IsTemplate() && GetWo
 float UMCDefenseSprayPassives::ResolveIncomingDamage(AMCToothCharacter* Hero,float Damage)
 {
     if(!Hero || !Hero->HasAuthority() || !FMath::IsFinite(Damage) || Damage<=0.f) return Damage;
-    if(Has(Hero,Enamel) && FMath::FRand()<Amount(Hero,Enamel,TEXT("Chance"),.2f,0.f,1.f)) return 0.f;
-    if(Has(Hero,Shield) && Hero->Status && Hero->Status->State.Health<Hero->Status->State.MaxHealth*Amount(Hero,Shield,TEXT("Threshold"),.2f,0.f,1.f))
+    if(Has(Hero,Enamel) && FMath::FRand()<Amount(Hero,Enamel,TEXT("Chance"),.2f,0.f,1.f)) {
+        AMCPassiveFeedbackCue::Spawn(Hero,EMCPassiveFeedbackKind::Enamel);
+        return 0.f;
+    }
+    if(Has(Hero,Shield) && Hero->Status && Hero->Status->State.Health<Hero->Status->State.MaxHealth*Amount(Hero,Shield,TEXT("Threshold"),.2f,0.f,1.f)) {
+        const float Before=Damage;
         Damage*=1.f-Amount(Hero,Shield,TEXT("Reduction"),.5f,0.f,1.f);
+        if(Damage<Before) AMCPassiveFeedbackCue::Spawn(Hero,EMCPassiveFeedbackKind::Shield);
+    }
     return Damage;
 }
 void UMCDefenseSprayPassives::RegisterThreat(AMCToothCharacter* Hero,AActor* Source,uint64 AttackID)
@@ -138,8 +145,11 @@ void UMCDefenseSprayPassives::ResolveThreat(FThreat& Threat,bool bDodged)
     Threat.bResolved=true;
     auto* Hero=Threat.Hero.Get();
     if(!bDodged || !Threat.bDashed || !LiveWorker(Hero) || !Has(Hero,SecondWind)) return;
-    if(auto* Move=Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement()))
+    if(auto* Move=Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement())) {
+        const float Before=Move->GetStamina();
         Move->RestoreStaminaFraction(Amount(Hero,SecondWind,TEXT("StaminaFraction"),.3f,0.f,1.f));
+        if(Move->GetStamina()>Before) AMCPassiveFeedbackCue::Spawn(Hero,EMCPassiveFeedbackKind::Wind);
+    }
 }
 void UMCDefenseSprayPassives::NotifyIncomingHit(AMCToothCharacter* Hero,AActor* Source)
 {
@@ -163,12 +173,19 @@ void UMCDefenseSprayPassives::UpdateDashVisibility(AMCToothCharacter* Hero)
     auto* Self=ForWorld(Hero);if(!Self || !IsValid(Hero) || !Hero->HasAuthority()) return;
     const bool Hide=LiveWorker(Hero) && Has(Hero,Houdini) && Hero->IsDashing();
     if(Hide) {
-        if(!Self->HiddenOverrides.Contains(Hero)) {
+        const bool bNewOverride=!Self->HiddenOverrides.Contains(Hero);
+        if(bNewOverride) {
             auto& Override=Self->HiddenOverrides.Add(Hero);Override.bWasHidden=Hero->IsHidden();Override.Owner=UMCPerkComponent::ForActor(Hero);
         }
-        if(!Hero->IsHidden()) {Hero->SetActorHiddenInGame(true);Hero->ForceNetUpdate();}
+        if(!Hero->IsHidden()) {
+            Hero->SetActorHiddenInGame(true);Hero->ForceNetUpdate();
+            if(bNewOverride) AMCPassiveFeedbackCue::Spawn(Hero,EMCPassiveFeedbackKind::Vanish);
+        }
     } else if(const auto* Override=Self->HiddenOverrides.Find(Hero)) {
+        const bool bReturn=Hero->IsHidden() && !Override->bWasHidden && LiveWorker(Hero)
+            && Hero->GetWorld() && !Hero->GetWorld()->bIsTearingDown;
         Hero->SetActorHiddenInGame(Override->bWasHidden);Hero->ForceNetUpdate();Self->HiddenOverrides.Remove(Hero);
+        if(bReturn) AMCPassiveFeedbackCue::Spawn(Hero,EMCPassiveFeedbackKind::Return);
     }
 }
 float UMCDefenseSprayPassives::BrushMultiplier(const AActor* Target,FVector Point)

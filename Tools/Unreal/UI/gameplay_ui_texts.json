@@ -15180,9 +15180,9 @@
     "Name": "UI.Skill.Catalog.B2_Antiseptic.Description",
     "Localizations": {},
     "AdditionalLanguages": {},
-    "SourceText": "Спрей также удаляет грязь. Распыление до 1 секунды, затем перезарядка 10,4 секунды (+30% к базе 8 секунд). Досрочное отпускание не отменяет перезарядку.",
-    "RU": "Спрей также удаляет грязь. Распыление до 1 секунды, затем перезарядка 10,4 секунды (+30% к базе 8 секунд). Досрочное отпускание не отменяет перезарядку.",
-    "EN": "Spray also removes dirt. Spray for up to 1 second, then reload for 10.4 seconds (+30% over the 8-second base). Releasing early does not cancel the reload.",
+    "SourceText": "Спрей также удаляет грязь. Распыление до 3 секунд, затем перезарядка 2,6 секунды (+30% к базе 2 секунды). При раннем отпускании перезарядка начинается сразу; удержание ЛКМ повторяет распыление после готовности.",
+    "RU": "Спрей также удаляет грязь. Распыление до 3 секунд, затем перезарядка 2,6 секунды (+30% к базе 2 секунды). При раннем отпускании перезарядка начинается сразу; удержание ЛКМ повторяет распыление после готовности.",
+    "EN": "Spray also removes dirt. Spray for up to 3 seconds, then reload for 2.6 seconds (+30% over the 2-second base). Releasing early starts the reload immediately; holding primary resumes spraying when ready.",
     "Context": "Current event passives"
   },
   {
@@ -15201,6 +15201,114 @@
     "SourceText": "ОПАСНОЕ ПОКРЫТИЕ. Состав продолжает чистить 3 секунды с эффективностью 30%. Покрытие остаётся всего 10 секунд от последнего нанесения и наносит 5 HP/сек обычным врагам и всем игрокам, включая владельца. Зубы и боссы не повреждаются.",
     "RU": "ОПАСНОЕ ПОКРЫТИЕ. Состав продолжает чистить 3 секунды с эффективностью 30%. Покрытие остаётся всего 10 секунд от последнего нанесения и наносит 5 HP/сек обычным врагам и всем игрокам, включая владельца. Зубы и боссы не повреждаются.",
     "EN": "DANGEROUS COATING. Residue cleans for 3 seconds at 30% efficiency. It remains for 10 seconds total after the last local application and deals 5 HP/sec to ordinary enemies and all players, including its owner. Teeth and bosses are unaffected.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.Active_Sponge.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Губка",
+    "RU": "Губка",
+    "EN": "Sponge ride",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.Active_Sponge.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Поездка на губке очищает путь. Повторно нажми кнопку этого слота, чтобы слезть. Завершается также по таймеру.",
+    "RU": "Поездка на губке очищает путь. Повторно нажми кнопку этого слота, чтобы слезть. Завершается также по таймеру.",
+    "EN": "Ride a sponge and clean its path. Press this slot again to get off, or wait for the ride to end.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.Active_Hook.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Крюк",
+    "RU": "Крюк",
+    "EN": "Grappling hook",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.Active_Hook.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Прицельно выпускает крюк: союзника притягивает к тебе, при попадании в босса — тебя к боссу.",
+    "RU": "Прицельно выпускает крюк: союзника притягивает к тебе, при попадании в босса — тебя к боссу.",
+    "EN": "Aim and cast a hook. Pull an ally to you, or pull yourself toward a boss you hit.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.Consumable_Grenade.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Граната",
+    "RU": "Граната",
+    "EN": "Grenade",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.Consumable_Grenade.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Удерживай кнопку слота, чтобы взвести; отпусти, чтобы бросить. Передержанная граната выпадает и взрывается. Опасна и для союзников. 3 заряда.",
+    "RU": "Удерживай кнопку слота, чтобы взвести; отпусти, чтобы бросить. Передержанная граната выпадает и взрывается. Опасна и для союзников. 3 заряда.",
+    "EN": "Hold the slot key to arm; release to throw. Hold too long and the live grenade drops. The blast can hit allies. 3 charges.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.Consumable_Air.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Воздухан",
+    "RU": "Воздухан",
+    "EN": "Air blower",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.Consumable_Air.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Удерживай кнопку слота — всасывай нарезанную еду. Отпусти — выдувай. Заполненный мешок предупреждает, затем лопается, если продолжать. 2 заряда.",
+    "RU": "Удерживай кнопку слота — всасывай нарезанную еду. Отпусти — выдувай. Заполненный мешок предупреждает, затем лопается, если продолжать. 2 заряда.",
+    "EN": "Hold this slot key to suck up cut food; release to blow it out. A full bag warns, then bursts if you keep sucking. 2 charges.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.Consumable_Rocket.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Ракетница",
+    "RU": "Ракетница",
+    "EN": "Rocket launcher",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.Consumable_Rocket.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Ракета взрывается при попадании. Повреждает еду, противников, союзников и зубы арены. 3 заряда.",
+    "RU": "Ракета взрывается при попадании. Повреждает еду, противников, союзников и зубы арены. 3 заряда.",
+    "EN": "Fire an impact rocket. Its blast damages food, enemies, allies and arena teeth. 3 charges.",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.Consumable_Driver.Name",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Машинист",
+    "RU": "Машинист",
+    "EN": "Driver",
+    "Context": "Current event passives"
+  },
+  {
+    "Name": "UI.Skill.Catalog.Consumable_Driver.Description",
+    "Localizations": {},
+    "AdditionalLanguages": {},
+    "SourceText": "Трёхсекундная поездка на уборочной машине. Очищает путь и может сбить союзников. 3 заряда.",
+    "RU": "Трёхсекундная поездка на уборочной машине. Очищает путь и может сбить союзников. 3 заряда.",
+    "EN": "Drive a cleaning machine for 3 seconds. Clean its path, but watch out: you can run allies over. 3 charges.",
     "Context": "Current event passives"
   }
 ]

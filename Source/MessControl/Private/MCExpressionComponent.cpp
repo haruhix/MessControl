@@ -12,6 +12,7 @@
 #include "MCInventoryComponent.h"
 #include "MCCataclysmRaft.h"
 #include "MCRowingStroke.h"
+#include "MCPlayerController.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/Skeleton.h"
 #include "Engine/SkeletalMesh.h"
@@ -115,9 +116,66 @@ void UMCExpressionComponent::ReceiveSpray(AMCToothCharacter* Source)
     if(NewContact) SprayState.StartedAt=Time;
     SprayState.Source=Source; SprayState.ContactAt=Time; Tooth->ForceNetUpdate();
 }
+bool UMCExpressionComponent::CanReactToHook() const
+{
+    if(!CanReactSocially() || !Tooth->ToothPhysics || !Tooth->ToothPhysics->CanAct()
+        || Tooth->HasFrozenLegs() || Tooth->IsFreezingToDeath() || Tooth->Status->PainAlpha()>.01f
+        || Now()-Tooth->Status->State.DamageAt<.65 || Tooth->GetCharacterMovement()->IsFalling()
+        || SlipperyFaceAlpha()>.001f || (ActiveEntry() && EmoteAlpha()>.001f)) return false;
+    if(const auto* PC=Cast<AMCPlayerController>(Tooth->GetController());PC && PC->IsHoldingEmoteSelection()) return false;
+    return !Tooth->Inventory || (!Tooth->Inventory->IsChainsawRunning() && !Tooth->Inventory->IsUsingWatergun());
+}
+EMCEmotion UMCExpressionComponent::HookReactionEmotion() const
+{
+    switch(HookFaceState.Reaction)
+    {
+    case EMCHookFaceReaction::Success: return EMCEmotion::Happy;
+    case EMCHookFaceReaction::Miss: return EMCEmotion::Sad;
+    case EMCHookFaceReaction::Caught: return EMCEmotion::Surprise;
+    default: return EMCEmotion::Neutral;
+    }
+}
+void UMCExpressionComponent::PlayHookReaction(const FGuid& ActionId,EMCHookFaceReaction Reaction)
+{
+    if(!Tooth || !Tooth->HasAuthority() || !ActionId.IsValid() || !CanReactToHook()) return;
+    if(HookFaceState.ActionId==ActionId && HookFaceState.Reaction==Reaction) return;
+    HookFaceState.ActionId=ActionId; HookFaceState.Reaction=Reaction;
+    HookFaceState.StartedAt=Now(); HookFaceState.StoppedAt=-1;
+    HookFaceState.DamageAtStart=Tooth->Status->State.DamageAt;
+    Tooth->ForceNetUpdate();
+}
+void UMCExpressionComponent::StopHookReaction(const FGuid& ActionId)
+{
+    if(!Tooth || !Tooth->HasAuthority() || !ActionId.IsValid() || HookFaceState.ActionId!=ActionId
+        || HookFaceState.StoppedAt>=0) return;
+    HookFaceState.StoppedAt=Now(); Tooth->ForceNetUpdate();
+}
+float UMCExpressionComponent::HookFaceAlpha() const
+{
+    if(!HookFaceState.ActionId.IsValid() || !FMath::IsFinite(HookFaceState.StartedAt)
+        || (SuppressedHookActionId==HookFaceState.ActionId && SuppressedHookStartedAt==HookFaceState.StartedAt)
+        || !CanReactToHook() || Tooth->Status->State.DamageAt>HookFaceState.DamageAtStart) return 0.f;
+    const bool Caught=HookFaceState.Reaction==EMCHookFaceReaction::Caught;
+    const bool Miss=HookFaceState.Reaction==EMCHookFaceReaction::Miss;
+    const float Attack=Caught?.06f:.10f,Hold=Miss?.55f:Caught?.32f:.70f,Release=Caught?.24f:.30f;
+    const double End=HookFaceState.StoppedAt>=0?FMath::Min(HookFaceState.StartedAt+Attack+Hold,HookFaceState.StoppedAt)
+        :HookFaceState.StartedAt+Attack+Hold;
+    const float In=FMath::SmoothStep(0.f,1.f,float((Now()-HookFaceState.StartedAt)/Attack));
+    const float Out=FMath::SmoothStep(0.f,1.f,float((End+Release-Now())/Release));
+    // Disappointment is a restrained frown, rather than a full grief pose.
+    return In*Out*(Miss?.55f:Caught?.85f:.8f);
+}
 void UMCExpressionComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* TickFunction)
 {
     Super::TickComponent(Dt,Type,TickFunction);
+    if(Tooth && HookFaceState.ActionId.IsValid() && Now()-HookFaceState.StartedAt<1.2
+        && (!CanReactToHook() || Tooth->Status->State.DamageAt>HookFaceState.DamageAtStart))
+    {
+        // A higher-priority face interrupts the lease instead of letting an old
+        // smile reappear when the hurt/fall/manual expression ends.
+        SuppressedHookActionId=HookFaceState.ActionId; SuppressedHookStartedAt=HookFaceState.StartedAt;
+        if(Tooth->HasAuthority()) StopHookReaction(HookFaceState.ActionId);
+    }
     float Suction=0; FVector Pull;
     if (Tooth && Tooth->Status->IsAlive() && !Tooth->SwallowedBy && !Tooth->MimicCaptor)
         AMCThroat::FindAmbientSuctionAt(GetWorld(),Tooth->GetActorLocation(),Suction,Pull);
@@ -216,7 +274,7 @@ bool UMCExpressionComponent::UpdateEyeShapes(float Dt,float EmotionStrength,bool
     }
     return !Shape.IsNone();
 }
-bool UMCExpressionComponent::UpdateMouthShapes(float Dt,float EmotionStrength,bool bPain,bool bEyeOnly)
+bool UMCExpressionComponent::UpdateMouthShapes(float Dt,float EmotionStrength,bool bPain,bool bEyeOnly,float HookAlpha)
 {
     auto* Mesh=Tooth->GetMesh();
     if (!Mesh->GetSkeletalMeshAsset() || !Mesh->GetSkeletalMeshAsset()->FindMorphTarget(TEXT("Mouth_A"))) return false;
@@ -230,14 +288,16 @@ bool UMCExpressionComponent::UpdateMouthShapes(float Dt,float EmotionStrength,bo
     const float SpeechWeight=Fresh?(Consonant?1.f:Voice):0.f;
     const float Suction=!bPain?FoodSuctionReaction*.82f:0.f;
     const float Social=!bPain?FMath::Max(SocialDisgust*.38f,SprayReaction*.68f)*(1-Suction):0.f;
-    const float MoodWeight=FMath::Clamp(EmotionStrength,0.f,1.f)*(1-SpeechWeight)*(1-Suction-Social);
+    const float MoodWeight=FMath::Clamp(EmotionStrength,0.f,1.f)*(1-HookAlpha)*(1-SpeechWeight)*(1-Suction-Social);
+    const FName HookMood=Moods[int32(HookReactionEmotion())];
+    const float HookWeight=HookAlpha*(1-SpeechWeight)*(1-Suction-Social);
     const float Alpha=1-FMath::Exp(-18.f*FMath::Max(0.f,Dt));
     // These are complete poses, so convex blending preserves the shared mouth contour.
     // A common smoothing factor preserves sum(weights) <= 1 during every transition.
     for (FName Name:MouthShapes())
     {
         const float Reaction=Name==TEXT("Mouth_Surprise")?FoodSuctionFlinch:Name==TEXT("Mouth_Effort")?1-FoodSuctionFlinch:0.f;
-        const float BaseTarget=(Name==Speech?SpeechWeight:0.f)+(Name==Mood?MoodWeight:0.f)
+        const float BaseTarget=(Name==Speech?SpeechWeight:0.f)+(Name==Mood?MoodWeight:0.f)+(Name==HookMood?HookWeight:0.f)
             +(Reaction*Suction+(Name==TEXT("Mouth_Angry")?Social:0.f))*(1-SpeechWeight);
         // Glide clips own the body; both glide phases use the ordinary menu
         // Surprise mouth rather than replacing it with MCSlide_Mouth curves.
@@ -392,6 +452,20 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     const bool YawnStrain=Tooth->IsYawning() && CurrentEmotion==EMCEmotion::Effort && Pain<.01f;
     if(YawnStrain) {J=0;Sml=-.12f;B=.12f;Tilt=.9f;Squ=.18f;}
     J*=Strength; Sml*=Strength; B*=Strength; Tilt*=Strength; Squ*=Strength; Rnd*=Strength;
+    const float HookAlpha=FaceLocked?0.f:HookFaceAlpha();
+    if(HookAlpha>.001f)
+    {
+        // The same Happy/Sad/Surprise vocabulary as the authored T faces, blended
+        // over the underlying task/idle face so release restores it continuously.
+        const EMCEmotion HookEmotion=HookReactionEmotion();
+        const float HookSmile=HookEmotion==EMCEmotion::Happy?1.f:HookEmotion==EMCEmotion::Sad?-.65f:0.f;
+        J=FMath::Lerp(J,HookEmotion==EMCEmotion::Surprise?.65f:0.f,HookAlpha);
+        Sml=FMath::Lerp(Sml,HookSmile,HookAlpha);
+        B=FMath::Lerp(B,HookEmotion==EMCEmotion::Happy?.25f:HookEmotion==EMCEmotion::Sad?-.15f:1.f,HookAlpha);
+        Tilt=FMath::Lerp(Tilt,HookEmotion==EMCEmotion::Sad?-.65f:0.f,HookAlpha);
+        Squ=FMath::Lerp(Squ,HookEmotion==EMCEmotion::Happy?.18f:0.f,HookAlpha);
+        Rnd=FMath::Lerp(Rnd,HookEmotion==EMCEmotion::Surprise?.5f:0.f,HookAlpha);
+    }
     // An initial wide-eyed intake becomes a small clenched brace near the throat.
     // This overlay fades back into the still-running emote, task reaction or speech.
     const float Suction=ToolFace?0.f:FoodSuctionReaction*(1-Pain);
@@ -429,7 +503,7 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
         Pose[I].AddToTranslation(Parent>=0?RestCS[Parent].InverseTransformVectorNoScale(Delta):Delta);
     };
     const bool EyeOnly=UpdateEyeShapes(Dt,Strength,FaceLocked);
-    const bool MorphMouth=UpdateMouthShapes(Dt,Strength,FaceLocked,EyeOnly);
+    const bool MorphMouth=UpdateMouthShapes(Dt,Strength,FaceLocked,EyeOnly,HookAlpha);
     // Artist brow poses coexist with the runtime morph mouth, blink and gaze.
     const bool AuthoredFace=Tooth->GetMesh()->GetSkeletalMeshAsset()
         && Tooth->GetMesh()->GetSkeletalMeshAsset()->FindMorphTarget(TEXT("Eyes_Blink"));
@@ -459,9 +533,9 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     {
         const float Sign=Side==TEXT("l")?1.f:-1.f;
         if (!MorphMouth) Offset(FName(*(TEXT("c_lips_smile_")+Side)),FVector(Sign*(Smile*3.f-Round*1.6f),0,Smile*3.5f));
-        if (!AuthoredFace || YawnStrain || Suction>.001f || Social>.001f)
+        if (!AuthoredFace || YawnStrain || Suction>.001f || Social>.001f || HookAlpha>.001f)
         {
-            const float BrowAlpha=AuthoredFace && !YawnStrain?FMath::Max(Suction,Social):1.f;
+            const float BrowAlpha=AuthoredFace && !YawnStrain?FMath::Max3(Suction,Social,HookAlpha):1.f;
             Offset(FName(*(TEXT("c_eyebrow_full_")+Side)),FVector(0,0,Brows*1.7f*(1-ArtistAlpha)*BrowAlpha));
             Offset(FName(*(TEXT("c_eyebrow_01_")+Side)),FVector(0,0,-BrowTilt*2.5f*(1-ArtistAlpha)*BrowAlpha));
             Offset(FName(*(TEXT("c_eyebrow_03_")+Side)),FVector(0,0,BrowTilt*1.2f*(1-ArtistAlpha)*BrowAlpha));
@@ -471,9 +545,12 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
         // sell the pressure without a permanent morph or exaggerated deformation.
         Offset(FName(*(TEXT("c_cheek_inflate_")+Side)),FVector(-Sign*1.2f,.55f,-.2f)*Suction);
     }
+    // Gaze can read this cosmetic mood for pupils; it never controls gameplay.
+    if(HookAlpha>.15f) CurrentEmotion=HookReactionEmotion();
 }
 void UMCExpressionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(UMCExpressionComponent,State);
     DOREPLIFETIME(UMCExpressionComponent,SprayState);
+    DOREPLIFETIME(UMCExpressionComponent,HookFaceState);
 }

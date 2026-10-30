@@ -11,6 +11,7 @@ class UCapsuleComponent;
 class UMCBossFaceComponent;
 class UMCBossMouthAttackComponent;
 class UMCCombatFeedbackComponent;
+class AMCPlayerState;
 
 /** One replicated snapshot keeps phase and attack presentation coherent on clients. Times use server world time. */
 USTRUCT(BlueprintType)
@@ -63,6 +64,9 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Boss") void ResetForRun();
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Boss|Debug") bool PreviewAnimation(EMCBossAnimationPreview Preview);
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Boss") float ReceiveBossDamage(float Damage,AActor* DamageCauser);
+    /** Secondary active damage retains its actor/PS attribution and never triggers tool-hit passives. */
+    float ReceiveExternalImpact(float Damage,AActor* Causer,AMCPlayerState* SourcePS,FVector Origin);
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Combat") TObjectPtr<AMCPlayerState> LastExternalImpactSourcePS;
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Boss") bool BeginAttack(FName AttackId,AMCToothCharacter* Target);
     UFUNCTION(BlueprintPure, Category="Boss") float GetStateAge() const;
     /** Executes only on authority and only once per attack. Overrides own authoritative damage, projectiles or hazards. */
@@ -86,6 +90,7 @@ protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 private:
+    float ApplyResolvedDamage(float Damage,AActor* FeedbackSource,FVector Origin);
     UFUNCTION() void OnRep_Profile();
     UFUNCTION() void OnRep_Runtime();
     UFUNCTION(NetMulticast, Reliable) void MulticastAttackImpact(FName AttackId,int32 AttackSerial);

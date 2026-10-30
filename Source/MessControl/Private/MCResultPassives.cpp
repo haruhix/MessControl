@@ -1,4 +1,5 @@
 #include "MCResultPassives.h"
+#include "MCPassiveFeedbackCue.h"
 #include "MCPerkComponent.h"
 #include "MCPlayerState.h"
 #include "MCToothCharacter.h"
@@ -124,11 +125,16 @@ bool UMCResultPassives::CompleteCleaning(const FMCStainCleaningAttempt& Attempt,
 void UMCResultPassives::RewardStain(AMCToothCharacter* Worker)
 {
     auto* Perks=UMCPerkComponent::ForActor(Worker);
-    if(Perks->GetStacks(TEXT("B2_CleanBreath"))>0)
+    if(Perks->GetStacks(TEXT("B2_CleanBreath"))>0) {
+        const float Before=Worker->Status->State.Health;
         Worker->Status->Heal(Parameter(Perks,TEXT("B2_CleanBreath"),TEXT("Heal"),3.f,0.f,10000.f));
+        const float Restored=Worker->Status->State.Health-Before;
+        if(Restored>0) AMCPassiveFeedbackCue::Spawn(Worker,EMCPassiveFeedbackKind::Heal,FMath::Clamp(Restored/12.f,.65f,1.5f));
+    }
     if(Perks->GetStacks(TEXT("B2_CleanAcceleration"))>0) {
         Perks->CleanSpeedUntil=ResultNow(GetWorld())+Parameter(Perks,TEXT("B2_CleanAcceleration"),TEXT("Duration"),3.f,0.f,60.f);
         Perks->GetOwner()->ForceNetUpdate();
+        AMCPassiveFeedbackCue::Spawn(Worker,EMCPassiveFeedbackKind::Speed);
     }
 }
 void UMCResultPassives::RewardCleanMouth()
@@ -139,8 +145,11 @@ void UMCResultPassives::RewardCleanMouth()
         auto* Hero=State?Cast<AMCToothCharacter>(State->GetPawn()):nullptr;
         auto* Perks=State?State->Perks.Get():nullptr;
         if(!LiveContributor(Hero,GetWorld()) || !Perks || Perks->GetStacks(TEXT("B2_RefreshingWork"))<=0) continue;
+        const float Before=Hero->Status->State.Health;
         Hero->Status->Heal(Hero->Status->State.MaxHealth
             *Parameter(Perks,TEXT("B2_RefreshingWork"),TEXT("HealFraction"),.2f,0.f,1.f));
+        const float Restored=Hero->Status->State.Health-Before;
+        if(Restored>0) AMCPassiveFeedbackCue::Spawn(Hero,EMCPassiveFeedbackKind::Heal,FMath::Clamp(Restored/12.f,.65f,1.5f));
     }
 }
 void UMCResultPassives::TryNeighbor(AActor* Finished,AMCToothCharacter* Worker)
@@ -157,6 +166,13 @@ void UMCResultPassives::TryNeighbor(AActor* Finished,AMCToothCharacter* Worker)
         if(Distance>BestDistance || (Distance==BestDistance && Best && Candidate->GetUniqueID()>=Best->GetUniqueID())) continue;
         Best=Candidate;BestDistance=Distance;
     }
-    if(auto* Surface=Cast<AMCMouthSurface>(Best)) Surface->CleanLiquidFromPassive(Worker);
-    else if(auto* Tooth=Cast<AMCArenaTooth>(Best)) Tooth->CleanGrimeFromPassive(Worker);
+    if(!Best) return;
+    // Cleanup may run reward callbacks; retain only presentation endpoints across it.
+    const FVector From=Finished->GetActorLocation(),To=Best->GetActorLocation();
+    const TWeakObjectPtr<AActor> Neighbor=Best;
+    bool Cleaned=false;
+    if(auto* Surface=Cast<AMCMouthSurface>(Best)) Cleaned=Surface->CleanLiquidFromPassive(Worker);
+    else if(auto* Tooth=Cast<AMCArenaTooth>(Best)) Cleaned=Tooth->CleanGrimeFromPassive(Worker);
+    if(Cleaned && CleanableTarget(Neighbor.Get()) && !IsDirtyTarget(Neighbor.Get()) && LiveContributor(Worker,GetWorld()))
+        AMCPassiveFeedbackCue::SpawnLink(Worker,From,To);
 }

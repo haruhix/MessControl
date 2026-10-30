@@ -9,6 +9,7 @@
 #include "MCGameState.h"
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
+#include "MCPlayerState.h"
 #include "MCToothStatusComponent.h"
 #include "MCCombatFeedbackComponent.h"
 #include "MCWeaponImpact.h"
@@ -129,6 +130,30 @@ float AMCNutEnemy::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
     if(Health<=0) Defeat();
     else RefreshPresentation();
     ForceNetUpdate(); return Applied;
+}
+
+float AMCNutEnemy::ReceiveExternalImpact(float Damage,AActor* Causer,AMCPlayerState* SourcePS,FVector Origin)
+{
+    if(!HasAuthority() || !CanReceiveToolHit() || !FMath::IsFinite(Damage) || Damage<=0 || Origin.ContainsNaN()
+        || !IsValid(Causer) || Causer->GetWorld()!=GetWorld()
+        || (IsValid(SourcePS) && SourcePS->GetWorld()!=GetWorld())) return 0.f;
+    const float Applied=FMath::Min(Health,Damage);
+    if(Applied<=0.f) return 0.f;
+    LastExternalImpactSourcePS=IsValid(SourcePS)?SourcePS:nullptr;
+    Health-=Applied;HitAt=GetWorld()->GetTimeSeconds();
+    ReportExternalImpactFeedback(Causer,Origin,Applied);
+    // The old pawn may already have died. Credit remains on the original PS;
+    // only a still-living original instigator is eligible for pursuit.
+    auto* SourceHero=Cast<AMCToothCharacter>(Causer->GetInstigator());
+    if(IsLiveTarget(SourceHero) && SourceHero->GetPlayerState<AMCPlayerState>()==SourcePS) Target=SourceHero;
+    bAttackPending=false;AttackTarget.Reset();AttackStartedAt=-100;NextAttackAt=HitAt+.65f;
+    if(Health<=0.f) Defeat();else RefreshPresentation();
+    ForceNetUpdate();return Applied;
+}
+
+void AMCNutEnemy::ReportExternalImpactFeedback(AActor* Causer,FVector Origin,float Applied)
+{
+    Feedback->ReportAcceptedHit(Causer,GetToolTargetPoint(Origin),(GetActorLocation()-Origin).GetSafeNormal(),Applied,0.f,false,Health<=0.f);
 }
 
 void AMCNutEnemy::ReportDamageFeedback(AMCToothCharacter* Source,float Applied)
@@ -265,4 +290,5 @@ void AMCNutEnemy::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
     DOREPLIFETIME(AMCNutEnemy,NutMesh); DOREPLIFETIME(AMCNutEnemy,MeshScale); DOREPLIFETIME(AMCNutEnemy,Settings);
     DOREPLIFETIME(AMCNutEnemy,Health); DOREPLIFETIME(AMCNutEnemy,bDefeated); DOREPLIFETIME(AMCNutEnemy,Target);
     DOREPLIFETIME(AMCNutEnemy,AttackStartedAt); DOREPLIFETIME(AMCNutEnemy,HitAt); DOREPLIFETIME(AMCNutEnemy,Tongue);
+    DOREPLIFETIME(AMCNutEnemy,LastExternalImpactSourcePS);
 }

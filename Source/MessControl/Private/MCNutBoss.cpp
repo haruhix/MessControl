@@ -1,4 +1,5 @@
 #include "MCNutBoss.h"
+#include "MCPlayerState.h"
 #include "MCCombatPassiveSubsystem.h"
 #include "MCPerkComponent.h"
 #include "MCDefenseSprayPassives.h"
@@ -887,9 +888,61 @@ float AMCNutBoss::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
     return Applied;
 }
 
+float AMCNutBoss::ReceiveExternalImpact(float Damage,AActor* Causer,AMCPlayerState* SourcePS,FVector Origin)
+{
+    if(!HasAuthority() || !CanReceiveToolHit() || !FMath::IsFinite(Damage) || Damage<=0.f || Origin.ContainsNaN()
+        || !IsValid(Causer) || Causer->GetWorld()!=GetWorld()
+        || (IsValid(SourcePS) && SourcePS->GetWorld()!=GetWorld())) return 0.f;
+    LastExternalImpactSourcePS=IsValid(SourcePS)?SourcePS:nullptr;
+    const float ShieldBefore=ShieldHealth;
+    const bool Shielded=IsShieldProtectingFrom(Origin);
+    bLastToolHitBlocked=Shielded;
+    const double Time=Now();
+    if(BossRole!=EMCNutBossRole::Mage) {if(!IsCounterShoving()) VisualHitAt=Time;}
+    else if(State==EMCNutBossState::Telegraph || State==EMCNutBossState::Executing || State==EMCNutBossState::Recovery) bMageHitQueued=true;
+    else if(Time-VisualHitAt>=BossSettings.MageHitAnimationSeconds+BossSettings.AnimationBlendSeconds) VisualHitAt=Time;
+    VisualHitDirection=(Origin-GetActorLocation()).GetSafeNormal2D(SMALL_NUMBER,-GetActorForwardVector());
+    float Applied=0.f;
+    if(Shielded) {
+        // Preserve the entire shield gate, including discarded excess damage;
+        // blast direction/feedback uses the real remote explosion origin.
+        ShieldHealth=FMath::Max(0.f,ShieldHealth-Damage);
+        const bool Broken=ShieldHealth<=0.f;
+        if(Broken) {
+            ShieldBrokenAt=VisualHitAt=Time;ResetTankPressure();PendingHeadTurns.Reset();
+            CancelAttacks();Attack=EMCNutBossAttack::None;
+            Enter(EMCNutBossState::Stunned,FMath::Max(5.f,BossSettings.TankStunSeconds));
+        }
+        if(Broken || Time-ShieldHitAt>=.15) {
+            ShieldHitAt=Time;
+            const FVector Contact=AMCNutCombatEffect::GetShieldContactOrigin(this);
+            TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::ShieldHit,
+                Contact,Contact-GetActorForwardVector()*Settings.BodyRadius,Settings.BodyRadius*(Broken?1.4f:1.f),0,Broken?1.2f:.32f,AttackSeed));
+        }
+        HitAt=GetWorld()->GetTimeSeconds();RefreshPresentation();AMCNutCombatEffect::UpdateShieldDamageVisual(this);
+    } else {
+        Applied=Super::ReceiveExternalImpact(Damage,Causer,SourcePS,Origin);
+        if(Applied>0.f && !bDefeated && BossRole==EMCNutBossRole::Mage) {
+            if(Time-FocusWindowStartedAt>2) {FocusWindowStartedAt=Time;FocusHits=0;}
+            ++FocusHits;
+            if(FocusHits>=3 && Time-FocusWindowStartedAt>=.6) bMageTeleportQueued=true;
+        }
+    }
+    // No WeaponDamage/NotifyWeaponHit, snapshot contact, lifesteal or primary
+    // team-contact counter. A secondary AoE is one ordinary accepted boss hit.
+    Feedback->ReportAcceptedHit(Causer,GetToolTargetPoint(Origin),-VisualHitDirection,
+        Applied,FMath::Max(0.f,ShieldBefore-ShieldHealth),Shielded,bDefeated);
+    ForceNetUpdate();return Applied;
+}
+
 void AMCNutBoss::ReportDamageFeedback(AMCToothCharacter* Source,float Applied)
 {
     // ReceiveToolDamage reports once after resolving either shield durability or HP.
+}
+
+void AMCNutBoss::ReportExternalImpactFeedback(AActor* Causer,FVector Origin,float Applied)
+{
+    // The outer external resolver emits one combined shield/HP result.
 }
 
 float AMCNutBoss::GetAttackCooldownRemaining(EMCNutBossAttack Ability) const

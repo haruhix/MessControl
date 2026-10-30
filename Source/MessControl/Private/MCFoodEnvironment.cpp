@@ -60,7 +60,7 @@ AMCFoodActor* AMCFoodActor::FindNearbySpoiledFood(UWorld* World,FVector Point,fl
     if(!World || Point.ContainsNaN() || !FMath::IsFinite(Radius) || Radius<=0) return nullptr;
     AMCFoodActor* Closest=nullptr;double Distance=FMath::Square(Radius);
     for(TActorIterator<AMCFoodActor> It(World);It;++It) {
-        if(!It->bSpoiled || It->IsDisposed() || It->IsActorBeingDestroyed() || It->bBrushTool) continue;
+        if(!It->bSpoiled || It->IsDisposed() || It->IsInActiveContainer() || It->IsActorBeingDestroyed() || It->bBrushTool) continue;
         const double Candidate=FVector::DistSquared(Point,It->Visual->Bounds.Origin);
         if(Candidate<Distance) {Distance=Candidate;Closest=*It;}
     }
@@ -70,7 +70,7 @@ AMCFoodActor* AMCFoodActor::FindNearbySpoiledFood(UWorld* World,FVector Point,fl
 void AMCFoodActor::UpdateSmell()
 {
     if(!HasAuthority()) return;
-    const bool Smelly=bSpoiled && !bBrushTool && FoodData.Kind==EMCFoodKind::Food && !IsDisposed();
+    const bool Smelly=bSpoiled && !bBrushTool && FoodData.Kind==EMCFoodKind::Food && !IsDisposed() && !IsInActiveContainer();
     if(!Smelly) {
         if(IsValid(SmellVFX)) {SmellVFX->Destroy();SmellVFX=nullptr;}
         return;

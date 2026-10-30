@@ -142,6 +142,13 @@ float AMCCataclysmJelly::ReceiveToolDamage(float Damage,AMCToothCharacter* Sourc
     return Applied;
 }
 
+float AMCCataclysmJelly::ReceiveExternalImpact(float Damage,AActor* Causer,AMCPlayerState* SourcePS,FVector Origin)
+{
+    const float Applied=Super::ReceiveExternalImpact(Damage,Causer,SourcePS,Origin);
+    if(HasAuthority()) Target=nullptr; // Gel retains its native wandering/rupture policy.
+    return Applied;
+}
+
 void AMCCataclysmJelly::RefreshPresentation()
 {
     Super::RefreshPresentation();

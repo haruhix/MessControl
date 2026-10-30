@@ -55,6 +55,8 @@
 #include "MCHubProfileSubsystem.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Net/UnrealNetwork.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
 
 void AMCPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -138,6 +140,7 @@ bool AMCPlayerController::InputKey(const FInputKeyEventArgs& Params)
 }
 void AMCPlayerController::FlushPressedKeys()
 {
+    CancelSkillInputs();
     if(bEmoteSelectionHeld) {
         // GameViewportClient's global flush setting can request this after the
         // deferred Slate focus transfer. The visible held wheel owns T until
@@ -971,10 +974,69 @@ void AMCPlayerController::SkipRewardPerk()
 }
 void AMCPlayerController::ActivateSkillSlot(int32 SlotIndex)
 {
-    if(!IsLocalController() || bShowMouseCursor || bLoadingInputBlocked || bPauseMenuOpen || IsRewardInteractionActive()) return;
+    BeginSkillInput(SlotIndex);
+    EndSkillInput(SlotIndex);
+}
+void AMCPlayerController::BeginSkillInput(int32 SlotIndex)
+{
+    if(!IsLocalController() || bShowMouseCursor || bLoadingInputBlocked || bPauseMenuOpen || IsRewardInteractionActive()) {
+#if WITH_EDITOR
+        if(FParse::Param(FCommandLine::Get(),TEXT("MCActiveSkillReview")))
+            UE_LOG(LogTemp,Display,TEXT("MC_ACTIVE_REJECT stage=PC.BeginSkillInput gate=Local slot=%d local=%d cursor=%d loading=%d pause=%d reward=%d"),
+                SlotIndex,IsLocalController(),bShowMouseCursor,bLoadingInputBlocked,bPauseMenuOpen,IsRewardInteractionActive());
+#endif
+        return;
+    }
     const auto* State=GetPlayerState<AMCPlayerState>();const auto* Hero=Cast<AMCToothCharacter>(GetPawn());
-    if(!State || !State->Perks || !Hero || !Hero->CanWork() || !State->Perks->ActiveSkillSlots.IsValidIndex(SlotIndex)) return;
-    ServerActivateSkillSlot(SlotIndex,State->Perks->ActiveSkillSlots[SlotIndex].InstanceID);
+    if(!State || !State->Perks || !Hero || !State->Perks->ActiveSkillSlots.IsValidIndex(SlotIndex) || HeldSkillInputs.Contains(SlotIndex)) {
+#if WITH_EDITOR
+        if(FParse::Param(FCommandLine::Get(),TEXT("MCActiveSkillReview")))
+            UE_LOG(LogTemp,Display,TEXT("MC_ACTIVE_REJECT stage=PC.BeginSkillInput gate=Context slot=%d state=%d perks=%d hero=%d slotValid=%d held=%d"),
+                SlotIndex,State!=nullptr,State && State->Perks,Hero!=nullptr,
+                State && State->Perks && State->Perks->ActiveSkillSlots.IsValidIndex(SlotIndex),HeldSkillInputs.Contains(SlotIndex));
+#endif
+        return;
+    }
+    FMCActiveSkillInputHandle Handle;Handle.SlotIndex=SlotIndex;
+    Handle.SlotInstanceID=State->Perks->ActiveSkillSlots[SlotIndex].InstanceID;
+    if(++NextSkillPressSequence==0) ++NextSkillPressSequence;
+    Handle.PressSequence=NextSkillPressSequence;
+    if(!Handle.IsValid()) {
+#if WITH_EDITOR
+        if(FParse::Param(FCommandLine::Get(),TEXT("MCActiveSkillReview")))
+            UE_LOG(LogTemp,Display,TEXT("MC_ACTIVE_REJECT stage=PC.BeginSkillInput gate=Handle slot=%d instanceValid=%d sequenceNonzero=%d"),
+                SlotIndex,Handle.SlotInstanceID.IsValid(),Handle.PressSequence!=0);
+#endif
+        return;
+    }
+    HeldSkillInputs.Add(SlotIndex,Handle);ServerBeginSkillInput(Handle);
+}
+void AMCPlayerController::EndSkillInput(int32 SlotIndex,bool bCanceled)
+{
+    const auto* Saved=HeldSkillInputs.Find(SlotIndex);if(!Saved) return;
+    const auto Handle=*Saved;HeldSkillInputs.Remove(SlotIndex);
+    // Deliberately no current-slot/menu/CanWork gate: the accepted action owns this release.
+    ServerEndSkillInput(Handle,bCanceled);
+}
+void AMCPlayerController::CancelSkillInputs()
+{
+    const auto Inputs=HeldSkillInputs;
+    HeldSkillInputs.Reset();
+    for(const auto& Pair:Inputs) ServerEndSkillInput(Pair.Value,true);
+}
+void AMCPlayerController::ServerBeginSkillInput_Implementation(FMCActiveSkillInputHandle Handle)
+{
+    if(!Handle.IsValid() || int32(Handle.PressSequence-LastServerSkillPressSequence)<=0) return;
+    LastServerSkillPressSequence=Handle.PressSequence;
+    auto* State=GetPlayerState<AMCPlayerState>();auto* Hero=Cast<AMCToothCharacter>(GetPawn());
+    if(!State || !State->Perks || !Hero || State->GetPawn()!=Hero || Hero->GetPlayerState<AMCPlayerState>()!=State) return;
+    State->Perks->BeginSkillSlot(Handle);
+}
+void AMCPlayerController::ServerEndSkillInput_Implementation(FMCActiveSkillInputHandle Handle,bool bCanceled)
+{
+    auto* State=GetPlayerState<AMCPlayerState>();
+    if(!State || !State->Perks || !Handle.IsValid()) return;
+    if(bCanceled) State->Perks->CancelSkillInput(Handle);else State->Perks->ReleaseSkillInput(Handle);
 }
 void AMCPlayerController::ServerActivateSkillSlot_Implementation(int32 SlotIndex,FGuid ExpectedInstanceID)
 {

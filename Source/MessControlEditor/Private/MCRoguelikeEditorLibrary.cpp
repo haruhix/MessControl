@@ -1,4 +1,6 @@
 #include "MCRoguelikeEditorLibrary.h"
+#include "MCActiveSkillPerkEffect.h"
+#include "MCPerkTypes.h"
 #include "ActorFactories/ActorFactory.h"
 #include "AI/NavigationSystemBase.h"
 #include "AssetCompilingManager.h"
@@ -6,14 +8,83 @@
 #include "Components/BrushComponent.h"
 #include "Editor.h"
 #include "Engine/Level.h"
+#include "Engine/DataTable.h"
+#include "Engine/SkeletalMesh.h"
 #include "Engine/Polys.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
+#include "GameFramework/PlayerController.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
 #include "Model.h"
 #include "NavigationSystem.h"
 #include "NavMesh/NavMeshBoundsVolume.h"
 #include "NavMesh/RecastNavMesh.h"
 #include "UObject/UObjectGlobals.h"
+
+bool UMCRoguelikeEditorLibrary::GetReferenceBoneComponentTransform(USkeletalMesh* Mesh,FName Bone,FTransform& Transform)
+{
+    Transform=FTransform::Identity;
+    if(!IsInGameThread() || !IsValid(Mesh)) return false;
+    const FReferenceSkeleton& Ref=Mesh->GetRefSkeleton();
+    int32 Index=Ref.FindBoneIndex(Bone);
+    const TArray<FTransform>& Local=Ref.GetRefBonePose();
+    if(!Local.IsValidIndex(Index)) return false;
+    Transform=Local[Index];
+    for(Index=Ref.GetParentIndex(Index);Index!=INDEX_NONE;Index=Ref.GetParentIndex(Index)) {
+        if(!Local.IsValidIndex(Index)) return false;
+        Transform=Transform*Local[Index];
+    }
+    return !Transform.ContainsNaN();
+}
+
+bool UMCRoguelikeEditorLibrary::PatchSkillParameters(UDataTable* Table,FName Row,const TMap<FName,float>& Changes,const TArray<FName>& Removed)
+{
+    if(!IsInGameThread() || !GEditor || GEditor->PlayWorld || !IsValid(Table)
+        || !FParse::Param(FCommandLine::Get(),TEXT("MCActiveSkillReview"))
+        || Table->GetPathName()!=TEXT("/Game/Gameplay/Roguelike/DT_Perks.DT_Perks")
+        || Table->GetRowStruct()!=FMCPerkDefinition::StaticStruct()) return false;
+    auto* Definition=Table->FindRow<FMCPerkDefinition>(Row,TEXT("Skill geometry authoring"),false);
+    if(!Definition || !Definition->bEnabled || (Definition->Kind!=EMCPerkKind::Active && Definition->Kind!=EMCPerkKind::Consumable)) return false;
+    for(const auto& Change:Changes) if(Change.Key.IsNone() || !FMath::IsFinite(Change.Value)) return false;
+    Table->Modify();
+    for(FName Key:Removed) Definition->Parameters.Remove(Key);
+    for(const auto& Change:Changes) Definition->Parameters.Add(Change.Key,Change.Value);
+    Table->MarkPackageDirty();
+    return true;
+}
+
+UDataTable* UMCRoguelikeEditorLibrary::CreateLastChargeSkillReviewTable(UWorld* World,UDataTable* SourceTable,FName PerkID)
+{
+    if(!IsInGameThread() || !GEditor || !IsValid(World) || GEditor->PlayWorld!=World
+        || World->bIsTearingDown || World->WorldType!=EWorldType::PIE || World->GetNetMode()!=NM_Standalone
+        || !FParse::Param(FCommandLine::Get(),TEXT("MCActiveSkillReview"))
+        || !FParse::Param(FCommandLine::Get(),TEXT("MCHubTransientProfile"))
+        || !IsValid(SourceTable) || SourceTable->GetPathName()!=TEXT("/Game/Gameplay/Roguelike/DT_Perks.DT_Perks")
+        || SourceTable->GetRowStruct()!=FMCPerkDefinition::StaticStruct()) return nullptr;
+    const auto* Controller=World->GetFirstPlayerController();
+    if(!Controller || !Controller->IsLocalController() || !Controller->HasAuthority() || Controller->GetWorld()!=World) return nullptr;
+    const FName Consumables[]={TEXT("Consumable_Grenade"),TEXT("Consumable_Air"),TEXT("Consumable_Rocket"),TEXT("Consumable_Driver")};
+    bool bCurrentConsumable=false;
+    for(FName ID:Consumables) bCurrentConsumable|=ID==PerkID;
+    if(!bCurrentConsumable) return nullptr;
+    const auto* Original=SourceTable->FindRow<FMCPerkDefinition>(PerkID,TEXT("ActiveSkillLastChargeReview"),false);
+    if(!Original || !Original->bEnabled || Original->Kind!=EMCPerkKind::Consumable || Original->InitialCharges<=0
+        || !Original->EffectClass || !Original->EffectClass->IsChildOf(UMCActiveSkillPerkEffect::StaticClass())) return nullptr;
+    // JSON export/import is not a lossless round trip for reflected TMap<float>
+    // entries. Duplicate the native payload, including texts, soft refs and maps.
+    auto* Copy=DuplicateObject<UDataTable>(SourceTable,GetTransientPackage(),
+        MakeUniqueObjectName(GetTransientPackage(),UDataTable::StaticClass(),TEXT("MCActiveSkillLastChargeReview")));
+    if(!Copy) return nullptr;
+    Copy->ClearFlags(RF_Public|RF_Standalone|RF_Transactional);
+    Copy->SetFlags(RF_Transient);
+    auto* Selected=Copy->FindRow<FMCPerkDefinition>(PerkID,TEXT("ActiveSkillLastChargeReview"),false);
+    if(!Selected || Copy->GetOutermost()!=GetTransientPackage()) return nullptr;
+    Selected->InitialCharges=1;
+    UE_LOG(LogTemp,Display,TEXT("MC_ACTIVE_REVIEW_TABLE source=%s clone=%s selected=%s charges=%d->1 nativeDuplicate=1 transient=1"),
+        *SourceTable->GetPathName(),*Copy->GetPathName(),*PerkID.ToString(),Original->InitialCharges);
+    return Copy;
+}
 
 bool UMCRoguelikeEditorLibrary::ConfigureBossNavigation(UWorld* World,FVector Center,FVector Extent)
 {

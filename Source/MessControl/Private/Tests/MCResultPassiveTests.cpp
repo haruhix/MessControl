@@ -125,6 +125,49 @@ struct FWorld
 };
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCResultDeadSurfaceCleaningTest,"MessControl.Perks.Results.DeadSurfaceCleaningIsInert",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCResultDeadSurfaceCleaningTest::RunTest(const FString&)
+{
+    MCResultPassiveTests::FWorld T;auto& P=T.Player;
+    P.Perks->ServerGrantPerk(TEXT("B2_CleanBreath"));P.Perks->ServerGrantPerk(TEXT("B2_CleanAcceleration"));
+    T.Health(P,40);
+    auto* Dead=T.Surface();
+    if(!TestTrue(TEXT("Native regression target has authority"),Dead->HasAuthority())) return false;
+    // Restore clamps health to at least1. This native malformed-state fixture
+    // must directly retain zeroHP while leaving its positive coffee intact.
+    Dead->Status->State.Health=0;
+    const int32 DeadLayers=Dead->Status->State.CoffeeLeft;
+    const int32 ContactsBefore=P.Hero->SuccessfulBrushContacts;
+    const auto MaskBefore=Dead->WipeMask;
+    TestTrue(TEXT("Regression fixture is dead with positive native coffee layers"),!Dead->Status->IsAlive() && DeadLayers>0);
+    // The old code mutated this mask then retried rejected CareContact forever.
+    // Run only against the guarded implementation; no pre-patch hang is invoked.
+    TestFalse(TEXT("Dead target rejects native spatial cleaning without hanging"),
+        Dead->CleanLiquidAt(P.Hero,Dead->GetActorLocation(),80,.1f,16,EMCStainCleanReason::Brush));
+    TestFalse(TEXT("Dead target also rejects full passive cleanup without hanging"),Dead->CleanLiquidFromPassive(P.Hero));
+    TestTrue(TEXT("Rejected care never mutates the dead target mask"),Dead->WipeMask==MaskBefore);
+    TestEqual(TEXT("Rejected care leaves coffee layers intact"),Dead->Status->State.CoffeeLeft,DeadLayers);
+    TestEqual(TEXT("Rejected care cannot count brush contacts"),P.Hero->SuccessfulBrushContacts,ContactsBefore);
+    TestEqual(TEXT("Rejected care cannot award recovery"),P.Hero->Status->State.Health,40.f);
+    TestEqual(TEXT("Rejected care cannot award completion speed"),P.Perks->RogueValue(EMCRogueStat::NormalSpeed),1.f);
+
+    auto* Live=T.Surface(FVector(600,0,10000));
+    const int32 LiveLayers=Live->Status->State.CoffeeLeft;
+    TestTrue(TEXT("Healthy native brush cleanup still succeeds"),T.Finish(Live));
+    TestTrue(TEXT("Healthy native care reaches clean"),Live->IsClean());
+    TestEqual(TEXT("Each accepted native brush layer counts exactly once"),P.Hero->SuccessfulBrushContacts,ContactsBefore+LiveLayers);
+    TestEqual(TEXT("Healthy completion still awards one recovery"),P.Hero->Status->State.Health,43.f);
+
+    auto* Sprayed=T.Surface(FVector(1200,0,10000));
+    const int32 AfterBrush=P.Hero->SuccessfulBrushContacts;
+    TestTrue(TEXT("Healthy native spray cleanup still succeeds"),
+        Sprayed->CleanLiquidAt(P.Hero,Sprayed->GetActorLocation(),80,.1f,16,EMCStainCleanReason::Spray));
+    TestTrue(TEXT("Healthy sprayed surface reaches clean"),Sprayed->IsClean());
+    TestEqual(TEXT("Spray care never fabricates brush contacts"),P.Hero->SuccessfulBrushContacts,AfterBrush);
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCResultStainCompletionTest,"MessControl.Perks.Results.StainCompletionIdentity",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCResultStainCompletionTest::RunTest(const FString&)

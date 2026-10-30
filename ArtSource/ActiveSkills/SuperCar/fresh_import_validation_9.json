@@ -1,0 +1,161 @@
+{
+  "passed": true,
+  "files": [
+    {
+      "file": "E:\\CodexWork\\MessControl\\ActiveSkills_20261029\\SuperCarUpdate01\\IndividualWheels\\SuperCar_steering_assembly.glb",
+      "passed": true,
+      "meshes": [
+        {
+          "name": "SM_SuperCar_Chassis",
+          "triangles": 1470,
+          "uv_channels": 2,
+          "bounds_error_m": 2.2351741790771484e-08,
+          "pivot_error_m": 0.0,
+          "passed": true
+        },
+        {
+          "name": "SM_SuperCar_FrontBrush_L",
+          "triangles": 668,
+          "uv_channels": 2,
+          "bounds_error_m": 7.450580596923828e-09,
+          "pivot_error_m": 0.0,
+          "passed": true
+        },
+        {
+          "name": "SM_SuperCar_FrontBrush_R",
+          "triangles": 668,
+          "uv_channels": 2,
+          "bounds_error_m": 1.4901161193847656e-08,
+          "pivot_error_m": 0.0,
+          "passed": true
+        },
+        {
+          "name": "SM_SuperCar_FrontWheel_L",
+          "triangles": 720,
+          "uv_channels": 2,
+          "bounds_error_m": 0.0,
+          "pivot_error_m": 0.0,
+          "passed": true
+        },
+        {
+          "name": "SM_SuperCar_FrontWheel_R",
+          "triangles": 720,
+          "uv_channels": 2,
+          "bounds_error_m": 0.0,
+          "pivot_error_m": 0.0,
+          "passed": true
+        },
+        {
+          "name": "SM_SuperCar_RearBrush_L",
+          "triangles": 668,
+          "uv_channels": 2,
+          "bounds_error_m": 7.450580596923828e-09,
+          "pivot_error_m": 0.0,
+          "passed": true
+        },
+        {
+          "name": "SM_SuperCar_RearBrush_R",
+          "triangles": 668,
+          "uv_channels": 2,
+          "bounds_error_m": 1.1175870895385742e-08,
+          "pivot_error_m": 0.0,
+          "passed": true
+        },
+        {
+          "name": "SM_SuperCar_RearWheel_L",
+          "triangles": 700,
+          "uv_channels": 2,
+          "bounds_error_m": 0.0,
+          "pivot_error_m": 0.0,
+          "passed": true
+        },
+        {
+          "name": "SM_SuperCar_RearWheel_R",
+          "triangles": 700,
+          "uv_channels": 2,
+          "bounds_error_m": 0.0,
+          "pivot_error_m": 0.0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "file": "E:\\CodexWork\\MessControl\\ActiveSkills_20261029\\SuperCarUpdate01\\IndividualWheels\\SuperCar_steering_assembly.fbx",
+      "passed": true,
+      "meshes": [
+        {
+          "name": "SM_SuperCar_Chassis",
+          "triangles": 1470,
+          "uv_channels": 2,
+          "bounds_error_m": 2.2351741790771484e-08,
+          "pivot_error_m": 0.0,
+          "passed": true
+        },
+        {
+          "name": "SM_SuperCar_FrontBrush_L",
+          "triangles": 668,
+          "uv_channels": 2,
+          "bounds_error_m": 1.2293457984924316e-07,
+          "pivot_error_m": 1.1920928955078125e-07,
+          "passed": true
+        },
+        {
+          "name": "SM_SuperCar_FrontBrush_R",
+          "triangles": 668,
+          "uv_channels": 2,
+          "bounds_error_m": 1.30385160446167e-07,
+          "pivot_error_m": 1.1920928955078125e-07,
+          "passed": true
+        },
+        {
+          "name": "SM_SuperCar_FrontWheel_L",
+          "triangles": 720,
+          "uv_channels": 2,
+          "bounds_error_m": 1.1920928955078125e-07,
+          "pivot_error_m": 8.429369702178807e-08,
+          "passed": true
+        },
+        {
+          "name": "SM_SuperCar_FrontWheel_R",
+          "triangles": 720,
+          "uv_channels": 2,
+          "bounds_error_m": 5.960464477539063e-08,
+          "pivot_error_m": 8.429369702178807e-08,
+          "passed": true
+        },
+        {
+          "name": "SM_SuperCar_RearBrush_L",
+          "triangles": 668,
+          "uv_channels": 2,
+          "bounds_error_m": 1.1920928955078125e-07,
+          "pivot_error_m": 1.1920928955078125e-07,
+          "passed": true
+        },
+        {
+          "name": "SM_SuperCar_RearBrush_R",
+          "triangles": 668,
+          "uv_channels": 2,
+          "bounds_error_m": 1.30385160446167e-07,
+          "pivot_error_m": 1.1920928955078125e-07,
+          "passed": true
+        },
+        {
+          "name": "SM_SuperCar_RearWheel_L",
+          "triangles": 700,
+          "uv_channels": 2,
+          "bounds_error_m": 1.1920928955078125e-07,
+          "pivot_error_m": 8.429369702178807e-08,
+          "passed": true
+        },
+        {
+          "name": "SM_SuperCar_RearWheel_R",
+          "triangles": 700,
+          "uv_channels": 2,
+          "bounds_error_m": 1.1920928955078125e-07,
+          "pivot_error_m": 1.3328003749250113e-07,
+          "passed": true
+        }
+      ]
+    }
+  ]
+}

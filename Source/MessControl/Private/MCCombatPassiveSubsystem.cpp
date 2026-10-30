@@ -1,5 +1,6 @@
 #include "MCCombatPassiveSubsystem.h"
 #include "MCPassiveCombatCue.h"
+#include "MCPassiveFeedbackCue.h"
 #include "MCPerkComponent.h"
 #include "MCPlayerState.h"
 #include "MCGameState.h"
@@ -174,7 +175,10 @@ void UMCCombatPassiveSubsystem::NotifyWeaponHit(const UMCPerkComponent* Perks,AA
     auto* State=Runtime->StateFor(Perks,false);if(!State || !State->Attack.ID) return;
     auto& Attack=State->Attack;const float* Damage=Attack.PendingDamage.Find(Target);
     if(!Damage || Attack.HitTargets.Contains(Target)) return;
+    TWeakObjectPtr<AMCToothCharacter> PowerHitSource;
+    FVector PowerHitDirection=FVector::ZeroVector;
     if(!Attack.bAccepted) {
+        if(Attack.DashScale>1.f+UE_KINDA_SMALL_NUMBER) {PowerHitSource=Attack.Hero;PowerHitDirection=Attack.Forward;}
         Attack.bAccepted=true;Attack.Damage=*Damage;Attack.FirstTarget=Target;
         Attack.FirstPoint=TargetPoint(Target,Attack.Origin);
         // A fatal hit can have reduced HP to zero before this callback.
@@ -184,6 +188,9 @@ void UMCCombatPassiveSubsystem::NotifyWeaponHit(const UMCPerkComponent* Perks,AA
     Attack.HitTargets.Add(Target);
     if(Owns(Perks,Billiards)) Runtime->Launch(Perks,Attack,Target,*Damage);
     if(Attack.bImplicit) Runtime->EndAttack(Attack.Hero.Get(),Attack.ID);
+    // Presentation follows the confirmed one-shot consumption, never a query,
+    // empty swing, secondary effect or another target in the same cleave.
+    if(PowerHitSource.IsValid()) AMCPassiveFeedbackCue::Spawn(PowerHitSource.Get(),EMCPassiveFeedbackKind::PowerHit,1.f,PowerHitDirection);
 }
 void UMCCombatPassiveSubsystem::NotifyPhysicalHit(AMCToothCharacter* Hero,AMCToothCharacter* Target,float Damage)
 {
@@ -352,8 +359,9 @@ bool UMCCombatPassiveSubsystem::AdvanceLaunch(AMCNutEnemy* Enemy,float Dt)
         // Contact bypasses melee reach, but still goes through the target's authoritative damage/protection.
         auto* State=StateFor(Perks,true);if(!State) break;
         const auto Saved=State->Attack;Secondary.ID=NextAttackID++;Secondary.Reach=2000;State->Attack=Secondary;
-        Apply(Secondary,Other,Episode.Damage,true);
+        const bool Accepted=Apply(Secondary,Other,Episode.Damage,true);
         if(auto* Current=StateFor(Perks,false);Current && Current->Hero.Get()==Hero && Current->Attack.ID==Secondary.ID) Current->Attack=Saved;
+        if(Accepted && IsValid(Other)) AMCPassiveFeedbackCue::Spawn(Other,EMCPassiveFeedbackKind::Billiards,1.f,Secondary.Forward);
     }
     return Moving;
 }

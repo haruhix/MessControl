@@ -48,7 +48,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Food") FMCFoodSettings Settings;
 };
 UENUM(BlueprintType)
-enum class EMCFoodPhase : uint8 { Falling, Stuck, Free, Disposed, Equipped, Carried, Swallowing, Absorbing };
+enum class EMCFoodPhase : uint8 { Falling, Stuck, Free, Disposed, Equipped, Carried, Swallowing, Absorbing, Contained };
 
 /** Server physics pose relative to its carrier, rebased onto the predicted/smoothed character. */
 USTRUCT()
@@ -128,6 +128,14 @@ public:
     void MarkManualThrow(AMCToothCharacter* Hero);
     /** Shared physical food launch for hand-stack and legacy grip throws. */
     void LaunchManualThrow(AMCToothCharacter* Hero,FVector Direction,float Speed);
+    /** Authority-only exclusive bag claim. Existing food identity/freshness are retained. */
+    bool TryEnterActiveContainer(AActor* Container,AMCToothCharacter* Hero,FGuid Claim);
+    /** Only the original container+claim may release. Invalid/duplicate releases are inert. */
+    bool ExitActiveContainer(AActor* Container,FGuid Claim,FVector Location,FVector Direction,float Speed,bool bThrown);
+    bool IsInActiveContainer() const { return Phase==EMCFoodPhase::Contained; }
+    AMCToothCharacter* GetActiveContainerCarrier() const;
+    /** External blast preserves source PlayerState attribution without primary-tool procs. */
+    bool ReceiveActiveSkillImpact(float Damage,FVector Direction,class AMCPlayerState* SourcePS);
     FVector IntakeSweepStart() const { return PreviousPhysicsLocation; }
     bool BeginSwallow();
     void CancelSwallow();
@@ -151,6 +159,8 @@ public:
     FTransform StackPickupPose(const FTransform& Goal) const;
     UPROPERTY(Replicated) FMCStackPickup StackPickup;
     UPROPERTY(ReplicatedUsing=OnRep_Phase,BlueprintReadOnly,Category="Collection") TObjectPtr<AMCToothCharacter> StackCarrier;
+    UPROPERTY(ReplicatedUsing=OnRep_Phase,BlueprintReadOnly,Category="Collection") TObjectPtr<AActor> ActiveContainer;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Collection") TObjectPtr<AMCToothCharacter> ActiveContainerCarrier;
     void ReactToImpact(float Strength=1);
     void UpdateReaction(float Dt);
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Reaction") double ImpactAt=-100;
@@ -248,6 +258,8 @@ private:
     void Spoil();
     void UpdateSmell();
     bool SpawnFragments(FVector Direction);
+    bool ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharacter* Worker,class AMCPlayerState* SourcePS,bool bWeaponPassives);
+    FGuid ActiveContainerClaim;
     void RecoverUnreachableFood(float Dt);
     UPROPERTY() TObjectPtr<class AMCReactionVFX> SmellVFX;
     float AccessCheckElapsed=0,UnreachableSeconds=0;

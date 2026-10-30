@@ -205,9 +205,9 @@ float UMCInventoryComponent::CooldownSeconds() const
     const float Authored=Settings?Settings->SprayCooldown:8.f;
     if(UsesAntisepticCycle()) {
         const auto* Perks=UMCPerkComponent::ForActor(Hero);
-        const float Base=Perks->PerkParameter(TEXT("B2_Antiseptic"),TEXT("BaseCooldown"),Authored);
+        const float Base=Perks->PerkParameter(TEXT("B2_Antiseptic"),TEXT("BaseCooldown"),2.f);
         const float Penalty=Perks->PerkParameter(TEXT("B2_Antiseptic"),TEXT("CooldownPenalty"),.3f);
-        return FMath::Clamp(FMath::IsFinite(Base)?Base:8.f,.1f,60.f)*(1.f+FMath::Clamp(FMath::IsFinite(Penalty)?Penalty:.3f,0.f,4.f));
+        return FMath::Clamp(FMath::IsFinite(Base)?Base:2.f,.1f,60.f)*(1.f+FMath::Clamp(FMath::IsFinite(Penalty)?Penalty:.3f,0.f,4.f));
     }
     return FMath::Max(1.f,Authored);
 }
@@ -230,13 +230,15 @@ bool UMCInventoryComponent::TickPassiveSprayCycle()
         return Held;
     }
     if(!Held) {
-        if(SprayBurstUntil>Now()) {SprayBurstUntil=0;GetOwner()->ForceNetUpdate();}
+        if(SprayBurstUntil>Now()) {
+            SprayBurstUntil=0;SprayReadyAt=Now()+CooldownSeconds();GetOwner()->ForceNetUpdate();
+        }
         return false;
     }
     if(Now()>=SprayReadyAt) {
         const auto* Perks=UMCPerkComponent::ForActor(Hero);
-        const float Duration=Perks->PerkParameter(TEXT("B2_Antiseptic"),TEXT("SprayDuration"),1.f);
-        SprayBurstUntil=Now()+FMath::Clamp(FMath::IsFinite(Duration)?Duration:1.f,.1f,5.f);
+        const float Duration=Perks->PerkParameter(TEXT("B2_Antiseptic"),TEXT("SprayDuration"),3.f);
+        SprayBurstUntil=Now()+FMath::Clamp(FMath::IsFinite(Duration)?Duration:3.f,.1f,5.f);
         SprayReadyAt=SprayBurstUntil+CooldownSeconds();GetOwner()->ForceNetUpdate();
     }
     return Now()<SprayBurstUntil;
@@ -244,6 +246,7 @@ bool UMCInventoryComponent::TickPassiveSprayCycle()
 float UMCInventoryComponent::SpraySecondsLeft() const
 {
     if(HasUpgrade(EMCToolUpgrade::Watergun) && bPressureMode) return bWaterReloading?FMath::Max(0.f,float(WaterReloadReadyAt-Now())):0.f;
+    if(UsesAntisepticCycle() && Now()<SprayBurstUntil) return 0.f;
     return FMath::Max(0.f,float(SprayReadyAt-Now()));
 }
 bool UMCInventoryComponent::CanBreak(const AMCFoodActor* Food) const
@@ -310,6 +313,7 @@ FVector UMCInventoryComponent::SwingOffset(EMCToolSlot Slot,float T)
 }
 bool UMCInventoryComponent::ShouldPresentTool() const
 {
+    if(Hero && Hero->GetActiveSkillPresentation()) return false;
     if(Hero && Hero->FishingRod && Hero->FishingRod->IsPresented()) return false;
     if(!Hero || !Hero->Status->IsAlive() || Hero->IsRowing() || Hero->HeldFood || Hero->FoodCollection->bCollecting || AMCHubBasketball::HeldBy(Hero) || Hero->OrderJumpTarget || Hero->SwallowedBy || Hero->MimicCaptor) return false;
     if(Hero->RewardInteraction && (Hero->RewardInteraction->Stage==EMCRewardChestStage::Lockpicking

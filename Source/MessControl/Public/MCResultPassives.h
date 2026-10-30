@@ -8,7 +8,7 @@ class AActor;
 class AMCToothCharacter;
 
 /** Native provenance is never supplied by a client RPC. Secondary cleaning cannot proc another neighbor. */
-enum class EMCStainCleanReason : uint8 { Brush, Spray, Residue, NeatFreak, Technical };
+enum class EMCStainCleanReason : uint8 { Brush, Spray, Residue, NeatFreak, Technical, ActiveSkill };
 
 /** A synchronous mask mutation receipt. Consuming its serial twice cannot award twice. */
 struct FMCStainCleaningAttempt

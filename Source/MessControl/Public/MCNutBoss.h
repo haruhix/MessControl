@@ -34,6 +34,7 @@ public:
     static constexpr float HeadSplitAt=.42f;
     static constexpr float MageRevealAt=.9f;
     virtual float ReceiveToolDamage(float Damage,AMCToothCharacter* Source) override;
+    virtual float ReceiveExternalImpact(float Damage,AActor* Causer,AMCPlayerState* SourcePS,FVector Origin) override;
     /** Intact knight shields protect HP from every direction and combat pose. */
     bool IsShieldProtectingFrom(FVector SourcePoint) const;
     bool IsPlayerInThreat(const AMCToothCharacter* Hero,FVector& EscapeDirection) const;
@@ -93,6 +94,7 @@ public:
 protected:
     virtual void RefreshPresentation() override;
     virtual void ReportDamageFeedback(AMCToothCharacter* Source,float Applied) override;
+    virtual void ReportExternalImpactFeedback(AActor* Causer,FVector Origin,float Applied) override;
     virtual void Defeat() override;
 private:
     // A placed laboratory station schedules real attacks without the encounter AI.

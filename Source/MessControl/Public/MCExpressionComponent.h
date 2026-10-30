@@ -9,6 +9,8 @@ struct FReferenceSkeleton;
 
 UENUM(BlueprintType)
 enum class EMCEmotion : uint8 { Neutral, Happy, Angry, Sad, Surprise, Pain, Effort };
+UENUM()
+enum class EMCHookFaceReaction : uint8 { Success, Miss, Caught };
 UENUM(BlueprintType)
 // Keep the original six values stable for existing Blueprint callers.
 enum class MCViseme : uint8 { Rest, Open, Wide, Round, Closed, LipBite, I, U, L, TH, CH, S, D };
@@ -59,6 +61,18 @@ struct FMCSprayReactionState
     UPROPERTY() double ContactAt=-100;
 };
 
+/** A short cosmetic lease; server time keeps the same reaction on every peer. */
+USTRUCT(BlueprintType)
+struct FMCHookFaceReactionState
+{
+    GENERATED_BODY()
+    UPROPERTY(BlueprintReadOnly,Category="Face|Hook") FGuid ActionId;
+    UPROPERTY(BlueprintReadOnly,Category="Face|Hook") EMCHookFaceReaction Reaction=EMCHookFaceReaction::Success;
+    UPROPERTY(BlueprintReadOnly,Category="Face|Hook") double StartedAt=-100;
+    UPROPERTY(BlueprintReadOnly,Category="Face|Hook") double StoppedAt=-1;
+    UPROPERTY(BlueprintReadOnly,Category="Face|Hook") double DamageAtStart=-100;
+};
+
 /** Cosmetic state only. Gameplay never depends on an emote or speech envelope. */
 UCLASS(ClassGroup=(MessControl),meta=(BlueprintSpawnableComponent))
 class MESSCONTROL_API UMCExpressionComponent : public UActorComponent
@@ -82,6 +96,12 @@ public:
     // Authority records actual spray contact; peers derive the cosmetic envelope.
     UPROPERTY(Replicated) FMCSprayReactionState SprayState;
     void ReceiveSpray(AMCToothCharacter* Source);
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Face|Hook") FMCHookFaceReactionState HookFaceState;
+    // Authority records contact/miss once. Completion leaves the bounded reaction
+    // to finish; only a genuine interruption stops the matching action's lease.
+    void PlayHookReaction(const FGuid& ActionId,EMCHookFaceReaction Reaction);
+    void StopHookReaction(const FGuid& ActionId);
+    UFUNCTION(BlueprintPure,Category="Face|Hook") float HookFaceAlpha() const;
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Emotes") void ServerPlayEmote(FName Id);
     // Authority-owned reward feedback uses the same replicated cosmetic state.
     void PlayChestCelebration();
@@ -116,10 +136,14 @@ private:
     float FoodSuctionFlinch=0;
     float SprayFlinch=0;
     bool CanReactSocially() const;
+    bool CanReactToHook() const;
+    EMCEmotion HookReactionEmotion() const;
+    FGuid SuppressedHookActionId;
+    double SuppressedHookStartedAt=-100;
     float Voice=0,EyeSquint=0,Jaw=0,Smile=0,Brows=0,BrowTilt=0,Round=0,LipClosure=0;
     MCViseme VoiceViseme=MCViseme::Rest;
     TMap<FName,float> MouthWeights;
     TMap<FName,float> EyeWeights;
     bool UpdateEyeShapes(float Dt,float EmotionStrength,bool bPain);
-    bool UpdateMouthShapes(float Dt,float EmotionStrength,bool bPain,bool bEyeOnly);
+    bool UpdateMouthShapes(float Dt,float EmotionStrength,bool bPain,bool bEyeOnly,float HookAlpha=0);
 };

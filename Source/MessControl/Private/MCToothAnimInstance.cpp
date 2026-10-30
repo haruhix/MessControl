@@ -1,5 +1,13 @@
 ﻿#include "MCToothAnimInstance.h"
 #include "MCToothCharacter.h"
+#include "MCActiveSkillAction.h"
+#include "MCHookSkillAction.h"
+#include "MCRocketSkillAction.h"
+#include "MCGrenadeSkillAction.h"
+#include "MCAirSkillAction.h"
+#include "MCSpongeSkillAction.h"
+#include "MCDriverSkillAction.h"
+#include "MCSuperCarVisualComponent.h"
 #include "MCSecondaryAnimationSolver.h"
 #include "MCAnimationComparisonSubsystem.h"
 #include "MCWeaponImpact.h"
@@ -70,6 +78,20 @@ public:
     float SprayPoseAlpha=0;
     float SawPoseAlpha=0;
     float UpgradeIdleAlpha=0,UpgradeSupportAlpha=0,UpgradeCarryAlpha=0;
+    float ActiveHandAlpha[2]={0,0};
+    FTransform ActiveHandWorld[2]={FTransform::Identity,FTransform::Identity};
+    FTransform ActiveHandLocal[2]={FTransform::Identity,FTransform::Identity};
+    FTransform ActiveBodyOffset=FTransform::Identity;
+    FQuat ActiveBodyFacing=FQuat::Identity;
+    float PreviousActiveRideYaw=0;
+    bool bHasActiveRideYaw=false;
+    FGuid GrenadeThrowPoseID;
+    FTransform GrenadeThrowHandStart=FTransform::Identity;
+    FVector ActiveRideOffset=FVector::ZeroVector;
+    float ActiveRideAlpha=0;
+    FTransform LastActiveRideFrame=FTransform::Identity;
+    bool bLastActiveRideDriver=false;
+    FVector ActiveDriverFeet[2]={FVector(-26.757216,-22.415012,65.950161),FVector(-25.763425,25.556290,65.950167)};
     EMCToolUpgrade GripUpgrade=EMCToolUpgrade::None;
     float CalculusPoseAlpha=0;
     FTransform LastCalculusHand=FTransform::Identity;
@@ -625,6 +647,194 @@ public:
         FTransform Blended;Blended.Blend(CS[Hand],Goal,UpgradeIdleAlpha);
         const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Blended;const int32 Parent=Ref.GetParentIndex(Lower);
         Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]);Pose[Hand]=Ref.GetRefBonePose()[Hand];
+    }
+    void ActiveSkillPose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref,float Dt)
+    {
+        if(!Tooth->ToothPhysics || !Tooth->ToothPhysics->CanAct()) {
+            ActiveHandAlpha[0]=ActiveHandAlpha[1]=0;ActiveRideOffset=FVector::ZeroVector;ActiveRideAlpha=0;
+            ActiveBodyOffset=FTransform::Identity;bHasActiveRideYaw=false;return;
+        }
+        const FTransform World=Tooth->GetMesh()->GetComponentTransform();
+        TArray<FTransform> CS;CS.SetNum(Pose.Num());
+        auto Rebuild=[&]() {for(int32 I=0;I<Pose.Num();++I) {const int32 P=Ref.GetParentIndex(I);CS[I]=P<0?Pose[I]:Pose[I]*CS[P];}};
+        Rebuild();
+        auto* Action=Tooth->GetActiveSkillPresentation();
+        const auto* Hook=Cast<AMCHookSkillAction>(Action);
+        const auto* Sponge=Cast<AMCSpongeSkillAction>(Action);
+        const auto* Driver=Cast<AMCDriverSkillAction>(Action);
+        FTransform BodyGoal=FTransform::Identity;
+        FQuat Facing=Tooth->GetActorQuat();
+        float RideTurn=0;
+        if(Sponge || Driver) {
+            const float Yaw=Tooth->GetActorRotation().Yaw;
+            if(bHasActiveRideYaw && Dt>UE_SMALL_NUMBER) RideTurn=FMath::Clamp(FMath::FindDeltaAngleDegrees(PreviousActiveRideYaw,Yaw)/(Dt*120.f),-1.f,1.f);
+            PreviousActiveRideYaw=Yaw;bHasActiveRideYaw=true;
+        } else bHasActiveRideYaw=false;
+        if(Hook) {BodyGoal=Hook->GetCastBodyOffset();Facing=Hook->GetCastFacing().Quaternion();}
+        else if(Action) {
+            // Gameplay-owned replicated ages drive anticipation/release. No
+            // worker thread follows a projectile or reads an action UObject.
+            const float Age=Action->GetPresentationAge();
+            const float Released=Action->GetPresentationReleaseAge();
+            const float In=FMath::SmoothStep(0.f,.12f,Age);
+            const float Kick=Released>=0?FMath::SmoothStep(0.f,.035f,Released)*(1-FMath::SmoothStep(.07f,.30f,Released)):0.f;
+            const float Hold=Released>=0?1-FMath::SmoothStep(.05f,.32f,Released):In;
+            if(Cast<AMCRocketSkillAction>(Action)) {
+                // Compact shoulder brace, weight back under the launcher and
+                // one clean recoil beat. The hands stay on its two grips.
+                BodyGoal=FTransform(FRotator(-3*Hold-9*Kick,-2*Hold,-2*Hold-2*Kick),FVector(-2*Hold-5*Kick,0,-2*Hold-2*Kick));
+            } else if(const auto* Air=Cast<AMCAirSkillAction>(Action)) {
+                const float Load=Air->GetFillFraction();
+                const float Pulse=FMath::Sin(Age*15.f)*.5f*Hold;
+                const float Burst=Air->bRuptured?-8.f:5.f;
+                BodyGoal=FTransform(FRotator((-3-2*Load)*Hold+Burst*Kick,0,1.5f*Hold),
+                    FVector((-1.5f-Load)*Hold+(Air->bRuptured?-5.f:2.f)*Kick,0,-1.5f*Hold+Pulse));
+            } else if(const auto* Grenade=Cast<AMCGrenadeSkillAction>(Action)) {
+                const float Throw=Grenade->Phase==EMCGrenadeSkillPhase::Thrown?Kick:0.f;
+                BodyGoal=FTransform(FRotator(-3*Hold+8*Throw,-7*Hold+10*Throw,2*Hold),FVector(-1.5f*Hold+2*Throw,0,-1.5f*Hold));
+            } else if(Sponge) {
+                const float Speed=FMath::Clamp(float(Tooth->GetVelocity().Size2D()/650.),0.f,1.f);
+                BodyGoal=FTransform(FRotator((4+4*Speed)*In,0,(-4*RideTurn+FMath::Sin(Age*5.f)*1.2f)*In),FVector(2*In,0,-3*In));
+            } else if(Driver) {
+                BodyGoal=FTransform(FRotator(3*In,0,-3.5f*RideTurn*In),FVector(0,0,-1.5f*In));
+            }
+        }
+        if(Hook) ActiveBodyOffset=BodyGoal;
+        else {
+            // Smooth return survives destruction of a projectile/presentation
+            // lease. It is a pose offset, never a capsule or camera movement.
+            const float Blend=1-FMath::Exp(-(Action?22.f:15.f)*FMath::Max(0.f,Dt));
+            FTransform Blended;Blended.Blend(ActiveBodyOffset,BodyGoal,Blend);ActiveBodyOffset=Blended;
+        }
+        ActiveBodyFacing=Facing;
+        if(!ActiveBodyOffset.Equals(FTransform::Identity,.001f)) {
+            // Entire body/hand snapshot is built in game-thread PreUpdate.
+            // Evaluate copies only the plain transforms stored in Pose.
+            const FTransform& BodyDelta=ActiveBodyOffset;
+            const int32 Body=Ref.FindBoneIndex(Tooth->RigBone(TEXT("body")));
+            if(Body>=0) {
+                const int32 Parent=Ref.GetParentIndex(Body);
+                const FQuat Basis=Parent>=0?CS[Parent].GetRotation():FQuat::Identity;
+                const FQuat MeshDelta=World.GetRotation().Inverse()*ActiveBodyFacing
+                    *BodyDelta.GetRotation()*ActiveBodyFacing.Inverse()*World.GetRotation();
+                Pose[Body].SetRotation((Basis.Inverse()*MeshDelta*Basis*Pose[Body].GetRotation()).GetNormalized());
+                Pose[Body].AddToTranslation((Parent>=0?CS[Parent].GetRotation().Inverse():FQuat::Identity).RotateVector(
+                    World.InverseTransformVector(ActiveBodyFacing.RotateVector(BodyDelta.GetLocation()))));
+                Rebuild();
+            }
+        }
+        FVector DesiredLift=FVector::ZeroVector;bool Riding=false;
+        if(Sponge) {
+            Riding=true;bLastActiveRideDriver=false;LastActiveRideFrame=Sponge->GetRideFrame();
+            const int32 L=Ref.FindBoneIndex(Tooth->RigBone(TEXT("foot_l"))),R=Ref.FindBoneIndex(Tooth->RigBone(TEXT("foot_r")));
+            if(L>=0 && R>=0) {
+                const FVector FeetCenter=World.TransformPosition((CS[L].GetLocation()+CS[R].GetLocation())*.5);
+                DesiredLift=(LastActiveRideFrame.GetLocation()-FeetCenter).GetClampedToMaxSize(100.);
+            }
+        } else if(Driver) {
+            Riding=true;bLastActiveRideDriver=true;LastActiveRideFrame=Driver->SuperCarVisual?Driver->SuperCarVisual->GetComponentTransform():Driver->GetActorTransform();
+            for(int32 Side=0;Side<2;++Side) ActiveDriverFeet[Side]=LastActiveRideFrame.InverseTransformPosition(Driver->GetFootFrame(Side==0).GetLocation());
+            const int32 Body=Ref.FindBoneIndex(Tooth->RigBone(TEXT("body")));
+            if(Body>=0) DesiredLift=Driver->GetRideFrame().GetLocation()-World.TransformPosition(CS[Body].GetLocation());
+        }
+        // A seat is a moving contact, not a freely trailing body offset. The
+        // action→mesh tick prerequisite supplies this frame's vehicle pose;
+        // a second world-space low-pass would put the rider behind the cockpit
+        // and reduce vertical placement when its horizontal error is clamped.
+        // Only dismounting eases back; no actor/capsule transform is changed.
+        ActiveRideAlpha=Driver?1.f:FMath::FInterpTo(ActiveRideAlpha,Riding?1.f:0.f,Dt,14.f);
+        ActiveRideOffset=Driver?DesiredLift:FMath::VInterpTo(ActiveRideOffset,DesiredLift,Dt,14.f);
+        if(!Pose.IsEmpty() && !ActiveRideOffset.IsNearlyZero(.01)) {
+            Pose[0].AddToTranslation(World.InverseTransformVector(ActiveRideOffset));Rebuild();
+        }
+        if(ActiveRideAlpha>.001f) for(int32 Side=0;Side<2;++Side) {
+            const int32 Upper=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("leg_l"):TEXT("leg_r")));
+            const int32 Knee=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("knee_l"):TEXT("knee_r")));
+            const int32 Foot=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("foot_l"):TEXT("foot_r")));
+            if(Upper<0 || Knee<0 || Foot<0 || Ref.GetParentIndex(Knee)!=Upper || Ref.GetParentIndex(Foot)!=Knee) continue;
+            FVector Local=bLastActiveRideDriver?ActiveDriverFeet[Side]
+                  :Side==0?FVector(-35.9246,-16.3178,2):FVector(27.4828,6.9446,2);
+            const FVector Target=LastActiveRideFrame.TransformPosition(Local);
+            FTransform U=CS[Upper],L=CS[Knee],F=CS[Foot];
+            const double Reach=(FVector::Dist(U.GetLocation(),L.GetLocation())+FVector::Dist(L.GetLocation(),F.GetLocation()))*.98;
+            const FVector Goal=U.GetLocation()+(World.InverseTransformPosition(Target)-U.GetLocation()).GetClampedToMaxSize(Reach);
+            const FVector Pole=U.GetLocation()+World.InverseTransformVectorNoScale(LastActiveRideFrame.GetUnitAxis(EAxis::X)*55);
+            AnimationCore::SolveTwoBoneIK(U,L,F,Pole,Goal,false,1.,1.);
+            const int32 Bones[]={Upper,Knee,Foot};const FTransform Solved[]={U,L,F};
+            for(int32 J=0;J<3;++J) {
+                const int32 Parent=Ref.GetParentIndex(Bones[J]);
+                const FTransform LocalPose=Parent<0?Solved[J]:Solved[J].GetRelativeTransform(J>0?Solved[J-1]:CS[Parent]);
+                FTransform Blend;Blend.Blend(Pose[Bones[J]],LocalPose,ActiveRideAlpha);Pose[Bones[J]]=Blend;
+            }
+            Rebuild();
+        }
+        for(int32 Side=0;Side<2;++Side) {
+            const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("hand_l"):TEXT("hand_r")));
+            const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("forearm_l"):TEXT("forearm_r")));
+            if(Hand<0 || Lower<0 || Ref.GetParentIndex(Hand)!=Lower) continue;
+            FTransform Target;
+            bool Has=Tooth->ActiveSkillHandTarget(Side==0,Target);
+            if(const auto* Grenade=Cast<AMCGrenadeSkillAction>(Action);Grenade && Side==1
+                && Grenade->GetPresentationReleaseAge()>=0
+                && (Grenade->Phase==EMCGrenadeSkillPhase::Thrown || Grenade->Phase==EMCGrenadeSkillPhase::Dropped)) {
+                const float Released=Grenade->GetPresentationReleaseAge();
+                if(GrenadeThrowPoseID!=Grenade->GetActionID()) {
+                    GrenadeThrowPoseID=Grenade->GetActionID();
+                    GrenadeThrowHandStart=ActiveHandAlpha[Side]>.001f?ActiveHandLocal[Side]
+                        :(CS[Hand]*World).GetRelativeTransform(Tooth->GetActorTransform());
+                }
+                // The right mitten follows its own caster-relative throw arc,
+                // never the accepted hazard's airborne actor/root transform.
+                const FTransform Rest=(CS[Hand]*World).GetRelativeTransform(Tooth->GetActorTransform());
+                FTransform Local;
+                if(Grenade->Phase==EMCGrenadeSkillPhase::Thrown) {
+                    FTransform Extend=GrenadeThrowHandStart;Extend.AddToTranslation(FVector(20,-8,8));
+                    Extend.SetRotation((FRotator(12,5,8).Quaternion()*Extend.GetRotation()).GetNormalized());
+                    if(Released<.10f) Local.Blend(GrenadeThrowHandStart,Extend,FMath::SmoothStep(0.f,.10f,Released));
+                    else Local.Blend(Extend,Rest,FMath::SmoothStep(.10f,.28f,Released));
+                } else Local.Blend(GrenadeThrowHandStart,Rest,FMath::SmoothStep(0.f,.24f,Released));
+                Target=Local*Tooth->GetActorTransform();Has=true;
+            }
+            if(Sponge && !Has) {
+                // Free floating mittens counterbalance the board; no invented
+                // human arm extension or attachment to the moving sponge.
+                const float Age=Sponge->GetPresentationAge();
+                Target=CS[Hand]*World;
+                const FVector Rest=Tooth->GetActorTransform().InverseTransformPosition(Target.GetLocation());
+                const float Sway=FMath::Sin(Age*5.f+(Side==0?0.f:PI));
+                Target.SetLocation(Tooth->GetActorTransform().TransformPosition(FVector(
+                    (Side==0?3.f:14.f)+3*Sway,Side==0?-65.f:60.f,Rest.Z+16.f+2*Sway)));
+                Target.SetRotation((FQuat(Tooth->GetActorForwardVector(),FMath::DegreesToRadians((Side==0?-12.f:12.f)+3*Sway))
+                    *Target.GetRotation()).GetNormalized());
+                Has=true;
+            }
+            if(Has && !Target.ContainsNaN()) {
+                ActiveHandWorld[Side]=Target;
+                ActiveHandLocal[Side]=Target.GetRelativeTransform(Tooth->GetActorTransform());
+            } else {
+                Has=false;
+                // Recovery follows the pawn rather than leaving a mitten
+                // suspended at the projectile's last world-space position.
+                ActiveHandWorld[Side]=ActiveHandLocal[Side]*Tooth->GetActorTransform();
+            }
+            // Hook contains its own authored anticipation/recovery. A second
+            // interpolation would visibly detach the cable from the glove.
+            if(const auto* Rocket=Cast<AMCRocketSkillAction>(Action);Rocket && Has) {
+                // The launcher draw path starts on the evaluated dominant
+                // wrist and already eases. A second right-hand blend would
+                // let the gun float away; the support hand catches by fire.
+                const float Windup=FMath::Clamp(Rocket->Param(TEXT("FireWindupSeconds"),.15f),.001f,.6f);
+                ActiveHandAlpha[Side]=Side==1?1.f:FMath::SmoothStep(0.f,Windup,Rocket->GetPresentationAge());
+            } else ActiveHandAlpha[Side]=Hook && Has?1.f:FMath::FInterpConstantTo(ActiveHandAlpha[Side],Has?1.f:0.f,Dt,Has?10.f:8.f);
+            if(ActiveHandAlpha[Side]<.001f) continue;
+            FTransform Contact=ActiveHandWorld[Side].GetRelativeTransform(World);
+            Contact.SetScale3D(CS[Hand].GetScale3D());
+            FTransform Goal;Goal.Blend(CS[Hand],Contact,ActiveHandAlpha[Side]);
+            const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Goal;
+            const int32 Parent=Ref.GetParentIndex(Lower);
+            Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]);
+            Pose[Hand]=Ref.GetRefBonePose()[Hand];Rebuild();
+        }
     }
     void UpgradeSupportPose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref,float Dt)
     {
@@ -1209,6 +1419,7 @@ public:
         ChestLockpickPose(Tooth,Ref,Dt);
         if(Tooth->FishingRod) Tooth->FishingRod->BuildHandPose(Pose,Ref,Dt);
         if (Tooth->Expression) Tooth->Expression->BuildSocialPose(Pose,Ref);
+        ActiveSkillPose(Tooth,Ref,Dt);
         if (Tooth->ToothPhysics) Tooth->ToothPhysics->SubmitAnimationTargets(Pose,Ref,Dt);
         if (Tooth->Expression) Tooth->Expression->BuildFacePose(Pose,Ref,Dt);
         if (Tooth->Gaze) Tooth->Gaze->BuildPose(Pose,Ref,Dt);

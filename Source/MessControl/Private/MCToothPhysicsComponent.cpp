@@ -766,7 +766,11 @@ void UMCToothPhysicsComponent::SetGripArms(bool Left,bool Right,bool PhysicalLef
         ArmSettleSeconds[I]=FMath::Max(0.f,ArmSettleSeconds[I]-GetWorld()->GetDeltaSeconds());
         const bool Physical=I==0?bPhysicalGripLeft:bPhysicalGripRight;
         const float ArmGoal=Dashing?0.f:Physical?1.f:Values[I] || ArmSettleSeconds[I]>0?0.f:Active?1.f:.7f;
-        ArmPhysicsWeights[I]=Dashing?0.f:FMath::Lerp(ArmPhysicsWeights[I],ArmGoal,1.f-FMath::Exp(-(ArmGoal==0?20.f:8.f)*GetWorld()->GetDeltaSeconds()));
+        // An active skill's exact visible grip takes ownership immediately;
+        // easing a second physical pose over its authored draw detaches the
+        // glove from the moving handle. Hidden simulation/release settle stays.
+        const bool ExactSkillContact=Tooth->GetActiveSkillPresentation()!=nullptr && Values[I] && !Physical;
+        ArmPhysicsWeights[I]=(Dashing || ExactSkillContact)?0.f:FMath::Lerp(ArmPhysicsWeights[I],ArmGoal,1.f-FMath::Exp(-(ArmGoal==0?20.f:8.f)*GetWorld()->GetDeltaSeconds()));
         if (FMath::Abs(ArmPhysicsWeights[I]-ArmGoal)<.001f) ArmPhysicsWeights[I]=ArmGoal;
         Tooth->GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(Role),ArmPhysicsWeights[I],false,true);
     }

@@ -33,6 +33,7 @@ void AMCFoodActor::UpdateAbsorption(float Dt)
     if(!Carrier) for(const auto& Holder:Holders) {
         if(Alive(Holder) && Holder->Grip && Holder->Grip->Holds(this)) {Carrier=Holder;break;}
     }
+    if(!Carrier && IsInActiveContainer() && Alive(GetActiveContainerCarrier())) Carrier=GetActiveContainerCarrier();
     if(!bSpoiled && Carrier) if(const auto* Perks=UMCPerkComponent::ForActor(Carrier)) {
         const float Step=FMath::IsFinite(Dt)?FMath::Max(0.f,Dt):0.f;
         SpoilAt+=Step*(1-Perks->RogueValue(EMCRogueStat::SpoilRate));

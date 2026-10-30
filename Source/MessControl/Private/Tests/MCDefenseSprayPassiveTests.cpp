@@ -194,15 +194,66 @@ bool FMCAntisepticCycleTest::RunTest(const FString&)
     TestTrue(TEXT("The actual held input starts an emitting burst"),Inventory->IsSprayCycleEmitting());
     TestTrue(TEXT("A burst reserves a real future readiness deadline"),Inventory->SprayReadyAt>F.World->GetTimeSeconds()+10.f);
     TestEqual(TEXT("The active cooldown applies the30% penalty"),Inventory->CooldownSeconds(),10.4f);
-    F.Hero->ServerSetPrimary(false);F.Step(.1f);
+    TestEqual(TEXT("HUD shows no cooldown while the custom burst emits"),Inventory->SpraySecondsLeft(),0.f);
+    const double ReservedDeadline=Inventory->SprayReadyAt;
+    F.Step(.25f);F.Hero->ServerSetPrimary(false);Inventory->TickComponent(0.f,LEVELTICK_All,nullptr);
     TestFalse(TEXT("Releasing ends emission"),Inventory->IsSprayCycleEmitting());
     const double Deadline=Inventory->SprayReadyAt;
+    TestEqual(TEXT("Early release starts cooldown at the actual stop"),Deadline,
+        F.World->GetTimeSeconds()+double(Inventory->CooldownSeconds()),.0001);
+    TestTrue(TEXT("Early stop does not reserve the unused burst tail"),Deadline<ReservedDeadline);
+    TestEqual(TEXT("HUD now shows only the real custom cooldown"),Inventory->SpraySecondsLeft(),Inventory->CooldownSeconds(),.0001f);
     F.Hero->ServerSetPrimary(true);
     TestFalse(TEXT("A fresh press cannot bypass reload"),Inventory->IsSprayCycleEmitting());
     TestEqual(TEXT("A blocked press cannot restart the deadline"),Inventory->SprayReadyAt,Deadline);
+    F.Step(.2f);F.Hero->ServerSetPrimary(false);Inventory->TickComponent(0.f,LEVELTICK_All,nullptr);
+    TestEqual(TEXT("Releasing during cooldown cannot move readiness"),Inventory->SprayReadyAt,Deadline);
+    F.Hero->ServerSetPrimary(true);
+    TestFalse(TEXT("Repeated tapping still cannot bypass reload"),Inventory->IsSprayCycleEmitting());
+    TestEqual(TEXT("Repeated tapping preserves the same deadline"),Inventory->SprayReadyAt,Deadline);
     F.Hero->ServerSetPrimary(false);F.Perks->RemovePerk(TEXT("B2_Antiseptic"));F.Step(.1f);
     TestFalse(TEXT("Removing the passive returns to baseline continuous spray"),Inventory->UsesAntisepticCycle());
     TestEqual(TEXT("Its pending cooldown is cleaned up"),Inventory->SpraySecondsLeft(),0.f);return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCAntisepticHeldCycleTest,"MessControl.Perks.Remaining.AntisepticHeldCycleAndHUD",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCAntisepticHeldCycleTest::RunTest(const FString&)
+{
+    MCDefenseSprayTests::FWorld F;auto* Inventory=F.Hero->Inventory.Get();
+    F.Perks->ServerGrantPerk(TEXT("B2_Antiseptic"));
+    // Missing row overrides exercise the native3s/2s production fallbacks.
+    // The custom1s/8s case above remains independently designer-authored.
+    Inventory->ServerSelect(EMCToolSlot::Spray);const double Started=F.World->GetTimeSeconds();
+    F.Hero->ServerSetPrimary(true);Inventory->TickComponent(0.f,LEVELTICK_All,nullptr);
+    const double FirstBurstEnd=Inventory->SprayBurstUntil,FirstReady=Inventory->SprayReadyAt;
+    TestEqual(TEXT("Native fallback emits for three seconds"),FirstBurstEnd-Started,3.,.0001);
+    TestEqual(TEXT("Native fallback cooldown retains the30percent penalty"),Inventory->CooldownSeconds(),2.6f,.0001f);
+    TestEqual(TEXT("Full burst reserves end plus cooldown"),FirstReady,FirstBurstEnd+double(Inventory->CooldownSeconds()),.0001);
+    TestEqual(TEXT("HUD stays at zero during actual emission"),Inventory->SpraySecondsLeft(),0.f);
+    F.Step(2.9f);
+    TestTrue(TEXT("Held input still emits near the end of its real burst"),Inventory->IsSprayCycleEmitting());
+    TestEqual(TEXT("Late active burst still has no cooldown HUD"),Inventory->SpraySecondsLeft(),0.f);
+    F.Step(.2f);
+    TestFalse(TEXT("A full held burst stops naturally for cooldown"),Inventory->IsSprayCycleEmitting());
+    TestEqual(TEXT("Natural completion keeps its original readiness"),Inventory->SprayReadyAt,FirstReady);
+    TestEqual(TEXT("Cooldown HUD excludes the completed burst"),Inventory->SpraySecondsLeft(),
+        float(FirstReady-F.World->GetTimeSeconds()),.0001f);
+    F.Hero->ServerSetPrimary(false);Inventory->TickComponent(0.f,LEVELTICK_All,nullptr);
+    TestEqual(TEXT("Release after full completion cannot extend cooldown"),Inventory->SprayReadyAt,FirstReady);
+    F.Hero->ServerSetPrimary(true);
+    TestFalse(TEXT("Pressing within that cooldown remains blocked"),Inventory->IsSprayCycleEmitting());
+    F.Step(float(FirstReady-F.World->GetTimeSeconds())+.1f);
+    TestTrue(TEXT("Continuously held input automatically starts the next ready burst"),Inventory->IsSprayCycleEmitting());
+    TestTrue(TEXT("The next burst advances its native deadline"),Inventory->SprayBurstUntil>FirstBurstEnd);
+    TestEqual(TEXT("A repeated full cycle still reserves end plus cooldown"),Inventory->SprayReadyAt,
+        Inventory->SprayBurstUntil+double(Inventory->CooldownSeconds()),.0001);
+    TestEqual(TEXT("HUD returns to zero for the new emitting burst"),Inventory->SpraySecondsLeft(),0.f);
+    F.Perks->RemovePerk(TEXT("B2_Antiseptic"));F.Step(.1f);
+    TestFalse(TEXT("Removing during a repeated burst restores baseline spray"),Inventory->UsesAntisepticCycle());
+    TestEqual(TEXT("Removal clears pending burst state"),Inventory->SprayBurstUntil,0.);
+    TestEqual(TEXT("Removal clears the HUD cooldown"),Inventory->SpraySecondsLeft(),0.f);
+    return true;
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCHoudiniProxyOwnershipTest,"MessControl.Perks.Remaining.HoudiniProxyDoesNotOwnHiddenFlag",

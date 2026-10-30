@@ -14,6 +14,7 @@ class UTextRenderComponent;
 class UStaticMesh;
 class UMCCombatFeedbackComponent;
 class UMCWorldStatusComponent;
+class AMCPlayerState;
 
 /** Small server-driven enemy supported directly by the live, deforming tongue. */
 UCLASS(Blueprintable)
@@ -31,6 +32,8 @@ public:
     virtual bool CanReceiveToolHit() const { return IsEncounterAlive(); }
     FVector GetToolTargetPoint(FVector From) const;
     virtual float ReceiveToolDamage(float Damage,AMCToothCharacter* Source);
+    /** Active AoE uses its real origin/causer and immutable credit, without primary-weapon procs. */
+    virtual float ReceiveExternalImpact(float Damage,AActor* Causer,AMCPlayerState* SourcePS,FVector Origin);
     void ApplyRogueSlow(float Multiplier,float Seconds);
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<USphereComponent> Body;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Visual;
@@ -48,10 +51,12 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) double AttackStartedAt=-100;
     UPROPERTY(Replicated, BlueprintReadOnly) double HitAt=-100;
     UPROPERTY(Replicated, BlueprintReadOnly) TObjectPtr<AMCTongue> Tongue;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Combat") TObjectPtr<AMCPlayerState> LastExternalImpactSourcePS;
 protected:
     UFUNCTION() virtual void RefreshPresentation();
     /** Override only when a derived damage resolver must report its final shield/health result. */
     virtual void ReportDamageFeedback(AMCToothCharacter* Source,float Applied);
+    virtual void ReportExternalImpactFeedback(AActor* Causer,FVector Origin,float Applied);
     bool IsLiveTarget(const AMCToothCharacter* Hero) const;
     bool HasAttackContact(const AMCToothCharacter* Hero) const;
     void Retarget();

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Wash'n'Smash · Проверка визуала</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Задачи для просмотра">
+      <a class="brand" href="./" aria-label="Wash'n'Smash — начало"><span class="brand-mark">w<span>+s</span></span><span>WASH'N'SMASH<small>доска просмотра</small></span></a>
+      <div class="sidebar-heading"><span class="eyebrow">ЗАДАЧИ</span><span id="task-count" class="count">—</span></div>
+      <label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Найти эффект…" aria-label="Поиск задач"></label>
+      <div class="filter-row"><label class="sr-only" for="status-filter">Статус задачи</label><select id="status-filter"><option value="all">Все статусы</option></select><button id="refresh" class="icon-button" type="button" title="Обновить данные" aria-label="Обновить данные">↻</button></div>
+      <div id="family-filters" class="family-filters" aria-label="Группы задач"></div>
+      <nav id="task-list" class="task-list" aria-label="Список задач"><p class="muted small">Загружаем задачи…</p></nav>
+      <footer class="sidebar-footer"><span class="live-dot" aria-hidden="true"></span><span>Локальная доска<small>Ваш отзыв сохраняется в истории</small></span></footer>
+    </aside>
+
+    <main id="main" class="main" tabindex="-1">
+      <header class="page-header"><div><p class="eyebrow" id="project-name">WASH'N'SMASH / REVIEW</p><h1>Проверка визуала<span class="title-dot">.</span></h1><p class="page-caption">Посмотрите материал. Оцените то, что видите.</p></div><span class="private-badge">Внутренний просмотр</span></header>
+      <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+      <div id="empty-state" class="empty-state"><span class="empty-symbol" aria-hidden="true">◌</span><h2 id="empty-title">Готовим материалы</h2><p id="empty-description">Получаем список задач и доступных версий.</p></div>
+      <section id="workspace" hidden aria-label="Выбранная задача">
+        <div class="task-heading"><div><div class="heading-meta"><span id="task-family" class="eyebrow"></span><span id="task-status" class="badge"></span></div><h2 id="task-title"></h2><p id="task-description" class="task-description"></p></div><label class="version-control"><span>Версия</span><select id="version-select" aria-label="Версия материала"></select></label></div>
+
+        <div class="review-summary">
+          <article id="root-summary" class="summary-card"></article>
+          <article id="human-summary" class="summary-card human-card"></article>
+          <article id="native-summary" class="summary-card native-card"></article>
+        </div>
+
+        <div class="content-grid">
+          <div class="media-column">
+            <section class="panel media-panel" aria-label="Материалы версии">
+              <div class="panel-heading"><h3>Материалы <span id="media-count" class="muted"></span></h3><a id="open-media" class="text-link" target="_blank" rel="noopener noreferrer" hidden>Открыть ↗</a></div>
+              <div id="media-tabs" class="media-tabs" role="tablist" aria-label="Выбрать материал"></div>
+              <div id="media-stage" class="media-stage"></div>
+              <div class="media-toolbar"><span id="media-caption" class="muted small"></span><button id="capture-time" class="time-button" type="button" disabled>⌖ Добавить таймкод</button></div>
+            </section>
+            <section class="history-section" aria-labelledby="history-heading"><div class="section-heading"><h3 id="history-heading">История отзывов</h3><span id="history-count" class="count">0</span></div><div id="feedback-history"></div></section>
+          </div>
+
+          <aside class="panel feedback-panel" aria-labelledby="feedback-heading">
+            <div class="form-title"><span class="form-icon" aria-hidden="true">✎</span><div><h3 id="feedback-heading">Ваш отзыв</h3><p class="muted small">Отдельно от оценки агента</p></div></div>
+            <form id="feedback-form" novalidate>
+              <fieldset class="score-field"><legend>Насколько хорошо выглядит? <span class="required">*</span></legend><div id="score-options" class="score-options" role="radiogroup" aria-label="Ваша оценка от нуля до десяти"></div><div class="score-scale"><span>Нужна переработка</span><span>Готово</span></div></fieldset>
+              <label class="field-label" for="feedback-status">Решение</label><select id="feedback-status" name="status"><option value="pending">Пока не решил</option><option value="accepted">Принято</option><option value="rework">Нужна доработка</option><option value="rejected">Отклонено</option></select>
+              <label class="field-label" for="comment">Что сохранить или изменить?</label><textarea id="comment" name="comment" rows="5" maxlength="5000" placeholder="Например: след читается, но вспышка скрывает инструмент…"></textarea>
+              <div class="comment-footer"><span id="timecode-chip" class="timecode-chip" hidden></span><span id="comment-count" class="muted small">0 / 5000</span></div>
+              <fieldset class="tags-field"><legend>На что обратить внимание</legend><div id="tag-options" class="tag-options"></div></fieldset>
+              <p id="form-error" class="form-error" role="alert" hidden></p>
+              <button id="submit-feedback" class="submit-button" type="submit">Сохранить отзыв <span aria-hidden="true">↗</span></button>
+              <p class="form-note">Оценка и комментарий добавятся в историю этой версии.</p>
+            </form>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

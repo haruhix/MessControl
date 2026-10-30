@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "MCPerkTypes.h"
+#include "MCActiveSkillAction.h"
 #include "MCPerkComponent.generated.h"
 
 class UMCPerkEffect;
@@ -79,6 +80,17 @@ public:
     bool TryAcquirePerkBatch(const TArray<FMCPerkGrant>& Grants);
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Skills")
     bool ActivateSkillSlot(int32 Slot,FGuid ExpectedInstanceID=FGuid());
+    /** Authority protocol. Prepared actor is registered before cost; release uses the original press. */
+    bool BeginSkillSlot(const FMCActiveSkillInputHandle& Handle);
+    bool ReleaseSkillInput(const FMCActiveSkillInputHandle& Handle);
+    bool CancelSkillInput(const FMCActiveSkillInputHandle& Handle);
+    /** Exact press lookup; consumables can have several live hazards from one slot instance. */
+    AMCActiveSkillAction* FindRunningAction(const FMCActiveSkillInputHandle& Handle) const;
+    /** First live instance match, for reusable continuation and single-action diagnostics only. */
+    AMCActiveSkillAction* FindRunningAction(FGuid SlotInstanceID) const;
+    const TArray<TObjectPtr<AMCActiveSkillAction>>& GetActiveSkillActions() const { return ActiveSkillActions; }
+    void UnregisterActiveSkillAction(AMCActiveSkillAction* Action);
+    void CancelActiveSkillActions(EMCActiveSkillEndReason Reason);
     UFUNCTION(BlueprintPure,Category="Skills") float GetSkillCooldownRemaining(int32 Slot) const;
     /** Reversible preparation only; never refunds accepted charges or rewinds cooldowns. */
     UFUNCTION(BlueprintCallable,Category="Skills") void CancelSkillPreparations();
@@ -123,6 +135,10 @@ public:
     UFUNCTION(BlueprintPure, Category="Perks")
     UDataTable* GetPerkTable() const { return LoadedTable; }
 
+    /** Empty-loadout fixture/restore only, in an explicitly owned standalone editor review. */
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Skills|Review",meta=(DevelopmentOnly))
+    bool EditorUseSkillCatalogForApproval(UDataTable* Catalog);
+
     void CopyPerksTo(UMCPerkComponent* Target) const;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Perks")
@@ -150,6 +166,14 @@ private:
     bool ExecuteSkill(FName PerkID,const FMCPerkDefinition& Definition);
     bool ExecuteLegacyBooster(FName ID);
     double SkillNow() const;
+    void CancelSkillInstanceActions(FGuid SlotInstanceID,EMCActiveSkillEndReason Reason);
+    void PruneSkillInputHistory(FGuid SlotInstanceID);
+    UPROPERTY(Transient) TArray<TObjectPtr<AMCActiveSkillAction>> ActiveSkillActions;
+    /** Ended presses are never routed twice, including duplicate Completed/Canceled events. */
+    TSet<FGuid> EndedSkillInputActions;
+    /** Accepted presses remain tombstoned while their slot or any of its actions exists. */
+    TMap<FGuid,TSet<uint32>> AcceptedSkillPresses;
+    uint32 AuthoritySkillPressSequence=0;
     bool bSkillMutation=false;
     mutable const TArray<FName>* ValidationToolPerks=nullptr;
 

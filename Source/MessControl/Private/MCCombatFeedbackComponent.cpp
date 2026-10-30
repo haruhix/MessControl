@@ -5,6 +5,8 @@
 #include "MCWeaponTrailComponent.h"
 #include "MCToothCharacter.h"
 #include "MCInventoryComponent.h"
+#include "MCNutEnemy.h"
+#include "MCBossCharacter.h"
 #include "Components/MeshComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
@@ -12,6 +14,14 @@
 #include "Materials/MaterialInterface.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Net/UnrealNetwork.h"
+
+namespace
+{
+bool UseSoftNPCHit(const AActor* Actor,bool Shielded)
+{
+    return !Shielded && Actor && (Actor->IsA<AMCNutEnemy>() || Actor->IsA<AMCBossCharacter>());
+}
+}
 
 namespace MCWeaponImpact
 {
@@ -164,6 +174,7 @@ float UMCCombatFeedbackComponent::PresentationFlash() const
 {
     if(IsLegacy() || LastHit.Serial==0) return 0.f;
     const float Age=FMath::Max(0.f,float(ServerNow()-LastHit.ServerTime));
+    if(UseSoftNPCHit(GetOwner(),LastHit.bShielded)) return Age<.075f?1.f-FMath::SmoothStep(.015f,.075f,Age):0.f;
     return Age<.105f?1.f-FMath::SmoothStep(.045f,.105f,Age):0.f;
 }
 
@@ -221,9 +232,10 @@ void UMCCombatFeedbackComponent::UpdateOverlay()
         SetComponentTickEnabled(false);
         return;
     }
-    const FLinearColor Color=LastHit.bShielded?FLinearColor(.22f,.75f,1.f):FLinearColor(1.8f,1.8f,1.8f);
+    const bool SoftNPC=UseSoftNPCHit(GetOwner(),LastHit.bShielded);
+    const FLinearColor Color=LastHit.bShielded?FLinearColor(.22f,.75f,1.f):SoftNPC?FLinearColor(.48f,.34f,.19f):FLinearColor(1.8f,1.8f,1.8f);
     HitOverlay->SetVectorParameterValue(TEXT("Color"),Color);
-    HitOverlay->SetScalarParameterValue(TEXT("Opacity"),Flash*(LastHit.bShielded?.55f:.85f));
+    HitOverlay->SetScalarParameterValue(TEXT("Opacity"),Flash*(LastHit.bShielded?.55f:SoftNPC?.22f:.85f));
     SetComponentTickEnabled(true);
 }
 

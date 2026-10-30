@@ -1,4 +1,5 @@
 #include "MCReactionVFX.h"
+#include "MCCartoonFXGeometry.h"
 #include "MCFirePatch.h"
 #include "MCThroat.h"
 #include "MCToothCharacter.h"
@@ -13,6 +14,7 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/GameStateBase.h"
 #include "Net/UnrealNetwork.h"
+#include "UObject/ConstructorHelpers.h"
 
 namespace {
 // Air and task feedback use soft translucent shapes. Fire is a separate particle
@@ -139,6 +141,8 @@ AMCReactionVFX::AMCReactionVFX()
         Text->SetCanEverAffectNavigation(false);Text->SetVisibility(false);Text->SetWorldSize(38);
     }
     FoodBreakSystem=FSoftObjectPath(TEXT("/Game/Gameplay/VFX/NutCombat/NS_NutDustImpact.NS_NutDustImpact"));
+    static ConstructorHelpers::FObjectFinder<UMaterialInterface> Solid(TEXT("/Game/Gameplay/VFX/M_CartoonReceiptSolid.M_CartoonReceiptSolid"));
+    SolidMaterial=Solid.Object;Mesh->SetMaterial(4,SolidMaterial);
 }
 double AMCReactionVFX::Now() const {const auto* GS=GetWorld()->GetGameState();return GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();}
 AMCReactionVFX* AMCReactionVFX::Spawn(UWorld* World,FVector P,EMCReactionEffect E,float Duration,float Size,FVector Aim,float InFlowLength)
@@ -165,7 +169,8 @@ AMCReactionVFX* AMCReactionVFX::SpawnHit(AActor* Victim,FVector Point,FVector Ai
 }
 void AMCReactionVFX::BeginPlay()
 {
-    Super::BeginPlay();if(HasAuthority()) {StartedAt=Now();if(!bLoop) SetLifeSpan(Seconds+.15f);ForceNetUpdate();}
+    Super::BeginPlay();Mesh->SetMaterial(4,SolidMaterial);
+    if(HasAuthority()) {StartedAt=Now();if(!bLoop) SetLifeSpan(Seconds+.15f);ForceNetUpdate();}
     if(Effect==EMCReactionEffect::CombatHit || Effect==EMCReactionEffect::PlayerHit) SetActorTickInterval(bLegacyCombatFeedback?1.f/30:1.f/60);
     else if(Effect==EMCReactionEffect::FoodBreak) SetActorTickInterval(1.f/30);
     if(GetNetMode()!=NM_DedicatedServer) {
@@ -192,6 +197,8 @@ void AMCReactionVFX::Tick(float Dt)
     const FVector Axis=Direction.IsNearlyZero()?FVector::ForwardVector:Direction;
     const FVector R=FVector::CrossProduct(Axis,FVector::UpVector).GetSafeNormal(),V=FVector::CrossProduct(R,Axis).GetSafeNormal();
     const bool Combat=Effect==EMCReactionEffect::CombatHit || Effect==EMCReactionEffect::PlayerHit;
+    const bool CartoonNPC=Effect==EMCReactionEffect::CombatHit && !bLegacyCombatFeedback && !bShieldedHit && SolidMaterial;
+    if(!CartoonNPC && Mesh->GetProcMeshSection(4)) Mesh->ClearMeshSection(4);
     DamageNumber->SetVisibility(Combat);DamageBackdrop->SetVisibility(Combat);
     if(Combat && bLegacyCombatFeedback) {
         if(!FMath::IsNearlyEqual(GetActorTickInterval(),1.f/30)) SetActorTickInterval(1.f/30);
@@ -243,9 +250,40 @@ void AMCReactionVFX::Tick(float Dt)
         DamageNumber->SetWorldSize(38*Pop);DamageBackdrop->SetWorldSize(38*Pop);
         DamageNumber->SetTextRenderColor(Tint.CopyWithNewOpacity(NumberAlpha).ToFColor(true));
         DamageBackdrop->SetTextRenderColor(FLinearColor(.015f,.012f,.01f,NumberAlpha).ToFColor(true));
+        const FVector Contact=View*3;
+        if(CartoonNPC) {
+            MCCartoonFX::FGeometry Solid;
+            // Keep the closed volume in the accepted contact plane, rather
+            // than replacing it with a camera-facing bright disk.
+            const FVector Normal=(-Axis).GetSafeNormal(UE_SMALL_NUMBER,View);
+            const FVector ContactRight=FVector::CrossProduct(FVector::UpVector,Normal).GetSafeNormal(UE_SMALL_NUMBER,Right);
+            const FVector ContactUp=FVector::CrossProduct(Normal,ContactRight).GetSafeNormal();
+            Solid.Right=ContactRight;Solid.Up=ContactUp;Solid.View=Normal;
+            const FVector PunchContact=Normal*4+View*3;
+            const FLinearColor Amber(FColor(233,172,81)),Cream(FColor(248,222,156)),Ochre(FColor(211,139,67));
+            if(Age<.16f) {
+                const float PunchPop=Age<.025f?FMath::Lerp(.35f,1.12f,FMath::SmoothStep(0.f,.025f,Age))
+                    :FMath::Lerp(1.12f,1.f,FMath::SmoothStep(.025f,.065f,Age));
+                const float Scale=FMath::Max(.001f,PunchPop*(1-FMath::SmoothStep(.065f,.16f,Age)));
+                const float HalfSpan=FMath::Clamp(Radius*.23f,13.f,17.f)*Scale;
+                Solid.Star(PunchContact,HalfSpan,8*Scale,Amber,4,.18f);
+            }
+            for(int32 I=0;I<2;++I) {
+                const float ChipAge=Age-.025f-I*.015f;
+                if(ChipAge<0 || ChipAge>=.24f) continue;
+                const float Flight=1-FMath::Exp(-ChipAge*18.f);
+                const float Scale=FMath::Max(.001f,(.35f+.8f*FMath::SmoothStep(0.f,.025f,ChipAge))
+                    *(1-FMath::SmoothStep(.10f,.24f,ChipAge)));
+                const FVector Away=(Normal*.35f+ContactRight*(I?-.8f:.8f)+ContactUp*.55f).GetSafeNormal();
+                const FVector At=PunchContact+Away*(6+22*Flight)+FVector::UpVector*(ChipAge*18-ChipAge*ChipAge*120);
+                const float Roll=(I?-.4f:.3f)+ChipAge*(I?-5.f:4.f),C=FMath::Cos(Roll),S=FMath::Sin(Roll);
+                Solid.Right=ContactRight*C+ContactUp*S;Solid.Up=-ContactRight*S+ContactUp*C;
+                Solid.Ball(At,FVector(3.f,5.f,2.8f)*Scale,I?Ochre:Cream);
+            }
+            Solid.Upload(Mesh,4);
+        } else {
         // A short bright contact silhouette reads before the ring and fragments
         // spread. Both sections retain depth testing and existing owned materials.
-        const FVector Contact=View*3;
         const float Flash=1-FMath::SmoothStep(.025f,.10f,Age);
         if(Flash>.001f) {
             Soft.Disk(Contact,Right,Up,Radius*(.30f+Age*1.4f),Tint.CopyWithNewOpacity(.48f*Flash),24);
@@ -284,6 +322,7 @@ void AMCReactionVFX::Tick(float Dt)
                 Glow.Stroke({Contact+Travel-Radial*Radius*.18f,Contact+Travel-Radial*Radius*.07f,Contact+Travel},
                     1.8f*SparkFade,FLinearColor(1.35f,1.25f,1.f,.70f*SparkFade),true);
             }
+        }
         }
         if(Blocked) {
             const float ShieldFade=1-FMath::SmoothStep(.10f,.30f,Age);

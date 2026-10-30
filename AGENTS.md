@@ -44,6 +44,15 @@ Every commit description and pull request description must include a concise cha
 - Keep a reusable reference library in `Docs/VFXReferences.md`: source links, applicable effects, implementation notes, and the status of techniques actually tried in MessControl.
 - Evaluate effects in the gameplay camera and lighting, including clear danger cues, material identity, timing and particle/transparency cost. Use short preview videos when motion is important and recording is practical.
 
+# Character, prop and animation visual acceptance
+
+- Every held tool or active-skill prop needs explicit grip/contact frames and a clear role for each hand. Derive them from the actual mesh and authored holding guides. Check the evaluated visible hands, not only target coordinates or a prop's actor transform.
+- Author the complete action: preparation, held/use pose, release/impact or recoil, and recovery. Include appropriate body, feet and facial reactions. Driving and riding need contact with the seat, controls and support surface.
+- Check hand position AND orientation throughout movement. Visible hands must stay on their intended grips; props must not float, pass through the body, or disappear before the action's recovery. Preserve authored model scale and proportions.
+- Animation ownership must coexist with physical arms and normal tools. Check interruptions, death, replacement and return to ordinary locomotion; release only the current action's presentation/animation ownership.
+- Before calling a result review-ready, the primary agent personally inspects actual runtime motion from the gameplay camera and useful front/side views. Retain short videos/GIFs and representative frames. Functional tests and visual acceptance are separate recorded results.
+- Detached hands, missing grips, severe clipping or missing action phases are implementation defects to fix before artistic review. Defect recordings may be shared as explicitly labeled diagnostics; they are not completed previews. Give delegated agents concrete visual corrections and inspect the resulting revision.
+
 # Versioned validation evidence
 
 - Store new recordings, screenshots, frame sequences, renders and intermediate validation media under `E:/CodexWork/MessControl/Validation/<task>/` or another explicit task directory on `E:`. Commit concise Markdown/JSON results and source recipes instead of generated media.

@@ -34,6 +34,7 @@ public:
     virtual bool IsEncounterAlive() const override;
     virtual bool CanReceiveToolHit() const override;
     virtual float ReceiveToolDamage(float Damage, AMCToothCharacter* Source) override;
+    virtual float ReceiveExternalImpact(float Damage,AActor* Causer,AMCPlayerState* SourcePS,FVector Origin) override;
     bool IsAlive() const { return IsEncounterAlive(); }
     float GetHealth() const { return Health; }
     FMCCataclysmJellyDirtyPatch OnDirtyPatchRequested;

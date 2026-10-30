@@ -1,4 +1,9 @@
 #include "MCWorldPreloadSubsystem.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
+#include "NiagaraEmitter.h"
+#include "NiagaraEmitterHandle.h"
+#include "NiagaraRendererProperties.h"
 
 #include "MCPreloadManifest.h"
 #include "MCPreloadSettings.h"
@@ -307,6 +312,7 @@ uint32 UMCWorldPreloadSubsystem::GetPendingPipelineCount() const
 void UMCWorldPreloadSubsystem::BuildRenderingWork()
 {
     bRenderingWorkBuilt = true;
+    TSet<UMaterialInterface*> NiagaraRendererMaterials;
     TArray<UPrimitiveComponent*> Primitives;
     const FVector ViewLocation = Controller.IsValid() ? Controller->GetFocalLocation() : FVector::ZeroVector;
     for (TActorIterator<AActor> It(GetWorld()); It; ++It)
@@ -354,6 +360,39 @@ void UMCWorldPreloadSubsystem::BuildRenderingWork()
                 if (Slot.MaterialInterface) Materials.AddUnique(Slot.MaterialInterface);
         }
         else if (UMaterialInterface* Material = Cast<UMaterialInterface>(Object)) Materials.AddUnique(Material);
+        else if (UNiagaraSystem* System = Cast<UNiagaraSystem>(Object))
+        {
+            // Renderer overrides can live outside the system's own folder.
+            // Collect actual referenced interfaces, not an asset-folder scan.
+            for (const auto& Handle : System->GetEmitterHandles())
+                if (const auto* Data = Handle.GetEmitterData())
+                    for (UNiagaraRendererProperties* Renderer : Data->GetRenderers())
+                        if (IsValid(Renderer))
+                        {
+                            TArray<UMaterialInterface*> Used;
+                            Renderer->GetUsedMaterials(nullptr, Used);
+                            AddMaterials(Used);
+                            for (UMaterialInterface* RendererMaterial : Used)
+                                if (IsValid(RendererMaterial)) NiagaraRendererMaterials.Add(RendererMaterial);
+                        }
+#if WITH_EDITOR
+            // UE can leave post-load VM work pending-on-demand while the asset
+            // compiling manager reports zero jobs. An inactive warmup component
+            // does not demand that work, so first gameplay Activate would do it.
+            // This nonblocking poll flushes deferred requests asynchronously;
+            // the existing compilation/readiness barrier waits for their result.
+            const bool bPendingBefore = System->HasOutstandingCompilationRequests(true);
+            const bool bReadyBefore = System->IsReadyToRun();
+            const bool bPollComplete = System->PollForCompilationComplete(true);
+            UE_LOG(LogMCWorldPreload, Log, TEXT("MC_PRELOAD_NIAGARA_FIRST_USE world=%s asset=%s pendingBefore=%d readyBefore=%d pollComplete=%d pendingAfter=%d readyAfter=%d"),
+                *GetNameSafe(GetWorld()), *System->GetPathName(), bPendingBefore, bReadyBefore, bPollComplete,
+                System->HasOutstandingCompilationRequests(true), System->IsReadyToRun());
+#endif
+            // Prepare the Niagara renderer's own vertex factories/PSOs while
+            // loading. A static-mesh material proxy alone cannot represent them.
+            FWarmupRequest& Request = WarmupRequests.AddDefaulted_GetRef();
+            Request.Mesh = System;
+        }
     }
     // An explicit material reference may be assigned by a later event rather than
     // by a loaded mesh's default slots. These proxies supply the relevant factories.
@@ -385,11 +424,15 @@ void UMCWorldPreloadSubsystem::BuildRenderingWork()
         *GetNameSafe(GetWorld()), WorldPrimitives.Num(), WarmupRequests.Num(), Materials.Num());
 #if WITH_EDITOR
     // Hidden warmup components do not take the normal first-draw path that
-    // submits deferred Editor shader maps. Prepare only these finite known
-    // meal/hit/text/passive resources; do not walk arbitrary material parents.
+    // submits deferred Editor shader maps. Prepare the finite known arena
+    // resources, reachable active-skill interfaces and actual Niagara renderer
+    // materials. These interfaces include external/shared smoke parents. MICs
+    // select the shader variant even when its parent lives outside the system
+    // folder; GetMaterialResource does so without scanning or
+    // loading arbitrary material parents or unrelated content.
     EditorFirstUseMaterials.Reset();
     const FString Map = UGameplayStatics::GetCurrentLevelName(GetWorld(), true);
-    if (Map == TEXT("L_Mouth") || Map == TEXT("L_Tutorial"))
+    const bool bPrepareLegacyArenaMaterials = Map == TEXT("L_Mouth") || Map == TEXT("L_Tutorial");
     {
         const FString FirstUsePaths[] = {
             TEXT("/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS"),
@@ -397,7 +440,10 @@ void UMCWorldPreloadSubsystem::BuildRenderingWork()
             TEXT("/Game/Gameplay/VFX/M_ReactionSoft.M_ReactionSoft"),
             TEXT("/Engine/EngineMaterials/DefaultTextMaterialOpaque.DefaultTextMaterialOpaque"),
             TEXT("/Game/Gameplay/VFX/MI_PassiveGhost.MI_PassiveGhost"),
-            TEXT("/Game/Gameplay/VFX/MI_PassiveLightning.MI_PassiveLightning")
+            TEXT("/Game/Gameplay/VFX/MI_PassiveLightning.MI_PassiveLightning"),
+            TEXT("/Game/Gameplay/VFX/MI_PassiveFeedbackSoft.MI_PassiveFeedbackSoft"),
+            TEXT("/Game/Gameplay/VFX/MI_PassiveFeedbackGlow.MI_PassiveFeedbackGlow"),
+            TEXT("/Game/Gameplay/VFX/M_CartoonReceiptSolid.M_CartoonReceiptSolid")
         };
         const EShaderPlatform Platform = GetFeatureLevelShaderPlatform(GetWorld()->GetFeatureLevel());
         TSet<FMaterialResource*> SubmittedResources;
@@ -406,8 +452,11 @@ void UMCWorldPreloadSubsystem::BuildRenderingWork()
             UMaterialInterface* Material = WeakMaterial.Get();
             if (!Material) continue;
             const FString Path = Material->GetPathName();
-            bool bTargeted = false;
-            for (const FString& FirstUsePath : FirstUsePaths) bTargeted |= Path == FirstUsePath;
+            // Materials contains only this location's discovered/retained
+            // dependencies. Prefix matching here is not an AssetRegistry scan.
+            bool bTargeted = Path.StartsWith(TEXT("/Game/Gameplay/ActiveSkills/")) || NiagaraRendererMaterials.Contains(Material);
+            if (bPrepareLegacyArenaMaterials)
+                for (const FString& FirstUsePath : FirstUsePaths) bTargeted |= Path == FirstUsePath;
             if (!bTargeted) continue;
             EditorFirstUseMaterials.AddUnique(Material);
             FMaterialResource* Resource = Material->GetMaterialResource(Platform);
@@ -441,7 +490,7 @@ void UMCWorldPreloadSubsystem::ProcessRenderingWork()
     while (NextWarmupRequest < StopAt)
     {
         const FWarmupRequest& Request = WarmupRequests[NextWarmupRequest++];
-        UMeshComponent* Component = nullptr;
+        UPrimitiveComponent* Component = nullptr;
         if (UStaticMesh* Mesh = Cast<UStaticMesh>(Request.Mesh.Get()))
         {
             UStaticMeshComponent* Static = Request.bInstanced
@@ -458,6 +507,14 @@ void UMCWorldPreloadSubsystem::ProcessRenderingWork()
             Skeletal->SetSkeletalMeshAsset(SkeletalAsset);
             Skeletal->bPauseAnims = true;
             Component = Skeletal;
+        }
+        else if (UNiagaraSystem* System = Cast<UNiagaraSystem>(Request.Mesh.Get()))
+        {
+            UNiagaraComponent* Niagara = NewObject<UNiagaraComponent>(this, NAME_None, RF_Transient);
+            Niagara->SetAutoActivate(false);
+            Niagara->SetAutoDestroy(false);
+            Niagara->SetAsset(System);
+            Component = Niagara;
         }
         if (!Component) continue;
         Component->PrimaryComponentTick.bCanEverTick = false;
@@ -584,6 +641,10 @@ bool UMCWorldPreloadSubsystem::CheckStreamingTargets()
 void UMCWorldPreloadSubsystem::CompletePreparation()
 {
 #if WITH_EDITOR
+    for (UObject* Object : RetainedAssets)
+        if (const UNiagaraSystem* System = Cast<UNiagaraSystem>(Object))
+            UE_LOG(LogMCWorldPreload, Log, TEXT("MC_PRELOAD_NIAGARA_FIRST_USE_READY world=%s asset=%s pending=%d ready=%d"),
+                *GetNameSafe(GetWorld()), *System->GetPathName(), System->HasOutstandingCompilationRequests(true), System->IsReadyToRun());
     for (const TWeakObjectPtr<UMaterialInterface>& Material : EditorFirstUseMaterials)
         if (Material.IsValid())
             UE_LOG(LogMCWorldPreload, Log, TEXT("MC_PRELOAD_EDITOR_FIRST_USE_READY world=%s asset=%s complete=%d"),
@@ -752,6 +813,16 @@ void UMCWorldPreloadSubsystem::TickRenderReadiness()
     for (const UPrimitiveComponent* Component : WarmupComponents)
         if (IsValid(Component) && Component->IsPSOPrecaching()) bComponentsReady = false;
 #if WITH_EDITOR
+    // The Niagara manager's global job count excludes results awaiting
+    // retrieval. Apply completed VM results nonblockingly and keep this world
+    // behind the barrier while any of its retained systems still has work.
+    for (UObject* Object : RetainedAssets)
+        if (UNiagaraSystem* System = Cast<UNiagaraSystem>(Object))
+            if (System->HasOutstandingCompilationRequests(true))
+            {
+                System->PollForCompilationComplete(true);
+                bComponentsReady &= !System->HasOutstandingCompilationRequests(true);
+            }
     bComponentsReady &= IsEditorFirstUseMaterialReady();
 #endif
     const bool bStreamingReady = CheckStreamingTargets();

@@ -439,7 +439,12 @@ class AssetIndex:
             write_json(request, {"assets": assets})
             args.append("-MCIndexRequest=" + str(request))
         with (self.cache / "export_console.log").open("w", encoding="utf-8") as log:
-            result = subprocess.run(args, cwd=self.project, stdout=log, stderr=subprocess.STDOUT, timeout=1800)
+            # MCP may inherit Windows' C: temp directory. Keep commandlet shader
+            # and worker scratch data beside this project's index on E:.
+            scratch = self.cache / "Temp"
+            scratch.mkdir(parents=True, exist_ok=True)
+            env = dict(os.environ, TEMP=str(scratch), TMP=str(scratch))
+            result = subprocess.run(args, cwd=self.project, env=env, stdout=log, stderr=subprocess.STDOUT, timeout=1800)
         if result.returncode not in (0, 4):
             raise RuntimeError(f"Asset export failed ({result.returncode}). Read {self.cache / 'export_console.log'}")
         catalog = json.loads((self.cache / "catalog.json").read_text(encoding="utf-8"))

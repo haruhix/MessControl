@@ -1,4 +1,6 @@
 #include "MCPerkComponent.h"
+#include "MCAirSkillAction.h"
+#include "MCPassiveFeedbackCue.h"
 #include "MCCombatPassiveSubsystem.h"
 #include "MCDefenseSprayPassives.h"
 #include "MCPlayerState.h"
@@ -86,7 +88,10 @@ bool UMCPerkComponent::ActivationMatches(EMCRogueActivation Condition,AActor* Ta
     const auto* Hero=HeroFor(this);if(!Hero) return Condition==EMCRogueActivation::Always;
     switch(Condition) {
     case EMCRogueActivation::Always:return true;
-    case EMCRogueActivation::CarryingFood:return Hero->HeldFood || (Hero->FoodCollection && !Hero->FoodCollection->Pieces.IsEmpty());
+    case EMCRogueActivation::CarryingFood: {
+        const auto* Air=Cast<AMCAirSkillAction>(Hero->GetActiveSkillPresentation());
+        return Hero->HeldFood || (Hero->FoodCollection && !Hero->FoodCollection->Pieces.IsEmpty()) || (Air && Air->StoredCount>0);
+    }
     case EMCRogueActivation::HighFreeze:
         for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It) if(It->IsActive() && It->FreezeAmount(Hero)>=.5f) return true;
         return false;
@@ -192,10 +197,11 @@ void UMCPerkComponent::NotifyFoodDelivered()
 {
     if(HasAuthority() && GetStacks(TEXT("N24"))>0) {DeliverySlowUntil=RogueNow(GetWorld())+3;GetOwner()->ForceNetUpdate();}
     if(HasAuthority() && GetStacks(TEXT("B2_ReturnTrip"))>0) {
-        const auto* Hero=HeroFor(this);
+        auto* Hero=HeroFor(this);
         if(Hero && Hero->Status && Hero->Status->IsAlive()) {
             DeliverySpeedUntil=RogueNow(GetWorld())+FMath::Clamp(PerkParameter(TEXT("B2_ReturnTrip"),TEXT("Duration"),2.f),0.f,30.f);
             GetOwner()->ForceNetUpdate();
+            AMCPassiveFeedbackCue::Spawn(Hero,EMCPassiveFeedbackKind::Speed);
         }
     }
 }

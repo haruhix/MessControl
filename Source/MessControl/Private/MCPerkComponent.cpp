@@ -6,6 +6,12 @@
 #include "MCPlayerState.h"
 #include "GameFramework/Actor.h"
 #include "Net/UnrealNetwork.h"
+#if WITH_EDITOR
+#include "Engine/World.h"
+#include "GameFramework/PlayerController.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
+#endif
 
 UMCPerkComponent::UMCPerkComponent()
 {
@@ -36,6 +42,35 @@ void UMCPerkComponent::LoadDefinitions()
     }
     if (!LoadedTable)
         UE_LOG(LogTemp, Warning, TEXT("No usable perk table for %s: %s"), *GetNameSafe(GetOwner()), *PerkTable.ToString());
+}
+
+bool UMCPerkComponent::EditorUseSkillCatalogForApproval(UDataTable* Catalog)
+{
+#if WITH_EDITOR
+    // This switches one empty review component's loaded table, never the saved asset or CDO.
+    // The same guards permit restoring GetPerkTable() after ResetPerks/owned-action cleanup.
+    if(!IsInGameThread()) return false;
+    const UWorld* World=GetWorld();
+    if(!World || World->bIsTearingDown || World->WorldType!=EWorldType::PIE || World->GetNetMode()!=NM_Standalone
+        || !HasAuthority() || !FParse::Param(FCommandLine::Get(),TEXT("MCActiveSkillReview"))
+        || !IsValid(Catalog) || Catalog->GetRowStruct()!=FMCPerkDefinition::StaticStruct()
+        || bRebuilding || bSkillMutation) return false;
+    const auto* State=Cast<AMCPlayerState>(GetOwner());
+    const auto* Controller=State?State->GetPlayerController():nullptr;
+    if(!IsValid(State) || State->Perks!=this || !IsValid(Controller) || !Controller->IsLocalController()
+        || State->GetOwner()!=Controller || Controller->GetPlayerState<AMCPlayerState>()!=State
+        || !ActivePerks.IsEmpty() || !PassivePerkIDs.IsEmpty() || !OwnedToolPerkIDs.IsEmpty()
+        || !BoosterQueue.IsEmpty() || !LegacyUnappliedBoosterIDs.IsEmpty() || !Effects.IsEmpty()
+        || !AppliedStacks.IsEmpty() || !ActiveSkillActions.IsEmpty()
+        || ActiveSkillSlots.Num()!=ActiveSkillSlotCount) return false;
+    for(const FMCActiveSkillSlot& Slot:ActiveSkillSlots)
+        if(!Slot.PerkID.IsNone() || Slot.InstanceID.IsValid() || Slot.Charges!=0 || Slot.CooldownEndsAt!=0.) return false;
+    LoadedTable=Catalog;
+    bDefinitionsLoaded=true;
+    return true;
+#else
+    return false;
+#endif
 }
 
 bool UMCPerkComponent::HasAuthority() const
@@ -168,6 +203,7 @@ void UMCPerkComponent::OnRep_ActivePerks()
 
 void UMCPerkComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    CancelActiveSkillActions(EMCActiveSkillEndReason::WorldEnded);
     CancelSkillPreparations();
     ClearRogueRuntime();
     bRebuilding = true;

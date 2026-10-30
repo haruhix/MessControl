@@ -1,4 +1,5 @@
 #include "MCPreloadManifest.h"
+#include "MCReactionVFX.h"
 
 #include "MCPreloadSettings.h"
 #include "MCGameMode.h"
@@ -6,6 +7,7 @@
 #include "MCHubGameState.h"
 #include "MCSingleDayDirector.h"
 #include "MCPassiveCombatCue.h"
+#include "MCPassiveFeedbackCue.h"
 #include "MCDefenseSprayPassives.h"
 #include "Blueprint/WidgetBlueprintGeneratedClass.h"
 #include "Blueprint/WidgetTree.h"
@@ -19,6 +21,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "Misc/PackageName.h"
 #include "Sound/SoundBase.h"
+#include "NiagaraSystem.h"
+#include "NiagaraEmitter.h"
+#include "NiagaraEmitterHandle.h"
+#include "NiagaraRendererProperties.h"
+#include "Materials/MaterialInterface.h"
 #include "UObject/UnrealType.h"
 
 namespace
@@ -60,6 +67,25 @@ public:
         if(auto* Table=Cast<UDataTable>(Value)) {
             if(const auto* RowStruct=Table->GetRowStruct())
                 for(const auto& Row:Table->GetRowMap()) Struct(RowStruct,Row.Value,Value,Depth+1);
+        }
+        // Emitter/renderer subobjects are not DataAssets. Follow their actual
+        // authored render resources explicitly, including material overrides,
+        // rather than relying on the first spawned NiagaraComponent to find them.
+        if(const auto* System=Cast<UNiagaraSystem>(Value)) {
+            for(const auto& Handle:System->GetEmitterHandles())
+                if(const auto* Data=Handle.GetEmitterData())
+                    for(auto* Renderer:Data->GetRenderers()) if(IsValid(Renderer)) {
+                        Object(Renderer,Depth+1);
+                        TArray<UMaterialInterface*> Materials;
+                        Renderer->GetUsedMaterials(nullptr,Materials);
+                        for(auto* Material:Materials) if(IsValid(Material)) {
+                            AddPath(FSoftObjectPath(Material),Out);Object(Material,Depth+1);
+                        }
+                        TArray<UObject*> Meshes;Renderer->GetUsedMeshes(nullptr,Meshes);
+                        for(auto* Mesh:Meshes) if(IsValid(Mesh)) {
+                            AddPath(FSoftObjectPath(Mesh),Out);Object(Mesh,Depth+1);
+                        }
+                    }
         }
         Struct(Value->GetClass(),Value,Value,Depth+1);
     }
@@ -158,7 +184,11 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
     if(!Arena) return;
     // Late passive cues retain their reflected CDO resources before readiness.
     Collector.Object(AMCPassiveCombatCue::StaticClass());
+    Collector.Object(AMCPassiveFeedbackCue::StaticClass());
     Collector.Object(AMCSprayCoating::StaticClass());
+    // Active explosions can break food before any ordinary food hit occurs.
+    // Retain the reaction actor's reflected dust system before that first use.
+    Collector.Object(AMCReactionVFX::StaticClass());
 
     // Match the run's authored profile, including a host-selected day, on clients as well.
     const auto* Mode=World->GetAuthGameMode<AMCGameMode>();
@@ -182,6 +212,8 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
         TEXT("/Game/Gameplay/CoreLoop/M_NutEnemyEyes"),
         TEXT("/Game/Gameplay/VFX/M_Reaction"),TEXT("/Game/Gameplay/VFX/M_ReactionSoft"),
         TEXT("/Game/Gameplay/VFX/MI_PassiveGhost"),TEXT("/Game/Gameplay/VFX/MI_PassiveLightning"),
+        TEXT("/Game/Gameplay/VFX/MI_PassiveFeedbackSoft"),TEXT("/Game/Gameplay/VFX/MI_PassiveFeedbackGlow"),
+        TEXT("/Game/Gameplay/VFX/M_CartoonReceiptSolid"),
         TEXT("/Engine/EngineMaterials/DefaultTextMaterialOpaque"),
         TEXT("/Game/Gameplay/VFX/M_ReactionFire"),TEXT("/Game/Gameplay/VFX/M_ReactionSmoke"),
         TEXT("/Game/Gameplay/Cold/Frost/M_TongueFrost"),
