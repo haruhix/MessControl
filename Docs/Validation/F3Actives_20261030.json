@@ -196,9 +196,16 @@
   },
   "colleague_report": {
     "dialog": "MessControl could not be compiled. Try rebuilding from source manually.",
-    "compiler_log_received": false,
-    "cause_on_colleague_machine_confirmed": false,
-    "local_proof": "Primary local unity build passed, then a separate Git-only source checkout with initially absent project Binaries/Intermediate and without optional local StylizedDynamics compiled MessControlEditor successfully through Tools/Build.ps1 on UE5.8.1."
+    "compiler_log_received": true,
+    "cause_on_colleague_machine_confirmed": true,
+    "local_proof": "Primary local unity build passed, then a separate Git-only source checkout with initially absent project Binaries/Intermediate and without optional local StylizedDynamics compiled MessControlEditor successfully through Tools/Build.ps1 on UE5.8.1.",
+    "log_sha256": "5ae9c743ae0a7d6c9ed8ae02e4010f3663ce6d436b9a3c29fba049f303bf4871",
+    "fatal_compiler_error_count": 1,
+    "error": "C4459: local Cream in MCReactionVFX.cpp(263,58) hides anonymous-namespace Cream from MCPrototypeWidget.cpp(38,24) in a unity translation unit.",
+    "error_log_line": 660,
+    "fixed_in_commit": "7c2cf3b739ea862facadd70cb1f72d6efc3a706f",
+    "fix": "Local identifier renamed to EnamelCream with identical values and references. Already pushed before receipt of the log.",
+    "remaining_limit": "This log identifies the reported failure. The colleague has not yet confirmed a rebuild of the corrected revision on their machine."
   },
   "scope": {
     "source_or_runtime_assets_changed": "Native UI/debug commands only plus a compile-only identifier rename; saved gameplay packages unchanged.",
