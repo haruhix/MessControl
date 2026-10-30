@@ -198,7 +198,7 @@
     "dialog": "MessControl could not be compiled. Try rebuilding from source manually.",
     "compiler_log_received": false,
     "cause_on_colleague_machine_confirmed": false,
-    "local_proof": "Local Editor unity build with -DisableAdaptiveUnity succeeded; no fresh clone or clean-object build was performed."
+    "local_proof": "Primary local unity build passed, then a separate Git-only source checkout with initially absent project Binaries/Intermediate and without optional local StylizedDynamics compiled MessControlEditor successfully through Tools/Build.ps1 on UE5.8.1."
   },
   "scope": {
     "source_or_runtime_assets_changed": "Native UI/debug commands only plus a compile-only identifier rename; saved gameplay packages unchanged.",
@@ -210,5 +210,41 @@
     "Build01 compiler errors repaired before Build02",
     "Run01/Run02 observer startup API errors",
     "Run03 recorder rejected stats_period .2 before gameplay input; repaired to0.2 before Run04"
-  ]
+  ],
+  "clean_git_source_checkout_build": {
+    "commit": "7c2cf3b739ea862facadd70cb1f72d6efc3a706f",
+    "checkout": "E:\\CodexWork\\MessControl\\F3Actives_20261030\\CleanSourceCheckout",
+    "method": "Fresh local shared Git clone of exact candidate commit; sparse source/plugin/config/tools checkout, no smudge/download of Content.",
+    "tracked_files": 2291,
+    "working_tree_clean_before_build": true,
+    "project_binaries_or_intermediates_before_build": false,
+    "optional_local_stylized_dynamics_present": false,
+    "content_included": false,
+    "engine_version": {
+      "MajorVersion": 5,
+      "MinorVersion": 8,
+      "PatchVersion": 1,
+      "Changelist": 56057345,
+      "CompatibleChangelist": 55116800,
+      "IsLicenseeVersion": 0,
+      "IsPromotedBuild": 1,
+      "BranchName": "++UE5+Release-5.8"
+    },
+    "scope": "Editor source compilation only. Primary full-project solo already tested; this source-only copy cannot launch the game.",
+    "exit_code": 0,
+    "seconds": 340.31,
+    "build_script": "Tools/Build.ps1",
+    "arguments": [
+      "-MaxParallelActions=4",
+      "-DisableAdaptiveUnity",
+      "-DisablePlugin=Fab",
+      "-UBARootDir=E:/CodexTemp/MessControlF3Actives_20261030/UBA_CleanSource",
+      "-UBATraceOutputFile=E:\\CodexWork\\MessControl\\F3Actives_20261030\\CleanSourceBuild.uba",
+      "-Log=E:\\CodexWork\\MessControl\\F3Actives_20261030\\CleanSourceBuild.log"
+    ],
+    "working_tree_clean_after_build": true,
+    "fixed_global_trace_relocated": true,
+    "optional_plugin_compiled_off": true,
+    "limitation": "Source/plugin/config/tools checkout only; Content was deliberately omitted to avoid LFS download. No game launch from this copy; functional UI/solo tests ran in the full primary checkout. Shared local Git object store, independently checked out tracked files; no borrowed project build outputs. Fab was disabled only for this command due the known installed-engine plugin-rules issue."
+  }
 }
