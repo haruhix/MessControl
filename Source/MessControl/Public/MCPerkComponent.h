@@ -92,6 +92,9 @@ public:
     void UnregisterActiveSkillAction(AMCActiveSkillAction* Action);
     void CancelActiveSkillActions(EMCActiveSkillEndReason Reason);
     UFUNCTION(BlueprintPure,Category="Skills") float GetSkillCooldownRemaining(int32 Slot) const;
+    /** Development command adapter. Exact-instance mutation; never a client RPC or a run reset. */
+    bool DebugRefreshActiveSlot(int32 Slot,FGuid ExpectedInstance,bool bRefillCharges,bool bResetCooldown);
+    bool DebugRemoveActiveSlot(int32 Slot,FGuid ExpectedInstance);
     /** Reversible preparation only; never refunds accepted charges or rewinds cooldowns. */
     UFUNCTION(BlueprintCallable,Category="Skills") void CancelSkillPreparations();
     UPROPERTY(ReplicatedUsing=OnRep_SkillLoadout,BlueprintReadOnly,Category="Skills") TArray<FMCActiveSkillSlot> ActiveSkillSlots;

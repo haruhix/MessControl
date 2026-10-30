@@ -1,0 +1,214 @@
+{
+  "date": "2026-10-30",
+  "task": "Separate F3 active-skill page and unity compile compatibility",
+  "builds": {
+    "editor": {
+      "exit_code": 0,
+      "seconds": 31.54,
+      "args": [
+        "E:/UE/UE_5.8/Engine/Build/BatchFiles/Build.bat",
+        "MessControlEditor",
+        "Win64",
+        "Development",
+        "-Project=E:\\DEVGAME\\MessControl\\MessControl.uproject",
+        "-WaitMutex",
+        "-MaxParallelActions=4",
+        "-NoHotReloadFromIDE",
+        "-DisablePlugin=Fab",
+        "-UBARootDir=E:/CodexTemp/MessControlF3Actives_20261030/UBA",
+        "-UBATraceOutputFile=E:\\CodexWork\\MessControl\\F3Actives_20261030\\Build02.uba",
+        "-Log=E:\\CodexWork\\MessControl\\F3Actives_20261030\\Build02.log"
+      ],
+      "fixed_global_trace_relocated": true
+    },
+    "unity_without_adaptive_exclusions": {
+      "exit_code": 0,
+      "seconds": 74.69,
+      "args": [
+        "E:/UE/UE_5.8/Engine/Build/BatchFiles/Build.bat",
+        "MessControlEditor",
+        "Win64",
+        "Development",
+        "-Project=E:\\DEVGAME\\MessControl\\MessControl.uproject",
+        "-WaitMutex",
+        "-MaxParallelActions=4",
+        "-DisableAdaptiveUnity",
+        "-NoHotReloadFromIDE",
+        "-DisablePlugin=Fab",
+        "-UBARootDir=E:/CodexTemp/MessControlF3Actives_20261030/UBA",
+        "-UBATraceOutputFile=E:\\CodexWork\\MessControl\\F3Actives_20261030\\Build03.uba",
+        "-Log=E:\\CodexWork\\MessControl\\F3Actives_20261030\\Build03.log"
+      ],
+      "fixed_global_trace_relocated": true
+    }
+  },
+  "native": {
+    "tests": [
+      {
+        "name": "MessControl.Passives.Batch1.DevPanel.GrantRemoveUsesRealLoadoutWithoutReset",
+        "state": "Success",
+        "duration": 2.021834373474121,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.Passives.Batch1.DevPanel.HostGuardAndStaleDisabledTokens",
+        "state": "Success",
+        "duration": 0.1300458014011383,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.Skills.DevPanel.CanonicalCatalogAndExplicitDestination",
+        "state": "Success",
+        "duration": 0.07244269549846649,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.Skills.DevPanel.HeldAirCleanupAndTargetedMutation",
+        "state": "Success",
+        "duration": 1.773465871810913,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.Skills.DevPanel.HostGuardAndInvalidStaleDefinitions",
+        "state": "Success",
+        "duration": 0.13714730739593506,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.Skills.Protocol.LastChargeAndIdentity",
+        "state": "Success",
+        "duration": 0.036751799285411835,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.Skills.Protocol.OccupiedReplacementTargetsInstance",
+        "state": "Success",
+        "duration": 0.02863920107483864,
+        "errors": [],
+        "warnings": []
+      }
+    ],
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0,
+    "total": 7,
+    "duration": 4.200327396392822
+  },
+  "ui": {
+    "status": "passed",
+    "checks": {
+      "actual_active_page_selected": true,
+      "all_six_named_native_grant_buttons_present": true,
+      "selected_slot_0": true,
+      "actual_UI_grant_Active_Sponge": true,
+      "selected_slot_1": true,
+      "actual_UI_grant_Active_Hook": true,
+      "selected_slot_2": true,
+      "actual_UI_grant_Consumable_Grenade": true,
+      "selected_slot_3": true,
+      "actual_UI_grant_Consumable_Air": true,
+      "actual_UI_grant_Consumable_Rocket": true,
+      "actual_UI_grant_Consumable_Driver": true,
+      "refill_UI_route_preserves_selected_item": true,
+      "full_charge_refill_is_idempotent": true,
+      "cooldown_reset_UI_preserves_item_and_charges": true,
+      "cooldown_reset_UI_leaves_selected_ready": true,
+      "remove_UI_empties_only_selected_slot": true,
+      "UI_cleanup_removed_slot_0": true,
+      "UI_cleanup_preserved_other_slots_0": true,
+      "UI_cleanup_removed_slot_2": true,
+      "UI_cleanup_preserved_other_slots_2": true,
+      "UI_cleanup_removed_slot_3": true,
+      "UI_cleanup_preserved_other_slots_3": true,
+      "individual_remove_UI_restores_all_four_empty_slots": true,
+      "back_returns_main_page": true,
+      "F3_closes_actual_panel": true,
+      "world_never_paused": true,
+      "world_game_time_advanced": true,
+      "move_input_returned_after_close": true,
+      "look_input_returned_after_close": true,
+      "editor_world_preserved": true,
+      "editor_dirty_packages_preserved": true,
+      "root_owned_pie_left_running": true,
+      "initial_empty_active_loadout_restored": true,
+      "passive_sources_unchanged": true
+    },
+    "check_count": 35,
+    "run": "Run04",
+    "source_pid": 3308,
+    "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth",
+    "recipe_sha256": "96aae2df0c775d909eeac0ac589584106fc4b61815f89d5719921206e08b7abf",
+    "limitations": [
+      "Root owns PIE launch/end, viewport settings and WGC recorder. This probe never starts/stops PIE.",
+      "OnClicked.broadcast invokes the actual bound widget handler; pointer hit-testing is not asserted.",
+      "Six real UI grants use a fresh local run loadout; no direct TryAcquirePerk/DT mutation.",
+      "Refill is dispatched at full charges to prove the UI route/idempotence; spending/restoring a partial charge and cooldown is covered separately by native tests.",
+      "Cooldown reset dispatch is checked at initially-ready cooldown; expiration/reset of a nonzero cooldown is covered separately by native tests.",
+      "One standalone authority; no multiplayer, microphone, complete earned run or art approval."
+    ],
+    "local_video": "E:\\CodexWork\\MessControl\\F3Actives_20261030\\Run04\\ActualWindow.mp4",
+    "local_gif": "E:\\CodexWork\\MessControl\\F3Actives_20261030\\Review\\Run04\\PreviewCompact.gif",
+    "video_sha256": "98eb5fb766b19835330630f94fa45e2f6f06871b676f029a3a06a096c9b42967",
+    "root_visual_inspection": "Actual active-page and filled-loadout screenshots personally inspected: six catalog entries, explicit selected slot, separate controls and scrollable rows. Not a claim of hardware pointer hit testing."
+  },
+  "restoration": {
+    "pid": 61692,
+    "world": "/Game/Maps/L_Mouth.L_Mouth",
+    "pie": false,
+    "dirty_maps": [],
+    "dirty_assets": [],
+    "preferences": [
+      {
+        "path": "E:\\DEVGAME\\MessControl\\Saved\\Config\\WindowsEditor\\GameUserSettings.ini",
+        "exact_original": true,
+        "preferences_match_except_editor_startup_timestamps": true
+      },
+      {
+        "path": "E:\\DEVGAME\\MessControl\\Saved\\Config\\WindowsEditor\\EditorPerProjectUserSettings.ini",
+        "exact_original": false,
+        "preferences_match_except_editor_startup_timestamps": true
+      },
+      {
+        "path": "E:\\DEVGAME\\MessControl\\Saved\\Config\\Windows\\GameUserSettings.ini",
+        "exact_original": true,
+        "preferences_match_except_editor_startup_timestamps": true
+      },
+      {
+        "path": "E:\\DEVGAME\\MessControl\\Saved\\Config\\Windows\\EditorPerProjectUserSettings.ini",
+        "exact_original": true,
+        "preferences_match_except_editor_startup_timestamps": true
+      }
+    ],
+    "protected_match": true,
+    "viewport_restored": true,
+    "no_test_flags": true,
+    "passed": true
+  },
+  "compile_fix": {
+    "file": "Source/MessControl/Private/MCReactionVFX.cpp",
+    "change": "Rename local Cream to EnamelCream, retaining identical values; avoid collision with MCPrototypeWidget.cpp in unity builds."
+  },
+  "colleague_report": {
+    "dialog": "MessControl could not be compiled. Try rebuilding from source manually.",
+    "compiler_log_received": false,
+    "cause_on_colleague_machine_confirmed": false,
+    "local_proof": "Local Editor unity build with -DisableAdaptiveUnity succeeded; no fresh clone or clean-object build was performed."
+  },
+  "scope": {
+    "source_or_runtime_assets_changed": "Native UI/debug commands only plus a compile-only identifier rename; saved gameplay packages unchanged.",
+    "network": false,
+    "microphone": false,
+    "cook_package": false
+  },
+  "failed_attempts_retained": [
+    "Build01 compiler errors repaired before Build02",
+    "Run01/Run02 observer startup API errors",
+    "Run03 recorder rejected stats_period .2 before gameplay input; repaired to0.2 before Run04"
+  ]
+}

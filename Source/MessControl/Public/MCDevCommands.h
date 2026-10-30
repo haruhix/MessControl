@@ -20,7 +20,9 @@ enum class EMCDevAction : uint8
     HugeTongueStain=62,
     CataclysmRandom=63, CataclysmRafts=64, CataclysmJellies=65, CataclysmStop=66,
     OneHitKill=67,
-    GrantPassive=68, RemovePassive=69
+    GrantPassive=68, RemovePassive=69,
+    GrantActiveSlot0=70, GrantActiveSlot1=71, GrantActiveSlot2=72, GrantActiveSlot3=73,
+    RemoveActiveSlot=74, RefillActiveSlot=75, ResetActiveCooldown=76
 };
 
 class UMCPerkComponent;
@@ -28,6 +30,12 @@ class UMCPerkComponent;
 MESSCONTROL_API TArray<FName> MCDevPassiveIDs(const UMCPerkComponent* Perks);
 /** Stable typed-command payload. Never use a changing filtered-list index as reward identity. */
 MESSCONTROL_API int32 MCDevPassiveToken(FName PerkID);
+/** Executable enabled Active/Consumable rows from the same canonical table, owned rows included. */
+MESSCONTROL_API TArray<FName> MCDevActiveIDs(const UMCPerkComponent* Perks);
+MESSCONTROL_API int32 MCDevActiveToken(FName PerkID);
+/** Invalid slot returns an unhandled sentinel; no implicit nearest/free-slot fallback. */
+MESSCONTROL_API EMCDevAction MCDevActiveGrantAction(int32 Slot);
+MESSCONTROL_API int32 MCDevActiveGrantSlot(EMCDevAction Action);
 
 /** Session-only host debug mode; never active in Shipping. */
 MESSCONTROL_API bool MCDevOneHitKillEnabled(const UWorld* World);

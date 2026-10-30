@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Button.h"
+#include "Types/SlateEnums.h"
 #include "MCDevCommands.h"
 #include "MCDevPanelWidget.generated.h"
 class AMCPlayerController;
@@ -56,8 +57,32 @@ private:
     bool IsPassivesOpen() const;
     UFUNCTION() void OpenPassivesClicked();
     UFUNCTION() void PassivesBackClicked();
+    void BuildActivesPage();
+    void RefreshActives();
+    bool IsActivesOpen() const;
+    UFUNCTION() void OpenActivesClicked();
+    UFUNCTION() void ActivesBackClicked();
+    UFUNCTION() void ActiveSlotChanged(FString Item,ESelectInfo::Type SelectionType);
     UPROPERTY() TObjectPtr<UWidgetSwitcher> Pages;
     UPROPERTY() TObjectPtr<UButton> OpenPassivesButton;
+    UPROPERTY() TObjectPtr<UButton> OpenActivesButton;
+    UPROPERTY() TObjectPtr<UComboBoxString> ActiveSlotCombo;
+    UPROPERTY() TObjectPtr<UVerticalBox> ActiveList;
+    UPROPERTY() TObjectPtr<UTextBlock> ActiveSummary;
+    UPROPERTY() TObjectPtr<UTextBlock> ActiveFeedback;
+    UPROPERTY() TObjectPtr<UMCGameplayUITheme> ActiveTheme;
+    UPROPERTY() TObjectPtr<UMCDevActionButton> ActiveRemoveButton;
+    UPROPERTY() TObjectPtr<UMCDevActionButton> ActiveRefillButton;
+    UPROPERTY() TObjectPtr<UMCDevActionButton> ActiveCooldownButton;
+    UPROPERTY() TArray<TObjectPtr<UTextBlock>> ActiveSlotLabels;
+    UPROPERTY() TMap<FName,TObjectPtr<UBorder>> ActiveRows;
+    UPROPERTY() TMap<FName,TObjectPtr<UTextBlock>> ActiveNames;
+    UPROPERTY() TMap<FName,TObjectPtr<UTextBlock>> ActiveDescriptions;
+    UPROPERTY() TMap<FName,TObjectPtr<UTextBlock>> ActiveOwnedLabels;
+    UPROPERTY() TMap<FName,TObjectPtr<UMCDevActionButton>> ActiveGrantButtons;
+    UPROPERTY() TMap<FName,TObjectPtr<UTextBlock>> ActiveGrantLabels;
+    TArray<FName> DisplayedActiveIDs;
+    float ActiveRefreshDelay=0.f;
     UPROPERTY() TObjectPtr<UButton> PassivesBackButton;
     UPROPERTY() TObjectPtr<UVerticalBox> PassiveList;
     UPROPERTY() TObjectPtr<UTextBlock> PassiveSummary;

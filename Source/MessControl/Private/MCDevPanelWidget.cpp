@@ -36,7 +36,7 @@ namespace { const FLinearColor DevMint(.28f,.93f,.75f); }
 void UMCDevActionButton::Configure(AMCPlayerController* Player,EMCDevAction Command,int32 Index)
 {
     Controller=Player; Action=Command; StepIndex=Index;
-    OnClicked.AddDynamic(this,&UMCDevActionButton::Clicked);
+    OnClicked.AddUniqueDynamic(this,&UMCDevActionButton::Clicked);
 }
 void UMCDevActionButton::Clicked() { if (Controller) Controller->RequestDevAction(Action,StepIndex); }
 UTextBlock* UMCDevPanelWidget::AddText(UVerticalBox* Box,const FString& Text,int32 Size)
@@ -76,7 +76,19 @@ void UMCDevPanelWidget::NativeOnInitialized()
     PassiveLink->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),16));PassiveLink->SetColorAndOpacity(FSlateColor(DevMint));
     CastChecked<UButtonSlot>(OpenPassivesButton->AddChild(PassiveLink))->SetPadding(FMargin(14,8));
     OpenPassivesButton->OnClicked.AddDynamic(this,&UMCDevPanelWidget::OpenPassivesClicked);
-    Main->AddChildToVerticalBox(OpenPassivesButton)->SetPadding(FMargin(0,3,0,10));
+    auto* SkillPages=WidgetTree->ConstructWidget<UHorizontalBox>();
+    Main->AddChildToVerticalBox(SkillPages)->SetPadding(FMargin(0,3,0,10));
+    auto* PassivePageSlot=SkillPages->AddChildToHorizontalBox(OpenPassivesButton);
+    PassivePageSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));PassivePageSlot->SetPadding(FMargin(0,0,6,0));
+    OpenActivesButton=WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(),TEXT("OpenActivesButton"));
+    OpenActivesButton->SetBackgroundColor(FLinearColor(.055f,.22f,.22f));
+    auto* ActiveLink=WidgetTree->ConstructWidget<UTextBlock>();
+    ActiveLink->SetText(FText::FromString(TEXT("АКТИВКИ  →")));
+    ActiveLink->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),16));ActiveLink->SetColorAndOpacity(FSlateColor(DevMint));
+    CastChecked<UButtonSlot>(OpenActivesButton->AddChild(ActiveLink))->SetPadding(FMargin(14,8));
+    OpenActivesButton->OnClicked.AddDynamic(this,&UMCDevPanelWidget::OpenActivesClicked);
+    auto* ActivePageSlot=SkillPages->AddChildToHorizontalBox(OpenActivesButton);
+    ActivePageSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));ActivePageSlot->SetPadding(FMargin(6,0,0,0));
     PlayerOverlayCheck=WidgetTree->ConstructWidget<UCheckBox>();
     auto* OverlayLabel=WidgetTree->ConstructWidget<UTextBlock>();
     OverlayLabel->SetText(FText::FromString(TEXT("Показывать статус игрока и подсказки управления")));
@@ -174,6 +186,7 @@ void UMCDevPanelWidget::NativeOnInitialized()
     auto* CloseText=WidgetTree->ConstructWidget<UTextBlock>(); CloseText->SetText(FText::FromString(TEXT("ВЕРНУТЬСЯ В ИГРУ  [F3]"))); CloseText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),14));
     Close->SetContent(CloseText); Close->OnClicked.AddDynamic(this,&UMCDevPanelWidget::CloseClicked); Main->AddChildToVerticalBox(Close)->SetPadding(FMargin(0,8,0,0));
     BuildPassivesPage();
+    BuildActivesPage();
     RefreshActions();
 }
 void UMCDevPanelWidget::RefreshActions()
@@ -319,7 +332,9 @@ void UMCDevPanelWidget::SetFeedback(const FText& Text)
 {
     if(Feedback) Feedback->SetText(Text);
     if(PassiveFeedback) PassiveFeedback->SetText(Text);
+    if(ActiveFeedback) ActiveFeedback->SetText(Text);
     if(IsPassivesOpen()) RefreshPassives();
+    if(IsActivesOpen()) RefreshActives();
 }
 void UMCDevPanelWidget::DirectorOverlayChanged(bool Checked)
 {
@@ -328,6 +343,11 @@ void UMCDevPanelWidget::DirectorOverlayChanged(bool Checked)
 void UMCDevPanelWidget::NativeTick(const FGeometry& Geometry,float Dt)
 {
     Super::NativeTick(Geometry,Dt); if (!Status || !IsVisible()) return;
+    if(IsActivesOpen()) {
+        ActiveRefreshDelay-=Dt;
+        if(ActiveRefreshDelay<=0.f) {ActiveRefreshDelay=.2f;RefreshActives();}
+        return;
+    }
     if(IsPassivesOpen()) {
         PassiveRefreshDelay-=Dt;
         if(PassiveRefreshDelay<=0.f) {PassiveRefreshDelay=.2f;RefreshPassives();}
@@ -420,6 +440,7 @@ FReply UMCDevPanelWidget::NativeOnKeyDown(const FGeometry& Geometry,const FKeyEv
 {
     if (auto* PC=Cast<AMCPlayerController>(GetOwningPlayer()))
     {
+        if(Event.GetKey()==EKeys::Escape && IsActivesOpen()) {ActivesBackClicked();return FReply::Handled();}
         if(Event.GetKey()==EKeys::Escape && IsPassivesOpen()) {PassivesBackClicked();return FReply::Handled();}
         if (Event.GetKey()==EKeys::F3 || Event.GetKey()==EKeys::Escape) { PC->ToggleDevPanel(); return FReply::Handled(); }
         if (Event.GetKey()==EKeys::F1) { PC->ToggleTuning(); return FReply::Handled(); }

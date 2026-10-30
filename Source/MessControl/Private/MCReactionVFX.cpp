@@ -260,7 +260,7 @@ void AMCReactionVFX::Tick(float Dt)
             const FVector ContactUp=FVector::CrossProduct(Normal,ContactRight).GetSafeNormal();
             Solid.Right=ContactRight;Solid.Up=ContactUp;Solid.View=Normal;
             const FVector PunchContact=Normal*4+View*3;
-            const FLinearColor Amber(FColor(233,172,81)),Cream(FColor(248,222,156)),Ochre(FColor(211,139,67));
+            const FLinearColor Amber(FColor(233,172,81)),EnamelCream(FColor(248,222,156)),Ochre(FColor(211,139,67));
             if(Age<.16f) {
                 const float PunchPop=Age<.025f?FMath::Lerp(.35f,1.12f,FMath::SmoothStep(0.f,.025f,Age))
                     :FMath::Lerp(1.12f,1.f,FMath::SmoothStep(.025f,.065f,Age));
@@ -278,7 +278,7 @@ void AMCReactionVFX::Tick(float Dt)
                 const FVector At=PunchContact+Away*(6+22*Flight)+FVector::UpVector*(ChipAge*18-ChipAge*ChipAge*120);
                 const float Roll=(I?-.4f:.3f)+ChipAge*(I?-5.f:4.f),C=FMath::Cos(Roll),S=FMath::Sin(Roll);
                 Solid.Right=ContactRight*C+ContactUp*S;Solid.Up=-ContactRight*S+ContactUp*C;
-                Solid.Ball(At,FVector(3.f,5.f,2.8f)*Scale,I?Ochre:Cream);
+                Solid.Ball(At,FVector(3.f,5.f,2.8f)*Scale,I?Ochre:EnamelCream);
             }
             Solid.Upload(Mesh,4);
         } else {

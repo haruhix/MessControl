@@ -30,6 +30,7 @@
 #include "MCInventoryComponent.h"
 #include "MCPlayerState.h"
 #include "MCPerkComponent.h"
+#include "MCActiveSkillPerkEffect.h"
 #include "MCTongue.h"
 #include "MCFirePatch.h"
 #include "MCMouthSurface.h"
@@ -66,6 +67,38 @@ TArray<FName> MCDevPassiveIDs(const UMCPerkComponent* Perks)
 int32 MCDevPassiveToken(FName PerkID)
 {
     return PerkID.IsNone()?INDEX_NONE:int32(FCrc::StrCrc32(*PerkID.ToString().ToLower())&MAX_int32);
+}
+
+namespace
+{
+bool DevActiveDefinition(const FMCPerkDefinition* Row,FName ID)
+{
+    if(!Row || !UMCPerkComponent::IsDefinitionUsable(*Row) || Row->ToolUpgrade!=EMCToolUpgrade::None) return false;
+    const auto Kind=UMCPerkComponent::ResolvePerkKind(*Row,ID);
+    if(Kind!=EMCPerkKind::Active && Kind!=EMCPerkKind::Consumable) return false;
+    if(Kind==EMCPerkKind::Consumable && (Row->InitialCharges<1 || Row->InitialCharges>10000)) return false;
+    const auto* Factory=Row->EffectClass?Cast<UMCActiveSkillPerkEffect>(Row->EffectClass->GetDefaultObject()):nullptr;
+    return Factory && Factory->ActionClass && !Factory->ActionClass->HasAnyClassFlags(CLASS_Abstract);
+}
+}
+
+TArray<FName> MCDevActiveIDs(const UMCPerkComponent* Perks)
+{
+    TArray<FName> IDs;
+    if(const auto* Table=Perks?Perks->GetPerkTable():nullptr)
+        for(FName ID:Table->GetRowNames()) if(DevActiveDefinition(Perks->FindDefinition(ID),ID)) IDs.Add(ID);
+    IDs.Sort([](FName A,FName B){return A.LexicalLess(B);});return IDs;
+}
+int32 MCDevActiveToken(FName ID) {return MCDevPassiveToken(ID);}
+EMCDevAction MCDevActiveGrantAction(int32 Slot)
+{
+    return Slot>=0 && Slot<UMCPerkComponent::ActiveSkillSlotCount
+        ? static_cast<EMCDevAction>(uint8(EMCDevAction::GrantActiveSlot0)+Slot):static_cast<EMCDevAction>(255);
+}
+int32 MCDevActiveGrantSlot(EMCDevAction Action)
+{
+    const int32 Slot=int32(uint8(Action))-int32(uint8(EMCDevAction::GrantActiveSlot0));
+    return Slot>=0 && Slot<UMCPerkComponent::ActiveSkillSlotCount?Slot:INDEX_NONE;
 }
 
 namespace MCDeveloperUIPrivate
@@ -352,6 +385,55 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     }
     if (BotSession && BotSession->IsActive())
         return FText::FromString(TEXT("Во время теста ботов ручные события отключены. Сначала нажми «Остановить ботов»."));
+    const int32 ActiveDestination=MCDevActiveGrantSlot(Action);
+    if(ActiveDestination!=INDEX_NONE || Action==EMCDevAction::RemoveActiveSlot
+        || Action==EMCDevAction::RefillActiveSlot || Action==EMCDevAction::ResetActiveCooldown)
+    {
+        auto* Player=Requester->GetPlayerState<AMCPlayerState>();
+        auto* Perks=Player?Player->Perks.Get():nullptr;
+        const auto* Table=Perks?Perks->GetPerkTable():nullptr;
+        if(!Table || Perks->ActiveSkillSlots.Num()!=UMCPerkComponent::ActiveSkillSlotCount)
+            return FText::FromString(TEXT("Активки пока недоступны. Обнови панель."));
+        if(ActiveDestination!=INDEX_NONE) {
+            if(StepIndex<0) return FText::FromString(TEXT("Неверная команда активки. Обнови панель."));
+            FName ID;
+            // Search every row, not just the current filtered list. A retired
+            // row or even a token collision must never select its neighbour.
+            for(FName Candidate:Table->GetRowNames()) if(MCDevActiveToken(Candidate)==StepIndex) {
+                if(!ID.IsNone()) return FText::FromString(TEXT("Неоднозначная команда активки. Ничего не изменено."));
+                ID=Candidate;
+            }
+            const auto* Row=Perks->FindDefinition(ID);
+            if(!DevActiveDefinition(Row,ID)) return FText::FromString(TEXT("Активка отключена или не реализована. Обнови панель."));
+            if(Perks->OwnsPerk(ID)) return FText::FromString(TEXT("Эта активка уже находится в наборе. Повторы запрещены."));
+            const FMCActiveSkillSlot Previous=Perks->ActiveSkillSlots[ActiveDestination];
+            FMCActiveSkillInputHandle HeldInput;
+            const auto* Hero=Cast<AMCToothCharacter>(Requester->GetPawn());
+            const auto* Held=Hero?Hero->GetActiveSkillPresentation():nullptr;
+            if(IsValid(Held) && Held->Perks()==Perks && Held->GetSlotIndex()==ActiveDestination) HeldInput=Held->GetInputHandle();
+            if(!Perks->TryAcquirePerk(ID,ActiveDestination,Previous.PerkID,Previous.InstanceID))
+                return FText::FromString(TEXT("Сейчас нельзя выдать активку. Ничего не изменено."));
+            // Ordinary acquisition deliberately preserves a last-charge hazard.
+            // The debug replace also relinquishes its still-held presentation,
+            // but never cancels an unrelated released projectile in this slot.
+            if(HeldInput.IsValid() && HeldInput.SlotInstanceID!=Perks->ActiveSkillSlots[ActiveDestination].InstanceID)
+                Perks->CancelSkillInput(HeldInput);
+            return FText::FromString(FString::Printf(TEXT("%s: слот %d. Только текущий ран; покупки и монеты не изменены."),
+                *Row->DisplayName.ToString(),ActiveDestination+1));
+        }
+        if(StepIndex<0 || StepIndex>=UMCPerkComponent::ActiveSkillSlotCount)
+            return FText::FromString(TEXT("Выбери слот активки 1–4."));
+        const FMCActiveSkillSlot Previous=Perks->ActiveSkillSlots[StepIndex];
+        if(Previous.PerkID.IsNone() || !Previous.InstanceID.IsValid()) return FText::FromString(TEXT("Выбранный слот пуст."));
+        const auto* Row=Perks->FindDefinition(Previous.PerkID);
+        if(!DevActiveDefinition(Row,Previous.PerkID)) return FText::FromString(TEXT("Активка отключена или больше недоступна."));
+        const bool Changed=Action==EMCDevAction::RemoveActiveSlot?Perks->DebugRemoveActiveSlot(StepIndex,Previous.InstanceID)
+            :Perks->DebugRefreshActiveSlot(StepIndex,Previous.InstanceID,Action==EMCDevAction::RefillActiveSlot,Action==EMCDevAction::ResetActiveCooldown);
+        if(!Changed) return FText::FromString(Action==EMCDevAction::RefillActiveSlot && Perks->GetPerkKind(Previous.PerkID)==EMCPerkKind::Active
+            ?TEXT("У многоразовой активки неограниченные заряды; отдельно сбрось перезарядку."):TEXT("Слот не изменён. Обнови панель."));
+        return FText::FromString(Action==EMCDevAction::RemoveActiveSlot?TEXT("Активка снята только с выбранного слота.")
+            :Action==EMCDevAction::RefillActiveSlot?TEXT("Заряды восстановлены; перезарядка сохранена."):TEXT("Перезарядка сброшена; заряды сохранены."));
+    }
     if(Action==EMCDevAction::GrantPassive || Action==EMCDevAction::RemovePassive)
     {
         auto* Player=Requester->GetPlayerState<AMCPlayerState>();

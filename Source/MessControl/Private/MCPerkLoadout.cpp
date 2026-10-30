@@ -259,6 +259,58 @@ float UMCPerkComponent::GetSkillCooldownRemaining(int32 Index) const
     return ActiveSkillSlots.IsValidIndex(Index) && !ActiveSkillSlots[Index].PerkID.IsNone()
         ? float(FMath::Max(0.,ActiveSkillSlots[Index].CooldownEndsAt-SkillNow())):0.f;
 }
+bool UMCPerkComponent::DebugRefreshActiveSlot(int32 Index,FGuid ExpectedInstance,bool bRefillCharges,bool bResetCooldown)
+{
+#if UE_BUILD_SHIPPING
+    return false;
+#else
+    if(!HasAuthority() || bRebuilding || bSkillMutation || !ActiveSkillSlots.IsValidIndex(Index)
+        || Index<0 || Index>=ActiveSkillSlotCount || !ExpectedInstance.IsValid() || (!bRefillCharges && !bResetCooldown)) return false;
+    const FMCActiveSkillSlot Before=ActiveSkillSlots[Index];
+    const auto* Row=FindDefinition(Before.PerkID);
+    if(!Row || !IsDefinitionUsable(*Row) || Before.InstanceID!=ExpectedInstance) return false;
+    const auto Kind=ResolvePerkKind(*Row,Before.PerkID);
+    if((Kind!=EMCPerkKind::Active && Kind!=EMCPerkKind::Consumable) || Row->ToolUpgrade!=EMCToolUpgrade::None
+        || (bRefillCharges && (Kind!=EMCPerkKind::Consumable || Row->InitialCharges<1 || Row->InitialCharges>MaximumSkillCharges))) return false;
+    TGuardValue<bool> Guard(bSkillMutation,true);
+    // Seal the accepted physical press before cancellation: a committed hazard
+    // can keep its fuse, but a late Completed must not blow old Air contents or
+    // route into the refreshed slot. Other slot instances are never cancelled.
+    const auto Actions=ActiveSkillActions;
+    for(const auto& Action:Actions) if(IsValid(Action) && Action->GetSlotInstanceID()==Before.InstanceID) {
+        EndedSkillInputActions.Add(Action->GetActionID());
+        Action->Cancel(EMCActiveSkillEndReason::Replaced);
+    }
+    auto& Slot=ActiveSkillSlots[Index];
+    Slot.InstanceID=FGuid::NewGuid();
+    if(bRefillCharges) Slot.Charges=Row->InitialCharges;
+    if(bResetCooldown) Slot.CooldownEndsAt=0.;
+    PruneSkillInputHistory(Before.InstanceID);
+    RefreshLegacyProjection();RebuildEffects();GetOwner()->ForceNetUpdate();return true;
+#endif
+}
+bool UMCPerkComponent::DebugRemoveActiveSlot(int32 Index,FGuid ExpectedInstance)
+{
+#if UE_BUILD_SHIPPING
+    return false;
+#else
+    if(!HasAuthority() || bRebuilding || bSkillMutation || !ActiveSkillSlots.IsValidIndex(Index)
+        || Index<0 || Index>=ActiveSkillSlotCount || !ExpectedInstance.IsValid()) return false;
+    const FMCActiveSkillSlot Before=ActiveSkillSlots[Index];const auto* Row=FindDefinition(Before.PerkID);
+    if(!Row || !IsDefinitionUsable(*Row) || Before.InstanceID!=ExpectedInstance) return false;
+    const auto Kind=ResolvePerkKind(*Row,Before.PerkID);
+    if((Kind!=EMCPerkKind::Active && Kind!=EMCPerkKind::Consumable) || Row->ToolUpgrade!=EMCToolUpgrade::None) return false;
+    TGuardValue<bool> Guard(bSkillMutation,true);
+    // RemovePerk(ID) intentionally covers all historical instances of an ID.
+    // A selected-slot debug command must leave an older released hazard alone.
+    const auto Actions=ActiveSkillActions;
+    for(const auto& Action:Actions) if(IsValid(Action) && Action->GetSlotInstanceID()==Before.InstanceID) {
+        EndedSkillInputActions.Add(Action->GetActionID());Action->Cancel(EMCActiveSkillEndReason::Removed);
+    }
+    ActiveSkillSlots[Index]=FMCActiveSkillSlot();PruneSkillInputHistory(Before.InstanceID);
+    RefreshLegacyProjection();RebuildEffects();GetOwner()->ForceNetUpdate();return true;
+#endif
+}
 bool UMCPerkComponent::CanUseSkillActor() const
 {
     const auto* State=Cast<AMCPlayerState>(GetOwner());const auto* Hero=State?Cast<AMCToothCharacter>(State->GetPawn()):nullptr;
