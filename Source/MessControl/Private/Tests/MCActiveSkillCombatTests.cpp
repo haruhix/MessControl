@@ -337,6 +337,8 @@ bool FMCRocketMuzzleAndArena::RunTest(const FString&)
     const auto Press=T.Handle(2);if(!TestTrue(TEXT("Clear muzzle commits a projectile"),T.Perks->BeginSkillSlot(Press))) return false;
     auto* A=Cast<AMCRocketSkillAction>(T.Perks->FindRunningAction(Press.SlotInstanceID));
     if(!TestNotNull(TEXT("Rocket outlives the emptied slot"),A)) return false;
+    int32 EndCueCount=0;
+    A->OnVFXStage.AddLambda([&EndCueCount](FName Stage){if(Stage==TEXT("End"))++EndCueCount;});
     const TWeakObjectPtr<AMCRocketSkillAction> Lifetime=A;
     TestTrue(TEXT("Last charge is spent while rocket remains in flight"),T.Perks->ActiveSkillSlots[0].PerkID.IsNone() && A->Phase==EMCRocketSkillPhase::Flying);
     TestEqual(TEXT("The caster keeps the launcher for recoil while the projectile flies"),T.Hero->GetActiveSkillPresentation(),static_cast<AMCActiveSkillAction*>(A));
@@ -353,6 +355,7 @@ bool FMCRocketMuzzleAndArena::RunTest(const FString&)
     Lifetime->Cancel(EMCActiveSkillEndReason::TimedOut);
     TestEqual(TEXT("Repeated hit plus timeout cannot detonate twice"),Lifetime->DetonationCount,1);
     T.Step(.5f);TestFalse(TEXT("Rocket impact cleans up without waiting on its former slot"),Lifetime.IsValid());
+    TestEqual(TEXT("Natural projectile recovery emits one End event for the editable VFX slot"),EndCueCount,1);
     return true;
 }
 #endif

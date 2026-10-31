@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-31",
+  "engine": "5.8.1",
+  "scope": "Checkpoint of the unified VFX Composer, practice tools, active-skill presentation revisions and the source/saved-asset migration audit.",
+  "changelog": [
+    "Added one action/event/layer Composer workspace with native gallery drag-and-drop, independent Niagara layers and saved authoring/runtime compositions.",
+    "Added real preview adapters for five enabled active skills and mechanic-only previews for 27 passives; retained explicit unsupported binding states.",
+    "Added editable Sponge soap trail, supported sliding/cleaning/reflection revisions and retained disabled Driver configuration.",
+    "Added the separate VFX practice map, templates, offline guide, local review-board metadata and full migration inventory."
+  ],
+  "validation": {
+    "editor_build": "Build23 succeeded; current checkpoint C++ was built before documentation-only finalization.",
+    "independent_composition_tests": "3/3 passed in Build18.",
+    "active_scenarios": "14/15 passed in Build21; remaining Air overflow passed in Build23 with 6 captured fragments and native Warning/End. Not a rerun of all 15 in Build23.",
+    "passive_scenarios": "27 setup/lifecycle checks; 22 observer triggers, five cleaning outcomes need follow-up. Not all proc conditions, numbers or artistic approval.",
+    "saved_authoring_master": "Four-layer import and native Undo/Redo restored exact layer identities and sources; canonical Rocket profile remained UseDefault.",
+    "saved_assets": "Full export completed 3834/3835 with build current. Legacy EUB_SnapToActor compilation failure is excluded from current snapshot coverage.",
+    "checkpoint_asset_scope": "78 changed/untracked Content candidates matched current saved disk hashes. Selected 38 assets include required dependency closure and four optional saved masters; 40 historical intermediates remain local.",
+    "staging": "Explicit path allowlist; generated recordings, Artifacts, old ArtSource iterations, build outputs and caches excluded. Local files preserved."
+  },
+  "pending": [
+    "Editable runtime VFX binding and existing procedural artwork migration for passives, bosses, map effects and other owners.",
+    "Artistic approval, exhaustive Blueprint/runtime coverage and long-run performance checks.",
+    "Network, microphone, cook/package and cold packaged PSO validation."
+  ],
+  "local_evidence": "E:/CodexWork/MessControl/Validation/CommitCheckpoint_20261031/",
+  "migration_report": "Docs/VFXComposerMigrationInventory_20261031.md",
+  "generated_media_versioned": false,
+  "runtime_migration_complete": false
+}

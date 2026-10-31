@@ -20,7 +20,8 @@
       "RideHalfWidth": 42,
       "DeckHeight": 45.2,
       "CleanRadius": 45,
-      "CleanRate": 1.4,
+      "CleanOnContact": 1,
+      "BounceSteeringLock": 0.2,
       "MaxLifetime": 30
     }
   },
@@ -144,6 +145,7 @@
   },
   {
     "ID": "Consumable_Driver",
+    "Enabled": false,
     "Kind": "Consumable",
     "RU": "Машинист",
     "EN": "Driver",
@@ -156,7 +158,8 @@
     "InitialCharges": 3,
     "CooldownSeconds": 6,
     "Parameters": {
-      "MaxLifetime": 15,
+      "MaxLifetime": 31,
+      "RideSeconds": 3,
       "RideSpeed": 720,
       "TurnRate": 130,
       "RideHalfLength": 180,

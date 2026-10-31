@@ -1,0 +1,93 @@
+{
+  "date": "2026-10-30",
+  "task": "Individual mechanics and visual review inventory",
+  "review_counts": {
+    "actives": 5,
+    "passives": 27,
+    "parked": 1
+  },
+  "saved_disable": {
+    "pid": 40956,
+    "route": "Native DataTable RowEditor checkbox edits through SlateInspector; no full-table JSON import",
+    "tables": {
+      "/Game/Gameplay/Roguelike/DT_Perks": {
+        "row": "Consumable_Driver",
+        "changes": {
+          "bEnabled": false
+        },
+        "all_other_rows_and_fields_preserved": true,
+        "saved": true,
+        "file_sha256": "dfe48058f1091986eff5aebefdad6dbda6741de457d279d5f921c2552e6e8bbe",
+        "rows": 133
+      },
+      "/Game/Gameplay/Hub/Economy/DT_HubCatalog": {
+        "row": "Active_Consumable_Driver",
+        "changes": {
+          "bEnabled": false,
+          "bInShop": false
+        },
+        "all_other_rows_and_fields_preserved": true,
+        "saved": true,
+        "file_sha256": "dc0b0221b516dc53e0cc170144a12faffe2cb487790d58f43b321f5ce056697a",
+        "rows": 55
+      }
+    },
+    "no_pie": true,
+    "no_dirty_packages": true,
+    "build_run": false,
+    "gameplay_tested": false,
+    "available_for_level_choice_left_unchanged": true
+  },
+  "restoration": {
+    "owned_editor_closed": true,
+    "starting_closed_state_restored": true,
+    "preferences": [
+      {
+        "path": "E:\\DEVGAME\\MessControl\\Saved\\Config\\WindowsEditor\\Editor.ini",
+        "original_bytes_restored": true
+      },
+      {
+        "path": "E:\\DEVGAME\\MessControl\\Saved\\Config\\WindowsEditor\\EditorPerProjectUserSettings.ini",
+        "original_bytes_restored": true
+      },
+      {
+        "path": "E:\\DEVGAME\\MessControl\\Saved\\Config\\WindowsEditor\\Engine.ini",
+        "original_bytes_restored": true
+      },
+      {
+        "path": "E:\\DEVGAME\\MessControl\\Saved\\Config\\WindowsEditor\\Game.ini",
+        "original_bytes_restored": true
+      },
+      {
+        "path": "E:\\DEVGAME\\MessControl\\Saved\\Config\\WindowsEditor\\GameUserSettings.ini",
+        "original_bytes_restored": true
+      },
+      {
+        "path": "E:\\DEVGAME\\MessControl\\Saved\\Config\\WindowsEditor\\Input.ini",
+        "original_bytes_restored": true
+      },
+      {
+        "path": "E:\\DEVGAME\\MessControl\\Saved\\Config\\WindowsEditor\\Niagara.ini",
+        "original_bytes_restored": true
+      }
+    ],
+    "saved_hashes_verified_after_close": true,
+    "build": false,
+    "pie": false,
+    "driver_duration_changes_preserved": true,
+    "available_for_level_choice_left_unchanged": true
+  },
+  "root_verification": {
+    "both_export_diffs_match_only_requested_booleans": true,
+    "on_disk_hashes_match_saved_reports": true,
+    "actual_32_enabled_perk_ids_match_review_registry": true,
+    "screenshots_inspected": [
+      "DriverDisable_Perks.png (before save)",
+      "DriverDisable_CatalogSaved.png (All Saved)"
+    ]
+  },
+  "canonical_recipe": "Consumable_Driver Enabled=false; author_current_passives respects Enabled for perks/shop and validation counts",
+  "validation_scope": "Native table authoring/readback and source inspection. No build or gameplay run for this catalog-only change. Existing catalog/dev-test expectations updated for five enabled actives; compile/run deferred to the next requested Editor build.",
+  "art_acceptance": "Each item awaits individual human review. Previous functional checks do not grant visual approval.",
+  "new_visual_resources": []
+}

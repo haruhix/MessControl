@@ -1,0 +1,144 @@
+{
+  "date": "2026-10-30",
+  "task": "Sponge stable slide, contact cleaning, soap trail, wall reflection and editable asset preview",
+  "implemented": [
+    "Dedicated Sponge crouch/contact frame; ordinary gait/foot locks do not step through the ride.",
+    "Ground-supported native contact strip cleaning; real same-actor walls/slopes remain boundaries.",
+    "Editable NS_Sponge_Trail world-space foam; own natural lifetime after action ends; no unsupported/discontinuous bridge.",
+    "Knight-style wall/corner reflection plus bounded swept overlap recovery after long native frames.",
+    "Bounded supported long-frame continuation skips unknown cleaning/history; oversized teleport still cancels.",
+    "Standalone asset PreviewMotion and saved above-ground editor camera."
+  ],
+  "build": {
+    "exit_code": 0,
+    "seconds": 67.28,
+    "args": [
+      "E:/UE/UE_5.8/Engine/Build/BatchFiles/Build.bat",
+      "MessControlEditor",
+      "Win64",
+      "Development",
+      "-Project=E:\\DEVGAME\\MessControl\\MessControl.uproject",
+      "-WaitMutex",
+      "-MaxParallelActions=4",
+      "-DisableAdaptiveUnity",
+      "-NoHotReloadFromIDE",
+      "-DisablePlugin=Fab",
+      "-UBARootDir=E:\\CodexTemp\\MessControlSpongeRevision_20261030\\UBA",
+      "-UBATraceOutputFile=E:\\CodexWork\\MessControl\\Validation\\SpongeRevision_20261030\\Build06.uba",
+      "-Log=E:\\CodexWork\\MessControl\\Validation\\SpongeRevision_20261030\\Build06.log"
+    ],
+    "fixed_global_trace_relocated": true
+  },
+  "native": {
+    "passed": 13,
+    "total": 13,
+    "failed": 0,
+    "report": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/NativeFinal.json"
+  },
+  "solo": {
+    "Repeat02": {
+      "passed": true,
+      "checks": 20,
+      "report": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/Repeat02/Report.json",
+      "sha256": "f6851caa65985e171b25dea94aec3288327871fe8f81682b7d49b899c3f86898",
+      "note": "Captured actual owned floating PIE window. Controlled transient fixture and ordinary slot handler; no timed outcome writes."
+    },
+    "Front01": {
+      "passed": true,
+      "checks": 20,
+      "report": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/Front01/Report.json",
+      "sha256": "1af33124380bcc21f5d8336a22aa2baff1fd4960f3e414decc9cdead373cd18b",
+      "note": "Captured actual owned floating PIE window. Controlled transient fixture and ordinary slot handler; no timed outcome writes."
+    },
+    "Side01": {
+      "passed": true,
+      "checks": 22,
+      "report": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/Side01/Report.json",
+      "sha256": "8a2f1bc2a1ec58aa6b9e9c18d12b52976c8b2fb3afb67756ea057a13cac0cf60",
+      "note": "Captured actual owned floating PIE window. Controlled transient fixture and ordinary slot handler; no timed outcome writes."
+    },
+    "Timer03": {
+      "passed": true,
+      "checks": 24,
+      "report": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/Timer03/Report.json",
+      "sha256": "692b121dca8c64787eed52e93eb6f6e0ba74d99a5eed3417c0077a9aa573128a",
+      "note": "Captured actual owned floating PIE window. Controlled transient fixture and ordinary slot handler; no timed outcome writes."
+    }
+  },
+  "timer": {
+    "authored_seconds": 8.0,
+    "sampled_live_seconds": 7.974907502532005,
+    "first_absent_game_seconds": 23.235671881586313,
+    "stable_frame_pairs": 158,
+    "max_board_local_frame_delta_cm": {
+      "body": 0.015251519363490706,
+      "foot_l": 0.025658257432133593,
+      "foot_r": 0.02340179847814152
+    }
+  },
+  "visual": {
+    "root_art_score": 5,
+    "status": "rework",
+    "inspection": "Primary agent inspected successive actual WGC frames from gameplay, front and side cameras. Stable contact/readability confirmed; atlas repetition and flat-card foam remain artistic limitations.",
+    "human_approval": "pending",
+    "bounce_clip": "Diagnostic fixtures push the ordinary collision camera; not a polished camera preview."
+  },
+  "preview": {
+    "motion_clip": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/SoapTrail/PreviewWindow02/NiagaraPreview.mp4",
+    "gif": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/SoapTrail/PreviewWindow02/NiagaraPreview.gif",
+    "saved_camera": true,
+    "background_hidden": "Transient to the open asset; a later opening may need Background Off.",
+    "temporary_background_throttle_restored": {
+      "performance": {
+        "bThrottleCPUWhenNotForeground": true
+      },
+      "idle": 0
+    }
+  },
+  "readiness": {
+    "reflected_cdo_root": "/Game/Gameplay/ActiveSkills/VFX/NS_Sponge_Trail",
+    "new_materials_or_textures": [],
+    "native_manifest_check_passed": true,
+    "first_use": "Visible in controlled local Editor runs after readiness. Warm local cache, not cold packaged PSO proof."
+  },
+  "prior_failures_preserved": [
+    "Build02 type conversion error corrected before Build03.",
+    "Native04 recovery failed: component-only geometric ray did not set bBlockingHit. Corrected and positive rollback control added.",
+    "Repeat01 Python bool wrapper expectation fixed; false maps to None and cannot prove separate validity.",
+    "Timer01 real initial wall overlap ended ride early; corrected.",
+    "Timer02 real400ms cancellation corrected; oversized test stain relocation fixed by a supported smaller fixture; synchronous repeated report dumps replaced with compact progress.",
+    "PreviewWindow first reopened background capture blank; PreviewWindow02 with temporary unthrottling confirmed motion."
+  ],
+  "restoration": {
+    "passed": true,
+    "ordinary_editor_pid": 44380,
+    "no_test_flags": true,
+    "protected_packages_unchanged": true,
+    "preferences": "Original preferences restored; only two known Editor startup timestamps differ.",
+    "preview_opened_after_restoration": true
+  },
+  "review": {
+    "url": "http://127.0.0.1:8765/?task=active-sponge&version=sponge_revision30",
+    "media": 6,
+    "http": "6/6 200",
+    "feedback_preserved": true
+  },
+  "deferred": [
+    "Network/multiplayer/microphone/cook/package not run.",
+    "GPU/overdraw profiling and cold packaged PSO validation not claimed.",
+    "Human artistic approval pending.",
+    "DT VFXProfile slots are an architecture proposal, not implemented."
+  ],
+  "source_and_assets": {
+    "Source/MessControl/Private/MCSpongeSkillAction.cpp": "084590e484b765c41ae29d88a648fd7bfe79759843d4762b79786b4dae715462",
+    "Source/MessControl/Private/MCSpongeSoapTrail.cpp": "3e2c382bca46eeae0b688a3931708f506378660d4fe81aa29014f23dffb3b13f",
+    "Source/MessControl/Private/MCActiveSkillMotion.cpp": "55e498023035dd7a3c71f7f5378420bab66715455f385502353cf74a9ffb6aed",
+    "Source/MessControl/Private/MCToothAnimInstance.cpp": "fd32f579fb8de15473c7b082948b8c6c54f50ec051844fc01a741ede25136441",
+    "Source/MessControl/Public/MCSpongeSkillAction.h": "c7a9490a8d3d8830f16247d9193f670474e605177bc859880552557c7be1fc9d",
+    "Source/MessControlEditor/Private/MCNiagaraPreviewEditorLibrary.cpp": "5c6eab9d3bc09ace9ee445c59c908bf91ca604e1c7175b89d3816b7b4f92568f",
+    "Tools/Unreal/check_sponge_revision_solo.py": "6ff461bc0964b2f7da4cec31ee02f486748d2908dbf607eacffd9fc63d3e2167",
+    "Tools/Unreal/author_sponge_soap_trail.py": "e3a7aed327b8b6ca3f30112aa751507397e3cb1b68a7deb2e08dfccb5ea2a5fa",
+    "Content/Gameplay/ActiveSkills/VFX/NS_Sponge_Trail.uasset": "9352ff994c0698adcb36e597f8abc7c5bdb89c9c893b531819db1e8361935201",
+    "Content/Gameplay/Roguelike/DT_Perks.uasset": "88456cb0fed2008448630c2824b17589c8868cdfb1fb1e15f4245c0eb8346e16"
+  }
+}

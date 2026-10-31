@@ -1,0 +1,396 @@
+{
+  "date": "2026-10-31",
+  "engine": "5.8.1",
+  "scope": "Local Perk Action Preview and Composer authoring/export checkpoint",
+  "status": "functional tool checkpoint ready for user review; fresh native visibility and visible stock-effect demo confirmed; custom VFX art/full fidelity pending",
+  "evidence_root": "E:/CodexWork/MessControl/Validation/PerkActionPreview_20261031",
+  "builds": [
+    {
+      "report": "Build08.log",
+      "result": "Succeeded",
+      "seconds": 18.94
+    },
+    {
+      "report": "Build11.log",
+      "result": "Succeeded",
+      "seconds": 34.79
+    },
+    {
+      "report": "Build12.log",
+      "result": "Succeeded",
+      "seconds": 22.55
+    },
+    {
+      "report": "Build13.log",
+      "result": "Succeeded",
+      "seconds": 28.25
+    }
+  ],
+  "implemented_scope": [
+    "Recipe graph with independent NS element nodes, GUID/layout/groups, clone/delete, selection/movement, Solo/enable and real User controls",
+    "Saved authoring master is separate from generated Niagara System and from perk VFX profile",
+    "Strict supported-subset export with lifecycle/dependency/shared-input checks and overwrite refusal",
+    "Explicit application to one Rocket event in a working profile, provenance-based master reopening",
+    "Isolated native Rocket action runner with character AnimInstance and physical hands; Target, NearWall and Timeout scenarios",
+    "Main repeat loop and cached generated audition system",
+    "AssetRegistry-backed live gallery with visible selectable STileView cards, search/category count; functional selection/recipe isolation observed in Build12"
+  ],
+  "native_checks": {
+    "profile_report": "Native01/index.json",
+    "profile_succeeded": 4,
+    "profile_failed": 0,
+    "profile_warnings": 0,
+    "profile_tests": [
+      "ActionSnapshot",
+      "DiscoveryIsolation",
+      "ManifestReachability",
+      "Validation"
+    ],
+    "combat_report": "CombatRegression.json",
+    "combat_succeeded": 2,
+    "combat_failed": 0,
+    "note": "Directed historical checks in this task, not certification of every later UI revision or cold packaged readiness."
+  },
+  "core_observations": [
+    {
+      "reports": [
+        "ComposerUI06.json",
+        "ComposerUndo06.json"
+      ],
+      "confirmed": "Real graph contained three selected source systems and a separately identified clone; Undo snapshot retained."
+    },
+    {
+      "report": "ComposerRoundtrip06.json",
+      "confirmed": {
+        "clone_independent_id": true,
+        "save_reopen_equal": true,
+        "overwrite_rejected": true
+      }
+    },
+    {
+      "report": "ComposerMove08.json",
+      "confirmed": {
+        "both_selected_nodes_moved_together": true
+      }
+    },
+    {
+      "report": "ComposerContext08.json",
+      "confirmed": {
+        "group_save_reopen_equal": true,
+        "move_undo_restored": true,
+        "explicit_apply_to_working_profile": true,
+        "reopen_restores_master_nodes": true,
+        "dt_unchanged_by_composer_apply": true
+      }
+    },
+    {
+      "reports": [
+        "ComposerExport08.json",
+        "GeneratedSystem08.json"
+      ],
+      "confirmed": {
+        "new_generated_file_exists": true,
+        "saved_master_provenance": true,
+        "source_unchanged_in_this_export_check": true,
+        "overwrite_rejected": true,
+        "generated_enabled_cpu_emitters": 6
+      },
+      "limit": "Emitter/input readback is not visual or compiled-executable equivalence."
+    },
+    {
+      "report": "ComposerRejections09.json",
+      "confirmed_rejections": [
+        "per-layer transform",
+        "conflicting shared User.Color",
+        "source outside supported contract"
+      ]
+    },
+    {
+      "report": "ScenarioSummary.json",
+      "confirmed": "Target, NearWall and Timeout each observed separate preview world, AnimInstance, one Impact and action completion; hand distances are diagnostics, not a visual grip pass."
+    },
+    {
+      "report": "PauseReset01.json",
+      "confirmed": "Directed native runner pause/reset check passed; this is distinct from every Composer timing/seek combination."
+    }
+  ],
+  "main_loop_build11": {
+    "report": "Loop11.json",
+    "functional_status": "passed within observed window",
+    "observation_window_approx_seconds": 28,
+    "observed_cycles": 6,
+    "cached_generated_system": "/Engine/Transient.ComposerGenerated_0",
+    "note_on_null": "Null/None system samples occurred during sandbox preparation; they are not a second generated system.",
+    "maximum_observed_niagara_components": 5,
+    "no_growth_observed_across_cycles": true,
+    "limits": [
+      "Not a long-duration leak/performance test",
+      "Loop completion does not approve impact visibility or art"
+    ]
+  },
+  "live_gallery_build11": {
+    "status": "historical frontend defect; population corrected and checked in Build12",
+    "root_observation": "Frontend was empty although 22 registry entries were visible; compilation is not a gallery pass.",
+    "final_media": null
+  },
+  "intentional_profile_authoring": {
+    "report": "ProfileIO.json",
+    "asset": "/Game/Gameplay/ActiveSkills/VFX/Profiles/DA_Rocket_ActionVFX.DA_Rocket_ActionVFX",
+    "row_count": 133,
+    "changed_row": "Consumable_Rocket",
+    "changed_field": "VFXProfile",
+    "note": "Neutral initial profile retains existing action defaults. This explicit earlier profile assignment is separate from the later Composer apply checks reporting DT unchanged."
+  },
+  "art_and_fidelity": {
+    "status": "custom VFX art and full source/generated fidelity pending; fresh stock-effect tool visibility demo confirmed",
+    "historical_diagnostic_report": "Fidelity09_ReadOnly.json",
+    "historical_diagnostic_preserved": true,
+    "confirmed_only": "Five User defaults, SystemState and resolved inputs of first generated emitter trio matched source; later native control isolated hidden preview WorldSettings as a concrete visibility blocker.",
+    "interpretation_correction": "Prior empty/weak preview cannot be attributed to poor art or broken particle generation from those captures alone. The exact paused-frame A/B demonstrated a tool visibility bug without changing source/algorithm.",
+    "open": [
+      "Our generated/native baseline visual fidelity after owner fix",
+      "Final artistic assessment of our effects",
+      "Renderer/particle parity beyond the isolated stock control",
+      "Entire catalog behavior and first-cold PSO/resource preparation"
+    ]
+  },
+  "media_policy": {
+    "candidate_diagnostic": "ComposerLoop11.mp4",
+    "candidate_limit": "Earlier weak/invisible preview recordings are retained as diagnostics affected by a proved preview-owner visibility defect. The native-source paused-frame control became visible after owner unhide; fresh final captures and art review are still required.",
+    "approved_review_media": [
+      "ComposerLiveGallery13.gif",
+      "ComposerLiveGallery13.mp4"
+    ],
+    "review_board_publication": {
+      "status": "published",
+      "url": "http://127.0.0.1:8765/?task=vfx-composer&version=composer-20261031",
+      "report": "ReviewBoardPublish13/PublishReport.json",
+      "score": null,
+      "gif_http": 200,
+      "mp4_http": 200,
+      "mp4_range_http": 206,
+      "human_feedback_unchanged": true
+    },
+    "generated_media_committed": false,
+    "candidate_diagnostics": [
+      "ComposerLoop11.mp4",
+      "RawComposerLiveGallery12.mp4"
+    ],
+    "approved_scope": "Review-ready TOOL demo with an existing stock effect; score remains null; no custom VFX artistic approval."
+  },
+  "deferred_validation": [
+    "Final Live Gallery effect clarity, motion review across catalog entries and first-use readiness",
+    "Full acceptance matrix including final artwork and manual end-to-end review",
+    "Other active and passive perk adapters",
+    "Loading/prewarm coverage of all final assigned generated resources and first-use evidence",
+    "Cold packaged PSO, GPU/overdraw, multiplayer, network, microphone and cook/package",
+    "Standalone WorldSettings constructor visibility is verified, but full standalone animated effect parity remains outside this fresh native-demo approval."
+  ],
+  "acceptance_matrix": "Docs/Validation/ComposerAcceptance_20261031.md",
+  "live_gallery_build12": {
+    "report": "Gallery12.json",
+    "functional_status": "functional subset confirmed; fresh Build13 demo visually inspected with stock NS",
+    "ui_observation": "Root MCP snapshot: selectable cards populated; 166 NS under /Game, 5 practice entries and 22 source entries. These are snapshot counts, not a permanent catalog-size promise.",
+    "implementation": "AssetRegistry-backed STileView with search/category count",
+    "selected_system": "/Game/Tests/VFXPractice/Effects/NS_Practice_Trail.NS_Practice_Trail",
+    "observed_seconds": 15.984,
+    "observer_samples": 812,
+    "observed_hero_runs": 4,
+    "maximum_observed_niagara_components": 5,
+    "recipe_unchanged": true,
+    "limits": [
+      "Not an artistic approval of the effect",
+      "Not proof of every catalog entry, first-use readiness or long-duration GPU/resource behavior"
+    ],
+    "final_media": [
+      "ComposerLiveGallery13.gif",
+      "ComposerLiveGallery13.mp4"
+    ]
+  },
+  "pause_build11": {
+    "report": "Pause11.json",
+    "functional_status": "passed",
+    "input": "Root reports native UI Click + Enter",
+    "before_seconds": 0.6299355030059814,
+    "after_seconds": 0.6299355030059814,
+    "paused_before": true,
+    "paused_after": true,
+    "limit": "Bounded native runner pause observation, not every standalone seek/reset configuration"
+  },
+  "preview_visibility_rootcause_build12": {
+    "status": "root cause proved; constructor fix compiled in Build13 and fresh action-preview owner visibility confirmed",
+    "probe_report": "ProbeRender12.json",
+    "ab_report": "OwnerVisibilityAB12.json",
+    "recipe": "unhide_preview_vfx12.py",
+    "after_frame": "PreviewOwnerVisible12.png",
+    "source_system": "/Game/NiagaraExamples/FX_Explosions/NS_Explosion.NS_Explosion",
+    "component_owner": "/Engine/Transient.World_0:PersistentLevel.WorldSettings",
+    "before": {
+      "owner_is_hidden_ed": true,
+      "owner_is_temporarily_hidden_in_editor": true,
+      "component_active": true,
+      "component_visible": true,
+      "component_registered": true,
+      "observed_cpu_particles": 4326
+    },
+    "intervention": "Only cleared temporary editor-hidden state of WorldSettings in the owned separate transient preview world; source system and particle algorithm unchanged.",
+    "ab_result": "OwnerVisibilityAB12 records temporary hidden true -> false. Root personally inspected explosion becoming visible in the exact same paused frame.",
+    "scope_limit": "Proves an editor preview owner-visibility defect for this control. It does not approve our effect art, establish all source/generated fidelity, or prove the analogous standalone-scene case.",
+    "persistent_fix": {
+      "build": "Build13.log",
+      "sources": [
+        "MCPerkPreviewRunner.cpp:262",
+        "SMCVFXComposerViewport.cpp:46"
+      ],
+      "change": "Scoped SetIsTemporarilyHiddenInEditor(false) on WorldSettings owned by each separate preview scene",
+      "report": "Visibility13.json",
+      "fresh_constructor_owner_visible": true,
+      "world_is_separate": true,
+      "hidden_ed": false,
+      "temporarily_hidden": false,
+      "no_live_workaround_required": true
+    }
+  },
+  "review_demo_build13": {
+    "media": [
+      "ComposerLiveGallery13.gif",
+      "ComposerLiveGallery13.mp4"
+    ],
+    "contact_sheet": "ComposerLiveGallery13_contact.png",
+    "root_personally_inspected": true,
+    "observed": "Selected existing NS_Explosion card repeatedly invokes native Rocket; visible orange burst, smoke and tail, approximately three cycles in 12 seconds.",
+    "scope": "TOOL demonstration using existing stock NiagaraExamples NS_Explosion, not a newly authored artist VFX, not six perk adapters or source/generated fidelity approval."
+  },
+  "final_restoration": {
+    "report": "FinalState13.json",
+    "result": {
+      "build": "Build13",
+      "native_preview": {
+        "tool_open": true,
+        "pie": false,
+        "editor_map": "/Game/Tests/VFXPractice/L_VFXPractice.L_VFXPractice",
+        "preview_world": "/Engine/Transient.World_0",
+        "world_is_separate": true,
+        "status": "Готово: настоящий зубик, штатная анимация и физические руки",
+        "phase": "Ожидание",
+        "seconds": 0,
+        "paused": false,
+        "running": false,
+        "hero": "/Engine/Transient.World_0:PersistentLevel.MCToothCharacter_42",
+        "action": "None",
+        "hero_location": {
+          "x": 0,
+          "y": 0,
+          "z": 60
+        },
+        "anim_instance": "/Engine/Transient.World_0:PersistentLevel.MCToothCharacter_42.CharacterMesh0.MCToothAnimInstance_1",
+        "events": [],
+        "niagara_components": [
+          {
+            "component": "/Engine/Transient.World_0:PersistentLevel.MCToothCharacter_42.BrushFoamNiagara",
+            "system": "/Game/Gameplay/VFX/NS_BrushFoam.NS_BrushFoam",
+            "active": false,
+            "visible": true,
+            "registered": true,
+            "location": {
+              "x": 0,
+              "y": 0,
+              "z": 60
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          {
+            "component": "/Engine/Transient.World_0:PersistentLevel.MCToothCharacter_42.TreatmentSprayNiagara",
+            "system": "/Game/Gameplay/VFX/NS_SprayMist.NS_SprayMist",
+            "active": false,
+            "visible": true,
+            "registered": true,
+            "location": {
+              "x": 0,
+              "y": 0,
+              "z": 60
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          },
+          {
+            "component": "/Engine/Transient.World_0:PersistentLevel.MCToothCharacter_42.WatergunSprayNiagara",
+            "system": "/Game/Gameplay/VFX/NS_WatergunMist.NS_WatergunMist",
+            "active": false,
+            "visible": true,
+            "registered": true,
+            "location": {
+              "x": 0,
+              "y": 0,
+              "z": 60
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        ],
+        "actor_count": 18,
+        "action_count": 0
+      },
+      "composer": {
+        "tool_open": true,
+        "layout_valid": true,
+        "layout_error": "",
+        "name": "MCVFXComposition_3",
+        "duration": 3,
+        "tail": 3,
+        "nodes": [
+          {
+            "name": "Layer",
+            "system": "/Game/Gameplay/ActiveSkills/VFX/NS_Rocket_Impact.NS_Rocket_Impact",
+            "enabled": true,
+            "solo": false,
+            "delay": 0,
+            "emission": 0,
+            "id": "C67321564DE1461339A6E1970BFB6F0C",
+            "group": "BE293B784A2DF7C462B5D081661AB94C",
+            "x": 50,
+            "y": 60
+          },
+          {
+            "name": "Layer",
+            "system": "/Game/Gameplay/ActiveSkills/VFX/NS_Rocket_Impact.NS_Rocket_Impact",
+            "enabled": true,
+            "solo": false,
+            "delay": 0,
+            "emission": 0,
+            "id": "86A4AA5645EF1E75A3AEA6858314100D",
+            "group": "BE293B784A2DF7C462B5D081661AB94C",
+            "x": 350,
+            "y": 60
+          }
+        ],
+        "group_count": 1
+      },
+      "user_draft_preserved": true,
+      "repeat_stopped": true,
+      "background_throttle_restored": true,
+      "preview_world_settings": {
+        "/Engine/Transient.World_0:PersistentLevel.WorldSettings": {
+          "hidden_ed": false,
+          "temporarily_hidden": false
+        },
+        "/Engine/Transient.World_1:PersistentLevel.WorldSettings": {
+          "hidden_ed": false,
+          "temporarily_hidden": false
+        }
+      },
+      "dirty_content": [],
+      "dirty_maps": []
+    }
+  }
+}

@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "Engine/NetSerialization.h"
 #include "GameFramework/Actor.h"
+#include "MCPerkVFXProfile.h"
+#include "MCPerkVFXCompositionPlayer.h"
 #include "MCActiveSkillAction.generated.h"
 
 class AMCPlayerState;
@@ -14,6 +16,8 @@ class USkeletalMeshComponent;
 class UStaticMesh;
 class UNiagaraSystem;
 class UNiagaraComponent;
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnMCActiveSkillVFXStage,FName);
 
 UENUM(BlueprintType)
 enum class EMCActiveSkillEndReason : uint8
@@ -87,6 +91,14 @@ public:
     void StartLoop();
     void StopLoop();
     void UpdateLoopVFX(FVector Direction,float Fill=-1.f);
+    /** Before commit only. Copies settings and retains resolved systems; never mutates the profile/CDO. */
+    bool PrepareVFXProfile(UMCPerkVFXProfile* Profile,FString& OutError);
+    UFUNCTION(BlueprintPure,Category="Skill|VFX") UNiagaraSystem* GetPreparedVFXSystem(FName Stage) const;
+    /** Includes every independent composition source; readiness callers must not inspect only the legacy single System. */
+    void GetPreparedVFXSystems(FName Stage,TArray<UNiagaraSystem*>& OutSystems) const;
+    UFUNCTION(BlueprintPure,Category="Skill|VFX") UMCVFXComposition* GetPreparedVFXComposition(FName Stage) const;
+    /** Native observation of real action events; cosmetic disabling does not remove the event. */
+    FOnMCActiveSkillVFXStage OnVFXStage;
     virtual void Tick(float DeltaSeconds) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
 
@@ -128,6 +140,26 @@ private:
     void RefreshPresentationTickPrerequisite(USkeletalMeshComponent* Mesh);
     void ReleasePresentationTickPrerequisite();
     void ApplyVFXParameters(UNiagaraComponent* Component,FVector Direction,float Radius,float Fill=-1.f) const;
+    bool PrepareVFXBindings(const TArray<FMCPerkVFXBinding>& Bindings,FString& OutError);
+    void PrepareDefaultVFX();
+    const FMCPerkVFXSlot* PreparedVFXSlot(FName Stage) const;
+    void ApplyVFXSlotOverrides(UNiagaraComponent* Component,FName Stage) const;
+    FMCPerkVFXGameplayValues CompositionGameplayValues(FVector Direction,float Radius,float Fill=-1.f) const;
+    AMCPerkVFXCompositionPlayer* PlayPreparedComposition(FName Stage,const FTransform& Frame,bool bLoop,
+        const FMCPerkVFXGameplayValues& Values);
+    void StopCompositionPlayers(bool bImmediate);
+    UFUNCTION() void OnRep_VFXBindings();
+    UPROPERTY(ReplicatedUsing=OnRep_VFXBindings) TArray<FMCPerkVFXBinding> VFXBindings;
+    UPROPERTY(Transient) TMap<FName,TObjectPtr<UNiagaraSystem>> PreparedVFXSystems;
+    UPROPERTY(Transient) TMap<FName,FMCPreparedPerkVFXComposition> PreparedVFXCompositions;
+    UPROPERTY(Transient) TArray<TWeakObjectPtr<AMCPerkVFXCompositionPlayer>> CompositionPlayers;
+    UPROPERTY(Transient) TWeakObjectPtr<AMCPerkVFXCompositionPlayer> LoopCompositionPlayer;
+    FMCPerkVFXGameplayValues LoopCompositionValues;
+    UPROPERTY(Transient) TArray<FMCPerkVFXBinding> PreparedVFXBindings;
+    FTransform DefaultLoopTransform=FTransform::Identity;
+    bool bCapturedDefaultLoopTransform=false;
+    bool bVFXPrepared=false;
+    bool bLoopEventRunning=false;
     UPROPERTY(Replicated) TObjectPtr<AMCPlayerState> SourcePlayerState;
     UPROPERTY(ReplicatedUsing=OnRep_Presentation) TObjectPtr<AMCToothCharacter> SourcePawn;
     UPROPERTY(Replicated) FName PerkID;

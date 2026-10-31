@@ -1,0 +1,839 @@
+{
+  "project": "MessControl",
+  "date": "2026-10-30",
+  "counts": {
+    "activeReview": 5,
+    "passiveReview": 27,
+    "parked": 1,
+    "totalReview": 32
+  },
+  "reviewPolicy": {
+    "oneAbilityAtATime": true,
+    "mechanicsAndVisualApprovalSeparate": true,
+    "noBlanketArtApproval": true,
+    "voiceAndAnnotatedScreenshotsAccepted": true,
+    "feedbackFields": [
+      "ability ID",
+      "media version",
+      "timecode or annotated frame",
+      "what looks wrong",
+      "desired movement or reference"
+    ],
+    "stages": [
+      "Выдать только выбранный навык через F3 без остальных пассивок.",
+      "Сверить механику и числа в коротком сценарии.",
+      "Просмотреть подготовку, применение, попадание/промах и возврат; затем VFX с игровой камеры.",
+      "Записать замечания к точной версии, исправить и повторить только затронутый сценарий."
+    ]
+  },
+  "items": [
+    {
+      "id": "Active_Sponge",
+      "name": "Губка",
+      "kind": "Active",
+      "group": "Active",
+      "mechanic": "Поездка на губке очищает путь. Повторно нажми кнопку этого слота, чтобы слезть. Завершается также по таймеру.",
+      "charges": -1,
+      "cooldownSeconds": 12,
+      "parameters": {
+        "RideSeconds": 8,
+        "RideSpeed": 620,
+        "TurnRate": 220,
+        "RideHalfLength": 80,
+        "RideHalfWidth": 42,
+        "DeckHeight": 45.2,
+        "CleanRadius": 45,
+        "CleanRate": 1.4,
+        "MaxLifetime": 30
+      },
+      "visualCheck": "Посадка и опора на губку; повороты тела; пена в зоне контакта и след очистки; сход и возврат инструмента.",
+      "reviewOrder": 1,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "awaiting_user_review",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      },
+      "reviewCases": [
+        "Посадка и очистка пути при движении/поворотах.",
+        "Ранний сход повторным нажатием; обычное окончание по таймеру.",
+        "Возврат инструмента и управления после схода; расход КД."
+      ]
+    },
+    {
+      "id": "Active_Hook",
+      "name": "Крюк",
+      "kind": "Active",
+      "group": "Active",
+      "mechanic": "Прицельно выпускает крюк: союзника притягивает к тебе, при попадании в босса — тебя к боссу.",
+      "charges": -1,
+      "cooldownSeconds": 8,
+      "parameters": {
+        "MaxLifetime": 15,
+        "HookRange": 1400,
+        "PullSeconds": 2.5,
+        "PullSpeed": 850,
+        "BreakRange": 1800,
+        "StopDistance": 120,
+        "HeldX": 45,
+        "HeldY": 35,
+        "HeldZ": 25
+      },
+      "visualCheck": "Хват, замах, ориентация крюка в полёте, натяжение троса, контакт и подтягивание; радость при попадании и реакция на промах.",
+      "reviewOrder": 2,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "awaiting_user_review",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      },
+      "reviewCases": [
+        "Попадание в союзника и подтягивание к себе.",
+        "Попадание в босса и собственное подтягивание.",
+        "Промах, препятствие, возврат крюка и восстановление обычного инструмента."
+      ]
+    },
+    {
+      "id": "Consumable_Grenade",
+      "name": "Граната",
+      "kind": "Consumable",
+      "group": "Active",
+      "mechanic": "Удерживай кнопку слота, чтобы взвести; отпусти, чтобы бросить. Передержанная граната выпадает и взрывается. Опасна и для союзников. 3 заряда.",
+      "charges": 3,
+      "cooldownSeconds": 0.8,
+      "parameters": {
+        "FuseSeconds": 3,
+        "OverholdDropLeadSeconds": 0.15,
+        "WarningSeconds": 0.65,
+        "ThrowSpeed": 1100,
+        "ThrowLift": 120,
+        "CollisionRadius": 22,
+        "HeldX": 50,
+        "HeldY": 44,
+        "HeldZ": 25,
+        "BlastRadius": 300,
+        "FoodDamage": 100,
+        "EnemyDamage": 60,
+        "PlayerDamage": 25,
+        "PushSpeed": 500,
+        "MaxLifetime": 15
+      },
+      "visualCheck": "Хват, подготовка и бросок; заметный фитиль и предупреждение; падение передержанной гранаты; читаемый взрыв и опасность для союзников.",
+      "reviewOrder": 3,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "awaiting_user_review",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      },
+      "reviewCases": [
+        "Короткое удержание и отпускание для броска.",
+        "Передержка до выпадения и взрыва.",
+        "Радиус, урон по разным целям и расход последнего заряда."
+      ]
+    },
+    {
+      "id": "Consumable_Air",
+      "name": "Воздухан",
+      "kind": "Consumable",
+      "group": "Active",
+      "mechanic": "Удерживай кнопку слота — всасывай нарезанную еду. Отпусти — выдувай. Заполненный мешок предупреждает, затем лопается, если продолжать. 2 заряда.",
+      "charges": 2,
+      "cooldownSeconds": 1,
+      "parameters": {
+        "BagCapacity": 6,
+        "SuctionRange": 600,
+        "SuctionCone": 32,
+        "SuctionAcceleration": 1800,
+        "CaptureRadius": 70,
+        "BlowSpeed": 1450,
+        "OverflowGrace": 1.1,
+        "MaxHoldSeconds": 12,
+        "HeldX": 35,
+        "HeldY": 70,
+        "HeldZ": 15,
+        "IntakeX": 128.7575,
+        "IntakeY": -11.1948,
+        "IntakeZ": -30.4591,
+        "MaxLifetime": 30
+      },
+      "visualCheck": "Обе руки на приборе; поток еды к соплу; наполнение и предупреждение переполнения; направленный выдув и разрыв мешка.",
+      "reviewOrder": 4,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "awaiting_user_review",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      },
+      "reviewCases": [
+        "Всасывание нарезанной еды удержанием слота; выдув при отпускании.",
+        "Заполнение шести мест, предупреждение и разрыв при передержке.",
+        "Содержимое после отмены/смерти и расход последнего заряда."
+      ]
+    },
+    {
+      "id": "Consumable_Rocket",
+      "name": "Ракетница",
+      "kind": "Consumable",
+      "group": "Active",
+      "mechanic": "Ракета взрывается при попадании. Повреждает еду, противников, союзников и зубы арены. 3 заряда.",
+      "charges": 3,
+      "cooldownSeconds": 1,
+      "parameters": {
+        "ProjectileSpeed": 2200,
+        "FlightSeconds": 6,
+        "ProjectileRadius": 9,
+        "FireWindupSeconds": 0.15,
+        "AimRange": 6000,
+        "BlastRadius": 400,
+        "FoodDamage": 140,
+        "EnemyDamage": 100,
+        "PlayerDamage": 40,
+        "PushSpeed": 650,
+        "ArenaDamage": 120,
+        "MaxLifetime": 15,
+        "MuzzleLocalX": 80.092,
+        "MuzzleLocalY": -3.8078,
+        "MuzzleLocalZ": 36.0869
+      },
+      "visualCheck": "Обе руки на рукоятках, прицеливание, вспышка и отдача; след ракеты, взрыв и возврат в обычную позу.",
+      "reviewOrder": 5,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "awaiting_user_review",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      },
+      "reviewCases": [
+        "Хват, прицеливание, подготовка, выстрел и отдача.",
+        "Прямое попадание и взрыв рядом с едой/противником/союзником/зубом арены.",
+        "Промах, время полёта и последний заряд."
+      ]
+    },
+    {
+      "id": "B2_MightyTooth",
+      "name": "Могучий зуб",
+      "kind": "Passive",
+      "group": "Combat",
+      "mechanic": "Обычный удар ближнего боя поражает несколько подходящих целей перед вами. Каждая цель получает удар один раз.",
+      "parameters": {},
+      "modifiers": [],
+      "visualCheck": "Дуга удара и отдельные контакты, подтверждающие попадание по нескольким целям.",
+      "reviewOrder": 6,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B2_StartFromDash",
+      "name": "С места в карьер",
+      "kind": "Passive",
+      "group": "Combat",
+      "mechanic": "Первый успешный удар в течение 2 секунд после рывка наносит +25% урона. Пустой замах бонус не тратит.",
+      "parameters": {
+        "Window": 2,
+        "DamageBonus": 0.25
+      },
+      "modifiers": [],
+      "visualCheck": "Короткая готовность усиленного удара после рывка и подтверждение при фактическом попадании.",
+      "reviewOrder": 7,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B2_ThunderGod",
+      "name": "Бог грома",
+      "kind": "Passive",
+      "group": "Combat",
+      "mechanic": "Успешный удар с шансом 20% запускает молнию: до 3 дополнительных целей, по 3 м между ними, 30% урона по целой еде. Союзников отталкивает; боссов и владельца молния не поражает.",
+      "parameters": {
+        "Chance": 0.2,
+        "MaxTargets": 3,
+        "Radius": 300,
+        "DamageFraction": 0.3
+      },
+      "modifiers": [],
+      "visualCheck": "Короткая читаемая цепь между реальными целями, чёткий источник и попадания, без визуального поражения исключённых боссов.",
+      "reviewOrder": 8,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B2_EchoSwing",
+      "name": "Эхо замаха",
+      "kind": "Passive",
+      "group": "Combat",
+      "mechanic": "Через 0,5 секунды призрачный инструмент повторяет успешный удар ближнего боя на прежнем месте с 40% урона. Эхо не запускает другие боевые пассивки.",
+      "parameters": {
+        "Delay": 0.5,
+        "DamageFraction": 0.4
+      },
+      "modifiers": [],
+      "visualCheck": "Призрачный повтор инструмента в прежней точке спустя задержку; отличается от обычного удара.",
+      "reviewOrder": 9,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B2_Billiards",
+      "name": "Бильярд",
+      "kind": "Passive",
+      "group": "Combat",
+      "mechanic": "Удары отталкивают малых врагов. В течение 1 секунды столкновение такого врага с другим наносит 30% исходного урона, один раз каждой цели. Боссы не отталкиваются.",
+      "parameters": {
+        "LaunchSpeed": 700,
+        "LaunchDuration": 0.4,
+        "ContactWindow": 1,
+        "DamageFraction": 0.3
+      },
+      "modifiers": [],
+      "visualCheck": "Направление отбрасывания и отдельное подтверждение столкновения с соседней целью.",
+      "reviewOrder": 10,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B1_HeavyHit",
+      "name": "Тяжёлый удар",
+      "kind": "Passive",
+      "group": "Combat",
+      "mechanic": "Урон оружия +40%. Частота атак −30%.",
+      "parameters": {},
+      "modifiers": [
+        [
+          "WeaponDamage",
+          0.4,
+          false
+        ],
+        [
+          "AttackRate",
+          -0.3,
+          false
+        ]
+      ],
+      "visualCheck": "Понятная иконка получения и корректное изменение HUD/геометрии действия. Постоянные частицы для числового бонуса не обязательны.",
+      "reviewOrder": 11,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B2_ThickEnamel",
+      "name": "Толстая эмаль",
+      "kind": "Passive",
+      "group": "Survival",
+      "mechanic": "Шанс 20% полностью избежать обычного входящего урона. Не спасает от системной смерти и выхода за арену.",
+      "parameters": {
+        "Chance": 0.2
+      },
+      "modifiers": [],
+      "visualCheck": "Короткий импульс защиты эмали только при фактическом предотвращении урона.",
+      "reviewOrder": 12,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B2_Shield",
+      "name": "Щит",
+      "kind": "Passive",
+      "group": "Survival",
+      "mechanic": "Пока здоровье ниже 20%, входящий урон уменьшается на 50%. Удар, пересекающий порог, ещё не защищён.",
+      "parameters": {
+        "Threshold": 0.2,
+        "Reduction": 0.5
+      },
+      "modifiers": [],
+      "visualCheck": "Понятное появление защиты ниже порога HP, реакция на поглощённый урон и исчезновение после выхода из порога.",
+      "reviewOrder": 13,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B2_SecondWind",
+      "name": "Второе дыхание",
+      "kind": "Passive",
+      "group": "Survival",
+      "mechanic": "Подтверждённое уклонение от атаки рывком восстанавливает 30% максимальной выносливости. Пустой рывок не даёт бонус.",
+      "parameters": {
+        "StaminaFraction": 0.3
+      },
+      "modifiers": [],
+      "visualCheck": "Импульс восстановления выносливости после успешного уклонения, отличимый от лечения.",
+      "reviewOrder": 14,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B2_HoudiniDash",
+      "name": "Рывок Гудини",
+      "kind": "Passive",
+      "group": "Survival",
+      "mechanic": "Во время рывка вы невидимы. Перезарядка каждого заряда рывка +20%. Невидимость не даёт дополнительной неуязвимости.",
+      "parameters": {
+        "CooldownPenalty": 0.2
+      },
+      "modifiers": [],
+      "visualCheck": "Читаемые вход в невидимость и выход из неё, остаточный след движения без постоянного свечения.",
+      "reviewOrder": 15,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B1_LightFoot",
+      "name": "Лёгкая походка",
+      "kind": "Passive",
+      "group": "Survival",
+      "mechanic": "Скорость ходьбы и бега +8%. Расход выносливости +8%.",
+      "parameters": {},
+      "modifiers": [
+        [
+          "NormalSpeed",
+          0.08,
+          false
+        ],
+        [
+          "StaminaCost",
+          0.08,
+          false
+        ]
+      ],
+      "visualCheck": "Понятная иконка получения и корректное изменение HUD/геометрии действия. Постоянные частицы для числового бонуса не обязательны.",
+      "reviewOrder": 16,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B1_DeepBreath",
+      "name": "Глубокий вдох",
+      "kind": "Passive",
+      "group": "Survival",
+      "mechanic": "Максимальная выносливость +20%. Текущий запас при получении не пополняется.",
+      "parameters": {},
+      "modifiers": [
+        [
+          "MaxStamina",
+          0.2,
+          false
+        ]
+      ],
+      "visualCheck": "Понятная иконка получения и корректное изменение HUD/геометрии действия. Постоянные частицы для числового бонуса не обязательны.",
+      "reviewOrder": 17,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B2_ReturnTrip",
+      "name": "Обратный рейс",
+      "kind": "Passive",
+      "group": "Food",
+      "mechanic": "После доставки еды скорость +15% на 2 секунды. Повторная доставка обновляет время.",
+      "parameters": {
+        "SpeedBonus": 0.15,
+        "Duration": 2
+      },
+      "modifiers": [],
+      "visualCheck": "Импульс ускорения после доставки, отличимый по контексту от бонуса уборки.",
+      "reviewOrder": 18,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B1_BigPortion",
+      "name": "Большая порция",
+      "kind": "Passive",
+      "group": "Food",
+      "mechanic": "Два дополнительных места для переносимой еды.",
+      "parameters": {},
+      "modifiers": [
+        [
+          "CarryCapacity",
+          2,
+          true
+        ]
+      ],
+      "visualCheck": "Понятная иконка получения и корректное изменение HUD/геометрии действия. Постоянные частицы для числового бонуса не обязательны.",
+      "reviewOrder": 19,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B1_ConfidentThrow",
+      "name": "Уверенный бросок",
+      "kind": "Passive",
+      "group": "Food",
+      "mechanic": "Дальность броска еды +20%.",
+      "parameters": {},
+      "modifiers": [
+        [
+          "FoodThrowRange",
+          0.2,
+          false
+        ]
+      ],
+      "visualCheck": "Понятная иконка получения и корректное изменение HUD/геометрии действия. Постоянные частицы для числового бонуса не обязательны.",
+      "reviewOrder": 20,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B1_FreshDelivery",
+      "name": "Свежая доставка",
+      "kind": "Passive",
+      "group": "Food",
+      "mechanic": "Пока вы несёте еду, она портится на 10% медленнее.",
+      "parameters": {},
+      "modifiers": [
+        [
+          "SpoilRate",
+          -0.1,
+          false
+        ]
+      ],
+      "visualCheck": "Понятная иконка получения и корректное изменение HUD/геометрии действия. Постоянные частицы для числового бонуса не обязательны.",
+      "reviewOrder": 21,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B1_GreedyHands",
+      "name": "Руки загребущие",
+      "kind": "Passive",
+      "group": "Food",
+      "mechanic": "Дальность подбора пищевых фрагментов +30%.",
+      "parameters": {},
+      "modifiers": [
+        [
+          "FoodPickupRange",
+          0.3,
+          false
+        ]
+      ],
+      "visualCheck": "Понятная иконка получения и корректное изменение HUD/геометрии действия. Постоянные частицы для числового бонуса не обязательны.",
+      "reviewOrder": 22,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B2_CleanBreath",
+      "name": "Чистое дыхание",
+      "kind": "Passive",
+      "group": "Cleaning",
+      "mechanic": "Каждое полностью очищенное вами пятно восстанавливает 3 HP.",
+      "parameters": {
+        "Heal": 3
+      },
+      "modifiers": [],
+      "visualCheck": "Короткое восстановление эмали зубика после собственного полностью очищенного пятна; привязать к реальному приросту HP.",
+      "reviewOrder": 23,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B2_NeatFreak",
+      "name": "Чистюля",
+      "kind": "Passive",
+      "group": "Cleaning",
+      "mechanic": "Полная очистка пятна с шансом 20% очищает одно соседнее пятно в радиусе 3 м. Цепная реакция не запускается.",
+      "parameters": {
+        "Chance": 0.2,
+        "Radius": 300
+      },
+      "modifiers": [],
+      "visualCheck": "Связь между исходным пятном и одним очищенным соседним; без ложного изображения бесконечной цепи.",
+      "reviewOrder": 24,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B2_LastStroke",
+      "name": "Последний штрих",
+      "kind": "Passive",
+      "group": "Cleaning",
+      "mechanic": "Если осталось меньше 15% грязи, эффективность вашей очистки удваивается.",
+      "parameters": {
+        "Threshold": 0.15,
+        "Multiplier": 2
+      },
+      "modifiers": [],
+      "visualCheck": "Понятная иконка получения и корректное изменение HUD/геометрии действия. Постоянные частицы для числового бонуса не обязательны.",
+      "reviewOrder": 25,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B2_CleanAcceleration",
+      "name": "Чистый разгон",
+      "kind": "Passive",
+      "group": "Cleaning",
+      "mechanic": "Полная очистка пятна повышает скорость на 10% на 3 секунды. Повторная очистка обновляет время.",
+      "parameters": {
+        "SpeedBonus": 0.1,
+        "Duration": 3
+      },
+      "modifiers": [],
+      "visualCheck": "Короткий импульс ускорения после очистки; тихий остаточный след до окончания бонуса.",
+      "reviewOrder": 26,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B2_RefreshingWork",
+      "name": "Освежающий труд",
+      "kind": "Passive",
+      "group": "Cleaning",
+      "mechanic": "Когда рот полностью очищен, каждый живой игрок с этой пассивкой восстанавливает 20% максимального HP. Один раз за переход к полной чистоте.",
+      "parameters": {
+        "HealFraction": 0.2
+      },
+      "modifiers": [],
+      "visualCheck": "Отличимое командное восстановление зубиков при переходе чистоты к 100%, без повторного спама на уже чистом рту.",
+      "reviewOrder": 27,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B1_WideBristles",
+      "name": "Широкая щетина",
+      "kind": "Passive",
+      "group": "Cleaning",
+      "mechanic": "Рабочая ширина щётки +15%.",
+      "parameters": {},
+      "modifiers": [
+        [
+          "BrushWidth",
+          0.15,
+          false
+        ]
+      ],
+      "visualCheck": "Понятная иконка получения и корректное изменение HUD/геометрии действия. Постоянные частицы для числового бонуса не обязательны.",
+      "reviewOrder": 28,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B2_Softener",
+      "name": "Размягчитель",
+      "kind": "Passive",
+      "group": "Spray",
+      "mechanic": "Обработанное спреем место в течение 5 секунд убирается щёткой на 40% быстрее. Повторная обработка обновляет время.",
+      "parameters": {
+        "Duration": 5,
+        "BrushBonus": 0.4
+      },
+      "modifiers": [],
+      "visualCheck": "Локальное покрытие там, куда попал спрей; заметное затухание по окончании действия.",
+      "reviewOrder": 29,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B2_Antiseptic",
+      "name": "Антисептик",
+      "kind": "Passive",
+      "group": "Spray",
+      "mechanic": "Спрей также удаляет грязь. Распыление до 3 секунд, затем перезарядка 2,6 секунды (+30% к базе 2 секунды). При раннем отпускании перезарядка начинается сразу; удержание ЛКМ повторяет распыление после готовности.",
+      "parameters": {
+        "CooldownPenalty": 0.3,
+        "BaseCooldown": 2,
+        "SprayDuration": 3,
+        "CleanEfficiency": 1
+      },
+      "modifiers": [],
+      "visualCheck": "Непрерывная струя и очистка совпадают с рабочей фазой; понятная перезарядка.",
+      "reviewOrder": 30,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B2_LastingFormula",
+      "name": "Стойкая формула",
+      "kind": "Passive",
+      "group": "Spray",
+      "mechanic": "ОПАСНОЕ ПОКРЫТИЕ. Состав продолжает чистить 3 секунды с эффективностью 30%. Покрытие остаётся всего 10 секунд от последнего нанесения и наносит 5 HP/сек обычным врагам и всем игрокам, включая владельца. Зубы и боссы не повреждаются.",
+      "parameters": {
+        "CleanDuration": 3,
+        "CleanEfficiency": 0.3,
+        "CoatingDuration": 10,
+        "DamagePerSecond": 5
+      },
+      "modifiers": [],
+      "visualCheck": "Покрытие показывает зону и оставшуюся опасность, не закрывает еду и персонажей.",
+      "reviewOrder": 31,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    },
+    {
+      "id": "B1_UnderPressure",
+      "name": "Под давлением",
+      "kind": "Passive",
+      "group": "Spray",
+      "mechanic": "Дальность спрея +25%. Ширина струи +20%.",
+      "parameters": {},
+      "modifiers": [
+        [
+          "SprayRange",
+          0.25,
+          false
+        ],
+        [
+          "SprayWidth",
+          0.2,
+          false
+        ]
+      ],
+      "visualCheck": "Понятная иконка получения и корректное изменение HUD/геометрии действия. Постоянные частицы для числового бонуса не обязательны.",
+      "reviewOrder": 32,
+      "review": {
+        "mechanics": "awaiting_user_review",
+        "animationAndGrips": "only_when_applicable",
+        "vfx": "awaiting_user_review",
+        "feedback": []
+      }
+    }
+  ],
+  "parked": [
+    {
+      "id": "Consumable_Driver",
+      "name": "Машинист / уборочная машина",
+      "enabled": false,
+      "reason": "Временно отключён по просьбе пользователя; модели и реализация сохранены."
+    }
+  ],
+  "evidenceScope": "Catalog and source inspection; this inventory does not claim fresh runtime or human artistic acceptance.",
+  "commonRules": {
+    "activeSlots": 4,
+    "slotKeys": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "passivesUseActiveSlots": false,
+    "duplicateOwnedPassives": false,
+    "activeCooldownStarts": "successful activation/commit",
+    "slotMachineReward": "coins only",
+    "legacyDefinitions": "retained disabled; excluded from this review"
+  },
+  "feedbackGuide": {
+    "preferredVisual": [
+      "Скрин с обводкой проблемного места и стрелкой желаемого направления/размера.",
+      "Короткая запись с голосом, паузой на проблемном моменте и показом курсором.",
+      "Кусочек референса с нужным движением/формой; сравнение A/B одной камеры и масштаба."
+    ],
+    "minimum": "Название абилки или ссылка на карточку + отмеченный кадр. Термины VFX не требуются.",
+    "motion": "Версия ролика и таймкод полезны для скорости, задержки, длины следа и затухания.",
+    "boardCapabilities": "Existing local board supports MP4/GIF versions, user ratings/comments/tags/timecodes. Annotated screenshots or voice recordings can be attached in this chat; drawing/upload UI is not claimed."
+  },
+  "savedCatalogVerified": true,
+  "savedDisableFields": {
+    "DT_Perks.Consumable_Driver": {
+      "bEnabled": false
+    },
+    "DT_HubCatalog.Active_Consumable_Driver": {
+      "bEnabled": false,
+      "bInShop": false
+    }
+  }
+}

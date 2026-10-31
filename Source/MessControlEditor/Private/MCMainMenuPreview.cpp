@@ -467,7 +467,7 @@ using namespace MCMainMenuPreviewPrivate;
 void Register()
 {
     if(Session || IsRunningCommandlet()) return;
-    Session=MakeUnique<FPreviewSession>();Session->RegisterHooks();
+    Session=MakeUnique<MCMainMenuPreviewPrivate::FPreviewSession>();Session->RegisterHooks();
     FGlobalTabmanager::Get()->RegisterNomadTabSpawner(TabName,FOnSpawnTab::CreateLambda([](const FSpawnTabArgs&)
     {
         return MakeControlTab();

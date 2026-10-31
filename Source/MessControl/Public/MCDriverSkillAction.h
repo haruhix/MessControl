@@ -18,7 +18,6 @@ public:
     virtual bool CanStart() const override;
     virtual void StartCommitted() override;
     virtual void Tick(float DeltaSeconds) override;
-    static constexpr float RideSeconds=3.f;
     /** Reusable presentation; gameplay/motion authority remains in this action. */
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Skill|Presentation") TObjectPtr<UMCSuperCarVisualComponent> SuperCarVisual;
     /** Compatibility overrides mirrored into the reusable visual component. */

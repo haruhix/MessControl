@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-30",
+  "url": "http://127.0.0.1:8766/",
+  "entrypoint": "Tools/VFXGuide/index.html",
+  "source_sha256": "6ba3d1c177609455de66233e148bc014c3791bd17abdbfdec8e5f47a337d497d",
+  "contents": "12 sections,26 Q&A,4 quizzes,5 tutor exercises, schematic parameter demo, local progress/drawing/JSON, current vs proposed game integration.",
+  "validation": {
+    "checks": 24,
+    "passed": true,
+    "browser": "Chrome/156.0.8078.74",
+    "report": "E:/CodexWork/MessControl/VFXGuide_20261030/GuideChecks.json",
+    "root_visual": "Desktop, mobile, lab and corrected tutor screenshots inspected. Final change after browser tests only adds explanatory background-throttle text."
+  },
+  "limits": [
+    "Browser demo is schematic, not Niagara.",
+    "Tutor is this chat; no built-in LLM or upload.",
+    "Quizzes/progress do not certify middle/senior level.",
+    "DT VFXProfile is proposed, not implemented.",
+    "JSON downloads folder is controlled by browser/user, E: destination is instructed."
+  ],
+  "sources": "Tools/VFXGuide/GuideSources.md",
+  "sandbox_revision": {
+    "source_sha256": "a9ab5b6fe5aea98b750bc55e989effe66a4df0969a4745198a1ee4fbd53909f7",
+    "static_checks": "E:\\CodexWork\\MessControl\\Validation\\VFXPracticeSandbox_20261030\\GuideStaticValidation.json",
+    "runtime": "E:\\DEVGAME\\MessControl\\Docs\\Validation\\VFXPracticeSandbox_20261030.json",
+    "base_browser_checks": "Earlier 24 browser checks apply to their recorded base revision; added sandbox section received static HTML/link/JS checks, not a new full browser suite."
+  }
+}

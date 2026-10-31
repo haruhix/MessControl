@@ -85,11 +85,13 @@ public:
     FQuat ActiveBodyFacing=FQuat::Identity;
     float PreviousActiveRideYaw=0;
     bool bHasActiveRideYaw=false;
+    float SpongeBalance=0;
     FGuid GrenadeThrowPoseID;
     FTransform GrenadeThrowHandStart=FTransform::Identity;
     FVector ActiveRideOffset=FVector::ZeroVector;
     float ActiveRideAlpha=0;
     FTransform LastActiveRideFrame=FTransform::Identity;
+    FTransform LastSpongeRideLocalFrame=FTransform::Identity;
     bool bLastActiveRideDriver=false;
     FVector ActiveDriverFeet[2]={FVector(-26.757216,-22.415012,65.950161),FVector(-25.763425,25.556290,65.950167)};
     EMCToolUpgrade GripUpgrade=EMCToolUpgrade::None;
@@ -652,7 +654,7 @@ public:
     {
         if(!Tooth->ToothPhysics || !Tooth->ToothPhysics->CanAct()) {
             ActiveHandAlpha[0]=ActiveHandAlpha[1]=0;ActiveRideOffset=FVector::ZeroVector;ActiveRideAlpha=0;
-            ActiveBodyOffset=FTransform::Identity;bHasActiveRideYaw=false;return;
+            ActiveBodyOffset=FTransform::Identity;bHasActiveRideYaw=false;SpongeBalance=0;return;
         }
         const FTransform World=Tooth->GetMesh()->GetComponentTransform();
         TArray<FTransform> CS;CS.SetNum(Pose.Num());
@@ -666,10 +668,11 @@ public:
         FQuat Facing=Tooth->GetActorQuat();
         float RideTurn=0;
         if(Sponge || Driver) {
-            const float Yaw=Tooth->GetActorRotation().Yaw;
+            const float Yaw=Sponge?Sponge->GetRideFrame().Rotator().Yaw:Tooth->GetActorRotation().Yaw;
             if(bHasActiveRideYaw && Dt>UE_SMALL_NUMBER) RideTurn=FMath::Clamp(FMath::FindDeltaAngleDegrees(PreviousActiveRideYaw,Yaw)/(Dt*120.f),-1.f,1.f);
             PreviousActiveRideYaw=Yaw;bHasActiveRideYaw=true;
         } else bHasActiveRideYaw=false;
+        SpongeBalance=FMath::FInterpTo(SpongeBalance,Sponge?RideTurn:0.f,Dt,8.f);
         if(Hook) {BodyGoal=Hook->GetCastBodyOffset();Facing=Hook->GetCastFacing().Quaternion();}
         else if(Action) {
             // Gameplay-owned replicated ages drive anticipation/release. No
@@ -694,7 +697,8 @@ public:
                 BodyGoal=FTransform(FRotator(-3*Hold+8*Throw,-7*Hold+10*Throw,2*Hold),FVector(-1.5f*Hold+2*Throw,0,-1.5f*Hold));
             } else if(Sponge) {
                 const float Speed=FMath::Clamp(float(Tooth->GetVelocity().Size2D()/650.),0.f,1.f);
-                BodyGoal=FTransform(FRotator((4+4*Speed)*In,0,(-4*RideTurn+FMath::Sin(Age*5.f)*1.2f)*In),FVector(2*In,0,-3*In));
+                Facing=Sponge->GetRideFrame().GetRotation();
+                BodyGoal=FTransform(FRotator((4+4*Speed)*In,0,-4*SpongeBalance*In),FVector(2*In,0,-3*In));
             } else if(Driver) {
                 BodyGoal=FTransform(FRotator(3*In,0,-3.5f*RideTurn*In),FVector(0,0,-1.5f*In));
             }
@@ -723,16 +727,18 @@ public:
                 Rebuild();
             }
         }
-        FVector DesiredLift=FVector::ZeroVector;bool Riding=false;
+        FVector DesiredLift=FVector::ZeroVector;
         if(Sponge) {
-            Riding=true;bLastActiveRideDriver=false;LastActiveRideFrame=Sponge->GetRideFrame();
+            bLastActiveRideDriver=false;LastActiveRideFrame=Sponge->GetRideFrame();
+            LastSpongeRideLocalFrame=LastActiveRideFrame.GetRelativeTransform(Tooth->GetActorTransform());
             const int32 L=Ref.FindBoneIndex(Tooth->RigBone(TEXT("foot_l"))),R=Ref.FindBoneIndex(Tooth->RigBone(TEXT("foot_r")));
             if(L>=0 && R>=0) {
                 const FVector FeetCenter=World.TransformPosition((CS[L].GetLocation()+CS[R].GetLocation())*.5);
-                DesiredLift=(LastActiveRideFrame.GetLocation()-FeetCenter).GetClampedToMaxSize(100.);
+                const FVector DeckCenter=LastActiveRideFrame.TransformPosition(FVector(-4.2209,-4.6866,2));
+                DesiredLift=(DeckCenter-FeetCenter).GetClampedToMaxSize(100.);
             }
         } else if(Driver) {
-            Riding=true;bLastActiveRideDriver=true;LastActiveRideFrame=Driver->SuperCarVisual?Driver->SuperCarVisual->GetComponentTransform():Driver->GetActorTransform();
+            bLastActiveRideDriver=true;LastActiveRideFrame=Driver->SuperCarVisual?Driver->SuperCarVisual->GetComponentTransform():Driver->GetActorTransform();
             for(int32 Side=0;Side<2;++Side) ActiveDriverFeet[Side]=LastActiveRideFrame.InverseTransformPosition(Driver->GetFootFrame(Side==0).GetLocation());
             const int32 Body=Ref.FindBoneIndex(Tooth->RigBone(TEXT("body")));
             if(Body>=0) DesiredLift=Driver->GetRideFrame().GetLocation()-World.TransformPosition(CS[Body].GetLocation());
@@ -742,8 +748,21 @@ public:
         // a second world-space low-pass would put the rider behind the cockpit
         // and reduce vertical placement when its horizontal error is clamped.
         // Only dismounting eases back; no actor/capsule transform is changed.
-        ActiveRideAlpha=Driver?1.f:FMath::FInterpTo(ActiveRideAlpha,Riding?1.f:0.f,Dt,14.f);
-        ActiveRideOffset=Driver?DesiredLift:FMath::VInterpTo(ActiveRideOffset,DesiredLift,Dt,14.f);
+        if(!Sponge && !bLastActiveRideDriver && Action) {
+            // A newer action owns presentation immediately; an old board must
+            // not pull its feet or root during the new action's preparation.
+            ActiveRideAlpha=0;ActiveRideOffset=FVector::ZeroVector;
+        } else if(Sponge) {
+            // The board is a current-frame moving contact. Easing the measured
+            // world-space correction makes the rider chase its own feet.
+            ActiveRideAlpha=FMath::SmoothStep(0.f,.14f,Sponge->GetPresentationAge());
+            ActiveRideOffset=DesiredLift*ActiveRideAlpha;
+        } else {
+            ActiveRideAlpha=Driver?1.f:FMath::FInterpTo(ActiveRideAlpha,0.f,Dt,14.f);
+            ActiveRideOffset=Driver?DesiredLift:FMath::VInterpTo(ActiveRideOffset,FVector::ZeroVector,Dt,14.f);
+            if(!bLastActiveRideDriver && ActiveRideAlpha>.001f)
+                LastActiveRideFrame=LastSpongeRideLocalFrame*Tooth->GetActorTransform();
+        }
         if(!Pose.IsEmpty() && !ActiveRideOffset.IsNearlyZero(.01)) {
             Pose[0].AddToTranslation(World.InverseTransformVector(ActiveRideOffset));Rebuild();
         }
@@ -760,6 +779,16 @@ public:
             const FVector Goal=U.GetLocation()+(World.InverseTransformPosition(Target)-U.GetLocation()).GetClampedToMaxSize(Reach);
             const FVector Pole=U.GetLocation()+World.InverseTransformVectorNoScale(LastActiveRideFrame.GetUnitAxis(EAxis::X)*55);
             AnimationCore::SolveTwoBoneIK(U,L,F,Pole,Goal,false,1.,1.);
+            if(!bLastActiveRideDriver) {
+                // Keep the sole parallel to its authored deck support rather
+                // than inheriting the old walking foot's alternating pitch.
+                FTransform ReferenceFoot=Ref.GetRefBonePose()[Foot];
+                for(int32 Parent=Ref.GetParentIndex(Foot);Parent>=0;Parent=Ref.GetParentIndex(Parent))
+                    ReferenceFoot=ReferenceFoot*Ref.GetRefBonePose()[Parent];
+                const FQuat Sole=World.GetRotation().Inverse()*LastActiveRideFrame.GetRotation()
+                    *Tooth->StandingMeshTransform().GetRotation()*ReferenceFoot.GetRotation();
+                F.SetRotation(Sole.GetNormalized());
+            }
             const int32 Bones[]={Upper,Knee,Foot};const FTransform Solved[]={U,L,F};
             for(int32 J=0;J<3;++J) {
                 const int32 Parent=Ref.GetParentIndex(Bones[J]);
@@ -798,13 +827,12 @@ public:
             if(Sponge && !Has) {
                 // Free floating mittens counterbalance the board; no invented
                 // human arm extension or attachment to the moving sponge.
-                const float Age=Sponge->GetPresentationAge();
+                const FTransform Deck=Sponge->GetRideFrame();
                 Target=CS[Hand]*World;
-                const FVector Rest=Tooth->GetActorTransform().InverseTransformPosition(Target.GetLocation());
-                const float Sway=FMath::Sin(Age*5.f+(Side==0?0.f:PI));
-                Target.SetLocation(Tooth->GetActorTransform().TransformPosition(FVector(
-                    (Side==0?3.f:14.f)+3*Sway,Side==0?-65.f:60.f,Rest.Z+16.f+2*Sway)));
-                Target.SetRotation((FQuat(Tooth->GetActorForwardVector(),FMath::DegreesToRadians((Side==0?-12.f:12.f)+3*Sway))
+                const FVector Rest=Deck.InverseTransformPosition(Target.GetLocation());
+                Target.SetLocation(Deck.TransformPosition(FVector(
+                    Side==0?3.f:14.f,(Side==0?-65.f:60.f)-3*SpongeBalance,Rest.Z+16.f)));
+                Target.SetRotation((FQuat(Deck.GetUnitAxis(EAxis::X),FMath::DegreesToRadians((Side==0?-12.f:12.f)-3*SpongeBalance))
                     *Target.GetRotation()).GetNormalized());
                 Has=true;
             }
@@ -1192,15 +1220,22 @@ public:
         const auto* Mesh=Instance->GetSkelMeshComponent()->GetSkeletalMeshAsset();
         if (!Tooth || !Mesh) return;
         const auto& Ref=Mesh->GetRefSkeleton();
-        UpdateGlide(Cast<UMCToothAnimInstance>(Instance),Tooth,Dt);
+        const auto* SpongeRide=Cast<AMCSpongeSkillAction>(Tooth->GetActiveSkillPresentation());
+        const bool StableSponge=SpongeRide && Tooth->ToothPhysics && Tooth->ToothPhysics->CanAct();
+        if(StableSponge) {
+            // A grounded board owns balance; the ordinary slippery-walking
+            // clip must not compete with its planted deck contacts.
+            Glide=FMCGlideAnimationState();PreviousGlideSpeed=Tooth->GetVelocity().Size2D();
+            if(auto* Anim=Cast<UMCToothAnimInstance>(Instance)) Anim->AuthoredGlide=Glide.Sample;
+        } else UpdateGlide(Cast<UMCToothAnimInstance>(Instance),Tooth,Dt);
         SecondaryMotion.PreUpdate(Instance,*this,Dt,{Tooth->RigBone(TEXT("body")),Tooth->RigBone(TEXT("gaze_head"))},
-            !Tooth->ToothPhysics || Tooth->ToothPhysics->CanAct());
+            (!Tooth->ToothPhysics || Tooth->ToothPhysics->CanAct()) && !StableSponge);
         if(auto* Comparison=Instance->GetWorld()->GetSubsystem<UMCAnimationComparisonSubsystem>())
             Comparison->RecordSample(Instance->GetSkelMeshComponent(),Comparison->GetMode(),SecondaryMotion.GetActiveBoneCount(),
                 SecondaryMotion.GetEvaluationCount(),SecondaryMotion.GetLastMaxAngleDegrees(),SecondaryMotion.GetLastMaxTranslation());
         // Hold only the rendered contact pose for two or three frames. Input,
         // movement, target health and the authoritative swing timer keep running.
-        if(Pose.Num()==Ref.GetNum() && Tooth->ToothPhysics->CanAct()
+        if(!StableSponge && Pose.Num()==Ref.GetNum() && Tooth->ToothPhysics->CanAct()
             && Tooth->Inventory->ShouldPresentTool() && MCWeaponImpact::IsPoseHeld(Tooth)) return;
         Pose=Ref.GetRefBonePose();
         DashPoseProgress=-1;
@@ -1220,6 +1255,23 @@ public:
             const int32 Parent=Ref.GetParentIndex(I);
             Pose[I].AddToTranslation(Parent>=0?ReferenceCS[Parent].InverseTransformVectorNoScale(Delta):Delta);
         };
+        if(StableSponge) {
+            // Build the ride from a clean, stationary crouch. Running gait,
+            // world-locked walking feet, social gestures and secondary
+            // wobble otherwise feed alternating offsets back into deck IK.
+            const FQuat DeckInMesh=Tooth->GetMesh()->GetComponentQuat().Inverse()
+                *SpongeRide->GetRideFrame().GetRotation()*Tooth->StandingMeshTransform().GetRotation();
+            if(!Pose.IsEmpty()) Pose[0].SetRotation((DeckInMesh*Pose[0].GetRotation()).GetNormalized());
+            Rotate(TEXT("leg_l"),FRotator(12,0,-3));Rotate(TEXT("leg_r"),FRotator(12,0,3));
+            Rotate(TEXT("knee_l"),FRotator(-22,0,0));Rotate(TEXT("knee_r"),FRotator(-22,0,0));
+            Rotate(TEXT("foot_l"),FRotator(10,0,0));Rotate(TEXT("foot_r"),FRotator(10,0,0));
+            Feet[0]=Feet[1]=FMCFootContactDebug();
+            for(int32 Side=0;Side<2;++Side) {
+                FootPlanted[Side]=false;FootReleased[Side]=false;FootBases[Side].Reset();
+                FootWeights[Side]=0;FootOffsets[Side]=FVector::ZeroVector;
+            }
+            PreviousMeshLocation=Tooth->GetMesh()->GetComponentLocation();
+        } else {
         const auto& A=Tooth->AnimationSettings; const float G=Tooth->AnimationGait;
         const float Speed=Tooth->AnimationSpeed;
         Rotate(TEXT("body"),FRotator(Tooth->AnimationPitch*Tooth->AnimationDirection.X-Tooth->AnimationBrake*7+Tooth->AnimationInertia.X*9,
@@ -1419,6 +1471,7 @@ public:
         ChestLockpickPose(Tooth,Ref,Dt);
         if(Tooth->FishingRod) Tooth->FishingRod->BuildHandPose(Pose,Ref,Dt);
         if (Tooth->Expression) Tooth->Expression->BuildSocialPose(Pose,Ref);
+        }
         ActiveSkillPose(Tooth,Ref,Dt);
         if (Tooth->ToothPhysics) Tooth->ToothPhysics->SubmitAnimationTargets(Pose,Ref,Dt);
         if (Tooth->Expression) Tooth->Expression->BuildFacePose(Pose,Ref,Dt);

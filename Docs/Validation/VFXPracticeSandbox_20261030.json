@@ -1,0 +1,82 @@
+{
+  "date": "2026-10-30",
+  "engine": "5.8.1",
+  "map": "/Game/Tests/VFXPractice/L_VFXPractice",
+  "zones": 6,
+  "stations": 8,
+  "runtime": {
+    "checks": {
+      "reset_observed_cycles_one": true,
+      "eight_stations": true,
+      "readiness_gate": true,
+      "pause": true,
+      "reset": true,
+      "navigation_panel": true,
+      "all_stations_ran": true,
+      "all_stations_observed_active": true,
+      "readiness_observed_before_release": true,
+      "trail_moves": true,
+      "no_gameplay_day_scheduler": true,
+      "source_bp_disk_unchanged": true
+    },
+    "report": "E:\\CodexWork\\MessControl\\Validation\\VFXPracticeSandbox_20261030\\SoloReport.json",
+    "material_copy_followup": "E:\\CodexWork\\MessControl\\Validation\\VFXPracticeSandbox_20261030\\MaterialReadiness09\\SoloReport.json",
+    "navigation": "Native controller methods/reflection, not physical hotkeys; explicit close spectator viewpoints.",
+    "camera": "Spectator. Real native tooth characters are reference subjects, not possessed players."
+  },
+  "media": {
+    "mp4": "E:\\CodexWork\\MessControl\\Validation\\VFXPracticeSandbox_20261030\\SandboxTour.mp4",
+    "gif": "E:\\CodexWork\\MessControl\\Validation\\VFXPracticeSandbox_20261030\\SandboxTour.gif",
+    "source": "Actual owned standalone PIE HWND Windows Graphics Capture, silent; no Computer Use recording",
+    "after_material_repair": "Byte-identical private texture/parent reference repair checked again with actual PIE stills; original motion movie not rerecorded for identical content."
+  },
+  "assets": {
+    "namespace": "/Game/Tests/VFXPractice",
+    "blueprints": [
+      "BP_PracticeStation",
+      "BP_PracticeBootstrap"
+    ],
+    "systems": [
+      "NS_Practice_Burst",
+      "NS_Practice_Trail",
+      "NS_Practice_HealSeed",
+      "NS_Practice_Impact"
+    ],
+    "shared_read_only": "Imported material functions/MPC/curves and original tooth appearance resources; not exhaustive recursive isolation.",
+    "private_authoring_intermediates": "16 repeated-copy prototypes retained locally. Runtime material links now canonical. Deletion deferred while unrelated source BP is dirty; do not clear its undo buffer."
+  },
+  "prewarm": {
+    "barrier": "BP_PracticeBootstrap -> MCWorldPreloadSubsystem.BeginPreparation. Native controller tick and lab remain stopped until IsReady.",
+    "latest_log": "MC_PRELOAD_READY world=L_VFXPractice resources=422 streaming=143/143 elapsed=2.65; assets=401/401",
+    "packaged_cold_cache": false
+  },
+  "protection": {
+    "protected_disk_packages_unchanged": {
+      "Content/Maps/Hub.umap": true,
+      "Content/Maps/L_HubSelection.umap": true,
+      "Content/Maps/L_HubSelectionStage.umap": true,
+      "Content/Maps/L_MainMenu.umap": true,
+      "Content/Maps/L_Mouth.umap": true,
+      "Content/Maps/L_Tutorial.umap": true,
+      "Content/Maps/Props.umap": true,
+      "Content/Tests/L_VFXLab.umap": true,
+      "Content/Gameplay/ActiveSkills/VFX/NS_Sponge_Trail.uasset": true,
+      "Content/Gameplay/Roguelike/DT_Perks.uasset": true,
+      "Content/Data/DA_PlayerAppearance.uasset": true
+    },
+    "play_preferences_restored": true,
+    "dirty_maps": [],
+    "source_bp": "MCP pin-schema probe created/deleted temporary nodes on BP_PlayerCharacter and left a dirty flag. No pre-probe in-memory snapshot: do not assert earlier user changes absent. Never saved/compiled/reverted/cleared this BP.",
+    "source_bp_detail": "E:\\CodexWork\\MessControl\\Validation\\VFXPracticeSandbox_20261030\\BlueprintAuthoring\\UserBlueprintPinProbeSideEffect.md",
+    "audit": "E:\\CodexWork\\MessControl\\Validation\\VFXPracticeSandbox_20261030\\FinalAudit.json"
+  },
+  "limits": [
+    "Heal Studio is a foam seed, no HP healing. Impact visual only.",
+    "Art approval is open. No score claims for the study seeds.",
+    "No C++ changes/build, multiplayer, voice, cook/package or GPU/overdraw profiling in this task.",
+    "DT VFXProfile slots remain a design proposal, not delivered here."
+  ],
+  "guide": "Tools/VFXGuide/index.html#sandbox",
+  "guide_static_report": "E:\\CodexWork\\MessControl\\Validation\\VFXPracticeSandbox_20261030\\GuideStaticValidation.json",
+  "git": "No commit or push requested; generated media stays outside Git."
+}

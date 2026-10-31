@@ -1,0 +1,64 @@
+{
+  "date": "2026-10-31",
+  "engine": "5.8.1",
+  "scope": "Source and saved-asset audit; broad VFX runtime migration is not implemented by this report",
+  "export": {
+    "job_id": "65bcc9cc59894d23ad7b876d4f6fb950",
+    "status": "complete",
+    "exported": 3834,
+    "catalog_assets": 3835,
+    "partial": true,
+    "build_current": true,
+    "export_errors": {
+      "/Game/NiagaraExamples/Utilities/Blueprints/EUB_SnapToActor.EUB_SnapToActor": "/Game/NiagaraExamples/Utilities/Blueprints/EUB_SnapToActor.EUB_SnapToActor: Blueprint compilation failed; snapshot not refreshed"
+    }
+  },
+  "confirmed_counts": {
+    "dt_rows": 133,
+    "enabled_passives": 27,
+    "enabled_actives": 5,
+    "passives_with_profile_none": 27,
+    "passives_with_dedicated_feedback": 14,
+    "passives_without_separate_vfx": 13,
+    "shared_passive_visual_families": 13,
+    "nut_combat_cue_types": 20,
+    "nut_shared_niagara_system_fields": 7,
+    "boss_map_action_presentation_families_audited": 27
+  },
+  "coverage_scan": {
+    "native_source_header_files": 500,
+    "candidate_files": 117,
+    "candidate_counts_are_not_effect_counts": true
+  },
+  "runtime_migration_performed": false,
+  "saved_gameplay_assets_modified_by_audit": false,
+  "new_vfx_art_approved": false,
+  "reports": [
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Docs\\VFXComposerPassiveInventory_20261031.md",
+      "source": "E:\\CodexWork\\MessControl\\Validation\\PassiveComposerMigration_20261031\\Audit.md",
+      "sha256": "4f3409c876b4e161c314c4e2d5d6dba268d4938612800f01dc8a053faaf5046a"
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Docs\\VFXComposerWorldInventory_20261031.md",
+      "source": "E:\\CodexWork\\MessControl\\Validation\\VFXComposerMigrationAudit_20261031\\BossMapActionInventory.md",
+      "sha256": "5b0a06e4497fc6f9d0bfaf53dc81fbe0699ddde66a713099d7fb237ce1620c1b"
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Docs\\VFXComposerPresentationContract_20261031.md",
+      "source": "E:\\CodexWork\\MessControl\\Validation\\VFXComposerMigrationAudit_20261031\\GenericPresentationContract.md",
+      "sha256": "b71d5bfba87e047a89c199f6fe5cbf23c2c679845ba27a18ad6a58ab8a485f84"
+    }
+  ],
+  "local_evidence": "E:\\CodexWork\\MessControl\\Validation\\VFXComposerMigrationAudit_20261031",
+  "passive_evidence": "E:/CodexWork/MessControl/Validation/PassiveComposerMigration_20261031/Audit.md",
+  "deferred": [
+    "Generic non-perk binding implementation",
+    "Passive procedural artwork migration",
+    "Boss and map contextual bindings/providers",
+    "Typed non-Niagara authoring patterns",
+    "Full runtime resource closure per location",
+    "Exhaustive owned/inherited/external Blueprint graph coverage",
+    "Network and packaged validation"
+  ]
+}

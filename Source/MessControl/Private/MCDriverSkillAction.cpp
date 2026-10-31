@@ -85,12 +85,14 @@ void AMCDriverSkillAction::StartCommitted()
     Heading=Hero()->GetActorForwardVector().GetSafeNormal2D();PreviousFoot=MCActiveSkillMotion::FootPoint(Hero());
     const FTransform Pose=MCActiveSkillMotion::RidePose(Hero(),Heading);
     PreviousClean=Pose.TransformPosition(FVector(FMath::Clamp(Param(TEXT("CleanForwardOffset"),136.7746f),0.f,200.f),0,0));
-    EndsAt=Now()+RideSeconds;LastSampleAt=Now();
+    // Capture the row's duration once so the deadline and movement source agree.
+    const float RideDuration=FMath::Clamp(Param(TEXT("RideSeconds"),3.f),.2f,30.f);
+    EndsAt=Now()+RideDuration;LastSampleAt=Now();
     SetActorLocationAndRotation(Pose.GetLocation(),Pose.GetRotation());
     PreviousVisual=Pose.GetLocation();PreviousVisualHeading=Heading;
     if(SuperCarVisual) {SuperCarVisual->SetTravelDistance(0);SuperCarVisual->SetSteeringAngle(0);}
     const float Speed=FMath::Clamp(Param(TEXT("RideSpeed"),720.f),100.f,1200.f);
-    if(!Motion.Begin(Hero(),GetActionID(),Heading*Speed,false,RideSeconds)) Finish(EMCActiveSkillEndReason::InputCanceled);
+    if(!Motion.Begin(Hero(),GetActionID(),Heading*Speed,false,RideDuration)) Finish(EMCActiveSkillEndReason::InputCanceled);
     else {UpdateRideVFX();PlaySkillCue(TEXT("Start"),PreviousClean+FVector(0,0,3),Heading);StartLoop();UpdateRideVFX();}
 }
 void AMCDriverSkillAction::Tick(float DeltaSeconds)

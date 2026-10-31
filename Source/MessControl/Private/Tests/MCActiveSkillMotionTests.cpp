@@ -17,6 +17,7 @@
 #include "MCMouthSurface.h"
 #include "MCCoffeeWipe.h"
 #include "ProceduralMeshComponent.h"
+#include "NiagaraComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -355,18 +356,337 @@ bool FMCSpongeRepeatAndDeadline::RunTest(const FString&)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCDriverFixedDuration,"MessControl.ActiveSkills.Motion.DriverThreeSecondsKeepsCollision",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSpongeWallBounce,"MessControl.ActiveSkills.Motion.SpongeReflectsWallAndLocksSteering",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FMCDriverFixedDuration::RunTest(const FString&)
+bool FMCSpongeWallBounce::RunTest(const FString&)
 {
     MCActiveSkillMotionTests::FWorld T;
-    auto* Driver=T.Prepare<UMCDriverSkillEffect>({{TEXT("RideSeconds"),99.f},{TEXT("RideSpeed"),200.f}});
+    T.Box(FVector(260,0,10080),FVector(4,500,80));
+    auto* Sponge=Cast<AMCSpongeSkillAction>(T.Prepare<UMCSpongeSkillEffect>({{TEXT("RideSeconds"),3.f},
+        {TEXT("RideSpeed"),200.f},{TEXT("BounceSteeringLock"),.2f}}));
+    if(!TestNotNull(TEXT("A clear grounded approach starts the real Sponge factory"),Sponge)) return false;
+    Sponge->StartCommitted();
+    for(int32 I=0;I<100 && Sponge->BounceCount==0 && !Sponge->IsFinished();++I) T.Step(1.f/60);
+    if(!TestTrue(TEXT("Actual wall clearance reflects without ending the ride"),Sponge->BounceCount==1 && !Sponge->IsFinished())) return false;
+    TestTrue(TEXT("The reported wall normal points away from the actual obstacle"),Sponge->LastBounceNormal.Equals(-FVector::ForwardVector,.01));
+    const FVector Outgoing=Sponge->GetActorForwardVector();
+    TestTrue(TEXT("A head-on wall reverses the native ride heading"),Outgoing.X<-.99f);
+    for(int32 I=0;I<9;++I) {T.Hero->AddMovementInput(FVector::ForwardVector,1.f,true);T.Step(1.f/60);}
+    TestTrue(TEXT("Held input cannot immediately steer back into the same wall"),FVector::DotProduct(Sponge->GetActorForwardVector(),Outgoing)>.99);
+    TestTrue(TEXT("The grounded motion source preserves outgoing speed"),T.Hero->GetVelocity().X<-180.f && T.Move->IsMovingOnGround());
+    FHitResult Floor;Floor.bBlockingHit=true;Floor.ImpactNormal=FVector::UpVector;FVector Unused;
+    TestFalse(TEXT("A walkable floor never becomes a rebound wall"),MCActiveSkillMotion::ReflectRideDirection(T.Hero,Floor,FVector::ForwardVector,Unused));
+    Sponge->RepeatInput();
+    TestTrue(TEXT("Ending the reflected ride releases only its movement lease"),MCActiveSkillMotion::CanAcquire(T.Hero));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSpongeHitchWallRecovery,"MessControl.ActiveSkills.Motion.SpongeRecoversWallOverlapAfter121msNativeTick",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSpongeHitchWallRecovery::RunTest(const FString&)
+{
+    MCActiveSkillMotionTests::FWorld T;
+    T.Box(FVector(260,0,10080),FVector(4,500,80));
+    auto* Sponge=Cast<AMCSpongeSkillAction>(T.Prepare<UMCSpongeSkillEffect>());
+    if(!TestNotNull(TEXT("A production-speed eight-second Sponge starts before the wall"),Sponge)) return false;
+    Sponge->StartCommitted();T.Step(.18f);
+    if(!TestTrue(TEXT("The real native movement reaches the pre-hitch approach without a bounce"),
+        !Sponge->IsFinished() && Sponge->BounceCount==0 && FMath::IsNearlyEqual(T.Move->Velocity.X,620.,.1))) return false;
+    const FVector Before=T.Hero->GetActorLocation();
+    const double BeforeTime=T.World->GetTimeSeconds();
+    constexpr float Hitch=.121f;
+    const double UncorrectedX=Before.X+620.*Hitch;
+    if(!TestTrue(TEXT("The 121ms step will overlap the 80cm footprint while leaving the 34cm native capsule clear"),
+        Before.X+80+620*.05<256 && UncorrectedX+80>256 && UncorrectedX+34<256)) return false;
+    // One actual world tick: deliberately do not use FWorld::Step, which
+    // splits time into 60Hz slices and cannot reproduce the production bug.
+    ++GFrameCounter;T.World->Tick(LEVELTICK_All,Hitch);
+    TestTrue(TEXT("The world actually advanced by one 121ms sample"),
+        FMath::IsNearlyEqual(T.World->GetTimeSeconds()-BeforeTime,double(Hitch),.0001));
+    TestTrue(TEXT("An initial-overlap wall reflects instead of ending the production ride"),
+        !Sponge->IsFinished() && Sponge->BounceCount==1 && Sponge->GetActorForwardVector().X<-.99);
+    TestTrue(TEXT("The reflection uses the actual wall's outward normal"),Sponge->LastBounceNormal.Equals(-FVector::ForwardVector,.01));
+    const FVector After=T.Hero->GetActorLocation();
+    const double Correction=UncorrectedX-After.X;
+    AddInfo(FString::Printf(TEXT("Sponge121ms: before=%s after=%s uncorrected_x=%.5f correction_cm=%.5f bounces=%d"),
+        *Before.ToString(),*After.ToString(),UncorrectedX,Correction,Sponge->BounceCount));
+    TestTrue(TEXT("Only the overlapped footprint depth is recovered within the 45cm budget"),Correction>1 && Correction<=45 && After.X>Before.X+30);
+    TestTrue(TEXT("The full outgoing footprint is now clear on refreshed native support"),
+        T.Move->IsMovingOnGround() && T.Move->CurrentFloor.IsWalkableFloor()
+        && MCActiveSkillMotion::ClearRideFootprint(T.Hero,Sponge,-FVector::ForwardVector,FVector(80,42,12),.05f,620.f));
+    T.Step(.05f);
+    TestTrue(TEXT("The owned root motion continues away from the wall at native speed"),
+        !Sponge->IsFinished() && T.Hero->GetActorLocation().X<After.X-25 && T.Move->Velocity.X<-619
+        && !MCActiveSkillMotion::CanAcquire(T.Hero));
+    Sponge->RepeatInput();
+    TestTrue(TEXT("Stopping still releases only this ride's motion"),MCActiveSkillMotion::CanAcquire(T.Hero));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSpongeLongNativeFrame,"MessControl.ActiveSkills.Motion.SpongeContinues400msNativeFrameWithoutCleaningGap",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSpongeLongNativeFrame::RunTest(const FString&)
+{
+    MCActiveSkillMotionTests::FWorld T;
+    auto* Sponge=Cast<AMCSpongeSkillAction>(T.Prepare<UMCSpongeSkillEffect>());
+    if(!TestNotNull(TEXT("The default production Sponge starts on open native support"),Sponge)) return false;
+    Sponge->StartCommitted();T.Step(.05f);
+    const FVector Before=T.Hero->GetActorLocation();
+    const double BeforeTime=T.World->GetTimeSeconds();
+    const auto PreviousTrail=TWeakObjectPtr<UNiagaraComponent>(Sponge->SoapTrailComponent);
+    TestTrue(TEXT("The native ride has an active trail before the hitch"),PreviousTrail.IsValid());
+    auto PatchAt=[&](float X) {
+        const FTransform Pose(FVector(X,0,10000));
+        auto* Patch=T.World->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose);
+        Patch->bRandomizeLiquidSize=false;Patch->LiquidHalfSize=80;Patch->LiquidSeed=17;
+        Patch->FinishSpawning(Pose);Patch->Status->ApplyCoffee(1);Patch->ResetLiquid();return Patch;
+    };
+    auto* Skipped=PatchAt(float(Before.X)+124);
+    auto* NextContact=PatchAt(float(Before.X)+248+15);
+    const auto SkippedMask=Skipped->WipeMask,ContactMask=NextContact->WipeMask;
+    constexpr float Hitch=.4f;
+    // Preserve the actual long native frame; FWorld::Step would split it.
+    ++GFrameCounter;T.World->Tick(LEVELTICK_All,Hitch);
+    const FVector After=T.Hero->GetActorLocation();
+    AddInfo(FString::Printf(TEXT("Sponge400ms: before=%s after=%s elapsed=%.5f active=%d"),
+        *Before.ToString(),*After.ToString(),T.World->GetTimeSeconds()-BeforeTime,!Sponge->IsFinished()));
+    TestTrue(TEXT("The real world advances one 400ms tick and the native root motion travels 248cm"),
+        FMath::IsNearlyEqual(T.World->GetTimeSeconds()-BeforeTime,double(Hitch),.0001)
+        && FMath::IsNearlyEqual(After.X-Before.X,248.,.5));
+    TestTrue(TEXT("A bounded native hitch keeps the ride, its owned motion and real walkable support"),
+        !Sponge->IsFinished() && !MCActiveSkillMotion::CanAcquire(T.Hero)
+        && T.Move->IsMovingOnGround() && T.Move->CurrentFloor.IsWalkableFloor());
+    TestTrue(TEXT("No native dirt mask is interpolated or contact-cleaned across the unseen interval"),
+        Skipped->WipeMask==SkippedMask && NextContact->WipeMask==ContactMask);
+    TestTrue(TEXT("The cosmetic trail starts a separate emitter instead of connecting the old history"),
+        IsValid(Sponge->SoapTrailComponent)
+        && TWeakObjectPtr<UNiagaraComponent>(Sponge->SoapTrailComponent)!=PreviousTrail);
+    T.Step(.05f);
+    const int32 Center=(FMCCoffeeWipe::Size/2)*FMCCoffeeWipe::Size+FMCCoffeeWipe::Size/2;
+    TestTrue(TEXT("Fresh sample history permits normal native motion and contact cleaning to resume"),
+        !Sponge->IsFinished() && T.Hero->GetActorLocation().X>After.X+25
+        && NextContact->WipeMask[Center]==0);
+    TestTrue(TEXT("Resumed short samples still cannot clean the skipped midpoint"),Skipped->WipeMask==SkippedMask);
+    Sponge->RepeatInput();
+    TestTrue(TEXT("The continued ride still releases its exact motion source normally"),MCActiveSkillMotion::CanAcquire(T.Hero));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSpongeLongFrameTeleport,"MessControl.ActiveSkills.Motion.SpongeRejectsLongFrameTeleportWithoutCleaningGap",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSpongeLongFrameTeleport::RunTest(const FString&)
+{
+    MCActiveSkillMotionTests::FWorld T;
+    auto* Sponge=Cast<AMCSpongeSkillAction>(T.Prepare<UMCSpongeSkillEffect>());
+    if(!TestNotNull(TEXT("The production Sponge starts before an external discontinuity"),Sponge)) return false;
+    Sponge->StartCommitted();T.Step(.05f);
+    const FVector Before=T.Hero->GetActorLocation();
+    const FTransform Pose(FVector(Before.X+400,0,10000));
+    auto* Skipped=T.World->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose);
+    Skipped->bRandomizeLiquidSize=false;Skipped->LiquidHalfSize=250;Skipped->LiquidSeed=17;
+    Skipped->FinishSpawning(Pose);Skipped->Status->ApplyCoffee(1);Skipped->ResetLiquid();
+    const auto Mask=Skipped->WipeMask;
+    // Simulate another system relocating the pawn. This is input to the guard,
+    // never a recovery movement performed by the Sponge implementation.
+    T.Hero->SetActorLocation(Before+FVector(600,0,0));T.Move->bForceNextFloorCheck=true;
+    ++GFrameCounter;T.World->Tick(LEVELTICK_All,.4f);
+    TestTrue(TEXT("The action observes a relocation well beyond the bounded 248cm native frame"),
+        T.Hero->GetActorLocation().X>Before.X+700);
+    TestTrue(TEXT("An oversized long-frame relocation still cancels and releases the owned motion"),
+        Sponge->IsFinished() && MCActiveSkillMotion::CanAcquire(T.Hero));
+    TestTrue(TEXT("Rejected displacement never cleans any native mask cells along its bridge"),Skipped->WipeMask==Mask);
+    TestNull(TEXT("The rejected discontinuity stops further soap emission"),Sponge->SoapTrailComponent.Get());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSpongeBlockedWallRecovery,"MessControl.ActiveSkills.Motion.SpongeWallOverlapBlockedEscapeRollsBack",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSpongeBlockedWallRecovery::RunTest(const FString&)
+{
+    MCActiveSkillMotionTests::FWorld T;
+    auto* Wall=T.Box(FVector(70,0,10080),FVector(4,500,80));
+    FHitResult Overlap;
+    if(!TestTrue(TEXT("The wide footprint has a genuine initial wall overlap while the native capsule is clear"),
+        !MCActiveSkillMotion::ClearRideFootprint(T.Hero,nullptr,FVector::ForwardVector,FVector(80,42,12),.05f,620.f,&Overlap)
+        && Overlap.bBlockingHit && Overlap.bStartPenetrating && Overlap.GetActor()==Wall
+        && Overlap.PenetrationDepth>10 && Overlap.PenetrationDepth<20)) return false;
+    const FVector Before=T.Hero->GetActorLocation();const auto FloorBefore=T.Move->CurrentFloor;
+    float Budget=2;
+    TestFalse(TEXT("An overlap exceeding the remaining per-tick budget is rejected"),
+        MCActiveSkillMotion::RecoverSpongeWallOverlap(T.Hero,nullptr,Overlap,Budget));
+    TestTrue(TEXT("An over-budget recovery cannot move or consume the budget"),T.Hero->GetActorLocation().Equals(Before,.0001) && Budget==2);
+    auto* EscapeBlocker=T.Box(FVector(-42,0,10080),FVector(4,500,80));
+    const auto* Capsule=T.Hero->GetCapsuleComponent();
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCSpongeBlockedEscapeWitness),false,T.Hero);FHitResult EscapeHit;
+    TestTrue(TEXT("The exact requested escape is really blocked by the native capsule sweep"),
+        T.World->SweepSingleByChannel(EscapeHit,Before,Before+Overlap.Normal*(Overlap.PenetrationDepth+1),
+            Capsule->GetComponentQuat(),ECC_Pawn,FCollisionShape::MakeCapsule(Capsule->GetScaledCapsuleRadius(),
+                Capsule->GetScaledCapsuleHalfHeight()),Query) && EscapeHit.GetActor()==EscapeBlocker
+        && !EscapeHit.bStartPenetrating && EscapeHit.Time<1);
+    Budget=45;T.Move->bForceNextFloorCheck=true;
+    TestFalse(TEXT("A blocked escape fails rather than teleporting through the new wall"),
+        MCActiveSkillMotion::RecoverSpongeWallOverlap(T.Hero,nullptr,Overlap,Budget));
+    TestTrue(TEXT("The partial swept move is fully rolled back and consumes no correction budget"),
+        T.Hero->GetActorLocation().Equals(Before,.0001) && Budget==45);
+    TestTrue(TEXT("A failed correction preserves the prior floor and the requested next floor check"),
+        T.Move->CurrentFloor.HitResult.GetComponent()==FloorBefore.HitResult.GetComponent()
+        && T.Move->CurrentFloor.HitResult.ImpactPoint.Equals(FloorBefore.HitResult.ImpactPoint,.0001)
+        && T.Move->bForceNextFloorCheck && T.Move->IsMovingOnGround());
+    EscapeBlocker->Destroy();
+    TestTrue(TEXT("Removing only the escape blocker makes the exact same real wall overlap recoverable"),
+        MCActiveSkillMotion::RecoverSpongeWallOverlap(T.Hero,nullptr,Overlap,Budget));
+    TestTrue(TEXT("The positive control performs the full bounded swept move and spends its distance"),
+        T.Hero->GetActorLocation().Equals(Before+Overlap.Normal*(Overlap.PenetrationDepth+1),.1)
+        && FMath::IsNearlyEqual(Budget,45.f-Overlap.PenetrationDepth-1,.1f)
+        && MCActiveSkillMotion::ClearRideFootprint(T.Hero,nullptr,-FVector::ForwardVector,FVector(80,42,12),.05f,620.f));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSpongeCornerBounce,"MessControl.ActiveSkills.Motion.SpongeReflectsBothCornerNormals",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSpongeCornerBounce::RunTest(const FString&)
+{
+    MCActiveSkillMotionTests::FWorld T;
+    T.Box(FVector(260,0,10080),FVector(4,500,80));
+    T.Box(FVector(0,260,10080),FVector(500,4,80));
+    T.Hero->SetActorRotation(FRotator(0,45,0));
+    auto* Sponge=Cast<AMCSpongeSkillAction>(T.Prepare<UMCSpongeSkillEffect>({{TEXT("RideSeconds"),3.f},{TEXT("RideSpeed"),200.f}}));
+    if(!TestNotNull(TEXT("A diagonal supported approach starts before the corner"),Sponge)) return false;
+    Sponge->StartCommitted();T.Step(1.8f);
+    TestFalse(TEXT("A two-wall corner does not cancel or trap the ride"),Sponge->IsFinished());
+    TestTrue(TEXT("Both actual corner normals were resolved"),Sponge->BounceCount==2);
+    TestTrue(TEXT("The outgoing direction separates from both walls"),Sponge->GetActorForwardVector().X<-.65 && Sponge->GetActorForwardVector().Y<-.65);
+    TestTrue(TEXT("The rider remains on the real floor"),T.Move->IsMovingOnGround());
+    Sponge->RepeatInput();
+    TestTrue(TEXT("Corner recovery retains normal teardown"),MCActiveSkillMotion::CanAcquire(T.Hero));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSpongeContactCleaning,"MessControl.ActiveSkills.Motion.SpongeContactPassCleansOnlySupportedStrip",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSpongeContactCleaning::RunTest(const FString&)
+{
+    MCActiveSkillMotionTests::FWorld T;
+    auto PatchAt=[&](FVector At,float HalfSize) {
+        auto* Patch=T.World->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),FTransform(At));
+        Patch->bRandomizeLiquidSize=false;Patch->LiquidHalfSize=HalfSize;Patch->LiquidSeed=17;
+        Patch->FinishSpawning(FTransform(At));Patch->Status->ApplyCoffee(1);Patch->ResetLiquid();return Patch;
+    };
+    auto* Patch=PatchAt(FVector(0,0,10000),200);
+    auto* Detached=PatchAt(FVector(0,0,10040),200);
+    const auto DetachedBefore=Detached->WipeMask;
+    const int32 Center=(FMCCoffeeWipe::Size/2)*FMCCoffeeWipe::Size+FMCCoffeeWipe::Size/2;
+    const int32 Beside=(FMCCoffeeWipe::Size*3/4)*FMCCoffeeWipe::Size+FMCCoffeeWipe::Size/2;
+    TestTrue(TEXT("A single actual grounded pass changes the native dirt mask"),
+        MCActiveSkillMotion::CleanSweep(T.Hero,nullptr,FVector(-8,0,10000),FVector(8,0,10000),1.f/60,45.f,1.4f,620.f,true));
+    TestEqual(TEXT("The contacted central pixel is fully clean after one pass"),Patch->WipeMask[Center],uint8(0));
+    TestEqual(TEXT("Uncontacted dirt beside the strip remains intact"),Patch->WipeMask[Beside],uint8(255));
+    TestTrue(TEXT("An elevated detached stain is not cleaned from below"),Detached->WipeMask==DetachedBefore);
+    const auto BeforeReject=Patch->WipeMask;
+    TestFalse(TEXT("A high sample cannot clean a floor merely inside trace range"),
+        MCActiveSkillMotion::CleanSweep(T.Hero,nullptr,FVector(0,0,10040),FVector(8,0,10040),1.f/60,45.f,1.4f,620.f,true));
+    T.Move->SetMovementMode(MOVE_Flying);
+    TestFalse(TEXT("Airborne traversal never grants a contact pass"),
+        MCActiveSkillMotion::CleanSweep(T.Hero,nullptr,FVector(0,0,10000),FVector(8,0,10000),1.f/60,45.f,1.4f,620.f,true));
+    TestTrue(TEXT("Rejected contacts preserve the exact native mask"),Patch->WipeMask==BeforeReject);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSpongeContactWall,"MessControl.ActiveSkills.Motion.SpongeContactPassKeepsSameActorWalls",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSpongeContactWall::RunTest(const FString&)
+{
+    MCActiveSkillMotionTests::FWorld T;
+    auto* Wall=NewObject<UBoxComponent>(T.FloorActor);Wall->SetupAttachment(T.FloorActor->GetRootComponent());
+    Wall->SetBoxExtent(FVector(4,100,80));Wall->SetCollisionProfileName(TEXT("BlockAll"));Wall->RegisterComponent();
+    Wall->SetWorldLocation(FVector(45,0,10080));
+    const FTransform Pose(FVector(55,0,10000));
+    auto* Behind=T.World->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose);
+    Behind->bRandomizeLiquidSize=false;Behind->LiquidHalfSize=100;Behind->LiquidSeed=17;Behind->FinishSpawning(Pose);
+    Behind->Status->ApplyCoffee(1);Behind->ResetLiquid();
+    const int32 Center=(FMCCoffeeWipe::Size/2)*FMCCoffeeWipe::Size+FMCCoffeeWipe::Size/2;
+    MCActiveSkillMotion::CleanSweep(T.Hero,nullptr,FVector(0,0,10000),FVector(8,0,10000),1.f/60,80.f,1.4f,620.f,true);
+    TestEqual(TEXT("A wall on the floor actor blocks cleaning into a neighboring room"),Behind->WipeMask[Center],uint8(255));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSpongeSlopeContact,"MessControl.ActiveSkills.Motion.SpongeSlopeFootprintKeepsSameActorWalls",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSpongeSlopeContact::RunTest(const FString&)
+{
+    MCActiveSkillMotionTests::FWorld T;
+    T.FloorActor->Destroy();
+    T.FloorActor=T.Box(FVector(0,0,9980),FVector(5000,5000,20));
+    T.FloorActor->SetActorRotation(FRotator(30,0,0));
+    T.Hero->SetActorLocation(FVector(0,0,10120));T.Move->SetMovementMode(MOVE_Falling);
+    T.Move->bForceNextFloorCheck=true;T.Step(.6f);
+    FVector Ground,Normal;
+    if(!TestTrue(TEXT("CMC really supports the player on a thirty-degree floor"),
+        MCActiveSkillMotion::HasGround(T.Hero,Ground,Normal) && Normal.Z>.8f && Normal.Z<.95f)) return false;
+    const FVector Foot=MCActiveSkillMotion::FootPoint(T.Hero);
+    const FVector Uphill=FVector::VectorPlaneProject(FVector::UpVector,Normal).GetSafeNormal();
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCSpongeSlopeFootprintFixture),false,T.Hero);
+    FHitResult Under,Legacy;
+    if(!TestTrue(TEXT("The actual floor exists directly under the capsule"),T.World->LineTraceSingleByChannel(
+        Under,Foot+FVector(0,0,35),Foot-FVector(0,0,65),ECC_Visibility,Query))) return false;
+    const FVector Base=Under.ImpactPoint;
+    TestTrue(TEXT("The former horizontal ray incorrectly hits this ordinary walkable slope"),
+        T.World->LineTraceSingleByChannel(Legacy,Base+FVector(0,0,8),Base+FVector(0,0,8)+Uphill.GetSafeNormal2D()*45,ECC_Visibility,Query)
+        && Legacy.GetActor()==T.FloorActor && Legacy.ImpactNormal.Z>.8f && Legacy.Distance<20.f);
+    auto PatchAt=[&](FVector Position) {
+        const FTransform Pose(FRotationMatrix::MakeFromZ(Normal).ToQuat(),Position);
+        auto* Patch=T.World->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose);
+        Patch->bRandomizeLiquidSize=false;Patch->LiquidHalfSize=100;Patch->LiquidSeed=17;
+        Patch->FinishSpawning(Pose);Patch->Status->ApplyCoffee(1);Patch->ResetLiquid();return Patch;
+    };
+    auto* Contacted=PatchAt(Base+Uphill*22);
+    const int32 Center=(FMCCoffeeWipe::Size/2)*FMCCoffeeWipe::Size+FMCCoffeeWipe::Size/2;
+    TestTrue(TEXT("A supported contact pass cleans its real inclined footprint"),
+        MCActiveSkillMotion::CleanSweep(T.Hero,nullptr,Foot,Foot,1.f/60,45.f,1.4f,620.f,true));
+    TestEqual(TEXT("The uphill pixel outside the former tiny radius is fully cleaned"),Contacted->WipeMask[Center],uint8(0));
+    auto* Wall=NewObject<UBoxComponent>(T.FloorActor);Wall->SetupAttachment(T.FloorActor->GetRootComponent());
+    Wall->SetBoxExtent(FVector(4,100,80));Wall->SetCollisionProfileName(TEXT("BlockAll"));Wall->RegisterComponent();
+    Wall->SetWorldRotation(Uphill.GetSafeNormal2D().Rotation());Wall->SetWorldLocation(Base+Uphill*50+FVector(0,0,70));
+    auto* Behind=PatchAt(Base+Uphill*65);
+    MCActiveSkillMotion::CleanSweep(T.Hero,nullptr,Foot,Foot,1.f/60,90.f,1.4f,620.f,true);
+    TestEqual(TEXT("A real wall on that same sloped actor still blocks the neighboring patch"),Behind->WipeMask[Center],uint8(255));
+    TestTrue(TEXT("Cleaning does not replace the native walking mode"),T.Move->IsMovingOnGround());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCDriverDefaultDuration,"MessControl.ActiveSkills.Motion.DriverDefaultDurationKeepsCollision",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCDriverDefaultDuration::RunTest(const FString&)
+{
+    MCActiveSkillMotionTests::FWorld T;
+    auto* Driver=T.Prepare<UMCDriverSkillEffect>({{TEXT("RideSpeed"),200.f}});
     if(!TestNotNull(TEXT("Driver prepares on a clear supported footprint"),Driver)) return false;
     Driver->StartCommitted();T.Step(2.8f);
     TestFalse(TEXT("Driver is still active before the contracted three seconds"),Driver->IsFinished());
-    T.Step(.3f);TestTrue(TEXT("Driver ends at three seconds despite a conflicting provisional data duration"),Driver->IsFinished());
+    T.Step(.3f);TestTrue(TEXT("Driver defaults to three seconds when the duration parameter is absent"),Driver->IsFinished());
     TestTrue(TEXT("The rider retained ordinary grounded capsule collision"),T.Move->IsMovingOnGround());
     TestTrue(TEXT("Driver's movement override is released"),MCActiveSkillMotion::CanAcquire(T.Hero));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCDriverAuthoredDuration,"MessControl.ActiveSkills.Motion.DriverAuthoredDurationAndMotionRelease",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCDriverAuthoredDuration::RunTest(const FString&)
+{
+    MCActiveSkillMotionTests::FWorld T;
+    // Cross both the old three-second ride and fifteen-second watchdog limits.
+    auto* Driver=T.Prepare<UMCDriverSkillEffect>({{TEXT("RideSeconds"),16.f},
+        {TEXT("MaxLifetime"),31.f},{TEXT("RideSpeed"),100.f}});
+    if(!TestNotNull(TEXT("Driver prepares with an authored duration"),Driver)) return false;
+    Driver->StartCommitted();T.Step(3.2f);
+    TestFalse(TEXT("An authored longer ride outlives the former fixed duration"),Driver->IsFinished());
+    TestFalse(TEXT("Driver retains its movement source after three seconds"),MCActiveSkillMotion::CanAcquire(T.Hero));
+    T.Step(12.6f);
+    TestFalse(TEXT("Driver is still active just before the authored deadline"),Driver->IsFinished());
+    TestTrue(TEXT("The rider retains grounded capsule collision"),T.Move->IsMovingOnGround());
+    T.Step(.3f);
+    TestTrue(TEXT("Driver ends at its authored deadline"),Driver->IsFinished());
+    TestTrue(TEXT("The authored deadline releases the exact owned movement source"),MCActiveSkillMotion::CanAcquire(T.Hero));
     return true;
 }
 

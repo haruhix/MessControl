@@ -1,0 +1,101 @@
+{
+  "date": "2026-10-30",
+  "system": "/Game/Tests/VFXPractice/Effects/NS_Practice_FoamBasics",
+  "station": "Practice_01 / Free Play",
+  "inline_hlsl": 0,
+  "user_parameters": 0,
+  "controls": {
+    "SpawnRate": 10,
+    "Lifetime": 1.6,
+    "Color": [
+      0.75,
+      1,
+      0.9,
+      0.55
+    ],
+    "RandomUniformSpriteSize": [
+      35,
+      65
+    ],
+    "SphereRadius": 22
+  },
+  "alpha_curve": [
+    [
+      0,
+      0
+    ],
+    [
+      0.12,
+      1
+    ],
+    [
+      0.45,
+      0.85
+    ],
+    [
+      1,
+      0
+    ]
+  ],
+  "compile": {
+    "bIsCompiling": false,
+    "bIsStale": false,
+    "bHasErrors": false,
+    "bHasWarnings": false
+  },
+  "solo": {
+    "reset_observed_cycles_one": true,
+    "eight_stations": true,
+    "readiness_gate": true,
+    "pause": true,
+    "reset": true,
+    "navigation_panel": true,
+    "all_stations_ran": true,
+    "all_stations_observed_active": true,
+    "readiness_observed_before_release": true,
+    "trail_moves": true,
+    "no_gameplay_day_scheduler": true,
+    "source_bp_disk_unchanged": true
+  },
+  "evidence": "E:\\CodexWork\\MessControl\\Validation\\VFXBeginnerControls_20261030",
+  "media": "E:\\CodexWork\\MessControl\\Validation\\VFXBeginnerControls_20261030\\Runtime\\SandboxTour.mp4",
+  "guide": "Tools/VFXGuide/index.html#expression-help",
+  "protection": {
+    "protected_existing_assets_unchanged": {
+      "Content/Gameplay/ActiveSkills/VFX/NS_Sponge_Trail.uasset": true,
+      "Content/Tests/VFXPractice/Effects/NS_Practice_Trail.uasset": false,
+      "Content/Blueprints/BP_PlayerCharacter.uasset": true
+    },
+    "study_preview_note": "Shared runtime harness resaved private study-system preview data. Original gameplay NS and player Blueprint disk bytes remained unchanged. Preview writes are now opt-in in the harness.",
+    "source_unsaved_packages_preserved": true,
+    "dirty_assets": [
+      "/Game/Blueprints/BP_PlayerCharacter",
+      "/Game/Gameplay/ActiveSkills/VFX/NS_Sponge_Trail"
+    ],
+    "dirty_maps": [],
+    "play_settings_restored": true,
+    "assigned_system": "/Game/Tests/VFXPractice/Effects/NS_Practice_FoamBasics.NS_Practice_FoamBasics",
+    "continuous_station": true,
+    "runtime_checks": {
+      "reset_observed_cycles_one": true,
+      "eight_stations": true,
+      "readiness_gate": true,
+      "pause": true,
+      "reset": true,
+      "navigation_panel": true,
+      "all_stations_ran": true,
+      "all_stations_observed_active": true,
+      "readiness_observed_before_release": true,
+      "trail_moves": true,
+      "no_gameplay_day_scheduler": true,
+      "source_bp_disk_unchanged": true
+    }
+  },
+  "scope": "New separate beginner NS and one study-map component assignment; production trail kept with its unsaved user edits. No C++ build, package, multiplayer, microphone or GPU profiling.",
+  "limits": [
+    "Stationary first-lesson foam, not new gameplay trail or healing.",
+    "Native controller checks and actual runtime screenshots; no physical hotkey test.",
+    "No GPU/overdraw measurements or artistic approval.",
+    "Windows UI snapshot was obscured by an unrelated exclusive fullscreen game; no screenshot of literal fields is claimed."
+  ]
+}

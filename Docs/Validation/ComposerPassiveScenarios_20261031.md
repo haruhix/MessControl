@@ -1,0 +1,23 @@
+# Composer: passive scenarios — source checkpoint, 2026-10-31
+
+Latest status: **Build21 checked 27/27 native setup/lifecycle scenarios**; this is not 27 verified procs, numerical bonuses or accepted visuals. Five cleaning observers still have explicit result/contact follow-ups. Actual evidence and limits: [ComposerAdapters_20261031.md](ComposerAdapters_20261031.md). The authoring/source audit below retains its bounded scope. The shared catalogue resolves the currently loaded canonical `DT_Perks`; disabled/missing definitions cannot become preview-ready just because a provider exists.
+
+The nine B1 definitions and eighteen B2 definitions use `UMCRoguePerkEffect`. Their actual mechanics live in inventory, food collection, movement and the result/defence/spray/combat subsystems. There is no one-effect-class-per-passive implementation. Source recipes were checked against `author_batch1_passives.py`, `UI/passive_event_specs.json`, `author_current_passives.py` and the cited gameplay owners; the saved asset index reported `schema_changed` / `build_current=false`, so it is not fresh DT evidence.
+
+| Context | Registered IDs | Real owner / trigger used by the private scenario |
+|---|---|---|
+| Melee | B1_HeavyHit; B2_MightyTooth, StartFromDash, ThunderGod, EchoSwing, Billiards | Canonical grant; native `SwingBrush` input, native nut-enemy damage/secondary-hit owners; optional real dash. Stationary enemy fixtures have no arena AI; Billiards advances the public native launch owner. |
+| Cleaning | B1_WideBristles; B2_CleanBreath, NeatFreak, LastStroke, CleanAcceleration, RefreshingWork | Real deposited mask and primary brush input, followed by explicitly labelled `CleanLiquidAt` spatial-contact fixture. Native `CompleteCleaning` owns completion/procs/healing. This does not certify brush reach/contact acquisition. |
+| Incoming damage | B2_ThickEnamel, Shield | Real status `Damage`; shield starts below its authored threshold. Enamel uses ordinary unchanged randomness; a run without a proc is possible. |
+| Dash | B2_SecondWind, HoudiniDash | Native dash input and movement lifecycle. SecondWind registers/finishes a real subsystem threat receipt; this is a receipt fixture, not a complete AI attack/dodge playthrough. |
+| Movement/stamina | B1_LightFoot, DeepBreath | Real movement input and actual component speed/stamina values. These numeric passives have no separate proc VFX. |
+| Food | B1_BigPortion, ConfidentThrow, FreshDelivery, GreedyHands; B2_ReturnTrip | Real saved Egg fragments, canonical collection/capacity/reach and `ThrowOne`. ReturnTrip invokes the genuine `AwardDelivery` hook in the preview game mode, not a fake VFX cue; this is not a full throat journey. |
+| Spray | B1_UnderPressure; B2_Softener, Antiseptic, LastingFormula | Native aimed primary spray input, release and optional native brush input after treatment. Burst/reload, stamps, residue and damage remain owned by production components/subsystem. Actual coverage, bonuses and residual damage still require runtime observation. |
+
+The new provider never calls `AMCPassiveFeedbackCue::Spawn`, `AMCPassiveCombatCue::Spawn` or `PlayVFX` to manufacture an outcome. Starting health/stamina and targets are explicit sandbox fixtures. Ordinary random probabilities and the canonical DT are not overwritten. Acquisition happens before the normal resource barrier; hidden transient material anchors expose actual cue/coating materials to its readiness scan without spawning gameplay cues.
+
+Every passive provider sets **`bSupportsProfileOverride=false`**. Current passive runtime owners do not consume a row's `VFXProfile`. The native mechanic can be viewed, but Composer cannot honestly apply a replacement Niagara to it until a separate runtime binding is implemented. The shared catalogue exposes this reason independently from preview availability.
+
+Required runtime checks: one authentic result per context, interruption/reset/repeat cleanup, no source/DT changes, native material readiness, natural chance behaviour, genuine dash before StartFromDash strike, and actual spray treatment/residue. Review motion from gameplay/front/side views before visual acceptance. No multiplayer, cold packaged PSO, full boss/map catalogue or artistic approval follows from this source checkpoint.
+
+Sources: `MCPerkPreviewPassiveAdapters.cpp`, `MCPerkPreviewAdapter.h`, `MCResultPassives.cpp`, `MCDefenseSprayPassives.cpp`, `MCCombatPassiveSubsystem.cpp`, `MCRoguePerks.cpp`, `MCFoodCollectionComponent.cpp`, `MCFoodActor.cpp`, plus the existing native result/combat/defence tests. The global catalogue is `MCVFXActionCatalog.h/.cpp`; windows consume it rather than maintaining another private action list.

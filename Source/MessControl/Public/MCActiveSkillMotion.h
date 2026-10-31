@@ -32,12 +32,18 @@ namespace MCActiveSkillMotion
     MESSCONTROL_API bool HasGround(const AMCToothCharacter* Pawn,FVector& Point,FVector& Normal);
     MESSCONTROL_API FTransform RidePose(const AMCToothCharacter* Pawn,FVector Forward,float Height=0.f);
     MESSCONTROL_API bool ClearRideFootprint(const AMCToothCharacter* Pawn,const AActor* Action,
-        FVector Forward,FVector HalfSize,float LookAheadSeconds,float Speed);
+        FVector Forward,FVector HalfSize,float LookAheadSeconds,float Speed,FHitResult* BlockingHit=nullptr);
+    /** Knight-style planar reflection; upward walkable support and separating motion are never walls. */
+    MESSCONTROL_API bool ReflectRideDirection(const AMCToothCharacter* Pawn,const FHitResult& Wall,
+        FVector Incoming,FVector& Reflected);
+    /** Sponge-only bounded wall MTD correction. Sweeps the native capsule; failed moves roll back. */
+    MESSCONTROL_API bool RecoverSpongeWallOverlap(AMCToothCharacter* Pawn,const AActor* Action,
+        const FHitResult& Wall,float& RemainingCorrection);
     MESSCONTROL_API bool ClearPullStep(const AMCToothCharacter* Pawn,const AActor* Action,
         const AActor* Goal,FVector Velocity,float Seconds,FHitResult* BlockingHit=nullptr);
     MESSCONTROL_API bool ContinuousPath(FVector From,FVector To,float Seconds,float MaxSpeed);
-    /** Native mask mutations/receipts only; no repair, global clear or synthetic completion. */
+    /** Native mask mutations/receipts only. Contact-pass is a grounded local Sponge dose, never a global clear. */
     MESSCONTROL_API bool CleanSweep(AMCToothCharacter* Worker,const AActor* Action,FVector From,
-        FVector To,float Seconds,float Radius,float Rate,float MaxSpeed);
+        FVector To,float Seconds,float Radius,float Rate,float MaxSpeed,bool bContactPass=false);
     MESSCONTROL_API FVector Steering(const AMCToothCharacter* Pawn,FVector Previous,float DegreesPerSecond,float Seconds);
 }

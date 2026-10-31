@@ -260,6 +260,11 @@ void AMCRocketSkillAction::OnRep_Phase()
 
 void AMCRocketSkillAction::OnFinished(EMCActiveSkillEndReason Reason)
 {
+    // End belongs to this action's normal recovery, never to a sandbox reset or
+    // world teardown. The generic base cannot emit it: other actions already
+    // own their end cues and would otherwise play them twice.
+    if(Reason==EMCActiveSkillEndReason::Completed && Phase==EMCRocketSkillPhase::Detonated)
+        PlaySkillCue(TEXT("End"),GetActorLocation(),GetActorForwardVector(),Param(TEXT("VFXRadius"),-1.f));
     Movement->Deactivate();Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);Super::OnFinished(Reason);
 }
 

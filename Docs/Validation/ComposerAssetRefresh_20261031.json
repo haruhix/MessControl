@@ -1,0 +1,24 @@
+{
+  "job_id": "894cc929adef4396ba58da8ad73c2131",
+  "status": "complete",
+  "export_all": true,
+  "build": true,
+  "started_utc": "2026-10-31T04:58:52.455195+00:00",
+  "finished_utc": "2026-10-31T05:10:02.158037+00:00",
+  "log": "E:/DEVGAME/MessControl/Saved/ProjectIndex/export_console.log",
+  "result": {
+    "exported": 3830,
+    "catalog_assets": 3831,
+    "partial": true,
+    "build_current": false,
+    "snapshot_states": {
+      "schema_changed": 3830
+    },
+    "captured_utc": "2026-10-31T05:02:23.993Z",
+    "engine_version": "5.8.1-56057345+++UE5+Release-5.8",
+    "export_errors": {
+      "/Game/NiagaraExamples/Utilities/Blueprints/EUB_SnapToActor.EUB_SnapToActor": "Blueprint compilation failed; snapshot not refreshed"
+    }
+  },
+  "interpretation": "The old EUB_SnapToActor compilation failure remains. Editor source changed while the job was running, so its completed partial export is not a current whole-project snapshot. Do not use absent results as reference/coverage proof."
+}

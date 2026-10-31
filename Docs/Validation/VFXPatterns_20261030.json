@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-30",
+  "scope": "Local VFX guide pattern teaching and tool research; no Unreal asset/code authoring, builds or installs",
+  "guide": "http://127.0.0.1:8766/#patterns",
+  "patterns": ["attached", "surface", "overlay", "projectile", "impact", "trail", "beam", "area"],
+  "static_and_semantic": {
+    "passed": true,
+    "phase_states": 24,
+    "additional_semantic_checks": 5,
+    "reports": "E:/CodexWork/MessControl/Validation/VFXPatternGuide_20261030/"
+  },
+  "browser": {
+    "passed": true,
+    "checks": 47,
+    "version": "Chrome/156.0.8078.74",
+    "viewports": ["1440x1050", "390x844"],
+    "confirmed": ["all eight selections and 0/50/100 phase states", "no horizontal overflow", "learner note survives selection and reload in isolated test profile", "no runtime exceptions", "no external runtime requests"],
+    "root_visual_inspection": ["desktop page", "mobile choices", "mobile diagram and controls"],
+    "evidence": "E:/CodexWork/MessControl/Validation/VFXPatterns_20261030/BrowserChecks.json",
+    "recipe": "E:/CodexWork/MessControl/Validation/VFXPatterns_20261030/check-patterns.mjs"
+  },
+  "preserved": ["user browser/profile/progress", "running Unreal and its unsaved assets", "local guide server", "production game packages"],
+  "limits": ["schematics are not Niagara renders or game previews", "Emitter Summary not configured on project assets by this task", "project workbench/plugin and DT VFXProfile remain proposals", "third-party compatibility with UE5.8.1 not established"]
+}

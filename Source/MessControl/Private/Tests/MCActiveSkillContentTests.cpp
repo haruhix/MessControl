@@ -1,5 +1,5 @@
 // Prerequisite tests: run AFTER the coordinated build, canonical table authoring,
-// props import and all21 Niagara assets (including NS_Air_Rupture) are saved.
+// props import and all22 Niagara assets (including Air rupture and Sponge trail) are saved.
 // These inspect loaded saved content/CDOs only; no actors, PIE, asset saves or index refresh.
 #if WITH_EDITOR && WITH_DEV_AUTOMATION_TESTS
 #include "Misc/AutomationTest.h"
@@ -62,9 +62,9 @@ bool FMCActiveSkillSavedCatalogTest::RunTest(const FString&)
     auto* Table=SavedActiveTable();
     if(!TestNotNull(TEXT("Post-author canonical DT_Perks is saved and loadable"),Table)) return false;
     if(!TestTrue(TEXT("Canonical row type is FMCPerkDefinition"),Table->GetRowStruct()==FMCPerkDefinition::StaticStruct())) return false;
-    TestEqual(TEXT("27 passives +6 actives +100 retained retired rows"),Table->GetRowMap().Num(),133);
+    TestEqual(TEXT("27 passives +5 enabled actives +1 parked Driver +100 retired rows"),Table->GetRowMap().Num(),133);
     const auto Expected=ExpectedActiveSkills();
-    int32 Passives=0,Actives=0,Retired=0,FirstPassiveBatch=0,SecondPassiveBatch=0;
+    int32 Passives=0,Actives=0,Parked=0,Retired=0,FirstPassiveBatch=0,SecondPassiveBatch=0;
     for(const auto& Pair:Table->GetRowMap()) {
         const FName ID=Pair.Key;const auto* Row=reinterpret_cast<const FMCPerkDefinition*>(Pair.Value);
         const FString Name=ID.ToString();
@@ -73,6 +73,12 @@ bool FMCActiveSkillSavedCatalogTest::RunTest(const FString&)
         if(!Spec && !CurrentPassive) {
             ++Retired;
             TestFalse(Name+TEXT(" remains disabled; no retired row was reactivated"),Row->bEnabled);
+            continue;
+        }
+        if(Name==TEXT("Consumable_Driver")) {
+            ++Parked;
+            TestFalse(TEXT("Driver is disabled during individual ability review"),Row->bEnabled);
+            TestFalse(TEXT("Driver is not a usable reward or dev-panel grant"),UMCPerkComponent::IsDefinitionUsable(*Row));
             continue;
         }
         TestTrue(Name+TEXT(" is enabled and usable"),UMCPerkComponent::IsDefinitionUsable(*Row));
@@ -94,7 +100,8 @@ bool FMCActiveSkillSavedCatalogTest::RunTest(const FString&)
     TestEqual(TEXT("27 current unique passive definitions"),Passives,27);
     TestEqual(TEXT("Nine first-batch passives"),FirstPassiveBatch,9);
     TestEqual(TEXT("Eighteen second-batch passives"),SecondPassiveBatch,18);
-    TestEqual(TEXT("Exactly the six approved active IDs"),Actives,6);
+    TestEqual(TEXT("Exactly five enabled active IDs"),Actives,5);
+    TestEqual(TEXT("One parked Driver definition is retained"),Parked,1);
     TestEqual(TEXT("All100 historical rows retained and off"),Retired,100);
     return true;
 }
@@ -128,6 +135,10 @@ bool FMCActiveSkillPreloadRootsTest::RunTest(const FString&)
         for(const auto* Cue:Cues) if(!Cue->IsNull()) {
             RequireRoot(Name+TEXT(" Niagara cue"),Cue->ToSoftObjectPath());NiagaraRoots.Add(Cue->ToSoftObjectPath());
         }
+        if(const auto* Sponge=Cast<AMCSpongeSkillAction>(CDO)) {
+            RequireRoot(TEXT("Sponge's independent world-space soap trail"),Sponge->SoapTrailVFX.ToSoftObjectPath());
+            NiagaraRoots.Add(Sponge->SoapTrailVFX.ToSoftObjectPath());
+        }
         if(const auto* Driver=Cast<AMCDriverSkillAction>(CDO)) {
             TestEqual(TEXT("SuperCar preserves eight moving parts plus its chassis"),Driver->PartAssets.Num(),8);
             TestTrue(TEXT("Driver selects the new SuperCar chassis"),Driver->PropAsset.ToSoftObjectPath()==FSoftObjectPath(TEXT("/Game/Gameplay/ActiveSkills/Props/SM_SuperCar_Chassis.SM_SuperCar_Chassis")));
@@ -159,7 +170,7 @@ bool FMCActiveSkillPreloadRootsTest::RunTest(const FString&)
     }
     PropRoots.Remove(FSoftObjectPath());NiagaraRoots.Remove(FSoftObjectPath());
     TestEqual(TEXT("Fourteen separate prop meshes including all nine SuperCar meshes"),PropRoots.Num(),14);
-    TestEqual(TEXT("All21 distinct Niagara systems including Air rupture"),NiagaraRoots.Num(),21);
+    TestEqual(TEXT("All22 Niagara systems including Air rupture and Sponge ground history"),NiagaraRoots.Num(),22);
 
     // Mimic the real finite expansion waves only for the six skills' roots.
     // This is no AssetRegistry scan and never manufactures expected paths.

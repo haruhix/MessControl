@@ -92,8 +92,8 @@ bool FMCDevActivesCatalogTest::RunTest(const FString&)
     if(!TestTrue(TEXT("The ordinary host guard accepts this controller"),F.Mode->CanUseDevPanel(Host.Controller))
         || !TestNotNull(TEXT("Canonical saved table loaded"),Host.Perks->GetPerkTable())) return false;
     const TArray<FName> IDs=MCDevActiveIDs(Host.Perks);
-    const TArray<FName> Expected={TEXT("Active_Sponge"),TEXT("Active_Hook"),TEXT("Consumable_Grenade"),TEXT("Consumable_Air"),TEXT("Consumable_Rocket"),TEXT("Consumable_Driver")};
-    if(!TestEqual(TEXT("All six implemented skills are present"),IDs.Num(),Expected.Num())) return false;
+    const TArray<FName> Expected={TEXT("Active_Sponge"),TEXT("Active_Hook"),TEXT("Consumable_Grenade"),TEXT("Consumable_Air"),TEXT("Consumable_Rocket")};
+    if(!TestEqual(TEXT("All five enabled skills are present; Driver is parked"),IDs.Num(),Expected.Num())) return false;
     TSet<int32> Tokens;
     for(int32 I=0;I<IDs.Num();++I) {
         TestTrue(TEXT("No passive, weapon upgrade or retired definition is listed"),Expected.Contains(IDs[I]));

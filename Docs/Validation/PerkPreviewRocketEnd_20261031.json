@@ -1,0 +1,10 @@
+{
+  "engine": "5.8.1",
+  "editor_build": "Build06",
+  "test": "MessControl.ActiveSkills.Combat.RocketMuzzleRejectAndNativeArenaDestruction",
+  "state": "Success",
+  "errors": [],
+  "warnings": [],
+  "added_assertion": "Natural rocket recovery emits exactly one End event for the editable VFX slot.",
+  "scope": "Local native automation. No multiplayer, packaged build or artistic acceptance is claimed."
+}

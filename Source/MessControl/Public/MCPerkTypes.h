@@ -7,6 +7,7 @@
 
 class UMCPerkEffect;
 class UTexture2D;
+class UMCPerkVFXProfile;
 
 UENUM(BlueprintType)
 enum class EMCPerkPolarity : uint8
@@ -59,6 +60,8 @@ struct MESSCONTROL_API FMCPerkDefinition : public FTableRowBase
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Perk")
     TSoftObjectPtr<UTexture2D> Icon;
+    /** Shared cosmetic profile; absent keeps the action's existing defaults. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Perk|Presentation") TSoftObjectPtr<UMCPerkVFXProfile> VFXProfile;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Perk") EMCToolUpgrade ToolUpgrade=EMCToolUpgrade::None;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Perk") EMCPerkRarity Rarity=EMCPerkRarity::Standard;
     /** Authored chest-only or placeholder rows may opt out of personal level cards. */

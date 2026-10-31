@@ -849,6 +849,66 @@
       "kind": "image",
       "label": "Геометрия контакта · BaseColor без освещения · спереди",
       "path": "E:/CodexWork/MessControl/ActiveSkills_20261029/Runs/PoseFixRocket02/PoseViews/Pose_01_front_three_quarter.png"
+    },
+    {
+      "id": "active-sponge-sponge_revision30-side-video",
+      "kind": "video",
+      "label": "Губка сбоку · обычная игровая камера",
+      "path": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/Side01/ActualWindow.mp4"
+    },
+    {
+      "id": "active-sponge-sponge_revision30-side-gif",
+      "kind": "image",
+      "label": "Губка сбоку · GIF",
+      "path": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/Side01/SpongeSide.gif"
+    },
+    {
+      "id": "active-sponge-sponge_revision30-front-video",
+      "kind": "video",
+      "label": "Губка спереди · обычная игровая камера",
+      "path": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/Front01/ActualWindow.mp4"
+    },
+    {
+      "id": "active-sponge-sponge_revision30-trail-gif",
+      "kind": "image",
+      "label": "След и затухание · GIF",
+      "path": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/Repeat02/SpongeSoap.gif"
+    },
+    {
+      "id": "active-sponge-sponge_revision30-preview-gif",
+      "kind": "image",
+      "label": "Niagara Preview · движение без игрового персонажа",
+      "path": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/SoapTrail/PreviewWindow02/NiagaraPreview.gif"
+    },
+    {
+      "id": "active-sponge-sponge_revision30-bounce-diagnostic",
+      "kind": "video",
+      "label": "Диагностика отскоков/8 секунд · временные стены двигают камеру",
+      "path": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/Timer03/ActualWindow.mp4"
+    },
+    {
+      "id": "composer-20261031-gif",
+      "kind": "image",
+      "label": "GIF · ИНСТРУМЕНТ: Live Gallery → настоящее действие · stock NS",
+      "path": "E:/CodexWork/MessControl/Validation/PerkActionPreview_20261031/ComposerLiveGallery13.gif"
+    },
+    {
+      "id": "composer-20261031-video",
+      "kind": "video",
+      "label": "MP4 · ИНСТРУМЕНТ: native ракетница и stock NS_Explosion · Build13",
+      "path": "E:/CodexWork/MessControl/Validation/PerkActionPreview_20261031/ComposerLiveGallery13.mp4"
+    },
+    {
+      "id": "composer-action-workspace-20261031-gif",
+      "kind": "image",
+      "label": "GIF · Build20: настоящее действие и независимые NS проекта · инструмент",
+      "path": "E:/CodexWork/MessControl/Validation/ComposerActionWorkspace_20261031/FreeMagicIndependent20.gif"
+    },
+    {
+      "id": "composer-action-workspace-20261031-video",
+      "kind": "video",
+      "label": "MP4 · Build20: Rocket / default Impact + Free Magic · инструмент",
+      "path": "E:/CodexWork/MessControl/Validation/ComposerActionWorkspace_20261031/FreeMagicIndependent20.mp4"
     }
   ],
   "tasks": [
@@ -2492,6 +2552,80 @@
                 "reportSHA256": "ed0929ac840468b3f4ee67a0c3464e5b29ada937e3d8affd405ec60884aa365d",
                 "nativeStatus": "passed"
               }
+            ]
+          }
+        },
+        {
+          "id": "sponge_revision30",
+          "label": "Губка: устойчивый слайд, контактная уборка, мыльный след и отскок",
+          "status": "rework",
+          "rootReview": {
+            "score": 5,
+            "status": "rework",
+            "scope": "art",
+            "comment": "Проверены последовательности кадров реальных WGC-записей спереди, сбоку и в основной камере: ноги держатся на губке, обычный шаг не проступает, хвост остаётся на полу и затухает. Читаемость следа есть, но формы повторяют пенный атлас и остаются плоскими карточками; художественное качество ещё требует доработки. Отскоки сняты отдельно как диагностика: временные стены приближают камеру."
+          },
+          "native": {
+            "status": "passed",
+            "tests": 13,
+            "warnings": 0,
+            "reportPath": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/NativeFinal.json",
+            "reportSHA256": "c771998f2e198d917f2cf2a57b75dcc0f92ff3cbdc15e9ed45a4603aab4772eb",
+            "comment": "13/13 направленных native проверок финальной сборки; solo Repeat02/Front01/Side01/Timer03 passed. Timer03: 7.975с живых samples при8с настройке, отскоки, поддержанный центр пятна очищен, собственный хвост завершился естественно. Это не полный ран/сеть/пакетное PSO-профилирование; общий Editor-журнал не объявляется без предупреждений."
+          },
+          "mediaIds": [
+            "active-sponge-sponge_revision30-side-video",
+            "active-sponge-sponge_revision30-side-gif",
+            "active-sponge-sponge_revision30-front-video",
+            "active-sponge-sponge_revision30-trail-gif",
+            "active-sponge-sponge_revision30-preview-gif",
+            "active-sponge-sponge_revision30-bounce-diagnostic"
+          ],
+          "evidence": {
+            "captureConfirmed": true,
+            "files": [
+              {
+                "id": "active-sponge-sponge_revision30-side-video",
+                "path": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/Side01/ActualWindow.mp4",
+                "bytes": 2152603,
+                "sha256": "3292b8022e1e0065946dd4171b88c52a3264ddeafeee6871c18d8ff5a548e990"
+              },
+              {
+                "id": "active-sponge-sponge_revision30-side-gif",
+                "path": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/Side01/SpongeSide.gif",
+                "bytes": 7822617,
+                "sha256": "ce4a05c18a12f0b89b99e4fc44544970200186da71b6c0e3e371788e6f96aa03"
+              },
+              {
+                "id": "active-sponge-sponge_revision30-front-video",
+                "path": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/Front01/ActualWindow.mp4",
+                "bytes": 1986823,
+                "sha256": "204a8cf967bbaecdf20dde77efb83a87455d315d66c22f3ef9706f075e60612b"
+              },
+              {
+                "id": "active-sponge-sponge_revision30-trail-gif",
+                "path": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/Repeat02/SpongeSoap.gif",
+                "bytes": 7340066,
+                "sha256": "29280e6bfda5939eec6dcafede07d35d11f35e1e1bf18b97a03e84c911f7f45c"
+              },
+              {
+                "id": "active-sponge-sponge_revision30-preview-gif",
+                "path": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/SoapTrail/PreviewWindow02/NiagaraPreview.gif",
+                "bytes": 1076750,
+                "sha256": "3646bc27ec2d8206c9c1d2b7987d2c32406de03dab660ac9fbaeef19a307af9d"
+              },
+              {
+                "id": "active-sponge-sponge_revision30-bounce-diagnostic",
+                "path": "E:/CodexWork/MessControl/Validation/SpongeRevision_20261030/Timer03/ActualWindow.mp4",
+                "bytes": 6364192,
+                "sha256": "16ac200cfcb45c49379b5b915e0fcd8e9ad0bdf21b14b95c569ebf0d097c9bcf"
+              }
+            ],
+            "sourceLimitations": [
+              "Контролируемые transient fixtures и native F3 grant до Ready.",
+              "Функциональные проверки не равны художественному одобрению.",
+              "Preview запись временно без фонового CPU throttle; исходная настройка восстановлена.",
+              "Background скрыт только у открытого preview; другой сеанс может требовать Background Off."
             ]
           }
         }
@@ -4716,6 +4850,93 @@
                 "reportSHA256": "32b027d2ef9c08a991a58464fc8a0d22074020e3d72b091a4c68afc94ea1486f",
                 "nativeStatus": "passed"
               }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "vfx-composer",
+      "title": "VFX Composer · инструмент",
+      "family": "Инструменты",
+      "description": "Единый Composer: контекст → событие → независимые VFX-слои. Материалы демонстрируют инструмент на существующих NS проекта; версия и пределы технической проверки указаны отдельно. Художественная оценка ожидается.",
+      "status": "pending",
+      "versions": [
+        {
+          "id": "composer-20261031",
+          "label": "Build13 · инструмент Composer / Live Gallery",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "tool",
+            "comment": "Основной агент лично просмотрел native Rocket → видимый orange burst/smoke/tail, около 3 циклов за 12 с. Это демонстрация ИНСТРУМЕНТА на существующем stock NS_Explosion; новый художественный VFX не заявлен. Оценка пользователя ожидается."
+          },
+          "native": {
+            "status": "passed",
+            "tests": null,
+            "warnings": null,
+            "comment": "Build13: success 28,25 с. Core UI/master roundtrip/export/refusal подтверждены отдельными JSON; Loop11 — 6 циклов ≈28 с, cached System/max5 компонентов; Gallery12 — ≈16 с/4 запуска/recipe unchanged; Pause11 — точное время не изменилось. Visibility13 и FinalState13: свежие preview owners видимы без live workaround. Полная fidelity, весь каталог и cold packaged PSO не проверены."
+          },
+          "mediaIds": [
+            "composer-20261031-gif",
+            "composer-20261031-video"
+          ],
+          "evidence": {
+            "scope": "tool demonstration; existing stock effect; no custom art approval",
+            "reports": [
+              "Docs/Validation/PerkActionPreview_20261031.json",
+              "Visibility13.json",
+              "FinalState13.json"
+            ],
+            "reviewLimitations": [
+              "Не демонстрация шести perk adapters",
+              "Не новый авторский VFX",
+              "Не полная source/generated visual fidelity",
+              "Не entire-catalog / first-cold-PSO проверка"
+            ]
+          }
+        },
+        {
+          "id": "action-workspace-20261031",
+          "label": "Runtime-композиция · независимые NS / Build20",
+          "status": "pending",
+          "rootReview": {
+            "status": "pending",
+            "score": null,
+            "scope": "tool",
+            "comment": "Основной агент лично просмотрел FreeMagicIndependent20_contact.png. GIF/MP4 показывают настоящий Rocket с default Impact и независимыми проектными NS Free Magic. Оцениваем Composer и контекстную сборку; тёмная песочница, читаемость и художественное качество ещё требуют работы. Это не арт-аппрув и не видео Build23."
+          },
+          "native": {
+            "status": "pending",
+            "tests": null,
+            "warnings": null,
+            "comment": "NativeComposition18: 3/3 success; Build18–23 собраны. Общий run Build21: активки — 14/15; после исправления fixture отдельный Air Timeout23 прошёл с 6/6 продуктами, событиями Warning/End/LoopStop/ActionFinished и без assertion/safety errors. Для 15 сценариев есть pass evidence через Build21 + Build23; все 15 заново в Build23 не запускались. Пассивки: 27/27 setup/lifecycle, а не 27 proc/visual passes; пять cleaning outcomes требуют follow-up, RNG не принуждался. Native Import/Undo/Redo22 вернули прежние четыре GUID/источника; DT восстановлена побайтно. Финальный read-only UI/состояние окна ещё проверяются. Passive VFX binding, полный каталог боссов/карт и художественный аппрув не заявлены."
+          },
+          "mediaIds": [
+            "composer-action-workspace-20261031-gif",
+            "composer-action-workspace-20261031-video"
+          ],
+          "evidence": {
+            "scope": "Unified Composer tool demonstration; actual independent runtime NS; no art approval",
+            "recordedBuild": 20,
+            "reports": [
+              "Docs/Validation/ComposerAdapters_20261031.md",
+              "Docs/Validation/ComposerActionWorkspace_20261031.md",
+              "NativeComposition18/index.json",
+              "AppliedIndependent20.json",
+              "ImportSavedMaster22.json",
+              "UndoImport22.json",
+              "RedoImport22.json",
+              "AirTimeout23/Run_20261031T065031Z_PID42876/Report.json"
+            ],
+            "reviewLimitations": [
+              "Видео демонстрирует инструмент, не все активки/пассивки",
+              "Художественная приёмка и читаемость VFX открыты",
+              "27 lifecycle checks не означают 27 проверенных procs",
+              "Пассивки пока без редактируемой VFX-привязки",
+              "Полный каталог боссов/карт, сеть и холодный packaged PSO не проверены",
+              "Финальный read-only UI/состояние окна Build23 ещё проверяются"
             ]
           }
         }

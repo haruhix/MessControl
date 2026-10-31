@@ -871,7 +871,9 @@ class ActiveSkillsSolo(Base):
                     self.report['timer_observation']=dict(authored_seconds=duration,sampled_live_seconds=life)
             else:
                 life=max((a['last_seen']-a['first_seen'] for a in self.actions.values()),default=0)
-                self.check('three_second_ride',2.65<=life<=3.4)
+                duration=max(.2,min(30,self.param('RideSeconds',3)))
+                self.check('authored_driver_duration',duration-.35<=life<=duration+.4)
+                self.report['timer_observation']=dict(authored_seconds=duration,sampled_live_seconds=life)
                 self.check('native_ally_runover_damage',any(r['ally_hp'] is not None and r['ally_hp']<self.initial['ally_hp'] for r in samples))
                 self.check('runover_feedback_attributed_to_action',any(r.get('ally_hit') and r['ally_hit']['health_damage']>0 and r['ally_hit']['source'] in self.actions for r in samples))
                 self.check_driver_visual(samples)

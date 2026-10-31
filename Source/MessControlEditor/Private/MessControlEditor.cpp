@@ -1,6 +1,10 @@
 #include "MCFoodCollisionEditorLibrary.h"
 #include "MCGameplayUIPreview.h"
 #include "MCMainMenuPreview.h"
+#include "MCVFXComposer.h"
+#include "MCVFXRecipeComposer.h"
+#include "MCVFXActionWorkspace.h"
+#include "MCPerkActionPreviewPanel.h"
 
 #include "MCFoodCollisionBaker.h"
 #include "MCFoodCollisionData.h"
@@ -113,11 +117,15 @@ class FMessControlEditorModule final : public IModuleInterface, public IPIEAutho
     };
 
 public:
+    // Native reflected editor tools keep live Slate callbacks; use an ordinary restart after saving work.
+    virtual bool SupportsDynamicReloading() override { return false; }
+
     virtual void StartupModule() override
     {
         if(!IsEditorAuthoringSession()) return;
         MCGameplayUIPreview::EnsureRegistered();
         MCMainMenuPreview::Register();
+        MCVFXActionWorkspace::Register();
         if(!IsRunningCommandlet()) UToolMenus::RegisterStartupCallback(
             FSimpleMulticastDelegate::FDelegate::CreateRaw(this,&FMessControlEditorModule::RegisterMainMenuTools));
         SaveHandle=FCoreUObjectDelegates::OnObjectPreSave.AddRaw(this,&FMessControlEditorModule::OnObjectPreSave);
@@ -144,6 +152,10 @@ public:
         UToolMenus::UnRegisterStartupCallback(this);
         UToolMenus::UnregisterOwner(this);
         MCMainMenuPreview::Unregister();
+        MCVFXActionWorkspace::Unregister();
+        MCVFXComposer::Unregister();
+        MCVFXRecipeComposer::Unregister();
+        MCPerkActionPreviewPanel::Unregister();
         MCGameplayUIPreview::Unregister();
         FTSTicker::GetCoreTicker().RemoveTicker(DebounceTicker);
         FTSTicker::GetCoreTicker().RemoveTicker(InitialLoadTicker);
@@ -168,6 +180,13 @@ private:
             NSLOCTEXT("MCMainMenuPreview","ToolsEntry","Main Menu Preview"),
             NSLOCTEXT("MCMainMenuPreview","ToolsHint","Edit the active menu widget and preview it over the main-menu camera without starting the game."),
             FSlateIcon(),FUIAction(FExecuteAction::CreateStatic(&MCMainMenuPreview::Open)));
+        Section.AddMenuEntry(TEXT("MCVFXComposer"),
+            NSLOCTEXT("MCVFXComposer","ToolsEntry","VFX Composer"),
+            NSLOCTEXT("MCVFXComposer","ToolsHint","Choose a gameplay action, preview its events and compose multiple effects for each event."),
+            FSlateIcon(),FUIAction(FExecuteAction::CreateStatic(&MCVFXActionWorkspace::Open)));
+        // VFX Composer is the sole public authoring entry. Legacy data and
+        // diagnostic APIs remain, but old prototype tab spawners are not registered.
+
     }
 
     void QueueMenu(UDataTable* Menu)

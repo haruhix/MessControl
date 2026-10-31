@@ -15,6 +15,7 @@
 #include "CollisionQueryParams.h"
 #include "CollisionShape.h"
 #include "Engine/World.h"
+#include "Engine/ScopedMovementUpdate.h"
 #include "EngineUtils.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
@@ -154,8 +155,9 @@ void FMCActiveSkillMotionLease::End()
 }
 
 bool MCActiveSkillMotion::ClearRideFootprint(const AMCToothCharacter* Pawn,const AActor* Action,
-    FVector Forward,FVector Half,float Ahead,float Speed)
+    FVector Forward,FVector Half,float Ahead,float Speed,FHitResult* BlockingHit)
 {
+    if(BlockingHit) *BlockingHit=FHitResult();
     FVector Point,Normal;if(!HasGround(Pawn,Point,Normal) || Half.ContainsNaN()) {
         if(MotionReviewDiagnostics()) UE_LOG(LogMCActiveSkillMotion,Log,TEXT("MC_ACTIVE_RIDE_FOOTPRINT_REJECT gate=ground_or_halfsize pawn=%s action=%s half=%s"),
             *GetPathNameSafe(Pawn),*GetPathNameSafe(Action),*Half.ToString());
@@ -187,6 +189,7 @@ bool MCActiveSkillMotion::ClearRideFootprint(const AMCToothCharacter* Pawn,const
                 *Pawn->GetPathName(),Lift,Attempt,*GetPathNameSafe(Support));
             return true;
         }
+        if(BlockingHit) *BlockingHit=Hit;
         auto Reject=[&](const TCHAR* Gate) {
             if(MotionReviewDiagnostics()) UE_LOG(LogMCActiveSkillMotion,Log,
                 TEXT("MC_ACTIVE_RIDE_FOOTPRINT_REJECT gate=%s pawn=%s action=%s blocker_actor=%s blocker_component=%s start_penetrating=%d penetration=%.5f time=%.5f distance=%.5f impact_point=%s impact_normal=%s normal=%s hit_location=%s start=%s end=%s half=%s expected_ground_actor=%s expected_ground_component=%s ground_point=%s ground_normal=%s support_lift=%.5f attempt=%d"),
@@ -230,7 +233,10 @@ bool MCActiveSkillMotion::ClearRideFootprint(const AMCToothCharacter* Pawn,const
                 || Plane.ImpactPoint.ContainsNaN() || Plane.ImpactNormal.ContainsNaN()
                 || FVector::DistSquared(Plane.ImpactPoint,Hit.ImpactPoint)>FMath::Square(ContactProbeRadius+.1f))
                 return Reject(TEXT("near_contact_plane_invalid"));
+            // Keep the original overlap's actual MTD/depth for Sponge's
+            // opt-in swept wall recovery. The independent face classifies it.
             if(Plane.ImpactNormal.GetSafeNormal().Z<WalkableZ) return Reject(TEXT("near_contact_plane_steep"));
+            if(BlockingHit) *BlockingHit=Plane;
         } else if(Hit.ImpactNormal.ContainsNaN() || Hit.Normal.ContainsNaN()
             || Hit.ImpactNormal.Z<WalkableZ || Hit.Normal.Z<WalkableZ) return Reject(TEXT("unwalkable_support_contact"));
         const FVector ContactNormal=Plane.ImpactNormal.GetSafeNormal();
@@ -262,6 +268,92 @@ bool MCActiveSkillMotion::ClearRideFootprint(const AMCToothCharacter* Pawn,const
         Lift+=Step;
     }
     return false;
+}
+
+bool MCActiveSkillMotion::ReflectRideDirection(const AMCToothCharacter* Pawn,const FHitResult& Wall,
+    FVector Incoming,FVector& Reflected)
+{
+    Reflected=Incoming.GetSafeNormal2D();
+    const auto* Move=IsValid(Pawn)?Pawn->GetCharacterMovement():nullptr;
+    if(!Move || !Wall.bBlockingHit || Incoming.ContainsNaN() || Wall.ImpactNormal.ContainsNaN()) return false;
+    const float WalkableZ=Wall.GetComponent()
+        ?Wall.GetComponent()->GetWalkableSlopeOverride().ModifyWalkableFloorZ(Move->GetWalkableFloorZ()):Move->GetWalkableFloorZ();
+    if(Wall.ImpactNormal.GetSafeNormal().Z>=WalkableZ) return false;
+    const FVector Normal=Wall.ImpactNormal.GetSafeNormal2D();
+    const float Into=FVector::DotProduct(Reflected,Normal);
+    if(Normal.IsNearlyZero() || Reflected.IsNearlyZero() || Into>=-.01f) return false;
+    // The same reflection used by the nut knight's Roll. Preserve speed in
+    // the motion source; do not launch the grounded capsule or fabricate Z.
+    Reflected=(Reflected-2.f*Into*Normal).GetSafeNormal2D();
+    return !Reflected.IsNearlyZero();
+}
+
+bool MCActiveSkillMotion::RecoverSpongeWallOverlap(AMCToothCharacter* Pawn,const AActor* Action,
+    const FHitResult& Wall,float& RemainingCorrection)
+{
+    auto* Move=IsValid(Pawn)?Pawn->GetCharacterMovement():nullptr;
+    FVector GroundPoint,GroundNormal;
+    if(!Move || !Pawn->HasAuthority() || Move->UpdatedComponent!=Pawn->GetCapsuleComponent()
+        || !Wall.bBlockingHit || !Wall.bStartPenetrating || !IsValid(Wall.GetComponent())
+        || Wall.Normal.ContainsNaN() || Wall.ImpactPoint.ContainsNaN()
+        || !FMath::IsFinite(Wall.PenetrationDepth) || Wall.PenetrationDepth<=0
+        || !FMath::IsFinite(RemainingCorrection) || RemainingCorrection<=0
+        || !HasGround(Pawn,GroundPoint,GroundNormal)) return false;
+    const FVector MTD=Wall.Normal.GetSafeNormal();
+    // An initial floor overlap can have a horizontal MTD at a triangle edge.
+    // Require a real nonwalkable face beside the contact before moving a pawn.
+    constexpr float ContactProbeRadius=6.f;
+    FCollisionQueryParams PlaneParams(SCENE_QUERY_STAT(MCSpongeOverlapWallPlane),true);
+    FHitResult Plane;
+    if(MTD.IsNearlyZero() || !Wall.GetComponent()->LineTraceComponent(Plane,
+        Wall.ImpactPoint+MTD*ContactProbeRadius,Wall.ImpactPoint-MTD*ContactProbeRadius,PlaneParams)
+        || Plane.bStartPenetrating || Plane.ImpactNormal.ContainsNaN()
+        || Plane.GetComponent()!=Wall.GetComponent()
+        || FVector::DotProduct(Plane.ImpactNormal.GetSafeNormal(),MTD)<=.1f) return false;
+    // Component-only rays use Chaos BuildOverlapAll, so a successful geometric
+    // face hit is not marked blocking. The original footprint proved that this
+    // component blocks us; classify a blocking copy for CMC's slope test.
+    Plane.bBlockingHit=true;
+    if(Move->IsWalkable(Plane)) return false;
+    const FVector TangentMTD=FVector::VectorPlaneProject(MTD,GroundNormal);
+    const double TangentSquared=TangentMTD.SizeSquared();
+    if(TangentSquared<=UE_KINDA_SMALL_NUMBER) return false;
+    // Projection changes clearance along the original MTD. Divide by its
+    // squared tangent length so the actual wall depth is still fully cleared.
+    const FVector Delta=TangentMTD*((Wall.PenetrationDepth+1.f)/TangentSquared);
+    const float Distance=float(Delta.Size());
+    if(!FMath::IsFinite(Distance) || Distance>FMath::Min(RemainingCorrection,45.f)) return false;
+    const FVector Before=Pawn->GetActorLocation();
+    const bool ForceFloor=Move->bForceNextFloorCheck;
+    FScopedMovementUpdate Correction(Move->UpdatedComponent,EScopedUpdate::DeferredUpdates);
+    auto Reject=[&](const TCHAR* Gate) {
+        Correction.RevertMove();Move->bForceNextFloorCheck=ForceFloor;
+        if(MotionReviewDiagnostics()) UE_LOG(LogMCActiveSkillMotion,Log,
+            TEXT("MC_ACTIVE_SPONGE_WALL_RECOVERY_REJECT gate=%s pawn=%s action=%s wall=%s depth=%.5f delta=%s"),
+            Gate,*Pawn->GetPathName(),*GetPathNameSafe(Action),*GetPathNameSafe(Wall.GetComponent()),
+            Wall.PenetrationDepth,*Delta.ToString());
+        return false;
+    };
+    FHitResult CapsuleHit;
+    // SafeMoveUpdatedComponent may add an unswept depenetration teleport.
+    // This correction must be exactly one bounded, collision-checked move.
+    {
+        TGuardValue<EMoveComponentFlags> Flags(Move->MoveComponentFlags,
+            EMoveComponentFlags((Move->MoveComponentFlags|MOVECOMP_NeverIgnoreBlockingOverlaps
+                |MOVECOMP_DisableBlockingOverlapDispatch)&~MOVECOMP_IgnoreBases));
+        Move->MoveUpdatedComponent(Delta,Move->UpdatedComponent->GetComponentQuat(),true,&CapsuleHit,ETeleportType::None);
+    }
+    if(CapsuleHit.bBlockingHit || !Pawn->GetActorLocation().Equals(Before+Delta,.1f)) return Reject(TEXT("capsule_sweep"));
+    FFindFloorResult Floor;Move->FindFloor(Pawn->GetActorLocation(),Floor,false);
+    if(!Move->IsMovingOnGround() || !Floor.IsWalkableFloor() || Floor.HitResult.bStartPenetrating
+        || !FMath::IsFinite(Floor.FloorDist) || Floor.FloorDist>Move->MaxStepHeight) return Reject(TEXT("support_lost"));
+    Move->CurrentFloor=Floor;Move->SetBaseFromFloor(Floor);Move->bForceNextFloorCheck=true;
+    RemainingCorrection-=Distance;
+    if(MotionReviewDiagnostics()) UE_LOG(LogMCActiveSkillMotion,Log,
+        TEXT("MC_ACTIVE_SPONGE_WALL_RECOVERY pawn=%s action=%s wall=%s depth=%.5f delta=%s remaining=%.5f floor=%s"),
+        *Pawn->GetPathName(),*GetPathNameSafe(Action),*GetPathNameSafe(Wall.GetComponent()),Wall.PenetrationDepth,
+        *Delta.ToString(),RemainingCorrection,*GetPathNameSafe(Floor.HitResult.GetComponent()));
+    return true;
 }
 
 bool MCActiveSkillMotion::ClearPullStep(const AMCToothCharacter* Pawn,const AActor* Action,const AActor* Goal,FVector Velocity,float Seconds,FHitResult* BlockingHit)
@@ -311,39 +403,84 @@ bool MCActiveSkillMotion::ContinuousPath(FVector From,FVector To,float Seconds,f
 }
 
 bool MCActiveSkillMotion::CleanSweep(AMCToothCharacter* Worker,const AActor* Action,FVector From,FVector To,
-    float Seconds,float Radius,float Rate,float Speed)
+    float Seconds,float Radius,float Rate,float Speed,bool bContactPass)
 {
     if(!IsValid(Worker) || !Worker->HasAuthority() || !ContinuousPath(From,To,Seconds,Speed)
         || !FMath::IsFinite(Radius) || Radius<=0 || !FMath::IsFinite(Rate) || Rate<=0) return false;
+    FVector GroundPoint,GroundNormal;
+    if(bContactPass && !HasGround(Worker,GroundPoint,GroundNormal)) return false;
     Radius=FMath::Clamp(Radius,5.f,150.f);Rate=FMath::Clamp(Rate,.01f,20.f);
     TArray<TWeakObjectPtr<AMCMouthSurface>> Surfaces;
     for(TActorIterator<AMCMouthSurface> It(Worker->GetWorld());It;++It) if(!It->bUlcer && !It->IsClean()) Surfaces.Add(*It);
     const int32 Count=FMath::Clamp(FMath::CeilToInt(FMath::Max(FVector::Dist(From,To)/(Radius*.5f),double(Seconds/.05f))),1,64);
-    const float Dose=Seconds/Count;bool Changed=false;
+    // A Sponge contact is deliberately one strong pass. Still mutate only
+    // native contacted mask cells and let their real receipts grant rewards.
+    // Other cleaning rides retain elapsed-time brushing and authored rate.
+    const float Dose=bContactPass?.1f:Seconds/Count;
+    const float ContactRate=bContactPass?16.f:Rate;
+    bool Changed=false;
     for(int32 I=0;I<Count;++I) {
         const FVector Sample=FMath::Lerp(From,To,(I+.5)/Count);
         auto Params=Query(Worker,Action);FHitResult Floor;
         if(!Worker->GetWorld()->LineTraceSingleByChannel(Floor,Sample+FVector(0,0,35),Sample-FVector(0,0,65),ECC_Visibility,Params)
             || Floor.ImpactNormal.Z<Worker->GetCharacterMovement()->GetWalkableFloorZ()) continue;
+        if(bContactPass) {
+            // On a slope, a grounded capsule's bottom is naturally above
+            // the plane directly below its center. Account for that real
+            // support geometry without accepting arbitrary elevated samples.
+            const auto* Move=Worker->GetCharacterMovement();
+            const float FloorGap=FMath::IsFinite(Move->CurrentFloor.FloorDist)?FMath::Max(0.f,Move->CurrentFloor.FloorDist):0.f;
+            const float SlopeGap=Worker->GetCapsuleComponent()->GetScaledCapsuleRadius()
+                *(1.f/FMath::Max(.1f,float(Floor.ImpactNormal.GetSafeNormal().Z))-1.f);
+            const float ContactHeight=FMath::Clamp(FloorGap+SlopeGap+4.f,12.f,30.f);
+            if(FMath::Abs(Sample.Z-Floor.ImpactPoint.Z)>ContactHeight) continue;
+        }
         const FVector Point=Floor.ImpactPoint;
         // Trim the circular footprint near vertical obstacles instead of
         // cleaning a mask through a wall merely because its center is near.
-        Params.AddIgnoredActor(Floor.GetActor());float ClearRadius=Radius;
+        // Contact-pass rays keep the support actor visible: a tongue can
+        // contain its floor AND a wall, and neither may be cleaned through.
+        if(!bContactPass) Params.AddIgnoredActor(Floor.GetActor());
+        float ClearRadius=Radius;
+        const FVector RayNormal=bContactPass?Floor.ImpactNormal.GetSafeNormal():FVector::UpVector;
+        const FMatrix Tangent=FRotationMatrix::MakeFromZ(RayNormal);
+        const FVector RayX=bContactPass?Tangent.GetUnitAxis(EAxis::X):FVector::ForwardVector;
+        const FVector RayY=bContactPass?Tangent.GetUnitAxis(EAxis::Y):FVector::RightVector;
         for(int32 Ray=0;Ray<8;++Ray) {
-            const float Angle=Ray*UE_TWO_PI/8;FHitResult Wall;
-            const FVector Start=Point+FVector(0,0,8);
-            if(Worker->GetWorld()->LineTraceSingleByChannel(Wall,Start,Start+FVector(FMath::Cos(Angle),FMath::Sin(Angle),0)*Radius,ECC_Visibility,Params))
-                ClearRadius=FMath::Min(ClearRadius,FMath::Max(0.f,Wall.Distance-3.f));
+            const float Angle=Ray*UE_TWO_PI/8;
+            const FVector Along=RayX*FMath::Cos(Angle)+RayY*FMath::Sin(Angle);
+            float Lift=0;
+            for(int32 Attempt=0;Attempt<4;++Attempt) {
+                FHitResult Wall;
+                // Horizontal world rays hit an ordinary uphill floor after
+                // only a few centimetres. Cast in the actual support plane.
+                const FVector Start=Point+RayNormal*(8.f+Lift);
+                if(!Worker->GetWorld()->LineTraceSingleByChannel(Wall,Start,Start+Along*Radius,ECC_Visibility,Params)) break;
+                const float WalkableZ=Wall.GetComponent()
+                    ?Wall.GetComponent()->GetWalkableSlopeOverride().ModifyWalkableFloorZ(Worker->GetCharacterMovement()->GetWalkableFloorZ())
+                    :Worker->GetCharacterMovement()->GetWalkableFloorZ();
+                if(bContactPass && Wall.ImpactNormal.GetSafeNormal().Z>=WalkableZ && Attempt<3) {
+                    // A curved support may rise above its tangent. Recast the
+                    // complete ray slightly higher, retaining same-actor walls
+                    // behind it rather than ignoring the whole support actor.
+                    const float MaxLift=FMath::Clamp(Worker->GetCharacterMovement()->MaxStepHeight,0.f,24.f);
+                    const float NextLift=FMath::Min(MaxLift,Lift+8.f);
+                    if(NextLift>Lift) {Lift=NextLift;continue;}
+                }
+                // Exhausted support recovery remains conservatively clipped;
+                // it is never permission to paint through an unseen wall.
+                ClearRadius=FMath::Min(ClearRadius,FMath::Max(0.f,Wall.Distance-3.f));break;
+            }
         }
         if(ClearRadius<2.f) continue;
         for(const auto& Weak:Surfaces) if(auto* Surface=Weak.Get()) {
             const FVector Local=Surface->GetActorTransform().InverseTransformPosition(Point);
             const bool OnPaintTongue=Surface->bPaintTile && Floor.GetActor()==Surface->GetTongue();
             if((!OnPaintTongue && FMath::Abs(Local.Z)>18.f) || FMath::Abs(Local.X)>Surface->LiquidHalfSize+ClearRadius || FMath::Abs(Local.Y)>Surface->LiquidHalfSize+ClearRadius) continue;
-            Changed|=Surface->CleanLiquidAt(Worker,Point,ClearRadius,Dose,Rate,EMCStainCleanReason::ActiveSkill);
+            Changed|=Surface->CleanLiquidAt(Worker,Point,ClearRadius,Dose,ContactRate,EMCStainCleanReason::ActiveSkill);
         }
         if(auto* Tooth=Cast<AMCArenaTooth>(Floor.GetActor()))
-            Changed|=Tooth->CleanGrimeAt(Worker,Point,ClearRadius,Dose,Rate,EMCStainCleanReason::ActiveSkill);
+            Changed|=Tooth->CleanGrimeAt(Worker,Point,ClearRadius,Dose,ContactRate,EMCStainCleanReason::ActiveSkill);
     }
     return Changed;
 }

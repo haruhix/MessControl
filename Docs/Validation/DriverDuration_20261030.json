@@ -1,0 +1,83 @@
+{
+  "date": "2026-10-30",
+  "task": "Configurable Driver duration",
+  "saved_asset": {
+    "table": "/Game/Gameplay/Roguelike/DT_Perks",
+    "row": "Consumable_Driver",
+    "changes": {
+      "RideSeconds": 3,
+      "MaxLifetime": 31
+    },
+    "rows": 133,
+    "other_rows_and_fields_preserved": true,
+    "native_patch_no_json_reimport": true,
+    "saved": true,
+    "file_sha256": "16652f603c5bbb76735ae20c24cfc1d051f1b889b3c96fd95f2d9a5f23bca12c"
+  },
+  "editor_build": {
+    "exit_code": 0,
+    "seconds": 84.76,
+    "scope": "MessControlEditor Win64 Development; local installed Fab disabled for this command only"
+  },
+  "native": {
+    "tests": [
+      {
+        "name": "MessControl.ActiveSkills.Motion.DriverAuthoredDurationAndMotionRelease",
+        "state": "Success",
+        "duration": 2.7999773025512695,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "MessControl.ActiveSkills.Motion.DriverDefaultDurationKeepsCollision",
+        "state": "Success",
+        "duration": 0.2777070105075836,
+        "errors": [],
+        "warnings": []
+      }
+    ],
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "total": 2,
+    "duration": 3.0776844024658203
+  },
+  "solo": {
+    "run": "Solo02",
+    "status": "passed",
+    "checks_passed": 18,
+    "checks_total": 18,
+    "timer_observation": {
+      "authored_seconds": 3.0,
+      "sampled_live_seconds": 2.8954418003559113
+    },
+    "restored_settings": true,
+    "video": "E:\\CodexWork\\MessControl\\Validation\\DriverDuration_20261030\\Solo02\\ActualWindow.mp4",
+    "gif": "E:\\CodexWork\\MessControl\\Validation\\DriverDuration_20261030\\Solo02\\Preview.gif",
+    "root_inspection": "Runtime contact sheet personally inspected: ride followed by ordinary locomotion. No pose/VFX art change or new artistic approval."
+  },
+  "tuning": {
+    "RideSeconds": 3,
+    "range_seconds": [
+      0.2,
+      30
+    ],
+    "MaxLifetime": 31,
+    "note": "Duration captured once for both deadline and movement lease. MaxLifetime is a separate watchdog; keep it above RideSeconds."
+  },
+  "restoration": {
+    "owned_editor_closed": true,
+    "original_preferences_restored": true,
+    "maps_unchanged": true
+  },
+  "new_visual_resources": [],
+  "deferred": [
+    "Network/multiplayer",
+    "Microphone",
+    "Cook/package",
+    "New artistic acceptance"
+  ],
+  "failed_setup_attempts": [
+    "Solo01 wrapper did not invoke the entry point; no gameplay observation. Corrected wrapper and fresh Solo02 retained separately."
+  ]
+}

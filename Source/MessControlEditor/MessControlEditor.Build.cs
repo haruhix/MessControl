@@ -12,7 +12,8 @@ public class MessControlEditor : ModuleRules
             "StaticMeshDescription", "Chaos", "ChaosCore",
             "UMG", "UMGEditor", "Slate", "SlateCore", "InputCore", "RenderCore", "RHI", "ImageCore", "PropertyEditor", "Kismet", "MovieScene",
             "GraphEditor", "BlueprintGraph", "KismetWidgets", "Merge", "SourceControl",
-            "LevelEditor", "ToolMenus", "WorkspaceMenuStructure", "LevelSequence"
+            "LevelEditor", "ToolMenus", "WorkspaceMenuStructure", "LevelSequence",
+            "Niagara", "NiagaraEditor", "AdvancedPreviewScene", "ContentBrowser", "AssetTools", "AppFramework", "Json", "JsonUtilities"
         });
     }
 }

@@ -21,6 +21,12 @@ AMCActiveSkillAction* UMCActiveSkillPerkEffect::PrepareAction(FName ID,const FMC
         ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
     if(!Action) return nullptr;
     Action->InitializeAction(OwnerComponent,H,ID,Handle,Row.Parameters);
+    FString VFXError;
+    UMCPerkVFXProfile* Profile=Row.VFXProfile.IsNull()?nullptr:Row.VFXProfile.LoadSynchronous();
+    if((!Row.VFXProfile.IsNull() && !Profile) || !Action->PrepareVFXProfile(Profile,VFXError)) {
+        UE_LOG(LogTemp,Warning,TEXT("Skill %s VFX profile could not prepare; retaining action defaults: %s"),*ID.ToString(),*VFXError);
+        Action->PrepareVFXProfile(nullptr,VFXError);
+    }
     Action->FinishSpawning(Transform);
     if(!IsValid(Action) || !Action->CanStart()) {
 #if WITH_EDITOR
