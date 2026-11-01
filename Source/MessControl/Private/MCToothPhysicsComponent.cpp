@@ -5,6 +5,7 @@
 #include "MCGazeComponent.h"
 #include "MCGripComponent.h"
 #include "MCInventoryComponent.h"
+#include "MCMeleeCombo.h"
 #include "MCExpressionComponent.h"
 #include "MCFishingRodComponent.h"
 #include "MCRewardChest.h"
@@ -749,6 +750,13 @@ void UMCToothPhysicsComponent::SetGripArms(bool Left,bool Right,bool PhysicalLef
     if (auto* Body=Tooth->GetMesh()->GetBodyInstance(Tooth->RigBone(TEXT("body")))) Body->PhysicsBlendWeight=Active?0.f:StandingPhysicsWeight;
     for (const FName Role:{FName("leg_l"),FName("leg_r")})
         Tooth->GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(Role),StandingPhysicsWeight*(Active?1.f:.2f),false,true);
+    // The authored knife follow-through lasts longer than the combat swing's
+    // generic offset. Keep physics simulated but hidden for both exact grips
+    // until the authored weapon pose itself has completely finished.
+    FTransform KnifePose;float KnifeAlpha=0;
+    const bool ExactKnifeContact=!Tooth->GetActiveSkillPresentation() && Tooth->Inventory && Tooth->Inventory->Selected==EMCToolSlot::Knife
+        && Tooth->Inventory->SelectedUpgrade()==EMCToolUpgrade::None
+        && MCMeleeCombo::WeaponPose(Tooth,KnifePose,KnifeAlpha);
     bool* Flags[]={&bGripLeft,&bGripRight}; const bool Values[]={Left,Right};
     for (int32 I=0;I<2;++I)
     {
@@ -769,7 +777,7 @@ void UMCToothPhysicsComponent::SetGripArms(bool Left,bool Right,bool PhysicalLef
         // An active skill's exact visible grip takes ownership immediately;
         // easing a second physical pose over its authored draw detaches the
         // glove from the moving handle. Hidden simulation/release settle stays.
-        const bool ExactSkillContact=Tooth->GetActiveSkillPresentation()!=nullptr && Values[I] && !Physical;
+        const bool ExactSkillContact=(Tooth->GetActiveSkillPresentation()!=nullptr && Values[I] && !Physical) || ExactKnifeContact;
         ArmPhysicsWeights[I]=(Dashing || ExactSkillContact)?0.f:FMath::Lerp(ArmPhysicsWeights[I],ArmGoal,1.f-FMath::Exp(-(ArmGoal==0?20.f:8.f)*GetWorld()->GetDeltaSeconds()));
         if (FMath::Abs(ArmPhysicsWeights[I]-ArmGoal)<.001f) ArmPhysicsWeights[I]=ArmGoal;
         Tooth->GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(Role),ArmPhysicsWeights[I],false,true);

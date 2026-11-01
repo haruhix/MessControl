@@ -1,0 +1,106 @@
+{
+  "source_blend_sha256": "179bf9aaca3091b546a7b28c9869eb5d50ad3b6fccec5f6b73481628a4f5871f",
+  "reference": "Cube.001 attached to c_hand_ik.r in hit_combo and hit3; local hand-relative transforms baked at 24 fps.",
+  "pickaxe": "Uses the same authored motion and enlargement while preserving the existing difference between the pickaxe and knife mounts; the source file has no animated pickaxe.",
+  "comparison_scope": "Solo PIE samples aligned in time to the Blender animation; knife transform measured in right-hand bone space, scale in world space. Recoveries, attack rate and tool switching verified.",
+  "combo": [
+    {
+      "step": 1,
+      "samples": 6,
+      "time_alignment_seconds": -0.0,
+      "mean_position_error_cm": 0.0,
+      "max_position_error_cm": 0.001,
+      "max_rotation_error_degrees": 0.0,
+      "max_scale_axis_error": 0.0032,
+      "observed_world_scale_min": [
+        1.0491825973140283,
+        1.0762681933116123,
+        1.0605371380620159
+      ],
+      "observed_world_scale_max": [
+        1.3914246223652695,
+        1.62040760006239,
+        1.4748746233920127
+      ]
+    },
+    {
+      "step": 2,
+      "samples": 7,
+      "time_alignment_seconds": 0.049,
+      "mean_position_error_cm": 0.153,
+      "max_position_error_cm": 0.314,
+      "max_rotation_error_degrees": 0.0,
+      "max_scale_axis_error": 0.0029,
+      "observed_world_scale_min": [
+        1.0005420445102935,
+        1.0002733466722837,
+        0.9996414782324727
+      ],
+      "observed_world_scale_max": [
+        1.4649144066354127,
+        1.5376817253057742,
+        1.4919848564377596
+      ]
+    },
+    {
+      "step": 3,
+      "samples": 21,
+      "time_alignment_seconds": 0.074,
+      "mean_position_error_cm": 0.093,
+      "max_position_error_cm": 0.288,
+      "max_rotation_error_degrees": 0.0,
+      "max_scale_axis_error": 0.0037,
+      "observed_world_scale_min": [
+        1.0005419848733297,
+        1.0002733466722837,
+        0.9996414186278564
+      ],
+      "observed_world_scale_max": [
+        1.4585611900998308,
+        1.0473115031775284,
+        1.4703522737098857
+      ]
+    }
+  ],
+  "food": {
+    "samples": 17,
+    "mean_position_error_cm": 0.038,
+    "max_position_error_cm": 0.143,
+    "max_rotation_error_degrees": 0.0,
+    "max_scale_axis_error": 0.0006,
+    "fit_start_seconds": 0.2165
+  },
+  "food_damage_checks": [
+    {
+      "case": "knife_food_hold",
+      "passed": true,
+      "food_mob_boss_damage": [
+        75.0,
+        0.0,
+        0.0
+      ],
+      "expected": [
+        75,
+        0,
+        0
+      ]
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "passed": true,
+      "food_mob_boss_damage": [
+        120.0,
+        0.0,
+        0.0
+      ],
+      "expected": [
+        120,
+        0,
+        0
+      ]
+    }
+  ],
+  "tool_switch_passed": true,
+  "next_attack_passed": true,
+  "network_tested": false
+}

@@ -2,6 +2,7 @@
 
 #include "MCReactionVFX.h"
 #include "MCWeaponImpact.h"
+#include "MCMeleeCombo.h"
 #include "MCWeaponTrailComponent.h"
 #include "MCToothCharacter.h"
 #include "MCInventoryComponent.h"
@@ -71,8 +72,9 @@ void ConfirmSwing(AMCToothCharacter* Hero,uint8 ToolSlot)
     if(!IsHandTool(Hero) || ToolSlot!=uint8(Hero->Inventory->Selected)) return;
     const float Elapsed=Hero->GetToolSwingElapsed();
     if(Elapsed<0 || Elapsed>=Hero->Inventory->SwingDuration() || Find(Hero)) return;
+    // Keep the impact freeze proportional to the faster authored motion.
     const float Hold=FMath::Clamp((Hero->Inventory->Selected==EMCToolSlot::Pickaxe?.055f:.045f)
-        /Hero->Inventory->RogueAttackRate(),.016f,.055f);
+        /MCMeleeCombo::AnimationRate(Hero),.008f,.0275f);
     Store(Hero,Hold,Elapsed);
 }
 

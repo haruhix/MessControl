@@ -1471,8 +1471,13 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     const float VisualElapsed=MCWeaponImpact::VisualSwingElapsed(this);
     const auto ComboPose=MCMeleeCombo::Sample(this,VisualElapsed);
     const float AttackTime=VisualElapsed*Inventory->RogueAttackRate();
-    AnimationToolOffset=GetActorRotation().RotateVector(ComboPose.bActive?ComboPose.HandOffset:UMCInventoryComponent::SwingOffset(Inventory->Selected,AttackTime));
-    const float AttackAngle=ComboPose.bActive?ComboPose.Wrist.Pitch:UMCInventoryComponent::SwingAngle(Inventory->Selected,AttackTime);
+    // Once the faster melee presentation ends, wait in the resting pose
+    // until the unchanged authoritative cooldown permits the next swing.
+    const bool MeleePresentation=MCMeleeCombo::VisualStep(this)>0 && MCMeleeCombo::Supports(this);
+    AnimationToolOffset=GetActorRotation().RotateVector(ComboPose.bActive?ComboPose.HandOffset
+        :MeleePresentation?FVector::ZeroVector:UMCInventoryComponent::SwingOffset(Inventory->Selected,AttackTime));
+    const float AttackAngle=ComboPose.bActive?ComboPose.Wrist.Pitch
+        :MeleePresentation?-12.f:UMCInventoryComponent::SwingAngle(Inventory->Selected,AttackTime);
     const float Swing = AttackTime<Inventory->SwingDuration()?AttackAngle:bVisualBrush ? -35.f + FMath::Sin(WorkTime*18.f*A.Tempo)*65.f*(1.f-Anticipation) : bHandling ? 35.f : -12.f;
     const bool ChoppingTool=Inventory->Selected==EMCToolSlot::Pickaxe || Inventory->Selected==EMCToolSlot::Knife;
     BrushAngle = FMath::FInterpTo(BrushAngle,Swing,DeltaSeconds,ChoppingTool?25.f*UMCInventoryComponent::SwingPlayRate(Inventory->Selected):18.f-12.f*A.FollowThrough);

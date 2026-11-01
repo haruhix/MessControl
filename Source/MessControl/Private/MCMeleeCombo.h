@@ -24,7 +24,12 @@ namespace MCMeleeCombo
     uint8 BeginSwing(AMCToothCharacter* Hero,bool bCombo);
     uint8 BeginFoodChop(AMCToothCharacter* Hero);
     bool IsFoodChop(const AMCToothCharacter* Hero);
+    uint8 VisualStep(const AMCToothCharacter* Hero);
+    /** Authored weapon transform in the animated right-hand bone space. */
+    bool WeaponPose(const AMCToothCharacter* Hero,FTransform& OutPose,float& OutAlpha);
     void PresentSwing(const AMCToothCharacter* Hero,uint8 ToolSlot,uint8 Step);
+    // Visual playback is independent of the authoritative attack interval.
+    float AnimationRate(const AMCToothCharacter* Hero);
     float Duration(const AMCToothCharacter* Hero);
     float ContactTime(const AMCToothCharacter* Hero);
     FVector2D TrailWindow(const AMCToothCharacter* Hero);

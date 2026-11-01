@@ -173,6 +173,9 @@ public:
     UFUNCTION(BlueprintPure,Category="Tools|Watergun") float WaterRecoil() const;
     FQuat ToolHandRotation(const FQuat& ToolWorldRotation) const;
     bool MeleeTrailSpan(FVector& Base,FVector& Tip) const;
+    // Preserve the unmodified animated hand frame as the knife's independent anchor.
+    bool AnchorMeleeKnife(const FTransform& OriginalHand,const FTransform& Body,FTransform& KnifeInMesh,FQuat& IdleToolInHand);
+    void ReleaseMeleeKnifeAnchor();
     bool UpgradeSupportGrip(const FTransform& RightHandWorld,FTransform& LeftHandWorld) const;
     UFUNCTION(BlueprintPure,Category="Tools|Watergun",meta=(DeprecatedFunction,DeprecationMessage="Watergun now uses automatic fire.")) float WaterChargeFraction() const;
     UFUNCTION(BlueprintPure,Category="Tools|Watergun") int32 WaterMagazineCapacity() const;
@@ -247,6 +250,9 @@ private:
     UPROPERTY() TObjectPtr<UMCEquipmentProfile> Settings;
     UPROPERTY() TObjectPtr<UStaticMeshComponent> Tool;
     UPROPERTY() TObjectPtr<UStaticMeshComponent> Detail;
+    FTransform MeleeKnifeAnchorHand=FTransform::Identity;
+    FTransform MeleeKnifeAnchorBody=FTransform::Identity;
+    bool bMeleeKnifeAnchored=false;
     UPROPERTY() TObjectPtr<UNiagaraComponent> SprayMist;
     UPROPERTY() TObjectPtr<UNiagaraComponent> WaterMist;
     bool bSprayEmitting=false;

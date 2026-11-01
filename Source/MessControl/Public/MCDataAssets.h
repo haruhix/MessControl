@@ -62,6 +62,10 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Artist Clips") TObjectPtr<UAnimSequence> Tired;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Artist Clips") TObjectPtr<UAnimSequence> Glide;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Artist Clips") TObjectPtr<UAnimSequence> GlideStrong;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Artist Clips") TObjectPtr<UAnimSequence> MeleeHit1;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Artist Clips") TObjectPtr<UAnimSequence> MeleeHit2;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Artist Clips") TObjectPtr<UAnimSequence> MeleeFoodHit;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Artist Clips") TObjectPtr<UAnimSequence> MeleeCombo;
 };
 
 USTRUCT(BlueprintType)
