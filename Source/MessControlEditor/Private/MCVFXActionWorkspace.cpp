@@ -61,13 +61,13 @@ namespace
 {
     const FName WorkspaceTab(TEXT("MCVFXActionWorkspace"));
     FLinearColor UIColor(const TCHAR* Hex){return FLinearColor::FromSRGBColor(FColor::FromHex(Hex));}
-    const FLinearColor Mint=UIColor(TEXT("#8FE3CF")),Ink=UIColor(TEXT("#123136")),Surface=UIColor(TEXT("#1C2A36")),Muted=UIColor(TEXT("#9EB3C3"));
+    const FLinearColor WorkspaceMint=UIColor(TEXT("#8FE3CF")),Ink=UIColor(TEXT("#123136")),Surface=UIColor(TEXT("#1C2A36")),Muted=UIColor(TEXT("#9EB3C3"));
     const FLinearColor AppFill=UIColor(TEXT("#0F141B")),GraphFill=UIColor(TEXT("#151C25")),PanelFill=UIColor(TEXT("#171F2A")),HeadingFill=UIColor(TEXT("#1D2835"));
     const FLinearColor ButtonFill=UIColor(TEXT("#253443")),ButtonHover=UIColor(TEXT("#314859")),BorderFill=UIColor(TEXT("#324454")),TextColor=UIColor(TEXT("#EFF4F8"));
     const FSlateRoundedBoxBrush& PanelBrush()
     {static const FSlateRoundedBoxBrush Brush(FLinearColor::White,7.f);return Brush;}
     const FSlateRoundedBoxBrush& SelectedPanelBrush()
-    {static const FSlateRoundedBoxBrush Brush(FLinearColor::White,7.f,Mint,1.2f);return Brush;}
+    {static const FSlateRoundedBoxBrush Brush(FLinearColor::White,7.f,WorkspaceMint,1.2f);return Brush;}
     using FGalleryItem=TSharedPtr<FAssetData>;
     using FCatalogItem=TSharedPtr<FMCVFXActionCatalogueEntry>;
     const FVector2D HubPosition(234,210),HubSize(136,136),GraphExtent(588,548);
@@ -86,7 +86,7 @@ namespace
         const bool Right=Index>=2,Bottom=(Index%2)==1;
         return FVector2D(Right?364:8,Bottom?HubPosition.Y+HubSize.Y+12:HubPosition.Y-12-Size.Y);
     }
-    FLinearColor StageColor(FName Stage)
+    FLinearColor WorkspaceStageColor(FName Stage)
     {
         if(Stage==TEXT("Start"))return FLinearColor(.83f,.56f,.25f);
         if(Stage==TEXT("Loop"))return FLinearColor(.28f,.71f,.73f);
@@ -111,7 +111,7 @@ namespace
     }
     TSharedRef<SWidget> Command(const FString& Text,TFunction<void()> Action,bool Primary=false)
     {
-        return SNew(SButton).ButtonStyle(Primary?&SolidStyle():&NeutralStyle()).ContentPadding(FMargin(12,9)).ButtonColorAndOpacity(Primary?Mint:FLinearColor::White)
+        return SNew(SButton).ButtonStyle(Primary?&SolidStyle():&NeutralStyle()).ContentPadding(FMargin(12,9)).ButtonColorAndOpacity(Primary?WorkspaceMint:FLinearColor::White)
             .ForegroundColor(Primary?Ink:TextColor).OnClicked_Lambda([Action=MoveTemp(Action)]{Action();return FReply::Handled();})
             [SNew(STextBlock).Text(FText::FromString(Text)).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),12)).AutoWrapText(true)];
     }
@@ -131,7 +131,7 @@ namespace
         if(S==TEXT("Duration"))return TEXT("Длительность");if(S==TEXT("SpawnCount"))return TEXT("Количество частиц");
         if(S==TEXT("Lifetime"))return TEXT("Время жизни частиц");if(S==TEXT("ParticleScale"))return TEXT("Масштаб частиц");return S;
     }
-    FString EffectLabel(const FString& Name)
+    FString WorkspaceEffectLabel(const FString& Name)
     {
         static const TMap<FString,FString> Known={
             {TEXT("NS_Rocket_Start"),TEXT("Ракета · выстрел")},{TEXT("NS_Rocket_Loop"),TEXT("Ракета · след")},{TEXT("NS_Rocket_Impact"),TEXT("Ракета · попадание")},
@@ -148,8 +148,8 @@ namespace
     FString LayerLabel(const FMCVFXCompositionLayer& Layer)
     {
         const FString Name=Layer.Name.ToString(),System=Layer.System.GetAssetName();
-        if(Layer.Name.IsNone()||Name==TEXT("Layer")||Name==System||Name==System.Replace(TEXT("NS_Template_"),TEXT("")))return EffectLabel(System);
-        return EffectLabel(Name);
+        if(Layer.Name.IsNone()||Name==TEXT("Layer")||Name==System||Name==System.Replace(TEXT("NS_Template_"),TEXT("")))return WorkspaceEffectLabel(System);
+        return WorkspaceEffectLabel(Name);
     }
     int32 EnabledLayers(const UMCVFXRecipePreset* Recipe)
     {int32 Count=0;if(Recipe)for(const auto& Layer:Recipe->Layers)if(Layer.bEnabled)++Count;return Count;}
@@ -170,7 +170,7 @@ namespace
         if(Name.StartsWith(TEXT("NS_Grenade_")))return {TEXT("ГРН"),FLinearColor(.70f,.48f,.33f)};
         if(Name.StartsWith(TEXT("NS_Air_")))return {TEXT("ВОЗ"),FLinearColor(.34f,.61f,.71f)};
         if(Name.StartsWith(TEXT("NS_Driver_")))return {TEXT("МАШ"),FLinearColor(.58f,.58f,.38f)};
-        if(Name.StartsWith(TEXT("NS_Template_")))return {EffectLabel(Name).Left(3).ToUpper(),Mint};
+        if(Name.StartsWith(TEXT("NS_Template_")))return {WorkspaceEffectLabel(Name).Left(3).ToUpper(),WorkspaceMint};
         if(Name.StartsWith(TEXT("NS_Practice_")))return {TEXT("УЧ"),FLinearColor(.48f,.57f,.63f)};
         return {TEXT("VFX"),Muted};
     }
@@ -184,7 +184,7 @@ namespace
         {
             System=A._System;Selected=A._Selected;OnSelected=A._OnSelected;
             SButton::Construct(SButton::FArguments().ButtonStyle(&SolidStyle()).ContentPadding(FMargin(7,6))
-                .ButtonColorAndOpacity_Lambda([this]{return Selected.Get()?Mint:ButtonFill;})
+                .ButtonColorAndOpacity_Lambda([this]{return Selected.Get()?WorkspaceMint:ButtonFill;})
                 .ForegroundColor_Lambda([this]{return FSlateColor(Selected.Get()?Ink:TextColor);})
                 .OnClicked_Lambda([this]{OnSelected.ExecuteIfBound();return FReply::Handled();})
                 [SNew(STextBlock).Text(A._Label).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),12)).AutoWrapText(true)]);
@@ -213,9 +213,9 @@ namespace
             Op->Reject();Op->SetupDefaults();Op->Construct();return Op;
         }
         void Reject()
-        {SetToolTip(FText::FromString(EffectLabel(Asset.AssetName.ToString())+TEXT("  ·  Перетащите на карточку события. Esc — отмена.")),nullptr);CurrentIconColorAndOpacity=Muted;}
+        {SetToolTip(FText::FromString(WorkspaceEffectLabel(Asset.AssetName.ToString())+TEXT("  ·  Перетащите на карточку события. Esc — отмена.")),nullptr);CurrentIconColorAndOpacity=Muted;}
         void Target(const FText& StageLabel,bool Allowed,const FString& Reason)
-        {SetToolTip(FText::FromString(EffectLabel(Asset.AssetName.ToString())+(Allowed?TEXT("  →  Добавить слой в «")+StageLabel.ToString()+TEXT("»"):TEXT("  →  ")+Reason)),nullptr);CurrentIconColorAndOpacity=Allowed?Mint:Muted;}
+        {SetToolTip(FText::FromString(WorkspaceEffectLabel(Asset.AssetName.ToString())+(Allowed?TEXT("  →  Добавить слой в «")+StageLabel.ToString()+TEXT("»"):TEXT("  →  ")+Reason)),nullptr);CurrentIconColorAndOpacity=Allowed?WorkspaceMint:Muted;}
         virtual TSharedPtr<SWidget> GetDefaultDecorator()const override
         {
             return SNew(SBorder).Padding(12,9).BorderImage(&PanelBrush()).BorderBackgroundColor(HeadingFill)
@@ -232,8 +232,8 @@ namespace
         {
             Stage=A._Stage;CanAccept=A._CanAccept;StageLabel=A._StageLabel;UnavailableReason=A._UnavailableReason;Selected=A._Selected;OnEffectDropped=A._OnEffectDropped;
             ChildSlot[SNew(SBorder).Padding(2).BorderImage(&PanelBrush()).BorderBackgroundColor_Lambda([this]
-                {return bHovered&&HoverOperation.IsValid()&&FSlateApplication::Get().GetDragDroppingContent().Get()==HoverOperation.Pin().Get()?(CanAccept.Get()?Mint:FLinearColor(.63f,.35f,.30f)):
-                    Selected.Get()?Mint:BorderFill;})[A._Content.Widget]];
+                {return bHovered&&HoverOperation.IsValid()&&FSlateApplication::Get().GetDragDroppingContent().Get()==HoverOperation.Pin().Get()?(CanAccept.Get()?WorkspaceMint:FLinearColor(.63f,.35f,.30f)):
+                    Selected.Get()?WorkspaceMint:BorderFill;})[A._Content.Widget]];
         }
         virtual void OnDragEnter(const FGeometry&,const FDragDropEvent& E)override
         {if(const auto Op=E.GetOperationAs<FWorkspaceEffectDrag>()){bHovered=true;HoverOperation=Op;Op->Target(StageLabel.Get(),CanAccept.Get(),UnavailableReason.Get());Invalidate(EInvalidateWidgetReason::Paint);}}
@@ -298,21 +298,21 @@ namespace
                         [SNew(SVerticalBox)
                             +SVerticalBox::Slot().AutoHeight()[SNew(SButton).ButtonStyle(&NeutralStyle()).ContentPadding(FMargin(10,8)).ButtonColorAndOpacity(FLinearColor::White).ForegroundColor(TextColor)
                                 .OnClicked_Lambda([this,Stage]{OnSelect.ExecuteIfBound(Stage,FGuid());return FReply::Handled();})
-                                [SNew(SHorizontalBox)+SHorizontalBox::Slot().FillWidth(1)[Label(Session->GetEventLabel(Stage).ToString(),14,StageColor(Stage))]
+                                [SNew(SHorizontalBox)+SHorizontalBox::Slot().FillWidth(1)[Label(Session->GetEventLabel(Stage).ToString(),14,WorkspaceStageColor(Stage))]
                                     +SHorizontalBox::Slot().AutoWidth()[SNew(STextBlock).Text_Lambda([this,Stage]{const auto* Current=Session->GetRecipe(Stage);return FText::FromString(!Session->IsContextCurrent()?TEXT("—"):
                                         Session->CanEditProfile()?FString::Printf(TEXT("%d/%d"),EnabledLayers(Current),Current?Current->Layers.Num():0):TEXT("Просмотр"));})
                                         .ToolTipText_Lambda([this]{return Session->CanEditProfile()?LOCTEXT("EnabledCountHint","Включено / всего слоёв"):FText::FromString(Session->GetEditUnavailableReason());})
                                         .Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),11)).ColorAndOpacity(Muted)]]]
                             +SVerticalBox::Slot().FillHeight(1)[SNew(SScrollBox)+SScrollBox::Slot()[Rows]]]]];
             }
-            static const FButtonStyle HubStyle=FButtonStyle().SetNormal(FSlateRoundedBoxBrush(UIColor(TEXT("#173337")),68.f,Mint,2.f))
-                .SetHovered(FSlateRoundedBoxBrush(UIColor(TEXT("#20464A")),68.f,Mint,3.f)).SetPressed(FSlateRoundedBoxBrush(UIColor(TEXT("#16393D")),68.f,Mint,3.f));
+            static const FButtonStyle HubStyle=FButtonStyle().SetNormal(FSlateRoundedBoxBrush(UIColor(TEXT("#173337")),68.f,WorkspaceMint,2.f))
+                .SetHovered(FSlateRoundedBoxBrush(UIColor(TEXT("#20464A")),68.f,WorkspaceMint,3.f)).SetPressed(FSlateRoundedBoxBrush(UIColor(TEXT("#16393D")),68.f,WorkspaceMint,3.f));
             const FVector2D Hub=Stages.Num()>4?FVector2D(357,357):HubPosition;
             Canvas->AddSlot().Offset(FMargin(Hub.X,Hub.Y,HubSize.X,HubSize.Y)).Alignment(FVector2D::ZeroVector)
                 [SNew(SButton).ButtonStyle(&HubStyle).ContentPadding(FMargin(17)).HAlign(HAlign_Center).VAlign(VAlign_Center).ForegroundColor(FLinearColor::White)
                     .OnClicked_Lambda([this]{OnHub.ExecuteIfBound();return FReply::Handled();})
                     [SNew(SVerticalBox)+SVerticalBox::Slot().AutoHeight()[SNew(STextBlock).Text(Session->GetActionLabel()).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),14)).Justification(ETextJustify::Center)]
-                        +SVerticalBox::Slot().AutoHeight().Padding(0,6,0,0)[SNew(STextBlock).Text(LOCTEXT("ActionHub","ДЕЙСТВИЕ")).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),9)).ColorAndOpacity(Mint).Justification(ETextJustify::Center)]]];
+                        +SVerticalBox::Slot().AutoHeight().Padding(0,6,0,0)[SNew(STextBlock).Text(LOCTEXT("ActionHub","ДЕЙСТВИЕ")).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),9)).ColorAndOpacity(WorkspaceMint).Justification(ETextJustify::Center)]]];
             ChildSlot[SNew(SBorder).Padding(0).BorderImage(FCoreStyle::Get().GetBrush(TEXT("WhiteBrush"))).BorderBackgroundColor(GraphFill).Clipping(EWidgetClipping::ClipToBounds)
                 [SNew(SOverlay)+SOverlay::Slot()[SNew(SActionConnections).Graph(SharedThis(this))]+SOverlay::Slot()[Canvas]
                     +SOverlay::Slot()[SNew(SActionConnections).Graph(SharedThis(this)).PinsOnly(true)]]];
@@ -365,9 +365,9 @@ namespace
             {
                 static const FSlateRoundedBoxBrush Pin(FLinearColor::White,4.f,FLinearColor(.025f,.045f,.055f),1.f);
                 for(const FVector2D& Point:{ALocal,BLocal})FSlateDrawElement::MakeBox(O,L+1,
-                    G.ToPaintGeometry(FVector2f(FVector2D(8,8)*P->Zoom),FSlateLayoutTransform(FVector2f(Point-FVector2D(4,4)*P->Zoom))),&Pin,ESlateDrawEffect::None,StageColor(Stages[I]));
+                    G.ToPaintGeometry(FVector2f(FVector2D(8,8)*P->Zoom),FSlateLayoutTransform(FVector2f(Point-FVector2D(4,4)*P->Zoom))),&Pin,ESlateDrawEffect::None,WorkspaceStageColor(Stages[I]));
             }
-            else FSlateDrawElement::MakeDrawSpaceSpline(O,L+1,G.LocalToAbsolute(ALocal),Direction*70*P->Zoom,G.LocalToAbsolute(BLocal),Direction*70*P->Zoom,2.f,ESlateDrawEffect::None,StageColor(Stages[I]));
+            else FSlateDrawElement::MakeDrawSpaceSpline(O,L+1,G.LocalToAbsolute(ALocal),Direction*70*P->Zoom,G.LocalToAbsolute(BLocal),Direction*70*P->Zoom,2.f,ESlateDrawEffect::None,WorkspaceStageColor(Stages[I]));
         }
         return L+1;
     }
@@ -456,7 +456,7 @@ namespace
             +SVerticalBox::Slot().AutoHeight().Padding(10,8)[SNew(SHorizontalBox)
                 +SHorizontalBox::Slot().FillWidth(1).VAlign(VAlign_Center)[SNew(STextBlock).Text_Lambda([this]{return FText::FromString(TEXT("VFX Composer  /  ")+ActionTitle());}).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),18))]
                 +SHorizontalBox::Slot().AutoWidth().Padding(8,0)[SNew(SComboButton).ButtonStyle(&SolidStyle()).ContentPadding(FMargin(14,10))
-                    .ButtonColorAndOpacity_Lambda([this]{return CanEdit()?Mint:HeadingFill;}).ForegroundColor_Lambda([this]{return FSlateColor(CanEdit()?Ink:Muted);})
+                    .ButtonColorAndOpacity_Lambda([this]{return CanEdit()?WorkspaceMint:HeadingFill;}).ForegroundColor_Lambda([this]{return FSlateColor(CanEdit()?Ink:Muted);})
                     .IsEnabled_Lambda([this]{return CanEdit();}).ToolTipText_Lambda([this]{return CanEdit()?LOCTEXT("NewCompoundHint","Создать композицию выбранного события: пустую или из готового шаблона. Ctrl+Z возвращает предыдущие слои."):FText::FromString(AuthoringUnavailableReason());})
                     .OnGetMenuContent_Lambda([this]{return CompoundMenu();}).ButtonContent()[SNew(STextBlock).Text(LOCTEXT("NewCompoundButton","＋ Новая композиция")).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),13))]]
                 +SHorizontalBox::Slot().AutoWidth()[SNew(SButton).ButtonStyle(&SolidStyle()).ContentPadding(FMargin(14,10))
@@ -471,10 +471,10 @@ namespace
                     +SSplitter::Slot().Value(.50f)[SNew(SVerticalBox)
                         +SVerticalBox::Slot().AutoHeight()[SNew(SBorder).Padding(9,5).BorderImage(&PanelBrush()).BorderBackgroundColor(HeadingFill)
                             .ToolTipText_Lambda([this]{return CanEdit()?LOCTEXT("PreviewModeHint","Примерка временно добавляет эффект галереи к выбранному событию. В черновик он попадёт только после «Добавить»."):FText::FromString(AuthoringUnavailableReason());})
-                            [SNew(STextBlock).Text_Lambda([this]{return FText::FromString(!CanPlay()?TEXT("Предпросмотр недоступен"):!CanEdit()?TEXT("Механика · просмотр"):bAudition?TEXT("Примерка — не добавлено"):TEXT("Черновик события"));}).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),12)).ColorAndOpacity(Mint)]]
+                            [SNew(STextBlock).Text_Lambda([this]{return FText::FromString(!CanPlay()?TEXT("Предпросмотр недоступен"):!CanEdit()?TEXT("Механика · просмотр"):bAudition?TEXT("Примерка — не добавлено"):TEXT("Черновик события"));}).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),12)).ColorAndOpacity(WorkspaceMint)]]
                         +SVerticalBox::Slot().FillHeight(1)[SAssignNew(PreviewHost,SBox)[NativePreview.ToSharedRef()]]
                         +SVerticalBox::Slot().AutoHeight().Padding(4)[SNew(SHorizontalBox)
-                            +SHorizontalBox::Slot().FillWidth(1).Padding(0,0,4,0)[SNew(SButton).ButtonStyle(&SolidStyle()).ContentPadding(FMargin(7,8)).ButtonColorAndOpacity_Lambda([this]{return CanPlay()?Mint:HeadingFill;})
+                            +SHorizontalBox::Slot().FillWidth(1).Padding(0,0,4,0)[SNew(SButton).ButtonStyle(&SolidStyle()).ContentPadding(FMargin(7,8)).ButtonColorAndOpacity_Lambda([this]{return CanPlay()?WorkspaceMint:HeadingFill;})
                                 .ForegroundColor_Lambda([this]{return FSlateColor(CanPlay()?Ink:Muted);}).IsEnabled_Lambda([this]{return CanPlay();})
                                 .ToolTipText(LOCTEXT("PlayHint","Полностью выполнить настоящее действие со всеми черновиками событий."))
                                 .OnClicked_Lambda([this]{Play();return FReply::Handled();})[SNew(STextBlock).Text(LOCTEXT("PlayAction","▶ Играть")).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),12))]]
@@ -497,7 +497,7 @@ namespace
                             {return SNew(STableRow<FCatalogItem>,Owner).Padding(4)[SNew(SBorder).Padding(10).BorderImage_Lambda([this,Item]{return SelectedAction==Item->ID?&SelectedPanelBrush():&PanelBrush();})
                                 .BorderBackgroundColor_Lambda([this,Item]{return SelectedAction==Item->ID?UIColor(TEXT("#1B3D3F")):Surface;})
                                 [SNew(SVerticalBox)+SVerticalBox::Slot().AutoHeight()[SNew(STextBlock).Text(Item->Label).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),12)).ColorAndOpacity(TextColor)]
-                                    +SVerticalBox::Slot().AutoHeight().Padding(0,4)[Label(Item->bSupportsPreview?(Item->bSupportsProfileOverride?TEXT("Сценарий + редактирование VFX"):TEXT("Сценарий · VFX-привязка впереди")):TEXT("Метаданные · адаптер впереди"),10,Item->bSupportsPreview?Mint:Muted)]]];})
+                                    +SVerticalBox::Slot().AutoHeight().Padding(0,4)[Label(Item->bSupportsPreview?(Item->bSupportsProfileOverride?TEXT("Сценарий + редактирование VFX"):TEXT("Сценарий · VFX-привязка впереди")):TEXT("Метаданные · адаптер впереди"),10,Item->bSupportsPreview?WorkspaceMint:Muted)]]];})
                             .OnSelectionChanged_Lambda([this](FCatalogItem Item,ESelectInfo::Type){if(Item)SelectAction(Item);})]]]
                 +SSplitter::Slot().Value(.45f)[SNew(SVerticalBox)
                     +SVerticalBox::Slot().AutoHeight()[SNew(SHorizontalBox)
@@ -515,7 +515,7 @@ namespace
                     +SSplitter::Slot().Value(.45f)[SNew(SVerticalBox)
                         +SVerticalBox::Slot().AutoHeight()[SNew(SBorder).Padding(9,5).BorderImage(&PanelBrush()).BorderBackgroundColor(HeadingFill)
                             .ToolTipText_Lambda([this]{return CanEdit()?LOCTEXT("GalleryContextHint","Галерея эффектов. Клик — примерка для выбранного события, кнопка «Добавить» — новый слой его черновика."):FText::FromString(AuthoringUnavailableReason());})
-                            [SNew(STextBlock).Text_Lambda([this]{return FText::FromString(TEXT("Для события: ")+Session->GetEventLabel(SelectedStage).ToString());}).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),13)).ColorAndOpacity(Mint)]]
+                            [SNew(STextBlock).Text_Lambda([this]{return FText::FromString(TEXT("Для события: ")+Session->GetEventLabel(SelectedStage).ToString());}).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),13)).ColorAndOpacity(WorkspaceMint)]]
                         +SVerticalBox::Slot().AutoHeight().Padding(3)[SAssignNew(GallerySearchBox,SEditableTextBox).HintText(LOCTEXT("Search","Найти эффект…")).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),12)).Padding(FMargin(7,5))
                             .OnTextChanged_Lambda([this](const FText& T){GalleryQuery=T.ToString();RefreshGallery();})]
                         +SVerticalBox::Slot().AutoHeight()[SNew(SHorizontalBox)
@@ -530,7 +530,7 @@ namespace
                                     .BorderBackgroundColor_Lambda([this,Item]{return GallerySelection.PackageName==Item->PackageName?UIColor(TEXT("#1B3D3F")):Surface;})
                                     .ToolTipText(FText::FromString(Item->GetSoftObjectPath().ToString()))
                                     [SNew(SVerticalBox)+SVerticalBox::Slot().AutoHeight()[SNew(SBox).HeightOverride(64)[GalleryImage(*Item)]]
-                                        +SVerticalBox::Slot().AutoHeight().Padding(0,4)[SNew(SBox).HeightOverride(28)[Label(EffectLabel(Item->AssetName.ToString()),10)]]
+                                        +SVerticalBox::Slot().AutoHeight().Padding(0,4)[SNew(SBox).HeightOverride(28)[Label(WorkspaceEffectLabel(Item->AssetName.ToString()),10)]]
                                         +SVerticalBox::Slot().AutoHeight()[Label(ProvenanceLabel(*Item),9,Muted)]]];})
                             .OnSelectionChanged_Lambda([this](FGalleryItem Item,ESelectInfo::Type){if(Item)SelectGallery(Item);})]
                         +SVerticalBox::Slot().AutoHeight().Padding(6,3)[SNew(SHorizontalBox)
@@ -538,7 +538,7 @@ namespace
                                 .OnCheckStateChanged_Lambda([this](ECheckBoxState S){if(!CanEdit()){Status=AuthoringUnavailableReason();return;}bLive=S==ECheckBoxState::Checked;if(bLive&&GallerySelection.IsValid())Play(true);else if(!bLive&&bAudition)Stop();})[Label(TEXT("Клик — просмотр"),10)]]
                             +SHorizontalBox::Slot().AutoWidth()[SNew(STextBlock).Text_Lambda([this]{return FText::FromString(FString::Printf(TEXT("%d NS"),GalleryItems.Num()));}).ColorAndOpacity(Muted)]]
                         +SVerticalBox::Slot().AutoHeight().Padding(5)[SNew(SButton).ButtonStyle(&SolidStyle()).ContentPadding(FMargin(10,6))
-                            .ButtonColorAndOpacity_Lambda([this]{return CanEdit()&&GallerySelection.IsValid()?Mint:HeadingFill;}).ForegroundColor_Lambda([this]{return FSlateColor(CanEdit()&&GallerySelection.IsValid()?Ink:Muted);})
+                            .ButtonColorAndOpacity_Lambda([this]{return CanEdit()&&GallerySelection.IsValid()?WorkspaceMint:HeadingFill;}).ForegroundColor_Lambda([this]{return FSlateColor(CanEdit()&&GallerySelection.IsValid()?Ink:Muted);})
                             .ToolTipText_Lambda([this]{return CanEdit()?FText::FromString(TEXT("Добавить выбранную Niagara новым слоем события.")):FText::FromString(AuthoringUnavailableReason());})
                             .IsEnabled_Lambda([this]{return CanEdit()&&GallerySelection.IsValid();}).OnClicked_Lambda([this]{AddSelected();return FReply::Handled();})
                             [SNew(STextBlock).Text_Lambda([this]{return FText::FromString(!CanEdit()?(CanPlay()?TEXT("Niagara-привязка пока недоступна"):TEXT("Откройте контекст действия")):
@@ -604,17 +604,17 @@ namespace
     void SActionWorkspace::SelectGallery(FGalleryItem Item)
     {
         if(!Item)return;Stop();GallerySelection=*Item;
-        if(!CanEdit()){Status=TEXT("Выбран ")+EffectLabel(Item->AssetName.ToString())+TEXT(". ")+AuthoringUnavailableReason();return;}
+        if(!CanEdit()){Status=TEXT("Выбран ")+WorkspaceEffectLabel(Item->AssetName.ToString())+TEXT(". ")+AuthoringUnavailableReason();return;}
         // Slate may signal deferred row selection immediately before OnDragDetected.
         // Audition only on the next tick; BeginGalleryDrag cancels this pending click.
         bPendingGalleryAudition=bLive&&CanEdit();
-        Status=TEXT("Выбран ")+EffectLabel(Item->AssetName.ToString())+TEXT(". Клик — примерка, перетащите на событие или нажмите «Добавить».");
+        Status=TEXT("Выбран ")+WorkspaceEffectLabel(Item->AssetName.ToString())+TEXT(". Клик — примерка, перетащите на событие или нажмите «Добавить».");
     }
     FReply SActionWorkspace::BeginGalleryDrag(const FAssetData& Asset)
     {
         Stop();GallerySelection=Asset;
         if(!CanEdit()){Status=AuthoringUnavailableReason();return FReply::Handled();}
-        Status=TEXT("Перетащите «")+EffectLabel(Asset.AssetName.ToString())+TEXT("» на карточку события. Будет добавлен новый слой; Esc — отмена.");
+        Status=TEXT("Перетащите «")+WorkspaceEffectLabel(Asset.AssetName.ToString())+TEXT("» на карточку события. Будет добавлен новый слой; Esc — отмена.");
         return FReply::Handled().BeginDragDrop(FWorkspaceEffectDrag::New(Asset));
     }
     void SActionWorkspace::DropEffect(FName Stage,const FAssetData& Asset)
@@ -632,7 +632,7 @@ namespace
         {FARFilter Filter;Filter.ClassPaths.Add(UNiagaraSystem::StaticClass()->GetClassPathName());Filter.bRecursiveClasses=true;Filter.PackagePaths.Add(FName(Path));Filter.bRecursivePaths=true;
             GalleryCatalog.Reset();FModuleManager::LoadModuleChecked<FAssetRegistryModule>(TEXT("AssetRegistry")).Get().GetAssets(Filter,GalleryCatalog);
             GalleryCatalog.Sort([](const FAssetData& A,const FAssetData& B){return A.AssetName.LexicalLess(B.AssetName);});}
-        GalleryItems.Reset();for(const auto& Asset:GalleryCatalog)if(GalleryQuery.IsEmpty()||EffectLabel(Asset.AssetName.ToString()).Contains(GalleryQuery)||Asset.AssetName.ToString().Contains(GalleryQuery)||Asset.PackageName.ToString().Contains(GalleryQuery))GalleryItems.Add(MakeShared<FAssetData>(Asset));
+        GalleryItems.Reset();for(const auto& Asset:GalleryCatalog)if(GalleryQuery.IsEmpty()||WorkspaceEffectLabel(Asset.AssetName.ToString()).Contains(GalleryQuery)||Asset.AssetName.ToString().Contains(GalleryQuery)||Asset.PackageName.ToString().Contains(GalleryQuery))GalleryItems.Add(MakeShared<FAssetData>(Asset));
         if(GalleryView)GalleryView->RequestListRefresh();
     }
     TSharedRef<SWidget> SActionWorkspace::GalleryImage(const FAssetData& Asset)
@@ -689,7 +689,7 @@ namespace
         if(Gallery&&GallerySelection.IsValid())OK=Session->AuditionNS(SelectedStage,Cast<UNiagaraSystem>(GallerySelection.GetAsset()),Error,SelectedScenario);
         else OK=Session->PlayFullAction(Error,SelectedScenario);
         if(!OK){Fail(Error);return;}bPlaying=true;bObserved=false;bAudition=Gallery;RepeatAt=0;
-        Status=Gallery?TEXT("Примерка: ")+EffectLabel(GallerySelection.AssetName.ToString())+TEXT(". Нажмите «Добавить», чтобы оставить этот слой."):
+        Status=Gallery?TEXT("Примерка: ")+WorkspaceEffectLabel(GallerySelection.AssetName.ToString())+TEXT(". Нажмите «Добавить», чтобы оставить этот слой."):
             CanEdit()?TEXT("Проигрывается черновик события. Игровой профиль не изменён."):TEXT("Выполняется реальный сценарий с родным представлением механики. Редактирование Niagara-слоёв ещё не подключено.");
     }
     void SActionWorkspace::Stop(){bPlaying=false;bObserved=false;bPaused=false;bAudition=false;bPendingGalleryAudition=false;RepeatAt=0;if(Session)Session->Stop();}
@@ -799,7 +799,7 @@ namespace
             Add(Label(TEXT("«Применить в игре» сохраняет композиции, готовые эффекты и профиль. До этой кнопки правки остаются черновиками."),12,Muted));return;
         }
         const auto* Layer=CurrentLayer();
-        Add(Label(Session->GetEventLabel(SelectedStage).ToString(),16,StageColor(SelectedStage)));
+        Add(Label(Session->GetEventLabel(SelectedStage).ToString(),16,WorkspaceStageColor(SelectedStage)));
         if(!Layer)
         {
             Add(Label(FString::Printf(TEXT("Включено слоёв: %d из %d"),EnabledLayers(Session->GetRecipe(SelectedStage)),Session->GetLayerCount(SelectedStage)),13));
