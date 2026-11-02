@@ -30,6 +30,9 @@ namespace MCMeleeCombo
     void PresentSwing(const AMCToothCharacter* Hero,uint8 ToolSlot,uint8 Step);
     // Visual playback is independent of the authoritative attack interval.
     float AnimationRate(const AMCToothCharacter* Hero);
+    // Times are in the authored animation clock and scale with attack speed.
+    constexpr float VisualBlendInSpan=.08f;
+    constexpr float VisualRecoverySpan=.40f;
     float Duration(const AMCToothCharacter* Hero);
     float ContactTime(const AMCToothCharacter* Hero);
     FVector2D TrailWindow(const AMCToothCharacter* Hero);

@@ -1213,7 +1213,7 @@ public:
             Rebuild();
         }
     }
-    bool KnifeStrikeGrip(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref)
+    bool KnifeStrikeGrip(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref,float GripAlpha)
     {
         const int32 Right=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_r")));
         const int32 Left=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_l")));
@@ -1274,7 +1274,10 @@ public:
                         Solved[J].SetRotation((FQuat::FindBetweenNormals(Before,After)*Solved[J].GetRotation()).GetNormalized());
                 } else {Solved[J].SetLocation(Contact);Solved[J].SetRotation(Rotation);}
                 const int32 Parent=Ref.GetParentIndex(Bones[J]);
-                Pose[Bones[J]]=Parent<0?Solved[J]:Solved[J].GetRelativeTransform(J?Solved[J-1]:CS[Parent]);
+                const FTransform Local=Parent<0?Solved[J]:Solved[J].GetRelativeTransform(J?Solved[J-1]:CS[Parent]);
+                // Release the support grip with the same smooth recovery as
+                // the body and knife instead of dropping the hands in one frame.
+                FTransform Blended;Blended.Blend(Pose[Bones[J]],Local,GripAlpha);Pose[Bones[J]]=Blended;
             }
             Rebuild();
         }
@@ -1481,7 +1484,7 @@ public:
         const float StrikeEnd=StrikeStep>=1 && StrikeStep<=4?(StrikeStep==3?StrikeSpan[2]:MCMeleeCombo::Duration(Tooth)*Tooth->Inventory->RogueAttackRate()):0.f;
         const bool AuthoredStrike=WideSwing && !AimedCalculus && Tooth->ToothPhysics && Tooth->ToothPhysics->CanAct()
             && Tooth->Inventory->ShouldPresentTool() && StrikeClip && StrikeClip->GetSkeleton()
-            && StrikeStep>=1 && StrikeStep<=4 && StrikeT>=0 && StrikeEnd>0 && StrikeT<StrikeEnd+.14f;
+            && StrikeStep>=1 && StrikeStep<=4 && StrikeT>=0 && StrikeEnd>0 && StrikeT<StrikeEnd+MCMeleeCombo::VisualRecoverySpan;
         const float WalkingAlpha=Tooth->GetCharacterMovement()->IsMovingOnGround()?FMath::SmoothStep(.05f,.20f,Speed):0.f;
         // Solve contacts against the final attack body pose, but only once per
         // frame; the stationary and non-melee paths keep their existing order.
@@ -1558,8 +1561,8 @@ public:
         // Keep authored attacks above the waist while retaining the procedural
         // stride and foot IK during movement. At rest, use the complete clip.
         if(AuthoredStrike) {
-            const float In=(StrikeStep==1 || StrikeStep==4)?FMath::SmoothStep(0.f,.04f,StrikeT):1.f;
-            const float Alpha=In*(1-FMath::SmoothStep(StrikeEnd,StrikeEnd+.14f,StrikeT));
+            const float In=FMath::SmoothStep(0.f,MCMeleeCombo::VisualBlendInSpan,StrikeT);
+            const float Alpha=In*(1-FMath::SmoothStep(StrikeEnd,StrikeEnd+MCMeleeCombo::VisualRecoverySpan,StrikeT));
             FAnimExtractContext Context(FMath::Min(double(StrikeClip->GetPlayLength()),double(StrikeStart[StrikeStep-1]+StrikeSpan[StrikeStep-1]*FMath::Min(StrikeT/StrikeEnd,1.f))),false);
             const auto& Source=StrikeClip->GetSkeleton()->GetReferenceSkeleton();
             const int32 Body=Ref.FindBoneIndex(Tooth->RigBone(TEXT("body")));
@@ -1578,7 +1581,11 @@ public:
             }
         }
         if(DeferWalkingFeet) PlaceFeet(Tooth,Ref,Dt);
-        if(AuthoredStrike) KnifeGripActive=KnifeStrikeGrip(Tooth,Ref);
+        if(AuthoredStrike) {
+            const float GripAlpha=FMath::SmoothStep(0.f,MCMeleeCombo::VisualBlendInSpan,StrikeT)
+                *(1-FMath::SmoothStep(StrikeEnd,StrikeEnd+MCMeleeCombo::VisualRecoverySpan,StrikeT));
+            KnifeGripActive=KnifeStrikeGrip(Tooth,Ref,GripAlpha);
+        }
         }
         if(!KnifeGripActive && Tooth->Inventory) Tooth->Inventory->ReleaseMeleeKnifeAnchor();
         ActiveSkillPose(Tooth,Ref,Dt);

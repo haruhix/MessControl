@@ -149,7 +149,7 @@ bool WeaponPose(const AMCToothCharacter* Hero,FTransform& OutPose,float& OutAlph
     const float Span[]={10.f/24.f,10.f/24.f,38.f/24.f,13.f/24.f};
     const float Start[]={0.f,10.f/24.f,20.f/24.f,0.f};
     const float End=Step==3?Span[2]:Duration(Hero)*Hero->Inventory->RogueAttackRate();
-    if(T<0 || End<=0 || T>=End+.14f) return false;
+    if(T<0 || End<=0 || T>=End+VisualRecoverySpan) return false;
     const FAnimExtractContext Context(FMath::Min(double(Clip->GetPlayLength()),double(Start[Step-1]+Span[Step-1]*FMath::Min(T/End,1.f))),false);
     if(Clip->EvaluateCurveData(TEXT("MCWeaponAuthored"),Context)<.5f) return false;
     auto Curve=[&](const TCHAR* Name) {return Clip->EvaluateCurveData(FName(Name),Context);};
@@ -158,7 +158,7 @@ bool WeaponPose(const AMCToothCharacter* Hero,FTransform& OutPose,float& OutAlph
     const FVector Scale(Curve(TEXT("MCWeaponSX")),Curve(TEXT("MCWeaponSY")),Curve(TEXT("MCWeaponSZ")));
     if(Location.ContainsNaN() || Rotation.ContainsNaN() || Scale.ContainsNaN() || Rotation.SizeSquared()<.01f) return false;
     Rotation.Normalize();OutPose=FTransform(Rotation,Location,Scale);
-    OutAlpha=((Step==1 || Step==4)?FMath::SmoothStep(0.f,.04f,T):1.f)*(1-FMath::SmoothStep(End,End+.14f,T));
+    OutAlpha=FMath::SmoothStep(0.f,VisualBlendInSpan,T)*(1-FMath::SmoothStep(End,End+VisualRecoverySpan,T));
     return true;
 }
 
