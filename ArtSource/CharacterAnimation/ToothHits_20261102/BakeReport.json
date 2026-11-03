@@ -1,0 +1,47 @@
+{
+  "fps": 24.0,
+  "source": "C:\\Users\\vasil\\Downloads\\Telegram Desktop\\Character3.blend",
+  "target_bones": 107,
+  "clips": [
+    {
+      "name": "hit1",
+      "frames": [
+        1,
+        15
+      ],
+      "max_motion_cm": 85.41163289442139,
+      "max_endpoint_error_cm": 2.324795101785451e-05,
+      "file": "C:\\Users\\vasil\\Documents\\ChatGPT\\MessControl\\ToothNewHits\\A_Teeth_Hit1.fbx"
+    },
+    {
+      "name": "hit2",
+      "frames": [
+        1,
+        16
+      ],
+      "max_motion_cm": 117.80404737996723,
+      "max_endpoint_error_cm": 1.9913304345913984e-05,
+      "file": "C:\\Users\\vasil\\Documents\\ChatGPT\\MessControl\\ToothNewHits\\A_Teeth_Hit2.fbx"
+    },
+    {
+      "name": "hit3",
+      "frames": [
+        1,
+        14
+      ],
+      "max_motion_cm": 87.8884717292654,
+      "max_endpoint_error_cm": 2.355884423644185e-05,
+      "file": "C:\\Users\\vasil\\Documents\\ChatGPT\\MessControl\\ToothNewHits\\A_Teeth_Hit3.fbx"
+    },
+    {
+      "name": "hit_combo",
+      "frames": [
+        1,
+        59
+      ],
+      "max_motion_cm": 112.89372981781466,
+      "max_endpoint_error_cm": 1.9913304345913984e-05,
+      "file": "C:\\Users\\vasil\\Documents\\ChatGPT\\MessControl\\ToothNewHits\\A_Teeth_Hit_Combo.fbx"
+    }
+  ]
+}

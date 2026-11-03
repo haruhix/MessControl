@@ -294,6 +294,35 @@ bool UMCInventoryComponent::CanBreak(const AMCFoodActor* Food) const
     return IsValid(Food) && !Food->bBrushTool && !Food->IsDisposed()
         && (Selected==EMCToolSlot::Pickaxe?Food->IsHardFood():Selected==EMCToolSlot::Knife && !Food->IsHardFood());
 }
+bool UMCInventoryComponent::AnchorMeleeKnife(const FTransform& OriginalHand,const FTransform& Body,FTransform& KnifeInMesh,FQuat& IdleToolInHand)
+{
+    if(!Hero || !Tool || !Settings || Selected!=EMCToolSlot::Knife || SelectedUpgrade()!=EMCToolUpgrade::None
+        || !Tool->GetStaticMesh() || Tool->GetStaticMesh()!=Settings->KnifeMesh.Get()) return false;
+    FTransform HandPose;float Alpha=0;
+    if(!MCMeleeCombo::WeaponPose(Hero,HandPose,Alpha)) return false;
+    const FTransform Pivot=Hero->BrushPivot->GetRelativeTransform();
+    FTransform Blended;Blended.Blend(Settings->KnifeTransform,HandPose.GetRelativeTransform(Pivot),Alpha);
+    MeleeKnifeAnchorHand=OriginalHand;MeleeKnifeAnchorBody=Body;
+    // Match the original scene attachment hierarchy: tool * (pivot * hand).
+    // FTransform composition is not associative with animated nonuniform scale.
+    KnifeInMesh=Blended*(Pivot*OriginalHand);
+    IdleToolInHand=(Settings->KnifeTransform*Pivot).GetRotation();
+    if(!bMeleeKnifeAnchored) {
+        Tool->AttachToComponent(Hero->GetMesh(),FAttachmentTransformRules::KeepRelativeTransform,Hero->RigBone(TEXT("body")));
+        bMeleeKnifeAnchored=true;
+    }
+    Tool->SetRelativeTransform(KnifeInMesh.GetRelativeTransform(Body));
+    return true;
+}
+void UMCInventoryComponent::ReleaseMeleeKnifeAnchor()
+{
+    if(!bMeleeKnifeAnchored) return;
+    bMeleeKnifeAnchored=false;
+    if(Hero && Tool) {
+        Tool->AttachToComponent(Hero->BrushPivot,FAttachmentTransformRules::KeepRelativeTransform);
+        if(Settings && Selected==EMCToolSlot::Knife) Tool->SetRelativeTransform(Settings->KnifeTransform);
+    }
+}
 bool UMCInventoryComponent::MeleeTrailSpan(FVector& Base,FVector& Tip) const
 {
     if(!Tool || !Tool->GetStaticMesh() || !ShouldPresentTool() || SelectedUpgrade()!=EMCToolUpgrade::None) return false;
@@ -698,6 +727,7 @@ FString UMCInventoryComponent::ToolName() const
 }
 void UMCInventoryComponent::RefreshMesh()
 {
+    ReleaseMeleeKnifeAnchor();
     if(!Tool || !Detail) return;
     WorkingGripAlpha=0;
     Presented=Selected; bPresentedUpgrade=bWaterJetUnlocked; Detail->SetVisibility(false);
@@ -796,6 +826,21 @@ void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorCompone
     const bool Working=Upgrade==EMCToolUpgrade::Buffer?IsUsingBuffer():Upgrade==EMCToolUpgrade::Watergun?IsUsingWatergun():false;
     WorkingGripAlpha=FMath::FInterpTo(WorkingGripAlpha,Working?1.f:0.f,Dt,12.f);
     if(Upgrade==EMCToolUpgrade::Buffer || Upgrade==EMCToolUpgrade::Watergun) Tool->SetRelativeTransform(UpgradeAttachment());
+    if(Upgrade==EMCToolUpgrade::None && Settings && (Selected==EMCToolSlot::Knife || Selected==EMCToolSlot::Pickaxe)) {
+        FTransform Base=Selected==EMCToolSlot::Knife?Settings->KnifeTransform:Settings->PickaxeTransform;
+        if(Selected==EMCToolSlot::Pickaxe) Base.SetScale3D(Base.GetScale3D()*(MeleeReach()/180.f));
+        FTransform HandPose;float Alpha=0;
+        if(MCMeleeCombo::WeaponPose(Hero,HandPose,Alpha)) {
+            const FTransform Pivot=Hero->BrushPivot->GetRelativeTransform();
+            if(Selected==EMCToolSlot::Pickaxe) {
+                const FTransform KnifeHand=Settings->KnifeTransform*Pivot;
+                const FTransform PickHand=Base*Pivot;
+                HandPose=PickHand.GetRelativeTransform(KnifeHand)*HandPose;
+            }
+            const FTransform Authored=HandPose.GetRelativeTransform(Pivot);
+            FTransform Blended;Blended.Blend(Base,Authored,Alpha);Tool->SetRelativeTransform(bMeleeKnifeAnchored?(Blended*(Pivot*MeleeKnifeAnchorHand)).GetRelativeTransform(MeleeKnifeAnchorBody):Blended);
+        } else { ReleaseMeleeKnifeAnchor(); Tool->SetRelativeTransform(Base); }
+    }
     const bool Visible=ShouldPresentTool();
     const bool Custom=Tool->GetStaticMesh()!=nullptr;
     Tool->SetVisibility(Visible && Custom); Detail->SetVisibility(Visible && Custom && bPresentedFallback && (Selected==EMCToolSlot::Knife || Selected==EMCToolSlot::Spray));

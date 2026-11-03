@@ -41,10 +41,15 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCWeaponPlayerDamage,"MessControl.Inventory.Pl
 bool FMCWeaponPlayerDamage::RunTest(const FString&) {
     for(float Dt:{1.f/30,1.f/60,1.f/120}) for(EMCToolSlot Slot:{EMCToolSlot::Brush,EMCToolSlot::Pickaxe,EMCToolSlot::Knife,EMCToolSlot::Spray}) {
         FWeaponHitWorld T;T.Attacker->Inventory->ServerSelect(Slot);
-        T.Attacker->SwingBrush();T.Attacker->SwingBrush();T.Step(.65f,Dt);
+        T.Attacker->SwingBrush();T.Attacker->SwingBrush();
+        const float FirstSwingDuration=T.Attacker->Inventory->SwingDuration();
+        // Observe the first contact before the buffered combo may start its next swing.
+        T.Step(Slot==EMCToolSlot::Spray?.65f:FMath::Min(.65f,FirstSwingDuration-2*Dt),Dt);
+        if(Slot!=EMCToolSlot::Spray) TestTrue(TEXT("The first offensive swing is observed before its authoritative cooldown"),
+            T.Attacker->GetToolSwingElapsed()>=0.f&&T.Attacker->GetToolSwingElapsed()<FirstSwingDuration);
         TestEqual(*FString::Printf(TEXT("Tool %d preserves teammate health at %.0f FPS"),int32(Slot),1/Dt),T.Victim->Status->State.Health,1000.f);
         TestEqual(TEXT("One swing produces at most one confirmed hit, including knife follow-through"),T.Attacker->ConfirmedHitCount,Slot==EMCToolSlot::Spray?0:1);
-        TestEqual(TEXT("Repeated input cannot create a second offensive swing"),T.Attacker->ValidatedSwingCount,Slot==EMCToolSlot::Spray?0:1);
+        TestEqual(TEXT("Repeated input cannot create a second offensive swing before its authoritative cooldown"),T.Attacker->ValidatedSwingCount,Slot==EMCToolSlot::Spray?0:1);
         TestEqual(TEXT("The attacker never damages itself"),T.Attacker->Status->State.Health,100.f);
         if(Slot!=EMCToolSlot::Spray) TestEqual(TEXT("Offensive tools retain the physical knockdown"),T.Victim->ToothPhysics->GetBodyState(),EMCBodyState::Ragdoll);
         else TestEqual(TEXT("Spray cannot knock another player down"),T.Victim->ToothPhysics->GetBodyState(),EMCBodyState::Standing);
@@ -71,7 +76,11 @@ bool FMCWeaponPlayerProtection::RunTest(const FString&) {
     }
     for(float Dt:{1.f/30,1.f/60,1.f/120}) {
         FWeaponHitWorld T;T.Attacker->Inventory->ServerSelect(EMCToolSlot::Knife);
-        T.Victim->SetActorLocation(FVector(500,0,2000));T.Attacker->SwingBrush();T.Step(.30f,Dt);
+        T.Victim->SetActorLocation(FVector(500,0,2000));T.Attacker->SwingBrush();
+        const float ContactAt=T.Attacker->Inventory->SwingContactTime();
+        T.Step(ContactAt+Dt,Dt);
+        TestTrue(TEXT("The late target enters after the actual contact and inside its retry window"),
+            T.Attacker->GetToolSwingElapsed()>ContactAt&&T.Attacker->GetToolSwingElapsed()<ContactAt+.12f);
         TestEqual(TEXT("The first knife sample misses a distant player"),T.Attacker->ConfirmedHitCount,0);
         T.Victim->SetActorLocation(FVector(125,0,2000));T.Step(.35f,Dt);
         TestEqual(TEXT("Late knife contact preserves teammate health"),T.Victim->Status->State.Health,1000.f);

@@ -104,7 +104,10 @@ void UMCWeaponTrailComponent::PublishComposerState(bool Active,float PoseDelta,b
     Add(TEXT("User.Native.SwingVisualAge"),EMCVFXNativeInputType::Float).FloatValue=FMath::Max(0.f,MCWeaponImpact::VisualSwingElapsed(Hero));
     Add(TEXT("User.Native.SwingDuration"),EMCVFXNativeInputType::Float).FloatValue=Values.Duration;
     Add(TEXT("User.Native.SwingContactTime"),EMCVFXNativeInputType::Float).FloatValue=Hero->Inventory->SwingContactTime();
-    Add(TEXT("User.Native.SwingRate"),EMCVFXNativeInputType::Float).FloatValue=Hero->Inventory->RogueAttackRate();
+    const FVector2D NativeTrailWindow=MCMeleeCombo::TrailWindow(Hero);
+    const bool HasComboWindow=NativeTrailWindow.X>=0.f&&NativeTrailWindow.Y>NativeTrailWindow.X;
+    Add(TEXT("User.Native.SwingRate"),EMCVFXNativeInputType::Float).FloatValue=
+        HasComboWindow?MCMeleeCombo::AnimationRate(Hero):Hero->Inventory->RogueAttackRate();
     Add(TEXT("User.Native.SwingStep"),EMCVFXNativeInputType::Int).IntValue=AcceptedStep;
     Add(TEXT("User.Native.TrailRenderAllowed"),EMCVFXNativeInputType::Bool).BoolValue=RenderAllowed&&Valid;
     Add(TEXT("User.Native.TrailViewPosition"),EMCVFXNativeInputType::Position).PositionValue=Eye;

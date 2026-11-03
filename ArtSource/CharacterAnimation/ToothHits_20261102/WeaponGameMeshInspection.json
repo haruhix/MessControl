@@ -1,0 +1,108 @@
+{
+  "appearance_brush_transform": {
+    "translation": [
+      -8.0,
+      3.0,
+      -4.0
+    ],
+    "rotation": [
+      0.0,
+      -0.0,
+      0.7071067811865476,
+      0.7071067811865477
+    ],
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "bone_map": {
+    "body": "root_x",
+    "arm_l": "arm_stretch_l",
+    "arm_r": "arm_stretch_r",
+    "forearm_l": "forearm_stretch_l",
+    "forearm_r": "forearm_stretch_r",
+    "leg_l": "thigh_stretch_l",
+    "leg_r": "thigh_stretch_r",
+    "knee_l": "leg_stretch_l",
+    "knee_r": "leg_stretch_r",
+    "fingertip_l": "index3_l",
+    "fingertip_r": "index3_r",
+    "toe_l": "toes_01_l",
+    "toe_r": "toes_01_r",
+    "gaze_head": "head_x",
+    "eye_l": "c_eye_l",
+    "eye_r": "c_eye_r",
+    "lid_top_l": "c_eyelid_top_l",
+    "lid_top_r": "c_eyelid_top_r",
+    "lid_bottom_l": "c_eyelid_bot_l",
+    "lid_bottom_r": "c_eyelid_bot_r"
+  },
+  "knife": {
+    "mesh": "/Game/Gameplay/CharacterCurrent/Tools/SM_Cube.SM_Cube",
+    "bounds": {
+      "min": [
+        -21.479352951049805,
+        -4.075637340545654,
+        -24.8204345703125
+      ],
+      "max": [
+        81.70401000976562,
+        4.0756402015686035,
+        8.896186828613281
+      ]
+    },
+    "transform": {
+      "translation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "pickaxe": {
+    "mesh": "/Game/Gameplay/CharacterCurrent/Tools/SM_Pick.SM_Pick",
+    "bounds": {
+      "min": [
+        0.14314129948616028,
+        -7.670203685760498,
+        -32.775794982910156
+      ],
+      "max": [
+        77.88591003417969,
+        5.6836161613464355,
+        33.566917419433594
+      ]
+    },
+    "transform": {
+      "translation": [
+        -16.400239157304643,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0933492771536428,
+        1.0933492771536428,
+        1.0933492771536428
+      ]
+    }
+  }
+}

@@ -1213,6 +1213,76 @@ public:
             Rebuild();
         }
     }
+    bool KnifeStrikeGrip(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref,float GripAlpha)
+    {
+        const int32 Right=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_r")));
+        const int32 Left=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_l")));
+        const int32 Body=Ref.FindBoneIndex(Tooth->RigBone(TEXT("body")));
+        if(Right<0 || Left<0 || Body<0 || !Tooth->Inventory || Tooth->GetActiveSkillPresentation()) return false;
+        TArray<FTransform> CS;CS.SetNum(Pose.Num());
+        auto Rebuild=[&](){for(int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*CS[Ref.GetParentIndex(I)];};
+        Rebuild();
+        const FTransform OriginalHand=CS[Right];
+        FTransform Knife;FQuat IdleToolInHand;
+        if(!Tooth->Inventory->AnchorMeleeKnife(OriginalHand,CS[Body],Knife,IdleToolInHand)) return false;
+        const FQuat RightRotation=(Knife.GetRotation()*IdleToolInHand.Inverse()).GetNormalized();
+        auto RestComponent=[&](int32 Bone) {
+            FTransform Rest=Ref.GetRefBonePose()[Bone];
+            for(int32 P=Ref.GetParentIndex(Bone);P>=0;P=Ref.GetParentIndex(P)) Rest=Rest*Ref.GetRefBonePose()[P];
+            return Rest;
+        };
+        const FQuat Mirror=(RestComponent(Right).GetRotation().Inverse()*RestComponent(Left).GetRotation()).GetNormalized();
+        // SM_Cube's two disconnected mesh sections put the handle at
+        // local X [-21.48, 20.61], Z [-12.52, 8.88] centimetres.
+        // Put the wrists at separated stations along the handle, never on the blade.
+        for(int32 Side=1;Side>=0;--Side) {
+            const int32 Hand=Side?Right:Left;
+            const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(Side?TEXT("forearm_r"):TEXT("forearm_l")));
+            const int32 Upper=Ref.FindBoneIndex(Tooth->RigBone(Side?TEXT("arm_r"):TEXT("arm_l")));
+            if(Lower<0 || Upper<0 || Ref.GetParentIndex(Hand)!=Lower || Ref.GetParentIndex(Lower)!=Upper) continue;
+            const FQuat Rotation=Side?RightRotation:(RightRotation*Mirror).GetNormalized();
+            // The hand bone starts at the wrist, not the visible mitten centre.
+            // These rest-space centres come from the weighted hand and finger
+            // vertices of SK_TeethGameplay (converted to the UE bone basis).
+            const FVector PalmOffset(Side?-5.1027f:5.1027f,-9.6319f,-2.7324f);
+            const FVector Contact=Knife.TransformPosition(FVector(Side?-7.f:7.f,0.f,-1.8f))
+                -Rotation.RotateVector(CS[Hand].GetScale3D()*PalmOffset);
+            // The shoulder bones also skin the crown and bag. Keep their
+            // authored pose intact and solve only the independent arm branch.
+            const int32 Bones[]={Upper,Lower,Hand};const int32 Count=3;
+            TArray<FFABRIKChainLink> Chain;Chain.Reserve(Count);double Reach=0.;
+            for(int32 J=0;J<Count;++J) {
+                const double Segment=J?FVector::Distance(CS[Bones[J-1]].GetLocation(),CS[Bones[J]].GetLocation()):0.;
+                Reach+=Segment;Chain.Emplace(CS[Bones[J]].GetLocation(),Segment,Bones[J],J);
+                if(J) Chain.Last().DefaultDirToParent=(Chain[J-1].Position-Chain[J].Position).GetSafeNormal();
+            }
+            if(Reach<.1) continue;
+            // The knife may be beyond the compact rig's natural reach.
+            // Only the unweighted upper-arm root moves for the excess reach;
+            // the body-weighted shoulder and the mitten proportions stay intact.
+            const FVector Delta=Contact-Chain[0].Position;
+            const FVector Shift=Delta-Delta.GetClampedToMaxSize(Reach*.97);
+            for(auto& Link:Chain) Link.Position+=Shift;
+            AnimationCore::SolveFabrik(Chain,Contact,Reach,.01,24);
+            FTransform Solved[4];
+            for(int32 J=0;J<Count;++J) {
+                Solved[J]=CS[Bones[J]];Solved[J].SetLocation(Chain[J].Position);
+                if(J+1<Count) {
+                    const FVector Before=(CS[Bones[J+1]].GetLocation()-CS[Bones[J]].GetLocation()).GetSafeNormal();
+                    const FVector After=(Chain[J+1].Position-Chain[J].Position).GetSafeNormal();
+                    if(!Before.IsNearlyZero() && !After.IsNearlyZero())
+                        Solved[J].SetRotation((FQuat::FindBetweenNormals(Before,After)*Solved[J].GetRotation()).GetNormalized());
+                } else {Solved[J].SetLocation(Contact);Solved[J].SetRotation(Rotation);}
+                const int32 Parent=Ref.GetParentIndex(Bones[J]);
+                const FTransform Local=Parent<0?Solved[J]:Solved[J].GetRelativeTransform(J?Solved[J-1]:CS[Parent]);
+                // Release the support grip with the same smooth recovery as
+                // the body and knife instead of dropping the hands in one frame.
+                FTransform Blended;Blended.Blend(Pose[Bones[J]],Local,GripAlpha);Pose[Bones[J]]=Blended;
+            }
+            Rebuild();
+        }
+        return true;
+    }
     virtual void PreUpdate(UAnimInstance* Instance,float Dt) override
     {
         FAnimInstanceProxy::PreUpdate(Instance,Dt);
@@ -1233,10 +1303,11 @@ public:
         if(auto* Comparison=Instance->GetWorld()->GetSubsystem<UMCAnimationComparisonSubsystem>())
             Comparison->RecordSample(Instance->GetSkelMeshComponent(),Comparison->GetMode(),SecondaryMotion.GetActiveBoneCount(),
                 SecondaryMotion.GetEvaluationCount(),SecondaryMotion.GetLastMaxAngleDegrees(),SecondaryMotion.GetLastMaxTranslation());
-        // Hold only the rendered contact pose for two or three frames. Input,
-        // movement, target health and the authoritative swing timer keep running.
+        // Hold the impact pose when stationary. During movement the authored
+        // attack clock still holds, but gait and foot contacts must keep updating.
         if(!StableSponge && Pose.Num()==Ref.GetNum() && Tooth->ToothPhysics->CanAct()
-            && Tooth->Inventory->ShouldPresentTool() && MCWeaponImpact::IsPoseHeld(Tooth)) return;
+            && Tooth->Inventory->ShouldPresentTool() && MCWeaponImpact::IsPoseHeld(Tooth)
+            && !(MCMeleeCombo::Supports(Tooth) && Tooth->AnimationSpeed>.05f)) return;
         Pose=Ref.GetRefBonePose();
         DashPoseProgress=-1;
         TArray<FTransform> ReferenceCS; ReferenceCS.SetNum(Pose.Num());
@@ -1255,6 +1326,7 @@ public:
             const int32 Parent=Ref.GetParentIndex(I);
             Pose[I].AddToTranslation(Parent>=0?ReferenceCS[Parent].InverseTransformVectorNoScale(Delta):Delta);
         };
+        bool KnifeGripActive=false;
         if(StableSponge) {
             // Build the ride from a clean, stationary crouch. Running gait,
             // world-locked walking feet, social gestures and secondary
@@ -1402,7 +1474,22 @@ public:
         }
         if (Tooth->Grip) Tooth->Grip->BuildPose(Pose,Ref,Dt);
         if (Tooth->BrushContact) Tooth->BrushContact->BuildPose(Pose,Ref,Dt);
-        PlaceFeet(Tooth,Ref,Dt);
+        const uint8 StrikeStep=MCMeleeCombo::VisualStep(Tooth);
+        const auto* StrikeProfile=Tooth->AnimationProfile.Get();
+        UAnimSequence* StrikeClip=StrikeProfile?(StrikeStep==4?StrikeProfile->MeleeFoodHit.Get():StrikeProfile->MeleeCombo.Get()):nullptr;
+        const float StrikeRate=MCMeleeCombo::AnimationRate(Tooth);
+        const float StrikeT=MCWeaponImpact::VisualSwingElapsed(Tooth)*StrikeRate;
+        const float StrikeSpan[]={10.f/24.f,10.f/24.f,38.f/24.f,13.f/24.f};
+        const float StrikeStart[]={0.f,10.f/24.f,20.f/24.f,0.f};
+        const float StrikeEnd=StrikeStep>=1 && StrikeStep<=4?(StrikeStep==3?StrikeSpan[2]:MCMeleeCombo::Duration(Tooth)*Tooth->Inventory->RogueAttackRate()):0.f;
+        const bool AuthoredStrike=WideSwing && !AimedCalculus && Tooth->ToothPhysics && Tooth->ToothPhysics->CanAct()
+            && Tooth->Inventory->ShouldPresentTool() && StrikeClip && StrikeClip->GetSkeleton()
+            && StrikeStep>=1 && StrikeStep<=4 && StrikeT>=0 && StrikeEnd>0 && StrikeT<StrikeEnd+MCMeleeCombo::VisualRecoverySpan;
+        const float WalkingAlpha=Tooth->GetCharacterMovement()->IsMovingOnGround()?FMath::SmoothStep(.05f,.20f,Speed):0.f;
+        // Solve contacts against the final attack body pose, but only once per
+        // frame; the stationary and non-melee paths keep their existing order.
+        const bool DeferWalkingFeet=AuthoredStrike && WalkingAlpha>.001f;
+        if(!DeferWalkingFeet) PlaceFeet(Tooth,Ref,Dt);
         if (Tooth->ToothPhysics && !Tooth->ToothPhysics->IsSlipping()) Tooth->ToothPhysics->BuildPresentationPose(Pose);
         TraversalContacts(Tooth,Ref,Dt);
         SprayTreatment(Tooth,Ref,Dt);
@@ -1471,7 +1558,36 @@ public:
         ChestLockpickPose(Tooth,Ref,Dt);
         if(Tooth->FishingRod) Tooth->FishingRod->BuildHandPose(Pose,Ref,Dt);
         if (Tooth->Expression) Tooth->Expression->BuildSocialPose(Pose,Ref);
+        // Keep authored attacks above the waist while retaining the procedural
+        // stride and foot IK during movement. At rest, use the complete clip.
+        if(AuthoredStrike) {
+            const float In=FMath::SmoothStep(0.f,MCMeleeCombo::VisualBlendInSpan,StrikeT);
+            const float Alpha=In*(1-FMath::SmoothStep(StrikeEnd,StrikeEnd+MCMeleeCombo::VisualRecoverySpan,StrikeT));
+            FAnimExtractContext Context(FMath::Min(double(StrikeClip->GetPlayLength()),double(StrikeStart[StrikeStep-1]+StrikeSpan[StrikeStep-1]*FMath::Min(StrikeT/StrikeEnd,1.f))),false);
+            const auto& Source=StrikeClip->GetSkeleton()->GetReferenceSkeleton();
+            const int32 Body=Ref.FindBoneIndex(Tooth->RigBone(TEXT("body")));
+            const int32 Legs[]={Ref.FindBoneIndex(Tooth->RigBone(TEXT("leg_l"))),Ref.FindBoneIndex(Tooth->RigBone(TEXT("leg_r")))};
+            for(int32 I=0;I<Pose.Num();++I) {
+                const FName Name=Ref.GetBoneName(I);
+                if(Ref.GetParentIndex(I)<0 || Name.ToString().StartsWith(TEXT("c_"))) continue;
+                const int32 Index=Source.FindBoneIndex(Name);if(Index<0) continue;
+                bool Leg=false;
+                for(int32 Parent=I;Parent>=0;Parent=Ref.GetParentIndex(Parent))
+                    if(Parent==Legs[0] || Parent==Legs[1]) {Leg=true;break;}
+                const float BoneAlpha=Alpha*(Leg?1.f-WalkingAlpha:I==Body?1.f-.35f*WalkingAlpha:1.f);
+                FTransform Sample,Blended;StrikeClip->GetBoneTransform(Sample,FSkeletonPoseBoneIndex(Index),Context,false);
+                if(I==Body) Sample.SetTranslation(FMath::Lerp(Sample.GetTranslation(),Pose[I].GetTranslation(),WalkingAlpha));
+                Blended.Blend(Pose[I],Sample,BoneAlpha);Pose[I]=Blended;
+            }
         }
+        if(DeferWalkingFeet) PlaceFeet(Tooth,Ref,Dt);
+        if(AuthoredStrike) {
+            const float GripAlpha=FMath::SmoothStep(0.f,MCMeleeCombo::VisualBlendInSpan,StrikeT)
+                *(1-FMath::SmoothStep(StrikeEnd,StrikeEnd+MCMeleeCombo::VisualRecoverySpan,StrikeT));
+            KnifeGripActive=KnifeStrikeGrip(Tooth,Ref,GripAlpha);
+        }
+        }
+        if(!KnifeGripActive && Tooth->Inventory) Tooth->Inventory->ReleaseMeleeKnifeAnchor();
         ActiveSkillPose(Tooth,Ref,Dt);
         if (Tooth->ToothPhysics) Tooth->ToothPhysics->SubmitAnimationTargets(Pose,Ref,Dt);
         if (Tooth->Expression) Tooth->Expression->BuildFacePose(Pose,Ref,Dt);
