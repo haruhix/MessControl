@@ -2,6 +2,7 @@
 #include "MCToothCharacter.h"
 #include "MCWorldStatusComponent.h"
 #include "MCPerkComponent.h"
+#include "MCPerkPresentationEvents.h"
 #include "MCGameMode.h"
 #include "MCPlayerState.h"
 #include "MCTutorialDirector.h"
@@ -1083,6 +1084,10 @@ void AMCFoodActor::LaunchManualThrow(AMCToothCharacter* Hero,FVector Direction,f
     const FVector Right=FVector::CrossProduct(FVector::UpVector,Direction).GetSafeNormal();
     Body->SetPhysicsAngularVelocityInRadians(Right*1.6f+FVector::UpVector*.55f);
     Body->WakeAllRigidBodies();ForceNetUpdate();
+    if(!bBrushTool && FoodData.Kind==EMCFoodKind::Food && !IsNutEncounterFragment()) {
+        FMCPerkVFXGameplayValues Values;Values.Direction=Direction.GetSafeNormal();
+        MCPassivePresentation::Play(Hero,TEXT("B1_ConfidentThrow"),TEXT("Throw"),FTransform(Values.Direction.Rotation(),GetActorLocation()),Values);
+    }
 }
 void AMCFoodActor::EndManualThrowFlight()
 {
@@ -1136,7 +1141,7 @@ bool AMCFoodActor::ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharac
         }
     }
     if(FoodData.Kind==EMCFoodKind::Food)
-        AMCReactionVFX::Spawn(GetWorld(),Visual->Bounds.Origin,EMCReactionEffect::FoodBreak,.65f,FMath::Clamp(float(Visual->Bounds.SphereRadius),35.f,150.f),Direction);
+        AMCReactionVFX::SpawnForPresentation(GetWorld(),TEXT("Food.Break"),TEXT("BreakArt"),Visual->Bounds.Origin,EMCReactionEffect::FoodBreak,.65f,FMath::Clamp(float(Visual->Bounds.SphereRadius),35.f,150.f),Direction,0,this);
     Dispose(); return true;
 }
 bool AMCFoodActor::IsHardFood() const

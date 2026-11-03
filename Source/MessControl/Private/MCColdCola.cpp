@@ -1,4 +1,6 @@
 #include "MCColdCola.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCVFXPresentationComponent.h"
 #include "MCIceEvent.h"
 #include "MCGameDirector.h"
 #include "MCCoffeeFlood.h"
@@ -29,6 +31,7 @@
 AMCIceBlock::AMCIceBlock()
 {
     bReplicates=true; bAlwaysRelevant=true; SetReplicateMovement(true);
+    OriginalShatterSystem=FSoftObjectPath(TEXT("/Game/Gameplay/VFX/NS_IceShatter.NS_IceShatter"));
     Body=CreateDefaultSubobject<UMCIceSurfaceComponent>(TEXT("IceBody")); SetRootComponent(Body);
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Cube(TEXT("/Engine/BasicShapes/Cube.Cube"));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Sphere(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
@@ -39,7 +42,7 @@ AMCIceBlock::AMCIceBlock()
     Body->SetCollisionProfileName(TEXT("PhysicsActor")); Body->SetCollisionResponseToChannel(ECC_Visibility,ECR_Block);
     Body->SetLinearDamping(2.f); Body->SetAngularDamping(4.f); Body->BodyInstance.bUseCCD=true;
 }
-void AMCIceBlock::BeginPlay() { Super::BeginPlay(); RefreshAppearance(); }
+void AMCIceBlock::BeginPlay() { Super::BeginPlay();RetainedShatterSystem=OriginalShatterSystem.LoadSynchronous();MCWorldPresentation::PrepareOwner(this,{TEXT("World.ColdCola")});RefreshAppearance(); }
 void AMCIceBlock::RefreshAppearance()
 {
     if(ShapeMeshes.IsValidIndex(FMath::Clamp(Shape,0,2))) Body->SetStaticMesh(ShapeMeshes[FMath::Clamp(Shape,0,2)]);
@@ -72,7 +75,31 @@ bool AMCIceBlock::HitWithPickaxe(AMCToothCharacter* Hero,float Damage)
 void AMCIceBlock::Shatter_Implementation(FVector Position,float Diameter)
 {
     if(GetNetMode()==NM_DedicatedServer) return;
-    if(auto* System=LoadObject<UNiagaraSystem>(nullptr,TEXT("/Game/Gameplay/VFX/NS_IceShatter.NS_IceShatter")))
+    // This is the existing successful native break multicast, not another hit.
+    auto* PresentationOwner=FindComponentByClass<UMCWorldPresentationComponent>();auto* Source=PresentationOwner?PresentationOwner->GetSource(TEXT("World.ColdCola")):nullptr;
+    const FTransform Frame(FRotator::ZeroRotator,Position,FVector(FMath::Clamp(Diameter/95.f,.3f,2.f)));
+    FMCPerkVFXGameplayValues V;V.Radius=Diameter;V.Duration=.12f;V.LocalStateAgeSeconds=0;
+    V.bHasEndpoints=true;V.SourcePosition=Position;V.TargetPosition=Position;
+    bool Native=true;
+    if(Source) {
+        // Audio owns this accepted onset once. The visual envelope does not
+        // truncate an independently authored finite sound at .12 seconds.
+        Source->PlayLocalSourceEvent(TEXT("World.ColdCola"),TEXT("Shatter"),Frame,V,false);
+        FString Error;const bool Accepted=Source->UpdateLocalSourceState(TEXT("World.ColdCola"),TEXT("Shatter"),true,Frame,V,nullptr,Error,false);
+        EMCPerkVFXSlotMode Mode=EMCPerkVFXSlotMode::UseDefault;
+        if(Accepted) {
+            ++AcceptedShatterSerial;
+            if(Source->GetPreparedEventMode(TEXT("World.ColdCola"),TEXT("Shatter"),Mode)&&Mode!=EMCPerkVFXSlotMode::UseDefault) {
+                const auto* Settings=Source->GetPreparedNativeSource(TEXT("World.ColdCola"));
+                Native=Mode!=EMCPerkVFXSlotMode::Disabled&&Settings&&Settings->ShouldRenderNativeAccents(TEXT("Shatter"),Mode);
+            }
+            FTimerHandle Close;GetWorldTimerManager().SetTimer(Close,FTimerDelegate::CreateWeakLambda(Source,[Source,Frame,V]() {
+                FString StopError;Source->UpdateLocalSourceState(TEXT("World.ColdCola"),TEXT("Shatter"),false,Frame,V,nullptr,StopError,false);
+            }),.12f,false);
+        }
+    }
+    if(!Native)return;
+    if(auto* System=RetainedShatterSystem.Get())
         if(auto* FX=UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,System,Position,FRotator::ZeroRotator,FVector(FMath::Clamp(Diameter/95.f,.3f,2.f)),true,true))
         { FTimerHandle Timer; GetWorldTimerManager().SetTimer(Timer,FTimerDelegate::CreateWeakLambda(FX,[FX](){FX->Deactivate();}),.12f,false); }
 }
@@ -80,6 +107,17 @@ void AMCIceBlock::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 { Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AMCIceBlock,Health); DOREPLIFETIME(AMCIceBlock,MaxHealth); DOREPLIFETIME(AMCIceBlock,bBroken); DOREPLIFETIME(AMCIceBlock,Shape); DOREPLIFETIME(AMCIceBlock,Size); }
 
 AMCColdColaEvent::AMCColdColaEvent() { bReplicates=true; bAlwaysRelevant=true; PrimaryActorTick.bCanEverTick=true; }
+void AMCColdColaEvent::BeginPlay()
+{Super::BeginPlay();MCWorldPresentation::PrepareOwner(this,{TEXT("World.ColdCola")});}
+void AMCColdColaEvent::UpdateComposerFrost()
+{
+    auto* PresentationOwner=FindComponentByClass<UMCWorldPresentationComponent>();auto* Source=PresentationOwner?PresentationOwner->GetSource(TEXT("World.ColdCola")):nullptr;if(!Source)return;
+    FMCPerkVFXGameplayValues V;V.Fill=FrostAmount();V.Radius=Extent.GetMax();V.LocalStateAgeSeconds=FMath::Max(0.f,float(Now()-StartedAt));
+    V.bHasEndpoints=true;V.SourcePosition=Center-Extent;V.TargetPosition=Center+Extent;FString Error;
+    // The shared actual climate MPC and physical ice/safe geometry remain
+    // native read-only context. Optional decorative layers cannot erase it.
+    Source->UpdateLocalSourceState(TEXT("World.ColdCola"),TEXT("Frost"),bActive&&Profile&&!IsComplete(),GetActorTransform(),V,nullptr,Error);
+}
 double AMCColdColaEvent::Now() const { const auto* GS=GetWorld()->GetGameState(); return GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds(); }
 void AMCColdColaEvent::Start(const UMCDayPlan* Plan,int32 IceCountOverride)
 {
@@ -119,13 +157,14 @@ void AMCColdColaEvent::SetFrost(float Amount)
 void AMCColdColaEvent::OnRep_Timeline()
 {
     SetActorTickEnabled(bActive && Profile && !IsComplete());
+    UpdateComposerFrost();
     if(!bActive || IsComplete()) SetFrost(0);
 }
 void AMCColdColaEvent::Tick(float Dt)
 {
     Super::Tick(Dt);
     if(!bActive || !Profile) {OnRep_Timeline();return;}
-    SetFrost(FrostAmount());
+    SetFrost(FrostAmount());UpdateComposerFrost();
     if(IsComplete()) {
         // End the timeline without deleting ice that still needs to be broken.
         if(HasAuthority()) {bActive=false;ForceNetUpdate();}
@@ -157,7 +196,7 @@ void AMCColdColaEvent::Tick(float Dt)
 void AMCColdColaEvent::Stop()
 {
     if(!HasAuthority()) return;
-    bActive=false; SetActorTickEnabled(false); SetFrost(0); if(Drink) { Drink->Stop(); Drink->Destroy(); Drink=nullptr; }
+    bActive=false;UpdateComposerFrost(); SetActorTickEnabled(false); SetFrost(0); if(Drink) { Drink->Stop(); Drink->Destroy(); Drink=nullptr; }
     if(SlipperyFloor) { SlipperyFloor->Destroy(); SlipperyFloor=nullptr; }
     for(auto& B:Blocks) if(B.IsValid()) B->Destroy(); Blocks.Empty(); ForceNetUpdate();
 }

@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "MCVFXNativePresentationSettings.h"
 #include "MCNutSpellProjectile.generated.h"
 
 class AMCTongue;
@@ -11,6 +12,7 @@ class UNiagaraComponent;
 class UNiagaraSystem;
 class UMaterialInstanceDynamic;
 class UMaterialInterface;
+class UMCVFXPresentationComponent;
 
 USTRUCT(BlueprintType)
 struct FMCNutSpellFlight
@@ -21,6 +23,10 @@ struct FMCNutSpellFlight
     UPROPERTY(BlueprintReadOnly) double StartedAt=-1;
     UPROPERTY(BlueprintReadOnly) float Seconds=1;
     UPROPERTY(BlueprintReadOnly) float Radius=28;
+    /** Cosmetics only: the native walnut always remains the visible projectile body. */
+    UPROPERTY(BlueprintReadOnly) bool bUseNativeAccents=true;
+    UPROPERTY(BlueprintReadOnly) int32 Seed=0;
+    UPROPERTY() FMCVFXNativePresentationRef NativeStyle;
 };
 
 /** Impact fields travel together, so the terminal effect cannot read an older point or normal. */
@@ -41,7 +47,8 @@ class MESSCONTROL_API AMCNutSpellProjectile : public AActor
     GENERATED_BODY()
 public:
     AMCNutSpellProjectile();
-    static AMCNutSpellProjectile* Spawn(AActor* SourceActor,AMCTongue* Tongue,FVector Start,FVector LockedTarget,float Speed,float Damage,float Radius);
+    static AMCNutSpellProjectile* Spawn(AActor* SourceActor,AMCTongue* Tongue,FVector Start,FVector LockedTarget,float Speed,float Damage,float Radius,
+        UMCVFXPresentationComponent* PreparedSource=nullptr,FGuid EpisodeID=FGuid());
     UFUNCTION(BlueprintCallable,Category="Nut Combat") void Cancel();
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaSeconds) override;
@@ -51,6 +58,8 @@ public:
     UPROPERTY(ReplicatedUsing=PresentImpact,BlueprintReadOnly) FMCNutSpellImpact Impact;
     UPROPERTY(Replicated,BlueprintReadOnly) TObjectPtr<AMCTongue> Tongue;
     UPROPERTY(Replicated,BlueprintReadOnly) TObjectPtr<AActor> SourceActor;
+    UPROPERTY(Replicated,BlueprintReadOnly) FGuid EpisodeID;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Presentation") TObjectPtr<UMCVFXPresentationComponent> FireballPresentation;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> Nut;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UProceduralMeshComponent> Flames;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UNiagaraComponent> Trail;
@@ -62,6 +71,8 @@ public:
     UPROPERTY(EditDefaultsOnly,Category="Nut Combat|VFX") TSoftObjectPtr<UNiagaraSystem> TrailSystem;
     UPROPERTY(BlueprintReadOnly) int32 DamageApplications=0;
 private:
+    const FMCVFXNativePartSettings* NativePart(FName ID) const {return NativeArt.FindPart(TEXT("Flight"),ID);}
+    UPROPERTY(Transient) FMCVFXPreparedNativePresentation NativeArt;
     double Now() const;
     FVector PositionAt(float Age) const;
     void ResolveImpact(const FHitResult& Hit);

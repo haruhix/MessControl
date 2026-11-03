@@ -4,7 +4,9 @@
 #include "MCVFXComposer.h"
 #include "MCVFXRecipeComposer.h"
 #include "MCVFXActionWorkspace.h"
+#include "MCWorldActionPreviewAdapters.h"
 #include "MCPerkActionPreviewPanel.h"
+#include "MCNiagaraInputToolset.h"
 
 #include "MCFoodCollisionBaker.h"
 #include "MCFoodCollisionData.h"
@@ -22,6 +24,7 @@
 #include "Misc/Parse.h"
 #include "Modules/ModuleManager.h"
 #include "ToolMenus.h"
+#include "ToolsetRegistry/UToolsetRegistry.h"
 #include "Textures/SlateIcon.h"
 #include "Subsystems/ImportSubsystem.h"
 #include "UObject/ObjectSaveContext.h"
@@ -126,6 +129,8 @@ public:
         MCGameplayUIPreview::EnsureRegistered();
         MCMainMenuPreview::Register();
         MCVFXActionWorkspace::Register();
+        MCWorldActionPreviewAdapters::Register();
+        if(!IsRunningCommandlet()) UToolsetRegistry::RegisterToolsetClass(UMCNiagaraInputToolset::StaticClass());
         if(!IsRunningCommandlet()) UToolMenus::RegisterStartupCallback(
             FSimpleMulticastDelegate::FDelegate::CreateRaw(this,&FMessControlEditorModule::RegisterMainMenuTools));
         SaveHandle=FCoreUObjectDelegates::OnObjectPreSave.AddRaw(this,&FMessControlEditorModule::OnObjectPreSave);
@@ -149,6 +154,7 @@ public:
 
     virtual void ShutdownModule() override
     {
+        UToolsetRegistry::UnregisterToolsetClass(UMCNiagaraInputToolset::StaticClass());
         UToolMenus::UnRegisterStartupCallback(this);
         UToolMenus::UnregisterOwner(this);
         MCMainMenuPreview::Unregister();

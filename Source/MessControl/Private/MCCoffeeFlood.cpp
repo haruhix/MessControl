@@ -1,4 +1,7 @@
 #include "MCCoffeeFlood.h"
+#include "MCCoffeeRiverPresentation.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCVFXPresentationComponent.h"
 #include "MCCataclysmEvent.h"
 #include "MCCataclysmRaft.h"
 #include "MCCataclysmStormMath.h"
@@ -62,6 +65,7 @@ void AMCCoffeeFlood::BeginPlay()
 {
     Super::BeginPlay();
     if (!Profile) Profile=LoadObject<UMCCoffeeProfile>(nullptr,TEXT("/Game/Data/DA_CoffeeWater.DA_CoffeeWater"));
+    RiverComposer=MCWorldPresentation::PrepareOwner(this,{TEXT("World.CoffeeRiver")});
     OnRep_Profile(); UpdateSurface();
 }
 void AMCCoffeeFlood::OnRep_Profile()
@@ -84,7 +88,9 @@ void AMCCoffeeFlood::OnRep_Profile()
             TEXT("/Game/Cataclysm/Storm/MI_StormCoffee.MI_StormCoffee");
         if(auto* StormBase=LoadObject<UMaterialInterface>(nullptr,StormPath)) Base=StormBase;
     }
-    if (Base) { Material=UMaterialInstanceDynamic::Create(Base,this); Surface->SetMaterial(0,Material); RiverSurface->SetMaterial(0,Material); StormSurface->SetMaterial(0,Material); }
+    if(RiverPresentation&&Base&&RiverPresentation->GetOriginalMaterial()!=Base) {if(RiverComposer)RiverComposer->StopStates(TEXT("World.CoffeeRiver"));RiverPresentation->Retire(this);RiverPresentation.Reset();}
+    if(bRiverFlood&&Base&&!RiverPresentation)if(auto* Resources=GetWorld()->GetSubsystem<UMCCoffeeRiverPresentationResources>()) {FString Error;RiverPresentation=Resources->Claim(FindRiverTongue(),this,Base,Error);}
+    if (Base) { Material=RiverPresentation?RiverPresentation->GetNativeMaterial():UMaterialInstanceDynamic::Create(Base,this); Surface->SetMaterial(0,Material); RiverSurface->SetMaterial(0,Material); StormSurface->SetMaterial(0,Material); }
     Surface->SetBoundsScale(1.1f);
     if (!Profile) return;
     Jet->SetStaticMesh(Profile->JetMesh.LoadSynchronous()); Crown->SetStaticMesh(Profile->CrownMesh.LoadSynchronous());
@@ -193,6 +199,7 @@ void AMCCoffeeFlood::Start(const UMCDayPlan* Plan,float SwimTestSeconds,bool bUs
     }
     OnRep_Profile(); Waves=WaterSettings.Cycles;
     Seconds=WaterSettings.CycleSeconds()*Waves; StartedAt=GetWorld()->GetTimeSeconds(); Wave=0;
+    RiverEpisode=FGuid::NewGuid();
     HitThisWave.Empty(); FoodHitThisWave.Empty(); bActive=true; UpdateSurface(); ForceNetUpdate();
     InitializeResidue();
     UE_LOG(LogTemp,Display,TEXT("MC_LIQUID_ARENA center=%s half_size=%s floor=%.1f dry=%.1f water=%.1f inlet=%s"),
@@ -670,7 +677,9 @@ void AMCCoffeeFlood::DepositResidue()
 void AMCCoffeeFlood::Stop()
 {
     if (!HasAuthority()) return;
-    bActive=false; Level=-40; ForceNetUpdate();
+    bActive=false;bRiverComposerCustomActive=false;bRiverAccentsCustomActive=false;RiverAccentsEpisode.Invalidate(); Level=-40; ForceNetUpdate();
+    if(RiverComposer)RiverComposer->StopStates(TEXT("World.CoffeeRiver"));
+    if(RiverPresentation)RiverPresentation->Retire(this);RiverPresentation.Reset();
     Surface->SetVisibility(false); RiverSurface->SetVisibility(false); StormSurface->SetVisibility(false);StormSpray->SetVisibility(false); Jet->SetVisibility(false); Crown->SetVisibility(false); DrainRibbon->SetVisibility(false); Drops->SetVisibility(false);
     for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
     {
@@ -785,10 +794,11 @@ void AMCCoffeeFlood::UpdateSurface()
     if (GetNetMode()==NM_DedicatedServer) return;
     Surface->SetVisibility(bActive && !bRiverFlood && !bCataclysmStorm); RiverSurface->SetVisibility(bActive && bRiverFlood);
     StormSurface->SetVisibility(IsCataclysmStorm());StormSpray->SetVisibility(IsCataclysmStorm());
-    if (!bActive) { Jet->SetVisibility(false); Crown->SetVisibility(false); DrainRibbon->SetVisibility(false); Drops->SetVisibility(false); return; }
+    if (!bActive) { bRiverComposerCustomActive=false;bRiverAccentsCustomActive=false;RiverAccentsEpisode.Invalidate();if(RiverComposer)RiverComposer->StopStates(TEXT("World.CoffeeRiver"));if(RiverPresentation)RiverPresentation->Retire(this);RiverPresentation.Reset();RiverEpisode.Invalidate();Jet->SetVisibility(false); Crown->SetVisibility(false); DrainRibbon->SetVisibility(false); Drops->SetVisibility(false); return; }
     const float T=WaterTime();
     UpdatePour(T);
-    if (bRiverFlood) { UpdateRiverSurface(T); return; }
+    UpdateComposerRiverAccents(T);
+    if (bRiverFlood) { UpdateRiverSurface(T); UpdateComposerRiver(T); return; }
     const FBoxSphereBounds MeshBounds=Surface->GetStaticMesh()?Surface->GetStaticMesh()->GetBounds():FBoxSphereBounds(FVector::ZeroVector,FVector(50),86.6);
     const FVector PlaneScale(HalfSize.X/FMath::Max(1.,MeshBounds.BoxExtent.X),HalfSize.Y/FMath::Max(1.,MeshBounds.BoxExtent.Y),1);
     Surface->SetWorldScale3D(PlaneScale);
@@ -984,4 +994,35 @@ void AMCCoffeeFlood::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
     DOREPLIFETIME(AMCCoffeeFlood,bRiverFlood); DOREPLIFETIME(AMCCoffeeFlood,RiverOrigin); DOREPLIFETIME(AMCCoffeeFlood,RiverDirection);
     DOREPLIFETIME(AMCCoffeeFlood,RiverLength); DOREPLIFETIME(AMCCoffeeFlood,RiverWidth); DOREPLIFETIME(AMCCoffeeFlood,RiverSpeed); DOREPLIFETIME(AMCCoffeeFlood,RiverDepth);
     DOREPLIFETIME(AMCCoffeeFlood,bCataclysmStorm);DOREPLIFETIME(AMCCoffeeFlood,StormSeed);
+}
+
+void AMCCoffeeFlood::UpdateComposerRiver(float Time)
+{
+    bRiverComposerCustomActive=false;
+    if(!RiverComposer||!bRiverFlood||!bActive||!Material)return;
+    FString Error;
+    if(!RiverEpisode.IsValid())RiverEpisode=FGuid::NewGuid();
+    if(!RiverPresentation)if(auto* Resources=GetWorld()->GetSubsystem<UMCCoffeeRiverPresentationResources>())RiverPresentation=Resources->Claim(FindRiverTongue(),this,Material,Error);
+    if(!RiverPresentation){RiverSurface->SetVisibility(true);return;}
+    if(!RiverPresentation->Upload(this,RiverVertices,RiverNormals,Material,Error)) {
+        RiverComposer->StopStates(TEXT("World.CoffeeRiver"));RiverSurface->SetVisibility(true);return;
+    }
+    FMCPerkVFXGameplayValues Values;Values.EpisodeID=RiverEpisode;Values.LocalStateAgeSeconds=Time;
+    Values.Duration=Seconds;Values.VisualSubject=RiverSurface;Values.RiverSurface=RiverPresentation;
+    const bool Accepted=RiverComposer->UpdateState(TEXT("World.CoffeeRiver"),TEXT("Flow"),true,FTransform::Identity,Values,RiverSurface,Error);
+    bool HasExactLayer=false;
+    if(auto* Source=RiverComposer->GetSource(TEXT("World.CoffeeRiver")))if(const auto* Prepared=Source->GetPreparedSourceEvent(TEXT("World.CoffeeRiver"),TEXT("Flow")))
+        if(Prepared->Snapshot)for(int32 I=0;I<Prepared->Snapshot->Layers.Num();++I)
+            if(Prepared->Snapshot->Layers[I].bEnabled&&Prepared->Systems.IsValidIndex(I)&&FMCCoffeeRiverPresentation::Uses(Prepared->Systems[I]))HasExactLayer=true;
+    // Water is the read-only hazard footprint. Disabled/empty/generic-only rows
+    // restore native visibility rather than make a physically active river invisible.
+    auto* Channel=RiverComposer->GetSource(TEXT("World.CoffeeRiver"));
+    bRiverComposerCustomActive=Accepted&&HasExactLayer&&Channel&&Channel->GetLocalSourceStateCount()>0
+        &&!RiverComposer->UsesNativeVisuals(TEXT("World.CoffeeRiver"),TEXT("Flow"));
+    RiverSurface->SetVisibility(!bRiverComposerCustomActive);
+}
+void AMCCoffeeFlood::EndPlay(const EEndPlayReason::Type Reason)
+{
+    if(RiverComposer)RiverComposer->StopStates(TEXT("World.CoffeeRiver"));
+    if(RiverPresentation)RiverPresentation->Retire(this);RiverPresentation.Reset();Super::EndPlay(Reason);
 }

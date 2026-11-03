@@ -6,6 +6,7 @@
 #include "MCPerkPreviewEditorLibrary.h"
 #include "MCVFXRecipeComposer.h"
 #include "MCVFXActionWorkspace.h"
+#include "MCVFXProfileBinding.h"
 #include "MCPerkVFXProfile.h"
 #include "MCPerkTypes.h"
 #include "MCActiveSkillAction.h"
@@ -22,6 +23,7 @@
 #include "Editor.h"
 #include "EditorUndoClient.h"
 #include "EditorViewportClient.h"
+#include "CanvasTypes.h"
 #include "Engine/World.h"
 #include "Engine/DataTable.h"
 #include "FileHelpers.h"
@@ -72,7 +74,7 @@
 namespace
 {
     const FName PerkPreviewTabName(TEXT("MCPerkActionPreview"));
-    const TArray<FName> Stages={TEXT("Start"),TEXT("Loop"),TEXT("Impact"),TEXT("End")};
+    const TArray<FName> PreviewPanelStages={TEXT("Start"),TEXT("Loop"),TEXT("Impact"),TEXT("End")};
     FString StageLabel(FName Stage)
     {
         if(Stage==TEXT("Start"))return TEXT("ВЫСТРЕЛ");
@@ -131,9 +133,18 @@ namespace
         {
             // The shared service owns the private world's clock. Rendering a
             // small/hidden/background viewport must not pause an action or fuse.
+            if(!Runner->GetWorld())return;
             FEditorViewportClient::Tick(Dt);
+            Runner->SetAudioListenerTransform(FTransform(GetViewRotation(),GetViewLocation()),Dt);
             const FIntPoint Size=Viewport?Viewport->GetSizeXY():FIntPoint::ZeroValue;
-            if(Size.X>1 && Size.Y>1 && Size!=LastFramedSize){LastFramedSize=Size;Preset(CurrentPreset);}
+            if(Size.X>1 && Size.Y>1 && (Size!=LastFramedSize || LastFramingRevision!=Runner->GetFramingRevision())) {
+                LastFramedSize=Size;LastFramingRevision=Runner->GetFramingRevision();Preset(CurrentPreset);
+            }
+        }
+        virtual void Draw(FViewport* InViewport,FCanvas* Canvas) override
+        {
+            if(!Runner->GetWorld()) {if(Canvas)Canvas->Clear(GetBackgroundColor());return;}
+            FEditorViewportClient::Draw(InViewport,Canvas);
         }
         virtual void OverridePostProcessSettings(FSceneView& View) override
         {
@@ -154,20 +165,23 @@ namespace
             const double WantedTanV=FMath::Tan(FMath::DegreesToRadians(Index==0?25.:19.));
             ViewFOV=float(FMath::Clamp(FMath::RadiansToDegrees(2*FMath::Atan(WantedTanV*Aspect)),10.,120.));
             FOVAngle=ViewFOV;
+            const FVector ContextFront=Runner->GetPreviewFront().GetSafeNormal2D();
+            const bool HasContextFront=!ContextFront.IsNearlyZero();
+            const FVector ContextRight(-ContextFront.Y,ContextFront.X,0);
             FVector Target,Camera;
             if(Index==0)
             {
                 // Frame both the complete tooth and its target. In a portrait
                 // preview a fixed over-shoulder camera clipped the left hand
                 // and half the body; compute the distance from actual corners.
-                const float TargetX=Runner->GetScenario()==EMCPerkPreviewScenario::NearWall?250.f:900.f;
-                const FBox Box(Hero+FVector(-85,-150,-65),FVector(TargetX+35,160,295));
-                Target=Box.GetCenter();const FVector Back=FVector(-1,.55f,.34f).GetSafeNormal();
+                const FBox Box=Runner->GetFramingBounds();
+                Target=Box.GetCenter();const FVector Back=(HasContextFront
+                    ?ContextFront+ContextRight*.55f+FVector::UpVector*.34f:FVector(-1,.55f,.34f)).GetSafeNormal();
                 const FVector Forward=-Back;
                 const FVector Right=FVector::CrossProduct(Forward,FVector::UpVector).GetSafeNormal();
                 const FVector Up=FVector::CrossProduct(Right,Forward).GetSafeNormal();
                 const double TanH=FMath::Tan(FMath::DegreesToRadians(double(ViewFOV)*.5));
-                const double TanV=TanH/Aspect;double Distance=600;
+                const double TanV=TanH/Aspect;double Distance=250;
                 for(int32 Corner=0;Corner<8;++Corner)
                 {
                     const FVector Q=FVector(Corner&1?Box.Max.X:Box.Min.X,Corner&2?Box.Max.Y:Box.Min.Y,Corner&4?Box.Max.Z:Box.Min.Z)-Target;
@@ -186,8 +200,13 @@ namespace
                     if(Mesh->Bounds.GetBox().IsValid && Mesh->Bounds.BoxExtent.Size()<500.f)Box+=Mesh->Bounds.GetBox();
                 if(auto* Action=Runner->GetAction())if(auto* Prop=Action->PropMesh.Get())
                     if(Prop->IsVisible() && Prop->Bounds.GetBox().IsValid && FVector::Dist(Prop->Bounds.Origin,Hero)<400.f)Box+=Prop->Bounds.GetBox();
+                // World-context previews include the actual target (including
+                // imported bosses), rather than putting a hero-only camera
+                // inside its shield. Do not include UI/particle bounds.
+                if(!Runner->HasPerkDefinition())Box+=Runner->GetFramingBounds();
                 Box=Box.ExpandBy(10.f);Target=Box.GetCenter();
-                const FVector Back=(Index==1?FVector(1,0,.18f):FVector(0,1,.18f)).GetSafeNormal();
+                const FVector Back=(HasContextFront?(Index==1?ContextFront:ContextRight)+FVector::UpVector*.18f
+                    :(Index==1?FVector(Runner->HasPerkDefinition()?1:-1,0,.18f):FVector(0,1,.18f))).GetSafeNormal();
                 const FVector Forward=-Back;
                 const FVector Right=FVector::CrossProduct(Forward,FVector::UpVector).GetSafeNormal();
                 const FVector Up=FVector::CrossProduct(Right,Forward).GetSafeNormal();
@@ -210,6 +229,7 @@ namespace
     private:
         TSharedRef<FMCPerkPreviewRunner> Runner;
         FIntPoint LastFramedSize=FIntPoint::ZeroValue;
+        uint64 LastFramingRevision=MAX_uint64;
         int32 CurrentPreset=0;
     };
     class SMCPerkPreviewViewport final : public SEditorViewport
@@ -261,9 +281,9 @@ namespace
             TSharedRef<SConstraintCanvas> Canvas=SNew(SConstraintCanvas)
                 .RenderTransform_Lambda([this]{return FSlateRenderTransform(FScale2D(Zoom),FVector2D(Pan));})
                 .RenderTransformPivot(FVector2D::ZeroVector);
-            for(int32 Index=0;Index<Stages.Num();++Index)
+            for(int32 Index=0;Index<PreviewPanelStages.Num();++Index)
             {
-                const FName Stage=Stages[Index];const FVector2D Pos=NodePosition(Index);
+                const FName Stage=PreviewPanelStages[Index];const FVector2D Pos=NodePosition(Index);
                 const FAssetData Data(FModuleManager::LoadModuleChecked<FAssetRegistryModule>(TEXT("AssetRegistry")).Get().GetAssetByObjectPath(EffectiveSystem(Profile.Get(),Stage).ToSoftObjectPath()));
                 TSharedRef<FAssetThumbnail> Thumb=MakeShared<FAssetThumbnail>(Data,72,72,Pool);Thumbnails.Add(Thumb);
                 Canvas->AddSlot().Offset(FMargin(Pos.X,Pos.Y,235,165)).Alignment(FVector2D::ZeroVector)
@@ -332,12 +352,12 @@ namespace
             FSlateDrawElement::MakeLines(Out,Layer,Geo.ToPaintGeometry(),{FVector2D(X,0),FVector2D(X,Size.Y)},ESlateDrawEffect::None,FLinearColor(.035f,.04f,.05f),false,1.f);
         for(float Y=FMath::Fmod(P->Pan.Y,24.f*P->Zoom);Y<Size.Y;Y+=24.f*P->Zoom)
             FSlateDrawElement::MakeLines(Out,Layer,Geo.ToPaintGeometry(),{FVector2D(0,Y),FVector2D(Size.X,Y)},ESlateDrawEffect::None,FLinearColor(.035f,.04f,.05f),false,1.f);
-        for(int32 I=0;I<Stages.Num();++I)
+        for(int32 I=0;I<PreviewPanelStages.Num();++I)
         {
-            if(EffectiveSystem(P->Profile.Get(),Stages[I]).IsNull())continue;
+            if(EffectiveSystem(P->Profile.Get(),PreviewPanelStages[I]).IsNull())continue;
             const FVector2D A=Geo.LocalToAbsolute(P->Pan+(NodePosition(I)+FVector2D(118,165))*P->Zoom);
             const FVector2D B=Geo.LocalToAbsolute(P->Pan+(GraphOutputPosition+FVector2D(GraphOutputSize.X*.5,0))*P->Zoom);
-            FSlateDrawElement::MakeDrawSpaceSpline(Out,Layer+1,A,FVector2D(0,100)*P->Zoom,B,FVector2D(0,100)*P->Zoom,2.f,ESlateDrawEffect::None,StageColor(Stages[I])*1.6f);
+            FSlateDrawElement::MakeDrawSpaceSpline(Out,Layer+1,A,FVector2D(0,100)*P->Zoom,B,FVector2D(0,100)*P->Zoom,2.f,ESlateDrawEffect::None,StageColor(PreviewPanelStages[I])*1.6f);
         }
         return Layer+1;
     }
@@ -360,7 +380,7 @@ namespace
                             Working->ClearFlags(RF_Public|RF_Standalone);Working->SetFlags(RF_Transient|RF_Transactional);
                             SourcePath=Source->GetPathName();Status=TEXT("Открыта независимая копия назначенного профиля: ")+SourcePath;
                         }
-            for(FName Stage:Stages)Working->Slots.FindOrAdd(Stage);
+            for(FName Stage:PreviewPanelStages)Working->Slots.FindOrAdd(Stage);
             ThumbnailPool=MakeShared<FAssetThumbnailPool>(16);
             FDetailsViewArgs D;D.bUpdatesFromSelection=false;D.bLockable=false;D.bAllowSearch=false;D.NameAreaSettings=FDetailsViewArgs::HideNameArea;
             FStructureDetailsViewArgs S;S.bShowObjects=true;
@@ -431,7 +451,7 @@ namespace
         bool SetWorkingSlot(FName Stage,const FMCPerkVFXSlot& Slot,FString& OutError)
         {
             OutError.Reset();
-            if(!Stages.Contains(Stage)){OutError=TEXT("Это событие не поддерживается предпросмотром ракетницы.");return false;}
+            if(!PreviewPanelStages.Contains(Stage)){OutError=TEXT("Это событие не поддерживается предпросмотром ракетницы.");return false;}
             TStrongObjectPtr<UMCPerkVFXProfile> Candidate(DuplicateObject<UMCPerkVFXProfile>(Working.Get(),GetTransientPackage()));
             Candidate->Slots.FindOrAdd(Stage)=Slot;
             if(!Candidate->Validate(OutError))return false;
@@ -451,7 +471,7 @@ namespace
             if(!Working->Validate(Error)){Status=TEXT("Профиль не запущен: ")+Error;return false;}
             PreviewProfile.Reset(DuplicateObject<UMCPerkVFXProfile>(Working.Get(),GetTransientPackage(),MakeUniqueObjectName(GetTransientPackage(),UMCPerkVFXProfile::StaticClass(),TEXT("PerkPreviewSnapshot"))));
             PreviewProfile->ClearFlags(RF_Public|RF_Standalone);PreviewProfile->SetFlags(RF_Transient);
-            if(bSolo)for(FName Stage:Stages)if(Stage!=SelectedStage)PreviewProfile->Slots.FindOrAdd(Stage).Mode=EMCPerkVFXSlotMode::Disabled;
+            if(bSolo)for(FName Stage:PreviewPanelStages)if(Stage!=SelectedStage)PreviewProfile->Slots.FindOrAdd(Stage).Mode=EMCPerkVFXSlotMode::Disabled;
             const bool bResult=Runner->StartRocket(Scenario,PreviewProfile.Get());
             Status=bResult?(bSolo?TEXT("Предпросмотр выбранного слота Solo в полном действии."):TEXT("Запущено настоящее действие с копией рабочего профиля.")):Runner->GetStatus();
             return bResult;
@@ -459,7 +479,7 @@ namespace
         bool Audition(FName Stage,const FMCPerkVFXSlot& Slot,FString& OutError)
         {
             OutError.Reset();
-            if(!Stages.Contains(Stage)){OutError=TEXT("Это событие не поддерживается.");return false;}
+            if(!PreviewPanelStages.Contains(Stage)){OutError=TEXT("Это событие не поддерживается.");return false;}
             PreviewProfile.Reset(DuplicateObject<UMCPerkVFXProfile>(Working.Get(),GetTransientPackage(),MakeUniqueObjectName(GetTransientPackage(),UMCPerkVFXProfile::StaticClass(),TEXT("ComposerAudition"))));
             PreviewProfile->ClearFlags(RF_Public|RF_Standalone);PreviewProfile->SetFlags(RF_Transient);
             PreviewProfile->Slots.FindOrAdd(Stage)=Slot;
@@ -608,6 +628,8 @@ namespace
     TSharedPtr<FMCPerkPreviewRunner> SharedRunner;
     TStrongObjectPtr<UMCPerkVFXProfile> SharedWorking;
     FName SharedPerkID;
+    FMCVFXCanonicalProfileState SharedCanonical;
+    bool bHasSharedCanonical=false,bSharedWorkingModified=false;
     FTSTicker::FDelegateHandle SharedClockHandle;
 
     void EnsureSharedClock()
@@ -659,24 +681,32 @@ void MCPerkActionPreviewPanel::Unregister()
     ActivePanel.Reset();FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(PerkPreviewTabName);
     FTSTicker::GetCoreTicker().RemoveTicker(SharedClockHandle);SharedClockHandle.Reset();
     SharedWorking.Reset();SharedRunner.Reset();SharedPerkID=NAME_None;
+    SharedCanonical=FMCVFXCanonicalProfileState();bHasSharedCanonical=false;bSharedWorkingModified=false;
 }
 void MCPerkActionPreviewPanel::Open(){MCVFXActionWorkspace::Open();}
 bool MCPerkActionPreviewPanel::EnsureContext(FName PerkID,FString& OutError)
 {
     OutError.Reset();const auto* Entry=MCPerkPreviewAdapters::Find(PerkID);
     if(!Entry){OutError=TEXT("Для выбранного действия ещё нет контекстного адаптера.");return false;}
+    const bool NeedsCanonical=Entry->bSupportsProfileOverride;
+    FMCVFXCanonicalProfileState Canonical;
+    // A mechanic-only provider has no editable profile owner. Its native
+    // scenario still uses this same shared world, without inventing a binding.
+    if(NeedsCanonical && !MCVFXProfileBindings::ReadCanonical(PerkID,Canonical,OutError))return false;
     if(!SharedRunner){SharedRunner=MakeShared<FMCPerkPreviewRunner>();if(!SharedRunner->Initialize()){OutError=SharedRunner->GetStatus();SharedRunner.Reset();return false;}}
     EnsureSharedClock();
-    if(SharedPerkID==PerkID && SharedWorking.IsValid())return true;
+    if(SharedPerkID==PerkID && SharedWorking.IsValid()) {
+        if(!NeedsCanonical && !bHasSharedCanonical)return true;
+        FString StaleReason;
+        if(NeedsCanonical && bHasSharedCanonical && MCVFXProfileBindings::ValidateUnchanged(SharedCanonical,StaleReason))return true;
+        if(bSharedWorkingModified){OutError=TEXT("Канонический профиль изменился; сохраните рабочую копию или выберите действие заново. ")+StaleReason;return false;}
+    }
     SharedRunner->Reset();SharedPerkID=PerkID;
-    const bool NeedsRow=Entry->Kind!=EMCPerkPreviewAdapterKind::Context || !Entry->SourceRowID.IsNone();
-    const auto* Table=NeedsRow?LoadObject<UDataTable>(nullptr,TEXT("/Game/Gameplay/Roguelike/DT_Perks.DT_Perks")):nullptr;
-    const FName RowID=Entry->SourceRowID.IsNone()?PerkID:Entry->SourceRowID;
-    const auto* Row=Table && Table->GetRowStruct()==FMCPerkDefinition::StaticStruct()?Table->FindRow<FMCPerkDefinition>(RowID,TEXT("PreviewContext"),false):nullptr;
-    if(auto* Source=Row?Row->VFXProfile.LoadSynchronous():nullptr)
+    if(auto* Source=Canonical.Profile.LoadSynchronous())
         SharedWorking.Reset(DuplicateObject<UMCPerkVFXProfile>(Source,GetTransientPackage(),MakeUniqueObjectName(GetTransientPackage(),UMCPerkVFXProfile::StaticClass(),TEXT("VFXContextWorking"))));
     else SharedWorking.Reset(NewObject<UMCPerkVFXProfile>(GetTransientPackage(),NAME_None,RF_Transient));
     SharedWorking->ClearFlags(RF_Public|RF_Standalone);SharedWorking->SetFlags(RF_Transient|RF_Transactional);
+    SharedCanonical=MoveTemp(Canonical);bHasSharedCanonical=NeedsCanonical;bSharedWorkingModified=false;
     return true;
 }
 FName MCPerkActionPreviewPanel::GetContextPerkID(){return SharedPerkID;}
@@ -689,13 +719,13 @@ bool MCPerkActionPreviewPanel::SetWorkingSlot(FName Stage,const FMCPerkVFXSlot& 
         OutError=TEXT("Текущий контекст не поддерживает замену этого VFX-события.");return false;
     }
     TStrongObjectPtr<UMCPerkVFXProfile> Candidate(DuplicateObject<UMCPerkVFXProfile>(SharedWorking.Get(),GetTransientPackage()));Candidate->Slots.FindOrAdd(Stage)=Slot;
-    if(!Candidate->Validate(OutError))return false;
+    if(!Candidate->ValidateForEvents(SharedCanonical.AllowedEvents,OutError))return false;
     if(Slot.Mode==EMCPerkVFXSlotMode::Replace) {
         auto* System=Slot.System.LoadSynchronous();
         if(!System || !UMCVFXComposition::ValidateParameters(UMCPerkVFXProfile::AsLayer(Slot),System,OutError))return false;
     }
     const FScopedTransaction Tx(LOCTEXT("SharedApply","Изменить рабочий VFX-контекст"));
-    SharedWorking->Modify();SharedWorking->Slots.FindOrAdd(Stage)=Slot;return true;
+    SharedWorking->Modify();SharedWorking->Slots.FindOrAdd(Stage)=Slot;bSharedWorkingModified=true;return true;
 }
 UNiagaraSystem* MCPerkActionPreviewPanel::ResolveWorkingStageSystem(FName Stage)
 {
@@ -708,7 +738,7 @@ bool MCPerkActionPreviewPanel::AuditionWorkingSlot(FName Stage,const FMCPerkVFXS
     OutError.Reset();if(!SharedRunner || !SharedWorking.IsValid()){OutError=TEXT("Контекст предпросмотра недоступен.");return false;}
     TStrongObjectPtr<UMCPerkVFXProfile> Trial(DuplicateObject<UMCPerkVFXProfile>(SharedWorking.Get(),GetTransientPackage()));
     Trial->ClearFlags(RF_Public|RF_Standalone);Trial->SetFlags(RF_Transient);Trial->Slots.FindOrAdd(Stage)=Slot;
-    if(!Trial->Validate(OutError))return false;
+    if(!Trial->ValidateForEvents(SharedCanonical.AllowedEvents,OutError))return false;
     if(!SharedRunner->StartAction(SharedPerkID,EMCPerkPreviewScenario::Target,Trial.Get())){OutError=SharedRunner->GetStatus();return false;}
     return true;
 }

@@ -45,4 +45,5 @@ private:
     FTimerHandle ArmTimer;
     TSet<TWeakObjectPtr<AActor>> MustReenter;
     bool bArmed=false;
+    bool bPresentationBegun=false,bPresentationArrivalObserved=false,bPresentationClaimObserved=false;
 };

@@ -1,10 +1,16 @@
 #include "MCTaskCoinPresentationComponent.h"
 #include "MCGameUserSettings.h"
 #include "MCPlayerController.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCVFXPresentationComponent.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Components/AudioComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Engine/World.h"
+#include "Engine/GameInstance.h"
+#include "Engine/GameViewportClient.h"
+#include "Engine/LocalPlayer.h"
 #include "EngineUtils.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/PrimitiveComponentUtilities.h"
@@ -48,6 +54,9 @@ void UMCTaskCoinPresentationComponent::PreparePresentation()
     auto* PC=Cast<AMCPlayerController>(GetOwner());auto* World=GetWorld();
     if(!PC || !PC->HasLocalPresentationOwner() || !World || World->bIsTearingDown
         || GetNetMode()==NM_DedicatedServer || !FApp::CanEverRender()) return;
+    // This lifecycle boundary resolves only the location's retained source.
+    // PresentCoins and state ticks never create a source or load an asset.
+    Composer=MCWorldPresentation::PrepareOwner(PC,{TEXT("Reward.TaskCoins")});
     if(HasPreparedPresentation()) return;
     ReleasePreparedResources();
     RetainedMaterial=CoinMaterial.LoadSynchronous();
@@ -113,6 +122,18 @@ bool UMCTaskCoinPresentationComponent::CanPresent(AMCPlayerController* PC,APawn*
         && !PC->IsRewardInteractionActive() && !PC->IsBossIntroPlaying();
 }
 
+bool UMCTaskCoinPresentationComponent::HasSingleLocalViewportContext(AMCPlayerController* PC,APawn* Pawn) const
+{
+    if(!PC || PC!=GetOwner() || !PC->HasLocalPresentationOwner() || !IsValid(Pawn)
+        || Pawn->GetWorld()!=GetWorld() || PC->GetPawn()!=Pawn || PC->GetViewTarget()!=Pawn)return false;
+    const auto* World=GetWorld();const auto* Instance=World?World->GetGameInstance():nullptr;
+    const auto* Local=PC->GetLocalPlayer();const auto* Viewport=Local?Local->ViewportClient.Get():nullptr;
+    return Instance && Local && Local->GetGameInstance()==Instance
+        && Viewport && Viewport->GetWorld()==World && Viewport->GetGameInstance()==Instance
+        && Local->GetViewportClient()==Viewport
+        && Instance->GetLocalPlayers().Num()==1 && Instance->GetLocalPlayers()[0]==Local;
+}
+
 void UMCTaskCoinPresentationComponent::PresentCoins(int32 Amount,int32 WalletAfter)
 {
     auto* PC=Cast<AMCPlayerController>(GetOwner());APawn* Pawn=PC?PC->GetPawn():nullptr;
@@ -128,12 +149,17 @@ void UMCTaskCoinPresentationComponent::PresentCoins(int32 Amount,int32 WalletAft
         UPrimitiveComponentUtilities::AddVisibilityOwner(CoinMesh,Pawn);VisibilityPawn=Pawn;
     }
     ActivePawn=Pawn;BurstOrigin=Pawn->GetActorLocation();Age=0;
+    ReceiptStartedAt=GetWorld()->GetTimeSeconds();PresentationEpisode=FGuid::NewGuid();
+    // Existing multi-view/native behavior is unchanged. A refused custom lane
+    // is latched for this receipt and is never activated late on a state tick.
+    bComposerReceiptAllowed=HasSingleLocalViewportContext(PC,Pawn);
     ActiveCount=Amount<10?3:Amount<25?4:5;
     const FRotator View=PC->PlayerCameraManager?PC->PlayerCameraManager->GetCameraRotation():PC->GetControlRotation();
     FVector Right=View.RotateVector(FVector::RightVector).GetSafeNormal2D();
     if(Right.IsNearlyZero()) Right=FVector::RightVector;
     const FVector Forward=FVector::CrossProduct(Right,FVector::UpVector).GetSafeNormal();
     const FVector CameraNormal=-View.Vector();
+    StartFacingNormal=CameraNormal;
     float HalfHeight=55.f;
     if(const auto* Character=Cast<ACharacter>(Pawn);Character && Character->GetCapsuleComponent())
         HalfHeight=Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
@@ -165,9 +191,67 @@ void UMCTaskCoinPresentationComponent::PresentCoins(int32 Amount,int32 WalletAft
             Coin.Landing=FloorCandidate+FVector::UpVector*24;
         }
     }
-    CoinMesh->SetWorldLocation(BurstOrigin);SetComponentTickEnabled(true);UpdateMesh(0);
+    CoinMesh->SetWorldLocation(BurstOrigin);SetComponentTickEnabled(true);
+    const bool ComposerAccepted=PublishComposerState();
+    if(bNativeVisuals)UpdateMesh(0);else CoinMesh->SetVisibility(false);
     const auto* Preferences=UMCGameUserSettings::Get();
-    if(CoinAudio && RetainedSound && (!Preferences || Preferences->GetEffectiveSFXVolume()>KINDA_SMALL_NUMBER)) CoinAudio->Play();
+    if(CoinAudio && RetainedSound && (!ComposerAccepted || !Composer || Composer->UsesOriginalAudio(TEXT("Reward.TaskCoins"),TEXT("Reward")))
+        && (!Preferences || Preferences->GetEffectiveSFXVolume()>KINDA_SMALL_NUMBER)) CoinAudio->Play();
+}
+
+void UMCTaskCoinPresentationComponent::UpdateSurfaceAnchors()
+{
+    for(int32 I=0;I<ActiveCount;++I) {
+        auto& Coin=Coins[I];
+        if(auto* Surface=Coin.Surface.Get();Coin.bContact && Surface && Surface->GetWorld()==GetWorld()) {
+            Coin.Landing=Surface->GetComponentTransform().TransformPosition(Coin.LandingLocal);
+            Coin.LandingNormal=Surface->GetComponentTransform().TransformVectorNoScale(Coin.NormalLocal).GetSafeNormal();
+        }
+    }
+}
+
+bool UMCTaskCoinPresentationComponent::PublishComposerState()
+{
+    auto* PC=Cast<AMCPlayerController>(GetOwner());auto* Pawn=ActivePawn.Get();
+    if(!bComposerReceiptAllowed || !Composer || !HasSingleLocalViewportContext(PC,Pawn)) {
+        if(Composer)Composer->StopStates(TEXT("Reward.TaskCoins"));
+        bComposerReceiptAllowed=false;bNativeVisuals=true;return false;
+    }
+    const auto* Channel=Composer->GetSource(TEXT("Reward.TaskCoins"));
+    EMCPerkVFXSlotMode Mode=EMCPerkVFXSlotMode::UseDefault;
+    if(!Channel || !Channel->GetPreparedEventMode(TEXT("Reward.TaskCoins"),TEXT("Reward"),Mode)) {
+        Composer->StopStates(TEXT("Reward.TaskCoins"));bComposerReceiptAllowed=false;bNativeVisuals=true;return false;
+    }
+    const FRotator View=PC->PlayerCameraManager?PC->PlayerCameraManager->GetCameraRotation():PC->GetControlRotation();
+    FMCPerkVFXGameplayValues Values;Values.EpisodeID=PresentationEpisode;
+    Values.LocalStateAgeSeconds=FMath::Max(0.f,float(GetWorld()->GetTimeSeconds()-ReceiptStartedAt));
+    Values.SourcePosition=Pawn->GetActorLocation();Values.TargetPosition=Values.SourcePosition+FVector(0,0,15);Values.bHasEndpoints=true;
+    Values.VisualSubject=Pawn->GetRootComponent();
+    if(const auto* Character=Cast<ACharacter>(Pawn);Character&&Character->GetMesh())Values.VisualSubject=Character->GetMesh();
+    Values.NativeInputs.Entries.Reserve(24);
+    // The accepted frame stays at BurstOrigin. These are actual coordinates in
+    // that translation-only frame, not new per-frame artistic motion samples.
+    auto Add=[&](const FString& Name,EMCVFXNativeInputType Type)->FMCVFXNativeInput& {
+        auto& Input=Values.NativeInputs.Entries.AddDefaulted_GetRef();Input.Name=FName(*Name);Input.Type=Type;return Input;
+    };
+    Add(TEXT("User.Native.RewardCoinCount"),EMCVFXNativeInputType::Int).IntValue=ActiveCount;
+    Add(TEXT("User.Native.RewardCollectLocal"),EMCVFXNativeInputType::Vector).VectorValue=Values.TargetPosition-BurstOrigin;
+    Add(TEXT("User.Native.RewardStartFacingNormalLocal"),EMCVFXNativeInputType::Vector).VectorValue=StartFacingNormal;
+    Add(TEXT("User.Native.RewardFacingNormalLocal"),EMCVFXNativeInputType::Vector).VectorValue=-View.Vector();
+    for(int32 I=0;I<PoolSize;++I) {
+        const FString Prefix=FString::Printf(TEXT("User.Native.Coin%d"),I);const auto& Coin=Coins[I];
+        Add(Prefix+TEXT("StartLocal"),EMCVFXNativeInputType::Vector).VectorValue=I<ActiveCount?Coin.Start-BurstOrigin:FVector::ZeroVector;
+        Add(Prefix+TEXT("LandingLocal"),EMCVFXNativeInputType::Vector).VectorValue=I<ActiveCount?Coin.Landing-BurstOrigin:FVector::ZeroVector;
+        Add(Prefix+TEXT("LandingNormalLocal"),EMCVFXNativeInputType::Vector).VectorValue=I<ActiveCount?Coin.LandingNormal:FVector::UpVector;
+        Add(Prefix+TEXT("HasSurface"),EMCVFXNativeInputType::Bool).BoolValue=I<ActiveCount&&Coin.bContact;
+    }
+    FString Error;const bool Accepted=Composer->UpdateState(TEXT("Reward.TaskCoins"),TEXT("Reward"),true,FTransform(BurstOrigin),Values,this,Error);
+    if(!Accepted) {
+        Composer->StopStates(TEXT("Reward.TaskCoins"));bComposerReceiptAllowed=false;bNativeVisuals=true;return false;
+    }
+    // The SDK has accepted/started every enabled prepared NS or explicitly
+    // accepted an empty/disabled visual policy. Audio-running is not VFX proof.
+    bNativeVisuals=Composer->UsesNativeVisuals(TEXT("Reward.TaskCoins"),TEXT("Reward"));return true;
 }
 
 void UMCTaskCoinPresentationComponent::UpdateMesh(float Elapsed)
@@ -227,12 +311,25 @@ void UMCTaskCoinPresentationComponent::TickComponent(float Dt,ELevelTick Tick,FA
     auto* PC=Cast<AMCPlayerController>(GetOwner());auto* Pawn=ActivePawn.Get();
     if(!CanPresent(PC,Pawn) || PC->GetPawn()!=Pawn) {ResetPresentation();return;}
     Age+=FMath::Max(0.f,Dt);
-    if(Age>=MCTaskCoinPresentation::Life+(ActiveCount-1)*.06f) {ResetPresentation();return;}
-    UpdateMesh(Age);
+    const bool NativeEnded=Age>=MCTaskCoinPresentation::Life+(ActiveCount-1)*.06f;
+    if(NativeEnded) {
+        // This read-only receipt window is the original native coalescing
+        // window. End emission once, even for an authored infinite NS/SFX loop;
+        // the shared player keeps only its explicitly bounded world-owned tail.
+        if(Composer&&bComposerReceiptAllowed) {
+            FMCPerkVFXGameplayValues End;End.EpisodeID=PresentationEpisode;
+            FString Error;Composer->UpdateState(TEXT("Reward.TaskCoins"),TEXT("Reward"),false,FTransform(BurstOrigin),End,this,Error);
+        }
+        ResetPresentation();return;
+    }
+    UpdateSurfaceAnchors();PublishComposerState();
+    if(bNativeVisuals&&!NativeEnded)UpdateMesh(Age);else if(CoinMesh)CoinMesh->SetVisibility(false);
 }
 
 void UMCTaskCoinPresentationComponent::ResetPresentation()
 {
+    if(Composer)Composer->StopStates(TEXT("Reward.TaskCoins"));
+    PresentationEpisode.Invalidate();bComposerReceiptAllowed=false;bNativeVisuals=true;ReceiptStartedAt=0;
     ActiveCount=0;Age=0;ActivePawn.Reset();SetComponentTickEnabled(false);
     if(CoinMesh) CoinMesh->SetVisibility(false);
     if(CoinAudio) CoinAudio->Stop();

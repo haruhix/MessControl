@@ -12,6 +12,7 @@ class AMCFoodActor;
 class UStaticMeshComponent;
 class AMCMouthSurface;
 class UNiagaraComponent;
+class UNiagaraSystem;
 
 UENUM(BlueprintType)
 enum class EMCToolSlot : uint8 { Brush, Pickaxe, Knife, Spray };
@@ -145,6 +146,15 @@ public:
     virtual void TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* Tick) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Tools") TSoftObjectPtr<UMCEquipmentProfile> Profile;
+    /** Original editable Niagara resources; retained before arena readiness. */
+    UPROPERTY(EditDefaultsOnly,Category="Tools|Presentation") TSoftObjectPtr<UNiagaraSystem> OriginalSpraySystem;
+    UPROPERTY(EditDefaultsOnly,Category="Tools|Presentation") TSoftObjectPtr<UNiagaraSystem> OriginalWaterCareSystem;
+#if WITH_EDITOR
+    FName GetAcceptedSprayPresentationEvent() const {return SprayAcceptedPresentationEvent;}
+    double GetAcceptedSprayContactAt() const {return SprayAcceptedContactAt;}
+    uint32 GetAcceptedSprayEndSerial() const {return SprayAcceptedEndSerial;}
+    void ResetSprayPresentationForPreview() {StopSprayComposerPresentation();}
+#endif
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") EMCToolSlot Selected=EMCToolSlot::Brush;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools|Chainsaw") bool bChainsawRunning=false;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") bool bWaterJetUnlocked=false;
@@ -212,6 +222,8 @@ public:
     bool UsesAntisepticCycle() const;
     bool IsSprayCycleEmitting() const;
     void ResetPassiveSprayCycle();
+    /** Cosmetic source cache only; does not change the spray cycle/cooldown. */
+    void ResetPassivePresentationSource(FName PerkID);
     float SwingDuration() const;
     float SwingContactTime() const;
     // Converts elapsed server seconds to the authored swing timeline.
@@ -250,7 +262,20 @@ private:
     UPROPERTY() TObjectPtr<UNiagaraComponent> SprayMist;
     UPROPERTY() TObjectPtr<UNiagaraComponent> WaterMist;
     bool bSprayEmitting=false;
+    bool PresentAcceptedSprayContact(FVector Point);
+    bool UpdateSprayComposerPresentation(bool Spray,bool Water);
+    void StopSprayComposerPresentation();
+    FName SprayPresentationEvent,SprayAcceptedPresentationEvent;
+    FTransform SprayPresentationFrame;
+    double SprayPresentationStarted=0,SprayContactPresentationAt=-100,SprayContactPresentationStarted=0;
+    double ObservedSprayAcceptedAt=-100,SprayAcceptedContactAt=-100;
+    uint32 SprayAcceptedEndSerial=0;
+    FVector SprayContactPresentationPoint=FVector::ZeroVector;
+    bool bSprayContactPointKnown=false;
     bool TickPassiveSprayCycle();
+    void UpdatePassiveSprayPresentation(bool bEmitting);
+    bool bUnderPressurePresentation=false,bAntisepticPresentation=false;
+    FGuid UnderPressurePresentationEpisode,AntisepticPresentationEpisode;
     bool bWaterEmitting=false;
     float WorkingGripAlpha=0;
     double NextSocialSprayAt=0;

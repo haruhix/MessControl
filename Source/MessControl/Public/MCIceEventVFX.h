@@ -5,6 +5,8 @@
 #include "MCIceEventVFX.generated.h"
 
 class AMCIceEvent;
+class UMCWorldPresentationComponent;
+struct FMCPerkVFXGameplayValues;
 class AMCToothCharacter;
 class UNiagaraComponent;
 class UNiagaraSystem;
@@ -27,23 +29,75 @@ public:
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     void UpdateFromEvent(const AMCIceEvent& Event, float DeltaSeconds, double ServerTime);
     void FinishPresentation(FVector CoreFloorPoint);
+    /** Actual peer-local native observations; no manufactured preview timeline. */
+    void GetObservedComposerEvents(TMap<FName,uint64>& Out) const {Out=ComposerEventSerials;}
+    UMCWorldPresentationComponent* GetComposerPresentation() const {return ComposerPresentation;}
+
+    /** Explicit location preparation creates native bounded components only, never an Ice gameplay event. */
+    bool PrepareForLocation(FGuid Token);
+    bool ClaimPreparedPresentation(AMCIceEvent* Source,FGuid Token);
+    bool CancelPresentationFor(const AMCIceEvent* Source,FGuid Token);
+    void GetLocationPreparedResources(TArray<UObject*>& Out) const;
     bool HasWindVisuals() const;
     bool HasCrystalVisuals() const;
     bool HasRequiredAssets() const;
     int32 GetActiveBurstCount() const {return Bursts.Num();}
     bool IsFinishingPresentation() const {return bFinishing;}
 private:
+    friend class FMCPrewarmedIcePresentationOwnership;
+    void EnsureFrozenFootCapacity(int32 PlayerCount);
+    bool bPreparedForLocation=false,bPreparedClaimed=false;
+    FGuid PreparedClaimToken;
+    TWeakObjectPtr<AMCIceEvent> PreparedClaimSource;
+    struct FComposerLoopCall
+    {
+        TWeakObjectPtr<UNiagaraComponent> Component;
+        bool bEnabled=false;
+        FVector Position=FVector::ZeroVector;
+        FRotator Rotation=FRotator::ZeroRotator;
+        float Rate=0,Speed=0,Progress=0,SampleAge=0,PhaseRadius=0;
+        uint32 ActivationEpoch=0;
+        FVector2D Size=FVector2D::ZeroVector;
+        FLinearColor Color=FLinearColor::White;
+        int32 Family=0,NativeState=0,Ordinal=0;
+    };
+    struct FComposerLoopMemory {FComposerLoopCall Last;bool bHasFrame=false,bEnabled=false;uint32 Epoch=0;};
+    TMap<TWeakObjectPtr<UNiagaraComponent>,FComposerLoopMemory> ComposerLoopMemory;
+    UPROPERTY(VisibleAnywhere) TObjectPtr<UMCWorldPresentationComponent> ComposerPresentation;
+    TMap<FName,TArray<FComposerLoopCall>> ComposerLoopCalls;
+    TMap<FName,FGuid> ComposerLoopEpisodes;
+    TMap<FName,double> ComposerLoopStarted;
+    TMap<FName,uint64> ComposerEventSerials;
+    double ComposerServerTime=0,ComposerEventAge=0;
+    float ComposerPhaseRadius=0;
+    FGuid ComposerSheetEpisodes[2];
+    double ComposerSheetStarted[2]={0,0};
+    TSet<FName> ComposerLoopOverflow;
+    bool UseOriginalSheet(FName Event,FMCPerkVFXGameplayValues& Values,bool bActive);
+    bool bCollectComposerLoops=false;
+    FName LastComposerBurstEvent;
+    bool bLastComposerBurstUsesOriginal=true;
+    FName IdentifyComposerLoop(const UNiagaraComponent* Component,int32& Family,int32& Ordinal) const;
+    void AdvanceOriginalLoop(FComposerLoopCall& Call);
+    void ApplyOriginalLoop(const FComposerLoopCall& Call,bool bUseOriginal);
+    void FlushComposerLoops();
+    bool UseOriginalBurst(FName Event,FVector Position);
+    void ObserveComposerEvent(FName Event);
+
     UNiagaraComponent* MakeLoop(const TCHAR* Name, UNiagaraSystem* System, UMaterialInterface* Material);
     void SetLoop(UNiagaraComponent* Component, bool bEnabled, FVector Position, FRotator Rotation,
-        float SpawnRate, float Speed, FVector2D Size, FLinearColor Color);
+        float SpawnRate, float Speed, FVector2D Size, FLinearColor Color,float NativeProgress=0,int32 NativeState=0);
     void PlayBurst(UNiagaraSystem* System, UMaterialInterface* Material, FVector Position,
-        float Speed, FVector Scale, FVector2D Size, FLinearColor Color);
+        float Speed, FVector Scale, FVector2D Size, FLinearColor Color,FName ComposerEvent=NAME_None,bool bNewBoundary=true);
     void RetireBurst(UNiagaraComponent* Component);
     void StopLoops();
     void UpdateWindSheet(const AMCIceEvent& Event, double ServerTime, float Strength, bool bWarning);
     void UpdateColdThronePresentation(const AMCIceEvent& Event, float DeltaSeconds, double ServerTime);
     void UpdateBombPresentation(const AMCIceEvent& Event, double ServerTime);
     void UpdateFrozenFeet(const AMCIceEvent& Event);
+    void UpdateComposerFacets(FName Event,const TArray<TObjectPtr<UStaticMeshComponent>>& Facets,int32 Capacity);
+    TMap<FName,FGuid> ComposerFacetEpisodes;
+    TMap<FName,double> ComposerFacetStarted;
     void UpdateHealthLabels(const AMCIceEvent& Event, double ServerTime);
     UFUNCTION() void OnBurstFinished(UNiagaraComponent* Component);
 
@@ -61,6 +115,9 @@ private:
     UPROPERTY(EditDefaultsOnly, Category="VFX") TSoftObjectPtr<UMaterialInterface> CrystalMaterial;
     /** Soft paths identify cooked assets; these strong references own their loaded lifetime. */
     UPROPERTY(Transient) TArray<TObjectPtr<UObject>> LoadedAssets;
+    /** One original tongue-frost MID/factory, prepared before the location barrier. */
+    UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> PreparedFrostSurfaceMID;
+    UPROPERTY(Transient) TObjectPtr<UProceduralMeshComponent> PreparedFrostSurfaceFactory;
     UPROPERTY(Transient) TObjectPtr<UNiagaraComponent> Wind;
     UPROPERTY(Transient) TObjectPtr<UNiagaraComponent> Snow;
     UPROPERTY(Transient) TObjectPtr<UNiagaraComponent> CoreCharge;

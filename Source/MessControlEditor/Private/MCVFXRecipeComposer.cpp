@@ -64,7 +64,7 @@
 
 #define LOCTEXT_NAMESPACE "MCVFXRecipeComposer"
 
-namespace
+namespace MCVFXRecipeComposerPrivate
 {
     const FName RecipeTab(TEXT("MCVFXRecipeComposer"));
     const FLinearColor Mint(.34f,.78f,.66f),PanelInk(.035f,.075f,.085f),DisabledButton(.18f,.20f,.22f),DisabledInk(.66f,.69f,.72f);
@@ -1014,6 +1014,7 @@ namespace
 
 void MCVFXRecipeComposer::Register()
 {
+    using namespace MCVFXRecipeComposerPrivate;
     if(IsRunningCommandlet()||FGlobalTabmanager::Get()->HasTabSpawner(RecipeTab))return;
     FGlobalTabmanager::Get()->RegisterNomadTabSpawner(RecipeTab,FOnSpawnTab::CreateLambda([](const FSpawnTabArgs&)
     {
@@ -1029,21 +1030,23 @@ void MCVFXRecipeComposer::Register()
 }
 void MCVFXRecipeComposer::Unregister()
 {
+    using namespace MCVFXRecipeComposerPrivate;
     if(auto Tab=FGlobalTabmanager::Get()->FindExistingLiveTab(RecipeTab))if(!Tab->RequestCloseTab())return;
     ActiveRecipe.Reset();FGlobalTabmanager::Get()->UnregisterNomadTabSpawner(RecipeTab);
 }
 void MCVFXRecipeComposer::Open(){MCVFXActionWorkspace::Open();}
 void MCVFXRecipeComposer::OpenForSlot(FName PerkID,FName Stage,UMCPerkVFXProfile* Profile,FMCVFXRecipeApplied OnApply)
 {
+    using namespace MCVFXRecipeComposerPrivate;
     FRecipeContext C;C.PerkID=PerkID;C.Stage=Stage;C.Profile=Profile;C.OnApply=MoveTemp(OnApply);
     if(auto Panel=ActiveRecipe.Pin()){Panel->SetContext(C);Open();}
     else{PendingContext=MoveTemp(C);bHasPendingContext=true;Open();}
 }
-UMCVFXRecipePreset* MCVFXRecipeComposer::GetWorkingRecipe(){auto P=ActiveRecipe.Pin();return P?P->GetWorking():nullptr;}
-bool MCVFXRecipeComposer::LoadComposition(UMCVFXComposition* Source){auto P=ActiveRecipe.Pin();return P&&P->Load(Source);}
-bool MCVFXRecipeComposer::AddSystem(UNiagaraSystem* Source){auto P=ActiveRecipe.Pin();return P&&P->AddSystem(Source);}
-UMCVFXRecipePreset* MCVFXRecipeComposer::SaveWorkingRecipeAs(const FString& Path,FString& Error){auto P=ActiveRecipe.Pin();if(!P){Error=TEXT("Open the visible Composer first.");return nullptr;}return P->SaveAs(Path,Error);}
-UNiagaraSystem* MCVFXRecipeComposer::ExportWorkingRecipe(const FString& Path,FString& Error){auto P=ActiveRecipe.Pin();if(!P){Error=TEXT("Open the visible Composer first.");return nullptr;}return P->Export(Path,Error);}
-bool MCVFXRecipeComposer::ApplyToContext(FString& Error){auto P=ActiveRecipe.Pin();if(!P){Error=TEXT("Open the visible Composer first.");return false;}return P->Apply(Error);}
+UMCVFXRecipePreset* MCVFXRecipeComposer::GetWorkingRecipe(){auto P=MCVFXRecipeComposerPrivate::ActiveRecipe.Pin();return P?P->GetWorking():nullptr;}
+bool MCVFXRecipeComposer::LoadComposition(UMCVFXComposition* Source){auto P=MCVFXRecipeComposerPrivate::ActiveRecipe.Pin();return P&&P->Load(Source);}
+bool MCVFXRecipeComposer::AddSystem(UNiagaraSystem* Source){auto P=MCVFXRecipeComposerPrivate::ActiveRecipe.Pin();return P&&P->AddSystem(Source);}
+UMCVFXRecipePreset* MCVFXRecipeComposer::SaveWorkingRecipeAs(const FString& Path,FString& Error){auto P=MCVFXRecipeComposerPrivate::ActiveRecipe.Pin();if(!P){Error=TEXT("Open the visible Composer first.");return nullptr;}return P->SaveAs(Path,Error);}
+UNiagaraSystem* MCVFXRecipeComposer::ExportWorkingRecipe(const FString& Path,FString& Error){auto P=MCVFXRecipeComposerPrivate::ActiveRecipe.Pin();if(!P){Error=TEXT("Open the visible Composer first.");return nullptr;}return P->Export(Path,Error);}
+bool MCVFXRecipeComposer::ApplyToContext(FString& Error){auto P=MCVFXRecipeComposerPrivate::ActiveRecipe.Pin();if(!P){Error=TEXT("Open the visible Composer first.");return false;}return P->Apply(Error);}
 
 #undef LOCTEXT_NAMESPACE

@@ -3,6 +3,8 @@
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
 #include "MCToothPhysicsComponent.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCVFXPresentationComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -24,7 +26,12 @@ AMCTaskActor::AMCTaskActor()
     static ConstructorHelpers::FObjectFinder<UMCSoundPalette> Sound(TEXT("/Game/Data/DA_MouthSounds"));
     CoffeeMesh = Coffee.Object; FoodMesh = Food.Object; ToothMesh = Tooth.Object; SoundPalette = Sound.Object;
 }
-void AMCTaskActor::BeginPlay() { Super::BeginPlay(); OnRep_Visuals(); }
+void AMCTaskActor::BeginPlay()
+{
+    Super::BeginPlay();
+    MCWorldPresentation::PrepareOwner(this,{TEXT("Reward.TaskComplete")});
+    OnRep_Visuals();
+}
 void AMCTaskActor::OnConstruction(const FTransform& Transform) { Super::OnConstruction(Transform); OnRep_Visuals(); }
 void AMCTaskActor::Initialize(UMCDayEvent* Event) { Kind = Event->Kind; WorkSeconds = FMath::Max(0.2f,Event->WorkSeconds); }
 void AMCTaskActor::OnRep_Visuals()
@@ -61,7 +68,20 @@ bool AMCTaskActor::ApplyWork(AMCToothCharacter* Worker, bool bBrush, float Delta
     }
     return true;
 }
-void AMCTaskActor::MulticastComplete_Implementation() { if (SoundPalette) SoundPalette->Play(this,TEXT("Complete"),GetActorLocation()); }
+void AMCTaskActor::MulticastComplete_Implementation()
+{
+    // This existing accepted multicast owns completion. Do not credit a reward,
+    // repeat the task condition or add another replicated presentation event.
+    auto* Adapter=FindComponentByClass<UMCWorldPresentationComponent>();
+    auto* Channel=Adapter?Adapter->GetSource(TEXT("Reward.TaskComplete")):nullptr;
+    FMCPerkVFXGameplayValues Values;Values.EpisodeID=FGuid::NewGuid();Values.LocalStateAgeSeconds=0.f;
+    const bool Accepted=Channel&&Channel->PlayLocalSourceEvent(TEXT("Reward.TaskComplete"),TEXT("Complete"),
+        GetActorTransform(),Values)!=EMCVFXPresentationResult::Rejected;
+    // Palette selection/pitch and gain remain native and resolve exactly once.
+    // Missing/unprepared custom presentation always retains original playback.
+    if(SoundPalette)SoundPalette->PlayWithParameters(this,TEXT("Complete"),GetActorLocation(),.65f,.5f,
+        Accepted?FName(TEXT("Reward.TaskComplete")):NAME_None,TEXT("Complete"));
+}
 void AMCTaskActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AMCTaskActor,Kind); DOREPLIFETIME(AMCTaskActor,Progress);

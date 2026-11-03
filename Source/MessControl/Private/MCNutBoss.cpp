@@ -6,6 +6,7 @@
 #include "MCGameDirector.h"
 #include "MCNutBossAnimInstance.h"
 #include "MCCombatFeedbackComponent.h"
+#include "MCVFXPresentationComponent.h"
 #include "MCDevCommands.h"
 
 #include "MCNutCombatEffect.h"
@@ -36,9 +37,15 @@
 #include "EngineUtils.h"
 #include "Net/UnrealNetwork.h"
 #include "ReferenceSkeleton.h"
+#include "UObject/Package.h"
 
 namespace
 {
+FMCNutCuePresentation NutVFXContext(EMCNutBossRole Role,const TCHAR* Action,FName Event,FName AfterWindup=NAME_None)
+{
+    const FName Source(*FString::Printf(TEXT("Boss.Nut%s.%s"),Role==EMCNutBossRole::Mage?TEXT("Mage"):TEXT("Knight"),Action));
+    return FMCNutCuePresentation(Source,Event,AfterWindup);
+}
 bool AuthoredSpellGestures(const UAnimSequence* Clip)
 {
     return Clip && Clip->EvaluateCurveData(TEXT("MCSpellGesture"),FAnimExtractContext(0.,false))>.5f;
@@ -61,6 +68,7 @@ void SetCenteredMesh(UStaticMeshComponent* Component,UStaticMesh* Mesh,float Hei
 AMCNutBoss::AMCNutBoss()
 {
     Feedback->bUseProceduralRecoil=false;
+    Feedback->PresentationSources={TEXT("Boss.NutKnight.Hurt"),TEXT("Boss.NutMage.Hurt")};
     PrimaryActorTick.TickInterval=0.f;
     Body->CanCharacterStepUpOn=ECB_No;
     Body->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
@@ -68,6 +76,12 @@ AMCNutBoss::AMCNutBoss()
     USceneComponent* InheritedVisuals[]={Visual.Get(),LeftEye.Get(),RightEye.Get(),Label.Get()};
     for(auto* Component:InheritedVisuals) Component->SetupAttachment(PresentationRoot);
     Shield=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Shield")); Shield->SetupAttachment(PresentationRoot);
+    ShieldPresentation=CreateDefaultSubobject<UMCVFXPresentationComponent>(TEXT("KnightShieldPresentation"));
+    ShieldPresentation->SourceID=TEXT("Boss.NutKnight.Shield");
+    ShieldPresentation->Events={TEXT("Hit"),TEXT("Break"),TEXT("Durability")};
+    FireballPresentation=CreateDefaultSubobject<UMCVFXPresentationComponent>(TEXT("MageFireballPresentation"));
+    FireballPresentation->SourceID=TEXT("Boss.NutMage.Fireball");
+    FireballPresentation->Events={TEXT("Charge"),TEXT("Release"),TEXT("Flight"),TEXT("Impact")};
     Kernel=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Kernel")); Kernel->SetupAttachment(PresentationRoot);
     OpenShell=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("OpenShell")); OpenShell->SetupAttachment(PresentationRoot);
     TankTurnPivot=CreateDefaultSubobject<USceneComponent>(TEXT("TankTurnPivot")); TankTurnPivot->SetupAttachment(PresentationRoot);
@@ -120,6 +134,9 @@ void AMCNutBoss::ConfigureEncounter(AMCTongue* OnTongue,AMCNutRainEvent* OwnerEv
 
 void AMCNutBoss::BeginPlay()
 {
+    FString SocketError;
+    ShieldPresentation->BindSourceAudioSocket(TEXT("Boss.NutKnight.Shield"),TankModel,SocketError);
+    FireballPresentation->BindSourceAudioSocket(TEXT("Boss.NutMage.Fireball"),MageModel,SocketError);
     Super::BeginPlay(); BossSettings.Sanitize(); Settings.MaxHealth=Health;
     ResetClientPresentation(); LastClientMovementAt=-1; bTankRollRotationInitialized=false;
     TankModel->AddTickPrerequisiteActor(this);
@@ -131,7 +148,7 @@ void AMCNutBoss::BeginPlay()
         NextTargetAt=Ready; NextMeleeAt=Ready+1.5; NextChargeAt=Ready+3; NextJumpAt=Ready+7; NextRollAt=Ready+11;
         NextFireballAt=Ready+6; NextSummonAt=Ready+10; NextRainAt=Ready+13; NextTeleportAt=Ready+4;
         NextSpecialAt=Ready+BossSettings.SpecialAttackGap;
-        TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::JumpTell,
+        TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Entrance"),TEXT("Tell")),this,Tongue,EMCNutCombatCue::JumpTell,
             EntranceLanding,EntranceLanding,Settings.BodyRadius+35,BossSettings.EntranceSeconds,.2f,Random.RandRange(1,MAX_int32)));
     }
     RefreshPresentation();
@@ -242,7 +259,7 @@ void AMCNutBoss::RefreshPresentation()
         TankBallScale=HeightScale(BallMesh,BossSettings.TankBallHeight);
         TankBallCenter=BallMesh->GetBounds().Origin;
     }
-    auto* MageMesh=BossRole==EMCNutBossRole::Mage?BossSettings.MageSkeletalMesh.LoadSynchronous():nullptr;
+    auto* MageMesh=BossRole==EMCNutBossRole::Mage?BossSettings.MageSkeletalMesh.LoadSynchronous():LabPreparedMageMesh.Get();
     if(MageModel->GetSkeletalMeshAsset()!=MageMesh) MageModel->SetSkeletalMeshAsset(MageMesh);
     if(MageMesh) {
         const auto Bounds=MageMesh->GetBounds(); MageModelCenter=Bounds.Origin;
@@ -251,6 +268,7 @@ void AMCNutBoss::RefreshPresentation()
     CacheBossAnimations();
     for(auto* Model:{TankModel.Get(),MageModel.Get()})
         if(Model->GetSkeletalMeshAsset() && GetNetMode()!=NM_DedicatedServer
+            && !(Model==MageModel.Get() && BossRole!=EMCNutBossRole::Mage && LabPreparedMageMesh)
             && Model->GetAnimClass()!=UMCNutBossAnimInstance::StaticClass()) Model->SetAnimInstanceClass(UMCNutBossAnimInstance::StaticClass());
     const bool HasAuthoredModel=HasTankModel || (BossRole==EMCNutBossRole::Mage && MageMesh);
     // Keep the skeletal asset's Walnut/Material_001 slots and artist materials.
@@ -301,6 +319,27 @@ void AMCNutBoss::MoveAttackBody(FVector Goal,FHitResult& Hit)
         }
     SetActorLocation(Goal,true,&Hit);
     for(AMCToothCharacter* Hero:AddedIgnores) Body->IgnoreActorWhenMoving(Hero,false);
+}
+
+bool AMCNutBoss::PrepareIsolatedMagePhaseResources()
+{
+#if WITH_EDITOR
+    if(!HasAuthority() || !GetWorld() || GetWorld()->WorldType!=EWorldType::Game
+        || GetWorld()->GetOutermost()!=GetTransientPackage() || !LabStation.IsValid())return false;
+    LabPreparedMageMesh=BossSettings.MageSkeletalMesh.LoadSynchronous();
+    if(!LabPreparedMageMesh)return false;
+    const TSoftObjectPtr<UAnimSequence> Clips[]={BossSettings.MageIdleAnimation,BossSettings.MageWalkAnimation,
+        BossSettings.MageCastAnimation,BossSettings.MageHeavyCastAnimation,BossSettings.MageMeleeAnimation,
+        BossSettings.MageSummonAnimation,BossSettings.MageRainAnimation,BossSettings.MageHitAnimation,
+        BossSettings.MageDeathAnimation,BossSettings.MageTeleportAnimation};
+    LabPreparedMageClips.Reset();
+    for(const auto& Clip:Clips)if(auto* Loaded=Clip.LoadSynchronous())LabPreparedMageClips.Add(Loaded);
+    // Refresh uses the actual hidden Mage component; role/state, health and
+    // the native reveal decision are untouched.
+    RefreshPresentation();return true;
+#else
+    return false;
+#endif
 }
 
 void AMCNutBoss::CacheBossAnimations()
@@ -814,9 +853,42 @@ bool AMCNutBoss::TryBeginTankCounter()
             if(IsPlayerInThreat(Hero,Escape) && HasLineOfSight(Hero,LockedStart+FVector(0,0,40)))
                 UMCDefenseSprayPassives::RegisterThreat(Hero,this,uint64(AttackSeed));
         }
-    TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::JumpTell,
+    TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("CounterShove"),TEXT("Tell")),this,Tongue,EMCNutCombatCue::JumpTell,
         LockedStart,LockedStart,BossSettings.TankCounterRadius,BossSettings.TankCounterWindup,.1f,AttackSeed));
     return true;
+}
+
+void AMCNutBoss::PresentShieldContact(bool bBroken)
+{
+    // This is called only at the existing accepted/throttled visual boundary.
+    // All durability, overflow-discard, stun and animation decisions stay in
+    // the native damage resolver above this presentation layer.
+    const FTransform ContactFrame=AMCNutCombatEffect::GetShieldContactFrame(this);
+    const FVector Contact=ContactFrame.GetLocation();
+    const FVector Forward=GetActorForwardVector();
+    const float Radius=Settings.BodyRadius*(bBroken?1.4f:1.f);
+    const float Seconds=bBroken?1.2f:.32f;
+    FMCPerkVFXGameplayValues Values;Values.Direction=ContactFrame.GetUnitAxis(EAxis::X);Values.Radius=Radius;Values.Duration=Seconds;
+    Values.Fill=FMath::Clamp(1.f-ShieldHealth/FMath::Max(1.f,BossSettings.ShieldMaxHealth),0.f,1.f);
+    Values.bHasSeed=true;Values.Seed=uint32(AttackSeed);
+    FHitResult Ground;
+    if(IsValid(Tongue) && Tongue->SurfacePoint(Contact,Ground)) {
+        Values.SourcePosition=Ground.ImpactPoint+Ground.ImpactNormal*8.f;
+        Values.TargetPosition=Ground.ImpactPoint;Values.bHasEndpoints=true;
+    }
+    const FName Event=bBroken?FName(TEXT("Break")):FName(TEXT("Hit"));
+    const auto Result=ShieldPresentation
+        ?ShieldPresentation->PlayEvent(Event,ContactFrame,Values)
+        :EMCVFXPresentationResult::UseDefault;
+    // A rejected artist override is diagnostic, but must not remove the
+    // existing shield feedback. Disabled is an explicit cosmetic suppression.
+    const auto* Native=ShieldPresentation?ShieldPresentation->GetPreparedNativeSource(TEXT("Boss.NutKnight.Shield")):nullptr;
+    EMCPerkVFXSlotMode Mode=EMCPerkVFXSlotMode::UseDefault;
+    if(ShieldPresentation)ShieldPresentation->GetPreparedEventMode(TEXT("Boss.NutKnight.Shield"),Event,Mode);
+    if(Result==EMCVFXPresentationResult::UseDefault || Result==EMCVFXPresentationResult::Rejected
+        || (Result==EMCVFXPresentationResult::Played && Native && Native->ShouldRenderNativeAccents(Event,Mode)))
+        TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::ShieldHit,
+            Contact,Contact-Forward*Settings.BodyRadius,Radius,0,Seconds,AttackSeed,90,8,.5f,false,FGuid(),Native,Event));
 }
 
 float AMCNutBoss::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
@@ -851,9 +923,7 @@ float AMCNutBoss::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
         }
         if(Broken || DamageTime-ShieldHitAt>=.15) {
             ShieldHitAt=DamageTime;
-            const FVector Contact=AMCNutCombatEffect::GetShieldContactOrigin(this);
-            TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::ShieldHit,
-                Contact,Contact-GetActorForwardVector()*Settings.BodyRadius,Settings.BodyRadius*(Broken?1.4f:1.f),0,Broken?1.2f:.32f,AttackSeed));
+            PresentShieldContact(Broken);
         }
     }
     // A light tool hit registers through the ordinary contact path, without
@@ -874,7 +944,8 @@ float AMCNutBoss::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
         }
     }
     Feedback->ReportAcceptedHit(Source,GetToolTargetPoint(Source?Source->GetActorLocation():GetActorLocation()+VisualHitDirection*Settings.BodyRadius),
-        -VisualHitDirection,Applied,FMath::Max(0.f,ShieldBefore-ShieldHealth),Shielded,bDefeated);
+        -VisualHitDirection,Applied,FMath::Max(0.f,ShieldBefore-ShieldHealth),Shielded,bDefeated,
+        BossRole==EMCNutBossRole::Mage?FName(TEXT("Boss.NutMage.Hurt")):FName(TEXT("Boss.NutKnight.Hurt")),TEXT("Hit"));
     if(CountTeamContact && (Applied>0 || ShieldHealth<ShieldBefore)) {
         RegisterTankPressureHit();TryBeginTankCounter();
     }
@@ -915,9 +986,7 @@ float AMCNutBoss::ReceiveExternalImpact(float Damage,AActor* Causer,AMCPlayerSta
         }
         if(Broken || Time-ShieldHitAt>=.15) {
             ShieldHitAt=Time;
-            const FVector Contact=AMCNutCombatEffect::GetShieldContactOrigin(this);
-            TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::ShieldHit,
-                Contact,Contact-GetActorForwardVector()*Settings.BodyRadius,Settings.BodyRadius*(Broken?1.4f:1.f),0,Broken?1.2f:.32f,AttackSeed));
+            PresentShieldContact(Broken);
         }
         HitAt=GetWorld()->GetTimeSeconds();RefreshPresentation();AMCNutCombatEffect::UpdateShieldDamageVisual(this);
     } else {
@@ -931,7 +1000,8 @@ float AMCNutBoss::ReceiveExternalImpact(float Damage,AActor* Causer,AMCPlayerSta
     // No WeaponDamage/NotifyWeaponHit, snapshot contact, lifesteal or primary
     // team-contact counter. A secondary AoE is one ordinary accepted boss hit.
     Feedback->ReportAcceptedHit(Causer,GetToolTargetPoint(Origin),-VisualHitDirection,
-        Applied,FMath::Max(0.f,ShieldBefore-ShieldHealth),Shielded,bDefeated);
+        Applied,FMath::Max(0.f,ShieldBefore-ShieldHealth),Shielded,bDefeated,
+        BossRole==EMCNutBossRole::Mage?FName(TEXT("Boss.NutMage.Hurt")):FName(TEXT("Boss.NutKnight.Hurt")),TEXT("Hit"));
     ForceNetUpdate();return Applied;
 }
 
@@ -1085,7 +1155,7 @@ void AMCNutBoss::BeginTeleport()
     ResolveAt=AttackStartedAt+BossSettings.MageTeleportWindup;
     StartAttackCooldown(ResolveAt+RecoverySeconds(.55f));
     bResolved=false; Enter(EMCNutBossState::Telegraph,BossSettings.MageTeleportWindup);
-    TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::TeleportTell,LockedStart,LockedTarget,
+    TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Teleport"),TEXT("Tell")),this,Tongue,EMCNutCombatCue::TeleportTell,LockedStart,LockedTarget,
         Settings.BodyRadius+35,BossSettings.MageTeleportWindup,.12f,AttackSeed));
 }
 
@@ -1138,6 +1208,7 @@ void AMCNutBoss::BeginAttack(EMCNutBossAttack Next)
     // Tank finishes turning during its visible windup, without snapping here.
     float Windup=BossSettings.MeleeWindup;
     EMCNutCombatCue Cue=EMCNutCombatCue::MeleeTell;
+    auto CueContext=NutVFXContext(BossRole,TEXT("Melee"),TEXT("Tell"));
     float CueRadius=BossSettings.MeleeRange,ActiveSeconds=.25f;
     if(Next==EMCNutBossAttack::Charge) {
         Windup=BossSettings.ChargeWindup;
@@ -1146,6 +1217,7 @@ void AMCNutBoss::BeginAttack(EMCNutBossAttack Next)
         for(float Scale:{1.f,.8f,.6f,.4f}) if(LockSurfacePoint(LockedStart+AttackForward*Distance*Scale,Settings.BodyRadius+5,LockedTarget)) {Valid=true;break;}
         if(!Valid) { Recover(.6f); return; }
         Cue=EMCNutCombatCue::ChargeTell; CueRadius=Settings.BodyRadius+35;
+        CueContext=NutVFXContext(BossRole,TEXT("Charge"),TEXT("Tell"),TEXT("Move"));
         ActiveSeconds=float(FVector::Dist2D(LockedStart,LockedTarget))/BossSettings.ChargeSpeed;
     } else if(Next==EMCNutBossAttack::Roll) {
         Windup=BossSettings.RollWindup;
@@ -1156,23 +1228,26 @@ void AMCNutBoss::BeginAttack(EMCNutBossAttack Next)
             if(LockSurfacePoint(LockedStart+AttackForward*Distance,Settings.BodyRadius+5,LockedTarget)) {Valid=true;break;}
         if(!Valid) { Recover(.6f); return; }
         PlannedRollSeconds=Random.FRandRange(BossSettings.RollDuration,BossSettings.RollDurationMax);
-        Cue=EMCNutCombatCue::RollTell; CueRadius=BossSettings.RollDamageRadius(Settings.BodyRadius); ActiveSeconds=PlannedRollSeconds;
+        Cue=EMCNutCombatCue::RollTell; CueRadius=BossSettings.RollDamageRadius(Settings.BodyRadius);
+        CueContext=NutVFXContext(BossRole,TEXT("Roll"),TEXT("Tell"),TEXT("Move")); ActiveSeconds=PlannedRollSeconds;
     } else if(Next==EMCNutBossAttack::Jump) {
         Windup=BossSettings.JumpWindup;
         const FVector Candidate=LockedStart+(LockedTarget-LockedStart).GetClampedToMaxSize(BossSettings.ChargeDistance);
         if(!LockSurfacePoint(Candidate,Settings.BodyRadius+5,LockedTarget)) { Recover(.6f); return; }
-        Cue=EMCNutCombatCue::JumpTell; CueRadius=BossSettings.JumpRadius; ActiveSeconds=BossSettings.JumpFlightSeconds;
+        Cue=EMCNutCombatCue::JumpTell; CueRadius=BossSettings.JumpRadius;
+        CueContext=NutVFXContext(BossRole,TEXT("Jump"),TEXT("Tell")); ActiveSeconds=BossSettings.JumpFlightSeconds;
     } else if(Next==EMCNutBossAttack::Fireball) {
         Windup=BossSettings.FireballWindup;
         Cue=EMCNutCombatCue::FireCast; CueRadius=BossSettings.FireballRadius+25;
     } else if(Next==EMCNutBossAttack::Summon) {
         Windup=BossSettings.MageSummonAnimationSeconds*BossSettings.MageCastReleaseFraction; CueRadius=45; Cue=EMCNutCombatCue::SummonTell;
+        CueContext=NutVFXContext(BossRole,TEXT("Summon"),TEXT("GroundTell"),TEXT("Release"));
         SummonPositions.Reset();
         const float CreepRadius=IsValid(EncounterOwner)?FMath::Clamp(EncounterOwner->Settings.Enemy.BodyRadius,20.f,80.f):BossSettings.CreepHeight*.5f;
         TArray<AMCFoodActor*> Available;
         if(IsValid(EncounterOwner)) EncounterOwner->GetAvailableRainNuts(Available);
         for(const auto* Nut:Available) SummonPositions.Add(Nut->GetActorLocation());
-        for(FVector Point:SummonPositions) TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,Cue,Point,Point,CreepRadius+10,Windup,.3f,AttackSeed));
+        for(FVector Point:SummonPositions) TrackAttackActor(AMCNutCombatEffect::SpawnPresented(CueContext,this,Tongue,Cue,Point,Point,CreepRadius+10,Windup,.3f,AttackSeed));
     } else if(Next==EMCNutBossAttack::NutRain) {
         Windup=BossSettings.RainWindup;
         const float LandingMargin=IsValid(EncounterOwner)?EncounterOwner->Settings.ImpactRadius:BossSettings.RainImpactRadius;
@@ -1185,7 +1260,8 @@ void AMCNutBoss::BeginAttack(EMCNutBossAttack Next)
             Recover(.6f); return;
         }
         LockedTarget=RainFloor.ImpactPoint+FVector(0,0,Settings.BodyRadius+4);
-        Cue=EMCNutCombatCue::NutRain; CueRadius=BossSettings.RainRadius; ActiveSeconds=BossSettings.RainActiveSeconds;
+        Cue=EMCNutCombatCue::NutRain; CueRadius=BossSettings.RainRadius;
+        CueContext=NutVFXContext(BossRole,TEXT("NutRain"),TEXT("Storm")); ActiveSeconds=BossSettings.RainActiveSeconds;
     } else {
         bMeleeBetweenAbilities=false;
         LockedTarget=LockedStart+AttackForward*BossSettings.MeleeRange;
@@ -1208,16 +1284,33 @@ void AMCNutBoss::BeginAttack(EMCNutBossAttack Next)
                 if(IsPlayerInThreat(Hero,Escape) && HasLineOfSight(Hero,LockedStart+FVector(0,0,40)))
                     UMCDefenseSprayPassives::RegisterThreat(Hero,this,uint64(AttackSeed));
             }
-    if(Next==EMCNutBossAttack::Fireball || Next==EMCNutBossAttack::Summon || Next==EMCNutBossAttack::NutRain)
-        TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,Next==EMCNutBossAttack::Fireball?EMCNutCombatCue::CastCharge:EMCNutCombatCue::RitualCast,
+    if(Next==EMCNutBossAttack::Fireball) {
+        FireballEpisodeID=FGuid::NewGuid(); // Cosmetic identity; never consumes the encounter's RNG.
+        const FVector Muzzle=GetCastOrigin();
+        FMCPerkVFXGameplayValues Values;Values.EpisodeID=FireballEpisodeID;
+        Values.Direction=(LockedTarget-Muzzle).GetSafeNormal();Values.Radius=Settings.BodyRadius;Values.Duration=Windup;Values.Fill=0;
+        Values.bHasEndpoints=true;Values.SourcePosition=Muzzle;Values.TargetPosition=LockedTarget;
+        Values.bHasSeed=true;Values.Seed=uint32(AttackSeed);
+        const auto Result=FireballPresentation->PlayEvent(TEXT("Charge"),FTransform(Values.Direction.Rotation(),Muzzle),Values);
+        const auto* Native=FireballPresentation->GetPreparedNativeSource(TEXT("Boss.NutMage.Fireball"));
+        EMCPerkVFXSlotMode Mode=EMCPerkVFXSlotMode::UseDefault;
+        FireballPresentation->GetPreparedEventMode(TEXT("Boss.NutMage.Fireball"),TEXT("Charge"),Mode);
+        const bool Suppress=Result==EMCVFXPresentationResult::Suppressed || (Result==EMCVFXPresentationResult::Played
+            && !(Native && Native->ShouldRenderNativeAccents(TEXT("Charge"),Mode)));
+        // Keep the native post-pose cue as a local frame owner, including in
+        // custom mode. It no longer renders duplicate hand-cast accents.
+        TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::CastCharge,
+            Muzzle,LockedTarget,Settings.BodyRadius,Windup,.25f,AttackSeed,90,8,.5f,Suppress,FireballEpisodeID,Native,TEXT("Charge")));
+    } else if(Next==EMCNutBossAttack::Summon || Next==EMCNutBossAttack::NutRain)
+        TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,Next==EMCNutBossAttack::Summon?TEXT("Summon"):TEXT("NutRain"),TEXT("Focus")),this,Tongue,EMCNutCombatCue::RitualCast,
             GetCastOrigin(),LockedTarget,Settings.BodyRadius,Windup,Next==EMCNutBossAttack::NutRain?ActiveSeconds:.25f,AttackSeed));
     else if(Next==EMCNutBossAttack::Roll)
-        TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::Transform,LockedStart,LockedTarget,Settings.BodyRadius,Windup,.3f,AttackSeed));
-    if(Next!=EMCNutBossAttack::Fireball && Next!=EMCNutBossAttack::Summon && !(Next==EMCNutBossAttack::NutRain && IsValid(EncounterOwner))) TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,Cue,LockedStart,LockedTarget,
+        TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Roll"),TEXT("Transform")),this,Tongue,EMCNutCombatCue::Transform,LockedStart,LockedTarget,Settings.BodyRadius,Windup,.3f,AttackSeed));
+    if(Next!=EMCNutBossAttack::Fireball && Next!=EMCNutBossAttack::Summon && !(Next==EMCNutBossAttack::NutRain && IsValid(EncounterOwner))) TrackAttackActor(AMCNutCombatEffect::SpawnPresented(CueContext,this,Tongue,Cue,LockedStart,LockedTarget,
         CueRadius,Windup,ActiveSeconds,AttackSeed,BossSettings.RainImpactRadius,BossSettings.RainDrops,BossSettings.RainActiveSeconds/BossSettings.RainDrops));
     if(Next==EMCNutBossAttack::Melee && BossRole==EMCNutBossRole::Tank && TankMeleeVariant==2) {
         const FVector Slam=LockedStart+AttackForward*BossSettings.MeleeRange*.55f;
-        TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::JumpTell,Slam,Slam,
+        TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Melee"),TEXT("Tell")),this,Tongue,EMCNutCombatCue::JumpTell,Slam,Slam,
             BossSettings.MeleeRange*.8f,Windup+TankMeleeContactOffset(2),.12f,AttackSeed));
     }
 }
@@ -1518,7 +1611,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
         if(!bResolved) {
             bResolved=true;
             DamageArea(LockedStart,BossSettings.TankCounterRadius,BossSettings.TankCounterDamage,BossSettings.TankCounterPush,&AttackHits);
-            TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::SlamImpact,
+            TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("CounterShove"),TEXT("Impact")),this,Tongue,EMCNutCombatCue::SlamImpact,
                 LockedStart,LockedStart,BossSettings.TankCounterRadius,0,.35f,AttackSeed));
         }
         if(Time>=AttackEndAt) Recover(BossSettings.TankCounterRecovery);
@@ -1533,7 +1626,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
                 LastTankPresentationAt=-1; TankPresentationMotion=FVector::ZeroVector;
                 FocusHits=0; FocusWindowStartedAt=-100;
                 SelectTarget(false);
-                TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::TeleportBurst,LockedStart,Landing,
+                TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Teleport"),TEXT("Transfer")),this,Tongue,EMCNutCombatCue::TeleportBurst,LockedStart,Landing,
                     Settings.BodyRadius+35,0,.75f,AttackSeed));
                 ForceNetUpdate();
             }
@@ -1556,7 +1649,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
         if(Alpha>=1 && !bResolved) {
             bResolved=true; DamageArea(LockedTarget,BossSettings.JumpRadius,BossSettings.JumpDamage,BossSettings.TankJumpPush,&AttackHits);
             PushNutsInArea(LockedTarget,BossSettings.JumpRadius,BossSettings.TankJumpPush);
-            TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::SlamImpact,LockedTarget,LockedTarget,BossSettings.JumpRadius,0,.6f,AttackSeed));
+            TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Jump"),TEXT("Impact")),this,Tongue,EMCNutCombatCue::SlamImpact,LockedTarget,LockedTarget,BossSettings.JumpRadius,0,.6f,AttackSeed));
             Recover(1.7f);
         }
     } else if(Attack==EMCNutBossAttack::NutRain) {
@@ -1567,7 +1660,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
             // The warning and contact damage belong to each real falling food.
             // No invisible whole-region damage is added to the same cast.
             if(IsValid(EncounterOwner)) EncounterOwner->SpawnSpellNut(
-                LockedTarget,int32(uint32(AttackSeed)+uint32(RainDropsResolved)),RainDropsResolved);
+                LockedTarget,int32(uint32(AttackSeed)+uint32(RainDropsResolved)),RainDropsResolved,VFXContext);
         }
         if(Time>=AttackEndAt && RainDropsResolved>=DropCount) Recover(1.4f);
     } else if(Attack==EMCNutBossAttack::Melee && BossRole==EMCNutBossRole::Tank) {
@@ -1580,7 +1673,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
                 if(FVector::DotProduct((It->GetActorLocation()-LockedStart).GetSafeNormal2D(),AttackForward)<.35f) AttackHits.Add(*It);
             DamageArea(Center,BossSettings.MeleeRange*(GroundHit?.8f:1.f),BossSettings.MeleeDamage,BossSettings.TankMeleePush,&AttackHits);
             PushNutsInArea(Center,BossSettings.MeleeRange*(GroundHit?.8f:1.f),BossSettings.TankMeleePush,!GroundHit);
-            TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,GroundHit?EMCNutCombatCue::SlamImpact:EMCNutCombatCue::MeleeSlash,
+            TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Melee"),GroundHit?TEXT("Slam"):TEXT("Slash")),this,Tongue,GroundHit?EMCNutCombatCue::SlamImpact:EMCNutCombatCue::MeleeSlash,
                 Center,GroundHit?Center:LockedTarget,BossSettings.MeleeRange*(GroundHit?.8f:1.f),0,GroundHit?.6f:.22f,AttackSeed+MeleeHitsResolved));
             ++MeleeHitsResolved;
         }
@@ -1589,9 +1682,21 @@ void AMCNutBoss::ExecuteAttack(float Dt)
         bResolved=true;
         if(Attack==EMCNutBossAttack::Fireball) {
             const FVector Muzzle=GetCastOrigin();
+            FireballPresentation->StopSourceEpisode(FireballPresentation->SourceID,FireballEpisodeID,false);
+            FMCPerkVFXGameplayValues Values;Values.EpisodeID=FireballEpisodeID;
+            Values.Direction=(LockedTarget-Muzzle).GetSafeNormal();Values.Radius=BossSettings.FireballRadius+25;Values.Duration=.3f;
+            Values.bHasEndpoints=true;Values.SourcePosition=Muzzle;Values.TargetPosition=LockedTarget;
+            Values.bHasSeed=true;Values.Seed=uint32(AttackSeed);
+            const auto Result=FireballPresentation->PlayEvent(TEXT("Release"),FTransform(Values.Direction.Rotation(),Muzzle),Values);
+            const auto* Native=FireballPresentation->GetPreparedNativeSource(TEXT("Boss.NutMage.Fireball"));
+            EMCPerkVFXSlotMode Mode=EMCPerkVFXSlotMode::UseDefault;
+            FireballPresentation->GetPreparedEventMode(TEXT("Boss.NutMage.Fireball"),TEXT("Release"),Mode);
+            const bool Suppress=Result==EMCVFXPresentationResult::Suppressed || (Result==EMCVFXPresentationResult::Played
+                && !(Native && Native->ShouldRenderNativeAccents(TEXT("Release"),Mode)));
             TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::CastRelease,Muzzle,LockedTarget,
-                BossSettings.FireballRadius+25,0,.3f,AttackSeed));
-            TrackAttackActor(AMCNutSpellProjectile::Spawn(this,Tongue,Muzzle,LockedTarget,BossSettings.FireballSpeed,BossSettings.FireballDamage,BossSettings.FireballRadius));
+                BossSettings.FireballRadius+25,0,.3f,AttackSeed,90,8,.5f,Suppress,FireballEpisodeID,Native,TEXT("Release")));
+            TrackAttackActor(AMCNutSpellProjectile::Spawn(this,Tongue,Muzzle,LockedTarget,BossSettings.FireballSpeed,BossSettings.FireballDamage,BossSettings.FireballRadius,
+                FireballPresentation,FireballEpisodeID));
         } else if(Attack==EMCNutBossAttack::Summon) SummonCreeps();
         else if(Attack==EMCNutBossAttack::Melee) {
             for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) {
@@ -1602,7 +1707,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
                 BossRole==EMCNutBossRole::Tank?BossSettings.TankMeleePush:90,&AttackHits);
             PushNutsInArea(LockedStart,BossSettings.MeleeRange,
                 BossRole==EMCNutBossRole::Tank?BossSettings.TankMeleePush:90,true);
-            TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::MeleeSlash,LockedStart,LockedTarget,
+            TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Melee"),TEXT("Slash")),this,Tongue,EMCNutCombatCue::MeleeSlash,LockedStart,LockedTarget,
                 BossSettings.MeleeRange,0,.22f,AttackSeed));
         }
         Recover(Attack==EMCNutBossAttack::Summon?1.2f:.9f);
@@ -1633,7 +1738,7 @@ void AMCNutBoss::Tick(float Dt)
         const float Alpha=FMath::Clamp(float((Time-StateStartedAt)/BossSettings.EntranceSeconds),0.f,1.f);
         SetActorLocation(FMath::Lerp(LockedStart,EntranceLanding,Alpha*Alpha),false);
         if(Alpha>=1) {
-            TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::EntranceImpact,EntranceLanding,EntranceLanding,Settings.BodyRadius+35,0,.6f,1));
+            TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Entrance"),TEXT("Impact")),this,Tongue,EMCNutCombatCue::EntranceImpact,EntranceLanding,EntranceLanding,Settings.BodyRadius+35,0,.6f,1));
             Enter(EMCNutBossState::Idle,0);
         }
         return;
@@ -1768,6 +1873,8 @@ bool AMCNutBoss::IsPlayerInThreat(const AMCToothCharacter* Hero,FVector& EscapeD
 void AMCNutBoss::CancelAttacks()
 {
     if(!HasAuthority()) return;
+    if(ShieldPresentation)ShieldPresentation->StopPresentation(true);
+    if(FireballPresentation)FireballPresentation->StopPresentation(true);
     UMCDefenseSprayPassives::NotifyAttackFinished(this,uint64(AttackSeed),true);
     for(auto Weak:ActiveAttacks) if(AActor* Actor=Weak.Get()) {
         if(auto* Cue=Cast<AMCNutCombatEffect>(Actor)) Cue->Cancel();
@@ -1789,7 +1896,7 @@ void AMCNutBoss::Defeat()
     StateStartedAt=Now();
     Super::Defeat();
     SetLifeSpan(DeathSeconds());
-    TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::DeathBurst,GetActorLocation(),GetActorLocation(),Settings.BodyRadius,0,1.1f,AttackSeed));
+    TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(BossRole,TEXT("Death"),TEXT("Burst")),this,Tongue,EMCNutCombatCue::DeathBurst,GetActorLocation(),GetActorLocation(),Settings.BodyRadius,0,1.1f,AttackSeed));
 }
 
 void AMCNutBoss::BeginMageTransformation()
@@ -1803,7 +1910,7 @@ void AMCNutBoss::BeginMageTransformation()
     LastTankPresentationAt=-1;TankPresentationMotion=FVector::ZeroVector;
     Enter(EMCNutBossState::Transforming,MagePhaseSeconds);
     const FVector Head=GetActorLocation()+FVector(0,0,BossSettings.TankHeight*.62f-Settings.BodyRadius-4);
-    TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::KnightHeadSplit,
+    TrackAttackActor(AMCNutCombatEffect::SpawnPresented(NutVFXContext(EMCNutBossRole::Tank,TEXT("Transform"),TEXT("HeadSplit")),this,Tongue,EMCNutCombatCue::KnightHeadSplit,
         Head,Head,BossSettings.TankHeight*.33f,HeadSplitAt,MagePhaseSeconds+.45f-HeadSplitAt,
         Random.RandHelper(MAX_int32)));
     if(IsValid(EncounterOwner)) if(auto* GS=GetWorld()->GetGameState<AMCGameState>())

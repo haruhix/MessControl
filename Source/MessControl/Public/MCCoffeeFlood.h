@@ -11,6 +11,8 @@ class UMaterialInstanceDynamic;
 class AMCToothCharacter;
 class UMCDayPlan;
 class AMCTongue;
+class UMCWorldPresentationComponent;
+class FMCCoffeeRiverPresentation;
 
 // Gameplay-critical surface: an uncached graphics pipeline may wait on first
 // draw, but must never hide the water while its physical volume is active.
@@ -58,6 +60,10 @@ class MESSCONTROL_API AMCCoffeeFlood : public AActor
 public:
     AMCCoffeeFlood();
     virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type Reason) override;
+    UMCWorldPresentationComponent* GetRiverComposerPresentation()const{return RiverComposer;}
+    bool HasAcceptedRiverComposerState()const{return bRiverComposerCustomActive;}
+    bool HasAcceptedRiverAccentsState()const{return bRiverAccentsCustomActive;}
     virtual void Tick(float Dt) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void Start(const UMCDayPlan* Plan,float SwimTestSeconds=0,bool bUseLegacyFlood=false);
@@ -127,6 +133,14 @@ private:
     void UpdateSurface();
     void UpdatePour(float Time);
     void UpdateRiverSurface(float Time);
+    void UpdateComposerRiver(float Time);
+    void UpdateComposerRiverAccents(float Time);
+    UPROPERTY(Transient) TObjectPtr<UMCWorldPresentationComponent> RiverComposer;
+    TSharedPtr<FMCCoffeeRiverPresentation> RiverPresentation;
+    FGuid RiverEpisode;
+    bool bRiverComposerCustomActive=false;
+    FGuid RiverAccentsEpisode;
+    bool bRiverAccentsCustomActive=false;
     void UpdateStormSurface(float Time);
     void UpdateStormSpray(float Time);
     UFUNCTION(NetMulticast,Unreliable) void MulticastStormImpact(FVector Position,FVector Direction,float Strength,int32 ImpactSeed);

@@ -66,7 +66,11 @@ void IMCPerkPreviewAdapter::Release(FMCPerkPreviewContext& C)
 void IMCPerkPreviewAdapter::Cancel(FMCPerkPreviewContext& C)
 {if(IsValid(C.Action))C.Action->Cancel(EMCActiveSkillEndReason::WorldEnded);}
 void MCPerkPreviewAdapters::Register(FMCPerkPreviewAdapterEntry Entry)
-{if(!Entry.PerkID.IsNone() && Entry.Create)Registry().Add(Entry.PerkID,MoveTemp(Entry));}
+{
+    // Source/event metadata remains useful without a scenario factory.
+    if(!Entry.PerkID.IsNone() && (Entry.Create || !Entry.Stages.IsEmpty()))Registry().Add(Entry.PerkID,MoveTemp(Entry));
+}
+void MCPerkPreviewAdapters::Unregister(FName PerkID) {Registry().Remove(PerkID);}
 const FMCPerkPreviewAdapterEntry* MCPerkPreviewAdapters::Find(FName PerkID)
 {return Registry().Find(PerkID);}
 TArray<FMCPerkPreviewAdapterEntry> MCPerkPreviewAdapters::GetEntries()

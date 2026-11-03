@@ -1,0 +1,2212 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-31",
+  "engine": "Unreal Engine 5.8.1",
+  "scope": "27 current passive source bindings and authentic default-context preview recordings",
+  "route": "Public native Composer SelectVFXComposerAction/PlayVFXComposerAction/StopVFXComposerAction APIs, same route as UI handlers; observer does not synthesize clicks or tick UWorld",
+  "counts": {
+    "unique_passive_sources": 27,
+    "acquire_scenarios_passed": 27,
+    "target_scenarios_with_native_observation_pass_and_full_verified_video": 27,
+    "chosen_target_build05b": 16,
+    "chosen_target_build06": 11,
+    "new_art_approved": 0,
+    "all_27_custom_profile_apply_roundtrips_tested": 0
+  },
+  "native_automation": {
+    "build": "06",
+    "passed": 45,
+    "failed": 0,
+    "total": 45,
+    "duration_seconds": 2.8317902088165283,
+    "warnings": [
+      {
+        "test": "MessControl.VFX.NutMageFireball.LabBorrowsOneSubjectAndPreservesIdentity",
+        "message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках."
+      },
+      {
+        "test": "MessControl.VFX.NutMageFireball.LabBorrowsOneSubjectAndPreservesIdentity",
+        "message": "PIE: Вызов GetSectionFromStaticMesh на Plane но параметр 'Разрешить доступ ЦПУ' не включен. Это необходимо для преобразования StaticMesh в ProceduralMeshComponent в конвертированных сборках."
+      }
+    ],
+    "report": "E:/CodexWork/MessControl/Validation/ComposerGenericBinding_20261031/NativeTests06.json",
+    "historical05b": "38/39; read-only provider binding fixture failed, fixed and passing in06. Do not call05b suite clean."
+  },
+  "runs": [
+    {
+      "run": "WorkspaceRun_20261031T103027Z_PID34724",
+      "build": "05b",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+      "sha256": "b5ee0dce213b2bf0d68b549a94d35f664f09fa9dd48687a543a541def8737eb3",
+      "state": "complete",
+      "protected_unchanged": true,
+      "save_files_unchanged": true,
+      "dirty_unchanged": true
+    },
+    {
+      "run": "WorkspaceRun_20261031T104000Z_PID34724",
+      "build": "05b",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+      "sha256": "4c4f515106246eb4cad231926d4e39c48a198eb8e754b5883356055a7271de16",
+      "state": "safety_guard_failed",
+      "protected_unchanged": true,
+      "save_files_unchanged": true,
+      "dirty_unchanged": true
+    },
+    {
+      "run": "WorkspaceRun_20261031T110837Z_PID58136",
+      "build": "06",
+      "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+      "sha256": "62011163f1ccf8487f9e5942eabae2daba823a138d103908b9fd33e8aadbd42f",
+      "state": "complete",
+      "protected_unchanged": true,
+      "save_files_unchanged": true,
+      "dirty_unchanged": true
+    }
+  ],
+  "excluded_from_master": [
+    {
+      "run": "WorkspaceRun_20261031T104000Z_PID34724",
+      "source_id": "B2_NeatFreak",
+      "native_pass": false,
+      "full_video": true,
+      "reason": [
+        "No native cleaning mask/contact result before the random neighbor roll"
+      ]
+    },
+    {
+      "run": "WorkspaceRun_20261031T104000Z_PID34724",
+      "source_id": "B2_SecondWind",
+      "native_pass": false,
+      "full_video": null,
+      "reason": [
+        "Required real source result not observed: Proc",
+        "Shared public workspace context source changed unexpectedly"
+      ]
+    }
+  ],
+  "limits": [
+    "Not one fresh54-case run on Build06: Acquire27 is05b; chosen Target clips are16 from05b and11 from06.",
+    "Container verification and full recording coverage are distinct from visual acceptance; no per-clip primary-agent artistic approval is asserted.",
+    "RNG not forced. Enamel/Thunder/Neat selected clips contain no action Proc/Link; numeric/contact/attempt checks are not proc passes.",
+    "Neat mask decrease is not proof of source completion or a reached RNG opportunity; raw residual byte sums can represent already-clean cells.",
+    "Default profiles only in these54 selected scenarios; this is not27 custom replacement/Disabled/save/apply/prewarm roundtrips.",
+    "Native spatial cleaning, AwardDelivery and threat fixtures are not full brush acquisition, throat journeys or complete AI encounters.",
+    "LastingFormula keeps gameplay actor/visible hazard footprint; Composer owns cosmetic accents, not complete procedural renderer migration.",
+    "No network, microphone, cook/package or first-cold packaged PSO/performance assertion.",
+    "Other boss/map/ordinary-action metadata remains unsupported unless it has its own explicit native adapter and canonical binding."
+  ],
+  "passives": [
+    {
+      "source_id": "B1_HeavyHit",
+      "label": "Тяжёлый удар",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Hit"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Equipped": 1,
+          "Hit": 0,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "05b",
+        "run": "WorkspaceRun_20261031T104000Z_PID34724",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+        "case_index": 0,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Equipped": 1,
+          "Hit": 1,
+          "State": 1
+        },
+        "observed_action_events": [
+          "Hit"
+        ],
+        "native_observations": [
+          {
+            "stage": "MeleeInput",
+            "seconds": 0.3459898829460144
+          },
+          {
+            "stage": "Hit",
+            "seconds": 0.6603888273239136
+          },
+          {
+            "stage": "AcceptedMeleeHit",
+            "seconds": 0.6603888273239136
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/00_B1_HeavyHit_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.233333,
+        "bytes": 351388,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B1_LightFoot",
+      "label": "Лёгкая походка",
+      "allowed_events": [
+        "Equipped",
+        "State"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Equipped": 1,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "05b",
+        "run": "WorkspaceRun_20261031T104000Z_PID34724",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+        "case_index": 1,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Equipped": 1,
+          "State": 1
+        },
+        "observed_action_events": [],
+        "native_observations": [
+          {
+            "stage": "NativeMovementSample",
+            "seconds": 1.9922502040863037
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/01_B1_LightFoot_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.366667,
+        "bytes": 362830,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B1_DeepBreath",
+      "label": "Глубокий вдох",
+      "allowed_events": [
+        "Equipped",
+        "State"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Equipped": 1,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "05b",
+        "run": "WorkspaceRun_20261031T104000Z_PID34724",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+        "case_index": 2,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Equipped": 1,
+          "State": 1
+        },
+        "observed_action_events": [],
+        "native_observations": [
+          {
+            "stage": "NativeMovementSample",
+            "seconds": 1.9769155979156494
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/02_B1_DeepBreath_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.466667,
+        "bytes": 362323,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B1_BigPortion",
+      "label": "Большая порция",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Pickup"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Equipped": 1,
+          "Pickup": 0,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "05b",
+        "run": "WorkspaceRun_20261031T104000Z_PID34724",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+        "case_index": 3,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Equipped": 1,
+          "Pickup": 8,
+          "State": 1
+        },
+        "observed_action_events": [
+          "Pickup"
+        ],
+        "native_observations": [
+          {
+            "stage": "Pickup",
+            "seconds": 0
+          },
+          {
+            "stage": "Pickup",
+            "seconds": 0
+          },
+          {
+            "stage": "Pickup",
+            "seconds": 0
+          },
+          {
+            "stage": "Pickup",
+            "seconds": 0
+          },
+          {
+            "stage": "Pickup",
+            "seconds": 0
+          },
+          {
+            "stage": "Pickup",
+            "seconds": 0
+          },
+          {
+            "stage": "Pickup",
+            "seconds": 0
+          },
+          {
+            "stage": "Pickup",
+            "seconds": 0
+          },
+          {
+            "stage": "FoodCollected",
+            "seconds": 0
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/03_B1_BigPortion_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.333333,
+        "bytes": 407005,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B1_ConfidentThrow",
+      "label": "Уверенный бросок",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Throw"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Equipped": 1,
+          "State": 1,
+          "Throw": 0
+        }
+      },
+      "target": {
+        "build": "05b",
+        "run": "WorkspaceRun_20261031T104000Z_PID34724",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+        "case_index": 4,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Equipped": 1,
+          "State": 1,
+          "Throw": 1
+        },
+        "observed_action_events": [
+          "Throw"
+        ],
+        "native_observations": [
+          {
+            "stage": "FoodCollected",
+            "seconds": 0
+          },
+          {
+            "stage": "Throw",
+            "seconds": 1.1783535480499268
+          },
+          {
+            "stage": "NativeFoodThrown",
+            "seconds": 1.1783535480499268
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/04_B1_ConfidentThrow_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.166667,
+        "bytes": 362521,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B1_FreshDelivery",
+      "label": "Свежая доставка",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "CarryStart",
+        "CarryEnd"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "CarryEnd": 0,
+          "CarryStart": 0,
+          "Equipped": 1,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "05b",
+        "run": "WorkspaceRun_20261031T104000Z_PID34724",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+        "case_index": 5,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "CarryEnd": 1,
+          "CarryStart": 1,
+          "Equipped": 1,
+          "State": 1
+        },
+        "observed_action_events": [
+          "CarryEnd",
+          "CarryStart"
+        ],
+        "native_observations": [
+          {
+            "stage": "FoodCollected",
+            "seconds": 0
+          },
+          {
+            "stage": "CarryStart",
+            "seconds": 0.020648498088121414
+          },
+          {
+            "stage": "CarryEnd",
+            "seconds": 5.041318416595459
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/05_B1_FreshDelivery_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.433333,
+        "bytes": 398683,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B1_GreedyHands",
+      "label": "Руки загребущие",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Pickup"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Equipped": 1,
+          "Pickup": 0,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "05b",
+        "run": "WorkspaceRun_20261031T104000Z_PID34724",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+        "case_index": 6,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Equipped": 1,
+          "Pickup": 1,
+          "State": 1
+        },
+        "observed_action_events": [
+          "Pickup"
+        ],
+        "native_observations": [
+          {
+            "stage": "Pickup",
+            "seconds": 0
+          },
+          {
+            "stage": "FoodCollected",
+            "seconds": 0
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/06_B1_GreedyHands_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.5,
+        "bytes": 372601,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B1_WideBristles",
+      "label": "Широкая щетина",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Contact"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Contact": 0,
+          "Equipped": 1,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "05b",
+        "run": "WorkspaceRun_20261031T104000Z_PID34724",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+        "case_index": 7,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Contact": 1,
+          "Equipped": 1,
+          "State": 1
+        },
+        "observed_action_events": [
+          "Contact"
+        ],
+        "native_observations": [
+          {
+            "stage": "Contact",
+            "seconds": 0.363761305809021
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/07_B1_WideBristles_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.533333,
+        "bytes": 374395,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B1_UnderPressure",
+      "label": "Под давлением",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "SprayStart",
+        "SprayEnd"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Equipped": 1,
+          "SprayEnd": 0,
+          "SprayStart": 0,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "05b",
+        "run": "WorkspaceRun_20261031T104000Z_PID34724",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+        "case_index": 8,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Equipped": 1,
+          "SprayEnd": 1,
+          "SprayStart": 1,
+          "State": 1
+        },
+        "observed_action_events": [
+          "SprayEnd",
+          "SprayStart"
+        ],
+        "native_observations": [
+          {
+            "stage": "SprayStart",
+            "seconds": 0.01948779821395874
+          },
+          {
+            "stage": "NativeSprayEmitting",
+            "seconds": 0.01948779821395874
+          },
+          {
+            "stage": "SprayInputReleased",
+            "seconds": 3.199345111846924
+          },
+          {
+            "stage": "SprayEnd",
+            "seconds": 3.2206826210021973
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/08_B1_UnderPressure_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 11.4,
+        "bytes": 645607,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B2_ReturnTrip",
+      "label": "Обратный рейс",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Proc",
+        "End"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "End": 0,
+          "Equipped": 1,
+          "Proc": 0,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "05b",
+        "run": "WorkspaceRun_20261031T104000Z_PID34724",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+        "case_index": 9,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "End": 1,
+          "Equipped": 1,
+          "Proc": 1,
+          "State": 1
+        },
+        "observed_action_events": [
+          "End",
+          "Proc"
+        ],
+        "native_observations": [
+          {
+            "stage": "FoodCollected",
+            "seconds": 0
+          },
+          {
+            "stage": "Proc",
+            "seconds": 1.1796718835830688
+          },
+          {
+            "stage": "NativeAwardDeliveryCalled",
+            "seconds": 1.1796718835830688
+          },
+          {
+            "stage": "End",
+            "seconds": 3.209315538406372
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/09_B2_ReturnTrip_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.566667,
+        "bytes": 363891,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B2_CleanBreath",
+      "label": "Чистое дыхание",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Proc"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Equipped": 1,
+          "Proc": 0,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "05b",
+        "run": "WorkspaceRun_20261031T104000Z_PID34724",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+        "case_index": 10,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Equipped": 1,
+          "Proc": 1,
+          "State": 1
+        },
+        "observed_action_events": [
+          "Proc"
+        ],
+        "native_observations": [
+          {
+            "stage": "Proc",
+            "seconds": 0.42857909202575684
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/10_B2_CleanBreath_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.533333,
+        "bytes": 370387,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B2_NeatFreak",
+      "label": "Чистюля",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Link"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Equipped": 1,
+          "Link": 0,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "06",
+        "run": "WorkspaceRun_20261031T110837Z_PID58136",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+        "case_index": 0,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Equipped": 1,
+          "Link": 0,
+          "State": 1
+        },
+        "observed_action_events": [],
+        "native_observations": [],
+        "allowed_action_events_not_observed": [
+          "Link"
+        ],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false,
+        "rng_observation": {
+          "selected_clip_proc_events": [],
+          "observed_in_any_lifecycle_sample": [],
+          "probability_validated": false,
+          "opportunity_completion_verified": null
+        },
+        "limitation": "Corrected observer proves native dirty-mask decrease only; no Link observed and no CoffeeLeft completion probe was recorded. No claim that this clip reached the neighbor RNG roll."
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/00_B2_NeatFreak_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.433333,
+        "bytes": 385889,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B2_LastStroke",
+      "label": "Последний штрих",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "FinishContact"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Equipped": 1,
+          "FinishContact": 0,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "05b",
+        "run": "WorkspaceRun_20261031T104000Z_PID34724",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+        "case_index": 12,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Equipped": 1,
+          "FinishContact": 1,
+          "State": 1
+        },
+        "observed_action_events": [
+          "FinishContact"
+        ],
+        "native_observations": [
+          {
+            "stage": "FinishContact",
+            "seconds": 0.41572609543800354
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/12_B2_LastStroke_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.4,
+        "bytes": 364247,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B2_CleanAcceleration",
+      "label": "Чистый разгон",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Proc",
+        "End"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "End": 0,
+          "Equipped": 1,
+          "Proc": 0,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "05b",
+        "run": "WorkspaceRun_20261031T104000Z_PID34724",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+        "case_index": 13,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "End": 1,
+          "Equipped": 1,
+          "Proc": 1,
+          "State": 1
+        },
+        "observed_action_events": [
+          "End",
+          "Proc"
+        ],
+        "native_observations": [
+          {
+            "stage": "Proc",
+            "seconds": 0.4113559126853943
+          },
+          {
+            "stage": "End",
+            "seconds": 3.5088891983032227
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/13_B2_CleanAcceleration_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.5,
+        "bytes": 365403,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B2_RefreshingWork",
+      "label": "Освежающий труд",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Proc"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Equipped": 1,
+          "Proc": 0,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "05b",
+        "run": "WorkspaceRun_20261031T104000Z_PID34724",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+        "case_index": 14,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Equipped": 1,
+          "Proc": 1,
+          "State": 1
+        },
+        "observed_action_events": [
+          "Proc"
+        ],
+        "native_observations": [
+          {
+            "stage": "Proc",
+            "seconds": 0.43713268637657166
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/14_B2_RefreshingWork_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.5,
+        "bytes": 371431,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B2_ThickEnamel",
+      "label": "Толстая эмаль",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Proc"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Equipped": 1,
+          "Proc": 0,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "05b",
+        "run": "WorkspaceRun_20261031T104000Z_PID34724",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+        "case_index": 15,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Equipped": 1,
+          "Proc": 0,
+          "State": 1
+        },
+        "observed_action_events": [],
+        "native_observations": [
+          {
+            "stage": "DamageAccepted",
+            "seconds": 0.5848566889762878
+          },
+          {
+            "stage": "DamageAccepted",
+            "seconds": 1.2955245971679688
+          },
+          {
+            "stage": "DamageAccepted",
+            "seconds": 2.014986515045166
+          },
+          {
+            "stage": "DamageAccepted",
+            "seconds": 2.732269763946533
+          }
+        ],
+        "allowed_action_events_not_observed": [
+          "Proc"
+        ],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false,
+        "rng_observation": {
+          "selected_clip_proc_events": [],
+          "observed_in_any_lifecycle_sample": [
+            "Proc"
+          ],
+          "probability_validated": false,
+          "opportunity_completion_verified": true
+        }
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/15_B2_ThickEnamel_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.366667,
+        "bytes": 385622,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B2_Shield",
+      "label": "Щит",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Proc"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Equipped": 1,
+          "Proc": 0,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "05b",
+        "run": "WorkspaceRun_20261031T104000Z_PID34724",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/Report.json",
+        "case_index": 16,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Equipped": 1,
+          "Proc": 4,
+          "State": 1
+        },
+        "observed_action_events": [
+          "Proc"
+        ],
+        "native_observations": [
+          {
+            "stage": "Proc",
+            "seconds": 0.5797954797744751
+          },
+          {
+            "stage": "DamageAccepted",
+            "seconds": 0.5797954797744751
+          },
+          {
+            "stage": "Proc",
+            "seconds": 1.2833466529846191
+          },
+          {
+            "stage": "DamageAccepted",
+            "seconds": 1.2833466529846191
+          },
+          {
+            "stage": "Proc",
+            "seconds": 2.0066041946411133
+          },
+          {
+            "stage": "DamageAccepted",
+            "seconds": 2.0066041946411133
+          },
+          {
+            "stage": "Proc",
+            "seconds": 2.723712921142578
+          },
+          {
+            "stage": "DamageAccepted",
+            "seconds": 2.723712921142578
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T104000Z_PID34724/16_B2_Shield_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.533333,
+        "bytes": 360048,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B2_SecondWind",
+      "label": "Второе дыхание",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Proc"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Equipped": 1,
+          "Proc": 0,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "06",
+        "run": "WorkspaceRun_20261031T110837Z_PID58136",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+        "case_index": 1,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Equipped": 1,
+          "Proc": 1,
+          "State": 1
+        },
+        "observed_action_events": [
+          "Proc"
+        ],
+        "native_observations": [
+          {
+            "stage": "NativeThreatRegistered",
+            "seconds": 0.38078969717025757
+          },
+          {
+            "stage": "DashInput",
+            "seconds": 0.38078969717025757
+          },
+          {
+            "stage": "NativeDashStarted",
+            "seconds": 0.4035884141921997
+          },
+          {
+            "stage": "Proc",
+            "seconds": 0.8234226703643799
+          },
+          {
+            "stage": "NativeDashFinished",
+            "seconds": 0.8234226703643799
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/01_B2_SecondWind_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.533333,
+        "bytes": 355201,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B2_HoudiniDash",
+      "label": "Рывок Гудини",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Vanish",
+        "Return"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Equipped": 1,
+          "Return": 0,
+          "State": 1,
+          "Vanish": 0
+        }
+      },
+      "target": {
+        "build": "06",
+        "run": "WorkspaceRun_20261031T110837Z_PID58136",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+        "case_index": 2,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Equipped": 1,
+          "Return": 1,
+          "State": 1,
+          "Vanish": 1
+        },
+        "observed_action_events": [
+          "Return",
+          "Vanish"
+        ],
+        "native_observations": [
+          {
+            "stage": "DashInput",
+            "seconds": 0.39780279994010925
+          },
+          {
+            "stage": "Vanish",
+            "seconds": 0.41778460144996643
+          },
+          {
+            "stage": "NativeDashStarted",
+            "seconds": 0.41778460144996643
+          },
+          {
+            "stage": "Return",
+            "seconds": 0.8267571926116943
+          },
+          {
+            "stage": "NativeDashFinished",
+            "seconds": 0.8267571926116943
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/02_B2_HoudiniDash_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.3,
+        "bytes": 338062,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B2_MightyTooth",
+      "label": "Могучий зуб",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Cleave"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Cleave": 0,
+          "Equipped": 1,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "06",
+        "run": "WorkspaceRun_20261031T110837Z_PID58136",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+        "case_index": 3,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Cleave": 1,
+          "Equipped": 1,
+          "State": 1
+        },
+        "observed_action_events": [
+          "Cleave"
+        ],
+        "native_observations": [
+          {
+            "stage": "MeleeInput",
+            "seconds": 0.33012840151786804
+          },
+          {
+            "stage": "Cleave",
+            "seconds": 0.5529314875602722
+          },
+          {
+            "stage": "AcceptedMeleeHit",
+            "seconds": 0.5529314875602722
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/03_B2_MightyTooth_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.5,
+        "bytes": 363091,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B2_StartFromDash",
+      "label": "С места в карьер",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Proc"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Equipped": 1,
+          "Proc": 0,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "06",
+        "run": "WorkspaceRun_20261031T110837Z_PID58136",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+        "case_index": 4,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Equipped": 1,
+          "Proc": 1,
+          "State": 1
+        },
+        "observed_action_events": [
+          "Proc"
+        ],
+        "native_observations": [
+          {
+            "stage": "DashInput",
+            "seconds": 0
+          },
+          {
+            "stage": "MeleeInput",
+            "seconds": 0.7520989775657654
+          },
+          {
+            "stage": "Proc",
+            "seconds": 0.9699680805206299
+          },
+          {
+            "stage": "AcceptedMeleeHit",
+            "seconds": 0.9699680805206299
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/04_B2_StartFromDash_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.466667,
+        "bytes": 322961,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B2_ThunderGod",
+      "label": "Бог грома",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Link"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Equipped": 1,
+          "Link": 0,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "06",
+        "run": "WorkspaceRun_20261031T110837Z_PID58136",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+        "case_index": 5,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Equipped": 1,
+          "Link": 0,
+          "State": 1
+        },
+        "observed_action_events": [],
+        "native_observations": [
+          {
+            "stage": "MeleeInput",
+            "seconds": 0.3468713164329529
+          },
+          {
+            "stage": "AcceptedMeleeHit",
+            "seconds": 0.5591337084770203
+          },
+          {
+            "stage": "MeleeInput",
+            "seconds": 1.3481725454330444
+          },
+          {
+            "stage": "MeleeInput",
+            "seconds": 2.3518741130828857
+          },
+          {
+            "stage": "MeleeInput",
+            "seconds": 3.3687663078308105
+          },
+          {
+            "stage": "MeleeInput",
+            "seconds": 4.391955852508545
+          },
+          {
+            "stage": "MeleeInput",
+            "seconds": 5.394050121307373
+          }
+        ],
+        "allowed_action_events_not_observed": [
+          "Link"
+        ],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false,
+        "rng_observation": {
+          "selected_clip_proc_events": [],
+          "observed_in_any_lifecycle_sample": [],
+          "probability_validated": false,
+          "opportunity_completion_verified": true
+        }
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/05_B2_ThunderGod_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 10.566667,
+        "bytes": 658907,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B2_EchoSwing",
+      "label": "Эхо замаха",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Windup",
+        "Echo"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Echo": 0,
+          "Equipped": 1,
+          "State": 1,
+          "Windup": 0
+        }
+      },
+      "target": {
+        "build": "06",
+        "run": "WorkspaceRun_20261031T110837Z_PID58136",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+        "case_index": 6,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Echo": 1,
+          "Equipped": 1,
+          "State": 1,
+          "Windup": 1
+        },
+        "observed_action_events": [
+          "Echo",
+          "Windup"
+        ],
+        "native_observations": [
+          {
+            "stage": "MeleeInput",
+            "seconds": 0.33481091260910034
+          },
+          {
+            "stage": "AcceptedMeleeHit",
+            "seconds": 0.5499383807182312
+          },
+          {
+            "stage": "Windup",
+            "seconds": 0.9620283842086792
+          },
+          {
+            "stage": "Echo",
+            "seconds": 1.0615707635879517
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/06_B2_EchoSwing_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.466667,
+        "bytes": 355986,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B2_Billiards",
+      "label": "Бильярд",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Launch",
+        "Impact"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Equipped": 1,
+          "Impact": 0,
+          "Launch": 0,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "06",
+        "run": "WorkspaceRun_20261031T110837Z_PID58136",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+        "case_index": 7,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Equipped": 1,
+          "Impact": 1,
+          "Launch": 1,
+          "State": 1
+        },
+        "observed_action_events": [
+          "Impact",
+          "Launch"
+        ],
+        "native_observations": [
+          {
+            "stage": "MeleeInput",
+            "seconds": 0.33466270565986633
+          },
+          {
+            "stage": "Launch",
+            "seconds": 0.5454950928688049
+          },
+          {
+            "stage": "AcceptedMeleeHit",
+            "seconds": 0.5454950928688049
+          },
+          {
+            "stage": "Impact",
+            "seconds": 0.6247987151145935
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/07_B2_Billiards_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 8.433333,
+        "bytes": 373659,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B2_Softener",
+      "label": "Размягчитель",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Coat",
+        "End"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Coat": 0,
+          "End": 0,
+          "Equipped": 1,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "06",
+        "run": "WorkspaceRun_20261031T110837Z_PID58136",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+        "case_index": 8,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Coat": 2,
+          "End": 2,
+          "Equipped": 1,
+          "State": 1
+        },
+        "observed_action_events": [
+          "Coat",
+          "End"
+        ],
+        "native_observations": [
+          {
+            "stage": "NativeSprayViewCommitted",
+            "seconds": 0
+          },
+          {
+            "stage": "Coat",
+            "seconds": 0.025340300053358078
+          },
+          {
+            "stage": "NativeSprayEmitting",
+            "seconds": 0.025340300053358078
+          },
+          {
+            "stage": "Coat",
+            "seconds": 0.14795449376106262
+          },
+          {
+            "stage": "SprayInputReleased",
+            "seconds": 3.19148588180542
+          },
+          {
+            "stage": "BrushAfterSprayInput",
+            "seconds": 3.7884390354156494
+          },
+          {
+            "stage": "End",
+            "seconds": 5.04376220703125
+          },
+          {
+            "stage": "End",
+            "seconds": 8.147403717041016
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/08_B2_Softener_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 11.466667,
+        "bytes": 635968,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B2_Antiseptic",
+      "label": "Антисептик",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "SprayStart",
+        "SprayEnd",
+        "Clean"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Clean": 0,
+          "Equipped": 1,
+          "SprayEnd": 0,
+          "SprayStart": 0,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "06",
+        "run": "WorkspaceRun_20261031T110837Z_PID58136",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+        "case_index": 9,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Clean": 2,
+          "Equipped": 1,
+          "SprayEnd": 1,
+          "SprayStart": 1,
+          "State": 1
+        },
+        "observed_action_events": [
+          "Clean",
+          "SprayEnd",
+          "SprayStart"
+        ],
+        "native_observations": [
+          {
+            "stage": "NativeSprayViewCommitted",
+            "seconds": 0
+          },
+          {
+            "stage": "SprayStart",
+            "seconds": 0.024712197482585907
+          },
+          {
+            "stage": "Clean",
+            "seconds": 0.024712197482585907
+          },
+          {
+            "stage": "NativeSprayEmitting",
+            "seconds": 0.024712197482585907
+          },
+          {
+            "stage": "Clean",
+            "seconds": 0.14585049450397491
+          },
+          {
+            "stage": "SprayEnd",
+            "seconds": 3.010655164718628
+          },
+          {
+            "stage": "SprayInputReleased",
+            "seconds": 3.187699794769287
+          }
+        ],
+        "allowed_action_events_not_observed": [],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/09_B2_Antiseptic_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 11.366667,
+        "bytes": 624847,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    },
+    {
+      "source_id": "B2_LastingFormula",
+      "label": "Стойкая формула",
+      "allowed_events": [
+        "Equipped",
+        "State",
+        "Coat",
+        "Refresh",
+        "End",
+        "Damage"
+      ],
+      "acquire": {
+        "build": "05b",
+        "passed": true,
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T103027Z_PID34724/Report.json",
+        "source_event_counts": {
+          "Coat": 0,
+          "Damage": 0,
+          "End": 0,
+          "Equipped": 1,
+          "Refresh": 0,
+          "State": 1
+        }
+      },
+      "target": {
+        "build": "06",
+        "run": "WorkspaceRun_20261031T110837Z_PID58136",
+        "report": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/Report.json",
+        "case_index": 10,
+        "native_lifecycle_pass": true,
+        "target_observation_pass": true,
+        "cleanup_pass": true,
+        "source_event_counts": {
+          "Coat": 3,
+          "Damage": 0,
+          "End": 0,
+          "Equipped": 1,
+          "Refresh": 26,
+          "State": 1
+        },
+        "observed_action_events": [
+          "Coat",
+          "Refresh"
+        ],
+        "native_observations": [
+          {
+            "stage": "NativeSprayViewCommitted",
+            "seconds": 0
+          },
+          {
+            "stage": "Coat",
+            "seconds": 0.025568701326847076
+          },
+          {
+            "stage": "NativeSprayEmitting",
+            "seconds": 0.025568701326847076
+          },
+          {
+            "stage": "Coat",
+            "seconds": 0.14425790309906006
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 0.24699440598487854
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 0.3504228889942169
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 0.4642637073993683
+          },
+          {
+            "stage": "Coat",
+            "seconds": 0.5804631114006042
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 0.6835076212882996
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 0.7953435778617859
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 0.9002038836479187
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 1.0095802545547485
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 1.1181738376617432
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 1.2343367338180542
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 1.3351610898971558
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 1.4397317171096802
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 1.5460282564163208
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 1.6481660604476929
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 1.764682650566101
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 1.8689501285552979
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 1.9898632764816284
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 2.0954108238220215
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 2.2200756072998047
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 2.3254234790802
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 2.42710018157959
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 2.543651819229126
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 2.6541078090667725
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 2.773961067199707
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 2.88197922706604
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 2.9988343715667725
+          },
+          {
+            "stage": "Refresh",
+            "seconds": 3.103438377380371
+          },
+          {
+            "stage": "SprayInputReleased",
+            "seconds": 3.191904067993164
+          }
+        ],
+        "allowed_action_events_not_observed": [
+          "Damage",
+          "End"
+        ],
+        "rng_not_forced": true,
+        "rng_proc_pass_claimed": false,
+        "limitation": "Coat/Refresh observed; End and Damage not observed in this short target scenario. Native visible hazard footprint is retained; compositor edits accents only."
+      },
+      "media": {
+        "path": "E:/CodexWork/MessControl/Validation/PassiveMigration_20261031/WorkspaceRun_20261031T110837Z_PID58136/10_B2_LastingFormula_Target.mp4",
+        "kind": "video",
+        "duration_seconds": 11.5,
+        "bytes": 634913,
+        "container_verified": true,
+        "covers_complete_native_case": true,
+        "first_frame_before_play": true,
+        "audio": false,
+        "art_approved": false
+      },
+      "review": {
+        "status": "pending",
+        "score": null,
+        "scope": "native default-context recording; not new art or universal profile-replacement approval"
+      }
+    }
+  ]
+}

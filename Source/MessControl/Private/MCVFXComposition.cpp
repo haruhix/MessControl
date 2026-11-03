@@ -1,4 +1,5 @@
 #include "MCVFXComposition.h"
+#include "MCVFXGameplayInputs.h"
 
 #include "NiagaraParameterStore.h"
 #include "NiagaraSystem.h"
@@ -11,6 +12,8 @@ namespace MCVFXCompositionPrivate
         for(const auto& Item:Values)
         {
             if(!Item.bOverride) continue;
+            if(MCVFXGameplayInputs::IsReadOnly(Item.Name))
+            {Error=FString::Printf(TEXT("%s is a read-only gameplay context input."),*Item.Name.ToString());return false;}
             if(!Item.Name.ToString().StartsWith(TEXT("User.")) || Used.Contains(Item.Name))
             {
                 Error=FString::Printf(TEXT("Override %s must have a unique canonical User.* name."),*Item.Name.ToString());
@@ -24,12 +27,15 @@ namespace MCVFXCompositionPrivate
     template<typename T> bool CheckTypes(const TArray<T>& Values,const FNiagaraTypeDefinition& Type,
         const FNiagaraParameterStore& Store,FString& Error)
     {
-        for(const auto& Item:Values)
+        for(const auto& Item:Values) {
+            if(Item.bOverride && MCVFXGameplayInputs::IsReadOnly(Item.Name))
+            {Error=FString::Printf(TEXT("%s is a read-only gameplay context input."),*Item.Name.ToString());return false;}
             if(Item.bOverride && Store.IndexOf(FNiagaraVariable(Type,Item.Name))==INDEX_NONE)
             {
                 Error=FString::Printf(TEXT("%s is missing or has a different type in this Niagara System."),*Item.Name.ToString());
                 return false;
             }
+        }
         return true;
     }
 
@@ -86,7 +92,7 @@ bool UMCVFXComposition::Validate(FString& OutError) const
 bool UMCVFXComposition::ValidateParameters(const FMCVFXCompositionLayer& Layer,const UNiagaraSystem* System,FString& OutError)
 {
     OutError.Reset();
-    if(!System) {OutError=TEXT("Niagara System is unavailable.");return false;}
+    if(!MCVFXGameplayInputs::ValidateSystem(System,OutError))return false;
     const auto& Store=System->GetExposedParameters();
     using namespace MCVFXCompositionPrivate;
     return CheckTypes(Layer.Floats,FNiagaraTypeDefinition::GetFloatDef(),Store,OutError)
@@ -102,6 +108,7 @@ bool UMCVFXComposition::DiscoverParameters(int32 LayerIndex,FString& OutError)
     auto& Layer=Layers[LayerIndex];
     const UNiagaraSystem* System=Layer.System.LoadSynchronous();
     if(!System) {OutError=TEXT("Could not load the selected Niagara System.");return false;}
+    if(!MCVFXGameplayInputs::ValidateSystem(System,OutError))return false;
     const auto& Store=System->GetExposedParameters();
     TArray<FNiagaraVariable> Variables;Store.GetParameters(Variables);
     Variables.Sort([](const FNiagaraVariable& A,const FNiagaraVariable& B){return A.GetName().LexicalLess(B.GetName());});
@@ -112,6 +119,7 @@ bool UMCVFXComposition::DiscoverParameters(int32 LayerIndex,FString& OutError)
     for(const auto& Variable:Variables)
     {
         if(!Variable.GetName().ToString().StartsWith(TEXT("User."))) continue;
+        if(MCVFXGameplayInputs::IsReadOnly(Variable.GetName()))continue;
         const auto& Type=Variable.GetType();
         if(Type==FNiagaraTypeDefinition::GetFloatDef())
             AddDiscovered(Floats,Layer.Floats,Variable.GetName(),Store.GetParameterValue<float>(Variable));

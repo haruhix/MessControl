@@ -2,6 +2,8 @@
 #include "MCEnemyWeaponContact.h"
 #include "MCHazardWave.h"
 #include "MCFrostNovaVFXComponent.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCVFXPresentationComponent.h"
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
 #include "MCInventoryComponent.h"
@@ -15,6 +17,7 @@
 #include "Net/UnrealNetwork.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
+#include "NiagaraComponent.h"
 #include "UObject/ConstructorHelpers.h"
 
 void FMCSmallMintCandySettings::Sanitize()
@@ -35,6 +38,8 @@ AMCSmallMintCandy::AMCSmallMintCandy()
     bReplicates=true;bAlwaysRelevant=true;PrimaryActorTick.bCanEverTick=true;
     Body=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SmallMint"));SetRootComponent(Body);
     FrostNovaVFX=CreateDefaultSubobject<UMCFrostNovaVFXComponent>(TEXT("FrostNovaVFX"));
+    FrostNovaVFX->PresentationSourceID=TEXT("World.MintCandy");
+    ShatterSystem=TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Gameplay/VFX/NS_IceShatter.NS_IceShatter")));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Gameplay/Cold/Candy/SM_WinterCandy.SM_WinterCandy"));
     Body->SetStaticMesh(Mesh.Object);Body->SetCollisionProfileName(TEXT("BlockAllDynamic"));
     Body->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
@@ -66,6 +71,13 @@ bool AMCSmallMintCandy::Start(AMCTongue* Surface,const FMCSmallMintCandySettings
     Stage=EMCSmallMintStage::Falling;UpdatePresentation();ForceNetUpdate();return true;
 }
 
+bool AMCSmallMintCandy::PrepareShatterPresentation()
+{
+    if(GetNetMode()==NM_DedicatedServer)return false;
+    if(!PreparedShatterSystem)PreparedShatterSystem=ShatterSystem.LoadSynchronous();
+    return IsValid(PreparedShatterSystem);
+}
+
 void AMCSmallMintCandy::UpdatePresentation()
 {
     const bool Visible=Stage==EMCSmallMintStage::Falling || Stage==EMCSmallMintStage::Active;
@@ -74,7 +86,12 @@ void AMCSmallMintCandy::UpdatePresentation()
     if(!Visible || !Body->GetStaticMesh()) return;
     // Small-mint waves have no per-wave warning. Prepare their exact render
     // components during the fall/3..5 second wait instead of at first impact.
-    if(GetNetMode()!=NM_DedicatedServer && FrostNovaVFX) FrostNovaVFX->PrepareForWave();
+    if(GetNetMode()!=NM_DedicatedServer && FrostNovaVFX) {
+        FrostNovaVFX->PrepareForWave();
+        // Lifecycle preparation, before the accepted fatal contact. The CDO
+        // soft reference is also reachable through the existing map manifest.
+        PrepareShatterPresentation();
+    }
     const FBox Bounds=Body->GetStaticMesh()->GetBoundingBox();
     const double Scale=Settings.Diameter/FMath::Max(1.,Bounds.GetSize().GetMax());
     Body->SetWorldScale3D(FVector(Scale));
@@ -139,9 +156,45 @@ bool AMCSmallMintCandy::HitWithPickaxe(AMCToothCharacter* Worker,float Damage)
 
 void AMCSmallMintCandy::Multicast_Shatter_Implementation(FVector Point)
 {
-    if(GetNetMode()==NM_DedicatedServer) return;
-    if(auto* System=LoadObject<UNiagaraSystem>(nullptr,TEXT("/Game/Gameplay/VFX/NS_IceShatter.NS_IceShatter")))
-        UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,System,Point,FRotator::ZeroRotator,FVector(.8f));
+    if(GetNetMode()==NM_DedicatedServer || Point.ContainsNaN()) return;
+    ++AcceptedShatterSerial;LastAcceptedShatterPoint=Point;
+    bool KeepOriginal=true;
+    if(const auto* Prepared=FrostNovaVFX?FrostNovaVFX->GetPreparedPresentation():nullptr)
+        if(auto* Source=Prepared->GetSource(TEXT("World.MintCandy"))) {
+            FMCPerkVFXGameplayValues Values;Values.LocalStateAgeSeconds=0.f;
+            Values.SourcePosition=Point;Values.TargetPosition=Point;Values.bHasEndpoints=true;
+            // Existing multicast is already the accepted local transport. A
+            // local one-shot preserves the real NS lifetime, with no new RPC,
+            // pulse TTL, fatal-damage decision, synthetic hit or runtime load.
+            const auto Result=Source->PlayLocalSourceEvent(TEXT("World.MintCandy"),TEXT("Shatter"),
+                FTransform(FQuat::Identity,Point,FVector(.8f)),Values);
+            KeepOriginal=Result==EMCVFXPresentationResult::Rejected || Prepared->UsesNativeVisuals(TEXT("World.MintCandy"),TEXT("Shatter"));
+        }
+    if(KeepOriginal && IsValid(PreparedShatterSystem))
+        // Explicit None matches the original default. This exact returned
+        // component is never pooled/reused; the weak object serial is ownership.
+        NativeShatterPlayer=UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,PreparedShatterSystem,Point,
+            FRotator::ZeroRotator,FVector(.8f),true,true,ENCPoolMethod::None,true);
+}
+
+bool AMCSmallMintCandy::IsShatterPresentationRunning() const
+{
+    if(const auto* Native=NativeShatterPlayer.Get();IsValid(Native)&&Native->PoolingMethod==ENCPoolMethod::None
+        && Native->GetAsset()==PreparedShatterSystem.Get()&&Native->IsActive()&&!Native->IsComplete())return true;
+    const auto* Prepared=FrostNovaVFX?FrostNovaVFX->GetPreparedPresentation():nullptr;
+    const auto* Source=Prepared?Prepared->GetSource(TEXT("World.MintCandy")):nullptr;
+    return Source&&Source->IsPresentationRunning();
+}
+
+void AMCSmallMintCandy::StopShatterPresentation()
+{
+    // Explicit Cancel/Reset only. Normal Stop/Destroyed must let accepted tails
+    // complete. Never search by location, system name or another cue's pointer.
+    if(auto* Native=NativeShatterPlayer.Get();IsValid(Native)&&Native->PoolingMethod==ENCPoolMethod::None
+        && Native->GetAsset()==PreparedShatterSystem.Get()) {Native->DeactivateImmediate();Native->DestroyComponent();}
+    NativeShatterPlayer.Reset();
+    if(const auto* Prepared=FrostNovaVFX?FrostNovaVFX->GetPreparedPresentation():nullptr)
+        if(auto* Source=Prepared->GetSource(TEXT("World.MintCandy")))Source->StopPresentation(true);
 }
 
 void AMCSmallMintCandy::Stop()

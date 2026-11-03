@@ -9,6 +9,8 @@ class AMCToothCharacter;
 class AMCHazardWave;
 class UStaticMeshComponent;
 class UMCFrostNovaVFXComponent;
+class UNiagaraSystem;
+class UNiagaraComponent;
 
 USTRUCT(BlueprintType)
 struct FMCSmallMintCandySettings
@@ -49,6 +51,12 @@ public:
     bool IsComplete() const { return Stage==EMCSmallMintStage::Complete; }
     bool HasFailed() const { return Stage==EMCSmallMintStage::Failed; }
     void Stop();
+    UPROPERTY(EditDefaultsOnly,Category="Presentation") TSoftObjectPtr<UNiagaraSystem> ShatterSystem;
+    bool PrepareShatterPresentation();
+    bool IsShatterPresentationRunning() const;
+    void StopShatterPresentation();
+    uint64 GetAcceptedShatterSerial() const {return AcceptedShatterSerial;}
+    FVector GetLastAcceptedShatterPoint() const {return LastAcceptedShatterPoint;}
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Body;
     /** One local presenter is prepared during the fall and reused by non-overlapping pulses. */
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UMCFrostNovaVFXComponent> FrostNovaVFX;
@@ -69,6 +77,10 @@ private:
     void UpdatePresentation();
     void RecordFrozenHero(AMCToothCharacter* Hero);
     double Now() const;
+    UPROPERTY(Transient) TObjectPtr<UNiagaraSystem> PreparedShatterSystem;
+    TWeakObjectPtr<UNiagaraComponent> NativeShatterPlayer;
+    uint64 AcceptedShatterSerial=0;
+    FVector LastAcceptedShatterPoint=FVector::ZeroVector;
     FRandomStream Random;
     TArray<TWeakObjectPtr<AMCHazardWave>> Waves;
     TSet<TWeakObjectPtr<AMCToothCharacter>> FrozenHeroes;

@@ -5,15 +5,27 @@
 #include "MCThroatVortex.generated.h"
 
 class AMCFoodActor;
+class UMCWorldPresentationComponent;
 class UMaterialInterface;
 class UMaterialInstanceDynamic;
 class UProceduralMeshComponent;
 class UAudioComponent;
 class USoundBase;
+struct FMCPerkVFXGameplayValues;
 struct FMCThroatVortexGeometry;
 struct FMCThroatVortexGeometryDeleter
 {
     void operator()(FMCThroatVortexGeometry* Geometry) const;
+};
+
+/** Bounded cosmetic projection of an already accepted native intake, not another admission. */
+USTRUCT()
+struct FMCThroatIntakeBoundary
+{
+    GENERATED_BODY()
+    UPROPERTY() uint32 Serial=0;
+    UPROPERTY() double AcceptedAt=0;
+    UPROPERTY() FVector Point=FVector::ZeroVector;
 };
 
 /** One shared, collisionless intake effect per meal. Cosmetic cost is independent of meal size. */
@@ -26,9 +38,21 @@ public:
     virtual ~AMCThroatVortex() override;
     static AMCThroatVortex* Spawn(UWorld* World, FVector Inlet, FVector InwardDirection,
         float Radius, float FlowLength, float Duration, const TArray<AMCFoodActor*>& FoodSources,
-        float HalfWidth=0.f, float Height=0.f);
+        float HalfWidth=0.f, float Height=0.f,AActor* PreparedOwner=nullptr);
+    UMCWorldPresentationComponent* GetComposerPresentation()const{return ComposerPresentation;}
+    const FString& GetPreparedSourceHandoffError()const{return PreparedSourceHandoffError;}
+    bool HasPreparedSourceHandoff()const{return bPreparedSourceHandoff;}
+    bool HasAcceptedComposerStart()const{return bComposerStartAccepted;}
+    bool HasAcceptedComposerLoop()const{return bComposerLoopAccepted;}
+    bool HasAcceptedComposerIntake()const{return bComposerIntakeAccepted;}
+    bool HasAcceptedComposerEnd()const{return bComposerEndAccepted;}
+    void NotifyNativeIntake(FVector AcceptedPoint);
+    void NotifyNaturalEnd();
+    void CancelPresentation();
+    virtual void LifeSpanExpired()override;
     virtual void BeginPlay() override;
     virtual void Tick(float Dt) override;
+    virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
 
     UPROPERTY(VisibleAnywhere) TObjectPtr<UProceduralMeshComponent> Airflow;
@@ -53,6 +77,19 @@ public:
 private:
     UPROPERTY() TArray<TObjectPtr<UMaterialInstanceDynamic>> Materials;
     TUniquePtr<FMCThroatVortexGeometry,FMCThroatVortexGeometryDeleter> Geometry;
+    UPROPERTY(Transient) TObjectPtr<class UMCWorldPresentationComponent> ComposerPresentation;
+    FGuid ComposerEpisode=FGuid::NewGuid();
+    bool bComposerOnsetIssued=false;
+    bool bPreparedSourceHandoff=false,bComposerStartAccepted=false,bComposerLoopAccepted=false;
+    FString PreparedSourceHandoffError;
+    UPROPERTY(Replicated) TArray<FMCThroatIntakeBoundary> RecentIntakes;
+    uint32 IntakeSerial=0,ConsumedIntakeSerial=0;
+    bool bPresentationCanceled=false,bNormalEndIssued=false;
+    UPROPERTY(Replicated) bool bNativeNormalEnd=false;
+    bool bComposerIntakeAccepted=false,bComposerEndAccepted=false;
+    TSharedPtr<FMCPerkVFXGameplayValues> LastComposerValues;
+    void DispatchIntakes(const FMCPerkVFXGameplayValues& Current);
+    bool UpdateComposerArtwork(float Age,FVector View,FVector Right,FVector Up);
     float NextAirflowCueAt=0;
     double ServerNow() const;
 };

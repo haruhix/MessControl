@@ -1,4 +1,6 @@
 #include "MCVomitBurst.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCVFXPresentationComponent.h"
 #include "MCThroat.h"
 #include "MCTongue.h"
 #include "MCMouthSurface.h"
@@ -41,6 +43,7 @@ FVector AMCVomitBurst::FlightPoint(const FMCVomitPortion& P,float T)
 void AMCVomitBurst::Configure(AMCThroat* Throat)
 {
     if(!HasAuthority() || !IsValid(Throat)) return;
+    if(ComposerPresentation)ComposerPresentation->StopStates(TEXT("World.Vomit"));ComposerEpisode=FGuid::NewGuid();bComposerBurstAccepted=false;
     SetOwner(Throat); StartedAt=ServerNow(); Batch=10000+Throat->MealSequence; Portions.Reset(); CheckedAge=0;
     const auto* State=GetWorld()->GetGameState<AMCGameState>();
     FRandomStream Random(HashCombine(GetTypeHash(State?State->RunSeed:1),GetTypeHash(Batch)));
@@ -130,6 +133,10 @@ void AMCVomitBurst::Tick(float Dt)
 }
 void AMCVomitBurst::UpdatePresentation(float Age)
 {
+    EnsureSpreadSamples();
+    AirborneInstances=SplashInstances=0;
+    const bool KeepNative=UpdateComposerArtwork(Age);
+    if(!KeepNative){Stream->SetVisibility(false);Droplets->SetVisibility(false);return;}
     TArray<FVector> V,N; TArray<FVector2D> UV; TArray<int32> Tri; TArray<FColor> Colors; TArray<FProcMeshTangent> Tangents;
     Droplets->ClearInstances(); AirborneInstances=SplashInstances=0;
     auto Drop=[&](FVector P,FVector Size,FVector Direction) {
@@ -159,10 +166,9 @@ void AMCVomitBurst::UpdatePresentation(float Age)
                     if(R<Rings && S<Sides) { const int32 B=Base+R*(Sides+1)+S; Tri.Append({B,B+Sides+1,B+1,B+1,B+Sides+1,B+Sides+2}); }
                 }
             }
-            FRandomStream Random(Batch+I*193);
             for(int32 K=0;K<16;++K) {
-                const float Lag=Random.FRandRange(.01f,.15f),T=AgeP-Lag,R=Random.FRandRange(2.8f,6.5f);
-                const FVector Spread(0,Random.FRandRange(-100,100),Random.FRandRange(-70,60));
+                const auto& Sample=SpreadSamples[I*16+K];
+                const float T=AgeP-Sample.X,R=Sample.Y;const FVector Spread(0,Sample.Z,Sample.W);
                 if(T>0) { Drop(FlightPoint(P,T)+Spread*T,FVector(R,R,R*1.65),Velocity+Spread); ++AirborneInstances; }
             }
         }
@@ -186,6 +192,54 @@ void AMCVomitBurst::UpdatePresentation(float Age)
     if(!Section || Section->ProcVertexBuffer.Num()!=V.Num()) Stream->CreateMeshSection(0,V,Tri,N,UV,Colors,Tangents,false);
     else Stream->UpdateMeshSection(0,V,N,UV,Colors,Tangents);
 }
+void AMCVomitBurst::BeginPlay()
+{Super::BeginPlay();ComposerPresentation=MCWorldPresentation::PrepareOwner(this,{TEXT("World.Vomit")});}
+void AMCVomitBurst::EndPlay(const EEndPlayReason::Type Reason)
+{if(ComposerPresentation)ComposerPresentation->StopStates(TEXT("World.Vomit"));Super::EndPlay(Reason);}
+void AMCVomitBurst::EnsureSpreadSamples()
+{
+    if(SampleBatch==Batch&&SampleCount==Portions.Num())return;
+    SampleBatch=Batch;SampleCount=Portions.Num();SpreadSamples.SetNum(Portions.Num()*16);
+    for(int32 I=0;I<Portions.Num();++I){FRandomStream Random(Batch+I*193);
+        for(int32 K=0;K<16;++K){const float Lag=Random.FRandRange(.01f,.15f),R=Random.FRandRange(2.8f,6.5f);
+            // Keep the original vector-constructor RNG expression and call order.
+            const FVector Spread(0,Random.FRandRange(-100,100),Random.FRandRange(-70,60));
+            SpreadSamples[I*16+K]=FVector4f(Lag,R,float(Spread.Y),float(Spread.Z));}}
+}
+bool AMCVomitBurst::UpdateComposerArtwork(float Age)
+{
+    if(!ComposerPresentation)return true;
+    constexpr auto ID=TEXT("World.Vomit");auto* Channel=ComposerPresentation->GetSource(ID);
+    EMCPerkVFXSlotMode Mode=EMCPerkVFXSlotMode::UseDefault;
+    if(!Channel||!Channel->GetPreparedEventMode(ID,TEXT("Burst"),Mode))return true;
+    const bool Supported=Portions.Num()<=3&&GetActorQuat().IsIdentity()&&GetActorScale3D().Equals(FVector::OneVector);
+    FMCPerkVFXGameplayValues Values;Values.EpisodeID=ComposerEpisode;Values.LocalStateAgeSeconds=Age;Values.Duration=5;
+    Values.VisualSubject=Stream;
+    const FVector Origin=Portions.IsEmpty()?GetActorLocation():Portions[0].Start;
+    auto Add=[&](const TCHAR* N,EMCVFXNativeInputType T)->FMCVFXNativeInput&{auto& I=Values.NativeInputs.Entries.AddDefaulted_GetRef();I.Name=N;I.Type=T;return I;};
+    Add(TEXT("User.Native.VomitAge"),EMCVFXNativeInputType::Float).FloatValue=Age;
+    Add(TEXT("User.Native.VomitCount"),EMCVFXNativeInputType::Int).IntValue=FMath::Min(3,Portions.Num());
+    Add(TEXT("User.Native.VomitOrigin"),EMCVFXNativeInputType::Position).PositionValue=Origin;
+    Add(TEXT("User.Native.VomitReady"),EMCVFXNativeInputType::Bool).BoolValue=Supported&&!Portions.IsEmpty();
+    auto Vectors=[&](const TCHAR* N){return &Add(N,EMCVFXNativeInputType::VectorArray).VectorValues;};
+    auto Floats=[&](const TCHAR* N){return &Add(N,EMCVFXNativeInputType::FloatArray).FloatValues;};
+    // Reserve entries first: later Add cannot invalidate references to arrays.
+    Values.NativeInputs.Entries.Reserve(20);
+    auto* Starts=Vectors(TEXT("User.Native.VomitStarts"));auto* Velocities=Vectors(TEXT("User.Native.VomitVelocities"));
+    auto* Impacts=Vectors(TEXT("User.Native.VomitImpacts"));auto* Normals=Vectors(TEXT("User.Native.VomitNormals"));
+    auto* Sides=Vectors(TEXT("User.Native.VomitSplashSide"));auto* Ups=Vectors(TEXT("User.Native.VomitSplashUp"));
+    auto* Delays=Floats(TEXT("User.Native.VomitDelays"));auto* Radii=Floats(TEXT("User.Native.VomitRadii"));
+    auto* Ends=Floats(TEXT("User.Native.VomitEnds"));auto* Landed=Floats(TEXT("User.Native.VomitLanded"));
+    auto* Spread=Vectors(TEXT("User.Native.VomitSpread"));auto* Lags=Floats(TEXT("User.Native.VomitLags"));
+    if(Supported)for(int32 J=0;J<Portions.Num();++J){const auto& P=Portions[J];Starts->Add(P.Start-Origin);Velocities->Add(P.Velocity);Impacts->Add(P.Impact-Origin);Normals->Add(P.Normal);
+        Delays->Add(P.Delay);Radii->Add(P.Radius);Ends->Add(P.ImpactAge);Landed->Add(P.bLanded?1:0);FVector Side,Up;P.Normal.FindBestAxisVectors(Side,Up);Sides->Add(Side);Ups->Add(Up);
+        for(int32 K=0;K<16;++K){const auto& S=SpreadSamples[J*16+K];Lags->Add(S.X);Spread->Add(FVector(S.Y,S.Z,S.W));}}
+    FString Error;const bool Accepted=ComposerPresentation->UpdateState(ID,TEXT("Burst"),Age<5,FTransform(Origin),Values,Stream,Error);
+    bComposerBurstAccepted|=Accepted&&Supported&&!Portions.IsEmpty()&&Age<5;
+    if(Mode==EMCPerkVFXSlotMode::Disabled)return !Accepted;
+    return !Supported||!Accepted||ComposerPresentation->UsesNativeVisuals(ID,TEXT("Burst"));
+}
+
 void AMCVomitBurst::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);

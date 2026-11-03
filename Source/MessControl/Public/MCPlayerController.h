@@ -57,6 +57,8 @@ public:
     bool IsUsingGamepad() const { return bUsingGamepad; }
     /** Local UMG/input needs an attached LocalPlayer that owns this controller in this world. */
     bool HasLocalPresentationOwner() const;
+    /** The existing owned widget supplies its real phase edge. Audio only; false keeps native palette playback. No preparation/load or additional receipt ledger here. */
+    bool PresentShiftFeedback(const UMCPrototypeWidget* SourceWidget,FName Event,const AMCToothCharacter* Tooth);
     virtual void Tick(float DeltaSeconds) override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

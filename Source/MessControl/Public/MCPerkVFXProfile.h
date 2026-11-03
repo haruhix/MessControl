@@ -3,9 +3,12 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "MCVFXComposition.h"
+#include "MCEventSFX.h"
+#include "MCEventPresentationGroups.h"
 #include "MCPerkVFXProfile.generated.h"
 
 class UNiagaraSystem;
+class UMCVFXNativePresentationSettings;
 
 UENUM(BlueprintType)
 enum class EMCPerkVFXSlotMode : uint8
@@ -49,7 +52,14 @@ class MESSCONTROL_API UMCPerkVFXProfile : public UDataAsset
 public:
     /** Currently supported action events: Start, Loop, Impact, End and Warning. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Perk VFX") TMap<FName,FMCPerkVFXSlot> Slots;
+    /** Independent event audio policy; absent entries preserve original audio. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Presentation|SFX") TMap<FName,FMCEventSFXSlot> SFXSlots;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Presentation|Groups") TMap<FName,FMCEventPresentationGroupSet> EventGroups;
+    /** Original native artwork; null retains the existing serialized rendering behavior. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Native presentation") TSoftObjectPtr<UMCVFXNativePresentationSettings> NativePresentation;
     bool Validate(FString& OutError) const;
+    /** Provider-declared semantic events; does not weaken the legacy five-stage action contract. */
+    bool ValidateForEvents(const TArray<FName>& Events,FString& OutError) const;
     bool DiscoverParameters(FName Stage,FString& OutError);
     static bool IsSupportedStage(FName Stage);
     static TArray<FName> GetSupportedStages();

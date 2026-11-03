@@ -9,6 +9,7 @@ class AMCTongue;
 class UDecalComponent;
 class UMaterialInstanceDynamic;
 class UMaterialInterface;
+class UMCVFXPresentationComponent;
 
 /** A tongue-supported landing telegraph; authority resolves one real radial impact. */
 UCLASS()
@@ -22,11 +23,18 @@ public:
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void Configure(AMCTongue* OnTongue,AMCFoodActor* Food,FVector Landing,float InFlightSeconds,float InRadius,float InOpacity,
-        float InDamage=18,float InPushSpeed=260);
+        float InDamage=18,float InPushSpeed=260,FName OriginSource=TEXT("Event.NutRain.Entry"),UMCVFXPresentationComponent* PreviewSource=nullptr);
     UFUNCTION(BlueprintPure) bool IsWarningActive() const;
     UFUNCTION(BlueprintPure) float SecondsToImpact() const;
     UFUNCTION(BlueprintPure) float GetShadowStrength() const;
+    /** Disposable Composer entry fixture: assets exist, but no presentation
+     * starts until the shared preview readiness barrier has committed. */
+    bool bDeferIsolatedPreviewPresentation=false;
+    bool StartIsolatedPreviewPresentation();
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UDecalComponent> Shadow;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UMCVFXPresentationComponent> Presentation;
+    UPROPERTY(ReplicatedUsing=RefreshShadow,BlueprintReadOnly) FName PresentationSource=TEXT("Event.NutRain.Entry");
+    UPROPERTY(ReplicatedUsing=RefreshShadow,BlueprintReadOnly) TObjectPtr<AMCFoodActor> TrackedFood;
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Landing Shadow") TSoftObjectPtr<UMaterialInterface> ShadowMaterial;
     UPROPERTY(ReplicatedUsing=RefreshShadow,BlueprintReadOnly) TObjectPtr<AMCTongue> Tongue;
     UPROPERTY(ReplicatedUsing=RefreshShadow,BlueprintReadOnly) FVector SurfaceAnchor=FVector::ZeroVector;
@@ -39,7 +47,6 @@ private:
     void Landed(const FHitResult& Hit);
     UFUNCTION() void RefreshShadow();
     double ServerTime() const;
-    TWeakObjectPtr<AMCFoodActor> TrackedFood;
     float ImpactDamage=18;
     float ImpactPushSpeed=260;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> ShadowMID;

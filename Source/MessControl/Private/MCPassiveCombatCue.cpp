@@ -1,6 +1,12 @@
 #include "MCPassiveCombatCue.h"
+#include "MCToothCharacter.h"
+#include "MCVFXPresentationComponent.h"
+#include "MCPerkPresentationEvents.h"
+#include "MCVFXNativeArtControls.h"
+#include "MCGameState.h"
 #include "ProceduralMeshComponent.h"
 #include "Materials/MaterialInterface.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "StaticMeshResources.h"
@@ -35,6 +41,25 @@ void AMCPassiveCombatCue::Spawn(UWorld* World,FVector From,FVector To,uint32 See
     if(!Cue) return;
     Cue->LinkEnd=To;Cue->NoiseSeed=Seed;Cue->StartedAt=CueNow(World);Cue->FinishSpawning(Pose);
 }
+AMCPassiveCombatCue* AMCPassiveCombatCue::SpawnLightningAccepted(AMCToothCharacter* Hero,FName SourceID,FName Event,
+    EMCVFXPresentationResult Result,FVector From,FVector To,uint32 Seed)
+{
+    if(!IsValid(Hero)||!Hero->HasAuthority()||SourceID!=TEXT("B2_ThunderGod")||Event!=TEXT("Link")||From.ContainsNaN()||To.ContainsNaN())return nullptr;
+    const auto* Prepared=Hero->PassivePresentation?Hero->PassivePresentation->GetPreparedNativeSource(SourceID):nullptr;
+    bool Render=MCPassivePresentation::UsesNativeFallback(Result);
+    if(Result==EMCVFXPresentationResult::Played && Prepared && Prepared->Snapshot && Prepared->IsReady()) {
+        EMCPerkVFXSlotMode Mode=EMCPerkVFXSlotMode::Composition;
+        if(Hero->PassivePresentation->GetPreparedEventMode(SourceID,Event,Mode))Render=Prepared->ShouldRenderNativeAccents(Event,Mode);
+    }
+    if(!Render)return nullptr;
+    auto* World=Hero->GetWorld();if(!World||World->GetNetMode()==NM_Client)return nullptr;
+    const FTransform Pose(From);auto* Cue=World->SpawnActorDeferred<AMCPassiveCombatCue>(StaticClass(),Pose);if(!Cue)return nullptr;
+    Cue->SourcePerkID=SourceID;Cue->AcceptedEvent=Event;Cue->PresentationOwner=Hero;
+    Cue->LinkEnd=To;Cue->NoiseSeed=Seed;Cue->StartedAt=CueNow(World);
+    if(Prepared && Prepared->Snapshot && Prepared->IsReady()){Cue->PreparedNative=*Prepared;Cue->NativeStyle=Prepared->Reference;}
+    if(const auto* State=World->GetGameState<AMCGameState>())Cue->PresentationEpoch=State->GameplayLoadId;
+    Cue->FinishSpawning(Pose);return Cue;
+}
 AMCPassiveCombatCue* AMCPassiveCombatCue::SpawnEcho(UWorld* World,FVector Origin,FVector Forward,const TArray<FMCEchoToolPart>& Parts,bool bOverhead,double ContactAt)
 {
     if(!World || World->GetNetMode()==NM_Client || Parts.IsEmpty() || Origin.ContainsNaN() || Forward.ContainsNaN()) return nullptr;
@@ -46,11 +71,40 @@ AMCPassiveCombatCue* AMCPassiveCombatCue::SpawnEcho(UWorld* World,FVector Origin
     Cue->StartedAt=CueNow(World)+(ContactAt-World->GetTimeSeconds())-.1;
     Cue->FinishSpawning(Pose);return Cue;
 }
+AMCPassiveCombatCue* AMCPassiveCombatCue::SpawnEchoAccepted(AMCToothCharacter* Hero,FName SourceID,FName Event,
+    EMCVFXPresentationResult Result,FVector Origin,FVector Forward,const TArray<FMCEchoToolPart>& Parts,bool bOverhead,double ContactAt)
+{
+    if(!IsValid(Hero) || !Hero->HasAuthority() || SourceID!=TEXT("B2_EchoSwing") || Event!=TEXT("Windup")
+        || !MCPassivePresentation::UsesNativeFallback(Result))return nullptr;
+    auto* World=Hero->GetWorld();
+    if(!World || World->GetNetMode()==NM_Client || Parts.IsEmpty() || Origin.ContainsNaN() || Forward.ContainsNaN()
+        || !FMath::IsFinite(ContactAt))return nullptr;
+    const FTransform Pose(Forward.Rotation(),Origin);
+    auto* Cue=World->SpawnActorDeferred<AMCPassiveCombatCue>(StaticClass(),Pose);if(!Cue)return nullptr;
+    Cue->Kind=EMCPassiveCombatCueKind::EchoTool;Cue->ToolParts=Parts;Cue->bEchoOverhead=bOverhead;
+    Cue->SourcePerkID=SourceID;Cue->AcceptedEvent=Event;Cue->PresentationOwner=Hero;
+    Cue->StartedAt=CueNow(World)+(ContactAt-World->GetTimeSeconds())-.1;
+    if(const auto* State=World->GetGameState<AMCGameState>())Cue->PresentationEpoch=State->GameplayLoadId;
+    Cue->FinishSpawning(Pose);return Cue;
+}
 void AMCPassiveCombatCue::BeginPlay()
 {
-    Super::BeginPlay();Mesh->SetMaterial(0,LinkMaterial);RefreshGhost();
-    if(HasAuthority()) SetLifeSpan(Kind==EMCPassiveCombatCueKind::EchoTool?.3f:.24f);
+    Super::BeginPlay();Mesh->SetMaterial(0,LinkMaterial);ApplyNativeStyle();RefreshGhost();
+    const auto* Part=PreparedNative.FindPart(AcceptedEvent,TEXT("LightningStroke"));
+    if(HasAuthority()) SetLifeSpan(Kind==EMCPassiveCombatCueKind::EchoTool?.3f:Part?.2f*Part->Feedback.DurationScale+.04f:.24f);
 }
+void AMCPassiveCombatCue::ApplyNativeStyle()
+{
+    if(Kind!=EMCPassiveCombatCueKind::Lightning || NativeStyle.Source.IsNull())return;
+    if(!PreparedNative.Snapshot || PreparedNative.Reference.SettingsHash!=NativeStyle.SettingsHash || !PreparedNative.IsReady()) {
+        FMCVFXPreparedNativePresentation Candidate;FString Error;
+        if(!FMCVFXPreparedNativePresentation::ResolveResidentReference(NativeStyle,SourcePerkID,
+            MCPassivePresentation::GetAllowedEvents(SourcePerkID),this,Candidate,Error))return;
+        PreparedNative=MoveTemp(Candidate);
+    }
+    if(auto* Material=PreparedNative.GetPreparedMaterial(AcceptedEvent,TEXT("LightningStroke")))Mesh->SetMaterial(0,Material);
+}
+void AMCPassiveCombatCue::OnRep_NativeStyle(){ApplyNativeStyle();}
 void AMCPassiveCombatCue::RefreshGhost()
 {
     if(!HasActorBegunPlay() || GetNetMode()==NM_DedicatedServer || Kind!=EMCPassiveCombatCueKind::EchoTool || !GhostMeshes.IsEmpty()) return;
@@ -94,8 +148,13 @@ void AMCPassiveCombatCue::TickGhost(float Age)
 void AMCPassiveCombatCue::Tick(float Dt)
 {
     Super::Tick(Dt);if(GetNetMode()==NM_DedicatedServer) return;
+    if(PresentationEpoch.IsValid())if(const auto* State=GetWorld()->GetGameState<AMCGameState>();State && State->GameplayLoadId!=PresentationEpoch)
+    {Mesh->SetVisibility(false);for(const auto& Ref:GhostMeshes)if(auto* Ghost=Ref.Get())Ghost->SetVisibility(false);if(HasAuthority())Destroy();return;}
     if(Kind==EMCPassiveCombatCueKind::EchoTool) {TickGhost(float(CueNow(GetWorld())-StartedAt));return;}
-    const float Age=FMath::Max(0.,CueNow(GetWorld())-StartedAt),Alpha=1-FMath::Clamp(Age/.2f,0.f,1.f);
+    const auto* Part=PreparedNative.FindPart(AcceptedEvent,TEXT("LightningStroke"));
+    if(Part && !Part->bEnabled){Mesh->SetVisibility(false);return;}
+    const float Clock=Part?Part->Feedback.DurationScale:1.f;
+    const float Age=FMath::Max(0.,CueNow(GetWorld())-StartedAt)/Clock,Alpha=1-FMath::Clamp(Age/.2f,0.f,1.f);
     Mesh->SetVisibility(Alpha>0);if(Alpha<=0) return;
     const FVector End=FVector(LinkEnd)-GetActorLocation(),Axis=End.GetSafeNormal();
     FVector Eye=GetActorLocation()+FVector(0,-500,300);
@@ -110,8 +169,9 @@ void AMCPassiveCombatCue::Tick(float Dt)
         Points.Add(End*T+(Side*Random.FRandRange(-11.f,11.f)+Up*Random.FRandRange(-6.f,6.f))*Taper);
     }
     for(int32 Layer=0;Layer<2;++Layer) {
-        const int32 First=P.Num();const float Width=(Layer?1.2f:4.f)*(.5f+.5f*Alpha);
-        const FLinearColor Tint=Layer?FLinearColor(.85f,1.f,1.f,Alpha):FLinearColor(.05f,.55f,1.f,Alpha*.7f);
+        const int32 First=P.Num();const float Width=(Layer?1.2f:4.f)*(.5f+.5f*Alpha)*(Part?Part->Feedback.Scale:1.f);
+        FLinearColor Tint=Layer?FLinearColor(.85f,1.f,1.f,Alpha):FLinearColor(.05f,.55f,1.f,Alpha*.7f);
+        if(Part){Tint.R*=Part->Tint.R;Tint.G*=Part->Tint.G;Tint.B*=Part->Tint.B;Tint.A=MCNativeArtControls::Opacity(Part,Age,.2f,Tint.A)*Part->Tint.A;}
         for(int32 I=0;I<=Segments;++I) {
             const float T=I/float(Segments),W=Width*(.35f+.65f*FMath::Sin(T*PI));
             for(int32 Edge=0;Edge<2;++Edge) {
@@ -126,4 +186,6 @@ void AMCPassiveCombatCue::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);DOREPLIFETIME(AMCPassiveCombatCue,LinkEnd);DOREPLIFETIME(AMCPassiveCombatCue,StartedAt);DOREPLIFETIME(AMCPassiveCombatCue,NoiseSeed);
     DOREPLIFETIME(AMCPassiveCombatCue,Kind);DOREPLIFETIME(AMCPassiveCombatCue,ToolParts);DOREPLIFETIME(AMCPassiveCombatCue,bEchoOverhead);
+    DOREPLIFETIME(AMCPassiveCombatCue,SourcePerkID);DOREPLIFETIME(AMCPassiveCombatCue,AcceptedEvent);DOREPLIFETIME(AMCPassiveCombatCue,PresentationOwner);
+    DOREPLIFETIME(AMCPassiveCombatCue,NativeStyle);DOREPLIFETIME(AMCPassiveCombatCue,PresentationEpoch);
 }

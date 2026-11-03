@@ -13,6 +13,9 @@
 #include "MCPassiveFeedbackCue.h"
 #include "MCPerkComponent.h"
 #include "MCPerkEffect.h"
+#include "MCPerkPresentationEvents.h"
+#include "MCVFXPresentationComponent.h"
+#include "MCVFXNativeSources.h"
 #include "MCPlayerState.h"
 #include "MCResultPassives.h"
 #include "MCToothCharacter.h"
@@ -29,6 +32,7 @@
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "Materials/MaterialInterface.h"
+#include "UObject/UnrealType.h"
 
 namespace MCPerkPassivePreview
 {
@@ -71,6 +75,29 @@ void Event(FMCPerkPreviewContext& C,FName Name) {if(C.RecordEvent) C.RecordEvent
 void Status(FMCPerkPreviewContext& C,const FString& Text) {if(C.ReportStatus) C.ReportStatus(Text);}
 FText EventLabel(FName Name)
 {
+    if(Name==TEXT("Equipped"))return FText::FromString(TEXT("Получение пассивки"));
+    if(Name==TEXT("State"))return FText::FromString(TEXT("Активное состояние"));
+    if(Name==TEXT("Proc"))return FText::FromString(TEXT("Успешное срабатывание"));
+    if(Name==TEXT("End"))return FText::FromString(TEXT("Завершение"));
+    if(Name==TEXT("Hit"))return FText::FromString(TEXT("Принятое попадание"));
+    if(Name==TEXT("Link"))return FText::FromString(TEXT("Настоящее звено цепочки"));
+    if(Name==TEXT("Cleave"))return FText::FromString(TEXT("Дополнительная цель"));
+    if(Name==TEXT("Windup"))return FText::FromString(TEXT("Подготовка эха"));
+    if(Name==TEXT("Echo"))return FText::FromString(TEXT("Повторный удар"));
+    if(Name==TEXT("Launch"))return FText::FromString(TEXT("Отбрасывание"));
+    if(Name==TEXT("Impact"))return FText::FromString(TEXT("Вторичный контакт"));
+    if(Name==TEXT("Vanish"))return FText::FromString(TEXT("Исчезновение"));
+    if(Name==TEXT("Return"))return FText::FromString(TEXT("Возвращение"));
+    if(Name==TEXT("Coat"))return FText::FromString(TEXT("Нанесение состава"));
+    if(Name==TEXT("Refresh"))return FText::FromString(TEXT("Обновление состава"));
+    if(Name==TEXT("Damage"))return FText::FromString(TEXT("Принятый урон от состава"));
+    if(Name==TEXT("Contact"))return FText::FromString(TEXT("Контакт щётки"));
+    if(Name==TEXT("FinishContact"))return FText::FromString(TEXT("Финальная очистка"));
+    if(Name==TEXT("Clean"))return FText::FromString(TEXT("Фактическая очистка"));
+    if(Name==TEXT("CarryStart"))return FText::FromString(TEXT("Начало переноса"));
+    if(Name==TEXT("CarryEnd"))return FText::FromString(TEXT("Еда отпущена"));
+    if(Name==TEXT("SprayStart"))return FText::FromString(TEXT("Начало распыления"));
+    if(Name==TEXT("SprayEnd"))return FText::FromString(TEXT("Распыление завершено"));
     if(Name==TEXT("MeleeHit")) return FText::FromString(TEXT("Попадание оружием"));
     if(Name==TEXT("MeleeAfterDash")) return FText::FromString(TEXT("Удар после рывка"));
     if(Name==TEXT("BrushContact")) return FText::FromString(TEXT("Контакт щётки"));
@@ -87,7 +114,7 @@ FText EventLabel(FName Name)
     if(Name==TEXT("Delivery")) return FText::FromString(TEXT("Доставка еды"));
     if(Name==TEXT("SprayThenBrush")) return FText::FromString(TEXT("Распыление → щётка"));
     if(Name==TEXT("SprayResidue")) return FText::FromString(TEXT("Остаточный состав"));
-    return FText::FromString(TEXT("Распыление"));
+    return FText::FromName(Name);
 }
 
 /** One bounded native scenario, kept separate from production gameplay. There
@@ -120,15 +147,22 @@ public:
         } else if(C.PerkID==TEXT("B2_RefreshingWork")) {
             Error=TEXT("Освежающий труд ожидает настоящий GameState/PlayerArray в песочнице");return false;
         }
-        if(!Perks->ServerGrantPerk(C.PerkID) && Perks->GetStacks(C.PerkID)<=0) {
-            Error=TEXT("Штатная выдача пассивки отклонена текущей DT/состоянием игрока");return false;
-        }
+        const bool bAcquire=C.Scenario==EMCPerkPreviewScenario::Acquire;
+        // Ownership is committed only after presentation/resource readiness.
+        // Setup must not emit a saved canonical Equipped/State cue early.
         if(!PrepareResourceAnchors(C,Error)) return false;
         auto* Move=Cast<UMCToothMovementComponent>(C.Hero->GetCharacterMovement());
         if(!Move) {Error=TEXT("Нет штатного компонента движения");return false;}
         C.Hero->SetActorRotation(FRotator::ZeroRotator);
+        // The evaluated authored skeleton faces actor +X at this neutral pose
+        // (including its mesh-relative -90-degree yaw), as confirmed by the eyes/head.
+        C.PreviewFront=C.Hero->GetActorForwardVector();
         Origin=C.Hero->GetActorLocation();
         Move->SetMovementMode(MOVE_Walking);
+        if(bAcquire) {
+            Status(C,TEXT("Пассивка будет выдана штатным ServerGrantPerk только после готовности ресурсов."));
+            return true;
+        }
         // Health/stamina are explicit scenario starting conditions, not perk
         // outcomes. All later damage, recovery and procs use gameplay owners.
         auto Health=C.Hero->Status->State;
@@ -143,9 +177,14 @@ public:
             const float TargetForward=C.PerkID==TEXT("B2_StartFromDash")
                 ?FMath::Clamp(Move->DashSpeed,500.f,1600.f)*Move->GetDashDuration()+135.f:135.f;
             if(!MakeEnemy(C,FVector(TargetForward,0,0),Error)) return false;
-            if(Spec.Context==EContext::Combat && (C.PerkID==TEXT("B2_MightyTooth") || C.PerkID==TEXT("B2_ThunderGod") || C.PerkID==TEXT("B2_Billiards")))
+            if(Spec.Context==EContext::Combat && (C.PerkID==TEXT("B2_MightyTooth") || C.PerkID==TEXT("B2_Billiards")))
                 if(!MakeEnemy(C,FVector(180,65,0),Error) || !MakeEnemy(C,FVector(240,-30,0),Error)) return false;
             C.Hero->Inventory->ServerSelect(EMCToolSlot::Knife);
+            // Native Thunder chains only to whole food or other teeth. Keep the
+            // ordinary first enemy/weapon contact, then offer eligible real food;
+            // more enemies can never satisfy the runtime chain target filter.
+            if(C.PerkID==TEXT("B2_ThunderGod"))
+                for(int32 I=0;I<3;++I)if(!MakeFood(C,I,Error,true))return false;
         }
         if(Spec.Context==EContext::Cleaning || Spec.Context==EContext::Spray) {
             if(!MakeStain(C,FVector(115,0,0),Error)) return false;
@@ -159,16 +198,60 @@ public:
             }
         }
         if(Spec.Context==EContext::Food) {
-            const int32 Count=C.PerkID==TEXT("B1_BigPortion")?C.Hero->FoodCollection->EffectiveCapacity():1;
+            // Offer enough real pieces for the native capacity resolver (<=12)
+            // after grant; never duplicate the perk's balancing math here.
+            const int32 Count=C.PerkID==TEXT("B1_BigPortion")?12:1;
             for(int32 I=0;I<Count;++I) if(!MakeFood(C,I,Error)) return false;
         }
-        Status(C,TEXT("Родная механика и текущие параметры DT; процедурные VFX пассивки пока не поддерживают подмену через Composer"));
+        Status(C,TEXT("Родная механика и параметры DT. Слои читаются по ID пассивки и её настоящему событию."));
         return true;
     }
 
+    bool PreparePresentation(FMCPerkPreviewContext& C,FString& Error) override
+    {
+        auto* P=C.Hero?C.Hero->PassivePresentation.Get():nullptr;
+        if(!P){Error=TEXT("У зубика нет общего диспетчера представления пассивок.");return false;}
+        Presentation=P;
+        if(ReceiptHandle.IsValid())P->OnSourceEventAccepted.Remove(ReceiptHandle);
+        ReceiptHandle=P->OnSourceEventAccepted.AddLambda([this,Source=C.PerkID,Record=C.RecordEvent]
+            (FName SourceID,FName EventName,EMCVFXPresentationResult Result)
+        {
+            if(SourceID!=Source)return;
+            if(Result!=EMCVFXPresentationResult::Rejected)ObservedSourceEvents.Add(EventName);
+            if(Record)Record(Result==EMCVFXPresentationResult::Rejected?FName(TEXT("NativePassivePresentationRejected")):EventName);
+        });
+        const auto& Events=MCPassivePresentation::GetAllowedEvents(C.PerkID);
+        if(C.PresentationOverride)return P->PrepareScopedOverride(C.PerkID,Events,C.PresentationOverride,Error);
+        const auto* Row=C.PlayerState && C.PlayerState->Perks?C.PlayerState->Perks->FindDefinition(C.PerkID):nullptr;
+        if(!Row){Error=TEXT("Сохранённая строка пассивки отсутствует.");return false;}
+        auto* Profile=Row->VFXProfile.LoadSynchronous(); // explicit preparation, before the barrier
+        if(!Row->VFXProfile.IsNull() && !Profile){Error=TEXT("Не удалось подготовить назначенный профиль пассивки.");return false;}
+        return P->PrepareSourceProfile(C.PerkID,Events,Profile,Error,true);
+    }
+    void GetPreparedVisualSystems(const FMCPerkPreviewContext&,TArray<UNiagaraSystem*>& Out) const override
+    {if(const auto* P=Presentation.Get())P->GetPreparedResources(Out);}
+
     void OnCommitted(FMCPerkPreviewContext& C) override
     {
-        bStarted=true;Event(C,TEXT("PassiveAcquired"));
+        bStarted=true;
+        const bool Granted=C.PlayerState->Perks->ServerGrantPerk(C.PerkID);
+        Event(C,Granted?FName(TEXT("NativePassiveGrantAccepted")):FName(TEXT("NativePassiveGrantRejected")));
+        if(!Granted){bDone=true;Status(C,TEXT("Штатная выдача пассивки отклонена."));return;}
+        if(C.Scenario==EMCPerkPreviewScenario::Acquire) {
+            Accepted=1;Status(C,TEXT("Настоящее получение пассивки после барьера готовности."));
+            return;
+        }
+        auto Health=C.Hero->Status->State;
+        Health.Health=Spec.Context==EContext::Damage && C.PerkID==TEXT("B2_Shield")?Health.MaxHealth*.15f:Health.MaxHealth*.55f;
+        C.Hero->Status->Restore(Health);InitialHP=Health.Health;
+        if(auto* Move=Cast<UMCToothMovementComponent>(C.Hero->GetCharacterMovement())) {
+            auto Stamina=Move->GetStaminaPrediction();Stamina.Value=Move->GetMaxStamina()*.35f;Move->RestoreStaminaPrediction(Stamina);InitialStamina=Move->GetStamina();
+        }
+        Event(C,TEXT("NativeOwnedPassiveScenarioStarted"));
+        if(Spec.Context==EContext::Spray && !CommitNativeSprayView(C)) {
+            Release(C);bDone=true;Event(C,TEXT("NativeSprayViewRejected"));
+            Status(C,TEXT("Не удалось подтвердить штатное направление спрея к настоящему пятну; контакт не подменяется."));return;
+        }
         if(Spec.Context==EContext::Spray || Spec.Context==EContext::Cleaning) C.Hero->SetPrimaryInputHeld(true);
         if(Spec.Context==EContext::Food) {
             C.Hero->SetFoodCollectionInput(true);
@@ -188,6 +271,7 @@ public:
             Status(C,TEXT("Сценарий прерван потерей/смертью зубика; результат не подтверждён"));return;
         }
         Age+=FMath::Clamp(Dt,0.f,.1f);
+        if(C.Scenario==EMCPerkPreviewScenario::Acquire) {if(Age>2.f)bDone=true;return;}
         switch(Spec.Context) {
         case EContext::Combat: TickCombat(C,Dt);break;
         case EContext::Cleaning: TickCleaning(C,Dt);break;
@@ -206,10 +290,21 @@ public:
     {
         if(IsValid(C.Hero)) {C.Hero->SetPrimaryInputHeld(false);C.Hero->SetFoodCollectionInput(false);C.Hero->SetSprintInputHeld(false);}
     }
-    void Cancel(FMCPerkPreviewContext& C) override {Release(C);bDone=true;}
+    void Cancel(FMCPerkPreviewContext& C) override
+    {Release(C);if(auto* P=Presentation.Get())P->StopSource(C.PerkID,true);bDone=true;}
     void Reset(FMCPerkPreviewContext& C) override
     {
-        Release(C);Enemies.Reset();Stains.Reset();Foods.Reset();Age=0;LastStep=-1;Accepted=Attempts=0;
+        Release(C);
+        // These are only newly spawned disposable food fixtures, never borrowed
+        // level actors. Reset must also clean whole Thunder targets before reuse.
+        for(const auto& Food:Foods)if(Food.IsValid() && Food->GetWorld()==C.World && Food->HasAnyFlags(RF_Transient))Food->Destroy();
+        Enemies.Reset();Stains.Reset();Foods.Reset();Age=0;LastStep=-1;Accepted=Attempts=0;
+        if(auto* P=Presentation.Get()) {
+            if(ReceiptHandle.IsValid())P->OnSourceEventAccepted.Remove(ReceiptHandle);
+            P->StopSource(C.PerkID,true);P->ClearScopedOverride(C.PerkID);
+        }
+        ReceiptHandle.Reset();Presentation.Reset();
+        ObservedSourceEvents.Reset();
         bDone=bStarted=bReleased=bDashRequested=bDashSeen=false;
     }
     bool IsComplete(const FMCPerkPreviewContext&) const override {return bDone;}
@@ -219,6 +314,9 @@ public:
 
 private:
     FSpec Spec;
+    TWeakObjectPtr<UMCVFXPresentationComponent> Presentation;
+    FDelegateHandle ReceiptHandle;
+    TSet<FName> ObservedSourceEvents;
     TArray<TWeakObjectPtr<AMCNutEnemy>> Enemies;
     TArray<TWeakObjectPtr<AMCMouthSurface>> Stains;
     TArray<TWeakObjectPtr<AMCFoodActor>> Foods;
@@ -226,6 +324,44 @@ private:
     float Age=0,LastStep=-1,InitialHP=0,InitialStamina=0;
     int32 Accepted=0,Attempts=0;
     bool bStarted=false,bDone=false,bReleased=false,bDashRequested=false,bDashSeen=false;
+
+    bool CommitNativeSprayView(FMCPerkPreviewContext& C)
+    {
+        // The private preview deliberately has no LocalPlayer. Therefore the
+        // production LocalSprayView cannot read its camera, even when the base
+        // controller is local. Submit the same validated native view snapshot
+        // as a real press; the ordinary inventory tick still owns all contact,
+        // coating and cleaning. No production visibility/RNG/range is bypassed.
+        if(!C.World || C.World->WorldType!=EWorldType::Game || C.World->GetOutermost()!=GetTransientPackage()
+            || !IsValid(C.Hero) || !C.Hero->HasAuthority() || C.Hero->GetWorld()!=C.World
+            || !C.Hero->Inventory || !IsValid(C.AimCamera) || C.AimCamera->GetWorld()!=C.World
+            || Stains.IsEmpty() || !Stains[0].IsValid())return false;
+        const FVector ViewOrigin=C.AimCamera->GetActorLocation();
+        const FVector Target=Stains[0]->GetActorLocation();
+        const FVector ViewDirection=(Target-ViewOrigin).GetSafeNormal();
+        if(ViewOrigin.ContainsNaN() || Target.ContainsNaN() || ViewDirection.IsNearlyZero())return false;
+        struct FNativeSprayViewArgs {FVector_NetQuantize Origin;FVector_NetQuantizeNormal Direction;};
+        UFunction* Function=C.Hero->Inventory->FindFunction(TEXT("ServerCommitSprayView"));
+        const auto* OriginProperty=Function?FindFProperty<FStructProperty>(Function,TEXT("Origin")):nullptr;
+        const auto* DirectionProperty=Function?FindFProperty<FStructProperty>(Function,TEXT("Direction")):nullptr;
+        if(!Function || !Function->HasAllFunctionFlags(FUNC_Net|FUNC_NetServer|FUNC_NetReliable)
+            || Function->NumParms!=2 || Function->ParmsSize!=sizeof(FNativeSprayViewArgs)
+            || !OriginProperty || !DirectionProperty
+            || OriginProperty->Struct!=FVector_NetQuantize::StaticStruct()
+            || DirectionProperty->Struct!=FVector_NetQuantizeNormal::StaticStruct()
+            || OriginProperty->GetOffset_ForUFunction()!=STRUCT_OFFSET(FNativeSprayViewArgs,Origin)
+            || DirectionProperty->GetOffset_ForUFunction()!=STRUCT_OFFSET(FNativeSprayViewArgs,Direction))return false;
+        FNativeSprayViewArgs Args{FVector_NetQuantize(ViewOrigin),FVector_NetQuantizeNormal(ViewDirection)};
+        C.AimCamera->SetActorRotation(ViewDirection.Rotation());
+        if(C.Controller)C.Controller->SetControlRotation(ViewDirection.Rotation());
+        C.Hero->Inventory->ProcessEvent(Function,&Args);
+        // Prove native aim acquisition accepted that input. A horizontal
+        // fallback cannot satisfy this real stain-center check. Actual later
+        // Coat/Clean receipts remain the separate authoritative contact proof.
+        const FVector AcceptedAim=C.Hero->Inventory->SprayAim();
+        if(AcceptedAim.ContainsNaN() || FVector::DistSquared(AcceptedAim,Target)>FMath::Square(8.f))return false;
+        Event(C,TEXT("NativeSprayViewCommitted"));return true;
+    }
 
     bool PrepareResourceAnchors(FMCPerkPreviewContext& C,FString& Error)
     {
@@ -279,23 +415,31 @@ private:
             if(FMath::Square(X-32)+FMath::Square(Y-32)<90) Deposit[Y*FMCCoffeeWipe::Size+X]=255;
         Stain->SetLiquidDepositMask(Deposit);Stains.Add(Stain);C.Targets.Add(Stain);return true;
     }
-    bool MakeFood(FMCPerkPreviewContext& C,int32 Index,FString& Error)
+    bool MakeFood(FMCPerkPreviewContext& C,int32 Index,FString& Error,bool bWholeChainTarget=false)
     {
         const auto* Menu=LoadObject<UDataTable>(nullptr,TEXT("/Game/Data/DT_BreakfastMenu.DT_BreakfastMenu"));
         const auto* Row=Menu?Menu->FindRow<FMCFoodRow>(TEXT("Egg"),TEXT("Passive preview")):nullptr;
         if(!Row) {Error=TEXT("Нет сохранённого продукта Egg для родного подбора/броска");return false;}
+        if(bWholeChainTarget && Row->Kind!=EMCFoodKind::Food) {Error=TEXT("Thunder preview requires the real whole-food Egg row.");return false;}
         FActorSpawnParameters Spawn;Spawn.ObjectFlags=RF_Transient;Spawn.bDeferConstruction=true;
         Spawn.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
         const float Forward=C.PerkID==TEXT("B1_GreedyHands")?C.Hero->FoodCollection->CollectionReach*1.15f:60+Index*3;
-        const FVector Point=Origin+FVector(Forward,(Index%2?1:-1)*25,0);
+        const FVector Point=Origin+(bWholeChainTarget?FVector(255+Index*75,135+(Index%2)*110,0):FVector(Forward,(Index%2?1:-1)*25,0));
         auto* Food=C.World->SpawnActor<AMCFoodActor>(Point,FRotator::ZeroRotator,Spawn);
         if(!Food) {Error=TEXT("Не удалось создать настоящий фрагмент еды");return false;}
-        FRandomStream Random(901+Index);Food->ConfigureItem(TEXT("Egg"),*Row,Random,true);
+        FRandomStream Random(901+Index);Food->ConfigureItem(TEXT("Egg"),*Row,Random,!bWholeChainTarget);
         Food->FinishSpawning(FTransform(Point));
         // Stable warmup fixture: native collection/launch takes physics ownership
         // afterwards. Eight overlapping physics fragments must not scatter while
         // resources are preparing before the user presses play.
         Food->Body->SetSimulatePhysics(false);
+        // Stable setup keeps the genuine whole food in native range/visibility.
+        // HitFood still owns actual secondary damage, health and fragmentation.
+        if(bWholeChainTarget) {
+            // Initial target HP, like the enemy fixture's 1000 HP, keeps all
+            // three whole targets available. Native damage/RNG are unchanged.
+            Food->Health=1000.f;Food->SetActorTickEnabled(false);
+        }
         Foods.Add(Food);C.Targets.Add(Food);return true;
     }
     void TickCombat(FMCPerkPreviewContext& C,float Dt)
@@ -377,7 +521,7 @@ private:
             const bool Thrown=C.Hero->FoodCollection->ThrowOne(FVector(1,0,.35f).GetSafeNormal());
             Event(C,Thrown?FName(TEXT("NativeFoodThrown")):FName(TEXT("FoodThrowRejected")));
         } else if(C.PerkID==TEXT("B2_ReturnTrip") && !Foods.IsEmpty() && Foods[0].IsValid()) {
-            Foods[0]->MarkManualThrow(C.Hero);Foods[0]->AwardDelivery();Event(C,TEXT("NativeAwardDelivery"));
+            Foods[0]->MarkManualThrow(C.Hero);Foods[0]->AwardDelivery();Event(C,TEXT("NativeAwardDeliveryCalled"));
             Status(C,FString::Printf(TEXT("Родная доставка: speed ×%.2f"),C.PlayerState->Perks->RogueValue(EMCRogueStat::NormalSpeed)));
         }
         bReleased=true;
@@ -385,7 +529,10 @@ private:
     void TickSpray(FMCPerkPreviewContext& C)
     {
         if(Age>3.2f && !bReleased) {C.Hero->SetPrimaryInputHeld(false);bReleased=true;Event(C,TEXT("SprayInputReleased"));}
-        if(C.Hero->Inventory->IsSprayCycleEmitting()) {if(Accepted==0) Event(C,TEXT("NativeSprayEmitting"));++Accepted;}
+        if(Accepted==0 && (ObservedSourceEvents.Contains(TEXT("SprayStart")) || ObservedSourceEvents.Contains(TEXT("Coat"))
+            || ObservedSourceEvents.Contains(TEXT("Refresh")) || ObservedSourceEvents.Contains(TEXT("Clean")))) {
+            Event(C,TEXT("NativeSprayEmitting"));Accepted=1;
+        }
         if(C.PerkID==TEXT("B2_Softener") && Age>3.8f && Attempts==0) {
             C.Hero->Inventory->ServerSelect(EMCToolSlot::Brush);C.Hero->SetPrimaryInputHeld(true);++Attempts;
             Event(C,TEXT("BrushAfterSprayInput"));
@@ -399,9 +546,13 @@ struct FRegister
     {
         for(const FSpec& Spec:Specs) {
             FMCPerkPreviewAdapterEntry Entry;Entry.PerkID=FName(Spec.ID);Entry.Label=FText::FromString(Spec.Label);
-            Entry.Kind=EMCPerkPreviewAdapterKind::Passive;Entry.bSupportsProfileOverride=false;
-            Entry.Stages={FName(Spec.Event)};Entry.Scenarios={EMCPerkPreviewScenario::Target};
-            Entry.StageLabels.Add(FName(Spec.Event),EventLabel(FName(Spec.Event)));
+            Entry.Kind=EMCPerkPreviewAdapterKind::Passive;Entry.bSupportsProfileOverride=true;
+            Entry.Stages=MCPassivePresentation::GetAllowedEvents(Entry.PerkID);
+            Entry.Scenarios={EMCPerkPreviewScenario::Target,EMCPerkPreviewScenario::Acquire};
+            for(FName Stage:Entry.Stages)Entry.StageLabels.Add(Stage,EventLabel(Stage));
+            Entry.DescribeNativeSources=[ID=Entry.PerkID](FName Event){return MCVFXNativeSources::DescribePassiveFeedback(ID,Event);};
+            Entry.ScenarioLabels.Add(EMCPerkPreviewScenario::Target,FText::FromString(TEXT("Применение настоящей механики")));
+            Entry.ScenarioLabels.Add(EMCPerkPreviewScenario::Acquire,FText::FromString(TEXT("Получение пассивки после прогрева")));
             Entry.Create=[Spec]()->TUniquePtr<IMCPerkPreviewAdapter>{return MakeUnique<FPassiveAdapter>(Spec);};
             MCPerkPreviewAdapters::Register(MoveTemp(Entry));
         }

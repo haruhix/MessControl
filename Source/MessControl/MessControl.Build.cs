@@ -6,6 +6,7 @@ public class MessControl : ModuleRules
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
         PublicDependencyModuleNames.AddRange(new[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG", "Slate", "SlateCore", "PhysicsControl", "PhysicsCore", "NetCore", "ProceduralMeshComponent" });
         PublicDependencyModuleNames.Add("Niagara");
+        PublicDependencyModuleNames.Add("NiagaraCore");
         PublicDependencyModuleNames.AddRange(new[] { "AIModule", "GameplayTasks" });
         PrivateDependencyModuleNames.Add("NavigationSystem");
         PrivateDependencyModuleNames.Add("AnimationCore");
@@ -18,6 +19,7 @@ public class MessControl : ModuleRules
         PrivateDependencyModuleNames.Add("ChaosCore");
         PrivateDependencyModuleNames.Add("RHI");
         PrivateDependencyModuleNames.Add("RenderCore");
+        PrivateDependencyModuleNames.Add("Json");
         PrivateDependencyModuleNames.Add("ApplicationCore");
         PrivateDependencyModuleNames.Add("AudioExtensions");
         PrivateDependencyModuleNames.AddRange(new[] { "Voice", "SignalProcessing" });

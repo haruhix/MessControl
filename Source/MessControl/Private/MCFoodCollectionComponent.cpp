@@ -1,5 +1,6 @@
 #include "MCFoodCollectionComponent.h"
 #include "MCPerkComponent.h"
+#include "MCPerkPresentationEvents.h"
 #include "MCFoodActor.h"
 #include "MCFoodStackSettings.h"
 #include "MCFoodPerkMath.h"
@@ -146,6 +147,12 @@ bool UMCFoodCollectionComponent::Collect(AMCFoodActor* Food)
         Food->Body->IgnoreActorWhenMoving(Piece,true); Piece->Body->IgnoreActorWhenMoving(Food,true);
     }
     Pieces.Add(Food); PieceMotion.FindOrAdd(Food).Linear=GetOwner()->GetVelocity();
+    if(auto* Hero=Cast<AMCToothCharacter>(GetOwner())) {
+        const FTransform Frame(Hero->GetActorRotation(),Food->GetActorLocation());
+        FMCPerkVFXGameplayValues Values;Values.Fill=float(Pieces.Num())/FMath::Max(1,EffectiveCapacity());
+        MCPassivePresentation::Play(Hero,TEXT("B1_BigPortion"),TEXT("Pickup"),Frame,Values);
+        MCPassivePresentation::Play(Hero,TEXT("B1_GreedyHands"),TEXT("Pickup"),Frame,Values);
+    }
     Food->AttendFood(); GetOwner()->ForceNetUpdate(); return true;
 }
 bool UMCFoodCollectionComponent::DetachForDelivery(AMCFoodActor* Food)

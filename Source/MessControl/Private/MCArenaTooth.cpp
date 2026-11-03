@@ -3,6 +3,8 @@
 #include "MCToothCalculusComponent.h"
 #include "MCWorldStatusComponent.h"
 #include "MCToothCareFeedbackComponent.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCVFXPresentationComponent.h"
 #include "MCFoodActor.h"
 #include "MCToothCharacter.h"
 #include "MCGameState.h"
@@ -89,6 +91,11 @@ void AMCArenaTooth::BeginPlay()
     Body->SetMassOverrideInKg(NAME_None,14,true);
     ApplyAppearance();
     SeedInitialCalculus();
+    // Actual accepted PianoState/OnRep owns Hit; preparation belongs before interaction.
+    if(auto* Adapter=MCWorldPresentation::PrepareOwner(this,{TEXT("World.ArenaTooth.Piano")}))
+        if(auto* Source=Adapter->GetSource(TEXT("World.ArenaTooth.Piano"))) {
+            FString Error;Source->BindSourceAudioSocket(TEXT("World.ArenaTooth.Piano"),Visual,Error);
+        }
     // A new/late-joining client should not replay an old note from its initial snapshot.
     PlayedPianoSerial=PianoState.Serial;
 }
@@ -141,9 +148,35 @@ void AMCArenaTooth::OnRep_Piano()
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
     auto* Sound=PianoNoteSound();
-    if (!IsAvailable() || !Settings.bPianoEnabled || !Sound || GetNetMode()==NM_DedicatedServer
+    if (!IsAvailable() || !Settings.bPianoEnabled || GetNetMode()==NM_DedicatedServer
         || Now-PianoState.PressedAt>1) return;
-    UGameplayStatics::PlaySoundAtLocation(this,Sound,Visual->Bounds.Origin,0.65f*PianoState.Strength,PianoPitchScale(),0,PianoAttenuation);
+    // The replicated accepted press remains the only event/clock/note selector.
+    // This does not create decorative artwork where the original has none.
+    const FName ID(TEXT("World.ArenaTooth.Piano")),Event(TEXT("Hit"));
+    bool bOriginalAudio=true;
+    if(auto* Adapter=FindComponentByClass<UMCWorldPresentationComponent>())
+        if(auto* Source=Adapter->GetSource(ID)) {
+            FMCPerkVFXGameplayValues Values;Values.VisualSubject=Visual;
+            Values.Radius=Body->GetScaledBoxExtent().Size2D();Values.Intensity=PianoState.Strength;
+            Values.Duration=FMath::Max(.15f,Settings.PianoPressSeconds);
+            Values.LocalStateAgeSeconds=FMath::Max(0.f,float(Now-PianoState.PressedAt));
+            Values.bHasSeed=true;Values.Seed=uint32(PianoState.Serial);
+            Values.EpisodeID=FGuid(uint32(PianoState.Serial),uint32(State.ToothId),0x5049414e,0x4f484954);
+            const auto NativeFloat=[&](const TCHAR* Name,float Value){FMCVFXNativeInput Input;
+                Input.Name=FName(Name);Input.Type=EMCVFXNativeInputType::Float;Input.FloatValue=Value;Values.NativeInputs.Entries.Add(MoveTemp(Input));};
+            const auto NativeInt=[&](const TCHAR* Name,int32 Value){FMCVFXNativeInput Input;
+                Input.Name=FName(Name);Input.Type=EMCVFXNativeInputType::Int;Input.IntValue=Value;Values.NativeInputs.Entries.Add(MoveTemp(Input));};
+            NativeInt(TEXT("User.Native.PianoKey"),State.ToothId);NativeInt(TEXT("User.Native.PianoMidiNote"),PianoMidiNote());
+            NativeInt(TEXT("User.Native.PianoSerial"),PianoState.Serial);
+            NativeFloat(TEXT("User.Native.PianoPitchScale"),PianoPitchScale());NativeFloat(TEXT("User.Native.PianoStrength"),PianoState.Strength);
+            NativeFloat(TEXT("User.Native.PianoPressSeconds"),Settings.PianoPressSeconds);NativeFloat(TEXT("User.Native.PianoPressDepth"),Settings.PianoPressDepth);
+            const auto Result=Source->PlayLocalSourceEvent(ID,Event,FTransform(Visual->GetComponentQuat(),Visual->Bounds.Origin),Values);
+            // A rejected/missing source always retains the original note. Audio
+            // policy is independent of visual mode, and never changes MIDI/press.
+            bOriginalAudio=Result==EMCVFXPresentationResult::Rejected || Adapter->UsesOriginalAudio(ID,Event);
+        }
+    if(Sound && bOriginalAudio)
+        UGameplayStatics::PlaySoundAtLocation(this,Sound,Visual->Bounds.Origin,0.65f*PianoState.Strength,PianoPitchScale(),0,PianoAttenuation);
 }
 void AMCArenaTooth::SetAppearance(UStaticMesh* Mesh,FVector Scale,UMaterialInterface* GameplayMaterial)
 {

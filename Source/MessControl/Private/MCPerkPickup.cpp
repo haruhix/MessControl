@@ -1,4 +1,6 @@
 #include "MCPerkPickup.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCVFXPresentationComponent.h"
 #include "MCRewardChest.h"
 #include "MCToothCharacter.h"
 #include "Components/SphereComponent.h"
@@ -38,7 +40,7 @@ void AMCPerkPickup::InitializePickup(AMCRewardChest* Chest,int32 Index,FName ID,
 
 void AMCPerkPickup::BeginPlay()
 {
-    Super::BeginPlay(); RefreshAppearance();
+    Super::BeginPlay();MCWorldPresentation::PrepareOwner(this,{TEXT("Reward.PerkPickup")});bPresentationBegun=true;RefreshAppearance();
     if(HasAuthority()) {
         Trigger->OnComponentBeginOverlap.AddDynamic(this,&AMCPerkPickup::Entered);
         Trigger->OnComponentEndOverlap.AddDynamic(this,&AMCPerkPickup::Left);
@@ -52,6 +54,14 @@ void AMCPerkPickup::RefreshAppearance()
     DetailLabel->SetText(Description); DetailLabel->SetTextRenderColor(FColor::White);
     if(auto* MID=Visual->CreateDynamicMaterialInstance(0)) MID->SetVectorParameterValue(TEXT("Color"),Color);
     SetActorHiddenInGame(bClaimed); SetActorEnableCollision(!bClaimed);
+    if(bPresentationBegun) {
+        auto* PresentationOwner=FindComponentByClass<UMCWorldPresentationComponent>();auto* Source=PresentationOwner?PresentationOwner->GetSource(TEXT("Reward.PerkPickup")):nullptr;
+        FMCPerkVFXGameplayValues V;V.Radius=34;V.Color=Color;V.bHasColor=true;V.LocalStateAgeSeconds=0;
+        // Native overlap/claim is unchanged; replicated appearance may repeat.
+        // Once observed, neither a metadata refresh nor a late profile retries it.
+        if(!bPresentationArrivalObserved) {bPresentationArrivalObserved=true;if(!bClaimed&&Source)Source->PlayLocalSourceEvent(TEXT("Reward.PerkPickup"),TEXT("Arrival"),GetActorTransform(),V);}
+        if(bClaimed&&!bPresentationClaimObserved) {bPresentationClaimObserved=true;if(Source)Source->PlayLocalSourceEvent(TEXT("Reward.PerkPickup"),TEXT("Claim"),GetActorTransform(),V);}
+    }
 }
 
 void AMCPerkPickup::Entered(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent*,int32,bool,const FHitResult&)

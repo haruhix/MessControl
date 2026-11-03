@@ -1,5 +1,7 @@
 #include "MCInventoryComponent.h"
 #include "MCPerkComponent.h"
+#include "MCPerkPresentationEvents.h"
+#include "MCVFXPresentationComponent.h"
 #include "MCDefenseSprayPassives.h"
 #include "MCToothCharacter.h"
 #include "MCPlayerController.h"
@@ -45,6 +47,8 @@
 UMCInventoryComponent::UMCInventoryComponent()
 {
     PrimaryComponentTick.bCanEverTick=true; SetIsReplicatedByDefault(true);
+    OriginalSpraySystem=FSoftObjectPath(TEXT("/Game/Gameplay/VFX/NS_SprayMist.NS_SprayMist"));
+    OriginalWaterCareSystem=FSoftObjectPath(TEXT("/Game/Gameplay/VFX/NS_WatergunMist.NS_WatergunMist"));
     Profile=TSoftObjectPtr<UMCEquipmentProfile>(FSoftObjectPath(TEXT("/Game/Data/DA_Equipment.DA_Equipment")));
 }
 double UMCInventoryComponent::Now() const
@@ -82,12 +86,12 @@ void UMCInventoryComponent::BeginPlay()
     Tool=Part(TEXT("InventoryTool")); Detail=Part(TEXT("InventoryDetail"));
     auto* Trail=NewObject<UMCWeaponTrailComponent>(Hero,TEXT("WeaponSwingTrail"));
     Hero->AddInstanceComponent(Trail);Trail->RegisterComponent();
-    if(auto* System=LoadObject<UNiagaraSystem>(nullptr,TEXT("/Game/Gameplay/VFX/NS_SprayMist.NS_SprayMist"))) {
+    if(auto* System=OriginalSpraySystem.LoadSynchronous()) {
         SprayMist=NewObject<UNiagaraComponent>(Hero,TEXT("TreatmentSprayNiagara"));
         SprayMist->SetupAttachment(Hero->GetRootComponent());SprayMist->SetAutoActivate(false);
         SprayMist->SetAsset(System);SprayMist->SetCastShadow(false);Hero->AddInstanceComponent(SprayMist);SprayMist->RegisterComponent();
     }
-    if(auto* System=LoadObject<UNiagaraSystem>(nullptr,TEXT("/Game/Gameplay/VFX/NS_WatergunMist.NS_WatergunMist"))) {
+    if(auto* System=OriginalWaterCareSystem.LoadSynchronous()) {
         WaterMist=NewObject<UNiagaraComponent>(Hero,TEXT("WatergunSprayNiagara"));
         WaterMist->SetupAttachment(Hero->GetRootComponent());WaterMist->SetAutoActivate(false);
         WaterMist->SetAsset(System);WaterMist->SetCastShadow(false);Hero->AddInstanceComponent(WaterMist);WaterMist->RegisterComponent();
@@ -242,6 +246,40 @@ bool UMCInventoryComponent::TickPassiveSprayCycle()
         SprayReadyAt=SprayBurstUntil+CooldownSeconds();GetOwner()->ForceNetUpdate();
     }
     return Now()<SprayBurstUntil;
+}
+void UMCInventoryComponent::UpdatePassiveSprayPresentation(bool bEmitting)
+{
+    if(!Hero || !Hero->HasAuthority())return;
+    const auto* Perks=UMCPerkComponent::ForActor(Hero);
+    const FVector Origin=SprayOrigin(),Direction=SprayDirection();
+    const FTransform Frame(Direction.Rotation(),Origin);
+    auto Update=[&](FName ID,bool& WasEmitting,FGuid& Episode)
+    {
+        const bool Active=bEmitting && Perks && Perks->GetStacks(ID)>0;
+        FMCPerkVFXGameplayValues Values;Values.EpisodeID=Episode;
+        Values.Direction=Direction;Values.Radius=SprayRadiusAtDistance(SprayReach());
+        if(UsesAntisepticCycle())Values.Duration=FMath::Max(0.f,float(SprayBurstUntil-Now()));
+        if(Active==WasEmitting) {
+            if(Active && Episode.IsValid())MCPassivePresentation::UpdateEpisode(Hero,ID,Episode,Frame,Values);
+            return;
+        }
+        if(Active) {
+            Episode=FGuid::NewGuid();Values.EpisodeID=Episode;
+            const auto Result=MCPassivePresentation::Play(Hero,ID,TEXT("SprayStart"),Frame,Values);
+            if(Result!=EMCVFXPresentationResult::Played && (!Hero->PassivePresentation || !Hero->PassivePresentation->IsSourceEpisodeRunning(ID,Episode)))Episode.Invalidate();
+        } else {
+            MCPassivePresentation::StopEpisode(Hero,ID,Episode,false);
+            MCPassivePresentation::Play(Hero,ID,TEXT("SprayEnd"),Frame);Episode.Invalidate();
+        }
+        WasEmitting=Active;
+    };
+    Update(TEXT("B1_UnderPressure"),bUnderPressurePresentation,UnderPressurePresentationEpisode);
+    Update(TEXT("B2_Antiseptic"),bAntisepticPresentation,AntisepticPresentationEpisode);
+}
+void UMCInventoryComponent::ResetPassivePresentationSource(FName PerkID)
+{
+    if(PerkID==TEXT("B1_UnderPressure")){bUnderPressurePresentation=false;UnderPressurePresentationEpisode.Invalidate();}
+    else if(PerkID==TEXT("B2_Antiseptic")){bAntisepticPresentation=false;AntisepticPresentationEpisode.Invalidate();}
 }
 float UMCInventoryComponent::SpraySecondsLeft() const
 {
@@ -730,13 +768,15 @@ void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorCompone
     TickUpgrades(Dt);
     if(Hero && GetOwner()->HasAuthority()) {
         const bool Spraying=TickPassiveSprayCycle();
+        UpdatePassiveSprayPresentation(Spraying);
         auto* Fire=Spraying?FindFireTarget():nullptr;
         if(FireTarget!=Fire) {FireTarget=Fire;GetOwner()->ForceNetUpdate();}
-        if(Fire && Fire->Extinguish(Hero,Dt,HasUpgrade(EMCToolUpgrade::Watergun)?3.f:1.f)) {LastSprayAt=Now();if(!UsesAntisepticCycle()) SprayReadyAt=0;}
+        if(Fire && Fire->Extinguish(Hero,Dt,HasUpgrade(EMCToolUpgrade::Watergun)?3.f:1.f)) {PresentAcceptedSprayContact(Fire->GetActorLocation());LastSprayAt=Now();if(!UsesAntisepticCycle()) SprayReadyAt=0;}
         auto* Target=Spraying && !Fire?FindSprayTarget():nullptr;
         if(HealingTarget!=Target) { HealingTarget=Target; GetOwner()->ForceNetUpdate(); }
         if(Target && Target->Treat(Hero,Dt,HasUpgrade(EMCToolUpgrade::Watergun)?3.f:1.f)) {
-            if(Now()-LastSprayAt>.8 && Hero->SoundPalette) Hero->SoundPalette->Play(this,TEXT("Brush"),Target->GetActorLocation());
+            const bool ContactAccepted=PresentAcceptedSprayContact(Target->GetActorLocation());
+            if(Now()-LastSprayAt>.8 && Hero->SoundPalette) Hero->SoundPalette->PlayWithParameters(this,TEXT("Brush"),Target->GetActorLocation(),.65f,.5f,ContactAccepted?FName(TEXT("Tool.Spray")):NAME_None,TEXT("Contact"));
             LastSprayAt=Now(); if(!UsesAntisepticCycle()) SprayReadyAt=0;
         }
         if (Spraying && !Fire && !Target) {
@@ -744,12 +784,13 @@ void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorCompone
             FHitResult ToothContact;
             if (auto* Tooth=FindToothRepairTarget(&ToothContact); Tooth && Tooth->Status->RepairWithTool(
                     FMath::Clamp(Dt,0.f,.1f)*25.f*(HasUpgrade(EMCToolUpgrade::Watergun)?3.f:1.f),Hero,&ToothContact)) {
+                PresentAcceptedSprayContact(ToothContact.ImpactPoint);
                 LastSprayAt=Now(); if(!UsesAntisepticCycle()) SprayReadyAt=0;
             }
         }
         if(Spraying) ReactPlayersToSpray();
     }
-    if(!Hero || !Tool) return;
+    if(!Hero || !Tool) {StopSprayComposerPresentation();return;}
     if(Presented!=Selected || bPresentedUpgrade!=bWaterJetUnlocked || PresentedUpgradeMask!=UpgradeMask()) RefreshMesh();
     const auto Upgrade=SelectedUpgrade();
     const bool Working=Upgrade==EMCToolUpgrade::Buffer?IsUsingBuffer():Upgrade==EMCToolUpgrade::Watergun?IsUsingWatergun():false;
@@ -762,8 +803,12 @@ void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorCompone
     else Hero->Brush->SetVisibility(Visible && Hero->HasBrush());
     if(Hero->RewardInteraction && (Hero->RewardInteraction->Stage==EMCRewardChestStage::Lockpicking
         || Hero->RewardInteraction->Stage==EMCRewardChestStage::Opening)) Hero->Brush->SetVisibility(true);
+    const bool SprayEmit=Visible && Selected==EMCToolSlot::Spray && !HasUpgrade(EMCToolUpgrade::Watergun) && Hero->CanWork() && IsSprayCycleEmitting() && (HealingTarget || FireTarget || Hero->IsPrimaryHeld());
+    const bool WaterEmit=Visible && Upgrade==EMCToolUpgrade::Watergun && !bPressureMode
+        && Hero->IsPrimaryHeld() && Hero->CanWork() && !Hero->bInCoffee;
+    const bool NativeSpray=UpdateSprayComposerPresentation(SprayEmit,WaterEmit);
     if(SprayMist) {
-        const bool Emit=Visible && Selected==EMCToolSlot::Spray && !HasUpgrade(EMCToolUpgrade::Watergun) && Hero->CanWork() && IsSprayCycleEmitting() && (HealingTarget || FireTarget || Hero->IsPrimaryHeld());
+        const bool Emit=SprayEmit&&NativeSpray;
         const float AuthoredReach=HasUpgrade(EMCToolUpgrade::Watergun)?(Settings?Settings->WatergunCareReach:1000.f):(Settings?Settings->SprayReach:235.f);
         const float BaseReach=FMath::IsFinite(AuthoredReach)?FMath::Clamp(AuthoredReach,10.f,3000.f):235.f;
         const float RangeScale=SprayReach()/BaseReach;
@@ -774,8 +819,7 @@ void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorCompone
         if(Emit!=bSprayEmitting) {if(Emit) SprayMist->Activate(true);else SprayMist->Deactivate();bSprayEmitting=Emit;}
     }
     if(WaterMist) {
-        const bool Emit=Visible && Upgrade==EMCToolUpgrade::Watergun && !bPressureMode
-            && Hero->IsPrimaryHeld() && Hero->CanWork() && !Hero->bInCoffee;
+        const bool Emit=WaterEmit&&NativeSpray;
         if(Emit) WaterMist->SetWorldLocationAndRotation(SprayOrigin(),FRotationMatrix::MakeFromZ(SprayDirection()).Rotator());
         if(Emit!=bWaterEmitting) {if(Emit) WaterMist->Activate(true);else WaterMist->Deactivate();bWaterEmitting=Emit;}
     }

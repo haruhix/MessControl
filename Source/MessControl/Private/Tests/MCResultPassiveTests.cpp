@@ -1,6 +1,9 @@
 #if WITH_DEV_AUTOMATION_TESTS
 #include "Misc/AutomationTest.h"
 #include "MCResultPassives.h"
+#include "MCPerkPresentationEvents.h"
+#include "MCVFXPresentationComponent.h"
+#include "MCPassiveFeedbackCue.h"
 #include "MCPerkComponent.h"
 #include "MCPlayerState.h"
 #include "MCPlayerController.h"
@@ -17,6 +20,7 @@
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include <limits>
 
@@ -341,5 +345,84 @@ bool FMCResultDeliveryTest::RunTest(const FString&)
     TestEqual(TEXT("The delivery bonus expires after two seconds"),P.Perks->RogueValue(EMCRogueStat::NormalSpeed),1.f);
     P.Perks->ResetPerks();TestTrue(TEXT("Run reset clears delivery timing"),P.Perks->DeliverySpeedUntil<0);
     return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCResultPassiveCausalPresentation,
+    "MessControl.Passives.Presentation.ResultSourcesStayDistinctAndDoNotChangeRewards",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCResultPassiveCausalPresentation::RunTest(const FString&)
+{
+    MCResultPassiveTests::FWorld T;auto& P=T.Player;auto* Visuals=P.Hero->PassivePresentation.Get();
+    if(!TestNotNull(TEXT("One pawn-owned passive dispatcher"),Visuals))return false;
+    FString Error;
+    for(FName ID:{FName(TEXT("B2_CleanBreath")),FName(TEXT("B2_RefreshingWork")),FName(TEXT("B2_CleanAcceleration")),FName(TEXT("B2_ReturnTrip"))}) {
+        auto* Profile=NewObject<UMCPerkVFXProfile>(GetTransientPackage());
+        for(FName Event:MCPassivePresentation::GetAllowedEvents(ID)){FMCPerkVFXSlot Slot;Slot.Mode=EMCPerkVFXSlotMode::Disabled;Profile->Slots.Add(Event,Slot);}
+        if(!TestTrue(TEXT("Scoped disabled profile prepares before the real reward"),Visuals->PrepareScopedOverride(ID,MCPassivePresentation::GetAllowedEvents(ID),Profile,Error)))
+        {AddError(Error);return false;}
+        if(!TestTrue(TEXT("Actual native acquisition succeeds"),P.Perks->ServerGrantPerk(ID)))return false;
+    }
+    TMap<FString,int32> Counts;bool bAllSuppressed=true;
+    const FDelegateHandle Handle=Visuals->OnSourceEventAccepted.AddLambda([&](FName ID,FName Event,EMCVFXPresentationResult Result) {
+        ++Counts.FindOrAdd(ID.ToString()+TEXT("/")+Event.ToString());
+        bAllSuppressed&=Result==EMCVFXPresentationResult::Suppressed;
+    });
+    T.Health(P,40);auto* Patch=T.Surface();
+    TestTrue(TEXT("A real mask cleaning completes"),T.Finish(Patch));
+    TestEqual(TEXT("Disabled visual retains3HP clean heal plus20HP mouth heal"),P.Hero->Status->State.Health,63.f);
+    TestEqual(TEXT("CleanBreath's native source survives shared Heal style"),Counts.FindRef(TEXT("B2_CleanBreath/Proc")),1);
+    TestEqual(TEXT("RefreshingWork has its own same-frame source"),Counts.FindRef(TEXT("B2_RefreshingWork/Proc")),1);
+    TestEqual(TEXT("CleanAcceleration has its own native proc"),Counts.FindRef(TEXT("B2_CleanAcceleration/Proc")),1);
+    auto* Food=T.Food();if(!TestNotNull(TEXT("Real saved-menu delivery item"),Food)){Visuals->OnSourceEventAccepted.Remove(Handle);return false;}
+    Food->AwardDelivery();
+    TestEqual(TEXT("ReturnTrip's native source survives shared Speed style"),Counts.FindRef(TEXT("B2_ReturnTrip/Proc")),1);
+    TestEqual(TEXT("Cosmetic suppression leaves both speed bonuses unchanged"),P.Perks->RogueValue(EMCRogueStat::NormalSpeed),1.25f,.0001f);
+    TestTrue(TEXT("All source-specific disabled receipts are actual suppression"),bAllSuppressed);
+    int32 Legacy=0;for(TActorIterator<AMCPassiveFeedbackCue> It(T.World);It;++It)if(IsValid(*It) && !It->IsActorBeingDestroyed())++Legacy;
+    TestEqual(TEXT("Disabled custom owners do not leak legacy Heal/Speed fallback"),Legacy,0);
+    T.Advance(2.2f);MCPassivePresentation::TickStates(P.Hero);
+    TestEqual(TEXT("Only the actual two-second delivery buff has ended"),Counts.FindRef(TEXT("B2_ReturnTrip/End")),1);
+    TestEqual(TEXT("Three-second clean buff has not ended early"),Counts.FindRef(TEXT("B2_CleanAcceleration/End")),0);
+    T.Advance(1.f);MCPassivePresentation::TickStates(P.Hero);
+    TestEqual(TEXT("Actual clean expiry produces exactly one owned End"),Counts.FindRef(TEXT("B2_CleanAcceleration/End")),1);
+    MCPassivePresentation::TickStates(P.Hero);
+    TestEqual(TEXT("Pure repeated observation cannot duplicate expiry"),Counts.FindRef(TEXT("B2_CleanAcceleration/End")),1);
+    Visuals->OnSourceEventAccepted.Remove(Handle);return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCResultPassiveContactPresentation,
+    "MessControl.Passives.Presentation.CleanContactRequiresActualDeltaAndIsBounded",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCResultPassiveContactPresentation::RunTest(const FString&)
+{
+    MCResultPassiveTests::FWorld T;auto& P=T.Player;
+    FMCPerkDefinition Row;Row.Kind=EMCPerkKind::Passive;Row.bRoguePerk=true;Row.MaxStacks=1;
+    T.Table->AddRow(TEXT("B1_WideBristles"),Row);
+    P.Perks->ServerGrantPerk(TEXT("B1_WideBristles"));P.Perks->ServerGrantPerk(TEXT("B2_LastStroke"));
+    auto* Visuals=P.Hero->PassivePresentation.Get();FString Error;
+    if(!TestNotNull(TEXT("Passive dispatcher"),Visuals))return false;
+    for(FName ID:{FName(TEXT("B1_WideBristles")),FName(TEXT("B2_LastStroke"))}) {
+        auto* Profile=NewObject<UMCPerkVFXProfile>(GetTransientPackage());
+        for(FName Event:MCPassivePresentation::GetAllowedEvents(ID)){FMCPerkVFXSlot Slot;Slot.Mode=EMCPerkVFXSlotMode::Disabled;Profile->Slots.Add(Event,Slot);}
+        if(!TestTrue(TEXT("Contact visual prepares"),Visuals->PrepareScopedOverride(ID,MCPassivePresentation::GetAllowedEvents(ID),Profile,Error)))return false;
+    }
+    int32 Wide=0,Last=0;
+    const FDelegateHandle Handle=Visuals->OnSourceEventAccepted.AddLambda([&](FName ID,FName Event,EMCVFXPresentationResult) {
+        if(ID==TEXT("B1_WideBristles") && Event==TEXT("Contact"))++Wide;
+        if(ID==TEXT("B2_LastStroke") && Event==TEXT("FinishContact"))++Last;
+    });
+    auto* Patch=T.Surface();const FVector Point=Patch->GetActorLocation();
+    TestTrue(TEXT("Native brush actually removes the explicit mask"),T.Finish(Patch));
+    TestEqual(TEXT("Native caller emits a width contact once"),Wide,1);
+    // FinishContact is based on the actual rate modifier. The first entire-mask
+    // stroke began above its threshold; no threshold proc may be fabricated.
+    TestEqual(TEXT("Above-threshold native stroke cannot fabricate LastStroke"),Last,0);
+    T.Results->NotifyCleaningContact(Patch,P.Hero,Point,60,.1f,.1f,true,EMCStainCleanReason::Brush);
+    TestEqual(TEXT("No actual delta cannot produce a threshold contact"),Last,0);
+    T.Results->NotifyCleaningContact(Patch,P.Hero,Point,60,.1f,.08f,true,EMCStainCleanReason::Technical);
+    TestEqual(TEXT("Technical restore cannot produce a contact visual"),Last,0);
+    T.Results->NotifyCleaningContact(Patch,P.Hero,Point,60,.1f,.08f,true,EMCStainCleanReason::Brush);
+    T.Results->NotifyCleaningContact(Patch,P.Hero,Point,60,.08f,.06f,true,EMCStainCleanReason::Brush);
+    TestEqual(TEXT("Repeated same-frame visual contacts are bounded per target/source"),Last,1);
+    Visuals->OnSourceEventAccepted.Remove(Handle);return true;
 }
 #endif

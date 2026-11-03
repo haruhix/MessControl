@@ -40,6 +40,10 @@ Artifacts/*/Frames.ffconcat
 /Artifacts/**/*.7z
 /Artifacts/**/*.ffconcat
 
+# GUID-named packages created only by isolated Composer regression fixtures.
+# Tests and validation reports are versioned; generated fixture instances stay local.
+/Content/Tests/VFXPractice/Profiles/GenericBindingQA/
+
 # Rollback copies belong locally, not in the validation-report checkout.
 # Runtime packages in Content/ and editable masters in ArtSource/ are unaffected.
 /Artifacts/**/*.[uU][aA][sS][sS][eE][tT]

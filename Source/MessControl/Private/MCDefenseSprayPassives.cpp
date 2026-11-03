@@ -1,4 +1,6 @@
 #include "MCDefenseSprayPassives.h"
+#include "MCPerkPresentationEvents.h"
+#include "MCVFXPresentationComponent.h"
 
 #include "MCPerkComponent.h"
 #include "MCPassiveFeedbackCue.h"
@@ -23,6 +25,7 @@
 #include "CollisionShape.h"
 #include "Engine/World.h"
 #include "Engine/OverlapResult.h"
+#include "Misc/ScopeExit.h"
 
 namespace
 {
@@ -62,12 +65,76 @@ bool CleanAt(AActor* Target,AMCToothCharacter* Worker,FVector Point,float Radius
 AMCSprayCoating::AMCSprayCoating()
 {
     bReplicates=true;SetReplicateMovement(true);SetNetUpdateFrequency(5.f);
+    PrimaryActorTick.bCanEverTick=true;PrimaryActorTick.TickGroup=TG_PostPhysics;
     Surface=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("CompositionCoating"));SetRootComponent(Surface);
     static ConstructorHelpers::FObjectFinder<UMaterialInterface> Material(TEXT("/Game/Gameplay/VFX/M_ReactionSoft.M_ReactionSoft"));
     CoatingMaterial=Material.Object;Surface->SetMaterial(0,CoatingMaterial);
     Surface->SetCollisionEnabled(ECollisionEnabled::NoCollision);Surface->SetCanEverAffectNavigation(false);Surface->SetCastShadow(false);
+    Presentation=CreateDefaultSubobject<UMCVFXPresentationComponent>(TEXT("CoatingPresentation"));
+    Presentation->SourceID=Lasting;Presentation->Events=MCPassivePresentation::GetAllowedEvents(Lasting);
 }
-void AMCSprayCoating::BeginPlay() {Super::BeginPlay();Surface->SetMaterial(0,CoatingMaterial);OnRep_Radius();}
+void AMCSprayCoating::BeginPlay()
+{Super::BeginPlay();Surface->SetMaterial(0,CoatingMaterial);OnRep_Radius();UpdateLocalPresentation();}
+void AMCSprayCoating::SetPresentationState(AMCToothCharacter* Source,FGuid Episode,float RemainingSeconds,float Intensity)
+{
+    if(!HasAuthority() || !IsValid(Source) || Source->GetWorld()!=GetWorld() || !Episode.IsValid()
+        || !FMath::IsFinite(RemainingSeconds) || !FMath::IsFinite(Intensity))return;
+    // One native patch keeps one source/episode. A later refresh only updates
+    // actual values; it never rerolls, respawns the field, or changes ownership.
+    if(PresentationEpisode.IsValid() && (PresentationEpisode!=Episode || PresentationOwner!=Source))return;
+    if(!PresentationEpisode.IsValid()) {
+        PresentationOwner=Source;PresentationEpisode=Episode;
+        if(const auto* State=GetWorld()->GetGameState<AMCGameState>())PresentationEpoch=State->GameplayLoadId;
+    }
+    const double Now=GetWorld()->GetGameState()?GetWorld()->GetGameState()->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    PresentationUntil=Now+FMath::Max(0.f,RemainingSeconds);PresentationIntensity=Intensity;
+    // Ordinary actor replication carries this state at its existing 5Hz. No
+    // additional RPC or forced update is emitted for every 10Hz dose extension.
+    if(HasActorBegunPlay())UpdateLocalPresentation();
+}
+void AMCSprayCoating::OnRep_Presentation(){UpdateLocalPresentation();}
+void AMCSprayCoating::UpdateLocalPresentation()
+{
+    bool bUseOriginalSurface=true;
+    ON_SCOPE_EXIT {if(Surface)Surface->SetVisibility(bUseOriginalSurface,false);};
+    if(!HasActorBegunPlay() || !Presentation || GetNetMode()==NM_DedicatedServer)return;
+    const auto* State=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
+    if(!IsValid(PresentationOwner) || !PresentationEpisode.IsValid()
+        || (PresentationEpoch.IsValid() && State && State->GameplayLoadId!=PresentationEpoch))
+    {Presentation->StopLocalSourceStates(Lasting);return;}
+    if(PreparedPresentationOwner.Get()!=PresentationOwner) {
+        FString Error;
+        if(!PresentationOwner->PassivePresentation
+            || !PresentationOwner->PassivePresentation->CopyPreparedSourceTo(Lasting,Presentation,Error))return;
+        PreparedPresentationOwner=PresentationOwner.Get();
+    }
+    const double Now=State?State->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    FMCPerkVFXGameplayValues Values;Values.Direction=GetActorUpVector();Values.Radius=Radius;
+    Values.Duration=FMath::Max(0.f,float(PresentationUntil-Now));Values.Intensity=PresentationIntensity;
+    Values.EpisodeID=PresentationEpisode;Values.VisualSubject=Surface.Get();Values.FrameComponent=Surface.Get();
+    // A unit-disk Niagara renderer consumes the accepted footprint, not an
+    // editable Radius/Transform default. No gameplay predicate reads the mesh.
+    auto& NativeRadius=Values.NativeInputs.Entries.AddDefaulted_GetRef();
+    NativeRadius.Name=TEXT("User.Native.CoatingRadius");NativeRadius.Type=EMCVFXNativeInputType::Float;NativeRadius.FloatValue=Radius;
+    auto& NativeRemaining=Values.NativeInputs.Entries.AddDefaulted_GetRef();
+    NativeRemaining.Name=TEXT("User.Native.CoatingRemainingSeconds");NativeRemaining.Type=EMCVFXNativeInputType::Float;NativeRemaining.FloatValue=Values.Duration;
+    FString Error;
+    const bool bActive=PresentationUntil>Now;
+    // The Hero's accepted Coat receipt is the sole SFX boundary. This replicated
+    // state actor follows the footprint visually without replaying that sound.
+    const bool bAccepted=Presentation->UpdateLocalSourceState(Lasting,TEXT("Coat"),bActive,GetActorTransform(),Values,Surface,Error,false);
+    EMCPerkVFXSlotMode Mode=EMCPerkVFXSlotMode::UseDefault;
+    if(bActive && bAccepted && Presentation->GetPreparedEventMode(Lasting,TEXT("Coat"),Mode)
+        && (Mode==EMCPerkVFXSlotMode::Replace || Mode==EMCPerkVFXSlotMode::Composition)
+        && Presentation->IsSourceEpisodeVisualActive(Lasting,PresentationEpisode))bUseOriginalSurface=false;
+    // Only the old cosmetic film is hidden. The actor, exact subsystem hazard,
+    // collision policy, radius, cleaning and damage clocks remain unchanged.
+    // Default/Disabled, failed preparation, reset and epoch retirement retain
+    // the original footprint instead of leaving an invisible active hazard.
+}
+void AMCSprayCoating::Tick(float DeltaSeconds){Super::Tick(DeltaSeconds);UpdateLocalPresentation();}
+void AMCSprayCoating::EndPlay(const EEndPlayReason::Type Reason)
+{if(Surface)Surface->SetVisibility(true,false);if(Presentation)Presentation->StopLocalSourceStates(Lasting);Super::EndPlay(Reason);}
 void AMCSprayCoating::SetRadius(float InRadius)
 {Radius=FMath::Clamp(FMath::IsFinite(InRadius)?InRadius:40.f,5.f,250.f);OnRep_Radius();ForceNetUpdate();}
 void AMCSprayCoating::OnRep_Radius()
@@ -102,7 +169,12 @@ void AMCSprayCoating::OnRep_Radius()
     Surface->CreateMeshSection_LinearColor(0,Vertices,Triangles,Normals,UV,Colors,Tangents,false);
 }
 void AMCSprayCoating::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{Super::GetLifetimeReplicatedProps(OutLifetimeProps);DOREPLIFETIME(AMCSprayCoating,Radius);}
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);DOREPLIFETIME(AMCSprayCoating,Radius);
+    DOREPLIFETIME(AMCSprayCoating,PresentationOwner);DOREPLIFETIME(AMCSprayCoating,PresentationEpisode);
+    DOREPLIFETIME(AMCSprayCoating,PresentationEpoch);DOREPLIFETIME(AMCSprayCoating,PresentationUntil);
+    DOREPLIFETIME(AMCSprayCoating,PresentationIntensity);
+}
 
 UMCDefenseSprayPassives* UMCDefenseSprayPassives::ForWorld(const UObject* Context)
 {return Context && Context->GetWorld()?Context->GetWorld()->GetSubsystem<UMCDefenseSprayPassives>():nullptr;}
@@ -112,13 +184,20 @@ float UMCDefenseSprayPassives::ResolveIncomingDamage(AMCToothCharacter* Hero,flo
 {
     if(!Hero || !Hero->HasAuthority() || !FMath::IsFinite(Damage) || Damage<=0.f) return Damage;
     if(Has(Hero,Enamel) && FMath::FRand()<Amount(Hero,Enamel,TEXT("Chance"),.2f,0.f,1.f)) {
-        AMCPassiveFeedbackCue::Spawn(Hero,EMCPassiveFeedbackKind::Enamel);
+        FMCPerkVFXGameplayValues Values;Values.Intensity=Damage;
+        AMCPassiveFeedbackCue::SpawnAccepted(Hero,Enamel,TEXT("Proc"),
+            MCPassivePresentation::Play(Hero,Enamel,TEXT("Proc"),Hero->GetActorTransform(),Values),Hero,EMCPassiveFeedbackKind::Enamel);
         return 0.f;
     }
     if(Has(Hero,Shield) && Hero->Status && Hero->Status->State.Health<Hero->Status->State.MaxHealth*Amount(Hero,Shield,TEXT("Threshold"),.2f,0.f,1.f)) {
         const float Before=Damage;
         Damage*=1.f-Amount(Hero,Shield,TEXT("Reduction"),.5f,0.f,1.f);
-        if(Damage<Before) AMCPassiveFeedbackCue::Spawn(Hero,EMCPassiveFeedbackKind::Shield);
+        if(Damage<Before) {
+            FMCPerkVFXGameplayValues Values;Values.Intensity=Before-Damage;
+            Values.Fill=Hero->Status->State.Health/FMath::Max(1.f,Hero->Status->State.MaxHealth);
+            AMCPassiveFeedbackCue::SpawnAccepted(Hero,Shield,TEXT("Proc"),
+                MCPassivePresentation::Play(Hero,Shield,TEXT("Proc"),Hero->GetActorTransform(),Values),Hero,EMCPassiveFeedbackKind::Shield);
+        }
     }
     return Damage;
 }
@@ -148,7 +227,11 @@ void UMCDefenseSprayPassives::ResolveThreat(FThreat& Threat,bool bDodged)
     if(auto* Move=Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement())) {
         const float Before=Move->GetStamina();
         Move->RestoreStaminaFraction(Amount(Hero,SecondWind,TEXT("StaminaFraction"),.3f,0.f,1.f));
-        if(Move->GetStamina()>Before) AMCPassiveFeedbackCue::Spawn(Hero,EMCPassiveFeedbackKind::Wind);
+        if(Move->GetStamina()>Before) {
+            FMCPerkVFXGameplayValues Values;Values.Intensity=Move->GetStamina()-Before;
+            AMCPassiveFeedbackCue::SpawnAccepted(Hero,SecondWind,TEXT("Proc"),
+                MCPassivePresentation::Play(Hero,SecondWind,TEXT("Proc"),Hero->GetActorTransform(),Values),Hero,EMCPassiveFeedbackKind::Wind);
+        }
     }
 }
 void UMCDefenseSprayPassives::NotifyIncomingHit(AMCToothCharacter* Hero,AActor* Source)
@@ -179,13 +262,15 @@ void UMCDefenseSprayPassives::UpdateDashVisibility(AMCToothCharacter* Hero)
         }
         if(!Hero->IsHidden()) {
             Hero->SetActorHiddenInGame(true);Hero->ForceNetUpdate();
-            if(bNewOverride) AMCPassiveFeedbackCue::Spawn(Hero,EMCPassiveFeedbackKind::Vanish);
+            if(bNewOverride)AMCPassiveFeedbackCue::SpawnAccepted(Hero,Houdini,TEXT("Vanish"),
+                MCPassivePresentation::Play(Hero,Houdini,TEXT("Vanish"),Hero->GetActorTransform()),Hero,EMCPassiveFeedbackKind::Vanish);
         }
     } else if(const auto* Override=Self->HiddenOverrides.Find(Hero)) {
         const bool bReturn=Hero->IsHidden() && !Override->bWasHidden && LiveWorker(Hero)
             && Hero->GetWorld() && !Hero->GetWorld()->bIsTearingDown;
         Hero->SetActorHiddenInGame(Override->bWasHidden);Hero->ForceNetUpdate();Self->HiddenOverrides.Remove(Hero);
-        if(bReturn) AMCPassiveFeedbackCue::Spawn(Hero,EMCPassiveFeedbackKind::Return);
+        if(bReturn)AMCPassiveFeedbackCue::SpawnAccepted(Hero,Houdini,TEXT("Return"),
+            MCPassivePresentation::Play(Hero,Houdini,TEXT("Return"),Hero->GetActorTransform()),Hero,EMCPassiveFeedbackKind::Return);
     }
 }
 float UMCDefenseSprayPassives::BrushMultiplier(const AActor* Target,FVector Point)
@@ -205,12 +290,21 @@ void UMCDefenseSprayPassives::StampTreatment(AMCToothCharacter* Hero,AActor* Tar
         FSoftened* Found=nullptr;
         for(auto& Stamp:Softened) if(Stamp.Worker==Hero && Stamp.Target==Target
             && FVector::DistSquared(Target->GetActorTransform().TransformPosition(Stamp.LocalPoint),Point)<FMath::Square(Radius*.5f)) {Found=&Stamp;break;}
-        if(!Found) {
-            if(Softened.Num()>=128) Softened.RemoveAt(0);
+        const bool bNew=Found==nullptr;
+        if(bNew) {
+            if(Softened.Num()>=128) {EndSoftening(Softened[0]);Softened.RemoveAt(0);}
             Found=&Softened.AddDefaulted_GetRef();Found->Worker=Hero;Found->Owner=UMCPerkComponent::ForActor(Hero);Found->Target=Target;
             Found->LocalPoint=Target->GetActorTransform().InverseTransformPosition(Point);Found->Radius=Radius;
+            Found->LocalNormal=Target->GetActorTransform().InverseTransformVectorNoScale(Normal);Found->PresentationEpisode=FGuid::NewGuid();
         }
         Found->Until=Now+Amount(Hero,Softener,TEXT("Duration"),5.f,.1f,30.f);
+        const FVector StampPoint=Target->GetActorTransform().TransformPosition(Found->LocalPoint);
+        const FVector StampNormal=Target->GetActorTransform().TransformVectorNoScale(Found->LocalNormal).GetSafeNormal();
+        const FTransform StampFrame(FRotationMatrix::MakeFromZ(StampNormal).ToQuat(),StampPoint);
+        FMCPerkVFXGameplayValues Values;Values.Direction=StampNormal;Values.Radius=Found->Radius;Values.Duration=float(Found->Until-Now);
+        Values.Intensity=Amount(Hero,Softener,TEXT("BrushBonus"),.4f,0.f,4.f);Values.EpisodeID=Found->PresentationEpisode;
+        if(bNew) MCPassivePresentation::Play(Hero,Softener,TEXT("Coat"),StampFrame,Values);
+        else MCPassivePresentation::UpdateEpisode(Hero,Softener,Found->PresentationEpisode,StampFrame,Values);
     }
     if(!Has(Hero,Lasting)) return;
     FCoating* Found=nullptr;int32 OwnerCount=0;
@@ -218,23 +312,47 @@ void UMCDefenseSprayPassives::StampTreatment(AMCToothCharacter* Hero,AActor* Tar
         ++OwnerCount;
         if(Coating.Target==Target && FVector::DistSquared(Coating.Point,Point)<FMath::Square(Radius*.5f)) Found=&Coating;
     }
-    if(!Found) {
+    const bool bNew=Found==nullptr;
+    if(bNew) {
         if(OwnerCount>=24) {
             const int32 Old=Coatings.IndexOfByPredicate([Hero](const auto& P){return P.Worker==Hero;});
             if(Old!=INDEX_NONE) {DestroyCoating(Coatings[Old]);Coatings.RemoveAt(Old);}
         }
         Found=&Coatings.AddDefaulted_GetRef();Found->Worker=Hero;Found->Owner=UMCPerkComponent::ForActor(Hero);Found->Target=Target;Found->Point=Point;Found->Normal=Normal;
+        Found->PresentationEpisode=FGuid::NewGuid();
         Found->Radius=Radius;Found->LastCleanAt=Now;
         if(Target) {Found->LocalPoint=Target->GetActorTransform().InverseTransformPosition(Point);Found->LocalNormal=Target->GetActorTransform().InverseTransformVectorNoScale(Normal);}
-        FActorSpawnParameters Params;Params.Owner=Hero;Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-        Found->Visual=GetWorld()->SpawnActor<AMCSprayCoating>(Point+Normal*.8f,FRotationMatrix::MakeFromZ(Normal).Rotator(),Params);
-        if(Found->Visual.IsValid()) Found->Visual->SetRadius(Radius);
+        const FTransform Pose(FRotationMatrix::MakeFromZ(Normal).ToQuat(),Point+Normal*.8f);
+        Found->Visual=GetWorld()->SpawnActorDeferred<AMCSprayCoating>(AMCSprayCoating::StaticClass(),Pose,Hero,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+        if(Found->Visual.IsValid())Found->Visual->SetRadius(Radius);
     }
-    if(!FMath::IsNearlyEqual(Found->Radius,Radius)) {
+    const bool bRadiusChanged=!FMath::IsNearlyEqual(Found->Radius,Radius);
+    const bool bRefreshEdge=!bNew && (bRadiusChanged || Found->CleanUntil<=Now);
+    if(bRadiusChanged) {
         Found->Radius=Radius;if(Found->Visual.IsValid()) Found->Visual->SetRadius(Radius);
     }
     Found->CleanUntil=Now+Amount(Hero,Lasting,TEXT("CleanDuration"),3.f,.1f,30.f);
     Found->Until=Now+Amount(Hero,Lasting,TEXT("CoatingDuration"),10.f,.1f,60.f);
+    // The replicated state owns the accepted footprint, including late joiners
+    // and moving treated surfaces. The coating actor may replace only its
+    // cosmetic film after a prepared local Coat composition is accepted.
+    FMCPerkVFXGameplayValues Values;Values.Direction=Found->Normal;Values.Radius=Found->Radius;Values.Duration=float(Found->Until-Now);
+    Values.Intensity=Amount(Hero,Lasting,TEXT("CleanEfficiency"),.3f,0.f,16.f);Values.EpisodeID=Found->PresentationEpisode;
+    const FTransform CoatingFrame(FRotationMatrix::MakeFromZ(Found->Normal).ToQuat(),Found->Point);
+    if(!bNew)MCPassivePresentation::UpdateEpisode(Hero,Lasting,Found->PresentationEpisode,CoatingFrame,Values);
+    if(Found->Visual.IsValid()) {
+        Found->Visual->SetPresentationState(Hero,Found->PresentationEpisode,Values.Duration,Values.Intensity);
+        if(bNew)Found->Visual->FinishSpawning(FTransform(FRotationMatrix::MakeFromZ(Normal).ToQuat(),Point+Normal*.8f));
+    }
+    if(bNew || bRefreshEdge) {
+        if(bNew && Found->Visual.IsValid()) {
+            // The real replicated coating actor owns ONLY persistent Coat
+            // visuals. This accepted Hero event keeps independent SFX/logging.
+            if(Hero->PassivePresentation && Hero->PassivePresentation->IsSourcePrepared(Lasting))
+                Hero->PassivePresentation->PlaySourceEvent(Lasting,TEXT("Coat"),CoatingFrame,Values,false);
+        }
+        else MCPassivePresentation::Play(Hero,Lasting,bNew?FName(TEXT("Coat")):FName(TEXT("Refresh")),CoatingFrame,Values);
+    }
 }
 void UMCDefenseSprayPassives::ApplySpray(AMCToothCharacter* Hero,FVector Origin,FVector Direction,float Reach,float Seconds)
 {
@@ -276,7 +394,11 @@ void UMCDefenseSprayPassives::ApplySpray(AMCToothCharacter* Hero,FVector Origin,
     }
     const float Radius=FMath::Clamp(Hero->Inventory->SprayRadiusAtDistance(Distance),5.f,250.f);
     Self->StampTreatment(Hero,Target,Point,Normal,Radius);
-    if(Has(Hero,Antiseptic)) CleanAt(Target,Hero,Point,Radius,Dose,Amount(Hero,Antiseptic,TEXT("CleanEfficiency"),1.f,0.f,16.f),EMCStainCleanReason::Spray);
+    if(Has(Hero,Antiseptic) && CleanAt(Target,Hero,Point,Radius,Dose,Amount(Hero,Antiseptic,TEXT("CleanEfficiency"),1.f,0.f,16.f),EMCStainCleanReason::Spray)) {
+        FMCPerkVFXGameplayValues Values;Values.Direction=Normal;Values.Radius=Radius;Values.Duration=Dose;
+        Values.bHasEndpoints=true;Values.SourcePosition=Origin;Values.TargetPosition=Point;
+        MCPassivePresentation::Play(Hero,Antiseptic,TEXT("Clean"),FTransform(FRotationMatrix::MakeFromZ(Normal).ToQuat(),Point),Values);
+    }
 }
 bool UMCDefenseSprayPassives::IsStandingInCoating(const AActor* Target,FVector Point,FVector Normal,float Radius)
 {
@@ -289,11 +411,30 @@ bool UMCDefenseSprayPassives::IsStandingInCoating(const AActor* Target,FVector P
     return FMath::Abs(Height)<=25.f && (Delta-Normal*Height).SizeSquared()<=FMath::Square(Radius);
 }
 void UMCDefenseSprayPassives::DestroyCoating(FCoating& Coating)
-{if(Coating.Visual.IsValid()) Coating.Visual->Destroy();Coating.Visual.Reset();}
+{
+    auto* Hero=Coating.Worker.Get();
+    MCPassivePresentation::StopEpisode(Hero,Lasting,Coating.PresentationEpisode,true);
+    if(LiveWorker(Hero) && Has(Hero,Lasting) && GetWorld() && !GetWorld()->bIsTearingDown) {
+        FMCPerkVFXGameplayValues Values;Values.Direction=Coating.Normal;Values.Radius=Coating.Radius;Values.EpisodeID=Coating.PresentationEpisode;
+        MCPassivePresentation::Play(Hero,Lasting,TEXT("End"),FTransform(FRotationMatrix::MakeFromZ(Coating.Normal).ToQuat(),Coating.Point),Values);
+    }
+    if(Coating.Visual.IsValid()) Coating.Visual->Destroy();Coating.Visual.Reset();
+}
+void UMCDefenseSprayPassives::EndSoftening(const FSoftened& Stamp)
+{
+    auto* Hero=Stamp.Worker.Get();
+    MCPassivePresentation::StopEpisode(Hero,Softener,Stamp.PresentationEpisode,true);
+    if(LiveWorker(Hero) && Has(Hero,Softener) && Stamp.Target.IsValid() && GetWorld() && !GetWorld()->bIsTearingDown) {
+        const FVector Point=Stamp.Target->GetActorTransform().TransformPosition(Stamp.LocalPoint);
+        const FVector Normal=Stamp.Target->GetActorTransform().TransformVectorNoScale(Stamp.LocalNormal).GetSafeNormal();
+        FMCPerkVFXGameplayValues Values;Values.Direction=Normal;Values.Radius=Stamp.Radius;Values.EpisodeID=Stamp.PresentationEpisode;
+        MCPassivePresentation::Play(Hero,Softener,TEXT("End"),FTransform(FRotationMatrix::MakeFromZ(Normal).ToQuat(),Point),Values);
+    }
+}
 void UMCDefenseSprayPassives::PruneOwner(const UMCPerkComponent* Owner)
 {
     auto* Self=ForWorld(Owner);if(!Self || !Owner || !Owner->GetOwner() || !Owner->GetOwner()->HasAuthority()) return;
-    Self->Softened.RemoveAll([Owner](const auto& Stamp){return Stamp.Owner==Owner && (!LiveWorker(Stamp.Worker.Get()) || !Has(Stamp.Worker.Get(),Softener));});
+    Self->Softened.RemoveAll([Self,Owner](const auto& Stamp){const bool Remove=Stamp.Owner==Owner && (!LiveWorker(Stamp.Worker.Get()) || !Has(Stamp.Worker.Get(),Softener));if(Remove)Self->EndSoftening(Stamp);return Remove;});
     Self->Threats.RemoveAll([Owner](const auto& Threat){return Threat.Owner==Owner && (!LiveWorker(Threat.Hero.Get()) || !Has(Threat.Hero.Get(),SecondWind));});
     for(int32 I=Self->Coatings.Num()-1;I>=0;--I)
         if(Self->Coatings[I].Owner==Owner && (!LiveWorker(Self->Coatings[I].Worker.Get()) || !Has(Self->Coatings[I].Worker.Get(),Lasting))) {
@@ -307,7 +448,7 @@ void UMCDefenseSprayPassives::PruneOwner(const UMCPerkComponent* Owner)
 void UMCDefenseSprayPassives::ResetOwner(const UMCPerkComponent* Owner)
 {
     auto* Self=ForWorld(Owner);if(!Self || !Owner || !Owner->GetOwner() || !Owner->GetOwner()->HasAuthority()) return;
-    Self->Softened.RemoveAll([Owner](const auto& Stamp){return Stamp.Owner==Owner;});
+    Self->Softened.RemoveAll([Self,Owner](const auto& Stamp){const bool Remove=Stamp.Owner==Owner;if(Remove)Self->EndSoftening(Stamp);return Remove;});
     Self->Threats.RemoveAll([Owner](const auto& Threat){return Threat.Owner==Owner;});
     for(int32 I=Self->Coatings.Num()-1;I>=0;--I) if(Self->Coatings[I].Owner==Owner) {
         Self->DestroyCoating(Self->Coatings[I]);Self->Coatings.RemoveAt(I);
@@ -328,7 +469,7 @@ void UMCDefenseSprayPassives::Tick(float DeltaTime)
     for(const auto& Hero:Hidden) if(Hero.IsValid()) UpdateDashVisibility(Hero.Get());else HiddenOverrides.Remove(Hero);
     if(GetWorld()->GetNetMode()==NM_Client) return;
     Threats.RemoveAll([Now](const auto& T){return !LiveWorker(T.Hero.Get()) || !T.Source.IsValid() || T.ExpiresAt<Now;});
-    Softened.RemoveAll([Now](const auto& S){return S.Until<=Now || !S.Target.IsValid() || !LiveWorker(S.Worker.Get()) || !Has(S.Worker.Get(),Softener);});
+    Softened.RemoveAll([this,Now](const auto& S){const bool Remove=S.Until<=Now || !S.Target.IsValid() || !LiveWorker(S.Worker.Get()) || !Has(S.Worker.Get(),Softener);if(Remove)EndSoftening(S);return Remove;});
     for(auto It=NextSprayAt.CreateIterator();It;++It) if(!LiveWorker(It.Key().Get())) {SpraySeconds.Remove(It.Key());It.RemoveCurrent();}
     for(int32 I=Coatings.Num()-1;I>=0;--I)
         if(Coatings[I].Until<=Now || !LiveWorker(Coatings[I].Worker.Get()) || !Has(Coatings[I].Worker.Get(),Lasting)) {DestroyCoating(Coatings[I]);Coatings.RemoveAt(I);}
@@ -369,6 +510,12 @@ void UMCDefenseSprayPassives::Tick(float DeltaTime)
             }
             // An enamel dodge still consumes this owner's one pulse opportunity.
             if(Applied || Cast<AMCToothCharacter>(Target)) Damaged.FindOrAdd(Worker).Add(Target);
+            if(Applied) {
+                FMCPerkVFXGameplayValues Values;Values.Direction=Coating.Normal;Values.Radius=Coating.Radius;
+                Values.Intensity=Damage;Values.EpisodeID=Coating.PresentationEpisode;
+                Values.bHasEndpoints=true;Values.SourcePosition=Coating.Point;Values.TargetPosition=Target->GetActorLocation();
+                MCPassivePresentation::Play(Worker,Lasting,TEXT("Damage"),FTransform(Coating.Normal.Rotation(),Values.TargetPosition),Values);
+            }
         }
     }
 }
@@ -376,6 +523,7 @@ void UMCDefenseSprayPassives::Deinitialize()
 {
     for(const auto& Pair:HiddenOverrides) if(Pair.Key.IsValid() && Pair.Key->HasAuthority()) Pair.Key->SetActorHiddenInGame(Pair.Value.bWasHidden);
     for(auto& Coating:Coatings) DestroyCoating(Coating);
+    for(const auto& Stamp:Softened) MCPassivePresentation::StopEpisode(Stamp.Worker.Get(),Softener,Stamp.PresentationEpisode,true);
     HiddenOverrides.Reset();Coatings.Reset();Softened.Reset();Threats.Reset();NextSprayAt.Reset();SpraySeconds.Reset();
     Super::Deinitialize();
 }

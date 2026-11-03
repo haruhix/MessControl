@@ -56,7 +56,7 @@ void AMCFoodActor::Detonate()
     // ground wave expands afterwards, sharing a ledger to avoid double hits.
     const float Pulse=FMath::IsFinite(FoodData.PulseDamage)?FMath::Clamp(FoodData.PulseDamage,0.f,100.f):18.f;
     const float BlastRadius=FMath::Clamp(DetonationRadius()*.45f,90.f,160.f);
-    AMCReactionVFX::Spawn(GetWorld(),P,EMCReactionEffect::ChiliExplosion,.55f,90);
+    AMCReactionVFX::SpawnForPresentation(GetWorld(),TEXT("Food.Spicy"),TEXT("DetonateArt"),P,EMCReactionEffect::ChiliExplosion,.55f,90,FVector::ForwardVector,0,this);
     const FTransform WavePose(Impact);
     auto* Wave=GetWorld()->SpawnActorDeferred<AMCHazardWave>(AMCHazardWave::StaticClass(),WavePose);
     if(Wave) {Wave->bSpicy=true;Wave->Source=this;Wave->MaxRadius=DetonationRadius();Wave->Damage=Pulse;Wave->WarningSeconds=0;Wave->TravelSeconds=.8f;}

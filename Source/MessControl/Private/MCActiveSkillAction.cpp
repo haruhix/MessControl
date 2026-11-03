@@ -3,11 +3,22 @@
 #include "MCPlayerState.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
+#include "MCGameState.h"
+#include "MCWorldPreloadSubsystem.h"
+#include "MCEventSFXPlayer.h"
+#include "MCEventSFXReadiness.h"
+#include "MCVFXSourceContracts.h"
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/World.h"
 #include "Engine/StaticMesh.h"
+#include "Engine/Engine.h"
+#include "EngineUtils.h"
+#include "AudioDevice.h"
+#include "Sound/SoundBase.h"
+#include "Sound/SoundAttenuation.h"
+#include "Sound/SoundConcurrency.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/WorldSettings.h"
@@ -19,6 +30,11 @@
 
 namespace
 {
+const FName ActiveAudioOwnershipTag(TEXT("MC.ActiveSkill.Audio"));
+bool ActiveHasAudio(const FMCPreparedEventSFX& Data)
+{return Data.Slot.HasCustomLayers()&&Data.Slot.Layers.ContainsByPredicate([&](const auto& L){return L.bEnabled&&!Data.DisabledGroupIDs.Contains(L.GroupID);});}
+bool ActiveHasAudioOutput(const UWorld* World)
+{return World&&World->AllowAudioPlayback()&&World->GetNetMode()!=NM_DedicatedServer&&GEngine&&GEngine->UseSound()&&bool(World->GetAudioDevice());}
 bool SkillTickDependsOn(const FTickFunction& Tick,const FTickFunction& Required)
 {
     TArray<const FTickFunction*> Pending;Pending.Add(&Tick);
@@ -122,6 +138,8 @@ bool AMCActiveSkillAction::PrepareVFXProfile(UMCPerkVFXProfile* Profile,FString&
     if(!HasAuthority() || bCommitted || bFinished || IsTemplate())
     {OutError=TEXT("VFX profiles can only be prepared on an uncommitted action instance.");return false;}
     if(Profile && !Profile->Validate(OutError)) return false;
+    TArray<FMCActiveSkillSFXBinding> CandidateAudio;TMap<FName,FMCPreparedEventSFX> Audio;
+    if(!BuildActiveAudioBindings(Profile,CandidateAudio,Audio,OutError))return false;
     TArray<FMCPerkVFXBinding> Candidate;
     for(const FName Stage:UMCPerkVFXProfile::GetSupportedStages()) {
         FMCPerkVFXBinding Binding;Binding.Stage=Stage;
@@ -135,11 +153,12 @@ bool AMCActiveSkillAction::PrepareVFXProfile(UMCPerkVFXProfile* Profile,FString&
         }
         Candidate.Add(MoveTemp(Binding));
     }
-    if(!PrepareVFXBindings(Candidate,OutError)) return false;
-    VFXBindings=MoveTemp(Candidate);return true;
+    if(!PrepareVFXBindings(Candidate,OutError,true,&CandidateAudio)) return false;
+    VFXBindings=MoveTemp(Candidate);AudioBindings=MoveTemp(CandidateAudio);PreparedAudio=MoveTemp(Audio);bAudioPrepared=true;return true;
 }
 
-bool AMCActiveSkillAction::PrepareVFXBindings(const TArray<FMCPerkVFXBinding>& Bindings,FString& OutError)
+bool AMCActiveSkillAction::PrepareVFXBindings(const TArray<FMCPerkVFXBinding>& Bindings,FString& OutError,bool bAllowLoad,
+    const TArray<FMCActiveSkillSFXBinding>* GroupBindings)
 {
     OutError.Reset();
     if(Bindings.Num()>5) {OutError=TEXT("Too many action VFX bindings.");return false;}
@@ -147,6 +166,7 @@ bool AMCActiveSkillAction::PrepareVFXBindings(const TArray<FMCPerkVFXBinding>& B
     TMap<FName,FMCPreparedPerkVFXComposition> Compositions;
     int32 TotalCompositionLayers=0;
     TSet<FName> Stages;
+    if(!GroupBindings)GroupBindings=&AudioBindings;
     for(const auto& Binding:Bindings) {
         if(!UMCPerkVFXProfile::IsSupportedStage(Binding.Stage) || Stages.Contains(Binding.Stage))
         {OutError=TEXT("Action VFX stages must be supported and unique.");return false;}
@@ -155,7 +175,7 @@ bool AMCActiveSkillAction::PrepareVFXBindings(const TArray<FMCPerkVFXBinding>& B
         if(Binding.Slot.Mode==EMCPerkVFXSlotMode::Disabled) continue;
         if(Binding.Slot.Mode==EMCPerkVFXSlotMode::Composition)
         {
-            const auto* Source=Binding.Slot.Composition.LoadSynchronous();
+            const auto* Source=bAllowLoad?Binding.Slot.Composition.LoadSynchronous():Binding.Slot.Composition.Get();
             if(!Source || !Source->Validate(OutError))
             {if(OutError.IsEmpty()) OutError=TEXT("Cannot load runtime composition.");OutError=Binding.Stage.ToString()+TEXT(": ")+OutError;return false;}
             FMCPreparedPerkVFXComposition Prepared;
@@ -167,11 +187,16 @@ bool AMCActiveSkillAction::PrepareVFXBindings(const TArray<FMCPerkVFXBinding>& B
             Prepared.Snapshot->Layers=Source->Layers;
             Prepared.Outer=Binding.Slot;
             Prepared.Systems.SetNum(Source->Layers.Num());
+            const auto* Groups=GroupBindings->FindByPredicate([&](const auto& B){return B.Stage==Binding.Stage;});
             for(int32 I=0;I<Source->Layers.Num();++I)
             {
-                const auto& Layer=Source->Layers[I];if(!Layer.bEnabled) continue;
+                auto& Layer=Prepared.Snapshot->Layers[I];
+                if(Layer.GroupID.IsValid()&&(!Groups||!Groups->Groups.Contains(Layer.GroupID)))
+                {OutError=TEXT("Active VFX layer refers to an unknown shared event group.");return false;}
+                if(Groups&&!Groups->Groups.IsEnabled(Layer.GroupID))Layer.bEnabled=false;
+                auto* LayerSystem=bAllowLoad?Layer.System.LoadSynchronous():Layer.System.Get();
+                if(!Layer.bEnabled){Prepared.Systems[I]=LayerSystem;continue;}
                 if(++TotalCompositionLayers>128) {OutError=TEXT("An action accepts at most 128 enabled independent VFX layers across its events.");return false;}
-                auto* LayerSystem=Layer.System.LoadSynchronous();
                 if(!LayerSystem || !UMCVFXComposition::ValidateParameters(Layer,LayerSystem,OutError)
                     || !UMCVFXComposition::ValidateParameters(UMCPerkVFXProfile::AsLayer(Binding.Slot),LayerSystem,OutError))
                 {if(OutError.IsEmpty()) OutError=TEXT("An independent Niagara layer is unavailable.");OutError=Binding.Stage.ToString()+TEXT(" / ")+Layer.Name.ToString()+TEXT(": ")+OutError;return false;}
@@ -180,7 +205,7 @@ bool AMCActiveSkillAction::PrepareVFXBindings(const TArray<FMCPerkVFXBinding>& B
             Compositions.Add(Binding.Stage,MoveTemp(Prepared));continue;
         }
         if(Binding.Slot.System.IsNull()) continue;
-        auto* System=Binding.Slot.System.LoadSynchronous();
+        auto* System=bAllowLoad?Binding.Slot.System.LoadSynchronous():Binding.Slot.System.Get();
         if(!System) {
             if(Binding.Slot.Mode==EMCPerkVFXSlotMode::UseDefault) continue; // Existing missing optional cues stay optional.
             OutError=FString::Printf(TEXT("Cannot prepare %s Niagara System."),*Binding.Stage.ToString());return false;
@@ -198,7 +223,7 @@ void AMCActiveSkillAction::PrepareDefaultVFX()
     if(bVFXPrepared) return;
     FString Error;
     if(!VFXBindings.IsEmpty()) {
-        if(!PrepareVFXBindings(VFXBindings,Error))
+        if(!PrepareVFXBindings(VFXBindings,Error,HasAuthority()&&!bCommitted))
             UE_LOG(LogTemp,Warning,TEXT("Skill %s could not prepare replicated VFX: %s"),*GetName(),*Error);
     }
     else if(HasAuthority() && !bCommitted) PrepareVFXProfile(nullptr,Error);
@@ -207,7 +232,7 @@ void AMCActiveSkillAction::PrepareDefaultVFX()
 void AMCActiveSkillAction::OnRep_VFXBindings()
 {
     FString Error;
-    if(!PrepareVFXBindings(VFXBindings,Error)) {
+    if(!PrepareVFXBindings(VFXBindings,Error,false)) {
         // Never play an earlier snapshot after a new invalid one arrives.
         PreparedVFXSystems.Reset();PreparedVFXCompositions.Reset();PreparedVFXBindings.Reset();bVFXPrepared=false;
         UE_LOG(LogTemp,Warning,TEXT("Skill %s rejected replicated VFX: %s"),*GetName(),*Error);
@@ -251,6 +276,7 @@ AMCPerkVFXCompositionPlayer* AMCActiveSkillAction::PlayPreparedComposition(FName
     int32 LiveBudget=0;
     for(const auto& Weak:CompositionPlayers) if(const auto* Player=Weak.Get()) LiveBudget+=Player->GetLiveLayerCount()+Player->GetPendingLayerCount();
     int32 Requested=0;for(const auto& Layer:Prepared->Snapshot->Layers) Requested+=Layer.bEnabled?1:0;
+    if(!Requested)return nullptr; // All shared groups disabled: no empty renderer actor.
     if(CompositionPlayers.Num()>=32 || LiveBudget+Requested>128)
     {UE_LOG(LogTemp,Warning,TEXT("Skill %s rejected independent VFX event %s: explicit 32-player/128-layer action budget exceeded."),*GetName(),*Stage.ToString());return nullptr;}
     FActorSpawnParameters Spawn;Spawn.ObjectFlags=RF_Transient;Spawn.Owner=GetWorld()->GetWorldSettings();
@@ -291,6 +317,7 @@ void AMCActiveSkillAction::ApplyVFXSlotOverrides(UNiagaraComponent* Component,FN
 void AMCActiveSkillAction::StartCommitted()
 {
     check(HasAuthority() && bInitialized && !bCommitted && !bFinished);
+    if(const auto* State=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr)GameplayEpoch=State->GameplayLoadId;
     bCommitted=true;StartedAt=Now();SetReplicates(true);SetActorTickEnabled(true);ApplyPresentation();ClaimPresentation();ForceNetUpdate();
 }
 void AMCActiveSkillAction::OnRep_Committed() {ApplyPresentation();ApplyPresentationLease();OnRep_Loop();SetActorTickEnabled(bCommitted);}
@@ -355,7 +382,7 @@ void AMCActiveSkillAction::OnRep_Presentation() {ApplyPresentationLease();}
 void AMCActiveSkillAction::StartLoop()
 {
     if(!bCommitted || bFinished) return;
-    if(HasAuthority()) bLoopRunning=true;
+    if(HasAuthority()) {if(!bLoopRunning)LoopStartedAt=Now();bLoopRunning=true;}
     OnRep_Loop();ForceNetUpdate();
 }
 void AMCActiveSkillAction::StopLoop()
@@ -364,6 +391,9 @@ void AMCActiveSkillAction::StopLoop()
     if(LoopComponent) LoopComponent->DeactivateImmediate();
     if(auto* Player=LoopCompositionPlayer.Get()) Player->StopEmission(false);
     LoopCompositionPlayer.Reset();
+    PendingAudio.RemoveAll([](const auto& Cue){return Cue.bLoop;});
+    if(auto* Audio=LoopAudioPlayer.Get())Audio->Stop(false);
+    LoopAudioPlayer.Reset();LastLoopAudioStamp=FMath::Max(LastLoopAudioStamp,LoopStartedAt);
     if(bLoopEventRunning) {bLoopEventRunning=false;OnVFXStage.Broadcast(TEXT("LoopStop"));}
     ForceNetUpdate();
 }
@@ -373,6 +403,12 @@ void AMCActiveSkillAction::OnRep_Loop()
     ApplyPresentation();
     const bool bRunning=bCommitted && bLoopRunning && !bFinished;
     if(bRunning!=bLoopEventRunning) {bLoopEventRunning=bRunning;OnVFXStage.Broadcast(bRunning?TEXT("LoopStart"):TEXT("LoopStop"));}
+    if(bRunning&&LoopStartedAt>=0)QueueActiveAudio(TEXT("Loop"),LoopComponent->GetComponentTransform(),LoopStartedAt,GameplayEpoch,true);
+    else {
+        PendingAudio.RemoveAll([](const auto& Cue){return Cue.bLoop;});
+        if(auto* Audio=LoopAudioPlayer.Get())Audio->Stop(false);
+        LoopAudioPlayer.Reset();LastLoopAudioStamp=FMath::Max(LastLoopAudioStamp,LoopStartedAt);
+    }
     if(PreparedVFXCompositions.Contains(TEXT("Loop")))
     {
         LoopComponent->DeactivateImmediate();
@@ -396,16 +432,22 @@ void AMCActiveSkillAction::OnRep_Loop()
 }
 void AMCActiveSkillAction::PlaySkillCue(FName Stage,FVector Location,FVector Direction,float Radius)
 {
-    if(HasAuthority() && bCommitted && !Location.ContainsNaN() && !Direction.ContainsNaN() && FMath::IsFinite(Radius))
-        MulticastSkillCue(Stage,Location,Direction.GetSafeNormal(),FMath::Clamp(Radius,-1.f,2000.f));
+    if(HasAuthority() && bCommitted && !Location.ContainsNaN() && !Direction.ContainsNaN() && FMath::IsFinite(Radius)
+        &&IssuedCueSerial<MAX_uint32)
+        MulticastSkillCue(Stage,Location,Direction.GetSafeNormal(),FMath::Clamp(Radius,-1.f,2000.f),Now(),++IssuedCueSerial,GameplayEpoch);
 }
-void AMCActiveSkillAction::MulticastSkillCue_Implementation(FName Stage,FVector_NetQuantize Location,FVector_NetQuantizeNormal Direction,float Radius)
+void AMCActiveSkillAction::MulticastSkillCue_Implementation(FName Stage,FVector_NetQuantize Location,FVector_NetQuantizeNormal Direction,float Radius,
+    double EventStartedAt,uint32 CueSerial,FGuid CueEpoch,bool bStopAudio,bool bImmediate)
 {
+    if(!CueSerial||CueSerial<=ReceivedCueSerial||!FMath::IsFinite(EventStartedAt))return;
+    ReceivedCueSerial=CueSerial;
+    if(bStopAudio) {bAudioCancelled=true;StopActiveAudio(bImmediate);return;} // Transport control, never a synthetic mechanic event.
     if(Stage!=TEXT("Start") && Stage!=TEXT("Impact") && Stage!=TEXT("Warning") && Stage!=TEXT("End")) return;
     OnVFXStage.Broadcast(Stage);
     if(GetNetMode()==NM_DedicatedServer) return;
     const auto* Slot=PreparedVFXSlot(Stage);
     const FTransform EventFrame(FVector(Direction).Rotation(),FVector(Location));
+    QueueActiveAudio(Stage,EventFrame,EventStartedAt,CueEpoch);
     const FTransform Frame=Slot?Slot->Transform*EventFrame:EventFrame;
     if(PreparedVFXCompositions.Contains(Stage))
     {PlayPreparedComposition(Stage,Frame,false,CompositionGameplayValues(FVector(Direction),Radius));return;}
@@ -445,6 +487,7 @@ void AMCActiveSkillAction::UpdateLoopVFX(FVector Direction,float Fill)
     ApplyVFXSlotOverrides(LoopComponent,TEXT("Loop"));
     LoopCompositionValues=CompositionGameplayValues(Direction,Param(TEXT("VFXRadius"),-1.f),Fill);
     if(auto* Player=LoopCompositionPlayer.Get()) Player->UpdateGameplayValues(LoopCompositionValues);
+    UpdateLoopAudio();
 }
 void AMCActiveSkillAction::ReleaseInput() {}
 bool AMCActiveSkillAction::RepeatInput() {return false;}
@@ -454,6 +497,11 @@ void AMCActiveSkillAction::Finish(EMCActiveSkillEndReason Reason)
 {
     if(bFinished) return;
     bFinished=true;SetActorTickEnabled(false);
+    if(Reason!=EMCActiveSkillEndReason::Completed) {
+        if(HasAuthority()&&bCommitted&&IssuedCueSerial<MAX_uint32)
+            MulticastSkillCue(NAME_None,GetActorLocation(),FVector::UpVector,-1,Now(),++IssuedCueSerial,GameplayEpoch,true,true);
+        else {bAudioCancelled=true;StopActiveAudio(true);}
+    }
     if(GetWorld()) GetWorldTimerManager().ClearAllTimersForObject(this);
     OnFinished(Reason);
     StopLoop();
@@ -462,6 +510,7 @@ void AMCActiveSkillAction::Finish(EMCActiveSkillEndReason Reason)
     // A completed projectile/action does not own the remaining world-space
     // impact schedule. Its prepared player retains the immutable resources.
     else CompositionPlayers.Reset();
+    if(Reason==EMCActiveSkillEndReason::Completed)StopActiveAudio(false,true);
     ReleasePresentation();
     if(auto* P=Perks()) P->UnregisterActiveSkillAction(this);
     Destroy();
@@ -470,6 +519,8 @@ void AMCActiveSkillAction::EndPlay(const EEndPlayReason::Type Reason)
 {
     if(!bFinished) {
         bFinished=true;
+        const bool bImmediateAudio=bAudioCancelled||(GetWorld()&&GetWorld()->bIsTearingDown);
+        StopActiveAudio(bImmediateAudio,!bImmediateAudio);bAudioCancelled=true;
         if(GetWorld()) GetWorldTimerManager().ClearAllTimersForObject(this);
         OnFinished(EMCActiveSkillEndReason::WorldEnded);
         StopLoop();ReleasePresentation();
@@ -482,6 +533,8 @@ void AMCActiveSkillAction::EndPlay(const EEndPlayReason::Type Reason)
 void AMCActiveSkillAction::Tick(float Dt)
 {
     Super::Tick(Dt);
+    if(!PendingAudio.IsEmpty())ProcessPendingAudio();
+    UpdateLoopAudio();
     // Runs on replicas too: a pawn/mesh replacement or newer presentation must
     // not leave the old mesh waiting on this actor until the next replication.
     if(bWantsPresentation || AppliedPresentationPawn.IsValid() || AppliedPresentationTickMesh.IsValid()) ApplyPresentationLease();
@@ -513,8 +566,183 @@ void AMCActiveSkillAction::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
     DOREPLIFETIME(AMCActiveSkillAction,PerkID);DOREPLIFETIME(AMCActiveSkillAction,ActionID);
     DOREPLIFETIME(AMCActiveSkillAction,InputHandle);DOREPLIFETIME(AMCActiveSkillAction,bCommitted);
     DOREPLIFETIME(AMCActiveSkillAction,StartedAt);
+    DOREPLIFETIME(AMCActiveSkillAction,GameplayEpoch);DOREPLIFETIME(AMCActiveSkillAction,LoopStartedAt);
     DOREPLIFETIME(AMCActiveSkillAction,PresentationReleasedAt);
     DOREPLIFETIME(AMCActiveSkillAction,bWantsPresentation);DOREPLIFETIME(AMCActiveSkillAction,bLoopRunning);
     DOREPLIFETIME_CONDITION(AMCActiveSkillAction,InitialParameters,COND_InitialOnly);
     DOREPLIFETIME_CONDITION(AMCActiveSkillAction,VFXBindings,COND_InitialOnly);
+    DOREPLIFETIME_CONDITION(AMCActiveSkillAction,AudioBindings,COND_InitialOnly);
+}
+
+
+bool AMCActiveSkillAction::BuildActiveAudioBindings(UMCPerkVFXProfile* Profile,TArray<FMCActiveSkillSFXBinding>& OutBindings,
+    TMap<FName,FMCPreparedEventSFX>& OutPrepared,FString& Error) const
+{
+    if(Profile&&!Profile->Validate(Error))return false;
+    TArray<FMCActiveSkillSFXBinding> Candidate;
+    for(FName Stage:UMCPerkVFXProfile::GetSupportedStages()) {
+        FMCActiveSkillSFXBinding B;B.Stage=Stage;
+        if(Profile) {
+            if(const auto* Slot=Profile->SFXSlots.Find(Stage))B.Slot=*Slot;
+            if(const auto* Groups=Profile->EventGroups.Find(Stage))B.Groups=*Groups;
+        }
+        Candidate.Add(MoveTemp(B));
+    }
+    if(!PrepareActiveAudioBindings(Candidate,true,OutPrepared,Error))return false;
+    OutBindings=MoveTemp(Candidate);return true;
+}
+
+bool AMCActiveSkillAction::PrepareActiveAudioBindings(const TArray<FMCActiveSkillSFXBinding>& Bindings,bool bAllowLoad,
+    TMap<FName,FMCPreparedEventSFX>& OutPrepared,FString& Error) const
+{
+    Error.Reset();if(Bindings.Num()>5){Error=TEXT("An active action accepts five declared audio stages.");return false;}
+    TMap<FName,FMCPreparedEventSFX> Candidate;
+    for(const auto& Binding:Bindings) {
+        if(!UMCPerkVFXProfile::IsSupportedStage(Binding.Stage)||Candidate.Contains(Binding.Stage)
+            ||!Binding.Groups.Validate(Error)||!MCEventSFX::ValidateNativePolicy(Binding.Slot,
+                MCVFXSourceContracts::CanSuppressOriginalSFX(PerkID,Binding.Stage),Error))
+        {if(Error.IsEmpty())Error=TEXT("Invalid or duplicate active audio stage.");return false;}
+        TArray<FGuid> IDs,Disabled,Muted;
+        for(const auto& G:Binding.Groups.Groups) {
+            IDs.Add(G.ID);if(!G.bEnabled)Disabled.Add(G.ID);if(G.bMuteSFX)Muted.Add(G.ID);
+        }
+        auto Effective=Binding.Slot;for(auto& L:Effective.Layers)if(Disabled.Contains(L.GroupID))L.bEnabled=false;
+        FMCPreparedEventSFX Data;if(!MCEventSFX::Prepare(Effective,bAllowLoad,Data,Error))return false;
+        Data.Slot=Binding.Slot;
+        if(!MCEventSFX::CompileSharedGroupPolicy(IDs,Disabled,Muted,Data,Error))return false;
+        // This is the same explicit subject as the active VFX Subject binding.
+        // Do not infer a coincidental root/prop socket from the requested name.
+        for(const auto& L:Data.Slot.Layers)if(ActiveHasAudio(Data)&&L.bEnabled&&!Data.DisabledGroupIDs.Contains(L.GroupID)
+            &&L.Space==EMCEventSFXSpace::SourceSocket&&(!Hero()||!Hero()->GetMesh()||!Hero()->GetMesh()->DoesSocketExist(L.Socket)))
+        {Error=TEXT("Active audio requires its actual character mesh/socket provider: ")+L.Socket.ToString();return false;}
+        FString CertificateError;CertifyAudioSlot(Data,CertificateError);
+        Candidate.Add(Binding.Stage,MoveTemp(Data));
+    }
+    OutPrepared=MoveTemp(Candidate);return true;
+}
+
+bool AMCActiveSkillAction::PrepareActiveAudio(UMCPerkVFXProfile* Profile,FString& Error)
+{
+    // One profile/group snapshot remains atomic; never create an independent
+    // audio-only authoring path with different shared-group visual settings.
+    return PrepareVFXProfile(Profile,Error);
+}
+void AMCActiveSkillAction::GetPreparedAudioResources(TArray<UObject*>& Out) const
+{
+    Out.Reset();for(const auto& Pair:PreparedAudio) {
+        for(USoundBase* O:Pair.Value.Sounds)if(O)Out.AddUnique(O);
+        for(USoundAttenuation* O:Pair.Value.Attenuations)if(O)Out.AddUnique(O);
+        for(USoundConcurrency* O:Pair.Value.Concurrencies)if(O)Out.AddUnique(O);
+    }
+}
+void AMCActiveSkillAction::GetPreparedAudioSlots(TArray<FMCPreparedEventSFX>& Out) const
+{Out.Reset();for(const auto& Pair:PreparedAudio)Out.Add(Pair.Value);}
+bool AMCActiveSkillAction::CertifyAudioSlot(FMCPreparedEventSFX& Data,FString& Error) const
+{
+    if(!ActiveHasAudio(Data)){Data.bPlaybackResourcesPrepared=false;Error.Reset();return true;}
+    const UMCEventSFXReadiness* Service=LocalAudioReadiness;
+    if(!Service)if(const auto* Loading=GetWorld()?GetWorld()->GetSubsystem<UMCWorldPreloadSubsystem>():nullptr)Service=Loading->GetEventAudioReadiness();
+    if(!Service){Data.bPlaybackResourcesPrepared=false;Error=TEXT("No scoped active audio preparation service is available.");return false;}
+    return Service->CertifyPrepared(Data,Error);
+}
+bool AMCActiveSkillAction::CertifyPreparedAudio(const UMCEventSFXReadiness* Readiness,FString& Error)
+{
+    Error.Reset();if(!Readiness||!Readiness->IsReady()) {Error=Readiness?Readiness->GetDiagnostic():TEXT("Audio readiness service is absent.");return false;}
+    auto Candidate=PreparedAudio;auto Pending=PendingAudio;
+    for(auto& Pair:Candidate)if(ActiveHasAudio(Pair.Value)&&!Readiness->CertifyPrepared(Pair.Value,Error))return false;
+    for(auto& Cue:Pending)if(Cue.bHasPrepared&&ActiveHasAudio(Cue.Prepared)&&!Readiness->CertifyPrepared(Cue.Prepared,Error))return false;
+    PreparedAudio=MoveTemp(Candidate);PendingAudio=MoveTemp(Pending);LocalAudioReadiness=const_cast<UMCEventSFXReadiness*>(Readiness);return true;
+}
+bool AMCActiveSkillAction::IsPreparedAudioReady() const
+{
+    if(!bAudioPrepared)return false;
+    if(!ActiveHasAudioOutput(GetWorld()))return true;
+    for(const auto& Pair:PreparedAudio)if(ActiveHasAudio(Pair.Value)) {
+        auto Check=Pair.Value;FString Error;if(!CertifyAudioSlot(Check,Error))return false;
+    }
+    return true;
+}
+void AMCActiveSkillAction::OnRep_AudioBindings()
+{
+    FString Error;TMap<FName,FMCPreparedEventSFX> Candidate;
+    if(!PrepareActiveAudioBindings(AudioBindings,false,Candidate,Error)) {
+        PreparedAudio.Reset();bAudioPrepared=false;LastAudioError=Error;
+        UE_LOG(LogTemp,Warning,TEXT("Skill %s rejected resident audio bindings: %s"),*GetName(),*Error);return;
+    }
+    PreparedAudio=MoveTemp(Candidate);bAudioPrepared=true;
+    if(!VFXBindings.IsEmpty())OnRep_VFXBindings(); // Shared-group policy may arrive with the same initial bunch.
+    OnRep_Loop();ProcessPendingAudio();
+}
+void AMCActiveSkillAction::QueueActiveAudio(FName Stage,const FTransform& Frame,double EventStartedAt,FGuid Epoch,bool bLoop)
+{
+    if(bAudioCancelled||GetNetMode()==NM_DedicatedServer||!UMCPerkVFXProfile::IsSupportedStage(Stage)
+        ||Frame.ContainsNaN()||!Frame.GetRotation().IsNormalized()||!FMath::IsFinite(EventStartedAt)||EventStartedAt<0)return;
+    if(bLoop&&(LastLoopAudioStamp==EventStartedAt||PendingAudio.ContainsByPredicate([&](const auto& C){return C.bLoop&&C.EventStartedAt==EventStartedAt;})))return;
+    FMCActiveSkillAudioCue Cue;Cue.Stage=Stage;Cue.Frame=Frame;Cue.EventStartedAt=EventStartedAt;Cue.GameplayEpoch=Epoch;Cue.bLoop=bLoop;
+    if(const auto* Data=PreparedAudio.Find(Stage)) {
+        if(!ActiveHasAudio(*Data)){if(bLoop)LastLoopAudioStamp=EventStartedAt;return;}
+        Cue.Prepared=*Data;Cue.bHasPrepared=true;
+    }
+    if(PendingAudio.Num()>=32){LastAudioError=TEXT("Active audio queue reached its explicit 32-event bound.");UE_LOG(LogTemp,Warning,TEXT("%s"),*LastAudioError);return;}
+    PendingAudio.Add(MoveTemp(Cue));SetActorTickEnabled(true);ProcessPendingAudio();
+}
+void AMCActiveSkillAction::ProcessPendingAudio()
+{
+    if(bAudioCancelled||GetNetMode()==NM_DedicatedServer){PendingAudio.Reset();return;}
+    const auto* State=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
+    if(!bAudioPrepared&&!AudioBindings.IsEmpty()) {
+        FString Error;TMap<FName,FMCPreparedEventSFX> Candidate;
+        if(PrepareActiveAudioBindings(AudioBindings,false,Candidate,Error)){PreparedAudio=MoveTemp(Candidate);bAudioPrepared=true;}
+    }
+    while(!PendingAudio.IsEmpty()) {
+        auto& Cue=PendingAudio[0];
+        if(Cue.bLoop&&(!bLoopRunning||Cue.EventStartedAt!=LoopStartedAt)){PendingAudio.RemoveAt(0);continue;}
+        const float Elapsed=FMath::Max(0.f,float(Now()-Cue.EventStartedAt));
+        if(Elapsed>=60.f){LastAudioError=TEXT("Pending active audio expired after 60 seconds without replaying its onset.");PendingAudio.RemoveAt(0);continue;}
+        if(Cue.GameplayEpoch.IsValid()&&(!State||State->GameplayLoadId!=Cue.GameplayEpoch))break;
+        if(!Cue.bHasPrepared) {
+            if(!bAudioPrepared)break;
+            const auto* Data=PreparedAudio.Find(Cue.Stage);
+            if(!Data||!ActiveHasAudio(*Data)){if(Cue.bLoop)LastLoopAudioStamp=Cue.EventStartedAt;PendingAudio.RemoveAt(0);continue;}
+            Cue.Prepared=*Data;Cue.bHasPrepared=true;
+        }
+        FString Error;
+        if(ActiveHasAudioOutput(GetWorld())&&!CertifyAudioSlot(Cue.Prepared,Error)) {
+            LastAudioError=Error;break; // Before-barrier service owns readiness; never load or certify a payload here.
+        }
+        FMCEventSFXContext Context;Context.SourceID=PerkID;Context.Event=Cue.Stage;Context.EpisodeID=ActionID;
+        Context.GameplayEpoch=Cue.GameplayEpoch;Context.ParameterOwner=Hero()?static_cast<AActor*>(Hero()):this;
+        Context.Intensity=FMath::Clamp(Param(TEXT("VFXIntensity"),.65f),0.f,1.f);
+        auto* Player=AMCEventSFXPlayer::SpawnPrepared(GetWorld(),Cue.Prepared,Cue.Frame,Hero()?Hero()->GetMesh():nullptr,
+            Context,ActiveAudioOwnershipTag,Error,Elapsed);
+        if(Player) {
+            Player->AddTickPrerequisiteActor(this);AudioPlayers.RemoveAll([](const auto& W){return !W.IsValid()||!W->IsRunning();});AudioPlayers.Add(Player);
+            if(Cue.bLoop){LoopAudioPlayer=Player;Player->BindEventFrameSource(LoopComponent);LastLoopAudioStamp=Cue.EventStartedAt;}
+            LastAudioError.Reset();
+        } else {LastAudioError=Error;UE_LOG(LogTemp,Warning,TEXT("Active audio %s/%s refused: %s"),*GetName(),*Cue.Stage.ToString(),*Error);}
+        PendingAudio.RemoveAt(0);
+    }
+}
+void AMCActiveSkillAction::UpdateLoopAudio()
+{
+    if(auto* Player=LoopAudioPlayer.Get();Player&&Player->IsRunning()&&LoopComponent) {
+        Player->UpdateEventFrame(LoopComponent->GetComponentTransform());
+        Player->UpdateInputs(FMath::Clamp(Param(TEXT("VFXIntensity"),.65f),0.f,1.f),Player->GetContext().Speed);
+    }
+}
+void AMCActiveSkillAction::StopActiveAudio(bool bImmediate,bool bKeepTerminalTails)
+{
+    PendingAudio.Reset();
+    for(const auto& Weak:AudioPlayers)if(auto* Player=Weak.Get()) {
+        const FName Stage=Player->GetContext().Event;
+        if(!bImmediate&&bKeepTerminalTails&&(Stage==TEXT("Impact")||Stage==TEXT("End")))continue;
+        Player->Stop(bImmediate);
+    }
+    AudioPlayers.Reset();LoopAudioPlayer.Reset();
+}
+void AMCActiveSkillAction::StopWorldAudio(UWorld* World)
+{
+    if(!World)return;
+    for(TActorIterator<AMCActiveSkillAction> It(World);It;++It)It->StopActiveAudio(true);
+    AMCEventSFXPlayer::StopWorldPlayers(World,ActiveAudioOwnershipTag);
 }

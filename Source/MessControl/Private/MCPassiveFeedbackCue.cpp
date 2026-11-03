@@ -2,6 +2,12 @@
 #include "MCCartoonFXGeometry.h"
 #include "ProceduralMeshComponent.h"
 #include "Materials/MaterialInterface.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "MCToothCharacter.h"
+#include "MCVFXPresentationComponent.h"
+#include "MCPerkPresentationEvents.h"
+#include "MCGameState.h"
+#include "MCVFXNativeArtControls.h"
 #include "Camera/PlayerCameraManager.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/GameStateBase.h"
@@ -12,8 +18,23 @@
 #include "Net/UnrealNetwork.h"
 #include "UObject/ConstructorHelpers.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogMCPassiveNativeArt,Log,All);
+
 namespace
 {
+const FName FeedbackParts[]={TEXT("FeedbackSoft"),TEXT("FeedbackGlow"),TEXT("FeedbackSolid")};
+template<class T> void ApplyFeedbackArt(T& Geometry,const FMCVFXNativePartSettings* Part,float Age,float Seconds)
+{
+    if(!Part)return; // Exact original vertex data when no native override is assigned.
+    if(!Part->bEnabled){Geometry.Points.Reset();return;}
+    const float Scale=Part->Feedback.Scale*MCNativeArtControls::Expansion(Part,Age,Seconds);
+    if(Scale!=1.f)for(FVector& P:Geometry.Points)P=Geometry.Origin+(P-Geometry.Origin)*Scale;
+    for(FLinearColor& Color:Geometry.Colors) {
+        Color.R*=Part->Tint.R;Color.G*=Part->Tint.G;Color.B*=Part->Tint.B;
+        if(Part->Kind!=EMCVFXNativePartKind::PassiveSolid)
+            Color.A=MCNativeArtControls::Opacity(Part,Age,Seconds,Color.A)*Part->Tint.A;
+    }
+}
 struct FCueGeometry {
     TArray<FVector> Points,Normals;TArray<int32> Indices;TArray<FVector2D> UV;
     TArray<FLinearColor> Colors;TArray<FProcMeshTangent> Tangents;
@@ -84,8 +105,13 @@ AMCPassiveFeedbackCue::AMCPassiveFeedbackCue()
 double AMCPassiveFeedbackCue::CueTime() const
 {return GetWorld()->GetGameState()?GetWorld()->GetGameState()->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();}
 float AMCPassiveFeedbackCue::Duration() const
-{return Kind==EMCPassiveFeedbackKind::Heal?1.05f:Kind==EMCPassiveFeedbackKind::Neighbor?.75f:.65f;}
+{return (Kind==EMCPassiveFeedbackKind::Heal?1.05f:Kind==EMCPassiveFeedbackKind::Neighbor?.75f:.65f)*CosmeticTimeScale();}
+float AMCPassiveFeedbackCue::CosmeticTimeScale()const
+{const auto* Part=PreparedNative.FindPart(AcceptedEvent,TEXT("FeedbackSolid"));return Part?Part->Feedback.DurationScale:1.f;}
 AMCPassiveFeedbackCue* AMCPassiveFeedbackCue::Spawn(AActor* InSubject,EMCPassiveFeedbackKind Type,float Intensity,FVector InDirection)
+{return SpawnInternal(InSubject,Type,Intensity,InDirection,nullptr,NAME_None,NAME_None,nullptr);}
+AMCPassiveFeedbackCue* AMCPassiveFeedbackCue::SpawnInternal(AActor* InSubject,EMCPassiveFeedbackKind Type,float Intensity,FVector InDirection,
+    AMCToothCharacter* SourceHero,FName SourceID,FName Event,const FMCVFXPreparedNativePresentation* Prepared)
 {
     if(!IsValid(InSubject) || InSubject->IsActorBeingDestroyed() || !InSubject->HasAuthority() || !FMath::IsFinite(Intensity) || Intensity<=0) return nullptr;
     UWorld* World=InSubject->GetWorld();if(!World || World->GetNetMode()==NM_Client) return nullptr;
@@ -93,15 +119,44 @@ AMCPassiveFeedbackCue* AMCPassiveFeedbackCue::Spawn(AActor* InSubject,EMCPassive
     for(TActorIterator<AMCPassiveFeedbackCue> It(World);It;++It) {
         if(It->IsActorBeingDestroyed()) continue;++Total;
         if(It->Subject!=InSubject) continue;++Owned;
-        if(It->Kind==Type && It->CueTime()-It->StartedAt<.15) {
+        if(It->Kind==Type && It->PresentationOwner==SourceHero && It->SourcePerkID==SourceID && It->AcceptedEvent==Event
+            && It->NativePresentation.SettingsHash==(Prepared?Prepared->Reference.SettingsHash:0)
+            && It->NativePresentation.Source==(Prepared?Prepared->Reference.Source:TSoftObjectPtr<UMCVFXNativePresentationSettings>()) && It->CueTime()-It->StartedAt<.15) {
             It->Strength=FMath::Max(It->Strength,FMath::Clamp(Intensity,.4f,1.6f));It->ForceNetUpdate();return *It;
         }
     }
     if(Total>=32 || Owned>=3) return nullptr;
     const FTransform Pose(InSubject->GetActorLocation());auto* Cue=World->SpawnActorDeferred<AMCPassiveFeedbackCue>(StaticClass(),Pose);
     if(!Cue) return nullptr;Cue->Subject=InSubject;Cue->Kind=Type;Cue->Strength=FMath::Clamp(Intensity,.4f,1.6f);
+    Cue->PresentationOwner=SourceHero;Cue->SourcePerkID=SourceID;Cue->AcceptedEvent=Event;
+    if(Prepared && Prepared->IsReady()){Cue->PreparedNative=*Prepared;Cue->NativePresentation=Prepared->Reference;}
+    if(!SourceID.IsNone())if(const auto* State=World->GetGameState<AMCGameState>())Cue->PresentationEpoch=State->GameplayLoadId;
     Cue->Direction=InDirection.IsNearlyZero() || InDirection.ContainsNaN()?InSubject->GetActorForwardVector():InDirection.GetSafeNormal();
     Cue->StartedAt=Cue->CueTime();Cue->FinishSpawning(Pose);return Cue;
+}
+AMCPassiveFeedbackCue* AMCPassiveFeedbackCue::SpawnAccepted(AMCToothCharacter* SourceHero,FName SourceID,FName Event,
+    EMCVFXPresentationResult Result,AActor* InSubject,EMCPassiveFeedbackKind Type,float Intensity,FVector InDirection)
+{
+    EMCPassiveFeedbackKind Expected;
+    if(!IsValid(SourceHero) || !SourceHero->HasAuthority() || !IsValid(InSubject) || SourceHero->GetWorld()!=InSubject->GetWorld()
+        || !UMCVFXNativePresentationSettings::GetPassiveFeedbackKind(SourceID,Event,Expected) || Expected!=Type)return nullptr;
+    const auto* Prepared=SourceHero->PassivePresentation?SourceHero->PassivePresentation->GetPreparedNativeSource(SourceID):nullptr;
+    if(Prepared && Prepared->Snapshot && !Prepared->IsReady())
+        UE_LOG(LogMCPassiveNativeArt,Warning,TEXT("%s/%s native artwork was not ready; keeping original cosmetic fallback."),*SourceID.ToString(),*Event.ToString());
+    bool bRender=MCPassivePresentation::UsesNativeFallback(Result);
+    if(Result==EMCVFXPresentationResult::Played && Prepared && Prepared->IsReady()) {
+        EMCPerkVFXSlotMode Mode=EMCPerkVFXSlotMode::Composition;
+        if(SourceHero->PassivePresentation->GetPreparedEventMode(SourceID,Event,Mode))bRender=Prepared->ShouldRenderNativeAccents(Event,Mode);
+    }
+    if(!bRender)return nullptr;
+    return SpawnInternal(InSubject,Type,Intensity,InDirection,SourceHero,SourceID,Event,Prepared);
+}
+void AMCPassiveFeedbackCue::SpawnLinkAccepted(AMCToothCharacter* SourceHero,FName SourceID,FName Event,
+    EMCVFXPresentationResult Result,FVector From,FVector To)
+{
+    if(From.ContainsNaN() || To.ContainsNaN())return;
+    if(auto* Cue=SpawnAccepted(SourceHero,SourceID,Event,Result,SourceHero,EMCPassiveFeedbackKind::Neighbor))
+    {Cue->SetActorLocation(From+FVector(0,0,12));Cue->LinkEnd=To+FVector(0,0,12);Cue->ForceNetUpdate();}
 }
 void AMCPassiveFeedbackCue::SpawnLink(AActor* InSubject,FVector From,FVector To)
 {
@@ -111,13 +166,41 @@ void AMCPassiveFeedbackCue::SpawnLink(AActor* InSubject,FVector From,FVector To)
 void AMCPassiveFeedbackCue::BeginPlay()
 {
     Super::BeginPlay();Mesh->SetMaterial(0,SoftMaterial);Mesh->SetMaterial(1,GlowMaterial);Mesh->SetMaterial(2,SolidMaterial);
-    if(HasAuthority()) SetLifeSpan(1.6f);
+    ResolveNativePresentation();ApplyPreparedMaterials();
+    if(HasAuthority()) SetLifeSpan(PreparedNative.Snapshot?FMath::Max(1.6f,Duration()+.4f):1.6f);
     if(GetNetMode()==NM_DedicatedServer) SetActorTickEnabled(false);
 }
+bool AMCPassiveFeedbackCue::ResolveNativePresentation()
+{
+    if(NativePresentation.Source.IsNull())return false;
+    if(PreparedNative.IsReady() && PreparedNative.Reference.Source==NativePresentation.Source
+        && PreparedNative.Reference.SettingsHash==NativePresentation.SettingsHash)return true;
+    FMCVFXPreparedNativePresentation Candidate;FString Error;
+    if(!FMCVFXPreparedNativePresentation::ResolveResidentReference(NativePresentation,SourcePerkID,
+        MCPassivePresentation::GetAllowedEvents(SourcePerkID),this,Candidate,Error))
+    {UE_LOG(LogMCPassiveNativeArt,Warning,TEXT("%s/%s native source token rejected: %s"),*SourcePerkID.ToString(),*AcceptedEvent.ToString(),*Error);return false;}
+    PreparedNative=MoveTemp(Candidate);return true;
+}
+void AMCPassiveFeedbackCue::ApplyPreparedMaterials()
+{
+    if(!PreparedNative.Snapshot || !PreparedNative.IsReady())return;
+    RetainedMaterials.SetNum(3);
+    for(int32 Section=0;Section<3;++Section) {
+        // This renderer changes only vertices. Share the immutable variant
+        // already retained/prewarmed before gameplay; no first-proc MID setup.
+        RetainedMaterials[Section]=PreparedNative.GetPreparedMaterial(AcceptedEvent,FeedbackParts[Section]);
+        if(RetainedMaterials[Section])Mesh->SetMaterial(Section,RetainedMaterials[Section]);
+    }
+}
+void AMCPassiveFeedbackCue::OnRep_NativePresentation()
+{if(ResolveNativePresentation())ApplyPreparedMaterials();}
 void AMCPassiveFeedbackCue::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);if(GetNetMode()==NM_DedicatedServer) return;
-    const float Age=float(CueTime()-StartedAt),T=Age/Duration();
+    if(PresentationEpoch.IsValid())if(const auto* State=GetWorld()->GetGameState<AMCGameState>();State && State->GameplayLoadId!=PresentationEpoch)
+    {Mesh->SetVisibility(false);if(HasAuthority())Destroy();return;}
+    const float RealAge=float(CueTime()-StartedAt),TimeScale=CosmeticTimeScale();
+    const float Age=RealAge/TimeScale,T=RealAge/Duration();
     if(T<0 || T>=1 || !IsValid(Subject)) {Mesh->SetVisibility(false);return;}
     Mesh->SetVisibility(true);
     if(Kind!=EMCPassiveFeedbackKind::Neighbor && Kind!=EMCPassiveFeedbackKind::Vanish) SetActorLocation(Subject->GetActorLocation());
@@ -425,9 +508,15 @@ else if(Kind==EMCPassiveFeedbackKind::Billiards)
         Solid.Star(At,(I==1?10.f:7.f)*K,4.5f*K,I==1?FLinearColor(.96f,.78f,.36f,1):FLinearColor(.12f,.69f,.56f,1),4,I*.4f+Toss*.35f);
     }
 }
+    const float NativeSeconds=Duration()/TimeScale;
+    ApplyFeedbackArt(Soft,PreparedNative.FindPart(AcceptedEvent,FeedbackParts[0]),Age,NativeSeconds);
+    ApplyFeedbackArt(Glow,PreparedNative.FindPart(AcceptedEvent,FeedbackParts[1]),Age,NativeSeconds);
+    ApplyFeedbackArt(Solid,PreparedNative.FindPart(AcceptedEvent,FeedbackParts[2]),Age,NativeSeconds);
     Soft.Upload(Mesh,0);Glow.Upload(Mesh,1);Solid.Upload(Mesh,2);
 }
 void AMCPassiveFeedbackCue::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);DOREPLIFETIME(AMCPassiveFeedbackCue,Kind);DOREPLIFETIME(AMCPassiveFeedbackCue,Subject);DOREPLIFETIME(AMCPassiveFeedbackCue,StartedAt);DOREPLIFETIME(AMCPassiveFeedbackCue,Strength);DOREPLIFETIME(AMCPassiveFeedbackCue,Direction);DOREPLIFETIME(AMCPassiveFeedbackCue,LinkEnd);
+    DOREPLIFETIME(AMCPassiveFeedbackCue,SourcePerkID);DOREPLIFETIME(AMCPassiveFeedbackCue,AcceptedEvent);
+    DOREPLIFETIME(AMCPassiveFeedbackCue,PresentationOwner);DOREPLIFETIME(AMCPassiveFeedbackCue,NativePresentation);DOREPLIFETIME(AMCPassiveFeedbackCue,PresentationEpoch);
 }

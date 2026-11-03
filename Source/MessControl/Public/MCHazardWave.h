@@ -41,6 +41,8 @@ public:
     bool SurfaceMotion(const AMCTongue* SurfaceTongue,float Time,FMCTongueMotionState& Out) const;
     static bool Crosses(float Before,float After,float RadiusBefore,float RadiusAfter,float HalfWidth);
     FMCWaveLegsFrozen OnLegsFrozen;
+    /** Read-only access to this wave's real prepared presenter for the shared sandbox. */
+    UMCFrostNovaVFXComponent* GetFrostNovaVFX() const { return FrostNovaVFX.Get(); }
 private:
     double Now() const;
     void DrawRing();

@@ -1,7 +1,12 @@
 #if WITH_DEV_AUTOMATION_TESTS
 #include "Misc/AutomationTest.h"
 #include "MCCombatPassiveSubsystem.h"
+#include "MCPerkPresentationEvents.h"
+#include "MCVFXPresentationComponent.h"
+#include "MCWorldPreloadSubsystem.h"
 #include "MCPassiveCombatCue.h"
+#include "MCVFXNativePresentationSettings.h"
+#include "ProceduralMeshComponent.h"
 #include "MCPerkComponent.h"
 #include "MCRoguePerkEffect.h"
 #include "MCPlayerState.h"
@@ -27,8 +32,10 @@
 #include "Engine/GameInstance.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
+#include "NiagaraSystem.h"
 #include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "HAL/PlatformProcess.h"
 #if WITH_EDITOR
 #include "StaticMeshCompiler.h"
 #endif
@@ -175,6 +182,9 @@ bool FMCCombatEchoPose::RunTest(const FString&)
     AMCPassiveCombatCue* Ghost=nullptr;
     for(TActorIterator<AMCPassiveCombatCue> It(T.World);It;++It) if(It->Kind==EMCPassiveCombatCueKind::EchoTool) {Ghost=*It;break;}
     if(TestNotNull(TEXT("A ghost tool visibly winds up before the delayed contact"),Ghost)) {
+        TestEqual(TEXT("Shared native ghost retains the actual accepted perk"),Ghost->SourcePerkID,Echo);
+        TestEqual(TEXT("Shared native ghost retains the actual accepted event"),Ghost->AcceptedEvent,FName(TEXT("Windup")));
+        TestEqual(TEXT("Presentation owner remains separate from captured tool geometry"),Ghost->PresentationOwner.Get(),T.Hero);
         TestTrue(TEXT("The ghost retains captured geometry after a later switch"),!Ghost->ToolParts.IsEmpty() && Ghost->ToolParts[0].Mesh==CapturedMesh);
         if(!Ghost->ToolParts.IsEmpty()) TestTrue(TEXT("Captured contact transform stays at original world pose"),(Ghost->ToolParts[0].ContactPose*Ghost->GetActorTransform()).Equals(CapturedPose,.01f));
         if(TestTrue(TEXT("Cosmetic mesh copy is present"),!Ghost->GhostMeshes.IsEmpty())) {
@@ -230,6 +240,55 @@ bool FMCCombatThunder::RunTest(const FString&)
     TestEqual(TEXT("Secondary food hits did not create extra echoes"),T.Runtime->PendingEchoCountForTesting(),1);
     int32 Links=0;for(TActorIterator<AMCPassiveCombatCue> It(T.World);It;++It) ++Links;
     TestEqual(TEXT("Each accepted jump has one visible link"),Links,3);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCCombatThunderNativeArt,
+    "MessControl.VFX.NativeLightning.PreparedArtUsesRealAcceptedThunderLinks",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCCombatThunderNativeArt::RunTest(const FString&)
+{
+    using namespace MCCombatPassiveTests;FWorld T;FString Error;auto* Target=T.Enemy(FVector(120,-60,0));
+    if(!TestTrue(TEXT("Actual passive ownership"),T.Perks->ServerGrantPerk(Thunder)))return false;
+    auto* Style=NewObject<UMCVFXNativePresentationSettings>();
+    if(!TestTrue(TEXT("Actual lightning renderer has native defaults"),Style->InitFromNativeDefaults(Thunder,Error)))return false;
+    auto& Part=Style->Events.FindChecked(TEXT("Link")).Parts[0];
+    Part.Feedback.Scale=1.5f;Part.Feedback.DurationScale=2;Part.Tint=FLinearColor(.5f,1,1,1);
+    auto* Profile=NewObject<UMCPerkVFXProfile>();Profile->NativePresentation=Style;
+    if(!TestTrue(TEXT("Material resources prepared before attack acceptance"),T.Hero->PassivePresentation->PrepareSourceProfile(Thunder,MCPassivePresentation::GetAllowedEvents(Thunder),Profile,Error)))
+    {AddError(Error);return false;}
+    const auto* Prepared=T.Hero->PassivePresentation->GetPreparedNativeSource(Thunder);
+    if(!TestTrue(TEXT("Retained immutable native material is ready"),Prepared && Prepared->Snapshot && Prepared->IsReady()))return false;
+    Part.Feedback.Scale=.5f; // Editing the draft cannot alter the accepted prepared version.
+    TArray<AMCFoodActor*> Foods;for(int32 I=0;I<3;++I)Foods.Add(T.Food(FVector(250+I*220,0,0)));
+    T.Runtime->SetNextThunderRollForTesting(0);T.Hit(Target);
+    AMCPassiveCombatCue* Cue=nullptr;int32 Count=0;
+    for(TActorIterator<AMCPassiveCombatCue> It(T.World);It;++It)if(It->SourcePerkID==Thunder && It->AcceptedEvent==TEXT("Link")){++Count;if(!Cue)Cue=*It;}
+    if(!TestNotNull(TEXT("Real accepted damage produces the source-aware native renderer"),Cue))return false;
+    TestEqual(TEXT("One original drawing per accepted jump, no duplicated proc"),Count,3);
+    for(auto* Food:Foods)TestEqual(TEXT("Native chain damage is unchanged"),Food->Health,994.f);
+    TestTrue(TEXT("Native material is the preprepared retained variant"),Cue->Mesh->GetMaterial(0)==Prepared->GetPreparedMaterial(TEXT("Link"),TEXT("LightningStroke")));
+    TestEqual(TEXT("Accepted drawing uses immutable width, not edited source"),Cue->GetPreparedNativeStyle().FindPart(TEXT("Link"),TEXT("LightningStroke"))->Feedback.Scale,1.5f);
+    TestTrue(TEXT("Actor survives the complete scaled cosmetic tail"),Cue->GetLifeSpan()>=.43f);
+    const FVector From=Cue->GetActorLocation(),To=Cue->LinkEnd;const uint32 Seed=Cue->NoiseSeed;
+    AMCPassiveCombatCue::Spawn(T.World,From,To,Seed);AMCPassiveCombatCue* Legacy=nullptr;
+    for(TActorIterator<AMCPassiveCombatCue> It(T.World);It;++It)if(It->SourcePerkID.IsNone())Legacy=*It;
+    if(!TestNotNull(TEXT("Original same-seed comparison"),Legacy))return false;
+    const double Now=T.World->GetGameState()->GetServerWorldTimeSeconds();
+    Legacy->StartedAt=Now-.08;Cue->StartedAt=Now-.16;Legacy->Tick(.016f);Cue->Tick(.016f);
+    const auto* A=Legacy->Mesh->GetProcMeshSection(0);const auto* B=Cue->Mesh->GetProcMeshSection(0);
+    if(!TestNotNull(TEXT("Original mesh section"),A)||!TestNotNull(TEXT("Actual artist-controlled section"),B))return false;
+    TestTrue(TEXT("Fixed native topology remains exact"),A->ProcIndexBuffer==B->ProcIndexBuffer && A->ProcVertexBuffer.Num()==B->ProcVertexBuffer.Num());
+    if(A->ProcVertexBuffer.Num()!=B->ProcVertexBuffer.Num())return false;
+    for(int32 I=0;I+1<A->ProcVertexBuffer.Num();I+=2){
+        const FVector AC=(A->ProcVertexBuffer[I].Position+A->ProcVertexBuffer[I+1].Position)*.5;
+        const FVector BC=(B->ProcVertexBuffer[I].Position+B->ProcVertexBuffer[I+1].Position)*.5;
+        TestTrue(TEXT("All centerline samples preserve accepted endpoints and seeded path"),AC.Equals(BC,.001));
+        const double AW=FVector::Distance(A->ProcVertexBuffer[I].Position,A->ProcVertexBuffer[I+1].Position);
+        const double BW=FVector::Distance(B->ProcVertexBuffer[I].Position,B->ProcVertexBuffer[I+1].Position);
+        TestTrue(TEXT("Only ribbon thickness scales"),FMath::IsNearlyEqual(BW,AW*1.5,.001));
+    }
+    TestTrue(TEXT("World-space endpoints never scale"),Cue->GetActorLocation()==From && FVector(Cue->LinkEnd)==To);
     return true;
 }
 
@@ -307,6 +366,126 @@ bool FMCCombatBilliardsFloorGuard::RunTest(const FString&)
     UMCCombatPassiveSubsystem::TickBilliards(A,.1f);
     TestTrue(TEXT("A stale floor binding cannot teleport a launched enemy vertically"),FMath::IsNearlyEqual(A->GetActorLocation().Z,Base.Z,.01));
     TestTrue(TEXT("Rejected distant support does not cancel valid horizontal push"),A->GetActorLocation().X>100);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCCombatEchoPresentationSuppression,
+    "MessControl.VFX.PassiveHooks.EchoSuppressionKeepsCapturedNativeReplay",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCCombatEchoPresentationSuppression::RunTest(const FString&)
+{
+    using namespace MCCombatPassiveTests;FWorld T;auto* OriginalTarget=T.Enemy(FVector(120,0,0));
+    T.Perks->ServerGrantPerk(Echo);
+    auto* Profile=NewObject<UMCPerkVFXProfile>();FMCPerkVFXSlot Slot;Slot.Mode=EMCPerkVFXSlotMode::Disabled;
+    Profile->Slots.Add(TEXT("Windup"),Slot);Profile->Slots.Add(TEXT("Echo"),Slot);FString Error;
+    if(!TestTrue(TEXT("Echo cosmetics prepare separately from native attack state"),T.Hero->PassivePresentation->PrepareScopedOverride(
+        Echo,MCPassivePresentation::GetAllowedEvents(Echo),Profile,Error))) {AddError(Error);return false;}
+    int32 Windups=0,Contacts=0;
+    const auto Handle=T.Hero->PassivePresentation->OnEventAccepted.AddLambda([&](FName Event,EMCVFXPresentationResult Result){
+        if(Event==TEXT("Windup"))++Windups;
+        if(Event==TEXT("Echo"))++Contacts;
+        if(Event==TEXT("Windup") || Event==TEXT("Echo"))TestEqual(TEXT("Only the owned cosmetic is suppressed"),Result,EMCVFXPresentationResult::Suppressed);
+    });
+    T.Hit(OriginalTarget);TestEqual(TEXT("Primary gameplay damage remains ordinary"),OriginalTarget->Health,980.f);
+    T.Hero->SetActorLocation(Base+FVector(1000,0,0));T.Hero->SetActorRotation(FRotator(0,180,0));
+    auto* AtNewPose=T.Enemy(FVector(880,0,0));T.Hero->Inventory->ServerSelect(EMCToolSlot::Brush);
+    T.Step(.43f);
+    int32 Ghosts=0;for(TActorIterator<AMCPassiveCombatCue> It(T.World);It;++It)if(It->Kind==EMCPassiveCombatCueKind::EchoTool)++Ghosts;
+    TestEqual(TEXT("Disabled does not spawn a native ghost as a second visual"),Ghosts,0);
+    TestEqual(TEXT("Suppressed Windup is accepted exactly once, not retried every tick"),Windups,1);
+    T.Step(.1f);
+    TestEqual(TEXT("The real delayed replay still deals forty percent at the authored snapshot"),OriginalTarget->Health,972.f);
+    TestEqual(TEXT("Cosmetic suppression cannot move damage to the current hero pose"),AtNewPose->Health,1000.f);
+    TestEqual(TEXT("One actual delayed hit has one causal Echo receipt"),Contacts,1);
+    TestEqual(TEXT("Presentation does not requeue gameplay"),T.Runtime->PendingEchoCountForTesting(),0);
+    T.Hero->PassivePresentation->OnEventAccepted.Remove(Handle);return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCCombatEchoCapturedPayload,
+    "MessControl.VFX.PassiveHooks.EchoCarriesImmutableActualMeshAndDeadline",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter|EAutomationTestFlags::NonNullRHI)
+bool FMCCombatEchoCapturedPayload::RunTest(const FString&)
+{
+    using namespace MCCombatPassiveTests;FWorld T;auto* OriginalTarget=T.Enemy(FVector(120,0,0));
+    auto* ActualTool=FindObject<UStaticMeshComponent>(T.Hero,TEXT("InventoryTool"));
+    if(!TestNotNull(TEXT("Native selected tool exists"),ActualTool) || !TestNotNull(TEXT("Native selected tool has captured geometry"),ActualTool->GetStaticMesh().Get()))return false;
+    UStaticMesh* CapturedMesh=ActualTool->GetStaticMesh();
+    auto* System=LoadObject<UNiagaraSystem>(nullptr,TEXT("/Game/Gameplay/VFX/NutCombat/NS_NutShieldHit.NS_NutShieldHit"));
+    if(!TestNotNull(TEXT("A real existing Niagara source is prepared before the accepted event"),System))return false;
+#if WITH_EDITOR
+    System->WaitForCompilationComplete(false,false);
+#endif
+    if(!TestTrue(TEXT("Prepared Niagara source is ready before native attack"),System->IsReadyToRun()))return false;
+    // The captured tool is a real location resource, not a receipt-time load.
+    // Use the same explicit pre-commit preparation path as the isolated runner.
+    TArray<UObject*> CapturableResources;
+    TInlineComponentArray<UStaticMeshComponent*> ActualParts(T.Hero);
+    for(auto* Part:ActualParts)if(IsValid(Part))if(auto* Mesh=Part->GetStaticMesh().Get())CapturableResources.AddUnique(Mesh);
+    auto* Loading=T.World->GetSubsystem<UMCWorldPreloadSubsystem>();FString PreparationError;
+    if(!TestNotNull(TEXT("Private native world has its real visual preparation service"),Loading))return false;
+    bool bResourcesReady=false;
+    for(int32 Attempt=0;Attempt<120 && !bResourcesReady;++Attempt) {
+        bResourcesReady=Loading->PrepareResidentVisualResources(CapturableResources,PreparationError);
+        if(!bResourcesReady) {T.Step(1.f/120.f);FPlatformProcess::SleepNoStats(.005f);}
+    }
+    if(!TestTrue(TEXT("Actual tool parts complete resident preparation before the accepted attack"),bResourcesReady))
+    {AddError(PreparationError);return false;}
+    if(!TestTrue(TEXT("The actual captured tool belongs to this prepared location"),Loading->IsVisualResourceRetained(CapturedMesh)))return false;
+    auto* Recipe=NewObject<UMCVFXComposition>();Recipe->DurationSeconds=2.f;
+    FMCVFXCompositionLayer Layer;Layer.System=System;Layer.StartSeconds=1.f;Recipe->Layers.Add(Layer);
+    auto* Profile=NewObject<UMCPerkVFXProfile>();FMCPerkVFXSlot Slot;Slot.Mode=EMCPerkVFXSlotMode::Composition;Slot.Composition=Recipe;
+    Profile->Slots.Add(TEXT("Windup"),Slot);FString Error;
+    if(!TestTrue(TEXT("Acquire actual Echo passive"),T.Perks->ServerGrantPerk(Echo))
+        || !TestTrue(TEXT("Prepare an independent delayed cosmetic before native attack"),T.Hero->PassivePresentation->PrepareScopedOverride(Echo,MCPassivePresentation::GetAllowedEvents(Echo),Profile,Error)))
+    {AddError(Error);return false;}
+    // RHI resource preparation above can tick real hands/tool animation. Sample
+    // the independent expected pose at this actual native attack, not before
+    // those pre-commit ticks. The scope invokes the unchanged BeginAttack.
+    FTransform CapturedPose;
+    {FMCCombatAttackScope Attack(T.Hero);CapturedPose=ActualTool->GetComponentTransform();OriginalTarget->ReceiveToolDamage(20,T.Hero);}
+    T.Hero->SetActorLocation(Base+FVector(1000,0,0));T.Hero->SetActorRotation(FRotator(0,180,0));
+    T.Hero->Inventory->ServerSelect(EMCToolSlot::Brush);T.Step(.43f);
+    const auto Receipt=T.Hero->PassivePresentation->LastReceipt;
+    TestEqual(TEXT("Payload comes from actual accepted Echo source"),Receipt.SourceID,Echo);
+    TestEqual(TEXT("Native windup emitted at its real deadline"),Receipt.Event,FName(TEXT("Windup")));
+    if(!TestTrue(TEXT("Accepted receipt retains captured visible tool parts"),!Receipt.CapturedMeshes.IsEmpty()))return false;
+    TestEqual(TEXT("Switching tools does not replace the captured mesh"),Receipt.CapturedMeshes[0].Mesh.Get(),CapturedMesh);
+    TestTrue(TEXT("Captured contact pose remains at original world transform"),(Receipt.CapturedMeshes[0].ContactPose*Receipt.Frame).Equals(CapturedPose,.01f));
+    TestTrue(TEXT("Canonical accepted contact deadline remains about .1s after actual windup"),
+        Receipt.CapturedContactAt-Receipt.StartedAt>.075 && Receipt.CapturedContactAt-Receipt.StartedAt<=.11);
+    TestFalse(TEXT("Enemy strike keeps the horizontal captured action variant"),Receipt.bCapturedMeshOverhead);
+    T.Step(.1f);TestEqual(TEXT("Presentation payload does not move or duplicate forty-percent damage"),OriginalTarget->Health,972.f);
+    TestEqual(TEXT("Actual native replay is consumed once"),T.Runtime->PendingEchoCountForTesting(),0);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCCombatBilliardsVisualSubject,
+    "MessControl.VFX.PassiveHooks.BilliardsCarriesActualStruckSubject",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter|EAutomationTestFlags::NonNullRHI)
+bool FMCCombatBilliardsVisualSubject::RunTest(const FString&)
+{
+    using namespace MCCombatPassiveTests;FWorld T;auto* Moving=T.Enemy(FVector(100,0,0));auto* Struck=T.Enemy(FVector(230,0,0));
+    auto* System=LoadObject<UNiagaraSystem>(nullptr,TEXT("/Game/Gameplay/VFX/NutCombat/NS_NutShieldHit.NS_NutShieldHit"));
+    if(!TestNotNull(TEXT("Existing prepared Niagara fixture"),System))return false;
+#if WITH_EDITOR
+    System->WaitForCompilationComplete(false,false);
+#endif
+    if(!TestTrue(TEXT("Source is ready before contact"),System->IsReadyToRun()))return false;
+    auto* Recipe=NewObject<UMCVFXComposition>();Recipe->DurationSeconds=2.f;
+    FMCVFXCompositionLayer Layer;Layer.System=System;Layer.StartSeconds=1.f;Recipe->Layers.Add(Layer);
+    auto* Profile=NewObject<UMCPerkVFXProfile>();FMCPerkVFXSlot Slot;Slot.Mode=EMCPerkVFXSlotMode::Composition;Slot.Composition=Recipe;
+    Profile->Slots.Add(TEXT("Impact"),Slot);FString Error;
+    if(!TestTrue(TEXT("Acquire actual Billiards passive"),T.Perks->ServerGrantPerk(Billiards))
+        || !TestTrue(TEXT("Prepare contact presentation without changing launch"),T.Hero->PassivePresentation->PrepareScopedOverride(Billiards,MCPassivePresentation::GetAllowedEvents(Billiards),Profile,Error)))
+    {AddError(Error);return false;}
+    T.Hit(Moving);for(int32 I=0;I<5;++I)UMCCombatPassiveSubsystem::TickBilliards(Moving,.1f);
+    const auto& Receipt=T.Hero->PassivePresentation->LastReceipt;
+    TestEqual(TEXT("Only actual accepted secondary contact emits Impact"),Receipt.Event,FName(TEXT("Impact")));
+    TestEqual(TEXT("Stable presentation source remains perk owner identity"),Receipt.SourceID,Billiards);
+    TestTrue(TEXT("Actual distinct visual subject is explicit"),Receipt.bHasVisualSubject);
+    TestEqual(TEXT("The struck enemy, not the perk-owning Hero, owns the visible cue"),Receipt.VisualSubjectActor.Get(),static_cast<AActor*>(Struck));
+    TestEqual(TEXT("Component name is the actual stable replicated subject root"),Receipt.VisualSubjectComponent,Struck->GetRootComponent()->GetFName());
+    TestTrue(TEXT("Accepted world contact frame is independent of the Hero position"),FVector::DistSquared(Receipt.Frame.GetLocation(),T.Hero->GetActorLocation())>FMath::Square(100.f));
+    TestEqual(TEXT("The same accepted collision still deals exactly thirty percent"),Struck->Health,994.f);
     return true;
 }
 #endif

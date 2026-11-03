@@ -1,6 +1,7 @@
 #include "MCResultPassives.h"
 #include "MCPassiveFeedbackCue.h"
 #include "MCPerkComponent.h"
+#include "MCPerkPresentationEvents.h"
 #include "MCPlayerState.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
@@ -98,6 +99,26 @@ float UMCResultPassives::CleaningRate(const AMCToothCharacter* Worker,float Rema
         Rate*=Parameter(Perks,TEXT("B2_LastStroke"),TEXT("Multiplier"),2.f,0.f,16.f);
     return FMath::Clamp(Rate,0.f,16.f);
 }
+void UMCResultPassives::NotifyCleaningContact(AActor* Target,AMCToothCharacter* Worker,FVector Point,float Radius,
+    float Before,float After,bool bLastStrokeBoosted,EMCStainCleanReason Reason)
+{
+    if(!IsValid(Target) || !LiveContributor(Worker,GetWorld()) || Target->GetWorld()!=GetWorld()
+        || Reason==EMCStainCleanReason::Technical || Point.ContainsNaN() || !FMath::IsFinite(Radius) || Radius<=0
+        || !FMath::IsFinite(Before) || !FMath::IsFinite(After) || After>=Before)return;
+    ContactPresentations.RemoveAll([](const FContactPresentation& Item){return !Item.Worker.IsValid() || !Item.Target.IsValid();});
+    auto* Item=ContactPresentations.FindByPredicate([&](const FContactPresentation& P){return P.Worker==Worker && P.Target==Target;});
+    if(!Item){if(ContactPresentations.Num()>=128)ContactPresentations.RemoveAt(0);Item=&ContactPresentations.AddDefaulted_GetRef();Item->Worker=Worker;Item->Target=Target;}
+    const double Now=ResultNow(GetWorld());
+    const auto* Perks=UMCPerkComponent::ForActor(Worker);
+    FMCPerkVFXGameplayValues Values;Values.Radius=Radius;Values.Fill=After;Values.Direction=Worker->GetActorForwardVector();
+    // Point is the native accepted contact. Retain the target's own orientation
+    // (large tooth/surface), never move a tooth-clean effect onto the hero body.
+    const FTransform Frame(Target->GetActorRotation(),Point);
+    if(Reason==EMCStainCleanReason::Brush && Perks->GetStacks(TEXT("B1_WideBristles"))>0 && Now>=Item->NextWide)
+    {Item->NextWide=Now+.22;MCPassivePresentation::Play(Worker,TEXT("B1_WideBristles"),TEXT("Contact"),Frame,Values);}
+    if(bLastStrokeBoosted && Perks->GetStacks(TEXT("B2_LastStroke"))>0 && Now>=Item->NextLast)
+    {Item->NextLast=Now+.22;MCPassivePresentation::Play(Worker,TEXT("B2_LastStroke"),TEXT("FinishContact"),Frame,Values);}
+}
 FMCStainCleaningAttempt UMCResultPassives::BeginCleaning(AActor* Target)
 {
     FMCStainCleaningAttempt Attempt;
@@ -129,12 +150,19 @@ void UMCResultPassives::RewardStain(AMCToothCharacter* Worker)
         const float Before=Worker->Status->State.Health;
         Worker->Status->Heal(Parameter(Perks,TEXT("B2_CleanBreath"),TEXT("Heal"),3.f,0.f,10000.f));
         const float Restored=Worker->Status->State.Health-Before;
-        if(Restored>0) AMCPassiveFeedbackCue::Spawn(Worker,EMCPassiveFeedbackKind::Heal,FMath::Clamp(Restored/12.f,.65f,1.5f));
+        if(Restored>0) {
+            FMCPerkVFXGameplayValues Values;Values.Intensity=FMath::Clamp(Restored/12.f,.65f,1.5f);
+            Values.Fill=Restored/FMath::Max(1.f,Worker->Status->State.MaxHealth);
+            AMCPassiveFeedbackCue::SpawnAccepted(Worker,TEXT("B2_CleanBreath"),TEXT("Proc"),
+                MCPassivePresentation::Play(Worker,TEXT("B2_CleanBreath"),TEXT("Proc"),Worker->GetActorTransform(),Values),Worker,EMCPassiveFeedbackKind::Heal,Values.Intensity);
+        }
     }
     if(Perks->GetStacks(TEXT("B2_CleanAcceleration"))>0) {
         Perks->CleanSpeedUntil=ResultNow(GetWorld())+Parameter(Perks,TEXT("B2_CleanAcceleration"),TEXT("Duration"),3.f,0.f,60.f);
         Perks->GetOwner()->ForceNetUpdate();
-        AMCPassiveFeedbackCue::Spawn(Worker,EMCPassiveFeedbackKind::Speed);
+        FMCPerkVFXGameplayValues Values;Values.Duration=FMath::Max(0.f,float(Perks->CleanSpeedUntil-ResultNow(GetWorld())));
+        AMCPassiveFeedbackCue::SpawnAccepted(Worker,TEXT("B2_CleanAcceleration"),TEXT("Proc"),
+            MCPassivePresentation::Play(Worker,TEXT("B2_CleanAcceleration"),TEXT("Proc"),Worker->GetActorTransform(),Values),Worker,EMCPassiveFeedbackKind::Speed);
     }
 }
 void UMCResultPassives::RewardCleanMouth()
@@ -149,7 +177,12 @@ void UMCResultPassives::RewardCleanMouth()
         Hero->Status->Heal(Hero->Status->State.MaxHealth
             *Parameter(Perks,TEXT("B2_RefreshingWork"),TEXT("HealFraction"),.2f,0.f,1.f));
         const float Restored=Hero->Status->State.Health-Before;
-        if(Restored>0) AMCPassiveFeedbackCue::Spawn(Hero,EMCPassiveFeedbackKind::Heal,FMath::Clamp(Restored/12.f,.65f,1.5f));
+        if(Restored>0) {
+            FMCPerkVFXGameplayValues Values;Values.Intensity=FMath::Clamp(Restored/12.f,.65f,1.5f);
+            Values.Fill=Restored/FMath::Max(1.f,Hero->Status->State.MaxHealth);
+            AMCPassiveFeedbackCue::SpawnAccepted(Hero,TEXT("B2_RefreshingWork"),TEXT("Proc"),
+                MCPassivePresentation::Play(Hero,TEXT("B2_RefreshingWork"),TEXT("Proc"),Hero->GetActorTransform(),Values),Hero,EMCPassiveFeedbackKind::Heal,Values.Intensity);
+        }
     }
 }
 void UMCResultPassives::TryNeighbor(AActor* Finished,AMCToothCharacter* Worker)
@@ -173,6 +206,10 @@ void UMCResultPassives::TryNeighbor(AActor* Finished,AMCToothCharacter* Worker)
     bool Cleaned=false;
     if(auto* Surface=Cast<AMCMouthSurface>(Best)) Cleaned=Surface->CleanLiquidFromPassive(Worker);
     else if(auto* Tooth=Cast<AMCArenaTooth>(Best)) Cleaned=Tooth->CleanGrimeFromPassive(Worker);
-    if(Cleaned && CleanableTarget(Neighbor.Get()) && !IsDirtyTarget(Neighbor.Get()) && LiveContributor(Worker,GetWorld()))
-        AMCPassiveFeedbackCue::SpawnLink(Worker,From,To);
+    if(Cleaned && CleanableTarget(Neighbor.Get()) && !IsDirtyTarget(Neighbor.Get()) && LiveContributor(Worker,GetWorld())) {
+        FMCPerkVFXGameplayValues Values;Values.bHasEndpoints=true;Values.SourcePosition=From;Values.TargetPosition=To;
+        Values.Direction=(To-From).GetSafeNormal();Values.Radius=Radius;
+        AMCPassiveFeedbackCue::SpawnLinkAccepted(Worker,TEXT("B2_NeatFreak"),TEXT("Link"),
+            MCPassivePresentation::Play(Worker,TEXT("B2_NeatFreak"),TEXT("Link"),FTransform(Values.Direction.Rotation(),From),Values),From,To);
+    }
 }

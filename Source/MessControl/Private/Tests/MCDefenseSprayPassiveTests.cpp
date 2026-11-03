@@ -1,6 +1,10 @@
 #if WITH_DEV_AUTOMATION_TESTS
 #include "Misc/AutomationTest.h"
 #include "MCDefenseSprayPassives.h"
+#include "MCPerkPresentationEvents.h"
+#include "MCVFXPresentationComponent.h"
+#include "MCEventSFXPlayer.h"
+#include "MCPassiveFeedbackCue.h"
 #include "MCPerkComponent.h"
 #include "MCPlayerState.h"
 #include "MCPlayerController.h"
@@ -19,6 +23,13 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "MCPlayerNameComponent.h"
+#include "ProceduralMeshComponent.h"
+#include "NiagaraComponent.h"
+#include "NiagaraParameterStore.h"
+#include "NiagaraScript.h"
+#include "NiagaraSystem.h"
+#include "UObject/StrongObjectPtr.h"
+#include "Sound/SoundWave.h"
 
 namespace MCDefenseSprayTests
 {
@@ -316,5 +327,204 @@ bool FMCLastingFormulaTest::RunTest(const FString&)
     TestFalse(TEXT("Removing the passive immediately destroys its temporary coating"),bool(TActorIterator<AMCSprayCoating>(F.World)));
     F.Perks->ServerGrantPerk(TEXT("B2_LastingFormula"));
     TestFalse(TEXT("Immediate regrant cannot resurrect an old coating"),bool(TActorIterator<AMCSprayCoating>(F.World)));return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCDefensePresentationSuppression,
+    "MessControl.VFX.PassiveHooks.DefenseSuppressionKeepsNativeProtection",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCDefensePresentationSuppression::RunTest(const FString&)
+{
+    for(bool Disabled:{false,true}) {
+        MCDefenseSprayTests::FWorld F;const FName ID(TEXT("B2_ThickEnamel"));
+        F.Perks->ServerGrantPerk(ID);F.Set(ID,TEXT("Chance"),1.f);
+        auto* Profile=NewObject<UMCPerkVFXProfile>();FMCPerkVFXSlot Slot;
+        Slot.Mode=Disabled?EMCPerkVFXSlotMode::Disabled:EMCPerkVFXSlotMode::UseDefault;Profile->Slots.Add(TEXT("Proc"),Slot);
+        FString Error;
+        if(!TestTrue(TEXT("Source-local cosmetic profile prepares before contact"),F.Hero->PassivePresentation->PrepareScopedOverride(
+            ID,MCPassivePresentation::GetAllowedEvents(ID),Profile,Error))) {AddError(Error);return false;}
+        int32 Accepted=0;
+        const auto Handle=F.Hero->PassivePresentation->OnEventAccepted.AddLambda([&](FName Event,EMCVFXPresentationResult Result){
+            if(Event==TEXT("Proc")) {++Accepted;TestTrue(TEXT("Native receipt has the requested presentation policy"),
+                Result==(Disabled?EMCVFXPresentationResult::Suppressed:EMCVFXPresentationResult::UseDefault));}
+        });
+        TestFalse(TEXT("The real guaranteed enamel roll prevents damage in either visual mode"),F.Hero->Status->Damage(50.f));
+        TestEqual(TEXT("Cosmetic suppression never removes native protection"),F.Hero->Status->State.Health,100.f);
+        TestEqual(TEXT("One real accepted prevention emits one causal Proc"),Accepted,1);
+        int32 Cues=0;for(TActorIterator<AMCPassiveFeedbackCue> It(F.World);It;++It)++Cues;
+        TestEqual(TEXT("Only the original feedback is suppressed"),Cues,Disabled?0:1);
+        F.Hero->PassivePresentation->OnEventAccepted.Remove(Handle);
+    }
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCLastingPresentationKeepsHazard,
+    "MessControl.VFX.PassiveHooks.LastingAccentsKeepVisibleHazardCleaningDamageAndExpiry",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCLastingPresentationKeepsHazard::RunTest(const FString&)
+{
+    float BaselineHealth=0.f,BaselineDirt=0.f;
+    for(bool Disabled:{false,true}) {
+        MCDefenseSprayTests::FWorld F;const FName ID(TEXT("B2_LastingFormula"));F.Perks->ServerGrantPerk(ID);
+        F.Set(ID,TEXT("CoatingDuration"),1.2f);F.Set(ID,TEXT("CleanDuration"),.8f);
+        auto* Profile=NewObject<UMCPerkVFXProfile>();FMCPerkVFXSlot Slot;
+        Slot.Mode=Disabled?EMCPerkVFXSlotMode::Disabled:EMCPerkVFXSlotMode::UseDefault;Profile->Slots.Add(TEXT("Coat"),Slot);FString Error;
+        if(!TestTrue(TEXT("Film profile is prepared independently from gameplay"),F.Hero->PassivePresentation->PrepareScopedOverride(
+            ID,MCPassivePresentation::GetAllowedEvents(ID),Profile,Error))) {AddError(Error);return false;}
+        auto* Patch=F.Stain(FVector(300,0,10000));const FVector Point=Patch->GetActorLocation();
+        F.Hero->SetActorLocation(Point+FVector(0,0,F.Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+        const float Before=Patch->RemainingLiquid();
+        UMCDefenseSprayPassives::ApplySpray(F.Hero,Point+FVector(0,0,100),-FVector::UpVector,235.f,.1f);
+        AMCSprayCoating* Coating=nullptr;int32 Count=0;for(TActorIterator<AMCSprayCoating> It(F.World);It;++It){Coating=*It;++Count;}
+        if(!TestNotNull(TEXT("The native hazard actor always exists"),Coating))return false;
+        TestEqual(TEXT("One accepted patch owns one hazard"),Count,1);
+        TestFalse(TEXT("Native visible hazard footprint remains in every accent policy"),Coating->IsHidden());
+        TestTrue(TEXT("The hazard retains its original gameplay source"),Coating->GetOwner()==F.Hero);
+        F.Step(.65f);
+        TestTrue(TEXT("Native residue cleaning still removes dirt"),Patch->RemainingLiquid()<Before);
+        TestTrue(TEXT("Disabling accents does not remove native standing damage"),F.Hero->Status->State.Health<100.f);
+        if(!Disabled){BaselineHealth=F.Hero->Status->State.Health;BaselineDirt=Patch->RemainingLiquid();}
+        else {
+            TestEqual(TEXT("Default and disabled accents have identical accepted damage"),F.Hero->Status->State.Health,BaselineHealth);
+            TestTrue(TEXT("Default and disabled accents have identical mask cleaning"),FMath::IsNearlyEqual(Patch->RemainingLiquid(),BaselineDirt,UE_KINDA_SMALL_NUMBER));
+        }
+        F.Step(.65f);TestFalse(TEXT("Cosmetic mode does not change native expiry"),bool(TActorIterator<AMCSprayCoating>(F.World)));
+    }
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCLastingPreparedFilmReplacement,
+    "MessControl.VFX.PassiveHooks.LastingPreparedFilmReplacesOnlyArtAndRestoresOnFailure",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter|EAutomationTestFlags::NonNullRHI)
+bool FMCLastingPreparedFilmReplacement::RunTest(const FString&)
+{
+    MCDefenseSprayTests::FWorld F;const FName ID(TEXT("B2_LastingFormula"));FString Error;
+    F.World->GetGameState<AMCGameState>()->GameplayLoadId=FGuid::NewGuid();
+    F.Perks->ServerGrantPerk(ID);F.Set(ID,TEXT("CoatingDuration"),1.2f);F.Set(ID,TEXT("CleanDuration"),.8f);
+    auto* Original=LoadObject<UNiagaraSystem>(nullptr,TEXT("/Game/Gameplay/VFX/NutCombat/NS_NutShieldHit.NS_NutShieldHit"));
+    if(!TestNotNull(TEXT("A real saved Niagara source is available before the accepted spray"),Original))return false;
+#if WITH_EDITORONLY_DATA
+    Original->WaitForCompilationComplete(false,false);
+#endif
+    if(!TestTrue(TEXT("Actual source is compiled before the native action"),Original->IsReadyToRun()))return false;
+    if(!TestEqual(TEXT("The actual saved fixture donor has one emitter"),Original->GetEmitterHandles().Num(),1))return false;
+    if(!TestEqual(TEXT("The actual donor uses its audited stateless emitter"),uint8(Original->GetEmitterHandle(0).GetEmitterMode()),uint8(ENiagaraEmitterMode::Stateless)))return false;
+    // This private fixture adds only the footprint input schema. It is not a
+    // new artwork asset and never changes the saved donor or canonical profile.
+    TStrongObjectPtr<UNiagaraSystem> OwnedSystem(DuplicateObject<UNiagaraSystem>(Original,GetTransientPackage()));
+    auto* System=OwnedSystem.Get();System->ClearFlags(RF_Public|RF_Standalone);System->SetFlags(RF_Transient);
+    const FNiagaraVariable RadiusInput(FNiagaraTypeDefinition::GetFloatDef(),TEXT("User.Native.CoatingRadius"));
+    const FNiagaraVariable RemainingInput(FNiagaraTypeDefinition::GetFloatDef(),TEXT("User.Native.CoatingRemainingSeconds"));
+    System->GetExposedParameters().SetParameterValue(1.f,RadiusInput,true);
+    System->GetExposedParameters().SetParameterValue(1.f,RemainingInput,true);
+#if WITH_EDITORONLY_DATA
+    // IsReadyToRun checks compiled scripts/emitters, not the resolved script
+    // runtime tables used by GeneratePerInstanceDIFunctionTable. The ordinary
+    // public compile path rebuilds them only on this owned duplicate after its
+    // exposed schema changes; it does not compile or mutate the saved donor.
+    auto HasSystemRuntime=[](const UNiagaraSystem* Candidate) {
+        const auto* Spawn=Candidate->GetSystemSpawnScript();const auto* Update=Candidate->GetSystemUpdateScript();
+        return Spawn && Update && Candidate->GetScriptRuntimeData(nullptr,*Spawn).IsValid()
+            && Candidate->GetScriptRuntimeData(nullptr,*Update).IsValid();
+    };
+    auto HasSystemVM=[](const UNiagaraSystem* Candidate) {
+        const auto* Spawn=Candidate->GetSystemSpawnScript();const auto* Update=Candidate->GetSystemUpdateScript();
+        return Spawn && Update && Spawn->GetVMExecutableData().IsValid() && Update->GetVMExecutableData().IsValid();
+    };
+    AddInfo(FString::Printf(TEXT("Saved donor runtime=%d VM=%d; private duplicate before rebuild runtime=%d VM=%d; emitters=%d"),
+        HasSystemRuntime(Original),HasSystemVM(Original),HasSystemRuntime(System),HasSystemVM(System),System->GetEmitterHandles().Num()));
+    System->RequestCompile(true);System->PollForCompilationComplete(true);System->WaitForCompilationComplete(false,false);
+    if(!TestTrue(TEXT("Owned duplicate has real spawn/update runtime tables before activation"),HasSystemRuntime(System)))return false;
+    if(!TestTrue(TEXT("Owned duplicate has real executable spawn/update bytecode before activation"),HasSystemVM(System)))return false;
+#endif
+    auto* Recipe=NewObject<UMCVFXComposition>();FMCVFXCompositionLayer Layer;Layer.System=System;Layer.StartSeconds=1.f;Recipe->Layers.Add(Layer);
+    auto* Profile=NewObject<UMCPerkVFXProfile>();FMCPerkVFXSlot Slot;Slot.Mode=EMCPerkVFXSlotMode::Composition;Slot.Composition=Recipe;
+    Profile->Slots.Add(TEXT("Coat"),Slot);
+    if(!TestTrue(TEXT("Independent real-source composition prepares before gameplay"),F.Hero->PassivePresentation->PrepareScopedOverride(
+        ID,MCPassivePresentation::GetAllowedEvents(ID),Profile,Error))) {AddError(Error);return false;}
+    auto* Patch=F.Stain(FVector(300,0,10000));const FVector Point=Patch->GetActorLocation();const float Before=Patch->RemainingLiquid();
+    F.Hero->SetActorLocation(Point+FVector(0,0,F.Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+    UMCDefenseSprayPassives::ApplySpray(F.Hero,Point+FVector(0,0,100),-FVector::UpVector,235.f,.1f);
+    AMCSprayCoating* Coating=nullptr;for(TActorIterator<AMCSprayCoating> It(F.World);It;++It)Coating=*It;
+    if(!TestNotNull(TEXT("Real spray creates its existing coating actor"),Coating))return false;
+    TestTrue(TEXT("A delayed reservation retains the visible native footprint"),Coating->Surface->IsVisible());
+    TestFalse(TEXT("The actual gameplay actor is not hidden"),Coating->IsHidden());
+    TestEqual(TEXT("Native collision remains disabled"),Coating->Surface->GetCollisionEnabled(),ECollisionEnabled::NoCollision);
+    TestTrue(TEXT("The original film geometry is retained for fallback"),Coating->Surface->GetNumSections()>0);
+    AMCPerkVFXCompositionPlayer* Player=nullptr;
+    for(TActorIterator<AMCPerkVFXCompositionPlayer> It(F.World);It;++It)if(It->GetPendingLayerCount()==1)Player=*It;
+    if(!TestNotNull(TEXT("Accepted replacement owns a real prepared pending Niagara layer"),Player))return false;
+    TestEqual(TEXT("A delayed layer is pending without claiming an active component"),Player->GetLiveLayerCount(),0);
+    F.Step(.4f);Player->Tick(.4f);Coating->Tick(0.f);
+    TestTrue(TEXT("Native footprint remains visible throughout the actual layer delay"),Coating->Surface->IsVisible());
+    F.Step(.61f);Player->Tick(.61f);Coating->Tick(0.f);
+    TestFalse(TEXT("Only a live visual layer replaces the original film"),Coating->Surface->IsVisible());
+    TInlineComponentArray<UNiagaraComponent*> Components(Player);
+    if(!TestEqual(TEXT("The real layer activation creates exactly one Niagara component"),Components.Num(),1))return false;
+    const float ExpectedRadius=FMath::Clamp(F.Hero->Inventory->SprayRadiusAtDistance(100.f),5.f,250.f);
+    TestTrue(TEXT("Active Niagara receives the actual readonly footprint radius"),FMath::IsNearlyEqual(
+        Components[0]->GetOverrideParameters().GetParameterValue<float>(RadiusInput),ExpectedRadius));
+    TestTrue(TEXT("Active Niagara receives the remaining native time after the actual delay"),FMath::IsNearlyEqual(
+        Components[0]->GetOverrideParameters().GetParameterValue<float>(RemainingInput),.19f,.01f));
+    const FVector Moved=Coating->GetActorLocation()+FVector(5,7,9);Coating->SetActorLocation(Moved);Coating->Tick(0.f);
+    TestTrue(TEXT("The same prepared player follows its actual coating frame"),Player->GetActorLocation().Equals(Moved,.01f));
+    Coating->Presentation->ClearScopedOverride(ID);Coating->Tick(0.f);
+    TestTrue(TEXT("A cleared/unprepared composition restores the original film"),Coating->Surface->IsVisible());
+    auto* Default=NewObject<UMCPerkVFXProfile>();
+    if(!TestTrue(TEXT("The exact native Default mode can be prepared on the existing state owner"),Coating->Presentation->PrepareScopedOverride(
+        ID,MCPassivePresentation::GetAllowedEvents(ID),Default,Error))) {AddError(Error);return false;}
+    Coating->Tick(0.f);TestTrue(TEXT("Default retains the original art"),Coating->Surface->IsVisible());
+    Recipe->Layers[0].StartSeconds=0.f;
+    if(!TestTrue(TEXT("The same accepted custom profile can be restored explicitly"),Coating->Presentation->PrepareScopedOverride(
+        ID,MCPassivePresentation::GetAllowedEvents(ID),Profile,Error))) {AddError(Error);return false;}
+    Coating->Tick(0.f);TestFalse(TEXT("Accepted replacement hides only the old film again"),Coating->Surface->IsVisible());
+    F.World->GetGameState<AMCGameState>()->GameplayLoadId=FGuid::NewGuid();Coating->Tick(0.f);
+    TestTrue(TEXT("Retiring the actual epoch restores original film"),Coating->Surface->IsVisible());
+    TestEqual(TEXT("Epoch retirement releases the local persistent state"),Coating->Presentation->GetLocalSourceStateCount(),0);
+    TestTrue(TEXT("Art replacement does not stop native cleaning"),Patch->RemainingLiquid()<Before);
+    TestTrue(TEXT("Art replacement does not stop native standing damage"),F.Hero->Status->State.Health<100.f);
+    F.Step(.21f);TestFalse(TEXT("The original native expiry destroys the coating"),bool(TActorIterator<AMCSprayCoating>(F.World)));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCLastingSingleCoatAudioOwner,
+    "MessControl.Audio.PassiveHooks.LastingCoatHasOneAcceptedHeroSFXOwner",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCLastingSingleCoatAudioOwner::RunTest(const FString&)
+{
+    MCDefenseSprayTests::FWorld F;const FName ID(TEXT("B2_LastingFormula"));FString Error;
+    // A real scheduled-player ownership test, not an audible-output/codec test.
+    // Only this disposable world disables output; no global device is changed.
+    F.World->bAllowAudioPlayback=false;F.Perks->ServerGrantPerk(ID);
+    F.Set(ID,TEXT("CleanDuration"),.2f);F.Set(ID,TEXT("CoatingDuration"),2.f);
+    auto* Sound=NewObject<USoundWave>();Sound->Duration=1.f;
+    FMCEventSFXLayer Layer;Layer.Sound=Sound;Layer.DelaySeconds=5.f;
+    FMCEventSFXSlot Audio;Audio.Mode=EMCEventSFXMode::Add;Audio.MaxDurationSeconds=10.f;Audio.Layers.Add(Layer);
+    auto* Profile=NewObject<UMCPerkVFXProfile>();Profile->SFXSlots.Add(TEXT("Coat"),Audio);
+    if(!TestTrue(TEXT("Actual Coat sound layer prepares before any native spray contact"),F.Hero->PassivePresentation->PrepareScopedOverride(
+        ID,MCPassivePresentation::GetAllowedEvents(ID),Profile,Error))) {AddError(Error);return false;}
+    auto CountCoat=[&]() {
+        int32 Count=0;for(TActorIterator<AMCEventSFXPlayer> It(F.World);It;++It)
+            if(It->IsRunning() && It->GetContext().SourceID==ID && It->GetContext().Event==TEXT("Coat"))++Count;
+        return Count;
+    };
+    auto* Patch=F.Stain(FVector(300,0,10000));const FVector Point=Patch->GetActorLocation();
+    F.Hero->SetActorLocation(Point+FVector(0,0,F.Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+    UMCDefenseSprayPassives::ApplySpray(F.Hero,Point+FVector(0,0,100),-FVector::UpVector,235.f,.1f);
+    AMCSprayCoating* Coating=nullptr;for(TActorIterator<AMCSprayCoating> It(F.World);It;++It)Coating=*It;
+    if(!TestNotNull(TEXT("Real accepted spray creates its native footprint actor"),Coating))return false;
+    TestEqual(TEXT("First native spray schedules one Coat sound, not Hero plus replicated actor"),CountCoat(),1);
+    TestTrue(TEXT("The Hero's actual accepted receipt owns that scheduled sound"),F.Hero->PassivePresentation->IsPresentationRunning());
+    TestFalse(TEXT("The coating actor has no independent SFX player"),Coating->Presentation->IsPresentationRunning());
+    TestTrue(TEXT("Audio alone never hides the native visual footprint"),Coating->Surface->IsVisible());
+    for(int32 I=0;I<3;++I)Coating->Tick(0.f);
+    TestEqual(TEXT("Repeated replicated-state presentation ticks do not replay Coat audio"),CountCoat(),1);
+    F.Step(.25f);Coating->Tick(0.f);
+    UMCDefenseSprayPassives::ApplySpray(F.Hero,Point+FVector(0,0,100),-FVector::UpVector,235.f,.1f);
+    Coating->Tick(0.f);
+    TestEqual(TEXT("Refreshing the same real coating does not schedule a second Coat sound"),CountCoat(),1);
+    TestFalse(TEXT("Refresh remains a visual-only state owner"),Coating->Presentation->IsPresentationRunning());
+    F.Perks->RemovePerk(ID);
+    TestEqual(TEXT("Existing perk reset retires the original Hero episode sound"),CountCoat(),0);
+    TestFalse(TEXT("Existing reset destroys the actual temporary coating"),bool(TActorIterator<AMCSprayCoating>(F.World)));
+    return true;
 }
 #endif

@@ -58,13 +58,7 @@ bool UMCPerkVFXProfile::ValidateSlot(const FMCPerkVFXSlot& Slot,FString& OutErro
 
 bool UMCPerkVFXProfile::Validate(FString& OutError) const
 {
-    OutError.Reset();
-    if(Slots.Num()>5) {OutError=TEXT("This action contract supports five named VFX stages.");return false;}
-    for(const auto& Pair:Slots) {
-        if(!IsSupportedStage(Pair.Key)) {OutError=FString::Printf(TEXT("Unknown action VFX stage: %s"),*Pair.Key.ToString());return false;}
-        if(!ValidateSlot(Pair.Value,OutError)) {OutError=Pair.Key.ToString()+TEXT(": ")+OutError;return false;}
-    }
-    return true;
+    return ValidateForEvents(GetSupportedStages(),OutError);
 }
 
 bool UMCPerkVFXProfile::DiscoverParameters(FName Stage,FString& OutError)
@@ -77,5 +71,33 @@ bool UMCPerkVFXProfile::DiscoverParameters(FName Stage,FString& OutError)
     if(!Scratch->DiscoverParameters(0,OutError)) return false;
     const auto& Layer=Scratch->Layers[0];
     Slot->Floats=Layer.Floats;Slot->Colors=Layer.Colors;Slot->Vectors=Layer.Vectors;Slot->Bools=Layer.Bools;
+    return true;
+}
+
+bool UMCPerkVFXProfile::ValidateForEvents(const TArray<FName>& Events,FString& OutError) const
+{
+    OutError.Reset();
+    if(Events.IsEmpty() || Events.Num()>32 || Slots.Num()>Events.Num())
+    {OutError=TEXT("A presentation provider declares 1–32 unique events and no undeclared slots.");return false;}
+    TSet<FName> Allowed;
+    for(FName Event:Events) {
+        if(Event.IsNone() || Allowed.Contains(Event)) {OutError=TEXT("Presentation event IDs must be nonempty and unique.");return false;}
+        Allowed.Add(Event);
+    }
+    for(const auto& Pair:Slots) {
+        if(!Allowed.Contains(Pair.Key)) {OutError=TEXT("This presentation provider does not declare event: ")+Pair.Key.ToString();return false;}
+        if(!ValidateSlot(Pair.Value,OutError)) {OutError=Pair.Key.ToString()+TEXT(": ")+OutError;return false;}
+    }
+    for(const auto& Pair:EventGroups)
+        if(!Allowed.Contains(Pair.Key) || !Pair.Value.Validate(OutError))
+        {if(OutError.IsEmpty())OutError=TEXT("Groups refer to an undeclared event: ")+Pair.Key.ToString();return false;}
+    for(const auto& Pair:SFXSlots)
+    {
+        if(!Allowed.Contains(Pair.Key) || !Pair.Value.Validate(OutError))
+        {if(OutError.IsEmpty())OutError=TEXT("SFX refers to an undeclared event: ")+Pair.Key.ToString();return false;}
+        const auto* Groups=EventGroups.Find(Pair.Key);
+        for(const auto& Layer:Pair.Value.Layers)if(Layer.GroupID.IsValid() && (!Groups || !Groups->Contains(Layer.GroupID)))
+        {OutError=TEXT("SFX layer refers to an unknown shared event group.");return false;}
+    }
     return true;
 }

@@ -1,4 +1,5 @@
 #include "MCCombatPassiveSubsystem.h"
+#include "MCPerkPresentationEvents.h"
 #include "MCPassiveCombatCue.h"
 #include "MCPassiveFeedbackCue.h"
 #include "MCPerkComponent.h"
@@ -177,8 +178,9 @@ void UMCCombatPassiveSubsystem::NotifyWeaponHit(const UMCPerkComponent* Perks,AA
     if(!Damage || Attack.HitTargets.Contains(Target)) return;
     TWeakObjectPtr<AMCToothCharacter> PowerHitSource;
     FVector PowerHitDirection=FVector::ZeroVector;
+    float PowerHitScale=1.f;
     if(!Attack.bAccepted) {
-        if(Attack.DashScale>1.f+UE_KINDA_SMALL_NUMBER) {PowerHitSource=Attack.Hero;PowerHitDirection=Attack.Forward;}
+        if(Attack.DashScale>1.f+UE_KINDA_SMALL_NUMBER) {PowerHitSource=Attack.Hero;PowerHitDirection=Attack.Forward;PowerHitScale=Attack.DashScale;}
         Attack.bAccepted=true;Attack.Damage=*Damage;Attack.FirstTarget=Target;
         Attack.FirstPoint=TargetPoint(Target,Attack.Origin);
         // A fatal hit can have reduced HP to zero before this callback.
@@ -190,7 +192,12 @@ void UMCCombatPassiveSubsystem::NotifyWeaponHit(const UMCPerkComponent* Perks,AA
     if(Attack.bImplicit) Runtime->EndAttack(Attack.Hero.Get(),Attack.ID);
     // Presentation follows the confirmed one-shot consumption, never a query,
     // empty swing, secondary effect or another target in the same cleave.
-    if(PowerHitSource.IsValid()) AMCPassiveFeedbackCue::Spawn(PowerHitSource.Get(),EMCPassiveFeedbackKind::PowerHit,1.f,PowerHitDirection);
+    if(PowerHitSource.IsValid()) {
+        FMCPerkVFXGameplayValues Values;Values.Direction=PowerHitDirection;Values.Intensity=PowerHitScale;
+        AMCPassiveFeedbackCue::SpawnAccepted(PowerHitSource.Get(),Dash,TEXT("Proc"),
+            MCPassivePresentation::Play(PowerHitSource.Get(),Dash,TEXT("Proc"),FTransform(PowerHitDirection.Rotation(),PowerHitSource->GetActorLocation()),Values),
+            PowerHitSource.Get(),EMCPassiveFeedbackKind::PowerHit,1.f,PowerHitDirection);
+    }
 }
 void UMCCombatPassiveSubsystem::NotifyPhysicalHit(AMCToothCharacter* Hero,AMCToothCharacter* Target,float Damage)
 {
@@ -256,7 +263,12 @@ void UMCCombatPassiveSubsystem::Repeat(FAttack& Attack,bool bSecondary)
         if(!InAttack(Attack,Target)) continue;
         // Primary cleave recomputes the ordinary base exactly once at each target.
         const float Damage=bSecondary?Attack.Damage:(Attack.Hero.IsValid() && Attack.Hero->Inventory?Attack.Hero->Inventory->Damage():0);
-        Apply(Attack,Target,Damage,bSecondary);
+        const FVector Contact=TargetPoint(Target,Attack.Origin);
+        if(Apply(Attack,Target,Damage,bSecondary) && !bSecondary) {
+            FMCPerkVFXGameplayValues Values;Values.Direction=Attack.Forward;Values.Radius=Attack.Reach;Values.Intensity=Damage;
+            Values.bHasEndpoints=true;Values.SourcePosition=Attack.Origin;Values.TargetPosition=Contact;
+            MCPassivePresentation::Play(Attack.Hero.Get(),Mighty,TEXT("Cleave"),FTransform(Attack.Forward.Rotation(),Contact),Values);
+        }
         if(bSecondary && !Owns(UMCPerkComponent::ForActor(Attack.Hero.Get()),Mighty)) break;
     }
 }
@@ -286,7 +298,13 @@ void UMCCombatPassiveSubsystem::Chain(const UMCPerkComponent* Perks,const FAttac
         if(auto* Food=Cast<AMCFoodActor>(Best)) {TGuardValue<bool> Guard(const_cast<UMCPerkComponent*>(Perks)->bRogueExtraHit,true);Accepted=Food->HitFood(Secondary.Damage,Secondary.Forward,Attack.Hero.Get());}
         else Accepted=Apply(Secondary,Best,Secondary.Damage,true);
         Secondary.HitTargets.Add(Best);
-        if(Accepted) AMCPassiveCombatCue::Spawn(GetWorld(),From,To,uint32(Attack.ID*17+Jump));
+        if(Accepted) {
+            FMCPerkVFXGameplayValues Values;Values.Direction=(To-From).GetSafeNormal();Values.Radius=(To-From).Size();
+            Values.Intensity=Secondary.Damage;Values.bHasEndpoints=true;Values.SourcePosition=From;Values.TargetPosition=To;
+            Values.bHasSeed=true;Values.Seed=uint32(Attack.ID*17+Jump);
+            AMCPassiveCombatCue::SpawnLightningAccepted(Attack.Hero.Get(),Thunder,TEXT("Link"),
+                MCPassivePresentation::Play(Attack.Hero.Get(),Thunder,TEXT("Link"),FTransform(Values.Direction.Rotation(),From),Values),From,To,Values.Seed);
+        }
         From=To;Previous=Best;
     }
 }
@@ -302,7 +320,12 @@ void UMCCombatPassiveSubsystem::Launch(const UMCPerkComponent* Perks,const FAtta
     Launch.Damage=Damage*Param(Perks,Billiards,TEXT("DamageFraction"),.3f,0,1);
     Launch.MoveUntil=Now(GetWorld())+Param(Perks,Billiards,TEXT("LaunchDuration"),.4f,.01f,2);
     Launch.ContactUntil=Now(GetWorld())+Param(Perks,Billiards,TEXT("ContactWindow"),1,.01f,5);
-    Launch.HitTargets.Add(Enemy);Launches.Add(MoveTemp(Launch));
+    Launch.HitTargets.Add(Enemy);
+    FMCPerkVFXGameplayValues Values;Values.Direction=Launch.Velocity.GetSafeNormal();Values.Intensity=Launch.Velocity.Size();
+    Values.Duration=float(Launch.MoveUntil-Now(GetWorld()));Values.bHasEndpoints=true;
+    Values.SourcePosition=Attack.Origin;Values.TargetPosition=Enemy->GetActorLocation();
+    Launches.Add(MoveTemp(Launch));
+    MCPassivePresentation::Play(Attack.Hero.Get(),Billiards,TEXT("Launch"),FTransform(Values.Direction.Rotation(),Enemy->GetActorLocation()),Values);
 }
 bool UMCCombatPassiveSubsystem::AdvanceLaunch(AMCNutEnemy* Enemy,float Dt)
 {
@@ -361,7 +384,16 @@ bool UMCCombatPassiveSubsystem::AdvanceLaunch(AMCNutEnemy* Enemy,float Dt)
         const auto Saved=State->Attack;Secondary.ID=NextAttackID++;Secondary.Reach=2000;State->Attack=Secondary;
         const bool Accepted=Apply(Secondary,Other,Episode.Damage,true);
         if(auto* Current=StateFor(Perks,false);Current && Current->Hero.Get()==Hero && Current->Attack.ID==Secondary.ID) Current->Attack=Saved;
-        if(Accepted && IsValid(Other)) AMCPassiveFeedbackCue::Spawn(Other,EMCPassiveFeedbackKind::Billiards,1.f,Secondary.Forward);
+        if(Accepted && IsValid(Other)) {
+            FMCPerkVFXGameplayValues Values;Values.Direction=Secondary.Forward;Values.Intensity=Episode.Damage;
+            // The perk owner receives the accepted result, but the visible
+            // impact follows the actual struck actor (not the owner pawn).
+            Values.VisualSubject=Other->GetRootComponent();
+            Values.bHasEndpoints=true;Values.SourcePosition=End;Values.TargetPosition=TargetPoint(Other,End);
+            AMCPassiveFeedbackCue::SpawnAccepted(Hero,Billiards,TEXT("Impact"),
+                MCPassivePresentation::Play(Hero,Billiards,TEXT("Impact"),FTransform(Secondary.Forward.Rotation(),Values.TargetPosition),Values),
+                Other,EMCPassiveFeedbackKind::Billiards,1.f,Secondary.Forward);
+        }
     }
     return Moving;
 }
@@ -383,7 +415,11 @@ void UMCCombatPassiveSubsystem::ResetOwner(const UMCPerkComponent* Perks)
     Runtime->Owners.Remove(const_cast<UMCPerkComponent*>(Perks));
     Runtime->Echoes.RemoveAll([&](const FEcho& Item){
         const bool Remove=Item.Owner.Get()==Perks;
-        if(Remove && Item.Cue.IsValid()) Item.Cue->Destroy();return Remove;
+        if(Remove) {
+            MCPassivePresentation::StopEpisode(Item.Attack.Hero.Get(),Echo,Item.PresentationEpisode,true);
+            if(Item.Cue.IsValid()) Item.Cue->Destroy();
+        }
+        return Remove;
     });
     Runtime->Launches.RemoveAll([&](const FLaunch& Item){return Item.Perks.Get()==Perks;});
 }
@@ -392,7 +428,11 @@ void UMCCombatPassiveSubsystem::Prune(const UMCPerkComponent* Perks)
     auto* State=StateFor(Perks,false);if(State && !Owns(Perks,Dash)) State->DashUntil=-100;
     Echoes.RemoveAll([&](const FEcho& Item){
         const bool Remove=Item.Owner.Get()==Perks && !Owns(Perks,Echo);
-        if(Remove && Item.Cue.IsValid()) Item.Cue->Destroy();return Remove;
+        if(Remove) {
+            MCPassivePresentation::StopEpisode(Item.Attack.Hero.Get(),Echo,Item.PresentationEpisode,true);
+            if(Item.Cue.IsValid()) Item.Cue->Destroy();
+        }
+        return Remove;
     });
     Launches.RemoveAll([&](const FLaunch& Item){return Item.Perks.Get()==Perks && !Owns(Perks,Billiards);});
 }
@@ -402,7 +442,10 @@ TStatId UMCCombatPassiveSubsystem::GetStatId() const {RETURN_QUICK_DECLARE_CYCLE
 void UMCCombatPassiveSubsystem::Tick(float)
 {
     if(Ended(GetWorld())) {
-        for(const auto& Item:Echoes) if(Item.Cue.IsValid()) Item.Cue->Destroy();
+        for(const auto& Item:Echoes) {
+            MCPassivePresentation::StopEpisode(Item.Attack.Hero.Get(),Echo,Item.PresentationEpisode,true);
+            if(Item.Cue.IsValid()) Item.Cue->Destroy();
+        }
         Owners.Reset();Echoes.Reset();Launches.Reset();return;
     }
     TArray<TWeakObjectPtr<UMCPerkComponent>> Keys;Owners.GetKeys(Keys);
@@ -410,23 +453,54 @@ void UMCCombatPassiveSubsystem::Tick(float)
     Launches.RemoveAll([&](const FLaunch& Item){return !Item.Enemy.IsValid() || !Live(Item.Hero.Get()) || HeroFor(Item.Perks.Get())!=Item.Hero.Get() || Now(GetWorld())>Item.ContactUntil;});
     Echoes.RemoveAll([&](const FEcho& Item){
         const bool Remove=!Live(Item.Attack.Hero.Get()) || HeroFor(Item.Owner.Get())!=Item.Attack.Hero.Get() || !Owns(Item.Owner.Get(),Echo);
-        if(Remove && Item.Cue.IsValid()) Item.Cue->Destroy();return Remove;
+        if(Remove) {
+            MCPassivePresentation::StopEpisode(Item.Attack.Hero.Get(),Echo,Item.PresentationEpisode,true);
+            if(Item.Cue.IsValid()) Item.Cue->Destroy();
+        }
+        return Remove;
     });
-    for(auto& Item:Echoes) if(!Item.Cue.IsValid() && Now(GetWorld())>=Item.At-.1) {
+    for(auto& Item:Echoes) if(!Item.bVisualStarted && Now(GetWorld())>=Item.At-.1) {
         auto* Hero=Item.Attack.Hero.Get();auto* Perks=Item.Owner.Get();
-        if(Live(Hero) && HeroFor(Perks)==Hero && Owns(Perks,Echo))
-            Item.Cue=AMCPassiveCombatCue::SpawnEcho(GetWorld(),Item.Attack.Origin,Item.Attack.Forward,Item.Attack.ToolParts,Item.Attack.Group==ETargetGroup::Food,Item.At);
+        if(Live(Hero) && HeroFor(Perks)==Hero && Owns(Perks,Echo)) {
+            Item.bVisualStarted=true;
+            FMCPerkVFXGameplayValues Values;Values.Direction=Item.Attack.Forward;Values.Radius=Item.Attack.Reach;
+            Values.Intensity=Item.Attack.Damage;Values.Duration=FMath::Max(0.f,float(Item.At-Now(GetWorld())));
+            Values.CapturedMeshes=Item.Attack.ToolParts;
+            Values.bCapturedMeshOverhead=Item.Attack.Group==ETargetGroup::Food;
+            Values.CapturedContactAt=(GetWorld()->GetGameState()?GetWorld()->GetGameState()->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds())
+                +(Item.At-GetWorld()->GetTimeSeconds());
+            Values.EpisodeID=Item.PresentationEpisode;
+            const auto Presentation=MCPassivePresentation::Play(Hero,Echo,TEXT("Windup"),
+                FTransform(Item.Attack.Forward.Rotation(),Item.Attack.Origin),Values);
+            Item.Cue=AMCPassiveCombatCue::SpawnEchoAccepted(Hero,Echo,TEXT("Windup"),Presentation,
+                Item.Attack.Origin,Item.Attack.Forward,Item.Attack.ToolParts,Item.Attack.Group==ETargetGroup::Food,Item.At);
+        }
     }
     TArray<FEcho> Due;
     for(int32 I=Echoes.Num()-1;I>=0;--I) if(Now(GetWorld())>=Echoes[I].At) {Due.Add(Echoes[I]);Echoes.RemoveAtSwap(I);}
     for(auto& Item:Due) {
         auto* Hero=Item.Attack.Hero.Get();auto* Perks=Item.Owner.Get();
+        MCPassivePresentation::StopEpisode(Hero,Echo,Item.PresentationEpisode,false);
         if(!Live(Hero) || HeroFor(Perks)!=Hero || !Owns(Perks,Echo)) continue;
         auto* State=StateFor(Perks,true);if(!State || State->Attack.ID) continue;
         FAttack Snapshot=Item.Attack;Snapshot.bSecondary=true;Snapshot.HitTargets.Reset();Snapshot.FirstTarget.Reset();
         Snapshot.Damage*=Param(Perks,Echo,TEXT("DamageFraction"),.4f,0,1);State->Attack=Snapshot;
+        const int32 HitsBefore=Hero->ConfirmedHitCount;
         Repeat(Snapshot,true);
+        FMCPerkVFXGameplayValues Values;Values.Direction=Snapshot.Forward;Values.Radius=Snapshot.Reach;
+        Values.Intensity=Snapshot.Damage;Values.EpisodeID=Item.PresentationEpisode;
+        Values.CapturedMeshes=Snapshot.ToolParts;Values.bCapturedMeshOverhead=Snapshot.Group==ETargetGroup::Food;
+        Values.CapturedContactAt=(GetWorld()->GetGameState()?GetWorld()->GetGameState()->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds())
+            +(Item.At-GetWorld()->GetTimeSeconds());
+        if(IsValid(Hero) && Hero->ConfirmedHitCount!=HitsBefore) {
+            const auto Presentation=MCPassivePresentation::Play(Hero,Echo,TEXT("Echo"),FTransform(Snapshot.Forward.Rotation(),Snapshot.Origin),Values);
+            if(!MCPassivePresentation::UsesNativeFallback(Presentation) && Item.Cue.IsValid()) Item.Cue->Destroy();
+        }
         if(auto* Current=StateFor(Perks,false);Current && Current->Hero.Get()==Hero && Current->Attack.ID==Snapshot.ID) Current->Attack=FAttack();
     }
 }
-void UMCCombatPassiveSubsystem::Deinitialize() {Owners.Reset();Echoes.Reset();Launches.Reset();RetainedEchoMeshes.Reset();Super::Deinitialize();}
+void UMCCombatPassiveSubsystem::Deinitialize()
+{
+    for(const auto& Item:Echoes) MCPassivePresentation::StopEpisode(Item.Attack.Hero.Get(),Echo,Item.PresentationEpisode,true);
+    Owners.Reset();Echoes.Reset();Launches.Reset();RetainedEchoMeshes.Reset();Super::Deinitialize();
+}

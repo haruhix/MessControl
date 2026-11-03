@@ -7,6 +7,8 @@
 class AMCArenaTooth;
 class UMaterialInterface;
 class UProceduralMeshComponent;
+class UMCWorldPresentationComponent;
+struct FMCVFXNativeInputs;
 
 UENUM()
 enum class EMCToothCareFeedbackKind : uint8 { Cleaning, Repair };
@@ -19,6 +21,8 @@ struct FMCToothCareFeedbackState
     UPROPERTY() int32 WorkSerial=0;
     UPROPERTY() EMCToothCareFeedbackKind Kind=EMCToothCareFeedbackKind::Cleaning;
     UPROPERTY() double WorkAt=-100.;
+    /** Start of the current uninterrupted accepted-work episode; not a gameplay timer. */
+    UPROPERTY() double ContactStartedAt=-100.;
     UPROPERTY() FVector_NetQuantize10 ContactLocal=FVector::ZeroVector;
     UPROPERTY() FVector_NetQuantizeNormal NormalLocal=FVector::ForwardVector;
     UPROPERTY() int32 CompletionSerial=0;
@@ -41,6 +45,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Props) const override;
     /** Native authority entry after a real mask/HP change, never a client reward request. */
     void ReportAccepted(EMCToothCareFeedbackKind Kind,FVector Point,FVector Normal,bool bCompleted=false);
+    const FMCToothCareFeedbackState& GetAcceptedPresentationState() const {return State;}
     UPROPERTY(EditDefaultsOnly,Category="Care|Presentation") TSoftObjectPtr<UMaterialInterface> CareMaterial;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Care|Presentation") TObjectPtr<UProceduralMeshComponent> Presentation;
 private:
@@ -52,6 +57,7 @@ private:
         float Life=.5f,Size=10.f;
         uint8 Shape=0;
         bool bOnSurface=false;
+        bool bCompletion=false;
     };
     double Clock() const;
     void PreparePresentation();
@@ -60,10 +66,14 @@ private:
     bool ProjectSurface(FVector Candidate,FVector Normal,FVector& Point,FVector& HitNormal) const;
     void AddParticle(const FParticle& Particle);
     void Draw(double Now);
+    void UpdateComposer(double Now);
+    void AppendNativeInputs(bool bCompletion,double Now,const FTransform& Frame,FMCVFXNativeInputs& Out);
+    void RefreshSurfaceSamples(FVector WorldNormal);
     UFUNCTION() void OnRep_Presentation();
     UPROPERTY(ReplicatedUsing=OnRep_Presentation) FMCToothCareFeedbackState State;
     UPROPERTY() TObjectPtr<AMCArenaTooth> Tooth;
     UPROPERTY() TObjectPtr<UMaterialInterface> RetainedMaterial;
+    UPROPERTY(Transient) TObjectPtr<UMCWorldPresentationComponent> Composer;
     TArray<FParticle> Particles;
     TArray<FVector> DrawVertices,DrawNormals;
     TArray<FVector2D> DrawUV,DrawVariants;
@@ -72,4 +82,9 @@ private:
     int32 SeenCompletion=0;
     float EmitRemainder=0;
     double LastPublishedAt=-100.;
+    bool bNativeContact=true,bNativeCompletion=true;
+    TWeakObjectPtr<class UStaticMesh> SampledMesh;
+    FVector SampledNormal=FVector::ZeroVector,SampledScale=FVector::ZeroVector;
+    TArray<FVector> SurfacePointsLocal,SurfaceNormalsLocal;
+    TArray<float> SurfaceValid;
 };

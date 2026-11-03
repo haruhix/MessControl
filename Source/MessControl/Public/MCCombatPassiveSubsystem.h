@@ -75,7 +75,15 @@ private:
         double DashUntil=-100;
         FAttack Attack;
     };
-    struct FEcho { FAttack Attack; double At=0; TWeakObjectPtr<UMCPerkComponent> Owner; TWeakObjectPtr<AMCPassiveCombatCue> Cue; };
+    struct FEcho
+    {
+        FAttack Attack;
+        double At=0;
+        TWeakObjectPtr<UMCPerkComponent> Owner;
+        TWeakObjectPtr<AMCPassiveCombatCue> Cue;
+        FGuid PresentationEpisode=FGuid::NewGuid();
+        bool bVisualStarted=false;
+    };
     struct FLaunch
     {
         uint64 ID=0;

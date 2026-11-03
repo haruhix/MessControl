@@ -3,6 +3,10 @@
 #include "MCFoodActor.h"
 #include "MCNutCombatEffect.h"
 #include "MCNutRainEvent.h"
+#include "MCVFXPresentationComponent.h"
+#include "MCNutVFXCatalog.h"
+#include "Components/BoxComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
@@ -16,6 +20,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
 #include "Net/UnrealNetwork.h"
+#include "UObject/Package.h"
 
 AMCNutLandingShadow::AMCNutLandingShadow()
 {
@@ -23,6 +28,8 @@ AMCNutLandingShadow::AMCNutLandingShadow()
     PrimaryActorTick.bCanEverTick=true; PrimaryActorTick.TickInterval=.05f;
     Shadow=CreateDefaultSubobject<UDecalComponent>(TEXT("LandingShadow")); SetRootComponent(Shadow);
     Shadow->SetFadeScreenSize(.0001f); Shadow->SetSortOrder(2); Shadow->SetVisibility(false);
+    Presentation=CreateDefaultSubobject<UMCVFXPresentationComponent>(TEXT("NutEntryPresentation"));
+    Presentation->SourceID=TEXT("Event.NutRain.Entry");Presentation->Events={TEXT("Approach"),TEXT("Impact")};
     ShadowMaterial=TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/M_NutLandingShadow.M_NutLandingShadow")));
 }
 
@@ -32,10 +39,17 @@ double AMCNutLandingShadow::ServerTime() const
     return State?State->GetServerWorldTimeSeconds():GetWorld()?GetWorld()->GetTimeSeconds():0;
 }
 
-void AMCNutLandingShadow::Configure(AMCTongue* OnTongue,AMCFoodActor* Food,FVector Landing,float InFlightSeconds,float InRadius,float InOpacity,float InDamage,float InPushSpeed)
+void AMCNutLandingShadow::Configure(AMCTongue* OnTongue,AMCFoodActor* Food,FVector Landing,float InFlightSeconds,float InRadius,float InOpacity,float InDamage,float InPushSpeed,FName OriginSource,UMCVFXPresentationComponent* PreviewSource)
 {
     if(!HasAuthority() || !IsValid(OnTongue) || !IsValid(Food) || Landing.ContainsNaN()) return;
-    Tongue=OnTongue; TrackedFood=Food;
+    Tongue=OnTongue; TrackedFood=Food;PresentationSource=OriginSource;
+    if(const auto* Contract=MCNutVFX::Find(PresentationSource)) {
+        Presentation->SourceID=PresentationSource;Presentation->Events=Contract->Events;
+        FString SocketError;Presentation->BindSourceAudioSocket(PresentationSource,Food->Visual,SocketError);
+        if(IsValid(PreviewSource) && PreviewSource->IsSourcePrepared(PresentationSource)) {
+            FString CopyError;PreviewSource->CopyPreparedSourceTo(PresentationSource,Presentation,CopyError);
+        }
+    }
     SurfaceAnchor=Tongue->GetActorTransform().InverseTransformPosition(Landing);
     FlightSeconds=FMath::IsFinite(InFlightSeconds)?FMath::Clamp(InFlightSeconds,.75f,3.f):1.65f;
     Radius=FMath::IsFinite(InRadius)?FMath::Clamp(InRadius,35.f,480.f):300.f;
@@ -53,12 +67,18 @@ void AMCNutLandingShadow::BeginPlay()
             Shadow->SetDecalMaterial(Material); ShadowMID=Shadow->CreateDynamicMaterialInstance();
         }
     }
+    if(const auto* Contract=MCNutVFX::Find(PresentationSource)) {
+        Presentation->SourceID=PresentationSource;Presentation->Events=Contract->Events;
+        FString Error;
+        if(IsValid(TrackedFood.Get()))Presentation->BindSourceAudioSocket(PresentationSource,TrackedFood->Visual,Error);
+        MCNutVFX::Prepare(Presentation,PresentationSource,Error,false);
+    }
     if(HasAuthority()) {
-        if(TrackedFood.IsValid()) {
+        if(IsValid(TrackedFood)) {
             TrackedFood->ManageEntryImpact();
             TrackedFood->OnEntryLanding.AddUObject(this,&AMCNutLandingShadow::Landed);
         }
-        SetLifeSpan(FlightSeconds+1.25f);
+        if(!bDeferIsolatedPreviewPresentation)SetLifeSpan(FlightSeconds+1.25f);
     }
     RefreshShadow();
 }
@@ -70,7 +90,7 @@ float AMCNutLandingShadow::SecondsToImpact() const
 
 bool AMCNutLandingShadow::IsWarningActive() const
 {
-    return !bImpacted && IsValid(Tongue) && !Tongue->IsActorBeingDestroyed() && SecondsToImpact()>0 && !IsActorBeingDestroyed();
+    return !bDeferIsolatedPreviewPresentation && !bImpacted && IsValid(Tongue) && !Tongue->IsActorBeingDestroyed() && SecondsToImpact()>0 && !IsActorBeingDestroyed();
 }
 
 float AMCNutLandingShadow::GetShadowStrength() const
@@ -86,12 +106,33 @@ float AMCNutLandingShadow::GetShadowStrength() const
 
 void AMCNutLandingShadow::RefreshShadow()
 {
+    if(bDeferIsolatedPreviewPresentation) {Shadow->SetVisibility(false);return;}
     FHitResult Floor;
     if(!IsValid(Tongue) || !Tongue->SurfacePoint(Tongue->GetActorTransform().TransformPosition(SurfaceAnchor),Floor)) {
-        Shadow->SetVisibility(false); return;
+        Shadow->SetVisibility(false);
+        if(Presentation)Presentation->StopLocalSourceStates(PresentationSource);
+        return;
     }
     SetActorLocationAndRotation(Floor.ImpactPoint+Floor.ImpactNormal*3.f,Floor.ImpactNormal.Rotation());
     const float Progress=FMath::Clamp(1.f-SecondsToImpact()/FMath::Max(.75f,FlightSeconds),0.f,1.f);
+    // The native footprint is protected gameplay geometry; only decorative accents are authorable.
+    if(Presentation) {
+        FString Error;
+        if(IsValid(TrackedFood.Get()))Presentation->BindSourceAudioSocket(PresentationSource,TrackedFood->Visual,Error);
+        MCNutVFX::Prepare(Presentation,PresentationSource,Error,false);
+        FMCPerkVFXGameplayValues Values;Values.Radius=Radius;Values.Fill=Progress;Values.Duration=FlightSeconds;
+        Values.Direction=Floor.ImpactNormal;Values.SourcePosition=Floor.ImpactPoint;Values.TargetPosition=Floor.ImpactPoint;Values.bHasEndpoints=true;
+        Values.LocalStateAgeSeconds=FMath::Clamp(FlightSeconds-SecondsToImpact(),0.f,FlightSeconds);
+        const bool Active=IsWarningActive();
+        Presentation->UpdateLocalSourceState(PresentationSource,TEXT("Approach"),Active,FTransform(Floor.ImpactNormal.Rotation(),Floor.ImpactPoint),Values,nullptr,Error);
+        if(PresentationSource==FName(TEXT("Boss.NutMage.NutRain"))) {
+            Values.VisualSubject=IsValid(TrackedFood)?TrackedFood->Visual.Get():nullptr;
+            Values.FrameComponent=IsValid(TrackedFood)?TrackedFood->Body.Get():nullptr;Values.FrameSocket=NAME_None;
+            if(IsValid(TrackedFood))Values.Direction=TrackedFood->GetVelocity().GetSafeNormal();
+            Presentation->UpdateLocalSourceState(PresentationSource,TEXT("DropTrail"),Active && IsValid(TrackedFood),
+                IsValid(TrackedFood)?TrackedFood->GetActorTransform():FTransform::Identity,Values,IsValid(TrackedFood)?TrackedFood->Body.Get():nullptr,Error);
+        }
+    }
     // The outline always advertises the exact radius; only its fill counts down.
     // Projection depth covers the curved tongue rather than clipping its edges.
     Shadow->DecalSize=FVector(100.f,Radius,Radius);
@@ -103,9 +144,21 @@ void AMCNutLandingShadow::RefreshShadow()
     }
 }
 
+bool AMCNutLandingShadow::StartIsolatedPreviewPresentation()
+{
+#if WITH_EDITOR
+    if(!HasAuthority() || !GetWorld() || GetWorld()->WorldType!=EWorldType::Game
+        || GetWorld()->GetOutermost()!=GetTransientPackage() || !bDeferIsolatedPreviewPresentation)return false;
+    bDeferIsolatedPreviewPresentation=false;ImpactAt=ServerTime()+FlightSeconds;
+    SetLifeSpan(FlightSeconds+1.25f);RefreshShadow();return true;
+#else
+    return false;
+#endif
+}
+
 void AMCNutLandingShadow::Landed(const FHitResult& Hit)
 {
-    if(!HasAuthority() || bImpacted || !TrackedFood.IsValid() || !IsValid(Tongue)
+    if(!HasAuthority() || bImpacted || !IsValid(TrackedFood) || !IsValid(Tongue)
         || Hit.GetActor()!=Tongue || Tongue->IsActorBeingDestroyed()) return;
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     if(GS && (GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost)) return;
@@ -133,20 +186,22 @@ void AMCNutLandingShadow::Landed(const FHitResult& Hit)
     }
     // The independent replicated cue survives this warning's immediate expiry.
     if(auto* Event=Cast<AMCNutRainEvent>(GetOwner()))
-        if(auto* Effect=AMCNutCombatEffect::Spawn(Event,Tongue,EMCNutCombatCue::EntranceImpact,Center,Center,Radius,0,.65f,int32(GetUniqueID())))
+        if(auto* Effect=AMCNutCombatEffect::SpawnPresented(FMCNutCuePresentation(PresentationSource,TEXT("Impact")),this,Tongue,EMCNutCombatCue::EntranceImpact,Center,Center,Radius,0,.65f,int32(GetUniqueID())))
             Event->TrackEncounterActor(Effect);
 }
 
 void AMCNutLandingShadow::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
-    if(HasAuthority() && (!IsValid(Tongue) || !TrackedFood.IsValid() || (!bImpacted && !TrackedFood->IsMouthEntryActive()))) { Destroy(); return; }
+    if(bDeferIsolatedPreviewPresentation)return;
+    if(HasAuthority() && (!IsValid(Tongue) || !IsValid(TrackedFood) || (!bImpacted && !TrackedFood->IsMouthEntryActive()))) { Destroy(); return; }
     RefreshShadow();
 }
 
 void AMCNutLandingShadow::EndPlay(const EEndPlayReason::Type Reason)
 {
-    if(TrackedFood.IsValid()) TrackedFood->OnEntryLanding.RemoveAll(this);
+    if(IsValid(TrackedFood)) TrackedFood->OnEntryLanding.RemoveAll(this);
+    if(Presentation)Presentation->StopLocalSourceStates(PresentationSource);
     Super::EndPlay(Reason);
 }
 
@@ -157,4 +212,5 @@ void AMCNutLandingShadow::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
     DOREPLIFETIME(AMCNutLandingShadow,ImpactAt); DOREPLIFETIME(AMCNutLandingShadow,FlightSeconds);
     DOREPLIFETIME(AMCNutLandingShadow,Radius); DOREPLIFETIME(AMCNutLandingShadow,MaxOpacity);
     DOREPLIFETIME(AMCNutLandingShadow,bImpacted);
+    DOREPLIFETIME(AMCNutLandingShadow,PresentationSource);DOREPLIFETIME(AMCNutLandingShadow,TrackedFood);
 }

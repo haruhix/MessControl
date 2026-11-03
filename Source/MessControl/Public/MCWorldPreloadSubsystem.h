@@ -2,14 +2,27 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
+#include "MCVFXNativePresentationSettings.h"
+#include "Async/TaskGraphInterfaces.h"
+#include "PSOPrecacheFwd.h"
 #include "MCWorldPreloadSubsystem.generated.h"
 
 class APlayerController;
+class AMCToothCharacter;
+class AMCIceEvent;
+class AMCIceEventVFX;
 class FRenderCommandFence;
 struct FStreamableHandle;
 class UMaterialInterface;
 class UPrimitiveComponent;
 class UStreamableRenderAsset;
+class UMCEventSFXReadiness;
+class USoundBase;
+class UNiagaraSystem;
+class UMeshComponent;
+class UMaterialInstanceDynamic;
+class UMCNiagaraMaterialContextResources;
+class UMCNiagaraProceduralSurfaceResources;
 
 UENUM(BlueprintType)
 enum class EMCWorldPreloadPhase : uint8
@@ -44,10 +57,14 @@ public:
     void Retry();
 
     UFUNCTION(BlueprintPure, Category="Loading")
-    bool IsReady() const { return Phase == EMCWorldPreloadPhase::Ready; }
+    bool IsReady() const;
 
     UFUNCTION(BlueprintPure, Category="Loading")
     bool HasFailed() const { return Phase == EMCWorldPreloadPhase::Failed; }
+    /** Arena/run-scoped only. Unknown scope waits; explicit lab contexts retain their own preparation. */
+    bool UsesPreparedIcePresentation() const;
+    /** Transfers the single already-prepared instance. No allocation, loading or activation before Ready. */
+    AMCIceEventVFX* ClaimPreparedIcePresentation(AMCIceEvent* Source,FGuid& OutToken,FString& Error);
 
     UFUNCTION(BlueprintPure, Category="Loading")
     bool IsPreparing() const;
@@ -68,6 +85,36 @@ public:
     /** Only finite, observable work has a percentage. Shader/PSO preparation has no reliable denominator. */
     UFUNCTION(BlueprintPure, Category="Loading")
     bool HasMeasuredPhaseProgress() const;
+    /** Exact immutable native variants retained by this location's preparation. */
+    bool GetPreparedNativeStyle(const UMCVFXNativePresentationSettings* Source,FMCVFXPreparedNativePresentation& Out) const;
+    /** No load: immutable captured tool alternatives must already belong to this location's closure. */
+    bool IsVisualResourceRetained(const UObject* Object) const;
+    /** Isolated preview/fixture pre-commit preparation only. Resident assets, no loading; poll until PSOs are ready. */
+    bool PrepareResidentVisualResources(const TArray<UObject*>& Resources,FString& Error);
+    /** Location-scoped playback assets/Precache/startup bytes; never decoded-first-buffer certification. */
+    const UMCEventSFXReadiness* GetEventAudioReadiness() const;
+    /** Explicit resident-only preparation, also available to the isolated Composer world before Commit. */
+    bool PrepareEventAudioSources(const TArray<USoundBase*>& Sources,FString& Error);
+    void PollEventAudioReadiness();
+    /** Explicitly reprepare retained audio resources after enabling output. Does not autoplay. */
+    bool ReprepareEventAudioReadiness(FString& Error);
+    /** Local material-context pools, shared by location loading and the isolated Composer world. */
+    UMCNiagaraMaterialContextResources* GetMaterialContextResources() const;
+    UFUNCTION(BlueprintPure,Category="Loading|Surface") UMCNiagaraProceduralSurfaceResources* GetProceduralSurfaceResources()const{return ProceduralSurfaceResources;}
+    bool PrepareMaterialContextSources(const TArray<UNiagaraSystem*>& Sources,int32 ConcurrentInstancesPerTemplate,
+        FGuid ScopeEpoch,FString& Error);
+    /** Explicit preparation only; unknown/custom factories fail instead of receiving a guessed proxy. */
+    bool RegisterMaterialContextTarget(UMeshComponent* Target,FString& Error);
+    bool RegisterMaterialContextScalar(UMeshComponent* Subject,UMaterialInstanceDynamic* ExistingMID,
+        FName AllowedParameter,FString& Error);
+    /** Post-Ready identity enrollment for an already prepared scalar factory.
+     * Never creates resources or grants a captured-body readiness certificate. */
+    bool AdoptResidentMaterialContextScalar(UMeshComponent* Subject,UMaterialInstanceDynamic* ExistingMID,
+        FName AllowedParameter,FString& Error);
+    /** True means poll succeeded; bWaiting distinguishes finite pending work. Never advances an Idle visual phase. */
+    bool PollMaterialContextReadiness(bool& bWaiting,FString& Error);
+    /** Explicit source/preview-generation boundary only; stop owned players first. Does not change visual Phase. */
+    void ResetMaterialContextPreparation();
 
     /** Progress within the current resource stage, never an estimate of total time or readiness. */
     UFUNCTION(BlueprintPure, Category="Loading")
@@ -77,6 +124,10 @@ protected:
     virtual bool DoesSupportWorldType(EWorldType::Type WorldType) const override;
 
 private:
+    friend class FMCNativePrewarmRebuildStability;
+    friend class FMCPrewarmedIcePresentationOwnership;
+    friend class FMCEventAudioWorldService;
+    friend class FMCEventAudioLegacySafety;
     struct FWarmupRequest
     {
         TWeakObjectPtr<UObject> Mesh;
@@ -90,6 +141,11 @@ private:
         int32 RequiredLODs = 0;
     };
 
+    bool IsIcePresentationLocation() const;
+    bool IsPreparationRunCurrent() const;
+    bool ResolveIcePreparationScope(bool& bRequired,bool& bWaiting);
+    bool CreateIcePresentationOwner(FString& Error);
+    void ReleaseIcePresentationOwner();
     void ResetPreparation();
     void ReleaseWarmupComponents();
     void ResetRenderReadiness();
@@ -98,6 +154,13 @@ private:
     void StartLoadWave(TArray<FSoftObjectPath> Paths);
     void FinishLoadWave();
     void BuildRenderingWork();
+    bool PrepareNativeStylesForLocation(FString& Error);
+    bool PrepareLocationMaterialContexts(FString& Error);
+    bool PrepareFreezeHeroSources(bool bRequired,FString& Error);
+    bool PrepareFreezeHeroResources(bool bRequired,FString& Error);
+    void ReleaseFreezeHeroResources();
+    bool TickEventAudioReadiness();
+    bool IsEventAudioOutputAvailable() const;
     void ProcessRenderingWork();
     bool SettleWorldAndRefreshManifest();
     bool IsWorldStreamingReady() const;
@@ -117,8 +180,32 @@ private:
     double NextLateCompilationLogAt = 0;
 #endif
 
+    /** Separate from disposable warmup proxies; transferred exactly once per GameplayLoadId. */
+    UPROPERTY(Transient) TObjectPtr<AMCIceEventVFX> PreparedIcePresentation;
+    FGuid PreparedGameplayLoadId;
+    TArray<TWeakObjectPtr<AMCToothCharacter>> PreparedFreezeHeroes;
+    bool bIcePresentationConsumed=false;
+    FString IcePreparationDiagnostic;
     UPROPERTY(Transient)
     TArray<TObjectPtr<UObject>> RetainedAssets;
+    UPROPERTY(Transient) TArray<TObjectPtr<UObject>> PendingResidentVisuals;
+    UPROPERTY(Transient) TArray<TObjectPtr<UObject>> CertifiedResidentVisuals;
+    UPROPERTY(Transient) TMap<TObjectPtr<UMCVFXNativePresentationSettings>,FMCVFXPreparedNativePresentation> NativeStyles;
+    UPROPERTY(Transient) TObjectPtr<UMCEventSFXReadiness> EventAudioReadiness;
+    UPROPERTY(Transient) TArray<TObjectPtr<USoundBase>> EventAudioSources;
+    UPROPERTY(Transient) TObjectPtr<UMCNiagaraMaterialContextResources> MaterialContexts;
+    UPROPERTY(Transient) TObjectPtr<UMCNiagaraProceduralSurfaceResources> ProceduralSurfaceResources;
+    bool PrepareMaterialContextSourcesInternal(const TArray<UNiagaraSystem*>& Sources,int32 Capacity,FGuid Epoch,FString& Error);
+    UPROPERTY(Transient) TArray<TObjectPtr<UNiagaraSystem>> MaterialContextSources;
+    TArray<TWeakObjectPtr<UMeshComponent>> MaterialContextTargets,MaterialContextQueuedTargets;
+    TArray<TWeakObjectPtr<UObject>> MaterialContextAddedAssets;
+    TArray<FMaterialPSOPrecacheRequestID> MaterialContextPSORequests;
+    FGraphEventArray MaterialContextPSOEvents;
+    TSharedPtr<FRenderCommandFence> MaterialContextFence;
+    FGuid MaterialContextEpoch;
+    int32 MaterialContextCapacity=0,MaterialContextStableFrames=0;
+    uint64 MaterialContextLastFrame=MAX_uint64;
+    double MaterialContextQuietSince=0;
 
     UPROPERTY(Transient)
     TArray<TObjectPtr<UPrimitiveComponent>> WarmupComponents;
@@ -130,6 +217,7 @@ private:
     TArray<FStreamingTarget> StreamingTargets;
     TSet<FSoftObjectPath> SeenPaths;
     TSet<TWeakObjectPtr<UObject>> ExpandedObjects;
+    TSet<TWeakObjectPtr<USoundBase>> AuditedLegacyAudioSources;
     TArray<FSoftObjectPath> ActiveWavePaths;
     TArray<TSharedPtr<FStreamableHandle>> LoadHandles;
     TSharedPtr<FStreamableHandle> ActiveHandle;
@@ -154,4 +242,8 @@ private:
     bool bRenderingWorkBuilt = false;
     bool bStreamingTargetsBuilt = false;
     bool bPresentationReady = true;
+    bool bEventAudioOutputPrepared=false;
+    bool bEventAudioPlanValid=false;
+    uint32 EventAudioDeviceId=MAX_uint32;
+    uint32 EventAudioClosureHash=0;
 };

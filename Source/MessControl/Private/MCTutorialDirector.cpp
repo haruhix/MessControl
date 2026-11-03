@@ -1,4 +1,6 @@
 #include "MCTutorialDirector.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCVFXPresentationComponent.h"
 #include "MCGameState.h"
 #include "MCPlayerState.h"
 #include "MCToothCharacter.h"
@@ -40,6 +42,8 @@ AMCTutorialDirector::AMCTutorialDirector()
     GoalLabel->SetHorizontalAlignment(EHTA_Center); GoalLabel->SetWorldSize(20);
     GoalLabel->SetTextRenderColor(FColor(115,245,255)); GoalLabel->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     GoalLabel->SetVisibility(false);
+    auto* Presentation=CreateDefaultSubobject<UMCWorldPresentationComponent>(TEXT("TutorialPresentation"));
+    Presentation->Sources={TEXT("UI.TutorialFeedback")};
 }
 
 AMCTutorialDirector* AMCTutorialDirector::Find(UWorld* World)
@@ -632,7 +636,19 @@ void AMCTutorialDirector::UpdatePresentation()
         Foam->SetCastShadow(false); Foam->SetWorldLocation(FVector(-200+I*150,I%2?-160:160,200));
         Foam->SetWorldScale3D(FVector(2)); Foam->RegisterComponent(); Foam->Activate(true); PartyFoam.Add(Foam);
     }
-    if (auto* Sound=LoadObject<USoundBase>(nullptr,TEXT("/Game/Audio/S_Win.S_Win"))) UGameplayStatics::PlaySound2D(this,Sound);
+    // Keep the existing one-time accepted FoamParty boundary and all native
+    // foam. This new seam dispatches only SFX; no particle migration is claimed.
+    auto* Sound=LoadObject<USoundBase>(nullptr,TEXT("/Game/Audio/S_Win.S_Win"));
+    bool bOriginalAudio=true;
+    if(GetNetMode()!=NM_DedicatedServer)
+        if(auto* Adapter=FindComponentByClass<UMCWorldPresentationComponent>())
+            if(auto* Source=Adapter->GetSource(TEXT("UI.TutorialFeedback"))) {
+                FMCPerkVFXGameplayValues Values;Values.Intensity=1.f;
+                Values.Duration=Sound?FMath::Max(.01f,Sound->GetDuration()):1.f;
+                const auto Result=Source->PlayLocalSourceEvent(TEXT("UI.TutorialFeedback"),TEXT("Complete"),GetActorTransform(),Values,false);
+                bOriginalAudio=Result==EMCVFXPresentationResult::Rejected||Adapter->UsesOriginalAudio(TEXT("UI.TutorialFeedback"),TEXT("Complete"));
+            }
+    if(Sound&&bOriginalAudio)UGameplayStatics::PlaySound2D(this,Sound);
 }
 
 void AMCTutorialDirector::RestoreArena()

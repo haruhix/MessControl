@@ -3,6 +3,8 @@
 
 #include "MCGameState.h"
 #include "MCNutCombatEffect.h"
+#include "MCVFXPresentationComponent.h"
+#include "MCNutVFXCatalog.h"
 #include "MCNutCombatVisuals.h"
 #include "MCCombatFeedbackComponent.h"
 #include "MCWeaponImpact.h"
@@ -68,6 +70,8 @@ void RenderFuseSparks(UProceduralMeshComponent* Component,float Phase,float Prog
 
 AMCNutKamikaze::AMCNutKamikaze()
 {
+    FusePresentation=CreateDefaultSubobject<UMCVFXPresentationComponent>(TEXT("KamikazeFusePresentation"));
+    FusePresentation->SourceID=TEXT("Enemy.NutKamikaze.Fuse");FusePresentation->Events={TEXT("Fuse"),TEXT("Danger")};
     Settings.MaxHealth=40;
     Health=Settings.MaxHealth;
     SummonModel=CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SummonModel"));
@@ -101,6 +105,9 @@ double AMCNutKamikaze::ServerNow() const
 
 void AMCNutKamikaze::BeginPlay()
 {
+    FString SocketError;
+    FusePresentation->BindSourceAudioSocket(TEXT("Enemy.NutKamikaze.Fuse"),SummonModel,SocketError);
+    VFXContext->BindSourceAudioSocket(TEXT("Enemy.NutKamikaze.Blast"),SummonModel,SocketError);
     Super::BeginPlay();
     if(IsValid(Tongue)) AddTickPrerequisiteActor(Tongue);
     if(GetNetMode()!=NM_DedicatedServer) {
@@ -235,6 +242,11 @@ void AMCNutKamikaze::PresentFuse(double Time)
 {
     TickPresentation(Time);
     if(!bArmed || bDefeated) {
+        if(FusePresentation) {
+            FMCPerkVFXGameplayValues V;FString Error;
+            FusePresentation->UpdateLocalSourceState(TEXT("Enemy.NutKamikaze.Fuse"),TEXT("Fuse"),false,FTransform::Identity,V,nullptr,Error);
+            FusePresentation->UpdateLocalSourceState(TEXT("Enemy.NutKamikaze.Fuse"),TEXT("Danger"),false,FTransform::Identity,V,nullptr,Error);
+        }
         FuseFlame->SetVisibility(false); BlastWarning->SetVisibility(false); return;
     }
     const float Remaining=FMath::Max(0.f,float(FuseExplodesAt-Time));
@@ -250,7 +262,27 @@ void AMCNutKamikaze::PresentFuse(double Time)
     Visual->SetRelativeScale3D(Visual->GetRelativeScale3D()*Swell);
     Label->SetText(FText::FromString(FString::Printf(TEXT("%d HP | %.1f s"),FMath::CeilToInt(Health),Remaining)));
     Label->SetTextRenderColor(FColor(255,FMath::RoundToInt(FMath::Lerp(190.f,45.f,Progress)),30));
-    if(FuseMID) {
+    bool NativeFuse=true;
+    if(FusePresentation) {
+        FString Error;
+        if(MCNutVFX::Prepare(FusePresentation,TEXT("Enemy.NutKamikaze.Fuse"),Error,false)) {
+            FMCPerkVFXGameplayValues V;V.Fill=Progress;V.Duration=Duration;V.Radius=(7.f+Progress*5.f)*(1+Pulse*Progress*.07f);
+            V.Direction=FVector::UpVector;V.VisualSubject=SummonModel->GetSkeletalMeshAsset()?static_cast<USceneComponent*>(SummonModel.Get()):Visual.Get();
+            V.LocalStateAgeSeconds=Age;V.FrameComponent=FuseFlame;V.FrameSocket=NAME_None;
+            for(const TPair<FName,float>& Entry:TArray<TPair<FName,float>>{
+                {TEXT("User.Native.CueAge"),Age},
+                {TEXT("User.Native.WindupSeconds"),0.f},
+                {TEXT("User.Native.ActiveSeconds"),Duration}}) {
+                FMCVFXNativeInput Input;Input.Name=Entry.Key;Input.Type=EMCVFXNativeInputType::Float;
+                Input.FloatValue=Entry.Value;V.NativeInputs.Entries.Add(MoveTemp(Input));
+            }
+            const bool Result=FusePresentation->UpdateLocalSourceState(TEXT("Enemy.NutKamikaze.Fuse"),TEXT("Fuse"),true,FuseFlame->GetComponentTransform(),V,SummonModel,Error);
+            EMCPerkVFXSlotMode Mode=EMCPerkVFXSlotMode::UseDefault;
+            FusePresentation->GetPreparedEventMode(TEXT("Enemy.NutKamikaze.Fuse"),TEXT("Fuse"),Mode);
+            NativeFuse=!Result || Mode==EMCPerkVFXSlotMode::UseDefault;
+        }
+    }
+    if(FuseMID && NativeFuse) {
         if(!SummonModel->GetSkeletalMeshAsset()) FuseFlame->SetRelativeLocation(Visual->GetRelativeLocation()+FVector(0,0,Settings.BodyRadius*.8f));
         const float FireAge=Phase/5.f;
         FuseMID->SetScalarParameterValue(TEXT("FireAge"),FireAge);
@@ -258,6 +290,7 @@ void AMCNutKamikaze::PresentFuse(double Time)
         RenderFuseSparks(FuseFlame,Phase,Progress,Remaining,Duration);
         FuseFlame->SetVisibility(true);
     }
+    if(!NativeFuse)FuseFlame->SetVisibility(false);
     FHitResult Floor;
     const bool ShowFootprint=Remaining<=1.5f && WarningMID && IsValid(Tongue) && Tongue->SurfacePoint(GetActorLocation(),Floor);
     BlastWarning->SetVisibility(ShowFootprint);
@@ -275,6 +308,12 @@ void AMCNutKamikaze::PresentFuse(double Time)
         WarningMID->SetScalarParameterValue(TEXT("Impact"),0);
         WarningMID->SetVectorParameterValue(TEXT("Tint"),FLinearColor(1.f,.12f,.02f));
     }
+    if(FusePresentation) {
+        FMCPerkVFXGameplayValues V;V.Fill=Progress;V.Duration=Duration;V.Radius=BlastRadius;V.LocalStateAgeSeconds=Age;
+        V.Direction=ShowFootprint?Floor.ImpactNormal:FVector::UpVector;V.VisualSubject=SummonModel;
+        FString Error;const FTransform Frame(V.Direction.Rotation(),ShowFootprint?Floor.ImpactPoint:GetActorLocation());
+        FusePresentation->UpdateLocalSourceState(TEXT("Enemy.NutKamikaze.Fuse"),TEXT("Danger"),ShowFootprint,Frame,V,nullptr,Error);
+    }
 }
 
 void AMCNutKamikaze::Detonate()
@@ -282,7 +321,7 @@ void AMCNutKamikaze::Detonate()
     if(!HasAuthority() || !bArmed || !IsEncounterAlive()) return;
     bArmed=false; bExploded=true;
     const FVector Center=GetActorLocation();
-    if(auto* Effect=AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::FireImpact,Center+FVector::UpVector*30.f,Center,
+    if(auto* Effect=AMCNutCombatEffect::SpawnPresented(FMCNutCuePresentation(TEXT("Enemy.NutKamikaze.Blast"),TEXT("Impact")),this,Tongue,EMCNutCombatCue::FireImpact,Center+FVector::UpVector*30.f,Center,
         BlastRadius,0,.65f,GetUniqueID(),Settings.BodyRadius)) {
         if(auto* Event=Cast<AMCNutRainEvent>(GetOwner())) {
             Effect->SetOwner(Event); Event->TrackEncounterActor(Effect);

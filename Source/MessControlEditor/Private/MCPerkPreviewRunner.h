@@ -47,6 +47,11 @@ public:
     void SetPaused(bool bPaused);
     bool IsPaused() const;
     bool IsRunning() const;
+    /** Opt-in isolated output only; never selects/mutes the editor's main device. */
+    bool SetAudioEnabled(bool bEnabled,FString& OutError);
+    bool IsAudioEnabled() const;
+    FString GetAudioStatus() const;
+    void SetAudioListenerTransform(const FTransform& Transform,float DeltaSeconds);
 
     UWorld* GetWorld() const;
     /** Compatibility only: the current runner owns a world directly, not a legacy FPreviewScene. */
@@ -59,12 +64,25 @@ public:
     float GetElapsed() const;
     EMCPerkPreviewScenario GetScenario() const;
     FName GetPerkID() const;
+    bool HasPerkDefinition() const;
+    UMCPerkVFXProfile* GetPresentationOverride() const;
     const TArray<FMCPerkPreviewEvent>& GetEvents() const;
     FMCPerkPreviewClockStats GetClockStats() const;
+    /** Evaluated visible fixture meshes only: excludes UI, particles and hidden readiness anchors. */
+    FBox GetFramingBounds() const;
+    FVector GetPreviewFront() const;
+    uint64 GetFramingRevision() const;
 
 private:
     struct FImpl;
     TUniquePtr<FImpl> Impl;
+    FDelegateHandle EditorPreExitHandle,PreBeginPIEHandle,ShutdownPIEHandle,CancelPIEHandle;
+    bool bShuttingDown=false,bPIESuspended=false;
+    bool bRestoreAudioOnNextPreview=false;
     uint64 LastTickFrame=MAX_uint64;
+    void ShutdownPreviewWorld();
+    void DestroyPreviewWorld();
+    void SuspendForPIE(bool bSimulating);
+    void FinishPIE(bool bSimulating);
     void TickStep(float DeltaSeconds);
 };

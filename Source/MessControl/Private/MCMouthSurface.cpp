@@ -1,4 +1,5 @@
 #include "MCMouthSurface.h"
+#include "MCWorldPresentationComponent.h"
 #include "MCCoffeeWipe.h"
 #include "MCTongue.h"
 #include "MCDirtPlacement.h"
@@ -74,6 +75,8 @@ AMCMouthSurface::AMCMouthSurface()
     Label=CreateDefaultSubobject<UTextRenderComponent>(TEXT("CareLabel")); Label->SetupAttachment(Area);
     Label->SetRelativeLocation(FVector(0,0,24)); Label->SetWorldSize(16); Label->SetHorizontalAlignment(EHTA_Center);
     Status=CreateDefaultSubobject<UMCToothStatusComponent>(TEXT("SurfaceStatus"));
+    StainComposer=CreateDefaultSubobject<UMCWorldPresentationComponent>(TEXT("StainPresentation"));
+    StainComposer->Sources.Add(TEXT("EditorOnly.CleanStain"));
 }
 void AMCMouthSurface::BeginPlay()
 {
@@ -307,6 +310,7 @@ void AMCMouthSurface::Tick(float Dt)
         if(!IsNumb() && !bTutorialLesion) GS->MouthHealth=FMath::Max(0.f,GS->MouthHealth-DamagePerSecond*Dt);
     }
     UpdateLiquid(Dt);
+    UpdateComposerLiquid();
     if(GetNetMode()!=NM_DedicatedServer) {
         TreatmentIndicator->SetVisibility(bUlcer && !bTreatmentBlocked);
         if(bUlcer) {
@@ -339,7 +343,8 @@ void AMCMouthSurface::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(AMCMouthSurface,GroundResponse);
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCMouthSurface,Tongue); DOREPLIFETIME(AMCMouthSurface,TongueAnchor);
-    DOREPLIFETIME(AMCMouthSurface,WipeMask); DOREPLIFETIME(AMCMouthSurface,LiquidSeed);
+    DOREPLIFETIME(AMCMouthSurface,WipeMask);
+    DOREPLIFETIME(AMCMouthSurface,StainCleaningState); DOREPLIFETIME(AMCMouthSurface,LiquidSeed);
     DOREPLIFETIME(AMCMouthSurface,LiquidDepositMask);
     DOREPLIFETIME(AMCMouthSurface,bPaintTile);
     DOREPLIFETIME(AMCMouthSurface,LiquidHalfSize);

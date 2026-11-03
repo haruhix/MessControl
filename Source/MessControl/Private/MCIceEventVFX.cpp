@@ -1,5 +1,7 @@
 #include "MCIceEventVFX.h"
 #include "MCIceEvent.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCVFXPresentationComponent.h"
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
@@ -73,6 +75,9 @@ AMCIceEventVFX::AMCIceEventVFX()
     PrimaryActorTick.TickInterval=.1f;
     auto* Root=CreateDefaultSubobject<USceneComponent>(TEXT("EffectsRoot"));
     SetRootComponent(Root);
+    ComposerPresentation=CreateDefaultSubobject<UMCWorldPresentationComponent>(TEXT("IceComposerPresentation"));
+    ComposerPresentation->Sources.Add(TEXT("World.Ice"));
+    ComposerPresentation->Sources.Add(TEXT("World.Ice.Surface"));
     WindSheet=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("VolumetricWindSheets"));
     WindSheet->SetupAttachment(Root);
     WindSheet->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -213,26 +218,47 @@ UNiagaraComponent* AMCIceEventVFX::MakeLoop(const TCHAR* Name, UNiagaraSystem* S
     return Component;
 }
 
-void AMCIceEventVFX::SetLoop(UNiagaraComponent* Component, bool bEnabled, FVector Position, FRotator Rotation,
-    float SpawnRate, float Speed, FVector2D Size, FLinearColor Color)
+void AMCIceEventVFX::SetLoop(UNiagaraComponent* Component,bool bEnabled,FVector Position,FRotator Rotation,
+    float SpawnRate,float Speed,FVector2D Size,FLinearColor Color,float NativeProgress,int32 NativeState)
 {
-    if(!IsValid(Component)) return;
-    if(!bEnabled)
+    FComposerLoopCall Call;Call.Component=Component;Call.bEnabled=bEnabled;Call.Position=Position;Call.Rotation=Rotation;
+    Call.Rate=SpawnRate;Call.Speed=Speed;Call.Size=Size;Call.Color=Color;Call.Progress=NativeProgress;Call.NativeState=NativeState;
+    const FName Event=IdentifyComposerLoop(Component,Call.Family,Call.Ordinal);
+    Call.SampleAge=float(ComposerEventAge);Call.PhaseRadius=ComposerPhaseRadius;
+    if(!Event.IsNone() && IsValid(Component))
     {
-        if(Component->IsActive()) Component->Deactivate();
-        return;
+        auto& Memory=ComposerLoopMemory.FindOrAdd(Component);
+        if(Call.bEnabled)
+        {
+            Memory.Last=Call;Memory.bHasFrame=true;
+        }
+        else if(Memory.bHasFrame)
+        {
+            Call=Memory.Last;Call.bEnabled=false;
+            // Disabled SetLoop calls never rewrite the native frame. Read its
+            // retained component transform, including any parent movement.
+            Call.Position=Component->GetComponentLocation();Call.Rotation=Component->GetComponentRotation();
+        }
+        else {Call.Position=Component->GetComponentLocation();Call.Rotation=Component->GetComponentRotation();}
+        Memory.bEnabled=Call.bEnabled;Call.ActivationEpoch=Memory.Epoch;
     }
-    Component->SetWorldLocationAndRotation(Position,Rotation);
-    Component->SetVariableFloat(RateParameter,SpawnRate);
-    Component->SetVariableFloat(SpeedParameter,Speed);
-    Component->SetVariableVec2(SizeParameter,Size);
-    Component->SetVariableLinearColor(ColorParameter,Color);
-    if(!Component->IsActive()) Component->Activate(true);
+    if(bCollectComposerLoops&&!Event.IsNone())
+    {
+        auto& Calls=ComposerLoopCalls.FindOrAdd(Event);
+        if(Calls.Num()<128){Calls.Add(Call);return;}
+        ComposerLoopOverflow.Add(Event);
+        // A bounded payload must never hide original artwork on overflow.
+    }
+    AdvanceOriginalLoop(Call);ApplyOriginalLoop(Call,true);
 }
 
 void AMCIceEventVFX::PlayBurst(UNiagaraSystem* System, UMaterialInterface* Material, FVector Position,
-    float Speed, FVector Scale, FVector2D Size, FLinearColor Color)
+    float Speed, FVector Scale, FVector2D Size, FLinearColor Color,FName ComposerEvent,bool bNewBoundary)
 {
+    if(!ComposerEvent.IsNone()) {
+        if(bNewBoundary){LastComposerBurstEvent=ComposerEvent;bLastComposerBurstUsesOriginal=UseOriginalBurst(ComposerEvent,Position);}
+        if(LastComposerBurstEvent==ComposerEvent&&!bLastComposerBurstUsesOriginal)return;
+    }
     if(!System || GetNetMode()==NM_DedicatedServer || Position.ContainsNaN()) return;
     // Every retained handle is manually released; even a late cancel can kill
     // all particles. Reclaim the oldest first to bound busy multiplayer scenes.
@@ -298,9 +324,9 @@ bool AMCIceEventVFX::HasRequiredAssets() const
         && ChargeMaterial.Get() && HasCrystalVisuals();
 }
 
-void AMCIceEventVFX::UpdateFrozenFeet(const AMCIceEvent& Event)
+void AMCIceEventVFX::EnsureFrozenFootCapacity(int32 PlayerCount)
 {
-    const int32 PlayerCount=FMath::Min(Event.Players.Num(),8);
+    PlayerCount=FMath::Clamp(PlayerCount,0,8);
     if(CrystalMesh.Get())
         while(FootFacets.Num()<PlayerCount*6)
         {
@@ -313,6 +339,57 @@ void AMCIceEventVFX::UpdateFrozenFeet(const AMCIceEvent& Event)
         }
     while(FootMotes.Num()<PlayerCount*2)
         FootMotes.Add(MakeLoop(*FString::Printf(TEXT("FrozenFootMotes%d"),FootMotes.Num()),ChargeSystem.Get(),ChargeMaterial.Get()));
+}
+
+
+void AMCIceEventVFX::UpdateComposerFacets(FName Event,const TArray<TObjectPtr<UStaticMeshComponent>>& Facets,int32 Capacity)
+{
+    bool Valid=Facets.Num()<=Capacity,Active=false;
+    FMCPerkVFXGameplayValues Values;Values.VisualSubject=GetRootComponent();Values.FrameComponent=GetRootComponent();
+    auto Add=[&](const TCHAR* Name,EMCVFXNativeInputType Type)->FMCVFXNativeInput&
+    {auto& Input=Values.NativeInputs.Entries.AddDefaulted_GetRef();Input.Name=Name;Input.Type=Type;return Input;};
+    Values.NativeInputs.Entries.Reserve(6);
+    Add(TEXT("User.Native.IceFacetPositions"),EMCVFXNativeInputType::PositionArray);
+    Add(TEXT("User.Native.IceFacetQuaternionXYZ"),EMCVFXNativeInputType::VectorArray);
+    Add(TEXT("User.Native.IceFacetQuaternionW"),EMCVFXNativeInputType::FloatArray);
+    Add(TEXT("User.Native.IceFacetScales"),EMCVFXNativeInputType::VectorArray);
+    for(const auto& Facet:Facets)
+    {
+        if(!IsValid(Facet)){Valid=false;break;}
+        const FTransform Pose=Facet->GetComponentTransform();const FQuat Rotation=Pose.GetRotation();
+        Valid&=!Pose.ContainsNaN()&&Rotation.IsNormalized();
+        const bool Visible=Facet->IsVisible()&&!Pose.GetScale3D().IsNearlyZero();Active|=Visible;
+        Values.NativeInputs.Entries[0].PositionValues.Add(Pose.GetLocation());
+        Values.NativeInputs.Entries[1].VectorValues.Add(FVector(Rotation.X,Rotation.Y,Rotation.Z));
+        Values.NativeInputs.Entries[2].FloatValues.Add(float(Rotation.W));
+        Values.NativeInputs.Entries[3].VectorValues.Add(Visible?Pose.GetScale3D():FVector::ZeroVector);
+    }
+    Add(TEXT("User.Native.IceFacetCount"),EMCVFXNativeInputType::Int).IntValue=Facets.Num();
+    Add(TEXT("User.Native.IceFacetContextReady"),EMCVFXNativeInputType::Bool).BoolValue=true;
+    Active&=Valid;
+    if(Active&&!ComposerFacetEpisodes.Contains(Event))
+    {ComposerFacetEpisodes.Add(Event,FGuid::NewGuid());ComposerFacetStarted.Add(Event,ComposerServerTime);ObserveComposerEvent(Event);}
+    Values.EpisodeID=Active?ComposerFacetEpisodes.FindChecked(Event):FGuid();
+    Values.LocalStateAgeSeconds=Active?FMath::Max(0.f,float(ComposerServerTime-ComposerFacetStarted.FindChecked(Event))):0.f;
+    FString Error;const bool Accepted=ComposerPresentation&&ComposerPresentation->UpdateState(TEXT("World.Ice"),Event,Active,
+        FTransform::Identity,Values,GetRootComponent(),Error);
+    auto* Channel=ComposerPresentation?ComposerPresentation->GetSource(TEXT("World.Ice")):nullptr;
+    EMCPerkVFXSlotMode Mode=EMCPerkVFXSlotMode::UseDefault;bool UseOriginal=true;
+    if(Active&&Accepted&&Channel&&Channel->GetPreparedEventMode(TEXT("World.Ice"),Event,Mode))
+    {
+        if(Mode==EMCPerkVFXSlotMode::Disabled)UseOriginal=false;
+        else if((Mode==EMCPerkVFXSlotMode::Replace||Mode==EMCPerkVFXSlotMode::Composition)
+            &&Channel->IsSourceEpisodeVisualActive(TEXT("World.Ice"),Values.EpisodeID)
+            &&!ComposerPresentation->UsesNativeVisuals(TEXT("World.Ice"),Event))UseOriginal=false;
+    }
+    if(!UseOriginal)for(const auto& Facet:Facets)if(IsValid(Facet))Facet->SetVisibility(false);
+    if(!Active){ComposerFacetEpisodes.Remove(Event);ComposerFacetStarted.Remove(Event);}
+}
+
+void AMCIceEventVFX::UpdateFrozenFeet(const AMCIceEvent& Event)
+{
+    const int32 PlayerCount=FMath::Min(Event.Players.Num(),8);
+    EnsureFrozenFootCapacity(PlayerCount);
     for(int32 I=0;I<FootFacets.Num();++I) FootFacets[I]->SetVisibility(false);
     for(int32 PlayerIndex=0;PlayerIndex<PlayerCount;++PlayerIndex)
     {
@@ -354,6 +431,7 @@ void AMCIceEventVFX::UpdateFrozenFeet(const AMCIceEvent& Event)
     }
     for(int32 I=PlayerCount*2;I<FootMotes.Num();++I)
         SetLoop(FootMotes[I],false,FVector::ZeroVector,FRotator::ZeroRotator,0,0,FVector2D::ZeroVector,IceColor);
+    UpdateComposerFacets(TEXT("FrozenFeetShell"),FootFacets,48);
 }
 
 void AMCIceEventVFX::UpdateHealthLabels(const AMCIceEvent& Event,double ServerTime)
@@ -404,7 +482,7 @@ void AMCIceEventVFX::UpdateColdThronePresentation(const AMCIceEvent& Event,float
     else WinterStrength=FMath::FInterpTo(WinterStrength,GlobalStrength,DeltaSeconds,4.f);
     if(bGlobal && !bWasGlobalCold)
         PlayBurst(MistSystem.Get(),PowderMaterial?PowderMaterial:MistMaterial.Get(),LastCorePoint+FVector(0,0,100),.45f,
-            FVector::OneVector,FVector2D(330,270),FLinearColor(.9f,.97f,1.f,.8f));
+            FVector::OneVector,FVector2D(330,270),FLinearColor(.9f,.97f,1.f,.8f),TEXT("ColdPhaseRelease"));
     bWasGlobalCold=bGlobal;
 
     FBox Bounds(ForceInit);
@@ -412,6 +490,7 @@ void AMCIceEventVFX::UpdateColdThronePresentation(const AMCIceEvent& Event,float
     const FVector Center=Bounds.IsValid?Bounds.GetCenter():LastCorePoint;
     const FVector Extent=Bounds.IsValid?Bounds.GetExtent():FVector(900,900,0);
     const float FrontRadius=bFront?Event.PhaseTransitionRadius():0.f;
+    ComposerPhaseRadius=FrontRadius;
     for(int32 Sector=0;Sector<WinterWisps.Num();++Sector)
     {
         if(bFront && Sector<PhaseFrontComponentCount)
@@ -447,10 +526,10 @@ void AMCIceEventVFX::UpdateColdThronePresentation(const AMCIceEvent& Event,float
             // Powder clouds accompany the outward cold release only. The
             // returning frost front stays clear while its fine snow contracts.
             SetLoop(WinterWisps[Sector],bEnabled && !bReturning,Point,Direction.Rotation(),Rates[Layer]*Fade,Speeds[Layer],
-                FVector2D(PowderWidth,PowderWidth*Aspects[Layer]),PowderColors[Layer]);
+                FVector2D(PowderWidth,PowderWidth*Aspects[Layer]),PowderColors[Layer],Fade);
             // Extra layers carry powder only; retain the original snow budget.
             SetLoop(WinterSnow[Sector],bEnabled && Layer==0,Point+FVector(0,0,45),Direction.Rotation(),24*Fade,2.2f,
-                FVector2D(4.5f,28),FLinearColor(.85f,.97f,1.f,.95f));
+                FVector2D(4.5f,28),FLinearColor(.85f,.97f,1.f,.95f),Fade);
             continue;
         }
         if(Sector<PhaseFrontComponentCount)
@@ -468,9 +547,9 @@ void AMCIceEventVFX::UpdateColdThronePresentation(const AMCIceEvent& Event,float
         const FVector Direction(.45f+Drift,-1.f,.08f);
         const FVector Point=bEnabled?Floor.ImpactPoint+FVector(0,0,145+(AmbientSector%2)*65):FVector::ZeroVector;
         SetLoop(WinterWisps[Sector],bEnabled,Point,Direction.Rotation(),16*WinterStrength,1.2f,
-            FVector2D(145,30),FLinearColor(.64f,.86f,1.f,.55f));
+            FVector2D(145,30),FLinearColor(.64f,.86f,1.f,.55f),WinterStrength);
         SetLoop(WinterSnow[Sector],bEnabled,Point+FVector(0,0,65),Direction.Rotation(),24*WinterStrength,1.35f,
-            FVector2D(3.5f,20),FLinearColor(.8f,.96f,1.f,.8f));
+            FVector2D(3.5f,20),FLinearColor(.8f,.96f,1.f,.8f),WinterStrength);
     }
 }
 
@@ -484,7 +563,7 @@ void AMCIceEventVFX::UpdateBombPresentation(const AMCIceEvent& Event,double Serv
     const float Progress=bWarning?FMath::Clamp(float((ServerTime-Attack.StartedAt)
         /FMath::Max(.1,Attack.ImpactAt-Attack.StartedAt)),0.f,1.f):0.f;
     SetLoop(BombCharge,bWarning,bWarning?Floor.ImpactPoint+Floor.ImpactNormal*26:FVector::ZeroVector,
-        FRotator::ZeroRotator,9+24*Progress,.3f,FVector2D(7+5*Progress,7+5*Progress),DangerColor);
+        FRotator::ZeroRotator,9+24*Progress,.3f,FVector2D(7+5*Progress,7+5*Progress),DangerColor,Progress);
 
     // The existing shard mesh becomes a small tumbling cluster. Its collision
     // is disabled; the replicated attack owns the hit and push at the marker.
@@ -509,14 +588,15 @@ void AMCIceEventVFX::UpdateBombPresentation(const AMCIceEvent& Event,double Serv
         Facet->SetWorldLocationAndRotation(Position-Rotation.RotateVector(Bounds.GetCenter()*Scale),Rotation);
         Facet->SetWorldScale3D(Scale);
     }
+    UpdateComposerFacets(TEXT("BombShell"),BombFacets,3);
     if(bBomb && ServerTime>=Attack.ImpactAt && Attack.Serial>LastBombImpactSerial)
     {
         LastBombImpactSerial=Attack.Serial;
         if(ServerTime<=Attack.ImpactAt+.5)
         {
             const FVector Point=Floor.ImpactPoint+Floor.ImpactNormal*22;
-            PlayBurst(ShardSystem.Get(),nullptr,Point,1.35f,FVector(.11,.14,.24),FVector2D::ZeroVector,IceColor);
-            PlayBurst(MistSystem.Get(),MistMaterial.Get(),Point,1.4f,FVector::OneVector,FVector2D(150,110),IceColor);
+            PlayBurst(ShardSystem.Get(),nullptr,Point,1.35f,FVector(.11,.14,.24),FVector2D::ZeroVector,IceColor,TEXT("BombImpact"));
+            PlayBurst(MistSystem.Get(),MistMaterial.Get(),Point,1.4f,FVector::OneVector,FVector2D(150,110),IceColor,TEXT("BombImpact"),false);
         }
     }
 }
@@ -524,8 +604,10 @@ void AMCIceEventVFX::UpdateBombPresentation(const AMCIceEvent& Event,double Serv
 void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSeconds, double ServerTime)
 {
     if(bFinishing || !Event.IsActive()) return;
+    ComposerServerTime=ServerTime;ComposerEventAge=FMath::Max(0.,ServerTime-Event.StartedAt);ComposerPhaseRadius=0;
     FHitResult CoreFloor;
-    if(!FloorAt(Event,Event.CandyAnchor,CoreFloor)) return;
+    if(!FloorAt(Event,Event.CandyAnchor,CoreFloor)) {if(ComposerPresentation)ComposerPresentation->StopStates();ComposerFacetEpisodes.Reset();ComposerFacetStarted.Reset();return;}
+    ComposerLoopCalls.Reset();ComposerLoopOverflow.Reset();bCollectComposerLoops=true;
     LastCorePoint=CoreFloor.ImpactPoint;
     UpdateColdThronePresentation(Event,DeltaSeconds,ServerTime);
     UpdateBombPresentation(Event,ServerTime);
@@ -562,6 +644,7 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
             CrystalFacets[I]->SetVisibility(!Transform.GetScale3D().IsNearlyZero());
         }
     }
+    UpdateComposerFacets(TEXT("CrystalShell"),CrystalFacets,12);
     if(!bInitialized)
     {
         PreviousCoreHealth=Event.CandyHealth;
@@ -580,10 +663,10 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
 
     const bool bActive=Event.Stage==EMCIceEventStage::Active;
     if(bActive && !bWasActive)
-        PlayBurst(MistSystem.Get(),MistMaterial.Get(),LastCorePoint+FVector(0,0,20),.7f,FVector::OneVector,FVector2D(110,85),IceColor);
+        PlayBurst(MistSystem.Get(),MistMaterial.Get(),LastCorePoint+FVector(0,0,20),.7f,FVector::OneVector,FVector2D(110,85),IceColor,TEXT("Arrival"));
     bWasActive=bActive;
     if(Event.CandyHealth<PreviousCoreHealth && Event.CandyHealth>0)
-        PlayBurst(ShardSystem.Get(),nullptr,LastCorePoint+FVector(0,0,170),.55f,FVector(.05,.065,.12),FVector2D::ZeroVector,IceColor);
+        PlayBurst(ShardSystem.Get(),nullptr,LastCorePoint+FVector(0,0,170),.55f,FVector(.05,.065,.12),FVector2D::ZeroVector,IceColor,TEXT("CoreHurt"));
     PreviousCoreHealth=Event.CandyHealth;
 
     for(const auto& Strike:Event.Strikes)
@@ -593,8 +676,8 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
         FHitResult Floor;
         if(ServerTime>Strike.ImpactAt+.5 || !FloorAt(Event,Strike.Anchor,Floor)) continue;
         const FVector Point=Floor.ImpactPoint+Floor.ImpactNormal*18;
-        PlayBurst(ShardSystem.Get(),nullptr,Point,1.f,FVector(.075,.095,.19),FVector2D::ZeroVector,IceColor);
-        PlayBurst(MistSystem.Get(),MistMaterial.Get(),Point,1.1f,FVector::OneVector,FVector2D(115,90),FLinearColor(.53f,.78f,.95f,.75f));
+        PlayBurst(ShardSystem.Get(),nullptr,Point,1.f,FVector(.075,.095,.19),FVector2D::ZeroVector,IceColor,TEXT("IcicleImpact"));
+        PlayBurst(MistSystem.Get(),MistMaterial.Get(),Point,1.1f,FVector::OneVector,FVector2D(115,90),FLinearColor(.53f,.78f,.95f,.75f),TEXT("IcicleImpact"),false);
     }
 
     TMap<int32,FCrystalState> Crystals;
@@ -609,11 +692,11 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
         if(bLanded && (bNewCrystal || !Previous->bLanded) && ServerTime<=Crystal.ImpactAt+.5)
         {
             const FVector Point=Floor.ImpactPoint+Floor.ImpactNormal*22;
-            PlayBurst(ShardSystem.Get(),nullptr,Point,1.35f,FVector(.1,.13,.24),FVector2D::ZeroVector,IceColor);
-            PlayBurst(MistSystem.Get(),MistMaterial.Get(),Point,1.45f,FVector::OneVector,FVector2D(155,110),IceColor);
+            PlayBurst(ShardSystem.Get(),nullptr,Point,1.35f,FVector(.1,.13,.24),FVector2D::ZeroVector,IceColor,TEXT("ZoneCrystalLand"));
+            PlayBurst(MistSystem.Get(),MistMaterial.Get(),Point,1.45f,FVector::OneVector,FVector2D(155,110),IceColor,TEXT("ZoneCrystalLand"),false);
         }
         else if(!bNewCrystal && Crystal.Health<Previous->Health)
-            PlayBurst(ShardSystem.Get(),nullptr,Floor.ImpactPoint+FVector(0,0,90),.45f,FVector(.045,.06,.1),FVector2D::ZeroVector,IceColor);
+            PlayBurst(ShardSystem.Get(),nullptr,Floor.ImpactPoint+FVector(0,0,90),.45f,FVector(.045,.06,.1),FVector2D::ZeroVector,IceColor,TEXT("ZoneCrystalHurt"));
     }
     for(const auto& Previous:PreviousCrystals)
     {
@@ -622,8 +705,8 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
         if(Crystals.Contains(Previous.Key) || Previous.Key<Event.CircleIndex) continue;
         FHitResult Floor;
         if(!FloorAt(Event,Previous.Value.Anchor,Floor)) continue;
-        PlayBurst(ShardSystem.Get(),nullptr,Floor.ImpactPoint+FVector(0,0,80),.85f,FVector(.065,.085,.17),FVector2D::ZeroVector,IceColor);
-        PlayBurst(MistSystem.Get(),MistMaterial.Get(),Floor.ImpactPoint+FVector(0,0,20),.55f,FVector::OneVector,FVector2D(70,55),FLinearColor(.58f,.86f,1,.6f));
+        PlayBurst(ShardSystem.Get(),nullptr,Floor.ImpactPoint+FVector(0,0,80),.85f,FVector(.065,.085,.17),FVector2D::ZeroVector,IceColor,TEXT("ZoneCrystalBreak"));
+        PlayBurst(MistSystem.Get(),MistMaterial.Get(),Floor.ImpactPoint+FVector(0,0,20),.55f,FVector::OneVector,FVector2D(70,55),FLinearColor(.58f,.86f,1,.6f),TEXT("ZoneCrystalBreak"),false);
     }
     PreviousCrystals=MoveTemp(Crystals);
     for(int32 I=0;I<CrystalCharges.Num();++I)
@@ -634,13 +717,13 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
         const FVector Center=bEnabled?CrystalPosition(Event,Event.ZoneCrystals[I],Floor,ServerTime):FVector::ZeroVector;
         const bool bFalling=bEnabled && ServerTime<Event.ZoneCrystals[I].ImpactAt;
         SetLoop(CrystalCharges[I],bEnabled,Center+FVector(0,0,85),FRotator::ZeroRotator,
-            bFalling?23.f:12.f,bFalling?.6f:.35f,FVector2D(bFalling?13:9,bFalling?13:9),FLinearColor(.2f,.64f,1,.9f));
+            bFalling?23.f:12.f,bFalling?.6f:.35f,FVector2D(bFalling?13:9,bFalling?13:9),FLinearColor(.2f,.64f,1,.9f),0,bFalling?1:0);
         const bool bVortex=bEnabled && ServerTime<Event.ZoneCrystals[I].ImpactAt+Event.ZoneCrystalVortexSeconds;
         const float Angle=bEnabled?float(ServerTime-Event.ZoneCrystals[I].SpawnedAt)*4.5f:0.f;
         const FVector Ray(FMath::Cos(Angle),FMath::Sin(Angle),0);
         const FVector Tangent(-Ray.Y,Ray.X,bFalling?-.4f:.15f);
         SetLoop(CrystalTrails[I],bVortex,Center+Ray*(bFalling?95.f:Event.ZoneCrystalVortexRadius*.65f),Tangent.Rotation(),
-            bFalling?28.f:19.f,bFalling?1.1f:.85f,FVector2D(90,26),FLinearColor(.42f,.8f,1.f,.75f));
+            bFalling?28.f:19.f,bFalling?1.1f:.85f,FVector2D(90,26),FLinearColor(.42f,.8f,1.f,.75f),0,bFalling?1:0);
     }
     for(int32 I=0;I<WarmMotes.Num();++I)
     {
@@ -660,7 +743,7 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
         const float Progress=FMath::Clamp(1-float((Strike.ImpactAt-ServerTime)/FMath::Max(.1f,WarningSeconds)),0.f,1.f);
         SetLoop(IcicleCharges[ChargeIndex++],true,Floor.ImpactPoint+Floor.ImpactNormal*35,
             FRotator::ZeroRotator,6+18*Progress,.28f,FVector2D(6+5*Progress,6+5*Progress),
-            Strike.bPrisonPunishment?DangerColor:FLinearColor(.35f,.8f,1,.75f));
+            Strike.bPrisonPunishment?DangerColor:FLinearColor(.35f,.8f,1,.75f),Progress,Strike.bPrisonPunishment?1:0);
     }
     while(ChargeIndex<IcicleCharges.Num())
         SetLoop(IcicleCharges[ChargeIndex++],false,FVector::ZeroVector,FRotator::ZeroRotator,0,0,FVector2D::ZeroVector,IceColor);
@@ -676,12 +759,12 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
         if(!Previous) continue;
         const FVector Point=FeetAt(*Hero);
         if(Health>0 && *Previous<=0)
-            PlayBurst(MistSystem.Get(),MistMaterial.Get(),Point,.35f,FVector::OneVector,FVector2D(50,40),IceColor);
+            PlayBurst(MistSystem.Get(),MistMaterial.Get(),Point,.35f,FVector::OneVector,FVector2D(50,40),IceColor,TEXT("FootFreeze"));
         else if(Health<*Previous)
         {
-            PlayBurst(ShardSystem.Get(),nullptr,Point,Health>0?.35f:.6f,FVector(.035,.05,.08),FVector2D::ZeroVector,IceColor);
+            PlayBurst(ShardSystem.Get(),nullptr,Point,Health>0?.35f:.6f,FVector(.035,.05,.08),FVector2D::ZeroVector,IceColor,Health>0?FName(TEXT("FootHurt")):FName(TEXT("FootBreak")));
             if(Health<=0)
-                PlayBurst(MistSystem.Get(),MistMaterial.Get(),Point,.4f,FVector::OneVector,FVector2D(42,35),FLinearColor(.6f,.88f,1,.5f));
+                PlayBurst(MistSystem.Get(),MistMaterial.Get(),Point,.4f,FVector::OneVector,FVector2D(42,35),FLinearColor(.6f,.88f,1,.5f),TEXT("FootBreak"),false);
         }
     }
     PreviousFeet=MoveTemp(Feet);
@@ -692,7 +775,7 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
         if(ServerTime<=Event.NovaImpactAt+.5)
         {
             BlastStartedAt=Event.NovaImpactAt;
-            PlayBurst(MistSystem.Get(),MistMaterial.Get(),LastCorePoint+FVector(0,0,120),.75f,FVector::OneVector,FVector2D(90,65),IceColor);
+            PlayBurst(MistSystem.Get(),MistMaterial.Get(),LastCorePoint+FVector(0,0,120),.75f,FVector::OneVector,FVector2D(90,65),IceColor,TEXT("NovaRelease"));
         }
     }
     const bool bWarning=Event.bNovaWarning && ServerTime<Event.NovaImpactAt;
@@ -715,7 +798,7 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
     SetLoop(CoreCharge,true,Event.GetActorLocation()+FVector(0,0,200),FRotator::ZeroRotator,
         bPhaseCharge?35+65*PhaseCharge:bWarning?14+28*ChargeProgress:7.f,
         bPhaseCharge?1.2f:bWarning?.75f:.3f,
-        FVector2D(bPhaseCharge?24+18*PhaseCharge:bWarning?14:8,bPhaseCharge?24+18*PhaseCharge:bWarning?14:8),IceColor);
+        FVector2D(bPhaseCharge?24+18*PhaseCharge:bWarning?14:8,bPhaseCharge?24+18*PhaseCharge:bWarning?14:8),IceColor,bPhaseCharge?PhaseCharge:ChargeProgress,bPhaseCharge?2:bWarning?1:0);
     // Four simultaneous tangent emitters surround the crystal. The procedural
     // spiral below supplies continuous coverage between those particle trails.
     for(int32 Sector=0;Sector<4;++Sector)
@@ -726,9 +809,9 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
         auto* SnowTrail=Sector==0?Snow.Get():VortexSnow[Sector-1].Get();
         const FVector Position=LastCorePoint+Ray*Reach*.55f+FVector(0,0,85+(Sector%2)*80);
         SetLoop(Wisp,Strength>0,Position,Tangent.Rotation(),10+22*Strength,bBlast?1.7f:.65f,
-            FVector2D(bBlast?150:105,bBlast?40:29),FLinearColor(.4f,.76f,1,.8f));
+            FVector2D(bBlast?150:105,bBlast?40:29),FLinearColor(.4f,.76f,1,.8f),Strength,bBlast?1:0);
         SetLoop(SnowTrail,Strength>0,Position+FVector(0,0,35),Tangent.Rotation(),6+20*Strength,bBlast?1.5f:.55f,
-            FVector2D(3,bBlast?20:12),FLinearColor(.7f,.91f,1,.8f));
+            FVector2D(3,bBlast?20:12),FLinearColor(.7f,.91f,1,.8f),Strength,bBlast?1:0);
     }
     WindSheet->SetVisibility(Strength>0 && SheetMID);
     if(Strength>0 && SheetMID)
@@ -743,7 +826,193 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
             UpdateWindSheet(Event,ServerTime,Strength,bWarning);
         }
     }
+    FlushComposerLoops();
 }
+
+FName AMCIceEventVFX::IdentifyComposerLoop(const UNiagaraComponent* Component,int32& Family,int32& Ordinal) const
+{
+    Family=0;Ordinal=0;if(!Component)return NAME_None;
+    auto Index=[Component](const auto& List){return List.IndexOfByPredicate([Component](const auto& P){return P.Get()==Component;});};
+    if(Component==BombCharge.Get())return TEXT("BombWarning");
+    if(Component==CoreCharge.Get())return TEXT("Charge");
+    if(Index(FootMotes)!=INDEX_NONE)return TEXT("FrozenFeet");
+    if(Index(CrystalCharges)!=INDEX_NONE)return TEXT("CrystalCharge");
+    if(Index(CrystalTrails)!=INDEX_NONE)return TEXT("CrystalTrail");
+    if(Index(WarmMotes)!=INDEX_NONE)return TEXT("WarmMotes");
+    if(Index(IcicleCharges)!=INDEX_NONE)return TEXT("IcicleWarning");
+    if(const int32 I=Index(WinterWisps);I!=INDEX_NONE){Family=I<36?I/12:4;Ordinal=I%12;return TEXT("ColdThrone");}
+    if(const int32 I=Index(WinterSnow);I!=INDEX_NONE){Family=I<36?3:5;Ordinal=I%12;return TEXT("ColdThrone");}
+    if(Component==Wind.Get()||Index(VortexWisps)!=INDEX_NONE)return TEXT("Wind");
+    if(Component==Snow.Get()||Index(VortexSnow)!=INDEX_NONE){Family=1;return TEXT("Wind");}
+    return NAME_None;
+}
+
+void AMCIceEventVFX::AdvanceOriginalLoop(FComposerLoopCall& Call)
+{
+    auto* Component=Call.Component.Get();if(!IsValid(Component))return;
+    if(!Call.bEnabled){if(Component->IsActive())Component->Deactivate();return;}
+    Component->SetWorldLocationAndRotation(Call.Position,Call.Rotation);
+    Component->SetVariableFloat(RateParameter,Call.Rate);Component->SetVariableFloat(SpeedParameter,Call.Speed);
+    Component->SetVariableVec2(SizeParameter,Call.Size);Component->SetVariableLinearColor(ColorParameter,Call.Color);
+    if(!Component->IsActive())
+    {
+        auto& Memory=ComposerLoopMemory.FindOrAdd(Component);
+        if(Memory.Epoch>=16777215u){int32 Family=0,Ordinal=0;ComposerLoopOverflow.Add(IdentifyComposerLoop(Component,Family,Ordinal));}
+        else ++Memory.Epoch;
+        Call.ActivationEpoch=Memory.Epoch;Component->Activate(true);
+    }
+}
+
+void AMCIceEventVFX::ApplyOriginalLoop(const FComposerLoopCall& Call,bool bUseOriginal)
+{
+    // Keep the actual original stateless lifecycle as the bounded drain witness.
+    // It supplies real completion, not a second artistic timeout in native code.
+    // This migration does not claim that original simulation work is eliminated.
+    if(auto* Component=Call.Component.Get())Component->SetRenderingEnabled(bUseOriginal);
+}
+
+void AMCIceEventVFX::ObserveComposerEvent(FName Event)
+{
+    if(Event.IsNone()||(!ComposerEventSerials.Contains(Event)&&ComposerEventSerials.Num()>=32))return;
+    uint64& Serial=ComposerEventSerials.FindOrAdd(Event);if(Serial<MAX_uint64)++Serial;
+}
+
+void AMCIceEventVFX::FlushComposerLoops()
+{
+    bCollectComposerLoops=false;
+    auto* Channel=ComposerPresentation?ComposerPresentation->GetSource(TEXT("World.Ice")):nullptr;
+    TSet<FName> Active;
+    for(auto& Pair:ComposerLoopCalls)
+    {
+        const FName Event=Pair.Key;auto& Calls=Pair.Value;
+        TArray<FComposerLoopCall> Rows=Calls;
+        bool Valid=Rows.Num()<=96&&!ComposerLoopOverflow.Contains(Event),AnyLive=false;
+        TSet<TWeakObjectPtr<UNiagaraComponent>> Seen;
+        for(auto& Call:Rows)
+        {
+            const auto Key=Call.Component;Valid&=!Seen.Contains(Key);Seen.Add(Key);
+            Valid&=Key.IsValid()&&!Call.Position.ContainsNaN()&&!Call.Rotation.ContainsNaN()&&FMath::IsFinite(Call.Progress)
+                &&FMath::IsFinite(Call.SampleAge)&&FMath::IsFinite(Call.PhaseRadius)
+                &&Call.Family>=0&&Call.Family<6&&Call.NativeState>=0&&Call.NativeState<=4;
+            // The source call sites use zero roll and unit scale. Do not
+            // silently discard another frame if a future caller changes it.
+            if(const auto* Component=Key.Get())Valid&=Component->GetComponentScale().Equals(FVector::OneVector)
+                &&FMath::Abs(Call.Rotation.Roll)<=KINDA_SMALL_NUMBER;
+            AdvanceOriginalLoop(Call);
+            if(auto* Component=Key.Get())AnyLive|=Call.bEnabled||!Component->IsComplete();
+        }
+        // All source rows have a stable order even while inactive, so a living
+        // particle cannot silently jump to another native component's anchor.
+        Rows.StableSort([](const auto& A,const auto& B){
+            if(A.Family!=B.Family)return A.Family<B.Family;
+            const auto* CA=A.Component.Get();const auto* CB=B.Component.Get();
+            return CA&&CB?CA->GetFName().LexicalLess(CB->GetFName()):CA!=nullptr;
+        });
+        Valid&=!ComposerLoopOverflow.Contains(Event);
+        const bool Enabled=AnyLive&&Valid;
+        if(Enabled)
+        {
+            Active.Add(Event);
+            if(!ComposerLoopEpisodes.Contains(Event))
+            {ComposerLoopEpisodes.Add(Event,FGuid::NewGuid());ComposerLoopStarted.Add(Event,ComposerServerTime);ObserveComposerEvent(Event);}
+        }
+        FMCPerkVFXGameplayValues Values;Values.VisualSubject=GetRootComponent();Values.FrameComponent=GetRootComponent();
+        Values.LocalStateAgeSeconds=Enabled?FMath::Max(0.f,float(ComposerServerTime-ComposerLoopStarted.FindChecked(Event))):0.f;
+        Values.EpisodeID=Enabled?ComposerLoopEpisodes.FindChecked(Event):FGuid();
+        auto Array=[&](const TCHAR* Name,EMCVFXNativeInputType Type)->FMCVFXNativeInput&
+        {auto& Input=Values.NativeInputs.Entries.AddDefaulted_GetRef();Input.Name=Name;Input.Type=Type;return Input;};
+        Values.NativeInputs.Entries.Reserve(13);
+        Array(TEXT("User.Native.IcePositions"),EMCVFXNativeInputType::PositionArray);
+        const int32 PositionIndex=0;
+        const int32 DirectionIndex=Values.NativeInputs.Entries.Num();Array(TEXT("User.Native.IceDirections"),EMCVFXNativeInputType::VectorArray);
+        const int32 ProgressIndex=Values.NativeInputs.Entries.Num();Array(TEXT("User.Native.IceProgress"),EMCVFXNativeInputType::FloatArray);
+        const int32 StateIndex=Values.NativeInputs.Entries.Num();Array(TEXT("User.Native.IceState"),EMCVFXNativeInputType::FloatArray);
+        const int32 OrdinalIndex=Values.NativeInputs.Entries.Num();Array(TEXT("User.Native.IceOrdinal"),EMCVFXNativeInputType::FloatArray);
+        const int32 EpochIndex=Values.NativeInputs.Entries.Num();Array(TEXT("User.Native.IceEpoch"),EMCVFXNativeInputType::FloatArray);
+        const int32 AgeIndex=Values.NativeInputs.Entries.Num();Array(TEXT("User.Native.IceSampleAge"),EMCVFXNativeInputType::FloatArray);
+        const int32 RadiusIndex=Values.NativeInputs.Entries.Num();Array(TEXT("User.Native.IceRadius"),EMCVFXNativeInputType::FloatArray);
+        const int32 ActiveIndex=Values.NativeInputs.Entries.Num();Array(TEXT("User.Native.IceActiveIndices"),EMCVFXNativeInputType::FloatArray);
+        const int32 StartIndex=Values.NativeInputs.Entries.Num();Array(TEXT("User.Native.IceFamilyStarts"),EMCVFXNativeInputType::FloatArray).FloatValues.Init(0,6);
+        const int32 CountIndex=Values.NativeInputs.Entries.Num();Array(TEXT("User.Native.IceFamilyCounts"),EMCVFXNativeInputType::FloatArray).FloatValues.Init(0,6);
+        for(int32 RowIndex=0;RowIndex<Rows.Num();++RowIndex)if(Valid)
+        {
+            const auto& Row=Rows[RowIndex];
+            if(Row.bEnabled && Row.Component.IsValid() && Row.Component->GetRequestedExecutionState()==ENiagaraExecutionState::Active)
+            {
+                auto& Count=Values.NativeInputs.Entries[CountIndex].FloatValues[Row.Family];
+                if(Count==0)Values.NativeInputs.Entries[StartIndex].FloatValues[Row.Family]=Values.NativeInputs.Entries[ActiveIndex].FloatValues.Num();
+                ++Count;Values.NativeInputs.Entries[ActiveIndex].FloatValues.Add(float(RowIndex));
+            }
+            Values.NativeInputs.Entries[PositionIndex].PositionValues.Add(Row.Position);
+            Values.NativeInputs.Entries[DirectionIndex].VectorValues.Add(Row.Rotation.Vector());
+            Values.NativeInputs.Entries[ProgressIndex].FloatValues.Add(Row.Progress);
+            Values.NativeInputs.Entries[StateIndex].FloatValues.Add(float(Row.NativeState));
+            Values.NativeInputs.Entries[OrdinalIndex].FloatValues.Add(float(Row.Ordinal));
+            Values.NativeInputs.Entries[EpochIndex].FloatValues.Add(float(Row.ActivationEpoch));
+            Values.NativeInputs.Entries[AgeIndex].FloatValues.Add(Row.SampleAge);
+            Values.NativeInputs.Entries[RadiusIndex].FloatValues.Add(Row.PhaseRadius);
+        }
+        auto& Clock=Array(TEXT("User.Native.IceEventAge"),EMCVFXNativeInputType::Float);Clock.FloatValue=float(ComposerEventAge);
+        Array(TEXT("User.Native.IceContextReady"),EMCVFXNativeInputType::Bool).BoolValue=true;
+        FString Error;bool Accepted=false;
+        if(ComposerPresentation)Accepted=ComposerPresentation->UpdateState(TEXT("World.Ice"),Event,Enabled,
+            FTransform::Identity,Values,GetRootComponent(),Error);
+        bool UseOriginal=true;EMCPerkVFXSlotMode Mode=EMCPerkVFXSlotMode::UseDefault;
+        if(Enabled&&Accepted&&Channel&&Channel->GetPreparedEventMode(TEXT("World.Ice"),Event,Mode))
+        {
+            if(Mode==EMCPerkVFXSlotMode::Disabled)UseOriginal=false;
+            else if((Mode==EMCPerkVFXSlotMode::Replace||Mode==EMCPerkVFXSlotMode::Composition)
+                &&Channel->IsSourceEpisodeVisualActive(TEXT("World.Ice"),Values.EpisodeID)
+                &&!ComposerPresentation->UsesNativeVisuals(TEXT("World.Ice"),Event))UseOriginal=false;
+        }
+        for(const auto& Call:Calls)ApplyOriginalLoop(Call,UseOriginal);
+    }
+    TArray<FName> Retired;
+    for(const auto& Pair:ComposerLoopEpisodes)if(!Active.Contains(Pair.Key))Retired.Add(Pair.Key);
+    for(FName Event:Retired)
+    {
+        FString Error;if(ComposerPresentation)ComposerPresentation->UpdateState(TEXT("World.Ice"),Event,false,
+            FTransform::Identity,FMCPerkVFXGameplayValues(),GetRootComponent(),Error);
+        ComposerLoopEpisodes.Remove(Event);ComposerLoopStarted.Remove(Event);
+    }
+    ComposerLoopCalls.Reset();
+}
+
+bool AMCIceEventVFX::UseOriginalBurst(FName Event,FVector Position)
+{
+    ObserveComposerEvent(Event);
+    auto* Channel=ComposerPresentation?ComposerPresentation->GetSource(TEXT("World.Ice")):nullptr;
+    if(!Channel)return true;
+    FMCPerkVFXGameplayValues Values;Values.EpisodeID=FGuid::NewGuid();Values.LocalStateAgeSeconds=0;
+    Values.VisualSubject=GetRootComponent();Values.Duration=3.5f;
+    const auto Result=Channel->PlayLocalSourceEvent(TEXT("World.Ice"),Event,FTransform(FQuat::Identity,Position),Values);
+    return Result==EMCVFXPresentationResult::UseDefault||Result==EMCVFXPresentationResult::Rejected;
+}
+
+bool AMCIceEventVFX::UseOriginalSheet(FName Event,FMCPerkVFXGameplayValues& Values,bool bActive)
+{
+    const int32 Slot=Event==TEXT("WindSheetVortex")?0:1;
+    if(bActive&&!ComposerSheetEpisodes[Slot].IsValid())
+    {ComposerSheetEpisodes[Slot]=FGuid::NewGuid();ComposerSheetStarted[Slot]=ComposerServerTime;ObserveComposerEvent(Event);}
+    Values.VisualSubject=GetRootComponent();Values.FrameComponent=GetRootComponent();
+    Values.EpisodeID=ComposerSheetEpisodes[Slot];
+    Values.LocalStateAgeSeconds=bActive?FMath::Max(0.f,float(ComposerServerTime-ComposerSheetStarted[Slot])):0.f;
+    FString Error;
+    const bool Accepted=ComposerPresentation&&ComposerPresentation->UpdateState(TEXT("World.Ice"),Event,bActive,
+        FTransform::Identity,Values,GetRootComponent(),Error);
+    auto* Channel=ComposerPresentation?ComposerPresentation->GetSource(TEXT("World.Ice")):nullptr;
+    bool UseOriginal=true;EMCPerkVFXSlotMode Mode=EMCPerkVFXSlotMode::UseDefault;
+    if(bActive&&Accepted&&Channel&&Channel->GetPreparedEventMode(TEXT("World.Ice"),Event,Mode))
+    {
+        if(Mode==EMCPerkVFXSlotMode::Disabled)UseOriginal=false;
+        else if((Mode==EMCPerkVFXSlotMode::Replace||Mode==EMCPerkVFXSlotMode::Composition)
+            &&Channel->IsSourceEpisodeVisualActive(TEXT("World.Ice"),Values.EpisodeID)
+            &&!ComposerPresentation->UsesNativeVisuals(TEXT("World.Ice"),Event))UseOriginal=false;
+    }
+    if(!bActive){ComposerSheetEpisodes[Slot].Invalidate();ComposerSheetStarted[Slot]=0;}
+    return UseOriginal;
+}
+
 
 void AMCIceEventVFX::UpdateWindSheet(const AMCIceEvent& Event, double ServerTime, float Strength, bool bWarning)
 {
@@ -753,11 +1022,42 @@ void AMCIceEventVFX::UpdateWindSheet(const AMCIceEvent& Event, double ServerTime
     TArray<FLinearColor> Colors;
     TArray<FProcMeshTangent> Tangents;
     TArray<int32> Indices;
+    // Preserve all projected damage/safe rings. Only these decorative index ranges
+    // may be omitted after an already prepared Composer source accepts ownership.
+    struct FDecorativeRange {int32 First=0,Count=0,Kind=0;};
+    TArray<FDecorativeRange> DecorativeRanges;
+    FMCPerkVFXGameplayValues VortexValues,AmbientValues;
+    auto Arrays=[](FMCPerkVFXGameplayValues& Values,const TCHAR* Prefix)
+    {
+        const EMCVFXNativeInputType Types[]={EMCVFXNativeInputType::PositionArray,EMCVFXNativeInputType::PositionArray,
+            EMCVFXNativeInputType::VectorArray,EMCVFXNativeInputType::VectorArray,
+            EMCVFXNativeInputType::FloatArray,EMCVFXNativeInputType::FloatArray,
+            EMCVFXNativeInputType::FloatArray,EMCVFXNativeInputType::FloatArray};
+        const TCHAR* Suffixes[]={TEXT("A"),TEXT("B"),TEXT("NormalA"),TEXT("NormalB"),TEXT("X"),TEXT("Y"),TEXT("Z"),TEXT("W")};
+        Values.NativeInputs.Entries.Reserve(12);
+        for(int32 I=0;I<UE_ARRAY_COUNT(Types);++I)
+        {auto& Input=Values.NativeInputs.Entries.AddDefaulted_GetRef();Input.Name=FName(FString(Prefix)+Suffixes[I]);Input.Type=Types[I];}
+    };
+    Arrays(VortexValues,TEXT("User.Native.IceSheet"));Arrays(AmbientValues,TEXT("User.Native.IceSheet"));
+    bool VortexPayloadValid=true,AmbientPayloadValid=true;
     Vertices.Reserve(24*(Steps+1)*2); Normals.Reserve(Vertices.Max());
     UV.Reserve(Vertices.Max()); Colors.Reserve(Vertices.Max()); Tangents.Reserve(Vertices.Max());
     const FTransform Transform=WindSheet->GetComponentTransform();
     auto Vortex=[&](FVector Center,float Radius,float Height,float Age,float Weight,int32 Bands,bool bFalling)
     {
+        const int32 RangeStart=Indices.Num();
+        // One compact row per original band; never upload a resampled hazard mesh.
+        for(int32 Band=0;Band<Bands;++Band)
+        {
+            if(VortexValues.NativeInputs.Entries[0].PositionValues.Num()>=48)
+            {VortexPayloadValid=false;break;}
+            auto& E=VortexValues.NativeInputs.Entries;
+            E[0].PositionValues.Add(Center);E[1].PositionValues.Add(Center);
+            E[2].VectorValues.Add(FVector(Radius,Height,Age));
+            E[3].VectorValues.Add(FVector(Band,Bands,bFalling?1:0));
+            E[4].FloatValues.Add(Weight);E[5].FloatValues.Add(bWarning?1:0);
+            E[6].FloatValues.Add(0);E[7].FloatValues.Add(0);
+        }
         for(int32 Band=0;Band<Bands;++Band)
         {
             const int32 First=Vertices.Num();
@@ -786,6 +1086,7 @@ void AMCIceEventVFX::UpdateWindSheet(const AMCIceEvent& Event, double ServerTime
                 }
             }
         }
+        DecorativeRanges.Add({RangeStart,Indices.Num()-RangeStart,0});
     };
     const float BlastAge=float(ServerTime-BlastStartedAt);
     const bool bFloorWave=(Event.UsesColdThroneContract() || Event.bUseAnimatedBossAttacks)
@@ -919,8 +1220,19 @@ void AMCIceEventVFX::UpdateWindSheet(const AMCIceEvent& Event, double ServerTime
                     const bool bCurrent=Event.Tongue->SurfacePoint(Point,Current);
                     if(bPrevious && bCurrent)
                     {
+                        const int32 RangeStart=Indices.Num();
                         const int32 First=Vertices.Num();
                         const float Height=80+Band*50,Width=16+6*FMath::Sin(float(ServerTime)+Fraction*9);
+                        auto& E=AmbientValues.NativeInputs.Entries;
+                        if(E[0].PositionValues.Num()>=72)AmbientPayloadValid=false;
+                        else {
+                            E[0].PositionValues.Add(Previous.ImpactPoint);E[1].PositionValues.Add(Current.ImpactPoint);
+                            E[2].VectorValues.Add(Previous.ImpactNormal);E[3].VectorValues.Add(Current.ImpactNormal);
+                            // Artistic height/width are evaluated in the NS. These
+                            // are the accepted phase clock, ordinal and native strength.
+                            E[4].FloatValues.Add(float(Segment));E[5].FloatValues.Add(float(Band));
+                            E[6].FloatValues.Add(float(ServerTime));E[7].FloatValues.Add(WinterStrength);
+                        }
                         const FVector Points[]={Previous.ImpactPoint+Previous.ImpactNormal*(Height-Width),
                             Previous.ImpactPoint+Previous.ImpactNormal*(Height+Width),
                             Current.ImpactPoint+Current.ImpactNormal*(Height+Width),
@@ -935,6 +1247,7 @@ void AMCIceEventVFX::UpdateWindSheet(const AMCIceEvent& Event, double ServerTime
                             Tangents.Add(FProcMeshTangent(Transform.InverseTransformVectorNoScale(Tangent),false));
                         }
                         Indices.Append({First,First+2,First+1,First,First+3,First+2});
+                        DecorativeRanges.Add({RangeStart,Indices.Num()-RangeStart,1});
                     }
                     Previous=Current; bPrevious=bCurrent;
                 }
@@ -960,14 +1273,42 @@ void AMCIceEventVFX::UpdateWindSheet(const AMCIceEvent& Event, double ServerTime
         if(FloorAt(Event,Event.BossAttack.TargetAnchor,Floor))
             Vortex(Floor.ImpactPoint,Event.BossAttack.TargetRadius,100,float(ServerTime-Event.BossAttack.ImpactAt),.9f,8,false);
     }
+    auto Scalar=[](FMCPerkVFXGameplayValues& Values,const TCHAR* Name,float Value)
+    {auto& Input=Values.NativeInputs.Entries.AddDefaulted_GetRef();Input.Name=Name;Input.Type=EMCVFXNativeInputType::Float;Input.FloatValue=Value;};
+    const float Flow=bColdThrone?.6f+WinterStrength*.6f:bWarning?.8f:bBlast?1.7f:.5f;
+    const float Opacity=bColdThrone?.42f:bWarning?.5f:bBlast?.65f:.4f;
+    for(auto* Values:{&VortexValues,&AmbientValues})
+    {Scalar(*Values,TEXT("User.Native.IceEventAge"),float(ComposerEventAge));
+        Scalar(*Values,TEXT("User.Native.IceSheetFlow"),Flow);Scalar(*Values,TEXT("User.Native.IceSheetOpacity"),Opacity);
+        auto& Count=Values->NativeInputs.Entries.AddDefaulted_GetRef();Count.Name=TEXT("User.Native.IceSheetCount");
+        Count.Type=EMCVFXNativeInputType::Int;Count.IntValue=Values->NativeInputs.Entries[0].PositionValues.Num();}
+    const bool OriginalVortex=UseOriginalSheet(TEXT("WindSheetVortex"),VortexValues,VortexPayloadValid&&!VortexValues.NativeInputs.Entries[0].PositionValues.IsEmpty());
+    const bool OriginalAmbient=UseOriginalSheet(TEXT("WindSheetAmbient"),AmbientValues,AmbientPayloadValid&&!AmbientValues.NativeInputs.Entries[0].PositionValues.IsEmpty());
+    if(!OriginalVortex||!OriginalAmbient)
+    {
+        TArray<int32> Retained;Retained.Reserve(Indices.Num());int32 Cursor=0;
+        for(const auto& Range:DecorativeRanges)
+        {
+            if(Range.First>Cursor)Retained.Append(Indices.GetData()+Cursor,Range.First-Cursor);
+            if(Range.Kind==0?OriginalVortex:OriginalAmbient)Retained.Append(Indices.GetData()+Range.First,Range.Count);
+            Cursor=Range.First+Range.Count;
+        }
+        if(Cursor<Indices.Num())Retained.Append(Indices.GetData()+Cursor,Indices.Num()-Cursor);
+        Indices=MoveTemp(Retained);
+    }
     const auto* Existing=WindSheet->GetProcMeshSection(0);
-    if(Existing && Existing->ProcVertexBuffer.Num()==Vertices.Num() && Existing->ProcIndexBuffer.Num()==Indices.Num())
+    bool SameTopology=Existing && Existing->ProcIndexBuffer.Num()==Indices.Num();
+    if(SameTopology)for(int32 I=0;I<Indices.Num();++I)if(Existing->ProcIndexBuffer[I]!=uint32(Indices[I])){SameTopology=false;break;}
+    if(Existing && Existing->ProcVertexBuffer.Num()==Vertices.Num() && SameTopology)
         WindSheet->UpdateMeshSection_LinearColor(0,Vertices,Normals,UV,Colors,Tangents);
     else WindSheet->CreateMeshSection_LinearColor(0,Vertices,Indices,Normals,UV,Colors,Tangents,false);
 }
 
 void AMCIceEventVFX::StopLoops()
 {
+    bCollectComposerLoops=false;ComposerLoopCalls.Reset();ComposerLoopMemory.Reset();ComposerLoopOverflow.Reset();ComposerLoopEpisodes.Reset();ComposerLoopStarted.Reset();
+    for(int32 I=0;I<2;++I){ComposerSheetEpisodes[I].Invalidate();ComposerSheetStarted[I]=0;}
+    if(ComposerPresentation)ComposerPresentation->StopStates();
     for(auto* Component:{Wind.Get(),Snow.Get(),CoreCharge.Get(),BombCharge.Get()})
         if(IsValid(Component)) Component->DeactivateImmediate();
     for(UNiagaraComponent* Component:WinterWisps)
@@ -998,7 +1339,79 @@ void AMCIceEventVFX::StopLoops()
     if(IsValid(CoreHealthLabel)) CoreHealthLabel->SetVisibility(false);
     for(UTextRenderComponent* Label:CrystalHealthLabels)
         if(IsValid(Label)) Label->SetVisibility(false);
+    ComposerFacetEpisodes.Reset();ComposerFacetStarted.Reset();
     PreviousCrystals.Reset(); PreviousFeet.Reset(); WinterStrength=0;
+}
+
+bool AMCIceEventVFX::PrepareForLocation(FGuid Token)
+{
+    if(!Token.IsValid()||!HasActorBegunPlay()||bPreparedForLocation||bWasActive||bFinishing||!Bursts.IsEmpty())return false;
+    // The location manifest has already loaded this original parent. Do not
+    // synchronously load it or construct an Ice gameplay actor during prewarm.
+    auto* FrostParent=FindObject<UMaterialInterface>(nullptr,
+        TEXT("/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost"));
+    if(!FrostParent)return false;
+    PreparedFrostSurfaceMID=UMaterialInstanceDynamic::Create(FrostParent,this);
+    if(!PreparedFrostSurfaceMID)return false;
+    PreparedFrostSurfaceFactory=NewObject<UProceduralMeshComponent>(this,NAME_None,RF_Transient);
+    PreparedFrostSurfaceFactory->SetupAttachment(GetRootComponent());
+    PreparedFrostSurfaceFactory->SetAbsolute(true,true,true);
+    PreparedFrostSurfaceFactory->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    PreparedFrostSurfaceFactory->SetCanEverAffectNavigation(false);
+    PreparedFrostSurfaceFactory->SetCastShadow(false);
+    PreparedFrostSurfaceFactory->SetMaterial(0,PreparedFrostSurfaceMID);
+    PreparedFrostSurfaceFactory->SetVisibility(false);
+    EnsureFrozenFootCapacity(8);
+    // Use the exact procedural component/MID and native vertex factory before
+    // readiness. This hidden factory quad never represents gameplay geometry.
+    const TArray<FVector> V={FVector(-1,-1,0),FVector(1,-1,0),FVector(1,1,0),FVector(-1,1,0)};
+    const TArray<int32> I={0,1,2,0,2,3};
+    const TArray<FVector> N={FVector::UpVector,FVector::UpVector,FVector::UpVector,FVector::UpVector};
+    const TArray<FVector2D> UV={FVector2D(0,0),FVector2D(1,0),FVector2D(1,1),FVector2D(0,1)};
+    const TArray<FLinearColor> C={FLinearColor::White,FLinearColor::White,FLinearColor::White,FLinearColor::White};
+    const TArray<FProcMeshTangent> T={FProcMeshTangent(1,0,0),FProcMeshTangent(1,0,0),FProcMeshTangent(1,0,0),FProcMeshTangent(1,0,0)};
+    WindSheet->CreateMeshSection_LinearColor(0,V,I,N,UV,C,T,false);
+    PreparedFrostSurfaceFactory->CreateMeshSection_LinearColor(0,V,I,N,UV,C,T,false);
+    PreparedFrostSurfaceFactory->RegisterComponent();
+    StopLoops();SetActorHiddenInGame(true);SetActorTickEnabled(false);SetLifeSpan(0);
+    PreparedClaimToken=Token;bPreparedForLocation=true;
+    return HasRequiredAssets()&&FootFacets.Num()==48&&FootMotes.Num()==16
+        &&!FootFacets.ContainsByPredicate([](const auto& Part){return !IsValid(Part.Get());})
+        &&!FootMotes.ContainsByPredicate([](const auto& Part){return !IsValid(Part.Get());});
+}
+
+void AMCIceEventVFX::GetLocationPreparedResources(TArray<UObject*>& Out) const
+{
+    for(const auto& Asset:LoadedAssets)if(IsValid(Asset.Get()))Out.AddUnique(Asset.Get());
+    if(IsValid(SheetMID.Get()))Out.AddUnique(SheetMID.Get());
+    if(IsValid(PreparedFrostSurfaceMID.Get()))Out.AddUnique(PreparedFrostSurfaceMID.Get());
+}
+
+bool AMCIceEventVFX::ClaimPreparedPresentation(AMCIceEvent* Source,FGuid Token)
+{
+    if(!bPreparedForLocation||bPreparedClaimed||Token!=PreparedClaimToken||!Token.IsValid()
+        ||!IsValid(Source)||Source->GetWorld()!=GetWorld()||GetWorld()->bIsTearingDown)return false;
+    // Transfer the exact already-prepared variant. Refuse a foreign material
+    // or MID instead of silently replacing its parent or authored overrides.
+    if(!IsValid(PreparedFrostSurfaceMID.Get())||!IsValid(Source->FrostSurface.Get())
+        ||Source->FrostSurface->GetMaterial(0)!=PreparedFrostSurfaceMID->Parent.Get())return false;
+    Source->FrostSurface->SetMaterial(0,PreparedFrostSurfaceMID);
+    PreparedClaimSource=Source;bPreparedClaimed=true;SetOwner(Source);
+    SetActorHiddenInGame(false);SetActorTickEnabled(true);return true;
+}
+
+bool AMCIceEventVFX::CancelPresentationFor(const AMCIceEvent* Source,FGuid Token)
+{
+    if(bPreparedForLocation)
+    {
+        if(!bPreparedClaimed||Token!=PreparedClaimToken||PreparedClaimSource.Get()!=Source)return false;
+    }
+    else if(GetOwner()!=Source)return false;
+    // Only this actor's source/channel and original bursts. Other actors' World
+    // one-shots are not stopped. Successful native1.65 retirement does not call this.
+    if(ComposerPresentation){if(auto* Channel=ComposerPresentation->GetSource(TEXT("World.Ice")))Channel->StopPresentation(true);
+        if(auto* Surface=ComposerPresentation->GetSource(TEXT("World.Ice.Surface")))Surface->StopPresentation(true);}
+    StopLoops();while(!Bursts.IsEmpty())RetireBurst(Bursts.Last());return true;
 }
 
 void AMCIceEventVFX::FinishPresentation(FVector CoreFloorPoint)
@@ -1007,8 +1420,8 @@ void AMCIceEventVFX::FinishPresentation(FVector CoreFloorPoint)
     if(!CoreFloorPoint.ContainsNaN()) LastCorePoint=CoreFloorPoint;
     bFinishing=true;
     StopLoops();
-    PlayBurst(ShardSystem.Get(),nullptr,LastCorePoint+FVector(0,0,180),1.2f,FVector(.18,.23,.45),FVector2D::ZeroVector,IceColor);
-    PlayBurst(MistSystem.Get(),MistMaterial.Get(),LastCorePoint+FVector(0,0,40),1.05f,FVector::OneVector,FVector2D(190,140),FLinearColor(.55f,.84f,1,.7f));
+    PlayBurst(ShardSystem.Get(),nullptr,LastCorePoint+FVector(0,0,180),1.2f,FVector(.18,.23,.45),FVector2D::ZeroVector,IceColor,TEXT("Finish"));
+    PlayBurst(MistSystem.Get(),MistMaterial.Get(),LastCorePoint+FVector(0,0,40),1.05f,FVector::OneVector,FVector2D(190,140),FLinearColor(.55f,.84f,1,.7f),TEXT("Finish"),false);
     SetLifeSpan(1.65f);
 }
 

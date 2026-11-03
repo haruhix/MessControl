@@ -6,6 +6,8 @@
 #include "MCEmoteWidget.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCVFXPresentationComponent.h"
 #include "MCToothCharacter.h"
 #include "MCInventoryComponent.h"
 #include "MCPerkComponent.h"
@@ -85,6 +87,9 @@ void AMCPlayerController::EnsureLocalPresentation()
     // seamless travel. Tick retries this initialization after ownership is real.
     if(!HasLocalPresentationOwner() || LocalPresentationWorld.Get()==GetWorld()) return;
     LocalPresentationWorld=GetWorld();
+    // Register the finite Interface source before RefreshLoadingPresentation
+    // begins the location barrier. WorldPreload retries resident preparation.
+    if(!IsHubWorld())MCWorldPresentation::PrepareOwner(this,{FName(TEXT("UI.ShiftFeedback"))});
     RefreshLoadingPresentation();
     if(!BackgroundSoundPalette) BackgroundSoundPalette=LoadObject<UMCSoundPalette>(nullptr,TEXT("/Game/Data/DA_MouthSounds.DA_MouthSounds"));
     if(!SceneAudio) {
@@ -101,6 +106,27 @@ void AMCPlayerController::EnsureLocalPresentation()
         GetWorldTimerManager().SetTimer(BossHUDTimer,this,&AMCPlayerController::RefreshBossHUD,.1f,true);
     }
     RefreshHubPresentation(0.f); UpdateInputMode();
+}
+
+bool AMCPlayerController::PresentShiftFeedback(const UMCPrototypeWidget* SourceWidget,FName Event,const AMCToothCharacter* Tooth)
+{
+    if(!HasLocalPresentationOwner()||!IsWorldPresentationReady()||GetNetMode()==NM_DedicatedServer
+        ||!IsValid(SourceWidget)||SourceWidget!=PrototypeWidget.Get()||SourceWidget->GetWorld()!=GetWorld()
+        ||SourceWidget->GetOwningPlayer()!=this||!IsValid(Tooth)||Tooth!=GetPawn()
+        ||Tooth->GetWorld()!=GetWorld()||SourceWidget->GetOwningPlayerPawn()!=Tooth)return false;
+    const auto* State=GetWorld()->GetGameState<AMCGameState>();
+    const FName Expected=State&&State->Phase==EMCShiftPhase::Working?FName(TEXT("Start")):
+        State&&State->Phase==EMCShiftPhase::Won?FName(TEXT("Win")):
+        State&&State->Phase==EMCShiftPhase::Lost?FName(TEXT("Lose")):NAME_None;
+    if(Event.IsNone()||Event!=Expected)return false;
+    const auto* Adapter=FindComponentByClass<UMCWorldPresentationComponent>();
+    auto* Channel=Adapter?Adapter->GetSource(TEXT("UI.ShiftFeedback")):nullptr;
+    if(!Channel)return false;
+    FMCPerkVFXGameplayValues Values;Values.VisualSubject=Tooth->GetMesh();
+    Values.Intensity=.65f;Values.LocalStateAgeSeconds=0.f;
+    // The widget retains its original LastDay/LastPhase edge ledger and art.
+    const auto Result=Channel->PlayLocalSourceEvent(TEXT("UI.ShiftFeedback"),Event,Tooth->GetActorTransform(),Values);
+    return Result!=EMCVFXPresentationResult::Rejected&&Channel->GetLastAudioError().IsEmpty();
 }
 void AMCPlayerController::SetupInputComponent()
 {
@@ -330,6 +356,8 @@ void AMCPlayerController::ResetWorldPresentation()
 {
     {
         TGuardValue<bool> Resetting(bResettingWorldPresentation,true);
+        if(const auto* Sources=FindComponentByClass<UMCWorldPresentationComponent>())
+            if(auto* Channel=Sources->GetSource(TEXT("UI.ShiftFeedback")))Channel->StopPresentation(true);
         CloseEmotes();
         LocalPresentationWorld.Reset();
         CloseWardrobe();WardrobeWarmSlate.Reset();WardrobeWidget=nullptr;NearbyWardrobe.Reset();

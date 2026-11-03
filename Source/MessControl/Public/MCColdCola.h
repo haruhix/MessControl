@@ -10,6 +10,7 @@ class UStaticMeshComponent;
 class AMCToothCharacter;
 class UMCCoffeeProfile;
 class UNiagaraComponent;
+class UNiagaraSystem;
 class UStaticMesh;
 class UMaterialInterface;
 
@@ -44,6 +45,10 @@ public:
     AMCIceBlock();
     virtual void BeginPlay() override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
+    UPROPERTY(EditDefaultsOnly,Category="Presentation") TSoftObjectPtr<UNiagaraSystem> OriginalShatterSystem;
+#if WITH_EDITOR
+    uint32 GetAcceptedShatterSerial() const {return AcceptedShatterSerial;}
+#endif
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Body;
     UPROPERTY(ReplicatedUsing=RefreshAppearance,BlueprintReadOnly) float Health=80;
     UPROPERTY(ReplicatedUsing=RefreshAppearance,BlueprintReadOnly) float MaxHealth=80;
@@ -58,6 +63,8 @@ private:
     UPROPERTY() TArray<TObjectPtr<UStaticMesh>> ShapeMeshes;
     UPROPERTY() TObjectPtr<UMaterialInterface> IceMaterial;
     UPROPERTY(Transient) TObjectPtr<class UMaterialInstanceDynamic> IceMID;
+    UPROPERTY(Transient) TObjectPtr<UNiagaraSystem> RetainedShatterSystem;
+    uint32 AcceptedShatterSerial=0;
 };
 
 /** Shared timeline event: top-down cola, growing frost, slippery ground, falling ice. */
@@ -67,6 +74,7 @@ class MESSCONTROL_API AMCColdColaEvent : public AActor
     GENERATED_BODY()
 public:
     AMCColdColaEvent();
+    virtual void BeginPlay() override;
     virtual void Tick(float Dt) override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
@@ -89,5 +97,6 @@ private:
     TArray<TWeakObjectPtr<AMCIceBlock>> Blocks;
     TArray<FVector> SpawnPositions;
     void SetFrost(float Amount);
+    void UpdateComposerFrost();
     double Now() const;
 };

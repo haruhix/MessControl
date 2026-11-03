@@ -1,10 +1,12 @@
 #include "MCBrushContactComponent.h"
+#include "CoreGlobals.h"
 #include "MCArenaTooth.h"
 #include "MCMouthSurface.h"
 #include "MCTongue.h"
 #include "MCIceEvent.h"
 #include "EngineUtils.h"
 #include "MCToothCharacter.h"
+#include "MCWorldPresentationComponent.h"
 #include "MCInventoryComponent.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCToothStatusComponent.h"
@@ -50,6 +52,7 @@ void UMCBrushContactComponent::BeginPlay()
     if(Hero) PrimaryComponentTick.AddPrerequisite(Hero,Hero->PrimaryActorTick);
     for(TActorIterator<AMCTongue> It(GetWorld());It;++It) { Tongue=*It; break; }
     if (!Hero || GetNetMode()==NM_DedicatedServer) return;
+    Composer=MCWorldPresentation::PrepareOwner(Hero,{TEXT("Tool.Brush")});
     if(auto* System=FoamSystem.LoadSynchronous()) {
         Foam=NewObject<UNiagaraComponent>(Hero,TEXT("BrushFoamNiagara"));
         Foam->SetupAttachment(Hero->GetRootComponent()); Foam->SetAutoActivate(false);
@@ -72,9 +75,22 @@ FVector UMCBrushContactComponent::BristlePoint() const
 bool UMCBrushContactComponent::IsTouchingSurface() const
 {
     if(!IsValid(Target) || !IsFacingContact()) return false;
-    // Only presentation needs an evaluated visible wrist.
-    if(!FApp::CanEverRender() || !GetWorld()->GetGameViewport()) return true;
+    if(bRequireEvaluatedContact) {
+        const auto* Mesh=Hero?Hero->GetMesh():nullptr;
+        if(!FApp::CanEverRender() || !Mesh || !Mesh->IsRegistered() || !Hero->Brush || !Hero->Inventory
+            || Mesh->GetBoneTransformRevisionNumber()==RequiredPoseRevision
+            || uint32(GFrameCounter)-Mesh->GetCurrentBoneTransformFrame()>1)return false;
+    } else {
+        // Preserve the ordinary authority/no-viewport geometry+clock contract.
+        if(!FApp::CanEverRender() || !GetWorld()->GetGameViewport())return true;
+    }
     return Blend>.98f && FVector::DistSquared(BristlePoint(),ContactPoint())<=FMath::Square(16.f);
+}
+void UMCBrushContactComponent::SetRequireEvaluatedContact(bool bRequired)
+{
+    if(bRequireEvaluatedContact==bRequired)return;
+    bRequireEvaluatedContact=bRequired;
+    RequiredPoseRevision=Hero&&Hero->GetMesh()?Hero->GetMesh()->GetBoneTransformRevisionNumber():0;
 }
 bool UMCBrushContactComponent::IsWorkReady() const
 {
@@ -291,12 +307,27 @@ void UMCBrushContactComponent::TickComponent(float Dt,ELevelTick Type,FActorComp
     // aligning the body; clearing it here prevented the next movement tick
     // from turning toward narrower crowns before the hand was presented.
     if(Now-ContactAt>=.3 && Blend<=0 && !bHandPresented && GetOwner()->HasAuthority()) Target=nullptr;
-    if(!Foam) return;
     const bool Emit=Active && Hero->HasBrush() && IsTouchingSurface();
-    if(Emit) Foam->SetWorldLocationAndRotation(ContactPoint()+ContactNormal()*3,FRotationMatrix::MakeFromZ(ContactNormal()).Rotator());
-    if(Emit!=bFoamEmitting) {
-        if(Emit) Foam->Activate(true); else Foam->Deactivate();
-        bFoamEmitting=Emit;
+    const FTransform Frame=Emit?FTransform(FRotationMatrix::MakeFromZ(ContactNormal()).ToQuat(),ContactPoint()+ContactNormal()*3):FTransform::Identity;
+    bool Native=true;
+    if(Composer) {
+        FMCPerkVFXGameplayValues Values;Values.VisualSubject=Hero->GetMesh();Values.Direction=ContactNormal();
+        Values.LocalStateAgeSeconds=FMath::Max(0.f,float(Now-ApproachStartedAt-1.0/3.0));
+        auto& ContactPosition=Values.NativeInputs.Entries.AddDefaulted_GetRef();
+        ContactPosition.Name=TEXT("User.Native.BrushContactPosition");ContactPosition.Type=EMCVFXNativeInputType::Position;ContactPosition.PositionValue=ContactPoint();
+        auto& ContactNormalInput=Values.NativeInputs.Entries.AddDefaulted_GetRef();
+        ContactNormalInput.Name=TEXT("User.Native.BrushContactNormal");ContactNormalInput.Type=EMCVFXNativeInputType::Vector;ContactNormalInput.VectorValue=ContactNormal();
+        auto& ContactAge=Values.NativeInputs.Entries.AddDefaulted_GetRef();
+        ContactAge.Name=TEXT("User.Native.BrushContactAge");ContactAge.Type=EMCVFXNativeInputType::Float;ContactAge.FloatValue=Values.LocalStateAgeSeconds;
+        FString Error;const bool Updated=Composer->UpdateState(TEXT("Tool.Brush"),TEXT("Contact"),Emit,Frame,Values,this,Error);
+        Native=!Updated||Composer->UsesNativeVisuals(TEXT("Tool.Brush"),TEXT("Contact"));
+    }
+    if(!Foam)return;
+    const bool NativeEmit=Emit&&Native;
+    if(NativeEmit) Foam->SetWorldTransform(Frame);
+    if(NativeEmit!=bFoamEmitting) {
+        if(NativeEmit) Foam->Activate(true); else Foam->Deactivate();
+        bFoamEmitting=NativeEmit;
     }
 }
 void UMCBrushContactComponent::BuildPose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt)

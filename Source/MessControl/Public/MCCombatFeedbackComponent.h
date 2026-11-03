@@ -7,6 +7,7 @@
 class UMeshComponent;
 class UMaterialInterface;
 class UMaterialInstanceDynamic;
+class UMCWorldPresentationComponent;
 
 /** The accepted result of a hit. Cosmetic consumers never apply damage from this snapshot. */
 USTRUCT(BlueprintType)
@@ -23,6 +24,9 @@ struct MESSCONTROL_API FMCCombatFeedbackHit
     UPROPERTY(BlueprintReadOnly) float ShieldDamage=0.f;
     UPROPERTY(BlueprintReadOnly) bool bShielded=false;
     UPROPERTY(BlueprintReadOnly) bool bFatal=false;
+    /** Explicit accepted presentation identity; never inferred from a shared renderer or damage source. */
+    UPROPERTY(BlueprintReadOnly) FName OriginSourceID;
+    UPROPERTY(BlueprintReadOnly) FName PresentationEvent;
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMCOnCombatHitPresented,const FMCCombatFeedbackHit&,Hit);
@@ -40,10 +44,12 @@ public:
     /** Call once on authority, after resolving health and shield loss; rejected hits do not produce feedback. */
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Combat|Feedback")
     bool ReportAcceptedHit(AActor* Source,FVector ContactPoint,FVector Direction,float HealthDamage,
-        float ShieldDamage=0.f,bool bShielded=false,bool bFatal=false);
+        float ShieldDamage=0.f,bool bShielded=false,bool bFatal=false,
+        FName OriginSourceID=NAME_None,FName PresentationEvent=NAME_None);
     UFUNCTION(BlueprintCallable,Category="Combat|Feedback") void SetVisualTarget(UMeshComponent* Mesh);
     UFUNCTION(BlueprintPure,Category="Combat|Feedback") float GetHitPulse() const;
     UFUNCTION(BlueprintPure,Category="Combat|Feedback") float GetHitFlash() const;
+    bool UsesNativeAccents() const {return bNativeAccents;}
 
     UPROPERTY(ReplicatedUsing=OnRep_LastHit,BlueprintReadOnly,Category="Combat|Feedback") FMCCombatFeedbackHit LastHit;
     /** Authored animation can consume the same event while retaining its own hit pose. */
@@ -52,6 +58,8 @@ public:
     UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,Category="Combat|Feedback") bool bUseBodyOverlay=true;
     /** Baseline comparison for classes that historically had no contact effect. */
     UPROPERTY(EditDefaultsOnly,Category="Combat|Feedback") bool bLegacyHasImpact=true;
+    /** Declared by the actual owner before BeginPlay; accepted hits may only use prepared identities. */
+    UPROPERTY(EditDefaultsOnly,Category="Combat|Presentation") TArray<FName> PresentationSources;
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -63,10 +71,13 @@ private:
     void PresentHit();
     void UpdateOverlay();
     void RestoreOverlay();
+    bool UpdateComposerState();
+    UPROPERTY(Transient) TObjectPtr<UMCWorldPresentationComponent> Composer;
     UPROPERTY(Transient) TObjectPtr<UMeshComponent> VisualTarget;
     UPROPERTY(Transient) TObjectPtr<UMaterialInterface> OverlayBase;
     UPROPERTY(Transient) TObjectPtr<UMaterialInterface> PreviousOverlay;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> HitOverlay;
     int32 PresentedSerial=0;
     bool bOverlayInstalled=false;
+    bool bNativeAccents=true;
 };

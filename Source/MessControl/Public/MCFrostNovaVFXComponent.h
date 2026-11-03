@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "ProceduralMeshComponent.h"
+#include "MCVFXNativeInputs.h"
 #include "MCFrostNovaVFXComponent.generated.h"
 
 class AMCHazardWave;
@@ -13,6 +14,7 @@ class UMaterialInstanceDynamic;
 class UNiagaraComponent;
 class UNiagaraSystem;
 class UStaticMesh;
+class UMCWorldPresentationComponent;
 
 /** A gameplay warning must remain visible while an uncached PSO is prepared. */
 UCLASS()
@@ -40,6 +42,12 @@ public:
         double ImpactAt, float TravelSeconds, float WarningProgress);
     void Stop();
     bool HasRequiredAssets() const;
+    /** Explicit mechanic identity. Mint's shared presenter uses World.MintCandy. */
+    UPROPERTY(EditDefaultsOnly, Category="Frost Nova|Presentation") FName PresentationSourceID=TEXT("World.FrostNova");
+    UMCWorldPresentationComponent* GetPreparedPresentation() const;
+    uint64 GetAcceptedWaveSerial() const { return AcceptedWaveSerial; }
+    uint64 GetAcceptedBurstSerial() const { return AcceptedBurstSerial; }
+    FVector GetLastAcceptedBurstPoint() const { return LastAcceptedBurstPoint; }
 
     UPROPERTY(EditDefaultsOnly, Category="Frost Nova") TSoftObjectPtr<UMaterialInterface> FrontMaterial;
     UPROPERTY(EditDefaultsOnly, Category="Frost Nova") TSoftObjectPtr<UMaterialInterface> CrystalMaterial;
@@ -56,11 +64,14 @@ private:
         FVector Normal=FVector::UpVector;
         FQuat Rotation=FQuat::Identity;
         FVector Size=FVector::OneVector;
+        float AngleRadians=0.f;
     };
     bool PrepareVisuals();
+    void PreparePresentation();
     void DrawFront(AMCTongue* Tongue,FVector Origin,float Radius,float MaxRadius,float Age,bool bWarning,float WarningProgress);
     void UpdateCrystals(AMCTongue* Tongue,FVector Origin,float MaxRadius,float Age,float TravelSeconds);
     double ServerNow() const;
+    void UpdateEditableWave(FVector Origin,float Radius,float MaxRadius,float Age,float TravelSeconds,bool bWarning,float WarningProgress);
 
     UPROPERTY(Transient) TArray<TObjectPtr<UObject>> LoadedAssets;
     UPROPERTY(Transient) TObjectPtr<UMCFrostNovaFrontComponent> Front;
@@ -68,10 +79,16 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> FrontMID;
     UPROPERTY(Transient) TObjectPtr<UNiagaraComponent> Burst;
     TWeakObjectPtr<AMCTongue> CachedTongue;
+    TWeakObjectPtr<UMCWorldPresentationComponent> Presentation;
     TArray<FCrystalPose> CrystalPoses;
+    FMCVFXNativeInputs WaveNativeInputs,CrystalNativeInputs;
+    float CrystalSampleAge=0.f,FrontSampleAge=0.f;
+    bool bFrontSampleWarning=false;
     double WaveImpactAt=-1;
     double NextGeometryAt=-1;
     int32 WaveSeed=0;
     bool bTriedAssets=false;
     bool bBurstPlayed=false;
+    uint64 AcceptedWaveSerial=0,AcceptedBurstSerial=0;
+    FVector LastAcceptedBurstPoint=FVector::ZeroVector;
 };

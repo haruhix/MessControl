@@ -155,6 +155,11 @@ private:
     void UpdateArrivalPresentation(float Age);
     void UpdateClaimPresentation(float Age);
     void UpdateSparkPresentation(float Progress,float Opacity,float Width,bool bTouchdown);
+    bool UpdateSparkComposer(float Progress,float Opacity,float Width,bool bTouchdown,FQuat LocalFacing);
+    void StopSparkComposer();
+    UPROPERTY(Transient) TObjectPtr<class UMCWorldPresentationComponent> ComposerPresentation;
+    FName ActiveSparkSource,ActiveSparkEvent;
+    FGuid SparkEpisode=FGuid::NewGuid();
     void ResetPresentationDeformation();
     void PollApproach();
     void ReleaseOpener();

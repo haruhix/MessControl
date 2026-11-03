@@ -1,5 +1,8 @@
 #include "MCToothCharacter.h"
 #include "MCInventoryComponent.h"
+#include "MCWeaponTrailComponent.h"
+#include "MCVFXPresentationComponent.h"
+#include "MCWorldPreloadSubsystem.h"
 #include "MCToolScrollInput.h"
 #include "MCGameUserSettings.h"
 #include "MCPerkComponent.h"
@@ -11,6 +14,8 @@
 #include "MCIceEvent.h"
 #include "MCSmallMintCandy.h"
 #include "MCFreezeDeathVFX.h"
+#include "MCVFXSourceContracts.h"
+#include "MCVFXPresentationLibrary.h"
 #include "MCFogBrawlEvent.h"
 #include "MCMouthSurface.h"
 #include "MCThroat.h"
@@ -23,6 +28,7 @@
 #include "MCToothCalculusComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCCombatFeedbackComponent.h"
+#include "MCWorldPresentationComponent.h"
 #include "MCWeaponImpact.h"
 #include "MCEnemyWeaponContact.h"
 #include "MCMeleeCombo.h"
@@ -101,6 +107,35 @@ bool MCToolScrollInput::Handle(AMCToothCharacter& Hero,float Delta,FCursor& Curs
     return Hero.Inventory->RequestSelect(EMCToolSlot(Next));
 }
 
+namespace MCCharacterMovementAudio
+{
+UMCVFXPresentationComponent* PreparedChannel(AMCToothCharacter* Hero)
+{
+    const auto* Owner=Hero?Hero->FindComponentByClass<UMCWorldPresentationComponent>():nullptr;
+    return Owner?Owner->GetSource(TEXT("Character.Movement")):nullptr;
+}
+bool Dispatch(AMCToothCharacter* Hero,FName Event,float Intensity)
+{
+    auto* Channel=PreparedChannel(Hero);
+    if(!Channel||Hero->GetNetMode()==NM_DedicatedServer)return false;
+    FMCPerkVFXGameplayValues Values;Values.VisualSubject=Hero->GetMesh();Values.Intensity=Intensity;
+    Values.LocalStateAgeSeconds=0.f;
+    const auto Result=Channel->PlayLocalSourceEvent(TEXT("Character.Movement"),Event,Hero->GetActorTransform(),Values);
+    return Result!=EMCVFXPresentationResult::Rejected&&Channel->GetLastAudioError().IsEmpty();
+}
+FName LandingEvent(AMCToothCharacter* Hero)
+{
+    const auto* Channel=PreparedChannel(Hero);
+    auto HasOverride=[Channel](FName Event) {
+        EMCPerkVFXSlotMode Visual=EMCPerkVFXSlotMode::UseDefault;EMCEventSFXMode Audio=EMCEventSFXMode::UseDefault;
+        return Channel&&((Channel->GetPreparedEventMode(TEXT("Character.Movement"),Event,Visual)&&Visual!=EMCPerkVFXSlotMode::UseDefault)
+            ||(Channel->GetPreparedAudioMode(TEXT("Character.Movement"),Event,Audio)&&Audio!=EMCEventSFXMode::UseDefault));
+    };
+    // One accepted landing, one dispatch. Explicit Land wins over the legacy alias.
+    return !HasOverride(TEXT("Land"))&&HasOverride(TEXT("Jump"))?FName(TEXT("Jump")):FName(TEXT("Land"));
+}
+}
+
 AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer)
     :Super(ObjectInitializer.SetDefaultSubobjectClass<UMCToothMovementComponent>(ACharacter::CharacterMovementComponentName).SetDefaultSubobjectClass<UMCToothMeshComponent>(ACharacter::MeshComponentName))
 {
@@ -137,6 +172,7 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     ToothPhysics=CreateDefaultSubobject<UMCToothPhysicsComponent>(TEXT("ToothPhysics"));
     Status=CreateDefaultSubobject<UMCToothStatusComponent>(TEXT("ToothStatus"));
     Feedback=CreateDefaultSubobject<UMCCombatFeedbackComponent>(TEXT("CombatFeedback"));
+    Feedback->PresentationSources={TEXT("Character.Hurt")};
     Feedback->bUseProceduralRecoil=false;
     Feedback->bUseBodyOverlay=false;
     BrushContact=CreateDefaultSubobject<UMCBrushContactComponent>(TEXT("BrushContact"));
@@ -147,6 +183,10 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     FoodCollection=CreateDefaultSubobject<UMCFoodCollectionComponent>(TEXT("FoodCollection"));
     Expression=CreateDefaultSubobject<UMCExpressionComponent>(TEXT("Expression"));
     Inventory=CreateDefaultSubobject<UMCInventoryComponent>(TEXT("Inventory"));
+    PassivePresentation=CreateDefaultSubobject<UMCVFXPresentationComponent>(TEXT("PassivePresentation"));
+    // Passive profiles are prepared from their reflected DT rows. Do not pull
+    // the mouth-only boss/world library into Hub or menu pawn manifests.
+    PassivePresentation->Library.Reset();
     ExperimentalAudio=CreateDefaultSubobject<UMCExperimentalAudioComponent>(TEXT("ExperimentalAudio"));
     BrushPivot = CreateDefaultSubobject<USceneComponent>(TEXT("BrushPivot"));
     BrushPivot->SetupAttachment(GetMesh(),TEXT("hand_r"));
@@ -197,6 +237,27 @@ FTransform AMCToothCharacter::StandingMeshTransform() const
 {
     return Appearance && Appearance->SkeletalMesh==GetMesh()->GetSkeletalMeshAsset()?Appearance->MeshTransform:FTransform(FVector(0,0,-58));
 }
+bool AMCToothCharacter::PreparePresentationMaterialContext(UMCWorldPreloadSubsystem* Loading,FString& Error)
+{
+    if(!Loading || Loading->GetWorld()!=GetWorld()) {Error=TEXT("Body material context must use this character's world preparation.");return false;}
+    if(!Loading->GetMaterialContextResources() || !StatusMaterial)return true;
+    return Loading->RegisterMaterialContextScalar(GetMesh(),StatusMaterial,TEXT("HitFlash"),Error);
+}
+
+void AMCToothCharacter::ReleaseNativeHitFlash()
+{
+    if(StatusMaterial && bNativeHitFlashWritten) {
+        const FMaterialParameterInfo Parameter(TEXT("HitFlash"));
+        for(const auto& Value:StatusMaterial->ScalarParameterValues)if(Value.ParameterInfo==Parameter) {
+            // Do not erase an unrelated writer's newer scalar before a lease
+            // captures it as its baseline. Only release our last exact write.
+            if(Value.ParameterValue==LastNativeHitFlashValue)StatusMaterial->SetScalarParameterValue(TEXT("HitFlash"),0.f);
+            break;
+        }
+    }
+    bNativeHitFlashWritten=false;
+}
+
 void AMCToothCharacter::OnConstruction(const FTransform& Transform)
 {
     Super::OnConstruction(Transform); ApplyAppearance();
@@ -223,7 +284,11 @@ void AMCToothCharacter::ApplyAppearance()
 }
 void AMCToothCharacter::BeginPlay()
 {
+    // Component BeginPlay can apply an already replicated body-state onset.
+    // Prepare its exact resident channel before that existing local boundary.
+    MCWorldPresentation::PrepareOwner(this,{TEXT("Tool.Knife"),TEXT("Tool.Pickaxe"),TEXT("Tool.Brush"),TEXT("Tool.Spray"),TEXT("Tool.Watergun"),TEXT("Character.Movement")});
     Super::BeginPlay();
+    Feedback->SetVisualTarget(GetMesh()); // Exact mesh context; player overlay remains disabled as before.
     // Include Blueprint colliders and the skeletal bodies used by ragdolls.
     TInlineComponentArray<UPrimitiveComponent*> Colliders(this);
     for (auto* Collider:Colliders) {
@@ -257,6 +322,8 @@ void AMCToothCharacter::BeginPlay()
             ?LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Tests/CombatImpactCompare/M_PlayerImpactBaseline.M_PlayerImpactBaseline")):nullptr;
         StatusMaterial=UMaterialInstanceDynamic::Create(Legacy?Legacy:Base,this);
         if(Legacy) StatusMaterial->CopyMaterialUniformParameters(Base);
+        StatusMaterial->SetScalarParameterValue(TEXT("HitFlash"),0.f);
+        LastNativeHitFlashValue=0.f;bNativeHitFlashWritten=true;
         for (int32 I=0;I<GetMesh()->GetNumMaterials();++I)
         {
             const FString Name=GetNameSafe(GetMesh()->GetMaterial(I));
@@ -276,6 +343,15 @@ void AMCToothCharacter::BeginPlay()
             for(UStaticMeshComponent* Part:IceLegParts) if(Part) Part->SetStaticMesh(FootIce);
     OnRep_BagColor();
     OnRep_IceLegHealth();
+    // Respawns already create this native status MID in BeginPlay. Reuse only
+    // an exact previously prepared material/factory/scalar role; never allocate
+    // another VFX resource or delay the ordinary spawn/possession flow here.
+    if(StatusMaterial)if(auto* Loading=GetWorld()->GetSubsystem<UMCWorldPreloadSubsystem>();
+        Loading&&Loading->IsReady()&&Loading->GetMaterialContextResources()) {
+        FString Error;
+        if(!Loading->AdoptResidentMaterialContextScalar(GetMesh(),StatusMaterial,TEXT("HitFlash"),Error))
+            UE_LOG(LogTemp,Warning,TEXT("MC_PRESENTATION_LATE_SCALAR owner=%s ready=0 reason=%s"),*GetPathName(),*Error);
+    }
 }
 void AMCToothCharacter::FreezeLegs(float Health)
 {
@@ -1328,7 +1404,12 @@ void AMCToothCharacter::Landed(const FHitResult& Hit)
     if (auto* Throat=Cast<AMCThroat>(Hit.GetActor())) Throat->NotifyUvulaLanding(this,Hit,-GetVelocity().Z);
     Super::Landed(Hit); LandingImpulse = 1.f;
     if(OrderJumpTarget || !OrderJumpIgnoredActors.IsEmpty()) ClearOrderJump();
-    if (SoundPalette && !PianoLanding) SoundPalette->Play(this,TEXT("Jump"),GetActorLocation());
+    if(!PianoLanding) {
+        const FName Event=MCCharacterMovementAudio::LandingEvent(this);
+        const bool Accepted=MCCharacterMovementAudio::Dispatch(this,Event,.65f);
+        if(SoundPalette)SoundPalette->PlayWithParameters(this,TEXT("Jump"),GetActorLocation(),.65f,.5f,
+            Accepted?FName(TEXT("Character.Movement")):NAME_None,Event);
+    }
 }
 void AMCToothCharacter::FindWork(float DeltaSeconds)
 {
@@ -1443,7 +1524,10 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
         const float HitFlash=ActorHasTag(TEXT("MC.LegacyCombatFeedback"))
             ?(Status->State.bCareReaction?0.f:float(FMath::Max(0.,1-(Now-Status->State.ReactionAt)/.16)))
             :Feedback->GetHitFlash();
-        StatusMaterial->SetScalarParameterValue(TEXT("HitFlash"),HitFlash);
+        if(!Feedback || Feedback->UsesNativeAccents()) {
+            StatusMaterial->SetScalarParameterValue(TEXT("HitFlash"),HitFlash);
+            LastNativeHitFlashValue=HitFlash;bNativeHitFlashWritten=true;
+        }
     }
     const auto& A = AnimationSettings;
     const float Time = GetWorld()->GetTimeSeconds();
@@ -1491,7 +1575,10 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     if(CanHearActions && GetCharacterMovement()->IsMovingOnGround() && GroundSpeed>15.f && Speed>.05f && FootPlanted && FootstepSoundCooldown<=0)
     {
         const float Pace=FMath::Clamp(GroundSpeed/FMath::Max(1.f,CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->WalkSpeed*1.5f),0.f,1.f);
-        if(SoundPalette) SoundPalette->PlayWithParameters(this,TEXT("Step"),GetActorLocation(),FMath::Lerp(.35f,.8f,Pace),Pace);
+        const float Intensity=FMath::Lerp(.35f,.8f,Pace);
+        const bool Accepted=MCCharacterMovementAudio::Dispatch(this,TEXT("Step"),Intensity);
+        if(SoundPalette) SoundPalette->PlayWithParameters(this,TEXT("Step"),GetActorLocation(),Intensity,Pace,
+            Accepted?FName(TEXT("Character.Movement")):NAME_None,TEXT("Step"));
         FootstepSoundCooldown=.13f;
     }
     // Match the contact that actually cleans; rendered wrist placement is for foam.
@@ -1504,14 +1591,19 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
         {
             BrushSoundAccumulator=FMath::Fmod(BrushSoundAccumulator,StrokeSeconds);
             const float BrushPace=FMath::Clamp((AnimationSettings.Tempo-.5f)/1.5f,0.f,1.f);
-            if(SoundPalette) SoundPalette->PlayWithParameters(this,TEXT("Brush"),BrushContact->ContactPoint(),.65f,BrushPace);
+            if(SoundPalette) SoundPalette->PlayWithParameters(this,TEXT("Brush"),BrushContact->ContactPoint(),.65f,BrushPace,TEXT("Tool.Brush"),TEXT("Contact"));
         }
     }
     else BrushSoundAccumulator=0;
-    if(CanHearActions && bHandling && SoundPalette)
+    if(CanHearActions && bHandling)
     {
         SoundAccumulator+=DeltaSeconds;
-        if(SoundAccumulator>.28f) { SoundAccumulator=0; SoundPalette->Play(this,TEXT("Pull"),GetActorLocation()); }
+        if(SoundAccumulator>.28f) {
+            SoundAccumulator=0;
+            const bool Accepted=MCCharacterMovementAudio::Dispatch(this,TEXT("Pull"),.65f);
+            if(SoundPalette)SoundPalette->PlayWithParameters(this,TEXT("Pull"),GetActorLocation(),.65f,.5f,
+                Accepted?FName(TEXT("Character.Movement")):NAME_None,TEXT("Pull"));
+        }
     }
 }
 void AMCToothCharacter::SwingBrush()
@@ -1550,12 +1642,18 @@ void AMCToothCharacter::ServerSwingBrush_Implementation()
 void AMCToothCharacter::MulticastSwing_Implementation(double StartedAt,AMCArenaTooth* AimTooth,FVector LocalPoint,FVector LocalNormal,uint8 ToolSlot)
 {
     if(Inventory && Inventory->IsSelectionPresentationFenced()) return;
+    const uint8 AcceptedVisualStep=ToolSlot>>4;
     MCMeleeCombo::PresentSwing(this,ToolSlot&15,ToolSlot>>4);
     ToolSlot&=15;
     MCWeaponImpact::BeginSwing(this);
     SwingStartedAt=StartedAt; CalculusTarget=AimTooth; CalculusContactLocal=LocalPoint; CalculusNormalLocal=LocalNormal;
     const FName Event=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("KnifeSwing")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("PickaxeSwing")):FName(TEXT("Whoosh"));
-    if(SoundPalette) SoundPalette->PlayWithParameters(this,Event,GetActorLocation(),.65f,.5f);
+    const FName SourceID=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("Tool.Knife")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("Tool.Pickaxe")):NAME_None;
+    if(!SourceID.IsNone()) {
+        if(auto* Trail=FindComponentByClass<UMCWeaponTrailComponent>())
+            Trail->PublishAcceptedSwing(SourceID,StartedAt,AcceptedVisualStep);
+    }
+    if(SoundPalette) SoundPalette->PlayWithParameters(this,Event,GetActorLocation(),.65f,.5f,SourceID,TEXT("Swing"));
 }
 void AMCToothCharacter::MulticastHitSound_Implementation(FVector Location,uint8 ToolSlot,float Intensity)
 {
@@ -1563,7 +1661,12 @@ void AMCToothCharacter::MulticastHitSound_Implementation(FVector Location,uint8 
     if(IsLocallyControlled() && IsPlayerControlled()) if(auto* PlayerCamera=Cast<UMCPlayerCameraComponent>(Camera))
         PlayerCamera->AddCombatConfirm(.35f+.65f*FMath::Clamp(Intensity,0.f,1.f));
     const FName Event=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("KnifeHit")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("PickaxeHit")):FName(TEXT("Hit"));
-    if(SoundPalette) SoundPalette->PlayWithParameters(this,Event,Location,Intensity,.5f);
+    const FName SourceID=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("Tool.Knife")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("Tool.Pickaxe")):NAME_None;
+    if(!SourceID.IsNone()) {
+        FMCPerkVFXGameplayValues Values;Values.VisualSubject=GetMesh();Values.Intensity=Intensity;
+        MCWorldPresentation::Pulse(this,SourceID,TEXT("Hit"),FTransform(GetActorQuat(),Location),Values,.32f);
+    }
+    if(SoundPalette) SoundPalette->PlayWithParameters(this,Event,Location,Intensity,.5f,SourceID,TEXT("Hit"));
 }
 float AMCToothCharacter::GetToolSwingElapsed() const
 {
@@ -2086,6 +2189,7 @@ void AMCToothCharacter::OnRep_FreezeDeath()
 {
     if(!IsFreezingToDeath()) return;
     if(!IsValid(FreezeDeathVisual)) FreezeDeathVisual=AMCFreezeDeathVFX::SpawnLocal(this,FreezeDeathStartedAt);
+    else FreezeDeathVisual->CommitPrepared(this,FreezeDeathStartedAt);
     GetCharacterMovement()->StopMovementImmediately();GetCharacterMovement()->DisableMovement();
     ConsumeMovementInputVector();
     ToothPhysics->SetThroatCaptured(true);ToothPhysics->SetComponentTickEnabled(false);
@@ -2094,12 +2198,16 @@ void AMCToothCharacter::OnRep_FreezeDeath()
     GetMesh()->SetAllBodiesSimulatePhysics(false);GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     GetMesh()->SetComponentTickEnabled(false);
     // Replace only the rendered body. The pawn remains the camera/view target until the usual respawn.
-    if(IsValid(FreezeDeathVisual) || GetNetMode()==NM_DedicatedServer) GetMesh()->SetHiddenInGame(true,true);
+    if((IsValid(FreezeDeathVisual)&&FreezeDeathVisual->HasVisibleBody()) || GetNetMode()==NM_DedicatedServer) GetMesh()->SetHiddenInGame(true,true);
     if(Brush) Brush->SetHiddenInGame(true);
 }
 void AMCToothCharacter::StatusChanged()
 {
     if (!HasAuthority() || Status->IsAlive() || bDeathReported) return;
+    if(PassivePresentation) {
+        if(IsFreezingToDeath())PassivePresentation->StopPresentationWithLocalSourceAudioTails(TEXT("Character.FreezeDeath"));
+        else PassivePresentation->StopPresentation(true);
+    }
     ClearFrozenLegs();
     StopMimicRescue();
     if(IsMimicCaptured()) EndMimicCapture(MimicCaptureStart);
@@ -2125,6 +2233,10 @@ void AMCToothCharacter::FellOutOfWorld(const UDamageType&)
 }
 void AMCToothCharacter::EndPlay(const EEndPlayReason::Type Reason)
 {
+    if(PassivePresentation) {
+        if(Reason==EEndPlayReason::Destroyed&&IsFreezingToDeath())PassivePresentation->StopPresentationWithLocalSourceAudioTails(TEXT("Character.FreezeDeath"));
+        else PassivePresentation->StopPresentation(true); // Reset/travel/teardown remains immediate.
+    }
     if(HasAuthority() && IsValid(SeatedRaft)) SeatedRaft->ReleaseSeat(this);
     if(IsValid(FreezeDeathVisual)) FreezeDeathVisual->Destroy();
     if(HasAuthority()) ClearFrozenLegs();
@@ -2283,4 +2395,75 @@ void AMCToothCharacter::ServerPaddle_Implementation(FVector2D Direction)
 {
     if (!bInCoffee || IsMimicCaptured() || HasFrozenLegs() || !Status->IsAlive() || Direction.ContainsNaN()) return;
     PaddleInput=Direction.GetClampedToMaxSize(1); LastPaddleAt=GetWorld()->GetTimeSeconds();
+}
+
+bool AMCToothCharacter::PrepareFreezeDeathPresentation(FGuid Epoch,const FMCPreparedPerkVFXComposition* Hold,
+    const FMCPreparedPerkVFXComposition* Shatter,UMaterialInterface* BodyNI,UMaterialInterface* BagNI,
+    UMaterialInterface* GlassNI,FString& Error)
+{
+    if(!GetWorld()||GetWorld()->bIsTearingDown||GetNetMode()==NM_DedicatedServer||IsFreezingToDeath()) {
+        Error=TEXT("Prepare the actual hero before its accepted fatal event, never at first use.");return false;
+    }
+    if(IsValid(FreezeDeathVisual)) {
+        if(!Hold&&!Shatter&&!BodyNI&&!BagNI&&!GlassNI)return FreezeDeathVisual->PrepareNative(this,Error);
+        return FreezeDeathVisual->ValidatePreparation(this,Epoch,Error);
+    }
+    if(!IsValid(FreezeDeathVisual)) {
+        FActorSpawnParameters P;P.Owner=this;P.ObjectFlags=RF_Transient;
+        P.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+        FreezeDeathVisual=GetWorld()->SpawnActor<AMCFreezeDeathVFX>(GetActorLocation(),FRotator(0,GetActorRotation().Yaw,0),P);
+    }
+    if(!FreezeDeathVisual)return false;
+    if(!Hold&&!Shatter&&!BodyNI&&!BagNI&&!GlassNI)return FreezeDeathVisual->PrepareNative(this,Error); // Explicit native-only preparation.
+    if(!Hold||!Shatter){Error=TEXT("Freeze event preparation requires both actual shared policies.");return false;}
+    // Ordinary-only/muted events need no captured snapshot, NI master or72Proc sections.
+    return FreezeDeathVisual->PrepareNiagara(this,Epoch,*Hold,*Shatter,BodyNI,BagNI,GlassNI,Error);
+}
+
+bool AMCToothCharacter::PrepareFreezeDeathFromPreparedSource(FGuid Epoch,UMaterialInterface* BodyNI,
+    UMaterialInterface* BagNI,UMaterialInterface* GlassNI,FString& Error)
+{
+    const auto* Hold=PassivePresentation?PassivePresentation->GetPreparedSourceEvent(TEXT("Character.FreezeDeath"),TEXT("Hold")):nullptr;
+    const auto* Shatter=PassivePresentation?PassivePresentation->GetPreparedSourceEvent(TEXT("Character.FreezeDeath"),TEXT("Shatter")):nullptr;
+    if(!Hold||!Shatter){Error=TEXT("The shared Character.FreezeDeath source must be prepared before the per-hero captured resource.");return false;}
+    return PrepareFreezeDeathPresentation(Epoch,Hold,Shatter,BodyNI,BagNI,GlassNI,Error);
+}
+
+
+bool AMCToothCharacter::PrepareFreezeDeathSource(FString& Error,bool bAllowLoad)
+{
+    Error.Reset();
+    if(!PassivePresentation||!GetWorld()||GetWorld()->bIsTearingDown||GetNetMode()==NM_DedicatedServer||IsFreezingToDeath())
+    {Error=TEXT("Prepare the real unfrozen local hero's shared Freeze source before its barrier.");return false;}
+    const auto* State=GetWorld()->GetGameState<AMCGameState>();
+    const FGuid Epoch=State?State->GameplayLoadId:FGuid();
+    if(bOwnsFreezeSourcePreparation&&FreezeSourcePreparationEpoch!=Epoch)ReleasePreparedFreezeDeathSource();
+    if(PassivePresentation->IsSourcePrepared(TEXT("Character.FreezeDeath")))return true;
+    const auto* Contract=MCVFXSourceContracts::Find(TEXT("Character.FreezeDeath"));
+    auto* Library=Contract?Cast<UMCVFXPresentationLibrary>(Contract->Library.ResolveObject()):nullptr;
+    if(!Library&&Contract&&bAllowLoad)Library=Cast<UMCVFXPresentationLibrary>(Contract->Library.TryLoad());
+    if(!Contract||!Library){Error=TEXT("Freeze shared location library is not resident.");return false;}
+    UMCPerkVFXProfile* Profile=nullptr;
+    if(const auto* Ref=Library->Profiles.Find(Contract->SourceID);Ref&&!Ref->IsNull()) {
+        Profile=Ref->Get();if(!Profile&&bAllowLoad)Profile=Ref->LoadSynchronous();
+        if(!Profile){Error=TEXT("Freeze shared profile is not resident.");return false;}
+    }
+    if(!PassivePresentation->BindSourceAudioSocket(Contract->SourceID,GetMesh(),Error))return false;
+    if(!PassivePresentation->PrepareSourceProfile(Contract->SourceID,Contract->Events,Profile,Error,bAllowLoad))return false;
+    FreezeSourcePreparationEpoch=Epoch;bOwnsFreezeSourcePreparation=true;return true;
+}
+
+void AMCToothCharacter::ReleaseUncommittedFreezeDeathPresentation()
+{
+    if(IsValid(FreezeDeathVisual)&&!FreezeDeathVisual->IsCommitted()) {
+        FreezeDeathVisual->Destroy();FreezeDeathVisual=nullptr;
+    }
+}
+
+
+void AMCToothCharacter::ReleasePreparedFreezeDeathSource()
+{
+    if(bOwnsFreezeSourcePreparation&&PassivePresentation)
+        PassivePresentation->ForgetPreparedSourceSnapshot(TEXT("Character.FreezeDeath"));
+    bOwnsFreezeSourcePreparation=false;FreezeSourcePreparationEpoch.Invalidate();
 }
