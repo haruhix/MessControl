@@ -1,4 +1,6 @@
 #include "MCDataAssets.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCPlayerController.h"
 #include "AudioDevice.h"
 #include "AudioParameter.h"
 #include "Audio/ActorSoundParameterInterface.h"
@@ -49,7 +51,8 @@ void UMCSoundPalette::Play(UObject* WorldContext, FName Event, FVector Location)
     PlayWithParameters(WorldContext, Event, Location);
 }
 
-bool UMCSoundPalette::PlayWithParameters(UObject* WorldContext, FName Event, FVector Location, float Intensity, float Speed) const
+bool UMCSoundPalette::PlayWithParameters(UObject* WorldContext, FName Event, FVector Location, float Intensity, float Speed,
+    FName PresentationSourceID,FName PresentationEvent,AActor* PresentationPolicyOwner) const
 {
     FName ResolvedEvent;
     const FMCSoundVariation* Entry = ResolveEvent(Event, &ResolvedEvent);
@@ -67,7 +70,17 @@ bool UMCSoundPalette::PlayWithParameters(UObject* WorldContext, FName Event, FVe
     AActor* SoundOwner = Cast<AActor>(WorldContext);
     if (!SoundOwner) if (const auto* Component = Cast<UActorComponent>(WorldContext)) SoundOwner = Component->GetOwner();
     if (!SoundOwner) SoundOwner = WorldContext->GetTypedOuter<AActor>();
-    if (GEngine && GEngine->UseSound() && World->bAllowAudioPlayback)
+    // Sound selection and pitch are still resolved exactly once even when the
+    // source's audio-only Composer policy suppresses this original output.
+    const auto* PolicyController=IsValid(PresentationPolicyOwner)?Cast<AMCPlayerController>(PresentationPolicyOwner):nullptr;
+    const bool bExplicitPolicyValid=!PresentationPolicyOwner||(IsValid(PolicyController)
+        && PolicyController->GetWorld()==World&&PolicyController->HasLocalPresentationOwner());
+    const AActor* PolicyOwner=PresentationPolicyOwner?PolicyController:SoundOwner;
+    // UI policy ownership is separate from the legacy widget sound context.
+    // Invalid/cross-world/nonlocal explicit owners always retain original audio.
+    const bool bNativeAudio=PresentationSourceID.IsNone()||PresentationEvent.IsNone()||!bExplicitPolicyValid
+        ||MCWorldPresentation::UsesOriginalAudio(PolicyOwner,PresentationSourceID,PresentationEvent);
+    if (bNativeAudio && GEngine && GEngine->UseSound() && World->bAllowAudioPlayback)
     {
         if (FAudioDeviceHandle AudioDevice = World->GetAudioDevice())
         {

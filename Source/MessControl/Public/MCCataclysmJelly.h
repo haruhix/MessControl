@@ -10,6 +10,7 @@ class UMaterialInstanceDynamic;
 class UMaterialInterface;
 class USkeletalMesh;
 class USkeletalMeshComponent;
+class UMCJellyPresentationComponent;
 
 UENUM(BlueprintType)
 enum class EMCCataclysmJellySize : uint8 { Small, Medium, Large };
@@ -48,6 +49,8 @@ public:
     UPROPERTY(EditDefaultsOnly, Category="Jelly|Presentation") TSoftObjectPtr<UAnimSequence> CoffeePreBurst;
     UPROPERTY(EditDefaultsOnly, Category="Jelly|Presentation") TSoftObjectPtr<UAnimSequence> CoffeeBurst;
     UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category="Jelly|Presentation") bool bCoffeePresentationReady=false;
+    /** The shared Composer projects contact/rupture art only; paint stays native. */
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Jelly|Presentation") TObjectPtr<UMCJellyPresentationComponent> JellyPresentation;
 
     UPROPERTY(Replicated, EditDefaultsOnly, Category="Jelly|Grime", meta=(ClampMin="20", ClampMax="100")) float TrailRadius=38.f;
     UPROPERTY(Replicated, EditDefaultsOnly, Category="Jelly|Grime", meta=(ClampMin="100", ClampMax="500")) float RuptureRadius=280.f;

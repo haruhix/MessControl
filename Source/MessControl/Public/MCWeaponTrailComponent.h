@@ -7,6 +7,7 @@
 class AMCToothCharacter;
 class UProceduralMeshComponent;
 class UMaterialInterface;
+class UMCWorldPresentationComponent;
 
 struct FMCWeaponTrailSample
 {
@@ -24,6 +25,9 @@ public:
     virtual void BeginPlay() override;
     virtual void TickComponent(float Dt,ELevelTick TickType,FActorComponentTickFunction* ThisTickFunction) override;
     void BeginSwing();
+    /** Same accepted native multicast, no new transport or interaction loading. */
+    void PublishAcceptedSwing(FName SourceID,double StartedAt,uint8 VisualStep);
+    virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     UPROPERTY(EditDefaultsOnly,Category="Weapon trail") TSoftObjectPtr<UMaterialInterface> TrailMaterial;
     UPROPERTY(EditDefaultsOnly,Category="Weapon trail",meta=(ClampMin="0.03",ClampMax="0.25")) float HistorySeconds=.14f;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Weapon trail") TObjectPtr<UProceduralMeshComponent> Ribbon;
@@ -37,4 +41,15 @@ private:
     FVector Origin=FVector::ZeroVector;
     uint8 SwingTool=255;
     void Upload(double Now);
+    void PublishComposerState(bool bActive,float PoseDelta,bool bHaveSpan,FVector Base,FVector Tip,bool bRenderAllowed);
+    void StopComposerState();
+    UPROPERTY(Transient) TObjectPtr<UMCWorldPresentationComponent> Composer;
+    FName PresentationSource;
+    FGuid PresentationEpisode;
+    double AcceptedAt=-100.;
+    uint8 AcceptedStep=0;
+    int32 PoseBreakSerial=0;
+    bool bPublished=false,bHasPreviousPose=false,bNativeTrail=true;
+    FVector PreviousBase=FVector::ZeroVector,PreviousTip=FVector::ZeroVector;
+
 };

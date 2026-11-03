@@ -10,6 +10,8 @@
 #include "MCFishingRodComponent.h"
 #include "MCRewardChest.h"
 #include "MCToothCharacter.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCVFXPresentationComponent.h"
 #include "MCFoodCollectionComponent.h"
 #include "MCFoodActor.h"
 #include "MCSlipperyFood.h"
@@ -552,7 +554,14 @@ void UMCToothPhysicsComponent::EnterRagdoll()
         Mesh->SetAllBodiesSimulatePhysics(true); Mesh->SetAllBodiesPhysicsBlendWeight(1.f); Mesh->WakeAllRigidBodies();
     }
     else { Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision); Mesh->SetAllBodiesPhysicsBlendWeight(0.f); }
-    if (Tooth->SoundPalette) Tooth->SoundPalette->Play(this,TEXT("Fall"),Tooth->GetActorLocation());
+    auto* Presentation=Tooth->FindComponentByClass<UMCWorldPresentationComponent>();
+    auto* Channel=Presentation?Presentation->GetSource(TEXT("Character.Movement")):nullptr;
+    FMCPerkVFXGameplayValues Values;Values.VisualSubject=Mesh;Values.Intensity=.65f;
+    Values.LocalStateAgeSeconds=FMath::Max(0.f,ServerTime()-Frame.StateStartedAt);
+    const bool Accepted=Channel&&Channel->PlayLocalSourceEvent(TEXT("Character.Movement"),TEXT("Fall"),Tooth->GetActorTransform(),Values)!=EMCVFXPresentationResult::Rejected
+        &&Channel->GetLastAudioError().IsEmpty();
+    if(Tooth->SoundPalette)Tooth->SoundPalette->PlayWithParameters(this,TEXT("Fall"),Tooth->GetActorLocation(),.65f,.5f,
+        Accepted?FName(TEXT("Character.Movement")):NAME_None,TEXT("Fall"));
 }
 void UMCToothPhysicsComponent::ApplyHit(FVector VelocityChange,FVector HitLocation)
 {
@@ -670,7 +679,14 @@ void UMCToothPhysicsComponent::EnterRecovery()
     DisplayPose.Reset(); for (const auto& Bone:Frame.Bones) DisplayPose.Add(Bone.Transform());
     Tooth->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     Tooth->GetCharacterMovement()->DisableMovement();
-    if (Tooth->SoundPalette) Tooth->SoundPalette->Play(this,TEXT("StandUp"),Tooth->GetActorLocation());
+    auto* Presentation=Tooth->FindComponentByClass<UMCWorldPresentationComponent>();
+    auto* Channel=Presentation?Presentation->GetSource(TEXT("Character.Movement")):nullptr;
+    FMCPerkVFXGameplayValues Values;Values.VisualSubject=Mesh;Values.Intensity=.65f;
+    Values.LocalStateAgeSeconds=FMath::Max(0.f,ServerTime()-Frame.StateStartedAt);
+    const bool Accepted=Channel&&Channel->PlayLocalSourceEvent(TEXT("Character.Movement"),TEXT("StandUp"),Tooth->GetActorTransform(),Values)!=EMCVFXPresentationResult::Rejected
+        &&Channel->GetLastAudioError().IsEmpty();
+    if(Tooth->SoundPalette)Tooth->SoundPalette->PlayWithParameters(this,TEXT("StandUp"),Tooth->GetActorLocation(),.65f,.5f,
+        Accepted?FName(TEXT("Character.Movement")):NAME_None,TEXT("StandUp"));
 }
 void UMCToothPhysicsComponent::EnterStanding()
 {

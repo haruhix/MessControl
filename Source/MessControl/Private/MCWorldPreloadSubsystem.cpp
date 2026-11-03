@@ -1,4 +1,16 @@
 #include "MCWorldPreloadSubsystem.h"
+#include "MCCoffeeRiverPresentation.h"
+#include "MCNiagaraProceduralSurfaceResources.h"
+#include "MCIceEvent.h"
+#include "MCIceEventVFX.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCNiagaraMaterialContextComponent.h"
+#include "MCVFXPresentationComponent.h"
+#include "MCGameState.h"
+#include "MCToothCharacter.h"
+#include "MCFreezeDeathVFX.h"
+#include "ProceduralMeshComponent.h"
+#include "GameFramework/WorldSettings.h"
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
 #include "NiagaraEmitter.h"
@@ -8,6 +20,10 @@
 #include "MCPreloadManifest.h"
 #include "MCPreloadSettings.h"
 #include "MCUIDataLibrary.h"
+#include "MCEventSFXReadiness.h"
+#include "MCPerkVFXProfile.h"
+#include "AudioDevice.h"
+#include "Engine/Engine.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Components/PrimitiveComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -28,18 +44,25 @@
 #include "Internationalization/Internationalization.h"
 #include "Materials/Material.h"
 #include "Materials/MaterialInterface.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "PSOPrecache.h"
+#include "PSOPrecacheMaterial.h"
+#include "Rendering/SkeletalMeshRenderData.h"
+#include "RHIGlobals.h"
 #include "Kismet/GameplayStatics.h"
 #include "Misc/App.h"
 #include "RenderCommandFence.h"
 #include "ShaderPipelineCache.h"
 #include "Streaming/StreamableRenderResourceState.h"
+#include "UObject/Package.h"
+#include "Sound/SoundBase.h"
+#include "Sound/SoundWave.h"
 
 #if WITH_EDITOR
 #include "AssetCompilingManager.h"
 #include "IAssetCompilingManager.h"
 #include "ShaderCompiler.h"
 #include "MaterialShared.h"
-#include "RHIGlobals.h"
 #endif
 
 DEFINE_LOG_CATEGORY_STATIC(LogMCWorldPreload, Log, All);
@@ -87,6 +110,87 @@ bool UMCWorldPreloadSubsystem::ShouldCreateSubsystem(UObject* Outer) const
     const UWorld* World = Cast<UWorld>(Outer);
     return Super::ShouldCreateSubsystem(Outer) && World && !IsRunningDedicatedServer()
         && World->GetNetMode() != NM_DedicatedServer;
+}
+
+bool UMCWorldPreloadSubsystem::IsIcePresentationLocation() const
+{
+    const FString Map=GetWorld()?UGameplayStatics::GetCurrentLevelName(GetWorld(),true):FString();
+    return Map==TEXT("L_Mouth")||Map==TEXT("L_Tutorial");
+}
+
+bool UMCWorldPreloadSubsystem::IsPreparationRunCurrent() const
+{
+    if(!IsIcePresentationLocation())return true;
+    const auto* State=GetWorld()->GetGameState<AMCGameState>();
+    return State&&State->IcePresentationScope.Scope!=EMCIcePresentationScope::Unknown
+        &&State->IcePresentationScope.GameplayLoadId==State->GameplayLoadId
+        &&State->GameplayLoadId.IsValid()&&State->GameplayLoadId==PreparedGameplayLoadId;
+}
+
+bool UMCWorldPreloadSubsystem::IsReady() const
+{return Phase==EMCWorldPreloadPhase::Ready&&IsPreparationRunCurrent();}
+
+bool UMCWorldPreloadSubsystem::UsesPreparedIcePresentation() const
+{
+    if(!IsIcePresentationLocation())return false;
+    const auto* State=GetWorld()->GetGameState<AMCGameState>();
+    // Known non-Ice/manual modes retain their explicit legacy/lab preparation;
+    // unknown replicated scope must never trigger a cold first-use allocation.
+    return !State||State->IcePresentationScope.GameplayLoadId!=State->GameplayLoadId
+        ||State->IcePresentationScope.Scope!=EMCIcePresentationScope::NotRequired;
+}
+
+bool UMCWorldPreloadSubsystem::ResolveIcePreparationScope(bool& bRequired,bool& bWaiting)
+{
+    bRequired=false;bWaiting=false;IcePreparationDiagnostic.Reset();
+    if(!IsIcePresentationLocation())return true;
+    const auto* State=GetWorld()->GetGameState<AMCGameState>();
+    if(!State||State->IcePresentationScope.Scope==EMCIcePresentationScope::Unknown||!State->GameplayLoadId.IsValid()
+        ||State->IcePresentationScope.GameplayLoadId!=State->GameplayLoadId)
+    {
+        bWaiting=true;IcePreparationDiagnostic=TEXT("Ожидание параметров текущего забега от сервера.");return true;
+    }
+    if(PreparedGameplayLoadId.IsValid()&&PreparedGameplayLoadId!=State->GameplayLoadId)ReleaseIcePresentationOwner();
+    PreparedGameplayLoadId=State->GameplayLoadId;
+    bRequired=State->IcePresentationScope.Scope==EMCIcePresentationScope::Required;return true;
+}
+
+bool UMCWorldPreloadSubsystem::CreateIcePresentationOwner(FString& Error)
+{
+    if(IsValid(PreparedIcePresentation))return true;
+    if(bIcePresentationConsumed||!PreparedGameplayLoadId.IsValid()||!GetWorld()||GetWorld()->bIsTearingDown)
+    {Error=TEXT("Ice preparation has no current unconsumed location/run token.");return false;}
+    auto* Owner=GetWorld()->SpawnActorDeferred<AMCIceEventVFX>(AMCIceEventVFX::StaticClass(),FTransform::Identity,
+        nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+    PreparedIcePresentation=Owner;
+    if(IsValid(Owner))
+    {Owner->SetFlags(RF_Transient);Owner->SetActorHiddenInGame(true);Owner->SetActorTickEnabled(false);Owner->FinishSpawning(FTransform::Identity);}
+    if(!IsValid(Owner)||!Owner->PrepareForLocation(PreparedGameplayLoadId))
+    {Error=TEXT("Ice presentation-only instance could not prepare its actual native resources.");return false;}
+    TArray<UObject*> Resources;Owner->GetLocationPreparedResources(Resources);
+    for(auto* Resource:Resources)if(IsValid(Resource))RetainedAssets.AddUnique(Resource);
+    return true;
+}
+
+void UMCWorldPreloadSubsystem::ReleaseIcePresentationOwner()
+{
+    // Claimed instances have already been transferred and cleared from this
+    // pointer. Retry/new run must not destroy their source or accepted tails.
+    if(IsValid(PreparedIcePresentation))PreparedIcePresentation->Destroy();
+    PreparedIcePresentation=nullptr;bIcePresentationConsumed=false;IcePreparationDiagnostic.Reset();
+}
+
+AMCIceEventVFX* UMCWorldPreloadSubsystem::ClaimPreparedIcePresentation(AMCIceEvent* Source,FGuid& OutToken,FString& Error)
+{
+    OutToken.Invalidate();Error.Reset();
+    if(!IsValid(Source)||Source->GetWorld()!=GetWorld()||!IsReady()||bIcePresentationConsumed
+        ||!IsValid(PreparedIcePresentation)||PreparedIcePresentation->GetWorld()!=GetWorld())
+    {Error=TEXT("This location/run has no ready unconsumed Ice presentation instance.");return nullptr;}
+    auto* Result=PreparedIcePresentation.Get();
+    if(!Result->ClaimPreparedPresentation(Source,PreparedGameplayLoadId))
+    {Error=TEXT("Ice presentation owner/world/token did not match its preparation.");return nullptr;}
+    OutToken=PreparedGameplayLoadId;PreparedIcePresentation=nullptr;bIcePresentationConsumed=true;
+    return Result;
 }
 
 bool UMCWorldPreloadSubsystem::IsPreparing() const
@@ -138,6 +242,14 @@ void UMCWorldPreloadSubsystem::ReleaseWarmupComponents()
 
 void UMCWorldPreloadSubsystem::ResetPreparation()
 {
+    if(GetWorld())if(auto* River=GetWorld()->GetSubsystem<UMCCoffeeRiverPresentationResources>())River->ResetUnclaimed();
+    ReleaseFreezeHeroResources();ReleaseIcePresentationOwner();PreparedGameplayLoadId.Invalidate();
+    ResetMaterialContextPreparation();
+    PendingResidentVisuals.Reset();CertifiedResidentVisuals.Reset();
+    if(EventAudioReadiness)EventAudioReadiness->Reset();
+    EventAudioReadiness=nullptr;EventAudioSources.Reset();bEventAudioPlanValid=false;
+    AuditedLegacyAudioSources.Reset();
+    bEventAudioOutputPrepared=false;EventAudioDeviceId=MAX_uint32;EventAudioClosureHash=0;
     // No completion delegates capture the subsystem. Polling plus cancellation also
     // prevents an older request from completing a new Retry or a different world.
     for (const TSharedPtr<FStreamableHandle>& Handle : LoadHandles)
@@ -150,6 +262,7 @@ void UMCWorldPreloadSubsystem::ResetPreparation()
     LoadHandles.Reset();
     ActiveWavePaths.Reset();
     ReleaseWarmupComponents();
+    NativeStyles.Reset();
     RetainedAssets.Reset();
     SeenPaths.Reset();
     ExpandedObjects.Reset();
@@ -187,6 +300,12 @@ void UMCWorldPreloadSubsystem::BeginPreparation(APlayerController* LocalControll
     if (!IsValid(LocalController) || !LocalController->IsLocalController()
         || LocalController->GetWorld() != GetWorld() || !GetWorld()
         || GetWorld()->GetNetMode() == NM_DedicatedServer) return;
+    // A same-map RestartShift publishes a new existing GameplayLoadId. Retire
+    // only an unclaimed old prewarm instance; transferred runtime owners/tails
+    // belong to their source and are never destroyed by this preparation reset.
+    const auto* State=GetWorld()->GetGameState<AMCGameState>();
+    if(IsIcePresentationLocation()&&PreparedGameplayLoadId.IsValid()&&State&&State->GameplayLoadId.IsValid()
+        &&PreparedGameplayLoadId!=State->GameplayLoadId)ResetPreparation();
     // PC presentation is polled every frame. An error must remain visible until
     // explicit Retry, instead of silently starting the failed request again.
     if (IsPreparing() || IsReady() || HasFailed()) return;
@@ -215,13 +334,15 @@ void UMCWorldPreloadSubsystem::Retry()
 
 void UMCWorldPreloadSubsystem::Fail(const FText& Reason, const FString& TechnicalReason)
 {
+    const FString ScopedReason=IcePreparationDiagnostic.IsEmpty()?TechnicalReason:TechnicalReason+TEXT(" | ")+IcePreparationDiagnostic;
     FailureReason = Reason;
+    ReleaseIcePresentationOwner();
     if (ActiveHandle.IsValid() && !ActiveHandle->HasLoadCompleted()) ActiveHandle->CancelHandle();
     ActiveHandle.Reset();
     ReleaseWarmupComponents();
     SetPhase(EMCWorldPreloadPhase::Failed);
     UE_LOG(LogMCWorldPreload, Error, TEXT("MC_PRELOAD_FAILED world=%s reason=%s"),
-        *GetNameSafe(GetWorld()), *TechnicalReason);
+        *GetNameSafe(GetWorld()), *ScopedReason);
 }
 
 void UMCWorldPreloadSubsystem::StartLoadWave(TArray<FSoftObjectPath> Paths)
@@ -286,7 +407,7 @@ void UMCWorldPreloadSubsystem::FinishLoadWave()
         const TWeakObjectPtr<UObject> WeakObject(Object);
         if (ExpandedObjects.Contains(WeakObject)) continue;
         ExpandedObjects.Add(WeakObject);
-        FMCPreloadManifest::CollectSoftReferences(Object, Dependencies);
+        FMCPreloadManifest::CollectSoftReferences(Object, Dependencies,GetWorld());
     }
     StartLoadWave(MoveTemp(Dependencies));
 }
@@ -309,10 +430,106 @@ uint32 UMCWorldPreloadSubsystem::GetPendingPipelineCount() const
     return FApp::CanEverRender() ? FShaderPipelineCache::NumPrecompilesRemaining() : 0;
 }
 
+void UMCWorldPreloadSubsystem::ReleaseFreezeHeroResources()
+{
+    for(const auto& H:PreparedFreezeHeroes)if(auto* Hero=H.Get()) {
+        Hero->ReleaseUncommittedFreezeDeathPresentation();Hero->ReleasePreparedFreezeDeathSource();
+    }
+    PreparedFreezeHeroes.Reset();
+}
+
+bool UMCWorldPreloadSubsystem::PrepareFreezeHeroSources(bool Required,FString& Error)
+{
+    if(!Required){ReleaseFreezeHeroResources();return true;}
+    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    if(!IsIcePresentationLocation()||!GS||!GS->GameplayLoadId.IsValid()||GS->GameplayLoadId!=PreparedGameplayLoadId)
+    {Error=TEXT("Freeze owner preparation requires this exact Required Ice location/load epoch.");return false;}
+    int32 Count=0;
+    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) {
+        auto* Hero=*It;if(!IsValid(Hero)||Hero->IsActorBeingDestroyed())continue;
+        if(++Count>32){Error=TEXT("Actual Freeze preparation exceeds the finite32-hero location budget.");return false;}
+        if(!Hero->PrepareFreezeDeathSource(Error,false))return false;
+        PreparedFreezeHeroes.AddUnique(Hero);
+    }
+    return true;
+}
+
+bool UMCWorldPreloadSubsystem::PrepareFreezeHeroResources(bool Required,FString& Error)
+{
+    if(!Required)return true;
+    for(const auto& H:PreparedFreezeHeroes)if(auto* Hero=H.Get()) {
+        if(!Hero->PrepareFreezeDeathFromPreparedSource(PreparedGameplayLoadId,nullptr,nullptr,nullptr,Error))return false;
+        auto* FX=Hero->GetPreparedFreezeDeathVisual();
+        if(!FX||!FX->ValidatePreparation(Hero,PreparedGameplayLoadId,Error))return false;
+        TArray<UObject*> Resources;FX->GetPreparedResources(Resources);
+        for(auto* R:Resources)if(IsValid(R)) {
+            RetainedAssets.AddUnique(R);
+            if(auto* M=Cast<UMaterialInterface>(R))Materials.AddUnique(M);
+        }
+    }
+    return true;
+}
+
 void UMCWorldPreloadSubsystem::BuildRenderingWork()
 {
+    bool bIceRequired=false,bIceWaiting=false;
+    if(!ResolveIcePreparationScope(bIceRequired,bIceWaiting))return;
+    if(bIceWaiting){bRenderingWorkBuilt=false;ResetRenderReadiness();return;}
+    if(auto* River=GetWorld()->GetSubsystem<UMCCoffeeRiverPresentationResources>()) {
+        const auto* State=GetWorld()->GetGameState<AMCGameState>();TArray<UObject*> Resources;
+        FString RiverError;
+        TArray<UObject*> Loaded;for(UObject* O:RetainedAssets)Loaded.Add(O);
+        if(!River->PrepareLocation(Loaded,State?State->GameplayLoadId:FGuid(),false,RiverError)) {
+            Fail(LoadingText(TEXT("Loading_RiverFailed"),TEXT("Не подготовлена поверхность реки"),TEXT("River surface preparation failed")),RiverError);return;
+        }
+        bool RiverWaiting=false;
+        if(!River->PollRendering(RiverWaiting,RiverError)){Fail(LoadingText(TEXT("Loading_RiverRendererFailed"),TEXT("Не подготовлен рендерер реки"),TEXT("River renderer preparation failed")),RiverError);return;}
+        if(RiverWaiting){bRenderingWorkBuilt=false;ResetRenderReadiness();return;}
+        River->GetResources(Resources);for(auto* Object:Resources)RetainedAssets.AddUnique(Object);
+    }
     bRenderingWorkBuilt = true;
+    FString NativeError;
+    if(!PrepareNativeStylesForLocation(NativeError)) {
+        Fail(LoadingText(TEXT("Loading_NativeArtFailed"),TEXT("Не удалось подготовить оформление эффектов"),TEXT("Unable to prepare effect appearance")),NativeError);return;
+    }
+    if(bIceRequired&&!bIcePresentationConsumed&&!CreateIcePresentationOwner(NativeError)) {
+        Fail(LoadingText(TEXT("Loading_IcePresentationFailed"),TEXT("Не удалось подготовить ледяное событие"),TEXT("Unable to prepare Ice presentation")),NativeError);return;
+    }
+    // The finite location libraries have completed their reflected load waves.
+    // Retry existing producers now, never synchronously from their first hit/use.
+    for(TActorIterator<AActor> It(GetWorld());It;++It) {
+        TInlineComponentArray<UMCWorldPresentationComponent*> Sources(*It);
+        for(auto* Source:Sources)if(IsValid(Source)) {
+            FString Error;
+            if(!Source->PrepareSources(Error,false)) {
+                Fail(LoadingText(TEXT("Loading_PresentationSourceFailed"),TEXT("Не удалось подготовить эффекты локации"),
+                    TEXT("Unable to prepare location effects")),Error);return;
+            }
+        }
+    }
+    if(!PrepareFreezeHeroSources(bIceRequired,NativeError)) {
+        Fail(LoadingText(TEXT("Loading_FreezeSourceFailed"),TEXT("Не подготовлен источник ледяной смерти"),TEXT("Freeze source preparation failed")),NativeError);return;
+    }
+    if(auto* River=GetWorld()->GetSubsystem<UMCCoffeeRiverPresentationResources>()) {
+        TArray<TPair<UNiagaraSystem*,UMaterialInterface*>> Work;River->GetWarmups(Work);
+        for(const auto& Pair:Work){auto& Request=WarmupRequests.AddDefaulted_GetRef();Request.Mesh=Pair.Key;Request.Material=Pair.Value;}
+    }
     TSet<UMaterialInterface*> NiagaraRendererMaterials;
+    if(!PrepareLocationMaterialContexts(NativeError)) {
+        Fail(LoadingText(TEXT("Loading_MaterialContextFailed"),TEXT("Не удалось подготовить контекст материалов"),
+            TEXT("Unable to prepare material contexts")),NativeError);return;
+    }
+    bool ContextWaiting=false;
+    if(!PollMaterialContextReadiness(ContextWaiting,NativeError)) {
+        Fail(LoadingText(TEXT("Loading_FreezeContextFailed"),TEXT("Не подготовлен контекст ледяной смерти"),TEXT("Freeze material context preparation failed")),NativeError);return;
+    }
+    if(ContextWaiting){ReleaseWarmupComponents();NextWarmupRequest=0;bRenderingWorkBuilt=false;return;} // Existing context seals before owned players consume it.
+    if(MaterialContexts&&!MaterialContexts->IsSealed()&&!MaterialContexts->SealResources(NativeError)) {
+        Fail(LoadingText(TEXT("Loading_FreezeContextSealFailed"),TEXT("Не завершена подготовка контекста ледяной смерти"),TEXT("Freeze context sealing failed")),NativeError);return;
+    }
+    if(!PrepareFreezeHeroResources(bIceRequired,NativeError)) {
+        Fail(LoadingText(TEXT("Loading_FreezeOwnerFailed"),TEXT("Не подготовлен настоящий зубик для ледяной смерти"),TEXT("Actual Freeze owner preparation failed")),NativeError);return;
+    }
     TArray<UPrimitiveComponent*> Primitives;
     const FVector ViewLocation = Controller.IsValid() ? Controller->GetFocalLocation() : FVector::ZeroVector;
     for (TActorIterator<AActor> It(GetWorld()); It; ++It)
@@ -640,6 +857,13 @@ bool UMCWorldPreloadSubsystem::CheckStreamingTargets()
 
 void UMCWorldPreloadSubsystem::CompletePreparation()
 {
+    if(MaterialContexts && FApp::CanEverRender()) {
+        FString Error;
+        if(!MaterialContexts->SealResources(Error)) {
+            Fail(LoadingText(TEXT("Loading_MaterialContextFailed"),TEXT("Не удалось подготовить контекст материалов"),
+                TEXT("Unable to prepare material contexts")),Error);return;
+        }
+    }
 #if WITH_EDITOR
     for (UObject* Object : RetainedAssets)
         if (const UNiagaraSystem* System = Cast<UNiagaraSystem>(Object))
@@ -778,6 +1002,17 @@ void UMCWorldPreloadSubsystem::TickRenderReadiness()
         ResetRenderReadiness();
         return;
     }
+    bool ContextWaiting=false;FString ContextError;
+    if(!PollMaterialContextReadiness(ContextWaiting,ContextError)) {
+        Fail(LoadingText(TEXT("Loading_MaterialContextFailed"),TEXT("Не удалось подготовить контекст материалов"),
+            TEXT("Unable to prepare material contexts")),ContextError);return;
+    }
+    if(ContextWaiting){ResetRenderReadiness();return;}
+    if(!TickEventAudioReadiness())
+    {
+        ResetRenderReadiness();
+        return;
+    }
     if (!FApp::CanEverRender())
     {
         // NullRHI/commandlet automation can exercise the asset barrier but cannot
@@ -796,6 +1031,8 @@ void UMCWorldPreloadSubsystem::TickRenderReadiness()
         return;
     }
     if (!bRenderingWorkBuilt) BuildRenderingWork();
+    if (HasFailed()) return;
+    if(!bRenderingWorkBuilt){ResetRenderReadiness();return;}
     if (NextWarmupRequest < WarmupRequests.Num())
     {
         ResetRenderReadiness();
@@ -940,10 +1177,14 @@ FText UMCWorldPreloadSubsystem::GetStatusText() const
 FText UMCWorldPreloadSubsystem::GetDetailText() const
 {
     if (HasFailed()) return FailureReason;
+    if(!IcePreparationDiagnostic.IsEmpty())return FText::FromString(IcePreparationDiagnostic);
     if (IsPreparing() && !bPresentationReady)
         return LoadingText(TEXT("loading.detail.presentation"),TEXT("Ожидаем готовности сцены локации."),TEXT("Waiting for the location presentation."));
     if (Phase == EMCWorldPreloadPhase::LoadingAssets)
         return FText::Format(LoadingText(TEXT("loading.detail.assets"), TEXT("Ресурсы: {0} / {1}"), TEXT("Resources: {0} / {1}")), FText::AsNumber(CompletedPaths), FText::AsNumber(SeenPaths.Num()));
+    if(IsPreparing() && EventAudioReadiness && EventAudioReadiness->GetState()==EMCEventSFXReadiness::Preparing)
+        return FText::Format(LoadingText(TEXT("loading.detail.audio"),TEXT("Подготавливаем звуковые ресурсы: осталось {0}"),TEXT("Preparing audio resources: {0} remaining")),
+            FText::AsNumber(EventAudioReadiness->GetPendingWaveCount()));
     if (Phase == EMCWorldPreloadPhase::PreparingRendering)
         return FText::Format(LoadingText(TEXT("loading.detail.graphics"), TEXT("Подготовка графики: осталось задач — {0}"), TEXT("Preparing graphics: {0} tasks remaining")),
             FText::AsNumber(int64(GetPendingCompilationCount()) + GetPendingPipelineCount() + WarmupRequests.Num() - NextWarmupRequest));
@@ -951,4 +1192,493 @@ FText UMCWorldPreloadSubsystem::GetDetailText() const
         return FText::Format(LoadingText(TEXT("loading.detail.streaming"), TEXT("Ресурсы готовы: {0} / {1}"), TEXT("Resources ready: {0} / {1}")),
             FText::AsNumber(ReadyStreamingTargets), FText::AsNumber(StreamingTargets.Num()));
     return FText::GetEmpty();
+}
+
+bool UMCWorldPreloadSubsystem::GetPreparedNativeStyle(const UMCVFXNativePresentationSettings* Source,
+    FMCVFXPreparedNativePresentation& Out) const
+{
+    const auto* Found=NativeStyles.Find(const_cast<UMCVFXNativePresentationSettings*>(Source));
+    if(!Source || !Found || Found->Reference.SettingsHash!=Source->ComputeSettingsHash())return false;
+    Out=*Found;return true;
+}
+
+bool UMCWorldPreloadSubsystem::IsEventAudioOutputAvailable() const
+{
+    const UWorld* World=GetWorld();
+    return World && World->GetNetMode()!=NM_DedicatedServer && World->AllowAudioPlayback()
+        && GEngine && GEngine->UseSound() && bool(World->GetAudioDevice());
+}
+
+const UMCEventSFXReadiness* UMCWorldPreloadSubsystem::GetEventAudioReadiness() const
+{
+    const UWorld* World=GetWorld();
+    const uint32 DeviceId=World && World->GetAudioDevice()?World->GetAudioDevice().GetDeviceID():MAX_uint32;
+    // Enabling/recovering a different output requires explicit preparation;
+    // a former silent snapshot must not acquire a certificate from this getter.
+    return bEventAudioPlanValid && IsEventAudioOutputAvailable()==bEventAudioOutputPrepared
+        && DeviceId==EventAudioDeviceId?EventAudioReadiness.Get():nullptr;
+}
+
+bool UMCWorldPreloadSubsystem::PrepareEventAudioSources(const TArray<USoundBase*>& Sources,FString& Error)
+{
+    Error.Reset();
+    if(!IsInGameThread() || !GetWorld() || GetWorld()->bIsTearingDown)
+    {Error=TEXT("Audio preparation requires a live owned world on the game thread.");return false;}
+    TArray<USoundBase*> Unique;
+    for(USoundBase* AudioSource:Sources) {
+        if(!IsValid(AudioSource)){bEventAudioPlanValid=false;Error=TEXT("A required scoped audio source is not resident.");return false;}
+        Unique.AddUnique(AudioSource);
+    }
+    if(Unique.Num()>128)
+    {bEventAudioPlanValid=false;Error=TEXT("Scoped location audio exceeds 128 distinct source assets.");return false;}
+    Unique.Sort([](const USoundBase& A,const USoundBase& B){return A.GetUniqueID()<B.GetUniqueID();});
+    const bool bOutputAvailable=IsEventAudioOutputAvailable();
+    const uint32 DeviceId=GetWorld()->GetAudioDevice()?GetWorld()->GetAudioDevice().GetDeviceID():MAX_uint32;
+    TArray<FMCEventSFXSamplePlan> Plans;uint32 ClosureHash=0;
+    for(USoundBase* AudioSource:Unique) {
+        FMCEventSFXSamplePlan Plan;
+        if(bOutputAvailable) {
+            bool Waiting=false;
+            if(!FMCPreloadManifest::PrepareEventAudioPlan(AudioSource,Plan,Error,Waiting)) {
+                bEventAudioPlanValid=false;
+                if(!Waiting)return false;
+                EventAudioSources.Reset();for(USoundBase* PendingSource:Unique)EventAudioSources.Add(PendingSource);
+                return true; // Real cache preparation is pending; getter stays null and callers poll before Commit.
+            }
+        } else Plan.Source=AudioSource;
+        ClosureHash=HashCombine(ClosureHash,GetTypeHash(AudioSource->GetUniqueID()));
+        for(USoundWave* AudioWave:Plan.SampleWaves)ClosureHash=HashCombine(ClosureHash,GetTypeHash(AudioWave->GetUniqueID()));
+        Plans.Add(MoveTemp(Plan));
+    }
+    bool bSameSources=Unique.Num()==EventAudioSources.Num();
+    if(bSameSources)for(int32 I=0;I<Unique.Num();++I)if(Unique[I]!=EventAudioSources[I]){bSameSources=false;break;}
+    if(bSameSources && bEventAudioPlanValid && EventAudioReadiness && ClosureHash==EventAudioClosureHash
+        && bOutputAvailable==bEventAudioOutputPrepared && DeviceId==EventAudioDeviceId
+        && EventAudioReadiness->GetState()!=EMCEventSFXReadiness::Failed
+        && (EventAudioReadiness->GetState()!=EMCEventSFXReadiness::Ready || EventAudioReadiness->IsReady()))return true;
+    if(!EventAudioReadiness)EventAudioReadiness=NewObject<UMCEventSFXReadiness>(this,NAME_None,RF_Transient);
+    bEventAudioPlanValid=false;
+    if(!EventAudioReadiness->Begin(GetWorld(),Plans,Error))return false;
+    EventAudioSources.Reset();for(USoundBase* AudioSource:Unique)EventAudioSources.Add(AudioSource);
+    EventAudioClosureHash=ClosureHash;EventAudioDeviceId=DeviceId;
+    bEventAudioOutputPrepared=bOutputAvailable;bEventAudioPlanValid=true;
+    UE_LOG(LogMCWorldPreload,Log,TEXT("MC_PRELOAD_AUDIO world=%s sources=%d output=%d device=%u state=%d detail=%s"),
+        *GetNameSafe(GetWorld()),EventAudioSources.Num(),bOutputAvailable?1:0,DeviceId,
+        int32(EventAudioReadiness->GetState()),*EventAudioReadiness->GetDiagnostic());
+    return true;
+}
+
+void UMCWorldPreloadSubsystem::PollEventAudioReadiness()
+{if(bEventAudioPlanValid && EventAudioReadiness)EventAudioReadiness->Poll();}
+
+bool UMCWorldPreloadSubsystem::ReprepareEventAudioReadiness(FString& Error)
+{
+    TArray<USoundBase*> Sources;for(USoundBase* AudioSource:EventAudioSources)Sources.Add(AudioSource);
+    bEventAudioPlanValid=false;
+    return PrepareEventAudioSources(Sources,Error);
+}
+
+bool UMCWorldPreloadSubsystem::TickEventAudioReadiness()
+{
+    TArray<USoundBase*> Sources;
+    // Only newly authored Composer slots are required audio plans. Shared
+    // native/music palettes retain their original runtime behavior and must not
+    // make an unchanged location fail because a dynamic graph is not migrated.
+    for(UObject* Object:RetainedAssets)if(const auto* Profile=Cast<UMCPerkVFXProfile>(Object))
+        for(const auto& Event:Profile->SFXSlots)for(const auto& Layer:Event.Value.Layers) {
+            if(Layer.Sound.IsNull())continue;
+            auto* AudioSource=Layer.Sound.Get();
+            if(!IsValid(AudioSource)) {
+                Fail(LoadingText(TEXT("loading.error.audio"),TEXT("Не найден звуковой ресурс Composer для локации."),
+                    TEXT("A location Composer sound resource is not resident.")),Layer.Sound.ToString());
+                return false;
+            }
+            Sources.AddUnique(AudioSource);
+        }
+    for(UObject* Object:RetainedAssets)if(auto* LegacySource=Cast<USoundBase>(Object);LegacySource && !Sources.Contains(LegacySource)
+        && !AuditedLegacyAudioSources.Contains(TWeakObjectPtr<USoundBase>(LegacySource))) {
+        AuditedLegacyAudioSources.Add(TWeakObjectPtr<USoundBase>(LegacySource));FMCEventSFXSamplePlan Audit;FString AuditError;
+        if(!FMCPreloadManifest::BuildEventAudioPlan(LegacySource,Audit,AuditError))
+            UE_LOG(LogMCWorldPreload,Log,TEXT("MC_PRELOAD_LEGACY_AUDIO_UNMAPPED world=%s source=%s required=0 originalBehaviorPreserved=1 reason=%s"),
+                *GetNameSafe(GetWorld()),*LegacySource->GetPathName(),*AuditError);
+    }
+    FString Error;
+    if(!PrepareEventAudioSources(Sources,Error)) {
+        Fail(LoadingText(TEXT("loading.error.audio"),TEXT("Не удалось подготовить звуковые ресурсы локации. Проверь источник звука в Composer."),
+            TEXT("Could not prepare location audio resources. Check the sound source in Composer.")),Error);
+        return false;
+    }
+    PollEventAudioReadiness();
+    if(!bEventAudioPlanValid || !EventAudioReadiness)return false;
+    if(EventAudioReadiness->GetState()==EMCEventSFXReadiness::Failed) {
+        Fail(LoadingText(TEXT("loading.error.audio"),TEXT("Не удалось подготовить звуковые ресурсы локации. Проверь источник звука в Composer."),
+            TEXT("Could not prepare location audio resources. Check the sound source in Composer.")),EventAudioReadiness->GetDiagnostic());
+        return false;
+    }
+    return EventAudioReadiness->IsReady()
+        || EventAudioReadiness->GetState()==EMCEventSFXReadiness::OutputUnavailable;
+}
+
+bool UMCWorldPreloadSubsystem::IsVisualResourceRetained(const UObject* Object) const
+{return IsValid(Object) && (IsReady()||CertifiedResidentVisuals.ContainsByPredicate([Object](const auto& Asset){return Asset.Get()==Object;}))
+    && RetainedAssets.ContainsByPredicate([Object](const auto& Asset){return Asset.Get()==Object;});}
+
+bool UMCWorldPreloadSubsystem::PrepareResidentVisualResources(const TArray<UObject*>& Resources,FString& Error)
+{
+    Error.Reset();
+    if(Phase!=EMCWorldPreloadPhase::Idle || Resources.Num()>64)
+    {Error=TEXT("Resident fixture preparation is allowed only before a location/preview commits (maximum 64 roots).");return false;}
+    TArray<UObject*> Candidate;TArray<UStaticMesh*> Meshes;
+    for(UObject* Object:Resources) {
+        if(!IsValid(Object)||(!Object->IsA<UStaticMesh>()&&!Object->IsA<UMaterialInterface>()))
+        {Error=TEXT("Resident fixture visuals must be actual loaded static meshes/materials.");return false;}
+        Candidate.AddUnique(Object);
+        if(auto* Mesh=Cast<UStaticMesh>(Object)) {
+#if WITH_EDITOR
+            if(Mesh->IsCompiling()){Error=TEXT("Waiting for captured tool geometry compilation.");return false;}
+#endif
+            Meshes.AddUnique(Mesh);
+            for(const auto& Slot:Mesh->GetStaticMaterials())if(Slot.MaterialInterface)Candidate.AddUnique(Slot.MaterialInterface);
+        }
+    }
+#if WITH_EDITOR
+    for(UObject* Object:Candidate)if(auto* Material=Cast<UMaterialInterface>(Object);Material&&Material->IsCompiling())
+    {Error=TEXT("Waiting for captured visual material compilation.");return false;}
+#endif
+    for(UObject* Object:Candidate) {
+        if(CertifiedResidentVisuals.Contains(Object)||PendingResidentVisuals.Contains(Object))continue;
+        RetainedAssets.AddUnique(Object);PendingResidentVisuals.Add(Object);
+        if(auto* Mesh=Cast<UStaticMesh>(Object)) {FWarmupRequest Request;Request.Mesh=Mesh;WarmupRequests.Add(Request);}
+        else if(auto* Material=Cast<UMaterialInterface>(Object))for(auto* WarmMesh:Meshes) {
+            FWarmupRequest Request;Request.Mesh=WarmMesh;Request.Material=Material;WarmupRequests.Add(Request);
+        }
+    }
+    if(FApp::CanEverRender()) {
+        ProcessRenderingWork();
+        if(NextWarmupRequest<WarmupRequests.Num()) {Error=TEXT("Preparing captured visual render factories.");return false;}
+        for(const auto& Component:WarmupComponents)if(IsValid(Component)&&Component->IsPSOPrecaching())
+        {Error=TEXT("Waiting for captured visual PSO preparation.");return false;}
+    }
+    for(UObject* Object:PendingResidentVisuals)CertifiedResidentVisuals.AddUnique(Object);
+    PendingResidentVisuals.Reset();return true;
+}
+
+bool UMCWorldPreloadSubsystem::PrepareNativeStylesForLocation(FString& Error)
+{
+    Error.Reset();const auto Loaded=RetainedAssets; // No mutation of iterated array.
+    for(UObject* Object:Loaded)if(auto* Source=Cast<UMCVFXNativePresentationSettings>(Object)) {
+        // Rendering work can be rebuilt while the retained location closure
+        // stays alive. Prepared copies are owned by NativeStyles, never new
+        // authoring sources to recursively prepare on the next pass.
+        if(Source->HasAnyFlags(RF_Transient) || Source->GetOutermost()==GetTransientPackage())continue;
+        TArray<FName> Events;Source->Events.GetKeys(Events);
+        FMCVFXPreparedNativePresentation Candidate;
+        if(!GetPreparedNativeStyle(Source,Candidate)) {
+            if(!FMCVFXPreparedNativePresentation::Prepare(Source->SourceID,Events,Source,this,false,Candidate,Error))return false;
+            NativeStyles.Add(Source,Candidate);
+        }
+        for(UObject* Resource:Candidate.Resources)RetainedAssets.AddUnique(Resource);
+        // Material variants enter the same actual procedural factory as the
+        // native effect. Shader/PSO/streaming readiness remains the existing
+        // BuildRenderingWork/ProcessRenderingWork/fence quiet protocol.
+        for(const auto& Pair:Candidate.MaterialTemplates) {
+            auto* C=NewObject<UProceduralMeshComponent>(GetWorld()->GetWorldSettings(),NAME_None,RF_Transient);
+            C->SetCollisionEnabled(ECollisionEnabled::NoCollision);C->SetCanEverAffectNavigation(false);
+            C->SetCastShadow(false);C->SetMaterial(0,Pair.Value);
+            const TArray<FVector> V={FVector(-1,-1,0),FVector(1,-1,0),FVector(1,1,0),FVector(-1,1,0)};
+            const TArray<int32> I={0,1,2,0,2,3};
+            const TArray<FVector> N={FVector::UpVector,FVector::UpVector,FVector::UpVector,FVector::UpVector};
+            const TArray<FVector2D> UV={FVector2D(0,0),FVector2D(1,0),FVector2D(1,1),FVector2D(0,1)};
+            const TArray<FLinearColor> Colors={FLinearColor::White,FLinearColor::White,FLinearColor::White,FLinearColor::White};
+            const TArray<FProcMeshTangent> T={FProcMeshTangent(1,0,0),FProcMeshTangent(1,0,0),FProcMeshTangent(1,0,0),FProcMeshTangent(1,0,0)};
+            C->CreateMeshSection_LinearColor(0,V,I,N,UV,Colors,T,false);C->SetVisibility(false);
+            C->RegisterComponentWithWorld(GetWorld());C->PrecachePSOs();
+            WarmupComponents.Add(C);
+        }
+    }
+    return true;
+}
+
+UMCNiagaraMaterialContextResources* UMCWorldPreloadSubsystem::GetMaterialContextResources() const
+{ return MaterialContexts; }
+
+void UMCWorldPreloadSubsystem::ResetMaterialContextPreparation()
+{
+    if(ProceduralSurfaceResources)ProceduralSurfaceResources->Reset();ProceduralSurfaceResources=nullptr;
+    if(MaterialContexts)MaterialContexts->Reset();
+    if(!MaterialContextPSORequests.IsEmpty())ReleasePSOPrecacheData(MaterialContextPSORequests);
+    MaterialContextPSORequests.Reset();MaterialContextPSOEvents.Reset();MaterialContextFence.Reset();
+    for(const auto& Object:MaterialContextAddedAssets)if(Object.IsValid()) {
+        RetainedAssets.Remove(Object.Get());
+        if(auto* M=Cast<UMaterialInterface>(Object.Get())) {
+            Materials.Remove(M);
+#if WITH_EDITOR
+            EditorFirstUseMaterials.Remove(M);
+#endif
+        }
+    }
+    MaterialContextAddedAssets.Reset();MaterialContextTargets.Reset();MaterialContextQueuedTargets.Reset();
+    MaterialContextSources.Reset();MaterialContexts=nullptr;MaterialContextEpoch.Invalidate();
+    MaterialContextCapacity=0;MaterialContextStableFrames=0;MaterialContextLastFrame=MAX_uint64;
+    MaterialContextQuietSince=0;
+}
+
+bool UMCWorldPreloadSubsystem::PrepareMaterialContextSources(const TArray<UNiagaraSystem*>& Sources,
+    int32 Capacity,FGuid Epoch,FString& Error)
+{
+    if(!PrepareMaterialContextSourcesInternal(Sources,Capacity,Epoch,Error))return false;
+    const FString Map=GetWorld()->GetOutermost()->GetName();
+    const bool Preview=GetWorld()->GetOutermost()==GetTransientPackage()&&GetWorld()->WorldType==EWorldType::Game;
+    if(!Preview&&!Map.Contains(TEXT("L_Mouth"))&&!Map.Contains(TEXT("L_Tutorial")))return true;
+    TArray<UObject*> SurfaceSources;for(auto* NS:Sources)if(UMCNiagaraProceduralSurfaceResources::Uses(NS))SurfaceSources.AddUnique(NS);
+    if(SurfaceSources.IsEmpty())return true;
+    int32 Triangles=0;for(TActorIterator<AMCTongue> It(GetWorld());It;++It)Triangles=FMath::Max(Triangles,It->TriangleIndices().Num()/3);
+    if(!ProceduralSurfaceResources)ProceduralSurfaceResources=NewObject<UMCNiagaraProceduralSurfaceResources>(this,NAME_None,RF_Transient);
+    return ProceduralSurfaceResources->Prepare(GetWorld(),Epoch,SurfaceSources,Triangles,Error);
+}
+
+bool UMCWorldPreloadSubsystem::PrepareMaterialContextSourcesInternal(const TArray<UNiagaraSystem*>& Sources,
+    int32 Capacity,FGuid Epoch,FString& Error)
+{
+    Error.Reset();
+    if(!IsInGameThread()||!GetWorld()||Capacity<1||Capacity>128||Sources.Num()>1024)
+    {Error=TEXT("Material-context preparation needs a finite resident scope, epoch and capacity1..128.");return false;}
+    TArray<UNiagaraSystem*> Candidate;
+    for(auto* NS:Sources) {
+        if(!IsValid(NS)){Error=TEXT("Material-context source must already be resident.");return false;}
+        if(UMCNiagaraMaterialContextResources::NeedsMaterialContext(NS))Candidate.AddUnique(NS);
+    }
+    if(Candidate.Num()>128){Error=TEXT("Material-context source budget of128 exceeded.");return false;}
+    if(!Candidate.IsEmpty()&&!Epoch.IsValid()){Error=TEXT("Material contexts require a real preparation epoch.");return false;}
+    const bool Same=MaterialContexts && MaterialContextEpoch==Epoch && MaterialContextCapacity==Capacity
+        &&Candidate.Num()==MaterialContextSources.Num();
+    bool Reuse=Same;
+    if(Reuse)for(auto* NS:Candidate)Reuse&=MaterialContextSources.Contains(NS);
+    if(Reuse) {
+        for(auto* NS:Candidate)if(!MaterialContexts->PrepareSystem(NS,Capacity,Error)){Reuse=false;break;}
+        if(Reuse)return true;
+    }
+    if(MaterialContexts && MaterialContexts->HasActiveActivations())
+    {Error=TEXT("Stop the current material-context presentation before explicit reprepare.");return false;}
+    if(Phase==EMCWorldPreloadPhase::Ready)
+    {Error=TEXT("Changed material-context resources require a new location/precommit boundary.");return false;}
+    if(Candidate.IsEmpty()){if(MaterialContexts||!MaterialContextSources.IsEmpty())ResetMaterialContextPreparation();return true;}
+    auto* Prepared=NewObject<UMCNiagaraMaterialContextResources>(this,NAME_None,RF_Transient);
+    if(!Prepared->Initialize(GetWorld(),Epoch,Error))return false;
+    for(auto* NS:Candidate)if(!Prepared->PrepareSystem(NS,Capacity,Error)){Prepared->Reset();return false;}
+    ResetMaterialContextPreparation();MaterialContexts=Prepared;MaterialContextEpoch=Epoch;MaterialContextCapacity=Capacity;
+    for(auto* NS:Candidate)MaterialContextSources.Add(NS);
+    TArray<UObject*> Resources;Prepared->GetPreparedResources(Resources);
+    for(auto* R:Resources) {
+        if(!RetainedAssets.Contains(R)){RetainedAssets.Add(R);MaterialContextAddedAssets.Add(R);}
+        if(auto* M=Cast<UMaterialInterface>(R))Materials.AddUnique(M);
+    }
+    Error.Reset();return true;
+}
+
+bool UMCWorldPreloadSubsystem::RegisterMaterialContextTarget(UMeshComponent* Target,FString& Error)
+{
+    Error.Reset();
+    if(!MaterialContexts||!IsValid(Target)||Target->GetWorld()!=GetWorld()||!Target->IsRegistered())
+    {Error=TEXT("Register an actual same-world mesh after resident material-context sources are prepared.");return false;}
+    if(!UMCNiagaraMaterialContextResources::ValidateTargetFactory(Target,Error))return false;
+    if(MaterialContexts->IsSealed()) {
+        if(MaterialContexts->IsTargetPrepared(Target))return true;
+        Error=TEXT("Actual mesh factory changed after sealing; explicitly reprepare before playback.");return false;
+    }
+    const bool KnownFactory=MaterialContexts->IsTargetPrepared(Target);
+    if(!KnownFactory&&MaterialContextTargets.Num()>=128)
+    {Error=TEXT("Material-context target budget of128 exceeded.");return false;}
+    if(!KnownFactory) {
+        MaterialContextTargets.AddUnique(Target);MaterialContextQueuedTargets.Remove(Target);
+        MaterialContextFence.Reset();MaterialContextStableFrames=0;MaterialContextQuietSince=0;
+    }
+    // Factory certification happens only after its actual PSO entries are submitted.
+    // Retain/prepare real target resources now, without installing an overlay.
+    TArray<UObject*> Resources;
+    if(auto* S=Cast<UStaticMeshComponent>(Target))Resources.Add(S->GetStaticMesh());
+    else if(auto* SkeletalTarget=Cast<USkeletalMeshComponent>(Target))Resources.Add(SkeletalTarget->GetSkeletalMeshAsset());
+    TArray<UMaterialInterface*> Used;Target->GetUsedMaterials(Used);
+    for(auto* M:Used)if(IsValid(M)){Resources.AddUnique(M);Materials.AddUnique(M);}
+    for(auto* R:Resources)if(!RetainedAssets.Contains(R)){RetainedAssets.Add(R);MaterialContextAddedAssets.Add(R);}
+    return true;
+}
+
+bool UMCWorldPreloadSubsystem::RegisterMaterialContextScalar(UMeshComponent* Subject,UMaterialInstanceDynamic* MID,
+    FName Parameter,FString& Error)
+{
+    if(!RegisterMaterialContextTarget(Subject,Error))return false;
+    if(!MaterialContexts->RegisterExistingScalarTarget(Subject,MID,Parameter,Error))return false;
+    if(!RetainedAssets.Contains(MID)){RetainedAssets.Add(MID);MaterialContextAddedAssets.Add(MID);}
+    return true;
+}
+
+bool UMCWorldPreloadSubsystem::AdoptResidentMaterialContextScalar(UMeshComponent* Subject,
+    UMaterialInstanceDynamic* MID,FName Parameter,FString& Error)
+{
+    if(!IsReady()||!MaterialContexts||!IsValid(Subject)||Subject->GetWorld()!=GetWorld())
+    {Error=TEXT("Late native scalar enrollment requires this location's existing Ready scope.");return false;}
+    return MaterialContexts->AdoptPreparedScalarTarget(Subject,MID,Parameter,Error);
+}
+
+bool UMCWorldPreloadSubsystem::PrepareLocationMaterialContexts(FString& Error)
+{
+    TArray<UNiagaraSystem*> Sources;
+    for(UObject* Object:RetainedAssets)if(auto* NS=Cast<UNiagaraSystem>(Object))Sources.AddUnique(NS);
+    TArray<AActor*> Owners;
+    for(TActorIterator<AActor> It(GetWorld());It;++It) {
+        TInlineComponentArray<UMCVFXPresentationComponent*> Components(*It);
+        bool HasContext=false;
+        for(auto* C:Components)if(IsValid(C)) {
+            TArray<UNiagaraSystem*> Local;C->GetPreparedResources(Local);
+            for(auto* NS:Local)if(IsValid(NS)) {
+                Sources.AddUnique(NS);HasContext|=UMCNiagaraMaterialContextResources::NeedsMaterialContext(NS);
+            }
+        }
+        if(HasContext)Owners.Add(*It);
+    }
+    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    bool Changed=false;
+    if(MaterialContexts&&MaterialContexts->IsSealed()) {
+        TArray<UNiagaraSystem*> Needed;
+        for(auto* NS:Sources)if(UMCNiagaraMaterialContextResources::NeedsMaterialContext(NS))Needed.AddUnique(NS);
+        Changed=Needed.Num()!=MaterialContextSources.Num();
+        for(auto* NS:Needed)Changed|=!MaterialContextSources.Contains(NS);
+        // While sealed PrepareSystem is a public reuse/schema check: all
+        // mutation branches reject before adding a new template/MID pool.
+        for(auto* NS:Needed){FString Probe;Changed|=!MaterialContexts->PrepareSystem(NS,64,Probe);}
+        for(auto* Owner:Owners) {
+            TInlineComponentArray<UMeshComponent*> Meshes(Owner);
+            for(auto* Mesh:Meshes)if(IsValid(Mesh)&&Mesh->IsRegistered()) {
+                FString Unsupported;if(!UMCNiagaraMaterialContextResources::ValidateTargetFactory(Mesh,Unsupported))continue;
+                Changed|=!MaterialContextTargets.Contains(Mesh)||!MaterialContexts->IsTargetPrepared(Mesh);
+            }
+            if(auto* Tooth=Cast<AMCToothCharacter>(Owner)) {
+                FString Probe;Changed|=!Tooth->PreparePresentationMaterialContext(this,Probe); // Sealed: exact existing binding only.
+            }
+        }
+    }
+    if(Changed) {
+        if(!IsPreparing()){Error=TEXT("Changed actual context target requires an explicit preparation boundary.");return false;}
+        // Do not reset the roster/source snapshots here. Only these exact
+        // uncommitted consumers release their own inactive reservations.
+        for(const auto& H:PreparedFreezeHeroes)if(auto* Hero=H.Get())Hero->ReleaseUncommittedFreezeDeathPresentation();
+        if(MaterialContexts->HasActiveActivations()) {Error=TEXT("A foreign active context consumer prevents safe preparation rebuild.");return false;}
+        ResetMaterialContextPreparation();
+    }
+    if(!PrepareMaterialContextSources(Sources,64,GS?GS->GameplayLoadId:FGuid(),Error))return false;
+    if(!MaterialContexts || MaterialContexts->IsSealed())return true;
+    // Only actual owners of a prepared context source, not every decorative mesh
+    // or the global Composer catalog. Providers may register additional exact targets.
+    for(auto* Owner:Owners) {
+        TInlineComponentArray<UMeshComponent*> Meshes(Owner);
+        for(auto* Mesh:Meshes)if(IsValid(Mesh)&&Mesh->IsRegistered()) {
+            FString Unsupported;
+            if(!UMCNiagaraMaterialContextResources::ValidateTargetFactory(Mesh,Unsupported))continue;
+            if(!RegisterMaterialContextTarget(Mesh,Error))return false;
+        }
+        if(auto* Tooth=Cast<AMCToothCharacter>(Owner))
+            if(!Tooth->PreparePresentationMaterialContext(this,Error))return false;
+    }
+    return true;
+}
+
+bool UMCWorldPreloadSubsystem::PollMaterialContextReadiness(bool& bWaiting,FString& Error)
+{
+    bWaiting=false;Error.Reset();
+    if(!IsInGameThread()||!GetWorld()){Error=TEXT("Poll material-context readiness on its live world game thread.");return false;}
+    if(ProceduralSurfaceResources) {
+        bool Waiting=false;if(!ProceduralSurfaceResources->Poll(Waiting,Error))return false;
+        if(Waiting){bWaiting=true;return true;}
+        TArray<UObject*> Prepared;ProceduralSurfaceResources->GetResources(Prepared);
+        for(auto* O:Prepared){RetainedAssets.AddUnique(O);if(auto* M=Cast<UMaterialInterface>(O))Materials.AddUnique(M);}
+    }
+    if(!MaterialContexts)return true;
+    if(MaterialContexts->IsSealed()) {
+        if(MaterialContexts->IsPreparedForEpoch(MaterialContextEpoch))return true;
+        Error=TEXT("Material-context run epoch changed; explicitly reprepare.");return false;
+    }
+    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    if(GS&&GS->GameplayLoadId.IsValid()&&GS->GameplayLoadId!=MaterialContextEpoch)
+    {Error=TEXT("Material-context preparation belongs to a retired run epoch.");return false;}
+    // Asset-only execution is honest: no render certificate is manufactured.
+    if(!FApp::CanEverRender())return true;
+    if(MaterialContextTargets.IsEmpty()) {Error=TEXT("Material context has no explicit supported mesh target/factory.");return false;}
+    for(const auto& NS:MaterialContextSources) {
+        if(!IsValid(NS.Get())){Error=TEXT("Prepared material-context NS was invalidated.");return false;}
+#if WITH_EDITOR
+        NS->PollForCompilationComplete(true);
+        if(NS->HasOutstandingCompilationRequests(true))bWaiting=true;
+#endif
+        if(!NS->IsReadyToRun())bWaiting=true;
+    }
+    TArray<UObject*> Resources;MaterialContexts->GetPreparedResources(Resources);
+    for(const auto& Weak:MaterialContextTargets)if(auto* Target=Weak.Get()) {
+        TArray<UMaterialInterface*> Used;Target->GetUsedMaterials(Used);
+        for(auto* M:Used)if(IsValid(M))Resources.AddUnique(M);
+    }
+#if WITH_EDITOR
+    const auto Platform=GetFeatureLevelShaderPlatform(GetWorld()->GetFeatureLevel());
+    TSet<FMaterialResource*> Submitted;
+    for(auto* R:Resources)if(auto* M=Cast<UMaterialInterface>(R)) {
+        auto* Shader=M->GetMaterialResource(Platform);
+        if(!Shader){Error=TEXT("Material-context interface has no resource for this shader platform.");return false;}
+        if(!Shader->IsGameThreadShaderMapComplete()) {
+            if(!Submitted.Contains(Shader)){Submitted.Add(Shader);Shader->SubmitCompileJobs_GameThread(EShaderCompileJobPriority::Normal);}
+            bWaiting=true;
+        }
+    }
+#endif
+    if(bWaiting){MaterialContextFence.Reset();MaterialContextStableFrames=0;MaterialContextQuietSince=0;return true;}
+    TArray<UMaterialInterface*> Overlays;MaterialContexts->GetPreparedOverlayMaterials(Overlays);
+    for(const auto& Weak:MaterialContextTargets) {
+        auto* Target=Weak.Get();
+        if(!IsValid(Target)){Error=TEXT("Prepared material-context mesh target disappeared before Commit.");return false;}
+        if(MaterialContextQueuedTargets.Contains(Target)&&MaterialContexts->IsTargetPrepared(Target))continue;
+        if(auto* S=Cast<UStaticMeshComponent>(Target)) {
+#if WITH_EDITOR
+            if(S->GetStaticMesh()->IsCompiling()){bWaiting=true;continue;}
+#endif
+            if(!S->GetStaticMesh()->GetRenderData()){bWaiting=true;continue;}
+        } else if(auto* SkeletalTarget=Cast<USkeletalMeshComponent>(Target)) {
+#if WITH_EDITOR
+            if(SkeletalTarget->GetSkeletalMeshAsset()->IsCompiling()){bWaiting=true;continue;}
+#endif
+            auto* Render=SkeletalTarget->GetSkeletalMeshAsset()->GetResourceForRendering();
+            if(!Render||!Render->IsLODDataReady()){bWaiting=true;continue;}
+        }
+        FPSOPrecacheParams Base;Target->SetupPrecachePSOParams(Base);
+        FMaterialInterfacePSOPrecacheParamsList Original;Target->CollectPSOPrecacheData(Base,Original);
+        if(Original.IsEmpty()){Error=TEXT("Supported target returned no real PSO factory data.");return false;}
+        FMaterialInterfacePSOPrecacheParamsList Work=Original;
+        for(auto* Material:Overlays) {
+            if(Target->IsA<USkeletalMeshComponent>()&&!Material->GetUsageByFlag(MATUSAGE_SkeletalMesh))
+                continue; // Unrelated static-only templates do not invalidate this location.
+            for(const auto& Source:Original)if(!Source.VertexFactoryDataList.IsEmpty()) {
+                auto Entry=Source;Entry.MaterialInterface=Material;Entry.PSOPrecacheParams.bCastShadow=false;
+                const bool WPO=Material->IsUsingWorldPositionOffset_Concurrent(GMaxRHIShaderPlatform);
+                Entry.PSOPrecacheParams.bAnyMaterialHasWorldPositionOffset|=WPO;
+                Entry.PSOPrecacheParams.bRequireRTDynamicGeometryUpdate|=WPO&&Target->IsA<USkeletalMeshComponent>();
+                AddMaterialInterfacePSOPrecacheParamsToList(Entry,Work);
+            }
+        }
+        PrecacheMaterialPSOs(Work,MaterialContextPSORequests,MaterialContextPSOEvents);
+        if(!MaterialContexts->RegisterPreparedTarget(Target,Error))return false;
+        MaterialContextQueuedTargets.Add(Target);MaterialContextFence.Reset();MaterialContextStableFrames=0;
+    }
+    for(const auto& E:MaterialContextPSOEvents)if(E.IsValid()&&!E->IsComplete())bWaiting=true;
+    if(bWaiting){MaterialContextFence.Reset();MaterialContextStableFrames=0;MaterialContextQuietSince=0;return true;}
+    if(!MaterialContextFence.IsValid()) {
+        MaterialContextFence=MakeShared<FRenderCommandFence>();MaterialContextFence->BeginFence(FRenderCommandFence::ESyncDepth::RHIThread);
+        MaterialContextQuietSince=FPlatformTime::Seconds();bWaiting=true;return true;
+    }
+    if(!MaterialContextFence->IsFenceComplete()){bWaiting=true;return true;}
+#if WITH_EDITOR
+    if(FPlatformTime::Seconds()-MaterialContextQuietSince<RequiredEditorQuietSeconds){bWaiting=true;return true;}
+#endif
+    if(MaterialContextLastFrame!=GFrameCounter){MaterialContextLastFrame=GFrameCounter;++MaterialContextStableFrames;}
+    if(MaterialContextStableFrames<RequiredStableRenderFrames){bWaiting=true;return true;}
+    // Idle is the isolated authoring path. Normal worlds seal at their existing global barrier.
+    if(Phase==EMCWorldPreloadPhase::Idle && !MaterialContexts->SealResources(Error))return false;
+    return true;
 }

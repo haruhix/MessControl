@@ -5,6 +5,7 @@
 #include "MCRocketSkillAction.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
+#include "MCVFXTestWorld.h"
 #include "NiagaraParameterStore.h"
 #include "NiagaraSystem.h"
 #include "UObject/Package.h"
@@ -13,7 +14,7 @@ namespace MCPerkCompositionTests
 {
 struct FWorld
 {
-    UWorld* World=UWorld::CreateWorld(EWorldType::EditorPreview,false);
+    UWorld* World=MCVFXTestWorld::Create(EWorldType::EditorPreview,false);
     AMCRocketSkillAction* Action=nullptr;
     FWorld()
     {

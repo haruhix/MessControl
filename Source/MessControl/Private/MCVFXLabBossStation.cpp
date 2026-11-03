@@ -11,6 +11,10 @@
 #include "MCNutBoss.h"
 #include "MCNutCombatEffect.h"
 #include "MCNutEnemy.h"
+#include "MCNutKamikaze.h"
+#include "MCNutLandingShadow.h"
+#include "MCFoodActor.h"
+#include "MCVFXPresentationComponent.h"
 #include "MCNutRainEvent.h"
 #include "MCNutRainProfile.h"
 #include "MCPlaytestBotController.h"
@@ -23,10 +27,13 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Engine/World.h"
+#include "Engine/StaticMesh.h"
 #include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerState.h"
 #include "Net/UnrealNetwork.h"
 #include "TimerManager.h"
@@ -47,6 +54,9 @@ AMCVFXLabBossStation::AMCVFXLabBossStation()
     Label->SetWorldSize(30);
     Label->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     Label->SetTextRenderColor(FColor(210,235,255));
+    EntryPresentation=CreateDefaultSubobject<UMCVFXPresentationComponent>(TEXT("EntryPreviewPresentation"));
+    EntryPresentation->SourceID=NAME_None; // Only the selected Entry fixture prepares this source.
+    EntryPresentation->Events={TEXT("Approach"),TEXT("Impact")};
     NutProfile=FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/DA_NutRain.DA_NutRain"));
     SubjectClass=FSoftObjectPath(TEXT("/Game/Blueprints/BP_PlayerCharacter.BP_PlayerCharacter_C"));
     ZombieClass=FSoftObjectPath(TEXT("/Game/Gameplay/Boss/BP_ZombieBoss.BP_ZombieBoss_C"));
@@ -76,9 +86,12 @@ void AMCVFXLabBossStation::BeginPlay()
     UpdateLabel();
 }
 
-bool AMCVFXLabBossStation::IsNutKind() const { return uint8(Kind)<=uint8(EMCVFXLabBossKind::MageEntrance); }
+bool AMCVFXLabBossStation::IsNutKind() const
+{ return uint8(Kind)<=uint8(EMCVFXLabBossKind::MageEntrance) || Kind==EMCVFXLabBossKind::TankCounterShove || Kind==EMCVFXLabBossKind::TankHeadSplit; }
 bool AMCVFXLabBossStation::IsMageKind() const
-{ return uint8(Kind)>=uint8(EMCVFXLabBossKind::MageMelee) && IsNutKind(); }
+{ return uint8(Kind)>=uint8(EMCVFXLabBossKind::MageMelee) && uint8(Kind)<=uint8(EMCVFXLabBossKind::MageEntrance); }
+bool AMCVFXLabBossStation::IsKamikazeKind() const
+{ return Kind==EMCVFXLabBossKind::KamikazeFuse || Kind==EMCVFXLabBossKind::KamikazeBlast; }
 bool AMCVFXLabBossStation::IsEntranceKind() const
 { return Kind==EMCVFXLabBossKind::TankEntrance || Kind==EMCVFXLabBossKind::MageEntrance; }
 bool AMCVFXLabBossStation::IsDeathKind() const
@@ -90,6 +103,7 @@ bool AMCVFXLabBossStation::IsCombatKind() const
         || Kind==EMCVFXLabBossKind::MageMelee || Kind==EMCVFXLabBossKind::MageFireball
         || Kind==EMCVFXLabBossKind::MageSummon || Kind==EMCVFXLabBossKind::MageNutRain
         || Kind==EMCVFXLabBossKind::MageTeleport || Kind==EMCVFXLabBossKind::ZombiePunchLeft
+        || Kind==EMCVFXLabBossKind::TankCounterShove
         || Kind==EMCVFXLabBossKind::ZombiePunchRight || Kind==EMCVFXLabBossKind::ZombieKick
         || Kind==EMCVFXLabBossKind::Phase3PunchRight || Kind==EMCVFXLabBossKind::Phase3AreaAttack;
 }
@@ -113,7 +127,12 @@ void AMCVFXLabBossStation::Track(AActor* Actor)
 bool AMCVFXLabBossStation::Owns(const AActor* Actor) const
 {
     for(int32 Depth=0;IsValid(Actor) && Depth<8;++Depth,Actor=Actor->GetOwner())
+    {
+        // A borrowed pawn, its identity and its tool/attachment owner chain
+        // belong to the caller. Never claim them for station cleanup.
+        if(bBorrowedSubject && IsValid(Subject) && (Actor==Subject || Actor==Subject->GetController() || Actor==Subject->GetPlayerState()))return false;
         if(Actor==this || Actor==NutOwner || Actor==NutBoss || Actor==Boss || Actor==Subject || Actor==SubjectController) return true;
+    }
     return false;
 }
 
@@ -135,7 +154,7 @@ void AMCVFXLabBossStation::GatherOwnedActors()
     }
 }
 
-bool AMCVFXLabBossStation::BeginCycle()
+bool AMCVFXLabBossStation::BeginCycle(AMCToothCharacter* BorrowedSubject)
 {
     Cleanup();
     CycleStartedAt=GetWorld()->GetTimeSeconds();
@@ -150,12 +169,17 @@ bool AMCVFXLabBossStation::BeginCycle()
         || Kind==EMCVFXLabBossKind::MageSummon || Kind==EMCVFXLabBossKind::MageNutRain
         || Kind==EMCVFXLabBossKind::MageTeleport || Kind==EMCVFXLabBossKind::Phase3AreaAttack;
     FHitResult SubjectGround;
-    if(!Floor->InteriorSurfacePoint(Ground.ImpactPoint+Forward*(Ranged?650.f:260.f),45,SubjectGround)) {
+    const FVector SubjectPoint=BorrowedSubject?BorrowedSubject->GetActorLocation():Ground.ImpactPoint+Forward*(Ranged?650.f:260.f);
+    if(!Floor->InteriorSurfacePoint(SubjectPoint,45,SubjectGround)) {
         Status=TEXT("Subject footprint is outside Floor");return false;
     }
     FActorSpawnParameters Spawn;
     Spawn.Owner=this;
     Spawn.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    if(BorrowedSubject) {
+        Subject=BorrowedSubject;bBorrowedSubject=true;
+        SubjectHealthBefore=Subject->Status->State.Health;
+    } else {
     SubjectController=GetWorld()->SpawnActor<AMCPlaytestBotController>(AMCPlaytestBotController::StaticClass(),GetActorLocation(),Facing,Spawn);
     if(!SubjectController) {Status=TEXT("Subject controller spawn failed");return false;}
     Track(SubjectController);
@@ -187,13 +211,48 @@ bool AMCVFXLabBossStation::BeginCycle()
     Subject->Status->Initialize(100);
     SubjectHealthBefore=Subject->Status->State.Health;
     if(!AMCGameMode::IsGameplayParticipant(SubjectController)) {Status=TEXT("Subject is not a gameplay participant");return false;}
-    if(IsNutKind()) {
+    }
+    if(IsKamikazeKind() || Kind==EMCVFXLabBossKind::RainEntry) {
+        auto* Data=NutProfile.LoadSynchronous();
+        if(!Data) {Status=TEXT("Saved DA_NutRain is missing");return false;}
+        NutOwner=GetWorld()->SpawnActor<AMCNutRainEvent>(AMCNutRainEvent::StaticClass(),GetActorLocation(),Facing,Spawn);
+        if(!NutOwner || !NutOwner->PrepareIsolatedSpellContext(Floor,Data)) {
+            Status=TEXT("Disposable real rain owner could not be prepared");return false;
+        }
+        Track(NutOwner);
+        if(Kind==EMCVFXLabBossKind::RainEntry) {
+            if(!NutOwner->SpawnIsolatedEntryNut(Ground.ImpactPoint,ComparisonSeed) || NutOwner->Nuts.Num()!=1) {
+                Status=TEXT("Real entry nut or its baked food collision is unavailable");return false;
+            }
+            EntryNut=NutOwner->Nuts[0];Track(EntryNut);
+        } else {
+            FMCNutEnemySettings Creep=NutOwner->Settings.Enemy;
+            const auto& Settings=NutOwner->Settings.Boss;
+            Creep.MaxHealth=Settings.CreepHealth;Creep.BodyRadius=FMath::Clamp(Creep.BodyRadius,20.f,80.f);
+            Creep.MoveSpeed=Settings.CreepMoveSpeed;Creep.Sanitize();
+            PreparedCreepMesh=Settings.WholeMesh.LoadSynchronous();
+            if(!PreparedCreepMesh) {Status=TEXT("Saved native summon nut mesh is missing");return false;}
+            const FVector Scale(Settings.CreepHeight/FMath::Max(.001,PreparedCreepMesh->GetBounds().BoxExtent.Z*2));
+            const FTransform Pose(Facing,Ground.ImpactPoint+FVector(0,0,Creep.BodyRadius+4));
+            Kamikaze=GetWorld()->SpawnActorDeferred<AMCNutKamikaze>(AMCNutKamikaze::StaticClass(),Pose,NutOwner,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+            if(!Kamikaze) {Status=TEXT("Real kamikaze spawn failed");return false;}
+            Track(Kamikaze);Kamikaze->ConfigureEnemy(Floor,PreparedCreepMesh,Scale,Creep);
+            Kamikaze->FinishSpawning(Pose);Kamikaze->SetActorTickEnabled(false);
+            NutOwner->RegisterEncounterEnemy(Kamikaze);
+            // The native fuse is intentionally NOT armed until the readiness
+            // barrier. BeginPlay has already made the real model and MIDs.
+        }
+    } else if(IsNutKind()) {
         const UMCNutRainProfile* Data=NutProfile.LoadSynchronous();
         if(!Data) {Status=TEXT("Saved DA_NutRain is missing");return false;}
         FMCNutBossSettings Settings=Data->Settings.Boss; Settings.Sanitize();
         NutOwner=GetWorld()->SpawnActor<AMCNutRainEvent>(AMCNutRainEvent::StaticClass(),GetActorLocation(),Facing,Spawn);
         if(!NutOwner) {Status=TEXT("Nut owner spawn failed");return false;}
         Track(NutOwner); NutOwner->Settings=Data->Settings; NutOwner->SetActorTickEnabled(false);
+        if(Kind==EMCVFXLabBossKind::TankHeadSplit
+            && !NutOwner->PrepareIsolatedSpellContext(Floor,const_cast<UMCNutRainProfile*>(Data))) {
+            Status=TEXT("Head split requires the real encounter Enemies stage");return false;
+        }
         const EMCNutBossRole BossRole=IsMageKind()?EMCNutBossRole::Mage:EMCNutBossRole::Tank;
         BossStart=Ground.ImpactPoint+FVector(0,0,Settings.BodyRadiusForRole(BossRole)+4);
         const FTransform Pose(Facing,BossStart);
@@ -205,6 +264,14 @@ bool AMCVFXLabBossStation::BeginCycle()
         NutBoss->ConfigureEncounter(Floor,NutOwner,BossRole,Settings,1,bComparisonMode?ComparisonSeed:GetUniqueID()+Cycles*137);
         FTransform AirbornePose=Pose; AirbornePose.SetLocation(NutBoss->GetActorLocation());
         NutBoss->FinishSpawning(AirbornePose);
+        if(Kind==EMCVFXLabBossKind::TankHeadSplit) {
+            // Retain the actual future phase on the actual component before
+            // readiness. Normal native RevealMagePhase still owns the switch.
+            if(!NutBoss->PrepareIsolatedMagePhaseResources()) {
+                Status=TEXT("Saved Mage resources for the real second phase are missing");return false;
+            }
+            NutBoss->MageModel->SetVisibility(false);
+        }
         NutOwner->Bosses.Add(NutBoss); NutOwner->RegisterEncounterEnemy(NutBoss);
         bSawEntrance=NutBoss->State==EMCNutBossState::Falling;
     } else {
@@ -240,7 +307,23 @@ AActor* AMCVFXLabBossStation::GetComparisonEnemy() const
 {
     if(!bComparisonMode) return nullptr;
     if(IsValid(NutBoss)) return NutBoss.Get();
+    if(IsValid(Kamikaze)) return Kamikaze.Get();
+    if(IsValid(EntryNut)) return EntryNut.Get();
     return IsValid(Boss)?Boss.Get():nullptr;
+}
+
+UMCVFXPresentationComponent* AMCVFXLabBossStation::GetComparisonPresentation() const
+{
+    if(IsValid(NutBoss))return NutBoss->VFXContext.Get();
+    if(IsValid(Kamikaze))return Kind==EMCVFXLabBossKind::KamikazeFuse?Kamikaze->FusePresentation.Get():Kamikaze->VFXContext.Get();
+    return Kind==EMCVFXLabBossKind::RainEntry?EntryPresentation.Get():nullptr;
+}
+
+USceneComponent* AMCVFXLabBossStation::GetComparisonVisualSubject() const
+{
+    if(IsValid(NutBoss))return NutBoss->BossRole==EMCNutBossRole::Mage?NutBoss->MageModel.Get():NutBoss->TankModel.Get();
+    if(IsValid(Kamikaze))return Kamikaze->SummonModel.Get();
+    return IsValid(EntryNut)?EntryNut->Visual.Get():nullptr;
 }
 
 bool AMCVFXLabBossStation::IsComparisonReady() const
@@ -248,6 +331,8 @@ bool AMCVFXLabBossStation::IsComparisonReady() const
 #if !UE_BUILD_SHIPPING && !UE_BUILD_TEST
     if(!bComparisonMode || !bCycleOpen || !IsValid(Subject) || !Subject->Status || !Subject->Status->IsAlive()) return false;
     if(IsValid(NutBoss)) return NutBoss->CanReceiveToolHit();
+    if(IsValid(Kamikaze))return Kamikaze->IsEncounterAlive() && !Kamikaze->bArmed;
+    if(IsValid(EntryNut))return !EntryNut->IsDisposed() && IsValid(NutOwner);
     return IsValid(Boss) && Boss->CanReceiveWeaponHit();
 #else
     return false;
@@ -255,6 +340,25 @@ bool AMCVFXLabBossStation::IsComparisonReady() const
 }
 
 bool AMCVFXLabBossStation::PrepareComparison(EMCVFXLabBossKind Selected)
+{return PrepareComparisonInternal(Selected,nullptr);}
+
+bool AMCVFXLabBossStation::PrepareComparisonUsingSubject(EMCVFXLabBossKind Selected,AMCToothCharacter* ExistingSubject)
+{
+#if !UE_BUILD_SHIPPING && !UE_BUILD_TEST
+    auto* Controller=IsValid(ExistingSubject)?Cast<APlayerController>(ExistingSubject->GetController()):nullptr;
+    if(!GetWorld() || GetWorld()->WorldType!=EWorldType::Game || GetWorld()->GetOutermost()!=GetTransientPackage()
+        || !IsValid(ExistingSubject) || ExistingSubject->GetWorld()!=GetWorld() || !ExistingSubject->HasAuthority()
+        || !ExistingSubject->Status || !ExistingSubject->Status->IsAlive() || !Controller || Controller->GetPawn()!=ExistingSubject
+        || ExistingSubject->GetPlayerState()!=Controller->GetPlayerState<APlayerState>() || !AMCGameMode::IsGameplayParticipant(Controller)) {
+        Status=TEXT("Borrowed comparison requires one living pawn with its current controller/PlayerState in an isolated transient Game world.");return false;
+    }
+    return PrepareComparisonInternal(Selected,ExistingSubject);
+#else
+    return false;
+#endif
+}
+
+bool AMCVFXLabBossStation::PrepareComparisonInternal(EMCVFXLabBossKind Selected,AMCToothCharacter* BorrowedSubject)
 {
 #if !UE_BUILD_SHIPPING && !UE_BUILD_TEST
     if(!HasAuthority() || !GetWorld() || !GetWorld()->IsGameWorld()
@@ -263,7 +367,7 @@ bool AMCVFXLabBossStation::PrepareComparison(EMCVFXLabBossKind Selected)
     bRunning=false;
     Kind=Selected;
     SetActorTickEnabled(true);
-    const bool Prepared=BeginCycle();
+    const bool Prepared=BeginCycle(BorrowedSubject);
     if(!Prepared) {
         const FString Reason=Status;
         Cleanup();
@@ -279,8 +383,15 @@ bool AMCVFXLabBossStation::PrepareComparison(EMCVFXLabBossKind Selected)
 bool AMCVFXLabBossStation::RunComparisonAction()
 {
 #if !UE_BUILD_SHIPPING && !UE_BUILD_TEST
-    if(!HasAuthority() || !IsComparisonReady() || bActionStarted) return false;
+    if(!HasAuthority() || !IsComparisonReady()) return false;
+    // A melee artist scenario retains this exact knight for Attack1, Attack2,
+    // then Combo. Never reset/force its native sequence or skip recovery/cooldown.
+    // Every other comparison remains a single accepted start.
+    if(bActionStarted && Kind!=EMCVFXLabBossKind::TankMelee) return false;
     if(IsValid(NutBoss) && NutBoss->State!=EMCNutBossState::Idle) return false;
+    if(Kind==EMCVFXLabBossKind::TankMelee && (!IsValid(NutBoss)
+        || NutBoss->BossRole!=EMCNutBossRole::Tank
+        || NutBoss->GetAttackCooldownRemaining(EMCNutBossAttack::Melee)>0.f)) return false;
     if(IsValid(Boss) && Boss->Runtime.State!=EMCBossState::Searching && Boss->Runtime.State!=EMCBossState::Chasing) return false;
     SubjectHealthBefore=Subject->Status->State.Health;
     ComparisonIncomingHealth=0;
@@ -290,10 +401,10 @@ bool AMCVFXLabBossStation::RunComparisonAction()
         FinishCycle(Observed,TEXT("Observed real comparison entrance; fixtures retained"));
         return Observed;
     }
-    const float EnemyHealthBefore=IsValid(NutBoss)?NutBoss->Health:Boss->Runtime.Health;
+    const float EnemyHealthBefore=IsValid(NutBoss)?NutBoss->Health:IsValid(Boss)?Boss->Runtime.Health:0;
     const float EnemyShieldBefore=IsValid(NutBoss)?NutBoss->ShieldHealth:0;
     const bool Accepted=LaunchAction();
-    if(IsDeathKind() || Kind==EMCVFXLabBossKind::MageHurt || Kind==EMCVFXLabBossKind::ZombieHurt
+    if(IsDeathKind() || Kind==EMCVFXLabBossKind::TankHeadSplit || Kind==EMCVFXLabBossKind::MageHurt || Kind==EMCVFXLabBossKind::ZombieHurt
         || Kind==EMCVFXLabBossKind::TankShieldHit || Kind==EMCVFXLabBossKind::TankShieldBreakOverflow) {
         const float EnemyHealthAfter=IsValid(NutBoss)?NutBoss->Health:Boss->Runtime.Health;
         const float EnemyShieldAfter=IsValid(NutBoss)?NutBoss->ShieldHealth:0;
@@ -315,7 +426,7 @@ bool AMCVFXLabBossStation::RunComparisonAction()
 float AMCVFXLabBossStation::ApplyComparisonOutgoing(float Damage)
 {
 #if !UE_BUILD_SHIPPING && !UE_BUILD_TEST
-    if(!HasAuthority() || !IsComparisonReady() || !FMath::IsFinite(Damage) || Damage<=0) return 0;
+    if(!HasAuthority() || !IsComparisonReady() || (!IsValid(NutBoss) && !IsValid(Boss)) || !FMath::IsFinite(Damage) || Damage<=0) return 0;
     const float HealthBefore=IsValid(NutBoss)?NutBoss->Health:Boss->Runtime.Health;
     const float ShieldHealthBefore=IsValid(NutBoss)?NutBoss->ShieldHealth:0;
     if(IsValid(NutBoss)) NutBoss->ReceiveToolDamage(Damage,Subject);
@@ -386,15 +497,30 @@ bool AMCVFXLabBossStation::LaunchAction()
 {
     ActionStartedAt=GetWorld()->GetTimeSeconds(); bActionStarted=true;
     MaximumTravel=0;
+    if(IsKamikazeKind()) {
+        if(!IsValid(Kamikaze) || !PreparedCreepMesh || Kamikaze->bArmed)return false;
+        const bool Accepted=Kamikaze->ConfigureKamikaze(Floor,PreparedCreepMesh,Kamikaze->MeshScale,Kamikaze->Settings);
+        if(Accepted)Kamikaze->SetActorTickEnabled(true);
+        return Accepted;
+    }
+    if(Kind==EMCVFXLabBossKind::RainEntry) {
+        return IsValid(EntryNut) && IsValid(NutOwner) && NutOwner->LaunchIsolatedEntryNut();
+    }
     if(IsNutKind()) {
         if(!IsValid(NutBoss) || !NutBoss->IsEncounterAlive()) return false;
         NutBoss->Target=Subject;
         BossHealthBefore=NutBoss->Health; ShieldBefore=NutBoss->ShieldHealth;
-        if(IsDeathKind()) {
+        if(Kind==EMCVFXLabBossKind::TankCounterShove) {
+            CounterContacts=0;bSawCounter=false;NextCounterContactAt=ActionStartedAt;
+            // Actual low-damage player contacts will feed native pressure on
+            // later ticks. Never set its random threshold/queued flag.
+            SetActorTickEnabled(true);return true;
+        }
+        if(IsDeathKind() || Kind==EMCVFXLabBossKind::TankHeadSplit) {
             if(NutBoss->ShieldHealth>0) NutBoss->ReceiveToolDamage(NutBoss->ShieldHealth,nullptr);
             AppliedHealthDamage=NutBoss->ReceiveToolDamage(NutBoss->Health+1,nullptr);
             bSawDeath=NutBoss->State==EMCNutBossState::Defeated;
-            return bSawDeath && AppliedHealthDamage>0;
+            return AppliedHealthDamage>0 && (bSawDeath || (Kind==EMCVFXLabBossKind::TankHeadSplit && NutBoss->State==EMCNutBossState::Transforming));
         }
         if(Kind==EMCVFXLabBossKind::MageHurt) {
             AppliedHealthDamage=NutBoss->ReceiveToolDamage(25,Subject);
@@ -502,6 +628,14 @@ void AMCVFXLabBossStation::Tick(float DeltaSeconds)
         if(!BeginCycle()) {FinishCycle(false,Status);return;}
     }
     Observe();
+    if(bActionStarted && Kind==EMCVFXLabBossKind::TankCounterShove && IsValid(NutBoss)) {
+        bSawCounter|=NutBoss->IsCounterShoving();
+        if(!bSawCounter && Now>=NextCounterContactAt && CounterContacts<32 && NutBoss->CanReceiveToolHit()) {
+            ++CounterContacts;NextCounterContactAt=Now+.18;
+            NutBoss->ReceiveToolDamage(1.f,Subject);
+            bSawCounter|=NutBoss->IsCounterShoving();
+        }
+    }
     if(Now-(bComparisonMode?ActionStartedAt:CycleStartedAt)>40) {FinishCycle(false,TEXT("Timeout: expected live callback/effect was not observed"));return;}
     if(!bActionStarted) {
         if(IsNutKind()) {
@@ -516,6 +650,18 @@ void AMCVFXLabBossStation::Tick(float DeltaSeconds)
         Observe();
     }
     const double Age=Now-ActionStartedAt;
+    if(Kind==EMCVFXLabBossKind::TankHeadSplit && IsValid(NutBoss) && Age>AMCNutBoss::MagePhaseSeconds
+        && NutBoss->BossRole==EMCNutBossRole::Mage && NutBoss->State==EMCNutBossState::Idle) {
+        FinishCycle(SeenCues.Contains(uint8(EMCNutCombatCue::KnightHeadSplit)),TEXT("Real lethal contact, native head split and Mage second phase"));return;
+    }
+    if(IsKamikazeKind() && IsValid(Kamikaze) && Kamikaze->bExploded) {
+        FinishCycle(bSawFireImpact,TEXT("Native fuse expired and real blast resolved"));return;
+    }
+    if(Kind==EMCVFXLabBossKind::RainEntry && IsValid(NutOwner)) {
+        for(const auto& Shadow:NutOwner->LandingShadows)if(IsValid(Shadow.Get()) && Shadow->bImpacted) {
+            FinishCycle(true,TEXT("Real falling food, warning and collision impact"));return;
+        }
+    }
     if(IsDeathKind() && Age>=1.2) {
         const bool Burst=!IsNutKind() || SeenCues.Contains(uint8(EMCNutCombatCue::DeathBurst));
         FinishCycle(bSawDeath && Burst,TEXT("Observed actual defeat/death callback"));return;
@@ -553,6 +699,7 @@ void AMCVFXLabBossStation::Tick(float DeltaSeconds)
         else if(Kind==EMCVFXLabBossKind::MageSummon) Evidence&=GeneratedCreeps>0;
         else if(Kind==EMCVFXLabBossKind::MageNutRain) Evidence&=NutBoss->RainDropsResolved>=NutBoss->BossSettings.RainDrops;
         else if(Kind==EMCVFXLabBossKind::TankJump) Evidence&=SeenCues.Contains(uint8(EMCNutCombatCue::SlamImpact));
+        else if(Kind==EMCVFXLabBossKind::TankCounterShove) Evidence&=bSawCounter && SeenCues.Contains(uint8(EMCNutCombatCue::SlamImpact));
         else if(Kind==EMCVFXLabBossKind::TankRoll || Kind==EMCVFXLabBossKind::TankCharge) Evidence&=MaximumTravel>60;
         else if(Kind==EMCVFXLabBossKind::MageTeleport) Evidence&=MaximumTravel>200 && SeenCues.Contains(uint8(EMCNutCombatCue::TeleportBurst));
         else Evidence&=SeenCues.Contains(uint8(EMCNutCombatCue::MeleeSlash));
@@ -598,13 +745,16 @@ void AMCVFXLabBossStation::Cleanup()
         }
     }
     OwnedActors.Reset(); ObservedActors.Reset(); SeenCues.Reset();
-    NutBoss=nullptr; Boss=nullptr; NutOwner=nullptr; Subject=nullptr; SubjectController=nullptr;
+    NutBoss=nullptr; Boss=nullptr; NutOwner=nullptr; Kamikaze=nullptr;EntryNut=nullptr;PreparedCreepMesh=nullptr;Subject=nullptr; SubjectController=nullptr;
+    if(EntryPresentation) {EntryPresentation->StopPresentation(true);EntryPresentation->StopLocalSourceStates(TEXT("Event.NutRain.Entry"));}
+    bBorrowedSubject=false;
     bCycleOpen=false; bActionStarted=false; bSawEntrance=false; bSawDeath=false; bSawHurt=false;
     bSawWind=false; bSawClot=false; bSawClotImpact=false; bSawUlcer=false; bSawFireImpact=false;
     LastTelegraphs=LastExecutions=LastRecoveries=0;
     CycleTelegraphs=CycleExecutions=CycleRecoveries=GeneratedCreeps=0;
     LastBossState=255; MaximumTravel=0; AppliedHealthDamage=0;
     ComparisonOutgoingHealth=ComparisonOutgoingShield=ComparisonIncomingHealth=0;
+    NextCounterContactAt=0;CounterContacts=0;bSawCounter=false;
 }
 
 void AMCVFXLabBossStation::Reset()
@@ -612,7 +762,8 @@ void AMCVFXLabBossStation::Reset()
     if(!HasAuthority() || !GetWorld() || !GetWorld()->IsGameWorld()) return;
     if(bComparisonMode) {
         Cycles=Passed=Failed=Telegraphs=Executions=Recoveries=Impacts=0;
-        PrepareComparison(Kind);
+        if(bBorrowedSubject)PrepareComparisonUsingSubject(Kind,Subject);
+        else PrepareComparison(Kind);
         return;
     }
     Cleanup(); Cycles=Passed=Failed=Telegraphs=Executions=Recoveries=Impacts=0;

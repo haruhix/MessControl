@@ -1,4 +1,6 @@
 #include "MCReactionVFX.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCVFXPresentationComponent.h"
 #include "MCCartoonFXGeometry.h"
 #include "MCFirePatch.h"
 #include "MCThroat.h"
@@ -151,7 +153,21 @@ AMCReactionVFX* AMCReactionVFX::Spawn(UWorld* World,FVector P,EMCReactionEffect 
     const FTransform T(P);auto* V=World->SpawnActorDeferred<AMCReactionVFX>(StaticClass(),T);
     if(V) {V->Effect=E;V->bLoop=Duration<=0;V->Seconds=Duration>0?FMath::Clamp(Duration,.2f,60.f):1;V->Radius=FMath::Clamp(Size,10.f,600.f);V->Direction=Aim.GetSafeNormal();V->FlowLength=FMath::Clamp(InFlowLength,0.f,8000.f);V->FinishSpawning(T);}return V;
 }
-AMCReactionVFX* AMCReactionVFX::SpawnHit(AActor* Victim,FVector Point,FVector Aim,float Damage,bool Shielded)
+AMCReactionVFX* AMCReactionVFX::SpawnFoodBreakDeath(AActor* NativeSource,FName ID,FGuid Episode,
+    FVector Point,float Duration,float Size,FVector Aim,bool bNativeBody,bool bNativeDust)
+{
+    if(!IsValid(NativeSource)||!NativeSource->HasAuthority()||ID.IsNone()||!Episode.IsValid())return nullptr;
+    const FTransform Pose(Point);
+    auto* Cue=NativeSource->GetWorld()->SpawnActorDeferred<AMCReactionVFX>(StaticClass(),Pose,NativeSource);
+    if(!Cue)return nullptr;
+    Cue->Effect=EMCReactionEffect::FoodBreak;Cue->Seconds=FMath::Clamp(Duration,.2f,60.f);
+    Cue->Radius=FMath::Clamp(Size,10.f,600.f);Cue->Direction=Aim.GetSafeNormal();
+    Cue->bPresentationTextOnly=!bNativeBody;Cue->bAllowNativeDeathDust=bNativeDust;
+    Cue->FoodBreakDeathSourceID=ID;Cue->FoodBreakDeathEpisode=Episode;
+    Cue->FinishSpawning(Pose);return Cue;
+}
+
+AMCReactionVFX* AMCReactionVFX::SpawnHit(AActor* Victim,FVector Point,FVector Aim,float Damage,bool Shielded,bool bTextOnly)
 {
     if(!IsValid(Victim) || !Victim->HasAuthority() || Point.ContainsNaN() || Aim.ContainsNaN()
         || !FMath::IsFinite(Damage) || Damage<0 || (Damage==0 && !Shielded)) return nullptr;
@@ -161,19 +177,172 @@ AMCReactionVFX* AMCReactionVFX::SpawnHit(AActor* Victim,FVector Point,FVector Ai
     V->Effect=Cast<AMCToothCharacter>(Victim)?EMCReactionEffect::PlayerHit:EMCReactionEffect::CombatHit;
     V->bLegacyCombatFeedback=Victim->ActorHasTag(TEXT("MC.LegacyCombatFeedback"));
     const float Strength=FMath::Sqrt(FMath::Clamp(Damage/40.f,0.f,1.f));
-    V->Seconds=.85f;V->Radius=V->bLegacyCombatFeedback?(V->Effect==EMCReactionEffect::PlayerHit?58.f:44.f)
+    V->bPresentationTextOnly=bTextOnly;V->Seconds=.85f;V->Radius=V->bLegacyCombatFeedback?(V->Effect==EMCReactionEffect::PlayerHit?58.f:44.f)
         :(V->Effect==EMCReactionEffect::PlayerHit?62.f:50.f)*FMath::Lerp(1.f,1.45f,Strength);
     V->Direction=Aim.GetSafeNormal(SMALL_NUMBER,FVector::UpVector);
     V->AppliedDamage=Damage;V->bShieldedHit=Shielded;V->FinishSpawning(Pose);
     return V;
 }
+
+AMCReactionVFX* AMCReactionVFX::SpawnForPresentation(UWorld* World,FName ID,FName Event,FVector Point,
+    EMCReactionEffect Effect,float Seconds,float Radius,FVector Direction,float FlowLength,AActor* PreparedOwner)
+{
+    // The accepted gameplay producer remains the sole decision maker. A prepared
+    // same-world snapshot is transferred before this cue's BeginPlay/activation.
+    if(!World||World->GetNetMode()==NM_Client)return nullptr;
+    const FTransform Pose(Point);auto* FX=World->SpawnActorDeferred<AMCReactionVFX>(StaticClass(),Pose);
+    if(!FX)return nullptr;
+    FX->Effect=Effect;FX->bLoop=Seconds<=0;FX->Seconds=Seconds>0?FMath::Clamp(Seconds,.2f,60.f):1;
+    FX->Radius=FMath::Clamp(Radius,10.f,600.f);FX->Direction=Direction.GetSafeNormal();FX->FlowLength=FMath::Clamp(FlowLength,0.f,8000.f);
+    FX->PresentationSourceID=ID;FX->PresentationEvent=Event;
+    if(IsValid(PreparedOwner)&&PreparedOwner->GetWorld()==World) {
+        FX->SetOwner(PreparedOwner);
+        auto* OwnerPresentation=PreparedOwner->FindComponentByClass<UMCWorldPresentationComponent>();
+        auto* Source=OwnerPresentation?OwnerPresentation->GetSource(ID):nullptr;
+        if(Source) {
+            FX->ComposerPresentation=MCWorldPresentation::PrepareOwner(FX,{ID});
+            auto* Target=FX->ComposerPresentation?FX->ComposerPresentation->GetSource(ID):nullptr;
+            FX->bPreparedSourceHandoff=Source->CopyPreparedSourceTo(ID,Target,FX->PreparedSourceHandoffError);
+            if(!FX->bPreparedSourceHandoff&&FX->PreparedSourceHandoffError.IsEmpty())FX->PreparedSourceHandoffError=TEXT("The accepted cue did not receive its prepared source.");
+        }
+    }
+    FX->FinishSpawning(Pose);return FX;
+}
+
+void AMCReactionVFX::AppendNativeContext(FMCVFXNativeInputs& Inputs,float Age,float Seconds,float Radius,
+    FVector Origin,FVector Axis,FVector View,FVector Right,FVector Up,FVector Scale,bool bLoop,bool bReady,
+    bool bPlayer,bool bShielded,bool bLegacy,bool bCartoon,float Damage)
+{
+    auto Add=[&](const TCHAR* Name,EMCVFXNativeInputType Type)->FMCVFXNativeInput&
+    {auto& I=Inputs.Entries.AddDefaulted_GetRef();I.Name=Name;I.Type=Type;return I;};
+    Add(TEXT("User.Native.ReactionAge"),EMCVFXNativeInputType::Float).FloatValue=Age;
+    Add(TEXT("User.Native.ReactionSeconds"),EMCVFXNativeInputType::Float).FloatValue=Seconds;
+    Add(TEXT("User.Native.ReactionRadius"),EMCVFXNativeInputType::Float).FloatValue=Radius;
+    Add(TEXT("User.Native.ReactionAxis"),EMCVFXNativeInputType::Vector).VectorValue=Axis;
+    Add(TEXT("User.Native.ReactionRight"),EMCVFXNativeInputType::Vector).VectorValue=Right;
+    Add(TEXT("User.Native.ReactionUp"),EMCVFXNativeInputType::Vector).VectorValue=Up;
+    Add(TEXT("User.Native.ReactionView"),EMCVFXNativeInputType::Vector).VectorValue=View;
+    Add(TEXT("User.Native.ReactionFacing"),EMCVFXNativeInputType::Quaternion).QuaternionValue=FQuat::Identity;
+    Add(TEXT("User.Native.ReactionOrigin"),EMCVFXNativeInputType::Position).PositionValue=Origin;
+    Add(TEXT("User.Native.ReactionFrameScale"),EMCVFXNativeInputType::Vector).VectorValue=Scale;
+    Add(TEXT("User.Native.ReactionLoop"),EMCVFXNativeInputType::Bool).BoolValue=bLoop;
+    Add(TEXT("User.Native.ReactionReady"),EMCVFXNativeInputType::Bool).BoolValue=bReady;
+    Add(TEXT("User.Native.ReactionHitPlayer"),EMCVFXNativeInputType::Bool).BoolValue=bPlayer;
+    Add(TEXT("User.Native.ReactionHitShielded"),EMCVFXNativeInputType::Bool).BoolValue=bShielded;
+    Add(TEXT("User.Native.ReactionHitLegacy"),EMCVFXNativeInputType::Bool).BoolValue=bLegacy;
+    Add(TEXT("User.Native.ReactionHitCartoon"),EMCVFXNativeInputType::Bool).BoolValue=bCartoon;
+    Add(TEXT("User.Native.ReactionHitAppliedDamage"),EMCVFXNativeInputType::Float).FloatValue=Damage;
+}
+
+void AMCReactionVFX::UpdateDamageLabels(float Age,float T,FVector View,FVector Right,FVector Up)
+{
+    const bool Combat=Effect==EMCReactionEffect::CombatHit||Effect==EMCReactionEffect::PlayerHit;
+    DamageNumber->SetVisibility(Combat);DamageBackdrop->SetVisibility(Combat);if(!Combat)return;
+    const bool Player=Effect==EMCReactionEffect::PlayerHit,Blocked=!bLegacyCombatFeedback&&bShieldedHit&&AppliedDamage==0;
+    const FLinearColor Tint=bLegacyCombatFeedback?(Player?FLinearColor(1,.18f,.09f):bShieldedHit?FLinearColor(.35f,.80f,1.f):FLinearColor(1,.82f,.25f))
+        :(bShieldedHit?FLinearColor(.25f,.85f,1.f):Player?FLinearColor(1,.22f,.11f):FLinearColor(1,.82f,.25f));
+    if(PresentedDamage!=AppliedDamage){const FString Number=Blocked?TEXT("BLOCK"):FMath::IsNearlyEqual(AppliedDamage,FMath::RoundToFloat(AppliedDamage),.001f)
+        ?FString::Printf(TEXT("%.0f"),AppliedDamage):FString::Printf(TEXT("%.1f"),AppliedDamage);
+        DamageNumber->SetText(FText::FromString(Number));DamageBackdrop->SetText(FText::FromString(Number));PresentedDamage=AppliedDamage;}
+    const float NumberAlpha=1-FMath::SmoothStep(.65f,1.f,T),Pop=1+.22f*FMath::Exp(-Age*18);
+    const FVector NumberPoint=GetActorLocation()+View*(Radius*.45f+8)+Up*(Radius*.7f+Age*46);const FRotator Facing=View.Rotation();
+    DamageNumber->SetWorldLocationAndRotation(NumberPoint,Facing);
+    DamageBackdrop->SetWorldLocationAndRotation(NumberPoint-View*.8f+Right*1.1f-Up*1.1f,Facing);
+    DamageNumber->SetWorldSize(38*Pop);DamageBackdrop->SetWorldSize(38*Pop);
+    DamageNumber->SetTextRenderColor(Tint.CopyWithNewOpacity(NumberAlpha).ToFColor(true));
+    DamageBackdrop->SetTextRenderColor(FLinearColor(.015f,.012f,.01f,NumberAlpha).ToFColor(true));
+}
+
+bool AMCReactionVFX::UpdateComposerArtwork(float Age,float Progress,FVector Axis,FVector View,FVector Right,FVector Up)
+{
+    if(PresentationSourceID.IsNone()||PresentationEvent.IsNone()||!PreparedSourceHandoffError.IsEmpty())return true;
+    // Resolve already-resident location data only. This helper's default
+    // PrepareSources uses bAllowLoad=false; rejected/unprepared data is native.
+    if(!ComposerPresentation)ComposerPresentation=MCWorldPresentation::PrepareOwner(this,{PresentationSourceID});
+    auto* Channel=ComposerPresentation?ComposerPresentation->GetSource(PresentationSourceID):nullptr;
+    const bool Active=(bLoop||Progress<=1)&&!Right.IsNearlyZero()&&!Up.IsNearlyZero()&&!View.IsNearlyZero();
+    FMCPerkVFXGameplayValues Values;Values.EpisodeID=ComposerEpisode;Values.LocalStateAgeSeconds=Age;
+    Values.VisualSubject=Mesh;Values.FrameComponent=Mesh;Values.Duration=Seconds;Values.Radius=Radius;Values.Direction=Axis;
+    AppendNativeContext(Values.NativeInputs,Age,Seconds,Radius,GetActorLocation(),Axis,View,Right,Up,
+        Mesh->GetComponentScale(),bLoop,Active,Effect==EMCReactionEffect::PlayerHit,bShieldedHit,
+        bLegacyCombatFeedback,Effect==EMCReactionEffect::CombatHit&&!bLegacyCombatFeedback&&!bShieldedHit&&SolidMaterial,AppliedDamage);
+    auto AddFloat=[&](const TCHAR* Name,float Value){auto& I=Values.NativeInputs.Entries.AddDefaulted_GetRef();I.Name=Name;I.Type=EMCVFXNativeInputType::Float;I.FloatValue=Value;};
+    AddFloat(TEXT("User.Native.ReactionFlowLength"),FlowLength);
+    float MouthOpen=1.f;
+    if(Effect==EMCReactionEffect::Yawn){MouthOpen=0.f;double Nearest=MAX_dbl;
+        for(TActorIterator<AMCThroat> It(GetWorld());It;++It){const double D=FVector::DistSquared(It->GetActorLocation(),GetActorLocation());if(D<Nearest){Nearest=D;MouthOpen=It->OpenAmount();}}}
+    AddFloat(TEXT("User.Native.ReactionMouthOpen"),MouthOpen);
+    const auto* Fire=Cast<AMCFirePatch>(GetAttachParentActor());
+    AddFloat(TEXT("User.Native.ReactionHeat"),Fire?Fire->Heat:1.f);
+    const FVector SeedPoint=Fire&&Fire->Tongue?Fire->SurfaceAnchor:GetActorLocation();
+    AddFloat(TEXT("User.Native.ReactionFireSeed"),FMath::Frac(FMath::Sin(SeedPoint.X*.031f+SeedPoint.Y*.017f)*145.73f)*2*PI);
+    FString Error;const bool Accepted=ComposerPresentation&&ComposerPresentation->UpdateState(PresentationSourceID,PresentationEvent,
+        Active,FTransform::Identity,Values,Mesh,Error);
+    bComposerStateAccepted|=Accepted&&Active;
+    EMCPerkVFXSlotMode Mode=EMCPerkVFXSlotMode::UseDefault;
+    if(!Active||!Accepted||!Channel||!Channel->GetPreparedEventMode(PresentationSourceID,PresentationEvent,Mode))return true;
+    if(Mode==EMCPerkVFXSlotMode::Disabled)return false;
+    // Accepted artist silence/delay/all-muted groups must not resurrect old art.
+    // UsesNativeVisuals retains the explicit technical compatibility policy;
+    // UpdateState rejection above remains the honest native fallback.
+    return ComposerPresentation->UsesNativeVisuals(PresentationSourceID,PresentationEvent);
+}
+
+void AMCReactionVFX::UpdateFoodBreakDeathContext(float Age,FVector Axis,FVector View,FVector Right,FVector Up)
+{
+    if(FoodBreakDeathSourceID.IsNone()||!FoodBreakDeathEpisode.IsValid()||!IsValid(GetOwner()))return;
+    TInlineComponentArray<UMCVFXPresentationComponent*> Channels(GetOwner());
+    for(auto* Channel:Channels)if(Channel&&Channel->IsSourcePrepared(FoodBreakDeathSourceID)) {
+        FMCPerkVFXGameplayValues Values;Values.EpisodeID=FoodBreakDeathEpisode;Values.LocalStateAgeSeconds=Age;
+        Values.Direction=Axis;Values.Radius=Radius;Values.Duration=Seconds;
+        AppendNativeContext(Values.NativeInputs,Age,Seconds,Radius,GetActorLocation(),Axis,View,Right,Up,
+            FVector::OneVector,false,!View.IsNearlyZero()&&!Right.IsNearlyZero()&&!Up.IsNearlyZero());
+        // Actual native cue is sampled at 30Hz; enemy AI/physical shrink remain unchanged.
+        FString Error;Channel->BindSourceEpisodeTickSource(FoodBreakDeathSourceID,FoodBreakDeathEpisode,this,Error);
+        Channel->UpdateSourceEpisode(FoodBreakDeathSourceID,FoodBreakDeathEpisode,
+            FTransform(Direction.Rotation(),GetActorLocation()),Values);
+        break;
+    }
+}
+
+void AMCReactionVFX::UpdateFoodBreakDust(float Age)
+{
+    if(Effect!=EMCReactionEffect::FoodBreak||bFoodBurstPresented)return;
+    bFoodBurstPresented=true;if(Age>=.2f)return;
+    bool Original=true;
+    if(!FoodBreakDeathSourceID.IsNone()) {
+        Original=bAllowNativeDeathDust;
+        if(IsValid(GetOwner())) {
+            TInlineComponentArray<UMCVFXPresentationComponent*> Channels(GetOwner());
+            for(auto* Channel:Channels)if(Channel&&Channel->IsSourcePrepared(FoodBreakDeathSourceID)) {
+                FMCPerkVFXGameplayValues Values;Values.Direction=Direction;Values.Radius=Radius;Values.Duration=Seconds;
+                const FTransform Frame(Direction.Rotation(),GetActorLocation(),FVector(FMath::Clamp(Radius/90.f,.45f,1.5f)));
+                const auto Result=Channel->PlayLocalSourceEvent(FoodBreakDeathSourceID,TEXT("DeathDust"),Frame,Values);
+                bComposerDustAccepted=Result!=EMCVFXPresentationResult::Rejected;
+                if(Result==EMCVFXPresentationResult::Played||Result==EMCVFXPresentationResult::Suppressed)Original=false;
+                break;
+            }
+        }
+    }
+    else if(PreparedSourceHandoffError.IsEmpty()&&ComposerPresentation&&!PresentationSourceID.IsNone())if(auto* Channel=ComposerPresentation->GetSource(PresentationSourceID)) {
+        FMCPerkVFXGameplayValues Values;Values.Direction=Direction;Values.Radius=Radius;Values.Duration=Seconds;
+        const FTransform Frame(Direction.Rotation(),GetActorLocation(),FVector(FMath::Clamp(Radius/90.f,.45f,1.5f)));
+        const auto Result=Channel->PlayLocalSourceEvent(PresentationSourceID,TEXT("BreakDust"),Frame,Values);
+        bComposerDustAccepted=Result!=EMCVFXPresentationResult::Rejected;
+        Original=Result==EMCVFXPresentationResult::UseDefault||Result==EMCVFXPresentationResult::Rejected;
+    }
+    if(Original)if(auto* System=FoodBreakSystem.LoadSynchronous())
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,System,GetActorLocation(),Direction.Rotation(),
+            FVector(FMath::Clamp(Radius/90.f,.45f,1.5f)),true,true,ENCPoolMethod::AutoRelease,true);
+}
+
 void AMCReactionVFX::BeginPlay()
 {
     Super::BeginPlay();Mesh->SetMaterial(4,SolidMaterial);
     if(HasAuthority()) {StartedAt=Now();if(!bLoop) SetLifeSpan(Seconds+.15f);ForceNetUpdate();}
     if(Effect==EMCReactionEffect::CombatHit || Effect==EMCReactionEffect::PlayerHit) SetActorTickInterval(bLegacyCombatFeedback?1.f/30:1.f/60);
     else if(Effect==EMCReactionEffect::FoodBreak) SetActorTickInterval(1.f/30);
-    if(GetNetMode()!=NM_DedicatedServer) {
+    if(GetNetMode()!=NM_DedicatedServer && !(Effect==EMCReactionEffect::FoodBreak&&bPresentationTextOnly)) {
         if(auto* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Gameplay/VFX/M_Reaction.M_Reaction"))) {Material=UMaterialInstanceDynamic::Create(Base,this);Mesh->SetMaterial(0,Material);}
         if(auto* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Gameplay/VFX/M_ReactionSoft.M_ReactionSoft"))) {SoftMaterial=UMaterialInstanceDynamic::Create(Base,this);Mesh->SetMaterial(1,SoftMaterial);}
         // Load on every rendering peer, including clients initialized before the
@@ -186,16 +355,36 @@ void AMCReactionVFX::Tick(float Dt)
 {
     Super::Tick(Dt);if(GetNetMode()==NM_DedicatedServer) return;
     const float Age=FMath::Max(0.,Now()-StartedAt),T=bLoop?0:Age/Seconds;
-    if(T>1) {Mesh->SetVisibility(false);FireLight->SetVisibility(false);DamageNumber->SetVisibility(false);DamageBackdrop->SetVisibility(false);return;}
+    if(T>1) {if(ComposerPresentation)ComposerPresentation->StopStates();Mesh->SetVisibility(false);FireLight->SetVisibility(false);DamageNumber->SetVisibility(false);DamageBackdrop->SetVisibility(false);return;}
     const float Fade=1-FMath::SmoothStep(.75f,1.f,T);
     for(auto* M:{Material.Get(),SoftMaterial.Get()}) if(M) {M->SetVectorParameterValue(TEXT("Color"),FLinearColor::White);M->SetScalarParameterValue(TEXT("Opacity"),Fade);}
     FVector Eye=GetActorLocation()+FVector(-1,0,1);if(const auto* PC=GetWorld()->GetFirstPlayerController();PC && PC->PlayerCameraManager) Eye=PC->PlayerCameraManager->GetCameraLocation();
     const FVector View=(Eye-GetActorLocation()).GetSafeNormal();
     const FVector Right=FVector::CrossProduct(FVector::UpVector,View).GetSafeNormal(),Up=FVector::CrossProduct(View,Right).GetSafeNormal();
     FReactionMesh Glow,Soft,Flame,Smoke;Glow.View=Soft.View=Flame.View=Smoke.View=View;Glow.Right=Soft.Right=Flame.Right=Smoke.Right=Right;
+    // The authored NS owns its actual LightRenderer; Default/rejected art keeps the original light.
     FireLight->SetVisibility(Effect==EMCReactionEffect::Fire);
     const FVector Axis=Direction.IsNearlyZero()?FVector::ForwardVector:Direction;
     const FVector R=FVector::CrossProduct(Axis,FVector::UpVector).GetSafeNormal(),V=FVector::CrossProduct(R,Axis).GetSafeNormal();
+    const bool KeepOriginalArtwork=!bPresentationTextOnly&&UpdateComposerArtwork(Age,T,Axis,View,Right,Up);
+    UpdateDamageLabels(Age,T,View,Right,Up);
+    UpdateFoodBreakDeathContext(Age,Axis,View,Right,Up);
+    UpdateFoodBreakDust(Age);
+    Mesh->SetVisibility(KeepOriginalArtwork);
+    FireLight->SetVisibility(Effect==EMCReactionEffect::Fire&&KeepOriginalArtwork);
+    if(!KeepOriginalArtwork){
+        if(Effect==EMCReactionEffect::Fire){
+            // Gameplay-owned BurnRadius must remain visible under mute/replacement.
+            // Only this exact original ground footprint is protected, not decorative flames/smoke/sparks.
+            const auto* Fire=Cast<AMCFirePatch>(GetAttachParentActor());
+            const float Heat=FMath::Clamp(Fire?Fire->Heat:1.f,0.f,1.f)*FMath::SmoothStep(0.f,.30f,Age)*Fade;
+            FReactionMesh Footprint;Footprint.View=View;Footprint.Right=Right;
+            if(Heat>.001f)Footprint.Disk(FVector(0,0,1),FVector::ForwardVector,FVector::RightVector,Radius*.98f,FLinearColor(.32f,.064f,.011f,.09f*Heat));
+            Footprint.Upload(Mesh,0);Mesh->SetVisibility(Heat>.001f);
+            for(int32 Section=1;Section<=4;++Section)Mesh->SetMeshSectionVisible(Section,false);
+        }
+        return;
+    }
     const bool Combat=Effect==EMCReactionEffect::CombatHit || Effect==EMCReactionEffect::PlayerHit;
     const bool CartoonNPC=Effect==EMCReactionEffect::CombatHit && !bLegacyCombatFeedback && !bShieldedHit && SolidMaterial;
     if(!CartoonNPC && Mesh->GetProcMeshSection(4)) Mesh->ClearMeshSection(4);
@@ -204,20 +393,6 @@ void AMCReactionVFX::Tick(float Dt)
         if(!FMath::IsNearlyEqual(GetActorTickInterval(),1.f/30)) SetActorTickInterval(1.f/30);
         const bool Player=Effect==EMCReactionEffect::PlayerHit;
         const FLinearColor Tint=Player?FLinearColor(1,.18f,.09f):bShieldedHit?FLinearColor(.35f,.80f,1.f):FLinearColor(1,.82f,.25f);
-        if(PresentedDamage!=AppliedDamage) {
-            const FString Number=FMath::IsNearlyEqual(AppliedDamage,FMath::RoundToFloat(AppliedDamage),.001f)
-                ?FString::Printf(TEXT("%.0f"),AppliedDamage):FString::Printf(TEXT("%.1f"),AppliedDamage);
-            DamageNumber->SetText(FText::FromString(Number));DamageBackdrop->SetText(FText::FromString(Number));PresentedDamage=AppliedDamage;
-        }
-        const float NumberAlpha=1-FMath::SmoothStep(.65f,1.f,T);
-        const float Pop=1+.22f*FMath::Exp(-Age*18);
-        const FVector NumberPoint=GetActorLocation()+View*(Radius*.45f+8)+Up*(Radius*.7f+Age*46);
-        const FRotator Facing=View.Rotation();
-        DamageNumber->SetWorldLocationAndRotation(NumberPoint,Facing);
-        DamageBackdrop->SetWorldLocationAndRotation(NumberPoint-View*.8f+Right*1.1f-Up*1.1f,Facing);
-        DamageNumber->SetWorldSize(38*Pop);DamageBackdrop->SetWorldSize(38*Pop);
-        DamageNumber->SetTextRenderColor(Tint.CopyWithNewOpacity(NumberAlpha).ToFColor(true));
-        DamageBackdrop->SetTextRenderColor(FLinearColor(.015f,.012f,.01f,NumberAlpha).ToFColor(true));
         const float Flash=1-FMath::SmoothStep(.025f,.16f,Age);
         Soft.Disk(FVector::ZeroVector,Right,Up,Radius*(.25f+Age*2),Tint.CopyWithNewOpacity(.72f*Flash),24);
         const float SparkFade=1-FMath::SmoothStep(.1f,.36f,Age);
@@ -236,20 +411,6 @@ void AMCReactionVFX::Tick(float Dt)
         const bool Player=Effect==EMCReactionEffect::PlayerHit;
         const bool Blocked=bShieldedHit && AppliedDamage==0;
         const FLinearColor Tint=bShieldedHit?FLinearColor(.25f,.85f,1.f):Player?FLinearColor(1,.22f,.11f):FLinearColor(1,.82f,.25f);
-        if(PresentedDamage!=AppliedDamage) {
-            const FString Number=Blocked?TEXT("BLOCK"):FMath::IsNearlyEqual(AppliedDamage,FMath::RoundToFloat(AppliedDamage),.001f)
-                ?FString::Printf(TEXT("%.0f"),AppliedDamage):FString::Printf(TEXT("%.1f"),AppliedDamage);
-            DamageNumber->SetText(FText::FromString(Number));DamageBackdrop->SetText(FText::FromString(Number));PresentedDamage=AppliedDamage;
-        }
-        const float NumberAlpha=1-FMath::SmoothStep(.65f,1.f,T);
-        const float Pop=1+.22f*FMath::Exp(-Age*18);
-        const FVector NumberPoint=GetActorLocation()+View*(Radius*.45f+8)+Up*(Radius*.7f+Age*46);
-        const FRotator Facing=View.Rotation();
-        DamageNumber->SetWorldLocationAndRotation(NumberPoint,Facing);
-        DamageBackdrop->SetWorldLocationAndRotation(NumberPoint-View*.8f+Right*1.1f-Up*1.1f,Facing);
-        DamageNumber->SetWorldSize(38*Pop);DamageBackdrop->SetWorldSize(38*Pop);
-        DamageNumber->SetTextRenderColor(Tint.CopyWithNewOpacity(NumberAlpha).ToFColor(true));
-        DamageBackdrop->SetTextRenderColor(FLinearColor(.015f,.012f,.01f,NumberAlpha).ToFColor(true));
         const FVector Contact=View*3;
         if(CartoonNPC) {
             MCCartoonFX::FGeometry Solid;
@@ -333,11 +494,6 @@ void AMCReactionVFX::Tick(float Dt)
             if(ShieldFade>.001f) Soft.Stroke(Shield,3.4f,Tint.CopyWithNewOpacity(ShieldFade),false);
         }
     } else if(Effect==EMCReactionEffect::FoodBreak) {
-        if(!bFoodBurstPresented) {
-            bFoodBurstPresented=true;
-            if(Age<.2f) if(auto* System=FoodBreakSystem.LoadSynchronous())
-                UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,System,GetActorLocation(),Direction.Rotation(),FVector(FMath::Clamp(Radius/90.f,.45f,1.5f)),true,true,ENCPoolMethod::AutoRelease,true);
-        }
         const float Scatter=FMath::SmoothStep(0.f,1.f,T),Dissolve=1-FMath::SmoothStep(.2f,1.f,T);
         for(int32 I=0;I<16;++I) {
             const float A=I*2.39996f;
@@ -618,4 +774,4 @@ void AMCReactionVFX::Tick(float Dt)
     if(Smoke.P.Num()) Smoke.Upload(Mesh,3);else Mesh->ClearMeshSection(3);
 }
 void AMCReactionVFX::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{Super::GetLifetimeReplicatedProps(OutLifetimeProps);DOREPLIFETIME(AMCReactionVFX,Effect);DOREPLIFETIME(AMCReactionVFX,StartedAt);DOREPLIFETIME(AMCReactionVFX,Seconds);DOREPLIFETIME(AMCReactionVFX,Radius);DOREPLIFETIME(AMCReactionVFX,Direction);DOREPLIFETIME(AMCReactionVFX,FlowLength);DOREPLIFETIME(AMCReactionVFX,bLoop);DOREPLIFETIME(AMCReactionVFX,AppliedDamage);DOREPLIFETIME(AMCReactionVFX,bShieldedHit);DOREPLIFETIME(AMCReactionVFX,bLegacyCombatFeedback);}
+{Super::GetLifetimeReplicatedProps(OutLifetimeProps);DOREPLIFETIME(AMCReactionVFX,Effect);DOREPLIFETIME(AMCReactionVFX,StartedAt);DOREPLIFETIME(AMCReactionVFX,Seconds);DOREPLIFETIME(AMCReactionVFX,Radius);DOREPLIFETIME(AMCReactionVFX,Direction);DOREPLIFETIME(AMCReactionVFX,FlowLength);DOREPLIFETIME(AMCReactionVFX,bLoop);DOREPLIFETIME(AMCReactionVFX,AppliedDamage);DOREPLIFETIME(AMCReactionVFX,bShieldedHit);DOREPLIFETIME(AMCReactionVFX,bLegacyCombatFeedback);DOREPLIFETIME(AMCReactionVFX,bPresentationTextOnly);DOREPLIFETIME(AMCReactionVFX,PresentationSourceID);DOREPLIFETIME(AMCReactionVFX,PresentationEvent);DOREPLIFETIME(AMCReactionVFX,FoodBreakDeathSourceID);DOREPLIFETIME(AMCReactionVFX,FoodBreakDeathEpisode);DOREPLIFETIME(AMCReactionVFX,bAllowNativeDeathDust);}

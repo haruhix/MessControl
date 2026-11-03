@@ -13,7 +13,11 @@ public class MessControlEditor : ModuleRules
             "UMG", "UMGEditor", "Slate", "SlateCore", "InputCore", "RenderCore", "RHI", "ImageCore", "PropertyEditor", "Kismet", "MovieScene",
             "GraphEditor", "BlueprintGraph", "KismetWidgets", "Merge", "SourceControl",
             "LevelEditor", "ToolMenus", "WorkspaceMenuStructure", "LevelSequence",
-            "Niagara", "NiagaraEditor", "AdvancedPreviewScene", "ContentBrowser", "AssetTools", "AppFramework", "Json", "JsonUtilities"
+            "Niagara", "NiagaraEditor", "AdvancedPreviewScene", "ContentBrowser", "AssetTools", "AppFramework", "Json", "JsonUtilities", "ToolsetRegistry"
         });
+        // Read-only inspection of UE5.8 native lightweight emitter objects.
+        PrivateDependencyModuleNames.Add("NiagaraShader");
+        PrivateIncludePaths.Add(System.IO.Path.Combine(GetModuleDirectory("Niagara"), "Internal"));
+        PrivateIncludePaths.Add(System.IO.Path.Combine(GetModuleDirectory("NiagaraShader"), "Internal"));
     }
 }

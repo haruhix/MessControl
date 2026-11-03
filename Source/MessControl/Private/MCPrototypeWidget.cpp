@@ -296,7 +296,14 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
     if (LastDay != State->Day || LastPhase != static_cast<int32>(State->Phase))
     {
         if (auto* Tooth = Cast<AMCToothCharacter>(GetOwningPlayerPawn()))
-            if (Tooth->SoundPalette && (bWorking || bWon || bLost)) Tooth->SoundPalette->Play(this,bWon ? TEXT("Win") : bLost ? TEXT("Lose") : TEXT("DayStart"),Tooth->GetActorLocation());
+            if (bWorking || bWon || bLost) {
+                const FName Event=bWon?FName(TEXT("Win")):bLost?FName(TEXT("Lose")):FName(TEXT("Start"));
+                auto* Controller=Cast<AMCPlayerController>(GetOwningPlayer());
+                const bool bCustomAccepted=Controller&&Controller->PresentShiftFeedback(this,Event,Tooth);
+                if(Tooth->SoundPalette)Tooth->SoundPalette->PlayWithParameters(this,
+                    bWon?TEXT("Win"):bLost?TEXT("Lose"):TEXT("DayStart"),Tooth->GetActorLocation(),.65f,.5f,
+                    bCustomAccepted?FName(TEXT("UI.ShiftFeedback")):NAME_None,Event,bCustomAccepted?Controller:nullptr);
+            }
         LastDay = State->Day; LastPhase = static_cast<int32>(State->Phase);
     }
 }

@@ -76,8 +76,8 @@ void AMCFoodActor::UpdateSmell()
         return;
     }
     if(!IsValid(SmellVFX)) {
-        SmellVFX=AMCReactionVFX::Spawn(GetWorld(),Visual->Bounds.Origin,EMCReactionEffect::SpoiledSmell,0,
-            FMath::Clamp(float(Visual->Bounds.SphereRadius)*.75f,40.f,150.f));
+        SmellVFX=AMCReactionVFX::SpawnForPresentation(GetWorld(),TEXT("Food.Spoiled"),TEXT("Loop"),Visual->Bounds.Origin,EMCReactionEffect::SpoiledSmell,0,
+            FMath::Clamp(float(Visual->Bounds.SphereRadius)*.75f,40.f,150.f),FVector::ForwardVector,0,this);
         if(IsValid(SmellVFX)) {
             SmellVFX->SetOwner(this);
             SmellVFX->AttachToComponent(Visual,FAttachmentTransformRules::KeepWorldTransform);

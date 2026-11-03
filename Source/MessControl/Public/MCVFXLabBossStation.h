@@ -13,6 +13,11 @@ class AMCPlaytestBotController;
 class UMCNutRainProfile;
 class UMCBossProfile;
 class UTextRenderComponent;
+class AMCNutKamikaze;
+class AMCFoodActor;
+class USceneComponent;
+class UStaticMesh;
+class UMCVFXPresentationComponent;
 
 UENUM(BlueprintType)
 enum class EMCVFXLabBossKind : uint8
@@ -20,7 +25,9 @@ enum class EMCVFXLabBossKind : uint8
     TankMelee, TankCharge, TankJump, TankRoll, TankEntrance, TankShieldHit, TankShieldBreakOverflow, TankDeath,
     MageMelee, MageFireball, MageSummon, MageNutRain, MageTeleport, MageHurt, MageDeath, MageEntrance,
     ZombiePunchLeft, ZombiePunchRight, ZombieKick, ZombieHurt, ZombieDeath, ZombieRoar,
-    Phase3PunchRight, Phase3AreaAttack
+    Phase3PunchRight, Phase3AreaAttack,
+    // Append only: saved laboratory actors retain the original enum values.
+    TankCounterShove, TankHeadSplit, KamikazeFuse, KamikazeBlast, RainEntry
 };
 
 /** One isolated, repeatable real boss ability. Counters describe observed callbacks, not visual approval. */
@@ -52,8 +59,12 @@ public:
     UFUNCTION(BlueprintCallable,Category="VFX Lab") void SetRunning(bool bEnabled);
     AMCToothCharacter* GetComparisonSubject() const;
     AActor* GetComparisonEnemy() const;
+    UMCVFXPresentationComponent* GetComparisonPresentation() const;
+    USceneComponent* GetComparisonVisualSubject() const;
     bool IsComparisonReady() const;
     bool PrepareComparison(EMCVFXLabBossKind Selected);
+    /** Isolated editor-world fixture; borrows the existing pawn and its identity without possession or cleanup ownership. */
+    bool PrepareComparisonUsingSubject(EMCVFXLabBossKind Selected,AMCToothCharacter* ExistingSubject);
     bool RunComparisonAction();
     float ApplyComparisonOutgoing(float Damage);
     float ApplyComparisonIncoming(float Damage);
@@ -73,7 +84,8 @@ protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 private:
-    bool BeginCycle();
+    bool BeginCycle(AMCToothCharacter* BorrowedSubject=nullptr);
+    bool PrepareComparisonInternal(EMCVFXLabBossKind Selected,AMCToothCharacter* BorrowedSubject);
     bool LaunchAction();
     void Observe();
     void FinishCycle(bool bPassed,const FString& Reason);
@@ -86,14 +98,20 @@ private:
     bool IsCombatKind() const;
     bool IsEntranceKind() const;
     bool IsDeathKind() const;
+    bool IsKamikazeKind() const;
     FString KindName() const;
     UFUNCTION() void OnRep_Status();
     void UpdateLabel();
     UPROPERTY(Transient) TObjectPtr<AMCNutBoss> NutBoss;
     UPROPERTY(Transient) TObjectPtr<AMCBossCharacter> Boss;
     UPROPERTY(Transient) TObjectPtr<AMCNutRainEvent> NutOwner;
+    UPROPERTY(Transient) TObjectPtr<AMCNutKamikaze> Kamikaze;
+    UPROPERTY(Transient) TObjectPtr<AMCFoodActor> EntryNut;
+    UPROPERTY(Transient) TObjectPtr<UStaticMesh> PreparedCreepMesh;
+    UPROPERTY(VisibleAnywhere,Category="VFX Lab") TObjectPtr<UMCVFXPresentationComponent> EntryPresentation;
     UPROPERTY(Transient) TObjectPtr<AMCToothCharacter> Subject;
     UPROPERTY(Transient) TObjectPtr<AMCPlaytestBotController> SubjectController;
+    bool bBorrowedSubject=false;
     TArray<TWeakObjectPtr<AActor>> OwnedActors;
     TSet<TWeakObjectPtr<AActor>> ObservedActors;
     TSet<uint8> SeenCues;
@@ -106,4 +124,7 @@ private:
     uint8 LastBossState=255;
     bool bCycleOpen=false,bActionStarted=false,bSawEntrance=false,bSawDeath=false,bSawHurt=false;
     bool bSawWind=false,bSawClot=false,bSawClotImpact=false,bSawUlcer=false,bSawFireImpact=false;
+    double NextCounterContactAt=0;
+    int32 CounterContacts=0;
+    bool bSawCounter=false;
 };

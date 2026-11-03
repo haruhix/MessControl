@@ -19,6 +19,7 @@ class MESSCONTROL_API AMCNutKamikaze : public AMCNutEnemy
     GENERATED_BODY()
 public:
     AMCNutKamikaze();
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Presentation") TObjectPtr<UMCVFXPresentationComponent> FusePresentation;
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaSeconds) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

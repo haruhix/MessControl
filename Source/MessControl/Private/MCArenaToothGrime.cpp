@@ -508,6 +508,7 @@ bool AMCArenaTooth::ApplyGrimeCleaning(AMCToothCharacter* Worker,FVector From,FV
     float Radius,float Seconds,float Rate,EMCStainCleanReason Reason)
 {
     const float Before=RemainingGrime();
+    const float BaseRate=Rate;
     Rate=UMCResultPassives::CleaningRate(Worker,Before,Rate);
     if(Rate<=0) return false;
     auto* Results=UMCResultPassives::ForWorld(this);
@@ -516,6 +517,7 @@ bool AMCArenaTooth::ApplyGrimeCleaning(AMCToothCharacter* Worker,FVector From,FV
     if(Changed) OnRep_Grime();
     const bool Removed=Changed && RemainingGrime()<Before;
     if(Removed) {
+        if(Results)Results->NotifyCleaningContact(this,Worker,Point,Radius,Before,RemainingGrime(),Rate>BaseRate,Reason);
         if(auto* Perks=UMCPerkComponent::ForActor(Worker)) Perks->NotifyCleaned(Point);
         SyncGrimeCleaningLayers(Worker,Reason);
     }

@@ -8,6 +8,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class UInputAction;
 class UInputMappingContext;
+class UMCWorldPreloadSubsystem;
 class UMCToothPhysicsComponent;
 class UPhysicsControlComponent;
 class UMCToothStatusComponent;
@@ -18,6 +19,7 @@ class UMCFishingRodComponent;
 class UMCCharacterCosmeticsComponent;
 class UMCExpressionComponent;
 class UMCExperimentalAudioComponent;
+class UMCVFXPresentationComponent;
 class AMCFoodActor;
 class AMCArenaTooth;
 class AMCFogBrawlEvent;
@@ -27,6 +29,9 @@ class UMaterialInstanceDynamic;
 class UMeshComponent;
 class UEnhancedInputLocalPlayerSubsystem;
 struct FInputActionValue;
+struct FMCPreparedPerkVFXComposition;
+class AMCFreezeDeathVFX;
+class UMaterialInterface;
 
 UCLASS(Blueprintable)
 class MESSCONTROL_API AMCToothCharacter : public ACharacter
@@ -46,6 +51,21 @@ public:
     virtual void OnConstruction(const FTransform& Transform) override;
     virtual void PostInitializeComponents() override;
     virtual void Tick(float DeltaSeconds) override;
+    /** Borrow the already assigned body MID before the location/preview barrier. */
+    bool PreparePresentationMaterialContext(UMCWorldPreloadSubsystem* Loading,FString& Error);
+    /** Explicit per-real-hero preparation. Profiles/NI masters must already be resident. */
+    bool PrepareFreezeDeathPresentation(FGuid Epoch,const FMCPreparedPerkVFXComposition* Hold,
+        const FMCPreparedPerkVFXComposition* Shatter,UMaterialInterface* BodyNI,UMaterialInterface* BagNI,
+        UMaterialInterface* GlassNI,FString& Error);
+    bool PrepareFreezeDeathFromPreparedSource(FGuid Epoch,UMaterialInterface* BodyNI,UMaterialInterface* BagNI,
+        UMaterialInterface* GlassNI,FString& Error);
+    AMCFreezeDeathVFX* GetPreparedFreezeDeathVisual() const {return FreezeDeathVisual.Get();}
+    /** Shared source contract, no private profile bank. Preparation only. */
+    bool PrepareFreezeDeathSource(FString& Error,bool bAllowLoad=false);
+    void ReleaseUncommittedFreezeDeathPresentation();
+    void ReleasePreparedFreezeDeathSource();
+    /** Neutral handoff once per accepted hit, before Niagara acquires its scalar lease. */
+    void ReleaseNativeHitFlash();
     virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
     virtual void PawnClientRestart() override;
     virtual void PossessedBy(AController* NewController) override;
@@ -90,6 +110,8 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Swimming") FVector_NetQuantizeNormal SwimIntent=FVector::ZeroVector;
     bool HasBrush() const;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Tools") TObjectPtr<class UMCInventoryComponent> Inventory;
+    /** One bounded multi-source dispatcher for all passive presentation on this pawn. */
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Presentation") TObjectPtr<UMCVFXPresentationComponent> PassivePresentation;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Feedback") double TaskSuccessAt=-100;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Feedback") double TaskFailureAt=-100;
     void NotifyTaskFeedback(bool Success,FVector Point=FVector::ZeroVector);
@@ -391,6 +413,8 @@ private:
     UPROPERTY() TArray<TObjectPtr<UInputAction>> ToolActions;
     UPROPERTY() TArray<TObjectPtr<UInputAction>> SkillActions;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> StatusMaterial;
+    float LastNativeHitFlashValue=0.f;
+    bool bNativeHitFlashWritten=false;
     UPROPERTY() TArray<TObjectPtr<UMaterialInstanceDynamic>> FaceMaterials;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> BagMaterial;
     UPROPERTY() TObjectPtr<AMCToothCharacter> PracticeTooth;
@@ -418,6 +442,8 @@ private:
     double OutsideMouthStartedAt=-1;
     UFUNCTION() void OnRep_FreezeDeath();
     UPROPERTY(Transient) TObjectPtr<class AMCFreezeDeathVFX> FreezeDeathVisual;
+    FGuid FreezeSourcePreparationEpoch;
+    bool bOwnsFreezeSourcePreparation=false;
     bool bLastContactBrush=false;
     UPROPERTY(Replicated) bool bPrimaryHeld=false;
     float ContactElapsed=0;

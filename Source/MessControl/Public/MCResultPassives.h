@@ -31,6 +31,9 @@ public:
     static UMCResultPassives* ForWorld(const UObject* Context);
     static bool IsDirtyTarget(const AActor* Target);
     static float CleaningRate(const AMCToothCharacter* Worker,float Remaining,float BaseRate);
+    /** Cosmetic receipt only, after an actual mask delta; never changes cleaning/reward eligibility. */
+    void NotifyCleaningContact(AActor* Target,AMCToothCharacter* Worker,FVector Point,float Radius,
+        float Before,float After,bool bLastStrokeBoosted,EMCStainCleanReason Reason);
 
     void GetDirtyTargets(TArray<AActor*>& Out);
     bool IsMouthClean();
@@ -49,4 +52,11 @@ private:
     FDelegateHandle SpawnHandle;
     uint64 NextSerial=0;
     bool bCollectedExistingTargets=false;
+    struct FContactPresentation
+    {
+        TWeakObjectPtr<AMCToothCharacter> Worker;
+        TWeakObjectPtr<AActor> Target;
+        double NextWide=0,NextLast=0;
+    };
+    TArray<FContactPresentation> ContactPresentations;
 };

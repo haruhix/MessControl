@@ -10,6 +10,30 @@ class AMCArenaTooth;
 class UMCProgressionComponent;
 class AMCSingleDayDirector;
 
+/** Published from the actual initialized run profile, never inferred by clients. */
+UENUM()
+enum class EMCIcePresentationScope : uint8 { Unknown,NotRequired,Required };
+
+class UPackageMap;
+USTRUCT()
+struct MESSCONTROL_API FMCIcePresentationRunScope
+{
+    GENERATED_BODY()
+    UPROPERTY() FGuid GameplayLoadId;
+    UPROPERTY() EMCIcePresentationScope Scope=EMCIcePresentationScope::Unknown;
+    // One native property serializes epoch and decision together. A late old
+    // decision cannot be combined with a newer run epoch on the client.
+    bool NetSerialize(FArchive& Ar,UPackageMap*,bool& bOutSuccess)
+    {
+        Ar<<GameplayLoadId;uint8 Value=uint8(Scope);Ar.SerializeBits(&Value,2);
+        bOutSuccess=!Ar.IsError()&&Value<=uint8(EMCIcePresentationScope::Required);
+        if(Ar.IsLoading())Scope=bOutSuccess?EMCIcePresentationScope(Value):EMCIcePresentationScope::Unknown;
+        return bOutSuccess;
+    }
+};
+template<> struct TStructOpsTypeTraits<FMCIcePresentationRunScope>:TStructOpsTypeTraitsBase2<FMCIcePresentationRunScope>
+{enum{WithNetSerializer=true};};
+
 UCLASS()
 class MESSCONTROL_API AMCGameState : public AGameStateBase
 {
@@ -18,6 +42,7 @@ public:
     AMCGameState();
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Progression") TObjectPtr<UMCProgressionComponent> Progression;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Sequence") bool bSingleDayLoop=false;
+    UPROPERTY(Replicated) FMCIcePresentationRunScope IcePresentationScope;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Sequence") TObjectPtr<AMCSingleDayDirector> SingleDayDirector;
     /** Legendary tools belong to the run, including respawns and late team joins. */
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") uint8 TeamToolUpgrades=0;

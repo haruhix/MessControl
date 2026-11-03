@@ -5,6 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "MCPerkVFXProfile.h"
 #include "MCPerkVFXCompositionPlayer.h"
+#include "MCEventSFX.h"
 #include "MCActiveSkillAction.generated.h"
 
 class AMCPlayerState;
@@ -16,6 +17,8 @@ class USkeletalMeshComponent;
 class UStaticMesh;
 class UNiagaraSystem;
 class UNiagaraComponent;
+class AMCEventSFXPlayer;
+class UMCEventSFXReadiness;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnMCActiveSkillVFXStage,FName);
 
@@ -32,6 +35,29 @@ struct MESSCONTROL_API FMCActiveSkillParameter
     GENERATED_BODY()
     UPROPERTY() FName Key;
     UPROPERTY() float Value=0;
+};
+
+/** Initial-only authored audio/group binding; contains no local readiness certificate. */
+USTRUCT()
+struct FMCActiveSkillSFXBinding
+{
+    GENERATED_BODY()
+    UPROPERTY() FName Stage;
+    UPROPERTY() FMCEventSFXSlot Slot;
+    UPROPERTY() FMCEventPresentationGroupSet Groups;
+};
+
+USTRUCT()
+struct FMCActiveSkillAudioCue
+{
+    GENERATED_BODY()
+    UPROPERTY() FName Stage;
+    UPROPERTY() FTransform Frame=FTransform::Identity;
+    UPROPERTY() double EventStartedAt=0;
+    UPROPERTY() FGuid GameplayEpoch;
+    UPROPERTY() bool bLoop=false;
+    UPROPERTY() bool bHasPrepared=false;
+    UPROPERTY() FMCPreparedEventSFX Prepared;
 };
 
 /** One physical press. Release never re-reads the item currently occupying this slot. */
@@ -93,6 +119,13 @@ public:
     void UpdateLoopVFX(FVector Direction,float Fill=-1.f);
     /** Before commit only. Copies settings and retains resolved systems; never mutates the profile/CDO. */
     bool PrepareVFXProfile(UMCPerkVFXProfile* Profile,FString& OutError);
+    bool PrepareActiveAudio(UMCPerkVFXProfile* Profile,FString& OutError);
+    void GetPreparedAudioResources(TArray<UObject*>& OutResources) const;
+    void GetPreparedAudioSlots(TArray<FMCPreparedEventSFX>& OutSlots) const;
+    bool CertifyPreparedAudio(const UMCEventSFXReadiness* Readiness,FString& OutError);
+    bool IsPreparedAudioReady() const;
+    static void StopWorldAudio(UWorld* World);
+    const FString& GetLastAudioError() const {return LastAudioError;}
     UFUNCTION(BlueprintPure,Category="Skill|VFX") UNiagaraSystem* GetPreparedVFXSystem(FName Stage) const;
     /** Includes every independent composition source; readiness callers must not inspect only the legacy single System. */
     void GetPreparedVFXSystems(FName Stage,TArray<UNiagaraSystem*>& OutSystems) const;
@@ -128,19 +161,33 @@ protected:
 
 private:
     friend class UMCActiveSkillPerkEffect;
+    friend class FMCActiveAudioEventClockTest;
+    friend class FMCActiveAudioLoopSnapshotTest;
     void InitializeAction(UMCPerkComponent* OwnerPerks,AMCToothCharacter* Pawn,FName ID,
         const FMCActiveSkillInputHandle& Handle,const TMap<FName,float>& Values);
     UFUNCTION() void OnRep_Committed();
     UFUNCTION() void OnRep_Presentation();
     UFUNCTION() void OnRep_Loop();
-    UFUNCTION(NetMulticast,Reliable) void MulticastSkillCue(FName Stage,FVector_NetQuantize Location,FVector_NetQuantizeNormal Direction,float Radius);
+    UFUNCTION(NetMulticast,Reliable) void MulticastSkillCue(FName Stage,FVector_NetQuantize Location,FVector_NetQuantizeNormal Direction,float Radius,
+        double EventStartedAt,uint32 CueSerial,FGuid CueEpoch,bool bStopAudio=false,bool bImmediate=false);
     void ApplyPresentation();
     void ApplyPresentationLease();
     void ReleaseAppliedPresentationLease();
     void RefreshPresentationTickPrerequisite(USkeletalMeshComponent* Mesh);
     void ReleasePresentationTickPrerequisite();
     void ApplyVFXParameters(UNiagaraComponent* Component,FVector Direction,float Radius,float Fill=-1.f) const;
-    bool PrepareVFXBindings(const TArray<FMCPerkVFXBinding>& Bindings,FString& OutError);
+    bool PrepareVFXBindings(const TArray<FMCPerkVFXBinding>& Bindings,FString& OutError,bool bAllowLoad=true,
+        const TArray<FMCActiveSkillSFXBinding>* GroupBindings=nullptr);
+    bool BuildActiveAudioBindings(UMCPerkVFXProfile* Profile,TArray<FMCActiveSkillSFXBinding>& OutBindings,
+        TMap<FName,FMCPreparedEventSFX>& OutPrepared,FString& Error) const;
+    bool PrepareActiveAudioBindings(const TArray<FMCActiveSkillSFXBinding>& Bindings,bool bAllowLoad,
+        TMap<FName,FMCPreparedEventSFX>& OutPrepared,FString& Error) const;
+    bool CertifyAudioSlot(FMCPreparedEventSFX& Slot,FString& Error) const;
+    void QueueActiveAudio(FName Stage,const FTransform& Frame,double EventStartedAt,FGuid Epoch,bool bLoop=false);
+    void ProcessPendingAudio();
+    void UpdateLoopAudio();
+    void StopActiveAudio(bool bImmediate,bool bKeepTerminalTails=false);
+    UFUNCTION() void OnRep_AudioBindings();
     void PrepareDefaultVFX();
     const FMCPerkVFXSlot* PreparedVFXSlot(FName Stage) const;
     void ApplyVFXSlotOverrides(UNiagaraComponent* Component,FName Stage) const;
@@ -150,6 +197,12 @@ private:
     void StopCompositionPlayers(bool bImmediate);
     UFUNCTION() void OnRep_VFXBindings();
     UPROPERTY(ReplicatedUsing=OnRep_VFXBindings) TArray<FMCPerkVFXBinding> VFXBindings;
+    UPROPERTY(ReplicatedUsing=OnRep_AudioBindings) TArray<FMCActiveSkillSFXBinding> AudioBindings;
+    UPROPERTY(Transient) TMap<FName,FMCPreparedEventSFX> PreparedAudio;
+    UPROPERTY(Transient) TArray<TWeakObjectPtr<AMCEventSFXPlayer>> AudioPlayers;
+    UPROPERTY(Transient) TWeakObjectPtr<AMCEventSFXPlayer> LoopAudioPlayer;
+    UPROPERTY(Transient) TArray<FMCActiveSkillAudioCue> PendingAudio;
+    UPROPERTY(Transient) TObjectPtr<UMCEventSFXReadiness> LocalAudioReadiness;
     UPROPERTY(Transient) TMap<FName,TObjectPtr<UNiagaraSystem>> PreparedVFXSystems;
     UPROPERTY(Transient) TMap<FName,FMCPreparedPerkVFXComposition> PreparedVFXCompositions;
     UPROPERTY(Transient) TArray<TWeakObjectPtr<AMCPerkVFXCompositionPlayer>> CompositionPlayers;
@@ -160,6 +213,11 @@ private:
     bool bCapturedDefaultLoopTransform=false;
     bool bVFXPrepared=false;
     bool bLoopEventRunning=false;
+    bool bAudioPrepared=false;
+    double LastLoopAudioStamp=-1;
+    uint32 IssuedCueSerial=0,ReceivedCueSerial=0;
+    FString LastAudioError;
+    bool bAudioCancelled=false;
     UPROPERTY(Replicated) TObjectPtr<AMCPlayerState> SourcePlayerState;
     UPROPERTY(ReplicatedUsing=OnRep_Presentation) TObjectPtr<AMCToothCharacter> SourcePawn;
     UPROPERTY(Replicated) FName PerkID;
@@ -170,6 +228,8 @@ private:
     UPROPERTY(ReplicatedUsing=OnRep_Committed) bool bCommitted=false;
     UPROPERTY(ReplicatedUsing=OnRep_Presentation) bool bWantsPresentation=false;
     UPROPERTY(ReplicatedUsing=OnRep_Loop) bool bLoopRunning=false;
+    UPROPERTY(ReplicatedUsing=OnRep_Loop) double LoopStartedAt=-1;
+    UPROPERTY(Replicated) FGuid GameplayEpoch;
     TWeakObjectPtr<AMCToothCharacter> AppliedPresentationPawn;
     TWeakObjectPtr<USkeletalMeshComponent> AppliedPresentationTickMesh;
     bool bOwnsPresentationTickPrerequisite=false;

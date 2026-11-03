@@ -507,7 +507,9 @@ bool AMCThroat::AcceptThrownDelivery(AMCFoodActor* Food)
     Inlet=Aim;
     ManualIntakes.Add({Food,Food->GetActorLocation(),Inlet,Axis,Right,Up,Food->GetActorQuat(),ServerNow(),Duration,Seed,FMath::Clamp(ApertureRadius*.12f,12.f,55.f)});
     QueuedFoodCount=ManualIntakes.Num();FoodInZone=QueuedFoodCount+Meal.Num();
-    RefreshManualVortex();ForceNetUpdate();
+    RefreshManualVortex();
+    if(ActiveVortex.IsValid())ActiveVortex->NotifyNativeIntake(Food->GetActorLocation());
+    ForceNetUpdate();
     return true;
 }
 void AMCThroat::RefreshManualVortex()
@@ -523,11 +525,11 @@ void AMCThroat::RefreshManualVortex()
     // Dedicated servers intentionally disable presentation ticking. Only the
     // authoritative lifetime determines whether this shared effect has ended.
     if(ActiveVortex.IsValid() && ServerNow()>=ActiveVortex->StartedAt+ActiveVortex->Duration) {
-        ActiveVortex->Destroy();ActiveVortex.Reset();
+        ActiveVortex->NotifyNaturalEnd();ActiveVortex->Destroy();ActiveVortex.Reset();
     }
     if(!ActiveVortex.IsValid()) {
         ActiveVortex=AMCThroatVortex::Spawn(GetWorld(),First.Inlet,First.Axis,
-            FMath::Clamp(First.Radius*2.5f,80.f,150.f),FMath::Clamp(IntakeCaptureDepth,80.f,600.f),Remaining,Sources,180.f,150.f);
+            FMath::Clamp(First.Radius*2.5f,80.f,150.f),FMath::Clamp(IntakeCaptureDepth,80.f,600.f),Remaining,Sources,180.f,150.f,this);
     } else {
         auto* Vortex=ActiveVortex.Get();
         Vortex->Duration=float(ServerNow()-Vortex->StartedAt)+Remaining;
@@ -740,7 +742,7 @@ void AMCThroat::UpdateOrderJumps()
 void AMCThroat::NotifyUvulaLanding(AMCToothCharacter* Hero,const FHitResult& Hit,float DownSpeed) {}
 void AMCThroat::SetPhase(EMCThroatPhase Phase,double At)
 {
-    if(Phase!=EMCThroatPhase::Swallowing && (!bManualIntake || ManualIntakes.IsEmpty()) && ActiveVortex.IsValid()) {ActiveVortex->Destroy();ActiveVortex.Reset();}
+    if(Phase!=EMCThroatPhase::Swallowing && (!bManualIntake || ManualIntakes.IsEmpty()) && ActiveVortex.IsValid()) {ActiveVortex->NotifyNaturalEnd();ActiveVortex->Destroy();ActiveVortex.Reset();}
     if(Phase!=EMCThroatPhase::Swallowing) SuctionState.Duration=0;
     ThroatPhase=Phase; PhaseStartedAt=At; ForceNetUpdate();
 }
@@ -851,7 +853,8 @@ bool AMCThroat::CaptureMeal()
     SuctionState.Origin=SwallowInlet;SuctionState.StartedAt=PhaseStartedAt;
     SuctionState.Duration=FMath::Max(.5f,SwallowSeconds);SuctionState.InfluenceRadius=FieldRadius;
     SuctionState.MaxPullSpeed=FMath::Clamp(SuctionPullSpeed,0.f,150.f);
-    ActiveVortex=AMCThroatVortex::Spawn(GetWorld(),SwallowInlet,AirAxis,ZoneRadius*.9f,AirLength,SwallowSeconds,Sources,AirHalfWidth,260.f);
+    ActiveVortex=AMCThroatVortex::Spawn(GetWorld(),SwallowInlet,AirAxis,ZoneRadius*.9f,AirLength,SwallowSeconds,Sources,AirHalfWidth,260.f,this);
+    if(ActiveVortex.IsValid())ActiveVortex->NotifyNativeIntake(Intake);
     ForceNetUpdate();
     return true;
 }
@@ -880,6 +883,7 @@ void AMCThroat::BeginVomit()
 void AMCThroat::ResetSwallow()
 {
     if (!HasAuthority()) return;
+    if(ActiveVortex.IsValid())ActiveVortex->CancelPresentation();
     for(const auto& Piece:ManualIntakes) if(auto* Food=Piece.Food.Get();IsValid(Food) && !Food->IsDisposed()) {
         Food->SetActorLocation(Piece.Start,false,nullptr,ETeleportType::TeleportPhysics);
         Food->CancelSwallow();Food->ResumeFuse(this);

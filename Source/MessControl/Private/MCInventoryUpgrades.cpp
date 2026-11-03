@@ -198,7 +198,7 @@ void UMCInventoryComponent::CancelUpgradeUse()
 }
 void UMCInventoryComponent::EndPlay(const EEndPlayReason::Type Reason)
 {
-    CancelUpgradeUse();Super::EndPlay(Reason);
+    StopSprayComposerPresentation();CancelUpgradeUse();Super::EndPlay(Reason);
 }
 void UMCInventoryComponent::TickChainsaw(float Dt)
 {
@@ -345,9 +345,9 @@ void UMCInventoryComponent::FireWaterShot()
         }
         else if(auto* Throat=Cast<AMCThroat>(Hit.GetActor())) Throat->ReactToWaterTickle(Hero,Hit.ImpactPoint);
         if(auto* Perks=UMCPerkComponent::ForActor(Hero)) Perks->TryWaterRicochet(Hit.GetActor(),Power,Hit.ImpactPoint);
-        AMCReactionVFX::Spawn(GetWorld(),End,EMCReactionEffect::WaterImpact,.15f,40,Hit.ImpactNormal);
+        AMCReactionVFX::SpawnForPresentation(GetWorld(),TEXT("Tool.Watergun"),TEXT("Impact"),End,EMCReactionEffect::WaterImpact,.15f,40,Hit.ImpactNormal,0,Hero);
     }
-    AMCReactionVFX::Spawn(GetWorld(),Origin,EMCReactionEffect::WaterShot,.1f,12,Direction,FVector::Distance(Origin,End));
+    AMCReactionVFX::SpawnForPresentation(GetWorld(),TEXT("Tool.Watergun"),TEXT("Shot"),Origin,EMCReactionEffect::WaterShot,.1f,12,Direction,FVector::Distance(Origin,End),Hero);
     LastWaterShotAt=Now();LastSprayAt=LastWaterShotAt;
     --WaterAmmo;WaterShotReadyAt+=WaterFireInterval();
     if(WaterAmmo==0) {

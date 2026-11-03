@@ -98,6 +98,7 @@ void AMCMouthSurface::ResetLiquid()
     if(bPaintTile && EnsurePaintSupport()) for(int32 I=0;I<WipeMask.Num();++I)
         if(!PaintSupportMask[I]) WipeMask[I]=0;
     WipeFractional.Reset(); PreviousBrush.Reset(); BrushCenters.Reset(); Finish=0; BrushAt=-100; BrushClock=0;
+    StainCleaningState.ContactAt=-100.;StainCleaningState.ContactStartedAt=-100.;
     OnRep_Wipe(); ForceNetUpdate();
 }
 void AMCMouthSurface::SetLiquidDepositMask(const TArray<uint8>& Mask)
@@ -368,6 +369,8 @@ bool AMCMouthSurface::ApplyLiquidCleaning(AMCToothCharacter* Worker,FVector2D Fr
 {
     if(IsActorBeingDestroyed() || !IsValid(Status) || !Status->IsAlive()) return false;
     const float Before=RemainingLiquid();
+    const bool WasClean=IsClean();
+    const float BaseRate=Rate;
     Rate=UMCResultPassives::CleaningRate(Worker,Before,Rate);
     if(Rate<=0) return false;
     auto* Results=UMCResultPassives::ForWorld(this);
@@ -376,8 +379,21 @@ bool AMCMouthSurface::ApplyLiquidCleaning(AMCToothCharacter* Worker,FVector2D Fr
     if(Changed) OnRep_Wipe();
     const bool Removed=Changed && RemainingLiquid()<Before;
     if(Removed) {
+        if(Results)Results->NotifyCleaningContact(this,Worker,Point,RadiusUV*(2*LiquidHalfSize),Before,RemainingLiquid(),Rate>BaseRate,Reason);
         if(auto* Perks=UMCPerkComponent::ForActor(Worker)) Perks->NotifyCleaned(Point);
         SyncLiquidCleaningLayers(Worker,Reason);
+        // This branch already proved native mask removal. Presentation records
+        // that accepted boundary; it never repeats the cleaning/reward decision.
+        const auto* Clock=GetWorld()->GetGameState();
+        const double Now=Clock?Clock->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+        if(StainCleaningState.ContactSerial==0||Now-StainCleaningState.ContactAt>.25) {
+            ++StainCleaningState.ContactSerial;StainCleaningState.ContactStartedAt=Now;
+        }
+        StainCleaningState.ContactAt=Now;StainCleaningState.Point=Point;
+        StainCleaningState.Normal=IsValid(Worker)&&Worker->BrushContact&&Worker->BrushContact->Target==this
+            ?Worker->BrushContact->ContactNormal():GetActorUpVector();
+        if(!WasClean&&IsClean()) {++StainCleaningState.CompletionSerial;StainCleaningState.CompletedAt=Now;}
+        OnRep_StainCleaningPresentation();
     }
     if(Results) Results->CompleteCleaning(Attempt,Worker,Reason,Removed);
     if(Changed) ForceNetUpdate();

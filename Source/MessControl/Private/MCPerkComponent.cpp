@@ -4,6 +4,10 @@
 #include "MCPerkEffect.h"
 #include "MCGameState.h"
 #include "MCPlayerState.h"
+#include "MCPerkPresentationEvents.h"
+#include "MCVFXPresentationComponent.h"
+#include "MCToothCharacter.h"
+#include "MCToothStatusComponent.h"
 #include "GameFramework/Actor.h"
 #include "Net/UnrealNetwork.h"
 #if WITH_EDITOR
@@ -25,6 +29,7 @@ void UMCPerkComponent::BeginPlay()
 {
     Super::BeginPlay();
     LoadDefinitions();
+    if(auto* State=Cast<AMCPlayerState>(GetOwner()))State->OnPawnSet.AddUniqueDynamic(this,&UMCPerkComponent::HandlePresentationPawnSet);
     MigrateLegacyOwnedState();
     RefreshLegacyProjection();
     RebuildEffects();
@@ -149,6 +154,7 @@ void UMCPerkComponent::RebuildEffects()
     if (bRebuilding) return;
     TGuardValue<bool> Guard(bRebuilding, true);
     LoadDefinitions();
+    EnsurePresentationForPawn();
     if (!HasAuthority())
     {
         OnPerksChanged.Broadcast();
@@ -203,6 +209,9 @@ void UMCPerkComponent::OnRep_ActivePerks()
 
 void UMCPerkComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    if(auto* State=Cast<AMCPlayerState>(GetOwner()))State->OnPawnSet.RemoveDynamic(this,&UMCPerkComponent::HandlePresentationPawnSet);
+    if(auto* Hero=PresentationPawn.Get();Hero && Hero->PassivePresentation)Hero->PassivePresentation->StopPresentation(true);
+    PresentationPawn.Reset();PresentationOwnedIDs.Reset();
     CancelActiveSkillActions(EMCActiveSkillEndReason::WorldEnded);
     CancelSkillPreparations();
     ClearRogueRuntime();
@@ -213,6 +222,51 @@ void UMCPerkComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
     Effects.Reset();
     AppliedStacks.Reset();
     Super::EndPlay(EndPlayReason);
+}
+
+void UMCPerkComponent::HandlePresentationPawnSet(APlayerState*,APawn* NewPawn,APawn* OldPawn)
+{
+    if(auto* Old=Cast<AMCToothCharacter>(OldPawn);Old && Old->PassivePresentation)Old->PassivePresentation->StopPresentation(true);
+    PresentationPawn.Reset();PresentationOwnedIDs.Reset();bPresentationPreparationPending=true;
+    if(NewPawn)EnsurePresentationForPawn();
+}
+
+bool UMCPerkComponent::EnsurePresentationForPawn()
+{
+    auto* State=Cast<AMCPlayerState>(GetOwner());
+    auto* Hero=State?Cast<AMCToothCharacter>(State->GetPawn()):Cast<AMCToothCharacter>(GetOwner());
+    if(!IsValid(Hero) || !Hero->PassivePresentation || (State && Hero->GetPlayerState<AMCPlayerState>()!=State)) {
+        bPresentationPreparationPending=true;return false;
+    }
+    if(PresentationPawn.Get()!=Hero) {
+        if(auto* Old=PresentationPawn.Get();Old && Old->PassivePresentation)Old->PassivePresentation->StopPresentation(true);
+        PresentationPawn=Hero;PresentationOwnedIDs.Reset();
+    }
+    LoadDefinitions();bool Ready=true;TSet<FName> Current;
+    for(const auto& Active:ActivePerks) {
+        const auto& Allowed=MCPassivePresentation::GetAllowedEvents(Active.PerkID);
+        const auto* Row=FindDefinition(Active.PerkID);
+        if(Active.Stacks<=0 || Allowed.IsEmpty() || !Row || !IsDefinitionUsable(*Row))continue;
+        Current.Add(Active.PerkID);
+        auto* Profile=Row->VFXProfile.Get();
+        if(!Row->VFXProfile.IsNull() && !Profile && !Hero->PassivePresentation->IsSourcePrepared(Active.PerkID)) {Ready=false;continue;}
+        if(!Hero->PassivePresentation->IsSourcePrepared(Active.PerkID)) {
+            FString Error;
+            if(!Hero->PassivePresentation->PrepareSourceProfile(Active.PerkID,Allowed,Profile,Error,false)){Ready=false;continue;}
+        }
+        if(!PresentationOwnedIDs.Contains(Active.PerkID)) {
+            if(!Hero->PassivePresentation->IsSourceReadyForPlayback(Active.PerkID)){Ready=false;continue;}
+            PresentationOwnedIDs.Add(Active.PerkID);
+            if(HasAuthority() && Hero->Status && Hero->Status->IsAlive())
+                MCPassivePresentation::Play(Hero,Active.PerkID,TEXT("State"),Hero->GetActorTransform());
+        }
+    }
+    for(auto It=PresentationOwnedIDs.CreateIterator();It;++It)if(!Current.Contains(*It)) {
+        // Forget only a previously owned source. An unowned working override
+        // prepared for the acquisition preview must survive until the grant.
+        Hero->PassivePresentation->ClearScopedOverride(*It);It.RemoveCurrent();
+    }
+    bPresentationPreparationPending=!Ready;return Ready;
 }
 
 void UMCPerkComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

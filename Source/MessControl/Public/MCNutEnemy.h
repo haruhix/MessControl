@@ -15,6 +15,7 @@ class UStaticMesh;
 class UMCCombatFeedbackComponent;
 class UMCWorldStatusComponent;
 class AMCPlayerState;
+class UMCVFXPresentationComponent;
 
 /** Small server-driven enemy supported directly by the live, deforming tongue. */
 UCLASS(Blueprintable)
@@ -42,6 +43,10 @@ public:
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> RightEye;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UTextRenderComponent> Label;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="UI") TObjectPtr<UMCWorldStatusComponent> WorldStatus;
+    /** Accepted ordinary-enemy cosmetic events; gameplay death and movement remain native. */
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Presentation") TObjectPtr<UMCVFXPresentationComponent> Presentation;
+    /** Shared real-action working-copy handoff, also used by the isolated Composer scenario. */
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Presentation") TObjectPtr<UMCVFXPresentationComponent> VFXContext;
     UPROPERTY(ReplicatedUsing=RefreshPresentation, BlueprintReadOnly) TObjectPtr<UStaticMesh> NutMesh;
     UPROPERTY(ReplicatedUsing=RefreshPresentation, BlueprintReadOnly) FVector MeshScale=FVector::OneVector;
     UPROPERTY(ReplicatedUsing=RefreshPresentation, BlueprintReadOnly) FMCNutEnemySettings Settings;

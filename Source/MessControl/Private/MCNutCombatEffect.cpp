@@ -1,9 +1,14 @@
 #include "MCNutCombatEffect.h"
+#include "MCVFXPresentationComponent.h"
 #include "MCNutCombatVisuals.h"
+#include "MCVFXNativeArtControls.h"
 #include "MCNutShieldCrackLayout.h"
 #include "MCNutShellShardVisuals.h"
 #include "MCGameState.h"
 #include "MCNutBoss.h"
+#include "MCNutKamikaze.h"
+#include "MCNutLandingShadow.h"
+#include "MCFoodActor.h"
 #include "MCTongue.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -37,6 +42,16 @@
 
 namespace
 {
+USceneComponent* NutSourceVisual(AActor* Source)
+{
+    if(auto* Boss=Cast<AMCNutBoss>(Source))return Boss->BossRole==EMCNutBossRole::Mage
+        ?static_cast<USceneComponent*>(Boss->MageModel.Get()):static_cast<USceneComponent*>(Boss->TankModel.Get());
+    if(auto* Summon=Cast<AMCNutKamikaze>(Source))return Summon->SummonModel;
+    if(auto* Landing=Cast<AMCNutLandingShadow>(Source);Landing && IsValid(Landing->TrackedFood.Get()))return Landing->TrackedFood->Visual;
+    if(auto* Nut=Cast<AMCNutEnemy>(Source))return Nut->Visual;
+    return nullptr;
+}
+
 float Bounded(float Value,float Default,float Min,float Max) {return FMath::Clamp(FMath::IsFinite(Value)?Value:Default,Min,Max);}
 UMaterialInstanceDynamic* Material(UPrimitiveComponent* Part,UMaterialInterface* Parent)
 {
@@ -62,7 +77,7 @@ void CrackSegment(MCNutCombatVisuals::FMesh& Mesh,FVector A,FVector B,FVector No
     Mesh.Indices.Append({First,First+1,First+2,First,First+2,First+3});
 }
 void ShieldFissure(MCNutCombatVisuals::FMesh& Mesh,const MCNutShieldCrackLayout::FPath& Path,
-    float Damage,bool Authored,float FallbackRadius)
+    float Damage,bool Authored,float FallbackRadius,const FMCVFXNativeCracksShape* Art=nullptr)
 {
     using namespace MCNutShieldCrackLayout;
     const float Growth=Path.Rim?1.f:FMath::Clamp((Damage-Path.RevealAt)/FMath::Max(.01f,Path.FullAt-Path.RevealAt),0.f,1.f);
@@ -71,25 +86,28 @@ void ShieldFissure(MCNutCombatVisuals::FMesh& Mesh,const MCNutShieldCrackLayout:
     const int32 Rows=FMath::Min(Path.Count,FMath::CeilToInt(Last)+1);
     if(Rows<2) return;
     const int32 First=Mesh.Points.Num();
-    const FLinearColor Core(.009f,.004f,.002f),Lip(.31f,.16f,.066f),Rim(.48f,.20f,.035f);
+    const FLinearColor Core=Art?Art->CoreColor:FLinearColor(.009f,.004f,.002f);
+    const FLinearColor Lip=Art?Art->LipColor:FLinearColor(.31f,.16f,.066f),Rim=Art?Art->RimColor:FLinearColor(.48f,.20f,.035f);
+    auto PointAt=[&](int32 R,int32 C){return Art?Art->Samples[R].Points[C]:Samples[R].Points[C];};
+    auto NormalAt=[&](int32 R,int32 C){return Art?Art->Samples[R].Normals[C]:Samples[R].Normals[C];};
     const FVector Side=FVector::CrossProduct(Normal,FVector::UpVector).GetSafeNormal();
     const FVector Up=FVector::CrossProduct(Side,Normal).GetSafeNormal();
     for(int32 Row=0;Row<Rows;++Row) {
         const float At=FMath::Min(float(Row),Last);
         const int32 A=FMath::Min(FMath::FloorToInt(At),Path.Count-1),B=FMath::Min(A+1,Path.Count-1);
         const float Blend=At-A;
-        const auto& Before=Samples[Path.First+A];const auto& After=Samples[Path.First+B];
-        const FVector Middle=FMath::Lerp(Before.Points[2],After.Points[2],Blend);
+        const int32 Before=Path.First+A,After=Path.First+B;
+        const FVector Middle=FMath::Lerp(PointAt(Before,2),PointAt(After,2),Blend);
         // A growing split ends in a fine point. Each five-column joined strip
         // has a dark interior and a much narrower rough shell lip.
         const float Tip=Path.Rim?1.f:FMath::Clamp((Last-At)/2.5f,0.f,1.f);
-        const float Width=Path.Rim?1.f:(.40f+.60f*Damage)*FMath::SmoothStep(0.f,1.f,Tip);
+        const float Width=(Art?Art->WidthScale:1.f)*(Path.Rim?1.f:(.40f+.60f*Damage)*FMath::SmoothStep(0.f,1.f,Tip));
         for(int32 Column=0;Column<5;++Column) {
-            FVector Point=FMath::Lerp(Before.Points[Column],After.Points[Column],Blend);
-            FVector VertexNormal=FMath::Lerp(Before.Normals[Column],After.Normals[Column],Blend).GetSafeNormal();
+            FVector Point=FMath::Lerp(PointAt(Before,Column),PointAt(After,Column),Blend);
+            FVector VertexNormal=FMath::Lerp(NormalAt(Before,Column),NormalAt(After,Column),Blend).GetSafeNormal();
             Point=Middle+(Point-Middle)*Width;
             // Raised raw lips catch scene light; the interior remains a dark gap.
-            if(!Path.Rim && (Column==0 || Column==4)) Point+=VertexNormal*.18f*Width;
+            if(!Path.Rim && (Column==0 || Column==4)) Point+=VertexNormal*(Art?Art->LipLift:.18f)*Width;
             if(!Authored) {
                 const FVector Relative=Point-Center;
                 Point=FVector(FallbackRadius*1.08f,FVector::DotProduct(Relative,Side),FVector::DotProduct(Relative,Up));
@@ -140,6 +158,7 @@ AMCNutCombatEffect::AMCNutCombatEffect()
     Storm=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("StormCloudAndStreaks"));Storm->SetupAttachment(Root);
     SustainedParticles=CreateDefaultSubobject<UNiagaraComponent>(TEXT("SustainedCueParticles"));SustainedParticles->SetupAttachment(Root);
     SustainedParticles->SetAutoActivate(false);
+    Presentation=CreateDefaultSubobject<UMCVFXPresentationComponent>(TEXT("NutCuePresentation"));
     RainNuts=CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("FallingWalnuts"));RainNuts->SetupAttachment(Root);
     Debris=CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("ShellFragments"));Debris->SetupAttachment(Root);
     UPrimitiveComponent* Parts[]={Warning.Get(),DropWarnings.Get(),DropShadows.Get(),Flames.Get(),Magic.Get(),Storm.Get(),SustainedParticles.Get(),RainNuts.Get(),Debris.Get()};
@@ -174,16 +193,59 @@ FVector AMCNutCombatEffect::GetShieldContactOrigin(const AMCNutBoss* Boss)
     return Boss->GetActorLocation()+Boss->GetActorForwardVector()*Boss->Settings.BodyRadius;
 }
 
+FTransform AMCNutCombatEffect::GetShieldContactFrame(const AMCNutBoss* Boss)
+{
+    if(!IsValid(Boss))return FTransform::Identity;
+    const FVector Contact=GetShieldContactOrigin(Boss);
+    FVector Normal=Boss->GetActorForwardVector();
+    if(const FName Bone=ShieldBone(Boss);!Bone.IsNone()) {
+        Normal=Boss->TankModel->GetSocketTransform(Bone).TransformVectorNoScale(MCNutShieldCrackLayout::Normal)
+            .GetSafeNormal(SMALL_NUMBER,Normal);
+        if(FVector::DotProduct(Normal,Contact-Boss->GetActorLocation())<0)Normal=-Normal;
+    }
+    return FTransform(Normal.Rotation(),Contact);
+}
+
 void AMCNutCombatEffect::UpdateShieldDamageVisual(AMCNutBoss* Boss)
 {
     if(!IsValid(Boss) || Boss->GetNetMode()==NM_DedicatedServer) return;
+    const auto* Style=Boss->ShieldPresentation?Boss->ShieldPresentation->GetPreparedNativeSource(TEXT("Boss.NutKnight.Shield")):nullptr;
+    const auto* Art=Style?Style->FindPart(NAME_None,TEXT("ShieldCracks")):nullptr;
+    const uint64 StyleHash=Style?Style->Reference.SettingsHash:0;
+    const bool StyleChanged=Boss->LastShieldNativePresentationHash!=StyleHash;
+    Boss->LastShieldNativePresentationHash=StyleHash;
     static const FName Name(TEXT("ShieldDamageCracks"));
     auto* Cracks=FindObjectFast<UProceduralMeshComponent>(Boss,Name);
     const FName Bone=ShieldBone(Boss);
     const bool Authored=!Bone.IsNone();
-    const bool Visible=Boss->BossRole==EMCNutBossRole::Tank && !Boss->bDefeated && Boss->ShieldHealth>0
+    const bool Visible=MCNativeArtControls::Enabled(Art) && Boss->BossRole==EMCNutBossRole::Tank && !Boss->bDefeated && Boss->ShieldHealth>0
         && Boss->State!=EMCNutBossState::Falling
         && (Authored?Boss->TankModel->IsVisible():Boss->Shield && Boss->Shield->IsVisible());
+    if(Boss->ShieldPresentation) {
+        const float Damage=FMath::Clamp(1-Boss->ShieldHealth/FMath::Max(1.f,Boss->BossSettings.ShieldMaxHealth),0.f,1.f);
+        const double Clock=Boss->GetWorld()->GetGameState()?Boss->GetWorld()->GetGameState()->GetServerWorldTimeSeconds():Boss->GetWorld()->GetTimeSeconds();
+        if(Boss->ShieldVFXShown<0 || StyleChanged)Boss->ShieldVFXShown=Boss->ShieldVFXFrom=Boss->ShieldVFXTarget=Damage;
+        if(!FMath::IsNearlyEqual(Boss->ShieldVFXTarget,Damage)) {
+            Boss->ShieldVFXFrom=Boss->ShieldVFXShown;Boss->ShieldVFXTarget=Damage;Boss->ShieldVFXChangedAt=Clock;
+        }
+        Boss->ShieldVFXShown=FMath::Lerp(Boss->ShieldVFXFrom,Damage,FMath::SmoothStep(0.f,Art?Art->Cracks.BlendSeconds:.14f,float(Clock-Boss->ShieldVFXChangedAt)));
+        FMCPerkVFXGameplayValues Values;Values.Fill=Boss->ShieldVFXShown;Values.Radius=Boss->Settings.BodyRadius;
+        FMCVFXNativeInput ShieldFrame;ShieldFrame.Name=TEXT("User.Native.bAuthoredShield");
+        ShieldFrame.Type=EMCVFXNativeInputType::Bool;ShieldFrame.BoolValue=Authored;Values.NativeInputs.Entries.Add(ShieldFrame);
+        Values.VisualSubject=Authored?static_cast<USceneComponent*>(Boss->TankModel.Get()):Boss->Body.Get();
+        Values.FrameComponent=Authored?static_cast<USceneComponent*>(Boss->TankModel.Get()):static_cast<USceneComponent*>(Boss->Body.Get());
+        Values.FrameSocket=Authored?Bone:NAME_None;
+        const FTransform Frame=Authored?Boss->TankModel->GetSocketTransform(Bone):Boss->GetActorTransform();
+        FString Error;
+        Values.LocalStateAgeSeconds=-1.f; // Static artwork still needs an advancing scheduling clock.
+        const bool Updated=Boss->ShieldPresentation->UpdateLocalSourceState(TEXT("Boss.NutKnight.Shield"),TEXT("Durability"),Visible,Frame,Values,
+            Authored?static_cast<UActorComponent*>(Boss->TankModel.Get()):nullptr,Error);
+        EMCPerkVFXSlotMode Mode=EMCPerkVFXSlotMode::UseDefault;
+        Boss->ShieldPresentation->GetPreparedEventMode(TEXT("Boss.NutKnight.Shield"),TEXT("Durability"),Mode);
+        if(Visible && Updated && Mode!=EMCPerkVFXSlotMode::UseDefault) {
+            if(IsValid(Cracks))Cracks->SetVisibility(false);return;
+        }
+    }
     if(!Visible) {if(IsValid(Cracks)) Cracks->SetVisibility(false);return;}
     if(!Cracks) {
         Cracks=NewObject<UProceduralMeshComponent>(Boss,Name,RF_Transient);
@@ -192,7 +254,11 @@ void AMCNutCombatEffect::UpdateShieldDamageVisual(AMCNutBoss* Boss)
         Cracks->RegisterComponent();
         const auto* Defaults=GetDefault<AMCNutCombatEffect>();
         Cracks->SetCustomPrimitiveDataFloat(0,-1.f);
-        if(auto* Material=Defaults->ShieldFractureMaterial.LoadSynchronous()) Cracks->SetMaterial(0,Material);
+        if(auto* Material=Art?Art->Material.Get():Defaults->ShieldFractureMaterial.LoadSynchronous()) Cracks->SetMaterial(0,Material);
+    }
+    if(StyleChanged) {
+        const auto* Defaults=GetDefault<AMCNutCombatEffect>();
+        Cracks->SetMaterial(0,Art?Art->Material.Get():Defaults->ShieldFractureMaterial.LoadSynchronous());
     }
     if(!Cracks->GetMaterial(0)) {Cracks->SetVisibility(false);return;}
     const float Damage=FMath::Clamp(1-Boss->ShieldHealth/FMath::Max(1.f,Boss->BossSettings.ShieldMaxHealth),0.f,1.f);
@@ -204,12 +270,12 @@ void AMCNutCombatEffect::UpdateShieldDamageVisual(AMCNutBoss* Boss)
     if(AttachmentChanged) Cracks->AttachToComponent(Parent,FAttachmentTransformRules::SnapToTargetIncludingScale,Socket);
     const auto& Cached=Cracks->GetCustomPrimitiveData().Data;
     const float Time=float(Boss->GetWorld()->GetGameState()?Boss->GetWorld()->GetGameState()->GetServerWorldTimeSeconds():Boss->GetWorld()->GetTimeSeconds());
-    const bool Reset=!Cracks->GetProcMeshSection(0) || AttachmentChanged || Cached.Num()<4;
+    const bool Reset=StyleChanged || !Cracks->GetProcMeshSection(0) || AttachmentChanged || Cached.Num()<4;
     const float LastShown=Reset?Damage:Cached[0];
     const bool NewHit=!Reset && FMath::Abs(Cached[2]-Damage)>.0001f;
     const float From=Reset?Damage:NewHit?LastShown:Cached[1];
     const float Started=Reset || NewHit?Time:Cached[3];
-    const float Shown=FMath::Lerp(From,Damage,FMath::SmoothStep(0.f,.14f,Time-Started));
+    const float Shown=FMath::Lerp(From,Damage,FMath::SmoothStep(0.f,Art?Art->Cracks.BlendSeconds:.14f,Time-Started));
     if(Reset || NewHit) {
         Cracks->SetCustomPrimitiveDataFloat(1,From);
         Cracks->SetCustomPrimitiveDataFloat(2,Damage);
@@ -218,7 +284,12 @@ void AMCNutCombatEffect::UpdateShieldDamageVisual(AMCNutBoss* Boss)
     if(Reset || FMath::Abs(LastShown-Shown)>.00001f) {
         using namespace MCNutCombatVisuals;
         FMesh Detail;
-        for(const auto& Path:MCNutShieldCrackLayout::Paths)
+        if(Art) {
+            for(const auto& Path:Art->Cracks.Paths) {
+                const MCNutShieldCrackLayout::FPath NativePath{Path.First,Path.Count,Path.RevealAt,Path.FullAt,Path.bRim};
+                ShieldFissure(Detail,NativePath,Shown,Authored,Boss->Settings.BodyRadius,&Art->Cracks);
+            }
+        } else for(const auto& Path:MCNutShieldCrackLayout::Paths)
             ShieldFissure(Detail,Path,Shown,Authored,Boss->Settings.BodyRadius);
         Detail.Upload(Cracks);Cracks->SetCustomPrimitiveDataFloat(0,Shown);
     }
@@ -234,7 +305,9 @@ FVector AMCNutCombatEffect::GetNutRainDropPoint(FVector Center,float Radius,int3
 }
 
 AMCNutCombatEffect* AMCNutCombatEffect::Spawn(AActor* Source,AMCTongue* Surface,EMCNutCombatCue Type,
-    FVector Origin,FVector Target,float Radius,float Windup,float Active,int32 Seed,float DetailRadius,int32 DropCount,float DropCadence)
+    FVector Origin,FVector Target,float Radius,float Windup,float Active,int32 Seed,float DetailRadius,int32 DropCount,float DropCadence,
+    bool bSuppressCosmeticAccents,FGuid PresentationEpisodeID,
+    const FMCVFXPreparedNativePresentation* NativePresentation,FName NativeEvent,const FMCNutCuePresentation& Context)
 {
     if(!IsValid(Source) || !Source->HasAuthority() || !IsValid(Surface) || Surface->GetWorld()!=Source->GetWorld()
         || Origin.ContainsNaN() || Target.ContainsNaN() || uint8(Type)>uint8(EMCNutCombatCue::KnightHeadSplit)) return nullptr;
@@ -250,17 +323,56 @@ AMCNutCombatEffect* AMCNutCombatEffect::Spawn(AActor* Source,AMCTongue* Surface,
     Effect->Cue.DetailRadius=Bounded(DetailRadius,90,15,250);Effect->Cue.WindupSeconds=Bounded(Windup,1,0,12);
     Effect->Cue.ActiveSeconds=Bounded(Active,1,0,24);Effect->Cue.Seed=Seed;
     Effect->Cue.DropCount=FMath::Clamp(DropCount,1,MaxRainDrops);Effect->Cue.DropCadence=Bounded(DropCadence,.5f,.12f,2);
+    // Only the migrated fireball family has a separate accent channel. This
+    // cannot suppress unrelated native attack or danger geometry.
+    Effect->Cue.bSuppressCosmeticAccents=bSuppressCosmeticAccents &&
+        (Type==EMCNutCombatCue::CastCharge || Type==EMCNutCombatCue::CastRelease || Type==EMCNutCombatCue::FireImpact);
+    Effect->Cue.PresentationEpisodeID=PresentationEpisodeID;
+    Effect->Cue.PresentationSource=Context.Source;Effect->Cue.PresentationEvent=Context.Event;Effect->Cue.AfterWindupEvent=Context.AfterWindupEvent;
+    if(const auto* Contract=MCNutVFX::Find(Context.Source)) {
+        Effect->Presentation->SourceID=Contract->ID;Effect->Presentation->Events=Contract->Events;
+        if(auto* VisualSubject=NutSourceVisual(Source)) {FString Error;Effect->Presentation->BindSourceAudioSocket(Context.Source,VisualSubject,Error);}
+        TInlineComponentArray<UMCVFXPresentationComponent*> Owners(Source);
+        for(const auto* Owner:Owners)if(IsValid(Owner) && Owner->IsSourcePrepared(Context.Source)) {
+            FString Error;if(Owner->CopyPreparedSourceTo(Context.Source,Effect->Presentation,Error))break;
+        }
+    }
+    if(NativePresentation && NativePresentation->Snapshot) {
+        Effect->NativeArt=*NativePresentation;Effect->Cue.NativeStyle=NativePresentation->Reference;
+        Effect->Cue.NativeEvent=NativeEvent;
+    }
     Effect->Cue.StartedAt=Effect->Now();Effect->FinishSpawning(Pose);return Effect;
 }
 
 void AMCNutCombatEffect::BeginPlay()
 {
     Super::BeginPlay();
+    if(const auto* Contract=MCNutVFX::Find(Cue.PresentationSource)) {
+        Presentation->SourceID=Contract->ID;Presentation->Events=Contract->Events;
+        FString Error;
+        if(auto* Subject=NutSourceVisual(SourceActor))Presentation->BindSourceAudioSocket(Contract->ID,Subject,Error);
+        MCNutVFX::Prepare(Presentation,Contract->ID,Error,false);
+    }
     if(HasAuthority()) SetLifeSpan(FMath::Max(.2f,Cue.WindupSeconds+Cue.ActiveSeconds)+1.f);
     if(Tongue) AddTickPrerequisiteActor(Tongue);
+    if(IsValid(SourceActor))AddTickPrerequisiteActor(SourceActor);
     if(GetNetMode()==NM_DedicatedServer) return;
+    if(!NativeArt.Snapshot && !Cue.NativeStyle.Source.IsNull()) {
+        const bool Shield=Cue.Type==EMCNutCombatCue::ShieldHit;
+        const FName Source=Shield?FName(TEXT("Boss.NutKnight.Shield")):FName(TEXT("Boss.NutMage.Fireball"));
+        const TArray<FName> Events=Shield?TArray<FName>{TEXT("Hit"),TEXT("Break")}:
+            TArray<FName>{TEXT("Charge"),TEXT("Release"),TEXT("Flight"),TEXT("Impact")};
+        FString Error;if(!FMCVFXPreparedNativePresentation::ResolveResidentReference(Cue.NativeStyle,Source,Events,this,NativeArt,Error))
+            UE_LOG(LogTemp,Warning,TEXT("Native combat cue uses its legacy appearance: %s"),*Error);
+    }
     if(const auto* Boss=Cast<AMCNutBoss>(SourceActor))
-        if(Boss->BossRole==EMCNutBossRole::Mage && Boss->MageModel) AddTickPrerequisiteComponent(Boss->MageModel);
+        if(Boss->BossRole==EMCNutBossRole::Mage && Boss->MageModel) {
+            AddTickPrerequisiteComponent(Boss->MageModel);
+            if(Cue.Type==EMCNutCombatCue::CastCharge && Cue.PresentationEpisodeID.IsValid()) {
+                FString Error;Boss->FireballPresentation->BindSourceEpisodeTickSource(
+                    Boss->FireballPresentation->SourceID,Cue.PresentationEpisodeID,this,Error);
+            }
+        }
     InitializeMaterials();
 }
 
@@ -270,8 +382,14 @@ void AMCNutCombatEffect::InitializeMaterials()
     WarningMID=Material(Warning,TelegraphMaterial.LoadSynchronous());
     SmallWarningMID=Material(DropWarnings,TelegraphMaterial.LoadSynchronous());
     ShadowMID=Material(DropShadows,ShadowMaterial.LoadSynchronous());
-    FireMID=Material(Flames,FlameMaterial.LoadSynchronous());
-    MagicMID=Material(Magic,MagicMaterial.LoadSynchronous());
+    const FName FireRole=Cue.NativeEvent==TEXT("Charge")?FName(TEXT("ChargeFlames")):
+        Cue.NativeEvent==TEXT("Break")?FName(TEXT("BrokenShell")):FName(TEXT("ImpactFlames"));
+    if(NativePart(FireRole)) {FireMID=NativeArt.CreatePrivateMaterial(Cue.NativeEvent,FireRole,this);Flames->SetMaterial(0,FireMID);}
+    else FireMID=Material(Flames,FlameMaterial.LoadSynchronous());
+    const FName MagicRole=Cue.NativeEvent==TEXT("Charge")?FName(TEXT("ChargeFocusMagic")):
+        Cue.NativeEvent==TEXT("Release")?FName(TEXT("ReleaseMagic")):FName(TEXT("ShieldContactMagic"));
+    if(NativePart(MagicRole)) {MagicMID=NativeArt.CreatePrivateMaterial(Cue.NativeEvent,MagicRole,this);Magic->SetMaterial(0,MagicMID);}
+    else MagicMID=Material(Magic,MagicMaterial.LoadSynchronous());
     StormMID=Material(Storm,StormMaterial.LoadSynchronous());
     RainNuts->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Gameplay/CoreLoop/SM_Walnut_Whole.SM_Walnut_Whole")));
 }
@@ -280,7 +398,7 @@ void AMCNutCombatEffect::PreviewAtAge(float Age)
 {
 #if WITH_EDITOR
     if(GetWorld() && !GetWorld()->IsGameWorld() && IsValid(Tongue) && FMath::IsFinite(Age)) {
-        InitializeMaterials();Present(FMath::Max(0.f,Age));
+        LastCueAge=FMath::Max(0.f,Age);InitializeMaterials();Present(LastCueAge);
     }
 #endif
 }
@@ -288,15 +406,70 @@ void AMCNutCombatEffect::PreviewAtAge(float Age)
 void AMCNutCombatEffect::Burst(FVector Point,bool bFire,float Scale)
 {
     if(GetNetMode()==NM_DedicatedServer) return;
-    PlayBurst(bFire?FireImpactSystem.LoadSynchronous():DustImpactSystem.LoadSynchronous(),Point,FVector::UpVector,Scale);
+    const auto* Art=NativePart(bFire?FName(TEXT("ImpactSparks")):FName(TEXT("FloorDust")));
+    PlayBurst(MCNativeArtControls::System(Art,bFire?FireImpactSystem:DustImpactSystem),Point,FVector::UpVector,
+        Art && Cue.NativeEvent!=TEXT("Impact")?Art->SystemScale:Scale);
 }
 
-void AMCNutCombatEffect::PlayBurst(UNiagaraSystem* System,FVector Point,FVector Direction,float Scale)
+void AMCNutCombatEffect::PlayBurst(UNiagaraSystem* System,FVector Point,FVector Direction,float Scale,bool bKeepWithComposition)
 {
+    if(bComposedDecorations&&!bKeepWithComposition)return;
     if(GetNetMode()!=NM_DedicatedServer && System && Bursts.Num()<8) {
         auto* Component=UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,System,Point,Direction.Rotation(),FVector(FMath::Clamp(Scale,.3f,2.f)),
             false,true,ENCPoolMethod::ManualRelease,true);
-        if(Component) {Bursts.Add(Component);Component->OnSystemFinished.AddDynamic(this,&AMCNutCombatEffect::FinishedBurst);}
+        if(Component) {
+            if(bKeepWithComposition)Component->ComponentTags.AddUnique(TEXT("MC.Nut.AcceptedExtraBurst"));
+            Bursts.Add(Component);Component->OnSystemFinished.AddDynamic(this,&AMCNutCombatEffect::FinishedBurst);
+        }
+    }
+}
+
+void AMCNutCombatEffect::GetAcceptedBurstEvents(TArray<FName>& Out) const
+{for(const auto& Burst:AcceptedBursts)Out.AddUnique(Burst.Event);}
+
+void AMCNutCombatEffect::PresentBurstEvent(FName Event,UNiagaraSystem* System,FVector Point,FVector Direction,float Scale,float StartedAtCueAge)
+{
+    // Called only by the original real burst sites and their original late-cue
+    // admission guards. Per-peer local state avoids another replicated/audio cue.
+    if(Event.IsNone()||AcceptedBursts.ContainsByPredicate([&](const auto& B){return B.Event==Event;}))return;
+    FMCNutAcceptedBurst Burst;Burst.Event=Event;Burst.StartedAtCueAge=StartedAtCueAge;
+    Burst.Frame=FTransform(Direction.Rotation(),Point,FVector(FMath::Clamp(Scale,.3f,2.f)));
+    AcceptedBursts.Add(Burst);
+    UpdateAcceptedBursts(LastCueAge);
+    EMCPerkVFXSlotMode Mode=EMCPerkVFXSlotMode::UseDefault;
+    const bool Prepared=Presentation&&!Cue.PresentationSource.IsNone()
+        &&Presentation->GetPreparedEventMode(Cue.PresentationSource,Event,Mode);
+    const auto* Native=Prepared?Presentation->GetPreparedNativeSource(Cue.PresentationSource):nullptr;
+    const auto* Accepted=AcceptedBursts.FindByPredicate([&](const auto& B){return B.Event==Event;});
+    const bool KeepNative=!Accepted||!Accepted->bPresentationAccepted||Mode==EMCPerkVFXSlotMode::UseDefault
+        ||(Native&&Native->ShouldRenderNativeAccents(Event,Mode));
+    if(!Prepared||KeepNative)PlayBurst(System,Point,Direction,Scale,true);
+}
+
+void AMCNutCombatEffect::UpdateAcceptedBursts(float Age)
+{
+    LastCueAge=Age;
+    if(!Presentation||Cue.PresentationSource.IsNone())return;
+    FString Error;
+    if(!MCNutVFX::Prepare(Presentation,Cue.PresentationSource,Error,false))return;
+    for(auto& Burst:AcceptedBursts) {
+        if(Burst.bRejected)continue;
+        FMCPerkVFXGameplayValues Values;Values.NativeInputs=LastCueNativeInputs;
+        Values.Radius=Cue.Radius;Values.Fill=0;Values.Direction=Burst.Frame.GetRotation().GetForwardVector();
+        Values.Duration=FMath::Max(.01f,Cue.WindupSeconds+Cue.ActiveSeconds-Burst.StartedAtCueAge);
+        Values.LocalStateAgeSeconds=FMath::Max(0.f,Age-Burst.StartedAtCueAge);
+        Values.bHasEndpoints=true;Values.SourcePosition=Cue.Origin;Values.TargetPosition=Cue.Target;
+        Values.bHasSeed=true;Values.Seed=uint32(Cue.Seed);Values.VisualSubject=NutSourceVisual(SourceActor);
+        // Original bursts are world-fixed at acceptance, not reattached to a
+        // moving palm/body. SourceSocket audio still uses the explicit mesh map.
+        Burst.bPresentationAccepted=Presentation->UpdateLocalSourceState(Cue.PresentationSource,Burst.Event,true,Burst.Frame,Values,
+            Values.VisualSubject.Get(),Error);
+        if(!Burst.bPresentationAccepted)Burst.bRejected=true;
+        if(!Burst.bPresentationAccepted&&!Error.IsEmpty()&&LastNativeInputError!=Error) {
+            LastNativeInputError=Error;
+            UE_LOG(LogTemp,Warning,TEXT("Nut VFX %s.%s kept its native burst: %s"),
+                *Cue.PresentationSource.ToString(),*Burst.Event.ToString(),*Error);
+        }
     }
 }
 
@@ -305,6 +478,9 @@ void AMCNutCombatEffect::PresentMagic(float Age,FVector Floor,FVector Normal,FVe
     using namespace MCNutCombatVisuals;
     const bool Charge=Cue.Type==EMCNutCombatCue::CastCharge || Cue.Type==EMCNutCombatCue::FireCast;
     const bool Release=Cue.Type==EMCNutCombatCue::CastRelease;
+    const auto* FocusArt=NativePart(Release?FName(TEXT("ReleaseMagic")):FName(TEXT("ChargeFocusMagic")));
+    const auto* CastSparks=NativePart(TEXT("CastSparks"));
+    const auto* ReleaseSparks=NativePart(TEXT("ReleaseSparks"));
     const bool Ritual=Cue.Type==EMCNutCombatCue::RitualCast || Cue.Type==EMCNutCombatCue::SummonTell;
     const bool Transform=Cue.Type==EMCNutCombatCue::Transform;
     const bool Roll=Cue.Type==EMCNutCombatCue::RollTell;
@@ -316,6 +492,24 @@ void AMCNutCombatEffect::PresentMagic(float Age,FVector Floor,FVector Normal,FVe
     const float Progress=FMath::Clamp(Age/FMath::Max(.1f,Cue.WindupSeconds),0.f,1.f);
     const auto* Boss=Cast<AMCNutBoss>(SourceActor);
     const FVector Caster=Boss?Boss->GetSpellFocusOrigin():Cue.Origin;
+    if(Cue.Type==EMCNutCombatCue::CastCharge && Boss && Cue.PresentationEpisodeID.IsValid()
+        && Age<Cue.WindupSeconds) {
+        // This existing cue ticks after the evaluated mage model on every
+        // rendering peer. Native animation supplies the hand frame, not an
+        // authority-only transform update or another network stream.
+        FString Error;Boss->FireballPresentation->BindSourceEpisodeTickSource(
+            Boss->FireballPresentation->SourceID,Cue.PresentationEpisodeID,this,Error);
+        FMCPerkVFXGameplayValues Values;Values.EpisodeID=Cue.PresentationEpisodeID;
+        Values.Direction=(Boss->LockedTarget-Caster).GetSafeNormal();Values.Radius=Cue.Radius;
+        Values.Duration=Cue.WindupSeconds;Values.Fill=Progress;
+        Values.bHasEndpoints=true;Values.SourcePosition=Caster;Values.TargetPosition=Boss->LockedTarget;
+        Values.bHasSeed=true;Values.Seed=uint32(Cue.Seed);
+        Boss->FireballPresentation->UpdateSourceEpisode(Boss->FireballPresentation->SourceID,
+            Cue.PresentationEpisodeID,FTransform(Values.Direction.Rotation(),Caster),Values);
+    }
+    if(Cue.bSuppressCosmeticAccents && (Charge || Release || Cue.Type==EMCNutCombatCue::FireImpact)) {
+        Magic->SetVisibility(false);Storm->SetVisibility(false);SustainedParticles->Deactivate();return;
+    }
     const FVector Source=IsValid(SourceActor)?SourceActor->GetActorLocation():Cue.Origin;
     const FVector Direction=(Cue.Target-Cue.Origin).GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector);
     const FVector Forward=Boss && (Roll || Motion)?Boss->AttackForward:Direction;
@@ -324,22 +518,23 @@ void AMCNutCombatEffect::PresentMagic(float Age,FVector Floor,FVector Normal,FVe
     if(MagicMID) {
         MagicMID->SetScalarParameterValue(TEXT("Age"),Age);
         MagicMID->SetScalarParameterValue(TEXT("Progress"),Progress);
-        MagicMID->SetVectorParameterValue(TEXT("Tint"),Tint);
+        MagicMID->SetVectorParameterValue(TEXT("Tint"),FocusArt?FocusArt->Tint:Tint);
         MagicMID->SetScalarParameterValue(TEXT("Beam"),0);
     }
     const FVector LocalFloor=Floor-GetActorLocation();
-    if(Charge || Cue.Type==EMCNutCombatCue::RitualCast) {
+    if((Charge && MCNativeArtControls::Enabled(FocusArt)) || Cue.Type==EMCNutCombatCue::RitualCast) {
         const FVector Center=Caster-GetActorLocation();
-        const float Radius=FMath::Lerp(14.f,40.f,Progress)*(1.f+.035f*FMath::Sin(Age*19));
+        const float Radius=FMath::Lerp(FocusArt?FocusArt->Cast.MinFocusRadius:14.f,FocusArt?FocusArt->Cast.MaxFocusRadius:40.f,Progress)
+            *(1.f+.035f*FMath::Sin(Age*19))*MCNativeArtControls::Expansion(FocusArt,Age,Cue.WindupSeconds);
         // Three crossed planes form a compact focus visible from every player camera.
-        Detail.Quad(Center,FVector::ForwardVector,FVector::UpVector,Radius,Radius,FLinearColor(1,1,1,Fade));
-        Detail.Quad(Center,FVector::RightVector,FVector::UpVector,Radius,Radius,FLinearColor(1,1,1,Fade));
-        Detail.Quad(Center,FVector::ForwardVector,FVector::RightVector,Radius,Radius,FLinearColor(1,1,1,Fade));
-        for(int32 Arm=0;Arm<2;++Arm) for(int32 Segment=0;Segment<12;++Segment) {
-            const float Phase=Arm*PI+Segment*.36f-Age*3.2f;
+        Detail.Quad(Center,FVector::ForwardVector,FVector::UpVector,Radius,Radius,FLinearColor(1,1,1,MCNativeArtControls::Opacity(FocusArt,Age,Total,Fade)));
+        Detail.Quad(Center,FVector::RightVector,FVector::UpVector,Radius,Radius,FLinearColor(1,1,1,MCNativeArtControls::Opacity(FocusArt,Age,Total,Fade)));
+        Detail.Quad(Center,FVector::ForwardVector,FVector::RightVector,Radius,Radius,FLinearColor(1,1,1,MCNativeArtControls::Opacity(FocusArt,Age,Total,Fade)));
+        for(int32 Arm=0;Arm<(FocusArt?FocusArt->Cast.Arms:2);++Arm) for(int32 Segment=0;Segment<(FocusArt?FocusArt->Cast.Segments:12);++Segment) {
+            const float Phase=Arm*PI+Segment*.36f-Age*(FocusArt?FocusArt->Cast.SpinSpeed:3.2f);
             const float Distance=Radius*(1.65f-Segment*.045f);
             const FVector P=Center+FVector(FMath::Cos(Phase)*Distance,FMath::Sin(Phase)*Distance,Segment*3.f-18.f);
-            Detail.Quad(P,FVector::UpVector,FVector(-FMath::Sin(Phase),FMath::Cos(Phase),0),2.2f,4.2f,FLinearColor(1,1,1,Fade*.65f));
+            Detail.Quad(P,FVector::UpVector,FVector(-FMath::Sin(Phase),FMath::Cos(Phase),0),2.2f,4.2f,FLinearColor(1,1,1,MCNativeArtControls::Opacity(FocusArt,Age,Total,Fade*.65f)));
         }
     }
     if(Ritual) {
@@ -354,17 +549,20 @@ void AMCNutCombatEffect::PresentMagic(float Age,FVector Floor,FVector Normal,FVe
         }
         if(Age>=Cue.WindupSeconds && !bReleasePresented) {
             bReleasePresented=true;
-            if(Age-Cue.WindupSeconds<.25f) PlayBurst(ArcaneBurstSystem.LoadSynchronous(),Floor+Normal*16,Normal,.65f);
+            if(Age-Cue.WindupSeconds<.25f) PresentBurstEvent(TEXT("ReleaseBurst"),ArcaneBurstSystem.Get(),Floor+Normal*16,Normal,.65f,Cue.WindupSeconds);
         }
     }
     if(Release) {
+        if(MCNativeArtControls::Enabled(FocusArt)) {
         const FVector BeamSide=FVector::CrossProduct(Direction,FVector::UpVector).GetSafeNormal(SMALL_NUMBER,FVector::RightVector);
         const FVector Base=Cue.Origin-GetActorLocation();
-        const float Length=FMath::Lerp(35.f,110.f,FMath::Clamp(Age/Total,0.f,1.f));
-        Detail.Quad(Base+Direction*Length*.5f,Direction,BeamSide,Length*.5f,12.f*Fade,FLinearColor(1,1,1,Fade));
-        Detail.Quad(Base+Direction*Length*.5f,Direction,FVector::UpVector,Length*.5f,12.f*Fade,FLinearColor(1,1,1,Fade));
+        const float Length=FMath::Lerp(FocusArt?FocusArt->Cast.ReleaseMinLength:35.f,FocusArt?FocusArt->Cast.ReleaseMaxLength:110.f,FMath::Clamp(Age/Total,0.f,1.f));
+        Detail.Quad(Base+Direction*Length*.5f,Direction,BeamSide,Length*.5f,(FocusArt?FocusArt->Cast.ReleaseWidth:12.f)*Fade,FLinearColor(1,1,1,MCNativeArtControls::Opacity(FocusArt,Age,Total,Fade)));
+        Detail.Quad(Base+Direction*Length*.5f,Direction,FVector::UpVector,Length*.5f,(FocusArt?FocusArt->Cast.ReleaseWidth:12.f)*Fade,FLinearColor(1,1,1,MCNativeArtControls::Opacity(FocusArt,Age,Total,Fade)));
         if(MagicMID) MagicMID->SetScalarParameterValue(TEXT("Beam"),1);
-        if(!bReleasePresented) {bReleasePresented=true;if(Age<.2f) PlayBurst(ArcaneBurstSystem.LoadSynchronous(),Cue.Origin,Direction,.65f);}
+        }
+        if(!bReleasePresented) {bReleasePresented=true;if(Age<.2f) PlayBurst(
+            MCNativeArtControls::System(ReleaseSparks,ArcaneBurstSystem),Cue.Origin,Direction,MCNativeArtControls::SystemScale(ReleaseSparks,.65f));}
     }
     if(Transform || Roll || Motion || Shield || Death) {
         const FVector Base=Shield?Cue.Origin-GetActorLocation():Source-GetActorLocation();
@@ -373,7 +571,7 @@ void AMCNutCombatEffect::PresentMagic(float Age,FVector Floor,FVector Normal,FVe
         if(Shield) {
             const FVector Facing=(Cue.Origin-Cue.Target).GetSafeNormal(SMALL_NUMBER,Forward);
             const FVector Horizontal=FVector::CrossProduct(Facing,FVector::UpVector).GetSafeNormal(SMALL_NUMBER,FVector::RightVector);
-            Detail.Quad(Base,Horizontal,FVector::UpVector,Radius,Radius*.85f,FLinearColor(1,1,1,Fade));
+            Detail.Quad(Base,Horizontal,FVector::UpVector,Radius,Radius*.85f,FLinearColor(1,1,1,MCNativeArtControls::Opacity(FocusArt,Age,Total,Fade)));
             if(!bReleasePresented) {bReleasePresented=true;if(Age<.2f) PlayBurst(ShieldHitSystem.LoadSynchronous(),Cue.Origin,Facing,.8f);}
         } else {
             for(int32 Arm=0;Arm<3;++Arm) for(int32 Segment=0;Segment<14;++Segment) {
@@ -384,13 +582,13 @@ void AMCNutCombatEffect::PresentMagic(float Age,FVector Floor,FVector Normal,FVe
             }
             if(Transform && !bReleasePresented) {
                 bReleasePresented=true;
-                if(Age<.2f) PlayBurst(ShieldHitSystem.LoadSynchronous(),Source,Normal,.7f);
+                if(Age<.2f) PresentBurstEvent(TEXT("TransformBurst"),ShieldHitSystem.Get(),Source,Normal,.7f);
             }
             if(Death && !bReleasePresented) {
                 bReleasePresented=true;
                 if(Age<.25f) {
                     Burst(Floor+Normal*15,false,1.25f);
-                    PlayBurst(Cue.Role==EMCNutBossRole::Mage?ArcaneBurstSystem.LoadSynchronous():ShieldHitSystem.LoadSynchronous(),Source,Normal,1.2f);
+                    PresentBurstEvent(TEXT("BodyBurst"),Cue.Role==EMCNutBossRole::Mage?ArcaneBurstSystem.Get():ShieldHitSystem.Get(),Source,Normal,1.2f);
                 }
             }
         }
@@ -419,7 +617,7 @@ void AMCNutCombatEffect::PresentMagic(float Age,FVector Floor,FVector Normal,FVe
     Storm->SetVisibility(Rain && Age<=Total && StormMID);
     UNiagaraSystem* Sustained=nullptr;
     FVector ParticlePoint=Source;
-    if(Charge || Cue.Type==EMCNutCombatCue::RitualCast) {Sustained=CastChargeSystem.LoadSynchronous();ParticlePoint=Caster;}
+    if(Charge || Cue.Type==EMCNutCombatCue::RitualCast) {Sustained=MCNativeArtControls::System(CastSparks,CastChargeSystem);ParticlePoint=Caster;}
     else if(Rain) {Sustained=StormMotesSystem.LoadSynchronous();ParticlePoint=Floor+FVector(0,0,480);}
     else if(Transform || Roll || Motion) {Sustained=MotionDustSystem.LoadSynchronous();ParticlePoint=Source-Forward*Cue.Radius*.6f-FVector(0,0,Cue.Radius*.3f);}
     if(Sustained && Age<Total) {
@@ -441,6 +639,11 @@ void AMCNutCombatEffect::PresentTankImpact(float Age)
     const bool Shield=Cue.Type==EMCNutCombatCue::ShieldHit;
     // The existing breaking-hit cue has a longer tail than ordinary shield hits.
     const bool Broken=Shield && Cue.ActiveSeconds>.45f;
+    const auto* FlashArt=NativePart(TEXT("ShieldContactMagic"));
+    const auto* DebrisArt=NativePart(TEXT("ShellDebris"));
+    const auto* ShardArt=NativePart(TEXT("BrokenShell"));
+    const auto* DustArt=NativePart(TEXT("FloorDust"));
+    const auto* SparksArt=NativePart(TEXT("ShieldSparks"));
     const float Total=FMath::Max(.2f,Cue.WindupSeconds+Cue.ActiveSeconds);
     const bool Visible=Age<Total;
     const FVector Forward=(Shield?Cue.Origin-Cue.Target:Cue.Target-Cue.Origin).GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector);
@@ -453,37 +656,39 @@ void AMCNutCombatEffect::PresentTankImpact(float Age)
         MagicMID->SetScalarParameterValue(TEXT("Age"),0);
         MagicMID->SetScalarParameterValue(TEXT("Progress"),1);
         MagicMID->SetScalarParameterValue(TEXT("Beam"),1);
-        MagicMID->SetVectorParameterValue(TEXT("Tint"),FLinearColor(.65f,.31f,.085f));
+        MagicMID->SetVectorParameterValue(TEXT("Tint"),FlashArt?FlashArt->Tint:FLinearColor(.65f,.31f,.085f));
     }
     FMesh Detail;
     if(Shield) {
-        const float FlashEnd=Broken?.15f:.12f;
-        const float Flash=1-FMath::SmoothStep(.025f,FlashEnd,Age);
-        const float Radius=FMath::Clamp(Cue.Radius*(Broken?.27f:.20f),16.f,42.f)
-            *FMath::Lerp(.65f,1.f,FMath::Clamp(Age/.035f,0.f,1.f));
-        const FVector Center=Contact+Forward*3;
-        constexpr int32 Corners=12;
+        if(MCNativeArtControls::Enabled(FlashArt)) {
+        const float FlashEnd=FlashArt?FlashArt->Contact.FlashEndSeconds:Broken?.15f:.12f;
+        const float Flash=1-FMath::SmoothStep(FlashArt?FlashArt->Contact.FlashBeginSeconds:.025f,FlashEnd,Age);
+        const float Radius=FMath::Clamp(Cue.Radius*(FlashArt?FlashArt->Contact.OuterRadiusFraction:Broken?.27f:.20f),FlashArt?FlashArt->Contact.MinRadius:16.f,FlashArt?FlashArt->Contact.MaxRadius:42.f)
+            *FMath::Lerp(.65f,1.f,FMath::Clamp(Age/(FlashArt?FlashArt->Contact.ExpandSeconds:.035f),0.f,1.f))*MCNativeArtControls::Expansion(FlashArt,Age,Total);
+        const FVector Center=Contact+Forward*(FlashArt?FlashArt->Contact.DepthOffset:3.f);
+        const int32 Corners=FlashArt?FlashArt->Contact.Corners:12;
         for(int32 I=0;I<Corners;++I) {
             const float A=I*2*PI/Corners+.15f,B=(I+1)*2*PI/Corners+.15f;
-            const float RA=Radius*(I%2==0?1.f:.32f),RB=Radius*(I%2==0?.32f:1.f);
+            const float RA=Radius*(I%2==0?1.f:(FlashArt?FlashArt->Contact.InnerRadiusRatio:.32f)),RB=Radius*(I%2==0?(FlashArt?FlashArt->Contact.InnerRadiusRatio:.32f):1.f);
             ImpactTriangle(Detail,Center,Center+(Horizontal*FMath::Cos(A)+Vertical*FMath::Sin(A))*RA,
-                Center+(Horizontal*FMath::Cos(B)+Vertical*FMath::Sin(B))*RB,Forward,Flash*.88f);
+                Center+(Horizontal*FMath::Cos(B)+Vertical*FMath::Sin(B))*RB,Forward,MCNativeArtControls::Opacity(FlashArt,Age,Total,Flash*.88f));
         }
-        if(Broken) {
+        if(FlashArt?FlashArt->Contact.SplinterBranches>0:Broken) {
             // Short outward splinters accent the physical shell fragments.
             const float Spread=FMath::Clamp(Age/.18f,0.f,1.f);
             const float Fade=1-FMath::SmoothStep(.035f,.18f,Age);
             const float Reach=FMath::Clamp(Cue.Radius*.21f,18.f,55.f);
-            for(int32 Branch=0;Branch<5;++Branch) {
+            for(int32 Branch=0;Branch<(FlashArt?FlashArt->Contact.SplinterBranches:5);++Branch) {
                 const float Angle=Branch*2.39996f+.25f;
                 const FVector Radial=Horizontal*FMath::Cos(Angle)+Vertical*FMath::Sin(Angle);
                 const FVector Tangent=FVector::CrossProduct(Forward,Radial).GetSafeNormal();
                 const FVector A=Center+Radial*Reach*(.12f+Spread*.3f)+Forward*Age*40;
                 const FVector B=Center+Radial*Reach*(.50f+Spread*.55f)+Tangent*Reach*.12f+Forward*Age*40;
                 const FVector C=Center+Radial*Reach*(.88f+Spread*.72f)+Forward*Age*40;
-                CrackSegment(Detail,A,B,Forward,1.4f*(1-Spread*.65f),Fade*.35f);
-                CrackSegment(Detail,B,C,Forward,.8f*(1-Spread*.65f),Fade*.25f);
+                CrackSegment(Detail,A,B,Forward,(FlashArt?FlashArt->Contact.SplinterWidthA:1.4f)*(1-Spread*.65f),MCNativeArtControls::Opacity(FlashArt,Age,Total,Fade*.35f));
+                CrackSegment(Detail,B,C,Forward,(FlashArt?FlashArt->Contact.SplinterWidthB:.8f)*(1-Spread*.65f),MCNativeArtControls::Opacity(FlashArt,Age,Total,Fade*.25f));
             }
+        }
         }
     } else {
         // This is the attack's directional swipe, not a claim that a player was hit.
@@ -519,47 +724,48 @@ void AMCNutCombatEffect::PresentTankImpact(float Age)
     Detail.Upload(Magic);Magic->SetVisibility(Visible && Age<(Broken?.42f:Shield?.24f:Total) && MagicMID);
     if(!bBurstPresented) {
         bBurstPresented=true;
-        Debris->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Gameplay/CoreLoop/SM_Walnut_HalfShell.SM_Walnut_HalfShell")));
-        const int32 Count=Broken?12:Shield?4:5;
+        Debris->SetStaticMesh(MCNativeArtControls::Mesh(DebrisArt,TEXT("/Game/Gameplay/CoreLoop/SM_Walnut_HalfShell.SM_Walnut_HalfShell")));
+        const int32 Count=!MCNativeArtControls::Enabled(DebrisArt)?0:DebrisArt?DebrisArt->Debris.Count:Broken?12:Shield?4:5;
         for(int32 I=0;I<Count;++I) Debris->AddInstance(FTransform(FVector::ZeroVector));
         // Late replication reconstructs the tail without replaying an old burst.
-        if(HasGround && Age<.12f) PlayBurst(DustImpactSystem.LoadSynchronous(),Ground.ImpactPoint+Up*8,Up,Broken?1.2f:.35f);
-        if(Shield && Age<.12f) PlayBurst(ShieldHitSystem.LoadSynchronous(),Cue.Origin,Forward,Broken?.6f:.3f);
-        if(Broken) Flames->SetMaterial(0,ShieldFractureMaterial.LoadSynchronous());
+        if(HasGround && Age<.12f) PlayBurst(MCNativeArtControls::System(DustArt,DustImpactSystem),Ground.ImpactPoint+Up*8,Up,MCNativeArtControls::SystemScale(DustArt,Broken?1.2f:.35f));
+        if(Shield && Age<.12f) PlayBurst(MCNativeArtControls::System(SparksArt,ShieldHitSystem),Cue.Origin,Forward,MCNativeArtControls::SystemScale(SparksArt,Broken?.6f:.3f));
+        if(Broken) Flames->SetMaterial(0,ShardArt?ShardArt->Material.Get():ShieldFractureMaterial.LoadSynchronous());
     }
-    const float Tail=1-FMath::SmoothStep(Total*.55f,Total,Age);
+    const float Tail=1-FMath::SmoothStep(Total*(DebrisArt?DebrisArt->Debris.FadeStartFraction:.55f),Total,Age);
     const FVector Start=(Shield?Cue.Origin:HasGround?Ground.ImpactPoint+Up*14:GroundPoint)-GetActorLocation();
     FRandomStream Random(Cue.Seed+137);
     for(int32 I=0;I<Debris->GetInstanceCount();++I) {
-        const float Angle=I*2.39996f+Random.FRandRange(-.2f,.2f),Speed=Random.FRandRange(Broken?135.f:85.f,Broken?310.f:160.f);
+        const float Angle=I*2.39996f+Random.FRandRange(-.2f,.2f),Speed=Random.FRandRange(DebrisArt?DebrisArt->Debris.MinSpeed:Broken?135.f:85.f,DebrisArt?DebrisArt->Debris.MaxSpeed:Broken?310.f:160.f);
         const FVector Radial=Horizontal*FMath::Cos(Angle)+Vertical*FMath::Sin(Angle);
-        const FVector Velocity=Shield?Forward*Speed+Radial*Speed*(Broken?1.f:.6f)+Up*(Broken?110.f:65.f):(Right*FMath::Cos(Angle)+Side*FMath::Sin(Angle))*Speed+Up*Random.FRandRange(80.f,135.f);
-        FVector Point=Start+Velocity*Age-Up*(380.f*Age*Age);
+        const FVector Velocity=Shield?Forward*Speed+Radial*Speed*(DebrisArt?DebrisArt->Debris.RadialSpread:Broken?1.f:.6f)+Up*(DebrisArt?DebrisArt->Debris.UpSpeed:Broken?110.f:65.f):(Right*FMath::Cos(Angle)+Side*FMath::Sin(Angle))*Speed+Up*Random.FRandRange(80.f,135.f);
+        FVector Point=Start+Velocity*Age-Up*((DebrisArt?DebrisArt->Debris.Gravity:380.f)*Age*Age);
         if(HasGround) {
             const float Height=FVector::DotProduct(Point-(Ground.ImpactPoint-GetActorLocation()),Up);
             if(Height<3) Point+=Up*(3-Height);
         }
-        const float Size=Random.FRandRange(Broken?1.4f:3.f,Broken?3.2f:4.8f)/MeshRadius(Debris->GetStaticMesh())*Tail;
+        const float Size=Random.FRandRange(DebrisArt?DebrisArt->Debris.MinSize:Broken?1.4f:3.f,DebrisArt?DebrisArt->Debris.MaxSize:Broken?3.2f:4.8f)/MeshRadius(Debris->GetStaticMesh())*Tail;
         Debris->UpdateInstanceTransform(I,FTransform(FRotator(I*37+Age*260,I*71+Age*190,I*53),Point,FVector(Size,Size*.65f,Size)),false,I==Debris->GetInstanceCount()-1,true);
     }
     Debris->SetVisibility(Visible && Debris->GetStaticMesh());
-    if(Broken && Flames->GetMaterial(0)) {
+    if(Broken && MCNativeArtControls::Enabled(ShardArt) && Flames->GetMaterial(0)) {
         FMesh Shell;
         FRandomStream Pieces(Cue.Seed+913);
-        const float Drift=(1-FMath::Exp(-Age*2.8f))/2.8f;
-        const float Fade=1-FMath::SmoothStep(Total*.76f,Total,Age);
-        for(int32 I=0;I<5;++I) {
+        const float Damping=ShardArt?ShardArt->Debris.Damping:2.8f;
+        const float Drift=Damping>.001f?(1-FMath::Exp(-Age*Damping))/Damping:Age;
+        const float Fade=1-FMath::SmoothStep(Total*(ShardArt?ShardArt->Debris.FadeStartFraction:.76f),Total,Age);
+        for(int32 I=0;I<(ShardArt?ShardArt->Debris.Count:5);++I) {
             const float Angle=I*2.39996f+Pieces.FRandRange(-.25f,.25f);
             const FVector Radial=Horizontal*FMath::Cos(Angle)+Vertical*FMath::Sin(Angle);
-            const float Speed=Pieces.FRandRange(155.f,265.f);
-            FVector Point=Start+Radial*Cue.Radius*.06f+(Forward*Speed*.65f+Radial*Speed+Up*115.f)*Drift-Up*(270.f*Age*Age);
+            const float Speed=Pieces.FRandRange(ShardArt?ShardArt->Debris.MinSpeed:155.f,ShardArt?ShardArt->Debris.MaxSpeed:265.f);
+            FVector Point=Start+Radial*Cue.Radius*.06f+(Forward*Speed*(ShardArt?ShardArt->Debris.ForwardFraction:.65f)+Radial*Speed+Up*(ShardArt?ShardArt->Debris.UpSpeed:115.f))*Drift-Up*((ShardArt?ShardArt->Debris.Gravity:270.f)*Age*Age);
             if(HasGround) {
                 const float Height=FVector::DotProduct(Point-(Ground.ImpactPoint-GetActorLocation()),Up);
                 if(Height<4) Point+=Up*(4-Height);
             }
             const FQuat Orientation=FRotationMatrix::MakeFromZ(Forward).ToQuat()
                 *FRotator(I*51+Age*(I%2==0?225.f:-170.f),I*73+Age*130.f,I*41).Quaternion();
-            const float Size=FMath::Clamp(Cue.Radius*Pieces.FRandRange(.12f,.23f),11.f,32.f);
+            const float Size=FMath::Clamp(Cue.Radius*Pieces.FRandRange(ShardArt?ShardArt->Debris.RadiusFractionMin:.12f,ShardArt?ShardArt->Debris.RadiusFractionMax:.23f),ShardArt?ShardArt->Debris.SizeClampMin:11.f,ShardArt?ShardArt->Debris.SizeClampMax:32.f);
             const int32 First=Shell.Points.Num();
             MCNutShellShardVisuals::Shard(Shell,FTransform(Orientation,Point),Size,Cue.Seed+I*131,Fade);
             if(HasGround) {
@@ -591,7 +797,7 @@ void AMCNutCombatEffect::PresentKnightHeadSplit(float Age)
         Debris->AddInstance(FTransform::Identity);Debris->AddInstance(FTransform::Identity);
         if(Age<Cue.WindupSeconds+.2f) {
             PlayBurst(ArcaneBurstSystem.LoadSynchronous(),Cue.Origin,FVector::UpVector,1.35f);
-            PlayBurst(DustImpactSystem.LoadSynchronous(),Cue.Origin,FVector::UpVector,.65f);
+            PresentBurstEvent(TEXT("HeadDust"),DustImpactSystem.Get(),Cue.Origin,FVector::UpVector,.65f,Cue.WindupSeconds);
         }
     }
     const UStaticMesh* Shell=Debris->GetStaticMesh();
@@ -713,7 +919,10 @@ void AMCNutCombatEffect::Present(float Age)
             }
             if(Release && !bReleasePresented) {
                 bReleasePresented=true;
-                if(Age<.2f) for(const FVector Point:{Cue.Origin,Cue.Target}) PlayBurst(ArcaneBurstSystem.LoadSynchronous(),Point,FVector::UpVector,.7f);
+                if(Age<.2f) {
+                    PlayBurst(ArcaneBurstSystem.Get(),Cue.Origin,FVector::UpVector,.7f);
+                    PresentBurstEvent(TEXT("ArrivalBurst"),ArcaneBurstSystem.Get(),Cue.Target,FVector::UpVector,.7f);
+                }
             }
         }
         Detail.Upload(Magic);Magic->SetVisibility(Age<=Total && MagicMID);
@@ -724,6 +933,8 @@ void AMCNutCombatEffect::Present(float Age)
     FHitResult Ground;const FVector Center=(Roll || Cue.Type==EMCNutCombatCue::Transform || Cue.Type==EMCNutCombatCue::DeathBurst) && IsValid(SourceActor)
         ?SourceActor->GetActorLocation():Line?(Cue.Origin+Cue.Target)*.5f:Cue.Target;
     const bool HandCast=Cue.Type==EMCNutCombatCue::FireCast || Cue.Type==EMCNutCombatCue::CastCharge || Cue.Type==EMCNutCombatCue::CastRelease;
+    const auto* FlameArt=NativePart(HandCast?FName(TEXT("ChargeFlames")):FName(TEXT("ImpactFlames")));
+    const auto* ImpactArt=NativePart(TEXT("ImpactDebris"));
     if(HandCast) {
         // Charging and release belong to the caster, with no destination mark
         // or dependency on there being a tongue surface below the target.
@@ -750,31 +961,34 @@ void AMCNutCombatEffect::Present(float Age)
         const bool Arcane=Cue.Type==EMCNutCombatCue::NutRain || Cue.Type==EMCNutCombatCue::SummonTell || Cue.Type==EMCNutCombatCue::DeathBurst;
         WarningMID->SetVectorParameterValue(TEXT("Tint"),Cue.Role==EMCNutBossRole::Mage && Arcane?FLinearColor(.58f,.18f,1.f):FLinearColor(1,.56f,.10f));
     }
-    const bool Fire=Cue.Type==EMCNutCombatCue::FireCast || Cue.Type==EMCNutCombatCue::FireImpact || Cue.Type==EMCNutCombatCue::CastCharge;
-    Flames->SetVisibility(Fire && Age<=Total && FireMID);
-    if(Fire && FireMID) {
+    const bool Fire=!Cue.bSuppressCosmeticAccents && (Cue.Type==EMCNutCombatCue::FireCast || Cue.Type==EMCNutCombatCue::FireImpact || Cue.Type==EMCNutCombatCue::CastCharge);
+    Flames->SetVisibility(Fire && MCNativeArtControls::Enabled(FlameArt) && Age<=Total && FireMID);
+    if(Fire && FireMID && MCNativeArtControls::Enabled(FlameArt)) {
         const auto* Caster=Cast<AMCNutBoss>(SourceActor);
         const bool Charging=Cue.Type==EMCNutCombatCue::FireCast || Cue.Type==EMCNutCombatCue::CastCharge;
         Flames->SetRelativeLocation(Charging?(Caster?Caster->GetSpellFocusOrigin():Cue.Origin)-GetActorLocation():Ground.ImpactPoint-GetActorLocation());
         FireMID->SetScalarParameterValue(TEXT("FireAge"),Age);
         const float Charge=FMath::Clamp(Age/FMath::Max(.1f,Cue.WindupSeconds),0.f,1.f);
-        RenderFlames(Flames,Charging?FMath::Lerp(8.f,24.f,Charge):FMath::Min(Cue.Radius*.45f,65.f),Age,Fade);
+        const float FlameRadius=Charging
+            ?FMath::Lerp(FlameArt?FlameArt->BurstFlame.MinChargeRadius:8.f,FlameArt?FlameArt->BurstFlame.MaxChargeRadius:24.f,Charge)
+            :FMath::Min(Cue.Radius*(FlameArt?FlameArt->BurstFlame.ImpactRadiusFraction:.45f),FlameArt?FlameArt->BurstFlame.MaxImpactRadius:65.f);
+        MCNativeArtControls::RenderBurstFlames(Flames,FlameArt,FlameRadius,Age,Total,Fade);
     }
     PresentMagic(Age,Ground.ImpactPoint,Up,Right,Side,Fade);
-    if(Impact && !bBurstPresented) {
+    if(Impact && !Cue.bSuppressCosmeticAccents && !bBurstPresented) {
         bBurstPresented=true;
         // A late joiner observes the remaining ring rather than replaying an old burst.
         if(Age<.25f && Cue.Type!=EMCNutCombatCue::DeathBurst) Burst(Ground.ImpactPoint+Up*10,Fire,FMath::Clamp(Cue.Radius/160.f,.5f,1.5f));
-        Debris->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,Fire?TEXT("/Game/Gameplay/CoreLoop/SM_Walnut_Kernel.SM_Walnut_Kernel")
+        Debris->SetStaticMesh(MCNativeArtControls::Mesh(ImpactArt,Fire?TEXT("/Game/Gameplay/CoreLoop/SM_Walnut_Kernel.SM_Walnut_Kernel")
             :TEXT("/Game/Gameplay/CoreLoop/SM_Walnut_HalfShell.SM_Walnut_HalfShell")));
-        for(int32 I=0;I<6;++I) Debris->AddInstance(FTransform(FVector::ZeroVector));
+        for(int32 I=0;I<(MCNativeArtControls::Enabled(ImpactArt)?ImpactArt?ImpactArt->ImpactDebris.Count:6:0);++I) Debris->AddInstance(FTransform(FVector::ZeroVector));
     }
-    Debris->SetVisibility(Impact && Age<=Total);
+    Debris->SetVisibility(Impact && !Cue.bSuppressCosmeticAccents && Age<=Total);
     if(Impact) for(int32 I=0;I<Debris->GetInstanceCount();++I) {
         const float A=I*2.39996f+Cue.Seed*.01f;
-        const FVector P=Ground.ImpactPoint-GetActorLocation()+(Right*FMath::Cos(A)+Side*FMath::Sin(A))*Cue.Radius*.8f*T+Up*(8+FMath::Sin(T*PI)*65);
-        const float Scale=Cue.Radius*.08f/MeshRadius(Debris->GetStaticMesh())*(1-T);
-        Debris->UpdateInstanceTransform(I,FTransform(FRotator(Age*160+I*31,Age*90+I*60,I*37),P,FVector(Scale)),false,I==Debris->GetInstanceCount()-1,true);
+        const FVector P=Ground.ImpactPoint-GetActorLocation()+(Right*FMath::Cos(A)+Side*FMath::Sin(A))*Cue.Radius*(ImpactArt?ImpactArt->ImpactDebris.SpreadFraction:.8f)*T+Up*(8+FMath::Sin(T*PI)*(ImpactArt?ImpactArt->ImpactDebris.HopHeight:65.f));
+        const float Scale=Cue.Radius*(ImpactArt?ImpactArt->ImpactDebris.SizeFraction:.08f)/MeshRadius(Debris->GetStaticMesh())*(1-T);
+        Debris->UpdateInstanceTransform(I,FTransform(FRotator(Age*(ImpactArt?ImpactArt->ImpactDebris.PitchRate:160.f)+I*31,Age*(ImpactArt?ImpactArt->ImpactDebris.YawRate:90.f)+I*60,I*37),P,FVector(Scale)),false,I==Debris->GetInstanceCount()-1,true);
     }
     if(Roll) {
         FMesh Arrow;
@@ -840,13 +1054,190 @@ void AMCNutCombatEffect::Tick(float DeltaSeconds)
         if(!IsValid(SourceActor) || SourceActor->IsActorBeingDestroyed() || !IsValid(Tongue)
             || (GS && (GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost))) {Destroy();return;}
     }
-    if(GetNetMode()!=NM_DedicatedServer && IsValid(Tongue) && Cue.StartedAt>=0) Present(FMath::Max(0.f,float(Now()-Cue.StartedAt)));
+    if(GetNetMode()!=NM_DedicatedServer && IsValid(Tongue) && Cue.StartedAt>=0) {
+        const float Age=FMath::Max(0.f,float(Now()-Cue.StartedAt));
+        LastCueAge=Age;bComposedDecorations=UpdateComposedPresentation(Age);
+        Present(Age);
+        UpdateAcceptedBursts(Age);
+        if(bComposedDecorations)SuppressNativeDecorations();
+    }
+}
+
+bool AMCNutCombatEffect::UpdateComposedPresentation(float Age)
+{
+    if(!Presentation || Cue.PresentationSource.IsNone() || Cue.PresentationEvent.IsNone())return false;
+    FString Error;
+    if(auto* Subject=NutSourceVisual(SourceActor))Presentation->BindSourceAudioSocket(Cue.PresentationSource,Subject,Error);
+    if(!MCNutVFX::Prepare(Presentation,Cue.PresentationSource,Error,false))return false;
+    const float Total=FMath::Max(.01f,Cue.WindupSeconds+Cue.ActiveSeconds);
+    const bool DelayedHeadSplit=Cue.Type==EMCNutCombatCue::KnightHeadSplit;
+    const bool Active=Age<Total && (!DelayedHeadSplit || Age>=Cue.WindupSeconds);
+    const bool Second=!Cue.AfterWindupEvent.IsNone() && Age>=Cue.WindupSeconds;
+    const bool Follow=(Second && (Cue.Type==EMCNutCombatCue::RollTell || Cue.Type==EMCNutCombatCue::ChargeTell))
+        || Cue.Type==EMCNutCombatCue::Transform || Cue.Type==EMCNutCombatCue::DeathBurst;
+    FVector Point=Follow && IsValid(SourceActor)?SourceActor->GetActorLocation():Cue.Origin;
+    FVector Direction=(Cue.Target-Cue.Origin).GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector);
+    UActorComponent* Prerequisite=nullptr;
+    FMCPerkVFXGameplayValues Values;Values.Radius=Cue.Radius;Values.Direction=Direction;Values.VisualSubject=NutSourceVisual(SourceActor);
+    Values.bHasEndpoints=true;Values.SourcePosition=Cue.Origin;Values.TargetPosition=Cue.Target;
+    Values.bHasSeed=true;Values.Seed=uint32(Cue.Seed);
+    const float Duration=DelayedHeadSplit?FMath::Max(.01f,Cue.ActiveSeconds):Cue.AfterWindupEvent.IsNone()?Total:Second?FMath::Max(.01f,Cue.ActiveSeconds):FMath::Max(.01f,Cue.WindupSeconds);
+    Values.Duration=Duration;Values.LocalStateAgeSeconds=FMath::Max(0.f,Age-((Second||DelayedHeadSplit)?Cue.WindupSeconds:0.f));
+    Values.Fill=FMath::Clamp(Values.LocalStateAgeSeconds/Duration,0.f,1.f);
+    if(auto* Boss=Cast<AMCNutBoss>(SourceActor)) {
+        Values.VisualSubject=Boss->BossRole==EMCNutBossRole::Mage?static_cast<USceneComponent*>(Boss->MageModel.Get()):static_cast<USceneComponent*>(Boss->TankModel.Get());
+        Prerequisite=Values.VisualSubject.Get();
+        if(Cue.Type==EMCNutCombatCue::RitualCast)Point=Boss->GetSpellFocusOrigin();
+        if(Second&&(Cue.Type==EMCNutCombatCue::RollTell||Cue.Type==EMCNutCombatCue::ChargeTell))Values.Direction=Boss->AttackForward.GetSafeNormal(SMALL_NUMBER,Values.Direction);
+    }
+    // Accepted native state only. The typed namespace is never an artist override.
+    const auto AddNativeFloat=[&](const TCHAR* Name,float Value) {
+        FMCVFXNativeInput Input;Input.Name=FName(Name);Input.Type=EMCVFXNativeInputType::Float;
+        Input.FloatValue=Value;Values.NativeInputs.Entries.Add(MoveTemp(Input));
+    };
+    const auto AddNativeBool=[&](const TCHAR* Name,bool Value) {
+        FMCVFXNativeInput Input;Input.Name=FName(Name);Input.Type=EMCVFXNativeInputType::Bool;
+        Input.BoolValue=Value;Values.NativeInputs.Entries.Add(MoveTemp(Input));
+    };
+    const auto AddNativeVector=[&](const TCHAR* Name,const FVector& Value,bool bPosition) {
+        FMCVFXNativeInput Input;Input.Name=FName(Name);
+        Input.Type=bPosition?EMCVFXNativeInputType::Position:EMCVFXNativeInputType::Vector;
+        if(bPosition)Input.PositionValue=Value;else Input.VectorValue=Value;
+        Values.NativeInputs.Entries.Add(MoveTemp(Input));
+    };
+    AddNativeFloat(TEXT("User.Native.CueAge"),Age);
+    AddNativeFloat(TEXT("User.Native.WindupSeconds"),Cue.WindupSeconds);
+    AddNativeFloat(TEXT("User.Native.ActiveSeconds"),Cue.ActiveSeconds);
+    // These fallbacks are the same accepted body/focus inputs used by PresentMagic,
+    // not a newly invented ground or another gameplay/target/RNG decision.
+    const FVector ActorPoint=IsValid(SourceActor)?SourceActor->GetActorLocation():Cue.Origin;
+    AddNativeVector(TEXT("User.Native.ActorPosition"),ActorPoint,true);
+    if(IsValid(SourceActor)) {
+        AddNativeVector(TEXT("User.Native.ActorForward"),SourceActor->GetActorForwardVector(),false);
+        AddNativeVector(TEXT("User.Native.ActorRight"),SourceActor->GetActorRightVector(),false);
+    }
+    const auto* Boss=Cast<AMCNutBoss>(SourceActor);
+    AddNativeVector(TEXT("User.Native.SpellFocusPosition"),Boss?Boss->GetSpellFocusOrigin():Cue.Origin,true);
+    const bool Roll=Cue.Type==EMCNutCombatCue::RollTell;
+    const bool Line=Cue.Type==EMCNutCombatCue::ChargeTell;
+    const bool Motion=Line&&Age>=Cue.WindupSeconds;
+    const bool Palm=Cue.Type==EMCNutCombatCue::RitualCast;
+    const bool Melee=Cue.Type==EMCNutCombatCue::MeleeTell||Cue.Type==EMCNutCombatCue::MeleeSlash;
+    const bool Teleport=Cue.Type==EMCNutCombatCue::TeleportTell||Cue.Type==EMCNutCombatCue::TeleportBurst;
+    const FVector SurfaceCenter=Melee||Teleport?Cue.Origin:
+        (Roll||Cue.Type==EMCNutCombatCue::Transform||Cue.Type==EMCNutCombatCue::DeathBurst)&&IsValid(SourceActor)
+        ?ActorPoint:Line?(Cue.Origin+Cue.Target)*.5f:Cue.Target;
+    FHitResult Floor;bool HasGround=false;
+    if(Cue.Type==EMCNutCombatCue::FireImpact) {
+        // Present() already uses this accepted impact plane, including the
+        // Kamikaze's body-centre blast. Do not silently move it to a new floor.
+        Floor.ImpactPoint=Cue.Target;
+        Floor.ImpactNormal=(Cue.Origin-Cue.Target).GetSafeNormal(SMALL_NUMBER,FVector::UpVector);
+        HasGround=true;
+    } else HasGround=Tongue&&Tongue->SurfacePoint(SurfaceCenter,Floor);
+    AddNativeBool(TEXT("User.Native.bHasGround"),HasGround);
+    if(HasGround) {
+        AddNativeVector(TEXT("User.Native.GroundPosition"),Floor.ImpactPoint,true);
+        AddNativeVector(TEXT("User.Native.GroundNormal"),Floor.ImpactNormal,false);
+        FVector Facing=Line||Roll?Cue.Target-Cue.Origin:FVector::ForwardVector;
+        if(Roll&&Age>=Cue.WindupSeconds&&Boss)Facing=Boss->AttackForward;
+        FVector Right=FVector::VectorPlaneProject(Facing,Floor.ImpactNormal).GetSafeNormal();
+        if(Right.IsNearlyZero())Right=FVector::VectorPlaneProject(FVector::RightVector,Floor.ImpactNormal).GetSafeNormal(SMALL_NUMBER,FVector::UpVector);
+        AddNativeVector(TEXT("User.Native.SurfaceRight"),Right,false);
+        AddNativeVector(TEXT("User.Native.SurfaceSide"),FVector::CrossProduct(Floor.ImpactNormal,Right).GetSafeNormal(),false);
+    }
+    FHitResult TargetFloor;const bool HasTargetGround=Tongue&&Tongue->SurfacePoint(Cue.Target,TargetFloor);
+    AddNativeBool(TEXT("User.Native.bHasTargetGround"),HasTargetGround);
+    if(HasTargetGround) {
+        AddNativeVector(TEXT("User.Native.TargetGroundPosition"),TargetFloor.ImpactPoint,true);
+        AddNativeVector(TEXT("User.Native.TargetGroundNormal"),TargetFloor.ImpactNormal,false);
+    }
+    // Knight melee's secondary floor ring samples in front of the contact. It is
+    // not interchangeable with the general cue's tongue sample.
+    FHitResult ContactGround;bool HasContactGround=false;
+    if(Melee&&Cue.Role==EMCNutBossRole::Tank) {
+        const FVector Forward=(Cue.Target-Cue.Origin).GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector);
+        HasContactGround=Tongue&&Tongue->SurfacePoint(Cue.Origin+Forward*Cue.Radius*.48f,ContactGround);
+        AddNativeBool(TEXT("User.Native.bHasContactGround"),HasContactGround);
+        if(HasContactGround) {
+            const FVector Right=FVector::VectorPlaneProject(Forward,ContactGround.ImpactNormal).GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector);
+            AddNativeVector(TEXT("User.Native.ContactGroundPosition"),ContactGround.ImpactPoint,true);
+            AddNativeVector(TEXT("User.Native.ContactGroundNormal"),ContactGround.ImpactNormal,false);
+            AddNativeVector(TEXT("User.Native.ContactGroundRight"),Right,false);
+            AddNativeVector(TEXT("User.Native.ContactGroundSide"),FVector::CrossProduct(ContactGround.ImpactNormal,Right).GetSafeNormal(SMALL_NUMBER,FVector::RightVector),false);
+        }
+    }
+    // Preserve each actual native anchor. Principal shape geometry reads its
+    // own typed points; original motion dust keeps its precise source frame.
+    if((Roll||Motion||Cue.Type==EMCNutCombatCue::Transform)&&IsValid(SourceActor)) {
+        const FVector Forward=Boss&&(Roll||Motion)?Boss->AttackForward:Values.Direction;
+        Point=ActorPoint-Forward*Cue.Radius*.6f-FVector(0,0,Cue.Radius*.3f);Direction=Forward;
+    } else if(!Palm&&!DelayedHeadSplit&&!Melee&&!Teleport&&HasGround) {
+        Point=Floor.ImpactPoint;Direction=Floor.ImpactNormal;
+    }
+    // Missing ground values are intentionally OMITTED. NativeInputs validation
+    // rejects a custom system that requires them; no made-up plane is supplied.
+    FVector NativeDonorScale=FVector::OneVector;
+    if(Cue.Type==EMCNutCombatCue::SlamImpact||Cue.Type==EMCNutCombatCue::EntranceImpact||Cue.Type==EMCNutCombatCue::FireImpact) {
+        if(HasGround) {Point=Floor.ImpactPoint+Floor.ImpactNormal*10.f;Direction=Floor.ImpactNormal;}
+        NativeDonorScale=FVector(FMath::Clamp(Cue.Radius/160.f,.5f,1.5f));
+    } else if(Cue.Type==EMCNutCombatCue::MeleeSlash&&Cue.Role==EMCNutBossRole::Tank&&HasContactGround) {
+        Point=ContactGround.ImpactPoint+ContactGround.ImpactNormal*8.f;Direction=ContactGround.ImpactNormal;
+        NativeDonorScale=FVector(.35f);
+    } else if(Cue.Type==EMCNutCombatCue::DeathBurst&&HasGround) {
+        Point=Floor.ImpactPoint+Floor.ImpactNormal*15.f;Direction=Floor.ImpactNormal;
+        NativeDonorScale=FVector(1.25f);
+    } else if(Cue.Type==EMCNutCombatCue::SummonTell&&Second&&HasGround) {
+        Point=Floor.ImpactPoint+Floor.ImpactNormal*16.f;Direction=Floor.ImpactNormal;
+        NativeDonorScale=FVector(.65f);
+    } else if(DelayedHeadSplit) {
+        Point=Cue.Origin;Direction=FVector::UpVector;NativeDonorScale=FVector(1.35f);
+    } else if(Cue.Type==EMCNutCombatCue::TeleportBurst) {
+        Point=Cue.Origin;Direction=FVector::UpVector;NativeDonorScale=FVector(.7f);
+    } else if(Cue.Type==EMCNutCombatCue::NutRain&&HasGround) {
+        Point=Floor.ImpactPoint+FVector(0,0,480);Direction=Values.Direction;
+    }
+    const FTransform Frame(Direction.Rotation(),Point,NativeDonorScale);
+    LastCueNativeInputs=Values.NativeInputs;
+    FString FirstError,SecondError;
+    const auto A=Presentation->UpdateLocalSourceState(Cue.PresentationSource,Cue.PresentationEvent,Active&&!Second,Frame,Values,Prerequisite,FirstError);
+    bool Result=A;Error=FirstError;
+    if(!Cue.AfterWindupEvent.IsNone()) {
+        const auto B=Presentation->UpdateLocalSourceState(Cue.PresentationSource,Cue.AfterWindupEvent,Active&&Second,Frame,Values,Prerequisite,SecondError);
+        if(Second){Result=B;Error=SecondError;}
+    }
+    if(Active&&!Result&&!Error.IsEmpty()&&LastNativeInputError!=Error) {
+        LastNativeInputError=Error;
+        UE_LOG(LogTemp,Warning,TEXT("Nut VFX %s.%s kept native presentation: %s"),
+            *Cue.PresentationSource.ToString(),*(Second?Cue.AfterWindupEvent:Cue.PresentationEvent).ToString(),*Error);
+    } else if(Result) LastNativeInputError.Reset();
+    EMCPerkVFXSlotMode Mode=EMCPerkVFXSlotMode::UseDefault;
+    const FName Event=Second?Cue.AfterWindupEvent:Cue.PresentationEvent;
+    Presentation->GetPreparedEventMode(Cue.PresentationSource,Event,Mode);
+    const auto* Native=Presentation->GetPreparedNativeSource(Cue.PresentationSource);
+    return Active && Result && Mode!=EMCPerkVFXSlotMode::UseDefault
+        && !(Native&&Native->ShouldRenderNativeAccents(Event,Mode));
+}
+
+void AMCNutCombatEffect::SuppressNativeDecorations()
+{
+    // Gameplay-owned telegraphs/shadows keep their actual shape, clock and footprint.
+    Magic->SetVisibility(false);Flames->SetVisibility(false);Storm->SetVisibility(false);
+    Debris->SetVisibility(false);RainNuts->SetVisibility(false);SustainedParticles->Deactivate();
+    for(UNiagaraComponent* Burst:Bursts)
+        if(IsValid(Burst)&&!Burst->ComponentHasTag(TEXT("MC.Nut.AcceptedExtraBurst")))Burst->DeactivateImmediate();
 }
 
 void AMCNutCombatEffect::Cancel() {if(HasAuthority()) Destroy();}
 
 void AMCNutCombatEffect::EndPlay(const EEndPlayReason::Type Reason)
 {
+    if(Presentation&&!Cue.PresentationSource.IsNone()) {
+        FString Error;FMCPerkVFXGameplayValues Values;
+        if(!Cue.PresentationEvent.IsNone())Presentation->UpdateLocalSourceState(Cue.PresentationSource,Cue.PresentationEvent,false,FTransform::Identity,Values,nullptr,Error);
+        if(!Cue.AfterWindupEvent.IsNone())Presentation->UpdateLocalSourceState(Cue.PresentationSource,Cue.AfterWindupEvent,false,FTransform::Identity,Values,nullptr,Error);
+        Presentation->StopLocalSourceStates(Cue.PresentationSource);
+    }
     SustainedParticles->DeactivateImmediate();
     for(UNiagaraComponent* Component:Bursts) if(IsValid(Component)) {
         Component->OnSystemFinished.RemoveDynamic(this,&AMCNutCombatEffect::FinishedBurst);

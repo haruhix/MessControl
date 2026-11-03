@@ -105,6 +105,11 @@ public:
     virtual void Tick(float DeltaSeconds) override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+    /** Idle preparation only; consumed by Start, explicit Stop still cancels it. */
+    void PrepareLocalPresentation() {EnsurePresentationVFX();bComposerPreparedVFX=Stage==EMCIceEventStage::Idle && EventVFX.Get()!=nullptr; }
+    AMCIceEventVFX* GetLocalPresentation() const {return EventVFX;}
+    bool HasAcceptedFrostSurfacePresentation()const{return bAcceptedFrostSurfacePresentation;}
+    uint8 GetAcceptedFrostSurfacePhases()const{return AcceptedFrostSurfacePhases;}
     void Start();
     void Stop();
     bool IsComplete() const { return Stage==EMCIceEventStage::Complete && !bFailed; }
@@ -239,6 +244,7 @@ public:
     /** Cosmetic orientation in tongue space; the nova's gameplay area is a full circle. */
     UPROPERTY(Replicated,BlueprintReadOnly) FVector NovaDirection=FVector::ForwardVector;
 private:
+    bool bComposerPreparedVFX=false;
     friend class AMCVFXLabIceStation;
     friend class FMCIceBossPhaseTest;
     // Native lab stations explicitly own their participants and never take over a match.
@@ -278,6 +284,10 @@ private:
     void RefreshPresentation(float DeltaSeconds);
     void RefreshFloorGuides();
     void RefreshFrostSurface();
+    void UpdateComposerFrostSurface(bool bActive);
+    FGuid FrostSurfaceEpisode;
+    bool bAcceptedFrostSurfacePresentation=false;
+    uint8 AcceptedFrostSurfacePhases=0;
     void RefreshFreezeBars();
     void RefreshIceCoatings();
     void PublishManualHUD();
@@ -292,7 +302,11 @@ private:
     UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> ZoneCrystalMeshes;
     UPROPERTY(Transient) TArray<TObjectPtr<UWidgetComponent>> FreezeBars;
     UPROPERTY(Transient) TArray<TObjectPtr<USkeletalMeshComponent>> IceCoatings;
+    friend class FMCPrewarmedIcePresentationOwnership;
     UPROPERTY(Transient) TObjectPtr<AMCIceEventVFX> EventVFX;
+    FGuid PresentationClaimToken;
+    bool bPresentationClaimFailureReported=false;
+    void CancelLocalPresentation();
     UPROPERTY() TObjectPtr<UAnimSequence> IdleAnimation;
     UPROPERTY() TObjectPtr<UAnimSequence> MiniCandyAnimation;
     UPROPERTY() TObjectPtr<UAnimSequence> FloorHitAnimation;

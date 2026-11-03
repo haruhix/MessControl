@@ -1,6 +1,8 @@
 #include "MCCombatFeedbackComponent.h"
 
 #include "MCReactionVFX.h"
+#include "Camera/PlayerCameraManager.h"
+#include "GameFramework/PlayerController.h"
 #include "MCWeaponImpact.h"
 #include "MCMeleeCombo.h"
 #include "MCWeaponTrailComponent.h"
@@ -8,6 +10,8 @@
 #include "MCInventoryComponent.h"
 #include "MCNutEnemy.h"
 #include "MCBossCharacter.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCVFXPresentationComponent.h"
 #include "Components/MeshComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
@@ -116,6 +120,7 @@ UMCCombatFeedbackComponent::UMCCombatFeedbackComponent()
 void UMCCombatFeedbackComponent::BeginPlay()
 {
     Super::BeginPlay();
+    if(!PresentationSources.IsEmpty())Composer=MCWorldPresentation::PrepareOwner(GetOwner(),PresentationSources);
     // Uniform additive flash works independently of an artist's vertex paint.
     // Preload before combat so accepting a hit never loads an artist material.
     if(bUseBodyOverlay && !IsLegacy() && GetNetMode()!=NM_DedicatedServer)
@@ -135,7 +140,7 @@ bool UMCCombatFeedbackComponent::IsLegacy() const
 }
 
 bool UMCCombatFeedbackComponent::ReportAcceptedHit(AActor* Source,FVector ContactPoint,FVector Direction,
-    float HealthDamage,float ShieldDamage,bool bShielded,bool bFatal)
+    float HealthDamage,float ShieldDamage,bool bShielded,bool bFatal,FName OriginSourceID,FName PresentationEvent)
 {
     AActor* Owner=GetOwner();
     if(!IsValid(Owner) || !Owner->HasAuthority() || !GetWorld()
@@ -152,9 +157,12 @@ bool UMCCombatFeedbackComponent::ReportAcceptedHit(AActor* Source,FVector Contac
     LastHit.ShieldDamage=ShieldDamage;
     LastHit.bShielded=bShielded || ShieldDamage>0.f;
     LastHit.bFatal=bFatal;
+    LastHit.OriginSourceID=OriginSourceID;
+    LastHit.PresentationEvent=PresentationEvent;
     // The effect actor already owns its replication. Client OnRep only presents the body/event.
+    UpdateComposerState();
     if(!IsLegacy() || (bLegacyHasImpact && HealthDamage>0.f))
-        AMCReactionVFX::SpawnHit(Owner,ContactPoint,LastHit.Direction,HealthDamage,LastHit.bShielded);
+        AMCReactionVFX::SpawnHit(Owner,ContactPoint,LastHit.Direction,HealthDamage,LastHit.bShielded,!bNativeAccents);
     PresentHit();
     Owner->ForceNetUpdate();
     return true;
@@ -199,19 +207,21 @@ void UMCCombatFeedbackComponent::PresentHit()
 {
     if(LastHit.Serial==0 || PresentedSerial==LastHit.Serial) return;
     PresentedSerial=LastHit.Serial;
+    const bool ComposerActive=UpdateComposerState();
     // Ignore expired snapshots on late join/relevancy; all timing uses the replicated server clock.
     const double Age=ServerNow()-LastHit.ServerTime;
-    if(GetNetMode()==NM_DedicatedServer || IsLegacy() || Age>.32) return;
+    if(GetNetMode()==NM_DedicatedServer || IsLegacy() || Age>.32) {if(ComposerActive)SetComponentTickEnabled(true);return;}
     if(Age<.06 && !LastHit.bFatal && bUseProceduralRecoil)
         MCWeaponImpact::HoldTarget(GetOwner(),Cast<AMCToothCharacter>(LastHit.Source));
     UpdateOverlay();
+    if(ComposerActive)SetComponentTickEnabled(true);
     OnHitPresented.Broadcast(LastHit);
 }
 
 void UMCCombatFeedbackComponent::UpdateOverlay()
 {
     const float Flash=PresentationFlash();
-    if(!bUseBodyOverlay || !IsValid(VisualTarget) || !OverlayBase || Flash<=0.f)
+    if(!bNativeAccents || !bUseBodyOverlay || !IsValid(VisualTarget) || !OverlayBase || Flash<=0.f)
     {
         RestoreOverlay();
         SetComponentTickEnabled(false);
@@ -241,6 +251,53 @@ void UMCCombatFeedbackComponent::UpdateOverlay()
     SetComponentTickEnabled(true);
 }
 
+bool UMCCombatFeedbackComponent::UpdateComposerState()
+{
+    const bool WasNative=bNativeAccents;
+    bNativeAccents=true;
+    if(!Composer||LastHit.OriginSourceID.IsNone()||LastHit.PresentationEvent.IsNone()
+        || !PresentationSources.Contains(LastHit.OriginSourceID)||IsLegacy())return false;
+    // Requested policy is independent from the previous attempt's fallback.
+    // A successful retry must release native ownership BEFORE reserving its NS.
+    const auto* Channel=Composer->GetSource(LastHit.OriginSourceID);
+    EMCPerkVFXSlotMode RequestedMode=EMCPerkVFXSlotMode::UseDefault;
+    const bool Native=!Channel || !Channel->GetPreparedEventMode(LastHit.OriginSourceID,LastHit.PresentationEvent,RequestedMode)
+        || RequestedMode==EMCPerkVFXSlotMode::UseDefault;
+    bNativeAccents=Native;
+    if(GetNetMode()==NM_DedicatedServer)return false;
+    const float Age=float(ServerNow()-LastHit.ServerTime);
+    const bool Active=LastHit.Serial>0&&Age>=0&&Age<.85f;
+    FMCPerkVFXGameplayValues Values;Values.Direction=LastHit.Direction;
+    Values.Radius=IsValid(VisualTarget)?VisualTarget->Bounds.SphereRadius:35.f;
+    Values.Intensity=LastHit.HealthDamage+LastHit.ShieldDamage;Values.Duration=.85f;
+    Values.Fill=FMath::Clamp(Age/.85f,0.f,1.f);Values.LocalStateAgeSeconds=FMath::Max(0.f,Age);
+    Values.VisualSubject=VisualTarget.Get();Values.bHasSeed=true;Values.Seed=uint32(LastHit.Serial);
+    Values.EpisodeID=FGuid(uint32(LastHit.Serial),GetTypeHash(LastHit.OriginSourceID),GetTypeHash(LastHit.PresentationEvent),0xC0B47);
+    Values.bHasEndpoints=true;Values.SourcePosition=IsValid(LastHit.Source)?LastHit.Source->GetActorLocation():LastHit.ContactPoint;
+    Values.TargetPosition=LastHit.ContactPoint;
+    const bool Player=GetOwner()->IsA<AMCToothCharacter>(),Legacy=IsLegacy();
+    const float Strength=FMath::Sqrt(FMath::Clamp(LastHit.HealthDamage/40.f,0.f,1.f));
+    const float ReactionRadius=Legacy?(Player?58.f:44.f):(Player?62.f:50.f)*FMath::Lerp(1.f,1.45f,Strength);
+    FVector Eye=LastHit.ContactPoint+FVector(-1,0,1);
+    if(const auto* PC=GetWorld()->GetFirstPlayerController();PC&&PC->PlayerCameraManager)Eye=PC->PlayerCameraManager->GetCameraLocation();
+    const FVector View=(Eye-LastHit.ContactPoint).GetSafeNormal(),Right=FVector::CrossProduct(FVector::UpVector,View).GetSafeNormal();
+    const FVector Up=FVector::CrossProduct(View,Right).GetSafeNormal();
+    const auto* DefaultCue=GetDefault<AMCReactionVFX>();
+    AMCReactionVFX::AppendNativeContext(Values.NativeInputs,FMath::Max(0.f,Age),.85f,ReactionRadius,
+        LastHit.ContactPoint,LastHit.Direction,View,Right,Up,FVector::OneVector,false,Active,
+        Player,LastHit.bShielded,Legacy,!Player&&!Legacy&&!LastHit.bShielded&&DefaultCue->SolidMaterial,LastHit.HealthDamage);
+    if(!Native && Active && WasNative) {
+        if(auto* Hero=Cast<AMCToothCharacter>(GetOwner()))Hero->ReleaseNativeHitFlash();
+    }
+    // Release the old native lease before a Niagara overlay renderer captures
+    // the actual previous material. Never restore over a newer external owner.
+    if(!Native)RestoreOverlay();
+    FString Error;
+    const bool Updated=Composer->UpdateState(LastHit.OriginSourceID,LastHit.PresentationEvent,Active,
+        FTransform(LastHit.Direction.Rotation(),LastHit.ContactPoint),Values,this,Error);
+    bNativeAccents=!Updated||Native;return Active;
+}
+
 void UMCCombatFeedbackComponent::RestoreOverlay()
 {
     if(bOverlayInstalled && IsValid(VisualTarget) && VisualTarget->OverlayMaterial==HitOverlay)
@@ -252,11 +309,14 @@ void UMCCombatFeedbackComponent::RestoreOverlay()
 void UMCCombatFeedbackComponent::TickComponent(float DeltaTime,ELevelTick TickType,FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime,TickType,ThisTickFunction);
+    const bool Active=UpdateComposerState();
     UpdateOverlay();
+    if(Active)SetComponentTickEnabled(true);
 }
 
 void UMCCombatFeedbackComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    if(Composer)for(FName Source:PresentationSources)Composer->StopStates(Source);
     RestoreOverlay();
     SetComponentTickEnabled(false);
     Super::EndPlay(EndPlayReason);

@@ -10,6 +10,7 @@ class APawn;
 class UAudioComponent;
 class UMaterialInterface;
 class USoundBase;
+class UMCWorldPresentationComponent;
 
 /** Local cosmetic receipt only. Neither its mesh count nor completion grants currency. */
 UCLASS(ClassGroup=(Presentation),meta=(BlueprintSpawnableComponent))
@@ -33,6 +34,7 @@ public:
     UPROPERTY(EditDefaultsOnly,Category="Rewards|Presentation") TSoftObjectPtr<USoundBase> CoinSound;
     UPROPERTY(Transient,VisibleInstanceOnly,BlueprintReadOnly,Category="Rewards|Presentation") TObjectPtr<UProceduralMeshComponent> CoinMesh;
 private:
+    friend class FMCTaskCoinContextEligibilityTest;
     static constexpr int32 PoolSize=5;
     struct FCoinVertex {FVector Position,Normal,Tangent;FVector2D UV;FColor Color;};
     struct FCoinMotion
@@ -45,9 +47,19 @@ private:
         bool bContact=false;
     };
     bool CanPresent(AMCPlayerController* PC,APawn* Pawn) const;
+    /** Additional custom-lane restriction; never relaxes CanPresent. */
+    bool HasSingleLocalViewportContext(AMCPlayerController* PC,APawn* Pawn) const;
+    bool PublishComposerState();
+    void UpdateSurfaceAnchors();
     void BuildCoinGeometry(TArray<int32>& Indices);
     void UpdateMesh(float Age);
     void ReleasePreparedResources();
+    UPROPERTY(Transient) TObjectPtr<UMCWorldPresentationComponent> Composer;
+    FGuid PresentationEpisode;
+    FVector StartFacingNormal=FVector::ForwardVector;
+    double ReceiptStartedAt=0;
+    bool bComposerReceiptAllowed=false;
+    bool bNativeVisuals=true;
     UPROPERTY(Transient) TObjectPtr<UMaterialInterface> RetainedMaterial;
     UPROPERTY(Transient) TObjectPtr<USoundBase> RetainedSound;
     UPROPERTY(Transient) TObjectPtr<UAudioComponent> CoinAudio;

@@ -11,9 +11,11 @@
 #include "MCToothStatusComponent.h"
 #include "Components/BoxComponent.h"
 #include "Engine/DataTable.h"
+#include "Engine/World.h"
 #include "Engine/StaticMesh.h"
 #include "EngineUtils.h"
 #include "Net/UnrealNetwork.h"
+#include "UObject/Package.h"
 
 namespace
 {
@@ -108,6 +110,24 @@ void AMCNutRainEvent::Start(UMCDayPlan* Plan,UMCNutRainProfile* Profile)
     }
     for(TActorIterator<AMCTongue> It(GetWorld());It;++It)
         if(!It->CurrentVertices().IsEmpty()) { Tongue=*It; break; }
+    ConfigureNutRow();
+    if(!IsValid(Tongue))
+    {
+        bFailed=true; Enter(EMCNutRainStage::Complete);
+        UE_LOG(LogTemp,Error,TEXT("MC_NUT_RAIN_FAILED no live tongue surface, plan=%s"),*GetNameSafe(Plan));
+        return;
+    }
+    SetActorTickEnabled(true); Enter(EMCNutRainStage::Rainfall);
+    RainStartedAt=StageStartedAt;
+    if(Settings.bBossEncounter) BeginSeries(); else SpawnNut();
+    if(Settings.bBossEncounter)
+        Record(FString::Printf(TEXT("Орехи: 2 серии зон %s → %s, %d падений каждые %.2f с, между сериями %.2f с; затем Рыцарь и Колдун"),
+            FirstPattern==0?TEXT("A"):TEXT("B"),FirstPattern==0?TEXT("B"):TEXT("A"),RainTargetCount,Settings.PatternDropSeconds,Settings.PatternSeriesGapSeconds));
+    UE_LOG(LogTemp,Display,TEXT("MC_NUT_RAIN_START players=%d target=%d enemies=%d seconds=%.1f"),Players,RainTargetCount,EnemyTargetCount,Settings.RainSeconds);
+}
+
+void AMCNutRainEvent::ConfigureNutRow()
+{
     NutRowName=ActiveProfile->NutRow; NutRow=FMCFoodRow();
     bool FoundRow=false;
     if(UDataTable* Menu=ActiveProfile->Menu.LoadSynchronous())
@@ -125,19 +145,56 @@ void AMCNutRainEvent::Start(UMCDayPlan* Plan,UMCNutRainProfile* Profile)
         if(const UStaticMesh* Mesh=NutRow.WholeMeshes[0].LoadSynchronous())
             NutRow.Scale=FVector(Settings.LargeNutHeight/FMath::Max(.001,Mesh->GetBounds().BoxExtent.Z*2));
     NutRow.Sanitize();
-    if(!IsValid(Tongue))
-    {
-        bFailed=true; Enter(EMCNutRainStage::Complete);
-        UE_LOG(LogTemp,Error,TEXT("MC_NUT_RAIN_FAILED no live tongue surface, plan=%s"),*GetNameSafe(Plan));
-        return;
-    }
-    SetActorTickEnabled(true); Enter(EMCNutRainStage::Rainfall);
-    RainStartedAt=StageStartedAt;
-    if(Settings.bBossEncounter) BeginSeries(); else SpawnNut();
-    if(Settings.bBossEncounter)
-        Record(FString::Printf(TEXT("Орехи: 2 серии зон %s → %s, %d падений каждые %.2f с, между сериями %.2f с; затем Рыцарь и Колдун"),
-            FirstPattern==0?TEXT("A"):TEXT("B"),FirstPattern==0?TEXT("B"):TEXT("A"),RainTargetCount,Settings.PatternDropSeconds,Settings.PatternSeriesGapSeconds));
-    UE_LOG(LogTemp,Display,TEXT("MC_NUT_RAIN_START players=%d target=%d enemies=%d seconds=%.1f"),Players,RainTargetCount,EnemyTargetCount,Settings.RainSeconds);
+}
+
+bool AMCNutRainEvent::PrepareIsolatedSpellContext(AMCTongue* Surface,UMCNutRainProfile* Profile)
+{
+#if WITH_EDITOR
+    if(!HasAuthority() || !GetWorld() || GetWorld()->WorldType!=EWorldType::Game
+        || GetWorld()->GetOutermost()!=GetTransientPackage() || !IsValid(Surface)
+        || Surface->GetWorld()!=GetWorld() || !IsValid(Profile) || !Nuts.IsEmpty())return false;
+    ActiveProfile=Profile;Settings=Profile->Settings;Settings.Sanitize();Tongue=Surface;
+    Random.Initialize(137);FoodBatch=10000+int32(GetUniqueID());ConfigureNutRow();
+    Stage=EMCNutRainStage::Enemies;StageStartedAt=GetWorld()->GetTimeSeconds();
+    SetActorTickEnabled(false);return true;
+#else
+    return false;
+#endif
+}
+
+bool AMCNutRainEvent::SpawnIsolatedEntryNut(FVector Candidate,int32 Seed)
+{
+#if WITH_EDITOR
+    if(!HasAuthority() || !GetWorld() || GetWorld()->WorldType!=EWorldType::Game
+        || GetWorld()->GetOutermost()!=GetTransientPackage() || !IsValid(Tongue)
+        || !ActiveProfile || Stage!=EMCNutRainStage::Enemies || !Nuts.IsEmpty() || Candidate.ContainsNaN())return false;
+    // Run the exact opening-rain food/trajectory/collision path; do not advance
+    // the encounter scheduler or consume its ongoing random stream.
+    const FRandomStream SavedRandom=Random;const int32 SavedAttempts=DropsAttempted;
+    Random.Initialize(Seed);
+    TGuardValue<bool> DeferredPresentation(bDeferIsolatedEntryPresentation,true);
+    const bool Spawned=SpawnNut(Candidate,TOptional<FVector2D>(),TEXT("Event.NutRain.Entry"),nullptr);
+    Random=SavedRandom;DropsAttempted=SavedAttempts;return Spawned;
+#else
+    return false;
+#endif
+}
+
+bool AMCNutRainEvent::LaunchIsolatedEntryNut()
+{
+#if WITH_EDITOR
+    if(!HasAuthority() || !GetWorld() || GetWorld()->WorldType!=EWorldType::Game
+        || GetWorld()->GetOutermost()!=GetTransientPackage() || !bHasIsolatedEntryLaunch
+        || Nuts.Num()!=1 || !IsValid(Nuts[0].Get()) || LandingShadows.Num()!=1
+        || !IsValid(LandingShadows[0].Get()))return false;
+    auto* Food=Nuts[0].Get();Food->Body->SetSimulatePhysics(true);Food->SetActorTickEnabled(true);
+    Food->BeginMouthEntry(IsolatedEntryVelocity,Settings.Entry.PushSpeed,IsolatedEntryLanding);
+    if(!Food->IsMouthEntryActive())return false;
+    bHasIsolatedEntryLaunch=false;
+    return LandingShadows[0]->StartIsolatedPreviewPresentation();
+#else
+    return false;
+#endif
 }
 
 void AMCNutRainEvent::Record(const FString& Decision)
@@ -196,7 +253,7 @@ void AMCNutRainEvent::Enter(EMCNutRainStage Next)
     Stage=Next; StageStartedAt=GetWorld()->GetTimeSeconds(); ForceNetUpdate();
 }
 
-bool AMCNutRainEvent::SpawnNut(TOptional<FVector> Candidate,TOptional<FVector2D> PatternZone)
+bool AMCNutRainEvent::SpawnNut(TOptional<FVector> Candidate,TOptional<FVector2D> PatternZone,FName OriginPresentationSource,UMCVFXPresentationComponent* PreviewSource)
 {
     const int32 DropIndex=DropsAttempted;
     ++DropsAttempted;
@@ -251,13 +308,20 @@ bool AMCNutRainEvent::SpawnNut(TOptional<FVector> Candidate,TOptional<FVector2D>
     if(Settings.bBossEncounter) Food->Settings.MaxDamage=Settings.ImpactDamageLimit;
     const FTransform ShadowPose(Floor.ImpactPoint);
     if(auto* Shadow=GetWorld()->SpawnActorDeferred<AMCNutLandingShadow>(AMCNutLandingShadow::StaticClass(),ShadowPose,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn)) {
+        Shadow->bDeferIsolatedPreviewPresentation=bDeferIsolatedEntryPresentation;
         Shadow->Configure(Tongue,Food,Floor.ImpactPoint,Settings.Entry.FlightSeconds,Settings.ImpactRadius,Settings.LandingShadowOpacity,
-            Settings.ImpactDamageLimit,Settings.ImpactPushSpeed);
+            Settings.ImpactDamageLimit,Settings.ImpactPushSpeed,OriginPresentationSource,PreviewSource);
         Shadow->FinishSpawning(ShadowPose); LandingShadows.Add(Shadow);
     } else {
         Food->Destroy(); bFailed=true; return false;
     }
-    Food->BeginMouthEntry(Velocity,Settings.Entry.PushSpeed,Landing);
+    if(bDeferIsolatedEntryPresentation) {
+        // Runner world time continues during async readiness. Freeze the real
+        // physical food, not just its visual warning; launch the already-built
+        // native trajectory only after the shared barrier commits.
+        Food->Body->SetSimulatePhysics(false);Food->SetActorTickEnabled(false);
+        IsolatedEntryVelocity=Velocity;IsolatedEntryLanding=Landing;bHasIsolatedEntryLaunch=true;
+    } else Food->BeginMouthEntry(Velocity,Settings.Entry.PushSpeed,Landing);
     PlannedLandings.Add(Landing); LaunchLocations.Add(Start);
     if(PatternDrop) ActualLaunchTimes.Add(float(GetWorld()->GetTimeSeconds()-RainStartedAt));
     Nuts.Add(Food); ++NutsSpawned; ForceNetUpdate(); return true;
@@ -296,7 +360,7 @@ bool AMCNutRainEvent::ResolvePatternLanding(FVector2D Zone,float Margin,FHitResu
     return Tongue->GameplaySpawnFootprint(Candidate,Margin,Floor);
 }
 
-bool AMCNutRainEvent::SpawnSpellNut(FVector Candidate,int32 Seed,int32 PatternIndex)
+bool AMCNutRainEvent::SpawnSpellNut(FVector Candidate,int32 Seed,int32 PatternIndex,UMCVFXPresentationComponent* PreviewSource)
 {
     if(!HasAuthority() || Stage!=EMCNutRainStage::Enemies || !Settings.bBossEncounter || Candidate.ContainsNaN()) return false;
     TOptional<FVector2D> Zone;
@@ -311,7 +375,7 @@ bool AMCNutRainEvent::SpawnSpellNut(FVector Candidate,int32 Seed,int32 PatternIn
     const FRandomStream SavedRandom=Random;
     const int32 SavedAttempts=DropsAttempted;
     Random.Initialize(Seed);
-    const bool Spawned=SpawnNut(Candidate,Zone);
+    const bool Spawned=SpawnNut(Candidate,Zone,TEXT("Boss.NutMage.NutRain"),PreviewSource);
     Random=SavedRandom; DropsAttempted=SavedAttempts;
     return Spawned;
 }

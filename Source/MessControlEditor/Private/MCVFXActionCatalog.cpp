@@ -4,6 +4,9 @@
 #include "MCActiveSkillPerkEffect.h"
 #include "MCPerkPreviewAdapter.h"
 #include "MCPerkTypes.h"
+#include "MCUIDataLibrary.h"
+#include "MCVFXCatalogueFilter.h"
+#include "MCVFXProfileBinding.h"
 #include "Engine/DataTable.h"
 
 namespace
@@ -31,13 +34,28 @@ void ResolveProvider(FMCVFXActionCatalogueEntry& Entry,const FMCPerkDefinition* 
     // Definition-free contexts are real registered providers, never Rocket
     // stand-ins. Contexts with a SourceRowID retain the canonical enabled gate.
     Entry.bEnabled=Entry.bEnabled && (!Row || Row->bEnabled);
-    Entry.bSupportsPreview=bHasDefinition && Entry.bEnabled && Provider && Provider->Create && bCorrectKind;
-    Entry.bSupportsProfileOverride=Entry.bSupportsPreview && Provider->bSupportsProfileOverride;
+    Entry.bSupportsPreview=bHasDefinition && Entry.bEnabled && Provider && Provider->Create
+        && !Provider->Scenarios.IsEmpty() && bCorrectKind;
+    Entry.bSupportsProfileOverride=bHasDefinition && Entry.bEnabled && Provider && bCorrectKind
+        && !Provider->Stages.IsEmpty() && Provider->bSupportsProfileOverride;
     if(!Entry.bEnabled) Entry.UnsupportedReason=TEXT("Отключено в текущем игровом каталоге.");
     else if(!Provider) Entry.UnsupportedReason=TEXT("Механика существует в игре; для неё ещё не зарегистрирован контекстный preview adapter.");
     else if(!bHasDefinition) Entry.UnsupportedReason=TEXT("SourceRowID контекстного сценария отсутствует в текущей DT.");
     else if(!bCorrectKind) Entry.UnsupportedReason=TEXT("Тип preview adapter не соответствует текущей строке DT; подмена механики запрещена.");
+    else if(!Provider->Create || Provider->Scenarios.IsEmpty()) {
+        if(Entry.UnsupportedReason.IsEmpty())Entry.UnsupportedReason=TEXT("Контекстный сценарий для этого действия ещё не подключён. Сохранённые VFX и исходники редактируются отдельно от предпросмотра.");
+    }
     else Entry.UnsupportedReason.Reset();
+    if(Entry.bSupportsProfileOverride)
+    {
+        FMCVFXCanonicalProfileState Binding;FString Error;
+        if(!MCVFXProfileBindings::ReadCanonical(Entry.ID,Binding,Error))
+        {
+            Entry.bSupportsProfileOverride=false;
+            Entry.ProfileOverrideUnsupportedReason=Error;
+            return;
+        }
+    }
     if(!Entry.bSupportsProfileOverride) Entry.ProfileOverrideUnsupportedReason=bPassive
         ?TEXT("Текущая пассивка использует родное/процедурное представление и не читает DT.VFXProfile. Просмотр механики не означает возможность применить новый Niagara.")
         :TEXT("Редактируемая подмена VFX для этого события пока не подключена.");
@@ -63,8 +81,8 @@ struct FRegisterSourceHooks
             TEXT("UMCToothStatusComponent / UMCToothCareFeedbackComponent"),
             TEXT("MCToothStatusComponent.cpp: CareContact → ReportAccepted(Repair) после реального восстановления HP. Текущее представление процедурное, материал M_ToothCarePearl."));
         Add(TEXT("EditorOnly.NutEnemyDeath"),TEXT("Смерть · обычный орех"),TEXT("Enemies"),
-            TEXT("AMCNutEnemy / AMCReactionVFX"),
-            TEXT("MCNutEnemy.cpp: Defeat → Spawn(FoodBreak), /Game/Gameplay/VFX/NutCombat/NS_NutDustImpact вместе с родным уменьшением меша/реакцией. Это не смерть босса; полный каталог боссов ещё не аудирован."));
+            TEXT("AMCNutEnemy / UMCVFXPresentationComponent"),
+            TEXT("Настоящий fatal damage → Defeat → Death и отдельный DeathDust на исходном первом такте FoodBreak. Death принимает исходный процедурный рисунок через общий Reaction-контекст; DeathDust сохраняет родной Niagara-всплеск и его масштаб. Профиль — DA_MouthPresentation; физическое уменьшение и удаление ореха остаются родными. Назначение сохранённых NS и визуальная приёмка проверяются отдельно; это не смерть босса."));
         Add(TEXT("EditorOnly.CharacterDeath"),TEXT("Смерть · зубик-персонаж"),TEXT("Character"),
             TEXT("AMCToothCharacter / UMCToothPhysicsComponent / AMCGameMode"),
             TEXT("StatusChanged → EnterDeath / PlayerDied. Обычная смерть использует физическую позу и сменщика; заморозка отдельно OnRep_FreezeDeath → AMCFreezeDeathVFX с материалами /Game/Gameplay/Cold/Death. Ни один вариант не подменяется сценарием ракетницы."));
@@ -78,6 +96,7 @@ struct FRegisterSourceHooks
 void MCVFXActionCatalog::RegisterSource(FMCVFXActionCatalogueEntry Entry)
 {
     if(Entry.ID.IsNone()) return;
+    if(Entry.Section==EMCVFXActionSection::Other)Entry.Section=MCVFXCatalogueNavigation::FromSourceCategory(Entry.Category);
     // Capabilities are resolved from real runtime definitions/providers on read.
     Entry.bSupportsPreview=false;Entry.bSupportsProfileOverride=false;
     SourceEntries().Add(Entry.ID,MoveTemp(Entry));
@@ -87,6 +106,7 @@ TArray<FMCVFXActionCatalogueEntry> MCVFXActionCatalog::GetCatalogue()
 {
     TMap<FName,FMCVFXActionCatalogueEntry> Entries=SourceEntries();
     auto* Table=LoadObject<UDataTable>(nullptr,TEXT("/Game/Gameplay/Roguelike/DT_Perks.DT_Perks"));
+    UDataTable* Localization=UMCUIDataLibrary::GetDefaultLocalizationTable();
     if(Table && Table->GetRowStruct()==FMCPerkDefinition::StaticStruct()) {
         for(const auto& Pair:Table->GetRowMap()) {
             const auto* Row=reinterpret_cast<const FMCPerkDefinition*>(Pair.Value);
@@ -95,6 +115,14 @@ TArray<FMCVFXActionCatalogueEntry> MCVFXActionCatalog::GetCatalogue()
             const bool bPassive=Row->bEnabled && Row->Kind==EMCPerkKind::Passive && Row->EffectClass;
             if(!Action && !bPassive) continue;
             FMCVFXActionCatalogueEntry E;E.ID=Pair.Key;E.Label=Row->DisplayName.IsEmpty()?FText::FromName(Pair.Key):Row->DisplayName;
+            E.Section=EMCVFXActionSection::Boosters;E.PerkKind=Row->Kind;
+            E.SearchNames.Add(Row->DisplayName.ToString());
+            if(!Row->DisplayNameKey.IsNone()) {
+                E.SearchNames.Add(Row->DisplayNameKey.ToString());
+                E.SearchNames.Add(UMCUIDataLibrary::ResolveText(Localization,Row->DisplayNameKey,Row->DisplayName,TEXT("ru")).ToString());
+                E.SearchNames.Add(UMCUIDataLibrary::ResolveText(Localization,Row->DisplayNameKey,Row->DisplayName,TEXT("en")).ToString());
+                E.Label=UMCUIDataLibrary::ResolveText(Localization,Row->DisplayNameKey,E.Label);
+            }
             if(bPassive) E.Label=FText::FromString(TEXT("Пассивка · ")+E.Label.ToString());
             E.Description=Row->Description;E.Icon=Row->Icon;E.bEnabled=Row->bEnabled;
             E.Category=bPassive?FName(TEXT("Passives")):FName(TEXT("ActiveSkills"));

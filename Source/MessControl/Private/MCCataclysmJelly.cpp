@@ -1,5 +1,6 @@
 #include "MCCataclysmJelly.h"
 #include "MCCombatPassiveSubsystem.h"
+#include "MCJellyPresentationComponent.h"
 
 #include "MCCataclysmEvent.h"
 #include "MCCombatFeedbackComponent.h"
@@ -59,6 +60,7 @@ AMCCataclysmJelly::AMCCataclysmJelly()
     CoffeeHurt=CoffeeClip(TEXT("Hurt"));
     CoffeePreBurst=CoffeeClip(TEXT("PreBurst"));
     CoffeeBurst=CoffeeClip(TEXT("Burst"));
+    JellyPresentation=CreateDefaultSubobject<UMCJellyPresentationComponent>(TEXT("JellyComposerPresentation"));
     GroundBurst=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("JellyGroundBurst"));
     GroundBurst->SetupAttachment(Body);
     GroundBurst->SetStaticMesh(Sphere.Object);
@@ -88,6 +90,7 @@ double AMCCataclysmJelly::ServerTime() const
 
 void AMCCataclysmJelly::BeginPlay()
 {
+    JellyPresentation->PreparePresentation();
     if(GetNetMode()!=NM_DedicatedServer)
         GelMaterial=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Cataclysm/Jelly/M_CataclysmJellyGel.M_CataclysmJellyGel"));
     Super::BeginPlay();
@@ -266,6 +269,8 @@ void AMCCataclysmJelly::TickGelPresentation(double Now)
 {
     if(GetNetMode()==NM_DedicatedServer) return;
     const float BurstAge=RupturedAt>-99.?float(Now-RupturedAt):-1.f;
+    JellyPresentation->UpdateNativeState(Body.Get(),bCoffeePresentationReady?static_cast<USceneComponent*>(JellyMesh.Get()):static_cast<USceneComponent*>(Visual.Get()),
+        !bPendingRupture && !bDefeated,Now,RupturedAt,Settings.BodyRadius,TrailRadius,RuptureRadius,PresentationScale(),int32(JellySize));
     if(bCoffeePresentationReady) TickCoffeePresentation(Now);
     else
     {
@@ -309,7 +314,7 @@ void AMCCataclysmJelly::TickGelPresentation(double Now)
     // Death liquid is the real thin, tongue-bound paint canvas. Expanding a
     // flattened sphere here made an elevated shiny disc above that coating.
     // Keep only the live contact footprint and the bounded ballistic droplets.
-    GroundBurst->SetVisibility(ContactVisible);
+    GroundBurst->SetVisibility(ContactVisible && JellyPresentation->KeepNativeContact());
     if(ContactVisible)
     {
         GroundBurst->SetRelativeLocation(FVector(0,0,-Settings.BodyRadius-3.f));
@@ -320,7 +325,7 @@ void AMCCataclysmJelly::TickGelPresentation(double Now)
         UStaticMeshComponent* Droplet=Droplets[Index];
         if(!Droplet) continue;
         const float FlightSeconds=.66f+.07f*(Index%4);
-        const bool Visible=BurstAge>=0.f && BurstAge<FlightSeconds;
+        const bool Visible=BurstAge>=0.f && BurstAge<FlightSeconds && JellyPresentation->KeepNativeDroplets();
         Droplet->SetVisibility(Visible);
         if(!Visible) continue;
         const float T=FMath::Clamp(BurstAge/FlightSeconds,0.f,1.f);

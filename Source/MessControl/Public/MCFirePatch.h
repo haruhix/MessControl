@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Engine/NetSerialization.h"
 #include "MCFirePatch.generated.h"
 UCLASS()
 class MESSCONTROL_API AMCFirePatch : public AActor
@@ -27,6 +28,8 @@ public:
     UPROPERTY(Replicated) FVector SurfaceAnchor=FVector::ZeroVector;
     UPROPERTY(Replicated) TObjectPtr<class AMCMouthSurface> Lesion;
 private:
+    /** Cosmetic receipt only; authority already resolved this exact health loss. */
+    UFUNCTION(NetMulticast,Unreliable) void MulticastAcceptedBurnContact(FVector_NetQuantize Point,FVector_NetQuantizeNormal Direction,float Applied);
     double NextDamageAt=0;
     uint64 LastTreatmentFrame=MAX_uint64;
     UPROPERTY() TObjectPtr<class AMCReactionVFX> Flames;

@@ -1,4 +1,5 @@
 #include "MCPerkComponent.h"
+#include "MCPerkPresentationEvents.h"
 #include "MCAirSkillAction.h"
 #include "MCPassiveFeedbackCue.h"
 #include "MCCombatPassiveSubsystem.h"
@@ -164,6 +165,10 @@ void UMCPerkComponent::NotifyWeaponHit(AActor* Target)
 {
     if(!HasAuthority() || bRogueExtraHit || !IsValid(Target)) return;
     UMCCombatPassiveSubsystem::NotifyWeaponHit(this,Target);
+    if(auto* Hero=HeroFor(this)) {
+        FMCPerkVFXGameplayValues Values;Values.Direction=Hero->GetActorForwardVector();
+        MCPassivePresentation::Play(Hero,TEXT("B1_HeavyHit"),TEXT("Hit"),FTransform(Values.Direction.Rotation(),Target->GetActorLocation()),Values);
+    }
     const bool Team=ActivationMatches(EMCRogueActivation::TeamStrikeReady,Target);
     RecentWeaponHits.Add(Target,RogueNow(GetWorld()));CounterReadyUntil=-100;
     if(Team && GetStacks(TEXT("P35"))>0) NextTeamStrikeAt=RogueNow(GetWorld())+3;
@@ -201,7 +206,9 @@ void UMCPerkComponent::NotifyFoodDelivered()
         if(Hero && Hero->Status && Hero->Status->IsAlive()) {
             DeliverySpeedUntil=RogueNow(GetWorld())+FMath::Clamp(PerkParameter(TEXT("B2_ReturnTrip"),TEXT("Duration"),2.f),0.f,30.f);
             GetOwner()->ForceNetUpdate();
-            AMCPassiveFeedbackCue::Spawn(Hero,EMCPassiveFeedbackKind::Speed);
+            FMCPerkVFXGameplayValues Values;Values.Duration=FMath::Max(0.f,float(DeliverySpeedUntil-RogueNow(GetWorld())));
+            AMCPassiveFeedbackCue::SpawnAccepted(Hero,TEXT("B2_ReturnTrip"),TEXT("Proc"),
+                MCPassivePresentation::Play(Hero,TEXT("B2_ReturnTrip"),TEXT("Proc"),Hero->GetActorTransform(),Values),Hero,EMCPassiveFeedbackKind::Speed);
         }
     }
 }
@@ -235,6 +242,8 @@ void UMCPerkComponent::RefreshRogueTuning()
 void UMCPerkComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* Tick)
 {
     Super::TickComponent(Dt,Type,Tick);RefreshRogueTuning();
+    if(NeedsPresentationPreparation())EnsurePresentationForPawn();
+    if(HasAuthority())MCPassivePresentation::TickStates(HeroFor(this));
     TickRogueBoosters(Dt);
     auto* Hero=HeroFor(this);
     if(GetNetMode()!=NM_DedicatedServer && GetStacks(TEXT("P33"))>0 && IsNightActive() && Hero && Hero->Status->IsAlive()) {

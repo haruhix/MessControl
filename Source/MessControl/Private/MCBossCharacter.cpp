@@ -46,6 +46,7 @@ AMCBossCharacter::AMCBossCharacter()
     Face=CreateDefaultSubobject<UMCBossFaceComponent>(TEXT("BossFace"));
     MouthAttack=CreateDefaultSubobject<UMCBossMouthAttackComponent>(TEXT("MouthAttack"));
     Feedback=CreateDefaultSubobject<UMCCombatFeedbackComponent>(TEXT("CombatFeedback"));
+    Feedback->PresentationSources={TEXT("Boss.Generic.Hurt")};
     Feedback->bUseProceduralRecoil=false;
     Feedback->bLegacyHasImpact=false;
     GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -249,7 +250,7 @@ float AMCBossCharacter::ReceiveExternalImpact(float Damage,AActor* Causer,AMCPla
 float AMCBossCharacter::ApplyResolvedDamage(float Applied,AActor* Source,FVector From)
 {
     Runtime.Health-=Applied;
-    Feedback->ReportAcceptedHit(Source,GetMeleeTargetPoint(From),(GetActorLocation()-From).GetSafeNormal2D(),Applied,0.f,false,Runtime.Health<=0.f);
+    Feedback->ReportAcceptedHit(Source,GetMeleeTargetPoint(From),(GetActorLocation()-From).GetSafeNormal2D(),Applied,0.f,false,Runtime.Health<=0.f,TEXT("Boss.Generic.Hurt"),TEXT("Hit"));
     if (Runtime.Health<=0.f)
     {
         GetWorldTimerManager().ClearTimer(AttackTimer);

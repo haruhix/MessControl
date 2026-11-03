@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Engine/NetSerialization.h"
 #include "ProceduralMeshComponent.h"
 #include "MCLocomotionSurface.h"
 #include "MCResultPassives.h"
@@ -11,6 +12,21 @@ class UTextRenderComponent;
 class UMCToothStatusComponent;
 class UMaterialInstanceDynamic;
 class AMCTongue;
+class UMCWorldPresentationComponent;
+
+/** Accepted cleaning presentation only; native wipe/care remains authoritative. */
+USTRUCT()
+struct FMCStainCleaningPresentationState
+{
+    GENERATED_BODY()
+    UPROPERTY() uint32 ContactSerial=0;
+    UPROPERTY() uint32 CompletionSerial=0;
+    UPROPERTY() double ContactStartedAt=-100.;
+    UPROPERTY() double ContactAt=-100.;
+    UPROPERTY() double CompletedAt=-100.;
+    UPROPERTY() FVector_NetQuantize10 Point=FVector::ZeroVector;
+    UPROPERTY() FVector_NetQuantizeNormal Normal=FVector::UpVector;
+};
 
 /** A replaceable stain/ulcer on walkable mouth tissue, independent of the arena mesh. */
 UCLASS()
@@ -66,6 +82,10 @@ public:
     AMCTongue* GetTongue() const { return Tongue; }
     void Disturb();
     void ResetLiquid();
+    /** Loading/isolated-fixture preparation; creates only the existing cosmetic
+     * MID, wipe texture and original geometry, without cleaning or activation. */
+    bool PrepareLiquidPresentation(FString& Error);
+    const FMCStainCleaningPresentationState& GetAcceptedStainCleaningState()const{return StainCleaningState;}
     void ClearLiquidForBooster();
     // Initial wet coverage, clipped to the path of the liquid that deposited it.
     void SetLiquidDepositMask(const TArray<uint8>& Mask);
@@ -99,6 +119,15 @@ private:
     UFUNCTION() void OnRep_SurfaceAnchor();
     void BuildLiquid();
     void UpdateLiquid(float Dt);
+    /** Samples the final native mesh/mask; accepted prepared Niagara draws own decoration only. */
+    void UpdateComposerLiquid();
+    void PresentAcceptedStainCleaning();
+    UFUNCTION() void OnRep_StainCleaningPresentation();
+    UPROPERTY(ReplicatedUsing=OnRep_StainCleaningPresentation) FMCStainCleaningPresentationState StainCleaningState;
+    uint32 PresentedStainContactSerial=0,PresentedStainCompletionSerial=0;
+    FGuid StainContactEpisode;
+    UPROPERTY(Transient) TObjectPtr<UMCWorldPresentationComponent> StainComposer;
+    FGuid StainSurfaceEpisode;
     void UploadWipe();
     // Relocate only proven unsupported ordinary stains; never award cleanup.
     void RecoverUnsupportedFloorStain(float Dt);

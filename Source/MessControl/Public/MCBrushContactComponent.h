@@ -6,6 +6,7 @@
 
 class AMCArenaTooth;
 class AMCToothCharacter;
+class UMCWorldPresentationComponent;
 struct FReferenceSkeleton;
 
 /** One surface contact drives the cleaning mask, the hand and the foam on every peer. */
@@ -39,6 +40,9 @@ public:
     FVector ContactNormal() const;
     FVector BristlePoint() const;
     bool IsTouchingSurface() const;
+    /** Transient opt-in for a rendering sandbox without UGameViewportClient. */
+    void SetRequireEvaluatedContact(bool bRequired);
+    bool RequiresEvaluatedContact() const {return bRequireEvaluatedContact;}
     // Gameplay contact uses server time and geometry, independent of rendered bones.
     bool IsWorkReady() const;
     float Alpha() const { return Blend; }
@@ -55,7 +59,10 @@ private:
     UPROPERTY() TObjectPtr<AMCToothCharacter> Hero;
     TWeakObjectPtr<class AMCTongue> Tongue;
     UPROPERTY() TObjectPtr<class UNiagaraComponent> Foam;
+    UPROPERTY(Transient) TObjectPtr<UMCWorldPresentationComponent> Composer;
     bool bFoamEmitting=false;
+    bool bRequireEvaluatedContact=false;
+    uint32 RequiredPoseRevision=0;
     float Blend=0;
     mutable FTransform PresentedHand=FTransform::Identity;
     mutable FTransform PresentationBase=FTransform::Identity;

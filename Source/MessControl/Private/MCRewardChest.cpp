@@ -1,4 +1,6 @@
 #include "MCRewardChest.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCVFXPresentationComponent.h"
 #include "MCGameDirector.h"
 #include "MCRewardDropZone.h"
 #include "MCPerkPickup.h"
@@ -356,6 +358,7 @@ void AMCRewardChest::InitializeReward(FVector Landing,FVector Start,int32 Seed,U
 void AMCRewardChest::BeginPlay()
 {
     Super::BeginPlay(); ConfigureGeometry();
+    ComposerPresentation=MCWorldPresentation::PrepareOwner(this,{TEXT("Reward.Chest"),TEXT("Reward.StageBooster")});
     if(SurfaceMaterialOverride) for(auto* Part:{Body.Get(),Lid.Get()}) Part->SetMaterial(0,SurfaceMaterialOverride);
     ClaimRingMaterial=ClaimRing->CreateDynamicMaterialInstance(0);
     ClaimSparkMaterial=ClaimSparks->CreateDynamicMaterialInstance(0);
@@ -405,10 +408,18 @@ void AMCRewardChest::UpdateRewardEffectsVisibility(bool Suppressed)
 
 void AMCRewardChest::RefreshPresentation()
 {
+    const bool BeganOpening=bRewardInitialized&&Stage==EMCRewardChestStage::Opening&&LastPresentationStage!=EMCRewardChestStage::Opening;
     if(Stage==EMCRewardChestStage::Landed && LastPresentationStage==EMCRewardChestStage::Falling)
         LandingPresentationStartedAt=StageStartedAt;
     if(Stage==EMCRewardChestStage::Telegraph) LandingPresentationStartedAt=-1.;
     LastPresentationStage=Stage;
+    if(BeganOpening&&ComposerPresentation) {
+        const FName ID=bTeamStageBooster?FName(TEXT("Reward.StageBooster")):FName(TEXT("Reward.Chest"));
+        if(auto* Source=ComposerPresentation->GetSource(ID)) {
+            FMCPerkVFXGameplayValues V;V.Radius=Body->Bounds.SphereRadius;V.LocalStateAgeSeconds=FMath::Max(0.f,float(ServerNow()-StageStartedAt));
+            Source->PlayLocalSourceEvent(ID,TEXT("Open"),GetActorTransform(),V);
+        }
+    }
     if(RogueLabel) {
         RogueLabel->SetText(FText::FromString(RogueKind==EMCRogueRewardKind::CursedContract?TEXT("ПРОКЛЯТЫЙ ДОГОВОР"):RogueKind==EMCRogueRewardKind::RiskyAltar?TEXT("СИЛА С ЦЕНОЙ"):TEXT("")));
         RogueLabel->SetTextRenderColor(RogueKind==EMCRogueRewardKind::CursedContract?FColor(255,80,120):FColor(255,175,60));
@@ -454,6 +465,7 @@ void AMCRewardChest::RefreshPresentation()
 
 void AMCRewardChest::ResetPresentationDeformation()
 {
+    if(Stage==EMCRewardChestStage::Telegraph||!bRewardInitialized){StopSparkComposer();if(ComposerPresentation)for(FName ID:{FName(TEXT("Reward.Chest")),FName(TEXT("Reward.StageBooster"))})if(auto* Source=ComposerPresentation->GetSource(ID))Source->StopPresentation(true);}
     PresentationPivot->SetRelativeTransform(FTransform::Identity);
     ClaimRing->SetVisibility(false); ClaimSparks->SetVisibility(false);
 }
@@ -478,6 +490,7 @@ void AMCRewardChest::UpdateClaimPresentation(float Age)
     constexpr float Duration=.78f;
     const auto Smooth=[](float Value) {const float T=FMath::Clamp(Value,0.f,1.f);return T*T*(3.f-2.f*T);};
     if(Age>=Duration) {
+        StopSparkComposer();
         // Placed chests remain rearmable by ResetPlacedReward, but never leave a
         // visible or collidable exhausted shell. Spawned rewards are destroyed.
         SetActorHiddenInGame(true); SetActorTickEnabled(false);
@@ -508,6 +521,9 @@ void AMCRewardChest::UpdateSparkPresentation(float Progress,float Opacity,float 
         Facing=FRotationMatrix::MakeFromZ(PC->PlayerCameraManager->GetCameraRotation().Vector()*-1.f).ToQuat();
     // World-facing planes share one transform update / render-state update.
     const FQuat LocalFacing=GetActorQuat().Inverse()*Facing;
+    const bool KeepNative=UpdateSparkComposer(Burst,Opacity,Width,bTouchdown,LocalFacing);
+    ClaimSparks->SetVisibility(KeepNative&&Opacity>.001f&&Burst<1.f);
+    if(!KeepNative)return;
     for(int32 I=0;I<12;++I) {
         const float Angle=I*UE_TWO_PI/12.f+.21f;
         // Width is 1.3 times the largest half-extent on touchdown. Its 1.4
@@ -522,6 +538,42 @@ void AMCRewardChest::UpdateSparkPresentation(float Progress,float Opacity,float 
             FVector(FMath::Cos(Angle)*Radial,FMath::Sin(Angle)*Radial,Lift),FVector(Size)),false,false,true);
     }
     ClaimSparks->MarkRenderStateDirty();
+}
+
+void AMCRewardChest::StopSparkComposer()
+{
+    if(ComposerPresentation&&!ActiveSparkSource.IsNone()&&!ActiveSparkEvent.IsNone()) {
+        FMCPerkVFXGameplayValues V;FString Error;
+        if(auto* Source=ComposerPresentation->GetSource(ActiveSparkSource))Source->UpdateLocalSourceState(ActiveSparkSource,ActiveSparkEvent,false,FTransform::Identity,V,ClaimSparks,Error,false);
+    }
+    ActiveSparkSource=NAME_None;ActiveSparkEvent=NAME_None;
+}
+bool AMCRewardChest::UpdateSparkComposer(float Progress,float Opacity,float Width,bool bTouchdown,FQuat LocalFacing)
+{
+    if(!ComposerPresentation)return true;
+    const FName ID=bTeamStageBooster?TEXT("Reward.StageBooster"):TEXT("Reward.Chest"),Event=bTouchdown?TEXT("Arrival"):TEXT("Claim");
+    auto* Source=ComposerPresentation->GetSource(ID);if(!Source)return true;
+    const bool NewEpisode=ActiveSparkSource!=ID||ActiveSparkEvent!=Event;
+    if(NewEpisode){StopSparkComposer();ActiveSparkSource=ID;ActiveSparkEvent=Event;SparkEpisode=FGuid::NewGuid();}
+    const FTransform Frame=ClaimSparks->GetComponentTransform();
+    const float Age=float(FMath::Max(0.,ServerNow()-(bTouchdown?LandingPresentationStartedAt:StageStartedAt)));
+    FMCPerkVFXGameplayValues V;V.EpisodeID=SparkEpisode;V.LocalStateAgeSeconds=Age;V.Duration=bTouchdown?.42f:.78f;
+    V.VisualSubject=ClaimSparks;V.Radius=Width;
+    auto Add=[&](const TCHAR* N,EMCVFXNativeInputType T)->FMCVFXNativeInput&{auto& I=V.NativeInputs.Entries.AddDefaulted_GetRef();I.Name=N;I.Type=T;return I;};
+    auto Float=[&](const TCHAR* N,float X){Add(N,EMCVFXNativeInputType::Float).FloatValue=X;};
+    auto Vector=[&](const TCHAR* N,FVector X){Add(N,EMCVFXNativeInputType::Vector).VectorValue=X;};
+    Add(TEXT("User.Native.ChestSparkOrigin"),EMCVFXNativeInputType::Position).PositionValue=Frame.GetLocation();
+    Float(TEXT("User.Native.ChestSparkProgress"),Progress);Float(TEXT("User.Native.ChestSparkOpacity"),Opacity);Float(TEXT("User.Native.ChestSparkWidth"),Width);
+    Add(TEXT("User.Native.ChestSparkTouchdown"),EMCVFXNativeInputType::Bool).BoolValue=bTouchdown;
+    Add(TEXT("User.Native.ChestSparkReady"),EMCVFXNativeInputType::Bool).BoolValue=bRewardInitialized;
+    Vector(TEXT("User.Native.ChestSparkFrameX"),Frame.TransformVector(FVector::ForwardVector));
+    Vector(TEXT("User.Native.ChestSparkFrameY"),Frame.TransformVector(FVector::RightVector));Vector(TEXT("User.Native.ChestSparkFrameZ"),Frame.TransformVector(FVector::UpVector));
+    Vector(TEXT("User.Native.ChestSparkPlaneX"),Frame.TransformVector(LocalFacing.GetAxisX()));Vector(TEXT("User.Native.ChestSparkPlaneY"),Frame.TransformVector(LocalFacing.GetAxisY()));
+    // Finite SFX belongs to the accepted event once and retains its natural tail;
+    // visual state follows the actual native burst envelope independently.
+    if(NewEpisode)Source->PlayLocalSourceEvent(ID,Event,FTransform(Frame.GetLocation()),V,false);
+    FString Error;const bool Accepted=Source->UpdateLocalSourceState(ID,Event,Age<V.Duration,FTransform(Frame.GetLocation()),V,ClaimSparks,Error,false);
+    return !Accepted||ComposerPresentation->UsesNativeVisuals(ID,Event);
 }
 
 void AMCRewardChest::SetStage(EMCRewardChestStage Next)
@@ -806,6 +858,7 @@ void AMCRewardChest::ResetPlacedReward()
 
 void AMCRewardChest::EndPlay(const EEndPlayReason::Type Reason)
 {
+    StopSparkComposer();
     GetWorldTimerManager().ClearAllTimersForObject(this);
     if(HasAuthority()) {
         ReleaseCaptive(Reason==EEndPlayReason::Destroyed); ReleaseStageChoices(); ReleaseOpener();

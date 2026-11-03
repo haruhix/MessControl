@@ -58,6 +58,8 @@ struct MESSCONTROL_API FMCVFXCompositionLayer
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Layer") FName Name=TEXT("Layer");
+    /** Shared event group; invalid means the implicit legacy Default group. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Layer") FGuid GroupID;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Layer") bool bEnabled=true;
     /** Audition only: the game player ignores Solo unless explicitly requested by the editor. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Layer") bool bSolo=false;

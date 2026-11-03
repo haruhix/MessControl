@@ -1,4 +1,5 @@
 #include "MCGameMode.h"
+#include "MCActiveSkillAction.h"
 #include "MCHubEconomyComponent.h"
 #include "MCHubProfileSubsystem.h"
 #include "Engine/GameInstance.h"
@@ -16,6 +17,7 @@
 #include "MCMouthSurface.h"
 #include "MCFirePatch.h"
 #include "MCReactionVFX.h"
+#include "MCVFXPresentationComponent.h"
 #include "MCCoffeeFlood.h"
 #include "MCGameState.h"
 #include "MCHubGameState.h"
@@ -366,6 +368,7 @@ void AMCGameMode::RestartShift()
     if (!State) return;
     if(IsValid(State->SingleDayDirector)) { State->SingleDayDirector->Stop(); State->SingleDayDirector->Destroy(); }
     State->SingleDayDirector=nullptr; State->bSingleDayLoop=bUseSingleDayLoop;
+    State->IcePresentationScope=FMCIcePresentationRunScope();
     if(bRestartingForPlaytest) bTutorialRequested=false;
     if (IsValid(TutorialDirector)) { TutorialDirector->OnTutorialFinished.RemoveAll(this); TutorialDirector->Stop(); TutorialDirector->Destroy(); }
     TutorialDirector=nullptr;
@@ -385,6 +388,8 @@ void AMCGameMode::RestartShift()
     State->DirectorDecisionLog.Reset();
     if (IsValid(DayDirector)) DayDirector->Destroy(); DayDirector=nullptr;
     // F3 key events can exist without a single-day owner.
+    UMCVFXPresentationComponent::StopWorldPresentations(GetWorld());
+    AMCActiveSkillAction::StopWorldAudio(GetWorld());
     for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It) { It->Stop(); It->Destroy(); }
     for(TActorIterator<AMCNutRainEvent> It(GetWorld());It;++It) { It->Stop(); It->Destroy(); }
     for(TActorIterator<AMCFogBrawlEvent> It(GetWorld());It;++It) { It->Stop(); It->Destroy(); }
@@ -487,6 +492,19 @@ void AMCGameMode::RestartShift()
         GameDirector=GetWorld()->SpawnActor<AMCGameDirector>();
         if(GameDirector) GameDirector->InitializeRun(FirstDayPlan.LoadSynchronous(),DirectorProfile.LoadSynchronous());
     }
+    // RestartShift runs during BeginPlay, including a waiting lobby. The real
+    // director has already copied/normalized the host-selected profile here;
+    // no gameplay event or timer is started to obtain this presentation scope.
+    FMCIcePresentationRunScope Scope;Scope.GameplayLoadId=State->GameplayLoadId;
+    Scope.Scope=EMCIcePresentationScope::NotRequired;
+    if(bUseSingleDayLoop)
+    {
+        const auto* Run=IsValid(State->SingleDayDirector)?State->SingleDayDirector->GetRunProfile():nullptr;
+        Scope.Scope=!Run?EMCIcePresentationScope::Unknown:
+            Run->KeyEvents.ContainsByPredicate([](const FMCSingleDayKeyEvent& Event){return Event.Kind==EMCSingleDayKeyEventKind::IceEvent;})
+                ?EMCIcePresentationScope::Required:EMCIcePresentationScope::NotRequired;
+    }
+    State->IcePresentationScope=Scope;
     State->ForceNetUpdate();
 }
 void AMCGameMode::RestartShiftForPlaytest(int32 Seed)

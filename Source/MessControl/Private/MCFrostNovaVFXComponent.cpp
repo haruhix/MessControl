@@ -3,6 +3,8 @@
 #include "MCHazardWave.h"
 #include "MCSmallMintCandy.h"
 #include "MCTongue.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCVFXPresentationComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
@@ -39,6 +41,9 @@ bool UMCFrostNovaVFXComponent::HasRequiredAssets() const
 
 bool UMCFrostNovaVFXComponent::PrepareVisuals()
 {
+    // The location manifest retains the source library. Preparation may retry
+    // before the pulse, but accepting a pulse never creates/loads its channel.
+    PreparePresentation();
     if(HasRequiredAssets()) return true;
     if(bTriedAssets || !GetWorld() || GetWorld()->GetNetMode()==NM_DedicatedServer || !IsValid(GetOwner())) return false;
     bTriedAssets=true;
@@ -104,6 +109,16 @@ bool UMCFrostNovaVFXComponent::PrepareVisuals()
     return true;
 }
 
+void UMCFrostNovaVFXComponent::PreparePresentation()
+{
+    if(PresentationSourceID.IsNone() || !GetWorld() || GetWorld()->GetNetMode()==NM_DedicatedServer || !IsValid(GetOwner()))return;
+    if(!Presentation.IsValid())Presentation=MCWorldPresentation::PrepareOwner(GetOwner(),{PresentationSourceID});
+    else {FString Error;Presentation->PrepareSources(Error,false);}
+}
+
+UMCWorldPresentationComponent* UMCFrostNovaVFXComponent::GetPreparedPresentation() const
+{return Presentation.Get();}
+
 bool UMCFrostNovaVFXComponent::UpdateWave(const AMCHazardWave& Wave)
 {
     if(!CachedTongue.IsValid())
@@ -124,8 +139,21 @@ bool UMCFrostNovaVFXComponent::PresentWave(AMCTongue* Tongue,FVector Origin,floa
     if(WaveImpactAt!=ImpactAt)
     {
         Stop();WaveImpactAt=ImpactAt;
+        ++AcceptedWaveSerial;
         WaveSeed=HashCombine(GetTypeHash(FMath::RoundToInt(Origin.X+Origin.Y)),GetTypeHash(int64(ImpactAt*1000)));
         for(FCrystalPose& Pose:CrystalPoses) Pose=FCrystalPose();
+        const TCHAR* Names[]={TEXT("CrystalGroundPositions"),TEXT("CrystalGroundNormals"),TEXT("CrystalGroundValid"),
+            TEXT("CrystalBirthTimes"),TEXT("CrystalAngles"),TEXT("CrystalAppearance0"),TEXT("CrystalAppearance1")};
+        const EMCVFXNativeInputType Types[]={EMCVFXNativeInputType::PositionArray,EMCVFXNativeInputType::VectorArray,
+            EMCVFXNativeInputType::FloatArray,EMCVFXNativeInputType::FloatArray,EMCVFXNativeInputType::FloatArray,
+            EMCVFXNativeInputType::VectorArray,EMCVFXNativeInputType::VectorArray};
+        for(int32 I=0;I<UE_ARRAY_COUNT(Names);++I) {
+            auto& Input=CrystalNativeInputs.Entries.AddDefaulted_GetRef();
+            Input.Name=FName(*(FString(TEXT("User.Native."))+Names[I]));Input.Type=Types[I];
+            if(Types[I]==EMCVFXNativeInputType::PositionArray)Input.PositionValues.Init(FVector::ZeroVector,CrystalPoses.Num());
+            else if(Types[I]==EMCVFXNativeInputType::VectorArray)Input.VectorValues.Init(FVector::ZeroVector,CrystalPoses.Num());
+            else Input.FloatValues.Init(0.f,CrystalPoses.Num());
+        }
         UE_LOG(LogMCFrostNova, Verbose, TEXT("MC_FROST_NOVA_BEGIN owner=%s radius=%.1f travel=%.2f impact=%.3f crystals=%d"),
             *GetNameSafe(GetOwner()),MaxRadius,TravelSeconds,ImpactAt,CrystalCount);
     }
@@ -142,15 +170,36 @@ bool UMCFrostNovaVFXComponent::PresentWave(AMCTongue* Tongue,FVector Origin,floa
         bBurstPlayed=true;
         // Allow ordinary activation/readiness latency without dropping the first
         // short release. Truly late relevance still gets the travelling front.
-        if(Age<.8f && IsValid(Burst))
+        if(Age<.8f)
         {
             FHitResult Floor;
             const FVector Point=Tongue->SurfacePoint(Origin,Floor)?Floor.ImpactPoint+Floor.ImpactNormal*42:Origin+FVector(0,0,42);
-            Burst->SetWorldLocation(Point);
-            Burst->SetVariableLinearColor(TEXT("User.ParticleColor"),FLinearColor::White);
-            Burst->Activate(true);
-            UE_LOG(LogMCFrostNova,Display,TEXT("MC_FROST_NOVA_BURST owner=%s age=%.3f active=%d systemReady=%d crystalPSOPending=%d position=%s"),
-                *GetNameSafe(GetOwner()),Age,Burst->IsActive(),Burst->GetAsset() && Burst->GetAsset()->IsReadyToRun(),
+            bool bCustomAccepted=false,bKeepOriginal=true;
+            if(auto* Prepared=Presentation.Get())
+            {
+                FMCPerkVFXGameplayValues Values;
+                Values.Radius=Radius;Values.Duration=.9f;Values.Color=FLinearColor::White;Values.bHasColor=true;
+                Values.SourcePosition=Point;Values.TargetPosition=Point;Values.bHasEndpoints=true;
+                Values.Seed=uint32(WaveSeed);Values.bHasSeed=true;Values.LocalStateAgeSeconds=0;
+                FString Error;
+                // Original activation is a fresh short burst even when the
+                // accepted replicated wave is a few frames old. Preserve that
+                // latency rule and its world-identity rotation/scale exactly.
+                bCustomAccepted=Prepared->Pulse(PresentationSourceID,TEXT("Burst"),
+                    FTransform(FQuat::Identity,Point,FVector::OneVector),Values,.9f,Error);
+                bKeepOriginal=!bCustomAccepted || Prepared->UsesNativeVisuals(PresentationSourceID,TEXT("Burst"));
+            }
+            bool bOriginalAccepted=false;
+            if(bKeepOriginal && IsValid(Burst))
+            {
+                Burst->SetWorldLocation(Point);
+                Burst->SetVariableLinearColor(TEXT("User.ParticleColor"),FLinearColor::White);
+                Burst->Activate(true);bOriginalAccepted=Burst->IsActive();
+            }
+            if(bCustomAccepted || bOriginalAccepted)
+            {++AcceptedBurstSerial;LastAcceptedBurstPoint=Point;}
+            UE_LOG(LogMCFrostNova,Display,TEXT("MC_FROST_NOVA_BURST owner=%s source=%s age=%.3f native=%d custom=%d crystalPSOPending=%d position=%s"),
+                *GetNameSafe(GetOwner()),*PresentationSourceID.ToString(),Age,bOriginalAccepted,bCustomAccepted,
                 Crystals->IsPSOPrecaching(),*Point.ToCompactString());
         }
         else UE_LOG(LogMCFrostNova,Verbose,TEXT("MC_FROST_NOVA_BURST_SKIPPED owner=%s age=%.3f hasComponent=%d"),*GetNameSafe(GetOwner()),Age,IsValid(Burst));
@@ -161,6 +210,7 @@ bool UMCFrostNovaVFXComponent::PresentWave(AMCTongue* Tongue,FVector Origin,floa
         DrawFront(Tongue,Origin,Radius,MaxRadius,Age,bWarning,WarningProgress);
         UpdateCrystals(Tongue,Origin,MaxRadius,Age,TravelSeconds);
     }
+    UpdateEditableWave(Origin,Radius,MaxRadius,Age,TravelSeconds,bWarning,WarningProgress);
     return true;
 }
 
@@ -187,6 +237,22 @@ void UMCFrostNovaVFXComponent::DrawFront(AMCTongue* Tongue,FVector Origin,float 
         SampleRays[I]=FVector(FMath::Cos(Angle),FMath::Sin(Angle),0);
         for(int32 Edge=0;Edge<2;++Edge)
             Supported[I][Edge]=Tongue->SurfacePoint(Origin+SampleRays[I]*FMath::Max(1.f,R+(Edge?0.f:-Width)),Samples[I][Edge]);
+    }
+    // Reuse the original 130 native tongue-query results. Invalid samples
+    // remain explicitly invalid; no flat floor or extra collision query is made.
+    FrontSampleAge=Age;bFrontSampleWarning=bWarning;
+    WaveNativeInputs.Entries.Reset();
+    auto& Positions=WaveNativeInputs.Entries.AddDefaulted_GetRef();
+    Positions.Name=TEXT("User.Native.FrontGroundPositions");Positions.Type=EMCVFXNativeInputType::PositionArray;
+    auto& NormalsInput=WaveNativeInputs.Entries.AddDefaulted_GetRef();
+    NormalsInput.Name=TEXT("User.Native.FrontGroundNormals");NormalsInput.Type=EMCVFXNativeInputType::VectorArray;
+    auto& Valid=WaveNativeInputs.Entries.AddDefaulted_GetRef();
+    Valid.Name=TEXT("User.Native.FrontGroundValid");Valid.Type=EMCVFXNativeInputType::FloatArray;
+    // Reserve array storage after all record additions: Entries may reallocate.
+    for(int32 I=0;I<=Segments;++I)for(int32 Edge=0;Edge<2;++Edge) {
+        WaveNativeInputs.Entries[0].PositionValues.Add(Supported[I][Edge]?Samples[I][Edge].ImpactPoint:FVector::ZeroVector);
+        WaveNativeInputs.Entries[1].VectorValues.Add(Supported[I][Edge]?Samples[I][Edge].ImpactNormal:FVector::UpVector);
+        WaveNativeInputs.Entries[2].FloatValues.Add(Supported[I][Edge]?1.f:0.f);
     }
     for(int32 I=0;I<Segments;++I)
     {
@@ -231,10 +297,22 @@ void UMCFrostNovaVFXComponent::UpdateCrystals(AMCTongue* Tongue,FVector Origin,f
 {
     const bool bActive=Age>=0 && Age<TravelSeconds;
     Crystals->SetVisibility(true);
-    if(!bActive || !CrystalMesh.Get()) return;
+    if(!bActive || !CrystalMesh.Get()) {
+        WaveNativeInputs.Entries.Append(CrystalNativeInputs.Entries);return;
+    }
     const FBox Bounds=CrystalMesh->GetBoundingBox();
     const FVector Size=Bounds.GetSize().ComponentMax(FVector(1));
     constexpr float PulseDuration=.38f;
+    CrystalNativeInputs.Entries.Reset();CrystalSampleAge=Age;
+    const TCHAR* Names[]={TEXT("CrystalGroundPositions"),TEXT("CrystalGroundNormals"),TEXT("CrystalGroundValid"),
+        TEXT("CrystalBirthTimes"),TEXT("CrystalAngles"),TEXT("CrystalAppearance0"),TEXT("CrystalAppearance1")};
+    const EMCVFXNativeInputType Types[]={EMCVFXNativeInputType::PositionArray,EMCVFXNativeInputType::VectorArray,
+        EMCVFXNativeInputType::FloatArray,EMCVFXNativeInputType::FloatArray,EMCVFXNativeInputType::FloatArray,
+        EMCVFXNativeInputType::VectorArray,EMCVFXNativeInputType::VectorArray};
+    for(int32 I=0;I<UE_ARRAY_COUNT(Names);++I) {
+        auto& Input=CrystalNativeInputs.Entries.AddDefaulted_GetRef();
+        Input.Name=FName(*(FString(TEXT("User.Native."))+Names[I]));Input.Type=Types[I];
+    }
     for(int32 I=0;I<CrystalPoses.Num();++I)
     {
         FRandomStream Random(uint32(WaveSeed)+uint32(I)*127u);
@@ -247,6 +325,7 @@ void UMCFrostNovaVFXComponent::UpdateCrystals(AMCTongue* Tongue,FVector Origin,f
         {
             Pose.Pulse=Pulse;
             const float Angle=I*2*PI/CrystalPoses.Num()+Random.FRandRange(-.07f,.07f);
+            Pose.AngleRadians=Angle;
             const FVector Ray(FMath::Cos(Angle),FMath::Sin(Angle),0);
             const float BirthRadius=MaxRadius*FMath::Clamp(Birth/TravelSeconds,0.f,1.f);
             FHitResult Floor;
@@ -269,14 +348,67 @@ void UMCFrostNovaVFXComponent::UpdateCrystals(AMCTongue* Tongue,FVector Origin,f
         const FVector Position=Pose.Point-Pose.Rotation.RotateVector(MeshBase*Scale);
         Crystals->UpdateInstanceTransform(I,FTransform(Pose.Rotation,Position,Scale),true,false,true);
         Crystals->SetCustomDataValue(I,0,Fade*Visible,false);
+        const FQuat FloorRotation=FQuat::FindBetweenNormals(FVector::UpVector,Pose.Normal);
+        const FRotator Relative=(FloorRotation.Inverse()*Pose.Rotation).Rotator();
+        // These are already evaluated original cosmetic fractions, not another
+        // RNG stream. Niagara owns editable size/rotation/grow/dissolve formulas.
+        const FVector Appearance0(FMath::Clamp((Relative.Pitch+15.)/30.,0.,1.),
+            FMath::Clamp((Relative.Roll+12.)/24.,0.,1.),FMath::Clamp((Pose.Size.X*Size.X-14.)/9.,0.,1.));
+        const FVector Appearance1(FMath::Clamp((Pose.Size.Y*Size.Y-11.)/7.,0.,1.),
+            FMath::Clamp((Pose.Size.Z*Size.Z-34.)/24.,0.,1.),0.);
+        CrystalNativeInputs.Entries[0].PositionValues.Add(Pose.bOnFloor?Pose.Point-Pose.Normal*2.f:FVector::ZeroVector);
+        CrystalNativeInputs.Entries[1].VectorValues.Add(Pose.bOnFloor?Pose.Normal:FVector::UpVector);
+        CrystalNativeInputs.Entries[2].FloatValues.Add(Pose.bOnFloor?1.f:0.f);
+        CrystalNativeInputs.Entries[3].FloatValues.Add(Birth);
+        CrystalNativeInputs.Entries[4].FloatValues.Add(Pose.AngleRadians);
+        CrystalNativeInputs.Entries[5].VectorValues.Add(Appearance0);
+        CrystalNativeInputs.Entries[6].VectorValues.Add(Appearance1);
     }
     // UE 5.8 supports sending instance transforms/custom data without tearing
     // down and recreating the scene proxy on every geometry refresh.
     Crystals->MarkRenderInstancesDirty();
+    WaveNativeInputs.Entries.Append(CrystalNativeInputs.Entries);
+}
+
+void UMCFrostNovaVFXComponent::UpdateEditableWave(FVector Origin,float Radius,float MaxRadius,float Age,float TravelSeconds,bool bWarning,float WarningProgress)
+{
+    auto* Prepared=Presentation.Get();if(!Prepared)return;
+    FMCPerkVFXGameplayValues Values;Values.Radius=Radius;Values.Duration=TravelSeconds;
+    Values.SourcePosition=Origin;Values.TargetPosition=Origin;Values.bHasEndpoints=true;
+    Values.LocalStateAgeSeconds=FMath::Max(0.f,Age);Values.NativeInputs=WaveNativeInputs;
+    auto Float=[&](const TCHAR* Name,float Value) {auto& I=Values.NativeInputs.Entries.AddDefaulted_GetRef();
+        I.Name=FName(Name);I.Type=EMCVFXNativeInputType::Float;I.FloatValue=Value;};
+    Float(TEXT("User.Native.WaveAge"),Age);Float(TEXT("User.Native.WaveRadius"),Radius);
+    Float(TEXT("User.Native.WaveMaxRadius"),MaxRadius);Float(TEXT("User.Native.TravelSeconds"),TravelSeconds);
+    Float(TEXT("User.Native.FrontSampleAge"),FrontSampleAge);
+    auto& FrontWarning=Values.NativeInputs.Entries.AddDefaulted_GetRef();FrontWarning.Name=TEXT("User.Native.bFrontSampleWarning");
+    FrontWarning.Type=EMCVFXNativeInputType::Bool;FrontWarning.BoolValue=bFrontSampleWarning;
+    Float(TEXT("User.Native.WarningProgress"),WarningProgress);Float(TEXT("User.Native.CrystalSampleAge"),CrystalSampleAge);
+    auto& Warning=Values.NativeInputs.Entries.AddDefaulted_GetRef();Warning.Name=TEXT("User.Native.bWarning");
+    Warning.Type=EMCVFXNativeInputType::Bool;Warning.BoolValue=bWarning;
+    auto& Count=Values.NativeInputs.Entries.AddDefaulted_GetRef();Count.Name=TEXT("User.Native.CrystalCount");
+    Count.Type=EMCVFXNativeInputType::Int;Count.IntValue=CrystalPoses.Num();
+    if(auto* Mesh=CrystalMesh.Get()) {
+        const FBox B=Mesh->GetBoundingBox();
+        auto& Size=Values.NativeInputs.Entries.AddDefaulted_GetRef();Size.Name=TEXT("User.Native.CrystalMeshSize");
+        Size.Type=EMCVFXNativeInputType::Vector;Size.VectorValue=B.GetSize().ComponentMax(FVector(1));
+        auto& Base=Values.NativeInputs.Entries.AddDefaulted_GetRef();Base.Name=TEXT("User.Native.CrystalMeshBase");
+        Base.Type=EMCVFXNativeInputType::Vector;Base.VectorValue=FVector(B.GetCenter().X,B.GetCenter().Y,B.Min.Z);
+    }
+    FString Error;
+    const bool Accepted=Prepared->UpdateState(PresentationSourceID,TEXT("Wave"),true,
+        FTransform(FQuat::Identity,Origin,FVector::OneVector),Values,this,Error);
+    const bool KeepOriginal=!Accepted||Prepared->UsesNativeVisuals(PresentationSourceID,TEXT("Wave"));
+    // The native leading-edge footprint remains visible for every gallery
+    // replacement/mute. Decorative overrides cannot erase or resize this cue.
+    // Section0 is the exact floor/warning strip; section1 is decorative veil.
+    Front->SetVisibility(true);Front->SetMeshSectionVisible(0,true);
+    Front->SetMeshSectionVisible(1,KeepOriginal);Crystals->SetVisibility(KeepOriginal);
 }
 
 void UMCFrostNovaVFXComponent::Stop()
 {
+    if(auto* Prepared=Presentation.Get())Prepared->StopStates(PresentationSourceID);
     if(IsValid(Front)) {Front->SetVisibility(false);Front->ClearAllMeshSections();}
     if(IsValid(Crystals))
     {
@@ -288,7 +420,7 @@ void UMCFrostNovaVFXComponent::Stop()
         Crystals->MarkRenderInstancesDirty();
     }
     if(IsValid(Burst)) Burst->DeactivateImmediate();
-    bBurstPlayed=false;NextGeometryAt=-1;
+    bBurstPlayed=false;NextGeometryAt=-1;WaveNativeInputs.Entries.Reset();CrystalNativeInputs.Entries.Reset();CrystalSampleAge=FrontSampleAge=0.f;bFrontSampleWarning=false;
 }
 
 void UMCFrostNovaVFXComponent::EndPlay(const EEndPlayReason::Type Reason)

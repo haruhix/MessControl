@@ -14,6 +14,9 @@
 #include "MCCombatFeedbackComponent.h"
 #include "MCWeaponImpact.h"
 #include "MCReactionVFX.h"
+#include "MCVFXPresentationComponent.h"
+#include "Camera/PlayerCameraManager.h"
+#include "GameFramework/PlayerController.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
@@ -37,6 +40,7 @@ AMCNutEnemy::AMCNutEnemy()
     Visual=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("NutMesh")); Visual->SetupAttachment(Body);
     Visual->SetCollisionEnabled(ECollisionEnabled::NoCollision); Visual->SetCanEverAffectNavigation(false);
     Feedback=CreateDefaultSubobject<UMCCombatFeedbackComponent>(TEXT("CombatFeedback"));
+    Feedback->PresentationSources={TEXT("Enemy.Nut.Hurt")};
     LeftEye=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LeftEye")); LeftEye->SetupAttachment(Body);
     RightEye=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RightEye")); RightEye->SetupAttachment(Body);
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Sphere(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
@@ -50,6 +54,11 @@ AMCNutEnemy::AMCNutEnemy()
     Label->SetHorizontalAlignment(EHTA_Center); Label->SetWorldSize(19);
     Label->SetCollisionEnabled(ECollisionEnabled::NoCollision); Label->SetTextRenderColor(FColor(255,110,65));
     WorldStatus=CreateDefaultSubobject<UMCWorldStatusComponent>(TEXT("WorldStatus"));
+    Presentation=CreateDefaultSubobject<UMCVFXPresentationComponent>(TEXT("EventPresentation"));
+    Presentation->SourceID=TEXT("EditorOnly.NutEnemyDeath"); // Stable historical ID, used by both gameplay and Composer.
+    Presentation->Events={TEXT("Death"),TEXT("DeathDust")};
+    VFXContext=CreateDefaultSubobject<UMCVFXPresentationComponent>(TEXT("NutActionPresentation"));
+    VFXContext->PrimaryComponentTick.bStartWithTickEnabled=false;
 }
 
 void AMCNutEnemy::BeginPlay()
@@ -153,13 +162,13 @@ float AMCNutEnemy::ReceiveExternalImpact(float Damage,AActor* Causer,AMCPlayerSt
 
 void AMCNutEnemy::ReportExternalImpactFeedback(AActor* Causer,FVector Origin,float Applied)
 {
-    Feedback->ReportAcceptedHit(Causer,GetToolTargetPoint(Origin),(GetActorLocation()-Origin).GetSafeNormal(),Applied,0.f,false,Health<=0.f);
+    Feedback->ReportAcceptedHit(Causer,GetToolTargetPoint(Origin),(GetActorLocation()-Origin).GetSafeNormal(),Applied,0.f,false,Health<=0.f,TEXT("Enemy.Nut.Hurt"),TEXT("Hit"));
 }
 
 void AMCNutEnemy::ReportDamageFeedback(AMCToothCharacter* Source,float Applied)
 {
     const FVector From=Source?Source->GetActorLocation():GetActorLocation()-GetActorForwardVector()*Settings.BodyRadius*2;
-    Feedback->ReportAcceptedHit(Source,GetToolTargetPoint(From),(GetActorLocation()-From).GetSafeNormal(),Applied,0.f,false,Health<=0.f);
+    Feedback->ReportAcceptedHit(Source,GetToolTargetPoint(From),(GetActorLocation()-From).GetSafeNormal(),Applied,0.f,false,Health<=0.f,TEXT("Enemy.Nut.Hurt"),TEXT("Hit"));
 }
 
 bool AMCNutEnemy::IsLiveTarget(const AMCToothCharacter* Hero) const
@@ -193,9 +202,33 @@ void AMCNutEnemy::Defeat()
 {
     if(bDefeated) return;
     bDefeated=true; Health=0; Target=nullptr; bAttackPending=false; AttackTarget.Reset();
-    if(Feedback->LastHit.bFatal && !ActorHasTag(TEXT("MC.LegacyCombatFeedback")))
-        AMCReactionVFX::Spawn(GetWorld(),GetActorLocation(),EMCReactionEffect::FoodBreak,.45f,
-            Settings.BodyRadius*1.6f,Feedback->LastHit.Direction);
+    if(Feedback->LastHit.bFatal && !ActorHasTag(TEXT("MC.LegacyCombatFeedback"))) {
+        FMCPerkVFXGameplayValues Values;Values.Direction=Feedback->LastHit.Direction;
+        Values.Radius=Settings.BodyRadius*1.6f;Values.Duration=.45f;
+        // Existing replicated hit serial identifies this accepted death, with no RNG.
+        Values.EpisodeID=FGuid(0x4e555444,0,0,uint32(Feedback->LastHit.Serial));
+        FVector Eye=GetActorLocation()+FVector(-1,0,1);
+        if(const auto* PC=GetWorld()->GetFirstPlayerController();PC&&PC->PlayerCameraManager)Eye=PC->PlayerCameraManager->GetCameraLocation();
+        const FVector View=(Eye-GetActorLocation()).GetSafeNormal();
+        const FVector Right=FVector::CrossProduct(FVector::UpVector,View).GetSafeNormal();
+        const FVector Up=FVector::CrossProduct(View,Right).GetSafeNormal();
+        const FVector Axis=Values.Direction.IsNearlyZero()?FVector::ForwardVector:Values.Direction.GetSafeNormal();
+        AMCReactionVFX::AppendNativeContext(Values.NativeInputs,0,Values.Duration,FMath::Clamp(Values.Radius,10.f,600.f),
+            GetActorLocation(),Axis,View,Right,Up,FVector::OneVector,false,
+            !View.IsNearlyZero()&&!Right.IsNearlyZero()&&!Up.IsNearlyZero());
+        const FTransform Frame(Values.Direction.Rotation(),GetActorLocation());
+        // Derived bosses/kamikazes retain their own accepted death sequence and
+        // native cues until their specific presentation adapters are migrated.
+        const auto Result=Presentation && GetClass()==AMCNutEnemy::StaticClass()
+            ?Presentation->PlayEvent(TEXT("Death"),Frame,Values):EMCVFXPresentationResult::UseDefault;
+        const bool bNative=Result==EMCVFXPresentationResult::UseDefault||Result==EMCVFXPresentationResult::Rejected;
+        if(GetClass()==AMCNutEnemy::StaticClass())
+            AMCReactionVFX::SpawnFoodBreakDeath(this,TEXT("EditorOnly.NutEnemyDeath"),Values.EpisodeID,
+                GetActorLocation(),.45f,Settings.BodyRadius*1.6f,Feedback->LastHit.Direction,bNative,true);
+        else if(bNative)
+            AMCReactionVFX::Spawn(GetWorld(),GetActorLocation(),EMCReactionEffect::FoodBreak,.45f,
+                Settings.BodyRadius*1.6f,Feedback->LastHit.Direction);
+    }
     RefreshPresentation(); SetLifeSpan(1.2f); ForceNetUpdate();
 }
 

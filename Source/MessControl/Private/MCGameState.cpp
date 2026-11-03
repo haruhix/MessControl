@@ -37,6 +37,7 @@ void AMCGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCGameState,bSingleDayLoop);
+    DOREPLIFETIME(AMCGameState,IcePresentationScope);
     DOREPLIFETIME(AMCGameState,SingleDayDirector);
     DOREPLIFETIME(AMCGameState,TeamToolUpgrades);
     DOREPLIFETIME(AMCGameState,RogueOptionalEvents);

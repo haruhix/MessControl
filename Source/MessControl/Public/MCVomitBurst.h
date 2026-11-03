@@ -30,6 +30,8 @@ class MESSCONTROL_API AMCVomitBurst : public AActor
     GENERATED_BODY()
 public:
     AMCVomitBurst();
+    virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void Tick(float Dt) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void Configure(AMCThroat* Throat);
@@ -39,11 +41,19 @@ public:
     UPROPERTY(Replicated) double StartedAt=0;
     UPROPERTY(Replicated) int32 Batch=0;
     int32 LandedPortions() const;
+    bool HasAcceptedComposerBurst()const{return bComposerBurstAccepted;}
     int32 AirborneInstances=0,SplashInstances=0;
     static FVector FlightPoint(const FMCVomitPortion& Portion,float T);
 private:
     double ServerNow() const;
     void Land(int32 Index,const FHitResult& Hit,float Age);
     void UpdatePresentation(float Age);
+    UPROPERTY(Transient) TObjectPtr<class UMCWorldPresentationComponent> ComposerPresentation;
+    FGuid ComposerEpisode=FGuid::NewGuid();
+    TArray<FVector4f> SpreadSamples;
+    int32 SampleBatch=MIN_int32,SampleCount=INDEX_NONE;
+    void EnsureSpreadSamples();
+    bool UpdateComposerArtwork(float Age);
+    bool bComposerBurstAccepted=false;
     float CheckedAge=0;
 };

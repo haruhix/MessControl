@@ -9,6 +9,8 @@
 class UMCPerkEffect;
 class AMCToothCharacter;
 class AMCGameState;
+class APlayerState;
+class APawn;
 class UPointLightComponent;
 class UTextRenderComponent;
 
@@ -24,6 +26,9 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     virtual void TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* Tick) override;
     static UMCPerkComponent* ForActor(const AActor* Actor);
+    /** Explicit lifecycle/readiness operation. Stat and proc queries never load presentation assets. */
+    bool EnsurePresentationForPawn();
+    bool NeedsPresentationPreparation() const {return bPresentationPreparationPending;}
     float RogueValue(EMCRogueStat Stat,float Base=1.f,AActor* Target=nullptr,FName ExtraStack=NAME_None) const;
     /** Finite authored event parameter; mechanics clamp values to their safe domain. */
     float PerkParameter(FName ID,FName Key,float Fallback) const;
@@ -158,6 +163,7 @@ protected:
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
+    friend class FMCPerkPresentationOwnedActivation;
     UFUNCTION()
     void OnRep_ActivePerks();
     UFUNCTION() void OnRep_SkillLoadout();
@@ -193,6 +199,10 @@ private:
     TMap<FName, int32> AppliedStacks;
     bool bDefinitionsLoaded = false;
     bool bRebuilding = false;
+    UFUNCTION() void HandlePresentationPawnSet(APlayerState* Player,APawn* NewPawn,APawn* OldPawn);
+    TWeakObjectPtr<AMCToothCharacter> PresentationPawn;
+    TSet<FName> PresentationOwnedIDs;
+    bool bPresentationPreparationPending=true;
     bool ActivationMatches(EMCRogueActivation Condition,AActor* Target) const;
     bool HasRecentAllyHit(AActor* Target) const;
     bool HasMeaningfulRogueChange(FName ID) const;

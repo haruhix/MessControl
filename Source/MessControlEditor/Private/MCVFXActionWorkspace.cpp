@@ -1,8 +1,16 @@
-#include "MCVFXActionWorkspace.h"
+﻿#include "MCVFXActionWorkspace.h"
 
 #include "MCVFXActionSession.h"
+#include "MCVFXSourceContracts.h"
+#include "MCVFXCatalogueFilter.h"
+#include "MCVFXNativePresentationSettings.h"
+#include "SMCNativeArtPartsPanel.h"
+#include "SMCEventSFXPanel.h"
+#include "SMCSFXGallery.h"
+#include "Sound/SoundBase.h"
 #include "MCPerkActionPreviewPanel.h"
 #include "MCVFXRecipePreset.h"
+#include "MCVFXActionPack.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "AssetThumbnail.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
@@ -16,6 +24,9 @@
 #include "Misc/MessageDialog.h"
 #include "Misc/Crc.h"
 #include "Misc/ObjectThumbnail.h"
+#include "Misc/Paths.h"
+#include "HAL/FileManager.h"
+#include "SourceCodeNavigation.h"
 #include "IContentBrowserSingleton.h"
 #include "InputCoreTypes.h"
 #include "NiagaraSystem.h"
@@ -34,6 +45,7 @@
 #include "Widgets/Input/SCheckBox.h"
 #include "Widgets/Input/SComboButton.h"
 #include "Widgets/Input/SEditableTextBox.h"
+#include "Widgets/Input/SSearchBox.h"
 #include "Widgets/Input/SSpinBox.h"
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/Layout/SBox.h"
@@ -71,10 +83,14 @@ namespace
     using FGalleryItem=TSharedPtr<FAssetData>;
     using FCatalogItem=TSharedPtr<FMCVFXActionCatalogueEntry>;
     const FVector2D HubPosition(234,210),HubSize(136,136),GraphExtent(588,548);
-    FVector2D StageDimensions(const UMCVFXRecipePreset* Recipe)
+    int32 AddedSoundCount(const FMCVFXActionSession& Session,FName Stage)
+    {const auto* Slot=Session.GetSFXSlot(Stage);return Slot?Slot->Layers.Num():0;}
+    FVector2D StageDimensions(const UMCVFXRecipePreset* Recipe,int32 NativeCount=0,int32 SoundCount=0)
     {
         const int32 Count=Recipe?Recipe->Layers.Num():0;
-        return FVector2D(216,Count==0?132:FMath::Min(192,68+Count*32));
+        const int32 SoundHeight=SoundCount>0?28:0;
+        if(NativeCount>0)return FVector2D(216,FMath::Min(380,104+NativeCount*34+FMath::Min(Count,3)*32+SoundHeight));
+        return FVector2D(216,(Count==0?132:FMath::Min(192,68+Count*32))+SoundHeight);
     }
     FVector2D StagePosition(int32 Index,const FVector2D& Size,int32 Count)
     {
@@ -121,6 +137,66 @@ namespace
     TSharedRef<SWidget> SmallCommand(const FString& Text,TFunction<void()> Action)
     {return SNew(SButton).ButtonStyle(&NeutralStyle()).ContentPadding(FMargin(7,4)).ButtonColorAndOpacity(FLinearColor::White).ForegroundColor(TextColor)
         .OnClicked_Lambda([Action=MoveTemp(Action)]{Action();return FReply::Handled();})[SNew(STextBlock).Text(FText::FromString(Text)).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),10))];}
+    FString NativeModeLabel(EMCPerkVFXSlotMode Mode,bool bKeepNative=false)
+    {
+        if(Mode==EMCPerkVFXSlotMode::UseDefault)return TEXT("Родная основа включена");
+        if(Mode==EMCPerkVFXSlotMode::Disabled)return TEXT("Родные акценты отключены");
+        return bKeepNative?TEXT("Родная основа + Niagara"):TEXT("Замена родной основы");
+    }
+    bool NativeKeepsOriginal(const FMCVFXActionSession& Session,FName Stage)
+    {
+        const auto* Draft=Session.GetNativeDraft();if(!Draft)return false;
+        const auto* Event=Draft->Events.Find(Stage);return Event&&Event->bKeepNativeAccentsWithComposition;
+    }
+    bool HasActiveNativeDecorativeBasis(const FMCVFXActionSession& Session,FName Event,const TArray<FMCVFXNativeSourcePart>& Sources)
+    {
+        if(!Sources.ContainsByPredicate([](const FMCVFXNativeSourcePart& Part){return Part.Kind!=EMCVFXNativeSourceKind::Niagara;}))return false;
+        // Source evidence remains inspectable after replacement. Match the
+        // native accent policy; a protected gameplay body is not legacy art.
+        const auto Mode=Session.GetPreviewSlotMode(Event);
+        if(Mode==EMCPerkVFXSlotMode::Disabled || (Mode!=EMCPerkVFXSlotMode::UseDefault&&!NativeKeepsOriginal(Session,Event)))return false;
+        const auto* Draft=Session.GetNativeDraft();
+        if(!Draft || !Draft->Events.Contains(Event))return true;
+        for(const auto& Descriptor:UMCVFXNativePresentationSettings::DescribeParts(Session.GetActionID(),Event))
+            if(!Descriptor.bProtectedGeometry)if(const auto* Part=Draft->FindPart(Event,Descriptor.PartID);Part&&Part->bEnabled)return true;
+        return false;
+    }
+    void OpenNativeSource(const FMCVFXNativeSourcePart& Part)
+    {
+        if(!Part.Asset.IsNull()) {
+            if(auto* Asset=Part.Asset.TryLoad();Asset && !Asset->HasAnyFlags(RF_Transient))
+                if(GEditor)if(auto* Editors=GEditor->GetEditorSubsystem<UAssetEditorSubsystem>())Editors->OpenEditorForAsset(Asset);
+            return;
+        }
+        if(!Part.SourceFile.IsEmpty()) {
+            const FString File=FPaths::ConvertRelativePathToFull(FPaths::ProjectDir(),Part.SourceFile);
+            if(FPaths::IsUnderDirectory(File,FPaths::ConvertRelativePathToFull(FPaths::ProjectDir())) && IFileManager::Get().FileExists(*File))
+                FSourceCodeNavigation::OpenSourceFile(File);
+        }
+    }
+    class SWorkspaceNativeSourceButton final:public SButton
+    {
+    public:
+        SLATE_BEGIN_ARGS(SWorkspaceNativeSourceButton){}SLATE_ARGUMENT(FMCVFXNativeSourcePart,Source)SLATE_EVENT(FSimpleDelegate,OnSelected)SLATE_END_ARGS()
+        void Construct(const FArguments& A)
+        {
+            Source=A._Source;OnSelected=A._OnSelected;
+            const FString Resource=Source.Asset.IsNull()?TEXT("Процедурная геометрия"):Source.Asset.GetAssetName();
+            SButton::Construct(SButton::FArguments().ButtonStyle(&NeutralStyle()).ContentPadding(FMargin(7,4))
+                .OnClicked_Lambda([this]{OnSelected.ExecuteIfBound();return FReply::Handled();})
+                [SNew(SVerticalBox)
+                    +SVerticalBox::Slot().AutoHeight()[Label(MCVFXNativeSources::KindLabel(Source.Kind).ToString()+TEXT(" · ")+Source.Label.ToString(),10,WorkspaceMint)]
+                    +SVerticalBox::Slot().AutoHeight()[Label(Resource,9,Muted)]]);
+            SetToolTipText(FText::FromString(TEXT("Реальный источник родного эффекта. Двойной клик — открыть.\n")+(Source.Asset.IsNull()?Source.SourceFile:Source.Asset.ToString())
+                +TEXT("\nЭтот источник общий: правка ассета меняет его во всех местах использования.")));
+        }
+        virtual FReply OnMouseButtonDoubleClick(const FGeometry& G,const FPointerEvent& E)override
+        {
+            if(E.GetEffectingButton()!=EKeys::LeftMouseButton)return SButton::OnMouseButtonDoubleClick(G,E);
+            OnSelected.ExecuteIfBound();OpenNativeSource(Source);return FReply::Handled();
+        }
+    private:FMCVFXNativeSourcePart Source;FSimpleDelegate OnSelected;
+    };
     FString ParameterLabel(FName Name)
     {
         const FString S=Name.ToString().Replace(TEXT("User."),TEXT(""));
@@ -175,202 +251,7 @@ namespace
         return {TEXT("VFX"),Muted};
     }
     struct FGalleryThumbnailEvidence{bool bHasSavedImage=false;uint32 Hash=0;};
-    class SWorkspaceLayerButton final : public SButton
-    {
-    public:
-        SLATE_BEGIN_ARGS(SWorkspaceLayerButton){}SLATE_ARGUMENT(TSoftObjectPtr<UNiagaraSystem>,System)SLATE_ARGUMENT(FText,Label)
-            SLATE_ATTRIBUTE(bool,Selected)SLATE_EVENT(FSimpleDelegate,OnSelected)SLATE_END_ARGS()
-        void Construct(const FArguments& A)
-        {
-            System=A._System;Selected=A._Selected;OnSelected=A._OnSelected;
-            SButton::Construct(SButton::FArguments().ButtonStyle(&SolidStyle()).ContentPadding(FMargin(7,6))
-                .ButtonColorAndOpacity_Lambda([this]{return Selected.Get()?WorkspaceMint:ButtonFill;})
-                .ForegroundColor_Lambda([this]{return FSlateColor(Selected.Get()?Ink:TextColor);})
-                .OnClicked_Lambda([this]{OnSelected.ExecuteIfBound();return FReply::Handled();})
-                [SNew(STextBlock).Text(A._Label).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),12)).AutoWrapText(true)]);
-            SetToolTipText(FText::FromString(TEXT("Клик — выбрать слой. Двойной клик — открыть исходную Niagara System.\n")+System.ToSoftObjectPath().ToString()));
-        }
-        virtual FReply OnMouseButtonDoubleClick(const FGeometry& G,const FPointerEvent& E)override
-        {
-            if(E.GetEffectingButton()!=EKeys::LeftMouseButton)return SButton::OnMouseButtonDoubleClick(G,E);
-            OnSelected.ExecuteIfBound();
-            if(GEditor)if(auto* Source=System.LoadSynchronous())if(!Source->HasAnyFlags(RF_Transient))
-                if(auto* Editors=GEditor->GetEditorSubsystem<UAssetEditorSubsystem>())Editors->OpenEditorForAsset(Source);
-            return FReply::Handled();
-        }
-    private:
-        TSoftObjectPtr<UNiagaraSystem> System;TAttribute<bool> Selected;FSimpleDelegate OnSelected;
-    };
-    DECLARE_DELEGATE_TwoParams(FDropWorkspaceEffect,FName,FAssetData);
-    class FWorkspaceEffectDrag final : public FDecoratedDragDropOp
-    {
-    public:
-        DRAG_DROP_OPERATOR_TYPE(FWorkspaceEffectDrag,FDecoratedDragDropOp)
-        FAssetData Asset;
-        static TSharedRef<FWorkspaceEffectDrag> New(const FAssetData& InAsset)
-        {
-            auto Op=MakeShared<FWorkspaceEffectDrag>();Op->Asset=InAsset;
-            Op->Reject();Op->SetupDefaults();Op->Construct();return Op;
-        }
-        void Reject()
-        {SetToolTip(FText::FromString(WorkspaceEffectLabel(Asset.AssetName.ToString())+TEXT("  ·  Перетащите на карточку события. Esc — отмена.")),nullptr);CurrentIconColorAndOpacity=Muted;}
-        void Target(const FText& StageLabel,bool Allowed,const FString& Reason)
-        {SetToolTip(FText::FromString(WorkspaceEffectLabel(Asset.AssetName.ToString())+(Allowed?TEXT("  →  Добавить слой в «")+StageLabel.ToString()+TEXT("»"):TEXT("  →  ")+Reason)),nullptr);CurrentIconColorAndOpacity=Allowed?WorkspaceMint:Muted;}
-        virtual TSharedPtr<SWidget> GetDefaultDecorator()const override
-        {
-            return SNew(SBorder).Padding(12,9).BorderImage(&PanelBrush()).BorderBackgroundColor(HeadingFill)
-                [SNew(STextBlock).Text_Lambda([this]{return GetHoverText();}).ColorAndOpacity_Lambda([this]{return GetIconColorAndOpacity();})
-                    .Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),12)).WrapTextAt(420.f)];
-        }
-    };
-    class SWorkspaceEventDropZone final : public SCompoundWidget
-    {
-    public:
-        SLATE_BEGIN_ARGS(SWorkspaceEventDropZone){}SLATE_DEFAULT_SLOT(FArguments,Content)SLATE_ARGUMENT(FName,Stage)
-            SLATE_ATTRIBUTE(bool,CanAccept)SLATE_ATTRIBUTE(FText,StageLabel)SLATE_ATTRIBUTE(FString,UnavailableReason)SLATE_ATTRIBUTE(bool,Selected)SLATE_EVENT(FDropWorkspaceEffect,OnEffectDropped)SLATE_END_ARGS()
-        void Construct(const FArguments& A)
-        {
-            Stage=A._Stage;CanAccept=A._CanAccept;StageLabel=A._StageLabel;UnavailableReason=A._UnavailableReason;Selected=A._Selected;OnEffectDropped=A._OnEffectDropped;
-            ChildSlot[SNew(SBorder).Padding(2).BorderImage(&PanelBrush()).BorderBackgroundColor_Lambda([this]
-                {return bHovered&&HoverOperation.IsValid()&&FSlateApplication::Get().GetDragDroppingContent().Get()==HoverOperation.Pin().Get()?(CanAccept.Get()?WorkspaceMint:FLinearColor(.63f,.35f,.30f)):
-                    Selected.Get()?WorkspaceMint:BorderFill;})[A._Content.Widget]];
-        }
-        virtual void OnDragEnter(const FGeometry&,const FDragDropEvent& E)override
-        {if(const auto Op=E.GetOperationAs<FWorkspaceEffectDrag>()){bHovered=true;HoverOperation=Op;Op->Target(StageLabel.Get(),CanAccept.Get(),UnavailableReason.Get());Invalidate(EInvalidateWidgetReason::Paint);}}
-        virtual void OnDragLeave(const FDragDropEvent& E)override
-        {bHovered=false;if(const auto Op=E.GetOperationAs<FWorkspaceEffectDrag>())Op->Reject();Invalidate(EInvalidateWidgetReason::Paint);}
-        virtual FReply OnDragOver(const FGeometry&,const FDragDropEvent& E)override
-        {if(const auto Op=E.GetOperationAs<FWorkspaceEffectDrag>()){bHovered=true;HoverOperation=Op;Op->Target(StageLabel.Get(),CanAccept.Get(),UnavailableReason.Get());return FReply::Handled();}return FReply::Unhandled();}
-        virtual FReply OnDrop(const FGeometry&,const FDragDropEvent& E)override
-        {
-            bHovered=false;const auto Op=E.GetOperationAs<FWorkspaceEffectDrag>();if(!Op)return FReply::Unhandled();
-            if(CanAccept.Get()&&Op->Asset.AssetClassPath==UNiagaraSystem::StaticClass()->GetClassPathName())
-            {const FDropWorkspaceEffect Callback=OnEffectDropped;Callback.ExecuteIfBound(Stage,Op->Asset);}
-            return FReply::Handled();
-        }
-    private:
-        FName Stage;TAttribute<FText> StageLabel;TAttribute<FString> UnavailableReason;TAttribute<bool> CanAccept,Selected;FDropWorkspaceEffect OnEffectDropped;bool bHovered=false;TWeakPtr<FWorkspaceEffectDrag> HoverOperation;
-    };
-
-    class SActionStageGraph;
-    class SActionConnections final : public SLeafWidget
-    {
-    public:
-        SLATE_BEGIN_ARGS(SActionConnections):_PinsOnly(false){}SLATE_ARGUMENT(TWeakPtr<SActionStageGraph>,Graph)SLATE_ARGUMENT(bool,PinsOnly)SLATE_END_ARGS()
-        void Construct(const FArguments& A){Graph=A._Graph;bPinsOnly=A._PinsOnly;SetVisibility(EVisibility::HitTestInvisible);}
-        virtual FVector2D ComputeDesiredSize(float)const override{return GraphExtent;}
-        virtual int32 OnPaint(const FPaintArgs&,const FGeometry&,const FSlateRect&,FSlateWindowElementList&,int32,const FWidgetStyle&,bool)const override;
-        TWeakPtr<SActionStageGraph> Graph;
-        bool bPinsOnly=false;
-    };
-    DECLARE_DELEGATE_TwoParams(FSelectWorkspaceLayer,FName,FGuid);
-    class SActionStageGraph final : public SCompoundWidget
-    {
-    public:
-        SLATE_BEGIN_ARGS(SActionStageGraph){}SLATE_ARGUMENT(TSharedPtr<FMCVFXActionSession>,Session)SLATE_ATTRIBUTE(FName,SelectedStage)
-            SLATE_ATTRIBUTE(FGuid,SelectedLayer)SLATE_EVENT(FSelectWorkspaceLayer,OnSelect)SLATE_EVENT(FSimpleDelegate,OnHub)SLATE_EVENT(FDropWorkspaceEffect,OnEffectDropped)SLATE_END_ARGS()
-        void Construct(const FArguments& A)
-        {Session=A._Session;SelectedStage=A._SelectedStage;SelectedLayer=A._SelectedLayer;OnSelect=A._OnSelect;OnHub=A._OnHub;OnEffectDropped=A._OnEffectDropped;Rebuild();}
-        void Rebuild()
-        {
-            TSharedRef<SConstraintCanvas> Canvas=SNew(SConstraintCanvas).RenderTransform_Lambda([this]{return FSlateRenderTransform(FScale2D(Zoom),Pan);}).RenderTransformPivot(FVector2D::ZeroVector);
-            const auto Stages=Session->GetActionStages();
-            for(int32 I=0;I<Stages.Num();++I)
-            {
-                const FName Stage=Stages[I];const auto* Recipe=Session->GetRecipe(Stage);const FVector2D Size=StageDimensions(Recipe),P=StagePosition(I,Size,Stages.Num());
-                TSharedRef<SVerticalBox> Rows=SNew(SVerticalBox);
-                if(Recipe)for(int32 L=0;L<Recipe->Layers.Num()&&Recipe->Nodes.IsValidIndex(L);++L)
-                {
-                    const FGuid ID=Recipe->Nodes[L].ID;const auto& Layer=Recipe->Layers[L];
-                    Rows->AddSlot().AutoHeight().Padding(4,2)[SNew(SWorkspaceLayerButton).System(Layer.System)
-                        .Selected_Lambda([this,Stage,ID]{return SelectedStage.Get()==Stage&&SelectedLayer.Get()==ID;})
-                        .Label(FText::FromString((Layer.bEnabled?TEXT("● "):TEXT("○ "))+LayerLabel(Layer)))
-                        .OnSelected_Lambda([this,Stage,ID]{OnSelect.ExecuteIfBound(Stage,ID);})];
-                }
-                if(!Recipe||Recipe->Layers.IsEmpty())Rows->AddSlot().AutoHeight().Padding(10,7)
-                    [SNew(STextBlock).Text_Lambda([this]{return FText::FromString(!Session->IsContextCurrent()?TEXT("Контекст изменился.\nВыберите действие\nзаново."):
-                        Session->CanEditProfile()?TEXT("Перетащите эффект\nиз библиотеки."):TEXT("Просмотр механики.\nVFX-привязка ещё\nне подключена."));})
-                        .Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),11)).ColorAndOpacity(Muted).AutoWrapText(true)];
-                Canvas->AddSlot().Offset(FMargin(P.X,P.Y,Size.X,Size.Y)).Alignment(FVector2D::ZeroVector)
-                    [SNew(SWorkspaceEventDropZone).Stage(Stage).CanAccept_Lambda([this]{return Session&&Session->CanEditProfile();}).StageLabel_Lambda([this,Stage]{return Session->GetEventLabel(Stage);}).UnavailableReason_Lambda([this]{return Session->GetEditUnavailableReason();}).Selected_Lambda([this,Stage]{return SelectedStage.Get()==Stage;})
-                        .OnEffectDropped_Lambda([this](FName Event,FAssetData Asset){OnEffectDropped.ExecuteIfBound(Event,Asset);})
-                        [SNew(SBorder).Padding(1).BorderImage(&PanelBrush()).BorderBackgroundColor(Surface)
-                        [SNew(SVerticalBox)
-                            +SVerticalBox::Slot().AutoHeight()[SNew(SButton).ButtonStyle(&NeutralStyle()).ContentPadding(FMargin(10,8)).ButtonColorAndOpacity(FLinearColor::White).ForegroundColor(TextColor)
-                                .OnClicked_Lambda([this,Stage]{OnSelect.ExecuteIfBound(Stage,FGuid());return FReply::Handled();})
-                                [SNew(SHorizontalBox)+SHorizontalBox::Slot().FillWidth(1)[Label(Session->GetEventLabel(Stage).ToString(),14,WorkspaceStageColor(Stage))]
-                                    +SHorizontalBox::Slot().AutoWidth()[SNew(STextBlock).Text_Lambda([this,Stage]{const auto* Current=Session->GetRecipe(Stage);return FText::FromString(!Session->IsContextCurrent()?TEXT("—"):
-                                        Session->CanEditProfile()?FString::Printf(TEXT("%d/%d"),EnabledLayers(Current),Current?Current->Layers.Num():0):TEXT("Просмотр"));})
-                                        .ToolTipText_Lambda([this]{return Session->CanEditProfile()?LOCTEXT("EnabledCountHint","Включено / всего слоёв"):FText::FromString(Session->GetEditUnavailableReason());})
-                                        .Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),11)).ColorAndOpacity(Muted)]]]
-                            +SVerticalBox::Slot().FillHeight(1)[SNew(SScrollBox)+SScrollBox::Slot()[Rows]]]]];
-            }
-            static const FButtonStyle HubStyle=FButtonStyle().SetNormal(FSlateRoundedBoxBrush(UIColor(TEXT("#173337")),68.f,WorkspaceMint,2.f))
-                .SetHovered(FSlateRoundedBoxBrush(UIColor(TEXT("#20464A")),68.f,WorkspaceMint,3.f)).SetPressed(FSlateRoundedBoxBrush(UIColor(TEXT("#16393D")),68.f,WorkspaceMint,3.f));
-            const FVector2D Hub=Stages.Num()>4?FVector2D(357,357):HubPosition;
-            Canvas->AddSlot().Offset(FMargin(Hub.X,Hub.Y,HubSize.X,HubSize.Y)).Alignment(FVector2D::ZeroVector)
-                [SNew(SButton).ButtonStyle(&HubStyle).ContentPadding(FMargin(17)).HAlign(HAlign_Center).VAlign(VAlign_Center).ForegroundColor(FLinearColor::White)
-                    .OnClicked_Lambda([this]{OnHub.ExecuteIfBound();return FReply::Handled();})
-                    [SNew(SVerticalBox)+SVerticalBox::Slot().AutoHeight()[SNew(STextBlock).Text(Session->GetActionLabel()).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),14)).Justification(ETextJustify::Center)]
-                        +SVerticalBox::Slot().AutoHeight().Padding(0,6,0,0)[SNew(STextBlock).Text(LOCTEXT("ActionHub","ДЕЙСТВИЕ")).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),9)).ColorAndOpacity(WorkspaceMint).Justification(ETextJustify::Center)]]];
-            ChildSlot[SNew(SBorder).Padding(0).BorderImage(FCoreStyle::Get().GetBrush(TEXT("WhiteBrush"))).BorderBackgroundColor(GraphFill).Clipping(EWidgetClipping::ClipToBounds)
-                [SNew(SOverlay)+SOverlay::Slot()[SNew(SActionConnections).Graph(SharedThis(this))]+SOverlay::Slot()[Canvas]
-                    +SOverlay::Slot()[SNew(SActionConnections).Graph(SharedThis(this)).PinsOnly(true)]]];
-        }
-        void Frame(){bFit=true;LastSize=FVector2D::ZeroVector;}
-        virtual void Tick(const FGeometry& G,double T,float Dt)override
-        {
-            SCompoundWidget::Tick(G,T,Dt);const auto S=G.GetLocalSize();
-            if(!bFit||S.X<2||S.Y<2||S.Equals(LastSize,1.f))return;
-            const FVector2D Extent=Session->GetActionStages().Num()>4?FVector2D(850,850):GraphExtent;
-            Zoom=float(FMath::Clamp(FMath::Min((S.X-16)/Extent.X,(S.Y-16)/Extent.Y),.1,1.25));
-            Pan=(S-Extent*Zoom)*.5;LastSize=S;Invalidate(EInvalidateWidgetReason::Layout);
-        }
-        virtual FReply OnMouseButtonDown(const FGeometry&,const FPointerEvent& E)override
-        {if(E.GetEffectingButton()==EKeys::RightMouseButton||E.GetEffectingButton()==EKeys::MiddleMouseButton){bPanning=true;bFit=false;return FReply::Handled().CaptureMouse(SharedThis(this));}return FReply::Unhandled();}
-        virtual FReply OnMouseMove(const FGeometry&,const FPointerEvent& E)override
-        {if(!bPanning)return FReply::Unhandled();Pan+=E.GetCursorDelta();Invalidate(EInvalidateWidgetReason::Layout);return FReply::Handled();}
-        virtual FReply OnMouseButtonUp(const FGeometry&,const FPointerEvent&)override
-        {if(!bPanning)return FReply::Unhandled();bPanning=false;return FReply::Handled().ReleaseMouseCapture();}
-        virtual void OnMouseCaptureLost(const FCaptureLostEvent&)override{bPanning=false;}
-        virtual FReply OnMouseWheel(const FGeometry& G,const FPointerEvent& E)override
-        {const auto P=G.AbsoluteToLocal(E.GetScreenSpacePosition());const float NewZoom=FMath::Clamp(Zoom*FMath::Pow(1.12f,E.GetWheelDelta()),.4f,1.6f);Pan=P-(P-Pan)*(NewZoom/Zoom);Zoom=NewZoom;bFit=false;Invalidate(EInvalidateWidgetReason::Layout);return FReply::Handled();}
-        TSharedPtr<FMCVFXActionSession> Session;FVector2D Pan=FVector2D::ZeroVector;float Zoom=1;
-        virtual FReply OnDragOver(const FGeometry&,const FDragDropEvent& E)override
-        {if(const auto Op=E.GetOperationAs<FWorkspaceEffectDrag>()){Op->Reject();return FReply::Handled();}return FReply::Unhandled();}
-        virtual FReply OnDrop(const FGeometry&,const FDragDropEvent& E)override
-        {if(const auto Op=E.GetOperationAs<FWorkspaceEffectDrag>()){Op->Reject();return FReply::Handled();}return FReply::Unhandled();}
-    private:
-        TAttribute<FName> SelectedStage;TAttribute<FGuid> SelectedLayer;FSelectWorkspaceLayer OnSelect;FSimpleDelegate OnHub;FDropWorkspaceEffect OnEffectDropped;
-        bool bPanning=false,bFit=true;FVector2D LastSize=FVector2D::ZeroVector;
-    };
-    int32 SActionConnections::OnPaint(const FPaintArgs&,const FGeometry& G,const FSlateRect&,FSlateWindowElementList& O,int32 L,const FWidgetStyle&,bool)const
-    {
-        const auto P=Graph.Pin();if(!P)return L;
-        if(!bPinsOnly)
-        {
-            const auto Size=G.GetLocalSize();const float Step=FMath::Max(8.f,32.f*P->Zoom);const auto Grid=UIColor(TEXT("#23303C")).CopyWithNewOpacity(.55f);
-            for(float X=FMath::Fmod(P->Pan.X,Step);X<Size.X;X+=Step)FSlateDrawElement::MakeLines(O,L,G.ToPaintGeometry(),{FVector2D(X,0),FVector2D(X,Size.Y)},ESlateDrawEffect::None,Grid,false,1.f);
-            for(float Y=FMath::Fmod(P->Pan.Y,Step);Y<Size.Y;Y+=Step)FSlateDrawElement::MakeLines(O,L,G.ToPaintGeometry(),{FVector2D(0,Y),FVector2D(Size.X,Y)},ESlateDrawEffect::None,Grid,false,1.f);
-        }
-        const auto Stages=P->Session->GetActionStages();const FVector2D Center=(Stages.Num()>4?FVector2D(357,357):HubPosition)+HubSize*.5;
-        for(int32 I=0;I<Stages.Num();++I)
-        {
-            const auto* Recipe=P->Session->GetRecipe(Stages[I]);bool Active=false;if(Recipe)for(const auto& Layer:Recipe->Layers)Active|=Layer.bEnabled;
-            if(!Active)continue;
-            const FVector2D Size=StageDimensions(Recipe),Node=StagePosition(I,Size,Stages.Num())+Size*.5,Direction=(Node-Center).GetSafeNormal();
-            const double ToEdge=FMath::Min((Size.X*.5)/FMath::Max(.0001,FMath::Abs(Direction.X)),(Size.Y*.5)/FMath::Max(.0001,FMath::Abs(Direction.Y)));
-            const FVector2D ALocal=P->Pan+(Center+Direction*(HubSize.X*.5))*P->Zoom,BLocal=P->Pan+(Node-Direction*ToEdge)*P->Zoom;
-            if(bPinsOnly)
-            {
-                static const FSlateRoundedBoxBrush Pin(FLinearColor::White,4.f,FLinearColor(.025f,.045f,.055f),1.f);
-                for(const FVector2D& Point:{ALocal,BLocal})FSlateDrawElement::MakeBox(O,L+1,
-                    G.ToPaintGeometry(FVector2f(FVector2D(8,8)*P->Zoom),FSlateLayoutTransform(FVector2f(Point-FVector2D(4,4)*P->Zoom))),&Pin,ESlateDrawEffect::None,WorkspaceStageColor(Stages[I]));
-            }
-            else FSlateDrawElement::MakeDrawSpaceSpline(O,L+1,G.LocalToAbsolute(ALocal),Direction*70*P->Zoom,G.LocalToAbsolute(BLocal),Direction*70*P->Zoom,2.f,ESlateDrawEffect::None,WorkspaceStageColor(Stages[I]));
-        }
-        return L+1;
-    }
+    #include "MCVFXWorkspaceGroupGraph.inl"
 
     class SActionWorkspace final : public SCompoundWidget
     {
@@ -380,14 +261,30 @@ namespace
         virtual ~SActionWorkspace()override;
         void SetOwnerTab(const TSharedRef<SDockTab>& Tab){OwnerTab=Tab;}
         bool CanClose();
+        bool ConfirmDraftTransition(const FString& Reason);
         void Closed();
         FString Snapshot()const;
         TSharedPtr<FMCVFXActionSession> GetSession()const{return Session;}
         bool ImportSavedEvent(FName ActionID,FName Stage,UMCVFXComposition* Source,FString& Error);
+        bool SelectForReview(FName ActionID,FString& Error);
+        bool PlayForReview(EMCPerkPreviewScenario Scenario,bool Loop,FString& Error)
+        {
+            if(!CanPlay() || !Session->GetScenarios().Contains(Scenario)) {Error=TEXT("Выбранный сценарий недоступен для этого действия.");return false;}
+            Stop();SelectedScenario=Scenario;bLoop=Loop;Play(false);
+            if(!bPlaying){Error=Status;return false;}return true;
+        }
+        void StopForReview(){Stop();}
     private:
         TSharedPtr<FMCVFXActionSession> Session;
         TSharedPtr<SWidget> NativePreview;
         TSharedPtr<SBox> PreviewHost,GraphHost;
+        TSharedPtr<SBox> SFXGalleryHost;
+        TSharedPtr<SMCSFXGallery> SFXGallery;
+        bool bShowSFX=false;
+        bool bShowTechnicalSources=false;
+        TMap<FName,FGuid> SelectedSFXLayers;
+        bool bSFXAudition=false;
+        FAssetData SFXAuditionAsset;
         TSharedPtr<SActionStageGraph> Graph;
         TSharedPtr<SVerticalBox> Details;
         TSharedPtr<FAssetThumbnailPool> GalleryPool;
@@ -396,13 +293,17 @@ namespace
         TArray<FAssetData> GalleryCatalog;
         TArray<FGalleryItem> GalleryItems;
         TArray<FCatalogItem> Catalogue;
+        TArray<FCatalogItem> FilteredCatalogue;
         TSharedPtr<SListView<FCatalogItem>> CatalogueView;
+        TSharedPtr<SSearchBox> CatalogueSearchBox;
+        FMCVFXCatalogueFilter CatalogueFilter;
+        bool bRefreshingCatalogueFilter=false;
         TWeakPtr<SDockTab> OwnerTab;
         FTSTicker::FDelegateHandle TickHandle;
         FAssetData GallerySelection;
         FName SelectedAction=TEXT("Consumable_Rocket"),SelectedStage=TEXT("Start");
         EMCPerkPreviewScenario SelectedScenario=EMCPerkPreviewScenario::Target;
-        FGuid SelectedLayer;
+        FGuid SelectedLayer,SelectedGroup;
         FString GalleryQuery,Status;
         TMap<FName,FGalleryThumbnailEvidence> GalleryThumbnailEvidence;
         TMap<uint32,TSet<FName>> GalleryThumbnailSources;
@@ -412,13 +313,36 @@ namespace
         bool TickWorkspace(float);
         void SelectAction(FCatalogItem Item);
         void SelectLayer(FName Stage,FGuid ID);
+        void SelectEventScenario();
         void SelectGallery(FGalleryItem Item);
         void Refresh();
         void RefreshDetails();
         void RefreshGallery(const TCHAR* Path=nullptr);
+        void RefreshCatalogueFilter();
+        void ClearCatalogueFilter();
+        TSharedRef<SWidget> CatalogueNavigation();
+        TSharedRef<SWidget> CatalogueCategoryMenu();
+        TSharedRef<SWidget> CatalogueBoosterMenu();
+        TSharedRef<SWidget> NativePartsPanel(bool bPersistent,FName Event);
+        TSharedRef<SWidget> SFXEventPanel(FName Event);
+        void RefreshSFXGallery();
+        void AuditionSound(const FAssetData& Asset);
+        bool IsSelectedActionVisible()const;
         TSharedRef<SWidget> GalleryImage(const FAssetData& Asset);
         void AddSelected();
         void DropEffect(FName Stage,const FAssetData& Asset);
+        void DropPresentation(FName Stage,FGuid Group,const FAssetData& Asset);
+        void SelectSound(FName Stage,FGuid ID);
+        void SelectGroup(FName Stage,FGuid ID);
+        void SavePack();
+        void LoadPackAsset(const FAssetData& Asset,bool bCompare=false);
+        TSharedRef<SWidget> PackMenu();
+        TSharedRef<SWidget> CompareMenu();
+        FSoftObjectPath CompareA,CompareB;
+        FString PackLabel;
+        TMap<FSoftObjectPath,FString> PackDisplayNames;
+        FString PackDisplayName(const FSoftObjectPath& Path)const;
+        void CachePackDisplayName(const UMCVFXActionPack* Pack);
         FReply BeginGalleryDrag(const FAssetData& Asset);
         void NewCompound();
         TSharedRef<SWidget> CompoundMenu();
@@ -433,8 +357,8 @@ namespace
         void CommitColor(FLinearColor Value,FName Stage,FGuid ID,int32 Index);
         FString ActionTitle()const;
         void Fail(const FString& Error){Status=TEXT("Ошибка: ")+Error;}
-        bool CanPlay()const{return !bUnsupported&&Session&&Session->IsContextCurrent();}
-        bool CanEdit()const{return CanPlay()&&Session->CanEditProfile();}
+        bool CanPlay()const{return !bUnsupported&&Session&&Session->CanPreview();}
+        bool CanEdit()const{return !bUnsupported&&Session&&Session->CanEditProfile();}
         FString AuthoringUnavailableReason()const
         {if(bUnsupported)return TEXT("Для этого события пока доступен каталог метаданных; адаптер предпросмотра ещё не подключён.");
             return Session?Session->GetEditUnavailableReason():TEXT("Выберите действие, чтобы открыть его контекст.");}
@@ -451,7 +375,8 @@ namespace
         FString Error;const bool Ready=Session->Initialize(SelectedAction,Error);Status=Ready?TEXT("Выберите событие действия в центре. Клик по галерее — только просмотр; «Добавить» включает слой в черновик."):TEXT("Ошибка: ")+Error;
         NativePreview=Ready?Session->MakePreviewWidget():Label(Error,14);
         for(const auto& Entry:FMCVFXActionSession::GetCatalogue())Catalogue.Add(MakeShared<FMCVFXActionCatalogueEntry>(Entry));
-        GalleryPool=MakeShared<FAssetThumbnailPool>(24);RefreshGallery(TEXT("/Game/Gameplay/ActiveSkills/VFX"));
+        RefreshCatalogueFilter();
+        GalleryPool=MakeShared<FAssetThumbnailPool>(24);RefreshGallery(TEXT("/Game/Gameplay"));
         ChildSlot[SNew(SBorder).Padding(0).BorderImage(&PanelBrush()).BorderBackgroundColor(AppFill)[SNew(SVerticalBox)
             +SVerticalBox::Slot().AutoHeight().Padding(10,8)[SNew(SHorizontalBox)
                 +SHorizontalBox::Slot().FillWidth(1).VAlign(VAlign_Center)[SNew(STextBlock).Text_Lambda([this]{return FText::FromString(TEXT("VFX Composer  /  ")+ActionTitle());}).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),18))]
@@ -461,14 +386,26 @@ namespace
                     .OnGetMenuContent_Lambda([this]{return CompoundMenu();}).ButtonContent()[SNew(STextBlock).Text(LOCTEXT("NewCompoundButton","＋ Новая композиция")).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),13))]]
                 +SHorizontalBox::Slot().AutoWidth()[SNew(SButton).ButtonStyle(&SolidStyle()).ContentPadding(FMargin(14,10))
                     .ButtonColorAndOpacity_Lambda([this]{return CanEdit()?ButtonFill:HeadingFill;})
-                    .IsEnabled_Lambda([this]{return CanEdit();}).ToolTipText_Lambda([this]{return CanEdit()?LOCTEXT("ApplyAllHint","Сохранить композиции с независимыми Niagara-слоями и назначить новый VFX-профиль действию в игре. Исходные эффекты не перезаписываются."):FText::FromString(AuthoringUnavailableReason());})
+                    .IsEnabled_Lambda([this]{return CanEdit()&&Session->IsRuntimeDirty();}).ToolTipText_Lambda([this]{return CanEdit()?LOCTEXT("ApplyAllHint","Сохранить композиции с независимыми Niagara-слоями и назначить новый VFX-профиль действию в игре. Исходные эффекты не перезаписываются."):FText::FromString(AuthoringUnavailableReason());})
                     .OnClicked_Lambda([this]{Apply();return FReply::Handled();})[Label(TEXT("Применить в игре"),13)]]]
+            +SVerticalBox::Slot().AutoHeight().Padding(10,0,10,8)[SNew(SBorder).BorderImage(&PanelBrush()).BorderBackgroundColor(PanelFill).Padding(8,6)
+                [SNew(SHorizontalBox)
+                    +SHorizontalBox::Slot().AutoWidth().VAlign(VAlign_Center).Padding(0,0,10,0)[Label(TEXT("ПАК ЭФФЕКТОВ"),10,WorkspaceMint)]
+                    +SHorizontalBox::Slot().FillWidth(1).Padding(0,0,6,0)[SNew(SEditableTextBox).HintText(FText::FromString(TEXT("Название новой версии…")))
+                        .Text_Lambda([this]{return FText::FromString(PackLabel);}).OnTextChanged_Lambda([this](const FText& T){PackLabel=T.ToString();})]
+                    +SHorizontalBox::Slot().AutoWidth().Padding(0,0,5,0)[SNew(SButton).ButtonStyle(&NeutralStyle()).ContentPadding(FMargin(12,7))
+                        .IsEnabled_Lambda([this]{return CanEdit();}).ToolTipText(FText::FromString(TEXT("Сохранить новую независимую версию VFX + SFX, групп и раскладки. Не назначает её в игре.")))
+                        .OnClicked_Lambda([this]{SavePack();return FReply::Handled();})[Label(TEXT("Сохранить новую версию"),11)]]
+                    +SHorizontalBox::Slot().AutoWidth().Padding(0,0,5,0)[SNew(SComboButton).ButtonStyle(&NeutralStyle()).ContentPadding(FMargin(10,7))
+                        .OnGetMenuContent_Lambda([this]{return PackMenu();}).ButtonContent()[Label(TEXT("Открыть пак"),11)]]
+                    +SHorizontalBox::Slot().AutoWidth()[SNew(SComboButton).ButtonStyle(&NeutralStyle()).ContentPadding(FMargin(10,7))
+                        .OnGetMenuContent_Lambda([this]{return CompareMenu();}).ButtonContent()[Label(TEXT("A / B"),11)]]]]
             +SVerticalBox::Slot().AutoHeight().Padding(12,0,12,8)[SNew(STextBlock).Text_Lambda([this]{
-                if(!CanPlay())return FText::FromString(bUnsupported?TEXT("Каталог событий"):TEXT("Контекст изменился · выберите действие заново"));
-                return FText::FromString(FString(!CanEdit()?TEXT("Просмотр механики  ·  "):Session->IsDirty()?TEXT("● Черновик изменён  ·  "):TEXT("Рабочая копия  ·  "))+TEXT("Выбрано событие: ")+Session->GetEventLabel(SelectedStage).ToString());}).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),12)).ColorAndOpacity(Muted)]
+                if(!CanPlay()&&!CanEdit())return FText::FromString(bUnsupported?TEXT("Каталог событий"):TEXT("Контекст изменился · выберите действие заново"));
+                return FText::FromString(FString(!CanEdit()?TEXT("Просмотр механики  ·  "):Session->HasUnsavedPackChanges()?TEXT("● Несохранённый черновик  ·  "):TEXT("Сохранённая рабочая копия  ·  "))+TEXT("Событие: ")+Session->GetEventLabel(SelectedStage).ToString()+TEXT("  ·  Пак: ")+PackDisplayName(Session->GetLoadedPackPath()));}).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),12)).ColorAndOpacity(Muted)]
             +SVerticalBox::Slot().FillHeight(1).Padding(8,0)[SNew(SSplitter)
                 +SSplitter::Slot().Value(.24f)[SNew(SSplitter).Orientation(Orient_Vertical)
-                    +SSplitter::Slot().Value(.50f)[SNew(SVerticalBox)
+                    +SSplitter::Slot().Value(.68f)[SNew(SVerticalBox)
                         +SVerticalBox::Slot().AutoHeight()[SNew(SBorder).Padding(9,5).BorderImage(&PanelBrush()).BorderBackgroundColor(HeadingFill)
                             .ToolTipText_Lambda([this]{return CanEdit()?LOCTEXT("PreviewModeHint","Примерка временно добавляет эффект галереи к выбранному событию. В черновик он попадёт только после «Добавить»."):FText::FromString(AuthoringUnavailableReason());})
                             [SNew(STextBlock).Text_Lambda([this]{return FText::FromString(!CanPlay()?TEXT("Предпросмотр недоступен"):!CanEdit()?TEXT("Механика · просмотр"):bAudition?TEXT("Примерка — не добавлено"):TEXT("Черновик события"));}).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),12)).ColorAndOpacity(WorkspaceMint)]]
@@ -476,7 +413,8 @@ namespace
                         +SVerticalBox::Slot().AutoHeight().Padding(4)[SNew(SHorizontalBox)
                             +SHorizontalBox::Slot().FillWidth(1).Padding(0,0,4,0)[SNew(SButton).ButtonStyle(&SolidStyle()).ContentPadding(FMargin(7,8)).ButtonColorAndOpacity_Lambda([this]{return CanPlay()?WorkspaceMint:HeadingFill;})
                                 .ForegroundColor_Lambda([this]{return FSlateColor(CanPlay()?Ink:Muted);}).IsEnabled_Lambda([this]{return CanPlay();})
-                                .ToolTipText(LOCTEXT("PlayHint","Полностью выполнить настоящее действие со всеми черновиками событий."))
+                                .ToolTipText_Lambda([this]{return CanPlay()?LOCTEXT("PlayHint","Полностью выполнить настоящее действие со всеми черновиками событий.")
+                                    :FText::FromString(Session?Session->GetPreviewUnavailableReason():TEXT("Выберите действие."));})
                                 .OnClicked_Lambda([this]{Play();return FReply::Handled();})[SNew(STextBlock).Text(LOCTEXT("PlayAction","▶ Играть")).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),12))]]
                             +SHorizontalBox::Slot().AutoWidth().Padding(0,0,4,0)[Command(TEXT("Ⅱ"),[this]{if(!CanPlay())return;bPaused=!bPaused;Session->Pause(bPaused);})]
                             +SHorizontalBox::Slot().AutoWidth()[Command(TEXT("■"),[this]{Stop();})]]
@@ -488,38 +426,68 @@ namespace
                                 for(auto Scenario:Session->GetScenarios())Menu->AddSlot().AutoHeight()[Command(Session->GetScenarioLabel(Scenario).ToString(),[this,Scenario]{Stop();SelectedScenario=Scenario;FSlateApplication::Get().DismissAllMenus();})];
                                 return Menu;
                             }).ButtonContent()[SNew(STextBlock).Text_Lambda([this]{return Session->GetScenarioLabel(SelectedScenario);}).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),11)).ColorAndOpacity(TextColor)]]
-                        +SVerticalBox::Slot().AutoHeight().Padding(6,0,6,6)[SNew(SCheckBox).IsChecked_Lambda([this]{return bLoop?ECheckBoxState::Checked:ECheckBoxState::Unchecked;})
-                            .OnCheckStateChanged_Lambda([this](ECheckBoxState S){bLoop=S==ECheckBoxState::Checked;RepeatAt=0;})[Label(TEXT("Повтор действия"),11)]]]
-                    +SSplitter::Slot().Value(.50f)[SNew(SVerticalBox)
+                        +SVerticalBox::Slot().AutoHeight().Padding(6,0,6,6)[SNew(SHorizontalBox)
+                            +SHorizontalBox::Slot().FillWidth(1)[SNew(SCheckBox).IsChecked_Lambda([this]{return bLoop?ECheckBoxState::Checked:ECheckBoxState::Unchecked;})
+                                .OnCheckStateChanged_Lambda([this](ECheckBoxState S){bLoop=S==ECheckBoxState::Checked;RepeatAt=0;})[Label(TEXT("Повтор"),11)]]
+                            +SHorizontalBox::Slot().FillWidth(1)[SNew(SCheckBox).IsChecked_Lambda([this]{return Session->IsPreviewAudioEnabled()?ECheckBoxState::Checked:ECheckBoxState::Unchecked;})
+                                .OnCheckStateChanged_Lambda([this](ECheckBoxState V){FString E;if(!Session->SetPreviewAudioEnabled(V==ECheckBoxState::Checked,E))Fail(E);RefreshDetails();})
+                                .ToolTipText(FText::FromString(TEXT("Включить звук в изолированном предпросмотре")))[Label(TEXT("Звук"),11)]]]]
+                    +SSplitter::Slot().Value(.32f)[SNew(SVerticalBox)
                         +SVerticalBox::Slot().AutoHeight()[Heading(TEXT("ДЕЙСТВИЯ И СОБЫТИЯ"))]
-                        +SVerticalBox::Slot().FillHeight(1)[SAssignNew(CatalogueView,SListView<FCatalogItem>).ListItemsSource(&Catalogue).SelectionMode(ESelectionMode::Single)
+                        +SVerticalBox::Slot().AutoHeight()[CatalogueNavigation()]
+                        +SVerticalBox::Slot().FillHeight(1)[SAssignNew(CatalogueView,SListView<FCatalogItem>).ListItemsSource(&FilteredCatalogue).SelectionMode(ESelectionMode::Single)
                             .OnGenerateRow_Lambda([this](FCatalogItem Item,const TSharedRef<STableViewBase>& Owner)->TSharedRef<ITableRow>
                             {return SNew(STableRow<FCatalogItem>,Owner).Padding(4)[SNew(SBorder).Padding(10).BorderImage_Lambda([this,Item]{return SelectedAction==Item->ID?&SelectedPanelBrush():&PanelBrush();})
                                 .BorderBackgroundColor_Lambda([this,Item]{return SelectedAction==Item->ID?UIColor(TEXT("#1B3D3F")):Surface;})
-                                [SNew(SVerticalBox)+SVerticalBox::Slot().AutoHeight()[SNew(STextBlock).Text(Item->Label).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),12)).ColorAndOpacity(TextColor)]
-                                    +SVerticalBox::Slot().AutoHeight().Padding(0,4)[Label(Item->bSupportsPreview?(Item->bSupportsProfileOverride?TEXT("Сценарий + редактирование VFX"):TEXT("Сценарий · VFX-привязка впереди")):TEXT("Метаданные · адаптер впереди"),10,Item->bSupportsPreview?WorkspaceMint:Muted)]]];})
-                            .OnSelectionChanged_Lambda([this](FCatalogItem Item,ESelectInfo::Type){if(Item)SelectAction(Item);})]]]
+                                [SNew(SVerticalBox)+SVerticalBox::Slot().AutoHeight()[SNew(STextBlock).Text(Item->Label).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),12)).ColorAndOpacity(TextColor).AutoWrapText(true)]
+                                    +SVerticalBox::Slot().AutoHeight().Padding(0,4)[Label(Item->bSupportsPreview?(Item->bSupportsProfileOverride?TEXT("Сценарий + редактирование VFX"):TEXT("Сценарий · VFX-привязка впереди")):
+                                        Item->bSupportsProfileOverride?TEXT("Редактирование VFX · без сценария"):TEXT("Метаданные · адаптер впереди"),10,Item->bSupportsPreview?WorkspaceMint:Muted)]]];})
+                            .OnSelectionChanged_Lambda([this](FCatalogItem Item,ESelectInfo::Type Origin){if(Item&&!bRefreshingCatalogueFilter&&Origin!=ESelectInfo::Direct){SelectAction(Item);RefreshCatalogueFilter();}})]]]
                 +SSplitter::Slot().Value(.45f)[SNew(SVerticalBox)
                     +SVerticalBox::Slot().AutoHeight()[SNew(SHorizontalBox)
                         +SHorizontalBox::Slot().FillWidth(1)[Heading(TEXT("ДЕЙСТВИЕ → СОБЫТИЯ → СЛОИ"))]
-                        +SHorizontalBox::Slot().AutoWidth()[Command(TEXT("Вписать"),[this]{if(Graph)Graph->Frame();})]]
+                        +SHorizontalBox::Slot().AutoWidth().Padding(5,0,9,0).VAlign(VAlign_Center)
+                            [SNew(SCheckBox).IsChecked_Lambda([this]{return bShowTechnicalSources?ECheckBoxState::Checked:ECheckBoxState::Unchecked;})
+                                .ToolTipText(FText::FromString(TEXT("Показать исходные материалы, геометрию и управление родной основой. Только вид интерфейса: данные и воспроизведение не меняются.")))
+                                .OnCheckStateChanged_Lambda([this](ECheckBoxState State){bShowTechnicalSources=State==ECheckBoxState::Checked;if(Graph)Graph->Rebuild();RefreshDetails();})
+                                [Label(TEXT("Техническая основа"),10,Muted)]]
+                        +SHorizontalBox::Slot().AutoWidth().Padding(0,0,4,0)[SNew(SBox).ToolTipText(FText::FromString(TEXT("Вписать выбранное событие или группу в видимую область. Раскладка не меняется.")))
+                            [Command(TEXT("Вписать узел"),[this]{if(Graph)Graph->FrameSelected();})]]
+                        +SHorizontalBox::Slot().AutoWidth()[SNew(SBox).ToolTipText(FText::FromString(TEXT("Показать все события, группы и центральный узел. Раскладка не меняется.")))
+                            [Command(TEXT("Вписать граф"),[this]{if(Graph)Graph->Frame();})]]]
                     +SVerticalBox::Slot().FillHeight(1)[SAssignNew(GraphHost,SBox)
                         [SAssignNew(Graph,SActionStageGraph).Session(Session).SelectedStage_Lambda([this]{return SelectedStage;}).SelectedLayer_Lambda([this]{return SelectedLayer;})
+                            .ShowTechnicalSources_Lambda([this]{return bShowTechnicalSources;})
+                            .SelectedGroup_Lambda([this]{return SelectedGroup;})
+                            .SelectedSound_Lambda([this]{return bShowSFX?SelectedSFXLayers.FindRef(SelectedStage):FGuid();})
+                            .OnSelectSound_Lambda([this](FName Event,FGuid ID){SelectSound(Event,ID);})
+                            .OnSelectGroup_Lambda([this](FName Event,FGuid ID){SelectGroup(Event,ID);})
+                            .OnError_Lambda([this](FString Error){Fail(Error);})
+                            .OnChanged_Lambda([this](bool Runtime){if(Runtime)Stop();Refresh();Status=Runtime?TEXT("Группа изменена в черновике. Играть — проверить; Применить — сохранить в игру."):TEXT("Раскладка сохранена в черновике; воспроизведение продолжается. Ctrl+Z — отмена.");})
                             .OnSelect_Lambda([this](FName Stage,FGuid ID){SelectLayer(Stage,ID);}).OnHub_Lambda([this]{bShowActionDetails=true;SelectedLayer.Invalidate();RefreshDetails();})
-                            .OnEffectDropped_Lambda([this](FName Stage,FAssetData Asset){DropEffect(Stage,Asset);})]]
+                            .OnEffectDropped_Lambda([this](FName Stage,FGuid Group,FAssetData Asset){DropPresentation(Stage,Group,Asset);})]]
                     +SVerticalBox::Slot().AutoHeight().Padding(8)[SNew(STextBlock).Text_Lambda([this]{return CanEdit()?LOCTEXT("GraphNavigation","1 Событие → 2 Примерить → 3 Добавить → 4 Применить"):
                         FText::FromString(CanPlay()?TEXT("Реальный сценарий · Niagara-слои пока не редактируются"):TEXT("Выберите действие, чтобы восстановить контекст"));})
                         .ToolTipText_Lambda([this]{return CanEdit()?LOCTEXT("GraphMeaning","ПКМ — панорама; колесо — масштаб. Выберите событие, затем слой. Провода показывают события одного настоящего действия; они не создают новую игровую механику."):FText::FromString(AuthoringUnavailableReason());})
                         .Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),10)).ColorAndOpacity(Muted)]]
                 +SSplitter::Slot().Value(.31f)[SNew(SSplitter).Orientation(Orient_Vertical)
-                    +SSplitter::Slot().Value(.45f)[SNew(SVerticalBox)
+                    +SSplitter::Slot().Value(.45f).MinSize(280.f)[SNew(SVerticalBox)
+                        +SVerticalBox::Slot().AutoHeight().Padding(4)[SNew(SHorizontalBox)
+                            +SHorizontalBox::Slot().FillWidth(1).Padding(0,0,3,0)[SNew(SButton).ButtonStyle(&NeutralStyle()).ContentPadding(FMargin(7,5))
+                                .ButtonColorAndOpacity_Lambda([this]{return bShowSFX?FLinearColor::White:WorkspaceMint;})
+                                .OnClicked_Lambda([this]{bShowSFX=false;RefreshDetails();return FReply::Handled();})[Label(TEXT("VFX · эффекты"),11)]]
+                            +SHorizontalBox::Slot().FillWidth(1)[SNew(SButton).ButtonStyle(&NeutralStyle()).ContentPadding(FMargin(7,5))
+                                .ButtonColorAndOpacity_Lambda([this]{return bShowSFX?WorkspaceMint:FLinearColor::White;})
+                                .OnClicked_Lambda([this]{bShowSFX=true;bPendingGalleryAudition=false;bShowActionDetails=false;RefreshSFXGallery();RefreshDetails();return FReply::Handled();})[Label(TEXT("SFX · звук"),11)]]]
+                        +SVerticalBox::Slot().FillHeight(1)[SNew(SWidgetSwitcher).WidgetIndex_Lambda([this]{return bShowSFX?1:0;})
+                            +SWidgetSwitcher::Slot()[SNew(SVerticalBox)
                         +SVerticalBox::Slot().AutoHeight()[SNew(SBorder).Padding(9,5).BorderImage(&PanelBrush()).BorderBackgroundColor(HeadingFill)
                             .ToolTipText_Lambda([this]{return CanEdit()?LOCTEXT("GalleryContextHint","Галерея эффектов. Клик — примерка для выбранного события, кнопка «Добавить» — новый слой его черновика."):FText::FromString(AuthoringUnavailableReason());})
                             [SNew(STextBlock).Text_Lambda([this]{return FText::FromString(TEXT("Для события: ")+Session->GetEventLabel(SelectedStage).ToString());}).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),13)).ColorAndOpacity(WorkspaceMint)]]
                         +SVerticalBox::Slot().AutoHeight().Padding(3)[SAssignNew(GallerySearchBox,SEditableTextBox).HintText(LOCTEXT("Search","Найти эффект…")).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),12)).Padding(FMargin(7,5))
                             .OnTextChanged_Lambda([this](const FText& T){GalleryQuery=T.ToString();RefreshGallery();})]
                         +SVerticalBox::Slot().AutoHeight()[SNew(SHorizontalBox)
-                            +SHorizontalBox::Slot().FillWidth(1).Padding(3)[SmallCommand(TEXT("Игра"),[this]{RefreshGallery(TEXT("/Game/Gameplay/ActiveSkills/VFX"));})]
+                            +SHorizontalBox::Slot().FillWidth(1).Padding(3)[SmallCommand(TEXT("Игра"),[this]{RefreshGallery(TEXT("/Game/Gameplay"));})]
                             +SHorizontalBox::Slot().FillWidth(1).Padding(3)[SmallCommand(TEXT("Учебные"),[this]{RefreshGallery(TEXT("/Game/Tests/VFXPractice/Effects"));})]
                             +SHorizontalBox::Slot().FillWidth(1).Padding(3)[SmallCommand(TEXT("Все"),[this]{RefreshGallery(TEXT("/Game"));})]]
                         +SVerticalBox::Slot().FillHeight(1)[SAssignNew(GalleryView,STileView<FGalleryItem>).ListItemsSource(&GalleryItems).SelectionMode(ESelectionMode::Single).ItemWidth(126.f).ItemHeight(126.f)
@@ -534,8 +502,8 @@ namespace
                                         +SVerticalBox::Slot().AutoHeight()[Label(ProvenanceLabel(*Item),9,Muted)]]];})
                             .OnSelectionChanged_Lambda([this](FGalleryItem Item,ESelectInfo::Type){if(Item)SelectGallery(Item);})]
                         +SVerticalBox::Slot().AutoHeight().Padding(6,3)[SNew(SHorizontalBox)
-                            +SHorizontalBox::Slot().FillWidth(1)[SNew(SCheckBox).IsEnabled_Lambda([this]{return CanEdit();}).IsChecked_Lambda([this]{return bLive?ECheckBoxState::Checked:ECheckBoxState::Unchecked;})
-                                .OnCheckStateChanged_Lambda([this](ECheckBoxState S){if(!CanEdit()){Status=AuthoringUnavailableReason();return;}bLive=S==ECheckBoxState::Checked;if(bLive&&GallerySelection.IsValid())Play(true);else if(!bLive&&bAudition)Stop();})[Label(TEXT("Клик — просмотр"),10)]]
+                            +SHorizontalBox::Slot().FillWidth(1)[SNew(SCheckBox).IsEnabled_Lambda([this]{return CanPlay()&&CanEdit();}).IsChecked_Lambda([this]{return bLive?ECheckBoxState::Checked:ECheckBoxState::Unchecked;})
+                                .OnCheckStateChanged_Lambda([this](ECheckBoxState S){if(!CanPlay()||!CanEdit()){Status=Session->GetPreviewUnavailableReason();return;}bLive=S==ECheckBoxState::Checked;if(bLive&&GallerySelection.IsValid())Play(true);else if(!bLive&&bAudition)Stop();})[Label(TEXT("Клик — просмотр"),10)]]
                             +SHorizontalBox::Slot().AutoWidth()[SNew(STextBlock).Text_Lambda([this]{return FText::FromString(FString::Printf(TEXT("%d NS"),GalleryItems.Num()));}).ColorAndOpacity(Muted)]]
                         +SVerticalBox::Slot().AutoHeight().Padding(5)[SNew(SButton).ButtonStyle(&SolidStyle()).ContentPadding(FMargin(10,6))
                             .ButtonColorAndOpacity_Lambda([this]{return CanEdit()&&GallerySelection.IsValid()?WorkspaceMint:HeadingFill;}).ForegroundColor_Lambda([this]{return FSlateColor(CanEdit()&&GallerySelection.IsValid()?Ink:Muted);})
@@ -543,8 +511,12 @@ namespace
                             .IsEnabled_Lambda([this]{return CanEdit()&&GallerySelection.IsValid();}).OnClicked_Lambda([this]{AddSelected();return FReply::Handled();})
                             [SNew(STextBlock).Text_Lambda([this]{return FText::FromString(!CanEdit()?(CanPlay()?TEXT("Niagara-привязка пока недоступна"):TEXT("Откройте контекст действия")):
                                 GallerySelection.IsValid()?TEXT("＋ Добавить в «")+Session->GetEventLabel(SelectedStage).ToString()+TEXT("»"):TEXT("Выберите эффект в галерее"));}).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),12)).AutoWrapText(true)]]]
-                    +SSplitter::Slot().Value(.55f)[SNew(SVerticalBox)
-                        +SVerticalBox::Slot().AutoHeight()[Heading(TEXT("НАСТРОЙКИ ВЫБРАННОГО СЛОЯ"))]
+                            +SWidgetSwitcher::Slot()[SAssignNew(SFXGalleryHost,SBox)]]]
+                    +SSplitter::Slot().Value(.55f).MinSize(240.f)[SNew(SVerticalBox)
+                        +SVerticalBox::Slot().AutoHeight()[SNew(SBorder).Padding(9,6).BorderImage(&PanelBrush()).BorderBackgroundColor(HeadingFill)
+                            [SNew(STextBlock).Text_Lambda([this]{return bShowActionDetails?LOCTEXT("ActionDetailsTitle","ДЕЙСТВИЕ"):bShowSFX?LOCTEXT("SFXDetailsTitle","ЗВУК СОБЫТИЯ"):
+                                SelectedLayer.IsValid()?LOCTEXT("LayerDetailsTitle","ВЫБРАННЫЙ СЛОЙ"):LOCTEXT("EventDetailsTitle","СОБЫТИЕ");})
+                                .Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),12)).ColorAndOpacity(TextColor)]]
                         +SVerticalBox::Slot().FillHeight(1)[SNew(SBorder).Padding(0).BorderImage(&PanelBrush()).BorderBackgroundColor(PanelFill)
                             [SNew(SScrollBox)+SScrollBox::Slot()[SAssignNew(Details,SVerticalBox)]]]]]]
             +SVerticalBox::Slot().AutoHeight().Padding(10,7)[SNew(SBox).MaxDesiredHeight(58).Clipping(EWidgetClipping::ClipToBounds)
@@ -553,23 +525,121 @@ namespace
                     .WrapTextAt_Lambda([this]{return FMath::Max(200.f,float(GetCachedGeometry().GetLocalSize().X)-24.f);})
                     .ColorAndOpacity_Lambda([this]{return Status.StartsWith(TEXT("Ошибка:"))||Status.StartsWith(TEXT("Не применено:"))?FLinearColor(1.f,.56f,.47f):Muted;})]]]];
         Refresh();TickHandle=FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateSP(this,&SActionWorkspace::TickWorkspace),.1f);
-        if(CatalogueView)for(const auto& Entry:Catalogue)if(Entry->ID==SelectedAction){CatalogueView->SetSelection(Entry,ESelectInfo::Direct);break;}
+        RefreshCatalogueFilter();
     }
 
     SActionWorkspace::~SActionWorkspace(){FTSTicker::GetCoreTicker().RemoveTicker(TickHandle);Stop();}
-    bool SActionWorkspace::CanClose()
+    bool SActionWorkspace::ConfirmDraftTransition(const FString& Reason)
     {
-        if(!Session||!Session->IsDirty())return true;
-        return FMessageDialog::Open(EAppMsgType::YesNo,LOCTEXT("CloseDraft","Черновики событий ещё не применены в игре. Закрыть рабочую область без применения?"))==EAppReturnType::Yes;
+        if(!Session||!Session->HasUnsavedPackChanges())return true;
+        enum class EChoice{Cancel,Save,Discard};EChoice Choice=EChoice::Cancel;
+        const auto Dialog=SNew(SWindow).Title(FText::FromString(TEXT("Несохранённый пак эффектов"))).ClientSize(FVector2D(560,190)).SupportsMinimize(false).SupportsMaximize(false);
+        const TWeakPtr<SWindow> WeakDialog=Dialog;
+        auto Choose=[&Choice,WeakDialog](EChoice Value){Choice=Value;if(const auto Window=WeakDialog.Pin())Window->RequestDestroyWindow();};
+        Dialog->SetContent(SNew(SBorder).BorderImage(&PanelBrush()).BorderBackgroundColor(PanelFill).Padding(20)
+            [SNew(SVerticalBox)
+                +SVerticalBox::Slot().AutoHeight()[Label(TEXT("Сохранить изменения перед переходом?"),17)]
+                +SVerticalBox::Slot().FillHeight(1).Padding(0,10)[Label(Reason+TEXT(". В текущем черновике есть изменения VFX, SFX или раскладки, ещё не сохранённые в пак. Сохранение не назначает эффекты в игре."),12,Muted)]
+                +SVerticalBox::Slot().AutoHeight()[SNew(SHorizontalBox)
+                    +SHorizontalBox::Slot().FillWidth(1).Padding(0,0,6,0)[Command(TEXT("Сохранить пак"),[Choose]{Choose(EChoice::Save);},true)]
+                    +SHorizontalBox::Slot().FillWidth(1).Padding(0,0,6,0)[Command(TEXT("Отбросить"),[Choose]{Choose(EChoice::Discard);})]
+                    +SHorizontalBox::Slot().FillWidth(1)[Command(TEXT("Отмена"),[Choose]{Choose(EChoice::Cancel);})]]]);
+        FSlateApplication::Get().AddModalWindow(Dialog,FSlateApplication::Get().FindWidgetWindow(AsShared()),false);
+        if(Choice==EChoice::Save){SavePack();return !Session->HasUnsavedPackChanges();}return Choice==EChoice::Discard;
     }
+    bool SActionWorkspace::CanClose(){return ConfirmDraftTransition(TEXT("Закрытие Composer"));}
     void SActionWorkspace::Closed(){Stop();}
     FString SActionWorkspace::ActionTitle()const
     {for(const auto& Entry:Catalogue)if(Entry->ID==SelectedAction)return Entry->Label.ToString();return SelectedAction.ToString();}
+    bool SActionWorkspace::IsSelectedActionVisible()const
+    {return FilteredCatalogue.ContainsByPredicate([this](const FCatalogItem& Item){return Item&&Item->ID==SelectedAction;});}
+    void SActionWorkspace::RefreshCatalogueFilter()
+    {
+        // This is strictly a view refresh. Direct selection must never re-enter
+        // SelectAction and stop/reinitialize the artist's current native context.
+        TGuardValue<bool> Guard(bRefreshingCatalogueFilter,true);
+        FilteredCatalogue.Reset();
+        for(const auto& Item:Catalogue)if(Item&&CatalogueFilter.Matches(*Item))FilteredCatalogue.Add(Item);
+        if(!CatalogueView)return;
+        CatalogueView->RequestListRefresh();CatalogueView->ClearSelection();
+        for(const auto& Item:FilteredCatalogue)if(Item->ID==SelectedAction){CatalogueView->SetSelection(Item,ESelectInfo::Direct);break;}
+    }
+    void SActionWorkspace::ClearCatalogueFilter()
+    {
+        CatalogueFilter=FMCVFXCatalogueFilter();
+        if(CatalogueSearchBox)CatalogueSearchBox->SetText(FText::GetEmpty());
+        RefreshCatalogueFilter();
+    }
+    TSharedRef<SWidget> SActionWorkspace::CatalogueCategoryMenu()
+    {
+        auto Menu=SNew(SVerticalBox);
+        for(const auto Section:{EMCVFXActionSection::All,EMCVFXActionSection::Boosters,EMCVFXActionSection::Bosses,
+            EMCVFXActionSection::WorldEvents,EMCVFXActionSection::General,EMCVFXActionSection::InterfaceHub,EMCVFXActionSection::Other}) {
+            if(Section==EMCVFXActionSection::Other&&!Catalogue.ContainsByPredicate([](const FCatalogItem& Item){return Item->Section==EMCVFXActionSection::Other;}))continue;
+            int32 Count=0;for(const auto& Item:Catalogue)if(Section==EMCVFXActionSection::All||Item->Section==Section)++Count;
+            Menu->AddSlot().AutoHeight()[Command(MCVFXCatalogueNavigation::Label(Section).ToString()+FString::Printf(TEXT("  · %d"),Count),[this,Section]{
+                CatalogueFilter.Section=Section;CatalogueFilter.BoosterKind.Reset();RefreshCatalogueFilter();FSlateApplication::Get().DismissAllMenus();})];
+        }
+        return Menu;
+    }
+    TSharedRef<SWidget> SActionWorkspace::CatalogueBoosterMenu()
+    {
+        auto Menu=SNew(SVerticalBox);
+        auto Add=[this,&Menu](TOptional<EMCPerkKind> Kind){Menu->AddSlot().AutoHeight()[Command(MCVFXCatalogueNavigation::BoosterLabel(Kind).ToString(),[this,Kind]{
+            CatalogueFilter.BoosterKind=Kind;RefreshCatalogueFilter();FSlateApplication::Get().DismissAllMenus();})];};
+        Add(TOptional<EMCPerkKind>());Add(EMCPerkKind::Active);Add(EMCPerkKind::Passive);Add(EMCPerkKind::Consumable);
+        return Menu;
+    }
+    TSharedRef<SWidget> SActionWorkspace::CatalogueNavigation()
+    {
+        return SNew(SVerticalBox)
+            +SVerticalBox::Slot().AutoHeight().Padding(4,6,4,3)[SAssignNew(CatalogueSearchBox,SSearchBox)
+                .HintText(LOCTEXT("FindAction","Найти действие или ID…"))
+                .ToolTipText(LOCTEXT("FindActionHint","Название RU/EN, ключ локализации или постоянный ID. Поиск не закрывает текущий черновик."))
+                .OnTextChanged_Lambda([this](const FText& Text){CatalogueFilter.Query=Text.ToString();RefreshCatalogueFilter();})]
+            +SVerticalBox::Slot().AutoHeight().Padding(4,3)[SNew(SComboButton).ContentPadding(FMargin(8,5))
+                .OnGetMenuContent(this,&SActionWorkspace::CatalogueCategoryMenu)
+                .ButtonContent()[SNew(STextBlock).Text_Lambda([this]{return MCVFXCatalogueNavigation::Label(CatalogueFilter.Section);})
+                    .Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),11)).ColorAndOpacity(TextColor).AutoWrapText(true)]]
+            +SVerticalBox::Slot().AutoHeight().Padding(4,3)[SNew(SComboButton).ContentPadding(FMargin(8,5))
+                .Visibility_Lambda([this]{return CatalogueFilter.Section==EMCVFXActionSection::Boosters?EVisibility::Visible:EVisibility::Collapsed;})
+                .OnGetMenuContent(this,&SActionWorkspace::CatalogueBoosterMenu)
+                .ButtonContent()[SNew(STextBlock).Text_Lambda([this]{return MCVFXCatalogueNavigation::BoosterLabel(CatalogueFilter.BoosterKind);})
+                    .Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),11)).ColorAndOpacity(TextColor).AutoWrapText(true)]]
+            +SVerticalBox::Slot().AutoHeight().Padding(8,3)[SNew(STextBlock)
+                .Text_Lambda([this]{return FText::Format(LOCTEXT("CatalogueCount","Найдено {0} из {1}"),FText::AsNumber(FilteredCatalogue.Num()),FText::AsNumber(Catalogue.Num()));})
+                .Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),10)).ColorAndOpacity(Muted)]
+            +SVerticalBox::Slot().AutoHeight().Padding(4,3)[SNew(SBorder).Padding(7).BorderImage(&PanelBrush()).BorderBackgroundColor(HeadingFill)
+                .Visibility_Lambda([this]{return !IsSelectedActionVisible()?EVisibility::Visible:EVisibility::Collapsed;})
+                [SNew(SVerticalBox)+SVerticalBox::Slot().AutoHeight()[SNew(STextBlock)
+                    .Text_Lambda([this]{return FText::Format(LOCTEXT("OpenOutsideFilter","Открыто: {0}\nВне текущего фильтра"),FText::FromString(ActionTitle()));})
+                    .Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),10)).ColorAndOpacity(WorkspaceMint).AutoWrapText(true)]
+                    +SVerticalBox::Slot().AutoHeight().Padding(0,5,0,0)[Command(TEXT("Показать открытое"),[this]{ClearCatalogueFilter();})]]]
+            +SVerticalBox::Slot().AutoHeight().Padding(4,6)[SNew(SVerticalBox)
+                .Visibility_Lambda([this]{return FilteredCatalogue.IsEmpty()?EVisibility::Visible:EVisibility::Collapsed;})
+                +SVerticalBox::Slot().AutoHeight().Padding(5)[Label(TEXT("Ничего не найдено. Текущее действие остаётся открытым."),11,Muted)]
+                +SVerticalBox::Slot().AutoHeight()[Command(TEXT("Сбросить фильтры"),[this]{ClearCatalogueFilter();})]];
+    }
+    bool SActionWorkspace::SelectForReview(FName ActionID,FString& Error)
+    {
+        if(Session->IsDirty()) {Error=TEXT("Сохраните или отмените текущий черновик перед автоматической проверкой другого действия.");return false;}
+        TArray<FCatalogItem> Fresh;
+        FCatalogItem Found;
+        for(auto Entry:FMCVFXActionSession::GetCatalogue()) {
+            auto Item=MakeShared<FMCVFXActionCatalogueEntry>(MoveTemp(Entry));
+            if(Item->ID==ActionID)Found=Item;Fresh.Add(Item);
+        }
+        if(!Found){Error=TEXT("Действие не зарегистрировано в общем каталоге Composer.");return false;}
+        Stop();Session->Clear();Catalogue=MoveTemp(Fresh);SelectAction(Found);
+        RefreshCatalogueFilter();
+        if(CatalogueView&&FilteredCatalogue.Contains(Found))CatalogueView->RequestScrollIntoView(Found);
+        if(bUnsupported || !Session->IsContextCurrent()) {Error=Status;return false;}
+        return true;
+    }
     void SActionWorkspace::SelectAction(FCatalogItem Item)
     {
-        if(Item && SelectedAction!=Item->ID && Session->IsDirty() && FMessageDialog::Open(EAppMsgType::YesNo,
-            LOCTEXT("SwitchUnsavedAction","В текущем действии есть неприменённые слои. Перейти к другому действию и отбросить этот черновик?"))!=EAppReturnType::Yes)return;
-        if(!Item)return;Stop();SelectedAction=Item->ID;bUnsupported=!Item->bSupportsPreview;bShowActionDetails=true;SelectedLayer.Invalidate();GallerySelection=FAssetData();
+        if(Item&&SelectedAction!=Item->ID&&!ConfirmDraftTransition(TEXT("Открытие другого действия")))return;
+        if(!Item)return;Stop();SelectedAction=Item->ID;bUnsupported=!Item->bSupportsPreview&&!Item->bSupportsProfileOverride;bShowActionDetails=true;SelectedLayer.Invalidate();SelectedGroup.Invalidate();SelectedSFXLayers.Reset();GallerySelection=FAssetData();
         if(bUnsupported)
         {
             Session->Clear();SelectedStage=NAME_None;
@@ -591,16 +661,37 @@ namespace
                     RefreshDetails();return;
                 }
             }
-            const auto Stages=Session->GetActionStages();if(!Stages.Contains(SelectedStage))SelectedStage=Stages.IsEmpty()?NAME_None:Stages[0];
+            const auto Stages=Session->GetActionStages();
+            if(!Stages.Contains(SelectedStage))
+            {
+                SelectedStage=Stages.IsEmpty()?NAME_None:Stages[0];
+                // Open the actual visible proc, rather than an empty Equipped
+                // registration card that makes an authored passive look missing.
+                for(FName Event:Stages)if(!Session->GetNativeSources(Event).IsEmpty()){SelectedStage=Event;break;}
+                if(SelectedStage==TEXT("Equipped") || SelectedStage==TEXT("State"))
+                    for(FName Event:Stages)if(Event!=TEXT("Equipped")&&Event!=TEXT("State")){SelectedStage=Event;break;}
+            }
             if(!Session->GetScenarios().Contains(SelectedScenario))SelectedScenario=EMCPerkPreviewScenario::Target;
-            NativePreview=Session->MakePreviewWidget();PreviewHost->SetContent(NativePreview.ToSharedRef());GraphHost->SetContent(Graph.ToSharedRef());
-            Graph->Frame();
-            Status=Session->CanEditProfile()?TEXT("Перетащите эффект из галереи на карточку события. Он добавится новым слоем. «Применить» сохраняет результат в игру."):Session->GetEditUnavailableReason();
+            SelectEventScenario();
+            if(Session->CanPreview()){NativePreview=Session->MakePreviewWidget();PreviewHost->SetContent(NativePreview.ToSharedRef());}
+            else PreviewHost->SetContent(Label(Session->GetPreviewUnavailableReason(),14,Muted));
+            GraphHost->SetContent(Graph.ToSharedRef());
+            Graph->FrameActionOverview();
+            Status=Session->CanEditProfile()?(Session->CanPreview()?TEXT("Перетащите эффект из галереи на карточку события. Он добавится новым слоем. «Применить» сохраняет результат в игру."):
+                TEXT("Редактирование сохранённых VFX и исходников доступно. Контекстный предпросмотр ещё не подключён.")):Session->GetEditUnavailableReason();
         }
         Refresh();
     }
+    void SActionWorkspace::SelectEventScenario()
+    {
+        if(Session->GetScenarios().Contains(EMCPerkPreviewScenario::Acquire))
+            SelectedScenario=(SelectedStage==TEXT("Equipped") || SelectedStage==TEXT("State"))
+                ?EMCPerkPreviewScenario::Acquire:EMCPerkPreviewScenario::Target;
+    }
     void SActionWorkspace::SelectLayer(FName Stage,FGuid ID)
-    {SelectedStage=Stage;SelectedLayer=ID;bShowActionDetails=false;RefreshDetails();}
+    {SelectedStage=Stage;SelectedLayer=ID;SelectedGroup.Invalidate();bShowSFX=false;if(ID.IsValid()){
+        if(const auto* R=Session->GetRecipe(Stage)){const int32 I=R->FindNode(ID);if(R->Layers.IsValidIndex(I))SelectedGroup=R->Layers[I].GroupID;}}
+        SelectEventScenario();bShowActionDetails=false;RefreshSFXGallery();RefreshDetails();}
     void SActionWorkspace::SelectGallery(FGalleryItem Item)
     {
         if(!Item)return;Stop();GallerySelection=*Item;
@@ -612,18 +703,38 @@ namespace
     }
     FReply SActionWorkspace::BeginGalleryDrag(const FAssetData& Asset)
     {
-        Stop();GallerySelection=Asset;
+        const FText Unavailable=SMCSFXGallery::GetAssetUnavailableReason(Asset);
+        if(!Unavailable.IsEmpty()){Status=Unavailable.ToString();return FReply::Handled();}
+        Stop();if(Asset.IsInstanceOf(UNiagaraSystem::StaticClass()))GallerySelection=Asset;
         if(!CanEdit()){Status=AuthoringUnavailableReason();return FReply::Handled();}
         Status=TEXT("Перетащите «")+WorkspaceEffectLabel(Asset.AssetName.ToString())+TEXT("» на карточку события. Будет добавлен новый слой; Esc — отмена.");
-        return FReply::Handled().BeginDragDrop(FWorkspaceEffectDrag::New(Asset));
+        return FReply::Handled().BeginDragDrop(FWorkspaceEffectDrag::New(Asset,Session->GetActionID(),Session->GetDraftToken()));
     }
     void SActionWorkspace::DropEffect(FName Stage,const FAssetData& Asset)
+    {DropPresentation(Stage,Stage==SelectedStage?SelectedGroup:FGuid(),Asset);}
+    void SActionWorkspace::DropPresentation(FName Stage,FGuid Group,const FAssetData& Asset)
     {
-        if(!CanEdit())return;Stop();FString Error;
-        const FGuid ID=Session->AddSystem(Stage,Cast<UNiagaraSystem>(Asset.GetAsset()),Error);
-        if(!ID.IsValid()){Fail(Error);return;}
-        SelectedStage=Stage;SelectedLayer=ID;bShowActionDetails=false;GallerySelection=Asset;Refresh();
-        Status=TEXT("Добавлен слой в «")+Session->GetEventLabel(Stage).ToString()+TEXT("». Нажмите ▶ Играть для просмотра. Ctrl+Z — отмена; «Применить» — сохранить в игру.");
+        if(!CanEdit())return;
+        const FText Unavailable=SMCSFXGallery::GetAssetUnavailableReason(Asset);
+        if(!Unavailable.IsEmpty()){Fail(Unavailable.ToString());return;}
+        FString Error;FGuid ID;const bool Audio=Asset.IsInstanceOf(USoundBase::StaticClass());
+        if(Audio)ID=Session->AddSFXLayer(Session->GetSFXDraftToken(),Stage,Cast<USoundBase>(Asset.GetAsset()),Group,Error);
+        else ID=Session->AddSystemToGroup(Session->GetDraftToken(),Stage,Cast<UNiagaraSystem>(Asset.GetAsset()),Group,Error);
+        if(!ID.IsValid()){Fail(Error);return;}Stop();SelectedStage=Stage;SelectedGroup=Group;bShowActionDetails=false;
+        if(Audio){bShowSFX=true;SelectedLayer.Invalidate();SelectedSFXLayers.Add(Stage,ID);}
+        else{bShowSFX=false;SelectedLayer=ID;GallerySelection=Asset;}
+        SelectEventScenario();Refresh();Status=TEXT("Добавлен отдельный ")+FString(Audio?TEXT("SFX"):TEXT("VFX"))+TEXT("-слой. Ctrl+Z — отмена; Применить — сохранить в игру.");
+    }
+    void SActionWorkspace::SelectSound(FName Stage,FGuid ID)
+    {
+        SelectedStage=Stage;SelectedLayer.Invalidate();SelectedSFXLayers.Add(Stage,ID);bShowSFX=true;bShowActionDetails=false;SelectedGroup.Invalidate();
+        if(const auto* Slot=Session->GetSFXSlot(Stage))if(const auto* L=Slot->Layers.FindByPredicate([ID](const auto& L){return L.ID==ID;}))SelectedGroup=L->GroupID;
+        SelectEventScenario();RefreshSFXGallery();RefreshDetails();
+    }
+    void SActionWorkspace::SelectGroup(FName Stage,FGuid ID)
+    {
+        if(Stage.IsNone())return;SelectedStage=Stage;SelectedGroup=ID;SelectedLayer.Invalidate();SelectedSFXLayers.Remove(Stage);bShowActionDetails=false;
+        SelectEventScenario();RefreshSFXGallery();RefreshDetails();
     }
     void SActionWorkspace::RefreshGallery(const TCHAR* Path)
     {
@@ -669,19 +780,36 @@ namespace
         return SNew(SWidgetSwitcher).WidgetIndex_Lambda([HasImage,SharedImage]{return HasImage&&!SharedImage()?0:1;})
             +SWidgetSwitcher::Slot()[Main]+SWidgetSwitcher::Slot()[Identity];
     }
-    void SActionWorkspace::Refresh(){SeenRevision=Session->GetRevision();if(Graph)Graph->Rebuild();RefreshDetails();}
+    void SActionWorkspace::Refresh()
+    {
+        SeenRevision=Session->GetRevision();
+        const auto* Current=Session->GetRecipe(SelectedStage);
+        if(SelectedLayer.IsValid()&&(!Current||Current->FindNode(SelectedLayer)==INDEX_NONE))SelectedLayer.Invalidate();
+        if(SelectedGroup.IsValid()){const auto* G=Session->GetEventGroups(SelectedStage);if(!G||!G->Contains(SelectedGroup))SelectedGroup.Invalidate();}
+        if(const FGuid Sound=SelectedSFXLayers.FindRef(SelectedStage);Sound.IsValid()){const auto* Slot=Session->GetSFXSlot(SelectedStage);
+            if(!Slot||!Slot->Layers.ContainsByPredicate([Sound](const auto& L){return L.ID==Sound;}))SelectedSFXLayers.Remove(SelectedStage);}
+        // Audio selection is independent; a VFX Undo must not clear a sound GUID.
+        if(Graph)Graph->Rebuild();RefreshSFXGallery();RefreshDetails();
+    }
     const FMCVFXCompositionLayer* SActionWorkspace::CurrentLayer()const
     {const auto* R=Session?Session->GetRecipe(SelectedStage):nullptr;const int32 I=R?R->FindNode(SelectedLayer):INDEX_NONE;return I!=INDEX_NONE?&R->Layers[I]:nullptr;}
     void SActionWorkspace::AddSelected()
     {
         if(!CanEdit()||!GallerySelection.IsValid())return;Stop();FString Error;
-        auto* NS=Cast<UNiagaraSystem>(GallerySelection.GetAsset());const FGuid ID=Session->AddSystem(SelectedStage,NS,Error);
+        auto* NS=Cast<UNiagaraSystem>(GallerySelection.GetAsset());const FGuid ID=Session->AddSystemToGroup(Session->GetDraftToken(),SelectedStage,NS,SelectedGroup,Error);
         if(!ID.IsValid()){Fail(Error);return;}SelectedLayer=ID;bShowActionDetails=false;Refresh();Status=TEXT("Слой добавлен в «")+Session->GetEventLabel(SelectedStage).ToString()+TEXT("». Это черновик; игра изменится только после «Применить в игре».");
     }
     void SActionWorkspace::NewCompound()
     {if(!CanEdit())return;Stop();FString Error;if(!Session->NewCompound(SelectedStage,Error)){Fail(Error);return;}SelectedLayer.Invalidate();bShowActionDetails=false;Refresh();Status=TEXT("Новая пустая композиция события. Добавляйте слои из галереи; Ctrl+Z вернёт предыдущий черновик.");}
     void SActionWorkspace::Apply()
-    {if(!CanEdit())return;Stop();FString Error;const bool OK=Session->ApplyAll(Error);Refresh();Status=OK?Session->GetStatus():TEXT("Не применено: ")+Error;}
+    {
+        if(!CanEdit()||!Session->IsRuntimeDirty())return;Stop();FString Error;bool OK=false;
+        const auto Loaded=Session->GetLoadedPackPath();
+        if(!Session->HasUnsavedPackChanges()&&!Loaded.IsNull())
+        {if(const auto* Pack=Cast<UMCVFXActionPack>(Loaded.TryLoad()))OK=Session->ApplySavedPack(Pack,Error);else Error=TEXT("Сохранённый пак не найден. Откройте его заново.");}
+        else OK=Session->ApplyAll(Error);
+        Refresh();Status=OK?Session->GetStatus():TEXT("Не применено: ")+Error;
+    }
     void SActionWorkspace::Play(bool Gallery)
     {
         if(!CanPlay())return;if(Gallery&&!CanEdit()){Fail(Session->GetEditUnavailableReason());return;}const bool WasPlaying=bPlaying;Stop();FString Error;bool OK=false;
@@ -692,7 +820,7 @@ namespace
         Status=Gallery?TEXT("Примерка: ")+WorkspaceEffectLabel(GallerySelection.AssetName.ToString())+TEXT(". Нажмите «Добавить», чтобы оставить этот слой."):
             CanEdit()?TEXT("Проигрывается черновик события. Игровой профиль не изменён."):TEXT("Выполняется реальный сценарий с родным представлением механики. Редактирование Niagara-слоёв ещё не подключено.");
     }
-    void SActionWorkspace::Stop(){bPlaying=false;bObserved=false;bPaused=false;bAudition=false;bPendingGalleryAudition=false;RepeatAt=0;if(Session)Session->Stop();}
+    void SActionWorkspace::Stop(){bPlaying=false;bObserved=false;bPaused=false;bAudition=false;bSFXAudition=false;bPendingGalleryAudition=false;RepeatAt=0;if(Session)Session->Stop();}
     bool SActionWorkspace::TickWorkspace(float)
     {
         if(Session&&SeenRevision!=Session->GetRevision()){Status=Session->GetStatus();Refresh();}
@@ -710,8 +838,12 @@ namespace
         const bool Complete=Events.ContainsByPredicate([](const FMCPerkPreviewEvent& E){return E.Stage==TEXT("ActionFinished");});
         const bool SafetyStop=Events.ContainsByPredicate([](const FMCPerkPreviewEvent& E){return E.Stage==TEXT("PreviewTailSafetyLimit");});
         if(!Complete || SafetyStop){bPlaying=false;RepeatAt=0;Status=TEXT("Предпросмотр остановлен: ")+Runner->GetStatus();return true;}
+        if(Session->GetScenarios().Contains(EMCPerkPreviewScenario::Acquire)
+            && !Events.ContainsByPredicate([this](const FMCPerkPreviewEvent& E){return E.Stage==SelectedStage;}))
+            Status=TEXT("Механика завершилась, но событие «")+Session->GetEventLabel(SelectedStage).ToString()
+                +TEXT("» в этом запуске не произошло. Повторите сценарий; условия и шанс не подменяются.");
         if(!bObserved)return true;if(!bLoop){bPlaying=false;return true;}
-        const double Now=FPlatformTime::Seconds();if(RepeatAt==0){RepeatAt=Now+.6;return true;}if(Now>=RepeatAt)Play(bAudition);return true;
+        const double Now=FPlatformTime::Seconds();if(RepeatAt==0){RepeatAt=Now+.6;return true;}if(Now>=RepeatAt){if(bSFXAudition)AuditionSound(SFXAuditionAsset);else Play(bAudition);}return true;
     }
     void SActionWorkspace::EditLayer(TFunction<void(FMCVFXCompositionLayer&)> Edit)
     {MutateLayer(SelectedStage,SelectedLayer,MoveTemp(Edit));}
@@ -764,12 +896,204 @@ namespace
         const auto* Recipe=LoadObject<UMCVFXRecipePreset>(nullptr,*Path);
         if(!Recipe){Fail(TEXT("Шаблон пока не сохранён в проекте: ")+Path);return;}ImportCompound(Recipe);
     }
+    void SActionWorkspace::CachePackDisplayName(const UMCVFXActionPack* Pack)
+    {
+        if(!Pack)return;FString Name=Pack->Label.IsEmpty()?TEXT("Без названия"):Pack->Label.ToString();
+        if(!Pack->VersionLabel.IsEmpty())Name+=TEXT(" · ")+Pack->VersionLabel;
+        Name+=TEXT(" · #")+Pack->PackID.ToString(EGuidFormats::Digits).Left(8);
+        PackDisplayNames.Add(FSoftObjectPath(Pack),MoveTemp(Name));
+    }
+    FString SActionWorkspace::PackDisplayName(const FSoftObjectPath& Path)const
+    {
+        if(Path.IsNull())return TEXT("не открыт");if(const auto* Name=PackDisplayNames.Find(Path))return *Name;
+        // ResolveObject never loads from disk. Normal save/open caches labels once.
+        if(const auto* Pack=Cast<UMCVFXActionPack>(Path.ResolveObject()))
+        {
+            FString Name=Pack->Label.IsEmpty()?TEXT("Без названия"):Pack->Label.ToString();
+            if(!Pack->VersionLabel.IsEmpty())Name+=TEXT(" · ")+Pack->VersionLabel;
+            return Name+TEXT(" · #")+Pack->PackID.ToString(EGuidFormats::Digits).Left(8);
+        }
+        // Full package path remains distinguishable even after an unloaded version is GC'd.
+        return Path.ToString();
+    }
+    void SActionWorkspace::SavePack()
+    {
+        if(!CanEdit())return;FString Error;const FString Name=PackLabel.TrimStartAndEnd().IsEmpty()?ActionTitle():PackLabel.TrimStartAndEnd();
+        auto* Pack=Session->SavePackNew(FText::FromString(Name),Error);if(!Pack){Fail(Error);return;}
+        CachePackDisplayName(Pack);Refresh();Status=TEXT("Сохранена версия «")+PackDisplayName(FSoftObjectPath(Pack))+TEXT("». Игровое назначение не менялось; Применить — отдельное действие.");
+    }
+    void SActionWorkspace::LoadPackAsset(const FAssetData& Asset,bool bCompare)
+    {
+        auto* Pack=Cast<UMCVFXActionPack>(Asset.GetAsset());if(!Pack){Fail(TEXT("Выберите сохранённый пак Composer."));return;}
+        if(Pack->SourceID!=Session->GetActionID()){Fail(TEXT("Пак относится к другому действию. Сначала выберите его в списке слева."));return;}
+        if(!ConfirmDraftTransition(TEXT("Открытие другой версии пака")))return;
+        FString Error;Stop();if(!Session->LoadPack(Pack,Error,true)){Fail(Error);return;}
+        CachePackDisplayName(Pack);SelectedLayer.Invalidate();SelectedGroup.Invalidate();SelectedSFXLayers.Reset();PackLabel=Pack->Label.ToString();bShowActionDetails=true;FSlateApplication::Get().DismissAllMenus();Refresh();if(Graph)Graph->FrameSelected();
+        Status=FString(bCompare?TEXT("A/B · "):TEXT("Открыта версия · "))+PackDisplayName(FSoftObjectPath(Pack))+TEXT(". Игровой профиль не изменён. Разброс игровых RNG не фиксируется.");
+        if(bCompare&&CanPlay())Play(false);
+    }
+    TSharedRef<SWidget> SActionWorkspace::PackMenu()
+    {
+        FARFilter Filter;Filter.ClassPaths.Add(UMCVFXActionPack::StaticClass()->GetClassPathName());Filter.bRecursiveClasses=true;
+        Filter.TagsAndValues.Add(TEXT("SourceID"),Session->GetActionID().ToString());
+        TArray<FAssetData> Assets;FModuleManager::LoadModuleChecked<FAssetRegistryModule>(TEXT("AssetRegistry")).Get().GetAssets(Filter,Assets);
+        Assets.Sort([](const FAssetData& A,const FAssetData& B){FString AV,BV;A.GetTagValue(TEXT("VersionLabel"),AV);B.GetTagValue(TEXT("VersionLabel"),BV);return AV==BV?A.PackageName.LexicalLess(B.PackageName):AV>BV;});
+        const auto Rows=SNew(SScrollBox);const TWeakPtr<SActionWorkspace> Weak=SharedThis(this);
+        // Read registry metadata only. Opening the chooser must not load every
+        // saved profile, Niagara dependency or editable master in a large pack.
+        auto Rebuild=[Rows,Assets,Weak](const FText& Query)
+        {
+            Rows->ClearChildren();int32 Matches=0;
+            for(const FAssetData& Asset:Assets)
+            {
+                FText Label;FString Version,ID;Asset.GetTagValue(TEXT("Label"),Label);Asset.GetTagValue(TEXT("VersionLabel"),Version);Asset.GetTagValue(TEXT("PackID"),ID);
+                const FString Name=Label.IsEmpty()?Asset.AssetName.ToString():Label.ToString();
+                const FString Search=Name+TEXT(" ")+Version+TEXT(" ")+ID+TEXT(" ")+Asset.PackageName.ToString();
+                if(!Query.IsEmpty()&&!Search.Contains(Query.ToString(),ESearchCase::IgnoreCase))continue;
+                ++Matches;FGuid Guid;const FString ShortID=FGuid::Parse(ID,Guid)?Guid.ToString(EGuidFormats::Digits).Left(8):ID.Left(8);
+                const FString Detail=Version+(ShortID.IsEmpty()?TEXT(""):TEXT(" · #")+ShortID);
+                Rows->AddSlot().Padding(3)[SNew(SButton).ButtonStyle(&NeutralStyle()).ContentPadding(FMargin(12,9))
+                    .ToolTipText(FText::FromString(Asset.GetSoftObjectPath().ToString()))
+                    .OnClicked_Lambda([Weak,Asset]{if(const auto W=Weak.Pin())W->LoadPackAsset(Asset);return FReply::Handled();})
+                    [SNew(SVerticalBox)+SVerticalBox::Slot().AutoHeight()[SNew(STextBlock).Text(Label.IsEmpty()?FText::FromString(Name):Label).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),12))]
+                        +SVerticalBox::Slot().AutoHeight().Padding(0,4,0,0)[SNew(STextBlock).Text(FText::FromString(Detail)).Font(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),10)).ColorAndOpacity(Muted)]]];
+            }
+            if(!Matches)Rows->AddSlot().Padding(12)[SNew(STextBlock).Text(FText::FromString(Assets.IsEmpty()?TEXT("Сохранённых версий пока нет. Задайте название и сохраните первую."):TEXT("Версий с таким названием не найдено."))).AutoWrapText(true).ColorAndOpacity(Muted)];
+        };
+        Rebuild(FText::GetEmpty());
+        return SNew(SBox).WidthOverride(620).HeightOverride(430)[SNew(SVerticalBox)
+            +SVerticalBox::Slot().AutoHeight().Padding(9)[Label(TEXT("Сохранённые паки этого действия · открытие меняет только черновик"),12,WorkspaceMint)]
+            +SVerticalBox::Slot().AutoHeight().Padding(6)[SNew(SSearchBox).HintText(FText::FromString(TEXT("Найти версию по названию…"))).OnTextChanged_Lambda(Rebuild)]
+            +SVerticalBox::Slot().FillHeight(1)[Rows]];
+    }
+    TSharedRef<SWidget> SActionWorkspace::CompareMenu()
+    {
+        auto Rows=SNew(SVerticalBox);Rows->AddSlot().AutoHeight().Padding(6)[Label(TEXT("Сравнение сохранённых версий"),13,WorkspaceMint)];
+        Rows->AddSlot().AutoHeight().Padding(6)[Label(TEXT("Откройте пак, запомните его как A или B. Переключение не назначает эффекты в игре."),11,Muted)];
+        auto Remember=[this](bool A){if(Session->GetLoadedPackPath().IsNull()||Session->HasUnsavedPackChanges()){Status=TEXT("Сначала сохраните и откройте версию пака. Несохранённый черновик не участвует в A/B.");return;}
+            (A?CompareA:CompareB)=Session->GetLoadedPackPath();Status=TEXT("Версия ")+FString(A?TEXT("A"):TEXT("B"))+TEXT(" запомнена: ")+PackDisplayName(Session->GetLoadedPackPath());FSlateApplication::Get().DismissAllMenus();};
+        Rows->AddSlot().AutoHeight().Padding(3)[Command(TEXT("Текущий сохранённый пак → A"),[Remember]{Remember(true);})];
+        Rows->AddSlot().AutoHeight().Padding(3)[Command(TEXT("Текущий сохранённый пак → B"),[Remember]{Remember(false);})];
+        auto Choice=[this,&Rows](const FSoftObjectPath& Path,const FString& Slot){Rows->AddSlot().AutoHeight().Padding(3)[SNew(SButton).ButtonStyle(&NeutralStyle()).ContentPadding(FMargin(10,8))
+            .IsEnabled(!Path.IsNull()).OnClicked_Lambda([this,Path]{if(auto* P=Path.TryLoad())LoadPackAsset(FAssetData(P),true);return FReply::Handled();})
+            [Label(TEXT("▶ ")+Slot+TEXT(" · ")+(Path.IsNull()?TEXT("не выбрано"):PackDisplayName(Path)),11)]];};
+        Choice(CompareA,TEXT("A"));Choice(CompareB,TEXT("B"));return SNew(SBox).WidthOverride(430)[Rows];
+    }
     void SActionWorkspace::OpenCompound()
     {
         FOpenAssetDialogConfig Config;Config.DialogTitleOverride=LOCTEXT("ImportRecipe","Открыть композицию для выбранного события");Config.DefaultPath=TEXT("/Game/Tests/VFXPractice");
         Config.AssetClassNames.Add(UMCVFXRecipePreset::StaticClass()->GetClassPathName());Config.bAllowMultipleSelection=false;
         const auto Assets=FModuleManager::LoadModuleChecked<FContentBrowserModule>(TEXT("ContentBrowser")).Get().CreateModalOpenAssetDialog(Config);
         if(!Assets.IsEmpty())ImportCompound(Cast<UMCVFXRecipePreset>(Assets[0].GetAsset()));
+    }
+
+    void SActionWorkspace::AuditionSound(const FAssetData& Asset)
+    {
+        if(!CanEdit()||!Asset.IsValid())return;
+        const FText Unavailable=SMCSFXGallery::GetAssetUnavailableReason(Asset);
+        if(!Unavailable.IsEmpty()){Fail(Unavailable.ToString());return;}
+        const auto Capability=Session->GetSFXCapability(SelectedStage);
+        if(!Capability.bCanAuditionInContext){Status=Capability.UnavailableReason;return;}
+        auto* Sound=Cast<USoundBase>(Asset.GetAsset());if(!Sound){Fail(TEXT("Выберите звуковой ресурс."));return;}
+        Stop();FString Error;
+        if(!Session->AuditionSFX(SelectedStage,Sound,Error,SelectedScenario)){Fail(Error);return;}
+        SFXAuditionAsset=Asset;bPlaying=true;bObserved=false;bSFXAudition=true;RepeatAt=0;
+        Status=TEXT("Примерка звука в настоящем действии: ")+Asset.AssetName.ToString()+TEXT(". Черновик и игровой профиль не изменены.");
+    }
+    void SActionWorkspace::RefreshSFXGallery()
+    {
+        if(!SFXGalleryHost||(!bShowSFX&&!SFXGallery))return;
+        FMCSFXGalleryContext Context;Context.EventLabel=Session->GetEventLabel(SelectedStage);Context.bCanAdd=CanEdit()&&!SelectedStage.IsNone();
+        const auto Capability=Session->GetSFXCapability(SelectedStage);Context.bCanAudition=Context.bCanAdd&&Capability.bCanAuditionInContext;
+        Context.AuditionReason=FText::FromString(Capability.UnavailableReason);
+        const FName Source=Session->GetActionID(),Event=SelectedStage;const FGuid Token=Session->GetSFXDraftToken(),Group=SelectedGroup;
+        const TWeakPtr<SActionWorkspace> Weak=SharedThis(this);
+        Context.Add=[Weak,Source,Event,Token,Group](const FAssetData& Asset)
+        {
+            const auto W=Weak.Pin();if(!W||!W->CanEdit()||W->Session->GetActionID()!=Source||W->Session->GetSFXDraftToken()!=Token)return;
+            const FText Unavailable=SMCSFXGallery::GetAssetUnavailableReason(Asset);
+            if(!Unavailable.IsEmpty()){W->Fail(Unavailable.ToString());return;}
+            auto* Sound=Cast<USoundBase>(Asset.GetAsset());if(!Sound){W->Fail(TEXT("Выбранный ресурс не является SoundBase."));return;}
+            FString Error;const FGuid ID=W->Session->AddSFXLayer(Token,Event,Sound,Group,Error);
+            if(!ID.IsValid()){W->Fail(Error);return;}
+            W->Stop();W->SelectedStage=Event;W->SelectedGroup=Group;W->bShowSFX=true;W->SelectedLayer.Invalidate();W->SelectedSFXLayers.Add(Event,ID);W->bShowActionDetails=false;W->Refresh();W->Status=TEXT("Звуковой слой добавлен в черновик события. Применение в игре выполняется отдельно.");
+        };
+        Context.BeginDrag=[Weak,Source,Event,Token](const FAssetData& Asset){const auto W=Weak.Pin();return W&&W->Session->GetActionID()==Source&&W->Session->GetSFXDraftToken()==Token?W->BeginGalleryDrag(Asset):FReply::Unhandled();};
+        Context.AuditionInAction=[Weak,Source,Event,Token](const FAssetData& Asset){if(const auto W=Weak.Pin();W&&W->Session->GetActionID()==Source&&W->Session->GetSFXDraftToken()==Token&&W->SelectedStage==Event)W->AuditionSound(Asset);};
+        Context.OpenSource=[](const FAssetData& Asset){if(auto* Sound=Cast<USoundBase>(Asset.GetAsset());Sound&&GEditor)if(auto* Editors=GEditor->GetEditorSubsystem<UAssetEditorSubsystem>())Editors->OpenEditorForAsset(Sound);};
+        if(!SFXGallery){SFXGallery=SNew(SMCSFXGallery).Context(MoveTemp(Context));SFXGalleryHost->SetContent(SFXGallery.ToSharedRef());}
+        else SFXGallery->SetContext(MoveTemp(Context));
+    }
+    TSharedRef<SWidget> SActionWorkspace::SFXEventPanel(FName Event)
+    {
+        FMCSFXPanelContext Context;Context.Scope.SourceID=Session->GetActionID();Context.Scope.Event=Event;Context.Scope.DraftToken=Session->GetSFXDraftToken();
+        Context.EventLabel=Session->GetEventLabel(Event);Context.bCanEdit=CanEdit();
+        if(const auto* Slot=Session->GetSFXSlot(Event))Context.Slot=*Slot;
+        if(const auto* Selected=SelectedSFXLayers.Find(Event))Context.SelectedLayer=*Selected;
+        const auto Capability=Session->GetSFXCapability(Event);Context.bCanSuppressOriginal=Capability.bCanReplaceNativeAudio;Context.bCanAudition=Capability.bCanAuditionInContext;
+        if(const auto* Groups=Session->GetEventGroups(Event)){Context.bGroupEnabled=Groups->IsEnabled(SelectedGroup);Context.bGroupMuted=Groups->IsAudioMuted(SelectedGroup);}
+        if(Capability.bOriginalAudioConfirmedSilent)Context.OriginalReason=FText::FromString(TEXT("У этого события нет исходного звука: проверены реальный источник и сохранённые анимации. Можно использовать собственные звуковые слои или выключить звук события."));
+        else if(!Capability.bOriginalAudioHookMapped)Context.OriginalReason=FText::FromString(Capability.UnavailableReason);
+        Context.AuditionReason=FText::FromString(Capability.UnavailableReason);
+        for(const auto& Original:Capability.Originals){FMCSFXOriginalSourceView View;View.ID=Original.ID;View.NativeEvent=Original.NativeEvent;View.GroupID=Original.GroupID;
+            View.Label=Original.Label;View.Asset=Original.Sound;View.SourceOwner=Original.SourceOwner;View.SourceProperty=Original.SourceProperty;View.bRuntimeHookMapped=Original.bRuntimeHookMapped;
+            View.Detail=FText::FromString(Original.SourceOwner+TEXT(" · ")+Original.SourceProperty);Context.Originals.Add(MoveTemp(View));}
+        const TWeakPtr<SActionWorkspace> Weak=SharedThis(this);
+        auto Current=[Weak](FMCSFXEditorScope Scope){const auto W=Weak.Pin();return W&&W->CanEdit()&&W->Session->GetActionID()==Scope.SourceID&&W->Session->GetSFXDraftToken()==Scope.DraftToken?W:TSharedPtr<SActionWorkspace>();};
+        Context.SetMode=[Current](FMCSFXEditorScope Scope,EMCEventSFXMode Mode,FString& Error){const auto W=Current(Scope);if(!W){Error=TEXT("Контекст звукового черновика изменился.");return false;}return W->Session->SetSFXMode(Scope.DraftToken,Scope.Event,Mode,Error);};
+        Context.ReadLayer=[Current](FMCSFXEditorScope Scope,FGuid ID,FMCEventSFXLayer& Out,FString& Error){const auto W=Current(Scope);const auto* Slot=W?W->Session->GetSFXSlot(Scope.Event):nullptr;
+            const auto* Layer=Slot?Slot->Layers.FindByPredicate([ID](const auto& L){return L.ID==ID;}):nullptr;
+            if(!Layer){Error=TEXT("Звуковой слой изменён или удалён. Выберите его заново.");return false;}Out=*Layer;return true;};
+        Context.SetLayer=[Current](FMCSFXEditorScope Scope,FGuid ID,const FMCEventSFXLayer& Layer,FString& Error){const auto W=Current(Scope);if(!W){Error=TEXT("Контекст звукового черновика изменился.");return false;}return W->Session->SetSFXLayer(Scope.DraftToken,Scope.Event,ID,Layer,Error);};
+        Context.RemoveLayer=[Current](FMCSFXEditorScope Scope,FGuid ID,FString& Error){const auto W=Current(Scope);if(!W){Error=TEXT("Контекст звукового черновика изменился.");return false;}if(!W->Session->RemoveSFXLayer(Scope.DraftToken,Scope.Event,ID,Error))return false;W->SelectedSFXLayers.Remove(Scope.Event);return true;};
+        Context.DuplicateLayer=[Current](FMCSFXEditorScope Scope,FGuid ID,FString& Error){const auto W=Current(Scope);if(!W){Error=TEXT("Контекст звукового черновика изменился.");return false;}const FGuid New=W->Session->DuplicateSFXLayer(Scope.DraftToken,Scope.Event,ID,Error);if(!New.IsValid())return false;W->SelectedSFXLayers.Add(Scope.Event,New);return true;};
+        Context.SelectLayer=[Weak,Event](FGuid ID){if(const auto W=Weak.Pin()){W->SelectSound(Event,ID);}};
+        Context.Refresh=[Weak]{if(const auto W=Weak.Pin()){W->Stop();W->Refresh();}};
+        Context.ShowError=[Weak](const FString& Error){if(const auto W=Weak.Pin())W->Fail(Error);};
+        Context.OpenSource=[Weak](const FMCSFXOriginalSourceView& Source)
+        {
+            if(!Source.Asset.IsNull()){FMCVFXNativeSourcePart Part;Part.Asset=Source.Asset;OpenNativeSource(Part);return;}
+            if(Source.SourceOwner.StartsWith(TEXT("/Game/"))||Source.SourceOwner.StartsWith(TEXT("/Script/")))if(auto* Owner=FSoftObjectPath(Source.SourceOwner).TryLoad()){
+                if(const auto* Class=Cast<UClass>(Owner)){FSourceCodeNavigation::NavigateToClass(Class);return;}
+                if(GEditor)if(auto* Editors=GEditor->GetEditorSubsystem<UAssetEditorSubsystem>()){Editors->OpenEditorForAsset(Owner);return;}}
+            if(const auto W=Weak.Pin())W->Status=TEXT("У источника нет открываемой ссылки: ")+Source.SourceOwner+TEXT(" · ")+Source.SourceProperty;
+        };
+        auto Rows=SNew(SVerticalBox);
+        Rows->AddSlot().AutoHeight().Padding(0,0,0,8)[SNew(SCheckBox).IsChecked_Lambda([this]{return Session->IsPreviewAudioEnabled()?ECheckBoxState::Checked:ECheckBoxState::Unchecked;})
+            .OnCheckStateChanged_Lambda([this](ECheckBoxState State){FString Error;if(!Session->SetPreviewAudioEnabled(State==ECheckBoxState::Checked,Error))Fail(Error);RefreshSFXGallery();RefreshDetails();})
+            [Label(TEXT("Звук в предпросмотре · включить явно"),12)]];
+        Rows->AddSlot().AutoHeight().Padding(0,0,0,8)[SNew(STextBlock).Text_Lambda([this]{return FText::FromString(Session->GetPreviewAudioStatus());}).AutoWrapText(true).ColorAndOpacity(Muted)];
+        Rows->AddSlot().AutoHeight()[SNew(SMCEventSFXPanel).Context(MoveTemp(Context))];return Rows;
+    }
+
+    TSharedRef<SWidget> SActionWorkspace::NativePartsPanel(bool bPersistent,FName Event)
+    {
+        FMCNativeArtEditorContext Context;Context.SourceID=Session->GetActionID();Context.DraftInstanceID=Session->GetNativeDraftToken();
+        Context.Scope.bPersistent=bPersistent;Context.Scope.Event=bPersistent?NAME_None:Event;
+        Context.Parts=MCNativeArtParts::BuildViews(Session->GetNativeDraft(),Context.Scope);Context.bCanEdit=CanEdit();
+        const TWeakPtr<SActionWorkspace> Weak=SharedThis(this);
+        Context.Commit=[Weak](const FMCNativeArtEdit& Edit,FString& Error)
+        {
+            const auto W=Weak.Pin();
+            if(!W||!W->CanEdit()||W->Session->GetActionID()!=Edit.SourceID||W->Session->GetNativeDraftToken()!=Edit.DraftInstanceID)
+            {Error=TEXT("Открыто другое действие или новая версия черновика. Выберите настройку заново.");return false;}
+            FMCVFXNativePartSettings Part;
+            if(!MCNativeArtParts::ApplyEdit(Edit,W->Session->GetNativeDraft(),Part,Error)
+                || !W->Session->SetNativePart(Edit.DraftInstanceID,Edit.Scope.bPersistent,Edit.Scope.Event,Edit.PartID,Part,Error))return false;
+            W->Stop();W->Refresh();W->Status=TEXT("Родная основа изменена в черновике. «Играть» — проверить, «Применить» — сохранить в игру.");return true;
+        };
+        const FName SourceID=Context.SourceID;const FGuid Token=Context.DraftInstanceID;const auto Scope=Context.Scope;
+        Context.ResetPart=[Weak,SourceID,Token,Scope](FName Part,FString& Error)
+        {
+            const auto W=Weak.Pin();
+            if(!W||!W->CanEdit()||W->Session->GetActionID()!=SourceID||W->Session->GetNativeDraftToken()!=Token)
+            {Error=TEXT("Контекст родной основы изменился. Выберите часть заново.");return false;}
+            if(!W->Session->ResetNativePart(Token,Scope.bPersistent,Scope.Event,Part,Error))return false;
+            W->Stop();W->Refresh();W->Status=TEXT("Исходный вид этой части восстановлен в черновике.");return true;
+        };
+        Context.OpenSource=[](const FMCNativeArtResourceView& Source){FMCVFXNativeSourcePart Part;Part.Asset=Source.Asset;Part.SourceFile=Source.GeometrySource;OpenNativeSource(Part);};
+        Context.ShowStatus=[Weak](const FString& Error){if(const auto W=Weak.Pin())W->Fail(Error);};
+        return SNew(SMCNativeArtPartsPanel).Context(MoveTemp(Context));
     }
 
     void SActionWorkspace::RefreshDetails()
@@ -781,7 +1105,7 @@ namespace
             {Add(Label(Entry->Label.ToString(),17));Add(Label(Entry->Description.ToString(),13));Add(Label(Entry->UnsupportedReason.IsEmpty()?TEXT("Адаптер предпросмотра пока не подключён. Запуск и применение недоступны."):Entry->UnsupportedReason,12,Muted));break;}
             return;
         }
-        if(!CanPlay())
+        if(!Session||!Session->IsContextCurrent())
         {Add(Label(TEXT("Контекст предпросмотра изменился"),16));Add(Label(AuthoringUnavailableReason(),13,Muted));return;}
         if(!Session->CanEditProfile())
         {
@@ -791,18 +1115,93 @@ namespace
             Add(Label(TEXT("Слои Niagara для этого события ещё не подключены к Composer. Случайные пассивки показывают эффект при фактическом срабатывании по текущему шансу."),12,Muted));
             return;
         }
+        if(SelectedGroup.IsValid()&&!SelectedLayer.IsValid()&&!SelectedSFXLayers.FindRef(SelectedStage).IsValid()&&!bShowActionDetails)
+        {
+            const auto* Groups=Session->GetEventGroups(SelectedStage);const auto* Group=Groups?Groups->Find(SelectedGroup):nullptr;
+            if(Group){Add(Label(Group->Name.ToString(),18));Add(Label(TEXT("Независимая группа VFX + SFX. Несколько включённых групп работают одновременно."),12,Muted));
+                Add(Label(TEXT("Заголовок — перемещение · галочка — вся группа · ♪ — только звук · Solo — только предпросмотр."),12));
+                Add(Command(TEXT("Удалить группу и её слои…"),[this]{
+                    if(FMessageDialog::Open(EAppMsgType::YesNo,FText::FromString(TEXT("Удалить эту группу вместе с её VFX и SFX? Ctrl+Z отменяет удаление.")))!=EAppReturnType::Yes)return;
+                    FString Error;if(!Session->RemoveEventGroup(Session->GetDraftToken(),SelectedStage,SelectedGroup,EMCComposerGroupRemoval::DeleteChildren,Error)){Fail(Error);return;}
+                    Stop();SelectedGroup.Invalidate();Refresh();}));return;}
+        }
+        if(!bShowActionDetails&&(SelectedLayer.IsValid()||SelectedSFXLayers.FindRef(SelectedStage).IsValid()))
+        {
+            const FName Event=SelectedStage;const FGuid Layer=bShowSFX?SelectedSFXLayers.FindRef(Event):SelectedLayer,Token=Session->GetDraftToken();
+            const EMCComposerLayerLane Lane=bShowSFX?EMCComposerLayerLane::SFX:EMCComposerLayerLane::VFX;
+            Add(SNew(SComboButton).ButtonStyle(&NeutralStyle()).ContentPadding(FMargin(10,7)).OnGetMenuContent_Lambda([this,Event,Layer,Token,Lane]()->TSharedRef<SWidget>{
+                auto Items=SNew(SVerticalBox);auto AddGroup=[this,&Items,Event,Layer,Token,Lane](FGuid Group,const FString& Name){Items->AddSlot().AutoHeight().Padding(2)[Command(Name,[this,Event,Layer,Token,Lane,Group]{
+                    FString Error;if(!Session->AssignLayerToGroup(Token,Event,Lane,Layer,Group,Error)){Fail(Error);return;}Stop();SelectedGroup=Group;FSlateApplication::Get().DismissAllMenus();Refresh();})];};
+                AddGroup(FGuid(),TEXT("Без группы"));if(const auto* Groups=Session->GetEventGroups(Event))for(const auto& Group:Groups->Groups)AddGroup(Group.ID,Group.Name.ToString());return Items;
+            }).ButtonContent()[Label(TEXT("Переместить слой в группу…"),11)]);
+        }
+        if(bShowSFX&&!bShowActionDetails)
+        {
+            if(SelectedStage.IsNone())Add(Label(TEXT("Выберите настоящее событие действия, чтобы настроить его звук."),13,Muted));
+            else Add(SFXEventPanel(SelectedStage));
+            return;
+        }
         if(bShowActionDetails)
         {
             Add(Label(ActionTitle(),18));Add(Label(TEXT("Сценарий запускает настоящее игровое действие. Карточки показывают его события; редактируемые события поддерживают несколько слоёв эффекта."),13));
+            const FSoftObjectPath Owner=Session->GetCanonicalOwner();
+            if(bShowTechnicalSources&&!Owner.IsNull())
+            {
+                Add(Label(TEXT("Данные профиля: ")+Owner.GetAssetName(),12,Muted));
+                Add(Command(TEXT("Открыть данные профиля"),[this,Owner]
+                {
+                    if(auto* Asset=Owner.TryLoad())
+                    {
+                        if(GEditor)if(auto* Editors=GEditor->GetEditorSubsystem<UAssetEditorSubsystem>())Editors->OpenEditorForAsset(Asset);
+                    }
+                    else Status=TEXT("Сохранённый источник профиля не найден: ")+Owner.ToString();
+                }));
+            }
             if(!Session->CanEditProfile())Add(Label(Session->GetEditUnavailableReason(),12,Muted));
-            for(FName Stage:Session->GetActionStages())Add(Command(Session->GetEventLabel(Stage).ToString()+FString::Printf(TEXT(" · включено %d/%d"),EnabledLayers(Session->GetRecipe(Stage)),Session->GetLayerCount(Stage)),[this,Stage]{SelectLayer(Stage,FGuid());}));
+            if(bShowTechnicalSources)if(const auto* Native=Session->GetNativeDraft();Native&&!Native->PersistentParts.IsEmpty())Add(NativePartsPanel(true,NAME_None));
+            for(FName Stage:Session->GetActionStages()) {
+                const int32 Native=Session->GetNativeSources(Stage).Num();
+                const int32 Added=Session->GetLayerCount(Stage);
+                const FString Counts=bShowTechnicalSources&&Native>0?FString::Printf(TEXT(" · источников основы %d · добавлено Niagara %d"),Native,Added)
+                    :Added>0?FString::Printf(TEXT(" · добавленные Niagara %d/%d"),EnabledLayers(Session->GetRecipe(Stage)),Added):TEXT(" · без добавленных слоёв");
+                const auto* Sounds=Session->GetSFXSlot(Stage);const int32 SoundCount=Sounds?Sounds->Layers.Num():0;
+                Add(Command(Session->GetEventLabel(Stage).ToString()+Counts+FString::Printf(TEXT(" · добавлено звуков %d"),SoundCount),[this,Stage]{SelectLayer(Stage,FGuid());}));
+            }
             Add(Label(TEXT("«Применить в игре» сохраняет композиции, готовые эффекты и профиль. До этой кнопки правки остаются черновиками."),12,Muted));return;
         }
         const auto* Layer=CurrentLayer();
         Add(Label(Session->GetEventLabel(SelectedStage).ToString(),16,WorkspaceStageColor(SelectedStage)));
         if(!Layer)
         {
-            Add(Label(FString::Printf(TEXT("Включено слоёв: %d из %d"),EnabledLayers(Session->GetRecipe(SelectedStage)),Session->GetLayerCount(SelectedStage)),13));
+            if(const auto* Groups=Session->GetEventGroups(SelectedStage);Groups&&!Groups->Groups.IsEmpty())
+            {
+                Add(Heading(TEXT("Группы события")));
+                for(const auto& Group:Groups->Groups)
+                {
+                    const FName Event=SelectedStage;const FGuid ID=Group.ID;
+                    Add(Command(TEXT("Показать группу · ")+Group.Name.ToString(),[this,Event,ID]{SelectGroup(Event,ID);if(Graph)Graph->FrameSelected();}));
+                }
+            }
+            const auto Native=Session->GetNativeSources(SelectedStage);
+            if(!bShowTechnicalSources&&HasActiveNativeDecorativeBasis(*Session,SelectedStage,Native))Add(Label(TEXT("Для события включены родные акценты вне редактируемых NS-слоёв. Ресурсы и режим — в «Техническая основа»."),11,Muted));
+            if(bShowTechnicalSources&&!Native.IsEmpty()) {
+                Add(Heading(TEXT("Родная основа · ")+FString::FromInt(Native.Num())+TEXT(" источников")));
+                Add(Label(NativeModeLabel(Session->GetPreviewSlotMode(SelectedStage),NativeKeepsOriginal(*Session,SelectedStage)),13,WorkspaceMint));
+                if(const auto* Draft=Session->GetNativeDraft();Draft&&Draft->Events.Contains(SelectedStage))Add(NativePartsPanel(false,SelectedStage));
+                for(const auto& Part:Native)Add(SNew(SWorkspaceNativeSourceButton).Source(Part));
+                Add(Label(TEXT("Двойной клик — открыть настоящий Niagara, материал или исходную геометрию. Это общие ресурсы игры; здесь они показаны отдельно от новых слоёв."),11,Muted));
+                if(const auto* Draft=Session->GetNativeDraft();Draft&&Draft->Events.Contains(SelectedStage))
+                {
+                    const FName Stage=SelectedStage;const FGuid Token=Session->GetNativeDraftToken();
+                    Add(SNew(SCheckBox).IsChecked(NativeKeepsOriginal(*Session,Stage)?ECheckBoxState::Checked:ECheckBoxState::Unchecked)
+                        .OnCheckStateChanged_Lambda([this,Stage,Token](ECheckBoxState State){FString Error;if(!Session->SetNativeKeepWithComposition(Token,Stage,State==ECheckBoxState::Checked,Error)){Fail(Error);return;}Stop();Refresh();})
+                        [Label(TEXT("Дополнять родную основу слоями Niagara"),12)]);
+                    Add(Label(TEXT("Включено — родные акценты и новые слои вместе. Выключено — новые слои заменяют акценты; игровая форма и опасные зоны сохраняются."),11,Muted));
+                }
+                Add(Heading(TEXT("Добавленные Niagara")));
+                if(!Session->GetNativeDraft())Add(Label(TEXT("Добавленные слои заменяют родные акценты этого события. Редактирование родной основы для этого renderer ещё не подключено."),11,Muted));
+            }
+            Add(Label(FString::Printf(TEXT("Niagara-слои: %d включено из %d"),EnabledLayers(Session->GetRecipe(SelectedStage)),Session->GetLayerCount(SelectedStage)),13));
             Add(Label(TEXT("Выберите слой в карточке события, чтобы изменить его параметры. Выберите эффект в галерее и нажмите «Добавить», чтобы включить новый слой."),13));
             Add(Label(TEXT("＋ Новая композиция — пустой черновик или стартовый шаблон для этого события."),12,Muted));return;
         }
@@ -869,10 +1268,23 @@ namespace
     FString SActionWorkspace::Snapshot()const
     {
         TSharedRef<FJsonObject> Root=MakeShared<FJsonObject>();Root->SetStringField(TEXT("selected_action"),SelectedAction.ToString());Root->SetStringField(TEXT("selected_stage"),SelectedStage.ToString());
-        Root->SetStringField(TEXT("selected_layer"),SelectedLayer.ToString(EGuidFormats::DigitsWithHyphens));Root->SetStringField(TEXT("gallery_selection"),GallerySelection.GetSoftObjectPath().ToString());
+        Root->SetStringField(TEXT("selected_layer"),SelectedLayer.ToString(EGuidFormats::DigitsWithHyphens));
+        Root->SetStringField(TEXT("selected_group"),SelectedGroup.ToString(EGuidFormats::DigitsWithHyphens));
+        Root->SetStringField(TEXT("compare_a"),CompareA.ToString());Root->SetStringField(TEXT("compare_b"),CompareB.ToString());Root->SetStringField(TEXT("gallery_selection"),GallerySelection.GetSoftObjectPath().ToString());
         Root->SetBoolField(TEXT("adapter_supported"),!bUnsupported);Root->SetBoolField(TEXT("loop"),bLoop);Root->SetBoolField(TEXT("live_gallery"),bLive);Root->SetBoolField(TEXT("playing"),bPlaying);Root->SetBoolField(TEXT("paused"),bPaused);
         const auto Drag=FSlateApplication::Get().GetDragDroppingContent();Root->SetBoolField(TEXT("gallery_drag_active"),Drag&&Drag->IsOfType<FWorkspaceEffectDrag>());Root->SetBoolField(TEXT("audition_pending"),bPendingGalleryAudition);
         Root->SetNumberField(TEXT("gallery_count"),GalleryItems.Num());Root->SetStringField(TEXT("status"),Status);
+        Root->SetStringField(TEXT("gallery_channel"),bShowSFX?TEXT("SFX"):TEXT("VFX"));Root->SetBoolField(TEXT("sfx_audition"),bSFXAudition);
+        Root->SetBoolField(TEXT("technical_sources_shown"),bShowTechnicalSources);
+        Root->SetBoolField(TEXT("preview_audio_enabled"),Session->IsPreviewAudioEnabled());Root->SetStringField(TEXT("preview_audio_status"),Session->GetPreviewAudioStatus());
+        if(SFXGallery){Root->SetNumberField(TEXT("sfx_gallery_total"),SFXGallery->GetTotalCount());Root->SetNumberField(TEXT("sfx_gallery_matched"),SFXGallery->GetMatchedCount());
+            Root->SetStringField(TEXT("sfx_gallery_query"),SFXGallery->GetQuery());Root->SetStringField(TEXT("sfx_gallery_selected"),SFXGallery->GetSelectedAssetPath().ToString());}
+        Root->SetNumberField(TEXT("catalogue_total"),Catalogue.Num());Root->SetNumberField(TEXT("catalogue_matched"),FilteredCatalogue.Num());
+        Root->SetStringField(TEXT("catalogue_query"),CatalogueFilter.Query);
+        Root->SetStringField(TEXT("catalogue_section"),MCVFXCatalogueNavigation::Label(CatalogueFilter.Section).ToString());
+        Root->SetBoolField(TEXT("selected_action_visible"),IsSelectedActionVisible());
+        TArray<TSharedPtr<FJsonValue>> VisibleIDs;for(const auto& Item:FilteredCatalogue)VisibleIDs.Add(MakeShared<FJsonValueString>(Item->ID.ToString()));
+        Root->SetArrayField(TEXT("catalogue_visible_ids"),VisibleIDs);
         TSharedPtr<FJsonObject> Model;if(Session&&FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(Session->GetSnapshotJson()),Model)&&Model)Root->SetObjectField(TEXT("session"),Model);
         FString Result;FJsonSerializer::Serialize(Root,TJsonWriterFactory<>::Create(&Result));return Result;
     }
@@ -910,6 +1322,25 @@ void MCVFXActionWorkspace::Open()
 }
 TSharedPtr<FMCVFXActionSession> MCVFXActionWorkspace::GetActiveSession(){const auto Panel=ActiveWorkspace.Pin();return Panel?Panel->GetSession():nullptr;}
 FString MCVFXActionWorkspace::GetSnapshotJson(){const auto Panel=ActiveWorkspace.Pin();return Panel?Panel->Snapshot():TEXT("{\"error\":\"workspace_closed\"}");}
+bool MCVFXActionWorkspace::SelectActionForReview(FName ActionID,FString& Error)
+{
+    const auto Panel=ActiveWorkspace.Pin();if(!Panel){Error=TEXT("Сначала откройте VFX Composer.");return false;}
+    return Panel->SelectForReview(ActionID,Error);
+}
+bool MCVFXActionWorkspace::PlayForReview(EMCPerkPreviewScenario Scenario,bool Loop,FString& Error)
+{
+    const auto Panel=ActiveWorkspace.Pin();if(!Panel){Error=TEXT("Сначала откройте VFX Composer.");return false;}
+    return Panel->PlayForReview(Scenario,Loop,Error);
+}
+void MCVFXActionWorkspace::StopForReview(){if(const auto Panel=ActiveWorkspace.Pin())Panel->StopForReview();}
+bool MCVFXActionWorkspace::ResizeForReview(FVector2D Size)
+{
+    if(!FMath::IsFinite(Size.X)||!FMath::IsFinite(Size.Y)||Size.X<1000||Size.Y<650||Size.X>3840||Size.Y>2160)return false;
+    const auto Tab=FGlobalTabmanager::Get()->FindExistingLiveTab(WorkspaceTab);if(!Tab)return false;
+    const auto Window=Tab->GetParentWindow();
+    if(!Window||Window==FGlobalTabmanager::Get()->GetRootWindow()||Window->GetType()!=EWindowType::Normal)return false;
+    Window->Restore();Window->Resize(Size);Window->BringToFront(true);return true;
+}
 bool MCVFXActionWorkspace::ImportEventRecipe(FName ActionID,FName Stage,UMCVFXComposition* Source,FString& Error)
 {
     const auto Panel=ActiveWorkspace.Pin();if(!Panel){Error=TEXT("Сначала откройте VFX Composer.");return false;}

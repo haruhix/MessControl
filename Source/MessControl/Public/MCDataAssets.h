@@ -8,6 +8,7 @@ class UPhysicsAsset;
 class UMaterialInterface;
 class UAnimSequence;
 class UStaticMesh;
+class AActor;
 
 // Maps gameplay roles to an artist's skeleton without renaming the source rig.
 UCLASS(BlueprintType)
@@ -116,7 +117,10 @@ public:
     UFUNCTION(BlueprintCallable, Category="Audio") void Play(UObject* WorldContext, FName Event, FVector Location) const;
     const FMCSoundVariation* ResolveEvent(FName Event, FName* ResolvedEvent = nullptr) const;
     // True means the palette owns the event, including intentional silence; it does not guarantee audibility.
-    bool PlayWithParameters(UObject* WorldContext, FName Event, FVector Location, float Intensity = .65f, float Speed = .5f) const;
+    // Optional UI policy owner must be the current same-world local MC controller;
+    // original WorldContext/SoundOwner, actor parameters and once-only RNG stay unchanged.
+    bool PlayWithParameters(UObject* WorldContext, FName Event, FVector Location, float Intensity = .65f, float Speed = .5f,
+        FName PresentationSourceID=NAME_None,FName PresentationEvent=NAME_None,AActor* PresentationPolicyOwner=nullptr) const;
     /** Scene music/ambience are independent of one-shot Events. No missing-key fallback. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio|Scenes") TMap<FName,FMCSoundScene> Scenes;
     UFUNCTION(BlueprintPure, Category="Audio|Scenes") bool GetScene(FName Scene, FMCSoundScene& Settings) const;

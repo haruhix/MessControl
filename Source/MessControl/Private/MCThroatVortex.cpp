@@ -1,4 +1,6 @@
 #include "MCThroatVortex.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCVFXPresentationComponent.h"
 #include "MCFoodActor.h"
 #include "Engine/World.h"
 #include "ProceduralMeshComponent.h"
@@ -127,7 +129,7 @@ double AMCThroatVortex::ServerNow() const
     return State?State->GetServerWorldTimeSeconds():GetWorld()?GetWorld()->GetTimeSeconds():0;
 }
 AMCThroatVortex* AMCThroatVortex::Spawn(UWorld* World, FVector Inlet, FVector Direction,
-    float InRadius, float Span, float Seconds, const TArray<AMCFoodActor*>& Sources, float HalfWidth, float Height)
+    float InRadius, float Span, float Seconds, const TArray<AMCFoodActor*>& Sources, float HalfWidth, float Height,AActor* PreparedOwner)
 {
     if(!World || World->GetNetMode()==NM_Client) return nullptr;
     const FTransform Transform(Inlet);
@@ -141,6 +143,16 @@ AMCThroatVortex* AMCThroatVortex::Spawn(UWorld* World, FVector Inlet, FVector Di
     Effect->Duration=FMath::Max(.5f,Seconds); Effect->StartedAt=Effect->ServerNow();
     const int32 Samples=FMath::Min(MaxFoodWakes,Sources.Num());
     for(int32 I=0; I<Samples; ++I) Effect->FoodSources.Add(Sources[I*Sources.Num()/Samples]);
+    if(IsValid(PreparedOwner)&&PreparedOwner->GetWorld()==World) {
+        Effect->SetOwner(PreparedOwner);
+        auto* Owner=PreparedOwner->FindComponentByClass<UMCWorldPresentationComponent>();
+        if(auto* Source=Owner?Owner->GetSource(TEXT("World.Throat.Suction")):nullptr) {
+            Effect->ComposerPresentation=MCWorldPresentation::PrepareOwner(Effect,{TEXT("World.Throat.Suction")});
+            auto* Target=Effect->ComposerPresentation?Effect->ComposerPresentation->GetSource(TEXT("World.Throat.Suction")):nullptr;
+            Effect->bPreparedSourceHandoff=Source->CopyPreparedSourceTo(TEXT("World.Throat.Suction"),Target,Effect->PreparedSourceHandoffError);
+            if(!Effect->bPreparedSourceHandoff&&Effect->PreparedSourceHandoffError.IsEmpty())Effect->PreparedSourceHandoffError=TEXT("Native vortex did not receive the prepared source.");
+        }
+    }
     Effect->FinishSpawning(Transform); Effect->ForceNetUpdate();
     return Effect;
 }
@@ -150,9 +162,10 @@ void AMCThroatVortex::BeginPlay()
     Super::BeginPlay();
     if(HasAuthority()) SetLifeSpan(Duration+.15f);
     if(GetNetMode()==NM_DedicatedServer) { SetActorTickEnabled(false); return; }
+    ComposerPresentation=MCWorldPresentation::PrepareOwner(this,{TEXT("World.Throat.Suction")});
     const float AudioAge=FMath::Max(0.f,float(ServerNow()-StartedAt));
     // Late joiners enter the current draft without replaying its onset cue.
-    if(AudioAge<.25f) if(auto* Sound=IntakeSound.LoadSynchronous())
+    if(AudioAge<.25f && (!PreparedSourceHandoffError.IsEmpty() || !ComposerPresentation || ComposerPresentation->UsesOriginalAudio(TEXT("World.Throat.Suction"),TEXT("Start")))) if(auto* Sound=IntakeSound.LoadSynchronous())
         UGameplayStatics::PlaySound2D(this,Sound,.32f,.78f,0,nullptr,this,false);
     auto* WindSound=AirflowSound.LoadSynchronous();
     if(!WindSound) WindSound=LoadObject<USoundBase>(nullptr,TEXT("/Game/Audio/S_Pull.S_Pull"));
@@ -184,7 +197,9 @@ void AMCThroatVortex::Tick(float Dt)
     TRACE_CPUPROFILER_EVENT_SCOPE(MCThroatVortex);
     const float Age=FMath::Max(0.f,float(ServerNow()-StartedAt)), Progress=Age/FMath::Max(.5f,Duration);
     if(Progress>=1) {
-        if(Airflow->IsVisible()) { Airflow->SetVisibility(false); SuctionAudio->FadeOut(.1f,0); }
+        NotifyNaturalEnd();
+        Airflow->SetVisibility(false);if(SuctionAudio->IsPlaying())SuctionAudio->FadeOut(.1f,0);
+        if(ComposerPresentation)ComposerPresentation->StopStates(TEXT("World.Throat.Suction"));
         // A duration extension can arrive after a client reached the old end.
         // Keep this cheap lifetime check until authority destroys the actor.
         return;
@@ -192,7 +207,9 @@ void AMCThroatVortex::Tick(float Dt)
     Airflow->SetVisibility(true);
     const float Strength=FMath::SmoothStep(.035f,.24f,Age)*(1-FMath::SmoothStep(.82f,1.f,Progress));
     SuctionAudio->SetVolumeMultiplier(.20f*Strength);
-    if(Strength>.035f && Age>=NextAirflowCueAt && SuctionAudio->Sound && !SuctionAudio->IsPlaying())
+    const bool NativeAudio=!PreparedSourceHandoffError.IsEmpty()||!ComposerPresentation||ComposerPresentation->UsesOriginalAudio(TEXT("World.Throat.Suction"),TEXT("Loop"));
+    if(!NativeAudio && SuctionAudio->IsPlaying())SuctionAudio->Stop();
+    if(NativeAudio && Strength>.035f && Age>=NextAirflowCueAt && SuctionAudio->Sound && !SuctionAudio->IsPlaying())
     {
         // Let the original wind run continuously. Only the legacy short-clip
         // fallback uses a low breathing cadence when the new asset is absent.
@@ -350,6 +367,9 @@ void AMCThroatVortex::Tick(float Dt)
         FLinearColor Color=CrumbColors[I%UE_ARRAY_COUNT(CrumbColors)]; Color.A=FMath::Sin(U*PI)*.38f;
         Glow.Quad(Point,Q,W,1.3f+I%3*.65f,Color);
     }
+    const bool NativeArtwork=UpdateComposerArtwork(Age,View,Right,Up);
+    Airflow->SetVisibility(NativeArtwork);
+    if(!NativeArtwork)return;
     Ribbons.Upload(Airflow,0); Mist.Upload(Airflow,1); Glow.Upload(Airflow,2);
 #if !UE_BUILD_SHIPPING
     if(FParse::Param(FCommandLine::Get(),TEXT("MCFoodPileCapture")) && (!Geometry->bLoggedStart || (Age>=.45f && !Geometry->bLoggedPeak)))
@@ -372,11 +392,105 @@ void AMCThroatVortex::Tick(float Dt)
 #endif
 }
 
+void AMCThroatVortex::EndPlay(const EEndPlayReason::Type Reason)
+{
+    if(ComposerPresentation)ComposerPresentation->StopStates(TEXT("World.Throat.Suction"));
+    SuctionAudio->Stop();Super::EndPlay(Reason);
+}
+
+bool AMCThroatVortex::UpdateComposerArtwork(float Age,FVector View,FVector Right,FVector Up)
+{
+    if(!ComposerPresentation||!Geometry||!PreparedSourceHandoffError.IsEmpty())return true;
+    constexpr auto ID=TEXT("World.Throat.Suction");
+    FMCPerkVFXGameplayValues Values;Values.EpisodeID=ComposerEpisode;Values.LocalStateAgeSeconds=Age;
+    Values.Duration=Duration;Values.Radius=Radius;Values.Direction=InwardDirection;Values.VisualSubject=Airflow;Values.FrameComponent=Airflow;
+    auto Add=[&](const TCHAR* N,EMCVFXNativeInputType T)->FMCVFXNativeInput&{auto& I=Values.NativeInputs.Entries.AddDefaulted_GetRef();I.Name=N;I.Type=T;return I;};
+    Add(TEXT("User.Native.ThroatAge"),EMCVFXNativeInputType::Float).FloatValue=Age;
+    Add(TEXT("User.Native.ThroatDuration"),EMCVFXNativeInputType::Float).FloatValue=Duration;
+    Add(TEXT("User.Native.ThroatRadius"),EMCVFXNativeInputType::Float).FloatValue=Radius;
+    Add(TEXT("User.Native.ThroatLength"),EMCVFXNativeInputType::Float).FloatValue=FlowLength;
+    Add(TEXT("User.Native.ThroatHalfWidth"),EMCVFXNativeInputType::Float).FloatValue=FlowHalfWidth;
+    Add(TEXT("User.Native.ThroatHeight"),EMCVFXNativeInputType::Float).FloatValue=FlowHeight;
+    Add(TEXT("User.Native.ThroatAxis"),EMCVFXNativeInputType::Vector).VectorValue=InwardDirection;
+    Add(TEXT("User.Native.ThroatRight"),EMCVFXNativeInputType::Vector).VectorValue=Right;
+    Add(TEXT("User.Native.ThroatUp"),EMCVFXNativeInputType::Vector).VectorValue=Up;
+    Add(TEXT("User.Native.ThroatView"),EMCVFXNativeInputType::Vector).VectorValue=View;
+    Add(TEXT("User.Native.ThroatOrigin"),EMCVFXNativeInputType::Position).PositionValue=GetActorLocation();
+    Add(TEXT("User.Native.ThroatScale"),EMCVFXNativeInputType::Vector).VectorValue=Airflow->GetComponentScale();
+    Add(TEXT("User.Native.ThroatReady"),EMCVFXNativeInputType::Bool).BoolValue=true;
+    auto& Positions=Add(TEXT("User.Native.ThroatWakePositions"),EMCVFXNativeInputType::VectorArray).VectorValues;
+    auto& Visibility=Add(TEXT("User.Native.ThroatWakeVisibility"),EMCVFXNativeInputType::FloatArray).FloatValues;
+    Positions.Reserve(MaxFoodWakes*WakePoints);Visibility.Reserve(MaxFoodWakes);
+    // Histories have ALREADY advanced exactly once in the native producer above.
+    // No extra food sampling, motion update, gameplay RNG or discarded tail data.
+    for(const auto& Wake:Geometry->Wakes){for(int32 J=WakePoints-1;J>=0;--J)Positions.Add(Wake.History[J]);Visibility.Add(Wake.Visibility);}
+    LastComposerValues=MakeShared<FMCPerkVFXGameplayValues>(Values);
+    auto* Channel=ComposerPresentation->GetSource(ID);FString Error;
+    if(!bComposerOnsetIssued){bComposerOnsetIssued=true;if(Age<.25f&&Channel)bComposerStartAccepted=Channel->PlayLocalSourceEvent(ID,TEXT("Start"),FTransform::Identity,Values)!=EMCVFXPresentationResult::Rejected;}
+    const bool Accepted=ComposerPresentation->UpdateState(ID,TEXT("Loop"),true,FTransform::Identity,Values,Airflow,Error);
+    bComposerLoopAccepted|=Accepted;
+    DispatchIntakes(Values);
+    return !Accepted||ComposerPresentation->UsesNativeVisuals(ID,TEXT("Loop"));
+}
+
+void AMCThroatVortex::NotifyNativeIntake(FVector AcceptedPoint)
+{
+    // Called only from the two native branches AFTER their existing admission.
+    if(!HasAuthority()||!GetWorld()||GetWorld()->bIsTearingDown||AcceptedPoint.ContainsNaN()||bPresentationCanceled)return;
+    auto& Boundary=RecentIntakes.AddDefaulted_GetRef();Boundary.Serial=++IntakeSerial;
+    Boundary.AcceptedAt=ServerNow();Boundary.Point=AcceptedPoint;
+    if(RecentIntakes.Num()>64)RecentIntakes.RemoveAt(0,RecentIntakes.Num()-64,EAllowShrinking::No);
+    ForceNetUpdate();
+}
+void AMCThroatVortex::DispatchIntakes(const FMCPerkVFXGameplayValues& Current)
+{
+    if(bPresentationCanceled||!PreparedSourceHandoffError.IsEmpty()||!ComposerPresentation)return;
+    auto* Channel=ComposerPresentation->GetSource(TEXT("World.Throat.Suction"));if(!Channel)return;
+    const double Now=ServerNow();
+    // Each peer consumes the replicated accepted serial once. Bounded history
+    // retains exact timestamps; late joins consume old rows without fresh replay.
+    for(const auto& Boundary:RecentIntakes)if(Boundary.Serial>ConsumedIntakeSerial&&Now>=Boundary.AcceptedAt) {
+        ConsumedIntakeSerial=Boundary.Serial;const float Elapsed=FMath::Max(0.f,float(Now-Boundary.AcceptedAt));
+        if(Elapsed>=60.f)continue;
+        auto Values=Current;Values.LocalStateAgeSeconds=Elapsed;
+        Values.SourcePosition=Boundary.Point;Values.TargetPosition=GetActorLocation();Values.bHasEndpoints=true;
+        bComposerIntakeAccepted|=Channel->PlayLocalSourceEvent(TEXT("World.Throat.Suction"),TEXT("Intake"),FTransform::Identity,Values)!=EMCVFXPresentationResult::Rejected;
+    }
+}
+void AMCThroatVortex::NotifyNaturalEnd()
+{
+    if(bPresentationCanceled||bNormalEndIssued||!GetWorld()||GetWorld()->bIsTearingDown||ServerNow()<StartedAt+Duration)return;
+    if(HasAuthority()&&!bNativeNormalEnd){bNativeNormalEnd=true;ForceNetUpdate();}
+    // Clients never infer successful completion from a cancellation arriving late.
+    if(!bNativeNormalEnd||!LastComposerValues)return;
+    bNormalEndIssued=true;
+    if(!PreparedSourceHandoffError.IsEmpty()||!ComposerPresentation)return;
+    auto* Channel=ComposerPresentation->GetSource(TEXT("World.Throat.Suction"));if(!Channel)return;
+    auto Values=*LastComposerValues;Values.Duration=Duration;Values.LocalStateAgeSeconds=FMath::Max(0.f,float(ServerNow()-StartedAt-Duration));
+    for(auto& Input:Values.NativeInputs.Entries)if(Input.Name==TEXT("User.Native.ThroatAge"))Input.FloatValue=FMath::Max(0.f,float(ServerNow()-StartedAt));else if(Input.Name==TEXT("User.Native.ThroatDuration"))Input.FloatValue=Duration;
+    bComposerEndAccepted=Channel->PlayLocalSourceEvent(TEXT("World.Throat.Suction"),TEXT("End"),FTransform::Identity,Values)!=EMCVFXPresentationResult::Rejected;
+    // Intake repeats retire now with their authored bounded fade/natural tail.
+    // End itself is an independent finite local one-shot with slot MaxDuration.
+    Channel->RetireLocalSourceAudioEvent(TEXT("World.Throat.Suction"),TEXT("Intake"));
+}
+void AMCThroatVortex::CancelPresentation()
+{
+    bPresentationCanceled=true;
+    if(ComposerPresentation) {
+        ComposerPresentation->StopStates(TEXT("World.Throat.Suction"));
+        if(auto* Channel=ComposerPresentation->GetSource(TEXT("World.Throat.Suction")))Channel->StopSource(TEXT("World.Throat.Suction"),true);
+    }
+}
+void AMCThroatVortex::LifeSpanExpired()
+{NotifyNaturalEnd();Super::LifeSpanExpired();}
+
 void AMCThroatVortex::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCThroatVortex,StartedAt); DOREPLIFETIME(AMCThroatVortex,Duration);
     DOREPLIFETIME(AMCThroatVortex,Radius); DOREPLIFETIME(AMCThroatVortex,FlowLength);
     DOREPLIFETIME(AMCThroatVortex,FlowHalfWidth); DOREPLIFETIME(AMCThroatVortex,FlowHeight);
+    DOREPLIFETIME(AMCThroatVortex,RecentIntakes);
+    DOREPLIFETIME(AMCThroatVortex,bNativeNormalEnd);
     DOREPLIFETIME(AMCThroatVortex,InwardDirection); DOREPLIFETIME(AMCThroatVortex,FoodSources);
 }

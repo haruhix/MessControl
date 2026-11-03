@@ -1,8 +1,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MCPerkTypes.h"
 
 class UTexture2D;
+
+/** Navigation metadata, independent of source identity and preview capability. */
+enum class EMCVFXActionSection : uint8
+{
+    All, Boosters, Bosses, WorldEvents, General, InterfaceHub, Other
+};
 
 /** Shared editor catalogue: source identity, runtime data and preview capability
  * are separate. A catalogue row is not proof of a working scenario or binding. */
@@ -13,6 +20,10 @@ struct FMCVFXActionCatalogueEntry
     FText Description;
     TSoftObjectPtr<UTexture2D> Icon;
     FName Category;
+    EMCVFXActionSection Section=EMCVFXActionSection::Other;
+    /** Set only by an actual canonical DT row, never inferred from an ID/name. */
+    TOptional<EMCPerkKind> PerkKind;
+    TArray<FString> SearchNames;
     FString SourceOwner;
     TArray<FName> Stages;
     bool bEnabled=true;

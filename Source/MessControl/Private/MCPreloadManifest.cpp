@@ -1,5 +1,6 @@
 #include "MCPreloadManifest.h"
 #include "MCReactionVFX.h"
+#include "MCArenaTooth.h"
 
 #include "MCPreloadSettings.h"
 #include "MCGameMode.h"
@@ -9,6 +10,15 @@
 #include "MCPassiveCombatCue.h"
 #include "MCPassiveFeedbackCue.h"
 #include "MCDefenseSprayPassives.h"
+#include "MCVFXPresentationLibrary.h"
+#include "MCVFXSourceContracts.h"
+#include "MCNutCombatEffect.h"
+#include "MCNutSpellProjectile.h"
+#include "MCDataAssets.h"
+#include "MCEventSFXReadiness.h"
+#include "MCExperimentalAudioComponent.h"
+#include "MCPerkTypes.h"
+#include "MCSceneAudioComponent.h"
 #include "Blueprint/WidgetBlueprintGeneratedClass.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/ActorComponent.h"
@@ -21,37 +31,167 @@
 #include "Kismet/GameplayStatics.h"
 #include "Misc/PackageName.h"
 #include "Sound/SoundBase.h"
+#include "Sound/SoundCue.h"
+#include "Sound/SoundWave.h"
+#include "Sound/SoundNode.h"
+#include "Sound/SoundNodeWavePlayer.h"
+#include "Sound/SoundClass.h"
+#include "Sound/SoundSubmix.h"
+#include "Sound/SoundAttenuation.h"
+#include "Sound/SoundConcurrency.h"
 #include "NiagaraSystem.h"
 #include "NiagaraEmitter.h"
 #include "NiagaraEmitterHandle.h"
 #include "NiagaraRendererProperties.h"
+#include "NiagaraParameterStore.h"
+#include "MCFreezeCapturedGeometry.h"
 #include "Materials/MaterialInterface.h"
 #include "UObject/UnrealType.h"
+#include "UObject/Package.h"
 
 namespace
 {
 // DataTable map references describe destinations, not dependencies to load into this world.
 bool CanPrepareClass(const UClass* Class)
 {
-    return !Class || (!Class->IsChildOf(UWorld::StaticClass()) && !Class->IsChildOf(ULevel::StaticClass())
-        && !Class->IsChildOf(USoundBase::StaticClass()));
+    return !Class || (!Class->IsChildOf(UWorld::StaticClass()) && !Class->IsChildOf(ULevel::StaticClass()));
+}
+
+bool RequiresFreezePresentation(UWorld* World)
+{
+    const auto* GS=World?World->GetGameState<AMCGameState>():nullptr;
+    const FString Map=World?UGameplayStatics::GetCurrentLevelName(World,true):FString();
+    return (Map==TEXT("L_Mouth")||Map==TEXT("L_Tutorial"))&&GS&&GS->GameplayLoadId.IsValid()
+        &&GS->IcePresentationScope.GameplayLoadId==GS->GameplayLoadId
+        &&GS->IcePresentationScope.Scope==EMCIcePresentationScope::Required;
+}
+
+bool IsArenaLocation(UWorld* World)
+{
+    const FString Map=World?UGameplayStatics::GetCurrentLevelName(World,true):FString();
+    return Map==TEXT("L_Mouth") || Map==TEXT("L_Tutorial");
 }
 
 void AddPath(const FSoftObjectPath& Path,TArray<FSoftObjectPath>& Out)
 {
     const FString Name=Path.GetAssetPathString();
-    if(!Path.IsNull() && (Name.StartsWith(TEXT("/Game/")) || Name.StartsWith(TEXT("/Engine/"))
+    // Explicit reflected dependencies may live under any mounted runtime
+    // content root, including plugins. This never enumerates a plugin bank.
+    if(!Path.IsNull() && (FPackageName::IsValidLongPackageName(Path.GetLongPackageName(),false)
         || Name.StartsWith(TEXT("/Script/MessControl.")))) Out.AddUnique(Path);
 }
+
+bool ValidateRuntimeAudioObject(const UObject* Object,FString& Error)
+{
+    if(!IsValid(Object) || Object->IsEditorOnly() || Object->GetOutermost()->HasAnyPackageFlags(PKG_EditorOnly))
+    {Error=TEXT("Audio dependency is absent or editor-only.");return false;}
+    if(Object->IsAsset() && Object->GetOutermost()!=GetTransientPackage()
+        && !FPackageName::IsValidLongPackageName(Object->GetOutermost()->GetName(),false))
+    {Error=TEXT("Audio asset requires a mounted runtime content root: ")+Object->GetPathName();return false;}
+    return true;
+}
+
+bool IsAudioResourceClass(const UClass* Class)
+{
+    return Class && (Class->IsChildOf(USoundBase::StaticClass()) || Class->IsChildOf(USoundClass::StaticClass())
+        || Class->IsChildOf(USoundSubmixBase::StaticClass()) || Class->IsChildOf(USoundAttenuation::StaticClass())
+        || Class->IsChildOf(USoundConcurrency::StaticClass()));
+}
+
+class FMCSoundCueResourceClosure
+{
+public:
+    FMCSoundCueResourceClosure(FMCEventSFXSamplePlan& InPlan,FString& InError,bool& InWaiting,bool bInPrepare=false,bool bInAllowLoad=false)
+        : Plan(InPlan),Error(InError),bWaiting(InWaiting),bPrepare(bInPrepare),bAllowLoad(bInAllowLoad) {}
+    bool Visit(USoundNode* Node,int32 Depth=0)
+    {
+        if(!Node)return true; // An authored empty branch is intentional silence.
+        if(Active.Contains(Node)){Error=TEXT("SoundCue resource graph contains a cycle.");return false;}
+        if(Visited.Contains(Node))return true;
+        if(Depth>64 || Visited.Num()+Active.Num()>=512)
+        {Error=TEXT("SoundCue resource graph exceeds the 512-node/64-depth preparation bound.");return false;}
+        Active.Add(Node);
+        if(Node->GetClass()==USoundNodeWavePlayer::StaticClass()) {
+            auto* Player=CastChecked<USoundNodeWavePlayer>(Node);
+            auto* Wave=Player->GetSoundWave();
+            // Read the authored reference. Only explicit prebarrier preparation
+            // may populate the engine's transient cache; readonly validation
+            // never substitutes the resident soft target for a missing cache.
+            if(const auto* Property=FindFProperty<FSoftObjectProperty>(Player->GetClass(),TEXT("SoundWaveAssetPtr"))) {
+                const FSoftObjectPtr Reference=Property->GetPropertyValue(Property->ContainerPtrToValuePtr<void>(Player));
+                auto* Resident=Cast<USoundWave>(Reference.Get());
+                if(!Reference.IsNull() && !FPackageName::IsValidLongPackageName(Reference.ToSoftObjectPath().GetLongPackageName(),false)
+                    && !Resident)
+                {Error=TEXT("SoundCue wave has no mounted runtime content root: ")+Reference.ToString();return false;}
+                if(bPrepare && !Resident && bAllowLoad)Resident=Cast<USoundWave>(Reference.ToSoftObjectPath().TryLoad());
+                if(bPrepare && (!Wave || Wave!=Resident) && !Reference.IsNull() && !Player->IsCurrentlyAsyncLoadingAsset()) {
+                    Player->LoadAsset(false); // Runtime cache only; never Modify/SetSoundWave/save.
+                    Wave=Player->GetSoundWave();
+                }
+                if(Wave && Resident && Wave!=Resident)
+                {Error=TEXT("SoundCue's cached WavePlayer differs from its authored source; reload/recompile the source.");return false;}
+            }
+            if(!IsValid(Wave) || Player->IsCurrentlyAsyncLoadingAsset()) {
+                bWaiting=true;Error=TEXT("SoundCue WavePlayer cache preparation is pending; use explicit prebarrier preparation: ")+Player->GetPathName();return false;
+            }
+            if(!ValidateRuntimeAudioObject(Wave,Error))return false;
+            if(Wave->IsProcedurallyGenerated() || Wave->bIsSourceBus)
+            {Error=TEXT("Unsupported dynamic/procedural SoundCue wave; its source provider needs an audited resource closure: ")+Wave->GetPathName();return false;}
+            Plan.SampleWaves.AddUnique(Wave);
+        } else {
+            // Static routing/modulation may choose among authored children; all
+            // branches are retained without choosing RNG or gameplay parameters.
+            static const TSet<FName> StaticNodeClasses={
+                TEXT("SoundNodeAttenuation"),TEXT("SoundNodeBranch"),TEXT("SoundNodeConcatenator"),
+                TEXT("SoundNodeDelay"),TEXT("SoundNodeDistanceCrossFade"),TEXT("SoundNodeDoppler"),
+                TEXT("SoundNodeEnveloper"),TEXT("SoundNodeGroupControl"),TEXT("SoundNodeLooping"),
+                TEXT("SoundNodeMature"),TEXT("SoundNodeMixer"),TEXT("SoundNodeModulator"),
+                TEXT("SoundNodeModulatorContinuous"),TEXT("SoundNodeOscillator"),TEXT("SoundNodeParamCrossFade"),
+                TEXT("SoundNodeQualityLevel"),TEXT("SoundNodeRandom"),TEXT("SoundNodeSoundClass"),TEXT("SoundNodeSwitch")};
+            if(Node->GetClass()->GetOutermost()->GetFName()!=TEXT("/Script/Engine") || !StaticNodeClasses.Contains(Node->GetClass()->GetFName()))
+            {Error=TEXT("Unsupported SoundCue node requires a source-specific resource audit: ")+Node->GetClass()->GetPathName();return false;}
+        }
+        for(USoundNode* Child:Node->ChildNodes)if(!Visit(Child,Depth+1))return false;
+        Active.Remove(Node);Visited.Add(Node);return true;
+    }
+private:
+    FMCEventSFXSamplePlan& Plan;
+    FString& Error;
+    bool& bWaiting;
+    bool bPrepare=false,bAllowLoad=false;
+    TSet<USoundNode*> Visited,Active;
+};
 
 class FMCVisualReferenceCollector
 {
 public:
-    explicit FMCVisualReferenceCollector(TArray<FSoftObjectPath>& InOut) : Out(InOut) {}
+    explicit FMCVisualReferenceCollector(TArray<FSoftObjectPath>& InOut,UWorld* InLocation=nullptr,FString* InAudioError=nullptr)
+        : Out(InOut),Location(InLocation),AudioError(InAudioError) {}
     void Object(UObject* Value,int32 Depth=0)
     {
         if(!IsValid(Value) || Depth>24 || Visited.Contains(Value)) return;
+        if(AudioError && (!AudioError->IsEmpty() || (IsAudioResourceClass(Value->GetClass()) && !ValidateRuntimeAudioObject(Value,*AudioError))))return;
         Visited.Add(Value);
+        // The retired manual comparison bank is not a gameplay dependency.
+        if(Value->IsA<UMCExperimentalAudioComponent>())return;
+        if(const auto* SceneAudio=Cast<UMCSceneAudioComponent>(Value)) {
+            FMCSoundScene Scene;
+            if(SceneAudio->SoundPalette && SceneAudio->SoundPalette->GetScene(SceneAudio->SceneContext,Scene)) {
+                AddPath(Scene.Music.Sound.ToSoftObjectPath(),Out);
+                AddPath(Scene.Ambience.Sound.ToSoftObjectPath(),Out);
+            }
+        }
+        if(const auto* Palette=Cast<UMCSoundPalette>(Value);Palette && IsArenaLocation(Location)) {
+            // These contexts are chosen by the arena's actual scene controller.
+            // Hub/menu prepare their selected context through SceneAudio above.
+            for(const TCHAR* Name:{TEXT("Gameplay"),TEXT("Relax"),TEXT("NutEncounter"),TEXT("IceEvent"),
+                TEXT("FogBrawl"),TEXT("CataclysmRafts"),TEXT("CataclysmJellies"),TEXT("ColdCola"),TEXT("FinalBoss")}) {
+                FMCSoundScene Scene;if(Palette->GetScene(FName(Name),Scene)) {
+                    AddPath(Scene.Music.Sound.ToSoftObjectPath(),Out);
+                    AddPath(Scene.Ambience.Sound.ToSoftObjectPath(),Out);
+                }
+            }
+        }
         if(auto* Class=Cast<UClass>(Value)) {
             // Inspect authored defaults without constructing any gameplay actors.
             Object(Class->GetDefaultObject(),Depth+1);
@@ -72,6 +212,14 @@ public:
         // authored render resources explicitly, including material overrides,
         // rather than relying on the first spawned NiagaraComponent to find them.
         if(const auto* System=Cast<UNiagaraSystem>(Value)) {
+            if(FMCPreparedFreezeGeometryLayer::UsesCapture(System)) {
+                TArray<FNiagaraVariable> Inputs;System->GetExposedParameters().GetParameters(Inputs);
+                for(const auto& Input:Inputs)if(FMCPreparedFreezeGeometryLayer::IsCaptureName(Input.GetName())
+                    &&Input.GetType()==FNiagaraTypeDefinition(UMaterialInterface::StaticClass()))
+                    if(auto* Material=Cast<UMaterialInterface>(System->GetExposedParameters().GetUObject(Input).Get())) {
+                        AddPath(FSoftObjectPath(Material),Out);Object(Material,Depth+1);
+                    }
+            }
             for(const auto& Handle:System->GetEmitterHandles())
                 if(const auto* Data=Handle.GetEmitterData())
                     for(auto* Renderer:Data->GetRenderers()) if(IsValid(Renderer)) {
@@ -95,6 +243,16 @@ private:
         if(!Type || !Data || Depth>24) return;
         for(TFieldIterator<FProperty> It(Type);It;++It) {
             if(It->HasAnyPropertyFlags(CPF_Deprecated|CPF_EditorOnly|CPF_Transient)) continue;
+            if(const auto* Library=Cast<UMCVFXPresentationLibrary>(Owner);Location&&Library&&It->GetFName()==TEXT("Profiles")
+                &&Library->GetPathName()==MCVFXSourceContracts::WorldLibraryPath().ToString()) {
+                for(const auto& Pair:Library->Profiles)
+                    if(Pair.Key!=TEXT("Character.FreezeDeath")||RequiresFreezePresentation(Location))AddPath(Pair.Value.ToSoftObjectPath(),Out);
+                continue;
+            }
+            // A palette contains scenes for several locations, not one global preload bank.
+            if(Owner->IsA<UMCSoundPalette>() && It->GetFName()==TEXT("Scenes"))continue;
+            if(Location && !IsArenaLocation(Location) && It->GetFName()==TEXT("VFXProfile"))
+                if(const auto* Table=Cast<UDataTable>(Owner);Table && Table->GetRowStruct()==FMCPerkDefinition::StaticStruct())continue;
             for(int32 Index=0;Index<It->ArrayDim;++Index)
                 Property(*It,It->ContainerPtrToValuePtr<void>(Data,Index),Owner,Depth+1);
         }
@@ -103,6 +261,12 @@ private:
     {
         if(!Data || Depth>24) return;
         if(const auto* Soft=CastField<FSoftObjectProperty>(Prop)) {
+            if(AudioError && IsAudioResourceClass(Soft->PropertyClass)) {
+                const FSoftObjectPtr Reference=Soft->GetPropertyValue(Data);
+                if(!Reference.IsNull() && !FPackageName::IsValidLongPackageName(Reference.ToSoftObjectPath().GetLongPackageName(),false))
+                {*AudioError=TEXT("Audio dependency requires a mounted runtime content root: ")+Reference.ToSoftObjectPath().ToString();return;}
+                if(UObject* Resource=Reference.Get();Resource && !ValidateRuntimeAudioObject(Resource,*AudioError))return;
+            }
             if(CanPrepareClass(Soft->PropertyClass)) AddPath(Soft->GetPropertyValue(Data).ToSoftObjectPath(),Out);
         }
         else if(const auto* Hard=CastField<FObjectPropertyBase>(Prop)) {
@@ -110,6 +274,8 @@ private:
             if(!IsValid(Target) || !CanPrepareClass(Target->GetClass())) return;
             if(Target->IsAsset() || Target->IsA<UClass>()) AddPath(FSoftObjectPath(Target),Out);
             if(Target->IsA<UDataAsset>() || Target->IsA<UDataTable>() || Target->IsA<UClass>()
+                || Target->IsA<USoundBase>() || Target->IsA<USoundNode>() || Target->IsA<USoundClass>()
+                || Target->IsA<USoundSubmixBase>() || Target->IsA<USoundAttenuation>() || Target->IsA<USoundConcurrency>()
                 || (Target->IsA<UActorComponent>() && Target->IsIn(Owner))) Object(Target,Depth+1);
         }
         else if(const auto* Structure=CastField<FStructProperty>(Prop)) Struct(Structure->Struct,Data,Owner,Depth+1);
@@ -132,6 +298,8 @@ private:
     }
     TSet<const UObject*> Visited;
     TArray<FSoftObjectPath>& Out;
+    UWorld* Location=nullptr;
+    FString* AudioError=nullptr;
 };
 
 void AddAsset(const TCHAR* Package,TArray<FSoftObjectPath>& Out)
@@ -141,9 +309,45 @@ void AddAsset(const TCHAR* Package,TArray<FSoftObjectPath>& Out)
 }
 }
 
-void FMCPreloadManifest::CollectSoftReferences(UObject* Object,TArray<FSoftObjectPath>& OutPaths)
+void FMCPreloadManifest::CollectSoftReferences(UObject* Object,TArray<FSoftObjectPath>& OutPaths,UWorld* Location)
 {
-    FMCVisualReferenceCollector(OutPaths).Object(Object);
+    FMCVisualReferenceCollector(OutPaths,Location).Object(Object);
+}
+
+bool FMCPreloadManifest::BuildEventAudioPlan(USoundBase* Source,FMCEventSFXSamplePlan& OutPlan,FString& Error)
+{
+    bool Waiting=false;
+    Error.Reset();FMCEventSFXSamplePlan Candidate;Candidate.Source=Source;
+    if(!ValidateRuntimeAudioObject(Source,Error))return false;
+    if(auto* Wave=Cast<USoundWave>(Source);Wave && !Wave->IsProcedurallyGenerated() && !Wave->bIsSourceBus) {
+        TArray<FSoftObjectPath> Dependencies;FMCVisualReferenceCollector(Dependencies,nullptr,&Error).Object(Source);
+        if(!Error.IsEmpty())return false;
+        Candidate.SampleWaves.Add(Wave);OutPlan=MoveTemp(Candidate);return true;
+    }
+    if(auto* Cue=Cast<USoundCue>(Source)) {
+        if(!FMCSoundCueResourceClosure(Candidate,Error,Waiting).Visit(Cue->FirstNode)) {
+            Error=Source->GetPathName()+TEXT(": ")+Error;return false;
+        }
+        Candidate.bDependencyAuditComplete=true;Candidate.bGraphPrepared=true;
+        TArray<FSoftObjectPath> Dependencies;FMCVisualReferenceCollector(Dependencies,nullptr,&Error).Object(Source);
+        if(!Error.IsEmpty())return false;
+        OutPlan=MoveTemp(Candidate);return true;
+    }
+    Error=TEXT("Unsupported MetaSound/procedural/dynamic audio source: resource dependency closure needs its actual source-provider audit: ")+Source->GetPathName();
+    return false;
+}
+
+bool FMCPreloadManifest::PrepareEventAudioPlan(USoundBase* Source,FMCEventSFXSamplePlan& OutPlan,FString& Error,
+    bool& bWaiting,bool bAllowDependencyLoad)
+{
+    bWaiting=false;Error.Reset();
+    if(!ValidateRuntimeAudioObject(Source,Error))return false;
+    if(auto* Cue=Cast<USoundCue>(Source)) {
+        FMCEventSFXSamplePlan Candidate;Candidate.Source=Source;
+        if(!FMCSoundCueResourceClosure(Candidate,Error,bWaiting,true,bAllowDependencyLoad).Visit(Cue->FirstNode))return false;
+        return BuildEventAudioPlan(Source,OutPlan,Error);
+    }
+    return BuildEventAudioPlan(Source,OutPlan,Error);
 }
 
 void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths)
@@ -160,6 +364,7 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
     // The factory soft-loads this shared theme in Hub/menu as well as the arena.
     // Its role map is the finite root for future settings/reward/pause widgets.
     AddAsset(TEXT("/Game/Gameplay/UI/Theme/DA_GameplayUITheme"),OutPaths);
+    AddPath(MCVFXSourceContracts::InterfaceLibraryPath(),OutPaths);
     // Late-spawned Hub players use the same authored locomotion and face clips.
     AddAsset(TEXT("/Game/Data/DA_ToothAnimation"),OutPaths);
     // MCUIVisualStyle chooses these shared surfaces by native path rather than
@@ -174,14 +379,30 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
         TEXT("/Game/Data/DT_CharacterCosmetics"),TEXT("/Game/Gameplay/Roguelike/DT_Perks")}) AddAsset(Root,OutPaths);
 
     // The actual saved actors/components also capture artist overrides in the current map.
-    FMCVisualReferenceCollector Collector(OutPaths);
+    FMCVisualReferenceCollector Collector(OutPaths,World);
     for(TActorIterator<AActor> It(World);It;++It) {
         Collector.Object(*It);
         TInlineComponentArray<UActorComponent*> Components(*It);
         for(auto* Component:Components) Collector.Object(Component);
     }
+    const bool Hub=Map==TEXT("Hub") || Map==TEXT("L_HubSelection");
+    if(Hub) {
+        AddPath(MCVFXSourceContracts::HubLibraryPath(),OutPaths);
+        // Hub characters share their actual movement/hit tool source library.
+        AddPath(MCVFXSourceContracts::ToolLibraryPath(),OutPaths);
+    }
+    if(RequiresFreezePresentation(World)) {
+        AddPath(MCVFXSourceContracts::WorldLibraryPath(),OutPaths);
+        AddPath(FSoftObjectPath(TEXT("/Script/MessControl.MCFreezeDeathVFX")),OutPaths); // Existing original native material roots only.
+    }
     const bool Arena=Map==TEXT("L_Mouth") || Map==TEXT("L_Tutorial");
     if(!Arena) return;
+    if(Map==TEXT("L_Tutorial"))AddAsset(TEXT("/Game/Audio/S_Win"),OutPaths); // Actual native FoamParty producer.
+    // This location's finite event/profile root; reflected load waves expand
+    // Library -> Profile -> runtime Composition -> original NS/render resources.
+    AddPath(UMCVFXPresentationLibrary::MouthLibraryPath(),OutPaths);
+    AddPath(MCVFXSourceContracts::WorldLibraryPath(),OutPaths);
+    AddPath(MCVFXSourceContracts::ToolLibraryPath(),OutPaths);
     // Late passive cues retain their reflected CDO resources before readiness.
     Collector.Object(AMCPassiveCombatCue::StaticClass());
     Collector.Object(AMCPassiveFeedbackCue::StaticClass());
@@ -189,6 +410,14 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
     // Active explosions can break food before any ordinary food hit occurs.
     // Retain the reaction actor's reflected dust system before that first use.
     Collector.Object(AMCReactionVFX::StaticClass());
+    // All original piano octave samples/attenuation plus actual key art before
+    // the arena barrier; custom Hit layers come through the scoped World library.
+    Collector.Object(AMCArenaTooth::StaticClass());
+    // Native fallback flames, cast particles and projectile trail live on
+    // these CDOs, rather than on the boss's reflected class defaults. Retain
+    // them in this location before the first ordinary or custom cast.
+    Collector.Object(AMCNutCombatEffect::StaticClass());
+    Collector.Object(AMCNutSpellProjectile::StaticClass());
 
     // Match the run's authored profile, including a host-selected day, on clients as well.
     const auto* Mode=World->GetAuthGameMode<AMCGameMode>();
@@ -226,6 +455,8 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
         TEXT("/Game/Gameplay/Cold/VFX/MI_IcePowderHigh"),
         // Loaded on the character but activated only on later cleaning contact.
         TEXT("/Game/Gameplay/VFX/NS_BrushFoam"),
+        TEXT("/Game/Gameplay/VFX/NS_SprayMist"),TEXT("/Game/Gameplay/VFX/NS_WatergunMist"),
+        TEXT("/Game/Gameplay/VFX/NS_IceShatter"),
         // Tooth care retains its vertex-driven pearl/bubble/glint material under loading.
         TEXT("/Game/Gameplay/Care/M_ToothCarePearl"),
         // Objective coin pool, opaque material and inline short SFX are retained
@@ -236,9 +467,11 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
         TEXT("/Game/Cataclysm/Storm/MI_StormCola"),TEXT("/Game/Cataclysm/Storm/M_StormSpray"),
         TEXT("/Game/Cataclysm/Jelly/M_CataclysmPaintTrail"),TEXT("/Game/Cataclysm/Jelly/M_CataclysmJellyGel")
     }) AddAsset(Root,OutPaths);
+    // The native suction loop uses this only when its primary AirflowSound is unavailable.
+    AddAsset(TEXT("/Game/Audio/S_Pull"),OutPaths);
     // Native classes contain additional constructor-defined meshes/clips used by this day's events.
     for(const TCHAR* Class:{TEXT("MCNutBoss"),TEXT("MCIceEvent"),TEXT("MCCataclysmJelly"),TEXT("MCToothCharacter"),
         TEXT("MCSmallMintCandy"),TEXT("MCHazardWave"),TEXT("MCNutKamikaze"),TEXT("MCNutLandingShadow"),
-        TEXT("MCFogBrawlEvent"),TEXT("MCCataclysmDebris"),TEXT("MCRewardChest"),TEXT("MCIceEventVFX")})
+        TEXT("MCFogBrawlEvent"),TEXT("MCCataclysmDebris"),TEXT("MCRewardChest"),TEXT("MCIceEventVFX"),TEXT("MCThroatVortex"),TEXT("MCVomitBurst")})
         AddPath(FSoftObjectPath(FString(TEXT("/Script/MessControl."))+Class),OutPaths);
 }

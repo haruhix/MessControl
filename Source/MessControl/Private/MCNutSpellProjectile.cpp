@@ -1,6 +1,9 @@
 #include "MCNutSpellProjectile.h"
 #include "MCNutCombatEffect.h"
+#include "MCNutBoss.h"
+#include "MCVFXPresentationComponent.h"
 #include "MCNutCombatVisuals.h"
+#include "MCVFXNativeArtControls.h"
 #include "MCGameState.h"
 #include "MCFoodActor.h"
 #include "MCNutRainEvent.h"
@@ -19,22 +22,26 @@
 #include "NiagaraSystem.h"
 #include "Net/UnrealNetwork.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogMCMageFireballPresentation,Log,All);
+
 namespace
 {
 // Two sparse shells leave the walnut centre open, then taper into the flight
 // wake. All geometry remains bounded by the existing projectile radius.
-void RenderFlyingFire(UProceduralMeshComponent* Component,float Radius,float Age,FVector Direction,float Travel)
+void RenderFlyingFire(UProceduralMeshComponent* Component,float Radius,float Age,FVector Direction,float Travel,const FMCVFXNativePartSettings* Art=nullptr,float NativeSeconds=1)
 {
     using namespace MCNutCombatVisuals;
     const FVector Side=FVector::CrossProduct(Direction,FVector::UpVector).GetSafeNormal(SMALL_NUMBER,FVector::RightVector);
     const FVector Up=FVector::CrossProduct(Side,Direction).GetSafeNormal(SMALL_NUMBER,FVector::UpVector);
     FMesh Data;
-    constexpr int32 Layers=2,Ribbons=5,Rows=18;
-    constexpr int32 Vertices=Layers*Ribbons*(Rows+1)*2;
+    if(!MCNativeArtControls::Enabled(Art)){Component->SetVisibility(false);return;}
+    const FMCVFXNativeFlameShape Default;const auto& S=Art?Art->Flame:Default;
+    const int32 Layers=S.Layers,Ribbons=S.Ribbons,Rows=S.Rows;
+    const int32 Vertices=Layers*Ribbons*(Rows+1)*2;
     Data.Points.Reserve(Vertices);Data.Normals.Reserve(Vertices);Data.UV.Reserve(Vertices);
     Data.Colors.Reserve(Vertices);Data.Tangents.Reserve(Vertices);Data.Indices.Reserve(Layers*Ribbons*Rows*6);
     const float Launch=FMath::SmoothStep(0.f,.14f,Age);
-    const float Length=FMath::Clamp(Travel,Radius*2.8f,Radius*8.f)*FMath::Lerp(.5f,1.f,Launch);
+    const float Length=FMath::Clamp(Travel,Radius*S.MinLengthRadii,Radius*S.MaxLengthRadii)*FMath::Lerp(.5f,1.f,Launch);
     for(int32 Layer=0;Layer<Layers;++Layer) for(int32 Ribbon=0;Ribbon<Ribbons;++Ribbon) {
         const float Phase=(Ribbon+.5f*Layer)*2*PI/Ribbons+Age*(Layer==0?.62f:-.38f);
         const FVector Radial=Side*FMath::Cos(Phase)+Up*FMath::Sin(Phase);
@@ -43,17 +50,18 @@ void RenderFlyingFire(UProceduralMeshComponent* Component,float Radius,float Age
         for(int32 Row=0;Row<=Rows;++Row) {
             const float T=Row/float(Rows);
             const float Taper=1-FMath::SmoothStep(.14f,1.f,T);
-            const float ShellRadius=Radius*(Layer==0?.96f:1.20f)*(.04f+.96f*Taper)
+            const float ShellRadius=MCNativeArtControls::Expansion(Art,Age,NativeSeconds)*Radius*(Layer==0?S.InnerRadiusFraction:S.OuterRadiusFraction)*(.04f+.96f*Taper)
                 *(1+.08f*FMath::Sin(T*16-Age*15+Phase));
-            const float Width=Radius*(Layer==0?.34f:.29f)*Taper
+            const float Width=Radius*(Layer==0?S.InnerWidthFraction:S.OuterWidthFraction)*Taper
                 *(1+.16f*FMath::Sin(T*19-Age*20+Phase));
             const FVector Center=Direction*(Radius*.56f-Length*T)+Radial*ShellRadius
                 +Up*(Radius*.18f*T*T);
-            const float Alpha=Launch*(Layer==0?.52f:.29f)*(1-FMath::SmoothStep(.70f,1.f,T));
+            const float Alpha=Launch*(Layer==0?S.InnerOpacity:S.OuterOpacity)*(1-FMath::SmoothStep(.70f,1.f,T));
             for(int32 Edge=0;Edge<2;++Edge) {
                 Data.Points.Add(Center+Across*((Edge*2-1)*Width));
                 Data.Normals.Add(Radial);Data.UV.Add(FVector2D(float(Edge),T));
-                Data.Colors.Add(FLinearColor(FMath::Frac(Ribbon/float(Ribbons)+Layer*.37f),Layer==0?.82f:.52f,0,Alpha));
+                Data.Colors.Add(FLinearColor(FMath::Frac(Ribbon/float(Ribbons)+Layer*.37f),Layer==0?.82f:.52f,0,
+                    MCNativeArtControls::Opacity(Art,Age,NativeSeconds,Alpha)));
                 Data.Tangents.Add(FProcMeshTangent(Across,false));
             }
             if(Row>0) {const int32 V=First+(Row-1)*2;Data.Indices.Append({V,V+1,V+3,V,V+3,V+2});}
@@ -62,11 +70,13 @@ void RenderFlyingFire(UProceduralMeshComponent* Component,float Radius,float Age
     Data.Upload(Component);
 }
 
-void RenderFireHalo(UProceduralMeshComponent* Component,float Radius,float Age,FVector Direction,FVector Side,FVector Up)
+void RenderFireHalo(UProceduralMeshComponent* Component,float Radius,float Age,FVector Direction,FVector Side,FVector Up,const FMCVFXNativePartSettings* Art=nullptr,float NativeSeconds=1)
 {
     using namespace MCNutCombatVisuals;
     FMesh Data;
-    constexpr int32 Rings=2,Segments=24,Vertices=Rings*(Segments+1)*2;
+    if(!MCNativeArtControls::Enabled(Art)){Component->SetVisibility(false);return;}
+    const FMCVFXNativeHaloShape Default;const auto& S=Art?Art->Halo:Default;
+    const int32 Rings=S.Rings,Segments=S.Segments,Vertices=Rings*(Segments+1)*2;
     Data.Points.Reserve(Vertices);Data.Normals.Reserve(Vertices);Data.UV.Reserve(Vertices);
     Data.Colors.Reserve(Vertices);Data.Tangents.Reserve(Vertices);Data.Indices.Reserve(Rings*Segments*6);
     const float Launch=FMath::SmoothStep(0.f,.10f,Age);
@@ -81,10 +91,10 @@ void RenderFireHalo(UProceduralMeshComponent* Component,float Radius,float Age,F
             for(int32 Edge=0;Edge<2;++Edge) {
                 // The halo has no centre faces; the hot material cannot cover
                 // the recognisable walnut with three white crossed quads.
-                Data.Points.Add(Radial*Radius*(Edge==0?.90f:1.18f)*Swell);
+                Data.Points.Add(Radial*Radius*(Edge==0?S.InnerRadiusFraction:S.OuterRadiusFraction)*Swell);
                 Data.Normals.Add(Normal);
                 Data.UV.Add(FVector2D(.5f,.5f)+FVector2D(FMath::Cos(Angle),FMath::Sin(Angle))*(Edge==0?.12f:.48f));
-                Data.Colors.Add(FLinearColor(1,1,1,Launch*(Ring==0?.22f:.13f)));
+                Data.Colors.Add(FLinearColor(1,1,1,MCNativeArtControls::Opacity(Art,Age,NativeSeconds,Launch*(Ring==0?S.FirstOpacity:S.SecondOpacity))));
                 Data.Tangents.Add(FProcMeshTangent(Right,false));
             }
             if(Segment>0) {const int32 V=First+(Segment-1)*2;Data.Indices.Append({V,V+1,V+3,V,V+3,V+2});}
@@ -99,6 +109,9 @@ AMCNutSpellProjectile::AMCNutSpellProjectile()
     bReplicates=true;bAlwaysRelevant=true;SetReplicateMovement(false);SetNetUpdateFrequency(20);
     PrimaryActorTick.bCanEverTick=true;
     auto* Root=CreateDefaultSubobject<USceneComponent>(TEXT("FlightRoot"));SetRootComponent(Root);
+    FireballPresentation=CreateDefaultSubobject<UMCVFXPresentationComponent>(TEXT("MageFireballPresentation"));
+    FireballPresentation->SourceID=TEXT("Boss.NutMage.Fireball");
+    FireballPresentation->Events={TEXT("Charge"),TEXT("Release"),TEXT("Flight"),TEXT("Impact")};
     Nut=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BurningWalnut"));Nut->SetupAttachment(Root);
     Flames=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("FireRibbons"));Flames->SetupAttachment(Root);
     Core=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("HotGoldenCore"));Core->SetupAttachment(Root);
@@ -119,7 +132,8 @@ double AMCNutSpellProjectile::Now() const
 FVector AMCNutSpellProjectile::PositionAt(float Age) const
 {return FMath::Lerp(Flight.Start,Flight.Target,FMath::Clamp(Age/FMath::Max(.1f,Flight.Seconds),0.f,1.f));}
 
-AMCNutSpellProjectile* AMCNutSpellProjectile::Spawn(AActor* Source,AMCTongue* Surface,FVector Start,FVector Target,float Speed,float Amount,float Radius)
+AMCNutSpellProjectile* AMCNutSpellProjectile::Spawn(AActor* Source,AMCTongue* Surface,FVector Start,FVector Target,float Speed,float Amount,float Radius,
+    UMCVFXPresentationComponent* PreparedSource,FGuid CastEpisode)
 {
     if(!IsValid(Source) || !Source->HasAuthority() || !IsValid(Surface) || Surface->GetWorld()!=Source->GetWorld()
         || Start.ContainsNaN() || Target.ContainsNaN() || !FMath::IsFinite(Speed) || Speed<=0
@@ -130,20 +144,54 @@ AMCNutSpellProjectile* AMCNutSpellProjectile::Spawn(AActor* Source,AMCTongue* Su
     Shot->SourceActor=Source;Shot->Tongue=Surface;Shot->Damage=FMath::Clamp(Amount,1.f,35.f);
     Shot->Flight.Start=Start;Shot->Flight.Target=Target;Shot->Flight.Radius=FMath::Clamp(Radius,8.f,90.f);
     Shot->Flight.Seconds=FMath::Clamp(FVector::Dist(Start,Target)/FMath::Clamp(Speed,100.f,4000.f),.1f,8.f);
-    Shot->Flight.StartedAt=Shot->Now();Shot->FinishSpawning(Pose);return Shot;
+    Shot->EpisodeID=CastEpisode.IsValid()?CastEpisode:FGuid::NewGuid();
+    if(const auto* Boss=Cast<AMCNutBoss>(Source))Shot->Flight.Seed=Boss->AttackSeed;
+    FString Error;
+    if(PreparedSource && !PreparedSource->CopyPreparedSourceTo(Shot->FireballPresentation->SourceID,Shot->FireballPresentation,Error)) {
+        UE_LOG(LogMCMageFireballPresentation,Warning,TEXT("Fireball prepared handoff refused; preserving native accents: %s"),*Error);
+        // Never substitute a newly changed canonical profile at first launch.
+        Shot->FireballPresentation->PrepareSourceProfile(Shot->FireballPresentation->SourceID,Shot->FireballPresentation->Events,nullptr,Error,false);
+    }
+    if(const auto* Native=Shot->FireballPresentation->GetPreparedNativeSource(TEXT("Boss.NutMage.Fireball"))) {
+        Shot->NativeArt=*Native;Shot->Flight.NativeStyle=Native->Reference;
+    }
+    Shot->Flight.StartedAt=Shot->Now();
+    if(auto* Boss=Cast<AMCNutBoss>(Source))Boss->OnFireballSpawned.Broadcast(Shot);
+    if(!IsValid(Shot) || Shot->IsActorBeingDestroyed())return nullptr;
+    Shot->FinishSpawning(Pose);return Shot;
 }
 
 void AMCNutSpellProjectile::BeginPlay()
 {
     Super::BeginPlay();if(HasAuthority()) SetLifeSpan(Flight.Seconds+1.f);
     if(Tongue) AddTickPrerequisiteActor(Tongue);
+    FString Error;FireballPresentation->BindSourceEpisodeTickSource(FireballPresentation->SourceID,EpisodeID,this,Error);
+    if(HasAuthority()) {
+        FMCPerkVFXGameplayValues Values;Values.EpisodeID=EpisodeID;
+        Values.Direction=(Flight.Target-Flight.Start).GetSafeNormal();Values.Radius=Flight.Radius;Values.Duration=Flight.Seconds;Values.Fill=0;
+        Values.bHasEndpoints=true;Values.SourcePosition=Flight.Start;Values.TargetPosition=Flight.Target;
+        Values.bHasSeed=true;Values.Seed=uint32(Flight.Seed);
+        const auto Result=FireballPresentation->PlayEvent(TEXT("Flight"),FTransform(Values.Direction.Rotation(),Flight.Start),Values);
+        EMCPerkVFXSlotMode Mode=EMCPerkVFXSlotMode::UseDefault;
+        FireballPresentation->GetPreparedEventMode(TEXT("Boss.NutMage.Fireball"),TEXT("Flight"),Mode);
+        Flight.bUseNativeAccents=Result==EMCVFXPresentationResult::UseDefault || Result==EMCVFXPresentationResult::Rejected
+            || (Result==EMCVFXPresentationResult::Played && NativeArt.ShouldRenderNativeAccents(TEXT("Flight"),Mode));
+    }
     if(GetNetMode()==NM_DedicatedServer) return;
+    if(!NativeArt.Snapshot && !Flight.NativeStyle.Source.IsNull()) {
+        if(!FMCVFXPreparedNativePresentation::ResolveResidentReference(Flight.NativeStyle,TEXT("Boss.NutMage.Fireball"),
+            FireballPresentation->Events,this,NativeArt,Error))
+            UE_LOG(LogMCMageFireballPresentation,Warning,TEXT("Projectile uses its legacy appearance: %s"),*Error);
+    }
     Nut->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Gameplay/CoreLoop/SM_Walnut_Whole.SM_Walnut_Whole")));
-    if(auto* Parent=FlameMaterial.LoadSynchronous()) FireMID=Flames->CreateDynamicMaterialInstance(0,Parent);
-    if(auto* Parent=CoreMaterial.LoadSynchronous()) CoreMID=Core->CreateDynamicMaterialInstance(0,Parent);
-    if(auto* Parent=WakeMaterial.LoadSynchronous()) WakeMID=Wake->CreateDynamicMaterialInstance(0,Parent);
-    if(WakeMID) {WakeMID->SetScalarParameterValue(TEXT("Beam"),1);WakeMID->SetVectorParameterValue(TEXT("Tint"),FLinearColor(1,.40f,.055f));}
-    Trail->SetAsset(TrailSystem.LoadSynchronous());
+    if(NativePart(TEXT("FlightFlames"))) {FireMID=NativeArt.CreatePrivateMaterial(TEXT("Flight"),TEXT("FlightFlames"),this);Flames->SetMaterial(0,FireMID);}
+    else if(auto* Parent=FlameMaterial.LoadSynchronous()) FireMID=Flames->CreateDynamicMaterialInstance(0,Parent);
+    if(NativePart(TEXT("FlightCore"))) {CoreMID=NativeArt.CreatePrivateMaterial(TEXT("Flight"),TEXT("FlightCore"),this);Core->SetMaterial(0,CoreMID);}
+    else if(auto* Parent=CoreMaterial.LoadSynchronous()) CoreMID=Core->CreateDynamicMaterialInstance(0,Parent);
+    if(NativePart(TEXT("FlightWake"))) {WakeMID=NativeArt.CreatePrivateMaterial(TEXT("Flight"),TEXT("FlightWake"),this);Wake->SetMaterial(0,WakeMID);}
+    else if(auto* Parent=WakeMaterial.LoadSynchronous()) WakeMID=Wake->CreateDynamicMaterialInstance(0,Parent);
+    if(WakeMID) {WakeMID->SetScalarParameterValue(TEXT("Beam"),1);WakeMID->SetVectorParameterValue(TEXT("Tint"),NativePart(TEXT("FlightWake"))?NativePart(TEXT("FlightWake"))->Tint:FLinearColor(1,.40f,.055f));}
+    Trail->SetAsset(MCNativeArtControls::System(NativePart(TEXT("EmberTrail")),TrailSystem));
     if(Impact.bImpacted) PresentImpact();
 }
 
@@ -180,8 +228,19 @@ void AMCNutSpellProjectile::ResolveImpact(const FHitResult& Hit)
             } else Ulcer->SetOwner(SourceActor);
         }
     }
+    FireballPresentation->StopSourceEpisode(FireballPresentation->SourceID,EpisodeID,false);
+    FMCPerkVFXGameplayValues Values;Values.EpisodeID=EpisodeID;
+    Values.Direction=Impact.Normal;Values.Radius=Flight.Radius*2.6f;Values.Duration=.65f;
+    Values.bHasEndpoints=true;Values.SourcePosition=Impact.Point+Impact.Normal*Flight.Radius;Values.TargetPosition=Impact.Point;
+    Values.bHasSeed=true;Values.Seed=uint32(Flight.Seed);
+    const auto Result=FireballPresentation->PlayEvent(TEXT("Impact"),FTransform(Impact.Normal.Rotation(),Impact.Point),Values);
+    EMCPerkVFXSlotMode Mode=EMCPerkVFXSlotMode::UseDefault;
+    FireballPresentation->GetPreparedEventMode(TEXT("Boss.NutMage.Fireball"),TEXT("Impact"),Mode);
+    const bool Suppress=Result==EMCVFXPresentationResult::Suppressed || (Result==EMCVFXPresentationResult::Played
+        && !NativeArt.ShouldRenderNativeAccents(TEXT("Impact"),Mode));
     if(auto* Effect=AMCNutCombatEffect::Spawn(SourceActor,Tongue,EMCNutCombatCue::FireImpact,
-        Impact.Point+Impact.Normal*Flight.Radius,Impact.Point,Flight.Radius*2.6f,0,.65f)) {
+        Impact.Point+Impact.Normal*Flight.Radius,Impact.Point,Flight.Radius*2.6f,0,.65f,0,90,8,.5f,Suppress,EpisodeID,
+        NativeArt.Snapshot?&NativeArt:nullptr,TEXT("Impact"))) {
         // Keep the transient terminal burst in the encounter cleanup set as well as the projectile.
         if(auto* Event=Cast<AMCNutRainEvent>(GetOwner())) {Effect->SetOwner(Event);Event->TrackEncounterActor(Effect);}
     }
@@ -201,7 +260,7 @@ void AMCNutSpellProjectile::Tick(float DeltaSeconds)
     if(HasAuthority()) {
         const auto* GS=GetWorld()->GetGameState<AMCGameState>();
         if(!IsValid(SourceActor) || SourceActor->IsActorBeingDestroyed() || !IsValid(Tongue)
-            || (GS && (GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost))) {Destroy();return;}
+            || (GS && (GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost))) {Cancel();return;}
     }
     if(Impact.bImpacted) {if(!bImpactPresented) PresentImpact();return;}
     if(Flight.StartedAt<0) return;
@@ -226,34 +285,52 @@ void AMCNutSpellProjectile::Tick(float DeltaSeconds)
     }
     SetActorLocation(PositionAt(Age));
     if(GetNetMode()==NM_DedicatedServer) return;
+    const auto* FlameArt=NativePart(TEXT("FlightFlames"));
+    const auto* CoreArt=NativePart(TEXT("FlightCore"));
+    const auto* WakeArt=NativePart(TEXT("FlightWake"));
     const float Extent=Nut->GetStaticMesh()?Nut->GetStaticMesh()->GetBounds().BoxExtent.GetMax():1.f;
     Nut->SetRelativeScale3D(FVector(Flight.Radius*.85f/FMath::Max(.1f,Extent)));
     Nut->SetRelativeRotation(FRotator(Age*160,Age*100,Age*65));
     const FVector Direction=(Flight.Target-Flight.Start).GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector);
+    // Native trajectory is reconstructed on every rendering peer. Only local
+    // presentation players move here; there is no per-tick cosmetic RPC.
+    FString FrameError;FireballPresentation->BindSourceEpisodeTickSource(FireballPresentation->SourceID,EpisodeID,this,FrameError);
+    FMCPerkVFXGameplayValues Values;Values.EpisodeID=EpisodeID;Values.Direction=Direction;Values.Radius=Flight.Radius;
+    Values.Duration=Flight.Seconds;Values.Fill=FMath::Clamp(Age/FMath::Max(.1f,Flight.Seconds),0.f,1.f);
+    Values.bHasEndpoints=true;Values.SourcePosition=GetActorLocation();Values.TargetPosition=Flight.Target;
+    Values.bHasSeed=true;Values.Seed=uint32(Flight.Seed);
+    FireballPresentation->UpdateSourceEpisode(FireballPresentation->SourceID,EpisodeID,FTransform(Direction.Rotation(),GetActorLocation()),Values);
+    if(!Flight.bUseNativeAccents) {
+        Flames->SetVisibility(false);Core->SetVisibility(false);Wake->SetVisibility(false);Trail->Deactivate();return;
+    }
     const FVector Side=FVector::CrossProduct(Direction,FVector::UpVector).GetSafeNormal(SMALL_NUMBER,FVector::RightVector);
     const FVector Up=FVector::CrossProduct(Side,Direction).GetSafeNormal(SMALL_NUMBER,FVector::UpVector);
     const float History=FMath::Min(Age,.42f);
     const float Travel=FVector::Dist(PositionAt(Age),PositionAt(Age-History));
-    Flames->SetVisibility(FireMID!=nullptr);
-    if(FireMID) {
+    Flames->SetVisibility(FireMID!=nullptr && MCNativeArtControls::Enabled(FlameArt));
+    if(FireMID && MCNativeArtControls::Enabled(FlameArt)) {
         FireMID->SetScalarParameterValue(TEXT("FireAge"),Age);
-        RenderFlyingFire(Flames,Flight.Radius,Age,Direction,Travel);
+        RenderFlyingFire(Flames,Flight.Radius,Age,Direction,Travel,FlameArt,Flight.Seconds);
     }
-    if(CoreMID) {
-        RenderFireHalo(Core,Flight.Radius,Age,Direction,Side,Up);
+    Core->SetVisibility(CoreMID && MCNativeArtControls::Enabled(CoreArt));
+    if(CoreMID && MCNativeArtControls::Enabled(CoreArt)) {
+        RenderFireHalo(Core,Flight.Radius,Age,Direction,Side,Up,CoreArt,Flight.Seconds);
         CoreMID->SetScalarParameterValue(TEXT("Age"),Age);
     }
-    if(WakeMID) {
+    Wake->SetVisibility(WakeMID && MCNativeArtControls::Enabled(WakeArt));
+    if(WakeMID && MCNativeArtControls::Enabled(WakeArt)) {
         MCNutCombatVisuals::FMesh Ribbon;
-        constexpr int32 Segments=12;
+        const float WakeHistory=FMath::Min(Age,WakeArt?WakeArt->Wake.HistorySeconds:.42f);
+        const int32 Segments=WakeArt?WakeArt->Wake.Segments:12;
         for(int32 Index=0;Index<Segments;++Index) {
             const float Fraction=Index/float(Segments);
-            const FVector From=PositionAt(Age-History*Fraction)-GetActorLocation();
-            const FVector To=PositionAt(Age-History*(Index+1)/float(Segments))-GetActorLocation();
+            const FVector From=PositionAt(Age-WakeHistory*Fraction)-GetActorLocation();
+            const FVector To=PositionAt(Age-WakeHistory*(Index+1)/float(Segments))-GetActorLocation();
             const float Length=FVector::Dist(From,To);
             if(Length<.05f) continue;
-            const float Width=Flight.Radius*.26f*(1-Fraction);
-            const FLinearColor Alpha(1,1,1,.34f*(1-Fraction)*FMath::SmoothStep(0.f,.14f,Age));
+            const float Width=Flight.Radius*(WakeArt?WakeArt->Wake.WidthFraction:.26f)*(1-Fraction);
+            const FLinearColor Alpha(1,1,1,MCNativeArtControls::Opacity(WakeArt,Age,Flight.Seconds,
+                (WakeArt?WakeArt->Wake.Opacity:.34f)*(1-Fraction)*FMath::SmoothStep(0.f,.14f,Age)));
             Ribbon.Quad((From+To)*.5f,Direction,Side,Length*.52f,Width,Alpha);
             Ribbon.Quad((From+To)*.5f,Direction,Up,Length*.52f,Width*.8f,Alpha);
         }
@@ -265,11 +342,12 @@ void AMCNutSpellProjectile::Tick(float DeltaSeconds)
     if(!bTrailStarted && Trail->GetAsset()) {bTrailStarted=true;Trail->Activate(true);}
 }
 
-void AMCNutSpellProjectile::Cancel() {if(HasAuthority()) Destroy();}
+void AMCNutSpellProjectile::Cancel() {if(HasAuthority()) {FireballPresentation->StopPresentation(true);Destroy();}}
 void AMCNutSpellProjectile::EndPlay(const EEndPlayReason::Type Reason)
 {Trail->DeactivateImmediate();Super::EndPlay(Reason);}
 void AMCNutSpellProjectile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);DOREPLIFETIME(AMCNutSpellProjectile,Flight);DOREPLIFETIME(AMCNutSpellProjectile,Impact);
     DOREPLIFETIME(AMCNutSpellProjectile,Tongue);DOREPLIFETIME(AMCNutSpellProjectile,SourceActor);
+    DOREPLIFETIME(AMCNutSpellProjectile,EpisodeID);
 }

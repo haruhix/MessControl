@@ -13,6 +13,7 @@ class USceneComponent;
 class USkeletalMeshComponent;
 class AMCVFXLabBossStation;
 struct FMCNutBossAnimationSnapshot;
+DECLARE_MULTICAST_DELEGATE_OneParam(FMCNutFireballSpawned,AMCNutSpellProjectile*);
 
 /** The encounter knight transforms into the wizard; standalone roles retain their own schedules. */
 UCLASS(Blueprintable)
@@ -40,6 +41,8 @@ public:
     bool IsPlayerInThreat(const AMCToothCharacter* Hero,FVector& EscapeDirection) const;
     /** Counter resistance prevents hit reactions, not incoming damage or the guaranteed shield-break window. */
     bool IsCounterShoving() const;
+    /** Real second-phase model/animations retained only for a disposable Lab fixture. */
+    bool PrepareIsolatedMagePhaseResources();
     int32 GetTankPressureHits() const { return TankPressureHits; }
     UFUNCTION(BlueprintPure,Category="Nut Combat") float GetAttackCooldownRemaining(EMCNutBossAttack Ability) const;
     FVector GetCastOrigin() const;
@@ -49,6 +52,13 @@ public:
     /** Client smoothing moves only this collision-free visual subtree. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<USceneComponent> PresentationRoot;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Shield;
+    /** Knight shield accepted contact/break events; independent of shield durability and authored animation. */
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Presentation") TObjectPtr<UMCVFXPresentationComponent> ShieldPresentation;
+    /** Accepted charge/release; the real projectile owns flight/impact and a frozen prepared copy. */
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Presentation") TObjectPtr<UMCVFXPresentationComponent> FireballPresentation;
+    UPROPERTY(BlueprintReadOnly,Category="Presentation") FGuid FireballEpisodeID;
+    /** The real shot is configured, but has not called FinishSpawning or emitted Flight yet. */
+    FMCNutFireballSpawned OnFireballSpawned;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Kernel;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> OpenShell;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<USkeletalMeshComponent> TankModel;
@@ -99,8 +109,15 @@ protected:
 private:
     // A placed laboratory station schedules real attacks without the encounter AI.
     friend class AMCVFXLabBossStation;
+    friend class AMCNutCombatEffect;
+    uint64 LastShieldNativePresentationHash=0;
+    float ShieldVFXShown=-1.f,ShieldVFXFrom=0.f,ShieldVFXTarget=-1.f;
+    double ShieldVFXChangedAt=0;
     friend class FMCEnamelContactLatchTest;
+    friend class FMCMageFireballNativeEvents;
     TWeakObjectPtr<AMCVFXLabBossStation> LabStation;
+    UPROPERTY(Transient) TObjectPtr<USkeletalMesh> LabPreparedMageMesh;
+    UPROPERTY(Transient) TArray<TObjectPtr<UAnimSequence>> LabPreparedMageClips;
     TWeakObjectPtr<AMCToothCharacter> LabTarget;
     int32 LabTelegraphs=0,LabExecutions=0,LabRecoveries=0;
     UFUNCTION() void RefreshBossPresentation();
@@ -149,6 +166,7 @@ private:
     void SummonCreeps();
     void TrackAttackActor(AActor* Actor);
     void CancelAttacks();
+    void PresentShieldContact(bool bBroken);
     bool HasLineOfSight(const AMCToothCharacter* Hero,FVector From) const;
     int32 PartyPlayers=1;
     FRandomStream Random;

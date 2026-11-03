@@ -2,6 +2,10 @@
 #include "MCEnemyWeaponContact.h"
 #include "MCPerkComponent.h"
 #include "MCIceEventVFX.h"
+#include "MCWorldPresentationComponent.h"
+#include "MCVFXPresentationComponent.h"
+#include "MCNiagaraProceduralSurfaceResources.h"
+#include "MCWorldPreloadSubsystem.h"
 #include "Algo/MinElement.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/AnimSingleNodeInstance.h"
@@ -163,7 +167,12 @@ bool AMCIceEvent::IsParticipant(const AMCToothCharacter* Hero) const
 void AMCIceEvent::Start()
 {
     if(!HasAuthority()) return;
-    Stop(); bFailed=false;
+    // A private Composer preview can prepare this idle owner before its barrier.
+    // Only that explicitly prepared idle presenter survives the Start reset.
+    AMCIceEventVFX* Prepared=(bComposerPreparedVFX && Stage==EMCIceEventStage::Idle)?EventVFX.Get():nullptr;
+    const FGuid PreparedToken=Prepared?PresentationClaimToken:FGuid();
+    bComposerPreparedVFX=false;if(Prepared)EventVFX=nullptr;
+    Stop();if(IsValid(Prepared)){EventVFX=Prepared;PresentationClaimToken=PreparedToken;}bFailed=false;
     // Keep a single winter owner even when F3 starts it during another slot.
     if(!bLabEvent) {
         for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It)
@@ -1192,7 +1201,8 @@ void AMCIceEvent::BuildCandyFace()
 void AMCIceEvent::RefreshFloorGuides()
 {
     if(!IsActive()) { FloorGuides->ClearAllMeshSections(); return; }
-    FIceGuideMesh Mesh; FHitResult Floor;
+    FIceGuideMesh Mesh; FHitResult Floor,SurfaceWarmFloor,SurfaceNextFloor,SurfaceNovaFloor;
+    bool SurfaceWarm=false,SurfaceNext=false,SurfaceNova=false;
     const FTransform Transform=FloorGuides->GetComponentTransform();
     const double Time=Now();
     const float WarmPulse=.88f+.12f*FMath::Sin(float(Time)*2.4f);
@@ -1201,14 +1211,18 @@ void AMCIceEvent::RefreshFloorGuides()
         if(Radius>1 && AnchorFloor(Patch.Anchor,Floor))
             Mesh.Ring(Tongue,Transform,Floor.ImpactPoint,Radius,5,FLinearColor(1.f,.67f,.3f)*WarmPulse);
     }
-    if(AnchorFloor(SafeAnchor,Floor))
+    if(AnchorFloor(SafeAnchor,Floor)) {
+        SurfaceWarmFloor=Floor;SurfaceWarm=!IsCircleBlocked(CircleIndex);
         Mesh.Ring(Tongue,Transform,Floor.ImpactPoint,SafeRadius(),7,
             (IsCircleBlocked(CircleIndex)?FLinearColor(.12f,.5f,1.f):FLinearColor(1.f,.58f,.17f))*WarmPulse,
             IsCircleBlocked(CircleIndex));
-    if(bNextCircle && AnchorFloor(NextSafeAnchor,Floor))
+    }
+    if(bNextCircle && AnchorFloor(NextSafeAnchor,Floor)) {
+        SurfaceNextFloor=Floor;SurfaceNext=!IsCircleBlocked(CircleIndex+1);
         Mesh.Ring(Tongue,Transform,Floor.ImpactPoint,NextSafeRadius(),7,
             (IsCircleBlocked(CircleIndex+1)?FLinearColor(.12f,.5f,1.f):FLinearColor(1.f,.74f,.27f))*WarmPulse,
             IsCircleBlocked(CircleIndex+1));
+    }
     for(const auto& Strike:Strikes)
     {
         if(Strike.bCancelled || (!Strike.bImpacted && !CanStrikePrisoner(Strike))
@@ -1232,6 +1246,7 @@ void AMCIceEvent::RefreshFloorGuides()
         const FVector Center=Floor.ImpactPoint;
         Mesh.Ring(Tongue,Transform,Center,BossFrostRadius,3,FLinearColor(.2f,.7f,1.f),true);
         if(bNovaWarning || (NovaImpactAt>0 && Time<NovaImpactAt+BossVortexSeconds)) {
+            SurfaceNovaFloor=Floor;SurfaceNova=true;
             const FLinearColor Color=bNovaWarning?FLinearColor(.35f,.8f,1.f):FLinearColor(.85f,.97f,1.f);
             Mesh.Ring(Tongue,Transform,Center,NovaRange,6,Color,bNovaWarning);
             if(bNovaWarning) {
@@ -1263,6 +1278,26 @@ void AMCIceEvent::RefreshFloorGuides()
         Mesh.Ring(Tongue,Transform,Floor.ImpactPoint,FMath::Max(1.f,BossAttack.TargetRadius*Progress*.5f),BossAttack.TargetRadius*Progress*.5f,Color*.45f);
     }
     FloorGuides->CreateMeshSection_LinearColor(0,Mesh.Vertices,Mesh.Indices,Mesh.Normals,Mesh.UV,Mesh.Colors,Mesh.Tangents,false);
+    // These are the original accepted renderer contexts above, not new floor
+    // sampling or gameplay decisions. The protected native rings always remain.
+    if(auto* Composer=IsValid(EventVFX)?EventVFX->GetComposerPresentation():nullptr) {
+        if(!FrostSurfaceEpisode.IsValid())FrostSurfaceEpisode=FGuid::NewGuid();
+        auto State=[&](FName Event,bool Enabled,const FHitResult& NativeFloor,float Radius,double NativeStart,uint32 Token,uint8 Bit) {
+            FMCPerkVFXGameplayValues Values;Values.EpisodeID=FGuid(FrostSurfaceEpisode.A,FrostSurfaceEpisode.B,uint32(Bit),Token);
+            Values.VisualSubject=FrostSurface;Values.Radius=Radius;Values.Direction=NativeFloor.ImpactNormal;
+            Values.LocalStateAgeSeconds=FMath::Max(0.f,float(Time-NativeStart));
+            Values.bHasEndpoints=true;Values.SourcePosition=Values.TargetPosition=NativeFloor.ImpactPoint;
+            FString Error;
+            if(Composer->UpdateState(TEXT("World.Ice.Surface"),Event,Enabled,
+                FTransform(FQuat::Identity,NativeFloor.ImpactPoint),Values,FloorGuides,Error)&&Enabled)
+                AcceptedFrostSurfacePhases|=Bit;
+        };
+        State(TEXT("WarmZone"),SurfaceWarm,SurfaceWarmFloor,SafeRadius(),CircleStartedAt,uint32(CircleIndex),2);
+        State(TEXT("NextZone"),SurfaceNext,SurfaceNextFloor,NextSafeRadius(),NextCircleStartedAt,uint32(CircleIndex+1),4);
+        const double NovaStart=BossAttack.Kind==EMCCandyAttack::FloorHit&&BossAttack.ImpactAt==NovaImpactAt
+            ?BossAttack.StartedAt:NovaImpactAt-NovaWarningSeconds;
+        State(TEXT("Nova"),SurfaceNova,SurfaceNovaFloor,NovaRange,NovaStart,GetTypeHash(NovaImpactAt),8);
+    }
 }
 
 void AMCIceEvent::RefreshZoneCrystals()
@@ -1430,16 +1465,21 @@ void AMCIceEvent::RefreshIceCoatings()
 
 void AMCIceEvent::RefreshFrostSurface()
 {
-    if(!IsActive() || !IsValid(Tongue)) { FrostSurface->ClearAllMeshSections(); return; }
+    if(!IsActive() || !IsValid(Tongue)) {UpdateComposerFrostSurface(false);FrostSurface->ClearAllMeshSections();return;}
     const FProcMeshSection* SourceSection=Tongue->Surface->GetProcMeshSection(0);
     const auto& SourceIndices=Tongue->TriangleIndices();
     if(!SourceSection || SourceSection->ProcVertexBuffer.IsEmpty() || SourceIndices.IsEmpty())
-    { FrostSurface->ClearAllMeshSections(); return; }
+    {UpdateComposerFrostSurface(false);FrostSurface->ClearAllMeshSections();return;}
     AddTickPrerequisiteActor(Tongue);
 
     auto* Material=Cast<UMaterialInstanceDynamic>(FrostSurface->GetMaterial(0));
     if(!Material)
     {
+        // Relevant gameplay locations must consume the variant prepared by
+        // their one-time owner. A replicated event can arrive before readiness;
+        // wait for its ordinary claim retry rather than first-use load/create.
+        if(auto* Loading=GetWorld()->GetSubsystem<UMCWorldPreloadSubsystem>();
+            !bLabEvent&&Loading&&Loading->UsesPreparedIcePresentation())return;
         // Loading also supports existing editor instances after Live Coding;
         // the constructor holds the saved material reference for cooked games.
         auto* Parent=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost"));
@@ -1504,6 +1544,32 @@ void AMCIceEvent::RefreshFrostSurface()
         FrostSurface->UpdateMeshSection_LinearColor(0,Mesh.Vertices,Mesh.Normals,Mesh.UV,Mesh.Colors,Mesh.Tangents);
     else
         FrostSurface->CreateMeshSection_LinearColor(0,Mesh.Vertices,SourceIndices,Mesh.Normals,Mesh.UV,Mesh.Colors,Mesh.Tangents,false);
+    UpdateComposerFrostSurface(true);
+}
+
+void AMCIceEvent::UpdateComposerFrostSurface(bool bActive)
+{
+    bAcceptedFrostSurfacePresentation=false;
+    auto* Composer=IsValid(EventVFX)?EventVFX->GetComposerPresentation():nullptr;
+    if(!bActive) {
+        if(Composer)Composer->StopStates(TEXT("World.Ice.Surface"));FrostSurfaceEpisode.Invalidate();AcceptedFrostSurfacePhases=0;
+        FrostSurface->SetVisibility(false);return;
+    }
+    // This same native section remains the authoritative visual-footprint input.
+    // The NI ComponentRenderer draws its own prepared copy, not a material swap.
+    FrostSurface->SetVisibility(true);if(!Composer)return;
+    if(!FrostSurfaceEpisode.IsValid())FrostSurfaceEpisode=FGuid::NewGuid();
+    FMCPerkVFXGameplayValues Values;Values.EpisodeID=FrostSurfaceEpisode;
+    Values.VisualSubject=FrostSurface;Values.LocalStateAgeSeconds=FMath::Max(0.f,float(Now()-StartedAt));
+    FString Error;const bool Accepted=Composer->UpdateState(TEXT("World.Ice.Surface"),TEXT("Frost"),true,
+        FrostSurface->GetComponentTransform(),Values,FrostSurface,Error);
+    bAcceptedFrostSurfacePresentation=Accepted;if(Accepted)AcceptedFrostSurfacePhases|=1;
+    const auto* Loading=GetWorld()->GetSubsystem<UMCWorldPreloadSubsystem>();
+    const auto* Prepared=Loading?Loading->GetProceduralSurfaceResources():nullptr;
+    const bool ActualDraw=Prepared&&Prepared->HasAcceptedDraw(FrostSurface,TEXT("World.Ice.Surface"),FrostSurfaceEpisode);
+    // Preserve the protected cold/safe footprint if a replacement has no actual
+    // current exact draw. Native compatibility is reported, never called NS-only.
+    if(Accepted&&ActualDraw&&!Composer->UsesNativeVisuals(TEXT("World.Ice.Surface"),TEXT("Frost")))FrostSurface->SetVisibility(false);
 }
 
 void AMCIceEvent::RefreshPresentation(float DeltaSeconds)
@@ -1644,11 +1710,12 @@ void AMCIceEvent::ClearGameplay()
 
 void AMCIceEvent::ClearPresentation()
 {
+    UpdateComposerFrostSurface(false);
     if(IsValid(EventVFX))
     {
         // The reliable completion cue is issued before state/actor removal. A
         // state-only late join never replays a historical shatter.
-        if(!bCompletionVFXSignaled) {EventVFX->Destroy(); EventVFX=nullptr;}
+        if(!bCompletionVFXSignaled) CancelLocalPresentation();
     }
     if(IsValid(Tongue)) RemoveTickPrerequisiteActor(Tongue);
     Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -1681,10 +1748,26 @@ void AMCIceEvent::OnRep_State()
     if(!IsActive()) ClearPresentation();
 }
 
+void AMCIceEvent::CancelLocalPresentation()
+{
+    if(IsValid(EventVFX)&&EventVFX->CancelPresentationFor(this,PresentationClaimToken))EventVFX->Destroy();
+    EventVFX=nullptr;PresentationClaimToken.Invalidate();bPresentationClaimFailureReported=false;
+}
+
 void AMCIceEvent::EnsurePresentationVFX()
 {
     if(GetNetMode()==NM_DedicatedServer || IsValid(EventVFX) || !GetWorld() || GetWorld()->bIsTearingDown) return;
-    FActorSpawnParameters Params;
+    if(auto* Loading=GetWorld()->GetSubsystem<UMCWorldPreloadSubsystem>();!bLabEvent&&Loading&&Loading->UsesPreparedIcePresentation())
+    {
+        FString Error;EventVFX=Loading->ClaimPreparedIcePresentation(this,PresentationClaimToken,Error);
+        if(!EventVFX&&Loading->IsReady()&&!bPresentationClaimFailureReported)
+        {bPresentationClaimFailureReported=true;UE_LOG(LogTemp,Error,TEXT("MC_ICE_PRESENTATION_CLAIM_FAILED %s"),*Error);}
+        // Replicated active events may arrive behind the local loading screen.
+        // The ordinary event tick retries after this world's existing barrier.
+        return;
+    }
+    PresentationClaimToken.Invalidate();
+    FActorSpawnParameters Params;Params.Owner=this;
     Params.ObjectFlags|=RF_Transient;
     Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
     EventVFX=GetWorld()->SpawnActor<AMCIceEventVFX>(FVector::ZeroVector,FRotator::ZeroRotator,Params);
@@ -1701,9 +1784,7 @@ void AMCIceEvent::Multicast_FinishVFX_Implementation(FVector_NetQuantize CoreFlo
 
 void AMCIceEvent::Multicast_CancelVFX_Implementation()
 {
-    bCompletionVFXSignaled=false;
-    if(IsValid(EventVFX)) EventVFX->Destroy();
-    EventVFX=nullptr;
+    bCompletionVFXSignaled=false;CancelLocalPresentation();
 }
 
 void AMCIceEvent::Finish(bool bFailure)
@@ -1724,6 +1805,7 @@ void AMCIceEvent::Stop()
     if(!HasAuthority()) return;
     // Cancel is reliable too: a Stop immediately followed by Destroy cannot
     // leave a former success cue playing merely because Idle never replicated.
+    bComposerPreparedVFX=false;
     Multicast_CancelVFX();
     Stage=EMCIceEventStage::Idle; ClearGameplay(); OnRep_State(); ForceNetUpdate();
 }

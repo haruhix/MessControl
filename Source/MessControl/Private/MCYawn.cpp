@@ -88,7 +88,7 @@ bool AMCTongue::StartYawn(float Seconds)
         Source+=FVector(0,0,65);
         const FVector Axis=(Inlet-Source).GetSafeNormal();
         const float Length=FMath::Clamp(float(FVector::Distance(Inlet,Source))+200.f,300.f,2600.f);
-        if(auto* Flow=AMCReactionVFX::Spawn(GetWorld(),Inlet,EMCReactionEffect::Yawn,YawnDuration,Mouth->ZoneRadius*.8f,Axis,Length)) {
+        if(auto* Flow=AMCReactionVFX::SpawnForPresentation(GetWorld(),TEXT("World.Yawn"),TEXT("Wind"),Inlet,EMCReactionEffect::Yawn,YawnDuration,Mouth->ZoneRadius*.8f,Axis,Length,this)) {
             Flow->SetOwner(Mouth);
             Flow->AttachToActor(Mouth,FAttachmentTransformRules::KeepWorldTransform);
         }
