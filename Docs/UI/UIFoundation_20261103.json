@@ -1,0 +1,161 @@
+{
+  "scope": "Single editable PSD interface root with Menu, Gameplay HUD, Settings, TEAM, Wardrobe and Boosters Shop preview/runtime views. The saved root currently contains 121 widgets; full interface migration is still incomplete.",
+  "status": "Wardrobe and Boosters Shop have joined Menu/HUD and Settings/TEAM in root preview and runtime. Editor build and the scoped commerce solo checks passed. Full visual acceptance and remaining screens are pending; see Docs/UI/UICommerce_20261104.json.",
+  "runtime": {
+    "component": "UMCUniversalUIWidget: editable Panel/Button/Progress, Content named slot, localized labels, outline/shadow/radius/padding; optional rounded polygon contour points use UMG/Slate geometry without new shaders.",
+    "preview": "UMCUniversalUIPreviewWidget: real shared components, long text, disabled/selected states, progress specimen, SafeZone and stretched anchors, scroll overflow.",
+    "f3": "Existing gameplay dev panel gains one Current/New button. UIOnly screens use the same selector in an F3 overlay. Repeat presses are consumed; F3/Escape returns input to the owning screen.",
+    "preference": "Client-local GameUserSettings; Current default. F3 and selection are development-only. No replicated state or gameplay profile writes.",
+    "switching": "F3 Current/New routes cover Menu, Gameplay HUD, Settings, TEAM, Wardrobe and Boosters Shop. Existing presenters retain state and accepted actions. Commerce New/Current/New and focus/reopening were checked via native Slate; this does not claim hardware input coverage.",
+    "readiness": "New component roles and reflected view resources retain the existing universal font, logo, seven tool brushes and three mapped original wardrobe glyphs. Short Editor/solo first-use checks are recorded in Docs/UI/UICommerce_20261104.json; this is not packaged cold-launch PSO validation.",
+    "liveGameplay": "Actual local health/stamina, reserve/cleanliness, selected upgraded tool, active skill name/icon/charges/cooldown, current/next event and task summary. Existing alerts, passives, reticles, results and swimming gauge remain source-owned.",
+    "settings": "Editable WBP_UISettings is embedded in WBP_UIRoot. Five tabs proxy the existing controls and Apply/Back/video-confirmation/voice policy; there is no second settings save path.",
+    "team": "Editable WBP_UITeam presents the original scoreboard entries and forwards participant-specific mute/Hub party actions to their existing owner. TAB and modal input priorities remain part of integration validation.",
+    "wardrobe": "WBP_UIWardrobe presents the existing wardrobe draft, cosmetic catalog, color controls and selected-item details. Real-mesh try-on of unowned Cowboy remains source-owned; Apply/Back and ownership/purchase validation stay with the existing controller/economy.",
+    "shop": "WBP_UIShop presents the existing next-run assortment, details, real prices and source-backed purchase/replacement rules. No economy, stock RNG or DT_Perks icon ownership is duplicated."
+  },
+  "localization": {
+    "catalog": "Shared DT_UI_Localization and stable FText keys. Historical initial counts are retained in the dated 2026-11-03 evidence. Settings/TEAM coverage is in Docs/UI/UISettingsTeam_20261104.json; current Wardrobe/Shop copy and limitations are in Docs/UI/UICommerce_20261104.json.",
+    "inheritance": "Nested components use their root's explicit preview culture without changing editor/game language.",
+    "font": "LeFun Latin/Russian ranges with preserved fallback family and explicit CJK fallback. Source masters copied to ArtSource/UI/V2/Fonts on E: during authoring.",
+    "authoring": "Append missing V2 keys and fill only explicitly prepared empty cells of reused root labels. Dynamic legacy gameplay/perk/event copy still depends on existing catalog coverage; this is not a full game translation.",
+    "adaptiveText": "Localizations determine layout measurements and wrapping; font shrinking and ellipsis are not accepted substitutes for accommodating translated text."
+  },
+  "editor": {
+    "workflow": "Open WBP_UIRoot Designer and select Interface screen / Language: Menu, Gameplay HUD, Settings, TEAM, Wardrobe and Boosters Shop are available. Settings has five preview tabs. Selections are isolated to the Designer session; current saved root has 121 widgets.",
+    "author": "Tools/Unreal/UI/author_ui_v2_foundation.py",
+    "verify": "Tools/Unreal/UI/verify_ui_v2_foundation.py",
+    "assets": [
+      "/Game/Gameplay/UI/V2/WBP_UIUniversal",
+      "/Game/Gameplay/UI/V2/WBP_UIUniversalPreview",
+      "/Game/Gameplay/UI/V2/Theme/DA_UITheme_V2",
+      "/Game/Gameplay/UI/V2/Fonts/F_UI_Universal",
+      "/Game/Gameplay/UI/V2/WBP_UIRoot",
+      "/Game/Gameplay/UI/V2/WBP_UISettings",
+      "/Game/Gameplay/UI/V2/WBP_UITeam",
+      "/Game/Gameplay/UI/V2/WBP_UIWardrobe",
+      "/Game/Gameplay/UI/V2/WBP_UIShop"
+    ],
+    "storage": "E:/CodexWork/MessControl/Validation/UIFoundation_20261103",
+    "live_f3_check": "Tools/Unreal/UI/check_ui_v2_f3_solo.py; requires already running standalone PIE with game-window focus and F3 closed.",
+    "usage": [
+      "Open /Game/Gameplay/UI/V2/WBP_UIUniversalPreview in the UMG Designer. Use the existing Gameplay UI Preview controls and Current UI/New UI buttons.",
+      "Use PreviewCulture and PreviewScenario, plus Designer Screen Size/DPI; preview selections do not change player settings.",
+      "Place WBP_UIUniversal in a parent layout. Choose Panel/Button/Progress and edit the Universal properties. Use the Content named slot for custom UMG children.",
+      "The parent screen owns anchors/alignment. The universal component does not replace its parent geometry; the specimen uses SafeZone, stretched anchors and scrolling.",
+      "Use a stable LabelKey and the shared localization table. Dynamic values remain in the existing presenters, formatted through MCUIDataLibrary.",
+      "WBP_UIRoot owns the screen switcher. Edit saved UMG children/anchors and Universal contour points. ToolIconArt contains tools only; perk artwork comes from DT_Perks.Icon.",
+      "Settings/TEAM text uses adaptive container sizing and wrapping at the intended font size. Test long localized strings with screen/DPI changes; do not resolve overflow through font shrink or ellipsis."
+    ],
+    "root": "/Game/Gameplay/UI/V2/WBP_UIRoot",
+    "root_author": "Tools/Unreal/UI/author_unified_ui_root.py",
+    "root_verify": "Tools/Unreal/UI/verify_unified_ui_root.py",
+    "hud_author": "Tools/Unreal/UI/author_unified_hud.py",
+    "root_verify_note": "Frame-separated preview job; await PreviewChecks.json status=complete. Same-frame batch captures were incomplete and were replaced.",
+    "settings_team_author": "Tools/Unreal/UI/author_unified_settings_team.py",
+    "adaptive_component_migration": "MCGameplayUIEditorLibrary.RebuildUnifiedInterfaceView: only the two exact task-owned Settings/TEAM assets, after recipe backup/hash checks. Root/Menu/HUD trees and graphs are not rebuilt by this helper.",
+    "commerce_author": "Tools/Unreal/UI/author_unified_commerce.py",
+    "savedRootWidgetCount": 121,
+    "commerceEvidence": "E:/CodexWork/MessControl/Validation/UICommerce_20261104"
+  },
+  "validation": {
+    "asOf": "2026-11-04",
+    "currentScopeReport": "Docs/UI/UICommerce_20261104.json",
+    "commerceChecks": {
+      "date": "2026-11-04",
+      "scope": "Wardrobe and Boosters Shop source-backed integration; short local solo PIE only.",
+      "editorBuild": "PASS: MessControlEditor build.",
+      "wardrobe": "PASS: real Hub open, source-owned Cowboy try-on while unowned, Back.",
+      "shopPurchase": "PASS: real Hub shop open and source-backed Buy in the temporary profile; 800 to 770 coins and 3 charges.",
+      "f3": "PASS via native Slate: New to Current to New on both Wardrobe and Shop; focus and reopening checked.",
+      "gc": "PASS: GC followed by shop reopening.",
+      "restoration": "Original wallet, inventory, stock IDs, pawn position and play settings restored.",
+      "evidence": "E:/CodexWork/MessControl/Validation/UICommerce_20261104",
+      "report": "Docs/UI/UICommerce_20261104.json",
+      "notClaimed": [
+        "Full artistic acceptance",
+        "Complete long-word/localization wrapping review across all screens",
+        "Network/multiplayer",
+        "Cook/package or packaged cold-launch PSO",
+        "Hardware mouse/keyboard delivery",
+        "Rerun of the historical three native tests"
+      ]
+    },
+    "priorScopeReports": [
+      "Docs/UI/UIRootHUD_20261103.json",
+      "Docs/UI/UISettingsTeam_20261104.json"
+    ],
+    "historicalResults": "Earlier builds, tests and gameplay evidence retain their original date/scope in validationHistory and linked reports. The historical three native tests were not rerun by this commerce checkpoint.",
+    "visualAcceptance": "Incomplete. Seven wardrobe items still use existing 3D thumbnails; missing perk icons remain data-owned; long words and localization wrapping need full-screen review.",
+    "notRun": [
+      "Network/multiplayer",
+      "Cook/package and packaged cold-launch PSO",
+      "Hardware input delivery"
+    ]
+  },
+  "remaining_scope": [
+    "Hub overview, standalone Tools/Perks pages, rewards, fishing UI and the other unconverted screens/menu pages.",
+    "Full visual review of long words and localizations across all screens under the adaptive text requirement.",
+    "Replace/review seven remaining wardrobe 3D thumbnails if original PSD-style icons become available.",
+    "Perk artwork remains a separate user-authored DT_Perks.Icon task; missing icons are preserved without a private override map.",
+    "Rare HUD and other unresolved scenarios remain bounded by the earlier dated reports.",
+    "Clothing catalog extension is queued only after the whole interface is complete; no table or gameplay implementation starts now."
+  ],
+  "createdForSliceDate": "2026-11-03",
+  "lastUpdated": "2026-11-04",
+  "layoutPolicy": {
+    "date": "2026-11-04",
+    "source": "Explicit user adaptive-layout requirement during Settings/TEAM review.",
+    "requirement": "Fit containers, spacing and layout to actual localized text. Preserve the intended font size; do not shrink text or hide it with ellipsis to force it into a fixed box.",
+    "implementationContract": "Use desired-size measurement, wrapping, flexible rows/columns and available-width-aware layout; use scrolling where content cannot fit the viewport. Preserve correct anchors, SafeZone and separation between adjacent controls.",
+    "scopeLimit": "Historical HUD screenshots from 2026-11-03 used bounded text/ellipsis. They do not demonstrate acceptance of the new requirement across all screens; remaining HUD/screens need review under this policy."
+  },
+  "validationHistory": [
+    {
+      "date": "2026-11-03",
+      "scope": "Initial Menu/HUD slice before the adaptive Settings/TEAM steering.",
+      "results": {
+        "source": "PASS: git diff --check; task Python recipes parsed; 15 unique V2 keys with 10 nonempty language columns plus 7 missing-cell patch rows. Exact 151 LeFun subset retained.",
+        "focused_native_tests": [
+          "MessControl.UI.Universal.CompositionAndPreviewIsolation",
+          "MessControl.UI.Universal.PreferenceWriteIsolation",
+          "MessControl.Settings.ConfigRoundtripDoesNotChangeCulture"
+        ],
+        "visual": "Personally inspected actual Menu and Gameplay runtime captures, frame-separated Menu RU/EN/DE/JA and Gameplay RU/DE/JA, 720p/1080p/ultrawide. Japanese DPI150 Menu uses scroll overflow; long HUD names use bounded text/ellipsis.",
+        "solo_PIE": "PASS: distinct Menu F3 switch and Settings/Back; Gameplay Current/New/Current with one source HUD, real tool selection and PSD art, existing grenade/3 charges, checked full HP/stamina, original groups restored. Test settings and Current selection restored.",
+        "not_run": [
+          "All rare alert/swim/death scenarios",
+          "Non-full health and depleted stamina cases",
+          "Hardware key-repeat/mouse delivery",
+          "Network/multiplayer",
+          "Cook/package and packaged cold-launch PSO/resource validation"
+        ],
+        "build": "MessControlEditor Win64 Development succeeded; required compiler/visual fixes were rebuilt incrementally. No cook/package.",
+        "native_tests": "3 passed, 0 failed; CompositionAndPreviewIsolation, PreferenceWriteIsolation, ConfigRoundtripDoesNotChangeCulture.",
+        "evidence": "E:/CodexWork/MessControl/Validation/UIRootPSD_20261103 and E:/CodexWork/MessControl/Validation/UIRootHUD_20261103",
+        "pointerLimit": "Repeated native pointer clicks sometimes focused without activating; focused Enter reliably toggled. No hardware mouse claim.",
+        "hud_report": "E:/CodexWork/MessControl/Validation/UIRootHUD_20261103/SoloReport.json"
+      }
+    },
+    {
+      "date": "2026-11-04",
+      "phase": "settings_team_before_commerce",
+      "scope": "Earlier Settings/TEAM checkpoint; not a fresh rerun of Menu/HUD tests.",
+      "results": {
+        "asOf": "2026-11-04",
+        "currentScopeReport": "Docs/UI/UISettingsTeam_20261104.json",
+        "historicalResults": "The initial Menu/HUD Editor build, three native tests, previews and solo PIE results remain in validationHistory dated 2026-11-03.",
+        "notReclaimedAsFresh": "No old test, build, preview or gameplay result is presented here as newly rerun for Settings/TEAM.",
+        "adaptiveAcceptance": "The user requirement supersedes the earlier HUD ellipsis approach. Cross-screen visual acceptance is still pending; consult the current report for checks actually performed.",
+        "limits": "Remaining windows, rare HUD paths, non-full/depleted resources, hardware input delivery, multiplayer and packaged cold-launch coverage remain bounded by their dated reports."
+      }
+    }
+  ],
+  "artCoverage": {
+    "wardrobe": "Three existing cosmetic IDs use original PSD-derived white-alpha glyphs: CowboyHat, FootballHelmet and SquareGlasses. Seven other items retain their existing 3D thumbnails; uniform final artistic acceptance is not claimed.",
+    "sourceMasters": "ArtSource/UI/V2/Icons/Wardrobe/PSDIconManifest.json and RuntimeGlyphManifest.json retain layer IDs, original PSD hash, raw masters and deterministic normal-alpha exports.",
+    "perkIcons": "Existing DT_Perks.Icon values, including missing images, are preserved; the user authors these separately.",
+    "dentalFloss": "Exported source/glyph master only; no new clothing item or DT row is implied."
+  },
+  "queuedNextTask": "Docs/UI/ClothingCatalogNext_20261104.json"
+}

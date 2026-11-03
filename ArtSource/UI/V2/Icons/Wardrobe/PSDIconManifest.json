@@ -1,0 +1,177 @@
+{
+  "source": "D:\\sda\\visua2.psd",
+  "sourcePSD_SHA256": "7CB834D75CFE88632E2D1C32DC688FF0107A3EFA1AC2E661BEDE2B752A2BA756",
+  "psdToolsVersion": "1.26.0",
+  "method": "Read-only saved raster RGBA channels via Layer.topil(apply_icc=True). No document composite, UI panel rasterization or Photoshop process/API used.",
+  "group": {
+    "id": 776,
+    "name": "wardrope",
+    "bounds": [
+      2260,
+      4546,
+      4038,
+      5633
+    ]
+  },
+  "icons": [
+    {
+      "name": "CowboyHat",
+      "layerID": 1213,
+      "layerName": "Слой 53 копия",
+      "layerPath": "wardrope/Слой 53 копия",
+      "layerKind": "smartobject",
+      "visible": true,
+      "effects": 0,
+      "bounds": [
+        3268,
+        4740,
+        3463,
+        4892
+      ],
+      "size": [
+        195,
+        152
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        195,
+        152
+      ],
+      "png": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\V2\\Icons\\Wardrobe\\T_UI_PSD_CowboyHat.png",
+      "pngSHA256": "A44AAC82F1311A0D37B28784AAA2B2C69A3BCC1E9411EEFC17BE0871FDFED13D",
+      "existingCosmeticID": "Hat_Head_CowboyHat",
+      "importedIntoUnreal": false,
+      "selection": "Detail-card layer1213 is the neutral-placement duplicate of grid layer1199; original saved RGBA channels are retained without recoloring. Screen blending accounts for the background-colored outline in the PSD.",
+      "sourceBlendMode": "screen",
+      "sourceOpacity": 255,
+      "hasMask": false,
+      "hasVectorMask": false,
+      "clipping": false
+    },
+    {
+      "name": "FootballHelmet",
+      "layerID": 1197,
+      "layerName": "Слой 52",
+      "layerPath": "wardrope/Слой 52",
+      "layerKind": "pixel",
+      "visible": true,
+      "effects": 0,
+      "bounds": [
+        2590,
+        4743,
+        2758,
+        4899
+      ],
+      "size": [
+        168,
+        156
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        168,
+        156
+      ],
+      "png": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\V2\\Icons\\Wardrobe\\T_UI_PSD_FootballHelmet.png",
+      "pngSHA256": "C5E4949DB601C5194B5BAAFD30BB548E3CADF402E2888218A836BA402C025E12",
+      "existingCosmeticID": "Hat_Head_FootballHelmet",
+      "importedIntoUnreal": false,
+      "sourceBlendMode": "screen",
+      "sourceOpacity": 255,
+      "hasMask": false,
+      "hasVectorMask": false,
+      "clipping": false
+    },
+    {
+      "name": "SquareGlasses",
+      "layerID": 1204,
+      "layerName": "Слой 54",
+      "layerPath": "wardrope/Слой 54",
+      "layerKind": "smartobject",
+      "visible": true,
+      "effects": 0,
+      "bounds": [
+        2807,
+        4790,
+        2981,
+        4888
+      ],
+      "size": [
+        174,
+        98
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        174,
+        98
+      ],
+      "png": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\V2\\Icons\\Wardrobe\\T_UI_PSD_SquareGlasses.png",
+      "pngSHA256": "E930184FC7BB664A62EFA12DF39FC0B25C361F26C714B43DCAF13F6521DC8F23",
+      "existingCosmeticID": "Face_Head_SquareGlasses",
+      "importedIntoUnreal": false,
+      "sourceBlendMode": "color_dodge",
+      "sourceOpacity": 255,
+      "hasMask": false,
+      "hasVectorMask": false,
+      "clipping": false
+    },
+    {
+      "name": "DentalFloss",
+      "layerID": 1208,
+      "layerName": "Слой 55",
+      "layerPath": "wardrope/Слой 55",
+      "layerKind": "smartobject",
+      "visible": true,
+      "effects": 0,
+      "bounds": [
+        2359,
+        4992,
+        2555,
+        5145
+      ],
+      "size": [
+        196,
+        153
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        196,
+        153
+      ],
+      "png": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\V2\\Icons\\Wardrobe\\T_UI_PSD_DentalFloss.png",
+      "pngSHA256": "19D0C4275DEEA99746027C8FFC9C2E7ACF5B4EBA7B04F081C6DF7F42C0E7B6B1",
+      "existingCosmeticID": "",
+      "importedIntoUnreal": false,
+      "sourceBlendMode": "lighten",
+      "sourceOpacity": 255,
+      "hasMask": false,
+      "hasVectorMask": false,
+      "clipping": false
+    }
+  ],
+  "dentalFlossMapping": "Source-only icon. No existing gameplay cosmetic ID was inferred or enabled.",
+  "sourceUnchanged": true,
+  "sourcePSD_SHA256_After": "7CB834D75CFE88632E2D1C32DC688FF0107A3EFA1AC2E661BEDE2B752A2BA756",
+  "elapsedSeconds": 2.664,
+  "renderingNote": "PNG files preserve the original saved RGBA layer channels. PSD Screen/Color Dodge/Lighten blending is metadata, not baked into the transparent images. Ordinary Normal-alpha UMG drawing can show dark source outlines that blend into the background in the PSD; exact blend reproduction is an integration decision, not claimed by this export.",
+  "runtimeGlyphManifest": "RuntimeGlyphManifest.json"
+}

@@ -225,6 +225,34 @@ void UMCMainMenuWidget::CollapseRetiredMainMenuCopy()
     });
 }
 
+UWidget* UMCMainMenuWidget::GetSettingsPresentationControl(FName Name) const
+{
+    if(!WidgetTree) return nullptr;
+    if(Name==TEXT("Status")) return StatusText;
+    if(Name.ToString().StartsWith(TEXT("Voice")) && VoiceSettings && VoiceSettings->WidgetTree)
+        return VoiceSettings->WidgetTree->FindWidget(Name);
+    return WidgetTree->FindWidget(FName(*(FString(TEXT("MenuSettings_"))+Name.ToString())));
+}
+bool UMCMainMenuWidget::RouteSettingsVoiceKey(FKey Key)
+{
+    return VoiceSettings && VoiceSettings->RouteRebindKey(Key);
+}
+bool UMCMainMenuWidget::IsSettingsVoiceRebinding() const
+{
+    return VoiceSettings && VoiceSettings->IsRebinding();
+}
+void UMCMainMenuWidget::RefreshSettingsVoicePresentation()
+{
+    // Hidden legacy content does not tick its nested Voice widget. Keep the
+    // original live status/meter/participant list current only on its active tab.
+    if(Page==EPage::Settings && ActiveSettingsTab==4 && VoiceSettings)
+        VoiceSettings->RefreshPendingPresentation();
+}
+float UMCMainMenuWidget::GetVideoConfirmationSecondsRemaining() const
+{
+    return bVideoConfirmationPending?FMath::Max(0.f,float(VideoConfirmationEndsAt-FPlatformTime::Seconds())):0.f;
+}
+
 void UMCMainMenuWidget::BuildPresentationTree()
 {
     if (!WidgetTree) return;
@@ -428,6 +456,7 @@ UComboBoxString* UMCMainMenuWidget::AddPicker(const FString& Label, const TCHAR*
 UWidget* UMCMainMenuWidget::GeneratePickerItem(FString Item)
 {
     auto* Label=WidgetTree->ConstructWidget<UTextBlock>();
+    GeneratedPickerItems.Add(Label); // UComboBoxString retains Slate, not this UWidget.
     Label->SetText(FText::FromString(Item));
     Label->SetFont(MCMainMenuPrivate::Font(TEXT("Regular"),17));
     const auto* ThemeData=GetResolvedTheme();

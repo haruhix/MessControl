@@ -4,6 +4,7 @@
 #include "GameFramework/GameUserSettings.h"
 #include "InputCoreTypes.h"
 #include "MCVoiceChatTypes.h"
+#include "MCUIPresentationTypes.h"
 #include "MCGameUserSettings.generated.h"
 
 class USoundClass;
@@ -19,6 +20,9 @@ class MESSCONTROL_API UMCGameUserSettings : public UGameUserSettings
     GENERATED_BODY()
 public:
     UFUNCTION(BlueprintPure, Category="Settings") static UMCGameUserSettings* Get();
+    EMCUIVersion GetUIPresentationVersion() const { return UIPresentationVersion; }
+    /** Use the UI factory to notify live widgets and optionally persist the preference. */
+    void SetUIPresentationVersion(EMCUIVersion Value) { UIPresentationVersion=Value==EMCUIVersion::New?Value:EMCUIVersion::Current; }
     UFUNCTION(BlueprintPure, Category="Settings|Audio") float GetMasterVolume() const { return MasterVolume; }
     UFUNCTION(BlueprintPure, Category="Settings|Audio") float GetMusicVolume() const { return MusicVolume; }
     UFUNCTION(BlueprintPure, Category="Settings|Audio") float GetAmbienceVolume() const { return AmbienceVolume; }
@@ -81,6 +85,7 @@ public:
 protected:
     virtual void BeginDestroy() override;
 private:
+    UPROPERTY(Config) EMCUIVersion UIPresentationVersion=EMCUIVersion::Current;
     UPROPERTY(Config) float MasterVolume=1.f;
     UPROPERTY(Config) float MusicVolume=1.f;
     UPROPERTY(Config) float AmbienceVolume=1.f;

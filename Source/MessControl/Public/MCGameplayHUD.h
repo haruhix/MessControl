@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "MCGameplayUIWidget.h"
+#include "Components/CanvasPanelSlot.h"
 #include "MCGameplayHUD.generated.h"
 class UMCStaminaWidget;
 class UMCGameplayAlertWidget;
@@ -40,6 +41,12 @@ public:
     void ResetGameplayAlerts();
     void SetBossStackCount(int32 Count,float StackHeight=-1.f);
     UFUNCTION(BlueprintPure,Category="HUD|Food") float GetFoodReticleAlpha() const { return FoodReticleAlpha; }
+    /** Retain this HUD's observers and contextual overlays while the unified view draws its primary groups. */
+    void SetUnifiedViewActive(bool bActive);
+    const FText& GetUnifiedNextEventTitle() const { return UnifiedNextEventTitle; }
+    bool HasUnifiedNextEvent() const { return !UnifiedNextEventTitle.IsEmpty(); }
+    const FText& GetUnifiedCurrentEventTitle() const { return UnifiedCurrentEventTitle; }
+    const FText& GetUnifiedToolName() const { return UnifiedToolName; }
 protected:
     virtual void OnLocalizationChanged() override;
     virtual void NativeOnInitialized() override;
@@ -83,6 +90,18 @@ private:
     FString Phase1LayoutSignature;
     int32 SelectedToolIndex=0;
     int32 DisplayedPlayerCount=4;
+    bool bUnifiedViewActive=false;
+    TMap<TWeakObjectPtr<UWidget>,ESlateVisibility> UnifiedHiddenVisibility;
+    TWeakObjectPtr<UCanvasPanelSlot> UnifiedSkillSlot;
+    FAnchorData UnifiedSkillLayout;
+    bool bUnifiedSkillAutoSize=false;
+    int32 UnifiedSkillZOrder=0;
+    FText UnifiedNextEventTitle;
+    FText UnifiedCurrentEventTitle;
+    FText UnifiedToolName;
+    void ApplyUnifiedViewVisibility();
+    void RestoreUnifiedViewVisibility();
+    void RestoreUnifiedSkillLayout();
     UWidget* Find(FName Name) const;
     void CachePresentationWidgets();
     void BindAuthoredPresentation();

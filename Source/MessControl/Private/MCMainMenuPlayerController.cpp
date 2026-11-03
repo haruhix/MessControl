@@ -1,4 +1,5 @@
 #include "MCMainMenuPlayerController.h"
+#include "MCUIPresentationSubsystem.h"
 #include "MCMainMenuWidget.h"
 #include "MCDataAssets.h"
 #include "MCSceneAudioComponent.h"
@@ -39,10 +40,13 @@ void AMCMainMenuPlayerController::BeginPlay()
 void AMCMainMenuPlayerController::FocusPreparedMenu()
 {
     if(StudioSplash || !MenuWidget || !bPreparationReleased) return;
+    if(auto* GI=GetGameInstance()) if(auto* Presentation=GI->GetSubsystem<UMCUIPresentationSubsystem>())
+        if(Presentation->ApplyPanelInputMode(this)) return;
     FInputModeUIOnly Mode;Mode.SetWidgetToFocus(MenuWidget->TakeWidget());
     Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);SetInputMode(Mode);
     SetShowMouseCursor(true);bEnableClickEvents=true;MenuWidget->FocusMenu();
 }
+void AMCMainMenuPlayerController::RestorePresentationInput() {FocusPreparedMenu();}
 
 void AMCMainMenuPlayerController::FinishStudioSplash()
 {

@@ -88,6 +88,7 @@ bool UMCGameUserSettings::SetLanguageCode(const FString& Value)
 
 void UMCGameUserSettings::NormalizePreferences()
 {
+    SetUIPresentationVersion(UIPresentationVersion);
     MasterVolume=Volume(MasterVolume);MusicVolume=Volume(MusicVolume);
     AmbienceVolume=Volume(AmbienceVolume);SFXVolume=Volume(SFXVolume);
     MouseSensitivity=Sensitivity(MouseSensitivity);GamepadSensitivity=Sensitivity(GamepadSensitivity);
@@ -106,6 +107,7 @@ void UMCGameUserSettings::NormalizePreferences()
 void UMCGameUserSettings::SetToDefaults()
 {
     Super::SetToDefaults();
+    UIPresentationVersion=EMCUIVersion::Current;
     MasterVolume=MusicVolume=AmbienceVolume=SFXVolume=1.f;
     MouseSensitivity=GamepadSensitivity=1.f;bInvertY=false;bCameraSmoothingEnabled=false;LanguageCode.Reset();
     bHasCustomBagColor=false;SavedBagColor=FLinearColor(.24f,.65f,1.f);

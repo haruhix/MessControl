@@ -30,6 +30,9 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Voice") bool bApplyChangesImmediately=false;
     bool RouteRebindKey(FKey Key);
     bool IsRebinding() const { return bAwaitingKey; }
+    /** Refresh the existing pending view while its owning menu content is hidden.
+     * Does not reload preferences, acquire a microphone, or commit a draft. */
+    void RefreshPendingPresentation() { if(!IsDesignTime()) RefreshLive(); }
     void GetFocusableControls(TArray<UWidget*>& Out) const;
 protected:
     virtual void NativeConstruct() override;

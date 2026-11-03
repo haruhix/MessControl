@@ -8,6 +8,7 @@
 #include "MCVFXPresentationComponent.h"
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
+#include "MCTongue.h"
 #include "MCFreezeDeathVFX.h"
 #include "ProceduralMeshComponent.h"
 #include "GameFramework/WorldSettings.h"
@@ -20,6 +21,8 @@
 #include "MCPreloadManifest.h"
 #include "MCPreloadSettings.h"
 #include "MCUIDataLibrary.h"
+#include "MCUIPresentationSubsystem.h"
+#include "Engine/GameInstance.h"
 #include "MCEventSFXReadiness.h"
 #include "MCPerkVFXProfile.h"
 #include "AudioDevice.h"
@@ -498,6 +501,11 @@ void UMCWorldPreloadSubsystem::BuildRenderingWork()
         River->GetResources(Resources);for(auto* Object:Resources)RetainedAssets.AddUnique(Object);
     }
     bRenderingWorkBuilt = true;
+    if(auto* GI=GetWorld()->GetGameInstance())
+        if(auto* UI=GI->GetSubsystem<UMCUIPresentationSubsystem>())
+            if(!UI->PrepareInterface(Controller.Get())) {
+                Fail(LoadingText(TEXT("Loading_UIRootFailed"),TEXT("Не удалось подготовить интерфейс"),TEXT("Unable to prepare interface")),TEXT("Unified UI root creation failed"));return;
+            }
     LogStage(TEXT("River"));
     FString NativeError;
     if(!PrepareNativeStylesForLocation(NativeError)) {

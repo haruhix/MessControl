@@ -95,6 +95,7 @@ class MESSCONTROL_API UMCMainMenuPicker : public UComboBoxString
     GENERATED_BODY()
 public:
     void InitializePresentationFont(const FSlateFontInfo& InFont) { InitFont(InFont); }
+    void InitializePresentationForeground(const FSlateColor& InColor) { InitForegroundColor(InColor); }
     /** Store defaults as reflected data as well as the live list, so saved Designer shells keep their options. */
     void SetPresentationOptions(const TArray<FString>& InOptions,int32 SelectedIndex=0);
     virtual void PostDuplicate(EDuplicateMode::Type DuplicateMode) override;
@@ -120,6 +121,15 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview",meta=(ClampMin="0",ClampMax="4"))
     int32 PreviewSettingsTab=0;
     UFUNCTION(BlueprintPure, Category="Front End") UWidget* GetActiveMenuPageRoot() const;
+    /** Read-only presentation bridge; no pending settings are reloaded on view switches. */
+    EMCMainMenuPage GetCurrentMenuPage() const { return Page; }
+    int32 GetActiveSettingsTab() const { return ActiveSettingsTab; }
+    UWidget* GetSettingsPresentationControl(FName Name) const;
+    bool RouteSettingsVoiceKey(FKey Key);
+    bool IsSettingsVoiceRebinding() const;
+    void RefreshSettingsVoicePresentation();
+    float GetVideoConfirmationSecondsRemaining() const;
+
 
     UFUNCTION(BlueprintCallable, Category="Front End")
     void FocusMenu();
@@ -237,6 +247,7 @@ private:
     bool bUpdatingSettingsControls=false;
     int32 ActiveSettingsTab=0;
     UPROPERTY(Transient) TObjectPtr<UCheckBox> HostTutorialCheck;
+    UPROPERTY(Transient) TArray<TObjectPtr<UWidget>> GeneratedPickerItems;
     UPROPERTY(Transient) TArray<TObjectPtr<UButton>> Buttons;
     UPROPERTY(Transient) TArray<TObjectPtr<UButton>> OnlineButtons;
     UPROPERTY(Transient) TArray<TObjectPtr<UWidget>> GamepadTargets;

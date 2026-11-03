@@ -1,0 +1,215 @@
+{
+  "source": "D:/sda/visua2.psd",
+  "method": "Photoshop MCP; rasterized only in owned duplicate; original PSD not saved",
+  "export_transport": "Request timed out while Photoshop continued; all 13 PNGs verified after completion",
+  "icons": [
+    {
+      "id": 713,
+      "layer": "Слой 34",
+      "name": "Spray",
+      "size": [
+        88,
+        121
+      ],
+      "sourceBounds": [
+        4288,
+        1258,
+        4376,
+        1379
+      ],
+      "png": "ArtSource/UI/V2/Icons/T_UI_PSD_Spray.png"
+    },
+    {
+      "id": 719,
+      "layer": "Слой 35",
+      "name": "Brush",
+      "size": [
+        123,
+        124
+      ],
+      "sourceBounds": [
+        4443,
+        1259,
+        4566,
+        1383
+      ],
+      "png": "ArtSource/UI/V2/Icons/T_UI_PSD_Brush.png"
+    },
+    {
+      "id": 726,
+      "layer": "Слой 36",
+      "name": "Pickaxe",
+      "size": [
+        107,
+        138
+      ],
+      "sourceBounds": [
+        4625,
+        1255,
+        4732,
+        1393
+      ],
+      "png": "ArtSource/UI/V2/Icons/T_UI_PSD_Pickaxe.png"
+    },
+    {
+      "id": 729,
+      "layer": "Слой 37",
+      "name": "Knife",
+      "size": [
+        156,
+        131
+      ],
+      "sourceBounds": [
+        4763,
+        1256,
+        4919,
+        1387
+      ],
+      "png": "ArtSource/UI/V2/Icons/T_UI_PSD_Knife.png"
+    },
+    {
+      "id": 748,
+      "layer": "Слой 41",
+      "name": "Watergun",
+      "size": [
+        132,
+        118
+      ],
+      "sourceBounds": [
+        4262,
+        1426,
+        4394,
+        1544
+      ],
+      "png": "ArtSource/UI/V2/Icons/T_UI_PSD_Watergun.png"
+    },
+    {
+      "id": 742,
+      "layer": "Слой 38",
+      "name": "MeshaBrush",
+      "size": [
+        159,
+        176
+      ],
+      "sourceBounds": [
+        4401,
+        1435,
+        4560,
+        1611
+      ],
+      "png": "ArtSource/UI/V2/Icons/T_UI_PSD_MeshaBrush.png"
+    },
+    {
+      "id": 749,
+      "layer": "Слой 36 копия",
+      "name": "PickaxeVariant",
+      "size": [
+        107,
+        138
+      ],
+      "sourceBounds": [
+        4623,
+        1422,
+        4730,
+        1560
+      ],
+      "png": "ArtSource/UI/V2/Icons/T_UI_PSD_PickaxeVariant.png"
+    },
+    {
+      "id": 746,
+      "layer": "Слой 40",
+      "name": "Chainsaw",
+      "size": [
+        140,
+        120
+      ],
+      "sourceBounds": [
+        4779,
+        1419,
+        4919,
+        1539
+      ],
+      "png": "ArtSource/UI/V2/Icons/T_UI_PSD_Chainsaw.png"
+    },
+    {
+      "id": 751,
+      "layer": "Слой 42",
+      "name": "Sponge",
+      "size": [
+        143,
+        124
+      ],
+      "sourceBounds": [
+        5126,
+        1254,
+        5269,
+        1378
+      ],
+      "png": "ArtSource/UI/V2/Icons/T_UI_PSD_Sponge.png"
+    },
+    {
+      "id": 753,
+      "layer": "Слой 43",
+      "name": "Rocket",
+      "size": [
+        124,
+        113
+      ],
+      "sourceBounds": [
+        5298,
+        1258,
+        5422,
+        1371
+      ],
+      "png": "ArtSource/UI/V2/Icons/T_UI_PSD_Rocket.png"
+    },
+    {
+      "id": 755,
+      "layer": "Слой 44",
+      "name": "Driver",
+      "size": [
+        129,
+        101
+      ],
+      "sourceBounds": [
+        5456,
+        1266,
+        5585,
+        1367
+      ],
+      "png": "ArtSource/UI/V2/Icons/T_UI_PSD_Driver.png"
+    },
+    {
+      "id": 757,
+      "layer": "Слой 45",
+      "name": "Hook",
+      "size": [
+        134,
+        132
+      ],
+      "sourceBounds": [
+        5605,
+        1271,
+        5739,
+        1403
+      ],
+      "png": "ArtSource/UI/V2/Icons/T_UI_PSD_Hook.png"
+    },
+    {
+      "id": 773,
+      "layer": "Слой 46",
+      "name": "Grenade",
+      "size": [
+        104,
+        129
+      ],
+      "sourceBounds": [
+        5149,
+        1413,
+        5253,
+        1542
+      ],
+      "png": "ArtSource/UI/V2/Icons/T_UI_PSD_Grenade.png"
+    }
+  ]
+}

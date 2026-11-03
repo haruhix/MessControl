@@ -1,0 +1,34 @@
+"""Create the two editable commerce view assets and theme roles; preserve existing trees.
+Run in an idle Editor after the native Editor build. Root branches are appended by
+the adjacent MCP recipe; old root/menu/HUD trees are never rebuilt.
+"""
+import json
+from pathlib import Path
+import unreal as u
+assert not u.EditorLevelLibrary.get_pie_worlds(True)
+assert not u.EditorLoadingAndSavingUtils.get_dirty_content_packages()
+assert not u.EditorLoadingAndSavingUtils.get_dirty_map_packages()
+root=Path(u.Paths.project_dir()).resolve();assert root.drive.upper()=='E:'
+out=Path('E:/CodexWork/MessControl/Validation/UICommerce_20261104');out.mkdir(parents=True,exist_ok=True)
+base='/Game/Gameplay/UI/V2';lib=u.EditorAssetLibrary
+theme=u.load_asset(base+'/Theme/DA_UITheme_V2');assert theme
+roles={str(k):v for k,v in theme.get_editor_property('widget_classes').items()};created=[]
+for role,name,native in [('UnifiedWardrobe','WBP_UIWardrobe','MCUnifiedWardrobeWidget'),('UnifiedShop','WBP_UIShop','MCUnifiedShopWidget')]:
+    path=base+'/'+name;existed=lib.does_asset_exist(path)
+    cls=u.load_class(None,'/Script/MessControl.'+native);assert cls
+    bp=u.MCGameplayUIEditorLibrary.create_editable_gameplay_widget(path,cls);assert bp
+    generated=u.load_class(None,path+'.'+name+'_C');assert generated
+    roles[role]=generated;created.append({'asset':path,'new':not existed})
+theme.set_editor_property('widget_classes',roles)
+assert lib.save_loaded_asset(theme,only_if_is_dirty=False)
+u.MCGameplayUIFactory.invalidate_new_theme()
+table=u.load_asset('/Game/Gameplay/UI/Data/DT_UI_Localization')
+rows=json.loads(u.DataTableFunctionLibrary.export_data_table_to_json_string(table));keys={r['Name'] for r in rows};added=[]
+for row in json.loads((root/'Tools/Unreal/UI/ui_v2_commerce_texts.json').read_text(encoding='utf-8')):
+    if row['Name'] not in keys:rows.append(row);added.append(row['Name'])
+if added:
+    assert u.DataTableFunctionLibrary.fill_data_table_from_json_string(table,json.dumps(rows,ensure_ascii=False))
+    assert lib.save_loaded_asset(table,only_if_is_dirty=False)
+report={'components':created,'localizationKeysAdded':added,'root':'Append-only saved branches via unified_commerce_umg_recipe.json','resources':'New shared-theme reflected component class roots; wardrobe glyphs assigned separately with retained soft references. No perk art override.'}
+(out/'Authoring.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+print(json.dumps(report,ensure_ascii=False))

@@ -74,6 +74,9 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hub Party|Motion",meta=(ClampMin="0",ClampMax="1")) float PartyFadeSeconds=.18f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hub Party|Motion",meta=(ClampMin="0",ClampMax="1")) float PartyHoverSeconds=.12f;
     void FocusVoiceControls();
+    /** Presentation bridges reuse the existing close and Hub-mode policies. */
+    bool IsUnifiedHubParty() const { return IsHubPartyPresentation(); }
+    void RequestUnifiedClose() { ClosePartyPanel(); }
     void TogglePlayerVoice(APlayerState* Player);
     static bool CanControlPlayerVoice(const APlayerState* Player,bool bLocalPlayer);
     UPROPERTY(BlueprintReadOnly,Category="Scoreboard") TArray<FMCScoreboardEntry> PlayerEntries;

@@ -1,0 +1,19 @@
+[
+  {
+    "Name": "UI.Voice.InputLevel",
+    "SourceText": "УРОВЕНЬ МИКРОФОНА",
+    "Context": "Input meter caption in the PSD settings Voice tab.",
+    "RU": "УРОВЕНЬ МИКРОФОНА",
+    "EN": "MICROPHONE LEVEL",
+    "DE": "MIKROFONPEGEL",
+    "FR": "NIVEAU DU MICRO",
+    "ES": "NIVEL DEL MICRÓFONO",
+    "PT_BR": "NÍVEL DO MICROFONE",
+    "ZH_HANS": "麦克风电平",
+    "ZH_HANT": "麥克風音量",
+    "JA": "マイク入力レベル",
+    "KO": "마이크 입력 수준",
+    "AdditionalLanguages": {},
+    "Localizations": {}
+  }
+]

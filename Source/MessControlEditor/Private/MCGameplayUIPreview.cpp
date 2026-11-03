@@ -3,6 +3,7 @@
 #include "MCGameplayUITheme.h"
 #include "MCGameplayUIWidget.h"
 #include "MCMainMenuWidget.h"
+#include "MCUnifiedUIWidget.h"
 #include "AssetRegistry/AssetData.h"
 #include "Blueprint/WidgetTree.h"
 #include "Containers/Ticker.h"
@@ -230,6 +231,12 @@ namespace
         FName MenuState=TEXT("Main");
         FString MenuCulture;
         bool bHasMenuSelection=false;
+        bool bHasPresentationSelection=false;
+        EMCUIVersion PresentationVersion=EMCUIVersion::New;
+        bool bHasUnifiedSelection=false;
+        EMCUnifiedUIScreen UnifiedScreen=EMCUnifiedUIScreen::Menu;
+        int32 UnifiedSettingsTab=0;
+        FString UnifiedCulture;
     };
 
     class FGameplayPreviewExtender final : public IBlueprintWidgetCustomizationExtender
@@ -270,7 +277,7 @@ namespace
                 SNew(SVerticalBox)
                 + SVerticalBox::Slot().AutoHeight().Padding(0,4)
                 [
-                    SNew(STextBlock).Text(LOCTEXT("PreviewHelp","Designer preview only. Uses fixture data; no PIE or gameplay changes."))
+                    SNew(STextBlock).Text(LOCTEXT("PreviewHelp","Designer preview only. Set Preview Culture / Scenario; use Designer Screen Size and DPI to check anchors and wrapping. No PIE or gameplay changes."))
                     .AutoWrapText(true)
                 ]
                 + SVerticalBox::Slot().AutoHeight()
@@ -296,6 +303,17 @@ namespace
                     })
                 ]
             ];
+            Category.AddCustomRow(LOCTEXT("ProfilePreviewSearch","Current New UI profile preview"))
+            .WholeRowContent()
+            [
+                SNew(SHorizontalBox)
+                + SHorizontalBox::Slot().AutoWidth().Padding(0,4,6,4)
+                [SNew(SButton).Text(LOCTEXT("PreviewCurrentUI","Current UI"))
+                    .OnClicked_Lambda([WeakSelf,WeakEditor]{if(auto Self=WeakSelf.Pin()) Self->SetPreviewVersion(WeakEditor.Pin(),EMCUIVersion::Current);return FReply::Handled();})]
+                + SHorizontalBox::Slot().AutoWidth().Padding(0,4)
+                [SNew(SButton).Text(LOCTEXT("PreviewNewUI","New UI"))
+                    .OnClicked_Lambda([WeakSelf,WeakEditor]{if(auto Self=WeakSelf.Pin()) Self->SetPreviewVersion(WeakEditor.Pin(),EMCUIVersion::New);return FReply::Handled();})]
+            ];
             if (IsMainMenuEditor(Editor))
             {
                 Category.AddCustomRow(LOCTEXT("MainMenuPreviewSearch","Main menu page language screen size DPI"))
@@ -318,6 +336,30 @@ namespace
                     ]
                 ];
             }
+            const auto* Blueprint=Editor->GetWidgetBlueprintObj();
+            if(Blueprint && Blueprint->ParentClass && Blueprint->ParentClass->IsChildOf(UMCUnifiedUIWidget::StaticClass()))
+            {
+                Category.AddCustomRow(LOCTEXT("UnifiedScreenSearch","Interface screen language PSD"))
+                .WholeRowContent()
+                [
+                    SNew(SVerticalBox)
+                    + SVerticalBox::Slot().AutoHeight().Padding(0,6,0,2)
+                    [SNew(STextBlock).Text(LOCTEXT("UnifiedScreen","Interface screen (preview only)"))]
+                    + SVerticalBox::Slot().AutoHeight()[MakeUnifiedSelector(WeakSelf,WeakEditor,false)]
+                    + SVerticalBox::Slot().AutoHeight().Padding(0,6,0,2)
+                    [SNew(STextBlock).Text(LOCTEXT("UnifiedLanguage","Language (preview only)"))]
+                    + SVerticalBox::Slot().AutoHeight()[MakeUnifiedSelector(WeakSelf,WeakEditor,true)]
+                    + SVerticalBox::Slot().AutoHeight().Padding(0,6,0,2)
+                    [SNew(STextBlock).Text(LOCTEXT("UnifiedSettingsTab","Settings tab (preview only)"))
+                        .Visibility_Lambda([WeakSelf,WeakEditor]
+                        {
+                            if(auto Self=WeakSelf.Pin()) if(const auto* Session=Self->FindSession(WeakEditor.Pin()))
+                                return Session->UnifiedScreen==EMCUnifiedUIScreen::Settings?EVisibility::Visible:EVisibility::Collapsed;
+                            return EVisibility::Collapsed;
+                        })]
+                    + SVerticalBox::Slot().AutoHeight()[MakeUnifiedSettingsTabSelector(WeakSelf,WeakEditor)]
+                ];
+            }
         }
 
         TSharedRef<SDockTab> SpawnThemeTab(const FSpawnTabArgs&)
@@ -337,6 +379,14 @@ namespace
         }
 
     private:
+        void SetPreviewVersion(const TSharedPtr<FWidgetBlueprintEditor>& Editor,EMCUIVersion Version)
+        {
+            if(!GetGameplayPreview(Editor)) return;
+            auto& Session=SessionFor(Editor.ToSharedRef());
+            Session.bHasPresentationSelection=true;Session.PresentationVersion=Version;
+            Execute(Editor,0);
+        }
+
         void ObserveAssetEditors()
         {
             if (ObservedAssetEditors.IsValid() || !GEditor) return;
@@ -352,7 +402,7 @@ namespace
         void OnAssetOpened(UObject* Asset,IAssetEditorInstance* Instance)
         {
             const auto* Blueprint=Cast<UWidgetBlueprint>(Asset);
-            if (!Blueprint || !Blueprint->ParentClass || !Blueprint->ParentClass->IsChildOf(UMCMainMenuWidget::StaticClass())
+            if (!Blueprint || !Blueprint->ParentClass || !Blueprint->ParentClass->IsChildOf(UMCGameplayUIWidget::StaticClass())
                 || !Instance || Instance->GetEditorName()!=FName(TEXT("WidgetBlueprintEditor"))) return;
             // UE's WidgetBlueprintEditor toolkit owns this concrete editor. Register
             // before Details has a selection so its first ready tree is synchronized.
@@ -389,6 +439,13 @@ namespace
 
         static void CaptureMenuSelection(FPreviewSession& Session,UMCGameplayUIWidget* Widget)
         {
+            if(const auto* Root=Cast<UMCUnifiedUIWidget>(Widget);Root && !Session.bHasUnifiedSelection)
+            {
+                Session.UnifiedScreen=Root->PreviewScreen;
+                Session.UnifiedSettingsTab=FMath::Clamp(Root->PreviewSettingsTab,0,4);
+                Session.UnifiedCulture=Root->PreviewCulture;
+                Session.bHasUnifiedSelection=true;
+            }
             if (Session.bHasMenuSelection) return;
             if (const auto* Menu=Cast<UMCMainMenuWidget>(Widget))
             {
@@ -400,6 +457,16 @@ namespace
 
         static void RestoreMenuSelection(const FPreviewSession& Session,UMCGameplayUIWidget* Widget)
         {
+            if(Widget && Widget->IsDesignTime() && Session.bHasPresentationSelection)
+            {Widget->bOverridePreviewUIVersion=true;Widget->PreviewUIVersion=Session.PresentationVersion;}
+            if(auto* Root=Cast<UMCUnifiedUIWidget>(Widget);Root && Root->IsDesignTime() && Session.bHasUnifiedSelection
+                && !Root->HasAnyFlags(RF_ClassDefaultObject | RF_ArchetypeObject))
+            {
+                Root->PreviewScreen=Session.UnifiedScreen;
+                Root->PreviewSettingsTab=Session.UnifiedSettingsTab;
+                Root->PreviewCulture=Session.UnifiedCulture;
+                Root->PreviewState=FName(*StaticEnum<EMCUnifiedUIScreen>()->GetNameStringByValue(int64(Session.UnifiedScreen)));
+            }
             auto* Menu=Cast<UMCMainMenuWidget>(Widget);
             if (!Menu || !Session.bHasMenuSelection || !Menu->IsDesignTime()
                 || Menu->HasAnyFlags(RF_ClassDefaultObject | RF_ArchetypeObject)) return;
@@ -487,6 +554,120 @@ namespace
                         return FText::GetEmpty();
                     })
                 ];
+        }
+
+        static TSharedRef<SWidget> MakeUnifiedSelector(TWeakPtr<FGameplayPreviewExtender> WeakSelf,TWeakPtr<FWidgetBlueprintEditor> WeakEditor,bool bCulture)
+        {
+            return SNew(SComboButton)
+                .OnGetMenuContent_Lambda([WeakSelf,WeakEditor,bCulture]() -> TSharedRef<SWidget>
+                {
+                    FMenuBuilder Menu(true,nullptr);
+                    auto Add=[&](const FText& Label,EMCUnifiedUIScreen Screen,FString Culture,bool bReady)
+                    {
+                        Menu.AddMenuEntry(Label,FText::GetEmpty(),FSlateIcon(),FUIAction(
+                            FExecuteAction::CreateLambda([WeakSelf,WeakEditor,Screen,Culture,bCulture]
+                            {
+                                if(auto Self=WeakSelf.Pin()) if(auto Editor=WeakEditor.Pin()) {
+                                    auto& Session=Self->SessionFor(Editor.ToSharedRef());Session.bHasUnifiedSelection=true;
+                                    if(bCulture) Session.UnifiedCulture=Culture;else Session.UnifiedScreen=Screen;
+                                    Self->Execute(Editor,0);
+                                }
+                            }),FCanExecuteAction::CreateLambda([bReady]{return bReady;}),
+                            FIsActionChecked::CreateLambda([WeakSelf,WeakEditor,Screen,Culture,bCulture,bReady]
+                            {
+                                if(bReady) if(auto Self=WeakSelf.Pin()) if(const auto* Session=Self->FindSession(WeakEditor.Pin()))
+                                    return bCulture?Session->UnifiedCulture==Culture:Session->UnifiedScreen==Screen;
+                                return false;
+                            })),NAME_None,EUserInterfaceActionType::RadioButton);
+                    };
+                    if(bCulture) for(const auto& Choice:MainMenuPreviewCultures) Add(FText::FromString(Choice.Label),EMCUnifiedUIScreen::Menu,Choice.Code,true);
+                    else {
+                        Add(LOCTEXT("UnifiedMenu","Main menu"),EMCUnifiedUIScreen::Menu,FString(),true);
+                        Add(LOCTEXT("UnifiedHUD","Gameplay HUD"),EMCUnifiedUIScreen::Gameplay,FString(),true);
+                        Add(LOCTEXT("UnifiedSettings","Settings"),EMCUnifiedUIScreen::Settings,FString(),true);
+                        Add(LOCTEXT("UnifiedTeam","Team"),EMCUnifiedUIScreen::Team,FString(),true);
+                        Add(LOCTEXT("UnifiedWardrobe","Wardrobe"),EMCUnifiedUIScreen::Wardrobe,FString(),true);
+                        Add(LOCTEXT("UnifiedShop","Boosters shop"),EMCUnifiedUIScreen::Boosters,FString(),true);
+                        Menu.AddMenuSeparator();
+                        for(const TCHAR* Name:{TEXT("Hub — pending"),TEXT("Tools — pending"),TEXT("Perks — pending")})
+                            Add(FText::FromString(Name),EMCUnifiedUIScreen::Menu,FString(),false);
+                    }
+                    return Menu.MakeWidget();
+                })
+                .ButtonContent()[SNew(STextBlock).Text_Lambda([WeakSelf,WeakEditor,bCulture]
+                {
+                    if(auto Self=WeakSelf.Pin()) if(const auto* Session=Self->FindSession(WeakEditor.Pin())) {
+                        if(bCulture)
+                        {
+                            for(const auto& Choice:MainMenuPreviewCultures)
+                                if(Session->UnifiedCulture==Choice.Code) return FText::FromString(Choice.Label);
+                            return FText::FromString(Session->UnifiedCulture);
+                        }
+                        switch(Session->UnifiedScreen)
+                        {
+                        case EMCUnifiedUIScreen::Menu:return LOCTEXT("UnifiedMenu","Main menu");
+                        case EMCUnifiedUIScreen::Gameplay:return LOCTEXT("UnifiedHUD","Gameplay HUD");
+                        case EMCUnifiedUIScreen::Settings:return LOCTEXT("UnifiedSettings","Settings");
+                        case EMCUnifiedUIScreen::Team:return LOCTEXT("UnifiedTeam","Team");
+                        case EMCUnifiedUIScreen::Wardrobe:return LOCTEXT("UnifiedWardrobe","Wardrobe");
+                        case EMCUnifiedUIScreen::Boosters:return LOCTEXT("UnifiedShop","Boosters shop");
+                        default:return FText::FromString(StaticEnum<EMCUnifiedUIScreen>()->GetNameStringByValue(int64(Session->UnifiedScreen)));
+                        }
+                    }
+                    return FText::GetEmpty();
+                })];
+        }
+
+        static FText UnifiedSettingsTabLabel(int32 Tab)
+        {
+            switch(Tab)
+            {
+            case 1:return LOCTEXT("UnifiedSettingsAudio","Audio");
+            case 2:return LOCTEXT("UnifiedSettingsLanguage","Language");
+            case 3:return LOCTEXT("UnifiedSettingsControls","Controls");
+            case 4:return LOCTEXT("UnifiedSettingsVoice","Voice");
+            default:return LOCTEXT("UnifiedSettingsGraphics","Graphics");
+            }
+        }
+
+        static TSharedRef<SWidget> MakeUnifiedSettingsTabSelector(TWeakPtr<FGameplayPreviewExtender> WeakSelf,TWeakPtr<FWidgetBlueprintEditor> WeakEditor)
+        {
+            return SNew(SComboButton)
+                .Visibility_Lambda([WeakSelf,WeakEditor]
+                {
+                    if(auto Self=WeakSelf.Pin()) if(const auto* Session=Self->FindSession(WeakEditor.Pin()))
+                        return Session->UnifiedScreen==EMCUnifiedUIScreen::Settings?EVisibility::Visible:EVisibility::Collapsed;
+                    return EVisibility::Collapsed;
+                })
+                .OnGetMenuContent_Lambda([WeakSelf,WeakEditor]() -> TSharedRef<SWidget>
+                {
+                    FMenuBuilder Menu(true,nullptr);
+                    for(int32 Tab=0;Tab<5;++Tab)
+                        Menu.AddMenuEntry(UnifiedSettingsTabLabel(Tab),
+                            LOCTEXT("UnifiedSettingsTabHelp","Changes only the transient Designer settings page; player settings stay unchanged."),
+                            FSlateIcon(),FUIAction(
+                                FExecuteAction::CreateLambda([WeakSelf,WeakEditor,Tab]
+                                {
+                                    if(auto Self=WeakSelf.Pin()) if(auto Editor=WeakEditor.Pin())
+                                    {
+                                        auto& Session=Self->SessionFor(Editor.ToSharedRef());
+                                        Session.bHasUnifiedSelection=true;Session.UnifiedSettingsTab=Tab;
+                                        Self->Execute(Editor,0);
+                                    }
+                                }),FCanExecuteAction(),FIsActionChecked::CreateLambda([WeakSelf,WeakEditor,Tab]
+                                {
+                                    if(auto Self=WeakSelf.Pin()) if(const auto* Session=Self->FindSession(WeakEditor.Pin()))
+                                        return Session->UnifiedSettingsTab==Tab;
+                                    return false;
+                                })),NAME_None,EUserInterfaceActionType::RadioButton);
+                    return Menu.MakeWidget();
+                })
+                .ButtonContent()[SNew(STextBlock).Text_Lambda([WeakSelf,WeakEditor]
+                {
+                    if(auto Self=WeakSelf.Pin()) if(const auto* Session=Self->FindSession(WeakEditor.Pin()))
+                        return UnifiedSettingsTabLabel(Session->UnifiedSettingsTab);
+                    return FText::GetEmpty();
+                })];
         }
 
         static TSharedRef<SWidget> MakeButton(const FText& Label,TWeakPtr<FGameplayPreviewExtender> WeakSelf,TWeakPtr<FWidgetBlueprintEditor> Editor,int32 Action)
@@ -581,7 +762,7 @@ namespace
                     Session.Preview=Widget;
                     CaptureMenuSelection(Session,Widget);
                     RestoreMenuSelection(Session,Widget);
-                    if (Widget && Session.bHasMenuSelection)
+                    if (Widget && (Session.bHasMenuSelection || Session.bHasUnifiedSelection))
                     {
                         Widget->ApplyEditorPreview(0.f);
                         MCGameplayUIPreview::SynchronizeFixtureTree(Widget);

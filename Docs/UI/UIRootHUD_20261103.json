@@ -1,0 +1,169 @@
+{
+  "date": "2026-11-03",
+  "scope": "First Menu and Gameplay HUD slice; full redesign remains in progress",
+  "root": "/Game/Gameplay/UI/V2/WBP_UIRoot",
+  "reference": "D:/sda/visua2.psd",
+  "toolArt": [
+    "Tool.Brush",
+    "Tool.Pickaxe",
+    "Tool.Knife",
+    "Tool.Spray",
+    "ToolUpgrade.MeshaBrush",
+    "ToolUpgrade.Watergun",
+    "ToolUpgrade.Chainsaw"
+  ],
+  "perkArt": {
+    "source": "DT_Perks.Icon",
+    "modified": false,
+    "decision": "Separate task; user will author perk icons in the existing DT."
+  },
+  "editableShapes": "Saved UMG hierarchy and Universal Content slots; editable rounded polygon contours, panels, buttons, progress, anchors; no raster panel bake",
+  "validation": {
+    "passed": true,
+    "soloOnly": true,
+    "actualInput": "native Slate F3/pointer and Gamepad_DPad_Up",
+    "f3CurrentNewCurrent": true,
+    "oneSourceHUD": true,
+    "localHealthAndStaminaMatch": true,
+    "toolSelectionUpdatesPSDArt": true,
+    "perkSlotReadsExistingData": {
+      "name": "Граната",
+      "charges": 3,
+      "DT_PerksModified": false
+    },
+    "currentRestored": true,
+    "limitations": [
+      "Rare alerts/swim/death paths retained in source; not all scenarios triggered",
+      "No network or packaged cold-launch PSO test",
+      "Generic ApplyDamage test did not alter tooth status; no non-full HP case claimed",
+      "Repeated native pointer clicks sometimes focused without activation; focused Enter reliably toggled. Hardware pointer path unverified."
+    ],
+    "restorationEvidence": "Latest.json from fresh runtime probe",
+    "activation": "native pointer plus focused-button Enter; not hardware mouse validation"
+  },
+  "previews": {
+    "root": "/Game/Gameplay/UI/V2/WBP_UIRoot",
+    "status": "complete",
+    "renders": [
+      {
+        "file": "E:\\CodexWork\\MessControl\\Validation\\UIRootPSD_20261103\\Menu_RU.png",
+        "screen": "Menu",
+        "language": "ru",
+        "size": [
+          1920,
+          1080
+        ],
+        "scale": 1
+      },
+      {
+        "file": "E:\\CodexWork\\MessControl\\Validation\\UIRootPSD_20261103\\Menu_EN.png",
+        "screen": "Menu",
+        "language": "en",
+        "size": [
+          1920,
+          1080
+        ],
+        "scale": 1
+      },
+      {
+        "file": "E:\\CodexWork\\MessControl\\Validation\\UIRootPSD_20261103\\Menu_DE_720.png",
+        "screen": "Menu",
+        "language": "de",
+        "size": [
+          1280,
+          720
+        ],
+        "scale": 1
+      },
+      {
+        "file": "E:\\CodexWork\\MessControl\\Validation\\UIRootPSD_20261103\\Menu_RU_Ultrawide.png",
+        "screen": "Menu",
+        "language": "ru",
+        "size": [
+          2560,
+          1080
+        ],
+        "scale": 1
+      },
+      {
+        "file": "E:\\CodexWork\\MessControl\\Validation\\UIRootPSD_20261103\\Menu_JA_DPI150.png",
+        "screen": "Menu",
+        "language": "ja",
+        "size": [
+          1920,
+          1080
+        ],
+        "scale": 1.5
+      },
+      {
+        "file": "E:\\CodexWork\\MessControl\\Validation\\UIRootPSD_20261103\\Gameplay_RU_Prototype.png",
+        "screen": "Gameplay",
+        "language": "ru",
+        "size": [
+          1920,
+          1080
+        ],
+        "scale": 1
+      },
+      {
+        "file": "E:\\CodexWork\\MessControl\\Validation\\UIRootPSD_20261103\\Gameplay_DE_720.png",
+        "screen": "Gameplay",
+        "language": "de",
+        "size": [
+          1280,
+          720
+        ],
+        "scale": 1
+      },
+      {
+        "file": "E:\\CodexWork\\MessControl\\Validation\\UIRootPSD_20261103\\Gameplay_JA_720.png",
+        "screen": "Gameplay",
+        "language": "ja",
+        "size": [
+          1280,
+          720
+        ],
+        "scale": 1
+      },
+      {
+        "file": "E:\\CodexWork\\MessControl\\Validation\\UIRootPSD_20261103\\Gameplay_RU_Ultrawide.png",
+        "screen": "Gameplay",
+        "language": "ru",
+        "size": [
+          2560,
+          1080
+        ],
+        "scale": 1
+      }
+    ],
+    "renderScheduling": "one fixture per separate editor frame; same-frame batch exports were incomplete",
+    "isolation": "Runtime UI selection and language unchanged"
+  },
+  "localization": {
+    "newKeys": 15,
+    "languages": 10,
+    "sharedRootKeysPatched": 7,
+    "emptyCellsFilled": 58,
+    "existingTranslationsPreserved": true,
+    "legacyCopy": "Other existing tool/event/perk/status translations can still fall back to RU; full game translation is pending."
+  },
+  "resources": "Root and reflected ToolIconArt/theme/font/logo are reachable before readiness. Native glyph material root explicit. Packaged cold PSO not checked.",
+  "photoshopIncident": {
+    "exception": "c00000fd / STATUS_STACK_OVERFLOW",
+    "originalSavedPSDSHA256": "7CB834D75CFE88632E2D1C32DC688FF0107A3EFA1AC2E661BEDE2B752A2BA756",
+    "savedPSDUnchanged": true,
+    "exactTrigger": "Unproven; no application quit was requested",
+    "sourcePNGExports": 13
+  },
+  "pending": [
+    "Remaining screens/menu pages",
+    "Rare HUD runtime scenarios",
+    "Non-full HP/depleted stamina",
+    "Hardware pointer validation",
+    "Final artistic review",
+    "Separate user-authored perk icons",
+    "Remaining localization copy"
+  ],
+  "evidence": "E:/CodexWork/MessControl/Validation/UIRootHUD_20261103",
+  "editorEndState": "PIE stopped; play settings/throttle restored; Current UI selected; WBP_UIRoot Designer left open."
+}

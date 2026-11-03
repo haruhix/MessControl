@@ -1,0 +1,407 @@
+{
+  "project": "MessControl",
+  "root": "E:/DEVGAME/MessControl",
+  "date": "2026-11-03",
+  "status": "Menu/HUD, Settings/TEAM and now Wardrobe/Boosters Shop are present in the single 121-widget root preview/runtime. Scoped commerce Editor build and solo checks passed; other screens and full visual acceptance remain pending. Current evidence: Docs/UI/UICommerce_20261104.json.",
+  "reference": {
+    "path": "D:/sda/visua2.psd",
+    "sha256": "7CB834D75CFE88632E2D1C32DC688FF0107A3EFA1AC2E661BEDE2B752A2BA756",
+    "width": 5948,
+    "height": 6783,
+    "artboards": 11,
+    "layers": 416,
+    "reviewedPreviews": "E:/CodexWork/MessControl/Validation/UIRedesign_20261103/ArtboardPreviews.json",
+    "visualScope": "10 nonempty artboards inspected; one blank artboard excluded",
+    "font": {
+      "source": "D:/sda/LeFunFont/LeFunFont-Regular.otf",
+      "family": "LeFunFont",
+      "style": "Regular",
+      "postscriptName": "LeFunFont-Regular",
+      "sha256": "19930ad7572f3ad6c282a2471b5cb3c1ab0a61080244b1646ef45e34f0211c4a",
+      "coverage": "Latin letters/digits and Russian alphabet supported; exact 151-codepoint Latin/Russian subset configured. Missing ASCII symbols, accents and CJK/Japanese/Korean use composite-font fallbacks.",
+      "inspection": "E:/CodexWork/MessControl/Validation/UIRedesign_20261103/FontInspection.json",
+      "licensingNote": "Provided license.txt contains copyright/contact only; full embedding/distribution terms remain an integration check. Raw OS/2 fsType is 4."
+    }
+  },
+  "confirmedDecisions": [
+    "Переделать весь пользовательский интерфейс, включая меню.",
+    "Переносить оформление максимально близко к PSD с адаптацией к актуальным игровым данным и разрешениям.",
+    "Сохранить существующую 3D-сцену главного меню; новый UI размещается поверх неё.",
+    "F3 открывает панель с одной кнопкой переключения текущего и нового UI.",
+    "Панель справа под четырьмя игроками на GAMEPLAY UI отображает следующее событие из существующего источника данных.",
+    "Панели, рамки, кнопки и полосы должны быть редактируемыми формами и элементами UMG.",
+    "Для иконок и логотипа разрешены отдельные изображения в UMG Image.",
+    "Нужен новый универсальный виджет с превью, правильными якорями и полной интеграцией локализации.",
+    "Работу с Photoshop выполнять через MCP; Computer Use для разбора макета не нужен.",
+    "Сейчас делать только UI существующей рыбалки; новую механику и новые категории улова вынести в отдельный этап.",
+    "Источник шрифта: D:/sda/LeFunFont/LeFunFont-Regular.otf; локализации дополняются составными шрифтами с fallback.",
+    "Универсальный виджет — единый корневой WBP_UIRoot с выбором экрана и языка в превью, а не только общий компонент или перекраска.",
+    "Иконки перков пользователь добавит отдельной задачей через DT_Perks.Icon; текущий этап не меняет DT_Perks и не создаёт частную карту иконок перков.",
+    "2026-11-04: интерфейс должен адаптировать размеры контейнеров, переносы и компоновку под реальный текст и локализации; нельзя подгонять текст уменьшением шрифта или скрывать его многоточием.",
+    "2026-11-04: расширение каталога одежды выполнять только после завершения всего интерфейса; пока зафиксировать отдельную очередь требований, не создавать таблицу или игровую реализацию."
+  ],
+  "currentArchitecture": [
+    {
+      "path": "Source/MessControl/Public/MCGameplayUIWidget.h",
+      "finding": "Общая UMG-база уже содержит Theme, StyleBindings, TextBindings, TranslationTable, PreviewScenario/State/Culture/Time и флаг bUseNativeLayout."
+    },
+    {
+      "path": "Source/MessControl/Private/MCGameplayUIWidget.cpp",
+      "finding": "Наследование темы и таблицы переводов, обновление по смене языка/таблицы, отдельное применение Designer fixtures."
+    },
+    {
+      "path": "Source/MessControl/Private/MCGameplayUIFactory.cpp",
+      "finding": "Current/New используют темы и карты ролей; новый корень и Settings/TEAM/Wardrobe/Shop разрешаются общей фабрикой с проверкой native-класса."
+    },
+    {
+      "path": "Source/MessControlEditor/Private/MCGameplayUIPreview.cpp",
+      "finding": "Root preview выбирает Menu, Gameplay HUD, Settings, TEAM, Wardrobe и Boosters Shop; язык и пять вкладок Settings хранятся в сессии Designer. Сохранённый корень содержит 121 виджет."
+    },
+    {
+      "path": "Source/MessControl/Private/MCUIDataLibrary.cpp",
+      "finding": "Существующий каталог локализации и культурно-зависимое форматирование чисел, шаблонов и множественных форм."
+    },
+    {
+      "path": "Source/MessControl/Private/MCPlayerController.cpp",
+      "finding": "F3 привязана к игровому контроллеру; ToggleDevPanel блокируется при наградах и интро босса."
+    },
+    {
+      "path": "Source/MessControl/Private/MCGameplayHUD.cpp",
+      "finding": "Существующий HUD получает актуальные данные и выполняет native layout corrections; новая авторская геометрия должна сохраняться."
+    },
+    {
+      "path": "Source/MessControl/Private/MCPreloadManifest.cpp",
+      "finding": "Новые UI-ресурсы должны оставаться достижимыми и подготовленными до readiness barrier соответствующей локации."
+    }
+  ],
+  "tasks": [
+    {
+      "id": "UI-01",
+      "priority": "P0",
+      "title": "Карта экранов и состояний",
+      "work": "Сопоставить PSD с native-ролями, authored WBP, таблицами и реальными источниками данных; зафиксировать состояния старой версии для сравнения.",
+      "acceptance": [
+        "Полный список игровых и меню-экранов с ответственными классами.",
+        "Статические числа, названия и цены PSD не заменяют игровые данные.",
+        "Сохранённые пакеты проверяются актуальным Unreal/exporter перед изменением."
+      ]
+    },
+    {
+      "id": "UI-02",
+      "priority": "P0",
+      "title": "Новый универсальный виджет и общие компоненты",
+      "work": "Составная оболочка и семейство переиспользуемых форм на существующей базе UMCGameplayUIWidget: панели, рамки, тени, кнопки, вкладки, счётчики, прогресс, слоты, карточки, подсказки, модальные окна.",
+      "acceptance": [
+        "Формы, отступы, радиусы, обводка, тень, цвета и текст редактируются в UMG/Details.",
+        "Иконки и логотип являются отдельными ресурсами.",
+        "Экраны сохраняют действующие native-контракты ролей и общие игровые данные.",
+        "Native corrections не перезаписывают авторскую геометрию новой версии."
+      ]
+    },
+    {
+      "id": "UI-03",
+      "priority": "P0",
+      "title": "Общее редакторское превью",
+      "work": "Расширить существующий Details/Designer preview для универсальных компонентов и всех экранов: версия, роль/экран, состояние, язык, экран/DPI, временная шкала.",
+      "acceptance": [
+        "Preview/Play/Stop/Reset, обычное/hover/pressed/disabled/focus, пустые и заполненные состояния.",
+        "Сценарии длинного текста, низких ресурсов, 1–4 игроков и наград.",
+        "Превью использует настоящие представления без создания gameplay actors, сохранения профиля и смены игрового языка."
+      ],
+      "progress": {
+        "date": "2026-11-04",
+        "implemented": "Menu/Gameplay HUD/Settings/TEAM/Wardrobe/Boosters Shop root chooser, isolated language and five Settings tabs; saved root 121 widgets.",
+        "pending": "All remaining screens/states and full visual acceptance.",
+        "evidence": "Docs/UI/UICommerce_20261104.json"
+      }
+    },
+    {
+      "id": "UI-04",
+      "priority": "P0",
+      "title": "Якоря, адаптивность и локализация",
+      "work": "Угловые anchors/alignment для HUD, центрирование/ограничения модальных окон, Safe Zone/DPI, гибкие строки и сетки; все тексты через существующие ключи и FText.",
+      "acceptance": [
+        "Сравнение на 1280x720, 1920x1080, 2560x1440 и ultrawide.",
+        "Длинные имена, переводы и списки не перекрывают соседние элементы.",
+        "Числа, таймеры, цены, описания, подсказки и обозначения ввода обновляются из актуальных данных.",
+        "Составные шрифты покрывают поддерживаемые языки; источник и право встраивания шрифтов проверены.",
+        "Размеры и компоновка адаптируются под локализованный текст с сохранением заданного размера шрифта; уменьшение шрифта и многоточие не используются для маскировки переполнения."
+      ],
+      "progress": {
+        "date": "2026-11-04",
+        "implemented": "Adaptive container/wrapping contract preserved; current commerce preview/runtime included.",
+        "pending": "Complete review of long words/localizations across all screens; no full acceptance claim.",
+        "evidence": "Docs/UI/UICommerce_20261104.json"
+      }
+    },
+    {
+      "id": "UI-05",
+      "priority": "P0",
+      "title": "Переключение в F3",
+      "work": "Два профиля оформления и классов текущий/новый; одна локальная кнопка в F3 с индикацией выбранной версии, работающая в главном меню, хабе и игре.",
+      "acceptance": [
+        "Переключаются layout, формы, типографика, иконки и вложенные компоненты.",
+        "Сохраняются открытый экран, выделение, прокрутка, фокус и текущие игровые значения.",
+        "Нет повторных наград, покупок или обработчиков событий.",
+        "Выбор переживает переходы между картами; сохранение между запусками — локальная настройка."
+      ],
+      "progress": {
+        "date": "2026-11-04",
+        "implemented": "Commerce F3 New/Current/New checked via native Slate on both screens, including focus/reopening; existing Menu/HUD/Settings/TEAM routes retained.",
+        "pending": "Other screens and hardware-input coverage.",
+        "evidence": "Docs/UI/UICommerce_20261104.json"
+      }
+    },
+    {
+      "id": "UI-06",
+      "priority": "P1",
+      "title": "Новый игровой HUD",
+      "work": "Счётчик резервных зубов/чистота сверху слева, четыре игрока и следующее событие справа, выбранный инструмент и ресурсы снизу слева, четыре активных слота снизу справа; остальные существующие индикаторы получают согласованный стиль.",
+      "acceptance": [
+        "Блок следующего события использует текущий источник.",
+        "Количество зубов, HP, выносливость, заряды и cooldown отражают настоящее состояние.",
+        "Сохраняется отображение боссов, предупреждений, помощи, смерти/возрождения и прочих актуальных состояний.",
+        "Клавиши берутся из действующего управления."
+      ]
+    },
+    {
+      "id": "UI-07",
+      "priority": "P1",
+      "title": "Меню, настройки и команда",
+      "work": "Главное меню поверх существующей сцены; лобби/подключение/F2, пауза, TAB, вкладки настроек, подтверждения и титры на общих элементах.",
+      "acceptance": [
+        "Все страницы имеют тот же визуальный язык PSD.",
+        "Смена страницы, назад/закрыть, курсор и фокус сохраняют текущую функциональность.",
+        "Предусмотрены hover/pressed/disabled/selected/focus и реальные сообщения ошибок."
+      ],
+      "progress": {
+        "date": "2026-11-04",
+        "implemented": "Main menu, Settings Graphics/Audio/Language/Controls/Voice and TEAM view integrated with existing owners.",
+        "pending": "Other menu pages, lobby/join/pause/credits, complete state coverage and artistic acceptance.",
+        "evidence": "Docs/UI/UISettingsTeam_20261104.json"
+      }
+    },
+    {
+      "id": "UI-08",
+      "priority": "P1",
+      "title": "Хаб, магазин, гардероб, награды и рыбалка",
+      "work": "Воссоздать сетки, карточки деталей, цены, валюту, готовность команды, выбор наград и представления улова; связать с текущими каталогами и принятыми событиями.",
+      "acceptance": [
+        "Иконки привязаны к стабильным ID актуальных перков, инструментов и предметов.",
+        "Куплено/экипировано/недоступно/пусто и длинные описания видны корректно.",
+        "Правила покупки, награды, RNG и экономики остаются у действующего gameplay owner.",
+        "Текущий этап оформляет существующую рыбалку; шкала броска, мини-игра крючка и новые категории улова относятся к отдельному этапу."
+      ],
+      "progress": {
+        "date": "2026-11-04",
+        "implemented": "Wardrobe and Boosters Shop root preview/runtime backed by existing draft/catalog/economy; real Hub open/try-on/Back, temporary-profile Buy, F3 and GC reopening checks passed.",
+        "pending": "Hub overview, Tools/Perks, rewards, fishing UI, other screens and complete visual acceptance.",
+        "evidence": "Docs/UI/UICommerce_20261104.json"
+      }
+    },
+    {
+      "id": "UI-09",
+      "priority": "P1",
+      "title": "Остальные экраны, ресурсы и проверка",
+      "work": "Довести загрузку, обучение, эмоции, результаты, мировые подписи и остальные пользовательские экраны; зарегистрировать ресурсы двух вариантов в подготовке нужных локаций.",
+      "acceptance": [
+        "Новые шрифты, brush/материалы и иконки готовы до первого показа/переключения.",
+        "Новые или изменённые reward/feedback VFX имеют источник и действие в VFX Composer, когда применимо.",
+        "Сохранение/повторное открытие WBP и Designer edits сохраняют дерево и геометрию.",
+        "После интеграции — короткий solo PIE и визуальное сравнение с PSD; network/build/cook/package остаются отдельными явно запрашиваемыми проверками."
+      ]
+    }
+  ],
+  "questionsPending": [],
+  "deferredScope": [
+    {
+      "id": "FISHING-MECHANICS",
+      "title": "Новая механика рыбалки из PSD",
+      "work": "Шкала броска, удержание крючка в движущейся зоне, новые типы улова TRASH/THIEF/CURSED и связанные игровые решения.",
+      "status": "Отдельный этап по явному решению пользователя; не входит в текущую переделку UI."
+    },
+    {
+      "id": "PERK-ICONS",
+      "title": "Иконки перков через DT_Perks.Icon",
+      "work": "Пользователь отдельно заполняет изображения в существующей DT_Perks. Новый root читает это поле.",
+      "status": "Отдельная задача по явному решению пользователя; DT_Perks в этом этапе не изменена."
+    },
+    {
+      "id": "CLOTHING-CATALOG-AFTER-UI",
+      "title": "Каталог одежды после завершения интерфейса",
+      "work": "Отдельная будущая задача: данные одежды и выбранная строка с примеркой настоящего меша на персонаже.",
+      "status": "Только очередь требований; реализация и создание таблицы сейчас не начаты.",
+      "requirements": "Docs/UI/ClothingCatalogNext_20261104.json"
+    }
+  ],
+  "validationAndLimits": {
+    "asOf": "2026-11-04",
+    "currentScopeReport": "Docs/UI/UICommerce_20261104.json",
+    "commerceChecks": {
+      "date": "2026-11-04",
+      "scope": "Wardrobe and Boosters Shop source-backed integration; short local solo PIE only.",
+      "editorBuild": "PASS: MessControlEditor build.",
+      "wardrobe": "PASS: real Hub open, source-owned Cowboy try-on while unowned, Back.",
+      "shopPurchase": "PASS: real Hub shop open and source-backed Buy in the temporary profile; 800 to 770 coins and 3 charges.",
+      "f3": "PASS via native Slate: New to Current to New on both Wardrobe and Shop; focus and reopening checked.",
+      "gc": "PASS: GC followed by shop reopening.",
+      "restoration": "Original wallet, inventory, stock IDs, pawn position and play settings restored.",
+      "evidence": "E:/CodexWork/MessControl/Validation/UICommerce_20261104",
+      "report": "Docs/UI/UICommerce_20261104.json",
+      "notClaimed": [
+        "Full artistic acceptance",
+        "Complete long-word/localization wrapping review across all screens",
+        "Network/multiplayer",
+        "Cook/package or packaged cold-launch PSO",
+        "Hardware mouse/keyboard delivery",
+        "Rerun of the historical three native tests"
+      ]
+    },
+    "sourceOfTruth": "Current source and saved Unreal packages; index evidence retains its documented freshness limits.",
+    "historicalResults": "2026-11-03 Menu/HUD tests and earlier Settings/TEAM results remain in validationHistory/linked dated reports; not presented as freshly rerun.",
+    "visualLimits": "Seven wardrobe icons remain existing 3D thumbnails; missing DT_Perks.Icon values are preserved; full long-word/localization wrapping review and final artistic acceptance are pending.",
+    "coverageLimits": "No multiplayer/network, cook/package, packaged cold-launch PSO or hardware-input result is claimed."
+  },
+  "implementationEvidence": [
+    "Docs/UI/UIFoundation_20261103.json",
+    "Docs/UI/UIRootHUD_20261103.json",
+    "Docs/UI/UISettingsTeam_20261104.json",
+    "Docs/UI/UICommerce_20261104.json",
+    "Docs/UI/ClothingCatalogNext_20261104.json"
+  ],
+  "firstSliceCheckpoint": {
+    "done": [
+      "Editable WBP_UIRoot Menu/Gameplay",
+      "Universal shape/button/progress/contour components",
+      "Screen/language preview and anchored layouts",
+      "Development F3 Current/New switching",
+      "Seven original PSD tool/upgrades brushes",
+      "Live HUD sources and Current restoration"
+    ],
+    "pending": [
+      "Other screens and full Menu pages",
+      "Perk icons through DT_Perks (user task)",
+      "Rare HUD runtime scenarios",
+      "Full artistic acceptance",
+      "Remaining legacy translation copy"
+    ],
+    "recordedForSliceDate": "2026-11-03"
+  },
+  "lastUpdated": "2026-11-04",
+  "validationHistory": [
+    {
+      "date": "2026-11-03",
+      "scope": "Initial source/reference audit and Menu/HUD implementation checkpoint.",
+      "validationAndLimits": {
+        "sourceFilesRead": true,
+        "graphUsed": true,
+        "citedSourceChecked": true,
+        "graphCoverage": "UE reflection declarations are partially parsed; source is authoritative.",
+        "savedAssetEvidence": "Asset server responds but build_current=false and snapshots are schema_changed; saved property coverage is not claimed current.",
+        "liveUnreal": "Connected via unreal_epic; saved root authored and short standalone solo PIE completed.",
+        "photoshopMCP": "PSD/artboards/layers read via Photoshop MCP; 13 source PNGs exported from task-owned duplicates. Photoshop later crashed with c00000fd stack overflow; exact cause unproven. Original saved PSD SHA-256 unchanged.",
+        "previews": "For inspection only: saved PSD merged composite cropped at MCP-reported bounds; no runtime UI is baked into these PNGs.",
+        "referenceUnchanged": true,
+        "implementationStarted": true,
+        "gameBuildRun": false,
+        "gameplayRun": true,
+        "editorBuildRun": true,
+        "cookPackageRun": false,
+        "nativeTests": "3 focused tests passed during the slice; final HUD cache fix rebuilt and checked in solo PIE.",
+        "coverageLimits": "Remaining screens/rare HUD paths, depleted resources, hardware pointer delivery, network and packaged cold-launch PSO are not validated."
+      },
+      "checkpoint": {
+        "done": [
+          "Editable WBP_UIRoot Menu/Gameplay",
+          "Universal shape/button/progress/contour components",
+          "Screen/language preview and anchored layouts",
+          "Development F3 Current/New switching",
+          "Seven original PSD tool/upgrades brushes",
+          "Live HUD sources and Current restoration"
+        ],
+        "pending": [
+          "Other screens and full Menu pages",
+          "Perk icons through DT_Perks (user task)",
+          "Rare HUD runtime scenarios",
+          "Full artistic acceptance",
+          "Remaining legacy translation copy"
+        ]
+      }
+    },
+    {
+      "date": "2026-11-04",
+      "phase": "settings_team_before_commerce",
+      "scope": "Earlier Settings/TEAM checkpoint; historical checks retain their original scope.",
+      "validationAndLimits": {
+        "asOf": "2026-11-04",
+        "currentScopeReport": "Docs/UI/UISettingsTeam_20261104.json",
+        "sourceOfTruth": "Current source and saved Unreal packages. Derived index freshness and runtime evidence retain the scope of their dated audits.",
+        "historicalResults": "2026-11-03 source/reference audit, Editor builds, three focused tests and Menu/HUD solo PIE remain under validationHistory; no fresh rerun is implied.",
+        "adaptiveRequirement": "User requires layout/container growth and wrapping for real localized text, preserving font size and avoiding ellipsis; full cross-screen visual acceptance is pending.",
+        "coverageLimits": "Settings/TEAM validation must be read from the current report. Remaining windows, rare HUD paths, hardware input, network and packaged cold-launch PSO are not assumed covered."
+      },
+      "checkpoint": {
+        "date": "2026-11-04",
+        "implemented": [
+          "Editable WBP_UIRoot Menu/Gameplay HUD",
+          "Editable WBP_UISettings and WBP_UITeam components",
+          "Five Settings tabs using original control/state owners",
+          "Root screen/language and Settings-tab preview",
+          "Current/New presentation integration",
+          "Adaptive text/layout policy from the user"
+        ],
+        "pending": [
+          "Remaining Hub/shop/wardrobe/reward/fishing UI and other menu pages",
+          "Review earlier Menu/HUD layouts under the new adaptive text requirement",
+          "Rare HUD and remaining Settings/TEAM scenarios identified in the current report",
+          "Complete artistic acceptance",
+          "User-authored perk icons in DT_Perks",
+          "Remaining legacy translation copy"
+        ],
+        "evidence": "Docs/UI/UISettingsTeam_20261104.json"
+      }
+    }
+  ],
+  "currentCheckpoint": {
+    "date": "2026-11-04",
+    "savedRootWidgets": 121,
+    "implemented": [
+      "Menu and Gameplay HUD",
+      "Settings with five tabs and TEAM",
+      "Wardrobe and Boosters Shop preview/runtime in the shared root",
+      "Source-owned draft, catalog, purchases and participant actions",
+      "Commerce native Slate Current/New switching and focus",
+      "Three mapped original PSD wardrobe glyphs"
+    ],
+    "commerceChecks": {
+      "date": "2026-11-04",
+      "scope": "Wardrobe and Boosters Shop source-backed integration; short local solo PIE only.",
+      "editorBuild": "PASS: MessControlEditor build.",
+      "wardrobe": "PASS: real Hub open, source-owned Cowboy try-on while unowned, Back.",
+      "shopPurchase": "PASS: real Hub shop open and source-backed Buy in the temporary profile; 800 to 770 coins and 3 charges.",
+      "f3": "PASS via native Slate: New to Current to New on both Wardrobe and Shop; focus and reopening checked.",
+      "gc": "PASS: GC followed by shop reopening.",
+      "restoration": "Original wallet, inventory, stock IDs, pawn position and play settings restored.",
+      "evidence": "E:/CodexWork/MessControl/Validation/UICommerce_20261104",
+      "report": "Docs/UI/UICommerce_20261104.json",
+      "notClaimed": [
+        "Full artistic acceptance",
+        "Complete long-word/localization wrapping review across all screens",
+        "Network/multiplayer",
+        "Cook/package or packaged cold-launch PSO",
+        "Hardware mouse/keyboard delivery",
+        "Rerun of the historical three native tests"
+      ]
+    },
+    "pending": [
+      "Hub overview, standalone Tools/Perks pages, rewards, fishing UI and the other unconverted screens/menu pages.",
+      "Full visual review of long words and localizations across all screens under the adaptive text requirement.",
+      "Replace/review seven remaining wardrobe 3D thumbnails if original PSD-style icons become available.",
+      "Perk artwork remains a separate user-authored DT_Perks.Icon task; missing icons are preserved without a private override map.",
+      "Rare HUD and other unresolved scenarios remain bounded by the earlier dated reports.",
+      "Clothing catalog extension is queued only after the whole interface is complete; no table or gameplay implementation starts now."
+    ],
+    "evidence": "Docs/UI/UICommerce_20261104.json",
+    "nextQueue": "Docs/UI/ClothingCatalogNext_20261104.json"
+  }
+}

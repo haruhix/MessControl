@@ -30,15 +30,26 @@
 
 UMCGameplayUITheme* UMCGameplayUIWidget::GetResolvedTheme() const
 {
-    if (IsValid(Theme)) return Theme;
+    const auto* Parent=GetTypedOuter<UMCGameplayUIWidget>();
+    if(IsDesignTime() && !Parent && bOverridePreviewUIVersion) return UMCGameplayUIFactory::GetThemeForVersion(PreviewUIVersion);
+    // The palette editor explicitly assigns its selected asset to a Designer
+    // root. That choice must not follow the running player's F3 preference.
+    if(IsDesignTime() && !Parent && IsValid(Theme)) return Theme;
+    if (IsValid(Theme))
+    {
+        return Theme;
+    }
     // A parent override remains inherited; it must not be copied into a child's independent override.
-    if (const auto* Parent=GetTypedOuter<UMCGameplayUIWidget>()) return Parent->GetResolvedTheme();
+    if (Parent) return Parent->GetResolvedTheme();
     return UMCGameplayUIFactory::GetMasterTheme();
 }
 
 FText UMCGameplayUIWidget::Localized(FName Key,const FText& Fallback) const
 {
-    return UMCUIDataLibrary::ResolveText(GetResolvedTranslationTable(),Key,Fallback,IsDesignTime()?PreviewCulture:FString());
+    const auto* PreviewOwner=this;
+    while(const auto* Parent=PreviewOwner->GetTypedOuter<UMCGameplayUIWidget>()) PreviewOwner=Parent;
+    return UMCUIDataLibrary::ResolveText(GetResolvedTranslationTable(),Key,Fallback,
+        PreviewOwner->IsDesignTime()?PreviewOwner->PreviewCulture:FString());
 }
 
 UDataTable* UMCGameplayUIWidget::GetResolvedTranslationTable() const
@@ -157,6 +168,7 @@ TSharedRef<SWidget> UMCGameplayUIWidget::RebuildWidget()
     Initialize();
     BuildPresentationTree();
     ObserveTheme();
+    ObservePresentation();
     ObserveLocalization();
     return Super::RebuildWidget();
 }
@@ -165,6 +177,7 @@ void UMCGameplayUIWidget::NativePreConstruct()
 {
     BuildPresentationTree();
     ObserveTheme();
+    ObservePresentation();
     ObserveLocalization();
     Super::NativePreConstruct();
     // The parent owns fixtures for a composed screen. A late child PreConstruct
@@ -177,12 +190,14 @@ void UMCGameplayUIWidget::NativeConstruct()
 {
     Super::NativeConstruct();
     ObserveTheme();
+    ObservePresentation();
     ObserveLocalization();
     ApplyTheme();
 }
 
 void UMCGameplayUIWidget::NativeDestruct()
 {
+    UMCGameplayUIFactory::OnPresentationChanged().Remove(PresentationHandle);PresentationHandle.Reset();
     UnobserveLocalization();
     if (auto* Previous=ObservedTheme.Get()) Previous->OnThemeChanged.Remove(ThemeHandle);
     ObservedTheme.Reset();
@@ -192,6 +207,7 @@ void UMCGameplayUIWidget::NativeDestruct()
 
 void UMCGameplayUIWidget::BeginDestroy()
 {
+    UMCGameplayUIFactory::OnPresentationChanged().Remove(PresentationHandle);PresentationHandle.Reset();
     UnobserveLocalization();
     OriginalLocalizedCopy.Reset();
     if (auto* Previous=ObservedTheme.Get()) Previous->OnThemeChanged.Remove(ThemeHandle);
@@ -229,6 +245,18 @@ void UMCGameplayUIWidget::ObserveTheme()
             ApplyTheme();
             InvalidateLayoutAndVolatility();
         });
+}
+
+void UMCGameplayUIWidget::ObservePresentation()
+{
+    if(PresentationHandle.IsValid()) return;
+    PresentationHandle=UMCGameplayUIFactory::OnPresentationChanged().AddWeakLambda(this,[this]
+    {
+        ObserveTheme();
+        ApplyTheme();
+        RefreshLocalization();
+        InvalidateLayoutAndVolatility();
+    });
 }
 
 void UMCGameplayUIWidget::BindStyle(FName Name,EMCUIColorToken Color,EMCUIStyleTarget Target,int32 Size,bool bBold)

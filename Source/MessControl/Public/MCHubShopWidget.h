@@ -59,6 +59,10 @@ public:
     UFUNCTION(BlueprintCallable, Category="Shop") void SelectCatalogItem(FName ItemID);
     UFUNCTION(BlueprintCallable, Category="Shop") void SelectReplacementSlot(int32 SlotIndex);
     UFUNCTION(BlueprintCallable, Category="Shop") void SetTransactionMessage(const FText& Message);
+    /** Read-only selected identity for alternate UMG presentation. */
+    FName GetSelectedPresentationItemID() const { return SelectedItemID; }
+    /** Shared Escape/B policy: cancel replacement first, otherwise close. */
+    void RequestPresentationBack();
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Shop") TSubclassOf<UMCCosmeticItemWidget> ProductCardClass;
     virtual void BuildPresentationTree() override;
     virtual void ApplyTheme() override;

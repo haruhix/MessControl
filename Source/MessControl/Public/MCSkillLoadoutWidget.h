@@ -7,6 +7,7 @@ class UTextBlock;
 class UImage;
 class UWrapBox;
 class UScrollBox;
+class UHorizontalBox;
 /** Presentation of PlayerState loadout; no independent ownership or activation state. */
 UCLASS()
 class MESSCONTROL_API UMCSkillLoadoutWidget : public UMCGameplayUIWidget
@@ -15,7 +16,12 @@ class MESSCONTROL_API UMCSkillLoadoutWidget : public UMCGameplayUIWidget
 public:
     virtual void BuildPresentationTree() override;
     void Refresh(const UMCPerkComponent* Perks);
+    /** Replace only active slots; keep the existing passive presentation alive. */
+    void SetActiveSlotsVisible(bool bVisible);
 private:
+    UPROPERTY(Transient) TObjectPtr<UHorizontalBox> ActiveSlotsRow;
+    ESlateVisibility ActiveSlotsVisibility=ESlateVisibility::Visible;
+    bool bActiveSlotsHidden=false;
     UPROPERTY(Transient) TArray<TObjectPtr<UTextBlock>> Titles;
     UPROPERTY(Transient) TArray<TObjectPtr<UTextBlock>> StatusLabels;
     UPROPERTY(Transient) TArray<TObjectPtr<UImage>> Icons;

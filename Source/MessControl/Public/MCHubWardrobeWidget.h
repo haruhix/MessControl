@@ -60,6 +60,9 @@ public:
     UFUNCTION(BlueprintPure, Category="Wardrobe") FLinearColor GetDraftColor() const {return DraftColor;}
     UFUNCTION(BlueprintCallable,Category="Wardrobe") void ConfigureCosmetics(UMCHubEconomyComponent* Economy);
     UFUNCTION(BlueprintCallable,Category="Wardrobe") void SetTransactionMessage(const FText& Message);
+    /** Read-only presentation bridges; the native wardrobe remains the action owner. */
+    const TArray<TObjectPtr<UMCCosmeticItemWidget>>& GetUnifiedCosmeticTiles() const {return CosmeticTiles;}
+    UMCHubEconomyComponent* GetUnifiedEconomy() const {return CosmeticEconomy.Get();}
     UFUNCTION(BlueprintPure,Category="Wardrobe") FMCCharacterCosmeticLoadout GetDraftLoadout() const {return DraftLoadout;}
     /** The local draft may contain unowned try-on items; only this sanitized loadout may be equipped. */
     UFUNCTION(BlueprintPure,Category="Wardrobe") FMCCharacterCosmeticLoadout GetApplicableLoadout() const;

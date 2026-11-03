@@ -1,0 +1,19 @@
+[
+  {
+    "Name": "UI.V2.Shop.ComingSoon",
+    "SourceText": "СКОРО",
+    "Context": "Designer-only unavailable shop product example.",
+    "RU": "СКОРО",
+    "EN": "COMING SOON",
+    "DE": "DEMNÄCHST",
+    "FR": "BIENTÔT",
+    "ES": "PRÓXIMAMENTE",
+    "PT_BR": "EM BREVE",
+    "ZH_HANS": "敬请期待",
+    "ZH_HANT": "即將推出",
+    "JA": "近日登場",
+    "KO": "출시 예정",
+    "AdditionalLanguages": {},
+    "Localizations": {}
+  }
+]

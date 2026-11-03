@@ -25,9 +25,14 @@ UTextBlock* SkillLabel(UWidgetTree* Tree,const UMCGameplayUITheme* ResolvedStyle
 }
 void UMCSkillLoadoutWidget::BuildPresentationTree()
 {
-    if(!WidgetTree || WidgetTree->RootWidget) return;
+    if(!WidgetTree) return;
+    if(WidgetTree->RootWidget) {
+        if(!ActiveSlotsRow) if(auto* Root=Cast<UVerticalBox>(WidgetTree->RootWidget))
+            ActiveSlotsRow=Cast<UHorizontalBox>(Root->GetChildAt(0));
+        return;
+    }
     const auto* ResolvedStyle=GetResolvedTheme();auto* Root=WidgetTree->ConstructWidget<UVerticalBox>();WidgetTree->RootWidget=Root;
-    auto* Row=WidgetTree->ConstructWidget<UHorizontalBox>();Root->AddChildToVerticalBox(Row);
+    auto* Row=WidgetTree->ConstructWidget<UHorizontalBox>();ActiveSlotsRow=Row;Root->AddChildToVerticalBox(Row);
     for(int32 Index=0;Index<4;++Index) {
         auto* Size=WidgetTree->ConstructWidget<USizeBox>();Size->SetWidthOverride(112);Size->SetHeightOverride(120);
         auto* SlotState=Row->AddChildToHorizontalBox(Size);SlotState->SetPadding(FMargin(3,0));
@@ -45,6 +50,17 @@ void UMCSkillLoadoutWidget::BuildPresentationTree()
     Root->AddChildToVerticalBox(PassiveSize)->SetPadding(FMargin(3,6,3,0));
     PassiveScroll=WidgetTree->ConstructWidget<UScrollBox>();PassiveSize->SetContent(PassiveScroll);
     Passives=WidgetTree->ConstructWidget<UWrapBox>();Passives->SetInnerSlotPadding(FVector2D(5));Passives->SetExplicitWrapSize(true);Passives->SetWrapSize(460);PassiveScroll->AddChild(Passives);
+}
+void UMCSkillLoadoutWidget::SetActiveSlotsVisible(bool bVisible)
+{
+    BuildPresentationTree();if(!ActiveSlotsRow) return;
+    if(!bVisible) {
+        if(!bActiveSlotsHidden) ActiveSlotsVisibility=ActiveSlotsRow->GetVisibility();
+        bActiveSlotsHidden=true;ActiveSlotsRow->SetVisibility(ESlateVisibility::Collapsed);
+    }
+    else if(bActiveSlotsHidden) {
+        ActiveSlotsRow->SetVisibility(ActiveSlotsVisibility);bActiveSlotsHidden=false;
+    }
 }
 void UMCSkillLoadoutWidget::Refresh(const UMCPerkComponent* Perks)
 {

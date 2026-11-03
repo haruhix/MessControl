@@ -15,6 +15,8 @@ class MESSCONTROL_API AMCMainMenuPlayerController : public APlayerController
 {
     GENERATED_BODY()
 public:
+    bool CanOpenUIPresentationTools() const {return bPreparationReleased && !StudioSplash;}
+    void RestorePresentationInput();
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Audio") TObjectPtr<UMCSoundPalette> BackgroundSoundPalette;
     UPROPERTY(VisibleInstanceOnly,BlueprintReadOnly,Category="Audio") TObjectPtr<UMCSceneAudioComponent> SceneAudio;
 protected:

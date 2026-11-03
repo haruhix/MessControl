@@ -1,0 +1,86 @@
+[
+  {
+    "Name": "UI.HUD.Cleanliness",
+    "EN": "MOUTH CLEANLINESS",
+    "DE": "MUNDHYGIENE",
+    "FR": "PROPRETÉ BUCCALE",
+    "ES": "LIMPIEZA BUCAL",
+    "PT_BR": "LIMPEZA BUCAL",
+    "ZH_HANS": "口腔清洁度",
+    "ZH_HANT": "口腔清潔度",
+    "JA": "口内の清潔度",
+    "KO": "구강 청결도"
+  },
+  {
+    "Name": "UI.HUD.Tool.Pickaxe",
+    "EN": "PICKAXE",
+    "DE": "SPITZHACKE",
+    "FR": "PIOCHE",
+    "ES": "PICO",
+    "PT_BR": "PICARETA",
+    "ZH_HANS": "镐",
+    "ZH_HANT": "鎬",
+    "JA": "ツルハシ",
+    "KO": "곡괭이"
+  },
+  {
+    "Name": "UI.HUD.Hint.Pickaxe",
+    "EN": "LMB · BREAK FOOD",
+    "DE": "LMT · ESSEN ZERKLEINERN",
+    "FR": "CLIC GAUCHE · BRISER LA NOURRITURE",
+    "ES": "CLIC IZQ. · ROMPER COMIDA",
+    "PT_BR": "BOTÃO ESQ. · QUEBRAR COMIDA",
+    "ZH_HANS": "鼠标左键 · 击碎食物",
+    "ZH_HANT": "滑鼠左鍵 · 擊碎食物",
+    "JA": "左クリック · 食べ物を砕く",
+    "KO": "마우스 왼쪽 · 음식 부수기"
+  },
+  {
+    "Name": "UI.Skill.Empty",
+    "EN": "Empty",
+    "DE": "Leer",
+    "FR": "Vide",
+    "ES": "Vacío",
+    "PT_BR": "Vazio",
+    "ZH_HANS": "空",
+    "ZH_HANT": "空",
+    "JA": "空き",
+    "KO": "비어 있음"
+  },
+  {
+    "Name": "UI.Skill.Ready",
+    "EN": "Ready",
+    "DE": "Bereit",
+    "FR": "Prêt",
+    "ES": "Listo",
+    "PT_BR": "Pronto",
+    "ZH_HANS": "就绪",
+    "ZH_HANT": "就緒",
+    "JA": "準備完了",
+    "KO": "준비 완료"
+  },
+  {
+    "Name": "UI.Skill.Cooldown",
+    "EN": "{0} s",
+    "DE": "{0} s",
+    "FR": "{0} s",
+    "ES": "{0} s",
+    "PT_BR": "{0} s",
+    "ZH_HANS": "{0} 秒",
+    "ZH_HANT": "{0} 秒",
+    "JA": "{0} 秒",
+    "KO": "{0}초"
+  },
+  {
+    "Name": "UI.HUD.Timeline.Now",
+    "EN": "NOW",
+    "DE": "JETZT",
+    "FR": "MAINTENANT",
+    "ES": "AHORA",
+    "PT_BR": "AGORA",
+    "ZH_HANS": "当前",
+    "ZH_HANT": "目前",
+    "JA": "現在",
+    "KO": "현재"
+  }
+]

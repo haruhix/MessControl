@@ -293,11 +293,16 @@ void UMCHubShopWidget::NativeDestruct()
     Super::NativeDestruct();
 }
 void UMCHubShopWidget::CloseClicked() {if(!bEditorFixture && !IsDesignTime()) OnClose.Broadcast();}
+void UMCHubShopWidget::RequestPresentationBack()
+{
+    if(bEditorFixture || IsDesignTime()) return;
+    if(bChoosingReplacement) {bChoosingReplacement=false;RefreshEconomy();SetTransactionMessage(FText::GetEmpty());}
+    else CloseClicked();
+}
 FReply UMCHubShopWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
 {
     if((Event.GetKey()==EKeys::Escape || Event.GetKey()==EKeys::Gamepad_FaceButton_Right) && !Event.IsRepeat()) {
-        if(bChoosingReplacement) {bChoosingReplacement=false;RefreshEconomy();SetTransactionMessage(FText::GetEmpty());}
-        else CloseClicked();
+        RequestPresentationBack();
         return FReply::Handled();
     }
     return Super::NativeOnPreviewKeyDown(Geometry,Event);

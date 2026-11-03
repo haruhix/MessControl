@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-04",
+  "scope": "Wardrobe and boosters shop follow-up within the existing single-root interface migration; full interface migration remains in progress.",
+  "reference": {
+    "psd": "D:/sda/visua2.psd",
+    "artboards": [
+      "E:/CodexWork/MessControl/Validation/UIRedesign_20261103/Artboards/776_wardrope.png",
+      "E:/CodexWork/MessControl/Validation/UIRedesign_20261103/Artboards/1017_Boosters_shop.png"
+    ],
+    "sourceUnchanged": true,
+    "review": "Both exported original artboards personally inspected; Photoshop was neither launched nor closed."
+  },
+  "changelog": [
+    "Added MCUnifiedWardrobeWidget / WBP_UIWardrobe with stepped blue frame, three-column catalogue, separate selected-item detail, try-on, buy/apply/back and expandable colour controls.",
+    "Added MCUnifiedShopWidget / WBP_UIShop with two-column catalogue, selected detail, buy/back and the existing four replacement-slot actions.",
+    "Enabled Wardrobe/Boosters screens in WBP_UIRoot and session-only screen/language preview. Root now contains 121 saved editable UMG widgets.",
+    "Existing menu/scoreboard/wardrobe/shop remain the owners of game state and accepted actions. New views mirror source controls and forward actions; no second economy or settings save path.",
+    "Added bounded catalogue/detail scrolling, two-axis narrow-viewport overflow, content-sized controls and translated labels at authored fonts. Bounded purchase captions wrap into additional lines.",
+    "Extracted four original PSD wardrobe icons without modifying the PSD; imported three glyph textures for matching existing CowboyHat, FootballHelmet and SquareGlasses items. No new catalogue product added.",
+    "Reused existing localization catalogue; added UI.V2.Shop.ComingSoon in ten languages for the Designer fixture, and reused UI.Settings.Back.",
+    "Kept non-cosmetic icons in DT_Perks.Icon; DT_Perks and DT_HubCatalog rows were not changed."
+  ],
+  "assets": {
+    "root": "/Game/Gameplay/UI/V2/WBP_UIRoot",
+    "components": [
+      "/Game/Gameplay/UI/V2/WBP_UIWardrobe",
+      "/Game/Gameplay/UI/V2/WBP_UIShop"
+    ],
+    "textures": [
+      "/Game/Gameplay/UI/V2/Art/Wardrobe/T_UI_PSD_CowboyHat",
+      "/Game/Gameplay/UI/V2/Art/Wardrobe/T_UI_PSD_FootballHelmet",
+      "/Game/Gameplay/UI/V2/Art/Wardrobe/T_UI_PSD_SquareGlasses"
+    ],
+    "artistWorkflow": "Edit the saved UMG shapes/slots in the component Blueprints and select Wardrobe or Boosters shop in WBP_UIRoot Gameplay UI Preview."
+  },
+  "recipes": [
+    "Tools/Unreal/UI/author_unified_commerce.py",
+    "Tools/Unreal/UI/author_unified_wardrobe_art.py",
+    "Tools/Unreal/UI/unified_commerce_umg_recipe.json",
+    "Tools/Unreal/UI/unified_commerce_layout_recipe.json",
+    "Tools/Unreal/UI/update_unified_shop_fonts.py"
+  ],
+  "iconEvidence": {
+    "rawAndRuntimeManifest": "ArtSource/UI/V2/Icons/Wardrobe/RuntimeGlyphManifest.json",
+    "bindings": "E:/CodexWork/MessControl/Validation/UICommerce_20261104/WardrobeArt.json",
+    "limitation": "PSD Screen/Lighten/Dodge glyphs exported as ordinary white-alpha images; small anti-alias differences for Dodge/Lighten are measured in the manifest. Other cosmetics retain existing thumbnails. Perk icon gaps remain in DT_Perks and belong to the separate user task."
+  },
+  "validation": {
+    "build": {
+      "result": "Succeeded",
+      "target": "MessControlEditor Win64 Development",
+      "engine": "5.8.1",
+      "log": "E:/DEVGAME/MessControl/Saved/Build/UICommerce_20261104.log"
+    },
+    "soloWardrobe": {
+      "result": "PASS",
+      "coverage": "Normal controller open inside the actual supported wardrobe volume; new UMG card delegate changes real draft to CowboyHat without purchase; Back closes the normal modal.",
+      "evidence": [
+        "E:/CodexWork/MessControl/Validation/UICommerce_20261104/open_wardrobe.json",
+        "E:/CodexWork/MessControl/Validation/UICommerce_20261104/select_cowboy.json",
+        "E:/CodexWork/MessControl/Validation/UICommerce_20261104/back_wardrobe.json",
+        "E:/CodexWork/MessControl/Validation/UICommerce_20261104/Wardrobe_Actual.json"
+      ]
+    },
+    "soloShop": {
+      "result": "PASS",
+      "coverage": "Normal controller open at real shop; temporary wallet fixture 800, new Buy's actual UButton delegate uses original acceptance path: 800 -> 770 and three grenade charges queued in slot 0. Back closes original modal. Original wallet/inventory restored.",
+      "evidence": [
+        "E:/CodexWork/MessControl/Validation/UICommerce_20261104/purchase.json",
+        "E:/CodexWork/MessControl/Validation/UICommerce_20261104/back_shop.json"
+      ]
+    },
+    "f3": {
+      "result": "PASS both screens",
+      "input": "Epic native Slate key/pointer route; no hardware input claim. Accessibility [focused] marker absent, so actual viewport F3 reopen validated instead.",
+      "coverage": "New -> Current -> New with same source modal, close F3 and reopen F3 to verify returned viewport input.",
+      "evidence": [
+        "E:/CodexWork/MessControl/Validation/UICommerce_20261104/CommerceWardrobe_Report.json",
+        "E:/CodexWork/MessControl/Validation/UICommerce_20261104/CommerceShop_Report.json"
+      ]
+    },
+    "gc": {
+      "result": "PASS",
+      "coverage": "One forced GC followed by actual Shop reopen and Back after original economy restoration.",
+      "evidence": "E:/CodexWork/MessControl/Validation/UICommerce_20261104/Shop_AfterGC_Actual.json"
+    },
+    "visual": {
+      "result": "Personally inspected actual Wardrobe and Shop game-window captures plus original artboards and final EN/RU/DE previews. Full all-language/all-resolution visual acceptance remains pending.",
+      "previews": "E:/CodexWork/MessControl/Validation/UICommerce_20261104/PreviewChecks.json",
+      "screenshots": [
+        "E:/CodexWork/MessControl/Validation/UICommerce_20261104/Wardrobe_Final.png",
+        "E:/CodexWork/MessControl/Validation/UICommerce_20261104/Shop_Final_ZeroCoins.png"
+      ],
+      "diagnostics": "Diagnostic_BeforeLayout_* are failed earlier layout captures, not completed previews."
+    },
+    "finalActionCaption": {
+      "status": "PASS on final rebuilt binary",
+      "coverage": "Actual zero-balance Shop and Wardrobe captions wrap within their detail buttons at authored font; No accessory label remains readable. Both Back paths and try-on rechecked; final Hub state clean.",
+      "evidence": [
+        "E:/CodexWork/MessControl/Validation/UICommerce_20261104/Shop_Final_ZeroCoins.json",
+        "E:/CodexWork/MessControl/Validation/UICommerce_20261104/Wardrobe_Final.json"
+      ]
+    },
+    "stateRestoration": {
+      "evidence": "E:/CodexWork/MessControl/Validation/UICommerce_20261104/restore_user.json",
+      "audit": "E:/CodexWork/MessControl/Validation/UICommerce_20261104/FinalStateAudit.json",
+      "details": "Coins, owned cosmetics, pending purchases, stock IDs, equipped loadout, position, Play settings and throttle restored. New session technical rotation ID retained; native non-reflected camera orbit resets across Editor restart."
+    },
+    "resources": {
+      "result": "Reflected shared-theme roots for both component classes verified; wardrobe soft glyph references retained in WBP defaults. Runtime original glyph is visible using Get() only (no first-interaction synchronous load). No new UI material/shader was created.",
+      "limitations": "Observed warm Editor first use; packaged cold-launch PSO/resource preparation not tested."
+    },
+    "notRun": [
+      "Network/multiplayer",
+      "Cook/package",
+      "Hardware mouse acceptance",
+      "Full replacement-slot purchase matrix",
+      "Wardrobe paid purchase/equip and every colour interaction",
+      "All locales/resolutions, final whole-interface artistic acceptance"
+    ],
+    "source": "PASS: git diff --check, 5 task Python recipes, 7 JSON files and 3 embedded MCP scripts parsed. DT_Perks and DT_HubCatalog diff empty.",
+    "binaryNote": "Purchase, F3 and forced-GC checks passed before the final caption-wrap-only change. Final rebuilt binary rechecked for actual Shop/Wardrobe open, zero-balance captions, Wardrobe try-on, both Back paths and restoration."
+  },
+  "limitations": [
+    "Actual catalogue ordering/counts/prices/descriptions are used, not the PSD sample values.",
+    "Long localized catalogue values may wrap rows and require scrolling. Some unmapped wardrobe thumbnails differ from the PSD art style.",
+    "Full interface is incomplete: Hub main, tools/perks, rewards/results, fishing and remaining pages still require migration."
+  ],
+  "nextTask": "Docs/UI/ClothingCatalogNext_20261104.json — queued by user after finishing the interface; no clothing-table implementation in this change.",
+  "storage": {
+    "evidence": "E:/CodexWork/MessControl/Validation/UICommerce_20261104",
+    "temp": "E:/CodexTemp/MessControl-UICommerce",
+    "mediaVersioned": false,
+    "notes": "Task outputs, exports, previews, runtime textures and traces on E:. UBT fixed Trace.uba copied/moved to Saved/Build. Shared application-managed UBA metadata on C: was preserved rather than moving global application caches."
+  }
+}

@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "MCGameplayUITheme.h"
+#include "MCUIPresentationTypes.h"
 #include "MCGameplayUIWidget.generated.h"
 
 class UDataTable;
@@ -44,6 +45,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview") EMCGameplayUIPreviewScenario PreviewScenario=EMCGameplayUIPreviewScenario::Default;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview") FName PreviewState=TEXT("Default");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview") FString PreviewCulture=TEXT("ru");
+    /** Designer-only profile override; does not write the player's local preference. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview") bool bOverridePreviewUIVersion=false;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview",meta=(EditCondition="bOverridePreviewUIVersion")) EMCUIVersion PreviewUIVersion=EMCUIVersion::New;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview",meta=(ClampMin=".1",ClampMax="60")) float PreviewDuration=4.f;
     UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category="Preview") float PreviewTime=0.f;
     UFUNCTION(BlueprintCallable, Category="Presentation") virtual void BuildPresentationTree();
@@ -70,11 +74,13 @@ protected:
     virtual void OnLocalizationChanged();
 private:
     void ObserveTheme();
+    void ObservePresentation();
     void ObserveLocalization();
     void UnobserveLocalization();
     void ApplyTextBindings();
     TWeakObjectPtr<UMCGameplayUITheme> ObservedTheme;
     FDelegateHandle ThemeHandle;
+    FDelegateHandle PresentationHandle;
     UPROPERTY(Transient) TObjectPtr<UDataTable> ObservedTranslationTable;
     FDelegateHandle TranslationTableHandle;
     FDelegateHandle CultureHandle;

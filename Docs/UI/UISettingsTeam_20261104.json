@@ -1,0 +1,107 @@
+{
+  "date": "2026-11-04",
+  "scope": "Settings/TEAM integration and content-sized universal UI update. Menu/HUD existed before this follow-up. Full interface migration remains incomplete.",
+  "reference": "D:/sda/visua2.psd",
+  "changelog": [
+    "Added editable WBP_UISettings with Graphics, Audio, Language, Controls and Voice; saved inside WBP_UIRoot and backed by existing menu controls/actions.",
+    "Added editable WBP_UITeam with real scoreboard entries, existing participant-specific mute owner and Hub party action forwarding; TEAM preview in root.",
+    "Added Settings/TEAM and five settings tab choices to the existing session-only screen/language preview.",
+    "Universal button labels retain authored font and measure content. Buttons/tab badges/footer shapes grow with text; WrapBox tabs and long TEAM names increase row height. Bounded screen overflow scrolls.",
+    "Added bounded adaptive Menu/HUD layout for menu actions, reserve/cleanliness, tool/player names and next/current event panels. This is not full long-text acceptance for every legacy overlay.",
+    "Numeric slider handles grow with measured labels and match SSlider indent/travel geometry; final 100% label verified.",
+    "Removed unsafe new picker item generation; reflected retention added to legacy generated picker labels so forced GC does not leave dangling Slate brush pointers.",
+    "Added one shared localization key UI.Voice.InputLevel across ten languages; other labels reuse existing catalog.",
+    "New component classes are reflected roots in the shared New UI theme. No DT_Perks modifications."
+  ],
+  "architecture": {
+    "root": "/Game/Gameplay/UI/V2/WBP_UIRoot",
+    "components": [
+      "/Game/Gameplay/UI/V2/WBP_UISettings",
+      "/Game/Gameplay/UI/V2/WBP_UITeam"
+    ],
+    "editableShapes": "Saved UMG trees and universal named Content slots; vector microphone; existing font, textures and theme.",
+    "adaptiveText": "Intrinsic desired sizes and padding, minimum visual sizes, bounded maximum width, text wrapping and auto-height/scroll overflow. Authored font is retained. Image-only ScaleBoxes remain for icon/logo sizing.",
+    "stateOwnership": "Existing Menu/Voice/Scoreboard own pending values, persistence, actions and participant identity. Source presentation roots are hidden only while replaced and restored for Current.",
+    "author": "Tools/Unreal/UI/author_unified_settings_team.py",
+    "recipe": "Tools/Unreal/UI/unified_settings_team_umg_recipe.json",
+    "guardedRebuild": "MCGameplayUIEditorLibrary.rebuild_unified_interface_view is restricted to clean idle exact new Settings/TEAM component Blueprints; saved root/Menu/HUD are not replaced."
+  },
+  "validation": {
+    "build": {
+      "target": "MessControlEditor Win64 Development",
+      "engine": "5.8.1",
+      "result": "Succeeded",
+      "log": "E:/DEVGAME/MessControl/Saved/Build/UISettingsTeam_Adaptive.log"
+    },
+    "soloSettings": {
+      "result": "PASS",
+      "evidence": "E:/CodexWork/MessControl/Validation/UISettingsTeam_20261103/SettingsSoloAdaptive.json",
+      "coverage": "Five actual source/new settings tabs match after navigation; two forced GC passes. Native Slate pointer route uses focused Enter fallback when first click only focuses. No Apply or microphone capture.",
+      "binaryNote": "Navigation/GC suite passed before final paint-geometry-only fix. Final rebuilt binary separately verified on restored Settings/Graphics."
+    },
+    "pendingSwitching": {
+      "result": "PASS on earlier Settings build",
+      "evidence": [
+        "Audio_Pending.json",
+        "Audio_Current.json",
+        "Audio_NewRestored.json"
+      ],
+      "coverage": "Actual music slider value 0.5 mirrored by source/new, Audio tab retained Current/New and one original menu.",
+      "binaryNote": "Not repeated after later layout-only changes."
+    },
+    "soloTeam": {
+      "result": "PARTIAL PASS",
+      "evidence": [
+        "Team_Actual.json",
+        "Team_Muted.json",
+        "Team_Closed.json",
+        "Team_PreferencesRestored.json"
+      ],
+      "coverage": "Real solo Hub player, TAB open/close, participant mute changed source/new state. Second pointer click only focused, so paired UI unmute was not passed. Original selfMuted=false restored through existing settings API after PIE."
+    },
+    "visual": {
+      "result": "Personally inspected",
+      "previews": "E:/CodexWork/MessControl/Validation/UISettingsTeam_20261103/PreviewChecks.json",
+      "stress": "E:/CodexWork/MessControl/Validation/UISettingsTeam_20261103/AdaptiveStressChecks.json",
+      "coverage": "Settings RU/DE/JA, TEAM RU/JA, long German panel and long TEAM name. Final rebuilt runtime Graphics page has aligned 100% thumb text.",
+      "finalScreenshot": "E:/CodexWork/MessControl/Validation/UISettingsTeam_20261103/Final_Settings.png",
+      "stressScreenshots": [
+        "E:/CodexWork/MessControl/Validation/UISettingsTeam_20261103/Universal_Long_DE.png",
+        "E:/CodexWork/MessControl/Validation/UISettingsTeam_20261103/Team_LongName.png"
+      ]
+    },
+    "userState": {
+      "result": "Restored",
+      "evidence": "E:/CodexWork/MessControl/Validation/UISettingsTeam_20261103/UserStateRestored.json",
+      "details": "21 pending controls restored without Apply. Play settings/throttle restored; New Settings left open in solo PIE matching original user page; selfMuted=false."
+    },
+    "resourceReadiness": {
+      "evidence": "E:/CodexWork/MessControl/Validation/UISettingsTeam_20261103/FinalStateAudit.json",
+      "result": "Reflected Settings/TEAM theme roots and clean saved packages verified. Existing shapes/font used; Editor MainMenu/Hub first visible use observed. No packaged cold-launch PSO proof."
+    },
+    "source": "git diff --check passed; task Python and JSON parsed; DT_Perks diff empty.",
+    "notRun": [
+      "Network/multiplayer",
+      "Cook/package or clean packaged resource/PSO validation",
+      "Hardware mouse acceptance",
+      "Actual resolution/mode Keep/Revert timeout workflow",
+      "Microphone capture/device switching",
+      "Every legacy overlay and every resolution/localization combination"
+    ]
+  },
+  "failureAndFix": {
+    "observed": "Editor access violation during picker navigation after GC.",
+    "cause": "Generated new picker UTextBlock had no retained reflected owner reference while Slate retained its brush pointer.",
+    "fix": "Use initialized stock combo text in new Settings; retain legacy generated labels as UPROPERTY(Transient) for the menu lifetime.",
+    "recheck": "Five tab navigation plus two explicit GC runs passed."
+  },
+  "remaining": [
+    "Hub main presentation",
+    "Shop and wardrobe",
+    "Rewards/results and remaining menu/overlay screens",
+    "Fishing presentation using current mechanics",
+    "Full localization/catalog coverage and all-screen visual acceptance",
+    "Perk icons via DT_Perks.Icon as a separate user task"
+  ],
+  "storage": "Generated media/logs/backups remain on E: outside versioned source. No generated review media staged or committed."
+}

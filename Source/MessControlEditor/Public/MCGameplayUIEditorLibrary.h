@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "MCUIPresentationTypes.h"
 #include "MCGameplayUIEditorLibrary.generated.h"
 
 class UMCGameplayUITheme;
@@ -95,6 +96,12 @@ public:
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static UWidgetBlueprint* CreateEditableGameplayWidget(const FString& AssetPath, TSubclassOf<UMCGameplayUIWidget> ParentClass);
 
+    /** Rebuild only the task-owned V2 Settings/TEAM component trees after a recipe verifies backups/hashes.
+     * Preserves graphs and surviving widget GUIDs; rejects all other assets and dirty UI packages.
+     */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
+    static bool RebuildUnifiedInterfaceView(UWidgetBlueprint* Blueprint);
+
     /** One-time migration of the task-owned wardrobe RGB tree to the editable color palette. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static bool RefreshHubWardrobePalettePresentation(UWidgetBlueprint* Blueprint);
@@ -130,9 +137,14 @@ public:
     /** Draw the actual editable Slate tree to PNG on E: without PIE or gameplay actors. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static bool RenderGameplayUIPreview(TSubclassOf<UMCGameplayUIWidget> WidgetClass, const FString& OutputFile,
-        FIntPoint DrawSize, const FString& State, const FString& Culture, float Time=0.f, float RenderScale=1.f);
+        FIntPoint DrawSize, const FString& State, const FString& Culture, float Time=0.f, float RenderScale=1.f,
+        bool bOverrideUIVersion=false,EMCUIVersion UIVersion=EMCUIVersion::Current);
 
     /** Adds the task-owned CJK sub-typeface; preserves default Latin/Cyrillic and other sub-typefaces. Does not save. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static bool ConfigureBossNameCJKFallback(UFont* NameFont, UFontFace* FallbackFace);
+
+    /** Preserve the source font's fallback family and add LeFun only for its Latin/Cyrillic coverage. Does not save. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
+    static bool ConfigureUniversalUIFont(UFont* Font,UFont* FallbackFamily,UFontFace* LeFunFace);
 };

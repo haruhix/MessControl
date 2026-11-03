@@ -1,4 +1,5 @@
 #include "MCDevPanelWidget.h"
+#include "MCUIPresentationPanel.h"
 #include "MCAnimationComparisonSubsystem.h"
 #include "MCTongue.h"
 #include "MCPlayerController.h"
@@ -69,6 +70,8 @@ void UMCDevPanelWidget::NativeOnInitialized()
     AddText(Main,TEXT("DEV / ТЕСТ МЕХАНИК"),25)->SetColorAndOpacity(FSlateColor(DevMint));
     AddText(Main,TEXT("F3 / Esc — закрыть. Мир продолжает работать. Игровые команды доступны хосту; сравнение анимации — локально."),13);
     Status=AddText(Main,TEXT(""),14);
+    auto* UISelector=WidgetTree->ConstructWidget<UMCUIPresentationSelectorWidget>(UMCUIPresentationSelectorWidget::StaticClass(),TEXT("UIPresentationSelector"));
+    Main->AddChildToVerticalBox(UISelector)->SetPadding(FMargin(0,4,0,12));
     OpenPassivesButton=WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(),TEXT("OpenPassivesButton"));
     OpenPassivesButton->SetBackgroundColor(FLinearColor(.055f,.22f,.22f));
     auto* PassiveLink=WidgetTree->ConstructWidget<UTextBlock>();

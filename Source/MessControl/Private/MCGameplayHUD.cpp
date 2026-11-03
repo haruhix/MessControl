@@ -1055,12 +1055,69 @@ void UMCGameplayHUD::NativeConstruct()
 }
 void UMCGameplayHUD::NativeDestruct()
 {
+    bUnifiedViewActive=false;
+    RestoreUnifiedViewVisibility();
     if(!IsDesignTime()) if(auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->UnregisterGameplayHUD(this);
     if(AlertWidget) AlertWidget->ClearAlerts();
     Super::NativeDestruct();
 }
 UWidget* UMCGameplayHUD::Find(FName Name) const
 { const auto* Widget=Widgets.Find(Name); return Widget?Widget->Get():WidgetTree?WidgetTree->FindWidget(Name):nullptr; }
+void UMCGameplayHUD::SetUnifiedViewActive(bool bActive)
+{
+    if(bUnifiedViewActive==bActive) return;
+    bUnifiedViewActive=bActive;
+    if(bActive) ApplyUnifiedViewVisibility();
+    else {
+        RestoreUnifiedViewVisibility();
+        // Resolve visibility from the current gameplay state rather than an old
+        // snapshot (players, inventory and lesson state may have changed).
+        RefreshState();UpdatePhase1Layout();
+    }
+}
+void UMCGameplayHUD::RestoreUnifiedSkillLayout()
+{
+    if(auto* SkillSlot=UnifiedSkillSlot.Get()) {
+        SkillSlot->SetLayout(UnifiedSkillLayout);
+        SkillSlot->SetAutoSize(bUnifiedSkillAutoSize);
+        SkillSlot->SetZOrder(UnifiedSkillZOrder);
+    }
+    UnifiedSkillSlot.Reset();
+}
+void UMCGameplayHUD::RestoreUnifiedViewVisibility()
+{
+    for(const auto& Entry:UnifiedHiddenVisibility)
+        if(auto* Widget=Entry.Key.Get()) Widget->SetVisibility(Entry.Value);
+    UnifiedHiddenVisibility.Reset();
+    if(SkillLoadoutWidget) SkillLoadoutWidget->SetActiveSlotsVisible(true);
+    RestoreUnifiedSkillLayout();
+}
+void UMCGameplayHUD::ApplyUnifiedViewVisibility()
+{
+    if(!bUnifiedViewActive || IsDesignTime()) return;
+    auto Hide=[this](UWidget* Widget) {
+        if(!IsValid(Widget)) return;
+        if(!UnifiedHiddenVisibility.Contains(Widget)) UnifiedHiddenVisibility.Add(Widget,Widget->GetVisibility());
+        Widget->SetVisibility(ESlateVisibility::Collapsed);
+    };
+    // The outer HUD and its root stay visible/ticking. Alerts, swim warnings,
+    // contextual instructions, results, passives and native reticles retain
+    // their existing state owners and event ledgers.
+    for(const FName Name:{FName(TEXT("ObjectivesPanel")),FName(TEXT("TimerPanel")),FName(TEXT("PlayersPanel")),
+        FName(TEXT("InventoryPanel")),FName(TEXT("EventsPanel")),FName(TEXT("HintPanel"))}) Hide(Find(Name));
+    Hide(StaminaWidget);
+    if(!SkillLoadoutWidget) return;
+    SkillLoadoutWidget->SetActiveSlotsVisible(false);
+    if(auto* SkillSlot=Cast<UCanvasPanelSlot>(SkillLoadoutWidget->Slot)) {
+        if(UnifiedSkillSlot.Get()!=SkillSlot) {
+            RestoreUnifiedSkillLayout();
+            UnifiedSkillSlot=SkillSlot;UnifiedSkillLayout=SkillSlot->GetLayout();
+            bUnifiedSkillAutoSize=SkillSlot->GetAutoSize();UnifiedSkillZOrder=SkillSlot->GetZOrder();
+        }
+        SkillSlot->SetAnchors(FAnchors(1.f,1.f));SkillSlot->SetAlignment(FVector2D(1.f,1.f));
+        SkillSlot->SetPosition(FVector2D(-50.f,-195.f));SkillSlot->SetSize(FVector2D(472.f,140.f));SkillSlot->SetAutoSize(true);
+    }
+}
 void UMCGameplayHUD::NativeTick(const FGeometry& Geometry,float Dt)
 {
     Super::NativeTick(Geometry,Dt); RefreshElapsed+=Dt;
@@ -1079,6 +1136,9 @@ void UMCGameplayHUD::NativeTick(const FGeometry& Geometry,float Dt)
     if(Spray || bHadSprayReticle || HadFoodReticle || FoodReticleAlpha>0) if(const auto Cached=GetCachedWidget()) Cached->Invalidate(EInvalidateWidgetReason::Paint);
     bHadSprayReticle=Spray;
     if(RefreshElapsed>=.1f) { RefreshElapsed=0; RefreshState();UpdatePhase1Layout(); }
+    // RefreshState owns dynamic visibility; layout can also move controls.
+    // Apply the view selection last so neither brings retired groups back.
+    ApplyUnifiedViewVisibility();
 }
 int32 UMCGameplayHUD::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
     FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const
@@ -1157,6 +1217,7 @@ int32 UMCGameplayHUD::NativePaint(const FPaintArgs& Args,const FGeometry& Geomet
 void UMCGameplayHUD::RefreshState()
 {
     if(IsDesignTime() || bApplyingPreview) return;
+    UnifiedNextEventTitle=FText::GetEmpty();UnifiedCurrentEventTitle=FText::GetEmpty();UnifiedToolName=FText::GetEmpty();
     namespace HUD = MCGameplayHUDPrivate;
     const auto& Palette=GetResolvedTheme()->Palette;
     const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr; if(!GS) return;
@@ -1199,6 +1260,7 @@ void UMCGameplayHUD::RefreshState()
     if(Directed && GS->Phase==EMCShiftPhase::Intermission) Title=Copy(TEXT("UI.HUD.Intermission"),LOCTEXT("Intermission","ПЕРЕДЫШКА")).ToString();
     if(Cataclysm) Title=Copy(HUD::CataclysmTitleKey(*Cataclysm),FText::FromString(Cataclysm->Title())).ToString();
     if(Finished) Title=(GS->Phase==EMCShiftPhase::Lost?Copy(TEXT("UI.HUD.RunLost"),LOCTEXT("RunLost","РОТ НЕ СПАСЁН")):Copy(TEXT("UI.HUD.RunComplete"),LOCTEXT("RunComplete","ЗАБЕГ ЗАВЕРШЁН"))).ToString();
+    UnifiedCurrentEventTitle=LiteralCopy(Title);
     Show(TEXT("DayTitle"),false);Text(TEXT("EventTitle"),Title);
     const float Done=Directed?FMath::Clamp(Director.CompletionProgress,0.f,1.f):GS->TasksTotal>0?1-float(GS->TasksLeft)/GS->TasksTotal:0;
     int32 Surfaces=0; float Clean=0;bool HasDirt=false;
@@ -1267,6 +1329,9 @@ void UMCGameplayHUD::RefreshState()
     TArray<int32,TInlineAllocator<16>> TimelineSteps;
     if(HasStep) for(int32 I=0;I<GS->DayPlan->Steps.Num();++I)
         if(GS->DayPlan->Steps[I].Step!=EMCDayStep::DiscardBrushes) TimelineSteps.Add(I);
+    if(Directed) UnifiedNextEventTitle=LiteralCopy(Director.NextTitle);
+    else if(HasStep) for(int32 Index:TimelineSteps)
+        if(Index>GS->StepIndex) {UnifiedNextEventTitle=HUD::StepName(GS->DayPlan->Steps[Index].Step,LocalizationTable);break;}
     const int32 TimelineStart=FMath::Max(0,TimelineSteps.IndexOfByKey(GS->StepIndex)-1);
     for(int32 I=0;I<3;++I) {
         const FString N=FString::Printf(TEXT("Timeline%d"),I);
@@ -1303,6 +1368,7 @@ void UMCGameplayHUD::RefreshState()
         case EMCToolSlot::Spray: ToolName=Inv->HasUpgrade(EMCToolUpgrade::Watergun)?(Inv->bPressureMode?Copy(TEXT("UI.HUD.Tool.WatergunShoot"),LOCTEXT("ToolWatergunShoot","ВОДЯНОЙ ПИСТОЛЕТ · ВЫСТРЕЛ")):Copy(TEXT("UI.HUD.Tool.WatergunHeal"),LOCTEXT("ToolWatergunHeal","ВОДЯНОЙ ПИСТОЛЕТ · ЛЕЧЕНИЕ"))):Copy(TEXT("UI.HUD.Tool.Spray"),LOCTEXT("Spray","СПРЕЙ"));break;
         default: ToolName=Inv->HasUpgrade(EMCToolUpgrade::MeshaBrush)?Copy(TEXT("UI.HUD.Tool.MegaBrush"),LOCTEXT("ToolMegaBrush","МЕГАЩЁТКА")):Inv->bWaterJetUnlocked?Copy(TEXT("UI.HUD.Tool.WaterJet"),LOCTEXT("ToolWaterJet","ВОДОМЁТ")):Copy(TEXT("UI.HUD.Tool.Brush"),LOCTEXT("Brush","ЩЁТКА"));break;
         }
+        UnifiedToolName=ToolName;
         const bool ToolGamepad=InputController && InputController->IsUsingGamepad();
         SetCopy(TEXT("ToolTitle"),ToolGamepad?ToolName:Format(TEXT("UI.HUD.ToolWheelTitle"),LOCTEXT("ToolWheelTitle","КОЛЕСО · {Tool}"),{{TEXT("Tool"),ToolName}}));
         SelectedToolIndex=static_cast<int32>(Inv->Selected);

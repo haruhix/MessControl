@@ -1,0 +1,279 @@
+{
+  "source": "D:\\sda\\visua2.psd",
+  "sourcePSD_SHA256": "7CB834D75CFE88632E2D1C32DC688FF0107A3EFA1AC2E661BEDE2B752A2BA756",
+  "method": "Deterministic per-pixel white-alpha fit to the actual PSD Screen/Lighten/ColorDodge formulas on both requested backdrops. No Photoshop, panel rasterization, new UI shader/material, or original PNG changes.",
+  "alphaFormula": "a=clamp(sum_backgrounds,sum_RGB((1-B)*source_alpha*(Blend(B,S)-B))/sum_backgrounds,sum_RGB((1-B)^2),0,1). PNG RGB=255; alpha=round(255*a). Screen is exact for neutral source pixels; background-dependent edge effects of Dodge/Lighten are approximated by the same white-alpha glyph.",
+  "backdrops": {
+    "DarkCard": "#404243",
+    "SelectedPink": "#AE4C6C"
+  },
+  "icons": [
+    {
+      "name": "CowboyHat",
+      "sourceLayerID": 1213,
+      "sourceBlendMode": "BlendMode.SCREEN",
+      "rawMaster": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\V2\\Icons\\Wardrobe\\T_UI_PSD_CowboyHat.png",
+      "rawMasterSHA256": "A44AAC82F1311A0D37B28784AAA2B2C69A3BCC1E9411EEFC17BE0871FDFED13D",
+      "glyph": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\V2\\Icons\\Wardrobe\\T_UI_PSD_CowboyHat_Glyph.png",
+      "glyphSHA256": "C1645D03B938B1515C792A8F9E2F0C0E06451080C5B4364882D6B40375A9AF6D",
+      "size": [
+        195,
+        152
+      ],
+      "whiteRGB": true,
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "comparisons": {
+        "DarkCard": {
+          "allBounds": {
+            "MAE_0_255": 0.058,
+            "RMSE_0_255": 0.1942,
+            "MaxAbs_0_255": 2.2471,
+            "P99Abs_0_255": 0.752
+          },
+          "sourceGlyphSupport": {
+            "MAE_0_255": 0.1222,
+            "RMSE_0_255": 0.2819,
+            "MaxAbs_0_255": 2.2471,
+            "P99Abs_0_255": 0.752
+          }
+        },
+        "SelectedPink": {
+          "allBounds": {
+            "MAE_0_255": 0.0379,
+            "RMSE_0_255": 0.1329,
+            "MaxAbs_0_255": 1.4785,
+            "P99Abs_0_255": 0.6965
+          },
+          "sourceGlyphSupport": {
+            "MAE_0_255": 0.0799,
+            "RMSE_0_255": 0.1929,
+            "MaxAbs_0_255": 1.4785,
+            "P99Abs_0_255": 0.6965
+          }
+        }
+      },
+      "savedPSDCropValidation_Dark": {
+        "formulaVsSaved": {
+          "MAE_0_255": 0.3102,
+          "RMSE_0_255": 0.3454,
+          "MaxAbs_0_255": 0.9843,
+          "P99Abs_0_255": 0.6811
+        },
+        "normalGlyphVsSaved": {
+          "MAE_0_255": 0.3301,
+          "RMSE_0_255": 0.3765,
+          "MaxAbs_0_255": 2.2471,
+          "P99Abs_0_255": 0.9961
+        }
+      },
+      "savedPSDCropValidation_SelectedPink": {
+        "formulaVsSaved": {
+          "MAE_0_255": 0.3362,
+          "RMSE_0_255": 0.4237,
+          "MaxAbs_0_255": 0.9766,
+          "P99Abs_0_255": 0.8493
+        },
+        "normalGlyphVsSaved": {
+          "MAE_0_255": 0.3782,
+          "RMSE_0_255": 0.4785,
+          "MaxAbs_0_255": 1.5765,
+          "P99Abs_0_255": 0.9529
+        }
+      }
+    },
+    {
+      "name": "FootballHelmet",
+      "sourceLayerID": 1197,
+      "sourceBlendMode": "BlendMode.SCREEN",
+      "rawMaster": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\V2\\Icons\\Wardrobe\\T_UI_PSD_FootballHelmet.png",
+      "rawMasterSHA256": "C5E4949DB601C5194B5BAAFD30BB548E3CADF402E2888218A836BA402C025E12",
+      "glyph": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\V2\\Icons\\Wardrobe\\T_UI_PSD_FootballHelmet_Glyph.png",
+      "glyphSHA256": "A2111096EBED78466413ECD097B6AB9731A744F8F4D1BA6F3E87034FD5B9A832",
+      "size": [
+        168,
+        156
+      ],
+      "whiteRGB": true,
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "comparisons": {
+        "DarkCard": {
+          "allBounds": {
+            "MAE_0_255": 0.0572,
+            "RMSE_0_255": 0.1713,
+            "MaxAbs_0_255": 3.0965,
+            "P99Abs_0_255": 0.752
+          },
+          "sourceGlyphSupport": {
+            "MAE_0_255": 0.1041,
+            "RMSE_0_255": 0.2319,
+            "MaxAbs_0_255": 3.0965,
+            "P99Abs_0_255": 0.752
+          }
+        },
+        "SelectedPink": {
+          "allBounds": {
+            "MAE_0_255": 0.0406,
+            "RMSE_0_255": 0.1271,
+            "MaxAbs_0_255": 2.4212,
+            "P99Abs_0_255": 0.6965
+          },
+          "sourceGlyphSupport": {
+            "MAE_0_255": 0.0739,
+            "RMSE_0_255": 0.1722,
+            "MaxAbs_0_255": 2.4212,
+            "P99Abs_0_255": 0.6965
+          }
+        }
+      },
+      "savedPSDCropValidation_Dark": {
+        "formulaVsSaved": {
+          "MAE_0_255": 0.3013,
+          "RMSE_0_255": 0.3409,
+          "MaxAbs_0_255": 0.9843,
+          "P99Abs_0_255": 0.7816
+        },
+        "normalGlyphVsSaved": {
+          "MAE_0_255": 0.3233,
+          "RMSE_0_255": 0.3795,
+          "MaxAbs_0_255": 2.8392,
+          "P99Abs_0_255": 1.1373
+        }
+      }
+    },
+    {
+      "name": "SquareGlasses",
+      "sourceLayerID": 1204,
+      "sourceBlendMode": "BlendMode.COLOR_DODGE",
+      "rawMaster": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\V2\\Icons\\Wardrobe\\T_UI_PSD_SquareGlasses.png",
+      "rawMasterSHA256": "E930184FC7BB664A62EFA12DF39FC0B25C361F26C714B43DCAF13F6521DC8F23",
+      "glyph": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\V2\\Icons\\Wardrobe\\T_UI_PSD_SquareGlasses_Glyph.png",
+      "glyphSHA256": "8AA1686E17521642B80FAF89835AB4F954E0072375789C9A02DC42BC70BDB6B4",
+      "size": [
+        174,
+        98
+      ],
+      "whiteRGB": true,
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "comparisons": {
+        "DarkCard": {
+          "allBounds": {
+            "MAE_0_255": 0.4991,
+            "RMSE_0_255": 2.6215,
+            "MaxAbs_0_255": 25.3241,
+            "P99Abs_0_255": 16.0732
+          },
+          "sourceGlyphSupport": {
+            "MAE_0_255": 1.8251,
+            "RMSE_0_255": 5.0241,
+            "MaxAbs_0_255": 25.3241,
+            "P99Abs_0_255": 20.2768
+          }
+        },
+        "SelectedPink": {
+          "allBounds": {
+            "MAE_0_255": 0.9475,
+            "RMSE_0_255": 5.9057,
+            "MaxAbs_0_255": 62.5765,
+            "P99Abs_0_255": 38.5804
+          },
+          "sourceGlyphSupport": {
+            "MAE_0_255": 3.4663,
+            "RMSE_0_255": 11.3185,
+            "MaxAbs_0_255": 62.5765,
+            "P99Abs_0_255": 56.5412
+          }
+        }
+      },
+      "savedPSDCropValidation_Dark": {
+        "formulaVsSaved": {
+          "MAE_0_255": 0.272,
+          "RMSE_0_255": 0.2996,
+          "MaxAbs_0_255": 0.9787,
+          "P99Abs_0_255": 0.7412
+        },
+        "normalGlyphVsSaved": {
+          "MAE_0_255": 1.9803,
+          "RMSE_0_255": 4.9727,
+          "MaxAbs_0_255": 25.3569,
+          "P99Abs_0_255": 20.1324
+        }
+      }
+    },
+    {
+      "name": "DentalFloss",
+      "sourceLayerID": 1208,
+      "sourceBlendMode": "BlendMode.LIGHTEN",
+      "rawMaster": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\V2\\Icons\\Wardrobe\\T_UI_PSD_DentalFloss.png",
+      "rawMasterSHA256": "19D0C4275DEEA99746027C8FFC9C2E7ACF5B4EBA7B04F081C6DF7F42C0E7B6B1",
+      "glyph": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\V2\\Icons\\Wardrobe\\T_UI_PSD_DentalFloss_Glyph.png",
+      "glyphSHA256": "642E6554DA717A77807DF44FE403F6DE391C7492CB65168E2C2C54385BFA3F40",
+      "size": [
+        196,
+        153
+      ],
+      "whiteRGB": true,
+      "alphaExtrema": [
+        0,
+        254
+      ],
+      "comparisons": {
+        "DarkCard": {
+          "allBounds": {
+            "MAE_0_255": 0.2563,
+            "RMSE_0_255": 1.1004,
+            "MaxAbs_0_255": 11.1176,
+            "P99Abs_0_255": 7.4995
+          },
+          "sourceGlyphSupport": {
+            "MAE_0_255": 0.7467,
+            "RMSE_0_255": 1.8781,
+            "MaxAbs_0_255": 11.1176,
+            "P99Abs_0_255": 8.7653
+          }
+        },
+        "SelectedPink": {
+          "allBounds": {
+            "MAE_0_255": 0.4244,
+            "RMSE_0_255": 2.7182,
+            "MaxAbs_0_255": 42.8824,
+            "P99Abs_0_255": 13.6777
+          },
+          "sourceGlyphSupport": {
+            "MAE_0_255": 1.2362,
+            "RMSE_0_255": 4.6391,
+            "MaxAbs_0_255": 42.8824,
+            "P99Abs_0_255": 26.098
+          }
+        }
+      },
+      "savedPSDCropValidation_Dark": {
+        "formulaVsSaved": {
+          "MAE_0_255": 0.242,
+          "RMSE_0_255": 0.2571,
+          "MaxAbs_0_255": 0.498,
+          "P99Abs_0_255": 0.4549
+        },
+        "normalGlyphVsSaved": {
+          "MAE_0_255": 0.7222,
+          "RMSE_0_255": 1.9057,
+          "MaxAbs_0_255": 11.302,
+          "P99Abs_0_255": 9.083
+        }
+      }
+    }
+  ],
+  "sourceUnchanged": true,
+  "limitations": "A single normal-alpha white image cannot reproduce every background-dependent Color Dodge/Lighten antialias pixel exactly. Measured errors are included; no material/shader workaround was introduced. Actual saved PSD crops were checked on dark cards for all four icons and on selected pink for CowboyHat.",
+  "reviewImage": "E:/CodexWork/MessControl/Validation/UIWardrobeOriginalIcons_20261104/Wardrobe_Glyph_Blend_Comparison.png",
+  "personallyInspected": true,
+  "reviewObservation": "White silhouettes and cut-out contours match the original art on both tested backdrops. Screen icons are visually matched. Dodge/Lighten retain measurable antialias differences at edges; the maximum local Dodge error on pink is documented rather than claimed pixel-exact."
+}

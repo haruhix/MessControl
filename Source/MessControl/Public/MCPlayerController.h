@@ -66,6 +66,9 @@ public:
     virtual void NotifyLoadedWorld(FName WorldPackageName,bool bFinalDest) override;
     virtual void PostSeamlessTravel() override;
     UFUNCTION(BlueprintCallable,Category="Debug") void ToggleDevPanel();
+    bool CanOpenUIPresentationTools() const;
+    bool CanUseRegularF3Panel() const;
+    bool CanPresentUnifiedTeam() const;
     void ToggleEmotes();
     UFUNCTION(BlueprintCallable,Category="Emotes") void BeginEmoteSelection();
     UFUNCTION(BlueprintCallable,Category="Emotes") void EndEmoteSelection();

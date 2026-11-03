@@ -8,6 +8,12 @@
 #include "EngineUtils.h"
 #include "MCMainMenuWidget.h"
 #include "MCVoiceSettingsWidget.h"
+#include "MCUnifiedSettingsWidget.h"
+#include "MCUnifiedTeamWidget.h"
+#include "MCUniversalUIWidget.h"
+#include "Components/CheckBox.h"
+#include "Components/Slider.h"
+#include "UObject/UObjectHash.h"
 #include "MCHubWidget.h"
 #include "MCHubWardrobeWidget.h"
 #include "MCHubShopWidget.h"
@@ -385,7 +391,8 @@ bool UMCGameplayUIEditorLibrary::CapturePIEGameWindow(UWorld* World,const FStrin
 }
 
 bool UMCGameplayUIEditorLibrary::RenderGameplayUIPreview(TSubclassOf<UMCGameplayUIWidget> WidgetClass,
-    const FString& OutputFile,FIntPoint DrawSize,const FString& State,const FString& Culture,float Time,float RenderScale)
+    const FString& OutputFile,FIntPoint DrawSize,const FString& State,const FString& Culture,float Time,float RenderScale,
+    bool bOverrideUIVersion,EMCUIVersion UIVersion)
 {
     FString Path=FPaths::ConvertRelativePathToFull(OutputFile);FPaths::NormalizeFilename(Path);
     if (!GEditor || GEditor->PlayWorld || !WidgetClass || !Path.StartsWith(TEXT("E:/"),ESearchCase::IgnoreCase)
@@ -396,6 +403,7 @@ bool UMCGameplayUIEditorLibrary::RenderGameplayUIPreview(TSubclassOf<UMCGameplay
     TStrongObjectPtr<UMCGameplayUIWidget> Widget(NewObject<UMCGameplayUIWidget>(GetTransientPackage(),WidgetClass,NAME_None,RF_Transient));
     Widget->SetDesignerFlags(EWidgetDesignFlags::Designing | EWidgetDesignFlags::ExecutePreConstruct);
     Widget->PreviewState=FName(State);Widget->PreviewCulture=Culture;
+    if(bOverrideUIVersion) {Widget->bOverridePreviewUIVersion=true;Widget->PreviewUIVersion=UIVersion;}
     const int64 Scenario=StaticEnum<EMCGameplayUIPreviewScenario>()->GetValueByNameString(State);
     if (Scenario!=INDEX_NONE) Widget->PreviewScenario=static_cast<EMCGameplayUIPreviewScenario>(Scenario);
     Widget->Initialize();Widget->BuildPresentationTree();
@@ -560,6 +568,97 @@ UWidgetBlueprint* UMCGameplayUIEditorLibrary::CreateEditableGameplayWidget(const
     }
     UE_LOG(LogTemp,Display,TEXT("MC_UI_AUTHOR Saved editable gameplay widget: %s"),*AssetPath);
     return Blueprint;
+}
+
+bool UMCGameplayUIEditorLibrary::RebuildUnifiedInterfaceView(UWidgetBlueprint* Blueprint)
+{
+    // Callers verify the accepted task-owned package hashes and retain backups.
+    // This allowlist deliberately cannot rebuild the root, legacy menu or HUD.
+    if(!IsInGameThread() || !GEditor || GEditor->PlayWorld || IsRunningCommandlet() || !IsValid(Blueprint)
+        || Blueprint->GetPackage()->IsDirty() || !Blueprint->WidgetTree || HasDirtyDesignerPackages()) return false;
+    const FString Path=Blueprint->GetPathName();
+    UClass* RequiredParent=nullptr;
+    if(Path==TEXT("/Game/Gameplay/UI/V2/WBP_UISettings.WBP_UISettings")) RequiredParent=UMCUnifiedSettingsWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/V2/WBP_UITeam.WBP_UITeam")) RequiredParent=UMCUnifiedTeamWidget::StaticClass();
+    if(!RequiredParent || Blueprint->ParentClass!=RequiredParent || !Blueprint->GeneratedClass) return false;
+    auto* Assets=GEditor->GetEditorSubsystem<UEditorAssetSubsystem>();if(!Assets) return false;
+    TStrongObjectPtr<UWidgetBlueprint> BlueprintGuard(Blueprint);
+    TStrongObjectPtr<UMCGameplayUIWidget> PreviousDefaults(Cast<UMCGameplayUIWidget>(Blueprint->GeneratedClass->GetDefaultObject()));
+    if(!PreviousDefaults.IsValid()) return false;
+    TStrongObjectPtr<UMCGameplayUIWidget> Source(NewObject<UMCGameplayUIWidget>(GetTransientPackage(),RequiredParent,NAME_None,RF_Transient));
+    Source->SetDesignerFlags(EWidgetDesignFlags::Designing);
+    Source->Theme=PreviousDefaults->Theme;Source->TranslationTable=PreviousDefaults->TranslationTable;
+    Source->Initialize();Source->BuildPresentationTree();
+    if(!Source->WidgetTree || !Source->WidgetTree->RootWidget) return false;
+    TStrongObjectPtr<UWidgetTree> Prepared(DuplicateObject<UWidgetTree>(Source->WidgetTree,GetTransientPackage(),
+        MakeUniqueObjectName(GetTransientPackage(),UWidgetTree::StaticClass(),TEXT("UnifiedInterfaceDesignerSeed"))));
+    if(!Prepared.IsValid() || !Prepared->RootWidget) return false;
+
+    // Presentation adapters belong to the transient source, never to a saved
+    // widget tree. Runtime BuildPresentationTree rebinds them to its own view.
+    TArray<UMCUnifiedSettingsBinding*> SourceBindings;
+    ForEachObjectWithOuter(Source.Get(),[&SourceBindings](UObject* Object) {
+        if(auto* Binding=Cast<UMCUnifiedSettingsBinding>(Object)) SourceBindings.Add(Binding);
+    },true);
+    FDesignerMaterialSnapshots Snapshots(Blueprint,Assets,Prepared.Get());
+    TSet<FName> NewNames;TSet<UWidget*> Sanitized;
+    auto Sanitize=[&](UWidget* Widget) {
+        if(Sanitized.Contains(Widget)) return;Sanitized.Add(Widget);
+        const bool bTopLevel=Widget->GetOuter()==Prepared.Get();
+        const auto* Previous=bTopLevel?Blueprint->WidgetTree->FindWidget(Widget->GetFName()):nullptr;
+        const bool bWasVariable=Previous && Previous->bIsVariable;
+        if(!SanitizeAppendedDesignerWidget(Widget,Source.Get(),Snapshots)) Snapshots.bFailed=true;
+        if(Previous) Widget->bIsVariable=bWasVariable;
+        if(bTopLevel) NewNames.Add(Widget->GetFName());
+        for(auto* Binding:SourceBindings) {
+            if(auto* Picker=Cast<UComboBoxString>(Widget)) Picker->OnSelectionChanged.RemoveAll(Binding);
+            if(auto* Slider=Cast<USlider>(Widget)) Slider->OnValueChanged.RemoveAll(Binding);
+            if(auto* Check=Cast<UCheckBox>(Widget)) Check->OnCheckStateChanged.RemoveAll(Binding);
+            if(auto* Button=Cast<UMCUniversalUIWidget>(Widget)) Button->OnClicked.RemoveAll(Binding);
+        }
+    };
+    // Visit user-widget owners as well as their descendants; the latter walk
+    // alone omits Universal::OnClicked on the owning component.
+    Prepared->ForEachWidget(Sanitize);
+    Prepared->ForEachWidgetAndDescendants(Sanitize);
+    if(Snapshots.bFailed) return false;
+
+    TStrongObjectPtr<UWidgetTree> PreviousTree(Blueprint->WidgetTree.Get());
+    const auto PreviousGuids=Blueprint->WidgetVariableNameToGuidMap;
+    auto RestoreDefaults=[&](UMCGameplayUIWidget* Defaults,const UMCGameplayUIWidget* From) {
+        Defaults->bUseNativeLayout=From->bUseNativeLayout;Defaults->Theme=From->Theme;
+        Defaults->StyleBindings=From->StyleBindings;Defaults->TextBindings=From->TextBindings;
+        Defaults->TranslationTable=From->TranslationTable;
+        CastChecked<UWidgetBlueprintGeneratedClass>(Blueprint->GeneratedClass)->UpdateCustomPropertyListForPostConstruction();
+    };
+    auto RollBack=[&] {
+        if(Blueprint->WidgetTree) Blueprint->WidgetTree->Rename(nullptr,GetTransientPackage(),REN_DontCreateRedirectors|REN_NonTransactional);
+        PreviousTree->Rename(TEXT("WidgetTree"),Blueprint,REN_DontCreateRedirectors|REN_NonTransactional);
+        Blueprint->WidgetTree=PreviousTree.Get();Blueprint->WidgetVariableNameToGuidMap=PreviousGuids;
+        FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
+        FKismetEditorUtilities::CompileBlueprint(Blueprint);
+        if(Blueprint->GeneratedClass) if(auto* Defaults=Cast<UMCGameplayUIWidget>(Blueprint->GeneratedClass->GetDefaultObject()))
+            RestoreDefaults(Defaults,PreviousDefaults.Get());
+        UE_LOG(LogTemp,Error,TEXT("MC_UI_UNIFIED Restored previous component tree after failed rebuild; no WBP saved: %s"),*Path);
+    };
+    Blueprint->Modify();
+    PreviousTree->Rename(nullptr,GetTransientPackage(),REN_DontCreateRedirectors|REN_NonTransactional);
+    Blueprint->WidgetTree=DuplicateObject<UWidgetTree>(Prepared.Get(),Blueprint,TEXT("WidgetTree"));
+    if(!Blueprint->WidgetTree) {RollBack();return false;}
+    Blueprint->WidgetTree->ClearFlags(RF_Transient);Blueprint->WidgetTree->SetFlags(RF_Transactional);
+    for(const auto& Entry:PreviousGuids) if(!NewNames.Contains(Entry.Key)) Blueprint->OnVariableRemoved(Entry.Key);
+    RegisterMissingDesignerGuids(Blueprint);
+    FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);FKismetEditorUtilities::CompileBlueprint(Blueprint);
+    if(Blueprint->Status==BS_Error || !Blueprint->GeneratedClass) {RollBack();return false;}
+    auto* Defaults=Cast<UMCGameplayUIWidget>(Blueprint->GeneratedClass->GetDefaultObject());
+    if(!Defaults) {RollBack();return false;}
+    Defaults->Modify();RestoreDefaults(Defaults,Source.Get());Defaults->bUseNativeLayout=false;
+    CastChecked<UWidgetBlueprintGeneratedClass>(Blueprint->GeneratedClass)->UpdateCustomPropertyListForPostConstruction();
+    if(!Snapshots.Save()) {RollBack();return false;}
+    Blueprint->MarkPackageDirty();
+    if(!Assets->SaveLoadedAsset(Blueprint,false)) {RollBack();return false;}
+    UE_LOG(LogTemp,Display,TEXT("MC_UI_UNIFIED Rebuilt task-owned component tree, preserving graphs and surviving widget GUIDs: %s"),*Path);
+    return true;
 }
 
 bool UMCGameplayUIEditorLibrary::RefreshHubWardrobePalettePresentation(UWidgetBlueprint* Blueprint)
@@ -1147,6 +1246,30 @@ bool UMCGameplayUIEditorLibrary::ValidateGameplayUILocalization(TArray<FString>&
         if(Entry.StartsWith(TEXT("FAIL "),ESearchCase::CaseSensitive))
             UE_LOG(LogTemp,Warning,TEXT("MC_UI_LOCALIZATION %s"),*Entry);
     return Failed==0;
+}
+
+bool UMCGameplayUIEditorLibrary::ConfigureUniversalUIFont(UFont* Font,UFont* FallbackFamily,UFontFace* LeFunFace)
+{
+    if(!IsValid(Font) || !IsValid(FallbackFamily) || !IsValid(LeFunFace) || Font==FallbackFamily
+        || Font->FontCacheType!=EFontCacheType::Runtime || (GEditor && GEditor->PlayWorld)
+        || FallbackFamily->GetInternalCompositeFont().DefaultTypeface.Fonts.IsEmpty()) return false;
+    FProperty* Property=FindFProperty<FProperty>(UFont::StaticClass(),UFont::GetInternalCompositeFontPropertyName());
+    Font->Modify();Font->PreEditChange(Property);
+    auto& Composite=Font->GetMutableInternalCompositeFont();
+    Composite=FallbackFamily->GetInternalCompositeFont();
+    auto& LeFun=Composite.SubTypefaces.InsertDefaulted_GetRef(0);
+    LeFun.EditorName=TEXT("LeFun Latin and Cyrillic");LeFun.Cultures.Reset();LeFun.ScalingFactor=1.f;
+    // These exact ranges were checked against LeFunFont-Regular.otf. Accents,
+    // symbols and Asian scripts retain the source/default/fallback families.
+    for(const TCHAR* Name:{TEXT("Default"),TEXT("Regular"),TEXT("Bold")})
+    {auto& Entry=LeFun.Typeface.Fonts.AddDefaulted_GetRef();Entry.Name=Name;Entry.Font=FFontData(LeFunFace);}
+    const int32 Ranges[][2]={{0x20,0x29},{0x2B,0x3B},{0x3D,0x3D},{0x3F,0x5B},
+        {0x5D,0x5D},{0x5F,0x5F},{0x61,0x7A},{0x401,0x401},{0x410,0x44F},{0x451,0x451}};
+    for(const auto& Range:Ranges) LeFun.CharacterRanges.Add(FInt32Range::Inclusive(Range[0],Range[1]));
+    Composite.MakeDirty();
+    FPropertyChangedEvent Changed(Property,EPropertyChangeType::ValueSet);Font->PostEditChangeProperty(Changed);Font->MarkPackageDirty();
+    if(FSlateApplication::IsInitialized()) FSlateApplication::Get().GetRenderer()->FlushFontCache(TEXT("MC universal UI font configured"));
+    return true;
 }
 
 bool UMCGameplayUIEditorLibrary::ConfigureBossNameCJKFallback(UFont* NameFont,UFontFace* FallbackFace)

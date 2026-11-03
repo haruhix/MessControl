@@ -1,4 +1,5 @@
 #include "MCPlayerController.h"
+#include "MCUIPresentationSubsystem.h"
 #include "MCWardrobePreviewActor.h"
 #include "MCPrototypeWidget.h"
 #include "MCGameUserSettings.h"
@@ -507,7 +508,7 @@ void AMCPlayerController::ToggleDevPanel()
 #if !UE_BUILD_SHIPPING
     // F3 is the explicit, undisclosed playtest entry point. Opening this panel
     // must not enable the global developer HUD or the F1 tuning tools.
-    if (!HasLocalPresentationOwner() || IsRewardInteractionActive() || bBossIntroPlaying) return;
+    if (!CanOpenUIPresentationTools() || IsRewardInteractionActive()) return;
     if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed);
     if (!DevPanel)
     {
@@ -520,6 +521,24 @@ void AMCPlayerController::ToggleDevPanel()
     if (bOpen) DevPanel->RefreshActions();
     UpdateInputMode();
 #endif
+}
+bool AMCPlayerController::CanOpenUIPresentationTools() const
+{
+    return HasLocalPresentationOwner() && !bLoadingInputBlocked && !bBossIntroPlaying;
+}
+bool AMCPlayerController::CanUseRegularF3Panel() const
+{
+    if(DevPanel && DevPanel->IsVisible()) return true;
+    return CanOpenUIPresentationTools() && !IsRewardInteractionActive() && !IsWardrobeOpen() && !IsHubShopOpen()
+        && !bLobbyUIOpen && !bPauseMenuOpen && !bConnectionMenuOpen && !bTutorialMenuInput && !bHubMenuInput;
+}
+bool AMCPlayerController::CanPresentUnifiedTeam() const
+{
+    return ScoreboardWidget && ScoreboardWidget->IsVisible() && CanOpenUIPresentationTools()
+        && !bLobbyUIOpen && !bPauseMenuOpen && !bConnectionMenuOpen && !bTutorialMenuInput && !bHubMenuInput
+        && !IsWardrobeOpen() && !IsHubShopOpen() && !IsRewardInteractionActive()
+        && !(DevPanel && DevPanel->IsVisible()) && !(EmoteWidget && EmoteWidget->IsVisible())
+        && !(PrototypeWidget && PrototypeWidget->IsPanelOpen());
 }
 bool AMCPlayerController::CanUseDevPanel() const
 {
@@ -649,6 +668,9 @@ void AMCPlayerController::UpdateInputMode()
 {
     if(!HasLocalPresentationOwner()) return;
     UpdatePerkChoicePause();
+    if(auto* GI=GetGameInstance())
+        if(auto* Presentation=GI->GetSubsystem<UMCUIPresentationSubsystem>())
+            if(Presentation->ApplyPanelInputMode(this)) return;
     // A modal owns focus over the held overlay; hiding directly here avoids
     // recursively re-entering this input-mode resolver during a transition.
     if(ScoreboardWidget && ScoreboardWidget->IsVisible() && (bLoadingInputBlocked || bLobbyUIOpen || bPauseMenuOpen || IsWardrobeOpen() || IsHubShopOpen()
