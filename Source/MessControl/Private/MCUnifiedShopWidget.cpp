@@ -26,10 +26,10 @@
 
 namespace
 {
-    FLinearColor Color(const TCHAR* Hex) {return FLinearColor(FColor::FromHex(Hex));}
-    const FLinearColor Blue=Color(TEXT("4C76AE")),Navy=Color(TEXT("16226B")),Paper=Color(TEXT("FFFDFD"));
-    const FLinearColor Dark=Color(TEXT("404243")),Pink=Color(TEXT("AE4C6C")),Green=Color(TEXT("2AA85C")),BackPink=Color(TEXT("A35173"));
-    FText ReadText(const UUserWidget* Owner,FName Name)
+    FLinearColor MCUnifiedShopPrivate_Color(const TCHAR* Hex) {return FLinearColor(FColor::FromHex(Hex));}
+    const FLinearColor MCUnifiedShopPrivate_Blue=MCUnifiedShopPrivate_Color(TEXT("4C76AE")),MCUnifiedShopPrivate_Navy=MCUnifiedShopPrivate_Color(TEXT("16226B")),MCUnifiedShopPrivate_Paper=MCUnifiedShopPrivate_Color(TEXT("FFFDFD"));
+    const FLinearColor MCUnifiedShopPrivate_Dark=MCUnifiedShopPrivate_Color(TEXT("404243")),MCUnifiedShopPrivate_Pink=MCUnifiedShopPrivate_Color(TEXT("AE4C6C")),MCUnifiedShopPrivate_Green=MCUnifiedShopPrivate_Color(TEXT("2AA85C")),MCUnifiedShopPrivate_BackPink=MCUnifiedShopPrivate_Color(TEXT("A35173"));
+    FText MCUnifiedShopPrivate_ReadText(const UUserWidget* Owner,FName Name)
     {
         auto* Text=Owner && Owner->WidgetTree?Owner->WidgetTree->FindWidget<UTextBlock>(Name):nullptr;
         return Text?Text->GetText():FText::GetEmpty();
@@ -57,7 +57,7 @@ UMCUniversalUIWidget* UMCUnifiedShopWidget::MakeShape(FName Name,FLinearColor Fi
 {
     auto* Panel=WidgetTree->ConstructWidget<UMCUniversalUIWidget>(UMCUniversalUIWidget::StaticClass(),Name);
     Panel->Kind=bButton?EMCUniversalUIKind::Button:EMCUniversalUIKind::Panel;Panel->bCustomColors=true;Panel->bUseThemeShape=false;
-    Panel->CustomFill=Fill;Panel->CustomText=Paper;Panel->CustomOutline=Navy;Panel->CustomShadow=Shadow.IsNearlyZero()?Navy:Paper;
+    Panel->CustomFill=Fill;Panel->CustomText=MCUnifiedShopPrivate_Paper;Panel->CustomOutline=MCUnifiedShopPrivate_Navy;Panel->CustomShadow=Shadow.IsNearlyZero()?MCUnifiedShopPrivate_Navy:MCUnifiedShopPrivate_Paper;
     Panel->CornerRadius=20;Panel->OutlineWidth=0;Panel->ShadowOffset=Shadow;Panel->ContentPadding=FMargin(14);
     Panel->Label=FText::GetEmpty();Panel->Initialize();Panel->BuildPresentationTree();return Panel;
 }
@@ -74,11 +74,11 @@ void UMCUnifiedShopWidget::BuildPresentationTree()
     if(WidgetTree->RootWidget) {BindStaticControls();return;}
     auto* Size=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("ShopV2Size"));
     Size->SetMinDesiredWidth(1000);Size->SetMaxDesiredWidth(1350);WidgetTree->RootWidget=Size;
-    auto* Frame=MakeShape(TEXT("ShopV2Frame"),Blue,{10,14});Frame->CustomOutline=Navy;Frame->CustomShadow=Navy;Frame->OutlineWidth=5;
+    auto* Frame=MakeShape(TEXT("ShopV2Frame"),MCUnifiedShopPrivate_Blue,{10,14});Frame->CustomOutline=MCUnifiedShopPrivate_Navy;Frame->CustomShadow=MCUnifiedShopPrivate_Navy;Frame->OutlineWidth=5;
     Frame->ContentPadding=FMargin(24);Frame->ContourPoints={{0,0},{.62,0},{.62,.15},{1,.15},{1,1},{0,1}};
     Frame->ApplyTheme();Size->SetContent(Frame);
     auto* Column=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("ShopV2Content"));Frame->SetContentForSlot(TEXT("Content"),Column);
-    auto* Header=MakeShape(TEXT("ShopV2Header"),Paper,{0,0});Header->CustomText=Pink;Header->OutlineWidth=5;
+    auto* Header=MakeShape(TEXT("ShopV2Header"),MCUnifiedShopPrivate_Paper,{0,0});Header->CustomText=MCUnifiedShopPrivate_Pink;Header->OutlineWidth=5;
     Header->LabelKey=TEXT("UI.Shop.Title");Header->Label=LOCTEXT("Shop","МАГАЗИН");Header->FontSize=44;Header->ContentPadding=FMargin(30,12);Header->ApplyTheme();
     auto* HeaderWidth=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("ShopV2HeaderSize"));
     HeaderWidth->SetMinDesiredWidth(360);HeaderWidth->SetMaxDesiredWidth(540);HeaderWidth->SetContent(Header);
@@ -95,7 +95,7 @@ void UMCUnifiedShopWidget::BuildPresentationTree()
     Grid->SetMinDesiredSlotWidth(210);Grid->SetSlotPadding(FMargin(4,0,12,16));GridScroll->AddChild(Grid);
     auto* GridCell=Body->AddChildToHorizontalBox(GridHeight);GridCell->SetSize(FSlateChildSize(ESlateSizeRule::Fill));GridCell->SetPadding(FMargin(0,0,14,0));
     auto* DetailWidth=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("ShopV2DetailBounds"));DetailWidth->SetMinDesiredWidth(400);DetailWidth->SetMaxDesiredWidth(410);
-    auto* Detail=MakeShape(TEXT("ShopV2Detail"),Dark,{10,14});DetailWidth->SetContent(Detail);
+    auto* Detail=MakeShape(TEXT("ShopV2Detail"),MCUnifiedShopPrivate_Dark,{10,14});DetailWidth->SetContent(Detail);
     auto* DetailCell=Body->AddChildToHorizontalBox(DetailWidth);DetailCell->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));DetailCell->SetPadding(FMargin(8,0,10,16));
     auto* DetailColumn=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("ShopV2DetailContent"));Detail->SetContentForSlot(TEXT("Content"),DetailColumn);
     auto* DetailScroll=WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(),TEXT("ShopV2DetailScroll"));
@@ -115,12 +115,12 @@ void UMCUnifiedShopWidget::BuildPresentationTree()
     auto* Replace=WidgetTree->ConstructWidget<UWrapBox>(UWrapBox::StaticClass(),TEXT("ShopV2ReplacementSlots"));
     Replace->SetExplicitWrapSize(true);Replace->SetWrapSize(380);Replace->SetInnerSlotPadding({8,8});DetailColumn->AddChildToVerticalBox(Replace)->SetPadding(FMargin(0,8));
     for(int32 I=0;I<4;++I) {
-        auto* Button=MakeShape(FName(*FString::Printf(TEXT("ShopV2Replace%d"),I)),Blue,{0,0},true);Button->FontSize=18;Button->ContentPadding=FMargin(14,10);Replace->AddChildToWrapBox(Button);
+        auto* Button=MakeShape(FName(*FString::Printf(TEXT("ShopV2Replace%d"),I)),MCUnifiedShopPrivate_Blue,{0,0},true);Button->FontSize=18;Button->ContentPadding=FMargin(14,10);Replace->AddChildToWrapBox(Button);
     }
     Replace->SetVisibility(ESlateVisibility::Collapsed);
-    auto* Buy=MakeShape(TEXT("ShopV2Buy"),Green,{0,0},true);Buy->FontSize=26;Buy->ContentPadding=FMargin(22,12);Buy->Label=Localized(TEXT("UI.Shop.Buy"),LOCTEXT("Buy","Купить"));Buy->ApplyTheme();
+    auto* Buy=MakeShape(TEXT("ShopV2Buy"),MCUnifiedShopPrivate_Green,{0,0},true);Buy->FontSize=26;Buy->ContentPadding=FMargin(22,12);Buy->Label=Localized(TEXT("UI.Shop.Buy"),LOCTEXT("Buy","Купить"));Buy->ApplyTheme();
     auto* BuyCell=DetailColumn->AddChildToVerticalBox(Buy);BuyCell->SetHorizontalAlignment(HAlign_Center);BuyCell->SetPadding(FMargin(8,14,8,8));
-    auto* Close=MakeShape(TEXT("ShopV2Back"),BackPink,{0,0},true);Close->LabelKey=TEXT("UI.Settings.Back");Close->Label=LOCTEXT("Back","НАЗАД");Close->FontSize=28;
+    auto* Close=MakeShape(TEXT("ShopV2Back"),MCUnifiedShopPrivate_BackPink,{0,0},true);Close->LabelKey=TEXT("UI.Settings.Back");Close->Label=LOCTEXT("Back","НАЗАД");Close->FontSize=28;
     Close->OutlineWidth=5;Close->ContentPadding=FMargin(56,10);Close->ApplyTheme();
     auto* CloseCell=Column->AddChildToVerticalBox(Close);CloseCell->SetHorizontalAlignment(HAlign_Center);CloseCell->SetPadding(FMargin(8,16,8,4));
     BindStaticControls();
@@ -168,7 +168,7 @@ void UMCUnifiedShopWidget::PresentProducts(const TArray<FMCUnifiedShopProduct>& 
         Grid->ClearChildren();Cards.Reset();CardBindings.Reset();
         for(int32 I=0;I<Products.Num();++I) {
             FMCUnifiedShopCard Card;Card.ItemID=Products[I].ItemID;
-            Card.Surface=MakeShape(MakeUniqueObjectName(WidgetTree,UMCUniversalUIWidget::StaticClass(),FName(*FString::Printf(TEXT("ShopV2Card%d"),I))),Dark,{8,12},true);
+            Card.Surface=MakeShape(MakeUniqueObjectName(WidgetTree,UMCUniversalUIWidget::StaticClass(),FName(*FString::Printf(TEXT("ShopV2Card%d"),I))),MCUnifiedShopPrivate_Dark,{8,12},true);
             Card.Surface->ContentPadding=FMargin(10);
             auto* CardBody=WidgetTree->ConstructWidget<UVerticalBox>();Card.Surface->SetContentForSlot(TEXT("Content"),CardBody);
             auto* IconSize=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),MakeUniqueObjectName(WidgetTree,USizeBox::StaticClass(),TEXT("ShopV2CardIconBounds")));IconSize->SetHeightOverride(100);
@@ -199,7 +199,7 @@ void UMCUnifiedShopWidget::PresentProducts(const TArray<FMCUnifiedShopProduct>& 
         if(auto* Host=Card.Price->GetParent()) Host->SetVisibility(Product.Price.IsEmpty()?ESlateVisibility::Collapsed:ESlateVisibility::SelfHitTestInvisible);
         if(auto* Host=Card.State->GetParent()) Host->SetVisibility(Product.State.IsEmpty()?ESlateVisibility::Collapsed:ESlateVisibility::SelfHitTestInvisible);
         Card.Icon->SetBrush(Product.Icon);Card.Icon->SetVisibility(Product.Icon.GetResourceObject()?ESlateVisibility::HitTestInvisible:ESlateVisibility::Hidden);
-        Card.Surface->SetIsEnabled(Product.bEnabled);Card.Surface->CustomFill=Product.ItemID==Selected?Pink:Dark;Card.Surface->ApplyTheme();
+        Card.Surface->SetIsEnabled(Product.bEnabled);Card.Surface->CustomFill=Product.ItemID==Selected?MCUnifiedShopPrivate_Pink:MCUnifiedShopPrivate_Dark;Card.Surface->ApplyTheme();
     }
     // Newly generated labels use the same composite font as the surrounding root.
     Super::ApplyTheme();
@@ -211,8 +211,8 @@ void UMCUnifiedShopWidget::RefreshFromBackend()
     if(auto* Grid=Cast<UUniformGridPanel>(SourceControl(TEXT("ShopCatalogGrid"))))
         for(UWidget* Child:Grid->GetAllChildren()) if(auto* Original=Cast<UMCCosmeticItemWidget>(Child)) {
             FMCUnifiedShopProduct Product;Product.ItemID=Original->GetCatalogId();
-            Product.Name=ReadText(Original,TEXT("CosmeticName"));Product.Description=ReadText(Original,TEXT("CosmeticDescription"));
-            Product.Price=ReadText(Original,TEXT("CosmeticPrice"));Product.State=ReadText(Original,TEXT("CosmeticState"));
+            Product.Name=MCUnifiedShopPrivate_ReadText(Original,TEXT("CosmeticName"));Product.Description=MCUnifiedShopPrivate_ReadText(Original,TEXT("CosmeticDescription"));
+            Product.Price=MCUnifiedShopPrivate_ReadText(Original,TEXT("CosmeticPrice"));Product.State=MCUnifiedShopPrivate_ReadText(Original,TEXT("CosmeticState"));
             if(auto* Image=Original->WidgetTree?Original->WidgetTree->FindWidget<UImage>(TEXT("CosmeticThumbnail")):nullptr) Product.Icon=Image->GetBrush();
             Products.Add(MoveTemp(Product));
         }
@@ -228,7 +228,7 @@ void UMCUnifiedShopWidget::RefreshFromBackend()
     }
     if(auto* Buy=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("ShopV2Buy"))) {
         auto* Original=Cast<UButton>(SourceControl(TEXT("ShopBuy")));Buy->SetIsEnabled(Original && Original->GetIsEnabled());
-        Buy->SetLabel(NAME_None,ReadText(Backend.Get(),TEXT("ShopBuyLabel")));
+        Buy->SetLabel(NAME_None,MCUnifiedShopPrivate_ReadText(Backend.Get(),TEXT("ShopBuyLabel")));
         // Bound this action's text inside the narrow detail column. Keep the
         // authored font; longer translated states grow to multiple lines.
         if(Buy->WidgetTree) if(auto* Caption=Buy->WidgetTree->FindWidget<UTextBlock>(TEXT("UniversalLabel"))) {
@@ -239,7 +239,7 @@ void UMCUnifiedShopWidget::RefreshFromBackend()
     if(auto* Slots=WidgetTree->FindWidget(TEXT("ShopV2ReplacementSlots"))) Slots->SetVisibility(OriginalSlots && OriginalSlots->IsVisible()?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
     for(int32 I=0;I<4;++I) if(auto* Button=WidgetTree->FindWidget<UMCUniversalUIWidget>(FName(*FString::Printf(TEXT("ShopV2Replace%d"),I)))) {
         auto* Original=Cast<UButton>(SourceControl(FName(*FString::Printf(TEXT("ShopReplace%d"),I))));
-        Button->SetIsEnabled(Original && Original->GetIsEnabled());Button->SetLabel(NAME_None,ReadText(Backend.Get(),FName(*FString::Printf(TEXT("ShopReplaceLabel%d"),I))));
+        Button->SetIsEnabled(Original && Original->GetIsEnabled());Button->SetLabel(NAME_None,MCUnifiedShopPrivate_ReadText(Backend.Get(),FName(*FString::Printf(TEXT("ShopReplaceLabel%d"),I))));
     }
     UpdateHeaderContour();
 }

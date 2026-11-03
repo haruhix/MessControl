@@ -32,13 +32,13 @@
 
 namespace
 {
-    FLinearColor Color(const TCHAR* Hex) {return FLinearColor(FColor::FromHex(Hex));}
-    const FLinearColor Blue=Color(TEXT("4C79AC")), Navy=Color(TEXT("2B2B83"));
-    const FLinearColor Inner=Color(TEXT("315D73")), Paper=Color(TEXT("FFF9F8"));
+    FLinearColor MCUnifiedSettingsPrivate_Color(const TCHAR* Hex) {return FLinearColor(FColor::FromHex(Hex));}
+    const FLinearColor MCUnifiedSettingsPrivate_Blue=MCUnifiedSettingsPrivate_Color(TEXT("4C79AC")), MCUnifiedSettingsPrivate_Navy=MCUnifiedSettingsPrivate_Color(TEXT("2B2B83"));
+    const FLinearColor MCUnifiedSettingsPrivate_Inner=MCUnifiedSettingsPrivate_Color(TEXT("315D73")), MCUnifiedSettingsPrivate_Paper=MCUnifiedSettingsPrivate_Color(TEXT("FFF9F8"));
 
-    struct FControl {const TCHAR* Name;const TCHAR* Key;const TCHAR* Copy;int32 Tab;int32 Kind;float Min=0,Max=1,Value=1;};
+    struct MCUnifiedSettingsPrivate_FControl {const TCHAR* Name;const TCHAR* Key;const TCHAR* Copy;int32 Tab;int32 Kind;float Min=0,Max=1,Value=1;};
     // kind: 0 picker, 1 slider, 2 checkbox, 3 forwarded voice button, 4 live text, 5 meter.
-    const FControl Controls[]={
+    const MCUnifiedSettingsPrivate_FControl MCUnifiedSettingsPrivate_Controls[]={
         {TEXT("ResolutionPicker"),TEXT("UI.Menu.Resolution"),TEXT("РАЗРЕШЕНИЕ ЭКРАНА"),0,0},
         {TEXT("WindowModePicker"),TEXT("UI.Menu.WindowMode"),TEXT("РЕЖИМ ЭКРАНА"),0,0},
         {TEXT("FrameRatePicker"),TEXT("UI.Settings.FrameRate"),TEXT("ЛИМИТ КАДРОВ"),0,0},
@@ -76,7 +76,7 @@ namespace
         {TEXT("VoicePlayerMute"),TEXT("UI.Voice.PlayerMute"),TEXT("НЕ СЛЫШАТЬ ЭТОГО ИГРОКА"),4,2},
         {TEXT("VoiceStatus"),TEXT("UI.Voice.Status"),TEXT("Голос доступен в сетевой комнате. Проверка микрофона — вне комнаты."),4,4},
     };
-    FName ViewName(const TCHAR* Name) {return FName(*(FString(TEXT("SettingsV2_"))+Name));}
+    FName MCUnifiedSettingsPrivate_ViewName(const TCHAR* Name) {return FName(*(FString(TEXT("SettingsV2_"))+Name));}
 }
 
 void UMCUnifiedSettingsBinding::PickerChanged(FString Value,ESelectInfo::Type) {if(Owner.IsValid()) Owner->ForwardPicker(SourceName,Value);}
@@ -103,7 +103,7 @@ void UMCUnifiedSettingsWidget::BuildPresentationTree()
     {
         auto* Panel=WidgetTree->ConstructWidget<UMCUniversalUIWidget>(UMCUniversalUIWidget::StaticClass(),Name);
         Panel->Kind=bButton?EMCUniversalUIKind::Button:EMCUniversalUIKind::Panel;
-        Panel->bCustomColors=true;Panel->bUseThemeShape=false;Panel->CustomFill=Fill;Panel->CustomOutline=Navy;Panel->CustomShadow=Navy;
+        Panel->bCustomColors=true;Panel->bUseThemeShape=false;Panel->CustomFill=Fill;Panel->CustomOutline=MCUnifiedSettingsPrivate_Navy;Panel->CustomShadow=MCUnifiedSettingsPrivate_Navy;
         Panel->CornerRadius=Radius;Panel->OutlineWidth=3;Panel->ShadowOffset=Shadow;Panel->ContentPadding=FMargin(14);
         Panel->Label=FText::GetEmpty();Panel->Initialize();Panel->BuildPresentationTree();return Panel;
     };
@@ -115,8 +115,8 @@ void UMCUnifiedSettingsWidget::BuildPresentationTree()
     };
     auto AddAction=[&](FName Name,FName Key,const TCHAR* Copy,int32 FontSize=23)
     {
-        auto* Button=Shape(Name,Blue,18,{5,7},true);
-        Button->LabelKey=Key;Button->Label=FText::AsCultureInvariant(Copy);Button->CustomText=Paper;Button->FontSize=FontSize;
+        auto* Button=Shape(Name,MCUnifiedSettingsPrivate_Blue,18,{5,7},true);
+        Button->LabelKey=Key;Button->Label=FText::AsCultureInvariant(Copy);Button->CustomText=MCUnifiedSettingsPrivate_Paper;Button->FontSize=FontSize;
         Button->ContentPadding=FMargin(26,14);Button->ApplyTheme();return Button;
     };
     // Tabs take their width from real label size and padding. Longer translations
@@ -132,8 +132,8 @@ void UMCUnifiedSettingsWidget::BuildPresentationTree()
         Tab->ShadowOffset={0,0};Tab->ContentPadding=FMargin(17,15);Tab->ApplyTheme();
         Tabs->AddChildToWrapBox(Tab)->SetVerticalAlignment(VAlign_Bottom);
     }
-    auto* Outer=Shape(TEXT("SettingsV2Outer"),Blue,18,{6,9});
-    auto* InnerPanel=Shape(TEXT("SettingsV2Inner"),Inner,16,{0,0});
+    auto* Outer=Shape(TEXT("SettingsV2Outer"),MCUnifiedSettingsPrivate_Blue,18,{6,9});
+    auto* InnerPanel=Shape(TEXT("SettingsV2Inner"),MCUnifiedSettingsPrivate_Inner,16,{0,0});
     Outer->SetContentForSlot(TEXT("Content"),InnerPanel);
     Column->AddChildToVerticalBox(Outer)->SetPadding(FMargin(0,0,8,12));
     auto* Viewport=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("SettingsV2ScrollViewport"));
@@ -148,9 +148,9 @@ void UMCUnifiedSettingsWidget::BuildPresentationTree()
         Bodies[I]=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),FName(*FString::Printf(TEXT("SettingsV2Body%d"),I)));
         Scroll->AddChild(Bodies[I]);
     }
-    for(const auto& Definition:Controls) {
+    for(const auto& Definition:MCUnifiedSettingsPrivate_Controls) {
         auto* Body=Bodies[Definition.Tab];
-        const FName Name=ViewName(Definition.Name),Key(Definition.Key);
+        const FName Name=MCUnifiedSettingsPrivate_ViewName(Definition.Name),Key(Definition.Key);
         const FName LabelName(*(Name.ToString()+TEXT("Label")));
         if(Definition.Kind==4) {
             auto* Label=AddText(Name,Key,Definition.Copy,16);
@@ -162,14 +162,14 @@ void UMCUnifiedSettingsWidget::BuildPresentationTree()
         if(Definition.Kind==0) {
             auto* Picker=WidgetTree->ConstructWidget<UMCMainMenuPicker>(UMCMainMenuPicker::StaticClass(),Name);
             Picker->InitializePresentationFont(GetResolvedTheme()->MakeFont(23,true));
-            Picker->InitializePresentationForeground(Navy);
+            Picker->InitializePresentationForeground(MCUnifiedSettingsPrivate_Navy);
             Picker->SetHasDownArrow(false);Picker->SetContentPadding(FMargin(12,4));
             auto Style=Picker->GetWidgetStyle();
             auto ButtonStyle=Style.ComboButtonStyle.ButtonStyle;
-            ButtonStyle.SetNormal(FSlateRoundedBoxBrush(Paper,15,Navy,3));
-            ButtonStyle.SetHovered(FSlateRoundedBoxBrush(FLinearColor::White,15,Navy,3));
-            ButtonStyle.SetPressed(FSlateRoundedBoxBrush(Blue,15,Navy,3));
-            ButtonStyle.SetDisabled(FSlateRoundedBoxBrush(Paper.CopyWithNewOpacity(.45f),15,Navy,3));
+            ButtonStyle.SetNormal(FSlateRoundedBoxBrush(MCUnifiedSettingsPrivate_Paper,15,MCUnifiedSettingsPrivate_Navy,3));
+            ButtonStyle.SetHovered(FSlateRoundedBoxBrush(FLinearColor::White,15,MCUnifiedSettingsPrivate_Navy,3));
+            ButtonStyle.SetPressed(FSlateRoundedBoxBrush(MCUnifiedSettingsPrivate_Blue,15,MCUnifiedSettingsPrivate_Navy,3));
+            ButtonStyle.SetDisabled(FSlateRoundedBoxBrush(MCUnifiedSettingsPrivate_Paper.CopyWithNewOpacity(.45f),15,MCUnifiedSettingsPrivate_Navy,3));
             ButtonStyle.SetNormalPadding(FMargin(8,3));ButtonStyle.SetPressedPadding(FMargin(8,3));
             Style.ComboButtonStyle.SetButtonStyle(ButtonStyle);Picker->SetWidgetStyle(Style);
             if(FString(Definition.Name)==TEXT("ResolutionPicker")) Picker->SetPresentationOptions({TEXT("1920 × 1080"),TEXT("1280 × 720")});
@@ -185,14 +185,14 @@ void UMCUnifiedSettingsWidget::BuildPresentationTree()
             Slider->SetMinValue(Definition.Min);Slider->SetMaxValue(Definition.Max);Slider->SetStepSize(FString(Definition.Name).Contains(TEXT("RenderScale"))?1.f:.01f);Slider->SetValue(Definition.Value);
             Slider->SetIndentHandle(true);Slider->SetSliderBarColor(FLinearColor::White);Slider->SetSliderHandleColor(FLinearColor::White);
             auto Style=Slider->GetWidgetStyle();
-            Style.NormalBarImage=FSlateRoundedBoxBrush(Paper,9,Navy,3);
+            Style.NormalBarImage=FSlateRoundedBoxBrush(MCUnifiedSettingsPrivate_Paper,9,MCUnifiedSettingsPrivate_Navy,3);
             Style.HoveredBarImage=Style.NormalBarImage;Style.DisabledBarImage=Style.NormalBarImage;
-            Style.NormalThumbImage=FSlateRoundedBoxBrush(Paper,8,Navy,3);Style.NormalThumbImage.ImageSize=FVector2D(66,34);
+            Style.NormalThumbImage=FSlateRoundedBoxBrush(MCUnifiedSettingsPrivate_Paper,8,MCUnifiedSettingsPrivate_Navy,3);Style.NormalThumbImage.ImageSize=FVector2D(66,34);
             Style.HoveredThumbImage=Style.NormalThumbImage;Style.DisabledThumbImage=Style.NormalThumbImage;Style.BarThickness=18;
             Slider->SetWidgetStyle(Style);
             auto* Overlay=WidgetTree->ConstructWidget<UOverlay>();auto* SliderCell=Overlay->AddChildToOverlay(Slider);SliderCell->SetHorizontalAlignment(HAlign_Fill);SliderCell->SetVerticalAlignment(VAlign_Center);
             auto* Value=AddText(FName(*(Name.ToString()+TEXT("Value"))),NAME_None,TEXT("70%"),18);
-            TextBindings.Remove(Value->GetFName());Value->SetColorAndOpacity(Navy);Value->SetAutoWrapText(false);Value->SetVisibility(ESlateVisibility::HitTestInvisible);
+            TextBindings.Remove(Value->GetFName());Value->SetColorAndOpacity(MCUnifiedSettingsPrivate_Navy);Value->SetAutoWrapText(false);Value->SetVisibility(ESlateVisibility::HitTestInvisible);
             // The value is an independent editable label in the same overlay as the thumb.
             auto* ValueSlot=Overlay->AddChildToOverlay(Value);ValueSlot->SetVerticalAlignment(VAlign_Center);ValueSlot->SetHorizontalAlignment(HAlign_Center);
             Control=Overlay;
@@ -202,7 +202,7 @@ void UMCUnifiedSettingsWidget::BuildPresentationTree()
         } else if(Definition.Kind==3) {
             auto* Button=WidgetTree->ConstructWidget<UMCUniversalUIWidget>(UMCUniversalUIWidget::StaticClass(),Name);
             Button->Kind=EMCUniversalUIKind::Button;Button->bCustomColors=true;Button->bUseThemeShape=false;
-            Button->CustomFill=Paper;Button->CustomOutline=Navy;Button->CustomText=Navy;Button->CustomShadow=Navy;
+            Button->CustomFill=MCUnifiedSettingsPrivate_Paper;Button->CustomOutline=MCUnifiedSettingsPrivate_Navy;Button->CustomText=MCUnifiedSettingsPrivate_Navy;Button->CustomShadow=MCUnifiedSettingsPrivate_Navy;
             Button->CornerRadius=14;Button->OutlineWidth=3;Button->ShadowOffset={0,3};Button->FontSize=18;
             Button->LabelKey=Key;Button->Label=FText::AsCultureInvariant(Definition.Copy);Button->ContentPadding=FMargin(10,7);
             Button->Initialize();Button->BuildPresentationTree();Control=Button;
@@ -224,7 +224,7 @@ void UMCUnifiedSettingsWidget::BuildPresentationTree()
     auto* Scrim=WidgetTree->ConstructWidget<UBorder>();Scrim->SetBrushColor(FLinearColor(0,0,0,.72f));
     auto* ScrimCell=Confirm->AddChildToOverlay(Scrim);ScrimCell->SetHorizontalAlignment(HAlign_Fill);ScrimCell->SetVerticalAlignment(VAlign_Fill);
     auto* ConfirmWidth=WidgetTree->ConstructWidget<USizeBox>();ConfirmWidth->SetMinDesiredWidth(520);ConfirmWidth->SetMaxDesiredWidth(900);
-    auto* Frame=Shape(TEXT("SettingsV2VideoFrame"),Inner,20,{5,8});Frame->ContentPadding=FMargin(30);Frame->ApplyTheme();ConfirmWidth->SetContent(Frame);
+    auto* Frame=Shape(TEXT("SettingsV2VideoFrame"),MCUnifiedSettingsPrivate_Inner,20,{5,8});Frame->ContentPadding=FMargin(30);Frame->ApplyTheme();ConfirmWidth->SetContent(Frame);
     auto* FrameCell=Confirm->AddChildToOverlay(ConfirmWidth);FrameCell->SetHorizontalAlignment(HAlign_Center);FrameCell->SetVerticalAlignment(VAlign_Center);FrameCell->SetPadding(FMargin(16));
     auto* ConfirmColumn=WidgetTree->ConstructWidget<UVerticalBox>();Frame->SetContentForSlot(TEXT("Content"),ConfirmColumn);
     ConfirmColumn->AddChildToVerticalBox(AddText(TEXT("SettingsV2VideoMessage"),TEXT("UI.Menu.VideoConfirmBody"),
@@ -251,9 +251,9 @@ void UMCUnifiedSettingsWidget::BindControls()
         if(auto* Button=WidgetTree->FindWidget<UMCUniversalUIWidget>(Binding->ViewWidgetName)) Button->OnClicked.RemoveDynamic(Binding,&UMCUnifiedSettingsBinding::Clicked);
     }
     Bindings.Reset();
-    for(const auto& Definition:Controls) {
-        auto* Control=WidgetTree->FindWidget(ViewName(Definition.Name));if(!Control) continue;
-        auto* Binding=NewObject<UMCUnifiedSettingsBinding>(this);Binding->Owner=this;Binding->SourceName=Definition.Name;Binding->ViewWidgetName=ViewName(Definition.Name);Bindings.Add(Binding);
+    for(const auto& Definition:MCUnifiedSettingsPrivate_Controls) {
+        auto* Control=WidgetTree->FindWidget(MCUnifiedSettingsPrivate_ViewName(Definition.Name));if(!Control) continue;
+        auto* Binding=NewObject<UMCUnifiedSettingsBinding>(this);Binding->Owner=this;Binding->SourceName=Definition.Name;Binding->ViewWidgetName=MCUnifiedSettingsPrivate_ViewName(Definition.Name);Bindings.Add(Binding);
         if(auto* Picker=Cast<UComboBoxString>(Control)) {
             Picker->OnSelectionChanged.AddUniqueDynamic(Binding,&UMCUnifiedSettingsBinding::PickerChanged);
             Picker->OnGenerateWidgetEvent.Unbind();
@@ -286,7 +286,7 @@ void UMCUnifiedSettingsWidget::SelectTab(int32 Index)
     if(WidgetTree) {
         if(auto* Pages=WidgetTree->FindWidget<UWidgetSwitcher>(TEXT("SettingsV2Sections"))) Pages->SetActiveWidgetIndex(Index);
         for(int32 I=0;I<5;++I) if(auto* Tab=WidgetTree->FindWidget<UMCUniversalUIWidget>(FName(*FString::Printf(TEXT("SettingsV2Tab%d"),I)))) {
-            Tab->CustomFill=I==Index?Blue:Paper;Tab->CustomText=I==Index?Paper:Navy;Tab->ApplyTheme();
+            Tab->CustomFill=I==Index?MCUnifiedSettingsPrivate_Blue:MCUnifiedSettingsPrivate_Paper;Tab->CustomText=I==Index?MCUnifiedSettingsPrivate_Paper:MCUnifiedSettingsPrivate_Navy;Tab->ApplyTheme();
         }
     }
 }
@@ -296,8 +296,8 @@ void UMCUnifiedSettingsWidget::RefreshFromBackend()
     Backend->RefreshSettingsVoicePresentation();
     TGuardValue<bool> Guard(bSynchronizing,true);
     SelectTab(Backend->GetActiveSettingsTab());
-    for(const auto& Definition:Controls) {
-        auto* Original=SourceControl(Definition.Name);auto* View=WidgetTree->FindWidget(ViewName(Definition.Name));
+    for(const auto& Definition:MCUnifiedSettingsPrivate_Controls) {
+        auto* Original=SourceControl(Definition.Name);auto* View=WidgetTree->FindWidget(MCUnifiedSettingsPrivate_ViewName(Definition.Name));
         if(!View) continue;
         View->SetIsEnabled(Original && Original->GetIsEnabled());
         if(auto* To=Cast<UComboBoxString>(View)) if(auto* From=Cast<UComboBoxString>(Original)) {
@@ -338,8 +338,8 @@ void UMCUnifiedSettingsWidget::RefreshFromBackend()
 void UMCUnifiedSettingsWidget::RefreshValueLabels()
 {
     if(!WidgetTree) return;
-    for(const auto& Definition:Controls) if(Definition.Kind==1) {
-        const FName Name=ViewName(Definition.Name);
+    for(const auto& Definition:MCUnifiedSettingsPrivate_Controls) if(Definition.Kind==1) {
+        const FName Name=MCUnifiedSettingsPrivate_ViewName(Definition.Name);
         auto* Slider=WidgetTree->FindWidget<USlider>(Name);
         auto* Label=WidgetTree->FindWidget<UTextBlock>(FName(*(Name.ToString()+TEXT("Value"))));
         if(!Slider || !Label) continue;
@@ -349,7 +349,7 @@ void UMCUnifiedSettingsWidget::RefreshValueLabels()
         const FText Value=Sensitivity?UMCUIDataLibrary::DecimalForCulture(Number,2,PreviewCulture):
             UMCUIDataLibrary::NumberForCulture(FMath::RoundToInt64(Number),PreviewCulture);
         Label->SetText(FText::FromString(Value.ToString()+(Sensitivity?TEXT(""):TEXT("%"))));
-        Label->SetColorAndOpacity(Navy);
+        Label->SetColorAndOpacity(MCUnifiedSettingsPrivate_Navy);
         // Measure the actual fixed-size glyphs; the handle grows to the value,
         // including 100% / 300%, rather than squeezing or clipping its text.
         FVector2D TextSize(50,24);

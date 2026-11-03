@@ -257,7 +257,7 @@ bool UMCFishingRewardWidget::CounterAnchor(const FGeometry& Geometry,FVector2D& 
 {
     const auto* Icon=CounterIcon.Get();
     if(!Icon || Icon->GetWorld()!=GetWorld() || !Icon->IsVisible()) return false;
-    const FGeometry& Target=Icon->GetCachedGeometry();
+    const FGeometry& Target=Icon->GetPaintSpaceGeometry();
     if(Target.GetLocalSize().X<=0 || Target.GetLocalSize().Y<=0) return false;
     Out=Geometry.AbsoluteToLocal(Target.LocalToAbsolute(Target.GetLocalSize()*.5));
     const auto Size=Geometry.GetLocalSize();

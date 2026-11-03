@@ -205,10 +205,9 @@ void UMCPerkChoiceWidget::UpdateStageChoiceCountdown()
     const int32 Seconds=FMath::CeilToInt(FMath::Clamp(StageChoiceDeadline-Now,0.,40.));
     if(Seconds==LastStageChoiceSecond) return;
     LastStageChoiceSecond=Seconds;
-    const bool English=DisplayCulture().StartsWith(TEXT("en"));
-    if(Seconds==0) StageCountdownText->SetText(English?LOCTEXT("StageAutoChoicePendingEN","Auto-picking…"):LOCTEXT("StageAutoChoicePendingRU","Автовыбор…"));
-    else StageCountdownText->SetText(Format(English?LOCTEXT("StageAutoChoiceInEN","Auto-pick in {Seconds}s"):LOCTEXT("StageAutoChoiceInRU","Автовыбор через: {Seconds}с"),
-        FFormatNamedArguments{{TEXT("Seconds"),FText::AsNumber(Seconds)}}));
+    if(Seconds==0) StageCountdownText->SetText(Copy(TEXT("UI.Reward.AutoPicking"),LOCTEXT("StageAutoPicking","Автовыбор…")));
+    else StageCountdownText->SetText(Format(Copy(TEXT("UI.Reward.AutoPickIn"),LOCTEXT("StageAutoPickIn","Автовыбор через: {Seconds}с")),
+        FFormatNamedArguments{{TEXT("Seconds"),UMCUIDataLibrary::NumberForCulture(Seconds,DisplayCulture())}}));
 }
 
 void UMCPerkChoiceWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
@@ -552,6 +551,70 @@ void UMCPerkChoiceWidget::OnLocalizationChanged()
     ApplyTheme();
     UpdateStageChoiceCountdown();
 }
+FMCPerkChoicePresentationSnapshot UMCPerkChoiceWidget::GetPresentationSnapshot()
+{
+    // Hidden content may skip its native tick. This updates copy only; the server
+    // still owns deadline expiry and every offer/RNG/replacement decision.
+    UpdateStageChoiceCountdown();
+    FMCPerkChoicePresentationSnapshot Result;
+    Result.Title=Title?Title->GetText():FText::GetEmpty();
+    Result.Subtitle=Subtitle?Subtitle->GetText():FText::GetEmpty();
+    Result.Hint=Hint?Hint->GetText():FText::GetEmpty();
+    Result.Countdown=StageCountdownText?StageCountdownText->GetText():FText::GetEmpty();
+    Result.bCountdownVisible=StageCountdownBorder && StageCountdownBorder->IsVisible();
+    Result.bPending=bSelectionPending;Result.bWaiting=bWaitingForTeam;Result.bShowing=bShowingChoices;
+    Result.bReplacing=bChoosingReplacement;Result.bConfirming=bConfirming;Result.bNavigationHighlight=bNavigationHighlight;
+    if(Buttons.IsValidIndex(GamepadSelection)) Result.Selected=Buttons[GamepadSelection];
+    const auto* PC=GetOwningPlayer<AMCPlayerController>();
+    const auto* State=PC?PC->GetPlayerState<AMCPlayerState>():nullptr;
+    TSet<UMCPerkCardButton*> CardButtons;
+    if(Cards && Cards->IsVisible()) for(const auto& Card:CardWidgets) if(Card) {
+        FMCPerkChoicePresentationCard Entry;Entry.Data=Card->GetPresentation();Entry.Button=Card->GetChoiceButton();
+        CardButtons.Add(Entry.Button.Get());
+        FMCPerkDefinition Definition;bool Found=State && State->Perks && State->Perks->GetPerkDefinition(Entry.Data.GameplayID,Definition);
+        if(!Found) {
+            const int32 Index=CurrentChoiceIDs.IndexOfByKey(Entry.Data.GameplayID);
+            if(CurrentDefinitions.IsValidIndex(Index)) {Definition=CurrentDefinitions[Index];Found=true;}
+        }
+        // DT_Perks.Icon is the sole new-view icon policy, including an authored empty icon.
+        Entry.Data.Image=Found?Definition.Icon:TSoftObjectPtr<UTexture2D>();
+        if(Found) {Entry.Kind=UMCPerkComponent::ResolvePerkKind(Definition,Entry.Data.GameplayID);Entry.Rarity=Definition.Rarity;}
+        Entry.bEnabled=!bSelectionPending && !bWaitingForTeam && Entry.Button.IsValid() && Entry.Button->GetIsEnabled() && Entry.Button->IsInteractionAllowed();
+        Result.Cards.Add(MoveTemp(Entry));
+    }
+    if(Actions && Actions->IsVisible()) for(const auto& Button:Buttons)
+        if(Button && !CardButtons.Contains(Button) && Button->IsVisible()) {
+            FMCPerkChoicePresentationAction Entry;Entry.Button=Button;
+            if(const auto* Label=Cast<UTextBlock>(Button->GetContent())) Entry.Label=Label->GetText();
+            Entry.bEnabled=!bSelectionPending && !bWaitingForTeam && Button->GetIsEnabled() && Button->IsInteractionAllowed();
+            Result.Actions.Add(MoveTemp(Entry));
+        }
+    return Result;
+}
+bool UMCPerkChoiceWidget::TryActivatePresentationButton(UMCPerkCardButton* Button)
+{
+    if(IsDesignTime() || bApplyingPreview || !IsInViewport() || !IsVisible() || !bShowingChoices || bSelectionPending || bWaitingForTeam ||
+        !IsValid(Button) || !Buttons.Contains(Button) || !Button->GetIsEnabled() || !Button->IsInteractionAllowed()) return false;
+    Button->OnClicked.Broadcast();return true;
+}
+void UMCPerkChoiceWidget::SetPresentationFocusButton(UMCPerkCardButton* Button)
+{
+    if(IsDesignTime() || bApplyingPreview || !IsInViewport() || !IsVisible() || bSelectionPending || bWaitingForTeam || !bShowingChoices ||
+        !IsValid(Button) || !Button->GetIsEnabled() || !Button->IsInteractionAllowed()) return;
+    const int32 Index=Buttons.IndexOfByKey(Button);if(Index==INDEX_NONE) return;
+    GamepadSelection=Index;RefreshGamepadSelection();
+}
+bool UMCPerkChoiceWidget::RoutePresentationKey(const FKeyEvent& Event)
+{
+    if(IsDesignTime() || bApplyingPreview || !IsInViewport() || !IsVisible()) return false;
+    return NativeOnKeyDown(GetPaintSpaceGeometry(),Event).IsEventHandled();
+}
+bool UMCPerkChoiceWidget::RoutePresentationAnalog(const FAnalogInputEvent& Event)
+{
+    if(IsDesignTime() || bApplyingPreview || !IsInViewport() || !IsVisible() || bSelectionPending) return false;
+    return NativeOnAnalogValueChanged(GetPaintSpaceGeometry(),Event).IsEventHandled();
+}
+
 void UMCPerkChoiceWidget::NativeDestruct()
 {
     UnobserveCardTable();

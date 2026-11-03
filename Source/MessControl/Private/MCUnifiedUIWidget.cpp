@@ -6,6 +6,13 @@
 #include "MCUnifiedTeamWidget.h"
 #include "MCUnifiedWardrobeWidget.h"
 #include "MCUnifiedShopWidget.h"
+#include "MCUnifiedHubWidget.h"
+#include "MCUnifiedRewardWidget.h"
+#include "MCUnifiedFrontendWidget.h"
+#include "MCUnifiedGameplayMenuWidget.h"
+#include "MCHubWidget.h"
+#include "MCPerkChoiceWidget.h"
+#include "MCGameplayMenuWidget.h"
 #include "MCHubWardrobeWidget.h"
 #include "MCHubShopWidget.h"
 #include "MCScoreboardWidget.h"
@@ -48,8 +55,8 @@
 
 namespace
 {
-    FLinearColor C(const TCHAR* Hex) {return FLinearColor(FColor::FromHex(Hex));}
-    UCanvasPanelSlot* Place(UCanvasPanel* Parent,UWidget* Child,FVector2D Position,FVector2D Size,FVector2D Anchor=FVector2D::ZeroVector,FVector2D Alignment=FVector2D::ZeroVector)
+    FLinearColor UnifiedRootColor(const TCHAR* Hex) {return FLinearColor(FColor::FromHex(Hex));}
+    UCanvasPanelSlot* UnifiedRootPlace(UCanvasPanel* Parent,UWidget* Child,FVector2D Position,FVector2D Size,FVector2D Anchor=FVector2D::ZeroVector,FVector2D Alignment=FVector2D::ZeroVector)
     {
         auto* Cell=Parent->AddChildToCanvas(Child);Cell->SetAnchors(FAnchors(Anchor.X,Anchor.Y));
         Cell->SetAlignment(Alignment);Cell->SetPosition(Position);Cell->SetSize(Size);return Cell;
@@ -102,6 +109,12 @@ UMCUnifiedUIWidget::UMCUnifiedUIWidget()
 void UMCUnifiedUIWidget::ShowScreen(EMCUnifiedUIScreen Screen)
 {
     ActiveScreen=Screen;
+    if(WidgetTree) {
+        if(WidgetTree->RootWidget) WidgetTree->RootWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+        if(auto* Layer=WidgetTree->FindWidget(TEXT("InterfaceLayers"))) Layer->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+        if(auto* Pages=WidgetTree->FindWidget(TEXT("InterfaceScreens"))) Pages->SetVisibility(Screen==EMCUnifiedUIScreen::Hub?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Visible);
+        if(auto* Page=WidgetTree->FindWidget(TEXT("Screen_Hub"))) Page->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+    }
     if(WidgetTree) if(auto* Team=WidgetTree->FindWidget<UMCUnifiedTeamWidget>(TEXT("UnifiedTeam")))
         Team->SetVisibility((IsDesignTime()?Screen==EMCUnifiedUIScreen::Team:TeamBackend.IsValid())?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
     if(WidgetTree) if(auto* Layer=WidgetTree->FindWidget(TEXT("TeamViewport")))
@@ -122,27 +135,27 @@ void UMCUnifiedUIWidget::BuildPresentationTree()
     auto Text=[&](UCanvasPanel* Parent,FName Name,const FText& Value,FVector2D Pos,FVector2D Size,int32 FontSize)
     {
         auto* Label=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);Label->SetText(Value);Label->SetAutoWrapText(true);Label->SetClipping(EWidgetClipping::ClipToBoundsAlways);
-        Place(Parent,Label,Pos,Size);BindStyle(Name,EMCUIColorToken::Cream,EMCUIStyleTarget::Text,FontSize,true);return Label;
+        UnifiedRootPlace(Parent,Label,Pos,Size);BindStyle(Name,EMCUIColorToken::Cream,EMCUIStyleTarget::Text,FontSize,true);return Label;
     };
     auto Panel=[&](UCanvasPanel* Parent,FName Name,FVector2D Pos,FVector2D Size,FVector2D Anchor=FVector2D::ZeroVector,FVector2D Alignment=FVector2D::ZeroVector)
     {
         auto* Shape=WidgetTree->ConstructWidget<UMCUniversalUIWidget>(UMCUniversalUIWidget::StaticClass(),Name);
-        Shape->Label=FText::GetEmpty();Shape->bCustomColors=true;Shape->CustomFill=C(TEXT("30333F"));Shape->CustomOutline=C(TEXT("718080"));Shape->CustomShadow=C(TEXT("879094"));
+        Shape->Label=FText::GetEmpty();Shape->bCustomColors=true;Shape->CustomFill=UnifiedRootColor(TEXT("30333F"));Shape->CustomOutline=UnifiedRootColor(TEXT("718080"));Shape->CustomShadow=UnifiedRootColor(TEXT("879094"));
         Shape->bUseThemeShape=false;Shape->CornerRadius=12;Shape->OutlineWidth=4;Shape->ShadowOffset={10,12};Shape->ContentPadding=FMargin(10);
         if(Name==TEXT("ReserveBlock")) {Shape->ContourPoints={{0,0},{.66,0},{.66,.5},{1,.5},{1,1},{0,1}};Shape->ShadowOffset={16,18};}
         if(Name==TEXT("ToolResourceBlock")) Shape->ContourPoints={{0,0},{.30,0},{.30,.12},{1,.12},{1,1},{0,1}};
         if(Name==TEXT("NextEventBlock") || Name.ToString().StartsWith(TEXT("V2Player"))) Shape->ShadowOffset={-12,12};
         if(Name.ToString().StartsWith(TEXT("V2Skill"))) Shape->ContentPadding=FMargin(8);
-        Shape->Initialize();Shape->BuildPresentationTree();Place(Parent,Shape,Pos,Size,Anchor,Alignment);
+        Shape->Initialize();Shape->BuildPresentationTree();UnifiedRootPlace(Parent,Shape,Pos,Size,Anchor,Alignment);
         auto* Body=WidgetTree->ConstructWidget<UCanvasPanel>();Shape->SetContentForSlot(TEXT("Content"),Body);return Body;
     };
     auto Bar=[&](UCanvasPanel* Parent,FName Name,FVector2D Pos,FVector2D Size)
     {
         auto* Shape=WidgetTree->ConstructWidget<UMCUniversalUIWidget>(UMCUniversalUIWidget::StaticClass(),Name);
         Shape->Kind=EMCUniversalUIKind::Progress;Shape->Label=FText::GetEmpty();Shape->Progress=.8f;Shape->ProgressFill=EMCUIColorToken::BossHealth;
-        Shape->bCustomColors=true;Shape->CustomFill=C(TEXT("45404F"));Shape->CustomOutline=C(TEXT("FFF9F8"));Shape->CustomShadow=FLinearColor::Transparent;
+        Shape->bCustomColors=true;Shape->CustomFill=UnifiedRootColor(TEXT("45404F"));Shape->CustomOutline=UnifiedRootColor(TEXT("FFF9F8"));Shape->CustomShadow=FLinearColor::Transparent;
         Shape->bUseThemeShape=false;Shape->CornerRadius=6;Shape->OutlineWidth=4;Shape->ShadowOffset=FVector2D::ZeroVector;Shape->ContentPadding=FMargin(5,-5,5,5);
-        Shape->Initialize();Shape->BuildPresentationTree();Place(Parent,Shape,Pos,Size);return Shape;
+        Shape->Initialize();Shape->BuildPresentationTree();UnifiedRootPlace(Parent,Shape,Pos,Size);return Shape;
     };
     // MENU: separate PSD composition, not a palette applied to the saved sidebar.
     auto* Mark=WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(),TEXT("MenuLogo"));Mark->SetBrushFromTexture(Logo.LoadSynchronous(),true);
@@ -158,8 +171,8 @@ void UMCUnifiedUIWidget::BuildPresentationTree()
     {
         auto* Button=WidgetTree->ConstructWidget<UMCUnifiedMenuButton>(UMCUnifiedMenuButton::StaticClass(),FName(*FString::Printf(TEXT("MenuAction_%d"),I)));
         Button->Action=Commands[I];Button->LabelKey=Keys[I];Button->Label=Copies[I];Button->FontSize=I==0?36:28;
-        Button->bCustomColors=true;Button->CustomFill=C(I==0?TEXT("1B4450"):TEXT("B63F81"));Button->CustomText=C(TEXT("FFF9F8"));
-        Button->CustomOutline=C(I==0?TEXT("FFF9F8"):TEXT("B0FCF3"));Button->CustomShadow=C(I==0?TEXT("FFF9F8"):TEXT("B0FCF3"));
+        Button->bCustomColors=true;Button->CustomFill=UnifiedRootColor(I==0?TEXT("1B4450"):TEXT("B63F81"));Button->CustomText=UnifiedRootColor(TEXT("FFF9F8"));
+        Button->CustomOutline=UnifiedRootColor(I==0?TEXT("FFF9F8"):TEXT("B0FCF3"));Button->CustomShadow=UnifiedRootColor(I==0?TEXT("FFF9F8"):TEXT("B0FCF3"));
         Button->bUseThemeShape=false;Button->CornerRadius=18;Button->OutlineWidth=4;Button->ContentPadding=FMargin(12,8);Button->ShadowOffset={10,12};
         Button->Initialize();Button->BuildPresentationTree();
         auto* Minimum=WidgetTree->ConstructWidget<USizeBox>();Minimum->SetMinDesiredHeight(76);Minimum->SetContent(Button);
@@ -168,27 +181,27 @@ void UMCUnifiedUIWidget::BuildPresentationTree()
     // GAMEPLAY: compact tooth counter and cleanliness, player portraits/event,
     // tool/player resources, and four active slots are independent anchored groups.
     auto* Reserve=Panel(Screens[1],TEXT("ReserveBlock"),{50,25},{340,152});
-    auto* Tooth=WidgetTree->ConstructWidget<UMCHUDIcon>();Tooth->bReserveTooth=true;Tooth->Tint=FLinearColor::White;Place(Reserve,Tooth,{8,0},{70,70});
+    auto* Tooth=WidgetTree->ConstructWidget<UMCHUDIcon>();Tooth->bReserveTooth=true;Tooth->Tint=FLinearColor::White;UnifiedRootPlace(Reserve,Tooth,{8,0},{70,70});
     Text(Reserve,TEXT("V2ReserveCount"),FText::AsNumber(12),{84,-4},{190,72},58);
     auto* Clean=Text(Reserve,TEXT("V2CleanLabel"),LOCTEXT("Clean","ЧИСТОТА РТА"),{4,68},{305,30},26);TextBindings.Add(Clean->GetFName(),TEXT("UI.HUD.Cleanliness"));
     Bar(Reserve,TEXT("V2CleanBar"),{4,105},{305,28});
-    auto* Players=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("PlayerCards"));Place(Screens[1],Players,{-50,30},{410,142},{1,0},{1,0});
+    auto* Players=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("PlayerCards"));UnifiedRootPlace(Screens[1],Players,{-50,30},{410,142},{1,0},{1,0});
     for(int32 I=0;I<4;++I)
     {
         auto* Holder=WidgetTree->ConstructWidget<UCanvasPanel>();auto* Cell=Players->AddChildToHorizontalBox(Holder);Cell->SetSize(FSlateChildSize(ESlateSizeRule::Fill));Cell->SetPadding(FMargin(0,0,10,10));
         auto* Card=Panel(Holder,FName(*FString::Printf(TEXT("V2Player%d"),I+1)),{0,0},{88,130});
-        auto* Face=WidgetTree->ConstructWidget<UMCHUDIcon>();Face->bReserveTooth=true;Face->Tint=FLinearColor::White;Place(Card,Face,{3,0},{62,83});
+        auto* Face=WidgetTree->ConstructWidget<UMCHUDIcon>();Face->bReserveTooth=true;Face->Tint=FLinearColor::White;UnifiedRootPlace(Card,Face,{3,0},{62,83});
         Bar(Card,FName(*FString::Printf(TEXT("V2PlayerHP%d"),I+1)),{0,87},{68,20});
     }
     auto* Event=Panel(Screens[1],TEXT("NextEventBlock"),{-50,188},{395,110},{1,0},{1,0});
     auto* EventLabel=Text(Event,TEXT("V2NextEventLabel"),LOCTEXT("NextEvent","СЛЕДУЮЩЕЕ СОБЫТИЕ"),{5,0},{365,30},22);TextBindings.Add(EventLabel->GetFName(),TEXT("UI.HUD.NextEvent"));
     Text(Event,TEXT("V2NextEvent"),LOCTEXT("EventSample","ОРЕХОВОЕ СОБЫТИЕ"),{5,32},{365,56},28);
     auto* Tool=Panel(Screens[1],TEXT("ToolResourceBlock"),{50,-36},{380,145},{0,1},{0,1});
-    auto* ToolIcon=WidgetTree->ConstructWidget<UMCHUDIcon>(UMCHUDIcon::StaticClass(),TEXT("V2ToolIcon"));ToolIcon->ToolSlot=0;ToolIcon->Tint=FLinearColor::White;Place(Tool,ToolIcon,{3,7},{100,100});
+    auto* ToolIcon=WidgetTree->ConstructWidget<UMCHUDIcon>(UMCHUDIcon::StaticClass(),TEXT("V2ToolIcon"));ToolIcon->ToolSlot=0;ToolIcon->Tint=FLinearColor::White;UnifiedRootPlace(Tool,ToolIcon,{3,7},{100,100});
     Text(Tool,TEXT("V2ToolName"),LOCTEXT("ToolSample","КИРКА"),{4,-47},{160,35},30);
     Text(Tool,TEXT("V2PlayerName"),LOCTEXT("PlayerSample","ИГРОК"),{126,-47},{220,35},28);
     Bar(Tool,TEXT("V2HealthBar"),{120,15},{225,32});Bar(Tool,TEXT("V2StaminaBar"),{120,63},{225,29});
-    auto* Skills=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("SkillCards"));Place(Screens[1],Skills,{-50,-25},{420,140},{1,1},{1,1});
+    auto* Skills=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("SkillCards"));UnifiedRootPlace(Screens[1],Skills,{-50,-25},{420,140},{1,1},{1,1});
     for(int32 I=0;I<4;++I)
     {
         auto* Holder=WidgetTree->ConstructWidget<UCanvasPanel>();auto* Cell=Skills->AddChildToHorizontalBox(Holder);Cell->SetSize(FSlateChildSize(ESlateSizeRule::Fill));Cell->SetPadding(FMargin(0,0,10,10));
@@ -205,6 +218,7 @@ void UMCUnifiedUIWidget::SetMenuBackend(UMCMainMenuWidget* Backend)
 {
     MenuBackend=Backend;
     if(WidgetTree) if(auto* Settings=WidgetTree->FindWidget<UMCUnifiedSettingsWidget>(TEXT("UnifiedSettings"))) Settings->SetBackend(Backend);
+    if(WidgetTree) if(auto* Frontend=WidgetTree->FindWidget<UMCUnifiedFrontendWidget>(TEXT("UnifiedFrontend"))) Frontend->SetBackend(Backend);
     if(WidgetTree) WidgetTree->ForEachWidget([Backend](UWidget* Widget){if(auto* Button=Cast<UMCUnifiedMenuButton>(Widget)) Button->SetBackend(Backend);});
 }
 void UMCUnifiedUIWidget::SetHUDBackend(UMCGameplayHUD* Backend)
@@ -223,6 +237,10 @@ UWidget* UMCUnifiedUIWidget::GetDefaultFocusTarget() const
 {
     if(!WidgetTree) return nullptr;
     if(TeamBackend.IsValid()) if(auto* Team=WidgetTree->FindWidget<UMCUnifiedTeamWidget>(TEXT("UnifiedTeam"))) return Team->GetDefaultFocusTarget();
+    if(ActiveScreen==EMCUnifiedUIScreen::Hub) if(auto* Hub=WidgetTree->FindWidget<UMCUnifiedHubWidget>(TEXT("UnifiedHub"))) return Hub->GetDefaultFocusTarget();
+    if(ActiveScreen==EMCUnifiedUIScreen::Reward) if(auto* Reward=WidgetTree->FindWidget<UMCUnifiedRewardWidget>(TEXT("UnifiedReward"))) return Reward->GetDefaultFocusTarget();
+    if(ActiveScreen==EMCUnifiedUIScreen::Frontend) if(auto* Frontend=WidgetTree->FindWidget<UMCUnifiedFrontendWidget>(TEXT("UnifiedFrontend"))) return Frontend->GetDefaultFocusTarget();
+    if(ActiveScreen==EMCUnifiedUIScreen::GameplayMenu) if(auto* Menu=WidgetTree->FindWidget<UMCUnifiedGameplayMenuWidget>(TEXT("UnifiedGameplayMenu"))) return Menu->GetDefaultFocusTarget();
     if(ActiveScreen==EMCUnifiedUIScreen::Wardrobe) if(auto* Wardrobe=WidgetTree->FindWidget<UMCUnifiedWardrobeWidget>(TEXT("UnifiedWardrobe"))) return Wardrobe->GetDefaultFocusTarget();
     if(ActiveScreen==EMCUnifiedUIScreen::Boosters) if(auto* Shop=WidgetTree->FindWidget<UMCUnifiedShopWidget>(TEXT("UnifiedShop"))) return Shop->GetDefaultFocusTarget();
     if(ActiveScreen==EMCUnifiedUIScreen::Settings) if(auto* Settings=WidgetTree->FindWidget<UMCUnifiedSettingsWidget>(TEXT("UnifiedSettings"))) return Settings->GetDefaultFocusTarget();
@@ -234,7 +252,10 @@ void UMCUnifiedUIWidget::ApplyTheme() {Super::ApplyTheme();if(!IsDesignTime()) R
 void UMCUnifiedUIWidget::ApplyEditorPreview(float Time)
 {
     const int64 Screen=StaticEnum<EMCUnifiedUIScreen>()->GetValueByNameString(PreviewState.ToString());
-    if(Screen>=0 && Screen<=int64(EMCUnifiedUIScreen::Team)) PreviewScreen=EMCUnifiedUIScreen(Screen);
+    if(Screen>=0 && Screen<=int64(EMCUnifiedUIScreen::GameplayMenu)) PreviewScreen=EMCUnifiedUIScreen(Screen);
+    if(WidgetTree) WidgetTree->ForEachWidget([this](UWidget* Item) {
+        if(auto* View=Cast<UMCGameplayUIWidget>(Item)) {View->PreviewCulture=PreviewCulture;View->PreviewScenario=PreviewScenario;}
+    });
     ShowScreen(PreviewScreen);Super::ApplyEditorPreview(Time);
     if(!WidgetTree) return;
     if(PreviewScreen==EMCUnifiedUIScreen::Settings) if(auto* Settings=WidgetTree->FindWidget<UMCUnifiedSettingsWidget>(TEXT("UnifiedSettings"))) {
@@ -243,6 +264,10 @@ void UMCUnifiedUIWidget::ApplyEditorPreview(float Time)
     if(PreviewScreen==EMCUnifiedUIScreen::Team) if(auto* Team=WidgetTree->FindWidget<UMCUnifiedTeamWidget>(TEXT("UnifiedTeam"))) Team->ApplyEditorPreview(Time);
     if(PreviewScreen==EMCUnifiedUIScreen::Wardrobe) if(auto* Wardrobe=WidgetTree->FindWidget<UMCUnifiedWardrobeWidget>(TEXT("UnifiedWardrobe"))) Wardrobe->ApplyEditorPreview(Time);
     if(PreviewScreen==EMCUnifiedUIScreen::Boosters) if(auto* Shop=WidgetTree->FindWidget<UMCUnifiedShopWidget>(TEXT("UnifiedShop"))) Shop->ApplyEditorPreview(Time);
+    if(PreviewScreen==EMCUnifiedUIScreen::Hub) if(auto* Hub=WidgetTree->FindWidget<UMCUnifiedHubWidget>(TEXT("UnifiedHub"))) {Hub->PreviewState=PreviewHubMode;Hub->ApplyEditorPreview(Time);}
+    if(PreviewScreen==EMCUnifiedUIScreen::Reward) if(auto* Reward=WidgetTree->FindWidget<UMCUnifiedRewardWidget>(TEXT("UnifiedReward"))) {Reward->PreviewState=PreviewRewardMode;Reward->ApplyEditorPreview(Time);}
+    if(PreviewScreen==EMCUnifiedUIScreen::Frontend) if(auto* Frontend=WidgetTree->FindWidget<UMCUnifiedFrontendWidget>(TEXT("UnifiedFrontend"))) {Frontend->PreviewPage=EMCUnifiedFrontendPage(FMath::Clamp(PreviewFrontendPage,0,4));Frontend->ApplyEditorPreview(Time);}
+    if(PreviewScreen==EMCUnifiedUIScreen::GameplayMenu) if(auto* Menu=WidgetTree->FindWidget<UMCUnifiedGameplayMenuWidget>(TEXT("UnifiedGameplayMenu"))) {Menu->PreviewState=PreviewGameplayMenuMode;Menu->ApplyEditorPreview(Time);}
     RefreshAdaptiveLayout();
     if(PreviewScreen!=EMCUnifiedUIScreen::Gameplay) return;
     if(auto* Image=WidgetTree->FindWidget<UImage>(TEXT("V2ToolArt"))) {
@@ -261,8 +286,17 @@ void UMCUnifiedUIWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
 }
 FReply UMCUnifiedUIWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
 {
+    // One physical Back press owns one navigation transition, including source routes and fallbacks.
+    const bool bBackNavigationKey=Event.GetKey()==EKeys::Escape || Event.GetKey()==EKeys::Gamepad_FaceButton_Right;
+    if(bBackNavigationKey && Event.IsRepeat()) return FReply::Handled();
     if(ActiveScreen==EMCUnifiedUIScreen::Settings && WidgetTree)
         if(auto* Settings=WidgetTree->FindWidget<UMCUnifiedSettingsWidget>(TEXT("UnifiedSettings"));Settings && Settings->RouteRebindKey(Event.GetKey())) return FReply::Handled();
+    if(WidgetTree) {
+        if(ActiveScreen==EMCUnifiedUIScreen::GameplayMenu) if(auto* Menu=WidgetTree->FindWidget<UMCUnifiedGameplayMenuWidget>(TEXT("UnifiedGameplayMenu"));Menu && Menu->RouteSourceKey(Event)) return FReply::Handled();
+        if(ActiveScreen==EMCUnifiedUIScreen::Reward) if(auto* Reward=WidgetTree->FindWidget<UMCUnifiedRewardWidget>(TEXT("UnifiedReward"));Reward && Reward->RouteSourceKey(Event)) return FReply::Handled();
+        if(ActiveScreen==EMCUnifiedUIScreen::Hub && !TeamBackend.IsValid()) if(auto* Hub=WidgetTree->FindWidget<UMCUnifiedHubWidget>(TEXT("UnifiedHub"));Hub && Hub->RouteSourceKey(Event)) return FReply::Handled();
+        if(ActiveScreen==EMCUnifiedUIScreen::Frontend && (Event.GetKey()==EKeys::Escape || Event.GetKey()==EKeys::Gamepad_FaceButton_Right) && !Event.IsRepeat()) if(auto* Frontend=WidgetTree->FindWidget<UMCUnifiedFrontendWidget>(TEXT("UnifiedFrontend"))) {Frontend->RequestBack();return FReply::Handled();}
+    }
     if((Event.GetKey()==EKeys::Escape || Event.GetKey()==EKeys::Gamepad_FaceButton_Right) && !Event.IsRepeat() && WidgetTree) {
         if(WardrobeBackend.IsValid()) if(auto* Wardrobe=WidgetTree->FindWidget<UMCUnifiedWardrobeWidget>(TEXT("UnifiedWardrobe"))) {Wardrobe->RequestBack();return FReply::Handled();}
         if(ShopBackend.IsValid()) if(auto* Shop=WidgetTree->FindWidget<UMCUnifiedShopWidget>(TEXT("UnifiedShop"))) {Shop->RequestBack();return FReply::Handled();}
@@ -279,6 +313,20 @@ FReply UMCUnifiedUIWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry,cons
     {MenuBackend->RequestBack();return FReply::Handled();}
     return Super::NativeOnPreviewKeyDown(Geometry,Event);
 }
+FReply UMCUnifiedUIWidget::NativeOnMouseWheel(const FGeometry& Geometry,const FPointerEvent& Event)
+{
+    if(WidgetTree && ActiveScreen==EMCUnifiedUIScreen::Hub && !TeamBackend.IsValid())
+        if(auto* Hub=WidgetTree->FindWidget<UMCUnifiedHubWidget>(TEXT("UnifiedHub"));Hub && Hub->RouteSourceMouseWheel(Event)) return FReply::Handled();
+    return Super::NativeOnMouseWheel(Geometry,Event);
+}
+FReply UMCUnifiedUIWidget::NativeOnAnalogValueChanged(const FGeometry& Geometry,const FAnalogInputEvent& Event)
+{
+    if(WidgetTree) {
+        if(ActiveScreen==EMCUnifiedUIScreen::Reward) if(auto* Reward=WidgetTree->FindWidget<UMCUnifiedRewardWidget>(TEXT("UnifiedReward"));Reward && Reward->RouteSourceAnalog(Event)) return FReply::Handled();
+        if(ActiveScreen==EMCUnifiedUIScreen::GameplayMenu) if(auto* Menu=WidgetTree->FindWidget<UMCUnifiedGameplayMenuWidget>(TEXT("UnifiedGameplayMenu"));Menu && Menu->RouteSourceAnalog(Event)) return FReply::Handled();
+    }
+    return Super::NativeOnAnalogValueChanged(Geometry,Event);
+}
 FReply UMCUnifiedUIWidget::NativeOnKeyUp(const FGeometry& Geometry,const FKeyEvent& Event)
 {
     if(TeamBackend.IsValid() && (Event.GetKey()==EKeys::Tab || Event.GetKey()==EKeys::Gamepad_Special_Left)) {
@@ -291,6 +339,8 @@ FReply UMCUnifiedUIWidget::NativeOnPreviewMouseButtonDown(const FGeometry& Geome
 {
     if(ActiveScreen==EMCUnifiedUIScreen::Settings && WidgetTree)
         if(auto* Settings=WidgetTree->FindWidget<UMCUnifiedSettingsWidget>(TEXT("UnifiedSettings"));Settings && Settings->RouteRebindKey(Event.GetEffectingButton())) return FReply::Handled();
+    if(ActiveScreen==EMCUnifiedUIScreen::GameplayMenu && WidgetTree)
+        if(auto* Menu=WidgetTree->FindWidget<UMCUnifiedGameplayMenuWidget>(TEXT("UnifiedGameplayMenu"));Menu && Menu->RouteSourceMouseButton(Event)) return FReply::Handled();
     return Super::NativeOnPreviewMouseButtonDown(Geometry,Event);
 }
 void UMCUnifiedUIWidget::SetTeamBackend(UMCScoreboardWidget* Backend)
@@ -310,6 +360,28 @@ void UMCUnifiedUIWidget::SetShopBackend(UMCHubShopWidget* Backend)
 {
     ShopBackend=Backend;
     if(WidgetTree) if(auto* View=WidgetTree->FindWidget<UMCUnifiedShopWidget>(TEXT("UnifiedShop"))) View->SetBackend(Backend);
+}
+void UMCUnifiedUIWidget::SetHubBackend(UMCHubWidget* Backend)
+{
+    HubBackend=Backend;if(WidgetTree) if(auto* View=WidgetTree->FindWidget<UMCUnifiedHubWidget>(TEXT("UnifiedHub"))) View->SetBackend(Backend);
+}
+void UMCUnifiedUIWidget::SetRewardBackend(UMCPerkChoiceWidget* Backend)
+{
+    RewardBackend=Backend;if(WidgetTree) if(auto* View=WidgetTree->FindWidget<UMCUnifiedRewardWidget>(TEXT("UnifiedReward"))) View->SetBackend(Backend);
+}
+void UMCUnifiedUIWidget::SetGameplayMenuBackend(UMCGameplayMenuWidget* Backend)
+{
+    GameplayMenuBackend=Backend;if(WidgetTree) if(auto* View=WidgetTree->FindWidget<UMCUnifiedGameplayMenuWidget>(TEXT("UnifiedGameplayMenu"))) View->SetBackend(Backend);
+}
+bool UMCUnifiedUIWidget::RequiresHubMenuInput() const
+{
+    if(WidgetTree) if(auto* View=WidgetTree->FindWidget<UMCUnifiedHubWidget>(TEXT("UnifiedHub"))) return View->RequiresMenuInput();return false;
+}
+bool UMCUnifiedUIWidget::GetHubFishCounterTargets(UWidget*& Icon,UWidget*& Card) const
+{
+    Icon=nullptr;Card=nullptr;if(!HubBackend.IsValid() || ActiveScreen!=EMCUnifiedUIScreen::Hub || !WidgetTree) return false;
+    if(auto* View=WidgetTree->FindWidget<UMCUnifiedHubWidget>(TEXT("UnifiedHub"))) {Icon=View->GetFishCounterIcon();Card=View->GetFishCounterCard();}
+    return Icon && Card;
 }
 void UMCUnifiedUIWidget::EnsureAdditionalScreens()
 {
@@ -332,7 +404,7 @@ void UMCUnifiedUIWidget::EnsureAdditionalScreens()
         Safe->SetContent(Layers);
         auto* PageCell=Layers->AddChildToOverlay(Pages);PageCell->SetHorizontalAlignment(HAlign_Fill);PageCell->SetVerticalAlignment(VAlign_Fill);
     }
-    for(const TCHAR* Name:{TEXT("Screen_Settings"),TEXT("Screen_Team")})
+    for(const TCHAR* Name:{TEXT("Screen_Settings"),TEXT("Screen_Team"),TEXT("Screen_Reward"),TEXT("Screen_Frontend"),TEXT("Screen_GameplayMenu")})
         if(!WidgetTree->FindWidget(Name)) Pages->AddChild(WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(),FName(Name)));
     auto* Settings=WidgetTree->FindWidget<UMCUnifiedSettingsWidget>(TEXT("UnifiedSettings"));
     if(!Settings) {
@@ -345,6 +417,30 @@ void UMCUnifiedUIWidget::EnsureAdditionalScreens()
         auto* Class=UMCGameplayUIFactory::ResolveClassForTheme(TEXT("UnifiedTeam"),UMCUnifiedTeamWidget::StaticClass(),GetResolvedTheme());
         Team=WidgetTree->ConstructWidget<UMCUnifiedTeamWidget>(Class,TEXT("UnifiedTeam"));
         Team->Initialize();Team->BuildPresentationTree();Team->SetVisibility(ESlateVisibility::Collapsed);
+    }
+    auto* Hub=WidgetTree->FindWidget<UMCUnifiedHubWidget>(TEXT("UnifiedHub"));
+    if(!Hub) {
+        auto* Class=UMCGameplayUIFactory::ResolveClassForTheme(TEXT("UnifiedHub"),UMCUnifiedHubWidget::StaticClass(),GetResolvedTheme());
+        Hub=WidgetTree->ConstructWidget<UMCUnifiedHubWidget>(Class,TEXT("UnifiedHub"));Hub->Initialize();Hub->BuildPresentationTree();
+        if(auto* Page=WidgetTree->FindWidget<UCanvasPanel>(TEXT("Screen_Hub"))) {
+            auto* Cell=Page->AddChildToCanvas(Hub);Cell->SetAnchors(FAnchors(0,0,1,1));Cell->SetOffsets(FMargin(0));
+            Hub->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+        }
+    }
+    auto* Reward=WidgetTree->FindWidget<UMCUnifiedRewardWidget>(TEXT("UnifiedReward"));
+    if(!Reward) {
+        auto* Class=UMCGameplayUIFactory::ResolveClassForTheme(TEXT("UnifiedReward"),UMCUnifiedRewardWidget::StaticClass(),GetResolvedTheme());
+        Reward=WidgetTree->ConstructWidget<UMCUnifiedRewardWidget>(Class,TEXT("UnifiedReward"));Reward->Initialize();Reward->BuildPresentationTree();
+    }
+    auto* Frontend=WidgetTree->FindWidget<UMCUnifiedFrontendWidget>(TEXT("UnifiedFrontend"));
+    if(!Frontend) {
+        auto* Class=UMCGameplayUIFactory::ResolveClassForTheme(TEXT("UnifiedFrontend"),UMCUnifiedFrontendWidget::StaticClass(),GetResolvedTheme());
+        Frontend=WidgetTree->ConstructWidget<UMCUnifiedFrontendWidget>(Class,TEXT("UnifiedFrontend"));Frontend->Initialize();Frontend->BuildPresentationTree();
+    }
+    auto* GameplayMenu=WidgetTree->FindWidget<UMCUnifiedGameplayMenuWidget>(TEXT("UnifiedGameplayMenu"));
+    if(!GameplayMenu) {
+        auto* Class=UMCGameplayUIFactory::ResolveClassForTheme(TEXT("UnifiedGameplayMenu"),UMCUnifiedGameplayMenuWidget::StaticClass(),GetResolvedTheme());
+        GameplayMenu=WidgetTree->ConstructWidget<UMCUnifiedGameplayMenuWidget>(Class,TEXT("UnifiedGameplayMenu"));GameplayMenu->Initialize();GameplayMenu->BuildPresentationTree();
     }
     // The host constrains the available screen and scrolls overflow. It never
     // scales text down when a translation makes the component larger.
@@ -387,7 +483,7 @@ void UMCUnifiedUIWidget::EnsureAdditionalScreens()
             Across->SetScrollWhenFocusChanges(EScrollWhenFocusChanges::InstantScroll);
             auto* Width=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),FName(*(Viewport.ToString()+TEXT("Content"))));
             Width->SetMinDesiredWidth(1856);Width->SetContent(View);
-            if(auto* Cell=Cast<USizeBoxSlot>(View->Slot)) {Cell->SetHorizontalAlignment(HAlign_Left);Cell->SetVerticalAlignment(VAlign_Center);}
+            if(auto* Cell=Cast<USizeBoxSlot>(View->Slot)) {Cell->SetHorizontalAlignment((View==Reward || View==GameplayMenu)?HAlign_Center:HAlign_Left);Cell->SetVerticalAlignment(VAlign_Center);}
             Across->AddChild(Width);Bounds->SetContent(Across);
         }
         Scroll->SetScrollBarVisibility(ESlateVisibility::Collapsed);
@@ -396,6 +492,9 @@ void UMCUnifiedUIWidget::EnsureAdditionalScreens()
     };
     CommerceHost(Wardrobe,TEXT("WardrobeViewport"),TEXT("WardrobeViewportFrame"),TEXT("Screen_Wardrobe"));
     CommerceHost(Shop,TEXT("ShopViewport"),TEXT("ShopViewportFrame"),TEXT("Screen_Boosters"));
+    CommerceHost(Reward,TEXT("RewardViewport"),TEXT("RewardViewportFrame"),TEXT("Screen_Reward"));
+    CommerceHost(Frontend,TEXT("FrontendViewport"),TEXT("FrontendViewportFrame"),TEXT("Screen_Frontend"));
+    CommerceHost(GameplayMenu,TEXT("GameplayMenuViewport"),TEXT("GameplayMenuViewportFrame"),TEXT("Screen_GameplayMenu"));
     if(!WidgetTree->FindWidget(TEXT("SettingsViewport"))) {
         auto* Scroll=Host(Settings,TEXT("SettingsViewport"),TEXT("SettingsViewportFrame"));
         auto* Page=WidgetTree->FindWidget<UCanvasPanel>(TEXT("Screen_Settings"));
@@ -424,7 +523,7 @@ void UMCUnifiedUIWidget::EnsureGameplayControls()
         if(!Parent || WidgetTree->FindWidget(Name)) return;
         auto* Text=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);
         Text->SetAutoWrapText(false);Text->SetTextOverflowPolicy(ETextOverflowPolicy::Ellipsis);
-        Place(Parent,Text,Pos,Size);BindStyle(Name,EMCUIColorToken::Cream,EMCUIStyleTarget::Text,FontSize,true);
+        UnifiedRootPlace(Parent,Text,Pos,Size);BindStyle(Name,EMCUIColorToken::Cream,EMCUIStyleTarget::Text,FontSize,true);
     };
     if(!WidgetTree->FindWidget(TEXT("V2RunSummary"))) {
         Label(Screen,TEXT("V2RunSummary"),{50,194},{340,46},14);
@@ -435,24 +534,24 @@ void UMCUnifiedUIWidget::EnsureGameplayControls()
     if(!WidgetTree->FindWidget(TEXT("V2ToolArt"))) if(auto* Content=Body(TEXT("ToolResourceBlock"))) {
         auto* Fit=WidgetTree->ConstructWidget<UScaleBox>(UScaleBox::StaticClass(),TEXT("V2ToolArtFit"));Fit->SetStretch(EStretch::ScaleToFit);
         auto* Image=WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(),TEXT("V2ToolArt"));Fit->SetContent(Image);
-        Place(Content,Fit,{3,7},{100,100});
+        UnifiedRootPlace(Content,Fit,{3,7},{100,100});
     }
     for(int32 I=1;I<=4;++I) {
         auto* Content=Body(FName(*FString::Printf(TEXT("V2Skill%d"),I)));if(!Content) continue;
         const FName Name(*FString::Printf(TEXT("V2SkillIcon%d"),I));
         if(!WidgetTree->FindWidget(Name)) {
             auto* Icon=WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(),Name);Icon->SetVisibility(ESlateVisibility::Collapsed);
-            auto* Fit=WidgetTree->ConstructWidget<UScaleBox>(UScaleBox::StaticClass(),FName(*(Name.ToString()+TEXT("Fit"))));Fit->SetStretch(EStretch::ScaleToFit);Fit->SetContent(Icon);Place(Content,Fit,{9,0},{60,60});
+            auto* Fit=WidgetTree->ConstructWidget<UScaleBox>(UScaleBox::StaticClass(),FName(*(Name.ToString()+TEXT("Fit"))));Fit->SetStretch(EStretch::ScaleToFit);Fit->SetContent(Icon);UnifiedRootPlace(Content,Fit,{9,0},{60,60});
         }
         Label(Content,FName(*FString::Printf(TEXT("V2SkillStatus%d"),I)),{0,60},{78,18},12);
     }
     if(!WidgetTree->FindWidget(TEXT("V2ActionHint"))) {
         auto* Hint=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("V2ActionHint"));
         Hint->SetAutoWrapText(true);Hint->SetJustification(ETextJustify::Center);
-        Place(Screen,Hint,{0,-190},{520,64},{.5,1},{.5,1});BindStyle(Hint->GetFName(),EMCUIColorToken::Cream,EMCUIStyleTarget::Text,18,true);
+        UnifiedRootPlace(Screen,Hint,{0,-190},{520,64},{.5,1},{.5,1});BindStyle(Hint->GetFName(),EMCUIColorToken::Cream,EMCUIStyleTarget::Text,18,true);
         auto* Contact=WidgetTree->ConstructWidget<UProgressBar>(UProgressBar::StaticClass(),TEXT("V2ContactProgress"));
-        FProgressBarStyle Style;Style.SetBackgroundImage(FSlateRoundedBoxBrush(C(TEXT("30333F")),2.f));Style.SetFillImage(FSlateRoundedBoxBrush(C(TEXT("B0FCF3")),2.f));
-        Contact->SetWidgetStyle(Style);Contact->SetPercent(0);Place(Screen,Contact,{0,-182},{460,5},{.5,1},{.5,1});
+        FProgressBarStyle Style;Style.SetBackgroundImage(FSlateRoundedBoxBrush(UnifiedRootColor(TEXT("30333F")),2.f));Style.SetFillImage(FSlateRoundedBoxBrush(UnifiedRootColor(TEXT("B0FCF3")),2.f));
+        Contact->SetWidgetStyle(Style);Contact->SetPercent(0);UnifiedRootPlace(Screen,Contact,{0,-182},{460,5},{.5,1},{.5,1});
     }
 }
 
@@ -465,9 +564,9 @@ void UMCUnifiedUIWidget::RefreshAdaptiveLayout()
         Bounds->SetMaxDesiredWidth(FMath::Max(280.f,FMath::Min(900.f,AreaX*.85f)));
         Bounds->SetMaxDesiredHeight(FMath::Max(160.f,AreaY*.51f));
     }
-    for(const TCHAR* Name:{TEXT("SettingsViewportFrame"),TEXT("TeamViewportFrame"),TEXT("WardrobeViewportFrame"),TEXT("ShopViewportFrame")})
+    for(const TCHAR* Name:{TEXT("SettingsViewportFrame"),TEXT("TeamViewportFrame"),TEXT("WardrobeViewportFrame"),TEXT("ShopViewportFrame"),TEXT("RewardViewportFrame"),TEXT("FrontendViewportFrame"),TEXT("GameplayMenuViewportFrame")})
         if(auto* Frame=WidgetTree->FindWidget<USizeBox>(Name)) Frame->SetMinDesiredHeight(FMath::Max(0.f,AreaY-64));
-    for(const TCHAR* Name:{TEXT("WardrobeViewportContent"),TEXT("ShopViewportContent")})
+    for(const TCHAR* Name:{TEXT("WardrobeViewportContent"),TEXT("ShopViewportContent"),TEXT("RewardViewportContent"),TEXT("FrontendViewportContent"),TEXT("GameplayMenuViewportContent")})
         if(auto* Width=WidgetTree->FindWidget<USizeBox>(Name)) Width->SetMinDesiredWidth(FMath::Max(0.f,AreaX-64));
     if(ActiveScreen!=EMCUnifiedUIScreen::Gameplay && (!IsDesignTime() || PreviewScreen!=EMCUnifiedUIScreen::Gameplay)) return;
     const auto Measure=FSlateApplication::Get().GetRenderer()->GetFontMeasureService();
@@ -524,6 +623,10 @@ void UMCUnifiedUIWidget::RefreshRuntimePresentation()
         if(auto* Team=WidgetTree->FindWidget<UMCUnifiedTeamWidget>(TEXT("UnifiedTeam"))) Team->RefreshFromBackend();
         if(auto* Wardrobe=WidgetTree->FindWidget<UMCUnifiedWardrobeWidget>(TEXT("UnifiedWardrobe"))) Wardrobe->RefreshFromBackend();
         if(auto* Shop=WidgetTree->FindWidget<UMCUnifiedShopWidget>(TEXT("UnifiedShop"))) Shop->RefreshFromBackend();
+        if(auto* Hub=WidgetTree->FindWidget<UMCUnifiedHubWidget>(TEXT("UnifiedHub"))) Hub->RefreshFromBackend();
+        if(auto* Reward=WidgetTree->FindWidget<UMCUnifiedRewardWidget>(TEXT("UnifiedReward"))) Reward->RefreshFromBackend();
+        if(auto* Frontend=WidgetTree->FindWidget<UMCUnifiedFrontendWidget>(TEXT("UnifiedFrontend"))) Frontend->RefreshFromBackend();
+        if(auto* Menu=WidgetTree->FindWidget<UMCUnifiedGameplayMenuWidget>(TEXT("UnifiedGameplayMenu"))) Menu->RefreshFromBackend();
     }
     auto* Source=HUDBackend.Get();if(!Source || !WidgetTree || !Source->WidgetTree) return;
     auto Find=[this](FName Name)->UWidget* {const auto* Item=HUDControls.Find(Name);return Item?Item->Get():nullptr;};

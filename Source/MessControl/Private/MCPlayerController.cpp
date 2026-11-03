@@ -540,6 +540,25 @@ bool AMCPlayerController::CanPresentUnifiedTeam() const
         && !(DevPanel && DevPanel->IsVisible()) && !(EmoteWidget && EmoteWidget->IsVisible())
         && !(PrototypeWidget && PrototypeWidget->IsPanelOpen());
 }
+bool AMCPlayerController::CanPresentUnifiedHub() const
+{
+    return CanOpenUIPresentationTools() && IsHubWorld() && HubWidget && HubWidget->IsInViewport() && HubWidget->IsVisible()
+        && !bLobbyUIOpen && !bPauseMenuOpen && !bConnectionMenuOpen && !bTutorialMenuInput
+        && !IsWardrobeOpen() && !IsHubShopOpen() && !CanPresentUnifiedReward();
+}
+bool AMCPlayerController::CanPresentUnifiedReward() const
+{
+    return CanOpenUIPresentationTools() && PerkChoiceWidget && PerkChoiceWidget->IsInViewport() && PerkChoiceWidget->IsVisible()
+        && !bLobbyUIOpen && !bPauseMenuOpen && !bConnectionMenuOpen && !bTutorialMenuInput
+        && !IsWardrobeOpen() && !IsHubShopOpen();
+}
+UMCGameplayMenuWidget* AMCPlayerController::GetActiveGameplayMenuPresentation() const
+{
+    if(!CanOpenUIPresentationTools()) return nullptr;
+    if(bPauseMenuOpen && PauseWidget && PauseWidget->IsInViewport() && PauseWidget->IsVisible()) return PauseWidget;
+    if(bConnectionMenuOpen && ConnectionWidget && ConnectionWidget->IsInViewport() && ConnectionWidget->IsVisible()) return ConnectionWidget;
+    return nullptr;
+}
 bool AMCPlayerController::CanUseDevPanel() const
 {
     const auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>();
@@ -668,15 +687,15 @@ void AMCPlayerController::UpdateInputMode()
 {
     if(!HasLocalPresentationOwner()) return;
     UpdatePerkChoicePause();
-    if(auto* GI=GetGameInstance())
-        if(auto* Presentation=GI->GetSubsystem<UMCUIPresentationSubsystem>())
-            if(Presentation->ApplyPanelInputMode(this)) return;
     // A modal owns focus over the held overlay; hiding directly here avoids
     // recursively re-entering this input-mode resolver during a transition.
     if(ScoreboardWidget && ScoreboardWidget->IsVisible() && (bLoadingInputBlocked || bLobbyUIOpen || bPauseMenuOpen || IsWardrobeOpen() || IsHubShopOpen()
         || bConnectionMenuOpen || bTutorialMenuInput || bHubMenuInput || bBossIntroPlaying || IsRewardInteractionActive()
         || (DevPanel && DevPanel->IsVisible()) || (EmoteWidget && EmoteWidget->IsVisible())
         || (PrototypeWidget && PrototypeWidget->IsPanelOpen()))) ScoreboardWidget->SetVisibility(ESlateVisibility::Collapsed);
+    if(auto* GI=GetGameInstance())
+        if(auto* Presentation=GI->GetSubsystem<UMCUIPresentationSubsystem>())
+            if(Presentation->ApplyPanelInputMode(this)) return;
     if(bLoadingInputBlocked) {ApplyLoadingInputMode();return;}
     if(IsWardrobeOpen()) {
         bShowMouseCursor=true;ResetIgnoreMoveInput();SetIgnoreMoveInput(true);

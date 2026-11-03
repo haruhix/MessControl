@@ -18,6 +18,7 @@
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/PanelWidget.h"
+#include "Components/ProgressBar.h"
 #include "Components/ScaleBox.h"
 #include "Components/ScrollBox.h"
 #include "Components/SizeBox.h"
@@ -785,6 +786,13 @@ void UMCGameplayMenuWidget::NativeTick(const FGeometry& Geometry,float DeltaSeco
     UWidget* Focused=nullptr;
     for(UWidget* Target:FocusTargets) if(Target && (Target->HasUserFocus(GetOwningPlayer()) || Target->HasFocusedDescendants())) {Focused=Target;break;}
     if(LastFocusTarget.Get()!=Focused) {LastFocusTarget=Focused;ApplyTheme();}
+    RefreshVideoConfirmation();
+    RefreshAccumulator+=DeltaSeconds;if(RefreshAccumulator<.2f) return;RefreshAccumulator=0;
+    if(Page==EPage::Connection) RefreshConnection();
+    if(Page==EPage::Pause) UpdatePageCopy();
+}
+void UMCGameplayMenuWidget::RefreshVideoConfirmation()
+{
     if(bVideoConfirmationPending) {
         if(FPlatformTime::Seconds()>=VideoConfirmationEndsAt) {
             RevertVideoSettings();ShowPage(EPage::Settings);SetStatusKey(TEXT("UI.Menu.VideoRestored"),LOCTEXT("VideoRestored","Предыдущий режим экрана восстановлен."));
@@ -793,9 +801,100 @@ void UMCGameplayMenuWidget::NativeTick(const FGeometry& Geometry,float DeltaSeco
             SetStatus(UMCUIDataLibrary::FormatTextForCulture(Pattern,FFormatNamedArguments{{TEXT("Seconds"),UMCUIDataLibrary::NumberForCulture(FMath::CeilToInt(VideoConfirmationEndsAt-FPlatformTime::Seconds()))}}));
         }
     }
-    RefreshAccumulator+=DeltaSeconds;if(RefreshAccumulator<.2f) return;RefreshAccumulator=0;
+}
+void UMCGameplayMenuWidget::RefreshPendingPresentation()
+{
+    if(IsPreviewing() || bCloseRequested) return;
+    RefreshVideoConfirmation();
     if(Page==EPage::Connection) RefreshConnection();
     if(Page==EPage::Pause) UpdatePageCopy();
+    if(Page==EPage::Audio && VoiceSettings) VoiceSettings->RefreshPendingPresentation();
+}
+bool UMCGameplayMenuWidget::IsPresentationControlCurrent(const UWidget* Control,FName ExpectedPage) const
+{
+    if(IsPreviewing() || bCloseRequested || !IsInViewport() || !IsVisible() || !Pages || !Pages->GetActiveWidget() ||
+        Pages->GetActiveWidget()->GetFName()!=ExpectedPage || !MCGameplayMenuPrivate::WithinActivePage(Control,Pages)) return false;
+    const UWidget* Current=Control;
+    while(Current && Current!=Pages->GetActiveWidget()) {
+        if(!Current->GetIsEnabled()) return false;
+        const UWidget* Parent=Current->GetParent();Current=Parent?Parent:Current->GetTypedOuter<UUserWidget>();
+    }
+    return Current && Current->GetIsEnabled();
+}
+bool UMCGameplayMenuWidget::TryActivatePresentationButton(UButton* Button,FName ExpectedPage)
+{
+    if(!IsValid(Button) || !IsPresentationControlCurrent(Button,ExpectedPage)) return false;
+    if(auto* Action=Cast<UMCGameplayMenuActionButton>(Button))
+        if(!Buttons.Contains(Action) || Action->MenuAction==EMCGameplayMenuAction::Credits) return false;
+    Button->OnClicked.Broadcast();return true;
+}
+bool UMCGameplayMenuWidget::IsPresentationKeyCaptureActive() const
+{
+    return !IsPreviewing() && !bCloseRequested && Page==EPage::Audio && VoiceSettings && VoiceSettings->IsRebinding();
+}
+bool UMCGameplayMenuWidget::RoutePresentationKey(const FKeyEvent& Event)
+{
+    if(IsPreviewing() || bCloseRequested || !IsInViewport() || !IsVisible()) return false;
+    return NativeOnPreviewKeyDown(GetPaintSpaceGeometry(),Event).IsEventHandled();
+}
+bool UMCGameplayMenuWidget::RoutePresentationMouseButton(const FPointerEvent& Event)
+{
+    return IsPresentationKeyCaptureActive() && VoiceSettings->RouteRebindKey(Event.GetEffectingButton());
+}
+bool UMCGameplayMenuWidget::RoutePresentationAnalog(const FAnalogInputEvent& Event)
+{
+    if(IsPreviewing() || bCloseRequested || !IsInViewport() || !IsVisible()) return false;
+    return NativeOnAnalogValueChanged(GetPaintSpaceGeometry(),Event).IsEventHandled();
+}
+UWidget* UMCGameplayMenuWidget::GetNextPresentationFocus(const UWidget* Current,int32 Direction) const
+{
+    if(IsPreviewing() || bCloseRequested || !Pages || !Pages->GetActiveWidget() || FocusTargets.IsEmpty()) return nullptr;
+    int32 Index=FocusTargets.IndexOfByPredicate([Current](const auto& Item){return Item.Get()==Current;});
+    for(int32 Attempt=0;Attempt<FocusTargets.Num();++Attempt) {
+        Index=(Index+Direction+FocusTargets.Num())%FocusTargets.Num();UWidget* Target=FocusTargets[Index];
+        if(IsPresentationControlCurrent(Target,Pages->GetActiveWidget()->GetFName())) return Target;
+    }
+    return nullptr;
+}
+FMCGameplayMenuPresentationSnapshot UMCGameplayMenuWidget::GetPresentationSnapshot()
+{
+    RefreshPendingPresentation();FMCGameplayMenuPresentationSnapshot Result;
+    Result.PageIndex=static_cast<int32>(Page);Result.PageName=Pages && Pages->GetActiveWidget()?Pages->GetActiveWidget()->GetFName():NAME_None;
+    Result.Heading=Heading?Heading->GetText():FText::GetEmpty();Result.Status=Status?Status->GetText():FText::GetEmpty();Result.Hint=Hint?Hint->GetText():FText::GetEmpty();Result.bClosing=bCloseRequested;
+    if(auto* Note=WidgetTree?WidgetTree->FindWidget<UTextBlock>(TEXT("MenuNetworkNote")):nullptr) if(Note->IsVisible()) Result.NetworkNote=Note->GetText();
+    auto TextWithin=[](UWidget* Root) {
+        FText Text;TFunction<void(UWidget*)> Walk=[&](UWidget* Node) {
+            if(!Node || !Node->IsVisible()) return;
+            if(auto* Label=Cast<UTextBlock>(Node)) {Text=Text.IsEmpty()?Label->GetText():FText::Format(FText::FromString(TEXT("{0}\n{1}")),Text,Label->GetText());return;}
+            if(auto* Panel=Cast<UPanelWidget>(Node)) for(UWidget* Child:Panel->GetAllChildren()) Walk(Child);
+        };Walk(Root);return Text;
+    };
+    TFunction<void(UWidget*,bool)> Visit=[&](UWidget* Node,bool ParentEnabled) {
+        if(!Node || !Node->IsVisible()) return;
+        FMCGameplayMenuPresentationControl Entry;Entry.Name=Node->GetFName();Entry.Source=Node;Entry.bEnabled=ParentEnabled && Node->GetIsEnabled();
+        if(auto* Label=Cast<UTextBlock>(Node)) {Entry.Kind=EMCGameplayMenuPresentationKind::Text;Entry.Text=Label->GetText();}
+        else if(auto* Button=Cast<UButton>(Node)) {
+            Entry.Kind=EMCGameplayMenuPresentationKind::Button;Entry.Text=TextWithin(Button);
+            if(auto* Action=Cast<UMCGameplayMenuActionButton>(Button)) switch(Action->MenuAction) {
+                case EMCGameplayMenuAction::Back:case EMCGameplayMenuAction::ApplySettings:case EMCGameplayMenuAction::KeepSettings:case EMCGameplayMenuAction::RevertSettings:
+                case EMCGameplayMenuAction::ConfirmLeave:case EMCGameplayMenuAction::ConfirmExit:Entry.bFooter=true;break;default:break;
+            }
+        } else if(auto* Picker=Cast<UComboBoxString>(Node)) {
+            Entry.Kind=EMCGameplayMenuPresentationKind::Picker;Entry.SelectedIndex=Picker->GetSelectedIndex();
+            for(int32 I=0;I<Picker->GetOptionCount();++I) Entry.Options.Add(Picker->GetOptionAtIndex(I));
+        } else if(auto* Check=Cast<UCheckBox>(Node)) {Entry.Kind=EMCGameplayMenuPresentationKind::Check;Entry.Text=TextWithin(Check);Entry.bChecked=Check->IsChecked();}
+        else if(auto* Slider=Cast<USlider>(Node)) {Entry.Kind=EMCGameplayMenuPresentationKind::Slider;Entry.Value=Slider->GetValue();Entry.Minimum=Slider->GetMinValue();Entry.Maximum=Slider->GetMaxValue();Entry.Step=Slider->GetStepSize();}
+        else if(auto* Edit=Cast<UEditableTextBox>(Node)) {Entry.Kind=EMCGameplayMenuPresentationKind::Editable;Entry.Text=Edit->GetText();}
+        else if(auto* Meter=Cast<UProgressBar>(Node)) {Entry.Kind=EMCGameplayMenuPresentationKind::Meter;Entry.Value=Meter->GetPercent();}
+        else {
+            if(auto* Composed=Cast<UUserWidget>(Node)) {if(Composed->WidgetTree) Visit(Composed->WidgetTree->RootWidget,Entry.bEnabled);}
+            else if(auto* Panel=Cast<UPanelWidget>(Node)) for(UWidget* Child:Panel->GetAllChildren()) Visit(Child,Entry.bEnabled);
+            return;
+        }
+        Result.Controls.Add(MoveTemp(Entry));
+    };
+    if(Pages) Visit(Pages->GetActiveWidget(),true);
+    return Result;
 }
 FReply UMCGameplayMenuWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
 {

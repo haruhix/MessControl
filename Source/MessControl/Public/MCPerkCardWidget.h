@@ -47,6 +47,8 @@ public:
         bool bInteractive=true, bool bPreserveScroll=false);
     void SetInteractionEnabled(bool bEnabled);
     UMCPerkCardButton* GetChoiceButton() const { return ChoiceButton; }
+    /** Current source-owned copy; alternative views never reconstruct reward decisions. */
+    const FMCPerkCardPresentation& GetPresentation() const { return Presentation; }
     FButtonStyle GetBaseButtonStyle() const;
     /** Scroll readable copy without changing the selected or granted perk. */
     void ScrollContent(float Delta);

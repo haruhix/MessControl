@@ -1,0 +1,166 @@
+{
+  "project": "MessControl",
+  "date": "2026-11-04",
+  "status": "Checkpoint: four editable presenters integrated and scoped solo checks passed. Whole-interface completion and artistic acceptance remain pending.",
+  "changelog": [
+    "Added WBP_UIHub, WBP_UIReward, WBP_UIFrontend and WBP_UIGameplayMenu with saved editable UMG shapes and source-owned data/actions.",
+    "Extended WBP_UIRoot to 140 widgets and 12 stable page indices; added screen/state preview selectors and shared preview culture/scenario propagation.",
+    "Kept native Hub stage/readiness/ACK, reward offer/timers/selection, frontend session state and gameplay settings/rollback owners alive while changing presentation.",
+    "Fixed repeated Back, TEAM cleanup before modal input return, Escape ownership while F3 is open, legacy chrome behind New modal screens, and Unity helper-name collisions.",
+    "Added seven common Reward localization rows in all ten supported languages."
+  ],
+  "assets": {
+    "root": "/Game/Gameplay/UI/V2/WBP_UIRoot",
+    "classes": [
+      "WBP_UIHub",
+      "WBP_UIReward",
+      "WBP_UIFrontend",
+      "WBP_UIGameplayMenu"
+    ],
+    "theme": "/Game/Gameplay/UI/V2/Theme/DA_UITheme_V2",
+    "localization": "/Game/Gameplay/UI/Data/DT_UI_Localization",
+    "pageIndices": {
+      "Hub": 2,
+      "Reward": 9,
+      "Frontend": 10,
+      "GameplayMenu": 11
+    },
+    "reservedHiddenPages": {
+      "Tools": 5,
+      "Perks": 6
+    },
+    "policy": "Existing root and component trees were preserved; new branches appended and Reward layout adjusted through native UMG MCP. Source action ownership was retained."
+  },
+  "design": {
+    "panels": "Editable UMG forms, outlines, shadows, contour points and text. Existing canonical images only.",
+    "text": "Fixed authored fonts; measured word widths, wrapping, growing shapes and constrained overflow scrolling. Reward Skip remains accessible in the tested 1280x720 native window.",
+    "preview": "Single WBP_UIRoot screen/language chooser; saved component states and isolated Designer fixtures.",
+    "icons": "Canonical DT_Perks.Icon only. Unassigned icons remain empty; user-owned icon assignment is a separate task. No DT_Perks edits.",
+    "psdMapping": "tools/busters is a HUD icon sheet; PERK contains an icon sheet and REWARD layout. They are not standalone Tools/Perks catalogs."
+  },
+  "validation": {
+    "editorBuild": {
+      "target": "MessControlEditor Win64 Development",
+      "engine": "5.8.1",
+      "result": "Succeeded",
+      "finalLog": "E:/DEVGAME/MessControl/Saved/Build/UIHubReward_20261104_F3Fix.log"
+    },
+    "frontend": {
+      "result": "PASS",
+      "checks": [
+        "Join/new Back",
+        "address forwarding and retention",
+        "Exit/new Cancel",
+        "forced Python+UE GC",
+        "source/view identities retained",
+        "Main and original address restored"
+      ],
+      "evidence": "FrontendSoloReport.json"
+    },
+    "gameplayMenu": {
+      "result": "PASS",
+      "checks": [
+        "Pause/new Settings",
+        "real checkbox delegate updates native pending value",
+        "F3 New/Current/New with same source instance and pending value",
+        "Escape closes F3 only",
+        "original pending value restored",
+        "new Back and Resume return to Hub"
+      ],
+      "evidence": "GameplayMenuSoloReport.json"
+    },
+    "reward": {
+      "result": "PASS",
+      "fixture": "Existing BP_RewardChest opened through real player RPC and native lockpick/open phases in a transient solo Hub; no fabricated IDs and no choice/skip/reroll submitted.",
+      "checks": [
+        "three source card widget identities",
+        "real nonzero offer GUID retained",
+        "same perks/charges/choice count after F3",
+        "forced GC retains source",
+        "legacy Hub groups suppressed under New reward"
+      ],
+      "evidence": "RewardSoloReport.json"
+    },
+    "hub": {
+      "result": "PASS",
+      "checks": [
+        "authoritative ready-volume containment",
+        "real request Gathering→Selecting",
+        "real scene generation/ACK ready",
+        "TEAM collapsed on transition",
+        "F3 state/focus restoration in Selecting",
+        "new Return button",
+        "Gathering and movement/look input restored"
+      ],
+      "evidence": [
+        "Hub_ready.json",
+        "Hub_select.json",
+        "Hub_selected.json",
+        "Hub_return.json",
+        "Hub_returned.json",
+        "HubSelectingF3_Report.json"
+      ]
+    },
+    "fishCounter": {
+      "result": "PASS (target binding only)",
+      "evidence": "HubNewGathering.json",
+      "checks": [
+        "New Hub icon/card used by existing feedback owner",
+        "no PresentCatch or queue reset during rebinding"
+      ],
+      "animation": "Catch visual conversion and runtime flight/queue acceptance are pending the next UI stage."
+    },
+    "renders": {
+      "count": 10,
+      "evidence": "Previews/RenderReport.json",
+      "scope": "Root screens plus component states including Russian and long German copy; not exhaustive language/resolution acceptance."
+    },
+    "input": "Real UMG delegate routes plus native Slate MCP keyboard/pointer F3. Hardware input and multiplayer were not tested.",
+    "packaged": "No cook/package or clean packaged PSO validation performed."
+  },
+  "resources": {
+    "roots": "MCPreloadManifest.cpp retains New theme; four presenter classes are reflected theme soft-class entries; existing fonts, shapes and canonical perk assets remain reachable.",
+    "firstUse": "Native Hub loading barrier completed (931 resources, 393/393 streaming); first visible UI/stage use observed in solo.",
+    "limits": "Warm Editor evidence is not a clean packaged first-launch guarantee."
+  },
+  "restoration": {
+    "result": "PASS",
+    "evidence": "restore_user.json",
+    "restored": [
+      "coins",
+      "owned cosmetics",
+      "pending purchases/boosters",
+      "equipped slots",
+      "original shop stock IDs",
+      "pawn position",
+      "controller rotation",
+      "Play settings",
+      "background throttle",
+      "New UI preference retained"
+    ],
+    "notes": [
+      "New transient session shop rotation identity/seed retained to prevent automatic rerolls while restoring original stock IDs.",
+      "Native non-reflected camera orbit resets across Editor restart; controller rotation restored."
+    ]
+  },
+  "evidenceDirectory": "E:/CodexWork/MessControl/Validation/UIHubReward_20261104",
+  "reviewMedia": "Generated PNGs/logs are local and untracked. Artist approval is pending.",
+  "knownLimitations": [
+    "Existing localization rows with empty requested-language fields fall back to Russian. The seven new Reward rows are complete; broader static-screen fill-empty localization is the next patch.",
+    "Fishing catch receipt remains the legacy NativePaint visual; its editable New overlay is next.",
+    "Existing world ready-marker/name-tag and native selector labels still need the overall UI coverage pass.",
+    "Remaining HUD/modal states and all-language/resolution coverage are not declared complete.",
+    "One earlier Editor run crashed inside Python cyclic-GC/UE bridge after a module-global probe; root cause was not proven. Fresh recipe scopes and repeated scoped GC checks passed afterward.",
+    "An existing Hub MI_Blinder dependent-package load warning was observed and was not part of this UI change."
+  ],
+  "storage": {
+    "taskFiles": "E:",
+    "trace": "Task UBT trace files relocated from managed C: path to evidence directory.",
+    "cache": "Final correction build used process-scoped -UBARootDir on E:. Earlier shared UBA cache and the existing global Unreal DDC remain in managed C: locations; unrelated shared caches were preserved."
+  },
+  "next": [
+    "Fill only empty static-screen localization cells while preserving existing translations and dynamic source labels.",
+    "Convert existing fishing catch presentation to editable New UMG overlay without changing mechanics/receipts.",
+    "Finish coverage and visual acceptance for remaining interface states; clothing catalog remains queued after the whole interface."
+  ]
+}

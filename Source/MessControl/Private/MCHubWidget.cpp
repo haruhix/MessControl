@@ -38,6 +38,7 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Framework/Application/SlateUser.h"
 #include "InputCoreTypes.h"
+#include "Misc/ScopeExit.h"
 #include "Rendering/DrawElements.h"
 #include "UObject/StructOnScope.h"
 #include "UObject/UnrealType.h"
@@ -799,6 +800,7 @@ void UMCHubWidget::RefreshFromState()
     if(IsDesignTime()) {ApplyEditorPreview(PreviewTime);return;}
     if(bRefreshingState) return;
     TGuardValue<bool> Guard(bRefreshingState,true);
+    ON_SCOPE_EXIT {ApplyUnifiedViewSuppression();};
     BuildPresentationTree();if(!ReadinessTitle) return;
     auto* Hub=State();
     const auto* PC=GetOwningPlayer<AMCPlayerController>();
@@ -1274,6 +1276,38 @@ void UMCHubWidget::OnLocalizationChanged()
 {
     LastStateSignature.Reset();
     RefreshFromState();
+}
+
+void UMCHubWidget::ApplyUnifiedViewSuppression()
+{
+    if(!bUnifiedViewActive || IsDesignTime() || !WidgetTree) return;
+    for(const TCHAR* Name:{TEXT("HubReadinessPanel"),TEXT("HubBottomBar"),TEXT("HubFooterBackdrop"),TEXT("HubSelectionFooter")})
+        if(auto* Group=WidgetTree->FindWidget(FName(Name))) Group->SetVisibility(ESlateVisibility::Hidden);
+}
+void UMCHubWidget::SetUnifiedViewActive(bool bActive)
+{
+    if(IsDesignTime()) return;
+    if(bUnifiedViewActive==bActive) {if(bActive) ApplyUnifiedViewSuppression();return;}
+    bUnifiedViewActive=bActive;
+    if(bActive) ApplyUnifiedViewSuppression();
+    else {
+        // Restore the current phase, not a visibility snapshot from an earlier phase.
+        LastStateSignature.Reset();RefreshFromState();
+    }
+}
+void UMCHubWidget::RequestUnifiedBack()
+{
+    const auto* Hub=State();if(IsDesignTime() || !Hub) return;
+    if(IsLocalHost() && Hub->Phase==EMCHubPhase::Selecting) HandleAction(EMCHubMenuAction::Return);
+    else if(auto* PC=GetOwningPlayer<AMCPlayerController>()) PC->TogglePauseMenu();
+}
+bool UMCHubWidget::RouteUnifiedKey(const FKeyEvent& Event)
+{
+    return !IsDesignTime() && NativeOnPreviewKeyDown(GetPaintSpaceGeometry(),Event).IsEventHandled();
+}
+bool UMCHubWidget::RouteUnifiedMouseWheel(const FPointerEvent& Event)
+{
+    return !IsDesignTime() && NativeOnMouseWheel(GetPaintSpaceGeometry(),Event).IsEventHandled();
 }
 
 #undef LOCTEXT_NAMESPACE

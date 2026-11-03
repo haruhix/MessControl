@@ -322,6 +322,16 @@ UWidget* UMCMainMenuWidget::GetActiveMenuPageRoot() const
     return Pages?Pages->GetActiveWidget():nullptr;
 }
 
+FText UMCMainMenuWidget::GetFrontendStatusText() const
+{
+    return StatusText && StatusText->IsVisible()?StatusText->GetText():FText::GetEmpty();
+}
+
+FText UMCMainMenuWidget::GetFrontendTitleText() const
+{
+    return TitleText && TitleText->IsVisible()?TitleText->GetText():FText::GetEmpty();
+}
+
 void UMCMainMenuWidget::ApplyEditorPreview(float Time)
 {
     PreviewTime=FMath::Max(0.f,Time);

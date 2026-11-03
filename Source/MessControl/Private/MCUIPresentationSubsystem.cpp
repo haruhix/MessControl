@@ -4,6 +4,10 @@
 #include "MCUnifiedUIWidget.h"
 #include "MCHubWardrobeWidget.h"
 #include "MCHubShopWidget.h"
+#include "MCHubWidget.h"
+#include "MCPerkChoiceWidget.h"
+#include "MCGameplayMenuWidget.h"
+#include "Engine/World.h"
 #include "MCGameplayHUD.h"
 #include "MCScoreboardWidget.h"
 #include "MCGameplayUIFactory.h"
@@ -29,6 +33,15 @@ namespace
         virtual void Tick(float,FSlateApplication&,TSharedRef<ICursor>) override {if(Owner.IsValid()) Owner->CheckOwner();}
         virtual bool HandleKeyDownEvent(FSlateApplication&,const FKeyEvent& Event) override
         {
+            if(Event.GetKey()==EKeys::Escape) {
+                if(bOwnsBackPress) return true;
+                auto* Instance=Owner.IsValid()?Owner->GetGameInstance():nullptr;
+                auto* Player=Instance?Instance->GetFirstLocalPlayerController():nullptr;
+                if(Owner.IsValid() && Owner->IsPanelOpenFor(Player)) {
+                    if(!Event.IsRepeat()) {bOwnsBackPress=true;Owner->ClosePanel();}
+                    return true;
+                }
+            }
             if(Event.GetKey()!=EKeys::F3 || !Owner.IsValid()) return false;
             if(Owner->IsCapturingSettingsKey()) return false;
             if(Event.IsRepeat()) return bOwnsPress;
@@ -36,13 +49,14 @@ namespace
         }
         virtual bool HandleKeyUpEvent(FSlateApplication&,const FKeyEvent& Event) override
         {
+            if(Event.GetKey()==EKeys::Escape) {const bool Handled=bOwnsBackPress;bOwnsBackPress=false;return Handled;}
             if(Event.GetKey()!=EKeys::F3) return false;
             const bool Handled=bOwnsPress;bOwnsPress=false;return Handled;
         }
         virtual const TCHAR* GetDebugName() const override {return TEXT("MessControl UI presentation F3");}
     private:
         TWeakObjectPtr<UMCUIPresentationSubsystem> Owner;
-        bool bOwnsPress=false;
+        bool bOwnsPress=false,bOwnsBackPress=false;
     };
 #endif
 }
@@ -96,6 +110,8 @@ bool UMCUIPresentationSubsystem::IsCapturingSettingsKey() const
 {
     auto* GI=GetGameInstance();auto* PC=GI?GI->GetFirstLocalPlayerController():nullptr;
     if(!PC) return false;
+    for(TObjectIterator<UMCGameplayMenuWidget> It;It;++It)
+        if(It->GetOwningPlayer()==PC && It->GetWorld()==GetWorld() && It->IsInViewport() && It->IsVisible() && It->IsPresentationKeyCaptureActive()) return true;
     for(TObjectIterator<UMCMainMenuWidget> It;It;++It)
         if(It->GetOwningPlayer()==PC && It->GetWorld()==GetWorld()
             && It->GetCurrentMenuPage()==EMCMainMenuPage::Settings && It->GetActiveSettingsTab()==4
@@ -149,7 +165,10 @@ bool UMCUIPresentationSubsystem::ApplyPanelInputMode(APlayerController* PC)
             const bool Team=Interface->HasTeamPresentation() && GamePC && GamePC->CanPresentUnifiedTeam();
             const bool Commerce=Interface->HasCommercePresentation() && GamePC && GamePC->CanOpenUIPresentationTools()
                 && (GamePC->IsWardrobeOpen() || GamePC->IsHubShopOpen());
-            if((Menu && (Cast<AMCMainMenuPlayerController>(PC) || (GamePC && GamePC->CanOpenUIPresentationTools()))) || Team || Commerce) {
+            const bool Reward=Interface->HasRewardPresentation() && GamePC && GamePC->CanPresentUnifiedReward();
+            const bool GameplayMenu=Interface->HasGameplayMenuPresentation() && GamePC && GamePC->GetActiveGameplayMenuPresentation();
+            const bool HubMenu=Interface->HasHubPresentation() && Interface->RequiresHubMenuInput() && GamePC && GamePC->CanPresentUnifiedHub();
+            if((Menu && (Cast<AMCMainMenuPlayerController>(PC) || (GamePC && GamePC->CanOpenUIPresentationTools()))) || Team || Commerce || Reward || GameplayMenu || HubMenu) {
                 if(auto* Hero=Cast<AMCToothCharacter>(PC->GetPawn())) Hero->CancelGameplayInput();
                 if(GamePC) {
                     PC->ResetIgnoreMoveInput();PC->SetIgnoreMoveInput(true);
@@ -178,6 +197,8 @@ bool UMCUIPresentationSubsystem::ApplyPanelInputMode(APlayerController* PC)
 void UMCUIPresentationSubsystem::RestoreLegacy()
 {
     if(auto* HUD=ActiveHUD.Get()) HUD->SetUnifiedViewActive(false);ActiveHUD.Reset();
+    if(auto* Hub=ActiveHub.Get();Hub && Hub->GetWorld()==GetWorld() && GetWorld() && !GetWorld()->bIsTearingDown) Hub->SetUnifiedViewActive(false);
+    ActiveHub.Reset();bInterfaceHubMenuInput=false;
     for(const auto& Entry:LegacyOpacity) if(auto* Widget=Entry.Key.Get()) Widget->SetRenderOpacity(Entry.Value);
     for(const auto& Entry:LegacyVisibility) if(auto* Widget=Entry.Key.Get()) Widget->SetVisibility(Entry.Value);
     LegacyOpacity.Reset();LegacyVisibility.Reset();
@@ -201,39 +222,54 @@ bool UMCUIPresentationSubsystem::PrepareInterface(APlayerController* PC)
     return true;
 }
 
+bool UMCUIPresentationSubsystem::GetUnifiedFishCounterTargets(const APlayerController* PC,UWidget*& Icon,UWidget*& Card) const
+{
+    Icon=nullptr;Card=nullptr;
+    if(!Interface || InterfaceOwner.Get()!=PC || !Interface->IsVisible()
+        || UMCGameplayUIFactory::GetPresentationVersion()!=EMCUIVersion::New) return false;
+    return Interface->GetHubFishCounterTargets(Icon,Card);
+}
 void UMCUIPresentationSubsystem::RefreshInterface()
 {
     auto* GI=GetGameInstance();auto* PC=GI?GI->GetFirstLocalPlayerController():nullptr;
-    if(!IsValid(PC) || PC->GetWorld()!=GetWorld() || (InterfaceOwner.IsValid() && InterfaceOwner.Get()!=PC))
-    {
+    if(!IsValid(PC) || PC->GetWorld()!=GetWorld() || (InterfaceOwner.IsValid() && InterfaceOwner.Get()!=PC)) {
         RestoreLegacy();if(Interface) Interface->RemoveFromParent();Interface=nullptr;InterfaceOwner.Reset();return;
     }
+    auto* GamePC=Cast<AMCPlayerController>(PC);
+    auto* MenuPC=Cast<AMCMainMenuPlayerController>(PC);
     UMCMainMenuWidget* Menu=nullptr;UMCGameplayHUD* HUD=nullptr;UMCScoreboardWidget* Team=nullptr;
     UMCHubWardrobeWidget* Wardrobe=nullptr;UMCHubShopWidget* Shop=nullptr;
+    UMCHubWidget* Hub=nullptr;UMCHubWidget* HubChrome=nullptr;UMCGameplayHUD* HUDChrome=nullptr;UMCPerkChoiceWidget* Reward=nullptr;UMCGameplayMenuWidget* GameplayMenu=nullptr;
     EMCUnifiedUIScreen Screen=EMCUnifiedUIScreen::Gameplay;
-    if(UMCGameplayUIFactory::GetPresentationVersion()==EMCUIVersion::New)
-    {
-        const auto* MenuPC=Cast<AMCMainMenuPlayerController>(PC);
-        const auto* GamePC=Cast<AMCPlayerController>(PC);
+    if(UMCGameplayUIFactory::GetPresentationVersion()==EMCUIVersion::New) {
         if((MenuPC && MenuPC->CanOpenUIPresentationTools()) || (GamePC && GamePC->CanOpenUIPresentationTools()))
             for(TObjectIterator<UMCMainMenuWidget> It;It;++It) {
                 if(It->GetOwningPlayer()!=PC || It->GetWorld()!=GetWorld() || !It->IsVisible()
                     || (!It->IsInViewport() && !It->GetParent())) continue;
                 bool VisibleHost=true;
-                for(auto* Parent=It->GetParent();Parent;Parent=Parent->GetParent())
-                    if(!Parent->IsVisible()) {VisibleHost=false;break;}
+                for(auto* Parent=It->GetParent();Parent;Parent=Parent->GetParent()) if(!Parent->IsVisible()) {VisibleHost=false;break;}
                 if(!VisibleHost) continue;
                 const auto Page=It->GetCurrentMenuPage();
                 if(MenuPC && Page==EMCMainMenuPage::Main) {Menu=*It;Screen=EMCUnifiedUIScreen::Menu;break;}
                 if(Page==EMCMainMenuPage::Settings || Page==EMCMainMenuPage::VideoConfirm) {Menu=*It;Screen=EMCUnifiedUIScreen::Settings;break;}
+                if(Page==EMCMainMenuPage::Join || Page==EMCMainMenuPage::Connection || Page==EMCMainMenuPage::Lobby
+                    || Page==EMCMainMenuPage::Leave || Page==EMCMainMenuPage::Exit) {Menu=*It;Screen=EMCUnifiedUIScreen::Frontend;break;}
             }
         if(GamePC && GamePC->CanOpenUIPresentationTools()) {
             if(GamePC->IsWardrobeOpen()) for(TObjectIterator<UMCHubWardrobeWidget> It;It;++It)
                 if(It->GetOwningPlayer()==PC && It->GetWorld()==GetWorld() && It->IsInViewport() && It->IsVisible()) {Wardrobe=*It;break;}
             if(GamePC->IsHubShopOpen()) for(TObjectIterator<UMCHubShopWidget> It;It;++It)
                 if(It->GetOwningPlayer()==PC && It->GetWorld()==GetWorld() && It->IsInViewport() && It->IsVisible()) {Shop=*It;break;}
+            GameplayMenu=GamePC->GetActiveGameplayMenuPresentation();
+            if(GamePC->CanPresentUnifiedReward()) Reward=GamePC->PerkChoiceWidget;
+            for(TObjectIterator<UMCHubWidget> It;It;++It)
+                if(It->GetOwningPlayer()==PC && It->GetWorld()==GetWorld() && It->IsInViewport() && It->IsVisible()) {
+                    HubChrome=*It;if(GamePC->CanPresentUnifiedHub()) Hub=*It;break;
+                }
+            for(TObjectIterator<UMCGameplayHUD> It;It;++It)
+                if(It->GetOwningPlayer()==PC && It->GetWorld()==GetWorld() && It->GetParent()) {HUDChrome=*It;break;}
         }
-        if(GamePC && GamePC->CanUseRegularF3Panel())
+        if(GamePC && !Hub && !Menu && !GameplayMenu && !Reward && GamePC->CanUseRegularF3Panel())
             if(auto* Hero=Cast<AMCToothCharacter>(PC->GetPawn());Hero && Hero->Status && Hero->Status->IsAlive())
                 for(TObjectIterator<UMCGameplayHUD> It;It;++It)
                     if(It->GetOwningPlayer()==PC && It->GetWorld()==GetWorld() && It->GetParent()) {HUD=*It;break;}
@@ -241,49 +277,57 @@ void UMCUIPresentationSubsystem::RefreshInterface()
             for(TObjectIterator<UMCScoreboardWidget> It;It;++It)
                 if(It->GetOwningPlayer()==PC && It->GetWorld()==GetWorld() && It->IsInViewport() && It->IsVisible()) {Team=*It;break;}
     }
-    const bool WasVisible=Interface && Interface->IsVisible();
-    const bool HadTeam=Interface && Interface->HasTeamPresentation();
-    const EMCUnifiedUIScreen OldScreen=Interface?Interface->GetActiveScreen():EMCUnifiedUIScreen::Gameplay;
-    if(!Menu && !HUD && !Team && !Wardrobe && !Shop)
-    {
+    const bool WasVisible=Interface && Interface->IsVisible(),HadTeam=Interface && Interface->HasTeamPresentation();
+    const bool PreviousHubMenu=bInterfaceHubMenuInput;
+    const EMCUnifiedUIScreen PreviousScreen=Interface?Interface->GetActiveScreen():EMCUnifiedUIScreen::Gameplay;
+    if(!Menu && !HUD && !Team && !Wardrobe && !Shop && !Hub && !Reward && !GameplayMenu) {
         RestoreLegacy();
         if(Interface) {
             Interface->SetMenuBackend(nullptr);Interface->SetHUDBackend(nullptr);Interface->SetTeamBackend(nullptr);
-            Interface->SetWardrobeBackend(nullptr);Interface->SetShopBackend(nullptr);
-            Interface->SetVisibility(ESlateVisibility::Collapsed);
+            Interface->SetWardrobeBackend(nullptr);Interface->SetShopBackend(nullptr);Interface->SetHubBackend(nullptr);
+            Interface->SetRewardBackend(nullptr);Interface->SetGameplayMenuBackend(nullptr);Interface->SetVisibility(ESlateVisibility::Collapsed);
         }
-        if(WasVisible && !IsPanelOpenFor(PC))
-        {if(auto* GamePC=Cast<AMCPlayerController>(PC)) GamePC->UpdateInputMode();else if(auto* MenuPC=Cast<AMCMainMenuPlayerController>(PC)) MenuPC->RestorePresentationInput();}
+        if(GamePC) GamePC->RefreshFishingCounterTarget();
+        if(WasVisible && !IsPanelOpenFor(PC)) {if(GamePC) GamePC->UpdateInputMode();else if(MenuPC) MenuPC->RestorePresentationInput();}
         return;
     }
     if(!Interface && !PrepareInterface(PC)) return;
+    if(Menu || GameplayMenu || Wardrobe || Shop || Reward) {Hub=nullptr;HUD=nullptr;Team=nullptr;}
     TSet<UWidget*> Hide;
-    if(Menu && Menu->WidgetTree && Menu->WidgetTree->RootWidget) Hide.Add(Menu->WidgetTree->RootWidget);
-    if(Team && Team->WidgetTree && Team->WidgetTree->RootWidget) Hide.Add(Team->WidgetTree->RootWidget);
-    if(Wardrobe && Wardrobe->WidgetTree && Wardrobe->WidgetTree->RootWidget) Hide.Add(Wardrobe->WidgetTree->RootWidget);
-    if(Shop && Shop->WidgetTree && Shop->WidgetTree->RootWidget) Hide.Add(Shop->WidgetTree->RootWidget);
+    auto HideRoot=[&](UUserWidget* View) {if(View && View->WidgetTree && View->WidgetTree->RootWidget) Hide.Add(View->WidgetTree->RootWidget);};
+    HideRoot(Menu);HideRoot(Team);HideRoot(Wardrobe);HideRoot(Shop);HideRoot(Reward);HideRoot(GameplayMenu);
     for(auto It=LegacyVisibility.CreateIterator();It;++It)
-        if(!It.Key().IsValid() || !Hide.Contains(It.Key().Get())) {
-            if(auto* Widget=It.Key().Get()) Widget->SetVisibility(It.Value());
-            It.RemoveCurrent();
-        }
+        if(!It.Key().IsValid() || !Hide.Contains(It.Key().Get())) {if(auto* Widget=It.Key().Get()) Widget->SetVisibility(It.Value());It.RemoveCurrent();}
     for(auto* Source:Hide) {
         if(!LegacyVisibility.Contains(Source)) LegacyVisibility.Add(Source,Source->GetVisibility());
         Source->SetVisibility(ESlateVisibility::Hidden);
     }
-    if(ActiveHUD.Get()!=HUD) {if(auto* Previous=ActiveHUD.Get()) Previous->SetUnifiedViewActive(false);ActiveHUD=HUD;}
-    if(HUD) HUD->SetUnifiedViewActive(true);
-    if(!Menu) Screen=HUD?EMCUnifiedUIScreen::Gameplay:EMCUnifiedUIScreen::Team;
+    // A modal replaces the visible root screen. Keep the legacy background
+    // chrome suppressed until Current is selected, so it cannot reappear behind it.
+    if(ActiveHUD.Get()!=HUDChrome) {if(auto* Previous=ActiveHUD.Get()) Previous->SetUnifiedViewActive(false);ActiveHUD=HUDChrome;}
+    if(HUDChrome) HUDChrome->SetUnifiedViewActive(true);
+    if(ActiveHub.Get()!=HubChrome) {
+        if(auto* Previous=ActiveHub.Get();Previous && Previous->GetWorld()==GetWorld() && !GetWorld()->bIsTearingDown) Previous->SetUnifiedViewActive(false);
+        ActiveHub=HubChrome;
+    }
+    if(HubChrome) HubChrome->SetUnifiedViewActive(true);
+    if(!Menu) Screen=Hub?EMCUnifiedUIScreen::Hub:HUD?EMCUnifiedUIScreen::Gameplay:EMCUnifiedUIScreen::Team;
+    if(Reward) Screen=EMCUnifiedUIScreen::Reward;
+    if(GameplayMenu) Screen=EMCUnifiedUIScreen::GameplayMenu;
     if(Wardrobe) Screen=EMCUnifiedUIScreen::Wardrobe;else if(Shop) Screen=EMCUnifiedUIScreen::Boosters;
     const bool Commerce=Wardrobe || Shop;
-    const int32 DesiredZ=Commerce?95:Menu?75:Team?40:5;
+    const bool HubMenu=Hub && Hub->RequiresMenuInput();
+    const int32 DesiredZ=Commerce?95:GameplayMenu?85:Menu?75:Team?40:Reward?35:Hub?26:5;
     if(InterfaceZOrder!=DesiredZ) {Interface->RemoveFromParent();InterfaceZOrder=DesiredZ;Interface->AddToViewport(InterfaceZOrder);}
     Interface->SetMenuBackend(Menu);Interface->SetHUDBackend(HUD);Interface->SetTeamBackend(Team);
-    Interface->SetWardrobeBackend(Wardrobe);Interface->SetShopBackend(Shop);Interface->ShowScreen(Screen);
-    Interface->SetVisibility((Menu || Commerce)?ESlateVisibility::Visible:Team?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::HitTestInvisible);
-    if((!WasVisible || HadTeam!=(Team!=nullptr) || OldScreen!=Screen) && !IsPanelOpenFor(PC)) {
-        if(Menu || Team || Commerce) ApplyPanelInputMode(PC);
-        else if(auto* GamePC=Cast<AMCPlayerController>(PC)) GamePC->UpdateInputMode();
+    Interface->SetWardrobeBackend(Wardrobe);Interface->SetShopBackend(Shop);Interface->SetHubBackend(Hub);
+    Interface->SetRewardBackend(Reward);Interface->SetGameplayMenuBackend(GameplayMenu);Interface->ShowScreen(Screen);
+    Interface->SetVisibility((Menu || Commerce || Reward || GameplayMenu)?ESlateVisibility::Visible:(Team || Hub)?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::HitTestInvisible);
+    bInterfaceHubMenuInput=HubMenu;
+    if(GamePC) GamePC->RefreshFishingCounterTarget();
+    if((!WasVisible || HadTeam!=(Team!=nullptr) || PreviousScreen!=Screen || PreviousHubMenu!=HubMenu) && !IsPanelOpenFor(PC)) {
+        if(Menu || Team || Commerce || Reward || GameplayMenu || HubMenu) ApplyPanelInputMode(PC);
+        else if(GamePC) GamePC->UpdateInputMode();
     }
 }
 

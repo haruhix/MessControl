@@ -65,6 +65,16 @@ public:
     /** Call once from the local PlayerController tick, before skeletal stage ticks. */
     void TickPresentation(float DeltaSeconds);
     void HandleAction(EMCHubMenuAction Action, int32 Day=0);
+    /** Read-only and input bridges for the alternate view; no second scene or readiness owner. */
+    AMCHubGameState* GetUnifiedState() const {return State();}
+    bool CanLaunchUnifiedDestination() const {return CanLaunchSelectedDestination();}
+    void NavigateUnifiedSelection(int32 Direction) {SelectRelative(Direction);}
+    void RequestUnifiedBack();
+    bool RouteUnifiedKey(const FKeyEvent& Event);
+    bool RouteUnifiedMouseWheel(const FPointerEvent& Event);
+    /** Suppresses only replaced groups. The scene, hit areas and NativePaint stay live. */
+    void SetUnifiedViewActive(bool bActive);
+
     virtual void BuildPresentationTree() override;
     virtual void ApplyEditorPreview(float Time) override;
     virtual void ApplyTheme() override;
@@ -88,6 +98,8 @@ protected:
 
 private:
     bool IsLocalHost() const;
+    void ApplyUnifiedViewSuppression();
+    bool bUnifiedViewActive=false;
     FText InteractionFeedback;
     double InteractionFeedbackUntil=0;
     AMCHubGameState* State() const;

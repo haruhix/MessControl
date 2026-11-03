@@ -9,6 +9,7 @@ class IInputProcessor;
 class UMCUIPresentationPanelWidget;
 class UMCUnifiedUIWidget;
 class UMCGameplayHUD;
+class UMCHubWidget;
 class UWidget;
 
 /** One F3 entry point, including menus using UIOnly input. No gameplay/profile mutations. */
@@ -28,6 +29,7 @@ public:
     void CheckOwner();
     /** Construct and retain the view/material variants inside location preparation. */
     bool PrepareInterface(APlayerController* Controller);
+    bool GetUnifiedFishCounterTargets(const APlayerController* Controller,UWidget*& Icon,UWidget*& Card) const;
 private:
     void RefreshInterface();
     void RestoreLegacy();
@@ -36,6 +38,8 @@ private:
     TWeakObjectPtr<APlayerController> PanelOwner;
     TWeakObjectPtr<APlayerController> InterfaceOwner;
     TWeakObjectPtr<UMCGameplayHUD> ActiveHUD;
+    TWeakObjectPtr<UMCHubWidget> ActiveHub;
+    bool bInterfaceHubMenuInput=false;
     int32 InterfaceZOrder=5;
     TMap<TWeakObjectPtr<UWidget>,float> LegacyOpacity;
     TMap<TWeakObjectPtr<UWidget>,ESlateVisibility> LegacyVisibility;

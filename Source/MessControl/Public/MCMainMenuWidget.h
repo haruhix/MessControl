@@ -121,6 +121,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview",meta=(ClampMin="0",ClampMax="4"))
     int32 PreviewSettingsTab=0;
     UFUNCTION(BlueprintPure, Category="Front End") UWidget* GetActiveMenuPageRoot() const;
+    /** Current source copy for an alternate view; never refreshes menu drafts or session state. */
+    FText GetFrontendStatusText() const;
+    FText GetFrontendTitleText() const;
     /** Read-only presentation bridge; no pending settings are reloaded on view switches. */
     EMCMainMenuPage GetCurrentMenuPage() const { return Page; }
     int32 GetActiveSettingsTab() const { return ActiveSettingsTab; }

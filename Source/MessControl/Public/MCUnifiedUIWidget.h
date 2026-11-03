@@ -8,14 +8,17 @@ class UMCGameplayHUD;
 class UMCScoreboardWidget;
 class UMCHubWardrobeWidget;
 class UMCHubShopWidget;
+class UMCHubWidget;
+class UMCPerkChoiceWidget;
+class UMCGameplayMenuWidget;
 class UWidgetSwitcher;
 
 UENUM(BlueprintType)
 enum class EMCUnifiedUIScreen : uint8
 {
     Menu, Gameplay,
-    Hub UMETA(Hidden), Wardrobe, Boosters, Tools UMETA(Hidden), Perks UMETA(Hidden),
-    Settings, Team
+    Hub, Wardrobe, Boosters, Tools UMETA(Hidden), Perks UMETA(Hidden),
+    Settings, Team, Reward, Frontend, GameplayMenu
 };
 
 /** One editable root for the PSD interface, including screen selection in Designer. */
@@ -27,6 +30,10 @@ public:
     UMCUnifiedUIWidget();
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen") EMCUnifiedUIScreen PreviewScreen=EMCUnifiedUIScreen::Menu;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen",meta=(ClampMin="0",ClampMax="4")) int32 PreviewSettingsTab=0;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen") FName PreviewHubMode;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen") FName PreviewRewardMode;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen") FName PreviewGameplayMenuMode;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen",meta=(ClampMin="0",ClampMax="4")) int32 PreviewFrontendPage=0;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Art") TSoftObjectPtr<UTexture2D> Logo;
     /** PSD tool artwork; perk icons remain owned by DT_Perks. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Art|Tools") TMap<FName,TSoftObjectPtr<UTexture2D>> ToolIconArt;
@@ -39,6 +46,14 @@ public:
     void SetTeamBackend(UMCScoreboardWidget* Backend);
     void SetWardrobeBackend(UMCHubWardrobeWidget* Backend);
     void SetShopBackend(UMCHubShopWidget* Backend);
+    void SetHubBackend(UMCHubWidget* Backend);
+    void SetRewardBackend(UMCPerkChoiceWidget* Backend);
+    void SetGameplayMenuBackend(UMCGameplayMenuWidget* Backend);
+    bool HasHubPresentation() const { return HubBackend.IsValid(); }
+    bool HasRewardPresentation() const { return RewardBackend.IsValid(); }
+    bool HasGameplayMenuPresentation() const { return GameplayMenuBackend.IsValid(); }
+    bool RequiresHubMenuInput() const;
+    bool GetHubFishCounterTargets(UWidget*& Icon,UWidget*& Card) const;
     bool HasCommercePresentation() const { return WardrobeBackend.IsValid() || ShopBackend.IsValid(); }
     bool HasTeamPresentation() const { return TeamBackend.IsValid(); }
     EMCUnifiedUIScreen GetActiveScreen() const { return ActiveScreen; }
@@ -47,6 +62,8 @@ public:
 protected:
     virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
     virtual FReply NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event) override;
+    virtual FReply NativeOnMouseWheel(const FGeometry& Geometry,const FPointerEvent& Event) override;
+    virtual FReply NativeOnAnalogValueChanged(const FGeometry& Geometry,const FAnalogInputEvent& Event) override;
     virtual FReply NativeOnKeyUp(const FGeometry& Geometry,const FKeyEvent& Event) override;
     virtual FReply NativeOnPreviewMouseButtonDown(const FGeometry& Geometry,const FPointerEvent& Event) override;
 private:
@@ -61,6 +78,9 @@ private:
     TWeakObjectPtr<UMCScoreboardWidget> TeamBackend;
     TWeakObjectPtr<UMCHubWardrobeWidget> WardrobeBackend;
     TWeakObjectPtr<UMCHubShopWidget> ShopBackend;
+    TWeakObjectPtr<UMCHubWidget> HubBackend;
+    TWeakObjectPtr<UMCPerkChoiceWidget> RewardBackend;
+    TWeakObjectPtr<UMCGameplayMenuWidget> GameplayMenuBackend;
     float RefreshDelay=0.f;
     EMCUnifiedUIScreen ActiveScreen=EMCUnifiedUIScreen::Menu;
 };

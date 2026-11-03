@@ -17,6 +17,8 @@ public:
     void PresentCatch(EMCHubItemRarity Rarity,int32 FishCoins,int32 WalletAfter);
     UFUNCTION(BlueprintCallable,Category="Hub|Fishing") void ClearPresentation();
     UFUNCTION(BlueprintPure,Category="Hub|Fishing") bool IsAnimating() const;
+    UFUNCTION(BlueprintPure,Category="Hub|Fishing") UWidget* GetCounterIconTarget() const {return CounterIcon.Get();}
+    UFUNCTION(BlueprintPure,Category="Hub|Fishing") UWidget* GetCounterCardTarget() const {return CounterCard.Get();}
     bool HasPreparedPresentation() const {return bViewportFontsPrepared && WidgetTree && GetRootWidget();}
     UFUNCTION(BlueprintPure,Category="Hub|Fishing") float GetAnimationAge() const {return AnimationAge;}
     virtual void BuildPresentationTree() override;

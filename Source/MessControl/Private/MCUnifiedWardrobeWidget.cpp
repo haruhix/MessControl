@@ -33,13 +33,13 @@
 
 namespace
 {
-    FLinearColor C(const TCHAR* Hex) {return FLinearColor(FColor::FromHex(Hex));}
-    FText SourceText(UMCCosmeticItemWidget* Source,FName Name)
+    FLinearColor MCUnifiedWardrobePrivate_C(const TCHAR* Hex) {return FLinearColor(FColor::FromHex(Hex));}
+    FText MCUnifiedWardrobePrivate_SourceText(UMCCosmeticItemWidget* Source,FName Name)
     {
         auto* Text=Source && Source->WidgetTree?Source->WidgetTree->FindWidget<UTextBlock>(Name):nullptr;
         return Text?Text->GetText():FText::GetEmpty();
     }
-    UButton* Surface(UMCUniversalUIWidget* Shape) {return Shape && Shape->WidgetTree?Shape->WidgetTree->FindWidget<UButton>(TEXT("UniversalSurface")):nullptr;}
+    UButton* MCUnifiedWardrobePrivate_Surface(UMCUniversalUIWidget* Shape) {return Shape && Shape->WidgetTree?Shape->WidgetTree->FindWidget<UButton>(TEXT("UniversalSurface")):nullptr;}
 }
 void UMCUnifiedWardrobeBinding::Pressed()
 {
@@ -77,7 +77,7 @@ void UMCUnifiedWardrobeWidget::BuildPresentationTree()
     auto Shape=[&](FName Name,FLinearColor Fill,FLinearColor Edge,FLinearColor Shadow,FMargin ContentInset,EMCUniversalUIKind Kind=EMCUniversalUIKind::Panel) {
         auto* Result=WidgetTree->ConstructWidget<UMCUniversalUIWidget>(UMCUniversalUIWidget::StaticClass(),Name);
         Result->Kind=Kind;Result->Label=FText::GetEmpty();Result->bCustomColors=true;Result->bUseThemeShape=false;Result->CornerRadius=24;Result->OutlineWidth=4;
-        Result->CustomFill=Fill;Result->CustomOutline=Edge;Result->CustomText=C(TEXT("FFF9F8"));Result->CustomShadow=Shadow;Result->ContentPadding=ContentInset;Result->ShadowOffset=FVector2D(10,12);
+        Result->CustomFill=Fill;Result->CustomOutline=Edge;Result->CustomText=MCUnifiedWardrobePrivate_C(TEXT("FFF9F8"));Result->CustomShadow=Shadow;Result->ContentPadding=ContentInset;Result->ShadowOffset=FVector2D(10,12);
         Result->Initialize();Result->BuildPresentationTree();return Result;
     };
     auto Text=[&](FName Name,FName Key,const FText& Copy,int32 Size,FLinearColor Tint) {
@@ -86,26 +86,26 @@ void UMCUnifiedWardrobeWidget::BuildPresentationTree()
         if(!Key.IsNone()) TextBindings.Add(Name,Key);return Result;
     };
     auto Action=[&](FName Name,FName Key,const FText& Copy,FLinearColor Fill) {
-        auto* Result=Shape(Name,Fill,C(TEXT("16226B")),C(TEXT("16226B")),FMargin(28,13),EMCUniversalUIKind::Button);
+        auto* Result=Shape(Name,Fill,MCUnifiedWardrobePrivate_C(TEXT("16226B")),MCUnifiedWardrobePrivate_C(TEXT("16226B")),FMargin(28,13),EMCUniversalUIKind::Button);
         Result->LabelKey=Key;Result->Label=Copy;Result->FontSize=29;Result->ApplyTheme();return Result;
     };
     auto* LeftWidth=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("WardrobeV2LeftWidth"));LeftWidth->SetMinDesiredWidth(740);LeftWidth->SetMaxDesiredWidth(780);Columns->AddChildToWrapBox(LeftWidth)->SetVerticalAlignment(VAlign_Top);
-    auto* Left=Shape(TEXT("WardrobeV2LeftPanel"),C(TEXT("4C76AE")),C(TEXT("16226B")),C(TEXT("16226B")),FMargin(30,20,30,28));
+    auto* Left=Shape(TEXT("WardrobeV2LeftPanel"),MCUnifiedWardrobePrivate_C(TEXT("4C76AE")),MCUnifiedWardrobePrivate_C(TEXT("16226B")),MCUnifiedWardrobePrivate_C(TEXT("16226B")),FMargin(30,20,30,28));
     Left->ContourPoints={{.1,0},{.88,0},{.88,.12},{1,.12},{1,1},{0,1},{0,.12},{.1,.12}};LeftWidth->SetContent(Left);
     auto* Body=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("WardrobeV2LeftContents"));Left->SetContentForSlot(TEXT("Content"),Body);
-    auto* Header=Shape(TEXT("WardrobeV2Header"),C(TEXT("FFF9F8")),C(TEXT("16226B")),FLinearColor::Transparent,FMargin(25,10));Header->ShadowOffset=FVector2D::ZeroVector;
-    auto* Title=Text(TEXT("WardrobeV2Title"),TEXT("UI.Wardrobe.Title"),LOCTEXT("Title","ГАРДЕРОБ"),48,C(TEXT("AE4C6C")));Header->SetContentForSlot(TEXT("Content"),Title);
+    auto* Header=Shape(TEXT("WardrobeV2Header"),MCUnifiedWardrobePrivate_C(TEXT("FFF9F8")),MCUnifiedWardrobePrivate_C(TEXT("16226B")),FLinearColor::Transparent,FMargin(25,10));Header->ShadowOffset=FVector2D::ZeroVector;
+    auto* Title=Text(TEXT("WardrobeV2Title"),TEXT("UI.Wardrobe.Title"),LOCTEXT("Title","ГАРДЕРОБ"),48,MCUnifiedWardrobePrivate_C(TEXT("AE4C6C")));Header->SetContentForSlot(TEXT("Content"),Title);
     auto* HeaderBounds=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("WardrobeV2HeaderBounds"));HeaderBounds->SetMaxDesiredWidth(580);HeaderBounds->SetContent(Header);
     auto* HeaderCell=Body->AddChildToVerticalBox(HeaderBounds);HeaderCell->SetHorizontalAlignment(HAlign_Center);HeaderCell->SetPadding(FMargin(22,0,22,24));
-    auto* Coins=Text(TEXT("WardrobeV2Coins"),NAME_None,FText::GetEmpty(),20,C(TEXT("FFF9F8")));Body->AddChildToVerticalBox(Coins)->SetPadding(FMargin(0,0,0,8));
+    auto* Coins=Text(TEXT("WardrobeV2Coins"),NAME_None,FText::GetEmpty(),20,MCUnifiedWardrobePrivate_C(TEXT("FFF9F8")));Body->AddChildToVerticalBox(Coins)->SetPadding(FMargin(0,0,0,8));
     auto* GridViewport=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("WardrobeV2GridViewport"));GridViewport->SetHeightOverride(650);Body->AddChildToVerticalBox(GridViewport);
     auto* GridScroll=WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(),TEXT("WardrobeV2GridScroll"));GridScroll->SetConsumeMouseWheel(EConsumeMouseWheel::WhenScrollingPossible);GridViewport->SetContent(GridScroll);
     auto* Grid=WidgetTree->ConstructWidget<UUniformGridPanel>(UUniformGridPanel::StaticClass(),TEXT("WardrobeV2Products"));Grid->SetMinDesiredSlotWidth(194);Grid->SetMinDesiredSlotHeight(190);Grid->SetSlotPadding(FMargin(8,8,12,12));GridScroll->AddChild(Grid);
-    auto* Notice=Text(TEXT("WardrobeV2Notice"),NAME_None,FText::GetEmpty(),20,C(TEXT("FFF9F8")));Body->AddChildToVerticalBox(Notice)->SetPadding(FMargin(10,10));
+    auto* Notice=Text(TEXT("WardrobeV2Notice"),NAME_None,FText::GetEmpty(),20,MCUnifiedWardrobePrivate_C(TEXT("FFF9F8")));Body->AddChildToVerticalBox(Notice)->SetPadding(FMargin(10,10));
     auto* Colors=WidgetTree->ConstructWidget<UExpandableArea>(UExpandableArea::StaticClass(),TEXT("WardrobeV2Colors"));
-    Colors->SetContentForSlot(TEXT("Header"),Text(TEXT("WardrobeV2ColorHeading"),TEXT("UI.Wardrobe.BagAndBelt"),LOCTEXT("BagAndBelt","Цвет сумки и пояса"),24,C(TEXT("FFF9F8"))));
+    Colors->SetContentForSlot(TEXT("Header"),Text(TEXT("WardrobeV2ColorHeading"),TEXT("UI.Wardrobe.BagAndBelt"),LOCTEXT("BagAndBelt","Цвет сумки и пояса"),24,MCUnifiedWardrobePrivate_C(TEXT("FFF9F8"))));
     auto* ColorBody=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("WardrobeV2ColorContents"));Colors->SetContentForSlot(TEXT("Body"),ColorBody);Body->AddChildToVerticalBox(Colors)->SetPadding(FMargin(10,10,10,20));
-    auto* Swatch=Shape(TEXT("WardrobeV2Swatch"),PreviewScenario==EMCGameplayUIPreviewScenario::Default?C(TEXT("3DA7FF")):C(TEXT("FF55AA")),C(TEXT("FFF9F8")),FLinearColor::Transparent,FMargin(0));Swatch->ShadowOffset=FVector2D::ZeroVector;
+    auto* Swatch=Shape(TEXT("WardrobeV2Swatch"),PreviewScenario==EMCGameplayUIPreviewScenario::Default?MCUnifiedWardrobePrivate_C(TEXT("3DA7FF")):MCUnifiedWardrobePrivate_C(TEXT("FF55AA")),MCUnifiedWardrobePrivate_C(TEXT("FFF9F8")),FLinearColor::Transparent,FMargin(0));Swatch->ShadowOffset=FVector2D::ZeroVector;
     auto* SwatchSize=WidgetTree->ConstructWidget<USizeBox>();SwatchSize->SetHeightOverride(18);SwatchSize->SetContent(Swatch);ColorBody->AddChildToVerticalBox(SwatchSize)->SetPadding(FMargin(0,8));
     auto* Palettes=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("WardrobeV2Palettes"));ColorBody->AddChildToVerticalBox(Palettes)->SetHorizontalAlignment(HAlign_Center);
     for(bool Hue:{false,true}) {
@@ -114,22 +114,22 @@ void UMCUnifiedWardrobeWidget::BuildPresentationTree()
         auto* Bounds=WidgetTree->ConstructWidget<USizeBox>();Bounds->SetWidthOverride(Hue?28:216);Bounds->SetHeightOverride(216);Bounds->SetContent(Palette);
         Palettes->AddChildToHorizontalBox(Bounds)->SetPadding(FMargin(0,0,Hue?0:16,12));
     }
-    ColorBody->AddChildToVerticalBox(Text(TEXT("WardrobeV2ColorHint"),TEXT("UI.Wardrobe.PaletteHint"),LOCTEXT("PaletteHint","Выбери оттенок на полоске и цвет на палитре."),20,C(TEXT("FFF9F8"))))->SetPadding(FMargin(0,4,0,12));
-    auto* Apply=Action(TEXT("WardrobeV2Apply"),TEXT("UI.Wardrobe.Apply"),LOCTEXT("Apply","ПРИМЕНИТЬ"),C(TEXT("2AA85C")));
+    ColorBody->AddChildToVerticalBox(Text(TEXT("WardrobeV2ColorHint"),TEXT("UI.Wardrobe.PaletteHint"),LOCTEXT("PaletteHint","Выбери оттенок на полоске и цвет на палитре."),20,MCUnifiedWardrobePrivate_C(TEXT("FFF9F8"))))->SetPadding(FMargin(0,4,0,12));
+    auto* Apply=Action(TEXT("WardrobeV2Apply"),TEXT("UI.Wardrobe.Apply"),LOCTEXT("Apply","ПРИМЕНИТЬ"),MCUnifiedWardrobePrivate_C(TEXT("2AA85C")));
     auto* ApplyCell=ColorBody->AddChildToVerticalBox(Apply);ApplyCell->SetHorizontalAlignment(HAlign_Center);ApplyCell->SetPadding(FMargin(0,0,10,16));
-    auto* Back=Action(TEXT("WardrobeV2Back"),TEXT("UI.Settings.Back"),LOCTEXT("Back","НАЗАД"),C(TEXT("A35173")));
+    auto* Back=Action(TEXT("WardrobeV2Back"),TEXT("UI.Settings.Back"),LOCTEXT("Back","НАЗАД"),MCUnifiedWardrobePrivate_C(TEXT("A35173")));
     auto* BackCell=Body->AddChildToVerticalBox(Back);BackCell->SetHorizontalAlignment(HAlign_Center);BackCell->SetPadding(FMargin(0,18,10,10));
     auto* RightWidth=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("WardrobeV2DetailWidth"));RightWidth->SetMinDesiredWidth(440);RightWidth->SetMaxDesiredWidth(540);Columns->AddChildToWrapBox(RightWidth)->SetPadding(FMargin(0,145,14,14));
-    auto* Detail=Shape(TEXT("WardrobeV2Detail"),C(TEXT("404243")),C(TEXT("FFF9F8")),C(TEXT("FFF9F8")),FMargin(26,32,26,28));RightWidth->SetContent(Detail);
+    auto* Detail=Shape(TEXT("WardrobeV2Detail"),MCUnifiedWardrobePrivate_C(TEXT("404243")),MCUnifiedWardrobePrivate_C(TEXT("FFF9F8")),MCUnifiedWardrobePrivate_C(TEXT("FFF9F8")),FMargin(26,32,26,28));RightWidth->SetContent(Detail);
     auto* Details=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("WardrobeV2DetailContents"));Detail->SetContentForSlot(TEXT("Content"),Details);
     auto* IconSize=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("WardrobeV2DetailIconSize"));IconSize->SetWidthOverride(240);IconSize->SetHeightOverride(220);
     auto* IconFit=WidgetTree->ConstructWidget<UScaleBox>();IconFit->SetStretch(EStretch::ScaleToFit);IconFit->SetStretchDirection(EStretchDirection::Both);
     auto* Icon=WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(),TEXT("WardrobeV2DetailIcon"));IconFit->SetContent(Icon);IconSize->SetContent(IconFit);
     auto* IconCell=Details->AddChildToVerticalBox(IconSize);IconCell->SetHorizontalAlignment(HAlign_Center);IconCell->SetPadding(FMargin(0,0,0,14));
-    Details->AddChildToVerticalBox(Text(TEXT("WardrobeV2DetailName"),NAME_None,FText::GetEmpty(),32,C(TEXT("FFF9F8"))))->SetPadding(FMargin(0,0,0,30));
-    Details->AddChildToVerticalBox(Text(TEXT("WardrobeV2Description"),NAME_None,FText::GetEmpty(),27,C(TEXT("FFF9F8"))))->SetPadding(FMargin(0,0,0,32));
-    Details->AddChildToVerticalBox(Text(TEXT("WardrobeV2DetailState"),NAME_None,FText::GetEmpty(),20,C(TEXT("FFF9F8"))))->SetPadding(FMargin(0,0,0,28));
-    auto* Primary=Action(TEXT("WardrobeV2Primary"),NAME_None,LOCTEXT("Choose","ВЫБЕРИ АКСЕССУАР"),C(TEXT("2AA85C")));
+    Details->AddChildToVerticalBox(Text(TEXT("WardrobeV2DetailName"),NAME_None,FText::GetEmpty(),32,MCUnifiedWardrobePrivate_C(TEXT("FFF9F8"))))->SetPadding(FMargin(0,0,0,30));
+    Details->AddChildToVerticalBox(Text(TEXT("WardrobeV2Description"),NAME_None,FText::GetEmpty(),27,MCUnifiedWardrobePrivate_C(TEXT("FFF9F8"))))->SetPadding(FMargin(0,0,0,32));
+    Details->AddChildToVerticalBox(Text(TEXT("WardrobeV2DetailState"),NAME_None,FText::GetEmpty(),20,MCUnifiedWardrobePrivate_C(TEXT("FFF9F8"))))->SetPadding(FMargin(0,0,0,28));
+    auto* Primary=Action(TEXT("WardrobeV2Primary"),NAME_None,LOCTEXT("Choose","ВЫБЕРИ АКСЕССУАР"),MCUnifiedWardrobePrivate_C(TEXT("2AA85C")));
     auto* PrimaryCell=Details->AddChildToVerticalBox(Primary);PrimaryCell->SetHorizontalAlignment(HAlign_Center);PrimaryCell->SetPadding(FMargin(0,12,10,10));
 }
 void UMCUnifiedWardrobeWidget::OverrideArt(FMCUnifiedWardrobeProduct& Product) const
@@ -144,13 +144,13 @@ void UMCUnifiedWardrobeWidget::RebuildGrid()
     for(int32 Index=0;Index<Products.Num();++Index) {
         auto& View=Tiles.AddDefaulted_GetRef();const FString Prefix=FString::Printf(TEXT("WardrobeV2Product%d"),Index);
         View.Card=WidgetTree->ConstructWidget<UMCUniversalUIWidget>(UMCUniversalUIWidget::StaticClass(),FName(Prefix));View.Card->Kind=EMCUniversalUIKind::Button;View.Card->Label=FText::GetEmpty();
-        View.Card->bCustomColors=true;View.Card->bUseThemeShape=false;View.Card->CornerRadius=20;View.Card->OutlineWidth=0;View.Card->CustomFill=C(TEXT("404243"));View.Card->CustomOutline=FLinearColor::Transparent;
-        View.Card->CustomShadow=C(TEXT("FFF9F8"));View.Card->ContentPadding=FMargin(12,14);View.Card->ShadowOffset=FVector2D(9,12);View.Card->Initialize();View.Card->BuildPresentationTree();
+        View.Card->bCustomColors=true;View.Card->bUseThemeShape=false;View.Card->CornerRadius=20;View.Card->OutlineWidth=0;View.Card->CustomFill=MCUnifiedWardrobePrivate_C(TEXT("404243"));View.Card->CustomOutline=FLinearColor::Transparent;
+        View.Card->CustomShadow=MCUnifiedWardrobePrivate_C(TEXT("FFF9F8"));View.Card->ContentPadding=FMargin(12,14);View.Card->ShadowOffset=FVector2D(9,12);View.Card->Initialize();View.Card->BuildPresentationTree();
         auto* Contents=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),FName(Prefix+TEXT("Contents")));View.Card->SetContentForSlot(TEXT("Content"),Contents);
         auto* Size=WidgetTree->ConstructWidget<USizeBox>();Size->SetHeightOverride(125);Size->SetWidthOverride(125);
         auto* Fit=WidgetTree->ConstructWidget<UScaleBox>();Fit->SetStretch(EStretch::ScaleToFit);
         View.Icon=WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(),FName(Prefix+TEXT("Icon")));Fit->SetContent(View.Icon);Size->SetContent(Fit);Contents->AddChildToVerticalBox(Size)->SetHorizontalAlignment(HAlign_Center);
-        auto Label=[&](FName Name,int32 FontSize) {auto* Text=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);Text->SetFont(GetResolvedTheme()->MakeFont(FontSize,true));Text->SetColorAndOpacity(C(TEXT("FFF9F8")));Text->SetAutoWrapText(true);Text->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);Text->SetJustification(ETextJustify::Center);Contents->AddChildToVerticalBox(Text)->SetPadding(FMargin(0,8,0,0));return Text;};
+        auto Label=[&](FName Name,int32 FontSize) {auto* Text=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);Text->SetFont(GetResolvedTheme()->MakeFont(FontSize,true));Text->SetColorAndOpacity(MCUnifiedWardrobePrivate_C(TEXT("FFF9F8")));Text->SetAutoWrapText(true);Text->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);Text->SetJustification(ETextJustify::Center);Contents->AddChildToVerticalBox(Text)->SetPadding(FMargin(0,8,0,0));return Text;};
         View.Fallback=Label(FName(Prefix+TEXT("Name")),20);View.Price=Label(FName(Prefix+TEXT("Price")),24);
         auto* GridCell=Grid->AddChildToUniformGrid(View.Card,Index/3,Index%3);GridCell->SetHorizontalAlignment(HAlign_Fill);GridCell->SetVerticalAlignment(VAlign_Fill);
     }
@@ -162,12 +162,12 @@ void UMCUnifiedWardrobeWidget::BindActions()
     TArray<UMCUniversalUIWidget*> Buttons;
     for(const TCHAR* Name:{TEXT("WardrobeV2Apply"),TEXT("WardrobeV2Back"),TEXT("WardrobeV2Primary")}) if(auto* Button=WidgetTree->FindWidget<UMCUniversalUIWidget>(FName(Name))) Buttons.Add(Button);
     for(const auto& Tile:Tiles) if(Tile.Card) Buttons.Add(Tile.Card);
-    for(auto* Button:Buttons) for(UMCUnifiedWardrobeBinding* Old:Bindings) if(Old) {Button->OnClicked.RemoveAll(Old);if(auto* Native=Surface(Button)) Native->OnPressed.RemoveAll(Old);}
+    for(auto* Button:Buttons) for(UMCUnifiedWardrobeBinding* Old:Bindings) if(Old) {Button->OnClicked.RemoveAll(Old);if(auto* Native=MCUnifiedWardrobePrivate_Surface(Button)) Native->OnPressed.RemoveAll(Old);}
     Bindings.Reset();
     auto Bind=[&](UMCUniversalUIWidget* Button,EMCUnifiedWardrobeAction Action,const FMCUnifiedWardrobeProduct* Product) {
         if(!Button) return;auto* Binding=NewObject<UMCUnifiedWardrobeBinding>(this,NAME_None,RF_Transient);Binding->Owner=this;Binding->Action=Action;
         if(Product) {Binding->Slot=Product->Slot;Binding->ItemID=Product->ItemID;Binding->CatalogID=Product->CatalogID;}
-        Button->OnClicked.AddUniqueDynamic(Binding,&UMCUnifiedWardrobeBinding::Clicked);if(auto* Native=Surface(Button)) Native->OnPressed.AddUniqueDynamic(Binding,&UMCUnifiedWardrobeBinding::Pressed);Bindings.Add(Binding);
+        Button->OnClicked.AddUniqueDynamic(Binding,&UMCUnifiedWardrobeBinding::Clicked);if(auto* Native=MCUnifiedWardrobePrivate_Surface(Button)) Native->OnPressed.AddUniqueDynamic(Binding,&UMCUnifiedWardrobeBinding::Pressed);Bindings.Add(Binding);
     };
     Bind(WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("WardrobeV2Apply")),EMCUnifiedWardrobeAction::Apply,nullptr);
     Bind(WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("WardrobeV2Back")),EMCUnifiedWardrobeAction::Back,nullptr);
@@ -187,7 +187,7 @@ void UMCUnifiedWardrobeWidget::RefreshFromBackend()
     auto* Economy=Backend->GetUnifiedEconomy();
     for(UMCCosmeticItemWidget* Source:Backend->GetUnifiedCosmeticTiles()) if(Source) {
         auto& Entry=Next.AddDefaulted_GetRef();Entry.Slot=Source->GetItemSlot();Entry.ItemID=Source->GetItemId();Entry.CatalogID=Source->GetCatalogId();Entry.Source=Source;
-        Entry.Name=SourceText(Source,TEXT("CosmeticName"));Entry.Description=SourceText(Source,TEXT("CosmeticDescription"));Entry.Price=SourceText(Source,TEXT("CosmeticPrice"));Entry.State=SourceText(Source,TEXT("CosmeticState"));
+        Entry.Name=MCUnifiedWardrobePrivate_SourceText(Source,TEXT("CosmeticName"));Entry.Description=MCUnifiedWardrobePrivate_SourceText(Source,TEXT("CosmeticDescription"));Entry.Price=MCUnifiedWardrobePrivate_SourceText(Source,TEXT("CosmeticPrice"));Entry.State=MCUnifiedWardrobePrivate_SourceText(Source,TEXT("CosmeticState"));
         Entry.bOwned=Entry.ItemID.IsNone() || (Economy && Economy->OwnsCosmetic(Entry.ItemID));FText Error;Entry.bAffordable=Economy && !Entry.CatalogID.IsNone() && Economy->CanPurchase(Entry.CatalogID,Error);
         Entry.bDraftSelected=Backend->GetDraftLoadout().ItemForSlot(Entry.Slot)==Entry.ItemID;
         if(auto* Image=Source->WidgetTree?Source->WidgetTree->FindWidget<UImage>(TEXT("CosmeticThumbnail")):nullptr) Entry.Icon=Image->GetBrush();
@@ -213,7 +213,7 @@ void UMCUnifiedWardrobeWidget::Present()
         if(View.Icon) {View.Icon->SetBrush(Product.Icon);View.Icon->SetVisibility(HasIcon?ESlateVisibility::HitTestInvisible:ESlateVisibility::Hidden);}
         if(View.Fallback) {View.Fallback->SetText(Product.Name);View.Fallback->SetVisibility(HasIcon?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);}
         if(View.Price) View.Price->SetText(Product.Price.IsEmpty()?Product.State:Product.Price);
-        if(View.Card) {View.Card->CustomFill=Selected==&Product?C(TEXT("AE4C6C")):C(TEXT("404243"));View.Card->SetToolTipText(Product.Description.IsEmpty()?Product.Name:FText::Format(FText::AsCultureInvariant(TEXT("{0}\n{1}")),Product.Name,Product.Description));View.Card->ApplyTheme();}
+        if(View.Card) {View.Card->CustomFill=Selected==&Product?MCUnifiedWardrobePrivate_C(TEXT("AE4C6C")):MCUnifiedWardrobePrivate_C(TEXT("404243"));View.Card->SetToolTipText(Product.Description.IsEmpty()?Product.Name:FText::Format(FText::AsCultureInvariant(TEXT("{0}\n{1}")),Product.Name,Product.Description));View.Card->ApplyTheme();}
     }
     auto Set=[&](FName Name,const FText& Text) {if(auto* Target=WidgetTree->FindWidget<UTextBlock>(Name)) Target->SetText(Text);};
     Set(TEXT("WardrobeV2DetailName"),Selected?Selected->Name:FText::GetEmpty());Set(TEXT("WardrobeV2Description"),Selected?Selected->Description:FText::GetEmpty());Set(TEXT("WardrobeV2DetailState"),Selected?Selected->State:FText::GetEmpty());
@@ -276,8 +276,8 @@ void UMCUnifiedWardrobeWidget::ApplyEditorPreview(float Time)
 }
 UWidget* UMCUnifiedWardrobeWidget::GetDefaultFocusTarget() const
 {
-    for(const auto& Tile:Tiles) if(auto* Button=Surface(Tile.Card)) return Button;
-    return WidgetTree?Surface(WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("WardrobeV2Back"))):nullptr;
+    for(const auto& Tile:Tiles) if(auto* Button=MCUnifiedWardrobePrivate_Surface(Tile.Card)) return Button;
+    return WidgetTree?MCUnifiedWardrobePrivate_Surface(WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("WardrobeV2Back"))):nullptr;
 }
 void UMCUnifiedWardrobeWidget::NativeConstruct() {Super::NativeConstruct();BindActions();RefreshFromBackend();}
 void UMCUnifiedWardrobeWidget::ApplyTheme() {Super::ApplyTheme();if(!IsDesignTime()) Present();}

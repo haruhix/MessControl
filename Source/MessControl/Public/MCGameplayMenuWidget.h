@@ -40,6 +40,27 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMCGameplayMenuWidget> Menu;
 };
 
+enum class EMCGameplayMenuPresentationKind:uint8 { Text,Button,Picker,Check,Slider,Editable,Meter };
+struct MESSCONTROL_API FMCGameplayMenuPresentationControl
+{
+    FName Name;
+    TWeakObjectPtr<UWidget> Source;
+    EMCGameplayMenuPresentationKind Kind=EMCGameplayMenuPresentationKind::Text;
+    FText Text;
+    TArray<FString> Options;
+    int32 SelectedIndex=INDEX_NONE;
+    float Value=0,Minimum=0,Maximum=1,Step=.01f;
+    bool bChecked=false,bEnabled=true,bFooter=false;
+};
+struct MESSCONTROL_API FMCGameplayMenuPresentationSnapshot
+{
+    FName PageName;
+    int32 PageIndex=0;
+    FText Heading,Status,Hint,NetworkNote;
+    TArray<FMCGameplayMenuPresentationControl> Controls;
+    bool bClosing=false;
+};
+
 /** Gameplay-only pause/settings/connection presentation. The controller owns input modes and travel. */
 UCLASS(Blueprintable)
 class MESSCONTROL_API UMCGameplayMenuWidget : public UMCGameplayUIWidget
@@ -71,6 +92,17 @@ public:
     virtual void ApplyEditorPreview(float Time) override;
     virtual void ResetEditorPreview() override;
     static bool NormalizeJoinAddress(const FString& Input, FString& OutAddress);
+    FMCGameplayMenuPresentationSnapshot GetPresentationSnapshot();
+    /** Read-only live copy and the same existing video-timeout policy; never repopulates a draft. */
+    void RefreshPendingPresentation();
+    bool IsPresentationControlCurrent(const UWidget* Control,FName ExpectedPage) const;
+    bool TryActivatePresentationButton(UButton* Button,FName ExpectedPage);
+    bool IsPresentationKeyCaptureActive() const;
+    bool RoutePresentationKey(const FKeyEvent& Event);
+    bool RoutePresentationMouseButton(const FPointerEvent& Event);
+    bool RoutePresentationAnalog(const FAnalogInputEvent& Event);
+    UWidget* GetNextPresentationFocus(const UWidget* Current,int32 Direction) const;
+
 protected:
     virtual void OnLocalizationChanged() override;
     virtual void NativeOnInitialized() override;
@@ -95,6 +127,7 @@ private:
     void RefreshSettingsChoiceCopy(int32 Mode,int32 Quality,bool bIncludeCustom);
     void ApplySettings();
     void RevertVideoSettings();
+    void RefreshVideoConfirmation();
     void RefreshConnection();
     bool MoveFocus(int32 Direction);
     bool IsPreviewing() const {return bEditorFixture || IsDesignTime();}

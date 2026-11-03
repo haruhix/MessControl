@@ -236,6 +236,10 @@ namespace
         bool bHasUnifiedSelection=false;
         EMCUnifiedUIScreen UnifiedScreen=EMCUnifiedUIScreen::Menu;
         int32 UnifiedSettingsTab=0;
+        FName UnifiedHubMode;
+        FName UnifiedRewardMode;
+        FName UnifiedGameplayMenuMode;
+        int32 UnifiedFrontendPage=0;
         FString UnifiedCulture;
     };
 
@@ -443,6 +447,7 @@ namespace
             {
                 Session.UnifiedScreen=Root->PreviewScreen;
                 Session.UnifiedSettingsTab=FMath::Clamp(Root->PreviewSettingsTab,0,4);
+                Session.UnifiedHubMode=Root->PreviewHubMode;Session.UnifiedRewardMode=Root->PreviewRewardMode;Session.UnifiedGameplayMenuMode=Root->PreviewGameplayMenuMode;Session.UnifiedFrontendPage=Root->PreviewFrontendPage;
                 Session.UnifiedCulture=Root->PreviewCulture;
                 Session.bHasUnifiedSelection=true;
             }
@@ -464,6 +469,7 @@ namespace
             {
                 Root->PreviewScreen=Session.UnifiedScreen;
                 Root->PreviewSettingsTab=Session.UnifiedSettingsTab;
+                Root->PreviewHubMode=Session.UnifiedHubMode;Root->PreviewRewardMode=Session.UnifiedRewardMode;Root->PreviewGameplayMenuMode=Session.UnifiedGameplayMenuMode;Root->PreviewFrontendPage=Session.UnifiedFrontendPage;
                 Root->PreviewCulture=Session.UnifiedCulture;
                 Root->PreviewState=FName(*StaticEnum<EMCUnifiedUIScreen>()->GetNameStringByValue(int64(Session.UnifiedScreen)));
             }
@@ -588,8 +594,12 @@ namespace
                         Add(LOCTEXT("UnifiedTeam","Team"),EMCUnifiedUIScreen::Team,FString(),true);
                         Add(LOCTEXT("UnifiedWardrobe","Wardrobe"),EMCUnifiedUIScreen::Wardrobe,FString(),true);
                         Add(LOCTEXT("UnifiedShop","Boosters shop"),EMCUnifiedUIScreen::Boosters,FString(),true);
+                        Add(LOCTEXT("UnifiedHub","Hub"),EMCUnifiedUIScreen::Hub,FString(),true);
+                        Add(LOCTEXT("UnifiedReward","Reward"),EMCUnifiedUIScreen::Reward,FString(),true);
+                        Add(LOCTEXT("UnifiedFrontend","Join / lobby / confirmations"),EMCUnifiedUIScreen::Frontend,FString(),true);
+                        Add(LOCTEXT("UnifiedGameplayMenu","Pause / connection / audio"),EMCUnifiedUIScreen::GameplayMenu,FString(),true);
                         Menu.AddMenuSeparator();
-                        for(const TCHAR* Name:{TEXT("Hub — pending"),TEXT("Tools — pending"),TEXT("Perks — pending")})
+                        for(const TCHAR* Name:{TEXT("Fishing catch — pending")})
                             Add(FText::FromString(Name),EMCUnifiedUIScreen::Menu,FString(),false);
                     }
                     return Menu.MakeWidget();
@@ -611,6 +621,10 @@ namespace
                         case EMCUnifiedUIScreen::Team:return LOCTEXT("UnifiedTeam","Team");
                         case EMCUnifiedUIScreen::Wardrobe:return LOCTEXT("UnifiedWardrobe","Wardrobe");
                         case EMCUnifiedUIScreen::Boosters:return LOCTEXT("UnifiedShop","Boosters shop");
+                        case EMCUnifiedUIScreen::Hub:return LOCTEXT("UnifiedHub","Hub");
+                        case EMCUnifiedUIScreen::Reward:return LOCTEXT("UnifiedReward","Reward");
+                        case EMCUnifiedUIScreen::Frontend:return LOCTEXT("UnifiedFrontend","Join / lobby / confirmations");
+                        case EMCUnifiedUIScreen::GameplayMenu:return LOCTEXT("UnifiedGameplayMenu","Pause / connection / audio");
                         default:return FText::FromString(StaticEnum<EMCUnifiedUIScreen>()->GetNameStringByValue(int64(Session->UnifiedScreen)));
                         }
                     }

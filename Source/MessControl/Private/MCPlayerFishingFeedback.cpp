@@ -2,6 +2,8 @@
 #include "MCFishingRewardWidget.h"
 #include "MCGameplayUIFactory.h"
 #include "MCHubWidget.h"
+#include "MCUIPresentationSubsystem.h"
+#include "Engine/GameInstance.h"
 
 void AMCPlayerController::PrepareFishingRewardPresentation()
 {
@@ -17,8 +19,18 @@ void AMCPlayerController::PrepareFishingRewardPresentation()
         FishingRewardWidget->AddToViewport(32);
         FishingRewardWidget->TakeWidget();FishingRewardWidget->ForceLayoutPrepass();
     }
-    if(HubWidget) FishingRewardWidget->SetCounterTarget(
-        HubWidget->GetWidgetFromName(TEXT("HubFishIcon")),HubWidget->GetWidgetFromName(TEXT("HubFishCard")));
+    RefreshFishingCounterTarget();
+}
+void AMCPlayerController::RefreshFishingCounterTarget()
+{
+    if(!FishingRewardWidget || !HubWidget) return;
+    UWidget* Icon=HubWidget->GetWidgetFromName(TEXT("HubFishIcon"));
+    UWidget* Card=HubWidget->GetWidgetFromName(TEXT("HubFishCard"));
+    if(auto* GI=GetGameInstance()) if(auto* UI=GI->GetSubsystem<UMCUIPresentationSubsystem>()) {
+        UWidget* NewIcon=nullptr;UWidget* NewCard=nullptr;
+        if(UI->GetUnifiedFishCounterTargets(this,NewIcon,NewCard)) {Icon=NewIcon;Card=NewCard;}
+    }
+    FishingRewardWidget->SetCounterTarget(Icon,Card);
 }
 
 void AMCPlayerController::ResetFishingRewardPresentation()

@@ -4,6 +4,7 @@
 #include "MCGameplayUIWidget.h"
 #include "Components/Button.h"
 #include "MCPerkTypes.h"
+#include "MCPerkCardWidget.h"
 #include "MCPerkChoiceWidget.generated.h"
 
 class AMCPlayerController;
@@ -31,6 +32,30 @@ private:
     bool bInteractionAllowed=true;
 };
 
+/** Value-only view of the current source controls. Button identities expire with that offer. */
+struct MESSCONTROL_API FMCPerkChoicePresentationCard
+{
+    FMCPerkCardPresentation Data;
+    TWeakObjectPtr<UMCPerkCardButton> Button;
+    EMCPerkKind Kind=EMCPerkKind::Passive;
+    EMCPerkRarity Rarity=EMCPerkRarity::Standard;
+    bool bEnabled=false;
+};
+struct MESSCONTROL_API FMCPerkChoicePresentationAction
+{
+    FText Label;
+    TWeakObjectPtr<UMCPerkCardButton> Button;
+    bool bEnabled=false;
+};
+struct MESSCONTROL_API FMCPerkChoicePresentationSnapshot
+{
+    FText Title,Subtitle,Hint,Countdown;
+    TArray<FMCPerkChoicePresentationCard> Cards;
+    TArray<FMCPerkChoicePresentationAction> Actions;
+    TWeakObjectPtr<UMCPerkCardButton> Selected;
+    bool bCountdownVisible=false,bPending=false,bWaiting=false,bShowing=false,bReplacing=false,bConfirming=false,bNavigationHighlight=false;
+};
+
 /** Three mutually exclusive personal level or chest reward cards. */
 UCLASS()
 class MESSCONTROL_API UMCPerkChoiceWidget : public UMCGameplayUIWidget
@@ -50,6 +75,14 @@ public:
     void ShowTeamWaiting(int32 Ready,int32 Total);
     bool IsWaitingForTeam() const { return bWaitingForTeam; }
     bool IsShowingChoices() const { return bShowingChoices; }
+    /** Mirrors current source presentation, refreshing only the authority deadline label. */
+    FMCPerkChoicePresentationSnapshot GetPresentationSnapshot();
+    /** Rejects stale buttons even when a previous offer's UObject remains alive. */
+    bool TryActivatePresentationButton(UMCPerkCardButton* Button);
+    void SetPresentationFocusButton(UMCPerkCardButton* Button);
+    bool RoutePresentationKey(const FKeyEvent& Event);
+    bool RoutePresentationAnalog(const FAnalogInputEvent& Event);
+
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UI|Data") TObjectPtr<UDataTable> CardTable;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UI|Data") TObjectPtr<UDataTable> LocalizationTable;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UI|Components") TSubclassOf<UMCPerkCardWidget> CardWidgetClass;

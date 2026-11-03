@@ -27,8 +27,8 @@
 
 namespace
 {
-    FLinearColor Color(const TCHAR* Hex) {return FLinearColor(FColor::FromHex(Hex));}
-    bool OwnVisible(const UWidget* Widget)
+    FLinearColor MCUnifiedTeamPrivate_Color(const TCHAR* Hex) {return FLinearColor(FColor::FromHex(Hex));}
+    bool MCUnifiedTeamPrivate_OwnVisible(const UWidget* Widget)
     {
         return Widget && Widget->GetVisibility()!=ESlateVisibility::Collapsed && Widget->GetVisibility()!=ESlateVisibility::Hidden;
     }
@@ -75,7 +75,7 @@ void UMCUnifiedPartyButton::SetBackend(UMCScoreboardWidget* InBackend)
 void UMCUnifiedPartyButton::Forward()
 {
     if(!Backend.IsValid() || !Backend->WidgetTree || Backend->IsDesignTime()) return;
-    if(auto* Source=Backend->WidgetTree->FindWidget<UButton>(SourceControl);Source && Source->GetIsEnabled() && OwnVisible(Source))
+    if(auto* Source=Backend->WidgetTree->FindWidget<UButton>(SourceControl);Source && Source->GetIsEnabled() && MCUnifiedTeamPrivate_OwnVisible(Source))
         Source->OnClicked.Broadcast();
 }
 
@@ -98,7 +98,7 @@ void UMCUnifiedTeamWidget::BuildPresentationTree()
     auto Shape=[&](FName Name,FLinearColor Fill,float Radius,float Border,FVector2D Shadow,FMargin InPadding) {
         auto* Panel=WidgetTree->ConstructWidget<UMCUniversalUIWidget>(UMCUniversalUIWidget::StaticClass(),Name);
         Panel->Kind=EMCUniversalUIKind::Panel;Panel->Label=FText::GetEmpty();Panel->bCustomColors=true;Panel->bUseThemeShape=false;
-        Panel->CustomFill=Fill;Panel->CustomOutline=Color(TEXT("2B2B83"));Panel->CustomShadow=Color(TEXT("29296C"));
+        Panel->CustomFill=Fill;Panel->CustomOutline=MCUnifiedTeamPrivate_Color(TEXT("2B2B83"));Panel->CustomShadow=MCUnifiedTeamPrivate_Color(TEXT("29296C"));
         Panel->CornerRadius=Radius;Panel->OutlineWidth=Border;Panel->ShadowOffset=Shadow;Panel->ContentPadding=InPadding;
         Panel->Initialize();Panel->BuildPresentationTree();return Panel;
     };
@@ -108,7 +108,7 @@ void UMCUnifiedTeamWidget::BuildPresentationTree()
         Value->SetClipping(EWidgetClipping::Inherit);Value->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);
         Value->SetFont(GetResolvedTheme()->MakeFont(Size,true));Value->SetColorAndOpacity(Tint);return Value;
     };
-    auto* Card=Shape(TEXT("TeamCard"),Color(TEXT("4C79AC")),35,3,{7,10},FMargin(34,26,34,28));
+    auto* Card=Shape(TEXT("TeamCard"),MCUnifiedTeamPrivate_Color(TEXT("4C79AC")),35,3,{7,10},FMargin(34,26,34,28));
     auto* CardSize=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("TeamCardSize"));CardSize->SetContent(Card);
     Stack->AddChildToVerticalBox(CardSize)->SetPadding(FMargin(0,0,10,12));
     auto* Body=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("TeamCardContents"));Card->SetContentForSlot(TEXT("Content"),Body);
@@ -117,10 +117,10 @@ void UMCUnifiedTeamWidget::BuildPresentationTree()
     for(int32 Index=0;Index<2;++Index)
     {
         const bool Title=Index==0;
-        auto* Badge=Shape(Title?TEXT("TeamTitleBadge"):TEXT("TeamTabBadge"),Color(TEXT("FFF9F8")),22,3,{5,8},FMargin(22,7));
+        auto* Badge=Shape(Title?TEXT("TeamTitleBadge"):TEXT("TeamTabBadge"),MCUnifiedTeamPrivate_Color(TEXT("FFF9F8")),22,3,{5,8},FMargin(22,7));
         auto* Caption=Label(Title?TEXT("TeamTitle"):TEXT("TeamTabKey"),
             Title?Localized(TEXT("UI.Scoreboard.Title"),LOCTEXT("Team","КОМАНДА")):FText::AsCultureInvariant(TEXT("TAB")),Title?30:38,
-            Color(Title?TEXT("AE466D"):TEXT("BF151C")),Title);
+            MCUnifiedTeamPrivate_Color(Title?TEXT("AE466D"):TEXT("BF151C")),Title);
         Caption->SetJustification(ETextJustify::Center);Badge->SetContentForSlot(TEXT("Content"),Caption);
         UWidget* BadgeContents=Badge;
         if(Title) {
@@ -137,46 +137,46 @@ void UMCUnifiedTeamWidget::BuildPresentationTree()
     for(int32 I=0;I<4;++I)
     {
         const FString Prefix=FString::Printf(TEXT("TeamPlayer%d"),I+1);
-        auto* Row=Shape(FName(Prefix),Color(TEXT("FFF9F8")),17,3,{0,7},FMargin(22,8));
+        auto* Row=Shape(FName(Prefix),MCUnifiedTeamPrivate_Color(TEXT("FFF9F8")),17,3,{0,7},FMargin(22,8));
         auto* Minimum=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),FName(Prefix+TEXT("Size")));Minimum->SetMinDesiredHeight(56);Minimum->SetContent(Row);
         Body->AddChildToVerticalBox(Minimum)->SetPadding(FMargin(0,0,0,I<3?12:0));
         auto* Contents=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),FName(Prefix+TEXT("Contents")));Row->SetContentForSlot(TEXT("Content"),Contents);
-        auto* Name=Label(FName(Prefix+TEXT("Name")),FText::AsCultureInvariant(TEXT("HASBULADO")),25,Color(TEXT("2B2B83")));
+        auto* Name=Label(FName(Prefix+TEXT("Name")),FText::AsCultureInvariant(TEXT("HASBULADO")),25,MCUnifiedTeamPrivate_Color(TEXT("2B2B83")));
         auto* NameCell=Contents->AddChildToHorizontalBox(Name);NameCell->SetSize(FSlateChildSize(ESlateSizeRule::Fill));NameCell->SetVerticalAlignment(VAlign_Center);NameCell->SetPadding(FMargin(0,0,16,0));
-        auto* Mic=WidgetTree->ConstructWidget<UMCUnifiedMicrophone>(UMCUnifiedMicrophone::StaticClass(),FName(Prefix+TEXT("Microphone")));Mic->Tint=Color(TEXT("2B2B83"));Mic->MutedTint=Color(TEXT("B13E68"));
+        auto* Mic=WidgetTree->ConstructWidget<UMCUnifiedMicrophone>(UMCUnifiedMicrophone::StaticClass(),FName(Prefix+TEXT("Microphone")));Mic->Tint=MCUnifiedTeamPrivate_Color(TEXT("2B2B83"));Mic->MutedTint=MCUnifiedTeamPrivate_Color(TEXT("B13E68"));
         auto* MicSize=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),FName(Prefix+TEXT("MicrophoneSize")));MicSize->SetWidthOverride(28);MicSize->SetHeightOverride(34);MicSize->SetContent(Mic);
         auto* Mute=WidgetTree->ConstructWidget<UMCScoreboardMuteButton>(UMCScoreboardMuteButton::StaticClass(),FName(Prefix+TEXT("Mute")));Mute->SetContent(MicSize);
         auto* MicSlot=CastChecked<UButtonSlot>(MicSize->Slot);MicSlot->SetPadding(FMargin(7,3));MicSlot->SetHorizontalAlignment(HAlign_Center);MicSlot->SetVerticalAlignment(VAlign_Center);
-        FButtonStyle Style;Style.SetNormal(FSlateNoResource());Style.SetHovered(FSlateRoundedBoxBrush(Color(TEXT("DCE5FD")),10.f));Style.SetPressed(FSlateRoundedBoxBrush(Color(TEXT("BDCFF0")),10.f));Style.SetDisabled(FSlateNoResource());Mute->SetStyle(Style);
+        FButtonStyle Style;Style.SetNormal(FSlateNoResource());Style.SetHovered(FSlateRoundedBoxBrush(MCUnifiedTeamPrivate_Color(TEXT("DCE5FD")),10.f));Style.SetPressed(FSlateRoundedBoxBrush(MCUnifiedTeamPrivate_Color(TEXT("BDCFF0")),10.f));Style.SetDisabled(FSlateNoResource());Mute->SetStyle(Style);
         auto* MicCell=Contents->AddChildToHorizontalBox(Mute);MicCell->SetVerticalAlignment(VAlign_Center);MicCell->SetPadding(FMargin(0,0,20,0));
-        auto* Points=Label(FName(Prefix+TEXT("Points")),FText::AsNumber(300),25,Color(TEXT("2B2B83")));Points->SetJustification(ETextJustify::Center);
+        auto* Points=Label(FName(Prefix+TEXT("Points")),FText::AsNumber(300),25,MCUnifiedTeamPrivate_Color(TEXT("2B2B83")));Points->SetJustification(ETextJustify::Center);
         auto* PointsSize=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),FName(Prefix+TEXT("PointsSize")));PointsSize->SetMaxDesiredWidth(200);PointsSize->SetContent(Points);
         auto* PointsCell=Contents->AddChildToHorizontalBox(PointsSize);PointsCell->SetVerticalAlignment(VAlign_Center);PointsCell->SetPadding(FMargin(16,0,28,0));
-        auto* Ping=Label(FName(Prefix+TEXT("Ping")),FText::AsCultureInvariant(TEXT("0 MS")),25,Color(TEXT("2B2B83")));Ping->SetJustification(ETextJustify::Right);
+        auto* Ping=Label(FName(Prefix+TEXT("Ping")),FText::AsCultureInvariant(TEXT("0 MS")),25,MCUnifiedTeamPrivate_Color(TEXT("2B2B83")));Ping->SetJustification(ETextJustify::Right);
         auto* PingSize=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),FName(Prefix+TEXT("PingSize")));PingSize->SetMaxDesiredWidth(220);PingSize->SetContent(Ping);
         auto* PingCell=Contents->AddChildToHorizontalBox(PingSize);PingCell->SetVerticalAlignment(VAlign_Center);PingCell->SetPadding(FMargin(20,0,0,0));
     }
     // Hub controls keep source permissions/actions, with content-sized buttons flowing onto new lines.
-    auto* Hub=Shape(TEXT("TeamHubControls"),Color(TEXT("4C79AC")),24,3,{7,8},FMargin(22,16));
+    auto* Hub=Shape(TEXT("TeamHubControls"),MCUnifiedTeamPrivate_Color(TEXT("4C79AC")),24,3,{7,8},FMargin(22,16));
     auto* HubSize=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("TeamHubSize"));HubSize->SetContent(Hub);
     Stack->AddChildToVerticalBox(HubSize)->SetPadding(FMargin(0,4,10,10));
     auto* HubBody=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("TeamHubContents"));Hub->SetContentForSlot(TEXT("Content"),HubBody);
-    auto* Summary=Label(TEXT("TeamHubSummary"),FText::GetEmpty(),22,Color(TEXT("FFF9F8")));HubBody->AddChildToVerticalBox(Summary)->SetPadding(FMargin(0,0,0,12));
+    auto* Summary=Label(TEXT("TeamHubSummary"),FText::GetEmpty(),22,MCUnifiedTeamPrivate_Color(TEXT("FFF9F8")));HubBody->AddChildToVerticalBox(Summary)->SetPadding(FMargin(0,0,0,12));
     auto* Actions=WidgetTree->ConstructWidget<UWrapBox>(UWrapBox::StaticClass(),TEXT("TeamHubActions"));Actions->SetInnerSlotPadding(FVector2D(10,10));Actions->SetExplicitWrapSize(false);
     HubBody->AddChildToVerticalBox(Actions)->SetPadding(FMargin(0,0,0,12));
     const TCHAR* Sources[]={TEXT("HubPartyInvite"),TEXT("HubPartyPublic"),TEXT("HubPartyFriends"),TEXT("HubPartyInviteOnly"),TEXT("HubPartyClose")};
     for(int32 I=0;I<5;++I)
     {
         auto* Button=WidgetTree->ConstructWidget<UMCUnifiedPartyButton>(UMCUnifiedPartyButton::StaticClass(),FName(Sources[I]));Button->SourceControl=Sources[I];
-        FButtonStyle Style;Style.SetNormal(FSlateRoundedBoxBrush(Color(TEXT("FFF9F8")),13.f,Color(TEXT("2B2B83")),2.f));Style.SetHovered(FSlateRoundedBoxBrush(Color(TEXT("E4EDFF")),13.f,Color(TEXT("2B2B83")),2.f));Style.SetPressed(FSlateRoundedBoxBrush(Color(TEXT("CCDDF7")),13.f,Color(TEXT("2B2B83")),2.f));Style.SetDisabled(Style.Normal);Button->SetStyle(Style);
+        FButtonStyle Style;Style.SetNormal(FSlateRoundedBoxBrush(MCUnifiedTeamPrivate_Color(TEXT("FFF9F8")),13.f,MCUnifiedTeamPrivate_Color(TEXT("2B2B83")),2.f));Style.SetHovered(FSlateRoundedBoxBrush(MCUnifiedTeamPrivate_Color(TEXT("E4EDFF")),13.f,MCUnifiedTeamPrivate_Color(TEXT("2B2B83")),2.f));Style.SetPressed(FSlateRoundedBoxBrush(MCUnifiedTeamPrivate_Color(TEXT("CCDDF7")),13.f,MCUnifiedTeamPrivate_Color(TEXT("2B2B83")),2.f));Style.SetDisabled(Style.Normal);Button->SetStyle(Style);
         const FName CopyName(*(FString(Sources[I])+TEXT("Caption")));
-        auto* Caption=Label(CopyName,FText::GetEmpty(),19,Color(TEXT("2B2B83")));Caption->SetJustification(ETextJustify::Center);Button->SetContent(Caption);
+        auto* Caption=Label(CopyName,FText::GetEmpty(),19,MCUnifiedTeamPrivate_Color(TEXT("2B2B83")));Caption->SetJustification(ETextJustify::Center);Button->SetContent(Caption);
         auto* CaptionSlot=CastChecked<UButtonSlot>(Caption->Slot);CaptionSlot->SetPadding(FMargin(18,10));CaptionSlot->SetVerticalAlignment(VAlign_Center);CaptionSlot->SetHorizontalAlignment(HAlign_Center);
         auto* Bounds=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),FName(FString(Sources[I])+TEXT("Size")));
         Bounds->SetMinDesiredHeight(48);Bounds->SetMaxDesiredWidth(760);Bounds->SetContent(Button);
         Actions->AddChildToWrapBox(Bounds)->SetVerticalAlignment(VAlign_Center);
     }
-    auto* Status=Label(TEXT("TeamHubStatus"),FText::GetEmpty(),19,Color(TEXT("FFF9F8")));HubBody->AddChildToVerticalBox(Status);
+    auto* Status=Label(TEXT("TeamHubStatus"),FText::GetEmpty(),19,MCUnifiedTeamPrivate_Color(TEXT("FFF9F8")));HubBody->AddChildToVerticalBox(Status);
     CacheControls();ApplyTheme();
 }
 void UMCUnifiedTeamWidget::CacheControls()
@@ -250,9 +250,9 @@ void UMCUnifiedTeamWidget::RefreshHubControls()
     for(const TCHAR* Source:{TEXT("HubPartyInvite"),TEXT("HubPartyPublic"),TEXT("HubPartyFriends"),TEXT("HubPartyInviteOnly"),TEXT("HubPartyClose")}) {
         auto* Original=Backend->WidgetTree->FindWidget<UButton>(FName(Source));auto* View=WidgetTree->FindWidget<UMCUnifiedPartyButton>(FName(Source));if(!View) continue;
         View->SetBackend(Backend.Get());View->SetIsEnabled(Original && Original->GetIsEnabled());
-        bool Visible=OwnVisible(Original);
+        bool Visible=MCUnifiedTeamPrivate_OwnVisible(Original);
         if(FName(Source)==TEXT("HubPartyPublic") || FName(Source)==TEXT("HubPartyFriends") || FName(Source)==TEXT("HubPartyInviteOnly"))
-            Visible=Visible && OwnVisible(Backend->WidgetTree->FindWidget(TEXT("HubPrivacyControls")));
+            Visible=Visible && MCUnifiedTeamPrivate_OwnVisible(Backend->WidgetTree->FindWidget(TEXT("HubPrivacyControls")));
         View->SetVisibility(Visible?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
         if(auto* Bounds=Cast<USizeBox>(View->GetParent())) Bounds->SetVisibility(Visible?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
         if(Original) if(auto* From=Cast<UTextBlock>(Original->GetContent())) if(auto* To=Cast<UTextBlock>(View->GetContent())) To->SetText(From->GetText());
@@ -261,8 +261,8 @@ void UMCUnifiedTeamWidget::RefreshHubControls()
 UWidget* UMCUnifiedTeamWidget::GetDefaultFocusTarget() const
 {
     if(Backend.IsValid() && Backend->IsUnifiedHubParty() && WidgetTree)
-        if(auto* Invite=WidgetTree->FindWidget<UMCUnifiedPartyButton>(TEXT("HubPartyInvite"));Invite && Invite->GetIsEnabled() && OwnVisible(Invite)) return Invite;
-    for(const auto& Row:Rows) if(Row.MuteButton && Row.Surface && OwnVisible(Row.Surface) && Row.MuteButton->GetIsEnabled()) return Row.MuteButton;
+        if(auto* Invite=WidgetTree->FindWidget<UMCUnifiedPartyButton>(TEXT("HubPartyInvite"));Invite && Invite->GetIsEnabled() && MCUnifiedTeamPrivate_OwnVisible(Invite)) return Invite;
+    for(const auto& Row:Rows) if(Row.MuteButton && Row.Surface && MCUnifiedTeamPrivate_OwnVisible(Row.Surface) && Row.MuteButton->GetIsEnabled()) return Row.MuteButton;
     return const_cast<UMCUnifiedTeamWidget*>(this);
 }
 void UMCUnifiedTeamWidget::FocusVoiceControls() {if(auto* Target=GetDefaultFocusTarget()) Target->SetUserFocus(GetOwningPlayer());}
@@ -271,8 +271,8 @@ void UMCUnifiedTeamWidget::MoveVoiceFocus(int32 Direction)
 {
     TArray<UWidget*> Targets;int32 Current=INDEX_NONE;
     if(Backend.IsValid() && Backend->IsUnifiedHubParty() && WidgetTree) for(const TCHAR* Name:{TEXT("HubPartyInvite"),TEXT("HubPartyPublic"),TEXT("HubPartyFriends"),TEXT("HubPartyInviteOnly"),TEXT("HubPartyClose")})
-        if(auto* Target=WidgetTree->FindWidget(FName(Name));Target && OwnVisible(Target) && Target->GetIsEnabled()) Targets.Add(Target);
-    for(const auto& Row:Rows) if(Row.MuteButton && Row.Surface && OwnVisible(Row.Surface) && Row.MuteButton->GetIsEnabled()) Targets.Add(Row.MuteButton);
+        if(auto* Target=WidgetTree->FindWidget(FName(Name));Target && MCUnifiedTeamPrivate_OwnVisible(Target) && Target->GetIsEnabled()) Targets.Add(Target);
+    for(const auto& Row:Rows) if(Row.MuteButton && Row.Surface && MCUnifiedTeamPrivate_OwnVisible(Row.Surface) && Row.MuteButton->GetIsEnabled()) Targets.Add(Row.MuteButton);
     for(int32 I=0;I<Targets.Num();++I) if(Targets[I]->HasUserFocus(GetOwningPlayer())) Current=I;
     if(!Targets.IsEmpty()) Targets[Current==INDEX_NONE?0:(Current+Direction+Targets.Num())%Targets.Num()]->SetUserFocus(GetOwningPlayer());
 }

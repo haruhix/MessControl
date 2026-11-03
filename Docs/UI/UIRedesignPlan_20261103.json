@@ -2,7 +2,7 @@
   "project": "MessControl",
   "root": "E:/DEVGAME/MessControl",
   "date": "2026-11-03",
-  "status": "Menu/HUD, Settings/TEAM and now Wardrobe/Boosters Shop are present in the single 121-widget root preview/runtime. Scoped commerce Editor build and solo checks passed; other screens and full visual acceptance remain pending. Current evidence: Docs/UI/UICommerce_20261104.json.",
+  "status": "Four additional editable screens (Hub, Reward, secondary Frontend and GameplayMenu) now integrated in the 140-widget root. Scoped Editor build and native solo checks passed; whole-interface/locale/art acceptance pending. Evidence: Docs/UI/UIHubReward_20261104.json.",
   "reference": {
     "path": "D:/sda/visua2.psd",
     "sha256": "7CB834D75CFE88632E2D1C32DC688FF0107A3EFA1AC2E661BEDE2B752A2BA756",
@@ -40,6 +40,39 @@
     "2026-11-04: интерфейс должен адаптировать размеры контейнеров, переносы и компоновку под реальный текст и локализации; нельзя подгонять текст уменьшением шрифта или скрывать его многоточием.",
     "2026-11-04: расширение каталога одежды выполнять только после завершения всего интерфейса; пока зафиксировать отдельную очередь требований, не создавать таблицу или игровую реализацию."
   ],
+  "artboardScopeMapping": {
+    "reviewedAt": "2026-11-04",
+    "evidence": "Current source plus original exported PSD artboards; this scope correction is not runtime validation.",
+    "toolsBusters": {
+      "preview": "E:/CodexWork/MessControl/Validation/UIRedesign_20261103/Artboards/702_tools_busters.png",
+      "meaning": "Icon/slot reference for equipped tools, resources and active boosters in the existing gameplay HUD; not a separate Tools screen or another shop.",
+      "owners": [
+        "UMCGameplayHUD",
+        "UMCInventoryComponent",
+        "UMCPerkComponent"
+      ],
+      "implementationScope": "Bind stable current tool/active-slot data and actions to editable HUD shapes. Reuse extracted source glyphs where already mapped; preserve the canonical perk-icon contract. Remaining HUD states require their own runtime and visual verification."
+    },
+    "perkReward": {
+      "preview": "E:/CodexWork/MessControl/Validation/UIRedesign_20261103/Artboards/13_PERK.png",
+      "meaning": "Perk icon library and the three-card REWARD choice layout; not a standalone Perks catalog screen.",
+      "owners": [
+        "UMCPerkChoiceWidget",
+        "UMCPerkComponent",
+        "AMCPlayerController"
+      ],
+      "implementationScope": "Existing native offers and three-card REWARD presentation integrated; real ordinary-chest offer GUID/card/inventory retention across F3/GC passed. Countdown/replacement fixtures rendered; contract presentation authored but not runtime-verified; complete runtime coverage pending. Canonical DT_Perks.Icon unchanged."
+    },
+    "frontendSecondary": {
+      "owners": [
+        "UMCMainMenuWidget",
+        "UMCGameplayMenuWidget"
+      ],
+      "meaning": "Join, connection, lobby, pause and confirmations reuse the PSD family of editable panels/buttons with their existing source data/actions; there is no separate original PSD artboard for each secondary page.",
+      "sourceAuthoring": "Saved typed presenters integrated. Join/Exit Back/address/GC and gameplay Pause/Settings/F3/Back/Resume passed in solo. Network/lobby/voice/video-confirm runtime coverage remains deferred.",
+      "retiredPages": "Do not reactivate Host/Credits/Tutorial merely because retained Designer trees or enum entries exist."
+    }
+  },
   "currentArchitecture": [
     {
       "path": "Source/MessControl/Public/MCGameplayUIWidget.h",
@@ -110,9 +143,9 @@
       ],
       "progress": {
         "date": "2026-11-04",
-        "implemented": "Menu/Gameplay HUD/Settings/TEAM/Wardrobe/Boosters Shop root chooser, isolated language and five Settings tabs; saved root 121 widgets.",
-        "pending": "All remaining screens/states and full visual acceptance.",
-        "evidence": "Docs/UI/UICommerce_20261104.json"
+        "implemented": "Root screen/language preview now includes Hub, Reward, Frontend and GameplayMenu; saved root 140 widgets/12 stable pages.",
+        "pending": "Catch overlay, remaining states and artist acceptance.",
+        "evidence": "Docs/UI/UIHubReward_20261104.json"
       }
     },
     {
@@ -129,9 +162,9 @@
       ],
       "progress": {
         "date": "2026-11-04",
-        "implemented": "Adaptive container/wrapping contract preserved; current commerce preview/runtime included.",
-        "pending": "Complete review of long words/localizations across all screens; no full acceptance claim.",
-        "evidence": "Docs/UI/UICommerce_20261104.json"
+        "implemented": "Measured Reward word widths/height budget, modal centering, preview culture propagation, source adaptive controls and seven Reward keys × ten languages.",
+        "pending": "Existing empty language cells, full locale/resolution and remaining world UI coverage.",
+        "evidence": "Docs/UI/UIHubReward_20261104.json"
       }
     },
     {
@@ -147,9 +180,9 @@
       ],
       "progress": {
         "date": "2026-11-04",
-        "implemented": "Commerce F3 New/Current/New checked via native Slate on both screens, including focus/reopening; existing Menu/HUD/Settings/TEAM routes retained.",
-        "pending": "Other screens and hardware-input coverage.",
-        "evidence": "Docs/UI/UICommerce_20261104.json"
+        "implemented": "Scoped New/Current/New passed in GameplayMenu pending Settings, real native Reward and Hub Selecting; Escape ownership fixed.",
+        "pending": "Remaining screens and hardware input.",
+        "evidence": "Docs/UI/UIHubReward_20261104.json"
       }
     },
     {
@@ -176,9 +209,9 @@
       ],
       "progress": {
         "date": "2026-11-04",
-        "implemented": "Main menu, Settings Graphics/Audio/Language/Controls/Voice and TEAM view integrated with existing owners.",
-        "pending": "Other menu pages, lobby/join/pause/credits, complete state coverage and artistic acceptance.",
-        "evidence": "Docs/UI/UISettingsTeam_20261104.json"
+        "implemented": "Typed secondary Frontend and gameplay menu saved and connected to original actions; scoped solo checks passed.",
+        "pending": "Network/lobby/invite and broader audio/voice/video rollback runtime coverage, localization fill and art acceptance.",
+        "evidence": "Docs/UI/UIHubReward_20261104.json"
       }
     },
     {
@@ -195,7 +228,7 @@
       "progress": {
         "date": "2026-11-04",
         "implemented": "Wardrobe and Boosters Shop root preview/runtime backed by existing draft/catalog/economy; real Hub open/try-on/Back, temporary-profile Buy, F3 and GC reopening checks passed.",
-        "pending": "Hub overview, Tools/Perks, rewards, fishing UI, other screens and complete visual acceptance.",
+        "pending": "Hub overview, remaining HUD tool/active-slot states, REWARD/PerkChoice and fishing receipt UI; other screens and complete visual acceptance remain pending. The tools/busters and PERK sheets do not define separate Tools or Perks screens.",
         "evidence": "Docs/UI/UICommerce_20261104.json"
       }
     },

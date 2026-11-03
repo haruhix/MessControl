@@ -1,0 +1,227 @@
+{
+  "status": "Applied saved layout through native MCP; validation recorded separately.",
+  "asset": "/Game/Gameplay/UI/V2/WBP_UIReward",
+  "preflight": [
+    "Current native build must include updated MCUnifiedRewardWidget.",
+    "Idle Editor, no PIE and no unsaved content/map edits.",
+    "Inspect named-node classes/parents and preserve unexpected artist hierarchy; abort rather than replace."
+  ],
+  "preserve": [
+    "Existing widget objects/GUIDs, graphs, bindings, labels, icon policy and brushes.",
+    "No WBP_UIRoot change; its RewardViewport already scrolls whole-screen overflow."
+  ],
+  "expected_nodes": {
+    "RewardV2Column": "VerticalBox",
+    "RewardV2HeaderRow": "HorizontalBox",
+    "RewardV2TitleBounds": "SizeBox",
+    "RewardV2CountdownBounds": "SizeBox",
+    "RewardV2SourceTitle": "TextBlock",
+    "RewardV2Frame": "MCUniversalUIWidget",
+    "RewardV2Cards": "WrapBox",
+    "RewardV2Size": "SizeBox"
+  },
+  "operations": [
+    {
+      "op": "AddWidgetIfMissing",
+      "class": "/Script/UMG.HorizontalBox",
+      "name": "RewardV2ContextRow",
+      "parent": "RewardV2Column",
+      "index": 1,
+      "slot": {
+        "Padding": {
+          "Left": 8,
+          "Top": 8,
+          "Right": 8,
+          "Bottom": 8
+        },
+        "HorizontalAlignment": "HAlign_Fill"
+      }
+    },
+    {
+      "op": "MoveWidget",
+      "name": "RewardV2SourceTitle",
+      "expected_previous_parent": "RewardV2Column",
+      "parent": "RewardV2ContextRow",
+      "index": 0,
+      "slot": {
+        "Size": {
+          "SizeRule": "Fill",
+          "Value": 1
+        },
+        "HorizontalAlignment": "HAlign_Fill",
+        "VerticalAlignment": "VAlign_Center",
+        "Padding": {
+          "Left": 8,
+          "Top": 2,
+          "Right": 12,
+          "Bottom": 4
+        }
+      }
+    },
+    {
+      "op": "MoveWidget",
+      "name": "RewardV2CountdownBounds",
+      "expected_previous_parent": "RewardV2HeaderRow",
+      "parent": "RewardV2ContextRow",
+      "index": 1,
+      "slot": {
+        "Size": {
+          "SizeRule": "Automatic",
+          "Value": 1
+        },
+        "HorizontalAlignment": "HAlign_Right",
+        "VerticalAlignment": "VAlign_Center",
+        "Padding": {
+          "Left": 12,
+          "Top": 0,
+          "Right": 0,
+          "Bottom": 0
+        }
+      }
+    },
+    {
+      "op": "SetSlotProperties",
+      "name": "RewardV2TitleBounds",
+      "expected_parent": "RewardV2HeaderRow",
+      "values": {
+        "Size": {
+          "SizeRule": "Fill",
+          "Value": 1
+        },
+        "HorizontalAlignment": "HAlign_Center",
+        "VerticalAlignment": "VAlign_Center"
+      }
+    },
+    {
+      "op": "SetSlotProperties",
+      "name": "RewardV2Frame",
+      "expected_parent": "RewardV2Size",
+      "values": {
+        "VerticalAlignment": "VAlign_Top",
+        "HorizontalAlignment": "HAlign_Fill"
+      }
+    },
+    {
+      "op": "SetProperties",
+      "name": "RewardV2Size",
+      "values": {
+        "bOverride_HeightOverride": false,
+        "bOverride_MinDesiredWidth": true,
+        "MinDesiredWidth": 1040,
+        "bOverride_MaxDesiredWidth": true,
+        "MaxDesiredWidth": 1580
+      }
+    },
+    {
+      "op": "SetProperties",
+      "name": "RewardV2Frame",
+      "values": {
+        "ContourPoints": [
+          {
+            "X": 0,
+            "Y": 0.14
+          },
+          {
+            "X": 0.24,
+            "Y": 0.14
+          },
+          {
+            "X": 0.24,
+            "Y": 0
+          },
+          {
+            "X": 0.76,
+            "Y": 0
+          },
+          {
+            "X": 0.76,
+            "Y": 0.14
+          },
+          {
+            "X": 1,
+            "Y": 0.14
+          },
+          {
+            "X": 1,
+            "Y": 1
+          },
+          {
+            "X": 0,
+            "Y": 1
+          }
+        ]
+      }
+    },
+    {
+      "op": "SetProperties",
+      "name": "RewardV2Cards",
+      "values": {
+        "bExplicitWrapSize": true,
+        "WrapSize": 1116
+      }
+    }
+  ],
+  "repeat_for_cards_0_to_3": [
+    {
+      "op": "SetProperties",
+      "name": "RewardV2CardBounds{index}",
+      "values": {
+        "bOverride_WidthOverride": true,
+        "WidthOverride": 360
+      }
+    },
+    {
+      "op": "SetProperties",
+      "name": "RewardV2CopyBounds{index}",
+      "values": {
+        "bOverride_HeightOverride": false,
+        "bOverride_MinDesiredHeight": false,
+        "bOverride_MaxDesiredHeight": true,
+        "MaxDesiredHeight": 520
+      }
+    },
+    {
+      "op": "SetProperties",
+      "names": [
+        "RewardV2NameBounds{index}",
+        "RewardV2DescriptionBounds{index}",
+        "RewardV2StatsBounds{index}",
+        "RewardV2MetadataBounds{index}"
+      ],
+      "values": {
+        "bOverride_MaxDesiredWidth": true,
+        "MaxDesiredWidth": 304
+      }
+    },
+    {
+      "op": "SetProperties",
+      "names": [
+        "RewardV2Name{index}",
+        "RewardV2Description{index}",
+        "RewardV2Stats{index}",
+        "RewardV2Metadata{index}"
+      ],
+      "values": {
+        "AutoWrapText": false,
+        "WrapTextAt": 304
+      }
+    }
+  ],
+  "native_dynamic_contract": {
+    "bAdaptHeaderContour": true,
+    "bAdaptCardLayout": true,
+    "MinimumCardWidth": 310,
+    "MaximumCardWidth": 480,
+    "MaximumCardCopyHeight": 520,
+    "notes": "Native Present replaces seed card widths with measured Unicode line-break-span widths at authored font sizes and computes a shared natural copy minimum height. LongText only reaches the520 cap; whole-screen overflow remains in existing Root viewport. Native RefreshTextBounds centers title/timer/type/rarity text after every Universal ApplyTheme."
+  },
+  "postflight": [
+    "Compile only WBP_UIReward; save only this asset if changes succeeded.",
+    "Validate all existing widget IDs and graphs survived and only ContextRow was appended.",
+    "Render Reward RU/EN/DE/JA and LongText plus Root_Reward; inspect centered tab, timer inside blue body and complete ordinary copy.",
+    "Do not rebuild/replace WBP_UIReward or WBP_UIRoot."
+  ],
+  "script": "import json\nBP={\"refPath\":\"/Game/Gameplay/UI/V2/WBP_UIReward.WBP_UIReward\"}\nOPS=json.loads(\"[{\\\"op\\\":\\\"AddWidgetIfMissing\\\",\\\"class\\\":\\\"/Script/UMG.HorizontalBox\\\",\\\"name\\\":\\\"RewardV2ContextRow\\\",\\\"parent\\\":\\\"RewardV2Column\\\",\\\"index\\\":1,\\\"slot\\\":{\\\"Padding\\\":{\\\"Left\\\":8,\\\"Top\\\":8,\\\"Right\\\":8,\\\"Bottom\\\":8},\\\"HorizontalAlignment\\\":\\\"HAlign_Fill\\\"}},{\\\"op\\\":\\\"MoveWidget\\\",\\\"name\\\":\\\"RewardV2SourceTitle\\\",\\\"expected_previous_parent\\\":\\\"RewardV2Column\\\",\\\"parent\\\":\\\"RewardV2ContextRow\\\",\\\"index\\\":0,\\\"slot\\\":{\\\"Size\\\":{\\\"SizeRule\\\":\\\"Fill\\\",\\\"Value\\\":1},\\\"HorizontalAlignment\\\":\\\"HAlign_Fill\\\",\\\"VerticalAlignment\\\":\\\"VAlign_Center\\\",\\\"Padding\\\":{\\\"Left\\\":8,\\\"Top\\\":2,\\\"Right\\\":12,\\\"Bottom\\\":4}}},{\\\"op\\\":\\\"MoveWidget\\\",\\\"name\\\":\\\"RewardV2CountdownBounds\\\",\\\"expected_previous_parent\\\":\\\"RewardV2HeaderRow\\\",\\\"parent\\\":\\\"RewardV2ContextRow\\\",\\\"index\\\":1,\\\"slot\\\":{\\\"Size\\\":{\\\"SizeRule\\\":\\\"Automatic\\\",\\\"Value\\\":1},\\\"HorizontalAlignment\\\":\\\"HAlign_Right\\\",\\\"VerticalAlignment\\\":\\\"VAlign_Center\\\",\\\"Padding\\\":{\\\"Left\\\":12,\\\"Top\\\":0,\\\"Right\\\":0,\\\"Bottom\\\":0}}},{\\\"op\\\":\\\"SetSlotProperties\\\",\\\"name\\\":\\\"RewardV2TitleBounds\\\",\\\"expected_parent\\\":\\\"RewardV2HeaderRow\\\",\\\"values\\\":{\\\"Size\\\":{\\\"SizeRule\\\":\\\"Fill\\\",\\\"Value\\\":1},\\\"HorizontalAlignment\\\":\\\"HAlign_Center\\\",\\\"VerticalAlignment\\\":\\\"VAlign_Center\\\"}},{\\\"op\\\":\\\"SetSlotProperties\\\",\\\"name\\\":\\\"RewardV2Frame\\\",\\\"expected_parent\\\":\\\"RewardV2Size\\\",\\\"values\\\":{\\\"VerticalAlignment\\\":\\\"VAlign_Top\\\",\\\"HorizontalAlignment\\\":\\\"HAlign_Fill\\\"}},{\\\"op\\\":\\\"SetProperties\\\",\\\"name\\\":\\\"RewardV2Size\\\",\\\"values\\\":{\\\"bOverride_HeightOverride\\\":false,\\\"bOverride_MinDesiredWidth\\\":true,\\\"MinDesiredWidth\\\":1040,\\\"bOverride_MaxDesiredWidth\\\":true,\\\"MaxDesiredWidth\\\":1580}},{\\\"op\\\":\\\"SetProperties\\\",\\\"name\\\":\\\"RewardV2Frame\\\",\\\"values\\\":{\\\"ContourPoints\\\":[{\\\"X\\\":0,\\\"Y\\\":0.14},{\\\"X\\\":0.24,\\\"Y\\\":0.14},{\\\"X\\\":0.24,\\\"Y\\\":0},{\\\"X\\\":0.76,\\\"Y\\\":0},{\\\"X\\\":0.76,\\\"Y\\\":0.14},{\\\"X\\\":1,\\\"Y\\\":0.14},{\\\"X\\\":1,\\\"Y\\\":1},{\\\"X\\\":0,\\\"Y\\\":1}]}},{\\\"op\\\":\\\"SetProperties\\\",\\\"name\\\":\\\"RewardV2Cards\\\",\\\"values\\\":{\\\"bExplicitWrapSize\\\":true,\\\"WrapSize\\\":1116}}]\")\nEXPECTED=json.loads(\"{\\\"RewardV2Column\\\":\\\"VerticalBox\\\",\\\"RewardV2HeaderRow\\\":\\\"HorizontalBox\\\",\\\"RewardV2TitleBounds\\\":\\\"SizeBox\\\",\\\"RewardV2CountdownBounds\\\":\\\"SizeBox\\\",\\\"RewardV2SourceTitle\\\":\\\"TextBlock\\\",\\\"RewardV2Frame\\\":\\\"MCUniversalUIWidget\\\",\\\"RewardV2Cards\\\":\\\"WrapBox\\\",\\\"RewardV2Size\\\":\\\"SizeBox\\\"}\")\nU=\"UMGToolSet.UMGToolSet.\"\nO=\"editor_toolset.toolsets.object.ObjectTools.\"\ndef call(name,args):return execute_tool(name,json.dumps(args))[\"returnValue\"]\ndef info():return call(U+\"GetWidgets\",{\"widgetBlueprint\":BP})\ndef update(obj,wanted):\n    schema=json.loads(call(O+\"list_properties\",{\"instance\":obj}))\n    normalize=lambda x:x.lower().replace(\"_\",\"\")\n    values={}\n    for name,value in wanted.items():\n        actual=next((key for key in schema if normalize(key)==normalize(name)),None)\n        assert actual,(name,list(schema));values[actual]=value\n    current=json.loads(call(O+\"get_properties\",{\"instance\":obj,\"properties\":list(values)}))\n    for key,value in values.items():\n        if key.lower()==\"contourpoints\" and len(current[key])!=len(value):\n            padded=current[key][:len(value)]\n            while len(padded)<len(value):padded.append({\"x\":0,\"y\":0})\n            assert call(O+\"set_properties\",{\"instance\":obj,\"values\":json.dumps({key:padded})})\n    assert call(O+\"set_properties\",{\"instance\":obj,\"values\":json.dumps(values)})\ndef run():\n    assert not call(\"editor_toolset.toolsets.asset.AssetTools.is_dirty\",{\"asset_path\":\"/Game/Gameplay/UI/V2/WBP_UIReward\"})\n    d={w[\"widgetName\"]:w for w in info()[\"widgets\"]}\n    for name,cls in EXPECTED.items():\n        assert name in d and d[name][\"widgetClassPath\"][\"refPath\"].endswith(\".\"+cls),(name,cls)\n    changed=[]\n    for op in OPS:\n        kind=op[\"op\"];name=op[\"name\"]\n        if kind==\"AddWidgetIfMissing\":\n            if name not in d:d[name]=call(U+\"AddWidget\",{\"widgetBlueprint\":BP,\"widgetClass\":{\"refPath\":op[\"class\"]},\"widgetDisplayName\":name,\"parentWidget\":d[op[\"parent\"]][\"widget\"],\"childIndex\":op[\"index\"]})\n            assert d[name][\"parent\"]==d[op[\"parent\"]][\"widget\"]\n            update(d[name][\"slot\"],op[\"slot\"])\n        elif kind==\"MoveWidget\":\n            old=d[name][\"parent\"]\n            assert old==d[op[\"parent\"]][\"widget\"] or old==d[op[\"expected_previous_parent\"]][\"widget\"],name\n            if old!=d[op[\"parent\"]][\"widget\"]:\n                d[name]=call(U+\"MoveWidget\",{\"widgetBlueprint\":BP,\"widget\":d[name][\"widget\"],\"newParent\":d[op[\"parent\"]][\"widget\"],\"childIndex\":op[\"index\"]})\n            update(d[name][\"slot\"],op[\"slot\"])\n        elif kind==\"SetSlotProperties\":\n            assert d[name][\"parent\"]==d[op[\"expected_parent\"]][\"widget\"]\n            update(d[name][\"slot\"],op[\"values\"])\n        elif kind==\"SetProperties\":update(d[name][\"widget\"],op[\"values\"])\n        else:assert False,kind\n        changed.append(name)\n    assert call(U+\"CompileWidgetBlueprint\",{\"widgetBlueprint\":BP})\n    assert call(\"editor_toolset.toolsets.asset.AssetTools.save_assets\",{\"asset_paths\":[\"/Game/Gameplay/UI/V2/WBP_UIReward\"]})\n    root={\"refPath\":\"/Game/Gameplay/UI/V2/WBP_UIRoot.WBP_UIRoot\"}\n    rd={w[\"widgetName\"]:w for w in call(U+\"GetWidgets\",{\"widgetBlueprint\":root})[\"widgets\"]}\n    for name in (\"UnifiedReward\",\"UnifiedGameplayMenu\"):update(rd[name][\"slot\"],{\"HorizontalAlignment\":\"HAlign_Center\"})\n    assert call(U+\"CompileWidgetBlueprint\",{\"widgetBlueprint\":root})\n    assert call(\"editor_toolset.toolsets.asset.AssetTools.save_assets\",{\"asset_paths\":[\"/Game/Gameplay/UI/V2/WBP_UIRoot\"]})\n    return {\"saved\":True,\"changed\":changed,\"modalAlignment\":\"Centered Reward and GameplayMenu\"}\n",
+  "toolset": "editor_toolset.toolsets.programmatic.ProgrammaticToolset",
+  "tool": "execute_tool_script"
+}

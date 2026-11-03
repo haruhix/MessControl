@@ -1,0 +1,76 @@
+{
+  "toolset": "editor_toolset.toolsets.programmatic.ProgrammaticToolset",
+  "tool": "execute_tool_script",
+  "status": "Prepared source recipe; not executed or runtime-verified.",
+  "prerequisites": [
+    "Current built idle Editor; author_unified_hub_reward.py completed and all four component assets/theme roots saved.",
+    "Run editor_preflight_python through Editor Python immediately before script. Programmatic sandbox cannot import unreal.",
+    "Existing clean WBP_UIRoot has numbered pages 0..8 in the native enum order. Existing trees and artist properties must be preserved."
+  ],
+  "editor_preflight_python": "import unreal as u\nassert not u.EditorLevelLibrary.get_pie_worlds(True), 'Preserve active Play'\nassert not u.get_editor_subsystem(u.LevelEditorSubsystem).is_in_play_in_editor()\nassert not u.EditorLoadingAndSavingUtils.get_dirty_content_packages(), 'Preserve unsaved content'\nassert not u.EditorLoadingAndSavingUtils.get_dirty_map_packages(), 'Preserve unsaved maps'\nassert u.EditorAssetLibrary.does_asset_exist('/Game/Gameplay/UI/V2/WBP_UIRoot')\nfor asset in ('WBP_UIHub', 'WBP_UIReward', 'WBP_UIFrontend', 'WBP_UIGameplayMenu'):\n    assert u.EditorAssetLibrary.does_asset_exist('/Game/Gameplay/UI/V2/' + asset), asset",
+  "source_contract": {
+    "cpp": "Source/MessControl/Private/MCUnifiedUIWidget.cpp::EnsureAdditionalScreens",
+    "hub": {
+      "page": "Screen_Hub",
+      "index": 2,
+      "view": "UnifiedHub",
+      "anchors": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "offsets": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "appendedPages": [
+      {
+        "name": "Screen_Reward",
+        "index": 9,
+        "host": "RewardViewport",
+        "frame": "RewardViewportFrame"
+      },
+      {
+        "name": "Screen_Frontend",
+        "index": 10,
+        "host": "FrontendViewport",
+        "frame": "FrontendViewportFrame"
+      },
+      {
+        "name": "Screen_GameplayMenu",
+        "index": 11,
+        "host": "GameplayMenuViewport",
+        "frame": "GameplayMenuViewportFrame"
+      }
+    ],
+    "hostDefaults": {
+      "anchors": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "offsets": [
+        32,
+        32,
+        32,
+        32
+      ],
+      "minDesiredHeight": 1016,
+      "minDesiredWidth": 1856,
+      "horizontalSuffix": "Horizontal",
+      "contentSuffix": "Content",
+      "viewHAlign": "HAlign_Left",
+      "viewVAlign": "VAlign_Center"
+    }
+  },
+  "script": "import json\nBP={\"refPath\":\"/Game/Gameplay/UI/V2/WBP_UIRoot.WBP_UIRoot\"}\nASSET=\"/Game/Gameplay/UI/V2/WBP_UIRoot\"\nU=\"UMGToolSet.UMGToolSet.\"\nO=\"editor_toolset.toolsets.object.ObjectTools.\"\nA=\"editor_toolset.toolsets.asset.AssetTools.\"\nBASE_PAGES=[\"Screen_Menu\",\"Screen_Gameplay\",\"Screen_Hub\",\"Screen_Wardrobe\",\"Screen_Boosters\",\"Screen_Tools\",\"Screen_Perks\",\"Screen_Settings\",\"Screen_Team\"]\nNEW_PAGES=[(9,\"Screen_Reward\"),(10,\"Screen_Frontend\"),(11,\"Screen_GameplayMenu\")]\nVIEWS=[\n    (\"Screen_Reward\",\"RewardViewport\",\"RewardViewportFrame\",\"UnifiedReward\",\"/Game/Gameplay/UI/V2/WBP_UIReward.WBP_UIReward_C\"),\n    (\"Screen_Frontend\",\"FrontendViewport\",\"FrontendViewportFrame\",\"UnifiedFrontend\",\"/Game/Gameplay/UI/V2/WBP_UIFrontend.WBP_UIFrontend_C\"),\n    (\"Screen_GameplayMenu\",\"GameplayMenuViewport\",\"GameplayMenuViewportFrame\",\"UnifiedGameplayMenu\",\"/Game/Gameplay/UI/V2/WBP_UIGameplayMenu.WBP_UIGameplayMenu_C\"),\n]\ndef call(name,params):\n    result=execute_tool(name,json.dumps(params))\n    assert \"returnValue\" in result,(name,result)\n    return result[\"returnValue\"]\ndef ref(value):return value[\"refPath\"] if isinstance(value,dict) else value\n\ndef tree():return call(U+\"GetWidgets\",{\"widgetBlueprint\":BP})\ndef update(obj,desired):\n    schema=json.loads(call(O+\"list_properties\",{\"instance\":obj}))\n    normalize=lambda value:value.lower().replace(\"_\",\"\")\n    values={}\n    for wanted,value in desired.items():\n        key=next((key for key in schema if normalize(key)==normalize(wanted)),None)\n        assert key,(wanted,list(schema))\n        values[key]=value\n        if wanted.endswith(\"DesiredHeight\") or wanted.endswith(\"DesiredWidth\"):\n            flag=next((key for key in schema if normalize(key)==normalize(\"bOverride\"+wanted)),None)\n            assert flag,(wanted,\"Missing SizeBox override flag\")\n            values[flag]=True\n    call(O+\"get_properties\",{\"instance\":obj,\"properties\":list(values)})\n    assert call(O+\"set_properties\",{\"instance\":obj,\"values\":json.dumps(values)})\ndef run():\n    # Run editor_preflight_python immediately before this script. The Programmatic\n    # sandbox cannot import unreal; it can independently guard the target package.\n    assert not call(A+\"is_dirty\",{\"asset_path\":ASSET}),\"Preserve an unsaved root Blueprint\"\n    initial=tree()\n    d={widget[\"widgetName\"]:widget for widget in initial[\"widgets\"]}\n    assert len(d)==len(initial[\"widgets\"]),\"Ambiguous existing widget names\"\n    assert \"InterfaceScreens\" in d and \"Screen_Hub\" in d\n    assert ref(d[\"InterfaceScreens\"][\"widgetClassPath\"])==\"/Script/UMG.WidgetSwitcher\"\n    assert ref(d[\"Screen_Hub\"][\"widgetClassPath\"])==\"/Script/UMG.CanvasPanel\"\n    switcher=d[\"InterfaceScreens\"][\"widget\"]\n    siblings=[widget[\"widgetName\"] for widget in initial[\"widgets\"] if ref(widget[\"parent\"])==ref(switcher)]\n    assert siblings[:len(BASE_PAGES)]==BASE_PAGES,(\"Preserve existing page order\",siblings)\n    # Validate every existing target before any mutation. No remove/move/rebuild calls.\n    expected=[(\"UnifiedHub\",\"/Game/Gameplay/UI/V2/WBP_UIHub.WBP_UIHub_C\",\"Screen_Hub\")]\n    expected += [(name,\"/Script/UMG.CanvasPanel\",\"InterfaceScreens\") for _,name in NEW_PAGES]\n    for page,host,frame,view,cls in VIEWS:\n        expected += [(host,\"/Script/UMG.ScrollBox\",page),(frame,\"/Script/UMG.SizeBox\",host),\n                     (host+\"Horizontal\",\"/Script/UMG.ScrollBox\",frame),(host+\"Content\",\"/Script/UMG.SizeBox\",host+\"Horizontal\"),(view,cls,host+\"Content\")]\n    for name,cls,parent in expected:\n        if name in d:\n            assert parent in d,(\"Preserve a detached/conflicting branch\",name,parent)\n            assert ref(d[name][\"widgetClassPath\"])==cls,(\"Preserve unrelated widget class\",name,d[name][\"widgetClassPath\"])\n            assert ref(d[name][\"parent\"])==ref(d[parent][\"widget\"]),(\"Preserve authored hierarchy\",name,parent)\n    simulated=list(siblings)\n    for index,page in NEW_PAGES:\n        if page in d:\n            assert len(simulated)>index and simulated[index]==page,(\"Unexpected existing page index\",index,page,simulated)\n        else:\n            assert len(simulated)==index,(\"Cannot append without reordering existing pages\",index,page,simulated)\n            simulated.append(page)\n    created=[]\n    preserved=[]\n    def ensure(cls,name,parent,index=-1):\n        if name in d:\n            preserved.append(name)\n            return d[name],False\n        item=call(U+\"AddWidget\",{\"widgetBlueprint\":BP,\"widgetClass\":{\"refPath\":cls},\"widgetDisplayName\":name,\"parentWidget\":d[parent][\"widget\"],\"childIndex\":index})\n        assert item and item[\"widgetName\"]==name,(\"Widget was not appended with the expected identity\",name,item)\n        assert ref(item[\"parent\"])==ref(d[parent][\"widget\"]),(\"Unexpected new parent\",name,item)\n        d[name]=item\n        created.append(name)\n        return item,True\n    for index,page in NEW_PAGES:\n        ensure(\"/Script/UMG.CanvasPanel\",page,\"InterfaceScreens\",index)\n    hub,is_new=ensure(\"/Game/Gameplay/UI/V2/WBP_UIHub.WBP_UIHub_C\",\"UnifiedHub\",\"Screen_Hub\")\n    if is_new:\n        update(hub[\"widget\"],{\"visibility\":\"SelfHitTestInvisible\"})\n        update(hub[\"slot\"],{\"layoutData\":{\"offsets\":{\"left\":0,\"top\":0,\"right\":0,\"bottom\":0},\"anchors\":{\"minimum\":{\"x\":0,\"y\":0},\"maximum\":{\"x\":1,\"y\":1}},\"alignment\":{\"x\":0,\"y\":0}},\"bAutoSize\":False})\n    for page,host,frame,view,cls in VIEWS:\n        viewport,new_host=ensure(\"/Script/UMG.ScrollBox\",host,page)\n        bounds,new_frame=ensure(\"/Script/UMG.SizeBox\",frame,host)\n        across,new_across=ensure(\"/Script/UMG.ScrollBox\",host+\"Horizontal\",frame)\n        width,new_width=ensure(\"/Script/UMG.SizeBox\",host+\"Content\",host+\"Horizontal\")\n        component,new_view=ensure(cls,view,host+\"Content\")\n        if new_across:update(across[\"widget\"],{\"orientation\":\"Orient_Horizontal\",\"scrollBarVisibility\":\"Collapsed\",\"scrollWhenFocusChanges\":\"InstantScroll\"})\n        if new_width:update(width[\"widget\"],{\"minDesiredWidth\":1856})\n        if new_host:\n            update(viewport[\"widget\"],{\"scrollBarVisibility\":\"Collapsed\",\"scrollWhenFocusChanges\":\"InstantScroll\"})\n            update(viewport[\"slot\"],{\"layoutData\":{\"offsets\":{\"left\":32,\"top\":32,\"right\":32,\"bottom\":32},\"anchors\":{\"minimum\":{\"x\":0,\"y\":0},\"maximum\":{\"x\":1,\"y\":1}},\"alignment\":{\"x\":0,\"y\":0}},\"bAutoSize\":False})\n        if new_frame:\n            update(bounds[\"widget\"],{\"minDesiredHeight\":1016})\n            update(bounds[\"slot\"],{\"horizontalAlignment\":\"HAlign_Fill\"})\n        if new_view:update(component[\"slot\"],{\"horizontalAlignment\":\"HAlign_Left\",\"verticalAlignment\":\"VAlign_Center\"})\n    assert call(U+\"CompileWidgetBlueprint\",{\"widgetBlueprint\":BP})\n    assert call(A+\"save_assets\",{\"asset_paths\":[ASSET]})\n    final=tree()\n    final_siblings=[widget[\"widgetName\"] for widget in final[\"widgets\"] if ref(widget[\"parent\"])==ref(switcher)]\n    assert final_siblings[:12]==BASE_PAGES+[page for _,page in NEW_PAGES],final_siblings\n    final_by_name={widget[\"widgetName\"]:widget for widget in final[\"widgets\"]}\n    assert all(name in final_by_name for name in d),\"Existing root widget was lost\"\n    return {\"saved\":True,\"created\":created,\"existingTargetsPreserved\":preserved,\"pageIndices\":{page:index for index,page in NEW_PAGES},\n            \"hub\":\"Screen_Hub/UnifiedHub; full canvas anchors with zero offsets\",\"info\":final[\"info\"],\n            \"policy\":\"Append only; existing class, hierarchy and page indices checked; existing properties untouched.\"}",
+  "text_policy": "Editable shapes and authored font sizes; native host overflow scrolls rather than shrinking text. Runtime viewport sizing remains owned by current MCUnifiedUIWidget geometry updates.",
+  "reportDirectory": "E:/CodexWork/MessControl/Validation/UIHubReward_20261104",
+  "authoringReport": "E:/CodexWork/MessControl/Validation/UIHubReward_20261104/Authoring.json",
+  "review": "This prepares authoring only. Root saved-data roundtrip, GC, focus/F3 and runtime/visual validation are not claimed."
+}
