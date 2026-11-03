@@ -14,6 +14,9 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Curves/CurveFloat.h"
 #include "ProceduralMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "GameFramework/WorldSettings.h"
+#include "Misc/ScopeExit.h"
 #include "UObject/Package.h"
 
 namespace MCNativePresentationTests
@@ -192,6 +195,10 @@ bool FMCNativePrewarmRebuildStability::RunTest(const FString&)
     auto* Snapshot=First->Snapshot.Get();const int32 ResourceCount=Loading->RetainedAssets.Num();
     const int32 WarmupCount=Loading->WarmupComponents.Num();
     for(int32 Pass=0;Pass<3;++Pass) {
+        TestTrue(TEXT("Waiting in the same epoch reuses submitted native factories"),Loading->PrepareNativeStylesForLocation(Error));
+        TestEqual(TEXT("An unchanged preparation does not duplicate native factories"),Loading->WarmupComponents.Num(),WarmupCount);
+    }
+    for(int32 Pass=0;Pass<3;++Pass) {
         // This is the existing rendering rebuild lifecycle, which retains the
         // location assets/cache while destroying previous warmup components.
         Loading->ReleaseWarmupComponents();
@@ -202,6 +209,58 @@ bool FMCNativePrewarmRebuildStability::RunTest(const FString&)
         TestEqual(TEXT("Rebuilding does not retain duplicate materials/curves/snapshots"),Loading->RetainedAssets.Num(),ResourceCount);
         TestEqual(TEXT("Only one bounded set of procedural warmup factories exists"),Loading->WarmupComponents.Num(),WarmupCount);
     }
-    Loading->ReleaseWarmupComponents();return true;
+    Loading->ReleaseWarmupComponents();
+    // Render-plan ownership regression only. This supplies an already-built
+    // plan flag; it does not bypass or certify the real map rendering barrier.
+    UWorld* PlanWorld=UWorld::CreateWorld(EWorldType::EditorPreview,false);
+    GEngine->CreateNewWorldContext(EWorldType::EditorPreview).SetCurrentWorld(PlanWorld);
+    ON_SCOPE_EXIT { GEngine->DestroyWorldContext(PlanWorld);PlanWorld->DestroyWorld(false); };
+    auto* Plan=NewObject<UMCWorldPreloadSubsystem>(PlanWorld);
+    Plan->SettleWorldAndRefreshManifest(); // Capture the real initial world.
+    Plan->bRenderingWorkBuilt=true;
+    Plan->SettleWorldAndRefreshManifest();Plan->SettleWorldAndRefreshManifest();
+    if(!TestTrue(TEXT("Fixture snapshot reaches world stability without a fake Ready phase"),Plan->bRenderingWorkBuilt&&Plan->StableWorldFrames>=3))return false;
+    Plan->NextWarmupRequest=7;Plan->bStreamingTargetsBuilt=true;
+    // Both native procedural factories (WorldSettings outer) and ordinary
+    // subsystem-outer warmup factories are real registered components.
+    auto* NativeFactory=NewObject<UProceduralMeshComponent>(PlanWorld->GetWorldSettings(),NAME_None,RF_Transient);
+    Plan->WarmupComponents.Add(NativeFactory);NativeFactory->RegisterComponentWithWorld(PlanWorld);
+    auto* StaticFactory=NewObject<UStaticMeshComponent>(Plan,NAME_None,RF_Transient);
+    Plan->WarmupComponents.Add(StaticFactory);StaticFactory->RegisterComponentWithWorld(PlanWorld);
+    TestTrue(TEXT("Actual owned warmups do not invalidate their own completed plan"),Plan->SettleWorldAndRefreshManifest());
+    TestTrue(TEXT("Owned warmups survive settling until their actual release"),NativeFactory->IsRegistered()&&StaticFactory->IsRegistered());
+    TestEqual(TEXT("Owned warmup creation does not rewind queue progress"),Plan->NextWarmupRequest,7);
+    TestTrue(TEXT("Owned warmup creation preserves streaming plan"),Plan->bStreamingTargetsBuilt);
+    Plan->ReleaseWarmupComponents();
+    TestTrue(TEXT("Destroying only owned warmups also preserves the source snapshot"),Plan->SettleWorldAndRefreshManifest());
+    TestTrue(TEXT("Owned warmup release preserves the render-plan epoch"),Plan->bRenderingWorkBuilt);
+    auto* RealActor=PlanWorld->SpawnActor<AActor>();
+    RealActor->SetFlags(RF_Transient);RealActor->SetActorHiddenInGame(true);
+    Plan->bRenderingWorkBuilt=true;
+    Plan->SettleWorldAndRefreshManifest();
+    TestFalse(TEXT("A real newly spawned actor invalidates the plan even when transient and hidden"),Plan->bRenderingWorkBuilt);
+    Plan->bRenderingWorkBuilt=true;
+    Plan->SettleWorldAndRefreshManifest();Plan->SettleWorldAndRefreshManifest();
+    auto AddRealComponent=[&]() {
+        auto* C=NewObject<UProceduralMeshComponent>(RealActor,NAME_None,RF_Transient);
+        RealActor->AddInstanceComponent(C);C->SetVisibility(false);C->RegisterComponentWithWorld(PlanWorld);return C;
+    };
+    auto* RealComponent=AddRealComponent();
+    Plan->bRenderingWorkBuilt=true;
+    Plan->SettleWorldAndRefreshManifest();
+    TestFalse(TEXT("A genuine registered component on an unchanged actor requires fresh enrollment"),Plan->bRenderingWorkBuilt);
+    TestTrue(TEXT("Invalidation never destroys a genuine gameplay component"),RealComponent->IsRegistered());
+    Plan->bRenderingWorkBuilt=true;
+    Plan->SettleWorldAndRefreshManifest();Plan->SettleWorldAndRefreshManifest();
+    RealComponent->DestroyComponent();
+    auto* Replacement=AddRealComponent();
+    Plan->SettleWorldAndRefreshManifest();
+    TestFalse(TEXT("Same-count replacement of a real component cannot reuse stale resource enrollment"),Plan->bRenderingWorkBuilt);
+    TestTrue(TEXT("Replacement remains owned by its real actor"),Replacement->IsRegistered()&&Replacement->GetOwner()==RealActor);
+    Plan->bRenderingWorkBuilt=true;
+    Plan->SettleWorldAndRefreshManifest();Plan->SettleWorldAndRefreshManifest();
+    Replacement->UnregisterComponent();Plan->SettleWorldAndRefreshManifest();
+    TestFalse(TEXT("A real component unregister invalidates the previous registered set"),Plan->bRenderingWorkBuilt);
+    return true;
 }
 #endif

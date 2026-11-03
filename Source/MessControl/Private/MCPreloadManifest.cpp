@@ -4,6 +4,7 @@
 
 #include "MCPreloadSettings.h"
 #include "MCGameMode.h"
+#include "MCGameDirector.h"
 #include "MCGameState.h"
 #include "MCHubGameState.h"
 #include "MCSingleDayDirector.h"
@@ -206,7 +207,13 @@ public:
         }
         if(auto* Table=Cast<UDataTable>(Value)) {
             if(const auto* RowStruct=Table->GetRowStruct())
-                for(const auto& Row:Table->GetRowMap()) Struct(RowStruct,Row.Value,Value,Depth+1);
+                for(const auto& Row:Table->GetRowMap()) {
+                    // Runtime prepares available boosters, not retired catalog
+                    // experiments. Editor/index discovery (no Location) stays complete.
+                    if(Location && RowStruct==FMCPerkDefinition::StaticStruct()
+                        && !reinterpret_cast<const FMCPerkDefinition*>(Row.Value)->bEnabled)continue;
+                    Struct(RowStruct,Row.Value,Value,Depth+1);
+                }
         }
         // Emitter/renderer subobjects are not DataAssets. Follow their actual
         // authored render resources explicitly, including material overrides,
@@ -238,11 +245,39 @@ public:
         Struct(Value->GetClass(),Value,Value,Depth+1);
     }
 private:
+    bool PropertyMayContainReference(const FProperty* Prop)
+    {
+        if(!Prop || Prop->HasAnyPropertyFlags(CPF_Deprecated|CPF_EditorOnly|CPF_Transient))return false;
+        if(const bool* Known=ReferenceProperties.Find(Prop))return *Known;
+        // A recursive reflected type is conservatively reference-bearing until
+        // resolved. Never prune a possible object/soft-object dependency cycle.
+        ReferenceProperties.Add(Prop,true);
+        bool Result=Prop->IsA<FSoftObjectProperty>() || Prop->IsA<FObjectPropertyBase>();
+        if(const auto* Structure=CastField<FStructProperty>(Prop)) {
+            for(TFieldIterator<FProperty> It(Structure->Struct);It;++It)
+                if(PropertyMayContainReference(*It)){Result=true;break;}
+        }
+        else if(const auto* Array=CastField<FArrayProperty>(Prop))Result=PropertyMayContainReference(Array->Inner);
+        else if(const auto* Map=CastField<FMapProperty>(Prop))
+            Result=PropertyMayContainReference(Map->KeyProp)||PropertyMayContainReference(Map->ValueProp);
+        else if(const auto* Set=CastField<FSetProperty>(Prop))Result=PropertyMayContainReference(Set->ElementProp);
+        ReferenceProperties[Prop]=Result;return Result;
+    }
     void Struct(const UStruct* Type,const void* Data,UObject* Owner,int32 Depth)
     {
         if(!Type || !Data || Depth>24) return;
         for(TFieldIterator<FProperty> It(Type);It;++It) {
-            if(It->HasAnyPropertyFlags(CPF_Deprecated|CPF_EditorOnly|CPF_Transient)) continue;
+            if(!PropertyMayContainReference(*It))continue;
+            if(const auto* Mode=Cast<AMCGameMode>(Owner);Location && Mode) {
+                const FName Field=It->GetFName();
+                if(Mode->bUseSingleDayLoop && Field==TEXT("EventPool"))continue;
+                if(!Mode->bUseSingleDayLoop && Field==TEXT("SingleDayProfile"))continue;
+                const auto* State=Location->GetGameState<AMCGameState>();
+                if(Mode->bUseSingleDayLoop && State && State->SingleDayDirector
+                    && State->SingleDayDirector->GetRunProfile() && State->SingleDayDirector->GetSupportProfile()
+                    && (Field==TEXT("SingleDayProfile") || Field==TEXT("DirectorProfile")))continue;
+                // FirstDayPlan also supplies the real single-day run. Keep it.
+            }
             if(const auto* Library=Cast<UMCVFXPresentationLibrary>(Owner);Location&&Library&&It->GetFName()==TEXT("Profiles")
                 &&Library->GetPathName()==MCVFXSourceContracts::WorldLibraryPath().ToString()) {
                 for(const auto& Pair:Library->Profiles)
@@ -297,6 +332,7 @@ private:
         }
     }
     TSet<const UObject*> Visited;
+    TMap<const FProperty*,bool> ReferenceProperties;
     TArray<FSoftObjectPath>& Out;
     UWorld* Location=nullptr;
     FString* AudioError=nullptr;
@@ -425,13 +461,20 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
     if(Mode) Collector.Object(const_cast<AMCGameMode*>(Mode));
     if(State && State->DayPlan) Collector.Object(State->DayPlan);
     else if(!Mode || Mode->FirstDayPlan.IsNull()) AddAsset(TEXT("/Game/Data/DA_Day01"),OutPaths);
-    FMCHubDestinationRow Destination;
-    const int32 SelectedDay=FCString::Atoi(World->URL.GetOption(TEXT("MCHubDay="),TEXT("1")));
-    if(AMCHubGameState::ResolveAuthoredDestination(SelectedDay,Destination) && Destination.bEnabled)
-        AddPath(Destination.SingleDayProfile.ToSoftObjectPath(),OutPaths);
-    else AddAsset(TEXT("/Game/Gameplay/CoreLoop/DA_SingleDay"),OutPaths);
+    const auto* SelectedDirector=State?State->SingleDayDirector.Get():nullptr;
+    if(SelectedDirector && SelectedDirector->GetRunProfile() && SelectedDirector->GetSupportProfile()) {
+        Collector.Object(const_cast<UMCSingleDayProfile*>(SelectedDirector->GetRunProfile()));
+        Collector.Object(const_cast<UMCGameDirectorProfile*>(SelectedDirector->GetSupportProfile()));
+    }
+    else if(!Mode || Mode->bUseSingleDayLoop) {
+        FMCHubDestinationRow Destination;
+        const int32 SelectedDay=FCString::Atoi(World->URL.GetOption(TEXT("MCHubDay="),TEXT("1")));
+        if(AMCHubGameState::ResolveAuthoredDestination(SelectedDay,Destination) && Destination.bEnabled)
+            AddPath(Destination.SingleDayProfile.ToSoftObjectPath(),OutPaths);
+        else AddAsset(TEXT("/Game/Gameplay/CoreLoop/DA_SingleDay"),OutPaths);
+        AddAsset(TEXT("/Game/Gameplay/CoreLoop/DA_SingleDayDirector"),OutPaths);
+    }
     for(const TCHAR* Root:{
-        TEXT("/Game/Gameplay/CoreLoop/DA_SingleDayDirector"),
         TEXT("/Game/Gameplay/CoreLoop/DA_NutRain"),
         TEXT("/Game/Data/DA_PlayerAppearance"),TEXT("/Game/Data/DA_Equipment"),
         TEXT("/Game/Data/DA_ToothAnimation"),TEXT("/Game/Data/DA_ArenaTooth"),

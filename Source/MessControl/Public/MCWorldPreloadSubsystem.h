@@ -133,6 +133,8 @@ private:
         TWeakObjectPtr<UObject> Mesh;
         TWeakObjectPtr<UMaterialInterface> Material;
         bool bInstanced = false;
+        bool operator==(const FWarmupRequest& Other) const
+        { return Mesh==Other.Mesh && Material==Other.Material && bInstanced==Other.bInstanced; }
     };
 
     struct FStreamingTarget
@@ -162,6 +164,9 @@ private:
     bool TickEventAudioReadiness();
     bool IsEventAudioOutputAvailable() const;
     void ProcessRenderingWork();
+    void EnqueueRenderingWarmup(UObject* Mesh,UMaterialInterface* Material=nullptr,bool bInstanced=false);
+    void CaptureWorldEnrollment(TSet<TWeakObjectPtr<AActor>>& Actors,
+        TSet<TWeakObjectPtr<UPrimitiveComponent>>& Primitives) const;
     bool SettleWorldAndRefreshManifest();
     bool IsWorldStreamingReady() const;
     void BuildStreamingTargets();
@@ -209,6 +214,10 @@ private:
 
     UPROPERTY(Transient)
     TArray<TObjectPtr<UPrimitiveComponent>> WarmupComponents;
+    TSet<TWeakObjectPtr<UMaterialInterface>> NativeWarmupMaterials;
+    TSet<TWeakObjectPtr<AActor>> ObservedActors;
+    TSet<TWeakObjectPtr<UPrimitiveComponent>> ObservedPrimitives;
+    double LastWarmupPumpAt=0;
 
     TWeakObjectPtr<APlayerController> Controller;
     TArray<TWeakObjectPtr<UPrimitiveComponent>> WorldPrimitives;

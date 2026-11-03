@@ -71,7 +71,7 @@ namespace
 {
 constexpr int32 MaxDependencyWaves = 32;
 constexpr int32 MaxManifestPaths = 4096;
-constexpr int32 WarmupRequestsPerTick = 4;
+constexpr int32 MaxWarmupRequestsPerPump = 128;
 constexpr int32 RequiredStableRenderFrames = 3;
 #if WITH_EDITOR
 constexpr double RequiredEditorQuietSeconds = 1.;
@@ -233,6 +233,7 @@ void UMCWorldPreloadSubsystem::ReleaseWarmupComponents()
     for (UPrimitiveComponent* Component : WarmupComponents)
         if (IsValid(Component)) Component->DestroyComponent();
     WarmupComponents.Reset();
+    NativeWarmupMaterials.Reset();
     WorldPrimitives.Reset();
     WarmupRequests.Reset();
     Materials.Reset();
@@ -282,6 +283,7 @@ void UMCWorldPreloadSubsystem::ResetPreparation()
     ObservedWorldActors = -1;
     ObservedWorldPrimitives = -1;
     ObservedWorldLevels = -1;
+    ObservedActors.Reset();ObservedPrimitives.Reset();LastWarmupPumpAt=0;
     bRenderingWorkBuilt = false;
     bStreamingTargetsBuilt = false;
     FailureReason = FText::GetEmpty();
@@ -472,6 +474,14 @@ bool UMCWorldPreloadSubsystem::PrepareFreezeHeroResources(bool Required,FString&
 
 void UMCWorldPreloadSubsystem::BuildRenderingWork()
 {
+    const double BuildStarted=FPlatformTime::Seconds();
+    double StageStarted=BuildStarted;
+    auto LogStage=[&](const TCHAR* Stage) {
+        const double Now=FPlatformTime::Seconds();
+        UE_LOG(LogMCWorldPreload,Log,TEXT("MC_PRELOAD_STAGE world=%s stage=%s seconds=%.3f"),
+            *GetNameSafe(GetWorld()),Stage,Now-StageStarted);
+        StageStarted=Now;
+    };
     bool bIceRequired=false,bIceWaiting=false;
     if(!ResolveIcePreparationScope(bIceRequired,bIceWaiting))return;
     if(bIceWaiting){bRenderingWorkBuilt=false;ResetRenderReadiness();return;}
@@ -488,13 +498,16 @@ void UMCWorldPreloadSubsystem::BuildRenderingWork()
         River->GetResources(Resources);for(auto* Object:Resources)RetainedAssets.AddUnique(Object);
     }
     bRenderingWorkBuilt = true;
+    LogStage(TEXT("River"));
     FString NativeError;
     if(!PrepareNativeStylesForLocation(NativeError)) {
         Fail(LoadingText(TEXT("Loading_NativeArtFailed"),TEXT("Не удалось подготовить оформление эффектов"),TEXT("Unable to prepare effect appearance")),NativeError);return;
     }
+    LogStage(TEXT("NativeStyles"));
     if(bIceRequired&&!bIcePresentationConsumed&&!CreateIcePresentationOwner(NativeError)) {
         Fail(LoadingText(TEXT("Loading_IcePresentationFailed"),TEXT("Не удалось подготовить ледяное событие"),TEXT("Unable to prepare Ice presentation")),NativeError);return;
     }
+    LogStage(TEXT("IceOwner"));
     // The finite location libraries have completed their reflected load waves.
     // Retry existing producers now, never synchronously from their first hit/use.
     for(TActorIterator<AActor> It(GetWorld());It;++It) {
@@ -507,36 +520,48 @@ void UMCWorldPreloadSubsystem::BuildRenderingWork()
             }
         }
     }
+    LogStage(TEXT("WorldSources"));
     if(!PrepareFreezeHeroSources(bIceRequired,NativeError)) {
         Fail(LoadingText(TEXT("Loading_FreezeSourceFailed"),TEXT("Не подготовлен источник ледяной смерти"),TEXT("Freeze source preparation failed")),NativeError);return;
     }
+    LogStage(TEXT("FreezeSources"));
     if(auto* River=GetWorld()->GetSubsystem<UMCCoffeeRiverPresentationResources>()) {
         TArray<TPair<UNiagaraSystem*,UMaterialInterface*>> Work;River->GetWarmups(Work);
-        for(const auto& Pair:Work){auto& Request=WarmupRequests.AddDefaulted_GetRef();Request.Mesh=Pair.Key;Request.Material=Pair.Value;}
+        for(const auto& Pair:Work)EnqueueRenderingWarmup(Pair.Key,Pair.Value);
     }
     TSet<UMaterialInterface*> NiagaraRendererMaterials;
     if(!PrepareLocationMaterialContexts(NativeError)) {
         Fail(LoadingText(TEXT("Loading_MaterialContextFailed"),TEXT("Не удалось подготовить контекст материалов"),
             TEXT("Unable to prepare material contexts")),NativeError);return;
     }
+    LogStage(TEXT("PrepareContexts"));
     bool ContextWaiting=false;
     if(!PollMaterialContextReadiness(ContextWaiting,NativeError)) {
         Fail(LoadingText(TEXT("Loading_FreezeContextFailed"),TEXT("Не подготовлен контекст ледяной смерти"),TEXT("Freeze material context preparation failed")),NativeError);return;
     }
-    if(ContextWaiting){ReleaseWarmupComponents();NextWarmupRequest=0;bRenderingWorkBuilt=false;return;} // Existing context seals before owned players consume it.
+    LogStage(TEXT("PollContexts"));
+    if(ContextWaiting){bRenderingWorkBuilt=false;return;} // Keep submitted factories while the actual context seals.
     if(MaterialContexts&&!MaterialContexts->IsSealed()&&!MaterialContexts->SealResources(NativeError)) {
         Fail(LoadingText(TEXT("Loading_FreezeContextSealFailed"),TEXT("Не завершена подготовка контекста ледяной смерти"),TEXT("Freeze context sealing failed")),NativeError);return;
     }
     if(!PrepareFreezeHeroResources(bIceRequired,NativeError)) {
         Fail(LoadingText(TEXT("Loading_FreezeOwnerFailed"),TEXT("Не подготовлен настоящий зубик для ледяной смерти"),TEXT("Actual Freeze owner preparation failed")),NativeError);return;
     }
+    LogStage(TEXT("PresentationContexts"));
+    WorldPrimitives.Reset();Materials.Reset();
+    // Enroll the actual owners created above, before collecting their resources.
+    // Later gameplay changes still invalidate this snapshot. Our disposable
+    // proxies are excluded by exact ownership, never by hidden/transient flags.
+    CaptureWorldEnrollment(ObservedActors,ObservedPrimitives);
+    ObservedWorldActors=ObservedActors.Num();ObservedWorldPrimitives=ObservedPrimitives.Num();
+    ObservedWorldLevels=GetWorld()->GetNumLevels();
     TArray<UPrimitiveComponent*> Primitives;
     const FVector ViewLocation = Controller.IsValid() ? Controller->GetFocalLocation() : FVector::ZeroVector;
     for (TActorIterator<AActor> It(GetWorld()); It; ++It)
     {
         TInlineComponentArray<UPrimitiveComponent*> Components(*It);
         for (UPrimitiveComponent* Component : Components)
-            if (IsValid(Component) && Component->IsRegistered()) Primitives.Add(Component);
+            if (IsValid(Component) && Component->IsRegistered() && !WarmupComponents.Contains(Component)) Primitives.Add(Component);
     }
     Primitives.Sort([ViewLocation](const UPrimitiveComponent& A, const UPrimitiveComponent& B)
     {
@@ -563,16 +588,14 @@ void UMCWorldPreloadSubsystem::BuildRenderingWork()
         if (UStaticMesh* Mesh = Cast<UStaticMesh>(Object))
         {
             if (!RepresentativeStatic || Mesh->GetPathName() == TEXT("/Engine/BasicShapes/Plane.Plane")) RepresentativeStatic = Mesh;
-            FWarmupRequest& Request = WarmupRequests.AddDefaulted_GetRef();
-            Request.Mesh = Mesh;
+            EnqueueRenderingWarmup(Mesh);
             for (const FStaticMaterial& Slot : Mesh->GetStaticMaterials())
                 if (Slot.MaterialInterface) Materials.AddUnique(Slot.MaterialInterface);
         }
         else if (USkeletalMesh* SkeletalAsset = Cast<USkeletalMesh>(Object))
         {
             if (!RepresentativeSkeletal) RepresentativeSkeletal = SkeletalAsset;
-            FWarmupRequest& Request = WarmupRequests.AddDefaulted_GetRef();
-            Request.Mesh = SkeletalAsset;
+            EnqueueRenderingWarmup(SkeletalAsset);
             for (const FSkeletalMaterial& Slot : SkeletalAsset->GetMaterials())
                 if (Slot.MaterialInterface) Materials.AddUnique(Slot.MaterialInterface);
         }
@@ -607,8 +630,7 @@ void UMCWorldPreloadSubsystem::BuildRenderingWork()
 #endif
             // Prepare the Niagara renderer's own vertex factories/PSOs while
             // loading. A static-mesh material proxy alone cannot represent them.
-            FWarmupRequest& Request = WarmupRequests.AddDefaulted_GetRef();
-            Request.Mesh = System;
+            EnqueueRenderingWarmup(System);
         }
     }
     // An explicit material reference may be assigned by a later event rather than
@@ -620,25 +642,20 @@ void UMCWorldPreloadSubsystem::BuildRenderingWork()
         if (!Material || !Material->GetMaterial() || Material->GetMaterial()->MaterialDomain != MD_Surface) continue;
         if (RepresentativeStatic)
         {
-            FWarmupRequest& Request = WarmupRequests.AddDefaulted_GetRef();
-            Request.Mesh = RepresentativeStatic;
-            Request.Material = Material;
+            EnqueueRenderingWarmup(RepresentativeStatic,Material);
             if (Material->GetUsageByFlag(MATUSAGE_InstancedStaticMeshes))
             {
-                FWarmupRequest InstancedRequest = Request;
-                InstancedRequest.bInstanced = true;
-                WarmupRequests.Add(InstancedRequest);
+                EnqueueRenderingWarmup(RepresentativeStatic,Material,true);
             }
         }
         if (RepresentativeSkeletal && Material->GetUsageByFlag(MATUSAGE_SkeletalMesh))
         {
-            FWarmupRequest& Request = WarmupRequests.AddDefaulted_GetRef();
-            Request.Mesh = RepresentativeSkeletal;
-            Request.Material = Material;
+            EnqueueRenderingWarmup(RepresentativeSkeletal,Material);
         }
     }
     UE_LOG(LogMCWorldPreload, Log, TEXT("MC_PRELOAD_RENDER_WORK world=%s primitives=%d previewComponents=%d materials=%d"),
         *GetNameSafe(GetWorld()), WorldPrimitives.Num(), WarmupRequests.Num(), Materials.Num());
+    LogStage(TEXT("ResourceInventory"));
 #if WITH_EDITOR
     // Hidden warmup components do not take the normal first-draw path that
     // submits deferred Editor shader maps. Prepare the finite known arena
@@ -699,12 +716,28 @@ void UMCWorldPreloadSubsystem::BuildRenderingWork()
         }
     }
 #endif
+    LogStage(TEXT("EditorMaterials"));
+    UE_LOG(LogMCWorldPreload,Log,TEXT("MC_PRELOAD_PLAN world=%s seconds=%.3f submitted=%d total=%d"),
+        *GetNameSafe(GetWorld()),FPlatformTime::Seconds()-BuildStarted,NextWarmupRequest,WarmupRequests.Num());
+}
+
+void UMCWorldPreloadSubsystem::EnqueueRenderingWarmup(UObject* Mesh,UMaterialInterface* Material,bool bInstanced)
+{
+    FWarmupRequest Request;Request.Mesh=Mesh;Request.Material=Material;Request.bInstanced=bInstanced;
+    WarmupRequests.AddUnique(Request);
 }
 
 void UMCWorldPreloadSubsystem::ProcessRenderingWork()
 {
-    const int32 StopAt = FMath::Min(NextWarmupRequest + WarmupRequestsPerTick, WarmupRequests.Num());
-    while (NextWarmupRequest < StopAt)
+    const double Started=FPlatformTime::Seconds();
+    // Give a slow/background frame more work without monopolizing a responsive
+    // frame. Always make progress; an individual engine call is not preemptible.
+    const double Interval=LastWarmupPumpAt>0 ? Started-LastWarmupPumpAt : 1./60.;
+    LastWarmupPumpAt=Started;
+    const double Budget=FMath::Clamp(Interval*.2,.002,.020);
+    const int32 First=NextWarmupRequest;
+    const int32 StopAt = FMath::Min(First + MaxWarmupRequestsPerPump, WarmupRequests.Num());
+    while (NextWarmupRequest < StopAt && (NextWarmupRequest==First || FPlatformTime::Seconds()-Started<Budget))
     {
         const FWarmupRequest& Request = WarmupRequests[NextWarmupRequest++];
         UPrimitiveComponent* Component = nullptr;
@@ -750,11 +783,15 @@ void UMCWorldPreloadSubsystem::ProcessRenderingWork()
         Component->PrecachePSOs();
         WarmupComponents.Add(Component);
     }
+    const double Seconds=FPlatformTime::Seconds()-Started;
+    if(Seconds>.050)UE_LOG(LogMCWorldPreload,Log,TEXT("MC_PRELOAD_SLOW_PUMP world=%s seconds=%.3f requests=%d remaining=%d"),
+        *GetNameSafe(GetWorld()),Seconds,NextWarmupRequest-First,WarmupRequests.Num()-NextWarmupRequest);
 }
 
 void UMCWorldPreloadSubsystem::BuildStreamingTargets()
 {
     bStreamingTargetsBuilt = true;
+    StreamingTargets.Reset();ReadyStreamingTargets=0;
     TSet<UStreamableRenderAsset*> Seen;
     int64 RemainingTextures = TextureBudgetBytes;
     int64 RemainingMeshes = MeshBudgetBytes;
@@ -942,6 +979,20 @@ bool UMCWorldPreloadSubsystem::IsWorldStreamingReady() const
     return true;
 }
 
+void UMCWorldPreloadSubsystem::CaptureWorldEnrollment(TSet<TWeakObjectPtr<AActor>>& Actors,
+    TSet<TWeakObjectPtr<UPrimitiveComponent>>& Primitives) const
+{
+    Actors.Reset();Primitives.Reset();
+    TSet<const UPrimitiveComponent*> Owned;
+    for(const UPrimitiveComponent* Component:WarmupComponents)Owned.Add(Component);
+    for(TActorIterator<AActor> It(GetWorld());It;++It) {
+        Actors.Add(*It);
+        TInlineComponentArray<UPrimitiveComponent*> Components(*It);
+        for(const auto* Component:Components)
+            if(IsValid(Component)&&Component->IsRegistered()&&!Owned.Contains(Component))Primitives.Add(const_cast<UPrimitiveComponent*>(Component));
+    }
+}
+
 bool UMCWorldPreloadSubsystem::SettleWorldAndRefreshManifest()
 {
     if (!IsWorldStreamingReady())
@@ -950,27 +1001,22 @@ bool UMCWorldPreloadSubsystem::SettleWorldAndRefreshManifest()
         ResetRenderReadiness();
         return false;
     }
-    int32 Actors = 0;
-    int32 Primitives = 0;
-    for (TActorIterator<AActor> It(GetWorld()); It; ++It)
-    {
-        ++Actors;
-        TInlineComponentArray<UPrimitiveComponent*> Components(*It);
-        for (const UPrimitiveComponent* Component : Components)
-            if (IsValid(Component) && Component->IsRegistered()) ++Primitives;
-    }
+    TSet<TWeakObjectPtr<AActor>> Actors;
+    TSet<TWeakObjectPtr<UPrimitiveComponent>> Primitives;
+    CaptureWorldEnrollment(Actors,Primitives);
     const int32 Levels = GetWorld()->GetNumLevels();
-    if (Actors != ObservedWorldActors || Primitives != ObservedWorldPrimitives || Levels != ObservedWorldLevels)
+    if (!Actors.Includes(ObservedActors) || !ObservedActors.Includes(Actors)
+        || !Primitives.Includes(ObservedPrimitives) || !ObservedPrimitives.Includes(Primitives) || Levels != ObservedWorldLevels)
     {
-        ObservedWorldActors = Actors;
-        ObservedWorldPrimitives = Primitives;
+        ObservedWorldActors = Actors.Num();ObservedActors=MoveTemp(Actors);
+        ObservedWorldPrimitives = Primitives.Num();ObservedPrimitives=MoveTemp(Primitives);
         ObservedWorldLevels = Levels;
         StableWorldFrames = 0;
         ResetRenderReadiness();
         if (bRenderingWorkBuilt)
         {
-            ReleaseWarmupComponents();
-            NextWarmupRequest = 0;
+            // Keep the existing factory submissions. The refreshed inventory
+            // appends missing combinations and all readiness gates run again.
             ReadyStreamingTargets = 0;
             bRenderingWorkBuilt = false;
             bStreamingTargetsBuilt = false;
@@ -1382,6 +1428,7 @@ bool UMCWorldPreloadSubsystem::PrepareNativeStylesForLocation(FString& Error)
         // native effect. Shader/PSO/streaming readiness remains the existing
         // BuildRenderingWork/ProcessRenderingWork/fence quiet protocol.
         for(const auto& Pair:Candidate.MaterialTemplates) {
+            if(NativeWarmupMaterials.Contains(TWeakObjectPtr<UMaterialInterface>(Pair.Value.Get())))continue;
             auto* C=NewObject<UProceduralMeshComponent>(GetWorld()->GetWorldSettings(),NAME_None,RF_Transient);
             C->SetCollisionEnabled(ECollisionEnabled::NoCollision);C->SetCanEverAffectNavigation(false);
             C->SetCastShadow(false);C->SetMaterial(0,Pair.Value);
@@ -1394,6 +1441,7 @@ bool UMCWorldPreloadSubsystem::PrepareNativeStylesForLocation(FString& Error)
             C->CreateMeshSection_LinearColor(0,V,I,N,UV,Colors,T,false);C->SetVisibility(false);
             C->RegisterComponentWithWorld(GetWorld());C->PrecachePSOs();
             WarmupComponents.Add(C);
+            NativeWarmupMaterials.Add(TWeakObjectPtr<UMaterialInterface>(Pair.Value.Get()));
         }
     }
     return true;
@@ -1585,6 +1633,13 @@ bool UMCWorldPreloadSubsystem::PrepareLocationMaterialContexts(FString& Error)
 
 bool UMCWorldPreloadSubsystem::PollMaterialContextReadiness(bool& bWaiting,FString& Error)
 {
+    double StepStarted=FPlatformTime::Seconds();
+    auto LogStep=[&](const TCHAR* Step,const UObject* Resource=nullptr) {
+        const double Now=FPlatformTime::Seconds();
+        if(Now-StepStarted>.010)UE_LOG(LogMCWorldPreload,Log,TEXT("MC_PRELOAD_CONTEXT_STEP world=%s step=%s resource=%s seconds=%.3f"),
+            *GetNameSafe(GetWorld()),Step,*GetPathNameSafe(Resource),Now-StepStarted);
+        StepStarted=Now;
+    };
     bWaiting=false;Error.Reset();
     if(!IsInGameThread()||!GetWorld()){Error=TEXT("Poll material-context readiness on its live world game thread.");return false;}
     if(ProceduralSurfaceResources) {
@@ -1593,6 +1648,7 @@ bool UMCWorldPreloadSubsystem::PollMaterialContextReadiness(bool& bWaiting,FStri
         TArray<UObject*> Prepared;ProceduralSurfaceResources->GetResources(Prepared);
         for(auto* O:Prepared){RetainedAssets.AddUnique(O);if(auto* M=Cast<UMaterialInterface>(O))Materials.AddUnique(M);}
     }
+    LogStep(TEXT("SurfacePoll"));
     if(!MaterialContexts)return true;
     if(MaterialContexts->IsSealed()) {
         if(MaterialContexts->IsPreparedForEpoch(MaterialContextEpoch))return true;
@@ -1608,6 +1664,7 @@ bool UMCWorldPreloadSubsystem::PollMaterialContextReadiness(bool& bWaiting,FStri
         if(!IsValid(NS.Get())){Error=TEXT("Prepared material-context NS was invalidated.");return false;}
 #if WITH_EDITOR
         NS->PollForCompilationComplete(true);
+        LogStep(TEXT("NiagaraPoll"),NS);
         if(NS->HasOutstandingCompilationRequests(true))bWaiting=true;
 #endif
         if(!NS->IsReadyToRun())bWaiting=true;
@@ -1628,6 +1685,7 @@ bool UMCWorldPreloadSubsystem::PollMaterialContextReadiness(bool& bWaiting,FStri
             bWaiting=true;
         }
     }
+    LogStep(TEXT("ShaderSubmission"));
 #endif
     if(bWaiting){MaterialContextFence.Reset();MaterialContextStableFrames=0;MaterialContextQuietSince=0;return true;}
     TArray<UMaterialInterface*> Overlays;MaterialContexts->GetPreparedOverlayMaterials(Overlays);
@@ -1649,6 +1707,7 @@ bool UMCWorldPreloadSubsystem::PollMaterialContextReadiness(bool& bWaiting,FStri
         }
         FPSOPrecacheParams Base;Target->SetupPrecachePSOParams(Base);
         FMaterialInterfacePSOPrecacheParamsList Original;Target->CollectPSOPrecacheData(Base,Original);
+        LogStep(TEXT("TargetFactory"),Target);
         if(Original.IsEmpty()){Error=TEXT("Supported target returned no real PSO factory data.");return false;}
         FMaterialInterfacePSOPrecacheParamsList Work=Original;
         for(auto* Material:Overlays) {
@@ -1663,6 +1722,7 @@ bool UMCWorldPreloadSubsystem::PollMaterialContextReadiness(bool& bWaiting,FStri
             }
         }
         PrecacheMaterialPSOs(Work,MaterialContextPSORequests,MaterialContextPSOEvents);
+        LogStep(TEXT("TargetPSOs"),Target);
         if(!MaterialContexts->RegisterPreparedTarget(Target,Error))return false;
         MaterialContextQueuedTargets.Add(Target);MaterialContextFence.Reset();MaterialContextStableFrames=0;
     }

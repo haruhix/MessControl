@@ -8,6 +8,12 @@
 #include "MCGameplayUITheme.h"
 #include "MCHubTypes.h"
 #include "MCSingleDayDirector.h"
+#include "MCPerkTypes.h"
+#include "MCPerkVFXProfile.h"
+#include "MCGameMode.h"
+#include "UObject/Package.h"
+#include "ProceduralMeshComponent.h"
+#include "Materials/Material.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/DataTable.h"
 #include "Engine/StaticMesh.h"
@@ -147,6 +153,61 @@ bool FMCPreloadNativeClassDefaultsTest::RunTest(const FString&)
     TestTrue(TEXT("Constructor-defined coffee resources are available before the event spawns"),!Coffee.IsNull() && Paths.Contains(Coffee));
     TestTrue(TEXT("Constructor-defined cola resources are available before the event spawns"),!Cola.IsNull() && Paths.Contains(Cola));
     TestEqual(TEXT("Collecting a class default leaves its menu reference unchanged"),Defaults->Menu.ToSoftObjectPath(),Menu);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPreloadAvailableBoostersTest,
+    "MessControl.Loading.Manifest.AvailableBoostersOnlyAtRuntime",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FMCPreloadAvailableBoostersTest::RunTest(const FString&)
+{
+    auto* Table=NewObject<UDataTable>();Table->RowStruct=FMCPerkDefinition::StaticStruct();
+    const FSoftObjectPath ActiveIcon(TEXT("/Game/Tests/Loading/T_Available.T_Available"));
+    const FSoftObjectPath OldIcon(TEXT("/Game/Tests/Loading/T_Retired.T_Retired"));
+    const FSoftObjectPath ActiveVFX(TEXT("/Game/Tests/Loading/DA_AvailableVFX.DA_AvailableVFX"));
+    const FSoftObjectPath OldVFX(TEXT("/Game/Tests/Loading/DA_RetiredVFX.DA_RetiredVFX"));
+    FMCPerkDefinition Row;Row.bEnabled=true;Row.Icon=TSoftObjectPtr<UTexture2D>(ActiveIcon);
+    Row.VFXProfile=TSoftObjectPtr<UMCPerkVFXProfile>(ActiveVFX);Table->AddRow(TEXT("Available"),Row);
+    Row.bEnabled=false;Row.Icon=TSoftObjectPtr<UTexture2D>(OldIcon);
+    Row.VFXProfile=TSoftObjectPtr<UMCPerkVFXProfile>(OldVFX);Table->AddRow(TEXT("Retired"),Row);
+    auto* Package=CreatePackage(*FString::Printf(TEXT("/Temp/PreloadScope_%s/L_Mouth"),*FGuid::NewGuid().ToString(EGuidFormats::Digits)));
+    UWorld* World=UWorld::CreateWorld(EWorldType::EditorPreview,false,TEXT("L_Mouth"),Package);
+    if(!TestNotNull(TEXT("Scoped location fixture exists"),World))return false;
+    TArray<FSoftObjectPath> Runtime;
+    FMCPreloadManifest::CollectSoftReferences(Table,Runtime,World);
+    TestTrue(TEXT("Available booster icon stays in location coverage"),Runtime.Contains(ActiveIcon));
+    TestTrue(TEXT("Available booster VFX stays in location coverage"),Runtime.Contains(ActiveVFX));
+    TestFalse(TEXT("Retired booster icon does not enter location coverage"),Runtime.Contains(OldIcon));
+    TestFalse(TEXT("Retired booster VFX does not enter location coverage"),Runtime.Contains(OldVFX));
+    TArray<FSoftObjectPath> Catalog;FMCPreloadManifest::CollectSoftReferences(Table,Catalog);
+    TestTrue(TEXT("Editor discovery retains the complete catalog"),Catalog.Contains(ActiveVFX)&&Catalog.Contains(OldVFX));
+    TestNull(TEXT("Discovering available effects never synchronously loads them"),ActiveVFX.ResolveObject());
+    auto* Mode=World->SpawnActor<AMCGameMode>();
+    const FSoftObjectPath Unselected(TEXT("/Game/Tests/Loading/DA_UnselectedRun.DA_UnselectedRun"));
+    Mode->SingleDayProfile=TSoftObjectPtr<UMCSingleDayProfile>(Unselected);Mode->bUseSingleDayLoop=false;
+    TArray<FSoftObjectPath> Legacy;FMCPreloadManifest::CollectSoftReferences(Mode,Legacy,World);
+    TestFalse(TEXT("Legacy mode does not enroll its inactive single-day option"),Legacy.Contains(Unselected));
+    Mode->bUseSingleDayLoop=true;
+    TArray<FSoftObjectPath> SingleDay;FMCPreloadManifest::CollectSoftReferences(Mode,SingleDay,World);
+    TestTrue(TEXT("The selected single-day option remains covered before its director exists"),SingleDay.Contains(Unselected));
+    World->DestroyWorld(false);Package->SetDirtyFlag(false);return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPreloadGeometryReferencePruning,
+    "MessControl.Loading.Manifest.DenseProceduralGeometryKeepsMaterialReferences",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FMCPreloadGeometryReferencePruning::RunTest(const FString&)
+{
+    auto* Component=NewObject<UProceduralMeshComponent>();
+    auto* Material=UMaterial::GetDefaultMaterial(MD_Surface);Component->SetMaterial(0,Material);
+    TArray<FSoftObjectPath> EmptyGeometry;FMCPreloadManifest::CollectSoftReferences(Component,EmptyGeometry);
+    FProcMeshSection Section;Section.ProcVertexBuffer.SetNum(200000);Section.ProcIndexBuffer.SetNumZeroed(600000);
+    Component->SetProcMeshSection(0,Section);
+    const double Started=FPlatformTime::Seconds();
+    TArray<FSoftObjectPath> DenseGeometry;FMCPreloadManifest::CollectSoftReferences(Component,DenseGeometry);
+    AddInfo(FString::Printf(TEXT("Dense geometry reference collection: %.6fs"),FPlatformTime::Seconds()-Started));
+    TestTrue(TEXT("Actual material reference remains discoverable with dense procedural geometry"),DenseGeometry.Contains(FSoftObjectPath(Material)));
+    TestTrue(TEXT("Numeric vertex/index arrays add no dependencies or lose existing ones"),DenseGeometry==EmptyGeometry);
     return true;
 }
 
