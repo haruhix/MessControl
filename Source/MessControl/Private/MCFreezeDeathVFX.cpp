@@ -251,7 +251,8 @@ bool AMCFreezeDeathVFX::PrepareNiagara(AMCToothCharacter* Hero,FGuid Epoch,const
     if(Captured||AnyDefault)PrepareNative(Hero,NativePreparationError); // Failure cannot erase another ordinary event plan.
     if(Captured&&CapturePreparationError.IsEmpty()) {
         if(!bPosePrepared||Geometry)
-            CapturePreparationError=TEXT("Enabled captured body rows lack the prepared actual pose.");
+            CapturePreparationError=!NativePreparationError.IsEmpty()?NativePreparationError:
+                TEXT("Enabled captured body rows lack the prepared actual pose.");
         else {
             Geometry=MakeShared<FMCFreezeCapturedGeometry>();
             if(!Geometry->Prepare(Source->GetMesh(),Epoch,PoseCapture.GetTriangleSlots(),Source->GetMesh()->GetNumMaterials(),CapturePreparationError))Geometry.Reset();

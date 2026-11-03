@@ -1,12 +1,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MCFreezeCaptureLimits.h"
 #include "SkeletalRenderPublic.h"
 
 /** Read-only fatal-freeze capture. Plain CPU data; no asset creation, DI or render resource. */
 namespace MCFreezeDeathSnapshot
 {
-    inline constexpr int32 MaxVertices=32768,MaxTriangles=32768,MaxSlots=8,CellCount=36;
+    inline constexpr int32 MaxVertices=MCFreezeCaptureLimits::MaxVertices,MaxTriangles=MCFreezeCaptureLimits::MaxTriangles,MaxSlots=MCFreezeCaptureLimits::MaxSlots,CellCount=36;
     struct FTriangleIndex {uint32 A=0,B=0,C=0;uint8 Slot=0;};
     /** These are the existing native FShard samples. This code never samples RNG. */
     struct FNativeShard {FVector Home=FVector::ZeroVector,Velocity=FVector::ZeroVector,Spin=FVector::ZeroVector;float Floor=0;};

@@ -1,5 +1,6 @@
 #pragma once
 #include "CoreMinimal.h"
+#include "MCFreezeCaptureLimits.h"
 #include "MCFreezeDeathSnapshot.h"
 
 class UNiagaraComponent;
@@ -16,8 +17,8 @@ struct FNiagaraTypeDefinition;
 class MESSCONTROL_API FMCFreezeCapturedGeometry final
 {
 public:
-    static constexpr int32 MaxTriangles=32768;
-    static constexpr int32 MaxSlots=8;
+    static constexpr int32 MaxTriangles=MCFreezeCaptureLimits::MaxTriangles;
+    static constexpr int32 MaxSlots=MCFreezeCaptureLimits::MaxSlots;
     static constexpr int32 Rows=6;
     static constexpr int32 Cells=36;
     bool Prepare(USkeletalMeshComponent* Source,FGuid Epoch,TConstArrayView<uint8> TriangleSlots,int32 Slots,FString& Error);

@@ -1,12 +1,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MCFreezeCaptureLimits.h"
 #include "SkeletalRenderPublic.h"
 
-/** E-only source proposal, UNBUILT. No UObject/mesh/render-resource creation. */
+/** Prepared CPU pose sampler. No UObject/mesh/render-resource creation at capture. */
 namespace MCPreparedFreezeCapture
 {
-    inline constexpr int32 MaxVertices=32768,MaxBones=512,MaxMorphs=128,MaxMorphDeltas=262144,MaxInfluences=12;
+    inline constexpr int32 MaxVertices=MCFreezeCaptureLimits::MaxVertices,MaxBones=512,MaxMorphs=128,MaxMorphDeltas=MCFreezeCaptureLimits::MaxMorphDeltas,MaxInfluences=12;
     struct FReferenceVertex
     {
         FVector3f Position=FVector3f::ZeroVector;
