@@ -27,6 +27,8 @@ class MESSCONTROL_API UMCFoodBodyComponent : public UBoxComponent
 public:
     UMCFoodBodyComponent();
     void SetCollisionMesh(UStaticMesh* Mesh, FVector ItemScale, UMCFoodCollisionData* Data=nullptr);
+    /** Replace the parent hull with a convex approximation of one sliced half. */
+    bool SetCutCollision(const TArray<FVector>& Vertices);
     virtual void UpdateBodySetup() override;
     virtual FPrimitiveSceneProxy* CreateSceneProxy() override { return nullptr; }
     bool HasMeshCollision() const;
@@ -34,4 +36,5 @@ private:
     UPROPERTY(Transient) TObjectPtr<UStaticMesh> CollisionMesh;
     UPROPERTY(Transient) TObjectPtr<UMCFoodCollisionData> CollisionData;
     FVector CollisionScale=FVector::OneVector;
+    bool bHasCutCollision=false;
 };

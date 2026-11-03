@@ -26,6 +26,8 @@
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "ProceduralMeshComponent.h"
+#include "KismetProceduralMeshLibrary.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "EngineUtils.h"
@@ -352,7 +354,8 @@ bool AMCFoodActor::FindToolContact(const AMCToothCharacter* Hero,float Reach,FHi
 {
     if (IsInActiveContainer() || !IsValid(Hero) || !GripSurface || !GripSurface->GetStaticMesh() || Reach<=0) return false;
     const FVector From=Hero->GetActorLocation(),Forward=Hero->GetActorForwardVector().GetSafeNormal2D();
-    const FBox Bounds=Visual->Bounds.GetBox();
+    const FBox Bounds=bCutVisualReady?Body->Bounds.GetBox():Visual->Bounds.GetBox();
+    UPrimitiveComponent* ContactSurface=bCutVisualReady?static_cast<UPrimitiveComponent*>(Body.Get()):static_cast<UPrimitiveComponent*>(GripSurface.Get());
     if (FVector::DistSquared(From,Bounds.GetClosestPointTo(From))>FMath::Square(Reach)) return false;
     if (Forward.IsNearlyZero()) return false;
     // The downward chop covers several heights. The sphere gives a small amount
@@ -364,7 +367,7 @@ bool AMCFoodActor::FindToolContact(const AMCToothCharacter* Hero,float Reach,FHi
         const FVector Start=From+Forward*Radius+FVector(0,0,Height);
         const FVector End=From+Forward*(Reach-Radius)+FVector(0,0,Height);
         FHitResult Candidate;
-        if (!GripSurface->SweepComponent(Candidate,Start,End,FQuat::Identity,FCollisionShape::MakeSphere(Radius),true)) continue;
+        if (!ContactSurface->SweepComponent(Candidate,Start,End,FQuat::Identity,FCollisionShape::MakeSphere(Radius),!bCutVisualReady)) continue;
         const FVector Offset=Candidate.ImpactPoint-From;
         const double Distance=Offset.SizeSquared();
         if (FVector::DotProduct(Offset,Forward)<-2.f || Distance>FMath::Square(Reach) || Distance>=Best) continue;
@@ -416,9 +419,10 @@ void AMCFoodActor::AwardDelivery()
     // Encounter debris can be cleared without awarding ordinary task credit.
     if(ActorHasTag(TEXT("MCNutRain"))) return;
     if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) {
-        Mode->AwardTaskToPlayerState(LastHandledBy,EMCScoreTask::Food);
-        if(auto* Perks=UMCPerkComponent::ForActor(LastHandledBy);Perks && FoodData.Kind!=EMCFoodKind::ForeignObject) {
-            Perks->NotifyFoodDelivered();
+        for(int32 I=0;I<CutAwardUnits;++I) {
+            Mode->AwardTaskToPlayerState(LastHandledBy,EMCScoreTask::Food);
+            if(auto* Perks=UMCPerkComponent::ForActor(LastHandledBy);Perks && FoodData.Kind!=EMCFoodKind::ForeignObject)
+                Perks->NotifyFoodDelivered();
         }
     }
 }
@@ -681,7 +685,7 @@ void AMCFoodActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
     DOREPLIFETIME(AMCFoodActor,StackCarrier);DOREPLIFETIME(AMCFoodActor,StackPickup);DOREPLIFETIME(AMCFoodActor,ImpactAt);DOREPLIFETIME(AMCFoodActor,ImpactStrength);
     DOREPLIFETIME(AMCFoodActor,ActiveContainer);DOREPLIFETIME(AMCFoodActor,ActiveContainerCarrier);
     DOREPLIFETIME(AMCFoodActor,PullProgress); DOREPLIFETIME(AMCFoodActor,PullDirection); DOREPLIFETIME(AMCFoodActor,Holders);
-    DOREPLIFETIME(AMCFoodActor,ItemMesh); DOREPLIFETIME(AMCFoodActor,FoodData); DOREPLIFETIME(AMCFoodActor,ItemName); DOREPLIFETIME(AMCFoodActor,Health);
+    DOREPLIFETIME(AMCFoodActor,CutPlanes); DOREPLIFETIME(AMCFoodActor,ItemMesh); DOREPLIFETIME(AMCFoodActor,FoodData); DOREPLIFETIME(AMCFoodActor,ItemName); DOREPLIFETIME(AMCFoodActor,Health);
     DOREPLIFETIME(AMCFoodActor,bFragment); DOREPLIFETIME(AMCFoodActor,bBrushTool); DOREPLIFETIME(AMCFoodActor,bSpoiled); DOREPLIFETIME(AMCFoodActor,SpoilAt);
     DOREPLIFETIME(AMCFoodActor,bRiverSwept);
     DOREPLIFETIME(AMCFoodActor,bNutKineticsEnabled);
@@ -1001,6 +1005,7 @@ void AMCFoodActor::OnRep_Item()
     TInlineComponentArray<UPrimitiveComponent*> Colliders(this);
     for (auto* Collider:Colliders) Collider->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
     OnRep_NutKinetics();
+    BuildCutVisual();
 }
 void AMCFoodActor::ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream& Random,bool Fragment)
 {
@@ -1091,9 +1096,12 @@ void AMCFoodActor::EndManualThrowFlight()
     Body->SetLinearDamping(bNutKineticsEnabled?Settings.NutLinearDamping:.7f);
     Body->SetAngularDamping(bNutKineticsEnabled?Settings.NutAngularDamping:2.f);
 }
-bool AMCFoodActor::HitFood(float Damage,FVector Direction,AMCToothCharacter* Worker)
+bool AMCFoodActor::HitFood(float Damage,FVector Direction,AMCToothCharacter* Worker,FVector CutPoint,FVector CutNormal)
 {
-    return ApplyFoodDamage(Damage,Direction,Worker,nullptr,true);
+    PendingCutPoint=CutPoint; PendingCutNormal=CutNormal;
+    const bool Result=ApplyFoodDamage(Damage,Direction,Worker,nullptr,true);
+    PendingCutPoint=PendingCutNormal=FVector::ZeroVector;
+    return Result;
 }
 bool AMCFoodActor::ReceiveActiveSkillImpact(float Damage,FVector Direction,AMCPlayerState* SourcePS)
 {
@@ -1110,6 +1118,8 @@ bool AMCFoodActor::ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharac
     if(Phase==EMCFoodPhase::Stuck) {Phase=EMCFoodPhase::Free;StuckTooth=nullptr;OnRep_Phase();}
     ReactToImpact();
     if(bFragment && FoodData.Kind==EMCFoodKind::Food) {
+        if(!CutPlanes.IsEmpty() && !PendingCutNormal.IsNearlyZero()
+            && SpawnCutFragments(Direction,PendingCutPoint,PendingCutNormal)) { Dispose(); return true; }
         AttendFood();
         if(Body->IsSimulatingPhysics()) Body->AddImpulse(Direction.GetSafeNormal()*120+FVector(0,0,45),NAME_None,true);
         return true; // Small pieces complete on delivery, without another cutting task.
@@ -1126,7 +1136,8 @@ bool AMCFoodActor::ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharac
     if (Health>0) { if(Body->IsSimulatingPhysics()) Body->AddImpulse(Direction.GetSafeNormal()*150+FVector(0,0,60),NAME_None,true); return true; }
     // Breaking whole food leaves small pieces for immediate delivery. Reward
     // the original here only if no fragment could be created.
-    const bool Fragmented=FoodData.Kind==EMCFoodKind::Food && !bFragment && SpawnFragments(Direction);
+    const bool Fragmented=FoodData.Kind==EMCFoodKind::Food && !bFragment &&
+        (SpawnCutFragments(Direction,PendingCutPoint,PendingCutNormal) || SpawnFragments(Direction));
     if(FoodData.Kind==EMCFoodKind::Food && !bDeliveryScored && !Fragmented) {
         bDeliveryScored=true;
         if(Worker || IsValid(SourcePS)) {

@@ -210,6 +210,10 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
         TEXT("/Game/Data/DA_ColdColaLiquid"),
         // These are assigned in event BeginPlay rather than reflected defaults.
         TEXT("/Game/Gameplay/CoreLoop/M_NutEnemyEyes"),
+        // Native selection of opaque cut-surface variants must be warm before the first knife hit.
+        TEXT("/Game/Gameplay/Food/CutMaterials/MI_FoodCut_Cream"),TEXT("/Game/Gameplay/Food/CutMaterials/MI_FoodCut_Orange"),
+        TEXT("/Game/Gameplay/Food/CutMaterials/MI_FoodCut_Tomato"),TEXT("/Game/Gameplay/Food/CutMaterials/MI_FoodCut_Strawberry"),
+        TEXT("/Game/Gameplay/Food/CutMaterials/MI_FoodCut_Green"),
         TEXT("/Game/Gameplay/VFX/M_Reaction"),TEXT("/Game/Gameplay/VFX/M_ReactionSoft"),
         TEXT("/Game/Gameplay/VFX/MI_PassiveGhost"),TEXT("/Game/Gameplay/VFX/MI_PassiveLightning"),
         TEXT("/Game/Gameplay/VFX/MI_PassiveFeedbackSoft"),TEXT("/Game/Gameplay/VFX/MI_PassiveFeedbackGlow"),

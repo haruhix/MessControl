@@ -65,6 +65,8 @@ public:
     bool FootReleased[2]={false,false};
     FVector PreviousMeshLocation=FVector::ZeroVector;
     float ArtistHandAlpha[2]={0,0};
+    float OrdinaryToolFingerAlpha=0;
+    bool bOrdinaryToolSprayGrip=false;
     float ArtistPushAlpha=0,ArtistTiredAlpha=0;
     FMCGlideAnimationState Glide;
     float PreviousGlideSpeed=0;
@@ -1588,6 +1590,27 @@ public:
         }
         }
         if(!KnifeGripActive && Tooth->Inventory) Tooth->Inventory->ReleaseMeleeKnifeAnchor();
+        // Local bone rotations baked from tools_position1.blend on the player
+        // skeleton. Apply only to the ordinary held tools; other interactions
+        // and upgraded tools retain ownership of their own hand poses.
+        const bool OrdinaryGrip=Tooth->Inventory && Tooth->ToothPhysics && Tooth->ToothPhysics->CanAct()
+            && Tooth->Inventory->ShouldPresentTool() && Tooth->Inventory->SelectedUpgrade()==EMCToolUpgrade::None
+            && (Tooth->Inventory->Selected==EMCToolSlot::Knife || Tooth->Inventory->Selected==EMCToolSlot::Pickaxe
+                || Tooth->Inventory->Selected==EMCToolSlot::Spray)
+            && (!Tooth->Grip || !Tooth->Grip->HandOccupied(false));
+        if(OrdinaryGrip) bOrdinaryToolSprayGrip=Tooth->Inventory->Selected==EMCToolSlot::Spray;
+        OrdinaryToolFingerAlpha=FMath::FInterpConstantTo(OrdinaryToolFingerAlpha,OrdinaryGrip?1.f:0.f,Dt,8.f);
+        if(OrdinaryToolFingerAlpha>.001f) {
+            const FName Names[]={TEXT("index1_base_r"),TEXT("index1_r"),TEXT("index2_r"),TEXT("index3_r"),TEXT("thumb1_r"),TEXT("thumb2_r"),TEXT("thumb3_r")};
+            FQuat Rotations[]={FQuat(-.06499014,.00898884,.05174762,-.99650270),FQuat(.35715151,.04477657,-.03226214,.93241459),
+                FQuat(.01956592,-.00690271,-.00416460,-.99977607),FQuat(-.05084695,.05084472,.00096043,-.99741089),
+                bOrdinaryToolSprayGrip?FQuat(.14995694,.42100823,.49476865,-.74529791):FQuat(.01057331,-.47913784,-.56697208,.66996849),
+                FQuat(.01737185,-.53941709,.04378688,-.84072000),FQuat(.03277627,.58453691,-.05245294,-.80900615)};
+            for(int32 I=0;I<UE_ARRAY_COUNT(Names);++I) {
+                const int32 Bone=Ref.FindBoneIndex(Names[I]);
+                if(Bone!=INDEX_NONE) Pose[Bone].SetRotation(FQuat::Slerp(Pose[Bone].GetRotation(),Rotations[I].GetNormalized(),OrdinaryToolFingerAlpha).GetNormalized());
+            }
+        }
         ActiveSkillPose(Tooth,Ref,Dt);
         if (Tooth->ToothPhysics) Tooth->ToothPhysics->SubmitAnimationTargets(Pose,Ref,Dt);
         if (Tooth->Expression) Tooth->Expression->BuildFacePose(Pose,Ref,Dt);

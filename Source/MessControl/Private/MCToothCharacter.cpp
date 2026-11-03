@@ -1763,7 +1763,10 @@ void AMCToothCharacter::ResolveSwing()
     auto* FoodTarget=(!MCMeleeCombo::Supports(this) || FoodChop)?FindMeleeFoodTarget():nullptr;
     if (FoodTarget)
     {
-        if (FoodTarget->HitFood(Inventory->Damage(),GetActorForwardVector(),this))
+        FHitResult CutContact;
+        const bool bKnifeContact=Inventory->Selected==EMCToolSlot::Knife && FoodTarget->FindToolContact(this,Inventory->MeleeReach(),CutContact);
+        const FVector CutNormal=bKnifeContact?GetActorRightVector():FVector::ZeroVector;
+        if (FoodTarget->HitFood(Inventory->Damage(),GetActorForwardVector(),this,bKnifeContact?CutContact.ImpactPoint:FVector::ZeroVector,CutNormal))
         {
             ++ConfirmedHitCount; MulticastHitSound(FoodTarget->GetActorLocation(),AudioTool,HitIntensity);
             if (FoodTarget->IsDisposed()) if (auto* Tutorial=AMCTutorialDirector::Find(GetWorld())) Tutorial->NotifyAction(this,EMCTutorialAction::FoodCut,FoodTarget);

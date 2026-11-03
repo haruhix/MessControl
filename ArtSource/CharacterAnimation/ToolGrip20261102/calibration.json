@@ -1,0 +1,98 @@
+[
+  {
+    "name": "Knife",
+    "field": "knife",
+    "mesh": "/Game/Gameplay/CharacterCurrent/Tools/SM_Cube.SM_Cube",
+    "scale": 1.0000000599317822,
+    "attachment_location": [
+      -2.4683018998461836,
+      0.15341679234596825,
+      -10.515873291210667
+    ],
+    "attachment_rotation": {
+      "pitch": 0.7946903375401191,
+      "yaw": 2.4649453428112196,
+      "roll": -19.922653456272414
+    },
+    "reference_hand_location": [
+      -4.373908042907715,
+      59.261155128479004,
+      -13.848109722137448
+    ],
+    "reference_hand_rotation": {
+      "pitch": 5.5773761611778445,
+      "yaw": 178.1820001945595,
+      "roll": -45.069044727530944
+    },
+    "mesh_bake_shift": [
+      7.158694569936696,
+      1.430511474609375e-06,
+      2.393842077074922
+    ],
+    "baked_scale": 0.06723703516857514
+  },
+  {
+    "name": "Pickaxe",
+    "field": "pickaxe",
+    "mesh": "/Game/Gameplay/CharacterCurrent/Tools/SM_Pick.SM_Pick",
+    "scale": 1.1358102230697054,
+    "attachment_location": [
+      -16.198348391135937,
+      1.7413319051054201,
+      -10.559647250787572
+    ],
+    "attachment_rotation": {
+      "pitch": 2.6143353370288014,
+      "yaw": -6.125967218076403,
+      "roll": -19.69742864613324
+    },
+    "reference_hand_location": [
+      -4.373913258314133,
+      59.261155128479004,
+      -13.848115682601925
+    ],
+    "reference_hand_rotation": {
+      "pitch": 5.577375888085794,
+      "yaw": 178.18200070870543,
+      "roll": -45.06904462330396
+    },
+    "mesh_bake_shift": [
+      -3.9508236682195275e-09,
+      -2.4738303405769102e-08,
+      -5.473596473848374e-07
+    ],
+    "baked_scale": 1.00000002760086
+  },
+  {
+    "name": "Spray",
+    "field": "spray",
+    "mesh": "/Game/Gameplay/CharacterCurrent/Tools/SM_Spray.SM_Spray",
+    "scale": 0.9999999773145685,
+    "attachment_location": [
+      -11.654205810588666,
+      -5.962671491701343,
+      -11.561659553712554
+    ],
+    "attachment_rotation": {
+      "pitch": -15.451685274797551,
+      "yaw": -92.51915653965376,
+      "roll": 89.66622580713566
+    },
+    "reference_hand_location": [
+      -4.373913258314133,
+      59.261178970336914,
+      -13.848115682601925
+    ],
+    "reference_hand_rotation": {
+      "pitch": 5.577375888085794,
+      "yaw": 178.18200070870543,
+      "roll": -45.06904462330396
+    },
+    "mesh_bake_shift": [
+      0.0,
+      9.5367431640625e-07,
+      -1.1233878449701251e-06
+    ],
+    "baked_scale": 0.10785837369280517
+  }
+]

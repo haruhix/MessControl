@@ -82,7 +82,7 @@ void UMCFoodBodyComponent::SetCollisionMesh(UStaticMesh* Mesh,FVector ItemScale,
     const FVector Velocity=GetPhysicsLinearVelocity(),Spin=GetPhysicsAngularVelocityInRadians();
     DestroyPhysicsState();
     ShapeBodySetup=nullptr;
-    CollisionMesh=Mesh; CollisionData=Data; CollisionScale=ItemScale;
+    bHasCutCollision=false; CollisionMesh=Mesh; CollisionData=Data; CollisionScale=ItemScale;
     if(Mesh) InitBoxExtent(Mesh->GetBounds().BoxExtent*ItemScale.GetAbs());
     UpdateBodySetup(); UpdateBounds(); MarkRenderStateDirty();
     if(IsRegistered()) {
@@ -94,6 +94,7 @@ void UMCFoodBodyComponent::SetCollisionMesh(UStaticMesh* Mesh,FVector ItemScale,
 
 void UMCFoodBodyComponent::UpdateBodySetup()
 {
+    if(bHasCutCollision && ShapeBodySetup) return;
     if(!CollisionMesh) {Super::UpdateBodySetup();return;}
     if(ShapeBodySetup) return;
     auto* Source=CollisionData?CollisionData->BodySetup.Get():CollisionMesh->GetBodySetup();
@@ -140,4 +141,29 @@ void UMCFoodBodyComponent::UpdateBodySetup()
 bool UMCFoodBodyComponent::HasMeshCollision() const
 {
     return CollisionMesh && ShapeBodySetup && !ShapeBodySetup->AggGeom.ConvexElems.IsEmpty();
+}
+
+// Prototype: vertices are in Body-local space, preserving the plane and actor transform.
+bool UMCFoodBodyComponent::SetCutCollision(const TArray<FVector>& Vertices)
+{
+    if(Vertices.Num()<4) return false;
+    TArray<Chaos::FConvex::FVec3Type> Points; Points.Reserve(Vertices.Num());
+    FBox CutBounds(ForceInit);
+    for(const FVector& V:Vertices) { if(V.ContainsNaN()) return false; Points.Add(Chaos::FConvex::FVec3Type(V)); CutBounds+=V; }
+    Chaos::FConvexPtr Convex=new Chaos::FConvex(Points,0);
+    if(!Convex->IsValidGeometry()) return false;
+    const bool Simulating=IsSimulatingPhysics();
+    const FVector Velocity=GetPhysicsLinearVelocity(),Spin=GetPhysicsAngularVelocityInRadians();
+    DestroyPhysicsState();
+    bHasCutCollision=true; CollisionMesh=nullptr; CollisionData=nullptr; ShapeBodySetup=NewObject<UBodySetup>(GetTransientPackage(),NAME_None,RF_Transient);
+    ShapeBodySetup->CollisionTraceFlag=CTF_UseSimpleAsComplex;
+    ShapeBodySetup->bNeverNeedsCookedCollisionData=true;
+    auto& Hull=ShapeBodySetup->AggGeom.ConvexElems.AddDefaulted_GetRef();
+    for(int32 I=0;I<Convex->NumVertices();++I) Hull.VertexData.Add(FVector(Convex->GetVertex(I)));
+    Hull.UpdateElemBox(); Hull.SetConvexMeshObject(MoveTemp(Convex));
+    ShapeBodySetup->bCreatedPhysicsMeshes=true;
+    InitBoxExtent(CutBounds.Min.GetAbs().ComponentMax(CutBounds.Max.GetAbs()));
+    UpdateBounds(); MarkRenderStateDirty();
+    if(IsRegistered()) { RecreatePhysicsState(); if(Simulating) {SetPhysicsLinearVelocity(Velocity);SetPhysicsAngularVelocityInRadians(Spin);} UpdateOverlaps(); }
+    return true;
 }

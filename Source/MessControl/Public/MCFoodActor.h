@@ -76,6 +76,16 @@ struct FMCStackPickup
     UPROPERTY() float ArcHeight=50;
 };
 
+/** Local-space description of one planar cut half. */
+USTRUCT()
+struct FMCFoodCutPlane
+{
+    GENERATED_BODY()
+    UPROPERTY() bool bEnabled=false;
+    UPROPERTY() FVector Position=FVector::ZeroVector;
+    UPROPERTY() FVector Normal=FVector::ZeroVector;
+};
+
 /** Server-simulated rigid food. Clients receive motion and interaction state. */
 UCLASS(Blueprintable)
 class MESSCONTROL_API AMCFoodActor : public AActor
@@ -141,7 +151,7 @@ public:
     void CancelSwallow();
     void ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream& Random,bool Fragment=false);
     void ConfigureBrush();
-    bool HitFood(float Damage,FVector Direction,AMCToothCharacter* Worker=nullptr);
+    bool HitFood(float Damage,FVector Direction,AMCToothCharacter* Worker=nullptr, FVector CutPoint=FVector::ZeroVector, FVector CutNormal=FVector::ZeroVector);
     bool IsHardFood() const;
     void AttendFood();
     /** A real river sweep preserves the new position even after the water leaves. */
@@ -176,6 +186,8 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UBoxComponent> Body;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Visual;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> GripSurface;
+    UPROPERTY(VisibleAnywhere) TObjectPtr<class UProceduralMeshComponent> CutVisual;
+    UPROPERTY(ReplicatedUsing=OnRep_Item) TArray<FMCFoodCutPlane> CutPlanes;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UTextRenderComponent> Label;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="UI") TObjectPtr<UMCWorldStatusComponent> WorldStatus;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Food") TSoftObjectPtr<UMCFoodProfile> Profile;
@@ -258,6 +270,11 @@ private:
     void Spoil();
     void UpdateSmell();
     bool SpawnFragments(FVector Direction);
+    bool SpawnCutFragments(FVector Direction,FVector WorldPoint,FVector WorldNormal);
+    bool BuildCutVisual();
+    FVector PendingCutPoint=FVector::ZeroVector,PendingCutNormal=FVector::ZeroVector;
+    bool bCutVisualReady=false;
+    int32 CutAwardUnits=1;
     bool ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharacter* Worker,class AMCPlayerState* SourcePS,bool bWeaponPassives);
     FGuid ActiveContainerClaim;
     void RecoverUnreachableFood(float Dt);
