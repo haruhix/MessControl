@@ -10,8 +10,9 @@ if (-not $EngineRoot) {
 }
 if (-not $EngineRoot -or -not (Test-Path -LiteralPath "$EngineRoot\Engine\Build\BatchFiles\Build.bat")) { throw 'UE 5.8 not found. Set UE_ROOT or pass -EngineRoot.' }
 $taskTarget = if ($Game) { 'MessControl' } else { 'MessControlEditor' }
-$taskBuildTemp = 'E:\CodexTemp\MessControl\Build'
 $taskBuildLogs = Join-Path $taskProjectRoot 'Saved\Build'
+$taskBuildTemp = Join-Path $taskBuildLogs 'Temp'
+$taskBuildCache = Join-Path $taskBuildLogs 'UBA'
 New-Item -ItemType Directory -Force -Path $taskBuildTemp, $taskBuildLogs | Out-Null
 $taskPreviousTemp = $env:TEMP
 $taskPreviousTmp = $env:TMP
@@ -23,7 +24,7 @@ try {
         $taskBuildArguments += "-log=$taskBuildLogs\$taskTarget.log"
     }
     if (-not ($taskBuildArguments | Where-Object { $_ -like '-UBARootDir=*' })) {
-        $taskBuildArguments += '-UBARootDir=E:\CodexTemp\MessControl\UBA'
+        $taskBuildArguments += "-UBARootDir=$taskBuildCache"
     }
     & "$EngineRoot\Engine\Build\BatchFiles\Build.bat" $taskTarget Win64 Development "-Project=$taskProjectRoot\MessControl.uproject" -WaitMutex -NoHotReloadFromIDE @taskBuildArguments
     if ($LASTEXITCODE -ne 0) { throw "Unreal build failed: $LASTEXITCODE" }
