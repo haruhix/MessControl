@@ -34,6 +34,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
 
 namespace
 {
@@ -49,8 +50,9 @@ public:
         ID=Slot==EMCToolSlot::Knife?TEXT("Tool.Knife"):TEXT("Tool.Pickaxe");
         C.Hero->SetPrimaryInputHeld(false);C.Hero->Inventory->ServerSelect(Slot);
         if(C.Hero->Inventory->Selected!=Slot){Error=TEXT("Штатный выбор инструмента отклонён.");return false;}
-        Before=C.Hero->ValidatedSwingCount;HitsBefore=C.Hero->ConfirmedHitCount;Age=0;bAccepted=bHit=bReleased=bDone=false;
+        Before=C.Hero->ValidatedSwingCount;HitsBefore=C.Hero->ConfirmedHitCount;FoodCutsBefore=C.Hero->ConfirmedFoodCutCount;Age=0;bAccepted=bHit=bCut=bReleased=bDone=false;
         bContactScenario=C.Scenario==EMCPerkPreviewScenario::Target;
+        FoodBefore.Reset();if(bContactScenario)for(TActorIterator<AMCFoodActor> It(C.World);It;++It)FoodBefore.Add(*It);
         if(bContactScenario&&!PrepareContactTarget(C,Error))return false;
         Presentation=MCWorldPresentation::PrepareOwner(C.Hero,{ID});
         if(!Presentation.IsValid()){Error=TEXT("У инструмента нет источника Composer.");return false;}
@@ -74,8 +76,12 @@ public:
         Age+=Dt;
         if(!IsValid(C.Hero)){bDone=true;return;}
         if(!bAccepted&&C.Hero->ValidatedSwingCount>Before){bAccepted=true;if(C.RecordEvent)C.RecordEvent(TEXT("Swing"));}
-        if(bContactScenario&&!bHit&&C.Hero->ConfirmedHitCount>HitsBefore)if(const auto* Food=ContactFood.Get())
-            if(Food->Health<InitialHealth){bHit=true;if(C.RecordEvent)C.RecordEvent(TEXT("Hit"));}
+        if(bContactScenario&&!bHit&&C.Hero->ConfirmedHitCount>HitsBefore) {
+            const auto* Food=ContactFood.Get();
+            if(!IsValid(Food)||Food->IsDisposed()||Food->Health<InitialHealth) {bHit=true;if(C.RecordEvent)C.RecordEvent(TEXT("Hit"));}
+        }
+        if(bContactScenario&&!bCut&&C.Hero->ConfirmedFoodCutCount>FoodCutsBefore)
+        {bCut=true;if(C.RecordEvent)C.RecordEvent(TEXT("FoodCut"));}
         if(!bReleased&&Age>.08f){C.Hero->SetPrimaryInputHeld(false);bReleased=true;}
         if(bAccepted&&Age>C.Hero->Inventory->SwingDuration()+.2f) {
             if(!bContactScenario||bHit)bDone=true;
@@ -88,7 +94,16 @@ public:
     void Cancel(FMCPerkPreviewContext& C) override
     {Release(C);if(auto* Owner=Presentation.Get())Owner->StopStates(ID);bDone=true;}
     void Reset(FMCPerkPreviewContext& C) override
-    {Cancel(C);if(auto* Food=ContactFood.Get())Food->Destroy();ContactFood.Reset();Presentation.Reset();}
+    {
+        Cancel(C);
+        if(C.World&&bContactScenario) {
+            TArray<AMCFoodActor*> Spawned;
+            for(TActorIterator<AMCFoodActor> It(C.World);It;++It)
+                if(!FoodBefore.Contains(TWeakObjectPtr<AMCFoodActor>(*It)))Spawned.Add(*It);
+            for(auto* Food:Spawned)if(IsValid(Food))Food->Destroy();
+        }
+        FoodBefore.Reset();ContactFood.Reset();Presentation.Reset();
+    }
     bool IsComplete(const FMCPerkPreviewContext&) const override{return bDone;}
     FString GetPhaseName(const FMCPerkPreviewContext&) const override
     {return bDone?TEXT("Взмах завершён"):bAccepted?TEXT("Принятый обычный взмах"):TEXT("Ожидание штатного ввода");}
@@ -101,7 +116,7 @@ private:
         TArray<FName> Names=Table->GetRowNames();Names.Sort([](FName A,FName B){return A.LexicalLess(B);});
         const FMCFoodRow* Chosen=nullptr;FName RowName;
         for(FName Name:Names)if(const auto* Row=Table->FindRow<FMCFoodRow>(Name,TEXT("ComposerToolContact"),false)) {
-            if(Row->Kind!=EMCFoodKind::Food||Row->WholeMeshes.IsEmpty()||Row->Health<=C.Hero->Inventory->Damage())continue;
+            if(Row->Kind!=EMCFoodKind::Food||Row->WholeMeshes.IsEmpty())continue;
             bool Hard=Row->Resistance==EMCFoodResistance::Hard;
             if(Row->Resistance==EMCFoodResistance::Automatic)
                 Hard=Name==TEXT("Carrot")||Name==TEXT("Nut")||Name==TEXT("Crust")||Name==TEXT("Tartar");
@@ -114,16 +129,26 @@ private:
         if(!Food){Error=TEXT("Не удалось создать настоящую пищевую цель.");return false;}
         ContactFood=Food;C.Targets.Add(Food);FRandomStream FixtureChoice(743);
         Food->Initialize(false,C.Hero->GetActorForwardVector());Food->ConfigureItem(RowName,*Chosen,FixtureChoice);Food->FinishSpawning(Pose);
+        // Keep the authentic saved mesh and scale, but place its near surface in reach.
+        // Freeze only this sandbox fixture so initial overlap cannot launch it away.
+        const FBox Bounds=Food->Visual->Bounds.GetBox();
+        const FVector Forward=C.Hero->GetActorForwardVector().GetSafeNormal2D();
+        const float SurfaceDistance=FMath::Clamp(C.Hero->Inventory->MeleeReach()*.40f,35.f,80.f);
+        const float Along=FVector::DotProduct(Bounds.GetExtent(),Forward.GetAbs())+SurfaceDistance;
+        const FVector DesiredCenter=C.Hero->GetActorLocation()+Forward*Along;
+        Food->Body->SetSimulatePhysics(false);
+        Food->SetActorLocation(Food->GetActorLocation()+DesiredCenter-Bounds.GetCenter(),false,nullptr,ETeleportType::TeleportPhysics);
         const auto ActualMesh=Food->Visual->GetStaticMesh();
         const bool FromSavedRow=Chosen->WholeMeshes.ContainsByPredicate([ActualMesh](const TSoftObjectPtr<UStaticMesh>& Ref){return Ref.Get()==ActualMesh.Get();});
-        if(!ActualMesh||!FromSavedRow||!C.Hero->Inventory->CanBreak(Food)||Food->Health<=C.Hero->Inventory->Damage())
+        if(!ActualMesh||!FromSavedRow||!C.Hero->Inventory->CanBreak(Food))
         {Error=TEXT("Штатный инструмент не подтвердил настоящую сохранённую пищевую цель.");return false;}
         InitialHealth=Food->Health;if(C.RequestFramingUpdate)C.RequestFramingUpdate();return true;
     }
     TWeakObjectPtr<AMCFoodActor> ContactFood;
+    TArray<TWeakObjectPtr<AMCFoodActor>> FoodBefore;
     float InitialHealth=0;
-    int32 HitsBefore=0;
-    bool bContactScenario=false,bHit=false;
+    int32 HitsBefore=0,FoodCutsBefore=0;
+    bool bContactScenario=false,bHit=false,bCut=false;
     EMCToolSlot Slot;
     FName ID;
     TWeakObjectPtr<UMCWorldPresentationComponent> Presentation;
@@ -247,6 +272,7 @@ void MCWorldActionPreviewAdapters::Register()
         Entry.Stages=Contract->Events;Entry.bSupportsProfileOverride=true;Entry.Scenarios={EMCPerkPreviewScenario::Target,EMCPerkPreviewScenario::Timeout};
         Entry.StageLabels.Add(TEXT("Swing"),FText::FromString(TEXT("Взмах")));
         Entry.StageLabels.Add(TEXT("Hit"),FText::FromString(TEXT("Настоящее попадание")));
+        if(Slot==EMCToolSlot::Knife)Entry.StageLabels.Add(TEXT("FoodCut"),FText::FromString(TEXT("Разрез еды · всплеск")));
         Entry.ScenarioLabels.Add(EMCPerkPreviewScenario::Target,FText::FromString(TEXT("Настоящий удар по еде")));
         Entry.ScenarioLabels.Add(EMCPerkPreviewScenario::Timeout,FText::FromString(TEXT("Обычный взмах · без попадания")));
         Entry.DescribeNativeSources=[](FName Event)

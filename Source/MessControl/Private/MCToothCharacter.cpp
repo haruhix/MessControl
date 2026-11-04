@@ -1673,6 +1673,15 @@ void AMCToothCharacter::MulticastHitSound_Implementation(FVector Location,uint8 
     }
     if(SoundPalette) SoundPalette->PlayWithParameters(this,Event,Location,Intensity,.5f,SourceID,TEXT("Hit"));
 }
+void AMCToothCharacter::MulticastFoodCutSplash_Implementation(FVector Location,FVector CutNormal)
+{
+    if(GetNetMode()==NM_DedicatedServer || Location.ContainsNaN() || CutNormal.ContainsNaN())return;
+    FMCPerkVFXGameplayValues Values;Values.VisualSubject=GetMesh();
+    Values.Direction=(CutNormal.GetSafeNormal()*.55f+FVector::UpVector*.85f).GetSafeNormal();
+    if(Values.Direction.IsNearlyZero())Values.Direction=FVector::UpVector;
+    MCWorldPresentation::Pulse(this,TEXT("Tool.Knife"),TEXT("FoodCut"),
+        FTransform(Values.Direction.Rotation(),Location),Values,.6f);
+}
 float AMCToothCharacter::GetToolSwingElapsed() const
 {
     const auto* GS=GetWorld()?GetWorld()->GetGameState():nullptr;
@@ -1872,6 +1881,7 @@ void AMCToothCharacter::ResolveSwing()
         if (FoodTarget->HitFood(Inventory->Damage(),GetActorForwardVector(),this,bKnifeContact?CutContact.ImpactPoint:FVector::ZeroVector,CutNormal))
         {
             ++ConfirmedHitCount; MulticastHitSound(FoodTarget->GetActorLocation(),AudioTool,HitIntensity);
+            if(bKnifeContact) {++ConfirmedFoodCutCount;MulticastFoodCutSplash(CutContact.ImpactPoint,CutNormal);}
             if (FoodTarget->IsDisposed()) if (auto* Tutorial=AMCTutorialDirector::Find(GetWorld())) Tutorial->NotifyAction(this,EMCTutorialAction::FoodCut,FoodTarget);
         }
         return;
