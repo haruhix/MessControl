@@ -1,4 +1,13 @@
 #include "MCUnifiedHubWidget.h"
+#include "MCUnifiedReticleWidget.h"
+#include "CoreGlobals.h"
+#include "Components/ScrollBox.h"
+#include "Fonts/FontMeasure.h"
+#include "Framework/Application/SlateApplication.h"
+#include "Internationalization/Internationalization.h"
+#include "Internationalization/Culture.h"
+#include "Rendering/SlateRenderer.h"
+#include "Widgets/SWidget.h"
 
 #include "MCGameplayUIFactory.h"
 #include "MCHubGameState.h"
@@ -32,7 +41,8 @@ UMCUnifiedHubWidget::UMCUnifiedHubWidget()
 }
 void UMCUnifiedHubWidget::BuildPresentationTree()
 {
-    if(!WidgetTree || WidgetTree->RootWidget) return;
+    if(!WidgetTree) return;
+    if(WidgetTree->RootWidget) {EnsureControlsPresentation();return;}
     if(!Theme) Theme=UMCGameplayUIFactory::GetThemeForVersion(EMCUIVersion::New);
     auto* Root=WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(),TEXT("HubV2Root"));Root->SetVisibility(ESlateVisibility::SelfHitTestInvisible);WidgetTree->RootWidget=Root;
     auto Shape=[&](FName Name,FLinearColor Fill,FLinearColor Outline,FLinearColor Shadow,FMargin Inset,EMCUniversalUIKind Kind=EMCUniversalUIKind::Panel) {
@@ -98,7 +108,7 @@ void UMCUnifiedHubWidget::BuildPresentationTree()
     auto* FooterActions=WidgetTree->ConstructWidget<UWrapBox>(UWrapBox::StaticClass(),TEXT("HubV2SelectionActions"));FooterActions->SetExplicitWrapSize(true);FooterActions->SetWrapSize(1300);FooterActions->SetInnerSlotPadding(FVector2D(20,10));FooterActions->SetHorizontalAlignment(HAlign_Center);FooterActions->SetVisibility(ESlateVisibility::SelfHitTestInvisible);FooterBody->AddChildToVerticalBox(FooterActions)->SetHorizontalAlignment(HAlign_Center);
     auto* Launch=Action(TEXT("HubV2Launch"),MCUnifiedHubPrivate_Color(TEXT("2AA85C")),26);Launch->Label=Localized(TEXT("hub.selection.start"),LOCTEXT("Launch","ENTER · НАЧАТЬ"));Launch->ApplyTheme();FooterActions->AddChildToWrapBox(Launch);
     auto* Back=Action(TEXT("HubV2Return"),MCUnifiedHubPrivate_Color(TEXT("A35173")),26);Back->Label=Localized(TEXT("hub.selection.cancel"),LOCTEXT("Return","ESC · ВЕРНУТЬСЯ В ХАБ"));Back->ApplyTheme();FooterActions->AddChildToWrapBox(Back);
-    ShowMode(true);
+    ShowMode(true);EnsureControlsPresentation();
 }
 void UMCUnifiedHubWidget::BindActions()
 {
@@ -113,7 +123,9 @@ void UMCUnifiedHubWidget::BindActions()
 }
 void UMCUnifiedHubWidget::SetBackend(UMCHubWidget* Source)
 {
-    Backend=Source;BuildPresentationTree();if(Bindings.IsEmpty()) BindActions();RefreshFromBackend();
+    auto* Candidate=Source && Source->GetWorld()==GetWorld() && Source->GetOwningPlayer()==GetOwningPlayer()?Source:nullptr;
+    if(Backend.Get()!=Candidate) {UnbindControlsNotification();ClearControlsPresentation(Backend.Get());Backend=Candidate;bControlsPrepared=false;}
+    BuildPresentationTree();BindControlsNotification();PrepareControlsPresentation();if(Bindings.IsEmpty()) BindActions();RefreshFromBackend();
 }
 void UMCUnifiedHubWidget::ShowMode(bool bGathering)
 {
@@ -125,6 +137,7 @@ void UMCUnifiedHubWidget::RefreshFromBackend()
 {
     if(IsDesignTime() || !Backend.IsValid() || !WidgetTree || !Backend->WidgetTree) return;
     const auto* Hub=Backend->GetUnifiedState();if(!Hub) return;ShowMode(Hub->Phase==EMCHubPhase::Gathering);
+    RefreshControlsPresentation();
     auto Copy=[&](FName SourceName,FName TargetName) {
         auto* Source=Backend->WidgetTree->FindWidget<UTextBlock>(SourceName);auto* Target=WidgetTree->FindWidget<UTextBlock>(TargetName);
         if(Source && Target && !Target->GetText().EqualTo(Source->GetText())) Target->SetText(Source->GetText());
@@ -156,10 +169,50 @@ void UMCUnifiedHubWidget::ForwardAction(EMCHubMenuAction Action)
 void UMCUnifiedHubWidget::RequestBack() {if(!IsDesignTime() && Backend.IsValid()) Backend->RequestUnifiedBack();}
 bool UMCUnifiedHubWidget::RouteSourceKey(const FKeyEvent& Event) {return !IsDesignTime() && RequiresMenuInput() && Backend->RouteUnifiedKey(Event);}
 bool UMCUnifiedHubWidget::RouteSourceMouseWheel(const FPointerEvent& Event) {return !IsDesignTime() && RequiresMenuInput() && Backend->RouteUnifiedMouseWheel(Event);}
-void UMCUnifiedHubWidget::NativeConstruct() {Super::NativeConstruct();BindActions();RefreshFromBackend();}
+void UMCUnifiedHubWidget::NativeConstruct() {Super::NativeConstruct();BindActions();BindControlsNotification();PrepareControlsPresentation();RefreshFromBackend();}
 void UMCUnifiedHubWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
-    Super::NativeTick(Geometry,DeltaSeconds);RefreshViewportLayout();
+    Super::NativeTick(Geometry,DeltaSeconds);RefreshViewportLayout();PrepareControlsPresentation();RefreshControlsPresentation();
+}
+void UMCUnifiedHubWidget::RefreshReadinessTitleWidth(float AvailableTopWidth)
+{
+    if(!WidgetTree) return;
+    auto* Title=WidgetTree->FindWidget<UTextBlock>(TEXT("HubV2ReadinessTitle"));
+    auto* ReadyPanel=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("HubV2Readiness"));
+    auto* ReadyBounds=WidgetTree->FindWidget<USizeBox>(TEXT("HubV2ReadinessWidth"));
+    if(!Title || !ReadyPanel || !ReadyBounds) return;
+    const float Available=FMath::Max(1.f,AvailableTopWidth);
+    const auto TitleSlate=Title->GetCachedWidget();
+    if(TitleSlate.IsValid()) {
+        const float ActualScale=FMath::Max(.001f,TitleSlate->GetTickSpaceGeometry().GetAccumulatedLayoutTransform().GetScale());
+        const FText ActualCopy=Title->GetText();const FSlateFontInfo ActualFont=Title->GetFont();
+        if(!bReadinessTitleMeasured || MeasuredReadinessTitle.Get()!=Title || !MeasuredReadinessCopy.EqualTo(ActualCopy)
+            || !(MeasuredReadinessFont==ActualFont) || !FMath::IsNearlyEqual(MeasuredReadinessScale,ActualScale,.001f)
+            || !FMath::IsNearlyEqual(MeasuredReadinessTopWidth,Available,.5f)) {
+            const bool WasAutoWrap=Title->GetAutoWrapText();const float WasWrapAt=Title->GetWrapTextAt();
+            Title->SetAutoWrapText(false);Title->SetWrapTextAt(0.f);
+            TitleSlate->MarkPrepassAsDirty();TitleSlate->SlatePrepass(ActualScale);
+            const float NaturalWidth=float(TitleSlate->GetDesiredSize().X); // Native shaped Slate size is already in local layout units.
+            Title->SetAutoWrapText(WasAutoWrap);Title->SetWrapTextAt(WasWrapAt);
+            TitleSlate->MarkPrepassAsDirty();TitleSlate->SlatePrepass(ActualScale);
+            if(FMath::IsFinite(NaturalWidth) && NaturalWidth>=0.f) {
+                ReadinessTitleNaturalWidth=NaturalWidth;MeasuredReadinessTitle=Title;MeasuredReadinessCopy=ActualCopy;
+                MeasuredReadinessFont=ActualFont;MeasuredReadinessScale=ActualScale;MeasuredReadinessTopWidth=Available;bReadinessTitleMeasured=true;
+            } else bReadinessTitleMeasured=false;
+        }
+    }
+    const FMargin ContentInset=ReadyPanel->ContentPadding;
+    float Required=0.f;
+    if(bReadinessTitleMeasured) {
+        // Two physical pixels cover fractional glyph/slot rounding; this never changes font size or text.
+        const float CeilGutter=2.f/FMath::Max(.001f,MeasuredReadinessScale);
+        Required=FMath::CeilToFloat(ReadinessTitleNaturalWidth+ContentInset.Left+ContentInset.Right+CeilGutter);
+    }
+    const float Maximum=FMath::Min(Available,FMath::Max(400.f,Required));
+    // A long word also needs this content-derived minimum: restored AutoWrap may still cache the old narrower allotted width.
+    const float Minimum=FMath::Min(Available,Required>400.f?FMath::Max(330.f,Required):330.f);
+    if(!FMath::IsNearlyEqual(ReadyBounds->GetMinDesiredWidth(),Minimum,.5f)) ReadyBounds->SetMinDesiredWidth(Minimum);
+    if(!FMath::IsNearlyEqual(ReadyBounds->GetMaxDesiredWidth(),Maximum,.5f)) ReadyBounds->SetMaxDesiredWidth(Maximum);
 }
 void UMCUnifiedHubWidget::RefreshViewportLayout()
 {
@@ -167,6 +220,7 @@ void UMCUnifiedHubWidget::RefreshViewportLayout()
     const double Width=GetPaintSpaceGeometry().GetLocalSize().X;if(Width<=1) return;
     const float TopWidth=float(FMath::Clamp(Width-36.,320.,1500.));
     const float FooterWidth=float(FMath::Clamp(Width-48.,320.,1400.));
+    RefreshReadinessTitleWidth(TopWidth);
     if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(TEXT("HubV2TopWidth")))
         if(!FMath::IsNearlyEqual(Bounds->GetWidthOverride(),TopWidth,.5f)) Bounds->SetWidthOverride(TopWidth);
     if(auto* Wrap=WidgetTree->FindWidget<UWrapBox>(TEXT("HubV2Top")))
@@ -178,7 +232,122 @@ void UMCUnifiedHubWidget::RefreshViewportLayout()
     if(auto* Wrap=WidgetTree->FindWidget<UWrapBox>(TEXT("HubV2SelectionActions")))
         if(!FMath::IsNearlyEqual(Wrap->GetWrapSize(),FooterWidth-60,.5f)) Wrap->SetWrapSize(FooterWidth-60);
 }
-void UMCUnifiedHubWidget::ApplyTheme() {Super::ApplyTheme();if(!IsDesignTime()) RefreshFromBackend();}
+void UMCUnifiedHubWidget::ApplyTheme() {bReadinessTitleMeasured=false;Super::ApplyTheme();bControlsPrepared=false;PrepareControlsPresentation();if(!IsDesignTime()) RefreshFromBackend();}
+void UMCUnifiedHubWidget::EnsureControlsPresentation()
+{
+    if(!WidgetTree) return;auto* Canvas=Cast<UCanvasPanel>(WidgetTree->RootWidget);if(!Canvas) return;
+    if(!WidgetTree->FindWidget(TEXT("HubV2ControlsReticle"))) {
+        auto* Class=UMCGameplayUIFactory::ResolveClassForTheme(TEXT("UnifiedReticle"),UMCUnifiedReticleWidget::StaticClass(),GetResolvedTheme());
+        auto* Reticle=WidgetTree->ConstructWidget<UMCUnifiedReticleWidget>(Class,TEXT("HubV2ControlsReticle"));Reticle->PreparedContourCount=128;
+        if(!Reticle->Theme) Reticle->Theme=GetResolvedTheme();Reticle->Initialize();Reticle->BuildPresentationTree();
+        auto* Cell=Canvas->AddChildToCanvas(Reticle);Cell->SetAnchors(FAnchors(0,0,1,1));Cell->SetOffsets(FMargin(0));Cell->SetZOrder(20);
+        Reticle->SetVisibility(ESlateVisibility::HitTestInvisible);
+    }
+    if(!WidgetTree->FindWidget(TEXT("HubV2ControlsBounds"))) {
+        auto* Bounds=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("HubV2ControlsBounds"));Bounds->SetWidthOverride(1000);
+        auto* Cell=Canvas->AddChildToCanvas(Bounds);Cell->SetAnchors(FAnchors(.5,1));Cell->SetAlignment(FVector2D(.5,1));Cell->SetPosition(FVector2D(0,-116));Cell->SetAutoSize(true);Cell->SetZOrder(21);
+        auto* Plate=WidgetTree->ConstructWidget<UMCUniversalUIWidget>(UMCUniversalUIWidget::StaticClass(),TEXT("HubV2ControlsPlate"));
+        Plate->Theme=GetResolvedTheme();Plate->Kind=EMCUniversalUIKind::Panel;Plate->Label=FText::GetEmpty();Plate->LabelKey=NAME_None;
+        Plate->bUseThemeShape=false;Plate->bCustomColors=true;Plate->CustomFill=MCUnifiedHubPrivate_Color(TEXT("374F56"));
+        Plate->CustomOutline=MCUnifiedHubPrivate_Color(TEXT("FFF9F8"));Plate->CustomShadow=MCUnifiedHubPrivate_Color(TEXT("C7C7C7"));
+        Plate->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+        Plate->ContentPadding=FMargin(16,11);Plate->CornerRadius=18;Plate->OutlineWidth=3;Plate->ShadowOffset=FVector2D(4,5);
+        Plate->Initialize();Plate->BuildPresentationTree();Plate->ApplyTheme();Bounds->SetContent(Plate);
+        auto* Scroll=WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(),TEXT("HubV2ControlsScroll"));Scroll->SetAllowOverscroll(false);
+        Plate->SetContentForSlot(TEXT("Content"),Scroll);
+        auto* Hint=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("HubV2ControlsText"));
+        Hint->SetVisibility(ESlateVisibility::HitTestInvisible);
+        Hint->SetFont(GetResolvedTheme()->MakeFont(20,true));Hint->SetColorAndOpacity(MCUnifiedHubPrivate_Color(TEXT("FFF9F8")));Hint->SetAutoWrapText(false);
+        Hint->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);Hint->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);Hint->SetJustification(ETextJustify::Center);
+        Scroll->AddChild(Hint);Bounds->SetVisibility(ESlateVisibility::Collapsed);
+    }
+}
+void UMCUnifiedHubWidget::PrepareControlsPresentation()
+{
+    if(bPreparingControls) return;TGuardValue<bool> Guard(bPreparingControls,true);EnsureControlsPresentation();
+    if(!WidgetTree || !GetResolvedTheme() || !FSlateApplication::IsInitialized()) return;
+    auto* Reticle=WidgetTree->FindWidget<UMCUnifiedReticleWidget>(TEXT("HubV2ControlsReticle"));
+    auto* Hint=WidgetTree->FindWidget<UTextBlock>(TEXT("HubV2ControlsText"));
+    if(!Reticle || !Hint) {bControlsPrepared=false;return;}Reticle->PreparePresentation();
+    const auto Renderer=FSlateApplication::Get().GetRenderer();if(!Renderer) {bControlsPrepared=false;return;}
+    const FString Culture=IsDesignTime()?PreviewCulture:FInternationalization::Get().GetCurrentLanguage()->GetName();
+    UDataTable* Table=Backend.IsValid()?Backend->GetResolvedTranslationTable():GetResolvedTranslationTable();
+    TArray<FText> Warm;const FName Keys[]={TEXT("hub.basketball.controls"),TEXT("hub.basketball.controls.gamepad"),TEXT("hub.basketball.pickup"),TEXT("hub.basketball.pickup.gamepad"),
+        TEXT("hub.fishing.controls"),TEXT("hub.fishing.controls.gamepad"),TEXT("hub.fishing.water_required"),TEXT("hub.fishing.water_required.gamepad"),TEXT("hub.fishing.waiting"),TEXT("hub.fishing.hooked")};
+    bool Complete=true;
+    for(FName Key:Keys) {const FText Copy=UMCUIDataLibrary::ResolveText(Table,Key,FText::GetEmpty(),IsDesignTime()?PreviewCulture:FString());Complete&=!Copy.IsEmpty();Warm.Add(Copy);}
+    if(auto* Source=Backend.Get()) Warm.Add(Source->GetUnifiedControlsSnapshot().Hint);
+    const FText Corpus=FText::Join(FText::AsCultureInvariant(TEXT(" ")),Warm);
+    const float Scale=FMath::Max(.001f,GetPaintSpaceGeometry().GetAccumulatedLayoutTransform().GetScale());
+    const bool SourcePrimed=IsDesignTime() || (Backend.IsValid() && Backend->HasPreparedControlsGlyphs());
+    if(bControlsPrepared && Complete && SourcePrimed && PreparedControlsTable.Get()==Table && PreparedControlsCulture==Culture && PreparedControlsCopy.EqualTo(Corpus)
+        && PreparedControlsFont==Hint->GetFont() && FMath::IsNearlyEqual(PreparedControlsScale,Scale,.001f)) return;
+    Hint->SetFont(GetResolvedTheme()->MakeFont(FMath::Max(8,FMath::RoundToInt(Hint->GetFont().Size)),true));
+    Renderer->GetFontMeasureService()->Measure(Corpus,Hint->GetFont(),Scale);
+    // Warm the actual original '+' font before its first aimed frame; New draws two ordinary UMG strokes.
+    if(auto* Source=Backend.Get()) Renderer->GetFontMeasureService()->Measure(FText::AsCultureInvariant(TEXT("+")),Source->GetControlsReticleFont(),1.f);
+    PreparedControlsTable=Table;PreparedControlsCulture=Culture;PreparedControlsCopy=Corpus;PreparedControlsFont=Hint->GetFont();PreparedControlsScale=Scale;
+    bControlsPrepared=Complete && SourcePrimed && Reticle->IsPresentationPrepared() && Hint->GetFont().HasValidFont();
+}
+void UMCUnifiedHubWidget::BindControlsNotification()
+{
+    if(!ControlsHandle.IsValid()) if(auto* Source=Backend.Get()) ControlsHandle=Source->OnControlsPresentationUpdated().AddUObject(this,&ThisClass::OnControlsSnapshot);
+}
+void UMCUnifiedHubWidget::UnbindControlsNotification()
+{
+    if(auto* Source=Backend.Get()) {Source->OnControlsPresentationUpdated().Remove(ControlsHandle);Source->ClearUnifiedControlsView(this);}ControlsHandle.Reset();
+}
+void UMCUnifiedHubWidget::ClearControlsPresentation(const UMCHubWidget* Source)
+{
+    if(!WidgetTree) return;
+    if(auto* Reticle=WidgetTree->FindWidget<UMCUnifiedReticleWidget>(TEXT("HubV2ControlsReticle"))) Reticle->ClearPresentationFor(Source);
+    if(auto* Bounds=WidgetTree->FindWidget(TEXT("HubV2ControlsBounds"))) Bounds->SetVisibility(ESlateVisibility::Collapsed);
+}
+bool UMCUnifiedHubWidget::HasControlsPresentationFrame(const UMCHubWidget* Source,uint64 SourceFrame) const
+{
+    if(!bControlsPrepared || !Source || Backend.Get()!=Source || !WidgetTree) return false;
+    const auto* Reticle=WidgetTree->FindWidget<UMCUnifiedReticleWidget>(TEXT("HubV2ControlsReticle"));
+    return Reticle && Reticle->HasPresentedSourceFrame(Source,SourceFrame);
+}
+void UMCUnifiedHubWidget::OnControlsSnapshot(const FMCHubControlsPresentation& Snapshot)
+{
+    auto* Source=Backend.Get();if(!Source || Snapshot.Reticle.Source.Get()!=Source || !WidgetTree) return;
+    auto* Reticle=WidgetTree->FindWidget<UMCUnifiedReticleWidget>(TEXT("HubV2ControlsReticle"));
+    auto* Bounds=WidgetTree->FindWidget<USizeBox>(TEXT("HubV2ControlsBounds"));auto* Hint=WidgetTree->FindWidget<UTextBlock>(TEXT("HubV2ControlsText"));
+    if(!bControlsPrepared || !Reticle || !Bounds || !Hint || !Reticle->ConsumePresentation(Snapshot.Reticle,Source->GetUnifiedControlsPaintGeometry())) {
+        Source->ClearUnifiedControlsView(this);ClearControlsPresentation(Source);return;
+    }
+    const bool NewCopy=!Hint->GetText().EqualTo(Snapshot.Hint);if(NewCopy) Hint->SetText(Snapshot.Hint);
+    const FVector2D Area=GetPaintSpaceGeometry().GetLocalSize();const float Width=FMath::Max(240.f,FMath::Min(1100.f,float(Area.X)-48));
+    Bounds->SetWidthOverride(Width);Bounds->SetMaxDesiredHeight(FMath::Max(120.f,float(Area.Y)*.45f));Hint->SetWrapTextAt(FMath::Max(100.f,Width-44));
+    Bounds->SetVisibility(Snapshot.bHintVisible && !Snapshot.Hint.IsEmpty()?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
+    if(NewCopy) if(auto* Scroll=WidgetTree->FindWidget<UScrollBox>(TEXT("HubV2ControlsScroll"))) Scroll->ScrollToStart();
+    if(!Source->CommitUnifiedControlsView(this,Snapshot.Reticle.SourceFrame)) {Source->ClearUnifiedControlsView(this);ClearControlsPresentation(Source);}
+}
+void UMCUnifiedHubWidget::RefreshControlsPresentation()
+{
+    if(IsDesignTime()) return;if(auto* Source=Backend.Get()) OnControlsSnapshot(Source->GetUnifiedControlsSnapshot());else ClearControlsPresentation(nullptr);
+}
+void UMCUnifiedHubWidget::PresentControlsPreview()
+{
+    if(!IsDesignTime() || !WidgetTree) return;PrepareControlsPresentation();
+    auto* Bounds=WidgetTree->FindWidget<USizeBox>(TEXT("HubV2ControlsBounds"));auto* Hint=WidgetTree->FindWidget<UTextBlock>(TEXT("HubV2ControlsText"));
+    if(!Bounds || !Hint) return;
+    FName Key;
+    if(PreviewState==TEXT("FishingControls")) Key=TEXT("hub.fishing.controls");
+    else if(PreviewState==TEXT("FishingWaiting")) Key=TEXT("hub.fishing.waiting");
+    else if(PreviewState==TEXT("FishingHooked")) Key=TEXT("hub.fishing.hooked");
+    else if(PreviewState==TEXT("BasketballControls")) Key=TEXT("hub.basketball.controls");
+    else if(PreviewState==TEXT("BasketballPickup")) Key=TEXT("hub.basketball.pickup");
+    else if(PreviewState==TEXT("ControlsLongText")) Key=TEXT("hub.fishing.controls");
+    if(Key.IsNone()) {Bounds->SetVisibility(ESlateVisibility::Collapsed);return;}
+    FText Copy=Localized(Key,FText::GetEmpty());if(PreviewState==TEXT("ControlsLongText")) Copy=FText::Format(FText::AsCultureInvariant(TEXT("{0}\n{0}\n{0}")),Copy);
+    Hint->SetText(Copy);FVector2D Area=GetPaintSpaceGeometry().GetLocalSize();if(Area.X<1 || Area.Y<1) Area=FVector2D(1280,720);
+    const float Width=FMath::Max(240.f,FMath::Min(1100.f,float(Area.X)-48));Bounds->SetWidthOverride(Width);Bounds->SetMaxDesiredHeight(FMath::Max(120.f,float(Area.Y)*.45f));
+    Hint->SetWrapTextAt(FMath::Max(100.f,Width-44));Bounds->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+}
+void UMCUnifiedHubWidget::NativeDestruct() {UnbindControlsNotification();ClearControlsPresentation(Backend.Get());Backend.Reset();bControlsPrepared=false;bReadinessTitleMeasured=false;MeasuredReadinessTitle.Reset();Super::NativeDestruct();}
+void UMCUnifiedHubWidget::OnLocalizationChanged() {Super::OnLocalizationChanged();bControlsPrepared=false;PrepareControlsPresentation();RefreshControlsPresentation();}
 void UMCUnifiedHubWidget::ApplyEditorPreview(float Time)
 {
     Super::ApplyEditorPreview(Time);BuildPresentationTree();if(!IsDesignTime() || !WidgetTree) return;
@@ -196,6 +365,6 @@ void UMCUnifiedHubWidget::ApplyEditorPreview(float Time)
         Travelling?LOCTEXT("Travelling","ЗАГРУЖАЕМ ДЕНЬ…"):Waiting?LOCTEXT("Waiting","Ждём загрузку остальных игроков…"):Guest?LOCTEXT("Guest","Хост выбирает день. ESC — меню."):LOCTEXT("Host","Выберите локацию. Вход — клик по выбранному рту или Enter. Назад — Esc.")));
     const FName Names[]={TEXT("HubV2OpenSelection"),TEXT("HubV2Launch"),TEXT("HubV2Return")};
     for(int32 I=0;I<3;++I) if(auto* Button=WidgetTree->FindWidget<UMCUniversalUIWidget>(Names[I])) {Button->SetVisibility(Guest?ESlateVisibility::Collapsed:ESlateVisibility::Visible);Button->SetIsEnabled(!Travelling && (!Waiting || I==2));Button->ApplyTheme();}
-    RefreshViewportLayout();
+    RefreshViewportLayout();PresentControlsPreview();
 }
 #undef LOCTEXT_NAMESPACE

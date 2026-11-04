@@ -139,6 +139,12 @@ void AMCToothpick::RefreshAppearance()
     ActionIndicator->SetRelativeLocation(Upright?FVector(0,0,230):FVector(0,65,90));
 }
 
+void AMCToothpick::EndPlay(const EEndPlayReason::Type Reason)
+{
+    CareWidgetPresentation.Restore();
+    Super::EndPlay(Reason);
+}
+
 void AMCToothpick::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
@@ -163,6 +169,7 @@ void AMCToothpick::Tick(float DeltaSeconds)
         ActionIndicator->InitWidget();
         if(auto* Widget=Cast<UMCUlcerProgressWidget>(ActionIndicator->GetUserWidgetObject())) {Widget->ToothpickSource=this;Widget->InvalidateLayoutAndVolatility();}
     }
+    if(GetNetMode()!=NM_DedicatedServer) CareWidgetPresentation.Refresh(ActionIndicator);
 }
 
 void AMCToothpick::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

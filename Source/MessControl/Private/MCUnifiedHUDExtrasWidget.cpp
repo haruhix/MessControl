@@ -1,4 +1,5 @@
 #include "MCUnifiedHUDExtrasWidget.h"
+#include "MCUnifiedReticleWidget.h"
 
 #include "MCGameplayUIFactory.h"
 #include "MCUniversalUIWidget.h"
@@ -70,7 +71,7 @@ void UMCUnifiedHUDExtrasWidget::BuildPresentationTree()
 {
     if(!WidgetTree) return;
     if(!Theme) Theme=UMCGameplayUIFactory::GetThemeForVersion(EMCUIVersion::New);
-    if(WidgetTree->RootWidget) {ClearShapeLabels();EnsureSupplementalFlow();return;} // Retain saved nodes and shape options.
+    if(WidgetTree->RootWidget) {ClearShapeLabels();EnsureSupplementalFlow();EnsureReticleView();return;} // Retain saved nodes and shape options.
     WidgetTree->RootWidget=WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(),TEXT("HUDExtrasRoot"));
     auto Add=[&](UVerticalBox* Column,FName Name,int32 Size) {
         auto* Label=Text(Name,Size);Column->AddChildToVerticalBox(Label)->SetPadding(FMargin(0,0,0,6));return Label;
@@ -95,7 +96,19 @@ void UMCUnifiedHUDExtrasWidget::BuildPresentationTree()
     // Standalone actor-free status fixtures only. Runtime uses the primary V2ActionHint once.
     auto* Status=AddGroup(TEXT("ExtrasStatusPreview"),FVector2D(.5,1),FVector2D(0,-190),FVector2D(.5,1));
     Add(Status,TEXT("ExtrasStatusPreviewText"),21)->SetJustification(ETextJustify::Center);
-    ClearShapeLabels();EnsureSupplementalFlow();UpdateLayout();
+    ClearShapeLabels();EnsureSupplementalFlow();EnsureReticleView();UpdateLayout();
+}
+UMCUnifiedReticleWidget* UMCUnifiedHUDExtrasWidget::EnsureReticleView()
+{
+    if(!WidgetTree) return nullptr;
+    if(auto* Existing=WidgetTree->FindWidget<UMCUnifiedReticleWidget>(TEXT("UnifiedReticle"))) return Existing;
+    if(WidgetTree->FindWidget(TEXT("UnifiedReticle"))) return nullptr;
+    auto* Canvas=Cast<UCanvasPanel>(WidgetTree->RootWidget);if(!Canvas) return nullptr;
+    auto* Class=UMCGameplayUIFactory::ResolveClassForTheme(TEXT("UnifiedReticle"),UMCUnifiedReticleWidget::StaticClass(),GetResolvedTheme());
+    auto* View=WidgetTree->ConstructWidget<UMCUnifiedReticleWidget>(Class,TEXT("UnifiedReticle"));
+    if(!View->Theme) View->Theme=GetResolvedTheme();View->Initialize();View->BuildPresentationTree();
+    auto* Cell=Canvas->AddChildToCanvas(View);Cell->SetAnchors(FAnchors(0,0,1,1));Cell->SetOffsets(FMargin(0));Cell->SetZOrder(100);
+    View->SetVisibility(ESlateVisibility::HitTestInvisible);View->SetBackend(Backend.Get());return View;
 }
 void UMCUnifiedHUDExtrasWidget::ClearShapeLabels()
 {
@@ -251,6 +264,9 @@ void UMCUnifiedHUDExtrasWidget::PreparePresentation()
     Measure->Measure(FText::AsCultureInvariant(TEXT("0123456789 / .,+")),PassiveFont,FontScale);
     Ready&=WidgetTree->FindWidget<UWrapBox>(TEXT("ExtrasPassiveChips")) && WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("ExtrasSwimProgress"));
     Ready&=WidgetTree->FindWidget<UWrapBox>(TEXT("ExtrasFlowRows")) && WidgetTree->FindWidget<USizeBox>(TEXT("ExtrasFlowBounds"));
+    auto* Reticle=EnsureReticleView();
+    if(Reticle) {Reticle->SetBackend(Backend.Get());Reticle->PreparePresentation();}
+    Ready&=Reticle && Reticle->IsPresentationPrepared();
     bPrepared=Ready;UpdateLayout();
 }
 void UMCUnifiedHUDExtrasWidget::SetBackend(UMCGameplayHUD* Source)
@@ -324,7 +340,7 @@ void UMCUnifiedHUDExtrasWidget::ApplyTheme()
     LastLayoutSignature.Reset();bPrepared=false;PreparePresentation();if(!IsDesignTime()) RefreshFromBackend();
 }
 void UMCUnifiedHUDExtrasWidget::NativeConstruct() {Super::NativeConstruct();PreparePresentation();RefreshFromBackend();}
-void UMCUnifiedHUDExtrasWidget::NativeDestruct() {if(auto* Source=Backend.Get()) Source->SetUnifiedExtrasActive(false);bPrepared=false;Super::NativeDestruct();}
+void UMCUnifiedHUDExtrasWidget::NativeDestruct() {if(auto* Source=Backend.Get()) Source->SetUnifiedExtrasActive(false);if(WidgetTree) if(auto* Reticle=WidgetTree->FindWidget<UMCUnifiedReticleWidget>(TEXT("UnifiedReticle"))) Reticle->SetBackend(nullptr);bPrepared=false;Super::NativeDestruct();}
 void UMCUnifiedHUDExtrasWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
     Super::NativeTick(Geometry,DeltaSeconds);if(!LastArea.Equals(Geometry.GetLocalSize(),.5f)) UpdateLayout();
@@ -364,6 +380,7 @@ void UMCUnifiedHUDExtrasWidget::PresentPreview(float Time)
         for(FText& Name:Sample.PassiveNames) Name=Extend(Name);
     }
     Present(Sample);
+    if(auto* Reticle=EnsureReticleView()) {Reticle->PreviewCulture=PreviewCulture;Reticle->PreviewScenario=PreviewScenario;Reticle->PreviewState=PreviewState;Reticle->ApplyEditorPreview(Time);}
 }
 void UMCUnifiedHUDExtrasWidget::ApplyEditorPreview(float Time)
 {

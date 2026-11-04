@@ -198,9 +198,7 @@ void UMCEmoteWidget::BuildPresentationTree()
 }
 FText UMCEmoteWidget::Copy(FName Key,const FText& Fallback) const
 {
-    const auto* Style=GetResolvedTheme();UDataTable* Table=Style?Style->LocalizationTable.LoadSynchronous():nullptr;
-    if(!Table) Table=UMCUIDataLibrary::GetDefaultLocalizationTable();
-    return UMCUIDataLibrary::ResolveText(Table,Key,Fallback,IsPreviewing()?PreviewCulture:FString());
+    return UMCUIDataLibrary::ResolveText(GetResolvedTranslationTable(),Key,Fallback,IsPreviewing()?PreviewCulture:FString());
 }
 FText UMCEmoteWidget::CategoryCopy(int32 Index) const
 {
@@ -356,13 +354,74 @@ void UMCEmoteWidget::ApplyEditorPreview(float Time)
     SetRenderOpacity(Time<=0?1.f:FMath::Clamp(Time*6.f,0.f,1.f));
 }
 void UMCEmoteWidget::ResetEditorPreview() {bEditorFixture=false;SetRenderOpacity(1);}
+
+FMCEmotePresentationSnapshot UMCEmoteWidget::GetUnifiedPresentationSnapshot() const
+{
+    FMCEmotePresentationSnapshot Result;Result.bVisible=IsVisible();Result.SelectedCategory=Category;Result.SelectedChoice=KeyboardChoice;
+    const auto* Player=GetOwningPlayer<AMCPlayerController>();Result.bHeld=Player && Player->IsHoldingEmoteSelection();
+    Result.Heading=CategoryTitle?CategoryTitle->GetText():FText::GetEmpty();Result.HintText=Hint?Hint->GetText():FText::GetEmpty();
+    Result.FooterText=Footer?Footer->GetText():FText::GetEmpty();Result.ColorHeadingText=ColorHeading?ColorHeading->GetText():FText::GetEmpty();
+    for(int32 Index=0;Index<3;++Index) Result.CategoryLabels[Index]=SectorLabels.IsValidIndex(Index) && SectorLabels[Index]?SectorLabels[Index]->GetText():CategoryCopy(Index);
+    auto Token=[&](UMCEmoteButton* SourceButton,int32 Index,bool bColor) {
+        FMCEmotePresentationChoice Value;Value.Source=SourceButton;Value.ExpectedCategory=Category;Value.Index=Index;
+        Value.Id=SourceButton->Id;Value.Alarm=SourceButton->Alarm;Value.bColorChoice=bColor;Value.bEnabled=SourceButton->GetIsEnabled();Value.bSelected=!bColor && KeyboardChoice==Index;
+        if(const auto* Caption=Cast<UTextBlock>(SourceButton->GetContent())) Value.Label=Caption->GetText();
+        if(bColor) Value.Color=MCEmotePrivate::PlayerColors[Index];return Value;
+    };
+    for(int32 Index=0;Index<Buttons.Num();++Index) if(Buttons[Index]) Result.Choices.Add(Token(Buttons[Index],Index,false));
+    for(int32 Index=0;Index<ColorButtons.Num() && Index<UE_ARRAY_COUNT(MCEmotePrivate::PlayerColors);++Index) if(ColorButtons[Index]) Result.Colors.Add(Token(ColorButtons[Index],Index,true));
+    // Existing loaded gameplay library only: never load an emote from its first menu interaction.
+    if(const auto* Hero=GetOwningPlayerPawn<AMCToothCharacter>();Hero && Hero->Expression) if(const auto* Library=Hero->Expression->Library.Get())
+        for(const auto& Entry:Library->Entries) Result.KnownChoiceLabels.Add(Copy(FName(*(TEXT("UI.Emote.Entry.")+Entry.Id.ToString()+TEXT(".Label"))),Entry.Label));
+    const FGeometry& Geometry=GetTickSpaceGeometry();Result.bHasGeometry=Geometry.GetLocalSize().X>0 && Geometry.GetLocalSize().Y>0;
+    const float Scale=MCEmotePrivate::LayoutScale(Geometry)*Geometry.GetAccumulatedLayoutTransform().GetScale();
+    Result.WheelCenterAbsolute=Geometry.LocalToAbsolute(MCEmotePrivate::WheelCenter(Geometry));Result.OuterRadiusAbsolute=210*Scale;Result.InnerRadiusAbsolute=65*Scale;
+    return Result;
+}
+void UMCEmoteWidget::SetUnifiedFocusView(UUserWidget* NewView)
+{
+    UnifiedFocusView=NewView && NewView!=this && NewView->GetWorld()==GetWorld() && NewView->GetOwningPlayer()==GetOwningPlayer()?NewView:nullptr;
+}
+void UMCEmoteWidget::ClearUnifiedFocusView(const UUserWidget* OldView) {if(UnifiedFocusView.Get()==OldView) UnifiedFocusView.Reset();}
+void UMCEmoteWidget::NotifyUnifiedFocusLost(const UUserWidget* NewView) {if(UnifiedFocusView.Get()==NewView && !IsPreviewing() && IsVisible()) bCheckFocusAfterLoss=true;}
+FReply UMCEmoteWidget::RouteUnifiedKeyDown(const FKeyEvent& Event)
+{
+    const auto* Player=GetOwningPlayer<AMCPlayerController>();
+    return !IsPreviewing() && IsVisible() && Player && Player->CanUseEmotePresentation()?NativeOnKeyDown(GetTickSpaceGeometry(),Event):FReply::Unhandled();
+}
+FReply UMCEmoteWidget::RouteUnifiedKeyUp(const FKeyEvent& Event)
+{
+    const auto* Player=GetOwningPlayer<AMCPlayerController>();
+    return !IsPreviewing() && Player && (IsVisible() || Player->IsHoldingEmoteSelection())?NativeOnKeyUp(GetTickSpaceGeometry(),Event):FReply::Unhandled();
+}
+FReply UMCEmoteWidget::RouteUnifiedPointerDown(const FPointerEvent& Event)
+{
+    const auto* Player=GetOwningPlayer<AMCPlayerController>();
+    return !IsPreviewing() && IsVisible() && Player && Player->CanUseEmotePresentation()?NativeOnMouseButtonDown(GetTickSpaceGeometry(),Event):FReply::Unhandled();
+}
+bool UMCEmoteWidget::TryActivateUnifiedChoice(const FMCEmotePresentationChoice& Token,bool bHoverOnly)
+{
+    const auto* Player=GetOwningPlayer<AMCPlayerController>();
+    if(IsPreviewing() || !IsVisible() || !Player || !Player->CanUseEmotePresentation() || Token.ExpectedCategory!=Category) return false;
+    const auto& Current=Token.bColorChoice?ColorButtons:Buttons;UMCEmoteButton* SourceButton=Token.Source.Get();
+    if(!SourceButton || !Current.IsValidIndex(Token.Index) || Current[Token.Index]!=SourceButton
+        || SourceButton->Id!=Token.Id || SourceButton->Alarm!=Token.Alarm || SourceButton->bColorChoice!=Token.bColorChoice) return false;
+    RefreshAvailability();if(!SourceButton->GetIsEnabled()) return false;
+    if(bHoverOnly) {if(!Token.bColorChoice) SelectChoice(Token.Index);}
+    else SourceButton->OnClicked.Broadcast(); // Original handler preserves held-click, alarms, color and close semantics.
+    return true;
+}
+
 void UMCEmoteWidget::NativeTick(const FGeometry& Geometry,float Dt)
 {
     Super::NativeTick(Geometry,Dt);if(!IsVisible() || IsPreviewing()) return;
     if(bCheckFocusAfterLoss) {
         bCheckFocusAfterLoss=false;
         if(auto* PC=GetOwningPlayer<AMCPlayerController>();PC && !HasUserFocus(PC) && !HasUserFocusedDescendants(PC)) {
-            PC->CloseEmotes();return;
+            const auto* NewView=UnifiedFocusView.Get();
+            const bool NewFocus=NewView && NewView->GetWorld()==GetWorld() && NewView->GetOwningPlayer()==PC && NewView->IsVisible()
+                && (NewView->HasUserFocus(PC) || NewView->HasUserFocusedDescendants(PC));
+            if(!NewFocus) {PC->CloseEmotes();return;}
         }
     }
     RefreshElapsed+=Dt;if(RefreshElapsed>=.1f) {RefreshElapsed=0;RefreshAvailability();}

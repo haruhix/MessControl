@@ -393,29 +393,58 @@
         ],
         "evidence": "Docs/UI/UISettingsTeam_20261104.json"
       }
+    },
+    {
+      "date": "2026-11-04",
+      "phase": "catch_checkpoint_before_overlays",
+      "checkpoint": {
+        "date": "2026-11-04",
+        "savedRootWidgets": 150,
+        "rootPages": 17,
+        "implemented": [
+          "Menu,Gameplay HUD,Settings5tabs,TEAM,Wardrobe,Boosters",
+          "Hub,Reward,secondary Frontend,GameplayMenu",
+          "Catch,HUDExtras,Loading,Boss,Alert with retained actual source state"
+        ],
+        "evidence": [
+          "Docs/UI/UICommerce_20261104.json",
+          "Docs/UI/UIHubReward_20261104.json",
+          "Docs/UI/UICatch_20261104.json"
+        ],
+        "pending": [
+          "Integrate held Tutorial/Emotes and six world UI hosts; Care desired-size bridge separately pending.",
+          "Contextual multi-boss/alert, drowning/results/combined events not exhaustively played; fixtures provide layout evidence.",
+          "Whole-interface long-copy/resolution/art acceptance remains pending.",
+          "Hardware delivery,network/multiplayer,microphone,cook/package/cold PSO not tested.",
+          "Native reticles and supplementary hints/labels need remaining scope audit.",
+          "Clothing catalog/fitting task queued after whole UI; audit only, no implementation."
+        ],
+        "reservedHiddenPages": "Tools5/Perks6 unused placeholders. PSD tools/busters/PERK are artwork sheets, not catalog screens.",
+        "nextQueue": "Docs/UI/ClothingCatalogNext_20261104.json"
+      }
     }
   ],
   "currentCheckpoint": {
     "date": "2026-11-04",
-    "savedRootWidgets": 150,
-    "rootPages": 17,
+    "savedRootWidgets": 154,
+    "rootPages": 19,
     "implemented": [
-      "Menu,Gameplay HUD,Settings5tabs,TEAM,Wardrobe,Boosters",
-      "Hub,Reward,secondary Frontend,GameplayMenu",
-      "Catch,HUDExtras,Loading,Boss,Alert with retained actual source state"
+      "Menu/Gameplay/Settings5tabs/TEAM/Wardrobe/Boosters/Hub/Reward/Frontend/GameplayMenu",
+      "Catch/HUDExtras/Loading/Boss/Alert",
+      "Tutorial/Emotes/sharedUMGreticle/World8/explicitWorldLabels/Hubcontrols/Grill"
     ],
     "evidence": [
       "Docs/UI/UICommerce_20261104.json",
       "Docs/UI/UIHubReward_20261104.json",
-      "Docs/UI/UICatch_20261104.json"
+      "Docs/UI/UICatch_20261104.json",
+      "Docs/UI/UIOverlayWorld_20261104.json"
     ],
     "pending": [
-      "Integrate held Tutorial/Emotes and six world UI hosts; Care desired-size bridge separately pending.",
-      "Contextual multi-boss/alert, drowning/results/combined events not exhaustively played; fixtures provide layout evidence.",
-      "Whole-interface long-copy/resolution/art acceptance remains pending.",
-      "Hardware delivery,network/multiplayer,microphone,cook/package/cold PSO not tested.",
-      "Native reticles and supplementary hints/labels need remaining scope audit.",
-      "Clothing catalog/fitting task queued after whole UI; audit only, no implementation."
+      "Full artistic acceptance at all aspect ratios and user-authored extremely long strings.",
+      "Contextual Care/spray/food/fog/grenade/Grill reward paths and rare boss/HUD event combinations retain explicit limited coverage.",
+      "L_Tutorial saved river preparation failure belongs to separate scene/VFX readiness work.",
+      "No network/multiplayer/cook/package/cold PSO validation.",
+      "Clothing canonical catalog and embedded fitting next, separate commit."
     ],
     "reservedHiddenPages": "Tools5/Perks6 unused placeholders. PSD tools/busters/PERK are artwork sheets, not catalog screens.",
     "nextQueue": "Docs/UI/ClothingCatalogNext_20261104.json"

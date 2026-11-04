@@ -1,4 +1,13 @@
 #include "MCHubWidget.h"
+#include "MCUnifiedHubWidget.h"
+#include "MCGameplayUIFactory.h"
+#include "CoreGlobals.h"
+#include "Fonts/FontMeasure.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "Internationalization/Internationalization.h"
+#include "Internationalization/Culture.h"
+#include "Framework/Application/SlateApplication.h"
+#include "Rendering/SlateRenderer.h"
 
 #include "MCHubGameState.h"
 #include "MCHubReadyZone.h"
@@ -35,7 +44,6 @@
 #include "EngineUtils.h"
 #include "Engine/GameInstance.h"
 #include "Engine/LocalPlayer.h"
-#include "Framework/Application/SlateApplication.h"
 #include "Framework/Application/SlateUser.h"
 #include "InputCoreTypes.h"
 #include "Misc/ScopeExit.h"
@@ -1045,17 +1053,70 @@ void UMCHubWidget::TickPresentation(float DeltaSeconds)
     }
 }
 
-int32 UMCHubWidget::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
-    FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const
+void UMCHubWidget::PrimeControlsGlyphs()
 {
-    int32 Top=Super::NativePaint(Args,Geometry,CullingRect,Elements,Layer,Style,ParentEnabled);
+    if(IsDesignTime() || !FSlateApplication::IsInitialized()) {bControlsGlyphsPrepared=false;return;}
+    const auto Renderer=FSlateApplication::Get().GetRenderer();const auto* NewTheme=UMCGameplayUIFactory::GetThemeForVersion(EMCUIVersion::New);
+    UDataTable* Table=GetResolvedTranslationTable();
+    if(!Renderer || !NewTheme || !Table) {bControlsGlyphsPrepared=false;return;}
+    const FName Keys[]={TEXT("hub.basketball.controls"),TEXT("hub.basketball.controls.gamepad"),TEXT("hub.basketball.pickup"),TEXT("hub.basketball.pickup.gamepad"),
+        TEXT("hub.fishing.controls"),TEXT("hub.fishing.controls.gamepad"),TEXT("hub.fishing.water_required"),TEXT("hub.fishing.water_required.gamepad"),TEXT("hub.fishing.waiting"),TEXT("hub.fishing.hooked")};
+    TArray<FText> Warm;bool Complete=true;
+    for(FName Key:Keys) {const FText Copy=UMCUIDataLibrary::ResolveText(Table,Key,FText::GetEmpty());Complete&=!Copy.IsEmpty();Warm.Add(Copy);}
+    const FText Corpus=FText::Join(FText::AsCultureInvariant(TEXT(" ")),Warm);
+    const FString Culture=FInternationalization::Get().GetCurrentLanguage()->GetName();
+    const FSlateFontInfo SourceFont=GetControlsReticleFont(),NewFont=NewTheme->MakeFont(20,true);
+    const float Scale=FMath::Max(.001f,UWidgetLayoutLibrary::GetViewportScale(this));
+    if(bControlsGlyphsPrepared && Complete && PrimedControlsTable.Get()==Table && PrimedControlsCulture==Culture && PrimedControlsCorpus.EqualTo(Corpus)
+        && PrimedControlsSourceFont==SourceFont && PrimedControlsNewFont==NewFont && FMath::IsNearlyEqual(Scale,PrimedControlsScale,.001f)) return;
+    bControlsGlyphsPrepared=false;
+    if(!Complete || !SourceFont.HasValidFont() || !NewFont.HasValidFont()) return; // Current remains available; never change scene/ACK gates for missing UI copy.
+    for(int32 FontSize=18;FontSize<=20;++FontSize) Renderer->GetFontMeasureService()->Measure(Corpus,NewTheme->MakeFont(FontSize,true),Scale);
+    Renderer->GetFontMeasureService()->Measure(FText::AsCultureInvariant(TEXT("+")),SourceFont,1.f);
+    PrimedControlsTable=Table;PrimedControlsCulture=Culture;PrimedControlsCorpus=Corpus;PrimedControlsSourceFont=SourceFont;PrimedControlsNewFont=NewFont;PrimedControlsScale=Scale;
+    bControlsGlyphsPrepared=true;
+}
+FSlateFontInfo UMCHubWidget::GetControlsReticleFont() const
+{
+    return BasketballReticle?BasketballReticle->GetFont():GetResolvedTheme()->MakeGameplayFont(24);
+}
+FMCHubControlsPresentation UMCHubWidget::EvaluateControlsPresentation(const FGeometry& SourcePaint,FVector2D LocalSize) const
+{
+    FMCHubControlsPresentation Result;Result.Reticle.Source=const_cast<UMCHubWidget*>(this);Result.Reticle.SourceFrame=GFrameCounter;Result.Reticle.LocalSize=LocalSize;
+    Result.Reticle.bSourceVisible=IsVisible() && (!GetRootWidget() || GetRootWidget()->IsVisible());
+    Result.Reticle.bPaintGeometryCompatible=LocalSize.X>1 && LocalSize.Y>1 && SourcePaint.GetLocalSize().Equals(LocalSize,.5);
+    Result.bHintVisible=BasketballHint && BasketballHint->IsVisible();Result.Hint=BasketballHint?BasketballHint->GetText():FText::GetEmpty();
+    auto Finalize=[&]() {
+        Result.NativeTrajectoryStrokeCount=Result.Reticle.Strokes.Num();
+        Result.Reticle.MaximumLayer=2;
+        if(BasketballReticle && BasketballReticle->IsVisible()) {
+            const auto Renderer=FSlateApplication::IsInitialized()?FSlateApplication::Get().GetRenderer():nullptr;
+            const FGeometry GlyphPaint=BasketballReticle->GetPaintSpaceGeometry();
+            if(!Renderer || GlyphPaint.GetLocalSize().X<=0 || GlyphPaint.GetLocalSize().Y<=0) Result.Reticle.bPaintGeometryCompatible=false;
+            else {
+                const auto Font=GetControlsReticleFont();
+                const FVector2D Advance=Renderer->GetFontMeasureService()->Measure(FText::AsCultureInvariant(TEXT("+")),Font,1.f);
+                const FVector2D Center=SourcePaint.AbsoluteToLocal(GlyphPaint.LocalToAbsolute(GlyphPaint.GetLocalSize()*.5));
+                const FVector2D Span=SourcePaint.AbsoluteToLocal(GlyphPaint.LocalToAbsolute(FVector2D(Advance.X,0)))-SourcePaint.AbsoluteToLocal(GlyphPaint.LocalToAbsolute(FVector2D::ZeroVector));
+                const float Half=FMath::Max(1.f,float(Span.Size())*.5f),Width=FMath::Max(1.f,float(Span.Size())/7.f);
+                const FVector2D Shadow=SourcePaint.AbsoluteToLocal(GlyphPaint.LocalToAbsolute(BasketballReticle->GetShadowOffset()))-SourcePaint.AbsoluteToLocal(GlyphPaint.LocalToAbsolute(FVector2D::ZeroVector));
+                const auto Tint=BasketballReticle->GetColorAndOpacity().GetSpecifiedColor(),Shade=BasketballReticle->GetShadowColorAndOpacity();
+                for(FVector2D Axis:{FVector2D(1,0),FVector2D(0,1)}) {
+                    FMCUIReticleStroke Back;Back.Points={Center+Shadow-Axis*Half,Center+Shadow+Axis*Half};Back.Color=Shade;Back.Width=Width;Back.Layer=3;Result.Reticle.Strokes.Add(MoveTemp(Back));
+                    FMCUIReticleStroke Ink;Ink.Points={Center-Axis*Half,Center+Axis*Half};Ink.Color=Tint;Ink.Width=Width;Ink.Layer=4;Result.Reticle.Strokes.Add(MoveTemp(Ink));
+                }
+                Result.Reticle.MaximumLayer=4;
+            }
+        }
+        return MoveTemp(Result);
+    };
     const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
     auto* PC=GetOwningPlayer();
     const auto* Ball=Hero?AMCHubBasketball::HeldBy(Hero):nullptr;
-    if(!Ball || !PC || !Ball->IsAiming() || BasketballTrajectory.Num()<2) return Top;
+    if(!Ball || !PC || !Ball->IsAiming() || BasketballTrajectory.Num()<2) return Finalize();
     int32 Width=0,Height=0;PC->GetViewportSize(Width,Height);
-    if(Width<=0 || Height<=0) return Top;
-    const FVector2D Size=Geometry.GetLocalSize();
+    if(Width<=0 || Height<=0) return Finalize();
+    const FVector2D Size=LocalSize;
     const float Scale=FMath::Clamp(float(Size.X/1600.),.5f,2.f);
     const float Dash=18.f*Scale,Gap=13.f*Scale;
     auto Project=[&](const FVector& Point,FVector2D& Local) {
@@ -1064,8 +1125,8 @@ int32 UMCHubWidget::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry
         Local=FVector2D(Pixel.X*Size.X/Width,Pixel.Y*Size.Y/Height);return true;
     };
     auto Stroke=[&](const TArray<FVector2D>& Points) {
-        FSlateDrawElement::MakeLines(Elements,Top+1,Geometry.ToPaintGeometry(),Points,ESlateDrawEffect::None,FLinearColor(0,0,0,.35f),true,4.f*Scale);
-        FSlateDrawElement::MakeLines(Elements,Top+2,Geometry.ToPaintGeometry(),Points,ESlateDrawEffect::None,FLinearColor(1,1,1,.96f),true,2.5f*Scale);
+        FMCUIReticleStroke Back;Back.Points=Points;Back.Color=FLinearColor(0,0,0,.35f);Back.Width=4.f*Scale;Back.Layer=1;Result.Reticle.Strokes.Add(MoveTemp(Back));
+        FMCUIReticleStroke Ink;Ink.Points=Points;Ink.Color=FLinearColor(1,1,1,.96f);Ink.Width=2.5f*Scale;Ink.Layer=2;Result.Reticle.Strokes.Add(MoveTemp(Ink));
     };
     double Walked=0;
     for(int32 I=1;I<BasketballTrajectory.Num();++I) {
@@ -1094,7 +1155,61 @@ int32 UMCHubWidget::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry
         }
         Stroke(Circle);
     }
-    return Top+2;
+    return Finalize();
+}
+void UMCHubWidget::CacheControlsPresentation(FVector2D LocalSize)
+{
+    if(ControlsSnapshot.Reticle.SourceFrame==GFrameCounter || IsDesignTime()) return;
+    // Restore before the next source evaluation; failed/occluded New must leave the original controls visible.
+    for(const auto& Entry:ControlsOriginalOpacity) if(auto* Widget=Entry.Key.Get()) Widget->SetRenderOpacity(Entry.Value);
+    ControlsOriginalOpacity.Reset();
+    ControlsPaintGeometry=GetPaintSpaceGeometry();ControlsSnapshot=EvaluateControlsPresentation(ControlsPaintGeometry,LocalSize);
+    ControlsUpdated.Broadcast(ControlsSnapshot); // Source-first; no future New paint is required to commit.
+}
+bool UMCHubWidget::CommitUnifiedControlsView(UMCUnifiedHubWidget* View,uint64 SourceFrame)
+{
+    if(!bUnifiedViewActive || IsDesignTime() || UMCGameplayUIFactory::GetPresentationVersion()!=EMCUIVersion::New || !View
+        || View->GetWorld()!=GetWorld() || View->GetOwningPlayer()!=GetOwningPlayer() || SourceFrame!=GFrameCounter
+        || SourceFrame!=ControlsSnapshot.Reticle.SourceFrame || NativeControlsPaintedFrame==GFrameCounter
+        || !View->HasControlsPresentationFrame(this,SourceFrame)) return false;
+    UnifiedControlsView=View;UnifiedControlsFrame=SourceFrame;ApplyUnifiedControlsOpacity();return true;
+}
+void UMCHubWidget::ApplyUnifiedControlsOpacity()
+{
+    for(UWidget* Widget:{static_cast<UWidget*>(BasketballHint.Get()),static_cast<UWidget*>(BasketballReticle.Get())}) if(Widget) {
+        if(!ControlsOriginalOpacity.Contains(Widget)) ControlsOriginalOpacity.Add(Widget,Widget->GetRenderOpacity());Widget->SetRenderOpacity(0);
+    }
+}
+void UMCHubWidget::ClearUnifiedControlsView(const UMCUnifiedHubWidget* View)
+{
+    if(UnifiedControlsView.Get()!=View) return;
+    UnifiedControlsView.Reset();UnifiedControlsFrame=MAX_uint64;
+    for(const auto& Entry:ControlsOriginalOpacity) if(auto* Widget=Entry.Key.Get()) Widget->SetRenderOpacity(Entry.Value);
+    ControlsOriginalOpacity.Reset();
+}
+void UMCHubWidget::ReleaseUnifiedControlsView()
+{
+    if(auto* View=UnifiedControlsView.Get()) View->ClearControlsPresentation(this);
+    UnifiedControlsView.Reset();UnifiedControlsFrame=MAX_uint64;
+    for(const auto& Entry:ControlsOriginalOpacity) if(auto* Widget=Entry.Key.Get()) Widget->SetRenderOpacity(Entry.Value);
+    ControlsOriginalOpacity.Reset();
+}
+bool UMCHubWidget::UsesUnifiedControlsView() const
+{
+    return bUnifiedViewActive && UMCGameplayUIFactory::GetPresentationVersion()==EMCUIVersion::New && UnifiedControlsFrame==GFrameCounter
+        && ControlsSnapshot.Reticle.SourceFrame==GFrameCounter && UnifiedControlsView.IsValid() && UnifiedControlsView->HasControlsPresentationFrame(this,UnifiedControlsFrame);
+}
+int32 UMCHubWidget::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
+    FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const
+{
+    const int32 Top=Super::NativePaint(Args,Geometry,CullingRect,Elements,Layer,Style,ParentEnabled);
+    if(UsesUnifiedControlsView()) return Top;
+    NativeControlsPaintedFrame=GFrameCounter;
+    for(int32 Index=0;Index<ControlsSnapshot.NativeTrajectoryStrokeCount;++Index) {
+        const auto& Stroke=ControlsSnapshot.Reticle.Strokes[Index];
+        FSlateDrawElement::MakeLines(Elements,Top+Stroke.Layer,Geometry.ToPaintGeometry(),Stroke.Points,ESlateDrawEffect::None,Stroke.Color,true,Stroke.Width);
+    }
+    return Top+(ControlsSnapshot.NativeTrajectoryStrokeCount>0?2:0);
 }
 
 void UMCHubWidget::UpdateMouthHitAreas()
@@ -1255,27 +1370,29 @@ FReply UMCHubWidget::NativeOnMouseWheel(const FGeometry& Geometry,const FPointer
 }
 void UMCHubWidget::NativeConstruct()
 {
-    Super::NativeConstruct();Init(State());
+    Super::NativeConstruct();Init(State());PrimeControlsGlyphs();
 }
 void UMCHubWidget::NativeDestruct()
 {
+    ReleaseUnifiedControlsView();ControlsSnapshot=FMCHubControlsPresentation();
     if(auto* Hub=BoundState.Get()) Hub->OnHubStateChanged.RemoveDynamic(this,&ThisClass::RefreshFromState);
     BoundState.Reset();ResetSelectionPresentation();
     Super::NativeDestruct();
 }
 void UMCHubWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
-    Super::NativeTick(Geometry,DeltaSeconds);
+    Super::NativeTick(Geometry,DeltaSeconds);PrimeControlsGlyphs();
     // The controller advances the authored 3D stage before its mesh components.
     // NativeTick only refreshes readiness/name labels, never advances it twice.
     RefreshElapsed+=DeltaSeconds;
     if(RefreshElapsed>=.25f) {RefreshElapsed=0.f;RefreshFromState();}
     UpdateMouthHitAreas();
+    CacheControlsPresentation(Geometry.GetLocalSize());
 }
 void UMCHubWidget::OnLocalizationChanged()
 {
     LastStateSignature.Reset();
-    RefreshFromState();
+    RefreshFromState();bControlsGlyphsPrepared=false;PrimeControlsGlyphs();
 }
 
 void UMCHubWidget::ApplyUnifiedViewSuppression()
@@ -1287,6 +1404,7 @@ void UMCHubWidget::ApplyUnifiedViewSuppression()
 void UMCHubWidget::SetUnifiedViewActive(bool bActive)
 {
     if(IsDesignTime()) return;
+    if(!bActive) ReleaseUnifiedControlsView();
     if(bUnifiedViewActive==bActive) {if(bActive) ApplyUnifiedViewSuppression();return;}
     bUnifiedViewActive=bActive;
     if(bActive) ApplyUnifiedViewSuppression();

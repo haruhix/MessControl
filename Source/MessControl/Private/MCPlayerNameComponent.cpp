@@ -4,6 +4,7 @@
 #include "MCGameplayUIFactory.h"
 #include "MCPlayerState.h"
 #include "MCUIVisualStyle.h"
+#include "MCWorldUIShapes.h"
 #include "MCVoiceIndicatorComponent.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Border.h"
@@ -20,6 +21,8 @@
 
 #define LOCTEXT_NAMESPACE "MCPlayerName"
 
+UMCPlayerNameWidget::UMCPlayerNameWidget() {bUseVersionedWorldPresentation=true;}
+
 void UMCPlayerNameWidget::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
@@ -30,7 +33,8 @@ void UMCPlayerNameWidget::NativeOnInitialized()
 
 void UMCPlayerNameWidget::BuildPresentationTree()
 {
-    if(!WidgetTree || NameText) return;
+    if(!WidgetTree) return;
+    if(NameText) {BuildWorldPresentationTree();return;}
     if(WidgetTree->RootWidget)
     {
         NameText=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("PlayerNameText")));
@@ -38,7 +42,7 @@ void UMCPlayerNameWidget::BuildPresentationTree()
         AlarmText=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("PlayerAlarmText")));
         AlarmPanel=Cast<UBorder>(WidgetTree->FindWidget(TEXT("PlayerAlarmPanel")));
         PlayerIcon=Cast<UMCHUDIcon>(WidgetTree->FindWidget(TEXT("PlayerNameIcon")));
-        return;
+        BuildWorldPresentationTree();return;
     }
     auto* Box=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("PlayerNameRoot"));WidgetTree->RootWidget=Box;
     AlarmPanel=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("PlayerAlarmPanel"));
@@ -58,6 +62,54 @@ void UMCPlayerNameWidget::BuildPresentationTree()
     auto* NameWidth=WidgetTree->ConstructWidget<USizeBox>();NameWidth->SetMaxDesiredWidth(240);NameWidth->SetContent(NameText);
     NameRow->AddChildToHorizontalBox(NameWidth)->SetVerticalAlignment(VAlign_Center);
     Box->AddChildToVerticalBox(NameBackground)->SetHorizontalAlignment(HAlign_Center);
+    BuildWorldPresentationTree();
+}
+
+void UMCPlayerNameWidget::BuildWorldPresentationTree()
+{
+    if(!bUseVersionedWorldPresentation || !WidgetTree) return;
+    auto* NewRoot=WidgetTree->FindWidget<USizeBox>(TEXT("WorldNameV2Root"));
+    if(!NewRoot) {
+        auto* NewTheme=GetNewWorldPresentationTheme();
+        NewRoot=MCWorldUIShapes::Bounds(WidgetTree,TEXT("WorldNameV2Root"),320);
+        auto* Stack=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("WorldNameV2Stack"));NewRoot->SetContent(Stack);
+        auto* Alarm=MCWorldUIShapes::Panel(WidgetTree,TEXT("WorldNameV2Alarm"),NewTheme,EMCUIColorToken::Accent,FMargin(10,5));
+        Stack->AddChildToVerticalBox(Alarm)->SetPadding(FMargin(0,0,0,5));
+        auto* AlarmCopy=MCWorldUIShapes::Text(WidgetTree,TEXT("WorldNameV2AlarmCopy"),296);Alarm->SetContentForSlot(TEXT("Content"),AlarmCopy);
+        auto* Plate=MCWorldUIShapes::Panel(WidgetTree,TEXT("WorldNameV2Plate"),NewTheme,EMCUIColorToken::Cream,FMargin(10,5));
+        Stack->AddChildToVerticalBox(Plate);
+        auto* Row=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("WorldNameV2Row"));Plate->SetContentForSlot(TEXT("Content"),Row);
+        auto* Icon=WidgetTree->ConstructWidget<UMCHUDIcon>(UMCHUDIcon::StaticClass(),TEXT("WorldNameV2Icon"));Icon->bTooth=true;
+        auto* IconBounds=MCWorldUIShapes::Bounds(WidgetTree,TEXT("WorldNameV2IconBounds"),32,32);IconBounds->SetHeightOverride(32);IconBounds->SetContent(Icon);
+        auto* IconCell=Row->AddChildToHorizontalBox(IconBounds);IconCell->SetVerticalAlignment(VAlign_Center);IconCell->SetPadding(FMargin(0,0,7,0));
+        auto* NameCopy=MCWorldUIShapes::Text(WidgetTree,TEXT("WorldNameV2Copy"),266);
+        auto* NameCell=Row->AddChildToHorizontalBox(NameCopy);NameCell->SetSize(FSlateChildSize(ESlateSizeRule::Fill));NameCell->SetVerticalAlignment(VAlign_Center);
+    }
+    InstallWorldPresentation(NewRoot);
+    NewNameText=WidgetTree->FindWidget<UTextBlock>(TEXT("WorldNameV2Copy"));
+    NewAlarmText=WidgetTree->FindWidget<UTextBlock>(TEXT("WorldNameV2AlarmCopy"));
+    NewAlarmShape=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("WorldNameV2Alarm"));
+    NewPlayerIcon=WidgetTree->FindWidget<UMCHUDIcon>(TEXT("WorldNameV2Icon"));
+}
+
+void UMCPlayerNameWidget::RefreshWorldPresentation()
+{
+    const auto* NewTheme=GetNewWorldPresentationTheme();if(!NewTheme) return;
+    if(NewNameText) {MCWorldUIShapes::TextStyle(NewNameText,NewTheme,19,EMCUIColorToken::Marine);NewNameText->SetText(FText::AsCultureInvariant(PresentedName));}
+    const bool HasAlarm=PresentedAlarm!=EMCPlayerAlarm::None;
+    if(NewAlarmShape) {
+        NewAlarmShape->Fill=PresentedAlarm==EMCPlayerAlarm::Help?EMCUIColorToken::Mint:EMCUIColorToken::Warning;
+        NewAlarmShape->ApplyTheme();NewAlarmShape->SetVisibility(HasAlarm?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    }
+    if(NewAlarmText) {
+        MCWorldUIShapes::TextStyle(NewAlarmText,NewTheme,18,EMCUIColorToken::Marine);
+        // The source presenter owns dynamic localized copy; no duplicate alarm state/clock.
+        NewAlarmText->SetText(AlarmText?AlarmText->GetText():FText::GetEmpty());
+    }
+    if(NewPlayerIcon) {
+        NewPlayerIcon->Tint=PresentedColor;NewPlayerIcon->InkTint=NewTheme->Palette.Marine;
+        NewPlayerIcon->HostTint=NewTheme->Palette.Warning;NewPlayerIcon->bHost=bPresentedHost;NewPlayerIcon->InvalidateLayoutAndVolatility();
+    }
 }
 
 void UMCPlayerNameWidget::SetPlayerName(const FString& Name)
@@ -68,6 +120,7 @@ void UMCPlayerNameWidget::SetPlayerName(const FString& Name)
         NameText->SetText(FText::AsCultureInvariant(Name));
         NameText->SetToolTipText(FText::AsCultureInvariant(Name));
     }
+    if(NewNameText) NewNameText->SetText(FText::AsCultureInvariant(Name));
 }
 
 FString UMCPlayerNameWidget::GetPlayerName() const
@@ -110,6 +163,7 @@ void UMCPlayerNameWidget::ApplyTheme()
             ?Localized(TEXT("UI.PlayerAlarm.Help"),LOCTEXT("Help","+ НУЖНА ПОМОЩЬ"))
             :Localized(TEXT("UI.PlayerAlarm.Attention"),LOCTEXT("Attention","! ВНИМАНИЕ")));
     }
+    RefreshWorldPresentation();
 }
 
 void UMCPlayerNameWidget::ApplyEditorPreview(float Time)

@@ -1,4 +1,6 @@
 #include "MCGameplayHUD.h"
+#include "MCUnifiedReticleWidget.h"
+#include "CoreGlobals.h"
 #include "MCBoosterWidget.h"
 #include "MCSkillLoadoutWidget.h"
 #include "MCBossHealthWidget.h"
@@ -1057,6 +1059,7 @@ void UMCGameplayHUD::NativeConstruct()
 }
 void UMCGameplayHUD::NativeDestruct()
 {
+    ReleaseUnifiedReticleView();ReticleSnapshot=FMCUIReticlePresentation();
     bUnifiedExtrasActive=false;RestoreUnifiedExtrasVisibility();
     bUnifiedViewActive=false;
     RestoreUnifiedViewVisibility();
@@ -1162,6 +1165,7 @@ void UMCGameplayHUD::SetUnifiedExtrasActive(bool bActive)
 {
     const bool Enabled=bActive && bUnifiedViewActive && !IsDesignTime()
         && UMCGameplayUIFactory::GetPresentationVersion()==EMCUIVersion::New;
+    if(!Enabled) ReleaseUnifiedReticleView();
     if(bUnifiedExtrasActive==Enabled) {if(Enabled) ApplyUnifiedExtrasVisibility();return;}
     RestoreUnifiedExtrasVisibility();bUnifiedExtrasActive=Enabled;
     if(Enabled) ApplyUnifiedExtrasVisibility();
@@ -1228,87 +1232,92 @@ void UMCGameplayHUD::NativeTick(const FGeometry& Geometry,float Dt)
     UpdatePhase1Layout();
     if(AlertWidget) if(const auto* Boss=Cast<UMCBossHealthWidget>(EncounterPreviewWidget)) AlertWidget->SetBossStackCount(Boss->GetVisibility()==ESlateVisibility::Collapsed?0:Boss->GetDisplayedBossCount(),Boss->GetDisplayedStackHeight());
     if(IsDesignTime() || bApplyingPreview) return;
-    const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
-    const bool Spray=Hero && Hero->Inventory && Hero->Inventory->Selected==EMCToolSlot::Spray;
-    const auto* Player=GetOwningPlayer();
-    const float FoodAim=Hero && Player && !Player->bShowMouseCursor && !Player->IsLookInputIgnored()?Hero->FoodIntakeAimStrength():0;
-    const bool HadFoodReticle=FoodReticleAlpha>.001f;
-    FoodReticleAlpha=FMath::FInterpTo(FoodReticleAlpha,FoodAim,Dt,12.f);
-    if(FoodAim<=0 && FoodReticleAlpha<.005f) FoodReticleAlpha=0;
-    // Charge and cooldown animate every frame; ordinary HUD data remains at 10 Hz.
-    if(Spray || bHadSprayReticle || HadFoodReticle || FoodReticleAlpha>0) if(const auto Cached=GetCachedWidget()) Cached->Invalidate(EInvalidateWidgetReason::Paint);
-    bHadSprayReticle=Spray;
+    if(LastFoodReticleFrame!=GFrameCounter) {
+        LastFoodReticleFrame=GFrameCounter;
+        const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
+        const bool Spray=Hero && Hero->Inventory && Hero->Inventory->Selected==EMCToolSlot::Spray;
+        const auto* Player=GetOwningPlayer();
+        const float FoodAim=Hero && Player && !Player->bShowMouseCursor && !Player->IsLookInputIgnored()?Hero->FoodIntakeAimStrength():0;
+        const bool HadFoodReticle=FoodReticleAlpha>.001f;
+        FoodReticleAlpha=FMath::FInterpTo(FoodReticleAlpha,FoodAim,Dt,12.f);
+        if(FoodAim<=0 && FoodReticleAlpha<.005f) FoodReticleAlpha=0;
+        // Charge and cooldown animate every frame; ordinary HUD data remains at 10 Hz.
+        if(Spray || bHadSprayReticle || HadFoodReticle || FoodReticleAlpha>0) if(const auto Cached=GetCachedWidget()) Cached->Invalidate(EInvalidateWidgetReason::Paint);
+        bHadSprayReticle=Spray;
+    }
     if(RefreshElapsed>=.1f) { RefreshElapsed=0; RefreshState();UpdatePhase1Layout(); }
     // RefreshState owns dynamic visibility; layout can also move controls.
     // Apply the view selection last so neither brings retired groups back.
     ApplyUnifiedViewVisibility();
     ApplyUnifiedExtrasVisibility();
+    CacheReticlePresentation(Geometry.GetLocalSize());
 }
-int32 UMCGameplayHUD::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
-    FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const
+FMCUIReticlePresentation UMCGameplayHUD::EvaluateReticlePresentation(const FGeometry& SourcePaint,FVector2D LocalSize) const
 {
-    int32 Top=Super::NativePaint(Args,Geometry,CullingRect,Elements,Layer,Style,ParentEnabled);
-    if(IsDesignTime() || bApplyingPreview) return Top;
-    const auto* ThemeData=GetResolvedTheme();const auto& Palette=ThemeData->Palette;
+    FMCUIReticlePresentation Result;Result.Source=const_cast<UMCGameplayHUD*>(this);Result.SourceFrame=GFrameCounter;Result.LocalSize=LocalSize;
+    Result.bSourceVisible=IsVisible() && (!GetRootWidget() || GetRootWidget()->IsVisible());
+    Result.bPaintGeometryCompatible=LocalSize.X>1 && LocalSize.Y>1 && SourcePaint.GetLocalSize().Equals(LocalSize,.5);
+    const auto* ThemeData=GetResolvedTheme();if(!ThemeData || IsDesignTime() || bApplyingPreview) return Result;
+    const auto& Palette=ThemeData->Palette;
     const auto* PC=Cast<AMCPlayerController>(GetOwningPlayer());
     const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
     const auto* Inv=Hero?Hero->Inventory.Get():nullptr;
-    if(PC && Hero && Hero->Status->IsAlive() && !PC->bShowMouseCursor) if(const auto* Perks=UMCPerkComponent::ForActor(Hero)) {
+    int32 ReticleLayer=0;
+    auto AddStroke=[&](const TArray<FVector2D>& Points,FLinearColor Color,float Width,int32 Depth) {
+        FMCUIReticleStroke Stroke;Stroke.Points=Points;Stroke.Color=Color;Stroke.Width=Width;Stroke.Layer=Depth;Result.Strokes.Add(MoveTemp(Stroke));
+        Result.MaximumLayer=FMath::Max(Result.MaximumLayer,Depth);
+    };
+    if(PC && Hero && Hero->Status && Hero->Status->IsAlive() && !PC->bShowMouseCursor) if(const auto* Perks=UMCPerkComponent::ForActor(Hero)) {
         FVector Point;
         if(Perks->GetFogNavigation(Point)) {
             FVector View;FRotator Rotation;PC->GetPlayerViewPoint(View,Rotation);
             const FVector Delta=(Point-Hero->GetActorLocation()).GetSafeNormal2D();
             const FVector Forward=Rotation.Vector().GetSafeNormal2D(),Right=FVector::CrossProduct(FVector::UpVector,Forward);
             const FVector2D Direction=FVector2D(FVector::DotProduct(Delta,Right),-FVector::DotProduct(Delta,Forward)).GetSafeNormal();
-            const FVector2D Center=Geometry.GetLocalSize()*.5,Tip=Center+Direction*130,Side(-Direction.Y,Direction.X);
-            FSlateDrawElement::MakeLines(Elements,++Top,Geometry.ToPaintGeometry(),{Tip-Direction*20+Side*10,Tip,Tip-Direction*20-Side*10},ESlateDrawEffect::None,Palette.Mint,true,4);
+            const FVector2D Center=LocalSize*.5,Tip=Center+Direction*130,Side(-Direction.Y,Direction.X);
+            AddStroke({Tip-Direction*20+Side*10,Tip,Tip-Direction*20-Side*10},Palette.Mint,4,++ReticleLayer);
         }
     }
     if(PC && PC->IsLocalController() && !PC->bShowMouseCursor && !PC->IsLookInputIgnored() && !PC->IsSpectating()
         && Hero && Hero->CanWork() && FoodReticleAlpha>.005f) {
-        // Paint in this HUD's allotted space. Player-screen geometry can belong
-        // to a different Slate window while PIE uses a floating game viewport.
-        const FVector2D AimCenter=Geometry.GetLocalSize()*.5f;
+        const FVector2D AimCenter=LocalSize*.5f;
         const float A=FMath::Clamp(FoodReticleAlpha,0.f,1.f),Radius=FMath::Lerp(5.f,25.f,A),Arm=FMath::Lerp(3.f,10.f,A);
         for(int32 I=0;I<4;++I) {
             const FVector2D Sign(I<2?-1:1,(I%2)?-1:1),Corner=AimCenter+Sign*Radius;
             const TArray<FVector2D> Points={Corner-FVector2D(Sign.X*Arm,0),Corner,Corner-FVector2D(0,Sign.Y*Arm)};
-            FSlateDrawElement::MakeLines(Elements,Top+1,Geometry.ToPaintGeometry(),Points,ESlateDrawEffect::None,Palette.Ink.CopyWithNewOpacity(Palette.Ink.A*A*.85f),true,4);
-            FSlateDrawElement::MakeLines(Elements,Top+2,Geometry.ToPaintGeometry(),Points,ESlateDrawEffect::None,Palette.OnMarine.CopyWithNewOpacity(Palette.OnMarine.A*A),true,2);
+            AddStroke(Points,Palette.Ink.CopyWithNewOpacity(Palette.Ink.A*A*.85f),4,ReticleLayer+1);
+            AddStroke(Points,Palette.OnMarine.CopyWithNewOpacity(Palette.OnMarine.A*A),2,ReticleLayer+2);
         }
-        FSlateDrawElement::MakeText(Elements,Top+2,
-            Geometry.ToPaintGeometry(FVector2D(180,24),FSlateLayoutTransform(AimCenter+FVector2D(-58,Radius+12))),
-            Copy(TEXT("UI.HUD.FoodThrow"),LOCTEXT("FoodThrow","Q · БРОСИТЬ")),ThemeData->MakeGameplayFont(12),ESlateDrawEffect::None,Palette.OnMarine.CopyWithNewOpacity(Palette.OnMarine.A*A));
-        Top+=2;
+        FMCUIReticleLabel Label;Label.Position=AimCenter+FVector2D(-58,Radius+12);Label.Bounds=FVector2D(180,24);
+        Label.Text=Copy(TEXT("UI.HUD.FoodThrow"),LOCTEXT("FoodThrow","Q · БРОСИТЬ"));Label.Font=ThemeData->MakeGameplayFont(12);
+        Label.Color=Palette.OnMarine.CopyWithNewOpacity(Palette.OnMarine.A*A);Label.Layer=ReticleLayer+2;Result.Labels.Add(MoveTemp(Label));
+        ReticleLayer+=2;Result.MaximumLayer=FMath::Max(Result.MaximumLayer,ReticleLayer);
     }
     if(!PC || !PC->IsLocalController() || PC->bShowMouseCursor || PC->IsLookInputIgnored() || PC->IsSpectating()
-        || !Inv || Inv->Selected!=EMCToolSlot::Spray || !Hero->CanWork() || Hero->bInCoffee || !Inv->ShouldPresentTool()) return Top;
-    const FVector2D Center=Geometry.GetLocalSize()*.5f;
+        || !Inv || Inv->Selected!=EMCToolSlot::Spray || !Hero->CanWork() || Hero->bInCoffee || !Inv->ShouldPresentTool()) return Result;
+    const FVector2D Center=LocalSize*.5f;
     const bool Pressure=Inv->SelectedUpgrade()==EMCToolUpgrade::Watergun && Inv->bPressureMode;
     const bool Antiseptic=Inv->UsesAntisepticCycle();
     const float Cool=(Pressure || Antiseptic)?Inv->SpraySecondsLeft():0;
     const bool Reloading=Cool>0 && (!Antiseptic || !Inv->IsSprayCycleEmitting());
     const FLinearColor Tint=Reloading?Palette.Muted:Pressure?Palette.OnMarine:Palette.Accent;
     auto Stroke=[&](const TArray<FVector2D>& Points,FLinearColor Color,float Width=2.f) {
-        FSlateDrawElement::MakeLines(Elements,Top+1,Geometry.ToPaintGeometry(),Points,ESlateDrawEffect::None,Palette.Ink.CopyWithNewOpacity(Palette.Ink.A*.8f),true,Width+2);
-        FSlateDrawElement::MakeLines(Elements,Top+2,Geometry.ToPaintGeometry(),Points,ESlateDrawEffect::None,Color,true,Width);
+        AddStroke(Points,Palette.Ink.CopyWithNewOpacity(Palette.Ink.A*.8f),Width+2,ReticleLayer+1);
+        AddStroke(Points,Color,Width,ReticleLayer+2);
     };
     auto Arc=[&](float Radius,float Fraction,FLinearColor Color) {
         if(Fraction<=0) return;
-        TArray<FVector2D> Points;
-        const int32 Steps=FMath::Max(2,FMath::CeilToInt(40*Fraction));
+        TArray<FVector2D> Points;const int32 Steps=FMath::Max(2,FMath::CeilToInt(40*Fraction));
         for(int32 I=0;I<=Steps;++I) {
             const float A=-PI/2+2*PI*Fraction*I/Steps;
             Points.Add(Center+FVector2D(FMath::Cos(A),FMath::Sin(A))*Radius);
         }
         Stroke(Points,Color);
     };
-    const float Radius=Pressure?7.f:10.f;
-    Arc(Radius,1,Tint);
+    const float Radius=Pressure?7.f:10.f;Arc(Radius,1,Tint);
     for(const FVector2D Axis:{FVector2D(1,0),FVector2D(-1,0),FVector2D(0,1),FVector2D(0,-1)})
         Stroke({Center+Axis*(Radius+4),Center+Axis*(Radius+9)},Tint);
-    const FSlateRoundedBoxBrush Dot(FLinearColor::White,2.f);
-    FSlateDrawElement::MakeBox(Elements,Top+2,Geometry.ToPaintGeometry(FVector2D(4,4),FSlateLayoutTransform(Center-FVector2D(2,2))),&Dot,ESlateDrawEffect::None,Tint);
+    FMCUIReticleBox Dot;Dot.Position=Center-FVector2D(2,2);Dot.Size=FVector2D(4,4);Dot.CornerRadius=2;Dot.Color=Tint;Dot.Layer=ReticleLayer+2;Result.Boxes.Add(MoveTemp(Dot));
     if(Pressure) {
         Arc(18,1,Palette.SurfaceAlt.CopyWithNewOpacity(Palette.SurfaceAlt.A*.65f));
         Arc(18,Inv->bWaterReloading?1-Cool/Inv->CooldownSeconds():float(Inv->WaterAmmo)/Inv->WaterMagazineCapacity(),Palette.Shield);
@@ -1316,7 +1325,54 @@ int32 UMCGameplayHUD::NativePaint(const FPaintArgs& Args,const FGeometry& Geomet
         Arc(18,1,Palette.SurfaceAlt.CopyWithNewOpacity(Palette.SurfaceAlt.A*.65f));
         Arc(18,FMath::Clamp(1-Cool/FMath::Max(.01f,Inv->CooldownSeconds()),0.f,1.f),Palette.Shield);
     }
-    return Top+3;
+    Result.MaximumLayer=ReticleLayer+3;return Result;
+}
+void UMCGameplayHUD::CacheReticlePresentation(FVector2D LocalSize)
+{
+    if(ReticleSnapshot.SourceFrame==GFrameCounter) return;
+    // Tick geometry is desktop-space; copy only its local size. The cache's transform is paint-space on both sides.
+    ReticlePaintGeometry=GetPaintSpaceGeometry();ReticleSnapshot=EvaluateReticlePresentation(ReticlePaintGeometry,LocalSize);
+    ReticleSnapshotUpdated.Broadcast(ReticleSnapshot); // Source-first push avoids depending on New's later paint/tick.
+}
+bool UMCGameplayHUD::CommitUnifiedReticleView(UMCUnifiedReticleWidget* View,uint64 SourceFrame)
+{
+    if(!bUnifiedViewActive || !bUnifiedExtrasActive || IsDesignTime() || UMCGameplayUIFactory::GetPresentationVersion()!=EMCUIVersion::New
+        || !View || View->GetWorld()!=GetWorld() || View->GetOwningPlayer()!=GetOwningPlayer() || SourceFrame!=GFrameCounter
+        || SourceFrame!=ReticleSnapshot.SourceFrame || NativeReticlePaintedFrame==GFrameCounter || !ReticleSnapshot.bPaintGeometryCompatible || !View->HasPresentedSourceFrame(this,SourceFrame)) return false;
+    UnifiedReticleView=View;UnifiedReticleFrame=SourceFrame;return true;
+}
+void UMCGameplayHUD::ClearUnifiedReticleView(const UMCUnifiedReticleWidget* View)
+{
+    if(UnifiedReticleView.Get()!=View) return;UnifiedReticleView.Reset();UnifiedReticleFrame=MAX_uint64;
+}
+void UMCGameplayHUD::ReleaseUnifiedReticleView()
+{
+    if(auto* View=UnifiedReticleView.Get()) View->ClearPresentationFor(this);
+    UnifiedReticleView.Reset();UnifiedReticleFrame=MAX_uint64;
+}
+bool UMCGameplayHUD::UsesUnifiedReticleView() const
+{
+    return bUnifiedViewActive && bUnifiedExtrasActive && UMCGameplayUIFactory::GetPresentationVersion()==EMCUIVersion::New
+        && UnifiedReticleFrame==GFrameCounter && ReticleSnapshot.SourceFrame==GFrameCounter && ReticleSnapshot.bPaintGeometryCompatible
+        && UnifiedReticleView.IsValid() && UnifiedReticleView->HasPresentedSourceFrame(this,UnifiedReticleFrame);
+}
+int32 UMCGameplayHUD::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
+    FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const
+{
+    const int32 Top=Super::NativePaint(Args,Geometry,CullingRect,Elements,Layer,Style,ParentEnabled);
+    if(IsDesignTime() || bApplyingPreview || UsesUnifiedReticleView()) return Top;
+    // Do not enable a second New draw later in a frame that already contains Current native artwork.
+    NativeReticlePaintedFrame=GFrameCounter;
+    // Current retains Slate artwork; it consumes the exact same once-per-frame source result as New.
+    for(const auto& Stroke:ReticleSnapshot.Strokes)
+        FSlateDrawElement::MakeLines(Elements,Top+Stroke.Layer,Geometry.ToPaintGeometry(),Stroke.Points,ESlateDrawEffect::None,Stroke.Color,true,Stroke.Width);
+    for(const auto& Box:ReticleSnapshot.Boxes) {
+        const FSlateRoundedBoxBrush Brush(FLinearColor::White,Box.CornerRadius);
+        FSlateDrawElement::MakeBox(Elements,Top+Box.Layer,Geometry.ToPaintGeometry(Box.Size,FSlateLayoutTransform(Box.Position)),&Brush,ESlateDrawEffect::None,Box.Color);
+    }
+    for(const auto& Label:ReticleSnapshot.Labels)
+        FSlateDrawElement::MakeText(Elements,Top+Label.Layer,Geometry.ToPaintGeometry(Label.Bounds,FSlateLayoutTransform(Label.Position)),Label.Text,Label.Font,ESlateDrawEffect::None,Label.Color);
+    return Top+ReticleSnapshot.MaximumLayer;
 }
 void UMCGameplayHUD::RefreshState()
 {

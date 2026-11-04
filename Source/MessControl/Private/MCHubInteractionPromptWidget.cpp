@@ -1,10 +1,13 @@
 #include "MCHubInteractionPromptWidget.h"
+#include "MCWorldUIShapes.h"
 
 #include "Blueprint/WidgetTree.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Components/Border.h"
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
+
+UMCHubInteractionPromptWidget::UMCHubInteractionPromptWidget() {bUseVersionedWorldPresentation=true;}
 
 void UMCHubInteractionPromptWidget::NativeOnInitialized()
 {
@@ -27,6 +30,22 @@ void UMCHubInteractionPromptWidget::BuildPresentationTree()
     }
     HubInteractionPromptKey=WidgetTree->FindWidget<UTextBlock>(TEXT("HubInteractionPromptKey"));
     if(HubInteractionPromptKey) HubInteractionPromptKey->SetText(KeyLabel);
+    BuildWorldPresentationTree();
+    if(NewPromptKey) NewPromptKey->SetText(KeyLabel);
+}
+
+void UMCHubInteractionPromptWidget::BuildWorldPresentationTree()
+{
+    if(!bUseVersionedWorldPresentation || !WidgetTree) return;
+    auto* NewRoot=WidgetTree->FindWidget<USizeBox>(TEXT("WorldPromptV2Root"));
+    if(!NewRoot) {
+        NewRoot=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("WorldPromptV2Root"));
+        NewRoot->SetMinDesiredWidth(60);NewRoot->SetMaxDesiredWidth(220);NewRoot->SetMinDesiredHeight(62);
+        auto* Plate=MCWorldUIShapes::Panel(WidgetTree,TEXT("WorldPromptV2Plate"),GetNewWorldPresentationTheme(),EMCUIColorToken::Cream,FMargin(14,6));NewRoot->SetContent(Plate);
+        auto* Caption=MCWorldUIShapes::Text(WidgetTree,TEXT("WorldPromptV2Key"),188);Plate->SetContentForSlot(TEXT("Content"),Caption);
+    }
+    InstallWorldPresentation(NewRoot);
+    NewPromptKey=WidgetTree->FindWidget<UTextBlock>(TEXT("WorldPromptV2Key"));
 }
 
 void UMCHubInteractionPromptWidget::ApplyTheme()
@@ -35,6 +54,7 @@ void UMCHubInteractionPromptWidget::ApplyTheme()
     BindStyle(TEXT("HubInteractionPromptPanel"),EMCUIColorToken::Accent,EMCUIStyleTarget::Background);
     BindStyle(TEXT("HubInteractionPromptKey"),EMCUIColorToken::Ink,EMCUIStyleTarget::Text,36,true);
     Super::ApplyTheme();
+    MCWorldUIShapes::TextStyle(NewPromptKey,GetNewWorldPresentationTheme(),36,EMCUIColorToken::Marine);
 }
 
 void UMCHubInteractionPromptWidget::ApplyEditorPreview(float Time)

@@ -13,6 +13,7 @@ class APlayerState;
 class APawn;
 class UPointLightComponent;
 class UTextRenderComponent;
+class UMCWorldLabelPresenterComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMCOnPerksChanged);
 
@@ -210,6 +211,8 @@ private:
     TWeakObjectPtr<AMCToothCharacter> TunedHero;
     TWeakObjectPtr<UPointLightComponent> NightLight;
     TWeakObjectPtr<UTextRenderComponent> GrenadeCue;
+    void RefreshGrenadeCueCopy(TWeakObjectPtr<UTextRenderComponent> Cue);
+    TWeakObjectPtr<UMCWorldLabelPresenterComponent> GrenadeCuePresentation;
     TMap<TWeakObjectPtr<AActor>,double> RecentWeaponHits;
     TArray<TWeakObjectPtr<AActor>> RogueActors;
     double NextCounterAt=-100,NextTeamStrikeAt=-100,NextCleanHealAt=-100,NextFoamAt=-100;

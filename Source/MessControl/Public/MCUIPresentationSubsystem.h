@@ -12,6 +12,8 @@ class UMCGameplayHUD;
 class UMCHubWidget;
 class UMCFishingRewardWidget;
 class UWidget;
+class UMCWorldLabelWidget;
+class SWidget;
 
 /** One F3 entry point, including menus using UIOnly input. No gameplay/profile mutations. */
 UCLASS()
@@ -33,14 +35,18 @@ public:
     bool PrepareFishingCatch(APlayerController* Controller,UMCFishingRewardWidget* Source);
     bool GetUnifiedFishCounterTargets(const APlayerController* Controller,UWidget*& Icon,UWidget*& Card) const;
 private:
+    bool PrepareWorldLabels(APlayerController* Controller);
     void RefreshInterface();
     void RestoreLegacy();
     UPROPERTY(Transient) TObjectPtr<UMCUIPresentationPanelWidget> Panel;
     UPROPERTY(Transient) TObjectPtr<UMCUnifiedUIWidget> Interface;
+    UPROPERTY(Transient) TObjectPtr<UMCWorldLabelWidget> PreparedWorldLabelView;
+    TSharedPtr<SWidget> PreparedWorldLabelSlate;
     TWeakObjectPtr<APlayerController> PanelOwner;
     TWeakObjectPtr<APlayerController> InterfaceOwner;
     TWeakObjectPtr<UMCGameplayHUD> ActiveHUD;
     TWeakObjectPtr<UMCHubWidget> ActiveHub;
+    bool bInterfaceTutorialMenuInput=false;
     bool bInterfaceHubMenuInput=false;
     int32 InterfaceZOrder=5;
     TMap<TWeakObjectPtr<UWidget>,float> LegacyOpacity;

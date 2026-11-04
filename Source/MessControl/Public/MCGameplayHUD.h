@@ -1,8 +1,10 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "MCGameplayUIWidget.h"
+#include "MCUIReticlePresentation.h"
 #include "Components/CanvasPanelSlot.h"
 #include "MCGameplayHUD.generated.h"
+class UMCUnifiedReticleWidget;
 class UMCStaminaWidget;
 class UMCGameplayAlertWidget;
 class UMCBoosterWidget;
@@ -36,7 +38,7 @@ struct MESSCONTROL_API FMCGameplayHUDExtrasSnapshot
     TArray<FText> PassiveNames;
     bool bCataclysmVisible=false;
     FText CataclysmInstruction;
-    // Existing NativePaint remains the only reticle renderer in this stage.
+    // Compatibility summary only; complete geometry is in the source-owned reticle cache.
     float FoodReticleAlpha=0;
     bool bSprayReticle=false;
     FText FoodReticleLabel;
@@ -70,6 +72,13 @@ public:
     /** Caller enables only after the bound New extras tree is prepared and visible. No gameplay state changes. */
     void SetUnifiedExtrasActive(bool bActive);
     FMCGameplayHUDExtrasSnapshot GetUnifiedExtrasSnapshot() const;
+    /** Copy-free readonly cache; these accessors never evaluate aim, interpolate, trace or advance state. */
+    const FMCUIReticlePresentation& GetUnifiedReticleSnapshot() const {return ReticleSnapshot;}
+    const FGeometry& GetUnifiedReticlePaintGeometry() const {return ReticlePaintGeometry;}
+    FMCUIReticleSnapshotUpdated& OnReticleSnapshotUpdated() {return ReticleSnapshotUpdated;}
+    bool CommitUnifiedReticleView(UMCUnifiedReticleWidget* View,uint64 SourceFrame);
+    void ClearUnifiedReticleView(const UMCUnifiedReticleWidget* View);
+
     const FText& GetUnifiedNextEventTitle() const { return UnifiedNextEventTitle; }
     bool HasUnifiedNextEvent() const { return !UnifiedNextEventTitle.IsEmpty(); }
     const FText& GetUnifiedCurrentEventTitle() const { return UnifiedCurrentEventTitle; }
@@ -113,6 +122,17 @@ private:
     float RefreshElapsed=1;
     bool bHadSprayReticle=false;
     float FoodReticleAlpha=0;
+    uint64 LastFoodReticleFrame=MAX_uint64;
+    FMCUIReticlePresentation ReticleSnapshot;
+    FGeometry ReticlePaintGeometry;
+    FMCUIReticleSnapshotUpdated ReticleSnapshotUpdated;
+    TWeakObjectPtr<UMCUnifiedReticleWidget> UnifiedReticleView;
+    uint64 UnifiedReticleFrame=MAX_uint64;
+    mutable uint64 NativeReticlePaintedFrame=MAX_uint64;
+    FMCUIReticlePresentation EvaluateReticlePresentation(const FGeometry& SourcePaint,FVector2D LocalSize) const;
+    void CacheReticlePresentation(FVector2D LocalSize);
+    bool UsesUnifiedReticleView() const;
+    void ReleaseUnifiedReticleView();
     float LayoutLogicalWidth=1920.f;
     FString Phase1LayoutSignature;
     int32 SelectedToolIndex=0;

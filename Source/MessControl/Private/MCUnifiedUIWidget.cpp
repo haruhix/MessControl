@@ -15,6 +15,10 @@
 #include "MCUnifiedLoadingWidget.h"
 #include "MCUnifiedBossWidget.h"
 #include "MCUnifiedAlertWidget.h"
+#include "MCUnifiedTutorialWidget.h"
+#include "MCUnifiedEmoteWidget.h"
+#include "MCTutorialWidget.h"
+#include "MCEmoteWidget.h"
 #include "MCHubWidget.h"
 #include "MCPerkChoiceWidget.h"
 #include "MCGameplayMenuWidget.h"
@@ -137,6 +141,12 @@ void UMCUnifiedUIWidget::ShowScreen(EMCUnifiedUIScreen Screen)
         if(auto* View=WidgetTree->FindWidget<UMCUnifiedAlertWidget>(TEXT("UnifiedAlert")))
             View->SetVisibility((IsDesignTime()?Screen==EMCUnifiedUIScreen::Alert:AlertBackend.IsValid() && View->IsPresentationPrepared())?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     }
+    if(WidgetTree) {
+        if(auto* View=WidgetTree->FindWidget<UMCUnifiedTutorialWidget>(TEXT("UnifiedTutorial")))
+            View->SetVisibility((IsDesignTime()?Screen==EMCUnifiedUIScreen::Tutorial:HasTutorialPresentation() && Screen==EMCUnifiedUIScreen::Gameplay)?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
+        if(auto* View=WidgetTree->FindWidget<UMCUnifiedEmoteWidget>(TEXT("UnifiedEmotes")))
+            View->SetVisibility((IsDesignTime()?Screen==EMCUnifiedUIScreen::Emotes:Screen==EMCUnifiedUIScreen::Emotes && EmoteBackend.IsValid())?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
+    }
     if(WidgetTree) if(auto* Pages=WidgetTree->FindWidget<UWidgetSwitcher>(TEXT("InterfaceScreens"))) Pages->SetActiveWidgetIndex(int32(Screen));
 }
 
@@ -255,6 +265,9 @@ void UMCUnifiedUIWidget::SetHUDBackend(UMCGameplayHUD* Backend)
 UWidget* UMCUnifiedUIWidget::GetDefaultFocusTarget() const
 {
     if(!WidgetTree) return nullptr;
+    if(ActiveScreen==EMCUnifiedUIScreen::Emotes && HasEmotePresentation())
+        return WidgetTree->FindWidget<UMCUnifiedEmoteWidget>(TEXT("UnifiedEmotes"));
+    if(RequiresTutorialMenuInput()) if(auto* Tutorial=WidgetTree->FindWidget<UMCUnifiedTutorialWidget>(TEXT("UnifiedTutorial"))) return Tutorial->GetDefaultFocusTarget();
     if(TeamBackend.IsValid()) if(auto* Team=WidgetTree->FindWidget<UMCUnifiedTeamWidget>(TEXT("UnifiedTeam"))) return Team->GetDefaultFocusTarget();
     if(ActiveScreen==EMCUnifiedUIScreen::Hub) if(auto* Hub=WidgetTree->FindWidget<UMCUnifiedHubWidget>(TEXT("UnifiedHub"))) return Hub->GetDefaultFocusTarget();
     if(ActiveScreen==EMCUnifiedUIScreen::Reward) if(auto* Reward=WidgetTree->FindWidget<UMCUnifiedRewardWidget>(TEXT("UnifiedReward"))) return Reward->GetDefaultFocusTarget();
@@ -271,7 +284,7 @@ void UMCUnifiedUIWidget::ApplyTheme() {Super::ApplyTheme();if(!IsDesignTime()) R
 void UMCUnifiedUIWidget::ApplyEditorPreview(float Time)
 {
     const int64 Screen=StaticEnum<EMCUnifiedUIScreen>()->GetValueByNameString(PreviewState.ToString());
-    if(Screen>=0 && Screen<=int64(EMCUnifiedUIScreen::Alert)) PreviewScreen=EMCUnifiedUIScreen(Screen);
+    if(Screen>=0 && Screen<=int64(EMCUnifiedUIScreen::Emotes)) PreviewScreen=EMCUnifiedUIScreen(Screen);
     if(WidgetTree) WidgetTree->ForEachWidget([this](UWidget* Item) {
         if(auto* View=Cast<UMCGameplayUIWidget>(Item)) {View->PreviewCulture=PreviewCulture;View->PreviewScenario=PreviewScenario;}
     });
@@ -292,6 +305,8 @@ void UMCUnifiedUIWidget::ApplyEditorPreview(float Time)
     if(PreviewScreen==EMCUnifiedUIScreen::Loading) if(auto* View=WidgetTree->FindWidget<UMCUnifiedLoadingWidget>(TEXT("UnifiedLoading"))) {View->PreviewState=PreviewLoadingMode;View->ApplyEditorPreview(Time);}
     if(PreviewScreen==EMCUnifiedUIScreen::Boss) if(auto* View=WidgetTree->FindWidget<UMCUnifiedBossWidget>(TEXT("UnifiedBoss"))) {View->PreviewState=PreviewBossMode;View->ApplyEditorPreview(Time);}
     if(PreviewScreen==EMCUnifiedUIScreen::Alert) if(auto* View=WidgetTree->FindWidget<UMCUnifiedAlertWidget>(TEXT("UnifiedAlert"))) {View->PreviewState=PreviewAlertMode;View->ApplyEditorPreview(Time);}
+    if(PreviewScreen==EMCUnifiedUIScreen::Tutorial) if(auto* View=WidgetTree->FindWidget<UMCUnifiedTutorialWidget>(TEXT("UnifiedTutorial"))) {View->PreviewState=PreviewTutorialMode;View->PreviewLesson=PreviewTutorialLesson;View->ApplyEditorPreview(Time);}
+    if(PreviewScreen==EMCUnifiedUIScreen::Emotes) if(auto* View=WidgetTree->FindWidget<UMCUnifiedEmoteWidget>(TEXT("UnifiedEmotes"))) {View->PreviewState=PreviewEmoteMode;View->PreviewCategory=PreviewEmoteCategory;View->ApplyEditorPreview(Time);}
     RefreshAdaptiveLayout();
     if(PreviewScreen!=EMCUnifiedUIScreen::Gameplay) return;
     if(auto* Image=WidgetTree->FindWidget<UImage>(TEXT("V2ToolArt"))) {
@@ -310,6 +325,7 @@ void UMCUnifiedUIWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
 }
 void UMCUnifiedUIWidget::NativeDestruct()
 {
+    SetEmoteFocusLease(false);
     if(auto* Source=BossBackend.Get()) Source->SetUnifiedViewActive(false);
     if(auto* Source=AlertBackend.Get()) Source->SetUnifiedViewActive(false);
     Super::NativeDestruct();
@@ -322,6 +338,10 @@ FReply UMCUnifiedUIWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry,cons
     if(ActiveScreen==EMCUnifiedUIScreen::Settings && WidgetTree)
         if(auto* Settings=WidgetTree->FindWidget<UMCUnifiedSettingsWidget>(TEXT("UnifiedSettings"));Settings && Settings->RouteRebindKey(Event.GetKey())) return FReply::Handled();
     if(WidgetTree) {
+        if(ActiveScreen==EMCUnifiedUIScreen::Emotes && HasEmotePresentation())
+            if(auto* View=WidgetTree->FindWidget<UMCUnifiedEmoteWidget>(TEXT("UnifiedEmotes"));View && View->RouteSourceKeyDown(Event)) return FReply::Handled();
+        if(RequiresTutorialMenuInput())
+            if(auto* View=WidgetTree->FindWidget<UMCUnifiedTutorialWidget>(TEXT("UnifiedTutorial"));View && View->RouteSourceKey(Event)) return FReply::Handled();
         if(ActiveScreen==EMCUnifiedUIScreen::GameplayMenu) if(auto* Menu=WidgetTree->FindWidget<UMCUnifiedGameplayMenuWidget>(TEXT("UnifiedGameplayMenu"));Menu && Menu->RouteSourceKey(Event)) return FReply::Handled();
         if(ActiveScreen==EMCUnifiedUIScreen::Reward) if(auto* Reward=WidgetTree->FindWidget<UMCUnifiedRewardWidget>(TEXT("UnifiedReward"));Reward && Reward->RouteSourceKey(Event)) return FReply::Handled();
         if(ActiveScreen==EMCUnifiedUIScreen::Hub && !TeamBackend.IsValid()) if(auto* Hub=WidgetTree->FindWidget<UMCUnifiedHubWidget>(TEXT("UnifiedHub"));Hub && Hub->RouteSourceKey(Event)) return FReply::Handled();
@@ -359,6 +379,8 @@ FReply UMCUnifiedUIWidget::NativeOnAnalogValueChanged(const FGeometry& Geometry,
 }
 FReply UMCUnifiedUIWidget::NativeOnKeyUp(const FGeometry& Geometry,const FKeyEvent& Event)
 {
+    if(WidgetTree && ActiveScreen==EMCUnifiedUIScreen::Emotes && HasEmotePresentation())
+        if(auto* View=WidgetTree->FindWidget<UMCUnifiedEmoteWidget>(TEXT("UnifiedEmotes"));View && View->RouteSourceKeyUp(Event)) return FReply::Handled();
     if(TeamBackend.IsValid() && (Event.GetKey()==EKeys::Tab || Event.GetKey()==EKeys::Gamepad_Special_Left)) {
         if(auto* PC=GetOwningPlayer<AMCPlayerController>();PC && !PC->IsHubWorld()) TeamBackend->RequestUnifiedClose();
         return FReply::Handled();
@@ -427,6 +449,63 @@ void UMCUnifiedUIWidget::SetAlertBackend(UMCGameplayAlertWidget* Source)
     if(View) {View->SetBackend(Source);if(!View->IsPresentationPrepared()) View->PreparePresentation();}
     if(Source) Source->SetUnifiedViewActive(View && View->IsPresentationPrepared());
 }
+bool UMCUnifiedUIWidget::PrepareOverlayPresentation(UMCTutorialWidget* TutorialSource,UMCEmoteWidget* EmoteSource)
+{
+    if(!WidgetTree) return false;
+    SetTutorialBackend(TutorialSource);SetEmoteBackend(EmoteSource);
+    auto* Tutorial=WidgetTree->FindWidget<UMCUnifiedTutorialWidget>(TEXT("UnifiedTutorial"));
+    auto* Emotes=WidgetTree->FindWidget<UMCUnifiedEmoteWidget>(TEXT("UnifiedEmotes"));
+    if(!Tutorial || !Emotes) return false;
+    Tutorial->PreparePresentation();Emotes->PreparePresentation();
+    return Tutorial->IsPresentationPrepared() && Emotes->IsPresentationPrepared();
+}
+void UMCUnifiedUIWidget::SetTutorialBackend(UMCTutorialWidget* Source)
+{
+    TutorialBackend=Source;
+    if(WidgetTree) if(auto* View=WidgetTree->FindWidget<UMCUnifiedTutorialWidget>(TEXT("UnifiedTutorial"))) View->SetBackend(Source);
+}
+void UMCUnifiedUIWidget::SetEmoteBackend(UMCEmoteWidget* Source)
+{
+    if(EmoteBackend.Get()!=Source) {SetEmoteFocusLease(false);PreparedEmoteCorpus.Reset();}
+    EmoteBackend=Source;
+    if(WidgetTree) if(auto* View=WidgetTree->FindWidget<UMCUnifiedEmoteWidget>(TEXT("UnifiedEmotes"))) {
+        View->SetBackend(Source);
+        if(Source) {
+            if(View->GetResolvedTranslationTable()!=Source->GetResolvedTranslationTable()) View->SetTranslationTable(Source->GetResolvedTranslationTable());
+            const auto Snapshot=Source->GetUnifiedPresentationSnapshot();FString Corpus;
+            for(const auto& Copy:Snapshot.KnownChoiceLabels) Corpus+=Copy.ToString()+TEXT("\n");
+            // A preloading call can precede possession/library resolution. Warm the actual corpus when it arrives.
+            if(Corpus!=PreparedEmoteCorpus) {PreparedEmoteCorpus=MoveTemp(Corpus);View->ApplyTheme();}
+        }
+        if(!View->IsPresentationPrepared()) View->PreparePresentation();
+    }
+}
+bool UMCUnifiedUIWidget::HasTutorialPresentation() const
+{
+    const auto* Source=TutorialBackend.Get();const auto* View=WidgetTree?WidgetTree->FindWidget<UMCUnifiedTutorialWidget>(TEXT("UnifiedTutorial")):nullptr;
+    return Source && Source->GetWorld()==GetWorld() && Source->GetOwningPlayer()==GetOwningPlayer()
+        && Source->IsInViewport() && Source->IsVisible() && Source->WidgetTree && Source->WidgetTree->FindWidget(TEXT("TutorialRoot"))
+        && Source->WidgetTree->FindWidget(TEXT("TutorialRoot"))!=Source->WidgetTree->FindWidget(TEXT("TutorialCard"))
+        && View && View->IsPresentationPrepared() && Source->GetUnifiedPresentationSnapshot().bVisible;
+}
+bool UMCUnifiedUIWidget::RequiresTutorialMenuInput() const
+{
+    return ActiveScreen==EMCUnifiedUIScreen::Gameplay && HasTutorialPresentation() && TutorialBackend->GetUnifiedPresentationSnapshot().bRequiresMenuInput;
+}
+bool UMCUnifiedUIWidget::HasEmotePresentation() const
+{
+    const auto* Source=EmoteBackend.Get();const auto* View=WidgetTree?WidgetTree->FindWidget<UMCUnifiedEmoteWidget>(TEXT("UnifiedEmotes")):nullptr;
+    return Source && Source->GetWorld()==GetWorld() && Source->GetOwningPlayer()==GetOwningPlayer()
+        && Source->IsInViewport() && Source->IsVisible() && View && View->IsPresentationPrepared() && View->HasRuntimePresentation();
+}
+void UMCUnifiedUIWidget::SetEmoteFocusLease(bool bActive)
+{
+    auto* Source=EmoteBackend.Get();auto* View=WidgetTree?WidgetTree->FindWidget<UMCUnifiedEmoteWidget>(TEXT("UnifiedEmotes")):nullptr;
+    if(!Source || !View) return;
+    if(bActive && ActiveScreen==EMCUnifiedUIScreen::Emotes && HasEmotePresentation()) Source->SetUnifiedFocusView(View);
+    else Source->ClearUnifiedFocusView(View);
+}
+
 bool UMCUnifiedUIWidget::PrepareHUDExtrasPresentation()
 {
     if(WidgetTree) if(auto* View=WidgetTree->FindWidget<UMCUnifiedHUDExtrasWidget>(TEXT("UnifiedHUDExtras"))) {
@@ -481,7 +560,7 @@ void UMCUnifiedUIWidget::EnsureAdditionalScreens()
         Safe->SetContent(Layers);
         auto* PageCell=Layers->AddChildToOverlay(Pages);PageCell->SetHorizontalAlignment(HAlign_Fill);PageCell->SetVerticalAlignment(VAlign_Fill);
     }
-    for(const TCHAR* Name:{TEXT("Screen_Settings"),TEXT("Screen_Team"),TEXT("Screen_Reward"),TEXT("Screen_Frontend"),TEXT("Screen_GameplayMenu"),TEXT("Screen_Catch"),TEXT("Screen_HUDExtras"),TEXT("Screen_Loading"),TEXT("Screen_Boss"),TEXT("Screen_Alert")})
+    for(const TCHAR* Name:{TEXT("Screen_Settings"),TEXT("Screen_Team"),TEXT("Screen_Reward"),TEXT("Screen_Frontend"),TEXT("Screen_GameplayMenu"),TEXT("Screen_Catch"),TEXT("Screen_HUDExtras"),TEXT("Screen_Loading"),TEXT("Screen_Boss"),TEXT("Screen_Alert"),TEXT("Screen_Tutorial"),TEXT("Screen_Emotes")})
         if(!WidgetTree->FindWidget(Name)) Pages->AddChild(WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(),FName(Name)));
     auto* Settings=WidgetTree->FindWidget<UMCUnifiedSettingsWidget>(TEXT("UnifiedSettings"));
     if(!Settings) {
@@ -546,6 +625,16 @@ void UMCUnifiedUIWidget::EnsureAdditionalScreens()
         auto* Class=UMCGameplayUIFactory::ResolveClassForTheme(TEXT("UnifiedAlert"),UMCUnifiedAlertWidget::StaticClass(),GetResolvedTheme());
         auto* View=WidgetTree->ConstructWidget<UMCUnifiedAlertWidget>(Class,TEXT("UnifiedAlert"));View->Initialize();View->BuildPresentationTree();View->SetVisibility(ESlateVisibility::Collapsed);
         auto* Cell=Layers->AddChildToOverlay(View);Cell->SetHorizontalAlignment(HAlign_Fill);Cell->SetVerticalAlignment(VAlign_Fill);
+    }
+    if(!WidgetTree->FindWidget(TEXT("UnifiedTutorial"))) {
+        auto* Class=UMCGameplayUIFactory::ResolveClassForTheme(TEXT("UnifiedTutorial"),UMCUnifiedTutorialWidget::StaticClass(),GetResolvedTheme());
+        auto* View=WidgetTree->ConstructWidget<UMCUnifiedTutorialWidget>(Class,TEXT("UnifiedTutorial"));View->Initialize();View->BuildPresentationTree();View->SetVisibility(ESlateVisibility::Collapsed);
+        auto* Cell=Layers->AddChildToOverlay(View);Cell->SetHorizontalAlignment(HAlign_Fill);Cell->SetVerticalAlignment(VAlign_Fill);
+    }
+    if(!WidgetTree->FindWidget(TEXT("UnifiedEmotes"))) if(auto* Page=WidgetTree->FindWidget<UCanvasPanel>(TEXT("Screen_Emotes"))) {
+        auto* Class=UMCGameplayUIFactory::ResolveClassForTheme(TEXT("UnifiedEmotes"),UMCUnifiedEmoteWidget::StaticClass(),GetResolvedTheme());
+        auto* View=WidgetTree->ConstructWidget<UMCUnifiedEmoteWidget>(Class,TEXT("UnifiedEmotes"));View->Initialize();View->BuildPresentationTree();View->SetVisibility(ESlateVisibility::Collapsed);
+        auto* Cell=Page->AddChildToCanvas(View);Cell->SetAnchors(FAnchors(0,0,1,1));Cell->SetOffsets(FMargin(0));
     }
     // The host constrains the available screen and scrolls overflow. It never
     // scales text down when a translation makes the component larger.
@@ -729,6 +818,8 @@ void UMCUnifiedUIWidget::RefreshRuntimePresentation()
         if(auto* Wardrobe=WidgetTree->FindWidget<UMCUnifiedWardrobeWidget>(TEXT("UnifiedWardrobe"))) Wardrobe->RefreshFromBackend();
         if(auto* Shop=WidgetTree->FindWidget<UMCUnifiedShopWidget>(TEXT("UnifiedShop"))) Shop->RefreshFromBackend();
         if(auto* Hub=WidgetTree->FindWidget<UMCUnifiedHubWidget>(TEXT("UnifiedHub"))) Hub->RefreshFromBackend();
+        if(auto* View=WidgetTree->FindWidget<UMCUnifiedTutorialWidget>(TEXT("UnifiedTutorial"))) View->RefreshFromBackend();
+        if(auto* View=WidgetTree->FindWidget<UMCUnifiedEmoteWidget>(TEXT("UnifiedEmotes"))) View->RefreshFromBackend();
         if(auto* View=WidgetTree->FindWidget<UMCUnifiedCatchWidget>(TEXT("UnifiedCatch"))) View->RefreshFromBackend();
         if(auto* View=WidgetTree->FindWidget<UMCUnifiedHUDExtrasWidget>(TEXT("UnifiedHUDExtras"))) View->RefreshFromBackend();
         auto* Boss=WidgetTree->FindWidget<UMCUnifiedBossWidget>(TEXT("UnifiedBoss"));if(Boss) Boss->RefreshFromBackend();

@@ -4,6 +4,7 @@
 #include "MCGameplayUIWidget.h"
 #include "MCMainMenuWidget.h"
 #include "MCUnifiedUIWidget.h"
+#include "MCTutorialTypes.h"
 #include "AssetRegistry/AssetData.h"
 #include "Blueprint/WidgetTree.h"
 #include "Containers/Ticker.h"
@@ -80,6 +81,51 @@ namespace
         {TEXT("zh-Hans"),TEXT("Chinese simplified (zh-Hans)")},
         {TEXT("zh-Hant"),TEXT("Chinese traditional (zh-Hant)")},
         {TEXT("ja"),TEXT("Japanese (ja)")},{TEXT("ko"),TEXT("Korean (ko)")}
+    };
+
+    template<typename T>
+    struct TUnifiedOverlayPreviewChoice {T Value;FText Label;};
+
+    const TUnifiedOverlayPreviewChoice<FName> UnifiedTutorialModes[]={
+        {NAME_None,LOCTEXT("UnifiedTutorialSelectedLesson","Selected lesson")},
+        {TEXT("FullComplete"),LOCTEXT("UnifiedTutorialFullComplete","Full tutorial complete")},
+        {TEXT("ShortComplete"),LOCTEXT("UnifiedTutorialShortComplete","Short tutorial complete")},
+        {TEXT("Ready"),LOCTEXT("UnifiedTutorialReady","Ready")},
+        {TEXT("Empty"),LOCTEXT("UnifiedTutorialEmpty","Empty")},
+        {TEXT("LongText"),LOCTEXT("UnifiedTutorialLongText","Long text")}
+    };
+    // Only the 17 stages with authored source copy; TrashSort/Finished have no fixture.
+    const TUnifiedOverlayPreviewChoice<EMCTutorialStage> UnifiedTutorialLessons[]={
+        {EMCTutorialStage::Loading,LOCTEXT("UnifiedTutorialLoading","Loading")},
+        {EMCTutorialStage::Intro,LOCTEXT("UnifiedTutorialIntro","Introduction")},
+        {EMCTutorialStage::ToothpickPull,LOCTEXT("UnifiedTutorialToothpickPull","Toothpick: pull")},
+        {EMCTutorialStage::ToothpickBreak,LOCTEXT("UnifiedTutorialToothpickBreak","Toothpick: break")},
+        {EMCTutorialStage::ToothpickHeal,LOCTEXT("UnifiedTutorialToothpickHeal","Toothpick: heal")},
+        {EMCTutorialStage::BrushTooth,LOCTEXT("UnifiedTutorialBrushTooth","Brush tooth")},
+        {EMCTutorialStage::FoodCut,LOCTEXT("UnifiedTutorialFoodCut","Cut food")},
+        {EMCTutorialStage::FreshSort,LOCTEXT("UnifiedTutorialFreshSort","Sort fresh food")},
+        {EMCTutorialStage::SpoiledSort,LOCTEXT("UnifiedTutorialSpoiledSort","Sort spoiled food")},
+        {EMCTutorialStage::BreakfastRain,LOCTEXT("UnifiedTutorialBreakfastRain","Breakfast: rain")},
+        {EMCTutorialStage::BreakfastCleanup,LOCTEXT("UnifiedTutorialBreakfastCleanup","Breakfast: cleanup")},
+        {EMCTutorialStage::CoffeeWarning,LOCTEXT("UnifiedTutorialCoffeeWarning","Coffee: warning")},
+        {EMCTutorialStage::CoffeeWaves,LOCTEXT("UnifiedTutorialCoffeeWaves","Coffee: waves")},
+        {EMCTutorialStage::CoffeeCleanup,LOCTEXT("UnifiedTutorialCoffeeCleanup","Coffee: cleanup")},
+        {EMCTutorialStage::Calculus,LOCTEXT("UnifiedTutorialCalculus","Calculus")},
+        {EMCTutorialStage::FoamParty,LOCTEXT("UnifiedTutorialFoamParty","Foam party")},
+        {EMCTutorialStage::Complete,LOCTEXT("UnifiedTutorialComplete","Complete")}
+    };
+    const TUnifiedOverlayPreviewChoice<FName> UnifiedEmoteModes[]={
+        {NAME_None,LOCTEXT("UnifiedEmoteSelectedCategory","Selected category")},
+        {TEXT("Held"),LOCTEXT("UnifiedEmoteHeld","Held selection")},
+        {TEXT("HeldNoSelection"),LOCTEXT("UnifiedEmoteHeldNoSelection","Held without selection")},
+        {TEXT("Disabled"),LOCTEXT("UnifiedEmoteDisabled","Actions unavailable")},
+        {TEXT("Empty"),LOCTEXT("UnifiedEmoteEmpty","Empty")},
+        {TEXT("LongText"),LOCTEXT("UnifiedEmoteLongText","Long text")}
+    };
+    const TUnifiedOverlayPreviewChoice<int32> UnifiedEmoteCategories[]={
+        {0,LOCTEXT("UnifiedEmoteFaces","Faces")},
+        {1,LOCTEXT("UnifiedEmoteGestures","Gestures")},
+        {2,LOCTEXT("UnifiedEmoteSignals","Signals")}
     };
 
     bool IsMainMenuEditor(const TSharedPtr<FWidgetBlueprintEditor>& Editor)
@@ -244,6 +290,10 @@ namespace
         FName UnifiedLoadingMode;
         FName UnifiedBossMode;
         FName UnifiedAlertMode;
+        FName UnifiedTutorialMode;
+        EMCTutorialStage UnifiedTutorialLesson=EMCTutorialStage::BrushTooth;
+        FName UnifiedEmoteMode;
+        int32 UnifiedEmoteCategory=0;
         int32 UnifiedFrontendPage=0;
         FString UnifiedCulture;
     };
@@ -367,6 +417,40 @@ namespace
                             return EVisibility::Collapsed;
                         })]
                     + SVerticalBox::Slot().AutoHeight()[MakeUnifiedSettingsTabSelector(WeakSelf,WeakEditor)]
+                    + SVerticalBox::Slot().AutoHeight()
+                    [
+                        SNew(SVerticalBox).Visibility_Lambda([WeakSelf,WeakEditor]
+                        {
+                            if(auto Self=WeakSelf.Pin()) if(const auto* Session=Self->FindSession(WeakEditor.Pin()))
+                                return Session->UnifiedScreen==EMCUnifiedUIScreen::Tutorial?EVisibility::Visible:EVisibility::Collapsed;
+                            return EVisibility::Collapsed;
+                        })
+                        + SVerticalBox::Slot().AutoHeight().Padding(0,6,0,2)
+                        [SNew(STextBlock).Text(LOCTEXT("UnifiedTutorialMode","Tutorial mode (preview only)"))]
+                        + SVerticalBox::Slot().AutoHeight()
+                        [MakeUnifiedOverlaySelector(WeakSelf,WeakEditor,&FPreviewSession::UnifiedTutorialMode,UnifiedTutorialModes)]
+                        + SVerticalBox::Slot().AutoHeight().Padding(0,6,0,2)
+                        [SNew(STextBlock).Text(LOCTEXT("UnifiedTutorialLesson","Tutorial lesson (preview only)"))]
+                        + SVerticalBox::Slot().AutoHeight()
+                        [MakeUnifiedOverlaySelector(WeakSelf,WeakEditor,&FPreviewSession::UnifiedTutorialLesson,UnifiedTutorialLessons)]
+                    ]
+                    + SVerticalBox::Slot().AutoHeight()
+                    [
+                        SNew(SVerticalBox).Visibility_Lambda([WeakSelf,WeakEditor]
+                        {
+                            if(auto Self=WeakSelf.Pin()) if(const auto* Session=Self->FindSession(WeakEditor.Pin()))
+                                return Session->UnifiedScreen==EMCUnifiedUIScreen::Emotes?EVisibility::Visible:EVisibility::Collapsed;
+                            return EVisibility::Collapsed;
+                        })
+                        + SVerticalBox::Slot().AutoHeight().Padding(0,6,0,2)
+                        [SNew(STextBlock).Text(LOCTEXT("UnifiedEmoteMode","Emote mode (preview only)"))]
+                        + SVerticalBox::Slot().AutoHeight()
+                        [MakeUnifiedOverlaySelector(WeakSelf,WeakEditor,&FPreviewSession::UnifiedEmoteMode,UnifiedEmoteModes)]
+                        + SVerticalBox::Slot().AutoHeight().Padding(0,6,0,2)
+                        [SNew(STextBlock).Text(LOCTEXT("UnifiedEmoteCategory","Emote category (preview only)"))]
+                        + SVerticalBox::Slot().AutoHeight()
+                        [MakeUnifiedOverlaySelector(WeakSelf,WeakEditor,&FPreviewSession::UnifiedEmoteCategory,UnifiedEmoteCategories)]
+                    ]
                 ];
             }
         }
@@ -453,6 +537,10 @@ namespace
                 Session.UnifiedScreen=Root->PreviewScreen;
                 Session.UnifiedSettingsTab=FMath::Clamp(Root->PreviewSettingsTab,0,4);
                 Session.UnifiedHubMode=Root->PreviewHubMode;Session.UnifiedRewardMode=Root->PreviewRewardMode;Session.UnifiedGameplayMenuMode=Root->PreviewGameplayMenuMode;Session.UnifiedCatchMode=Root->PreviewCatchMode;Session.UnifiedHUDExtrasMode=Root->PreviewHUDExtrasMode;Session.UnifiedLoadingMode=Root->PreviewLoadingMode;Session.UnifiedBossMode=Root->PreviewBossMode;Session.UnifiedAlertMode=Root->PreviewAlertMode;Session.UnifiedFrontendPage=Root->PreviewFrontendPage;
+                Session.UnifiedTutorialMode=Root->PreviewTutorialMode;
+                Session.UnifiedTutorialLesson=Root->PreviewTutorialLesson;
+                Session.UnifiedEmoteMode=Root->PreviewEmoteMode;
+                Session.UnifiedEmoteCategory=FMath::Clamp(Root->PreviewEmoteCategory,0,2);
                 Session.UnifiedCulture=Root->PreviewCulture;
                 Session.bHasUnifiedSelection=true;
             }
@@ -475,6 +563,10 @@ namespace
                 Root->PreviewScreen=Session.UnifiedScreen;
                 Root->PreviewSettingsTab=Session.UnifiedSettingsTab;
                 Root->PreviewHubMode=Session.UnifiedHubMode;Root->PreviewRewardMode=Session.UnifiedRewardMode;Root->PreviewGameplayMenuMode=Session.UnifiedGameplayMenuMode;Root->PreviewCatchMode=Session.UnifiedCatchMode;Root->PreviewHUDExtrasMode=Session.UnifiedHUDExtrasMode;Root->PreviewLoadingMode=Session.UnifiedLoadingMode;Root->PreviewBossMode=Session.UnifiedBossMode;Root->PreviewAlertMode=Session.UnifiedAlertMode;Root->PreviewFrontendPage=Session.UnifiedFrontendPage;
+                Root->PreviewTutorialMode=Session.UnifiedTutorialMode;
+                Root->PreviewTutorialLesson=Session.UnifiedTutorialLesson;
+                Root->PreviewEmoteMode=Session.UnifiedEmoteMode;
+                Root->PreviewEmoteCategory=Session.UnifiedEmoteCategory;
                 Root->PreviewCulture=Session.UnifiedCulture;
                 Root->PreviewState=FName(*StaticEnum<EMCUnifiedUIScreen>()->GetNameStringByValue(int64(Session.UnifiedScreen)));
             }
@@ -609,6 +701,8 @@ namespace
                         Add(LOCTEXT("UnifiedLoading","Loading / waiting / retry"),EMCUnifiedUIScreen::Loading,FString(),true);
                         Add(LOCTEXT("UnifiedBoss","Boss health"),EMCUnifiedUIScreen::Boss,FString(),true);
                         Add(LOCTEXT("UnifiedAlert","Gameplay alert"),EMCUnifiedUIScreen::Alert,FString(),true);
+                        Add(LOCTEXT("UnifiedTutorial","Tutorial"),EMCUnifiedUIScreen::Tutorial,FString(),true);
+                        Add(LOCTEXT("UnifiedEmotes","Emotes"),EMCUnifiedUIScreen::Emotes,FString(),true);
                     }
                     return Menu.MakeWidget();
                 })
@@ -636,6 +730,8 @@ namespace
                         case EMCUnifiedUIScreen::Loading:return LOCTEXT("UnifiedLoading","Loading / waiting / retry");
                         case EMCUnifiedUIScreen::Boss:return LOCTEXT("UnifiedBoss","Boss health");
                         case EMCUnifiedUIScreen::Alert:return LOCTEXT("UnifiedAlert","Gameplay alert");
+                        case EMCUnifiedUIScreen::Tutorial:return LOCTEXT("UnifiedTutorial","Tutorial");
+                        case EMCUnifiedUIScreen::Emotes:return LOCTEXT("UnifiedEmotes","Emotes");
                         case EMCUnifiedUIScreen::Frontend:return LOCTEXT("UnifiedFrontend","Join / lobby / confirmations");
                         case EMCUnifiedUIScreen::GameplayMenu:return LOCTEXT("UnifiedGameplayMenu","Pause / connection / audio");
                         default:return FText::FromString(StaticEnum<EMCUnifiedUIScreen>()->GetNameStringByValue(int64(Session->UnifiedScreen)));
@@ -694,6 +790,43 @@ namespace
                     if(auto Self=WeakSelf.Pin()) if(const auto* Session=Self->FindSession(WeakEditor.Pin()))
                         return UnifiedSettingsTabLabel(Session->UnifiedSettingsTab);
                     return FText::GetEmpty();
+                })];
+        }
+
+        template<typename T,SIZE_T Count>
+        static TSharedRef<SWidget> MakeUnifiedOverlaySelector(TWeakPtr<FGameplayPreviewExtender> WeakSelf,TWeakPtr<FWidgetBlueprintEditor> WeakEditor,
+            T FPreviewSession::* Field,const TUnifiedOverlayPreviewChoice<T> (&Choices)[Count])
+        {
+            // All choice arrays have static storage. Only the transient session field is changed.
+            const auto* Entries=Choices;
+            return SNew(SComboButton)
+                .IsEnabled_Lambda([WeakEditor]{return Cast<UMCUnifiedUIWidget>(GetGameplayPreview(WeakEditor.Pin()))!=nullptr;})
+                .OnGetMenuContent_Lambda([WeakSelf,WeakEditor,Field,Entries]() -> TSharedRef<SWidget>
+                {
+                    FMenuBuilder Menu(true,nullptr);
+                    for(SIZE_T Index=0;Index<Count;++Index) {
+                        const T Value=Entries[Index].Value;
+                        Menu.AddMenuEntry(Entries[Index].Label,
+                            LOCTEXT("UnifiedOverlayChoiceHelp","Changes only the transient Designer preview; game state and player settings stay unchanged."),
+                            FSlateIcon(),FUIAction(FExecuteAction::CreateLambda([WeakSelf,WeakEditor,Field,Value]
+                            {
+                                if(auto Self=WeakSelf.Pin()) if(auto Editor=WeakEditor.Pin()) {
+                                    auto& Session=Self->SessionFor(Editor.ToSharedRef());
+                                    Session.bHasUnifiedSelection=true;Session.*Field=Value;Self->Execute(Editor,0);
+                                }
+                            }),FCanExecuteAction(),FIsActionChecked::CreateLambda([WeakSelf,WeakEditor,Field,Value]
+                            {
+                                if(auto Self=WeakSelf.Pin()) if(const auto* Session=Self->FindSession(WeakEditor.Pin())) return Session->*Field==Value;
+                                return false;
+                            })),NAME_None,EUserInterfaceActionType::RadioButton);
+                    }
+                    return Menu.MakeWidget();
+                })
+                .ButtonContent()[SNew(STextBlock).Text_Lambda([WeakSelf,WeakEditor,Field,Entries]
+                {
+                    if(auto Self=WeakSelf.Pin()) if(const auto* Session=Self->FindSession(WeakEditor.Pin()))
+                        for(SIZE_T Index=0;Index<Count;++Index) if(Session->*Field==Entries[Index].Value) return Entries[Index].Label;
+                    return LOCTEXT("UnifiedOverlayCustom","Custom preview");
                 })];
         }
 

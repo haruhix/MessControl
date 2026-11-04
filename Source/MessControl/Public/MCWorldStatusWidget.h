@@ -99,6 +99,15 @@ private:
     FMargin TimerPaddingWithHealth=FMargin(0);
     ESlateVisibility HealthHostVisibility=ESlateVisibility::Visible;
     bool bTimerOnlyLayout=false;
+    void BuildWorldPresentationTree();
+    void RefreshWorldPresentation();
+    UPROPERTY(Transient) TObjectPtr<USizeBox> NewStatusHealthHost;
+    UPROPERTY(Transient) TObjectPtr<USizeBox> NewStatusTimerHost;
+    UPROPERTY(Transient) TObjectPtr<UProgressBar> NewStatusHealth;
+    UPROPERTY(Transient) TObjectPtr<UProgressBar> NewStatusLossTrail;
+    UPROPERTY(Transient) TObjectPtr<class UMCUIContourShape> NewStatusTimerSector;
+    UPROPERTY(Transient) TObjectPtr<UBorder> NewStatusSpoiledFace;
+    float NewStatusPaintedFraction=-1.f;
     void RefreshStatusLayout();
     void RefreshVisuals();
 };

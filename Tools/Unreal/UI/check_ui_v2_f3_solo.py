@@ -17,8 +17,11 @@ from native_mcp_client import NativeMCP
 parser = argparse.ArgumentParser()
 parser.add_argument('--case', required=True)
 parser.add_argument('--game-only', action='store_true', help='Gameplay viewport focus is verified by reopening F3 after close.')
+parser.add_argument('--hold-seconds',type=float,default=0.,help='Bounded dwell per version for independent native observers.')
+parser.add_argument('--activation',choices=('mouse','keyboard'),default='mouse',help='Use real Tab/Enter when native MCP cached pointer geometry differs from paint.')
 parser.add_argument('--output', default='E:/CodexWork/MessControl/Validation/UIFoundation_20261103')
 args = parser.parse_args()
+assert 0. <= args.hold_seconds <= 2., 'Dwell must stay between 0 and 2 seconds'
 assert re.fullmatch(r'[A-Za-z0-9_]+', args.case)
 out = Path(args.output).resolve()
 assert out.drive.upper() == 'E:'
@@ -61,7 +64,16 @@ def wait_for(check):
         time.sleep(.2)
     raise AssertionError('UI did not reach the expected state')
 
-report = {'case': args.case, 'passed': False, 'input': 'Native Slate MCP ProcessKeyDown/Up and pointer click route; no hardware input claim'}
+def activate(label,ref):
+    if args.activation=='mouse':return call(SLATE,'Click',{'ref':ref})
+    for attempt in range(16):
+        text=snapshot()
+        if any('button "'+label+'"' in line and '[focused]' in line for line in text.splitlines()):
+            return call(SLATE,'PressKey',{'key':'Enter'})
+        assert call(SLATE,'PressKey',{'key':'Tab'});time.sleep(.1)
+    raise AssertionError('Selector not focused; unrelated debug actions were not activated')
+
+report = {'case': args.case, 'passed': False, 'input': 'Native Slate MCP '+args.activation+' route; no hardware input claim'}
 original = None
 try:
     before = snapshot()
@@ -71,14 +83,16 @@ try:
     opened = wait_for(lambda text: selector(text) is not None)
     original, button = selector(opened)
     (out / (args.case + '_Current.txt')).write_text(opened, encoding='utf-8')
-    assert call(SLATE, 'Click', {'ref': button})
+    assert activate(original,button)
     changed = wait_for(lambda text: selector(text) is not None and selector(text)[0] != original)
     (out / (args.case + '_Changed.txt')).write_text(changed, encoding='utf-8')
     screenshot = call(SLATE, 'Screenshot', {'ref': window})
     file = out / (args.case + '_Changed.png')
     file.write_bytes(base64.b64decode(screenshot['data']))
-    assert call(SLATE, 'Click', {'ref': selector(changed)[1]})
+    time.sleep(args.hold_seconds)
+    assert activate(*selector(changed))
     restored = wait_for(lambda text: selector(text) is not None and selector(text)[0] == original)
+    time.sleep(args.hold_seconds)
     assert call(SLATE, 'PressKey', {'key': 'Escape'})
     closed = wait_for(lambda text: selector(text) is None)
     (out / (args.case + '_Closed.txt')).write_text(closed, encoding='utf-8')
@@ -99,7 +113,7 @@ finally:
         try:
             active = selector(snapshot())
             if active and active[0] != original:
-                call(SLATE, 'Click', {'ref': active[1]})
+                activate(*active)
             if selector(snapshot()):
                 call(SLATE, 'PressKey', {'key': 'F3'})
         except Exception as error:

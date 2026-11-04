@@ -1,4 +1,6 @@
 #include "MCWorldStatusWidget.h"
+#include "MCWorldUIShapes.h"
+#include "MCUIContourShape.h"
 #include "Blueprint/WidgetTree.h"
 #include "Brushes/SlateNoResource.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
@@ -232,7 +234,7 @@ private:TWeakObjectPtr<UMCStatusHealthWidget> Owner;
 
 TSharedRef<SWidget> UMCStatusHealthWidget::RebuildWidget() {return SNew(SMCStatusHealth).Owner(this);}
 
-UMCWorldStatusWidget::UMCWorldStatusWidget() {SetIsFocusable(false);}
+UMCWorldStatusWidget::UMCWorldStatusWidget() {SetIsFocusable(false);bUseVersionedWorldPresentation=true;}
 
 void UMCWorldStatusWidget::BuildPresentationTree()
 {
@@ -262,6 +264,70 @@ void UMCWorldStatusWidget::BuildPresentationTree()
             auto* PresentationSlot=Layers->AddChildToOverlay(StatusHealthPresentation);
             PresentationSlot->SetHorizontalAlignment(HAlign_Fill);PresentationSlot->SetVerticalAlignment(VAlign_Fill);
         }
+    BuildWorldPresentationTree();
+}
+
+void UMCWorldStatusWidget::BuildWorldPresentationTree()
+{
+    if(!bUseVersionedWorldPresentation || !WidgetTree) return;
+    auto* NewRoot=WidgetTree->FindWidget<UHorizontalBox>(TEXT("WorldStatusV2Root"));
+    if(!NewRoot) {
+        auto* NewTheme=GetNewWorldPresentationTheme();NewRoot=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("WorldStatusV2Root"));
+        auto* TimerBounds=MCWorldUIShapes::Bounds(WidgetTree,TEXT("WorldStatusV2TimerBounds"),30,30);TimerBounds->SetHeightOverride(30);
+        auto* TimerCell=NewRoot->AddChildToHorizontalBox(TimerBounds);TimerCell->SetVerticalAlignment(VAlign_Center);TimerCell->SetPadding(FMargin(0,0,4,0));
+        auto* TimerPlate=MCWorldUIShapes::Panel(WidgetTree,TEXT("WorldStatusV2TimerPlate"),NewTheme,EMCUIColorToken::LCDBackground,FMargin(3),15);TimerPlate->ShadowOffset=FVector2D(0,2);TimerBounds->SetContent(TimerPlate);
+        auto* TimerLayers=WidgetTree->ConstructWidget<UOverlay>(UOverlay::StaticClass(),TEXT("WorldStatusV2TimerLayers"));TimerPlate->SetContentForSlot(TEXT("Content"),TimerLayers);
+        auto* TimerSector=WidgetTree->ConstructWidget<UMCUIContourShape>(UMCUIContourShape::StaticClass(),TEXT("WorldStatusV2TimerSector"));
+        TimerSector->DesiredSize=FVector2D(24);TimerSector->OutlineWidth=0;TimerSector->CornerRadius=0;TimerSector->ShadowOffset=FVector2D::ZeroVector;
+        auto* SectorCell=TimerLayers->AddChildToOverlay(TimerSector);SectorCell->SetHorizontalAlignment(HAlign_Fill);SectorCell->SetVerticalAlignment(VAlign_Fill);
+        auto* SpoiledFace=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("WorldStatusV2SpoiledFace"));SpoiledFace->SetPadding(FMargin(0));
+        auto* SpoiledCell=TimerLayers->AddChildToOverlay(SpoiledFace);SpoiledCell->SetHorizontalAlignment(HAlign_Fill);SpoiledCell->SetVerticalAlignment(VAlign_Fill);SpoiledCell->SetPadding(FMargin(3));
+        auto* HealthBounds=MCWorldUIShapes::Bounds(WidgetTree,TEXT("WorldStatusV2HealthBounds"),98,19);HealthBounds->SetHeightOverride(19);NewRoot->AddChildToHorizontalBox(HealthBounds)->SetVerticalAlignment(VAlign_Center);
+        auto* HealthPlate=MCWorldUIShapes::Panel(WidgetTree,TEXT("WorldStatusV2HealthPlate"),NewTheme,EMCUIColorToken::Surface,FMargin(4),10);HealthPlate->ShadowOffset=FVector2D(0,2);HealthBounds->SetContent(HealthPlate);
+        auto* Layers=WidgetTree->ConstructWidget<UOverlay>(UOverlay::StaticClass(),TEXT("WorldStatusV2HealthLayers"));HealthPlate->SetContentForSlot(TEXT("Content"),Layers);
+        for(const FName BarName:{FName(TEXT("WorldStatusV2Loss")),FName(TEXT("WorldStatusV2Health"))}) {
+            auto* Bar=WidgetTree->ConstructWidget<UProgressBar>(UProgressBar::StaticClass(),BarName);Bar->SetBarFillType(EProgressBarFillType::LeftToRight);
+            auto* BarCell=Layers->AddChildToOverlay(Bar);BarCell->SetHorizontalAlignment(HAlign_Fill);BarCell->SetVerticalAlignment(VAlign_Fill);
+        }
+    }
+    InstallWorldPresentation(NewRoot);
+    NewStatusHealthHost=WidgetTree->FindWidget<USizeBox>(TEXT("WorldStatusV2HealthBounds"));NewStatusTimerHost=WidgetTree->FindWidget<USizeBox>(TEXT("WorldStatusV2TimerBounds"));
+    NewStatusHealth=WidgetTree->FindWidget<UProgressBar>(TEXT("WorldStatusV2Health"));NewStatusLossTrail=WidgetTree->FindWidget<UProgressBar>(TEXT("WorldStatusV2Loss"));
+    auto* Sector=WidgetTree->FindWidget<UMCUIContourShape>(TEXT("WorldStatusV2TimerSector"));
+    if(NewStatusTimerSector!=Sector) NewStatusPaintedFraction=-1.f;
+    NewStatusTimerSector=Sector;NewStatusSpoiledFace=WidgetTree->FindWidget<UBorder>(TEXT("WorldStatusV2SpoiledFace"));
+}
+
+void UMCWorldStatusWidget::RefreshWorldPresentation()
+{
+    if(NewStatusHealthHost) NewStatusHealthHost->SetVisibility(Current.bShowHealth?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    if(NewStatusTimerHost) {
+        NewStatusTimerHost->SetVisibility(Current.bHasTimer?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+        if(auto* TimerCell=Cast<UHorizontalBoxSlot>(NewStatusTimerHost->Slot)) TimerCell->SetPadding(FMargin(0,0,Current.bShowHealth?4.f:0.f,0));
+    }
+    // Reuse the exact interpolated source values; no SetSnapshot/PresentAtTime or age reset.
+    if(NewStatusHealth) NewStatusHealth->SetPercent(Current.HealthFraction);
+    if(NewStatusLossTrail) NewStatusLossTrail->SetPercent(FMath::Max(Current.HealthFraction,TrailValue));
+    const float PaintedFraction=FMath::Clamp(Current.bDrainTimer?1.f-TimerValue:TimerValue,0.f,1.f);
+    if(NewStatusTimerSector) {
+        NewStatusTimerSector->SetRenderOpacity(1.f-SpoilValue);
+        NewStatusTimerSector->SetVisibility(PaintedFraction>.0001f?ESlateVisibility::HitTestInvisible:ESlateVisibility::Hidden);
+        if(!FMath::IsNearlyEqual(NewStatusPaintedFraction,PaintedFraction,.0001f)) {
+            NewStatusPaintedFraction=PaintedFraction;auto& Points=NewStatusTimerSector->Points;Points.Reset();
+            if(PaintedFraction>=.9999f) {
+                for(int32 Index=0;Index<60;++Index) {
+                    const float Angle=-HALF_PI+2.f*PI*Index/60.f;Points.Add(FVector2D(.5f)+FVector2D(FMath::Cos(Angle),FMath::Sin(Angle))*.5f);
+                }
+            } else if(PaintedFraction>.0001f) {
+                Points.Add(FVector2D(.5f));const int32 Steps=FMath::Clamp(FMath::CeilToInt(PaintedFraction*60.f),2,60);
+                for(int32 Index=0;Index<=Steps;++Index) {
+                    const float Angle=-HALF_PI+2.f*PI*PaintedFraction*Index/Steps;Points.Add(FVector2D(.5f)+FVector2D(FMath::Cos(Angle),FMath::Sin(Angle))*.5f);
+                }
+            }
+            NewStatusTimerSector->SynchronizeProperties();
+        }
+    }
+    if(NewStatusSpoiledFace) NewStatusSpoiledFace->SetRenderOpacity(SpoilValue);
 }
 
 void UMCWorldStatusWidget::ApplyTheme()
@@ -300,6 +366,15 @@ void UMCWorldStatusWidget::ApplyTheme()
         StatusTimer->Surface=P.Marine;StatusTimer->Rim=P.Accent;StatusTimer->Fill=Amber;
         StatusTimer->SpoiledTint=Mint;StatusTimer->InvalidateLayoutAndVolatility();
     }
+    if(const auto* NewTheme=GetNewWorldPresentationTheme()) {
+        MCWorldUIShapes::ProgressStyle(NewStatusLossTrail,NewTheme,NewTheme->Palette.Warning.CopyWithNewOpacity(.65f));
+        MCWorldUIShapes::ProgressStyle(NewStatusHealth,NewTheme,NewTheme->Palette.Mint);
+        // The upper bar has a transparent background so it cannot cover the retained loss trail.
+        if(NewStatusHealth) {auto HealthStyle=NewStatusHealth->GetWidgetStyle();HealthStyle.SetBackgroundImage(FSlateNoResource());NewStatusHealth->SetWidgetStyle(HealthStyle);}
+        if(NewStatusTimerSector) {NewStatusTimerSector->FillColor=NewTheme->Palette.Warning;NewStatusTimerSector->OutlineColor=FLinearColor::Transparent;NewStatusTimerSector->ShadowColor=FLinearColor::Transparent;NewStatusTimerSector->SynchronizeProperties();}
+        if(NewStatusSpoiledFace) {NewStatusSpoiledFace->SetBrush(FSlateRoundedBoxBrush(NewTheme->Palette.Mint,9.f,NewTheme->Palette.Border,1.f));NewStatusSpoiledFace->SetBrushColor(FLinearColor::White);}
+    }
+    RefreshWorldPresentation();
 }
 
 void UMCWorldStatusWidget::SetSnapshot(const FMCWorldStatusSnapshot& Snapshot)
@@ -390,6 +465,7 @@ void UMCWorldStatusWidget::RefreshVisuals()
     VisibilityValue=FMath::Lerp(VisibilityFrom,bTargetVisible?1.f:0.f,Alpha);
     SetRenderOpacity(VisibilityValue);SetRenderTransformPivot(FVector2D(.5f,.5f));SetRenderScale(FVector2D(FMath::Lerp(.94f,1.f,VisibilityValue)));
     if(!bTargetVisible && Alpha>=1.f) SetVisibility(ESlateVisibility::Collapsed);
+    RefreshWorldPresentation();
 }
 
 void UMCWorldStatusWidget::NativeTick(const FGeometry& Geometry,float Dt)

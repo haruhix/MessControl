@@ -6,6 +6,7 @@
 #include "MCGameplayUIWidget.generated.h"
 
 class UDataTable;
+class UWidgetSwitcher;
 
 UENUM(BlueprintType)
 enum class EMCGameplayUIPreviewScenario : uint8
@@ -33,6 +34,10 @@ class MESSCONTROL_API UMCGameplayUIWidget : public UUserWidget
 {
     GENERATED_BODY()
 public:
+    /** Opt-in only: retain Current and New shape trees inside this same world-widget instance. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation|World") bool bUseVersionedWorldPresentation=false;
+    UFUNCTION(BlueprintPure, Category="Presentation|World") EMCUIVersion GetWorldPresentationVersion() const;
+    UFUNCTION(BlueprintPure, Category="Presentation|World") bool IsNewWorldPresentation() const;
     /** Disable to keep Designer sizing, padding and placement instead of legacy runtime layout corrections. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") bool bUseNativeLayout=true;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Theme") TObjectPtr<UMCGameplayUITheme> Theme;
@@ -72,6 +77,10 @@ protected:
     virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
     /** Presenters may refresh their current snapshot here; runtime refresh must not create preview fixtures. */
     virtual void OnLocalizationChanged();
+    /** Called by an opt-in role after building both shape groups. Never replaces the host/component. */
+    void InstallWorldPresentation(UWidget* NewShapeRoot);
+    UMCGameplayUITheme* GetNewWorldPresentationTheme() const;
+    void RefreshWorldPresentationSelection();
 private:
     void ObserveTheme();
     void ObservePresentation();
@@ -87,6 +96,9 @@ private:
     TMap<TWeakObjectPtr<UWidget>,FText> OriginalLocalizedCopy;
     bool bRefreshingLocalization=false;
     float BrushMetricsElapsed=1.f;
+    UPROPERTY(Transient) TObjectPtr<UWidgetSwitcher> WorldPresentationVersions;
+    UPROPERTY(Transient) TObjectPtr<UWidget> WorldCurrentShapeRoot;
+    UPROPERTY(Transient) TObjectPtr<UWidget> WorldNewShapeRoot;
 };
 
 UCLASS(Blueprintable)
@@ -97,4 +109,3 @@ public:
     virtual void BuildPresentationTree() override;
     virtual void ApplyEditorPreview(float Time) override;
 };
-

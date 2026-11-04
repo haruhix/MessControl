@@ -2,6 +2,7 @@
 
 #include "MCUniversalUIWidget.h"
 #include "MCMainMenuWidget.h"
+#include "MCTutorialTypes.h"
 #include "MCUnifiedUIWidget.generated.h"
 
 class UMCGameplayHUD;
@@ -15,13 +16,15 @@ class UMCFishingRewardWidget;
 class UMCBossHealthWidget;
 class UMCGameplayAlertWidget;
 class UWidgetSwitcher;
+class UMCTutorialWidget;
+class UMCEmoteWidget;
 
 UENUM(BlueprintType)
 enum class EMCUnifiedUIScreen : uint8
 {
     Menu, Gameplay,
     Hub, Wardrobe, Boosters, Tools UMETA(Hidden), Perks UMETA(Hidden),
-    Settings, Team, Reward, Frontend, GameplayMenu, Catch, HUDExtras, Loading, Boss, Alert
+    Settings, Team, Reward, Frontend, GameplayMenu, Catch, HUDExtras, Loading, Boss, Alert, Tutorial, Emotes
 };
 
 /** One editable root for the PSD interface, including screen selection in Designer. */
@@ -41,6 +44,10 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen") FName PreviewLoadingMode;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen") FName PreviewBossMode;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen") FName PreviewAlertMode;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen") FName PreviewTutorialMode;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen",meta=(ValidEnumValues="Loading,Intro,ToothpickPull,ToothpickBreak,ToothpickHeal,BrushTooth,FoodCut,FreshSort,SpoiledSort,BreakfastRain,BreakfastCleanup,CoffeeWarning,CoffeeWaves,CoffeeCleanup,Calculus,FoamParty,Complete")) EMCTutorialStage PreviewTutorialLesson=EMCTutorialStage::BrushTooth;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen") FName PreviewEmoteMode;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen",meta=(ClampMin="0",ClampMax="2")) int32 PreviewEmoteCategory=0;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen",meta=(ClampMin="0",ClampMax="4")) int32 PreviewFrontendPage=0;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Art") TSoftObjectPtr<UTexture2D> Logo;
     /** PSD tool artwork; perk icons remain owned by DT_Perks. */
@@ -60,6 +67,14 @@ public:
     bool PrepareCatchPresentation(UMCFishingRewardWidget* Backend);
     bool PrepareHUDExtrasPresentation();
     bool PrepareEncounterPresentation();
+    bool PrepareOverlayPresentation(UMCTutorialWidget* TutorialSource,UMCEmoteWidget* EmoteSource);
+    void SetTutorialBackend(UMCTutorialWidget* Source);
+    void SetEmoteBackend(UMCEmoteWidget* Source);
+    bool HasTutorialPresentation() const;
+    bool RequiresTutorialMenuInput() const;
+    bool HasEmotePresentation() const;
+    /** Focus ownership only; never begins/confirms/closes an emote or changes its held state. */
+    void SetEmoteFocusLease(bool bActive);
     void SetBossBackend(UMCBossHealthWidget* Backend);
     void SetAlertBackend(UMCGameplayAlertWidget* Backend);
     void SetCatchBackend(UMCFishingRewardWidget* Backend);
@@ -99,6 +114,9 @@ private:
     TWeakObjectPtr<UMCFishingRewardWidget> CatchBackend;
     TWeakObjectPtr<UMCBossHealthWidget> BossBackend;
     TWeakObjectPtr<UMCGameplayAlertWidget> AlertBackend;
+    TWeakObjectPtr<UMCTutorialWidget> TutorialBackend;
+    TWeakObjectPtr<UMCEmoteWidget> EmoteBackend;
+    FString PreparedEmoteCorpus;
     float RefreshDelay=0.f;
     EMCUnifiedUIScreen ActiveScreen=EMCUnifiedUIScreen::Menu;
 };

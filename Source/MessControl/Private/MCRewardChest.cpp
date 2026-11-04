@@ -1,4 +1,6 @@
 #include "MCRewardChest.h"
+#include "MCWorldLabelPresenterComponent.h"
+#include "MCWorldLabelLocalization.h"
 #include "MCWorldPresentationComponent.h"
 #include "MCVFXPresentationComponent.h"
 #include "MCGameDirector.h"
@@ -108,6 +110,9 @@ AMCRewardChest::AMCRewardChest()
     RogueLabel->SetRelativeLocation(FVector(0,0,160));RogueLabel->SetWorldSize(22);
     RogueLabel->SetHorizontalAlignment(EHTA_Center);RogueLabel->SetVerticalAlignment(EVRTA_TextCenter);
     RogueLabel->SetCollisionEnabled(ECollisionEnabled::NoCollision);RogueLabel->SetCastShadow(false);
+    auto* WorldLabelPresentation=CreateDefaultSubobject<UMCWorldLabelPresenterComponent>(TEXT("WorldLabelPresentation"));
+    WorldLabelPresentation->SetupAttachment(RogueLabel);WorldLabelPresentation->SourceText=RogueLabel;
+    WorldLabelPresentation->SetSourceCopyRefresh(FSimpleDelegate::CreateUObject(this,&ThisClass::RefreshRogueLabelCopy));
     ClaimRing=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ClaimRing")); ClaimRing->SetupAttachment(Scene);
     ClaimSparks=CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("ClaimSparks")); ClaimSparks->SetupAttachment(Scene);
     static ConstructorHelpers::FObjectFinder<UStaticMesh> EffectPlane(TEXT("/Engine/BasicShapes/Plane.Plane"));
@@ -421,7 +426,7 @@ void AMCRewardChest::RefreshPresentation()
         }
     }
     if(RogueLabel) {
-        RogueLabel->SetText(FText::FromString(RogueKind==EMCRogueRewardKind::CursedContract?TEXT("ПРОКЛЯТЫЙ ДОГОВОР"):RogueKind==EMCRogueRewardKind::RiskyAltar?TEXT("СИЛА С ЦЕНОЙ"):TEXT("")));
+        RefreshRogueLabelCopy();
         RogueLabel->SetTextRenderColor(RogueKind==EMCRogueRewardKind::CursedContract?FColor(255,80,120):FColor(255,175,60));
         RogueLabel->SetVisibility(Stage!=EMCRewardChestStage::Exhausted);
     }
@@ -576,12 +581,20 @@ bool AMCRewardChest::UpdateSparkComposer(float Progress,float Opacity,float Widt
     return !Accepted||ComposerPresentation->UsesNativeVisuals(ID,Event);
 }
 
+void AMCRewardChest::RefreshRogueLabelCopy()
+{
+    if(!RogueLabel) return;
+    MCWorldLabelLocalization::Apply(RogueLabel,RogueKind==EMCRogueRewardKind::CursedContract
+        ?MCWorldLabelLocalization::Resolve(RogueLabel,TEXT("UI.World.CursedContractLabel"),NSLOCTEXT("MCRewardChestWorld","CursedContractLabel","ПРОКЛЯТЫЙ ДОГОВОР"))
+        :RogueKind==EMCRogueRewardKind::RiskyAltar?MCWorldLabelLocalization::Resolve(RogueLabel,TEXT("UI.Reward.RiskyTitle"),NSLOCTEXT("MCRewardChestWorld","RiskyAltarLabel","СИЛА С ЦЕНОЙ")):FText::GetEmpty());
+}
+
 void AMCRewardChest::SetStage(EMCRewardChestStage Next)
 {
     if(!HasAuthority()) return;
     Stage=Next; StageStartedAt=ServerNow(); RefreshPresentation(); ForceNetUpdate();
     if(RogueLabel) {
-        RogueLabel->SetText(FText::FromString(RogueKind==EMCRogueRewardKind::CursedContract?TEXT("ПРОКЛЯТЫЙ ДОГОВОР"):RogueKind==EMCRogueRewardKind::RiskyAltar?TEXT("СИЛА С ЦЕНОЙ"):TEXT("")));
+        RefreshRogueLabelCopy();
         RogueLabel->SetTextRenderColor(RogueKind==EMCRogueRewardKind::CursedContract?FColor(255,80,120):FColor(255,175,60));
     }
 }

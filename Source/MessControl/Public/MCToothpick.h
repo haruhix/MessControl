@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "MCCareWidgetPresentation.h"
 #include "MCToothpick.generated.h"
 
 class AMCTongue;
@@ -21,6 +22,7 @@ class MESSCONTROL_API AMCToothpick : public AActor
 public:
     AMCToothpick();
     virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void Tick(float DeltaSeconds) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     bool Impale(AMCTongue* Surface, FVector Point, bool bTraining=false, int32 InBatch=0);
@@ -45,6 +47,7 @@ public:
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,meta=(ClampMin="100",ClampMax="1500")) float FallHeight=600;
     UFUNCTION() void RefreshAppearance();
 private:
+    FMCCareWidgetPresentation CareWidgetPresentation;
     UPROPERTY(Replicated) TObjectPtr<AMCTongue> Tongue;
     UPROPERTY(Replicated) FVector SurfaceAnchor=FVector::ZeroVector;
     uint64 LastPullFrame=MAX_uint64;

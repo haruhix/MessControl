@@ -1,8 +1,26 @@
 #include "MCGameplayUIEditorLibrary.h"
+#include "MCEmoteWidget.h"
+#include "MCWorldLabelWidget.h"
+#include "Widgets/Layout/SBox.h"
+#include "MCExpressionComponent.h"
+#include "Blueprint/WidgetTree.h"
+#include "Dom/JsonObject.h"
+#include "Serialization/JsonSerializer.h"
+#include "Serialization/JsonWriter.h"
 
 #include "MCGameplayUIPreview.h"
 #include "MCMainMenuPreview.h"
 #include "MCGameplayUIWidget.h"
+#include "MCPlayerNameComponent.h"
+#include "MCVoiceIndicatorComponent.h"
+#include "MCFreezeBarWidget.h"
+#include "MCDeliveryZoneCaptionWidget.h"
+#include "MCWorldStatusWidget.h"
+#include "MCUlcerProgressWidget.h"
+#include "MCHubInteractionPromptWidget.h"
+#include "MCHubGrillPresentationComponent.h"
+#include "Components/WidgetSwitcher.h"
+#include "Components/WidgetSwitcherSlot.h"
 #include "MCGameplayHUD.h"
 #include "MCPlayerController.h"
 #include "EngineUtils.h"
@@ -15,6 +33,7 @@
 #include "Components/Slider.h"
 #include "UObject/UObjectHash.h"
 #include "MCHubWidget.h"
+#include "MCUnifiedHubWidget.h"
 #include "MCHubWardrobeWidget.h"
 #include "MCHubShopWidget.h"
 #include "MCUIDataLibrary.h"
@@ -407,6 +426,42 @@ FString UMCGameplayUIEditorLibrary::InspectPIEFishingCatch(UMCFishingRewardWidge
         *Vector(TargetPaint.LocalToAbsolute(FVector2D::ZeroVector)),*Vector(Expected),*Vector(Actual),FVector2D::Distance(Expected,Actual));
 }
 
+FString UMCGameplayUIEditorLibrary::InspectPIEEmotePresentation(UWorld* World)
+{
+    if(!IsInGameThread() || !GEditor || !IsValid(World) || World->WorldType!=EWorldType::PIE || World->GetNetMode()!=NM_Standalone
+        || World->bIsTearingDown || GEditor->PlayWorld!=World) return TEXT("{\"valid\":false,\"error\":\"Expected the live standalone PIE world\"}");
+    const auto* Controller=Cast<AMCPlayerController>(World->GetFirstPlayerController());
+    const auto* Hero=Controller?Cast<AMCToothCharacter>(Controller->GetPawn()):nullptr;
+    const auto* Source=Controller?Controller->EmoteWidget.Get():nullptr;
+    const auto* Expression=Hero?Hero->Expression.Get():nullptr;
+    if(!Controller || !Controller->IsLocalController() || !Hero || Hero->GetWorld()!=World || !Source || Source->GetWorld()!=World
+        || Source->GetOwningPlayer()!=Controller || !Expression || Expression->GetOwner()!=Hero)
+        return TEXT("{\"valid\":false,\"error\":\"Original owned source or expression unavailable\"}");
+    const auto Snapshot=Source->GetUnifiedPresentationSnapshot();
+    const auto Result=MakeShared<FJsonObject>();Result->SetBoolField(TEXT("valid"),true);
+    Result->SetStringField(TEXT("world"),World->GetPathName());Result->SetStringField(TEXT("controller"),Controller->GetPathName());
+    Result->SetStringField(TEXT("pawn"),Hero->GetPathName());Result->SetStringField(TEXT("source"),Source->GetPathName());
+    Result->SetStringField(TEXT("sourceTree"),Source->WidgetTree?Source->WidgetTree->GetPathName():FString());
+    Result->SetStringField(TEXT("expression"),Expression->GetPathName());Result->SetBoolField(TEXT("held"),Controller->IsHoldingEmoteSelection());
+    Result->SetBoolField(TEXT("visible"),Snapshot.bVisible);Result->SetBoolField(TEXT("hasGeometry"),Snapshot.bHasGeometry);
+    Result->SetNumberField(TEXT("category"),Snapshot.SelectedCategory);Result->SetNumberField(TEXT("selectedChoice"),Snapshot.SelectedChoice);
+    Result->SetNumberField(TEXT("choiceCount"),Snapshot.Choices.Num());Result->SetNumberField(TEXT("colorCount"),Snapshot.Colors.Num());
+    Result->SetStringField(TEXT("heading"),Snapshot.Heading.ToString());Result->SetStringField(TEXT("footer"),Snapshot.FooterText.ToString());
+    Result->SetStringField(TEXT("chosenId"),Snapshot.Choices.IsValidIndex(Snapshot.SelectedChoice)?Snapshot.Choices[Snapshot.SelectedChoice].Id.ToString():FString());
+    const auto State=MakeShared<FJsonObject>();State->SetStringField(TEXT("id"),Expression->State.Id.ToString());
+    State->SetNumberField(TEXT("serial"),Expression->State.Serial);State->SetNumberField(TEXT("started_at"),Expression->State.StartedAt);
+    State->SetNumberField(TEXT("stopped_at"),Expression->State.StoppedAt);Result->SetObjectField(TEXT("emote"),State);
+    TArray<TSharedPtr<FJsonValue>> Choices;
+    for(const auto& Token:Snapshot.Choices) {
+        const auto Entry=MakeShared<FJsonObject>();Entry->SetNumberField(TEXT("index"),Token.Index);Entry->SetStringField(TEXT("id"),Token.Id.ToString());
+        Entry->SetStringField(TEXT("sourceButton"),Token.Source.IsValid()?Token.Source->GetPathName():FString());
+        Entry->SetStringField(TEXT("label"),Token.Label.ToString());Entry->SetBoolField(TEXT("enabled"),Token.bEnabled);Entry->SetBoolField(TEXT("selected"),Token.bSelected);
+        Entry->SetNumberField(TEXT("alarm"),int32(Token.Alarm));Choices.Add(MakeShared<FJsonValueObject>(Entry));
+    }
+    Result->SetArrayField(TEXT("choices"),Choices);
+    FString Output;FJsonSerializer::Serialize(Result,TJsonWriterFactory<>::Create(&Output));return Output;
+}
+
 FString UMCGameplayUIEditorLibrary::InspectPIEVisualResources(UWorld* World,const TArray<FSoftObjectPath>& Resources)
 {
     if(!IsInGameThread() || !GEditor || !IsValid(World) || World->WorldType!=EWorldType::PIE
@@ -498,10 +553,13 @@ bool UMCGameplayUIEditorLibrary::RenderGameplayUIPreview(TSubclassOf<UMCGameplay
     for(const FName Name:{FName(TEXT("TimerValue")),FName(TEXT("ReserveValue")),FName(TEXT("ThemeHeading"))})
         if(auto* Text=Cast<UTextBlock>(Widget->GetWidgetFromName(Name)))
             UE_LOG(LogTemp,Display,TEXT("MC_UI_RENDER_FONT %s valid=%d value=%s"),*Name.ToString(),Text->GetFont().HasValidFont(),*Text->GetText().ToString());
-    const float DPIScale=DrawSize.X>=1000 && DrawSize.Y>=600?GetDefault<UUserInterfaceSettings>()->GetDPIScaleBasedOnSize(DrawSize):1.f;
+    const bool bWorldForm=Widget->bUseVersionedWorldPresentation || Widget->IsA<UMCWorldLabelWidget>();
+    const float DPIScale=bWorldForm?1.f:GetDefault<UUserInterfaceSettings>()->GetDPIScaleBasedOnSize(DrawSize);
+    TSharedRef<SWidget> FixtureContent=SlateWidget;
+    if(bWorldForm) FixtureContent=SNew(SBox).HAlign(HAlign_Center).VAlign(VAlign_Bottom).Padding(FMargin(8,8,8,12))[SlateWidget];
     // Keep the logical layout at a denser native vector rasterization for art
     // review. Existing callers retain scale 1; this never upscales an old PNG.
-    const TSharedRef<SWidget> PreviewSurface=SNew(SDPIScaler).DPIScale(DPIScale*RenderScale)[SlateWidget];
+    const TSharedRef<SWidget> PreviewSurface=SNew(SDPIScaler).DPIScale(DPIScale*RenderScale)[FixtureContent];
     // Render linear colors into a float target, then encode sRGB exactly once.
     // An sRGB target plus Slate gamma correction otherwise brightens PNG previews twice.
     auto* Renderer=new FWidgetRenderer(false,true);
@@ -633,6 +691,109 @@ UWidgetBlueprint* UMCGameplayUIEditorLibrary::CreateEditableGameplayWidget(const
     }
     UE_LOG(LogTemp,Display,TEXT("MC_UI_AUTHOR Saved editable gameplay widget: %s"),*AssetPath);
     return Blueprint;
+}
+
+bool UMCGameplayUIEditorLibrary::AppendWorldUIPresentation(UWidgetBlueprint* Blueprint)
+{
+    if(!IsInGameThread() || !GEditor || GEditor->PlayWorld || IsRunningCommandlet() || !IsValid(Blueprint)
+        || Blueprint->GetPackage()->IsDirty() || HasDirtyDesignerPackages() || !Blueprint->WidgetTree
+        || !Blueprint->WidgetTree->RootWidget || !Blueprint->Animations.IsEmpty()) return false;
+    const FString Path=Blueprint->GetPathName();UClass* Required=nullptr;
+    if(Path==TEXT("/Game/Gameplay/UI/WBP_PlayerName_Phase1.WBP_PlayerName_Phase1")) Required=UMCPlayerNameWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/WBP_VoiceIndicator.WBP_VoiceIndicator")) Required=UMCVoiceIndicatorWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/WBP_FreezeBar_Phase1.WBP_FreezeBar_Phase1")) Required=UMCFreezeBarWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/WBP_DeliveryCaption_Phase1.WBP_DeliveryCaption_Phase1")) Required=UMCDeliveryZoneCaptionWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/WBP_WorldStatus.WBP_WorldStatus")) Required=UMCWorldStatusWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/WBP_UlcerProgress_Phase1.WBP_UlcerProgress_Phase1")) Required=UMCUlcerProgressWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/WBP_HubInteractionPrompt.WBP_HubInteractionPrompt")) Required=UMCHubInteractionPromptWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/WBP_GrillHologram.WBP_GrillHologram")) Required=UMCHubGrillHologramWidget::StaticClass();
+    if(!Required || Blueprint->ParentClass!=Required) return false;
+    if(auto* Existing=Blueprint->WidgetTree->FindWidget<UWidgetSwitcher>(TEXT("WorldPresentationVersions")))
+        return Blueprint->Status!=BS_Error && !Existing->bIsVariable && Blueprint->WidgetTree->RootWidget==Existing && Existing->GetChildrenCount()==2;
+    if(Blueprint->WidgetTree->FindWidget(TEXT("WorldPresentationVersions"))) return false;
+    TStrongObjectPtr<UMCGameplayUIWidget> Source(NewObject<UMCGameplayUIWidget>(GetTransientPackage(),Required,NAME_None,RF_Transient));
+    Source->SetDesignerFlags(EWidgetDesignFlags::Designing);Source->Initialize();Source->BuildPresentationTree();
+    TStrongObjectPtr<UWidgetTree> Copy(Source->WidgetTree?DuplicateObject<UWidgetTree>(Source->WidgetTree,GetTransientPackage(),
+        MakeUniqueObjectName(GetTransientPackage(),UWidgetTree::StaticClass(),TEXT("WorldUIDesignerSeed"))):nullptr);
+    auto* Versions=Copy.IsValid()?Cast<UWidgetSwitcher>(Copy->RootWidget):nullptr;
+    UWidget* NewRoot=Versions && Versions->GetChildrenCount()==2?Versions->GetWidgetAtIndex(1):nullptr;
+    if(!NewRoot) return false;
+    TArray<UWidget*> Children;UWidgetTree::ForWidgetAndChildren(NewRoot,[&Children](UWidget* Child){Children.AddUnique(Child);});
+    Children.AddUnique(NewRoot);
+    for(auto* Child:Children) if(Child->GetOuter()==Copy.Get()
+        && StaticFindObjectFast(UObject::StaticClass(),Blueprint->WidgetTree,Child->GetFName())) return false;
+    auto* Assets=GEditor->GetEditorSubsystem<UEditorAssetSubsystem>();if(!Assets) return false;
+    TStrongObjectPtr<UWidgetBlueprint> Guard(Blueprint);FDesignerMaterialSnapshots Snapshots(Blueprint,Assets);
+    Blueprint->Modify();Blueprint->WidgetTree->Modify();UWidget* CurrentRoot=Blueprint->WidgetTree->RootWidget.Get();
+    NewRoot->RemoveFromParent();
+    for(auto* Child:Children) {
+        if(Child->GetOuter()==Copy.Get() && !UWidgetTree::TryMoveWidgetToNewTree(Child,Blueprint->WidgetTree)) return false;
+        if(!SanitizeAppendedDesignerWidget(Child,Source.Get(),Snapshots)) return false;
+        if(auto* User=Cast<UUserWidget>(Child);User && User->WidgetTree)
+            User->WidgetTree->ForEachWidgetAndDescendants([&](UWidget* Nested) {
+                if(!SanitizeAppendedDesignerWidget(Nested,Source.Get(),Snapshots)) Snapshots.bFailed=true;
+            });
+    }
+    if(Snapshots.bFailed) return false;
+    auto* Switcher=Blueprint->WidgetTree->ConstructWidget<UWidgetSwitcher>(UWidgetSwitcher::StaticClass(),TEXT("WorldPresentationVersions"));
+    Switcher->bIsVariable=false;Blueprint->WidgetTree->RootWidget=Switcher;
+    for(UWidget* Child:{CurrentRoot,NewRoot}) {
+        auto* Cell=CastChecked<UWidgetSwitcherSlot>(Switcher->AddChild(Child));
+        Cell->SetHorizontalAlignment(Child==CurrentRoot?HAlign_Fill:HAlign_Center);
+        Cell->SetVerticalAlignment(Child==CurrentRoot?VAlign_Fill:VAlign_Bottom);
+    }
+    Switcher->SetActiveWidgetIndex(0);RegisterMissingDesignerGuids(Blueprint);
+    FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);FKismetEditorUtilities::CompileBlueprint(Blueprint);
+    if(Blueprint->Status==BS_Error) return false;
+    return Snapshots.Save() && Assets->SaveLoadedAsset(Blueprint,false);
+}
+
+bool UMCGameplayUIEditorLibrary::AppendUnifiedHubControls(UWidgetBlueprint* Blueprint)
+{
+    if(!IsInGameThread() || !GEditor || GEditor->PlayWorld || IsRunningCommandlet() || !IsValid(Blueprint)
+        || Blueprint->GetPackage()->IsDirty() || HasDirtyDesignerPackages() || !Blueprint->WidgetTree
+        || Blueprint->GetPathName()!=TEXT("/Game/Gameplay/UI/V2/WBP_UIHub.WBP_UIHub")
+        || Blueprint->ParentClass!=UMCUnifiedHubWidget::StaticClass()) return false;
+    auto* Canvas=Cast<UCanvasPanel>(Blueprint->WidgetTree->RootWidget);if(!Canvas) return false;
+    const FName Names[]={TEXT("HubV2ControlsReticle"),TEXT("HubV2ControlsBounds")};
+    if(Blueprint->WidgetTree->FindWidget(Names[0]) || Blueprint->WidgetTree->FindWidget(Names[1]))
+        return Blueprint->Status!=BS_Error && Blueprint->WidgetTree->FindWidget(Names[0]) && Blueprint->WidgetTree->FindWidget(Names[1]);
+    auto* Assets=GEditor->GetEditorSubsystem<UEditorAssetSubsystem>();if(!Assets) return false;
+    TStrongObjectPtr<UWidgetBlueprint> Guard(Blueprint);
+    TStrongObjectPtr<UMCUnifiedHubWidget> Source(NewObject<UMCUnifiedHubWidget>(GetTransientPackage(),NAME_None,RF_Transient));
+    Source->SetDesignerFlags(EWidgetDesignFlags::Designing);
+    if(const auto* Defaults=Cast<UMCUnifiedHubWidget>(Blueprint->GeneratedClass?Blueprint->GeneratedClass->GetDefaultObject():nullptr)) {
+        Source->Theme=Defaults->Theme;Source->TranslationTable=Defaults->TranslationTable;
+    }
+    Source->Initialize();Source->BuildPresentationTree();
+    TStrongObjectPtr<UWidgetTree> Prepared(Source->WidgetTree?DuplicateObject<UWidgetTree>(Source->WidgetTree,GetTransientPackage(),
+        MakeUniqueObjectName(GetTransientPackage(),UWidgetTree::StaticClass(),TEXT("HubControlsDesignerSeed"))):nullptr);
+    if(!Prepared.IsValid()) return false;
+    struct FBranch {UWidget* Root=nullptr;FAnchorData Layout;bool bAutoSize=false;int32 Z=0;TArray<UWidget*> Children;};
+    TArray<FBranch> Branches;
+    for(FName Name:Names) {
+        FBranch& Branch=Branches.AddDefaulted_GetRef();Branch.Root=Prepared->FindWidget(Name);
+        auto* Cell=Branch.Root?Cast<UCanvasPanelSlot>(Branch.Root->Slot):nullptr;if(!Cell) return false;
+        Branch.Layout=Cell->GetLayout();Branch.bAutoSize=Cell->GetAutoSize();Branch.Z=Cell->GetZOrder();
+        Branch.Children.Add(Branch.Root);UWidgetTree::ForWidgetAndChildren(Branch.Root,[&](UWidget* Child){Branch.Children.AddUnique(Child);});
+        for(auto* Child:Branch.Children) if(Child->GetOuter()==Prepared.Get()
+            && StaticFindObjectFast(UObject::StaticClass(),Blueprint->WidgetTree,Child->GetFName())) return false;
+    }
+    FDesignerMaterialSnapshots Snapshots(Blueprint,Assets);Blueprint->Modify();Blueprint->WidgetTree->Modify();
+    for(auto& Branch:Branches) {
+        Branch.Root->RemoveFromParent();
+        for(auto* Child:Branch.Children) {
+            if(Child->GetOuter()==Prepared.Get() && !UWidgetTree::TryMoveWidgetToNewTree(Child,Blueprint->WidgetTree)) return false;
+            if(!SanitizeAppendedDesignerWidget(Child,Source.Get(),Snapshots)) return false;
+            if(auto* User=Cast<UUserWidget>(Child);User && User->WidgetTree) User->WidgetTree->ForEachWidgetAndDescendants([&](UWidget* Nested) {
+                if(!SanitizeAppendedDesignerWidget(Nested,Source.Get(),Snapshots)) Snapshots.bFailed=true;
+            });
+        }
+        auto* Cell=Canvas->AddChildToCanvas(Branch.Root);Cell->SetLayout(Branch.Layout);Cell->SetAutoSize(Branch.bAutoSize);Cell->SetZOrder(Branch.Z);
+    }
+    if(Snapshots.bFailed) return false;
+    RegisterMissingDesignerGuids(Blueprint);FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);FKismetEditorUtilities::CompileBlueprint(Blueprint);
+    return Blueprint->Status!=BS_Error && Snapshots.Save() && Assets->SaveLoadedAsset(Blueprint,false);
 }
 
 bool UMCGameplayUIEditorLibrary::RebuildUnifiedInterfaceView(UWidgetBlueprint* Blueprint)

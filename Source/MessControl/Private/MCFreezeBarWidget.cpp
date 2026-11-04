@@ -1,6 +1,7 @@
 #include "MCFreezeBarWidget.h"
 #include "MCUIDataLibrary.h"
 #include "MCUIVisualStyle.h"
+#include "MCWorldUIShapes.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Border.h"
 #include "Components/ProgressBar.h"
@@ -13,14 +14,16 @@
 
 #define LOCTEXT_NAMESPACE "MCFreezeBar"
 
+UMCFreezeBarWidget::UMCFreezeBarWidget() {bUseVersionedWorldPresentation=true;}
+
 void UMCFreezeBarWidget::BuildPresentationTree()
 {
     if (!WidgetTree) return;
-    SetIsFocusable(false); SetVisibility(ESlateVisibility::HitTestInvisible);
+    SetIsFocusable(false);if(!WidgetTree->RootWidget) SetVisibility(ESlateVisibility::HitTestInvisible);
     if (WidgetTree->RootWidget) {
         FreezeBackground=Cast<UBorder>(WidgetTree->FindWidget(TEXT("FreezeBackground")));
         FreezeProgress=Cast<UProgressBar>(WidgetTree->FindWidget(TEXT("FreezeProgress")));
-        FreezeCaption=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("FreezeCaption"))); return;
+        FreezeCaption=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("FreezeCaption"))); BuildWorldPresentationTree();return;
     }
     auto* Root=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("FreezeRoot"));
     Root->SetWidthOverride(240); Root->SetMinDesiredHeight(64); WidgetTree->RootWidget=Root;
@@ -38,39 +41,68 @@ void UMCFreezeBarWidget::BuildPresentationTree()
     Size->SetContent(FreezeProgress); ApplyFreeze();
 }
 
+void UMCFreezeBarWidget::BuildWorldPresentationTree()
+{
+    if(!bUseVersionedWorldPresentation || !WidgetTree) return;
+    auto* NewRoot=WidgetTree->FindWidget<USizeBox>(TEXT("WorldFreezeV2Root"));
+    if(!NewRoot) {
+        NewRoot=MCWorldUIShapes::Bounds(WidgetTree,TEXT("WorldFreezeV2Root"),240,64);
+        auto* Plate=MCWorldUIShapes::Panel(WidgetTree,TEXT("WorldFreezeV2Plate"),GetNewWorldPresentationTheme(),EMCUIColorToken::Surface,FMargin(11,7));NewRoot->SetContent(Plate);
+        auto* Stack=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("WorldFreezeV2Stack"));Plate->SetContentForSlot(TEXT("Content"),Stack);
+        auto* Caption=MCWorldUIShapes::Text(WidgetTree,TEXT("WorldFreezeV2Copy"),216);Stack->AddChildToVerticalBox(Caption)->SetPadding(FMargin(0,0,0,5));
+        auto* BarSize=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("WorldFreezeV2BarBounds"));BarSize->SetHeightOverride(12);
+        auto* Bar=WidgetTree->ConstructWidget<UProgressBar>(UProgressBar::StaticClass(),TEXT("WorldFreezeV2Progress"));Bar->SetBarFillType(EProgressBarFillType::LeftToRight);BarSize->SetContent(Bar);Stack->AddChildToVerticalBox(BarSize);
+    }
+    InstallWorldPresentation(NewRoot);
+    NewFreezeCaption=WidgetTree->FindWidget<UTextBlock>(TEXT("WorldFreezeV2Copy"));NewFreezeProgress=WidgetTree->FindWidget<UProgressBar>(TEXT("WorldFreezeV2Progress"));
+}
+
 void UMCFreezeBarWidget::SetFreeze(float Amount,bool bSafe)
 {
     FreezeAmount=FMath::IsFinite(Amount)?FMath::Clamp(Amount,0.f,1.f):0.f;
     bInSafeZone=bSafe; ApplyFreeze();
 }
 
-void UMCFreezeBarWidget::ApplyFreeze()
+void UMCFreezeBarWidget::RefreshFreezeCaption()
 {
     const FString Culture=bEditorFixture || IsDesignTime()?PreviewCulture:FString();
-    const auto* Style=GetResolvedTheme();
-    UDataTable* Table=Style?Style->LocalizationTable.LoadSynchronous():nullptr;
-    if (!Table) Table=UMCUIDataLibrary::GetDefaultLocalizationTable();
-    if (FreezeCaption) {
-        const FText Pattern=bInSafeZone
-            ? UMCUIDataLibrary::ResolveText(Table,TEXT("UI.Status.FreezeWarmingValue"),LOCTEXT("Warming","Заморозка {Percent} · Отогрев"),Culture)
-            : UMCUIDataLibrary::ResolveText(Table,TEXT("UI.Status.FreezeValue"),LOCTEXT("Frozen","Заморозка {Percent}"),Culture);
-        auto Target=FInternationalization::Get().GetCulture(Culture.IsEmpty()?FInternationalization::Get().GetCurrentLanguage()->GetName():Culture);
-        FNumberFormattingOptions Options=FNumberFormattingOptions::DefaultNoGrouping(); Options.SetMinimumFractionalDigits(0).SetMaximumFractionalDigits(0);
-        FreezeCaption->SetText(UMCUIDataLibrary::FormatTextForCulture(Pattern,FFormatNamedArguments{{TEXT("Percent"),FText::AsPercent(FreezeAmount,&Options,Target)}},Culture));
-    }
-    if (FreezeProgress) FreezeProgress->SetPercent(FreezeAmount);
+    // Explicit per-widget/parent overrides have priority over either visual theme.
+    UDataTable* Table=GetResolvedTranslationTable();
+    const FText Pattern=bInSafeZone
+        ? UMCUIDataLibrary::ResolveText(Table,TEXT("UI.Status.FreezeWarmingValue"),LOCTEXT("Warming","Заморозка {Percent} · Отогрев"),Culture)
+        : UMCUIDataLibrary::ResolveText(Table,TEXT("UI.Status.FreezeValue"),LOCTEXT("Frozen","Заморозка {Percent}"),Culture);
+    auto Target=FInternationalization::Get().GetCulture(Culture.IsEmpty()?FInternationalization::Get().GetCurrentLanguage()->GetName():Culture);
+    FNumberFormattingOptions Options=FNumberFormattingOptions::DefaultNoGrouping();Options.SetMinimumFractionalDigits(0).SetMaximumFractionalDigits(0);
+    const FText Copy=UMCUIDataLibrary::FormatTextForCulture(Pattern,FFormatNamedArguments{{TEXT("Percent"),FText::AsPercent(FreezeAmount,&Options,Target)}},Culture);
+    if(FreezeCaption) FreezeCaption->SetText(Copy);
+    if(NewFreezeCaption) NewFreezeCaption->SetText(Copy);
+}
+
+void UMCFreezeBarWidget::ApplyFreeze()
+{
+    if(FreezeProgress) FreezeProgress->SetPercent(FreezeAmount);
+    if(NewFreezeProgress) NewFreezeProgress->SetPercent(FreezeAmount);
     ApplyTheme();
 }
 
 void UMCFreezeBarWidget::ApplyTheme()
 {
+    BuildPresentationTree();
     Super::ApplyTheme();
+    RefreshFreezeCaption();
     if (const auto* Style=GetResolvedTheme()) {
         const auto& P=Style->Palette;
         const FLinearColor Fill=bInSafeZone?P.Accent:FreezeAmount<=.7f?FMath::Lerp(P.Shield,P.Warning,FreezeAmount/.7f):FMath::Lerp(P.Warning,P.Cost,(FreezeAmount-.7f)/.3f);
         MCUIVisualStyle::Panel(FreezeBackground,Style,P.Marine);
         MCUIVisualStyle::Progress(FreezeProgress,Style,Fill);
         if (FreezeCaption) {FreezeCaption->SetFont(Style->MakeFont(16));FreezeCaption->SetColorAndOpacity(FreezeAmount>=.8f && !bInSafeZone?P.Cost:P.OnMarine);FreezeCaption->SetShadowOffset(FVector2D::ZeroVector);}
+    }
+    if(const auto* NewTheme=GetNewWorldPresentationTheme()) {
+        const auto& NewPalette=NewTheme->Palette;
+        const FLinearColor NewFill=bInSafeZone?NewPalette.Mint:FreezeAmount<=.7f?FMath::Lerp(NewPalette.Shield,NewPalette.Warning,FreezeAmount/.7f):FMath::Lerp(NewPalette.Warning,NewPalette.Cost,(FreezeAmount-.7f)/.3f);
+        MCWorldUIShapes::ProgressStyle(NewFreezeProgress,NewTheme,NewFill);
+        if(NewFreezeProgress) NewFreezeProgress->SetPercent(FreezeAmount);
+        MCWorldUIShapes::TextStyle(NewFreezeCaption,NewTheme,16,FreezeAmount>=.8f && !bInSafeZone?EMCUIColorToken::Cost:EMCUIColorToken::OnMarine);
     }
 }
 

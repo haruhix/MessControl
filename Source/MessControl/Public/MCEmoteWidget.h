@@ -45,6 +45,28 @@ private:
     UFUNCTION() void Hovered();
     UPROPERTY() TObjectPtr<AMCPlayerController> Controller;
 };
+/** Token for the actual current source control, never a second emote/alarm/color decision. */
+struct MESSCONTROL_API FMCEmotePresentationChoice
+{
+    TWeakObjectPtr<UMCEmoteButton> Source;
+    int32 ExpectedCategory=0,Index=INDEX_NONE;
+    FName Id;
+    EMCPlayerAlarm Alarm=EMCPlayerAlarm::None;
+    bool bColorChoice=false,bEnabled=false,bSelected=false;
+    FText Label;
+    FLinearColor Color=FLinearColor::White;
+};
+struct MESSCONTROL_API FMCEmotePresentationSnapshot
+{
+    bool bVisible=false,bHeld=false,bHasGeometry=false;
+    int32 SelectedCategory=0,SelectedChoice=INDEX_NONE;
+    FText Heading,HintText,FooterText,ColorHeadingText,CategoryLabels[3];
+    TArray<FMCEmotePresentationChoice> Choices,Colors;
+    TArray<FText> KnownChoiceLabels;
+    FVector2D WheelCenterAbsolute=FVector2D::ZeroVector;
+    float OuterRadiusAbsolute=210,InnerRadiusAbsolute=65;
+};
+
 UCLASS()
 class MESSCONTROL_API UMCEmoteWidget : public UMCGameplayUIWidget
 {
@@ -54,6 +76,15 @@ public:
     void BeginSelection(bool bHeld);
     void SelectChoice(int32 Index);
     bool ConfirmSelection();
+    FMCEmotePresentationSnapshot GetUnifiedPresentationSnapshot() const;
+    /** Ready/visible New view supplies focus ownership only; existing source still owns selection and closing. */
+    void SetUnifiedFocusView(UUserWidget* NewView);
+    void ClearUnifiedFocusView(const UUserWidget* OldView);
+    void NotifyUnifiedFocusLost(const UUserWidget* NewView);
+    FReply RouteUnifiedKeyDown(const FKeyEvent& Event);
+    FReply RouteUnifiedKeyUp(const FKeyEvent& Event);
+    FReply RouteUnifiedPointerDown(const FPointerEvent& Event);
+    bool TryActivateUnifiedChoice(const FMCEmotePresentationChoice& Token,bool bHoverOnly=false);
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Emotes") TSoftObjectPtr<UMCEmoteLibrary> PreviewLibrary = TSoftObjectPtr<UMCEmoteLibrary>(FSoftObjectPath(TEXT("/Game/Data/DA_Emotes.DA_Emotes")));
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Emotes", meta=(ClampMin="0",ClampMax="2")) int32 PreviewCategory=0;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Emotes") bool bPreviewActionsAvailable=true;
@@ -88,6 +119,7 @@ private:
     int32 KeyboardChoice=0;
     float RefreshElapsed=.1f;
     bool bCheckFocusAfterLoss=false;
+    TWeakObjectPtr<UUserWidget> UnifiedFocusView;
     void SelectCategory(int32 Value);
     void RefreshAvailability();
     void EnsureWheelPresentation();

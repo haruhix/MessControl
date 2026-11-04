@@ -5,6 +5,7 @@
 #include "ProceduralMeshComponent.h"
 #include "MCLocomotionSurface.h"
 #include "MCResultPassives.h"
+#include "MCCareWidgetPresentation.h"
 #include "MCMouthSurface.generated.h"
 class UBoxComponent;
 class UStaticMeshComponent;
@@ -38,6 +39,7 @@ public:
     static AMCMouthSurface* SpawnExperimentalHugeStain(UWorld* World,FVector Near);
     AMCMouthSurface();
     virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void Tick(float Dt) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UBoxComponent> Area;
@@ -110,6 +112,7 @@ public:
     UPROPERTY(ReplicatedUsing=OnRep_Wipe) TArray<uint8> LiquidDepositMask;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Liquid") int32 LiquidSeed=0;
 private:
+    FMCCareWidgetPresentation CareWidgetPresentation;
     bool ApplyLiquidCleaning(class AMCToothCharacter* Worker,FVector2D From,FVector2D To,FVector Point,
         float RadiusUV,float Seconds,float Rate,EMCStainCleanReason Reason);
     void SyncLiquidCleaningLayers(class AMCToothCharacter* Worker,EMCStainCleanReason Reason);

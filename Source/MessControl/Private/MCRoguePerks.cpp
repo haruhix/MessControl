@@ -1,4 +1,5 @@
 #include "MCPerkComponent.h"
+#include "MCWorldLabelPresenterComponent.h"
 #include "MCPerkPresentationEvents.h"
 #include "MCAirSkillAction.h"
 #include "MCPassiveFeedbackCue.h"
@@ -263,6 +264,7 @@ void UMCPerkComponent::ClearRogueRuntime()
 {
     UMCCombatPassiveSubsystem::ResetOwner(this);
     UMCDefenseSprayPassives::ResetOwner(this);
+    if(GrenadeCuePresentation.IsValid()) GrenadeCuePresentation->DestroyComponent();GrenadeCuePresentation.Reset();
     if(GrenadeCue.IsValid()) GrenadeCue->DestroyComponent();GrenadeCue.Reset();
     if(auto* Hero=HeroFor(this);Hero && bFuryMotion) Hero->GetCharacterMovement()->RemoveRootMotionSourceByID(FuryMotionID);
     bFuryMotion=false;FuryUntil=-100;bGrenadeArmed=false;BoosterQueue.Reset();

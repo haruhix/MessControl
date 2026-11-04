@@ -13,6 +13,7 @@ class MESSCONTROL_API UMCDeliveryZoneCaptionWidget : public UMCGameplayUIWidget
 {
     GENERATED_BODY()
 public:
+    UMCDeliveryZoneCaptionWidget();
     /** May be called before initialization. Width is bounded; translated copy grows the desired height. */
     void SetDeliveryCaption(bool bExit,bool bSortingError=false);
     virtual void BuildPresentationTree() override;
@@ -22,6 +23,12 @@ protected:
     virtual void NativeOnInitialized() override;
 private:
     void RefreshCaption();
+    void BuildWorldPresentationTree();
+    void RefreshWorldPresentation();
+    UPROPERTY(Transient) TObjectPtr<class UMCUniversalUIWidget> NewDirectionShape;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> NewDirection;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> NewTitle;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> NewDescription;
     UPROPERTY(Transient) TObjectPtr<UBorder> Background;
     UPROPERTY(Transient) TObjectPtr<UBorder> IconBackground;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> DirectionIcon;

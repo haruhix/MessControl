@@ -72,6 +72,8 @@ public:
     bool CanPresentUnifiedTeam() const;
     bool CanPresentUnifiedHub() const;
     bool CanPresentUnifiedReward() const;
+    /** Read-only presentation admission; the original emote policy remains authoritative. */
+    bool CanUseEmotePresentation() const {return CanOpenEmotes();}
     UMCGameplayMenuWidget* GetActiveGameplayMenuPresentation() const;
     void RefreshFishingCounterTarget();
     void ToggleEmotes();
