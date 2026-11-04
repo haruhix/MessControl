@@ -58,6 +58,11 @@ public:
     UFUNCTION(BlueprintPure, Category="Mess Control|Gameplay UI|Editor")
     static FString InspectPIEFishingCatch(UMCFishingRewardWidget* Source,UMCUnifiedCatchWidget* View);
 
+    /** Read-only standalone PIE telemetry from actual original Emote owner/expression. No action or property access changes. */
+    UFUNCTION(BlueprintPure, Category="Mess Control|Gameplay UI|Editor")
+    static FString InspectPIEEmotePresentation(UWorld* World);
+
+
     /** Explicit disposable standalone L_Mouth fixture: uses the real native damage pipeline, never assigns health/reserves. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static bool ApplyPIEToothDamage(AMCToothCharacter* Hero,float Amount);
@@ -109,6 +114,14 @@ public:
     /** Saves a new editable tree and parameter-preserving material snapshots; existing assets are never replaced. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static UWidgetBlueprint* CreateEditableGameplayWidget(const FString& AssetPath, TSubclassOf<UMCGameplayUIWidget> ParentClass);
+
+    /** Append only the New branch to one known world-role WBP, retaining its original root/nodes/graphs. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
+    static bool AppendWorldUIPresentation(UWidgetBlueprint* Blueprint);
+
+    /** Append only Hub control-hint/reticle branches; retain the saved Hub screen and graph. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
+    static bool AppendUnifiedHubControls(UWidgetBlueprint* Blueprint);
 
     /** Rebuild only the task-owned V2 Settings/TEAM component trees after a recipe verifies backups/hashes.
      * Preserves graphs and surviving widget GUIDs; rejects all other assets and dirty UI packages.

@@ -32,7 +32,9 @@ LANGUAGES = tuple(LANGUAGE_CULTURES)
 TABLE = '/Game/Gameplay/UI/Data/DT_UI_Localization'
 PATCHES = ('ui_v2_screen_locale_patch.json', 'ui_v2_backend_locale_patch.json', 'ui_v2_catch_texts.json',
            'ui_v2_encounter_loading_locale_patch.json', 'ui_v2_tutorial_locale_patch.json',
-           'ui_v2_hud_extras_locale_patch.json', 'ui_v2_arena_context_locale_patch.json')
+           'ui_v2_hud_extras_locale_patch.json', 'ui_v2_arena_context_locale_patch.json',
+           'ui_v2_emote_world_locale_patch.json', 'ui_v2_reticle_grill_locale_patch.json',
+           'ui_v2_world_label_locale_patch.json')
 OUTPUT = 'E:/CodexWork/MessControl/Validation/UICatch_20261104/Locales'
 MAP_FIELDS = ('AdditionalLanguages', 'Localizations')
 

@@ -15,6 +15,7 @@ class MESSCONTROL_API UMCFreezeBarWidget : public UMCGameplayUIWidget
     GENERATED_BODY()
 
 public:
+    UMCFreezeBarWidget();
     /** Values are cached even when the widget tree has not been built yet. */
     UFUNCTION(BlueprintCallable, Category="Ice Event")
     void SetFreeze(float Amount, bool bSafe);
@@ -35,6 +36,10 @@ protected:
 
 private:
     void ApplyFreeze();
+    void RefreshFreezeCaption();
+    void BuildWorldPresentationTree();
+    UPROPERTY(Transient) TObjectPtr<UProgressBar> NewFreezeProgress;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> NewFreezeCaption;
     UPROPERTY(Transient) TObjectPtr<UBorder> FreezeBackground;
 
     float FreezeAmount = 0.f;

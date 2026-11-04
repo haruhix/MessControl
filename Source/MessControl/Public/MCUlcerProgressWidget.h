@@ -9,6 +9,7 @@ class UCanvasPanel;
 class UImage;
 class UTextBlock;
 class UMCHUDIcon;
+class USizeBox;
 
 /** Screen-space progress attached to the lesion, independently of the main HUD. */
 UCLASS(Blueprintable)
@@ -16,11 +17,16 @@ class MESSCONTROL_API UMCUlcerProgressWidget : public UMCGameplayUIWidget
 {
     GENERATED_BODY()
 public:
+    UMCUlcerProgressWidget();
     TWeakObjectPtr<AMCMouthSurface> Source;
     TWeakObjectPtr<AMCToothpick> ToothpickSource;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Appearance") FLinearColor ProgressColor=FLinearColor(.25f,.94f,.74f);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Appearance") bool bOverrideProgressColor=false;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Appearance",meta=(ClampMin="2",ClampMax="12")) float RingThickness=7;
+    /** New caption grows to real localized copy; the source ring does not scale with it. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Presentation|World|Care",meta=(ClampMin="84",ClampMax="640")) float MaximumNewCaptionWidth=320.f;
+    /** Designer-only localized overflow specimen; runtime always copies the existing source label. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Preview|Care",meta=(MultiLine=true)) FText PreviewCaptionOverride;
     virtual void BuildPresentationTree() override;
     virtual void ApplyTheme() override;
     virtual void ApplyEditorPreview(float Time) override;
@@ -28,6 +34,19 @@ protected:
     virtual void NativeOnInitialized() override;
     virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
 private:
+    void BuildWorldPresentationTree();
+    void RefreshWorldPresentation();
+    void RefreshWorldCaptionLayout();
+    bool bHasNewCaptionMetrics=false;
+    FText MeasuredNewCaption;
+    FSlateFontInfo MeasuredNewFont;
+    float MeasuredNewMaximum=-1.f,MeasuredNewScale=-1.f;
+    UPROPERTY(Transient) TObjectPtr<UWidget> NewCareRoot;
+    UPROPERTY(Transient) TObjectPtr<USizeBox> NewCareCaptionBalance;
+    UPROPERTY(Transient) TObjectPtr<UMCHUDIcon> NewCareTool;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> NewCarePull;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> NewCareValue;
+    UPROPERTY(Transient) TArray<TObjectPtr<UImage>> NewCareSegments;
     void RefreshSource();
     void RefreshPresentation();
     UPROPERTY(Transient) TObjectPtr<UCanvasPanel> ProgressPanel;

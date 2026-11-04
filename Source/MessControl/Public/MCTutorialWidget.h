@@ -15,6 +15,18 @@ class UTextBlock;
 class UTexture2D;
 class UVerticalBox;
 
+/** Read-only presentation of the existing director-owned tutorial and its actual controls. */
+struct MESSCONTROL_API FMCTutorialPresentationSnapshot
+{
+    bool bVisible=false,bRequiresMenuInput=false;
+    FText StageTitleText,DialogueText,ActionText,OwnProgressText,TeamProgressText,TimerText;
+    FText ReadyLabelText,MenuLabelText,PortraitNameText;
+    bool bTimerVisible=false,bProgressVisible=false;
+    float ProgressFraction=0;
+    bool bReadyVisible=false,bReadyEnabled=false,bMenuVisible=false,bMenuEnabled=false;
+    TWeakObjectPtr<UTexture2D> PortraitTexture;
+};
+
 /** Local presentation of the server-owned Day 0 state. Input mode remains the controller's responsibility. */
 UCLASS()
 class MESSCONTROL_API UMCTutorialWidget : public UMCGameplayUIWidget
@@ -27,6 +39,9 @@ public:
     bool RequiresMenuInput() const;
     bool IsTutorialVisible() const;
     UWidget* GetReadyFocusTarget() const;
+    FMCTutorialPresentationSnapshot GetUnifiedPresentationSnapshot() const;
+    bool TryActivateUnifiedPresentationButton(bool bReady);
+    void RequestUnifiedPresentationBack();
     virtual void BuildPresentationTree() override;
     virtual void ApplyTheme() override;
     virtual void ApplyEditorPreview(float Time) override;

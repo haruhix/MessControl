@@ -1,4 +1,6 @@
 #include "MCHubReadyZone.h"
+#include "MCWorldLabelPresenterComponent.h"
+#include "MCWorldLabelLocalization.h"
 #include "MCHubGameState.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -60,6 +62,9 @@ AMCHubReadyZone::AMCHubReadyZone()
     Label->SetWorldSize(55.f);
     Label->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     Label->SetCastShadow(false);
+    auto* WorldLabelPresentation=CreateDefaultSubobject<UMCWorldLabelPresenterComponent>(TEXT("WorldLabelPresentation"));
+    WorldLabelPresentation->SetupAttachment(Label);WorldLabelPresentation->SourceText=Label;
+    WorldLabelPresentation->SetSourceCopyRefresh(FSimpleDelegate::CreateUObject(this,&ThisClass::RefreshLocalizedLabelCopy));
     RefreshGeometry();
 }
 
@@ -82,7 +87,7 @@ void AMCHubReadyZone::RefreshGeometry()
     Label->SetRelativeLocation(FVector(0,0,-Extent.Z+7.f));
     Label->SetRelativeRotation(FRotator(90.f,180.f,0));
     Label->SetTextRenderColor(WaitingColor.ToFColor(true));
-    Label->SetText(LOCTEXT("ReadyZoneInitial", "ГОТОВНОСТЬ"));
+    MCWorldLabelLocalization::Apply(Label,MCWorldLabelLocalization::Resolve(Label,TEXT("UI.World.ReadyTitle"),LOCTEXT("ReadyZoneInitial", "ГОТОВНОСТЬ")));
 }
 
 void AMCHubReadyZone::OnConstruction(const FTransform& Transform)
@@ -134,11 +139,20 @@ void AMCHubReadyZone::EndPlay(const EEndPlayReason::Type Reason)
 void AMCHubReadyZone::RefreshLabel()
 {
     if (!Label || !BoundState) return;
-    Label->SetText(FText::Format(LOCTEXT("ReadyZoneCount", "ГОТОВНОСТЬ\n{0}/{1}"),
-        FText::AsNumber(BoundState->GetReadyCount()), FText::AsNumber(BoundState->GetParticipantCount())));
+    RefreshLocalizedLabelCopy();
     Label->SetTextRenderColor((BoundState->AreAllReady()?ReadyColor:WaitingColor).ToFColor(true));
     for (UMaterialInstanceDynamic* Material : MarkerMaterials)
         if (Material) Material->SetVectorParameterValue(TEXT("Color"),BoundState->AreAllReady()?ReadyColor:WaitingColor);
+}
+
+void AMCHubReadyZone::RefreshLocalizedLabelCopy()
+{
+    if(!Label) return;
+    if(!BoundState) {
+        MCWorldLabelLocalization::Apply(Label,MCWorldLabelLocalization::Resolve(Label,TEXT("UI.World.ReadyTitle"),LOCTEXT("ReadyZoneInitial", "ГОТОВНОСТЬ")));return;
+    }
+    MCWorldLabelLocalization::Apply(Label,MCWorldLabelLocalization::Format(Label,TEXT("UI.World.ReadyCount"),LOCTEXT("ReadyZoneCount", "ГОТОВНОСТЬ\n{0}/{1}"),
+        {{TEXT("0"),BoundState->GetReadyCount()},{TEXT("1"),BoundState->GetParticipantCount()}}));
 }
 
 #undef LOCTEXT_NAMESPACE

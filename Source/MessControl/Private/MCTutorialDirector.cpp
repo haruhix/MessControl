@@ -1,4 +1,6 @@
 #include "MCTutorialDirector.h"
+#include "MCWorldLabelPresenterComponent.h"
+#include "MCWorldLabelLocalization.h"
 #include "MCWorldPresentationComponent.h"
 #include "MCVFXPresentationComponent.h"
 #include "MCGameState.h"
@@ -42,6 +44,8 @@ AMCTutorialDirector::AMCTutorialDirector()
     GoalLabel->SetHorizontalAlignment(EHTA_Center); GoalLabel->SetWorldSize(20);
     GoalLabel->SetTextRenderColor(FColor(115,245,255)); GoalLabel->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     GoalLabel->SetVisibility(false);
+    auto* WorldLabelPresentation=CreateDefaultSubobject<UMCWorldLabelPresenterComponent>(TEXT("WorldLabelPresentation"));
+    WorldLabelPresentation->SetupAttachment(GoalLabel);WorldLabelPresentation->SourceText=GoalLabel;
     auto* Presentation=CreateDefaultSubobject<UMCWorldPresentationComponent>(TEXT("TutorialPresentation"));
     Presentation->Sources={TEXT("UI.TutorialFeedback")};
 }
@@ -618,8 +622,9 @@ void AMCTutorialDirector::UpdatePresentation()
                 FVector Center;float Radius;
                 if(It->GetIntakeAimTarget(Center,Radius)) {Position=Center+FVector(0,0,Radius+30);AimAtThroat=true;break;}
             }
-        GoalLabel->SetWorldLocation(Position); GoalLabel->SetText(AimAtThroat?FText::FromString(TEXT("Q")):
-            FMCTutorialProgressRules::IsSharedStage(Stage)?LOCTEXT("SharedTarget","▼ ОБЩАЯ ЦЕЛЬ"):LOCTEXT("YourTarget","▼ ТВОЯ ЦЕЛЬ"));
+        GoalLabel->SetWorldLocation(Position); MCWorldLabelLocalization::Apply(GoalLabel,AimAtThroat?FText::FromString(TEXT("Q")):
+            FMCTutorialProgressRules::IsSharedStage(Stage)?MCWorldLabelLocalization::Resolve(GoalLabel,TEXT("UI.Tutorial.Copy.SharedTarget"),LOCTEXT("SharedTarget","▼ ОБЩАЯ ЦЕЛЬ"))
+                :MCWorldLabelLocalization::Resolve(GoalLabel,TEXT("UI.Tutorial.Copy.YourTarget"),LOCTEXT("YourTarget","▼ ТВОЯ ЦЕЛЬ")));
         if (PC && PC->PlayerCameraManager) GoalLabel->SetWorldRotation((PC->PlayerCameraManager->GetCameraLocation()-Position).Rotation());
     }
     if (Stage!=EMCTutorialStage::FoamParty)

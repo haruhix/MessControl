@@ -238,6 +238,33 @@ UWidget* UMCTutorialWidget::GetReadyFocusTarget() const
     return ReadyButton && ReadyButton->GetIsEnabled()?static_cast<UWidget*>(ReadyButton.Get()):static_cast<UWidget*>(MenuButton.Get());
 }
 
+
+FMCTutorialPresentationSnapshot UMCTutorialWidget::GetUnifiedPresentationSnapshot() const
+{
+    FMCTutorialPresentationSnapshot Result;
+    // The New overlay may hide the source root; read the source card's own state, not its ancestors.
+    Result.bVisible=IsTutorialVisible() && Card && Card->IsVisible();Result.bRequiresMenuInput=RequiresMenuInput();
+    auto Read=[](const UTextBlock* Label) {return Label?Label->GetText():FText::GetEmpty();};
+    Result.StageTitleText=Read(StageTitle);Result.DialogueText=Read(Dialogue);Result.ActionText=Read(Action);
+    Result.OwnProgressText=Read(OwnProgress);Result.TeamProgressText=Read(TeamProgress);Result.TimerText=Read(Timer);
+    Result.ReadyLabelText=Read(ReadyLabel);Result.MenuLabelText=Read(MenuLabel);Result.PortraitNameText=Read(PortraitName);
+    Result.bTimerVisible=Timer && Timer->IsVisible();Result.bProgressVisible=Progress && Progress->IsVisible();Result.ProgressFraction=Progress?Progress->GetPercent():0;
+    Result.bReadyVisible=ReadyButton && ReadyButton->IsVisible();Result.bReadyEnabled=ReadyButton && ReadyButton->GetIsEnabled();
+    Result.bMenuVisible=MenuButton && MenuButton->IsVisible();Result.bMenuEnabled=MenuButton && MenuButton->GetIsEnabled();Result.PortraitTexture=FairyPortrait;
+    return Result;
+}
+bool UMCTutorialWidget::TryActivateUnifiedPresentationButton(bool bReady)
+{
+    if(IsDesignTime() || bEditorFixture || !IsTutorialVisible() || !RequiresMenuInput()) return false;
+    UButton* SourceButton=bReady?ReadyButton.Get():MenuButton.Get();
+    if(!SourceButton || !SourceButton->IsVisible() || !SourceButton->GetIsEnabled()) return false;
+    if(bReady) ReadyClicked();else MenuClicked();return true;
+}
+void UMCTutorialWidget::RequestUnifiedPresentationBack()
+{
+    if(!IsDesignTime() && !bEditorFixture && IsTutorialVisible()) MenuClicked();
+}
+
 void UMCTutorialWidget::UpdatePortrait()
 {
     if (!PortraitImage || !PortraitFallback) return;
@@ -253,8 +280,7 @@ void UMCTutorialWidget::UpdatePortrait()
 FString UMCTutorialWidget::DisplayCulture() const {return IsDesignTime() || bEditorFixture?PreviewCulture:FString();}
 FText UMCTutorialWidget::Copy(FName Key,const FText& Fallback) const
 {
-    const auto* Style=GetResolvedTheme();UDataTable* Table=Style?Style->LocalizationTable.LoadSynchronous():nullptr;
-    if(!Table) Table=UMCUIDataLibrary::GetDefaultLocalizationTable();return UMCUIDataLibrary::ResolveText(Table,Key,Fallback,DisplayCulture());
+    return UMCUIDataLibrary::ResolveText(GetResolvedTranslationTable(),Key,Fallback,DisplayCulture());
 }
 FText UMCTutorialWidget::DirectorCopy(const FText& Text) const
 {

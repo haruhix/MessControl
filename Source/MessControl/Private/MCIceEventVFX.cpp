@@ -1,4 +1,6 @@
 #include "MCIceEventVFX.h"
+#include "MCWorldLabelPresenterComponent.h"
+#include "MCWorldLabelLocalization.h"
 #include "MCIceEvent.h"
 #include "MCWorldPresentationComponent.h"
 #include "MCVFXPresentationComponent.h"
@@ -197,7 +199,10 @@ void AMCIceEventVFX::BeginPlay()
         Label->SetupAttachment(GetRootComponent()); Label->SetCollisionEnabled(ECollisionEnabled::NoCollision);
         Label->SetHorizontalAlignment(EHTA_Center); Label->SetVerticalAlignment(EVRTA_TextCenter);
         Label->SetWorldSize(Size); Label->SetTextRenderColor(FColor(165,235,255)); Label->SetCastShadow(false);
-        Label->RegisterComponent(); AddInstanceComponent(Label); return Label;
+        Label->RegisterComponent(); AddInstanceComponent(Label);
+        auto* WorldLabelPresentation=NewObject<UMCWorldLabelPresenterComponent>(this,FName(*FString::Printf(TEXT("%sPresentation"),Name)));
+        WorldLabelPresentation->SetupAttachment(Label);WorldLabelPresentation->SourceText=Label;
+        AddInstanceComponent(WorldLabelPresentation);WorldLabelPresentation->RegisterComponent();return Label;
     };
     CoreHealthLabel=MakeHealthLabel(TEXT("CoreCrystalHealth"),32);
     for(int32 I=0;I<2;++I)
@@ -445,7 +450,8 @@ void AMCIceEventVFX::UpdateHealthLabels(const AMCIceEvent& Event,double ServerTi
         if(!bVisible) return;
         Label->SetWorldLocation(Position);
         if(Camera) Label->SetWorldRotation((Camera->GetCameraLocation()-Position).Rotation());
-        Label->SetText(FText::FromString(FString::Printf(TEXT("%d / %d HP"),FMath::CeilToInt(Health),FMath::CeilToInt(MaxHealth))));
+        MCWorldLabelLocalization::Apply(Label,MCWorldLabelLocalization::Format(Label,TEXT("UI.World.HealthValue"),NSLOCTEXT("MCWorldHealth","HealthValue","{Health} / {Maximum} HP"),
+            {{TEXT("Health"),FMath::CeilToInt(Health)},{TEXT("Maximum"),FMath::CeilToInt(MaxHealth)}}));
         Label->SetTextRenderColor(Health<=MaxHealth*.25f?FColor(255,170,110):FColor(165,235,255));
     };
     const FVector CoreLabelPoint=Event.HasAuthoredCandy()

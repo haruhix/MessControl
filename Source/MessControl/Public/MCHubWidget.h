@@ -2,9 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "MCGameplayUIWidget.h"
+#include "MCUIReticlePresentation.h"
 #include "Components/Button.h"
 #include "MCHubWidget.generated.h"
 
+class UMCUnifiedHubWidget;
 class AMCHubGameState;
 class UBorder;
 class UCanvasPanel;
@@ -48,6 +50,16 @@ private:
     int32 Day=0;
 };
 
+/** Read-only current source labels and geometry; no second fishing/throw/trajectory owner. */
+struct MESSCONTROL_API FMCHubControlsPresentation
+{
+    FMCUIReticlePresentation Reticle;
+    FText Hint;
+    bool bHintVisible=false;
+    int32 NativeTrajectoryStrokeCount=0;
+};
+DECLARE_MULTICAST_DELEGATE_OneParam(FMCHubControlsUpdated,const FMCHubControlsPresentation&);
+
 /** Hub-only readiness and authoritative controls; no level task/director HUD. */
 UCLASS(Blueprintable)
 class MESSCONTROL_API UMCHubWidget : public UMCGameplayUIWidget
@@ -74,6 +86,14 @@ public:
     bool RouteUnifiedMouseWheel(const FPointerEvent& Event);
     /** Suppresses only replaced groups. The scene, hit areas and NativePaint stay live. */
     void SetUnifiedViewActive(bool bActive);
+    const FMCHubControlsPresentation& GetUnifiedControlsSnapshot() const {return ControlsSnapshot;}
+    const FGeometry& GetUnifiedControlsPaintGeometry() const {return ControlsPaintGeometry;}
+    FSlateFontInfo GetControlsReticleFont() const;
+    bool HasPreparedControlsGlyphs() const {return bControlsGlyphsPrepared;}
+    FMCHubControlsUpdated& OnControlsPresentationUpdated() {return ControlsUpdated;}
+    bool CommitUnifiedControlsView(UMCUnifiedHubWidget* View,uint64 SourceFrame);
+    void ClearUnifiedControlsView(const UMCUnifiedHubWidget* View);
+
 
     virtual void BuildPresentationTree() override;
     virtual void ApplyEditorPreview(float Time) override;
@@ -100,6 +120,26 @@ private:
     bool IsLocalHost() const;
     void ApplyUnifiedViewSuppression();
     bool bUnifiedViewActive=false;
+    FMCHubControlsPresentation ControlsSnapshot;
+    FGeometry ControlsPaintGeometry;
+    FMCHubControlsUpdated ControlsUpdated;
+    TWeakObjectPtr<UMCUnifiedHubWidget> UnifiedControlsView;
+    uint64 UnifiedControlsFrame=MAX_uint64;
+    mutable uint64 NativeControlsPaintedFrame=MAX_uint64;
+    TMap<TWeakObjectPtr<UWidget>,float> ControlsOriginalOpacity;
+    void PrimeControlsGlyphs();
+    bool bControlsGlyphsPrepared=false;
+    TWeakObjectPtr<UDataTable> PrimedControlsTable;
+    FString PrimedControlsCulture;
+    FText PrimedControlsCorpus;
+    FSlateFontInfo PrimedControlsSourceFont,PrimedControlsNewFont;
+    float PrimedControlsScale=0;
+    void CacheControlsPresentation(FVector2D LocalSize);
+    FMCHubControlsPresentation EvaluateControlsPresentation(const FGeometry& SourcePaint,FVector2D LocalSize) const;
+    void ReleaseUnifiedControlsView();
+    bool UsesUnifiedControlsView() const;
+    void ApplyUnifiedControlsOpacity();
+
     FText InteractionFeedback;
     double InteractionFeedbackUntil=0;
     AMCHubGameState* State() const;

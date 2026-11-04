@@ -1,4 +1,6 @@
 #include "MCArenaTooth.h"
+#include "MCWorldLabelPresenterComponent.h"
+#include "MCWorldLabelLocalization.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothCalculusComponent.h"
 #include "MCWorldStatusComponent.h"
@@ -63,6 +65,8 @@ AMCArenaTooth::AMCArenaTooth()
     Label=CreateDefaultSubobject<UTextRenderComponent>(TEXT("ToothIdentity")); Label->SetupAttachment(Body);
     Label->SetRelativeLocation(FVector(0,0,112)); Label->SetWorldSize(19); Label->SetHorizontalAlignment(EHTA_Center);
     Label->SetTextRenderColor(FColor(135,255,218)); Label->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    auto* WorldLabelPresentation=CreateDefaultSubobject<UMCWorldLabelPresenterComponent>(TEXT("WorldLabelPresentation"));
+    WorldLabelPresentation->SetupAttachment(Label);WorldLabelPresentation->SourceText=Label;
     static ConstructorHelpers::FObjectFinder<USoundBase> Piano(TEXT("/Game/Audio/S_ToothPianoC4"));
     if (Piano.Succeeded()) PianoSound=Piano.Object;
     static ConstructorHelpers::FObjectFinder<USoundBase> PianoC5(TEXT("/Game/Audio/S_ToothPianoC5"));
@@ -324,7 +328,9 @@ void AMCArenaTooth::Tick(float DeltaSeconds)
     }
     UpdateGrime(DeltaSeconds);
     Label->SetVisibility(bShowCareLabel && !State.bLost);
-    Label->SetText(FText::FromString(FString::Printf(TEXT("%02d | HP %.0f\nBRUSH %d/%d | REPAIR %d"),State.ToothId,State.Health,Status->State.CoffeeLeft,Status->State.CoffeeTotal,Status->State.RepairLeft)));
+    MCWorldLabelLocalization::Apply(Label,MCWorldLabelLocalization::Format(Label,TEXT("UI.World.ArenaToothCare"),NSLOCTEXT("MCWorldCare","ArenaToothCare","{Id} | HP {Health}\nBRUSH {CoffeeLeft}/{CoffeeTotal} | REPAIR {RepairLeft}"),
+        {{TEXT("Id"),FText::AsCultureInvariant(FString::Printf(TEXT("%02d"),State.ToothId))},{TEXT("Health"),FMath::RoundToInt(State.Health)},
+            {TEXT("CoffeeLeft"),Status->State.CoffeeLeft},{TEXT("CoffeeTotal"),Status->State.CoffeeTotal},{TEXT("RepairLeft"),Status->State.RepairLeft}}));
     Label->SetTextRenderColor(IsLoose()?FColor(255,177,69):FColor(135,255,218));
     if (const APlayerController* PC=GetWorld()->GetFirstPlayerController(); PC && PC->PlayerCameraManager)
         Label->SetWorldRotation((PC->PlayerCameraManager->GetCameraLocation()-Label->GetComponentLocation()).Rotation());

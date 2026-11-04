@@ -1,5 +1,6 @@
 #include "MCDeliveryZoneCaptionWidget.h"
 #include "MCUIVisualStyle.h"
+#include "MCWorldUIShapes.h"
 
 #include "Blueprint/WidgetTree.h"
 #include "Components/Border.h"
@@ -12,6 +13,8 @@
 
 #define LOCTEXT_NAMESPACE "MCDeliveryZones"
 
+UMCDeliveryZoneCaptionWidget::UMCDeliveryZoneCaptionWidget() {bUseVersionedWorldPresentation=true;}
+
 void UMCDeliveryZoneCaptionWidget::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
@@ -23,7 +26,8 @@ void UMCDeliveryZoneCaptionWidget::NativeOnInitialized()
 
 void UMCDeliveryZoneCaptionWidget::BuildPresentationTree()
 {
-    if(!WidgetTree || (Background && Title && Description)) return;
+    if(!WidgetTree) return;
+    if(Background && Title && Description) {BuildWorldPresentationTree();return;}
     if(WidgetTree->RootWidget)
     {
         Background=Cast<UBorder>(WidgetTree->FindWidget(TEXT("DeliveryBackground")));
@@ -31,7 +35,7 @@ void UMCDeliveryZoneCaptionWidget::BuildPresentationTree()
         DirectionIcon=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("DeliveryDirection")));
         Title=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("DeliveryTitle")));
         Description=Cast<UTextBlock>(WidgetTree->FindWidget(TEXT("DeliveryDescription")));
-        return;
+        BuildWorldPresentationTree();return;
     }
     auto* Size=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("DeliverySize"));
     Size->SetWidthOverride(320);Size->SetMinDesiredHeight(64);WidgetTree->RootWidget=Size;
@@ -59,6 +63,40 @@ void UMCDeliveryZoneCaptionWidget::BuildPresentationTree()
     Description=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("DeliveryDescription"));
     Description->SetAutoWrapText(true);Description->SetWrapTextAt(252);Description->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);Description->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);
     Column->AddChildToVerticalBox(Description);
+    BuildWorldPresentationTree();
+}
+
+void UMCDeliveryZoneCaptionWidget::BuildWorldPresentationTree()
+{
+    if(!bUseVersionedWorldPresentation || !WidgetTree) return;
+    auto* NewRoot=WidgetTree->FindWidget<USizeBox>(TEXT("WorldDeliveryV2Root"));
+    if(!NewRoot) {
+        auto* NewTheme=GetNewWorldPresentationTheme();NewRoot=MCWorldUIShapes::Bounds(WidgetTree,TEXT("WorldDeliveryV2Root"),320,64);
+        auto* Plate=MCWorldUIShapes::Panel(WidgetTree,TEXT("WorldDeliveryV2Plate"),NewTheme,EMCUIColorToken::Surface,FMargin(12,9));NewRoot->SetContent(Plate);
+        auto* Row=WidgetTree->ConstructWidget<UHorizontalBox>(UHorizontalBox::StaticClass(),TEXT("WorldDeliveryV2Row"));Plate->SetContentForSlot(TEXT("Content"),Row);
+        auto* DirectionBounds=MCWorldUIShapes::Bounds(WidgetTree,TEXT("WorldDeliveryV2DirectionBounds"),40,40);
+        auto* Badge=MCWorldUIShapes::Panel(WidgetTree,TEXT("WorldDeliveryV2DirectionShape"),NewTheme,EMCUIColorToken::Cream,FMargin(4,2),9);DirectionBounds->SetContent(Badge);
+        auto* Arrow=MCWorldUIShapes::Text(WidgetTree,TEXT("WorldDeliveryV2Direction"),32);Badge->SetContentForSlot(TEXT("Content"),Arrow);
+        auto* DirectionCell=Row->AddChildToHorizontalBox(DirectionBounds);DirectionCell->SetVerticalAlignment(VAlign_Center);DirectionCell->SetPadding(FMargin(0,0,8,0));
+        auto* Stack=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("WorldDeliveryV2Stack"));auto* StackCell=Row->AddChildToHorizontalBox(Stack);StackCell->SetSize(FSlateChildSize(ESlateSizeRule::Fill));StackCell->SetVerticalAlignment(VAlign_Center);
+        auto* Heading=MCWorldUIShapes::Text(WidgetTree,TEXT("WorldDeliveryV2Title"),248);Stack->AddChildToVerticalBox(Heading)->SetPadding(FMargin(0,0,0,3));
+        auto* Copy=MCWorldUIShapes::Text(WidgetTree,TEXT("WorldDeliveryV2Copy"),248);Stack->AddChildToVerticalBox(Copy);
+    }
+    InstallWorldPresentation(NewRoot);
+    NewDirectionShape=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("WorldDeliveryV2DirectionShape"));NewDirection=WidgetTree->FindWidget<UTextBlock>(TEXT("WorldDeliveryV2Direction"));
+    NewTitle=WidgetTree->FindWidget<UTextBlock>(TEXT("WorldDeliveryV2Title"));NewDescription=WidgetTree->FindWidget<UTextBlock>(TEXT("WorldDeliveryV2Copy"));
+}
+
+void UMCDeliveryZoneCaptionWidget::RefreshWorldPresentation()
+{
+    const auto* NewTheme=GetNewWorldPresentationTheme();if(!NewTheme) return;
+    if(NewDirectionShape) {NewDirectionShape->Fill=bErrorCaption?EMCUIColorToken::Warning:EMCUIColorToken::Cream;NewDirectionShape->ApplyTheme();}
+    MCWorldUIShapes::TextStyle(NewDirection,NewTheme,24,EMCUIColorToken::Marine);
+    MCWorldUIShapes::TextStyle(NewTitle,NewTheme,18,EMCUIColorToken::OnMarine);
+    MCWorldUIShapes::TextStyle(NewDescription,NewTheme,16,bErrorCaption?EMCUIColorToken::Warning:EMCUIColorToken::OnMarine);
+    if(NewDirection) NewDirection->SetText(DirectionIcon?DirectionIcon->GetText():FText::GetEmpty());
+    if(NewTitle) NewTitle->SetText(Title?Title->GetText():FText::GetEmpty());
+    if(NewDescription) NewDescription->SetText(Description?Description->GetText():FText::GetEmpty());
 }
 
 void UMCDeliveryZoneCaptionWidget::SetDeliveryCaption(bool bExit,bool bSortingError)
@@ -91,6 +129,7 @@ void UMCDeliveryZoneCaptionWidget::RefreshCaption()
     Description->SetText(bErrorCaption?Localized(TEXT("UI.Delivery.SortingError"),LOCTEXT("SortingError","ОШИБКА СОРТИРОВКИ"))
         :bExitCaption?Localized(TEXT("UI.Delivery.ExitDescription"),LOCTEXT("ExitDescription","МУСОР · ИСПОРЧЕННОЕ · ЩЁТКИ"))
         :Localized(TEXT("UI.Delivery.EntryDescription"),LOCTEXT("EntryDescription","СВЕЖАЯ ЕДА")));
+    RefreshWorldPresentation();
 }
 
 void UMCDeliveryZoneCaptionWidget::ApplyEditorPreview(float Time)

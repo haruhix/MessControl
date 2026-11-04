@@ -4,6 +4,7 @@
 #include "MCHubWidget.h"
 #include "MCUnifiedHubWidget.generated.h"
 
+class UMCUnifiedReticleWidget;
 class UMCUniversalUIWidget;
 class UMCUnifiedHubWidget;
 
@@ -32,6 +33,10 @@ public:
     virtual void ApplyEditorPreview(float Time) override;
     virtual void ApplyTheme() override;
     void SetBackend(UMCHubWidget* Source);
+    void PrepareControlsPresentation();
+    bool HasControlsPresentationFrame(const UMCHubWidget* Source,uint64 SourceFrame) const;
+    void ClearControlsPresentation(const UMCHubWidget* Source);
+
     void RefreshFromBackend();
     bool HasBoundBackend() const {return Backend.IsValid();}
     bool RequiresMenuInput() const;
@@ -45,10 +50,31 @@ public:
 protected:
     virtual void NativeConstruct() override;
     virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
+    virtual void NativeDestruct() override;
+    virtual void OnLocalizationChanged() override;
 private:
+    void EnsureControlsPresentation();
+    void BindControlsNotification();
+    void UnbindControlsNotification();
+    void OnControlsSnapshot(const FMCHubControlsPresentation& Snapshot);
+    void RefreshControlsPresentation();
+    void PresentControlsPreview();
+    FDelegateHandle ControlsHandle;
+    TWeakObjectPtr<UDataTable> PreparedControlsTable;
+    FText PreparedControlsCopy;
+    FString PreparedControlsCulture;
+    FSlateFontInfo PreparedControlsFont;
+    float PreparedControlsScale=0;
+    bool bControlsPrepared=false,bPreparingControls=false;
     void BindActions();
     void ShowMode(bool bGathering);
     void RefreshViewportLayout();
+    void RefreshReadinessTitleWidth(float AvailableTopWidth);
+    TWeakObjectPtr<UTextBlock> MeasuredReadinessTitle;
+    FText MeasuredReadinessCopy;
+    FSlateFontInfo MeasuredReadinessFont;
+    float MeasuredReadinessScale=0.f,MeasuredReadinessTopWidth=0.f,ReadinessTitleNaturalWidth=0.f;
+    bool bReadinessTitleMeasured=false;
     TWeakObjectPtr<UMCHubWidget> Backend;
     UPROPERTY(Transient) TArray<TObjectPtr<UMCUnifiedHubBinding>> Bindings;
 };

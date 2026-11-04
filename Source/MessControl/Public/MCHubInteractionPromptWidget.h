@@ -12,6 +12,7 @@ class MESSCONTROL_API UMCHubInteractionPromptWidget : public UMCGameplayUIWidget
 {
     GENERATED_BODY()
 public:
+    UMCHubInteractionPromptWidget();
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hub|Prompt")
     FText KeyLabel=FText::FromString(TEXT("E"));
 
@@ -22,4 +23,7 @@ public:
 protected:
     virtual void NativeOnInitialized() override;
     UPROPERTY(meta=(BindWidgetOptional)) TObjectPtr<UTextBlock> HubInteractionPromptKey;
+private:
+    void BuildWorldPresentationTree();
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> NewPromptKey;
 };

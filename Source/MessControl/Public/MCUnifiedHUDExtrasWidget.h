@@ -4,6 +4,7 @@
 #include "MCGameplayHUD.h"
 #include "MCUnifiedHUDExtrasWidget.generated.h"
 
+class UMCUnifiedReticleWidget;
 class UMCUniversalUIWidget;
 class UVerticalBox;
 class UTextBlock;
@@ -36,6 +37,7 @@ protected:
     virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
     virtual void OnLocalizationChanged() override;
 private:
+    UMCUnifiedReticleWidget* EnsureReticleView();
     UVerticalBox* AddGroup(FName Name,FVector2D Anchor,FVector2D Position,FVector2D Alignment,bool bBlue=false);
     UMCUniversalUIWidget* Shape(FName Name,bool bBlue=false);
     UTextBlock* Text(FName Name,int32 Size);

@@ -1,4 +1,6 @@
 #include "MCPerkComponent.h"
+#include "MCWorldLabelPresenterComponent.h"
+#include "MCWorldLabelLocalization.h"
 #include "MCPlayerState.h"
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
@@ -107,18 +109,33 @@ void UMCPerkComponent::OnRogueKnockdown()
     if(!HasAuthority() || !bGrenadeArmed) return;
     bGrenadeArmed=false;GetOwner()->ForceNetUpdate();RogueBurst(true);
 }
+void UMCPerkComponent::RefreshGrenadeCueCopy(TWeakObjectPtr<UTextRenderComponent> Cue)
+{
+    if(auto* SourceCue=Cue.Get()) MCWorldLabelLocalization::Apply(SourceCue,MCWorldLabelLocalization::Resolve(SourceCue,TEXT("UI.World.GrenadeArmedLabel"),NSLOCTEXT("MCWorldBooster","GrenadeArmedLabel","ГРАНАТА")));
+}
 void UMCPerkComponent::TickRogueBoosters(float Dt)
 {
     auto* Hero=BoosterHero(this);
     if(GetNetMode()!=NM_DedicatedServer && Hero && Hero->Status->IsAlive() && bGrenadeArmed) {
         if(!GrenadeCue.IsValid() || GrenadeCue->GetOwner()!=Hero) {
+            if(GrenadeCuePresentation.IsValid()) GrenadeCuePresentation->DestroyComponent();GrenadeCuePresentation.Reset();
             if(GrenadeCue.IsValid()) GrenadeCue->DestroyComponent();
             auto* Cue=NewObject<UTextRenderComponent>(Hero);Cue->SetupAttachment(Hero->GetRootComponent());
-            Cue->SetRelativeLocation(FVector(0,0,115));Cue->SetText(FText::FromString(TEXT("ГРАНАТА")));
+            Cue->SetRelativeLocation(FVector(0,0,115));MCWorldLabelLocalization::Apply(Cue,MCWorldLabelLocalization::Resolve(Cue,TEXT("UI.World.GrenadeArmedLabel"),NSLOCTEXT("MCWorldBooster","GrenadeArmedLabel","ГРАНАТА")));
             Cue->SetWorldSize(15);Cue->SetTextRenderColor(FColor(255,70,70));Cue->SetHorizontalAlignment(EHTA_Center);
             Hero->AddInstanceComponent(Cue);Cue->RegisterComponent();GrenadeCue=Cue;
+            auto* WorldLabelPresentation=NewObject<UMCWorldLabelPresenterComponent>(Hero);
+            WorldLabelPresentation->SetupAttachment(Cue);WorldLabelPresentation->SourceText=Cue;
+            WorldLabelPresentation->bDestroyWhenSourceGone=true;
+            WorldLabelPresentation->SetSourceCopyRefresh(FSimpleDelegate::CreateUObject(this,&ThisClass::RefreshGrenadeCueCopy,TWeakObjectPtr<UTextRenderComponent>(Cue)));
+            Hero->AddInstanceComponent(WorldLabelPresentation);WorldLabelPresentation->RegisterComponent();GrenadeCuePresentation=WorldLabelPresentation;
+            RefreshGrenadeCueCopy(TWeakObjectPtr<UTextRenderComponent>(Cue));
+            WorldLabelPresentation->RefreshSourceLabel(); // UI only: the first New frame copies the localized native caption.
         }
-    } else if(GrenadeCue.IsValid()) {GrenadeCue->DestroyComponent();GrenadeCue.Reset();}
+    } else {
+        if(GrenadeCuePresentation.IsValid()) GrenadeCuePresentation->DestroyComponent();GrenadeCuePresentation.Reset();
+        if(GrenadeCue.IsValid()) GrenadeCue->DestroyComponent();GrenadeCue.Reset();
+    }
     if(!Hero) return;
     auto* Move=Hero->GetCharacterMovement();
     const bool Running=IsFuryActive() && Hero->Status->IsAlive() && Hero->ToothPhysics->CanAct() && !Hero->HasFrozenLegs() && !Hero->IsMimicCaptured();

@@ -40,4 +40,5 @@ private:
     UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInstanceDynamic>> MarkerMaterials;
     void RefreshGeometry();
     UFUNCTION() void RefreshLabel();
+    void RefreshLocalizedLabelCopy();
 };

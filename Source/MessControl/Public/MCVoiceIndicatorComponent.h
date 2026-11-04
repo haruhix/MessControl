@@ -13,6 +13,7 @@ class MESSCONTROL_API UMCVoiceIndicatorWidget : public UMCGameplayUIWidget
 {
     GENERATED_BODY()
 public:
+    UMCVoiceIndicatorWidget();
     virtual void BuildPresentationTree() override;
     virtual void ApplyTheme() override;
     virtual void ApplyEditorPreview(float Time) override;
@@ -21,6 +22,11 @@ protected:
     virtual void NativeOnInitialized() override;
     virtual int32 NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool bParentEnabled) const override;
 private:
+    void BuildWorldPresentationTree();
+    UPROPERTY(Transient) TObjectPtr<UImage> NewMicrophone;
+    UPROPERTY(Transient) TArray<TObjectPtr<UBorder>> NewBars;
+    bool bPresentedSpeaking=false;
+    float PresentedLevel=0.f,PresentedVoiceTime=0.f;
     UPROPERTY(Transient) TObjectPtr<UImage> Microphone;
     UPROPERTY(Transient) TArray<TObjectPtr<UBorder>> Bars;
 };

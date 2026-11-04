@@ -149,6 +149,7 @@ private:
     friend class FMCStageRewardOfferPoolTest;
     friend class FMCStageRewardSlotTransactionTest;
     UFUNCTION() void RefreshPresentation();
+    void RefreshRogueLabelCopy();
     void ConfigureGeometry();
     void CacheRewardEffectsVisibility();
     void UpdateRewardEffectsVisibility(bool Suppressed);

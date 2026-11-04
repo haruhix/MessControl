@@ -1,4 +1,6 @@
 #include "MCMouthSurface.h"
+#include "MCWorldLabelPresenterComponent.h"
+#include "MCWorldLabelLocalization.h"
 #include "MCWorldPresentationComponent.h"
 #include "MCCoffeeWipe.h"
 #include "MCTongue.h"
@@ -74,6 +76,8 @@ AMCMouthSurface::AMCMouthSurface()
     LiquidMaterial=TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Game/Gameplay/Liquid/MI_CoffeePuddle.MI_CoffeePuddle")));
     Label=CreateDefaultSubobject<UTextRenderComponent>(TEXT("CareLabel")); Label->SetupAttachment(Area);
     Label->SetRelativeLocation(FVector(0,0,24)); Label->SetWorldSize(16); Label->SetHorizontalAlignment(EHTA_Center);
+    auto* WorldLabelPresentation=CreateDefaultSubobject<UMCWorldLabelPresenterComponent>(TEXT("WorldLabelPresentation"));
+    WorldLabelPresentation->SetupAttachment(Label);WorldLabelPresentation->SourceText=Label;
     Status=CreateDefaultSubobject<UMCToothStatusComponent>(TEXT("SurfaceStatus"));
     StainComposer=CreateDefaultSubobject<UMCWorldPresentationComponent>(TEXT("StainPresentation"));
     StainComposer->Sources.Add(TEXT("EditorOnly.CleanStain"));
@@ -245,6 +249,12 @@ void AMCMouthSurface::RecoverUnsupportedFloorStain(float Dt)
     UE_LOG(LogTemp,Display,TEXT("MC_DIRT_RECOVERY relocated stain=%s batch=%d from=%s to=%s remaining=%.6f"),
         *GetName(),Batch,*OldPosition.ToString(),*Position.ToString(),RemainingLiquid());
 }
+void AMCMouthSurface::EndPlay(const EEndPlayReason::Type Reason)
+{
+    CareWidgetPresentation.Restore();
+    Super::EndPlay(Reason);
+}
+
 void AMCMouthSurface::Tick(float Dt)
 {
     Super::Tick(Dt);
@@ -319,6 +329,8 @@ void AMCMouthSurface::Tick(float Dt)
                 Widget->Source=this; Widget->InvalidateLayoutAndVolatility();
             }
         }
+        // Screen-layout only: the original source, anchor and visibility path above remain authoritative.
+        CareWidgetPresentation.Refresh(TreatmentIndicator);
     }
     if (bUlcer && !UlcerMID)
         if (auto* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Gameplay/Care/M_UlcerBlend.M_UlcerBlend")))
@@ -334,8 +346,8 @@ void AMCMouthSurface::Tick(float Dt)
     }
     Visual->SetVisibility(bUlcer && !UlcerMID); Label->SetVisibility(bShowCareLabel && (bUlcer || !IsClean()));
     if (Material) Material->SetVectorParameterValue(TEXT("Tint"),bUlcer?FLinearColor(.6f,.01f,.035f):FLinearColor(.11f,.035f,.008f));
-    if (bUlcer) { Visual->SetRelativeScale3D(FVector(1.24,1.24,.07f+FMath::Sin(GetWorld()->GetTimeSeconds()*5)*.015f)); Label->SetText(FText::FromString(FString::Printf(TEXT("ULCER %d%% | HOLD SPRAY"),FMath::RoundToInt(Healing*100)))); }
-    else if (bShowCareLabel) Label->SetText(FText::FromString(FString::Printf(TEXT("BRUSH %d"),Status->State.CoffeeLeft)));
+    if (bUlcer) { Visual->SetRelativeScale3D(FVector(1.24,1.24,.07f+FMath::Sin(GetWorld()->GetTimeSeconds()*5)*.015f)); MCWorldLabelLocalization::Apply(Label,MCWorldLabelLocalization::Format(Label,TEXT("UI.World.Care.Ulcer"),NSLOCTEXT("MCWorldCare","Ulcer","ULCER {Percent}% | HOLD SPRAY"),{{TEXT("Percent"),FMath::RoundToInt(Healing*100)}})); }
+    else if (bShowCareLabel) MCWorldLabelLocalization::Apply(Label,MCWorldLabelLocalization::Format(Label,TEXT("UI.World.Care.BrushRemaining"),NSLOCTEXT("MCWorldCare","BrushRemaining","BRUSH {Count}"),{{TEXT("Count"),Status->State.CoffeeLeft}}));
     if (const auto* PC=GetWorld()->GetFirstPlayerController(); PC && PC->PlayerCameraManager) Label->SetWorldRotation((PC->PlayerCameraManager->GetCameraLocation()-Label->GetComponentLocation()).Rotation());
 }
 void AMCMouthSurface::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

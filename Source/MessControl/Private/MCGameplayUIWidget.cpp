@@ -21,12 +21,71 @@
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
+#include "Components/WidgetSwitcher.h"
+#include "Components/WidgetSwitcherSlot.h"
 #include "Engine/DataTable.h"
 #include "Engine/Texture.h"
 #include "Internationalization/Internationalization.h"
 #include "UObject/UObjectGlobals.h"
 
 #define LOCTEXT_NAMESPACE "MCGameplayUI"
+
+EMCUIVersion UMCGameplayUIWidget::GetWorldPresentationVersion() const
+{
+    if(!bUseVersionedWorldPresentation) return EMCUIVersion::Current;
+    if(!IsDesignTime()) return UMCGameplayUIFactory::GetPresentationVersion();
+    const auto* PreviewRoot=this;
+    while(const auto* Parent=PreviewRoot->GetTypedOuter<UMCGameplayUIWidget>()) PreviewRoot=Parent;
+    return PreviewRoot->bOverridePreviewUIVersion?PreviewRoot->PreviewUIVersion:EMCUIVersion::Current;
+}
+
+bool UMCGameplayUIWidget::IsNewWorldPresentation() const
+{
+    return bUseVersionedWorldPresentation && WorldPresentationVersions && WorldNewShapeRoot
+        && WorldPresentationVersions->GetActiveWidget()==WorldNewShapeRoot.Get();
+}
+
+UMCGameplayUITheme* UMCGameplayUIWidget::GetNewWorldPresentationTheme() const
+{
+    // Keep the Current source tree's independent theme and brush resources untouched.
+    return UMCGameplayUIFactory::GetThemeForVersion(EMCUIVersion::New);
+}
+
+void UMCGameplayUIWidget::InstallWorldPresentation(UWidget* NewShapeRoot)
+{
+    if(!bUseVersionedWorldPresentation || !WidgetTree || !NewShapeRoot) return;
+    auto* Existing=WidgetTree->FindWidget<UWidgetSwitcher>(TEXT("WorldPresentationVersions"));
+    if(!Existing) {
+        if(WidgetTree->FindWidget(TEXT("WorldPresentationVersions"))) return;
+        auto* CurrentRoot=WidgetTree->RootWidget.Get();
+        if(!CurrentRoot || CurrentRoot==NewShapeRoot || CurrentRoot->GetParent()) return;
+        Existing=WidgetTree->ConstructWidget<UWidgetSwitcher>(UWidgetSwitcher::StaticClass(),TEXT("WorldPresentationVersions"));
+        Existing->bIsVariable=false;WidgetTree->RootWidget=Existing;
+        // These exact children remain retained for the host's entire lifetime.
+        for(auto* ShapeRoot:{CurrentRoot,NewShapeRoot}) {
+            auto* ShapeCell=Cast<UWidgetSwitcherSlot>(Existing->AddChild(ShapeRoot));
+            if(ShapeCell) {ShapeCell->SetHorizontalAlignment(ShapeRoot==CurrentRoot?HAlign_Fill:HAlign_Center);ShapeCell->SetVerticalAlignment(ShapeRoot==CurrentRoot?VAlign_Fill:VAlign_Bottom);}
+        }
+    }
+    if(Existing->GetChildrenCount()!=2 || Existing->GetWidgetAtIndex(1)!=NewShapeRoot) return;
+    WorldPresentationVersions=Existing;WorldCurrentShapeRoot=Existing->GetWidgetAtIndex(0);WorldNewShapeRoot=NewShapeRoot;
+    RefreshWorldPresentationSelection();
+}
+
+void UMCGameplayUIWidget::RefreshWorldPresentationSelection()
+{
+    if(!WorldPresentationVersions && WidgetTree) {
+        WorldPresentationVersions=WidgetTree->FindWidget<UWidgetSwitcher>(TEXT("WorldPresentationVersions"));
+        if(WorldPresentationVersions && WorldPresentationVersions->GetChildrenCount()==2) {
+            WorldCurrentShapeRoot=WorldPresentationVersions->GetWidgetAtIndex(0);
+            WorldNewShapeRoot=WorldPresentationVersions->GetWidgetAtIndex(1);
+        }
+    }
+    if(WorldPresentationVersions && WorldCurrentShapeRoot && WorldNewShapeRoot) {
+        UWidget* Selected=GetWorldPresentationVersion()==EMCUIVersion::New?WorldNewShapeRoot.Get():WorldCurrentShapeRoot.Get();
+        if(WorldPresentationVersions->GetActiveWidget()!=Selected) WorldPresentationVersions->SetActiveWidget(Selected);
+    }
+}
 
 UMCGameplayUITheme* UMCGameplayUIWidget::GetResolvedTheme() const
 {
@@ -274,6 +333,7 @@ void UMCGameplayUIWidget::BindStyle(FName Name,EMCUIColorToken Color,EMCUIStyleT
 void UMCGameplayUIWidget::ApplyTheme()
 {
     if (!WidgetTree) return;
+    RefreshWorldPresentationSelection();
     ObserveTheme();
     ObserveLocalization();
     ApplyTextBindings();

@@ -14,6 +14,7 @@ class MESSCONTROL_API UMCPlayerNameWidget : public UMCGameplayUIWidget
 {
     GENERATED_BODY()
 public:
+    UMCPlayerNameWidget();
     void SetPlayerName(const FString& Name);
     FString GetPlayerName() const;
     void SetPresentation(FLinearColor Color,bool bHost,EMCPlayerAlarm Alarm);
@@ -28,6 +29,12 @@ private:
     UPROPERTY(Transient) TObjectPtr<UBorder> AlarmPanel;
     UPROPERTY(Transient) TObjectPtr<UBorder> NameBackground;
     UPROPERTY(Transient) TObjectPtr<UMCHUDIcon> PlayerIcon;
+    void BuildWorldPresentationTree();
+    void RefreshWorldPresentation();
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> NewNameText;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> NewAlarmText;
+    UPROPERTY(Transient) TObjectPtr<class UMCUniversalUIWidget> NewAlarmShape;
+    UPROPERTY(Transient) TObjectPtr<UMCHUDIcon> NewPlayerIcon;
     FString PresentedName;
     FLinearColor PresentedColor=FLinearColor::White;
     bool bPresentedHost=false;
