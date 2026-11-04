@@ -30,7 +30,7 @@ UMCWeaponTrailComponent::UMCWeaponTrailComponent()
     PrimaryComponentTick.bCanEverTick=true;
     PrimaryComponentTick.bStartWithTickEnabled=false;
     PrimaryComponentTick.TickGroup=TG_PostUpdateWork;
-    TrailMaterial=FSoftObjectPath(TEXT("/Game/Gameplay/VFX/WeaponTrail/M_WeaponSwingTrail.M_WeaponSwingTrail"));
+    TrailMaterial=FSoftObjectPath(TEXT("/Game/Gameplay/VFX/WeaponTrail/MI_WeaponSwingTrail.MI_WeaponSwingTrail"));
 }
 void UMCWeaponTrailComponent::BeginPlay()
 {

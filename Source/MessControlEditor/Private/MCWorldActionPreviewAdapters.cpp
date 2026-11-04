@@ -253,7 +253,7 @@ void MCWorldActionPreviewAdapters::Register()
         {
             TArray<FMCVFXNativeSourcePart> Out;if(Event!=TEXT("Swing"))return Out;
             FMCVFXNativeSourcePart Material;Material.ID=TEXT("WeaponTrail.Material");Material.Label=FText::FromString(TEXT("Материал настоящего следа инструмента"));
-            Material.Kind=EMCVFXNativeSourceKind::Material;Material.Asset=FSoftObjectPath(TEXT("/Game/Gameplay/VFX/WeaponTrail/M_WeaponSwingTrail.M_WeaponSwingTrail"));Out.Add(Material);
+            Material.Kind=EMCVFXNativeSourceKind::Material;Material.Asset=FSoftObjectPath(TEXT("/Game/Gameplay/VFX/WeaponTrail/MI_WeaponSwingTrail.MI_WeaponSwingTrail"));Out.Add(Material);
             FMCVFXNativeSourcePart Geometry;Geometry.ID=TEXT("WeaponTrail.Geometry");Geometry.Label=FText::FromString(TEXT("Родная лента по настоящему лезвию"));
             Geometry.Kind=EMCVFXNativeSourceKind::Geometry;Geometry.SourceFile=TEXT("Source/MessControl/Private/MCWeaponTrailComponent.cpp");Out.Add(Geometry);return Out;
         };

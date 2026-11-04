@@ -336,7 +336,10 @@ bool UMCInventoryComponent::MeleeTrailSpan(FVector& Base,FVector& Tip) const
         A=FVector(FMath::Lerp(Bounds.Min.X,Bounds.Max.X,.48f),Y,-8);
         B=FVector(FMath::Lerp(Bounds.Min.X,Bounds.Max.X,.77f),Y,Bounds.Min.Z);
     } else return false;
-    Base=Tool->GetComponentTransform().TransformPosition(A);Tip=Tool->GetComponentTransform().TransformPosition(B);
+    // Offset along the tool face normal in world units, following its animated rotation.
+    const FVector TrailOffset=Tool->GetComponentTransform().TransformVectorNoScale(FVector(0.f,3.f,0.f));
+    Base=Tool->GetComponentTransform().TransformPosition(A)+TrailOffset;
+    Tip=Tool->GetComponentTransform().TransformPosition(B)+TrailOffset;
     return !Base.ContainsNaN() && !Tip.ContainsNaN();
 }
 float UMCInventoryComponent::Damage() const
