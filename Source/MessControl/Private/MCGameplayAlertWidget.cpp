@@ -77,7 +77,7 @@ void UMCGameplayAlertWidget::QueueOwnedAlert(const FText& Message,const FText& O
 
 void UMCGameplayAlertWidget::ClearAlerts()
 {
-    Pending.Reset();Current=FAlert();Elapsed=0;bPresenting=false;SetVisibility(ESlateVisibility::Collapsed);
+    Pending.Reset();Current=FAlert();Elapsed=0;bPresenting=false;CurrentReveal=0.f;SetVisibility(ESlateVisibility::Collapsed);
 }
 void UMCGameplayAlertWidget::PresentNext()
 {
@@ -114,7 +114,22 @@ void UMCGameplayAlertWidget::ApplyReveal()
     const float Enter=FMath::Clamp(Elapsed/MCGameplayAlertPrivate::EnterSeconds,0.f,1.f);
     const float Exit=FMath::Clamp((Elapsed-MCGameplayAlertPrivate::EnterSeconds-Current.HoldSeconds)/MCGameplayAlertPrivate::ExitSeconds,0.f,1.f);
     const float Reveal=FMath::SmoothStep(0.f,1.f,Enter)*(1.f-FMath::SmoothStep(0.f,1.f,Exit));
-    AlertPanel->SetRenderOpacity(Reveal);AlertPanel->SetRenderScale(FVector2D(.72f+.28f*Reveal,1));AlertPanel->SetRenderTranslation(FVector2D(0,-24.f*(1-Reveal)));
+    CurrentReveal=Reveal;
+    AlertPanel->SetRenderOpacity(bUnifiedViewActive?0.f:Reveal);AlertPanel->SetRenderScale(FVector2D(.72f+.28f*Reveal,1));AlertPanel->SetRenderTranslation(FVector2D(0,-24.f*(1-Reveal)));
+}
+FMCGameplayAlertPresentationSnapshot UMCGameplayAlertWidget::GetPresentationSnapshot() const
+{
+    FMCGameplayAlertPresentationSnapshot Result;
+    Result.bVisible=bPresenting && GetVisibility()!=ESlateVisibility::Collapsed && GetVisibility()!=ESlateVisibility::Hidden;
+    Result.Text=AlertText?AlertText->GetText():FText::GetEmpty();Result.Reveal=CurrentReveal;
+    Result.BossStackCount=BossStackCount;Result.BossStackHeight=BossStackHeight;
+    if(AlertSlot) Result.TopOffset=AlertSlot->GetPosition().Y;
+    if(AlertPanel) {Result.RenderScale=AlertPanel->GetRenderTransform().Scale;Result.RenderTranslation=AlertPanel->GetRenderTransform().Translation;}
+    return Result;
+}
+void UMCGameplayAlertWidget::SetUnifiedViewActive(bool bActive)
+{
+    bUnifiedViewActive=bActive;ApplyReveal();
 }
 void UMCGameplayAlertWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {

@@ -19,6 +19,8 @@ void AMCPlayerController::PrepareFishingRewardPresentation()
         FishingRewardWidget->AddToViewport(32);
         FishingRewardWidget->TakeWidget();FishingRewardWidget->ForceLayoutPrepass();
     }
+    if(auto* GI=GetGameInstance()) if(auto* UI=GI->GetSubsystem<UMCUIPresentationSubsystem>())
+        UI->PrepareFishingCatch(this,FishingRewardWidget);
     RefreshFishingCounterTarget();
 }
 void AMCPlayerController::RefreshFishingCounterTarget()

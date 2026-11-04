@@ -10,6 +10,11 @@
 #include "MCUnifiedRewardWidget.h"
 #include "MCUnifiedFrontendWidget.h"
 #include "MCUnifiedGameplayMenuWidget.h"
+#include "MCUnifiedCatchWidget.h"
+#include "MCUnifiedHUDExtrasWidget.h"
+#include "MCUnifiedLoadingWidget.h"
+#include "MCUnifiedBossWidget.h"
+#include "MCUnifiedAlertWidget.h"
 #include "MCHubWidget.h"
 #include "MCPerkChoiceWidget.h"
 #include "MCGameplayMenuWidget.h"
@@ -119,6 +124,19 @@ void UMCUnifiedUIWidget::ShowScreen(EMCUnifiedUIScreen Screen)
         Team->SetVisibility((IsDesignTime()?Screen==EMCUnifiedUIScreen::Team:TeamBackend.IsValid())?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
     if(WidgetTree) if(auto* Layer=WidgetTree->FindWidget(TEXT("TeamViewport")))
         Layer->SetVisibility((IsDesignTime()?Screen==EMCUnifiedUIScreen::Team:TeamBackend.IsValid())?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
+    if(WidgetTree) if(auto* View=WidgetTree->FindWidget<UMCUnifiedCatchWidget>(TEXT("UnifiedCatch")))
+        View->SetVisibility((IsDesignTime()?Screen==EMCUnifiedUIScreen::Catch:CatchBackend.IsValid())?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    if(WidgetTree) if(auto* View=WidgetTree->FindWidget<UMCUnifiedHUDExtrasWidget>(TEXT("UnifiedHUDExtras"))) {
+        const bool Visible=IsDesignTime()?Screen==EMCUnifiedUIScreen::HUDExtras:HUDBackend.IsValid() && Screen==EMCUnifiedUIScreen::Gameplay;
+        View->SetVisibility(Visible?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+        if(auto* Source=HUDBackend.Get()) Source->SetUnifiedExtrasActive(Visible && View->IsPresentationPrepared());
+    }
+    if(WidgetTree) {
+        if(auto* View=WidgetTree->FindWidget<UMCUnifiedBossWidget>(TEXT("UnifiedBoss")))
+            View->SetVisibility((IsDesignTime()?Screen==EMCUnifiedUIScreen::Boss:BossBackend.IsValid() && View->IsPresentationPrepared())?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+        if(auto* View=WidgetTree->FindWidget<UMCUnifiedAlertWidget>(TEXT("UnifiedAlert")))
+            View->SetVisibility((IsDesignTime()?Screen==EMCUnifiedUIScreen::Alert:AlertBackend.IsValid() && View->IsPresentationPrepared())?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    }
     if(WidgetTree) if(auto* Pages=WidgetTree->FindWidget<UWidgetSwitcher>(TEXT("InterfaceScreens"))) Pages->SetActiveWidgetIndex(int32(Screen));
 }
 
@@ -223,6 +241,7 @@ void UMCUnifiedUIWidget::SetMenuBackend(UMCMainMenuWidget* Backend)
 }
 void UMCUnifiedUIWidget::SetHUDBackend(UMCGameplayHUD* Backend)
 {
+    if(WidgetTree) if(auto* View=WidgetTree->FindWidget<UMCUnifiedHUDExtrasWidget>(TEXT("UnifiedHUDExtras"))) View->SetBackend(Backend);
     if(HUDBackend.Get()==Backend) return;
     HUDBackend=Backend;HUDControls.Reset();
     if(Backend && Backend->WidgetTree) {
@@ -252,7 +271,7 @@ void UMCUnifiedUIWidget::ApplyTheme() {Super::ApplyTheme();if(!IsDesignTime()) R
 void UMCUnifiedUIWidget::ApplyEditorPreview(float Time)
 {
     const int64 Screen=StaticEnum<EMCUnifiedUIScreen>()->GetValueByNameString(PreviewState.ToString());
-    if(Screen>=0 && Screen<=int64(EMCUnifiedUIScreen::GameplayMenu)) PreviewScreen=EMCUnifiedUIScreen(Screen);
+    if(Screen>=0 && Screen<=int64(EMCUnifiedUIScreen::Alert)) PreviewScreen=EMCUnifiedUIScreen(Screen);
     if(WidgetTree) WidgetTree->ForEachWidget([this](UWidget* Item) {
         if(auto* View=Cast<UMCGameplayUIWidget>(Item)) {View->PreviewCulture=PreviewCulture;View->PreviewScenario=PreviewScenario;}
     });
@@ -268,6 +287,11 @@ void UMCUnifiedUIWidget::ApplyEditorPreview(float Time)
     if(PreviewScreen==EMCUnifiedUIScreen::Reward) if(auto* Reward=WidgetTree->FindWidget<UMCUnifiedRewardWidget>(TEXT("UnifiedReward"))) {Reward->PreviewState=PreviewRewardMode;Reward->ApplyEditorPreview(Time);}
     if(PreviewScreen==EMCUnifiedUIScreen::Frontend) if(auto* Frontend=WidgetTree->FindWidget<UMCUnifiedFrontendWidget>(TEXT("UnifiedFrontend"))) {Frontend->PreviewPage=EMCUnifiedFrontendPage(FMath::Clamp(PreviewFrontendPage,0,4));Frontend->ApplyEditorPreview(Time);}
     if(PreviewScreen==EMCUnifiedUIScreen::GameplayMenu) if(auto* Menu=WidgetTree->FindWidget<UMCUnifiedGameplayMenuWidget>(TEXT("UnifiedGameplayMenu"))) {Menu->PreviewState=PreviewGameplayMenuMode;Menu->ApplyEditorPreview(Time);}
+    if(PreviewScreen==EMCUnifiedUIScreen::Catch) if(auto* View=WidgetTree->FindWidget<UMCUnifiedCatchWidget>(TEXT("UnifiedCatch"))) {View->PreviewState=PreviewCatchMode;View->ApplyEditorPreview(Time);}
+    if(PreviewScreen==EMCUnifiedUIScreen::HUDExtras) if(auto* View=WidgetTree->FindWidget<UMCUnifiedHUDExtrasWidget>(TEXT("UnifiedHUDExtras"))) {View->PreviewState=PreviewHUDExtrasMode;View->ApplyEditorPreview(Time);}
+    if(PreviewScreen==EMCUnifiedUIScreen::Loading) if(auto* View=WidgetTree->FindWidget<UMCUnifiedLoadingWidget>(TEXT("UnifiedLoading"))) {View->PreviewState=PreviewLoadingMode;View->ApplyEditorPreview(Time);}
+    if(PreviewScreen==EMCUnifiedUIScreen::Boss) if(auto* View=WidgetTree->FindWidget<UMCUnifiedBossWidget>(TEXT("UnifiedBoss"))) {View->PreviewState=PreviewBossMode;View->ApplyEditorPreview(Time);}
+    if(PreviewScreen==EMCUnifiedUIScreen::Alert) if(auto* View=WidgetTree->FindWidget<UMCUnifiedAlertWidget>(TEXT("UnifiedAlert"))) {View->PreviewState=PreviewAlertMode;View->ApplyEditorPreview(Time);}
     RefreshAdaptiveLayout();
     if(PreviewScreen!=EMCUnifiedUIScreen::Gameplay) return;
     if(auto* Image=WidgetTree->FindWidget<UImage>(TEXT("V2ToolArt"))) {
@@ -283,6 +307,12 @@ void UMCUnifiedUIWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
     Super::NativeTick(Geometry,DeltaSeconds);
     if(IsDesignTime()) return;
     RefreshDelay-=DeltaSeconds;if(RefreshDelay<=0) {RefreshDelay=.05f;RefreshRuntimePresentation();RefreshAdaptiveLayout();}
+}
+void UMCUnifiedUIWidget::NativeDestruct()
+{
+    if(auto* Source=BossBackend.Get()) Source->SetUnifiedViewActive(false);
+    if(auto* Source=AlertBackend.Get()) Source->SetUnifiedViewActive(false);
+    Super::NativeDestruct();
 }
 FReply UMCUnifiedUIWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
 {
@@ -373,6 +403,53 @@ void UMCUnifiedUIWidget::SetGameplayMenuBackend(UMCGameplayMenuWidget* Backend)
 {
     GameplayMenuBackend=Backend;if(WidgetTree) if(auto* View=WidgetTree->FindWidget<UMCUnifiedGameplayMenuWidget>(TEXT("UnifiedGameplayMenu"))) View->SetBackend(Backend);
 }
+bool UMCUnifiedUIWidget::PrepareEncounterPresentation()
+{
+    if(!WidgetTree) return false;
+    auto* Boss=WidgetTree->FindWidget<UMCUnifiedBossWidget>(TEXT("UnifiedBoss"));
+    auto* Alert=WidgetTree->FindWidget<UMCUnifiedAlertWidget>(TEXT("UnifiedAlert"));
+    if(!Boss || !Alert) return false;
+    if(!Boss->IsPresentationPrepared()) Boss->PreparePresentation();if(!Alert->IsPresentationPrepared()) Alert->PreparePresentation();return Boss->IsPresentationPrepared() && Alert->IsPresentationPrepared();
+}
+void UMCUnifiedUIWidget::SetBossBackend(UMCBossHealthWidget* Source)
+{
+    if(BossBackend.Get()!=Source) if(auto* Previous=BossBackend.Get()) Previous->SetUnifiedViewActive(false);
+    BossBackend=Source;
+    auto* View=WidgetTree?WidgetTree->FindWidget<UMCUnifiedBossWidget>(TEXT("UnifiedBoss")):nullptr;
+    if(View) {View->SetBackend(Source);if(!View->IsPresentationPrepared()) View->PreparePresentation();}
+    if(Source) Source->SetUnifiedViewActive(View && View->IsPresentationPrepared());
+}
+void UMCUnifiedUIWidget::SetAlertBackend(UMCGameplayAlertWidget* Source)
+{
+    if(AlertBackend.Get()!=Source) if(auto* Previous=AlertBackend.Get()) Previous->SetUnifiedViewActive(false);
+    AlertBackend=Source;
+    auto* View=WidgetTree?WidgetTree->FindWidget<UMCUnifiedAlertWidget>(TEXT("UnifiedAlert")):nullptr;
+    if(View) {View->SetBackend(Source);if(!View->IsPresentationPrepared()) View->PreparePresentation();}
+    if(Source) Source->SetUnifiedViewActive(View && View->IsPresentationPrepared());
+}
+bool UMCUnifiedUIWidget::PrepareHUDExtrasPresentation()
+{
+    if(WidgetTree) if(auto* View=WidgetTree->FindWidget<UMCUnifiedHUDExtrasWidget>(TEXT("UnifiedHUDExtras"))) {
+        View->PreparePresentation();return View->IsPresentationPrepared();
+    }
+    return false;
+}
+bool UMCUnifiedUIWidget::PrepareCatchPresentation(UMCFishingRewardWidget* Backend)
+{
+    if(!Backend || !WidgetTree) return false;
+    if(auto* View=WidgetTree->FindWidget<UMCUnifiedCatchWidget>(TEXT("UnifiedCatch"))) {
+        CatchBackend=Backend;View->SetBackend(Backend);View->PreparePresentation();
+        return View->IsPresentationPrepared();
+    }
+    return false;
+}
+void UMCUnifiedUIWidget::SetCatchBackend(UMCFishingRewardWidget* Backend)
+{
+    CatchBackend=Backend;
+    if(WidgetTree) if(auto* View=WidgetTree->FindWidget<UMCUnifiedCatchWidget>(TEXT("UnifiedCatch"))) {
+        View->SetBackend(Backend);View->SetVisibility(Backend?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    }
+}
 bool UMCUnifiedUIWidget::RequiresHubMenuInput() const
 {
     if(WidgetTree) if(auto* View=WidgetTree->FindWidget<UMCUnifiedHubWidget>(TEXT("UnifiedHub"))) return View->RequiresMenuInput();return false;
@@ -404,7 +481,7 @@ void UMCUnifiedUIWidget::EnsureAdditionalScreens()
         Safe->SetContent(Layers);
         auto* PageCell=Layers->AddChildToOverlay(Pages);PageCell->SetHorizontalAlignment(HAlign_Fill);PageCell->SetVerticalAlignment(VAlign_Fill);
     }
-    for(const TCHAR* Name:{TEXT("Screen_Settings"),TEXT("Screen_Team"),TEXT("Screen_Reward"),TEXT("Screen_Frontend"),TEXT("Screen_GameplayMenu")})
+    for(const TCHAR* Name:{TEXT("Screen_Settings"),TEXT("Screen_Team"),TEXT("Screen_Reward"),TEXT("Screen_Frontend"),TEXT("Screen_GameplayMenu"),TEXT("Screen_Catch"),TEXT("Screen_HUDExtras"),TEXT("Screen_Loading"),TEXT("Screen_Boss"),TEXT("Screen_Alert")})
         if(!WidgetTree->FindWidget(Name)) Pages->AddChild(WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(),FName(Name)));
     auto* Settings=WidgetTree->FindWidget<UMCUnifiedSettingsWidget>(TEXT("UnifiedSettings"));
     if(!Settings) {
@@ -441,6 +518,34 @@ void UMCUnifiedUIWidget::EnsureAdditionalScreens()
     if(!GameplayMenu) {
         auto* Class=UMCGameplayUIFactory::ResolveClassForTheme(TEXT("UnifiedGameplayMenu"),UMCUnifiedGameplayMenuWidget::StaticClass(),GetResolvedTheme());
         GameplayMenu=WidgetTree->ConstructWidget<UMCUnifiedGameplayMenuWidget>(Class,TEXT("UnifiedGameplayMenu"));GameplayMenu->Initialize();GameplayMenu->BuildPresentationTree();
+    }
+    if(!WidgetTree->FindWidget(TEXT("UnifiedCatch"))) {
+        auto* Class=UMCGameplayUIFactory::ResolveClassForTheme(TEXT("UnifiedCatch"),UMCUnifiedCatchWidget::StaticClass(),GetResolvedTheme());
+        auto* View=WidgetTree->ConstructWidget<UMCUnifiedCatchWidget>(Class,TEXT("UnifiedCatch"));
+        View->Initialize();View->BuildPresentationTree();View->SetVisibility(ESlateVisibility::Collapsed);
+        auto* Cell=Layers->AddChildToOverlay(View);Cell->SetHorizontalAlignment(HAlign_Fill);Cell->SetVerticalAlignment(VAlign_Fill);
+    }
+    if(!WidgetTree->FindWidget(TEXT("UnifiedHUDExtras"))) {
+        auto* Class=UMCGameplayUIFactory::ResolveClassForTheme(TEXT("UnifiedHUDExtras"),UMCUnifiedHUDExtrasWidget::StaticClass(),GetResolvedTheme());
+        auto* View=WidgetTree->ConstructWidget<UMCUnifiedHUDExtrasWidget>(Class,TEXT("UnifiedHUDExtras"));
+        View->Initialize();View->BuildPresentationTree();View->SetVisibility(ESlateVisibility::Collapsed);
+        auto* Cell=Layers->AddChildToOverlay(View);Cell->SetHorizontalAlignment(HAlign_Fill);Cell->SetVerticalAlignment(VAlign_Fill);
+    }
+    if(!WidgetTree->FindWidget(TEXT("UnifiedLoading"))) if(auto* Page=WidgetTree->FindWidget<UCanvasPanel>(TEXT("Screen_Loading"))) {
+        auto* Class=UMCGameplayUIFactory::ResolveClassForTheme(TEXT("UnifiedLoading"),UMCUnifiedLoadingWidget::StaticClass(),GetResolvedTheme());
+        auto* View=WidgetTree->ConstructWidget<UMCUnifiedLoadingWidget>(Class,TEXT("UnifiedLoading"));
+        View->Initialize();View->BuildPresentationTree();
+        auto* Cell=Page->AddChildToCanvas(View);Cell->SetAnchors(FAnchors(0,0,1,1));Cell->SetOffsets(FMargin(0));
+    }
+    if(!WidgetTree->FindWidget(TEXT("UnifiedBoss"))) {
+        auto* Class=UMCGameplayUIFactory::ResolveClassForTheme(TEXT("UnifiedBoss"),UMCUnifiedBossWidget::StaticClass(),GetResolvedTheme());
+        auto* View=WidgetTree->ConstructWidget<UMCUnifiedBossWidget>(Class,TEXT("UnifiedBoss"));View->Initialize();View->BuildPresentationTree();View->SetVisibility(ESlateVisibility::Collapsed);
+        auto* Cell=Layers->AddChildToOverlay(View);Cell->SetHorizontalAlignment(HAlign_Fill);Cell->SetVerticalAlignment(VAlign_Fill);
+    }
+    if(!WidgetTree->FindWidget(TEXT("UnifiedAlert"))) {
+        auto* Class=UMCGameplayUIFactory::ResolveClassForTheme(TEXT("UnifiedAlert"),UMCUnifiedAlertWidget::StaticClass(),GetResolvedTheme());
+        auto* View=WidgetTree->ConstructWidget<UMCUnifiedAlertWidget>(Class,TEXT("UnifiedAlert"));View->Initialize();View->BuildPresentationTree();View->SetVisibility(ESlateVisibility::Collapsed);
+        auto* Cell=Layers->AddChildToOverlay(View);Cell->SetHorizontalAlignment(HAlign_Fill);Cell->SetVerticalAlignment(VAlign_Fill);
     }
     // The host constrains the available screen and scrolls overflow. It never
     // scales text down when a translation makes the component larger.
@@ -624,6 +729,13 @@ void UMCUnifiedUIWidget::RefreshRuntimePresentation()
         if(auto* Wardrobe=WidgetTree->FindWidget<UMCUnifiedWardrobeWidget>(TEXT("UnifiedWardrobe"))) Wardrobe->RefreshFromBackend();
         if(auto* Shop=WidgetTree->FindWidget<UMCUnifiedShopWidget>(TEXT("UnifiedShop"))) Shop->RefreshFromBackend();
         if(auto* Hub=WidgetTree->FindWidget<UMCUnifiedHubWidget>(TEXT("UnifiedHub"))) Hub->RefreshFromBackend();
+        if(auto* View=WidgetTree->FindWidget<UMCUnifiedCatchWidget>(TEXT("UnifiedCatch"))) View->RefreshFromBackend();
+        if(auto* View=WidgetTree->FindWidget<UMCUnifiedHUDExtrasWidget>(TEXT("UnifiedHUDExtras"))) View->RefreshFromBackend();
+        auto* Boss=WidgetTree->FindWidget<UMCUnifiedBossWidget>(TEXT("UnifiedBoss"));if(Boss) Boss->RefreshFromBackend();
+        if(auto* View=WidgetTree->FindWidget<UMCUnifiedAlertWidget>(TEXT("UnifiedAlert"))) {
+            View->SetBossStackPresentation(BossBackend.IsValid() && Boss?Boss->GetDisplayedBossCount():-1,Boss?Boss->GetDisplayedStackHeight():0);
+            View->RefreshFromBackend();
+        }
         if(auto* Reward=WidgetTree->FindWidget<UMCUnifiedRewardWidget>(TEXT("UnifiedReward"))) Reward->RefreshFromBackend();
         if(auto* Frontend=WidgetTree->FindWidget<UMCUnifiedFrontendWidget>(TEXT("UnifiedFrontend"))) Frontend->RefreshFromBackend();
         if(auto* Menu=WidgetTree->FindWidget<UMCUnifiedGameplayMenuWidget>(TEXT("UnifiedGameplayMenu"))) Menu->RefreshFromBackend();

@@ -511,6 +511,39 @@ void UMCBossHealthWidget::PresentBosses(float DeltaSeconds)
         if(Row.PortraitFallback) Row.PortraitFallback->SetVisibility(HasPortrait?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);
     }
     if(HealthPanel) HealthPanel->SetVisibility(bShowingHealth && !bLetterbox?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    if(bUnifiedViewActive && HealthPanel) HealthPanel->SetRenderOpacity(0.f);
+}
+
+FMCBossHealthPresentationSnapshot UMCBossHealthWidget::GetPresentationSnapshot() const
+{
+    FMCBossHealthPresentationSnapshot Result;Result.bLetterbox=bLetterbox;
+    Result.bVisible=bShowingHealth && !bLetterbox && GetVisibility()!=ESlateVisibility::Collapsed && GetVisibility()!=ESlateVisibility::Hidden;
+    for(int32 I=0;I<ActiveBosses.Num() && I<Rows.Num();++I) {
+        const auto& Row=Rows[I];auto& Entry=Result.Bosses.AddDefaulted_GetRef();Entry.Source=ActiveBosses[I];
+        Entry.Name=Row.Name?Row.Name->GetText():Entry.Source.Name;Entry.Value=Row.Value?Row.Value->GetText():FText::GetEmpty();
+        Entry.ShieldValue=Row.ShieldValue?Row.ShieldValue->GetText():FText::GetEmpty();
+        Entry.HealthFraction=Row.Current?Row.Current->GetPercent():0.f;Entry.LossFraction=Row.Loss?Row.Loss->GetPercent():0.f;
+        Entry.ShieldFraction=Row.ShieldBar?Row.ShieldBar->GetPercent():0.f;
+        Entry.bShieldVisible=Row.ShieldPanel && Row.ShieldPanel->GetVisibility()!=ESlateVisibility::Collapsed && Row.ShieldPanel->GetVisibility()!=ESlateVisibility::Hidden;
+        if(Row.Portrait) {
+            Entry.ResolvedPortrait=Cast<UTexture2D>(Row.Portrait->GetBrush().GetResourceObject());
+            Entry.PortraitScale=Row.Portrait->GetRenderTransform().Scale;
+        }
+    }
+    return Result;
+}
+void UMCBossHealthWidget::SetUnifiedViewActive(bool bActive)
+{
+    if(bActive) {
+        if(HealthPanel) {
+            if(!PreUnifiedStackOpacity.IsSet()) PreUnifiedStackOpacity=HealthPanel->GetRenderOpacity();
+            HealthPanel->SetRenderOpacity(0.f);
+        }
+    } else {
+        if(HealthPanel && PreUnifiedStackOpacity.IsSet()) HealthPanel->SetRenderOpacity(PreUnifiedStackOpacity.GetValue());
+        PreUnifiedStackOpacity.Reset();
+    }
+    bUnifiedViewActive=bActive;
 }
 
 void UMCBossHealthWidget::ShowHealth(float Health,float MaxHealth,float DeltaSeconds)

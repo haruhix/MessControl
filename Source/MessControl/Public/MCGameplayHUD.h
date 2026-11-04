@@ -19,6 +19,29 @@ class UProgressBar;
 class UButton;
 struct FMCGameDirectorState;
 
+/** Read-only copies of supplemental HUD presentation. All text retains the source's localization override. */
+struct MESSCONTROL_API FMCGameplayHUDExtrasSnapshot
+{
+    bool bSourceVisible=false,bDead=false,bSpectating=false;
+    float RespawnSeconds=0;
+    FText StatusHint;
+    bool bResultsVisible=false;
+    FText ResultTitle,ResultDetail;
+    bool bSwimVisible=false,bDrowning=false;
+    float SwimFraction=0;
+    FText SwimCaption,SwimValue;
+    bool bBoosterVisible=false;
+    FText BoosterName,BoosterCount,BoosterKey,BoosterFury,BoosterArmed,BoosterDetail;
+    bool bPassivesVisible=false;
+    TArray<FText> PassiveNames;
+    bool bCataclysmVisible=false;
+    FText CataclysmInstruction;
+    // Existing NativePaint remains the only reticle renderer in this stage.
+    float FoodReticleAlpha=0;
+    bool bSprayReticle=false;
+    FText FoodReticleLabel;
+};
+
 UCLASS()
 class MESSCONTROL_API UMCGameplayHUD : public UMCGameplayUIWidget
 {
@@ -39,10 +62,14 @@ public:
     virtual void ResetEditorPreview() override;
     UFUNCTION(BlueprintCallable,Category="HUD|Alerts") void QueueGameplayAlert(const FText& Message,float HoldSeconds=3.f,FName EventId=NAME_None);
     void ResetGameplayAlerts();
+    UMCGameplayAlertWidget* GetGameplayAlertPresentation() const {return AlertWidget;}
     void SetBossStackCount(int32 Count,float StackHeight=-1.f);
     UFUNCTION(BlueprintPure,Category="HUD|Food") float GetFoodReticleAlpha() const { return FoodReticleAlpha; }
     /** Retain this HUD's observers and contextual overlays while the unified view draws its primary groups. */
     void SetUnifiedViewActive(bool bActive);
+    /** Caller enables only after the bound New extras tree is prepared and visible. No gameplay state changes. */
+    void SetUnifiedExtrasActive(bool bActive);
+    FMCGameplayHUDExtrasSnapshot GetUnifiedExtrasSnapshot() const;
     const FText& GetUnifiedNextEventTitle() const { return UnifiedNextEventTitle; }
     bool HasUnifiedNextEvent() const { return !UnifiedNextEventTitle.IsEmpty(); }
     const FText& GetUnifiedCurrentEventTitle() const { return UnifiedCurrentEventTitle; }
@@ -91,6 +118,8 @@ private:
     int32 SelectedToolIndex=0;
     int32 DisplayedPlayerCount=4;
     bool bUnifiedViewActive=false;
+    bool bUnifiedExtrasActive=false;
+    TMap<TWeakObjectPtr<UWidget>,ESlateVisibility> UnifiedExtrasHiddenVisibility;
     TMap<TWeakObjectPtr<UWidget>,ESlateVisibility> UnifiedHiddenVisibility;
     TWeakObjectPtr<UCanvasPanelSlot> UnifiedSkillSlot;
     FAnchorData UnifiedSkillLayout;
@@ -102,6 +131,10 @@ private:
     void ApplyUnifiedViewVisibility();
     void RestoreUnifiedViewVisibility();
     void RestoreUnifiedSkillLayout();
+    void ApplyUnifiedExtrasVisibility();
+    void RestoreUnifiedExtrasVisibility();
+    bool IsUnifiedExtrasSourceVisible(const UWidget* Widget) const;
+    UWidget* FindUnifiedPassiveHost() const;
     UWidget* Find(FName Name) const;
     void CachePresentationWidgets();
     void BindAuthoredPresentation();

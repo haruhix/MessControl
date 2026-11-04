@@ -55,6 +55,8 @@
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/ScaleBox.h"
+#include "Components/WrapBox.h"
+#include "Components/PanelWidget.h"
 #include "Internationalization/Internationalization.h"
 #include "HAL/IConsoleManager.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
@@ -1055,6 +1057,7 @@ void UMCGameplayHUD::NativeConstruct()
 }
 void UMCGameplayHUD::NativeDestruct()
 {
+    bUnifiedExtrasActive=false;RestoreUnifiedExtrasVisibility();
     bUnifiedViewActive=false;
     RestoreUnifiedViewVisibility();
     if(!IsDesignTime()) if(auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->UnregisterGameplayHUD(this);
@@ -1065,6 +1068,7 @@ UWidget* UMCGameplayHUD::Find(FName Name) const
 { const auto* Widget=Widgets.Find(Name); return Widget?Widget->Get():WidgetTree?WidgetTree->FindWidget(Name):nullptr; }
 void UMCGameplayHUD::SetUnifiedViewActive(bool bActive)
 {
+    if(!bActive) SetUnifiedExtrasActive(false);
     if(bUnifiedViewActive==bActive) return;
     bUnifiedViewActive=bActive;
     if(bActive) ApplyUnifiedViewVisibility();
@@ -1118,8 +1122,107 @@ void UMCGameplayHUD::ApplyUnifiedViewVisibility()
         SkillSlot->SetPosition(FVector2D(-50.f,-195.f));SkillSlot->SetSize(FVector2D(472.f,140.f));SkillSlot->SetAutoSize(true);
     }
 }
+
+UWidget* UMCGameplayHUD::FindUnifiedPassiveHost() const
+{
+    if(!SkillLoadoutWidget || !SkillLoadoutWidget->WidgetTree) return nullptr;
+    UWrapBox* Passives=nullptr;
+    SkillLoadoutWidget->WidgetTree->ForEachWidget([&](UWidget* Widget) {if(!Passives) Passives=Cast<UWrapBox>(Widget);});
+    // Current source: WrapBox -> ScrollBox -> bounded SizeBox. Keep active slots independent.
+    if(!Passives) return nullptr;
+    auto* Scroll=Passives->GetParent();return Scroll && Scroll->GetParent()?Scroll->GetParent():Passives;
+}
+bool UMCGameplayHUD::IsUnifiedExtrasSourceVisible(const UWidget* Widget) const
+{
+    if(!Widget) return false;
+    for(const UWidget* Node=Widget;Node;Node=Node->GetParent()) {
+        const auto* Saved=UnifiedExtrasHiddenVisibility.Find(TWeakObjectPtr<UWidget>(const_cast<UWidget*>(Node)));
+        const ESlateVisibility NodeVisibility=Saved?*Saved:Node->GetVisibility();
+        if(NodeVisibility==ESlateVisibility::Collapsed || NodeVisibility==ESlateVisibility::Hidden) return false;
+    }
+    return true;
+}
+void UMCGameplayHUD::RestoreUnifiedExtrasVisibility()
+{
+    for(const auto& Entry:UnifiedExtrasHiddenVisibility) if(auto* Widget=Entry.Key.Get()) Widget->SetVisibility(Entry.Value);
+    UnifiedExtrasHiddenVisibility.Reset();
+}
+void UMCGameplayHUD::ApplyUnifiedExtrasVisibility()
+{
+    if(!bUnifiedExtrasActive || !bUnifiedViewActive || IsDesignTime()
+        || UMCGameplayUIFactory::GetPresentationVersion()!=EMCUIVersion::New) return;
+    auto Hide=[this](UWidget* Widget) {
+        if(!IsValid(Widget)) return;
+        if(!UnifiedExtrasHiddenVisibility.Contains(Widget)) UnifiedExtrasHiddenVisibility.Add(Widget,Widget->GetVisibility());
+        Widget->SetVisibility(ESlateVisibility::Collapsed);
+    };
+    Hide(Find(TEXT("ResultsPanel")));Hide(CataclysmPanel);Hide(SwimEnergyWidget);Hide(BoosterWidget);Hide(FindUnifiedPassiveHost());
+}
+void UMCGameplayHUD::SetUnifiedExtrasActive(bool bActive)
+{
+    const bool Enabled=bActive && bUnifiedViewActive && !IsDesignTime()
+        && UMCGameplayUIFactory::GetPresentationVersion()==EMCUIVersion::New;
+    if(bUnifiedExtrasActive==Enabled) {if(Enabled) ApplyUnifiedExtrasVisibility();return;}
+    RestoreUnifiedExtrasVisibility();bUnifiedExtrasActive=Enabled;
+    if(Enabled) ApplyUnifiedExtrasVisibility();
+    else if(!IsDesignTime() && GetWorld() && !GetWorld()->bIsTearingDown) {
+        RefreshState();UpdatePhase1Layout();ApplyUnifiedViewVisibility();
+    }
+}
+FMCGameplayHUDExtrasSnapshot UMCGameplayHUD::GetUnifiedExtrasSnapshot() const
+{
+    FMCGameplayHUDExtrasSnapshot Result;
+    Result.bSourceVisible=IsVisible() && (!GetRootWidget() || GetRootWidget()->IsVisible());
+    auto Text=[](const UUserWidget* Owner,FName Name) {
+        const auto* Label=Owner && Owner->WidgetTree?Owner->WidgetTree->FindWidget<UTextBlock>(Name):nullptr;
+        return Label?Label->GetText():FText::GetEmpty();
+    };
+    const auto* PC=GetOwningPlayer<AMCPlayerController>();
+    const auto* Hero=GetOwningPlayerPawn<AMCToothCharacter>();
+    Result.bDead=Hero && Hero->Status && !Hero->Status->IsAlive();
+    Result.bSpectating=PC && PC->IsSpectating();Result.RespawnSeconds=PC?PC->GetRespawnSecondsRemaining():0;
+    Result.StatusHint=Text(this,TEXT("ActionHint")); // Already ported by the primary view; do not draw twice.
+    Result.bResultsVisible=IsUnifiedExtrasSourceVisible(Find(TEXT("ResultsPanel")));
+    Result.ResultTitle=Text(this,TEXT("ResultTitle"));Result.ResultDetail=Text(this,TEXT("ResultDetail"));
+    Result.bCataclysmVisible=IsUnifiedExtrasSourceVisible(CataclysmPanel);
+    Result.CataclysmInstruction=CataclysmInstruction?CataclysmInstruction->GetText():FText::GetEmpty();
+    Result.bSwimVisible=IsUnifiedExtrasSourceVisible(SwimEnergyWidget);
+    Result.bDrowning=SwimEnergyWidget && SwimEnergyWidget->bExhausted;
+    Result.SwimCaption=Text(SwimEnergyWidget,TEXT("StaminaCaption"));Result.SwimValue=Text(SwimEnergyWidget,TEXT("StaminaValue"));
+    if(SwimEnergyWidget && SwimEnergyWidget->WidgetTree)
+        if(const auto* Progress=SwimEnergyWidget->WidgetTree->FindWidget<UProgressBar>(TEXT("StaminaProgress"))) Result.SwimFraction=Progress->GetPercent();
+    Result.bBoosterVisible=IsUnifiedExtrasSourceVisible(BoosterWidget);
+    auto VisibleBoosterText=[&](FName Panel,FName Label) {
+        return BoosterWidget && BoosterWidget->WidgetTree && IsUnifiedExtrasSourceVisible(BoosterWidget->WidgetTree->FindWidget(Panel))?Text(BoosterWidget,Label):FText::GetEmpty();
+    };
+    Result.BoosterName=VisibleBoosterText(TEXT("BoosterMainPanel"),TEXT("BoosterName"));
+    Result.BoosterCount=VisibleBoosterText(TEXT("BoosterMainPanel"),TEXT("BoosterQueueCount"));Result.BoosterKey=VisibleBoosterText(TEXT("BoosterMainPanel"),TEXT("BoosterKey"));
+    Result.BoosterFury=VisibleBoosterText(TEXT("BoosterFuryPanel"),TEXT("BoosterFuryText"));
+    Result.BoosterArmed=VisibleBoosterText(TEXT("BoosterArmedPanel"),TEXT("BoosterArmedText"));
+    Result.BoosterDetail=VisibleBoosterText(TEXT("BoosterDetailsPanel"),TEXT("BoosterDescription"));
+    UWidget* PassiveHost=FindUnifiedPassiveHost();
+    Result.bPassivesVisible=IsUnifiedExtrasSourceVisible(SkillLoadoutWidget) && IsUnifiedExtrasSourceVisible(PassiveHost);
+    if(Result.bPassivesVisible) {
+        TFunction<void(UWidget*)> Read=[&](UWidget* Widget) {
+            if(!IsUnifiedExtrasSourceVisible(Widget)) return;
+            if(const auto* Label=Cast<UTextBlock>(Widget)) {if(!Label->GetText().IsEmpty()) Result.PassiveNames.Add(Label->GetText());}
+            else if(auto* Panel=Cast<UPanelWidget>(Widget)) for(UWidget* Child:Panel->GetAllChildren()) Read(Child);
+        };
+        Read(PassiveHost);Result.bPassivesVisible=!Result.PassiveNames.IsEmpty();
+    }
+    Result.FoodReticleAlpha=FoodReticleAlpha;
+    const auto* Inventory=Hero?Hero->Inventory.Get():nullptr;
+    Result.bSprayReticle=PC && PC->IsLocalController() && !PC->bShowMouseCursor && !PC->IsLookInputIgnored() && !PC->IsSpectating()
+        && Inventory && Inventory->Selected==EMCToolSlot::Spray && Hero->CanWork() && !Hero->bInCoffee && Inventory->ShouldPresentTool();
+    Result.FoodReticleLabel=Copy(TEXT("UI.HUD.FoodThrow"),LOCTEXT("FoodThrow","Q · БРОСИТЬ"));
+    return Result;
+}
+
 void UMCGameplayHUD::NativeTick(const FGeometry& Geometry,float Dt)
 {
+    // Restore the last actual state before source refresh. Re-hide before paint;
+    // the legacy child owners keep observing their real gameplay state.
+    if(bUnifiedExtrasActive) RestoreUnifiedExtrasVisibility();
     Super::NativeTick(Geometry,Dt); RefreshElapsed+=Dt;
     if(Geometry.GetLocalSize().X>1.f && !FMath::IsNearlyEqual(LayoutLogicalWidth,Geometry.GetLocalSize().X,.5f)) {LayoutLogicalWidth=Geometry.GetLocalSize().X;Phase1LayoutSignature.Reset();}
     UpdatePhase1Layout();
@@ -1139,6 +1242,7 @@ void UMCGameplayHUD::NativeTick(const FGeometry& Geometry,float Dt)
     // RefreshState owns dynamic visibility; layout can also move controls.
     // Apply the view selection last so neither brings retired groups back.
     ApplyUnifiedViewVisibility();
+    ApplyUnifiedExtrasVisibility();
 }
 int32 UMCGameplayHUD::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
     FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const

@@ -10,6 +10,7 @@ class UMCUIPresentationPanelWidget;
 class UMCUnifiedUIWidget;
 class UMCGameplayHUD;
 class UMCHubWidget;
+class UMCFishingRewardWidget;
 class UWidget;
 
 /** One F3 entry point, including menus using UIOnly input. No gameplay/profile mutations. */
@@ -29,6 +30,7 @@ public:
     void CheckOwner();
     /** Construct and retain the view/material variants inside location preparation. */
     bool PrepareInterface(APlayerController* Controller);
+    bool PrepareFishingCatch(APlayerController* Controller,UMCFishingRewardWidget* Source);
     bool GetUnifiedFishCounterTargets(const APlayerController* Controller,UWidget*& Icon,UWidget*& Card) const;
 private:
     void RefreshInterface();

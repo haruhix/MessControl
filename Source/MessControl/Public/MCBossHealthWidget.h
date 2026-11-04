@@ -50,6 +50,22 @@ struct FMCBossHealthRow
     float VerticalOffset=0.f;
 };
 
+/** Actual source values; no actor discovery, health math or loss interpolation in adapters. */
+struct MESSCONTROL_API FMCBossHealthPresentationViewRow
+{
+    FMCBossHealthPresentation Source;
+    FText Name,Value,ShieldValue;
+    TWeakObjectPtr<UTexture2D> ResolvedPortrait;
+    FVector2D PortraitScale=FVector2D(1,1);
+    float HealthFraction=0.f,LossFraction=0.f,ShieldFraction=0.f;
+    bool bShieldVisible=false;
+};
+struct MESSCONTROL_API FMCBossHealthPresentationSnapshot
+{
+    TArray<FMCBossHealthPresentationViewRow> Bosses;
+    bool bVisible=false,bLetterbox=false;
+};
+
 /** Local, non-interactive encounter UI. Gameplay health remains in the boss's replicated snapshot. */
 UCLASS(Blueprintable)
 class MESSCONTROL_API UMCBossHealthWidget : public UMCGameplayUIWidget
@@ -85,6 +101,9 @@ public:
     UFUNCTION(BlueprintPure,Category="HUD|Boss") int32 GetDisplayedBossCount() const {return bLetterbox?0:ActiveBosses.Num();}
     /** Includes the portrait/frame overhang, relative to the stack's top anchor. */
     UFUNCTION(BlueprintPure,Category="HUD|Boss") float GetDisplayedStackHeight() const {return bLetterbox || !bShowingHealth?0.f:DisplayedStackHeight;}
+    FMCBossHealthPresentationSnapshot GetPresentationSnapshot() const;
+    /** The native cinematic letterbox remains visible; only the legacy health stack is hidden. */
+    UFUNCTION(BlueprintCallable,Category="HUD|Boss") void SetUnifiedViewActive(bool bActive);
     virtual void BuildPresentationTree() override;
     virtual void ApplyTheme() override;
     virtual void ApplyEditorPreview(float Time) override;
@@ -98,6 +117,8 @@ private:
     UPROPERTY(Transient) TObjectPtr<UBorder> TopBar;
     UPROPERTY(Transient) TObjectPtr<UBorder> BottomBar;
     bool bShowingHealth=false;
+    bool bUnifiedViewActive=false;
+    TOptional<float> PreUnifiedStackOpacity;
     bool bLetterbox=false;
     float LayoutViewportWidth=1920.f;
     float DisplayedStackHeight=0.f;

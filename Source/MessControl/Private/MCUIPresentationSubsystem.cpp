@@ -2,6 +2,7 @@
 
 #include "MCUIPresentationPanel.h"
 #include "MCUnifiedUIWidget.h"
+#include "MCFishingRewardWidget.h"
 #include "MCHubWardrobeWidget.h"
 #include "MCHubShopWidget.h"
 #include "MCHubWidget.h"
@@ -211,7 +212,7 @@ bool UMCUIPresentationSubsystem::PrepareInterface(APlayerController* PC)
     {
         RestoreLegacy();if(Interface) Interface->RemoveFromParent();Interface=nullptr;InterfaceOwner.Reset();
     }
-    if(Interface) return true;
+    if(Interface) return Interface->PrepareHUDExtrasPresentation() && Interface->PrepareEncounterPresentation();
     const auto* Theme=UMCGameplayUIFactory::GetThemeForVersion(EMCUIVersion::New);
     auto* Class=UMCGameplayUIFactory::ResolveClassForTheme(TEXT("InterfaceRoot"),UMCUnifiedUIWidget::StaticClass(),Theme);
     Interface=CreateWidget<UMCUnifiedUIWidget>(PC,Class);if(!Interface) return false;
@@ -219,7 +220,12 @@ bool UMCUIPresentationSubsystem::PrepareInterface(APlayerController* PC)
     // TakeWidget constructs every switcher page, including retained glyph MIDs.
     // The view remains collapsed until readiness and a supported screen agree.
     InterfaceZOrder=5;Interface->TakeWidget();Interface->SetVisibility(ESlateVisibility::Collapsed);Interface->AddToViewport(InterfaceZOrder);
-    return true;
+    return Interface->PrepareHUDExtrasPresentation() && Interface->PrepareEncounterPresentation();
+}
+
+bool UMCUIPresentationSubsystem::PrepareFishingCatch(APlayerController* PC,UMCFishingRewardWidget* Source)
+{
+    return Source && PrepareInterface(PC) && Interface->PrepareCatchPresentation(Source);
 }
 
 bool UMCUIPresentationSubsystem::GetUnifiedFishCounterTargets(const APlayerController* PC,UWidget*& Icon,UWidget*& Card) const
@@ -270,9 +276,8 @@ void UMCUIPresentationSubsystem::RefreshInterface()
                 if(It->GetOwningPlayer()==PC && It->GetWorld()==GetWorld() && It->GetParent()) {HUDChrome=*It;break;}
         }
         if(GamePC && !Hub && !Menu && !GameplayMenu && !Reward && GamePC->CanUseRegularF3Panel())
-            if(auto* Hero=Cast<AMCToothCharacter>(PC->GetPawn());Hero && Hero->Status && Hero->Status->IsAlive())
-                for(TObjectIterator<UMCGameplayHUD> It;It;++It)
-                    if(It->GetOwningPlayer()==PC && It->GetWorld()==GetWorld() && It->GetParent()) {HUD=*It;break;}
+            for(TObjectIterator<UMCGameplayHUD> It;It;++It)
+                if(It->GetOwningPlayer()==PC && It->GetWorld()==GetWorld() && It->GetParent()) {HUD=*It;break;}
         if(GamePC && GamePC->CanPresentUnifiedTeam())
             for(TObjectIterator<UMCScoreboardWidget> It;It;++It)
                 if(It->GetOwningPlayer()==PC && It->GetWorld()==GetWorld() && It->IsInViewport() && It->IsVisible()) {Team=*It;break;}
@@ -285,7 +290,7 @@ void UMCUIPresentationSubsystem::RefreshInterface()
         if(Interface) {
             Interface->SetMenuBackend(nullptr);Interface->SetHUDBackend(nullptr);Interface->SetTeamBackend(nullptr);
             Interface->SetWardrobeBackend(nullptr);Interface->SetShopBackend(nullptr);Interface->SetHubBackend(nullptr);
-            Interface->SetRewardBackend(nullptr);Interface->SetGameplayMenuBackend(nullptr);Interface->SetVisibility(ESlateVisibility::Collapsed);
+            Interface->SetRewardBackend(nullptr);Interface->SetGameplayMenuBackend(nullptr);Interface->SetCatchBackend(nullptr);Interface->SetBossBackend(nullptr);Interface->SetAlertBackend(nullptr);Interface->SetVisibility(ESlateVisibility::Collapsed);
         }
         if(GamePC) GamePC->RefreshFishingCounterTarget();
         if(WasVisible && !IsPanelOpenFor(PC)) {if(GamePC) GamePC->UpdateInputMode();else if(MenuPC) MenuPC->RestorePresentationInput();}
@@ -321,7 +326,9 @@ void UMCUIPresentationSubsystem::RefreshInterface()
     if(InterfaceZOrder!=DesiredZ) {Interface->RemoveFromParent();InterfaceZOrder=DesiredZ;Interface->AddToViewport(InterfaceZOrder);}
     Interface->SetMenuBackend(Menu);Interface->SetHUDBackend(HUD);Interface->SetTeamBackend(Team);
     Interface->SetWardrobeBackend(Wardrobe);Interface->SetShopBackend(Shop);Interface->SetHubBackend(Hub);
-    Interface->SetRewardBackend(Reward);Interface->SetGameplayMenuBackend(GameplayMenu);Interface->ShowScreen(Screen);
+    Interface->SetRewardBackend(Reward);Interface->SetGameplayMenuBackend(GameplayMenu);
+    Interface->SetCatchBackend(GamePC && HubChrome?GamePC->GetFishingRewardPresentation():nullptr);
+    Interface->SetBossBackend(GamePC?GamePC->BossHealthWidget.Get():nullptr);Interface->SetAlertBackend(HUDChrome?HUDChrome->GetGameplayAlertPresentation():nullptr);Interface->ShowScreen(Screen);
     Interface->SetVisibility((Menu || Commerce || Reward || GameplayMenu)?ESlateVisibility::Visible:(Team || Hub)?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::HitTestInvisible);
     bInterfaceHubMenuInput=HubMenu;
     if(GamePC) GamePC->RefreshFishingCounterTarget();

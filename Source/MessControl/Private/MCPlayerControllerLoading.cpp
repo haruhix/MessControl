@@ -106,7 +106,8 @@ void AMCPlayerController::RefreshLoadingPresentation()
             || (GetPawn() && GetPawn()->GetWorld()==GetWorld()));
     }
     PresentationConstructed &= !IsHubWorld() || HasPreparedWardrobePresentation();
-    PresentationConstructed &= !IsHubWorld() || (FishingRewardWidget && FishingRewardWidget->HasPreparedPresentation());
+    PresentationConstructed &= !IsHubWorld() || (FishingRewardWidget && FishingRewardWidget->HasPreparedPresentation()
+        && (UMCGameplayUIFactory::GetPresentationVersion()!=EMCUIVersion::New || FishingRewardWidget->HasPreparedUnifiedView()));
     PresentationConstructed &= IsHubWorld() || (TaskCoinPresentation && TaskCoinPresentation->HasPreparedPresentation());
     PresentationConstructed &= PauseWidget && PauseWidget->GetRootWidget();
     if(Preparation) {
@@ -126,7 +127,7 @@ void AMCPlayerController::RefreshLoadingPresentation()
     bLoadingInputBlocked=true;
     bool NewWidget=false;
     if(!LoadingWidget) {
-        LoadingWidget=CreateWidget<UMCLoadingWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("Loading"),UMCLoadingWidget::StaticClass()));
+        LoadingWidget=CreateWidget<UMCLoadingWidget>(this,UMCGameplayUIFactory::ResolveClassForTheme(TEXT("Loading"),UMCLoadingWidget::StaticClass(),UMCGameplayUIFactory::GetThemeForVersion(UMCGameplayUIFactory::GetPresentationVersion())));
         if(LoadingWidget) {LoadingWidget->AddToViewport(10000);NewWidget=true;}
     }
     if(LoadingWidget) {

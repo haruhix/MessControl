@@ -191,7 +191,7 @@ void UMCUnifiedRewardWidget::BindSourceControl(UMCUniversalUIWidget* View,UMCPer
 }
 FText UMCUnifiedRewardWidget::TypeLabel(EMCPerkKind Kind) const
 {
-    auto Copy=[this](FName Key,const FText& Fallback){return Backend.IsValid()?Localized(Key,Fallback):UMCUIDataLibrary::ResolveText(GetResolvedTranslationTable(),Key,Fallback,PreviewCulture);};
+    auto Copy=[this](FName Key,const FText& Fallback){return Backend.IsValid()?Backend->Localized(Key,Fallback):UMCUIDataLibrary::ResolveText(GetResolvedTranslationTable(),Key,Fallback,PreviewCulture);};
     switch(Kind) {
     case EMCPerkKind::Active:return Copy(TEXT("UI.Reward.Type.Active"),LOCTEXT("Active","ACTIVE SKILL"));
     case EMCPerkKind::Consumable:return Copy(TEXT("UI.Reward.Type.Consumable"),LOCTEXT("Consumable","CONSUMABLE"));
@@ -201,7 +201,7 @@ FText UMCUnifiedRewardWidget::TypeLabel(EMCPerkKind Kind) const
 }
 FText UMCUnifiedRewardWidget::RarityLabel(EMCPerkRarity Rarity) const
 {
-    auto Copy=[this](FName Key,const FText& Fallback){return Backend.IsValid()?Localized(Key,Fallback):UMCUIDataLibrary::ResolveText(GetResolvedTranslationTable(),Key,Fallback,PreviewCulture);};
+    auto Copy=[this](FName Key,const FText& Fallback){return Backend.IsValid()?Backend->Localized(Key,Fallback):UMCUIDataLibrary::ResolveText(GetResolvedTranslationTable(),Key,Fallback,PreviewCulture);};
     switch(Rarity) {
     case EMCPerkRarity::Rare:return Copy(TEXT("UI.Reward.Rarity.Rare"),LOCTEXT("Rare","RARE"));
     case EMCPerkRarity::Legendary:return Copy(TEXT("UI.Reward.Rarity.Legendary"),LOCTEXT("Legendary","LEGENDARY"));

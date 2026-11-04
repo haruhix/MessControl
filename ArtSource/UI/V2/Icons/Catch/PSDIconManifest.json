@@ -1,0 +1,146 @@
+{
+  "source": "D:\\sda\\visua2.psd",
+  "savedBefore": true,
+  "savedAfter": true,
+  "exported": [
+    {
+      "name": "Fish",
+      "rarity": "Common",
+      "sourceLayerIDs": [
+        {
+          "id": 1439,
+          "name": "Слой 56"
+        }
+      ],
+      "sourceBounds": [
+        4268,
+        4943,
+        4424,
+        5047
+      ],
+      "exportScale": 4,
+      "size": [
+        624,
+        416
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Catch/T_UI_PSD_Catch_Fish.png"
+    },
+    {
+      "name": "FishPair",
+      "rarity": "Epic",
+      "sourceLayerIDs": [
+        {
+          "id": 1582,
+          "name": "Слой 56 копия 2"
+        },
+        {
+          "id": 1586,
+          "name": "Слой 56 копия 3"
+        }
+      ],
+      "sourceBounds": [
+        4630,
+        4949,
+        4792,
+        5070
+      ],
+      "exportScale": 4,
+      "size": [
+        648,
+        484
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Catch/T_UI_PSD_Catch_FishPair.png"
+    },
+    {
+      "name": "Octopus",
+      "rarity": "Rare",
+      "sourceLayerIDs": [
+        {
+          "id": 1613,
+          "name": "Слой 58"
+        }
+      ],
+      "sourceBounds": [
+        5021,
+        4936,
+        5168,
+        5075
+      ],
+      "exportScale": 4,
+      "size": [
+        588,
+        556
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Catch/T_UI_PSD_Catch_Octopus.png"
+    },
+    {
+      "name": "Chest",
+      "rarity": "Legendary",
+      "sourceLayerIDs": [
+        {
+          "id": 1639,
+          "name": "Слой 62"
+        }
+      ],
+      "sourceBounds": [
+        5620,
+        4945,
+        5781,
+        5075
+      ],
+      "exportScale": 4,
+      "size": [
+        644,
+        520
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Catch/T_UI_PSD_Catch_Chest.png"
+    },
+    {
+      "name": "WalletFish",
+      "rarity": "",
+      "sourceLayerIDs": [
+        {
+          "id": 1440,
+          "name": "Слой 56 копия"
+        }
+      ],
+      "sourceBounds": [
+        4960,
+        4583,
+        5003,
+        4611
+      ],
+      "exportScale": 4,
+      "size": [
+        172,
+        112
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Catch/T_UI_PSD_Catch_WalletFish.png"
+    },
+    {
+      "name": "WalletCoin",
+      "rarity": "",
+      "sourceLayerIDs": [
+        {
+          "id": 1258,
+          "name": "Слой 50 копия 13"
+        }
+      ],
+      "sourceBounds": [
+        4852,
+        4584,
+        4875,
+        4608
+      ],
+      "exportScale": 4,
+      "size": [
+        92,
+        96
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Catch/T_UI_PSD_Catch_WalletCoin.png"
+    }
+  ],
+  "sourcePSD_SHA256": "7cb834d75cfe88632e2d1c32dc688ff0107a3efa1ac2e661bede2b752a2ba756",
+  "method": "Photoshop MCP; source document duplicated; only glyph Smart Objects copied, enlarged before rasterization, exported with transparency; no UI panel rasterization.",
+  "mappingNote": "Tier artwork only. Existing runtime rarities retained; no species/item/category or reward-mechanic changes."
+}

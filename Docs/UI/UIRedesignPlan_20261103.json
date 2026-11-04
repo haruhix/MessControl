@@ -2,7 +2,7 @@
   "project": "MessControl",
   "root": "E:/DEVGAME/MessControl",
   "date": "2026-11-03",
-  "status": "Four additional editable screens (Hub, Reward, secondary Frontend and GameplayMenu) now integrated in the 140-widget root. Scoped Editor build and native solo checks passed; whole-interface/locale/art acceptance pending. Evidence: Docs/UI/UIHubReward_20261104.json.",
+  "status": "Root150 saved widgets/17 stable pages. Catch/HUDExtras/Loading/Boss/Alert integrated; Unity build/native catch/death-respawn/F3 checks passed. Whole UI pending. Evidence Docs/UI/UICatch_20261104.json.",
   "reference": {
     "path": "D:/sda/visua2.psd",
     "sha256": "7CB834D75CFE88632E2D1C32DC688FF0107A3EFA1AC2E661BEDE2B752A2BA756",
@@ -397,44 +397,27 @@
   ],
   "currentCheckpoint": {
     "date": "2026-11-04",
-    "savedRootWidgets": 121,
+    "savedRootWidgets": 150,
+    "rootPages": 17,
     "implemented": [
-      "Menu and Gameplay HUD",
-      "Settings with five tabs and TEAM",
-      "Wardrobe and Boosters Shop preview/runtime in the shared root",
-      "Source-owned draft, catalog, purchases and participant actions",
-      "Commerce native Slate Current/New switching and focus",
-      "Three mapped original PSD wardrobe glyphs"
+      "Menu,Gameplay HUD,Settings5tabs,TEAM,Wardrobe,Boosters",
+      "Hub,Reward,secondary Frontend,GameplayMenu",
+      "Catch,HUDExtras,Loading,Boss,Alert with retained actual source state"
     ],
-    "commerceChecks": {
-      "date": "2026-11-04",
-      "scope": "Wardrobe and Boosters Shop source-backed integration; short local solo PIE only.",
-      "editorBuild": "PASS: MessControlEditor build.",
-      "wardrobe": "PASS: real Hub open, source-owned Cowboy try-on while unowned, Back.",
-      "shopPurchase": "PASS: real Hub shop open and source-backed Buy in the temporary profile; 800 to 770 coins and 3 charges.",
-      "f3": "PASS via native Slate: New to Current to New on both Wardrobe and Shop; focus and reopening checked.",
-      "gc": "PASS: GC followed by shop reopening.",
-      "restoration": "Original wallet, inventory, stock IDs, pawn position and play settings restored.",
-      "evidence": "E:/CodexWork/MessControl/Validation/UICommerce_20261104",
-      "report": "Docs/UI/UICommerce_20261104.json",
-      "notClaimed": [
-        "Full artistic acceptance",
-        "Complete long-word/localization wrapping review across all screens",
-        "Network/multiplayer",
-        "Cook/package or packaged cold-launch PSO",
-        "Hardware mouse/keyboard delivery",
-        "Rerun of the historical three native tests"
-      ]
-    },
+    "evidence": [
+      "Docs/UI/UICommerce_20261104.json",
+      "Docs/UI/UIHubReward_20261104.json",
+      "Docs/UI/UICatch_20261104.json"
+    ],
     "pending": [
-      "Hub overview, standalone Tools/Perks pages, rewards, fishing UI and the other unconverted screens/menu pages.",
-      "Full visual review of long words and localizations across all screens under the adaptive text requirement.",
-      "Replace/review seven remaining wardrobe 3D thumbnails if original PSD-style icons become available.",
-      "Perk artwork remains a separate user-authored DT_Perks.Icon task; missing icons are preserved without a private override map.",
-      "Rare HUD and other unresolved scenarios remain bounded by the earlier dated reports.",
-      "Clothing catalog extension is queued only after the whole interface is complete; no table or gameplay implementation starts now."
+      "Integrate held Tutorial/Emotes and six world UI hosts; Care desired-size bridge separately pending.",
+      "Contextual multi-boss/alert, drowning/results/combined events not exhaustively played; fixtures provide layout evidence.",
+      "Whole-interface long-copy/resolution/art acceptance remains pending.",
+      "Hardware delivery,network/multiplayer,microphone,cook/package/cold PSO not tested.",
+      "Native reticles and supplementary hints/labels need remaining scope audit.",
+      "Clothing catalog/fitting task queued after whole UI; audit only, no implementation."
     ],
-    "evidence": "Docs/UI/UICommerce_20261104.json",
+    "reservedHiddenPages": "Tools5/Perks6 unused placeholders. PSD tools/busters/PERK are artwork sheets, not catalog screens.",
     "nextQueue": "Docs/UI/ClothingCatalogNext_20261104.json"
   }
 }

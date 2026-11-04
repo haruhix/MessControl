@@ -1,5 +1,6 @@
 #include "MCFishingRewardWidget.h"
 #include "MCFishingRewardArt.h"
+#include "MCGameplayUIFactory.h"
 
 #include "MCHubGameState.h"
 #include "MCPlayerController.h"
@@ -188,6 +189,7 @@ void UMCFishingRewardWidget::RefreshCopy()
     case EMCHubItemRarity::Legendary:Rarity=Localized(TEXT("hub.fishing.reward.Legendary"),LOCTEXT("Legendary","Легендарный улов"));FishColor=Colors.Warning;break;
     default:Rarity=Localized(TEXT("hub.fishing.reward.Common"),LOCTEXT("Common","Обычный улов"));FishColor=Colors.Mint;break;
     }
+    RarityText=Rarity;
     // Keep one short line so the rarity remains readable at 720p.
     DetailText=Active.bMerged || Active.Amount==0?Currency:Rarity;
     AmountTextScale=1;DetailTextScale=1;
@@ -215,7 +217,7 @@ void UMCFishingRewardWidget::ClearPresentation()
     Invalidate(EInvalidateWidgetReason::Paint);
 }
 
-void UMCFishingRewardWidget::NativeDestruct() {ClearPresentation();Super::NativeDestruct();}
+void UMCFishingRewardWidget::NativeDestruct() {UnifiedView.Reset();bUnifiedViewPrepared=false;bHasPresentationGeometry=false;ClearPresentation();Super::NativeDestruct();}
 
 bool UMCFishingRewardWidget::ShouldSuppress() const
 {
@@ -228,6 +230,7 @@ bool UMCFishingRewardWidget::ShouldSuppress() const
 
 float UMCFishingRewardWidget::ResponsiveScale(const FGeometry& Geometry) const
 {
+    if(UsesUnifiedView()) return 1.f; // UMG DPI applies once; translated text keeps its authored font size.
     const auto Size=Geometry.GetLocalSize();
     return float(FMath::Clamp(FMath::Min(Size.X/1280.,Size.Y/720.),.72,1.));
 }
@@ -247,7 +250,7 @@ FVector2D UMCFishingRewardWidget::HeroAnchor(const FGeometry& Geometry) const
         // Leave a clear nameplate row between the receipt and the hero.
         Center.Y-=164.f*ResponsiveScale(Geometry);
     }
-    const FVector2D Half=MCFishingFeedback::BadgeSize*ResponsiveScale(Geometry)*.52;
+    const FVector2D Half=PresentationCardSize(Geometry)*ResponsiveScale(Geometry)*.52;
     Center.X=FMath::Clamp(Center.X,Half.X+16.,FMath::Max(Half.X+16.,View.X-Half.X-16.));
     Center.Y=FMath::Clamp(Center.Y,Half.Y+36.,FMath::Max(Half.Y+36.,View.Y-Half.Y-100.));
     return Center;
@@ -259,7 +262,11 @@ bool UMCFishingRewardWidget::CounterAnchor(const FGeometry& Geometry,FVector2D& 
     if(!Icon || Icon->GetWorld()!=GetWorld() || !Icon->IsVisible()) return false;
     const FGeometry& Target=Icon->GetPaintSpaceGeometry();
     if(Target.GetLocalSize().X<=0 || Target.GetLocalSize().Y<=0) return false;
-    Out=Geometry.AbsoluteToLocal(Target.LocalToAbsolute(Target.GetLocalSize()*.5));
+    // Tick geometry includes the desktop window offset; paint geometry does
+    // not. Both endpoints must use the same paint space before taking local coordinates.
+    const FGeometry& SourcePaint=GetPaintSpaceGeometry();
+    if(SourcePaint.GetLocalSize().X<=0 || SourcePaint.GetLocalSize().Y<=0) return false;
+    Out=SourcePaint.AbsoluteToLocal(Target.LocalToAbsolute(Target.GetLocalSize()*.5));
     const auto Size=Geometry.GetLocalSize();
     return FMath::IsFinite(Out.X) && FMath::IsFinite(Out.Y) && Out.X>=0 && Out.Y>=0 && Out.X<=Size.X && Out.Y<=Size.Y;
 }
@@ -267,6 +274,10 @@ bool UMCFishingRewardWidget::CounterAnchor(const FGeometry& Geometry,FVector2D& 
 void UMCFishingRewardWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
     Super::NativeTick(Geometry,DeltaSeconds);
+    // Snapshot poses are consumed by another painted UMG tree. Keep their
+    // absolute values in window paint space, independently of NativeTick's desktop space.
+    PresentationGeometry=GetPaintSpaceGeometry();
+    bHasPresentationGeometry=PresentationGeometry.GetLocalSize().X>0 && PresentationGeometry.GetLocalSize().Y>0;
     // DPI is stable between resizes. Warm its glyph atlas while the retained
     // response widget is idle behind the location's readiness cover.
     const float FontScale=Geometry.GetAccumulatedLayoutTransform().GetScale();
@@ -283,7 +294,7 @@ void UMCFishingRewardWidget::NativeTick(const FGeometry& Geometry,float DeltaSec
     if(Active.Amount>0 && !bFlightStarted && NextAge>=MCFishingFeedback::FlightAt) {
         const FVector2D Size=Geometry.GetLocalSize();
         const float Scale=ResponsiveScale(Geometry);
-        FVector2D Start=BadgeCenter+MCFishingFeedback::TokenOffset*Scale;
+        FVector2D Start=BadgeCenter+PresentationIconOffset(Geometry)*Scale;
         FVector2D End;
         if(CounterAnchor(Geometry,End)) Start-=(End-Start).GetSafeNormal()*14.f*Scale;
         FlightStartNormalized=FVector2D(Start.X/Size.X,Start.Y/Size.Y);bFlightStarted=true;
@@ -307,7 +318,7 @@ int32 UMCFishingRewardWidget::NativePaint(const FPaintArgs& Args,const FGeometry
     FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const
 {
     const int32 Top=Super::NativePaint(Args,Geometry,CullingRect,Elements,Layer,Style,ParentEnabled);
-    if(!bActive || bSuppressed) return Top;
+    if(!bActive || bSuppressed || UsesUnifiedView()) return Top;
     using namespace MCFishingFeedback;
     const float Scale=ResponsiveScale(Geometry);
     const FLinearColor Inherited=Style.GetColorAndOpacityTint();
@@ -415,6 +426,136 @@ int32 UMCFishingRewardWidget::NativePaint(const FPaintArgs& Args,const FGeometry
         }
     }
     return Top+90;
+}
+
+void UMCFishingRewardWidget::SetUnifiedView(UUserWidget* View,const FMCFishingRewardUnifiedLayout& Layout,bool bPrepared)
+{
+    if(!View || View->GetWorld()!=GetWorld() || !Layout.IsValid()) return;
+    UnifiedView=View;UnifiedLayout=Layout;bUnifiedViewPrepared=bPrepared;
+}
+void UMCFishingRewardWidget::ClearUnifiedView(const UUserWidget* View)
+{
+    if(UnifiedView.Get()!=View) return;
+    UnifiedView.Reset();bUnifiedViewPrepared=false;
+}
+bool UMCFishingRewardWidget::HasPreparedUnifiedView() const
+{
+    return bUnifiedViewPrepared && UnifiedLayout.IsValid() && UnifiedView.IsValid()
+        && UnifiedView->GetWorld()==GetWorld();
+}
+bool UMCFishingRewardWidget::UsesUnifiedView() const
+{
+    return HasPreparedUnifiedView() && UnifiedView->IsVisible()
+        && UMCGameplayUIFactory::GetPresentationVersion()==EMCUIVersion::New;
+}
+FVector2D UMCFishingRewardWidget::PresentationCardSize(const FGeometry& Geometry) const
+{
+    if(!UsesUnifiedView()) return MCFishingFeedback::BadgeSize;
+    return UnifiedLayout.CardSize*(UnifiedLayout.AbsoluteScale/FMath::Max(.001f,Geometry.GetAccumulatedLayoutTransform().GetScale()));
+}
+FVector2D UMCFishingRewardWidget::PresentationIconOffset(const FGeometry& Geometry) const
+{
+    if(!UsesUnifiedView()) return MCFishingFeedback::TokenOffset;
+    return UnifiedLayout.IconOffset*(UnifiedLayout.AbsoluteScale/FMath::Max(.001f,Geometry.GetAccumulatedLayoutTransform().GetScale()));
+}
+FVector2D UMCFishingRewardWidget::PresentationIconSize(const FGeometry& Geometry) const
+{
+    if(!UsesUnifiedView()) return FVector2D(100,100);
+    return UnifiedLayout.IconSize*(UnifiedLayout.AbsoluteScale/FMath::Max(.001f,Geometry.GetAccumulatedLayoutTransform().GetScale()));
+}
+FMCFishingRewardPresentationSnapshot UMCFishingRewardWidget::GetPresentationSnapshot() const
+{
+    FMCFishingRewardPresentationSnapshot Result;
+    Result.Rarity=Active.Rarity;Result.Amount=Active.Amount;Result.WalletAfter=Active.WalletAfter;
+    Result.bWalletFull=Active.Amount==0;Result.bMerged=Active.bMerged;Result.Age=AnimationAge;Result.PendingCount=Pending.Num();
+    Result.AmountText=AmountText;Result.RarityText=RarityText;Result.DetailText=DetailText;
+    Result.FishColor=FishColor;Result.Ink=Colors.Ink;Result.Cream=Colors.Cream;
+    if(!bActive || bSuppressed || ShouldSuppress() || !bHasPresentationGeometry) return Result;
+    Result.bVisible=true;
+    EvaluateSnapshotMotion(Result,PresentationGeometry,BadgeCenter,FlightStartNormalized,FlightEnd,bHasCounterEndpoint,
+        PresentationCardSize(PresentationGeometry),PresentationIconOffset(PresentationGeometry),PresentationIconSize(PresentationGeometry),ResponsiveScale(PresentationGeometry));
+    return Result;
+}
+
+void UMCFishingRewardWidget::EvaluateSnapshotMotion(FMCFishingRewardPresentationSnapshot& Result,const FGeometry& Geometry,
+    FVector2D InBadgeCenter,FVector2D InFlightStartNormalized,FVector2D InFlightEnd,bool bEndpoint,
+    FVector2D CardSize,FVector2D IconOffset,FVector2D IconSize,float InResponsiveScale)
+{
+    if(!Result.bVisible) return;
+    using namespace MCFishingFeedback;
+    const float Scale=InResponsiveScale;
+    const float AbsoluteScale=Geometry.GetAccumulatedLayoutTransform().GetScale();
+    auto Pose=[&](FMCFishingRewardMotionPose& Out,FVector2D Size,FVector2D Center,FVector2D Stretch,float Degrees,float Alpha,FLinearColor Color) {
+        Out.CenterAbsolute=Geometry.LocalToAbsolute(Center);Out.SizeAbsolute=Size*AbsoluteScale;
+        Out.RenderScale=Stretch;Out.AngleDegrees=Degrees;Out.Opacity=FMath::Clamp(Alpha,0.f,1.f);
+        Out.Color=Color;Out.bVisible=Out.Opacity>.001f;
+    };
+    const float End=Result.Amount>0?FlightAt:FullSeconds;
+    const float Entry=Smooth(Result.Age/.10f),Exit=Smooth((End-Result.Age)/.16f);
+    const float CardEntry=Smooth((Result.Age-.065f)/.28f);
+    const float Back=1.f+2.2f*FMath::Pow(CardEntry-1.f,3.f)+1.2f*FMath::Square(CardEntry-1.f);
+    const float Fade=Smooth((Result.Age-.065f)/.14f)*Exit;
+    if(Result.Age<End) {
+        const FVector2D Stretch(Scale*FMath::Lerp(.72f,1.f,Back),Scale*FMath::Lerp(.65f,1.f,Back));
+        const FVector2D Center=InBadgeCenter+FVector2D(0,(1.f-CardEntry)*12.f+(1.f-Exit)*8.f)*Scale;
+        Pose(Result.Card,CardSize,Center,Stretch,-3.5f*(1.f-CardEntry),Fade,FLinearColor::White);
+    }
+    const FVector2D MedalCenter=InBadgeCenter+IconOffset*Scale;
+    const FVector2D TokenSize=IconSize;
+    if(Result.Amount==0 || Result.Age<FlightAt) {
+        FVector2D Position=MedalCenter+FVector2D(0,TokenLift(Result.Age))*Scale;
+        FVector2D Stretch=TokenPop(Result.Age);
+        float Degrees=-12.f*(1.f-Smooth(Result.Age/.25f))+8.f*FMath::Sin(Smooth(Result.Age/.42f)*PI);
+        if(Result.Amount>0 && Result.Age>.86f) {
+            const float Pull=Smooth((Result.Age-.86f)/.16f);FVector2D Target;
+            if(bEndpoint) {Target=InFlightEnd;Position-=(Target-MedalCenter).GetSafeNormal()*14.f*Scale*Pull;}
+            Stretch*=FVector2D(FMath::Lerp(1.,1.10,double(Pull)),FMath::Lerp(1.,.88,double(Pull)));
+            Degrees-=8.f*Pull;
+        }
+        Pose(Result.Tokens[0],TokenSize,Position,Stretch*Scale,Degrees,Entry*(Result.Amount==0?Exit:1.f),Result.FishColor);
+        if(Result.Amount>0 && Result.Age>.09f && Result.Age<.47f) {
+            const float T=Smooth((Result.Age-.09f)/.38f);
+            for(int32 I=0;I<4;++I) {
+                const float A=(I*.5f+.20f)*PI;
+                const FVector2D At=MedalCenter+FVector2D(FMath::Cos(A),FMath::Sin(A))*(54.f+16.f*T)*Scale;
+                Pose(Result.Sparks[I],FVector2D(10.f*(1.f-.45f*T)),At,FVector2D(Scale),FMath::RadiansToDegrees(A),(1.f-T)*.7f,FMath::Lerp(Result.Cream,Result.FishColor,.3f));
+            }
+        }
+    } else if(bEndpoint) {
+        const FVector2D Size=Geometry.GetLocalSize();
+        const FVector2D Start(InFlightStartNormalized.X*Size.X,InFlightStartNormalized.Y*Size.Y);
+        const int32 Count=Result.Amount>=5?3:Result.Amount>=2?2:1;
+        for(int32 Coin=Count-1;Coin>=0;--Coin) {
+            const float Progress=(Result.Age-FlightAt-Coin*.055f)/FlightSeconds;
+            if(Progress<0.f || Progress>=1.f) continue;
+            const float T=FMath::Pow(Progress,1.5f);
+            const FVector2D Launch=Start+FVector2D(Coin*8,-Coin*7)*Scale;
+            const FVector2D Center=Arc(Launch,InFlightEnd,T);
+            for(int32 I=1;I<=5;++I) {
+                const float TrailT=T-I*.024f;if(TrailT<=0) continue;
+                const FVector2D At=Arc(Launch,InFlightEnd,TrailT);
+                const float Radius=(5.f-I*.55f)*Scale;
+                Pose(Result.Trails[Coin*5+I-1],FVector2D(Radius*2),At,FVector2D(1),0,(1.f-Progress)*(.48f-I*.055f),FMath::Lerp(Result.FishColor,Result.Cream,.45f));
+            }
+            const float Suction=Smooth((Progress-.65f)/.35f);
+            const float CoinScale=Scale*FMath::Lerp(1.f,.28f,Suction)*(1.f-Coin*.08f);
+            const float Release=Smooth(Progress/.10f),Spawn=Coin==0?1.f:Smooth(Progress/.08f);
+            const float EmitScale=Coin==0?1.f:FMath::Lerp(.70f,1.f,Spawn);
+            const FVector2D Stretch=FVector2D(FMath::Lerp(1.10f,.86f+.14f*FMath::Cos(T*2.f*PI),Release),
+                FMath::Lerp(.88f,1.f+.10f*FMath::Sin(T*PI),Release))*(CoinScale*EmitScale);
+            Pose(Result.Tokens[Coin],TokenSize,Center,Stretch,-8.f+32.f*FMath::Sin(T*PI),Spawn*Smooth((1.f-Progress)/.12f),Result.FishColor);
+        }
+    }
+    if(Result.Amount>0 && bEndpoint && Result.Age>=ArrivalAt && Result.Age<ArrivalAt+PulseSeconds) {
+        const float T=Smooth((Result.Age-ArrivalAt)/PulseSeconds);
+        const float Radius=FMath::Lerp(13.f,38.f,T)*Scale;
+        Pose(Result.Ring,FVector2D(Radius*2),InFlightEnd,FVector2D(1),0,(1.f-T)*.55f,Result.FishColor);
+        for(int32 I=0;I<4;++I) {
+            const float A=(I*.5f+.18f)*PI;
+            const FVector2D Position=InFlightEnd+FVector2D(FMath::Cos(A),FMath::Sin(A))*(17.f+27.f*T)*Scale;
+            Pose(Result.Sparks[I+4],FVector2D(9.f*(1.f-T)+2.f),Position,FVector2D(Scale),FMath::RadiansToDegrees(A),(1.f-T)*.8f,FMath::Lerp(Result.FishColor,Result.Cream,.35f));
+        }
+    }
 }
 
 #undef LOCTEXT_NAMESPACE

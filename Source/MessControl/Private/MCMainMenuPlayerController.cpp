@@ -79,7 +79,7 @@ void AMCMainMenuPlayerController::RefreshPreparation()
     }
     const bool NewWidget=!LoadingWidget;
     if(NewWidget) {
-        LoadingWidget=CreateWidget<UMCLoadingWidget>(this,UMCGameplayUIFactory::ResolveClass(TEXT("Loading"),UMCLoadingWidget::StaticClass()));
+        LoadingWidget=CreateWidget<UMCLoadingWidget>(this,UMCGameplayUIFactory::ResolveClassForTheme(TEXT("Loading"),UMCLoadingWidget::StaticClass(),UMCGameplayUIFactory::GetThemeForVersion(UMCGameplayUIFactory::GetPresentationVersion())));
         if(LoadingWidget) LoadingWidget->AddToViewport(10000);
     }
     if(LoadingWidget) {

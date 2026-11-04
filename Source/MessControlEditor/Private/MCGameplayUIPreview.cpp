@@ -239,6 +239,11 @@ namespace
         FName UnifiedHubMode;
         FName UnifiedRewardMode;
         FName UnifiedGameplayMenuMode;
+        FName UnifiedCatchMode;
+        FName UnifiedHUDExtrasMode;
+        FName UnifiedLoadingMode;
+        FName UnifiedBossMode;
+        FName UnifiedAlertMode;
         int32 UnifiedFrontendPage=0;
         FString UnifiedCulture;
     };
@@ -447,7 +452,7 @@ namespace
             {
                 Session.UnifiedScreen=Root->PreviewScreen;
                 Session.UnifiedSettingsTab=FMath::Clamp(Root->PreviewSettingsTab,0,4);
-                Session.UnifiedHubMode=Root->PreviewHubMode;Session.UnifiedRewardMode=Root->PreviewRewardMode;Session.UnifiedGameplayMenuMode=Root->PreviewGameplayMenuMode;Session.UnifiedFrontendPage=Root->PreviewFrontendPage;
+                Session.UnifiedHubMode=Root->PreviewHubMode;Session.UnifiedRewardMode=Root->PreviewRewardMode;Session.UnifiedGameplayMenuMode=Root->PreviewGameplayMenuMode;Session.UnifiedCatchMode=Root->PreviewCatchMode;Session.UnifiedHUDExtrasMode=Root->PreviewHUDExtrasMode;Session.UnifiedLoadingMode=Root->PreviewLoadingMode;Session.UnifiedBossMode=Root->PreviewBossMode;Session.UnifiedAlertMode=Root->PreviewAlertMode;Session.UnifiedFrontendPage=Root->PreviewFrontendPage;
                 Session.UnifiedCulture=Root->PreviewCulture;
                 Session.bHasUnifiedSelection=true;
             }
@@ -469,7 +474,7 @@ namespace
             {
                 Root->PreviewScreen=Session.UnifiedScreen;
                 Root->PreviewSettingsTab=Session.UnifiedSettingsTab;
-                Root->PreviewHubMode=Session.UnifiedHubMode;Root->PreviewRewardMode=Session.UnifiedRewardMode;Root->PreviewGameplayMenuMode=Session.UnifiedGameplayMenuMode;Root->PreviewFrontendPage=Session.UnifiedFrontendPage;
+                Root->PreviewHubMode=Session.UnifiedHubMode;Root->PreviewRewardMode=Session.UnifiedRewardMode;Root->PreviewGameplayMenuMode=Session.UnifiedGameplayMenuMode;Root->PreviewCatchMode=Session.UnifiedCatchMode;Root->PreviewHUDExtrasMode=Session.UnifiedHUDExtrasMode;Root->PreviewLoadingMode=Session.UnifiedLoadingMode;Root->PreviewBossMode=Session.UnifiedBossMode;Root->PreviewAlertMode=Session.UnifiedAlertMode;Root->PreviewFrontendPage=Session.UnifiedFrontendPage;
                 Root->PreviewCulture=Session.UnifiedCulture;
                 Root->PreviewState=FName(*StaticEnum<EMCUnifiedUIScreen>()->GetNameStringByValue(int64(Session.UnifiedScreen)));
             }
@@ -599,8 +604,11 @@ namespace
                         Add(LOCTEXT("UnifiedFrontend","Join / lobby / confirmations"),EMCUnifiedUIScreen::Frontend,FString(),true);
                         Add(LOCTEXT("UnifiedGameplayMenu","Pause / connection / audio"),EMCUnifiedUIScreen::GameplayMenu,FString(),true);
                         Menu.AddMenuSeparator();
-                        for(const TCHAR* Name:{TEXT("Fishing catch — pending")})
-                            Add(FText::FromString(Name),EMCUnifiedUIScreen::Menu,FString(),false);
+                        Add(LOCTEXT("UnifiedCatch","Fishing catch"),EMCUnifiedUIScreen::Catch,FString(),true);
+                        Add(LOCTEXT("UnifiedHUDExtras","HUD: results / swim / status"),EMCUnifiedUIScreen::HUDExtras,FString(),true);
+                        Add(LOCTEXT("UnifiedLoading","Loading / waiting / retry"),EMCUnifiedUIScreen::Loading,FString(),true);
+                        Add(LOCTEXT("UnifiedBoss","Boss health"),EMCUnifiedUIScreen::Boss,FString(),true);
+                        Add(LOCTEXT("UnifiedAlert","Gameplay alert"),EMCUnifiedUIScreen::Alert,FString(),true);
                     }
                     return Menu.MakeWidget();
                 })
@@ -623,6 +631,11 @@ namespace
                         case EMCUnifiedUIScreen::Boosters:return LOCTEXT("UnifiedShop","Boosters shop");
                         case EMCUnifiedUIScreen::Hub:return LOCTEXT("UnifiedHub","Hub");
                         case EMCUnifiedUIScreen::Reward:return LOCTEXT("UnifiedReward","Reward");
+                        case EMCUnifiedUIScreen::Catch:return LOCTEXT("UnifiedCatch","Fishing catch");
+                        case EMCUnifiedUIScreen::HUDExtras:return LOCTEXT("UnifiedHUDExtras","HUD: results / swim / status");
+                        case EMCUnifiedUIScreen::Loading:return LOCTEXT("UnifiedLoading","Loading / waiting / retry");
+                        case EMCUnifiedUIScreen::Boss:return LOCTEXT("UnifiedBoss","Boss health");
+                        case EMCUnifiedUIScreen::Alert:return LOCTEXT("UnifiedAlert","Gameplay alert");
                         case EMCUnifiedUIScreen::Frontend:return LOCTEXT("UnifiedFrontend","Join / lobby / confirmations");
                         case EMCUnifiedUIScreen::GameplayMenu:return LOCTEXT("UnifiedGameplayMenu","Pause / connection / audio");
                         default:return FText::FromString(StaticEnum<EMCUnifiedUIScreen>()->GetNameStringByValue(int64(Session->UnifiedScreen)));

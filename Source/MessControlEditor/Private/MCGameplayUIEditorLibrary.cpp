@@ -25,6 +25,10 @@
 #include "MCNutBoss.h"
 #include "MCSingleDayDirector.h"
 #include "MCGameState.h"
+#include "MCWorldPreloadSubsystem.h"
+#include "Kismet/GameplayStatics.h"
+#include "MCFishingRewardWidget.h"
+#include "MCUnifiedCatchWidget.h"
 #include "MCToothCharacter.h"
 #include "MCInventoryComponent.h"
 #include "Editor.h"
@@ -368,6 +372,61 @@ FString UMCGameplayUIEditorLibrary::InspectPlayerView(APlayerController* PlayerC
         *QuotedPath(PlayerController->GetViewTarget()),PlayerController->bAutoManageActiveCameraTarget?TEXT("true"):TEXT("false"));
 }
 
+bool UMCGameplayUIEditorLibrary::ApplyPIEToothDamage(AMCToothCharacter* Hero,float Amount)
+{
+    if(!IsInGameThread() || !GEditor || !IsValid(Hero) || !Hero->HasAuthority() || !FMath::IsFinite(Amount)
+        || Amount<=0.f || Amount>100000.f || !FParse::Param(FCommandLine::Get(),TEXT("MCHubTransientProfile"))) return false;
+    UWorld* World=Hero->GetWorld();auto* Controller=Cast<AMCPlayerController>(Hero->GetController());
+    if(!World || World->WorldType!=EWorldType::PIE || World->GetNetMode()!=NM_Standalone || GEditor->PlayWorld!=World
+        || World->bIsTearingDown || UGameplayStatics::GetCurrentLevelName(World,true)!=TEXT("L_Mouth")
+        || !Controller || !Controller->IsLocalController() || World->GetFirstPlayerController()!=Controller
+        || Controller->GetPawn()!=Hero || !Controller->IsWorldPresentationReady() || !Hero->Status || !Hero->Status->IsAlive()) return false;
+    return Hero->Status->Damage(Amount);
+}
+
+FString UMCGameplayUIEditorLibrary::InspectPIEFishingCatch(UMCFishingRewardWidget* Source,UMCUnifiedCatchWidget* View)
+{
+    const UWorld* World=IsValid(Source)?Source->GetWorld():nullptr;
+    if(!IsInGameThread() || !GEditor || !IsValid(World) || World->WorldType!=EWorldType::PIE
+        || GEditor->PlayWorld!=World || !IsValid(View) || View->GetWorld()!=World
+        || View->GetOwningPlayer()!=Source->GetOwningPlayer()) return TEXT("{\"valid\":false}");
+    const auto Snapshot=Source->GetPresentationSnapshot();
+    const auto& SourcePaint=Source->GetPaintSpaceGeometry();const auto& SourceTick=Source->GetTickSpaceGeometry();
+    const auto& ViewPaint=View->GetPaintSpaceGeometry();
+    const UWidget* Target=Source->GetCounterIconTarget();
+    const FGeometry TargetPaint=Target?Target->GetPaintSpaceGeometry():FGeometry();
+    const UWidget* Ring=View->GetWidgetFromName(TEXT("CatchArrivalRing"));
+    const FVector2D Expected=TargetPaint.LocalToAbsolute(TargetPaint.GetLocalSize()*.5);
+    const FVector2D Actual=Ring?ViewPaint.LocalToAbsolute(Ring->GetRenderTransform().Translation):FVector2D::ZeroVector;
+    auto Vector=[](FVector2D Value) {return FString::Printf(TEXT("[%.4f,%.4f]"),Value.X,Value.Y);};
+    return FString::Printf(TEXT("{\"valid\":true,\"age\":%.5f,\"animating\":%s,\"snapshotVisible\":%s,\"unifiedPrepared\":%s,\"ringVisible\":%s,\"ringOpacity\":%.5f,\"sourcePaintSize\":%s,\"sourcePaintOrigin\":%s,\"sourceTickOrigin\":%s,\"viewPaintSize\":%s,\"viewPaintOrigin\":%s,\"targetPaintSize\":%s,\"targetPaintOrigin\":%s,\"expectedEndpoint\":%s,\"actualRingCenter\":%s,\"endpointDistance\":%.5f}"),
+        Source->GetAnimationAge(),Source->IsAnimating()?TEXT("true"):TEXT("false"),Snapshot.bVisible?TEXT("true"):TEXT("false"),
+        Source->HasPreparedUnifiedView()?TEXT("true"):TEXT("false"),Ring && Ring->IsVisible()?TEXT("true"):TEXT("false"),Ring?Ring->GetRenderOpacity():0.f,
+        *Vector(SourcePaint.GetLocalSize()),*Vector(SourcePaint.LocalToAbsolute(FVector2D::ZeroVector)),*Vector(SourceTick.LocalToAbsolute(FVector2D::ZeroVector)),
+        *Vector(ViewPaint.GetLocalSize()),*Vector(ViewPaint.LocalToAbsolute(FVector2D::ZeroVector)),*Vector(TargetPaint.GetLocalSize()),
+        *Vector(TargetPaint.LocalToAbsolute(FVector2D::ZeroVector)),*Vector(Expected),*Vector(Actual),FVector2D::Distance(Expected,Actual));
+}
+
+FString UMCGameplayUIEditorLibrary::InspectPIEVisualResources(UWorld* World,const TArray<FSoftObjectPath>& Resources)
+{
+    if(!IsInGameThread() || !GEditor || !IsValid(World) || World->WorldType!=EWorldType::PIE
+        || GEditor->PlayWorld!=World || Resources.Num()>256)
+        return TEXT("{\"valid\":false,\"error\":\"Expected the live PIE world and a bounded resource list\"}");
+    const auto* Preparation=World->GetSubsystem<UMCWorldPreloadSubsystem>();
+    TArray<FString> Entries;
+    for(const auto& Path:Resources) {
+        const FString Name=Path.ToString();
+        const FString Escaped=Name.Replace(TEXT("\\"),TEXT("\\\\")).Replace(TEXT("\""),TEXT("\\\""))
+            .Replace(TEXT("\n"),TEXT("\\n")).Replace(TEXT("\r"),TEXT("\\r")).Replace(TEXT("\t"),TEXT("\\t"));
+        const UObject* Resident=Path.IsValid()?FindObject<UObject>(nullptr,*Name):nullptr;
+        const bool Retained=Resident && Preparation && Preparation->IsVisualResourceRetained(Resident);
+        Entries.Add(FString::Printf(TEXT("{\"path\":\"%s\",\"resident\":%s,\"retained\":%s}"),
+            *Escaped,Resident?TEXT("true"):TEXT("false"),Retained?TEXT("true"):TEXT("false")));
+    }
+    return FString::Printf(TEXT("{\"valid\":true,\"ready\":%s,\"resources\":[%s]}"),
+        Preparation && Preparation->IsReady()?TEXT("true"):TEXT("false"),*FString::Join(Entries,TEXT(",")));
+}
+
 bool UMCGameplayUIEditorLibrary::CapturePIEGameWindow(UWorld* World,const FString& OutputFile)
 {
     FString Path=FPaths::ConvertRelativePathToFull(OutputFile);FPaths::NormalizeFilename(Path);
@@ -412,14 +471,20 @@ bool UMCGameplayUIEditorLibrary::RenderGameplayUIPreview(TSubclassOf<UMCGameplay
     TArray<UTexture*> FixtureTextures;
     Widget->WidgetTree->ForEachWidgetAndDescendants([&FixtureTextures](UWidget* Item)
     {
-        auto CompleteBrush=[](const FSlateBrush& Brush)
-        {if(auto* Material=Cast<UMaterialInterface>(Brush.GetResourceObject())) Material->EnsureIsComplete();};
+        auto CompleteBrush=[&FixtureTextures](const FSlateBrush& Brush)
+        {
+            if(auto* Material=Cast<UMaterialInterface>(Brush.GetResourceObject())) {
+                Material->EnsureIsComplete();
+                TArray<UTexture*> Used;Material->GetUsedTextures(Used);
+                for(auto* Texture:Used) if(Texture) FixtureTextures.AddUnique(Texture);
+            }
+        };
         if(auto* Border=Cast<UBorder>(Item)) CompleteBrush(Border->Background);
         if(auto* Button=Cast<UButton>(Item)) {const auto& Style=Button->GetStyle();CompleteBrush(Style.Normal);CompleteBrush(Style.Hovered);CompleteBrush(Style.Pressed);CompleteBrush(Style.Disabled);}
         if(auto* Image=Cast<UImage>(Item))
         {
             if(auto* Texture=Cast<UTexture>(Image->GetBrush().GetResourceObject())) FixtureTextures.AddUnique(Texture);
-            if(auto* Material=Cast<UMaterialInterface>(Image->GetBrush().GetResourceObject())) Material->EnsureIsComplete();
+            CompleteBrush(Image->GetBrush());
         }
         if(auto* Bar=Cast<UProgressBar>(Item))
             for(const auto* Brush:{&Bar->GetWidgetStyle().FillImage,&Bar->GetWidgetStyle().BackgroundImage})

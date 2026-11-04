@@ -1,0 +1,228 @@
+{
+  "date": "2026-11-04",
+  "status": "Checkpoint: five editable presenters integrated; Unity Build05, actual catch, death/respawn and native Slate F3 checks passed. Whole-interface completion/art acceptance pending.",
+  "previousCheckpoint": {
+    "commit": "dbafa2e",
+    "pushed": "main/dbafa2e verified before this wave"
+  },
+  "scope": {
+    "views": [
+      "WBP_UICatch / MCUnifiedCatchWidget",
+      "WBP_UIHUDExtras / MCUnifiedHUDExtrasWidget",
+      "WBP_UILoading / MCUnifiedLoadingWidget",
+      "WBP_UIBoss / MCUnifiedBossWidget",
+      "WBP_UIAlert / MCUnifiedAlertWidget"
+    ],
+    "behavior": "New editable UMG shapes consume retained source presentation state. Catch keeps the original accepted receipt queue/age/counter pulse; HUD extras keep actual source results/swim/booster/passive/cataclysm state; loading inherits source progress/tip clock/actions; boss/alert retain original state and letterbox ownership.",
+    "rootAuthoring": "Append-only Catch/HUDExtras/Loading/Boss/Alert preview pages and typed views; root-owned widget count140 to150 in RootAuthorReport. This is not a count of all nested UI widgets or a claim that all screens are finished.",
+    "adaptiveText": "Fixed fonts; actual shaped Catch column height passed Long_DE and JA at960x720. Shared supplemental wrapping flow; extreme Designer stress exposes explicit scrollbar.",
+    "preserved": "Existing 3D menu scene, gameplay/RNG/reward decisions, DT_Perks icon ownership and original Current widgets remain source-owned."
+  },
+  "art": {
+    "status": "Scoped native MCP authoring report passed",
+    "packages": 13,
+    "resources": "Six original PSD Catch glyph textures, six static MIs, shared M_UI_PSD_WhiteGlyph. UI panels remain editable shapes.",
+    "material": "MD_UI / BLEND_Translucent; GlyphTexture sample.R * sample.A opacity, white final color; no runtime dynamic MI for these glyphs.",
+    "report": "E:/CodexWork/MessControl/Validation/UICatch_20261104/ArtAuthorReport.json",
+    "coverage": "ManifestCoverage.json reports ready/resident/retained for four runtime rarity textures/MIs plus parent material. This is scoped warm Editor evidence, not cold packaged PSO proof.",
+    "unusedExportedResources": "WalletFish/Coin textures/MIs are source export packets, not runtime Hub bindings. Live coverage applies to9 rarity resources."
+  },
+  "validation": {
+    "Build03": {
+      "editorBuild": "PASS reported by root; Build03_Unity.uba and EditorBuild03.log retained",
+      "designerRenders": {
+        "count": 23,
+        "kind": "Actual Slate actor-free fixtures; root pages, catch rarity/full wallet/DE/JA and supplemental HUD/loading/boss/alert combinations",
+        "report": "E:/CodexWork/MessControl/Validation/UICatch_20261104/Previews_Build03/RenderReport.json",
+        "dirtyAfter": {
+          "content": [],
+          "maps": []
+        },
+        "acceptance": "Rendered fixtures are not runtime gameplay checks or full visual approval"
+      },
+      "realCatch": {
+        "overallHarnessStatus": "FAILED; original passed=false reports preserved",
+        "functionalObservation": "PASS for the recorded bounded one-cast flow: actual native cast, real bite/RNG, native reel and accepted wallet credit; source owner/age retained across cosmetic Current/New switches; New glyph and endpoint observed.",
+        "context": "Existing standalone Hub PIE with -MCHubTransientProfile. QA teleported only the existing pawn to traced floor in the actual fishing zone, then used native handle/primary input. No fabricated catch RPC/PresentCatch, rule changes, spawned fixtures or wallet writes.",
+        "castCount": 1,
+        "actualBiteDelaySeconds": 7.132724761962891,
+        "walletBefore": 0,
+        "walletAfter": 1,
+        "switchToCurrentAge": 1.1224690675735474,
+        "switchToNewAge": 1.364531397819519,
+        "arrivalRing": {
+          "observed": true,
+          "age": 1.99335,
+          "endpointDistanceSlateUnits": 0.25836
+        },
+        "glyph": "/Game/Gameplay/UI/V2/Art/Catch/MI_UI_PSD_Catch_Fish.MI_UI_PSD_Catch_Fish",
+        "cleanup": {
+          "pawnRestored": true,
+          "heldInputReleased": true,
+          "callbackUnregistered": true,
+          "rodStowed": true,
+          "profileWrite": false,
+          "actualEarnedTransientWalletRetained": 1
+        },
+        "harnessFailure": "Final assertion required report.frames even though capturePNG=false intentionally disabled synchronous PNG capture for WGC recording. This failure is not relabeled as an overall test pass.",
+        "recording": {
+          "method": "Silent Windows Graphics Capture, explicit task-owned standalone PIE HWND; no activation/desktop capture/hardware input",
+          "fps": 30,
+          "frames": 435,
+          "encoderExitCode": 0,
+          "completionPNG": true,
+          "path": "E:/CodexWork/MessControl/Validation/UICatch_20261104/Solo_Build03_Recorded/Catch.mp4"
+        },
+        "reports": [
+          "E:/CodexWork/MessControl/Validation/UICatch_20261104/Solo_Build03_Recorded/SoloReport.json",
+          "E:/CodexWork/MessControl/Validation/UICatch_20261104/Solo_Build03_Recorded/CaptureReport.json"
+        ]
+      }
+    },
+    "Build04": {
+      "editorBuild": "PASS Unity35.40s",
+      "arena": {
+        "passed": true,
+        "report": "E:\\CodexWork\\MessControl\\Validation\\UICatch_20261104\\Arena\\HUDExtrasSoloReport.json",
+        "method": "One ordinary Status::Damage through Editor gate in saved standalone L_Mouth, transient profile. Direct fixture travel; no played menu-to-Arena claim.",
+        "damageCalls": 1,
+        "reservesBefore": 12,
+        "reservesAfter": 11,
+        "spectator": "observed",
+        "sameSourceAndRoot": true,
+        "newPawn": true,
+        "cleanup": {
+          "callbackUnregistered": true,
+          "actorInputChanged": false,
+          "uiStateChanged": false,
+          "gameplayRestore": "None: accepted native damage, death, reserve and respawn stay owned by the disposable run",
+          "profileWrite": false,
+          "PIEStopped": false,
+          "GCForced": false
+        },
+        "personalInspection": "Actual death/respawn game-window frames reviewed by primary."
+      },
+      "previewFinding": "Natural card height fixed. Cold material-bound icon texture wait fixed in Build05."
+    },
+    "historicalBuild02": {
+      "status": "FAILED diagnostic retained",
+      "finding": "Mixed desktop NativeTick geometry and window-relative paint geometry displaced New card and invalidated counter endpoint",
+      "fix": "Snapshot motion and endpoint conversion use paint-to-paint geometry; hero ScreenToWidgetLocal keeps matching desktop Tick geometry; zero paint geometry waits for valid presentation",
+      "evidence": "E:/CodexWork/MessControl/Validation/UICatch_20261104/Solo_Build02_Diagnostic/SoloReport.json"
+    },
+    "localization": {
+      "status": "PASS saved fill-empty merge and native before/after checks; original authored fields/custom maps preserved.",
+      "recipes": 7,
+      "keys": 478,
+      "finalRows": 1147,
+      "finalReport": "E:/CodexWork/MessControl/Validation/UICatch_20261104/Locales/20261104T011504012858Z_445bc947/Report.json",
+      "lastNarrowFix": "Filled18 missing foreign Task/Waiting cells and added exact unique FoodIntake/NutEvent SourceText aliases. Arena captures precede these4 copy seeds; subsequent runtime source copy not visually rerun in this checkpoint.",
+      "limits": "Not exhaustive translation or artistic review of all1147 rows; other native source payloads may need seeds."
+    },
+    "Build05": {
+      "editorBuild": "PASS MessControlEditor Win64 Development normal Unity(-DisableAdaptiveUnity),38.00s; existing ForEachObjectWithOuter deprecation warning.",
+      "buildLog": "Saved/Build/UICatch_20261104_Build05.log",
+      "designerRenders": {
+        "count": 23,
+        "report": "E:\\CodexWork\\MessControl\\Validation\\UICatch_20261104\\Previews_Build05\\RenderReport.json",
+        "firstRenderIcons": "Present on fresh Editor start after scoped material texture completion.",
+        "primaryReviewed": [
+          "Catch_Common",
+          "Catch_Long_DE",
+          "Catch_JA",
+          "HUD_CataclysmDrowning",
+          "Loading_Waiting_JA",
+          "Boss_Long_DE",
+          "Alert_Long_DE"
+        ],
+        "acceptance": "Actual Slate actor-free fixtures, not contextual boss/drowning gameplay proof."
+      },
+      "realCatch": {
+        "passed": true,
+        "castCount": 1,
+        "acceptedReward": {
+          "walletBefore": 0,
+          "walletAfter": 2,
+          "delta": 2,
+          "age": 0.017455197870731354
+        },
+        "hookedCatch": {
+          "rarity": "<MCHubItemRarity.RARE: 1>",
+          "fishCoins": 2,
+          "reeling": true,
+          "actualBiteDelay": 7.761711120605469
+        },
+        "switchToCurrentAge": 1.1140118837356567,
+        "switchToNewAge": 1.362449049949646,
+        "iconResource": "/Game/Gameplay/UI/V2/Art/Catch/MI_UI_PSD_Catch_Octopus.MI_UI_PSD_Catch_Octopus",
+        "counterSeen": {
+          "text": "2",
+          "wallet": 2
+        },
+        "cleanup": {
+          "pawnRestored": true,
+          "heldInputReleased": true,
+          "callbackUnregistered": true,
+          "finalWallet": 2,
+          "finalRod": {
+            "bEquipped": false,
+            "bFishingPose": false,
+            "bReeling": false,
+            "bLineOut": false,
+            "bFishHooked": false
+          },
+          "profileWrite": false
+        },
+        "report": "E:\\CodexWork\\MessControl\\Validation\\UICatch_20261104\\Solo_Build05_Recorded\\SoloReport.json",
+        "ringEndpointDistance": 0.24512,
+        "recording": {
+          "passed": true,
+          "fps": 30,
+          "frames": 451,
+          "encoderExitCode": 0,
+          "video": "E:\\CodexWork\\MessControl\\Validation\\UICatch_20261104\\Solo_Build05_Recorded\\Catch.mp4",
+          "report": "E:\\CodexWork\\MessControl\\Validation\\UICatch_20261104\\Solo_Build05_Recorded\\CaptureReport.json",
+          "inspection": "Primary reviewed sequential gameplay contact sheet: actual rare Octopus card,flight,arrival."
+        }
+      },
+      "f3": {
+        "Hub_Build05": "PASS New→Current→New,close/reopen,focus restored",
+        "Arena_Build04": "PASS same native Slate route; final console stdout encoding error after report save did not fail checks.",
+        "hardwareInput": false,
+        "reports": "E:\\CodexWork\\MessControl\\Validation\\UICatch_20261104\\F3"
+      },
+      "resourceCoverage": {
+        "usedRoots": 9,
+        "residentRetainedBeforeFirstCast": true,
+        "report": "E:\\CodexWork\\MessControl\\Validation\\UICatch_20261104\\ManifestCoverage.json",
+        "coldPackagedPSO": "Not validated"
+      },
+      "cleanup": "PIE stopped; original background CPU throttle true restored; dirty packages/maps empty after preview authoring."
+    }
+  },
+  "sourceReview": {
+    "mode": "Read-only actual source review; graph used structurally and coverage reported metadata_changed",
+    "reviewed": "Catch/HUDExtras/Loading plus root/subsystem/loading preparation; independent Boss/Alert review",
+    "blockingFindings": "No new substantive state/queue/readiness-deadlock/coordinate bug identified in reviewed source paths. This is not compile or runtime proof.",
+    "followUp": "Fixed passive font17 preparation from loaded canonical table and source override; binding invalidates preparation. Hardware first-passive performance not profiled.",
+    "engineOrBuildExecutedByReviewer": false
+  },
+  "pending": [
+    "Integrate held Tutorial/Emotes and six world UI hosts; Care desired-size bridge separately pending.",
+    "Contextual multi-boss/alert, drowning/results/combined events not exhaustively played; fixtures provide layout evidence.",
+    "Whole-interface long-copy/resolution/art acceptance remains pending.",
+    "Hardware delivery,network/multiplayer,microphone,cook/package/cold PSO not tested.",
+    "Native reticles and supplementary hints/labels need remaining scope audit.",
+    "Clothing catalog/fitting task queued after whole UI; audit only, no implementation."
+  ],
+  "evidenceRoot": "E:/CodexWork/MessControl/Validation/UICatch_20261104",
+  "generatedMediaPolicy": "MP4/PNG/contact sheets remain external validation media on E:; this JSON records evidence, without adding media to Git.",
+  "changelog": [
+    "Added five saved component WBP and root preview pages12..16, preserving previous140 root widgets.",
+    "Added original PSD Catch glyphs/static UI materials, with9 used resources retained before first cast.",
+    "Preserved native Catch queue/age, loading actions/clock, boss health/letterbox and alert queues. New HUD survives death/spectating/respawn.",
+    "Made localized Catch shape height follow shaped text; supplemental panels wrap in shared adaptive flow with fixed fonts.",
+    "Filled missing translations without overwriting authored copy; exact-guard migration corrects legacy Rafts controls.",
+    "Prepared passive font17 from the already-loaded canonical DT; preview waits for material textures and preserves pre-Slate icon aspect."
+  ]
+}

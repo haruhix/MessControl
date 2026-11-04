@@ -11,6 +11,9 @@ class UMCHubShopWidget;
 class UMCHubWidget;
 class UMCPerkChoiceWidget;
 class UMCGameplayMenuWidget;
+class UMCFishingRewardWidget;
+class UMCBossHealthWidget;
+class UMCGameplayAlertWidget;
 class UWidgetSwitcher;
 
 UENUM(BlueprintType)
@@ -18,7 +21,7 @@ enum class EMCUnifiedUIScreen : uint8
 {
     Menu, Gameplay,
     Hub, Wardrobe, Boosters, Tools UMETA(Hidden), Perks UMETA(Hidden),
-    Settings, Team, Reward, Frontend, GameplayMenu
+    Settings, Team, Reward, Frontend, GameplayMenu, Catch, HUDExtras, Loading, Boss, Alert
 };
 
 /** One editable root for the PSD interface, including screen selection in Designer. */
@@ -33,6 +36,11 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen") FName PreviewHubMode;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen") FName PreviewRewardMode;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen") FName PreviewGameplayMenuMode;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen") FName PreviewCatchMode;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen") FName PreviewHUDExtrasMode;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen") FName PreviewLoadingMode;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen") FName PreviewBossMode;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen") FName PreviewAlertMode;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Preview|Screen",meta=(ClampMin="0",ClampMax="4")) int32 PreviewFrontendPage=0;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Art") TSoftObjectPtr<UTexture2D> Logo;
     /** PSD tool artwork; perk icons remain owned by DT_Perks. */
@@ -49,6 +57,12 @@ public:
     void SetHubBackend(UMCHubWidget* Backend);
     void SetRewardBackend(UMCPerkChoiceWidget* Backend);
     void SetGameplayMenuBackend(UMCGameplayMenuWidget* Backend);
+    bool PrepareCatchPresentation(UMCFishingRewardWidget* Backend);
+    bool PrepareHUDExtrasPresentation();
+    bool PrepareEncounterPresentation();
+    void SetBossBackend(UMCBossHealthWidget* Backend);
+    void SetAlertBackend(UMCGameplayAlertWidget* Backend);
+    void SetCatchBackend(UMCFishingRewardWidget* Backend);
     bool HasHubPresentation() const { return HubBackend.IsValid(); }
     bool HasRewardPresentation() const { return RewardBackend.IsValid(); }
     bool HasGameplayMenuPresentation() const { return GameplayMenuBackend.IsValid(); }
@@ -61,6 +75,7 @@ public:
     UWidget* GetDefaultFocusTarget() const;
 protected:
     virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
+    virtual void NativeDestruct() override;
     virtual FReply NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event) override;
     virtual FReply NativeOnMouseWheel(const FGeometry& Geometry,const FPointerEvent& Event) override;
     virtual FReply NativeOnAnalogValueChanged(const FGeometry& Geometry,const FAnalogInputEvent& Event) override;
@@ -81,6 +96,9 @@ private:
     TWeakObjectPtr<UMCHubWidget> HubBackend;
     TWeakObjectPtr<UMCPerkChoiceWidget> RewardBackend;
     TWeakObjectPtr<UMCGameplayMenuWidget> GameplayMenuBackend;
+    TWeakObjectPtr<UMCFishingRewardWidget> CatchBackend;
+    TWeakObjectPtr<UMCBossHealthWidget> BossBackend;
+    TWeakObjectPtr<UMCGameplayAlertWidget> AlertBackend;
     float RefreshDelay=0.f;
     EMCUnifiedUIScreen ActiveScreen=EMCUnifiedUIScreen::Menu;
 };

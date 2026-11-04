@@ -20,6 +20,8 @@ class UMCMainMenuWidget;
 class APlayerController;
 class AMCPlayerController;
 class AMCToothCharacter;
+class UMCFishingRewardWidget;
+class UMCUnifiedCatchWidget;
 class UMCEquipmentProfile;
 
 /** Explicit editor authoring for the approved UI; existing artist trees are preserved unless a narrow repair is requested. */
@@ -47,6 +49,18 @@ public:
     /** Read-only live PIE view state for QA. This editor-only API never exposes gameplay mutators or changes property visibility. */
     UFUNCTION(BlueprintPure, Category="Mess Control|Gameplay UI|Editor")
     static FString InspectPlayerView(APlayerController* PlayerController);
+
+    /** Read-only location-manifest coverage for already-resident assets; never loads or changes readiness. */
+    UFUNCTION(BlueprintPure, Category="Mess Control|Gameplay UI|Editor")
+    static FString InspectPIEVisualResources(UWorld* World,const TArray<FSoftObjectPath>& Resources);
+
+    /** Native geometry telemetry avoids reflection of FGeometry's non-reflected Slate payload. */
+    UFUNCTION(BlueprintPure, Category="Mess Control|Gameplay UI|Editor")
+    static FString InspectPIEFishingCatch(UMCFishingRewardWidget* Source,UMCUnifiedCatchWidget* View);
+
+    /** Explicit disposable standalone L_Mouth fixture: uses the real native damage pipeline, never assigns health/reserves. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
+    static bool ApplyPIEToothDamage(AMCToothCharacter* Hero,float Amount);
 
     /** Read-only QA telemetry for this live PIE world's vortex; never changes gameplay or property visibility. */
     UFUNCTION(BlueprintPure, Category="Mess Control|Gameplay UI|Editor")

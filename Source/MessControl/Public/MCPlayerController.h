@@ -68,6 +68,7 @@ public:
     UFUNCTION(BlueprintCallable,Category="Debug") void ToggleDevPanel();
     bool CanOpenUIPresentationTools() const;
     bool CanUseRegularF3Panel() const;
+    UMCFishingRewardWidget* GetFishingRewardPresentation() const {return FishingRewardWidget;}
     bool CanPresentUnifiedTeam() const;
     bool CanPresentUnifiedHub() const;
     bool CanPresentUnifiedReward() const;
