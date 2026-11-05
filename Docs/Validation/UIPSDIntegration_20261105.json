@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-05",
+  "status": "PASS_BEFORE_PUSH",
+  "localUICommit": "7b2ee6fb61f1e7a1db8fb2d606c130d509a5440d",
+  "upstreamCommit": "a5f90706f69d2a09814ccff41577f520d9af41a9",
+  "upstreamCommitsIntegrated": 5,
+  "changelog": [
+    "Integrate upstream VFX and falling-food collision changes with the PSD UI work.",
+    "Resolve DT_Perks by field-level three-way merge:32 local Icon fields and2 upstream VFXProfile fields;133 rows and all other fields preserved.",
+    "Fix non-editor builds: use runtime skeletal Nanite-data validation, retaining editor settings checks; compile9 EditorContext-only tests only with WITH_EDITOR."
+  ],
+  "builds": [
+    {
+      "target": "MessControlEditor",
+      "platform": "Win64",
+      "configuration": "Development",
+      "result": "Succeeded",
+      "seconds": 31.39,
+      "log": "E:\\CodexWork\\MessControl\\Validation\\GitIntegrate_UI_20261105\\EditorBuild_Final.log"
+    },
+    {
+      "target": "MessControl",
+      "platform": "Win64",
+      "configuration": "Development",
+      "result": "Succeeded",
+      "seconds": 45.18,
+      "log": "E:\\CodexWork\\MessControl\\Validation\\GitIntegrate_UI_20261105\\GameBuild_Retry.log"
+    }
+  ],
+  "automation": {
+    "selected": [
+      "MessControl.Animation.AuthoredGlide.Runtime.FallingFoodHitsSlippingBody",
+      "MessControl.Loading.Manifest.AvailableBoostersOnlyAtRuntime",
+      "MessControl.Loading.Manifest.UIMapValuesAndSoftWidgetClasses"
+    ],
+    "succeeded": 3,
+    "failed": 0,
+    "notRun": 0,
+    "log": "E:\\CodexWork\\MessControl\\Validation\\GitIntegrate_UI_20261105\\Automation3\\Automation3.log"
+  },
+  "dataMerge": {
+    "rows": 133,
+    "enabledRows": 32,
+    "localIconFields": 32,
+    "upstreamVFXProfileFields": 2,
+    "exactRoundtrip": true,
+    "independentFieldComparisons": 3857,
+    "report": "E:\\CodexWork\\MessControl\\Validation\\GitIntegrate_UI_20261105\\PerkSemanticMergeIndependentAudit.json"
+  },
+  "incomingLFSFiles": {
+    "checked": 574,
+    "unhydrated": 0
+  },
+  "fixedBuildFailures": [
+    "USkeletalMesh::IsNaniteEnabled editor-only access from the game target",
+    "UNiagaraSystem::WaitForCompilationComplete editor-only test code in the game target",
+    "UUserWidget::SetDesignerFlags editor-only test code in the game target"
+  ],
+  "scopeLimits": [
+    "No cook/package or multiplayer test run.",
+    "Earlier UI artwork/locale/clothing limitations remain in Docs/UI/UIPSDReview_20261105.json.",
+    "Unrelated ReviewBoard seed edits and untracked VFX/artifact work remain local."
+  ],
+  "evidenceRoot": "E:\\CodexWork\\MessControl\\Validation\\GitIntegrate_UI_20261105"
+}

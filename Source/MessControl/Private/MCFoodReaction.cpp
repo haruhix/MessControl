@@ -47,12 +47,45 @@ float AMCFoodActor::PrepareHorizontalStackPose(const FMCFoodStackSettings* Stack
     const FQuat Rotation=StackSettings->RestRotation(Visual->GetStaticMesh(),Extent,Slot);
     StackPickup.SlotRotation=Rotation.Rotator();
     StackPickup.SlotOffset=StackSettings->SlotOffset(Extent,Rotation,Slot);
+    if(bCutVisualReady && CutStackLocalBounds.IsValid) {
+        const FVector Center=Rotation.RotateVector(CutStackLocalBounds.GetCenter()*GetActorScale3D());
+        StackPickup.SlotOffset=FVector(-Center.X,-Center.Y,0);
+    }
     return StackHalfHeight();
 }
 FQuat AMCFoodActor::StackRestRotation(const FQuat& BaseRotation) const
 { return BaseRotation*StackPickup.SlotRotation.Quaternion(); }
 float AMCFoodActor::StackHalfHeight() const
 { return float(FMCFoodStackSettings::RotatedExtent(Body->GetScaledBoxExtent(),StackPickup.SlotRotation.Quaternion()).Z); }
+void AMCFoodActor::StackVerticalBounds(float& MinHeight,float& MaxHeight) const
+{
+    // Cut pieces retain the original actor origin and box; measure the visible
+    // sliced mesh relative to that origin so asymmetric halves touch the stack.
+    if(bCutVisualReady && CutStackLocalBounds.IsValid) {
+        MinHeight=MAX_flt; MaxHeight=-MAX_flt;
+        const FQuat Rotation=StackPickup.SlotRotation.Quaternion();
+        const FVector Scale=GetActorScale3D();
+        for(int32 Corner=0;Corner<8;++Corner) {
+            const FVector P(Corner&1?CutStackLocalBounds.Max.X:CutStackLocalBounds.Min.X,
+                Corner&2?CutStackLocalBounds.Max.Y:CutStackLocalBounds.Min.Y,
+                Corner&4?CutStackLocalBounds.Max.Z:CutStackLocalBounds.Min.Z);
+            const float Z=Rotation.RotateVector(P*Scale).Z;
+            MinHeight=FMath::Min(MinHeight,Z); MaxHeight=FMath::Max(MaxHeight,Z);
+        }
+        return;
+    }
+    MaxHeight=StackHalfHeight(); MinHeight=-MaxHeight;
+}
+float AMCFoodActor::StackGapBefore(const AMCFoodActor* Above) const
+{
+    if(!Above || !(bCutVisualReady || Above->bCutVisualReady)) return FoodData.Stack.SafeLayerGap();
+    float MinHeight,MaxHeight,AboveMin,AboveMax;
+    StackVerticalBounds(MinHeight,MaxHeight);
+    Above->StackVerticalBounds(AboveMin,AboveMax);
+    // Slightly nest irregular surfaces so curved cut pieces do not appear to
+    // hover above one another. Limit overlap for thin slices and small items.
+    return -FMath::Min(6.f,FMath::Max(0.f,FMath::Min(MaxHeight-MinHeight,AboveMax-AboveMin)*.15f));
+}
 bool AMCFoodActor::IsStackPickupActive() const
 { return StackCarrier && StackPickup.StartedAt>=0 && HazardNow()-StackPickup.StartedAt<StackPickupDuration(); }
 FTransform AMCFoodActor::StackPickupPose(const FTransform& Goal) const

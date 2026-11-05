@@ -200,8 +200,15 @@ bool UMCNiagaraMaterialContextResources::ValidateTargetFactory(UMeshComponent* M
     if(Mesh->GetClass()!=UStaticMeshComponent::StaticClass() && Mesh->GetClass()!=USkeletalMeshComponent::StaticClass()
         && Mesh->GetClass()!=UMCToothMeshComponent::StaticClass())
     {Error=TEXT("Material-context PSOs support stock StaticMeshComponent/SkeletalMeshComponent and the exact native ToothMeshComponent adapter only; other custom, instanced and procedural factories need an explicit adapter.");return false;}
-    if(auto* S=Cast<USkeletalMeshComponent>(Mesh);S && (S->GetSkeletalMeshAsset()->IsNaniteEnabled() || S->GetCPUSkinningEnabled() || S->bRenderStatic))
-    {Error=TEXT("Nanite/CPU/static skeletal skinning is outside the prepared context factory contract.");return false;}
+    if(auto* S=Cast<USkeletalMeshComponent>(Mesh)) {
+        // Cooked targets retain Nanite render data, not the editor build settings.
+        bool bNanite=S->HasValidNaniteData();
+#if WITH_EDITORONLY_DATA
+        bNanite|=S->GetSkeletalMeshAsset()->IsNaniteEnabled();
+#endif
+        if(bNanite || S->GetCPUSkinningEnabled() || S->bRenderStatic)
+        {Error=TEXT("Nanite/CPU/static skeletal skinning is outside the prepared context factory contract.");return false;}
+    }
     return true;
 }
 bool UMCNiagaraMaterialContextResources::IsTargetPrepared(UMeshComponent* Mesh) const

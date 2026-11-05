@@ -15,6 +15,7 @@
 #include "MCGazeComponent.h"
 #include "MCHazardWave.h"
 #include "Components/BoxComponent.h"
+#include "PhysicsEngine/BodySetup.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "EngineUtils.h"
@@ -535,8 +536,37 @@ void AMCTongue::Tick(float Dt)
             if(!It.Key().IsValid() || It.Key()->IsDisposed() || !It.Key()->Body->IsSimulatingPhysics()) It.RemoveCurrent();
         for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if (!It->IsDisposed() && It->Body->IsSimulatingPhysics())
         {
-            FHitResult Hit; const FVector P=It->Body->Bounds.Origin;
-            if (!SurfacePoint(P,Hit) || FMath::Abs(float(It->Body->Bounds.GetBox().Min.Z-Hit.ImpactPoint.Z))>=20)
+            FHitResult Hit; FVector P=It->Body->Bounds.Origin;
+            double Bottom=It->Body->Bounds.GetBox().Min.Z;
+            // A sliced hull is offset from its actor origin. Use its actual
+            // lowest convex vertex, not the symmetric legacy box, to sample
+            // and support it on the moving tongue.
+            bool CutSupport=false;
+            if(!It->CutPlanes.IsEmpty() && It->CutVisual) {
+                if(const UBodySetup* Setup=It->Body->GetBodySetup()) {
+                    const FTransform BodyTransform=It->Body->GetComponentTransform();
+                    for(const FKConvexElem& Hull:Setup->AggGeom.ConvexElems)
+                        for(const FVector& Vertex:Hull.VertexData) {
+                            const FVector World=BodyTransform.TransformPosition(Hull.GetTransform().TransformPosition(Vertex));
+                            if(!CutSupport || World.Z<Bottom) {P=World;Bottom=World.Z;CutSupport=true;}
+                        }
+                }
+            }
+            if (!SurfacePoint(P,Hit)) {FoodSupports.Remove(*It);continue;}
+            if(CutSupport && Hit.ImpactNormal.Z>.55f) {
+                const double Penetration=Hit.ImpactPoint.Z-Bottom;
+                // A physics step or a moving triangle can leave a cut hull
+                // below the one-sided surface. Correct only nearby penetration;
+                // objects well below the arena use the normal recovery path.
+                if(Penetration>3 && Penetration<It->Body->Bounds.BoxExtent.Z*2+150) {
+                    FVector Velocity=It->Body->GetPhysicsLinearVelocity();
+                    It->SetActorLocation(It->GetActorLocation()+FVector(0,0,Penetration+1),false,nullptr,ETeleportType::TeleportPhysics);
+                    Velocity.Z=FMath::Max(0.,Velocity.Z);It->Body->SetPhysicsLinearVelocity(Velocity);
+                    It->Body->WakeAllRigidBodies();It->ForceNetUpdate();
+                    Bottom+=Penetration+1;
+                }
+            }
+            if (FMath::Abs(float(Bottom-Hit.ImpactPoint.Z))>=20)
             { FoodSupports.Remove(*It); continue; }
             auto* Previous=FoodSupports.Find(*It);
             const bool Moved=Previous && (FVector::DistSquared(Previous->Point,Hit.ImpactPoint)>=FMath::Square(.25f)

@@ -433,6 +433,31 @@ bool UMCToothPhysicsComponent::BeginSlipperyFall()
     Frame.SlipFloorPoint=Move->CurrentFloor.HitResult.ImpactPoint;
     SlipGate.Cooldown=6.5f;SlipRisk.OnFall();SetState(EMCBodyState::Slipping);EnterSlipping();return true;
 }
+void UMCToothPhysicsComponent::SetSlipFoodCollision(bool Enabled)
+{
+    if(!Tooth || !Tooth->GetMesh()) return;
+    auto* Mesh=Tooth->GetMesh();
+    if(Enabled) {
+        if(!bSlipFoodCollisionActive) {
+            SlipSavedResponses=Mesh->GetCollisionResponseToChannels();
+            SlipSavedObjectType=Mesh->GetCollisionObjectType();
+            bSlipFoodCollisionActive=true;
+        }
+        // Kinematic animated bodies follow the actual fall pose. They interact
+        // with free food without adding world collision to the slipping mesh.
+        Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        Mesh->SetCollisionObjectType(ECC_PhysicsBody);
+        Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+        Mesh->SetCollisionResponseToChannel(AMCFoodActor::FragmentCollisionChannel,ECR_Block);
+        Mesh->SetCollisionResponseToChannel(ECC_PhysicsBody,ECR_Block);
+        if(Tooth->HasAuthority()) Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    } else if(bSlipFoodCollisionActive) {
+        Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        Mesh->SetCollisionObjectType(SlipSavedObjectType);
+        Mesh->SetCollisionResponseToChannels(SlipSavedResponses);
+        bSlipFoodCollisionActive=false;
+    }
+}
 void UMCToothPhysicsComponent::EnterSlipping()
 {
     // The cartoon release must precede CancelGameplayInput, which normally
@@ -444,7 +469,7 @@ void UMCToothPhysicsComponent::EnterSlipping()
     Tooth->bBrushing=false;Tooth->bHandling=false;
     Tooth->GetCharacterMovement()->StopMovementImmediately();Tooth->GetCharacterMovement()->DisableMovement();
     SetMuscles(false);auto* Mesh=Tooth->GetMesh();Mesh->SetAllBodiesSimulatePhysics(false);Mesh->SetAllBodiesPhysicsBlendWeight(0.f);
-    Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    SetSlipFoodCollision(true);
     Tooth->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     Tooth->SetReplicateMovement(true);SlipSendAccumulator=0;
 }
@@ -532,6 +557,7 @@ void UMCToothPhysicsComponent::TickSlipping(float Dt)
 }
 void UMCToothPhysicsComponent::EnterRagdoll()
 {
+    SetSlipFoodCollision(false);
     ++KnockdownCount;
     if(auto* Perks=UMCPerkComponent::ForActor(Tooth)) Perks->OnRogueKnockdown();
     Tooth->bBrushing=false; Tooth->bHandling=false;
@@ -670,9 +696,12 @@ bool UMCToothPhysicsComponent::TryRecover()
 }
 void UMCToothPhysicsComponent::EnterRecovery()
 {
+    // The slip pose blends back to standing during recovery; food can still
+    // land on that visible body until the transition is complete.
+    if(!Frame.bAuthoredSlipRecovery) SetSlipFoodCollision(false);
     ++RecoveryCount;
     auto* Mesh=Tooth->GetMesh(); SetMuscles(false); Mesh->SetAllBodiesSimulatePhysics(false); Mesh->SetAllBodiesPhysicsBlendWeight(0.f);
-    Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    if(!bSlipFoodCollisionActive) Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     if(!Frame.bAuthoredSlipRecovery) Tooth->SetActorLocationAndRotation(Frame.CapsuleLocation,FRotator(0,Frame.CapsuleYaw,0),false,nullptr,ETeleportType::TeleportPhysics);
     Mesh->AttachToComponent(Tooth->GetCapsuleComponent(),FAttachmentTransformRules::KeepWorldTransform);
     Mesh->SetRelativeTransform(Tooth->StandingMeshTransform());
@@ -691,6 +720,7 @@ void UMCToothPhysicsComponent::EnterRecovery()
 void UMCToothPhysicsComponent::EnterStanding()
 {
     if (!Tooth || !Tooth->GetMesh()->GetSkeletalMeshAsset()) return;
+    SetSlipFoodCollision(false);
     auto* Mesh=Tooth->GetMesh(); Mesh->SetAllBodiesSimulatePhysics(false);
     Mesh->PhysicsTransformUpdateMode=EPhysicsTransformUpdateMode::ComponentTransformIsKinematic;
     Mesh->AttachToComponent(Tooth->GetCapsuleComponent(),FAttachmentTransformRules::KeepWorldTransform);

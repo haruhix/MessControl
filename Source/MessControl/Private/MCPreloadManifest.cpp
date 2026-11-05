@@ -438,6 +438,8 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
         AddPath(FSoftObjectPath(TEXT("/Script/MessControl.MCFreezeDeathVFX")),OutPaths); // Existing original native material roots only.
     }
     const bool Arena=Map==TEXT("L_Mouth") || Map==TEXT("L_Tutorial");
+    // The procedural weapon ribbon uses this material instance in Hub and arena.
+    if(Hub || Arena) AddAsset(TEXT("/Game/Gameplay/VFX/WeaponTrail/MI_WeaponSwingTrail"),OutPaths);
     if(!Arena) return;
     if(Map==TEXT("L_Tutorial"))AddAsset(TEXT("/Game/Audio/S_Win"),OutPaths); // Actual native FoamParty producer.
     // This location's finite event/profile root; reflected load waves expand
