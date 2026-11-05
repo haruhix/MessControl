@@ -164,6 +164,8 @@ public:
     float PrepareHorizontalStackPose(const FMCFoodStackSettings* StackSettings,int32 Slot);
     FQuat StackRestRotation(const FQuat& BaseRotation) const;
     float StackHalfHeight() const;
+    void StackVerticalBounds(float& MinHeight,float& MaxHeight) const;
+    float StackGapBefore(const AMCFoodActor* Above) const;
     bool IsStackPickupActive() const;
     float StackPickupDuration() const { return (.075f+StackPickup.FlightSeconds+.18f)/FMCStackPickup::PlayRate; }
     FTransform StackPickupPose(const FTransform& Goal) const;
@@ -274,6 +276,7 @@ private:
     bool BuildCutVisual();
     FVector PendingCutPoint=FVector::ZeroVector,PendingCutNormal=FVector::ZeroVector;
     bool bCutVisualReady=false;
+    FBox CutStackLocalBounds=FBox(ForceInit);
     int32 CutAwardUnits=1;
     bool ApplyFoodDamage(float Damage,FVector Direction,AMCToothCharacter* Worker,class AMCPlayerState* SourcePS,bool bWeaponPassives);
     FGuid ActiveContainerClaim;

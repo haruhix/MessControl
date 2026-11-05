@@ -52,6 +52,7 @@ bool AMCFoodActor::SpawnCutFragments(FVector Direction,FVector WorldPoint,FVecto
 bool AMCFoodActor::BuildCutVisual()
 {
     bCutVisualReady=false;
+    CutStackLocalBounds=FBox(ForceInit);
     if(!Visual) return false;
     if(CutVisual) { CutVisual->ClearAllMeshSections(); CutVisual->SetHiddenInGame(true); }
     Visual->SetHiddenInGame(false);
@@ -102,6 +103,7 @@ bool AMCFoodActor::BuildCutVisual()
     }
     auto* FoodBody=Cast<UMCFoodBodyComponent>(Body);
     if(Vertices.Num()<4 || !FoodBody || !FoodBody->SetCutCollision(Vertices)) return false;
+    for(const FVector& Vertex:Vertices) CutStackLocalBounds+=Vertex;
     Visual->SetHiddenInGame(true); CutVisual->SetHiddenInGame(false);
     bCutVisualReady=true; return true;
 }
