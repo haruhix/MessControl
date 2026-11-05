@@ -7,6 +7,7 @@ $BuildRoot=[IO.Path]::GetFullPath($BuildRoot)
 $taskExe=Join-Path $BuildRoot 'MessControl/Binaries/Win64/MessControl.exe'
 $taskBin=Split-Path -Parent $taskExe
 $taskReports=if($ReportDirectory){[IO.Path]::GetFullPath($ReportDirectory)}else{Join-Path (Split-Path $BuildRoot -Parent) 'SteamValidation'}
+if([IO.Path]::GetPathRoot($taskReports).TrimEnd('\','/') -ine 'E:'){throw 'Steam validation outputs must remain on E:'}
 if(-not(Test-Path -LiteralPath $taskExe)){throw "Packaged executable missing: $taskExe"}
 if(-not(Test-Path -LiteralPath (Join-Path $BuildRoot 'Start_Steam.cmd'))){throw 'Use a build packaged with -SteamTest.'}
 if(-not(Get-Process -Name steam -ErrorAction SilentlyContinue)){throw 'Start Steam and sign in before testing.'}
@@ -16,9 +17,21 @@ foreach($taskMode in @('Host','Find')) {
     # Unreal can remove this file at shutdown; restore it for each test.
     '480' | Set-Content -LiteralPath (Join-Path $taskBin 'steam_appid.txt') -Encoding ascii
     $taskLog=Join-Path $taskReports ($taskMode+'.log')
-    $taskArgs=@("-MCSteam${taskMode}Test",'-RenderOffscreen','-windowed','-ForceRes','-ResX=960','-ResY=540','-unattended','-nosound','-nosplash','-nop4',"`"-abslog=$taskLog`"",'-ExecCmds="t.MaxFPS 60,t.IdleWhenNotForeground 0"')
+    $taskUserDir=Join-Path $taskReports "$taskMode/UserData"
+    $taskTemp=Join-Path $taskReports "$taskMode/Temp"
+    New-Item -ItemType Directory -Path $taskUserDir,$taskTemp -Force | Out-Null
+    $taskArgs=@("-MCSteam${taskMode}Test",'-MCHubTransientProfile','-RenderOffscreen','-windowed','-ForceRes','-ResX=960','-ResY=540','-unattended','-nosound','-nosplash','-nop4',"`"-abslog=$taskLog`"","`"-UserDir=$taskUserDir`"",'-ExecCmds="t.MaxFPS 60,t.IdleWhenNotForeground 0"')
     Write-Output "START Steam $taskMode (App ID 480, real backend)"
-    $taskProcess=Start-Process -FilePath $taskExe -WorkingDirectory $taskBin -ArgumentList $taskArgs -PassThru -WindowStyle Hidden
+    $taskPriorTemp=$env:TEMP
+    $taskPriorTmp=$env:TMP
+    try {
+        $env:TEMP=$taskTemp
+        $env:TMP=$taskTemp
+        $taskProcess=Start-Process -FilePath $taskExe -WorkingDirectory $taskBin -ArgumentList $taskArgs -PassThru -WindowStyle Hidden
+    } finally {
+        $env:TEMP=$taskPriorTemp
+        $env:TMP=$taskPriorTmp
+    }
     $taskTimedOut=$false
     try {
         if(-not $taskProcess.WaitForExit(120000)) {
@@ -33,7 +46,7 @@ foreach($taskMode in @('Host','Find')) {
     $taskText=if(Test-Path -LiteralPath $taskLog){Get-Content -Raw -LiteralPath $taskLog}else{''}
     $taskMarks=@($taskText -split "`n" | Where-Object {$_ -match 'MC_STEAM_(READY|ROOM_CREATED|ROOMS_FOUND|TEST_PASS|TEST_FAIL)'})
     $taskOk=(-not $taskTimedOut -and $taskExit -eq 0 -and $taskText -match "MC_STEAM_TEST_PASS mode=$($taskMode.ToLower())\b" -and $taskText -notmatch 'MC_STEAM_TEST_FAIL|Fatal error:|: Error:')
-    $taskResults+=@{mode=$taskMode;passed=$taskOk;exitCode=$taskExit;timedOut=$taskTimedOut;log=$taskLog;markers=$taskMarks;twoAccountConnectionTested=$false}
+    $taskResults+=@{mode=$taskMode;passed=$taskOk;exitCode=$taskExit;timedOut=$taskTimedOut;log=$taskLog;userDirectory=$taskUserDir;temporaryDirectory=$taskTemp;transientProfile=$true;markers=$taskMarks;twoAccountConnectionTested=$false}
     $taskResults | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $taskReports 'Results.json') -Encoding utf8
     $taskMarks | ForEach-Object {Write-Output $_}
     if(-not $taskOk){throw "Steam $taskMode failed: $taskLog"}

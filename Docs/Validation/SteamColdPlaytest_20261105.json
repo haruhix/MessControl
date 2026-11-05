@@ -1,6 +1,6 @@
 {
   "date": "2026-11-05",
-  "status": "in_progress",
+  "status": "package_delivered_runtime_waiting_for_user_security_dialog",
   "source_base": "17dc8bbd09a0bef3ed1b3dceeba0e7f73db77715",
   "evidence_root": "E:/CodexWork/MessControl/Validation/SteamColdPlaytest_20261105",
   "changes": [
@@ -35,7 +35,12 @@
     "arena_ready": false,
     "full_natural_route_through_ice": "not_completed",
     "F3_button_and_tool_first_use": "pending",
-    "steam_host_find": "pending",
+    "steam_host_find": "passed_on_one_real_Steam_account; SteamSocketsNetDriver host, successful search with zero rooms",
+    "steam_report": "SteamActual01/Results.json",
+    "packaged_main_menu": "ready in 0.99 seconds; 479 resources and 197/197 streaming targets in the diagnostic launch after Steam smoke",
+    "packaged_manual_run": "PackagedManual01/Game.log",
+    "manual_blocker": "Windows Security network access prompt requires the user to act manually; F3 and further game UI are not yet checked",
+    "observed_menu_warning": "Development window displays LIGHTING NEEDS TO BE REBUILT (6 unbuilt objects)",
     "two_account_join": "not_tested",
     "interruption": "Editor D3D12 viewport E_OUTOFMEMORY while cook and editor ran concurrently; no full-route PASS. The observer Report.json was left observing by that crash and is not an acceptance result."
   },
@@ -44,7 +49,22 @@
     "output": "E:/DEVGAME/MessControl/Saved/Builds/Spacewar_20261105",
     "attempt_1": "failed: local ZenStore unavailable; ZenStoreWriter could not delete oplog",
     "attempt_2": "interrupted after shader worker crashes during memory exhaustion",
-    "current_attempt": "in_progress: SkipZenStore, separate loose cook output, four shader workers, no interactive editor"
+    "bounded_attempt": "intentionally restarted after stable memory measurements to increase shader workers from four to twelve; saved outputs/cache retained",
+    "cook": "passed: PackageFast.log, 3277/3277 packages and commandlet exit 0; SkipZenStore, twelve shader workers, no interactive editor",
+    "initial_stage": "failed: UAT appended Windows to custom LooseCook path",
+    "stage": "passed: PackageStageRetry.log, same-volume rename to CookStaging/Windows, stage-only retry without recook/rebuild",
+    "finalization": "passed: runtime executable, Steam DLL, PAK/UTOC/UCAS, AppID480 and Start_Steam.cmd present",
+    "archive": "E:/DEVGAME/MessControl/Saved/Builds/Spacewar_20261105/MessControl_Spacewar_5f8a460d1_20261105.zip",
+    "archive_bytes": 1354935929,
+    "archive_crc_test": "passed",
+    "archive_sha256": "CCB03047BC9F679DA79A611A6E92181B43E105A1BBA0256156A7448B75E9CDC0",
+    "archive_evidence": "SteamArchiveEvidence.json",
+    "deadline": "missed: requested test time about 20:23 Asia/Yakutsk; folder finalized 20:25:58, Steam smoke passed 20:26:42, archive verified 20:27:47"
+  },
+  "tooling": {
+    "PackageWindows": "defaults to loose cook in Output/Cooked/Windows, bounded shader workers and UBA/compiler workers, optional explicit ZenStore; complete MapsToCook and audit-only collision preserved",
+    "TestSteamBuild": "tested with per-mode E: UserDir/TEMP/TMP and transient Hub profiles; both Host and Find passed",
+    "validation_limit": "updated PackageWindows wrapper syntax/source checked; equivalent actual UAT steps passed, wrapper was not rerun end-to-end"
   },
   "limits": [
     "Source audit and native rule checks do not prove tool or Cold presentation in a packaged game.",
