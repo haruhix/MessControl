@@ -107,7 +107,7 @@ void UMCGameUserSettings::NormalizePreferences()
 void UMCGameUserSettings::SetToDefaults()
 {
     Super::SetToDefaults();
-    UIPresentationVersion=EMCUIVersion::Current;
+    UIPresentationVersion=EMCUIVersion::New;
     MasterVolume=MusicVolume=AmbienceVolume=SFXVolume=1.f;
     MouseSensitivity=GamepadSensitivity=1.f;bInvertY=false;bCameraSmoothingEnabled=false;LanguageCode.Reset();
     bHasCustomBagColor=false;SavedBagColor=FLinearColor(.24f,.65f,1.f);
@@ -135,6 +135,17 @@ void UMCGameUserSettings::LoadSettings(bool bForceReload)
     if(bMigratingLegacy)
         LoadConfig(UGameUserSettings::StaticClass(),*GGameUserSettingsIni);
     Super::LoadSettings(bForceReload);NormalizePreferences();
+    if(!bHasUpdatedUIPresentationDefault) {
+        UIPresentationVersion=EMCUIVersion::New;bHasUpdatedUIPresentationDefault=true;
+        // Upgrade only the UI preference. Do not commit pending graphics/audio,
+        // resolution, profile or inventory while loading this default.
+        if(!IsTemplate() && !IsRunningCommandlet() && Get()==this && GConfig && !GGameUserSettingsIni.IsEmpty()) {
+            const FString Section=GetClass()->GetPathName();
+            GConfig->SetString(*Section,TEXT("UIPresentationVersion"),TEXT("New"),GGameUserSettingsIni);
+            GConfig->SetBool(*Section,TEXT("bHasUpdatedUIPresentationDefault"),true,GGameUserSettingsIni);
+            GConfig->Flush(false,GGameUserSettingsIni);
+        }
+    }
     // UE preloads only the configured class's resolution section. On the first
     // upgrade it has not seen the legacy section yet: update GSystemResolution
     // before GameEngine creates its window, respecting -ResX/-ResY/-windowed.

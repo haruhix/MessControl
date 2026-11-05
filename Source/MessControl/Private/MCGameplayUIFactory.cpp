@@ -70,10 +70,10 @@ UMCGameplayUITheme* UMCGameplayUIFactory::GetThemeForVersion(EMCUIVersion Versio
 EMCUIVersion UMCGameplayUIFactory::GetPresentationVersion()
 {
 #if UE_BUILD_SHIPPING
-    return EMCUIVersion::Current;
+    return EMCUIVersion::New;
 #else
     const auto* Settings=UMCGameUserSettings::Get();
-    return Settings && Settings->GetUIPresentationVersion()==EMCUIVersion::New?EMCUIVersion::New:EMCUIVersion::Current;
+    return Settings?Settings->GetUIPresentationVersion():EMCUIVersion::New;
 #endif
 }
 

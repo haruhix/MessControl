@@ -30,6 +30,8 @@
 #include "MCScoreboardWidget.h"
 #include "MCGameplayUIFactory.h"
 #include "MCGameplayUITheme.h"
+#include "MCWorldPreloadSubsystem.h"
+#include "MoviePlayer.h"
 #include "MCMainMenuPlayerController.h"
 #include "MCPlayerController.h"
 #include "MCToothCharacter.h"
@@ -85,7 +87,11 @@ namespace MCWorldUIWarmupPrivate
             const auto* Defaults=ResidentSourceDefaults(CurrentTheme,Source.Role,Source.NativeClass);
             UDataTable* CopyTable=ResidentSourceCopyTable(Defaults,CurrentTheme);
             const auto* SourceTheme=Defaults && IsValid(Defaults->Theme.Get())?Defaults->Theme.Get():CurrentTheme;
-            if(!Defaults || (!CopyTable && (Defaults->TranslationTable || (SourceTheme && !SourceTheme->LocalizationTable.IsNull())))) return false;
+            if(!Defaults || (!CopyTable && (Defaults->TranslationTable || (SourceTheme && !SourceTheme->LocalizationTable.IsNull())))) {
+                UE_LOG(LogTemp,Verbose,TEXT("MC_UI_COPY_WARMUP_PENDING role=%s defaults=%s table=%s theme=%s"),
+                    *Source.Role.ToString(),*GetPathNameSafe(Defaults),*GetPathNameSafe(CopyTable),*GetPathNameSafe(SourceTheme));
+                return false;
+            }
             TArray<FText> Corpus;
             for(const auto& Entry:Source.Entries) {
                 // Mirror actual source key+native FText identity/fallback; missing copy rows do not add a new loading failure.
@@ -116,7 +122,6 @@ namespace
         }
         return Found;
     }
-#if !UE_BUILD_SHIPPING
     class FMCUIPresentationInput final : public IInputProcessor
     {
     public:
@@ -149,29 +154,22 @@ namespace
         TWeakObjectPtr<UMCUIPresentationSubsystem> Owner;
         bool bOwnsPress=false,bOwnsBackPress=false;
     };
-#endif
 }
 
 bool UMCUIPresentationSubsystem::ShouldCreateSubsystem(UObject* Outer) const
 {
-#if UE_BUILD_SHIPPING
-    return false;
-#else
     return !IsRunningCommandlet() && !IsRunningDedicatedServer() && Super::ShouldCreateSubsystem(Outer);
-#endif
 }
 
 void UMCUIPresentationSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
     PresentationHandle=UMCGameplayUIFactory::OnPresentationChanged().AddUObject(this,&ThisClass::RefreshInterface);
-#if !UE_BUILD_SHIPPING
     if(FSlateApplication::IsInitialized())
     {
         InputProcessor=MakeShared<FMCUIPresentationInput>(this);
         FSlateApplication::Get().RegisterInputPreProcessor(InputProcessor,0);
     }
-#endif
 }
 
 void UMCUIPresentationSubsystem::Deinitialize()
@@ -301,8 +299,19 @@ void UMCUIPresentationSubsystem::RestoreLegacy()
 {
     if(Interface) Interface->SetEmoteFocusLease(false);
     bInterfaceTutorialMenuInput=false;
-    if(auto* HUD=ActiveHUD.Get()) HUD->SetUnifiedViewActive(false);ActiveHUD.Reset();
-    if(auto* Hub=ActiveHub.Get();Hub && Hub->GetWorld()==GetWorld() && GetWorld() && !GetWorld()->bIsTearingDown) Hub->SetUnifiedViewActive(false);
+    // Readiness/travel can temporarily have no presentable New screen. Keep
+    // the retained source trees suppressed in that gap, with their original
+    // visibility recorded for an explicit switch back to Current.
+    if(UMCGameplayUIFactory::GetPresentationVersion()==EMCUIVersion::New) {
+        bInterfaceHubMenuInput=false;
+        for(const auto& Entry:LegacyVisibility) if(auto* Widget=Entry.Key.Get()) Widget->SetVisibility(ESlateVisibility::Hidden);
+        return;
+    }
+    for(const auto& Entry:SuppressedHUDs)
+        if(auto* HUD=Entry.Get();HUD && HUD->GetWorld()==GetWorld() && GetWorld() && !GetWorld()->bIsTearingDown) HUD->SetUnifiedViewActive(false);
+    for(const auto& Entry:SuppressedHubs)
+        if(auto* Hub=Entry.Get();Hub && Hub->GetWorld()==GetWorld() && GetWorld() && !GetWorld()->bIsTearingDown) Hub->SetUnifiedViewActive(false);
+    SuppressedHUDs.Reset();SuppressedHubs.Reset();ActiveHUD.Reset();
     ActiveHub.Reset();bInterfaceHubMenuInput=false;
     for(const auto& Entry:LegacyOpacity) if(auto* Widget=Entry.Key.Get()) Widget->SetRenderOpacity(Entry.Value);
     for(const auto& Entry:LegacyVisibility) if(auto* Widget=Entry.Key.Get()) Widget->SetVisibility(Entry.Value);
@@ -313,11 +322,18 @@ bool UMCUIPresentationSubsystem::PrepareWorldLabels(APlayerController* PC)
 {
     if(!IsValid(PC) || PC->GetWorld()!=GetWorld()) return false;
     auto* NewTheme=UMCGameplayUIFactory::GetThemeForVersion(EMCUIVersion::New);
-    if(!UMCWorldLabelWidget::AreThemeResourcesResident(NewTheme)) return false;
+    if(!UMCWorldLabelWidget::AreThemeResourcesResident(NewTheme)) {
+        UE_LOG(LogTemp,Log,TEXT("MC_UI_WORLDLABEL_PREPARE_PENDING stage=ThemeResources world=%s theme=%s"),
+            *GetPathNameSafe(GetWorld()),*GetPathNameSafe(NewTheme));return false;
+    }
     const auto* Role=NewTheme->WidgetClasses.Find(TEXT("WorldLabel"));
     UClass* ResidentClass=Role && !Role->IsNull()?Role->Get():UMCWorldLabelWidget::StaticClass();
-    if(!ResidentClass || !ResidentClass->IsChildOf(UMCWorldLabelWidget::StaticClass())) return false;
-    if(PreparedWorldLabelView && (PreparedWorldLabelView->GetOwningPlayer()!=PC || PreparedWorldLabelView->GetClass()!=ResidentClass)) {
+    if(!ResidentClass || !ResidentClass->IsChildOf(UMCWorldLabelWidget::StaticClass())) {
+        UE_LOG(LogTemp,Log,TEXT("MC_UI_WORLDLABEL_PREPARE_PENDING stage=ResidentClass world=%s class=%s"),
+            *GetPathNameSafe(GetWorld()),*GetPathNameSafe(ResidentClass));return false;
+    }
+    if(PreparedWorldLabelView && (PreparedWorldLabelView->GetOwningPlayer()!=PC || PreparedWorldLabelView->GetWorld()!=GetWorld()
+        || PreparedWorldLabelView->GetClass()!=ResidentClass)) {
         PreparedWorldLabelSlate.Reset();PreparedWorldLabelView=nullptr;
     }
     if(!PreparedWorldLabelView) {
@@ -328,7 +344,10 @@ bool UMCUIPresentationSubsystem::PrepareWorldLabels(APlayerController* PC)
         // tree/font variants before even a future dynamic grenade is permitted.
         PreparedWorldLabelSlate=PreparedWorldLabelView->TakeWidget();
     }
-    if(!PreparedWorldLabelSlate.IsValid() || !PreparedWorldLabelView->PreparePresentation()) return false;
+    if(!PreparedWorldLabelSlate.IsValid() || !PreparedWorldLabelView->PreparePresentation()) {
+        UE_LOG(LogTemp,Log,TEXT("MC_UI_WORLDLABEL_PREPARE_PENDING stage=SlatePresentation world=%s view=%s"),
+            *GetPathNameSafe(GetWorld()),*GetPathNameSafe(PreparedWorldLabelView.Get()));return false;
+    }
     // Exact source-role copy, actual New font variants, no gameplay owner or hidden scene is created.
     const float FontScale=FMath::Max(.001f,PreparedWorldLabelView->GetPaintSpaceGeometry().GetAccumulatedLayoutTransform().GetScale());
     return MCWorldUIWarmupPrivate::PrimeKnownWorldCaptions(NewTheme,UMCGameplayUIFactory::GetMasterTheme(),FontScale);
@@ -336,8 +355,20 @@ bool UMCUIPresentationSubsystem::PrepareWorldLabels(APlayerController* PC)
 
 bool UMCUIPresentationSubsystem::PrepareInterface(APlayerController* PC)
 {
-    if(!IsValid(PC) || !PC->IsLocalController() || PC->GetWorld()!=GetWorld()) return false;
-    if(InterfaceOwner.Get()!=PC)
+    auto FailedStage=[this,PC](const TCHAR* Stage) {
+        // Source mirrors may probe before their manifest wave completes. The
+        // location barrier owns the actual error, while this records its stage.
+        UE_LOG(LogTemp,Log,TEXT("MC_UI_PREPARE_PENDING stage=%s world=%s controller=%s controller_world=%s root=%s root_world=%s"),
+            Stage,*GetPathNameSafe(GetWorld()),*GetPathNameSafe(PC),
+            *GetPathNameSafe(IsValid(PC)?PC->GetWorld():nullptr),*GetPathNameSafe(Interface.Get()),
+            *GetPathNameSafe(Interface?Interface->GetWorld():nullptr));
+        return false;
+    };
+    if(!IsValid(PC) || !PC->IsLocalController() || PC->GetWorld()!=GetWorld()) return FailedStage(TEXT("OwnerWorld"));
+    // Seamless Hub -> arena travel retains the controller, but UserWidget caches
+    // its world and the old viewport detaches its Slate tree. A matching player
+    // pointer is therefore not a reusable location presentation certificate.
+    if(InterfaceOwner.Get()!=PC || (Interface && (Interface->GetWorld()!=GetWorld() || !Interface->IsInViewport())))
     {
         RestoreLegacy();if(Interface) Interface->RemoveFromParent();Interface=nullptr;PreparedWorldLabelSlate.Reset();PreparedWorldLabelView=nullptr;InterfaceOwner.Reset();
     }
@@ -351,19 +382,36 @@ bool UMCUIPresentationSubsystem::PrepareInterface(APlayerController* PC)
         }
         return Interface && Interface->PrepareOverlayPresentation(GamePC?MCOverlayIntegration_FindTutorial(PC):nullptr,GamePC?GamePC->EmoteWidget.Get():nullptr);
     };
-    if(Interface) return PrepareWorldLabels(PC) && PrepareOverlays() && Interface->PrepareHUDExtrasPresentation() && Interface->PrepareEncounterPresentation();
+    auto PrepareRetainedViews=[this,PC,&PrepareOverlays,&FailedStage]() {
+        if(!PrepareWorldLabels(PC)) return FailedStage(TEXT("WorldLabels"));
+        if(!PrepareOverlays()) return FailedStage(TEXT("Overlays"));
+        if(!Interface->PrepareHUDExtrasPresentation()) return FailedStage(TEXT("HUDExtras"));
+        if(!Interface->PrepareEncounterPresentation()) return FailedStage(TEXT("Encounters"));
+        return true;
+    };
+    if(Interface) return PrepareRetainedViews();
     const auto* Theme=UMCGameplayUIFactory::GetThemeForVersion(EMCUIVersion::New);
     auto* Class=UMCGameplayUIFactory::ResolveClassForTheme(TEXT("InterfaceRoot"),UMCUnifiedUIWidget::StaticClass(),Theme);
-    Interface=CreateWidget<UMCUnifiedUIWidget>(PC,Class);if(!Interface) return false;
+    Interface=CreateWidget<UMCUnifiedUIWidget>(PC,Class);if(!Interface) return FailedStage(TEXT("RootCreation"));
     InterfaceOwner=PC;
     // TakeWidget constructs every switcher page, including retained glyph MIDs.
     // The view remains collapsed until readiness and a supported screen agree.
     InterfaceZOrder=5;Interface->TakeWidget();Interface->SetVisibility(ESlateVisibility::Collapsed);Interface->AddToViewport(InterfaceZOrder);
-    return PrepareWorldLabels(PC) && PrepareOverlays() && Interface->PrepareHUDExtrasPresentation() && Interface->PrepareEncounterPresentation();
+    return PrepareRetainedViews();
 }
 
 bool UMCUIPresentationSubsystem::PrepareFishingCatch(APlayerController* PC,UMCFishingRewardWidget* Source)
 {
+    if(!Source) return false;
+    if(IsMoviePlayerEnabled()) if(auto* Movie=GetMoviePlayer();Movie && Movie->IsMovieCurrentlyPlaying()) return false;
+    if(const auto* Preparation=GetWorld()?GetWorld()->GetSubsystem<UMCWorldPreloadSubsystem>():nullptr) {
+        const auto Phase=Preparation->GetPhase();
+        // This is optional early polling, not the resource barrier. The phase
+        // advances to PreparingRendering independently of bPresentationReady;
+        // then the next refresh can prepare the real catch/root resources.
+        if(Phase==EMCWorldPreloadPhase::Idle || Phase==EMCWorldPreloadPhase::LoadingAssets
+            || Phase==EMCWorldPreloadPhase::Failed) return false;
+    }
     return Source && PrepareInterface(PC) && Interface->PrepareCatchPresentation(Source);
 }
 
@@ -382,6 +430,33 @@ void UMCUIPresentationSubsystem::RefreshInterface()
     }
     auto* GamePC=Cast<AMCPlayerController>(PC);
     auto* MenuPC=Cast<AMCMainMenuPlayerController>(PC);
+    TSet<UWidget*> NewModeHiddenRoots;
+    if(UMCGameplayUIFactory::GetPresentationVersion()==EMCUIVersion::New) {
+        // Source widgets remain alive for state/input forwarding. Suppress
+        // their artwork before the first ready/layout frame rather than
+        // showing Current until the New mirror is ready.
+        for(TObjectIterator<UUserWidget> It;It;++It) {
+            auto* Source=*It;
+            if(Source->GetOwningPlayer()!=PC || Source->GetWorld()!=GetWorld()
+                || (!Source->IsInViewport() && !Source->GetParent())) continue;
+            if(auto* SourceHUD=Cast<UMCGameplayHUD>(Source)) {
+                SuppressedHUDs.Add(SourceHUD);
+                SourceHUD->SetUnifiedViewActive(true);continue;
+            }
+            if(auto* SourceHub=Cast<UMCHubWidget>(Source)) {
+                SuppressedHubs.Add(SourceHub);
+                SourceHub->SetUnifiedViewActive(true);continue;
+            }
+            if(!Source->IsA<UMCMainMenuWidget>() && !Source->IsA<UMCScoreboardWidget>()
+                && !Source->IsA<UMCHubWardrobeWidget>() && !Source->IsA<UMCHubShopWidget>()
+                && !Source->IsA<UMCPerkChoiceWidget>() && !Source->IsA<UMCGameplayMenuWidget>()
+                && !Source->IsA<UMCEmoteWidget>()) continue;
+            if(auto* Root=Source->GetRootWidget()) {
+                if(!LegacyVisibility.Contains(Root)) LegacyVisibility.Add(Root,Root->GetVisibility());
+                Root->SetVisibility(ESlateVisibility::Hidden);NewModeHiddenRoots.Add(Root);
+            }
+        }
+    }
     UMCMainMenuWidget* Menu=nullptr;UMCGameplayHUD* HUD=nullptr;UMCScoreboardWidget* Team=nullptr;
     UMCHubWardrobeWidget* Wardrobe=nullptr;UMCHubShopWidget* Shop=nullptr;
     UMCHubWidget* Hub=nullptr;UMCHubWidget* HubChrome=nullptr;UMCGameplayHUD* HUDChrome=nullptr;UMCPerkChoiceWidget* Reward=nullptr;UMCGameplayMenuWidget* GameplayMenu=nullptr;
@@ -456,7 +531,7 @@ void UMCUIPresentationSubsystem::RefreshInterface()
     if(Menu || GameplayMenu || Wardrobe || Shop || Reward || Emotes) {Hub=nullptr;HUD=nullptr;Team=nullptr;}
     // Tutorial teaches over the real HUD. Other modals occlude its New overlay without destroying its source.
     const bool TutorialVisible=Tutorial && !Menu && !GameplayMenu && !Wardrobe && !Shop && !Reward && !Emotes && !Team;
-    TSet<UWidget*> Hide;
+    TSet<UWidget*> Hide=MoveTemp(NewModeHiddenRoots);
     auto HideRoot=[&](UUserWidget* View) {if(View && View->WidgetTree && View->WidgetTree->RootWidget) Hide.Add(View->WidgetTree->RootWidget);};
     HideRoot(Menu);HideRoot(Team);HideRoot(Wardrobe);HideRoot(Shop);HideRoot(Reward);HideRoot(GameplayMenu);
     if(Tutorial && Tutorial->WidgetTree) {
@@ -472,12 +547,11 @@ void UMCUIPresentationSubsystem::RefreshInterface()
     }
     // A modal replaces the visible root screen. Keep the legacy background
     // chrome suppressed until Current is selected, so it cannot reappear behind it.
-    if(ActiveHUD.Get()!=HUDChrome) {if(auto* Previous=ActiveHUD.Get()) Previous->SetUnifiedViewActive(false);ActiveHUD=HUDChrome;}
+    // Selecting a mirror backend must not restore another retained source's
+    // Current artwork. Several source HUDs can coexist during owner/travel setup.
+    ActiveHUD=HUDChrome;
     if(HUDChrome) HUDChrome->SetUnifiedViewActive(true);
-    if(ActiveHub.Get()!=HubChrome) {
-        if(auto* Previous=ActiveHub.Get();Previous && Previous->GetWorld()==GetWorld() && !GetWorld()->bIsTearingDown) Previous->SetUnifiedViewActive(false);
-        ActiveHub=HubChrome;
-    }
+    ActiveHub=HubChrome;
     if(HubChrome) HubChrome->SetUnifiedViewActive(true);
     if(!Menu) Screen=Hub?EMCUnifiedUIScreen::Hub:(HUD || TutorialVisible)?EMCUnifiedUIScreen::Gameplay:EMCUnifiedUIScreen::Team;
     if(Reward) Screen=EMCUnifiedUIScreen::Reward;

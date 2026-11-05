@@ -5,9 +5,138 @@
 #include "Rendering/SkeletalMeshLODRenderData.h"
 #include "Rendering/SkeletalMeshRenderData.h"
 #include "Rendering/SkinWeightVertexBuffer.h"
+#include "Rendering/MorphTargetVertexInfoBuffers.h"
+#include "Rendering/MorphTargetVertexCodec.h"
+#include "MCWorldPreloadSubsystem.h"
+#include "MCToothCharacter.h"
+#include "Engine/World.h"
+#include "RHIGPUReadback.h"
+#include "RHICommandList.h"
+#include "RenderingThread.h"
 
 namespace MCFreezeCapturePrivate
 {
+struct FCookedMorphCache
+{
+    TWeakObjectPtr<UWorld> World;
+    TWeakObjectPtr<USkeletalMesh> Appearance;
+    const void* Render=nullptr;
+    const void* GPUBuffer=nullptr;
+    TArray<MCPreparedFreezeCapture::FMorphRange> Ranges;
+    TArray<MCPreparedFreezeCapture::FMorphDelta> Deltas;
+};
+
+bool PrepareCookedMorphs(USkeletalMeshComponent* Mesh,const FSkeletalMeshLODRenderData& LOD,const void* Render,
+    TArray<MCPreparedFreezeCapture::FMorphRange>& Ranges,TArray<MCPreparedFreezeCapture::FMorphDelta>& Deltas,FString& Error)
+{
+    using namespace MCPreparedFreezeCapture;
+    using namespace UE::MorphTargetVertexCodec;
+    auto* World=Mesh->GetWorld();auto* Asset=Mesh->GetSkeletalMeshAsset();
+    const auto* Hero=Cast<AMCToothCharacter>(Mesh->GetOwner());
+    if(!World || World->bIsTearingDown || (Hero && Hero->IsFreezingToDeath()))
+    {Error=TEXT("Cooked morph preparation requires an uncommitted live appearance.");return false;}
+    for(const auto& Target:Asset->GetMorphTargets())if(!Target || !Target->UsesBuiltinMorphTargetCompression())
+    {Error=TEXT("Cooked freeze capture cannot decode unknown custom morph compression.");return false;}
+    const auto& Morph=LOD.MorphTargetVertexInfoBuffers;
+    const FBufferRHIRef Buffer=Morph.MorphDataBuffer;
+    static TArray<FCookedMorphCache> Cache;
+    Cache.RemoveAllSwap([](const FCookedMorphCache& Entry){return !Entry.World.IsValid() || !Entry.Appearance.IsValid();});
+    for(const auto& Entry:Cache)if(Entry.World.Get()==World && Entry.Appearance.Get()==Asset
+        && Entry.Render==Render && Entry.GPUBuffer==Buffer.GetReference() && Entry.Ranges.Num()==Asset->GetMorphTargets().Num())
+    {Ranges=Entry.Ranges;Deltas=Entry.Deltas;return true;}
+    const auto* Preparation=World->GetSubsystem<UMCWorldPreloadSubsystem>();
+    if(!Preparation || !Preparation->IsPreparing() || Preparation->IsReady() || Preparation->HasFailed())
+    {Error=TEXT("A missing cooked morph cache may only be read back during location preparation, never at fatal use.");return false;}
+    if(Cache.Num()>=32 || Morph.GetNumMorphs()!=uint32(Asset->GetMorphTargets().Num()))
+    {Error=TEXT("Cooked morph appearance/cache identity or bounded capacity is invalid.");return false;}
+    if(Morph.GetNumBatches()==0) {
+        for(uint32 Index=0;Index<Morph.GetNumMorphs();++Index)if(Morph.GetNumBatches(Index)!=0 || Morph.GetBatchStartOffset(Index)!=0)
+        {Error=TEXT("Empty cooked morph target metadata is inconsistent.");return false;}
+        // The real GPU codec can quantize every source delta to zero.
+        Ranges.Reset();Ranges.SetNumZeroed(Asset->GetMorphTargets().Num());Deltas.Reset();
+        auto& Entry=Cache.AddDefaulted_GetRef();Entry.World=World;Entry.Appearance=Asset;Entry.Render=Render;
+        Entry.GPUBuffer=Buffer.GetReference();Entry.Ranges=Ranges;
+        UE_LOG(LogTemp,Log,TEXT("MC_FREEZE_COOKED_MORPHS_PREPARED mesh=%s morphs=%d deltas=0 bytes=0 loadingReadback=0"),*Asset->GetPathName(),Ranges.Num());
+        return true;
+    }
+    if(!Buffer.IsValid()){Error=TEXT("Cooked morph GPU buffer is not resident during preparation.");return false;}
+    constexpr uint64 MaxBytes=uint64(MaxMorphDeltas)*(sizeof(FMorphTargetDelta)+NumBatchHeaderDwords*sizeof(uint32))+16;
+    const uint64 Bytes=Buffer->GetSize();const uint32 Batches=Morph.GetNumBatches();
+    const uint64 HeaderWords=uint64(Batches)*NumBatchHeaderDwords;
+    if(Bytes==0 || Bytes%sizeof(uint32) || Bytes>MaxBytes || Bytes>MAX_uint32 || Batches>uint32(MaxMorphDeltas)
+        || HeaderWords>Bytes/sizeof(uint32) || !FMath::IsFinite(Morph.GetPositionPrecision()) || Morph.GetPositionPrecision()<=0
+        || !FMath::IsFinite(Morph.GetTangentZPrecision()) || Morph.GetTangentZPrecision()<=0)
+    {Error=TEXT("Cooked GPU morph buffer size/header/precision exceeds its prepared bounds.");return false;}
+    TArray<uint32> Words;Words.SetNumUninitialized(int32(Bytes/sizeof(uint32)));bool Copied=false;
+    ENQUEUE_RENDER_COMMAND(MCPrepareFreezeMorphReadback)([Buffer,Bytes,&Words,&Copied](FRHICommandListImmediate& RHICmdList){
+        FRHIGPUBufferReadback Readback(TEXT("MCFreezeLoadingMorphs"));
+        RHICmdList.Transition(FRHITransitionInfo(Buffer.GetReference(),ERHIAccess::SRVMask,ERHIAccess::CopySrc));
+        Readback.EnqueueCopy(RHICmdList,Buffer.GetReference(),uint32(Bytes));
+        RHICmdList.Transition(FRHITransitionInfo(Buffer.GetReference(),ERHIAccess::CopySrc,ERHIAccess::SRVMask));
+        RHICmdList.SubmitAndBlockUntilGPUIdle();
+        if(Readback.IsReady())if(const void* Data=Readback.Lock(uint32(Bytes))) {
+            FMemory::Memcpy(Words.GetData(),Data,SIZE_T(Bytes));Readback.Unlock();Copied=true;
+        }
+    });
+    FlushRenderingCommands();
+    if(!Copied){Error=TEXT("Loading-time cooked morph GPU readback did not complete.");return false;}
+    TArray<FDeltaBatchHeader> Headers;Headers.SetNumUninitialized(Batches);
+    uint64 TotalElements=0;
+    for(uint32 Index=0;Index<Batches;++Index) {
+        auto& Header=Headers[Index];ReadHeader(Header,MakeArrayView<const uint32>(Words.GetData()+uint64(Index)*NumBatchHeaderDwords,NumBatchHeaderDwords));
+        auto BitsValid=[](int8 Bits,int8 Max){return Bits>=0 && Bits<=Max;};
+        if(Header.NumElements==0 || Header.NumElements>BatchSize || !BitsValid(Header.IndexBits,31)
+            || !BitsValid(Header.PositionBits.X,28) || !BitsValid(Header.PositionBits.Y,28) || !BitsValid(Header.PositionBits.Z,28)
+            || !BitsValid(Header.TangentZBits.X,16) || !BitsValid(Header.TangentZBits.Y,16) || !BitsValid(Header.TangentZBits.Z,16)
+            || Header.DataOffset%sizeof(uint32) || uint64(Header.DataOffset)/sizeof(uint32)<HeaderWords
+            || uint64(Header.DataOffset)/sizeof(uint32)+CalculateBatchDwords(Header)>uint64(Words.Num())
+            || (TotalElements+=Header.NumElements)>uint64(MaxMorphDeltas))
+        {Error=TEXT("Cooked GPU morph batch is malformed or exceeds the prepared delta bounds.");return false;}
+        auto SignedSpanValid=[](int32 Min,int8 Bits){return int64(Min)+int64((uint64(1)<<Bits)-1)<=MAX_int32;};
+        if(uint64(Header.IndexMin)+(uint64(1)<<Header.IndexBits)-1+Header.NumElements-1>MAX_uint32
+            || !SignedSpanValid(Header.PositionMin.X,Header.PositionBits.X)
+            || !SignedSpanValid(Header.PositionMin.Y,Header.PositionBits.Y)
+            || !SignedSpanValid(Header.PositionMin.Z,Header.PositionBits.Z)
+            || (Header.bTangents && (!SignedSpanValid(Header.TangentZMin.X,Header.TangentZBits.X)
+                || !SignedSpanValid(Header.TangentZMin.Y,Header.TangentZBits.Y)
+                || !SignedSpanValid(Header.TangentZMin.Z,Header.TangentZBits.Z))))
+        {Error=TEXT("Cooked GPU morph quantized arithmetic exceeds its native integer bounds.");return false;}
+    }
+    Ranges.Reset();Deltas.Reset();Ranges.Reserve(Asset->GetMorphTargets().Num());Deltas.Reserve(int32(TotalElements));
+    uint32 ExpectedBatch=0;
+    for(int32 MorphIndex=0;MorphIndex<Asset->GetMorphTargets().Num();++MorphIndex) {
+        const auto& Target=Asset->GetMorphTargets()[MorphIndex];
+        if(!Target || !Target->UsesBuiltinMorphTargetCompression())
+        {Error=TEXT("Cooked freeze capture cannot decode unknown custom morph compression.");return false;}
+        const uint32 First=Morph.GetBatchStartOffset(MorphIndex),Count=Morph.GetNumBatches(MorphIndex);
+        if(First!=ExpectedBatch || uint64(First)+Count>uint64(Headers.Num())){Error=TEXT("Cooked morph target batch range is invalid.");return false;}
+        ExpectedBatch+=Count;
+        FMorphRange Range;Range.First=Deltas.Num();
+        // GPU batches are DWORD-padded and carry absolute offsets into the full buffer.
+        // The CPU iterative stream decoder does not follow those offsets.
+        for(uint32 Batch=First;Batch<First+Count;++Batch) {
+            const auto& Header=Headers[Batch];FQuantizedDelta Quantized[BatchSize];
+            ReadQuantizedDeltas(TArrayView<FQuantizedDelta>(Quantized,Header.NumElements),Header,
+                TConstArrayView<uint32>(Words.GetData()+Header.DataOffset/sizeof(uint32),CalculateBatchDwords(Header)));
+            for(uint32 Element=0;Element<Header.NumElements;++Element) {
+                FMorphTargetDelta Delta;DequantizeDelta(Delta,Header.bTangents,Quantized[Element],Morph.GetPositionPrecision(),Morph.GetTangentZPrecision());
+                if(Deltas.Num()>=MaxMorphDeltas || Delta.SourceIdx>=uint32(LOD.GetNumVertices()) || Delta.PositionDelta.ContainsNaN() || Delta.TangentZDelta.ContainsNaN())
+                {Error=TEXT("Decoded cooked morph delta is invalid or exceeds prepared capacity.");return false;}
+                FMorphDelta Out;Out.SourceIdx=Delta.SourceIdx;Out.PositionDelta=Delta.PositionDelta;Out.TangentZDelta=Delta.TangentZDelta;Deltas.Add(Out);
+            }
+        }
+        Range.Count=Deltas.Num()-Range.First;
+        if(Range.Count>Target->GetNumDeltasForLOD(0)){Error=TEXT("Cooked GPU morph contains more deltas than its actual source target.");return false;}
+        Ranges.Add(Range);
+    }
+    if(ExpectedBatch!=Batches || uint64(Deltas.Num())!=TotalElements){Error=TEXT("Cooked morph decoder did not consume the validated GPU batches.");return false;}
+    auto& Entry=Cache.AddDefaulted_GetRef();Entry.World=World;Entry.Appearance=Asset;Entry.Render=Render;
+    Entry.GPUBuffer=Buffer.GetReference();Entry.Ranges=Ranges;Entry.Deltas=Deltas;
+    UE_LOG(LogTemp,Log,TEXT("MC_FREEZE_COOKED_MORPHS_PREPARED mesh=%s morphs=%d deltas=%d bytes=%llu loadingReadback=1"),
+        *Asset->GetPathName(),Ranges.Num(),Deltas.Num(),Bytes);
+    return true;
+}
+
 bool Supported(USkeletalMeshComponent* Mesh,FString& Error)
 {
     if(!IsInGameThread()||!IsValid(Mesh)||!Mesh->GetSkeletalMeshAsset()||Mesh->LeaderPoseComponent.IsValid()
@@ -65,7 +194,7 @@ bool FMCFreezePoseCapture::Prepare(USkeletalMeshComponent* Mesh,FString& Error)
          Tri.C=Index->Get(Section.BaseIndex+T*3+2);Tri.Slot=uint8(Section.MaterialIndex);Topology.Add(Tri);TriangleSlots.Add(Tri.Slot);}
     }
     if(ExpectedVertex!=VertexCount){Error=TEXT("Freeze cannot omit source render vertices.");return false;}
-    TArray<FMorphRange> Ranges;TArray<FMorphDelta> Deltas;
+    TArray<FMorphRange> Ranges;TArray<FMorphDelta> Deltas;bool bUsedCookedMorphs=false;
     for(const auto& Target:Asset->GetMorphTargets())
     {
         if(!Target){Error=TEXT("Freeze appearance has a null actual morph target.");return false;}
@@ -75,11 +204,18 @@ bool FMCFreezePoseCapture::Prepare(USkeletalMeshComponent* Mesh,FString& Error)
         for(auto It=Target->GetDeltaIteratorForLOD(0);!It.AtEnd();++It)
         {if(Deltas.Num()-Range.First>=Count){Error=TEXT("Actual cooked morph iterator exceeded its declared count.");return false;}
          FMorphDelta D;D.SourceIdx=It->SourceIdx;D.PositionDelta=It->PositionDelta;D.TangentZDelta=It->TangentZDelta;Deltas.Add(D);}
-        if(Deltas.Num()-Range.First!=Count){Error=TEXT("Resident cooked morph data is incomplete; no deferred decompression at fatal use.");return false;}
+        if(Deltas.Num()-Range.First!=Count){
+            if(!MCFreezeCapturePrivate::PrepareCookedMorphs(Mesh,LOD,Render,Ranges,Deltas,Error))return false;
+            bUsedCookedMorphs=true;
+            MorphTargets.Reset();for(const auto& Actual:Asset->GetMorphTargets())MorphTargets.Add(Actual);
+            break;
+        }
         Ranges.Add(Range);MorphTargets.Add(Target);
     }
     if(!Sampler.Prepare(Reference,Ranges,Deltas,BoneCount,Influences,Error)
         ||!Snapshot.Prepare(VertexCount,Slots,Topology,Error))return false;
+    UE_LOG(LogTemp,Log,TEXT("MC_FREEZE_MORPH_PREPARED mesh=%s source=%s morphs=%d deltas=%d"),
+        *Asset->GetPathName(),bUsedCookedMorphs?TEXT("CookedGPUCache"):TEXT("ResidentCPU"),Ranges.Num(),Deltas.Num());
     Matrices.SetNumUninitialized(BoneCount);RequiredBones.SetNumUninitialized(BoneCount);
     for(int32 I=0;I<BoneCount;++I)RequiredBones[I]=FBoneIndexType(I);
     Source=Mesh;Appearance=Asset;RenderIdentity=Render;WeightIdentity=Weights;bPrepared=true;return true;

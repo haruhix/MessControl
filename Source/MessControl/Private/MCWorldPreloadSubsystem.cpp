@@ -22,6 +22,7 @@
 #include "MCPreloadSettings.h"
 #include "MCUIDataLibrary.h"
 #include "MCUIPresentationSubsystem.h"
+#include "MoviePlayer.h"
 #include "Engine/GameInstance.h"
 #include "MCEventSFXReadiness.h"
 #include "MCPerkVFXProfile.h"
@@ -80,6 +81,18 @@ constexpr int32 RequiredStableRenderFrames = 3;
 constexpr double RequiredEditorQuietSeconds = 1.;
 constexpr double LateCompilationWatchSeconds = 60.;
 #endif
+
+APlayerController* CurrentLocalPreparationController(UWorld* World)
+{
+    if(!World || World->bIsTearingDown) return nullptr;
+    auto* Instance=World->GetGameInstance();
+    auto* Local=Instance?Instance->GetFirstLocalPlayerController(World):nullptr;
+    // During seamless travel the old and replacement controllers can overlap,
+    // and the LocalPlayer can briefly have no destination-world controller.
+    // Only the current local-player owner may prepare and consume this UI.
+    return IsValid(Local) && Local->IsLocalController() && Local->GetLocalPlayer()
+        && Local->GetWorld()==World && Local->GetGameInstance()==Instance?Local:nullptr;
+}
 
 FText LoadingText(const TCHAR* Key, const TCHAR* Russian, const TCHAR* English)
 {
@@ -304,13 +317,28 @@ void UMCWorldPreloadSubsystem::BeginPreparation(APlayerController* LocalControll
 {
     if (!IsValid(LocalController) || !LocalController->IsLocalController()
         || LocalController->GetWorld() != GetWorld() || !GetWorld()
-        || GetWorld()->GetNetMode() == NM_DedicatedServer) return;
+        || GetWorld()->GetNetMode() == NM_DedicatedServer
+        || CurrentLocalPreparationController(GetWorld())!=LocalController) return;
     // A same-map RestartShift publishes a new existing GameplayLoadId. Retire
     // only an unclaimed old prewarm instance; transferred runtime owners/tails
     // belong to their source and are never destroyed by this preparation reset.
     const auto* State=GetWorld()->GetGameState<AMCGameState>();
     if(IsIcePresentationLocation()&&PreparedGameplayLoadId.IsValid()&&State&&State->GameplayLoadId.IsValid()
         &&PreparedGameplayLoadId!=State->GameplayLoadId)ResetPreparation();
+    // A seamless-travel controller replacement must rebind an active load too.
+    // Previously the IsPreparing early return kept a weak pointer to the
+    // destroyed controller until UI preparation failed with a null owner.
+    if(Controller.Get()!=LocalController) {
+        UE_LOG(LogMCWorldPreload,Log,TEXT("MC_PRELOAD_OWNER_CHANGED world=%s previous=%s current=%s phase=%s"),
+            *GetNameSafe(GetWorld()),*GetPathNameSafe(Controller.Get()),*GetPathNameSafe(LocalController),PhaseName(Phase));
+        Controller=LocalController;
+        if(IsPreparing() || IsReady()) {
+            // Retain loaded assets and the run identity, but do not carry the
+            // previous controller's UI/fence/streaming certificate to this one.
+            bRenderingWorkBuilt=false;bStreamingTargetsBuilt=false;ResetRenderReadiness();
+            if(Phase!=EMCWorldPreloadPhase::LoadingAssets)SetPhase(EMCWorldPreloadPhase::PreparingRendering);
+        }
+    }
     // PC presentation is polled every frame. An error must remain visible until
     // explicit Retry, instead of silently starting the failed request again.
     if (IsPreparing() || IsReady() || HasFailed()) return;
@@ -331,7 +359,7 @@ void UMCWorldPreloadSubsystem::BeginPreparation(APlayerController* LocalControll
 
 void UMCWorldPreloadSubsystem::Retry()
 {
-    APlayerController* LocalController = Controller.Get();
+    APlayerController* LocalController = CurrentLocalPreparationController(GetWorld());
     if (!HasFailed() || !IsValid(LocalController)) return;
     ResetPreparation();
     BeginPreparation(LocalController);
@@ -477,6 +505,11 @@ bool UMCWorldPreloadSubsystem::PrepareFreezeHeroResources(bool Required,FString&
 
 void UMCWorldPreloadSubsystem::BuildRenderingWork()
 {
+    // MoviePlayer owns a Slate loading thread during travel. Construct and
+    // prepass retained UMG only after that screen has relinquished Slate.
+    if(auto* Movie=GetMoviePlayer();Movie && Movie->IsMovieCurrentlyPlaying()) {
+        bRenderingWorkBuilt=false;ResetRenderReadiness();return;
+    }
     const double BuildStarted=FPlatformTime::Seconds();
     double StageStarted=BuildStarted;
     auto LogStage=[&](const TCHAR* Stage) {
@@ -1051,6 +1084,18 @@ bool UMCWorldPreloadSubsystem::SettleWorldAndRefreshManifest()
 
 void UMCWorldPreloadSubsystem::TickRenderReadiness()
 {
+    auto* LocalController=CurrentLocalPreparationController(GetWorld());
+    if(!LocalController) {
+        // Ownership attachment is a normal travel transition, not an interface
+        // creation failure. Keep the existing bounded preparation deadline.
+        bPresentationReady=false;bRenderingWorkBuilt=false;bStreamingTargetsBuilt=false;
+        ResetRenderReadiness();return;
+    }
+    if(Controller.Get()!=LocalController) {
+        UE_LOG(LogMCWorldPreload,Log,TEXT("MC_PRELOAD_OWNER_CHANGED world=%s previous=%s current=%s phase=%s"),
+            *GetNameSafe(GetWorld()),*GetPathNameSafe(Controller.Get()),*GetPathNameSafe(LocalController),PhaseName(Phase));
+        Controller=LocalController;bRenderingWorkBuilt=false;bStreamingTargetsBuilt=false;ResetRenderReadiness();
+    }
     if (!bPresentationReady || !SettleWorldAndRefreshManifest())
     {
         ResetRenderReadiness();

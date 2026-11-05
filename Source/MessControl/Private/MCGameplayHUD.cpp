@@ -1056,6 +1056,8 @@ void UMCGameplayHUD::NativeConstruct()
         if(auto* Icon=Cast<UMCHUDIcon>(Widget);Icon && Icon->bTooth) Icon->ForceVolatile(true);
     }
     RefreshState();
+    SetUnifiedViewActive(UMCGameplayUIFactory::GetPresentationVersion()==EMCUIVersion::New);
+    ApplyUnifiedViewVisibility();
 }
 void UMCGameplayHUD::NativeDestruct()
 {

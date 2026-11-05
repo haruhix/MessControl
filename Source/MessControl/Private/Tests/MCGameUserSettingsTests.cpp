@@ -40,8 +40,8 @@ bool FMCPreferencesConfigRoundtripTest::RunTest(const FString& Parameters)
 {
     const FString Before=FInternationalization::Get().GetCurrentLanguage()->GetName();
     auto* Written=NewObject<UMCGameUserSettings>();Written->SetToDefaults();
-    TestEqual(TEXT("UI defaults to the existing presentation"),Written->GetUIPresentationVersion(),EMCUIVersion::Current);
-    Written->SetUIPresentationVersion(EMCUIVersion::New);
+    TestEqual(TEXT("UI defaults to the PSD presentation"),Written->GetUIPresentationVersion(),EMCUIVersion::New);
+    Written->SetUIPresentationVersion(EMCUIVersion::Current);
     Written->SetMasterVolume(.63f);Written->SetMusicVolume(.27f);Written->SetAmbienceVolume(.41f);Written->SetSFXVolume(.82f);
     Written->SetMouseSensitivity(1.7f);Written->SetGamepadSensitivity(.8f);Written->SetInvertY(true);
     Written->SetCameraSmoothingEnabled(true);
@@ -55,7 +55,7 @@ bool FMCPreferencesConfigRoundtripTest::RunTest(const FString& Parameters)
     const FString Filename=FPaths::Combine(Directory,FGuid::NewGuid().ToString()+TEXT(".ini"));
     Written->SaveConfig(CPF_Config,*Filename);
     auto* Read=NewObject<UMCGameUserSettings>();Read->SetToDefaults();Read->LoadConfig(Read->GetClass(),*Filename);
-    TestEqual(TEXT("Local UI choice survives config roundtrip"),Read->GetUIPresentationVersion(),EMCUIVersion::New);
+    TestEqual(TEXT("Explicit debug UI choice survives config roundtrip"),Read->GetUIPresentationVersion(),EMCUIVersion::Current);
     TestEqual(TEXT("Master persists"),Read->GetMasterVolume(),Written->GetMasterVolume());
     TestEqual(TEXT("Music persists"),Read->GetMusicVolume(),Written->GetMusicVolume());
     TestEqual(TEXT("Ambience persists"),Read->GetAmbienceVolume(),Written->GetAmbienceVolume());

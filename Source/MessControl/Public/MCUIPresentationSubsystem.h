@@ -48,6 +48,8 @@ private:
     TWeakObjectPtr<APlayerController> InterfaceOwner;
     TWeakObjectPtr<UMCGameplayHUD> ActiveHUD;
     TWeakObjectPtr<UMCHubWidget> ActiveHub;
+    TSet<TWeakObjectPtr<UMCGameplayHUD>> SuppressedHUDs;
+    TSet<TWeakObjectPtr<UMCHubWidget>> SuppressedHubs;
     bool bInterfaceTutorialMenuInput=false;
     bool bInterfaceHubMenuInput=false;
     int32 InterfaceZOrder=5;

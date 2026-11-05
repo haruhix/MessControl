@@ -27,6 +27,9 @@
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Images/SThrobber.h"
 #include "Widgets/Text/STextBlock.h"
+#include "Fonts/FontMeasure.h"
+#include "Framework/Application/SlateApplication.h"
+#include "Rendering/SlateRenderer.h"
 
 namespace
 {
@@ -34,8 +37,10 @@ namespace
 class SMCTravelLoadingScreen : public SCompoundWidget, public FGCObject
 {
 public:
-    SLATE_BEGIN_ARGS(SMCTravelLoadingScreen) {} SLATE_END_ARGS()
-    void Construct(const FArguments&,UTexture2D* Texture,const FText& Title,const TArray<FText>& Tips,const FText& TipHeading)
+    SLATE_BEGIN_ARGS(SMCTravelLoadingScreen):_NewPresentation(false) {}
+        SLATE_ARGUMENT(bool,NewPresentation)
+    SLATE_END_ARGS()
+    void Construct(const FArguments& InArgs,UTexture2D* Texture,const FText& Title,const TArray<FText>& Tips,const FText& TipHeading,const UMCGameplayUITheme* Theme)
     {
         check(IsInGameThread());
         ArtworkTexture=Texture;
@@ -45,6 +50,77 @@ public:
         FooterBrush=FSlateRoundedBoxBrush(FLinearColor(.012f,.027f,.034f,.84f),18.f);
         TipBrush=FSlateRoundedBoxBrush(FLinearColor(.012f,.027f,.034f,.76f),18.f);
         TipTexts=Tips;
+        if(InArgs._NewPresentation && Theme) {
+            // Match the post-load PSD loading view without constructing UMG on
+            // MoviePlayer's Slate thread. All fonts/copy/brushes are fixed here.
+            auto Color=[](const TCHAR* Hex){return FLinearColor(FColor::FromHex(Hex));};
+            const FLinearColor Paper=Color(TEXT("FFF9F8"));
+            FooterBrush=FSlateRoundedBoxBrush(Color(TEXT("4F76AB")),22.f,Paper,3.f);
+            TipBrush=FSlateRoundedBoxBrush(Color(TEXT("355C70")),22.f,Paper,3.f);
+            ShadowBrush=FSlateRoundedBoxBrush(Color(TEXT("1E266A")),22.f);
+            const FSlateFontInfo TitleFont=Theme->MakeFont(32,true),HeadingFont=Theme->MakeFont(19,true),TipFont=Theme->MakeFont(23,true);
+            CapturedFontResources.AddUnique(const_cast<UMCGameplayUITheme*>(Theme));
+            for(const FSlateFontInfo* Font:{&TitleFont,&HeadingFont,&TipFont}) {
+                if(Font->FontObject) CapturedFontResources.AddUnique(const_cast<UObject*>(Font->FontObject.Get()));
+                if(Font->FontMaterial) CapturedFontResources.AddUnique(Font->FontMaterial.Get());
+                if(Font->OutlineSettings.OutlineMaterial) CapturedFontResources.AddUnique(Font->OutlineSettings.OutlineMaterial.Get());
+            }
+            if(FSlateApplication::IsInitialized()) if(auto Renderer=FSlateApplication::Get().GetRenderer()) {
+                const auto Measure=Renderer->GetFontMeasureService();
+                Measure->Measure(Title,TitleFont,1.f);Measure->Measure(TipHeading,HeadingFont,1.f);
+                for(const FText& Tip:Tips) Measure->Measure(Tip,TipFont,1.f);
+            }
+            ChildSlot
+            [SNew(SOverlay)
+                +SOverlay::Slot()[SNew(SBorder).BorderImage(FCoreStyle::Get().GetBrush(TEXT("WhiteBrush"))).BorderBackgroundColor(Color(TEXT("355C70")))]
+                +SOverlay::Slot()[SNew(SScaleBox).Stretch(EStretch::ScaleToFit)[SNew(SImage).Image(&ArtworkBrush)]]
+                +SOverlay::Slot().HAlign(HAlign_Center).VAlign(VAlign_Center).Padding(24.f)
+                [SNew(SScaleBox).Stretch(EStretch::ScaleToFit).StretchDirection(EStretchDirection::DownOnly)
+                    [SNew(SBox).WidthOverride(780.f)
+                        [SNew(SVerticalBox)
+                            +SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center)
+                            [SNew(SBox).WidthOverride(730.f)
+                                [SNew(SOverlay)
+                                    +SOverlay::Slot().Padding(8,10,0,0)[SNew(SBorder).BorderImage(&ShadowBrush)]
+                                    +SOverlay::Slot().Padding(0,0,8,10)
+                                    [SNew(SBorder).BorderImage(&FooterBrush).Padding(FMargin(24,20))
+                                        [SNew(SVerticalBox)
+                                            +SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0,0,0,14)
+                                            [SNew(STextBlock).Text(Title).Font(TitleFont).ColorAndOpacity(Paper).WrapTextAt(672.f).Justification(ETextJustify::Center)]
+                                            +SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center)
+                                            [SNew(SThrobber).Animate(SThrobber::Vertical)]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                            +SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0,14,0,0)
+                            [SNew(SBox).WidthOverride(770.f)
+                                [SNew(SOverlay)
+                                    +SOverlay::Slot().Padding(8,10,0,0)[SNew(SBorder).BorderImage(&ShadowBrush)]
+                                    +SOverlay::Slot().Padding(0,0,8,10)
+                                    [SNew(SBorder).BorderImage(&TipBrush).Padding(FMargin(24,16))
+                                        [SNew(SVerticalBox)
+                                            +SVerticalBox::Slot().AutoHeight().HAlign(HAlign_Center).Padding(0,0,0,10)
+                                            [SNew(STextBlock).Text(TipHeading).Font(HeadingFont).ColorAndOpacity(Paper).Justification(ETextJustify::Center)]
+                                            +SVerticalBox::Slot().AutoHeight()
+                                            [SNew(SBox).MinDesiredHeight(92.f)
+                                                [SNew(SOverlay)
+                                                    +SOverlay::Slot().HAlign(HAlign_Fill).VAlign(VAlign_Center)
+                                                    [SAssignNew(TipCurrent,STextBlock).WrapTextAt(712.f).Justification(ETextJustify::Center).Font(TipFont).ColorAndOpacity(Paper)]
+                                                    +SOverlay::Slot().HAlign(HAlign_Fill).VAlign(VAlign_Center)
+                                                    [SAssignNew(TipNext,STextBlock).WrapTextAt(712.f).Justification(ETextJustify::Center).Font(TipFont).ColorAndOpacity(Paper)]
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ];
+            UpdateTips();return;
+        }
         ChildSlot
         [SNew(SOverlay)
             +SOverlay::Slot()
@@ -98,6 +174,7 @@ public:
     virtual void AddReferencedObjects(FReferenceCollector& Collector) override
     {
         Collector.AddReferencedObject(ArtworkTexture);
+        for(TObjectPtr<UObject>& Resource:CapturedFontResources) Collector.AddReferencedObject(Resource);
     }
     virtual FString GetReferencerName() const override {return TEXT("SMCTravelLoadingScreen");}
 private:
@@ -119,6 +196,8 @@ private:
     FSlateBrush ArtworkBrush;
     FSlateBrush FooterBrush;
     FSlateBrush TipBrush;
+    FSlateBrush ShadowBrush;
+    TArray<TObjectPtr<UObject>> CapturedFontResources;
     TArray<FText> TipTexts;
     TSharedPtr<STextBlock> TipCurrent,TipNext;
     int32 LastTipCurrent=INDEX_NONE,LastTipNext=INDEX_NONE;
@@ -163,6 +242,8 @@ void UMCTravelLoadingSubsystem::BeforeMapLoad(const FWorldContext& Context,const
     const FString Culture=FInternationalization::Get().GetCurrentLanguage()->GetName();
     const TArray<FText> Tips=MCLoadingTips::Resolve(LoadingTipTable.Get(),Culture);
     const FText TipHeading=MCLoadingTips::Heading(LoadingTipTable.Get(),Culture);
-    Screen.WidgetLoadingScreen=SNew(SMCTravelLoadingScreen,LoadingArtwork.Get(),Title,Tips,TipHeading);
+    const auto Version=UMCGameplayUIFactory::GetPresentationVersion();
+    const auto* Theme=UMCGameplayUIFactory::GetThemeForVersion(Version);
+    Screen.WidgetLoadingScreen=SNew(SMCTravelLoadingScreen,LoadingArtwork.Get(),Title,Tips,TipHeading,Theme).NewPresentation(Version==EMCUIVersion::New);
     Player->SetupLoadingScreen(Screen);
 }

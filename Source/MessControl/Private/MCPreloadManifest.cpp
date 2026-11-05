@@ -400,12 +400,11 @@ void FMCPreloadManifest::Collect(UWorld* World,TArray<FSoftObjectPath>& OutPaths
     // The factory soft-loads this shared theme in Hub/menu as well as the arena.
     // Its role map is the finite root for future settings/reward/pause widgets.
     AddAsset(TEXT("/Game/Gameplay/UI/Theme/DA_GameplayUITheme"),OutPaths);
-    // F3 compares these two UI profiles locally. Prepare the finite V2 UI/font root before its first visible use.
-#if !UE_BUILD_SHIPPING
+    // The default interface needs its finite UI/font and glyph roots in packaged
+    // games too; F3 presentation comparison is only an optional development tool.
     if(FPackageName::DoesPackageExist(TEXT("/Game/Gameplay/UI/V2/Theme/DA_UITheme_V2")))
         AddAsset(TEXT("/Game/Gameplay/UI/V2/Theme/DA_UITheme_V2"),OutPaths);
     AddAsset(TEXT("/Game/Gameplay/UI/Materials/M_UI_Phase1Glyph"),OutPaths);
-#endif
     AddPath(MCVFXSourceContracts::InterfaceLibraryPath(),OutPaths);
     // Late-spawned Hub players use the same authored locomotion and face clips.
     AddAsset(TEXT("/Game/Data/DA_ToothAnimation"),OutPaths);

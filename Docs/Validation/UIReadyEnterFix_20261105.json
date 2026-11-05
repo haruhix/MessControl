@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "task": "UIReadyEnterFix_20261105",
+  "updated_utc": "2026-11-05T13:28:23.549259+00:00",
+  "status": "archive_verified_remaining_gameplay_validation",
+  "summary": "Packaged travel reaches Arena readiness. GameBuild07 displays only the New HUD; F3 opens and grant-three feedback was observed. The complete updated Windows payload is now archived and CRC/hash verified. Full Cold and two-account gameplay remain unverified.",
+  "environment": {
+    "engine": "5.8.1-56057345+++UE5+Release-5.8",
+    "target": "MessControl Win64 Development",
+    "runtime_directory": "E:/DEVGAME/MessControl/Saved/Builds/Spacewar_20261105/Windows/MessControl/Binaries/Win64/",
+    "latest_verified_runtime_build": "GameBuild07",
+    "test_mode": "Packaged local run with -nosteam, -MCHubTransientProfile, isolated E: UserDir and one participant",
+    "content_scope": "Existing cooked Spacewar resources reused with the rebuilt native runtime; this correction did not require a new asset cook."
+  },
+  "changelog": [
+    "Rebind the canonical destination-world local controller before active/ready preparation early returns; invalidate owner-dependent UI, render readiness and streaming certificates while retaining loaded resources and load identity.",
+    "Recreate retained New UI roots when their owner/world/viewport identity is no longer valid after travel; explicit Retry resolves the current local controller.",
+    "Defer optional early UI construction while MoviePlayer is active, avoiding the observed concurrent Slate access path.",
+    "Select New UI by default and migrate the former default preference once; retained source HUD/Hub artwork stays suppressed in New, including construction before first paint.",
+    "During location preparation only, read back the existing cooked GPU morph buffer once per cached world/appearance and decode its bounded batches with the public engine codec; fatal pose capture uses the retained CPU cache."
+  ],
+  "findings": [
+    {
+      "id": "travel_controller_owner",
+      "status": "fixed_in_verified_runtime",
+      "cause": "Seamless travel replaced the weakly held controller. BeginPreparation returned while already preparing before rebinding it, leaving UI preparation with controller=None.",
+      "before": {
+        "log": "E:/CodexWork/MessControl/Validation/UIReadyEnterFix_20261105/FixedRepro01/Game.log",
+        "line": 1620,
+        "utc": "2026-11-05T12:12:03.876Z",
+        "marker": "MC_UI_PREPARE_FAIL stage=OwnerWorld world=/Game/Maps/L_Mouth.L_Mouth controller=None controller_world=None",
+        "result": "Unified UI root creation failed after 1446/1446 assets loaded."
+      },
+      "after": {
+        "log": "E:/CodexWork/MessControl/Validation/UIReadyEnterFix_20261105/FixedRepro03/Game.log",
+        "line": 1297,
+        "utc": "2026-11-05T12:38:53.224Z",
+        "marker": "MC_PRELOAD_OWNER_CHANGED world=L_Mouth previous=None current=/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCPlayerController_2147473468 phase=LoadingAssets"
+      }
+    },
+    {
+      "id": "movieplayer_slate_access",
+      "status": "not_reproduced_in_two_post_fix_runs",
+      "before_log": "E:/CodexWork/MessControl/Validation/UIReadyEnterFix_20261105/FixedRepro01/Game.log",
+      "before_line": 1130,
+      "before_detail": "MTAccessDetector ensure with UMCUIPresentationSubsystem::PrepareInterface/AddToViewport on the game thread and FSlateLoadingSynchronizationMechanism on the loading thread.",
+      "after_logs": [
+        "E:/CodexWork/MessControl/Validation/UIReadyEnterFix_20261105/FixedRepro02/Game.log",
+        "E:/CodexWork/MessControl/Validation/UIReadyEnterFix_20261105/FixedRepro03/Game.log"
+      ],
+      "limitation": "The matching MTAccessDetector/Slate-loading race did not recur in these runs. Two observations do not establish exhaustive race freedom."
+    },
+    {
+      "id": "windows_cooked_morphs",
+      "status": "fixed_in_verified_runtime",
+      "cause": "Desktop cooking retains the GPU morph stream while the original morph delta count can remain nonzero and the CPU iterator yields no deltas. The engine empties transient CPU GPU-upload data after InitRHI. A CPU-access flag or ordinary Windows recook does not restore this iterator payload.",
+      "before_log": "E:/CodexWork/MessControl/Validation/UIReadyEnterFix_20261105/FixedRepro02/Game.log",
+      "before_line": 1334,
+      "before_marker": "Resident cooked morph data is incomplete; no deferred decompression at fatal use.",
+      "after": {
+        "log": "E:/CodexWork/MessControl/Validation/UIReadyEnterFix_20261105/FixedRepro03/Game.log",
+        "line": 1335,
+        "utc": "2026-11-05T12:38:55.523Z",
+        "mesh": "/Game/Gameplay/CharacterCurrent/SK_CharacterGameplay.SK_CharacterGameplay",
+        "morphs": 45,
+        "deltas": 51737,
+        "readback_bytes": 401076,
+        "loading_readback": true
+      },
+      "source_audit": "E:/CodexWork/MessControl/Validation/UIReadyEnterFix_20261105/FreezeCookedMorphAudit.md",
+      "review": "Independent source review checked per-batch absolute offsets, tangent initialization, zero-batch targets, custom-codec rejection, bounded decoding, integer spans, target order, render-thread lifetime, GPU synchronization and preparation-only gating."
+    },
+    {
+      "id": "duplicate_hud",
+      "status": "fixed_and_personally_inspected_in_GameBuild07",
+      "evidence": "E:/CodexWork/MessControl/Validation/UIReadyEnterFix_20261105/FixedRepro03/UserDuplicatedHUD.png",
+      "detail": "Selecting another mirror backend incorrectly restored previous Current HUD artwork in New. All retained sources now stay suppressed until explicit Current; NativeConstruct also applies suppression. The final actual Arena screenshot contains only New HUD elements.",
+      "after_evidence": "E:\\CodexWork\\MessControl\\Validation\\UIReadyEnterFix_20261105\\F3ColdActual01\\HUD_NewOnly.jpg"
+    }
+  ],
+  "verified_ready_route": {
+    "status": "passed_local_packaged_readiness",
+    "log": "E:/CodexWork/MessControl/Validation/UIReadyEnterFix_20261105/FixedRepro03/Game.log",
+    "mainmenu_ready_line": 1085,
+    "hub_ready_line": 1177,
+    "hub_to_arena_travel_line": 1191,
+    "arena_ready_line": 1347,
+    "arena_ready_utc": "2026-11-05T12:38:58.960Z",
+    "arena_resources": 1792,
+    "arena_streaming_ready": 524,
+    "arena_streaming_total": 524,
+    "arena_elapsed_seconds": 5.83,
+    "gameplay_ack_line": 1349,
+    "lobby_started_line": 1350,
+    "participants": 1,
+    "limitation": "Readiness and gameplay-start markers prove this local route crossed the real barrier. They do not prove the full run, Cold event, F3 tools, multiplayer or visual acceptance."
+  },
+  "builds": [
+    {
+      "id": "GameBuild04",
+      "status": "failed",
+      "log": "E:/CodexWork/MessControl/Validation/UIReadyEnterFix_20261105/GameBuild04.log",
+      "detail": "C3535/C2440: const auto* could not be deduced from TObjectPtr<UMorphTarget>; no runtime result claimed for this failed build."
+    },
+    {
+      "id": "GameBuild05",
+      "status": "succeeded",
+      "log": "E:/CodexWork/MessControl/Validation/UIReadyEnterFix_20261105/GameBuild05.log",
+      "result_line": 104,
+      "duration_seconds": 26.86,
+      "runtime_evidence": "E:/CodexWork/MessControl/Validation/UIReadyEnterFix_20261105/FixedRepro03/Game.log"
+    },
+    {
+      "id": "GameBuild07",
+      "status": "succeeded",
+      "duration_seconds": 67.01,
+      "log": "E:\\CodexWork\\MessControl\\Validation\\UIReadyEnterFix_20261105\\GameBuild07.log"
+    },
+    {
+      "id": "EditorBuild02",
+      "status": "succeeded",
+      "duration_seconds": 79.31,
+      "log": "E:\\CodexWork\\MessControl\\Validation\\UIReadyEnterFix_20261105\\EditorBuild02.log"
+    }
+  ],
+  "resource_readiness_limitations": [
+    "The verified run logged graphics PSO misses and a 100 ms PSO creation wait during Arena loading before MC_PRELOAD_READY.",
+    "A clean first launch with cold driver/PSO caches and first visible Cold/Freeze usage has not been certified by this report."
+  ],
+  "not_verified": [
+    "Absence of every legacy startup/travel flash across all transitions",
+    "Complete gameplay route from start through the Cold event",
+    "Actual Freeze death motion and visual parity after the cooked morph fix",
+    "Individual F3 weapon equip/use and remote-team grants",
+    "Steam/Spacewar two-account joining, readiness and gameplay",
+    "Shipping target behavior"
+  ],
+  "preservation": {
+    "user_blueprint": "E:/DEVGAME/MessControl/Content/Blueprints/BP_PlayerCharacter.uasset",
+    "user_blueprint_sha256": "14A2EDEFB88BCDED4973189AF12E774D3B311BD3308D7C68715FAA9C7C90B0AD",
+    "user_blueprint_matches_recorded_before_hash": true,
+    "review_board_seed": "E:/DEVGAME/MessControl/Tools/ReviewBoard/seed.json",
+    "review_board_seed_observed_sha256": "F220B762A5149D1247B74570F927C59E04ED39175E5523E63DAF4CE58906BEFD",
+    "report_author_scope": "Only this JSON report was authored in the checkout by this reporting step; no assets, source, builds, application state, processes or Git state were changed.",
+    "media_policy": "Evidence media remains on E: and is linked only; no media is included by this JSON report."
+  },
+  "settings_test": {
+    "status": "passed",
+    "name": "MessControl.Settings.ConfigRoundtripDoesNotChangeCulture",
+    "tests": 1,
+    "log": "E:\\CodexWork\\MessControl\\Validation\\UIReadyEnterFix_20261105\\SettingsTest01\\Engine.log"
+  },
+  "f3_observation": {
+    "status": "panel_open_and_grant_three_feedback_observed",
+    "evidence": "E:\\CodexWork\\MessControl\\Validation\\UIReadyEnterFix_20261105\\F3ColdActual01\\F3_GrantThreeFeedback.jpg",
+    "limitation": "Individual equip/use and Cold interaction were not completed; Computer Use was stopped by physical Escape."
+  },
+  "archive": {
+    "status": "archive_verified",
+    "utc": "2026-11-05T13:27:36.050158+00:00",
+    "archive": "E:\\DEVGAME\\MessControl\\Saved\\Builds\\Spacewar_20261105\\MessControl_Spacewar_UITravel_Game07_20261105.zip",
+    "bytes": 1354955166,
+    "sha256": "0892E6B4A19C76762321E2F2021EA4EDF7B3991BE8972A3890A66E0102056416",
+    "files": 50,
+    "crcAllFiles": "passed",
+    "inventory": "exact_match",
+    "runtimeSha256": "F5A87465C98F9ACA99BD32FCB1C70C02FC1593117558716FC6A1FC7A4F00DEF5",
+    "steamAppIdBothLocations": 480,
+    "originalArchivePreserved": true,
+    "limits": [
+      "Archive integrity is not a full Cold gameplay or two-account Steam test."
+    ]
+  }
+}

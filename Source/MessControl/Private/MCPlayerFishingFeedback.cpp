@@ -4,10 +4,14 @@
 #include "MCHubWidget.h"
 #include "MCUIPresentationSubsystem.h"
 #include "Engine/GameInstance.h"
+#include "MoviePlayer.h"
 
 void AMCPlayerController::PrepareFishingRewardPresentation()
 {
     if(!HasLocalPresentationOwner() || !IsHubWorld()) return;
+    // Blocking travel owns Slate on its loading thread. Construct/layout the
+    // retained UMG presentation on the next controller refresh after handoff.
+    if(IsMoviePlayerEnabled()) if(auto* Movie=GetMoviePlayer();Movie && Movie->IsMovieCurrentlyPlaying()) return;
     if(!FishingRewardWidget) {
         FishingRewardWidget=CreateWidget<UMCFishingRewardWidget>(this,
             UMCGameplayUIFactory::ResolveClass(TEXT("FishingReward"),UMCFishingRewardWidget::StaticClass()));

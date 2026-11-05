@@ -22,7 +22,7 @@ public:
     UFUNCTION(BlueprintPure, Category="Settings") static UMCGameUserSettings* Get();
     EMCUIVersion GetUIPresentationVersion() const { return UIPresentationVersion; }
     /** Use the UI factory to notify live widgets and optionally persist the preference. */
-    void SetUIPresentationVersion(EMCUIVersion Value) { UIPresentationVersion=Value==EMCUIVersion::New?Value:EMCUIVersion::Current; }
+    void SetUIPresentationVersion(EMCUIVersion Value) { UIPresentationVersion=Value==EMCUIVersion::Current?Value:EMCUIVersion::New; }
     UFUNCTION(BlueprintPure, Category="Settings|Audio") float GetMasterVolume() const { return MasterVolume; }
     UFUNCTION(BlueprintPure, Category="Settings|Audio") float GetMusicVolume() const { return MusicVolume; }
     UFUNCTION(BlueprintPure, Category="Settings|Audio") float GetAmbienceVolume() const { return AmbienceVolume; }
@@ -85,7 +85,9 @@ public:
 protected:
     virtual void BeginDestroy() override;
 private:
-    UPROPERTY(Config) EMCUIVersion UIPresentationVersion=EMCUIVersion::Current;
+    UPROPERTY(Config) EMCUIVersion UIPresentationVersion=EMCUIVersion::New;
+    /** Migrate the former automatic Current default once; later explicit debug choices survive. */
+    UPROPERTY(Config) bool bHasUpdatedUIPresentationDefault=false;
     UPROPERTY(Config) float MasterVolume=1.f;
     UPROPERTY(Config) float MusicVolume=1.f;
     UPROPERTY(Config) float AmbienceVolume=1.f;
