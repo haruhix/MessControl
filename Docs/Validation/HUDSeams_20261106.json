@@ -1,0 +1,77 @@
+{
+  "task": "Shared translucent UI contour seams and ordinary chest Reward sizing",
+  "dateLocal": "2026-11-06",
+  "timezone": "Asia/Yakutsk",
+  "evidenceRoot": "E:/CodexWork/MessControl/Validation/HUDSeams_20261106",
+  "changes": [
+    {
+      "source": "Source/MessControl/Private/MCUIContourShape.cpp",
+      "behavior": "Composite fill, outline and shadow coverage once per pixel; remove background seams between independently antialiased regions. Correct inset radius at concave corners.",
+      "scope": "Shared contours used by translucent HUD panels, player/skill/perk chips, Reward/Shop/Wardrobe contours, Emote sectors, world-label frames and thin reticle/timer shapes.",
+      "resources": "Existing shader and WhiteBrush; no new runtime assets, textures or materials. Existing theme color and opacity values retained.",
+      "sha256": "EB31991DB529ECF7A7063506C680D5C70F86C281E64A52A342C450F7058AD965"
+    },
+    {
+      "source": "Source/MessControl/Private/MCUnifiedRewardWidget.cpp",
+      "behavior": "Bound ordinary 1-3 offer modal to 1240 logical units; shrink artwork for height before widening text, without regrowing icons.",
+      "scope": "Ordinary chest offers. Replacement and contract policies, fonts, copy and backend actions unchanged.",
+      "sha256": "28E908224AE786556A286F31E5EF1E5B94A6B965DBE5CFAB0BCEBA9D9C935845"
+    }
+  ],
+  "validation": {
+    "editorBuild": {"result": "Succeeded", "seconds": 73.25, "log": "EditorBuildDriver01.log"},
+    "diffCheck": "Passed",
+    "previewComparison": {
+      "cases": 12,
+      "metrics": "CompareMetrics.json",
+      "unchangedFlatRGBAPatches": 12,
+      "unchangedHUDLayoutRects": 10,
+      "pixelIdenticalStockScreens": ["Settings", "TEAM", "Loading"],
+      "rewardFrame1280BeforeAfter": [[1228.052, 667.332], [825.840, 610.722]],
+      "rewardFrame1920WidthBeforeAfter": [1842, 1074],
+      "reward1920Caveat": "Fixture remains tall at 1000 pixels; no blanket claim for arbitrary long copy or all locales."
+    },
+    "soloPIE": {
+      "mode": "Single standalone authority, transient profile, actual L_Mouth",
+      "resourceReadiness": "MC_PRELOAD_READY resources=1811 streaming=539/539. Editor Niagara preparation waited normally; no barrier bypass.",
+      "personallyInspectedNativeCaptures": ["After_Runtime01.png", "After_Runtime_Pickaxe.png", "After_Runtime_Spray.png", "ActualChestReward.png"],
+      "observed": "Checked HUD joints are continuous with world visible through translucent panels. Brush, pickaxe and spray HUDs and thin spray reticle inspected.",
+      "actualChest": {
+        "recipe": "Real BP_RewardChest placed-reward BeginPlay path in existing MCRewardDropZone_4; owned pawn positioned at traced native floor/keyhole; native held-input route and natural lockpick/open timers.",
+        "stages": ["LOCKPICKING", "OPEN", "EXHAUSTED"],
+        "offerIDs": ["Active_Sponge", "B2_StartFromDash", "B2_ReturnTrip"],
+        "fabricatedOffers": false,
+        "choiceGranted": false,
+        "modalLogicalSize": [1240, 918],
+        "nativeScreenshotBlueFillSizePixels": [822, 606],
+        "visible": "Three actual cards, full descriptions and Skip fit in centered modal.",
+        "closedVia": "Native PlayerController SkipRewardPerk handler; no physical pointer-click proof.",
+        "afterSkip": {"rewardVisible": false, "moveIgnored": false, "lookIgnored": false, "showCursor": false},
+        "evidence": ["ChestResult.json", "AfterSkip.json"]
+      }
+    }
+  },
+  "restoration": {
+    "approvedUserPIEStop": true,
+    "ownedEditorClosedNormally": true,
+    "ordinaryEditorRestored": true,
+    "map": "/Game/Maps/L_Mouth.L_Mouth",
+    "originalCameraRestored": true,
+    "dirtyPackages": [],
+    "PIEActive": false,
+    "evidence": "EditorRestored.json",
+    "userFilesPreservedSHA256": {
+      "Content/Blueprints/BP_PlayerCharacter.uasset": "14A2EDEFB88BCDED4973189AF12E774D3B311BD3308D7C68715FAA9C7C90B0AD",
+      "Tools/ReviewBoard/seed.json": "F220B762A5149D1247B74570F927C59E04ED39175E5523E63DAF4CE58906BEFD"
+    },
+    "priorUncommittedChanges": "Preserved",
+    "workingOutputs": "E:; own managed C: UBT traces copied to UBTTraces with SHA256 verification then removed from fixed output paths."
+  },
+  "limitations": [
+    "No Game build, cook or ZIP update for these changes; previously delivered UITravel_Game07 ZIP still contains previous code.",
+    "No new multiplayer, full gameplay/Cold route, HDR or packaged cold-launch validation.",
+    "Stock opaque widgets and independent legacy painters are separate paths; representative comparisons do not prove every interface state.",
+    "Photoshop was unavailable; this task retained existing PSD-derived theme values and checked existing PSD reference artboards, not a new live Photoshop extraction.",
+    "No new assets or packages saved; only the two listed C++ files changed for this task."
+  ]
+}

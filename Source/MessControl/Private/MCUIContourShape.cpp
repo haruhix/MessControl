@@ -11,39 +11,9 @@ namespace MCUIContourPrivate
     double Cross(FVector2D A,FVector2D B,FVector2D C)
     {return (B.X-A.X)*(C.Y-A.Y)-(B.Y-A.Y)*(C.X-A.X);}
 
-    bool Triangulate(const TArray<FVector2D>& Points,TArray<SlateIndex>& Out)
-    {
-        Out.Reset();if(Points.Num()<3 || int64(Points.Num())>int64(TNumericLimits<SlateIndex>::Max())) return false;
-        double Area=0;
-        for(int32 I=0;I<Points.Num();++I) {
-            const FVector2D A=Points[I],B=Points[(I+1)%Points.Num()];Area+=A.X*B.Y-B.X*A.Y;
-        }
-        if(FMath::Abs(Area)<.000001) return false;
-        TArray<int32> Remaining;Remaining.Reserve(Points.Num());
-        for(int32 I=0;I<Points.Num();++I) Remaining.Add(Area>0?I:Points.Num()-1-I);
-        while(Remaining.Num()>3) {
-            bool Removed=false;
-            for(int32 I=0;I<Remaining.Num();++I) {
-                const int32 A=Remaining[(I+Remaining.Num()-1)%Remaining.Num()],B=Remaining[I],C=Remaining[(I+1)%Remaining.Num()];
-                if(Cross(Points[A],Points[B],Points[C])<=.000001) continue;
-                bool Contains=false;
-                for(int32 Candidate:Remaining) {
-                    if(Candidate==A || Candidate==B || Candidate==C) continue;
-                    if(Cross(Points[A],Points[B],Points[Candidate])>=-.000001
-                        && Cross(Points[B],Points[C],Points[Candidate])>=-.000001
-                        && Cross(Points[C],Points[A],Points[Candidate])>=-.000001) {Contains=true;break;}
-                }
-                if(Contains) continue;
-                Out.Append({SlateIndex(A),SlateIndex(B),SlateIndex(C)});Remaining.RemoveAt(I);Removed=true;break;
-            }
-            if(!Removed) {Out.Reset();return false;}
-        }
-        Out.Append({SlateIndex(Remaining[0]),SlateIndex(Remaining[1]),SlateIndex(Remaining[2])});return true;
-    }
-
     TArray<FVector2D> MakePath(const TArray<FVector2D>& Normalized,FVector2D Size,float Outline,float Radius)
     {
-        // Bounded editable contours keep both ear clipping and SlateIndex safe.
+        // Editable contours have a bounded number of scanline edges.
         TArray<FVector2D> Raw;if(Normalized.Num()<3 || Normalized.Num()>64 || !FMath::IsFinite(Size.X) || !FMath::IsFinite(Size.Y)
             || !FMath::IsFinite(Outline) || !FMath::IsFinite(Radius) || Size.X<=0 || Size.Y<=0) return Raw;
         const double Inset=FMath::Min(double(FMath::Max(0.f,Outline))*.5,FMath::Min(Size.X,Size.Y)*.5);
@@ -53,7 +23,7 @@ namespace MCUIContourPrivate
             if(Raw.IsEmpty() || !Point.Equals(Raw.Last(),.0001)) Raw.Add(Point);
         }
         if(Raw.Num()>1 && Raw[0].Equals(Raw.Last(),.0001)) Raw.Pop();
-        // Remove straight intermediate points before rounding and ear clipping.
+        // Remove straight intermediate points before rounding.
         bool Changed=true;
         while(Changed && Raw.Num()>3) {
             Changed=false;
@@ -81,12 +51,16 @@ namespace MCUIContourPrivate
             if(OffsetArea*SignedArea<=.000001) return {};
             Raw=MoveTemp(Offset);
         }
-        const double RoundedRadius=FMath::Max(0.,double(Radius)-Inset);
-        if(RoundedRadius<=.001) return Raw;
+        if(Radius<=.001 && Inset<=.001) return Raw;
         TArray<FVector2D> Rounded;Rounded.Reserve(Raw.Num()*9);
         for(int32 I=0;I<Raw.Num();++I) {
             const FVector2D Point=Raw[I],Incoming=Point-Raw[(I+Raw.Num()-1)%Raw.Num()],Outgoing=Raw[(I+1)%Raw.Num()]-Point;
+            // An inset shrinks convex radii and expands concave radii. Using
+            // the convex rule at a tab's notch pinches its interior outline.
+            const bool Concave=Cross(FVector2D::ZeroVector,Incoming,Outgoing)*SignedArea<0;
+            const double RoundedRadius=FMath::Max(0.,double(Radius)+(Concave?Inset:-Inset));
             const double Reach=FMath::Min(RoundedRadius,FMath::Min(Incoming.Size(),Outgoing.Size())*.45);
+            if(Reach<=.001) {Rounded.Add(Point);continue;}
             const FVector2D Start=Point-Incoming.GetSafeNormal()*Reach,End=Point+Outgoing.GetSafeNormal()*Reach;
             for(int32 Step=0;Step<=8;++Step) {
                 const double T=Step/8.;Rounded.Add(Start*((1-T)*(1-T))+Point*(2*(1-T)*T)+End*(T*T));
@@ -95,126 +69,145 @@ namespace MCUIContourPrivate
         return Rounded;
     }
 
-    using FConvexPiece=TArray<FVector2D>;
     constexpr double ClipEpsilon=.00001;
-    bool HasArea(const FConvexPiece& Polygon)
+
+    struct FRasterBatch
     {
-        if(Polygon.Num()<3) return false;
-        double Area=0;for(int32 I=1;I+1<Polygon.Num();++I) Area+=Cross(Polygon[0],Polygon[I],Polygon[I+1]);
-        return FMath::Abs(Area)>.000001;
-    }
-    float BoundaryCoverage(FVector2D Point,const TArray<FVector2D>& Outer,float Width)
+        TArray<FSlateVertex> Vertices;
+        TArray<SlateIndex> Indices;
+    };
+    using FInterval=FVector2D;
+    constexpr int32 RasterSamples=8;
+    constexpr int32 MaxRasterSide=8192;
+    constexpr int64 MaxRasterPixels=16*1024*1024;
+    constexpr int64 MaxScanTests=32*1024*1024;
+    constexpr int32 MaxRasterRuns=262144;
+
+    TArray<FVector2D> ScreenPath(const TArray<FVector2D>& Local,const FSlateRenderTransform& Transform,FVector2D Offset=FVector2D::ZeroVector)
     {
-        double DistanceSquared=TNumericLimits<double>::Max();
-        for(int32 I=0;I<Outer.Num();++I) {
-            const FVector2D A=Outer[I],Edge=Outer[(I+1)%Outer.Num()]-A;const double LengthSquared=Edge.SizeSquared();
-            if(LengthSquared<=1.e-12) continue;
-            const double T=FMath::Clamp(FVector2D::DotProduct(Point-A,Edge)/LengthSquared,0.,1.);
-            DistanceSquared=FMath::Min(DistanceSquared,(Point-(A+Edge*T)).SizeSquared());
+        TArray<FVector2D> Result;Result.Reserve(Local.Num());
+        for(FVector2D Point:Local) {
+            const FVector2f P=TransformPoint(Transform,FVector2f(Point+Offset));
+            if(!FMath::IsFinite(P.X) || !FMath::IsFinite(P.Y)) return {};
+            Result.Add(FVector2D(P));
         }
-        return FMath::Clamp(float(FMath::Sqrt(DistanceSquared)/FMath::Max(.00001f,Width)),0.f,1.f);
-    }
-    FConvexPiece ClipHalfPlane(const FConvexPiece& Polygon,FVector2D A,FVector2D B,bool Inside,double Bias=ClipEpsilon)
-    {
-        FConvexPiece Result;if(Polygon.IsEmpty()) return Result;
-        const double Length=(B-A).Size();if(Length<=ClipEpsilon) return Result;
-        auto Distance=[&](FVector2D P){return Cross(A,B,P)/Length+Bias;};
-        auto Keep=[Inside](double D){return Inside?D>=0:D<=0;};
-        auto Add=[&](FVector2D P){if(Result.IsEmpty() || !P.Equals(Result.Last(),ClipEpsilon)) Result.Add(P);};
-        FVector2D Previous=Polygon.Last();double Before=Distance(Previous);bool KeptBefore=Keep(Before);
-        for(FVector2D Current:Polygon) {
-            const double After=Distance(Current);const bool KeptAfter=Keep(After);
-            if(KeptBefore!=KeptAfter) {
-                const double Divisor=Before-After;
-                if(FMath::Abs(Divisor)>1.e-12) Add(Previous+(Current-Previous)*FMath::Clamp(Before/Divisor,0.,1.));
-            }
-            if(KeptAfter) Add(Current);
-            Previous=Current;Before=After;KeptBefore=KeptAfter;
-        }
-        if(Result.Num()>1 && Result[0].Equals(Result.Last(),ClipEpsilon)) Result.Pop();
         return Result;
     }
-    void SubtractTriangle(const FConvexPiece& Subject,const FVector2D (&Clip)[3],TArray<FConvexPiece>& Out,double Bias)
+    void ScanIntervals(const TArray<FVector2D>& Path,double Y,TArray<FInterval>& Out,TArray<double>& Crossings)
     {
-        // No intersection: retain the original piece rather than splitting along unrelated internal diagonals.
-        FConvexPiece Intersection=Subject;
-        for(int32 Edge=0;Edge<3 && !Intersection.IsEmpty();++Edge) Intersection=ClipHalfPlane(Intersection,Clip[Edge],Clip[(Edge+1)%3],true,Bias);
-        if(!HasArea(Intersection)) {Out.Add(Subject);return;}
-        FConvexPiece Remaining=Subject;
-        for(int32 Edge=0;Edge<3 && HasArea(Remaining);++Edge) {
-            FConvexPiece Outside=ClipHalfPlane(Remaining,Clip[Edge],Clip[(Edge+1)%3],false,Bias);
-            if(HasArea(Outside)) Out.Add(MoveTemp(Outside));
-            Remaining=ClipHalfPlane(Remaining,Clip[Edge],Clip[(Edge+1)%3],true,Bias);
+        Out.Reset();Crossings.Reset();
+        for(int32 I=0;I<Path.Num();++I) {
+            const FVector2D A=Path[I],B=Path[(I+1)%Path.Num()];
+            // Half-open edges count a shared vertex once, for either winding.
+            if((A.Y<=Y && B.Y>Y) || (B.Y<=Y && A.Y>Y))
+                Crossings.Add(A.X+(Y-A.Y)*(B.X-A.X)/(B.Y-A.Y));
+        }
+        Crossings.Sort();
+        for(int32 I=0;I+1<Crossings.Num();I+=2)
+            if(Crossings[I+1]>Crossings[I]) Out.Add({Crossings[I],Crossings[I+1]});
+    }
+    FVector4d Premultiplied(FColor Color)
+    {
+        const double Alpha=Color.A/255.;
+        // Slate's ordinary Windows SDR path gamma-encodes before source-over.
+        // Keep existing flat FColor bytes and average in that blend domain.
+        return FVector4d(Color.R/255.*Alpha,Color.G/255.*Alpha,Color.B/255.*Alpha,Alpha);
+    }
+    FColor StraightColor(FVector4d Value)
+    {
+        const double Alpha=FMath::Clamp(Value.W,0.,1.);
+        const auto Byte=[](double V){return uint8(FMath::Clamp(FMath::RoundToInt(V*255.),0,255));};
+        if(Alpha<.5/255.) return FColor(0,0,0,0);
+        return FColor(Byte(Value.X/Alpha),Byte(Value.Y/Alpha),Byte(Value.Z/Alpha),Byte(Alpha));
+    }
+    void AddSpan(double Left,double Right,int32 MinX,int32 Width,const FVector4d& Color,TArray<FVector4d>& Differences)
+    {
+        Left=FMath::Clamp(Left-MinX,0.,double(Width));Right=FMath::Clamp(Right-MinX,0.,double(Width));
+        if(Right<=Left || Color.W<=0) return;
+        const int32 First=FMath::FloorToInt(Left),Last=FMath::CeilToInt(Right)-1;
+        auto AddRange=[&](int32 Begin,int32 End,double Coverage) {
+            if(Begin>=End || Coverage<=0) return;
+            const FVector4d Value=Color*(Coverage/RasterSamples);
+            Differences[Begin]+=Value;Differences[End]-=Value;
+        };
+        if(First==Last) AddRange(First,First+1,Right-Left);
+        else {
+            AddRange(First,First+1,First+1.-Left);
+            AddRange(First+1,Last,1.);
+            AddRange(Last,Last+1,Right-Last);
         }
     }
-    bool AppendPiece(const FConvexPiece& Piece,TArray<FVector2D>& Vertices,TArray<SlateIndex>& Indices)
+    void AddPartition(const TArray<FInterval>& Subject,const TArray<FInterval>& Cut,bool Intersection,
+        int32 MinX,int32 Width,const FVector4d& Color,TArray<FVector4d>& Differences)
     {
-        if(!HasArea(Piece)) return true;
-        const int32 MaxVertices=int32(FMath::Min<int64>(32760,int64(TNumericLimits<SlateIndex>::Max())));
-        if(Vertices.Num()+Piece.Num()>MaxVertices || Indices.Num()+3*(Piece.Num()-2)>98304) return false;
-        const int32 Base=Vertices.Num();Vertices.Append(Piece);
-        for(int32 I=1;I+1<Piece.Num();++I)
-            if(FMath::Abs(Cross(Piece[0],Piece[I],Piece[I+1]))>.000001)
-                Indices.Append({SlateIndex(Base),SlateIndex(Base+I),SlateIndex(Base+I+1)});
+        if(Color.W<=0) return;
+        for(FInterval S:Subject) {
+            double Cursor=S.X;
+            for(FInterval C:Cut) {
+                if(C.Y<=Cursor) continue;if(C.X>=S.Y) break;
+                if(Intersection) AddSpan(FMath::Max(S.X,C.X),FMath::Min(S.Y,C.Y),MinX,Width,Color,Differences);
+                else if(C.X>Cursor) AddSpan(Cursor,FMath::Min(S.Y,C.X),MinX,Width,Color,Differences);
+                Cursor=FMath::Max(Cursor,C.Y);if(Cursor>=S.Y) break;
+            }
+            if(!Intersection && Cursor<S.Y) AddSpan(Cursor,S.Y,MinX,Width,Color,Differences);
+        }
+    }
+    bool AddRun(int32 Left,int32 Right,int32 Y,FColor Color,int32& Runs,TArray<FRasterBatch>& Batches)
+    {
+        if(Color.A==0 || Right<=Left) return true;
+        if(++Runs>MaxRasterRuns) return false;
+        constexpr int32 MaxVertices=32760;
+        if(Batches.IsEmpty() || Batches.Last().Vertices.Num()+4>MaxVertices) Batches.AddDefaulted();
+        auto& Batch=Batches.Last();const int32 Base=Batch.Vertices.Num();
+        const FSlateRenderTransform Identity;
+        for(FVector2f P:{FVector2f(float(Left),float(Y)),FVector2f(float(Right),float(Y)),
+            FVector2f(float(Right),float(Y+1)),FVector2f(float(Left),float(Y+1))})
+            Batch.Vertices.Add(FSlateVertex::Make<ESlateVertexRounding::Disabled>(Identity,P,FVector2f(.5f,.5f),Color));
+        Batch.Indices.Append({SlateIndex(Base),SlateIndex(Base+1),SlateIndex(Base+2),SlateIndex(Base),SlateIndex(Base+2),SlateIndex(Base+3)});
         return true;
     }
-    bool MakeDifferenceMesh(const TArray<FVector2D>& Path,const TArray<SlateIndex>& Triangles,const TArray<FVector2D>& Outer,
-        const TArray<SlateIndex>& OuterTriangles,FVector2D Offset,TArray<FVector2D>& Vertices,TArray<SlateIndex>& Indices,double Bias)
+    bool Rasterize(const TArray<FVector2D>& Outer,const TArray<FVector2D>& Inner,const TArray<FVector2D>& Shadow,
+        bool HasOutline,const FSlateRect& Clip,FColor FillColor,FColor OutlineColor,FColor ShadowColor,TArray<FRasterBatch>& Batches)
     {
-        Vertices.Reset();Indices.Reset();
-        auto Fail=[&](){Vertices.Reset();Indices.Reset();return false;};
-        if(!FMath::IsFinite(Offset.X) || !FMath::IsFinite(Offset.Y) || OuterTriangles.IsEmpty()) return Fail();
-        int32 ClipTests=0;
-        for(int32 Triangle=0;Triangle+2<Triangles.Num();Triangle+=3) {
-            TArray<FConvexPiece> Pieces;
-            FConvexPiece First={Path[Triangles[Triangle]]+Offset,Path[Triangles[Triangle+1]]+Offset,Path[Triangles[Triangle+2]]+Offset};
-            Pieces.Add(MoveTemp(First));
-            for(int32 Cut=0;Cut+2<OuterTriangles.Num() && !Pieces.IsEmpty();Cut+=3) {
-                const FVector2D Clip[]={Outer[OuterTriangles[Cut]],Outer[OuterTriangles[Cut+1]],Outer[OuterTriangles[Cut+2]]};
-                FBox2D CutBounds(ForceInit);for(FVector2D P:Clip) CutBounds+=P;
-                TArray<FConvexPiece> Next;
-                for(const auto& Piece:Pieces) {
-                    if(++ClipTests>1000000) return Fail();
-                    FBox2D Bounds(ForceInit);for(FVector2D P:Piece) Bounds+=P;
-                    if(!Bounds.Intersect(CutBounds)) Next.Add(Piece);else SubtractTriangle(Piece,Clip,Next,Bias);
-                    if(Next.Num()>4096) return Fail();
-                }
-                Pieces=MoveTemp(Next);
+        Batches.Reset();if(Outer.Num()<3) return false;
+        FBox2D Bounds(ForceInit);for(FVector2D P:Outer) Bounds+=P;for(FVector2D P:Shadow) Bounds+=P;
+        const double Left=FMath::Max(Bounds.Min.X,double(Clip.Left)),Right=FMath::Min(Bounds.Max.X,double(Clip.Right));
+        const double Top=FMath::Max(Bounds.Min.Y,double(Clip.Top)),Bottom=FMath::Min(Bounds.Max.Y,double(Clip.Bottom));
+        if(!FMath::IsFinite(Left) || !FMath::IsFinite(Right) || !FMath::IsFinite(Top) || !FMath::IsFinite(Bottom)
+            || FMath::Abs(Left)>1.e7 || FMath::Abs(Right)>1.e7 || FMath::Abs(Top)>1.e7 || FMath::Abs(Bottom)>1.e7) return false;
+        if(Right<=Left || Bottom<=Top) return true;
+        const int32 MinX=FMath::FloorToInt(Left),MaxX=FMath::CeilToInt(Right),MinY=FMath::FloorToInt(Top),MaxY=FMath::CeilToInt(Bottom);
+        const int32 Width=MaxX-MinX,Height=MaxY-MinY;
+        if(Width>MaxRasterSide || Height>MaxRasterSide || int64(Width)*Height>MaxRasterPixels
+            || int64(Height)*RasterSamples*(Outer.Num()+Inner.Num()+Shadow.Num())>MaxScanTests) return false;
+        const FVector4d Fill=Premultiplied(FillColor),Outline=Premultiplied(OutlineColor),ShadowTint=Premultiplied(ShadowColor);
+        TArray<FVector4d> Differences;
+        TArray<FInterval> BodySpans,InnerSpans,ShadowSpans;
+        TArray<double> Crossings;int32 Runs=0;int64 PartitionTests=0;
+        for(int32 Y=MinY;Y<MaxY;++Y) {
+            Differences.Init(FVector4d(0,0,0,0),Width+1);
+            for(int32 Sample=0;Sample<RasterSamples;++Sample) {
+                const double ScanY=Y+(Sample+.5)/RasterSamples;
+                ScanIntervals(Outer,ScanY,BodySpans,Crossings);ScanIntervals(Inner,ScanY,InnerSpans,Crossings);ScanIntervals(Shadow,ScanY,ShadowSpans,Crossings);
+                PartitionTests+=(HasOutline?2ll*BodySpans.Num()*InnerSpans.Num():0ll)+int64(ShadowSpans.Num())*BodySpans.Num();
+                if(PartitionTests>MaxScanTests) {Batches.Reset();return false;}
+                // Samples belong to exactly one region. Fractional boundary
+                // pixels retain both sides' coverage without layering alpha.
+                if(HasOutline) {
+                    AddPartition(BodySpans,InnerSpans,true,MinX,Width,Fill,Differences);
+                    AddPartition(BodySpans,InnerSpans,false,MinX,Width,Outline,Differences);
+                } else for(FInterval Span:BodySpans) AddSpan(Span.X,Span.Y,MinX,Width,Fill,Differences);
+                AddPartition(ShadowSpans,BodySpans,false,MinX,Width,ShadowTint,Differences);
             }
-            for(const auto& Piece:Pieces) {
-                if(!AppendPiece(Piece,Vertices,Indices)) return Fail();
+            FVector4d Sum(0,0,0,0);FColor RunColor(0,0,0,0);int32 Start=0;
+            for(int32 X=0;X<=Width;++X) {
+                FColor Color(0,0,0,0);if(X<Width) {Sum+=Differences[X];Color=StraightColor(Sum);}
+                if(Color==RunColor) continue;
+                if(!AddRun(MinX+Start,MinX+X,Y,RunColor,Runs,Batches)) {Batches.Reset();return false;}
+                Start=X;RunColor=Color;
             }
         }
         return true;
-    }
-    bool MakeIntersectionMesh(const TArray<FVector2D>& Path,const TArray<SlateIndex>& Triangles,const TArray<FVector2D>& Outer,
-        const TArray<SlateIndex>& OuterTriangles,TArray<FVector2D>& Vertices,TArray<SlateIndex>& Indices)
-    {
-        Vertices.Reset();Indices.Reset();int32 Tests=0;
-        auto Fail=[&](){Vertices.Reset();Indices.Reset();return false;};
-        if(Triangles.IsEmpty() || OuterTriangles.IsEmpty()) return Fail();
-        for(int32 T=0;T+2<Triangles.Num();T+=3) {
-            const FConvexPiece Subject={Path[Triangles[T]],Path[Triangles[T+1]],Path[Triangles[T+2]]};
-            FBox2D Bounds(ForceInit);for(FVector2D P:Subject) Bounds+=P;
-            for(int32 C=0;C+2<OuterTriangles.Num();C+=3) {
-                if(++Tests>1000000) return Fail();
-                const FVector2D Clip[]={Outer[OuterTriangles[C]],Outer[OuterTriangles[C+1]],Outer[OuterTriangles[C+2]]};
-                FBox2D CutBounds(ForceInit);for(FVector2D P:Clip) CutBounds+=P;
-                if(!Bounds.Intersect(CutBounds)) continue;
-                FConvexPiece Piece=Subject;
-                // Zero bias keeps adjacent clip triangles disjoint; no doubled alpha along their shared diagonal.
-                for(int32 Edge=0;Edge<3 && !Piece.IsEmpty();++Edge) Piece=ClipHalfPlane(Piece,Clip[Edge],Clip[(Edge+1)%3],true,0.);
-                if(!AppendPiece(Piece,Vertices,Indices)) return Fail();
-            }
-        }
-        return true;
-    }
-    void MakeShadowMesh(const TArray<FVector2D>& Path,const TArray<SlateIndex>& Triangles,const TArray<FVector2D>& Outer,
-        FVector2D Offset,TArray<FVector2D>& Vertices,TArray<SlateIndex>& Indices)
-    {
-        Vertices.Reset();Indices.Reset();if(Offset.IsNearlyZero(ClipEpsilon)) return;
-        TArray<SlateIndex> OuterTriangles;if(!Triangulate(Outer,OuterTriangles)) return;
-        MakeDifferenceMesh(Path,Triangles,Outer,OuterTriangles,Offset,Vertices,Indices,ClipEpsilon);
     }
 }
 
@@ -225,71 +218,47 @@ public:
     void Construct(const FArguments& Args) {Owner=Args._Owner;}
     virtual FVector2D ComputeDesiredSize(float) const override
     {return Owner.IsValid()?Owner->DesiredSize:FVector2D(100,100);}
-    virtual int32 OnPaint(const FPaintArgs&,const FGeometry& Geometry,const FSlateRect&,FSlateWindowElementList& Elements,
+    virtual int32 OnPaint(const FPaintArgs&,const FGeometry& Geometry,const FSlateRect& CullingRect,FSlateWindowElementList& Elements,
         int32 Layer,const FWidgetStyle& Style,bool bParentEnabled) const override
     {
         const auto* Data=Owner.Get();if(!Data || Style.GetColorAndOpacityTint().A<=0) return Layer;
         const FVector2D Size=Geometry.GetLocalSize();
-        const auto RenderScale=Geometry.GetAccumulatedRenderTransform().GetMatrix().GetScale().GetVector();
-        const float PixelsPerUnit=FMath::Min(FMath::Abs(RenderScale.X),FMath::Abs(RenderScale.Y));
-        const float AAWidth=1.f/(FMath::IsFinite(PixelsPerUnit)?FMath::Max(.001f,PixelsPerUnit):1.f);
-        if(CachedNormalized!=Data->Points || !CachedSize.Equals(Size,.001) || CachedOutline!=Data->OutlineWidth || CachedRadius!=Data->CornerRadius || !CachedShadowOffset.Equals(Data->ShadowOffset,.00001) || !FMath::IsNearlyEqual(CachedAAWidth,AAWidth,.00001f)) {
-            CachedNormalized=Data->Points;CachedSize=Size;CachedOutline=Data->OutlineWidth;CachedRadius=Data->CornerRadius;CachedShadowOffset=Data->ShadowOffset;CachedAAWidth=AAWidth;
-            CachedPath=MCUIContourPrivate::MakePath(Data->Points,Size,Data->OutlineWidth,Data->CornerRadius);
-            MCUIContourPrivate::Triangulate(CachedPath,CachedTriangles);
-            const auto Outer=MCUIContourPrivate::MakePath(Data->Points,Size,0,Data->CornerRadius);
-            TArray<SlateIndex> OuterTriangles;MCUIContourPrivate::Triangulate(Outer,OuterTriangles);
-            const auto AABoundary=MCUIContourPrivate::MakePath(Data->Points,Size,AAWidth*2.f,Data->CornerRadius);
-            TArray<SlateIndex> AATriangles;MCUIContourPrivate::Triangulate(AABoundary,AATriangles);
-            CachedOutlinePath.Reset();CachedOutlineTriangles.Reset();CachedAACoverage.Reset();
-            CachedFillPath=AABoundary;CachedFillTriangles=AATriangles;
-            bool PartitionReady=!AATriangles.IsEmpty() && MCUIContourPrivate::MakeDifferenceMesh(Outer,OuterTriangles,AABoundary,AATriangles,FVector2D::ZeroVector,CachedAAPath,CachedAATriangles,0.);
-            if(PartitionReady && Data->OutlineWidth>0) {
-                const auto Inner=MCUIContourPrivate::MakePath(Data->Points,Size,Data->OutlineWidth*2.f,Data->CornerRadius);
-                TArray<SlateIndex> InnerTriangles;MCUIContourPrivate::Triangulate(Inner,InnerTriangles);
-                // Partition one outer silhouette: the fill cannot protrude into a
-                // concave notch, and the outline never overlaps itself or the fill.
-                const bool FillReady=MCUIContourPrivate::MakeIntersectionMesh(Inner,InnerTriangles,AABoundary,AATriangles,CachedFillPath,CachedFillTriangles);
-                PartitionReady=FillReady && MCUIContourPrivate::MakeDifferenceMesh(AABoundary,AATriangles,Inner,InnerTriangles,FVector2D::ZeroVector,CachedOutlinePath,CachedOutlineTriangles,0.);
-            }
-            if(!PartitionReady) { // Bounded failure keeps a single-coverage body, never an overlapping fallback stroke.
-                CachedFillPath=Outer;CachedFillTriangles=OuterTriangles;CachedOutlinePath.Reset();CachedOutlineTriangles.Reset();CachedAAPath.Reset();CachedAATriangles.Reset();
-            }
-            CachedAACoverage.Reserve(CachedAAPath.Num());
-            for(FVector2D Point:CachedAAPath) CachedAACoverage.Add(MCUIContourPrivate::BoundaryCoverage(Point,Outer,AAWidth));
-            // Remove the outer silhouette, including the outline, before alpha blending the offset shadow.
-            MCUIContourPrivate::MakeShadowMesh(CachedPath,CachedTriangles,Outer,Data->ShadowOffset,CachedShadowPath,CachedShadowTriangles);
+        const auto Transform=Geometry.GetAccumulatedRenderTransform();
+        const FColor Fill=(Data->FillColor*Style.GetColorAndOpacityTint()).ToFColorSRGB();
+        const FColor Outline=(Data->OutlineColor*Style.GetColorAndOpacityTint()).ToFColorSRGB();
+        const FColor Shadow=(Data->ShadowColor*Style.GetColorAndOpacityTint()).ToFColorSRGB();
+        if(!bCached || CachedNormalized!=Data->Points || CachedSize!=Size || CachedOutline!=Data->OutlineWidth
+            || CachedRadius!=Data->CornerRadius || CachedShadowOffset!=Data->ShadowOffset || CachedTransform!=Transform
+            || CachedClip!=CullingRect || CachedFill!=Fill || CachedEdge!=Outline || CachedShadow!=Shadow) {
+            bCached=true;CachedNormalized=Data->Points;CachedSize=Size;CachedOutline=Data->OutlineWidth;CachedRadius=Data->CornerRadius;
+            CachedShadowOffset=Data->ShadowOffset;CachedTransform=Transform;CachedClip=CullingRect;CachedFill=Fill;CachedEdge=Outline;CachedShadow=Shadow;
+            const auto Outer=MCUIContourPrivate::ScreenPath(MCUIContourPrivate::MakePath(Data->Points,Size,0,Data->CornerRadius),Transform);
+            const auto Inner=Data->OutlineWidth>0?
+                MCUIContourPrivate::ScreenPath(MCUIContourPrivate::MakePath(Data->Points,Size,Data->OutlineWidth*2.f,Data->CornerRadius),Transform):TArray<FVector2D>();
+            const auto ShadowPath=Shadow.A>0 && !Data->ShadowOffset.IsNearlyZero(MCUIContourPrivate::ClipEpsilon)?
+                MCUIContourPrivate::ScreenPath(MCUIContourPrivate::MakePath(Data->Points,Size,Data->OutlineWidth,Data->CornerRadius),Transform,Data->ShadowOffset):TArray<FVector2D>();
+            MCUIContourPrivate::Rasterize(Outer,Inner,ShadowPath,Data->OutlineWidth>0,CullingRect,Fill,Outline,Shadow,CachedBatches);
         }
-        if(CachedTriangles.IsEmpty()) return Layer;
+        if(CachedBatches.IsEmpty()) return Layer;
         const ESlateDrawEffect Effects=ShouldBeEnabled(bParentEnabled)?ESlateDrawEffect::None:ESlateDrawEffect::DisabledEffect;
         const auto Resource=FSlateApplication::Get().GetRenderer()->GetResourceHandle(*FCoreStyle::Get().GetBrush(TEXT("WhiteBrush")));
-        const auto Transform=Geometry.GetAccumulatedRenderTransform();
-        auto Polygon=[&](const TArray<FVector2D>& Path,const TArray<SlateIndex>& Triangles,FLinearColor Color,int32 PaintLayer,const TArray<float>* Coverage=nullptr)
-        {
-            const FColor Tint=(Color*Style.GetColorAndOpacityTint()).ToFColorSRGB();if(Tint.A==0 || Triangles.IsEmpty()) return;
-            TArray<FSlateVertex> Vertices;Vertices.Reserve(Path.Num());
-            for(int32 I=0;I<Path.Num();++I) {
-                FColor VertexTint=Tint;
-                if(Coverage && Coverage->IsValidIndex(I)) VertexTint.A=uint8(FMath::Clamp(FMath::RoundToInt(Tint.A*(*Coverage)[I]),0,255));
-                Vertices.Add(FSlateVertex::Make<ESlateVertexRounding::Disabled>(Transform,FVector2f(Path[I]),FVector2f(.5f,.5f),VertexTint));
-            }
-            // Uses the active Slate clipping stack, including inherited clips.
-            FSlateDrawElement::MakeCustomVerts(Elements,PaintLayer,Resource,Vertices,Triangles,nullptr,0,0,Effects);
-        };
-        Polygon(CachedShadowPath,CachedShadowTriangles,Data->ShadowColor,Layer);
-        Polygon(CachedFillPath,CachedFillTriangles,Data->FillColor,Layer+1);
-        if(Data->OutlineWidth>0) Polygon(CachedOutlinePath,CachedOutlineTriangles,Data->OutlineColor,Layer+2);
-        Polygon(CachedAAPath,CachedAATriangles,Data->OutlineWidth>0?Data->OutlineColor:Data->FillColor,Layer+2,&CachedAACoverage);
+        // Integer window-space quads tile without overlaps/T-junction cracks.
+        // MakeCustomVerts retains the inherited Slate scissor/stencil stack.
+        for(const auto& Batch:CachedBatches)
+            FSlateDrawElement::MakeCustomVerts(Elements,Layer+2,Resource,Batch.Vertices,Batch.Indices,nullptr,0,0,Effects);
         return Layer+2;
     }
 private:
     TWeakObjectPtr<UMCUIContourShape> Owner;
-    mutable TArray<FVector2D> CachedNormalized,CachedPath,CachedFillPath,CachedOutlinePath,CachedShadowPath,CachedAAPath;
-    mutable TArray<SlateIndex> CachedTriangles,CachedFillTriangles,CachedOutlineTriangles,CachedShadowTriangles,CachedAATriangles;
-    mutable TArray<float> CachedAACoverage;
+    mutable TArray<FVector2D> CachedNormalized;
+    mutable TArray<MCUIContourPrivate::FRasterBatch> CachedBatches;
+    mutable FSlateRenderTransform CachedTransform;
+    mutable FSlateRect CachedClip;
+    mutable FColor CachedFill,CachedEdge,CachedShadow;
     mutable FVector2D CachedSize=FVector2D(-1,-1);
     mutable FVector2D CachedShadowOffset=FVector2D(MAX_dbl,MAX_dbl);
-    mutable float CachedOutline=-1,CachedRadius=-1,CachedAAWidth=-1;
+    mutable float CachedOutline=-1,CachedRadius=-1;
+    mutable bool bCached=false;
 };
 
 TSharedRef<SWidget> UMCUIContourShape::RebuildWidget()

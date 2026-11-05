@@ -605,7 +605,11 @@ void UMCUnifiedRewardWidget::UpdateResponsiveLayout(FVector2D AvailableSize)
     if(AvailableSize.X<=1 || AvailableSize.Y<=1) return;
     ResponsiveViewportSize=AvailableSize;
     int32 Count=0;for(const auto& Card:Cards) if(Card.Host && Card.Host->GetVisibility()!=ESlateVisibility::Collapsed) ++Count;
-    const float MaxWidth=FMath::Max(1.f,float(AvailableSize.X)-14.f),MaxHeight=FMath::Max(1.f,float(AvailableSize.Y)-16.f);
+    const bool OrdinaryOffers=!bShowingReplacement && !bShowingContract && Count>0 && Count<=3;
+    const float ViewportMaxWidth=FMath::Max(1.f,float(AvailableSize.X)-14.f),MaxHeight=FMath::Max(1.f,float(AvailableSize.Y)-16.f);
+    // Keep the original PSD modal ceiling when ordinary chest copy needs more
+    // room. Its centered viewport host is not a request to fill the screen.
+    const float MaxWidth=OrdinaryOffers?FMath::Min(ViewportMaxWidth,1240.f):ViewportMaxWidth;
     const float Chrome=Frame->ContentPadding.Left+Frame->ContentPadding.Right+60.f;
     // Three ordinary offers always retain the PSD row. Four existing skill
     // slots are a different interaction: give their text two usable columns
@@ -724,12 +728,27 @@ void UMCUnifiedRewardWidget::UpdateResponsiveLayout(FVector2D AvailableSize)
         Height=Measure(Frame).Y;
         RootBounds->SetHeightOverride(FMath::CeilToFloat(Height));RootBounds->SetMaxDesiredHeight(FMath::CeilToFloat(Height));return;
     }
-    // Longer translations first gain room horizontally, then reduce only the
-    // square artwork. Authored text size and complete copy never change.
-    if(Height>MaxHeight && ViewWidth<MaxWidth) {ViewWidth=MaxWidth;Height=Layout(ViewWidth,TNumericLimits<float>::Max());}
-    if(Height>MaxHeight && Count>0) {
-        const float IconWidth=FMath::Max(64.f,(ViewWidth-Chrome-(Columns-1)*18.f)/Columns-44.f-float(Height-MaxHeight));
-        Height=Layout(ViewWidth,IconWidth);
+    if(OrdinaryOffers) {
+        // Recover height from square artwork first. If text still needs a
+        // wider column, retain that icon budget rather than enlarging it again.
+        float IconLimit=FMath::Max(1.f,(ViewWidth-Chrome-(Columns-1)*18.f)/Columns-44.f);
+        const float MinimumIcon=FMath::Min(64.f,IconLimit);
+        auto FitArtwork=[&]() {
+            if(Height>MaxHeight && IconLimit>MinimumIcon) {
+                IconLimit=FMath::Max(MinimumIcon,IconLimit-float(Height-MaxHeight));
+                Height=Layout(ViewWidth,IconLimit);
+            }
+        };
+        FitArtwork();
+        if(Height>MaxHeight && ViewWidth<MaxWidth) {ViewWidth=MaxWidth;Height=Layout(ViewWidth,IconLimit);}
+        FitArtwork();
+    } else {
+        // Contract and non-grid replacement layouts retain their existing fit policy.
+        if(Height>MaxHeight && ViewWidth<MaxWidth) {ViewWidth=MaxWidth;Height=Layout(ViewWidth,TNumericLimits<float>::Max());}
+        if(Height>MaxHeight && Count>0) {
+            const float IconWidth=FMath::Max(64.f,(ViewWidth-Chrome-(Columns-1)*18.f)/Columns-44.f-float(Height-MaxHeight));
+            Height=Layout(ViewWidth,IconWidth);
+        }
     }
     RootBounds->SetHeightOverride(FMath::CeilToFloat(Height));RootBounds->SetMaxDesiredHeight(FMath::CeilToFloat(Height));
 }
