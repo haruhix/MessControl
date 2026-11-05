@@ -173,6 +173,8 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools|Watergun") bool bWaterReloading=false;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools|Watergun") double WaterReloadReadyAt=0;
     UFUNCTION(BlueprintPure,Category="Tools") bool HasUpgrade(EMCToolUpgrade Kind) const;
+    /** Explicit nonshipping host F3 grant; current pawn only, never a perk/profile grant. */
+    bool GrantDevToolUpgrade(EMCToolUpgrade Kind);
     UFUNCTION(BlueprintPure,Category="Tools") bool IsChainsawRunning() const;
     UFUNCTION(BlueprintPure,Category="Tools") bool IsUsingBuffer() const;
     UFUNCTION(BlueprintPure,Category="Tools") bool IsUsingWatergun() const;
@@ -253,6 +255,7 @@ private:
     UFUNCTION(Client,Reliable) void ClientConfirmSelection(const FMCToolSelectionReceipt& Receipt);
     UFUNCTION() void OnRep_SelectionReceipt();
     UPROPERTY(ReplicatedUsing=OnRep_SelectionReceipt) FMCToolSelectionReceipt SelectionReceipt;
+    UPROPERTY(Transient,Replicated) uint8 DevToolUpgradeMask=0;
     FMCToolSelectionPrediction SelectionPrediction;
     bool bDeferredSelectionReceipt=false;
     uint32 LastProcessedSelectionRequest=0;

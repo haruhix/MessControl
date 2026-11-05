@@ -878,6 +878,7 @@ void UMCInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
     DOREPLIFETIME_CONDITION(UMCInventoryComponent,Selected,COND_SkipOwner);
     DOREPLIFETIME_CONDITION(UMCInventoryComponent,SelectionReceipt,COND_OwnerOnly);
     DOREPLIFETIME(UMCInventoryComponent,bChainsawRunning);
+    DOREPLIFETIME(UMCInventoryComponent,DevToolUpgradeMask);
     DOREPLIFETIME(UMCInventoryComponent,bWaterJetUnlocked); DOREPLIFETIME(UMCInventoryComponent,SprayReadyAt); DOREPLIFETIME(UMCInventoryComponent,LastSprayAt);
     DOREPLIFETIME(UMCInventoryComponent,SprayBurstUntil);
     DOREPLIFETIME(UMCInventoryComponent,HealingTarget);DOREPLIFETIME(UMCInventoryComponent,FireTarget);

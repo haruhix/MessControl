@@ -22,9 +22,25 @@
 
 bool UMCInventoryComponent::HasUpgrade(EMCToolUpgrade Kind) const
 {
+#if !UE_BUILD_SHIPPING
+    if((Kind==EMCToolUpgrade::MeshaBrush || Kind==EMCToolUpgrade::Chainsaw || Kind==EMCToolUpgrade::Watergun)
+        && (DevToolUpgradeMask&(1<<(uint8(Kind)-1)))) return true;
+#endif
     const auto* Pawn=Hero?Hero.Get():Cast<AMCToothCharacter>(GetOwner());
     const auto* PS=Pawn?Pawn->GetPlayerState<AMCPlayerState>():nullptr;
     return PS && PS->Perks && PS->Perks->HasToolUpgrade(Kind);
+}
+bool UMCInventoryComponent::GrantDevToolUpgrade(EMCToolUpgrade Kind)
+{
+#if !UE_BUILD_SHIPPING
+    if(!GetOwner() || !GetOwner()->HasAuthority() || !GetWorld() || !GetWorld()->IsGameWorld()
+        || (Kind!=EMCToolUpgrade::MeshaBrush && Kind!=EMCToolUpgrade::Chainsaw && Kind!=EMCToolUpgrade::Watergun)) return false;
+    const uint8 Bit=uint8(1u<<(uint8(Kind)-1));
+    if(DevToolUpgradeMask&Bit) return false;
+    DevToolUpgradeMask|=Bit;RefreshMesh();GetOwner()->ForceNetUpdate();return true;
+#else
+    return false;
+#endif
 }
 uint8 UMCInventoryComponent::UpgradeMask() const
 {

@@ -544,7 +544,8 @@ void AMCPlayerController::ToggleDevPanel()
     if (!DevPanel)
     {
         DevPanel=CreateWidget<UMCDevPanelWidget>(this,UMCDevPanelWidget::StaticClass());
-        DevPanel->AddToViewport(20); DevPanel->SetVisibility(ESlateVisibility::Collapsed);
+        // Explicit F3 controls must stay above the mirrored Hub/tutorial/menu layers (up to95).
+        DevPanel->AddToViewport(100); DevPanel->SetVisibility(ESlateVisibility::Collapsed);
     }
     const bool bOpen=!DevPanel->IsVisible();
     if (PrototypeWidget) PrototypeWidget->ClosePanels();

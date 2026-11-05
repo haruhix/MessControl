@@ -595,21 +595,30 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         return FText::FromString(TEXT("Ореховый катаклизм запущен: серии падений, затем бой с ореховыми боссами. Кирка и нож наносят урон. F3 — играть."));
     }
     if(Action==EMCDevAction::GrantToolBooster || Action==EMCDevAction::GrantAllToolBoosters) {
-        auto* Player=Requester->GetPlayerState<AMCPlayerState>();auto* Perks=Player?Player->Perks.Get():nullptr;
-        if(!Perks) return FText::FromString(TEXT("Нужен игрок с инвентарём."));
-        const auto IDs=Perks->GetToolRewardIDs();
+        auto* Hero=Cast<AMCToothCharacter>(Requester->GetPawn());
+        if(!Hero || !Hero->Inventory || !Hero->Status->IsAlive()) return FText::FromString(TEXT("Нужен живой игрок с инвентарём."));
+        // F3 is an explicit temporary equipment test. Retired perk rows stay
+        // disabled in ordinary rewards, acquisitions and saved profiles.
         if(Action==EMCDevAction::GrantToolBooster) {
-            if(!IDs.IsValidIndex(StepIndex)) return FText::FromString(TEXT("Выбери инструмент в списке F3."));
-            const auto* Row=Perks->FindDefinition(IDs[StepIndex]);
-            return FText::FromString(Perks->ServerGrantReward(IDs[StepIndex])
-                ?Row->DisplayName.ToString()+(Row->Rarity==EMCPerkRarity::Legendary?TEXT(" добавлен всей команде."):TEXT(" добавлен твоему игроку."))
-                :TEXT("Это улучшение уже получено."));
+            if(StepIndex!=int32(EMCToolUpgrade::MeshaBrush) && StepIndex!=int32(EMCToolUpgrade::Chainsaw)
+                && StepIndex!=int32(EMCToolUpgrade::Watergun)) return FText::FromString(TEXT("Выбери поддержанный инструмент в списке F3."));
+            return FText::FromString(Hero->Inventory->GrantDevToolUpgrade(EMCToolUpgrade(StepIndex))
+                ?TEXT("Тестовый инструмент включён до возрождения. Награды и профиль не изменены.")
+                :TEXT("Этот тестовый инструмент уже включён до возрождения."));
         }
         if(StepIndex<0 || StepIndex>1) return FText::FromString(TEXT("Выбери выдачу себе или всей команде."));
-        const auto Rarity=StepIndex==1?EMCPerkRarity::Legendary:EMCPerkRarity::Rare;int32 Granted=0;
-        for(FName ID:IDs) if(const auto* Row=Perks->FindDefinition(ID);Row && Row->Rarity==Rarity && Perks->CanGrantPerk(ID))
-            Granted+=Perks->ServerGrantReward(ID)?1:0;
-        return FText::FromString(FString::Printf(TEXT("Добавлено улучшений: %d. %s"),Granted,StepIndex==1?TEXT("Получает вся команда."):TEXT("Получает только твой игрок.")));
+        int32 Granted=0;
+        auto Grant=[&](AMCToothCharacter* Target) {
+            if(!IsValid(Target) || !Target->Inventory || !Target->Status->IsAlive()) return;
+            for(const auto Kind:{EMCToolUpgrade::MeshaBrush,EMCToolUpgrade::Chainsaw,EMCToolUpgrade::Watergun})
+                Granted+=Target->Inventory->GrantDevToolUpgrade(Kind)?1:0;
+        };
+        if(StepIndex==0) Grant(Hero);
+        else for(const auto& State:GS->PlayerArray) if(auto* Player=Cast<AMCPlayerState>(State.Get());Player && !Player->IsSpectator() && !Player->IsOnlyASpectator())
+            Grant(Cast<AMCToothCharacter>(Player->GetPawn()));
+        if(Granted==0) return FText::FromString(TEXT("Все три поддержанных тестовых инструмента уже включены у выбранных текущих персонажей до возрождения."));
+        return FText::FromString(FString::Printf(TEXT("Включено тестовых инструментов: %d. %s До возрождения; награды и профиль не изменены."),Granted,
+            StepIndex==1?TEXT("Для текущих живых игроков команды."):TEXT("Только твоему игроку.")));
     }
     if (Action==EMCDevAction::CalculusClear)
     {

@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-05",
+  "status": "in_progress",
+  "source_base": "17dc8bbd09a0bef3ed1b3dceeba0e7f73db77715",
+  "evidence_root": "E:/CodexWork/MessControl/Validation/SteamColdPlaytest_20261105",
+  "changes": [
+    "F3 grants the three supported tool upgrades directly to current living pawns in nonshipping games, independently of retired disabled reward rows.",
+    "Debug upgrades replicate, refresh ordinary tool presentation, and reset when a replacement pawn is spawned. Reward eligibility and saved profiles are unchanged.",
+    "F3 is above the current frontend and tutorial layers; buttons describe current-pawn lifetime and repeated grants return explicit feedback."
+  ],
+  "builds": {
+    "MessControlEditor_Win64_Development": "passed",
+    "MessControl_Win64_Development": "passed"
+  },
+  "native_rules": {
+    "lifecycle_report": "ColdRules_Actual01/Report/index.json",
+    "lifecycle_cases": 4,
+    "phase_report": "ColdPhases_Actual02/Report/index.json",
+    "phase_cases": 5,
+    "failed": 0,
+    "clean_successes": 1,
+    "successes_with_warnings": 8,
+    "scope": "Isolated native current-phase and sequence lifecycle fixtures, without rendered gameplay or multiplayer.",
+    "warnings": [
+      "Fixture tongue uses Engine BasicShapes Plane without CPU mesh access.",
+      "Fixture presentation is not prepared by a normal location barrier.",
+      "Fallback font warning in lifecycle fixture."
+    ]
+  },
+  "runtime": {
+    "main_menu_to_hub": "observed_in_owned_solo_PIE",
+    "ready_overlap_and_location_selection": "observed_in_owned_solo_PIE",
+    "ready_movement": "Character AddMovementInput; physical keyboard binding was not checked",
+    "arena_map_entered": true,
+    "arena_ready": false,
+    "full_natural_route_through_ice": "not_completed",
+    "F3_button_and_tool_first_use": "pending",
+    "steam_host_find": "pending",
+    "two_account_join": "not_tested",
+    "interruption": "Editor D3D12 viewport E_OUTOFMEMORY while cook and editor ran concurrently; no full-route PASS. The observer Report.json was left observing by that crash and is not an acceptance result."
+  },
+  "packaging": {
+    "collision_audit": "passed",
+    "output": "E:/DEVGAME/MessControl/Saved/Builds/Spacewar_20261105",
+    "attempt_1": "failed: local ZenStore unavailable; ZenStoreWriter could not delete oplog",
+    "attempt_2": "interrupted after shader worker crashes during memory exhaustion",
+    "current_attempt": "in_progress: SkipZenStore, separate loose cook output, four shader workers, no interactive editor"
+  },
+  "limits": [
+    "Source audit and native rule checks do not prove tool or Cold presentation in a packaged game.",
+    "No generated media is included in Git.",
+    "Unrelated ReviewBoard changes and untracked source/artwork are preserved.",
+    "F3 Ice tooltip still describes a retired event variant; current Cold logic is covered separately."
+  ]
+}
