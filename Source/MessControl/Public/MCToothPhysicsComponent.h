@@ -53,6 +53,7 @@ private:
     void EnterRecovery();
     void EnterStanding();
     void EnterSlipping();
+    void SetSlipFoodCollision(bool Enabled);
     void UpdateSlipperyFallGate(float Dt);
     void TickSlipping(float Dt);
     void SlipToRagdoll();
@@ -94,4 +95,7 @@ private:
     FMCSlipperyRisk SlipRisk;
     float PreviousSlipSpeed=0.f,SlipSendAccumulator=0.f;
     FVector SlipVelocity=FVector::ZeroVector;
+    FCollisionResponseContainer SlipSavedResponses;
+    ECollisionChannel SlipSavedObjectType=ECC_PhysicsBody;
+    bool bSlipFoodCollisionActive=false;
 };

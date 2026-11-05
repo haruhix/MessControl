@@ -204,6 +204,62 @@ bool FMCSlipperyFallLifecycle::RunTest(const FString&)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSlipperyFallFoodCollision,
+    "MessControl.Animation.AuthoredGlide.Runtime.FallingFoodHitsSlippingBody",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSlipperyFallFoodCollision::RunTest(const FString&)
+{
+    using namespace MCSlipperyFallRuntimeTests;
+    FWorldFixture T;
+    if(!TestTrue(TEXT("A real hero stands on the test floor"),T.Ready())) return false;
+    auto* Hero=T.Hero.Get();auto* Mesh=Hero->GetMesh();
+    const auto PreviousResponses=Mesh->GetCollisionResponseToChannels();
+    const auto PreviousObjectType=Mesh->GetCollisionObjectType();
+    const float Health=Hero->Status->State.Health;
+    T.Movement()->GroundSurface=EMCGroundSurface::Slippery;T.Movement()->Velocity=FVector::ZeroVector;
+    if(!TestTrue(TEXT("The real slippery fall starts"),Hero->ToothPhysics->BeginSlipperyFall())) return false;
+    if(!TestTrue(TEXT("The animated body has a physical response to fragments"),
+        Mesh->GetCollisionEnabled()==ECollisionEnabled::QueryAndPhysics
+        && Mesh->GetCollisionObjectType()==ECC_PhysicsBody
+        && Mesh->GetCollisionResponseToChannel(AMCFoodActor::FragmentCollisionChannel)==ECR_Block)) return false;
+    if(!TestTrue(TEXT("The fall pose advances"),T.Tick(12))) return false;
+    const FVector Body=Mesh->GetBoneLocation(Hero->RigBone(TEXT("body")));
+    FHitResult Surface;FCollisionQueryParams Query(SCENE_QUERY_STAT(MCSlipFoodTest),false);
+    bool Found=false;
+    for(float X:{0.f,10.f,-10.f,20.f,-20.f}) for(float Y:{0.f,10.f,-10.f,20.f,-20.f}) {
+        if(Found) break;
+        const FVector Center=Body+FVector(X,Y,0);
+        if(Mesh->LineTraceComponent(Surface,Center+FVector(0,0,250),Center-FVector(0,0,80),Query)
+            && Surface.ImpactNormal.Z>.25f && Surface.ImpactPoint.Z>10040.f) Found=true;
+    }
+    if(!TestTrue(TEXT("The posed skeletal collision has an exposed upper surface"),Found)) return false;
+    auto* Food=T.MakeDeliveryFood();
+    Food->SetActorLocation(Surface.ImpactPoint+FVector(0,0,90),false,nullptr,ETeleportType::TeleportPhysics);
+    Food->Body->SetEnableGravity(true);Food->Body->SetPhysicsLinearVelocity(FVector(0,0,-450));
+    bool Contact=false;float PreviousZ=Food->Body->GetPhysicsLinearVelocity().Z;
+    for(int32 I=0;I<55 && IsValid(Food);++I) {
+        T.Tick(1);
+        const float Z=Food->Body->GetPhysicsLinearVelocity().Z;
+        // A downward-moving fragment is stopped or deflected above the floor.
+        if(PreviousZ<-50.f && Z>PreviousZ+70.f && Food->GetActorLocation().Z>10055.f) Contact=true;
+        PreviousZ=Z;
+    }
+    TestTrue(TEXT("A real falling food body contacts the animated hero above the floor"),Contact);
+    TestEqual(TEXT("Food contact does not damage the slipping hero"),Hero->Status->State.Health,Health);
+    bool SawFoodCollisionDuringRecovery=false;
+    for(int32 I=0;I<240;++I) {
+        T.Tick(1);
+        if(Hero->ToothPhysics->GetBodyState()==EMCBodyState::Recovering)
+            SawFoodCollisionDuringRecovery|=Mesh->GetCollisionEnabled()==ECollisionEnabled::QueryAndPhysics
+                && Mesh->GetCollisionResponseToChannel(AMCFoodActor::FragmentCollisionChannel)==ECR_Block;
+    }
+    TestTrue(TEXT("Food keeps colliding during the visible slip recovery"),SawFoodCollisionDuringRecovery);
+    TestTrue(TEXT("Recovery restores the previous mesh collision responses and object type"),
+        Mesh->GetCollisionResponseToChannels()==PreviousResponses && Mesh->GetCollisionObjectType()==PreviousObjectType);
+    TestTrue(TEXT("The hero recovers normal actions"),Hero->ToothPhysics->CanAct());
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSlipperyFallInterruptions,
     "MessControl.Animation.AuthoredGlide.Runtime.SupportLossAndDeathCannotStand",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
