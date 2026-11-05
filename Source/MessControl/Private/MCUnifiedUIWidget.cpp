@@ -43,6 +43,7 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Rendering/SlateRenderer.h"
 #include "Fonts/FontMeasure.h"
+#include "Widgets/SWidget.h"
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
@@ -65,6 +66,7 @@
 namespace
 {
     FLinearColor UnifiedRootColor(const TCHAR* Hex) {return FLinearColor(FColor::FromHex(Hex));}
+    const FName UnifiedHUDGroups[]={TEXT("ReserveBlock"),TEXT("ToolResourceBlock"),TEXT("PlayerCards"),TEXT("NextEventBlock"),TEXT("SkillCards")};
     UCanvasPanelSlot* UnifiedRootPlace(UCanvasPanel* Parent,UWidget* Child,FVector2D Position,FVector2D Size,FVector2D Anchor=FVector2D::ZeroVector,FVector2D Alignment=FVector2D::ZeroVector)
     {
         auto* Cell=Parent->AddChildToCanvas(Child);Cell->SetAnchors(FAnchors(Anchor.X,Anchor.Y));
@@ -113,6 +115,41 @@ UMCUnifiedUIWidget::UMCUnifiedUIWidget()
     bUseNativeLayout=false;bOverridePreviewUIVersion=true;
     Logo=TSoftObjectPtr<UTexture2D>(FSoftObjectPath(TEXT("/Game/Gameplay/UI/V2/Art/T_UI_PSD_MenuLogo.T_UI_PSD_MenuLogo")));
     SetIsFocusable(true);
+    // Measured from PSD_Layers02 against the 1778x1080 gameplay artboard.
+    // Rectangles contain the outer stroke, excluding the offset shadow.
+    auto Rect=[this](FName Name,FVector2D Position,FVector2D Size,FVector2D Anchor=FVector2D::ZeroVector,int32 Font=0) {
+        auto& Metric=HUDLayoutMetrics.Add(Name);Metric.Position=Position;Metric.Size=Size;Metric.Anchor=Anchor;Metric.FontSize=Font;
+    };
+    auto Shape=[this](FName Name,float Radius,float Stroke,FVector2D Shadow,TArray<FVector2D> Contour={}) {
+        auto& Metric=HUDLayoutMetrics.FindChecked(Name);Metric.bOverrideShapeMetrics=true;Metric.CornerRadius=Radius;
+        Metric.OutlineWidth=Stroke;Metric.ShadowOffset=Shadow;Metric.ContourPoints=MoveTemp(Contour);
+    };
+    Rect(TEXT("ReserveBlock"),{49,24},{312,142});Shape(TEXT("ReserveBlock"),20,7,{14,16},{{0,0},{.622,0},{.622,.387},{1,.387},{1,1},{0,1}});
+    Rect(TEXT("V2ReserveIcon"),{22,7},{66,66});Rect(TEXT("V2ReserveCount"),{91,0},{140,74},{0,0},46);
+    Rect(TEXT("V2CleanLabel"),{18,67},{280,31},{0,0},19);
+    Rect(TEXT("V2CleanBar"),{18,94},{278,36});Shape(TEXT("V2CleanBar"),7,7,{0,0});
+    Rect(TEXT("V2RunSummary"),{1,170},{312,46},{0,0},14);
+    Rect(TEXT("ToolResourceBlock"),{45,-153},{335,111},{0,1});Shape(TEXT("ToolResourceBlock"),14,6,{12,15},{{0,0},{.355,0},{.355,.252},{1,.252},{1,1},{0,1}});
+    Rect(TEXT("V2ToolIcon"),{25,18},{74,74});Rect(TEXT("V2ToolArtFit"),{25,18},{74,74});
+    Rect(TEXT("V2ToolName"),{14,-42},{321,46},{0,0},29);Rect(TEXT("V2PlayerName"),{134,-9},{199,37},{0,0},23);
+    Rect(TEXT("V2HealthBar"),{119,34},{202,36});Shape(TEXT("V2HealthBar"),7,7,{0,0});
+    Rect(TEXT("V2StaminaBar"),{119,72},{203,29});Shape(TEXT("V2StaminaBar"),7,7,{0,0});
+    Rect(TEXT("V2ToolCooldown"),{119,111},{203,20},{0,0},12);
+    Rect(TEXT("PlayerCards"),{-426,28},{375,129},{1,0});
+    Rect(TEXT("NextEventBlock"),{-412,183},{351,111},{1,0});Shape(TEXT("NextEventBlock"),20,6,{-12,12});
+    Rect(TEXT("V2NextEventLabel"),{12,0},{327,30},{0,0},18);Rect(TEXT("V2NextEvent"),{12,30},{327,44},{0,0},22);
+    Rect(TEXT("V2CurrentEvent"),{12,76},{327,23},{0,0},12);
+    Rect(TEXT("SkillCards"),{-434,-156},{378,115},{1,1});
+    for(int32 I=1;I<=4;++I) {
+        const auto Part=[I](const TCHAR* Prefix){return FName(*FString::Printf(TEXT("%s%d"),Prefix,I));};
+        Rect(Part(TEXT("V2Player")),{0,I==2?0.f:1.f},{87,128});Shape(Part(TEXT("V2Player")),20,6,{-12,12});
+        Rect(Part(TEXT("V2PlayerFace")),{6,20},{74,80});Rect(Part(TEXT("V2PlayerHP")),{13,100},{62,14});Shape(Part(TEXT("V2PlayerHP")),7,1,{0,0});
+        Rect(Part(TEXT("V2Skill")),{0,27},{92,88});Shape(Part(TEXT("V2Skill")),20,6,{0,16});
+        Rect(Part(TEXT("V2SkillKey")),{I==1?42.f:41.f, -7},{42,38},{0,0},24);
+        Rect(FName(*FString::Printf(TEXT("V2SkillIcon%dFit"),I)),{6,6},{80,76});
+        Rect(Part(TEXT("V2SkillLabel")),{6,12},{80,52},{0,0},14);
+        Rect(Part(TEXT("V2SkillStatus")),{6,65},{80,19},{0,0},12);
+    }
 }
 
 void UMCUnifiedUIWidget::ShowScreen(EMCUnifiedUIScreen Screen)
@@ -126,13 +163,13 @@ void UMCUnifiedUIWidget::ShowScreen(EMCUnifiedUIScreen Screen)
     }
     if(WidgetTree) if(auto* Team=WidgetTree->FindWidget<UMCUnifiedTeamWidget>(TEXT("UnifiedTeam")))
         Team->SetVisibility((IsDesignTime()?Screen==EMCUnifiedUIScreen::Team:TeamBackend.IsValid())?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
-    if(WidgetTree) if(auto* Layer=WidgetTree->FindWidget(TEXT("TeamViewport")))
+    if(WidgetTree) if(auto* Layer=WidgetTree->FindWidget(TEXT("TeamViewportFrame")))
         Layer->SetVisibility((IsDesignTime()?Screen==EMCUnifiedUIScreen::Team:TeamBackend.IsValid())?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
     if(WidgetTree) if(auto* View=WidgetTree->FindWidget<UMCUnifiedCatchWidget>(TEXT("UnifiedCatch")))
         View->SetVisibility((IsDesignTime()?Screen==EMCUnifiedUIScreen::Catch:CatchBackend.IsValid())?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     if(WidgetTree) if(auto* View=WidgetTree->FindWidget<UMCUnifiedHUDExtrasWidget>(TEXT("UnifiedHUDExtras"))) {
         const bool Visible=IsDesignTime()?Screen==EMCUnifiedUIScreen::HUDExtras:HUDBackend.IsValid() && Screen==EMCUnifiedUIScreen::Gameplay;
-        View->SetVisibility(Visible?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+        View->SetVisibility(Visible?(View->HasPassiveOverflow()?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::HitTestInvisible):ESlateVisibility::Collapsed);
         if(auto* Source=HUDBackend.Get()) Source->SetUnifiedExtrasActive(Visible && View->IsPresentationPrepared());
     }
     if(WidgetTree) {
@@ -239,6 +276,7 @@ void UMCUnifiedUIWidget::BuildPresentationTree()
     }
     EnsureGameplayControls();
     EnsureAdditionalScreens();
+    ApplyPSDGameplayLayout(true);
     ShowScreen(IsDesignTime()?PreviewScreen:ActiveScreen);
 }
 
@@ -301,7 +339,7 @@ void UMCUnifiedUIWidget::ApplyEditorPreview(float Time)
     if(PreviewScreen==EMCUnifiedUIScreen::Frontend) if(auto* Frontend=WidgetTree->FindWidget<UMCUnifiedFrontendWidget>(TEXT("UnifiedFrontend"))) {Frontend->PreviewPage=EMCUnifiedFrontendPage(FMath::Clamp(PreviewFrontendPage,0,4));Frontend->ApplyEditorPreview(Time);}
     if(PreviewScreen==EMCUnifiedUIScreen::GameplayMenu) if(auto* Menu=WidgetTree->FindWidget<UMCUnifiedGameplayMenuWidget>(TEXT("UnifiedGameplayMenu"))) {Menu->PreviewState=PreviewGameplayMenuMode;Menu->ApplyEditorPreview(Time);}
     if(PreviewScreen==EMCUnifiedUIScreen::Catch) if(auto* View=WidgetTree->FindWidget<UMCUnifiedCatchWidget>(TEXT("UnifiedCatch"))) {View->PreviewState=PreviewCatchMode;View->ApplyEditorPreview(Time);}
-    if(PreviewScreen==EMCUnifiedUIScreen::HUDExtras) if(auto* View=WidgetTree->FindWidget<UMCUnifiedHUDExtrasWidget>(TEXT("UnifiedHUDExtras"))) {View->PreviewState=PreviewHUDExtrasMode;View->ApplyEditorPreview(Time);}
+    if(PreviewScreen==EMCUnifiedUIScreen::HUDExtras) if(auto* View=WidgetTree->FindWidget<UMCUnifiedHUDExtrasWidget>(TEXT("UnifiedHUDExtras"))) {View->PreviewState=PreviewHUDExtrasMode.IsNone()?FName(TEXT("Default")):PreviewHUDExtrasMode;View->ApplyEditorPreview(Time);}
     if(PreviewScreen==EMCUnifiedUIScreen::Loading) if(auto* View=WidgetTree->FindWidget<UMCUnifiedLoadingWidget>(TEXT("UnifiedLoading"))) {View->PreviewState=PreviewLoadingMode;View->ApplyEditorPreview(Time);}
     if(PreviewScreen==EMCUnifiedUIScreen::Boss) if(auto* View=WidgetTree->FindWidget<UMCUnifiedBossWidget>(TEXT("UnifiedBoss"))) {View->PreviewState=PreviewBossMode;View->ApplyEditorPreview(Time);}
     if(PreviewScreen==EMCUnifiedUIScreen::Alert) if(auto* View=WidgetTree->FindWidget<UMCUnifiedAlertWidget>(TEXT("UnifiedAlert"))) {View->PreviewState=PreviewAlertMode;View->ApplyEditorPreview(Time);}
@@ -320,7 +358,7 @@ void UMCUnifiedUIWidget::ApplyEditorPreview(float Time)
 void UMCUnifiedUIWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
     Super::NativeTick(Geometry,DeltaSeconds);
-    if(IsDesignTime()) return;
+    if(IsDesignTime()) {RefreshAdaptiveLayout();return;}
     RefreshDelay-=DeltaSeconds;if(RefreshDelay<=0) {RefreshDelay=.05f;RefreshRuntimePresentation();RefreshAdaptiveLayout();}
 }
 void UMCUnifiedUIWidget::NativeDestruct()
@@ -636,22 +674,23 @@ void UMCUnifiedUIWidget::EnsureAdditionalScreens()
         auto* View=WidgetTree->ConstructWidget<UMCUnifiedEmoteWidget>(Class,TEXT("UnifiedEmotes"));View->Initialize();View->BuildPresentationTree();View->SetVisibility(ESlateVisibility::Collapsed);
         auto* Cell=Page->AddChildToCanvas(View);Cell->SetAnchors(FAnchors(0,0,1,1));Cell->SetOffsets(FMargin(0));
     }
-    // The host constrains the available screen and scrolls overflow. It never
-    // scales text down when a translation makes the component larger.
-    auto Host=[this](UWidget* View,FName Name,FName FrameName) {
-        auto* Scroll=WidgetTree->FindWidget<UScrollBox>(Name);
-        if(Scroll) return Scroll;
+    // A screen receives the actual safe viewport. Its own content lists may
+    // scroll, while the frame, title and primary actions remain on the screen.
+    // Reuse saved component/frame objects; retire only the old outer scrollers.
+    auto Host=[this](UWidget* View,FName OldViewport,FName FrameName) {
+        auto* ExistingFrame=WidgetTree->FindWidget(FrameName);
+        auto* Frame=Cast<USizeBox>(ExistingFrame);
+        if(ExistingFrame && !Frame) return static_cast<USizeBox*>(nullptr);
+        if(!Frame) Frame=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),FrameName);
+        if(auto* Old=WidgetTree->FindWidget(OldViewport)) Old->RemoveFromParent();
         if(auto* Old=View->GetParent();Old && Old->GetFName()==TEXT("SettingsScale")) Old->RemoveFromParent();
-        View->RemoveFromParent();
-        Scroll=WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(),Name);
-        auto* Frame=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),FrameName);
-        Frame->SetMinDesiredHeight(1016);
-        auto* Cell=CastChecked<UScrollBoxSlot>(Scroll->AddChild(Frame));Cell->SetHorizontalAlignment(HAlign_Fill);
-        Frame->SetContent(View);
-        if(auto* ContentCell=Cast<USizeBoxSlot>(View->Slot)) {ContentCell->SetHorizontalAlignment(HAlign_Center);ContentCell->SetVerticalAlignment(VAlign_Center);}
-        return Scroll;
+        if(View->GetParent()!=Frame) {View->RemoveFromParent();Frame->SetContent(View);}
+        Frame->ClearWidthOverride();Frame->ClearHeightOverride();
+        Frame->ClearMinDesiredWidth();Frame->ClearMinDesiredHeight();
+        Frame->ClearMaxDesiredWidth();Frame->ClearMaxDesiredHeight();
+        if(auto* Cell=Cast<USizeBoxSlot>(View->Slot)) {Cell->SetHorizontalAlignment(HAlign_Fill);Cell->SetVerticalAlignment(VAlign_Fill);}
+        return Frame;
     };
-    // Commerce occupies the existing numbered pages; append editable hosts only.
     auto* Wardrobe=WidgetTree->FindWidget<UMCUnifiedWardrobeWidget>(TEXT("UnifiedWardrobe"));
     if(!Wardrobe) {
         auto* Class=UMCGameplayUIFactory::ResolveClassForTheme(TEXT("UnifiedWardrobe"),UMCUnifiedWardrobeWidget::StaticClass(),GetResolvedTheme());
@@ -664,41 +703,24 @@ void UMCUnifiedUIWidget::EnsureAdditionalScreens()
         Shop=WidgetTree->ConstructWidget<UMCUnifiedShopWidget>(Class,TEXT("UnifiedShop"));
         Shop->Initialize();Shop->BuildPresentationTree();
     }
-    auto CommerceHost=[&](UWidget* View,FName Viewport,FName Frame,FName PageName) {
-        if(WidgetTree->FindWidget(Viewport)) return;
-        auto* Page=WidgetTree->FindWidget<UCanvasPanel>(PageName);if(!Page) return;
-        auto* Scroll=Host(View,Viewport,Frame);
-        // A narrow logical viewport must scroll overflow rather than clip or
-        // shrink text. Centre smaller views inside a minimum viewport width.
-        if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(Frame)) {
-            View->RemoveFromParent();
-            auto* Across=WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(),FName(*(Viewport.ToString()+TEXT("Horizontal"))));
-            Across->SetOrientation(Orient_Horizontal);Across->SetScrollBarVisibility(ESlateVisibility::Collapsed);
-            Across->SetScrollWhenFocusChanges(EScrollWhenFocusChanges::InstantScroll);
-            auto* Width=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),FName(*(Viewport.ToString()+TEXT("Content"))));
-            Width->SetMinDesiredWidth(1856);Width->SetContent(View);
-            if(auto* Cell=Cast<USizeBoxSlot>(View->Slot)) {Cell->SetHorizontalAlignment((View==Reward || View==GameplayMenu)?HAlign_Center:HAlign_Left);Cell->SetVerticalAlignment(VAlign_Center);}
-            Across->AddChild(Width);Bounds->SetContent(Across);
-        }
-        Scroll->SetScrollBarVisibility(ESlateVisibility::Collapsed);
-        Scroll->SetScrollWhenFocusChanges(EScrollWhenFocusChanges::InstantScroll);
-        auto* Cell=Page->AddChildToCanvas(Scroll);Cell->SetAnchors(FAnchors(0,0,1,1));Cell->SetOffsets(FMargin(32));
+    auto ScreenHost=[&](UWidget* View,FName Viewport,FName FrameName,FName PageName) {
+        auto* Page=WidgetTree->FindWidget<UCanvasPanel>(PageName);if(!Page || !View) return;
+        auto* Frame=Host(View,Viewport,FrameName);if(!Frame) return;
+        auto* Cell=Frame->GetParent()==Page?Cast<UCanvasPanelSlot>(Frame->Slot):nullptr;
+        if(!Cell) {Frame->RemoveFromParent();Cell=Page->AddChildToCanvas(Frame);}
+        Cell->SetAnchors(FAnchors(0,0,1,1));Cell->SetOffsets(FMargin(32));Cell->SetAutoSize(false);
     };
-    CommerceHost(Wardrobe,TEXT("WardrobeViewport"),TEXT("WardrobeViewportFrame"),TEXT("Screen_Wardrobe"));
-    CommerceHost(Shop,TEXT("ShopViewport"),TEXT("ShopViewportFrame"),TEXT("Screen_Boosters"));
-    CommerceHost(Reward,TEXT("RewardViewport"),TEXT("RewardViewportFrame"),TEXT("Screen_Reward"));
-    CommerceHost(Frontend,TEXT("FrontendViewport"),TEXT("FrontendViewportFrame"),TEXT("Screen_Frontend"));
-    CommerceHost(GameplayMenu,TEXT("GameplayMenuViewport"),TEXT("GameplayMenuViewportFrame"),TEXT("Screen_GameplayMenu"));
-    if(!WidgetTree->FindWidget(TEXT("SettingsViewport"))) {
-        auto* Scroll=Host(Settings,TEXT("SettingsViewport"),TEXT("SettingsViewportFrame"));
-        auto* Page=WidgetTree->FindWidget<UCanvasPanel>(TEXT("Screen_Settings"));
-        auto* Cell=Page->AddChildToCanvas(Scroll);Cell->SetAnchors(FAnchors(0,0,1,1));Cell->SetOffsets(FMargin(32));
-    }
-    if(!WidgetTree->FindWidget(TEXT("TeamViewport"))) {
-        auto* Scroll=Host(Team,TEXT("TeamViewport"),TEXT("TeamViewportFrame"));
-        Scroll->SetVisibility(ESlateVisibility::Collapsed);
-        auto* Cell=Layers->AddChildToOverlay(Scroll);Cell->SetHorizontalAlignment(HAlign_Fill);Cell->SetVerticalAlignment(VAlign_Fill);Cell->SetPadding(FMargin(32));
-    }
+    ScreenHost(Wardrobe,TEXT("WardrobeViewport"),TEXT("WardrobeViewportFrame"),TEXT("Screen_Wardrobe"));
+    ScreenHost(Shop,TEXT("ShopViewport"),TEXT("ShopViewportFrame"),TEXT("Screen_Boosters"));
+    ScreenHost(Reward,TEXT("RewardViewport"),TEXT("RewardViewportFrame"),TEXT("Screen_Reward"));
+    ScreenHost(Frontend,TEXT("FrontendViewport"),TEXT("FrontendViewportFrame"),TEXT("Screen_Frontend"));
+    ScreenHost(GameplayMenu,TEXT("GameplayMenuViewport"),TEXT("GameplayMenuViewportFrame"),TEXT("Screen_GameplayMenu"));
+    ScreenHost(Settings,TEXT("SettingsViewport"),TEXT("SettingsViewportFrame"),TEXT("Screen_Settings"));
+    auto* TeamFrame=Host(Team,TEXT("TeamViewport"),TEXT("TeamViewportFrame"));if(!TeamFrame) return;
+    auto* TeamCell=TeamFrame->GetParent()==Layers?Cast<UOverlaySlot>(TeamFrame->Slot):nullptr;
+    if(!TeamCell) {TeamFrame->RemoveFromParent();TeamCell=Layers->AddChildToOverlay(TeamFrame);}
+    TeamCell->SetHorizontalAlignment(HAlign_Fill);TeamCell->SetVerticalAlignment(VAlign_Fill);TeamCell->SetPadding(FMargin(32));
+
 }
 UTexture2D* UMCUnifiedUIWidget::ResolveToolArt(FName Key) const
 {
@@ -716,7 +738,7 @@ void UMCUnifiedUIWidget::EnsureGameplayControls()
     auto Label=[this](UCanvasPanel* Parent,FName Name,FVector2D Pos,FVector2D Size,int32 FontSize) {
         if(!Parent || WidgetTree->FindWidget(Name)) return;
         auto* Text=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);
-        Text->SetAutoWrapText(false);Text->SetTextOverflowPolicy(ETextOverflowPolicy::Ellipsis);
+        Text->SetAutoWrapText(false);Text->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);Text->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
         UnifiedRootPlace(Parent,Text,Pos,Size);BindStyle(Name,EMCUIColorToken::Cream,EMCUIStyleTarget::Text,FontSize,true);
     };
     if(!WidgetTree->FindWidget(TEXT("V2RunSummary"))) {
@@ -749,6 +771,111 @@ void UMCUnifiedUIWidget::EnsureGameplayControls()
     }
 }
 
+void UMCUnifiedUIWidget::ApplyPSDGameplayLayout(bool bApplyStyleDefaults)
+{
+    if(!WidgetTree || bApplyingHUDReferenceLayout) return;
+    TGuardValue<bool> LayoutGuard(bApplyingHUDReferenceLayout,true);
+    if(auto* Summary=WidgetTree->FindWidget(TEXT("V2RunSummary")))
+        if(auto* Reserve=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("ReserveBlock")))
+            if(auto* Body=Cast<UCanvasPanel>(Reserve->GetContentForSlot(TEXT("Content")));Body && Summary->GetParent()!=Body) {
+                Summary->RemoveFromParent();Body->AddChildToCanvas(Summary);
+            }
+    auto Find=[this](FName Name)->UWidget* {
+        if(auto* Widget=WidgetTree->FindWidget(Name)) return Widget;
+        FName ImageName;
+        if(Name==TEXT("V2ToolArtFit")) ImageName=TEXT("V2ToolArt");
+        else for(int32 I=1;I<=4;++I) if(Name==FName(*FString::Printf(TEXT("V2SkillIcon%dFit"),I))) {ImageName=FName(*FString::Printf(TEXT("V2SkillIcon%d"),I));break;}
+        if(!ImageName.IsNone()) if(auto* Image=WidgetTree->FindWidget<UImage>(ImageName))
+            if(Image->GetParent() && Image->GetParent()->IsA<UScaleBox>() && Cast<UCanvasPanelSlot>(Image->GetParent()->Slot)) return Image->GetParent();
+        // The PSD role aliases identify existing unnamed procedural portraits;
+        // retain those authored objects and their Blueprint identities.
+        FName PanelName;
+        if(Name==TEXT("V2ReserveIcon")) PanelName=TEXT("ReserveBlock");
+        else for(int32 I=1;I<=4;++I) if(Name==FName(*FString::Printf(TEXT("V2PlayerFace%d"),I))) {PanelName=FName(*FString::Printf(TEXT("V2Player%d"),I));break;}
+        if(auto* Panel=WidgetTree->FindWidget<UMCUniversalUIWidget>(PanelName))
+            if(auto* Body=Cast<UCanvasPanel>(Panel->GetContentForSlot(TEXT("Content"))))
+                for(UWidget* Child:Body->GetAllChildren()) if(Child->IsA<UMCHUDIcon>()) return Child;
+        return nullptr;
+    };
+    if(bApplyStyleDefaults) {
+        const FLinearColor BodyColor=UnifiedRootColor(TEXT("1A434E")),Mint=UnifiedRootColor(TEXT("AEFCFD"));
+        auto Style=[&](FName Name,float Alpha,bool bWhiteShadow=false) {
+            if(auto* Shape=WidgetTree->FindWidget<UMCUniversalUIWidget>(Name)) {
+                Shape->bCustomColors=true;Shape->bUseThemeShape=false;
+                Shape->CustomFill=BodyColor.CopyWithNewOpacity(Alpha);Shape->CustomOutline=Mint.CopyWithNewOpacity(Alpha);
+                Shape->CustomShadow=(bWhiteShadow?FLinearColor::White:Mint).CopyWithNewOpacity(Alpha);
+                Shape->ContentPadding=FMargin(0);Shape->SetRenderOpacity(1);Shape->ApplyTheme();
+            }
+        };
+        Style(TEXT("ReserveBlock"),107.f/255.f);Style(TEXT("ToolResourceBlock"),133.f/255.f);Style(TEXT("NextEventBlock"),145.f/255.f,true);
+        for(int32 I=1;I<=4;++I) {Style(FName(*FString::Printf(TEXT("V2Player%d"),I)),145.f/255.f,true);Style(FName(*FString::Printf(TEXT("V2Skill%d"),I)),145.f/255.f,true);}
+        for(const FName Name:{FName(TEXT("V2HealthBar")),FName(TEXT("V2StaminaBar")),FName(TEXT("V2CleanBar")),
+            FName(TEXT("V2PlayerHP1")),FName(TEXT("V2PlayerHP2")),FName(TEXT("V2PlayerHP3")),FName(TEXT("V2PlayerHP4"))})
+            if(auto* Shape=WidgetTree->FindWidget<UMCUniversalUIWidget>(Name)) {
+                Shape->bCustomColors=true;Shape->bUseThemeShape=false;
+                Shape->bFitProgressToOutline=true;Shape->ContentPadding=FMargin(0);Shape->CustomFill=FLinearColor::Transparent;
+                Shape->CustomOutline=UnifiedRootColor(TEXT("FDFDFD"));Shape->CustomShadow=FLinearColor::Transparent;
+                Shape->bUseCustomProgressFill=Name!=TEXT("V2StaminaBar");Shape->CustomProgressFillColor=UnifiedRootColor(TEXT("CE4A4A"));
+                if(Name==TEXT("V2StaminaBar")) Shape->ProgressFill=EMCUIColorToken::Mint;
+                Shape->ApplyTheme();
+            }
+    }
+    for(const auto& Entry:HUDLayoutMetrics) if(auto* Widget=Find(Entry.Key)) {
+        const auto& Metric=Entry.Value;
+        if(auto* Cell=Cast<UCanvasPanelSlot>(Widget->Slot)) {
+            Cell->SetAnchors(FAnchors(Metric.Anchor.X,Metric.Anchor.Y));Cell->SetAlignment(FVector2D::ZeroVector);
+            Cell->SetPosition(Metric.Position);Cell->SetSize(Metric.Size);Cell->SetAutoSize(false);
+        }
+        if(Metric.FontSize>0) {
+            if(auto* Text=Cast<UTextBlock>(Widget)) {auto Font=Text->GetFont();Font.Size=Metric.FontSize;Text->SetFont(Font);}
+            for(auto& Binding:StyleBindings) if(Binding.WidgetName==Entry.Key) Binding.FontSize=Metric.FontSize;
+        }
+        if(auto* Shape=Cast<UMCUniversalUIWidget>(Widget);Shape && Metric.bOverrideShapeMetrics) {
+            Shape->CornerRadius=Metric.CornerRadius;Shape->OutlineWidth=Metric.OutlineWidth;Shape->ShadowOffset=Metric.ShadowOffset;
+            Shape->ContourPoints=Metric.ContourPoints;
+            Shape->ApplyTheme();
+        }
+    }
+    // A row's cards and gaps use the same reference units as its descendants.
+    for(const FName Name:{FName(TEXT("PlayerCards")),FName(TEXT("SkillCards"))})
+        if(auto* Row=WidgetTree->FindWidget<UHorizontalBox>(Name)) {
+            const FName First=Name==TEXT("PlayerCards")?FName(TEXT("V2Player1")):FName(TEXT("V2Skill1"));
+            const auto* RowMetric=HUDLayoutMetrics.Find(Name);const auto* CardMetric=HUDLayoutMetrics.Find(First);
+            if(RowMetric && CardMetric) {
+                const float Gap=FMath::Max(0.f,float((RowMetric->Size.X-CardMetric->Size.X*4.f)/3.f));
+                for(int32 I=0;I<Row->GetChildrenCount();++I) if(auto* Cell=Cast<UHorizontalBoxSlot>(Row->GetChildAt(I)->Slot)) {
+                    Cell->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));Cell->SetPadding(FMargin(0,0,I+1<Row->GetChildrenCount()?Gap:0.f,0));
+                }
+            }
+        }
+    bHUDReferenceLayoutApplied=true;LastHUDReferenceArea=FVector2D::ZeroVector;LastHUDLayoutHash=0;
+    RefreshHUDReferenceScale(GetPaintSpaceGeometry().GetLocalSize());
+}
+
+void UMCUnifiedUIWidget::RefreshHUDReferenceScale(FVector2D AvailableSize)
+{
+    if(!WidgetTree || AvailableSize.X<=1 || AvailableSize.Y<=1 || HUDReferenceSize.X<=1 || HUDReferenceSize.Y<=1) return;
+    uint32 Hash=GetTypeHash(HUDReferenceSize);
+    for(const auto& Entry:HUDLayoutMetrics) {
+        Hash=HashCombineFast(Hash,GetTypeHash(Entry.Key));Hash=HashCombineFast(Hash,GetTypeHash(Entry.Value.Position));
+        Hash=HashCombineFast(Hash,GetTypeHash(Entry.Value.Size));Hash=HashCombineFast(Hash,GetTypeHash(Entry.Value.Anchor));
+        Hash=HashCombineFast(Hash,GetTypeHash(Entry.Value.FontSize));Hash=HashCombineFast(Hash,GetTypeHash(Entry.Value.bOverrideShapeMetrics));
+        Hash=HashCombineFast(Hash,GetTypeHash(Entry.Value.CornerRadius));Hash=HashCombineFast(Hash,GetTypeHash(Entry.Value.OutlineWidth));
+        Hash=HashCombineFast(Hash,GetTypeHash(Entry.Value.ShadowOffset));
+        for(const FVector2D Point:Entry.Value.ContourPoints) Hash=HashCombineFast(Hash,GetTypeHash(Point));
+    }
+    if(AvailableSize.Equals(LastHUDReferenceArea,.01f) && Hash==LastHUDLayoutHash) return;
+    if(Hash!=LastHUDLayoutHash && bHUDReferenceLayoutApplied && !bApplyingHUDReferenceLayout) {ApplyPSDGameplayLayout(false);return;}
+    const float Scale=FMath::Max(.01f,float(FMath::Min(AvailableSize.X/HUDReferenceSize.X,AvailableSize.Y/HUDReferenceSize.Y)));
+    for(const FName Name:UnifiedHUDGroups) if(const auto* Metric=HUDLayoutMetrics.Find(Name))
+        if(auto* Group=WidgetTree->FindWidget(Name)) if(auto* Cell=Cast<UCanvasPanelSlot>(Group->Slot)) {
+            Cell->SetAnchors(FAnchors(Metric->Anchor.X,Metric->Anchor.Y));Cell->SetAlignment(FVector2D::ZeroVector);
+            Cell->SetPosition(Metric->Position*Scale);Cell->SetSize(Metric->Size);
+            Group->SetRenderTransformPivot(FVector2D::ZeroVector);Group->SetRenderScale(FVector2D(Scale,Scale));
+        }
+    LastHUDReferenceArea=AvailableSize;LastHUDLayoutHash=Hash;
+}
+
 void UMCUnifiedUIWidget::RefreshAdaptiveLayout()
 {
     if(!WidgetTree || !FSlateApplication::IsInitialized()) return;
@@ -758,26 +885,47 @@ void UMCUnifiedUIWidget::RefreshAdaptiveLayout()
         Bounds->SetMaxDesiredWidth(FMath::Max(280.f,FMath::Min(900.f,AreaX*.85f)));
         Bounds->SetMaxDesiredHeight(FMath::Max(160.f,AreaY*.51f));
     }
-    for(const TCHAR* Name:{TEXT("SettingsViewportFrame"),TEXT("TeamViewportFrame"),TEXT("WardrobeViewportFrame"),TEXT("ShopViewportFrame"),TEXT("RewardViewportFrame"),TEXT("FrontendViewportFrame"),TEXT("GameplayMenuViewportFrame")})
-        if(auto* Frame=WidgetTree->FindWidget<USizeBox>(Name)) Frame->SetMinDesiredHeight(FMath::Max(0.f,AreaY-64));
-    for(const TCHAR* Name:{TEXT("WardrobeViewportContent"),TEXT("ShopViewportContent"),TEXT("RewardViewportContent"),TEXT("FrontendViewportContent"),TEXT("GameplayMenuViewportContent")})
-        if(auto* Width=WidgetTree->FindWidget<USizeBox>(Name)) Width->SetMinDesiredWidth(FMath::Max(0.f,AreaX-64));
     if(ActiveScreen!=EMCUnifiedUIScreen::Gameplay && (!IsDesignTime() || PreviewScreen!=EMCUnifiedUIScreen::Gameplay)) return;
+    if(!bHUDReferenceLayoutApplied) ApplyPSDGameplayLayout(false);
+    RefreshHUDReferenceScale(Geometry);
     const auto Measure=FSlateApplication::Get().GetRenderer()->GetFontMeasureService();
     auto Label=[this](FName Name) {return WidgetTree->FindWidget<UTextBlock>(Name);};
     auto Natural=[&](UTextBlock* Text) -> FVector2D {if(Text) {const FVector2D Size=Measure->Measure(Text->GetText(),Text->GetFont());return Size;}return FVector2D::ZeroVector;};
     auto Reflow=[&](UTextBlock* Text,float Width,FVector2D Position) {
         if(!Text) return 0.f;
         Width=FMath::Max(40.f,Width);
-        const FVector2D TextSize=Natural(Text);
-        const float Line=FMath::Max(1.f,TextSize.Y);
-        const float Height=FMath::Max(Line*FMath::Max(1,FMath::CeilToInt((TextSize.X+10)/Width)),static_cast<float>(Text->GetDesiredSize().Y))+6;
-        Text->SetAutoWrapText(true);Text->SetWrapTextAt(Width);
-        Text->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+        Text->SetAutoWrapText(false);Text->SetWrapTextAt(Width);
+        Text->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
         Text->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);
+        if(const auto Slate=Text->GetCachedWidget()) {
+            Slate->MarkPrepassAsDirty();Slate->SlatePrepass(FMath::Max(.01f,GetPaintSpaceGeometry().GetAccumulatedLayoutTransform().GetScale()));
+        }
+        const float Height=FMath::Max(1.f,static_cast<float>(Text->GetDesiredSize().Y));
         if(auto* Cell=Cast<UCanvasPanelSlot>(Text->Slot)) {Cell->SetPosition(Position);Cell->SetSize({Width,Height});}
         return Height;
     };
+    if(HUDLayoutMetrics.Contains(TEXT("ToolResourceBlock"))) {
+        // Metric-driven HUD geometry is authoritative. Runtime content only
+        // reflows text; it cannot resize the reserve/event/resource plates or
+        // move their progress tracks after the reference layout was applied.
+        if(auto* Text=Label(TEXT("V2PlayerName"))) if(const auto* Metric=HUDLayoutMetrics.Find(TEXT("V2PlayerName"))) {
+            // The PSD name sits above the right-hand tracks. Its text may
+            // extend horizontally; it must not grow the resource plate or
+            // push the tool caption upward into a stack of nickname lines.
+            const float Width=FMath::Max(float(Metric->Size.X),float(Natural(Text).X)+4.f);
+            const float Height=Reflow(Text,Width,Metric->Position);
+            if(auto* Cell=Cast<UCanvasPanelSlot>(Text->Slot)) Cell->SetPosition(FVector2D(Metric->Position.X,Metric->Position.Y+Metric->Size.Y-Height));
+        }
+        if(auto* Text=Label(TEXT("V2ToolName"))) if(const auto* Metric=HUDLayoutMetrics.Find(TEXT("V2ToolName"))) {
+            const float Height=Reflow(Text,float(Metric->Size.X),Metric->Position);
+            if(auto* Cell=Cast<UCanvasPanelSlot>(Text->Slot)) Cell->SetPosition(FVector2D(Metric->Position.X,Metric->Position.Y+Metric->Size.Y-Height));
+        }
+        for(const TCHAR* Name:{TEXT("V2CleanLabel"),TEXT("V2NextEventLabel"),TEXT("V2NextEvent"),TEXT("V2CurrentEvent"),TEXT("V2RunSummary")})
+            if(auto* Text=Label(Name)) if(const auto* Metric=HUDLayoutMetrics.Find(Name)) {
+                Reflow(Text,float(Metric->Size.X),Metric->Position);
+            }
+        return;
+    }
     const float LeftLimit=FMath::Max(340.f,FMath::Min(900.f,AreaX*.45f));
     if(auto* Shape=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("ReserveBlock"))) {
         auto* Clean=Label(TEXT("V2CleanLabel"));
@@ -787,17 +935,17 @@ void UMCUnifiedUIWidget::RefreshAdaptiveLayout()
         if(auto* Bar=WidgetTree->FindWidget(TEXT("V2CleanBar"))) if(auto* Cell=Cast<UCanvasPanelSlot>(Bar->Slot)) {Cell->SetPosition({4,68+Height+5});Cell->SetSize({Width-28,28});}
         if(auto* Summary=Label(TEXT("V2RunSummary"))) Reflow(Summary,Width,{50,25+68+Height+64});
     }
-    if(auto* Shape=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("ToolResourceBlock"))) {
-        auto* Tool=Label(TEXT("V2ToolName"));auto* Player=Label(TEXT("V2PlayerName"));
-        const float ToolWidth=FMath::Clamp(static_cast<float>(Natural(Tool).X)+20.f,90.f,LeftLimit*.6f);
-        const float Width=FMath::Clamp(ToolWidth+static_cast<float>(Natural(Player).X)+54.f,380.f,LeftLimit);
-        const float PlayerWidth=Width-ToolWidth-34.f;
-        const float ToolHeight=Reflow(Tool,ToolWidth,{4,0}),PlayerHeight=Reflow(Player,PlayerWidth,{ToolWidth+18,0});
-        const float Top=-FMath::Max(ToolHeight,PlayerHeight)-12.f;
-        Reflow(Tool,ToolWidth,{4,Top});Reflow(Player,PlayerWidth,{ToolWidth+18,Top});
-        if(auto* Cell=Cast<UCanvasPanelSlot>(Shape->Slot)) Cell->SetSize({Width,145});
-        for(const TCHAR* Name:{TEXT("V2HealthBar"),TEXT("V2StaminaBar")})
-            if(auto* Bar=WidgetTree->FindWidget(Name)) if(auto* Cell=Cast<UCanvasPanelSlot>(Bar->Slot)) Cell->SetSize({Width-155,Cell->GetSize().Y});
+    if(WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("ToolResourceBlock"))) {
+        // Authored resource/bar rectangles are independent of weapon, upgrade,
+        // player name and culture. Long names only grow upward in their own
+        // fixed text columns; the resource plate and both progress tracks stay put.
+        for(const TCHAR* Name:{TEXT("V2ToolName"),TEXT("V2PlayerName")})
+            if(auto* Text=Label(Name)) if(auto* Cell=Cast<UCanvasPanelSlot>(Text->Slot)) {
+                const FVector2D Position=Cell->GetPosition(),Size=Cell->GetSize();
+                const float Bottom=float(Position.Y+Size.Y);
+                const float Height=Reflow(Text,float(Size.X),Position);
+                Cell->SetPosition(FVector2D(Position.X,Bottom-Height));
+            }
     }
     if(auto* Shape=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("NextEventBlock"))) {
         auto* Heading=Label(TEXT("V2NextEventLabel"));auto* Event=Label(TEXT("V2NextEvent"));auto* Current=Label(TEXT("V2CurrentEvent"));
@@ -821,7 +969,13 @@ void UMCUnifiedUIWidget::RefreshRuntimePresentation()
         if(auto* View=WidgetTree->FindWidget<UMCUnifiedTutorialWidget>(TEXT("UnifiedTutorial"))) View->RefreshFromBackend();
         if(auto* View=WidgetTree->FindWidget<UMCUnifiedEmoteWidget>(TEXT("UnifiedEmotes"))) View->RefreshFromBackend();
         if(auto* View=WidgetTree->FindWidget<UMCUnifiedCatchWidget>(TEXT("UnifiedCatch"))) View->RefreshFromBackend();
-        if(auto* View=WidgetTree->FindWidget<UMCUnifiedHUDExtrasWidget>(TEXT("UnifiedHUDExtras"))) View->RefreshFromBackend();
+        if(auto* View=WidgetTree->FindWidget<UMCUnifiedHUDExtrasWidget>(TEXT("UnifiedHUDExtras"))) {
+            View->RefreshFromBackend();
+            if(ActiveScreen==EMCUnifiedUIScreen::Gameplay && HUDBackend.IsValid() && View->IsVisible()) {
+                const auto PassiveHitPolicy=View->HasPassiveOverflow()?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::HitTestInvisible;
+                if(View->GetVisibility()!=PassiveHitPolicy) View->SetVisibility(PassiveHitPolicy);
+            }
+        }
         auto* Boss=WidgetTree->FindWidget<UMCUnifiedBossWidget>(TEXT("UnifiedBoss"));if(Boss) Boss->RefreshFromBackend();
         if(auto* View=WidgetTree->FindWidget<UMCUnifiedAlertWidget>(TEXT("UnifiedAlert"))) {
             View->SetBossStackPresentation(BossBackend.IsValid() && Boss?Boss->GetDisplayedBossCount():-1,Boss?Boss->GetDisplayedStackHeight():0);

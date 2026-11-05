@@ -107,6 +107,11 @@ struct MESSCONTROL_API FMCHubEconomyCatalogEntry
     GENERATED_BODY()
     UPROPERTY(BlueprintReadOnly) FName ItemID;
     UPROPERTY(BlueprintReadOnly) FMCHubCatalogRow Definition;
+    /** Derived from an opted-in DT_CharacterCosmetics row; not another editable price source. */
+    UPROPERTY(BlueprintReadOnly) bool bCanonicalClothing=false;
+    UPROPERTY(BlueprintReadOnly) int32 BasePrice=0;
+    UPROPERTY(BlueprintReadOnly) int32 DiscountPercent=0;
+    UPROPERTY(BlueprintReadOnly) float ShopAppearanceChance=1.f;
     UPROPERTY(BlueprintReadOnly) EMCPerkKind PerkKind=EMCPerkKind::Automatic;
 };
 

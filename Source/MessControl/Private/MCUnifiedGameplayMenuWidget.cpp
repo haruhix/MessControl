@@ -5,11 +5,17 @@
 #include "MCUIDataLibrary.h"
 #include "MCUniversalUIWidget.h"
 #include "Blueprint/WidgetTree.h"
+#include "Rendering/SlateRenderer.h"
+#include "Framework/Application/SlateApplication.h"
+#include "Fonts/FontMeasure.h"
+#include "Components/OverlaySlot.h"
+#include "Components/Overlay.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Components/CheckBox.h"
 #include "Components/ProgressBar.h"
 #include "Components/ScrollBox.h"
 #include "Components/SizeBox.h"
+#include "Components/SizeBoxSlot.h"
 #include "Components/Slider.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
@@ -160,6 +166,7 @@ void UMCUnifiedGameplayMenuWidget::BuildPresentationTree()
         FMCGameplayMenuPresentationControl Fixture;Fixture.Name=Def.Name;Fixture.Kind=Def.Kind;Fixture.bFooter=Def.Footer;
         Fixture.Text=Localized(FName(Def.Key),FText::AsCultureInvariant(Def.Copy));EnsureControl(Def.Page,Fixture);
     }
+    UpdateResponsiveLayout();
 }
 FMCUnifiedGameplayMenuControl& UMCUnifiedGameplayMenuWidget::EnsureControl(int32 PageIndex,const FMCGameplayMenuPresentationControl& Definition)
 {
@@ -277,6 +284,7 @@ void UMCUnifiedGameplayMenuWidget::Present(const FMCGameplayMenuPresentationSnap
     for(auto& Generated:GeneratedPickerLabels) if(Generated.Label && Generated.Picker.IsValid()) {
         const float Width=Generated.Picker->GetPaintSpaceGeometry().GetLocalSize().X;if(Width>1) Generated.Label->SetWrapTextAt(FMath::Max(200.f,Width-48));
     }
+    UpdateResponsiveLayout();
     if(NewPage && Backend.IsValid()) if(auto* Target=GetDefaultFocusTarget()) if(auto* PC=GetOwningPlayer()) Target->SetUserFocus(PC);
 }
 void UMCUnifiedGameplayMenuWidget::SetBackend(UMCGameplayMenuWidget* Source)
@@ -405,11 +413,93 @@ void UMCUnifiedGameplayMenuWidget::PresentPreview()
 }
 void UMCUnifiedGameplayMenuWidget::ApplyEditorPreview(float Time)
 {
-    Super::ApplyEditorPreview(Time);BuildPresentationTree();if(Backend.IsValid() && !IsDesignTime()) RefreshFromBackend();else PresentPreview();
+    Super::ApplyEditorPreview(Time);BuildPresentationTree();if(Backend.IsValid() && !IsDesignTime()) RefreshFromBackend();else PresentPreview();UpdateResponsiveLayout();
+}
+void UMCUnifiedGameplayMenuWidget::UpdateResponsiveLayout(FVector2D AvailableSize)
+{
+    if(!WidgetTree) return;
+    auto* RootBounds=WidgetTree->FindWidget<USizeBox>(TEXT("GameplayMenuV2Size"));
+    auto* Frame=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("GameplayMenuV2Frame"));
+    auto* Pages=WidgetTree->FindWidget<UWidgetSwitcher>(TEXT("GameplayMenuV2Pages"));
+    if(!RootBounds || !Frame || !Pages) return;
+    if(WidgetTree->RootWidget==RootBounds) {
+        auto* AlignmentRoot=WidgetTree->ConstructWidget<UOverlay>(UOverlay::StaticClass(),TEXT("GameplayMenuV2AlignmentRoot"));
+        WidgetTree->RootWidget=AlignmentRoot;auto* AlignedCell=AlignmentRoot->AddChildToOverlay(RootBounds);
+        AlignedCell->SetHorizontalAlignment(HAlign_Center);AlignedCell->SetVerticalAlignment(VAlign_Center);
+    }
+    RootBounds->ClearMinDesiredWidth();RootBounds->ClearMinDesiredHeight();
+    if(auto* FrameCell=Cast<USizeBoxSlot>(Frame->Slot)) {FrameCell->SetVerticalAlignment(VAlign_Center);FrameCell->SetHorizontalAlignment(HAlign_Fill);}
+    if(auto* PagesCell=Cast<UVerticalBoxSlot>(Pages->Slot)) PagesCell->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+    if(AvailableSize.X<=1 || AvailableSize.Y<=1) AvailableSize=GetPaintSpaceGeometry().GetLocalSize();
+    if(AvailableSize.X<=1 || AvailableSize.Y<=1) return;
+    float PreferredWidth=ActivePageIndex==1 || ActivePageIndex==6 || ActivePageIndex==7?680.f:520.f;
+    if(FSlateApplication::IsInitialized()) {
+        const auto Measure=FSlateApplication::Get().GetRenderer()->GetFontMeasureService();
+        for(const auto& Row:Controls) if(Row.PageIndex==ActivePageIndex && Row.Surface && Row.Surface->WidgetTree)
+            if(const auto* Caption=Row.Surface->WidgetTree->FindWidget<UTextBlock>(TEXT("UniversalLabel"))) PreferredWidth=FMath::Max(PreferredWidth,float(Measure->Measure(Caption->GetText(),Caption->GetFont()).X)+Row.Surface->ContentPadding.Left+Row.Surface->ContentPadding.Right+84.f);
+        for(const auto& Row:Controls) if(Row.PageIndex==ActivePageIndex) if(const auto* Check=Cast<UCheckBox>(Row.Control))
+            if(const auto* Caption=Cast<UTextBlock>(Check->GetContent())) {
+                const auto& CheckStyle=Check->GetWidgetStyle();
+                const float CheckChrome=FMath::Max(float(CheckStyle.UncheckedImage.ImageSize.X),float(CheckStyle.CheckedImage.ImageSize.X))+CheckStyle.Padding.Left+CheckStyle.Padding.Right+8.f;
+                PreferredWidth=FMath::Max(PreferredWidth,float(Measure->Measure(Caption->GetText(),Caption->GetFont()).X)+CheckChrome+Frame->ContentPadding.Left+Frame->ContentPadding.Right+48.f);
+            }
+        if(const auto* Header=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("GameplayMenuV2Heading"));Header && Header->WidgetTree)
+            if(const auto* Caption=Header->WidgetTree->FindWidget<UTextBlock>(TEXT("UniversalLabel"))) PreferredWidth=FMath::Max(PreferredWidth,float(Measure->Measure(Caption->GetText(),Caption->GetFont()).X)+Header->ContentPadding.Left+Header->ContentPadding.Right+56.f);
+    }
+    const float ViewWidth=FMath::Max(1.f,FMath::Min(FMath::Min(1000.f,PreferredWidth),float(AvailableSize.X)-14.f));
+    const float ViewHeight=FMath::Max(1.f,float(AvailableSize.Y)-16.f);
+    RootBounds->SetWidthOverride(ViewWidth);RootBounds->SetMaxDesiredWidth(ViewWidth);RootBounds->SetHeightOverride(ViewHeight);RootBounds->SetMaxDesiredHeight(ViewHeight);
+    const float InnerWidth=FMath::Max(1.f,ViewWidth-Frame->ContentPadding.Left-Frame->ContentPadding.Right);
+    if(auto* HeaderBounds=WidgetTree->FindWidget<USizeBox>(TEXT("GameplayMenuV2HeadingBounds"))) HeaderBounds->SetMaxDesiredWidth(FMath::Max(1.f,InnerWidth-16.f));
+    if(auto* Header=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("GameplayMenuV2Heading"));Header && Header->WidgetTree)
+        if(auto* Caption=Header->WidgetTree->FindWidget<UTextBlock>(TEXT("UniversalLabel"))) {Caption->SetAutoWrapText(false);Caption->SetWrapTextAt(FMath::Max(1.f,InnerWidth-Header->ContentPadding.Left-Header->ContentPadding.Right-16.f));Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);}
+    float FixedHeight=100.f;
+    if(auto* HeaderBounds=WidgetTree->FindWidget(TEXT("GameplayMenuV2HeadingBounds"))) FixedHeight=FMath::Max(FixedHeight,float(HeaderBounds->GetDesiredSize().Y)+56.f);
+    for(const TCHAR* Name:{TEXT("GameplayMenuV2NetworkNote"),TEXT("GameplayMenuV2Status"),TEXT("GameplayMenuV2Hint")})
+        if(auto* Caption=WidgetTree->FindWidget<UTextBlock>(FName(Name))) {
+            Caption->SetAutoWrapText(false);Caption->SetWrapTextAt(FMath::Max(1.f,InnerWidth-20.f));Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
+            if(Caption->GetVisibility()!=ESlateVisibility::Collapsed) FixedHeight+=float(Caption->GetDesiredSize().Y)+10.f;
+        }
+    for(int32 Index=0;Index<8;++Index) {
+        auto* Interior=WidgetTree->FindWidget<UMCUniversalUIWidget>(MCUnifiedGameplayMenuPrivate_PagePart(TEXT("Inner"),Index));
+        auto* Bounds=WidgetTree->FindWidget<USizeBox>(MCUnifiedGameplayMenuPrivate_PagePart(TEXT("ScrollBounds"),Index));
+        auto* Footer=WidgetTree->FindWidget<UWrapBox>(MCUnifiedGameplayMenuPrivate_PagePart(TEXT("Footer"),Index));
+        if(Interior) if(auto* InteriorCell=Cast<UVerticalBoxSlot>(Interior->Slot)) InteriorCell->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+        if(Footer) Footer->SetWrapSize(FMath::Max(1.f,InnerWidth-16.f));
+        const float FooterHeight=Footer?float(Footer->GetDesiredSize().Y)+24.f:24.f;
+        if(Bounds) {Bounds->ClearMinDesiredHeight();Bounds->ClearHeightOverride();Bounds->SetMaxDesiredHeight(FMath::Max(1.f,ViewHeight-FixedHeight-FooterHeight-42.f));}
+    }
+    for(auto& Row:Controls) if(Row.Host && Row.Control) {
+        const bool FooterRow=Row.Host->GetParent() && Row.Host->GetParent()->IsA<UWrapBox>();
+        const float ControlWidth=FMath::Max(1.f,InnerWidth-(FooterRow?16.f:44.f));
+        Row.Host->SetMinDesiredWidth(0);Row.Host->SetMaxDesiredWidth(FooterRow?FMath::Min(440.f,ControlWidth):ControlWidth);
+        // Sliders/meters have only a thumb/rail thickness as intrinsic desired
+        // width. Their bounded form row must provide real horizontal space.
+        if(Row.Kind==MCUnifiedGameplayMenuPrivate_K::Slider || Row.Kind==MCUnifiedGameplayMenuPrivate_K::Meter) {
+            Row.Host->SetWidthOverride(ControlWidth);
+            if(auto* FormCell=Cast<USizeBoxSlot>(Row.Control->Slot)) FormCell->SetHorizontalAlignment(HAlign_Fill);
+        }
+        if(Row.Surface && Row.Surface->WidgetTree) if(auto* Caption=Row.Surface->WidgetTree->FindWidget<UTextBlock>(TEXT("UniversalLabel"))) {
+            Caption->SetAutoWrapText(false);Caption->SetWrapTextAt(FMath::Max(1.f,(FooterRow?FMath::Min(440.f,ControlWidth):ControlWidth)-Row.Surface->ContentPadding.Left-Row.Surface->ContentPadding.Right));Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
+        }
+        if(auto* Check=Cast<UCheckBox>(Row.Control)) if(auto* Caption=Cast<UTextBlock>(Check->GetContent())) {
+            const auto& CheckStyle=Check->GetWidgetStyle();
+            const float CheckChrome=FMath::Max(float(CheckStyle.UncheckedImage.ImageSize.X),float(CheckStyle.CheckedImage.ImageSize.X))+CheckStyle.Padding.Left+CheckStyle.Padding.Right+8.f;
+            float CaptionNatural=FMath::Max(1.f,ControlWidth-CheckChrome);
+            if(FSlateApplication::IsInitialized()) CaptionNatural=float(FSlateApplication::Get().GetRenderer()->GetFontMeasureService()->Measure(Caption->GetText(),Caption->GetFont()).X)+3.f;
+            // The form owns the checkbox icon/padding as well as its real text.
+            // Keep an ordinary word intact; longer copy grows down within the row.
+            const float CaptionWidth=FMath::Max(1.f,FMath::Min(CaptionNatural,ControlWidth-CheckChrome));
+            Row.Host->SetWidthOverride(FMath::Min(ControlWidth,CaptionWidth+CheckChrome));
+            Caption->SetAutoWrapText(false);Caption->SetWrapTextAt(CaptionWidth);Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
+            if(auto* FormCell=Cast<USizeBoxSlot>(Check->Slot)) FormCell->SetHorizontalAlignment(HAlign_Fill);
+        }
+        if(auto* Caption=Cast<UTextBlock>(Row.Control)) {Caption->SetAutoWrapText(false);Caption->SetWrapTextAt(ControlWidth);Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);}
+    }
 }
 void UMCUnifiedGameplayMenuWidget::ApplyTheme()
 {
-    Super::ApplyTheme();
+    Super::ApplyTheme();UpdateResponsiveLayout();
     for(auto& Generated:GeneratedPickerLabels) if(Generated.Label) {Generated.Label->SetFont(GetResolvedTheme()->MakeGameplayFont(18));Generated.Label->SetColorAndOpacity(MCUnifiedGameplayMenuPrivate_Navy);}
 }
 void UMCUnifiedGameplayMenuWidget::OnLocalizationChanged()
@@ -418,7 +508,7 @@ void UMCUnifiedGameplayMenuWidget::OnLocalizationChanged()
 }
 void UMCUnifiedGameplayMenuWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
-    Super::NativeTick(Geometry,DeltaSeconds);RefreshElapsed+=DeltaSeconds;if(RefreshElapsed>=.1f) {RefreshElapsed=0;RefreshFromBackend();}
+    Super::NativeTick(Geometry,DeltaSeconds);UpdateResponsiveLayout(Geometry.GetLocalSize());RefreshElapsed+=DeltaSeconds;if(RefreshElapsed>=.1f) {RefreshElapsed=0;RefreshFromBackend();}
 }
 FReply UMCUnifiedGameplayMenuWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
 {

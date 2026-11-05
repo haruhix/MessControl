@@ -1,5 +1,5 @@
 #include "MCCharacterCosmeticsComponent.h"
-#include "MCCosmeticDeformation.h"
+#include "MCCosmeticFit.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/Character.h"
@@ -100,17 +100,10 @@ void UMCCharacterCosmeticsComponent::RefreshPresentation()
         // Authored bounds include the shader displacement and tall headwear.
         Part->bUseAttachParentBound=false;
         Part->SetupAttachment(Target,Row->AttachBone);
-        FTransform Fit=Row->LocalTransform;
-        if(Row->bMeshSpaceFit) {
-            const auto& Ref=Target->GetSkeletalMeshAsset()->GetRefSkeleton();
-            FTransform ReferenceBone=FTransform::Identity;
-            for(int32 Index=Ref.FindBoneIndex(Row->AttachBone);Index>=0;Index=Ref.GetParentIndex(Index))
-                ReferenceBone=ReferenceBone*Ref.GetRefBonePose()[Index];
-            Fit=Fit.GetRelativeTransform(ReferenceBone);
-        }
+        const FTransform Fit=MCCosmeticFit::ResolveAttachmentTransform(Target->GetSkeletalMeshAsset(),Row->AttachBone,Row->LocalTransform,Row->bMeshSpaceFit);
         Part->SetRelativeTransform(Fit);
         for(int32 Index=0;Index<Row->Materials.Num();++Index) if(Row->Materials[Index]) Part->SetMaterial(Index,Row->Materials[Index]);
-        Part->RegisterComponent();MCCosmeticDeformation::Update(Part,Target);Parts.Add(Part);
+        Part->RegisterComponent();MCCosmeticFit::UpdateDeformation(Part,Target);Parts.Add(Part);
     }
     SetTickGroup(TG_PostUpdateWork);SetComponentTickEnabled(!Parts.IsEmpty());SyncVisibility();
 }
@@ -128,7 +121,7 @@ void UMCCharacterCosmeticsComponent::TickComponent(float Dt,ELevelTick TickType,
     Super::TickComponent(Dt,TickType,TickFunction);SyncVisibility();
     const auto* Character=Cast<ACharacter>(GetOwner());
     const auto* Body=Character?Character->GetMesh():nullptr;
-    for(UStaticMeshComponent* Part:Parts) MCCosmeticDeformation::Update(Part,Body);
+    for(UStaticMeshComponent* Part:Parts) MCCosmeticFit::UpdateDeformation(Part,Body);
 }
 
 TArray<UStaticMeshComponent*> UMCCharacterCosmeticsComponent::GetAccessoryParts() const

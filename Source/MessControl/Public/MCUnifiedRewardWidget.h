@@ -10,6 +10,9 @@ class UImage;
 class UTextBlock;
 class UScrollBox;
 class USizeBox;
+class UWrapBox;
+class UUniformGridPanel;
+class UMCUIGridScrollBox;
 
 /** One exact source control, never an index that could target a newer offer. */
 UCLASS()
@@ -61,11 +64,13 @@ public:
     bool RouteSourceAnalog(const FAnalogInputEvent& Event);
     void ActivateSourceButton(UMCPerkCardButton* Button);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Preview|Rewards") TArray<FName> PreviewPerkIDs;
+    /** Optional display face for the PSD title; body copy retains the shared readable font. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Typography") FSlateFontInfo RewardTitleFont;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Layout") bool bAdaptHeaderContour=true;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Layout") bool bAdaptCardLayout=true;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Layout",meta=(ClampMin="240")) float MinimumCardWidth=310.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Layout",meta=(ClampMin="310")) float MaximumCardWidth=480.f;
-    /** Baseline copy cap at1080p; a taller parent viewport may expand it without scaling text. */
+    /** Retained for existing saved assets; ordinary reward copy now uses its natural height. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Layout",meta=(ClampMin="240")) float MaximumCardCopyHeight=360.f;
 protected:
     virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
@@ -82,6 +87,7 @@ private:
     float AdaptiveCardWidth(const FMCPerkChoicePresentationSnapshot& Snapshot) const;
     void UpdateCardCopyHeight();
     void RefreshTextBounds();
+    void UpdateResponsiveLayout(FVector2D AvailableSize=FVector2D::ZeroVector);
     FText TypeLabel(EMCPerkKind Kind) const;
     FText RarityLabel(EMCPerkRarity Rarity) const;
     UMCUniversalUIWidget* MakeShape(FName Name,FLinearColor Fill,bool bButton=false);
@@ -90,7 +96,15 @@ private:
     UPROPERTY(Transient) TArray<FMCUnifiedRewardCard> Cards;
     UPROPERTY(Transient) TArray<TObjectPtr<UMCUniversalUIWidget>> ActionViews;
     UPROPERTY(Transient) TArray<TObjectPtr<UMCUnifiedRewardBinding>> Bindings;
+    /** Keep inactive containers alive while the same named source cards move between layouts. */
+    UPROPERTY(Transient) TObjectPtr<UWrapBox> OrdinaryCardRow;
+    UPROPERTY(Transient) TObjectPtr<UUniformGridPanel> ReplacementCardGrid;
+    UPROPERTY(Transient) TObjectPtr<UMCUIGridScrollBox> ReplacementGridScroll;
     TWeakObjectPtr<UMCPerkCardButton> SelectedSource;
     bool bShowingContract=false;
+    bool bShowingReplacement=false;
+    bool bReplacementStickLatched=false;
     float RefreshElapsed=0.f;
+    FVector2D ResponsiveViewportSize=FVector2D::ZeroVector;
+    float PreferredCardWidth=310.f;
 };

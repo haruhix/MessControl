@@ -18,6 +18,7 @@
 #include "Components/WrapBox.h"
 #include "Fonts/FontMeasure.h"
 #include "Framework/Application/SlateApplication.h"
+#include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
 #include "Rendering/SlateRenderer.h"
 
@@ -51,14 +52,17 @@ UTextBlock* UMCUnifiedEmoteWidget::MakeLabel(FName Name,int32 Size)
 }
 void UMCUnifiedEmoteWidget::BuildPresentationTree()
 {
-    if(!WidgetTree) return;if(!Theme) Theme=UMCGameplayUIFactory::GetThemeForVersion(EMCUIVersion::New);if(WidgetTree->RootWidget) return;
+    if(!WidgetTree) return;if(!Theme) Theme=UMCGameplayUIFactory::GetThemeForVersion(EMCUIVersion::New);if(WidgetTree->RootWidget) {
+        auto* Bounds=WidgetTree->FindWidget<USizeBox>(TEXT("NewEmoteBounds"));auto* Scroll=WidgetTree->FindWidget<UScrollBox>(TEXT("NewEmoteBodyScroll"));auto* Body=WidgetTree->FindWidget<UVerticalBox>(TEXT("NewEmoteBody"));
+        if(Bounds && Scroll && Body && Scroll->GetParent()==Bounds && Body->GetParent()==Scroll && Scroll->GetChildrenCount()==1) {Body->RemoveFromParent();Bounds->SetContent(Body);}
+        return;
+    }
     auto* Canvas=WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(),TEXT("NewEmoteRoot"));WidgetTree->RootWidget=Canvas;
     auto* Backdrop=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("NewEmoteBackdrop"));Backdrop->SetBrushColor(FLinearColor(0,0,0,.65f));Backdrop->SetPadding(FMargin(0));
     auto* BackdropCell=Canvas->AddChildToCanvas(Backdrop);BackdropCell->SetAnchors(FAnchors(0,0,1,1));BackdropCell->SetOffsets(FMargin(0));
     auto* Bounds=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("NewEmoteBounds"));Bounds->SetWidthOverride(1080);Bounds->SetMaxDesiredHeight(700);
     auto* BodyCell=Canvas->AddChildToCanvas(Bounds);BodyCell->SetAnchors(FAnchors(.5,.5));BodyCell->SetAlignment(FVector2D(.5,.5));BodyCell->SetAutoSize(true);
-    auto* BodyScroll=WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(),TEXT("NewEmoteBodyScroll"));BodyScroll->SetAllowOverscroll(false);BodyScroll->SetScrollbarThickness(FVector2D(6,6));Bounds->SetContent(BodyScroll);
-    auto* Body=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("NewEmoteBody"));BodyScroll->AddChild(Body);
+    auto* Body=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("NewEmoteBody"));Bounds->SetContent(Body);
     auto* MainRow=WidgetTree->ConstructWidget<UWrapBox>(UWrapBox::StaticClass(),TEXT("NewEmoteMainRow"));MainRow->SetExplicitWrapSize(true);MainRow->SetInnerSlotPadding(FVector2D(20,20));Body->AddChildToVerticalBox(MainRow);
     auto* WheelBounds=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("NewEmoteWheelBounds"));WheelBounds->SetWidthOverride(428);WheelBounds->SetHeightOverride(428);MainRow->AddChildToWrapBox(WheelBounds);
     auto* WheelCanvas=WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(),TEXT("NewEmoteWheelCanvas"));WheelBounds->SetContent(WheelCanvas);
@@ -117,22 +121,39 @@ void UMCUnifiedEmoteWidget::UpdateChoices(const FMCEmotePresentationSnapshot& Sn
 
 void UMCUnifiedEmoteWidget::UpdateLayout()
 {
-    if(!WidgetTree) return;FVector2D Area=GetPaintSpaceGeometry().GetLocalSize();if(Area.X<1 || Area.Y<1) Area=FVector2D(1280,720);
-    const float BodyWidth=FMath::Max(240.f,FMath::Min(1080.f,float(Area.X)-48));const float Diameter=FMath::Max(240.f,FMath::Min(428.f,FMath::Min(BodyWidth,float(Area.Y)-290)));
-    const float ListWidth=BodyWidth>=Diameter+320?BodyWidth-Diameter-20:BodyWidth;
-    if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(TEXT("NewEmoteBounds"))) {Bounds->SetWidthOverride(BodyWidth);Bounds->SetMaxDesiredHeight(FMath::Max(160.f,float(Area.Y)-48));}
-    if(auto* Row=WidgetTree->FindWidget<UWrapBox>(TEXT("NewEmoteMainRow"))) Row->SetWrapSize(BodyWidth);
+    if(!WidgetTree) return;const FVector2D Area=GetPaintSpaceGeometry().GetLocalSize();if(Area.X<=1 || Area.Y<=1) return;
+    const float BodyWidth=FMath::Max(1.f,FMath::Min(1080.f,float(Area.X)-48.f));
+    const float AvailableHeight=FMath::Max(1.f,float(Area.Y)-48.f);
+    auto Wrap=[&](const TCHAR* Name,float Width) {if(auto* Caption=WidgetTree->FindWidget<UTextBlock>(Name)) {Caption->SetAutoWrapText(false);Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);Caption->SetWrapTextAt(FMath::Max(1.f,Width));}};
+    if(auto* Colors=WidgetTree->FindWidget<UWrapBox>(TEXT("NewEmoteColors"))) Colors->SetWrapSize(FMath::Max(1.f,BodyWidth-34.f));
+    Wrap(TEXT("NewEmoteColorHeading"),BodyWidth-34.f);Wrap(TEXT("NewEmoteFooter"),BodyWidth-24.f);
+    for(const auto& Frame:ColorViews) if(auto* Caption=Cast<UTextBlock>(Frame->GetContentForSlot(TEXT("Content")))) {Caption->SetAutoWrapText(false);Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);Caption->SetWrapTextAt(FMath::Max(1.f,FMath::Min(240.f,BodyWidth-66.f)));}
+    const float Scale=FMath::Max(.001f,GetPaintSpaceGeometry().GetAccumulatedLayoutTransform().GetScale());
+    auto MeasuredHeight=[&](UWidget* Widget) {
+        if(!Widget || !Widget->IsVisible()) return 0.f;
+        const auto Slate=Widget->TakeWidget();Slate->MarkPrepassAsDirty();Slate->SlatePrepass(Scale);
+        float Height=FMath::CeilToFloat(Widget->GetDesiredSize().Y);
+        if(const auto* Cell=Cast<UVerticalBoxSlot>(Widget->Slot)) Height+=Cell->GetPadding().Top+Cell->GetPadding().Bottom;
+        return Height;
+    };
+    const float FixedHeight=MeasuredHeight(WidgetTree->FindWidget(TEXT("NewEmoteColorFrame")))+MeasuredHeight(WidgetTree->FindWidget(TEXT("NewEmoteFooter")));
+    const float MainHeight=FMath::Max(1.f,AvailableHeight-FixedHeight);
+    // The wheel and list stay beside each other; the wheel artwork alone can resize.
+    // Text retains its authored font. Scrolling is confined to NewEmoteListScroll.
+    const float Diameter=FMath::Max(1.f,FMath::Min(428.f,FMath::Min(MainHeight,BodyWidth*.42f)));
+    const float ListWidth=FMath::Max(1.f,BodyWidth-Diameter-20.f);
+    const float MainRowHeight=FMath::Min(428.f,MainHeight);
+    if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(TEXT("NewEmoteBounds"))) {Bounds->ClearMinDesiredHeight();Bounds->ClearMaxDesiredHeight();Bounds->SetWidthOverride(BodyWidth);Bounds->SetHeightOverride(MainRowHeight+FixedHeight);}
+    if(auto* Row=WidgetTree->FindWidget<UWrapBox>(TEXT("NewEmoteMainRow"))) Row->SetWrapSize(BodyWidth+.5f);
     if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(TEXT("NewEmoteWheelBounds"))) {Bounds->SetWidthOverride(Diameter);Bounds->SetHeightOverride(Diameter);}
-    if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(TEXT("NewEmoteListBounds"))) {Bounds->SetWidthOverride(ListWidth);Bounds->SetHeightOverride(FMath::Max(300.f,Diameter));}
-    if(auto* Row=WidgetTree->FindWidget<UWrapBox>(TEXT("NewEmoteColors"))) Row->SetWrapSize(FMath::Max(100.f,BodyWidth-34));
+    if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(TEXT("NewEmoteListBounds"))) {Bounds->SetWidthOverride(ListWidth);Bounds->SetHeightOverride(MainRowHeight);}
     for(int32 Index=0;Index<3;++Index) if(auto* Caption=WidgetTree->FindWidget<UTextBlock>(MCUnifiedEmotePrivate::Indexed(TEXT("NewEmoteSector"),Index))) {
-        const float Mid=FMath::DegreesToRadians(-90.f+Index*120);const float Width=Diameter*(Index==0?.64f:.39f);Caption->SetWrapTextAt(Width);
+        const float Mid=FMath::DegreesToRadians(-90.f+Index*120);const float Width=Diameter*(Index==0?.64f:.39f);
+        Caption->SetAutoWrapText(false);Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);Caption->SetWrapTextAt(FMath::Max(1.f,Width));
         if(auto* Cell=Cast<UCanvasPanelSlot>(Caption->Slot)) {Cell->SetPosition(FVector2D(FMath::Cos(Mid),FMath::Sin(Mid))*Diameter*.318f);Cell->SetAutoSize(true);}
     }
-    for(const auto& Frame:ChoiceViews) if(auto* Caption=Cast<UTextBlock>(Frame->GetContentForSlot(TEXT("Content")))) Caption->SetWrapTextAt(FMath::Max(96.f,ListWidth-82));
-    for(const auto& Frame:ColorViews) if(auto* Caption=Cast<UTextBlock>(Frame->GetContentForSlot(TEXT("Content")))) Caption->SetWrapTextAt(FMath::Min(240.f,BodyWidth-66));
-    auto Wrap=[&](const TCHAR* Name,float Width) {if(auto* Caption=WidgetTree->FindWidget<UTextBlock>(Name)) Caption->SetWrapTextAt(FMath::Max(80.f,Width));};
-    Wrap(TEXT("NewEmoteHeading"),ListWidth-62);Wrap(TEXT("NewEmoteHint"),ListWidth-42);Wrap(TEXT("NewEmoteColorHeading"),BodyWidth-34);Wrap(TEXT("NewEmoteFooter"),BodyWidth-24);LastViewport=Area;
+    for(const auto& Frame:ChoiceViews) if(auto* Caption=Cast<UTextBlock>(Frame->GetContentForSlot(TEXT("Content")))) {Caption->SetAutoWrapText(false);Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);Caption->SetWrapTextAt(FMath::Max(1.f,ListWidth-82.f));}
+    Wrap(TEXT("NewEmoteHeading"),ListWidth-62.f);Wrap(TEXT("NewEmoteHint"),ListWidth-42.f);LastViewport=Area;
 }
 void UMCUnifiedEmoteWidget::Present(const FMCEmotePresentationSnapshot& Snapshot)
 {
@@ -195,7 +216,7 @@ void UMCUnifiedEmoteWidget::NativeConstruct() {Super::NativeConstruct();PrepareP
 void UMCUnifiedEmoteWidget::NativeDestruct() {if(auto* Source=Backend.Get()) Source->ClearUnifiedFocusView(this);bPrepared=false;Super::NativeDestruct();}
 void UMCUnifiedEmoteWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
-    Super::NativeTick(Geometry,DeltaSeconds);if(IsDesignTime()) return;const FString Culture=FInternationalization::Get().GetCurrentLanguage()->GetName();
+    Super::NativeTick(Geometry,DeltaSeconds);if(!LastViewport.Equals(Geometry.GetLocalSize(),.5f)) UpdateLayout();if(IsDesignTime()) return;const FString Culture=FInternationalization::Get().GetCurrentLanguage()->GetName();
     if(Culture!=PreparedCulture || !FMath::IsNearlyEqual(PreparedFontScale,Geometry.GetAccumulatedLayoutTransform().GetScale(),.001f)) bPrepared=false;
     PreparePresentation();ViewRefreshElapsed+=DeltaSeconds;if(ViewRefreshElapsed>=.1f) {ViewRefreshElapsed=0;RefreshFromBackend();}if(!LastViewport.Equals(Geometry.GetLocalSize(),.5)) UpdateLayout();
 }
@@ -220,5 +241,5 @@ void UMCUnifiedEmoteWidget::PresentPreview()
     for(int32 Index=0;Index<4;++Index) {FMCEmotePresentationChoice Token;Token.Index=Index;Token.bColorChoice=true;Token.bEnabled=bPreviewActionsAvailable && PreviewState!=TEXT("Disabled");Token.Label=ColorNames[Index];Token.Color=MCUnifiedEmotePrivate::PlayerColors[Index];Sample.Colors.Add(Token);}
     if(PreviewState==TEXT("LongText") || PreviewScenario==EMCGameplayUIPreviewScenario::LongText) for(auto& Token:Sample.Choices) Token.Label=FText::Join(FText::AsCultureInvariant(TEXT(" ")),TArray<FText>{Token.Label,Token.Label,Token.Label});Present(Sample);
 }
-void UMCUnifiedEmoteWidget::ApplyEditorPreview(float Time) {if(!IsDesignTime()) {RefreshFromBackend();return;}BuildPresentationTree();PreparePresentation();PresentPreview();SetRenderOpacity(1);}
+void UMCUnifiedEmoteWidget::ApplyEditorPreview(float Time) {if(!IsDesignTime()) {RefreshFromBackend();return;}BuildPresentationTree();PreparePresentation();PresentPreview();UpdateLayout();SetRenderOpacity(1);}
 #undef LOCTEXT_NAMESPACE

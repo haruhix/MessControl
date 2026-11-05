@@ -46,7 +46,7 @@ UMCUniversalUIWidget* UMCUnifiedBossWidget::MakeShape(FName Name)
 UTextBlock* UMCUnifiedBossWidget::MakeText(FName Name,int32 Size)
 {
     auto* Text=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);
-    Text->SetAutoWrapText(false);Text->SetWrapTextAt(600);Text->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+    Text->SetAutoWrapText(false);Text->SetWrapTextAt(600);Text->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
     Text->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);Text->SetColorAndOpacity(MCUnifiedBossPrivate::Color(TEXT("FFF9F8")));
     Text->SetVisibility(ESlateVisibility::HitTestInvisible);if(const auto* T=GetResolvedTheme()) Text->SetFont(T->MakeFont(Size,true));return Text;
 }

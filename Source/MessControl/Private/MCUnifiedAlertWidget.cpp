@@ -35,7 +35,7 @@ void UMCUnifiedAlertWidget::BuildPresentationTree()
     Shape->ContentPadding=FMargin(18,12);Shape->CornerRadius=16;Shape->OutlineWidth=4;Shape->ShadowOffset=FVector2D(8,9);
     Shape->SetVisibility(ESlateVisibility::HitTestInvisible);Shape->Initialize();Shape->BuildPresentationTree();Shape->ApplyTheme();Bounds->SetContent(Shape);
     auto* Text=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("AlertV2Text"));
-    Text->SetJustification(ETextJustify::Center);Text->SetAutoWrapText(false);Text->SetWrapTextAt(764);Text->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+    Text->SetJustification(ETextJustify::Center);Text->SetAutoWrapText(false);Text->SetWrapTextAt(764);Text->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
     Text->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);Text->SetColorAndOpacity(MCUnifiedAlertPrivate::Color(TEXT("FFF9F8")));Text->SetFont(GetResolvedTheme()->MakeFont(24,true));
     Shape->SetContentForSlot(TEXT("Content"),Text);Bounds->SetRenderTransformPivot(FVector2D(.5f,.5f));Bounds->SetVisibility(ESlateVisibility::Collapsed);
 }

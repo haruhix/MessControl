@@ -1,4 +1,5 @@
 #include "MCHubShopWidget.h"
+#include "MCNativeCommerceUICopy.h"
 
 #include "MCHubEconomyComponent.h"
 #include "MCCosmeticItemWidget.h"
@@ -166,7 +167,18 @@ void UMCHubShopWidget::SelectCatalogItem(FName ItemID)
 }
 void UMCHubShopWidget::SetTransactionMessage(const FText& Message)
 {
-    if(ShopTransactionMessage) ShopTransactionMessage->SetText(Message);
+    OriginalTransactionCopy=Message;bOwnsTransactionCopy=true;bAppliedTransactionCopy=false;
+    ResolveControls();RefreshTransactionCopy(true);
+}
+void UMCHubShopWidget::RefreshTransactionCopy(bool bReplaceCurrent)
+{
+    if(!bOwnsTransactionCopy || !ShopTransactionMessage) return;
+    // Yield if Blueprint/another presentation path has authored a new caption.
+    // A real subsequent SetTransactionMessage event may explicitly own it again.
+    if(!bReplaceCurrent && bAppliedTransactionCopy && !ShopTransactionMessage->GetText().IdenticalTo(AppliedTransactionCopy)) {bOwnsTransactionCopy=false;return;}
+    const FName MessageKey=MCNativeCommerceUICopy::FindMessageKey(GetResolvedTranslationTable(),OriginalTransactionCopy);
+    AppliedTransactionCopy=MessageKey.IsNone()?OriginalTransactionCopy:Localized(MessageKey,OriginalTransactionCopy);
+    ShopTransactionMessage->SetText(AppliedTransactionCopy);bAppliedTransactionCopy=true;
 }
 void UMCHubShopWidget::RefreshEconomy()
 {
@@ -217,7 +229,7 @@ void UMCHubShopWidget::RefreshEconomy()
         if(Economy) for(const auto& Entry:Economy->GetCatalog()) if(Entry.Definition.PerkID==ID) {Name=Localized(Entry.Definition.DisplayNameKey,Entry.Definition.DisplayName);break;}
         Label->SetText(FText::Format(Localized(TEXT("UI.Shop.ReplaceSlot"),LOCTEXT("ReplaceSlot","{0} · {1}")),FText::AsNumber(I+1),Name));
     }
-    if(ShopTransactionMessage && ShopTransactionMessage->GetText().IsEmpty() && Economy && !Economy->MigrationNotice.IsEmpty()) ShopTransactionMessage->SetText(Economy->MigrationNotice);
+    if(ShopTransactionMessage && ShopTransactionMessage->GetText().IsEmpty() && Economy && !Economy->MigrationNotice.IsEmpty()) SetTransactionMessage(Economy->MigrationNotice);
     if(ShopSelectedName) ShopSelectedName->SetText(Selected?Localized(Selected->DisplayNameKey,Selected->DisplayName):Preview?LOCTEXT("PreviewSelected","Суперщётка"):
         Localized(TEXT("UI.Shop.NoItems"),LOCTEXT("NoItems","Ассортимент пока недоступен")));
     if(ShopSelectedDescription) ShopSelectedDescription->SetText(Selected?Localized(Selected->DescriptionKey,Selected->Description):Preview?LOCTEXT("PreviewDescription","Покупка действует в следующем забеге."):FText::GetEmpty());
@@ -283,7 +295,7 @@ void UMCHubShopWidget::NativeConstruct()
     if(ShopBuy) ShopBuy->OnClicked.AddUniqueDynamic(this,&ThisClass::BuyClicked);
     if(!ObservedEconomy.IsValid()) if(auto* Player=GetOwningPlayerState<AMCPlayerState>()) ObservedEconomy=Player->FindComponentByClass<UMCHubEconomyComponent>();
     if(auto* Economy=ObservedEconomy.Get()) Economy->OnEconomyChanged.AddUniqueDynamic(this,&ThisClass::RefreshEconomy);
-    RefreshEconomy();
+    RefreshEconomy();RefreshTransactionCopy();
 }
 void UMCHubShopWidget::NativeDestruct()
 {
@@ -291,6 +303,13 @@ void UMCHubShopWidget::NativeDestruct()
     if(ShopBuy) ShopBuy->OnClicked.RemoveAll(this);
     if(auto* Economy=ObservedEconomy.Get()) Economy->OnEconomyChanged.RemoveAll(this);
     Super::NativeDestruct();
+}
+void UMCHubShopWidget::OnLocalizationChanged()
+{
+    Super::OnLocalizationChanged();
+    // Re-present existing source catalog/control text; no purchase, queue or RPC is invoked.
+    if(WidgetTree && WidgetTree->RootWidget && !IsDesignTime()) RefreshEconomy();
+    RefreshTransactionCopy();
 }
 void UMCHubShopWidget::CloseClicked() {if(!bEditorFixture && !IsDesignTime()) OnClose.Broadcast();}
 void UMCHubShopWidget::RequestPresentationBack()

@@ -1,0 +1,416 @@
+{
+  "date": "2026-11-05",
+  "status": "complete_finite_psd_ui_scope_air_art_and_clothing_deferred",
+  "evidenceRoot": "E:/CodexWork/MessControl/Validation/UIPSD_20261105",
+  "scope": "Continue the existing PSD transfer, preserving the dirty checkout and authored UMG packages.",
+  "builtAndSaved": [
+    "Reward ordinary three-card composition, natural text, header and countdown; replacement title fit",
+    "Wardrobe compact independent detail card with square art",
+    "Shop narrower body, corrected existing saved tile wrappers and disabled ComingSoon style",
+    "Settings five equal tabs and centered controls with unchanged font sizes",
+    "TEAM approximately 2:1 panel with aligned player, mic, points and ping",
+    "Spicy Sauce display headings with exact cmap ranges; inherited overlapping fallback ranges subtracted so the intended face is used",
+    "Shop/Wardrobe description columns directly replace text ScrollBoxes; ordinary Reward cards retain no text scroll and replacement uses shared whole-row grid snap",
+    "HUD reflected1778x1080 metrics, uniformly scaled groups, fixed resource/health/stamina geometry independent of tool/player-name length",
+    "Exact HUD progress outline inset with transparent track; custom red health and retained Mint stamina fill",
+    "Compact one-column passive chips, whole-row typed overflow list, preserved named widgets and source ownership",
+    "Loading content fits natural no-scroll text; existing Loading/HUDExtras WBP classes remain embedded in root",
+    "One-line HUD nickname, translucent world nameplate and long TEAM nickname layout; separate TAB held/released route fixed",
+    "32 original PSD ability-icon textures imported and assigned only through canonical DT_Perks.Icon;27 passive mappings plus4 enabled active and disabled Driver; Air remains explicit missing artwork",
+    "Reward native/saved previews now use canonical B2_ReturnTrip, B1_WideBristles, B1_HeavyHit, with B1_LightFoot as fourth replacement fixture"
+  ],
+  "builds": {
+    "latestSucceeded": "E:\\CodexWork\\MessControl\\Validation\\UIPSD_HUD_20261105\\EditorBuild10.log",
+    "latestResult": "Succeeded; MessControlEditor Win64 Development,26.72s; final delta is Editor-only preview settlement",
+    "authorization": "User explicitly approved Editor builds and continuation in this chat",
+    "subsequentSourceNotBuilt": false,
+    "finalVisualAndRuntimeValidation": "PASS finite parent-personal After04/Runtime04 contour, After06 Reward/Shop and Runtime05 four canonical PSD ability icons; normal Editor restoration verified",
+    "packageOrCookRun": false,
+    "networkRun": false
+  },
+  "latestUserRequirement": "PSD dimensions, palette and alpha are the contract. HUD tracks/plates stay fixed across tools and names. Nickname remains one line above tracks, extending its text slot horizontally. Item/passive grids use whole-row snap; text descriptions never scroll. Do not shrink fonts or use ellipsis; concise copy is permitted.",
+  "followupSourcePendingIntegration": [],
+  "universalPreview": {
+    "asset": "/Game/Gameplay/UI/V2/WBP_UIRoot",
+    "workflow": "Designer: select InterfaceSafeArea or a Canvas/widget in Hierarchy. Details > Gameplay UI Preview > Interface screen (preview only), Language (preview only), and screen-specific mode/scenario. An empty selection leaves Details blank.",
+    "screensInExistingChooser": 17,
+    "evidence": [
+      "UniversalDesignerBoosters.png",
+      "UniversalDesignerSettingsAudioEN.png",
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/PassiveSnapLast.png",
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/PassiveSnapStart.png"
+    ],
+    "newModeSelectorsLiveVerified": true,
+    "correction": "Class Defaults is not the intended session-only preview workflow. The custom section is available in selected-widget Details.",
+    "newModeVerificationScope": "Parent personally exercised the existing selected-Canvas Details controls through native Select, including HUDExtras PassiveOverflow with9 names. This is a finite interaction check, not every combination of17 screens/modes/locales.",
+    "liveVerified": [
+      "Gameplay HUD",
+      "Boosters shop",
+      "Wardrobe",
+      "Settings > Audio",
+      "Language Russian to English",
+      "HUDExtras > PassiveOverflow (9 names) through native Designer Select"
+    ],
+    "pausedGeometrySettlement": "Three bounded next-frame reflows after a selector/preview/rebuild, without starting animation or advancing fixture time; personally verified in the actual Designer"
+  },
+  "clothing": {
+    "table": "/Game/Data/DT_CharacterCosmetics",
+    "liveRows": 10,
+    "allRowsCanonicalEnabledInShopWithMeshIconAndLocalizationKeys": true,
+    "selectedRowPreviewsPersonallyInspected": [
+      "Hat_Head_CowboyHat",
+      "Face_SportGlasses"
+    ],
+    "fit": "Actual SK_CharacterGameplay body in reference pose; real accessories, materials and runtime ResolveAttachmentTransform; isolated editor preview world",
+    "previewEvidence": [
+      "ClothingHatPreview.json",
+      "ClothingHatPreview.png",
+      "ClothingGlassesPreview.json",
+      "ClothingGlassesPreview.png"
+    ],
+    "isolatedCommerceContracts": {
+      "passed": true,
+      "checks": 27,
+      "report": "ClothingTransientCommerce.json"
+    },
+    "contractScope": "Real native authority methods on cloned tables/private world: price and discount boundaries, canonical copy/icon, stable stock epoch, purchase, duplicate rejection, equip and save roundtrip. No PIE, live profile, wallet or inventory changed.",
+    "remaining": [
+      "Unsaved row field change -> live refresh -> Undo",
+      "Fresh short solo gameplay buy/equip/clear/input and locale refresh",
+      "Resource coverage and first visible gameplay use",
+      "Animation and cloth are outside this static fitting preview"
+    ]
+  },
+  "remainingValidation": [],
+  "knownLimits": [
+    "Only enabled Consumable_Air lacks supplied source artwork.32canonical Icon rows/32texture assets are saved;31enabled mapped textures were resident/retained before first use inRuntime05. DisabledDriver remains disabled, and no private runtime icon map was introduced.",
+    "Historical After01/02 and Locales01/02 cover their own revisions. After03 passive visibility/snap, TAB03 and finalAfter04/Runtime04/After06 are finite successful checks; they do not accept every screen/state/locale",
+    "Cached tick geometry is zero in current runtime/Designer probes; report real Canvas slots, explicit row offsets and personally inspected native pixels instead",
+    "SavedResources01 confirms reflected heading-font/inline-face links through the existing theme/preload path for Editor/Development. Packaged cold launch has not been tested",
+    "Earlier approved builds used fixed shared UBA CAS onC: despite TEMP/TMP onE:. Owned task traces were relocated/verified, unrelated shared cache preserved; recent builds use explicit UBA_ROOT onE:"
+  ],
+  "git": "No commit/push/reset or media versioning performed; existing dirty checkout preserved",
+  "updatedAt": "2026-11-05, after final Build10 and actual paused Designer inspection; deadline missed",
+  "hudEvidenceRoot": "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105",
+  "savedHUDIntegration": {
+    "status": "PASS_BOUNDED_COMPILE_SAVE",
+    "report": "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/Authoring01/Report.json",
+    "assets": [
+      "WBP_UIReward",
+      "WBP_UIWardrobe",
+      "WBP_UIShop",
+      "WBP_UILoading",
+      "WBP_UIHUDExtras",
+      "WBP_UIRoot"
+    ],
+    "metricCount": 52,
+    "rootAuthoring": "ApplyPSDGameplayHUDLayout changes existing Blueprint.WidgetTree in place; no full root regeneration; existing named-control identities and GUIDs checked",
+    "rootFollowup": "Existing HorizontalBox_0 with the exact four active holders renamed SkillCards through UMG RenameWidget before applying metrics",
+    "embeddedClasses": {
+      "HUDExtras": "/Game/Gameplay/UI/V2/WBP_UIHUDExtras.WBP_UIHUDExtras_C",
+      "Loading": "/Game/Gameplay/UI/V2/WBP_UILoading.WBP_UILoading_C"
+    },
+    "scope": "Existing task-owned UI packages; no profile or gameplay-data mutation"
+  },
+  "hudContract": {
+    "referenceSize": [
+      1778,
+      1080
+    ],
+    "scale": "min(availableX/1778,availableY/1080); fonts/strokes/spacing scale with their group",
+    "resource": [
+      335,
+      111
+    ],
+    "health": [
+      202,
+      36
+    ],
+    "stamina": [
+      203,
+      29
+    ],
+    "reserve": [
+      312,
+      142
+    ],
+    "portraitsGroup": [
+      375,
+      129
+    ],
+    "event": [
+      351,
+      111
+    ],
+    "activeGroup": [
+      378,
+      115
+    ],
+    "bodySRGB": "#1A434E",
+    "bodyAlpha": {
+      "resource": "133/255",
+      "reserve": "107/255",
+      "portraitsEventSkills": "145/255"
+    },
+    "outlineSRGB": "#AEFCFD",
+    "healthFillSRGB": "#CE4A4A",
+    "staminaFill": "Existing Mint token",
+    "nickname": "One-line natural-width text slot above tracks; frame/bars stay fixed and tool caption is not pushed upward",
+    "sourceReport": "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/HUDRootSourceReport.json",
+    "historicalReportCorrection": "Earlier report text about nickname wrapping/upward displacement is superseded by current source"
+  },
+  "runtimeHUD": {
+    "status": "PASS_FINITE_SOLO_TOOL_GEOMETRY_AND_NATURAL_FILL_STATES",
+    "route": "Actual MCInventoryComponent::RequestSelect for Pickaxe/Brush/Spray; original Brush restored; transient profile",
+    "Runtime02": "Natural health100/100 and stamina100/100; same resource/health/stamina Canvas rectangles across all3 tools; actual opaque game-window screenshots retained",
+    "Runtime03": "Natural health86.54834747314453/100 and stamina100/100; same fixed Canvas rectangles across all3 tools; no gameplay status fixture writes",
+    "evidence": [
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/Runtime02/sample_pickaxe.json",
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/Runtime02/sample_brush.json",
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/Runtime02/sample_spray.json",
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/Runtime03/sample_pickaxe.json",
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/Runtime03/sample_brush.json",
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/Runtime03/sample_spray.json"
+    ],
+    "geometryLimit": "UMG cached tick FGeometry remains zero under invalidation; evidence is actual runtime Canvas slot readback plus native opaque game-window pixels, not nonzero measured tick geometry",
+    "halfFill": "NOT VERIFIED: temporary0.5 view fixture was overwritten by paint; its diagnostic PNG is not a50% runtime PASS",
+    "finalBuild07Runtime": "PASS parent-personal After04/Runtime04: proper frame width,1px AA, transparency and natural fill",
+    "latestSourceBuild": "EditorBuild09; final constructor preview IDs updated and saved; existing Runtime04 covers contour revision",
+    "finalNewIconRuntime": {
+      "status": "PASS_RUNTIME05",
+      "grants": {
+        "Active_Sponge": true,
+        "Active_Hook": true,
+        "Consumable_Grenade": true,
+        "Consumable_Rocket": true
+      },
+      "bindings": [
+        {
+          "slot": 1,
+          "resource": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_Active_Sponge.T_UI_PSD_Perk_Active_Sponge",
+          "visible": true
+        },
+        {
+          "slot": 2,
+          "resource": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_Active_Hook.T_UI_PSD_Perk_Active_Hook",
+          "visible": true
+        },
+        {
+          "slot": 3,
+          "resource": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_Consumable_Grenade.T_UI_PSD_Perk_Consumable_Grenade",
+          "visible": true
+        },
+        {
+          "slot": 4,
+          "resource": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_Consumable_Rocket.T_UI_PSD_Perk_Consumable_Rocket",
+          "visible": true
+        }
+      ],
+      "screenshot": "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/Runtime05/HUD_FourPSDAbilities.png",
+      "personalAcceptance": "Parent viewed all4white PSD icons in correct translucent HUD slots",
+      "skillActivation": false,
+      "persistentProfileWrites": false,
+      "ownedTransientPIEStopped": true
+    }
+  },
+  "passives": {
+    "status": "PASS_AFTER03_AND_PERSONAL_DESIGNER_SNAP_SCOPE",
+    "ordinary": "After03 ordinary3 named chips visible, no passive scroll attached",
+    "overflow": "After03 list9 names with shared UMCUIGridScrollBox and3 whole visible rows",
+    "fixedCause": "Short-lived strong reference to the measured old Slate grid no longer survives reparent/release; the current grid rebuilds and receives its actual children",
+    "personalSnap": "Parent personally saw rows7/8/9 then1/2/3 in the actual Designer; Last/Start screenshots retained",
+    "snapLast": {
+      "firstVisibleRow": 6,
+      "offset": 258.1621398925781,
+      "rowStride": 43.02702331542969
+    },
+    "snapStart": {
+      "firstVisibleRow": 0,
+      "offset": 0
+    },
+    "evidence": [
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/After03/HUDExtras_en_1280x720_hudExtrasMode_Passive.png",
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/After03/HUDExtras_de_960x720_hudExtrasMode_PassiveOverflow.png",
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/PassiveSnapStateLast.json",
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/PassiveSnapLast.png",
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/PassiveSnapStart.png"
+    ],
+    "evidenceLimit": "Start state and visual rows are parent-personal native output/screenshot evidence. Earlier PassiveSnapLiveReport.json callback failed on zero cached geometry and is not the successful snap report."
+  },
+  "teamTAB": {
+    "status": "PASS_TABSOLONATIVE03_HELD_RELEASED_SCOPE",
+    "held": {
+      "tabDown": true,
+      "scoreboardVisible": true,
+      "moveIgnored": true,
+      "lookIgnored": true
+    },
+    "releasedNextTick": {
+      "tabDown": false,
+      "scoreboardVisible": false,
+      "moveIgnored": false,
+      "lookIgnored": false
+    },
+    "nameLayout": "Parent personally inspected long TEAM nickname on one line in held screenshot",
+    "evidence": [
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/TABSoloNative03/held.json",
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/TABSoloNative03/held.png",
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/TABSoloNative03/closed.json",
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/TABSoloNative03/closed.png"
+    ],
+    "input": "Separate real engine Slate down/hold/up events; physical hardware and multiplayer were not exercised",
+    "olderFailure": "TABSoloNative/down.json predates successful retry and is not current status"
+  },
+  "contourVerification": {
+    "status": "PASS_FINITE_AFTER04_RUNTIME04_PERSONAL_REVIEW",
+    "After03Alpha": "Requested notch crop x161..176/y935..957 contains only alpha0/133; earlier197/227 overlap removed; former sampled AA seams also133",
+    "After03Limitation": "Stroke-width/ledge geometry and AA regressed; this was not final acceptance. One lower-edge pixel310,1038 also retained alpha197 in the wider mask.",
+    "latestSource": "Proper winding-aware parallel edge inset plus cached1-screen-pixel AA partition; parent personally accepted After04 and opaqueRuntime04",
+    "latestSourceEvidence": [
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/ContourOffsetAASourceReport.json",
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/ContourOffsetAAMath.json"
+    ],
+    "math": "Five cases/12500 independent points passed; no overlap/protrusion and exact partition area. Source/math checks do not replace final Slate pixels.",
+    "requiredNext": [],
+    "paletteAudit": "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/PSDCompositeAudit/CompositePixelAudit.json",
+    "paletteConclusion": "Full saved PSD normal encoded source-over matches borders within about0.25 RGB mean; Runtime02 selected opaque flat samples match predictions within about1RGB. Gray-looking PSD outline over red scene does not require replacing authored cyan palette.",
+    "exportLimit": "Transparent preview PNG RGB is encoded linear-premultiplied with retained alpha, not ordinary straight RGBA; do not compare it directly against the opaque PSD composite.",
+    "finalEvidence": [
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/After04/Gameplay_en_1778x1080.png",
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/Runtime04/Runtime_pickaxe.png"
+    ],
+    "historicalAfter03Limit": "After03 fixed alpha overlap but had stroke/ledge/AA regression; superseded by accepted After04/Runtime04. Historical isolated lower-edge pixel is not a claim about the final revision."
+  },
+  "sourceFinalVerification": {
+    "status": "COMPLETE_FINITE_SCOPE",
+    "latestBuild": "EditorBuild10 Succeeded; gameplay/UI runtime binary remains the verified Build09 revision",
+    "scope": "Final contour, typography/layout, canonical icon integration, finite actual solo readiness/HUD bindings and normal Editor restoration verified; artwork absent from source and older clothing queue are explicit deferred scope",
+    "designerGeometrySettlement": "PASS: actual paused Menu -> Reward -> English without Preview/Play; title/frame align and preview time stays0",
+    "designerGeometryReport": "E:\\CodexWork\\MessControl\\Validation\\UIPSD_HUD_20261105\\PreviewGeometrySettleActualReview.json"
+  },
+  "perkIcons": {
+    "status": "PASS_IMPORT_SAVE_VISUAL_AND_ENABLED_ICON_FIRST_USE",
+    "table": "/Game/Gameplay/Roguelike/DT_Perks",
+    "field": "FMCPerkDefinition.Icon",
+    "newTextureAssets": 32,
+    "changedIconRows": 32,
+    "tableRows": 133,
+    "enabledRowsPreserved": 32,
+    "enabledRowsWithIcon": 31,
+    "disabledRowWithNewIcon": "Consumable_Driver",
+    "missingEnabledIcons": [
+      "Consumable_Air"
+    ],
+    "missingArtReason": "Consumable_Air is the vacuum/blow-food-bag ability. The supplied PSD has no matching glyph. Driver art is not substituted, and enabled/gameplay fields stay unchanged.",
+    "sourceExport": "27 exact passive glyph layers from owned duplicate of dirtyPSD; original savedBefore=false/savedAfter=false and activeLayer81 unchanged.5 existing active PSD exports reused.",
+    "mapping": "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/PerkIconAuthoringManifest.json",
+    "sourceMasterMapping": "ArtSource/UI/V2/Icons/Perks/CanonicalIconMapping.json",
+    "sourceGlyphs": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs",
+    "assetRoot": "/Game/Gameplay/UI/V2/Art/Perks",
+    "inferredPair": "PSD336 -> B2_StartFromDash,438 -> B2_MightyTooth: parent-approved interpretation of actual mechanics, not an explicit PSD label proof",
+    "blendTransfer": "Source Lighten/Screen/ColorDodge/LighterColor/LinearDodge transferred into straight-alpha glyphs over#3F4342; Normal retained. Pixel-composite error below1RGB after8bit quantization. No AI artwork.",
+    "dataPreservation": {
+      "passed": true,
+      "all133NonIconFieldsExactlyPreserved": true,
+      "parametersExactlyPreserved": true,
+      "rowNamesExactlyPreserved": true,
+      "check": "Independent comparison of DT_Perks_Current.json with PerkIconIntegration/AfterRows.json found zero nonIcon differences and exactly32 changedIcon fields"
+    },
+    "integrationReport": "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/PerkIconIntegration/Report.json",
+    "visualAcceptance": {
+      "status": "PASS_FINITE_PARENT_PERSONAL_REVIEW",
+      "evidence": [
+        "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/After06/Reward_en_1280x720.png",
+        "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/After06/Reward_en_960x720_rewardMode_Replacement.png",
+        "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/After06/Boosters_en_1280x720.png"
+      ],
+      "scope": "Correct large white ReturnTrip/WideBristles/HeavyHit; replacement106px icons; Shop5 source fixtures. Air explicitly remains without artwork."
+    },
+    "previewCanonicalIDs": {
+      "ordinary": [
+        "B2_ReturnTrip",
+        "B1_WideBristles",
+        "B1_HeavyHit"
+      ],
+      "replacementAdditional": "B1_LightFoot",
+      "savedOwners": [
+        "WBP_UIReward CDO",
+        "WBP_UIRoot.WidgetTree.UnifiedReward"
+      ],
+      "nativeConstructorBuild": "EditorBuild09"
+    },
+    "firstVisibleUse": "PASS Runtime05: all31 enabled new PSD icon textures resident and retained before grants; actual authority Sponge/Hook/Grenade/Rocket grants accepted, correct4HUD texture paths visible and personally inspected",
+    "firstUseEvidence": [
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/Runtime05/PerkResourceReadiness.json",
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/Runtime05/HUDIconBindings.json",
+      "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/Runtime05/HUD_FourPSDAbilities.png"
+    ],
+    "firstUseScope": "31 enabled mapped icons covered; disabledDriver texture is authored/saved but not a first-PIE enabled-resource claim. No skill activation or persistent profile writes."
+  },
+  "resourceReadiness": {
+    "existingResourcesRuntime04": {
+      "status": "PASS_BOUNDED_SOLO_RESIDENT_RETAINED",
+      "report": "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/Runtime04/Resources.json",
+      "valid": true,
+      "ready": true,
+      "resources": [
+        "WBP_UIRoot_C",
+        "WBP_UIHUDExtras_C",
+        "F_UI_Display",
+        "FF_SpicySauce_Regular",
+        "FF_LeFun_Regular",
+        "DT_Perks"
+      ],
+      "allResident": true,
+      "allRetained": true
+    },
+    "new32IconTextures": {
+      "status": "PASS_31_ENABLED_CANONICAL_TEXTURES_BEFORE_GRANT",
+      "authoredTextureAssets": 32,
+      "enabledTexturesChecked": 31,
+      "report": "E:/CodexWork/MessControl/Validation/UIPSD_HUD_20261105/Runtime05/PerkResourceReadiness.json",
+      "valid": true,
+      "ready": true,
+      "allEnabledResident": true,
+      "allEnabledRetained": true,
+      "aggregateObservation": "Parent observed scene readiness522/522 after100.54s; saved targeted report independently lists31enabled texture roots",
+      "disabledDriver": "Saved as32ndtexture; not exercised as an enabled first-use resource",
+      "scope": "Actual first local solo PIE load, not cold packaged launch"
+    },
+    "coldPackagedLaunch": "Not tested",
+    "network": "Not tested"
+  },
+  "deferredClothingValidation": "Existing clothing.remaining is unchanged and remains separate deferred work; icon/layout finite scope is complete",
+  "editorRestoration": {
+    "status": "PASS_SAVED_REPORT",
+    "report": "E:\\CodexWork\\MessControl\\Validation\\UIPSD_HUD_20261105\\PreviewGeometrySettleActualReview.json",
+    "normalEditorPID": 39068,
+    "normalEditor": true,
+    "transientProfileFlag": false,
+    "map": "/Game/Maps/L_Mouth.L_Mouth",
+    "cameraRestored": true,
+    "rootDesignerOpened": true,
+    "dirtyContent": [],
+    "dirtyMaps": [],
+    "screen": "Reward",
+    "culture": "en"
+  },
+  "remainingArtwork": [
+    {
+      "rowID": "Consumable_Air",
+      "status": "MISSING_SOURCE_ART",
+      "reason": "Vacuum/blow-bag artwork absent from supplied PSD; Icon remainsNone by explicit decision. No substitute/disabledDriver mapping and no gameplay flag changes."
+    }
+  ],
+  "copyLocalization": {
+    "status": "UNCHANGED_BY_ICON_INTEGRATION",
+    "canonical": "Current RU/EN skill-description copy preserved",
+    "proposals": "CommerceCopyAudit10-language alternatives were review-only and not applied",
+    "note": "Translation/copy scope is independent of the now populated32canonical Icon rows"
+  },
+  "schedule": {
+    "requestedDeadline": "2026-11-05 18:00 Asia/Yakutsk",
+    "met": false,
+    "communication": "Deadline missed and honestly reported to the user; final validation completed after18:00, no on-time claim"
+  }
+}

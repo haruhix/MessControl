@@ -52,7 +52,7 @@ UTextBlock* UMCUnifiedLoadingWidget::MakeLabel(FName Name,int32 FontSize)
 {
     auto* Label=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);
     Label->SetFont(GetResolvedTheme()->MakeFont(FontSize,true));Label->SetColorAndOpacity(MCUnifiedLoadingPrivate::Color(TEXT("FFF9F8")));
-    Label->SetAutoWrapText(true);Label->SetWrapTextAt(660);Label->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+    Label->SetAutoWrapText(true);Label->SetWrapTextAt(660);Label->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
     Label->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);Label->SetJustification(ETextJustify::Center);
     Label->SetVisibility(ESlateVisibility::HitTestInvisible);return Label;
 }
@@ -60,7 +60,7 @@ void UMCUnifiedLoadingWidget::BuildPresentationTree()
 {
     if(!WidgetTree) return;
     if(!Theme) Theme=UMCGameplayUIFactory::GetThemeForVersion(EMCUIVersion::New);
-    if(WidgetTree->RootWidget) {Super::BuildPresentationTree();return;}
+    if(WidgetTree->RootWidget) {Super::BuildPresentationTree();UpdateLayout();return;}
     auto* Root=WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(),TEXT("LoadingRoot"));WidgetTree->RootWidget=Root;
     auto Full=[&](UWidget* Child,int32 Z) {auto* CanvasCell=Root->AddChildToCanvas(Child);CanvasCell->SetAnchors(FAnchors(0,0,1,1));CanvasCell->SetOffsets(FMargin(0));CanvasCell->SetZOrder(Z);};
     auto* Backdrop=MakeShape(TEXT("LoadingV2Backdrop"),MCUnifiedLoadingPrivate::Color(TEXT("355C70")),FMargin(0));
@@ -73,8 +73,7 @@ void UMCUnifiedLoadingWidget::BuildPresentationTree()
     auto* Center=WidgetTree->ConstructWidget<UOverlay>(UOverlay::StaticClass(),TEXT("LoadingV2Center"));Safe->SetContent(Center);
     auto* Viewport=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("LoadingV2ControlsViewport"));
     auto* CenterSlot=Center->AddChildToOverlay(Viewport);CenterSlot->SetHorizontalAlignment(HAlign_Center);CenterSlot->SetVerticalAlignment(VAlign_Center);CenterSlot->SetPadding(FMargin(24,24,34,34));
-    auto* Scroll=WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(),TEXT("LoadingV2ControlsScroll"));Scroll->SetAllowOverscroll(false);Scroll->SetScrollbarThickness(FVector2D(5,5));Viewport->SetContent(Scroll);
-    auto* Stack=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("LoadingV2ControlsStack"));Scroll->AddChild(Stack);
+    auto* Stack=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("LoadingV2ControlsStack"));Viewport->SetContent(Stack);
     auto* Width=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("LoadingFooterWidth"));Width->SetWidthOverride(720);Stack->AddChildToVerticalBox(Width)->SetHorizontalAlignment(HAlign_Center);
     // Transparent compatibility wrappers own the existing fade and tip visibility.
     auto* FooterNode=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("LoadingFooterPanel"));FooterNode->SetBrush(FSlateNoResource());FooterNode->SetPadding(FMargin(0));Width->SetContent(FooterNode);
@@ -109,27 +108,62 @@ void UMCUnifiedLoadingWidget::BuildPresentationTree()
     Super::BuildPresentationTree(); // Real buttons, source artwork, tips and progress bind once.
     RefreshPresentation();UpdateLayout();SyncFrameVisibility();
 }
-void UMCUnifiedLoadingWidget::UpdateLayout()
+void UMCUnifiedLoadingWidget::UpdateLayout(FVector2D AvailableSize)
 {
-    if(!WidgetTree) return;FVector2D View=GetPaintSpaceGeometry().GetLocalSize();if(View.X<1) View=FVector2D(1920,1080);LastViewport=View;
-    const float MainWidth=FMath::Max(240.f,FMath::Min(MaximumPanelWidth,float(View.X)-72.f));
-    const float TipExtent=FMath::Clamp(float(View.X)*.64f,260.f,760.f); // Same contract as the source's tip-width update.
-    if(auto* Width=WidgetTree->FindWidget<USizeBox>(TEXT("LoadingFooterWidth"))) Width->SetWidthOverride(MainWidth);
-    if(auto* Width=WidgetTree->FindWidget<USizeBox>(TEXT("LoadingTipWidth"))) Width->SetWidthOverride(TipExtent);
-    if(auto* Viewport=WidgetTree->FindWidget<USizeBox>(TEXT("LoadingV2ControlsViewport"))) {
-        Viewport->SetWidthOverride(FMath::Min(FMath::Max(MainWidth,TipExtent)+10.f,FMath::Max(240.f,float(View.X)-58.f)));
-        Viewport->SetMaxDesiredHeight(FMath::Max(180.f,float(View.Y)-68.f));
+    if(!WidgetTree) return;
+    auto* ControlsViewport=WidgetTree->FindWidget<USizeBox>(TEXT("LoadingV2ControlsViewport"));
+    auto* ControlsStack=WidgetTree->FindWidget<UVerticalBox>(TEXT("LoadingV2ControlsStack"));
+    if(!ControlsViewport || !ControlsStack) return;
+    if(ControlsViewport->GetContent()!=ControlsStack) {
+        auto* Previous=Cast<UScrollBox>(ControlsViewport->GetContent());
+        if(!Previous || Previous->GetFName()!=TEXT("LoadingV2ControlsScroll") || Previous->GetChildrenCount()!=1 || Previous->GetChildAt(0)!=ControlsStack) return;
+        ControlsStack->RemoveFromParent();ControlsViewport->SetContent(ControlsStack);
     }
-    const float Inner=FMath::Max(160.f,MainWidth-48.f);
+    // Remove only the known saved scroll wrappers. The same detail label and
+    // current/next fade overlay return to their original direct column slots.
+    // This runs before any arranged-size guard, including saved-tree migration.
+    auto UnwrapCopy=[&](FName NodeName,FName ColumnName,FName BoundsName,FName ScrollName) {
+        auto* BodyNode=WidgetTree->FindWidget(NodeName);
+        auto* OwnerColumn=WidgetTree->FindWidget<UVerticalBox>(ColumnName);
+        if(!BodyNode || !OwnerColumn) return false;
+        if(BodyNode->GetParent()==OwnerColumn) return true;
+        auto* BodyBounds=WidgetTree->FindWidget<USizeBox>(BoundsName);
+        auto* BodyScroll=WidgetTree->FindWidget<UScrollBox>(ScrollName);
+        if(!BodyBounds || !BodyScroll || BodyBounds->GetParent()!=OwnerColumn || BodyBounds->GetContent()!=BodyScroll
+            || BodyScroll->GetChildrenCount()!=1 || BodyScroll->GetChildAt(0)!=BodyNode || BodyNode->GetParent()!=BodyScroll) return false;
+        const auto ExistingRows=OwnerColumn->GetAllChildren();
+        struct FCopyRowLayout {FMargin Inset;FSlateChildSize Sizing;EHorizontalAlignment H=HAlign_Fill;EVerticalAlignment V=VAlign_Fill;};
+        TArray<FCopyRowLayout> RowLayouts;
+        for(UWidget* Child:ExistingRows) {FCopyRowLayout Layout;if(auto* Cell=Cast<UVerticalBoxSlot>(Child->Slot)) {Layout.Inset=Cell->GetPadding();Layout.Sizing=Cell->GetSize();Layout.H=Cell->GetHorizontalAlignment();Layout.V=Cell->GetVerticalAlignment();}RowLayouts.Add(Layout);}
+        BodyNode->RemoveFromParent();OwnerColumn->ClearChildren();
+        for(int32 Index=0;Index<ExistingRows.Num();++Index) {
+            auto* Cell=OwnerColumn->AddChildToVerticalBox(ExistingRows[Index]==BodyBounds?BodyNode:ExistingRows[Index]);
+            Cell->SetPadding(RowLayouts[Index].Inset);Cell->SetSize(RowLayouts[Index].Sizing);Cell->SetHorizontalAlignment(RowLayouts[Index].H);Cell->SetVerticalAlignment(RowLayouts[Index].V);
+        }
+        return true;
+    };
+    if(!UnwrapCopy(TEXT("LoadingDetail"),TEXT("LoadingV2PanelContent"),TEXT("LoadingV2DetailBounds"),TEXT("LoadingV2DetailScroll"))
+        || !UnwrapCopy(TEXT("LoadingV2TipLayers"),TEXT("LoadingV2TipContent"),TEXT("LoadingV2TipBodyBounds"),TEXT("LoadingV2TipBodyScroll"))) return;
+    ControlsViewport->ClearHeightOverride();ControlsViewport->ClearMinDesiredHeight();ControlsViewport->ClearMaxDesiredHeight();
+    if(AvailableSize.X<=1 || AvailableSize.Y<=1) AvailableSize=GetPaintSpaceGeometry().GetLocalSize();
+    if(AvailableSize.X<=1 || AvailableSize.Y<=1) return;
+    LastViewport=AvailableSize;
+    const float AvailableWidth=FMath::Max(1.f,float(AvailableSize.X)-58.f);
+    const float MainWidth=FMath::Max(1.f,FMath::Min(MaximumPanelWidth,AvailableWidth));
+    const float TipPanelWidth=FMath::Max(1.f,FMath::Min(FMath::Clamp(float(AvailableSize.X)*.64f,260.f,760.f),AvailableWidth));
+    if(auto* MainBounds=WidgetTree->FindWidget<USizeBox>(TEXT("LoadingFooterWidth"))) MainBounds->SetWidthOverride(MainWidth);
+    if(auto* TipBoundsNode=WidgetTree->FindWidget<USizeBox>(TEXT("LoadingTipWidth"))) TipBoundsNode->SetWidthOverride(TipPanelWidth);
+    ControlsViewport->SetWidthOverride(FMath::Min(FMath::Max(MainWidth,TipPanelWidth)+10.f,AvailableWidth));
+    const float MainCopyWidth=FMath::Max(1.f,MainWidth-48.f),TipCopyWidth=FMath::Max(1.f,TipPanelWidth-48.f);
     for(const TCHAR* Name:{TEXT("LoadingTitle"),TEXT("LoadingStatus"),TEXT("LoadingDetail"),TEXT("LoadingAssetLabel")})
-        if(auto* Label=WidgetTree->FindWidget<UTextBlock>(Name)) Label->SetWrapTextAt(Inner);
-    for(const TCHAR* Name:{TEXT("LoadingTipCurrent"),TEXT("LoadingTipNext")})
-        if(auto* Label=WidgetTree->FindWidget<UTextBlock>(Name)) Label->SetWrapTextAt(TipExtent-48.f);
-    if(auto* Actions=WidgetTree->FindWidget<UWrapBox>(TEXT("LoadingV2Actions"))) Actions->SetWrapSize(Inner);
+        if(auto* Caption=WidgetTree->FindWidget<UTextBlock>(FName(Name))) {Caption->SetAutoWrapText(false);Caption->SetWrapTextAt(MainCopyWidth);Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);}
+    for(const TCHAR* Name:{TEXT("LoadingTipHeading"),TEXT("LoadingTipCurrent"),TEXT("LoadingTipNext")})
+        if(auto* Caption=WidgetTree->FindWidget<UTextBlock>(FName(Name))) {Caption->SetAutoWrapText(false);Caption->SetWrapTextAt(TipCopyWidth);Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);}
+    if(auto* Actions=WidgetTree->FindWidget<UWrapBox>(TEXT("LoadingV2Actions"))) Actions->SetWrapSize(MainCopyWidth);
     for(const TCHAR* Name:{TEXT("RetryLoading"),TEXT("LeaveLoading")}) {
-        const FString Prefix(Name);const float Width=FMath::Min(Inner,FMath::Max(200.f,(Inner-16.f)*.5f));
-        if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(FName(*(Prefix+TEXT("V2Bounds"))))) Bounds->SetMaxDesiredWidth(Width);
-        if(auto* Label=WidgetTree->FindWidget<UTextBlock>(FName(*(Prefix+TEXT("Label"))))) Label->SetWrapTextAt(Width-32.f);
+        const FString Prefix(Name);const float ActionWidth=FMath::Min(320.f,MainCopyWidth);
+        if(auto* ActionBounds=WidgetTree->FindWidget<USizeBox>(FName(*(Prefix+TEXT("V2Bounds"))))) ActionBounds->SetMaxDesiredWidth(ActionWidth);
+        if(auto* Caption=WidgetTree->FindWidget<UTextBlock>(FName(*(Prefix+TEXT("Label"))))) {Caption->SetWrapTextAt(FMath::Max(1.f,ActionWidth-32.f));Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);}
     }
 }
 void UMCUnifiedLoadingWidget::SyncFrameVisibility()
@@ -139,6 +173,7 @@ void UMCUnifiedLoadingWidget::SyncFrameVisibility()
         if(View) View->SetVisibility(State && State->IsVisible()?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
     };
     Mirror(TEXT("LoadingV2ProgressHeight"),TEXT("LoadingAssetProgress"));
+    Mirror(TEXT("LoadingTipWidth"),TEXT("LoadingTipPanel"));
     Mirror(TEXT("RetryLoadingV2Bounds"),TEXT("RetryLoading"));Mirror(TEXT("LeaveLoadingV2Bounds"),TEXT("LeaveLoading"));
 }
 void UMCUnifiedLoadingWidget::ApplyTheme()
@@ -178,7 +213,7 @@ void UMCUnifiedLoadingWidget::NativeConstruct() {Super::NativeConstruct();Prepar
 void UMCUnifiedLoadingWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
     Super::NativeTick(Geometry,DeltaSeconds); // Sole source tip clock, measured progress and easing.
-    if(!LastViewport.Equals(Geometry.GetLocalSize(),.5f)) UpdateLayout();SyncFrameVisibility();
+    UpdateLayout(Geometry.GetLocalSize());SyncFrameVisibility();
     if(!FMath::IsNearlyEqual(PreparedFontScale,Geometry.GetAccumulatedLayoutTransform().GetScale(),.001f)) bPrepared=false;
     PreparePresentation();
 }

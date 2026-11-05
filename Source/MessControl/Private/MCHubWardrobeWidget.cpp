@@ -1,8 +1,10 @@
 #include "MCHubWardrobeWidget.h"
+#include "MCNativeCommerceUICopy.h"
 
 #include "MCUIVisualStyle.h"
 #include "MCCosmeticItemWidget.h"
 #include "MCHubEconomyComponent.h"
+#include "Misc/SecureHash.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Border.h"
 #include "Components/Button.h"
@@ -310,13 +312,65 @@ void UMCHubWardrobeWidget::ConfigureCosmetics(UMCHubEconomyComponent* Economy)
 
 void UMCHubWardrobeWidget::SetTransactionMessage(const FText& Message)
 {
-    ResolveControls();if(!WardrobeTransactionMessage) return;
-    WardrobeTransactionMessage->SetText(Message);
-    WardrobeTransactionMessage->SetVisibility(Message.IsEmpty()?ESlateVisibility::Collapsed:ESlateVisibility::SelfHitTestInvisible);
+    OriginalTransactionCopy=Message;bOwnsTransactionCopy=true;bAppliedTransactionCopy=false;
+    ResolveControls();RefreshTransactionCopy(true);
+}
+void UMCHubWardrobeWidget::RefreshTransactionCopy(bool bReplaceCurrent)
+{
+    if(!bOwnsTransactionCopy || !WardrobeTransactionMessage) return;
+    // Yield if Blueprint/another presentation path has authored a new caption.
+    // A real subsequent SetTransactionMessage event may explicitly own it again.
+    if(!bReplaceCurrent && bAppliedTransactionCopy && !WardrobeTransactionMessage->GetText().IdenticalTo(AppliedTransactionCopy)) {bOwnsTransactionCopy=false;return;}
+    const FName MessageKey=MCNativeCommerceUICopy::FindMessageKey(GetResolvedTranslationTable(),OriginalTransactionCopy);
+    AppliedTransactionCopy=MessageKey.IsNone()?OriginalTransactionCopy:Localized(MessageKey,OriginalTransactionCopy);
+    WardrobeTransactionMessage->SetText(AppliedTransactionCopy);bAppliedTransactionCopy=true;
+    WardrobeTransactionMessage->SetVisibility(AppliedTransactionCopy.IsEmpty()?ESlateVisibility::Collapsed:ESlateVisibility::SelfHitTestInvisible);
+}
+
+TArray<FName> UMCHubWardrobeWidget::PrepareAuthoredSlotGroups(UDataTable* Catalog)
+{
+    TArray<FName> Slots={UMCCosmeticCatalog::FaceSlot,UMCCosmeticCatalog::HatSlot},Extra;
+    if(!WidgetTree || !Catalog || Catalog->GetRowStruct()!=FMCCosmeticCatalogRow::StaticStruct()) return Slots;
+    for(const auto& Pair:Catalog->GetRowMap()) {
+        const auto* Row=reinterpret_cast<const FMCCosmeticCatalogRow*>(Pair.Value);
+        if(Row && Row->bEnabled && Row->Mesh && !Row->Slot.IsNone() && !Slots.Contains(Row->Slot)) Extra.AddUnique(Row->Slot);
+    }
+    Extra.Sort(FNameLexicalLess());
+    auto* Parent=WidgetTree->FindWidget<UVerticalBox>(TEXT("WardrobeCosmeticsPanel"));if(!Parent) return Slots;
+    auto* Host=WidgetTree->FindWidget<UVerticalBox>(TEXT("WardrobeAdditionalSlots"));
+    if(!Host && !Extra.IsEmpty()) {
+        if(WidgetTree->FindWidget(TEXT("WardrobeAdditionalSlots"))) return Slots;
+        Host=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("WardrobeAdditionalSlots"));
+        Parent->AddChildToVerticalBox(Host)->SetPadding(FMargin(0));
+    }
+    if(!Host) return Slots;
+    // Retain native cached groups and all existing Face/Hat controls. Hide retired data groups without deleting artist content.
+    for(UWidget* Child:Host->GetAllChildren()) if(Child && (Child->GetName().StartsWith(TEXT("WardrobeSlotHeading_")) || Child->GetName().StartsWith(TEXT("WardrobeSlotItems_")))) Child->SetVisibility(ESlateVisibility::Collapsed);
+    for(const FName SlotId:Extra) {
+        const FTCHARToUTF8 Bytes(*SlotId.ToString());FMD5 Hash;uint8 Digest[16];Hash.Update(reinterpret_cast<const uint8*>(Bytes.Get()),Bytes.Length());Hash.Final(Digest);
+        const FString Suffix=BytesToHex(Digest,16);
+        const FName HeadingName(*(TEXT("WardrobeSlotHeading_")+Suffix)),GridName(*(TEXT("WardrobeSlotItems_")+Suffix));
+        auto* Heading=WidgetTree->FindWidget<UTextBlock>(HeadingName);auto* Grid=WidgetTree->FindWidget<UUniformGridPanel>(GridName);
+        if((!Heading && WidgetTree->FindWidget(HeadingName)) || (!Grid && WidgetTree->FindWidget(GridName))) continue;
+        if(!Heading) {
+            Heading=MCHubWardrobeWidgetPrivate::AddLabel(WidgetTree,HeadingName,FText::GetEmpty());
+            Host->AddChildToVerticalBox(Heading)->SetPadding(FMargin(0,4));
+        }
+        if(!Grid) {
+            Grid=WidgetTree->ConstructWidget<UUniformGridPanel>(UUniformGridPanel::StaticClass(),GridName);
+            Grid->SetMinDesiredSlotWidth(184);Grid->SetMinDesiredSlotHeight(180);Grid->SetSlotPadding(FMargin(4));
+            Host->AddChildToVerticalBox(Grid)->SetPadding(FMargin(-3,0,-3,8));
+        }
+        Heading->SetVisibility(ESlateVisibility::HitTestInvisible);Grid->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+        AdditionalSlotItems.Add(SlotId,Grid);AdditionalSlotHeadings.Add(SlotId,Heading);Slots.Add(SlotId);
+    }
+    return Slots;
 }
 
 void UMCHubWardrobeWidget::RefreshCosmetics()
 {
+    if(bRefreshingCosmetics) return;
+    TGuardValue<bool> CosmeticsRefreshGuard(bRefreshingCosmetics,true);
     ResolveControls();
     if(!WardrobeFaceItems || !WardrobeHatItems) return;
     if(WardrobeCoins) WardrobeCoins->SetText(FText::Format(Localized(TEXT("UI.Wardrobe.Coins"),LOCTEXT("Coins","Монеты: {0}")),FText::AsNumber(CosmeticEconomy?CosmeticEconomy->Coins:0)));
@@ -328,15 +382,26 @@ void UMCHubWardrobeWidget::RefreshCosmetics()
     // Keep the actual cards and their theme MIDs alive from location warm-up through every try-on.
     const auto PreviousTiles=CosmeticTiles;
     TArray<TObjectPtr<UMCCosmeticItemWidget>> CurrentTiles;
-    for(FName SlotId:{UMCCosmeticCatalog::FaceSlot,UMCCosmeticCatalog::HatSlot}) {
-        auto* Grid=SlotId==UMCCosmeticCatalog::FaceSlot?WardrobeFaceItems.Get():WardrobeHatItems.Get();
+    for(FName SlotId:PrepareAuthoredSlotGroups(Table)) {
+        UUniformGridPanel* Grid=SlotId==UMCCosmeticCatalog::FaceSlot?WardrobeFaceItems.Get():SlotId==UMCCosmeticCatalog::HatSlot?WardrobeHatItems.Get():nullptr;
+        if(!Grid) if(const auto* Additional=AdditionalSlotItems.Find(SlotId)) Grid=Additional->Get();
+        if(!Grid) continue;
         TArray<FName> Items={NAME_None};Items.Append(UMCCosmeticCatalog::GetItemsForSlot(Table,SlotId));
         int32 Index=0;
         for(FName ItemId:Items) {
             const auto* Item=UMCCosmeticCatalog::Find(Table,ItemId);
             const auto* Purchase=Store.FindByPredicate([ItemId](const FMCHubEconomyCatalogEntry& Entry) {return Entry.Definition.Kind==EMCHubCatalogKind::Cosmetic && Entry.Definition.CosmeticID==ItemId;});
+            FMCHubEconomyCatalogEntry CanonicalPurchase;
+            if(Item && Item->bUseCanonicalCommerce && CosmeticEconomy) {
+                // Owned clothing remains selectable with its canonical icon/copy even when not sold this rotation.
+                const bool Resolved=CosmeticEconomy->FindCatalogEntry(UMCCosmeticCatalog::ShopItemIdForRow(ItemId,*Item),CanonicalPurchase)
+                    && CanonicalPurchase.bCanonicalClothing && CanonicalPurchase.Definition.Kind==EMCHubCatalogKind::Cosmetic
+                    && CanonicalPurchase.Definition.CosmeticID==ItemId;
+                Purchase=Resolved?&CanonicalPurchase:nullptr;
+            }
             const bool bOwned=ItemId.IsNone() || (CosmeticEconomy && CosmeticEconomy->OwnsCosmetic(ItemId));
             if(!bOwned && CosmeticEconomy && (!Purchase || !Purchase->Definition.bInShop)) continue;
+            if(!bOwned && Item && Item->bUseCanonicalCommerce && CosmeticEconomy && (!Purchase || !CosmeticEconomy->IsInShopStock(Purchase->ItemID))) continue;
             auto* Existing=PreviousTiles.FindByPredicate([SlotId,ItemId](const TObjectPtr<UMCCosmeticItemWidget>& Card) {
                 return Card && Card->GetItemSlot()==SlotId && Card->GetItemId()==ItemId;
             });
@@ -345,8 +410,11 @@ void UMCHubWardrobeWidget::RefreshCosmetics()
             Tile->Theme=GetResolvedTheme();Tile->SetTranslationTable(GetResolvedTranslationTable());
             FText Name=Item?Item->DisplayName:Localized(TEXT("UI.Wardrobe.NoAccessory"),LOCTEXT("NoAccessory","Без аксессуара"));
             if(Purchase && !Purchase->Definition.DisplayNameKey.IsNone()) Name=Localized(Purchase->Definition.DisplayNameKey,Purchase->Definition.DisplayName);
+            FText PurchaseError;
+            const bool CanBuy=Purchase && CosmeticEconomy && (Item && Item->bUseCanonicalCommerce
+                ?CosmeticEconomy->CanPurchase(Purchase->ItemID,PurchaseError):CosmeticEconomy->Coins>=Purchase->Definition.Price);
             Tile->Configure(SlotId,ItemId,Purchase?Purchase->ItemID:NAME_None,Name,bOwned,DraftLoadout.ItemForSlot(SlotId)==ItemId,
-                Purchase?Purchase->Definition.Price:15,Purchase && CosmeticEconomy && CosmeticEconomy->Coins>=Purchase->Definition.Price);
+                Purchase?Purchase->Definition.Price:15,CanBuy);
             FText Description=Item?Item->Description:Localized(TEXT("UI.Product.DefaultLook"),LOCTEXT("DefaultLook","Исходный внешний вид персонажа."));
             if(Purchase) Description=Localized(Purchase->Definition.DescriptionKey,Purchase->Definition.Description);
             // Catalog icons are part of the location's preload roots. Get() avoids a first-click synchronous load.
@@ -367,8 +435,12 @@ void UMCHubWardrobeWidget::RefreshCosmetics()
 void UMCHubWardrobeWidget::CosmeticPressed(FName InSlot,FName ItemId,FName CatalogId)
 {
     if(IsPreviewing() || !CosmeticEconomy) return;
-    const auto* Item=UMCCosmeticCatalog::Find(UMCCosmeticCatalog::GetDefaultCatalog(),ItemId);
-    if(InSlot!=UMCCosmeticCatalog::FaceSlot && InSlot!=UMCCosmeticCatalog::HatSlot) return;
+    const auto* Catalog=UMCCosmeticCatalog::GetDefaultCatalog();
+    const auto* Item=UMCCosmeticCatalog::Find(Catalog,ItemId);
+    bool KnownSlot=InSlot==UMCCosmeticCatalog::FaceSlot || InSlot==UMCCosmeticCatalog::HatSlot;
+    if(!KnownSlot && Catalog && Catalog->GetRowStruct()==FMCCosmeticCatalogRow::StaticStruct())
+        for(const auto& Pair:Catalog->GetRowMap()) if(reinterpret_cast<const FMCCosmeticCatalogRow*>(Pair.Value)->Slot==InSlot && !InSlot.IsNone()) {KnownSlot=true;break;}
+    if(!KnownSlot) return;
     if(!ItemId.IsNone() && (!Item || Item->Slot!=InSlot || !Item->bEnabled)) return;
     // This event updates only the owning player's presentation actor, even when the item is unowned.
     DraftLoadout.SetItemForSlot(InSlot,ItemId);OnCosmeticDraftChanged.Broadcast(DraftLoadout);RefreshCosmetics();
@@ -452,12 +524,22 @@ void UMCHubWardrobeWidget::NativeOnInitialized()
 }
 void UMCHubWardrobeWidget::NativeConstruct()
 {
-    Super::NativeConstruct();ResolveControls();BindControls();RefreshValues();RefreshCosmetics();
+    Super::NativeConstruct();ResolveControls();BindControls();RefreshValues();RefreshCosmetics();RefreshTransactionCopy();
     if(CosmeticEconomy) CosmeticEconomy->OnEconomyChanged.AddUniqueDynamic(this,&ThisClass::RefreshCosmetics);
 }
 void UMCHubWardrobeWidget::NativeDestruct()
 {
     UnbindControls();if(CosmeticEconomy) CosmeticEconomy->OnEconomyChanged.RemoveAll(this);Super::NativeDestruct();
+}
+void UMCHubWardrobeWidget::OnLocalizationChanged()
+{
+    Super::OnLocalizationChanged();
+    // Initial construction and Designer fixtures own their existing population paths.
+    // Re-present only live cached products; RefreshCosmetics reuses Slot/Item widgets
+    // and preserves draft, ownership, source delegates and the original action owner.
+    if(!IsPreviewing() && !bRefreshingCosmetics && !CosmeticTiles.IsEmpty()
+        && WidgetTree && WidgetTree->RootWidget) RefreshCosmetics();
+    RefreshTransactionCopy();
 }
 FReply UMCHubWardrobeWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
 {
@@ -484,6 +566,10 @@ void UMCHubWardrobeWidget::ApplyTheme()
     Text(TEXT("WardrobeColorHeading"),18,Palette.Cream);
     Text(TEXT("WardrobeFaceHeading"),18,Palette.Cream);
     Text(TEXT("WardrobeHatHeading"),18,Palette.Cream);
+    for(const auto& Pair:AdditionalSlotHeadings) if(UTextBlock* Heading=Pair.Value.Get()) {
+        Heading->SetFont(Style->MakeGameplayFont(18,true));Heading->SetColorAndOpacity(Palette.Cream);
+        Heading->SetText(FText::Format(Localized(TEXT("UI.Wardrobe.SlotHeading"),LOCTEXT("SlotHeading","Аксессуары: {Slot}")),FFormatNamedArguments{{TEXT("Slot"),FText::FromName(Pair.Key)}}));
+    }
     Text(TEXT("WardrobeCoins"),16,Palette.Mint);
     Text(TEXT("WardrobeTransactionMessage"),14,Palette.Warning,false);
     Text(TEXT("WardrobeHint"),12,Palette.OnMarine.CopyWithNewOpacity(.75f),false);

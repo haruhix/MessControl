@@ -5,6 +5,7 @@
 #include "MCPlayerState.h"
 #include "MCUIVisualStyle.h"
 #include "MCWorldUIShapes.h"
+#include "Styling/CoreStyle.h"
 #include "MCVoiceIndicatorComponent.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/Border.h"
@@ -95,7 +96,30 @@ void UMCPlayerNameWidget::BuildWorldPresentationTree()
 void UMCPlayerNameWidget::RefreshWorldPresentation()
 {
     const auto* NewTheme=GetNewWorldPresentationTheme();if(!NewTheme) return;
-    if(NewNameText) {MCWorldUIShapes::TextStyle(NewNameText,NewTheme,19,EMCUIColorToken::Marine);NewNameText->SetText(FText::AsCultureInvariant(PresentedName));}
+    if(NewNameText) {
+        // The reference keeps the in-world name as a light, single-line
+        // caption over a translucent blue plate, separate from HUD headings.
+        const auto Font=FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),34);
+        NewNameText->SetFont(Font);NewNameText->SetColorAndOpacity(FLinearColor::White);
+        NewNameText->SetAutoWrapText(false);NewNameText->SetWrapTextAt(0);
+        NewNameText->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
+        NewNameText->SetText(FText::AsCultureInvariant(PresentedName));
+        MCWorldUIShapes::PrimeText(Font,{NewNameText->GetText()},1.f);
+        if(FSlateApplication::IsInitialized()) if(const auto Renderer=FSlateApplication::Get().GetRenderer())
+            if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(TEXT("WorldNameV2Root"))) {
+                const float Width=Renderer->GetFontMeasureService()->Measure(NewNameText->GetText(),Font).X;
+                Bounds->SetWidthOverride(FMath::Max(110.f,FMath::CeilToFloat(Width)+59.f));
+            }
+    }
+    if(auto* Plate=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("WorldNameV2Plate"))) {
+        const FLinearColor Body(FColor::FromHex(TEXT("1A434E"))),Rim(FColor::FromHex(TEXT("AEFCFD")));
+        const auto Fill=Body.CopyWithNewOpacity(145.f/255.f),Edge=Rim.CopyWithNewOpacity(.85f);
+        if(!Plate->bCustomColors || Plate->CustomFill!=Fill || Plate->CustomOutline!=Edge) {
+            Plate->bCustomColors=true;Plate->CustomFill=Fill;Plate->CustomOutline=Edge;
+            Plate->CustomText=FLinearColor::White;Plate->CustomShadow=FLinearColor::Transparent;
+            Plate->ShadowOffset=FVector2D::ZeroVector;Plate->ApplyTheme();
+        }
+    }
     const bool HasAlarm=PresentedAlarm!=EMCPlayerAlarm::None;
     if(NewAlarmShape) {
         NewAlarmShape->Fill=PresentedAlarm==EMCPlayerAlarm::Help?EMCUIColorToken::Mint:EMCUIColorToken::Warning;

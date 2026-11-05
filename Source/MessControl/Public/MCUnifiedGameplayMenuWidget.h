@@ -91,6 +91,7 @@ private:
     void BindControl(FMCUnifiedGameplayMenuControl& View,const FMCGameplayMenuPresentationControl& Source,FName PageName);
     void Present(const FMCGameplayMenuPresentationSnapshot& Snapshot);
     void PresentPreview();
+    void UpdateResponsiveLayout(FVector2D AvailableSize=FVector2D::ZeroVector);
     bool CanForward(const UMCUnifiedGameplayMenuBinding* Binding) const;
     bool MovePresentationFocus(int32 Direction);
     UWidget* ViewFocusForSource(const UWidget* Source) const;

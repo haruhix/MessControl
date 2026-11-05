@@ -95,10 +95,10 @@ void UMCUnifiedSettingsWidget::BuildPresentationTree()
     if(!Theme) Theme=UMCGameplayUIFactory::GetThemeForVersion(EMCUIVersion::New);
     if(WidgetTree->RootWidget) {BindControls();return;}
     auto* Size=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("SettingsV2Size"));
-    Size->SetMinDesiredWidth(660);Size->SetMaxDesiredWidth(1000);WidgetTree->RootWidget=Size;
+    Size->SetMaxDesiredWidth(1000);WidgetTree->RootWidget=Size;
     auto* Root=WidgetTree->ConstructWidget<UOverlay>(UOverlay::StaticClass(),TEXT("SettingsV2Root"));Size->SetContent(Root);
     auto* Column=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("SettingsV2Column"));
-    auto* MainCell=Root->AddChildToOverlay(Column);MainCell->SetHorizontalAlignment(HAlign_Fill);MainCell->SetVerticalAlignment(VAlign_Top);
+    auto* MainCell=Root->AddChildToOverlay(Column);MainCell->SetHorizontalAlignment(HAlign_Center);MainCell->SetVerticalAlignment(VAlign_Top);
     auto Shape=[&](FName Name,FLinearColor Fill,float Radius,FVector2D Shadow,bool bButton=false)
     {
         auto* Panel=WidgetTree->ConstructWidget<UMCUniversalUIWidget>(UMCUniversalUIWidget::StaticClass(),Name);
@@ -137,7 +137,7 @@ void UMCUnifiedSettingsWidget::BuildPresentationTree()
     Outer->SetContentForSlot(TEXT("Content"),InnerPanel);
     Column->AddChildToVerticalBox(Outer)->SetPadding(FMargin(0,0,8,12));
     auto* Viewport=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("SettingsV2ScrollViewport"));
-    Viewport->SetMinDesiredHeight(600);Viewport->SetMaxDesiredHeight(636);
+    Viewport->SetMinDesiredHeight(64);Viewport->SetMaxDesiredHeight(636);
     InnerPanel->SetContentForSlot(TEXT("Content"),Viewport);
     auto* Pages=WidgetTree->ConstructWidget<UWidgetSwitcher>(UWidgetSwitcher::StaticClass(),TEXT("SettingsV2Sections"));
     Viewport->SetContent(Pages);
@@ -163,6 +163,7 @@ void UMCUnifiedSettingsWidget::BuildPresentationTree()
             auto* Picker=WidgetTree->ConstructWidget<UMCMainMenuPicker>(UMCMainMenuPicker::StaticClass(),Name);
             Picker->InitializePresentationFont(GetResolvedTheme()->MakeFont(23,true));
             Picker->InitializePresentationForeground(MCUnifiedSettingsPrivate_Navy);
+            Picker->SetPresentationTextCentered(true);
             Picker->SetHasDownArrow(false);Picker->SetContentPadding(FMargin(12,4));
             auto Style=Picker->GetWidgetStyle();
             auto ButtonStyle=Style.ComboButtonStyle.ButtonStyle;
@@ -237,7 +238,7 @@ void UMCUnifiedSettingsWidget::BuildPresentationTree()
     ConfirmActions->AddChildToWrapBox(AddAction(TEXT("SettingsV2KeepVideo"),TEXT("UI.MainMenu.Action.KeepSettings"),TEXT("СОХРАНИТЬ")));
     ConfirmActions->AddChildToWrapBox(AddAction(TEXT("SettingsV2RevertVideo"),TEXT("UI.MainMenu.Action.RevertSettings"),TEXT("ВЕРНУТЬ")));
     Confirm->SetVisibility(ESlateVisibility::Collapsed);
-    BindControls();SelectTab(PreviewSettingsTab);RefreshValueLabels();
+    BindControls();SelectTab(PreviewSettingsTab);RefreshValueLabels();UpdateLayout();
 }
 
 void UMCUnifiedSettingsWidget::BindControls()
@@ -257,6 +258,7 @@ void UMCUnifiedSettingsWidget::BindControls()
         if(auto* Picker=Cast<UComboBoxString>(Control)) {
             Picker->OnSelectionChanged.AddUniqueDynamic(Binding,&UMCUnifiedSettingsBinding::PickerChanged);
             Picker->OnGenerateWidgetEvent.Unbind();
+            if(auto* MenuPicker=Cast<UMCMainMenuPicker>(Picker)) MenuPicker->SetPresentationTextCentered(true);
         }
         if(auto* Slider=Cast<USlider>(Control)) Slider->OnValueChanged.AddUniqueDynamic(Binding,&UMCUnifiedSettingsBinding::SliderChanged);
         if(auto* Check=Cast<UCheckBox>(Control)) Check->OnCheckStateChanged.AddUniqueDynamic(Binding,&UMCUnifiedSettingsBinding::CheckChanged);
@@ -333,7 +335,7 @@ void UMCUnifiedSettingsWidget::RefreshFromBackend()
     if(auto* Countdown=WidgetTree->FindWidget<UTextBlock>(TEXT("SettingsV2VideoCountdown")))
         Countdown->SetText(UMCUIDataLibrary::FormatTextForCulture(Localized(TEXT("UI.Menu.VideoCountdown"),LOCTEXT("VideoCountdown","Автоматический возврат: {Seconds} сек.")),
             {{TEXT("Seconds"),UMCUIDataLibrary::NumberForCulture(FMath::CeilToInt(Backend->GetVideoConfirmationSecondsRemaining()),PreviewCulture)}},PreviewCulture));
-    RefreshValueLabels();
+    RefreshValueLabels();UpdateLayout();
 }
 void UMCUnifiedSettingsWidget::RefreshValueLabels()
 {
@@ -425,19 +427,131 @@ UWidget* UMCUnifiedSettingsWidget::GetDefaultFocusTarget() const
         return Button->WidgetTree?Button->WidgetTree->FindWidget(TEXT("UniversalSurface")):Button;
     return const_cast<UMCUnifiedSettingsWidget*>(this);
 }
-void UMCUnifiedSettingsWidget::ApplyTheme() {Super::ApplyTheme();RefreshValueLabels();}
+void UMCUnifiedSettingsWidget::UpdateLayout()
+{
+    if(!WidgetTree) return;
+    const FVector2D Area=GetPaintSpaceGeometry().GetLocalSize();
+    if(Area.X<=1 || Area.Y<=1) return;
+    LastLayoutViewport=Area;
+    const float Width=FMath::Max(1.f,FMath::Min(1000.f,float(Area.X)-12.f));
+    const float AvailableHeight=FMath::Max(1.f,float(Area.Y)-12.f);
+    auto* Size=WidgetTree->FindWidget<USizeBox>(TEXT("SettingsV2Size"));
+    auto* Column=WidgetTree->FindWidget<UVerticalBox>(TEXT("SettingsV2Column"));
+    auto* Viewport=WidgetTree->FindWidget<USizeBox>(TEXT("SettingsV2ScrollViewport"));
+    auto* Outer=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("SettingsV2Outer"));
+    auto* Inner=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("SettingsV2Inner"));
+    if(!Size || !Column || !Viewport || !Outer || !Inner) return;
+    Size->ClearMinDesiredWidth();Size->SetMaxDesiredWidth(Width);Size->ClearMinDesiredHeight();
+    if(auto* Cell=Cast<UOverlaySlot>(Column->Slot)) Cell->SetHorizontalAlignment(HAlign_Center);
+    if(auto* Tabs=WidgetTree->FindWidget<UWrapBox>(TEXT("SettingsV2Tabs"))) {
+        Tabs->SetExplicitWrapSize(true);Tabs->SetWrapSize(Width+1.f);
+        // Equal fifths reproduce the PSD tabs. Their full-size labels may wrap
+        // vertically for a translation, without leaving an unused right edge.
+        for(int32 I=0;I<5;++I) if(auto* Tab=WidgetTree->FindWidget<UMCUniversalUIWidget>(FName(*FString::Printf(TEXT("SettingsV2Tab%d"),I)))) {
+            auto* Bounds=WidgetTree->FindWidget<USizeBox>(FName(*FString::Printf(TEXT("SettingsV2Tab%dBounds"),I)));
+            if(!Bounds && Tab->GetParent()==Tabs) {
+                Tab->RemoveFromParent();Bounds=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),FName(*FString::Printf(TEXT("SettingsV2Tab%dBounds"),I)));
+                Bounds->SetContent(Tab);Tabs->AddChildToWrapBox(Bounds)->SetVerticalAlignment(VAlign_Bottom);
+            }
+            if(Bounds) {Bounds->ClearMinDesiredWidth();Bounds->ClearMaxDesiredWidth();Bounds->SetWidthOverride(Width/5.f);}
+            Tab->ContentPadding=FMargin(8,15);Tab->ApplyTheme();
+            if(Tab->WidgetTree) if(auto* Caption=Tab->WidgetTree->FindWidget<UTextBlock>(TEXT("UniversalLabel"))) {
+                Caption->SetAutoWrapText(false);Caption->SetWrapTextAt(FMath::Max(1.f,Width/5.f-20.f));Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
+            }
+        }
+    }
+    const float ContentWidth=FMath::Max(1.f,Width-8.f-Outer->ContentPadding.Left-Outer->ContentPadding.Right-Inner->ContentPadding.Left-Inner->ContentPadding.Right);
+    Viewport->SetWidthOverride(ContentWidth);Viewport->ClearMinDesiredWidth();Viewport->ClearMaxDesiredWidth();
+    // The PSD fields occupy roughly three fifths of the inner panel. Keep
+    // their centers aligned; only unusually long values earn more width.
+    for(const auto& Definition:MCUnifiedSettingsPrivate_Controls) {
+        auto* Control=WidgetTree->FindWidget(MCUnifiedSettingsPrivate_ViewName(Definition.Name));
+        UWidget* ControlContainer=Control;
+        if(Definition.Kind==1 && Control && Cast<UOverlay>(Control->GetParent())) ControlContainer=Control->GetParent();
+        if(auto* Bounds=ControlContainer?Cast<USizeBox>(ControlContainer->GetParent()):nullptr) {
+            const float Maximum=FMath::Max(1.f,ContentWidth-8.f);
+            float ControlWidth=ContentWidth*.64f;
+            if(auto* Picker=Cast<UComboBoxString>(Control);Picker && FSlateApplication::IsInitialized()) {
+                const auto Measure=FSlateApplication::Get().GetRenderer()->GetFontMeasureService();
+                ControlWidth=FMath::Max(ControlWidth,float(Measure->Measure(Picker->GetSelectedOption(),Picker->GetFont()).X)+44.f);
+            }
+            Bounds->ClearMinDesiredWidth();Bounds->SetMaxDesiredWidth(Maximum);
+            const float FieldWidth=FMath::Min(Maximum,ControlWidth);
+            Bounds->SetWidthOverride(FieldWidth);
+            if(auto* Cell=Cast<UVerticalBoxSlot>(Bounds->Slot)) Cell->SetHorizontalAlignment(HAlign_Center);
+        }
+    }
+    WidgetTree->ForEachWidget([&](UWidget* Widget) {
+        if(auto* Text=Cast<UTextBlock>(Widget)) {
+            Text->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
+            Text->SetAutoWrapText(false);Text->SetWrapTextAt(FMath::Max(1.f,ContentWidth-32.f));
+        }
+        if(auto* Form=Cast<UMCUniversalUIWidget>(Widget);Form && Form->Kind==EMCUniversalUIKind::Button && Form->WidgetTree) {
+            if(auto* Caption=Form->WidgetTree->FindWidget<UTextBlock>(TEXT("UniversalLabel"))) {
+                Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);Caption->SetAutoWrapText(false);
+                const bool IsTab=Form->GetName().StartsWith(TEXT("SettingsV2Tab"));
+                const float CaptionWidth=IsTab?Width/5.f:Width;
+                Caption->SetWrapTextAt(FMath::Max(1.f,CaptionWidth-Form->ContentPadding.Left-Form->ContentPadding.Right-12.f));
+            }
+        }
+    });
+    const float Scale=FMath::Max(.001f,GetPaintSpaceGeometry().GetAccumulatedLayoutTransform().GetScale());
+    auto MeasuredHeight=[&](UWidget* Widget) {
+        if(!Widget || !Widget->IsVisible()) return 0.f;
+        const auto Slate=Widget->TakeWidget();Slate->MarkPrepassAsDirty();Slate->SlatePrepass(Scale);
+        float Height=FMath::CeilToFloat(Widget->GetDesiredSize().Y);
+        if(const auto* Cell=Cast<UVerticalBoxSlot>(Widget->Slot)) Height+=Cell->GetPadding().Top+Cell->GetPadding().Bottom;
+        return Height;
+    };
+    float Reserved=Outer->ContentPadding.Top+Outer->ContentPadding.Bottom+Inner->ContentPadding.Top+Inner->ContentPadding.Bottom;
+    if(const auto* Cell=Cast<UVerticalBoxSlot>(Outer->Slot)) Reserved+=Cell->GetPadding().Top+Cell->GetPadding().Bottom;
+    for(const TCHAR* Name:{TEXT("SettingsV2Tabs"),TEXT("SettingsV2Status"),TEXT("SettingsV2Apply"),TEXT("SettingsV2Back")}) Reserved+=MeasuredHeight(WidgetTree->FindWidget(Name));
+    const float ScrollHeight=FMath::Max(1.f,AvailableHeight-Reserved);
+    Viewport->ClearMinDesiredHeight();Viewport->ClearMaxDesiredHeight();Viewport->SetHeightOverride(ScrollHeight);
+    for(int32 I=0;I<5;++I) if(auto* Scroll=WidgetTree->FindWidget<UScrollBox>(FName(*FString::Printf(TEXT("SettingsV2Scroll%d"),I)))) Scroll->SetAllowOverscroll(false);
+    // The same available width applies to the confirmation's content-sized frame.
+    if(auto* Frame=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("SettingsV2VideoFrame"))) {
+        if(auto* Bounds=Cast<USizeBox>(Frame->GetParent())) {Bounds->ClearMinDesiredWidth();Bounds->SetMaxDesiredWidth(FMath::Max(1.f,Width-32.f));}
+        if(auto* Body=Cast<UVerticalBox>(Frame->GetContentForSlot(TEXT("Content")))) for(int32 I=0;I<Body->GetChildrenCount();++I)
+            if(auto* Row=Cast<UWrapBox>(Body->GetChildAt(I))) Row->SetWrapSize(FMath::Max(1.f,Width-92.f));
+    }
+}
+void UMCUnifiedSettingsWidget::ApplyTheme() {Super::ApplyTheme();RefreshValueLabels();UpdateLayout();}
 void UMCUnifiedSettingsWidget::ApplyEditorPreview(float Time)
 {
-    Super::ApplyEditorPreview(Time);SelectTab(PreviewSettingsTab);RefreshValueLabels();
+    Super::ApplyEditorPreview(Time);
+    if(IsDesignTime() && WidgetTree) {
+        // Saved picker examples are strings, not TextBindings. Re-resolve only
+        // this transient fixture's semantic options after the requested culture changes.
+        TGuardValue<bool> PreviewSync(bSynchronizing,true);
+        auto Seed=[&](const TCHAR* Name,const TArray<FString>& Options,int32 SampleIndex) {
+            if(auto* Picker=WidgetTree->FindWidget<UMCMainMenuPicker>(MCUnifiedSettingsPrivate_ViewName(Name)))
+                Picker->SetPresentationOptions(Options,FMath::Clamp(SampleIndex,0,FMath::Max(0,Options.Num()-1)));
+        };
+        auto Copy=[&](FName Key,const TCHAR* Fallback) {return Localized(Key,FText::AsCultureInvariant(Fallback)).ToString();};
+        auto* Mode=WidgetTree->FindWidget<UMCMainMenuPicker>(MCUnifiedSettingsPrivate_ViewName(TEXT("WindowModePicker")));
+        Seed(TEXT("WindowModePicker"),{Copy(TEXT("UI.MainMenu.Option.Borderless"),TEXT("Borderless")),Copy(TEXT("UI.MainMenu.Option.Fullscreen"),TEXT("Fullscreen")),Copy(TEXT("UI.MainMenu.Option.Windowed"),TEXT("Windowed"))},Mode?FMath::Max(0,Mode->GetSelectedIndex()):0);
+        const TCHAR* LevelNames[]={TEXT("Low"),TEXT("Medium"),TEXT("High"),TEXT("Epic"),TEXT("Cinematic")};
+        TArray<FString> Levels;for(const TCHAR* Name:LevelNames) Levels.Add(Copy(FName(*(FString(TEXT("UI.MainMenu.Option.Quality."))+Name)),Name));
+        for(const TCHAR* Name:{TEXT("QualityPicker"),TEXT("TexturePicker"),TEXT("ShadowPicker"),TEXT("EffectsPicker"),TEXT("PostProcessPicker"),TEXT("AAPicker"),TEXT("ViewDistancePicker")}) {
+            auto* Picker=WidgetTree->FindWidget<UMCMainMenuPicker>(MCUnifiedSettingsPrivate_ViewName(Name));
+            // The former single-option High specimen becomes index2; a selected
+            // real quality index in the transient fixture stays selected.
+            const int32 Index=Picker && Picker->GetOptionCount()>1?FMath::Max(0,Picker->GetSelectedIndex()):2;
+            auto Options=Levels;if(FString(Name)==TEXT("QualityPicker")) Options.Add(Copy(TEXT("UI.MainMenu.Option.QualityCustom"),TEXT("Custom (keep current)")));
+            Seed(Name,Options,Index);
+        }
+        auto* VoiceMode=WidgetTree->FindWidget<UMCMainMenuPicker>(MCUnifiedSettingsPrivate_ViewName(TEXT("VoiceMode")));
+        Seed(TEXT("VoiceMode"),{Copy(TEXT("UI.Voice.PushToTalk"),TEXT("Push to talk")),Copy(TEXT("UI.Voice.OpenMic"),TEXT("Open microphone"))},VoiceMode?FMath::Max(0,VoiceMode->GetSelectedIndex()):0);
+        Seed(TEXT("VoicePlayer"),{Copy(TEXT("UI.V2.Preview.Player"),TEXT("PLAYER"))},0);
+    }
+    SelectTab(PreviewSettingsTab);RefreshValueLabels();UpdateLayout();
 }
 void UMCUnifiedSettingsWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
     Super::NativeTick(Geometry,DeltaSeconds);
+    if(!LastLayoutViewport.Equals(Geometry.GetLocalSize(),.5f)) UpdateLayout();
     if(IsDesignTime()) return;
-    if(WidgetTree) if(auto* Tabs=WidgetTree->FindWidget<UWrapBox>(TEXT("SettingsV2Tabs"))) {
-        const float Available=float(Geometry.GetLocalSize().X);
-        if(Available>0) Tabs->SetWrapSize(FMath::Clamp(Available,660.f,1000.f));
-    }
     RefreshElapsed+=DeltaSeconds;if(RefreshElapsed<.1f) return;RefreshElapsed=0;RefreshFromBackend();
 }
 void UMCUnifiedSettingsWidget::NativeDestruct()

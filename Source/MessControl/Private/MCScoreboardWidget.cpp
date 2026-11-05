@@ -159,6 +159,21 @@ void UMCScoreboardWidget::TogglePlayerVoice(APlayerState* Player)
     const bool bMuted=bLocal?Settings->GetSelfMuted():Settings->IsVoicePlayerMuted(Player->GetUniqueId()->ToString());
     Voice->SetPlayerMuted(Player,!bMuted);Refresh();
 }
+void UMCScoreboardWidget::SetUnifiedFocusOwner(UUserWidget* View)
+{
+    if(View && (View->GetWorld()!=GetWorld() || View->GetOwningPlayer()!=GetOwningPlayer())) return;
+    UnifiedFocusOwner=View;
+}
+void UMCScoreboardWidget::ClearUnifiedFocusOwner(const UUserWidget* View)
+{
+    if(UnifiedFocusOwner.Get()==View) UnifiedFocusOwner.Reset();
+}
+bool UMCScoreboardWidget::HasPresentationFocus() const
+{
+    auto* PC=GetOwningPlayer();if(!PC) return false;
+    auto Focused=[PC](const UUserWidget* View) {return View && (View->HasUserFocus(PC) || View->HasUserFocusedDescendants(PC));};
+    return Focused(this) || Focused(UnifiedFocusOwner.Get());
+}
 void UMCScoreboardWidget::FocusVoiceControls()
 {
     if(IsHubPartyPresentation() && HubInviteButton && HubInviteButton->GetIsEnabled())

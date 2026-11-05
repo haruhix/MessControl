@@ -53,7 +53,7 @@ void UMCUnifiedHubWidget::BuildPresentationTree()
     };
     auto Text=[&](FName Name,FName Key,const FText& Copy,int32 FontSize) {
         auto* Label=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);Label->SetText(Localized(Key,Copy));Label->SetFont(GetResolvedTheme()->MakeFont(FontSize,true));
-        Label->SetColorAndOpacity(MCUnifiedHubPrivate_Color(TEXT("FFF9F8")));Label->SetAutoWrapText(true);Label->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);Label->SetVisibility(ESlateVisibility::HitTestInvisible);
+        Label->SetColorAndOpacity(MCUnifiedHubPrivate_Color(TEXT("FFF9F8")));Label->SetAutoWrapText(true);Label->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);Label->SetVisibility(ESlateVisibility::HitTestInvisible);
         if(!Key.IsNone()) TextBindings.Add(Name,Key);return Label;
     };
     auto Bounded=[&](FName Name,UWidget* Contents,float Minimum,float Maximum) {
@@ -221,6 +221,23 @@ void UMCUnifiedHubWidget::RefreshViewportLayout()
     const float TopWidth=float(FMath::Clamp(Width-36.,320.,1500.));
     const float FooterWidth=float(FMath::Clamp(Width-48.,320.,1400.));
     RefreshReadinessTitleWidth(TopWidth);
+    // Match the nameplate to the real nickname before allowing a long-name wrap.
+    // Normal names remain on one line; exceptional names use balanced lines.
+    if(auto* Name=WidgetTree->FindWidget<UTextBlock>(TEXT("HubV2ProfileName")))
+        if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(TEXT("HubV2ProfileWidth"))) {
+            const auto* Surface=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("HubV2Profile"));
+            const float NameInsetWidth=Surface?Surface->ContentPadding.Left+Surface->ContentPadding.Right:32.f;
+            const auto Measure=FSlateApplication::Get().GetRenderer()->GetFontMeasureService();
+            const float Natural=float(Measure->Measure(Name->GetText(),Name->GetFont()).X)+8.f;
+            const float Maximum=FMath::Max(120.f,FMath::Min(760.f,TopWidth*.60f));
+            const float NameWidth=FMath::Clamp(Natural+NameInsetWidth,FMath::Min(280.f,Maximum),Maximum);
+            Bounds->SetMinDesiredWidth(NameWidth);Bounds->SetMaxDesiredWidth(NameWidth);Bounds->SetWidthOverride(NameWidth);
+            const float Inner=FMath::Max(60.f,NameWidth-NameInsetWidth);
+            const int32 Lines=FMath::Max(1,FMath::CeilToInt(Natural/Inner));
+            Name->SetAutoWrapText(false);
+            Name->SetWrappingPolicy(Lines>1?ETextWrappingPolicy::AllowPerCharacterWrapping:ETextWrappingPolicy::DefaultWrapping);
+            Name->SetWrapTextAt(Lines>1?FMath::Min(Inner,FMath::CeilToFloat(Natural/Lines)+4.f):0.f);
+        }
     if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(TEXT("HubV2TopWidth")))
         if(!FMath::IsNearlyEqual(Bounds->GetWidthOverride(),TopWidth,.5f)) Bounds->SetWidthOverride(TopWidth);
     if(auto* Wrap=WidgetTree->FindWidget<UWrapBox>(TEXT("HubV2Top")))
@@ -258,7 +275,7 @@ void UMCUnifiedHubWidget::EnsureControlsPresentation()
         auto* Hint=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("HubV2ControlsText"));
         Hint->SetVisibility(ESlateVisibility::HitTestInvisible);
         Hint->SetFont(GetResolvedTheme()->MakeFont(20,true));Hint->SetColorAndOpacity(MCUnifiedHubPrivate_Color(TEXT("FFF9F8")));Hint->SetAutoWrapText(false);
-        Hint->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);Hint->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);Hint->SetJustification(ETextJustify::Center);
+        Hint->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);Hint->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);Hint->SetJustification(ETextJustify::Center);
         Scroll->AddChild(Hint);Bounds->SetVisibility(ESlateVisibility::Collapsed);
     }
 }
@@ -364,7 +381,11 @@ void UMCUnifiedHubWidget::ApplyEditorPreview(float Time)
     Set(TEXT("HubV2SelectionStatus"),Localized(Travelling?TEXT("hub.loading"):Waiting?TEXT("hub.loading.players"):Guest?TEXT("hub.guest.hint"):TEXT("hub.selection.hint"),
         Travelling?LOCTEXT("Travelling","ЗАГРУЖАЕМ ДЕНЬ…"):Waiting?LOCTEXT("Waiting","Ждём загрузку остальных игроков…"):Guest?LOCTEXT("Guest","Хост выбирает день. ESC — меню."):LOCTEXT("Host","Выберите локацию. Вход — клик по выбранному рту или Enter. Назад — Esc.")));
     const FName Names[]={TEXT("HubV2OpenSelection"),TEXT("HubV2Launch"),TEXT("HubV2Return")};
-    for(int32 I=0;I<3;++I) if(auto* Button=WidgetTree->FindWidget<UMCUniversalUIWidget>(Names[I])) {Button->SetVisibility(Guest?ESlateVisibility::Collapsed:ESlateVisibility::Visible);Button->SetIsEnabled(!Travelling && (!Waiting || I==2));Button->ApplyTheme();}
+    for(int32 I=0;I<3;++I) if(auto* Button=WidgetTree->FindWidget<UMCUniversalUIWidget>(Names[I])) {
+        if(I==1) Button->Label=Localized(TEXT("hub.selection.start"),LOCTEXT("Launch","ENTER · НАЧАТЬ"));
+        else if(I==2) Button->Label=Localized(TEXT("hub.selection.cancel"),LOCTEXT("Return","ESC · ВЕРНУТЬСЯ В ХАБ"));
+        Button->SetVisibility(Guest?ESlateVisibility::Collapsed:ESlateVisibility::Visible);Button->SetIsEnabled(!Travelling && (!Waiting || I==2));Button->ApplyTheme();
+    }
     RefreshViewportLayout();PresentControlsPreview();
 }
 #undef LOCTEXT_NAMESPACE

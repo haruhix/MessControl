@@ -40,6 +40,8 @@
 #include "Styling/CoreStyle.h"
 #include "UObject/UnrealType.h"
 #include "Widgets/SWidget.h"
+#include "Widgets/Layout/SBox.h"
+#include "Widgets/Text/STextBlock.h"
 
 namespace MCMainMenuPrivate
 {
@@ -109,6 +111,25 @@ void UMCMainMenuActionButton::Configure(UMCMainMenuWidget* InMenu, EMCMainMenuAc
 void UMCMainMenuActionButton::Clicked()
 {
     if (Menu) Menu->HandleAction(Action);
+}
+
+void UMCMainMenuPicker::SetPresentationTextCentered(bool Centered)
+{
+    if(bCenterPresentationText==Centered) return;
+    bCenterPresentationText=Centered;
+    if(ComboBoxContent.IsValid()) {
+        DefaultComboBoxContent.Reset();
+        ComboBoxContent->SetContent(HandleGenerateWidget(CurrentOptionPtr));
+    }
+}
+
+TSharedRef<SWidget> UMCMainMenuPicker::HandleGenerateWidget(TSharedPtr<FString> Item) const
+{
+    if(!bCenterPresentationText || (!IsDesignTime() && OnGenerateWidgetEvent.IsBound()))
+        return Super::HandleGenerateWidget(Item);
+    return SNew(STextBlock)
+        .Text(FText::FromString(Item.IsValid()?*Item:FString()))
+        .Font(GetFont()).Justification(ETextJustify::Center).AutoWrapText(true);
 }
 
 void UMCMainMenuPicker::SetPresentationOptions(const TArray<FString>& InOptions,int32 SelectedIndex)

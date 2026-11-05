@@ -19,6 +19,8 @@
 
 #include "MCUnifiedTutorialWidget.h"
 #include "MCHubWardrobeWidget.h"
+#include "MCUnifiedWardrobeWidget.h"
+#include "Blueprint/WidgetTree.h"
 #include "MCHubShopWidget.h"
 #include "MCHubWidget.h"
 #include "MCPerkChoiceWidget.h"
@@ -515,4 +517,13 @@ void UMCUIPresentationSubsystem::ClosePanel(bool bRestoreInput)
     if(!bRestoreInput || !IsValid(PC) || PC->GetWorld()!=GetWorld()) return;
     if(auto* GamePC=Cast<AMCPlayerController>(PC)) GamePC->UpdateInputMode();
     else if(auto* MenuPC=Cast<AMCMainMenuPlayerController>(PC)) MenuPC->RestorePresentationInput();
+}
+
+bool UMCUIPresentationSubsystem::GetWardrobePreviewViewportRect(const APlayerController* Controller,FBox2D& OutRect) const
+{
+    OutRect=FBox2D(ForceInit);
+    if(UMCGameplayUIFactory::GetPresentationVersion()!=EMCUIVersion::New || !Controller || InterfaceOwner.Get()!=Controller
+        || !Interface || !Interface->IsVisible() || Interface->GetActiveScreen()!=EMCUnifiedUIScreen::Wardrobe || !Interface->WidgetTree) return false;
+    const auto* View=Interface->WidgetTree->FindWidget<UMCUnifiedWardrobeWidget>(TEXT("UnifiedWardrobe"));
+    return View && View->HasBoundBackend() && View->IsVisible() && View->GetPreviewViewportRect(Interface->GetPaintSpaceGeometry(),OutRect);
 }

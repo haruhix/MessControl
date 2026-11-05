@@ -27,6 +27,24 @@ enum class EMCUnifiedUIScreen : uint8
     Settings, Team, Reward, Frontend, GameplayMenu, Catch, HUDExtras, Loading, Boss, Alert, Tutorial, Emotes
 };
 
+/** One authored HUD rectangle in the 1778x1080 PSD coordinate system. */
+USTRUCT(BlueprintType)
+struct FMCUnifiedHUDLayoutMetric
+{
+    GENERATED_BODY()
+    /** Local Canvas position; viewport groups use an offset from Anchor. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Layout") FVector2D Position=FVector2D::ZeroVector;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Layout") FVector2D Size=FVector2D::ZeroVector;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Layout") FVector2D Anchor=FVector2D::ZeroVector;
+    /** Zero retains the authored font. Group scale applies to all text uniformly. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Layout",meta=(ClampMin="0")) int32 FontSize=0;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Shape") bool bOverrideShapeMetrics=false;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Shape",meta=(EditCondition="bOverrideShapeMetrics")) float CornerRadius=0;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Shape",meta=(EditCondition="bOverrideShapeMetrics")) float OutlineWidth=0;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Shape",meta=(EditCondition="bOverrideShapeMetrics")) FVector2D ShadowOffset=FVector2D::ZeroVector;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Shape",meta=(EditCondition="bOverrideShapeMetrics")) TArray<FVector2D> ContourPoints;
+};
+
 /** One editable root for the PSD interface, including screen selection in Designer. */
 UCLASS(Blueprintable)
 class MESSCONTROL_API UMCUnifiedUIWidget : public UMCGameplayUIWidget
@@ -52,6 +70,11 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Art") TSoftObjectPtr<UTexture2D> Logo;
     /** PSD tool artwork; perk icons remain owned by DT_Perks. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Art|Tools") TMap<FName,TSoftObjectPtr<UTexture2D>> ToolIconArt;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="HUD|PSD Layout") FVector2D HUDReferenceSize=FVector2D(1778,1080);
+    /** Named existing widgets remain editable; use this contract to apply the PSD reference rectangles. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="HUD|PSD Layout") TMap<FName,FMCUnifiedHUDLayoutMetric> HUDLayoutMetrics;
+    /** Explicit authoring action; runtime only reapplies metrics when their contract changes. */
+    UFUNCTION(BlueprintCallable,CallInEditor,Category="HUD|PSD Layout") void ApplyPSDGameplayLayout(bool bApplyStyleDefaults=true);
     UFUNCTION(BlueprintCallable, Category="Interface") void ShowScreen(EMCUnifiedUIScreen Screen);
     virtual void BuildPresentationTree() override;
     virtual void ApplyEditorPreview(float Time) override;
@@ -101,6 +124,7 @@ private:
     void EnsureGameplayControls();
     void EnsureAdditionalScreens();
     void RefreshAdaptiveLayout();
+    void RefreshHUDReferenceScale(FVector2D AvailableSize);
     void RefreshRuntimePresentation();
     TMap<FName,TWeakObjectPtr<UWidget>> HUDControls;
     TWeakObjectPtr<UMCMainMenuWidget> MenuBackend;
@@ -117,6 +141,10 @@ private:
     TWeakObjectPtr<UMCTutorialWidget> TutorialBackend;
     TWeakObjectPtr<UMCEmoteWidget> EmoteBackend;
     FString PreparedEmoteCorpus;
+    FVector2D LastHUDReferenceArea=FVector2D::ZeroVector;
+    uint32 LastHUDLayoutHash=0;
+    bool bHUDReferenceLayoutApplied=false;
+    bool bApplyingHUDReferenceLayout=false;
     float RefreshDelay=0.f;
     EMCUnifiedUIScreen ActiveScreen=EMCUnifiedUIScreen::Menu;
 };

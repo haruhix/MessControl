@@ -72,6 +72,7 @@ protected:
     virtual void NativeOnInitialized() override;
     virtual void NativeConstruct() override;
     virtual void NativeDestruct() override;
+    virtual void OnLocalizationChanged() override;
     virtual FReply NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event) override;
     UPROPERTY(meta=(BindWidgetOptional)) TObjectPtr<UBorder> ShopPanel;
     UPROPERTY(meta=(BindWidgetOptional)) TObjectPtr<UButton> ShopClose;
@@ -83,6 +84,11 @@ protected:
     UPROPERTY(meta=(BindWidgetOptional)) TObjectPtr<UUniformGridPanel> ShopCatalogGrid;
 private:
     void ResolveControls();
+    void RefreshTransactionCopy(bool bReplaceCurrent=false);
+    FText OriginalTransactionCopy;
+    FText AppliedTransactionCopy;
+    bool bOwnsTransactionCopy=false;
+    bool bAppliedTransactionCopy=false;
     void EnsureCatalogPresentation();
     void EnsureReplacementPresentation();
     void RequestPurchase(int32 Slot,FName ExpectedID,const FGuid& ExpectedInstance);

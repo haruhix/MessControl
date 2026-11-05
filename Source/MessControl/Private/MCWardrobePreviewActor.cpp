@@ -1,8 +1,10 @@
 #include "MCWardrobePreviewActor.h"
+#include "MCUIPresentationSubsystem.h"
+#include "Engine/GameInstance.h"
 
 #include "MCToothCharacter.h"
 #include "MCCharacterCosmeticsComponent.h"
-#include "MCCosmeticDeformation.h"
+#include "MCCosmeticFit.h"
 #include "MCFoodActor.h"
 #include "MCFoodCollectionComponent.h"
 #include "Camera/CameraTypes.h"
@@ -91,18 +93,11 @@ bool AMCWardrobePreviewActor::Prepare(APlayerController* Controller,AMCToothChar
         Part->SetCanEverAffectNavigation(false);Part->SetSimulatePhysics(false);Part->SetIsReplicated(false);
         Part->SetOnlyOwnerSee(true);Part->bCastHiddenShadow=false;Part->bUseAttachParentBound=false;
         Part->SetupAttachment(Body,Row->AttachBone);
-        FTransform Fit=Row->LocalTransform;
-        if(Row->bMeshSpaceFit) {
-            const auto& Ref=Source->GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
-            FTransform ReferenceBone=FTransform::Identity;
-            for(int32 Bone=Ref.FindBoneIndex(Row->AttachBone);Bone>=0;Bone=Ref.GetParentIndex(Bone))
-                ReferenceBone=ReferenceBone*Ref.GetRefBonePose()[Bone];
-            Fit=Fit.GetRelativeTransform(ReferenceBone);
-        }
+        const FTransform Fit=MCCosmeticFit::ResolveAttachmentTransform(Source->GetMesh()->GetSkeletalMeshAsset(),Row->AttachBone,Row->LocalTransform,Row->bMeshSpaceFit);
         Part->SetRelativeTransform(Fit);
         for(int32 Index=0;Index<Row->Materials.Num();++Index) if(Row->Materials[Index]) Part->SetMaterial(Index,Row->Materials[Index]);
         Part->SetVisibility(false);AddInstanceComponent(Part);Part->RegisterComponent();
-        MCCosmeticDeformation::Update(Part,Body);
+        MCCosmeticFit::UpdateDeformation(Part,Body);
         AccessoryParts.Add(ItemId,Part);
     }
     SetDraftColor(Source->GetPlayerColor());
@@ -188,7 +183,7 @@ void AMCWardrobePreviewActor::SetDraftLoadout(const FMCCharacterCosmeticLoadout&
     auto* Catalog=Source && Source->Cosmetics?Source->Cosmetics->GetCatalog():nullptr;
     FText Error;if(!Catalog || !UMCCosmeticCatalog::ValidateLoadout(Catalog,Loadout,Error)) return;
     for(auto& Entry:AccessoryParts) if(Entry.Value) {
-        MCCosmeticDeformation::Update(Entry.Value,Body);
+        MCCosmeticFit::UpdateDeformation(Entry.Value,Body);
         const auto* Row=UMCCosmeticCatalog::Find(Catalog,Entry.Key);
         Entry.Value->SetVisibility(Row && Loadout.ItemForSlot(Row->Slot)==Entry.Key);
     }
@@ -255,7 +250,7 @@ void AMCWardrobePreviewActor::Tick(float DeltaSeconds)
     if(!SourceCharacter.IsValid() || !LocalController.IsValid() || LocalController->GetPawn()!=SourceCharacter.Get()) {EndPresentation();return;}
     PoseSettleAge+=DeltaSeconds;
     if(!bSettledPoseCopied && PoseSettleAge>=.28f) {CopyDisplayPose();bSettledPoseCopied=true;}
-    for(auto& Entry:AccessoryParts) MCCosmeticDeformation::Update(Entry.Value,Body);
+    for(auto& Entry:AccessoryParts) MCCosmeticFit::UpdateDeformation(Entry.Value,Body);
     // Four players are cheap to scan; do it before every draw so a late join or newly attached tool cannot flash in the fitting view.
     HideRealPlayersForThisView();
 }
@@ -286,6 +281,52 @@ void AMCWardrobePreviewActor::CalcCamera(float DeltaTime,FMinimalViewInfo& OutRe
         }
     }
     const FBoxSphereBounds Bounds(VisualBox);
+    // The original display is shared; only New's camera framing consumes the
+    // actual panel reservation. Before a valid paint, keep the original camera.
+    FBox2D PreviewRect(ForceInit);
+    const auto* Instance=GetGameInstance();
+    const auto* UI=Instance?Instance->GetSubsystem<UMCUIPresentationSubsystem>():nullptr;
+    if(UI && UI->GetWardrobePreviewViewportRect(LocalController.Get(),PreviewRect)) {
+        const double ActualAspect=Height>0?FMath::Max(.01,double(Width)/Height):16./9.;
+        const FVector2D Middle=PreviewRect.GetCenter(),Extent=PreviewRect.GetExtent();
+        const double SafeX=Extent.X*2.*.80,SafeY=Extent.Y*2.*.80;
+        const double NdcX=Middle.X*2.-1.,NdcY=1.-Middle.Y*2.;
+        FRotator Facing=(-CameraFront).Rotation();Facing.Pitch=-4.5f;
+        const FQuat Orientation=Facing.Quaternion();
+        const FVector Forward=Orientation.GetAxisX(),Right=Orientation.GetAxisY(),Up=Orientation.GetAxisZ();
+        const FVector Center=Bounds.Origin;
+        double Distance=.5;
+        for(int32 Corner=0;Corner<8;++Corner) {
+            const FVector Point((Corner&1)?VisualBox.Max.X:VisualBox.Min.X,(Corner&2)?VisualBox.Max.Y:VisualBox.Min.Y,(Corner&4)?VisualBox.Max.Z:VisualBox.Min.Z);
+            const FVector Offset=Point-Center;const double Depth=FVector::DotProduct(Offset,Forward);
+            Distance=FMath::Max(Distance,FMath::Abs(FVector::DotProduct(Offset,Right))/(HalfTan*SafeX)-Depth);
+            Distance=FMath::Max(Distance,FMath::Abs(FVector::DotProduct(Offset,Up))*ActualAspect/(HalfTan*SafeY)-Depth);
+            Distance=FMath::Max(Distance,.25-Depth);
+        }
+        OutResult.Location=Center-Forward*Distance;OutResult.Rotation=Facing;
+        FCollisionQueryParams Query(SCENE_QUERY_STAT(MCWardrobeCamera),false,this);
+        for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) Query.AddIgnoredActor(*It);
+        FHitResult CameraBlock;
+        const float ModelHeight=FMath::Max(.5f,float(Bounds.BoxExtent.Z*2));
+        if(GetWorld()->SweepSingleByChannel(CameraBlock,Center,OutResult.Location,FQuat::Identity,ECC_Camera,
+            FCollisionShape::MakeSphere(FMath::Max(.25f,ModelHeight*.025f)),Query))
+            OutResult.Location=FMath::Lerp(Center,OutResult.Location,FMath::Clamp(CameraBlock.Time-.02f,.1f,1.f));
+        // A clipped camera ray may shorten distance. Widen only the optical FOV
+        // enough to retain the same safe screen rectangle, never scale the actor.
+        double RequiredTan=HalfTan;
+        for(int32 Corner=0;Corner<8;++Corner) {
+            const FVector Point((Corner&1)?VisualBox.Max.X:VisualBox.Min.X,(Corner&2)?VisualBox.Max.Y:VisualBox.Min.Y,(Corner&4)?VisualBox.Max.Z:VisualBox.Min.Z);
+            const FVector Offset=Point-OutResult.Location;const double Depth=FVector::DotProduct(Offset,Forward);
+            if(Depth<=.001) continue;
+            RequiredTan=FMath::Max(RequiredTan,FMath::Abs(FVector::DotProduct(Offset,Right))/(Depth*SafeX));
+            RequiredTan=FMath::Max(RequiredTan,FMath::Abs(FVector::DotProduct(Offset,Up))*ActualAspect/(Depth*SafeY));
+        }
+        OutResult.FOV=FMath::RadiansToDegrees(float(2.*FMath::Atan(RequiredTan)));
+        OutResult.AspectRatio=float(ActualAspect);OutResult.AspectRatioAxisConstraint=AspectRatio_MaintainXFOV;
+        OutResult.OffCenterProjectionOffset=FVector2D(-NdcX,-NdcY);
+        OutResult.bConstrainAspectRatio=false;OutResult.ProjectionMode=ECameraProjectionMode::Perspective;return;
+    }
+    OutResult.OffCenterProjectionOffset=FVector2D::ZeroVector;OutResult.AspectRatioAxisConstraint.Reset();
     // Hub avatars are scaled down. World-centimetre floors such as 80/250 would put the camera inside scenery.
     const float ModelHeight=FMath::Max(.5f,float(Bounds.BoxExtent.Z*2));
     const float HorizontalRadius=float(FMath::Abs(CameraFront.Y)*Bounds.BoxExtent.X+FMath::Abs(CameraFront.X)*Bounds.BoxExtent.Y);

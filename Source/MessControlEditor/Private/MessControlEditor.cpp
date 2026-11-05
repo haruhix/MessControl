@@ -1,5 +1,6 @@
 #include "MCFoodCollisionEditorLibrary.h"
 #include "MCGameplayUIPreview.h"
+#include "MCClothingFitDetails.h"
 #include "MCMainMenuPreview.h"
 #include "MCVFXComposer.h"
 #include "MCVFXRecipeComposer.h"
@@ -126,6 +127,7 @@ public:
     virtual void StartupModule() override
     {
         if(!IsEditorAuthoringSession()) return;
+        MCClothingFitDetails::Register();
         MCGameplayUIPreview::EnsureRegistered();
         MCMainMenuPreview::Register();
         MCVFXActionWorkspace::Register();
@@ -162,6 +164,7 @@ public:
         MCVFXComposer::Unregister();
         MCVFXRecipeComposer::Unregister();
         MCPerkActionPreviewPanel::Unregister();
+        MCClothingFitDetails::Unregister();
         MCGameplayUIPreview::Unregister();
         FTSTicker::GetCoreTicker().RemoveTicker(DebounceTicker);
         FTSTicker::GetCoreTicker().RemoveTicker(InitialLoadTicker);

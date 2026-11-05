@@ -10,6 +10,8 @@ class UVerticalBox;
 class UTextBlock;
 class UWrapBox;
 class USizeBox;
+class UUniformGridPanel;
+class UMCUIGridScrollBox;
 
 /** Supplemental PSD-family shapes. The existing HUD remains the sole gameplay/presentation-state owner. */
 UCLASS(Blueprintable)
@@ -21,6 +23,8 @@ public:
     void SetBackend(UMCGameplayHUD* Source);
     void PreparePresentation();
     bool IsPresentationPrepared() const {return bPrepared;}
+    /** Only the overflowing passive list accepts pointer scrolling in the HUD layer. */
+    bool HasPassiveOverflow() const {return bPassiveOverflow;}
     void RefreshFromBackend();
     virtual void BuildPresentationTree() override;
     virtual void ApplyTheme() override;
@@ -47,11 +51,16 @@ private:
     void EnsureSupplementalFlow();
     void ClearShapeLabels();
     void UpdatePassives(const TArray<FText>& Names);
+    UUniformGridPanel* EnsurePassiveList();
+    void UpdatePassiveLayout(float AvailableWidth);
+    void ApplyPassiveInputPolicy();
     void HideGroups();
     TWeakObjectPtr<UMCGameplayHUD> Backend;
     TArray<FText> LastPassiveNames;
     UPROPERTY(Transient) TArray<TObjectPtr<USizeBox>> PassiveRows;
     UPROPERTY(Transient) TArray<TObjectPtr<UTextBlock>> PassiveLabels;
+    UPROPERTY(Transient) TObjectPtr<UMCUIGridScrollBox> PassiveGridScroll;
+    bool bPassiveOverflow=false;
     FVector2D LastArea=FVector2D::ZeroVector;
     FString LastLayoutSignature;
     FText LastCriticalCopy;

@@ -72,6 +72,7 @@ bool UMCHubEconomyComponent::IsRealRun() const
 bool UMCHubEconomyComponent::LoadTables() const
 {
     if (!LoadedCatalog) LoadedCatalog=CatalogTable.LoadSynchronous();
+    if (!LoadedCosmetics) LoadedCosmetics=UMCCosmeticCatalog::GetDefaultCatalog();
     if (!LoadedRewards) LoadedRewards=GrillRewardsTable.LoadSynchronous();
     if (!LoadedRules) LoadedRules=RulesTable.LoadSynchronous();
     const bool TablesValid=LoadedCatalog && LoadedCatalog->GetRowStruct()==FMCHubCatalogRow::StaticStruct()
@@ -107,7 +108,35 @@ TArray<FName> UMCHubEconomyComponent::GetGrillSymbols() const
 }
 const FMCHubCatalogRow* UMCHubEconomyComponent::FindCatalogItem(FName ItemID) const
 {
-    return LoadTables() && !ItemID.IsNone()?LoadedCatalog->FindRow<FMCHubCatalogRow>(ItemID,TEXT("Hub catalog"),false):nullptr;
+    if(!LoadTables() || ItemID.IsNone()) return nullptr;
+    const auto* Legacy=LoadedCatalog->FindRow<FMCHubCatalogRow>(ItemID,TEXT("Hub catalog"),false);
+    // Existing non-clothing IDs keep their original source/validation, even if a malformed garment claims one.
+    if(Legacy && Legacy->Kind!=EMCHubCatalogKind::Cosmetic) return Legacy;
+    const FMCCosmeticCatalogRow* Clothing=nullptr;FName CosmeticId=NAME_None;
+    if(LoadedCosmetics && LoadedCosmetics->GetRowStruct()==FMCCosmeticCatalogRow::StaticStruct())
+        for(const auto& Pair:LoadedCosmetics->GetRowMap()) {
+            const auto* Candidate=reinterpret_cast<const FMCCosmeticCatalogRow*>(Pair.Value);
+            if(!Candidate || !Candidate->bUseCanonicalCommerce) continue;
+            if(UMCCosmeticCatalog::ShopItemIdForRow(Pair.Key,*Candidate)!=ItemID) continue;
+            // Ambiguous canonical purchase IDs must never debit/grant the wrong cosmetic.
+            if(Clothing) return nullptr;Clothing=Candidate;CosmeticId=Pair.Key;
+        }
+    if(!Clothing) {
+        // Once migrated, an obsolete Hub alias must not reintroduce independently editable old commerce fields.
+        const auto* Linked=Legacy && Legacy->Kind==EMCHubCatalogKind::Cosmetic?UMCCosmeticCatalog::Find(LoadedCosmetics,Legacy->CosmeticID):nullptr;
+        return Linked && Linked->bUseCanonicalCommerce?nullptr:Legacy;
+    }
+    if(Legacy && (Legacy->Kind!=EMCHubCatalogKind::Cosmetic || Legacy->CosmeticID!=CosmeticId)) return nullptr;
+    auto& Cached=EffectiveClothingOffers.FindOrAdd(ItemID);if(!Cached) Cached=MakeUnique<FMCHubCatalogRow>();
+    // Retain opaque legacy receipt metadata, then replace every clothing-commerce field from the one canonical row.
+    *Cached=Legacy?*Legacy:FMCHubCatalogRow();
+    Cached->bEnabled=Clothing->bEnabled;Cached->bInShop=Clothing->bInShop;Cached->Kind=EMCHubCatalogKind::Cosmetic;
+    Cached->DisplayName=Clothing->DisplayName;Cached->Description=Clothing->Description;
+    Cached->DisplayNameKey=Clothing->DisplayNameKey;Cached->DescriptionKey=Clothing->DescriptionKey;
+    Cached->Icon=Clothing->Icon;Cached->Rarity=Clothing->Rarity;Cached->Price=UMCCosmeticCatalog::EffectivePrice(*Clothing);
+    Cached->CosmeticID=CosmeticId;Cached->PerkID=NAME_None;Cached->ConsumableID=NAME_None;
+    Cached->Quantity=1;Cached->MaximumQueuedStacks=1;Cached->StockWeight=1.f;Cached->SortOrder=Clothing->SortOrder;
+    return Cached.Get();
 }
 bool UMCHubEconomyComponent::ResolvePerk(FName PerkID,FMCPerkDefinition& Definition) const
 {
@@ -126,8 +155,9 @@ bool UMCHubEconomyComponent::IsCatalogUsable(const FMCHubCatalogRow& Item,bool b
     if (!Item.bEnabled || Item.Price<0 || Item.Quantity<1 || Item.Quantity>32
         || !FMath::IsFinite(Item.StockWeight) || Item.StockWeight<=0 || Item.StockWeight>1000000) return false;
     if (Item.Kind==EMCHubCatalogKind::Cosmetic) {
-        const auto* Cosmetic=UMCCosmeticCatalog::Find(UMCCosmeticCatalog::GetDefaultCatalog(),Item.CosmeticID);
-        return Cosmetic && Cosmetic->bEnabled && Cosmetic->Mesh && Item.Quantity==1;
+        const auto* Cosmetic=UMCCosmeticCatalog::Find(LoadedCosmetics,Item.CosmeticID);FText CommerceError;
+        return Cosmetic && Cosmetic->bEnabled && Cosmetic->Mesh && Item.Quantity==1
+            && (!Cosmetic->bUseCanonicalCommerce || UMCCosmeticCatalog::ValidateCommerce(*Cosmetic,CommerceError));
     }
     // Retain the suspended calcium feature's old saved inventory; new consumables use PerkID.
     if (Item.Kind==EMCHubCatalogKind::Consumable && Item.PerkID.IsNone())
@@ -153,6 +183,9 @@ bool UMCHubEconomyComponent::FindCatalogEntry(FName ItemID,FMCHubEconomyCatalogE
     const auto* Row=FindCatalogItem(ItemID);
     if(!Row || !IsCatalogUsable(*Row)) return false;
     Entry=FMCHubEconomyCatalogEntry();Entry.ItemID=ItemID;Entry.Definition=*Row;
+    if(Row->Kind==EMCHubCatalogKind::Cosmetic) if(const auto* Clothing=UMCCosmeticCatalog::Find(LoadedCosmetics,Row->CosmeticID);Clothing && Clothing->bUseCanonicalCommerce) {
+        Entry.bCanonicalClothing=true;Entry.BasePrice=Clothing->BasePrice;Entry.DiscountPercent=Clothing->DiscountPercent;Entry.ShopAppearanceChance=Clothing->ShopAppearanceChance;
+    }
     FMCPerkDefinition Perk;
     if(Row->Kind!=EMCHubCatalogKind::Cosmetic && ResolvePerk(Row->PerkID,Perk)) {
         Entry.PerkKind=UMCPerkComponent::ResolvePerkKind(Perk,Row->PerkID);
@@ -166,7 +199,13 @@ TArray<FMCHubEconomyCatalogEntry> UMCHubEconomyComponent::GetCatalog() const
 {
     TArray<FMCHubEconomyCatalogEntry> Result;
     if (!LoadTables()) return Result;
-    for(FName ID:LoadedCatalog->GetRowNames()) {
+    TArray<FName> CatalogIds=LoadedCatalog->GetRowNames();
+    if(LoadedCosmetics && LoadedCosmetics->GetRowStruct()==FMCCosmeticCatalogRow::StaticStruct())
+        for(const auto& Pair:LoadedCosmetics->GetRowMap()) {
+            const auto* Clothing=reinterpret_cast<const FMCCosmeticCatalogRow*>(Pair.Value);
+            if(Clothing && Clothing->bUseCanonicalCommerce) CatalogIds.AddUnique(UMCCosmeticCatalog::ShopItemIdForRow(Pair.Key,*Clothing));
+        }
+    for(FName ID:CatalogIds) {
         FMCHubEconomyCatalogEntry Entry;
         if(FindCatalogEntry(ID,Entry) && Entry.Definition.bInShop) Result.Add(MoveTemp(Entry));
     }
@@ -175,7 +214,16 @@ TArray<FMCHubEconomyCatalogEntry> UMCHubEconomyComponent::GetCatalog() const
     });
     return Result;
 }
-bool UMCHubEconomyComponent::IsInShopStock(FName ItemID) const { return bShopStockGenerated && ShopStockIDs.Contains(ItemID); }
+bool UMCHubEconomyComponent::IsInShopStock(FName ItemID) const
+{
+    if(!bShopStockGenerated) return false;
+    const auto* Item=FindCatalogItem(ItemID);
+    if(Item && UsesCanonicalClothingStock(*Item)) {
+        const auto* Clothing=UMCCosmeticCatalog::Find(LoadedCosmetics,Item->CosmeticID);
+        return Clothing && Item->bInShop && IsCatalogUsable(*Item) && IsClothingInShopRotation(ItemID,*Clothing);
+    }
+    return ShopStockIDs.Contains(ItemID);
+}
 TArray<FMCHubEconomyCatalogEntry> UMCHubEconomyComponent::GetShopCatalog() const
 {
     TArray<FMCHubEconomyCatalogEntry> Result;
@@ -184,6 +232,25 @@ TArray<FMCHubEconomyCatalogEntry> UMCHubEconomyComponent::GetShopCatalog() const
         if(FindCatalogEntry(ID,Entry) && Entry.Definition.bInShop && Entry.Definition.Kind!=EMCHubCatalogKind::Cosmetic) Result.Add(MoveTemp(Entry));
     }
     return Result;
+}
+bool UMCHubEconomyComponent::UsesCanonicalClothingStock(const FMCHubCatalogRow& Item) const
+{
+    const auto* Clothing=Item.Kind==EMCHubCatalogKind::Cosmetic?UMCCosmeticCatalog::Find(LoadedCosmetics,Item.CosmeticID):nullptr;
+    return Clothing && Clothing->bUseCanonicalCommerce;
+}
+bool UMCHubEconomyComponent::IsClothingInShopRotation(FName ItemID,const FMCCosmeticCatalogRow& Clothing) const
+{
+    if(!bShopStockGenerated || !ShopRotationId.IsValid() || ItemID.IsNone() || !Clothing.bEnabled || !Clothing.bInShop) return false;
+    const float Chance=Clothing.ShopAppearanceChance;
+    if(!FMath::IsFinite(Chance) || Chance<=0.f) return false;
+    if(Chance>=1.f) return true;
+    // Separate derived membership: clothing IDs never enter the persisted booster stock.
+    // Retiring/remapping clothing cannot invalidate or reroll the original assortment.
+    // One stable Bernoulli per purchase ID; no shared stream or appearance cap.
+    const FString Identity=FString::Printf(TEXT("MCClothingStockV1:%s:%d:%s"),*ShopRotationId.ToString(EGuidFormats::Digits),ShopRotationSeed,*ItemID.ToString().ToLower());
+    const FTCHARToUTF8 Bytes(*Identity);FMD5 Hash;uint8 Digest[16];Hash.Update(reinterpret_cast<const uint8*>(Bytes.Get()),Bytes.Length());Hash.Final(Digest);
+    const uint32 Value=(uint32(Digest[0])<<24)|(uint32(Digest[1])<<16)|(uint32(Digest[2])<<8)|uint32(Digest[3]);
+    return double(Value)/4294967296.0<double(Chance);
 }
 bool UMCHubEconomyComponent::EnsureShopStock(const FGuid& RotationId,int32 Seed)
 {
@@ -315,7 +382,7 @@ bool UMCHubEconomyComponent::CanPurchase(FName ItemID,FText& Error) const
     Error=FText::GetEmpty();
     if(!IsGatheringHub()) {Error=LOCTEXT("HubOnly","Покупки доступны в хабе.");return false;}
     const auto* Item=FindCatalogItem(ItemID);
-    if(!Item || !Item->bInShop || !IsCatalogUsable(*Item) || (Item->Kind!=EMCHubCatalogKind::Cosmetic && !IsInShopStock(ItemID))) {
+    if(!Item || !Item->bInShop || !IsCatalogUsable(*Item) || ((Item->Kind!=EMCHubCatalogKind::Cosmetic || UsesCanonicalClothingStock(*Item)) && !IsInShopStock(ItemID))) {
         Error=LOCTEXT("Unavailable","Предмет отсутствует в текущем ассортименте.");return false;
     }
     if(!CanQueueItem(ItemID,*Item)) {Error=LOCTEXT("OwnedOrFull","Предмет уже подготовлен или запас заполнен.");return false;}

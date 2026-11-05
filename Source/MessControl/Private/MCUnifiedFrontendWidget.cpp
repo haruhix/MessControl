@@ -3,12 +3,20 @@
 #include "MCGameplayUIFactory.h"
 #include "MCUniversalUIWidget.h"
 #include "Blueprint/WidgetTree.h"
+#include "Rendering/SlateRenderer.h"
+#include "Framework/Application/SlateApplication.h"
+#include "Fonts/FontMeasure.h"
+#include "Components/OverlaySlot.h"
+#include "Components/Overlay.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Components/Button.h"
 #include "Components/ComboBoxString.h"
 #include "Components/EditableTextBox.h"
 #include "Components/ScrollBox.h"
 #include "Components/SizeBox.h"
+#include "Components/SizeBoxSlot.h"
+#include "Components/WrapBox.h"
+#include "Components/WrapBoxSlot.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
@@ -113,7 +121,7 @@ void UMCUnifiedFrontendWidget::BuildPresentationTree()
 {
     if(!WidgetTree) return;
     if(!Theme) Theme=UMCGameplayUIFactory::GetThemeForVersion(EMCUIVersion::New);
-    if(WidgetTree->RootWidget) {BindControls();return;}
+    if(WidgetTree->RootWidget) {UpdateResponsiveLayout();BindControls();return;}
     auto Shape=[&](FName Name,FLinearColor Fill,FMargin ContentInset,bool bButton=false) {
         auto* Value=WidgetTree->ConstructWidget<UMCUniversalUIWidget>(UMCUniversalUIWidget::StaticClass(),Name);
         Value->Kind=bButton?EMCUniversalUIKind::Button:EMCUniversalUIKind::Panel;Value->Label=FText::GetEmpty();
@@ -319,9 +327,96 @@ UWidget* UMCUnifiedFrontendWidget::GeneratePickerItem(FString Value)
     Label->SetAutoWrapText(true);Label->SetWrapTextAt(700);Label->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);Label->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);
     Label->SetColorAndOpacity(MCUnifiedFrontendPrivate_Navy);if(GetResolvedTheme()) Label->SetFont(GetResolvedTheme()->MakeFont(22,true));return Label;
 }
+void UMCUnifiedFrontendWidget::UpdateResponsiveLayout(FVector2D AvailableSize)
+{
+    if(!WidgetTree) return;
+    auto* RootBounds=WidgetTree->FindWidget<USizeBox>(TEXT("FrontendDesignBounds"));
+    auto* Outer=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("FrontendOuter"));
+    auto* Inner=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("FrontendInner"));
+    auto* Viewport=WidgetTree->FindWidget<USizeBox>(TEXT("FrontendScrollBounds"));
+    auto* Pages=WidgetTree->FindWidget<UWidgetSwitcher>(TEXT("FrontendPages"));
+    if(!RootBounds || !Outer || !Inner || !Viewport || !Pages) return;
+    if(WidgetTree->RootWidget==RootBounds) {
+        auto* AlignmentRoot=WidgetTree->ConstructWidget<UOverlay>(UOverlay::StaticClass(),TEXT("FrontendAlignmentRoot"));
+        WidgetTree->RootWidget=AlignmentRoot;auto* AlignedCell=AlignmentRoot->AddChildToOverlay(RootBounds);
+        AlignedCell->SetHorizontalAlignment(HAlign_Center);AlignedCell->SetVerticalAlignment(VAlign_Center);
+    }
+    RootBounds->ClearMinDesiredWidth();RootBounds->ClearMinDesiredHeight();Viewport->ClearMinDesiredHeight();
+    if(auto* StackCell=Cast<USizeBoxSlot>(RootBounds->GetContent()?RootBounds->GetContent()->Slot:nullptr)) StackCell->SetVerticalAlignment(VAlign_Center);
+    if(auto* OuterCell=Cast<UVerticalBoxSlot>(Outer->Slot)) OuterCell->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+    auto* FixedContent=WidgetTree->FindWidget<UVerticalBox>(TEXT("FrontendFixedContent"));
+    if(!FixedContent) {
+        FixedContent=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("FrontendFixedContent"));
+        Pages->RemoveFromParent();FixedContent->AddChildToVerticalBox(Pages)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+        if(auto* Status=WidgetTree->FindWidget(TEXT("FrontendStatus"))) {Status->RemoveFromParent();FixedContent->AddChildToVerticalBox(Status)->SetPadding(FMargin(0,12,0,0));}
+        Viewport->SetContent(FixedContent); // Detach the old whole-modal Scroll without deleting it.
+    }
+    for(int32 Index=0;Index<5;++Index) {
+        const auto Page=EMCUnifiedFrontendPage(Index);const FString Prefix=FString::Printf(TEXT("Frontend%sResponsive"),MCUnifiedFrontendPrivate_PageName(Page));
+        auto* PageRoot=WidgetTree->FindWidget<UVerticalBox>(FName(*FString::Printf(TEXT("Frontend%sPage"),MCUnifiedFrontendPrivate_PageName(Page))));if(!PageRoot) continue;
+        auto* BodyBounds=WidgetTree->FindWidget<USizeBox>(FName(*(Prefix+TEXT("BodyBounds"))));
+        if(!BodyBounds) {
+            BodyBounds=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),FName(*(Prefix+TEXT("BodyBounds"))));
+            auto* BodyScroll=WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(),FName(*(Prefix+TEXT("BodyScroll"))));
+            BodyScroll->SetAllowOverscroll(false);BodyScroll->SetScrollBarVisibility(ESlateVisibility::Visible);BodyScroll->SetScrollWhenFocusChanges(EScrollWhenFocusChanges::AnimatedScroll);BodyScroll->SetNavigationDestination(EDescendantScrollDestination::IntoView);
+            auto* Body=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),FName(*(Prefix+TEXT("Body"))));BodyScroll->AddChild(Body);BodyBounds->SetContent(BodyScroll);
+            auto* Footer=WidgetTree->ConstructWidget<UWrapBox>(UWrapBox::StaticClass(),FName(*(Prefix+TEXT("Footer"))));Footer->SetExplicitWrapSize(true);Footer->SetInnerSlotPadding({12,10});Footer->SetHorizontalAlignment(HAlign_Center);
+            // Existing named row/control objects and their source-page bindings survive.
+            for(const auto& Item:MCUnifiedFrontendPrivate_Items) if(Item.Page==Page)
+                if(auto* Row=WidgetTree->FindWidget<USizeBox>(MCUnifiedFrontendPrivate_RowName(MCUnifiedFrontendPrivate_ViewName(Item)))) {
+                    Row->RemoveFromParent();
+                    if(Item.bHeading) PageRoot->AddChildToVerticalBox(Row)->SetPadding(FMargin(2,5,8,17));
+                    else if(Item.Kind==MCUnifiedFrontendPrivate_Action) Footer->AddChildToWrapBox(Row);
+                    else Body->AddChildToVerticalBox(Row)->SetPadding(FMargin(2,4,8,11));
+                }
+            PageRoot->AddChildToVerticalBox(BodyBounds)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
+            PageRoot->AddChildToVerticalBox(Footer)->SetPadding(FMargin(2,12,8,4));
+        }
+    }
+    if(AvailableSize.X<=1 || AvailableSize.Y<=1) AvailableSize=GetPaintSpaceGeometry().GetLocalSize();
+    if(AvailableSize.X<=1 || AvailableSize.Y<=1) return;
+    const int32 ActivePage=Pages->GetActiveWidgetIndex();float PreferredWidth=ActivePage>=3?520.f:640.f;
+    if(FSlateApplication::IsInitialized()) {
+        const auto Measure=FSlateApplication::Get().GetRenderer()->GetFontMeasureService();
+        for(const auto& Item:MCUnifiedFrontendPrivate_Items) if(int32(Item.Page)==ActivePage && (Item.bHeading || Item.Kind==MCUnifiedFrontendPrivate_Action)) {
+            const FName CopyName=Item.Kind==MCUnifiedFrontendPrivate_Action?FName(*(MCUnifiedFrontendPrivate_ViewName(Item).ToString()+TEXT("Caption"))):MCUnifiedFrontendPrivate_ViewName(Item);
+            if(const auto* Caption=WidgetTree->FindWidget<UTextBlock>(CopyName)) PreferredWidth=FMath::Max(PreferredWidth,float(Measure->Measure(Caption->GetText(),Caption->GetFont()).X)+(Item.bHeading?112.f:156.f));
+        }
+    }
+    const float ViewWidth=FMath::Max(1.f,FMath::Min(FMath::Min(1000.f,PreferredWidth),float(AvailableSize.X)-14.f)),ViewHeight=FMath::Max(1.f,float(AvailableSize.Y)-16.f);
+    RootBounds->SetWidthOverride(ViewWidth);RootBounds->SetMaxDesiredWidth(ViewWidth);RootBounds->SetHeightOverride(ViewHeight);RootBounds->SetMaxDesiredHeight(ViewHeight);
+    const float InnerWidth=FMath::Max(1.f,ViewWidth-Outer->ContentPadding.Left-Outer->ContentPadding.Right-Inner->ContentPadding.Left-Inner->ContentPadding.Right-8.f);
+    float Chrome=Outer->ContentPadding.Top+Outer->ContentPadding.Bottom+Inner->ContentPadding.Top+Inner->ContentPadding.Bottom+27.f;
+    if(auto* Context=WidgetTree->FindWidget(TEXT("FrontendContextBadge"));Context && Context->GetVisibility()!=ESlateVisibility::Collapsed) Chrome+=float(Context->GetDesiredSize().Y);
+    if(auto* Status=WidgetTree->FindWidget<UTextBlock>(TEXT("FrontendStatus"))) {
+        Status->SetAutoWrapText(false);Status->SetWrapTextAt(InnerWidth);Status->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
+        if(Status->GetVisibility()!=ESlateVisibility::Collapsed) Chrome+=float(Status->GetDesiredSize().Y)+12.f;
+    }
+    Viewport->SetMaxDesiredHeight(FMath::Max(1.f,ViewHeight-Chrome+Inner->ContentPadding.Top+Inner->ContentPadding.Bottom));
+    for(int32 Index=0;Index<5;++Index) {
+        const auto Page=EMCUnifiedFrontendPage(Index);const FString Prefix=FString::Printf(TEXT("Frontend%sResponsive"),MCUnifiedFrontendPrivate_PageName(Page));
+        auto* Footer=WidgetTree->FindWidget<UWrapBox>(FName(*(Prefix+TEXT("Footer"))));if(Footer) Footer->SetWrapSize(InnerWidth);
+        float HeadingHeight=0;
+        for(const auto& Item:MCUnifiedFrontendPrivate_Items) if(Item.Page==Page)
+            if(auto* Row=WidgetTree->FindWidget<USizeBox>(MCUnifiedFrontendPrivate_RowName(MCUnifiedFrontendPrivate_ViewName(Item)))) {
+                Row->SetMaxDesiredWidth(Item.Kind==MCUnifiedFrontendPrivate_Action?FMath::Min(440.f,InnerWidth):InnerWidth);
+                if(Item.bHeading) HeadingHeight+=float(Row->GetDesiredSize().Y)+22.f;
+                const FName CopyName=Item.Kind==MCUnifiedFrontendPrivate_Action?FName(*(MCUnifiedFrontendPrivate_ViewName(Item).ToString()+TEXT("Caption"))):MCUnifiedFrontendPrivate_ViewName(Item);
+                if(auto* Caption=WidgetTree->FindWidget<UTextBlock>(CopyName)) {
+                    Caption->SetAutoWrapText(false);Caption->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
+                    Caption->SetWrapTextAt(FMath::Max(1.f,(Item.Kind==MCUnifiedFrontendPrivate_Action?FMath::Min(440.f,InnerWidth)-44.f:InnerWidth)));
+                }
+            }
+        if(auto* BodyBounds=WidgetTree->FindWidget<USizeBox>(FName(*(Prefix+TEXT("BodyBounds"))))) {
+            const float FooterHeight=Footer?float(Footer->GetDesiredSize().Y)+16.f:16.f;
+            BodyBounds->ClearMinDesiredHeight();BodyBounds->SetMaxDesiredHeight(FMath::Max(1.f,ViewHeight-Chrome-HeadingHeight-FooterHeight));
+        }
+    }
+}
 void UMCUnifiedFrontendWidget::RefreshTextBounds()
 {
     if(!WidgetTree) return;
+    UpdateResponsiveLayout();
     for(const auto& Item:MCUnifiedFrontendPrivate_Items) if(Item.Kind==MCUnifiedFrontendPrivate_Action) if(auto* Button=WidgetTree->FindWidget<UMCUniversalUIWidget>(MCUnifiedFrontendPrivate_ViewName(Item)))
         if(auto* Caption=WidgetTree->FindWidget<UTextBlock>(FName(*(MCUnifiedFrontendPrivate_ViewName(Item).ToString()+TEXT("Caption"))))) {
             const float Width=float(Button->GetCachedGeometry().GetLocalSize().X);
@@ -335,7 +430,7 @@ void UMCUnifiedFrontendWidget::ApplyTheme()
         const FName Name=Item.Kind==MCUnifiedFrontendPrivate_Action?FName(*(MCUnifiedFrontendPrivate_ViewName(Item).ToString()+TEXT("Caption"))):MCUnifiedFrontendPrivate_ViewName(Item);
         if(auto* Label=WidgetTree->FindWidget<UTextBlock>(Name)) Label->SetFont(GetResolvedTheme()->MakeFont(Item.bHeading?30:Item.Kind==MCUnifiedFrontendPrivate_Action?24:21,true));
     }
-    if(HasBoundBackend()) RefreshFromBackend();
+    if(HasBoundBackend()) RefreshFromBackend();UpdateResponsiveLayout();
 }
 void UMCUnifiedFrontendWidget::ApplyPreviewFixture()
 {
@@ -373,13 +468,13 @@ void UMCUnifiedFrontendWidget::ApplyPreviewFixture()
 void UMCUnifiedFrontendWidget::ApplyEditorPreview(float Time)
 {
     // No backend/actors, settings, sessions, travel or RPCs are used for this fixture.
-    Backend.Reset();bEditorFixture=true;BuildPresentationTree();Super::ApplyEditorPreview(Time);ApplyPreviewFixture();
+    Backend.Reset();bEditorFixture=true;BuildPresentationTree();Super::ApplyEditorPreview(Time);ApplyPreviewFixture();UpdateResponsiveLayout();
 }
 void UMCUnifiedFrontendWidget::NativeConstruct() {Super::NativeConstruct();BindControls();if(HasBoundBackend()) RefreshFromBackend();}
 void UMCUnifiedFrontendWidget::NativeDestruct() {UnbindControls();Super::NativeDestruct();}
 void UMCUnifiedFrontendWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
-    Super::NativeTick(Geometry,DeltaSeconds);RefreshTextBounds();RefreshElapsed+=DeltaSeconds;
+    Super::NativeTick(Geometry,DeltaSeconds);UpdateResponsiveLayout(Geometry.GetLocalSize());RefreshTextBounds();RefreshElapsed+=DeltaSeconds;
     if(RefreshElapsed>=.1f) {RefreshElapsed=0;if(HasBoundBackend()) RefreshFromBackend();}
 }
 void UMCUnifiedFrontendWidget::OnLocalizationChanged()

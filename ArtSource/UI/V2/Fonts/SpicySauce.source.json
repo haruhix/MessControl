@@ -1,0 +1,13 @@
+{
+  "family": "Spicy Sauce",
+  "postScriptName": "SpicySauce-Regular",
+  "author": "Resource Boy",
+  "authorPage": "https://resourceboy.com/fonts/spicy-sauce-font/",
+  "distributionPage": "https://www.1001fonts.com/spicy-sauce-font.html",
+  "download": "https://www.1001fonts.com/download/spicy-sauce.zip",
+  "license": "SIL Open Font License 1.1; retained in OFL.txt",
+  "master": "Spicy Sauce.ttf",
+  "sha256": "793652bff2fd7c75822a6bedccf854cf85ddec4472cc861a7135c00dc6608cdd",
+  "purpose": "The original PSD's display headings only. LeFunFont remains the UI copy face.",
+  "localization": "No Cyrillic, CJK or accented Latin in this face. F_UI_Display inherits the existing universal composite font outside the verified cmap ranges."
+}

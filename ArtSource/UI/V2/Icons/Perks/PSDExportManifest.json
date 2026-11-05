@@ -1,0 +1,443 @@
+{
+  "source": "D:\\sda\\visua2.psd",
+  "documentID": 63,
+  "savedBefore": false,
+  "savedAfter": false,
+  "activeLayerBefore": 81,
+  "activeLayerAfter": 81,
+  "method": "27exactglyphlayers from owned duplicate; originals untouched; transparent glyph-only PNGs",
+  "exported": [
+    {
+      "layerID": 338,
+      "layerName": "thinder god",
+      "sourceBounds": [
+        4444,
+        2417,
+        4633,
+        2550
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L338.png",
+      "size": [
+        189,
+        133
+      ],
+      "atlasSlot": 1
+    },
+    {
+      "layerID": 336,
+      "layerName": "Слой 5",
+      "sourceBounds": [
+        4658,
+        2420,
+        4830,
+        2556
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L336.png",
+      "size": [
+        172,
+        136
+      ],
+      "atlasSlot": 2
+    },
+    {
+      "layerID": 339,
+      "layerName": "Слой 3 копия",
+      "sourceBounds": [
+        4858,
+        2406,
+        5032,
+        2558
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L339.png",
+      "size": [
+        174,
+        152
+      ],
+      "atlasSlot": 3
+    },
+    {
+      "layerID": 341,
+      "layerName": "Слой 7",
+      "sourceBounds": [
+        5061,
+        2425,
+        5243,
+        2540
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L341.png",
+      "size": [
+        182,
+        115
+      ],
+      "atlasSlot": 4
+    },
+    {
+      "layerID": 345,
+      "layerName": "Слой 9",
+      "sourceBounds": [
+        5291,
+        2424,
+        5434,
+        2537
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L345.png",
+      "size": [
+        143,
+        113
+      ],
+      "atlasSlot": 5
+    },
+    {
+      "layerID": 347,
+      "layerName": "Слой 10",
+      "sourceBounds": [
+        5483,
+        2420,
+        5655,
+        2545
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L347.png",
+      "size": [
+        172,
+        125
+      ],
+      "atlasSlot": 6
+    },
+    {
+      "layerID": 419,
+      "layerName": "Слой 11",
+      "sourceBounds": [
+        4460,
+        2634,
+        4620,
+        2757
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L419.png",
+      "size": [
+        160,
+        123
+      ],
+      "atlasSlot": 7
+    },
+    {
+      "layerID": 421,
+      "layerName": "Слой 12",
+      "sourceBounds": [
+        4685,
+        2631,
+        4839,
+        2767
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L421.png",
+      "size": [
+        154,
+        136
+      ],
+      "atlasSlot": 8
+    },
+    {
+      "layerID": 428,
+      "layerName": "Слой 13",
+      "sourceBounds": [
+        4864,
+        2642,
+        5034,
+        2745
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L428.png",
+      "size": [
+        170,
+        103
+      ],
+      "atlasSlot": 9
+    },
+    {
+      "layerID": 434,
+      "layerName": "Слой 14",
+      "sourceBounds": [
+        5063,
+        2640,
+        5247,
+        2753
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L434.png",
+      "size": [
+        184,
+        113
+      ],
+      "atlasSlot": 10
+    },
+    {
+      "layerID": 436,
+      "layerName": "Слой 15",
+      "sourceBounds": [
+        5282,
+        2626,
+        5450,
+        2765
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L436.png",
+      "size": [
+        168,
+        139
+      ],
+      "atlasSlot": 11
+    },
+    {
+      "layerID": 438,
+      "layerName": "Слой 16",
+      "sourceBounds": [
+        5501,
+        2631,
+        5635,
+        2764
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L438.png",
+      "size": [
+        134,
+        133
+      ],
+      "atlasSlot": 12
+    },
+    {
+      "layerID": 482,
+      "layerName": "Слой 17",
+      "sourceBounds": [
+        4450,
+        2824,
+        4622,
+        2959
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L482.png",
+      "size": [
+        172,
+        135
+      ],
+      "atlasSlot": 13
+    },
+    {
+      "layerID": 484,
+      "layerName": "Слой 18",
+      "sourceBounds": [
+        4643,
+        2819,
+        4838,
+        2968
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L484.png",
+      "size": [
+        195,
+        149
+      ],
+      "atlasSlot": 14
+    },
+    {
+      "layerID": 486,
+      "layerName": "Слой 19",
+      "sourceBounds": [
+        4871,
+        2818,
+        5025,
+        2960
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L486.png",
+      "size": [
+        154,
+        142
+      ],
+      "atlasSlot": 15
+    },
+    {
+      "layerID": 489,
+      "layerName": "Слой 20",
+      "sourceBounds": [
+        5067,
+        2833,
+        5246,
+        2944
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L489.png",
+      "size": [
+        179,
+        111
+      ],
+      "atlasSlot": 16
+    },
+    {
+      "layerID": 490,
+      "layerName": "Слой 4 копия",
+      "sourceBounds": [
+        5284,
+        2820,
+        5428,
+        2973
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L490.png",
+      "size": [
+        144,
+        153
+      ],
+      "atlasSlot": 17
+    },
+    {
+      "layerID": 517,
+      "layerName": "BIG BRUSH",
+      "sourceBounds": [
+        4391,
+        3005,
+        4625,
+        3228
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L517.png",
+      "size": [
+        234,
+        223
+      ],
+      "atlasSlot": 18
+    },
+    {
+      "layerID": 519,
+      "layerName": "Слой 21",
+      "sourceBounds": [
+        4540,
+        3016,
+        4854,
+        3266
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L519.png",
+      "size": [
+        314,
+        250
+      ],
+      "atlasSlot": 19
+    },
+    {
+      "layerID": 522,
+      "layerName": "Слой 22",
+      "sourceBounds": [
+        4792,
+        3035,
+        5038,
+        3180
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L522.png",
+      "size": [
+        246,
+        145
+      ],
+      "atlasSlot": 20
+    },
+    {
+      "layerID": 524,
+      "layerName": "Слой 23",
+      "sourceBounds": [
+        4953,
+        3022,
+        5234,
+        3179
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L524.png",
+      "size": [
+        281,
+        157
+      ],
+      "atlasSlot": 21
+    },
+    {
+      "layerID": 526,
+      "layerName": "Слой 24",
+      "sourceBounds": [
+        5271,
+        3051,
+        5435,
+        3165
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L526.png",
+      "size": [
+        164,
+        114
+      ],
+      "atlasSlot": 22
+    },
+    {
+      "layerID": 530,
+      "layerName": "Слой 25",
+      "sourceBounds": [
+        5477,
+        3025,
+        5643,
+        3160
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L530.png",
+      "size": [
+        166,
+        135
+      ],
+      "atlasSlot": 23
+    },
+    {
+      "layerID": 560,
+      "layerName": "Слой 26",
+      "sourceBounds": [
+        4461,
+        3256,
+        4604,
+        3392
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L560.png",
+      "size": [
+        143,
+        136
+      ],
+      "atlasSlot": 24
+    },
+    {
+      "layerID": 562,
+      "layerName": "Слой 27",
+      "sourceBounds": [
+        4685,
+        3251,
+        4804,
+        3399
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L562.png",
+      "size": [
+        119,
+        148
+      ],
+      "atlasSlot": 25
+    },
+    {
+      "layerID": 566,
+      "layerName": "Слой 29",
+      "sourceBounds": [
+        4778,
+        3267,
+        5031,
+        3402
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L566.png",
+      "size": [
+        253,
+        135
+      ],
+      "atlasSlot": 26
+    },
+    {
+      "layerID": 564,
+      "layerName": "Слой 28",
+      "sourceBounds": [
+        5073,
+        3256,
+        5218,
+        3399
+      ],
+      "file": "E:/DEVGAME/MessControl/ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L564.png",
+      "size": [
+        145,
+        143
+      ],
+      "atlasSlot": 27
+    }
+  ]
+}

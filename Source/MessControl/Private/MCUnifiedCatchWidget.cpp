@@ -118,7 +118,7 @@ UTextBlock* UMCUnifiedCatchWidget::MakeText(FName Name,int32 FontSize,FLinearCol
 {
     auto* Text=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);
     Text->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);Text->SetAutoWrapText(false);Text->SetWrapTextAt(600);
-    Text->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);Text->SetJustification(ETextJustify::Center);
+    Text->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);Text->SetJustification(ETextJustify::Center);
     Text->SetColorAndOpacity(Color);Text->SetVisibility(ESlateVisibility::HitTestInvisible);
     if(auto* T=GetResolvedTheme()) Text->SetFont(T->MakeFont(FontSize,true));return Text;
 }

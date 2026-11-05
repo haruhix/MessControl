@@ -55,6 +55,8 @@ class MESSCONTROL_API UMCUnifiedTeamWidget : public UMCGameplayUIWidget
     GENERATED_BODY()
 public:
     UMCUnifiedTeamWidget();
+    /** PSD heading face only; ordinary player/voice text keeps the shared body font. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Appearance|Typography") FSlateFontInfo TeamTitleFont;
     virtual void BuildPresentationTree() override;
     virtual void ApplyTheme() override;
     virtual void ApplyEditorPreview(float Time) override;
@@ -64,10 +66,14 @@ public:
     void FocusVoiceControls();
     void RequestClose();
 protected:
+    virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
     virtual FReply NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event) override;
     virtual FReply NativeOnKeyUp(const FGeometry& Geometry,const FKeyEvent& Event) override;
     virtual void OnLocalizationChanged() override;
 private:
+    void EnsureRowsViewport();
+    void UpdateLayout();
+    FVector2D LastLayoutViewport=FVector2D::ZeroVector;
     void CacheControls();
     void PresentEntries(const TArray<FMCScoreboardEntry>& Entries,bool bHub);
     void RefreshHubControls();

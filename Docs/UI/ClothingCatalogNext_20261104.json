@@ -1,9 +1,11 @@
 {
   "date": "2026-11-04",
   "title": "Каталог одежды — после полного завершения интерфейса",
-  "status": "queued_requirements_only",
-  "implementationStarted": false,
-  "tableCreated": false,
+  "status": "implemented_partial_validation_20261105",
+  "implementationStarted": true,
+  "tableCreated": true,
+  "currentEvidence": "Docs/UI/UIPSDReview_20261105.json",
+  "statusCorrection": "Fresh live read on 2026-11-05 confirms the existing canonical table with 10 rows and working selected-row fitting preview. This file retains the original requirements; it is no longer a pending implementation queue.",
   "startAfter": "Завершить переделку всего интерфейса. Эта очередь не меняет порядок текущей UI-задачи.",
   "source": "Последнее явное требование пользователя, записанное как отдельная следующая задача.",
   "fields": [
@@ -56,7 +58,7 @@
     "sourceFidelity": "Использовать настоящий mesh и его реальные attachments/сокеты/трансформы; не подменять примерку рисунком или приблизительным другим мешем.",
     "ownership": "Превью не должно само выдавать владение, покупать или менять сохранённую экипировку."
   },
-  "deferredImplementationDetails": "Правила округления computedCost, хранения процента/шанса и конкретная схема данных будут определены при выполнении этой следующей задачи, совместно с существующей экономикой.",
-  "scopeGuard": "Сейчас не создавать DataTable/ассеты/код, не менять текущие цены, владение, ассортимент или DT_Perks.Icon.",
+  "deferredImplementationDetails": "Стоимость уже вычисляется общей EffectivePrice с округлением вниз; скидка 0–100, шанс 0–1. Оставшаяся проверка перечислена в currentEvidence.",
+  "scopeGuard": "Продолжать существующие DT_CharacterCosmetics и примерку; не создавать повторный каталог и не менять DT_Perks.Icon.",
   "relatedUIReport": "Docs/UI/UICommerce_20261104.json"
 }

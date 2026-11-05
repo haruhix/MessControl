@@ -8,6 +8,7 @@ class UMCCosmeticItemWidget;
 class UMCUniversalUIWidget;
 class UImage;
 class UTextBlock;
+class USizeBox;
 class UMCUnifiedWardrobeWidget;
 
 UENUM()
@@ -39,6 +40,8 @@ struct FMCUnifiedWardrobeTile
     UPROPERTY(Transient) TObjectPtr<UImage> Icon;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> Fallback;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> Price;
+    UPROPERTY(Transient) TObjectPtr<USizeBox> IconBounds;
+    UPROPERTY(Transient) TObjectPtr<USizeBox> Bounds;
 };
 
 /** Retained runtime-only action adapter; stable identity survives source catalogue refresh. */
@@ -71,6 +74,8 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Art|Cosmetics") TMap<FName,TSoftObjectPtr<UTexture2D>> CosmeticIconArt;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Preview") FName PreviewCosmeticID=TEXT("Hat_Head_CowboyHat");
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Appearance") bool bAdaptHeaderContour=true;
+    /** Display face for the PSD title only; ordinary copy retains the shared composite font. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Appearance|Typography") FSlateFontInfo WardrobeTitleFont;
     virtual void BuildPresentationTree() override;
     virtual void ApplyEditorPreview(float Time) override;
     virtual void ApplyTheme() override;
@@ -79,7 +84,12 @@ public:
     bool HasBoundBackend() const {return Backend.IsValid();}
     UWidget* GetDefaultFocusTarget() const;
     void RequestBack();
+    /** Bounded viewport layout; also called by actor-free preview's second layout pass. */
+    void RefreshAdaptiveLayout();
+    /** Read actual opaque panel geometry in the root viewport paint coordinate system. */
+    bool GetPreviewViewportRect(const FGeometry& ViewportPaint,FBox2D& OutRect) const;
 protected:
+    virtual TSharedRef<SWidget> RebuildWidget() override;
     virtual void NativeConstruct() override;
     virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
     virtual FReply NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event) override;
@@ -101,4 +111,13 @@ private:
     UPROPERTY(Transient) TArray<TObjectPtr<UMCUnifiedWardrobeBinding>> Bindings;
     FName SelectedSlot,SelectedItem;
     bool bSynchronizing=false;
+    bool bRefreshingAdaptiveLayout=false;
+    bool bAdaptiveTreeReady=false;
+    FVector2D LastAdaptiveSize=FVector2D::ZeroVector;
+    FVector2D LastAdaptiveGridSize=FVector2D::ZeroVector;
+    FVector2D TickLayoutSize=FVector2D::ZeroVector;
+    FString LastAdaptiveCopy;
+    int32 LastAdaptiveTileCount=INDEX_NONE;
+    bool bLastPaletteExpanded=false;
+    bool EnsureAdaptiveTree();
 };

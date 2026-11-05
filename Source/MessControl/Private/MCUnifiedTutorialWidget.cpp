@@ -90,26 +90,20 @@ namespace MCUnifiedTutorialPrivate
         if(!Column || !Header || !Instruction || !Scroll || !Body || !Actions) return false;
         auto* Content=Tree->FindWidget<UVerticalBox>(TEXT("TutorialV2ScrollableContent"));
         auto* Viewport=Tree->FindWidget<USizeBox>(TEXT("TutorialV2ContentViewport"));
-        if(Content && Viewport) return Content->GetParent()==Scroll && Scroll->GetParent()==Viewport && Viewport->GetParent()==Column;
-        // Upgrade only the known authored V2 arrangement, retaining every content/control object.
-        // Unknown artist containers and same-named wrong types are left intact.
-        if(Content || Viewport || Tree->FindWidget(TEXT("TutorialV2ScrollableContent")) || Tree->FindWidget(TEXT("TutorialV2ContentViewport"))
-            || Header->GetParent()!=Column || Instruction->GetParent()!=Column || Scroll->GetParent()!=Column || Actions->GetParent()!=Column
-            || Body->GetParent()!=Scroll || Column->GetChildrenCount()!=4 || Scroll->GetChildrenCount()!=1) return false;
-        const auto* HeaderCell=Cast<UVerticalBoxSlot>(Header->Slot);const auto* InstructionCell=Cast<UVerticalBoxSlot>(Instruction->Slot);
-        const auto* ActionsCell=Cast<UVerticalBoxSlot>(Actions->Slot);
-        const FMargin HeaderInset=HeaderCell?HeaderCell->GetPadding():FMargin(0,0,0,10);
-        const FMargin InstructionInset=InstructionCell?InstructionCell->GetPadding():FMargin(0,0,0,10);
-        const FMargin ActionsInset=ActionsCell?ActionsCell->GetPadding():FMargin(0,12,0,0);
-        Header->RemoveFromParent();Instruction->RemoveFromParent();Body->RemoveFromParent();Scroll->RemoveFromParent();Actions->RemoveFromParent();
-        Content=Tree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("TutorialV2ScrollableContent"));
-        Content->AddChildToVerticalBox(Header)->SetPadding(HeaderInset);Content->AddChildToVerticalBox(Instruction)->SetPadding(InstructionInset);
-        Content->AddChildToVerticalBox(Body);Scroll->AddChild(Content);
-        Viewport=Tree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("TutorialV2ContentViewport"));
-        Viewport->SetMinDesiredHeight(96);Viewport->SetContent(Scroll);Column->AddChildToVerticalBox(Viewport);
-        Column->AddChildToVerticalBox(Actions)->SetPadding(ActionsInset);
-        Scroll->SetAllowOverscroll(false);Scroll->SetScrollBarVisibility(ESlateVisibility::Visible);
-        return true;
+        const bool Fixed=Viewport && Scroll->GetParent()==Viewport && Viewport->GetParent()==Column && Header->GetParent()==Column && Instruction->GetParent()==Column && Actions->GetParent()==Column && Column->GetChildrenCount()==4;
+        if(Fixed) return true;
+        const bool FormerWholeScroll=Content && Viewport && Content->GetParent()==Scroll && Scroll->GetParent()==Viewport && Viewport->GetParent()==Column && Column->GetChildrenCount()==2 && Content->GetChildrenCount()==3 && Header->GetParent()==Content && Instruction->GetParent()==Content && Body->GetParent()==Content && Actions->GetParent()==Column;
+        const bool Original=!Content && !Viewport && !Tree->FindWidget(TEXT("TutorialV2ScrollableContent")) && !Tree->FindWidget(TEXT("TutorialV2ContentViewport")) && Header->GetParent()==Column && Instruction->GetParent()==Column && Scroll->GetParent()==Column && Actions->GetParent()==Column && Body->GetParent()==Scroll && Column->GetChildrenCount()==4;
+        // Upgrade only the two known native arrangements, retaining authored forms, text and actions.
+        if(!FormerWholeScroll && !Original) return false;
+        const auto* HeaderCell=Cast<UVerticalBoxSlot>(Header->Slot);const auto* InstructionCell=Cast<UVerticalBoxSlot>(Instruction->Slot);const auto* ActionsCell=Cast<UVerticalBoxSlot>(Actions->Slot);
+        const FMargin HeaderInset=HeaderCell?HeaderCell->GetPadding():FMargin(0,0,0,10),InstructionInset=InstructionCell?InstructionCell->GetPadding():FMargin(0,0,0,10),ActionsInset=ActionsCell?ActionsCell->GetPadding():FMargin(0,12,0,0);
+        Header->RemoveFromParent();Instruction->RemoveFromParent();Actions->RemoveFromParent();
+        if(FormerWholeScroll) Viewport->RemoveFromParent();
+        else {Scroll->RemoveFromParent();Viewport=Tree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("TutorialV2ContentViewport"));Viewport->SetContent(Scroll);}
+        Column->AddChildToVerticalBox(Header)->SetPadding(HeaderInset);Column->AddChildToVerticalBox(Instruction)->SetPadding(InstructionInset);
+        Column->AddChildToVerticalBox(Viewport);Column->AddChildToVerticalBox(Actions)->SetPadding(ActionsInset);
+        Scroll->SetAllowOverscroll(false);Scroll->SetScrollBarVisibility(ESlateVisibility::Visible);return true;
     }
 }
 UMCUnifiedTutorialWidget::UMCUnifiedTutorialWidget(const FObjectInitializer& Initializer):Super(Initializer)
@@ -127,7 +121,7 @@ UMCUniversalUIWidget* UMCUnifiedTutorialWidget::MakeShape(FName Name,FLinearColo
 UTextBlock* UMCUnifiedTutorialWidget::MakeLabel(FName Name,int32 Size,FLinearColor InLabelColor)
 {
     auto* Label=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);Label->SetFont(GetResolvedTheme()->MakeFont(Size,true));
-    Label->SetColorAndOpacity(InLabelColor);Label->SetAutoWrapText(true);Label->SetWrapTextAt(880);Label->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+    Label->SetColorAndOpacity(InLabelColor);Label->SetAutoWrapText(true);Label->SetWrapTextAt(880);Label->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
     Label->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);Label->SetVisibility(ESlateVisibility::HitTestInvisible);return Label;
 }
 void UMCUnifiedTutorialWidget::BuildPresentationTree()
@@ -146,7 +140,7 @@ void UMCUnifiedTutorialWidget::BuildPresentationTree()
     auto* Column=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("TutorialV2Content"));Frame->SetContentForSlot(TEXT("Content"),Column);
     auto* Header=MakeShape(TEXT("TutorialV2Header"),White,FMargin(13,8));Header->CustomOutline=Ink;Header->ShadowOffset=FVector2D(3,4);Header->ApplyTheme();
     auto* Title=MakeLabel(TEXT("TutorialStageTitle"),26,Ink);Header->SetContentForSlot(TEXT("Content"),Title);Column->AddChildToVerticalBox(Header)->SetPadding(FMargin(0,0,0,10));
-    // Header/action/body share one overflow path; ordinary lessons start with the instruction in view.
+    // Header and current instruction stay visible; only the story/status body may scroll.
     auto* Instruction=MakeShape(TEXT("TutorialV2ActionShape"),MCUnifiedTutorialPrivate::Color(TEXT("355C70")),FMargin(14,10));Instruction->ShadowOffset=FVector2D(3,4);Instruction->ApplyTheme();
     Instruction->SetContentForSlot(TEXT("Content"),MakeLabel(TEXT("TutorialAction"),22,White));Column->AddChildToVerticalBox(Instruction)->SetPadding(FMargin(0,0,0,10));
     auto* Scroll=WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(),TEXT("TutorialBodyScroll"));Scroll->SetAllowOverscroll(false);Scroll->SetScrollbarThickness(FVector2D(5,5));
@@ -205,7 +199,7 @@ void UMCUnifiedTutorialWidget::ApplyTheme()
         FProgressBarStyle Style;Style.SetBackgroundImage(FSlateRoundedBoxBrush(MCUnifiedTutorialPrivate::Color(TEXT("355C70")),6.f));Style.SetFillImage(FSlateRoundedBoxBrush(MCUnifiedTutorialPrivate::Color(TEXT("AE4D78")),6.f));Style.BackgroundImage.ImageSize=FVector2D(120,14);Style.FillImage.ImageSize=FVector2D(120,14);Bar->SetWidgetStyle(Style);Bar->SetFillColorAndOpacity(FLinearColor::White);
     }
     const FString Culture=IsDesignTime()?PreviewCulture:FInternationalization::Get().GetCurrentLanguage()->GetName();
-    if(FontsChanged || Culture!=PreparedCulture) bPrepared=false;SyncFrames();if(!bPreparing) PreparePresentation();
+    if(FontsChanged || Culture!=PreparedCulture) bPrepared=false;SyncFrames();UpdateLayout();if(!bPreparing) PreparePresentation();
     if(!IsDesignTime()) {
         if(auto* Source=Backend.Get()) Present(Source->GetUnifiedPresentationSnapshot());
         else if(auto* CompatView=WidgetTree->FindWidget<UBorder>(TEXT("TutorialCard"))) CompatView->SetVisibility(ESlateVisibility::Collapsed);
@@ -213,15 +207,15 @@ void UMCUnifiedTutorialWidget::ApplyTheme()
 }
 void UMCUnifiedTutorialWidget::UpdateLayout()
 {
-    if(!WidgetTree) return;FVector2D View=GetPaintSpaceGeometry().GetLocalSize();if(View.X<1) View=FVector2D(1920,1080);LastViewport=View;
-    const float Width=FMath::Max(280.f,FMath::Min(MaximumCardWidth,float(View.X)-64.f));
+    if(!WidgetTree) return;const FVector2D View=GetPaintSpaceGeometry().GetLocalSize();if(View.X<=1 || View.Y<=1) return;LastViewport=View;
+    const float Width=FMath::Max(1.f,FMath::Min(MaximumCardWidth,float(View.X)-64.f));
     const float Inset=FMath::Min(BottomInset,float(View.Y)*.28f),Height=FMath::Min(MaximumCardHeight,FMath::Max(180.f,float(View.Y)-Inset-40.f));
     if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(TEXT("TutorialCardSize"))) {
         Bounds->SetWidthOverride(Width);Bounds->SetMaxDesiredHeight(Height);Bounds->SetMinDesiredHeight(FMath::Min(220.f,Height));
         if(auto* LayoutCell=Cast<UCanvasPanelSlot>(Bounds->Slot)) LayoutCell->SetPosition(FVector2D(0,-Inset));
     }
     const float Inner=Width-40;
-    auto Wrap=[&](const TCHAR* Name,float At) {if(auto* Label=WidgetTree->FindWidget<UTextBlock>(Name)) Label->SetWrapTextAt(FMath::Max(60.f,At));};
+    auto Wrap=[&](const TCHAR* Name,float At) {if(auto* Label=WidgetTree->FindWidget<UTextBlock>(Name)) {Label->SetAutoWrapText(false);Label->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);Label->SetWrapTextAt(FMath::Max(1.f,At));}};
     Wrap(TEXT("TutorialStageTitle"),Inner-26);Wrap(TEXT("TutorialAction"),Inner-28);Wrap(TEXT("TutorialDialogue"),Inner-132);
     for(const TCHAR* Name:{TEXT("TutorialOwnProgress"),TEXT("TutorialTeamProgress"),TEXT("TutorialTimer")}) {
         const float At=Name==FString(TEXT("TutorialTimer"))?140.f:(Inner-18)*.5f;
@@ -243,23 +237,23 @@ void UMCUnifiedTutorialWidget::UpdateLayout()
     if(ContentViewport && ContentScroll && Actions) {
         const auto* Frame=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("TutorialV2Frame"));
         const FMargin FrameInset=Frame?Frame->ContentPadding:FMargin(20,16);
-        float FooterHeight=0;
-        if(Actions->IsVisible()) {
-            const float FontScale=FMath::Max(.001f,GetPaintSpaceGeometry().GetAccumulatedLayoutTransform().GetScale());
-            const auto FooterSlate=Actions->TakeWidget();FooterSlate->MarkPrepassAsDirty();FooterSlate->SlatePrepass(FontScale);
-            FooterHeight=FMath::CeilToFloat(Actions->GetDesiredSize().Y);
-            if(const auto* FooterCell=Cast<UVerticalBoxSlot>(Actions->Slot)) FooterHeight+=FooterCell->GetPadding().Top+FooterCell->GetPadding().Bottom;
-        }
-        const float FrameHeight=FrameInset.Top+FrameInset.Bottom;
-        const float RequiredHeight=FooterHeight+FrameHeight+96.f;
+        const float FontScale=FMath::Max(.001f,GetPaintSpaceGeometry().GetAccumulatedLayoutTransform().GetScale());
+        auto Measure=[&](UWidget* Widget) {
+            if(!Widget || !Widget->IsVisible()) return 0.f;
+            const auto Slate=Widget->TakeWidget();Slate->MarkPrepassAsDirty();Slate->SlatePrepass(FontScale);
+            float Value=FMath::CeilToFloat(Widget->GetDesiredSize().Y);
+            if(const auto* Cell=Cast<UVerticalBoxSlot>(Widget->Slot)) Value+=Cell->GetPadding().Top+Cell->GetPadding().Bottom;
+            return Value;
+        };
+        const float FixedHeight=Measure(Actions)+Measure(WidgetTree->FindWidget(TEXT("TutorialV2Header")))+Measure(WidgetTree->FindWidget(TEXT("TutorialV2ActionShape")))+FrameInset.Top+FrameInset.Bottom;
+        const float RequiredHeight=FixedHeight+64.f;
         const float ContentInset=FMath::Min(Inset,FMath::Max(0.f,float(View.Y)-40.f-RequiredHeight));
-        const float AvailableHeight=FMath::Max(180.f,float(View.Y)-ContentInset-40.f);
-        // Reserve a real content viewport even when a localized footer needs extra rows.
+        const float AvailableHeight=FMath::Max(1.f,float(View.Y)-ContentInset-40.f);
         const float CardHeight=FMath::Min(AvailableHeight,FMath::Max(Height,RequiredHeight));
-        const float ContentHeight=FMath::Max(96.f,CardHeight-FooterHeight-FrameHeight);
-        ContentViewport->SetHeightOverride(ContentHeight);ContentViewport->SetMinDesiredHeight(96);
+        const float ContentHeight=FMath::Max(1.f,CardHeight-FixedHeight);
+        ContentViewport->ClearMinDesiredHeight();ContentViewport->ClearMaxDesiredHeight();ContentViewport->SetHeightOverride(ContentHeight);
         if(auto* CardBounds=WidgetTree->FindWidget<USizeBox>(TEXT("TutorialCardSize"))) {
-            CardBounds->SetMaxDesiredHeight(CardHeight);CardBounds->SetMinDesiredHeight(FMath::Min(CardHeight,FrameHeight+FooterHeight+96.f));
+            CardBounds->SetHeightOverride(CardHeight);CardBounds->ClearMinDesiredHeight();CardBounds->ClearMaxDesiredHeight();
             if(auto* CardCell=Cast<UCanvasPanelSlot>(CardBounds->Slot)) CardCell->SetPosition(FVector2D(0,-ContentInset));
         }
         // Wrapping is explicit above, so no header or action can take space from this scroll viewport.

@@ -17,6 +17,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "GameFramework/WorldSettings.h"
+#include "GameFramework/PlayerInput.h"
 #include "Engine/GameInstance.h"
 #include "Engine/LocalPlayer.h"
 #include "Engine/GameViewportClient.h"
@@ -57,9 +58,29 @@
 #include "MCVoiceChatSubsystem.h"
 #include "MCHubProfileSubsystem.h"
 #include "Framework/Application/SlateApplication.h"
+#include "Widgets/SViewport.h"
 #include "Net/UnrealNetwork.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
+
+namespace
+{
+bool ScoreboardOwnsInputFocus(const AMCPlayerController* Controller,const UMCScoreboardWidget* Scoreboard)
+{
+    if(!Controller || !FSlateApplication::IsInitialized()) return false;
+    auto& Slate=FSlateApplication::Get();const auto* World=Controller->GetWorld();
+    auto* Viewport=World?World->GetGameViewport():nullptr;
+    if(!Slate.IsActive() || !Viewport) return false;
+    const auto Window=Viewport->GetWindow();const int32 User=Slate.GetUserIndexForKeyboard();
+    const auto Focus=Slate.GetUserFocusedWidget(User);
+    if(!Window || !Focus || Slate.GetActiveTopLevelWindow()!=Window || Slate.FindWidgetWindow(Focus.ToSharedRef())!=Window) return false;
+    // LostFocus may flush before UMG installs its target. The old game viewport
+    // is a valid transfer source; another editor panel (even in the same window) is not.
+    const auto Scene=Viewport->GetGameViewportWidget();
+    return (Scoreboard && Scoreboard->HasPresentationFocus())
+        || (Scene && (Scene->HasUserFocus(User).IsSet() || Scene->HasUserFocusedDescendants(User)));
+}
+}
 
 void AMCPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -179,6 +200,12 @@ void AMCPlayerController::FlushPressedKeys()
         // generated release cannot accidentally confirm the selected emote.
         CloseEmotes(false);return;
     }
+    // Moving keyboard focus from the viewport into its held scoreboard calls
+    // GameViewportClient::LostFocus, whose default flush fabricates Tab release.
+    // Accept both the old viewport and the native/New TEAM transfer target.
+    // The next tick also checks ownership after the focus transition settles.
+    if(!IsHubWorld() && CanPresentUnifiedTeam() && ScoreboardOwnsInputFocus(this,ScoreboardWidget)
+        && (IsInputKeyDown(EKeys::Tab) || IsInputKeyDown(EKeys::Gamepad_Special_Left))) return;
     Super::FlushPressedKeys();
 }
 void AMCPlayerController::ShowScoreboard()
@@ -225,6 +252,10 @@ void AMCPlayerController::HideScoreboard()
 {
     if(!ScoreboardWidget || !ScoreboardWidget->IsVisible()) return;
     ScoreboardWidget->SetVisibility(ESlateVisibility::Collapsed);
+    // A focused UMG table handles the real key-up before it reaches PlayerInput.
+    // Closing/cancelling the held arena panel must also retire those opener states.
+    if(!IsHubWorld() && PlayerInput) for(const FKey Key:{EKeys::Tab,EKeys::Gamepad_Special_Left})
+        if(IsInputKeyDown(Key)) PlayerInput->InputKey(FInputKeyEventArgs::CreateSimulated(Key,IE_Released,0.f,1));
     if(IsLocalController() && GetWorld() && !GetWorld()->bIsTearingDown) UpdateInputMode();
 }
 void AMCPlayerController::PrepareHubPartyPresentation()
@@ -274,7 +305,7 @@ void AMCPlayerController::Tick(float DeltaSeconds)
     // UI input mode can swallow the release event when a menu opens while Tab is held.
     if (!IsHubWorld() && ScoreboardWidget && ScoreboardWidget->IsVisible()
         && ((!IsInputKeyDown(EKeys::Tab) && !IsInputKeyDown(EKeys::Gamepad_Special_Left))
-            || (FSlateApplication::IsInitialized() && !FSlateApplication::Get().IsActive()))) HideScoreboard();
+            || !ScoreboardOwnsInputFocus(this,ScoreboardWidget))) HideScoreboard();
     const double Now=GetWorld()->GetTimeSeconds();
     if (Now>=NextSpectatorCheck) { NextSpectatorCheck=Now+.1; UpdateDeathSpectating(); }
     if(bDeathSpectating && SpectatorTarget.IsValid() && !bShowMouseCursor && !IsLookInputIgnored()) {

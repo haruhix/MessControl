@@ -46,6 +46,11 @@ public:
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static bool TogglePIEPauseMenu(UWorld* World);
 
+    /** Owned solo PIE only: separate Slate Tab/Escape/F3 down/up; never focuses or starts PIE.
+     * True means admitted/delivered to Slate; inspect the actual UI state separately. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
+    static bool InjectSoloUIKey(FName Key,bool Down);
+
     /** Read-only live PIE view state for QA. This editor-only API never exposes gameplay mutators or changes property visibility. */
     UFUNCTION(BlueprintPure, Category="Mess Control|Gameplay UI|Editor")
     static FString InspectPlayerView(APlayerController* PlayerController);
@@ -129,6 +134,20 @@ public:
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static bool RebuildUnifiedInterfaceView(UWidgetBlueprint* Blueprint);
 
+    /** Migrate the saved New root/component viewport hierarchy in place through
+     * an isolated duplicate; preserve existing node properties, graphs and GUIDs.
+     * Exact task-owned allowlist only, clean idle Editor and caller-verified backups.
+     */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
+    static bool MigrateUnifiedViewportLayout(UWidgetBlueprint* Blueprint);
+
+    /** Apply the accepted PSD HUD metrics/styles to the existing V2 root tree.
+     * Never generates or replaces a WidgetTree; preserves controls, graphs and GUIDs.
+     * Requires an idle clean Editor and caller-verified package backup.
+     */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
+    static bool ApplyPSDGameplayHUDLayout(UWidgetBlueprint* Blueprint);
+
     /** One-time migration of the task-owned wardrobe RGB tree to the editable color palette. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static bool RefreshHubWardrobePalettePresentation(UWidgetBlueprint* Blueprint);
@@ -165,7 +184,7 @@ public:
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static bool RenderGameplayUIPreview(TSubclassOf<UMCGameplayUIWidget> WidgetClass, const FString& OutputFile,
         FIntPoint DrawSize, const FString& State, const FString& Culture, float Time=0.f, float RenderScale=1.f,
-        bool bOverrideUIVersion=false,EMCUIVersion UIVersion=EMCUIVersion::Current);
+        bool bOverrideUIVersion=false,EMCUIVersion UIVersion=EMCUIVersion::Current,const FString& FixtureOptions=TEXT(""));
 
     /** Adds the task-owned CJK sub-typeface; preserves default Latin/Cyrillic and other sub-typefaces. Does not save. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
@@ -174,4 +193,8 @@ public:
     /** Preserve the source font's fallback family and add LeFun only for its Latin/Cyrillic coverage. Does not save. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
     static bool ConfigureUniversalUIFont(UFont* Font,UFont* FallbackFamily,UFontFace* LeFunFace);
+
+    /** Add the PSD Spicy Sauce display face only for its verified glyph coverage; retain the supplied localization family. Does not save. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Gameplay UI|Editor")
+    static bool ConfigurePSDDisplayFont(UFont* Font,UFont* FallbackFamily,UFontFace* DisplayFace);
 };

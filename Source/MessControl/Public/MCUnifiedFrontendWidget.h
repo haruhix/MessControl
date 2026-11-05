@@ -62,6 +62,7 @@ private:
     void SelectPage(EMCUnifiedFrontendPage Page);
     void ApplyPreviewFixture();
     void RefreshTextBounds();
+    void UpdateResponsiveLayout(FVector2D AvailableSize=FVector2D::ZeroVector);
     bool CanForward(const UMCUnifiedFrontendBinding* Binding) const;
     bool IsSourceVisible(const UWidget* Source,const UWidget* Page) const;
     UWidget* FindSource(EMCUnifiedFrontendPage Page,FName Suffix) const;

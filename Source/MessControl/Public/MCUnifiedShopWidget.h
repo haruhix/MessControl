@@ -53,6 +53,8 @@ public:
     void ForwardControl(FName Name);
     /** Retain a matching stepped frame as its header wraps; disable for hand-authored points. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Layout") bool bAdaptHeaderContour=true;
+    /** Display face for SHOP only, retained as a reflected/prewarmable resource. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Appearance|Typography") FSlateFontInfo ShopTitleFont;
 protected:
     virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
     virtual FReply NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event) override;
@@ -61,6 +63,7 @@ private:
     void PresentProducts(const TArray<FMCUnifiedShopProduct>& Products,FName Selected);
     void PresentPreview();
     void UpdateHeaderContour();
+    void UpdateResponsiveLayout(FVector2D AvailableSize=FVector2D::ZeroVector);
     UMCUniversalUIWidget* MakeShape(FName Name,FLinearColor Fill,FVector2D Shadow,bool bButton=false);
     UTextBlock* MakeText(FName Name,int32 FontSize);
     UWidget* SourceControl(FName Name) const;
@@ -69,4 +72,5 @@ private:
     UPROPERTY(Transient) TArray<TObjectPtr<UMCUnifiedShopBinding>> CardBindings;
     UPROPERTY(Transient) TArray<TObjectPtr<UMCUnifiedShopBinding>> StaticBindings;
     float RefreshElapsed=0.f;
+    FVector2D ResponsiveViewportSize=FVector2D::ZeroVector;
 };

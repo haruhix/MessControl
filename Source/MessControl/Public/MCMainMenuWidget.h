@@ -96,10 +96,16 @@ class MESSCONTROL_API UMCMainMenuPicker : public UComboBoxString
 public:
     void InitializePresentationFont(const FSlateFontInfo& InFont) { InitFont(InFont); }
     void InitializePresentationForeground(const FSlateColor& InColor) { InitForegroundColor(InColor); }
+    /** Opt-in for PSD settings. Other authored menus keep their original alignment. */
+    UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Presentation",meta=(DesignerRebuild))
+    bool bCenterPresentationText=false;
+    void SetPresentationTextCentered(bool Centered);
     /** Store defaults as reflected data as well as the live list, so saved Designer shells keep their options. */
     void SetPresentationOptions(const TArray<FString>& InOptions,int32 SelectedIndex=0);
     virtual void PostDuplicate(EDuplicateMode::Type DuplicateMode) override;
     virtual void PostLoad() override;
+protected:
+    virtual TSharedRef<SWidget> HandleGenerateWidget(TSharedPtr<FString> Item) const override;
 private:
     void RestorePresentationOptions();
 };

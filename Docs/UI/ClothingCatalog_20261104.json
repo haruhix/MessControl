@@ -1,0 +1,265 @@
+{
+  "schema": "MessControl.ClothingCatalogValidation.v1",
+  "date": "2026-11-04",
+  "status": "SCOPED_VALIDATION_RECORDED_REMAINING_CHECKS_LISTED",
+  "updatedUTC": "2026-11-04T05:32:17.433092+00:00",
+  "scope": {
+    "cosmeticTable": "/Game/Data/DT_CharacterCosmetics",
+    "cosmeticRows": 10,
+    "legacyTable": "/Game/Gameplay/Hub/Economy/DT_HubCatalog",
+    "legacyRows": 55,
+    "previewBody": "/Game/Gameplay/CharacterCurrent/SK_CharacterGameplay.SK_CharacterGameplay",
+    "fitting": "Static accessories on actual body reference pose; no animated clothing or cloth simulation acceptance",
+    "userGuide": "Docs/ClothingCatalog.md"
+  },
+  "changedBehavior": [
+    "Existing cosmetic table now owns opt-in canonical clothing price/discount, rarity, per-item shop chance, localized copy keys and mandatory icon.",
+    "Native DataTable Row Editor includes selected live-row fitting viewport with Frame/Front/Side/Back/orbit and reversible ordinary row editing.",
+    "Runtime fitting and editor fitting share reference-bone transform conversion; authored mesh/material/fit/IDs retained.",
+    "Canonical clothing probability is independent of rarity and booster selection; same epoch preserves derived membership. Owned offstock clothes remain selectable.",
+    "Source wardrobe provides authored extra slot groups and per-slot clear; New copies the original source product/actions.",
+    "Source wardrobe locale callback now refreshes cached product copy and formatted wallet while retaining existing tile identities; this last source-only fix awaits Build04/native locale QA."
+  ],
+  "sourceChecks": {
+    "protectedMigrationFields": [
+      "Name",
+      "Slot",
+      "Mesh",
+      "AttachBone",
+      "bMeshSpaceFit",
+      "LocalTransform",
+      "Materials",
+      "bEnabled",
+      "bDefaultUnlocked"
+    ],
+    "protectedTenRowsIndependentlyCompared": true,
+    "allTenChanceOneDiscountZero": true,
+    "mandatoryIcons": "Existing real offer icons plus3 actual PSD overrides; no synthetic icons",
+    "runtimeIconResolution": "Canonical reflected Icon.Get() at runtime; no added first-click sync load in New wardrobe override",
+    "slotLimit": "At most16 loadout records; one item per authored slot; None clears slot",
+    "priceRule": "floor(int64(BasePrice)*(100-DiscountPercent)/100); invalid negative/out-of-range rejected",
+    "rawCustomSlotName": "Known limitation: generic localized heading inserts authored FName; no per-slot localized title schema introduced"
+  },
+  "migration": {
+    "status": "PASS",
+    "result": "APPLIED_VERIFIED",
+    "idempotency": "IDEMPOTENT_NO_SAVE",
+    "secondApplyChangedAssets": [],
+    "canonicalCosmeticRows": 10,
+    "protectedFitIDsFlagsExact": true,
+    "hub55PayloadAndBytesPreserved": true,
+    "savedTargetSHA256": "46c05f4200868ac6efce384be6ad656bcce0546fa850ebfad8971a77f2b0dd51",
+    "hubSHA256": "dc0b0221b516dc53e0cc170144a12faffe2cb487790d58f43b321f5ce056697a",
+    "dirtyAfter": [],
+    "nativePriceChecks": 17,
+    "profileOrGameplayMutation": false
+  },
+  "migrationRecoveryHistory": {
+    "firstAttempt": "FAILED_STRICT_POST_SAVE_ROUNDTRIP",
+    "firstImportRoundtrip": "Passed before explicit save",
+    "cause": "UE stable localization remapped foreign Hub package namespace and generated new FText keys on persistent target-package save.",
+    "rollback": "Root verified saved logical restoration of original ten rows plus new schema defaults. Exact original binary retained in verified E backup.",
+    "fix": "Derive sole target package GUID from all20 original target native texts; replace only Hub NSLOCTEXT package suffix BEFORE import. Hub base namespace/native key/raw source token retained; exact import and post-save comparisons required.",
+    "recoveryBaseline": "Separate explicit read-only native capture pins recovered target hash only after original rows/new defaults/Hub55+hash/original backup provenance verify; original snapshots not silently replaced.",
+    "targetPackageNamespace": "62231F57CFFA68BB2EC7F146A47EFB6E",
+    "successfulApplyUsedExplicitRecovery": true
+  },
+  "localization": {
+    "status": "PASS_SAVED_NATIVE_MERGE",
+    "languages": [
+      "RU",
+      "EN",
+      "DE",
+      "FR",
+      "ES",
+      "PT_BR",
+      "ZH_HANS",
+      "ZH_HANT",
+      "JA",
+      "KO"
+    ],
+    "existingClothingKeys": 15,
+    "recipeKeys": 16,
+    "emptyForeignCellsFilled": 120,
+    "addedHeading": "UI.Wardrobe.SlotHeading",
+    "preservesExistingNonemptyAndNativeIdentities": true,
+    "nativeValidationBefore": {
+      "valid": true,
+      "problems": []
+    },
+    "nativeValidationAfter": {
+      "valid": true,
+      "problems": []
+    },
+    "savedPackageSHA256": "0f95044ee02f9b85556a3fe7270c21aa37558b2896cc7d1783befcce0953b492",
+    "cultureChangeOnRetainedRuntimeWardrobe": "Source defect fixed after Build03; native replay pending Build04, no runtime claim yet"
+  },
+  "nativeCommerce": {
+    "status": "PASS",
+    "checks": 27,
+    "scope": "Native isolated authority/data contracts; not PIE, controller RPC/proximity, fitted visuals or real UI input.",
+    "checksPassed": [
+      "Exact saved canonical source tables already resident, matching schema and clean",
+      "Use actual saved enabled nonfree cosmetic identity/mesh and actual linked Hub offer",
+      "No BeginPlay, GameInstance, controller or profile subsystem",
+      "Fixture tables bound only on private authority, no external economy listeners",
+      "Cloned canonical commerce validates",
+      "Actual native int64 discount/floor boundary cases",
+      "Public offer projects canonical price/copy/icon instead of contradictory legacy777",
+      "Clothing requires initial stock epoch before purchase",
+      "Original authority stock epoch prepared",
+      "Persisted stock contains booster and never clothing",
+      "Chance1 enables actual canonical purchase",
+      "Chance0 rejects actual debit/grant",
+      "Same epoch preserves seed, booster stock and derived clothing roll",
+      "Adding another garment does not change existing per-item roll",
+      "Native arbitrary data slot discovery/loadout/clear; UI remains separate review",
+      "Retired clothing offer ID never rerolls booster stock",
+      "Foreign noncosmetic ID wins malformed garment collision",
+      "Foreign-ID collision does not invalidate booster assortment",
+      "Non-opted legacy offer returns original Hub source row",
+      "Actual authority purchase debits displayed85 and grants exact cosmetic ID once",
+      "Duplicate purchase never debits twice",
+      "Owned offstock clothing retains canonical offer/icon and cannot be repurchased",
+      "Actual saved cosmetic remains authority-equippable while offstock, no debit",
+      "Fixture tables bound only on private authority, no external economy listeners",
+      "Existing actual save schema roundtrip retains wallet, stable owned ID and booster epoch",
+      "Private world cleaned/unrooted; original world and context count restored",
+      "Source table JSON and all preexisting persistent package dirty states unchanged"
+    ],
+    "sourcePackagesUnchanged": true,
+    "dirtyBefore": [],
+    "dirtyAfter": [],
+    "notClaimed": [
+      "PIE",
+      "controller RPC/proximity",
+      "actual UI mouse input",
+      "live player/profile mutation",
+      "visual acceptance"
+    ]
+  },
+  "nativeAssetValidation": {
+    "status": "PASS",
+    "result": "<DataValidationResult.VALID: 1>",
+    "errors": [],
+    "warnings": [],
+    "savedSourceUnchanged": true
+  },
+  "editorFitting": {
+    "status": "PASS_SELECTED_ROW_REFERENCE_POSE",
+    "captures": 12,
+    "distinctRows": 10,
+    "allTenFront": true,
+    "cowboyAdditionalViews": [
+      "Side",
+      "Back"
+    ],
+    "allInspectionsLiveSynchronizedValid": true,
+    "sourceSHA256Unchanged": true,
+    "dirtyAfter": [],
+    "rows": [
+      "Hat_WorkCap",
+      "Hat_WorkCapRed",
+      "Face_SportGlasses",
+      "Hat_Head_CowboyHat",
+      "Face_Head_SquareGlasses",
+      "Hat_Head_Feather",
+      "Face_Head_Brows",
+      "Hat_Head_ConeHat",
+      "Hat_Head_ArtistCap",
+      "Hat_Head_FootballHelmet"
+    ],
+    "contactSheet": "E:\\CodexWork\\MessControl\\Validation\\Clothing_20261104\\FitRowsBuild03\\ContactSheet.png",
+    "visualInspection": {
+      "reviewer": "parent/root",
+      "personallyViewed": true,
+      "basis": "Root confirmed personal contact-sheet inspection in task handoff; documentation agent did not execute the app.",
+      "limitedTo": "Reference-pose framing and accessory fit; animation/gameplay-camera motion not asserted"
+    }
+  },
+  "build": {
+    "Build03": "PASS_REPORTED_BY_ROOT",
+    "editorLog": "E:\\CodexWork\\MessControl\\Validation\\Clothing_20261104\\EditorBuild03.log",
+    "trace": "E:\\CodexWork\\MessControl\\Validation\\Clothing_20261104\\Build03.Trace.uba",
+    "configuration": "MessControlEditor Win64 Development",
+    "latestPostBuildSourceChange": "Only MCHubWardrobeWidget h/cpp locale-refresh guard fix; Build04/native recheck pending root"
+  },
+  "sourceReviewFindings": [
+    {
+      "id": "retained_wardrobe_locale_copy",
+      "finding": "Name/description/state/coins were resolved only at source RefreshCosmetics; inherited culture/table callback only restyled cached copy.",
+      "status": "SOURCE_FIXED_PENDING_BUILD04_NATIVE_REPLAY",
+      "fix": "Source owner OnLocalizationChanged invokes existing guarded RefreshCosmetics only for populated runtime tree; entry TGuardValue prevents reentry. Same Slot/Item tiles reused, no draft reset or extra delegates.",
+      "handoff": "E:/CodexTemp/MessControl-Clothing/DocsDraft/LocaleRefreshFix/Handoff.json"
+    }
+  ],
+  "remainingValidation": [
+    {
+      "id": "Build04_locale_refresh",
+      "status": "PENDING_ROOT",
+      "scope": "Compile latest narrow source fix; retain original source/tiles through actual culture or DT change and check New copied texts."
+    },
+    {
+      "id": "live_row_unsaved_edit_undo",
+      "status": "PENDING_ROOT",
+      "scope": "Actual Row Editor field change→immediate fit→Undo→source row and package restoration."
+    },
+    {
+      "id": "solo_hub_gameplay",
+      "status": "PENDING_ROOT_IN_PROGRESS",
+      "scope": "Short isolated transient-profile solo PIE via real wardrobe buy/equip/clear/input; no claim from authority fixture alone."
+    },
+    {
+      "id": "resource_first_visible_use",
+      "status": "PENDING_ROOT",
+      "scope": "Location readiness/manifest coverage and actual first wardrobe/try-on/equip; warm Editor caches are not packaged PSO proof."
+    }
+  ],
+  "explicitlyDeferred": [
+    "Animation/cloth simulation and full gameplay-camera clipping acceptance",
+    "Network/multiplayer testing",
+    "Cook/package and packaged PSO validation"
+  ],
+  "evidence": [
+    {
+      "kind": "firstFailure",
+      "path": "E:\\CodexWork\\MessControl\\Validation\\Clothing_20261104\\Migration\\20261104T050806759657Z_4a7690b7\\Report.json",
+      "sha256": "8831ce05f4db081bb3dbc80c75b63bb540f9fecfededcea2329585dbc6c8ef1c"
+    },
+    {
+      "kind": "recovery",
+      "path": "E:\\CodexWork\\MessControl\\Validation\\Clothing_20261104\\Migration\\20261104T051609168289Z_3adbb2c5\\VerifiedRollbackBaseline.json",
+      "sha256": "3de96e1a66f16e01b2fe256b89506fa19ba0c2ce9d69ec089bffdd08f514f715"
+    },
+    {
+      "kind": "apply",
+      "path": "E:\\CodexWork\\MessControl\\Validation\\Clothing_20261104\\Migration\\20261104T051721467782Z_9c68b64d\\Report.json",
+      "sha256": "136c493c47eb80483fee6cb9b15441f48506b22aae835e90e83579be3aca6385"
+    },
+    {
+      "kind": "idempotency",
+      "path": "E:\\CodexWork\\MessControl\\Validation\\Clothing_20261104\\Migration\\20261104T051734486915Z_8a72bdc3\\Report.json",
+      "sha256": "ab0de64cfc7ee14f226be205928dd189f962f097c579bcd8063405c9afb371c2"
+    },
+    {
+      "kind": "locales",
+      "path": "E:\\CodexWork\\MessControl\\Validation\\Clothing_20261104\\Locales\\20261104T051321602235Z_5d158603\\Report.json",
+      "sha256": "5e0f3f42f101f61125d74732e9512aa8d23d7e0ad2366c131db5b358ed339a63"
+    },
+    {
+      "kind": "nativeCommerce",
+      "path": "E:\\CodexWork\\MessControl\\Validation\\Clothing_20261104\\NativeCommerce\\20261104T052152Z_fe045c14\\Report.json",
+      "sha256": "71085b850265501529d7168394850cba565a80e3b4a5389b89b51c0257bafe0e"
+    },
+    {
+      "kind": "nativeAssetValidation",
+      "path": "E:\\CodexWork\\MessControl\\Validation\\Clothing_20261104\\NativeAssetValidation.json",
+      "sha256": "f13a1567a5a11fa633e254ee9d4e276e086b3b2534cb326e3d9a457f576d26f1"
+    },
+    {
+      "kind": "fit",
+      "path": "E:\\CodexWork\\MessControl\\Validation\\Clothing_20261104\\FitRowsBuild03\\Report.json",
+      "sha256": "e7f903dde5998483fd9b874152eea288c7127699fe1a688c4ef964beb47d9c64"
+    }
+  ]
+}

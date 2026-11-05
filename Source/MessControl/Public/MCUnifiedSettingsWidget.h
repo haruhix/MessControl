@@ -52,6 +52,8 @@ protected:
     virtual FReply NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event) override;
     virtual FReply NativeOnPreviewMouseButtonDown(const FGeometry& Geometry,const FPointerEvent& Event) override;
 private:
+    void UpdateLayout();
+    FVector2D LastLayoutViewport=FVector2D::ZeroVector;
     void BindControls();
     void SelectTab(int32 Index);
     void RefreshValueLabels();

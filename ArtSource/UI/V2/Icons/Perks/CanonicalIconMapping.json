@@ -1,0 +1,1278 @@
+{
+  "status": "READY2_FROZEN_32_CANONICAL_ICONS_AIR_EXPLICIT_MISSING",
+  "tableAsset": "/Game/Gameplay/Roguelike/DT_Perks",
+  "rowField": "Name",
+  "iconField": "Icon",
+  "currentRows": 133,
+  "currentEnabledRows": 32,
+  "coveredEnabledRows": 31,
+  "imports": [
+    {
+      "rowID": "B2_ThunderGod",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L338.png",
+      "sourcePSDLayerID": 338,
+      "sourcePSDLayerName": "thinder god",
+      "atlasRow": 1,
+      "atlasColumn": 1,
+      "confidence": "explicit",
+      "basis": "Thunder/lightning tooth; source layer explicitly named thinder god",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_ThunderGod",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B2_ThunderGod",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_ThunderGod.T_UI_PSD_Perk_B2_ThunderGod",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        189,
+        133
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "sha256": "dc5dc2f1e310765f791e9f2567731f30010fe6754914370ca6153d2b0deb1fe0",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L338.png",
+      "sourceBlendMode": "lite",
+      "compositeMaxErrorRGB": 0.7529411764706262
+    },
+    {
+      "rowID": "B2_StartFromDash",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L336.png",
+      "sourcePSDLayerID": 336,
+      "sourcePSDLayerName": "Слой 5",
+      "atlasRow": 1,
+      "atlasColumn": 2,
+      "confidence": "parent_approved_mechanics_inference_not_PSD_namedproof",
+      "basis": "Flexing powered tooth, candidate for first post-dash damage buff; paired with stout tooth438",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_StartFromDash",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B2_StartFromDash",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_StartFromDash.T_UI_PSD_Perk_B2_StartFromDash",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        172,
+        136
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "sha256": "82e10bfe15dea6363b2bd3d96860763278ecb1fa45d3689673ff4effb08c2f76",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L336.png",
+      "sourceBlendMode": "scrn",
+      "compositeMaxErrorRGB": 0.6093656286043991
+    },
+    {
+      "rowID": "B1_HeavyHit",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L339.png",
+      "sourcePSDLayerID": 339,
+      "sourcePSDLayerName": "Слой 3 копия",
+      "atlasRow": 1,
+      "atlasColumn": 3,
+      "confidence": "explicit_duplicate_caption",
+      "basis": "Heavy hammer swing tooth; duplicate glyph251 appears under PSD title Тяжелый удар",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_HeavyHit",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B1_HeavyHit",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_HeavyHit.T_UI_PSD_Perk_B1_HeavyHit",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        174,
+        152
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "sha256": "1662fbecc7e27569d8383c4b9676655f8109b39143ac051468795b1a41083c5f",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L339.png",
+      "sourceBlendMode": "lite",
+      "compositeMaxErrorRGB": 0.7999999999999802
+    },
+    {
+      "rowID": "B1_ConfidentThrow",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L341.png",
+      "sourcePSDLayerID": 341,
+      "sourcePSDLayerName": "Слой 7",
+      "atlasRow": 1,
+      "atlasColumn": 4,
+      "confidence": "semantic",
+      "basis": "Tooth spits projectile/food forward",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_ConfidentThrow",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B1_ConfidentThrow",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_ConfidentThrow.T_UI_PSD_Perk_B1_ConfidentThrow",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        182,
+        115
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "sha256": "da1d992a3df76e56e933d56d2ed7dd7bb408cc4755b2835802c92bb4a132ca36",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L341.png",
+      "sourceBlendMode": "lite",
+      "compositeMaxErrorRGB": 0.7529411764706262
+    },
+    {
+      "rowID": "B2_EchoSwing",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L345.png",
+      "sourcePSDLayerID": 345,
+      "sourcePSDLayerName": "Слой 9",
+      "atlasRow": 1,
+      "atlasColumn": 5,
+      "confidence": "semantic",
+      "basis": "Second/echo axe traced by repeated swing arc",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_EchoSwing",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B2_EchoSwing",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_EchoSwing.T_UI_PSD_Perk_B2_EchoSwing",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        143,
+        113
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "sha256": "0c58b05012617440c8b382c96fec0b6570a4512c2ce7178851dbe84fb6c301f8",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L345.png",
+      "sourceBlendMode": "scrn",
+      "compositeMaxErrorRGB": 0.6445213379469367
+    },
+    {
+      "rowID": "B2_Billiards",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L347.png",
+      "sourcePSDLayerID": 347,
+      "sourcePSDLayerName": "Слой 10",
+      "atlasRow": 1,
+      "atlasColumn": 6,
+      "confidence": "semantic",
+      "basis": "Pool8 ball between melee tools",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_Billiards",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B2_Billiards",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_Billiards.T_UI_PSD_Perk_B2_Billiards",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        172,
+        125
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "sha256": "a890c7bd3ea3024b22a3d48a8e92bd69d6d3482cf5b268efcbf8cfa8a412c0e2",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L347.png",
+      "sourceBlendMode": "lite",
+      "compositeMaxErrorRGB": 0.7999999999999802
+    },
+    {
+      "rowID": "B2_ThickEnamel",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L419.png",
+      "sourcePSDLayerID": 419,
+      "sourcePSDLayerName": "Слой 11",
+      "atlasRow": 2,
+      "atlasColumn": 1,
+      "confidence": "semantic",
+      "basis": "Impact breaks at tooth surface; avoid incoming ordinary hit",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_ThickEnamel",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B2_ThickEnamel",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_ThickEnamel.T_UI_PSD_Perk_B2_ThickEnamel",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        160,
+        123
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "sha256": "1f1c7120d6dfc7d1c8a80589ca8f7483f17de059262de9149263c5262834100f",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L419.png",
+      "sourceBlendMode": "lgCl",
+      "compositeMaxErrorRGB": 0.9960784313725668
+    },
+    {
+      "rowID": "B2_Shield",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L421.png",
+      "sourcePSDLayerID": 421,
+      "sourcePSDLayerName": "Слой 12",
+      "atlasRow": 2,
+      "atlasColumn": 2,
+      "confidence": "semantic",
+      "basis": "Shield with tooth and low segmented meter",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_Shield",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B2_Shield",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_Shield.T_UI_PSD_Perk_B2_Shield",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        154,
+        136
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "sha256": "4860b48a2bcb920ae74a707344fb29bf150725ba28a1f0df01c135c858005360",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L421.png",
+      "sourceBlendMode": "lgCl",
+      "compositeMaxErrorRGB": 0.9960784313725385
+    },
+    {
+      "rowID": "B1_LightFoot",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L428.png",
+      "sourcePSDLayerID": 428,
+      "sourcePSDLayerName": "Слой 13",
+      "atlasRow": 2,
+      "atlasColumn": 3,
+      "confidence": "semantic",
+      "basis": "Fast shoe/lightning",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_LightFoot",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B1_LightFoot",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_LightFoot.T_UI_PSD_Perk_B1_LightFoot",
+      "enabled": true,
+      "previousIcon": "/Game/Gameplay/UI/Art/T_UI_Card_P01_v10.T_UI_Card_P01_v10",
+      "size": [
+        170,
+        103
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "sha256": "5a32459b6701c606cdd1c1020836a382f518a6ab546258d88c8bca3f7d1f3f9a",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L428.png",
+      "sourceBlendMode": "lite",
+      "compositeMaxErrorRGB": 0.7999999999999802
+    },
+    {
+      "rowID": "B2_SecondWind",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L434.png",
+      "sourcePSDLayerID": 434,
+      "sourcePSDLayerName": "Слой 14",
+      "atlasRow": 2,
+      "atlasColumn": 4,
+      "confidence": "semantic",
+      "basis": "Dash ring and breath/energy tooth; actual perk refills stamina after accepted dash dodge",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_SecondWind",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B2_SecondWind",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_SecondWind.T_UI_PSD_Perk_B2_SecondWind",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        184,
+        113
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "sha256": "79256b568f06c7fc144093652afc3b87e7a8e6e2e840fb6a039afcc87473cd7e",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L434.png",
+      "sourceBlendMode": "lite",
+      "compositeMaxErrorRGB": 0.7999999999999802
+    },
+    {
+      "rowID": "B2_HoudiniDash",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L436.png",
+      "sourcePSDLayerID": 436,
+      "sourcePSDLayerName": "Слой 15",
+      "atlasRow": 2,
+      "atlasColumn": 5,
+      "confidence": "semantic",
+      "basis": "Disappearing magician hat/dash streak",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_HoudiniDash",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B2_HoudiniDash",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_HoudiniDash.T_UI_PSD_Perk_B2_HoudiniDash",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        168,
+        139
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "sha256": "750cc32e9517e1b4f7d4db6ee2232c66907f64d1aaad2e4ac4b00af070f64428",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L436.png",
+      "sourceBlendMode": "div",
+      "compositeMaxErrorRGB": 0.6737254901960943
+    },
+    {
+      "rowID": "B2_MightyTooth",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L438.png",
+      "sourcePSDLayerID": 438,
+      "sourcePSDLayerName": "Слой 16",
+      "atlasRow": 2,
+      "atlasColumn": 6,
+      "confidence": "parent_approved_mechanics_inference_not_PSD_namedproof",
+      "basis": "Stout larger tooth, candidate for mighty cleave; paired with muscle tooth336",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_MightyTooth",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B2_MightyTooth",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_MightyTooth.T_UI_PSD_Perk_B2_MightyTooth",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        134,
+        133
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "sha256": "f677304022063fe775a24fa46afc5515cc8184db23224457eb56428da7a26825",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L438.png",
+      "sourceBlendMode": "lite",
+      "compositeMaxErrorRGB": 0.7999999999999802
+    },
+    {
+      "rowID": "B1_BigPortion",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L482.png",
+      "sourcePSDLayerID": 482,
+      "sourcePSDLayerName": "Слой 17",
+      "atlasRow": 3,
+      "atlasColumn": 1,
+      "confidence": "semantic",
+      "basis": "Food bag with plus signs; capacity+2",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_BigPortion",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B1_BigPortion",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_BigPortion.T_UI_PSD_Perk_B1_BigPortion",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        172,
+        135
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "sha256": "f9037458e380a27f1362326e8093bed0b7ad6f91b7432a1c4fe9b1c4663b4a7a",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L482.png",
+      "sourceBlendMode": "div",
+      "compositeMaxErrorRGB": 0.6737254901960943
+    },
+    {
+      "rowID": "B1_DeepBreath",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L484.png",
+      "sourcePSDLayerID": 484,
+      "sourcePSDLayerName": "Слой 18",
+      "atlasRow": 3,
+      "atlasColumn": 2,
+      "confidence": "semantic",
+      "basis": "Lungs silhouette",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_DeepBreath",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B1_DeepBreath",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_DeepBreath.T_UI_PSD_Perk_B1_DeepBreath",
+      "enabled": true,
+      "previousIcon": "/Game/Gameplay/UI/Art/T_UI_Card_P02_v10.T_UI_Card_P02_v10",
+      "size": [
+        195,
+        149
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "sha256": "06360272625710ba2c5cbc4f07b71cd4248bcc4837df6afb67716150b6e5e390",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L484.png",
+      "sourceBlendMode": "lite",
+      "compositeMaxErrorRGB": 0.7999999999999802
+    },
+    {
+      "rowID": "B1_FreshDelivery",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L486.png",
+      "sourcePSDLayerID": 486,
+      "sourcePSDLayerName": "Слой 19",
+      "atlasRow": 3,
+      "atlasColumn": 3,
+      "confidence": "semantic",
+      "basis": "Fresh apple held in hand; slower carried-food spoilage",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_FreshDelivery",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B1_FreshDelivery",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_FreshDelivery.T_UI_PSD_Perk_B1_FreshDelivery",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        154,
+        142
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "sha256": "779a9d254f3180db8657845574919fbd2c9143cd007c75ffc8831cfd858da6d6",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L486.png",
+      "sourceBlendMode": "div",
+      "compositeMaxErrorRGB": 0.6433285509325443
+    },
+    {
+      "rowID": "B1_GreedyHands",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L489.png",
+      "sourcePSDLayerID": 489,
+      "sourcePSDLayerName": "Слой 20",
+      "atlasRow": 3,
+      "atlasColumn": 4,
+      "confidence": "semantic",
+      "basis": "Food fragments and arrows around attracting tooth; larger pickup reach",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_GreedyHands",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B1_GreedyHands",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_GreedyHands.T_UI_PSD_Perk_B1_GreedyHands",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        179,
+        111
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "sha256": "34b3bc97769f62f9e4f97fd4f34afaf7dd1db3c0529e419d33166ac2db3f9778",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L489.png",
+      "sourceBlendMode": "lite",
+      "compositeMaxErrorRGB": 0.7529411764706262
+    },
+    {
+      "rowID": "B2_ReturnTrip",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L490.png",
+      "sourcePSDLayerID": 490,
+      "sourcePSDLayerName": "Слой 4 копия",
+      "atlasRow": 3,
+      "atlasColumn": 5,
+      "confidence": "explicit_duplicate_caption",
+      "basis": "Return arrows below tooth; duplicate261 appears under PSD title Обратный рейс",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_ReturnTrip",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B2_ReturnTrip",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_ReturnTrip.T_UI_PSD_Perk_B2_ReturnTrip",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        144,
+        153
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "sha256": "16d167aeea0f88da677f1b6662f865653acb27067b172f8e33ec623b8ce26fd9",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L490.png",
+      "sourceBlendMode": "lddg",
+      "compositeMaxErrorRGB": 0.6666666666666926
+    },
+    {
+      "rowID": "B1_WideBristles",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L517.png",
+      "sourcePSDLayerID": 517,
+      "sourcePSDLayerName": "BIG BRUSH",
+      "atlasRow": 4,
+      "atlasColumn": 1,
+      "confidence": "explicit_duplicate_caption",
+      "basis": "Broad brush source named BIG BRUSH; duplicate227 reward caption Широкая щетина",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_WideBristles",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B1_WideBristles",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_WideBristles.T_UI_PSD_Perk_B1_WideBristles",
+      "enabled": true,
+      "previousIcon": "/Game/Gameplay/UI/Art/T_UI_Card_X04_v10.T_UI_Card_X04_v10",
+      "size": [
+        234,
+        223
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "sha256": "70b0dd36208423cd5bfc55c4eec4754b198971899a63bd103bb3b601936e234e",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L517.png",
+      "sourceBlendMode": "lite",
+      "compositeMaxErrorRGB": 0.8000000000000085
+    },
+    {
+      "rowID": "B2_CleanBreath",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L519.png",
+      "sourcePSDLayerID": 519,
+      "sourcePSDLayerName": "Слой 21",
+      "atlasRow": 4,
+      "atlasColumn": 2,
+      "confidence": "semantic",
+      "basis": "Brush cleans tooth with healing plus; heals for each fully cleaned stain",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_CleanBreath",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B2_CleanBreath",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_CleanBreath.T_UI_PSD_Perk_B2_CleanBreath",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        314,
+        250
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "sha256": "705398c5485e77cb1ff606dc07c3785511ff93e97de0020b84b892bfff75a135",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L519.png",
+      "sourceBlendMode": "div",
+      "compositeMaxErrorRGB": 0.6766253869969041
+    },
+    {
+      "rowID": "B2_NeatFreak",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L522.png",
+      "sourcePSDLayerID": 522,
+      "sourcePSDLayerName": "Слой 22",
+      "atlasRow": 4,
+      "atlasColumn": 3,
+      "confidence": "semantic",
+      "basis": "Brush with checked multiple puddles; neighboring-stain cleanup",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_NeatFreak",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B2_NeatFreak",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_NeatFreak.T_UI_PSD_Perk_B2_NeatFreak",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        246,
+        145
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "sha256": "8cf8e5603327063876e8e9485c55682fa04432e9e0a7586cb3a86dd633cb09b4",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L522.png",
+      "sourceBlendMode": "lite",
+      "compositeMaxErrorRGB": 0.7999999999999802
+    },
+    {
+      "rowID": "B2_LastStroke",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L524.png",
+      "sourcePSDLayerID": 524,
+      "sourcePSDLayerName": "Слой 23",
+      "atlasRow": 4,
+      "atlasColumn": 4,
+      "confidence": "semantic",
+      "basis": "Brush finishing last small puddle",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_LastStroke",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B2_LastStroke",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_LastStroke.T_UI_PSD_Perk_B2_LastStroke",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        281,
+        157
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "sha256": "6371955d88499cd3b5b864637ce070cd5b96be673d9c23a332897c52c8fe9e0e",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L524.png",
+      "sourceBlendMode": "div",
+      "compositeMaxErrorRGB": 0.6592363261094009
+    },
+    {
+      "rowID": "B2_CleanAcceleration",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L526.png",
+      "sourcePSDLayerID": 526,
+      "sourcePSDLayerName": "Слой 24",
+      "atlasRow": 4,
+      "atlasColumn": 5,
+      "confidence": "semantic",
+      "basis": "Shoe accelerates over cleaned puddle with upward arrow",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_CleanAcceleration",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B2_CleanAcceleration",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_CleanAcceleration.T_UI_PSD_Perk_B2_CleanAcceleration",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        164,
+        114
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "sha256": "ab2d3508abb30ae9400fe7719c2e00156292e9a71dfaad3bf160100c55abf738",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L526.png",
+      "sourceBlendMode": "lite",
+      "compositeMaxErrorRGB": 0.7529411764706262
+    },
+    {
+      "rowID": "B2_RefreshingWork",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L530.png",
+      "sourcePSDLayerID": 530,
+      "sourcePSDLayerName": "Слой 25",
+      "atlasRow": 4,
+      "atlasColumn": 6,
+      "confidence": "semantic",
+      "basis": "Clean sparkling healing plus; heal on mouth fully clean",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_RefreshingWork",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B2_RefreshingWork",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_RefreshingWork.T_UI_PSD_Perk_B2_RefreshingWork",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        166,
+        135
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "sha256": "18fad6c39e9d3156b13bafca646556a503c2c85bf6702fd54c1467605795ae86",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L530.png",
+      "sourceBlendMode": "norm",
+      "compositeMaxErrorRGB": 0.0
+    },
+    {
+      "rowID": "B1_UnderPressure",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L560.png",
+      "sourcePSDLayerID": 560,
+      "sourcePSDLayerName": "Слой 26",
+      "atlasRow": 5,
+      "atlasColumn": 1,
+      "confidence": "semantic",
+      "basis": "Spray plume extended by forward arrow; increased reach/width",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_UnderPressure",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B1_UnderPressure",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_UnderPressure.T_UI_PSD_Perk_B1_UnderPressure",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        143,
+        136
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "sha256": "e53383e1460d80052eb312790d63f6c0f8287825ea36d75752801a98d251a394",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L560.png",
+      "sourceBlendMode": "lite",
+      "compositeMaxErrorRGB": 0.7999999999999802
+    },
+    {
+      "rowID": "B2_Softener",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L562.png",
+      "sourcePSDLayerID": 562,
+      "sourcePSDLayerName": "Слой 27",
+      "atlasRow": 5,
+      "atlasColumn": 2,
+      "confidence": "semantic",
+      "basis": "Crossed brush+spray; spray improves subsequent brushing",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_Softener",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B2_Softener",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_Softener.T_UI_PSD_Perk_B2_Softener",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        119,
+        148
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "sha256": "204310f507fb357839038fd7a838c4efdeab5b551fb5030d2908e7457ba7b26a",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L562.png",
+      "sourceBlendMode": "lite",
+      "compositeMaxErrorRGB": 0.7999999999999802
+    },
+    {
+      "rowID": "B2_Antiseptic",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L566.png",
+      "sourcePSDLayerID": 566,
+      "sourcePSDLayerName": "Слой 29",
+      "atlasRow": 5,
+      "atlasColumn": 3,
+      "confidence": "semantic",
+      "basis": "Spray directed onto dirty puddle; spray removes dirt",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_Antiseptic",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B2_Antiseptic",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_Antiseptic.T_UI_PSD_Perk_B2_Antiseptic",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        253,
+        135
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "sha256": "67d9406d9380e583ac1f0efd6e75332ebab1db89f61a18670edc112f3cbc3465",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L566.png",
+      "sourceBlendMode": "lite",
+      "compositeMaxErrorRGB": 0.7999999999999802
+    },
+    {
+      "rowID": "B2_LastingFormula",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Perk_L564.png",
+      "sourcePSDLayerID": 564,
+      "sourcePSDLayerName": "Слой 28",
+      "atlasRow": 5,
+      "atlasColumn": 4,
+      "confidence": "semantic",
+      "basis": "Can standing in persistent bubbling/steaming coating puddle",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_LastingFormula",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_B2_LastingFormula",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_LastingFormula.T_UI_PSD_Perk_B2_LastingFormula",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        145,
+        143
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "sha256": "3b581bfcea537cd3e0a92760f85367fba5eefb5d2056c80bd4094994dd84f62d",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/Perks/T_UI_PSD_Perk_L564.png",
+      "sourceBlendMode": "lite",
+      "compositeMaxErrorRGB": 0.784313725490205
+    },
+    {
+      "rowID": "Active_Sponge",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Sponge.png",
+      "confidence": "existing_PSDIconManifest_exact_active_mapping",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_Active_Sponge",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_Active_Sponge",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_Active_Sponge.T_UI_PSD_Perk_Active_Sponge",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        143,
+        124
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "sha256": "cf89ada81b450963fd7e295afc7ad2a8c2ea55b9a2e2e6845af7ae45078b9424",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/T_UI_PSD_Sponge.png",
+      "sourcePSDLayerID": 751,
+      "sourceBlendMode": "lite",
+      "compositeMaxErrorRGB": 0.7999999999999802
+    },
+    {
+      "rowID": "Active_Hook",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Hook.png",
+      "confidence": "existing_PSDIconManifest_exact_active_mapping",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_Active_Hook",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_Active_Hook",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_Active_Hook.T_UI_PSD_Perk_Active_Hook",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        134,
+        132
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "sha256": "cabafd8b3e1d414d5eeb945cc527181023a6a1cfe827c3057f4f200c038c6d1e",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/T_UI_PSD_Hook.png",
+      "sourcePSDLayerID": 757,
+      "sourceBlendMode": "lite",
+      "compositeMaxErrorRGB": 0.7999999999999802
+    },
+    {
+      "rowID": "Consumable_Grenade",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Grenade.png",
+      "confidence": "existing_PSDIconManifest_exact_active_mapping",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_Consumable_Grenade",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_Consumable_Grenade",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_Consumable_Grenade.T_UI_PSD_Perk_Consumable_Grenade",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        104,
+        129
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "sha256": "bb5e03aa974a4e6b965b59408a8ec230450c2b4b1c3cf1b4f58b28ee220b0dbe",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/T_UI_PSD_Grenade.png",
+      "sourcePSDLayerID": 773,
+      "sourceBlendMode": "div",
+      "compositeMaxErrorRGB": 0.5357466063348371
+    },
+    {
+      "rowID": "Consumable_Rocket",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Rocket.png",
+      "confidence": "existing_PSDIconManifest_exact_active_mapping",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_Consumable_Rocket",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_Consumable_Rocket",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_Consumable_Rocket.T_UI_PSD_Perk_Consumable_Rocket",
+      "enabled": true,
+      "previousIcon": "None",
+      "size": [
+        124,
+        113
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "sha256": "31e40604a98cb52858095ce5dffbdf1e0316b192bf9ad31559c414697586671e",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/T_UI_PSD_Rocket.png",
+      "sourcePSDLayerID": 753,
+      "sourceBlendMode": "norm",
+      "compositeMaxErrorRGB": 0.0
+    },
+    {
+      "rowID": "Consumable_Driver",
+      "sourceFile": "ArtSource/UI/V2/Icons/Perks/WhiteGlyphs/T_UI_PSD_Driver.png",
+      "confidence": "existing_PSDIconManifest_exact_active_mapping",
+      "targetAssetPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_Consumable_Driver",
+      "destinationPath": "/Game/Gameplay/UI/V2/Art/Perks",
+      "destinationName": "T_UI_PSD_Perk_Consumable_Driver",
+      "objectPath": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_Consumable_Driver.T_UI_PSD_Perk_Consumable_Driver",
+      "enabled": false,
+      "previousIcon": "None",
+      "size": [
+        129,
+        101
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "sha256": "f3f5586db8716f7436cea0085011e6b1e654cca757ae2b6b01f3a2f22870c0d0",
+      "rawSourceFile": "ArtSource/UI/V2/Icons/T_UI_PSD_Driver.png",
+      "sourcePSDLayerID": 755,
+      "sourceBlendMode": "lite",
+      "compositeMaxErrorRGB": 0.7999999999999802
+    }
+  ],
+  "rowPatches": [
+    {
+      "Name": "B2_ThunderGod",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_ThunderGod.T_UI_PSD_Perk_B2_ThunderGod"
+    },
+    {
+      "Name": "B2_StartFromDash",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_StartFromDash.T_UI_PSD_Perk_B2_StartFromDash"
+    },
+    {
+      "Name": "B1_HeavyHit",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_HeavyHit.T_UI_PSD_Perk_B1_HeavyHit"
+    },
+    {
+      "Name": "B1_ConfidentThrow",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_ConfidentThrow.T_UI_PSD_Perk_B1_ConfidentThrow"
+    },
+    {
+      "Name": "B2_EchoSwing",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_EchoSwing.T_UI_PSD_Perk_B2_EchoSwing"
+    },
+    {
+      "Name": "B2_Billiards",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_Billiards.T_UI_PSD_Perk_B2_Billiards"
+    },
+    {
+      "Name": "B2_ThickEnamel",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_ThickEnamel.T_UI_PSD_Perk_B2_ThickEnamel"
+    },
+    {
+      "Name": "B2_Shield",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_Shield.T_UI_PSD_Perk_B2_Shield"
+    },
+    {
+      "Name": "B1_LightFoot",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_LightFoot.T_UI_PSD_Perk_B1_LightFoot"
+    },
+    {
+      "Name": "B2_SecondWind",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_SecondWind.T_UI_PSD_Perk_B2_SecondWind"
+    },
+    {
+      "Name": "B2_HoudiniDash",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_HoudiniDash.T_UI_PSD_Perk_B2_HoudiniDash"
+    },
+    {
+      "Name": "B2_MightyTooth",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_MightyTooth.T_UI_PSD_Perk_B2_MightyTooth"
+    },
+    {
+      "Name": "B1_BigPortion",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_BigPortion.T_UI_PSD_Perk_B1_BigPortion"
+    },
+    {
+      "Name": "B1_DeepBreath",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_DeepBreath.T_UI_PSD_Perk_B1_DeepBreath"
+    },
+    {
+      "Name": "B1_FreshDelivery",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_FreshDelivery.T_UI_PSD_Perk_B1_FreshDelivery"
+    },
+    {
+      "Name": "B1_GreedyHands",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_GreedyHands.T_UI_PSD_Perk_B1_GreedyHands"
+    },
+    {
+      "Name": "B2_ReturnTrip",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_ReturnTrip.T_UI_PSD_Perk_B2_ReturnTrip"
+    },
+    {
+      "Name": "B1_WideBristles",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_WideBristles.T_UI_PSD_Perk_B1_WideBristles"
+    },
+    {
+      "Name": "B2_CleanBreath",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_CleanBreath.T_UI_PSD_Perk_B2_CleanBreath"
+    },
+    {
+      "Name": "B2_NeatFreak",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_NeatFreak.T_UI_PSD_Perk_B2_NeatFreak"
+    },
+    {
+      "Name": "B2_LastStroke",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_LastStroke.T_UI_PSD_Perk_B2_LastStroke"
+    },
+    {
+      "Name": "B2_CleanAcceleration",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_CleanAcceleration.T_UI_PSD_Perk_B2_CleanAcceleration"
+    },
+    {
+      "Name": "B2_RefreshingWork",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_RefreshingWork.T_UI_PSD_Perk_B2_RefreshingWork"
+    },
+    {
+      "Name": "B1_UnderPressure",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B1_UnderPressure.T_UI_PSD_Perk_B1_UnderPressure"
+    },
+    {
+      "Name": "B2_Softener",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_Softener.T_UI_PSD_Perk_B2_Softener"
+    },
+    {
+      "Name": "B2_Antiseptic",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_Antiseptic.T_UI_PSD_Perk_B2_Antiseptic"
+    },
+    {
+      "Name": "B2_LastingFormula",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_B2_LastingFormula.T_UI_PSD_Perk_B2_LastingFormula"
+    },
+    {
+      "Name": "Active_Sponge",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_Active_Sponge.T_UI_PSD_Perk_Active_Sponge"
+    },
+    {
+      "Name": "Active_Hook",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_Active_Hook.T_UI_PSD_Perk_Active_Hook"
+    },
+    {
+      "Name": "Consumable_Grenade",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_Consumable_Grenade.T_UI_PSD_Perk_Consumable_Grenade"
+    },
+    {
+      "Name": "Consumable_Rocket",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_Consumable_Rocket.T_UI_PSD_Perk_Consumable_Rocket"
+    },
+    {
+      "Name": "Consumable_Driver",
+      "Icon": "/Game/Gameplay/UI/V2/Art/Perks/T_UI_PSD_Perk_Consumable_Driver.T_UI_PSD_Perk_Consumable_Driver"
+    }
+  ],
+  "blockedRows": [
+    {
+      "Name": "Consumable_Air",
+      "enabled": true,
+      "reason": "Real vacuum/blow food bag ability; no corresponding glyph in existing PSD active manifest. Never substitute disabledDriver art for Air."
+    }
+  ],
+  "sourcePreservation": {
+    "documentID": 63,
+    "savedBefore": false,
+    "savedAfter": false,
+    "activeLayerBefore": 81,
+    "activeLayerAfter": 81,
+    "method": "Owned duplicate only; clip masks released only on temporary copied layers. SourcePSD untouched."
+  },
+  "instructions": [
+    "Merge rowPatches by Name into full133-row JSON, change onlyIcon; keep Enabled/mechanics/profiles untouched",
+    "Import32PNG definitions,27newpassives+5existingactives; Driver remainsdisabled",
+    "RuntimeUI reads canonicalIcon; no private lookup needed",
+    "Verify DT_Perks reflected preload references and first visible use"
+  ],
+  "inferredPair": {
+    "B2_StartFromDash": 336,
+    "B2_MightyTooth": 438
+  },
+  "blendTransfer": {
+    "referenceDarkTileSRGB": [
+      63,
+      67,
+      66
+    ],
+    "method": "Preserve original isolated PNGs; bake source PSD Lighten/Screen/ColorDodge/LighterColor/LinearDodge brightening modes against exact reference dark tile into straight-alpha glyph RGBA. Normal layers retain original RGBA. No AI or new artwork; mathematical exact source blend transfer after Photoshop owned-document extraction.",
+    "negativeRegions": "Pixels contributing exactly the dark tile become alpha0; white glyph cores remain white; source antialias/effect edge color preserved by straight-alpha reconstruction",
+    "checks": [
+      {
+        "rowID": "B2_ThunderGod",
+        "layer": 338,
+        "blend": "lite",
+        "maxCompositeRGBError": 0.7529411764706262,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B2_StartFromDash",
+        "layer": 336,
+        "blend": "scrn",
+        "maxCompositeRGBError": 0.6093656286043991,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B1_HeavyHit",
+        "layer": 339,
+        "blend": "lite",
+        "maxCompositeRGBError": 0.7999999999999802,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B1_ConfidentThrow",
+        "layer": 341,
+        "blend": "lite",
+        "maxCompositeRGBError": 0.7529411764706262,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B2_EchoSwing",
+        "layer": 345,
+        "blend": "scrn",
+        "maxCompositeRGBError": 0.6445213379469367,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B2_Billiards",
+        "layer": 347,
+        "blend": "lite",
+        "maxCompositeRGBError": 0.7999999999999802,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B2_ThickEnamel",
+        "layer": 419,
+        "blend": "lgCl",
+        "maxCompositeRGBError": 0.9960784313725668,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B2_Shield",
+        "layer": 421,
+        "blend": "lgCl",
+        "maxCompositeRGBError": 0.9960784313725385,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B1_LightFoot",
+        "layer": 428,
+        "blend": "lite",
+        "maxCompositeRGBError": 0.7999999999999802,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B2_SecondWind",
+        "layer": 434,
+        "blend": "lite",
+        "maxCompositeRGBError": 0.7999999999999802,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B2_HoudiniDash",
+        "layer": 436,
+        "blend": "div",
+        "maxCompositeRGBError": 0.6737254901960943,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B2_MightyTooth",
+        "layer": 438,
+        "blend": "lite",
+        "maxCompositeRGBError": 0.7999999999999802,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B1_BigPortion",
+        "layer": 482,
+        "blend": "div",
+        "maxCompositeRGBError": 0.6737254901960943,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B1_DeepBreath",
+        "layer": 484,
+        "blend": "lite",
+        "maxCompositeRGBError": 0.7999999999999802,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B1_FreshDelivery",
+        "layer": 486,
+        "blend": "div",
+        "maxCompositeRGBError": 0.6433285509325443,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B1_GreedyHands",
+        "layer": 489,
+        "blend": "lite",
+        "maxCompositeRGBError": 0.7529411764706262,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B2_ReturnTrip",
+        "layer": 490,
+        "blend": "lddg",
+        "maxCompositeRGBError": 0.6666666666666926,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B1_WideBristles",
+        "layer": 517,
+        "blend": "lite",
+        "maxCompositeRGBError": 0.8000000000000085,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B2_CleanBreath",
+        "layer": 519,
+        "blend": "div",
+        "maxCompositeRGBError": 0.6766253869969041,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B2_NeatFreak",
+        "layer": 522,
+        "blend": "lite",
+        "maxCompositeRGBError": 0.7999999999999802,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B2_LastStroke",
+        "layer": 524,
+        "blend": "div",
+        "maxCompositeRGBError": 0.6592363261094009,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B2_CleanAcceleration",
+        "layer": 526,
+        "blend": "lite",
+        "maxCompositeRGBError": 0.7529411764706262,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B2_RefreshingWork",
+        "layer": 530,
+        "blend": "norm",
+        "maxCompositeRGBError": 0.0,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B1_UnderPressure",
+        "layer": 560,
+        "blend": "lite",
+        "maxCompositeRGBError": 0.7999999999999802,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B2_Softener",
+        "layer": 562,
+        "blend": "lite",
+        "maxCompositeRGBError": 0.7999999999999802,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B2_Antiseptic",
+        "layer": 566,
+        "blend": "lite",
+        "maxCompositeRGBError": 0.7999999999999802,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "B2_LastingFormula",
+        "layer": 564,
+        "blend": "lite",
+        "maxCompositeRGBError": 0.784313725490205,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "Active_Sponge",
+        "layer": 751,
+        "blend": "lite",
+        "maxCompositeRGBError": 0.7999999999999802,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "Active_Hook",
+        "layer": 757,
+        "blend": "lite",
+        "maxCompositeRGBError": 0.7999999999999802,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "Consumable_Grenade",
+        "layer": 773,
+        "blend": "div",
+        "maxCompositeRGBError": 0.5357466063348371,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "Consumable_Rocket",
+        "layer": 753,
+        "blend": "norm",
+        "maxCompositeRGBError": 0.0,
+        "blackOpaquePixelsRemaining": 0
+      },
+      {
+        "rowID": "Consumable_Driver",
+        "layer": 755,
+        "blend": "lite",
+        "maxCompositeRGBError": 0.7999999999999802,
+        "blackOpaquePixelsRemaining": 0
+      }
+    ],
+    "maxCompositeRGBError": 0.9960784313725668
+  }
+}

@@ -1,11 +1,11 @@
 [
   {
     "Name": "UI.HUD.Cleanliness",
-    "EN": "MOUTH CLEANLINESS",
+    "EN": "CLEAN MOUTH",
     "DE": "MUNDHYGIENE",
-    "FR": "PROPRETÉ BUCCALE",
-    "ES": "LIMPIEZA BUCAL",
-    "PT_BR": "LIMPEZA BUCAL",
+    "FR": "PROPRETÉ",
+    "ES": "LIMPIEZA",
+    "PT_BR": "LIMPEZA",
     "ZH_HANS": "口腔清洁度",
     "ZH_HANT": "口腔清潔度",
     "JA": "口内の清潔度",

@@ -34,6 +34,8 @@ public:
     bool PrepareInterface(APlayerController* Controller);
     bool PrepareFishingCatch(APlayerController* Controller,UMCFishingRewardWidget* Source);
     bool GetUnifiedFishCounterTargets(const APlayerController* Controller,UWidget*& Icon,UWidget*& Card) const;
+    /** Actual visible New Wardrobe panels reserve this normalized viewport rectangle for its original 3D display. */
+    bool GetWardrobePreviewViewportRect(const APlayerController* Controller,FBox2D& OutRect) const;
 private:
     bool PrepareWorldLabels(APlayerController* Controller);
     void RefreshInterface();

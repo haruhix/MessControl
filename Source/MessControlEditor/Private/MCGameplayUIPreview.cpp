@@ -4,10 +4,12 @@
 #include "MCGameplayUIWidget.h"
 #include "MCMainMenuWidget.h"
 #include "MCUnifiedUIWidget.h"
+#include "MCUnifiedFrontendWidget.h"
 #include "MCTutorialTypes.h"
 #include "AssetRegistry/AssetData.h"
 #include "Blueprint/WidgetTree.h"
 #include "Containers/Ticker.h"
+#include "CoreGlobals.h"
 #include "Customizations/IBlueprintWidgetCustomizationExtender.h"
 #include "DetailCategoryBuilder.h"
 #include "DetailLayoutBuilder.h"
@@ -85,6 +87,111 @@ namespace
 
     template<typename T>
     struct TUnifiedOverlayPreviewChoice {T Value;FText Label;};
+
+    // Exact fixture tokens consumed by the composed views; aliases with identical output are omitted.
+    const TUnifiedOverlayPreviewChoice<FName> UnifiedHubModes[]={
+        {NAME_None,LOCTEXT("UnifiedHubGathering","Gathering: host")},
+        {TEXT("Guest"),LOCTEXT("UnifiedHubGuest","Gathering: guest")},
+        {TEXT("Selecting"),LOCTEXT("UnifiedHubSelecting","Location selection: host")},
+        {TEXT("SelectingGuest"),LOCTEXT("UnifiedHubSelectingGuest","Location selection: guest")},
+        {TEXT("Travelling"),LOCTEXT("UnifiedHubTravelling","Travelling")},
+        {TEXT("FishingControls"),LOCTEXT("UnifiedHubFishingControls","Fishing controls")},
+        {TEXT("FishingWaiting"),LOCTEXT("UnifiedHubFishingWaiting","Fishing: waiting")},
+        {TEXT("FishingHooked"),LOCTEXT("UnifiedHubFishingHooked","Fishing: hooked")},
+        {TEXT("BasketballControls"),LOCTEXT("UnifiedHubBasketballControls","Basketball controls")},
+        {TEXT("BasketballPickup"),LOCTEXT("UnifiedHubBasketballPickup","Basketball: pick up")},
+        {TEXT("ControlsLongText"),LOCTEXT("UnifiedHubControlsLongText","Long control instructions")}
+    };
+    const TUnifiedOverlayPreviewChoice<FName> UnifiedRewardModes[]={
+        {NAME_None,LOCTEXT("UnifiedRewardChoice","Reward choice")},
+        {TEXT("AutoPicking"),LOCTEXT("UnifiedRewardAutoPicking","Automatic selection")},
+        {TEXT("Replacement"),LOCTEXT("UnifiedRewardReplacement","Replace a skill")},
+        {TEXT("Contract"),LOCTEXT("UnifiedRewardContract","Contract confirmation")},
+        {TEXT("WaitingForTeam"),LOCTEXT("UnifiedRewardWaiting","Waiting for team")},
+        {TEXT("Pending"),LOCTEXT("UnifiedRewardPending","Selection pending")}
+    };
+    const TUnifiedOverlayPreviewChoice<FName> UnifiedGameplayMenuModes[]={
+        {NAME_None,LOCTEXT("UnifiedGameplayMenuDefault","Widget default page")},
+        {TEXT("Pause"),LOCTEXT("UnifiedGameplayMenuPause","Pause")},
+        {TEXT("Settings"),LOCTEXT("UnifiedGameplayMenuSettings","Graphics settings")},
+        {TEXT("Audio"),LOCTEXT("UnifiedGameplayMenuAudio","Audio and microphone")},
+        {TEXT("Connection"),LOCTEXT("UnifiedGameplayMenuConnection","Connection")},
+        {TEXT("Credits"),LOCTEXT("UnifiedGameplayMenuCredits","Credits")},
+        {TEXT("Leave"),LOCTEXT("UnifiedGameplayMenuLeave","Leave confirmation")},
+        {TEXT("Exit"),LOCTEXT("UnifiedGameplayMenuExit","Exit confirmation")},
+        {TEXT("VideoConfirm"),LOCTEXT("UnifiedGameplayMenuVideo","Display confirmation")}
+    };
+    const TUnifiedOverlayPreviewChoice<FName> UnifiedCatchModes[]={
+        {NAME_None,LOCTEXT("UnifiedCatchDefault","Widget default rarity")},
+        {TEXT("Common"),LOCTEXT("UnifiedCatchCommon","Common catch")},
+        {TEXT("Rare"),LOCTEXT("UnifiedCatchRare","Rare catch")},
+        {TEXT("Epic"),LOCTEXT("UnifiedCatchEpic","Epic catch")},
+        {TEXT("Legendary"),LOCTEXT("UnifiedCatchLegendary","Legendary catch")},
+        {TEXT("WalletFull"),LOCTEXT("UnifiedCatchWalletFull","Wallet full")},
+        {TEXT("Merged"),LOCTEXT("UnifiedCatchMerged","Merged reward")}
+    };
+    const TUnifiedOverlayPreviewChoice<FName> UnifiedHUDExtrasModes[]={
+        {NAME_None,LOCTEXT("UnifiedHUDExtrasDefault","Default HUD")},
+        {TEXT("Death"),LOCTEXT("UnifiedHUDExtrasDeath","Death")},
+        {TEXT("Respawn"),LOCTEXT("UnifiedHUDExtrasRespawn","Respawn countdown")},
+        {TEXT("Spectator"),LOCTEXT("UnifiedHUDExtrasSpectator","Spectator")},
+        {TEXT("ResultsWin"),LOCTEXT("UnifiedHUDExtrasWin","Victory results")},
+        {TEXT("ResultsLose"),LOCTEXT("UnifiedHUDExtrasLose","Defeat results")},
+        {TEXT("Swimming"),LOCTEXT("UnifiedHUDExtrasSwimming","Swimming")},
+        {TEXT("Drowning"),LOCTEXT("UnifiedHUDExtrasDrowning","Drowning")},
+        {TEXT("Booster"),LOCTEXT("UnifiedHUDExtrasBooster","Booster")},
+        {TEXT("Passive"),LOCTEXT("UnifiedHUDExtrasPassive","Passives")},
+        {TEXT("PassiveOverflow"),LOCTEXT("UnifiedHUDExtrasPassiveOverflow","Passives: row scrolling")},
+        {TEXT("Cataclysm"),LOCTEXT("UnifiedHUDExtrasCataclysm","Cataclysm instructions")},
+        {TEXT("CataclysmSwim"),LOCTEXT("UnifiedHUDExtrasCataclysmSwim","Cataclysm and swimming")},
+        {TEXT("CataclysmDrowning"),LOCTEXT("UnifiedHUDExtrasCataclysmDrowning","Cataclysm and drowning")},
+        {TEXT("LongText"),LOCTEXT("UnifiedHUDExtrasLongText","Combined long text")},
+        {TEXT("FoodReticle"),LOCTEXT("UnifiedHUDExtrasFoodReticle","Food reticle")},
+        {TEXT("FoodReticleFade"),LOCTEXT("UnifiedHUDExtrasFoodReticleFade","Food reticle: fading")},
+        {TEXT("SprayReticle"),LOCTEXT("UnifiedHUDExtrasSprayReticle","Spray reticle")},
+        {TEXT("PressureReticle"),LOCTEXT("UnifiedHUDExtrasPressureReticle","Pressure spray reticle")},
+        {TEXT("AntisepticReload"),LOCTEXT("UnifiedHUDExtrasAntisepticReload","Antiseptic reload")},
+        {TEXT("FogNavigation"),LOCTEXT("UnifiedHUDExtrasFogNavigation","Fog navigation")},
+        {TEXT("ReticleCombined"),LOCTEXT("UnifiedHUDExtrasReticleCombined","Combined reticle and navigation")}
+    };
+    const TUnifiedOverlayPreviewChoice<FName> UnifiedLoadingModes[]={
+        {NAME_None,LOCTEXT("UnifiedLoadingAssets","Loading assets")},
+        {TEXT("Graphics"),LOCTEXT("UnifiedLoadingGraphics","Preparing graphics")},
+        {TEXT("Streaming"),LOCTEXT("UnifiedLoadingStreaming","Streaming textures and meshes")},
+        {TEXT("Connecting"),LOCTEXT("UnifiedLoadingConnecting","Connecting")},
+        {TEXT("Waiting"),LOCTEXT("UnifiedLoadingWaiting","Waiting for players")},
+        {TEXT("Failed"),LOCTEXT("UnifiedLoadingFailed","Failed: retry and back")}
+    };
+    const TUnifiedOverlayPreviewChoice<FName> UnifiedBossModes[]={
+        {NAME_None,LOCTEXT("UnifiedBossDefault","Default boss stack")},
+        {TEXT("Letterbox"),LOCTEXT("UnifiedBossLetterbox","Cinematic letterbox")},
+        {TEXT("ZeroBosses"),LOCTEXT("UnifiedBossZero","No bosses")},
+        {TEXT("ShieldedLeader"),LOCTEXT("UnifiedBossShielded","Shielded leader")},
+        {TEXT("ZeroHealth"),LOCTEXT("UnifiedBossZeroHealth","Zero health")},
+        {TEXT("FullHealth"),LOCTEXT("UnifiedBossFullHealth","Full health")},
+        {TEXT("BrokenShield"),LOCTEXT("UnifiedBossBrokenShield","Broken shield")}
+    };
+    const TUnifiedOverlayPreviewChoice<int32> UnifiedFrontendPages[]={
+        {int32(EMCUnifiedFrontendPage::Join),LOCTEXT("UnifiedFrontendJoin","Join friends")},
+        {int32(EMCUnifiedFrontendPage::Connection),LOCTEXT("UnifiedFrontendConnection","Connection")},
+        {int32(EMCUnifiedFrontendPage::Lobby),LOCTEXT("UnifiedFrontendLobby","Lobby")},
+        {int32(EMCUnifiedFrontendPage::Leave),LOCTEXT("UnifiedFrontendLeave","Leave confirmation")},
+        {int32(EMCUnifiedFrontendPage::Exit),LOCTEXT("UnifiedFrontendExit","Exit confirmation")}
+    };
+    const TUnifiedOverlayPreviewChoice<EMCGameplayUIPreviewScenario> UnifiedScenarios[]={
+        {EMCGameplayUIPreviewScenario::Default,LOCTEXT("UnifiedScenarioDefault","Default")},
+        {EMCGameplayUIPreviewScenario::LongText,LOCTEXT("UnifiedScenarioLongText","Long text")},
+        {EMCGameplayUIPreviewScenario::LowResources,LOCTEXT("UnifiedScenarioLowResources","Low health")},
+        {EMCGameplayUIPreviewScenario::Empty,LOCTEXT("UnifiedScenarioEmpty","Empty")},
+        {EMCGameplayUIPreviewScenario::OneBoss,LOCTEXT("UnifiedScenarioOneBoss","One boss")},
+        {EMCGameplayUIPreviewScenario::TwoBosses,LOCTEXT("UnifiedScenarioTwoBosses","Two bosses")},
+        {EMCGameplayUIPreviewScenario::ThreeBosses,LOCTEXT("UnifiedScenarioThreeBosses","Three bosses")},
+        {EMCGameplayUIPreviewScenario::Pending,LOCTEXT("UnifiedScenarioPending","Pending")},
+        {EMCGameplayUIPreviewScenario::Disabled,LOCTEXT("UnifiedScenarioDisabled","Disabled")},
+        {EMCGameplayUIPreviewScenario::Selected,LOCTEXT("UnifiedScenarioSelected","Location selection")},
+        {EMCGameplayUIPreviewScenario::Victory,LOCTEXT("UnifiedScenarioVictory","Tutorial complete")},
+        {EMCGameplayUIPreviewScenario::Waiting,LOCTEXT("UnifiedScenarioWaiting","Waiting")}
+    };
 
     const TUnifiedOverlayPreviewChoice<FName> UnifiedTutorialModes[]={
         {NAME_None,LOCTEXT("UnifiedTutorialSelectedLesson","Selected lesson")},
@@ -273,6 +380,8 @@ namespace
         FDelegateHandle RebuildHandle;
         float Time=0.f;
         bool bPlaying=false;
+        uint8 GeometrySettleFrames=0;
+        uint64 SettleQueuedFrame=0;
         // Session-only state: never written to the Blueprint CDO or saved tree.
         FName MenuState=TEXT("Main");
         FString MenuCulture;
@@ -296,7 +405,59 @@ namespace
         int32 UnifiedEmoteCategory=0;
         int32 UnifiedFrontendPage=0;
         FString UnifiedCulture;
+        EMCGameplayUIPreviewScenario UnifiedScenario=EMCGameplayUIPreviewScenario::Default;
     };
+
+    void QueueGeometrySettle(FPreviewSession& Session)
+    {
+        Session.GeometrySettleFrames=Session.bPlaying?0:3;
+        Session.SettleQueuedFrame=GFrameCounter;
+    }
+
+    bool SupportsUnifiedScenario(const FPreviewSession& Session,EMCGameplayUIPreviewScenario Scenario)
+    {
+        if(Scenario==EMCGameplayUIPreviewScenario::Default) return true;
+        const bool Long=Scenario==EMCGameplayUIPreviewScenario::LongText;
+        const bool Empty=Scenario==EMCGameplayUIPreviewScenario::Empty;
+        const bool Pending=Scenario==EMCGameplayUIPreviewScenario::Pending;
+        const bool Waiting=Scenario==EMCGameplayUIPreviewScenario::Waiting;
+        const bool Disabled=Scenario==EMCGameplayUIPreviewScenario::Disabled;
+        const bool BossCount=Scenario==EMCGameplayUIPreviewScenario::OneBoss || Scenario==EMCGameplayUIPreviewScenario::TwoBosses || Scenario==EMCGameplayUIPreviewScenario::ThreeBosses;
+        switch(Session.UnifiedScreen)
+        {
+        case EMCUnifiedUIScreen::Hub:return Long || Waiting || Scenario==EMCGameplayUIPreviewScenario::Selected;
+        case EMCUnifiedUIScreen::Reward:return Long || Waiting || Pending;
+        case EMCUnifiedUIScreen::Team:return Long || Empty;
+        case EMCUnifiedUIScreen::Wardrobe:return Disabled;
+        case EMCUnifiedUIScreen::Frontend:
+            // Confirmation pages have no long/empty/pending fixture; use only their real disabled state.
+            return Disabled
+                || (Long && (Session.UnifiedFrontendPage==int32(EMCUnifiedFrontendPage::Join) || Session.UnifiedFrontendPage==int32(EMCUnifiedFrontendPage::Lobby)))
+                || (Empty && (Session.UnifiedFrontendPage==int32(EMCUnifiedFrontendPage::Join) || Session.UnifiedFrontendPage==int32(EMCUnifiedFrontendPage::Connection)))
+                || (Pending && Session.UnifiedFrontendPage>=int32(EMCUnifiedFrontendPage::Join) && Session.UnifiedFrontendPage<=int32(EMCUnifiedFrontendPage::Lobby));
+        case EMCUnifiedUIScreen::GameplayMenu:return Long || (Pending && Session.UnifiedGameplayMenuMode==TEXT("Connection"));
+        case EMCUnifiedUIScreen::Catch:
+        case EMCUnifiedUIScreen::HUDExtras:
+        case EMCUnifiedUIScreen::Emotes:return Long;
+        case EMCUnifiedUIScreen::Loading:return Waiting;
+        case EMCUnifiedUIScreen::Boss:return Long || Empty || BossCount || Scenario==EMCGameplayUIPreviewScenario::LowResources;
+        case EMCUnifiedUIScreen::Alert:return Long || Empty || BossCount;
+        case EMCUnifiedUIScreen::Tutorial:return Long || Empty || Scenario==EMCGameplayUIPreviewScenario::Victory;
+        default:return false; // Main menu, base HUD, Settings and Boosters have no scenario fixture.
+        }
+    }
+
+    bool HasUnifiedScenarioChoices(const FPreviewSession& Session)
+    {
+        for(const auto& Choice:UnifiedScenarios)
+            if(Choice.Value!=EMCGameplayUIPreviewScenario::Default && SupportsUnifiedScenario(Session,Choice.Value)) return true;
+        return false;
+    }
+
+    void NormalizeUnifiedScenario(FPreviewSession& Session)
+    {
+        if(!SupportsUnifiedScenario(Session,Session.UnifiedScenario)) Session.UnifiedScenario=EMCGameplayUIPreviewScenario::Default;
+    }
 
     class FGameplayPreviewExtender final : public IBlueprintWidgetCustomizationExtender
     {
@@ -398,7 +559,7 @@ namespace
             const auto* Blueprint=Editor->GetWidgetBlueprintObj();
             if(Blueprint && Blueprint->ParentClass && Blueprint->ParentClass->IsChildOf(UMCUnifiedUIWidget::StaticClass()))
             {
-                Category.AddCustomRow(LOCTEXT("UnifiedScreenSearch","Interface screen language PSD"))
+                Category.AddCustomRow(LOCTEXT("UnifiedScreenSearch","Interface screen language PSD Hub Reward Frontend GameplayMenu Catch HUD Loading Boss Alert Settings Tutorial Emotes mode page scenario"))
                 .WholeRowContent()
                 [
                     SNew(SVerticalBox)
@@ -408,6 +569,23 @@ namespace
                     + SVerticalBox::Slot().AutoHeight().Padding(0,6,0,2)
                     [SNew(STextBlock).Text(LOCTEXT("UnifiedLanguage","Language (preview only)"))]
                     + SVerticalBox::Slot().AutoHeight()[MakeUnifiedSelector(WeakSelf,WeakEditor,true)]
+                    + SVerticalBox::Slot().AutoHeight()
+                    [MakeUnifiedModeSection(WeakSelf,WeakEditor,EMCUnifiedUIScreen::Hub,LOCTEXT("UnifiedHubMode","Hub mode (preview only)"),&FPreviewSession::UnifiedHubMode,UnifiedHubModes)]
+                    + SVerticalBox::Slot().AutoHeight()
+                    [MakeUnifiedModeSection(WeakSelf,WeakEditor,EMCUnifiedUIScreen::Reward,LOCTEXT("UnifiedRewardMode","Reward mode (preview only)"),&FPreviewSession::UnifiedRewardMode,UnifiedRewardModes)]
+                    + SVerticalBox::Slot().AutoHeight()
+                    [MakeUnifiedModeSection(WeakSelf,WeakEditor,EMCUnifiedUIScreen::Frontend,LOCTEXT("UnifiedFrontendPage","Frontend page (preview only)"),&FPreviewSession::UnifiedFrontendPage,UnifiedFrontendPages)]
+                    + SVerticalBox::Slot().AutoHeight()
+                    [MakeUnifiedModeSection(WeakSelf,WeakEditor,EMCUnifiedUIScreen::GameplayMenu,LOCTEXT("UnifiedGameplayMenuMode","Gameplay menu page (preview only)"),&FPreviewSession::UnifiedGameplayMenuMode,UnifiedGameplayMenuModes)]
+                    + SVerticalBox::Slot().AutoHeight()
+                    [MakeUnifiedModeSection(WeakSelf,WeakEditor,EMCUnifiedUIScreen::Catch,LOCTEXT("UnifiedCatchMode","Catch mode (preview only)"),&FPreviewSession::UnifiedCatchMode,UnifiedCatchModes)]
+                    + SVerticalBox::Slot().AutoHeight()
+                    [MakeUnifiedModeSection(WeakSelf,WeakEditor,EMCUnifiedUIScreen::HUDExtras,LOCTEXT("UnifiedHUDExtrasMode","HUD overlay mode (preview only)"),&FPreviewSession::UnifiedHUDExtrasMode,UnifiedHUDExtrasModes)]
+                    + SVerticalBox::Slot().AutoHeight()
+                    [MakeUnifiedModeSection(WeakSelf,WeakEditor,EMCUnifiedUIScreen::Loading,LOCTEXT("UnifiedLoadingMode","Loading mode (preview only)"),&FPreviewSession::UnifiedLoadingMode,UnifiedLoadingModes)]
+                    + SVerticalBox::Slot().AutoHeight()
+                    [MakeUnifiedModeSection(WeakSelf,WeakEditor,EMCUnifiedUIScreen::Boss,LOCTEXT("UnifiedBossMode","Boss mode (preview only)"),&FPreviewSession::UnifiedBossMode,UnifiedBossModes)]
+                    + SVerticalBox::Slot().AutoHeight()[MakeUnifiedScenarioSection(WeakSelf,WeakEditor)]
                     + SVerticalBox::Slot().AutoHeight().Padding(0,6,0,2)
                     [SNew(STextBlock).Text(LOCTEXT("UnifiedSettingsTab","Settings tab (preview only)"))
                         .Visibility_Lambda([WeakSelf,WeakEditor]
@@ -510,6 +688,7 @@ namespace
                 Widget->ApplyEditorPreview(Session.Time);
                 MCGameplayUIPreview::SynchronizeFixtureTree(Widget);
                 Widget->InvalidateLayoutAndVolatility();
+                QueueGeometrySettle(Session);
             }
         }
 
@@ -542,6 +721,8 @@ namespace
                 Session.UnifiedEmoteMode=Root->PreviewEmoteMode;
                 Session.UnifiedEmoteCategory=FMath::Clamp(Root->PreviewEmoteCategory,0,2);
                 Session.UnifiedCulture=Root->PreviewCulture;
+                Session.UnifiedScenario=Root->PreviewScenario;
+                NormalizeUnifiedScenario(Session);
                 Session.bHasUnifiedSelection=true;
             }
             if (Session.bHasMenuSelection) return;
@@ -568,6 +749,7 @@ namespace
                 Root->PreviewEmoteMode=Session.UnifiedEmoteMode;
                 Root->PreviewEmoteCategory=Session.UnifiedEmoteCategory;
                 Root->PreviewCulture=Session.UnifiedCulture;
+                Root->PreviewScenario=Session.UnifiedScenario;
                 Root->PreviewState=FName(*StaticEnum<EMCUnifiedUIScreen>()->GetNameStringByValue(int64(Session.UnifiedScreen)));
             }
             auto* Menu=Cast<UMCMainMenuWidget>(Widget);
@@ -620,6 +802,7 @@ namespace
             Menu->ApplyEditorPreview(Session.Time);
             MCGameplayUIPreview::SynchronizeFixtureTree(Menu);
             Menu->InvalidateLayoutAndVolatility();
+            QueueGeometrySettle(Session);
         }
 
         static TSharedRef<SWidget> MakeMenuSelector(TWeakPtr<FGameplayPreviewExtender> WeakSelf,TWeakPtr<FWidgetBlueprintEditor> WeakEditor,bool bCulture)
@@ -673,6 +856,7 @@ namespace
                                 if(auto Self=WeakSelf.Pin()) if(auto Editor=WeakEditor.Pin()) {
                                     auto& Session=Self->SessionFor(Editor.ToSharedRef());Session.bHasUnifiedSelection=true;
                                     if(bCulture) Session.UnifiedCulture=Culture;else Session.UnifiedScreen=Screen;
+                                    NormalizeUnifiedScenario(Session);
                                     Self->Execute(Editor,0);
                                 }
                             }),FCanExecuteAction::CreateLambda([bReady]{return bReady;}),
@@ -812,7 +996,7 @@ namespace
                             {
                                 if(auto Self=WeakSelf.Pin()) if(auto Editor=WeakEditor.Pin()) {
                                     auto& Session=Self->SessionFor(Editor.ToSharedRef());
-                                    Session.bHasUnifiedSelection=true;Session.*Field=Value;Self->Execute(Editor,0);
+                                    Session.bHasUnifiedSelection=true;Session.*Field=Value;NormalizeUnifiedScenario(Session);Self->Execute(Editor,0);
                                 }
                             }),FCanExecuteAction(),FIsActionChecked::CreateLambda([WeakSelf,WeakEditor,Field,Value]
                             {
@@ -828,6 +1012,71 @@ namespace
                         for(SIZE_T Index=0;Index<Count;++Index) if(Session->*Field==Entries[Index].Value) return Entries[Index].Label;
                     return LOCTEXT("UnifiedOverlayCustom","Custom preview");
                 })];
+        }
+
+        template<typename T,SIZE_T Count>
+        static TSharedRef<SWidget> MakeUnifiedModeSection(TWeakPtr<FGameplayPreviewExtender> WeakSelf,TWeakPtr<FWidgetBlueprintEditor> WeakEditor,
+            EMCUnifiedUIScreen Screen,const FText& Label,T FPreviewSession::* Field,const TUnifiedOverlayPreviewChoice<T> (&Choices)[Count])
+        {
+            return SNew(SVerticalBox)
+                .Visibility_Lambda([WeakSelf,WeakEditor,Screen]
+                {
+                    if(auto Self=WeakSelf.Pin()) if(const auto* Session=Self->FindSession(WeakEditor.Pin()))
+                        return Session->UnifiedScreen==Screen?EVisibility::Visible:EVisibility::Collapsed;
+                    return EVisibility::Collapsed;
+                })
+                + SVerticalBox::Slot().AutoHeight().Padding(0,6,0,2)[SNew(STextBlock).Text(Label)]
+                + SVerticalBox::Slot().AutoHeight()[MakeUnifiedOverlaySelector(WeakSelf,WeakEditor,Field,Choices)];
+        }
+
+        static TSharedRef<SWidget> MakeUnifiedScenarioSection(TWeakPtr<FGameplayPreviewExtender> WeakSelf,TWeakPtr<FWidgetBlueprintEditor> WeakEditor)
+        {
+            // Alert ignores its FName mode: only these real enum fixtures change that view.
+            // Other screens receive only scenarios their current page actually consumes.
+            return SNew(SVerticalBox)
+                .Visibility_Lambda([WeakSelf,WeakEditor]
+                {
+                    if(auto Self=WeakSelf.Pin()) if(const auto* Session=Self->FindSession(WeakEditor.Pin()))
+                        return HasUnifiedScenarioChoices(*Session)?EVisibility::Visible:EVisibility::Collapsed;
+                    return EVisibility::Collapsed;
+                })
+                + SVerticalBox::Slot().AutoHeight().Padding(0,6,0,2)
+                [SNew(STextBlock).Text(LOCTEXT("UnifiedScenario","Scenario (preview only)"))]
+                + SVerticalBox::Slot().AutoHeight()
+                [SNew(SComboButton)
+                    .IsEnabled_Lambda([WeakEditor]{return Cast<UMCUnifiedUIWidget>(GetGameplayPreview(WeakEditor.Pin()))!=nullptr;})
+                    .OnGetMenuContent_Lambda([WeakSelf,WeakEditor]() -> TSharedRef<SWidget>
+                    {
+                        FMenuBuilder Menu(true,nullptr);
+                        if(auto Self=WeakSelf.Pin()) if(const auto* Session=Self->FindSession(WeakEditor.Pin()))
+                            for(const auto& Choice:UnifiedScenarios) {
+                                if(!SupportsUnifiedScenario(*Session,Choice.Value)) continue;
+                                const auto Value=Choice.Value;
+                                Menu.AddMenuEntry(Choice.Label,
+                                    LOCTEXT("UnifiedScenarioHelp","Uses this screen's existing Designer fixture; saved widget defaults and player state stay unchanged."),
+                                    FSlateIcon(),FUIAction(FExecuteAction::CreateLambda([WeakSelf,WeakEditor,Value]
+                                    {
+                                        if(auto Current=WeakSelf.Pin()) if(auto Editor=WeakEditor.Pin()) {
+                                            auto& Selected=Current->SessionFor(Editor.ToSharedRef());
+                                            if(!SupportsUnifiedScenario(Selected,Value)) return;
+                                            Selected.bHasUnifiedSelection=true;Selected.UnifiedScenario=Value;Current->Execute(Editor,0);
+                                        }
+                                    }),FCanExecuteAction(),FIsActionChecked::CreateLambda([WeakSelf,WeakEditor,Value]
+                                    {
+                                        if(auto Current=WeakSelf.Pin()) if(const auto* Selected=Current->FindSession(WeakEditor.Pin()))
+                                            return Selected->UnifiedScenario==Value;
+                                        return false;
+                                    })),NAME_None,EUserInterfaceActionType::RadioButton);
+                            }
+                        return Menu.MakeWidget();
+                    })
+                    .ButtonContent()[SNew(STextBlock).Text_Lambda([WeakSelf,WeakEditor]
+                    {
+                        if(auto Self=WeakSelf.Pin()) if(const auto* Session=Self->FindSession(WeakEditor.Pin()))
+                            for(const auto& Choice:UnifiedScenarios) if(Session->UnifiedScenario==Choice.Value) return Choice.Label;
+                        return FText::GetEmpty();
+                    })]
+                ];
         }
 
         static TSharedRef<SWidget> MakeButton(const FText& Label,TWeakPtr<FGameplayPreviewExtender> WeakSelf,TWeakPtr<FWidgetBlueprintEditor> Editor,int32 Action)
@@ -865,6 +1114,7 @@ namespace
                             RestoreMenuSelection(Current,Current.Preview.Get());
                             Current.Preview->ApplyEditorPreview(0.f);
                             MCGameplayUIPreview::SynchronizeFixtureTree(Current.Preview.Get());
+                            QueueGeometrySettle(Current);
                         }
                     }
             });
@@ -880,6 +1130,7 @@ namespace
             CaptureMenuSelection(Session,Widget);
             RestoreMenuSelection(Session,Widget);
             Session.bPlaying=Action==1;
+            QueueGeometrySettle(Session);
             if (Action==2) return;
             Session.Time=Action==0?FMath::Max(0.f,Widget->PreviewTime):0.f;
             if (Action==3)
@@ -920,6 +1171,7 @@ namespace
                     Session.bPlaying=false;
                     Session.Time=0.f;
                     Session.Preview=Widget;
+                    QueueGeometrySettle(Session);
                     CaptureMenuSelection(Session,Widget);
                     RestoreMenuSelection(Session,Widget);
                     if (Widget && (Session.bHasMenuSelection || Session.bHasUnifiedSelection))
@@ -929,7 +1181,21 @@ namespace
                         Widget->InvalidateLayoutAndVolatility();
                     }
                 }
-                if (!Session.bPlaying || !Widget) continue;
+                if (!Widget) continue;
+                if (!Session.bPlaying) {
+                    if(Session.GeometrySettleFrames>0 && GFrameCounter>Session.SettleQueuedFrame) {
+                        --Session.GeometrySettleFrames;
+                        Session.SettleQueuedFrame=GFrameCounter;
+                        // Reflow the frozen fixture once per frame, without restarting it or advancing time.
+                        RestoreMenuSelection(Session,Widget);
+                        Widget->PreviewTime=Session.Time;
+                        Widget->ApplyEditorPreview(Session.Time);
+                        MCGameplayUIPreview::SynchronizeFixtureTree(Widget);
+                        Widget->InvalidateLayoutAndVolatility();
+                    }
+                    continue;
+                }
+                Session.GeometrySettleFrames=0;
                 Session.Time=FMath::Fmod(Session.Time+FMath::Clamp(DeltaTime,0.f,.1f),FMath::Max(.1f,Widget->PreviewDuration));
                 Widget->PreviewTime=Session.Time;
                 Widget->ApplyEditorPreview(Session.Time);
@@ -951,6 +1217,7 @@ namespace
                     Widget->ApplyEditorPreview(Session.Time);
                     MCGameplayUIPreview::SynchronizeFixtureTree(Widget);
                     Widget->InvalidateLayoutAndVolatility();
+                    QueueGeometrySettle(Session);
                 }
             if (ThemePanel.IsValid() && ThemePanel->GetTheme()==Theme) ThemePanel->RefreshPreview();
         }

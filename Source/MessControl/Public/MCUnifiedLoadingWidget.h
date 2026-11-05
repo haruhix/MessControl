@@ -29,7 +29,7 @@ protected:
 private:
     UMCUniversalUIWidget* MakeShape(FName Name,FLinearColor Fill,FMargin ShapePadding);
     UTextBlock* MakeLabel(FName Name,int32 FontSize);
-    void UpdateLayout();
+    void UpdateLayout(FVector2D AvailableSize=FVector2D::ZeroVector);
     void SyncFrameVisibility();
     bool bPrepared=false,bPreparing=false;
     float PreparedFontScale=0;

@@ -74,6 +74,11 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hub Party|Motion",meta=(ClampMin="0",ClampMax="1")) float PartyFadeSeconds=.18f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hub Party|Motion",meta=(ClampMin="0",ClampMax="1")) float PartyHoverSeconds=.12f;
     void FocusVoiceControls();
+    /** Weak link to the alternate view; input state remains owned by this scoreboard/controller. */
+    void SetUnifiedFocusOwner(UUserWidget* View);
+    void ClearUnifiedFocusOwner(const UUserWidget* View);
+    /** Includes only this player's native/alternate scoreboard, never unrelated editor/menu focus. */
+    bool HasPresentationFocus() const;
     /** Presentation bridges reuse the existing close and Hub-mode policies. */
     bool IsUnifiedHubParty() const { return IsHubPartyPresentation(); }
     void RequestUnifiedClose() { ClosePartyPanel(); }
@@ -90,6 +95,7 @@ protected:
     virtual FReply NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event) override;
     virtual FReply NativeOnKeyUp(const FGeometry& Geometry,const FKeyEvent& Event) override;
 private:
+    UPROPERTY(Transient) TWeakObjectPtr<UUserWidget> UnifiedFocusOwner;
     UPROPERTY(Transient) TObjectPtr<UVerticalBox> Players;
     UPROPERTY(Transient) TArray<FMCScoreboardRow> Rows;
     float RefreshElapsed=.25f;

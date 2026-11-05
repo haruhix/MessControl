@@ -96,6 +96,8 @@ private:
     bool IsGatheringHub() const;
     bool IsRealRun() const;
     bool LoadTables() const;
+    bool IsClothingInShopRotation(FName ItemID,const FMCCosmeticCatalogRow& Clothing) const;
+    bool UsesCanonicalClothingStock(const FMCHubCatalogRow& Item) const;
     bool IsCatalogUsable(const FMCHubCatalogRow& Item, bool bIncludeSuspended=false) const;
     bool CanQueueItem(FName ItemID, const FMCHubCatalogRow& Item, int32 Stacks=1) const;
     bool ResolvePerk(FName PerkID,FMCPerkDefinition& Definition) const;
@@ -106,6 +108,10 @@ private:
     void AddCoinsClamped(int32 Amount);
     UFUNCTION() void OnRep_Economy();
     UPROPERTY(Transient) mutable TObjectPtr<UDataTable> LoadedCatalog;
+    UPROPERTY(Transient) mutable TObjectPtr<UDataTable> LoadedCosmetics;
+    // Heap-stable projected rows: nested catalog lookups must not invalidate an earlier returned row pointer.
+    // This is derived runtime state, never serialized or independently editable commerce data.
+    mutable TMap<FName,TUniquePtr<FMCHubCatalogRow>> EffectiveClothingOffers;
     UPROPERTY(Transient) mutable TObjectPtr<UDataTable> LoadedRewards;
     UPROPERTY(Transient) mutable TObjectPtr<UDataTable> LoadedRules;
     UPROPERTY(Transient) FMCGrillReward PendingRoll;

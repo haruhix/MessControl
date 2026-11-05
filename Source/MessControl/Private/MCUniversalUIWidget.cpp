@@ -68,7 +68,7 @@ void UMCUniversalUIWidget::BuildPresentationTree()
         auto* Text=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),TEXT("UniversalLabel"));
         // Let the parent limit width and the button grow vertically. Label
         // fonts keep their authored size; translation is never shrunk to fit.
-        Text->SetAutoWrapText(Kind!=EMCUniversalUIKind::Button);Text->SetWrapTextAt(Kind==EMCUniversalUIKind::Button?800.f:0.f);Text->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+        Text->SetAutoWrapText(Kind!=EMCUniversalUIKind::Button);Text->SetWrapTextAt(Kind==EMCUniversalUIKind::Button?800.f:0.f);Text->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
         Stack->AddChildToVerticalBox(Text);
         auto* Bar=WidgetTree->ConstructWidget<UProgressBar>(UProgressBar::StaticClass(),TEXT("UniversalProgress"));
         Stack->AddChildToVerticalBox(Bar)->SetPadding(FMargin(0,10,0,0));
@@ -102,13 +102,17 @@ void UMCUniversalUIWidget::ApplyTheme()
     const float Outline=FMath::Max(0.f,bUseThemeShape?T->OutlineWidth:OutlineWidth);
     const bool Button=Kind==EMCUniversalUIKind::Button;
     auto* Contour=WidgetTree->FindWidget<UMCUIContourShape>(TEXT("UniversalContour"));
-    const bool Polygon=Kind==EMCUniversalUIKind::Panel && ContourPoints.Num()>=3 && Contour;
     // Designer forces wrappers enabled. Use the authored flag for its specimen,
     // so disabled controls still display their real state in the existing preview tool.
     PRAGMA_DISABLE_DEPRECATION_WARNINGS
     const bool Disabled=!bIsEnabled || (IsDesignTime() && PreviewScenario==EMCGameplayUIPreviewScenario::Disabled);
     PRAGMA_ENABLE_DEPRECATION_WARNINGS
     const auto FillColor=bCustomColors?CustomFill:T->GetColor(Button?EMCUIColorToken::Button:Fill);
+    // Semi-transparent PSD panels need an exterior-only shadow. The contour
+    // renderer clips that shadow rather than stacking another fill behind it.
+    const bool ExteriorShadow=Kind==EMCUniversalUIKind::Panel && bCustomColors
+        && FillColor.A<1.f && CustomShadow.A>0.f;
+    const bool Polygon=Kind==EMCUniversalUIKind::Panel && Contour && (ContourPoints.Num()>=3 || ExteriorShadow);
     const bool Selected=bSelected || (IsDesignTime() && PreviewScenario==EMCGameplayUIPreviewScenario::Selected);
     const auto Edge=bCustomColors?CustomOutline:T->GetColor(Selected?EMCUIColorToken::Focus:EMCUIColorToken::Border);
     if(auto* Surface=WidgetTree->FindWidget<UButton>(TEXT("UniversalSurface")))
@@ -131,10 +135,10 @@ void UMCUniversalUIWidget::ApplyTheme()
         PRAGMA_ENABLE_DEPRECATION_WARNINGS
         Surface->SetVisibility(Button?ESlateVisibility::Visible:ESlateVisibility::SelfHitTestInvisible);
         if(auto* ContentSlot=Cast<UButtonSlot>(Surface->GetContentSlot())) {
-            const float Inner=Outline+.5f;
+            const float Inner=bFitProgressToOutline?Outline:Outline+.5f;
             const FMargin InnerPadding=Kind==EMCUniversalUIKind::Progress?
-                FMargin(FMath::Max(Inner,ContentPadding.Left),FMath::Max(Inner,ContentPadding.Top),
-                    FMath::Max(Inner,ContentPadding.Right),FMath::Max(Inner,ContentPadding.Bottom)):ContentPadding;
+                (bFitProgressToOutline?FMargin(Inner):FMargin(FMath::Max(Inner,ContentPadding.Left),FMath::Max(Inner,ContentPadding.Top),
+                    FMath::Max(Inner,ContentPadding.Right),FMath::Max(Inner,ContentPadding.Bottom))):ContentPadding;
             ContentSlot->SetPadding(InnerPadding);
             ContentSlot->SetVerticalAlignment(Button?VAlign_Center:VAlign_Fill);
         }
@@ -151,11 +155,14 @@ void UMCUniversalUIWidget::ApplyTheme()
         }
     }
     if(Contour) {
-        Contour->Points=ContourPoints;Contour->FillColor=Disabled?T->Palette.ButtonDisabled:FillColor;
+        Contour->Points=ContourPoints.Num()>=3?ContourPoints:TArray<FVector2D>{{0,0},{1,0},{1,1},{0,1}};
+        Contour->FillColor=Disabled?T->Palette.ButtonDisabled:FillColor;
         Contour->OutlineColor=Edge;Contour->ShadowColor=bCustomColors?CustomShadow:T->Palette.Border;
         Contour->OutlineWidth=Outline;Contour->CornerRadius=Radius;Contour->ShadowOffset=ShadowOffset;
-        Contour->SetVisibility(Polygon?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
         Contour->SynchronizeProperties();
+        // Designer synchronization restores its bound visibility. Apply the
+        // actual shape visibility last so an empty contour contributes no size.
+        Contour->SetVisibility(Polygon?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     }
     if(auto* Text=WidgetTree->FindWidget<UTextBlock>(TEXT("UniversalLabel")))
     {
@@ -163,7 +170,7 @@ void UMCUniversalUIWidget::ApplyTheme()
         // An intrinsic button width must not feed back into auto-wrap and
         // progressively split ordinary labels at smaller DPI. Grow the shape
         // to the text; wrap only beyond the bounded readable column.
-        Text->SetAutoWrapText(!Button);Text->SetWrapTextAt(Button?800.f:0.f);
+        Text->SetAutoWrapText(!Button);Text->SetWrapTextAt(Button?800.f:0.f);Text->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
         const auto TextToken=Button?EMCUIColorToken::ButtonText:
             Foreground==EMCUIColorToken::OnMarine && FillColor.GetLuminance()>.35f?EMCUIColorToken::Ink:Foreground;
         Text->SetColorAndOpacity(bCustomColors?CustomText:T->GetColor(TextToken));
@@ -178,8 +185,10 @@ void UMCUniversalUIWidget::ApplyTheme()
     if(auto* Bar=WidgetTree->FindWidget<UProgressBar>(TEXT("UniversalProgress")))
     {
         FProgressBarStyle Style;
-        Style.SetBackgroundImage(FSlateRoundedBoxBrush(T->Palette.LCDBackground,Radius));
-        Style.SetFillImage(FSlateRoundedBoxBrush(T->GetColor(ProgressFill),Radius));
+        if(bFitProgressToOutline) Style.SetBackgroundImage(FSlateNoResource());
+        else Style.SetBackgroundImage(FSlateRoundedBoxBrush(T->Palette.LCDBackground,Radius));
+        const float FillRadius=bFitProgressToOutline?FMath::Max(0.f,Radius-Outline):Radius;
+        Style.SetFillImage(FSlateRoundedBoxBrush(bUseCustomProgressFill?CustomProgressFillColor:T->GetColor(ProgressFill),FillRadius));
         Style.BackgroundImage.ImageSize=FVector2D(120,18);Style.FillImage.ImageSize=FVector2D(120,18);
         Bar->SetWidgetStyle(Style);Bar->SetFillColorAndOpacity(FLinearColor::White);
         // Fill the actual remaining interior, including small portrait bars.

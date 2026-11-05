@@ -86,6 +86,7 @@ protected:
     virtual void NativeOnInitialized() override;
     virtual void NativeConstruct() override;
     virtual void NativeDestruct() override;
+    virtual void OnLocalizationChanged() override;
     virtual FReply NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event) override;
 
     UPROPERTY(meta=(BindWidgetOptional)) TObjectPtr<UBorder> WardrobePanel;
@@ -100,9 +101,15 @@ protected:
     UPROPERTY(meta=(BindWidgetOptional)) TObjectPtr<UTextBlock> WardrobeTransactionMessage;
 private:
     void ResolveControls();
+    void RefreshTransactionCopy(bool bReplaceCurrent=false);
+    FText OriginalTransactionCopy;
+    FText AppliedTransactionCopy;
+    bool bOwnsTransactionCopy=false;
+    bool bAppliedTransactionCopy=false;
     void BindControls();
     void UnbindControls();
     void RefreshValues();
+    TArray<FName> PrepareAuthoredSlotGroups(UDataTable* Catalog);
     bool IsPreviewing() const {return bEditorFixture || IsDesignTime();}
     UFUNCTION() void PaletteChanged(FVector HSV);
     UFUNCTION() void ApplyClicked();
@@ -112,9 +119,12 @@ private:
     UFUNCTION() void PurchasePressed(FName CatalogId);
     UPROPERTY(Transient) TObjectPtr<UMCHubEconomyComponent> CosmeticEconomy;
     UPROPERTY(Transient) TArray<TObjectPtr<UMCCosmeticItemWidget>> CosmeticTiles;
+    UPROPERTY(Transient) TMap<FName,TObjectPtr<UUniformGridPanel>> AdditionalSlotItems;
+    UPROPERTY(Transient) TMap<FName,TObjectPtr<UTextBlock>> AdditionalSlotHeadings;
     FMCCharacterCosmeticLoadout DraftLoadout;
     FLinearColor DraftColor=FLinearColor(.24f,.65f,1.f);
     FVector DraftHSV=FVector(0,0,1);
     bool bSynchronizing=false;
     bool bEditorFixture=false;
+    bool bRefreshingCosmetics=false;
 };

@@ -26,6 +26,10 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Universal|Shape") EMCUIColorToken Fill=EMCUIColorToken::Surface;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Universal|Shape") EMCUIColorToken Foreground=EMCUIColorToken::OnMarine;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Universal|Shape") EMCUIColorToken ProgressFill=EMCUIColorToken::Mint;
+    /** Align a progress fill to the inner edge of its authored outline. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Universal|Shape") bool bFitProgressToOutline=false;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Universal|Shape") bool bUseCustomProgressFill=false;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Universal|Shape",meta=(EditCondition="bUseCustomProgressFill")) FLinearColor CustomProgressFillColor=FLinearColor::White;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Universal|Shape") bool bUseThemeShape=true;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Universal|Shape",meta=(ClampMin="0",EditCondition="!bUseThemeShape")) float CornerRadius=16.f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Universal|Shape",meta=(ClampMin="0",EditCondition="!bUseThemeShape")) float OutlineWidth=3.f;

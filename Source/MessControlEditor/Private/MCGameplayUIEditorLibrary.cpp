@@ -1,4 +1,23 @@
 #include "MCGameplayUIEditorLibrary.h"
+#include "Engine/Engine.h"
+#include "Engine/GameViewportClient.h"
+#include "Framework/Application/SlateApplication.h"
+#include "Input/HittestGrid.h"
+#include "Layout/Children.h"
+#include "Widgets/SVirtualWindow.h"
+#include "Components/PanelWidget.h"
+#include "MCUnifiedAlertWidget.h"
+#include "MCUnifiedBossWidget.h"
+#include "MCUnifiedLoadingWidget.h"
+#include "MCUnifiedHUDExtrasWidget.h"
+#include "MCUnifiedEmoteWidget.h"
+#include "MCUnifiedTutorialWidget.h"
+#include "MCUnifiedGameplayMenuWidget.h"
+#include "MCUnifiedFrontendWidget.h"
+#include "MCUnifiedRewardWidget.h"
+#include "MCUnifiedShopWidget.h"
+#include "MCUnifiedWardrobeWidget.h"
+#include "MCUnifiedUIWidget.h"
 #include "MCEmoteWidget.h"
 #include "MCWorldLabelWidget.h"
 #include "Widgets/Layout/SBox.h"
@@ -100,6 +119,29 @@ bool UMCGameplayUIEditorLibrary::TogglePIEPauseMenu(UWorld* World)
     }
     if(!LocalController) return false;
     LocalController->TogglePauseMenu();
+    return true;
+}
+
+bool UMCGameplayUIEditorLibrary::InjectSoloUIKey(FName Key,bool Down)
+{
+    if(!IsInGameThread() || !GEditor || !GEngine || !FSlateApplication::IsInitialized()
+        || !FParse::Param(FCommandLine::Get(),TEXT("MCUIFoundationOwned"))
+        || !FParse::Param(FCommandLine::Get(),TEXT("MCHubTransientProfile"))) return false;
+    const FKey EventKey(Key);
+    if(EventKey!=EKeys::Tab && EventKey!=EKeys::Escape && EventKey!=EKeys::F3) return false;
+    UWorld* const World=GEditor->PlayWorld;
+    if(!World || World->WorldType!=EWorldType::PIE || World->bIsTearingDown || World->GetNetMode()!=NM_Standalone
+        || World->GetNumPlayerControllers()!=1) return false;
+    int32 PIEWorlds=0;for(const FWorldContext& Context:GEngine->GetWorldContexts()) if(Context.WorldType==EWorldType::PIE) ++PIEWorlds;
+    auto* LocalController=World->GetFirstPlayerController();
+    if(PIEWorlds!=1 || !LocalController || !LocalController->IsLocalPlayerController() || !LocalController->GetLocalPlayer()) return false;
+    auto& Slate=FSlateApplication::Get();auto* Viewport=World->GetGameViewport();
+    const auto Focused=Slate.GetUserFocusedWidget(Slate.GetUserIndexForKeyboard());
+    const TSharedPtr<SWindow> Window=Viewport?Viewport->GetWindow():TSharedPtr<SWindow>();
+    if(!Slate.IsActive() || !Focused || !Window || Slate.FindWidgetWindow(Focused.ToSharedRef())!=Window
+        || Slate.GetActiveTopLevelWindow()!=Window) return false;
+    const FKeyEvent Event(EventKey,FModifierKeysState(),Slate.GetUserIndexForKeyboard(),false,0,0);
+    if(Down) Slate.ProcessKeyDownEvent(Event);else Slate.ProcessKeyUpEvent(Event);
     return true;
 }
 #include "AssetRegistry/AssetRegistryModule.h"
@@ -506,7 +548,7 @@ bool UMCGameplayUIEditorLibrary::CapturePIEGameWindow(UWorld* World,const FStrin
 
 bool UMCGameplayUIEditorLibrary::RenderGameplayUIPreview(TSubclassOf<UMCGameplayUIWidget> WidgetClass,
     const FString& OutputFile,FIntPoint DrawSize,const FString& State,const FString& Culture,float Time,float RenderScale,
-    bool bOverrideUIVersion,EMCUIVersion UIVersion)
+    bool bOverrideUIVersion,EMCUIVersion UIVersion,const FString& FixtureOptions)
 {
     FString Path=FPaths::ConvertRelativePathToFull(OutputFile);FPaths::NormalizeFilename(Path);
     if (!GEditor || GEditor->PlayWorld || !WidgetClass || !Path.StartsWith(TEXT("E:/"),ESearchCase::IgnoreCase)
@@ -517,6 +559,27 @@ bool UMCGameplayUIEditorLibrary::RenderGameplayUIPreview(TSubclassOf<UMCGameplay
     TStrongObjectPtr<UMCGameplayUIWidget> Widget(NewObject<UMCGameplayUIWidget>(GetTransientPackage(),WidgetClass,NAME_None,RF_Transient));
     Widget->SetDesignerFlags(EWidgetDesignFlags::Designing | EWidgetDesignFlags::ExecutePreConstruct);
     Widget->PreviewState=FName(State);Widget->PreviewCulture=Culture;
+    // Optional review fixtures affect this transient instance only. They let the
+    // single root show every settings tab and modal state without editing a CDO.
+    if(!FixtureOptions.IsEmpty()) {
+        auto* Root=Cast<UMCUnifiedUIWidget>(Widget.Get());TSharedPtr<FJsonObject> Options;
+        if(!Root || !FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(FixtureOptions),Options) || !Options) return false;
+        const TSet<FString> Allowed={TEXT("settingsTab"),TEXT("frontendPage"),TEXT("scenario"),TEXT("hubMode"),TEXT("rewardMode"),TEXT("gameplayMenuMode"),TEXT("catchMode"),TEXT("hudExtrasMode"),TEXT("loadingMode"),TEXT("bossMode"),TEXT("alertMode"),TEXT("tutorialMode"),TEXT("emoteMode"),TEXT("emoteCategory")};
+        for(const auto& Entry:Options->Values) if(!Allowed.Contains(FString(Entry.Key.ToView()))) return false;
+        auto Index=[&](const TCHAR* Key,int32 Maximum,int32& Target) {
+            if(!Options->HasField(Key)) return true;double Value=0;
+            if(!Options->TryGetNumberField(Key,Value) || !FMath::IsFinite(Value) || Value<0 || Value>Maximum || Value!=FMath::FloorToDouble(Value)) return false;
+            Target=int32(Value);return true;
+        };
+        if(!Index(TEXT("settingsTab"),4,Root->PreviewSettingsTab) || !Index(TEXT("frontendPage"),4,Root->PreviewFrontendPage) || !Index(TEXT("emoteCategory"),2,Root->PreviewEmoteCategory)) return false;
+        auto Mode=[&](const TCHAR* Key,FName& Target) {if(!Options->HasField(Key)) return true;FString Value;if(!Options->TryGetStringField(Key,Value) || Value.Len()>96) return false;Target=FName(Value);return true;};
+        if(!Mode(TEXT("hubMode"),Root->PreviewHubMode) || !Mode(TEXT("rewardMode"),Root->PreviewRewardMode) || !Mode(TEXT("gameplayMenuMode"),Root->PreviewGameplayMenuMode) || !Mode(TEXT("catchMode"),Root->PreviewCatchMode) || !Mode(TEXT("hudExtrasMode"),Root->PreviewHUDExtrasMode) || !Mode(TEXT("loadingMode"),Root->PreviewLoadingMode) || !Mode(TEXT("bossMode"),Root->PreviewBossMode) || !Mode(TEXT("alertMode"),Root->PreviewAlertMode) || !Mode(TEXT("tutorialMode"),Root->PreviewTutorialMode) || !Mode(TEXT("emoteMode"),Root->PreviewEmoteMode)) return false;
+        if(Options->HasField(TEXT("scenario"))) {
+            FString Value;if(!Options->TryGetStringField(TEXT("scenario"),Value)) return false;
+            const int64 ScenarioValue=StaticEnum<EMCGameplayUIPreviewScenario>()->GetValueByNameString(Value);
+            if(ScenarioValue==INDEX_NONE) return false;Widget->PreviewScenario=EMCGameplayUIPreviewScenario(ScenarioValue);
+        }
+    }
     if(bOverrideUIVersion) {Widget->bOverridePreviewUIVersion=true;Widget->PreviewUIVersion=UIVersion;}
     const int64 Scenario=StaticEnum<EMCGameplayUIPreviewScenario>()->GetValueByNameString(State);
     if (Scenario!=INDEX_NONE) Widget->PreviewScenario=static_cast<EMCGameplayUIPreviewScenario>(Scenario);
@@ -568,20 +631,20 @@ bool UMCGameplayUIEditorLibrary::RenderGameplayUIPreview(TSubclassOf<UMCGameplay
     Target->TargetGamma=1.f;
     Target->InitCustomFormat(DrawSize.X,DrawSize.Y,PF_FloatRGBA,true);
     Target->UpdateResourceImmediate(true);
-    Renderer->DrawWidget(Target.Get(),PreviewSurface,FVector2D(DrawSize),0.f,false);
-    FlushRenderingCommands();
-    // Auto-wrap needs an allotted width before its measured height is final.
-    // Warm the actual tree, then export the settled layout.
-    // Transient fixtures have no World and do not receive NativeTick. Reapply
-    // the fixture with its real paint geometry/DPI so measured HUD panels use
-    // the same font scale as the final draw.
-    Widget->ApplyEditorPreview(Time);
-    MCGameplayUIPreview::SynchronizeFixtureTree(Widget.Get());
-    Widget->RefreshPresentationGeometry();
-    SlateWidget->Invalidate(EInvalidateWidgetReason::Layout);
-    PreviewSurface->SlatePrepass();
-    Renderer->DrawWidget(Target.Get(),PreviewSurface,FVector2D(DrawSize),0.f,false);
-    FlushRenderingCommands();
+    // Keep the same virtual window through layout settling, just as a live
+    // viewport does. New geometry/caption wrapping must reach the next prepass.
+    const auto FixtureWindow=SNew(SVirtualWindow).Size(FVector2D(DrawSize));
+    auto FixtureHits=MakeUnique<FHittestGrid>();FixtureWindow->SetContent(PreviewSurface);
+    constexpr int32 SettlePasses=4;
+    for(int32 Pass=0;Pass<SettlePasses;++Pass) {
+        Widget->ApplyEditorPreview(Time);
+        MCGameplayUIPreview::SynchronizeFixtureTree(Widget.Get());
+        Widget->RefreshPresentationGeometry();
+        SlateWidget->Invalidate(EInvalidateWidgetReason::Layout);
+        PreviewSurface->SlatePrepass();
+        Renderer->DrawWindow(Target.Get(),*FixtureHits,FixtureWindow,1.f,FVector2D(DrawSize),0.f,false);
+        FlushRenderingCommands();
+    }
     TArray<FLinearColor> LinearPixels;
     FReadSurfaceDataFlags ReadFlags(RCM_MinMax);
     ReadFlags.SetLinearToGamma(false);
@@ -597,6 +660,64 @@ bool UMCGameplayUIEditorLibrary::RenderGameplayUIPreview(TSubclassOf<UMCGameplay
         FImageView(RawPixels.GetData(),DrawSize.X,DrawSize.Y,EGammaSpace::sRGB));
     IFileManager::Get().MakeDirectory(*FPaths::GetPath(Path),true);
     const bool bSaved=bEncoded && FFileHelper::SaveArrayToFile(Pixels,*Path);
+    // Retain actual settled Slate geometry beside each review image. This is
+    // evidence from the drawn tree, including legal list clipping, not a model
+    // of the layout formulas being tested.
+    auto Layout=MakeShared<FJsonObject>();TArray<TSharedPtr<FJsonValue>> Nodes;
+    Layout->SetStringField(TEXT("widgetClass"),WidgetClass->GetPathName());
+    Layout->SetStringField(TEXT("state"),State);Layout->SetStringField(TEXT("culture"),Culture);Layout->SetStringField(TEXT("fixtureOptions"),FixtureOptions);
+    Layout->SetNumberField(TEXT("width"),DrawSize.X);Layout->SetNumberField(TEXT("height"),DrawSize.Y);
+    Layout->SetNumberField(TEXT("dpiScale"),DPIScale*RenderScale);Layout->SetNumberField(TEXT("settlePasses"),SettlePasses);
+    TSet<UWidget*> Visited;
+    TFunction<void(UWidget*,FString)> Inspect=[&](UWidget* Node,FString ScrollOwner) {
+        if(!Node || Visited.Contains(Node) || !Node->IsVisible()) return;Visited.Add(Node);
+        const auto Geometry=Node->GetPaintSpaceGeometry();const auto Local=Geometry.GetLocalSize();
+        if(Local.X>0 && Local.Y>0) {
+            auto Item=MakeShared<FJsonObject>();Item->SetStringField(TEXT("name"),Node->GetName());
+            Item->SetStringField(TEXT("class"),Node->GetClass()->GetName());Item->SetStringField(TEXT("scrollAncestor"),ScrollOwner);
+            const auto Min=Geometry.LocalToAbsolute(FVector2D::ZeroVector),Max=Geometry.LocalToAbsolute(Local);
+            TArray<TSharedPtr<FJsonValue>> Rect;
+            for(double V:{Min.X,Min.Y,Max.X,Max.Y}) Rect.Add(MakeShared<FJsonValueNumber>(V));
+            Item->SetArrayField(TEXT("rect"),Rect);
+            if(const auto* Text=Cast<UTextBlock>(Node)) {
+                Item->SetStringField(TEXT("text"),Text->GetText().ToString());Item->SetNumberField(TEXT("fontSize"),Text->GetFont().Size);
+            }
+            Nodes.Add(MakeShared<FJsonValueObject>(Item));
+        }
+        if(Node->IsA<UScrollBox>()) ScrollOwner=Node->GetName();
+        if(auto* User=Cast<UUserWidget>(Node);User && User->WidgetTree) Inspect(User->WidgetTree->RootWidget,ScrollOwner);
+        else if(auto* Pages=Cast<UWidgetSwitcher>(Node)) Inspect(Pages->GetActiveWidget(),ScrollOwner);
+        else if(auto* Panel=Cast<UPanelWidget>(Node)) for(auto* Child:Panel->GetAllChildren()) Inspect(Child,ScrollOwner);
+    };
+    Inspect(Widget.Get(),FString());Layout->SetArrayField(TEXT("nodes"),Nodes);
+    if(State==TEXT("HUDExtras")) {
+        TArray<TSharedPtr<FJsonValue>> Diagnostics;
+        Widget->WidgetTree->ForEachWidgetAndDescendants([&](UWidget* Node) {
+            if(!Node->GetName().StartsWith(TEXT("ExtrasPassive")) && !Node->GetName().StartsWith(TEXT("ExtrasFlow"))) return;
+            auto Item=MakeShared<FJsonObject>();Item->SetStringField(TEXT("name"),Node->GetName());
+            Item->SetStringField(TEXT("class"),Node->GetClass()->GetName());
+            Item->SetStringField(TEXT("parent"),GetNameSafe(Node->GetParent()));
+            Item->SetNumberField(TEXT("visibility"),int32(Node->GetVisibility()));
+            const auto Desired=Node->GetDesiredSize();Item->SetNumberField(TEXT("desiredX"),Desired.X);Item->SetNumberField(TEXT("desiredY"),Desired.Y);
+            const auto Cached=Node->GetCachedWidget();Item->SetBoolField(TEXT("hasCachedSlate"),Cached.IsValid());
+            if(Cached) {
+                Item->SetStringField(TEXT("slateType"),Cached->GetTypeAsString());Item->SetBoolField(TEXT("slateVisible"),Cached->GetVisibility().IsVisible());
+                const auto* Children=Cached->GetChildren();Item->SetNumberField(TEXT("slateChildren"),Children?Children->Num():0);
+                TArray<TSharedPtr<FJsonValue>> SlateChildren;
+                if(Children) for(int32 Index=0;Index<Children->Num();++Index) {
+                    const auto Child=Children->GetChildAt(Index);auto ChildInfo=MakeShared<FJsonObject>();
+                    ChildInfo->SetStringField(TEXT("type"),Child->GetTypeAsString());ChildInfo->SetBoolField(TEXT("visible"),Child->GetVisibility().IsVisible());
+                    ChildInfo->SetNumberField(TEXT("desiredY"),Child->GetDesiredSize().Y);SlateChildren.Add(MakeShared<FJsonValueObject>(ChildInfo));
+                }
+                Item->SetArrayField(TEXT("slateChildInfo"),SlateChildren);
+            }
+            if(auto* Panel=Cast<UPanelWidget>(Node)) Item->SetNumberField(TEXT("children"),Panel->GetChildrenCount());
+            Diagnostics.Add(MakeShared<FJsonValueObject>(Item));
+        });
+        Layout->SetArrayField(TEXT("passiveLayoutDiagnostics"),Diagnostics);
+    }
+    FString LayoutText;const auto LayoutWriter=TJsonWriterFactory<>::Create(&LayoutText);
+    FJsonSerializer::Serialize(Layout,LayoutWriter);FFileHelper::SaveStringToFile(LayoutText,*(Path+TEXT(".layout.json")),FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
     BeginCleanup(Renderer);
     return bSaved;
 }
@@ -887,6 +1008,113 @@ bool UMCGameplayUIEditorLibrary::RebuildUnifiedInterfaceView(UWidgetBlueprint* B
     return true;
 }
 
+bool UMCGameplayUIEditorLibrary::MigrateUnifiedViewportLayout(UWidgetBlueprint* Blueprint)
+{
+    // Callers verify the accepted task-owned package hashes and retain backups.
+    // This migration operates on the saved task-owned New tree; legacy menu/HUD are excluded.
+    if(!IsInGameThread() || !GEditor || GEditor->PlayWorld || IsRunningCommandlet() || !IsValid(Blueprint)
+        || Blueprint->GetPackage()->IsDirty() || !Blueprint->WidgetTree || HasDirtyDesignerPackages()) return false;
+    const FString Path=Blueprint->GetPathName();
+    UClass* RequiredParent=nullptr;
+    if(Path==TEXT("/Game/Gameplay/UI/V2/WBP_UIRoot.WBP_UIRoot")) RequiredParent=UMCUnifiedUIWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/V2/WBP_UISettings.WBP_UISettings")) RequiredParent=UMCUnifiedSettingsWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/V2/WBP_UITeam.WBP_UITeam")) RequiredParent=UMCUnifiedTeamWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/V2/WBP_UIWardrobe.WBP_UIWardrobe")) RequiredParent=UMCUnifiedWardrobeWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/V2/WBP_UIShop.WBP_UIShop")) RequiredParent=UMCUnifiedShopWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/V2/WBP_UIReward.WBP_UIReward")) RequiredParent=UMCUnifiedRewardWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/V2/WBP_UIFrontend.WBP_UIFrontend")) RequiredParent=UMCUnifiedFrontendWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/V2/WBP_UIGameplayMenu.WBP_UIGameplayMenu")) RequiredParent=UMCUnifiedGameplayMenuWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/V2/WBP_UITutorial.WBP_UITutorial")) RequiredParent=UMCUnifiedTutorialWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/V2/WBP_UIEmotes.WBP_UIEmotes")) RequiredParent=UMCUnifiedEmoteWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/V2/WBP_UIHub.WBP_UIHub")) RequiredParent=UMCUnifiedHubWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/V2/WBP_UICatch.WBP_UICatch")) RequiredParent=UMCUnifiedCatchWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/V2/WBP_UIHUDExtras.WBP_UIHUDExtras")) RequiredParent=UMCUnifiedHUDExtrasWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/V2/WBP_UILoading.WBP_UILoading")) RequiredParent=UMCUnifiedLoadingWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/V2/WBP_UIBoss.WBP_UIBoss")) RequiredParent=UMCUnifiedBossWidget::StaticClass();
+    else if(Path==TEXT("/Game/Gameplay/UI/V2/WBP_UIAlert.WBP_UIAlert")) RequiredParent=UMCUnifiedAlertWidget::StaticClass();
+    if(!RequiredParent || Blueprint->ParentClass!=RequiredParent || !Blueprint->GeneratedClass) return false;
+    auto* Assets=GEditor->GetEditorSubsystem<UEditorAssetSubsystem>();if(!Assets) return false;
+    TStrongObjectPtr<UWidgetBlueprint> BlueprintGuard(Blueprint);
+    TStrongObjectPtr<UMCGameplayUIWidget> PreviousDefaults(Cast<UMCGameplayUIWidget>(Blueprint->GeneratedClass->GetDefaultObject()));
+    if(!PreviousDefaults.IsValid()) return false;
+    TStrongObjectPtr<UMCGameplayUIWidget> Source(NewObject<UMCGameplayUIWidget>(GetTransientPackage(),Blueprint->GeneratedClass,NAME_None,RF_Transient));
+    Source->SetDesignerFlags(EWidgetDesignFlags::Designing);
+    Source->Theme=PreviousDefaults->Theme;Source->TranslationTable=PreviousDefaults->TranslationTable;
+    Source->Initialize();Source->BuildPresentationTree();
+    if(!Source->WidgetTree || !Source->WidgetTree->RootWidget) return false;
+    TStrongObjectPtr<UWidgetTree> Prepared(DuplicateObject<UWidgetTree>(Source->WidgetTree,GetTransientPackage(),
+        MakeUniqueObjectName(GetTransientPackage(),UWidgetTree::StaticClass(),TEXT("UnifiedInterfaceDesignerSeed"))));
+    if(!Prepared.IsValid() || !Prepared->RootWidget) return false;
+
+    // Presentation adapters belong to the transient source, never to a saved
+    // widget tree. Runtime BuildPresentationTree rebinds them to its own view.
+    FDesignerMaterialSnapshots Snapshots(Blueprint,Assets,Prepared.Get());
+    TSet<FName> NewNames;TSet<UWidget*> Sanitized;
+    auto Sanitize=[&](UWidget* Widget) {
+        if(Sanitized.Contains(Widget)) return;Sanitized.Add(Widget);
+        const bool bTopLevel=Widget->GetOuter()==Prepared.Get();
+        const auto* Previous=bTopLevel?Blueprint->WidgetTree->FindWidget(Widget->GetFName()):nullptr;
+        const bool bWasVariable=Previous && Previous->bIsVariable;
+        if(!SanitizeAppendedDesignerWidget(Widget,Source.Get(),Snapshots)) Snapshots.bFailed=true;
+        if(Previous) Widget->bIsVariable=bWasVariable;
+        if(bTopLevel) NewNames.Add(Widget->GetFName());
+        // Drop only transient instance-owned callbacks. Graph definitions and
+        // external asset bindings remain on the original Blueprint unchanged.
+        auto Owned=[&](UObject* Object) {return Object && (Object==Source.Get() || Object->IsIn(Source.Get()) || (Object->HasAnyFlags(RF_Transient) && Object->GetOutermost()==GetTransientPackage()));};
+        for(TFieldIterator<FMulticastDelegateProperty> It(Widget->GetClass());It;++It) {
+            auto* Delegate=const_cast<FMulticastScriptDelegate*>(It->GetMulticastDelegate(It->ContainerPtrToValuePtr<void>(Widget)));
+            if(Delegate) for(auto* Object:Delegate->GetAllObjects()) if(Owned(Object)) Delegate->RemoveAll(Object);
+        }
+        for(TFieldIterator<FDelegateProperty> It(Widget->GetClass());It;++It) {
+            auto* Delegate=It->ContainerPtrToValuePtr<FScriptDelegate>(Widget);
+            if(Delegate && Owned(Delegate->GetUObject())) Delegate->Unbind();
+        }
+    };
+    // Visit user-widget owners as well as their descendants; the latter walk
+    // alone omits Universal::OnClicked on the owning component.
+    Prepared->ForEachWidget(Sanitize);
+    Prepared->ForEachWidgetAndDescendants(Sanitize);
+    if(Snapshots.bFailed) return false;
+
+    TStrongObjectPtr<UWidgetTree> PreviousTree(Blueprint->WidgetTree.Get());
+    const auto PreviousGuids=Blueprint->WidgetVariableNameToGuidMap;
+    auto RestoreDefaults=[&](UMCGameplayUIWidget* Defaults,const UMCGameplayUIWidget* From) {
+        Defaults->bUseNativeLayout=From->bUseNativeLayout;Defaults->Theme=From->Theme;
+        Defaults->StyleBindings=From->StyleBindings;Defaults->TextBindings=From->TextBindings;
+        Defaults->TranslationTable=From->TranslationTable;
+        CastChecked<UWidgetBlueprintGeneratedClass>(Blueprint->GeneratedClass)->UpdateCustomPropertyListForPostConstruction();
+    };
+    auto RollBack=[&] {
+        if(Blueprint->WidgetTree) Blueprint->WidgetTree->Rename(nullptr,GetTransientPackage(),REN_DontCreateRedirectors|REN_NonTransactional);
+        PreviousTree->Rename(TEXT("WidgetTree"),Blueprint,REN_DontCreateRedirectors|REN_NonTransactional);
+        Blueprint->WidgetTree=PreviousTree.Get();Blueprint->WidgetVariableNameToGuidMap=PreviousGuids;
+        FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
+        FKismetEditorUtilities::CompileBlueprint(Blueprint);
+        if(Blueprint->GeneratedClass) if(auto* Defaults=Cast<UMCGameplayUIWidget>(Blueprint->GeneratedClass->GetDefaultObject()))
+            RestoreDefaults(Defaults,PreviousDefaults.Get());
+        UE_LOG(LogTemp,Error,TEXT("MC_UI_UNIFIED Restored previous component tree after failed rebuild; no WBP saved: %s"),*Path);
+    };
+    Blueprint->Modify();
+    PreviousTree->Rename(nullptr,GetTransientPackage(),REN_DontCreateRedirectors|REN_NonTransactional);
+    Blueprint->WidgetTree=DuplicateObject<UWidgetTree>(Prepared.Get(),Blueprint,TEXT("WidgetTree"));
+    if(!Blueprint->WidgetTree) {RollBack();return false;}
+    Blueprint->WidgetTree->ClearFlags(RF_Transient);Blueprint->WidgetTree->SetFlags(RF_Transactional);
+    for(const auto& Entry:PreviousGuids) if(!NewNames.Contains(Entry.Key)) Blueprint->OnVariableRemoved(Entry.Key);
+    RegisterMissingDesignerGuids(Blueprint);
+    FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);FKismetEditorUtilities::CompileBlueprint(Blueprint);
+    if(Blueprint->Status==BS_Error || !Blueprint->GeneratedClass) {RollBack();return false;}
+    auto* Defaults=Cast<UMCGameplayUIWidget>(Blueprint->GeneratedClass->GetDefaultObject());
+    if(!Defaults) {RollBack();return false;}
+    Defaults->Modify();RestoreDefaults(Defaults,Source.Get());Defaults->bUseNativeLayout=false;
+    CastChecked<UWidgetBlueprintGeneratedClass>(Blueprint->GeneratedClass)->UpdateCustomPropertyListForPostConstruction();
+    if(!Snapshots.Save()) {RollBack();return false;}
+    Blueprint->MarkPackageDirty();
+    if(!Assets->SaveLoadedAsset(Blueprint,false)) {RollBack();return false;}
+    UE_LOG(LogTemp,Display,TEXT("MC_UI_UNIFIED Migrated saved New viewport tree, preserving graphs and surviving widget GUIDs: %s"),*Path);
+    return true;
+}
+
+
 bool UMCGameplayUIEditorLibrary::RefreshHubWardrobePalettePresentation(UWidgetBlueprint* Blueprint)
 {
     if(!GEditor || GEditor->PlayWorld || IsRunningCommandlet() || !IsValid(Blueprint) || HasDirtyDesignerPackages()
@@ -1009,6 +1237,63 @@ bool UMCGameplayUIEditorLibrary::RefreshHubShopCatalogPresentation(UWidgetBluepr
     CastChecked<UWidgetBlueprintGeneratedClass>(Blueprint->GeneratedClass)->UpdateCustomPropertyListForPostConstruction();
     if(!Snapshots.Save()) return false;
     Blueprint->MarkPackageDirty();return Assets->SaveLoadedAsset(Blueprint,false);
+}
+
+bool UMCGameplayUIEditorLibrary::ApplyPSDGameplayHUDLayout(UWidgetBlueprint* Blueprint)
+{
+    if(!IsInGameThread() || !GEditor || GEditor->PlayWorld || IsRunningCommandlet() || !IsValid(Blueprint)
+        || Blueprint->GetPathName()!=TEXT("/Game/Gameplay/UI/V2/WBP_UIRoot.WBP_UIRoot")
+        || Blueprint->ParentClass!=UMCUnifiedUIWidget::StaticClass() || !Blueprint->GeneratedClass
+        || Blueprint->GetPackage()->IsDirty() || HasDirtyDesignerPackages()
+        || !Blueprint->WidgetTree || !Blueprint->WidgetTree->RootWidget) return false;
+    auto* Assets=GEditor->GetEditorSubsystem<UEditorAssetSubsystem>();if(!Assets) return false;
+    TStrongObjectPtr<UWidgetBlueprint> BlueprintGuard(Blueprint);
+    TStrongObjectPtr<UMCUnifiedUIWidget> Defaults(Cast<UMCUnifiedUIWidget>(Blueprint->GeneratedClass->GetDefaultObject()));
+    if(!Defaults.IsValid()) return false;
+    UWidgetTree* const SavedTree=Blueprint->WidgetTree;
+    UWidget* const SavedRoot=SavedTree->RootWidget;
+    const auto SavedGuids=Blueprint->WidgetVariableNameToGuidMap;
+    TMap<FName,UWidget*> SavedWidgets;
+    SavedTree->ForEachWidget([&](UWidget* Widget){SavedWidgets.Add(Widget->GetFName(),Widget);});
+    for(const FName Name:{FName(TEXT("ReserveBlock")),FName(TEXT("ToolResourceBlock")),FName(TEXT("PlayerCards")),
+        FName(TEXT("NextEventBlock")),FName(TEXT("SkillCards"))})
+        if(!SavedWidgets.Contains(Name)) return false;
+
+    // This is only a native method receiver. Do not Initialize/BuildPresentationTree:
+    // those paths operate on an instance tree rather than the saved Designer tree.
+    TStrongObjectPtr<UMCUnifiedUIWidget> Driver(NewObject<UMCUnifiedUIWidget>(GetTransientPackage(),NAME_None,RF_Transient));
+    Driver->SetDesignerFlags(EWidgetDesignFlags::Designing);
+    Driver->Theme=Defaults->Theme;Driver->TranslationTable=Defaults->TranslationTable;
+    Driver->StyleBindings=Defaults->StyleBindings;
+    const auto* NativeDefaults=GetDefault<UMCUnifiedUIWidget>();
+    Driver->HUDLayoutMetrics=Defaults->HUDLayoutMetrics.IsEmpty()?NativeDefaults->HUDLayoutMetrics:Defaults->HUDLayoutMetrics;
+    Driver->HUDReferenceSize=Defaults->HUDReferenceSize.X>1 && Defaults->HUDReferenceSize.Y>1?
+        Defaults->HUDReferenceSize:NativeDefaults->HUDReferenceSize;
+    Blueprint->Modify();SavedTree->Modify();Defaults->Modify();
+    SavedTree->ForEachWidgetAndDescendants([](UWidget* Widget){Widget->Modify();if(Widget->Slot) Widget->Slot->Modify();});
+    Driver->WidgetTree=SavedTree; // Borrow only; its Outer and all widget identities remain unchanged.
+    Driver->ApplyPSDGameplayLayout(true);
+    Driver->WidgetTree=nullptr;
+    for(const FName Name:{FName(TEXT("ReserveBlock")),FName(TEXT("ToolResourceBlock")),FName(TEXT("PlayerCards")),
+        FName(TEXT("NextEventBlock")),FName(TEXT("SkillCards"))})
+        if(auto* Group=SavedTree->FindWidget(Name)) {Group->SetRenderTransformPivot(FVector2D::ZeroVector);Group->SetRenderScale(FVector2D(1,1));}
+    if(Blueprint->WidgetTree!=SavedTree || SavedTree->RootWidget!=SavedRoot
+        || Blueprint->WidgetVariableNameToGuidMap.Num()!=SavedGuids.Num()) return false;
+    for(const auto& Entry:SavedWidgets) if(SavedTree->FindWidget(Entry.Key)!=Entry.Value) return false;
+    for(const auto& Entry:SavedGuids) {
+        const auto* Current=Blueprint->WidgetVariableNameToGuidMap.Find(Entry.Key);
+        if(!Current || *Current!=Entry.Value) return false;
+    }
+    Defaults->HUDLayoutMetrics=Driver->HUDLayoutMetrics;Defaults->HUDReferenceSize=Driver->HUDReferenceSize;
+    Defaults->StyleBindings=Driver->StyleBindings;
+    FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);FKismetEditorUtilities::CompileBlueprint(Blueprint);
+    if(Blueprint->Status==BS_Error || !Blueprint->GeneratedClass) return false;
+    auto* Compiled=Cast<UMCUnifiedUIWidget>(Blueprint->GeneratedClass->GetDefaultObject());if(!Compiled) return false;
+    Compiled->Modify();Compiled->HUDLayoutMetrics=Driver->HUDLayoutMetrics;Compiled->HUDReferenceSize=Driver->HUDReferenceSize;
+    Compiled->StyleBindings=Driver->StyleBindings;
+    CastChecked<UWidgetBlueprintGeneratedClass>(Blueprint->GeneratedClass)->UpdateCustomPropertyListForPostConstruction();
+    Blueprint->MarkPackageDirty();
+    return Assets->SaveLoadedAsset(Blueprint,false);
 }
 
 bool UMCGameplayUIEditorLibrary::AddMissingGameplayHUDPresentation(UWidgetBlueprint* Blueprint)
@@ -1495,6 +1780,45 @@ bool UMCGameplayUIEditorLibrary::ConfigureUniversalUIFont(UFont* Font,UFont* Fal
     Composite.MakeDirty();
     FPropertyChangedEvent Changed(Property,EPropertyChangeType::ValueSet);Font->PostEditChangeProperty(Changed);Font->MarkPackageDirty();
     if(FSlateApplication::IsInitialized()) FSlateApplication::Get().GetRenderer()->FlushFontCache(TEXT("MC universal UI font configured"));
+    return true;
+}
+
+bool UMCGameplayUIEditorLibrary::ConfigurePSDDisplayFont(UFont* Font,UFont* FallbackFamily,UFontFace* DisplayFace)
+{
+    if(!IsValid(Font) || !IsValid(FallbackFamily) || !IsValid(DisplayFace) || Font==FallbackFamily
+        || Font->FontCacheType!=EFontCacheType::Runtime || (GEditor && GEditor->PlayWorld)
+        || FallbackFamily->GetInternalCompositeFont().DefaultTypeface.Fonts.IsEmpty()) return false;
+    FProperty* Property=FindFProperty<FProperty>(UFont::StaticClass(),UFont::GetInternalCompositeFontPropertyName());
+    Font->Modify();Font->PreEditChange(Property);
+    auto& Composite=Font->GetMutableInternalCompositeFont();
+    Composite=FallbackFamily->GetInternalCompositeFont();
+    auto& Display=Composite.SubTypefaces.InsertDefaulted_GetRef(0);
+    Display.EditorName=TEXT("PSD Spicy Sauce display");Display.ScalingFactor=1.f;
+    for(const TCHAR* Name:{TEXT("Default"),TEXT("Regular"),TEXT("Bold")}) {
+        auto& Entry=Display.Typeface.Fonts.AddDefaulted_GetRef();Entry.Name=Name;Entry.Font=FFontData(DisplayFace);
+    }
+    // cmap of the retained Spicy Sauce.ttf master (SHA256 793652bf...08cdd).
+    // It has no Cyrillic, CJK or accented Latin: those keep the supplied family.
+    const int32 Ranges[][2]={{0x20,0x7E},{0xA2,0xA3},{0xA5,0xA5},{0xA9,0xA9},{0xAE,0xAE},
+        {0xB0,0xB0},{0xB7,0xB7},{0xD7,0xD7},{0xF7,0xF7},{0x2DC,0x2DC},{0x2013,0x2014},
+        {0x2018,0x2019},{0x201C,0x201D},{0x2022,0x2022},{0x20AC,0x20AC},{0x2122,0x2122}};
+    for(const auto& Range:Ranges) Display.CharacterRanges.Add(FInt32Range::Inclusive(Range[0],Range[1]));
+    // UE 5.8 normalizes overlaps by range specificity, before declaration
+    // order. The inherited LeFun Latin segments are narrower than ASCII, so
+    // insertion at index zero alone would still render LeFun headings.
+    // Remove only the verified display coverage from inherited subfaces.
+    for(int32 Index=1;Index<Composite.SubTypefaces.Num();++Index) {
+        auto& Inherited=Composite.SubTypefaces[Index];
+        for(const auto& DisplayRange:Display.CharacterRanges) {
+            TArray<FInt32Range> Remaining;
+            for(const auto& InheritedRange:Inherited.CharacterRanges)
+                Remaining.Append(FInt32Range::Difference(InheritedRange,DisplayRange));
+            Inherited.CharacterRanges=MoveTemp(Remaining);
+        }
+    }
+    Composite.MakeDirty();
+    FPropertyChangedEvent Changed(Property,EPropertyChangeType::ValueSet);Font->PostEditChangeProperty(Changed);Font->MarkPackageDirty();
+    if(FSlateApplication::IsInitialized()) FSlateApplication::Get().GetRenderer()->FlushFontCache(TEXT("MC PSD display font configured"));
     return true;
 }
 

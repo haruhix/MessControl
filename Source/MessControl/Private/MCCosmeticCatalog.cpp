@@ -1,5 +1,8 @@
 #include "MCCosmeticCatalog.h"
 #include "Engine/StaticMesh.h"
+#if WITH_EDITOR
+#include "Misc/DataValidation.h"
+#endif
 
 #define LOCTEXT_NAMESPACE "MCCosmetics"
 
@@ -68,5 +71,38 @@ bool UMCCosmeticCatalog::ValidateLoadout(const UDataTable* Catalog,const FMCChar
     }
     return true;
 }
+
+
+int32 UMCCosmeticCatalog::EffectivePrice(const FMCCosmeticCatalogRow& Row)
+{
+    if(Row.BasePrice<0 || Row.DiscountPercent<0 || Row.DiscountPercent>100) return INDEX_NONE;
+    return int32((int64(Row.BasePrice)*int64(100-Row.DiscountPercent))/100);
+}
+FName UMCCosmeticCatalog::ShopItemIdForRow(FName CosmeticId,const FMCCosmeticCatalogRow& Row)
+{
+    return Row.ShopItemId.IsNone()?CosmeticId:Row.ShopItemId;
+}
+bool UMCCosmeticCatalog::ValidateCommerce(const FMCCosmeticCatalogRow& Row,FText& OutError)
+{
+    OutError=FText::GetEmpty();if(!Row.bUseCanonicalCommerce) return true;
+    if(!Row.Mesh || Row.Slot.IsNone() || Row.AttachBone.IsNone() || !Row.LocalTransform.IsValid()) {
+        OutError=LOCTEXT("ClothingInvalidFit","Для одежды нужны меш, слот и корректная посадка.");return false;
+    }
+    if(Row.DisplayName.IsEmpty() || Row.Description.IsEmpty() || Row.DisplayNameKey.IsNone() || Row.DescriptionKey.IsNone() || Row.Icon.IsNull()) {
+        OutError=LOCTEXT("ClothingMissingCopyOrIcon","Для одежды нужны название, описание, ключи локализации и иконка.");return false;
+    }
+    if(EffectivePrice(Row)==INDEX_NONE || uint8(Row.Rarity)>uint8(EMCHubItemRarity::Legendary)
+        || !FMath::IsFinite(Row.ShopAppearanceChance) || Row.ShopAppearanceChance<0.f || Row.ShopAppearanceChance>1.f) {
+        OutError=LOCTEXT("ClothingInvalidCommerce","Проверь цену, скидку, редкость и шанс появления одежды.");return false;
+    }
+    return true;
+}
+#if WITH_EDITOR
+EDataValidationResult FMCCosmeticCatalogRow::IsDataValid(FDataValidationContext& Context) const
+{
+    FText Error;if(!UMCCosmeticCatalog::ValidateCommerce(*this,Error)) {Context.AddError(Error);return EDataValidationResult::Invalid;}
+    return EDataValidationResult::Valid;
+}
+#endif
 
 #undef LOCTEXT_NAMESPACE

@@ -4,7 +4,11 @@
 #include "MCPerkComponent.h"
 #include "MCUIDataLibrary.h"
 #include "MCUniversalUIWidget.h"
+#include "MCUIGridScrollBox.h"
+#include "UObject/UObjectGlobals.h"
 #include "Blueprint/WidgetTree.h"
+#include "Components/OverlaySlot.h"
+#include "Components/Overlay.h"
 #include "Components/Button.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
@@ -14,6 +18,8 @@
 #include "Components/SizeBox.h"
 #include "Components/SizeBoxSlot.h"
 #include "Components/TextBlock.h"
+#include "Components/UniformGridPanel.h"
+#include "Components/UniformGridSlot.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
 #include "Components/WrapBox.h"
@@ -31,9 +37,9 @@
 namespace
 {
     FLinearColor MCUnifiedRewardPrivate_Color(const TCHAR* Hex) { return FLinearColor(FColor::FromHex(Hex)); }
-    const FLinearColor MCUnifiedRewardPrivate_Blue=MCUnifiedRewardPrivate_Color(TEXT("4C76AE")),MCUnifiedRewardPrivate_Paper=MCUnifiedRewardPrivate_Color(TEXT("FFFDFD")),MCUnifiedRewardPrivate_Ink=MCUnifiedRewardPrivate_Color(TEXT("472630"));
-    const FLinearColor MCUnifiedRewardPrivate_Dark=MCUnifiedRewardPrivate_Color(TEXT("404243")),MCUnifiedRewardPrivate_Pink=MCUnifiedRewardPrivate_Color(TEXT("AE4C6C")),MCUnifiedRewardPrivate_Red=MCUnifiedRewardPrivate_Color(TEXT("B21829"));
-    const FLinearColor MCUnifiedRewardPrivate_Purple=MCUnifiedRewardPrivate_Color(TEXT("9A40EB")),MCUnifiedRewardPrivate_Yellow=MCUnifiedRewardPrivate_Color(TEXT("FFDD00"));
+    const FLinearColor MCUnifiedRewardPrivate_Blue=MCUnifiedRewardPrivate_Color(TEXT("4C76AE")),MCUnifiedRewardPrivate_Paper=MCUnifiedRewardPrivate_Color(TEXT("FAFCFB")),MCUnifiedRewardPrivate_Ink=MCUnifiedRewardPrivate_Color(TEXT("44232C"));
+    const FLinearColor MCUnifiedRewardPrivate_Dark=MCUnifiedRewardPrivate_Color(TEXT("404243")),MCUnifiedRewardPrivate_Pink=MCUnifiedRewardPrivate_Color(TEXT("AE4C6C")),MCUnifiedRewardPrivate_Red=MCUnifiedRewardPrivate_Color(TEXT("B21414"));
+    const FLinearColor MCUnifiedRewardPrivate_Purple=MCUnifiedRewardPrivate_Color(TEXT("A05EFB")),MCUnifiedRewardPrivate_Yellow=MCUnifiedRewardPrivate_Color(TEXT("FFD907"));
     FName MCUnifiedRewardPrivate_Part(const TCHAR* Prefix,int32 Index) { return FName(*FString::Printf(TEXT("RewardV2%s%d"),Prefix,Index)); }
     struct MCUnifiedRewardPrivate_TextMetrics {float Word=0,Height=0;};
     MCUnifiedRewardPrivate_TextMetrics MCUnifiedRewardPrivate_MeasureText(const FText& Text,const FSlateFontInfo& Font,float WrapWidth=0)
@@ -62,7 +68,7 @@ namespace
     { return Shape && Shape->WidgetTree?Shape->WidgetTree->FindWidget<UButton>(TEXT("UniversalSurface")):nullptr; }
     void MCUnifiedRewardPrivate_SetReadableButton(UMCUniversalUIWidget* Shape,bool bActive)
     {
-        // Inactive contract/pending cards keep their child scroll regions usable.
+        // Pending and contract cards retain readable content without activating a source action.
         if(auto* Button=MCUnifiedRewardPrivate_InnerButton(Shape)) {
             Button->SetVisibility(bActive?ESlateVisibility::Visible:ESlateVisibility::SelfHitTestInvisible);
             PRAGMA_DISABLE_DEPRECATION_WARNINGS
@@ -79,7 +85,7 @@ void UMCUnifiedRewardBinding::Clicked()
 UMCUnifiedRewardWidget::UMCUnifiedRewardWidget()
 {
     bUseNativeLayout=false;bOverridePreviewUIVersion=true;SetIsFocusable(true);
-    PreviewPerkIDs={TEXT("P01"),TEXT("P02"),TEXT("P03")};
+    PreviewPerkIDs={TEXT("B2_ReturnTrip"),TEXT("B1_WideBristles"),TEXT("B1_HeavyHit"),TEXT("B1_LightFoot")};
 }
 UMCUniversalUIWidget* UMCUnifiedRewardWidget::MakeShape(FName Name,FLinearColor Fill,bool bButton)
 {
@@ -93,7 +99,7 @@ UMCUniversalUIWidget* UMCUnifiedRewardWidget::MakeShape(FName Name,FLinearColor 
 UTextBlock* UMCUnifiedRewardWidget::MakeText(FName Name,int32 FontSize,FLinearColor TextColor)
 {
     auto* Text=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);
-    Text->SetAutoWrapText(true);Text->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+    Text->SetAutoWrapText(true);Text->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
     Text->SetJustification(ETextJustify::Center);Text->SetVisibility(ESlateVisibility::HitTestInvisible);
     Text->SetColorAndOpacity(TextColor);
     if(auto* T=GetResolvedTheme()) Text->SetFont(T->MakeGameplayFont(FontSize));
@@ -104,7 +110,7 @@ void UMCUnifiedRewardWidget::BuildPresentationTree()
 {
     if(!WidgetTree) return;
     if(!Theme) Theme=UMCGameplayUIFactory::GetThemeForVersion(EMCUIVersion::New);
-    if(WidgetTree->RootWidget) {ResolvePresentationTree();return;}
+    if(WidgetTree->RootWidget) {ResolvePresentationTree();UpdateResponsiveLayout();return;}
     auto* Size=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("RewardV2Size"));
     Size->SetMinDesiredWidth(1040);Size->SetMaxDesiredWidth(1240);WidgetTree->RootWidget=Size;
     auto* Frame=MakeShape(TEXT("RewardV2Frame"),MCUnifiedRewardPrivate_Blue);Frame->CustomOutline=MCUnifiedRewardPrivate_Paper;Frame->OutlineWidth=4;
@@ -138,12 +144,11 @@ void UMCUnifiedRewardWidget::BuildPresentationTree()
         CardColumn->AddChildToVerticalBox(Surface)->SetPadding(FMargin(0,0,6,12));
         auto* Body=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),MCUnifiedRewardPrivate_Part(TEXT("CardBody"),I));Surface->SetContentForSlot(TEXT("Content"),Body);
         auto* IconPanel=MakeShape(MCUnifiedRewardPrivate_Part(TEXT("IconPanel"),I),MCUnifiedRewardPrivate_Dark);IconPanel->ShadowOffset={0,0};IconPanel->OutlineWidth=0;IconPanel->ContentPadding=FMargin(12);IconPanel->ApplyTheme();
-        auto* IconSize=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),MCUnifiedRewardPrivate_Part(TEXT("IconBounds"),I));IconSize->SetHeightOverride(126);IconSize->SetContent(IconPanel);Body->AddChildToVerticalBox(IconSize)->SetPadding(FMargin(4,0,4,10));
+        auto* IconSize=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),MCUnifiedRewardPrivate_Part(TEXT("IconBounds"),I));IconSize->SetWidthOverride(250);IconSize->SetHeightOverride(250);IconSize->SetContent(IconPanel);Body->AddChildToVerticalBox(IconSize)->SetPadding(FMargin(4,0,4,10));
         auto* Fit=WidgetTree->ConstructWidget<UScaleBox>(UScaleBox::StaticClass(),MCUnifiedRewardPrivate_Part(TEXT("IconFit"),I));Fit->SetStretch(EStretch::ScaleToFit);IconPanel->SetContentForSlot(TEXT("Content"),Fit);
         auto* Icon=WidgetTree->ConstructWidget<UImage>(UImage::StaticClass(),MCUnifiedRewardPrivate_Part(TEXT("Icon"),I));Icon->SetVisibility(ESlateVisibility::Hidden);Fit->SetContent(Icon);
-        auto* ScrollSize=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),MCUnifiedRewardPrivate_Part(TEXT("CopyBounds"),I));ScrollSize->SetMaxDesiredHeight(MaximumCardCopyHeight);
-        auto* Scroll=WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(),MCUnifiedRewardPrivate_Part(TEXT("CopyScroll"),I));Scroll->SetAllowOverscroll(false);Scroll->SetScrollbarThickness({5,5});ScrollSize->SetContent(Scroll);Body->AddChildToVerticalBox(ScrollSize);
-        auto* Copy=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),MCUnifiedRewardPrivate_Part(TEXT("CopyColumn"),I));Scroll->AddChild(Copy);
+        auto* CopySize=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),MCUnifiedRewardPrivate_Part(TEXT("CopyBounds"),I));Body->AddChildToVerticalBox(CopySize);
+        auto* Copy=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),MCUnifiedRewardPrivate_Part(TEXT("CopyColumn"),I));CopySize->SetContent(Copy);
         const TCHAR* Suffixes[]={TEXT("Name"),TEXT("Description"),TEXT("Stats"),TEXT("Metadata")};const int32 Fonts[]={22,18,17,15};
         for(int32 L=0;L<4;++L) {
             auto* Text=MakeText(MCUnifiedRewardPrivate_Part(Suffixes[L],I),Fonts[L],MCUnifiedRewardPrivate_Ink);Text->SetAutoWrapText(false);Text->SetWrapTextAt(262);
@@ -211,14 +216,34 @@ FText UMCUnifiedRewardWidget::RarityLabel(EMCPerkRarity Rarity) const
 void UMCUnifiedRewardWidget::Present(const FMCPerkChoicePresentationSnapshot& Snapshot)
 {
     if(!WidgetTree) return;ResolvePresentationTree();SelectedSource=Snapshot.Selected;bShowingContract=Snapshot.bConfirming;
+    if(bShowingReplacement!=Snapshot.bReplacing)
+    {
+        bReplacementStickLatched=false;
+        if(ReplacementGridScroll) ReplacementGridScroll->ScrollToCell(0);
+    }
+    bShowingReplacement=Snapshot.bReplacing;
     auto Copy=[this](FName Name,const FText& Text) {if(auto* Label=WidgetTree->FindWidget<UTextBlock>(Name)) Label->SetText(Text);};
     Copy(TEXT("RewardV2SourceTitle"),Snapshot.Title);Copy(TEXT("RewardV2Subtitle"),Snapshot.Subtitle);Copy(TEXT("RewardV2Hint"),Snapshot.Hint);
-    if(auto* Timer=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("RewardV2Countdown"))) Timer->SetLabel(NAME_None,Snapshot.Countdown);
+    // The PSD has one instruction and no repeated stage heading or input legend.
+    // Status/contract states retain their meaningful source heading and hint.
+    const bool HasContext=Snapshot.bWaiting || Snapshot.bConfirming || Snapshot.bReplacing;
+    if(auto* Heading=WidgetTree->FindWidget(TEXT("RewardV2SourceTitle"))) Heading->SetVisibility(HasContext?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    if(auto* Context=WidgetTree->FindWidget(TEXT("RewardV2ContextRow"))) Context->SetVisibility(HasContext?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
+    if(auto* Hint=WidgetTree->FindWidget(TEXT("RewardV2Hint"))) Hint->SetVisibility((Snapshot.bWaiting || Snapshot.bPending || Snapshot.bConfirming || Snapshot.bReplacing)?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    if(auto* Timer=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("RewardV2Countdown"))) {
+        Timer->SetLabel(NAME_None,Snapshot.Countdown);
+        FString Prefix=Snapshot.Countdown.ToString(),Value;int32 Number=INDEX_NONE;
+        for(int32 C=0;C<Prefix.Len();++C) if(FChar::IsDigit(Prefix[C])) {Number=C;break;}
+        if(Number!=INDEX_NONE) {Value=Prefix.Mid(Number).TrimStartAndEnd();Prefix=Prefix.Left(Number).TrimStartAndEnd();}
+        Copy(TEXT("RewardV2CountdownPrefix"),FText::FromString(Prefix));Copy(TEXT("RewardV2CountdownValue"),FText::FromString(Value));
+        if(auto* Label=WidgetTree->FindWidget(TEXT("RewardV2CountdownValue"))) Label->SetVisibility(Value.IsEmpty()?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);
+    }
     if(auto* Bounds=WidgetTree->FindWidget(TEXT("RewardV2CountdownBounds"))) Bounds->SetVisibility(Snapshot.bCountdownVisible?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
-    const float CardWidth=AdaptiveCardWidth(Snapshot);
+    PreferredCardWidth=AdaptiveCardWidth(Snapshot);
+    const float CardWidth=ResponsiveViewportSize.X>1?FMath::Min(PreferredCardWidth,FMath::Max(1.f,float(ResponsiveViewportSize.X)-78.f)):PreferredCardWidth;
     const float RowWidth=FMath::Min(1516.f,Snapshot.Cards.Num()*CardWidth+FMath::Max(0,Snapshot.Cards.Num()-1)*18.f);
     if(auto* Row=WidgetTree->FindWidget<UWrapBox>(TEXT("RewardV2Cards"))) Row->SetWrapSize(FMath::Max(CardWidth,RowWidth));
-    if(auto* Size=WidgetTree->FindWidget<USizeBox>(TEXT("RewardV2Size"))) Size->SetMaxDesiredWidth(FMath::Max(1040.f,RowWidth+64.f));
+
     for(int32 I=0;I<Cards.Num();++I) {
         auto& Card=Cards[I];const auto* Data=Snapshot.Cards.IsValidIndex(I)?&Snapshot.Cards[I]:nullptr;
         if(Card.Host) Card.Host->SetVisibility(Data?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
@@ -233,9 +258,12 @@ void UMCUnifiedRewardWidget::Present(const FMCPerkChoicePresentationSnapshot& Sn
         if(Card.Description) Card.Description->SetText(Data->Data.Description);
         if(Card.Stats) Card.Stats->SetText(Data->Data.StackPreview);
         if(Card.Metadata) Card.Metadata->SetText(Data->Data.Badge);
+        if(Card.Surface) Card.Surface->SetToolTipText(FText::Join(FText::FromString(TEXT("\n")),TArray<FText>{Data->Data.DisplayName,Data->Data.Description,Data->Data.StackPreview,Data->Data.Badge}));
         for(UTextBlock* Label:{Card.Name.Get(),Card.Description.Get(),Card.Stats.Get(),Card.Metadata.Get()}) if(Label) {
             Label->SetWrapTextAt(CardWidth-56);if(auto* Bounds=Cast<USizeBox>(Label->GetParent())) Bounds->SetMaxDesiredWidth(CardWidth-56);
-            if(auto* Host=Label->GetParent()) Host->SetVisibility(Label->GetText().IsEmpty()?ESlateVisibility::Collapsed:ESlateVisibility::SelfHitTestInvisible);
+            const bool ContextCopy=(Label==Card.Stats && (Snapshot.bReplacing || Snapshot.bConfirming)) || (Label==Card.Metadata && Snapshot.bConfirming);
+            const bool OrdinaryCopy=Label==Card.Name || Label==Card.Description;
+            if(auto* Host=Label->GetParent()) Host->SetVisibility((OrdinaryCopy || ContextCopy) && !Label->GetText().IsEmpty()?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
         }
         if(Card.Icon) {
             // Runtime resources are prewarmed by the existing perk catalog; never
@@ -246,7 +274,7 @@ void UMCUnifiedRewardWidget::Present(const FMCPerkChoicePresentationSnapshot& Sn
         }
         if(Card.Rarity) {
             Card.Rarity->CustomFill=Data->Rarity==EMCPerkRarity::Legendary?MCUnifiedRewardPrivate_Yellow:Data->Rarity==EMCPerkRarity::Rare?MCUnifiedRewardPrivate_Purple:MCUnifiedRewardPrivate_Paper;
-            Card.Rarity->CustomText=Data->Rarity==EMCPerkRarity::Rare?MCUnifiedRewardPrivate_Paper:MCUnifiedRewardPrivate_Ink;Card.Rarity->SetLabel(NAME_None,RarityLabel(Data->Rarity));
+            Card.Rarity->CustomText=MCUnifiedRewardPrivate_Ink;Card.Rarity->SetLabel(NAME_None,RarityLabel(Data->Rarity));
         }
         if(Card.Surface) {
             Card.Surface->CustomFill=Snapshot.bNavigationHighlight && Data->Button==Snapshot.Selected?MCUnifiedRewardPrivate_Color(TEXT("FFE2ED")):MCUnifiedRewardPrivate_Paper;
@@ -265,7 +293,7 @@ void UMCUnifiedRewardWidget::Present(const FMCPerkChoicePresentationSnapshot& Sn
             if(View->WidgetTree) if(auto* Label=View->WidgetTree->FindWidget<UTextBlock>(TEXT("UniversalLabel"))) {Label->SetAutoWrapText(false);Label->SetWrapTextAt(450);}
         }
     }
-    UpdateCardCopyHeight();UpdateHeaderContour();RefreshTextBounds();
+    UpdateResponsiveLayout();UpdateCardCopyHeight();UpdateHeaderContour();RefreshTextBounds();
 }
 void UMCUnifiedRewardWidget::SetBackend(UMCPerkChoiceWidget* Source)
 {
@@ -299,6 +327,12 @@ void UMCUnifiedRewardWidget::RequestBack()
 void UMCUnifiedRewardWidget::RefreshFocusFromSource()
 {
     if(auto* Target=GetDefaultFocusTarget()) if(auto* PC=GetOwningPlayer()) Target->SetUserFocus(PC);
+    // Only the explicit replacement-list navigation moves its viewport. A
+    // periodic source refresh must never fight the player's wheel position.
+    if(bShowingReplacement && ReplacementGridScroll && ReplacementGridScroll->GetParent())
+        for(int32 Index=0;Index<Cards.Num();++Index) if(Cards[Index].Host && Cards[Index].SourceButton==SelectedSource && Cards[Index].Host->IsVisible()) {
+            ReplacementGridScroll->ScrollToCell(Index);break;
+        }
 }
 bool UMCUnifiedRewardWidget::RouteSourceKey(const FKeyEvent& Event)
 {
@@ -317,11 +351,15 @@ bool UMCUnifiedRewardWidget::RouteSourceKey(const FKeyEvent& Event)
 bool UMCUnifiedRewardWidget::RouteSourceAnalog(const FAnalogInputEvent& Event)
 {
     if(IsDesignTime() || !Backend.IsValid()) return false;
-    if(Event.GetKey()==EKeys::Gamepad_RightY) {
-        const float Delta=-Event.GetAnalogValue()*18.f;
-        if(FMath::Abs(Event.GetAnalogValue())>.15f)
-            for(auto& Card:Cards) if(Card.BodyScroll && Card.Host && Card.Host->IsVisible() && (bShowingContract || Card.SourceButton==SelectedSource))
-                Card.BodyScroll->SetScrollOffset(Card.BodyScroll->GetScrollOffset()+Delta);
+    if(bShowingReplacement && Event.GetKey()==EKeys::Gamepad_RightY && ReplacementGridScroll && ReplacementGridScroll->GetParent()) {
+        const float Value=Event.GetAnalogValue();
+        if(FMath::Abs(Value)<.25f) bReplacementStickLatched=false;
+        else if(FMath::Abs(Value)>.5f && !bReplacementStickLatched && ReplacementCardGrid) {
+            bReplacementStickLatched=true;
+            const int32 NextRow=ReplacementGridScroll->GetFirstVisibleRow()+(Value<0.f?1:-1);
+            const int32 Cell=FMath::Clamp(NextRow*2,0,FMath::Max(0,ReplacementCardGrid->GetChildrenCount()-1));
+            ReplacementGridScroll->ScrollToCell(Cell);
+        }
         return true;
     }
     const bool Handled=Backend->RoutePresentationAnalog(Event);RefreshFromBackend();
@@ -343,6 +381,11 @@ void UMCUnifiedRewardWidget::PresentPreview()
     const auto* Defaults=GetDefault<UMCPerkComponent>();UDataTable* Table=Defaults?Defaults->PerkTable.LoadSynchronous():nullptr;
     const bool Replacing=PreviewState==TEXT("Replacement");const bool Contract=PreviewState==TEXT("Contract");
     const int32 Count=Replacing?4:Contract?2:3;Snapshot.bReplacing=Replacing;Snapshot.bConfirming=Contract;
+    if(Replacing) {
+        Snapshot.Title=Copy(TEXT("UI.Skill.ReplaceTitle"),LOCTEXT("ReplaceTitle","FOUR SLOTS OCCUPIED"));
+        Snapshot.Subtitle=Copy(TEXT("UI.Skill.ReplaceSubtitle"),LOCTEXT("ReplaceSubtitle","Choose a skill to replace or skip the reward. The timer keeps your old loadout."));
+        Snapshot.Hint=Copy(TEXT("UI.Skill.ReplaceHint"),LOCTEXT("ReplaceHint","Slot: 1 / 2 / 3 / 4 · cancel replacement: Backspace · skip: Esc"));
+    }
     for(int32 I=0;I<Count;++I) {
         FMCPerkChoicePresentationCard Card;const FName ID=PreviewPerkIDs.IsValidIndex(I)?PreviewPerkIDs[I]:FName(*FString::Printf(TEXT("P%02d"),I+1));
         const auto* Row=Table?Table->FindRow<FMCPerkDefinition>(ID,TEXT("Reward PSD designer fixture"),false):nullptr;
@@ -359,6 +402,7 @@ void UMCUnifiedRewardWidget::PresentPreview()
         Snapshot.Cards.Add(MoveTemp(Card));
     }
     FMCPerkChoicePresentationAction Action;
+    if(Replacing) {Action.Label=Copy(TEXT("UI.Skill.Back"),LOCTEXT("BackSkill","BACK TO REWARDS"));Snapshot.Actions.Add(Action);}
     Action.Label=Copy(Contract?TEXT("UI.Reward.AcceptContract"):TEXT("UI.Skill.Skip"),Contract?LOCTEXT("Accept","ACCEPT CONTRACT [ENTER]"):LOCTEXT("Skip","SKIP [ESC]"));Snapshot.Actions.Add(Action);
     if(Contract) {Action.Label=Copy(TEXT("UI.Reward.Decline"),LOCTEXT("Decline","DECLINE [ESC]"));Snapshot.Actions.Add(Action);}
     if(PreviewState==TEXT("WaitingForTeam") || PreviewScenario==EMCGameplayUIPreviewScenario::Waiting) {
@@ -374,7 +418,7 @@ void UMCUnifiedRewardWidget::PresentPreview()
 void UMCUnifiedRewardWidget::ApplyEditorPreview(float Time)
 {
     Super::ApplyEditorPreview(Time);BuildPresentationTree();
-    if(Backend.IsValid() && !IsDesignTime()) RefreshFromBackend();else PresentPreview();
+    if(Backend.IsValid() && !IsDesignTime()) RefreshFromBackend();else PresentPreview();UpdateResponsiveLayout();
 }
 void UMCUnifiedRewardWidget::ApplyTheme()
 {
@@ -388,7 +432,7 @@ void UMCUnifiedRewardWidget::ApplyTheme()
     for(const UMCUnifiedRewardBinding* Binding:Bindings) if(Binding && Binding->View) {
         const auto* Source=Binding->SourceButton.Get();MCUnifiedRewardPrivate_SetReadableButton(Binding->View,Source && Source->GetIsEnabled() && Source->IsInteractionAllowed());
     }
-    UpdateCardCopyHeight();UpdateHeaderContour();
+    UpdateResponsiveLayout();UpdateCardCopyHeight();UpdateHeaderContour();
 }
 float UMCUnifiedRewardWidget::AdaptiveCardWidth(const FMCPerkChoicePresentationSnapshot& Snapshot) const
 {
@@ -396,75 +440,317 @@ float UMCUnifiedRewardWidget::AdaptiveCardWidth(const FMCPerkChoicePresentationS
     for(int32 I=0;I<Snapshot.Cards.Num();++I) {
         const auto& Data=Snapshot.Cards[I].Data;
         const FText Texts[]={Data.DisplayName,Data.Description,Data.StackPreview,Data.Badge};
-        const UTextBlock* Labels[]={Cards.IsValidIndex(I)?Cards[I].Name.Get():nullptr,Cards.IsValidIndex(I)?Cards[I].Description.Get():nullptr,
-            Cards.IsValidIndex(I)?Cards[I].Stats.Get():nullptr,Cards.IsValidIndex(I)?Cards[I].Metadata.Get():nullptr};
+        const UTextBlock* Labels[]={Cards.IsValidIndex(I)?Cards[I].Name.Get():nullptr,Cards.IsValidIndex(I)?Cards[I].Description.Get():nullptr,Cards.IsValidIndex(I)?Cards[I].Stats.Get():nullptr,Cards.IsValidIndex(I)?Cards[I].Metadata.Get():nullptr};
         const int32 Fonts[]={22,18,17,15};
-        for(int32 L=0;L<4;++L) {
+        const int32 TextCount=Snapshot.bConfirming?4:Snapshot.bReplacing?3:2;
+        for(int32 L=0;L<TextCount;++L) {
             const auto Font=Labels[L]?Labels[L]->GetFont():GetResolvedTheme()->MakeGameplayFont(Fonts[L]);
-            // The glyph width includes fallback fonts. Real Unicode line-break
-            // spans retain Cyrillic words without treating CJK paragraphs as one word.
-            Width=FMath::Max(Width,MCUnifiedRewardPrivate_MeasureText(Texts[L],Font).Word+72.f);
+            Width=FMath::Max(Width,MCUnifiedRewardPrivate_MeasureText(Texts[L],Font).Word+60.f);
         }
     }
     return FMath::CeilToFloat(FMath::Min(Width,FMath::Max(MinimumCardWidth,MaximumCardWidth)));
 }
 void UMCUnifiedRewardWidget::UpdateCardCopyHeight()
 {
-    if(!bAdaptCardLayout || !WidgetTree) return;
+    if(!WidgetTree) return;
+    const float Scale=FMath::Max(.01f,GetPaintSpaceGeometry().GetAccumulatedLayoutTransform().GetScale());
     float NaturalHeight=0;
-    for(auto& Card:Cards) if(Card.Host && Card.Host->GetVisibility()!=ESlateVisibility::Collapsed) {
-        const float Wrap=FMath::Max(184.f,(Card.Width?Card.Width->GetWidthOverride():MinimumCardWidth)-56.f);
-        float Height=0;int32 Lines=0;
-        for(UTextBlock* Label:{Card.Name.Get(),Card.Description.Get(),Card.Stats.Get(),Card.Metadata.Get()}) if(Label && !Label->GetText().IsEmpty()) {
-            Height+=MCUnifiedRewardPrivate_MeasureText(Label->GetText(),Label->GetFont(),Wrap).Height+(Lines++?12.f:7.f);
+    for(int32 Index=0;Index<Cards.Num();++Index) {
+        auto& Card=Cards[Index];if(!Card.Host || Card.Host->GetVisibility()==ESlateVisibility::Collapsed) continue;
+        auto* Bounds=WidgetTree->FindWidget<USizeBox>(MCUnifiedRewardPrivate_Part(TEXT("CopyBounds"),Index));
+        auto* Copy=WidgetTree->FindWidget<UVerticalBox>(MCUnifiedRewardPrivate_Part(TEXT("CopyColumn"),Index));
+        if(!Bounds || !Copy) continue;
+        Bounds->ClearHeightOverride();Bounds->ClearMaxDesiredHeight();Bounds->ClearMinDesiredHeight();
+        if(const auto Slate=Copy->GetCachedWidget()) {Slate->MarkPrepassAsDirty();Slate->SlatePrepass(Scale);}
+        const float Width=FMath::Max(1.f,(Card.Width?Card.Width->GetWidthOverride():MinimumCardWidth)-60.f);
+        float FallbackHeight=0;
+        for(const UTextBlock* Label:{Card.Name.Get(),Card.Description.Get(),Card.Stats.Get(),Card.Metadata.Get()}) if(Label && Label->GetParent() && Label->GetParent()->IsVisible() && !Label->GetText().IsEmpty())
+            FallbackHeight+=MCUnifiedRewardPrivate_MeasureText(Label->GetText(),Label->GetFont(),Width).Height+12.f;
+        NaturalHeight=FMath::Max(NaturalHeight,FMath::Max(float(Copy->GetDesiredSize().Y),FallbackHeight));
+    }
+    for(int32 Index=0;Index<Cards.Num();++Index) if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(MCUnifiedRewardPrivate_Part(TEXT("CopyBounds"),Index)))
+        Bounds->SetHeightOverride(FMath::CeilToFloat(NaturalHeight));
+}
+void UMCUnifiedRewardWidget::UpdateResponsiveLayout(FVector2D AvailableSize)
+{
+    if(!WidgetTree) return;
+    auto* RootBounds=WidgetTree->FindWidget<USizeBox>(TEXT("RewardV2Size"));
+    auto* Frame=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("RewardV2Frame"));
+    auto* Column=WidgetTree->FindWidget<UVerticalBox>(TEXT("RewardV2Column"));
+    auto* CardRow=OrdinaryCardRow.Get();
+    auto* Header=WidgetTree->FindWidget<UHorizontalBox>(TEXT("RewardV2HeaderRow"));
+    if(!RootBounds || !Frame || !Column || !Header) return;
+    if(!CardRow) CardRow=WidgetTree->FindWidget<UWrapBox>(TEXT("RewardV2Cards"));
+    if(!CardRow) CardRow=FindObject<UWrapBox>(WidgetTree,TEXT("RewardV2Cards"));
+    if(!CardRow) {
+        // A replacement-only tree saved by a preview can omit the detached
+        // ordinary container. Recreate just that empty container after proving
+        // the known active hierarchy and all four existing card identities.
+        auto* ExistingViewport=WidgetTree->FindWidget<USizeBox>(TEXT("RewardV2CardsViewport"));
+        auto* ExistingGrid=WidgetTree->FindWidget<UUniformGridPanel>(TEXT("RewardV2ReplacementGrid"));
+        auto* ExistingScroll=WidgetTree->FindWidget<UMCUIGridScrollBox>(TEXT("RewardV2CardsScroll"));
+        if(!ExistingViewport || !ExistingGrid || !ExistingScroll || ExistingViewport->GetParent()!=Column || ExistingGrid->GetParent()!=ExistingScroll
+            || ExistingViewport->GetContent()!=ExistingScroll || ExistingScroll->GetChildrenCount()!=1 || ExistingScroll->GetChildAt(0)!=ExistingGrid || Cards.Num()!=4) return;
+        if(FindObject<UWidget>(WidgetTree,TEXT("RewardV2Cards"))) return; // Preserve an incompatible authored object.
+        for(int32 Index=0;Index<Cards.Num();++Index)
+            if(!Cards[Index].Host || Cards[Index].Host->GetFName()!=MCUnifiedRewardPrivate_Part(TEXT("CardBounds"),Index) || Cards[Index].Host->GetParent()!=ExistingGrid) return;
+        CardRow=WidgetTree->ConstructWidget<UWrapBox>(UWrapBox::StaticClass(),TEXT("RewardV2Cards"));
+        CardRow->SetExplicitWrapSize(true);CardRow->SetWrapSize(1180);CardRow->SetInnerSlotPadding({18,16});
+        ReplacementCardGrid=ExistingGrid;ReplacementGridScroll=ExistingScroll;
+    }
+    OrdinaryCardRow=CardRow;
+    if(WidgetTree->RootWidget==RootBounds) {
+        auto* AlignmentRoot=WidgetTree->ConstructWidget<UOverlay>(UOverlay::StaticClass(),TEXT("RewardV2AlignmentRoot"));
+        WidgetTree->RootWidget=AlignmentRoot;auto* Cell=AlignmentRoot->AddChildToOverlay(RootBounds);
+        Cell->SetHorizontalAlignment(HAlign_Center);Cell->SetVerticalAlignment(VAlign_Center);
+    }
+    // Upgrade the saved tree in place: keep its named controls and action bindings,
+    // while removing the former outer and per-card scroll boxes from presentation.
+    auto* CardViewport=WidgetTree->FindWidget<USizeBox>(TEXT("RewardV2CardsViewport"));
+    if(!CardViewport) {
+        UWidget* ExistingBranch=CardRow;
+        if(CardRow->GetParent()!=Column) {
+            auto* LegacyScroll=Cast<UScrollBox>(CardRow->GetParent());
+            if(!LegacyScroll || LegacyScroll->GetChildrenCount()!=1 || LegacyScroll->GetChildAt(0)!=CardRow) return;
+            ExistingBranch=LegacyScroll;
+            if(LegacyScroll->GetParent()!=Column) {
+                auto* LegacyBounds=Cast<USizeBox>(LegacyScroll->GetParent());
+                if(!LegacyBounds || LegacyBounds->GetContent()!=LegacyScroll || LegacyBounds->GetParent()!=Column) return;
+                ExistingBranch=LegacyBounds;
+            }
         }
-        NaturalHeight=FMath::Max(NaturalHeight,Height+12.f);
-    }
-    // Keep the actions and hint in a normal three-card viewport. The enclosing
-    // Root owns whole-screen scrolling; four replacement cards may need it.
-    float Maximum=FMath::Clamp(MaximumCardCopyHeight,240.f,360.f);
-    int32 VisibleCards=0;float CopyPaintHeight=0;
-    for(int32 I=0;I<Cards.Num();++I) if(Cards[I].Host && Cards[I].Host->GetVisibility()!=ESlateVisibility::Collapsed) {
-        ++VisibleCards;
-        if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(MCUnifiedRewardPrivate_Part(TEXT("CopyBounds"),I)))
-            CopyPaintHeight=FMath::Max(CopyPaintHeight,float(Bounds->GetPaintSpaceGeometry().GetLocalSize().Y));
-    }
-    const UMCGameplayUIWidget* ViewportOwner=this;
-    while(const auto* Parent=ViewportOwner->GetTypedOuter<UMCGameplayUIWidget>()) ViewportOwner=Parent;
-    const float AvailableHeight=ViewportOwner!=this?float(ViewportOwner->GetPaintSpaceGeometry().GetLocalSize().Y):0.f;
-    if(VisibleCards>0 && VisibleCards<=3 && AvailableHeight>100.f) {
-        float OtherContent=620.f;
-        if(auto* Frame=WidgetTree->FindWidget(TEXT("RewardV2Frame"))) {
-            const float FrameHeight=Frame->GetPaintSpaceGeometry().GetLocalSize().Y;
-            if(FrameHeight>CopyPaintHeight+100.f && CopyPaintHeight>1.f) OtherContent=FrameHeight-CopyPaintHeight;
+        const auto Existing=Column->GetAllChildren();
+        struct FCell {FMargin Padding;FSlateChildSize Size;EHorizontalAlignment H=HAlign_Fill;EVerticalAlignment V=VAlign_Fill;};
+        TArray<FCell> Cells;
+        for(UWidget* Child:Existing) {FCell Saved;if(auto* Cell=Cast<UVerticalBoxSlot>(Child->Slot)) {Saved.Padding=Cell->GetPadding();Saved.Size=Cell->GetSize();Saved.H=Cell->GetHorizontalAlignment();Saved.V=Cell->GetVerticalAlignment();}Cells.Add(Saved);}
+        CardViewport=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("RewardV2CardsViewport"));
+        CardRow->RemoveFromParent();Column->ClearChildren();CardViewport->SetContent(CardRow);
+        for(int32 I=0;I<Existing.Num();++I) {
+            auto* Cell=Column->AddChildToVerticalBox(Existing[I]==ExistingBranch?static_cast<UWidget*>(CardViewport):Existing[I]);
+            Cell->SetPadding(Cells[I].Padding);Cell->SetSize(Cells[I].Size);Cell->SetHorizontalAlignment(Cells[I].H);Cell->SetVerticalAlignment(Cells[I].V);
         }
-        const float TallWindowGrowth=FMath::Max(0.f,AvailableHeight-1080.f);
-        const float Budget=AvailableHeight-OtherContent-64.f;
-        Maximum=FMath::Max(120.f,FMath::Min(Maximum+TallWindowGrowth,Budget));
     }
-    const float CommonHeight=FMath::CeilToFloat(FMath::Min(NaturalHeight,Maximum));
+    if(!bShowingReplacement && CardViewport->GetContent()!=CardRow) {
+        // Saved-tree migration has no arranged viewport yet. Persist the
+        // ordinary PSD composition without retaining the former outer scroll.
+        // Restore hosts before detaching the active replacement tree so the
+        // next source refresh still finds their named controls with zero geometry.
+        for(auto& Card:Cards) if(auto* Host=Card.Host.Get();Host && Host->GetParent()!=CardRow) {
+            Host->RemoveFromParent();CardRow->AddChildToWrapBox(Host)->SetVerticalAlignment(VAlign_Top);
+        }
+        CardRow->RemoveFromParent();CardViewport->SetContent(CardRow);
+    }
+    if(auto* Cell=Cast<UVerticalBoxSlot>(CardViewport->Slot)) {Cell->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));Cell->SetHorizontalAlignment(HAlign_Center);Cell->SetPadding(FMargin(30,0,30,22));}
+    if(Frame->ContentPadding!=FMargin(24,12,24,20) || Frame->CornerRadius!=52 || !Frame->ShadowOffset.IsNearlyZero()) {
+        Frame->ContentPadding=FMargin(24,12,24,20);Frame->CornerRadius=52;Frame->ShadowOffset={0,0};Frame->ApplyTheme();
+    }
+    if(auto* Cell=Cast<USizeBoxSlot>(Frame->Slot)) {Cell->SetHorizontalAlignment(HAlign_Fill);Cell->SetVerticalAlignment(VAlign_Fill);}
+    auto* TimerBounds=WidgetTree->FindWidget<USizeBox>(TEXT("RewardV2CountdownBounds"));
+    if(TimerBounds && TimerBounds->GetParent()!=Header) {
+        TimerBounds->RemoveFromParent();auto* Cell=Header->AddChildToHorizontalBox(TimerBounds);Cell->SetVerticalAlignment(VAlign_Top);Cell->SetPadding(FMargin(14,0,0,0));
+    }
+    auto* Spacer=WidgetTree->FindWidget<USizeBox>(TEXT("RewardV2HeaderSpacer"));
+    if(!Spacer) {
+        // Rebuild this one row once. InsertChildAt alone does not rebuild a live
+        // Slate box, so it can leave the timer and title in their former order.
+        const auto Children=Header->GetAllChildren();TArray<FMargin> Insets;TArray<FSlateChildSize> Sizing;
+        TArray<EHorizontalAlignment> Horizontal;TArray<EVerticalAlignment> Vertical;
+        for(UWidget* Child:Children) {auto* Cell=CastChecked<UHorizontalBoxSlot>(Child->Slot);Insets.Add(Cell->GetPadding());Sizing.Add(Cell->GetSize());Horizontal.Add(Cell->GetHorizontalAlignment());Vertical.Add(Cell->GetVerticalAlignment());}
+        Header->ClearChildren();Spacer=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("RewardV2HeaderSpacer"));Header->AddChildToHorizontalBox(Spacer);
+        for(int32 I=0;I<Children.Num();++I) {auto* Cell=Header->AddChildToHorizontalBox(Children[I]);Cell->SetPadding(Insets[I]);Cell->SetSize(Sizing[I]);Cell->SetHorizontalAlignment(Horizontal[I]);Cell->SetVerticalAlignment(Vertical[I]);}
+    }
+    if(auto* Plate=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("RewardV2TitlePlate"))) {
+        if(Plate->FontSize!=64 || Plate->CornerRadius!=20 || Plate->ContentPadding!=FMargin(20,4) || !Plate->ShadowOffset.IsNearlyZero()) {
+            Plate->FontSize=64;Plate->CornerRadius=20;Plate->ContentPadding=FMargin(20,4);Plate->ShadowOffset={0,0};Plate->ApplyTheme();
+        }
+        if(RewardTitleFont.HasValidFont() && Plate->WidgetTree)
+            if(auto* Label=Plate->WidgetTree->FindWidget<UTextBlock>(TEXT("UniversalLabel"))) {
+                auto Font=RewardTitleFont;Font.Size=Plate->FontSize;Label->SetFont(Font);
+            }
+    }
+    if(auto* Timer=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("RewardV2Countdown"))) {
+        if(Timer->CornerRadius!=20 || Timer->ContentPadding!=FMargin(10,6) || !Timer->ShadowOffset.IsNearlyZero()) {
+            Timer->CornerRadius=20;Timer->ContentPadding=FMargin(10,6);Timer->ShadowOffset={0,0};Timer->ApplyTheme();
+        }
+        if(!WidgetTree->FindWidget(TEXT("RewardV2CountdownCopy"))) {
+            auto* Copy=WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass(),TEXT("RewardV2CountdownCopy"));Timer->SetContentForSlot(TEXT("Content"),Copy);
+            auto* PrefixLabel=MakeText(TEXT("RewardV2CountdownPrefix"),20,MCUnifiedRewardPrivate_Red);
+            auto* ValueLabel=MakeText(TEXT("RewardV2CountdownValue"),38,MCUnifiedRewardPrivate_Red);
+            Copy->AddChildToVerticalBox(PrefixLabel);Copy->AddChildToVerticalBox(ValueLabel);
+            FString Prefix=Timer->Label.ToString(),Value;int32 Number=INDEX_NONE;
+            for(int32 C=0;C<Prefix.Len();++C) if(FChar::IsDigit(Prefix[C])) {Number=C;break;}
+            if(Number!=INDEX_NONE) {Value=Prefix.Mid(Number).TrimStartAndEnd();Prefix=Prefix.Left(Number).TrimStartAndEnd();}
+            PrefixLabel->SetText(FText::FromString(Prefix));ValueLabel->SetText(FText::FromString(Value));
+            ValueLabel->SetVisibility(Value.IsEmpty()?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);
+        }
+        for(const TCHAR* Name:{TEXT("RewardV2CountdownPrefix"),TEXT("RewardV2CountdownValue")}) if(auto* Label=WidgetTree->FindWidget<UTextBlock>(Name)) Label->SetColorAndOpacity(MCUnifiedRewardPrivate_Red);
+    }
     for(int32 I=0;I<Cards.Num();++I) {
-        if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(MCUnifiedRewardPrivate_Part(TEXT("CopyBounds"),I))) {
-            Bounds->ClearHeightOverride();Bounds->SetMinDesiredHeight(CommonHeight);Bounds->SetMaxDesiredHeight(Maximum);
+        auto& Card=Cards[I];
+        auto* CopyBounds=WidgetTree->FindWidget<USizeBox>(MCUnifiedRewardPrivate_Part(TEXT("CopyBounds"),I));
+        auto* Copy=WidgetTree->FindWidget<UVerticalBox>(MCUnifiedRewardPrivate_Part(TEXT("CopyColumn"),I));
+        if(CopyBounds && Copy && CopyBounds->GetContent()!=Copy) {Copy->RemoveFromParent();CopyBounds->SetContent(Copy);}
+        for(UTextBlock* Extra:{Card.Stats.Get(),Card.Metadata.Get()}) if(Extra && Extra->GetParent()) {
+            const bool ContextCopy=Extra==Card.Stats?bShowingReplacement || bShowingContract:bShowingContract;
+            Extra->GetParent()->SetVisibility(ContextCopy && !Extra->GetText().IsEmpty()?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::Collapsed);
         }
-        if(Cards[I].BodyScroll) {Cards[I].BodyScroll->SetAlwaysShowScrollbar(false);Cards[I].BodyScroll->SetScrollBarVisibility(ESlateVisibility::Visible);}
+        for(UMCUniversalUIWidget* Badge:{Card.Type.Get(),Card.Rarity.Get()}) if(Badge && (Badge->CornerRadius!=0 || !Badge->ShadowOffset.IsNearlyZero() || Badge->OutlineWidth!=3)) {Badge->CornerRadius=0;Badge->ShadowOffset={0,0};Badge->OutlineWidth=3;Badge->ApplyTheme();}
+        if(Card.Surface) {
+            if(Card.Surface->CustomShadow!=MCUnifiedRewardPrivate_Dark || Card.Surface->ShadowOffset!=FVector2D(16,22) || Card.Surface->CornerRadius!=16) {Card.Surface->CustomShadow=MCUnifiedRewardPrivate_Dark;Card.Surface->ShadowOffset={16,22};Card.Surface->CornerRadius=16;Card.Surface->ApplyTheme();}
+            if(auto* Cell=Cast<UVerticalBoxSlot>(Card.Surface->Slot)) Cell->SetPadding(FMargin(0,0,16,26));
+        }
+        if(auto* IconBounds=WidgetTree->FindWidget<USizeBox>(MCUnifiedRewardPrivate_Part(TEXT("IconBounds"),I))) if(auto* Cell=Cast<UVerticalBoxSlot>(IconBounds->Slot)) {Cell->SetHorizontalAlignment(HAlign_Center);Cell->SetPadding(FMargin(0,0,0,10));}
     }
+    if(AvailableSize.X<=1 || AvailableSize.Y<=1) AvailableSize=GetPaintSpaceGeometry().GetLocalSize();
+    if(AvailableSize.X<=1 || AvailableSize.Y<=1) return;
+    ResponsiveViewportSize=AvailableSize;
+    int32 Count=0;for(const auto& Card:Cards) if(Card.Host && Card.Host->GetVisibility()!=ESlateVisibility::Collapsed) ++Count;
+    const float MaxWidth=FMath::Max(1.f,float(AvailableSize.X)-14.f),MaxHeight=FMath::Max(1.f,float(AvailableSize.Y)-16.f);
+    const float Chrome=Frame->ContentPadding.Left+Frame->ContentPadding.Right+60.f;
+    // Three ordinary offers always retain the PSD row. Four existing skill
+    // slots are a different interaction: give their text two usable columns
+    // when four natural-width cards would not fit the viewport.
+    const bool ReplacementGrid=bShowingReplacement && Count>3 && MaxWidth<Count*FMath::Max(MinimumCardWidth,PreferredCardWidth)+(Count-1)*18.f+Chrome;
+    const int32 Columns=ReplacementGrid?2:FMath::Max(1,Count);
+    float ViewWidth=FMath::Min(MaxWidth,Columns*FMath::Max(310.f,PreferredCardWidth)+(Columns-1)*18.f+Chrome);
+    if(ReplacementGrid) ViewWidth=FMath::Min(MaxWidth,FMath::Max(ViewWidth,3.f*MinimumCardWidth+36.f+Chrome));
+    auto* ListScroll=ReplacementGridScroll.Get();
+    auto* Grid=ReplacementCardGrid.Get();
+    if(ReplacementGrid) {
+        if(!ListScroll) {
+            auto* Previous=FindObject<UScrollBox>(WidgetTree,TEXT("RewardV2CardsScroll"));
+            ListScroll=Cast<UMCUIGridScrollBox>(Previous);
+            if(Previous && !ListScroll) {
+                // A pre-snap saved/transient tree can retain this former list
+                // object even after ordinary presentation detached it.
+                CardRow->RemoveFromParent();Previous->RemoveFromParent();
+                const FName Retired=MakeUniqueObjectName(WidgetTree,Previous->GetClass(),TEXT("RewardV2LegacyCardsScroll"));
+                Previous->Rename(*Retired.ToString(),WidgetTree,REN_DontCreateRedirectors|REN_NonTransactional);
+            }
+            if(!ListScroll) ListScroll=WidgetTree->ConstructWidget<UMCUIGridScrollBox>(UMCUIGridScrollBox::StaticClass(),TEXT("RewardV2CardsScroll"));
+            ListScroll->SetScrollbarThickness({5,5});ListScroll->SetConsumeMouseWheel(EConsumeMouseWheel::WhenScrollingPossible);
+            ReplacementGridScroll=ListScroll;
+        }
+        if(!Grid) {
+            Grid=WidgetTree->FindWidget<UUniformGridPanel>(TEXT("RewardV2ReplacementGrid"));
+            if(!Grid) Grid=WidgetTree->ConstructWidget<UUniformGridPanel>(UUniformGridPanel::StaticClass(),TEXT("RewardV2ReplacementGrid"));
+            Grid->SetSlotPadding(FMargin(0,0,18,16));ReplacementCardGrid=Grid;
+        }
+        if(Grid->GetParent()!=ListScroll) {Grid->RemoveFromParent();ListScroll->AddChild(Grid);}
+        for(int32 Index=0;Index<Cards.Num();++Index) if(auto* Host=Cards[Index].Host.Get();Host && Host->GetParent()!=Grid) {
+            Host->RemoveFromParent();auto* Cell=Grid->AddChildToUniformGrid(Host,Index/Columns,Index%Columns);
+            Cell->SetHorizontalAlignment(HAlign_Fill);Cell->SetVerticalAlignment(VAlign_Top);
+        }
+        CardRow->RemoveFromParent();
+        if(CardViewport->GetContent()!=ListScroll) {ListScroll->RemoveFromParent();CardViewport->SetContent(ListScroll);}
+    } else {
+        for(auto& Card:Cards) if(auto* Host=Card.Host.Get();Host && Host->GetParent()!=CardRow) {
+            Host->RemoveFromParent();CardRow->AddChildToWrapBox(Host)->SetVerticalAlignment(VAlign_Top);
+        }
+        if(CardViewport->GetContent()!=CardRow) {CardRow->RemoveFromParent();CardViewport->SetContent(CardRow);}
+    }
+    CardViewport->ClearHeightOverride();CardViewport->ClearMaxDesiredHeight();CardViewport->ClearMinDesiredHeight();
+    const float Scale=FMath::Max(.01f,GetPaintSpaceGeometry().GetAccumulatedLayoutTransform().GetScale());
+    auto Measure=[Scale](UWidget* Widget) {if(const auto Slate=Widget?Widget->GetCachedWidget():nullptr) {Slate->MarkPrepassAsDirty();Slate->SlatePrepass(Scale);}return Widget?Widget->GetDesiredSize():FVector2D::ZeroVector;};
+    auto Layout=[&](float Width,float IconLimit) {
+        const float Inner=FMath::Max(1.f,Width-Frame->ContentPadding.Left-Frame->ContentPadding.Right);
+        const float RowWidth=FMath::Max(1.f,Inner-60.f),ContentWidth=FMath::Max(1.f,RowWidth-(ReplacementGrid?12.f:0.f));
+        const float CardWidth=FMath::Max(1.f,(ContentWidth-(ReplacementGrid?Columns:Columns-1)*18.f)/Columns);
+        RootBounds->ClearMaxDesiredHeight();RootBounds->ClearHeightOverride();RootBounds->ClearMinDesiredHeight();RootBounds->ClearMinDesiredWidth();RootBounds->SetWidthOverride(Width);RootBounds->SetMaxDesiredWidth(Width);
+        CardViewport->SetWidthOverride(RowWidth);
+        if(!ReplacementGrid) {CardRow->SetWrapSize(ContentWidth+2.f);CardRow->SetHorizontalAlignment(HAlign_Center);}
+        else if(Grid) {Grid->SetMinDesiredSlotWidth(0);Grid->SetMinDesiredSlotHeight(0);}
+        const float IconSize=FMath::Max(1.f,FMath::Min3(CardWidth-44.f,IconLimit,ReplacementGrid?160.f:TNumericLimits<float>::Max()));
+        for(int32 I=0;I<Cards.Num();++I) {
+            auto& Card=Cards[I];if(Card.Width) Card.Width->SetWidthOverride(CardWidth);
+            for(UTextBlock* Label:{Card.Name.Get(),Card.Description.Get(),Card.Stats.Get(),Card.Metadata.Get()}) if(Label) {Label->SetAutoWrapText(false);Label->SetWrapTextAt(FMath::Max(1.f,CardWidth-60.f));Label->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);if(auto* Bounds=Cast<USizeBox>(Label->GetParent())) Bounds->SetMaxDesiredWidth(FMath::Max(1.f,CardWidth-60.f));}
+            if(auto* IconBounds=WidgetTree->FindWidget<USizeBox>(MCUnifiedRewardPrivate_Part(TEXT("IconBounds"),I))) {IconBounds->SetWidthOverride(IconSize);IconBounds->SetHeightOverride(IconSize);}
+            // Saved low-resolution perk art must fill the existing PSD square.
+            // Keep the card/row height budget; only normalize the image's
+            // intrinsic size and allow its scale box to grow canonical artwork.
+            if(auto* Fit=WidgetTree->FindWidget<UScaleBox>(MCUnifiedRewardPrivate_Part(TEXT("IconFit"),I))) {
+                if(Fit->GetStretch()!=EStretch::ScaleToFit) Fit->SetStretch(EStretch::ScaleToFit);
+                if(Fit->GetStretchDirection()!=EStretchDirection::Both) Fit->SetStretchDirection(EStretchDirection::Both);
+            }
+            if(Card.Icon) {
+                const auto* Panel=WidgetTree->FindWidget<UMCUniversalUIWidget>(MCUnifiedRewardPrivate_Part(TEXT("IconPanel"),I));
+                const float Inset=Panel?FMath::Max(Panel->ContentPadding.Left+Panel->ContentPadding.Right,Panel->ContentPadding.Top+Panel->ContentPadding.Bottom):24.f;
+                Card.Icon->SetDesiredSizeOverride(FVector2D(FMath::Max(1.f,IconSize-Inset)));
+            }
+        }
+        const float TimerWidth=FMath::Min(Inner*.23f,310.f);
+        if(TimerBounds) {TimerBounds->SetWidthOverride(TimerWidth);TimerBounds->SetMinDesiredWidth(TimerWidth);TimerBounds->SetMaxDesiredWidth(TimerWidth);}
+        const bool TimerVisible=TimerBounds && TimerBounds->GetVisibility()!=ESlateVisibility::Collapsed;
+        const float TimerExtent=TimerVisible?TimerWidth+14.f:0.f;
+        float NaturalTitleWidth=0.f;
+        if(const auto* Plate=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("RewardV2TitlePlate"));Plate && Plate->WidgetTree)
+            if(const auto* Label=Plate->WidgetTree->FindWidget<UTextBlock>(TEXT("UniversalLabel"));Label && FSlateApplication::IsInitialized())
+                if(const auto Renderer=FSlateApplication::Get().GetRenderer())
+                    NaturalTitleWidth=float(Renderer->GetFontMeasureService()->Measure(Label->GetText(),Label->GetFont()).X)+Plate->ContentPadding.Left+Plate->ContentPadding.Right+8.f;
+        // The PSD's centered plate is the baseline, not a text-width ceiling.
+        // A longer translated word first consumes the empty left spacer; the
+        // fixed-size title stays centered whenever the right timer permits it.
+        const float PlateWidth=FMath::Max(1.f,FMath::Min(FMath::Max(Inner*.51f,NaturalTitleWidth),Inner-TimerExtent));
+        if(Spacer) Spacer->SetWidthOverride(FMath::Max(0.f,FMath::Min(TimerExtent,Inner-PlateWidth-TimerExtent)));
+        if(auto* PlateBounds=WidgetTree->FindWidget<USizeBox>(TEXT("RewardV2TitleBounds"))) {PlateBounds->SetWidthOverride(PlateWidth);PlateBounds->SetMinDesiredWidth(PlateWidth);PlateBounds->SetMaxDesiredWidth(PlateWidth);}
+        for(const TCHAR* Name:{TEXT("RewardV2Subtitle"),TEXT("RewardV2SourceTitle"),TEXT("RewardV2Hint")}) if(auto* Label=WidgetTree->FindWidget<UTextBlock>(Name)) {Label->SetAutoWrapText(false);Label->SetWrapTextAt(FMath::Max(1.f,Inner-24.f));Label->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);}
+        for(const TCHAR* Name:{TEXT("RewardV2CountdownPrefix"),TEXT("RewardV2CountdownValue")}) if(auto* Label=WidgetTree->FindWidget<UTextBlock>(Name)) {Label->SetAutoWrapText(false);Label->SetWrapTextAt(FMath::Max(1.f,TimerWidth-24.f));Label->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);}
+        if(auto* Actions=WidgetTree->FindWidget<UWrapBox>(TEXT("RewardV2Actions"))) Actions->SetWrapSize(Inner);
+        for(int32 I=0;I<4;++I) if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(MCUnifiedRewardPrivate_Part(TEXT("ActionBounds"),I))) Bounds->SetMaxDesiredWidth(FMath::Min(520.f,Inner));
+        RefreshTextBounds();UpdateCardCopyHeight();
+        if(ReplacementGrid) CardViewport->SetHeightOverride(Measure(Grid).Y);
+        return Measure(Frame).Y;
+    };
+    float Height=Layout(ViewWidth,TNumericLimits<float>::Max());
+    if(ReplacementGrid) {
+        // Each stopped viewport contains whole uniform rows, including badges
+        // and shadows. Text retains its natural height and never scrolls alone.
+        const int32 TotalRows=FMath::Max(1,FMath::DivideAndRoundUp(Count,Columns));
+        float ListHeight=Measure(Grid).Y;
+        float Reserved=FMath::Max(0.f,Height-ListHeight);
+        float RowStride=FMath::Max(1.f,ListHeight/TotalRows);
+        if(RowStride>MaxHeight-Reserved) {
+            Height=Layout(ViewWidth,64.f);ListHeight=Measure(Grid).Y;
+            Reserved=FMath::Max(0.f,Height-ListHeight);RowStride=FMath::Max(1.f,ListHeight/TotalRows);
+        }
+        if(RowStride>MaxHeight-Reserved && ViewWidth<MaxWidth) {
+            ViewWidth=MaxWidth;Height=Layout(ViewWidth,64.f);ListHeight=Measure(Grid).Y;
+            Reserved=FMath::Max(0.f,Height-ListHeight);RowStride=FMath::Max(1.f,ListHeight/TotalRows);
+        }
+        const int32 VisibleRows=FMath::Clamp(FMath::FloorToInt(FMath::Max(1.f,MaxHeight-Reserved)/RowStride),1,TotalRows);
+        const float VisibleListHeight=VisibleRows*RowStride;
+        CardViewport->SetHeightOverride(VisibleListHeight);CardViewport->SetMaxDesiredHeight(VisibleListHeight);
+        ListScroll->ConfigureGrid(Grid,Columns,VisibleRows,RowStride);
+        Height=Measure(Frame).Y;
+        RootBounds->SetHeightOverride(FMath::CeilToFloat(Height));RootBounds->SetMaxDesiredHeight(FMath::CeilToFloat(Height));return;
+    }
+    // Longer translations first gain room horizontally, then reduce only the
+    // square artwork. Authored text size and complete copy never change.
+    if(Height>MaxHeight && ViewWidth<MaxWidth) {ViewWidth=MaxWidth;Height=Layout(ViewWidth,TNumericLimits<float>::Max());}
+    if(Height>MaxHeight && Count>0) {
+        const float IconWidth=FMath::Max(64.f,(ViewWidth-Chrome-(Columns-1)*18.f)/Columns-44.f-float(Height-MaxHeight));
+        Height=Layout(ViewWidth,IconWidth);
+    }
+    RootBounds->SetHeightOverride(FMath::CeilToFloat(Height));RootBounds->SetMaxDesiredHeight(FMath::CeilToFloat(Height));
 }
 void UMCUnifiedRewardWidget::RefreshTextBounds()
 {
     if(!WidgetTree) return;
     auto Caption=[](UMCUniversalUIWidget* Shape,float Width) {
         if(Shape && Shape->WidgetTree) if(auto* Label=Shape->WidgetTree->FindWidget<UTextBlock>(TEXT("UniversalLabel"))) {
-            Label->SetJustification(ETextJustify::Center);Label->SetAutoWrapText(false);Label->SetWrapTextAt(Width);
+            Label->SetJustification(ETextJustify::Center);Label->SetAutoWrapText(false);Label->SetWrapTextAt(FMath::Max(1.f,Width));Label->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
         }
     };
-    Caption(WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("RewardV2TitlePlate")),540.f);
-    Caption(WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("RewardV2Countdown")),230.f);
+    const auto* PanelBounds=WidgetTree->FindWidget<USizeBox>(TEXT("RewardV2Size"));
+    const float InnerWidth=PanelBounds && PanelBounds->GetWidthOverride()>1?FMath::Max(1.f,PanelBounds->GetWidthOverride()-64.f):1180.f;
+    const auto* TitleBounds=WidgetTree->FindWidget<USizeBox>(TEXT("RewardV2TitleBounds"));
+    Caption(WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("RewardV2TitlePlate")),TitleBounds?FMath::Max(1.f,TitleBounds->GetWidthOverride()-40.f):InnerWidth*.5f);
+    Caption(WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("RewardV2Countdown")),FMath::Min(230.f,InnerWidth*.4f-32.f));
     for(const auto& Card:Cards) {
-        const float Width=FMath::Max(184.f,(Card.Width?Card.Width->GetWidthOverride():MinimumCardWidth)-56.f);
+        const float Width=FMath::Max(1.f,(Card.Width?Card.Width->GetWidthOverride():MinimumCardWidth)-48.f);
         Caption(Card.Type,Width);Caption(Card.Rarity,Width);
     }
-    for(UMCUniversalUIWidget* Action:ActionViews) Caption(Action,450.f);
+    for(UMCUniversalUIWidget* Action:ActionViews) Caption(Action,FMath::Min(450.f,InnerWidth-52.f));
 }
 void UMCUnifiedRewardWidget::UpdateHeaderContour()
 {
@@ -485,7 +771,7 @@ void UMCUnifiedRewardWidget::UpdateHeaderContour()
 }
 void UMCUnifiedRewardWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
-    Super::NativeTick(Geometry,DeltaSeconds);RefreshElapsed+=DeltaSeconds;
+    Super::NativeTick(Geometry,DeltaSeconds);UpdateResponsiveLayout(Geometry.GetLocalSize());RefreshElapsed+=DeltaSeconds;
     if(RefreshElapsed>=.1f) {RefreshElapsed=0;RefreshFromBackend();UpdateHeaderContour();}
 }
 FReply UMCUnifiedRewardWidget::NativeOnPreviewKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)

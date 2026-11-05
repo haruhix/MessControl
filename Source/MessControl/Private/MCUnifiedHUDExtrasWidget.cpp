@@ -5,13 +5,17 @@
 #include "MCUniversalUIWidget.h"
 #include "MCUIDataLibrary.h"
 #include "MCPerkComponent.h"
+#include "MCUIGridScrollBox.h"
 #include "GameFramework/Pawn.h"
 #include "Blueprint/WidgetTree.h"
+#include "Brushes/SlateNoResource.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/ScrollBox.h"
 #include "Components/SizeBox.h"
 #include "Components/TextBlock.h"
+#include "Components/UniformGridPanel.h"
+#include "Components/UniformGridSlot.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
 #include "Components/WrapBox.h"
@@ -20,6 +24,7 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Rendering/SlateRenderer.h"
 #include "Widgets/SWidget.h"
+#include "UObject/UObjectGlobals.h"
 
 #define LOCTEXT_NAMESPACE "MCUnifiedHUDExtras"
 
@@ -53,7 +58,7 @@ UMCUniversalUIWidget* UMCUnifiedHUDExtrasWidget::Shape(FName Name,bool bBlue)
 UTextBlock* UMCUnifiedHUDExtrasWidget::Text(FName Name,int32 Size)
 {
     auto* Label=WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass(),Name);
-    Label->SetAutoWrapText(true);Label->SetWrapTextAt(600);Label->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
+    Label->SetAutoWrapText(true);Label->SetWrapTextAt(600);Label->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
     Label->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);Label->SetColorAndOpacity(MCUnifiedHUDExtrasPrivate::Color(TEXT("FFF9F8")));
     Label->SetVisibility(ESlateVisibility::HitTestInvisible);
     if(auto* T=GetResolvedTheme()) Label->SetFont(T->MakeFont(Size,true));return Label;
@@ -71,7 +76,7 @@ void UMCUnifiedHUDExtrasWidget::BuildPresentationTree()
 {
     if(!WidgetTree) return;
     if(!Theme) Theme=UMCGameplayUIFactory::GetThemeForVersion(EMCUIVersion::New);
-    if(WidgetTree->RootWidget) {ClearShapeLabels();EnsureSupplementalFlow();EnsureReticleView();return;} // Retain saved nodes and shape options.
+    if(WidgetTree->RootWidget) {ClearShapeLabels();EnsureSupplementalFlow();EnsurePassiveList();EnsureReticleView();return;} // Retain saved nodes and shape options.
     WidgetTree->RootWidget=WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass(),TEXT("HUDExtrasRoot"));
     auto Add=[&](UVerticalBox* Column,FName Name,int32 Size) {
         auto* Label=Text(Name,Size);Column->AddChildToVerticalBox(Label)->SetPadding(FMargin(0,0,0,6));return Label;
@@ -90,13 +95,12 @@ void UMCUnifiedHUDExtrasWidget::BuildPresentationTree()
     auto* Cataclysm=AddGroup(TEXT("ExtrasCataclysm"),FVector2D(0,.27),FVector2D(38,0),FVector2D::ZeroVector);
     Add(Cataclysm,TEXT("ExtrasCataclysmInstruction"),21);
     auto* Passives=AddGroup(TEXT("ExtrasPassives"),FVector2D(1,1),FVector2D(-50,-195),FVector2D(1,1),true);
-    auto* Height=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("ExtrasPassiveHeight"));Height->SetMaxDesiredHeight(MaximumPassiveHeight);Passives->AddChildToVerticalBox(Height);
-    auto* Scroll=WidgetTree->ConstructWidget<UScrollBox>(UScrollBox::StaticClass(),TEXT("ExtrasPassiveScroll"));Scroll->SetAllowOverscroll(false);Height->SetContent(Scroll);
-    auto* Chips=WidgetTree->ConstructWidget<UWrapBox>(UWrapBox::StaticClass(),TEXT("ExtrasPassiveChips"));Chips->SetExplicitWrapSize(true);Chips->SetWrapSize(400);Chips->SetInnerSlotPadding(FVector2D(8,8));Scroll->AddChild(Chips);
+    auto* Height=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("ExtrasPassiveHeight"));Passives->AddChildToVerticalBox(Height);
+    auto* Chips=WidgetTree->ConstructWidget<UWrapBox>(UWrapBox::StaticClass(),TEXT("ExtrasPassiveChips"));Chips->SetExplicitWrapSize(true);Chips->SetWrapSize(400);Chips->SetInnerSlotPadding(FVector2D(8,8));Height->SetContent(Chips);
     // Standalone actor-free status fixtures only. Runtime uses the primary V2ActionHint once.
     auto* Status=AddGroup(TEXT("ExtrasStatusPreview"),FVector2D(.5,1),FVector2D(0,-190),FVector2D(.5,1));
     Add(Status,TEXT("ExtrasStatusPreviewText"),21)->SetJustification(ETextJustify::Center);
-    ClearShapeLabels();EnsureSupplementalFlow();EnsureReticleView();UpdateLayout();
+    ClearShapeLabels();EnsureSupplementalFlow();EnsurePassiveList();EnsureReticleView();UpdateLayout();
 }
 UMCUnifiedReticleWidget* UMCUnifiedHUDExtrasWidget::EnsureReticleView()
 {
@@ -144,6 +148,7 @@ void UMCUnifiedHUDExtrasWidget::UpdateLayout()
 {
     if(!WidgetTree || bUpdatingLayout) return;TGuardValue<bool> Guard(bUpdatingLayout,true);
     EnsureSupplementalFlow();
+    EnsurePassiveList();ApplyPassiveInputPolicy();
     FVector2D Area=GetPaintSpaceGeometry().GetLocalSize();if(Area.X<1) Area=FVector2D(1920,1080);
     FString Signature=FString::Printf(TEXT("%.1f|%.1f|%.1f|%.1f|%.1f|%.1f|%.1f"),Area.X,Area.Y,MaximumCenterWidth,MaximumSideWidth,MaximumCriticalWidth,MaximumPassiveHeight,SupplementalBottomInset);
     WidgetTree->ForEachWidget([&](UWidget* Widget) {
@@ -174,18 +179,13 @@ void UMCUnifiedHUDExtrasWidget::UpdateLayout()
             });
             if(Key==TEXT("ExtrasResults")) for(const TCHAR* LabelName:{TEXT("ExtrasResultTitle"),TEXT("ExtrasResultDetail")})
                 if(auto* Label=WidgetTree->FindWidget<UTextBlock>(LabelName)) {Label->SetAutoWrapText(false);Label->SetWrapTextAt(Inner);}
-            if(Key==TEXT("ExtrasPassives")) if(auto* Chips=WidgetTree->FindWidget<UWrapBox>(TEXT("ExtrasPassiveChips"))) {
-                Chips->SetWrapSize(Inner);
-                for(UWidget* Child:Chips->GetAllChildren()) if(auto* Size=Cast<USizeBox>(Child)) Size->SetMaxDesiredWidth(Inner);
-                for(const auto& Label:PassiveLabels) if(Label) {Label->SetAutoWrapText(false);Label->SetWrapTextAt(FMath::Max(60.f,Inner-18.f));}
-            }
+            if(Key==TEXT("ExtrasPassives")) UpdatePassiveLayout(Inner);
         }
     }
-    if(auto* Height=WidgetTree->FindWidget<USizeBox>(TEXT("ExtrasPassiveHeight"))) Height->SetMaxDesiredHeight(MaximumPassiveHeight);
     auto* Flow=WidgetTree->FindWidget<USizeBox>(TEXT("ExtrasFlowBounds"));auto* Rows=WidgetTree->FindWidget<UWrapBox>(TEXT("ExtrasFlowRows"));auto* Scroll=WidgetTree->FindWidget<UScrollBox>(TEXT("ExtrasFlowScroll"));
     if(!Flow || !Rows || !Scroll) return;
     bool Any=false;for(UWidget* Child:Rows->GetAllChildren()) Any|=Child->GetVisibility()!=ESlateVisibility::Collapsed && Child->GetVisibility()!=ESlateVisibility::Hidden;
-    Flow->SetVisibility(Any?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    Flow->SetVisibility(Any?(bPassiveOverflow?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::HitTestInvisible):ESlateVisibility::Collapsed);
     if(!Any) {
         bLastCriticalVisible=false;
         if(auto* ResultBounds=WidgetTree->FindWidget<USizeBox>(TEXT("ExtrasResultsBounds")))
@@ -198,6 +198,17 @@ void UMCUnifiedHUDExtrasWidget::UpdateLayout()
     auto* CriticalLabel=WidgetTree->FindWidget<UTextBlock>(TEXT("ExtrasCataclysmInstruction"));
     auto* CriticalBounds=WidgetTree->FindWidget<USizeBox>(TEXT("ExtrasCataclysmBounds"));
     const bool CriticalVisible=CriticalBounds && CriticalBounds->GetVisibility()!=ESlateVisibility::Collapsed;
+    const auto* SwimBounds=WidgetTree->FindWidget<USizeBox>(TEXT("ExtrasSwimBounds"));
+    const bool SwimVisible=SwimBounds && SwimBounds->GetVisibility()!=ESlateVisibility::Collapsed && SwimBounds->GetVisibility()!=ESlateVisibility::Hidden;
+    if(auto* PassiveBounds=WidgetTree->FindWidget<USizeBox>(TEXT("ExtrasPassivesBounds")))
+        if(auto* PassiveCell=Cast<UWrapBoxSlot>(PassiveBounds->Slot)) {
+            // A tall warning grows the measured flow upward. Keep its simultaneous
+            // swim row on the left and start passive chips below it, so a second
+            // right-hand column cannot cover the source-owned central aim caption.
+            // Chip/text heights remain natural; the existing two scroll bounds apply.
+            const bool NewPassiveLine=CriticalVisible && SwimVisible;
+            if(PassiveCell->DoesForceNewLine()!=NewPassiveLine) PassiveCell->SetNewLine(NewPassiveLine);
+        }
     if(CriticalVisible && CriticalLabel && (!bLastCriticalVisible || !LastCriticalCopy.EqualTo(CriticalLabel->GetText()))) Scroll->ScrollToStart();
     bLastCriticalVisible=CriticalVisible;LastCriticalCopy=CriticalLabel?CriticalLabel->GetText():FText::GetEmpty();
     Flow->SetWidthOverride(AvailableWidth);Rows->SetWrapSize(WrapWidth);
@@ -207,6 +218,11 @@ void UMCUnifiedHUDExtrasWidget::UpdateLayout()
     const float RequiredHeight=FMath::CeilToFloat(Rows->GetDesiredSize().Y)+10.f;
     const bool Overflow=RequiredHeight>AvailableHeight+.5f;
     Scroll->SetScrollBarVisibility(Overflow?ESlateVisibility::Visible:ESlateVisibility::Collapsed);Scroll->SetAlwaysShowScrollbar(Overflow);
+    if(!Overflow) {
+        auto Style=Scroll->GetWidgetStyle();
+        Style.SetTopShadowBrush(FSlateNoResource()).SetBottomShadowBrush(FSlateNoResource()).SetLeftShadowBrush(FSlateNoResource()).SetRightShadowBrush(FSlateNoResource());
+        Scroll->SetWidgetStyle(Style);
+    }
     Flow->SetHeightOverride(FMath::Min(RequiredHeight,AvailableHeight));Flow->SetMaxDesiredHeight(AvailableHeight);
     // Results can coexist with a remaining swim gauge; reserve a gap instead of painting over it.
     if(auto* ResultBounds=WidgetTree->FindWidget<USizeBox>(TEXT("ExtrasResultsBounds"));ResultBounds && ResultBounds->GetVisibility()!=ESlateVisibility::Collapsed)
@@ -216,6 +232,133 @@ void UMCUnifiedHUDExtrasWidget::UpdateLayout()
             const float Target=FMath::Max(Half+20.f,FMath::Min(float(Area.Y)*.46f,float(Area.Y)-Bottom-Flow->GetHeightOverride()-16.f-Half));
             CanvasCell->SetPosition(FVector2D(0,Target-float(Area.Y)*.46f));
         }
+}
+UUniformGridPanel* UMCUnifiedHUDExtrasWidget::EnsurePassiveList()
+{
+    if(!WidgetTree) return nullptr;
+    auto* Chips=WidgetTree->FindWidget<UWrapBox>(TEXT("ExtrasPassiveChips"));
+    auto* Height=WidgetTree->FindWidget<USizeBox>(TEXT("ExtrasPassiveHeight"));
+    if(!Chips || !Height) return nullptr;
+    if(auto* Frame=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("ExtrasPassives"))) {
+        // The chips carry the one translucent PSD surface. A second filled
+        // enclosing plate would multiply its opacity and leave an empty slab.
+        if(Frame->CustomFill.A!=0 || Frame->OutlineWidth!=0 || !Frame->ShadowOffset.IsNearlyZero() || Frame->ContentPadding!=FMargin(0)) {
+            Frame->bUseThemeShape=false;Frame->bCustomColors=true;Frame->CustomFill=FLinearColor::Transparent;
+            Frame->CustomOutline=FLinearColor::Transparent;Frame->CustomShadow=FLinearColor::Transparent;
+            Frame->OutlineWidth=0;Frame->ShadowOffset=FVector2D::ZeroVector;Frame->ContentPadding=FMargin(0);Frame->ApplyTheme();
+        }
+    }
+    auto* Grid=WidgetTree->FindWidget<UUniformGridPanel>(TEXT("ExtrasPassiveGrid"));
+    if(Grid && Grid->GetParent()!=Chips) return nullptr;
+    if(!Grid) {
+        if(FindObject<UWidget>(WidgetTree,TEXT("ExtrasPassiveGrid"))) return nullptr;
+        const auto Existing=Chips->GetAllChildren();
+        for(int32 Index=0;Index<Existing.Num();++Index)
+            if(!Cast<USizeBox>(Existing[Index]) || Existing[Index]->GetFName()!=FName(*FString::Printf(TEXT("ExtrasPassiveBounds%d"),Index))) return nullptr;
+        // Keep the public saved WrapBox and every named chip/label. Only its
+        // private list body becomes a one-column uniform grid for shared snap.
+        for(int32 Index=0;Index<Existing.Num();++Index) if(PassiveRows.IsEmpty() || !PassiveRows.IsValidIndex(Index)) {
+            PassiveRows.Add(CastChecked<USizeBox>(Existing[Index]));
+            PassiveLabels.Add(WidgetTree->FindWidget<UTextBlock>(FName(*FString::Printf(TEXT("ExtrasPassiveName%d"),Index))));
+        }
+        Chips->ClearChildren();Grid=WidgetTree->ConstructWidget<UUniformGridPanel>(UUniformGridPanel::StaticClass(),TEXT("ExtrasPassiveGrid"));
+        Grid->SetSlotPadding(FMargin(0,0,4,4));Chips->AddChildToWrapBox(Grid)->SetVerticalAlignment(VAlign_Top);
+        for(int32 Index=0;Index<Existing.Num();++Index) {
+            auto* Cell=Grid->AddChildToUniformGrid(Existing[Index],Index,0);Cell->SetHorizontalAlignment(HAlign_Left);Cell->SetVerticalAlignment(VAlign_Top);
+        }
+    } else if(PassiveRows.IsEmpty()) {
+        for(int32 Index=0;Index<Grid->GetChildrenCount();++Index) if(auto* Row=Cast<USizeBox>(Grid->GetChildAt(Index))) {
+            PassiveRows.Add(Row);PassiveLabels.Add(WidgetTree->FindWidget<UTextBlock>(FName(*FString::Printf(TEXT("ExtrasPassiveName%d"),Index))));
+        }
+    }
+    return Grid;
+}
+void UMCUnifiedHUDExtrasWidget::ApplyPassiveInputPolicy()
+{
+    if(!WidgetTree) return;
+    const auto ParentVisibility=bPassiveOverflow?ESlateVisibility::SelfHitTestInvisible:ESlateVisibility::HitTestInvisible;
+    if(auto* Canvas=WidgetTree->FindWidget(TEXT("HUDExtrasRoot"))) Canvas->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+    for(const TCHAR* Name:{TEXT("ExtrasFlowBounds"),TEXT("ExtrasFlowRows"),TEXT("ExtrasFlowScroll"),TEXT("ExtrasPassivesBounds"),TEXT("ExtrasPassives"),TEXT("ExtrasPassivesContent"),TEXT("ExtrasPassiveHeight"),TEXT("ExtrasPassiveChips"),TEXT("ExtrasPassiveGrid")})
+        if(auto* Parent=WidgetTree->FindWidget(Name);Parent && Parent->GetVisibility()!=ESlateVisibility::Collapsed && Parent->GetVisibility()!=ESlateVisibility::Hidden) Parent->SetVisibility(ParentVisibility);
+    if(PassiveGridScroll) PassiveGridScroll->SetVisibility(bPassiveOverflow?ESlateVisibility::Visible:ESlateVisibility::HitTestInvisible);
+}
+void UMCUnifiedHUDExtrasWidget::UpdatePassiveLayout(float AvailableWidth)
+{
+    auto* Grid=EnsurePassiveList();if(!Grid) return;
+    auto* Chips=WidgetTree->FindWidget<UWrapBox>(TEXT("ExtrasPassiveChips"));
+    auto* Height=WidgetTree->FindWidget<USizeBox>(TEXT("ExtrasPassiveHeight"));if(!Chips || !Height) return;
+    const float Gutter=Grid->GetChildrenCount()>3?12.f:4.f;
+    const float RowWidth=FMath::Max(1.f,AvailableWidth-Gutter);
+    Chips->SetWrapSize(FMath::Max(1.f,AvailableWidth));Grid->SetMinDesiredSlotWidth(0);Grid->SetMinDesiredSlotHeight(0);
+    const auto Fill=MCUnifiedHUDExtrasPrivate::Color(TEXT("1A434E")).CopyWithNewOpacity(145.f/255.f);
+    const auto Edge=MCUnifiedHUDExtrasPrivate::Color(TEXT("AEFCFD")).CopyWithNewOpacity(145.f/255.f);
+    const float ArrangedScale=GetPaintSpaceGeometry().GetAccumulatedLayoutTransform().GetScale();
+    const float MeasureScale=ArrangedScale>.01f?ArrangedScale:1.f;
+    for(int32 Index=0;Index<PassiveRows.Num();++Index) if(auto* Row=PassiveRows[Index].Get()) {
+        Row->ClearWidthOverride();Row->ClearMinDesiredWidth();Row->SetMaxDesiredWidth(RowWidth);
+        Row->ClearHeightOverride();Row->ClearMinDesiredHeight();Row->ClearMaxDesiredHeight();
+        if(auto* Chip=Cast<UMCUniversalUIWidget>(Row->GetContent()))
+            if(Chip->CustomFill!=Fill || Chip->CustomOutline!=Edge || Chip->CustomShadow!=Edge || Chip->ContentPadding!=FMargin(9,4) || Chip->OutlineWidth!=2 || Chip->CornerRadius!=12 || Chip->ShadowOffset!=FVector2D(3,4)) {
+                Chip->bUseThemeShape=false;Chip->bCustomColors=true;Chip->CustomFill=Fill;Chip->CustomOutline=Edge;Chip->CustomShadow=Edge;
+                Chip->ContentPadding=FMargin(9,4);Chip->OutlineWidth=2;Chip->CornerRadius=12;Chip->ShadowOffset=FVector2D(3,4);Chip->ApplyTheme();
+            }
+        if(PassiveLabels.IsValidIndex(Index)) if(auto* Label=PassiveLabels[Index].Get()) {
+            Label->SetAutoWrapText(false);Label->SetWrapTextAt(FMath::Max(1.f,RowWidth-18.f));Label->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);
+            if(Label->GetFont().Size!=17 && GetResolvedTheme()) Label->SetFont(GetResolvedTheme()->MakeFont(17,true));
+            // Newly added user-widget rows have no arranged geometry yet.
+            // Measure their real caption directly before the uniform grid can
+            // collapse the enclosing wrap box to a zero-sized first layout.
+            const auto CaptionSlate=Label->TakeWidget();CaptionSlate->MarkPrepassAsDirty();CaptionSlate->SlatePrepass(MeasureScale);
+            const FVector2D CaptionSize=CaptionSlate->GetDesiredSize();
+            Row->SetWidthOverride(FMath::Min(RowWidth,FMath::Max(1.f,float(CaptionSize.X)+18.f)));
+            Row->SetHeightOverride(FMath::Max(1.f,float(CaptionSize.Y)+12.f));
+        }
+    }
+    FVector2D NaturalSize=FVector2D::ZeroVector;
+    {
+        // Reparenting releases the panel's native Slate owner. Let its weak
+        // cache expire before reattachment can call TakeWidget again.
+        const auto Slate=Grid->TakeWidget();Slate->MarkPrepassAsDirty();Slate->SlatePrepass(MeasureScale);
+        NaturalSize=Slate->GetDesiredSize();
+    }
+    const int32 Count=Grid->GetChildrenCount();
+    const float NaturalHeight=FMath::Max(0.f,float(NaturalSize.Y));
+    const float RowStride=Count>0?FMath::Max(1.f,NaturalHeight/Count):0.f;
+    // The usual three passives remain a compact complete list. Larger lists
+    // use an integer row budget; no card owns a text scroll or a clipped row.
+    const int32 VisibleRows=Count<=3?Count:FMath::Clamp(FMath::FloorToInt(FMath::Max(1.f,MaximumPassiveHeight)/RowStride),1,Count);
+    auto* GroupBounds=WidgetTree->FindWidget<USizeBox>(TEXT("ExtrasPassivesBounds"));
+    const bool GroupVisible=GroupBounds && GroupBounds->GetVisibility()!=ESlateVisibility::Collapsed && GroupBounds->GetVisibility()!=ESlateVisibility::Hidden;
+    const bool Overflow=Count>VisibleRows;
+    bPassiveOverflow=GroupVisible && Overflow;
+    if(GroupBounds) {
+        const float NaturalWidth=FMath::Min(AvailableWidth,FMath::Max(1.f,FMath::CeilToFloat(float(NaturalSize.X))+Gutter));
+        GroupBounds->ClearMinDesiredWidth();GroupBounds->ClearMaxDesiredWidth();GroupBounds->SetWidthOverride(NaturalWidth);
+        Chips->SetWrapSize(NaturalWidth);
+    }
+    Height->ClearMinDesiredHeight();Height->ClearMaxDesiredHeight();Height->ClearHeightOverride();
+    if(Overflow) {
+        auto* Scroll=PassiveGridScroll.Get();
+        if(!Scroll) {
+            auto* Previous=FindObject<UScrollBox>(WidgetTree,TEXT("ExtrasPassiveScroll"));Scroll=Cast<UMCUIGridScrollBox>(Previous);
+            if(Previous && !Scroll) {
+                if(Chips->GetParent()==Previous) Chips->RemoveFromParent();
+                Previous->RemoveFromParent();const FName Retired=MakeUniqueObjectName(WidgetTree,Previous->GetClass(),TEXT("ExtrasPassiveLegacyScroll"));
+                Previous->Rename(*Retired.ToString(),WidgetTree,REN_DontCreateRedirectors|REN_NonTransactional);
+            }
+            if(!Scroll) Scroll=WidgetTree->ConstructWidget<UMCUIGridScrollBox>(UMCUIGridScrollBox::StaticClass(),TEXT("ExtrasPassiveScroll"));
+            Scroll->SetScrollbarThickness(FVector2D(5,5));Scroll->SetConsumeMouseWheel(EConsumeMouseWheel::WhenScrollingPossible);PassiveGridScroll=Scroll;
+            auto Style=Scroll->GetWidgetStyle();Style.SetTopShadowBrush(FSlateNoResource()).SetBottomShadowBrush(FSlateNoResource()).SetLeftShadowBrush(FSlateNoResource()).SetRightShadowBrush(FSlateNoResource());Scroll->SetWidgetStyle(Style);
+        }
+        if(Chips->GetParent()!=Scroll) {Chips->RemoveFromParent();Scroll->AddChild(Chips);}
+        if(Height->GetContent()!=Scroll) {Scroll->RemoveFromParent();Height->SetContent(Scroll);}
+        Height->SetHeightOverride(VisibleRows*RowStride);
+        Scroll->SetAlwaysShowScrollbar(false);Scroll->SetScrollBarVisibility(ESlateVisibility::Visible);Scroll->ConfigureGrid(Grid,1,VisibleRows,RowStride);
+    } else {
+        if(Height->GetContent()!=Chips) {Chips->RemoveFromParent();Height->SetContent(Chips);}
+        if(PassiveGridScroll) {PassiveGridScroll->SetScrollBarVisibility(ESlateVisibility::Collapsed);PassiveGridScroll->SetAlwaysShowScrollbar(false);}
+    }
+    ApplyPassiveInputPolicy();
 }
 void UMCUnifiedHUDExtrasWidget::PreparePresentation()
 {
@@ -276,22 +419,20 @@ void UMCUnifiedHUDExtrasWidget::SetBackend(UMCGameplayHUD* Source)
 }
 void UMCUnifiedHUDExtrasWidget::HideGroups()
 {
+    bPassiveOverflow=false;
     if(WidgetTree) {
         for(const TCHAR* Name:MCUnifiedHUDExtrasPrivate::Groups)
             if(auto* Bounds=WidgetTree->FindWidget(MCUnifiedHUDExtrasPrivate::Bounds(FName(Name)))) Bounds->SetVisibility(ESlateVisibility::Collapsed);
         if(auto* Flow=WidgetTree->FindWidget(TEXT("ExtrasFlowBounds"))) Flow->SetVisibility(ESlateVisibility::Collapsed);
     }
+    ApplyPassiveInputPolicy();
 }
 void UMCUnifiedHUDExtrasWidget::UpdatePassives(const TArray<FText>& Names)
 {
     if(MCUnifiedHUDExtrasPrivate::SameTexts(LastPassiveNames,Names)) return;
-    auto* Chips=WidgetTree->FindWidget<UWrapBox>(TEXT("ExtrasPassiveChips"));if(!Chips) return;
+    auto* Grid=EnsurePassiveList();if(!Grid) return;
     // Retain rows when copy changes; never replace same-named live UObjects during localization.
-    if(PassiveRows.IsEmpty()) for(UWidget* Child:Chips->GetAllChildren()) if(auto* Row=Cast<USizeBox>(Child)) {
-        const int32 Index=PassiveRows.Num();PassiveRows.Add(Row);
-        PassiveLabels.Add(WidgetTree->FindWidget<UTextBlock>(FName(*FString::Printf(TEXT("ExtrasPassiveName%d"),Index))));
-    }
-    LastPassiveNames=Names;Chips->ClearChildren();
+    LastPassiveNames=Names;Grid->ClearChildren();
     for(int32 I=0;I<Names.Num();++I) {
         if(!PassiveRows.IsValidIndex(I)) {
             auto* Bounds=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),FName(*FString::Printf(TEXT("ExtrasPassiveBounds%d"),I)));
@@ -301,7 +442,7 @@ void UMCUnifiedHUDExtrasWidget::UpdatePassives(const TArray<FText>& Names)
             PassiveRows.Add(Bounds);PassiveLabels.Add(Label);
         }
         if(PassiveLabels.IsValidIndex(I) && PassiveLabels[I]) PassiveLabels[I]->SetText(Names[I]);
-        Chips->AddChildToWrapBox(PassiveRows[I]);
+        auto* Cell=Grid->AddChildToUniformGrid(PassiveRows[I],I,0);Cell->SetHorizontalAlignment(HAlign_Left);Cell->SetVerticalAlignment(VAlign_Top);
     }
 }
 void UMCUnifiedHUDExtrasWidget::Present(const FMCGameplayHUDExtrasSnapshot& Snapshot)
@@ -370,8 +511,12 @@ void UMCUnifiedHUDExtrasWidget::PresentPreview(float Time)
         Format(TEXT("UI.Stamina.Value"),LOCTEXT("StaminaValue","{Current} / {Maximum}"),{{TEXT("Current"),72},{TEXT("Maximum"),100}});
     Sample.bBoosterVisible=PreviewState==TEXT("Booster") || Long;Sample.BoosterName=Copy(TEXT("UI.Booster.GenericName"),LOCTEXT("Booster","Бустер"));Sample.BoosterKey=FText::AsCultureInvariant(TEXT("G"));
     Sample.BoosterCount=Format(TEXT("UI.Booster.Charges"),LOCTEXT("Charges","Зарядов: {Count}"),{{TEXT("Count"),3}});Sample.BoosterArmed=Copy(TEXT("UI.Booster.GrenadeArmed"),LOCTEXT("Armed","Граната взорвётся при падении"));
-    Sample.bPassivesVisible=PreviewState==TEXT("Passive") || Long || CataclysmCombo;
-    if(Sample.bPassivesVisible) Sample.PassiveNames={Copy(TEXT("UI.V2.Preview.Passive"),LOCTEXT("Passive","Пассивный навык")),Copy(TEXT("UI.V2.Preview.Passive"),LOCTEXT("Passive","Пассивный навык"))};
+    Sample.bPassivesVisible=PreviewState==TEXT("Passive") || PreviewState==TEXT("PassiveOverflow") || Long || CataclysmCombo;
+    if(Sample.bPassivesVisible) {
+        const FText Name=Copy(TEXT("UI.V2.Preview.Passive"),LOCTEXT("Passive","Пассивный навык"));
+        const int32 Count=PreviewState==TEXT("PassiveOverflow")?9:3;
+        for(int32 Index=0;Index<Count;++Index) Sample.PassiveNames.Add(Name);
+    }
     Sample.bCataclysmVisible=PreviewState==TEXT("Cataclysm") || Long || CataclysmCombo;
     Sample.CataclysmInstruction=Copy(TEXT("UI.Event.Cataclysm.Rafts.Instruction"),LOCTEXT("CataclysmRafts","ПКМ у плота — занять левое или правое место. WASD — грести относительно плота; усилия обоих игроков складываются. Пробел — спрыгнуть. Договаривайтесь о направлении и уклоняйтесь от плывущего мусора!"));
     if(Long) {
