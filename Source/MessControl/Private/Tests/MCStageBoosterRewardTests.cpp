@@ -13,6 +13,7 @@
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCNutEnemy.h"
+#include "MCNutRainEvent.h"
 #include "MCMouthSurface.h"
 #include "MCDayPlan.h"
 #include "MCTongue.h"
@@ -328,27 +329,41 @@ bool FMCStageRewardArrivalOverlapTest::RunTest(const FString&)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCStageRewardPortionGateTest,"MessControl.Rewards.StageBooster.PortionCleanupAndDeduplication",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCStageRewardPortionGateTest,"MessControl.Rewards.StageBooster.KeyCompletionAndDeduplication",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCStageRewardPortionGateTest::RunTest(const FString&)
 {
     FStageRewardWorld W;auto* Worker=W.Player(FVector(3000,0,10000));
     auto* Director=W.World->SpawnActor<AMCSingleDayDirector>();
-    Director->Settings=NewObject<UMCSingleDayProfile>(Director);Director->Mechanics=NewObject<UMCDayPlan>(Director);
-    Director->Stage=EMCSingleDayStage::FirstMeal;Director->MealPortionNumber=1;Director->MealPortionCount=3;
-    Director->MealPortionTarget=Director->MealPortionSpawned=3;
-    auto* Dirt=W.World->SpawnActor<AMCMouthSurface>(FVector(2000,1000,10000),FRotator::ZeroRotator);
-    Dirt->bUlcer=false;Dirt->Status->ApplyCoffee();Director->TickFirstMeal();
-    TestFalse(TEXT("Even a non-final portion waits for actual dirt cleanup"),Director->bStageRewardPending);
-    Dirt->ClearLiquidForBooster();Director->TickFirstMeal();
-    TestTrue(TEXT("A fully completed portion enters the shared reward gate"),Director->bStageRewardPending);
-    TestEqual(TEXT("The portion completion has a stable identity"),Director->StageRewardCompletionId,FName(TEXT("OpeningPortion_1")));
-    Director->TickFirstMeal();
-    TestEqual(TEXT("Repeated completion polls retain the same reward"),Director->CompletedStageRewards.Num(),0);
-    auto* Chest=W.Chest(Director);Director->StageRewardChest=Chest;Chest->ClaimedMask=7;
-    Director->NotifyStageRewardFinished(Chest,false);Director->NotifyStageRewardFinished(Chest,false);
+    Director->Settings=NewObject<UMCSingleDayProfile>(Director);
+    Director->Mechanics=NewObject<UMCDayPlan>(Director);
+    Director->Settings->KeyEvents.SetNum(1);
+    Director->Settings->KeyEvents[0].EventId=TEXT("AuthoredNut");
+    Director->Stage=EMCSingleDayStage::Nuts;
+    Director->NutEvent=W.World->SpawnActor<AMCNutRainEvent>();
+    Director->NutEvent->SetOwner(Director);
+    Director->NutEvent->Stage=EMCNutRainStage::Enemies;
+    Director->Tick(.1f);
+    TestFalse(TEXT("An unfinished key event has no chest"),Director->bStageRewardPending);
+
+    Director->NutEvent->Stage=EMCNutRainStage::Complete;
+    Director->Tick(.1f);
+    TestTrue(TEXT("A completed key event enters the shared reward gate"),Director->bStageRewardPending);
+    TestEqual(TEXT("The final event waits for its chest before victory"),W.World->GetGameState<AMCGameState>()->Phase,EMCShiftPhase::Working);
+    const FName CompletionId(TEXT("KeyEvent_0_AuthoredNut"));
+    TestEqual(TEXT("The reward identity includes the authored event and its slot"),Director->StageRewardCompletionId,CompletionId);
+    Director->Tick(.1f);
+    TestTrue(TEXT("Repeated ticks leave the same reward pending"),Director->CompletedStageRewards.IsEmpty());
+    auto* Chest=W.Chest(Director);
+    Director->StageRewardChest=Chest;
+    Chest->ClaimedMask=7;
+    Director->NotifyStageRewardFinished(Chest,false);
+    Director->NotifyStageRewardFinished(Chest,false);
     TestEqual(TEXT("Repeated completion callbacks seal one reward identity"),Director->CompletedStageRewards.Num(),1);
-    TestFalse(TEXT("A completed edge cannot enqueue another reward"),Director->BeginStageReward(TEXT("OpeningPortion_1"),EMCSingleDayRewardContinuation::OpeningCoffee));
+    TestFalse(TEXT("A completed key event cannot enqueue another reward"),Director->BeginStageReward(CompletionId));
+    Director->Tick(.1f);
+    TestEqual(TEXT("The final chest advances the sequence to completion"),Director->Stage,EMCSingleDayStage::Complete);
+    TestEqual(TEXT("The final chest makes the run a victory"),W.World->GetGameState<AMCGameState>()->Phase,EMCShiftPhase::Won);
     Director->ResetStageRewards();
     TestFalse(TEXT("Run reset removes the reward wait"),Director->bStageRewardPending);
     TestTrue(TEXT("Run reset clears the completion ledger"),Director->CompletedStageRewards.IsEmpty());
@@ -356,6 +371,10 @@ bool FMCStageRewardPortionGateTest::RunTest(const FString&)
 
     // Use the real producer and support validator: a static obstruction covers
     // the compact search, while nearby tongue remains a valid immediate drop.
+    Director->Destroy();
+    Director=W.World->SpawnActor<AMCSingleDayDirector>();
+    Director->Settings=NewObject<UMCSingleDayProfile>(Director);
+    W.World->GetGameState<AMCGameState>()->Phase=EMCShiftPhase::Working;
     auto* Plane=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Plane.Plane"));
 #if WITH_EDITOR
     if(Plane) FStaticMeshCompilingManager::Get().FinishCompilation({Plane});
@@ -371,7 +390,7 @@ bool FMCStageRewardPortionGateTest::RunTest(const FString&)
     const FVector WorkerBefore=Worker->GetActorLocation();
     W.World->GetGameState<AMCGameState>()->RunSeed=73;
     TestTrue(TEXT("A new completed stage requests its reward normally"),
-        Director->BeginStageReward(TEXT("NearbySupportedLanding"),EMCSingleDayRewardContinuation::OpeningCoffee));
+        Director->BeginStageReward(TEXT("NearbySupportedLanding")));
     auto* NearbyChest=Director->StageRewardChest.Get();
     if(TestNotNull(TEXT("Nearby valid support produces a chest in the completion call without waiting another second"),NearbyChest)) {
         TestEqual(TEXT("Expanded placement does not add a later director retry"),Director->StageRewardPlacementAttempts,1);

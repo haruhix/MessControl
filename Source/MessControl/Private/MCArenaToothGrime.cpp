@@ -406,13 +406,14 @@ bool AMCArenaTooth::FindDirtyContact(AMCToothCharacter* Worker,FVector& Point,FV
     if(!bGrimeReliefBuilt) BuildGrimeRelief();
     const FTransform T=Visual->GetComponentTransform();
     const FVector Origin=Worker->GetActorLocation(),Aim=Origin+Worker->GetActorForwardVector()*65+FVector(0,0,65);
+    const float SearchReach=Worker->BrushContact->SurfaceSearchReach(this);
     float Best=MAX_flt; SelectedSample=INDEX_NONE;
     FCollisionQueryParams Query(SCENE_QUERY_STAT(MCDirtyTarget),false,Worker); Query.AddIgnoredActor(this);
     for(int32 I=0;I<GrimeSamples.Num();++I) {
         // Select down to the same visible threshold used by RemainingGrime.
         const auto& S=GrimeSamples[I]; if(FMCSurfaceWipe::Sample(GrimeMask,S.UV)<=.25f) continue;
         const FVector P=T.TransformPosition(S.Point),N=T.TransformVectorNoScale(S.Normal).GetSafeNormal(),D=P-Origin;
-        if(D.Size2D()>Worker->BrushContact->SurfaceReach || FVector::DotProduct(N,(Origin-P).GetSafeNormal())<.05f) continue;
+        if(D.Size2D()>SearchReach || FVector::DotProduct(N,(Origin-P).GetSafeNormal())<.05f) continue;
         const bool Locked=Worker->BrushContact->Target==this && Worker->BrushContact->Alpha()>.5f;
         const float Distance=Locked?FVector::DistSquared(P,Worker->BrushContact->ContactPoint())*.7f+FVector::DistSquared(P,Aim)*.3f:FVector::DistSquared(P,Aim);
         // Favor low-to-high neighboring strokes, without jumping to a distant
@@ -453,8 +454,9 @@ bool AMCArenaTooth::BrushGrime(AMCToothCharacter* Worker,float Seconds)
     // Short predominantly vertical strokes stay tangent to the enamel.
     const FVector Sweep=Side*(FMath::Sin(History.Clock*18)*4)+Up*(FMath::Sin(History.Clock*18)*10);
     FHitResult Hit; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCToothBrush),true,Worker);
+    const float StrokeReach=Worker->BrushContact->SurfaceSearchReach(this)+20.f;
     auto ValidContact=[&](FVector Point,FVector Normal) {
-        if(FVector::Dist2D(Point,Worker->GetActorLocation())>Worker->BrushContact->SurfaceReach+20
+        if(FVector::Dist2D(Point,Worker->GetActorLocation())>StrokeReach
             || !Worker->BrushContact->CanReach(Point,Normal,this)) return false;
         FHitResult Block; FCollisionQueryParams Occlusion(SCENE_QUERY_STAT(MCBrushOcclusion),false,Worker); Occlusion.AddIgnoredActor(this);
         return !GetWorld()->LineTraceSingleByChannel(Block,Worker->GetActorLocation()+FVector(0,0,40),Point-Normal*2,ECC_Visibility,Occlusion);
@@ -513,7 +515,9 @@ bool AMCArenaTooth::ApplyGrimeCleaning(AMCToothCharacter* Worker,FVector From,FV
     if(Rate<=0) return false;
     auto* Results=UMCResultPassives::ForWorld(this);
     const auto Attempt=Results?Results->BeginCleaning(this):FMCStainCleaningAttempt();
-    const bool Changed=FMCSurfaceWipe::Stroke(GrimeMask,From,To,Dimensions,Radius,Seconds,&PreciseGrimeMask,Rate);
+    const float MaskUnitsPerSecond=MCBrushCleaningBalance::ToothMaskUnitsPerSecond
+        *(Reason==EMCStainCleanReason::Brush?MCBrushCleaningBalance::ToothBrushDoseMultiplier:1.f);
+    const bool Changed=FMCSurfaceWipe::Stroke(GrimeMask,From,To,Dimensions,Radius,Seconds,&PreciseGrimeMask,Rate,MaskUnitsPerSecond);
     if(Changed) OnRep_Grime();
     const bool Removed=Changed && RemainingGrime()<Before;
     if(Removed) {

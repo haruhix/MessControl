@@ -103,6 +103,37 @@ bool FMCStackManualThrowOne::RunTest(const FString&)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCStackHeldThrowCadence,"MessControl.Food.ManualIntake.HeldThrowRepeatsAtHalfInterval",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCStackHeldThrowCadence::RunTest(const FString&)
+{
+    FFoodStackWorld T;
+    if(!TestTrue(TEXT("Four food fragments join the stack"),T.Collect(4))) return false;
+    T.Step(.7f);
+    auto* Collection=T.Hero->FoodCollection.Get();
+    const float Interval=Collection->ThrowIntervalSeconds();
+    const float RepeatInterval=Interval*.5f;
+    const FVector Aim=FRotator(35,160,0).Vector();
+    const float Step=1.f/60;
+
+    T.Hero->ServerSetThrowHeld(true,Aim);
+    TestEqual(TEXT("Pressing throw releases exactly one piece"),Collection->Pieces.Num(),3);
+    T.Step(RepeatInterval-Step*1.5f,Step);
+    TestEqual(TEXT("Holding cannot release a piece ahead of its repeat interval"),Collection->Pieces.Num(),3);
+    T.Step(Step*.5f,Step);
+    TestEqual(TEXT("The second piece leaves at half the ordinary interval"),Collection->Pieces.Num(),2);
+    T.Step(RepeatInterval-Step*.5f,Step);
+    TestEqual(TEXT("The faster cadence continues while throw stays held"),Collection->Pieces.Num(),1);
+    T.Hero->ServerSetThrowHeld(false,Aim);
+
+    T.Step(RepeatInterval+.02f,Step);
+    T.Hero->ServerSetThrowHeld(true,Aim);
+    T.Hero->ServerSetThrowHeld(false,Aim);
+    TestEqual(TEXT("Release stops repeating and a new tap retains the ordinary cooldown"),Collection->Pieces.Num(),1);
+    T.Step(Interval,Step);
+    TestTrue(TEXT("The remaining piece can still be thrown normally"),Collection->ThrowOne(Aim));
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCConfiguredTwentyFragments,"MessControl.Food.ManualIntake.TwentyFragmentsOneVariant",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCConfiguredTwentyFragments::RunTest(const FString&)
 {

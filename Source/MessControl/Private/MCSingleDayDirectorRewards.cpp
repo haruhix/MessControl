@@ -13,12 +13,12 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 
-bool AMCSingleDayDirector::BeginStageReward(FName CompletionId,EMCSingleDayRewardContinuation Continuation)
+bool AMCSingleDayDirector::BeginStageReward(FName CompletionId)
 {
     if(!HasAuthority() || bStopped || IsLegacyTimedFinale() || CompletionId.IsNone()
         || CompletedStageRewards.Contains(CompletionId)) return false;
     if(bStageRewardPending) return true;
-    bStageRewardPending=true; StageRewardCompletionId=CompletionId; StageRewardContinuation=Continuation;
+    bStageRewardPending=true; StageRewardCompletionId=CompletionId;
     // The shared work is finished now. Placement/choice retries are cosmetics
     // and perk flow, not extra coin objectives or a legacy chest queue signal.
     if(auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->AwardObjectiveCoinsOnce(CompletionId);
@@ -126,20 +126,15 @@ void AMCSingleDayDirector::TickStageReward()
         Publish(TEXT("ВЫБЕРИ СВОЙ БУСТЕР"),TEXT("Откройте сундук в центре языка. Каждый игрок выбирает один бустер для себя; следующая подача начнётся после всех выборов."));
         return;
     }
-    const auto Next=StageRewardContinuation;
     bStageRewardPending=false;
     if(IsValid(StageRewardZone)) StageRewardZone->Destroy(); StageRewardZone=nullptr;
     Record(FString::Printf(TEXT("Личные бустеры %s выбраны: продолжается последовательность"),*StageRewardCompletionId.ToString()));
     ForceNetUpdate();
-    switch(Next) {
-    case EMCSingleDayRewardContinuation::OpeningCoffee:BeginMealCoffeeWave();break;
-    case EMCSingleDayRewardContinuation::OpeningRest:
-        if(IsValid(MealServices)) MealServices->Destroy();MealServices=nullptr;BeginOpeningPause(true);break;
-    case EMCSingleDayRewardContinuation::PostNutPortion:BeginPostNutPortion(MealPortionNumber);break;
-    case EMCSingleDayRewardContinuation::PostNutMint:
-        if(IsValid(MealServices)) MealServices->Destroy();MealServices=nullptr;BeginSmallMint();break;
-    case EMCSingleDayRewardContinuation::NextKeyEvent:++KeyEventIndex;BeginKeyEvent();break;
-    case EMCSingleDayRewardContinuation::EventSupport:BeginDirector();break;
+    if(Settings->KeyEvents.IsValidIndex(KeyEventIndex+1)) {
+        ++KeyEventIndex;
+        BeginFirstMeal();
+    } else {
+        CompleteRun();
     }
 }
 

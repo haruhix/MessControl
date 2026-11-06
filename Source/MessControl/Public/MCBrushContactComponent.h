@@ -26,6 +26,8 @@ public:
     // Preview the ordinary wrist geometry without moving the pawn or publishing a contact.
     bool CanReachFromPose(FVector PawnCenter,FRotator Facing,FVector Point,FVector Normal,const AActor* Surface) const;
     bool CanAcquireSurface(const AActor* Surface) const;
+    // Horizontal candidate search distance. Wrist travel and occlusion are independent.
+    float SurfaceSearchReach(const AActor* Surface) const;
     bool CanBrushToward(FVector Point) const;
     bool WantsFacing(FVector& Direction) const;
     bool IsFacingContact() const;

@@ -20,8 +20,6 @@ class AMCRewardChest;
 class AMCRewardDropZone;
 struct FMCFoodPipelineLoad;
 
-enum class EMCSingleDayRewardContinuation : uint8 { OpeningCoffee, OpeningRest, PostNutPortion, PostNutMint, NextKeyEvent, EventSupport };
-
 UENUM(BlueprintType)
 enum class EMCSingleDayStage : uint8 { Training, FirstPerk, Nuts, Director, Boss, Complete, OpeningPause, FirstMeal, MealRest, Ice, FogBrawl, MealCoffeeWave, BetweenMealsPause, PostNutMeal, PostNutMint, Jellies, PostNutCoffee, PostNutCoffeePause };
 
@@ -37,7 +35,7 @@ struct MESSCONTROL_API FMCSingleDayKeyEvent
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Sequence") EMCSingleDayKeyEventKind Kind=EMCSingleDayKeyEventKind::NutEncounter;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Sequence") TArray<TSoftObjectPtr<UMCNutRainProfile>> NutRainVariants;
     UPROPERTY(BlueprintReadWrite,Category="Legacy") int32 CompletionExperience=0; // Serialized legacy compatibility; XP is disabled.
-    /** Support after this slot, when another authored slot exists. It never ends the run. */
+    /** Retained for compatibility with older authored profiles. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Sequence",meta=(ClampMin="5",ClampMax="600",Units="s")) float DirectorSupportSeconds=120;
 };
 
@@ -52,9 +50,9 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Sequence",meta=(ClampMin="1",ClampMax="120",Units="min")) float RunTargetMinMinutes=25;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Sequence",meta=(ClampMin="1",ClampMax="120",Units="min")) float RunTargetMaxMinutes=35;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="0",ClampMax="30",Units="s")) float AfterTrainingPauseSeconds=5;
-    /** Opening Relax: five whole ordinary ingredients for the team. */
+    /** The first entry sets the size of the first portion in each food pattern. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="1",ClampMax="30")) TArray<int32> OpeningMealPortions={5};
-    /** The next portion's pause starts only after the preceding coffee wave ends. */
+    /** Retained for compatibility with older authored profiles. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="0",ClampMax="30",Units="s")) float BetweenMealPauseMinSeconds=5.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="0",ClampMax="30",Units="s")) float BetweenMealPauseMaxSeconds=10.f;
     /** Retained serialized prototype settings; the portion sequence does not read these three fields. */
@@ -63,9 +61,9 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening|Legacy",meta=(ClampMin="1",ClampMax="30")) int32 OpeningMealItems=12;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin=".5",ClampMax="5",Units="s")) float OpeningMealDropSeconds=1.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="0",ClampMax="30",Units="s")) float BeforeNutsPauseSeconds=4;
-    /** Second Relax: one drink wave, a short authored interval, then ten whole ingredients. */
+    /** The first entry sets the size of the second portion, after coffee cleanup. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="After Nuts",meta=(ClampMin="1",ClampMax="30")) TArray<int32> AfterNutMealPortions={10};
-    /** Starts when the actual coffee wave ends; zero permits serving in that same tick. */
+    /** Retained for compatibility with older authored profiles. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="After Nuts",meta=(ClampMin="0",ClampMax="15",Units="s")) float AfterNutCoffeeToFoodSeconds=6.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="After Nuts",meta=(ClampMin=".5",ClampMax="5",Units="s")) float AfterNutMealDropSeconds=1.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="After Nuts") FMCSmallMintCandySettings SmallMint;
@@ -77,7 +75,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Legacy") TSoftClassPtr<AMCBossCharacter> FinalBossClass;
 };
 
-/** Main events are ordered. The adaptive scheduler owns only the interval between them. */
+/** A food pattern and a shared reward bracket each main event. */
 UCLASS()
 class MESSCONTROL_API AMCSingleDayDirector : public AActor
 {
@@ -123,33 +121,28 @@ private:
     friend class UMCGameplayUIEditorLibrary;
 #endif
     friend class FMCStageRewardPortionGateTest;
-    bool BeginStageReward(FName CompletionId,EMCSingleDayRewardContinuation Continuation);
+    bool BeginStageReward(FName CompletionId);
     void TickStageReward();
     void TrySpawnStageReward();
     void ResetStageRewards();
-    void BeginOpeningPause(bool bAfterMeal=false);
+    void BeginOpeningPause();
     void BeginFirstMeal();
     void BeginMealPortion(int32 PortionIndex);
     void TickFirstMeal();
     void BeginMealCoffeeWave();
     void TickMealCoffeeWave();
-    void TickBetweenMealsPause();
+    void TickCoffeeCleanup();
     void ReportMealGate(const FMCFoodPipelineLoad& Food,int32 Dirt,int32 DirtyTeeth,int32 Pending,double Now);
     FName ChooseOpeningFood();
     void BeginKeyEvent();
     void BeginNuts();
     void BeginIce();
     void BeginFogBrawl();
-    void BeginPostNutMeal();
-    void TickPostNutCoffee();
-    void TickPostNutCoffeePause();
-    void BeginPostNutPortion(int32 Portion);
-    void TickPostNutMeal();
-    void BeginSmallMint();
-    void TickSmallMint();
     void BeginJellies();
     void TickJellies();
-    void BeginDirector();
+    void FinishKeyEvent();
+    void ClearKeyEvent(bool bCompleted);
+    void CompleteRun();
     void BeginBoss();
     void Fail(const FString& Reason);
     void Publish(const FString& Title, const FString& Instruction, int32 Left=0, int32 Total=0);
@@ -166,11 +159,9 @@ private:
     FString LastMealGateState;
     double NextMealDiagnosticAt=0;
     int32 FirstMealBatch=0,MealAttempts=0;
-    int32 PostNutMealBatch=0;
     FRandomStream MealRandom;
     UPROPERTY() TObjectPtr<AMCRewardDropZone> StageRewardZone;
     TSet<FName> CompletedStageRewards;
-    EMCSingleDayRewardContinuation StageRewardContinuation=EMCSingleDayRewardContinuation::OpeningCoffee;
     double NextStageRewardAttemptAt=0;
     int32 StageRewardPlacementAttempts=0;
     bool bStopped=false;

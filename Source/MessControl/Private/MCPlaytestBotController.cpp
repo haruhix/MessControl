@@ -491,7 +491,7 @@ bool AMCPlaytestBotController::PlanCleanApproach(AMCArenaTooth* Tooth)
         if(!Hero->BrushContact->CanReachFromPose(Stand,Facing,Aim,Normal,Tooth)) {
             if(Diagnostic) {
                 const FVector Offset=Aim-Stand;
-                if(Offset.Size2D()>Hero->BrushContact->SurfaceReach) ++RangeReject;
+                if(Offset.Size2D()>Hero->BrushContact->SurfaceSearchReach(Tooth)) ++RangeReject;
                 else if(FVector::DotProduct(Normal.GetSafeNormal(),(-Offset).GetSafeNormal())<.05f) ++NormalReject;
                 else {
                     FHitResult Block;FCollisionQueryParams Query(SCENE_QUERY_STAT(MCPlaytestCleanDebugPose),false,Hero);Query.AddIgnoredActor(Tooth);
@@ -527,7 +527,7 @@ bool AMCPlaytestBotController::PlanCleanApproach(AMCArenaTooth* Tooth)
             *GetNameSafe(Hero),*GetNameSafe(Tooth),RangeReject,NormalReject,ContactOccluded,HandPoseReject,*FirstPoseBlock,
             *FirstPoseAim.ToString(),*FirstPoseStand.ToString(),*FirstPoseNormal.ToString(),
             FirstPoseStand.Z-Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()-4.,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight(),SearchTier,
-            Hero->BrushContact->SurfaceReach,Hero->BrushContact->MaxHandTravel,Hero->BrushContact->MaxHandVerticalTravel);
+            Hero->BrushContact->SurfaceSearchReach(Tooth),Hero->BrushContact->MaxHandTravel,Hero->BrushContact->MaxHandVerticalTravel);
     };
     // Most crowns use the original cheap search. Wider offsets and the mouth-
     // facing heading are fallbacks only after no baseline pose has a full path.

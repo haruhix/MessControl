@@ -233,6 +233,12 @@ void UMCFoodCollectionComponent::Stop(bool Throw)
 }
 float UMCFoodCollectionComponent::ThrowIntervalSeconds() const
 { return FMath::IsFinite(ThrowInterval)?FMath::Clamp(ThrowInterval,.15f,1.f):.3f; }
+float UMCFoodCollectionComponent::HeldThrowIntervalSeconds() const
+{
+    const auto* Food=Pieces.IsEmpty()?nullptr:Pieces.Last().Get();
+    const bool bOrdinaryFood=IsValid(Food) && Food->FoodData.Kind==EMCFoodKind::Food && !Food->IsNutEncounterFragment();
+    return ThrowIntervalSeconds()*(bOrdinaryFood?.5f:1.f);
+}
 float UMCFoodCollectionComponent::EffectiveThrowSpeed() const
 {
     const float Speed=FMath::IsFinite(ThrowSpeed)?FMath::Clamp(ThrowSpeed,400.f,2400.f):1800.f;
@@ -269,7 +275,7 @@ float UMCFoodCollectionComponent::EffectiveThrowSpeed() const
     }
     return FMath::Clamp(FMCFoodPerkMath::SpeedForRangeScale(Baseline,RangeScale,Height,FMath::Abs(World->GetGravityZ())),400.f,4800.f);
 }
-bool UMCFoodCollectionComponent::ThrowOne(FVector AimDirection)
+bool UMCFoodCollectionComponent::ThrowOne(FVector AimDirection,bool bHeldRepeat)
 {
     auto* Hero=Cast<AMCToothCharacter>(GetOwner());
     if(!Hero || !Hero->HasAuthority() || !Hero->CanWork() || Pieces.IsEmpty()
@@ -280,16 +286,20 @@ bool UMCFoodCollectionComponent::ThrowOne(FVector AimDirection)
     // through 360 degrees. Validate direction and action state, not walking yaw.
     AimDirection=AimDirection.GetSafeNormal();
     const double Now=GetWorld()->GetTimeSeconds();
-    if(Now+KINDA_SMALL_NUMBER<NextThrowAt) return false;
     AMCFoodActor* Food=Pieces.Last();
     if(!IsValid(Food) || Food->IsDisposed() || Food->StackCarrier!=Hero) return false;
+    const float Interval=ThrowIntervalSeconds();
+    const float RepeatInterval=HeldThrowIntervalSeconds();
+    const double ReadyAt=bHeldRepeat && RepeatInterval<Interval?NextRepeatThrowAt:NextThrowAt;
+    if(Now+KINDA_SMALL_NUMBER<ReadyAt) return false;
     const float LaunchSpeed=EffectiveThrowSpeed();
     // Remove just the top slot. Lower pieces retain their layout, pickup cues,
     // sway and collision ignores instead of being released/recollected.
     ReleaseFrom(Pieces.Num()-1);
     Food->ProtectPlayersOnStackRelease(true);
     Food->LaunchManualThrow(Hero,AimDirection,LaunchSpeed);
-    NextThrowAt=Now+ThrowIntervalSeconds();
+    NextThrowAt=Now+Interval;
+    NextRepeatThrowAt=Now+RepeatInterval;
     // Emptying a tower beside a pile must not vacuum a replacement into each
     // released slot. Holding Q continually extends this short pickup pause.
     NextCollectAt=FMath::Max(NextCollectAt,Now+2.);

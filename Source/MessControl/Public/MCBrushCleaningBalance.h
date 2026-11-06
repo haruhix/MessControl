@@ -1,6 +1,6 @@
 #pragma once
 
-/** Baseline stain work only: leave reach, tool/perk multipliers and treatment/healing alone. */
+/** Brush balance separates stain footprint, cleaning dose and arena-tooth search radius. */
 namespace MCBrushCleaningBalance
 {
 // A stronger dose alone still leaves the player traversing the same narrow
@@ -13,4 +13,6 @@ inline constexpr float TargetContactDurationScale=.6f;
 inline constexpr float MaskDoseMultiplier=1.f/TargetContactDurationScale;
 inline constexpr float PuddleDissolvePerSecond=12.f*MaskDoseMultiplier;
 inline constexpr float ToothMaskUnitsPerSecond=950.f*MaskDoseMultiplier;
+inline constexpr float ToothBrushDoseMultiplier=1.30f;
+inline constexpr float ToothSearchRadiusMultiplier=1.20f;
 }

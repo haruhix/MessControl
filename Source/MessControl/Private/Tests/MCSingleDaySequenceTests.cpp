@@ -63,8 +63,7 @@ struct FSequenceWorld
         // Lifecycle clock cases must not create unrelated hazards or meals.
         for (auto& Rule:Support->Events) Rule.Weight=0;
         Sequence=NewObject<UMCSingleDayProfile>(World);
-        // These lifecycle cases author the pre-existing Nut/Ice/Fog scenario.
-        // The new post-nut Relax/Jellies route has its own focused fixtures.
+        // Use three slots to exercise repeated Patterns and prototype expansion.
         Sequence->KeyEvents.RemoveAll([](const FMCSingleDayKeyEvent& Slot) {return Slot.Kind==EMCSingleDayKeyEventKind::Jellies;});
         if(SavedPrototypeSlots==1 || SavedPrototypeSlots==2) {
             Sequence->KeyEvents.SetNum(SavedPrototypeSlots);
@@ -104,8 +103,6 @@ struct FSequenceWorld
         Loop->NutEvent->Stage=EMCNutRainStage::Complete;
         Loop->NutEvent->EnemiesLeft=Loop->NutEvent->BossesLeft=0;
         Loop->Tick(.1f);
-        ResolveStageReward();
-        FreezeActors();
     }
     void CompleteIceSlot()
     {
@@ -115,8 +112,6 @@ struct FSequenceWorld
         Loop->IceEvent->Stage=EMCIceEventStage::Complete;
         Loop->IceEvent->CandyHealth=0;
         Loop->Tick(.1f);
-        ResolveStageReward();
-        FreezeActors();
     }
     void CompleteFogSlot()
     {
@@ -126,8 +121,6 @@ struct FSequenceWorld
         Loop->FogEvent->Stage=EMCFogBrawlStage::Complete;
         Loop->FogEvent->StrikesResolved=Loop->FogEvent->TotalStrikes;
         Loop->Tick(.1f);
-        ResolveStageReward();
-        FreezeActors();
     }
     void ResolveStageReward()
     {
@@ -149,6 +142,50 @@ struct FSequenceWorld
         // Dispatch calls the real event Start. Its floor samples need collision,
         // while pawn, hazard and scheduler ticks remain frozen in this fixture.
         for(TActorIterator<AMCTongue> It(World);It;++It) It->SetActorEnableCollision(true);
+    }
+    TArray<AMCFoodActor*> PatternFood() const
+    {
+        TArray<AMCFoodActor*> Food;
+        for(TActorIterator<AMCFoodActor> It(World);It;++It)
+            if(!It->IsActorBeingDestroyed() && It->GetOwner()==Loop && !It->IsDisposed()) Food.Add(*It);
+        return Food;
+    }
+    AMCCoffeeFlood* PatternWave() const
+    {
+        for(TActorIterator<AMCCoffeeFlood> It(World);It;++It)
+            if(!It->IsActorBeingDestroyed() && It->GetOwner()==Loop) return *It;
+        return nullptr;
+    }
+    void ClearMealDirt()
+    {
+        for(TActorIterator<AMCMouthSurface> It(World);It;++It)
+            if(!It->bUlcer) It->ClearLiquidForBooster();
+        for(TActorIterator<AMCArenaTooth> It(World);It;++It) if(It->IsAvailable() && It->Status) {
+            const int32 Layers=It->Status->State.CoffeeLeft;
+            for(int32 Layer=0;Layer<Layers;++Layer) It->Status->CareContact(true,nullptr);
+        }
+    }
+    void FinishPortion()
+    {
+        const int32 Target=Loop->MealPortionTarget;
+        for(int32 Attempt=0;Attempt<Target*2 && Loop->Stage==EMCSingleDayStage::FirstMeal;++Attempt) {
+            Loop->Tick(.1f);
+            for(auto* Food:PatternFood()) Food->Destroy();
+            ClearMealDirt();
+            AdvanceClockTo(float(World->GetTimeSeconds())+5.01f);
+        }
+    }
+    void FinishPattern()
+    {
+        RestoreTongueCollision();
+        FinishPortion();
+        if(auto* Wave=PatternWave()) {
+            AdvanceClockTo(float(World->GetTimeSeconds())+Wave->Seconds+2.f);
+            Wave->Tick(.1f);
+            Loop->Tick(.1f);
+        }
+        ClearMealDirt();Loop->Tick(.1f);
+        FinishPortion();
     }
     void AddFogTarget()
     {
@@ -198,7 +235,7 @@ bool FMCSingleDayOpeningMealGateTest::RunTest(const FString&)
 {
     MCSingleDaySequenceTestsPrivate::FSequenceWorld F;F.AddWorkerAndFoodGeometry(30.f,true);
     F.Sequence->OpeningMealPortions={1};
-    F.Sequence->AfterTrainingPauseSeconds=0;F.Sequence->BeforeNutsPauseSeconds=0;
+    F.Sequence->AfterTrainingPauseSeconds=0;
     F.Loop->Initialize(F.Plan,F.Sequence,F.Support);
     F.RestoreTongueCollision();F.Loop->BeginFirstPerk();
     F.Loop->Tick(.1f);F.Loop->Tick(.1f);F.Loop->Tick(.1f);
@@ -228,9 +265,8 @@ bool FMCSingleDayOpeningMealGateTest::RunTest(const FString&)
     if(!TestNotNull(TEXT("The fixture has a real player status"),Hero)) return false;
     Hero->Status->ApplyCoffee(1.f);
     F.Loop->Tick(.1f);
-    TestTrue(TEXT("Resolving food and floor opens one shared reward despite unrelated player dirt"),F.Loop->bStageRewardPending);
-    F.ResolveStageReward();
-    TestEqual(TEXT("Resolving the batch advances despite unrelated global player dirt"),F.Loop->Stage,EMCSingleDayStage::MealRest);
+    TestFalse(TEXT("Resolving a portion cannot request a key-event chest"),F.Loop->bStageRewardPending);
+    TestEqual(TEXT("Resolving the batch advances despite unrelated global player dirt"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave);
     TestTrue(TEXT("The unrelated player stain is preserved"),Hero->Status->State.CoffeeLeft>0);
     return true;
 }
@@ -241,7 +277,7 @@ bool FMCSingleDayOpeningMealArenaTeethTest::RunTest(const FString&)
 {
     MCSingleDaySequenceTestsPrivate::FSequenceWorld F;F.AddWorkerAndFoodGeometry(30.f,true);
     F.Sequence->OpeningMealPortions={1};
-    F.Sequence->AfterTrainingPauseSeconds=F.Sequence->BeforeNutsPauseSeconds=0;
+    F.Sequence->AfterTrainingPauseSeconds=0;
     F.Loop->Initialize(F.Plan,F.Sequence,F.Support);
     F.RestoreTongueCollision();F.Loop->BeginFirstPerk();
     F.Loop->Tick(.1f);F.Loop->Tick(.1f);F.Loop->Tick(.1f);
@@ -282,206 +318,152 @@ bool FMCSingleDayOpeningMealArenaTeethTest::RunTest(const FString&)
         if(!TestTrue(TEXT("The normal care API cleans a real tooth layer"),Available->Status->CareContact(true,nullptr))) return false;
     TestFalse(TEXT("The remaining tooth now needs no brushing"),Available->Status->NeedsCare(true));
     F.Loop->Tick(.1f);
-    TestTrue(TEXT("Cleaning the available tooth first opens the shared reward barrier"),F.Loop->bStageRewardPending);
-    F.ResolveStageReward();
-    TestEqual(TEXT("Cleaning that actual available tooth releases the real meal-to-event barrier"),F.Loop->Stage,EMCSingleDayStage::MealRest);
+    TestFalse(TEXT("Cleaning the available tooth does not request a chest"),F.Loop->bStageRewardPending);
+    TestEqual(TEXT("Cleaning that actual available tooth releases the meal-to-coffee barrier"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave);
     TestTrue(TEXT("The successful handoff preserves dirt on the unavailable consumed tooth"),Consumed->Status->State.CoffeeLeft>0);
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayOpeningRelaxTest,"MessControl.SingleDay.Sequence.CustomOpeningPortionsWaveEndAndSharedCleanup",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayOpeningRelaxTest,"MessControl.SingleDay.Sequence.PatternWaitsForWaveAndCleanupBeforeSecondMeal",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCSingleDayOpeningRelaxTest::RunTest(const FString&)
 {
     MCSingleDaySequenceTestsPrivate::FSequenceWorld F;F.AddWorkerAndFoodGeometry(30.f,true);
-    TestTrue(TEXT("The current opening default serves one five-item meal"),F.Sequence->OpeningMealPortions==TArray<int32>({5}));
-    // Explicit custom multi-portion authoring remains supported. It is not the
-    // current day's opening contract; test its compatibility route separately.
-    F.Sequence->OpeningMealPortions={1,1,8};
-    F.Sequence->OpeningMealItems=20;F.Sequence->bOpeningCoffeeWave=true;
-    F.Sequence->AfterTrainingPauseSeconds=F.Sequence->BeforeNutsPauseSeconds=0;
-    F.Sequence->OpeningMealDropSeconds=.5f;
+    F.Sequence->OpeningMealPortions={1,8};
+    F.Sequence->AfterTrainingPauseSeconds=0;
+    F.Sequence->OpeningMealDropSeconds=F.Sequence->AfterNutMealDropSeconds=.5f;
     auto* SavedCoffee=NewObject<UMCCoffeeProfile>(F.World);
     SavedCoffee->Settings.Cycles=4;F.Plan->CoffeeProfile=SavedCoffee;
     F.Loop->Initialize(F.Plan,F.Sequence,F.Support);
     F.RestoreTongueCollision();F.Loop->BeginFirstPerk();
-    F.Loop->Tick(.1f);F.Loop->Tick(.1f);F.Loop->Tick(.1f);
-    auto Foods=[&]() {
-        TArray<AMCFoodActor*> Result;
-        for(TActorIterator<AMCFoodActor> It(F.World);It;++It)
-            if(!It->IsActorBeingDestroyed() && It->GetOwner()==F.Loop && !It->IsDisposed()) Result.Add(*It);
-        return Result;
-    };
-    auto Coffee=[&]()->AMCCoffeeFlood* {
-        for(TActorIterator<AMCCoffeeFlood> It(F.World);It;++It)
-            if(!It->IsActorBeingDestroyed() && It->GetOwner()==F.Loop) return *It;
-        return nullptr;
-    };
-    auto Advance=[&](float Seconds) {F.AdvanceClockTo(float(F.World->GetTimeSeconds())+Seconds);};
-    auto DisableFoodCollisions=[&]() {for(auto* Food:Foods()) {Food->SetActorEnableCollision(false);Food->SetActorTickEnabled(false);}};
-    auto ClearMealDirt=[&]() {
-        for(TActorIterator<AMCMouthSurface> It(F.World);It;++It) if(!It->bUlcer) It->ClearLiquidForBooster();
-        for(TActorIterator<AMCArenaTooth> It(F.World);It;++It) if(It->IsAvailable() && It->Status) {
-            const int32 Layers=It->Status->State.CoffeeLeft;
-            for(int32 Layer=0;Layer<Layers;++Layer) It->Status->CareContact(true,nullptr);
-        }
-    };
-    if(!TestEqual(TEXT("The sequence begins with food rather than coffee"),F.Loop->Stage,EMCSingleDayStage::FirstMeal)) return false;
-    TestNull(TEXT("Legacy opening-coffee data cannot insert a wave before the first portion"),Coffee());
-    TestEqual(TEXT("Portion state is one-based for every HUD"),F.Loop->MealPortionNumber,1);
-    TestEqual(TEXT("The total number of portions is published"),F.Loop->MealPortionCount,3);
-    TestEqual(TEXT("Legacy item count does not override the portion array"),F.Loop->MealPortionSpawned,1);
-    auto FirstFoods=Foods();
-    if(!TestEqual(TEXT("The real serving path issued the first team portion"),FirstFoods.Num(),1)) return false;
+    F.Loop->Tick(.1f);F.Loop->Tick(.1f);
+    if(!TestEqual(TEXT("The sequence begins with food"),F.Loop->Stage,EMCSingleDayStage::FirstMeal)) return false;
+    TestEqual(TEXT("The Pattern publishes two portions"),F.Loop->MealPortionCount,2);
+    TestNull(TEXT("No coffee appears during the first portion"),F.PatternWave());
+    const auto FirstFoods=F.PatternFood();
+    if(!TestEqual(TEXT("The first portion uses the first authored count"),FirstFoods.Num(),1)) return false;
     const int32 Batch=FirstFoods[0]->Batch;
     FirstFoods[0]->Destroy();
-    auto* Fragment=F.World->SpawnActor<AMCFoodActor>();
-    Fragment->Batch=Batch;Fragment->bFragment=true;Fragment->Phase=EMCFoodPhase::Carried;
+    F.ClearMealDirt();F.Loop->Tick(.1f);
+    TestFalse(TEXT("The first cleanup cannot start a chest"),F.Loop->bStageRewardPending);
+    if(!TestEqual(TEXT("The first cleanup starts the coffee wave"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave)) return false;
+    auto* Wave=F.PatternWave();
+    if(!TestNotNull(TEXT("The sequence starts an actual owned coffee actor"),Wave)) return false;
+    TestTrue(TEXT("The owned drink is an ordinary river wave"),Wave->bRiverFlood && !Wave->IsCataclysmStorm());
+    TestEqual(TEXT("The real wave has one cycle"),Wave->Waves,1);
+    TestEqual(TEXT("The replicated water settings contain one cycle"),Wave->WaterSettings.Cycles,1);
+    TestEqual(TEXT("The authored coffee profile is unchanged"),SavedCoffee->Settings.Cycles,4);
+    TestTrue(TEXT("Client visuals retain the authored profile"),Wave->Profile==SavedCoffee);
+    TestEqual(TEXT("The coffee wave is part of the same Pattern"),Wave->ResidueBatch,Batch);
+
+    F.AdvanceClockTo(float(F.World->GetTimeSeconds())+Wave->Seconds+2.f);F.Loop->Tick(.1f);
+    TestEqual(TEXT("Elapsed time alone cannot finish an active wave"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave);
+    TestTrue(TEXT("No second meal appears during the active wave"),F.PatternFood().IsEmpty());
+    Wave->Tick(.1f);
+    if(!TestFalse(TEXT("The actual wave update reaches its terminal state"),Wave->IsActive())) return false;
+    // Keep one deterministic cleanup task even if this synthetic floor has no
+    // valid sampled residue point for the wave profile.
+    auto* Residue=F.World->SpawnActor<AMCMouthSurface>();
+    Residue->Batch=Batch;Residue->Tags.Add(TEXT("MCFoodServedDirt"));Residue->Status->ApplyCoffee(.5f);
     F.Loop->Tick(.1f);
-    TestEqual(TEXT("A retained carried fragment blocks the drink handoff"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
-    Fragment->Destroy();F.Loop->Tick(.1f);
-    TestEqual(TEXT("Food completion still waits for the first portion's real cleanup"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
-    TestFalse(TEXT("Dirty food completion cannot create a premature chest"),F.Loop->bStageRewardPending);
-    ClearMealDirt();F.Loop->Tick(.1f);
-    TestTrue(TEXT("The completed first portion opens the shared booster barrier"),F.Loop->bStageRewardPending);
-    TestNull(TEXT("The drink waits for the shared choice"),Coffee());
-    F.ResolveStageReward();
-    if(!TestEqual(TEXT("The first claimed reward releases its drink"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave)) return false;
-    auto FinishDrink=[&](int32 Portion)->bool {
-        auto* Wave=Coffee();
-        if(!TestNotNull(TEXT("The sequence starts the actual coffee actor"),Wave)) return false;
-        TestTrue(TEXT("The owned drink is an ordinary river wave"),Wave->bRiverFlood && !Wave->IsCataclysmStorm());
-        TestEqual(TEXT("One drink has one physical wave even with a four-cycle saved profile"),Wave->Waves,1);
-        TestEqual(TEXT("The replicated water settings also contain exactly one cycle"),Wave->WaterSettings.Cycles,1);
-        TestEqual(TEXT("The authored coffee profile was not modified"),SavedCoffee->Settings.Cycles,4);
-        TestTrue(TEXT("Client visuals retain the saved profile reference"),Wave->Profile==SavedCoffee);
-        TestEqual(TEXT("Wave residue shares the complete Relax batch"),Wave->ResidueBatch,Batch);
-        // TimeOnly advances the engine clock without updating the real wave.
-        // Even after its nominal deadline, the sequence must await its terminal signal.
-        Advance(Wave->Seconds+2.f);F.Loop->Tick(.1f);
-        TestEqual(TEXT("A still-active wave cannot begin a pause or another portion"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave);
-        TestEqual(TEXT("No post-wave deadline exists while the wave is still active"),F.Loop->StageEndsAt,0.);
-        Wave->Tick(.1f); // Real completion also commits its swept residue.
-        if(!TestFalse(TEXT("The actual wave update reaches its terminal state"),Wave->IsActive())) return false;
-        const double End=F.State->GetServerWorldTimeSeconds();
-        F.Loop->Tick(.1f);
-        TestEqual(TEXT("Completed coffee starts the separate inter-portion pause"),F.Loop->Stage,EMCSingleDayStage::BetweenMealsPause);
-        const double Delay=F.Loop->StageEndsAt-End;
-        TestTrue(TEXT("The sampled 5-10 seconds start at the observed end of the wave"),Delay>=5. && Delay<=10.);
-        Advance(float(Delay)-.2f);F.Loop->Tick(.1f);
-        TestEqual(TEXT("The next portion cannot arrive before that pause expires"),F.Loop->MealPortionNumber,Portion);
-        Advance(.3f);F.Loop->Tick(.1f);F.Loop->Tick(.1f);
-        TestEqual(TEXT("The next portion starts only after the full post-wave pause"),F.Loop->MealPortionNumber,Portion+1);
-        TestEqual(TEXT("The next portion uses its ordinary food stage"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
-        TestNull(TEXT("The finished owned coffee actor was removed"),Coffee());
-        DisableFoodCollisions();
-        return true;
-    };
-    if(!FinishDrink(1)) return false;
-    auto SecondFoods=Foods();
-    if(!TestEqual(TEXT("The second fixture portion issues exactly one new team ingredient"),SecondFoods.Num(),1)) return false;
-    TestEqual(TEXT("All portions keep the same cleanup lineage"),SecondFoods[0]->Batch,Batch);
-    TestTrue(TEXT("Coffee and the new portion retain actual cleanup debt"),MCCountDirectedFoodDirt(F.World,Batch)>0);
-    SecondFoods[0]->Destroy();F.Loop->Tick(.1f);
-    TestEqual(TEXT("The second portion also waits for cleanup"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
-    ClearMealDirt();F.Loop->Tick(.1f);
-    TestTrue(TEXT("The second portion has its own shared choice"),F.Loop->bStageRewardPending);
-    F.ResolveStageReward();
-    if(!TestEqual(TEXT("The second claimed reward releases its drink"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave)) return false;
-    if(!FinishDrink(2)) return false;
-    TestEqual(TEXT("The last portion uses its authored eight-ingredient target"),F.Loop->MealPortionTarget,8);
-    for(int32 Attempt=0;Attempt<12 && F.Loop->MealPortionSpawned<6;++Attempt) {
-        Advance(.6f);F.Loop->Tick(.1f);DisableFoodCollisions();
+    TestEqual(TEXT("The completed wave starts coffee cleanup"),F.Loop->Stage,EMCSingleDayStage::BetweenMealsPause);
+    TestEqual(TEXT("Coffee cleanup has no deadline"),F.Loop->StageEndsAt,0.);
+    TestNull(TEXT("The finished wave actor is removed"),F.PatternWave());
+    F.AdvanceClockTo(float(F.World->GetTimeSeconds())+60.f);F.Loop->Tick(.1f);
+    TestEqual(TEXT("Coffee residue still blocks progression after time passes"),F.Loop->Stage,EMCSingleDayStage::BetweenMealsPause);
+    TestTrue(TEXT("The dirty arena has received no second portion"),F.PatternFood().IsEmpty());
+    TestFalse(TEXT("Coffee cleanup cannot request a chest"),F.Loop->bStageRewardPending);
+    F.ClearMealDirt();F.Loop->Tick(.1f);
+    if(!TestEqual(TEXT("Clearing coffee residue starts the second meal"),F.Loop->Stage,EMCSingleDayStage::FirstMeal)) return false;
+    TestEqual(TEXT("The second portion has the correct one-based number"),F.Loop->MealPortionNumber,2);
+    if(!TestEqual(TEXT("The second portion serves the native ten-item target"),F.Loop->MealPortionTarget,10)) return false;
+
+    int32 Issued=0;
+    for(int32 Attempt=0;Attempt<20 && Issued<10;++Attempt) {
+        F.AdvanceClockTo(float(F.World->GetTimeSeconds())+1.01f);F.Loop->Tick(.1f);
+        for(auto* Food:F.PatternFood()) {++Issued;Food->Destroy();}
     }
-    if(!TestEqual(TEXT("Solo admission initially allows six of the final eight whole ingredients"),F.Loop->MealPortionSpawned,6)) return false;
-    TestTrue(TEXT("Admitting food into the saturated coffee field preserves its actual cleanup debt"),MCCountDirectedFoodDirt(F.World,Batch)>0);
-    Advance(2.f);F.Loop->Tick(.1f);
-    TestEqual(TEXT("A full solo ingredient budget defers the remaining two servings"),F.Loop->MealPortionSpawned,6);
-    TestEqual(TEXT("Partial admission cannot finish the final portion"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
-    for(auto* Food:Foods()) Food->Destroy();
-    for(int32 Attempt=0;Attempt<6 && F.Loop->MealPortionSpawned<8;++Attempt) {
-        Advance(.6f);F.Loop->Tick(.1f);DisableFoodCollisions();
-    }
-    TestEqual(TEXT("Processing those ingredients admits the remaining two, reaching exactly eight"),F.Loop->MealPortionSpawned,8);
-    TestEqual(TEXT("Only the two newly admitted ingredients remain"),Foods().Num(),2);
-    for(auto* Food:Foods()) Food->Destroy();
+    TestEqual(TEXT("The real serving path issues exactly ten team ingredients"),Issued,10);
     F.Loop->Tick(.1f);
-    TestEqual(TEXT("Even after all final ingredients, accumulated dirty surfaces block the handoff"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
-    TestNull(TEXT("The final portion never starts a third coffee wave"),Coffee());
-    for(TActorIterator<AMCMouthSurface> It(F.World);It;++It) if(!It->bUlcer) It->ClearLiquidForBooster();
-    for(TActorIterator<AMCArenaTooth> It(F.World);It;++It) if(It->IsAvailable() && It->Status) {
-        const int32 Layers=It->Status->State.CoffeeLeft;
-        for(int32 Layer=0;Layer<Layers;++Layer) It->Status->CareContact(true,nullptr);
-    }
+    TestEqual(TEXT("Actual food residue blocks the key-event handoff"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
+    TestNull(TEXT("The key event does not overlap the second meal"),F.Loop->NutEvent.Get());
+    TestNull(TEXT("The second portion does not start another coffee wave"),F.PatternWave());
+    TestFalse(TEXT("The second portion does not request a chest"),F.Loop->bStageRewardPending);
+
+    F.ClearMealDirt();
     auto* OutsideBatch=F.World->SpawnActor<AMCMouthSurface>();
     OutsideBatch->Batch=Batch+100;OutsideBatch->Status->ApplyCoffee(.5f);
     F.Loop->Tick(.1f);
     TestEqual(TEXT("The final gate includes real floor dirt outside the current batch"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
     OutsideBatch->ClearLiquidForBooster();F.Loop->Tick(.1f);
-    TestTrue(TEXT("The final cleanup also opens its own shared reward"),F.Loop->bStageRewardPending);
-    F.ResolveStageReward();
-    TestEqual(TEXT("Resolving all food and real floor dirt opens the ordinary pre-nut pause"),F.Loop->Stage,EMCSingleDayStage::MealRest);
-    auto* OwnedRemainder=F.World->SpawnActor<AMCFoodActor>();OwnedRemainder->Batch=Batch;
-    auto* Unrelated=F.World->SpawnActor<AMCFoodActor>();Unrelated->Batch=Batch+100;
-    auto* OwnedDirt=F.World->SpawnActor<AMCMouthSurface>();OwnedDirt->Batch=Batch;OwnedDirt->Tags.Add(TEXT("MCFoodServedDirt"));
-    OutsideBatch->Status->ApplyCoffee(.5f);
-    F.Loop->Stop();
-    TestTrue(TEXT("Stop removes every remaining ingredient from the shared Relax batch"),OwnedRemainder->IsActorBeingDestroyed());
-    TestTrue(TEXT("Stop removes the shared batch's leftover dirt"),OwnedDirt->IsActorBeingDestroyed());
-    TestFalse(TEXT("Stop preserves unrelated food"),Unrelated->IsActorBeingDestroyed());
-    TestFalse(TEXT("Stop preserves unrelated floor dirt"),OutsideBatch->IsActorBeingDestroyed());
+    TestEqual(TEXT("A clean second meal starts the current key event immediately"),F.Loop->Stage,EMCSingleDayStage::Nuts);
+    TestNotNull(TEXT("The sequence dispatched the real nut event"),F.Loop->NutEvent.Get());
+    TestFalse(TEXT("There is no chest before the key event completes"),F.Loop->bStageRewardPending);
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayOpeningFiveTest,"MessControl.SingleDay.Sequence.OpeningRelaxExactlyFiveAndOneCompletionReward",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayOpeningFiveTest,"MessControl.SingleDay.Sequence.OpeningPortionServesExactlyFiveBeforeCoffee",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCSingleDayOpeningFiveTest::RunTest(const FString&)
 {
     MCSingleDaySequenceTestsPrivate::FSequenceWorld F;F.AddWorkerAndFoodGeometry(30.f,true);
-    F.Sequence->AfterTrainingPauseSeconds=F.Sequence->BeforeNutsPauseSeconds=0;
+    F.Sequence->AfterTrainingPauseSeconds=0;
     F.Loop->Initialize(F.Plan,F.Sequence,F.Support);
     F.RestoreTongueCollision();F.Loop->BeginFirstPerk();F.Loop->Tick(.1f);
     TArray<AMCFoodActor*> Served;
     for(int32 Index=0;Index<5;++Index) {
         F.Loop->Tick(.1f);
-        for(TActorIterator<AMCFoodActor> It(F.World);It;++It)
-            if(!It->IsActorBeingDestroyed() && It->GetOwner()==F.Loop && !Served.Contains(*It)) {
-                Served.Add(*It);It->SetActorTickEnabled(false);It->SetActorEnableCollision(false);
-            }
+        for(auto* Food:F.PatternFood()) if(!Served.Contains(Food)) {
+            Served.Add(Food);Food->SetActorTickEnabled(false);Food->SetActorEnableCollision(false);
+        }
         F.AdvanceClockTo(float(F.World->GetTimeSeconds())+F.Sequence->OpeningMealDropSeconds+.01f);
     }
-    if(!TestEqual(TEXT("The native opening actually issues exactly five whole items"),Served.Num(),5)) return false;
-    TestEqual(TEXT("Only one meal is authored for the opening"),F.Loop->MealPortionCount,1);
-    TestEqual(TEXT("No timer can complete live food"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
+    if(!TestEqual(TEXT("The native first portion issues exactly five whole items"),Served.Num(),5)) return false;
+    const int32 Batch=Served[0]->Batch;
+    F.Loop->Tick(.1f);
+    TestEqual(TEXT("No timer can finish a portion with live food"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
+    TestNull(TEXT("No wave overlaps live food"),F.PatternWave());
     for(auto* Food:Served) Food->Destroy();
     F.Loop->Tick(.1f);
-    TestFalse(TEXT("Disposal without actual floor cleanup cannot create a reward"),F.Loop->bStageRewardPending);
-    for(TActorIterator<AMCMouthSurface> It(F.World);It;++It) if(!It->bUlcer) It->ClearLiquidForBooster();
-    F.Loop->Tick(.1f);
-    TestTrue(TEXT("The complete clean five-item meal requests its one reward"),F.Loop->bStageRewardPending);
-    TestEqual(TEXT("The completed opening has one stable reward identity"),F.Loop->StageRewardCompletionId,FName(TEXT("OpeningPortion_1")));
-    F.ResolveStageReward();
-    TestEqual(TEXT("Its reward proceeds to the nut preparation stage"),F.Loop->Stage,EMCSingleDayStage::MealRest);
-    for(TActorIterator<AMCCoffeeFlood> It(F.World);It;++It)
-        TestFalse(TEXT("No opening coffee is inserted into the five-item meal"),It->IsActive());
+    TestEqual(TEXT("Disposal alone cannot skip floor cleanup"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
+    F.ClearMealDirt();F.Loop->Tick(.1f);
+    TestFalse(TEXT("The clean first portion creates no reward"),F.Loop->bStageRewardPending);
+    TestEqual(TEXT("Cleaning the five-item portion starts coffee"),F.Loop->Stage,EMCSingleDayStage::MealCoffeeWave);
+    auto* Wave=F.PatternWave();
+    if(!TestNotNull(TEXT("The first cleanup started an owned wave"),Wave)) return false;
+    auto* OwnedFood=F.World->SpawnActor<AMCFoodActor>();OwnedFood->Batch=Batch;
+    auto* OwnedDirt=F.World->SpawnActor<AMCMouthSurface>();OwnedDirt->Batch=Batch;OwnedDirt->Tags.Add(TEXT("MCFoodServedDirt"));
+    auto* UnrelatedFood=F.World->SpawnActor<AMCFoodActor>();UnrelatedFood->Batch=Batch+1;
+    auto* UnrelatedDirt=F.World->SpawnActor<AMCMouthSurface>();UnrelatedDirt->Batch=Batch+1;UnrelatedDirt->Tags.Add(TEXT("MCFoodServedDirt"));
+    F.Loop->Stop();
+    TestTrue(TEXT("Stopping the Pattern destroys its wave"),Wave->IsActorBeingDestroyed());
+    TestTrue(TEXT("Stopping the Pattern destroys its remaining food"),OwnedFood->IsActorBeingDestroyed());
+    TestTrue(TEXT("Stopping the Pattern destroys its remaining stains"),OwnedDirt->IsActorBeingDestroyed());
+    TestFalse(TEXT("Stopping the Pattern preserves unrelated food"),UnrelatedFood->IsActorBeingDestroyed());
+    TestFalse(TEXT("Stopping the Pattern preserves unrelated stains"),UnrelatedDirt->IsActorBeingDestroyed());
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayFragmentSupportTest,"MessControl.SingleDay.Sequence.CompletedFogSlotOpensSupportWithoutFinalBoss",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayFinalRewardTest,"MessControl.SingleDay.Sequence.FinalFogRewardFinishesDayOne",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FMCSingleDayFragmentSupportTest::RunTest(const FString&)
+bool FMCSingleDayFinalRewardTest::RunTest(const FString&)
 {
     MCSingleDaySequenceTestsPrivate::FSequenceWorld F;
-    TestFalse(TEXT("The new sequence defaults away from a timed finale"),F.Loop->IsLegacyTimedFinale());
+    TestFalse(TEXT("The profile does not use the timed legacy finale"),F.Loop->IsLegacyTimedFinale());
     F.CompleteFogSlot();
-    TestEqual(TEXT("The terminal fog signal hands off to ordinary support"),F.Loop->Stage,EMCSingleDayStage::Director);
-    TestTrue(TEXT("The last saved slot marks the authored fragment complete"),F.Loop->bAuthoredFragmentComplete);
-    TestEqual(TEXT("Fragment completion keeps the actual run working"),F.State->Phase,EMCShiftPhase::Working);
-    TestNotNull(TEXT("A real adaptive scheduler owns arena support"),F.Mode->GameDirector.Get());
-    TestNull(TEXT("The fragment does not create a Zombie finale"),F.Loop->FinalBoss.Get());
-    TestNull(TEXT("Completing fog removes its event and restores visibility"),F.Loop->FogEvent.Get());
-    TestEqual(TEXT("Open support publishes no event countdown"),F.State->PhaseEndsAt,0.);
-    TestEqual(TEXT("Open support publishes no director deadline"),F.State->DirectorState.DayEndAt,0.);
+    TestTrue(TEXT("The last key event opens its shared reward"),F.Loop->bStageRewardPending);
+    TestEqual(TEXT("The last key event has its own reward identity"),F.Loop->StageRewardCompletionId,FName(TEXT("KeyEvent_2_FogBrawl")));
+    TestNull(TEXT("Completed fog is removed before its reward"),F.Loop->FogEvent.Get());
+    TestEqual(TEXT("The run continues while the last choice is outstanding"),F.State->Phase,EMCShiftPhase::Working);
+    TestFalse(TEXT("An unresolved final chest cannot finish the authored run"),F.Loop->bAuthoredFragmentComplete);
+    F.ResolveStageReward();
+    TestFalse(TEXT("Claiming the reward releases the reward barrier"),F.Loop->bStageRewardPending);
+    TestEqual(TEXT("The last shared reward completes the sequence"),F.Loop->Stage,EMCSingleDayStage::Complete);
+    TestTrue(TEXT("The final claimed reward marks the authored run complete"),F.Loop->bAuthoredFragmentComplete);
+    TestEqual(TEXT("The completed day is a win"),F.State->Phase,EMCShiftPhase::Won);
+    TestNull(TEXT("Day completion does not start adaptive support"),F.Mode->GameDirector.Get());
+    TestNull(TEXT("Day completion does not start the legacy boss"),F.Loop->FinalBoss.Get());
+    TestEqual(TEXT("Day completion publishes no countdown"),F.State->PhaseEndsAt,0.);
     return true;
 }
 
@@ -489,46 +471,43 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayNoDeadlineTest,"MessControl.SingleD
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCSingleDayNoDeadlineTest::RunTest(const FString&)
 {
-    MCSingleDaySequenceTestsPrivate::FSequenceWorld F;F.CompleteFogSlot();
-    if (!TestNotNull(TEXT("The clock regression has a real support scheduler"),F.Mode->GameDirector.Get())) return false;
-    for (const float Seconds:{31.f,361.f,2101.f}) {
+    MCSingleDaySequenceTestsPrivate::FSequenceWorld F;
+    auto* Director=F.World->SpawnActor<AMCGameDirector>();F.Mode->GameDirector=Director;
+    Director->InitializeRun(F.Plan,F.Support);Director->BeginSupport();F.FreezeActors();
+    for(const float Seconds:{31.f,361.f,2101.f}) {
         F.AdvanceClockTo(Seconds);
         TestTrue(TEXT("The fixture advanced actual server world time beyond the target"),F.State->GetServerWorldTimeSeconds()>=Seconds-.01f);
-        F.Mode->GameDirector->Tick(.25f);F.Loop->Tick(.1f);
-        TestEqual(TEXT("Old finale/day/full-run targets cannot end the new fragment"),F.State->Phase,EMCShiftPhase::Working);
-        TestEqual(TEXT("The sequence keeps its support stage"),F.Loop->Stage,EMCSingleDayStage::Director);
-        TestTrue(TEXT("Support remains managed after every old deadline"),F.Mode->GameDirector->IsManagingEvents());
-        TestNull(TEXT("Elapsed orientation time cannot spawn a final boss"),F.Loop->FinalBoss.Get());
+        Director->Tick(.25f);
+        TestEqual(TEXT("Old finale and day targets cannot end untimed support"),F.State->Phase,EMCShiftPhase::Working);
+        TestTrue(TEXT("Support remains managed after every old deadline"),Director->IsManagingEvents());
         TestEqual(TEXT("No expired clock is published"),F.State->DirectorState.DayEndAt,0.);
     }
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayIceDispatchTest,"MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayIceDispatchTest,"MessControl.SingleDay.Sequence.NutRewardThenPatternDispatchesIce",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCSingleDayIceDispatchTest::RunTest(const FString&)
 {
-    MCSingleDaySequenceTestsPrivate::FSequenceWorld F;F.AddWorkerAndFoodGeometry();
-    TestEqual(TEXT("The authored lifecycle fixture retains its three key events"),F.Sequence->KeyEvents.Num(),3);
-    TestEqual(TEXT("Ice follows the nut encounter"),F.Sequence->KeyEvents[1].Kind,EMCSingleDayKeyEventKind::IceEvent);
-    TestEqual(TEXT("Fog follows ice"),F.Sequence->KeyEvents[2].Kind,EMCSingleDayKeyEventKind::FogBrawl);
+    MCSingleDaySequenceTestsPrivate::FSequenceWorld F;F.AddWorkerAndFoodGeometry(30.f,true);
     F.CompleteNutSlot();
-    TestFalse(TEXT("Completing nuts leaves the ice slot outstanding"),F.Loop->bAuthoredFragmentComplete);
-    if(!TestNotNull(TEXT("The interval uses the real support scheduler"),F.Mode->GameDirector.Get())) return false;
-    auto* OldSupport=F.Mode->GameDirector.Get();
-    const double Deadline=F.State->DirectorState.DayEndAt;
-    TestTrue(TEXT("The nut slot sets a bounded interval before ice"),Deadline>F.State->GetServerWorldTimeSeconds());
-    F.AdvanceClockTo(float(Deadline)-.2f);F.Loop->Tick(.1f);
-    TestEqual(TEXT("Ice waits until the authored interval elapses"),F.Loop->Stage,EMCSingleDayStage::Director);
-    TestNull(TEXT("No ice actor exists before the interval ends"),F.Loop->IceEvent.Get());
-    F.RestoreTongueCollision();F.AdvanceClockTo(float(Deadline)+.2f);F.Loop->Tick(.1f);
-    TestEqual(TEXT("The interval dispatches the second key-event kind"),F.Loop->Stage,EMCSingleDayStage::Ice);
-    TestEqual(TEXT("The sequence advances exactly once"),F.Loop->KeyEventIndex,1);
+    TestTrue(TEXT("The nut completion requests one key-event reward"),F.Loop->bStageRewardPending);
+    TestEqual(TEXT("Nut completion uses its slot identity"),F.Loop->StageRewardCompletionId,FName(TEXT("KeyEvent_0_NutEncounter")));
+    TestNull(TEXT("The completed nut actor is removed before the chest"),F.Loop->NutEvent.Get());
+    F.AdvanceClockTo(float(F.World->GetTimeSeconds())+180.f);F.Loop->Tick(.1f);
+    TestEqual(TEXT("Time cannot advance the slot before the reward is claimed"),F.Loop->KeyEventIndex,0);
+    TestTrue(TEXT("No meal arrives before the reward is claimed"),F.PatternFood().IsEmpty());
+    TestNull(TEXT("No ice actor exists before the following Pattern"),F.Loop->IceEvent.Get());
+    F.ResolveStageReward();
+    TestEqual(TEXT("Claiming the reward advances one slot"),F.Loop->KeyEventIndex,1);
+    TestEqual(TEXT("The next slot begins with the first portion"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
+    TestFalse(TEXT("Completing nuts leaves the next slot outstanding"),F.Loop->bAuthoredFragmentComplete);
+    TestNull(TEXT("No adaptive support is started between key events"),F.Mode->GameDirector.Get());
+    F.FinishPattern();
+    TestEqual(TEXT("The completed Pattern dispatches the second key-event kind"),F.Loop->Stage,EMCSingleDayStage::Ice);
+    TestEqual(TEXT("Dispatch preserves the same slot index"),F.Loop->KeyEventIndex,1);
     if(!TestNotNull(TEXT("Ice dispatch creates the real event"),F.Loop->IceEvent.Get())) return false;
     TestFalse(TEXT("Ice starts with the fixture's valid tongue"),F.Loop->IceEvent->bFailed);
-    TestNull(TEXT("Ordinary support is detached during the key event"),F.Mode->GameDirector.Get());
-    TestTrue(TEXT("The previous support actor is destroyed"),OldSupport->IsActorBeingDestroyed());
-    TestNull(TEXT("The previous nut actor is removed before ice"),F.Loop->NutEvent.Get());
     TestTrue(TEXT("The HUD publishes ice completion progress"),F.State->TasksTotal>0 && F.State->TasksLeft>0);
     F.Loop->Stop();
     TestNull(TEXT("Stopping the sequence removes the ice actor"),F.Loop->IceEvent.Get());
@@ -539,55 +518,36 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDaySavedNutCompatibilityTest,"MessCont
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCSingleDaySavedNutCompatibilityTest::RunTest(const FString&)
 {
-    MCSingleDaySequenceTestsPrivate::FSequenceWorld F(1);F.AddWorkerAndFoodGeometry();F.AddFogTarget();
-    F.CompleteNutSlot();
-    TestEqual(TEXT("Runtime compatibility leaves the saved slot count intact"),F.Sequence->KeyEvents.Num(),1);
-    TestEqual(TEXT("The saved event identity is preserved"),F.Sequence->KeyEvents[0].EventId,FName(TEXT("AuthoredNut")));
-    TestFalse(TEXT("Runtime compatibility adds an outstanding ice event"),F.Loop->bAuthoredFragmentComplete);
-    const double Deadline=F.State->DirectorState.DayEndAt;
-    TestTrue(TEXT("Runtime compatibility preserves the authored nine-second interval"),
-        FMath::IsNearlyEqual(Deadline-F.State->GetServerWorldTimeSeconds(),9.,.01));
-    F.RestoreTongueCollision();F.AdvanceClockTo(float(Deadline)+.2f);F.Loop->Tick(.1f);
-    TestEqual(TEXT("The extended runtime sequence dispatches ice"),F.Loop->Stage,EMCSingleDayStage::Ice);
-    if(!TestNotNull(TEXT("The old profile now runs a real ice event"),F.Loop->IceEvent.Get())) return false;
-    TestFalse(TEXT("The compatible ice event starts successfully"),F.Loop->IceEvent->bFailed);
-    TestEqual(TEXT("Dispatch never mutates the original saved profile"),F.Sequence->KeyEvents.Num(),1);
-    F.Loop->IceEvent->Stage=EMCIceEventStage::Complete;F.Loop->IceEvent->CandyHealth=0;F.Loop->Tick(.1f);
-    F.ResolveStageReward();
-    TestFalse(TEXT("The oldest prototype also receives an outstanding fog slot"),F.Loop->bAuthoredFragmentComplete);
-    const double FogDeadline=F.State->DirectorState.DayEndAt;
-    TestTrue(TEXT("The new ice slot uses the normal 120-second support interval"),
-        FMath::IsNearlyEqual(FogDeadline-F.State->GetServerWorldTimeSeconds(),120.,.01));
-    F.AdvanceClockTo(float(FogDeadline)+.2f);F.Loop->Tick(.1f);
-    TestEqual(TEXT("The oldest prototype dispatches fog after ice support"),F.Loop->Stage,EMCSingleDayStage::FogBrawl);
-    if(!TestNotNull(TEXT("Oldest prototype creates the real fog event"),F.Loop->FogEvent.Get())) return false;
-    TestFalse(TEXT("The compatible fog event starts successfully"),F.Loop->FogEvent->bFailed);
-    TestEqual(TEXT("Adding both new events leaves the saved profile untouched"),F.Sequence->KeyEvents.Num(),1);
+    MCSingleDaySequenceTestsPrivate::FSequenceWorld F(1);
+    const auto& RuntimeSlots=F.Loop->GetRunProfile()->KeyEvents;
+    if(!TestEqual(TEXT("The runtime sequence expands to three slots"),RuntimeSlots.Num(),3)) return false;
+    TestEqual(TEXT("The runtime slot preserves the authored identity"),RuntimeSlots[0].EventId,FName(TEXT("AuthoredNut")));
+    TestEqual(TEXT("The runtime copy preserves the authored support setting"),RuntimeSlots[0].DirectorSupportSeconds,9.f);
+    TestEqual(TEXT("The first added key event is Ice"),RuntimeSlots[1].Kind,EMCSingleDayKeyEventKind::IceEvent);
+    TestEqual(TEXT("The second added key event is Fog"),RuntimeSlots[2].Kind,EMCSingleDayKeyEventKind::FogBrawl);
+    TestEqual(TEXT("Compatibility leaves the saved profile at one slot"),F.Sequence->KeyEvents.Num(),1);
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayFogDispatchTest,"MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayFogDispatchTest,"MessControl.SingleDay.Sequence.IceRewardThenPatternDispatchesFog",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCSingleDayFogDispatchTest::RunTest(const FString&)
 {
-    MCSingleDaySequenceTestsPrivate::FSequenceWorld F;F.AddWorkerAndFoodGeometry();F.AddFogTarget();F.CompleteIceSlot();
+    MCSingleDaySequenceTestsPrivate::FSequenceWorld F;F.AddWorkerAndFoodGeometry(30.f,true);F.AddFogTarget();
+    F.CompleteIceSlot();
     TestFalse(TEXT("Completing ice leaves the fog slot outstanding"),F.Loop->bAuthoredFragmentComplete);
-    TestNull(TEXT("Ice is removed during support so the arena can thaw"),F.Loop->IceEvent.Get());
-    if(!TestNotNull(TEXT("Ice completion starts the real support scheduler"),F.Mode->GameDirector.Get())) return false;
-    auto* OldSupport=F.Mode->GameDirector.Get();
-    const double Deadline=F.State->DirectorState.DayEndAt;
-    TestTrue(TEXT("Ice uses its 120-second authored interval before fog"),
-        FMath::IsNearlyEqual(Deadline-F.State->GetServerWorldTimeSeconds(),120.,.01));
-    F.AdvanceClockTo(float(Deadline)-.2f);F.Loop->Tick(.1f);
-    TestEqual(TEXT("Fog waits for the whole ice support interval"),F.Loop->Stage,EMCSingleDayStage::Director);
-    TestNull(TEXT("Fog cannot start before its interval ends"),F.Loop->FogEvent.Get());
-    F.RestoreTongueCollision();F.AdvanceClockTo(float(Deadline)+.2f);F.Loop->Tick(.1f);
-    TestEqual(TEXT("The elapsed interval dispatches fog"),F.Loop->Stage,EMCSingleDayStage::FogBrawl);
+    TestNull(TEXT("Ice is removed before its reward so the arena can thaw"),F.Loop->IceEvent.Get());
+    TestTrue(TEXT("Ice requests one shared key-event reward"),F.Loop->bStageRewardPending);
+    TestEqual(TEXT("Ice uses its own slot identity"),F.Loop->StageRewardCompletionId,FName(TEXT("KeyEvent_1_IceEvent")));
+    F.ResolveStageReward();
+    TestEqual(TEXT("The reward advances to the fog slot's first meal"),F.Loop->Stage,EMCSingleDayStage::FirstMeal);
+    TestNull(TEXT("Fog does not overlap the Pattern"),F.Loop->FogEvent.Get());
+    F.FinishPattern();
+    TestEqual(TEXT("The completed Pattern dispatches fog"),F.Loop->Stage,EMCSingleDayStage::FogBrawl);
     TestEqual(TEXT("Fog is exactly the third key-event slot"),F.Loop->KeyEventIndex,2);
     if(!TestNotNull(TEXT("Dispatch creates the real fog event"),F.Loop->FogEvent.Get())) return false;
     TestFalse(TEXT("Fog starts with the fixture tongue and controlled worker"),F.Loop->FogEvent->bFailed);
-    TestNull(TEXT("Fog detaches ordinary support"),F.Mode->GameDirector.Get());
-    TestTrue(TEXT("Fog destroys the preceding support actor"),OldSupport->IsActorBeingDestroyed());
+    TestNull(TEXT("The sequence has no ordinary support actor"),F.Mode->GameDirector.Get());
     TestEqual(TEXT("The fog HUD starts with all strikes outstanding"),F.State->TasksLeft,F.Loop->FogEvent->TotalStrikes);
     F.AdvanceClockTo(float(F.Loop->FogEvent->StageEndsAt)+.2f);F.Loop->FogEvent->Tick(.1f);
     TestEqual(TEXT("Smoke-in starts the separate all-teeth selection"),F.Loop->FogEvent->Stage,EMCFogBrawlStage::Selection);
@@ -602,9 +562,9 @@ bool FMCSingleDayFogDispatchTest::RunTest(const FString&)
     auto* Fog=F.Loop->FogEvent.Get();F.Loop->Stop();
     TestNull(TEXT("Stopping the sequence removes fog"),F.Loop->FogEvent.Get());
     TestTrue(TEXT("Stopping destroys the actual fog actor"),Fog->IsActorBeingDestroyed());
-    F.AdvanceClockTo(float(Deadline)+600.f);F.Loop->Tick(.1f);
+    F.AdvanceClockTo(float(F.World->GetTimeSeconds())+600.f);F.Loop->Tick(.1f);
     TestNull(TEXT("A stopped sequence cannot start another fog event"),F.Loop->FogEvent.Get());
-    TestNull(TEXT("A stopped sequence cannot restart ordinary support"),F.Mode->GameDirector.Get());
+    TestNull(TEXT("A stopped sequence cannot start ordinary support"),F.Mode->GameDirector.Get());
     return true;
 }
 
@@ -612,19 +572,13 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDaySavedIceCompatibilityTest,"MessCont
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCSingleDaySavedIceCompatibilityTest::RunTest(const FString&)
 {
-    MCSingleDaySequenceTestsPrivate::FSequenceWorld F(2);F.AddWorkerAndFoodGeometry();F.AddFogTarget();F.CompleteIceSlot();
-    TestEqual(TEXT("Runtime compatibility preserves the two saved slots"),F.Sequence->KeyEvents.Num(),2);
-    TestEqual(TEXT("Runtime compatibility preserves the saved ice identity"),F.Sequence->KeyEvents[1].EventId,FName(TEXT("AuthoredIce")));
-    TestFalse(TEXT("The two-slot prototype receives an outstanding fog event"),F.Loop->bAuthoredFragmentComplete);
-    const double Deadline=F.State->DirectorState.DayEndAt;
-    TestTrue(TEXT("Compatibility preserves the authored 17-second ice interval"),
-        FMath::IsNearlyEqual(Deadline-F.State->GetServerWorldTimeSeconds(),17.,.01));
-    F.RestoreTongueCollision();F.AdvanceClockTo(float(Deadline)+.2f);F.Loop->Tick(.1f);
-    TestEqual(TEXT("The extended two-slot prototype dispatches fog"),F.Loop->Stage,EMCSingleDayStage::FogBrawl);
-    if(!TestNotNull(TEXT("Two-slot prototype creates the real fog event"),F.Loop->FogEvent.Get())) return false;
-    TestFalse(TEXT("The compatible fog event starts successfully"),F.Loop->FogEvent->bFailed);
-    TestEqual(TEXT("Dispatch leaves the original profile's ice interval intact"),F.Sequence->KeyEvents[1].DirectorSupportSeconds,17.f);
-    TestEqual(TEXT("Dispatch leaves the original profile's slot count intact"),F.Sequence->KeyEvents.Num(),2);
+    MCSingleDaySequenceTestsPrivate::FSequenceWorld F(2);
+    const auto& RuntimeSlots=F.Loop->GetRunProfile()->KeyEvents;
+    if(!TestEqual(TEXT("The runtime sequence gains a third slot"),RuntimeSlots.Num(),3)) return false;
+    TestEqual(TEXT("Runtime compatibility preserves the authored ice identity"),RuntimeSlots[1].EventId,FName(TEXT("AuthoredIce")));
+    TestEqual(TEXT("Runtime compatibility preserves the authored support setting"),RuntimeSlots[1].DirectorSupportSeconds,17.f);
+    TestEqual(TEXT("The added key event is fog"),RuntimeSlots[2].Kind,EMCSingleDayKeyEventKind::FogBrawl);
+    TestEqual(TEXT("Compatibility leaves the saved profile at two slots"),F.Sequence->KeyEvents.Num(),2);
     return true;
 }
 

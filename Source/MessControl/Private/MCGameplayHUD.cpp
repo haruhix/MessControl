@@ -132,16 +132,6 @@ FName CataclysmTitleKey(const AMCCataclysmEvent& Event)
     default:return Event.bCola?TEXT("UI.Event.Cataclysm.ColaWave.Title"):TEXT("UI.Event.Cataclysm.CoffeeWave.Title");
     }
 }
-FName CataclysmInstructionKey(const AMCCataclysmEvent& Event)
-{
-    switch(Event.Phase) {
-    case EMCCataclysmPhase::Complete:return TEXT("UI.Event.Cataclysm.Complete.Instruction");
-    case EMCCataclysmPhase::Cleanup:return TEXT("UI.Event.Cataclysm.Cleanup.Instruction");
-    case EMCCataclysmPhase::JellyFight:return TEXT("UI.Event.Cataclysm.Jellies.Instruction");
-    case EMCCataclysmPhase::Flooding:case EMCCataclysmPhase::BranchWarning:return TEXT("UI.Event.Cataclysm.Rafts.Instruction");
-    default:return TEXT("UI.Event.Cataclysm.Warning.Instruction");
-    }
-}
 struct FHUDPainter
 {
     const FGeometry& G; FSlateWindowElementList& E; int32 L; float S;
@@ -995,9 +985,7 @@ void UMCGameplayHUD::RefreshDirectorMonitor(const FMCGameDirectorState& State)
         if(auto* PanelSlot=Cast<UCanvasPanelSlot>(DirectorPanel->Slot)) PanelSlot->SetPosition(FVector2D(-22,Debug?144:338));
     }
     if(GS && GS->bSingleDayLoop && !Debug) {
-        if(State.Instruction.IsEmpty()) DirectorPanel->SetVisibility(ESlateVisibility::Collapsed);
-        if(bAutoArrangeDirectorMonitor) DirectorText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),14));
-        DirectorText->SetText(FText::FromString(State.Instruction));
+        DirectorPanel->SetVisibility(ESlateVisibility::Collapsed);
         return;
     }
     if(bAutoArrangeDirectorMonitor) DirectorText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),11));
@@ -1220,7 +1208,8 @@ FMCGameplayHUDExtrasSnapshot UMCGameplayHUD::GetUnifiedExtrasSnapshot() const
     const auto* Inventory=Hero?Hero->Inventory.Get():nullptr;
     Result.bSprayReticle=PC && PC->IsLocalController() && !PC->bShowMouseCursor && !PC->IsLookInputIgnored() && !PC->IsSpectating()
         && Inventory && Inventory->Selected==EMCToolSlot::Spray && Hero->CanWork() && !Hero->bInCoffee && Inventory->ShouldPresentTool();
-    Result.FoodReticleLabel=Copy(TEXT("UI.HUD.FoodThrow"),LOCTEXT("FoodThrow","Q · БРОСИТЬ"));
+    if(const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;GS && GS->bTutorialActive)
+        Result.FoodReticleLabel=Copy(TEXT("UI.HUD.FoodThrow"),LOCTEXT("FoodThrow","Q · БРОСИТЬ"));
     return Result;
 }
 
@@ -1290,9 +1279,11 @@ FMCUIReticlePresentation UMCGameplayHUD::EvaluateReticlePresentation(const FGeom
             AddStroke(Points,Palette.Ink.CopyWithNewOpacity(Palette.Ink.A*A*.85f),4,ReticleLayer+1);
             AddStroke(Points,Palette.OnMarine.CopyWithNewOpacity(Palette.OnMarine.A*A),2,ReticleLayer+2);
         }
-        FMCUIReticleLabel Label;Label.Position=AimCenter+FVector2D(-58,Radius+12);Label.Bounds=FVector2D(180,24);
-        Label.Text=Copy(TEXT("UI.HUD.FoodThrow"),LOCTEXT("FoodThrow","Q · БРОСИТЬ"));Label.Font=ThemeData->MakeGameplayFont(12);
-        Label.Color=Palette.OnMarine.CopyWithNewOpacity(Palette.OnMarine.A*A);Label.Layer=ReticleLayer+2;Result.Labels.Add(MoveTemp(Label));
+        if(const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;GS && GS->bTutorialActive) {
+            FMCUIReticleLabel Label;Label.Position=AimCenter+FVector2D(-58,Radius+12);Label.Bounds=FVector2D(180,24);
+            Label.Text=Copy(TEXT("UI.HUD.FoodThrow"),LOCTEXT("FoodThrow","Q · БРОСИТЬ"));Label.Font=ThemeData->MakeGameplayFont(12);
+            Label.Color=Palette.OnMarine.CopyWithNewOpacity(Palette.OnMarine.A*A);Label.Layer=ReticleLayer+2;Result.Labels.Add(MoveTemp(Label));
+        }
         ReticleLayer+=2;Result.MaximumLayer=FMath::Max(Result.MaximumLayer,ReticleLayer);
     }
     if(!PC || !PC->IsLocalController() || PC->bShowMouseCursor || PC->IsLookInputIgnored() || PC->IsSpectating()
@@ -1407,13 +1398,7 @@ void UMCGameplayHUD::RefreshState()
             if(!It->IsActorBeingDestroyed() && It->IsComplete() && Now-It->PhaseStartedAt<8.
                 && (!Cataclysm || It->PhaseStartedAt>Cataclysm->PhaseStartedAt)) Cataclysm=*It;
     EnsureCataclysmPanel();
-    if(CataclysmPanel) {
-        CataclysmPanel->SetVisibility(Cataclysm && !Finished?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
-        if(Cataclysm && CataclysmInstruction) {
-            const FText Instruction=Copy(HUD::CataclysmInstructionKey(*Cataclysm),FText::FromString(Cataclysm->Instruction()));
-            if(!CataclysmInstruction->GetText().EqualTo(Instruction)) CataclysmInstruction->SetText(Instruction);
-        }
-    }
+    if(CataclysmPanel) CataclysmPanel->SetVisibility(ESlateVisibility::Collapsed);
     const FString StartingSoon=Copy(TEXT("UI.HUD.StartingSoon"),LOCTEXT("StartingSoon","СКОРО НАЧНЁМ")).ToString();
     FString Title=Directed?(Director.CurrentTitle.IsEmpty()?StartingSoon:Director.CurrentTitle):HasStep?HUD::StepName(GS->DayPlan->Steps[GS->StepIndex].Step,LocalizationTable).ToString():GS->CurrentEvent?GS->CurrentEvent->Title.ToString():StartingSoon;
     const AMCCoffeeFlood* ActiveFlood=nullptr;
@@ -1517,7 +1502,7 @@ void UMCGameplayHUD::RefreshState()
         if(auto* B=Cast<UProgressBar>(Find(FName(N+TEXT("Fill"))))) MCUIVisualStyle::Progress(B,GetResolvedTheme(),Failed?Palette.Warning:Palette.Mint);
         Color(FName(N+TEXT("Accent")),Current?Palette.Mint:Past?Failed?Palette.Warning:Palette.Muted:Palette.Marine);
     }
-    Show(TEXT("InventoryPanel"),Hero!=nullptr); Show(TEXT("HintPanel"),Hero!=nullptr);
+    Show(TEXT("InventoryPanel"),Hero!=nullptr);
     if(Hero && Hero->Inventory) {
         const auto* Inv=Hero->Inventory.Get();
         auto Format=[&](FName Key,const FText& Fallback,const FFormatNamedArguments& Arguments){return UMCUIDataLibrary::FormatTextForCulture(Copy(Key,Fallback),Arguments);};
@@ -1551,7 +1536,9 @@ void UMCGameplayHUD::RefreshState()
         const float Cool=Inv->SpraySecondsLeft(); Show(TEXT("SprayCooldown"),Automatic || Cool>0);
         SetCopy(TEXT("CooldownValue"),Automatic?(Inv->bWaterReloading?Format(TEXT("UI.HUD.CooldownSeconds"),LOCTEXT("CooldownSeconds","{Seconds} с"),{{TEXT("Seconds"),Decimal(Cool)}}):Format(TEXT("UI.HUD.AmmoCount"),LOCTEXT("AmmoCount","{Current}/{Maximum}"),{{TEXT("Current"),Inv->WaterAmmo},{TEXT("Maximum"),Inv->WaterMagazineCapacity()}})):Decimal(Cool));
         Bar(TEXT("CooldownProgress"),Automatic && !Inv->bWaterReloading?float(Inv->WaterAmmo)/Inv->WaterMagazineCapacity():1-Cool/Inv->CooldownSeconds());
-        FText Hint=Inv->Selected==EMCToolSlot::Pickaxe?Copy(TEXT("UI.HUD.Hint.Pickaxe"),LOCTEXT("HintPickaxe","ЛКМ · ДРОБИТЬ ЕДУ")):Inv->Selected==EMCToolSlot::Knife?Copy(TEXT("UI.HUD.Hint.Knife"),LOCTEXT("HintKnife","ЛКМ · РАЗРЕЗАТЬ ЕДУ")):Inv->Selected==EMCToolSlot::Spray?Copy(TEXT("UI.HUD.Hint.Spray"),LOCTEXT("HintSpray","УДЕРЖИВАЙ ЛКМ · ЛЕЧИТЬ ЯЗВУ")):Copy(TEXT("UI.HUD.BrushAction"),LOCTEXT("BrushAction","ЛКМ · ЧИСТИТЬ"));
+        FText Hint;
+        if(GS->bTutorialActive)
+            Hint=Inv->Selected==EMCToolSlot::Pickaxe?Copy(TEXT("UI.HUD.Hint.Pickaxe"),LOCTEXT("HintPickaxe","ЛКМ · ДРОБИТЬ ЕДУ")):Inv->Selected==EMCToolSlot::Knife?Copy(TEXT("UI.HUD.Hint.Knife"),LOCTEXT("HintKnife","ЛКМ · РАЗРЕЗАТЬ ЕДУ")):Inv->Selected==EMCToolSlot::Spray?Copy(TEXT("UI.HUD.Hint.Spray"),LOCTEXT("HintSpray","УДЕРЖИВАЙ ЛКМ · ЛЕЧИТЬ ЯЗВУ")):Copy(TEXT("UI.HUD.BrushAction"),LOCTEXT("BrushAction","ЛКМ · ЧИСТИТЬ"));
         if(Inv->Selected==EMCToolSlot::Pickaxe || Inv->Selected==EMCToolSlot::Knife) {
             for(TActorIterator<AMCNutRainEvent> It(GetWorld());It;++It) {
                 if(It->Settings.bBossEncounter && It->Stage!=EMCNutRainStage::Idle && It->Stage!=EMCNutRainStage::Complete) {
@@ -1562,7 +1549,7 @@ void UMCGameplayHUD::RefreshState()
         }
         if(Inv->Selected==EMCToolSlot::Knife && Inv->HasUpgrade(EMCToolUpgrade::Chainsaw)) Hint=Inv->IsChainsawRunning()?Copy(TEXT("UI.HUD.Hint.ChainsawRunning"),LOCTEXT("HintChainsawRunning","БЕНЗОПИЛА ТЯНЕТ ВПЕРЁД · СТЕНА ОСТАНОВИТ")):Copy(TEXT("UI.HUD.Hint.ChainsawStart"),LOCTEXT("HintChainsawStart","ЛКМ · ЗАПУСТИТЬ · ОСТАНОВКА ТОЛЬКО ОБ СТЕНУ"));
         if(Inv->Selected==EMCToolSlot::Spray && Inv->HasUpgrade(EMCToolUpgrade::Watergun)) Hint=Inv->bPressureMode?(Inv->bWaterReloading?Copy(TEXT("UI.HUD.Hint.WatergunReload"),LOCTEXT("HintWatergunReload","ПЕРЕЗАРЯДКА · УДЕРЖИВАЙ ЛКМ ДЛЯ ПРОДОЛЖЕНИЯ     4 · РЕЖИМ")):Copy(TEXT("UI.HUD.Hint.WatergunShoot"),LOCTEXT("HintWatergunShoot","УДЕРЖИВАЙ ЛКМ · АВТОМАТИЧЕСКАЯ СТРЕЛЬБА     4 · РЕЖИМ"))):Copy(TEXT("UI.HUD.Hint.WatergunHeal"),LOCTEXT("HintWatergunHeal","УДЕРЖИВАЙ ЛКМ · ТУШИТЬ И ЛЕЧИТЬ     4 · РЕЖИМ"));
-        if(!Inv->IsChainsawRunning()) Hint=Format(TEXT("UI.HUD.Hint.WithBrace"),LOCTEXT("HintWithBrace","{Action}     ПКМ · ДЕРЖАТЬСЯ"),{{TEXT("Action"),Hint}});
+        if(!Hint.IsEmpty() && !Inv->IsChainsawRunning()) Hint=Format(TEXT("UI.HUD.Hint.WithBrace"),LOCTEXT("HintWithBrace","{Action}     ПКМ · ДЕРЖАТЬСЯ"),{{TEXT("Action"),Hint}});
         const auto IsFreshOrdinaryFood=[](const AMCFoodActor* Food) {
             return IsValid(Food) && Food->FoodData.Kind==EMCFoodKind::Food && !Food->bBrushTool && !Food->IsWrongIngredient();
         };
@@ -1576,7 +1563,7 @@ void UMCGameplayHUD::RefreshState()
             :IsValid(Hero->HeldFood) || Hero->FoodCollection->bCollecting || !Hero->FoodCollection->Pieces.IsEmpty();
         if(Hero->FoodCollection->HasNutAmmunition())
             Hint=Copy(TEXT("UI.HUD.Hint.NutAmmo"),LOCTEXT("HintNutAmmo","ОРЕХ В РУКЕ · ЦЕЛЬСЯ В БОССА · Q — ВЫСТРЕЛ · E — ПОЛОЖИТЬ"));
-        else if(Hero->FoodCollection->bCollecting)
+        else if(Hero->FoodCollection->bCollecting && GS->bTutorialActive)
         {
             bool HasWrong=GS->bSingleDayLoop && HasExitPieces;
             for(const auto& Piece:Hero->FoodCollection->Pieces) if(IsValid(Piece) && Piece->IsWrongIngredient()) { HasWrong=true; break; }
@@ -1699,7 +1686,7 @@ void UMCGameplayHUD::RefreshState()
                 :Cataclysm->Phase==EMCCataclysmPhase::Complete?Copy(TEXT("UI.HUD.Hint.CataclysmComplete"),LOCTEXT("HintCataclysmComplete","КАТАКЛИЗМ ПРЕОДОЛЁН · ВСЁ ЧИСТО"))
                 :Cataclysm->Phase==EMCCataclysmPhase::Flooding || Cataclysm->Phase==EMCCataclysmPhase::BranchWarning
                     ?Copy(TEXT("UI.HUD.Hint.CataclysmRafts"),LOCTEXT("HintCataclysmRafts","ПКМ У ПЛОТА · ЗАЛЕЗТЬ · ПО ДВОЕ"))
-                    :Copy(TEXT("UI.HUD.Hint.CataclysmWave"),LOCTEXT("HintCataclysmWave","ВОЛНА · ДЕРЖИ ПКМ У ОПОРЫ"));
+                    :FText::GetEmpty();
             const auto* Move=Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement());
             const AMCCataclysmRaft* Nearby=nullptr;
             double Best=FMath::Square(280.);
@@ -1719,7 +1706,12 @@ void UMCGameplayHUD::RefreshState()
             }
             if(Move && Move->IsDrowning()) Hint=Format(TEXT("UI.HUD.Hint.Drowning"),LOCTEXT("HintDrowning","ТОНЕШЬ · {Seconds} С · НА ПЛОТ ИЛИ СУШУ!"),{{TEXT("Seconds"),Decimal(Move->GetDrowningSecondsRemaining())}});
         }
-        SetCopy(TEXT("ActionHint"),InputController && InputController->IsUsingGamepad()?FText::AsCultureInvariant(MCGamepadHints::Adapt(Hint.ToString())):Hint); Show(TEXT("ContactProgress"),Contact>0); Bar(TEXT("ContactProgress"),Contact);
+        SetCopy(TEXT("ActionHint"),InputController && InputController->IsUsingGamepad()?FText::AsCultureInvariant(MCGamepadHints::Adapt(Hint.ToString())):Hint);
+        Show(TEXT("HintPanel"),!Hint.IsEmpty() || Contact>0);Show(TEXT("HintBG"),!Hint.IsEmpty());Show(TEXT("ActionMouse"),!Hint.IsEmpty());
+        Show(TEXT("ContactProgress"),Contact>0);Bar(TEXT("ContactProgress"),Contact);
+    } else {
+        SetCopy(TEXT("ActionHint"),FText::GetEmpty());
+        Show(TEXT("HintPanel"),false);
     }
     if(auto* Results=Find(TEXT("ResultsPanel")))
         Results->SetRenderTranslation(FVector2D(MCDeveloperUIEnabled(GetWorld()) && Directed && HUD::DirectorDebug.GetValueOnGameThread()>0?-186.f:0.f,0));

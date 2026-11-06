@@ -24,8 +24,9 @@ public:
     void Toggle();
     void Stop(bool Throw=false);
     /** Server-only: launch the uppermost piece, retaining every other stack slot. */
-    bool ThrowOne(FVector AimDirection);
+    bool ThrowOne(FVector AimDirection,bool bHeldRepeat=false);
     float ThrowIntervalSeconds() const;
+    float HeldThrowIntervalSeconds() const;
     float EffectiveThrowSpeed() const;
     void Spill(FVector Impulse=FVector::ZeroVector);
     void HandleCarrierCollision(AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit);
@@ -60,6 +61,7 @@ private:
     bool bHasHand=false;
     double NextCollectAt=0;
     double NextThrowAt=0;
+    double NextRepeatThrowAt=0;
     const FMCFoodStackSettings* LayoutSettings() const;
     void RebuildStackLayout();
     FQuat StackRotation() const;

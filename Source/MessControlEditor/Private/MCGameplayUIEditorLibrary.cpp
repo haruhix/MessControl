@@ -392,26 +392,24 @@ bool UMCGameplayUIEditorLibrary::StartPostNutRelaxPreview(AMCPlayerController* P
         || !IsValid(Loop) || Loop->IsActorBeingDestroyed() || Loop->GetWorld()!=World
         || !Loop->HasAuthority() || Loop->bStageRewardPending || !IsValid(Loop->Mechanics)
         || !IsValid(Loop->Settings) || Loop->IsLegacyTimedFinale()) return false;
-    // This fixture is only meaningful for the authored Nuts -> Relax -> Jellies
-    // route. It does not manufacture or reorder slots in a custom run.
-    const auto& Slots=Loop->Settings->KeyEvents;
-    if(Slots.Num()<2 || Slots[0].Kind!=EMCSingleDayKeyEventKind::NutEncounter
-        || Slots[1].Kind!=EMCSingleDayKeyEventKind::Jellies) return false;
+    if(Loop->Settings->KeyEvents.IsEmpty()) return false;
     UMCDayPlan* Mechanics=Loop->Mechanics;
     UMCGameDirectorProfile* Support=Loop->DirectorProfile;
     // Initialize duplicates settings into the loop. Snapshot outside that outer
     // first, so repeated explicit previews cannot collide with its old settings.
-    const FName SnapshotName=MakeUniqueObjectName(GetTransientPackage(),UMCSingleDayProfile::StaticClass(),TEXT("PostNutRelaxPreviewProfile"));
+    const FName SnapshotName=MakeUniqueObjectName(GetTransientPackage(),UMCSingleDayProfile::StaticClass(),TEXT("PatternCoffeePreviewProfile"));
     TStrongObjectPtr<UMCSingleDayProfile> Profile(DuplicateObject<UMCSingleDayProfile>(Loop->Settings,GetTransientPackage(),SnapshotName));
     if(!Profile.IsValid()) return false;
-    UE_LOG(LogTemp,Display,TEXT("MC_POST_NUT_RELAX_PREVIEW_SETUP explicit_initial_stage_fixture=1 full_run_or_nut_completion_claim=0 world=%s controller=%s mechanics=%s coffee_to_food=%.2f"),
-        *World->GetPathName(),*PlayerController->GetPathName(),*Mechanics->GetPathName(),Profile->AfterNutCoffeeToFoodSeconds);
+    UE_LOG(LogTemp,Display,TEXT("MC_PATTERN_COFFEE_PREVIEW_SETUP explicit_initial_stage_fixture=1 world=%s controller=%s mechanics=%s"),
+        *World->GetPathName(),*PlayerController->GetPathName(),*Mechanics->GetPathName());
     // Ordinary lifecycle owns all cleanup and restart work. No timer, food
     // count, completion, player status or economy value is assigned here.
     Loop->Stop();
     Loop->Initialize(Mechanics,Profile.Get(),Support);
-    Loop->BeginPostNutMeal();
-    return !Loop->bStopped && Loop->Stage==EMCSingleDayStage::PostNutCoffee
+    Loop->BeginFirstMeal();
+    if(Loop->bStopped) return false;
+    Loop->BeginMealCoffeeWave();
+    return !Loop->bStopped && Loop->Stage==EMCSingleDayStage::MealCoffeeWave
         && IsValid(Loop->OpeningCoffee) && Loop->OpeningCoffee->IsActive();
 }
 

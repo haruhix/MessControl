@@ -1,4 +1,5 @@
 #include "MCBrushContactComponent.h"
+#include "MCBrushCleaningBalance.h"
 #include "CoreGlobals.h"
 #include "MCArenaTooth.h"
 #include "MCMouthSurface.h"
@@ -210,7 +211,7 @@ bool UMCBrushContactComponent::CanReachFromPose(FVector PawnCenter,FRotator Faci
     Normal=Normal.GetSafeNormal();
     const FVector OffsetToPoint=Point-PawnCenter;
     const FVector Direction=OffsetToPoint.GetSafeNormal2D();
-    if(Normal.IsNearlyZero() || Direction.IsNearlyZero() || OffsetToPoint.Size2D()>SurfaceReach
+    if(Normal.IsNearlyZero() || Direction.IsNearlyZero() || OffsetToPoint.Size2D()>SurfaceSearchReach(Surface)
         || FVector::DotProduct(Normal,(-OffsetToPoint).GetSafeNormal())<.05f
         || FVector::DotProduct(Direction,Facing.Vector().GetSafeNormal2D())<-.05f) return false;
     FTransform World=Hero->GetMesh()->GetComponentTransform();
@@ -228,6 +229,10 @@ bool UMCBrushContactComponent::CanReachFromPose(FVector PawnCenter,FRotator Faci
     Query.AddIgnoredActor(Surface);
     return !GetWorld()->LineTraceSingleByChannel(Block,PawnCenter+FVector(0,0,40),Point-Normal*2,ECC_Visibility,Query);
 }
+float UMCBrushContactComponent::SurfaceSearchReach(const AActor* Surface) const
+{
+    return Cast<AMCArenaTooth>(Surface)?SurfaceReach*MCBrushCleaningBalance::ToothSearchRadiusMultiplier:SurfaceReach;
+}
 bool UMCBrushContactComponent::CanAcquireSurface(const AActor* Surface) const
 {
     const auto* H=Hero?Hero.Get():Cast<AMCToothCharacter>(GetOwner());
@@ -241,7 +246,8 @@ bool UMCBrushContactComponent::CanAcquireSurface(const AActor* Surface) const
     const FVector D=Bounds->Bounds.GetBox().GetClosestPointTo(H->GetActorLocation())-H->GetActorLocation();
     // Facing is checked against the actual stain, not the nearest point of a
     // large bounding box. Retaining a surface never bypasses that check.
-    return D.Size2D()<=SurfaceReach && FMath::Abs(D.Z)<=MaxHandVerticalTravel+70;
+    const float Reach=H->HasBrush()?SurfaceSearchReach(Surface):SurfaceReach;
+    return D.Size2D()<=Reach && FMath::Abs(D.Z)<=MaxHandVerticalTravel+70;
 }
 bool UMCBrushContactComponent::CanBrushToward(FVector Point) const
 {
@@ -354,7 +360,7 @@ void UMCBrushContactComponent::BuildPose(TArray<FTransform>& Pose,const FReferen
     }
     auto KeepOutsideSurface=[&](FTransform& Hand,bool Destination=false,bool ActualSurface=false) {
         if(!IsValid(Target) || !Hero->Brush->GetStaticMesh()
-            || FVector::Dist2D(ContactPoint(),Hero->GetActorLocation())>SurfaceReach+30) return;
+            || FVector::Dist2D(ContactPoint(),Hero->GetActorLocation())>SurfaceSearchReach(Target)+30) return;
         const FVector N=ContactNormal(),Point=ContactPoint();
         const FTransform BrushWorld=Hero->Brush->GetRelativeTransform()*Hero->BrushPivot->GetRelativeTransform()*Hand;
         const FBox Box=Hero->Brush->GetStaticMesh()->GetBoundingBox();

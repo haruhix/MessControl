@@ -2355,8 +2355,9 @@ void AMCToothCharacter::ServerSetThrowHeld_Implementation(bool Held,FVector_NetQ
     ThrowAim=FVector(Direction).GetSafeNormal();
     if(bThrowHeld) return;
     bThrowHeld=true;
+    const float RepeatInterval=FoodCollection?FoodCollection->HeldThrowIntervalSeconds():.3f;
     PerformThrow(ThrowAim);
-    NextHeldThrowAt=GetWorld()->GetTimeSeconds()+(FoodCollection?FoodCollection->ThrowIntervalSeconds():.3f);
+    NextHeldThrowAt=GetWorld()->GetTimeSeconds()+RepeatInterval;
 }
 void AMCToothCharacter::ServerUpdateThrowAim_Implementation(FVector_NetQuantizeNormal Direction)
 {
@@ -2375,9 +2376,10 @@ void AMCToothCharacter::UpdateThrowInput(float /*Dt*/)
     if(IsLocallyControlled() && bThrowInputHeld && Now-LastThrowAimSentAt>=.1) {
         ServerUpdateThrowAim(CameraThrowDirection()); LastThrowAimSentAt=Now;
     }
-    if(HasAuthority() && bThrowHeld && Now>=NextHeldThrowAt) {
+    if(HasAuthority() && bThrowHeld && Now+KINDA_SMALL_NUMBER>=NextHeldThrowAt) {
+        const float RepeatInterval=FoodCollection?FoodCollection->HeldThrowIntervalSeconds():.3f;
         PerformThrow(ThrowAim,true);
-        NextHeldThrowAt=Now+(FoodCollection?FoodCollection->ThrowIntervalSeconds():.3f);
+        NextHeldThrowAt=Now+RepeatInterval;
     }
 }
 void AMCToothCharacter::ServerThrowItem_Implementation()
@@ -2391,7 +2393,7 @@ void AMCToothCharacter::PerformThrow(FVector Direction,bool StackOnly)
         Ball->ThrowFromView();return;
     }
     if(FoodCollection && !FoodCollection->Pieces.IsEmpty()) {
-        Grip->ReleaseBrace(); FoodCollection->ThrowOne(Direction); return;
+        Grip->ReleaseBrace(); FoodCollection->ThrowOne(Direction,StackOnly); return;
     }
     if(StackOnly) return;
     Grip->ReleaseBrace();
