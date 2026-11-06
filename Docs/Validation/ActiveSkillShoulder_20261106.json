@@ -1,0 +1,102 @@
+{
+  "task": "Shoulder camera for aimed active skills",
+  "status": "editor_build_and_solo_PIE_checks_passed_visual_review_approved",
+  "editorBuild": {
+    "result": "Succeeded",
+    "seconds": 373.51,
+    "log": "E:/CodexWork/MessControl/Validation/RocketShoulder_20261106/EditorBuildDriver.log"
+  },
+  "captureMethod": "Actual solo L_Mouth PIE game window with the native Enhanced Input actions. Manual orbit, transient profile, one native ally for Hook.",
+  "behavior": [
+    "Rocket and Hook share the Spray camera blend while primary is held in the selected device mode.",
+    "Grenade shares the blend while the cooking action owns the held slot input.",
+    "The server validates a bounded camera ray at fire or throw and uses authoritative muzzle and collision checks.",
+    "Rocket shows a compact crosshair, contact when visibly offset and blocked, in-use or cooldown hints. Blast gameplay is unchanged."
+  ],
+  "scope": [
+    "Hook ally, grenade ordinary release and rocket ordinary shot.",
+    "Remote client and packaged behavior were outside this local validation."
+  ],
+  "captures": [
+    {
+      "case": "Rocket",
+      "gif": "E:/CodexWork/MessControl/Validation/RocketShoulder_20261106/Runs/RocketShoulder_20261106T104730Z/Rocket_Aim_Review.gif",
+      "gifSHA256": "0f95826aa9fe0715b82d804c47399b8f83f1f4e9c8a36ebd0f7c17c5ce465cc5",
+      "frames": 68,
+      "size": [
+        960,
+        540
+      ],
+      "checksPassed": 14,
+      "aimDeltaCm": [
+        0.0,
+        139.984,
+        74.991
+      ],
+      "restoredDeltaCm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "aimFovDeltaDegrees": 0.0,
+      "restoredFovDeltaDegrees": 0.0,
+      "report": "E:/CodexWork/MessControl/Validation/RocketShoulder_20261106/Runs/RocketShoulder_20261106T104730Z/Report.json"
+    },
+    {
+      "case": "Hook",
+      "gif": "E:/CodexWork/MessControl/Validation/RocketShoulder_20261106/Runs/HookShoulder_20261106T104800Z/Hook_Aim_Review.gif",
+      "gifSHA256": "91bf3d979a23d9b601a5acfe5d411733770f0052df80265e68df1b58e93e281b",
+      "frames": 69,
+      "size": [
+        960,
+        540
+      ],
+      "checksPassed": 14,
+      "aimDeltaCm": [
+        0.0,
+        139.984,
+        74.991
+      ],
+      "restoredDeltaCm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "aimFovDeltaDegrees": 0.0,
+      "restoredFovDeltaDegrees": 0.0,
+      "report": "E:/CodexWork/MessControl/Validation/RocketShoulder_20261106/Runs/HookShoulder_20261106T104800Z/Report.json"
+    },
+    {
+      "case": "Grenade",
+      "gif": "E:/CodexWork/MessControl/Validation/RocketShoulder_20261106/Runs/GrenadeShoulder_20261106T104619Z/Grenade_Aim_Review.gif",
+      "gifSHA256": "27b68d2839d236a580876fb8cee886e3e0414c0e4623a9867bb60ccbc62f3717",
+      "frames": 83,
+      "size": [
+        960,
+        540
+      ],
+      "checksPassed": 11,
+      "aimDeltaCm": [
+        0.0,
+        140.0,
+        75.0
+      ],
+      "restoredDeltaCm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "aimFovDeltaDegrees": 0.0,
+      "restoredFovDeltaDegrees": 0.0,
+      "report": "E:/CodexWork/MessControl/Validation/RocketShoulder_20261106/Runs/GrenadeShoulder_20261106T104619Z/Report.json"
+    }
+  ],
+  "visualReview": "User approved the three shoulder-camera GIFs on 2026-11-06.",
+  "recipe": {
+    "base": "Tools/Unreal/check_active_skills_solo.py",
+    "setup": "Open L_Mouth in standalone solo PIE with a transient review profile, wait for presentation readiness and grant the canonical skill in slot 1.",
+    "rocketAndHook": "Tap 1. Try RMB before aiming and check that the slot and action are unchanged. Hold LMB, tap RMB after the camera settles, then release LMB. Put a native ally on the aimed camera ray for Hook.",
+    "grenade": "Hold 1 until the camera settles and the fuse and arc are visible. Release 1 before the fuse expires. Confirm one throw, one charge used and one detonation.",
+    "camera": "Compare actual camera eye positions relative to the pawn in baseline yaw axes before, during and after aim. Expect +140 cm right and +75 cm up in manual orbit, constant FOV and return to baseline."
+  }
+}

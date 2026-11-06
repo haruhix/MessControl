@@ -11,7 +11,7 @@ bool UMCActiveSkillPerkEffect::CanActivate_Implementation(FName,const FMCPerkDef
 {return ActionClass && !ActionClass->HasAnyClassFlags(CLASS_Abstract);}
 
 AMCActiveSkillAction* UMCActiveSkillPerkEffect::PrepareAction(FName ID,const FMCPerkDefinition& Row,
-    const FMCActiveSkillInputHandle& Handle) const
+    const FMCActiveSkillInputHandle& Handle,const FMCActiveSkillInputView* InputView) const
 {
     const auto* State=OwnerComponent?Cast<AMCPlayerState>(OwnerComponent->GetOwner()):nullptr;
     auto* H=State?Cast<AMCToothCharacter>(State->GetPawn()):nullptr;
@@ -21,6 +21,7 @@ AMCActiveSkillAction* UMCActiveSkillPerkEffect::PrepareAction(FName ID,const FMC
         ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
     if(!Action) return nullptr;
     Action->InitializeAction(OwnerComponent,H,ID,Handle,Row.Parameters);
+    if(InputView) Action->CommittedInputView=*InputView;
     FString VFXError;
     UMCPerkVFXProfile* Profile=Row.VFXProfile.IsNull()?nullptr:Row.VFXProfile.LoadSynchronous();
     if((!Row.VFXProfile.IsNull() && !Profile) || !Action->PrepareVFXProfile(Profile,VFXError)) {

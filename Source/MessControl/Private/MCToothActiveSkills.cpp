@@ -7,6 +7,8 @@
 #include "MCGripComponent.h"
 #include "MCToothMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "GameFramework/PlayerController.h"
+#include "InputCoreTypes.h"
 
 AMCActiveSkillAction* AMCToothCharacter::GetActiveSkillPresentation() const
 {
@@ -29,6 +31,18 @@ void AMCToothCharacter::SuspendOrdinaryWorkForSkill()
     if(HasAuthority() && FoodCollection) FoodCollection->Stop();
     if(Grip) {Grip->ReleaseBrace();Grip->ReleasePlayer();}
     ResetContact();
+}
+void AMCToothCharacter::SuspendToolInputForSkillAim()
+{
+    const auto* PC=Cast<APlayerController>(GetController());
+    const bool bPrimaryDown=PC && (PC->IsInputKeyDown(EKeys::LeftMouseButton)
+        || PC->IsInputKeyDown(EKeys::Gamepad_RightShoulder) || PC->IsInputKeyDown(EKeys::Gamepad_RightTrigger));
+    if(bPrimaryDown || bPrimaryHeld || bSharedPrimaryInputHeld || bRowingInputHeld || bRowing) {
+        bSharedPrimaryInputHeld=false;
+        StopPrimary();
+    }
+    if(Grip && (Grip->IsBraceInputHeld() || (PC && (PC->IsInputKeyDown(EKeys::RightMouseButton)
+        || PC->IsInputKeyDown(EKeys::Gamepad_LeftShoulder))))) StopBrace();
 }
 bool AMCToothCharacter::ActiveSkillHandTarget(bool bLeft,FTransform& WorldPose) const
 {

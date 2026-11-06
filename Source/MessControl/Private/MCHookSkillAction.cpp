@@ -1,4 +1,5 @@
 #include "MCHookSkillAction.h"
+#include "MCActiveSkillAimPreview.h"
 #include "MCBossCharacter.h"
 #include "MCNutBoss.h"
 #include "MCToothCharacter.h"
@@ -33,6 +34,22 @@ FTransform Mix(const FTransform& A,const FTransform& B,float Alpha)
 const FVector HookShaft(-.065153115,.582679950,.810085889);
 const FVector HookPlaneNormal(.736729221,-.519489879,.432851384);
 const FVector HookTetherTail(1.6512997,1.4646528,-9.8951995);
+const FVector HookWindupOffset(-10,8,2);
+
+FVector HookGrip(FVector HeldOffset)
+{
+    // Old row defaults were an approximate mount above the measured artist wrist.
+    return FVector(-1.464954,53.611076,-15.103604)+(HeldOffset-FVector(45,35,25));
+}
+
+float EffectiveHookRange(float Range) {return FMath::Clamp(Range,150.f,3000.f);}
+
+float HookPreviewParameter(const TMap<FName,float>& Values,FName Key,float Fallback)
+{
+    const float* Value=Values.Find(Key);
+    return Value && FMath::IsFinite(*Value) ? *Value : Fallback;
+}
+
 FTransform ArtistHookWrist()
 {
     // Runtime FBX wrist axes independently checked against native UE ref pose.
@@ -55,25 +72,107 @@ AMCHookSkillAction::AMCHookSkillAction()
 }
 UMCHookSkillEffect::UMCHookSkillEffect() {ActionClass=AMCHookSkillAction::StaticClass();}
 
-bool AMCHookSkillAction::TraceFlight(FVector From,FVector To,FHitResult& Hit) const
+namespace
 {
-    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCActiveHookFlight),false,Hero());Query.AddIgnoredActor(this);
-    bool Found=GetWorld()->LineTraceSingleByChannel(Hit,From,To,ECC_Visibility,Query);
+bool TraceHookFlight(const AMCToothCharacter& Caster,const AActor* Action,FVector From,FVector To,FHitResult& Hit)
+{
+    const UWorld* World=Caster.GetWorld();
+    if(!World) return false;
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCActiveHookFlight),false,&Caster);
+    if(Action) Query.AddIgnoredActor(Action);
+    bool Found=World->LineTraceSingleByChannel(Hit,From,To,ECC_Visibility,Query);
     double Nearest=Found?Hit.Distance:FVector::Distance(From,To)+1.;
     // Actual component traces include Visibility-ignoring pawns and boss torsos,
     // clipped by the nearest world blocker. Nothing is hooked through a wall.
     auto Consider=[&](AActor* Actor,UPrimitiveComponent* Shape) {
-        if(Actor==Hero() || !Shape || !Shape->IsQueryCollisionEnabled()) return;
+        if(Actor==&Caster || !Shape || !Shape->IsQueryCollisionEnabled()) return;
         FHitResult ShapeHit;
         if(Shape->LineTraceComponent(ShapeHit,From,To,Query) && ShapeHit.Distance<=Nearest+.1) {
             Hit=ShapeHit;Nearest=ShapeHit.Distance;Found=true;
         }
     };
-    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
+    for(TActorIterator<AMCToothCharacter> It(World);It;++It)
         Consider(*It,It->GetCapsuleComponent()->IsQueryCollisionEnabled()?static_cast<UPrimitiveComponent*>(It->GetCapsuleComponent()):static_cast<UPrimitiveComponent*>(It->GetMesh()));
-    for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) Consider(*It,It->BodyHitbox);
-    for(TActorIterator<AMCNutBoss> It(GetWorld());It;++It) Consider(*It,It->Body);
+    for(TActorIterator<AMCBossCharacter> It(World);It;++It) Consider(*It,It->BodyHitbox);
+    for(TActorIterator<AMCNutBoss> It(World);It;++It) Consider(*It,It->Body);
     return Found;
+}
+
+FVector HookAimPoint(const AMCToothCharacter& Caster,const AActor* Action,FVector View,FVector Look,float Range)
+{
+    const FVector End=View+Look*Range;
+    FHitResult Hit;
+    return TraceHookFlight(Caster,Action,View,End,Hit) ? FVector(Hit.ImpactPoint) : End;
+}
+
+FVector HookLaunchDirection(const AMCToothCharacter& Caster,FVector Target,FVector Origin)
+{
+    const FVector Direction=(Target-Origin).GetSafeNormal();
+    return Direction.IsNearlyZero() ? Caster.GetActorForwardVector() : Direction;
+}
+
+bool ReadHookPull(const AMCToothCharacter& Caster,const AActor* Action,const FHitResult& Hit,float PullSpeed,
+    bool bPreview,bool& bPullCaster,FVector& Goal,FVector& Velocity)
+{
+    const AActor* Target=Hit.GetActor();
+    if(!IsValid(Target) || Target==&Caster || Target->GetWorld()!=Caster.GetWorld() || Target->ActorHasTag(TEXT("MC_VFXLabRuntime"))) return false;
+    const AMCToothCharacter* Moved=nullptr;
+    bool bRemoteAllyPreview=false;
+    if(const auto* Ally=Cast<AMCToothCharacter>(Target)) {
+        const auto* Move=Ally->GetCharacterMovement();
+        if(!Move || Move->MovementMode==MOVE_Flying || IsValid(Ally->GetActiveSkillPresentation())) return false;
+        // Other players' controllers and floor state are not present on this client.
+        bRemoteAllyPreview=bPreview && !Caster.HasAuthority() && !Ally->GetController();
+        if(bRemoteAllyPreview) {
+            if(!Ally->CanWork() || Ally->HasFrozenLegs() || Move->MovementMode==MOVE_None) return false;
+        } else if(!MCActiveSkillMotion::IsEligible(Ally,false)) return false;
+        Moved=Ally;
+    } else if(LiveBoss(Target)) Moved=&Caster;
+    if(!MCActiveSkillMotion::CanAcquire(Moved)) return false;
+
+    bPullCaster=Moved==&Caster;
+    Goal=bPullCaster ? FVector(Hit.ImpactPoint) : Caster.GetActorLocation();
+    Velocity=(Goal-Moved->GetActorLocation()).GetSafeNormal()*FMath::Clamp(PullSpeed,100.f,1800.f);
+    return bRemoteAllyPreview || MCActiveSkillMotion::ClearPullStep(Moved,Action,bPullCaster ? Target : &Caster,Velocity,.033f);
+}
+}
+
+bool AMCHookSkillAction::TraceFlight(FVector From,FVector To,FHitResult& Hit) const
+{
+    const auto* Caster=Hero();
+    return Caster && TraceHookFlight(*Caster,this,From,To,Hit);
+}
+
+bool AMCHookSkillAction::BuildAimPreview(const AMCToothCharacter& Caster,const TMap<FName,float>& PreviewParameters,FMCActiveSkillAimPreview& Out) const
+{
+    Out=FMCActiveSkillAimPreview();
+    FVector View,Look;
+    if(!Caster.GetWorld() || !ReadAim(Caster,View,Look)) return false;
+
+    const AActor* Action=IsTemplate() ? nullptr : this;
+    const float Range=EffectiveHookRange(HookPreviewParameter(PreviewParameters,TEXT("HookRange"),1400.f));
+    const FVector Target=HookAimPoint(Caster,Action,View,Look,Range);
+    const FVector HeldOffset(HookPreviewParameter(PreviewParameters,TEXT("HeldX"),45.f),
+        HookPreviewParameter(PreviewParameters,TEXT("HeldY"),35.f),HookPreviewParameter(PreviewParameters,TEXT("HeldZ"),25.f));
+    // Match the release wrist at the end of windup, assuming the current caster pose.
+    const FTransform CasterPose(Caster.GetActorRotation(),Caster.GetActorLocation());
+    const FVector Origin=CasterPose.TransformPosition(HookGrip(HeldOffset)+HookWindupOffset);
+    const FVector End=Origin+HookLaunchDirection(Caster,Target,Origin)*Range;
+    FHitResult Hit;
+    const bool bContact=TraceHookFlight(Caster,Action,Origin,End,Hit);
+    Out.Path={Origin,bContact ? FVector(Hit.ImpactPoint) : End};
+    if(bContact) {
+        Out.bHasContact=true;
+        Out.ContactPoint=Hit.ImpactPoint;
+        Out.ContactNormal=Hit.ImpactNormal;
+        bool bPullCaster=false;
+        FVector Goal,Velocity;
+        const float PullSpeed=HookPreviewParameter(PreviewParameters,TEXT("PullSpeed"),850.f);
+        if(ReadHookPull(Caster,Action,Hit,PullSpeed,true,bPullCaster,Goal,Velocity))
+            Out.State=bPullCaster ? EMCActiveSkillAimState::Boss : EMCActiveSkillAimState::Ally;
+        else Out.State=EMCActiveSkillAimState::Blocked;
+    }
+    return true;
 }
 bool AMCHookSkillAction::CanStart() const
 {
@@ -90,15 +189,11 @@ FTransform AMCHookSkillAction::HandLocal(bool Left) const
     const FTransform& Rest=Left?RestLeftHand:RestRightHand;
     const float A=GetPhaseAlpha();
     FTransform Goal=Rest;
-    // Old row defaults (45,35,25) were an approximate mount ~60cm above the
-    // actual artist wrist during anticipation. Preserve authored tuning deltas
-    // around the measured, body-calibrated wrist instead of those guesses.
-    const FVector Grip=FVector(-1.464954,53.611076,-15.103604)
-        +FVector(Param(TEXT("HeldX"),45)-45,Param(TEXT("HeldY"),35)-35,Param(TEXT("HeldZ"),25)-25);
+    const FVector Grip=HookGrip(FVector(Param(TEXT("HeldX"),45),Param(TEXT("HeldY"),35),Param(TEXT("HeldZ"),25)));
     const FQuat GripRotation=Left?Rest.GetRotation():ArtistHookWrist().GetRotation();
     if(CastPhase==EMCHookCastPhase::Inactive) return Rest;
     if(CastPhase==EMCHookCastPhase::Windup) {
-        Goal=FTransform(FRotator(-8,Left?5:-15,Left?-5:-12),Left?FVector(5,-57,-17):Grip+FVector(-10,8,2));
+        Goal=FTransform(FRotator(-8,Left?5:-15,Left?-5:-12),Left?FVector(5,-57,-17):Grip+HookWindupOffset);
         Goal.SetRotation((Goal.GetRotation()*GripRotation).GetNormalized());
         return Mix(From,Goal,A);
     }
@@ -164,18 +259,16 @@ void AMCHookSkillAction::StartCommitted()
     };
     RestRightHand=ReadHand(false);RestLeftHand=ReadHand(true);
     FVector Origin,Direction;GetAim(Origin,Direction);
-    const float Range=FMath::Clamp(Param(TEXT("HookRange"),1400.f),150.f,3000.f);
-    AimPoint=Origin+Direction*Range;
-    FHitResult AimHit;if(TraceFlight(Origin,AimPoint,AimHit)) AimPoint=AimHit.ImpactPoint;
+    const float Range=EffectiveHookRange(Param(TEXT("HookRange"),1400.f));
+    AimPoint=HookAimPoint(*Hero(),this,Origin,Direction,Range);
     SetCastPhase(EMCHookCastPhase::Windup,FMath::Clamp(Param(TEXT("WindupSeconds"),.16f),.08f,.4f));
     UpdatePresentation();
 }
 void AMCHookSkillAction::Launch()
 {
-    FlightOrigin=GetTetherStart();FlightDirection=(AimPoint-FlightOrigin).GetSafeNormal();
-    if(FlightDirection.IsNearlyZero()) FlightDirection=Hero()->GetActorForwardVector();
+    FlightOrigin=GetTetherStart();FlightDirection=HookLaunchDirection(*Hero(),AimPoint,FlightOrigin);
     ReleasedAt=Now();ImpactPoint=FlightOrigin;
-    const float Range=FMath::Clamp(Param(TEXT("HookRange"),1400.f),150.f,3000.f);
+    const float Range=EffectiveHookRange(Param(TEXT("HookRange"),1400.f));
     const float Speed=FMath::Clamp(Param(TEXT("FlightSpeed"),2200.f),600.f,5000.f);
     SetCastPhase(EMCHookCastPhase::Outbound,Range/Speed);
     SetActorLocationAndRotation(FlightOrigin,FlightDirection.Rotation());
@@ -185,7 +278,7 @@ FVector AMCHookSkillAction::GetTetherStart() const { return GetCasterHandFrame()
 FVector AMCHookSkillAction::GetHookHeadLocation() const
 {
     if(CastPhase==EMCHookCastPhase::Outbound) {
-        const double Distance=FMath::Clamp(double(Now()-ReleasedAt)*FMath::Clamp(Param(TEXT("FlightSpeed"),2200.f),600.f,5000.f),0.,double(FMath::Clamp(Param(TEXT("HookRange"),1400.f),150.f,3000.f)));
+        const double Distance=FMath::Clamp(double(Now()-ReleasedAt)*FMath::Clamp(Param(TEXT("FlightSpeed"),2200.f),600.f,5000.f),0.,double(EffectiveHookRange(Param(TEXT("HookRange"),1400.f))));
         return FlightOrigin+FlightDirection*Distance;
     }
     if(CastPhase==EMCHookCastPhase::Pulling && IsValid(HookTarget)) return HookTarget->GetActorTransform().TransformPosition(TargetLocalContact);
@@ -201,20 +294,16 @@ FVector AMCHookSkillAction::GetHookCurlWorldDirection() const
 { return PropMesh?PropMesh->GetComponentTransform().TransformVectorNoScale(FVector::CrossProduct(HookShaft,HookPlaneNormal)).GetSafeNormal():FVector::UpVector; }
 bool AMCHookSkillAction::BeginContact(const FHitResult& Hit)
 {
-    AActor* Target=Hit.GetActor();AMCToothCharacter* Moved=nullptr;
-    if(!IsValid(Target) || Target==Hero() || Target->GetWorld()!=GetWorld() || Target->ActorHasTag(TEXT("MC_VFXLabRuntime"))) return false;
-    if(auto* Ally=Cast<AMCToothCharacter>(Target)) {
-        if(!MCActiveSkillMotion::IsEligible(Ally,false) || Ally->GetCharacterMovement()->MovementMode==MOVE_Flying || IsValid(Ally->GetActiveSkillPresentation())) return false;
-        Moved=Ally;
-    } else if(LiveBoss(Target)) Moved=Hero();else return false;
-    if(!MCActiveSkillMotion::CanAcquire(Moved)) return false;
-    const FVector Goal=Moved==Hero()?FVector(Hit.ImpactPoint):Hero()->GetActorLocation();
+    auto* Caster=Hero();
+    bool bPullCaster=false;
+    FVector Goal,Velocity;
+    if(!Caster || !ReadHookPull(*Caster,this,Hit,Param(TEXT("PullSpeed"),850.f),false,bPullCaster,Goal,Velocity)) return false;
+    AActor* Target=Hit.GetActor();
+    auto* Moved=bPullCaster ? Caster : Cast<AMCToothCharacter>(Target);
     const float Seconds=FMath::Clamp(Param(TEXT("PullSeconds"),2.5f),.1f,8.f);
-    const FVector Velocity=(Goal-Moved->GetActorLocation()).GetSafeNormal()*FMath::Clamp(Param(TEXT("PullSpeed"),850.f),100.f,1800.f);
     const auto* Move=Moved->GetCharacterMovement();
     const bool Grounded=Move->IsMovingOnGround() && FMath::Abs(Goal.Z-Moved->GetActorLocation().Z)<=Move->MaxStepHeight;
-    if(!MCActiveSkillMotion::ClearPullStep(Moved,this,Moved==Hero()?Target:Hero(),Velocity,.033f)
-        || !Motion.Begin(Moved,GetActionID(),Velocity,!Grounded,Seconds)) return false;
+    if(!Motion.Begin(Moved,GetActionID(),Velocity,!Grounded,Seconds)) return false;
     HookTarget=Target;PulledPawn=Moved;TargetLocalContact=Target->GetActorTransform().InverseTransformPosition(Hit.ImpactPoint);
     bContactedTarget=true;ImpactPoint=Hit.ImpactPoint;PreviousMovedPosition=Moved->GetActorLocation();LastSampleAt=Now();EndsAt=Now()+Seconds;
     SetCastPhase(EMCHookCastPhase::Pulling,Seconds);

@@ -547,11 +547,26 @@ void AMCActiveSkillAction::Tick(float Dt)
         Finish(EMCActiveSkillEndReason::TimedOut);
     }
 }
+bool FMCActiveSkillInputView::IsValidFor(const AMCToothCharacter& Caster) const
+{
+    return !Origin.ContainsNaN() && !Direction.ContainsNaN() && FMath::IsNearlyEqual(Direction.SizeSquared(),1.,.01)
+        && FVector::DistSquared(Origin,Caster.GetActorLocation())<=FMath::Square(3000.);
+}
+
 bool AMCActiveSkillAction::GetAim(FVector& Origin,FVector& Direction) const
 {
-    const auto* H=Hero();if(!H) return false;
-    const auto* PC=Cast<APlayerController>(H->GetController());
-    FRotator Rotation=H->GetActorRotation();Origin=H->GetPawnViewLocation();
+    if(CommittedInputView) {
+        Origin=CommittedInputView->Origin;
+        Direction=CommittedInputView->Direction.GetSafeNormal();
+        return true;
+    }
+    const auto* Caster=Hero();
+    return Caster && ReadAim(*Caster,Origin,Direction);
+}
+bool AMCActiveSkillAction::ReadAim(const AMCToothCharacter& Caster,FVector& Origin,FVector& Direction)
+{
+    const auto* PC=Cast<APlayerController>(Caster.GetController());
+    FRotator Rotation=Caster.GetActorRotation();Origin=Caster.GetPawnViewLocation();
     if(PC) {
         Rotation=PC->GetControlRotation();
         if(PC->IsLocalController()) PC->GetPlayerViewPoint(Origin,Rotation);

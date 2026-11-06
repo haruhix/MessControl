@@ -6,6 +6,8 @@
 #include "MCActiveSkillMotion.h"
 #include "MCHookSkillAction.generated.h"
 
+struct FMCActiveSkillAimPreview;
+
 UENUM(BlueprintType)
 enum class EMCHookCastPhase : uint8 { Inactive, Windup, Outbound, Pulling, Returning, Recovery };
 
@@ -20,6 +22,7 @@ public:
     virtual void StartCommitted() override;
     virtual void Tick(float DeltaSeconds) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+    bool BuildAimPreview(const AMCToothCharacter& Caster,const TMap<FName,float>& PreviewParameters,FMCActiveSkillAimPreview& Out) const;
     UFUNCTION(BlueprintPure,Category="Skill|Hook") FVector GetTetherStart() const;
     UFUNCTION(BlueprintPure,Category="Skill|Hook") FVector GetTetherEnd() const;
     /** Rendered cable attachment at the measured tail; gameplay contact stays GetTetherEnd. */

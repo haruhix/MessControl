@@ -204,7 +204,11 @@ bool UMCUnifiedReticleWidget::PresentGeometry(const FMCUIReticlePresentation& Sn
     for(int32 Index=0;Index<LabelViews.Num();++Index) {
         auto* Label=LabelViews[Index].Get();if(!Snapshot.Labels.IsValidIndex(Index)) {Label->SetVisibility(ESlateVisibility::Collapsed);continue;}
         const auto& Data=Snapshot.Labels[Index];const auto& Pose=LabelPoses[Index];auto* Cell=Cast<UCanvasPanelSlot>(Label->Slot);if(!Cell) return false;
-        Label->SetFont(Data.Font);Label->SetText(Data.Text);Label->SetColorAndOpacity(Data.Color);Label->SetWrapTextAt(Pose.Width);
+        Label->SetFont(Data.Font);Label->SetText(Data.Text);Label->SetColorAndOpacity(Data.Color);
+        // Live reticle captions are single lines. Auto-wrap on an auto-sized
+        // canvas slot can reuse a shorter caption's width after a state change.
+        Label->SetAutoWrapText(false);
+        Label->SetWrapTextAt(Designer?Pose.Width:0.f);
         Cell->SetPosition(Pose.Position);Cell->SetAutoSize(true);Cell->SetZOrder(Data.Layer);Label->SetVisibility(ESlateVisibility::HitTestInvisible);
     }
     WidgetTree->RootWidget->SetVisibility(ESlateVisibility::HitTestInvisible);return true;

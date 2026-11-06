@@ -1,0 +1,65 @@
+{
+  "task": "Active skill aiming and real gameplay GIFs",
+  "status": "editor_build_and_solo_checks_passed_visual_review_requested",
+  "evidenceRoot": "E:/CodexWork/MessControl/Validation/ActiveAim_20261106",
+  "input": "Slot selects Rocket or Hook. Hold primary to aim and use a fresh brace press to fire. Server checks the held aim session, pawn and slot instance.",
+  "prediction": "Local HUD uses shared projectile/contact rules for the grenade arc, rocket collision and blast radius, and hook target. Current and New share the reticle presentation. Runtime short labels stay on one line.",
+  "editorBuild": {
+    "result": "Succeeded",
+    "seconds": 20.2,
+    "log": "E:/CodexWork/MessControl/Validation/ActiveAim_20261106/EditorBuildDriver03.log"
+  },
+  "captureMethod": "Actual solo L_Mouth PIE SWindow with owned transient profile, real Enhanced Input action injection and controlled native targets. Cropped window chrome for GIF review.",
+  "captures": [
+    {
+      "case": "Grenade",
+      "gif": "E:/CodexWork/MessControl/Validation/ActiveAim_20261106/Runs/Grenade_20261106T100935Z/Grenade_Aim_Review.gif",
+      "size": [
+        960,
+        540
+      ],
+      "frames": 74,
+      "durationSeconds": 4.4999997317790985,
+      "checksPassed": 18,
+      "gifSHA256": "56ce744dbf0ac560409914c7bd783826d2613bad3af7ac9b2fd128658a293900",
+      "report": "E:/CodexWork/MessControl/Validation/ActiveAim_20261106/Runs/Grenade_20261106T100935Z/Report.json"
+    },
+    {
+      "case": "RocketBlocked",
+      "gif": "E:/CodexWork/MessControl/Validation/ActiveAim_20261106/Runs/RocketBlocked_20261106T101019Z/Rocket_Blocked_Aim_Review.gif",
+      "size": [
+        960,
+        540
+      ],
+      "frames": 79,
+      "durationSeconds": 4.849999710917473,
+      "checksPassed": 22,
+      "gifSHA256": "d423afaded7ef0866011e5e486a734ecdf1cf7b3534f83a7e6286cc5fe22df2c",
+      "report": "E:/CodexWork/MessControl/Validation/ActiveAim_20261106/Runs/RocketBlocked_20261106T101019Z/Report.json"
+    },
+    {
+      "case": "Hook",
+      "gif": "E:/CodexWork/MessControl/Validation/ActiveAim_20261106/Runs/Hook_20261106T100900Z/Hook_Aim_Review.gif",
+      "size": [
+        960,
+        540
+      ],
+      "frames": 69,
+      "durationSeconds": 4.24999974668026,
+      "checksPassed": 32,
+      "gifSHA256": "c33ad35819978d7b829aa161ad45332ef8f6de5e058a519b5e14dba63c5c3aae",
+      "report": "E:/CodexWork/MessControl/Validation/ActiveAim_20261106/Runs/Hook_20261106T100900Z/Report.json"
+    }
+  ],
+  "behaviorObserved": [
+    "Grenade throws on slot release and detonates once.",
+    "Rocket rejects RMB without aim and aimed RMB with a confirmed muzzle blocker. Clear aimed RMB fires and spends one charge.",
+    "Hook rejects RMB without aim, then reaches and pulls a native allied target after LMB and RMB."
+  ],
+  "readiness": "The real Arena prewarm barrier completed; 1811 resources and 539/539 streaming on final cold Editor run. Existing UI theme/font and ability resources used.",
+  "scope": [
+    "Visual review covers captured gameplay camera views.",
+    "Grenade overhold and Hook boss variant were not filmed in this batch.",
+    "Physical hardware, multiplayer and packaged behavior were outside the recorded checks. Air Blower is separate."
+  ]
+}

@@ -132,6 +132,7 @@ public:
     AMCActiveSkillAction* GetActiveSkillPresentation() const;
     void SetActiveSkillPresentation(AMCActiveSkillAction* Action);
     void SuspendOrdinaryWorkForSkill();
+    void SuspendToolInputForSkillAim();
     UFUNCTION(BlueprintPure,Category="Skill|Presentation") bool ActiveSkillHandTarget(bool bLeft,FTransform& WorldPose) const;
     /** Keep the existing load through perk UI; this never permits new gameplay actions. */
     bool ShouldPreserveFoodForPerkChoice() const;

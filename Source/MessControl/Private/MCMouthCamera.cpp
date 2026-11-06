@@ -8,6 +8,7 @@
 #include "MCRewardChest.h"
 #include "MCInventoryComponent.h"
 #include "MCOrbitSpringArmComponent.h"
+#include "MCPlayerController.h"
 #include "Camera/CameraComponent.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Components/BoxComponent.h"
@@ -110,11 +111,14 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
         if(!Aim.IsNearlyZero()) Camera->SetWorldRotation(Aim.Rotation());
         InitializeCameraOrbit();
     }
-    const bool Aiming=Inventory && Inventory->Selected==EMCToolSlot::Spray && CanWork() && !bInCoffee && Inventory->ShouldPresentTool();
+    const auto* OwnerView=Viewer==GetController()?Cast<AMCPlayerController>(Viewer):nullptr;
+    const bool bSkillAim=OwnerView && OwnerView->ShouldUseSkillShoulderCamera();
+    const bool bSprayAim=Inventory && Inventory->Selected==EMCToolSlot::Spray && CanWork() && !bInCoffee
+        && Inventory->ShouldPresentTool() && (!OwnerView || !OwnerView->IsAimedSkillSelected());
     // Blend the tool's local shoulder/lift separately from follow/input lag.
     // Retarget from the current amount when scrolling rapidly. Keeping this
     // history view-local lets a mouse turn change the basis immediately.
-    const FVector Shoulder=Aiming?FVector(0,140,75):FVector::ZeroVector;
+    const FVector Shoulder=bSkillAim || bSprayAim?FVector(0,140,75):FVector::ZeroVector;
     SprayCameraOffset=FMath::Lerp(SprayCameraOffset,Shoulder,1.f-FMath::Exp(-12.f*FMath::Max(0.f,Dt)));
     if(SprayCameraOffset.Equals(Shoulder,.01f)) SprayCameraOffset=Shoulder;
     const FVector P=GetActorLocation();

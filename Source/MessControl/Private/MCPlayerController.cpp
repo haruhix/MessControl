@@ -10,6 +10,7 @@
 #include "MCWorldPresentationComponent.h"
 #include "MCVFXPresentationComponent.h"
 #include "MCToothCharacter.h"
+#include "MCGrenadeSkillAction.h"
 #include "MCInventoryComponent.h"
 #include "MCPerkComponent.h"
 #include "MCToothPhysicsComponent.h"
@@ -207,6 +208,8 @@ void AMCPlayerController::FlushPressedKeys()
     if(!IsHubWorld() && CanPresentUnifiedTeam() && ScoreboardOwnsInputFocus(this,ScoreboardWidget)
         && (IsInputKeyDown(EKeys::Tab) || IsInputKeyDown(EKeys::Gamepad_Special_Left))) return;
     Super::FlushPressedKeys();
+    bSkillAimGestureConsumed=false;
+    bSkillFireGestureConsumed=false;
 }
 void AMCPlayerController::ShowScoreboard()
 {
@@ -270,6 +273,7 @@ void AMCPlayerController::PrepareHubPartyPresentation()
 }
 void AMCPlayerController::Tick(float DeltaSeconds)
 {
+    RefreshSkillAimState();
     MaintainEmoteSelection();
     // Drive the cosmetic mouth stage before its skeletal components update.
     if(HasLocalPresentationOwner()) {EnsureLocalPresentation();PrepareHubPartyPresentation();PrepareWardrobePreview();RefreshLoadingPresentation();RefreshHubPresentation(DeltaSeconds);}
@@ -386,6 +390,9 @@ void AMCPlayerController::PostSeamlessTravel()
 }
 void AMCPlayerController::ResetWorldPresentation()
 {
+    CancelSkillInputs();
+    bSkillAimGestureConsumed=false;
+    bSkillFireGestureConsumed=false;
     {
         TGuardValue<bool> Resetting(bResettingWorldPresentation,true);
         if(const auto* Sources=FindComponentByClass<UMCWorldPresentationComponent>())
@@ -1098,10 +1105,13 @@ void AMCPlayerController::BeginSkillInput(int32 SlotIndex)
 #endif
         return;
     }
-    FMCActiveSkillInputHandle Handle;Handle.SlotIndex=SlotIndex;
-    Handle.SlotInstanceID=State->Perks->ActiveSkillSlots[SlotIndex].InstanceID;
-    if(++NextSkillPressSequence==0) ++NextSkillPressSequence;
-    Handle.PressSequence=NextSkillPressSequence;
+    const auto& SkillSlot=State->Perks->ActiveSkillSlots[SlotIndex];
+    if(RequiresSkillAim(SkillSlot.PerkID)) {
+        SelectAimedSkill(SlotIndex,SkillSlot.InstanceID);
+        return;
+    }
+    ClearAimedSkillSelection();
+    const auto Handle=MakeSkillInputHandle(SlotIndex,SkillSlot.InstanceID);
     if(!Handle.IsValid()) {
 #if WITH_EDITOR
         if(FParse::Param(FCommandLine::Get(),TEXT("MCActiveSkillReview")))
@@ -1110,34 +1120,67 @@ void AMCPlayerController::BeginSkillInput(int32 SlotIndex)
 #endif
         return;
     }
-    HeldSkillInputs.Add(SlotIndex,Handle);ServerBeginSkillInput(Handle);
+    HeldSkillInputs.Add(SlotIndex,Handle);
+    ServerBeginSkillInput(Handle,FVector::ZeroVector,FVector::ZeroVector);
 }
 void AMCPlayerController::EndSkillInput(int32 SlotIndex,bool bCanceled)
 {
     const auto* Saved=HeldSkillInputs.Find(SlotIndex);if(!Saved) return;
     const auto Handle=*Saved;HeldSkillInputs.Remove(SlotIndex);
     // Deliberately no current-slot/menu/CanWork gate: the accepted action owns this release.
-    ServerEndSkillInput(Handle,bCanceled);
+    FVector View=FVector::ZeroVector,Direction=FVector::ZeroVector;
+    if(!bCanceled && GetPawn() && GetViewTarget()==GetPawn()) {
+        FRotator Rotation;
+        GetPlayerViewPoint(View,Rotation);
+        Direction=Rotation.Vector();
+    }
+    ServerEndSkillInput(Handle,bCanceled,View,Direction);
 }
 void AMCPlayerController::CancelSkillInputs()
 {
+    ClearAimedSkillSelection();
+    if(HasAuthority()) {
+        ServerSkillAim={};
+        ServerSkillAimPawn.Reset();
+    }
     const auto Inputs=HeldSkillInputs;
     HeldSkillInputs.Reset();
-    for(const auto& Pair:Inputs) ServerEndSkillInput(Pair.Value,true);
+    for(const auto& Pair:Inputs) ServerEndSkillInput(Pair.Value,true,FVector::ZeroVector,FVector::ZeroVector);
 }
-void AMCPlayerController::ServerBeginSkillInput_Implementation(FMCActiveSkillInputHandle Handle)
+void AMCPlayerController::ServerBeginSkillInput_Implementation(FMCActiveSkillInputHandle Handle,FVector_NetQuantize ViewOrigin,FVector_NetQuantizeNormal ViewDirection)
 {
     if(!Handle.IsValid() || int32(Handle.PressSequence-LastServerSkillPressSequence)<=0) return;
     LastServerSkillPressSequence=Handle.PressSequence;
     auto* State=GetPlayerState<AMCPlayerState>();auto* Hero=Cast<AMCToothCharacter>(GetPawn());
     if(!State || !State->Perks || !Hero || State->GetPawn()!=Hero || Hero->GetPlayerState<AMCPlayerState>()!=State) return;
+    if(!State->Perks->ActiveSkillSlots.IsValidIndex(Handle.SlotIndex)) return;
+    if(RequiresSkillAim(State->Perks->ActiveSkillSlots[Handle.SlotIndex].PerkID)) {
+        if(!ServerSkillAim.IsValid() || ServerSkillAimPawn.Get()!=Hero || ServerSkillAim.SlotIndex!=Handle.SlotIndex
+            || ServerSkillAim.SlotInstanceID!=Handle.SlotInstanceID || !IsAimSlotUsable(Handle.SlotIndex,Handle.SlotInstanceID)) return;
+        const FMCActiveSkillInputView View{ViewOrigin,ViewDirection};
+        if(View.IsValidFor(*Hero) && State->Perks->BeginSkillSlot(Handle,&View)) State->Perks->ReleaseSkillInput(Handle);
+        return;
+    }
+    ServerSkillAim={};
+    ServerSkillAimPawn.Reset();
     State->Perks->BeginSkillSlot(Handle);
 }
-void AMCPlayerController::ServerEndSkillInput_Implementation(FMCActiveSkillInputHandle Handle,bool bCanceled)
+void AMCPlayerController::ServerEndSkillInput_Implementation(FMCActiveSkillInputHandle Handle,bool bCanceled,FVector_NetQuantize ViewOrigin,FVector_NetQuantizeNormal ViewDirection)
 {
     auto* State=GetPlayerState<AMCPlayerState>();
     if(!State || !State->Perks || !Handle.IsValid()) return;
-    if(bCanceled) State->Perks->CancelSkillInput(Handle);else State->Perks->ReleaseSkillInput(Handle);
+    if(bCanceled) {
+        State->Perks->CancelSkillInput(Handle);
+        return;
+    }
+    if(const auto* Grenade=Cast<AMCGrenadeSkillAction>(State->Perks->FindRunningAction(Handle))) {
+        const auto* Hero=Grenade->Hero();
+        const FMCActiveSkillInputView View{ViewOrigin,ViewDirection};
+        if(Hero && Hero==GetPawn() && View.IsValidFor(*Hero)) State->Perks->ReleaseSkillInput(Handle,&View);
+        else State->Perks->CancelSkillInput(Handle);
+        return;
+    }
+    State->Perks->ReleaseSkillInput(Handle);
 }
 void AMCPlayerController::ServerActivateSkillSlot_Implementation(int32 SlotIndex,FGuid ExpectedInstanceID)
 {
@@ -1145,6 +1188,8 @@ void AMCPlayerController::ServerActivateSkillSlot_Implementation(int32 SlotIndex
     const auto* Game=GetWorld()->GetGameState<AMCGameState>();
     if(!Hero || !Hero->CanWork() || !State || !State->Perks || !Game || Game->bLobbyWaiting || Game->bTutorialActive
         || UGameplayStatics::IsGamePaused(GetWorld()) || Game->Phase!=EMCShiftPhase::Working || !ExpectedInstanceID.IsValid()) return;
+    if(!State->Perks->ActiveSkillSlots.IsValidIndex(SlotIndex)
+        || RequiresSkillAim(State->Perks->ActiveSkillSlots[SlotIndex].PerkID)) return;
     State->Perks->ActivateSkillSlot(SlotIndex,ExpectedInstanceID);
 }
 

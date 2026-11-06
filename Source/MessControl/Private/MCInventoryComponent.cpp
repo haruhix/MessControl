@@ -116,6 +116,7 @@ bool UMCInventoryComponent::CanRequestSelection() const
 bool UMCInventoryComponent::RequestSelect(EMCToolSlot Slot)
 {
     if(uint8(Slot)>uint8(EMCToolSlot::Spray) || !CanRequestSelection()) return false;
+    if(auto* PC=Cast<AMCPlayerController>(Hero->GetController());PC && PC->IsAimedSkillSelected()) PC->CancelSkillInputs();
     if(Hero->HasAuthority()) {ServerSelect(Slot);return true;}
     const uint32 RequestId=SelectionPrediction.Request(Slot);
     if(Selected!=Slot) {

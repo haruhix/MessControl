@@ -13,6 +13,6 @@ class MESSCONTROL_API UMCActiveSkillPerkEffect : public UMCPerkEffect
 public:
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Skill") TSubclassOf<AMCActiveSkillAction> ActionClass;
     AMCActiveSkillAction* PrepareAction(FName PerkID,const FMCPerkDefinition& Definition,
-        const FMCActiveSkillInputHandle& Handle) const;
+        const FMCActiveSkillInputHandle& Handle,const FMCActiveSkillInputView* InputView=nullptr) const;
     virtual bool CanActivate_Implementation(FName PerkID,const FMCPerkDefinition& Definition) const override;
 };

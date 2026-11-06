@@ -1,4 +1,5 @@
 #include "MCGrenadeSkillAction.h"
+#include "MCActiveSkillAimPreview.h"
 #include "MCActiveSkillImpact.h"
 #include "MCPlayerState.h"
 #include "MCToothCharacter.h"
@@ -45,6 +46,88 @@ FVector AMCGrenadeSkillAction::HeldOffset() const
 }
 
 float AMCGrenadeSkillAction::FuseSeconds() const {return FMath::Clamp(Param(TEXT("FuseSeconds"),3.f),.4f,30.f);}
+float AMCGrenadeSkillAction::DropLeadSeconds() const
+{
+    return FMath::Clamp(Param(TEXT("OverholdDropLeadSeconds"),.15f),0.f,FuseSeconds()*.5f);
+}
+
+float AMCGrenadeSkillAction::ThrowRadius() const
+{
+    // The sphere's authored size is applied on the server at commit. Predict
+    // the same size on clients from the replicated action tuning.
+    return HasAuthority() ? Body->GetScaledSphereRadius()
+        : FMath::Clamp(Param(TEXT("CollisionRadius"),22.f),2.f,35.f)*Body->GetShapeScale();
+}
+
+bool AMCGrenadeSkillAction::ResolveThrow(FVector& Origin,FVector& Velocity,FHitResult* Block) const
+{
+    FVector Direction;
+    if(!MCActiveSkillImpact::ResolveLaunch(this,HeldOffset(),ThrowRadius(),Param(TEXT("AimRange"),6000.f),Origin,Direction,Block))
+        return false;
+    const float Speed=FMath::Clamp(Param(TEXT("ThrowSpeed"),1100.f),100.f,3500.f);
+    const float Lift=FMath::Clamp(Param(TEXT("ThrowLift"),120.f),0.f,600.f);
+    Velocity=(Direction*Speed+FVector(0,0,Lift)).GetClampedToMaxSize(4000.f);
+    return true;
+}
+
+bool AMCGrenadeSkillAction::BuildAimPreview(FMCActiveSkillAimPreview& Out) const
+{
+    Out={};
+    const auto* Caster=Hero();
+    if(Phase!=EMCGrenadeSkillPhase::Cooking || !IsCommitted() || IsFinished()
+        || !Caster || !Caster->CanWork() || !Caster->ToothPhysics || !Caster->ToothPhysics->CanAct()) return false;
+
+    const double Remaining=FuseEndsAt-Now();
+    if(Remaining<=0.) return false;
+    Out.FuseSeconds=float(Remaining);
+    const float Lead=DropLeadSeconds();
+    const float Warning=FMath::Clamp(Param(TEXT("WarningSeconds"),.65f),0.f,FuseSeconds());
+    Out.bFuseWarning=Remaining<=FMath::Max(Lead,Warning);
+    // Replication can leave the grenade in Cooking briefly after the server's
+    // forced release time. Keep the warning and retire the throw prediction.
+    if(Remaining<=Lead) return true;
+
+    FVector Origin,Velocity;
+    FHitResult Block;
+    if(!ResolveThrow(Origin,Velocity,&Block)) {
+        Out.State=EMCActiveSkillAimState::Blocked;
+        if(Block.bBlockingHit) {
+            Out.bHasContact=true;
+            Out.ContactPoint=Block.ImpactPoint;
+            Out.ContactNormal=Block.ImpactNormal;
+        }
+        return true;
+    }
+
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCGrenadeAimPreview),false,this);
+    FCollisionResponseParams Responses;
+    Body->InitSweepCollisionParams(Query,Responses);
+    Query.AddIgnoredActor(Caster);
+    const auto Sphere=FCollisionShape::MakeSphere(ThrowRadius());
+    const FVector Gravity(0,0,Movement->GetGravityZ());
+    const int32 Steps=FMath::Clamp(FMath::CeilToInt32(Remaining*30.),1,120);
+    const int32 DrawStride=FMath::DivideAndRoundUp(Steps,28);
+    Out.Path.Reserve(30);
+    Out.Path.Add(Origin);
+    FVector Previous=Origin;
+    for(int32 Step=1;Step<=Steps;++Step) {
+        const double Time=Remaining*Step/Steps;
+        const FVector Point=Origin+Velocity*Time+Gravity*(.5*Time*Time);
+        FHitResult Hit;
+        if(GetWorld()->SweepSingleByChannel(Hit,Previous,Point,FQuat::Identity,Body->GetCollisionObjectType(),Sphere,Query,Responses)) {
+            Out.Path.Add(Hit.Location);
+            Out.bHasContact=true;
+            Out.ContactPoint=Hit.ImpactPoint;
+            Out.ContactNormal=Hit.ImpactNormal;
+            Out.State=EMCActiveSkillAimState::Contact;
+            return true;
+        }
+        if(Step%DrawStride==0 || Step==Steps) Out.Path.Add(Point);
+        Previous=Point;
+    }
+    return true;
+}
+
 bool AMCGrenadeSkillAction::GetPresentationHandTarget(bool bLeft,FTransform& WorldPose) const
 {
     return Phase==EMCGrenadeSkillPhase::Cooking && Super::GetPresentationHandTarget(bLeft,WorldPose);
@@ -68,8 +151,7 @@ void AMCGrenadeSkillAction::StartCommitted()
     Super::StartCommitted();SetInstigator(Hero());
     Body->SetSphereRadius(FMath::Clamp(Param(TEXT("CollisionRadius"),22.f),2.f,35.f));
     ArmedAt=Now();FuseEndsAt=ArmedAt+FuseSeconds();
-    const float Lead=FMath::Clamp(Param(TEXT("OverholdDropLeadSeconds"),.15f),0.f,FuseSeconds()*.5f);
-    DropAt=FuseEndsAt-Lead;Phase=EMCGrenadeSkillPhase::Cooking;
+    DropAt=FuseEndsAt-DropLeadSeconds();Phase=EMCGrenadeSkillPhase::Cooking;
     FollowHand();OnRep_Phase();
     PlaySkillCue(TEXT("Start"),GetActorLocation(),GetActorForwardVector(),Body->GetScaledSphereRadius());
     StartLoop();ForceNetUpdate();
@@ -100,14 +182,12 @@ void AMCGrenadeSkillAction::ReleaseInput()
 {
     if(!HasAuthority() || !IsCommitted() || IsFinished() || Phase!=EMCGrenadeSkillPhase::Cooking) return;
     if(!Hero() || !Hero()->CanWork() || !Hero()->ToothPhysics || !Hero()->ToothPhysics->CanAct() || Now()>=DropAt) {Drop();return;}
-    FVector Origin,Direction;
-    if(!MCActiveSkillImpact::ResolveLaunch(this,HeldOffset(),Body->GetScaledSphereRadius(),Param(TEXT("AimRange"),6000.f),Origin,Direction)) {
+    FVector Origin,Velocity;
+    if(!ResolveThrow(Origin,Velocity)) {
         SetActorLocation(Origin,false,nullptr,ETeleportType::TeleportPhysics);Drop();return;
     }
     SetActorLocation(Origin,false,nullptr,ETeleportType::TeleportPhysics);
-    const float Speed=FMath::Clamp(Param(TEXT("ThrowSpeed"),1100.f),100.f,3500.f);
-    const float Lift=FMath::Clamp(Param(TEXT("ThrowLift"),120.f),0.f,600.f);
-    Launch(Direction*Speed+FVector(0,0,Lift),EMCGrenadeSkillPhase::Thrown);
+    Launch(Velocity,EMCGrenadeSkillPhase::Thrown);
 }
 
 void AMCGrenadeSkillAction::Drop()

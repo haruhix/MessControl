@@ -5,6 +5,7 @@
 #include "MCPresentationTypes.h"
 #include "MCPerkTypes.h"
 #include "MCActiveSkillAction.h"
+#include "MCActiveSkillAimPreview.h"
 #include "Components/SlateWrapperTypes.h"
 #include "MCPlayerCameraComponent.h"
 #include "MCCosmeticCatalog.h"
@@ -170,8 +171,18 @@ public:
     UFUNCTION(BlueprintCallable,Category="Skills") void BeginSkillInput(int32 SlotIndex);
     UFUNCTION(BlueprintCallable,Category="Skills") void EndSkillInput(int32 SlotIndex,bool bCanceled=false);
     UFUNCTION(BlueprintCallable,Category="Skills") void CancelSkillInputs();
-    UFUNCTION(Server,Reliable) void ServerBeginSkillInput(FMCActiveSkillInputHandle Handle);
-    UFUNCTION(Server,Reliable) void ServerEndSkillInput(FMCActiveSkillInputHandle Handle,bool bCanceled);
+    bool RouteSkillAimInput(bool bPressed);
+    bool RouteSkillFireInput(bool bPressed);
+    bool SuppressesOrdinaryBraceInput() const;
+    bool IsAimedSkillSelected() const;
+    bool IsSkillAimHeld() const;
+    FName GetAimedSkillID() const;
+    float GetAimedSkillCooldown() const;
+    bool ShouldUseSkillShoulderCamera() const;
+    bool BuildSkillAimPreview(FMCActiveSkillAimPreview& Out) const;
+    UFUNCTION(Server,Reliable) void ServerSetSkillAimHeld(FMCActiveSkillInputHandle Handle,bool bHeld);
+    UFUNCTION(Server,Reliable) void ServerBeginSkillInput(FMCActiveSkillInputHandle Handle,FVector_NetQuantize ViewOrigin,FVector_NetQuantizeNormal ViewDirection);
+    UFUNCTION(Server,Reliable) void ServerEndSkillInput(FMCActiveSkillInputHandle Handle,bool bCanceled,FVector_NetQuantize ViewOrigin,FVector_NetQuantizeNormal ViewDirection);
     UFUNCTION(Server,Reliable) void ServerActivateSkillSlot(int32 SlotIndex,FGuid ExpectedInstanceID);
     UFUNCTION(Server,Reliable) void ServerChooseRewardPerkInSlot(AMCRewardChest* Chest,int32 ChoiceIndex,FName ExpectedPerkID,FGuid OfferID,int32 DestinationSlot,FName ExpectedReplacedID,FGuid ExpectedInstanceID);
     UFUNCTION(Server,Reliable) void ServerSkipRewardPerk(AMCRewardChest* Chest,FGuid OfferID);
@@ -339,6 +350,26 @@ private:
     TMap<int32,FMCActiveSkillInputHandle> HeldSkillInputs;
     uint32 NextSkillPressSequence=0;
     uint32 LastServerSkillPressSequence=0;
+    static bool RequiresSkillAim(FName PerkID);
+    bool IsAimSlotUsable(int32 SlotIndex,FGuid InstanceID) const;
+    void SelectAimedSkill(int32 SlotIndex,FGuid InstanceID);
+    void ClearAimedSkillSelection();
+    void EndLocalSkillAim();
+    void RefreshSkillAimState();
+    FMCActiveSkillInputHandle MakeSkillInputHandle(int32 SlotIndex,FGuid InstanceID);
+    int32 SelectedAimSlot=INDEX_NONE;
+    FGuid SelectedAimInstance;
+    TWeakObjectPtr<APawn> SelectedAimPawn;
+    FMCActiveSkillInputHandle LocalSkillAim;
+    FMCActiveSkillInputHandle ServerSkillAim;
+    TWeakObjectPtr<APawn> ServerSkillAimPawn;
+    bool bSkillAimGestureConsumed=false;
+    bool bSkillFireGestureConsumed=false;
+    mutable FGuid CachedSkillAimIdentity;
+    mutable uint32 CachedSkillAimSequence=0;
+    mutable double NextSkillAimSampleAt=0;
+    mutable bool bCachedSkillAim=false;
+    mutable FMCActiveSkillAimPreview CachedSkillAimPreview;
     int32 PendingRewardChoice=INDEX_NONE;
     FGuid ActiveLevelOfferId;
     FGuid AcceptedLevelOfferId;

@@ -575,9 +575,13 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     });
     Input->BindAction(GamepadSprintAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::CancelSprintInput);
     Input->BindAction(DashAction,ETriggerEvent::Started,this,&AMCToothCharacter::RequestDashInput);
-    Input->BindAction(BrushAction, ETriggerEvent::Started, this, &AMCToothCharacter::StartPrimary);
-    Input->BindAction(BrushAction, ETriggerEvent::Completed, this, &AMCToothCharacter::StopPrimary);
-    Input->BindAction(BrushAction, ETriggerEvent::Canceled, this, &AMCToothCharacter::StopPrimary);
+    const auto PrimaryInput=[this](bool bPressed) {
+        if(auto* PC=Cast<AMCPlayerController>(GetController());PC && PC->RouteSkillAimInput(bPressed)) return;
+        if(bPressed) StartPrimary();else StopPrimary();
+    };
+    Input->BindActionValueLambda(BrushAction,ETriggerEvent::Started,[PrimaryInput](const FInputActionValue&) {PrimaryInput(true);});
+    for(const auto Event:{ETriggerEvent::Completed,ETriggerEvent::Canceled})
+        Input->BindActionValueLambda(BrushAction,Event,[PrimaryInput](const FInputActionValue&) {PrimaryInput(false);});
     Input->BindAction(HandleAction, ETriggerEvent::Started, this, &AMCToothCharacter::StartHandle);
     Input->BindAction(HandleAction, ETriggerEvent::Completed, this, &AMCToothCharacter::StopHandle);
     Input->BindAction(HandleAction, ETriggerEvent::Canceled, this, &AMCToothCharacter::StopHandle);
@@ -585,10 +589,14 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(ConnectionAction, ETriggerEvent::Started, this, &AMCToothCharacter::ToggleConnection);
     Input->BindAction(RestartAction, ETriggerEvent::Started, this, &AMCToothCharacter::RestartRun);
     Input->BindAction(SwingAction,ETriggerEvent::Started,this,&AMCToothCharacter::SwingBrush);
-    Input->BindAction(BraceAction,ETriggerEvent::Started,this,&AMCToothCharacter::StartBrace);
+    const auto BraceInput=[this](bool bPressed) {
+        if(auto* PC=Cast<AMCPlayerController>(GetController());PC && PC->RouteSkillFireInput(bPressed)) return;
+        if(bPressed) StartBrace();else StopBrace();
+    };
+    Input->BindActionValueLambda(BraceAction,ETriggerEvent::Started,[BraceInput](const FInputActionValue&) {BraceInput(true);});
     Input->BindAction(BraceAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::ContinueFogGuard);
-    Input->BindAction(BraceAction,ETriggerEvent::Completed,this,&AMCToothCharacter::StopBrace);
-    Input->BindAction(BraceAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::StopBrace);
+    for(const auto Event:{ETriggerEvent::Completed,ETriggerEvent::Canceled})
+        Input->BindActionValueLambda(BraceAction,Event,[BraceInput](const FInputActionValue&) {BraceInput(false);});
     Input->BindAction(OrbitXAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::OrbitMouseX);
     Input->BindAction(OrbitYAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::OrbitMouseY);
     Input->BindAction(GamepadLookXAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::OrbitGamepadX);
@@ -1224,6 +1232,7 @@ void AMCToothCharacter::UpdateRowing(float Dt)
 }
 void AMCToothCharacter::ContinueFogGuard()
 {
+    if(const auto* PC=Cast<AMCPlayerController>(GetController());PC && PC->SuppressesOrdinaryBraceInput()) return;
     if(!Grip || Grip->IsBraceInputHeld() || !CanWork()) return;
     for(TActorIterator<AMCFogBrawlEvent> It(GetWorld());It;++It)
         if(!It->IsActorBeingDestroyed() && It->IsActive() && It->Stage==EMCFogBrawlStage::Warning)

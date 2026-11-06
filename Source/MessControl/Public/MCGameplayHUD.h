@@ -121,6 +121,7 @@ private:
     UPROPERTY(Transient) TMap<FName,TObjectPtr<UWidget>> Widgets;
     float RefreshElapsed=1;
     bool bHadSprayReticle=false;
+    bool bHadSkillAimReticle=false;
     float FoodReticleAlpha=0;
     uint64 LastFoodReticleFrame=MAX_uint64;
     FMCUIReticlePresentation ReticleSnapshot;

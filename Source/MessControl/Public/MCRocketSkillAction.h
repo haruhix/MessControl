@@ -10,6 +10,7 @@ class UProjectileMovementComponent;
 class UStaticMeshComponent;
 class UStaticMesh;
 class UPrimitiveComponent;
+struct FMCActiveSkillAimPreview;
 
 UENUM(BlueprintType)
 enum class EMCRocketSkillPhase : uint8 { Prepared, Windup, Flying, Detonated };
@@ -26,6 +27,7 @@ public:
     virtual void Cancel(EMCActiveSkillEndReason Reason) override;
     virtual void Tick(float DeltaSeconds) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
+    bool BuildAimPreview(const AMCToothCharacter& Caster,const TMap<FName,float>& PreviewParameters,FMCActiveSkillAimPreview& Out) const;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Rocket") TObjectPtr<USphereComponent> Body;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Rocket") TObjectPtr<UProjectileMovementComponent> Movement;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Rocket") TObjectPtr<UStaticMeshComponent> ProjectileMesh;
@@ -53,11 +55,16 @@ private:
     UFUNCTION() void OnImpact(UPrimitiveComponent* Component,AActor* Other,UPrimitiveComponent* OtherComponent,
         FVector NormalImpulse,const FHitResult& Hit);
     UFUNCTION() void OnProjectileStopped(const FHitResult& Hit);
-    FVector MeshLocalMuzzle() const;
-    FTransform ReadyLauncherPose(FVector Direction) const;
-    float FlightSeconds() const;
+    float LaunchParameter(FName Key,float Fallback,const TMap<FName,float>* PreviewParameters) const;
+    FVector MeshLocalMuzzle(const TMap<FName,float>* PreviewParameters=nullptr) const;
+    FTransform ReadyLauncherPose(const AMCToothCharacter& Caster,FVector Direction) const;
+    float FlightSeconds(const TMap<FName,float>* PreviewParameters=nullptr) const;
+    float FlightSpeed(const TMap<FName,float>* PreviewParameters=nullptr) const;
+    float ProjectileRadius(const TMap<FName,float>* PreviewParameters=nullptr) const;
     float WindupSeconds() const;
     bool ReadLaunch(FVector& Origin,FVector& Direction,FHitResult* Block=nullptr,FTransform* PropWorld=nullptr) const;
+    bool ReadLaunchFor(const AMCToothCharacter& Caster,const TMap<FName,float>* PreviewParameters,
+        FVector& Origin,FVector& Direction,FHitResult* Block,FTransform* PropWorld) const;
     void Launch(bool bRefreshAim);
     void Detonate(FVector Point,FVector Normal);
     void UpdateHeldLauncher();

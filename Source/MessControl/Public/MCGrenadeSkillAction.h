@@ -7,6 +7,7 @@
 
 class USphereComponent;
 class UProjectileMovementComponent;
+struct FMCActiveSkillAimPreview;
 
 UENUM(BlueprintType)
 enum class EMCGrenadeSkillPhase : uint8 { Prepared, Cooking, Thrown, Dropped, Detonated };
@@ -25,6 +26,7 @@ public:
     virtual void Tick(float DeltaSeconds) override;
     virtual bool GetPresentationHandTarget(bool bLeft,FTransform& WorldPose) const override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
+    bool BuildAimPreview(FMCActiveSkillAimPreview& Out) const;
     /** Exact guide pose in native capsule space; HeldXYZ add deltas from legacy (50,44,25). Mesh bounds center is the physical projectile center. */
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Skill|Presentation") FTransform HeldMount=FTransform::Identity;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Grenade") TObjectPtr<USphereComponent> Body;
@@ -40,6 +42,9 @@ private:
     UFUNCTION() void OnRep_Phase();
     FVector HeldOffset() const;
     float FuseSeconds() const;
+    float DropLeadSeconds() const;
+    float ThrowRadius() const;
+    bool ResolveThrow(FVector& Origin,FVector& Velocity,FHitResult* Block=nullptr) const;
     void FollowHand();
     void PresentGroundWarning();
     void Drop();

@@ -423,7 +423,7 @@ void UMCPerkComponent::CancelActiveSkillActions(EMCActiveSkillEndReason Reason)
         AcceptedSkillPresses.Reset();EndedSkillInputActions.Reset();
     }
 }
-bool UMCPerkComponent::BeginSkillSlot(const FMCActiveSkillInputHandle& Handle)
+bool UMCPerkComponent::BeginSkillSlot(const FMCActiveSkillInputHandle& Handle,const FMCActiveSkillInputView* InputView)
 {
     if(!HasAuthority() || bRebuilding || bSkillMutation || !Handle.IsValid() || !ActiveSkillSlots.IsValidIndex(Handle.SlotIndex)) return false;
     auto* State=Cast<AMCPlayerState>(GetOwner());auto* Hero=State?Cast<AMCToothCharacter>(State->GetPawn()):nullptr;
@@ -474,7 +474,7 @@ bool UMCPerkComponent::BeginSkillSlot(const FMCActiveSkillInputHandle& Handle)
         return ActivateSkillSlot(Handle.SlotIndex,Handle.SlotInstanceID);
     }
     TGuardValue<bool> Guard(bSkillMutation,true);
-    auto* Action=Factory->PrepareAction(Before.PerkID,*Row,Handle);
+    auto* Action=Factory->PrepareAction(Before.PerkID,*Row,Handle,InputView);
     if(!IsValid(Action)) return false;
     ActiveSkillActions.Add(Action); // independent strong ownership BEFORE any charge mutation
     AcceptedSkillPresses.FindOrAdd(Handle.SlotInstanceID).Add(Handle.PressSequence);
@@ -485,12 +485,13 @@ bool UMCPerkComponent::BeginSkillSlot(const FMCActiveSkillInputHandle& Handle)
     Action->StartCommitted(); // cannot fail; failed preparation above did not debit or change gameplay
     RefreshLegacyProjection();RebuildEffects();GetOwner()->ForceNetUpdate();return true;
 }
-bool UMCPerkComponent::ReleaseSkillInput(const FMCActiveSkillInputHandle& Handle)
+bool UMCPerkComponent::ReleaseSkillInput(const FMCActiveSkillInputHandle& Handle,const FMCActiveSkillInputView* InputView)
 {
     if(!HasAuthority() || !Handle.IsValid()) return false;
     auto* A=FindRunningAction(Handle);
     const auto* State=Cast<AMCPlayerState>(GetOwner());
     if(!A || A->GetInputHandle()!=Handle || !State || A->Hero()!=State->GetPawn() || EndedSkillInputActions.Contains(A->GetActionID())) return false;
+    if(InputView) A->CommittedInputView=*InputView;
     EndedSkillInputActions.Add(A->GetActionID());A->ReleaseInput();return true;
 }
 bool UMCPerkComponent::CancelSkillInput(const FMCActiveSkillInputHandle& Handle)

@@ -19,6 +19,8 @@
 #include "MCPlayerState.h"
 #include "MCPerkComponent.h"
 #include "MCPlayerController.h"
+#include "MCActiveSkillAimPreview.h"
+#include "MCGrenadeSkillAction.h"
 #include "MCDevCommands.h"
 #include "MCGameState.h"
 #include "MCSingleDayDirector.h"
@@ -40,6 +42,10 @@
 #include "GameFramework/PlayerState.h"
 #include "EngineUtils.h"
 #include "Rendering/DrawElements.h"
+#include "Rendering/SlateRenderer.h"
+#include "Fonts/FontMeasure.h"
+#include "Framework/Application/SlateApplication.h"
+#include "Blueprint/SlateBlueprintLibrary.h"
 #include "Blueprint/WidgetTree.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/TextBlock.h"
@@ -60,6 +66,7 @@
 #include "Components/WrapBox.h"
 #include "Components/PanelWidget.h"
 #include "Internationalization/Internationalization.h"
+#include "Internationalization/Culture.h"
 #include "HAL/IConsoleManager.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Styling/CoreStyle.h"
@@ -75,6 +82,33 @@ namespace MCGameplayHUDPrivate
 TAutoConsoleVariable<int32> DirectorDebug(TEXT("MC.Director.Debug"),0,
     TEXT("1: show Director observations, candidate weights/probabilities and recent decisions; 0: compact monitor."),ECVF_Default);
 const FLinearColor Ink(.012f,.020f,.033f,.90f),White(.98f,.97f,.93f),Muted(.56f,.66f,.72f),Mint(.26f,.91f,.71f),Amber(1.f,.64f,.23f),Blue(.22f,.65f,1.f);
+
+bool CanShowSkillAim(const AMCPlayerController* PC,const AMCToothCharacter* Hero)
+{
+    return PC && PC->IsLocalController() && !PC->bShowMouseCursor && !PC->IsSpectating()
+        && !PC->IsLookInputIgnored() && !PC->IsMoveInputIgnored() && Hero && Hero->CanWork();
+}
+
+bool ClipSkillAimSegment(FVector2D& Start,FVector2D& End,FVector2D Size)
+{
+    const FVector2D Delta=End-Start;
+    double Enter=0.,Exit=1.;
+    for(int32 Axis=0;Axis<2;++Axis) {
+        const double Min=2.,Max=Size[Axis]-2.;
+        if(FMath::IsNearlyZero(Delta[Axis])) {
+            if(Start[Axis]<Min || Start[Axis]>Max) return false;
+            continue;
+        }
+        double A=(Min-Start[Axis])/Delta[Axis],B=(Max-Start[Axis])/Delta[Axis];
+        if(A>B) Swap(A,B);
+        Enter=FMath::Max(Enter,A);Exit=FMath::Min(Exit,B);
+        if(Enter>=Exit) return false;
+    }
+    End=Start+Delta*Exit;
+    Start+=Delta*Enter;
+    return !Start.Equals(End,.01);
+}
+
 FString PacingName(EMCGameDirectorPacing Pacing)
 {
     switch(Pacing) {
@@ -1050,6 +1084,7 @@ void UMCGameplayHUD::NativeConstruct()
 void UMCGameplayHUD::NativeDestruct()
 {
     ReleaseUnifiedReticleView();ReticleSnapshot=FMCUIReticlePresentation();
+    bHadSkillAimReticle=false;
     bUnifiedExtrasActive=false;RestoreUnifiedExtrasVisibility();
     bUnifiedViewActive=false;
     RestoreUnifiedViewVisibility();
@@ -1228,13 +1263,19 @@ void UMCGameplayHUD::NativeTick(const FGeometry& Geometry,float Dt)
         const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
         const bool Spray=Hero && Hero->Inventory && Hero->Inventory->Selected==EMCToolSlot::Spray;
         const auto* Player=GetOwningPlayer();
-        const float FoodAim=Hero && Player && !Player->bShowMouseCursor && !Player->IsLookInputIgnored()?Hero->FoodIntakeAimStrength():0;
+        const auto* PC=Cast<AMCPlayerController>(Player);
+        const auto* Grenade=Hero?Cast<AMCGrenadeSkillAction>(Hero->GetActiveSkillPresentation()):nullptr;
+        const bool SkillAim=MCGameplayHUDPrivate::CanShowSkillAim(PC,Hero)
+            && (PC->IsAimedSkillSelected() || (Grenade && Grenade->Phase==EMCGrenadeSkillPhase::Cooking));
+        const float FoodAim=!SkillAim && Hero && Player && !Player->bShowMouseCursor && !Player->IsLookInputIgnored()?Hero->FoodIntakeAimStrength():0;
         const bool HadFoodReticle=FoodReticleAlpha>.001f;
         FoodReticleAlpha=FMath::FInterpTo(FoodReticleAlpha,FoodAim,Dt,12.f);
         if(FoodAim<=0 && FoodReticleAlpha<.005f) FoodReticleAlpha=0;
         // Charge and cooldown animate every frame; ordinary HUD data remains at 10 Hz.
-        if(Spray || bHadSprayReticle || HadFoodReticle || FoodReticleAlpha>0) if(const auto Cached=GetCachedWidget()) Cached->Invalidate(EInvalidateWidgetReason::Paint);
+        if(Spray || bHadSprayReticle || SkillAim || bHadSkillAimReticle || HadFoodReticle || FoodReticleAlpha>0)
+            if(const auto Cached=GetCachedWidget()) Cached->Invalidate(EInvalidateWidgetReason::Paint);
         bHadSprayReticle=Spray;
+        bHadSkillAimReticle=SkillAim;
     }
     if(RefreshElapsed>=.1f) { RefreshElapsed=0; RefreshState();UpdatePhase1Layout(); }
     // RefreshState owns dynamic visibility; layout can also move controls.
@@ -1267,6 +1308,132 @@ FMCUIReticlePresentation UMCGameplayHUD::EvaluateReticlePresentation(const FGeom
             const FVector2D Direction=FVector2D(FVector::DotProduct(Delta,Right),-FVector::DotProduct(Delta,Forward)).GetSafeNormal();
             const FVector2D Center=LocalSize*.5,Tip=Center+Direction*130,Side(-Direction.Y,Direction.X);
             AddStroke({Tip-Direction*20+Side*10,Tip,Tip-Direction*20-Side*10},Palette.Mint,4,++ReticleLayer);
+        }
+    }
+    if(LocalSize.X>4 && LocalSize.Y>4 && MCGameplayHUDPrivate::CanShowSkillAim(PC,Hero)) {
+        FMCActiveSkillAimPreview Aim;
+        const bool Selected=PC->IsAimedSkillSelected();
+        const bool HasPreview=PC->BuildSkillAimPreview(Aim);
+        if(Selected || HasPreview) {
+            const FVector2D Center=LocalSize*.5;
+            const bool Held=PC->IsSkillAimHeld();
+            const bool Rocket=PC->GetAimedSkillID()==TEXT("Consumable_Rocket");
+            const bool Busy=Selected && Hero->GetActiveSkillPresentation();
+            const bool Cooling=Selected && PC->GetAimedSkillCooldown()>0.f;
+            const bool Blocked=HasPreview && Aim.State==EMCActiveSkillAimState::Blocked;
+            const bool Warning=HasPreview && Aim.bFuseWarning;
+            const bool PullTarget=HasPreview && (Aim.State==EMCActiveSkillAimState::Ally || Aim.State==EMCActiveSkillAimState::Boss);
+            const FLinearColor Tint=Blocked || Warning?Palette.Warning:Busy || Cooling?Palette.Muted:PullTarget?Palette.Mint:Palette.OnMarine;
+            auto Stroke=[&](const TArray<FVector2D>& Points,FLinearColor Color,float Width=1.8f) {
+                AddStroke(Points,Palette.Ink.CopyWithNewOpacity(.85f),Width+2.f,ReticleLayer+1);
+                AddStroke(Points,Color,Width,ReticleLayer+2);
+            };
+            if(HasPreview || Held) {
+                for(FVector2D Axis:{FVector2D(1,0),FVector2D(-1,0),FVector2D(0,1),FVector2D(0,-1)})
+                    Stroke({Center+Axis*6.,Center+Axis*12.},Tint);
+                if(Rocket) {
+                    FMCUIReticleBox Dot;
+                    Dot.Position=Center-FVector2D(2,2);Dot.Size=FVector2D(4,4);Dot.CornerRadius=2;
+                    Dot.Color=Tint;Dot.Layer=ReticleLayer+2;Result.Boxes.Add(MoveTemp(Dot));
+                }
+            }
+
+            FVector ViewOrigin;
+            FRotator ViewRotation;
+            PC->GetPlayerViewPoint(ViewOrigin,ViewRotation);
+            const FVector ViewForward=ViewRotation.Vector();
+            // ScreenToWidgetLocal uses the viewport's desktop tick geometry.
+            // Local coordinates agree with paint space without a window offset.
+            const FGeometry& ProjectionGeometry=GetTickSpaceGeometry();
+            auto Project=[&](FVector WorldPoint,FVector2D& Local) {
+                FVector2D Pixel;
+                if(!ProjectionGeometry.GetLocalSize().Equals(LocalSize,.5) || WorldPoint.ContainsNaN()
+                    || FVector::DotProduct(WorldPoint-ViewOrigin,ViewForward)<=1.
+                    || !PC->ProjectWorldLocationToScreen(WorldPoint,Pixel,false)) return false;
+                USlateBlueprintLibrary::ScreenToWidgetLocal(this,ProjectionGeometry,Pixel,Local);
+                const double Limit=FMath::Max(LocalSize.X,LocalSize.Y)*100.;
+                return FMath::IsFinite(Local.X) && FMath::IsFinite(Local.Y) && FMath::Abs(Local.X)<Limit && FMath::Abs(Local.Y)<Limit;
+            };
+            auto DrawPath=[&](const TArray<FVector>& Points,FLinearColor Color,float Width) {
+                if(Points.Num()<2) return;
+                TArray<FVector2D> Run;
+                Run.Reserve(31);
+                auto Flush=[&] {if(Run.Num()>1) Stroke(Run,Color,Width);Run.Reset();};
+                FVector2D Previous;
+                bool PreviousValid=Project(Points[0],Previous);
+                for(int32 Index=1;Index<FMath::Min(Points.Num(),31);++Index) {
+                    FVector2D Current;
+                    const bool Valid=Project(Points[Index],Current);
+                    if(PreviousValid && Valid) {
+                        FVector2D A=Previous,B=Current;
+                        if(MCGameplayHUDPrivate::ClipSkillAimSegment(A,B,LocalSize)) {
+                            if(!Run.IsEmpty() && !Run.Last().Equals(A,.1)) Flush();
+                            if(Run.IsEmpty()) Run.Add(A);
+                            Run.Add(B);
+                        } else Flush();
+                    } else Flush();
+                    if(Valid) Previous=Current;
+                    PreviousValid=Valid;
+                }
+                Flush();
+            };
+            if(HasPreview && !Busy && !Cooling) {
+                DrawPath(Aim.Path,Tint,2.f);
+                if(Aim.bHasContact) {
+                    FVector2D Marker;
+                    if(Project(Aim.ContactPoint,Marker) && Marker.X>=9. && Marker.X<=LocalSize.X-9. && Marker.Y>=9. && Marker.Y<=LocalSize.Y-9.
+                        && (!Rocket || FVector2D::DistSquared(Marker,Center)>FMath::Square(18.)))
+                        Stroke({Marker+FVector2D(0,-7),Marker+FVector2D(7,0),Marker+FVector2D(0,7),
+                            Marker+FVector2D(-7,0),Marker+FVector2D(0,-7)},Tint,2.5f);
+                }
+            }
+
+            const bool Russian=FInternationalization::Get().GetCurrentLanguage()->GetTwoLetterISOLanguageName()==TEXT("ru");
+            auto AimCopy=[&](FName Key,const FText& EN,const FText& RU) {return Copy(Key,Russian?RU:EN);};
+            const auto Renderer=FSlateApplication::IsInitialized()?FSlateApplication::Get().GetRenderer():nullptr;
+            const auto Font=ThemeData->MakeGameplayFont(16);
+            auto Label=[&](FText Text,double Y,FLinearColor Color) {
+                if(!Renderer || Text.IsEmpty() || !Font.HasValidFont() || Y+28.>LocalSize.Y-4.) return;
+                if(PC->IsUsingGamepad()) Text=FText::AsCultureInvariant(MCGamepadHints::Adapt(Text.ToString()));
+                const FVector2D Measured=Renderer->GetFontMeasureService()->Measure(Text,Font,1.f);
+                const double Width=FMath::Min(Measured.X+6.,LocalSize.X-24.);
+                if(Width<=0.) return;
+                const double Height=FMath::Max(24.,Measured.Y);
+                FMCUIReticleBox Background;
+                Background.Position={Center.X-Width*.5-7.,Y-2.};Background.Size={Width+14.,Height+4.};
+                Background.Color=Palette.Ink.CopyWithNewOpacity(.86f);Background.CornerRadius=7.;
+                Background.Layer=ReticleLayer+3;Result.Boxes.Add(MoveTemp(Background));
+                FMCUIReticleLabel Item;
+                Item.Text=Text;Item.Font=Font;Item.Bounds={Width,Height};Item.Position={Center.X-Width*.5,Y};
+                Item.Color=Color;Item.Layer=ReticleLayer+4;Result.Labels.Add(MoveTemp(Item));
+                Result.MaximumLayer=FMath::Max(Result.MaximumLayer,ReticleLayer+4);
+            };
+            FText Status;
+            if(Blocked) Status=AimCopy(TEXT("UI.HUD.SkillAim.Blocked"),LOCTEXT("SkillAimBlocked","BLOCKED"),LOCTEXT("SkillAimBlockedRU","ПРЕГРАДА"));
+            else if(HasPreview && Aim.State==EMCActiveSkillAimState::Ally)
+                Status=AimCopy(TEXT("UI.HUD.SkillAim.PullAlly"),LOCTEXT("SkillAimPullAlly","PULL TO YOU"),LOCTEXT("SkillAimPullAllyRU","ТЯНУ К СЕБЕ"));
+            else if(HasPreview && Aim.State==EMCActiveSkillAimState::Boss)
+                Status=AimCopy(TEXT("UI.HUD.SkillAim.PullBoss"),LOCTEXT("SkillAimPullBoss","PULL TO TARGET"),LOCTEXT("SkillAimPullBossRU","ТЯНУСЬ К ЦЕЛИ"));
+            if(HasPreview && Aim.FuseSeconds>=0.f) {
+                FNumberFormattingOptions Options;
+                Options.MinimumFractionalDigits=1;Options.MaximumFractionalDigits=1;
+                const FText Time=FText::AsNumber(Aim.FuseSeconds,&Options);
+                const FText Pattern=Warning
+                    ?AimCopy(TEXT("UI.HUD.SkillAim.FuseWarning"),LOCTEXT("SkillAimDropSoon","DROP SOON · {0} S"),LOCTEXT("SkillAimDropSoonRU","СКОРО ВЫПАДЕТ · {0} С"))
+                    :AimCopy(TEXT("UI.HUD.SkillAim.Fuse"),LOCTEXT("SkillAimFuse","FUSE · {0} S"),LOCTEXT("SkillAimFuseRU","ФИТИЛЬ · {0} С"));
+                Label(FText::Format(Pattern,Time),Center.Y+21.,Tint);
+                Label(Status,Center.Y+55.,Tint);
+            } else if(Held && Busy) {
+                Label(AimCopy(TEXT("UI.HUD.SkillAim.InUse"),LOCTEXT("SkillAimInUse","IN USE"),LOCTEXT("SkillAimInUseRU","В ДЕЙСТВИИ")),Center.Y+21.,Palette.OnMarine);
+            } else if(Held && Cooling) {
+                Label(AimCopy(TEXT("UI.HUD.SkillAim.Cooling"),LOCTEXT("SkillAimCooling","COOLDOWN"),LOCTEXT("SkillAimCoolingRU","ПЕРЕЗАРЯДКА")),Center.Y+21.,Palette.OnMarine);
+            } else {
+                if(!Blocked) Label(Held
+                    ?AimCopy(TEXT("UI.HUD.SkillAim.Fire"),LOCTEXT("SkillAimFire","RMB · FIRE"),LOCTEXT("SkillAimFireRU","ПКМ · ПУСК"))
+                    :AimCopy(TEXT("UI.HUD.SkillAim.Ready"),LOCTEXT("SkillAimReady","HOLD LMB · AIM"),LOCTEXT("SkillAimReadyRU","ЗАЖМИ ЛКМ · ПРИЦЕЛ")),Center.Y+21.,Palette.OnMarine);
+                Label(Status,Center.Y+(Blocked?21.:55.),Tint);
+            }
+            return Result;
         }
     }
     if(PC && PC->IsLocalController() && !PC->bShowMouseCursor && !PC->IsLookInputIgnored() && !PC->IsSpectating()

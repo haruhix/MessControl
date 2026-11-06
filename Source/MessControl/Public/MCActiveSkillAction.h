@@ -74,6 +74,14 @@ struct MESSCONTROL_API FMCActiveSkillInputHandle
     bool operator!=(const FMCActiveSkillInputHandle& Other) const { return !(*this==Other); }
 };
 
+/** Camera ray sampled when the player commits a shot or releases a throw. */
+struct FMCActiveSkillInputView
+{
+    FVector Origin;
+    FVector Direction;
+    bool IsValidFor(const AMCToothCharacter& Caster) const;
+};
+
 /** Prepared without gameplay side effects; committed actions outlive their depleted slot/effect. */
 UCLASS(Abstract, Blueprintable)
 class MESSCONTROL_API AMCActiveSkillAction : public AActor
@@ -96,6 +104,7 @@ public:
     UFUNCTION(BlueprintPure,Category="Skill|Tuning") float Param(FName Key,float Fallback) const;
     double Now() const;
     bool GetAim(FVector& Origin,FVector& Direction) const;
+    static bool ReadAim(const AMCToothCharacter& Caster,FVector& Origin,FVector& Direction);
     UFUNCTION(BlueprintPure,Category="Skill") FGuid GetActionID() const { return ActionID; }
     UFUNCTION(BlueprintPure,Category="Skill") int32 GetSlotIndex() const { return InputHandle.SlotIndex; }
     UFUNCTION(BlueprintPure,Category="Skill") FGuid GetSlotInstanceID() const { return InputHandle.SlotInstanceID; }
@@ -161,6 +170,7 @@ protected:
 
 private:
     friend class UMCActiveSkillPerkEffect;
+    friend class UMCPerkComponent;
     friend class FMCActiveAudioEventClockTest;
     friend class FMCActiveAudioLoopSnapshotTest;
     void InitializeAction(UMCPerkComponent* OwnerPerks,AMCToothCharacter* Pawn,FName ID,
@@ -237,5 +247,6 @@ private:
     UPROPERTY(Replicated) double StartedAt=0;
     UPROPERTY(Replicated) double PresentationReleasedAt=-1;
     bool bInitialized=false;
+    TOptional<FMCActiveSkillInputView> CommittedInputView;
     bool bFinished=false;
 };

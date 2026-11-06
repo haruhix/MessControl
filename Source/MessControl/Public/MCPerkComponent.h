@@ -87,8 +87,8 @@ public:
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Skills")
     bool ActivateSkillSlot(int32 Slot,FGuid ExpectedInstanceID=FGuid());
     /** Authority protocol. Prepared actor is registered before cost; release uses the original press. */
-    bool BeginSkillSlot(const FMCActiveSkillInputHandle& Handle);
-    bool ReleaseSkillInput(const FMCActiveSkillInputHandle& Handle);
+    bool BeginSkillSlot(const FMCActiveSkillInputHandle& Handle,const FMCActiveSkillInputView* InputView=nullptr);
+    bool ReleaseSkillInput(const FMCActiveSkillInputHandle& Handle,const FMCActiveSkillInputView* InputView=nullptr);
     bool CancelSkillInput(const FMCActiveSkillInputHandle& Handle);
     /** Exact press lookup; consumables can have several live hazards from one slot instance. */
     AMCActiveSkillAction* FindRunningAction(const FMCActiveSkillInputHandle& Handle) const;
@@ -136,6 +136,7 @@ public:
     bool GetPerkDefinition(FName PerkID, FMCPerkDefinition& Definition) const;
 
     const FMCPerkDefinition* FindDefinition(FName PerkID) const;
+    bool CanUseSkillActor() const;
     /** Shared validity policy for authored definitions, including diagnostic catalogs. */
     static bool IsDefinitionUsable(const FMCPerkDefinition& Definition);
     /** Stable list shared by the host's F3 menu and its authoritative grant command. */
@@ -171,7 +172,6 @@ private:
     bool BuildAcquisitionPlan(const TArray<FMCPerkGrant>& Grants,TArray<FMCActiveSkillSlot>& Slots,TArray<FName>& Passives,TArray<FName>& Tools) const;
     void RefreshLegacyProjection();
     void MigrateLegacyOwnedState();
-    bool CanUseSkillActor() const;
     bool CanExecuteSkill(FName PerkID,const FMCPerkDefinition& Definition) const;
     bool ExecuteSkill(FName PerkID,const FMCPerkDefinition& Definition);
     bool ExecuteLegacyBooster(FName ID);

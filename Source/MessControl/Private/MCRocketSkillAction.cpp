@@ -1,4 +1,5 @@
 #include "MCRocketSkillAction.h"
+#include "MCActiveSkillAimPreview.h"
 #include "MCActiveSkillImpact.h"
 #include "MCPlayerState.h"
 #include "MCToothCharacter.h"
@@ -44,19 +45,26 @@ AMCRocketSkillAction::AMCRocketSkillAction()
 
 UMCRocketSkillPerkEffect::UMCRocketSkillPerkEffect() {ActionClass=AMCRocketSkillAction::StaticClass();}
 
-FVector AMCRocketSkillAction::MeshLocalMuzzle() const
+float AMCRocketSkillAction::LaunchParameter(FName Key,float Fallback,const TMap<FName,float>* PreviewParameters) const
+{
+    if(!PreviewParameters) return Param(Key,Fallback);
+    const float* Value=PreviewParameters->Find(Key);
+    return Value && FMath::IsFinite(*Value) ? *Value : Fallback;
+}
+
+FVector AMCRocketSkillAction::MeshLocalMuzzle(const TMap<FName,float>* PreviewParameters) const
 {
     // Legacy MuzzleX/Y/Z were pawn offsets for the old pivot. They cannot move
     // the projectile independently of the visible barrel. New tuning is mesh-local.
-    return FVector(Param(TEXT("MuzzleLocalX"),float(LauncherMuzzleLocal.X)),Param(TEXT("MuzzleLocalY"),float(LauncherMuzzleLocal.Y)),
-        Param(TEXT("MuzzleLocalZ"),float(LauncherMuzzleLocal.Z)));
+    return FVector(LaunchParameter(TEXT("MuzzleLocalX"),float(LauncherMuzzleLocal.X),PreviewParameters),
+        LaunchParameter(TEXT("MuzzleLocalY"),float(LauncherMuzzleLocal.Y),PreviewParameters),
+        LaunchParameter(TEXT("MuzzleLocalZ"),float(LauncherMuzzleLocal.Z),PreviewParameters));
 }
-FTransform AMCRocketSkillAction::ReadyLauncherPose(FVector Direction) const
+FTransform AMCRocketSkillAction::ReadyLauncherPose(const AMCToothCharacter& Caster,FVector Direction) const
 {
-    if(!Hero()) return FTransform::Identity;
-    FTransform Pose=PropTransform*LauncherMount*Hero()->GetActorTransform();
+    FTransform Pose=PropTransform*LauncherMount*Caster.GetActorTransform();
     const FVector Forward=Pose.TransformVectorNoScale(LauncherForwardLocal.GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector)).GetSafeNormal();
-    const FQuat Correction=FQuat::FindBetweenNormals(Forward,Direction.GetSafeNormal(SMALL_NUMBER,Hero()->GetActorForwardVector()));
+    const FQuat Correction=FQuat::FindBetweenNormals(Forward,Direction.GetSafeNormal(SMALL_NUMBER,Caster.GetActorForwardVector()));
     Pose.SetRotation((Correction*Pose.GetRotation()).GetNormalized());
     Pose.SetScale3D(FVector::OneVector);
     return Pose;
@@ -65,7 +73,12 @@ FVector AMCRocketSkillAction::GetLauncherMuzzlePoint() const
 {return PropMesh?PropMesh->GetComponentTransform().TransformPosition(MeshLocalMuzzle()):GetActorLocation();}
 FVector AMCRocketSkillAction::GetLauncherForward() const
 {return PropMesh?PropMesh->GetComponentTransform().TransformVectorNoScale(LauncherForwardLocal).GetSafeNormal():GetActorForwardVector();}
-float AMCRocketSkillAction::FlightSeconds() const {return FMath::Clamp(Param(TEXT("FlightSeconds"),6.f),.25f,15.f);}
+float AMCRocketSkillAction::FlightSeconds(const TMap<FName,float>* PreviewParameters) const
+{return FMath::Clamp(LaunchParameter(TEXT("FlightSeconds"),6.f,PreviewParameters),.25f,15.f);}
+float AMCRocketSkillAction::FlightSpeed(const TMap<FName,float>* PreviewParameters) const
+{return FMath::Clamp(LaunchParameter(TEXT("ProjectileSpeed"),2200.f,PreviewParameters),200.f,6000.f);}
+float AMCRocketSkillAction::ProjectileRadius(const TMap<FName,float>* PreviewParameters) const
+{return FMath::Clamp(LaunchParameter(TEXT("ProjectileRadius"),9.f,PreviewParameters),2.f,40.f);}
 float AMCRocketSkillAction::WindupSeconds() const {return FMath::Clamp(Param(TEXT("FireWindupSeconds"),.15f),0.f,.6f);}
 bool AMCRocketSkillAction::IsLauncherHeld() const
 {
@@ -77,9 +90,11 @@ void AMCRocketSkillAction::UpdateHeldLauncher()
 {
     const bool Held=IsLauncherHeld();PropMesh->SetVisibility(Held,true);
     if(!Held || !LauncherRoot || !Hero()) return;
-    FVector Direction=GetActorForwardVector();FTransform Pose=ReadyLauncherPose(Direction);
+    FVector Direction=GetActorForwardVector();FTransform Pose=ReadyLauncherPose(*Hero(),Direction);
     if(Phase==EMCRocketSkillPhase::Windup) {
-        FVector Muzzle;ReadLaunch(Muzzle,Direction,nullptr,&Pose);
+        if(HasAuthority()) {
+            FVector Muzzle;ReadLaunch(Muzzle,Direction,nullptr,&Pose);
+        }
         if(bHasDrawStart && WindupSeconds()>UE_SMALL_NUMBER) {
             const FTransform From=InitialDrawPropActorLocal*Hero()->GetActorTransform();
             FTransform Draw;Draw.Blend(From,Pose,FMath::SmoothStep(0.f,1.f,GetPresentationAge()/WindupSeconds()));Pose=Draw;
@@ -96,17 +111,27 @@ void AMCRocketSkillAction::UpdateHeldLauncher()
 bool AMCRocketSkillAction::ReadLaunch(FVector& Origin,FVector& Direction,FHitResult* Block,FTransform* PropWorld) const
 {
     Origin=GetActorLocation();Direction=GetActorForwardVector();
-    if(!GetWorld() || !Hero()) return false;
-    FVector View,Look;if(!GetAim(View,Look)) return false;
-    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCRocketActualMuzzle),false,this);Query.AddIgnoredActor(Hero());
-    const float Radius=FMath::Clamp(Param(TEXT("ProjectileRadius"),9.f),2.f,40.f);
-    Direction=Look;FTransform Pose=ReadyLauncherPose(Look);Origin=Pose.TransformPosition(MeshLocalMuzzle());
+    const auto* Caster=Hero();
+    return GetWorld() && Caster && ReadLaunchFor(*Caster,nullptr,Origin,Direction,Block,PropWorld);
+}
+
+bool AMCRocketSkillAction::ReadLaunchFor(const AMCToothCharacter& Caster,const TMap<FName,float>* PreviewParameters,
+    FVector& Origin,FVector& Direction,FHitResult* Block,FTransform* PropWorld) const
+{
+    const UWorld* World=Caster.GetWorld();
+    FVector View,Look;
+    if(!World || !(PreviewParameters?ReadAim(Caster,View,Look):GetAim(View,Look))) return false;
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCRocketActualMuzzle),false,&Caster);
+    if(!IsTemplate()) Query.AddIgnoredActor(this);
+    const float Radius=ProjectileRadius(PreviewParameters);
+    const FVector MuzzleLocal=MeshLocalMuzzle(PreviewParameters);
+    Direction=Look;FTransform Pose=ReadyLauncherPose(Caster,Look);Origin=Pose.TransformPosition(MuzzleLocal);
     if(PropWorld) *PropWorld=Pose;
     const auto ClearMuzzle=[&]() {
         if(Origin.ContainsNaN() || Pose.ContainsNaN()) return false;
-        const FVector Start=Hero()->GetActorLocation()+FVector(0,0,Origin.Z-Hero()->GetActorLocation().Z);
+        const FVector Start(Caster.GetActorLocation().X,Caster.GetActorLocation().Y,Origin.Z);
         FHitResult Wall;
-        if(GetWorld()->SweepSingleByChannel(Wall,Start,Origin,FQuat::Identity,ECC_Visibility,
+        if(World->SweepSingleByChannel(Wall,Start,Origin,FQuat::Identity,ECC_Visibility,
             FCollisionShape::MakeSphere(Radius),Query)) {
             if(Block) *Block=Wall;
             Origin=Wall.Location+Wall.ImpactNormal*2.f;return false;
@@ -116,9 +141,9 @@ bool AMCRocketSkillAction::ReadLaunch(FVector& Origin,FVector& Direction,FHitRes
     // Test the real forward-facing barrel BEFORE convergence can rotate its
     // muzzle behind a nearby wall. CanStart must reject without spending charge.
     if(!ClearMuzzle()) return false;
-    const float Range=FMath::Clamp(Param(TEXT("AimRange"),6000.f),100.f,20000.f);
+    const float Range=FMath::Clamp(LaunchParameter(TEXT("AimRange"),6000.f,PreviewParameters),100.f,20000.f);
     FHitResult Aim;
-    const FVector Target=GetWorld()->LineTraceSingleByChannel(Aim,View,View+Look*Range,ECC_Visibility,Query)?Aim.ImpactPoint:View+Look*Range;
+    const FVector Target=World->LineTraceSingleByChannel(Aim,View,View+Look*Range,ECC_Visibility,Query)?Aim.ImpactPoint:View+Look*Range;
     const auto TargetIsAhead=[&]() {
         if(FVector::DotProduct(Target-Origin,Look)>Radius) return true;
         if(Aim.bBlockingHit) {
@@ -131,17 +156,50 @@ bool AMCRocketSkillAction::ReadLaunch(FVector& Origin,FVector& Direction,FHitRes
     // Camera target and muzzle are coupled because the barrel rotates about its
     // actual held origin. Bounded fixed-point alignment keeps authored roll.
     for(int32 I=0;I<5;++I) {
-        Pose=ReadyLauncherPose(Direction);Origin=Pose.TransformPosition(MeshLocalMuzzle());
+        Pose=ReadyLauncherPose(Caster,Direction);Origin=Pose.TransformPosition(MuzzleLocal);
         if(PropWorld) *PropWorld=Pose;
         if(!ClearMuzzle() || !TargetIsAhead()) return false;
         Direction=(Target-Origin).GetSafeNormal(SMALL_NUMBER,Look);
         if(Direction.ContainsNaN() || FVector::DotProduct(Direction,Look)<=0.f) return false;
     }
-    Pose=ReadyLauncherPose(Direction);Origin=Pose.TransformPosition(MeshLocalMuzzle());
+    Pose=ReadyLauncherPose(Caster,Direction);Origin=Pose.TransformPosition(MuzzleLocal);
     Direction=Pose.TransformVectorNoScale(LauncherForwardLocal).GetSafeNormal(SMALL_NUMBER,Look);
     if(PropWorld) *PropWorld=Pose;
     if(Origin.ContainsNaN() || Direction.ContainsNaN() || Pose.ContainsNaN()) return false;
     return ClearMuzzle() && TargetIsAhead() && !Direction.IsNearlyZero() && FVector::DotProduct(Direction,Look)>0.f;
+}
+
+bool AMCRocketSkillAction::BuildAimPreview(const AMCToothCharacter& Caster,const TMap<FName,float>& PreviewParameters,FMCActiveSkillAimPreview& Out) const
+{
+    Out=FMCActiveSkillAimPreview();
+    const UWorld* World=Caster.GetWorld();
+    if(!World || !Body) return false;
+
+    FVector Origin,Direction;
+    FHitResult Hit;
+    if(!ReadLaunchFor(Caster,&PreviewParameters,Origin,Direction,&Hit,nullptr)) {
+        if(!Hit.bBlockingHit) return false;
+        Out.State=EMCActiveSkillAimState::Blocked;
+        Out.bHasContact=true;
+        Out.ContactPoint=Hit.ImpactPoint;
+        Out.ContactNormal=Hit.ImpactNormal;
+        return true;
+    }
+
+    const FVector End=Origin+Direction*(FlightSpeed(&PreviewParameters)*FlightSeconds(&PreviewParameters));
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCRocketAimPreview),false,&Caster);
+    if(!IsTemplate()) Query.AddIgnoredActor(this);
+    const FCollisionResponseParams Responses(Body->GetCollisionResponseToChannels());
+    const float Radius=ProjectileRadius(&PreviewParameters)*Body->GetShapeScale();
+    const bool Contact=World->SweepSingleByChannel(Hit,Origin,End,FQuat::Identity,Body->GetCollisionObjectType(),
+        FCollisionShape::MakeSphere(Radius),Query,Responses);
+    if(Contact) {
+        Out.State=EMCActiveSkillAimState::Contact;
+        Out.bHasContact=true;
+        Out.ContactPoint=Hit.ImpactPoint;
+        Out.ContactNormal=Hit.ImpactNormal;
+    }
+    return true;
 }
 
 bool AMCRocketSkillAction::CanStart() const
@@ -168,7 +226,7 @@ void AMCRocketSkillAction::StartCommitted()
         InitialDrawPropActorLocal=Draw.GetRelativeTransform(Hero()->GetActorTransform());bHasDrawStart=true;
     }
     Super::StartCommitted();SetInstigator(Hero());
-    Body->SetSphereRadius(FMath::Clamp(Param(TEXT("ProjectileRadius"),9.f),2.f,40.f));
+    Body->SetSphereRadius(ProjectileRadius());
     Phase=EMCRocketSkillPhase::Windup;LaunchAt=Now()+WindupSeconds();
     FHitResult Block;
     if(!ReadLaunch(PreparedOrigin,PreparedDirection,&Block)) {
@@ -195,7 +253,7 @@ void AMCRocketSkillAction::Launch(bool bRefreshAim)
     Body->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     if(Hero()) Body->IgnoreActorWhenMoving(Hero(),true);
     Movement->SetUpdatedComponent(Body);
-    Movement->Velocity=Direction*FMath::Clamp(Param(TEXT("ProjectileSpeed"),2200.f),200.f,6000.f);
+    Movement->Velocity=Direction*FlightSpeed();
     Movement->Activate(true);OnRep_Phase();
     PlaySkillCue(TEXT("Start"),Origin,Direction,FMath::Clamp(Param(TEXT("MuzzleVFXRadius"),65.f),10.f,300.f));StartLoop();ForceNetUpdate();
 }
