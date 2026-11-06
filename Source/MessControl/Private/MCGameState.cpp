@@ -17,7 +17,12 @@ void AMCGameState::SetRogueNightActive(bool Active)
 #include "MCSingleDayDirector.h"
 #include "MCArenaTooth.h"
 #include "Net/UnrealNetwork.h"
-AMCGameState::AMCGameState() { Progression=CreateDefaultSubobject<UMCProgressionComponent>(TEXT("Progression")); }
+AMCGameState::AMCGameState()
+{
+    Progression=CreateDefaultSubobject<UMCProgressionComponent>(TEXT("Progression"));
+    PrimaryActorTick.bCanEverTick=true;
+    PrimaryActorTick.bStartWithTickEnabled=false;
+}
 int32 AMCGameState::AvailableArenaTeeth() const
 {
     int32 Count=0; for (const AMCArenaTooth* Tooth:ArenaTeeth) if (IsValid(Tooth) && Tooth->IsAvailable()) ++Count;
@@ -59,4 +64,5 @@ void AMCGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
     DOREPLIFETIME(AMCGameState, MouthHealth); DOREPLIFETIME(AMCGameState, TasksLeft);
     DOREPLIFETIME(AMCGameState, TasksTotal); DOREPLIFETIME(AMCGameState, PhaseEndsAt);
     DOREPLIFETIME(AMCGameState, CurrentEvent); DOREPLIFETIME(AMCGameState, RunSeed);
+    DOREPLIFETIME(AMCGameState, MouthIngressOpenUntil);
 }

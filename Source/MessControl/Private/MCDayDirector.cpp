@@ -182,7 +182,10 @@ AMCFoodActor* AMCDayDirector::SpawnMenuFoodInternal(FVector Position,int32 Batch
             T.SetLocation(Position);
         }
         UGameplayStatics::FinishSpawningActor(Food,T);
-        if(bMouthEntry) Food->BeginMouthEntry(EntryVelocity,Settings->FoodEntry.PushSpeed,EntryLanding);
+        if(bMouthEntry) {
+            Food->BeginMouthEntry(EntryVelocity,Settings->FoodEntry.PushSpeed,EntryLanding);
+            if(auto* State=GetWorld()->GetGameState<AMCGameState>()) State->NotifyFrontFoodIngress(*Food,EntryVelocity);
+        }
     }
     return Food;
 }

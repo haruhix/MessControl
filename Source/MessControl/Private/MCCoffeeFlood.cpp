@@ -691,7 +691,7 @@ void AMCCoffeeFlood::Stop()
 void AMCCoffeeFlood::Tick(float Dt)
 {
     Super::Tick(Dt);
-    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    auto* GS=GetWorld()->GetGameState<AMCGameState>();
     if (HasAuthority() && bActive)
     {
         const auto* Director=AMCGameDirector::Find(GetWorld());
@@ -702,7 +702,10 @@ void AMCCoffeeFlood::Tick(float Dt)
         if (Age>=Seconds) { AccumulateResidue(Seconds-UE_KINDA_SMALL_NUMBER); Stop(); return; }
         AccumulateResidue(Age);
         const int32 Current=FMath::FloorToInt(Age/WaterSettings.CycleSeconds())+1;
-        if (Current!=Wave) { Wave=Current; HitThisWave.Empty(); FoodHitThisWave.Empty(); ForceNetUpdate(); }
+        if (Current!=Wave) {
+            Wave=Current; HitThisWave.Empty(); FoodHitThisWave.Empty(); ForceNetUpdate();
+            if(bRiverFlood) GS->NotifyFrontDrinkIngress(*this);
+        }
         Level=BaseHeight(Age);
         for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
         {

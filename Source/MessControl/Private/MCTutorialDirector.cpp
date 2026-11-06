@@ -293,7 +293,10 @@ AMCFoodActor* AMCTutorialDirector::SpawnFood(FName RowName,FVector Position,AMCP
         Pose.SetLocation(EntryPosition);
     }
     Food->SpoilAt=Now()+86400; Food->FinishSpawning(Pose); Food->ForceNetUpdate();
-    if(bMouthEntry) Food->BeginMouthEntry(EntryVelocity,Settings->FoodEntry.PushSpeed);
+    if(bMouthEntry) {
+        Food->BeginMouthEntry(EntryVelocity,Settings->FoodEntry.PushSpeed);
+        if(auto* State=GetWorld()->GetGameState<AMCGameState>()) State->NotifyFrontFoodIngress(*Food,EntryVelocity);
+    }
     SpawnedActors.Add(Food); return Food;
 }
 

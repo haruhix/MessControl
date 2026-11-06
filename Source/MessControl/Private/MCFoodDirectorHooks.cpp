@@ -2,6 +2,7 @@
 
 #include "MCDayPlan.h"
 #include "MCFoodActor.h"
+#include "MCGameState.h"
 #include "MCTongue.h"
 #include "MCThroat.h"
 #include "MCToothCharacter.h"
@@ -217,6 +218,7 @@ AMCFoodActor* MCSpawnDirectedFoodEntry(UWorld* World,const UMCDayPlan* Plan,FNam
     if(!IsValid(Food) || Food->IsActorBeingDestroyed()) return nullptr;
     Food->BeginMouthEntry(Velocity,Plan->FoodEntry.PushSpeed,Landing);
     if(!MCFoodDirectorPrivate::CommitServedDirt(Food,Plan,DirtServices)) {Food->Destroy();return nullptr;}
+    if(auto* State=World->GetGameState<AMCGameState>()) State->NotifyFrontFoodIngress(*Food,Velocity);
     return Food;
 }
 

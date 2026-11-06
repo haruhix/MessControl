@@ -7,7 +7,10 @@
 #include "MCGameDirectorTypes.h"
 #include "MCGameState.generated.h"
 class AMCArenaTooth;
+class AMCCoffeeFlood;
+class AMCFoodActor;
 class UMCProgressionComponent;
+class USkeletalMeshComponent;
 class AMCSingleDayDirector;
 
 /** Published from the actual initialized run profile, never inferred by clients. */
@@ -85,5 +88,15 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Arena") TArray<TObjectPtr<AMCArenaTooth>> ArenaTeeth;
     UFUNCTION(BlueprintPure, Category="Arena") int32 AvailableArenaTeeth() const;
     UFUNCTION(BlueprintPure, Category="Shift") float SecondsLeft() const;
+    void NotifyFrontFoodIngress(const AMCFoodActor& Food,const FVector& LaunchVelocity);
+    void NotifyFrontDrinkIngress(const AMCCoffeeFlood& Drink);
+    virtual void Tick(float DeltaSeconds) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+private:
+    UPROPERTY(ReplicatedUsing=OnRep_MouthIngressOpenUntil) double MouthIngressOpenUntil=0.;
+    UFUNCTION() void OnRep_MouthIngressOpenUntil();
+    USkeletalMeshComponent* FindMouthEntrance();
+    void HoldMouthEntranceOpen(double Seconds);
+    TWeakObjectPtr<USkeletalMeshComponent> MouthEntrance;
+    float MouthIngressProgress=0.f;
 };
