@@ -41,7 +41,7 @@
     "Weight": 12,
     "Price": 40,
     "InitialCharges": 1,
-    "CooldownSeconds": 8,
+    "CooldownSeconds": 2.666667,
     "Parameters": {
       "MaxLifetime": 15,
       "HookRange": 1400,
