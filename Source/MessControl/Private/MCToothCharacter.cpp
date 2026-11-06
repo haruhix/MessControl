@@ -52,6 +52,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCToothAnimInstance.h"
 #include "MCToothMovementComponent.h"
+#include "MCSpongeSkillAction.h"
 #include "MCCataclysmRaft.h"
 #include "MCCoffeeFlood.h"
 #include "MCToothMeshComponent.h"
@@ -1562,11 +1563,14 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
         +AnimationOrderPrepare*.13f+AnimationOrderPress*.06f;
     const float Stretch = bAir ? A.Stretch * (bPreviewAnimation ? 0.8f : FMath::Clamp(FMath::Abs(GetVelocity().Z)/500.f,0.f,1.f)) : 0.f;
     const float GripBlend=Grip?Grip->Blend():0;
-    const float BodyStretch=ToothPhysics->CanAct()?FMath::Clamp(Stretch-Squash,-.35f,.4f)*(1-GripBlend)*(1-AnimationSwim):0.f;
+    // The Sponge animation plants the rider on the deck. Gait deformation in
+    // the material runs after bone evaluation and would still move the vertices.
+    const bool bLocomotionDeformation=ToothPhysics->CanAct() && !Cast<AMCSpongeSkillAction>(GetActiveSkillPresentation());
+    const float BodyStretch=bLocomotionDeformation?FMath::Clamp(Stretch-Squash,-.35f,.4f)*(1-GripBlend)*(1-AnimationSwim):0.f;
     if (StatusMaterial) StatusMaterial->SetScalarParameterValue(TEXT("BodyStretch"),BodyStretch);
     for (const auto& FaceMaterial:FaceMaterials) FaceMaterial->SetScalarParameterValue(TEXT("BodyStretch"),BodyStretch);
-    GetMesh()->SetMorphTarget(TEXT("Squash"),ToothPhysics->CanAct()?FMath::Clamp(Squash/0.28f,0.f,1.f)*(1-GripBlend):0.f);
-    GetMesh()->SetMorphTarget(TEXT("Stretch"),ToothPhysics->CanAct()?FMath::Clamp(Stretch/0.28f,0.f,1.f)*(1-GripBlend):0.f);
+    GetMesh()->SetMorphTarget(TEXT("Squash"),bLocomotionDeformation?FMath::Clamp(Squash/0.28f,0.f,1.f)*(1-GripBlend):0.f);
+    GetMesh()->SetMorphTarget(TEXT("Stretch"),bLocomotionDeformation?FMath::Clamp(Stretch/0.28f,0.f,1.f)*(1-GripBlend):0.f);
     const float Bob = bAir ? 0.f : (FMath::Abs(FMath::Sin(Gait))-.5f)*A.Bob*Speed*(1-.5f*AnimationSticky) + FMath::Sin(Time*2.f)*0.7f;
     const float Pitch = Speed*A.Lean + Anticipation*15.f + (bHandling && !HeldFood && !Grip->GrabbedPlayer && AnimationClimb<.05f ? FMath::Sin(Time*13.f)*7.f : 0.f);
     const float VisualElapsed=MCWeaponImpact::VisualSwingElapsed(this);

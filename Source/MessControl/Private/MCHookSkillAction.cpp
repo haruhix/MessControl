@@ -129,11 +129,20 @@ bool TraceHookFlight(const AMCToothCharacter& Caster,const AActor* Action,FVecto
     return Found;
 }
 
-FVector HookAimPoint(const AMCToothCharacter& Caster,const AActor* Action,FVector View,FVector Look,float Range)
+FVector HookAimPoint(const AMCToothCharacter& Caster,const AActor* Action,FVector View,FVector Look,FVector ReleaseOrigin,float Range)
 {
-    const FVector End=View+Look*Range;
+    // The shoulder camera is behind and to the side of the release hand.
+    // Clip its reticle ray to the forward half of the hand's actual reach.
+    const FVector ToRelease=ReleaseOrigin-View;
+    const double ReleaseDepth=FVector::DotProduct(ToRelease,Look);
+    const double ReachSquared=FMath::Square(double(Range))-(ToRelease-Look*ReleaseDepth).SizeSquared();
+    const double StartDepth=FMath::Max(0.,ReleaseDepth+1.);
+    const double EndDepth=ReleaseDepth+FMath::Sqrt(FMath::Max(0.,ReachSquared));
+    if(EndDepth<=StartDepth) return ReleaseOrigin+Look*Range;
+    const FVector Start=View+Look*StartDepth;
+    const FVector End=View+Look*EndDepth;
     FHitResult Hit;
-    return TraceHookFlight(Caster,Action,View,End,Hit) ? FVector(Hit.ImpactPoint) : End;
+    return TraceHookFlight(Caster,Action,Start,End,Hit) ? FVector(Hit.ImpactPoint) : End;
 }
 
 FVector HookLaunchDirection(FVector Target,FVector Origin,FVector Look)
@@ -196,11 +205,11 @@ bool AMCHookSkillAction::BuildAimPreview(const AMCToothCharacter& Caster,const T
 
     const AActor* Action=IsTemplate() ? nullptr : this;
     const float Range=EffectiveHookRange(HookPreviewParameter(PreviewParameters,TEXT("HookRange"),1400.f));
-    const FVector Target=HookAimPoint(Caster,Action,View,Look,Range);
     // Use the hook's pivot at the authored release grip, assuming the current caster pose.
     const FTransform CasterPose(Caster.GetActorRotation(),Caster.GetActorLocation());
     const FTransform Release=HookPropAtWrist(HookReleaseWrist(PreviewHeldOffset(PreviewParameters)))*CasterPose;
     const FVector Origin=Release.GetLocation();
+    const FVector Target=HookAimPoint(Caster,Action,View,Look,Origin,Range);
     const FVector End=Origin+HookLaunchDirection(Target,Origin,Look)*Range;
     FHitResult Hit;
     const bool bContact=TraceHookFlight(Caster,Action,Origin,End,Hit);
@@ -308,10 +317,12 @@ void AMCHookSkillAction::StartCommitted()
         Pose.SetScale3D(FVector::OneVector);return Pose;
     };
     RestRightHand=ReadHand(false);RestLeftHand=ReadHand(true);
-    FVector Origin,Direction;GetAim(Origin,Direction);
+    FVector View,Direction;GetAim(View,Direction);
     CastLook=Direction;
     const float Range=EffectiveHookRange(Param(TEXT("HookRange"),1400.f));
-    AimPoint=HookAimPoint(*Hero(),this,Origin,Direction,Range);
+    const FTransform CasterPose(CastFacing,Hero()->GetActorLocation());
+    const FTransform Release=HookPropAtWrist(HookReleaseWrist(ReadHeldOffset()))*CasterPose;
+    AimPoint=HookAimPoint(*Hero(),this,View,Direction,Release.GetLocation(),Range);
     SetCastPhase(EMCHookCastPhase::Windup,FMath::Clamp(Param(TEXT("WindupSeconds"),.16f),.08f,.4f));
     // The aiming view already uses this exact pose. Direct native casts also
     // start with the prop safely at the right side instead of the tool wrist.

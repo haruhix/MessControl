@@ -10,6 +10,7 @@
 #include "MCFishingRodComponent.h"
 #include "MCRewardChest.h"
 #include "MCToothCharacter.h"
+#include "MCSpongeSkillAction.h"
 #include "MCWorldPresentationComponent.h"
 #include "MCVFXPresentationComponent.h"
 #include "MCFoodCollectionComponent.h"
@@ -785,13 +786,14 @@ void UMCToothPhysicsComponent::SetGripArms(bool Left,bool Right,bool PhysicalLef
     // so they cannot fight the foot contacts. Their mass and constraints still simulate.
     const bool Active=UsesActiveMuscles();
     const bool Dashing=Tooth->IsDashing();
-    const float Goal=Dashing || Left || Right || bPhysicalGripLeft || bPhysicalGripRight?0.f:Active?1.f:.25f;
+    const bool bExactLowerBody=Dashing || Cast<AMCSpongeSkillAction>(Tooth->GetActiveSkillPresentation());
+    const float Goal=bExactLowerBody || Left || Right || bPhysicalGripLeft || bPhysicalGripRight?0.f:Active?1.f:.25f;
     // Let the physical pose settle before revealing it after release. A quick
     // drop/reacquire otherwise exposes the lagging feet for a few frames.
     const float BlendRate=Goal==0?16.f:6.f;
-    // The short dash pose owns the visible limbs immediately; the hidden bodies
-    // keep simulating and ease back into view after the landing pose.
-    StandingPhysicsWeight=Dashing?0.f:FMath::Lerp(StandingPhysicsWeight,Goal,1.f-FMath::Exp(-BlendRate*GetWorld()->GetDeltaSeconds()));
+    // Dash and deck contacts own the visible legs immediately. Hidden bodies
+    // keep simulating and ease back into view when the contact is released.
+    StandingPhysicsWeight=bExactLowerBody?0.f:FMath::Lerp(StandingPhysicsWeight,Goal,1.f-FMath::Exp(-BlendRate*GetWorld()->GetDeltaSeconds()));
     if (FMath::Abs(StandingPhysicsWeight-Goal)<.001f) StandingPhysicsWeight=Goal;
     if (auto* Body=Tooth->GetMesh()->GetBodyInstance(Tooth->RigBone(TEXT("body")))) Body->PhysicsBlendWeight=Active?0.f:StandingPhysicsWeight;
     for (const FName Role:{FName("leg_l"),FName("leg_r")})

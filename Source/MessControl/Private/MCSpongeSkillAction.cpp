@@ -1,8 +1,11 @@
 #include "MCSpongeSkillAction.h"
 #include "MCToothCharacter.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "NiagaraComponent.h"
 #include "Engine/World.h"
+#include "Math/RotationMatrix.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
 
@@ -16,12 +19,49 @@ void SpongeReviewReject(const AMCSpongeSkillAction* Action,const TCHAR* Gate)
         UE_LOG(LogMCSpongeSkillReview,Log,TEXT("MC_ACTIVE_SPONGE_START_REJECT gate=%s action=%s pawn=%s time=%.5f"),
             Gate,*GetPathNameSafe(Action),*GetPathNameSafe(Action->Hero()),Action->Now());
 }
+
+FVector SpongeRideFootprint(const AMCSpongeSkillAction* Action)
+{
+    return FVector(FMath::Clamp(Action->Param(TEXT("RideHalfLength"),80.f),20.f,180.f),
+        FMath::Clamp(Action->Param(TEXT("RideHalfWidth"),42.f),20.f,150.f),12)
+        *Action->PropTransform.GetScale3D();
+}
+
+void UpdateSpongeDeckPose(AMCSpongeSkillAction* Action,const FVector& Heading,float DeltaSeconds=0.f)
+{
+    const FVector Foot=MCActiveSkillMotion::FootPoint(Action->Hero());
+    const double Height=FMath::Clamp(Action->Param(TEXT("DeckHeight"),45.2f),0.f,100.f)
+        *Action->PropTransform.GetScale3D().Z;
+    FVector Point,Normal;
+    if(!MCActiveSkillMotion::HasGround(Action->Hero(),Point,Normal) || Normal.ContainsNaN() || Normal.Z<.1) {
+        Point=Foot;
+        Normal=FVector::UpVector;
+    }
+
+    // The floor sweep can hit different spots on the same plane. Sample its
+    // height beneath the rider, then ease changes from the previous deck plane
+    // evaluated at the new position so the board does not trail the pawn.
+    double GroundZ=Foot.Z+FVector::DotProduct(Point-Foot,Normal)/Normal.Z;
+    if(DeltaSeconds>0.f) {
+        const FVector PreviousNormal=Action->GetActorUpVector();
+        const FVector PreviousPoint=Action->GetActorLocation()-FVector::UpVector*(Height/PreviousNormal.Z);
+        const double PreviousGroundZ=Foot.Z+FVector::DotProduct(PreviousPoint-Foot,PreviousNormal)/PreviousNormal.Z;
+        const float Blend=1.f-FMath::Exp(-14.f*DeltaSeconds);
+        // Keep the board close to the current support at real steps and ridges.
+        GroundZ+=FMath::Clamp((PreviousGroundZ-GroundZ)*(1.f-Blend),-6.,6.);
+        Normal=FMath::Lerp(PreviousNormal,Normal,Blend).GetSafeNormal();
+    }
+    const FVector Deck(Foot.X,Foot.Y,GroundZ+Height/Normal.Z);
+    Action->SetActorLocationAndRotation(Deck,FRotationMatrix::MakeFromZX(Normal,Heading).ToQuat());
+}
 }
 
 AMCSpongeSkillAction::AMCSpongeSkillAction()
 {
     PrimaryActorTick.TickGroup=TG_PostPhysics;
     PropAsset=FSoftObjectPath(TEXT("/Game/Gameplay/ActiveSkills/Props/SM_Buster_Sponge.SM_Buster_Sponge"));
+    PropTransform.SetScale3D(FVector(1.5));
+    LoopComponent->SetRelativeScale3D(PropTransform.GetScale3D());
     StartVFX=FSoftObjectPath(TEXT("/Game/Gameplay/ActiveSkills/VFX/NS_Sponge_Start.NS_Sponge_Start"));
     LoopVFX=FSoftObjectPath(TEXT("/Game/Gameplay/ActiveSkills/VFX/NS_Sponge_Loop.NS_Sponge_Loop"));
     EndVFX=FSoftObjectPath(TEXT("/Game/Gameplay/ActiveSkills/VFX/NS_Sponge_End.NS_Sponge_End"));
@@ -34,8 +74,7 @@ bool AMCSpongeSkillAction::CanStart() const
     if(!Super::CanStart()) {SpongeReviewReject(this,TEXT("base_context"));return false;}
     if(!MCActiveSkillMotion::IsEligible(Hero(),true)) {SpongeReviewReject(this,TEXT("eligibility"));return false;}
     if(!MCActiveSkillMotion::CanAcquire(Hero())) {SpongeReviewReject(this,TEXT("motion_lease"));return false;}
-    const bool Clear=MCActiveSkillMotion::ClearRideFootprint(Hero(),this,Hero()->GetActorForwardVector(),
-        FVector(FMath::Clamp(Param(TEXT("RideHalfLength"),80.f),20.f,180.f),FMath::Clamp(Param(TEXT("RideHalfWidth"),42.f),20.f,150.f),12),0,0);
+    const bool Clear=MCActiveSkillMotion::ClearRideFootprint(Hero(),this,Hero()->GetActorForwardVector(),SpongeRideFootprint(this),0,0);
     if(!Clear) SpongeReviewReject(this,TEXT("footprint"));
     return Clear;
 }
@@ -46,8 +85,7 @@ void AMCSpongeSkillAction::StartCommitted()
     const float Duration=FMath::Clamp(Param(TEXT("RideSeconds"),8.f),.2f,30.f);
     const float Speed=FMath::Clamp(Param(TEXT("RideSpeed"),620.f),100.f,1200.f);
     EndsAt=Now()+Duration;LastSampleAt=Now();
-    const FTransform Pose=MCActiveSkillMotion::RidePose(Hero(),Heading,FMath::Clamp(Param(TEXT("DeckHeight"),45.2f),0.f,100.f));
-    SetActorLocationAndRotation(Pose.GetLocation(),Pose.GetRotation());
+    UpdateSpongeDeckPose(this,Heading);
     if(!Motion.Begin(Hero(),GetActionID(),Heading*Speed,false,Duration)) Finish(EMCActiveSkillEndReason::InputCanceled);
     else {UpdateRideVFX();PlaySkillCue(TEXT("Start"),PreviousFoot+FVector(0,0,3),Heading);StartLoop();UpdateRideVFX();UpdateSoapTrail();}
 }
@@ -85,13 +123,22 @@ void AMCSpongeSkillAction::Tick(float DeltaSeconds)
         if(FParse::Param(FCommandLine::Get(),TEXT("MCActiveSkillReview")))
             UE_LOG(LogMCSpongeSkillReview,Log,TEXT("MC_ACTIVE_SPONGE_HITCH_CONTINUE action=%s seconds=%.5f travel=%s native_travel=%.5f"),
                 *GetPathName(),Seconds,*Travel.ToString(),NativeTravel);
-    } else MCActiveSkillMotion::CleanSweep(Hero(),this,PreviousFoot,Foot,Seconds,FMath::Clamp(Param(TEXT("CleanRadius"),45.f),5.f,150.f),
-        FMath::Clamp(Param(TEXT("CleanRate"),1.4f),.01f,20.f),Speed,Param(TEXT("CleanOnContact"),1.f)>=.5f);
+    } else {
+        float HalfWidth=FMath::Clamp(float(SpongeRideFootprint(this).Y),5.f,150.f);
+        if(const UStaticMesh* Mesh=PropMesh?PropMesh->GetStaticMesh():nullptr) {
+            const FBox Bounds=Mesh->GetBoundingBox().TransformBy(PropMesh->GetRelativeTransform());
+            HalfWidth=FMath::Clamp(float(Bounds.GetExtent().Y),5.f,150.f);
+        }
+        // A legacy tuning row can request a wider radius than the visible deck.
+        const float CleanRadius=FMath::Clamp(Param(TEXT("CleanRadius"),HalfWidth),5.f,HalfWidth);
+        MCActiveSkillMotion::CleanSweep(Hero(),this,PreviousFoot,Foot,Seconds,CleanRadius,
+            FMath::Clamp(Param(TEXT("CleanRate"),1.4f),.01f,20.f),Speed,Param(TEXT("CleanOnContact"),1.f)>=.5f);
+    }
     PreviousFoot=Foot;LastSampleAt=Now();
     const FVector PreviousHeading=Heading;
     if(Now()>=SteeringLockedUntil)
         Heading=MCActiveSkillMotion::Steering(Hero(),Heading,FMath::Clamp(Param(TEXT("TurnRate"),220.f),20.f,720.f),DeltaSeconds);
-    const FVector Half(FMath::Clamp(Param(TEXT("RideHalfLength"),80.f),20.f,180.f),FMath::Clamp(Param(TEXT("RideHalfWidth"),42.f),20.f,150.f),12);
+    const FVector Half=SpongeRideFootprint(this);
     const float Ahead=FMath::Min(DeltaSeconds,.05f);
     FHitResult Blocker;
     if(!MCActiveSkillMotion::ClearRideFootprint(Hero(),this,Heading,Half,Ahead,Speed,&Blocker)) {
@@ -123,15 +170,20 @@ void AMCSpongeSkillAction::Tick(float DeltaSeconds)
         if(RemainingCorrection<45.f) PreviousFoot=MCActiveSkillMotion::FootPoint(Hero());
     }
     Motion.Update(Heading*Speed);
-    const FTransform Pose=MCActiveSkillMotion::RidePose(Hero(),Heading,FMath::Clamp(Param(TEXT("DeckHeight"),45.2f),0.f,100.f));
-    SetActorLocationAndRotation(Pose.GetLocation(),Pose.GetRotation());
+    UpdateSpongeDeckPose(this,Heading,DeltaSeconds);
     UpdateRideVFX();
     UpdateSoapTrail();
 }
 void AMCSpongeSkillAction::UpdateRideVFX()
 {
     if(!Hero() || !LoopComponent) return;
-    LoopComponent->SetWorldLocation(MCActiveSkillMotion::FootPoint(Hero())+FVector(0,0,3));
+    FVector Contact=MCActiveSkillMotion::FootPoint(Hero());
+    if(const UStaticMesh* Mesh=PropMesh?PropMesh->GetStaticMesh():nullptr) {
+        const FBox Bounds=Mesh->GetBoundingBox();
+        const FVector Center=Bounds.GetCenter();
+        Contact=PropMesh->GetComponentTransform().TransformPosition(FVector(Center.X,Center.Y,Bounds.Min.Z));
+    }
+    LoopComponent->SetWorldLocation(Contact+GetActorUpVector()*(2.7*PropTransform.GetScale3D().Z));
     UpdateLoopVFX(GetActorForwardVector().GetSafeNormal2D());
 }
 void AMCSpongeSkillAction::OnFinished(EMCActiveSkillEndReason Reason)

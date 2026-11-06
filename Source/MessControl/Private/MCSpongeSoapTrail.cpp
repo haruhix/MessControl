@@ -16,10 +16,13 @@ void AMCSpongeSkillAction::UpdateSoapTrail()
     // a cosmetic trail; the authority-only start gate is intentionally not reused.
     const bool Supported=Hero()->Status && Hero()->Status->IsAlive()
         && Hero()->ToothPhysics && Hero()->ToothPhysics->CanAct()
-        && MCActiveSkillMotion::HasGround(Hero(),Ground,Normal);
+        && MCActiveSkillMotion::HasGround(Hero(),Ground,Normal) && Normal.Z>.1;
     if(!Supported) {
         EndSoapTrail(false);return;
     }
+    // Center the wake under the deck instead of following the capsule sweep's lateral impact point.
+    const FVector Foot=MCActiveSkillMotion::FootPoint(Hero());
+    Ground=Foot+FVector::UpVector*(FVector::DotProduct(Ground-Foot,Normal)/Normal.Z);
     const double At=Now();
     if(bHasSoapPoint && At<=LastSoapAt) return;
     const bool Continuous=!bHasSoapPoint || MCActiveSkillMotion::ContinuousPath(
@@ -52,8 +55,9 @@ void AMCSpongeSkillAction::UpdateSoapTrail()
             const float Value=Param(Key,-1.f);
             if(Value>=0) SoapTrailComponent->SetVariableFloat(User,FMath::Clamp(Value,Low,High));
         };
-        // Absent row overrides retain the Niagara artist's exposed defaults.
-        Tune(TEXT("TrailWidth"),TEXT("User.Width"),10.f,300.f);
+        const double TrailWidth=Param(TEXT("TrailWidth"),180.f)*PropTransform.GetScale3D().Y;
+        SoapTrailComponent->SetVariableFloat(TEXT("User.Width"),float(FMath::Clamp(TrailWidth,10.,300.)));
+        // Absent row overrides retain the other Niagara artist defaults.
         Tune(TEXT("TrailLifetime"),TEXT("User.Lifetime"),.2f,3.f);
         Tune(TEXT("TrailOpacity"),TEXT("User.Opacity"),0.f,1.f);
         Tune(TEXT("TrailSpawnSpacing"),TEXT("User.SpawnSpacing"),16.f,80.f);
