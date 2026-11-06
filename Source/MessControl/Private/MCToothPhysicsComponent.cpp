@@ -823,7 +823,8 @@ void UMCToothPhysicsComponent::SetGripArms(bool Left,bool Right,bool PhysicalLef
         // An active skill's exact visible grip takes ownership immediately;
         // easing a second physical pose over its authored draw detaches the
         // glove from the moving handle. Hidden simulation/release settle stays.
-        const bool ExactSkillContact=(Tooth->GetActiveSkillPresentation()!=nullptr && Values[I] && !Physical) || ExactKnifeContact;
+        const bool ExactSkillPose=Tooth->GetActiveSkillPresentation()!=nullptr || Tooth->IsSkillAimHandPresented(I==0);
+        const bool ExactSkillContact=(ExactSkillPose && Values[I] && !Physical) || ExactKnifeContact;
         ArmPhysicsWeights[I]=(Dashing || ExactSkillContact)?0.f:FMath::Lerp(ArmPhysicsWeights[I],ArmGoal,1.f-FMath::Exp(-(ArmGoal==0?20.f:8.f)*GetWorld()->GetDeltaSeconds()));
         if (FMath::Abs(ArmPhysicsWeights[I]-ArmGoal)<.001f) ArmPhysicsWeights[I]=ArmGoal;
         Tooth->GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(Role),ArmPhysicsWeights[I],false,true);

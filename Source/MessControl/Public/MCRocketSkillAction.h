@@ -11,6 +11,7 @@ class UStaticMeshComponent;
 class UStaticMesh;
 class UPrimitiveComponent;
 struct FMCActiveSkillAimPreview;
+struct FMCActiveSkillAimPose;
 
 UENUM(BlueprintType)
 enum class EMCRocketSkillPhase : uint8 { Prepared, Windup, Flying, Detonated };
@@ -28,6 +29,8 @@ public:
     virtual void Tick(float DeltaSeconds) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     bool BuildAimPreview(const AMCToothCharacter& Caster,const TMap<FName,float>& PreviewParameters,FMCActiveSkillAimPreview& Out) const;
+    bool BuildReadyAimPose(const AMCToothCharacter& Caster,const TMap<FName,float>& PreviewParameters,FMCActiveSkillAimPose& Out) const;
+    bool IsDrawingLauncher() const {return bHasDrawStart;}
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Rocket") TObjectPtr<USphereComponent> Body;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Rocket") TObjectPtr<UProjectileMovementComponent> Movement;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Rocket") TObjectPtr<UStaticMeshComponent> ProjectileMesh;

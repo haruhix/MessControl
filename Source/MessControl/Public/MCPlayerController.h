@@ -173,12 +173,13 @@ public:
     UFUNCTION(BlueprintCallable,Category="Skills") void CancelSkillInputs();
     bool RouteSkillAimInput(bool bPressed);
     bool RouteSkillFireInput(bool bPressed);
-    bool SuppressesOrdinaryBraceInput() const;
+    bool SuppressesOrdinaryBraceInput(bool bMouseGesture) const;
     bool IsAimedSkillSelected() const;
     bool IsSkillAimHeld() const;
     FName GetAimedSkillID() const;
     float GetAimedSkillCooldown() const;
     bool ShouldUseSkillShoulderCamera() const;
+    bool ReadSkillAimPose(UStaticMesh*& OutMesh,FMCActiveSkillAimPose& OutPose) const;
     bool BuildSkillAimPreview(FMCActiveSkillAimPreview& Out) const;
     UFUNCTION(Server,Reliable) void ServerSetSkillAimHeld(FMCActiveSkillInputHandle Handle,bool bHeld);
     UFUNCTION(Server,Reliable) void ServerBeginSkillInput(FMCActiveSkillInputHandle Handle,FVector_NetQuantize ViewOrigin,FVector_NetQuantizeNormal ViewDirection);
@@ -351,6 +352,7 @@ private:
     uint32 NextSkillPressSequence=0;
     uint32 LastServerSkillPressSequence=0;
     static bool RequiresSkillAim(FName PerkID);
+    const AMCActiveSkillAction* SelectedAimDefaults(const FMCPerkDefinition*& OutDefinition) const;
     bool IsAimSlotUsable(int32 SlotIndex,FGuid InstanceID) const;
     void SelectAimedSkill(int32 SlotIndex,FGuid InstanceID);
     void ClearAimedSkillSelection();

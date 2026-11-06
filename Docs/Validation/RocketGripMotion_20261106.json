@@ -1,0 +1,47 @@
+{
+  "status": "solo_PIE_and_grip_checks_passed_visual_review_requested",
+  "editorBuild": {
+    "result": "Succeeded",
+    "seconds": 50.13,
+    "log": "E:/CodexWork/MessControl/Validation/RocketGripMotion_20261106/EditorBuildDriver.log"
+  },
+  "nativeAutomation": {
+    "result": "Success",
+    "name": "MessControl.ActiveSkills.Combat.RocketMuzzleRejectAndNativeArenaDestruction",
+    "log": "E:/CodexWork/MessControl/Validation/RocketGripMotion_20261106/FinalEditor/Editor.log"
+  },
+  "gif": "E:/CodexWork/MessControl/Validation/RocketGripMotion_20261106/Runs/RocketContacts_20261106T115009Z/Rocket_Aim_Review.gif",
+  "sha256": "66892c7ce95ab8bd4fbbc87c1534639e8d4f4d68d82391f2e96c34b3d731ad96",
+  "nativeChecksPassed": 20,
+  "launcherBoundsClearanceByPhaseCm": {
+    "DrawStart": 10.0,
+    "DrawMid": 6.664,
+    "Held": 3.009,
+    "Release": 2.0,
+    "Recoil": 2.0,
+    "Recovery": 3.281
+  },
+  "motionMetrics": {
+    "DrawStart_to_Held": {
+      "launcher_delta_cm": 18.827183235903338,
+      "launcher_angle_delta_degrees": 0.03633866319837655
+    },
+    "Held_to_Recoil": {
+      "launcher_delta_cm": 5.306926364663569,
+      "launcher_angle_delta_degrees": 1.958078557105195
+    },
+    "Recoil_to_Recovery": {
+      "launcher_delta_cm": 6.919058836246741,
+      "launcher_angle_delta_degrees": 1.572501247333258
+    }
+  },
+  "gameplayReport": "E:/CodexWork/MessControl/Validation/RocketGripMotion_20261106/Runs/RocketContacts_20261106T115009Z/Report.json",
+  "poseEvidence": "E:/CodexWork/MessControl/Validation/RocketGripMotion_20261106/Runs/RocketContacts_20261106T115009Z/PosePhases.json",
+  "readiness": "Existing Rocket prop retained by the arena manifest. Arena reached 1811 resources and 539/539 streaming.",
+  "scope": [
+    "The recorded native solo shot uses a controlled arena aim point.",
+    "Separate side and front observations use transient unlit cameras, while the GIF uses the actual game window.",
+    "The launcher uses measured Buster grips and a conservative lateral clearance from the capsule.",
+    "Multiplayer and other aim angles were outside the recorded gameplay scenario."
+  ]
+}

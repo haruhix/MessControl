@@ -13,6 +13,15 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
+namespace
+{
+constexpr double GrenadeDrawSeconds=.16;
+constexpr double GrenadeThrowStrokeSeconds=.08;
+constexpr double GrenadeThrowCutoffMargin=1./30.;
+const FVector GrenadeCockOffset(-14,5,14);
+constexpr double GrenadeCockPitch=12.;
+}
+
 AMCGrenadeSkillAction::AMCGrenadeSkillAction()
 {
     Body=CreateDefaultSubobject<USphereComponent>(TEXT("GrenadeBody"));SetRootComponent(Body);SceneRoot->SetupAttachment(Body);
@@ -45,6 +54,48 @@ FVector AMCGrenadeSkillAction::HeldOffset() const
         FMath::Clamp(Param(TEXT("HeldZ"),25.f),-40.f,100.f)-25.f);
 }
 
+bool AMCGrenadeSkillAction::IsThrowStrokeActive() const
+{
+    return Phase==EMCGrenadeSkillPhase::Cooking && ThrowStrokeStartedAt>=0.;
+}
+
+float AMCGrenadeSkillAction::GetThrowStrokeAlpha() const
+{
+    return IsThrowStrokeActive() ? float(FMath::Clamp((Now()-ThrowStrokeStartedAt)/GrenadeThrowStrokeSeconds,0.,1.)) : 0.f;
+}
+
+bool AMCGrenadeSkillAction::GetReleasedHandLocal(FTransform& Out) const
+{
+    if(!bHasReleasedHandLocal || GetPresentationReleaseAge()<0.) return false;
+    Out=ReleasedHandLocal;
+    return true;
+}
+
+FTransform AMCGrenadeSkillAction::ThrowMount(float Alpha) const
+{
+    const double Forward=FMath::SmoothStep(0.f,1.f,Alpha);
+    // Keep the prop on the dominant side throughout the forward stroke.
+    const FVector Offset=FMath::Lerp(GrenadeCockOffset,FVector(20,5,12),Forward);
+    const FQuat Pitch(FVector::RightVector,FMath::DegreesToRadians(FMath::Lerp(GrenadeCockPitch,-20.,Forward)));
+    return FTransform((Pitch*HeldMount.GetRotation()).GetNormalized(),HeldOffset()+Offset);
+}
+
+FTransform AMCGrenadeSkillAction::CookingMount(double At) const
+{
+    if(IsThrowStrokeActive()) return ThrowMount(float(FMath::Clamp((At-ThrowStrokeStartedAt)/GrenadeThrowStrokeSeconds,0.,1.)));
+    // Raise and draw back outside the torso from the authored grip side.
+    const double Draw=FMath::SmoothStep(0.,GrenadeDrawSeconds,At-ArmedAt);
+    const FVector Offset=FMath::Lerp(FVector(0,5,-16),GrenadeCockOffset,Draw);
+    const FQuat Pitch(FVector::RightVector,FMath::DegreesToRadians(FMath::Lerp(18.,GrenadeCockPitch,Draw)));
+    return FTransform((Pitch*HeldMount.GetRotation()).GetNormalized(),HeldOffset()+Offset);
+}
+
+bool AMCGrenadeSkillAction::CanStartThrowStroke(double At) const
+{
+    return At-ArmedAt>=GrenadeDrawSeconds
+        && At+GrenadeThrowStrokeSeconds+GrenadeThrowCutoffMargin<FuseEndsAt-DropLeadSeconds();
+}
+
 float AMCGrenadeSkillAction::FuseSeconds() const {return FMath::Clamp(Param(TEXT("FuseSeconds"),3.f),.4f,30.f);}
 float AMCGrenadeSkillAction::DropLeadSeconds() const
 {
@@ -59,10 +110,10 @@ float AMCGrenadeSkillAction::ThrowRadius() const
         : FMath::Clamp(Param(TEXT("CollisionRadius"),22.f),2.f,35.f)*Body->GetShapeScale();
 }
 
-bool AMCGrenadeSkillAction::ResolveThrow(FVector& Origin,FVector& Velocity,FHitResult* Block) const
+bool AMCGrenadeSkillAction::ResolveThrow(FVector Offset,FVector& Origin,FVector& Velocity,FHitResult* Block) const
 {
     FVector Direction;
-    if(!MCActiveSkillImpact::ResolveLaunch(this,HeldOffset(),ThrowRadius(),Param(TEXT("AimRange"),6000.f),Origin,Direction,Block))
+    if(!MCActiveSkillImpact::ResolveLaunch(this,Offset,ThrowRadius(),Param(TEXT("AimRange"),6000.f),Origin,Direction,Block))
         return false;
     const float Speed=FMath::Clamp(Param(TEXT("ThrowSpeed"),1100.f),100.f,3500.f);
     const float Lift=FMath::Clamp(Param(TEXT("ThrowLift"),120.f),0.f,600.f);
@@ -77,7 +128,8 @@ bool AMCGrenadeSkillAction::BuildAimPreview(FMCActiveSkillAimPreview& Out) const
     if(Phase!=EMCGrenadeSkillPhase::Cooking || !IsCommitted() || IsFinished()
         || !Caster || !Caster->CanWork() || !Caster->ToothPhysics || !Caster->ToothPhysics->CanAct()) return false;
 
-    const double Remaining=FuseEndsAt-Now();
+    const double At=Now();
+    const double Remaining=FuseEndsAt-At;
     if(Remaining<=0.) return false;
     Out.FuseSeconds=float(Remaining);
     const float Lead=DropLeadSeconds();
@@ -85,11 +137,14 @@ bool AMCGrenadeSkillAction::BuildAimPreview(FMCActiveSkillAimPreview& Out) const
     Out.bFuseWarning=Remaining<=FMath::Max(Lead,Warning);
     // Replication can leave the grenade in Cooking briefly after the server's
     // forced release time. Keep the warning and retire the throw prediction.
-    if(Remaining<=Lead) return true;
+    if(Remaining<=Lead || IsThrowStrokeActive()) return true;
 
+    const bool bFullStroke=CanStartThrowStroke(At);
+    const FTransform Mount=bFullStroke?ThrowMount(1.f):CookingMount(At);
+    const double FlightTime=Remaining-(bFullStroke?GrenadeThrowStrokeSeconds:0.);
     FVector Origin,Velocity;
     FHitResult Block;
-    if(!ResolveThrow(Origin,Velocity,&Block)) {
+    if(!ResolveThrow(Mount.GetLocation(),Origin,Velocity,&Block)) {
         Out.State=EMCActiveSkillAimState::Blocked;
         if(Block.bBlockingHit) {
             Out.bHasContact=true;
@@ -105,13 +160,13 @@ bool AMCGrenadeSkillAction::BuildAimPreview(FMCActiveSkillAimPreview& Out) const
     Query.AddIgnoredActor(Caster);
     const auto Sphere=FCollisionShape::MakeSphere(ThrowRadius());
     const FVector Gravity(0,0,Movement->GetGravityZ());
-    const int32 Steps=FMath::Clamp(FMath::CeilToInt32(Remaining*30.),1,120);
+    const int32 Steps=FMath::Clamp(FMath::CeilToInt32(FlightTime*30.),1,120);
     const int32 DrawStride=FMath::DivideAndRoundUp(Steps,28);
     Out.Path.Reserve(30);
     Out.Path.Add(Origin);
     FVector Previous=Origin;
     for(int32 Step=1;Step<=Steps;++Step) {
-        const double Time=Remaining*Step/Steps;
+        const double Time=FlightTime*Step/Steps;
         const FVector Point=Origin+Velocity*Time+Gravity*(.5*Time*Time);
         FHitResult Hit;
         if(GetWorld()->SweepSingleByChannel(Hit,Previous,Point,FQuat::Identity,Body->GetCollisionObjectType(),Sphere,Query,Responses)) {
@@ -137,7 +192,7 @@ bool AMCGrenadeSkillAction::CanStart() const
 {
     FVector Origin,Direction;
     return Super::CanStart() && FMath::Clamp(Param(TEXT("MaxLifetime"),120.f),1.f,600.f)>=FuseSeconds()+.5f
-        && MCActiveSkillImpact::ResolveLaunch(this,HeldOffset(),FMath::Clamp(Param(TEXT("CollisionRadius"),22.f),2.f,35.f),
+        && MCActiveSkillImpact::ResolveLaunch(this,ThrowMount(0.f).GetLocation(),FMath::Clamp(Param(TEXT("CollisionRadius"),22.f),2.f,35.f),
             Param(TEXT("AimRange"),6000.f),Origin,Direction);
 }
 
@@ -152,25 +207,38 @@ void AMCGrenadeSkillAction::StartCommitted()
     Body->SetSphereRadius(FMath::Clamp(Param(TEXT("CollisionRadius"),22.f),2.f,35.f));
     ArmedAt=Now();FuseEndsAt=ArmedAt+FuseSeconds();
     DropAt=FuseEndsAt-DropLeadSeconds();Phase=EMCGrenadeSkillPhase::Cooking;
-    FollowHand();OnRep_Phase();
+    FollowHand(ArmedAt);OnRep_Phase();
     PlaySkillCue(TEXT("Start"),GetActorLocation(),GetActorForwardVector(),Body->GetScaledSphereRadius());
     StartLoop();ForceNetUpdate();
 }
 
-void AMCGrenadeSkillAction::FollowHand()
+void AMCGrenadeSkillAction::SetHeldPose(const FTransform& Mount,FVector Origin)
+{
+    const auto* Caster=Hero();
+    if(!Caster || Origin.ContainsNaN()) return;
+    const FQuat Rotation=(Mount*Caster->GetActorTransform()).GetRotation().GetNormalized();
+    SetActorLocationAndRotation(Origin,Rotation,false,nullptr,ETeleportType::TeleportPhysics);
+}
+
+void AMCGrenadeSkillAction::FollowHand(double At)
 {
     if(!Hero()) return;
+    const FTransform Mount=CookingMount(At);
     FVector Origin,Direction;
     // Even a wall appearing during cooking can only clamp the held grenade to
     // its near side. A release never teleports this accepted hazard through it.
-    MCActiveSkillImpact::ResolveLaunch(this,HeldOffset(),Body->GetScaledSphereRadius(),Param(TEXT("AimRange"),6000.f),Origin,Direction);
-    const FQuat HeldRotation=(HeldMount*Hero()->GetActorTransform()).GetRotation().GetNormalized();
-    if(!Origin.ContainsNaN()) SetActorLocationAndRotation(Origin,HeldRotation,false,nullptr,ETeleportType::TeleportPhysics);
+    MCActiveSkillImpact::ResolveLaunch(this,Mount.GetLocation(),ThrowRadius(),Param(TEXT("AimRange"),6000.f),Origin,Direction);
+    SetHeldPose(Mount,Origin);
 }
 
 void AMCGrenadeSkillAction::Launch(FVector Velocity,EMCGrenadeSkillPhase Next)
 {
     if(!HasAuthority() || Phase!=EMCGrenadeSkillPhase::Cooking || Velocity.ContainsNaN()) return;
+    FTransform WorldGrip;
+    if(Super::GetPresentationHandTarget(false,WorldGrip)) {
+        ReleasedHandLocal=WorldGrip.GetRelativeTransform(Hero()->GetActorTransform());
+        bHasReleasedHandLocal=true;
+    }
     Phase=Next;MarkPresentationReleased();PresentationRecoveryEndsAt=Now()+.28;
     Body->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     if(Hero()) Body->IgnoreActorWhenMoving(Hero(),true);
@@ -180,14 +248,25 @@ void AMCGrenadeSkillAction::Launch(FVector Velocity,EMCGrenadeSkillPhase Next)
 
 void AMCGrenadeSkillAction::ReleaseInput()
 {
-    if(!HasAuthority() || !IsCommitted() || IsFinished() || Phase!=EMCGrenadeSkillPhase::Cooking) return;
-    if(!Hero() || !Hero()->CanWork() || !Hero()->ToothPhysics || !Hero()->ToothPhysics->CanAct() || Now()>=DropAt) {Drop();return;}
-    FVector Origin,Velocity;
-    if(!ResolveThrow(Origin,Velocity)) {
-        SetActorLocation(Origin,false,nullptr,ETeleportType::TeleportPhysics);Drop();return;
+    if(!HasAuthority() || !IsCommitted() || IsFinished() || Phase!=EMCGrenadeSkillPhase::Cooking || IsThrowStrokeActive()) return;
+    const double At=Now();
+    if(!Hero() || !Hero()->CanWork() || !Hero()->ToothPhysics || !Hero()->ToothPhysics->CanAct() || At>=DropAt) {Drop();return;}
+    if(CanStartThrowStroke(At)) {
+        ThrowStrokeStartedAt=At;
+        ForceNetUpdate();
+        return;
     }
-    SetActorLocation(Origin,false,nullptr,ETeleportType::TeleportPhysics);
-    Launch(Velocity,EMCGrenadeSkillPhase::Thrown);
+    // Preserve a quick tap and a valid release near the overhold cutoff.
+    ThrowFromMount(CookingMount(At));
+}
+
+void AMCGrenadeSkillAction::ThrowFromMount(const FTransform& Mount)
+{
+    FVector Origin,Velocity;
+    const bool bClear=ResolveThrow(Mount.GetLocation(),Origin,Velocity);
+    SetHeldPose(Mount,Origin);
+    if(bClear) Launch(Velocity,EMCGrenadeSkillPhase::Thrown);
+    else Drop();
 }
 
 void AMCGrenadeSkillAction::Drop()
@@ -246,12 +325,14 @@ void AMCGrenadeSkillAction::Tick(float Dt)
     if(Phase==EMCGrenadeSkillPhase::Cooking) {
         // A living knocked-down owner no longer controls a hand/capsule launch
         // point. Release the accepted hazard without resetting its fuse.
+        const double At=Now();
         if(!Hero() || !Hero()->CanWork() || !Hero()->ToothPhysics || !Hero()->ToothPhysics->CanAct()) Drop();
-        else FollowHand();
-        if(!bWarningPresented && Now()>=FuseEndsAt-FMath::Clamp(Param(TEXT("WarningSeconds"),.65f),0.f,FuseSeconds())) {
+        else if(At>=DropAt) {FollowHand(At);Drop();}
+        else if(IsThrowStrokeActive() && At-ThrowStrokeStartedAt>=GrenadeThrowStrokeSeconds) ThrowFromMount(ThrowMount(1.f));
+        else FollowHand(At);
+        if(!bWarningPresented && At>=FuseEndsAt-FMath::Clamp(Param(TEXT("WarningSeconds"),.65f),0.f,FuseSeconds())) {
             bWarningPresented=true;PresentGroundWarning();
         }
-        if(Now()>=DropAt) Drop();
     }
     if(FuseEndsAt>0 && Now()>=FuseEndsAt) {Drop();Detonate();}
 }
@@ -272,4 +353,7 @@ void AMCGrenadeSkillAction::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCGrenadeSkillAction,Phase);DOREPLIFETIME(AMCGrenadeSkillAction,ArmedAt);
     DOREPLIFETIME(AMCGrenadeSkillAction,FuseEndsAt);DOREPLIFETIME(AMCGrenadeSkillAction,DetonationCount);
+    DOREPLIFETIME(AMCGrenadeSkillAction,ThrowStrokeStartedAt);
+    DOREPLIFETIME(AMCGrenadeSkillAction,ReleasedHandLocal);
+    DOREPLIFETIME(AMCGrenadeSkillAction,bHasReleasedHandLocal);
 }

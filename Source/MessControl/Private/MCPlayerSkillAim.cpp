@@ -7,6 +7,7 @@
 #include "MCPlayerState.h"
 #include "MCRocketSkillAction.h"
 #include "MCToothCharacter.h"
+#include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 
 bool AMCPlayerController::RequiresSkillAim(FName PerkID)
@@ -86,6 +87,31 @@ float AMCPlayerController::GetAimedSkillCooldown() const
     return IsAimedSkillSelected()?GetPlayerState<AMCPlayerState>()->Perks->GetSkillCooldownRemaining(SelectedAimSlot):0.f;
 }
 
+const AMCActiveSkillAction* AMCPlayerController::SelectedAimDefaults(const FMCPerkDefinition*& OutDefinition) const
+{
+    const auto* Perks=GetPlayerState<AMCPlayerState>()->Perks.Get();
+    OutDefinition=Perks->FindDefinition(Perks->ActiveSkillSlots[SelectedAimSlot].PerkID);
+    const auto* Factory=OutDefinition?Cast<UMCActiveSkillPerkEffect>(OutDefinition->EffectClass.GetDefaultObject()):nullptr;
+    return Factory?Factory->ActionClass.GetDefaultObject():nullptr;
+}
+
+bool AMCPlayerController::ReadSkillAimPose(UStaticMesh*& OutMesh,FMCActiveSkillAimPose& OutPose) const
+{
+    const auto* Hero=Cast<AMCToothCharacter>(GetPawn());
+    if(!Hero || !IsSkillAimHeld() || GetViewTarget()!=Hero) return false;
+    const FMCPerkDefinition* Definition=nullptr;
+    const auto* Defaults=SelectedAimDefaults(Definition);
+    // Both props are retained by world preload.
+    if(!Defaults || !Definition || !(OutMesh=Defaults->PropAsset.Get())) return false;
+    if(const auto* Rocket=Cast<AMCRocketSkillAction>(Defaults))
+        return Rocket->BuildReadyAimPose(*Hero,Definition->Parameters,OutPose);
+    if(const auto* Hook=Cast<AMCHookSkillAction>(Defaults)) {
+        Hook->BuildReadyPose(Definition->Parameters,OutPose.HandsLocal[1],OutPose.PropLocal);
+        return true;
+    }
+    return false;
+}
+
 bool AMCPlayerController::ShouldUseSkillShoulderCamera() const
 {
     if(IsSkillAimHeld()) return true;
@@ -93,6 +119,7 @@ bool AMCPlayerController::ShouldUseSkillShoulderCamera() const
     if(!Hero || !Hero->CanWork() || bShowMouseCursor || IsLookInputIgnored()) return false;
     const auto* Grenade=Cast<AMCGrenadeSkillAction>(Hero->GetActiveSkillPresentation());
     if(!Grenade || Grenade->Phase!=EMCGrenadeSkillPhase::Cooking) return false;
+    if(Grenade->IsThrowStrokeActive()) return true;
     const auto* Held=HeldSkillInputs.Find(Grenade->GetSlotIndex());
     return Held && *Held==Grenade->GetInputHandle();
 }
@@ -122,8 +149,8 @@ bool AMCPlayerController::RouteSkillFireInput(bool bPressed)
     }
     if(bSkillFireGestureConsumed) return true;
     if(!IsAimedSkillSelected()) return false;
-    // RMB belongs to the selected device even while LMB is up. It cannot
-    // start the ordinary brace or become a shot when LMB is pressed later.
+    // A selected device owns the fire gesture even before aiming. Holding
+    // fire before aim cannot queue a shot or start the underlying tool action.
     bSkillFireGestureConsumed=true;
     if(IsSkillAimHeld() && GetViewTarget()==GetPawn()) {
         FVector View;FRotator Rotation;
@@ -133,9 +160,9 @@ bool AMCPlayerController::RouteSkillFireInput(bool bPressed)
     return true;
 }
 
-bool AMCPlayerController::SuppressesOrdinaryBraceInput() const
+bool AMCPlayerController::SuppressesOrdinaryBraceInput(bool bMouseGesture) const
 {
-    return bSkillFireGestureConsumed || IsAimedSkillSelected();
+    return (bMouseGesture?bSkillAimGestureConsumed:bSkillFireGestureConsumed) || IsAimedSkillSelected();
 }
 
 void AMCPlayerController::ServerSetSkillAimHeld_Implementation(FMCActiveSkillInputHandle Handle,bool bHeld)
@@ -176,7 +203,8 @@ bool AMCPlayerController::BuildSkillAimPreview(FMCActiveSkillAimPreview& Out) co
     const auto* Hero=Cast<AMCToothCharacter>(GetPawn());
     if(!IsLocalController() || !Hero || !GetWorld() || bShowMouseCursor || IsLookInputIgnored() || !Hero->CanWork()) return false;
     const auto* Grenade=Cast<AMCGrenadeSkillAction>(Hero->GetActiveSkillPresentation());
-    const bool bCooking=Grenade && Grenade->Phase==EMCGrenadeSkillPhase::Cooking && ShouldUseSkillShoulderCamera();
+    const bool bCooking=Grenade && Grenade->Phase==EMCGrenadeSkillPhase::Cooking
+        && !Grenade->IsThrowStrokeActive() && ShouldUseSkillShoulderCamera();
     if(!bCooking && !IsSkillAimHeld()) return false;
 
     const FGuid Identity=bCooking?Grenade->GetActionID():LocalSkillAim.SlotInstanceID;
@@ -191,10 +219,8 @@ bool AMCPlayerController::BuildSkillAimPreview(FMCActiveSkillAimPreview& Out) co
         if(bCooking) {
             bCachedSkillAim=Grenade->BuildAimPreview(CachedSkillAimPreview);
         } else {
-            const auto* Perks=GetPlayerState<AMCPlayerState>()->Perks.Get();
-            const auto* Definition=Perks->FindDefinition(Perks->ActiveSkillSlots[SelectedAimSlot].PerkID);
-            const auto* Factory=Definition?Cast<UMCActiveSkillPerkEffect>(Definition->EffectClass.GetDefaultObject()):nullptr;
-            const auto* Defaults=Factory?Factory->ActionClass.GetDefaultObject():nullptr;
+            const FMCPerkDefinition* Definition=nullptr;
+            const auto* Defaults=SelectedAimDefaults(Definition);
             if(const auto* Rocket=Cast<AMCRocketSkillAction>(Defaults))
                 bCachedSkillAim=Rocket->BuildAimPreview(*Hero,Definition->Parameters,CachedSkillAimPreview);
             else if(const auto* Hook=Cast<AMCHookSkillAction>(Defaults))

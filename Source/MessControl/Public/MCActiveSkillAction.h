@@ -167,6 +167,8 @@ protected:
     /** Exactly once, including external destruction/world teardown; release only this action's leases. */
     virtual void OnFinished(EMCActiveSkillEndReason Reason);
     void MarkPresentationReleased();
+    bool HasCommittedInputView() const {return CommittedInputView.IsSet();}
+    FTransform ResolvePresentationGrip(bool bLeft,const TMap<FName,float>* PreviewParameters=nullptr) const;
 
 private:
     friend class UMCActiveSkillPerkEffect;

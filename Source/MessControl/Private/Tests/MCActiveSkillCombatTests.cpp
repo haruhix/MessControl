@@ -261,7 +261,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCGrenadeCommittedFuse,"MessControl.ActiveSkil
 bool FMCGrenadeCommittedFuse::RunTest(const FString&)
 {
     using namespace MCActiveSkillCombatTests;
-    for(int32 Scenario:{0,1,2,3,4}) {
+    for(int32 Scenario:{0,1,2,3,4,5}) {
         FWorld T;
         // EnterStanding gives a newly spawned/recovered pawn 0.6s of native
         // hit immunity. Let that real protection expire BEFORE arming the
@@ -280,7 +280,13 @@ bool FMCGrenadeCommittedFuse::RunTest(const FString&)
         if(Scenario==0) {
             T.Step(.5f);
             TestTrue(TEXT("Release reaches original cooking action after slot depletion"),T.Perks->ReleaseSkillInput(Press));
+            TestTrue(TEXT("The grenade stays in the right hand during the throw stroke"),A->IsThrowStrokeActive());
+            T.Step(.1f);
             TestEqual(TEXT("Release throws instead of discarding the charge"),A->Phase,EMCGrenadeSkillPhase::Thrown);
+        } else if(Scenario==5) {
+            T.Step(.61f);
+            TestTrue(TEXT("An accepted release near the overhold deadline still reaches the action"),T.Perks->ReleaseSkillInput(Press));
+            TestEqual(TEXT("The late release leaves the hand before the forced-drop deadline"),A->Phase,EMCGrenadeSkillPhase::Thrown);
         } else if(Scenario==1) {
             T.Step(.7f);TestEqual(TEXT("Overhold drops the still-live grenade before expiry"),A->Phase,EMCGrenadeSkillPhase::Dropped);
             T.Perks->ReleaseSkillInput(Press);

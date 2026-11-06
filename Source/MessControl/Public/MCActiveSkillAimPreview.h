@@ -22,3 +22,10 @@ struct FMCActiveSkillAimPreview
     bool bHasContact=false;
     bool bFuseWarning=false;
 };
+
+struct FMCActiveSkillAimPose
+{
+    FTransform PropLocal=FTransform::Identity;
+    FTransform HandsLocal[2]={FTransform::Identity,FTransform::Identity};
+    bool bHasLeftHand=false;
+};

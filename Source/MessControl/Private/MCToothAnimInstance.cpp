@@ -664,11 +664,13 @@ public:
         Rebuild();
         auto* Action=Tooth->GetActiveSkillPresentation();
         const auto* Hook=Cast<AMCHookSkillAction>(Action);
+        const auto* Grenade=Cast<AMCGrenadeSkillAction>(Action);
         const auto* Sponge=Cast<AMCSpongeSkillAction>(Action);
         const auto* Driver=Cast<AMCDriverSkillAction>(Action);
         FTransform BodyGoal=FTransform::Identity;
         FQuat Facing=Tooth->GetActorQuat();
         float RideTurn=0;
+        float GrenadeBalance=0.f;
         if(Sponge || Driver) {
             const float Yaw=Sponge?Sponge->GetRideFrame().Rotator().Yaw:Tooth->GetActorRotation().Yaw;
             if(bHasActiveRideYaw && Dt>UE_SMALL_NUMBER) RideTurn=FMath::Clamp(FMath::FindDeltaAngleDegrees(PreviousActiveRideYaw,Yaw)/(Dt*120.f),-1.f,1.f);
@@ -694,9 +696,12 @@ public:
                 const float Burst=Air->bRuptured?-8.f:5.f;
                 BodyGoal=FTransform(FRotator((-3-2*Load)*Hold+Burst*Kick,0,1.5f*Hold),
                     FVector((-1.5f-Load)*Hold+(Air->bRuptured?-5.f:2.f)*Kick,0,-1.5f*Hold+Pulse));
-            } else if(const auto* Grenade=Cast<AMCGrenadeSkillAction>(Action)) {
-                const float Throw=Grenade->Phase==EMCGrenadeSkillPhase::Thrown?Kick:0.f;
-                BodyGoal=FTransform(FRotator(-3*Hold+8*Throw,-7*Hold+10*Throw,2*Hold),FVector(-1.5f*Hold+2*Throw,0,-1.5f*Hold));
+            } else if(Grenade) {
+                const float Throw=Grenade->IsThrowStrokeActive()?Grenade->GetThrowStrokeAlpha()
+                    :Grenade->Phase==EMCGrenadeSkillPhase::Thrown?1.f-FMath::SmoothStep(0.f,.28f,Released):0.f;
+                GrenadeBalance=Hold;
+                BodyGoal=FTransform(FRotator(-5*Hold+12*Throw,-8*Hold+13*Throw,3*Hold-5*Throw),
+                    FVector(-3*Hold+6*Throw,0,-2*Hold));
             } else if(Sponge) {
                 const float Speed=FMath::Clamp(float(Tooth->GetVelocity().Size2D()/650.),0.f,1.f);
                 Facing=Sponge->GetRideFrame().GetRotation();
@@ -805,26 +810,32 @@ public:
             if(Hand<0 || Lower<0 || Ref.GetParentIndex(Hand)!=Lower) continue;
             FTransform Target;
             bool Has=Tooth->ActiveSkillHandTarget(Side==0,Target);
-            if(const auto* Grenade=Cast<AMCGrenadeSkillAction>(Action);Grenade && Side==1
+            if(Grenade && Side==1
                 && Grenade->GetPresentationReleaseAge()>=0
                 && (Grenade->Phase==EMCGrenadeSkillPhase::Thrown || Grenade->Phase==EMCGrenadeSkillPhase::Dropped)) {
                 const float Released=Grenade->GetPresentationReleaseAge();
                 if(GrenadeThrowPoseID!=Grenade->GetActionID()) {
                     GrenadeThrowPoseID=Grenade->GetActionID();
-                    GrenadeThrowHandStart=ActiveHandAlpha[Side]>.001f?ActiveHandLocal[Side]
-                        :(CS[Hand]*World).GetRelativeTransform(Tooth->GetActorTransform());
+                    if(!Grenade->GetReleasedHandLocal(GrenadeThrowHandStart))
+                        GrenadeThrowHandStart=ActiveHandAlpha[Side]>.001f?ActiveHandLocal[Side]
+                            :(CS[Hand]*World).GetRelativeTransform(Tooth->GetActorTransform());
                 }
                 // The right mitten follows its own caster-relative throw arc,
                 // never the accepted hazard's airborne actor/root transform.
                 const FTransform Rest=(CS[Hand]*World).GetRelativeTransform(Tooth->GetActorTransform());
                 FTransform Local;
                 if(Grenade->Phase==EMCGrenadeSkillPhase::Thrown) {
-                    FTransform Extend=GrenadeThrowHandStart;Extend.AddToTranslation(FVector(20,-8,8));
+                    FTransform Extend=GrenadeThrowHandStart;Extend.AddToTranslation(FVector(12,2,5));
                     Extend.SetRotation((FRotator(12,5,8).Quaternion()*Extend.GetRotation()).GetNormalized());
                     if(Released<.10f) Local.Blend(GrenadeThrowHandStart,Extend,FMath::SmoothStep(0.f,.10f,Released));
                     else Local.Blend(Extend,Rest,FMath::SmoothStep(.10f,.28f,Released));
                 } else Local.Blend(GrenadeThrowHandStart,Rest,FMath::SmoothStep(0.f,.24f,Released));
                 Target=Local*Tooth->GetActorTransform();Has=true;
+            }
+            if(Grenade && Side==0 && GrenadeBalance>.001f) {
+                Target=CS[Hand]*World;
+                Target.AddToTranslation(Tooth->GetActorQuat().RotateVector(FVector(-8,-10,6))*GrenadeBalance);
+                Has=true;
             }
             if(Sponge && !Has) {
                 // Free floating mittens counterbalance the board; no invented
@@ -850,12 +861,13 @@ public:
             // Hook contains its own authored anticipation/recovery. A second
             // interpolation would visibly detach the cable from the glove.
             if(const auto* Rocket=Cast<AMCRocketSkillAction>(Action);Rocket && Has) {
-                // The launcher draw path starts on the evaluated dominant
-                // wrist and already eases. A second right-hand blend would
-                // let the gun float away; the support hand catches by fire.
+                // The dominant hand owns the launcher throughout the raise.
+                // The support hand catches during the draw and stays through recoil.
                 const float Windup=FMath::Clamp(Rocket->Param(TEXT("FireWindupSeconds"),.15f),.001f,.6f);
-                ActiveHandAlpha[Side]=Side==1?1.f:FMath::SmoothStep(0.f,Windup,Rocket->GetPresentationAge());
-            } else ActiveHandAlpha[Side]=Hook && Has?1.f:FMath::FInterpConstantTo(ActiveHandAlpha[Side],Has?1.f:0.f,Dt,Has?10.f:8.f);
+                ActiveHandAlpha[Side]=Side==1 || !Rocket->IsDrawingLauncher() || Rocket->GetPresentationReleaseAge()>=0?1.f
+                    :FMath::SmoothStep(0.f,Windup,Rocket->GetPresentationAge());
+            } else ActiveHandAlpha[Side]=Has && (Hook || Tooth->IsSkillAimHandPresented(Side==0) || (Grenade && Side==1))?1.f
+                :FMath::FInterpConstantTo(ActiveHandAlpha[Side],Has?1.f:0.f,Dt,Has?10.f:8.f);
             if(ActiveHandAlpha[Side]<.001f) continue;
             FTransform Contact=ActiveHandWorld[Side].GetRelativeTransform(World);
             Contact.SetScale3D(CS[Hand].GetScale3D());

@@ -576,7 +576,11 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(GamepadSprintAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::CancelSprintInput);
     Input->BindAction(DashAction,ETriggerEvent::Started,this,&AMCToothCharacter::RequestDashInput);
     const auto PrimaryInput=[this](bool bPressed) {
-        if(auto* PC=Cast<AMCPlayerController>(GetController());PC && PC->RouteSkillAimInput(bPressed)) return;
+        if(auto* PC=Cast<AMCPlayerController>(GetController())) {
+            // Latch the physical source for Completed/Canceled, when the key is already up.
+            if(bPressed) bPrimaryMouseGesture=PC->IsInputKeyDown(EKeys::LeftMouseButton);
+            if(bPrimaryMouseGesture?PC->RouteSkillFireInput(bPressed):PC->RouteSkillAimInput(bPressed)) return;
+        }
         if(bPressed) StartPrimary();else StopPrimary();
     };
     Input->BindActionValueLambda(BrushAction,ETriggerEvent::Started,[PrimaryInput](const FInputActionValue&) {PrimaryInput(true);});
@@ -590,7 +594,10 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(RestartAction, ETriggerEvent::Started, this, &AMCToothCharacter::RestartRun);
     Input->BindAction(SwingAction,ETriggerEvent::Started,this,&AMCToothCharacter::SwingBrush);
     const auto BraceInput=[this](bool bPressed) {
-        if(auto* PC=Cast<AMCPlayerController>(GetController());PC && PC->RouteSkillFireInput(bPressed)) return;
+        if(auto* PC=Cast<AMCPlayerController>(GetController())) {
+            if(bPressed) bBraceMouseGesture=PC->IsInputKeyDown(EKeys::RightMouseButton);
+            if(bBraceMouseGesture?PC->RouteSkillAimInput(bPressed):PC->RouteSkillFireInput(bPressed)) return;
+        }
         if(bPressed) StartBrace();else StopBrace();
     };
     Input->BindActionValueLambda(BraceAction,ETriggerEvent::Started,[BraceInput](const FInputActionValue&) {BraceInput(true);});
@@ -1232,7 +1239,7 @@ void AMCToothCharacter::UpdateRowing(float Dt)
 }
 void AMCToothCharacter::ContinueFogGuard()
 {
-    if(const auto* PC=Cast<AMCPlayerController>(GetController());PC && PC->SuppressesOrdinaryBraceInput()) return;
+    if(const auto* PC=Cast<AMCPlayerController>(GetController());PC && PC->SuppressesOrdinaryBraceInput(bBraceMouseGesture)) return;
     if(!Grip || Grip->IsBraceInputHeld() || !CanWork()) return;
     for(TActorIterator<AMCFogBrawlEvent> It(GetWorld());It;++It)
         if(!It->IsActorBeingDestroyed() && It->IsActive() && It->Stage==EMCFogBrawlStage::Warning)
@@ -1452,6 +1459,7 @@ void AMCToothCharacter::FindWork(float DeltaSeconds)
 void AMCToothCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    UpdateSkillAimPresentation();
     UpdateArenaBoundary();
     UpdateThrowInput(DeltaSeconds);
     if(MCMeleeCombo::ConsumeBufferedPress(this)) ServerSwingBrush();

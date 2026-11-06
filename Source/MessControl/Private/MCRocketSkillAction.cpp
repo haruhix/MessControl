@@ -3,15 +3,37 @@
 #include "MCActiveSkillImpact.h"
 #include "MCPlayerState.h"
 #include "MCToothCharacter.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "CollisionQueryParams.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Net/UnrealNetwork.h"
+
+namespace
+{
+FVector RocketAimRight(const AMCToothCharacter& Caster,FVector Direction)
+{
+    const FVector Forward=Direction.GetSafeNormal2D(SMALL_NUMBER,Caster.GetActorForwardVector());
+    return FVector::CrossProduct(FVector::UpVector,Forward).GetSafeNormal();
+}
+
+void KeepRocketOutsideBody(const AMCToothCharacter& Caster,const UStaticMesh* Launcher,FVector Right,FTransform& Pose)
+{
+    if(!Launcher) return;
+    const FBox Bounds=Launcher->GetBoundingBox();
+    // Project the real prop bounds onto the firing frame's right axis. A
+    // separating plane outside the capsule also clears the stock at steep aim.
+    const FVector LocalRight=Pose.InverseTransformVectorNoScale(Right);
+    const double InsideEdge=FVector::DotProduct(Pose.TransformPosition(Bounds.GetCenter())-Caster.GetActorLocation(),Right)
+        -FVector::DotProduct(Bounds.GetExtent(),LocalRight.GetAbs());
+    const double Clearance=Caster.GetCapsuleComponent()->GetScaledCapsuleRadius()+2.;
+    if(InsideEdge<Clearance) Pose.AddToTranslation(Right*(Clearance-InsideEdge));
+}
+}
 
 AMCRocketSkillAction::AMCRocketSkillAction()
 {
@@ -63,10 +85,21 @@ FVector AMCRocketSkillAction::MeshLocalMuzzle(const TMap<FName,float>* PreviewPa
 FTransform AMCRocketSkillAction::ReadyLauncherPose(const AMCToothCharacter& Caster,FVector Direction) const
 {
     FTransform Pose=PropTransform*LauncherMount*Caster.GetActorTransform();
-    const FVector Forward=Pose.TransformVectorNoScale(LauncherForwardLocal.GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector)).GetSafeNormal();
-    const FQuat Correction=FQuat::FindBetweenNormals(Forward,Direction.GetSafeNormal(SMALL_NUMBER,Caster.GetActorForwardVector()));
-    Pose.SetRotation((Correction*Pose.GetRotation()).GetNormalized());
     Pose.SetScale3D(FVector::OneVector);
+    const FVector Forward=Pose.TransformVectorNoScale(LauncherForwardLocal.GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector)).GetSafeNormal();
+    const FVector Aim=Direction.GetSafeNormal(SMALL_NUMBER,Caster.GetActorForwardVector());
+    const FVector FlatForward=Forward.GetSafeNormal2D(SMALL_NUMBER,Caster.GetActorForwardVector());
+    const FVector FlatAim=Aim.GetSafeNormal2D(SMALL_NUMBER,FlatForward);
+    const double YawAngle=FMath::Atan2(FVector::CrossProduct(FlatForward,FlatAim).Z,FVector::DotProduct(FlatForward,FlatAim));
+    const FQuat Yaw(FVector::UpVector,YawAngle);
+    const FQuat Pitch=FQuat::FindBetweenNormals(Yaw.RotateVector(Forward),Aim);
+    const FVector Pivot=Caster.GetActorLocation();
+    // Yaw carries the authored trigger around the body. Pitch hinges around
+    // that trigger, preserving its height and the guide's roll.
+    const FVector Trigger=Pivot+Yaw.RotateVector(Pose.TransformPosition(RightGripTransform.GetLocation())-Pivot);
+    Pose.SetRotation((Pitch*Yaw*Pose.GetRotation()).GetNormalized());
+    Pose.SetLocation(Trigger-Pose.TransformVectorNoScale(RightGripTransform.GetLocation()));
+    KeepRocketOutsideBody(Caster,PropAsset.Get(),RocketAimRight(Caster,FlatAim),Pose);
     return Pose;
 }
 FVector AMCRocketSkillAction::GetLauncherMuzzlePoint() const
@@ -100,11 +133,13 @@ void AMCRocketSkillAction::UpdateHeldLauncher()
             FTransform Draw;Draw.Blend(From,Pose,FMath::SmoothStep(0.f,1.f,GetPresentationAge()/WindupSeconds()));Pose=Draw;
         }
     }
+    const FVector Right=RocketAimRight(*Hero(),Direction);
     const float Age=GetPresentationReleaseAge();
     const float Kick=Age>=0?FMath::Exp(-Age*11.f)*FMath::Sin(FMath::Clamp(Age/.11f,0.f,1.f)*HALF_PI):0.f;
-    Pose.AddToTranslation(-Direction*(Kick*9.f)+FVector(0,0,Kick*3.f));
-    const FVector RecoilAxis=Pose.TransformVectorNoScale(FVector::RightVector).GetSafeNormal();
-    Pose.SetRotation((FQuat(RecoilAxis,FMath::DegreesToRadians(Kick*5.f))*Pose.GetRotation()).GetNormalized());
+    const float Recovery=Age>=0?FMath::SmoothStep(.12f,FMath::Clamp(LauncherRecoverySeconds,.15f,1.2f),Age):0.f;
+    Pose.AddToTranslation(-Direction*(Kick*9.f)+Right*(Recovery*4.f)+FVector(0,0,Kick*3.f-Recovery*16.f));
+    Pose.SetRotation((FQuat(Right,FMath::DegreesToRadians(-Kick*5.f))*Pose.GetRotation()).GetNormalized());
+    KeepRocketOutsideBody(*Hero(),PropAsset.Get(),Right,Pose);
     LauncherRoot->SetWorldTransform(PropTransform.Inverse()*Pose);
 }
 
@@ -153,8 +188,8 @@ bool AMCRocketSkillAction::ReadLaunchFor(const AMCToothCharacter& Caster,const T
         return false;
     };
     if(!TargetIsAhead()) return false;
-    // Camera target and muzzle are coupled because the barrel rotates about its
-    // actual held origin. Bounded fixed-point alignment keeps authored roll.
+    // The held mount moves as it converges on the camera target. Re-solve the
+    // actual model muzzle each step while keeping the same clearance and roll.
     for(int32 I=0;I<5;++I) {
         Pose=ReadyLauncherPose(Caster,Direction);Origin=Pose.TransformPosition(MuzzleLocal);
         if(PropWorld) *PropWorld=Pose;
@@ -202,6 +237,22 @@ bool AMCRocketSkillAction::BuildAimPreview(const AMCToothCharacter& Caster,const
     return true;
 }
 
+bool AMCRocketSkillAction::BuildReadyAimPose(const AMCToothCharacter& Caster,const TMap<FName,float>& PreviewParameters,FMCActiveSkillAimPose& Out) const
+{
+    FVector Origin,Direction;
+    FTransform PropWorld=ReadyLauncherPose(Caster,Caster.GetActorForwardVector());
+    // Keep the held prop visible when the real muzzle is blocked.
+    ReadLaunchFor(Caster,&PreviewParameters,Origin,Direction,nullptr,&PropWorld);
+    if(PropWorld.ContainsNaN()) return false;
+
+    const FTransform CasterFrame(Caster.GetActorQuat(),Caster.GetActorLocation());
+    Out.PropLocal=PropWorld.GetRelativeTransform(CasterFrame);
+    Out.HandsLocal[0]=ResolvePresentationGrip(true,&PreviewParameters)*Out.PropLocal;
+    Out.HandsLocal[1]=ResolvePresentationGrip(false,&PreviewParameters)*Out.PropLocal;
+    Out.bHasLeftHand=bHasLeftGrip;
+    return true;
+}
+
 bool AMCRocketSkillAction::CanStart() const
 {
     FVector Origin,Direction;
@@ -220,20 +271,22 @@ void AMCRocketSkillAction::BeginPlay()
 
 void AMCRocketSkillAction::StartCommitted()
 {
-    if(Hero() && Hero()->GetMesh()) {
-        const FTransform Wrist=Hero()->GetMesh()->GetSocketTransform(Hero()->RigBone(TEXT("hand_r")));
-        FTransform Draw=RightGripTransform.Inverse()*Wrist;Draw.SetScale3D(FVector::OneVector);
-        InitialDrawPropActorLocal=Draw.GetRelativeTransform(Hero()->GetActorTransform());bHasDrawStart=true;
-    }
     Super::StartCommitted();SetInstigator(Hero());
     Body->SetSphereRadius(ProjectileRadius());
     Phase=EMCRocketSkillPhase::Windup;LaunchAt=Now()+WindupSeconds();
     FHitResult Block;
-    if(!ReadLaunch(PreparedOrigin,PreparedDirection,&Block)) {
+    FTransform Draw;
+    if(!ReadLaunch(PreparedOrigin,PreparedDirection,&Block,&Draw)) {
         // Preparation was clear; a post-commit obstruction consumes the accepted
         // shot on its near side instead of creating a rocket behind the wall.
         SetActorLocation(PreparedOrigin,false,nullptr,ETeleportType::TeleportPhysics);
         Detonate(PreparedOrigin,Block.bBlockingHit?Block.ImpactNormal:-PreparedDirection);return;
+    }
+    // The normal aimed shot starts from the already raised launcher. A
+    // sandbox shot without an aim gesture still shows the authored draw.
+    if(!HasCommittedInputView()) {
+        Draw.AddToTranslation(RocketAimRight(*Hero(),PreparedDirection)*8.+FVector(0,0,-20.));
+        InitialDrawPropActorLocal=Draw.GetRelativeTransform(Hero()->GetActorTransform());bHasDrawStart=true;
     }
     SetActorLocationAndRotation(PreparedOrigin,PreparedDirection.Rotation(),false,nullptr,ETeleportType::TeleportPhysics);
     UpdateHeldLauncher();OnRep_Phase();ForceNetUpdate();

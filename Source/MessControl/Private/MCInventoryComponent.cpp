@@ -384,7 +384,7 @@ FVector UMCInventoryComponent::SwingOffset(EMCToolSlot Slot,float T)
 }
 bool UMCInventoryComponent::ShouldPresentTool() const
 {
-    if(Hero && Hero->GetActiveSkillPresentation()) return false;
+    if(Hero && (Hero->GetActiveSkillPresentation() || Hero->IsSkillAimHandPresented(false))) return false;
     if(Hero && Hero->FishingRod && Hero->FishingRod->IsPresented()) return false;
     if(!Hero || !Hero->Status->IsAlive() || Hero->IsRowing() || Hero->HeldFood || Hero->FoodCollection->bCollecting || AMCHubBasketball::HeldBy(Hero) || Hero->OrderJumpTarget || Hero->SwallowedBy || Hero->MimicCaptor) return false;
     if(Hero->RewardInteraction && (Hero->RewardInteraction->Stage==EMCRewardChestStage::Lockpicking

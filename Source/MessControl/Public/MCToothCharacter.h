@@ -3,6 +3,7 @@
 #include "GameFramework/Character.h"
 #include "Engine/NetSerialization.h"
 #include "MCDataAssets.h"
+#include "MCActiveSkillAimPreview.h"
 #include "MCToothCharacter.generated.h"
 class UCameraComponent;
 class USpringArmComponent;
@@ -133,6 +134,7 @@ public:
     void SetActiveSkillPresentation(AMCActiveSkillAction* Action);
     void SuspendOrdinaryWorkForSkill();
     void SuspendToolInputForSkillAim();
+    bool IsSkillAimHandPresented(bool bLeft) const;
     UFUNCTION(BlueprintPure,Category="Skill|Presentation") bool ActiveSkillHandTarget(bool bLeft,FTransform& WorldPose) const;
     /** Keep the existing load through perk UI; this never permits new gameplay actions. */
     bool ShouldPreserveFoodForPerkChoice() const;
@@ -289,6 +291,9 @@ protected:
     virtual void BeginPlay() override;
 private:
     TWeakObjectPtr<AMCActiveSkillAction> ActiveSkillPresentation;
+    UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> SkillAimProp;
+    FMCActiveSkillAimPose SkillAimPose;
+    void UpdateSkillAimPresentation();
     friend class UMCInventoryComponent;
 #if WITH_DEV_AUTOMATION_TESTS
     friend class FMCToolSelectionLateSwingTest;
@@ -405,6 +410,8 @@ private:
     UPROPERTY() TObjectPtr<UInputAction> RestartAction;
     UPROPERTY() TObjectPtr<UInputAction> SwingAction;
     UPROPERTY() TObjectPtr<UInputAction> BraceAction;
+    bool bPrimaryMouseGesture=false;
+    bool bBraceMouseGesture=false;
     UPROPERTY() TObjectPtr<UInputAction> RowingAction;
     UPROPERTY() TObjectPtr<UInputAction> OrbitXAction;
     UPROPERTY() TObjectPtr<UInputAction> OrbitYAction;

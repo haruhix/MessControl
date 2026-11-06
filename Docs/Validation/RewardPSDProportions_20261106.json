@@ -1,0 +1,39 @@
+{
+  "task": "PSD Reward proportions and compact reward card copy",
+  "evidenceRoot": "E:/CodexWork/MessControl/Validation/RewardPSDProportions_20261106",
+  "reference": {
+    "master": "D:/sda/visua2.psd",
+    "artboard": "13_PERK.png",
+    "outerFrame": [1197, 920],
+    "blueFill": [1185, 908],
+    "whiteCardFill": [312, 425],
+    "artworkTile": [253, 225],
+    "descriptionLinePitchPixels": 20,
+    "userScreenshotBlueFill": [1206, 1122]
+  },
+  "changes": [
+    "Ordinary Reward uses a fixed PSD frame and card body. The complete modal scales uniformly against the gameplay design viewport. The scale wrapper is installed before Slate construction.",
+    "Calibrate ordinary Reward title and description typography against the exported PSD. Keep descriptions in the card and give longer copy more of the card's fixed space.",
+    "Shorten nine English/Russian descriptions in the canonical authoring JSON and saved DT_UI_Localization. Verify all unrelated rows and fields before saving. Preserve canonical perk IDs, mechanics and DT_Perks icon assignments."
+  ],
+  "editorBuild": {"result": "Succeeded", "seconds": 15.33, "log": "EditorBuildDriver03.log"},
+  "savedCopy": "CompactCopy/Authoring.json",
+  "previews": {
+    "count": 7,
+    "metrics": "PreviewMetrics.json",
+    "exactIDs": ["B1_BigPortion", "B1_ConfidentThrow", "Consumable_Air"],
+    "exact1420x1215Frame": [955.98, 734.76],
+    "frameHeightOverWidth": 0.7686,
+    "ordinary1280x720Frame": [798, 613.33],
+    "verified": "Six ordinary previews have one painted frame, fixed card proportions, full description geometry within copy bounds and no scroll ancestor. Includes three longest previous descriptions in both English and Russian. Replacement preview retains its distinct card grid."
+  },
+  "soloPIE": {
+    "readiness": "L_Mouth ready, 1811 resources, 539/539 streaming. Editor first-use shader preparation completed before readiness.",
+    "chest": "The placed native chest reached Lockpicking and returned to Landed before displaying offers. Retry fixture actors had expired. No live chest modal acceptance claimed.",
+    "cleanup": "Temporary PIE preferences restored, owned PIE stopped and normal Editor quit requested."
+  },
+  "limitations": [
+    "The supplied PSD lacks a canonical Air Blower glyph.",
+    "Preview acceptance covers the listed cases. Arbitrarily longer custom copy, all locales, packaged gameplay and network behavior were outside this check."
+  ]
+}

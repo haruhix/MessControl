@@ -36,6 +36,50 @@
 
 namespace
 {
+    // Outer bounds measured on the Reward composition in 13_PERK.png.
+    const FVector2D RewardDesignViewport(1778,1080);
+    const FVector2D RewardDesignSize(1197,920);
+    const FVector2D RewardCardSurfaceSize(320,435);
+    const FVector2D RewardArtworkSize(253,225);
+    constexpr float RewardCardShadowRight=16.f;
+    constexpr float RewardCardGap=27.f;
+    constexpr float RewardArtworkGap=10.f;
+    constexpr int32 RewardTitleFontSize=50; // 49 px capitals in the PSD export.
+    constexpr int32 RewardDescriptionFontSize=13; // 20 px line pitch in the PSD export.
+
+    bool UsesOrdinaryOfferLayout(const TArray<FMCUnifiedRewardCard>& Cards,bool bShowingReplacement,bool bShowingContract)
+    {
+        if(bShowingReplacement || bShowingContract) return false;
+        int32 VisibleCards=0;
+        for(const auto& Card:Cards)
+            if(Card.Host && Card.Host->GetVisibility()!=ESlateVisibility::Collapsed) ++VisibleCards;
+        return VisibleCards>0 && VisibleCards<=3;
+    }
+
+    void InstallRewardModalScale(UWidgetTree* Tree)
+    {
+        if(Tree->FindWidget(TEXT("RewardV2ModalScale"))) return;
+        auto* Bounds=Tree->FindWidget<USizeBox>(TEXT("RewardV2Size"));
+        if(!Bounds) return;
+
+        auto* AlignmentRoot=Cast<UOverlay>(Bounds->GetParent());
+        if(Tree->RootWidget==Bounds) {
+            AlignmentRoot=Tree->ConstructWidget<UOverlay>(UOverlay::StaticClass(),TEXT("RewardV2AlignmentRoot"));
+            Tree->RootWidget=AlignmentRoot;
+        }
+        if(!AlignmentRoot) return;
+
+        // Install before Slate takes the tree. Moving a live SizeBox can retain
+        // the old Slate branch for a paint and draw a second modal underneath.
+        Bounds->RemoveFromParent();
+        auto* Scale=Tree->ConstructWidget<UScaleBox>(UScaleBox::StaticClass(),TEXT("RewardV2ModalScale"));
+        Scale->SetStretch(EStretch::UserSpecified);
+        Scale->SetContent(Bounds);
+        auto* ModalSlot=AlignmentRoot->AddChildToOverlay(Scale);
+        ModalSlot->SetHorizontalAlignment(HAlign_Center);
+        ModalSlot->SetVerticalAlignment(VAlign_Center);
+    }
+
     FLinearColor MCUnifiedRewardPrivate_Color(const TCHAR* Hex) { return FLinearColor(FColor::FromHex(Hex)); }
     const FLinearColor MCUnifiedRewardPrivate_Blue=MCUnifiedRewardPrivate_Color(TEXT("4C76AE")),MCUnifiedRewardPrivate_Paper=MCUnifiedRewardPrivate_Color(TEXT("FAFCFB")),MCUnifiedRewardPrivate_Ink=MCUnifiedRewardPrivate_Color(TEXT("44232C"));
     const FLinearColor MCUnifiedRewardPrivate_Dark=MCUnifiedRewardPrivate_Color(TEXT("404243")),MCUnifiedRewardPrivate_Pink=MCUnifiedRewardPrivate_Color(TEXT("AE4C6C")),MCUnifiedRewardPrivate_Red=MCUnifiedRewardPrivate_Color(TEXT("B21414"));
@@ -110,7 +154,10 @@ void UMCUnifiedRewardWidget::BuildPresentationTree()
 {
     if(!WidgetTree) return;
     if(!Theme) Theme=UMCGameplayUIFactory::GetThemeForVersion(EMCUIVersion::New);
-    if(WidgetTree->RootWidget) {ResolvePresentationTree();UpdateResponsiveLayout();return;}
+    if(WidgetTree->RootWidget) {
+        InstallRewardModalScale(WidgetTree);
+        ResolvePresentationTree();UpdateResponsiveLayout();return;
+    }
     auto* Size=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("RewardV2Size"));
     Size->SetMinDesiredWidth(1040);Size->SetMaxDesiredWidth(1240);WidgetTree->RootWidget=Size;
     auto* Frame=MakeShape(TEXT("RewardV2Frame"),MCUnifiedRewardPrivate_Blue);Frame->CustomOutline=MCUnifiedRewardPrivate_Paper;Frame->OutlineWidth=4;
@@ -167,6 +214,7 @@ void UMCUnifiedRewardWidget::BuildPresentationTree()
         if(I) ActionSize->SetVisibility(ESlateVisibility::Collapsed);
     }
     Column->AddChildToVerticalBox(MakeText(TEXT("RewardV2Hint"),16,MCUnifiedRewardPrivate_Paper))->SetPadding(FMargin(12,4,12,0));
+    InstallRewardModalScale(WidgetTree);
     ResolvePresentationTree();
 }
 
@@ -293,7 +341,7 @@ void UMCUnifiedRewardWidget::Present(const FMCPerkChoicePresentationSnapshot& Sn
             if(View->WidgetTree) if(auto* Label=View->WidgetTree->FindWidget<UTextBlock>(TEXT("UniversalLabel"))) {Label->SetAutoWrapText(false);Label->SetWrapTextAt(450);}
         }
     }
-    UpdateResponsiveLayout();UpdateCardCopyHeight();UpdateHeaderContour();RefreshTextBounds();
+    UpdateResponsiveLayout();UpdateHeaderContour();RefreshTextBounds();
 }
 void UMCUnifiedRewardWidget::SetBackend(UMCPerkChoiceWidget* Source)
 {
@@ -432,7 +480,7 @@ void UMCUnifiedRewardWidget::ApplyTheme()
     for(const UMCUnifiedRewardBinding* Binding:Bindings) if(Binding && Binding->View) {
         const auto* Source=Binding->SourceButton.Get();MCUnifiedRewardPrivate_SetReadableButton(Binding->View,Source && Source->GetIsEnabled() && Source->IsInteractionAllowed());
     }
-    UpdateResponsiveLayout();UpdateCardCopyHeight();UpdateHeaderContour();
+    UpdateResponsiveLayout();UpdateHeaderContour();
 }
 float UMCUnifiedRewardWidget::AdaptiveCardWidth(const FMCPerkChoicePresentationSnapshot& Snapshot) const
 {
@@ -453,6 +501,7 @@ float UMCUnifiedRewardWidget::AdaptiveCardWidth(const FMCPerkChoicePresentationS
 void UMCUnifiedRewardWidget::UpdateCardCopyHeight()
 {
     if(!WidgetTree) return;
+    const bool OrdinaryOffers=UsesOrdinaryOfferLayout(Cards,bShowingReplacement,bShowingContract);
     const float Scale=FMath::Max(.01f,GetPaintSpaceGeometry().GetAccumulatedLayoutTransform().GetScale());
     float NaturalHeight=0;
     for(int32 Index=0;Index<Cards.Num();++Index) {
@@ -468,8 +517,27 @@ void UMCUnifiedRewardWidget::UpdateCardCopyHeight()
             FallbackHeight+=MCUnifiedRewardPrivate_MeasureText(Label->GetText(),Label->GetFont(),Width).Height+12.f;
         NaturalHeight=FMath::Max(NaturalHeight,FMath::Max(float(Copy->GetDesiredSize().Y),FallbackHeight));
     }
-    for(int32 Index=0;Index<Cards.Num();++Index) if(auto* Bounds=WidgetTree->FindWidget<USizeBox>(MCUnifiedRewardPrivate_Part(TEXT("CopyBounds"),Index)))
-        Bounds->SetHeightOverride(FMath::CeilToFloat(NaturalHeight));
+    for(int32 Index=0;Index<Cards.Num();++Index) {
+        auto* Bounds=WidgetTree->FindWidget<USizeBox>(MCUnifiedRewardPrivate_Part(TEXT("CopyBounds"),Index));
+        if(!Bounds) continue;
+        const auto* Surface=Cards[Index].Surface.Get();
+        if(OrdinaryOffers && Surface) {
+            // Keep the PSD card boundary fixed. Longer copy can use space from
+            // the illustration, without changing the type size or adding scroll.
+            const float BodyHeight=RewardCardSurfaceSize.Y-Surface->ContentPadding.Top-Surface->ContentPadding.Bottom;
+            const float ArtworkHeight=FMath::Clamp(BodyHeight-RewardArtworkGap-FMath::CeilToFloat(NaturalHeight),0.f,float(RewardArtworkSize.Y));
+            if(auto* Artwork=WidgetTree->FindWidget<USizeBox>(MCUnifiedRewardPrivate_Part(TEXT("IconBounds"),Index))) {
+                Artwork->SetWidthOverride(ArtworkHeight*RewardArtworkSize.X/RewardArtworkSize.Y);
+                Artwork->SetHeightOverride(ArtworkHeight);
+                Artwork->SetVisibility(ArtworkHeight>0 ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Collapsed);
+            }
+            Bounds->SetHeightOverride(BodyHeight-(ArtworkHeight>0 ? ArtworkHeight+RewardArtworkGap : 0.f));
+        } else {
+            if(auto* Artwork=WidgetTree->FindWidget<USizeBox>(MCUnifiedRewardPrivate_Part(TEXT("IconBounds"),Index)))
+                Artwork->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+            Bounds->SetHeightOverride(FMath::CeilToFloat(NaturalHeight));
+        }
+    }
 }
 void UMCUnifiedRewardWidget::UpdateResponsiveLayout(FVector2D AvailableSize)
 {
@@ -499,11 +567,6 @@ void UMCUnifiedRewardWidget::UpdateResponsiveLayout(FVector2D AvailableSize)
         ReplacementCardGrid=ExistingGrid;ReplacementGridScroll=ExistingScroll;
     }
     OrdinaryCardRow=CardRow;
-    if(WidgetTree->RootWidget==RootBounds) {
-        auto* AlignmentRoot=WidgetTree->ConstructWidget<UOverlay>(UOverlay::StaticClass(),TEXT("RewardV2AlignmentRoot"));
-        WidgetTree->RootWidget=AlignmentRoot;auto* Cell=AlignmentRoot->AddChildToOverlay(RootBounds);
-        Cell->SetHorizontalAlignment(HAlign_Center);Cell->SetVerticalAlignment(VAlign_Center);
-    }
     // Upgrade the saved tree in place: keep its named controls and action bindings,
     // while removing the former outer and per-card scroll boxes from presentation.
     auto* CardViewport=WidgetTree->FindWidget<USizeBox>(TEXT("RewardV2CardsViewport"));
@@ -559,9 +622,11 @@ void UMCUnifiedRewardWidget::UpdateResponsiveLayout(FVector2D AvailableSize)
         Header->ClearChildren();Spacer=WidgetTree->ConstructWidget<USizeBox>(USizeBox::StaticClass(),TEXT("RewardV2HeaderSpacer"));Header->AddChildToHorizontalBox(Spacer);
         for(int32 I=0;I<Children.Num();++I) {auto* Cell=Header->AddChildToHorizontalBox(Children[I]);Cell->SetPadding(Insets[I]);Cell->SetSize(Sizing[I]);Cell->SetHorizontalAlignment(Horizontal[I]);Cell->SetVerticalAlignment(Vertical[I]);}
     }
+    const bool OrdinaryOffers=UsesOrdinaryOfferLayout(Cards,bShowingReplacement,bShowingContract);
     if(auto* Plate=WidgetTree->FindWidget<UMCUniversalUIWidget>(TEXT("RewardV2TitlePlate"))) {
-        if(Plate->FontSize!=64 || Plate->CornerRadius!=20 || Plate->ContentPadding!=FMargin(20,4) || !Plate->ShadowOffset.IsNearlyZero()) {
-            Plate->FontSize=64;Plate->CornerRadius=20;Plate->ContentPadding=FMargin(20,4);Plate->ShadowOffset={0,0};Plate->ApplyTheme();
+        const int32 TitleSize=OrdinaryOffers ? RewardTitleFontSize : 64;
+        if(Plate->FontSize!=TitleSize || Plate->CornerRadius!=20 || Plate->ContentPadding!=FMargin(20,4) || !Plate->ShadowOffset.IsNearlyZero()) {
+            Plate->FontSize=TitleSize;Plate->CornerRadius=20;Plate->ContentPadding=FMargin(20,4);Plate->ShadowOffset={0,0};Plate->ApplyTheme();
         }
         if(RewardTitleFont.HasValidFont() && Plate->WidgetTree)
             if(auto* Label=Plate->WidgetTree->FindWidget<UTextBlock>(TEXT("UniversalLabel"))) {
@@ -605,18 +670,19 @@ void UMCUnifiedRewardWidget::UpdateResponsiveLayout(FVector2D AvailableSize)
     if(AvailableSize.X<=1 || AvailableSize.Y<=1) return;
     ResponsiveViewportSize=AvailableSize;
     int32 Count=0;for(const auto& Card:Cards) if(Card.Host && Card.Host->GetVisibility()!=ESlateVisibility::Collapsed) ++Count;
-    const bool OrdinaryOffers=!bShowingReplacement && !bShowingContract && Count>0 && Count<=3;
-    const float ViewportMaxWidth=FMath::Max(1.f,float(AvailableSize.X)-14.f),MaxHeight=FMath::Max(1.f,float(AvailableSize.Y)-16.f);
-    // Keep the original PSD modal ceiling when ordinary chest copy needs more
-    // room. Its centered viewport host is not a request to fill the screen.
-    const float MaxWidth=OrdinaryOffers?FMath::Min(ViewportMaxWidth,1240.f):ViewportMaxWidth;
+    const float MaxWidth=FMath::Max(1.f,float(AvailableSize.X)-14.f),MaxHeight=FMath::Max(1.f,float(AvailableSize.Y)-16.f);
+    auto* ModalScale=WidgetTree->FindWidget<UScaleBox>(TEXT("RewardV2ModalScale"));
+    if(ModalScale) {
+        const float Scale=OrdinaryOffers ? FMath::Min(AvailableSize.X/RewardDesignViewport.X,AvailableSize.Y/RewardDesignViewport.Y) : 1.f;
+        ModalScale->SetUserSpecifiedScale(Scale);
+    }
     const float Chrome=Frame->ContentPadding.Left+Frame->ContentPadding.Right+60.f;
     // Three ordinary offers always retain the PSD row. Four existing skill
     // slots are a different interaction: give their text two usable columns
     // when four natural-width cards would not fit the viewport.
     const bool ReplacementGrid=bShowingReplacement && Count>3 && MaxWidth<Count*FMath::Max(MinimumCardWidth,PreferredCardWidth)+(Count-1)*18.f+Chrome;
     const int32 Columns=ReplacementGrid?2:FMath::Max(1,Count);
-    float ViewWidth=FMath::Min(MaxWidth,Columns*FMath::Max(310.f,PreferredCardWidth)+(Columns-1)*18.f+Chrome);
+    float ViewWidth=OrdinaryOffers ? RewardDesignSize.X : FMath::Min(MaxWidth,Columns*FMath::Max(310.f,PreferredCardWidth)+(Columns-1)*18.f+Chrome);
     if(ReplacementGrid) ViewWidth=FMath::Min(MaxWidth,FMath::Max(ViewWidth,3.f*MinimumCardWidth+36.f+Chrome));
     auto* ListScroll=ReplacementGridScroll.Get();
     auto* Grid=ReplacementCardGrid.Get();
@@ -658,17 +724,28 @@ void UMCUnifiedRewardWidget::UpdateResponsiveLayout(FVector2D AvailableSize)
     auto Measure=[Scale](UWidget* Widget) {if(const auto Slate=Widget?Widget->GetCachedWidget():nullptr) {Slate->MarkPrepassAsDirty();Slate->SlatePrepass(Scale);}return Widget?Widget->GetDesiredSize():FVector2D::ZeroVector;};
     auto Layout=[&](float Width,float IconLimit) {
         const float Inner=FMath::Max(1.f,Width-Frame->ContentPadding.Left-Frame->ContentPadding.Right);
-        const float RowWidth=FMath::Max(1.f,Inner-60.f),ContentWidth=FMath::Max(1.f,RowWidth-(ReplacementGrid?12.f:0.f));
-        const float CardWidth=FMath::Max(1.f,(ContentWidth-(ReplacementGrid?Columns:Columns-1)*18.f)/Columns);
+        const float CardWidthWithShadow=RewardCardSurfaceSize.X+RewardCardShadowRight;
+        const float RowWidth=OrdinaryOffers ? Columns*CardWidthWithShadow+(Columns-1)*RewardCardGap : FMath::Max(1.f,Inner-60.f);
+        const float ContentWidth=FMath::Max(1.f,RowWidth-(ReplacementGrid?12.f:0.f));
+        const float CardWidth=OrdinaryOffers ? CardWidthWithShadow : FMath::Max(1.f,(ContentWidth-(ReplacementGrid?Columns:Columns-1)*18.f)/Columns);
         RootBounds->ClearMaxDesiredHeight();RootBounds->ClearHeightOverride();RootBounds->ClearMinDesiredHeight();RootBounds->ClearMinDesiredWidth();RootBounds->SetWidthOverride(Width);RootBounds->SetMaxDesiredWidth(Width);
         CardViewport->SetWidthOverride(RowWidth);
-        if(!ReplacementGrid) {CardRow->SetWrapSize(ContentWidth+2.f);CardRow->SetHorizontalAlignment(HAlign_Center);}
+        if(!ReplacementGrid) {
+            CardRow->SetInnerSlotPadding({OrdinaryOffers ? RewardCardGap : 18.f,16.f});
+            CardRow->SetWrapSize(ContentWidth+2.f);CardRow->SetHorizontalAlignment(HAlign_Center);
+        }
         else if(Grid) {Grid->SetMinDesiredSlotWidth(0);Grid->SetMinDesiredSlotHeight(0);}
         const float IconSize=FMath::Max(1.f,FMath::Min3(CardWidth-44.f,IconLimit,ReplacementGrid?160.f:TNumericLimits<float>::Max()));
         for(int32 I=0;I<Cards.Num();++I) {
             auto& Card=Cards[I];if(Card.Width) Card.Width->SetWidthOverride(CardWidth);
+            if(Card.Description) {
+                auto Font=Card.Description->GetFont();
+                const int32 Size=OrdinaryOffers ? RewardDescriptionFontSize : 18;
+                if(Font.Size!=Size) {Font.Size=Size;Card.Description->SetFont(Font);}
+            }
             for(UTextBlock* Label:{Card.Name.Get(),Card.Description.Get(),Card.Stats.Get(),Card.Metadata.Get()}) if(Label) {Label->SetAutoWrapText(false);Label->SetWrapTextAt(FMath::Max(1.f,CardWidth-60.f));Label->SetWrappingPolicy(ETextWrappingPolicy::DefaultWrapping);if(auto* Bounds=Cast<USizeBox>(Label->GetParent())) Bounds->SetMaxDesiredWidth(FMath::Max(1.f,CardWidth-60.f));}
-            if(auto* IconBounds=WidgetTree->FindWidget<USizeBox>(MCUnifiedRewardPrivate_Part(TEXT("IconBounds"),I))) {IconBounds->SetWidthOverride(IconSize);IconBounds->SetHeightOverride(IconSize);}
+            if(!OrdinaryOffers)
+                if(auto* IconBounds=WidgetTree->FindWidget<USizeBox>(MCUnifiedRewardPrivate_Part(TEXT("IconBounds"),I))) {IconBounds->SetWidthOverride(IconSize);IconBounds->SetHeightOverride(IconSize);}
             // Saved low-resolution perk art must fill the existing PSD square.
             // Keep the card/row height budget; only normalize the image's
             // intrinsic size and allow its scale box to grow canonical artwork.
@@ -706,6 +783,11 @@ void UMCUnifiedRewardWidget::UpdateResponsiveLayout(FVector2D AvailableSize)
         return Measure(Frame).Y;
     };
     float Height=Layout(ViewWidth,TNumericLimits<float>::Max());
+    if(OrdinaryOffers) {
+        RootBounds->SetHeightOverride(RewardDesignSize.Y);
+        RootBounds->SetMaxDesiredHeight(RewardDesignSize.Y);
+        return;
+    }
     if(ReplacementGrid) {
         // Each stopped viewport contains whole uniform rows, including badges
         // and shadows. Text retains its natural height and never scrolls alone.
@@ -728,27 +810,10 @@ void UMCUnifiedRewardWidget::UpdateResponsiveLayout(FVector2D AvailableSize)
         Height=Measure(Frame).Y;
         RootBounds->SetHeightOverride(FMath::CeilToFloat(Height));RootBounds->SetMaxDesiredHeight(FMath::CeilToFloat(Height));return;
     }
-    if(OrdinaryOffers) {
-        // Recover height from square artwork first. If text still needs a
-        // wider column, retain that icon budget rather than enlarging it again.
-        float IconLimit=FMath::Max(1.f,(ViewWidth-Chrome-(Columns-1)*18.f)/Columns-44.f);
-        const float MinimumIcon=FMath::Min(64.f,IconLimit);
-        auto FitArtwork=[&]() {
-            if(Height>MaxHeight && IconLimit>MinimumIcon) {
-                IconLimit=FMath::Max(MinimumIcon,IconLimit-float(Height-MaxHeight));
-                Height=Layout(ViewWidth,IconLimit);
-            }
-        };
-        FitArtwork();
-        if(Height>MaxHeight && ViewWidth<MaxWidth) {ViewWidth=MaxWidth;Height=Layout(ViewWidth,IconLimit);}
-        FitArtwork();
-    } else {
-        // Contract and non-grid replacement layouts retain their existing fit policy.
-        if(Height>MaxHeight && ViewWidth<MaxWidth) {ViewWidth=MaxWidth;Height=Layout(ViewWidth,TNumericLimits<float>::Max());}
-        if(Height>MaxHeight && Count>0) {
-            const float IconWidth=FMath::Max(64.f,(ViewWidth-Chrome-(Columns-1)*18.f)/Columns-44.f-float(Height-MaxHeight));
-            Height=Layout(ViewWidth,IconWidth);
-        }
+    if(Height>MaxHeight && ViewWidth<MaxWidth) {ViewWidth=MaxWidth;Height=Layout(ViewWidth,TNumericLimits<float>::Max());}
+    if(Height>MaxHeight && Count>0) {
+        const float IconWidth=FMath::Max(64.f,(ViewWidth-Chrome-(Columns-1)*18.f)/Columns-44.f-float(Height-MaxHeight));
+        Height=Layout(ViewWidth,IconWidth);
     }
     RootBounds->SetHeightOverride(FMath::CeilToFloat(Height));RootBounds->SetMaxDesiredHeight(FMath::CeilToFloat(Height));
 }

@@ -23,6 +23,8 @@ public:
     virtual void Tick(float DeltaSeconds) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     bool BuildAimPreview(const AMCToothCharacter& Caster,const TMap<FName,float>& PreviewParameters,FMCActiveSkillAimPreview& Out) const;
+    /** Shared caster-local wrist and prop frames. Safe to read on the action CDO. */
+    void BuildReadyPose(const TMap<FName,float>& PreviewParameters,FTransform& OutRightHandLocal,FTransform& OutPropLocal) const;
     UFUNCTION(BlueprintPure,Category="Skill|Hook") FVector GetTetherStart() const;
     UFUNCTION(BlueprintPure,Category="Skill|Hook") FVector GetTetherEnd() const;
     /** Rendered cable attachment at the measured tail; gameplay contact stays GetTetherEnd. */
@@ -54,6 +56,7 @@ private:
     void StopPull(FName Gate,const FHitResult* Blocker=nullptr);
     void SetCastPhase(EMCHookCastPhase Phase,float Duration);
     void UpdatePresentation();
+    FVector ReadHeldOffset() const;
     FTransform HandLocal(bool bLeft) const;
     bool TargetStillValid() const;
     FMCActiveSkillMotionLease Motion;
@@ -75,6 +78,7 @@ private:
     UPROPERTY(Replicated) FTransform RestRightHand=FTransform::Identity;
     UPROPERTY(Replicated) FTransform RestLeftHand=FTransform::Identity;
     UPROPERTY(Replicated) FQuat PhaseVisualRotation=FQuat::Identity;
+    FVector CastLook=FVector::ForwardVector;
     FVector PreviousMovedPosition=FVector::ZeroVector;
     EMCActiveSkillEndReason ReturnReason=EMCActiveSkillEndReason::Completed;
     double EndsAt=0,LastSampleAt=0;

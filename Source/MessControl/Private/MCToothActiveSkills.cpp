@@ -1,6 +1,7 @@
 #include "MCToothCharacter.h"
 #include "MCActiveSkillAction.h"
 #include "MCHookSkillAction.h"
+#include "MCPlayerController.h"
 #include "MCDriverSkillAction.h"
 #include "MCInventoryComponent.h"
 #include "MCFoodCollectionComponent.h"
@@ -19,6 +20,34 @@ void AMCToothCharacter::SetActiveSkillPresentation(AMCActiveSkillAction* Action)
 {
     if(Action && (!IsValid(Action) || Action->Hero()!=this)) return;
     ActiveSkillPresentation=Action;
+    if(Action && SkillAimProp) SkillAimProp->SetVisibility(false);
+}
+bool AMCToothCharacter::IsSkillAimHandPresented(bool bLeft) const
+{
+    return SkillAimProp && SkillAimProp->IsVisible() && (!bLeft || SkillAimPose.bHasLeftHand);
+}
+void AMCToothCharacter::UpdateSkillAimPresentation()
+{
+    const auto* PC=Cast<AMCPlayerController>(GetController());
+    UStaticMesh* ReadyMesh=nullptr;
+    FMCActiveSkillAimPose Pose;
+    if(GetActiveSkillPresentation() || !PC || !PC->ReadSkillAimPose(ReadyMesh,Pose)) {
+        if(SkillAimProp) SkillAimProp->SetVisibility(false);
+        return;
+    }
+    SkillAimPose=Pose;
+    if(!SkillAimProp) {
+        SkillAimProp=NewObject<UStaticMeshComponent>(this,TEXT("SkillAimProp"));
+        SkillAimProp->SetupAttachment(GetRootComponent());
+        SkillAimProp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        SkillAimProp->SetGenerateOverlapEvents(false);
+        SkillAimProp->SetVisibility(false);
+        SkillAimProp->SetStaticMesh(ReadyMesh);
+        SkillAimProp->RegisterComponent();
+    }
+    if(SkillAimProp->GetStaticMesh()!=ReadyMesh) SkillAimProp->SetStaticMesh(ReadyMesh);
+    SkillAimProp->SetWorldTransform(SkillAimPose.PropLocal*FTransform(GetActorQuat(),GetActorLocation()));
+    SkillAimProp->SetVisibility(true);
 }
 void AMCToothCharacter::SuspendOrdinaryWorkForSkill()
 {
@@ -47,6 +76,11 @@ void AMCToothCharacter::SuspendToolInputForSkillAim()
 bool AMCToothCharacter::ActiveSkillHandTarget(bool bLeft,FTransform& WorldPose) const
 {
     const auto* Action=GetActiveSkillPresentation();
+    if(!Action && IsSkillAimHandPresented(bLeft)) {
+        WorldPose=SkillAimPose.HandsLocal[bLeft?0:1]*FTransform(GetActorQuat(),GetActorLocation());
+        WorldPose.SetScale3D(FVector::OneVector);
+        return !WorldPose.ContainsNaN();
+    }
     if(!Action || !Action->PropMesh || !Action->PropMesh->GetStaticMesh()) return false;
     if(const auto* Hook=Cast<AMCHookSkillAction>(Action)) {
         WorldPose=Hook->GetCasterHandFrame(bLeft);

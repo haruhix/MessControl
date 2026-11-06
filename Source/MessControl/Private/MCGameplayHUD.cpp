@@ -1428,9 +1428,16 @@ FMCUIReticlePresentation UMCGameplayHUD::EvaluateReticlePresentation(const FGeom
             } else if(Held && Cooling) {
                 Label(AimCopy(TEXT("UI.HUD.SkillAim.Cooling"),LOCTEXT("SkillAimCooling","COOLDOWN"),LOCTEXT("SkillAimCoolingRU","ПЕРЕЗАРЯДКА")),Center.Y+21.,Palette.OnMarine);
             } else {
-                if(!Blocked) Label(Held
-                    ?AimCopy(TEXT("UI.HUD.SkillAim.Fire"),LOCTEXT("SkillAimFire","RMB · FIRE"),LOCTEXT("SkillAimFireRU","ПКМ · ПУСК"))
-                    :AimCopy(TEXT("UI.HUD.SkillAim.Ready"),LOCTEXT("SkillAimReady","HOLD LMB · AIM"),LOCTEXT("SkillAimReadyRU","ЗАЖМИ ЛКМ · ПРИЦЕЛ")),Center.Y+21.,Palette.OnMarine);
+                if(!Blocked) {
+                    FText Hint;
+                    if(PC->IsUsingGamepad()) Hint=Held
+                        ?AimCopy(TEXT("UI.HUD.SkillAim.PadFire"),LOCTEXT("SkillAimPadFire","LB · FIRE"),LOCTEXT("SkillAimPadFireRU","LB · ПУСК"))
+                        :AimCopy(TEXT("UI.HUD.SkillAim.PadReady"),LOCTEXT("SkillAimPadReady","HOLD RT · AIM"),LOCTEXT("SkillAimPadReadyRU","ЗАЖМИ RT · ПРИЦЕЛ"));
+                    else Hint=Held
+                        ?AimCopy(TEXT("UI.HUD.SkillAim.Fire"),LOCTEXT("SkillAimFire","LMB · FIRE"),LOCTEXT("SkillAimFireRU","ЛКМ · ПУСК"))
+                        :AimCopy(TEXT("UI.HUD.SkillAim.Ready"),LOCTEXT("SkillAimReady","HOLD RMB · AIM"),LOCTEXT("SkillAimReadyRU","ЗАЖМИ ПКМ · ПРИЦЕЛ"));
+                    Label(Hint,Center.Y+21.,Palette.OnMarine);
+                }
                 Label(Status,Center.Y+(Blocked?21.:55.),Tint);
             }
             return Result;

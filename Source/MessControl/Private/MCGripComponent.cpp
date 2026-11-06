@@ -947,8 +947,9 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
     const bool ActiveSkill=Tooth->GetActiveSkillPresentation()!=nullptr;
     const bool PreciseBoth=ActiveSkill || Fishing || Basketball || Rowing || Lockpicking || Emote || Swimming || ToolSwing || UpgradeHeld || TaskCheer
         || (Tooth->FoodCollection && Tooth->FoodCollection->bCollecting);
-    const bool PreciseLeft=PreciseBoth || SprayDefence;
-    const bool PreciseRight=PreciseBoth || Pickaxe || Spraying || (Tooth->BrushContact && Tooth->BrushContact->IsPresenting());
+    const bool PreciseLeft=PreciseBoth || Tooth->IsSkillAimHandPresented(true) || SprayDefence;
+    const bool PreciseRight=PreciseBoth || Tooth->IsSkillAimHandPresented(false) || Pickaxe || Spraying
+        || (Tooth->BrushContact && Tooth->BrushContact->IsPresenting());
     Tooth->ToothPhysics->SetGripArms(HandAlpha[0]>.001f || PreciseLeft,HandAlpha[1]>.001f || PreciseRight,
         Settings.bActiveObjectGrip && !GrabbedPlayer && !IsBracing() && HandAlpha[0]>.001f && !PreciseLeft,
         Settings.bActiveObjectGrip && !GrabbedPlayer && !IsBracing() && HandAlpha[1]>.001f && !PreciseRight);

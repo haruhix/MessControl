@@ -99,14 +99,24 @@ bool AMCActiveSkillAction::GetPresentationHandTarget(bool bLeft,FTransform& Worl
     if(!bCommitted || bFinished || !H || !H->Status || !H->Status->IsAlive()
         || !PropMesh || !PropMesh->GetStaticMesh() || !PropMesh->IsVisible()
         || !(bLeft?bHasLeftGrip:bHasRightGrip)) return false;
+    WorldPose=ResolvePresentationGrip(bLeft)*PropMesh->GetComponentTransform();
+    WorldPose.SetScale3D(FVector::OneVector);
+    WorldPose.NormalizeRotation();return !WorldPose.ContainsNaN();
+}
+FTransform AMCActiveSkillAction::ResolvePresentationGrip(bool bLeft,const TMap<FName,float>* PreviewParameters) const
+{
     FTransform Local=bLeft?LeftGripTransform:RightGripTransform;
     const FString Prefix=bLeft?TEXT("LeftGrip"):TEXT("RightGrip");
+    const auto GripParam=[&](const TCHAR* Suffix,float Fallback) {
+        const FName Key(*(Prefix+Suffix));
+        if(!PreviewParameters) return Param(Key,Fallback);
+        const float* Value=PreviewParameters->Find(Key);
+        return Value && FMath::IsFinite(*Value)?*Value:Fallback;
+    };
     const FVector P=Local.GetLocation();const FRotator R=Local.Rotator();
-    Local.SetLocation(FVector(Param(FName(*(Prefix+TEXT("X"))),P.X),Param(FName(*(Prefix+TEXT("Y"))),P.Y),Param(FName(*(Prefix+TEXT("Z"))),P.Z)));
-    Local.SetRotation(FRotator(Param(FName(*(Prefix+TEXT("Pitch"))),R.Pitch),Param(FName(*(Prefix+TEXT("Yaw"))),R.Yaw),
-        Param(FName(*(Prefix+TEXT("Roll"))),R.Roll)).Quaternion());
-    WorldPose=Local*PropMesh->GetComponentTransform();WorldPose.SetScale3D(FVector::OneVector);
-    WorldPose.NormalizeRotation();return !WorldPose.ContainsNaN();
+    Local.SetLocation(FVector(GripParam(TEXT("X"),P.X),GripParam(TEXT("Y"),P.Y),GripParam(TEXT("Z"),P.Z)));
+    Local.SetRotation(FRotator(GripParam(TEXT("Pitch"),R.Pitch),GripParam(TEXT("Yaw"),R.Yaw),GripParam(TEXT("Roll"),R.Roll)).Quaternion());
+    return Local;
 }
 bool AMCActiveSkillAction::CanStart() const
 {

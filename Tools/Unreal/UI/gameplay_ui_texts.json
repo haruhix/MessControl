@@ -14892,9 +14892,9 @@
     "Name": "UI.Skill.Catalog.B2_ReturnTrip.Description",
     "Localizations": {},
     "AdditionalLanguages": {},
-    "SourceText": "После доставки еды скорость +15% на 2 секунды. Повторная доставка обновляет время.",
-    "RU": "После доставки еды скорость +15% на 2 секунды. Повторная доставка обновляет время.",
-    "EN": "Delivering food grants +15% movement speed for 2 seconds. Another delivery refreshes the duration.",
+    "SourceText": "Доставка еды даёт +15% скорости на 2 с. Новая доставка обновляет время.",
+    "RU": "Доставка еды даёт +15% скорости на 2 с. Новая доставка обновляет время.",
+    "EN": "Deliver food for +15% speed for 2s. New deliveries reset the timer.",
     "Context": "Current event passives"
   },
   {
@@ -14982,9 +14982,9 @@
     "Name": "UI.Skill.Catalog.B2_RefreshingWork.Description",
     "Localizations": {},
     "AdditionalLanguages": {},
-    "SourceText": "Когда рот полностью очищен, каждый живой игрок с этой пассивкой восстанавливает 20% максимального HP. Один раз за переход к полной чистоте.",
-    "RU": "Когда рот полностью очищен, каждый живой игрок с этой пассивкой восстанавливает 20% максимального HP. Один раз за переход к полной чистоте.",
-    "EN": "When the mouth becomes fully clean, each living owner restores 20% of their maximum HP. Triggers once per transition to complete cleanliness.",
+    "SourceText": "При каждом переходе к полной чистоте живые владельцы пассивки восстанавливают 20% макс. HP.",
+    "RU": "При каждом переходе к полной чистоте живые владельцы пассивки восстанавливают 20% макс. HP.",
+    "EN": "Each time the mouth becomes fully clean, living owners heal 20% max HP.",
     "Context": "Current event passives"
   },
   {
@@ -15108,9 +15108,9 @@
     "Name": "UI.Skill.Catalog.B2_ThunderGod.Description",
     "Localizations": {},
     "AdditionalLanguages": {},
-    "SourceText": "Успешный удар с шансом 20% запускает молнию: до 3 дополнительных целей, по 3 м между ними, 30% урона по целой еде. Союзников отталкивает; боссов и владельца молния не поражает.",
-    "RU": "Успешный удар с шансом 20% запускает молнию: до 3 дополнительных целей, по 3 м между ними, 30% урона по целой еде. Союзников отталкивает; боссов и владельца молния не поражает.",
-    "EN": "A successful attack has a 20% chance to chain to up to 3 additional targets, within 3 m per jump. Whole food takes 30% damage; allies are knocked back. The chain excludes bosses and its owner.",
+    "SourceText": "При попадании 20% шанс молнии. До 3 доп. целей с шагом до 3 м. Целой еде 30% урона. Отталкивает союзников. Не задевает боссов и тебя.",
+    "RU": "При попадании 20% шанс молнии. До 3 доп. целей с шагом до 3 м. Целой еде 30% урона. Отталкивает союзников. Не задевает боссов и тебя.",
+    "EN": "Hits have a 20% lightning chance. Up to 3 extra targets, 3m per jump. 30% damage to whole food. Pushes allies. Skips bosses and you.",
     "Context": "Current event passives"
   },
   {
@@ -15126,9 +15126,9 @@
     "Name": "UI.Skill.Catalog.B2_EchoSwing.Description",
     "Localizations": {},
     "AdditionalLanguages": {},
-    "SourceText": "Через 0,5 секунды призрачный инструмент повторяет успешный удар ближнего боя на прежнем месте с 40% урона. Эхо не запускает другие боевые пассивки.",
-    "RU": "Через 0,5 секунды призрачный инструмент повторяет успешный удар ближнего боя на прежнем месте с 40% урона. Эхо не запускает другие боевые пассивки.",
-    "EN": "After 0.5 seconds, a ghost tool repeats a successful melee strike at its original location for 40% damage. Echoes cannot trigger other combat passives.",
+    "SourceText": "Через 0,5 с эхо повторяет удар ближнего боя на том же месте с 40% урона. Эхо не запускает боевые пассивки.",
+    "RU": "Через 0,5 с эхо повторяет удар ближнего боя на том же месте с 40% урона. Эхо не запускает боевые пассивки.",
+    "EN": "After 0.5s, a ghost repeats your melee hit in place for 40% damage. Echoes cannot trigger combat passives.",
     "Context": "Current event passives"
   },
   {
@@ -15144,9 +15144,9 @@
     "Name": "UI.Skill.Catalog.B2_Billiards.Description",
     "Localizations": {},
     "AdditionalLanguages": {},
-    "SourceText": "Удары отталкивают малых врагов. В течение 1 секунды столкновение такого врага с другим наносит 30% исходного урона, один раз каждой цели. Боссы не отталкиваются.",
-    "RU": "Удары отталкивают малых врагов. В течение 1 секунды столкновение такого врага с другим наносит 30% исходного урона, один раз каждой цели. Боссы не отталкиваются.",
-    "EN": "Your strikes launch small enemies. For 1 second, collisions deal 30% of the original damage once per target. Bosses cannot be launched.",
+    "SourceText": "Удары отбрасывают малых врагов. На 1 с столкновения наносят 30% урона удара, по разу на цель. Боссы не отбрасываются.",
+    "RU": "Удары отбрасывают малых врагов. На 1 с столкновения наносят 30% урона удара, по разу на цель. Боссы не отбрасываются.",
+    "EN": "Hits launch small foes. For 1s, impacts deal 30% of hit damage once per target. Bosses cannot be launched.",
     "Context": "Current event passives"
   },
   {
@@ -15180,9 +15180,9 @@
     "Name": "UI.Skill.Catalog.B2_Antiseptic.Description",
     "Localizations": {},
     "AdditionalLanguages": {},
-    "SourceText": "Спрей также удаляет грязь. Распыление до 3 секунд, затем перезарядка 2,6 секунды (+30% к базе 2 секунды). При раннем отпускании перезарядка начинается сразу; удержание ЛКМ повторяет распыление после готовности.",
-    "RU": "Спрей также удаляет грязь. Распыление до 3 секунд, затем перезарядка 2,6 секунды (+30% к базе 2 секунды). При раннем отпускании перезарядка начинается сразу; удержание ЛКМ повторяет распыление после готовности.",
-    "EN": "Spray also removes dirt. Spray for up to 3 seconds, then reload for 2.6 seconds (+30% over the 2-second base). Releasing early starts the reload immediately; holding primary resumes spraying when ready.",
+    "SourceText": "Спрей чистит грязь до 3 с. Перезарядка 2,6 с (+30%). Отпусти для ранней перезарядки. Удерживай для повтора.",
+    "RU": "Спрей чистит грязь до 3 с. Перезарядка 2,6 с (+30%). Отпусти для ранней перезарядки. Удерживай для повтора.",
+    "EN": "Spray cleans dirt for up to 3s. Reload takes 2.6s (+30%). Release to reload early. Hold to repeat.",
     "Context": "Current event passives"
   },
   {
@@ -15198,9 +15198,9 @@
     "Name": "UI.Skill.Catalog.B2_LastingFormula.Description",
     "Localizations": {},
     "AdditionalLanguages": {},
-    "SourceText": "ОПАСНОЕ ПОКРЫТИЕ. Состав продолжает чистить 3 секунды с эффективностью 30%. Покрытие остаётся всего 10 секунд от последнего нанесения и наносит 5 HP/сек обычным врагам и всем игрокам, включая владельца. Зубы и боссы не повреждаются.",
-    "RU": "ОПАСНОЕ ПОКРЫТИЕ. Состав продолжает чистить 3 секунды с эффективностью 30%. Покрытие остаётся всего 10 секунд от последнего нанесения и наносит 5 HP/сек обычным врагам и всем игрокам, включая владельца. Зубы и боссы не повреждаются.",
-    "EN": "DANGEROUS COATING. Residue cleans for 3 seconds at 30% efficiency. It remains for 10 seconds total after the last local application and deals 5 HP/sec to ordinary enemies and all players, including its owner. Teeth and bosses are unaffected.",
+    "SourceText": "Покрытие чистит 3 с на 30%. Держится 10 с с нанесения, наносит 5 HP/с обычным врагам и всем игрокам, включая тебя. Зубы и боссы целы.",
+    "RU": "Покрытие чистит 3 с на 30%. Держится 10 с с нанесения, наносит 5 HP/с обычным врагам и всем игрокам, включая тебя. Зубы и боссы целы.",
+    "EN": "Coating cleans for 3s at 30%. Lasts 10s from application, dealing 5 HP/s to regular foes and all players, even you. Teeth and bosses are safe.",
     "Context": "Current event passives"
   },
   {
@@ -15252,9 +15252,9 @@
     "Name": "UI.Skill.Catalog.Consumable_Grenade.Description",
     "Localizations": {},
     "AdditionalLanguages": {},
-    "SourceText": "Удерживай кнопку слота, чтобы взвести; отпусти, чтобы бросить. Передержанная граната выпадает и взрывается. Опасна и для союзников. 3 заряда.",
-    "RU": "Удерживай кнопку слота, чтобы взвести; отпусти, чтобы бросить. Передержанная граната выпадает и взрывается. Опасна и для союзников. 3 заряда.",
-    "EN": "Hold the slot key to arm; release to throw. Hold too long and the live grenade drops. The blast can hit allies. 3 charges.",
+    "SourceText": "Держи кнопку для взвода, отпусти для броска. Передержишь — граната выпадет взведённой. Задевает союзников. 3 заряда.",
+    "RU": "Держи кнопку для взвода, отпусти для броска. Передержишь — граната выпадет взведённой. Задевает союзников. 3 заряда.",
+    "EN": "Hold to arm. Release to throw. Hold too long and it drops live. The blast can hit allies. 3 charges.",
     "Context": "Current event passives"
   },
   {
@@ -15270,9 +15270,9 @@
     "Name": "UI.Skill.Catalog.Consumable_Air.Description",
     "Localizations": {},
     "AdditionalLanguages": {},
-    "SourceText": "Удерживай кнопку слота — всасывай нарезанную еду. Отпусти — выдувай. Заполненный мешок предупреждает, затем лопается, если продолжать. 2 заряда.",
-    "RU": "Удерживай кнопку слота — всасывай нарезанную еду. Отпусти — выдувай. Заполненный мешок предупреждает, затем лопается, если продолжать. 2 заряда.",
-    "EN": "Hold this slot key to suck up cut food; release to blow it out. A full bag warns, then bursts if you keep sucking. 2 charges.",
+    "SourceText": "Удерживай, чтобы втянуть кусочки еды. Отпусти для выдува. Полный мешок предупредит и лопнет при переполнении. 2 заряда.",
+    "RU": "Удерживай, чтобы втянуть кусочки еды. Отпусти для выдува. Полный мешок предупредит и лопнет при переполнении. 2 заряда.",
+    "EN": "Hold to suck up cut food. Release to blow. Full bag warns and bursts if overfilled. 2 charges.",
     "Context": "Current event passives"
   },
   {

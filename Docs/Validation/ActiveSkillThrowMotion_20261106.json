@@ -1,0 +1,58 @@
+{
+  "status": "solo_PIE_and_contacts_passed_visual_review_requested",
+  "editorBuild": {
+    "result": "Succeeded",
+    "seconds": 31.28,
+    "log": "E:\\CodexWork\\MessControl\\Validation\\ThrowMotion_20261106\\EditorBuildContactDriver.log"
+  },
+  "nativeAutomation": {
+    "name": "MessControl.ActiveSkills.Combat.GrenadeLastChargeReleaseOverholdAndDeath",
+    "result": "Success",
+    "log": "E:\\CodexWork\\MessControl\\Validation\\ThrowMotion_20261106\\FinalEditor\\Editor.log"
+  },
+  "scope": [
+    "Actual solo L_Mouth with native Enhanced Input and a controlled allied Hook target.",
+    "Hook prop appears for the aiming player before the committed action.",
+    "Hook boss and remote-client presentation were outside the recorded cases."
+  ],
+  "readiness": "Existing active skill resources remained in the Arena manifest. Arena prewarm completed with 1811 resources and 539/539 streaming in the recorded runs.",
+  "captureRecipe": "E:\\CodexWork\\MessControl\\Validation\\ThrowMotion_20261106\\CaptureThrowMotion.py",
+  "cases": {
+    "Hook": {
+      "gif": "E:/CodexWork/MessControl/Validation/ThrowMotion_20261106/Runs/HookThrow_20261106T113310Z/Hook_Aim_Review.gif",
+      "sha256": "96ca1589af54564d3bd35b36702f4ebfc765d56563349f305b16e24af9911b4f",
+      "gameplayChecks": 15,
+      "contactChecks": 16,
+      "rightWristError": {
+        "AimReady": {
+          "positionCm": 5.448821428784938e-07,
+          "rotationDeg": 0.0
+        },
+        "Windup": {
+          "positionCm": 5.44882173037822e-07,
+          "rotationDeg": 0.0
+        }
+      },
+      "gameplayReport": "E:/CodexWork/MessControl/Validation/ThrowMotion_20261106/Runs/HookThrow_20261106T113310Z/Report.json",
+      "poseEvidence": "E:/CodexWork/MessControl/Validation/ThrowMotion_20261106/Runs/HookContacts_20261106T113527Z/PosePhases.json"
+    },
+    "Grenade": {
+      "gif": "E:/CodexWork/MessControl/Validation/ThrowMotion_20261106/Runs/GrenadeThrow_20261106T113447Z/Grenade_Aim_Review.gif",
+      "sha256": "9e9a469f4520ee747fd20f0b106ad9bed3395f254755241872b1931e5487eeef",
+      "gameplayChecks": 12,
+      "contactChecks": 13,
+      "rightWristError": {
+        "CookBeforeRelease": {
+          "positionCm": 5.448821388183816e-07,
+          "rotationDeg": 0.0
+        },
+        "ReleaseStroke": {
+          "positionCm": 5.448821472555903e-07,
+          "rotationDeg": 0.0
+        }
+      },
+      "gameplayReport": "E:/CodexWork/MessControl/Validation/ThrowMotion_20261106/Runs/GrenadeThrow_20261106T113447Z/Report.json",
+      "poseEvidence": "E:/CodexWork/MessControl/Validation/ThrowMotion_20261106/Runs/GrenadeContacts_20261106T113604Z/PosePhases.json"
+    }
+  }
+}
